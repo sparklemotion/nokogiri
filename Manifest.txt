@@ -1,0 +1,7 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+bin/kapow
+lib/kapow.rb
+test/test_kapow.rb
