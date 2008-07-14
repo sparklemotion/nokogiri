@@ -2,11 +2,6 @@ require 'test/unit'
 require 'nokogiri'
 
 class NokogiriTest < Test::Unit::TestCase
-  def test_new
-    kp = Nokogiri.new
-    assert kp
-  end
-
   def test_read_memory
     assert Nokogiri.parse('<html><body></body></html>')
   end
