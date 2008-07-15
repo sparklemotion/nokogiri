@@ -2,7 +2,7 @@ require 'mkmf'
 
 module NokogiriLib
   extend DL::Importable
-  dlload "libxml2.#{Config::CONFIG['DLEXT']}"
+  dlload('libxml2.so') rescue dlload('libxml2.dylib')
   extern "P xmlNewParserCtxt()"
   extern "I xmlParseDocument (P)"
 
@@ -14,13 +14,13 @@ module NokogiriLib
 
   module Tree
     extend DL::Importable
-    dlload "libxml2.#{Config::CONFIG['DLEXT']}"
+    dlload('libxml2.so') rescue dlload('libxml2.dylib')
     extern "P xmlDocGetRootElement (P)" 
   end
 
   module Node
     extend DL::Importable
-    dlload "libxml2.#{Config::CONFIG['DLEXT']}"
+    dlload('libxml2.so') rescue dlload('libxml2.dylib')
     extern "P xmlHasProp (P, P)" 
     extern "P xmlGetProp (P, P)" 
     extern "I xmlIsBlankNode (P)" 
