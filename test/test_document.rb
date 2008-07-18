@@ -8,7 +8,8 @@ class DocumentTest < Nokogiri::TestCase
     assert @html.html?
   end
 
-  #def test_search
-  #  @xml.search('//employee')
-  #end
+  def test_search
+    employees = @xml.search('//employee')
+    assert_equal(5, employees.length)
+  end
 end

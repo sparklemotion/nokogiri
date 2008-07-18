@@ -23,4 +23,8 @@ module NokogiriLib
   extern "P xmlGetProp (P, P)" 
   extern "I xmlIsBlankNode (P)" 
   extern "P xmlNodeGetContent (P)"
+
+  # XPath
+  extern "P xmlXPathNewContext (P)"
+  extern "P xmlXPathEvalExpression (P, P)"
 end
