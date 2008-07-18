@@ -22,28 +22,37 @@ module Nokogiri
     XML_XINCLUDE_END = 20
     XML_DOCB_DOCUMENT_NODE = 21
 
-    TYPE = ['PISPPPPPPPP',
-      :private, :type, :name, :children, :last, :parent, :next, :prev, :doc, :ns, :content]
-    def initialize(ptr)
-      @ptr = ptr
-      @ptr.struct!(*TYPE)
+    class << self
+      def wrap(ptr)
+        ptr.struct!('PISPPPPPP', :private, :type, :name, :children, :last, :parent, :next, :prev, :doc)
+        new() { |doc| doc.ptr = ptr }
+      end
     end
 
-    def name; @ptr[:name].to_s; end
-    def child; Node.new(@ptr[:children]); end
-    def next; Node.new(@ptr[:next]); end
-    def content; @ptr[:content].to_s; end
+    def initialize
+      yield self if block_given?
+    end
+
+    attr_accessor :ptr
+
+    def name; ptr[:name].to_s; end
+    def child; Node.wrap(ptr[:children]); end
+    def next; Node.wrap(ptr[:next]); end
+
+    def content
+      NokogiriLib.xmlNodeGetContent(ptr).to_s
+    end
 
     def [](property)
       property = NokogiriLib.xmlGetProp(
-        @ptr,
+        ptr,
         NokogiriLib.xmlCharStrdup(property.to_s)
       )
       property && property.to_s
     end
 
     def blank?
-      1 == NokogiriLib.xmlIsBlankNode(@ptr)
+      1 == NokogiriLib.xmlIsBlankNode(ptr)
     end
   end
 end

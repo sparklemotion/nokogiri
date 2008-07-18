@@ -22,4 +22,5 @@ module NokogiriLib
   extern "P xmlHasProp (P, P)" 
   extern "P xmlGetProp (P, P)" 
   extern "I xmlIsBlankNode (P)" 
+  extern "P xmlNodeGetContent (P)"
 end

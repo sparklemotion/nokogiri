@@ -2,6 +2,8 @@ require 'dl/import'
 require 'nokogiri_lib'
 require 'nokogiri/node'
 require 'nokogiri/document'
+require 'nokogiri/xml'
+require 'nokogiri/html'
 
 module Nokogiri
   VERSION = '1.0.0'
@@ -10,23 +12,10 @@ module Nokogiri
     def parse(string, url = nil, encoding = nil, options = 32)
       doc =
         if string =~ /^\s*<[^Hh>]*html/i # Probably html
-          NokogiriLib.htmlReadMemory(
-                                     string,
-                                     string.length,
-                                     url || 0,
-                                     encoding || 0,
-                                     options
-                                    )
+          Nokogiri::HTML.parse(string, url, encoding, options)
         else
-          NokogiriLib.xmlReadMemory(
-                                     string,
-                                     string.length,
-                                     url || 0,
-                                     encoding || 0,
-                                     options
-                                    )
+          Nokogiri::XML.parse(string, url, encoding, options)
         end
-      doc = Document.wrap(doc)
       yield doc if block_given?
       doc
     end

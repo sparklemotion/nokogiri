@@ -1,11 +1,6 @@
-require 'test/unit'
-require 'nokogiri'
+require 'helper'
 
-class NokogiriTest < Test::Unit::TestCase
-  DIR = File.join(File.dirname(__FILE__), 'files')
-  XML_FILE = File.join(DIR, 'staff.xml')
-  HTML_FILE = File.join(DIR, 'tlm.html')
-
+class NokogiriTest < Nokogiri::TestCase
   def test_xml?
     doc = Nokogiri.parse(File.read(XML_FILE))
     assert doc.xml?
