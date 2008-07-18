@@ -12,17 +12,11 @@ module NokogiriLib
   extern "P htmlCreateMemoryParserCtxt(c, I)"
   extern "P xmlCharStrdup(S)"
 
-  module Tree
-    extend DL::Importable
-    dlload('libxml2.so') rescue dlload('libxml2.dylib')
-    extern "P xmlDocGetRootElement (P)" 
-  end
+  # Tree
+  extern "P xmlDocGetRootElement (P)" 
 
-  module Node
-    extend DL::Importable
-    dlload('libxml2.so') rescue dlload('libxml2.dylib')
-    extern "P xmlHasProp (P, P)" 
-    extern "P xmlGetProp (P, P)" 
-    extern "I xmlIsBlankNode (P)" 
-  end
+  # Node
+  extern "P xmlHasProp (P, P)" 
+  extern "P xmlGetProp (P, P)" 
+  extern "I xmlIsBlankNode (P)" 
 end

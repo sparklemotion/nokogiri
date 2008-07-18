@@ -13,7 +13,7 @@ module Nokogiri
     def content; @ptr[:content].to_s; end
 
     def [](property)
-      property = NokogiriLib::Node.xmlGetProp(
+      property = NokogiriLib.xmlGetProp(
         @ptr,
         NokogiriLib.xmlCharStrdup(property.to_s)
       )
@@ -21,7 +21,7 @@ module Nokogiri
     end
 
     def blank?
-      1 == NokogiriLib::Node.xmlIsBlankNode(@ptr)
+      1 == NokogiriLib.xmlIsBlankNode(@ptr)
     end
   end
 end

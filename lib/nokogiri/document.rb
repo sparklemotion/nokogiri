@@ -5,7 +5,7 @@ module Nokogiri
     end
 
     def root
-      Node.new(NokogiriLib::Tree.xmlDocGetRootElement(@ptr))
+      Node.new(NokogiriLib.xmlDocGetRootElement(@ptr))
     end
   end
 end
