@@ -2,6 +2,23 @@ require 'test/unit'
 require 'nokogiri'
 
 class NokogiriTest < Test::Unit::TestCase
+  DIR = File.join(File.dirname(__FILE__), 'files')
+  XML_FILE = File.join(DIR, 'staff.xml')
+  HTML_FILE = File.join(DIR, 'tlm.html')
+
+  def test_xml?
+    doc = Nokogiri.parse(File.read(XML_FILE))
+    assert doc.xml?
+    assert !doc.html?
+  end
+
+  def test_html?
+    Nokogiri.parse(File.read(HTML_FILE)) do |doc|
+      assert doc.html?
+      assert !doc.xml?
+    end
+  end
+
   def test_read_memory
     assert Nokogiri.parse('<html><body></body></html>')
   end
