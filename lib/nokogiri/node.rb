@@ -1,5 +1,7 @@
 module Nokogiri
   class Node
+    include Comparable
+
     XML_ELEMENT_NODE = 1
     XML_ATTRIBUTE_NODE = 2
     XML_TEXT_NODE = 3
@@ -53,6 +55,10 @@ module Nokogiri
 
     def blank?
       1 == NokogiriLib.xmlIsBlankNode(ptr)
+    end
+
+    def <=>(other)
+      ptr <=> other.ptr
     end
   end
 end

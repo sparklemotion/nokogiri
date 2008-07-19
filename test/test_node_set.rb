@@ -6,6 +6,12 @@ class NodeSetTest < Nokogiri::TestCase
     assert @xml.xml?
   end
 
+  def test_index
+    employees = @xml.search('//employee')
+    employee = employees[0]
+    assert_equal('employee', employee.name)
+  end
+
   def test_each
     employees = @xml.search('//employee')
     assert_equal(5, employees.length)

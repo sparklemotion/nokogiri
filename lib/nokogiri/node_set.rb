@@ -14,8 +14,16 @@ module Nokogiri
       yield self if block_given?
     end
 
+    def first
+      self.[](0)
+    end
+
+    def [](index)
+      Node.wrap(to_ptr_a[index])
+    end
+
     def each(&block)
-      ptr[:node_ptr].to_a('P', ptr[:length]).each do |node_ptr|
+      to_ptr_a.each do |node_ptr|
         block.call(Node.wrap(node_ptr))
       end
     end
@@ -31,6 +39,11 @@ module Nokogiri
 
     def length
       ptr[:length]
+    end
+
+    private
+    def to_ptr_a
+      @ptr_a ||= ptr[:node_ptr].to_a('P', ptr[:length])
     end
   end
 end
