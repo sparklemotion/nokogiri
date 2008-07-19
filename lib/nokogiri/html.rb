@@ -5,8 +5,8 @@ module Nokogiri
         Document.wrap(NokogiriLib.htmlReadMemory(
                                    string,
                                    string.length,
-                                   url || 0,
-                                   encoding || 0,
+                                   url,
+                                   encoding,
                                    options
                                   ))
       end

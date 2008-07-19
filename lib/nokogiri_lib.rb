@@ -1,30 +1,31 @@
+require 'dl/import'
 require 'mkmf'
 
 module NokogiriLib
-  extend DL::Importable
+  begin
+    extend DL::Importable
+  rescue
+    extend DL::Importer
+  end
   dlload('libxml2.so') rescue dlload('libxml2.dylib')
 
   # Parser
-  extern "P htmlReadMemory (S, I, c, c, I)"
-  extern "P xmlReadMemory (S, I, c, c, I)"
-  extern "P xmlNewParserCtxt()"
-  extern "I xmlParseDocument (P)"
+  extern "void * htmlReadMemory (const char *, int, const char *, const char *, int)"
+  extern "void * xmlReadMemory (const char *, int, const char *, const char *, int)"
 
-  extern "P htmlCtxtReadMemory (P, c, I, c, c, I)"
-  extern "I htmlParseDocument (P)"
-  extern "P htmlCreateMemoryParserCtxt(c, I)"
-  extern "P xmlCharStrdup(S)"
+  # Util
+  extern "void * xmlCharStrdup(const char *)"
 
   # Tree
-  extern "P xmlDocGetRootElement (P)" 
+  extern "void * xmlDocGetRootElement (void *)"
 
   # Node
-  extern "P xmlHasProp (P, P)" 
-  extern "P xmlGetProp (P, P)" 
-  extern "I xmlIsBlankNode (P)" 
-  extern "P xmlNodeGetContent (P)"
+  extern "void * xmlHasProp (void *, void *)"
+  extern "void * xmlGetProp (void *, void *)"
+  extern "int xmlIsBlankNode (void *)"
+  extern "void * xmlNodeGetContent (void *)"
 
   # XPath
-  extern "P xmlXPathNewContext (P)"
-  extern "P xmlXPathEvalExpression (P, P)"
+  extern "void * xmlXPathNewContext (void *)"
+  extern "void * xmlXPathEvalExpression (void *, void *)"
 end

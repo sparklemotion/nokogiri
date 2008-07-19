@@ -1,4 +1,3 @@
-require 'dl/import'
 require 'nokogiri_lib'
 require 'nokogiri/node'
 require 'nokogiri/node_set'
