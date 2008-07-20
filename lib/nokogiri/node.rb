@@ -58,6 +58,7 @@ module Nokogiri
       xpath_obj.struct!('PP', :type, :nodeset)
       NodeSet.wrap(xpath_obj[:nodeset], xpath_ctx)
     end
+    alias :/ :search
 
     def [](property)
       property = NokogiriLib.xmlGetProp(
@@ -66,6 +67,11 @@ module Nokogiri
       )
       property && property.to_s
     end
+
+    def has_property?(attribute)
+      NokogiriLib.xmlHasProp(ptr, NokogiriLib.xmlCharStrdup(attribute.to_s))
+    end
+    alias :has_attribute? :has_property?
 
     def blank?
       1 == NokogiriLib.xmlIsBlankNode(ptr)

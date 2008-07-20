@@ -6,6 +6,17 @@ class NodeTest < Nokogiri::TestCase
     assert @xml.xml?
   end
 
+  def test_find_non_existant
+    assert_nil @xml.search('/akjdhflkajsdhf').first
+  end
+
+  def test_has_attribute?
+    address = @xml.search('//address').first
+    assert address
+    assert address.has_attribute?('domestic')
+    assert !address.has_attribute?('asdfasdf')
+  end
+
   def test_path
     employee = @xml.search('//employee').first
     assert employee.path

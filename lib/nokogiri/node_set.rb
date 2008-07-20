@@ -19,7 +19,7 @@ module Nokogiri
     end
 
     def [](index)
-      Node.wrap(to_ptr_a[index])
+      (node_ptr = to_ptr_a[index]) && Node.wrap(node_ptr)
     end
 
     def each(&block)
@@ -43,7 +43,7 @@ module Nokogiri
 
     private
     def to_ptr_a
-      @ptr_a ||= ptr[:node_ptr].to_a('P', ptr[:length])
+      @ptr_a ||= (ptr[:node_ptr] ? ptr[:node_ptr].to_a('P', ptr[:length]) : [])
     end
   end
 end
