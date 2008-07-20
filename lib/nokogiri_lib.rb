@@ -18,6 +18,7 @@ module NokogiriLib
 
   # Tree
   extern "void * xmlDocGetRootElement (void *)"
+  extern "void * xmlDocSetRootElement (void *, void *)"
 
   # Node
   extern "void * xmlHasProp (void *, void *)"
@@ -26,6 +27,9 @@ module NokogiriLib
   extern "int xmlIsBlankNode (void *)"
   extern "void * xmlNodeGetContent (void *)"
   extern "void * xmlGetNodePath (void *)"
+  extern "void * xmlNewNode (void *, void *)"
+  extern "void * xmlNewDoc (void *)"
+  extern "void * htmlNewDoc (void *, void *)"
 
   # XPath
   extern "void xmlXPathInit ()"

@@ -26,16 +26,18 @@ module Nokogiri
 
     class << self
       def wrap(ptr)
-        ptr.struct!('PISPPPPPP', :private, :type, :name, :children, :last, :parent, :next, :prev, :doc)
         new() { |doc| doc.ptr = ptr }
       end
     end
 
-    def initialize
+    def initialize(type = nil)
       yield self if block_given?
+      self.ptr ||= NokogiriLib.xmlNewNode(nil, NokogiriLib.xmlCharStrdup(type))
+      self.ptr.struct!('PISPPPPPP', :private, :type, :name, :children, :last, :parent, :next, :prev, :doc)
     end
 
     attr_accessor :ptr
+    alias :to_ptr :ptr
 
     def name; ptr[:name].to_s; end
     def child; Node.wrap(ptr[:children]); end
@@ -80,16 +82,27 @@ module Nokogiri
     end
 
     def has_property?(attribute)
-      NokogiriLib.xmlHasProp(ptr, NokogiriLib.xmlCharStrdup(attribute.to_s))
+      !property(attribute).nil?
     end
     alias :has_attribute? :has_property?
+
+    def property(attribute)
+      NokogiriLib.xmlHasProp(ptr, NokogiriLib.xmlCharStrdup(attribute.to_s))
+    end
 
     def blank?
       1 == NokogiriLib.xmlIsBlankNode(ptr)
     end
 
     def root
-      Node.wrap(NokogiriLib.xmlDocGetRootElement(ptr[:doc]))
+      return nil unless ptr[:doc]
+
+      root_element = NokogiriLib.xmlDocGetRootElement(ptr[:doc])
+      root_element && Node.wrap(root_element)
+    end
+
+    def root=(root_node)
+      NokogiriLib.xmlDocSetRootElement(ptr[:doc], root_node)
     end
 
     def root?

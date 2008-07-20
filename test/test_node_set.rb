@@ -22,7 +22,7 @@ class NodeSetTest < Nokogiri::TestCase
 
   def test_inner_text
     employees = @xml.search('//employee')
-    puts employees.content
+    assert employees.content
   end
 
   def test_search

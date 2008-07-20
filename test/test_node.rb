@@ -6,6 +6,11 @@ class NodeTest < Nokogiri::TestCase
     assert @xml.xml?
   end
 
+  def test_new_node
+    node = Nokogiri::Node.new('form')
+    assert_nil node.root
+  end
+
   def test_root?
     root = @xml.root
     assert @xml.root?
