@@ -41,6 +41,11 @@ module Nokogiri
       ptr[:length]
     end
 
+    def content
+      map { |x| x.content }.join
+    end
+    alias :inner_text :content
+
     private
     def to_ptr_a
       @ptr_a ||= (ptr[:node_ptr] ? ptr[:node_ptr].to_a('P', ptr[:length]) : [])

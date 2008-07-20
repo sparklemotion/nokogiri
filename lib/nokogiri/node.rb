@@ -44,17 +44,20 @@ module Nokogiri
     def content
       NokogiriLib.xmlNodeGetContent(ptr).to_s
     end
+    alias :inner_text :content
 
     def path
       NokogiriLib.xmlGetNodePath(ptr).to_s
     end
 
-    def search(path)
+    def search(search_path)
+      NokogiriLib.xmlXPathInit
       xpath_ctx = NokogiriLib.xmlXPathNewContext(ptr)
       xpath_obj = NokogiriLib.xmlXPathEvalExpression(
-        NokogiriLib.xmlCharStrdup(path),
+        NokogiriLib.xmlCharStrdup(search_path),
         xpath_ctx
       )
+      return [] unless xpath_obj
       xpath_obj.struct!('PP', :type, :nodeset)
       NodeSet.wrap(xpath_obj[:nodeset], xpath_ctx)
     end
@@ -68,6 +71,14 @@ module Nokogiri
       property && property.to_s
     end
 
+    def []=(name, value)
+      NokogiriLib.xmlSetProp(
+        ptr,
+        NokogiriLib.xmlCharStrdup(name.to_s),
+        NokogiriLib.xmlCharStrdup(value.to_s)
+      )
+    end
+
     def has_property?(attribute)
       NokogiriLib.xmlHasProp(ptr, NokogiriLib.xmlCharStrdup(attribute.to_s))
     end
@@ -78,7 +89,11 @@ module Nokogiri
     end
 
     def root
-      Node.wrap(NokogiriLib.xmlDocGetRootElement(ptr))
+      Node.wrap(NokogiriLib.xmlDocGetRootElement(ptr[:doc]))
+    end
+
+    def root?
+      self.<=>(self.root)
     end
 
     def xml?

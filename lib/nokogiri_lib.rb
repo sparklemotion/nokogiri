@@ -22,11 +22,14 @@ module NokogiriLib
   # Node
   extern "void * xmlHasProp (void *, void *)"
   extern "void * xmlGetProp (void *, void *)"
+  extern "void * xmlSetProp (void *, void *, void*)"
   extern "int xmlIsBlankNode (void *)"
   extern "void * xmlNodeGetContent (void *)"
   extern "void * xmlGetNodePath (void *)"
 
   # XPath
+  extern "void xmlXPathInit ()"
   extern "void * xmlXPathNewContext (void *)"
   extern "void * xmlXPathEvalExpression (void *, void *)"
+  extern "void xmlXPathFreeObject(void *)"
 end

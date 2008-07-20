@@ -20,6 +20,11 @@ class NodeSetTest < Nokogiri::TestCase
     end
   end
 
+  def test_inner_text
+    employees = @xml.search('//employee')
+    puts employees.content
+  end
+
   def test_search
     employees = @xml.search('//employee')
     assert_equal(5, employees.length)

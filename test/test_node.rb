@@ -6,6 +6,16 @@ class NodeTest < Nokogiri::TestCase
     assert @xml.xml?
   end
 
+  def test_root?
+    root = @xml.root
+    assert @xml.root?
+  end
+
+  def test_inner_text
+    position = @xml.search('//position').first
+    assert_equal('Accountant', position.inner_text)
+  end
+
   def test_find_non_existant
     assert_nil @xml.search('/akjdhflkajsdhf').first
   end
@@ -32,7 +42,14 @@ class NodeTest < Nokogiri::TestCase
 
   def test_search
     employee = @xml.search('//employee').first
-    salaries = employee.search('//salary')
+    salaries = employee.search('/salary')
     assert_equal(1, salaries.length)
+  end
+
+  def test_property_set
+    employee = @xml.search('//employee').first
+    employee['href'] = 'blah blah'
+    employee = @xml.search('//employee').first
+    assert_equal('blah blah', employee['href'])
   end
 end
