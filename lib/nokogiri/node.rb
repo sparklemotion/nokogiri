@@ -117,6 +117,14 @@ module Nokogiri
       ptr[:type] == XML_HTML_DOCUMENT_NODE
     end
 
+    def to_html
+      raise "No document set" unless ptr[:doc]
+      msgpt = DL.malloc(DL.sizeof('P'))
+      sizep = DL.malloc(DL.sizeof('I'))
+      NokogiriLib.htmlDocDumpMemory(ptr[:doc], msgpt.ref, sizep)
+      msgpt.to_s
+    end
+
     def <=>(other)
       ptr <=> other.ptr
     end

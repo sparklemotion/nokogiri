@@ -30,6 +30,7 @@ module NokogiriLib
   extern "void * xmlNewNode (void *, void *)"
   extern "void * xmlNewDoc (void *)"
   extern "void * htmlNewDoc (void *, void *)"
+  extern "void * htmlDocDumpMemory (void *, void *, int *)"
 
   # XPath
   extern "void xmlXPathInit ()"
