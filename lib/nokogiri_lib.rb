@@ -24,6 +24,7 @@ module NokogiriLib
   extern "void * xmlGetProp (void *, void *)"
   extern "int xmlIsBlankNode (void *)"
   extern "void * xmlNodeGetContent (void *)"
+  extern "void * xmlGetNodePath (void *)"
 
   # XPath
   extern "void * xmlXPathNewContext (void *)"
