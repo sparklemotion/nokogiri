@@ -6,6 +6,13 @@ class NodeTest < Nokogiri::TestCase
     assert @xml.xml?
   end
 
+  def test_set_content
+    position = @xml.search('//position').first
+    assert_equal('Accountant', position.inner_text)
+    position.content = 'Hello World'
+    assert_equal('Hello World', position.inner_text)
+  end
+
   def test_new_node
     node = Nokogiri::Node.new('form')
     assert_nil node.root

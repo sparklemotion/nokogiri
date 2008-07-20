@@ -34,6 +34,18 @@ class DocumentTest < Nokogiri::TestCase
     assert_equal(node.root, node)
   end
 
+  def test_to_xml
+    xml = Nokogiri::Document.new
+    node = Nokogiri::Node.new('form')
+
+    assert_raises(RuntimeError) {
+      node.to_xml
+    }
+    xml.root = node
+    assert_match(/<form\/>/, node.to_xml)
+    assert_equal(xml.to_xml, node.to_xml)
+  end
+
   def test_to_html
     html = Nokogiri::Document.new(:html)
     node = Nokogiri::Node.new('form')

@@ -48,6 +48,11 @@ module Nokogiri
     end
     alias :inner_text :content
 
+    def content=(the_content)
+      NokogiriLib.xmlNodeSetContent(self,
+                                    NokogiriLib.xmlCharStrdup(the_content))
+    end
+
     def path
       NokogiriLib.xmlGetNodePath(ptr).to_s
     end
@@ -118,15 +123,24 @@ module Nokogiri
     end
 
     def to_html
-      raise "No document set" unless ptr[:doc]
-      msgpt = DL.malloc(DL.sizeof('P'))
-      sizep = DL.malloc(DL.sizeof('I'))
-      NokogiriLib.htmlDocDumpMemory(ptr[:doc], msgpt.ref, sizep)
-      msgpt.to_s
+      serialize(:html)
+    end
+
+    def to_xml
+      serialize(:xml)
     end
 
     def <=>(other)
       ptr <=> other.ptr
+    end
+
+    private
+    def serialize(type = :xml)
+      raise "No document set" unless ptr[:doc]
+      msgpt = DL.malloc(DL.sizeof('P'))
+      sizep = DL.malloc(DL.sizeof('I'))
+      NokogiriLib.send(:"#{type}DocDumpMemory", ptr[:doc], msgpt.ref, sizep)
+      msgpt.to_s
     end
   end
 end
