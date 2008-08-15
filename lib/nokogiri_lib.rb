@@ -1,12 +1,17 @@
 require 'dl/import'
+require 'dl/struct'
 require 'mkmf'
 
 module NokogiriLib
   begin
     extend DL::Importable
+    DL = 'dl'
   rescue
     extend DL::Importer
+    DL = 'dl2'
   end
+  class << self; def dl2?; DL == 'dl2'; end end
+
   dlload('libxml2.so') rescue dlload('libxml2.dylib')
 
   # Parser
@@ -25,6 +30,22 @@ module NokogiriLib
   extern "void * xmlDocDumpMemory (void *, void *, int *)"
 
   # Node
+  Node = struct [
+    'void * private',
+    'int type',
+    'char * name',
+    'void * children',
+    'void * last',
+    'void * parent',
+    'void * next',
+    'void * prev',
+    'void * doc',
+  ]
+  NodeSet = struct [
+    'int length',
+    'int max',
+    'void * node_ptr',
+  ]
   extern "void * xmlHasProp (void *, void *)"
   extern "void * xmlGetProp (void *, void *)"
   extern "void * xmlSetProp (void *, void *, void*)"
@@ -35,6 +56,10 @@ module NokogiriLib
   extern "void xmlNodeSetContent (void *, void *)"
 
   # XPath
+  XPath = struct [
+    'void * type',
+    'void * nodeset',
+  ]
   extern "void xmlXPathInit ()"
   extern "void * xmlXPathNewContext (void *)"
   extern "void * xmlXPathEvalExpression (void *, void *)"

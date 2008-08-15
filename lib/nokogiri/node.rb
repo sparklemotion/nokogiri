@@ -26,22 +26,23 @@ module Nokogiri
 
     class << self
       def wrap(ptr)
-        new() { |doc| doc.ptr = ptr }
+        new() { |doc| doc.ptr = NokogiriLib::Node.new(ptr) }
       end
     end
 
     def initialize(type = nil)
       yield self if block_given?
-      self.ptr ||= NokogiriLib.xmlNewNode(nil, NokogiriLib.xmlCharStrdup(type))
-      self.ptr.struct!('PISPPPPPP', :private, :type, :name, :children, :last, :parent, :next, :prev, :doc)
+      self.ptr ||=
+        NokogiriLib::Node.new(
+          NokogiriLib.xmlNewNode(nil, NokogiriLib.xmlCharStrdup(type))
+        )
     end
 
     attr_accessor :ptr
-    alias :to_ptr :ptr
 
-    def name; ptr[:name].to_s; end
-    def child; Node.wrap(ptr[:children]); end
-    def next; Node.wrap(ptr[:next]); end
+    def name; ptr.name.to_s; end
+    def child; Node.wrap(ptr.children); end
+    def next; Node.wrap(ptr.next); end
 
     def content
       NokogiriLib.xmlNodeGetContent(ptr).to_s
@@ -60,13 +61,14 @@ module Nokogiri
     def search(search_path)
       NokogiriLib.xmlXPathInit
       xpath_ctx = NokogiriLib.xmlXPathNewContext(ptr)
-      xpath_obj = NokogiriLib.xmlXPathEvalExpression(
-        NokogiriLib.xmlCharStrdup(search_path),
-        xpath_ctx
+      xpath_obj = NokogiriLib::XPath.new(
+        NokogiriLib.xmlXPathEvalExpression(
+          NokogiriLib.xmlCharStrdup(search_path),
+          xpath_ctx
+        )
       )
       return [] unless xpath_obj
-      xpath_obj.struct!('PP', :type, :nodeset)
-      NodeSet.wrap(xpath_obj[:nodeset], xpath_ctx)
+      NodeSet.wrap(xpath_obj.nodeset, xpath_ctx)
     end
     alias :/ :search
 
@@ -100,14 +102,14 @@ module Nokogiri
     end
 
     def root
-      return nil unless ptr[:doc]
+      return nil unless ptr.doc
 
-      root_element = NokogiriLib.xmlDocGetRootElement(ptr[:doc])
+      root_element = NokogiriLib.xmlDocGetRootElement(ptr.doc)
       root_element && Node.wrap(root_element)
     end
 
     def root=(root_node)
-      NokogiriLib.xmlDocSetRootElement(ptr[:doc], root_node)
+      NokogiriLib.xmlDocSetRootElement(ptr.doc, root_node)
     end
 
     def root?
@@ -115,11 +117,11 @@ module Nokogiri
     end
 
     def xml?
-      ptr[:type] == XML_DOCUMENT_NODE
+      ptr.type == XML_DOCUMENT_NODE
     end
 
     def html?
-      ptr[:type] == XML_HTML_DOCUMENT_NODE
+      ptr.type == XML_HTML_DOCUMENT_NODE
     end
 
     def to_html
@@ -131,15 +133,19 @@ module Nokogiri
     end
 
     def <=>(other)
-      ptr <=> other.ptr
+      ptr.to_ptr <=> other.to_ptr
+    end
+
+    def to_ptr
+      ptr.to_ptr
     end
 
     private
     def serialize(type = :xml)
-      raise "No document set" unless ptr[:doc]
+      raise "No document set" unless ptr.doc
       msgpt = DL.malloc(DL.sizeof('P'))
       sizep = DL.malloc(DL.sizeof('I'))
-      NokogiriLib.send(:"#{type}DocDumpMemory", ptr[:doc], msgpt.ref, sizep)
+      NokogiriLib.send(:"#{type}DocDumpMemory", ptr.doc, msgpt.ref, sizep)
       msgpt.to_s
     end
   end

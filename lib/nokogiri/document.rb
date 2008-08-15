@@ -4,15 +4,15 @@ module Nokogiri
     def initialize(type = :xml)
       yield self if block_given?
       unless self.ptr
-        self.ptr =
+        root =
           case type
           when :xml
             NokogiriLib.xmlNewDoc(NokogiriLib.xmlCharStrdup('1.0'))
           when :html
             NokogiriLib.htmlNewDoc(nil, nil)
           end
+        self.ptr = NokogiriLib::Node.new(root)
       end
-      self.ptr.struct!('PISPPPPPP', :private, :type, :name, :children, :last, :parent, :next, :prev, :doc)
     end
   end
 end

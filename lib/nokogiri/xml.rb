@@ -5,8 +5,8 @@ module Nokogiri
         Document.wrap(NokogiriLib.xmlReadMemory(
                                   string,
                                   string.length,
-                                  url,
-                                  encoding,
+                                  NokogiriLib.dl2? ? (url || 0) : url,
+                                  NokogiriLib.dl2? ? (encoding || 0) : encoding,
                                   options
                                  ))
       end

@@ -4,12 +4,12 @@ module Nokogiri
       def parse(string, url = nil, encoding = nil, options = 32)
         return Document.new if string.length == 0
         Document.wrap(NokogiriLib.htmlReadMemory(
-                                   string,
-                                   string.length,
-                                   url,
-                                   encoding,
-                                   options
-                                  ))
+          string,
+          string.length,
+          NokogiriLib.dl2? ? (url || 0) : url,
+          NokogiriLib.dl2? ? (encoding || 0) : encoding,
+          options
+        ))
       end
     end
   NamedCharacters =
