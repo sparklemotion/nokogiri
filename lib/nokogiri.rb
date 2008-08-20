@@ -1,3 +1,5 @@
+require 'nokogiri/version'
+require 'nokogiri/generated_interface'
 require 'nokogiri_lib'
 require 'nokogiri/node'
 require 'nokogiri/node_set'
@@ -6,7 +8,6 @@ require 'nokogiri/xml'
 require 'nokogiri/html'
 
 module Nokogiri
-  VERSION = '1.0.0'
 
   class << self
     def parse(string, url = nil, encoding = nil, options = 32)
