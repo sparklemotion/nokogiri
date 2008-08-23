@@ -1,6 +1,6 @@
 require 'nokogiri/version'
 require 'nokogiri/generated_interface'
-require 'nokogiri_lib'
+require 'nokogiri/dl/xml'
 require 'nokogiri/node'
 require 'nokogiri/node_set'
 require 'nokogiri/document'

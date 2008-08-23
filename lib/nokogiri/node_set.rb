@@ -5,7 +5,7 @@ module Nokogiri
 
     class << self
       def wrap(ptr, ctx)
-        ptr = NokogiriLib::XML::NodeSet.new(ptr)
+        ptr = DL::XML::NodeSet.new(ptr)
         new() { |doc| doc.ptr = ptr; doc.xpath_ctx = ctx }
       end
     end
@@ -29,9 +29,9 @@ module Nokogiri
     end
 
     def search(path)
-      xpath_obj = NokogiriLib::XML::XPath.new(
-        NokogiriLib::XML.xmlXPathEvalExpression(
-          NokogiriLib::XML.xmlCharStrdup(path),
+      xpath_obj = DL::XML::XPath.new(
+        DL::XML.xmlXPathEvalExpression(
+          DL::XML.xmlCharStrdup(path),
           xpath_ctx
         )
       )

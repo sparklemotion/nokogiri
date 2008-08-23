@@ -3,11 +3,11 @@ module Nokogiri
     class << self
       def parse(string, url = nil, encoding = nil, options = 32)
         return Document.new if string.length == 0
-        Document.wrap(NokogiriLib::XML.htmlReadMemory(
+        Document.wrap(DL::XML.htmlReadMemory(
           string,
           string.length,
-          NokogiriLib::XML.dl2? ? (url || 0) : url,
-          NokogiriLib::XML.dl2? ? (encoding || 0) : encoding,
+          DL::XML.dl2? ? (url || 0) : url,
+          DL::XML.dl2? ? (encoding || 0) : encoding,
           options
         ))
       end
