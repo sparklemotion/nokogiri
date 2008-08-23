@@ -1,6 +1,6 @@
 require 'helper'
 
-class NokogiriTest < Nokogiri::TestCase
+class TestNokogiri < Nokogiri::TestCase
   def test_xml?
     doc = Nokogiri.parse(File.read(XML_FILE))
     assert doc.xml?

@@ -2,11 +2,11 @@ module Nokogiri
   module XML
     class << self
       def parse(string, url = nil, encoding = nil, options = 1)
-        Document.wrap(NokogiriLib.xmlReadMemory(
+        Document.wrap(NokogiriLib::XML.xmlReadMemory(
                                   string,
                                   string.length,
-                                  NokogiriLib.dl2? ? (url || 0) : url,
-                                  NokogiriLib.dl2? ? (encoding || 0) : encoding,
+                                  NokogiriLib::XML.dl2? ? (url || 0) : url,
+                                  NokogiriLib::XML.dl2? ? (encoding || 0) : encoding,
                                   options
                                  ))
       end

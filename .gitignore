@@ -1,3 +1,4 @@
 .*.swp
 *.tmproj
 lib/nokogiri/generated_interface.rb
+tags

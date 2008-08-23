@@ -1,6 +1,6 @@
 require 'helper'
 
-class DocumentTest < Nokogiri::TestCase
+class TestDocument < Nokogiri::TestCase
   def setup
     @xml = Nokogiri::XML.parse(File.read(XML_FILE))
     @html = Nokogiri::HTML.parse(File.read(HTML_FILE))

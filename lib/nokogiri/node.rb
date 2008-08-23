@@ -15,15 +15,15 @@ module Nokogiri
 
     class << self
       def wrap(ptr)
-        new() { |doc| doc.ptr = NokogiriLib::Node.new(ptr) }
+        new() { |doc| doc.ptr = NokogiriLib::XML::Node.new(ptr) }
       end
     end
 
     def initialize(type = nil)
       yield self if block_given?
       self.ptr ||=
-        NokogiriLib::Node.new(
-          NokogiriLib.xmlNewNode(nil, NokogiriLib.xmlCharStrdup(type))
+        NokogiriLib::XML::Node.new(
+          NokogiriLib::XML.xmlNewNode(nil, NokogiriLib::XML.xmlCharStrdup(type))
         )
     end
 
@@ -34,25 +34,25 @@ module Nokogiri
     def next; Node.wrap(ptr.next); end
 
     def content
-      NokogiriLib.xmlNodeGetContent(ptr).to_s
+      NokogiriLib::XML.xmlNodeGetContent(ptr).to_s
     end
     alias :inner_text :content
 
     def content=(the_content)
-      NokogiriLib.xmlNodeSetContent(self,
-                                    NokogiriLib.xmlCharStrdup(the_content))
+      NokogiriLib::XML.xmlNodeSetContent(self,
+                                    NokogiriLib::XML.xmlCharStrdup(the_content))
     end
 
     def path
-      NokogiriLib.xmlGetNodePath(ptr).to_s
+      NokogiriLib::XML.xmlGetNodePath(ptr).to_s
     end
 
     def search(search_path)
-      NokogiriLib.xmlXPathInit
-      xpath_ctx = NokogiriLib.xmlXPathNewContext(ptr)
-      xpath_obj = NokogiriLib::XPath.new(
-        NokogiriLib.xmlXPathEvalExpression(
-          NokogiriLib.xmlCharStrdup(search_path),
+      NokogiriLib::XML.xmlXPathInit
+      xpath_ctx = NokogiriLib::XML.xmlXPathNewContext(ptr)
+      xpath_obj = NokogiriLib::XML::XPath.new(
+        NokogiriLib::XML.xmlXPathEvalExpression(
+          NokogiriLib::XML.xmlCharStrdup(search_path),
           xpath_ctx
         )
       )
@@ -62,18 +62,18 @@ module Nokogiri
     alias :/ :search
 
     def [](property)
-      property = NokogiriLib.xmlGetProp(
+      property = NokogiriLib::XML.xmlGetProp(
         ptr,
-        NokogiriLib.xmlCharStrdup(property.to_s)
+        NokogiriLib::XML.xmlCharStrdup(property.to_s)
       )
       property && property.to_s
     end
 
     def []=(name, value)
-      NokogiriLib.xmlSetProp(
+      NokogiriLib::XML.xmlSetProp(
         ptr,
-        NokogiriLib.xmlCharStrdup(name.to_s),
-        NokogiriLib.xmlCharStrdup(value.to_s)
+        NokogiriLib::XML.xmlCharStrdup(name.to_s),
+        NokogiriLib::XML.xmlCharStrdup(value.to_s)
       )
     end
 
@@ -83,22 +83,22 @@ module Nokogiri
     alias :has_attribute? :has_property?
 
     def property(attribute)
-      NokogiriLib.xmlHasProp(ptr, NokogiriLib.xmlCharStrdup(attribute.to_s))
+      NokogiriLib::XML.xmlHasProp(ptr, NokogiriLib::XML.xmlCharStrdup(attribute.to_s))
     end
 
     def blank?
-      1 == NokogiriLib.xmlIsBlankNode(ptr)
+      1 == NokogiriLib::XML.xmlIsBlankNode(ptr)
     end
 
     def root
       return nil unless ptr.doc
 
-      root_element = NokogiriLib.xmlDocGetRootElement(ptr.doc)
+      root_element = NokogiriLib::XML.xmlDocGetRootElement(ptr.doc)
       root_element && Node.wrap(root_element)
     end
 
     def root=(root_node)
-      NokogiriLib.xmlDocSetRootElement(ptr.doc, root_node)
+      NokogiriLib::XML.xmlDocSetRootElement(ptr.doc, root_node)
     end
 
     def root?
@@ -134,7 +134,7 @@ module Nokogiri
       raise "No document set" unless ptr.doc
       msgpt = DL.malloc(DL.sizeof('P'))
       sizep = DL.malloc(DL.sizeof('I'))
-      NokogiriLib.send(:"#{type}DocDumpMemory", ptr.doc, msgpt.ref, sizep)
+      NokogiriLib::XML.send(:"#{type}DocDumpMemory", ptr.doc, msgpt.ref, sizep)
       msgpt.to_s
     end
   end

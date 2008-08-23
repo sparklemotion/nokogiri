@@ -1,6 +1,6 @@
 require 'helper'
 
-class NodeTest < Nokogiri::TestCase
+class TestNode < Nokogiri::TestCase
   def setup
     @xml = Nokogiri::XML.parse(File.read(XML_FILE))
     assert @xml.xml?

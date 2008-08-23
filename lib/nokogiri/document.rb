@@ -7,11 +7,11 @@ module Nokogiri
         root =
           case type
           when :xml
-            NokogiriLib.xmlNewDoc(NokogiriLib.xmlCharStrdup('1.0'))
+            NokogiriLib::XML.xmlNewDoc(NokogiriLib::XML.xmlCharStrdup('1.0'))
           when :html
-            NokogiriLib.htmlNewDoc(nil, nil)
+            NokogiriLib::XML.htmlNewDoc(nil, nil)
           end
-        self.ptr = NokogiriLib::Node.new(root)
+        self.ptr = NokogiriLib::XML::Node.new(root)
       end
     end
   end
