@@ -1,28 +1,17 @@
 module Nokogiri
   class Node
     include Comparable
+    include W3C::Org::Dom::Node
 
-    XML_ELEMENT_NODE = 1
-    XML_ATTRIBUTE_NODE = 2
-    XML_TEXT_NODE = 3
-    XML_CDATA_SECTION_NODE = 4
-    XML_ENTITY_REF_NODE = 5
-    XML_ENTITY_NODE = 6
-    XML_PI_NODE = 7
-    XML_COMMENT_NODE = 8
-    XML_DOCUMENT_NODE = 9
-    XML_DOCUMENT_TYPE_NODE = 10
-    XML_DOCUMENT_FRAG_NODE = 11
-    XML_NOTATION_NODE = 12
-    XML_HTML_DOCUMENT_NODE = 13
-    XML_DTD_NODE = 14
-    XML_ELEMENT_DECL = 15
-    XML_ATTRIBUTE_DECL = 16
-    XML_ENTITY_DECL = 17
-    XML_NAMESPACE_DECL = 18
-    XML_XINCLUDE_START = 19
-    XML_XINCLUDE_END = 20
-    XML_DOCB_DOCUMENT_NODE = 21
+    HTML_DOCUMENT_NODE = 13
+    DTD_NODE = 14
+    ELEMENT_DECL = 15
+    ATTRIBUTE_DECL = 16
+    ENTITY_DECL = 17
+    NAMESPACE_DECL = 18
+    XINCLUDE_START = 19
+    XINCLUDE_END = 20
+    DOCB_DOCUMENT_NODE = 21
 
     class << self
       def wrap(ptr)
@@ -117,11 +106,11 @@ module Nokogiri
     end
 
     def xml?
-      ptr.type == XML_DOCUMENT_NODE
+      ptr.type == DOCUMENT_NODE
     end
 
     def html?
-      ptr.type == XML_HTML_DOCUMENT_NODE
+      ptr.type == HTML_DOCUMENT_NODE
     end
 
     def to_html
