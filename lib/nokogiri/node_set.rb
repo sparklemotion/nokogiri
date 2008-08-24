@@ -19,13 +19,17 @@ module Nokogiri
     end
 
     def [](index)
-      (node_ptr = to_ptr_a[index]) && Node.wrap(node_ptr)
+      to_a[index]
     end
 
     def each(&block)
-      to_ptr_a.each do |node_ptr|
-        block.call(Node.wrap(node_ptr))
-      end
+      to_a.each(&block)
+    end
+
+    def to_a
+      to_ptr_a.map { |node_ptr|
+        Node.wrap(node_ptr)
+      }
     end
 
     def search(path)

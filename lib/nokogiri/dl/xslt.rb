@@ -20,6 +20,7 @@ module Nokogiri
       ]
       extern "void * xsltParseStylesheetDoc (void *)"
       extern "void * xsltApplyStylesheet (void *, void *, const char **)"
+      extern "void * xsltSaveResultToString (void *, int *, void *, void *)"
     end
   end
 end

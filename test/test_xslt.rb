@@ -18,5 +18,6 @@ class TestXSLT < Nokogiri::TestCase
     xslt = Nokogiri::XSLT.parse(File.read(XSLT_FILE))
     result = xslt.apply_to(@xml)
     assert result
+    assert_match(/<td>EMP0001<\/td>/, result)
   end
 end
