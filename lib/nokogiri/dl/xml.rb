@@ -1,7 +1,3 @@
-require 'dl/import'
-require 'dl/struct'
-require 'mkmf'
-
 module Nokogiri
   module DL
     module XML

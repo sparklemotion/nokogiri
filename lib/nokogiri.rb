@@ -1,10 +1,16 @@
+require 'dl/import'
+require 'dl/struct'
+require 'mkmf'
+
 require 'nokogiri/version'
 require 'nokogiri/generated_interface'
 require 'nokogiri/dl/xml'
+require 'nokogiri/dl/xslt'
 require 'nokogiri/node'
 require 'nokogiri/node_set'
 require 'nokogiri/document'
 require 'nokogiri/xml'
+require 'nokogiri/xslt'
 require 'nokogiri/html'
 
 module Nokogiri
