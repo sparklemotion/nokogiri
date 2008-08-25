@@ -62,6 +62,10 @@ module Nokogiri
       extern "void * xmlXPathNewContext (void *)"
       extern "void * xmlXPathEvalExpression (void *, void *)"
       extern "void xmlXPathFreeObject(void *)"
+
+      # Misc
+      extern "int xmlSubstituteEntitiesDefault (int)"
+      LOAD_EXT_DTD = (struct(['int value'])).new(symbol("xmlLoadExtDtdDefaultValue"))
     end
   end
 end

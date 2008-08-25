@@ -10,6 +10,14 @@ module Nokogiri
                                   options
                                  ))
       end
+
+      def substitute_entities=(value = true)
+        DL::XML.xmlSubstituteEntitiesDefault(value ? 1 : 0)
+      end
+
+      def load_external_subsets=(value = true)
+        DL::XML::LOAD_EXT_DTD.value = value ? 1 : 0
+      end
     end
   end
 end
