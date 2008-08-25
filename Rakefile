@@ -10,7 +10,7 @@ $LOAD_PATH << LIB_DIR
 
 require 'nokogiri/version'
 
-Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
+HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
   p.clean_globs = [GENERATED_INTERFACE]
 end
@@ -22,5 +22,13 @@ end
 Rake::Task[:test].prerequisites << GENERATED_INTERFACE
 Rake::Task[:check_manifest].prerequisites << GENERATED_INTERFACE
 
+namespace :gem do
+  task :spec do
+    File.open("#{HOE.name}.gemspec", 'w') do |f|
+      HOE.spec.version = "#{HOE.version}.#{Time.now.strftime("%Y%m%d%H%M%S")}"
+      f.write(HOE.spec.to_ruby)
+    end
+  end
+end
 
 # vim: syntax=Ruby
