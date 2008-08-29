@@ -40,6 +40,7 @@ module Nokogiri
       def child; Node.wrap(ptr.children); end
       def next; Node.wrap(ptr.next); end
       alias :getFirstChild :child
+      alias :getNextSibling :next
 
       def content
         DL::XML.xmlNodeGetContent(ptr).to_s
