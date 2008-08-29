@@ -2,8 +2,8 @@ module Nokogiri
   module HTML
     class << self
       def parse(string, url = nil, encoding = nil, options = 32)
-        return Document.new if string.length == 0
-        Document.wrap(DL::XML.htmlReadMemory(
+        return XML::Document.new if string.length == 0
+        XML::Document.wrap(DL::XML.htmlReadMemory(
           string,
           string.length,
           DL::XML.dl2? ? (url || 0) : url,

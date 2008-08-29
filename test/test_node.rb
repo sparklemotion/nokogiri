@@ -14,7 +14,7 @@ class TestNode < Nokogiri::TestCase
   end
 
   def test_new_node
-    node = Nokogiri::Node.new('form')
+    node = Nokogiri::XML::Node.new('form')
     assert_nil node.root
   end
 

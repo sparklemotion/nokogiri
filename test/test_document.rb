@@ -14,19 +14,19 @@ class TestDocument < Nokogiri::TestCase
   end
 
   def test_new
-    xml = Nokogiri::Document.new
+    xml = Nokogiri::XML::Document.new
     assert xml.xml?
 
-    html = Nokogiri::Document.new(:html)
+    html = Nokogiri::XML::Document.new(:html)
     assert html.html?
   end
 
   def test_add_root_node
-    html = Nokogiri::Document.new(:html)
+    html = Nokogiri::XML::Document.new(:html)
     assert html.html?
     assert_nil html.root
 
-    node = Nokogiri::Node.new('form')
+    node = Nokogiri::XML::Node.new('form')
     assert_nil node.root
 
     html.root = node
@@ -35,8 +35,8 @@ class TestDocument < Nokogiri::TestCase
   end
 
   def test_to_xml
-    xml = Nokogiri::Document.new
-    node = Nokogiri::Node.new('form')
+    xml = Nokogiri::XML::Document.new
+    node = Nokogiri::XML::Node.new('form')
 
     assert_raises(RuntimeError) {
       node.to_xml
@@ -47,8 +47,8 @@ class TestDocument < Nokogiri::TestCase
   end
 
   def test_to_html
-    html = Nokogiri::Document.new(:html)
-    node = Nokogiri::Node.new('form')
+    html = Nokogiri::XML::Document.new(:html)
+    node = Nokogiri::XML::Node.new('form')
 
     assert_raises(RuntimeError) {
       node.to_html

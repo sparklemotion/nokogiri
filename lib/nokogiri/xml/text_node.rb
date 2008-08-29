@@ -1,6 +1,6 @@
 module Nokogiri
   module XML
-    class TextNode < Nokogiri::Node
+    class TextNode < Node
       include W3C::Org::Dom::Text
 
       def splitText(index)
