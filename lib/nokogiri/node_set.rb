@@ -2,6 +2,7 @@ module Nokogiri
   class NodeSet
     attr_accessor :xpath_ctx, :ptr
     include Enumerable
+    include W3C::Org::Dom::NodeList
 
     class << self
       def wrap(ptr, ctx)
@@ -21,6 +22,7 @@ module Nokogiri
     def [](index)
       to_a[index]
     end
+    alias :item :[]
 
     def each(&block)
       to_a.each(&block)

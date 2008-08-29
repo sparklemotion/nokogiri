@@ -26,6 +26,9 @@ module Nokogiri
       extern "void * htmlNewDoc (void *, void *)"
       extern "void * htmlDocDumpMemory (void *, void *, int *)"
       extern "void * xmlDocDumpMemory (void *, void *, int *)"
+      extern "void * xmlCopyNode (void *, int)"
+      extern "void * xmlAddNextSibling (void *, void *)"
+      extern "void * xmlAddPrevSibling (void *, void *)"
 
       # Node
       Node = struct [
@@ -38,6 +41,8 @@ module Nokogiri
         'void * next',
         'void * prev',
         'void * doc',
+        'void * ns',
+        'void * content',
       ]
       NodeSet = struct [
         'int length',

@@ -1,6 +1,8 @@
 module Nokogiri
   # Wraps xmlDocPtr
   class Document < Node
+    include W3C::Org::Dom::Element
+
     def initialize(type = :xml)
       yield self if block_given?
       unless self.ptr
@@ -13,6 +15,10 @@ module Nokogiri
           end
         self.ptr = DL::XML::Node.new(root)
       end
+    end
+
+    def getElementsByTagName(name)
+      search("//#{name}")
     end
   end
 end

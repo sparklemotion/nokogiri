@@ -15,7 +15,13 @@ module Nokogiri
 
     class << self
       def wrap(ptr)
-        new() { |doc| doc.ptr = DL::XML::Node.new(ptr) }
+        memory = DL::XML::Node.new(ptr)
+        case memory.type
+        when Node::TEXT_NODE
+          Nokogiri::XML::TextNode
+        else
+          self
+        end.new() { |doc| doc.ptr = DL::XML::Node.new(ptr) }
       end
     end
 
@@ -32,11 +38,13 @@ module Nokogiri
     def name; ptr.name.to_s; end
     def child; Node.wrap(ptr.children); end
     def next; Node.wrap(ptr.next); end
+    alias :getFirstChild :child
 
     def content
       DL::XML.xmlNodeGetContent(ptr).to_s
     end
     alias :inner_text :content
+    alias :getNodeValue :content
 
     def content=(the_content)
       DL::XML.xmlNodeSetContent(self,
