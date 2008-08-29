@@ -3,6 +3,7 @@ module Nokogiri
     class Node
       include Comparable
       include W3C::Org::Dom::Node
+      include W3C::Org::Dom::Element
 
       HTML_DOCUMENT_NODE = 13
       DTD_NODE = 14
@@ -38,9 +39,23 @@ module Nokogiri
 
       def name; ptr.name.to_s; end
       def child; Node.wrap(ptr.children); end
-      def next; Node.wrap(ptr.next); end
+      def next; ptr.next && Node.wrap(ptr.next); end
+      def type; ptr.type; end
+
       alias :getFirstChild :child
       alias :getNextSibling :next
+      alias :getNodeType :type
+
+      def children
+        list = []
+        first = self.child
+        list << first
+        while first = first.next
+          list << first
+        end
+        NodeSet.new { |s| s.to_a = list }
+      end
+      alias :getChildNodes :children
 
       def content
         DL::XML.xmlNodeGetContent(ptr).to_s

@@ -1,14 +1,25 @@
 module Nokogiri
   module XML
     class NodeSet
-      attr_accessor :xpath_ctx, :ptr
+      attr_accessor :xpath_ctx, :ptr, :to_a
       include Enumerable
       include W3C::Org::Dom::NodeList
 
       class << self
         def wrap(ptr, ctx)
+          list = []
           ptr = DL::XML::NodeSet.new(ptr)
-          new() { |doc| doc.ptr = ptr; doc.xpath_ctx = ctx }
+          if ptr.node_ptr
+            list = ptr.node_ptr.to_a('P', ptr.length).map { |node_ptr|
+              Node.wrap(node_ptr)
+            }
+          end
+
+          new() { |doc| 
+            doc.ptr = ptr
+            doc.xpath_ctx = ctx
+            doc.to_a = list
+          }
         end
       end
 
@@ -17,7 +28,7 @@ module Nokogiri
       end
 
       def first
-        self.[](0)
+        to_a.first
       end
 
       def [](index)
@@ -27,12 +38,6 @@ module Nokogiri
 
       def each(&block)
         to_a.each(&block)
-      end
-
-      def to_a
-        to_ptr_a.map { |node_ptr|
-          Node.wrap(node_ptr)
-        }
       end
 
       def search(path)
@@ -46,8 +51,9 @@ module Nokogiri
       end
 
       def length
-        ptr.length
+        to_a.length
       end
+      alias :getLength :length
 
       def content
         map { |x| x.content }.join
@@ -55,9 +61,6 @@ module Nokogiri
       alias :inner_text :content
 
       private
-      def to_ptr_a
-        @ptr_a ||= (ptr.node_ptr ? ptr.node_ptr.to_a('P', ptr.length) : [])
-      end
     end
   end
 end

@@ -2,7 +2,7 @@ module Nokogiri
   module XML
     # Wraps xmlDocPtr
     class Document < Node
-      include W3C::Org::Dom::Element
+      include W3C::Org::Dom::Document
 
       def initialize(type = :xml)
         yield self if block_given?
@@ -18,6 +18,7 @@ module Nokogiri
         end
       end
 
+      alias :getDoctype :type
       def getElementsByTagName(name)
         search("//#{name}")
       end
