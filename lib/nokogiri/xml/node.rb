@@ -75,13 +75,12 @@ module Nokogiri
       def search(search_path)
         DL::XML.xmlXPathInit
         xpath_ctx = DL::XML.xmlXPathNewContext(ptr)
-        xpath_obj = DL::XML::XPath.new(
-          DL::XML.xmlXPathEvalExpression(
+        xpath_ptr = DL::XML.xmlXPathEvalExpression(
             DL::XML.xmlCharStrdup(search_path),
             xpath_ctx
           )
-        )
-        return [] unless xpath_obj
+        return [] unless xpath_ptr
+        xpath_obj = DL::XML::XPath.new(xpath_ptr)
         NodeSet.wrap(xpath_obj.nodeset, xpath_ctx)
       end
       alias :/ :search
