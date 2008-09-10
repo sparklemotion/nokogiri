@@ -7,13 +7,14 @@ idl/dom.idl
 lib/nokogiri.rb
 lib/nokogiri/dl/xml.rb
 lib/nokogiri/dl/xslt.rb
-lib/nokogiri/document.rb
 lib/nokogiri/generated_interface.rb
 lib/nokogiri/html.rb
-lib/nokogiri/node.rb
-lib/nokogiri/node_set.rb
 lib/nokogiri/version.rb
 lib/nokogiri/xml.rb
+lib/nokogiri/xml/document.rb
+lib/nokogiri/xml/node.rb
+lib/nokogiri/xml/node_set.rb
+lib/nokogiri/xml/text_node.rb
 lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 nokogiri.gemspec
