@@ -9,7 +9,7 @@ module Nokogiri
         DL_VERSION = 'dl2'
       end
 
-      dlload('libxslt.so') rescue dlload('libxslt.dylib')
+      dlload('libxslt.so.1') rescue dlload('libxslt.dylib')
       Stylesheet = struct [
         'void * parent',
         'void * next',
