@@ -72,6 +72,12 @@ module Nokogiri
       extern "void * xmlXPathEvalExpression (void *, void *)"
       extern "void xmlXPathFreeObject(void *)"
 
+      # node dump
+      Buffer = struct [ 'char * content' ]
+      extern "void * xmlBufferCreate()"
+      extern "void xmlBufferFree(void *)"
+      extern "int xmlNodeDump(void*, void*, void*, int, int)"
+
       # Misc
       extern "int xmlSubstituteEntitiesDefault (int)"
       LOAD_EXT_DTD = (struct(['int value'])).new(symbol("xmlLoadExtDtdDefaultValue"))
