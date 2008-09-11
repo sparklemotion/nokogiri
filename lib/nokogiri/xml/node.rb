@@ -74,7 +74,8 @@ module Nokogiri
 
       def search(search_path)
         DL::XML.xmlXPathInit
-        xpath_ctx = DL::XML.xmlXPathNewContext(ptr)
+        xpath_ctx = DL::XML::XPathContext.new(DL::XML.xmlXPathNewContext(root))
+        xpath_ctx.node = ptr.to_ptr
         xpath_ptr = DL::XML.xmlXPathEvalExpression(
             DL::XML.xmlCharStrdup(search_path),
             xpath_ctx

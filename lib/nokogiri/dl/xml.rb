@@ -63,6 +63,10 @@ module Nokogiri
         'void * type',
         'void * nodeset',
       ]
+      XPathContext = struct [
+                             'void * doc',
+                             'void * node',
+                            ]
       extern "void xmlXPathInit ()"
       extern "void * xmlXPathNewContext (void *)"
       extern "void * xmlXPathEvalExpression (void *, void *)"
