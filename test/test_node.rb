@@ -54,7 +54,7 @@ class TestNode < Nokogiri::TestCase
 
   def test_search
     employee = @xml.search('//employee').first
-    salaries = employee.search('/salary')
+    salaries = employee.search('./salary')
     assert_equal(1, salaries.length)
   end
 
