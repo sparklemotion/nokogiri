@@ -17,6 +17,7 @@ module Nokogiri
 
       class << self
         def wrap(ptr)
+          return Node.new('body') if ptr.nil?
           memory = DL::XML::Node.new(ptr)
           case memory.type
           when Node::TEXT_NODE
