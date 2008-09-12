@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <ruby.h>
 #include <libxml/parser.h>
+#include <libxml/xpath.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 

@@ -15,6 +15,10 @@ module Nokogiri
         assert @xml.document
       end
 
+      def test_search
+        assert @xml.search('//staff')
+      end
+
       def test_new
         doc = nil
         assert_nothing_raised {

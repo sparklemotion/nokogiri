@@ -16,7 +16,6 @@ module Nokogiri
 
       def child; Node.wrap(ptr.children); end
       def next; ptr.next && Node.wrap(ptr.next); end
-      def type; ptr.type; end
 
       def children
         list = []
