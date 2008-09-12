@@ -12,6 +12,10 @@ kind = Config::CONFIG['DLEXT']
 
 HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
+  p.clean_globs = [
+    'ext/nokogiri/Makefile',
+    'ext/nokogiri/*.{o,so,bundle,a,log}',
+  ]
 end
 
 namespace :gem do
@@ -44,5 +48,7 @@ task EXT => 'ext/nokogiri/Makefile' do
 end
 
 task :build => EXT
+
+Rake::Task[:test].prerequisites << :build
 
 # vim: syntax=Ruby
