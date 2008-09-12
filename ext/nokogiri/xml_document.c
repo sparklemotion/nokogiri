@@ -46,9 +46,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   if(rb_scan_args(argc, argv, "01", &version) == 0)
     version = rb_str_new2("1.0");
 
-  xmlChar * xml_version = xmlCharStrdup(StringValuePtr(version));
-  xmlDocPtr doc = xmlNewDoc(xml_version);
-  xmlMemFree(xml_version);
+  xmlDocPtr doc = xmlNewDoc((xmlChar *)StringValuePtr(version));
   VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
   doc->_private = (void *)rb_doc;
   return rb_doc;
