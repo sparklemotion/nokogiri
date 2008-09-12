@@ -68,6 +68,19 @@ static VALUE name(VALUE self)
 
 /*
  * call-seq:
+ *  path
+ *
+ * Returns the path associated with this Node
+ */
+static VALUE path(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  return rb_str_new2((char *)xmlGetNodePath(node));
+}
+
+/*
+ * call-seq:
  *  document
  *
  * Returns the Nokogiri::XML::Document associated with this Node
@@ -110,4 +123,5 @@ void init_xml_node()
   rb_define_method(klass, "type", type, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "content=", set_content, 1);
+  rb_define_method(klass, "path", path, 0);
 }

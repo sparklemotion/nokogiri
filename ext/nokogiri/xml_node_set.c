@@ -29,7 +29,13 @@ static VALUE index_at(VALUE self, VALUE number)
   if(i >= node_set->nodeNr) return Qnil;
   VALUE klass = rb_eval_string("Nokogiri::XML::Node");
 
-  return Data_Wrap_Struct(klass, NULL, NULL, node_set->nodeTab[i]);
+  xmlNodePtr node = node_set->nodeTab[i];
+  if(node->_private)
+    return (VALUE)node->_private;
+
+  VALUE rb_node = Data_Wrap_Struct(klass, NULL, NULL, node_set->nodeTab[i]);
+  node->_private = (void *)rb_node;
+  return rb_node;
 }
 
 void init_xml_node_set(void)
