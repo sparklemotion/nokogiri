@@ -6,21 +6,7 @@
 
 static void dealloc(xsltStylesheetPtr doc)
 {
-  /* TODO: I get segfaults when I free this. Figure out what's whalloping the heap.
-*** glibc detected *** ruby: free(): invalid pointer: 0x08340d00 ***
-======= Backtrace: =========
-/lib/tls/i686/cmov/libc.so.6[0xb7d42a85]
-/lib/tls/i686/cmov/libc.so.6(cfree+0x90)[0xb7d464f0]
-/usr/lib/libxml2.so(xmlFreeNs+0x33)[0xb7a70ef3]
-/usr/lib/libxml2.so(xmlFreeNsList+0x1a)[0xb7a70f3a]
-/usr/lib/libxml2.so(xmlFreeNodeList+0xef)[0xb7a7818f]
-/usr/lib/libxml2.so(xmlFreeDoc+0xbc)[0xb7a77f7c]
-/usr/lib/libxslt.so.1(xsltFreeStylesheet+0x32b)[0xb79f42db]
-/home/mike/code/nokogiri/ext/nokogiri/native.so[0xb7f6e9f4]
-/usr/lib/libruby1.8.so.1.8(rb_gc_call_finalizer_at_exit+0xa7)[0xb7eddd37]
-  */     
-
-//  xsltFreeStylesheet(doc); // commented out for now.
+    xsltFreeStylesheet(doc); // commented out for now.
 }
 
 static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
@@ -28,7 +14,7 @@ static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
     xmlDocPtr xml ;
     xsltStylesheetPtr ss ;
     Data_Get_Struct(xmldocobj, xmlDoc, xml);
-    ss = xsltParseStylesheetDoc(xml);
+    ss = xsltParseStylesheetDoc(xmlCopyDoc(xml, 1)); /* 1 => recursive */
     return Data_Wrap_Struct(klass, NULL, dealloc, ss);
 }
 
