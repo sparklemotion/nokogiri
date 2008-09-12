@@ -36,6 +36,13 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
 }
 
 
+/*
+ *  call-seq:
+ *    apply_to(Nokogiri::XML::Document, params)
+ *
+ *  Apply an XSLT stylesheet to an XML document.
+ *  +params+ is an array of strings.
+ */
 static VALUE apply_to(VALUE self, VALUE xmldoc, VALUE paramobj)
 {
     xmlDocPtr xml ;

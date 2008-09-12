@@ -52,12 +52,24 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   return rb_doc;
 }
 
+/*
+ *  call-seq:
+ *    substitute_entities_set bool)
+ *
+ *  Set the global XML default for substitute entities.
+ */
 static VALUE substitute_entities_set(VALUE self, VALUE value)
 {
     xmlSubstituteEntitiesDefault(NUM2INT(value));
     return Qnil ;
 }
 
+/*
+ *  call-seq:
+ *    substitute_entities_set bool)
+ *
+ *  Set the global XML default for load external subsets.
+ */
 static VALUE load_external_subsets_set(VALUE self, VALUE value)
 {
     xmlLoadExtDtdDefaultValue = NUM2INT(value);
