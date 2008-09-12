@@ -6,4 +6,10 @@ class TestNokogiri < Nokogiri::TestCase
     assert doc.xml?
     assert !doc.html?
   end
+
+  def test_html?
+    doc = Nokogiri.parse(File.read(HTML_FILE))
+    assert !doc.xml?
+    assert doc.html?
+  end
 end
