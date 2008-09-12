@@ -8,10 +8,9 @@ module Nokogiri
       end
 
       def test_node_set_fetches_private_data
-        assert path_ctx = @xml.search('//employee')
-        assert path_ctx.node_set
+        assert node_set = @xml.search('//employee')
 
-        set = path_ctx.node_set
+        set = node_set
         assert_equal(set[0], set[0])
       end
     end

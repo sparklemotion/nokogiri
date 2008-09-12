@@ -28,12 +28,8 @@ module Nokogiri
       end
       alias :getChildNodes :children
 
-      def path
-        DL::XML.xmlGetNodePath(ptr).to_s
-      end
-
       def search(search_path)
-        XPath.new(document, search_path)
+        XPath.new(document, search_path).node_set
       end
       alias :/ :search
 
