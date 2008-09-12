@@ -22,5 +22,8 @@ class TestXsltTransforms < Nokogiri::TestCase
 
     assert result = style.apply_to(doc, ['title', '"Grandma"'])
     assert_match %r{<h1>Grandma</h1>}, result
+
+    assert result = style.apply_to(doc)
+    assert_match %r{<h1></h1>}, result
   end
 end

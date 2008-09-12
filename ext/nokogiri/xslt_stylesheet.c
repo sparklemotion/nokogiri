@@ -43,14 +43,18 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
  *  Apply an XSLT stylesheet to an XML document.
  *  +params+ is an array of strings.
  */
-static VALUE apply_to(VALUE self, VALUE xmldoc, VALUE paramobj)
+static VALUE apply_to(int argc, VALUE* argv, VALUE self)
 {
+    VALUE xmldoc, paramobj ;
     xmlDocPtr xml ;
     xmlDocPtr result ;
     xsltStylesheetPtr ss ;
     const char** params ;
     int param_len, j ;
     VALUE resultobj ;
+
+    rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
+    if (paramobj == Qnil) { paramobj = rb_ary_new2(0) ; }
 
     Data_Get_Struct(xmldoc, xmlDoc, xml);
     Data_Get_Struct(self, xsltStylesheet, ss);
@@ -76,5 +80,5 @@ void init_xslt_stylesheet()
     
   rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
   rb_define_method(klass, "serialize", serialize, 1);
-  rb_define_method(klass, "apply_to", apply_to, 2);
+  rb_define_method(klass, "apply_to", apply_to, -1);
 }
