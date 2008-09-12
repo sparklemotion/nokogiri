@@ -1,10 +1,4 @@
-require 'dl/import'
-require 'dl/struct'
-require 'mkmf'
-
 require 'nokogiri/version'
-require 'nokogiri/dl/xml'
-require 'nokogiri/dl/xslt'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'
 require 'nokogiri/html'
