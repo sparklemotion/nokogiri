@@ -36,7 +36,9 @@ static VALUE read_memory( VALUE klass,
 
   xmlInitParser();
   xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
-  return Data_Wrap_Struct(klass, NULL, dealloc, doc);
+  VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
+  doc->_private = (void *)rb_doc;
+  return rb_doc;
 }
 
 static VALUE new(int argc, VALUE *argv, VALUE klass)
@@ -48,7 +50,9 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   xmlChar * xml_version = xmlCharStrdup(StringValuePtr(version));
   xmlDocPtr doc = xmlNewDoc(xml_version);
   free(xml_version);
-  return Data_Wrap_Struct(klass, NULL, dealloc, doc);
+  VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
+  doc->_private = (void *)rb_doc;
+  return rb_doc;
 }
 
 void init_xml_document()

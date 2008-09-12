@@ -14,7 +14,6 @@ module Nokogiri
       XINCLUDE_END = 20
       DOCB_DOCUMENT_NODE = 21
 
-      def name; ptr.name.to_s; end
       def child; Node.wrap(ptr.children); end
       def next; ptr.next && Node.wrap(ptr.next); end
       def type; ptr.type; end
@@ -50,16 +49,7 @@ module Nokogiri
       end
 
       def search(search_path)
-        DL::XML.xmlXPathInit
-        xpath_ctx = DL::XML::XPathContext.new(DL::XML.xmlXPathNewContext(root))
-        xpath_ctx.node = ptr.to_ptr
-        xpath_ptr = DL::XML.xmlXPathEvalExpression(
-            DL::XML.xmlCharStrdup(search_path),
-            xpath_ctx
-          )
-        return [] unless xpath_ptr
-        xpath_obj = DL::XML::XPath.new(xpath_ptr)
-        NodeSet.wrap(xpath_obj.nodeset, xpath_ctx)
+        XPath.new(document, search_path)
       end
       alias :/ :search
 
