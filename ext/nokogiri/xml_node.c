@@ -10,6 +10,19 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr root)
 
 /*
  * call-seq:
+ *  type
+ *
+ * Get the type for this node
+ */
+static VALUE type(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  return INT2NUM(node->type);
+}
+
+/*
+ * call-seq:
  *  content=
  *
  * Set the content for this Node
@@ -94,6 +107,7 @@ void init_xml_node()
   rb_define_singleton_method(klass, "new", new, -1);
   rb_define_method(klass, "document", document, 0);
   rb_define_method(klass, "name", name, 0);
+  rb_define_method(klass, "type", type, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "content=", set_content, 1);
 }

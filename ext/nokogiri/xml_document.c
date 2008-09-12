@@ -5,13 +5,12 @@ static void dealloc(xmlDocPtr doc)
   xmlFreeDoc(doc);
 }
 
-static VALUE type(VALUE self)
-{
-  xmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
-  return INT2NUM(doc->type);
-}
-
+/*
+ * call-seq:
+ *  root
+ *
+ * Get the root node for this document.
+ */
 static VALUE root(VALUE self)
 {
   xmlDocPtr doc;
@@ -63,6 +62,5 @@ void init_xml_document()
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
   rb_define_singleton_method(klass, "new", new, -1);
-  rb_define_method(klass, "type", type, 0);
   rb_define_method(klass, "root", root, 0);
 }
