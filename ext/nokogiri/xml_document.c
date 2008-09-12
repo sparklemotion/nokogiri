@@ -31,7 +31,7 @@ static VALUE read_memory( VALUE klass,
   const char * c_buffer = StringValuePtr(string);
   const char * c_url    = (url == Qnil) ? NULL : StringValuePtr(url);
   const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
-  int len               = rb_funcall(string, rb_intern("length"), 0);
+  int len               = RSTRING(string)->len ;
 
   xmlInitParser();
   xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
