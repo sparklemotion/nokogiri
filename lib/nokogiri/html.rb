@@ -1,8 +1,10 @@
+require 'nokogiri/html/document'
+
 module Nokogiri
   module HTML
     class << self
       def parse(string, url = nil, encoding = nil, options = 32)
-        XML::Document.html_read_memory(string, url, encoding, options)
+        Document.read_memory(string, url, encoding, options)
       end
     end
 

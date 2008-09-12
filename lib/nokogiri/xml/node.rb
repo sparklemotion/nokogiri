@@ -14,29 +14,6 @@ module Nokogiri
       XINCLUDE_END = 20
       DOCB_DOCUMENT_NODE = 21
 
-      class << self
-        def wrap(ptr)
-          return Node.new('body') if ptr.nil?
-          memory = DL::XML::Node.new(ptr)
-          case memory.type
-          when Node::TEXT_NODE
-            Nokogiri::XML::TextNode
-          else
-            self
-          end.new() { |doc| doc.ptr = DL::XML::Node.new(ptr) }
-        end
-      end
-
-      def initialize(type = nil)
-        yield self if block_given?
-        self.ptr ||=
-          DL::XML::Node.new(
-            DL::XML.xmlNewNode(nil, DL::XML.xmlCharStrdup(type))
-          )
-      end
-
-      attr_accessor :ptr
-
       def name; ptr.name.to_s; end
       def child; Node.wrap(ptr.children); end
       def next; ptr.next && Node.wrap(ptr.next); end
