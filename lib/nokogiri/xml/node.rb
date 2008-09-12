@@ -18,10 +18,6 @@ module Nokogiri
       def next; ptr.next && Node.wrap(ptr.next); end
       def type; ptr.type; end
 
-      alias :getFirstChild :child
-      alias :getNextSibling :next
-      alias :getNodeType :type
-
       def children
         list = []
         first = self.child
@@ -32,17 +28,6 @@ module Nokogiri
         NodeSet.new { |s| s.to_a = list }
       end
       alias :getChildNodes :children
-
-      def content
-        DL::XML.xmlNodeGetContent(ptr).to_s
-      end
-      alias :inner_text :content
-      alias :getNodeValue :content
-
-      def content=(the_content)
-        DL::XML.xmlNodeSetContent(self,
-                                      DL::XML.xmlCharStrdup(the_content))
-      end
 
       def path
         DL::XML.xmlGetNodePath(ptr).to_s

@@ -8,13 +8,57 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr root)
   return node;
 }
 
+/*
+ * call-seq:
+ *  content=
+ *
+ * Set the content for this Node
+ */
+static VALUE set_content(VALUE self, VALUE content)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  xmlNodeSetContent(node, (xmlChar *)StringValuePtr(content));
+  return content;
+}
+
+/*
+ * call-seq:
+ *  content
+ *
+ * Returns the content for this Node
+ */
+static VALUE get_content(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+
+  xmlChar * content = xmlNodeGetContent(node);
+  if(content)
+    return rb_str_new2((char *)content);
+
+  return Qnil;
+}
+
+/*
+ * call-seq:
+ *  name
+ *
+ * Returns the name for this Node
+ */
 static VALUE name(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-  return rb_str_new2(node->name);
+  return rb_str_new2((char *)node->name);
 }
 
+/*
+ * call-seq:
+ *  document
+ *
+ * Returns the Nokogiri::XML::Document associated with this Node
+ */
 static VALUE document(VALUE self)
 {
   xmlNodePtr node;
@@ -35,11 +79,9 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   if (RTEST(ns))
     Data_Get_Struct(ns, xmlNs, xml_ns);
 
-  xmlChar * xml_name = xmlCharStrdup(StringValuePtr(name));
-  xmlNodePtr node = xmlNewNode(xml_ns, xml_name);
-  free(xml_name);
+  xmlNodePtr node = xmlNewNode(xml_ns, (xmlChar *)StringValuePtr(name));
   VALUE rb_node = Data_Wrap_Struct(klass, NULL, NULL, node);
-  node->_private = rb_node;
+  node->_private = (void *)rb_node;
   return rb_node;
 }
 
@@ -52,4 +94,6 @@ void init_xml_node()
   rb_define_singleton_method(klass, "new", new, -1);
   rb_define_method(klass, "document", document, 0);
   rb_define_method(klass, "name", name, 0);
+  rb_define_method(klass, "content", get_content, 0);
+  rb_define_method(klass, "content=", set_content, 1);
 }

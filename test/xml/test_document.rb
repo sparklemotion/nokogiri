@@ -11,6 +11,10 @@ module Nokogiri
         assert @xml.xml?
       end
 
+      def test_document
+        assert @xml.document
+      end
+
       def test_new
         doc = nil
         assert_nothing_raised {

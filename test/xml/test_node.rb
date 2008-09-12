@@ -8,6 +8,14 @@ module Nokogiri
         assert_equal('form', node.name)
         assert_nil(node.document)
       end
+
+      def test_content
+        node = Nokogiri::XML::Node.new('form')
+        assert_equal('', node.content)
+
+        node.content = 'hello world!'
+        assert_equal('hello world!', node.content)
+      end
     end
   end
 end
