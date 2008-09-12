@@ -1,6 +1,7 @@
 #ifndef NOKOGIRI_NATIVE
 #define NOKOGIRI_NATIVE
 
+#include <stdlib.h>
 #include <ruby.h>
 #include <libxml/parser.h>
 #include <libxml/HTMLparser.h>
