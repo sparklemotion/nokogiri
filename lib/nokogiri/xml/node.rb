@@ -92,21 +92,6 @@ module Nokogiri
         1 == DL::XML.xmlIsBlankNode(ptr)
       end
 
-      def root
-        return nil unless ptr.doc
-
-        root_element = DL::XML.xmlDocGetRootElement(ptr.doc)
-        root_element && Node.wrap(root_element)
-      end
-
-      def root=(root_node)
-        DL::XML.xmlDocSetRootElement(ptr.doc, root_node)
-      end
-
-      def root?
-        self.<=>(self.root)
-      end
-
       def xml?
         type == DOCUMENT_NODE
       end

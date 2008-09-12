@@ -5,6 +5,24 @@ static void dealloc(xmlDocPtr doc)
   xmlFreeDoc(doc);
 }
 
+static VALUE type(VALUE self)
+{
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlDoc, doc);
+  return INT2NUM(doc->type);
+}
+
+static VALUE root(VALUE self)
+{
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  xmlNodePtr root = xmlDocGetRootElement(doc);
+
+  if(!root) return Qnil;
+  return Nokogiri_wrap_xml_node(root);
+}
+
 static VALUE read_memory( VALUE klass,
                           VALUE string,
                           VALUE url,
@@ -18,15 +36,19 @@ static VALUE read_memory( VALUE klass,
 
   xmlInitParser();
   xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
-  // FIXME: add gc functions
   return Data_Wrap_Struct(klass, NULL, dealloc, doc);
 }
 
-static VALUE type(VALUE self)
+static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
-  xmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
-  return INT2NUM(doc->type);
+  VALUE version;
+  if(rb_scan_args(argc, argv, "01", &version) == 0)
+    version = rb_str_new2("1.0");
+
+  xmlChar * xml_version = xmlCharStrdup(StringValuePtr(version));
+  xmlDocPtr doc = xmlNewDoc(xml_version);
+  free(xml_version);
+  return Data_Wrap_Struct(klass, NULL, dealloc, doc);
 }
 
 void init_xml_document()
@@ -36,5 +58,7 @@ void init_xml_document()
   VALUE klass       = rb_const_get(m_xml, rb_intern("Document"));
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
+  rb_define_singleton_method(klass, "new", new, -1);
   rb_define_method(klass, "type", type, 0);
+  rb_define_method(klass, "root", root, 0);
 }
