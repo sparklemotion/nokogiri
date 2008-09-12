@@ -1,7 +1,6 @@
 module Nokogiri
   module XML
     class TextNode < Nokogiri::XML::Node
-      include W3C::Org::Dom::Text
 
       def splitText(index)
         left = content.slice(0..index - 1)

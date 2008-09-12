@@ -3,7 +3,6 @@ module Nokogiri
     class NodeSet
       attr_accessor :xpath_ctx, :ptr, :to_a
       include Enumerable
-      include W3C::Org::Dom::NodeList
 
       class << self
         def wrap(ptr, ctx)

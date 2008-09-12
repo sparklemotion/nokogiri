@@ -3,12 +3,12 @@ require 'dl/struct'
 require 'mkmf'
 
 require 'nokogiri/version'
-require 'nokogiri/generated_interface'
 require 'nokogiri/dl/xml'
 require 'nokogiri/dl/xslt'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'
 require 'nokogiri/html'
+require 'nokogiri/native'
 
 module Nokogiri
 

@@ -2,9 +2,8 @@ module Nokogiri
   module XML
     class Node
       include Comparable
-      include W3C::Org::Dom::Node
-      include W3C::Org::Dom::Element
 
+      DOCUMENT_NODE = 9
       HTML_DOCUMENT_NODE = 13
       DTD_NODE = 14
       ELEMENT_DECL = 15
@@ -132,11 +131,11 @@ module Nokogiri
       end
 
       def xml?
-        ptr.type == DOCUMENT_NODE
+        type == DOCUMENT_NODE
       end
 
       def html?
-        ptr.type == HTML_DOCUMENT_NODE
+        type == HTML_DOCUMENT_NODE
       end
 
       def to_html

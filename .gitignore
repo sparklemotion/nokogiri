@@ -1,4 +1,9 @@
 .*.swp
 *.tmproj
-lib/nokogiri/generated_interface.rb
+ext/nokogiri/*.o
+ext/nokogiri/Makefile
+ext/nokogiri/*.log
+ext/nokogiri/*.bundle
+ext/nokogiri/*.a
+ext/nokogiri/*.so
 tags

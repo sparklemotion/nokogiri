@@ -2,16 +2,10 @@ module Nokogiri
   module HTML
     class << self
       def parse(string, url = nil, encoding = nil, options = 32)
-        return XML::Document.new if string.length == 0
-        XML::Document.wrap(DL::XML.htmlReadMemory(
-          string,
-          string.length,
-          DL::XML.dl2? ? (url || 0) : url,
-          DL::XML.dl2? ? (encoding || 0) : encoding,
-          options
-        ))
+        XML::Document.html_read_memory(string, url, encoding, options)
       end
     end
+
   NamedCharacters =
 {"AElig"=>198, "Aacute"=>193, "Acirc"=>194, "Agrave"=>192, "Alpha"=>913,
  "Aring"=>197, "Atilde"=>195, "Auml"=>196, "Beta"=>914, "Ccedil"=>199,
