@@ -4,7 +4,7 @@ module Nokogiri
   module XSLT
     class << self
       def parse(string)
-        Stylesheet.wrap(DL::XSLT.xsltParseStylesheetDoc(XML.parse(string)))
+        Stylesheet.parse_stylesheet_doc(XML.parse(string))
       end
     end
   end

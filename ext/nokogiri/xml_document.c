@@ -48,10 +48,22 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   xmlChar * xml_version = xmlCharStrdup(StringValuePtr(version));
   xmlDocPtr doc = xmlNewDoc(xml_version);
-  free(xml_version);
+  xmlMemFree(xml_version);
   VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
   doc->_private = (void *)rb_doc;
   return rb_doc;
+}
+
+static VALUE substitute_entities_set(VALUE self, VALUE value)
+{
+    xmlSubstituteEntitiesDefault(NUM2INT(value));
+    return Qnil ;
+}
+
+static VALUE load_external_subsets_set(VALUE self, VALUE value)
+{
+    xmlLoadExtDtdDefaultValue = NUM2INT(value);
+    return Qnil ;
 }
 
 void init_xml_document()
@@ -62,5 +74,15 @@ void init_xml_document()
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
   rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(klass, "substitute_entities=", substitute_entities_set, 1);
+  rb_define_singleton_method(klass, "load_external_subsets=", load_external_subsets_set, 1);
   rb_define_method(klass, "root", root, 0);
+}
+
+
+/* public API */
+VALUE Nokogiri_wrap_xml_document(xmlDocPtr doc)
+{
+  VALUE klass = rb_eval_string("Nokogiri::XML::Document");
+  return Data_Wrap_Struct(klass, 0, dealloc, doc) ;
 }
