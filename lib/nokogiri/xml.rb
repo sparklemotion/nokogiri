@@ -12,11 +12,11 @@ module Nokogiri
       end
 
       def substitute_entities=(value = true)
-        DL::XML.xmlSubstituteEntitiesDefault(value ? 1 : 0)
+        Document.substitute_entities = value
       end
 
       def load_external_subsets=(value = true)
-        DL::XML::LOAD_EXT_DTD.value = value ? 1 : 0
+        Document.load_external_subsets = value
       end
     end
   end

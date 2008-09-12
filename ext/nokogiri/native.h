@@ -11,5 +11,6 @@
 #include <xml_document.h>
 #include <html_document.h>
 #include <xml_node.h>
+#include <xslt_stylesheet.h>
 
 #endif
