@@ -15,8 +15,24 @@ module Nokogiri
         assert @xml.document
       end
 
+      def test_node_set_index
+        assert path_ctx = @xml.search('//employee')
+        assert path_ctx.node_set
+
+        assert_equal(5, path_ctx.node_set.length)
+        assert path_ctx.node_set[4]
+        assert_nil path_ctx.node_set[5]
+      end
+
       def test_search
-        assert @xml.search('//staff')
+        assert path_ctx = @xml.search('//employee')
+        assert path_ctx.node_set
+
+        assert_equal(5, path_ctx.node_set.length)
+
+        path_ctx.node_set.each do |node|
+          assert_equal('employee', node.name)
+        end
       end
 
       def test_new

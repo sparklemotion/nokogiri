@@ -7,20 +7,17 @@ static free_context(xmlXPathContextPtr ctx)
 
 /*
  * call-seq:
- *  evaluate(search_path)
+ *  node_set
  *
- * Evaluate +search_path+
+ * Fetch the node set associated with this xpath context.
  */
-static VALUE evaluate(VALUE self, VALUE search_path)
+static VALUE node_set(VALUE self)
 {
-  xmlXPathContextPtr xpath_ctx;
+  xmlXPathObjectPtr xpath;
+  Data_Get_Struct(self, xmlXPathObject, xpath);
 
-  VALUE context = rb_iv_get(self, "@context");
-  Data_Get_Struct(context, xmlXPathContext, xpath_ctx);
-  xmlXPathObjectPtr xpath_obj = xmlXPathEvalExpression(
-      (xmlChar *)StringValuePtr(search_path),
-      xpath_ctx
-  );
+  VALUE klass = rb_eval_string("Nokogiri::XML::NodeSet");
+  return Data_Wrap_Struct(klass, NULL, NULL, xpath->nodesetval);
 }
 
 static VALUE new(VALUE klass, VALUE document, VALUE search_path)
@@ -48,4 +45,5 @@ void init_xml_xpath(void)
 {
   VALUE klass = rb_eval_string("Nokogiri::XML::XPath");
   rb_define_singleton_method(klass, "new", new, 2);
+  rb_define_method(klass, "node_set", node_set, 0);
 }
