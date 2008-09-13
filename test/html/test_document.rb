@@ -11,6 +11,11 @@ module Nokogiri
         assert !@html.xml?
         assert @html.html?
       end
+
+      def test_serialize
+        assert @html.serialize
+        assert @html.to_html
+      end
     end
   end
 end

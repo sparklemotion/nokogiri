@@ -7,6 +7,25 @@ static void dealloc(xmlDocPtr doc)
 
 /*
  * call-seq:
+ *  serialize
+ *
+ * Serialize this document
+ */
+static VALUE serialize(VALUE self)
+{
+  xmlDocPtr doc;
+  xmlChar *buf;
+  int size;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  xmlDocDumpMemory(doc, &buf, &size);
+  VALUE rb_str = rb_str_new((char *)buf, (long)size);
+  free(buf);
+  return rb_str;
+}
+
+/*
+ * call-seq:
  *  root
  *
  * Get the root node for this document.
@@ -86,7 +105,9 @@ void init_xml_document()
   rb_define_singleton_method(klass, "new", new, -1);
   rb_define_singleton_method(klass, "substitute_entities=", substitute_entities_set, 1);
   rb_define_singleton_method(klass, "load_external_subsets=", load_external_subsets_set, 1);
+
   rb_define_method(klass, "root", root, 0);
+  rb_define_method(klass, "serialize", serialize, 0);
 }
 
 

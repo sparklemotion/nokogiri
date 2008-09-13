@@ -5,6 +5,25 @@ static void dealloc(xmlDocPtr doc)
   xmlFreeDoc(doc);
 }
 
+/*
+ * call-seq:
+ *  serialize
+ *
+ * Serialize this document
+ */
+static VALUE serialize(VALUE self)
+{
+  xmlDocPtr doc;
+  xmlChar *buf;
+  int size;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  htmlDocDumpMemory(doc, &buf, &size);
+  VALUE rb_str = rb_str_new((char *)buf, (long)size);
+  free(buf);
+  return rb_str;
+}
+
 static VALUE read_memory( VALUE klass,
                           VALUE string,
                           VALUE url,
@@ -34,5 +53,7 @@ void init_html_document()
   VALUE klass       = rb_const_get(m_xml, rb_intern("Document"));
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
+
   rb_define_method(klass, "type", type, 0);
+  rb_define_method(klass, "serialize", serialize, 0);
 }

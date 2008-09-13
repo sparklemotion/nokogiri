@@ -33,6 +33,11 @@ module Nokogiri
         end
       end
 
+      def test_dump
+        assert @xml.serialize
+        assert @xml.to_xml
+      end
+
       def test_new
         doc = nil
         assert_nothing_raised {

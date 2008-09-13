@@ -1,8 +1,6 @@
 module Nokogiri
   module XML
     class Node
-      include Comparable
-
       DOCUMENT_NODE = 9
       HTML_DOCUMENT_NODE = 13
       DTD_NODE = 14
@@ -43,14 +41,6 @@ module Nokogiri
         type == HTML_DOCUMENT_NODE
       end
 
-      def to_html
-        serialize(:html)
-      end
-
-      def to_xml
-        serialize(:xml)
-      end
-
       private
       # this just dumps stripped content. is there an easy way to dump a subtree in xml? i don't know.
       def serialize_node(type = :xml)
@@ -59,14 +49,6 @@ module Nokogiri
         x = content.dup.to_s
         DL::XML.xmlBufferFree(buffer)
         return x
-      end
-
-      def serialize(type = :xml)
-        raise "No document set" unless ptr.doc
-        msgpt = ::DL.malloc(::DL.sizeof('P'))
-        sizep = ::DL.malloc(::DL.sizeof('I'))
-        DL::XML.send(:"#{type}DocDumpMemory", ptr.doc, msgpt.ref, sizep)
-        msgpt.to_s
       end
     end
   end
