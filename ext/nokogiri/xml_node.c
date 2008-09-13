@@ -10,6 +10,30 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr root)
 
 /*
  * call-seq:
+ *  child
+ *
+ * Returns the child node
+ */
+static VALUE child(VALUE self)
+{
+  xmlNodePtr node, child;
+  Data_Get_Struct(self, xmlNode, node);
+
+  child = node->children;
+  if(!child) return Qnil;
+
+  if(child->_private)
+    return (VALUE)child->_private;
+
+  VALUE klass = rb_eval_string("Nokogiri::XML::Node");
+  // FIXME: Do we need to GC?
+  VALUE rb_child = Data_Wrap_Struct(klass, NULL, NULL, child);
+  child->_private = (void *)rb_child;
+  return rb_child;
+}
+
+/*
+ * call-seq:
  *  key?(attribute)
  *
  * Returns true if +attribute+ is set
@@ -158,6 +182,7 @@ void init_xml_node()
   rb_define_singleton_method(klass, "new", new, -1);
   rb_define_method(klass, "document", document, 0);
   rb_define_method(klass, "name", name, 0);
+  rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "type", type, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "content=", set_content, 1);

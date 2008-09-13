@@ -14,7 +14,6 @@ module Nokogiri
       XINCLUDE_END = 20
       DOCB_DOCUMENT_NODE = 21
 
-      def child; Node.wrap(ptr.children); end
       def next; ptr.next && Node.wrap(ptr.next); end
 
       def children
@@ -56,14 +55,6 @@ module Nokogiri
 
       def to_xml
         serialize(:xml)
-      end
-
-      def <=>(other)
-        ptr.to_ptr <=> other.to_ptr
-      end
-
-      def to_ptr
-        ptr.to_ptr
       end
 
       private

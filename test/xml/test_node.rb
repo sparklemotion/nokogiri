@@ -3,6 +3,13 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
+      def test_child
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        assert node = xml.search('//employee').first
+        assert child = node.child
+        assert_equal('text', child.name)
+      end
+
       def test_key?
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         assert node = xml.search('//address').first
