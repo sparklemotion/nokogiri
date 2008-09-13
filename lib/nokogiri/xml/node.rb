@@ -14,8 +14,6 @@ module Nokogiri
       XINCLUDE_END = 20
       DOCB_DOCUMENT_NODE = 21
 
-      def next; ptr.next && Node.wrap(ptr.next); end
-
       def children
         list = []
         first = self.child
