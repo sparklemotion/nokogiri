@@ -36,7 +36,9 @@ static VALUE read_memory( VALUE klass,
   int len               = RSTRING(string)->len ;
 
   htmlDocPtr doc = htmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
-  return Data_Wrap_Struct(klass, NULL, dealloc, doc);
+  VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
+  doc->_private = rb_doc;
+  return rb_doc;
 }
 
 static VALUE type(VALUE self)
