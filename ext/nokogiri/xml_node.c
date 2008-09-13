@@ -10,6 +10,21 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr root)
 
 /*
  * call-seq:
+ *  blank?
+ *
+ * Is this node blank?
+ */
+static VALUE blank_eh(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  if(1 == xmlIsBlankNode(node))
+    return Qtrue;
+  return Qfalse;
+}
+
+/*
+ * call-seq:
  *  next
  *
  * Returns the next sibling node
@@ -213,6 +228,7 @@ void init_xml_node()
   rb_define_method(klass, "content=", set_content, 1);
   rb_define_method(klass, "path", path, 0);
   rb_define_method(klass, "key?", key_eh, 1);
+  rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
 
   rb_define_private_method(klass, "get", get, 1);

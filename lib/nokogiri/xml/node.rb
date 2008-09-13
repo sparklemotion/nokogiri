@@ -17,11 +17,11 @@ module Nokogiri
       def children
         list = []
         first = self.child
-        list << first
+        list << first unless first.blank?
         while first = first.next
-          list << first
+          list << first unless first.blank?
         end
-        NodeSet.new { |s| s.to_a = list }
+        list
       end
       alias :getChildNodes :children
 
@@ -33,10 +33,6 @@ module Nokogiri
       def [](property)
         return nil unless key?(property)
         get(property)
-      end
-
-      def blank?
-        1 == DL::XML.xmlIsBlankNode(ptr)
       end
 
       def xml?
