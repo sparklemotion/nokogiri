@@ -10,6 +10,44 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr root)
 
 /*
  * call-seq:
+ *  key?(attribute)
+ *
+ * Returns true if +attribute+ is set
+ */
+static VALUE key_eh(VALUE self, VALUE attribute)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  if(xmlHasProp(node, (xmlChar *)StringValuePtr(attribute)))
+    return Qtrue;
+  return Qfalse;
+}
+
+/*
+ * call-seq:
+ *  []=(property, value)
+ *
+ * Set the +property+ to +value+
+ */
+static VALUE set(VALUE self, VALUE property, VALUE value)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  xmlSetProp(node, (xmlChar *)StringValuePtr(property),
+      (xmlChar *)StringValuePtr(value));
+
+  return value;
+}
+
+static VALUE get(VALUE self, VALUE attribute)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  return rb_str_new2((char *)xmlGetProp(node, (xmlChar *)StringValuePtr(attribute)));
+}
+
+/*
+ * call-seq:
  *  type
  *
  * Get the type for this node
@@ -124,4 +162,8 @@ void init_xml_node()
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "content=", set_content, 1);
   rb_define_method(klass, "path", path, 0);
+  rb_define_method(klass, "key?", key_eh, 1);
+  rb_define_method(klass, "[]=", set, 2);
+
+  rb_define_private_method(klass, "get", get, 1);
 }

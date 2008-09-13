@@ -34,28 +34,8 @@ module Nokogiri
       alias :/ :search
 
       def [](property)
-        property = DL::XML.xmlGetProp(
-          ptr,
-          DL::XML.xmlCharStrdup(property.to_s)
-        )
-        property && property.to_s
-      end
-
-      def []=(name, value)
-        DL::XML.xmlSetProp(
-          ptr,
-          DL::XML.xmlCharStrdup(name.to_s),
-          DL::XML.xmlCharStrdup(value.to_s)
-        )
-      end
-
-      def has_property?(attribute)
-        !property(attribute).nil?
-      end
-      alias :has_attribute? :has_property?
-
-      def property(attribute)
-        DL::XML.xmlHasProp(ptr, DL::XML.xmlCharStrdup(attribute.to_s))
+        return nil unless key?(property)
+        get(property)
       end
 
       def blank?
