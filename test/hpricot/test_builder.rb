@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require 'nokogiri'
+require "nokogiri/hpricot"
 
 class TestBuilder < Test::Unit::TestCase
   def test_escaping_text

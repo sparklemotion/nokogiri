@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require 'nokogiri'
+require "nokogiri/hpricot"
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestParser < Test::Unit::TestCase

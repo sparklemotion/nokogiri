@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require 'nokogiri'
+require "nokogiri/hpricot"
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestParser < Test::Unit::TestCase
@@ -155,9 +155,10 @@ class TestParser < Test::Unit::TestCase
     assert_equal 60, @boingboing.search("/*/body//p[@class='posted']").length
     assert_equal 18, @boingboing.search("//script").length
     divs = @boingboing.search("//script/../div")
-    assert_equal 1,  divs.length
+    assert_equal 2,  divs.length # hpricot says this is 1, but that's wrong.
     imgs = @boingboing.search('//div/p/a/img')
-    assert_equal 15, imgs.length
+    imgs.each {|j| puts j.path}
+    assert_equal 12, imgs.length # hpricot says this is 15, but that's wrong.
     assert_equal 17, @boingboing.search('//div').search('p/a/img').length
     assert imgs.all? { |x| x.name == 'img' }
   end
