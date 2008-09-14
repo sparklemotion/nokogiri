@@ -119,7 +119,7 @@ static VALUE type(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-  return INT2NUM(node->type);
+  return INT2NUM((int)node->type);
 }
 
 /*
@@ -164,7 +164,7 @@ static VALUE name(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-  return rb_str_new2((char *)node->name);
+  return rb_str_new2((const char *)node->name);
 }
 
 /*

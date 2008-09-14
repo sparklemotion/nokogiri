@@ -38,10 +38,10 @@ static VALUE read_memory( VALUE klass,
   htmlDocPtr doc = htmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
 
   if(doc == NULL)
-    doc = htmlNewDoc((xmlChar *)c_url, NULL);
+    doc = htmlNewDoc((const xmlChar *)c_url, NULL);
 
   VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
-  doc->_private = rb_doc;
+  doc->_private = (void*)rb_doc;
   return rb_doc;
 }
 
@@ -49,7 +49,7 @@ static VALUE type(VALUE self)
 {
   htmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
-  return INT2NUM(doc->type);
+  return INT2NUM((int)doc->type);
 }
 
 void init_html_document()

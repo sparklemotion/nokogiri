@@ -1,6 +1,6 @@
 #include <xml_xpath.h>
 
-static free_context(xmlXPathContextPtr ctx)
+static void free_context(xmlXPathContextPtr ctx)
 {
   xmlXPathFreeContext(ctx);
 }
