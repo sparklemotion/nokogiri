@@ -33,6 +33,10 @@ module Nokogiri
         get(property)
       end
 
+      def inner_text
+        content
+      end
+
       def xml?
         type == DOCUMENT_NODE
       end
