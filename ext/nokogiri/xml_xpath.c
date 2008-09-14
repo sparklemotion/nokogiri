@@ -27,6 +27,7 @@ static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)
   xmlNodePtr node ;
   Data_Get_Struct(nodeobj, xmlNode, node);
 
+  search_path = rb_funcall(klass, rb_intern("munge_search_path"), 1, search_path);
   xmlXPathContextPtr ctx = xmlXPathNewContext(node->doc);
   ctx->node = node ;
   xmlXPathObjectPtr xpath = xmlXPathEvalExpression(
