@@ -20,6 +20,11 @@ module Nokogiri
           x += 1
         end
       end
+
+      def inner_text
+        collect{|j| j.inner_text}.join('')
+      end
+
     end
   end
 end

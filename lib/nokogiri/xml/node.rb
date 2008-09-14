@@ -32,6 +32,9 @@ module Nokogiri
         return nil unless key?(property)
         get(property)
       end
+      def has_attribute?(property)
+        key? property
+      end
 
       def inner_text
         content
