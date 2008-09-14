@@ -32,6 +32,10 @@ static VALUE new(VALUE klass, VALUE document, VALUE search_path)
       (xmlChar *)StringValuePtr(search_path),
       ctx
   );
+  if(xpath == NULL) {
+    xmlXPathFreeContext(ctx);
+    rb_raise(rb_eRuntimeError, "Couldn't evaluate expression");
+  }
 
   // FIXME: GC
   VALUE self = Data_Wrap_Struct(klass, NULL, NULL, xpath);

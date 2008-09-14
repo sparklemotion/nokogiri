@@ -11,7 +11,10 @@ static VALUE length(VALUE self)
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  return INT2NUM(node_set->nodeNr);
+  if(node_set)
+    return INT2NUM(node_set->nodeNr);
+
+  return INT2NUM(0);
 }
 
 /*

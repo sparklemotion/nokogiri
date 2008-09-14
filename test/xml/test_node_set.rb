@@ -13,6 +13,11 @@ module Nokogiri
         set = node_set
         assert_equal(set[0], set[0])
       end
+
+      def test_node_set_returns_0
+        assert node_set = @xml.search('//asdkfjhasdlkfjhaldskfh')
+        assert_equal(0, node_set.length)
+      end
     end
   end
 end
