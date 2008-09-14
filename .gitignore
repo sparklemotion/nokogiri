@@ -6,4 +6,5 @@ ext/nokogiri/*.log
 ext/nokogiri/*.bundle
 ext/nokogiri/*.a
 ext/nokogiri/*.so
+ext/nokogiri/conftest.dSYM
 tags
