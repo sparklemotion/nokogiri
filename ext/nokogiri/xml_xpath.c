@@ -20,15 +20,15 @@ static VALUE node_set(VALUE self)
   return Data_Wrap_Struct(klass, NULL, NULL, xpath->nodesetval);
 }
 
-static VALUE new(VALUE klass, VALUE document, VALUE search_path)
+static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)
 {
   xmlXPathInit();
 
-  xmlDocPtr doc;
-  Data_Get_Struct(document, xmlDoc, doc);
+  xmlNodePtr node ;
+  Data_Get_Struct(nodeobj, xmlNode, node);
 
-  xmlXPathContextPtr ctx = xmlXPathNewContext(doc);
-  ctx->node = doc ;
+  xmlXPathContextPtr ctx = xmlXPathNewContext(node->doc);
+  ctx->node = node ;
   xmlXPathObjectPtr xpath = xmlXPathEvalExpression(
       (xmlChar *)StringValuePtr(search_path),
       ctx

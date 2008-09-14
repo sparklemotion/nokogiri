@@ -24,7 +24,7 @@ module Nokogiri
       alias :getChildNodes :children
 
       def search(search_path)
-        XPath.new(document, search_path).node_set
+        XPath.new(self, search_path).node_set
       end
       alias :/ :search
 
