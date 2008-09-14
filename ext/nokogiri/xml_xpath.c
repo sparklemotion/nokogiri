@@ -28,6 +28,7 @@ static VALUE new(VALUE klass, VALUE document, VALUE search_path)
   Data_Get_Struct(document, xmlDoc, doc);
 
   xmlXPathContextPtr ctx = xmlXPathNewContext(doc);
+  ctx->node = doc ;
   xmlXPathObjectPtr xpath = xmlXPathEvalExpression(
       (xmlChar *)StringValuePtr(search_path),
       ctx
