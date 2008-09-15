@@ -59,8 +59,7 @@ static VALUE root(VALUE self)
   if(root->_private)
     return (VALUE)root->_private;
 
-  VALUE klass = rb_eval_string("Nokogiri::XML::Node");
-  VALUE node = Data_Wrap_Struct(klass, NULL, NULL, root);
+  VALUE node = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, root);
   root->_private = (void *)node;
 
   rb_funcall(self, rb_intern("decorate"), 1, node);
@@ -104,7 +103,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
  *
  *  Set the global XML default for substitute entities.
  */
-static VALUE substitute_entities_set(VALUE self, VALUE value)
+static VALUE substitute_entities_set(VALUE klass, VALUE value)
 {
     xmlSubstituteEntitiesDefault(NUM2INT(value));
     return Qnil ;
@@ -116,17 +115,16 @@ static VALUE substitute_entities_set(VALUE self, VALUE value)
  *
  *  Set the global XML default for load external subsets.
  */
-static VALUE load_external_subsets_set(VALUE self, VALUE value)
+static VALUE load_external_subsets_set(VALUE klass, VALUE value)
 {
     xmlLoadExtDtdDefaultValue = NUM2INT(value);
     return Qnil ;
 }
 
+VALUE cNokogiriXmlDocument ;
 void init_xml_document()
 {
-  VALUE m_nokogiri  = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
-  VALUE m_xml       = rb_const_get(m_nokogiri, rb_intern("XML"));
-  VALUE klass       = rb_const_get(m_xml, rb_intern("Document"));
+  VALUE klass = cNokogiriXmlDocument = rb_const_get(mNokogiriXml, rb_intern("Document"));
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
   rb_define_singleton_method(klass, "new", new, -1);
@@ -142,6 +140,5 @@ void init_xml_document()
 /* public API */
 VALUE Nokogiri_wrap_xml_document(xmlDocPtr doc)
 {
-  VALUE klass = rb_eval_string("Nokogiri::XML::Document");
-  return Data_Wrap_Struct(klass, 0, dealloc, doc) ;
+  return Data_Wrap_Struct(cNokogiriXmlDocument, 0, dealloc, doc) ;
 }

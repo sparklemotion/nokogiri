@@ -159,7 +159,6 @@ class TestParser < Test::Unit::TestCase
     divs = @boingboing.search("//script/../div")
     assert_equal 2,  divs.length # hpricot says this is 1, but that's wrong.
     imgs = @boingboing.search('//div/p/a/img')
-    imgs.each {|j| puts j.path}
     assert_equal 12, imgs.length # hpricot says this is 15, but that's wrong.
     assert_equal 17, @boingboing.search('//div').search('p/a/img').length
     assert imgs.all? { |x| x.name == 'img' }

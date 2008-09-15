@@ -5,4 +5,6 @@
 
 void init_html_document();
 
+extern VALUE cNokogiriHtmlDocument ;
+
 #endif

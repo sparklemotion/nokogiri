@@ -16,8 +16,7 @@ static VALUE node_set(VALUE self)
   xmlXPathObjectPtr xpath;
   Data_Get_Struct(self, xmlXPathObject, xpath);
 
-  VALUE klass = rb_eval_string("Nokogiri::XML::NodeSet");
-  return Data_Wrap_Struct(klass, NULL, NULL, xpath->nodesetval);
+  return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xpath->nodesetval);
 }
 
 static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)
@@ -46,9 +45,10 @@ static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)
   return self;
 }
 
+VALUE cNokogiriXmlXpath ;
 void init_xml_xpath(void)
 {
-  VALUE klass = rb_eval_string("Nokogiri::XML::XPath");
+  VALUE klass = cNokogiriXmlXpath = rb_eval_string("Nokogiri::XML::XPath");
   rb_define_singleton_method(klass, "new", new, 2);
   rb_define_method(klass, "node_set", node_set, 0);
 }

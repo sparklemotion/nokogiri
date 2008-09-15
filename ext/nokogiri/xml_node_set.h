@@ -4,4 +4,5 @@
 #include <native.h>
 void init_xml_node_set();
 
+extern VALUE cNokogiriXmlNodeSet ;
 #endif

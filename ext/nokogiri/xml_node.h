@@ -6,4 +6,5 @@
 void init_xml_node();
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr root);
 
+extern VALUE cNokogiriXmlNode ;
 #endif

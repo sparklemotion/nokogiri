@@ -5,4 +5,5 @@
 
 void init_xslt_stylesheet();
 
+extern VALUE cNokogiriXsltStylesheet ;
 #endif

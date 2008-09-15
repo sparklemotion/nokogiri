@@ -55,16 +55,6 @@ module Nokogiri
         to_xml
       end
       alias :to_s :to_html
-
-      private
-      # this just dumps stripped content. is there an easy way to dump a subtree in xml? i don't know.
-      def serialize_node(type = :xml)
-        buffer = DL::XML::Buffer.new(DL::XML.xmlBufferCreate())
-        DL::XML.xmlNodeDump(buffer, ptr.doc, ptr, 2, 1)
-        x = content.dup.to_s
-        DL::XML.xmlBufferFree(buffer)
-        return x
-      end
     end
   end
 end
