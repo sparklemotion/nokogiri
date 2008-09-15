@@ -16,9 +16,11 @@ module Nokogiri
 end
 
 def Nokogiri(*args, &block)
-  builder = Nokogiri::HTML::Builder.new
-  builder.instance_eval(&block)
-  builder.doc
+  if block_given?
+    builder = Nokogiri::HTML::Builder.new
+    builder.instance_eval(&block)
+    return builder.doc
+  end
 end
 
 
