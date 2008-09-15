@@ -220,6 +220,56 @@ static VALUE document(VALUE self)
   return (VALUE)node->doc->_private;
 }
 
+/*
+ *  call-seq:
+ *    after(html)
+ *
+ *  create a node from +html+ and insert it after this node (as a sibling).
+ */
+static VALUE after(VALUE self, VALUE xml)
+{
+    xmlNodePtr node, new_node ;
+    VALUE rb_new_node ;
+    Data_Get_Struct(self, xmlNode, node);
+    rb_new_node = rb_funcall(rb_eval_string("Nokogiri::XML::Node"), rb_intern("new_from_str"), 1, xml);
+    Data_Get_Struct(rb_new_node, xmlNode, new_node);
+    xmlAddNextSibling(node, new_node);
+    return rb_new_node ;
+}
+
+/*
+ *  call-seq:
+ *    before(html)
+ *
+ *  create a node from +html+ and insert it before this node (as a sibling).
+ */
+static VALUE before(VALUE self, VALUE xml)
+{
+    xmlNodePtr node, new_node ;
+    VALUE rb_new_node ;
+    Data_Get_Struct(self, xmlNode, node);
+    rb_new_node = rb_funcall(rb_eval_string("Nokogiri::XML::Node"), rb_intern("new_from_str"), 1, xml);
+    Data_Get_Struct(rb_new_node, xmlNode, new_node);
+    xmlAddPrevSibling(node, new_node);
+    return rb_new_node ;
+}
+
+static VALUE to_xml(VALUE self)
+{
+    xmlBufferPtr buf ;
+    xmlNodePtr node ;
+    VALUE xml ;
+
+    Data_Get_Struct(self, xmlNode, node);
+
+    buf = xmlBufferCreate() ;
+    xmlNodeDump(buf, node->doc, node, 2, 1);
+    xml = rb_str_new2((char*)buf->content);
+    xmlBufferFree(buf);
+    return xml ;
+}
+
+
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
   VALUE name;
@@ -237,6 +287,29 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   return rb_node;
 }
 
+
+static VALUE new_from_str(VALUE klass, VALUE xml)
+{
+    /*
+     *  I couldn't find a more efficient way to do this. So we create a new
+     *  document and copy (recursively) the root node.
+     */
+    VALUE rb_doc ;
+    VALUE doc_klass ;
+    xmlDocPtr doc ;
+    xmlNodePtr node ;
+    doc_klass = rb_eval_string("Nokogiri::XML::Document") ;
+
+    rb_doc = rb_funcall(doc_klass, rb_intern("read_memory"), 4,
+                        xml, Qnil, Qnil, INT2NUM(0));
+    Data_Get_Struct(rb_doc, xmlDoc, doc);
+    node = xmlCopyNode(xmlDocGetRootElement(doc), 1); /* 1 => recursive */
+    VALUE rb_node = Data_Wrap_Struct(klass, NULL, NULL, node);
+    node->_private = (void *)rb_node;
+    return rb_node;
+}
+
+
 void init_xml_node()
 {
   VALUE m_nokogiri  = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
@@ -244,6 +317,7 @@ void init_xml_node()
   VALUE klass       = rb_const_get(m_xml, rb_intern("Node"));
 
   rb_define_singleton_method(klass, "new", new, -1);
+  rb_define_singleton_method(klass, "new_from_str", new_from_str, 1);
   rb_define_method(klass, "document", document, 0);
   rb_define_method(klass, "name", name, 0);
   rb_define_method(klass, "child", child, 0);
@@ -256,6 +330,9 @@ void init_xml_node()
   rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
   rb_define_method(klass, "attributes", attributes, 0);
+  rb_define_method(klass, "after", after, 1);
+  rb_define_method(klass, "before", before, 1);
+  rb_define_method(klass, "to_xml", to_xml, 0);
 
   rb_define_private_method(klass, "get", get, 1);
 }
