@@ -13,6 +13,10 @@ module Nokogiri
       end
     end
   end
+
+  def XML(string)
+    Nokogiri::XML.parse(string)
+  end
 end
 
 def Nokogiri(*args, &block)
