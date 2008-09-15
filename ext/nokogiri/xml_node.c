@@ -234,6 +234,32 @@ static VALUE set_parent(VALUE self, VALUE parent_node)
 
 /*
  * call-seq:
+ *  parent
+ *
+ * Get the parent Node for this Node
+ */
+static VALUE get_parent(VALUE self, VALUE parent_node)
+{
+  xmlNodePtr node, parent;
+  Data_Get_Struct(self, xmlNode, node);
+
+  parent = node->parent;
+  if(!parent) return Qnil;
+
+  if(parent->_private)
+    return (VALUE)parent->_private;
+
+  // FIXME: Do we need to GC?
+  VALUE rb_parent = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, parent);
+  parent->_private = (void *)rb_parent;
+
+  rb_funcall(rb_parent, rb_intern("decorate!"), 0);
+
+  return rb_parent;
+}
+
+/*
+ * call-seq:
  *  name=(new_name)
  *
  * Set the name for this Node
@@ -395,6 +421,7 @@ void init_xml_node()
   rb_define_method(klass, "name", get_name, 0);
   rb_define_method(klass, "name=", set_name, 1);
   rb_define_method(klass, "parent=", set_parent, 1);
+  rb_define_method(klass, "parent", get_parent, 0);
   rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "next_sibling", next_sibling, 0);
   rb_define_method(klass, "previous_sibling", previous_sibling, 0);

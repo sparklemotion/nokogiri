@@ -3,6 +3,18 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module HTML
     class TestBuilder < Nokogiri::TestCase
+      def test_multi_tags
+        builder = Nokogiri::HTML::Builder.new do
+          div.rad.thing! {
+            text "<awesome>"
+            b "hello"
+          }
+        end
+        assert_equal(
+          '<div class="rad" id="thing">&lt;awesome&gt;<b>hello</b></div>',
+                     builder.doc.to_html.gsub(/\n/, ''))
+      end
+
       def test_attributes_plus_block
         builder = Nokogiri::HTML::Builder.new do
           div.rad.thing! {

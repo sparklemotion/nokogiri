@@ -1,16 +1,14 @@
 module Nokogiri
   module XML
     class Builder
-      attr_accessor :doc
+      attr_accessor :doc, :parent
       def initialize(&block)
         namespace = self.class.name.split('::')
         namespace[-1] = 'Document'
         @doc = eval(namespace.join('::')).new
-        @last_node = nil
-        @root = true
+        @parent = @doc
         instance_eval(&block)
-        @last_node = nil
-        @root = true
+        @parent = @doc
       end
 
       def text(string)
@@ -27,15 +25,12 @@ module Nokogiri
 
       private
       def insert(node, &block)
-        if @root
-          @root = false
-          @doc.root = node
-        else
-          node.parent = @last_node
+        node.parent = @parent
+        if block_given?
+          @parent = node
+          instance_eval(&block)
+          @parent = node.parent
         end
-
-        @last_node = node
-        instance_eval(&block) if block_given?
         NodeBuilder.new(node, self)
       end
 
@@ -57,7 +52,10 @@ module Nokogiri
               ((@node['class'] || '').split(/\s/) + [method.to_s]).join(' ')
             @node.content = args.first if args.first
           end
-          return @doc_builder.instance_eval(&block) if block_given?
+          if block_given?
+            @doc_builder.parent = @node
+            return @doc_builder.instance_eval(&block)
+          end
           self
         end
       end
