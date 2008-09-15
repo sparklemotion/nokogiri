@@ -47,6 +47,22 @@ module Nokogiri
         assert doc.xml?
         assert_nil doc.root
       end
+
+      def test_set_root
+        doc = nil
+        assert_nothing_raised {
+          doc = Nokogiri::XML::Document.new
+        }
+        assert doc
+        assert doc.xml?
+        assert_nil doc.root
+        node = Nokogiri::XML::Node.new("b") { |n|
+          n.content = 'hello world'
+        }
+        assert_equal('hello world', node.content)
+        doc.root = node
+        assert_equal(node, doc.root)
+      end
     end
   end
 end

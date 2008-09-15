@@ -26,6 +26,24 @@ static VALUE serialize(VALUE self)
 
 /*
  * call-seq:
+ *  root=
+ *
+ * Set the root element on this document
+ */
+static VALUE set_root(VALUE self, VALUE root)
+{
+  xmlDocPtr doc;
+  xmlNodePtr new_root;
+
+  Data_Get_Struct(self, xmlDoc, doc);
+  Data_Get_Struct(root, xmlNode, new_root);
+
+  xmlDocSetRootElement(doc, new_root);
+  return root;
+}
+
+/*
+ * call-seq:
  *  root
  *
  * Get the root node for this document.
@@ -107,6 +125,7 @@ void init_xml_document()
   rb_define_singleton_method(klass, "load_external_subsets=", load_external_subsets_set, 1);
 
   rb_define_method(klass, "root", root, 0);
+  rb_define_method(klass, "root=", set_root, 1);
   rb_define_method(klass, "serialize", serialize, 0);
 }
 

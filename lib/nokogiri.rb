@@ -5,7 +5,6 @@ require 'nokogiri/html'
 require 'nokogiri/native'
 
 module Nokogiri
-
   class << self
     def parse(string, url = nil, encoding = nil, options = 32)
       doc =

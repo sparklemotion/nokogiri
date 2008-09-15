@@ -2,6 +2,9 @@
 
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr root)
 {
+  if(root->_private)
+    return (VALUE)root->_private;
+
   VALUE klass = rb_eval_string("Nokogiri::XML::Node");
   VALUE node = Data_Wrap_Struct(klass, NULL, NULL, root);
   root->_private = (void *)node;
@@ -197,8 +200,7 @@ static VALUE document(VALUE self)
 
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
-  VALUE name;
-  VALUE ns;
+  VALUE name, ns;
   xmlNsPtr xml_ns = NULL;
 
   rb_scan_args(argc, argv, "11", &name, &ns);
@@ -209,6 +211,9 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   xmlNodePtr node = xmlNewNode(xml_ns, (xmlChar *)StringValuePtr(name));
   VALUE rb_node = Data_Wrap_Struct(klass, NULL, NULL, node);
   node->_private = (void *)rb_node;
+
+  if(rb_block_given_p()) rb_yield(rb_node);
+
   return rb_node;
 }
 

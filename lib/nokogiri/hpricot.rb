@@ -1,5 +1,6 @@
 
 require 'nokogiri'
+require 'nokogiri/xml/builder'
 
 module Nokogiri
   module XML
@@ -11,6 +12,11 @@ module Nokogiri
       end
     end
   end
+end
+
+def Nokogiri(*args, &block)
+  builder = Nokogiri::XML::Builder.new
+  builder.instance_eval(&block)
 end
 
 
