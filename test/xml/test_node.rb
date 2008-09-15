@@ -42,6 +42,12 @@ module Nokogiri
         assert node = xml.search('//address').first
         assert_nil(node['asdfasdfasdf'])
         assert_equal('Yes', node['domestic'])
+
+        assert node = xml.search('//address')[2]
+        attr = node.attributes
+        assert_equal 2, attr.size
+        assert_equal 'Yes', attr['domestic']
+        assert_equal 'No', attr['street']
       end
 
       def test_path

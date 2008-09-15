@@ -48,6 +48,11 @@ module Nokogiri
         type == HTML_DOCUMENT_NODE
       end
 
+      def to_html
+        to_xml
+      end
+      alias :to_s :to_html
+
       private
       # this just dumps stripped content. is there an easy way to dump a subtree in xml? i don't know.
       def serialize_node(type = :xml)
