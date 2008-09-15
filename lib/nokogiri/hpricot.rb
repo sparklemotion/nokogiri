@@ -11,6 +11,7 @@ module Nokogiri
         search_path = Nokogiri::Hpricot.convert_to_xpath(rule)
         search_without_hpricot_conversion(search_path)
       end
+      alias :/ :search
     end
   end
 
