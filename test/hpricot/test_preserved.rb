@@ -5,8 +5,10 @@ require "nokogiri/hpricot"
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestPreserved < Test::Unit::TestCase
+  include Nokogiri
+
   def assert_roundtrip str
-    doc = Nokogiri(str)
+    doc = Hpricot(str)
     yield doc if block_given?
     str2 = doc.to_original_html
     [*str].zip([*str2]).each do |s1, s2|
@@ -15,15 +17,15 @@ class TestPreserved < Test::Unit::TestCase
   end
 
   def assert_html str1, str2
-    doc = Nokogiri(str2)
+    doc = Hpricot(str2)
     yield doc if block_given?
     assert_equal str1, doc.to_original_html
   end
 
   def test_simple
-    str = "<p>Nokogiri is a <b>you know <i>uh</b> fine thing.</p>"
+    str = "<p>Hpricot is a <b>you know <i>uh</b> fine thing.</p>"
     assert_html str, str
-    assert_html "<p class=\"new\">Nokogiri is a <b>you know <i>uh</b> fine thing.</p>", str do |doc|
+    assert_html "<p class=\"new\">Hpricot is a <b>you know <i>uh</b> fine thing.</p>", str do |doc|
       (doc/:p).set('class', 'new')
     end
   end
@@ -39,7 +41,7 @@ class TestPreserved < Test::Unit::TestCase
   end
 
   def test_escaping_of_contents
-    doc = Nokogiri(TestFiles::BOINGBOING)
+    doc = Hpricot(TestFiles::BOINGBOING)
     assert_equal "Fukuda\342\200\231s Automatic Door opens around your body as you pass through it. The idea is to save energy and keep the room clean.", doc.at("img[@alt='200606131240']").next.to_s.strip
   end
 
@@ -52,7 +54,7 @@ class TestPreserved < Test::Unit::TestCase
   def test_escaping_of_attrs
     # ampersands in URLs
     str = %{<a href="http://google.com/search?q=nokogiri&amp;l=en">Google</a>}
-    link = (doc = Nokogiri(str)).at(:a)
+    link = (doc = Hpricot(str)).at(:a)
     assert_equal "http://google.com/search?q=nokogiri&l=en", link['href']
     assert_equal "http://google.com/search?q=nokogiri&l=en", link.attributes['href']
     assert_equal "http://google.com/search?q=nokogiri&l=en", link.get_attribute('href')

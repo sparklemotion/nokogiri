@@ -43,6 +43,7 @@ static VALUE index_at(VALUE self, VALUE number)
 
   VALUE rb_node = Data_Wrap_Struct(klass, NULL, NULL, node_set->nodeTab[i]);
   node->_private = (void *)rb_node;
+  rb_funcall(rb_node, rb_intern("decorate!"), 0);
   return rb_node;
 }
 

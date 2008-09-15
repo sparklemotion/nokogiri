@@ -5,8 +5,10 @@ require "nokogiri/hpricot"
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestParser < Test::Unit::TestCase
+  include Nokogiri
+
   def test_set_attr
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     @basic.search('//p').set('class', 'para')
     assert_equal 4, @basic.search('//p').length
     assert_equal 4, @basic.search('//p').find_all { |x| x['class'] == 'para' }.length
@@ -14,17 +16,17 @@ class TestParser < Test::Unit::TestCase
 
   # Test creating a new element 
   def test_new_element 
-    elem = Nokogiri::Elem.new(Nokogiri::STag.new('form')) 
+    elem = Hpricot::Elem.new(Hpricot::STag.new('form')) 
     assert_not_nil(elem) 
     assert_not_nil(elem.attributes) 
   end 
 
   def test_scan_text
-    assert_equal 'FOO', Nokogiri.make("FOO").first.content
+    assert_equal 'FOO', Hpricot.make("FOO").first.content
   end
 
   def test_filter_by_attr
-    @boingboing = Nokogiri.parse(TestFiles::BOINGBOING)
+    @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
 
     # this link is escaped in the doc
     link = 'http://www.youtube.com/watch?v=TvSNXyNw26g&search=chris%20ware'
@@ -32,35 +34,35 @@ class TestParser < Test::Unit::TestCase
   end
   
   def test_filter_contains
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     assert_equal '<title>Sample XHTML</title>', @basic.search("title:contains('Sample')").to_s
   end
 
   def test_get_element_by_id
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     assert_equal 'link1', @basic.get_element_by_id('link1')['id']
     assert_equal 'link1', @basic.get_element_by_id('body1').get_element_by_id('link1').get_attribute('id')
   end
 
   def test_get_element_by_tag_name
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     assert_equal 'link1', @basic.get_elements_by_tag_name('a')[0].get_attribute('id')
     assert_equal 'link1', @basic.get_elements_by_tag_name('body')[0].get_element_by_id('link1').get_attribute('id')
   end
 
   def test_output_basic
-    @basic = Nokogiri.parse(TestFiles::BASIC)
-    @basic2 = Nokogiri.parse(@basic.inner_html)
+    @basic = Hpricot.parse(TestFiles::BASIC)
+    @basic2 = Hpricot.parse(@basic.inner_html)
     scan_basic @basic2
   end
 
   def test_scan_basic
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     scan_basic @basic
   end
 
   def scan_basic doc
-    assert_kind_of Nokogiri::XMLDecl, doc.children.first 
+    assert_kind_of Hpricot::XMLDecl, doc.children.first 
     assert_not_equal doc.children.first.to_s, doc.children[1].to_s 
     assert_equal 'link1', doc.at('#link1')['id']
     assert_equal 'link1', doc.at("p a")['id']
@@ -92,20 +94,20 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_positional
-    h = Nokogiri( "<div><br/><p>one</p><p>two</p></div>" )
+    h = Hpricot( "<div><br/><p>one</p><p>two</p></div>" )
     assert_equal "<p>one</p>", h.search("//div/p:eq(0)").to_s
     assert_equal "<p>one</p>", h.search("//div/p:first").to_s
     assert_equal "<p>one</p>", h.search("//div/p:first()").to_s
   end
 
   def test_pace
-    doc = Nokogiri(TestFiles::PACE_APPLICATION)
+    doc = Hpricot(TestFiles::PACE_APPLICATION)
     assert_equal 'get', doc.at('form[@name=frmSect11]')['method']
     # assert_equal '2', doc.at('#hdnSpouse')['value']
   end
 
   def test_scan_boingboing
-    @boingboing = Nokogiri.parse(TestFiles::BOINGBOING)
+    @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
     assert_equal 60, (@boingboing/'p.posted').length
     assert_equal 1, @boingboing.search("//a[@name='027906']").length
     assert_equal 10, @boingboing.search("script comment()").length
@@ -120,7 +122,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_reparent
-    doc = Nokogiri(%{<div id="blurb_1"></div>})
+    doc = Hpricot(%{<div id="blurb_1"></div>})
     div1 = doc.search('#blurb_1')
     div1.before('<div id="blurb_0"></div>')
 
@@ -131,7 +133,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_siblings
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     t = @basic.at(:title)
     e = t.next_sibling
     assert_equal 'test1.css', e['href']
@@ -139,18 +141,18 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_css_negation
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     assert_equal 3, (@basic/'p:not(.final)').length
   end
 
   def test_remove_attribute
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     (@basic/:p).each { |ele| ele.remove_attribute('class') }
     assert_equal 0, (@basic/'p[@class]').length
   end
 
   def test_abs_xpath
-    @boingboing = Nokogiri.parse(TestFiles::BOINGBOING)
+    @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
     assert_equal 60, @boingboing.search("/html/body//p[@class='posted']").length
     assert_equal 60, @boingboing.search("/*/body//p[@class='posted']").length
     assert_equal 18, @boingboing.search("//script").length
@@ -164,7 +166,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_predicates
-    @boingboing = Nokogiri.parse(TestFiles::BOINGBOING)
+    @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
     assert_equal 2, @boingboing.search('//link[@rel="alternate"]').length
     p_imgs = @boingboing.search('//div/p[/a/img]')
     assert_equal 15, p_imgs.length
@@ -176,17 +178,17 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_tag_case 
-    @tenderlove = Nokogiri.parse(TestFiles::TENDERLOVE) 
+    @tenderlove = Hpricot.parse(TestFiles::TENDERLOVE) 
     assert_equal 2, @tenderlove.search('//a').length 
     assert_equal 3, @tenderlove.search('//area').length 
     assert_equal 2, @tenderlove.search('//meta').length 
   end 
 
   def test_alt_predicates
-    @boingboing = Nokogiri.parse(TestFiles::BOINGBOING)
+    @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
     assert_equal 1, @boingboing.search('//table/tr:last').length
 
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     assert_equal "<p>The third paragraph</p>",
         @basic.search('p:eq(2)').to_html
     assert_equal '<p class="last final"><b>THE FINAL PARAGRAPH</b></p>',
@@ -195,7 +197,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_insert_after # ticket #63
-    doc = Nokogiri('<html><body><div id="a-div"></div></body></html>')
+    doc = Hpricot('<html><body><div id="a-div"></div></body></html>')
     (doc/'div').each do |element|
       element.after('<p>Paragraph 1</p><p>Paragraph 2</p>')
     end
@@ -203,7 +205,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_insert_before # ticket #61
-    doc = Nokogiri('<html><body><div id="a-div"></div></body></html>')
+    doc = Hpricot('<html><body><div id="a-div"></div></body></html>')
     (doc/'div').each do |element|
       element.before('<p>Paragraph 1</p><p>Paragraph 2</p>')
     end
@@ -211,28 +213,28 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_many_paths
-    @boingboing = Nokogiri.parse(TestFiles::BOINGBOING)
+    @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
     assert_equal 62, @boingboing.search('p.posted, link[@rel="alternate"]').length
     assert_equal 20, @boingboing.search('//div/p[a/img]|//link[@rel="alternate"]').length
   end
 
   def test_stacked_search
-    @boingboing = Nokogiri.parse(TestFiles::BOINGBOING)
-    assert_kind_of Nokogiri::Elements, @boingboing.search('//div/p').search('a img')
+    @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
+    assert_kind_of Hpricot::Elements, @boingboing.search('//div/p').search('a img')
   end
 
   def test_class_search
     # test case sent by Chih-Chao Lam
-    doc = Nokogiri("<div class=xyz'>abc</div>")
+    doc = Hpricot("<div class=xyz'>abc</div>")
     assert_equal 1, doc.search(".xyz").length
-    doc = Nokogiri("<div class=xyz>abc</div><div class=abc>xyz</div>")
+    doc = Hpricot("<div class=xyz>abc</div><div class=abc>xyz</div>")
     assert_equal 1, doc.search(".xyz").length
     assert_equal 4, doc.search("*").length
   end
 
   def test_kleene_star
     # bug noticed by raja bhatia
-    doc = Nokogiri("<span class='small'>1</span><div class='large'>2</div><div class='small'>3</div><span class='blue large'>4</span>")
+    doc = Hpricot("<span class='small'>1</span><div class='large'>2</div><div class='small'>3</div><span class='blue large'>4</span>")
     assert_equal 2, doc.search("*[@class*='small']").length
     assert_equal 2, doc.search("*.small").length
     assert_equal 2, doc.search(".small").length
@@ -240,14 +242,14 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_empty_comment
-    doc = Nokogiri("<p><!----></p>")
+    doc = Hpricot("<p><!----></p>")
     assert doc.children[0].children[0].comment?
-    doc = Nokogiri("<p><!-- --></p>")
+    doc = Hpricot("<p><!-- --></p>")
     assert doc.children[0].children[0].comment?
   end
 
   def test_body_newlines
-    @immob = Nokogiri.parse(TestFiles::IMMOB)
+    @immob = Hpricot.parse(TestFiles::IMMOB)
     body = @immob.at(:body)
     {'background' => '', 'bgcolor' => '#ffffff', 'text' => '#000000', 'marginheight' => '10',
      'marginwidth' => '10', 'leftmargin' => '10', 'topmargin' => '10', 'link' => '#000066',
@@ -257,28 +259,28 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_nested_twins
-    @doc = Nokogiri("<div>Hi<div>there</div></div>")
+    @doc = Hpricot("<div>Hi<div>there</div></div>")
     assert_equal 1, (@doc/"div div").length
   end
 
   def test_wildcard
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     assert_equal 3, (@basic/"*[@id]").length
     assert_equal 3, (@basic/"//*[@id]").length
   end
 
   def test_javascripts
-    @immob = Nokogiri.parse(TestFiles::IMMOB)
+    @immob = Hpricot.parse(TestFiles::IMMOB)
     assert_equal 3, (@immob/:script)[0].inner_html.scan(/<LINK/).length
   end
 
   def test_nested_scripts
-    @week9 = Nokogiri.parse(TestFiles::WEEK9)
+    @week9 = Hpricot.parse(TestFiles::WEEK9)
     assert_equal 14, (@week9/"a").find_all { |x| x.inner_html.include? "GameCenter" }.length
   end
 
   def test_uswebgen
-    @uswebgen = Nokogiri.parse(TestFiles::USWEBGEN)
+    @uswebgen = Hpricot.parse(TestFiles::USWEBGEN)
     # sent by brent beardsley, nokogiri 0.3 had problems with all the links.
     assert_equal 67, (@uswebgen/:a).length
   end
@@ -289,21 +291,21 @@ class TestParser < Test::Unit::TestCase
      %{<html><form name='loginForm'?URL= ?URL= method='post' action='/units/a/login/1,13088,779-1,00.html'?URL=></form></html>},
      %{<html><form name='loginForm' method='post' action='/units/a/login/1,13088,779-1,00.html' ?URL=></form></html>}].
     each do |str|
-      doc = Nokogiri(str)
+      doc = Hpricot(str)
       assert_equal 1, (doc/:form).length
       assert_equal '/units/a/login/1,13088,779-1,00.html', doc.at("form")['action']
     end
   end
 
   def test_procins
-    doc = Nokogiri("<?php print('hello') ?>\n<?xml blah='blah'?>")
+    doc = Hpricot("<?php print('hello') ?>\n<?xml blah='blah'?>")
     assert_equal "php", doc.children[0].target
     assert_equal "blah='blah'", doc.children[2].content
   end
 
   def test_buffer_error
-    assert_raise Nokogiri::ParseError, "ran out of buffer space on element <input>, starting on line 3." do
-      Nokogiri(%{<p>\n\n<input type="hidden" name="__VIEWSTATE"  value="#{(("X" * 2000) + "\n") * 22}" />\n\n</p>})
+    assert_raise Hpricot::ParseError, "ran out of buffer space on element <input>, starting on line 3." do
+      Hpricot(%{<p>\n\n<input type="hidden" name="__VIEWSTATE"  value="#{(("X" * 2000) + "\n") * 22}" />\n\n</p>})
     end
   end
 
@@ -328,23 +330,23 @@ class TestParser < Test::Unit::TestCase
     </object>
     </body></html?
     edoc
-    doc = Nokogiri(str)
+    doc = Hpricot(str)
     assert_equal "http://www.youtube.com/v/NbDQ4M_cuwA",
       doc.at("//object/param[@value='http://www.youtube.com/v/NbDQ4M_cuwA']")['value']
   end
   
   # ticket #84 by jamezilla
   def test_screwed_xmlns
-    doc = Nokogiri(<<-edoc)
+    doc = Hpricot(<<-edoc)
       <?xml:namespace prefix = cwi />
       <html><body>HAI</body></html>
     edoc
     assert_equal "HAI", doc.at("body").inner_text
   end
 
-  # Reported by Jonathan Nichols on the Nokogiri list (24 May 2007)
+  # Reported by Jonathan Nichols on the Hpricot list (24 May 2007)
   def test_self_closed_form
-    doc = Nokogiri(<<-edoc)
+    doc = Hpricot(<<-edoc)
       <body>
       <form action="/loginRegForm" name="regForm" method="POST" />
       <input type="button">
@@ -355,7 +357,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_filters
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
     assert_equal 0, (@basic/"title:parent").size
     assert_equal 3, (@basic/"p:parent").size
     assert_equal 1, (@basic/"title:empty").size
@@ -365,7 +367,7 @@ class TestParser < Test::Unit::TestCase
   def test_keep_cdata
     str = %{<script> /*<![CDATA[*/
     /*]]>*/ </script>}
-    assert_equal str, Nokogiri(str).to_html
+    assert_equal str, Hpricot(str).to_html
   end
 
   def test_namespace
@@ -374,7 +376,7 @@ class TestParser < Test::Unit::TestCase
       <t:sam>hi </t:sam>
     </a>
     END
-    doc = Nokogiri::XML(chunk)
+    doc = Hpricot::XML(chunk)
     assert (doc/"//t:sam").size > 0 # at least this should probably work
     # assert (doc/"//sam").size > 0  # this would be nice 
   end

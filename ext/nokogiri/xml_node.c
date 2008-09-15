@@ -1,16 +1,5 @@
 #include <xml_node.h>
 
-VALUE Nokogiri_wrap_xml_node(xmlNodePtr root)
-{
-  if(root->_private)
-    return (VALUE)root->_private;
-
-  VALUE klass = rb_eval_string("Nokogiri::XML::Node");
-  VALUE node = Data_Wrap_Struct(klass, NULL, NULL, root);
-  root->_private = (void *)node;
-  return node;
-}
-
 /*
  * call-seq:
  *  blank?
@@ -47,6 +36,9 @@ static VALUE next(VALUE self)
   // FIXME: Do we need to GC?
   VALUE rb_next = Data_Wrap_Struct(klass, NULL, NULL, sibling);
   sibling->_private = (void *)rb_next;
+
+  rb_funcall(rb_next, rb_intern("decorate!"), 0);
+
   return rb_next;
 }
 
@@ -71,6 +63,8 @@ static VALUE child(VALUE self)
   // FIXME: Do we need to GC?
   VALUE rb_child = Data_Wrap_Struct(klass, NULL, NULL, child);
   child->_private = (void *)rb_child;
+
+  rb_funcall(rb_child, rb_intern("decorate!"), 0);
   return rb_child;
 }
 
@@ -251,6 +245,9 @@ static VALUE after(VALUE self, VALUE xml)
     rb_new_node = rb_funcall(rb_eval_string("Nokogiri::XML::Node"), rb_intern("new_from_str"), 1, xml);
     Data_Get_Struct(rb_new_node, xmlNode, new_node);
     xmlAddNextSibling(node, new_node);
+
+    rb_funcall(rb_new_node, rb_intern("decorate!"), 0);
+
     return rb_new_node ;
 }
 
@@ -268,6 +265,9 @@ static VALUE before(VALUE self, VALUE xml)
     rb_new_node = rb_funcall(rb_eval_string("Nokogiri::XML::Node"), rb_intern("new_from_str"), 1, xml);
     Data_Get_Struct(rb_new_node, xmlNode, new_node);
     xmlAddPrevSibling(node, new_node);
+
+    rb_funcall(rb_new_node, rb_intern("decorate!"), 0);
+
     return rb_new_node ;
 }
 
@@ -337,6 +337,7 @@ void init_xml_node()
 
   rb_define_singleton_method(klass, "new", new, -1);
   rb_define_singleton_method(klass, "new_from_str", new_from_str, 1);
+
   rb_define_method(klass, "document", document, 0);
   rb_define_method(klass, "name", get_name, 0);
   rb_define_method(klass, "name=", set_name, 1);

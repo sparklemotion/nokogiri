@@ -38,6 +38,21 @@ module Nokogiri
         assert @xml.to_xml
       end
 
+      def test_decorator_is_applied
+        x = Module.new do
+          def awesome!
+          end
+        end
+        (@xml.node_decorators ||= []) << x
+        @xml.decorate!
+        assert @xml.respond_to?(:awesome!)
+        assert node_set = @xml.search('//employee')
+        node_set.each do |node|
+          assert node.respond_to?(:awesome!)
+        end
+        assert @xml.root.respond_to?(:awesome!)
+      end
+
       def test_new
         doc = nil
         assert_nothing_raised {

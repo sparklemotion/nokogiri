@@ -56,7 +56,16 @@ static VALUE root(VALUE self)
   xmlNodePtr root = xmlDocGetRootElement(doc);
 
   if(!root) return Qnil;
-  return Nokogiri_wrap_xml_node(root);
+  if(root->_private)
+    return (VALUE)root->_private;
+
+  VALUE klass = rb_eval_string("Nokogiri::XML::Node");
+  VALUE node = Data_Wrap_Struct(klass, NULL, NULL, root);
+  root->_private = (void *)node;
+
+  rb_funcall(self, rb_intern("decorate"), 1, node);
+
+  return node;
 }
 
 static VALUE read_memory( VALUE klass,

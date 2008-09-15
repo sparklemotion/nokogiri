@@ -2,6 +2,9 @@ require 'nokogiri/version'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'
 require 'nokogiri/html'
+require 'nokogiri/decorators'
+require 'nokogiri/xml/builder'
+require 'nokogiri/html/builder'
 require 'nokogiri/native'
 
 module Nokogiri

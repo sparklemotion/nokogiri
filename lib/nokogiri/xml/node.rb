@@ -12,6 +12,10 @@ module Nokogiri
       XINCLUDE_END = 20
       DOCB_DOCUMENT_NODE = 21
 
+      def decorate!
+        document.decorate(self) if document
+      end
+
       def children
         list = []
         first = self.child
@@ -21,7 +25,6 @@ module Nokogiri
         end
         list
       end
-      alias :getChildNodes :children
 
       def search(search_path)
         XPath.new(self, search_path).node_set

@@ -5,8 +5,10 @@ require "nokogiri/hpricot"
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestAlter < Test::Unit::TestCase
+  include Nokogiri
+
   def setup
-    @basic = Nokogiri.parse(TestFiles::BASIC)
+    @basic = Hpricot.parse(TestFiles::BASIC)
   end
   
   def test_before
@@ -24,14 +26,14 @@ class TestAlter < Test::Unit::TestCase
   def test_wrap
     ohmy = (@basic/"p.ohmy").wrap("<div id='wrapper'></div>")
     assert_equal 'wrapper', ohmy[0].parent['id']
-    assert_equal 'ohmy', Nokogiri(@basic.to_html).at("#wrapper").children[0]['class']
+    assert_equal 'ohmy', Hpricot(@basic.to_html).at("#wrapper").children[0]['class']
   end
   
   def test_add_class
     first_p = (@basic/"p:first").add_class("testing123")
     assert first_p[0].get_attribute("class").split(" ").include?("testing123")
-    assert (Nokogiri(@basic.to_html)/"p:first")[0].attributes["class"].split(" ").include?("testing123")
-    assert !(Nokogiri(@basic.to_html)/"p:gt(0)")[0].attributes["class"].split(" ").include?("testing123")
+    assert (Hpricot(@basic.to_html)/"p:first")[0].attributes["class"].split(" ").include?("testing123")
+    assert !(Hpricot(@basic.to_html)/"p:gt(0)")[0].attributes["class"].split(" ").include?("testing123")
   end
   
   def test_change_attributes
@@ -60,6 +62,6 @@ class TestAlter < Test::Unit::TestCase
 
   def assert_changed original, selector, set, &block
     assert set.all?(&block)
-    assert Nokogiri(original.to_html).search(selector).all?(&block)
+    assert Hpricot(original.to_html).search(selector).all?(&block)
   end
 end
