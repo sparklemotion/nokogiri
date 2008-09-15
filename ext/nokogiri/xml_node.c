@@ -110,6 +110,31 @@ static VALUE get(VALUE self, VALUE attribute)
 }
 
 /*
+ *  call-seq
+ *    attributes()
+ *
+ *  returns a hash containing the node's attributes.
+ */
+static VALUE attributes(VALUE self)
+{
+    /* this code in the mod eof xmlHasProp() */
+    xmlNodePtr node ;
+    xmlAttrPtr prop;
+    VALUE attr ;
+
+    attr = rb_hash_new() ;
+    Data_Get_Struct(self, xmlNode, node);
+
+    prop = node->properties ;
+    while (prop != NULL) {
+        rb_hash_aset(attr, rb_str_new2((const char*)prop->name),
+                     rb_str_new2((char*)xmlGetProp(node, prop->name)));
+        prop = prop->next ;
+    }
+    return attr ;
+}
+
+/*
  * call-seq:
  *  type
  *
@@ -230,6 +255,7 @@ void init_xml_node()
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
+  rb_define_method(klass, "attributes", attributes, 0);
 
   rb_define_private_method(klass, "get", get, 1);
 }
