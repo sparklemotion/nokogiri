@@ -13,10 +13,20 @@ module Nokogiri
         @root = true
       end
 
+      def text(string)
+        node = Nokogiri::XML::Text.new(string)
+        insert(node)
+      end
+
       def method_missing(method, *args, &block)
         node = Nokogiri::XML::Node.new(method.to_s) { |n|
           n.content = args.first if args.first
         }
+        insert(node, &block)
+      end
+
+      private
+      def insert(node, &block)
         if @root
           @root = false
           @doc.root = node

@@ -6,10 +6,11 @@ module Nokogiri
       def test_attributes_plus_block
         builder = Nokogiri::HTML::Builder.new do
           div.rad.thing! {
-            text "awesome"
+            text "<awesome>"
           }
         end
-        puts builder.doc.to_html
+        assert_equal('<div class="rad" id="thing">&lt;awesome&gt;</div>',
+                     builder.doc.to_html.chomp)
       end
 
       def test_builder_adds_attributes
