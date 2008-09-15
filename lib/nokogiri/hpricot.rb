@@ -9,21 +9,27 @@ module Nokogiri
         (doc.node_decorators ||= []) << Decorators::Hpricot
         doc
       end
+
+      def XML(string)
+        doc = Nokogiri::XML.parse(string)
+        (doc.node_decorators ||= []) << Decorators::Hpricot
+        doc.decorate!
+        doc
+      end
     end
   end
-
-  def XML(string)
-    doc = Nokogiri::XML.parse(string)
-    (doc.node_decorators ||= []) << Decorators::Hpricot
-    doc.decorate!
-    doc
-  end
-
+  
   def Hpricot(*args, &block)
     if block_given?
       builder = Nokogiri::HTML::Builder.new
       builder.instance_eval(&block)
       return builder.doc
+    else
+      doc = Nokogiri::HTML.parse(*args)
+      (doc.node_decorators ||= []) << Decorators::Hpricot
+      doc.decorate!
+      doc
     end
   end
+
 end

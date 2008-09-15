@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require "nokogiri/hpricot"
+require "nokogiri"
 
 class TestBuilder < Test::Unit::TestCase
   include Nokogiri

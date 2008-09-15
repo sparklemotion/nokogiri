@@ -5,6 +5,7 @@ require 'nokogiri/html'
 require 'nokogiri/decorators'
 require 'nokogiri/xml/builder'
 require 'nokogiri/html/builder'
+require 'nokogiri/hpricot'
 require 'nokogiri/native'
 
 module Nokogiri
@@ -19,5 +20,19 @@ module Nokogiri
       yield doc if block_given?
       doc
     end
+
+    def XML(string)
+      Nokogiri::XML.parse(string)
+    end
+  end
+end
+
+def Nokogiri(*args, &block)
+  if block_given?
+    builder = Nokogiri::HTML::Builder.new
+    builder.instance_eval(&block)
+    return builder.doc
+  else
+    Nokogiri::HTML.parse(*args)
   end
 end
