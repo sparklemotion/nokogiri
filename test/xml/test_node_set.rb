@@ -7,6 +7,16 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_negative_index_works
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.last, node_set[-1]
+      end
+
+      def test_large_negative_index_returns_nil
+        assert node_set = @xml.search('//employee')
+        assert_nil(node_set[-1 * (node_set.length + 1)])
+      end
+
       def test_node_set_fetches_private_data
         assert node_set = @xml.search('//employee')
 

@@ -29,7 +29,12 @@ static VALUE index_at(VALUE self, VALUE number)
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  if(i >= node_set->nodeNr) return Qnil;
+  if(i >= node_set->nodeNr || abs(i) > node_set->nodeNr)
+    return Qnil;
+
+  if(i < 0)
+    i = i + node_set->nodeNr;
+
   VALUE klass = rb_eval_string("Nokogiri::XML::Node");
 
   xmlNodePtr node = node_set->nodeTab[i];
