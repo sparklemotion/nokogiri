@@ -192,6 +192,22 @@ static VALUE get_content(VALUE self)
 
 /*
  * call-seq:
+ *  parent=(parent_node)
+ *
+ * Set the parent Node for this Node
+ */
+static VALUE set_parent(VALUE self, VALUE parent_node)
+{
+  xmlNodePtr node, parent;
+  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(parent_node, xmlNode, parent);
+
+  xmlAddChild(parent, node);
+  return parent_node;
+}
+
+/*
+ * call-seq:
  *  name=(new_name)
  *
  * Set the name for this Node
@@ -352,6 +368,7 @@ void init_xml_node()
   rb_define_method(klass, "document", document, 0);
   rb_define_method(klass, "name", get_name, 0);
   rb_define_method(klass, "name=", set_name, 1);
+  rb_define_method(klass, "parent=", set_parent, 1);
   rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "next", next, 0);
   rb_define_method(klass, "type", type, 0);
