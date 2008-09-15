@@ -6,4 +6,5 @@
 void init_xml_document();
 VALUE Nokogiri_wrap_xml_document(xmlDocPtr doc);
 
+extern VALUE cNokogiriXmlDocument ;
 #endif

@@ -5,8 +5,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr root)
   if(root->_private)
     return (VALUE)root->_private;
 
-  VALUE klass = rb_eval_string("Nokogiri::XML::Node");
-  VALUE node = Data_Wrap_Struct(klass, NULL, NULL, root);
+  VALUE node = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, root);
   root->_private = (void *)node;
   return node;
 }
@@ -43,9 +42,8 @@ static VALUE next(VALUE self)
   if(sibling->_private)
     return (VALUE)sibling->_private;
 
-  VALUE klass = rb_eval_string("Nokogiri::XML::Node");
   // FIXME: Do we need to GC?
-  VALUE rb_next = Data_Wrap_Struct(klass, NULL, NULL, sibling);
+  VALUE rb_next = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, sibling);
   sibling->_private = (void *)rb_next;
   return rb_next;
 }
@@ -67,9 +65,8 @@ static VALUE child(VALUE self)
   if(child->_private)
     return (VALUE)child->_private;
 
-  VALUE klass = rb_eval_string("Nokogiri::XML::Node");
   // FIXME: Do we need to GC?
-  VALUE rb_child = Data_Wrap_Struct(klass, NULL, NULL, child);
+  VALUE rb_child = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, child);
   child->_private = (void *)rb_child;
   return rb_child;
 }
@@ -248,7 +245,7 @@ static VALUE after(VALUE self, VALUE xml)
     xmlNodePtr node, new_node ;
     VALUE rb_new_node ;
     Data_Get_Struct(self, xmlNode, node);
-    rb_new_node = rb_funcall(rb_eval_string("Nokogiri::XML::Node"), rb_intern("new_from_str"), 1, xml);
+    rb_new_node = rb_funcall(cNokogiriXmlNode, rb_intern("new_from_str"), 1, xml);
     Data_Get_Struct(rb_new_node, xmlNode, new_node);
     xmlAddNextSibling(node, new_node);
     return rb_new_node ;
@@ -265,7 +262,7 @@ static VALUE before(VALUE self, VALUE xml)
     xmlNodePtr node, new_node ;
     VALUE rb_new_node ;
     Data_Get_Struct(self, xmlNode, node);
-    rb_new_node = rb_funcall(rb_eval_string("Nokogiri::XML::Node"), rb_intern("new_from_str"), 1, xml);
+    rb_new_node = rb_funcall(cNokogiriXmlNode, rb_intern("new_from_str"), 1, xml);
     Data_Get_Struct(rb_new_node, xmlNode, new_node);
     xmlAddPrevSibling(node, new_node);
     return rb_new_node ;
@@ -314,12 +311,10 @@ static VALUE new_from_str(VALUE klass, VALUE xml)
      *  document and copy (recursively) the root node.
      */
     VALUE rb_doc ;
-    VALUE doc_klass ;
     xmlDocPtr doc ;
     xmlNodePtr node ;
-    doc_klass = rb_eval_string("Nokogiri::XML::Document") ;
 
-    rb_doc = rb_funcall(doc_klass, rb_intern("read_memory"), 4,
+    rb_doc = rb_funcall(cNokogiriXmlDocument, rb_intern("read_memory"), 4,
                         xml, Qnil, Qnil, INT2NUM(0));
     Data_Get_Struct(rb_doc, xmlDoc, doc);
     node = xmlCopyNode(xmlDocGetRootElement(doc), 1); /* 1 => recursive */
@@ -329,11 +324,10 @@ static VALUE new_from_str(VALUE klass, VALUE xml)
 }
 
 
+VALUE cNokogiriXmlNode ;
 void init_xml_node()
 {
-  VALUE m_nokogiri  = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
-  VALUE m_xml       = rb_const_get(m_nokogiri, rb_intern("XML"));
-  VALUE klass       = rb_const_get(m_xml, rb_intern("Node"));
+  VALUE klass = cNokogiriXmlNode = rb_const_get(mNokogiriXml, rb_intern("Node"));
 
   rb_define_singleton_method(klass, "new", new, -1);
   rb_define_singleton_method(klass, "new_from_str", new_from_str, 1);

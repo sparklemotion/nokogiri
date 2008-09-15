@@ -72,11 +72,10 @@ static VALUE apply_to(int argc, VALUE* argv, VALUE self)
     return rb_funcall(self, rb_intern("serialize"), 1, resultobj);
 }
 
+VALUE cNokogiriXsltStylesheet ;
 void init_xslt_stylesheet()
 {
-  VALUE m_nokogiri  = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
-  VALUE m_xml       = rb_const_get(m_nokogiri, rb_intern("XSLT"));
-  VALUE klass       = rb_const_get(m_xml, rb_intern("Stylesheet"));
+  VALUE klass = cNokogiriXsltStylesheet = rb_const_get(mNokogiriXslt, rb_intern("Stylesheet"));
     
   rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
   rb_define_method(klass, "serialize", serialize, 1);

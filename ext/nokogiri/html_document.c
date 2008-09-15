@@ -52,11 +52,11 @@ static VALUE type(VALUE self)
   return INT2NUM((int)doc->type);
 }
 
+VALUE cNokogiriHtmlDocument ;
 void init_html_document()
 {
-  VALUE m_nokogiri  = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
-  VALUE m_xml       = rb_const_get(m_nokogiri, rb_intern("HTML"));
-  VALUE klass       = rb_const_get(m_xml, rb_intern("Document"));
+  VALUE klass ;
+  klass = cNokogiriHtmlDocument = rb_const_get(mNokogiriHtml, rb_intern("Document"));
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
 

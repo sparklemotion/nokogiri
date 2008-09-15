@@ -5,4 +5,5 @@
 
 void init_xml_xpath();
 
+extern VALUE cNokogiriXmlXpath ;
 #endif

@@ -35,20 +35,19 @@ static VALUE index_at(VALUE self, VALUE number)
   if(i < 0)
     i = i + node_set->nodeNr;
 
-  VALUE klass = rb_eval_string("Nokogiri::XML::Node");
-
   xmlNodePtr node = node_set->nodeTab[i];
   if(node->_private)
     return (VALUE)node->_private;
 
-  VALUE rb_node = Data_Wrap_Struct(klass, NULL, NULL, node_set->nodeTab[i]);
+  VALUE rb_node = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, node_set->nodeTab[i]);
   node->_private = (void *)rb_node;
   return rb_node;
 }
 
+VALUE cNokogiriXmlNodeSet ;
 void init_xml_node_set(void)
 {
-  VALUE klass = rb_eval_string("Nokogiri::XML::NodeSet");
+  VALUE klass = cNokogiriXmlNodeSet = rb_eval_string("Nokogiri::XML::NodeSet");
   rb_define_method(klass, "length", length, 0);
   rb_define_method(klass, "[]", index_at, 1);
 }
