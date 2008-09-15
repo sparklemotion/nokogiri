@@ -38,6 +38,13 @@ module Nokogiri
       def has_attribute?(property)
         key? property
       end
+      alias :get_attribute :[]
+      def set_attribute(name, value)
+        self[name] = value
+      end
+      def remove_attribute name
+        remove(name)
+      end
 
       def inner_text
         content
