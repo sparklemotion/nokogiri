@@ -3,6 +3,15 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module HTML
     class TestBuilder < Nokogiri::TestCase
+      def test_attributes_plus_block
+        builder = Nokogiri::HTML::Builder.new do
+          div.rad.thing! {
+            text "awesome"
+          }
+        end
+        puts builder.doc.to_html
+      end
+
       def test_builder_adds_attributes
         builder = Nokogiri::HTML::Builder.new do
           div.rad.thing! "tender div"
