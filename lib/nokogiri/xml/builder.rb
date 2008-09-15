@@ -19,8 +19,28 @@ module Nokogiri
 
         @node_stack << node
         instance_eval(&block) if block_given?
-        @node_stack.pop
-        nil
+        NodeBuilder.new(@node_stack.pop)
+      end
+
+      class NodeBuilder # :nodoc:
+        def initialize(node)
+          @node = node
+        end
+
+        def method_missing(method, *args)
+          case method.to_s
+          when /^(.*)!$/
+            @node['id'] = $1
+            @node.content = args.first if args.first
+          when /^(.*)=/
+            @node[$1] = args.first
+          else
+            @node['class'] = 
+              ((@node['class'] || '').split(/\s/) + [method.to_s]).join(' ')
+            @node.content = args.first if args.first
+          end
+          self
+        end
       end
     end
   end

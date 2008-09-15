@@ -21,8 +21,7 @@ module Nokogiri
   
   def Hpricot(*args, &block)
     if block_given?
-      builder = Nokogiri::HTML::Builder.new
-      builder.instance_eval(&block)
+      builder = Nokogiri::HTML::Builder.new(&block)
       return builder.doc
     else
       doc = Nokogiri::HTML.parse(*args)
