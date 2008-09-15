@@ -159,11 +159,25 @@ static VALUE get_content(VALUE self)
 
 /*
  * call-seq:
+ *  name=(new_name)
+ *
+ * Set the name for this Node
+ */
+static VALUE set_name(VALUE self, VALUE new_name)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  xmlNodeSetName(node, (xmlChar*)StringValuePtr(new_name));
+  return new_name;
+}
+
+/*
+ * call-seq:
  *  name
  *
  * Returns the name for this Node
  */
-static VALUE name(VALUE self)
+static VALUE get_name(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
@@ -225,7 +239,8 @@ void init_xml_node()
 
   rb_define_singleton_method(klass, "new", new, -1);
   rb_define_method(klass, "document", document, 0);
-  rb_define_method(klass, "name", name, 0);
+  rb_define_method(klass, "name", get_name, 0);
+  rb_define_method(klass, "name=", set_name, 1);
   rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "next", next, 0);
   rb_define_method(klass, "type", type, 0);

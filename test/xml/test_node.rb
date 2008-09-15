@@ -10,6 +10,13 @@ module Nokogiri
         assert_equal('employee', sibling.name)
       end
 
+      def test_name=
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        assert node = xml.root
+        node.name = 'awesome'
+        assert_equal('awesome', node.name)
+      end
+
       def test_child
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         assert node = xml.root
