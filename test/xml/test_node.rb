@@ -3,11 +3,19 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
-      def test_next
+      def test_next_sibling
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         assert node = xml.root
-        assert sibling = node.child.next
+        assert sibling = node.child.next_sibling
         assert_equal('employee', sibling.name)
+      end
+
+      def test_previous_sibling
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        assert node = xml.root
+        assert sibling = node.child.next_sibling
+        assert_equal('employee', sibling.name)
+        assert_equal(sibling.previous_sibling, node.child)
       end
 
       def test_name=

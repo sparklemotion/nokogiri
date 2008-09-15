@@ -5,6 +5,10 @@ module Nokogiri
         super(convert_to_xpath(path))
       end
 
+      def at(path)
+        search("//#{path}").first
+      end
+
       def convert_to_xpath(rule)
         if rule =~ %r{^//}
           return ".#{rule}"

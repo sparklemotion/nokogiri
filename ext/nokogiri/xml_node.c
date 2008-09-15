@@ -17,11 +17,11 @@ static VALUE blank_eh(VALUE self)
 
 /*
  * call-seq:
- *  next
+ *  next_sibling
  *
  * Returns the next sibling node
  */
-static VALUE next(VALUE self)
+static VALUE next_sibling(VALUE self)
 {
   xmlNodePtr node, sibling;
   Data_Get_Struct(self, xmlNode, node);
@@ -39,6 +39,32 @@ static VALUE next(VALUE self)
   rb_funcall(rb_next, rb_intern("decorate!"), 0);
 
   return rb_next;
+}
+
+/*
+ * call-seq:
+ *  previous_sibling
+ *
+ * Returns the previous sibling node
+ */
+static VALUE previous_sibling(VALUE self)
+{
+  xmlNodePtr node, sibling;
+  Data_Get_Struct(self, xmlNode, node);
+
+  sibling = node->prev;
+  if(!sibling) return Qnil;
+
+  if(sibling->_private)
+    return (VALUE)sibling->_private;
+
+  // FIXME: Do we need to GC?
+  VALUE rb_prev = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, sibling);
+  sibling->_private = (void *)rb_prev;
+
+  rb_funcall(rb_prev, rb_intern("decorate!"), 0);
+
+  return rb_prev;
 }
 
 /*
@@ -370,7 +396,8 @@ void init_xml_node()
   rb_define_method(klass, "name=", set_name, 1);
   rb_define_method(klass, "parent=", set_parent, 1);
   rb_define_method(klass, "child", child, 0);
-  rb_define_method(klass, "next", next, 0);
+  rb_define_method(klass, "next_sibling", next_sibling, 0);
+  rb_define_method(klass, "previous_sibling", previous_sibling, 0);
   rb_define_method(klass, "type", type, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "content=", set_content, 1);
