@@ -1,6 +1,7 @@
 
 require 'nokogiri'
 require 'nokogiri/xml/builder'
+require 'nokogiri/html/builder'
 
 module Nokogiri
   module XML
@@ -15,8 +16,9 @@ module Nokogiri
 end
 
 def Nokogiri(*args, &block)
-  builder = Nokogiri::XML::Builder.new
+  builder = Nokogiri::HTML::Builder.new
   builder.instance_eval(&block)
+  builder.doc
 end
 
 
