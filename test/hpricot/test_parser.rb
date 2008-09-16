@@ -302,10 +302,12 @@ class TestParser < Test::Unit::TestCase
     assert_equal "blah='blah'", doc.children[2].content
   end
 
+  ####
+  # Altered...  libxml does not get a buffer error
   def test_buffer_error
-    assert_raise Hpricot::ParseError, "ran out of buffer space on element <input>, starting on line 3." do
+    assert_nothing_raised {
       Hpricot(%{<p>\n\n<input type="hidden" name="__VIEWSTATE"  value="#{(("X" * 2000) + "\n") * 22}" />\n\n</p>})
-    end
+    }
   end
 
   def test_youtube_attr

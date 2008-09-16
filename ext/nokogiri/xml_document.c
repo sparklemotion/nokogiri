@@ -80,6 +80,12 @@ static VALUE read_memory( VALUE klass,
 
   xmlInitParser();
   xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
+
+  if(doc == NULL) {
+    xmlFreeDoc(doc);
+    rb_raise(rb_eRuntimeError, "Couldn't create a document");
+  }
+
   VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
   doc->_private = (void *)rb_doc;
   return rb_doc;
