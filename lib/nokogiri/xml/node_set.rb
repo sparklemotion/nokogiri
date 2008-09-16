@@ -70,7 +70,7 @@ module Nokogiri
       def inner_text
         collect{|j| j.inner_text}.join('')
       end
-
+      alias :text :inner_text
     end
   end
 end

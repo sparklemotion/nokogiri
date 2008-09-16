@@ -35,13 +35,20 @@ module Nokogiri
         return nil unless key?(property)
         get(property)
       end
+
+      def next
+        next_sibling
+      end
+
       def has_attribute?(property)
         key? property
       end
+
       alias :get_attribute :[]
       def set_attribute(name, value)
         self[name] = value
       end
+
       def remove_attribute name
         remove(name)
       end
