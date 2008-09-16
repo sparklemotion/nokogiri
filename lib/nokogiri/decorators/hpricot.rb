@@ -4,6 +4,7 @@ module Nokogiri
       def search(path)
         super(convert_to_xpath(path))
       end
+      def /(path); search(path) end
 
       def at(path)
         search("//#{path}").first
