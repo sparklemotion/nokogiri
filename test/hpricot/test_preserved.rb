@@ -51,6 +51,9 @@ class TestPreserved < Test::Unit::TestCase
     assert_roundtrip TestFiles::CY0
   end
 
+  ####
+  # Modified..  When calling "to_html" on the document, proper html/doc tags
+  # are produced too.
   def test_escaping_of_attrs
     # ampersands in URLs
     str = %{<a href="http://google.com/search?q=nokogiri&amp;l=en">Google</a>}
@@ -58,11 +61,11 @@ class TestPreserved < Test::Unit::TestCase
     assert_equal "http://google.com/search?q=nokogiri&l=en", link['href']
     assert_equal "http://google.com/search?q=nokogiri&l=en", link.attributes['href']
     assert_equal "http://google.com/search?q=nokogiri&l=en", link.get_attribute('href')
-    assert_equal "http://google.com/search?q=nokogiri&amp;l=en", link.raw_attributes['href']
-    assert_equal str, doc.to_html
+    assert_equal "http://google.com/search?q=nokogiri&l=en", link.raw_attributes['href']
+    assert_equal str, link.to_html
 
     # alter the url
     link['href'] = "javascript:alert(\"AGGA-KA-BOO!\")"
-    assert_equal %{<a href="javascript:alert(&quot;AGGA-KA-BOO!&quot;)">Google</a>}, doc.to_html
+    assert_equal %{<a href="javascript:alert(&quot;AGGA-KA-BOO!&quot;)">Google</a>}, link.to_html
   end
 end

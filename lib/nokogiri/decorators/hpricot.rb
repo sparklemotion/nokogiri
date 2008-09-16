@@ -10,7 +10,10 @@ module Nokogiri
         search("//#{path}").first
       end
 
+      def raw_attributes; self end
+
       def convert_to_xpath(rule)
+        rule = rule.to_s
         if rule =~ %r{^//}
           return ".#{rule}"
         elsif rule =~ %r{^/}
