@@ -6,13 +6,13 @@ module Nokogiri
       def parse(*args)
         doc = Nokogiri.parse(*args)
         doc.extend(Decorators::Hpricot)
-        (doc.node_decorators ||= []) << Decorators::Hpricot
+        doc.decorators['node'] << Decorators::Hpricot
         doc
       end
 
       def XML(string)
         doc = Nokogiri::XML.parse(string)
-        (doc.node_decorators ||= []) << Decorators::Hpricot
+        doc.decorators['node'] << Decorators::Hpricot
         doc.decorate!
         doc
       end
@@ -25,7 +25,7 @@ module Nokogiri
       return builder.doc
     else
       doc = Nokogiri::HTML.parse(*args)
-      (doc.node_decorators ||= []) << Decorators::Hpricot
+      doc.decorators['node'] << Decorators::Hpricot
       doc.decorate!
       doc
     end

@@ -1,12 +1,15 @@
 module Nokogiri
   module XML
     class Document < Node
-      attr_accessor :node_decorators
+      def decorators
+        @decorators ||= Hash.new { |h,k| h[k] = [] }
+      end
 
       ###
       # Apply any decorators to +node+
       def decorate(node)
-        (node_decorators || []).each do |klass|
+        key = node.class.name.split('::').last.downcase
+        decorators[key].each do |klass|
           node.extend(klass)
         end
       end

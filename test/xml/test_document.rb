@@ -43,7 +43,8 @@ module Nokogiri
           def awesome!
           end
         end
-        (@xml.node_decorators ||= []) << x
+        @xml.decorators['document'] << x
+        @xml.decorators['node'] << x
         @xml.decorate!
         assert @xml.respond_to?(:awesome!)
         assert node_set = @xml.search('//employee')
