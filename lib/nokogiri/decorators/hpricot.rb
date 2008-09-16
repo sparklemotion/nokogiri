@@ -7,7 +7,7 @@ module Nokogiri
       def /(path); search(path) end
 
       def at(path)
-        search("//#{path}").first
+        search("#{path}").first
       end
 
       def raw_attributes; self end

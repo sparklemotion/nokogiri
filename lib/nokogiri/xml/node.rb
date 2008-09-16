@@ -69,6 +69,7 @@ module Nokogiri
         to_xml
       end
       alias :to_s :to_html
+      alias :inner_html :to_html
     end
   end
 end

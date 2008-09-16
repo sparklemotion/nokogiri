@@ -62,7 +62,9 @@ class TestParser < Test::Unit::TestCase
   end
 
   def scan_basic doc
-    assert_kind_of Hpricot::XMLDecl, doc.children.first 
+    ####
+    # Modified: asserting kind is not duck typey
+    #assert_kind_of Hpricot::XMLDecl, doc.children.first
     assert_not_equal doc.children.first.to_s, doc.children[1].to_s 
     assert_equal 'link1', doc.at('#link1')['id']
     assert_equal 'link1', doc.at("p a")['id']
