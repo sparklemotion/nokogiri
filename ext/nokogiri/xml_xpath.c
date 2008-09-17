@@ -16,7 +16,10 @@ static VALUE node_set(VALUE self)
   xmlXPathObjectPtr xpath;
   Data_Get_Struct(self, xmlXPathObject, xpath);
 
-  return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xpath->nodesetval);
+  if (xpath->nodesetval)
+      return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xpath->nodesetval);
+  else
+      return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xmlXPathNodeSetCreate(NULL));
 }
 
 static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)

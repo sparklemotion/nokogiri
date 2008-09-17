@@ -78,6 +78,26 @@ module Nokogiri
         node.content = 'hello world!'
         assert_equal('hello world!', node.content)
       end
+
+      def test_replace
+        xml = Nokogiri::XML.parse(File.read(XML_FILE))
+        set = xml.search('//employee')
+        assert 5, set.length
+        assert 0, xml.search('//form').length
+
+        first = set[0]
+        second = set[1]
+
+        node = Nokogiri::XML::Node.new('form')
+        first.replace(node)
+
+        assert set = xml.search('//employee')
+        assert_equal 4, set.length
+        assert 1, xml.search('//form').length
+
+        assert_equal set[0].to_xml, second.to_xml
+      end
+
     end
   end
 end

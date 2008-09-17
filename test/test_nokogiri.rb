@@ -12,4 +12,25 @@ class TestNokogiri < Nokogiri::TestCase
     assert !doc.xml?
     assert doc.html?
   end
+
+  def test_nokogiri_method_with_html
+    doc1 = Nokogiri(File.read(HTML_FILE))
+    doc2 = Nokogiri.parse(File.read(HTML_FILE))
+    assert_equal doc1.serialize, doc2.serialize
+  end
+
+  def test_nokogiri_method_with_block
+    doc = Nokogiri { b "bold tag" }
+    assert_equal('<b>bold tag</b>', doc.to_html.chomp)
+  end
+
+  def test_make_with_html
+    doc = Nokogiri.make("<b>bold tag</b>")
+    assert_equal('<b>bold tag</b>', doc.to_html.chomp)
+  end
+
+  def test_make_with_block
+    doc = Nokogiri.make { b "bold tag" }
+    assert_equal('<b>bold tag</b>', doc.to_html.chomp)
+  end
 end

@@ -153,6 +153,8 @@ class TestParser < Test::Unit::TestCase
     assert_equal 0, (@basic/'p[@class]').length
   end
 
+  ##
+  #  Modified: hpricot is giving incorrect counts. Libxml gets it right.
   def test_abs_xpath
     @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
     assert_equal 60, @boingboing.search("/html/body//p[@class='posted']").length
