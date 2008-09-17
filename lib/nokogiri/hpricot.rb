@@ -8,6 +8,7 @@ module Nokogiri
         doc.extend(Decorators::Hpricot)
         doc.decorators['node'] << Decorators::Hpricot
         doc.decorators['document'] << Decorators::Hpricot
+        doc.decorate!
         doc
       end
 
@@ -25,7 +26,11 @@ module Nokogiri
     def Hpricot(*args, &block)
       if block_given?
         builder = Nokogiri::HTML::Builder.new(&block)
-        return builder.doc
+        doc = builder.doc
+        doc.decorators['node'] << Decorators::Hpricot
+        doc.decorators['document'] << Decorators::Hpricot
+        doc.decorate!
+        return doc
       else
         doc = Nokogiri::HTML.parse(*args)
         doc.decorators['node'] << Decorators::Hpricot
