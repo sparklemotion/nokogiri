@@ -31,13 +31,11 @@ static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)
 
   xmlXPathContextPtr ctx = xmlXPathNewContext(node->doc);
   ctx->node = node ;
-  xmlXPathObjectPtr xpath = xmlXPathEvalExpression(
-      (xmlChar *)StringValuePtr(search_path),
-      ctx
-  );
+  xmlChar* query = (xmlChar *)StringValuePtr(search_path) ;
+  xmlXPathObjectPtr xpath = xmlXPathEvalExpression(query, ctx );
   if(xpath == NULL) {
     xmlXPathFreeContext(ctx);
-    rb_raise(rb_eRuntimeError, "Couldn't evaluate expression");
+    rb_raise(rb_eRuntimeError, "Couldn't evaluate expression '%s'", query);
   }
 
   // FIXME: GC
