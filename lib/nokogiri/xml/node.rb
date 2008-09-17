@@ -1,6 +1,7 @@
 module Nokogiri
   module XML
     class Node
+      COMMENT_NODE = 8
       DOCUMENT_NODE = 9
       HTML_DOCUMENT_NODE = 13
       DTD_NODE = 14
@@ -17,8 +18,13 @@ module Nokogiri
       end
 
       def children
-        list = []
+        list = NodeSet.new
+        list.document = document
+        document.decorate(list)
+
         first = self.child
+        return list unless first # Empty list
+
         list << first unless first.blank?
         while first = first.next
           list << first unless first.blank?
@@ -58,6 +64,10 @@ module Nokogiri
 
       def inner_text
         content
+      end
+
+      def comment?
+        type == COMMENT_NODE
       end
 
       def xml?

@@ -246,8 +246,11 @@ class TestParser < Test::Unit::TestCase
 
   def test_empty_comment
     doc = Nokogiri.Hpricot("<p><!----></p>")
+    doc = doc.search('//body').first
     assert doc.children[0].children[0].comment?
+
     doc = Nokogiri.Hpricot("<p><!-- --></p>")
+    doc = doc.search('//body').first
     assert doc.children[0].children[0].comment?
   end
 
