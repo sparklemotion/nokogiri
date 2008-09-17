@@ -96,14 +96,14 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_positional
-    h = Hpricot( "<div><br/><p>one</p><p>two</p></div>" )
+    h = Nokogiri.Hpricot( "<div><br/><p>one</p><p>two</p></div>" )
     assert_equal "<p>one</p>", h.search("//div/p:eq(0)").to_s
     assert_equal "<p>one</p>", h.search("//div/p:first").to_s
     assert_equal "<p>one</p>", h.search("//div/p:first()").to_s
   end
 
   def test_pace
-    doc = Hpricot(TestFiles::PACE_APPLICATION)
+    doc = Nokogiri.Hpricot(TestFiles::PACE_APPLICATION)
     assert_equal 'get', doc.at('form[@name=frmSect11]')['method']
     # assert_equal '2', doc.at('#hdnSpouse')['value']
   end
@@ -124,7 +124,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_reparent
-    doc = Hpricot(%{<div id="blurb_1"></div>})
+    doc = Nokogiri.Hpricot(%{<div id="blurb_1"></div>})
     div1 = doc.search('#blurb_1')
     div1.before('<div id="blurb_0"></div>')
 
@@ -200,7 +200,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_insert_after # ticket #63
-    doc = Hpricot('<html><body><div id="a-div"></div></body></html>')
+    doc = Nokogiri.Hpricot('<html><body><div id="a-div"></div></body></html>')
     (doc/'div').each do |element|
       element.after('<p>Paragraph 1</p><p>Paragraph 2</p>')
     end
@@ -208,7 +208,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_insert_before # ticket #61
-    doc = Hpricot('<html><body><div id="a-div"></div></body></html>')
+    doc = Nokogiri.Hpricot('<html><body><div id="a-div"></div></body></html>')
     (doc/'div').each do |element|
       element.before('<p>Paragraph 1</p><p>Paragraph 2</p>')
     end
@@ -228,16 +228,16 @@ class TestParser < Test::Unit::TestCase
 
   def test_class_search
     # test case sent by Chih-Chao Lam
-    doc = Hpricot("<div class=xyz'>abc</div>")
+    doc = Nokogiri.Hpricot("<div class=xyz'>abc</div>")
     assert_equal 1, doc.search(".xyz").length
-    doc = Hpricot("<div class=xyz>abc</div><div class=abc>xyz</div>")
+    doc = Nokogiri.Hpricot("<div class=xyz>abc</div><div class=abc>xyz</div>")
     assert_equal 1, doc.search(".xyz").length
     assert_equal 4, doc.search("*").length
   end
 
   def test_kleene_star
     # bug noticed by raja bhatia
-    doc = Hpricot("<span class='small'>1</span><div class='large'>2</div><div class='small'>3</div><span class='blue large'>4</span>")
+    doc = Nokogiri.Hpricot("<span class='small'>1</span><div class='large'>2</div><div class='small'>3</div><span class='blue large'>4</span>")
     assert_equal 2, doc.search("*[@class*='small']").length
     assert_equal 2, doc.search("*.small").length
     assert_equal 2, doc.search(".small").length
@@ -245,9 +245,9 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_empty_comment
-    doc = Hpricot("<p><!----></p>")
+    doc = Nokogiri.Hpricot("<p><!----></p>")
     assert doc.children[0].children[0].comment?
-    doc = Hpricot("<p><!-- --></p>")
+    doc = Nokogiri.Hpricot("<p><!-- --></p>")
     assert doc.children[0].children[0].comment?
   end
 
@@ -262,7 +262,7 @@ class TestParser < Test::Unit::TestCase
   end
 
   def test_nested_twins
-    @doc = Hpricot("<div>Hi<div>there</div></div>")
+    @doc = Nokogiri.Hpricot("<div>Hi<div>there</div></div>")
     assert_equal 1, (@doc/"div div").length
   end
 
@@ -294,14 +294,14 @@ class TestParser < Test::Unit::TestCase
      %{<html><form name='loginForm'?URL= ?URL= method='post' action='/units/a/login/1,13088,779-1,00.html'?URL=></form></html>},
      %{<html><form name='loginForm' method='post' action='/units/a/login/1,13088,779-1,00.html' ?URL=></form></html>}].
     each do |str|
-      doc = Hpricot(str)
+      doc = Nokogiri.Hpricot(str)
       assert_equal 1, (doc/:form).length
       assert_equal '/units/a/login/1,13088,779-1,00.html', doc.at("form")['action']
     end
   end
 
   def test_procins
-    doc = Hpricot("<?php print('hello') ?>\n<?xml blah='blah'?>")
+    doc = Nokogiri.Hpricot("<?php print('hello') ?>\n<?xml blah='blah'?>")
     assert_equal "php", doc.children[0].target
     assert_equal "blah='blah'", doc.children[2].content
   end
@@ -310,7 +310,7 @@ class TestParser < Test::Unit::TestCase
   # Altered...  libxml does not get a buffer error
   def test_buffer_error
     assert_nothing_raised {
-      Hpricot(%{<p>\n\n<input type="hidden" name="__VIEWSTATE"  value="#{(("X" * 2000) + "\n") * 22}" />\n\n</p>})
+      Nokogiri.Hpricot(%{<p>\n\n<input type="hidden" name="__VIEWSTATE"  value="#{(("X" * 2000) + "\n") * 22}" />\n\n</p>})
     }
   end
 
@@ -335,14 +335,14 @@ class TestParser < Test::Unit::TestCase
     </object>
     </body></html?
     edoc
-    doc = Hpricot(str)
+    doc = Nokogiri.Hpricot(str)
     assert_equal "http://www.youtube.com/v/NbDQ4M_cuwA",
       doc.at("//object/param[@value='http://www.youtube.com/v/NbDQ4M_cuwA']")['value']
   end
   
   # ticket #84 by jamezilla
   def test_screwed_xmlns
-    doc = Hpricot(<<-edoc)
+    doc = Nokogiri.Hpricot(<<-edoc)
       <?xml:namespace prefix = cwi />
       <html><body>HAI</body></html>
     edoc
@@ -351,7 +351,7 @@ class TestParser < Test::Unit::TestCase
 
   # Reported by Jonathan Nichols on the Hpricot list (24 May 2007)
   def test_self_closed_form
-    doc = Hpricot(<<-edoc)
+    doc = Nokogiri.Hpricot(<<-edoc)
       <body>
       <form action="/loginRegForm" name="regForm" method="POST" />
       <input type="button">
@@ -372,7 +372,7 @@ class TestParser < Test::Unit::TestCase
   def test_keep_cdata
     str = %{<script> /*<![CDATA[*/
     /*]]>*/ </script>}
-    assert_equal str, Hpricot(str).to_html
+    assert_equal str, Nokogiri.Hpricot(str).to_html
   end
 
   def test_namespace

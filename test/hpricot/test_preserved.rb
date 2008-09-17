@@ -5,10 +5,8 @@ require "nokogiri"
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestPreserved < Test::Unit::TestCase
-  include Nokogiri
-
   def assert_roundtrip str
-    doc = Hpricot(str)
+    doc = Nokogiri.Hpricot(str)
     yield doc if block_given?
     str2 = doc.to_original_html
     [*str].zip([*str2]).each do |s1, s2|
@@ -17,7 +15,7 @@ class TestPreserved < Test::Unit::TestCase
   end
 
   def assert_html str1, str2
-    doc = Hpricot(str2)
+    doc = Nokogiri.Hpricot(str2)
     yield doc if block_given?
     assert_equal str1, doc.to_original_html
   end
@@ -41,8 +39,8 @@ class TestPreserved < Test::Unit::TestCase
   end
 
   def test_escaping_of_contents
-    doc = Hpricot(TestFiles::BOINGBOING)
-    assert_equal "Fukuda\342\200\231s Automatic Door opens around your body as you pass through it. The idea is to save energy and keep the room clean.", doc.at("img[@alt='200606131240']").next.to_s.strip
+    doc = Nokogiri.Hpricot(TestFiles::BOINGBOING)
+    assert_equal "Fukuda&#x2019;s Automatic Door opens around your body as you pass through it. The idea is to save energy and keep the room clean.", doc.at("img[@alt='200606131240']").next.to_s.strip
   end
 
   def test_files
@@ -57,7 +55,7 @@ class TestPreserved < Test::Unit::TestCase
   def test_escaping_of_attrs
     # ampersands in URLs
     str = %{<a href="http://google.com/search?q=nokogiri&amp;l=en">Google</a>}
-    link = (doc = Hpricot(str)).at(:a)
+    link = (doc = Nokogiri.Hpricot(str)).at(:a)
     assert_equal "http://google.com/search?q=nokogiri&l=en", link['href']
     assert_equal "http://google.com/search?q=nokogiri&l=en", link.attributes['href']
     assert_equal "http://google.com/search?q=nokogiri&l=en", link.get_attribute('href')

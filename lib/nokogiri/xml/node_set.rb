@@ -25,6 +25,7 @@ module Nokogiri
             sub_set << sub_node
           end
         end
+        sub_set.document = document
         sub_set
       end
       alias :/ :search
