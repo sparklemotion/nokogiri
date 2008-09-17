@@ -12,9 +12,12 @@ module Nokogiri
       end
 
       def test_class
-        assert_xpath "//*[@class='awesome']", @parser.parse('.awesome')
-        assert_xpath "//foo[@class='awesome']", @parser.parse('foo.awesome')
-        assert_xpath "//foo//*[@class='awesome']", @parser.parse('foo .awesome')
+        assert_xpath  "//*[contains(@class, 'awesome')]",
+                      @parser.parse('.awesome')
+        assert_xpath  "//foo[contains(@class, 'awesome')]",
+                      @parser.parse('foo.awesome')
+        assert_xpath  "//foo//*[contains(@class, 'awesome')]",
+                      @parser.parse('foo .awesome')
       end
 
       def test_ident

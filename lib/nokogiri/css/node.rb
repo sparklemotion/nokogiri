@@ -12,7 +12,7 @@ module Nokogiri
       end
 
       def to_xpath
-        XPathVisitor.new.accept(self)
+        "//" + XPathVisitor.new.accept(self)
       end
     end
   end
