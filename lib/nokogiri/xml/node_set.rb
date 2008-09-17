@@ -100,6 +100,10 @@ module Nokogiri
         self
       end
 
+      def to_s
+        map { |x| x.to_s }.join
+      end
+
     end
   end
 end
