@@ -7,6 +7,15 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_pseudo_class
+        assert_xpath "//a[1 = 1]", @parser.parse('a:link')
+        assert_xpath "//a[1 = 1]", @parser.parse('a:visited')
+        assert_xpath "//a[1 = 1]", @parser.parse('a:hover')
+        assert_xpath "//a[1 = 1]", @parser.parse('a:active')
+        assert_xpath  "//a[1 = 1 and contains(@class, 'foo')]",
+                      @parser.parse('a:active.foo')
+      end
+
       def test_star
         assert_xpath "//*", @parser.parse('*')
       end

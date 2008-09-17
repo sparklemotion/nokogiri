@@ -55,7 +55,7 @@ rule
     : ':' function {
         result = PseudoClassCondition.new(val[1])
       }
-    | ':' IDENT { result = PseudoClassCondition.new(val[1]) }
+    | ':' IDENT { result = Node.new(:PSEUDO_CLASS, [val[1]]) }
     ;
   hcap_0toN
     : hcap_1toN
@@ -72,7 +72,7 @@ rule
         result = CombinatorCondition.new(val[0], val[1])
       }
     | pseudo hcap_1toN {
-        result = CombinatorCondition.new(val[0], val[1])
+        result = Node.new(:COMBINATOR, val)
       }
     | attribute_id
     | class

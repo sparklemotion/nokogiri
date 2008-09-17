@@ -7,6 +7,14 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_scan_pseudo
+        @scanner.scan('a:visited')
+        assert_tokens([ [:IDENT, 'a'],
+                        [':', ':'],
+                        [:IDENT, 'visited']
+        ], @scanner)
+      end
+
       def test_scan_star
         @scanner.scan('*')
         assert_tokens([ ['*', '*'], ], @scanner)
@@ -34,7 +42,6 @@ module Nokogiri
         while tok = @scanner.next_token
           toks << tok
         end
-        assert_equal(tokens.length, toks.length)
         assert_equal(tokens, toks)
       end
     end
