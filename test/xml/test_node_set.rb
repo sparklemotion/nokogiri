@@ -16,6 +16,12 @@ module Nokogiri
         assert_equal(node, node_set.last)
       end
 
+      def test_search_on_nodeset
+        assert node_set = @xml.search('//employee')
+        assert sub_set = node_set.search('.//name')
+        assert_equal(node_set.length, sub_set.length)
+      end
+
       def test_negative_index_works
         assert node_set = @xml.search('//employee')
         assert_equal node_set.last, node_set[-1]

@@ -15,6 +15,16 @@ module Nokogiri
         push(node)
       end
 
+      def search path
+        sub_set = NodeSet.new
+        each do |node|
+          node.search(path).each do |sub_node|
+            sub_set << sub_node
+          end
+        end
+        sub_set
+      end
+
       def add_class name
         each do |el|
           next unless el.respond_to? :get_attribute
