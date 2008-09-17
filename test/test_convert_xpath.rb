@@ -1,0 +1,167 @@
+require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
+
+require 'rubygems'
+require 'hpricot'
+
+class TestConvertXPath < Nokogiri::TestCase
+
+  def setup
+    @N = Nokogiri(File.read(HTML_FILE))
+    @NH = Nokogiri.Hpricot(File.read(HTML_FILE)) # decorated document
+    @H = Hpricot(File.read(HTML_FILE))
+  end
+
+  def assert_syntactical_equivalence(hpath, xpath, match, &blk)
+    blk ||= lambda {|j| j.first}
+    assert_equal match, blk.call(@N.search(xpath)), "xpath result did not match"
+    assert_equal match, blk.call(@H.search(hpath)), "hpath result did not match"
+    assert_equal xpath, @NH.convert_to_xpath(hpath), "converted hpath did not match xpath"
+  end
+
+  def test_ordinary_xpath_conversions
+    assert_equal(".//p", @NH.convert_to_xpath("p"))
+    assert_equal(".//p", @NH.convert_to_xpath(:p))
+    assert_equal(".//p", @NH.convert_to_xpath("//p"))
+    assert_equal(".//p", @NH.convert_to_xpath(".//p"))
+  end
+
+  def test_child_tag
+    assert_syntactical_equivalence("h1[a]", ".//h1[a]", "Tender Lovemaking") do |j|
+      j.inner_text
+    end
+  end
+
+  def test_child_tag_equals
+    assert_syntactical_equivalence("h1[a='Tender Lovemaking']", ".//h1[a='Tender Lovemaking']", "Tender Lovemaking") do |j|
+      j.inner_text
+    end
+  end
+
+  def test_filter_contains
+    assert_syntactical_equivalence("title:contains('Tender')", ".//title[contains(.,'Tender')]",
+                                   "Tender Lovemaking  ") do |j|
+      j.inner_text
+    end
+  end
+
+  def test_filter_comment
+    assert_syntactical_equivalence("div comment()[2]", ".//div//comment()[2]", "<!-- end of header -->") do |j|
+      j.first.to_s
+    end
+  end
+
+  def test_filter_text
+    assert_syntactical_equivalence("a[text()]", ".//a[text()]", "<a href=\"http://tenderlovemaking.com\">Tender Lovemaking</a>") do |j|
+      j.first.to_s
+    end
+    assert_syntactical_equivalence("a[text()='Tender Lovemaking']", ".//a[text()='Tender Lovemaking']", "<a href=\"http://tenderlovemaking.com\">Tender Lovemaking</a>") do |j|
+      j.first.to_s
+    end
+    assert_syntactical_equivalence("a/text()", ".//a/text()", "Tender Lovemaking") do |j|
+      j.first.to_s
+    end
+    assert_syntactical_equivalence("h2//a[text()!='Back Home!']", ".//h2//a[text()!='Back Home!']", "Meow meow meow meow meow") do |j|
+      j.first.inner_text
+    end
+  end
+
+  def test_filter_by_attr
+    assert_syntactical_equivalence("a[@href='http://blog.geminigeek.com/wordpress-theme']",
+                                   ".//a[@href='http://blog.geminigeek.com/wordpress-theme']",
+                                   "http://blog.geminigeek.com/wordpress-theme") do |j|
+      j.first["href"]
+    end
+  end
+
+  def test_css_id
+    assert_syntactical_equivalence("#linkcat-7", ".//*[@id='linkcat-7']", "linkcat-7") do |j|
+      j.first["id"]
+    end
+    assert_syntactical_equivalence("li#linkcat-7", ".//li[@id='linkcat-7']", "linkcat-7") do |j|
+      j.first["id"]
+    end
+  end
+
+  def test_css_class
+    assert_syntactical_equivalence(".cat-item-15", ".//*[contains(@class, 'cat-item-15')]",
+                                   "cat-item cat-item-15") do |j|
+      j.first["class"]
+    end
+    assert_syntactical_equivalence("li.cat-item-15", ".//li[contains(@class, 'cat-item-15')]",
+                                   "cat-item cat-item-15") do |j|
+      j.first["class"]
+    end
+  end
+
+  def test_css_tags
+    assert_syntactical_equivalence("div li a", ".//div//li//a", "http://brobinius.org/") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("div li > a", ".//div//li/a", "http://brobinius.org/") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("h1 ~ small", ".//h1/../small", "The act of making love, tenderly.") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("h1 ~ small", ".//h1/../small", "The act of making love, tenderly.") do |j|
+      j.first.inner_text
+    end
+  end
+
+  def test_positional
+    assert_syntactical_equivalence("//div/div:eq(0)", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("//div/div:nth(0)", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("//div/div:nth-of-type(0)", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("//div/div:first", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("//div/div:first()", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("//div/div:last", ".//div/div[last()]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+      j.first.inner_text
+    end
+    assert_syntactical_equivalence("//div/div:last()", ".//div/div[last()]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+      j.first.inner_text
+    end
+  end
+
+  def test_multiple_filters
+    assert_syntactical_equivalence("a[@rel='bookmark'][1]", ".//a[@rel='bookmark'][1]", "Back Home!") do |j|
+      j.first.inner_text
+    end
+  end
+
+  ##
+  #  'and' is not supported by hpricot
+#   def test_and
+#     assert_syntactical_equivalence("div[h1 and small]", ".//div[h1 and small]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+#       j.inner_text
+#     end
+#   end
+
+
+
+# TODO:
+#       doc/'title ~ link' -> links that are siblings of title
+#       doc/'p[@class~="final"]' -> class includes string (whitespacy)
+#       doc/'p[text()*="final"]' -> class includes string (index) (broken: always returns true?)
+#       doc/'p[text()$="final"]' -> /final$/
+#       doc/'p[text()|="final"]' -> /^final$/
+#       doc/'p[text()^="final"]' -> string starts with 'final
+#       nth_first
+#       nth_last
+#       even
+#       odd
+#       first-child, nth-child, last-child, nth-last-child, nth-last-of-type
+#       only-of-type, only-child
+#       parent
+#       empty
+#       root
+end
