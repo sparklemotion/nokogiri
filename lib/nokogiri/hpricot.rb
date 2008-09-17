@@ -15,6 +15,12 @@ module Nokogiri
         add_decorators(doc)
       end
 
+      def make string
+        ns = XML::NodeSet.new
+        ns << XML::Text.new(string)
+        ns
+      end
+
       def add_decorators(doc)
         doc.decorators['node'] << Decorators::Hpricot::Node
         doc.decorators['document'] << Decorators::Hpricot::Node
