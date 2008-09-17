@@ -6,7 +6,7 @@ token IMPORTANT_SYM IMPORT_SYM MEDIA_SYM PAGE_SYM CHARSET_SYM DIMENSION
 
 rule
   selector
-    : simple_selector_1toN { result = val.flatten }
+    : simple_selector_1toN { result = val.flatten.first }
     ;
   combinator
     : PLUS s_0toN { result = :SAC_DIRECT_ADJACENT_SELECTOR }
@@ -27,15 +27,7 @@ rule
     ;
   simple_selector_1toN
     : simple_selector combinator simple_selector_1toN {
-        result =
-          case val[1]
-          when :SAC_DIRECT_ADJACENT_SELECTOR
-            SiblingSelector.new(val.first, val[2])
-          when :SAC_DESCENDANT_SELECTOR
-            DescendantSelector.new(val.first, val[2])
-          when :SAC_CHILD_SELECTOR
-            ChildSelector.new(val.first, val[2])
-          end
+        result = Node.new(val[1], [val.first, val.last])
       }
     | simple_selector
     ;
@@ -43,7 +35,7 @@ rule
     : '.' IDENT { result = ClassCondition.new(val[1]) }
     ;
   element_name
-    : IDENT { result = ElementSelector.new(val.first) }
+    : IDENT { result = Node.new(:ELEMENT_NAME, val) }
     | '*' { result = SimpleSelector.new() }
     ;
   attrib
@@ -105,9 +97,4 @@ rule
 end
 
 ---- header
-  require "css/sac/conditions"
-  require "css/sac/selectors"
 
----- inner
-  include CSS::SAC::Conditions
-  include CSS::SAC::Selectors
