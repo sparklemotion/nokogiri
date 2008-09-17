@@ -6,17 +6,19 @@ module Nokogiri
       end
 
       def visit_descendant_selector node
-        @xpath += node.value.first.accept(self) + "/*/" +
-          node.value.last.accept(self)
+        node.value.first.accept(self)
+        @xpath += '/*/'
+        node.value.last.accept(self)
       end
 
       def visit_child_selector node
-        @xpath += node.value.first.accept(self) + "/" +
-          node.value.last.accept(self)
+        node.value.first.accept(self)
+        @xpath += '/'
+        node.value.last.accept(self)
       end
 
       def visit_element_name node
-        node.value.first
+        @xpath += node.value.first
       end
 
       def accept node

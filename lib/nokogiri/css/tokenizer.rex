@@ -12,7 +12,7 @@ macro
   escape    {unicode}|\\\\\\\[^\n\r\f0-9a-f]
   nmchar    [_a-z0-9-]|{nonascii}|{escape}
   nmstart   [_a-z]|{nonascii}|{escape}
-  ident     [-]?{nmstart}{nmchar}*
+  ident     [-]?({nmstart})({nmchar})*
   name      {nmchar}+
   string1   \"([^\n\r\f\\"]|\\{nl}|{nonascii}|{escape})*\"
   string2   \'([^\n\r\f\\']|\\{nl}|{nonascii}|{escape})*\'
@@ -50,6 +50,7 @@ rule
             
             {Comment}                    /* ignore comments */
             [\s\t\r\n\f]+    { [:S, text] }
+            [\.]              { [text, text] }
             {string}         { [:STRING, text] }
             {invalid}        { [:INVALID, text] }
             .                { [text, text] }

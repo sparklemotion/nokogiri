@@ -7,6 +7,14 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_scan_class
+        @scanner.scan('x.awesome')
+        assert_tokens([ [:IDENT, 'x'],
+                        ['.', '.'],
+                        [:IDENT, 'awesome'],
+        ], @scanner)
+      end
+
       def test_scan_greater
         @scanner.scan('x > y')
         assert_tokens([ [:IDENT, 'x'],
