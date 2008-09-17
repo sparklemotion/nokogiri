@@ -17,6 +17,10 @@ module Nokogiri
           search("//*[@id='#{element_id}']").first
         end
 
+        def get_elements_by_tag_name tag
+          search("//#{tag}")
+        end
+
         def convert_to_xpath(rule)
           rule = rule.to_s
           if rule =~ %r{^//}
