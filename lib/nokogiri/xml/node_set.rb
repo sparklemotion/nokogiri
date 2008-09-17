@@ -24,6 +24,7 @@ module Nokogiri
         end
         sub_set
       end
+      alias :/ :search
 
       def add_class name
         each do |el|
