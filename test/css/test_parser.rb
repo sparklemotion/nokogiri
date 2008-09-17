@@ -12,6 +12,8 @@ module Nokogiri
       end
 
       def test_class
+        assert_xpath  "//*[contains(@class, 'a') and contains(@class, 'b')]",
+                      @parser.parse('.a.b')
         assert_xpath  "//*[contains(@class, 'awesome')]",
                       @parser.parse('.awesome')
         assert_xpath  "//foo[contains(@class, 'awesome')]",

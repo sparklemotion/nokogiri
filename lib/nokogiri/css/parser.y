@@ -66,7 +66,7 @@ rule
         result = CombinatorCondition.new(val[0], val[1])
       }
     | class hcap_1toN {
-        result = CombinatorCondition.new(val[0], val[1])
+        result = Node.new(:COMBINATOR, val)
       }
     | attrib hcap_1toN {
         result = CombinatorCondition.new(val[0], val[1])
