@@ -19,6 +19,23 @@ static VALUE length(VALUE self)
 
 /*
  * call-seq:
+ *  push(node)
+ *
+ * Append +node+ to the NodeSet.
+ */
+static VALUE push(VALUE self, VALUE rb_node)
+{
+  xmlNodeSetPtr node_set;
+  xmlNodePtr node;
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_node, xmlNode, node);
+  xmlXPathNodeSetAdd(node_set, node);
+  return self;
+}
+
+/*
+ * call-seq:
  *  [](i)
  *
  * Get the node at index +i+
@@ -45,10 +62,23 @@ static VALUE index_at(VALUE self, VALUE number)
   return rb_node;
 }
 
+static void deallocate(xmlNodeSetPtr node_set)
+{
+  xmlXPathFreeNodeSet(node_set);
+}
+
+static VALUE allocate(VALUE klass)
+{
+  xmlNodeSetPtr node_set = xmlXPathNodeSetCreate(NULL);
+  return Data_Wrap_Struct(klass, NULL, deallocate, node_set);
+}
+
 VALUE cNokogiriXmlNodeSet ;
 void init_xml_node_set(void)
 {
   VALUE klass = cNokogiriXmlNodeSet = rb_eval_string("Nokogiri::XML::NodeSet");
+  rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "length", length, 0);
   rb_define_method(klass, "[]", index_at, 1);
+  rb_define_method(klass, "push", push, 1);
 }

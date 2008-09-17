@@ -7,6 +7,15 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_new_nodeset
+        node_set = Nokogiri::XML::NodeSet.new
+        assert_equal(0, node_set.length)
+        node = Nokogiri::XML::Node.new('form')
+        node_set << node
+        assert_equal(1, node_set.length)
+        assert_equal(node, node_set.last)
+      end
+
       def test_negative_index_works
         assert node_set = @xml.search('//employee')
         assert_equal node_set.last, node_set[-1]

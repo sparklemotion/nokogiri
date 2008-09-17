@@ -11,6 +11,10 @@ module Nokogiri
         self[length - 1]
       end
 
+      def << node
+        push(node)
+      end
+
       def add_class name
         each do |el|
           next unless el.respond_to? :get_attribute
