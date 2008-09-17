@@ -13,6 +13,10 @@ module Nokogiri
 
         def raw_attributes; self end
 
+        def get_element_by_id element_id
+          search("//*[@id='#{element_id}']").first
+        end
+
         def convert_to_xpath(rule)
           rule = rule.to_s
           if rule =~ %r{^//}
