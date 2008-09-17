@@ -24,13 +24,20 @@ module Nokogiri
     def XML(string)
       Nokogiri::XML.parse(string)
     end
+
+    def make(input = nil, opts = {}, &blk)
+      if input
+        Nokogiri::XML::Node.new_from_str(input)
+      else
+        Nokogiri &blk
+      end
+    end
   end
 end
 
 def Nokogiri(*args, &block)
   if block_given?
-    builder = Nokogiri::HTML::Builder.new
-    builder.instance_eval(&block)
+    builder = Nokogiri::HTML::Builder.new(&block)
     return builder.doc
   else
     Nokogiri::HTML.parse(*args)

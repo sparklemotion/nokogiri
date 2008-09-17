@@ -68,6 +68,23 @@ static VALUE previous_sibling(VALUE self)
 }
 
 /*
+ *  call-seq:
+ *    replace(new_node)
+ *
+ *  replace node with the new node in the document.
+ */
+static VALUE replace(VALUE self, VALUE _new_node)
+{
+  xmlNodePtr node, new_node;
+  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(_new_node, xmlNode, new_node);
+
+  xmlReplaceNode(node, new_node);
+  return self ;
+}
+
+
+/*
  * call-seq:
  *  child
  *
@@ -425,6 +442,7 @@ void init_xml_node()
   rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "next_sibling", next_sibling, 0);
   rb_define_method(klass, "previous_sibling", previous_sibling, 0);
+  rb_define_method(klass, "replace", replace, 1);
   rb_define_method(klass, "type", type, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "content=", set_content, 1);

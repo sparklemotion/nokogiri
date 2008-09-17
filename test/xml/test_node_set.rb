@@ -43,6 +43,12 @@ module Nokogiri
         assert node_set = @xml.search('//asdkfjhasdlkfjhaldskfh')
         assert_equal(0, node_set.length)
       end
+
+      def test_wrap
+        employees = (@xml/"//employee").wrap("<wrapper/>")
+        assert_equal 'wrapper', employees[0].parent.name
+        assert_equal 'employee', @xml.search("//wrapper").first.children[0].name
+      end
     end
   end
 end

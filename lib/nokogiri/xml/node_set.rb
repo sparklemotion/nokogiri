@@ -89,6 +89,24 @@ module Nokogiri
         collect{|j| j.inner_text}.join('')
       end
       alias :text :inner_text
+
+      def wrap(html, &blk)
+        each do |j|
+          new_parent = Nokogiri.make(html, &blk)
+          j.replace(new_parent)
+          nest = new_parent
+          if nest.child
+            nest = nest.child until nest.child.nil?
+          end
+          j.parent = nest
+        end
+        self
+      end
+
+      def to_s
+        map { |x| x.to_s }.join
+      end
+
     end
   end
 end

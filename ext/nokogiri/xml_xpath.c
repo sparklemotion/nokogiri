@@ -16,7 +16,10 @@ static VALUE node_set(VALUE self)
   xmlXPathObjectPtr xpath;
   Data_Get_Struct(self, xmlXPathObject, xpath);
 
-  return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xpath->nodesetval);
+  if (xpath->nodesetval)
+      return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xpath->nodesetval);
+  else
+      return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xmlXPathNodeSetCreate(NULL));
 }
 
 static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)
@@ -28,13 +31,11 @@ static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)
 
   xmlXPathContextPtr ctx = xmlXPathNewContext(node->doc);
   ctx->node = node ;
-  xmlXPathObjectPtr xpath = xmlXPathEvalExpression(
-      (xmlChar *)StringValuePtr(search_path),
-      ctx
-  );
+  xmlChar* query = (xmlChar *)StringValuePtr(search_path) ;
+  xmlXPathObjectPtr xpath = xmlXPathEvalExpression(query, ctx );
   if(xpath == NULL) {
     xmlXPathFreeContext(ctx);
-    rb_raise(rb_eRuntimeError, "Couldn't evaluate expression");
+    rb_raise(rb_eRuntimeError, "Couldn't evaluate expression '%s'", query);
   }
 
   // FIXME: GC

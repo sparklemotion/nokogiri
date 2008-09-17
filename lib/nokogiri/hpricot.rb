@@ -21,16 +21,18 @@ module Nokogiri
     end
   end
   
-  def Hpricot(*args, &block)
-    if block_given?
-      builder = Nokogiri::HTML::Builder.new(&block)
-      return builder.doc
-    else
-      doc = Nokogiri::HTML.parse(*args)
-      doc.decorators['node'] << Decorators::Hpricot
-      doc.decorators['document'] << Decorators::Hpricot
-      doc.decorate!
-      doc
+  class << self
+    def Hpricot(*args, &block)
+      if block_given?
+        builder = Nokogiri::HTML::Builder.new(&block)
+        return builder.doc
+      else
+        doc = Nokogiri::HTML.parse(*args)
+        doc.decorators['node'] << Decorators::Hpricot
+        doc.decorators['document'] << Decorators::Hpricot
+        doc.decorate!
+        doc
+      end
     end
   end
 
