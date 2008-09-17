@@ -7,6 +7,11 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_scan_star
+        @scanner.scan('*')
+        assert_tokens([ ['*', '*'], ], @scanner)
+      end
+
       def test_scan_class
         @scanner.scan('x.awesome')
         assert_tokens([ [:IDENT, 'x'],

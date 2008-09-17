@@ -38,7 +38,7 @@ rule
     ;
   element_name
     : IDENT { result = Node.new(:ELEMENT_NAME, val) }
-    | '*' { result = SimpleSelector.new() }
+    | '*' { result = Node.new(:ELEMENT_NAME, val) }
     ;
   attrib
     : '[' s_0toN IDENT s_0toN attrib_val_0or1 ']' {

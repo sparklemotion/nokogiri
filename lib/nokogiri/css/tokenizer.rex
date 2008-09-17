@@ -50,7 +50,7 @@ rule
             
             {Comment}                    /* ignore comments */
             [\s\t\r\n\f]+    { [:S, text] }
-            [\.]              { [text, text] }
+            [\.*]            { [text, text] }
             {string}         { [:STRING, text] }
             {invalid}        { [:INVALID, text] }
             .                { [text, text] }
