@@ -5,8 +5,6 @@ require "nokogiri"
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestParser < Test::Unit::TestCase
-  include Nokogiri
-
   def test_set_attr
     @basic = Hpricot.parse(TestFiles::BASIC)
     @basic.search('//p').set('class', 'para')

@@ -2,6 +2,8 @@ require 'nokogiri'
 
 module Nokogiri
   module Hpricot
+    STag = String
+    Elem = XML::Node
     class << self
       def parse(*args)
         doc = Nokogiri.parse(*args)

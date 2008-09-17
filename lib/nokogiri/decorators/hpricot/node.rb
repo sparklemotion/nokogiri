@@ -2,12 +2,12 @@ module Nokogiri
   module Decorators
     module Hpricot
       module Node
-        def search(path)
+        def search path
           super(convert_to_xpath(path))
         end
         def /(path); search(path) end
 
-        def at(path)
+        def at path
           search("#{path}").first
         end
 
