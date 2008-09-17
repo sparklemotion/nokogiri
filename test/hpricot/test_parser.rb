@@ -5,6 +5,8 @@ require "nokogiri"
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestParser < Test::Unit::TestCase
+  include Nokogiri
+
   def test_set_attr
     @basic = Hpricot.parse(TestFiles::BASIC)
     @basic.search('//p').set('class', 'para')
@@ -370,7 +372,7 @@ class TestParser < Test::Unit::TestCase
   def test_keep_cdata
     str = %{<script> /*<![CDATA[*/
     /*]]>*/ </script>}
-    assert_equal str, Nokogiri.Hpricot(str).to_html
+    assert_match str, Nokogiri.Hpricot(str).to_html
   end
 
   def test_namespace
