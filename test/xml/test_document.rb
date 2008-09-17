@@ -38,16 +38,30 @@ module Nokogiri
         assert @xml.to_xml
       end
 
+      def test_subset_is_decorated
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+
+        assert @xml.respond_to?(:awesome!)
+        assert node_set = @xml.search('//employee')
+        assert node_set.respond_to?(:awesome!)
+        assert subset = node_set.search('.//name')
+        assert subset.respond_to?(:awesome!)
+      end
+
       def test_decorator_is_applied
         x = Module.new do
           def awesome!
           end
         end
-        @xml.decorators['document'] << x
-        @xml.decorators['node'] << x
-        @xml.decorate!
+        util_decorate(@xml, x)
+
         assert @xml.respond_to?(:awesome!)
         assert node_set = @xml.search('//employee')
+        assert node_set.respond_to?(:awesome!)
         node_set.each do |node|
           assert node.respond_to?(:awesome!)
         end
@@ -78,6 +92,13 @@ module Nokogiri
         assert_equal('hello world', node.content)
         doc.root = node
         assert_equal(node, doc.root)
+      end
+
+      def util_decorate(document, x)
+        document.decorators['document'] << x
+        document.decorators['node'] << x
+        document.decorators['nodeset'] << x
+        document.decorate!
       end
     end
   end

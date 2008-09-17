@@ -27,7 +27,10 @@ module Nokogiri
       end
 
       def search(search_path)
-        XPath.new(self, search_path).node_set
+        set = XPath.new(self, search_path).node_set
+        set.document = document
+        document.decorate(set)
+        set
       end
       alias :/ :search
 

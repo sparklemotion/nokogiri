@@ -3,6 +3,8 @@ module Nokogiri
     class NodeSet
       include Enumerable
 
+      attr_accessor :document
+
       def first
         self[0]
       end
@@ -17,6 +19,7 @@ module Nokogiri
 
       def search path
         sub_set = NodeSet.new
+        document.decorate(sub_set)
         each do |node|
           node.search(path).each do |sub_node|
             sub_set << sub_node
