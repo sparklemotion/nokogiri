@@ -46,10 +46,12 @@ module Nokogiri
         util_decorate(@xml, x)
 
         assert @xml.respond_to?(:awesome!)
-        assert node_set = @xml.search('//employee')
+        assert node_set = @xml.search('//staff')
         assert node_set.respond_to?(:awesome!)
-        assert subset = node_set.search('.//name')
+        assert subset = node_set.search('.//employee')
         assert subset.respond_to?(:awesome!)
+        assert sub_subset = node_set.search('.//name')
+        assert sub_subset.respond_to?(:awesome!)
       end
 
       def test_decorator_is_applied
