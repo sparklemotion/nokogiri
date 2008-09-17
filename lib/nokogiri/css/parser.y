@@ -9,9 +9,9 @@ rule
     : simple_selector_1toN { result = val.flatten.first }
     ;
   combinator
-    : PLUS s_0toN { result = :SAC_DIRECT_ADJACENT_SELECTOR }
-    | GREATER s_0toN { result = :SAC_CHILD_SELECTOR }
-    | S { result = :SAC_DESCENDANT_SELECTOR }
+    : PLUS s_0toN { result = :DIRECT_ADJACENT_SELECTOR }
+    | GREATER s_0toN { result = :CHILD_SELECTOR }
+    | S { result = :DESCENDANT_SELECTOR }
     ;
   simple_selector
     : element_name hcap_0toN {

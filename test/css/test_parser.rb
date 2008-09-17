@@ -7,7 +7,12 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
-      def test_parse
+      def test_parse_space
+        ast = @parser.parse('x y')
+        assert_equal('//x/*/y', ast.to_xpath)
+      end
+
+      def test_parse_descendant
         ast = @parser.parse('x > y')
         assert_equal('//x/y', ast.to_xpath)
       end

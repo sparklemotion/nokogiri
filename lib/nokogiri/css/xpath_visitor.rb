@@ -5,7 +5,12 @@ module Nokogiri
         @xpath = '//'
       end
 
-      def visit_sac_child_selector node
+      def visit_descendant_selector node
+        @xpath += node.value.first.accept(self) + "/*/" +
+          node.value.last.accept(self)
+      end
+
+      def visit_child_selector node
         @xpath += node.value.first.accept(self) + "/" +
           node.value.last.accept(self)
       end
