@@ -1,0 +1,113 @@
+class Nokogiri::CSS::GeneratedParser
+
+token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS GREATER S STRING IDENT
+token COMMA URI CDO CDC NUMBER PERCENTAGE LENGTH EMS EXS ANGLE TIME FREQ
+token IMPORTANT_SYM IMPORT_SYM MEDIA_SYM PAGE_SYM CHARSET_SYM DIMENSION
+
+rule
+  selector
+    : simple_selector_1toN { result = val.flatten }
+    ;
+  combinator
+    : PLUS s_0toN { result = :SAC_DIRECT_ADJACENT_SELECTOR }
+    | GREATER s_0toN { result = :SAC_CHILD_SELECTOR }
+    | S { result = :SAC_DESCENDANT_SELECTOR }
+    ;
+  simple_selector
+    : element_name hcap_0toN {
+        result =  if val[1].nil?
+                    val.first
+                  else
+                    ConditionalSelector.new(val.first, val[1])
+                  end
+      }
+    | hcap_1toN {
+        result = ConditionalSelector.new(nil, val.first)
+      }
+    ;
+  simple_selector_1toN
+    : simple_selector combinator simple_selector_1toN {
+        result =
+          case val[1]
+          when :SAC_DIRECT_ADJACENT_SELECTOR
+            SiblingSelector.new(val.first, val[2])
+          when :SAC_DESCENDANT_SELECTOR
+            DescendantSelector.new(val.first, val[2])
+          when :SAC_CHILD_SELECTOR
+            ChildSelector.new(val.first, val[2])
+          end
+      }
+    | simple_selector
+    ;
+  class
+    : '.' IDENT { result = ClassCondition.new(val[1]) }
+    ;
+  element_name
+    : IDENT { result = ElementSelector.new(val.first) }
+    | '*' { result = SimpleSelector.new() }
+    ;
+  attrib
+    : '[' s_0toN IDENT s_0toN attrib_val_0or1 ']' {
+        result = AttributeCondition.build(val[2], val[4])
+      }
+    ;
+  function
+    : FUNCTION s_0toN ')' s_0toN {
+        ### We only support 0 argument functions for now....
+        result = Function.new(val[0], val[2].flatten.select { |x| x !~ /,/ })
+      }
+    ;
+  pseudo
+    : ':' function {
+        result = PseudoClassCondition.new(val[1])
+      }
+    | ':' IDENT { result = PseudoClassCondition.new(val[1]) }
+    ;
+  hcap_0toN
+    : hcap_1toN
+    |
+    ;
+  hcap_1toN
+    : attribute_id hcap_1toN {
+        result = CombinatorCondition.new(val[0], val[1])
+      }
+    | class hcap_1toN {
+        result = CombinatorCondition.new(val[0], val[1])
+      }
+    | attrib hcap_1toN {
+        result = CombinatorCondition.new(val[0], val[1])
+      }
+    | pseudo hcap_1toN {
+        result = CombinatorCondition.new(val[0], val[1])
+      }
+    | attribute_id
+    | class
+    | attrib
+    | pseudo
+    ;
+  attribute_id
+    : HASH { result = IDCondition.new(val.first) }
+    ;
+  attrib_val_0or1
+    : eql_incl_dash s_0toN IDENT s_0toN { result = [val.first, val[2]] }
+    | eql_incl_dash s_0toN STRING s_0toN { result = [val.first, val[2]] }
+    |
+    ;
+  eql_incl_dash
+    : '='
+    | INCLUDES
+    | DASHMATCH
+    ;
+  s_0toN
+    : S s_0toN
+    |
+    ;
+end
+
+---- header
+  require "css/sac/conditions"
+  require "css/sac/selectors"
+
+---- inner
+  include CSS::SAC::Conditions
+  include CSS::SAC::Selectors

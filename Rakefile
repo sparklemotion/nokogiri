@@ -3,18 +3,24 @@
 require 'rubygems'
 require 'hoe'
 
+kind = Config::CONFIG['DLEXT']
+
 LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 $LOAD_PATH << LIB_DIR
 
-require 'nokogiri/version'
+GENERATED_PARSER = "lib/nokogiri/css/generated_parser.rb"
+GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 
-kind = Config::CONFIG['DLEXT']
+EXT = "ext/nokogiri/native.#{kind}"
+
+require 'nokogiri/version'
 
 HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
   p.clean_globs = [
     'ext/nokogiri/Makefile',
     'ext/nokogiri/*.{o,so,bundle,a,log}',
+    GENERATED_PARSER,
   ]
 end
 
@@ -33,7 +39,13 @@ task :coverage do
   sh "rcov -x Library -I lib:test #{Dir[*HOE.test_globs].join(' ')}"
 end
 
-EXT = "ext/nokogiri/native.#{kind}"
+file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
+  sh "racc -o #{t.name} #{t.prerequisites.first}"
+end
+
+file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
+  sh "frex --independent -o #{t.name} #{t.prerequisites.first}"
+end
 
 task 'ext/nokogiri/Makefile' do
   Dir.chdir('ext/nokogiri') do
@@ -47,7 +59,7 @@ task EXT => 'ext/nokogiri/Makefile' do
   end
 end
 
-task :build => EXT
+task :build => [EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
 
 Rake::Task[:test].prerequisites << :build
 
