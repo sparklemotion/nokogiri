@@ -18,11 +18,13 @@ rule
         result =  if val[1].nil?
                     val.first
                   else
-                    ConditionalSelector.new(val.first, val[1])
+                    Node.new(:CONDITIONAL_SELECTOR, [val.first, val[1]])
                   end
       }
     | hcap_1toN {
-        result = ConditionalSelector.new(nil, val.first)
+        result = Node.new(:CONDITIONAL_SELECTOR,
+          [Node.new(:ELEMENT_NAME, ['*']), val.first]
+        )
       }
     ;
   simple_selector_1toN
@@ -32,7 +34,7 @@ rule
     | simple_selector
     ;
   class
-    : '.' IDENT { result = ClassCondition.new(val[1]) }
+    : '.' IDENT { result = Node.new(:CLASS_CONDITION, [val[1]]) }
     ;
   element_name
     : IDENT { result = Node.new(:ELEMENT_NAME, val) }

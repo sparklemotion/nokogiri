@@ -7,12 +7,18 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_class
+        assert_xpath "//*[@class='awesome']", @parser.parse('.awesome')
+        assert_xpath "//foo[@class='awesome']", @parser.parse('foo.awesome')
+        assert_xpath "//foo//*[@class='awesome']", @parser.parse('foo .awesome')
+      end
+
       def test_ident
         assert_xpath '//x', @parser.parse('x')
       end
 
       def test_parse_space
-        assert_xpath '//x/*/y', @parser.parse('x y')
+        assert_xpath '//x//y', @parser.parse('x y')
       end
 
       def test_parse_descendant

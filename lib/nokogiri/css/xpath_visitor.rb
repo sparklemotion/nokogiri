@@ -5,9 +5,20 @@ module Nokogiri
         @xpath = '//'
       end
 
+      def visit_class_condition node
+        @xpath += "@class='#{node.value.first}'"
+      end
+
+      def visit_conditional_selector node
+        node.value.first.accept(self)
+        @xpath += '['
+        node.value.last.accept(self)
+        @xpath += ']'
+      end
+
       def visit_descendant_selector node
         node.value.first.accept(self)
-        @xpath += '/*/'
+        @xpath += '//'
         node.value.last.accept(self)
       end
 
