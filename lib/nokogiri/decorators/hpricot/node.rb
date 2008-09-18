@@ -31,7 +31,10 @@ module Nokogiri
           when %r{^.//}
             rule
           else
-            '.' + CSS::Parser.parse(rule).to_xpath
+            ctx = CSS::Parser.parse(rule)
+            visitor = CSS::XPathVisitor.new
+            visitor.extend(Hpricot::XPathVisitor)
+            './/' + visitor.accept(ctx)
           end
         end
       end
