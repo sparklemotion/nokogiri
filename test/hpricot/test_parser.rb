@@ -166,7 +166,7 @@ class TestParser < Test::Unit::TestCase
     assert_equal 2,  divs.length # hpricot says this is 1, but that's wrong.
     imgs = @boingboing.search('//div/p/a/img')
     assert_equal 12, imgs.length # hpricot says this is 15, but that's wrong.
-    assert_equal 17, @boingboing.search('//div').search('p/a/img').length
+    assert_equal 16, @boingboing.search('//div').search('p/a/img').length
     assert imgs.all? { |x| x.name == 'img' }
   end
 

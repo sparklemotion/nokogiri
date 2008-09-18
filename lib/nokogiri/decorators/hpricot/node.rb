@@ -28,6 +28,8 @@ module Nokogiri
             ".#{rule}"
           when %r{^/}
             rule
+          when %r{^[^\/].*[\/]}
+            ".//#{rule}"
           when %r{^.//}
             rule
           else
