@@ -7,9 +7,19 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_not_equal
+        ## This is non standard CSS
+        assert_xpath  "//a[child::text() != 'Boing']",
+                      @parser.parse("a[text()!='Boing']")
+      end
+
       def test_function
         ## This is non standard CSS
-        assert_xpath  "//a[contains(text(), 'Boing')]",
+        assert_xpath  "//child::text()",
+                      @parser.parse("text()")
+
+        ## This is non standard CSS
+        assert_xpath  "//a[contains(child::text(), 'Boing')]",
                       @parser.parse("a[text()*='Boing']")
 
         ## This is non standard CSS

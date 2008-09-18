@@ -7,11 +7,22 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_not_equal
+        @scanner.scan("h1[a!='Tender Lovemaking']")
+        assert_tokens([ [:IDENT, 'h1'],
+                        ['[', '['],
+                        [:IDENT, 'a'],
+                        [:NOT_EQUAL, '!='],
+                        [:STRING, "'Tender Lovemaking'"],
+                        [']', ']'],
+        ], @scanner)
+      end
+
       def test_function
         @scanner.scan("script comment()")
         assert_tokens([ [:IDENT, 'script'],
                         [:S, ' '],
-                        [:FUNCTION, ' comment'],
+                        [:FUNCTION, 'comment('],
                         [')', ')'],
         ], @scanner)
       end

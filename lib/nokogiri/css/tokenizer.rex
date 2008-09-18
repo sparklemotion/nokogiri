@@ -31,6 +31,7 @@ rule
             \^=              { [:PREFIXMATCH, text] }
             \$=              { [:SUFFIXMATCH, text] }
             \*=              { [:SUBSTRINGMATCH, text] }
+            !=               { [:NOT_EQUAL, text] }
             {ident}\(        { [:FUNCTION, text] }
             {ident}          { [:IDENT, text] }
             {num}            { [:NUMBER, text] }

@@ -2,6 +2,7 @@ module Nokogiri
   module CSS
     class XPathVisitor
       def visit_function node
+        return 'child::text()' if node.value.first == 'text('
         node.value.first + ')'
       end
 
@@ -24,6 +25,10 @@ module Nokogiri
         case node.value[1]
         when '*='
           "contains(#{attribute}, #{node.value.last})"
+        when '$='
+          value = node.value.last
+          "substring(#{attribute}, string-length(#{attribute}) - " +
+            "string-length(#{value}) + 1, string-length(#{value})) = #{value}"
         else
           attribute + " #{node.value[1]} " + "#{node.value.last}"
         end
