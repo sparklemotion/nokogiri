@@ -44,7 +44,7 @@ file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
 end
 
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
-  sh "frex --independent -o #{t.name} #{t.prerequisites.first}"
+  sh "frex -i --independent -o #{t.name} #{t.prerequisites.first}"
 end
 
 task 'ext/nokogiri/Makefile' do

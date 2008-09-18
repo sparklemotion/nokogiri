@@ -7,6 +7,11 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_preceding_selector
+        assert_xpath  "//F[preceding-sibling:E]",
+                      @parser.parse("E ~ F")
+      end
+
       def test_attribute
         assert_xpath  "//h1[@a = 'Tender Lovemaking']",
                       @parser.parse("h1[a='Tender Lovemaking']")
@@ -14,6 +19,10 @@ module Nokogiri
 
       def test_id
         assert_xpath "//*[@id = 'foo']", @parser.parse('#foo')
+      end
+
+      def test_pseudo_class_no_ident
+        assert_xpath "//*[1 = 1]", @parser.parse(':link')
       end
 
       def test_pseudo_class

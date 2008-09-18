@@ -7,6 +7,15 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_preceding_selector
+        @scanner.scan("E ~ F")
+        assert_tokens([ [:IDENT, 'E'],
+                        [:TILDE, ' ~'],
+                        [:S, ' '],
+                        [:IDENT, 'F'],
+        ], @scanner)
+      end
+
       def test_scan_attribute_string
         @scanner.scan("h1[a='Tender Lovemaking']")
         assert_tokens([ [:IDENT, 'h1'],

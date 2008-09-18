@@ -1,6 +1,13 @@
 module Nokogiri
   module CSS
     class XPathVisitor
+      def visit_preceding_selector node
+        node.value.last.accept(self) +
+          '[preceding-sibling:' +
+          node.value.first.accept(self) +
+          ']'
+      end
+
       def visit_id node
         node.value.first =~ /^#(.*)$/
         "@id = '#{$1}'"
