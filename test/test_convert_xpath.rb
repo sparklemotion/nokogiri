@@ -74,10 +74,10 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_css_id
-    assert_syntactical_equivalence("#linkcat-7", ".//*[@id='linkcat-7']", "linkcat-7") do |j|
+    assert_syntactical_equivalence("#linkcat-7", ".//*[@id = 'linkcat-7']", "linkcat-7") do |j|
       j.first["id"]
     end
-    assert_syntactical_equivalence("li#linkcat-7", ".//li[@id='linkcat-7']", "linkcat-7") do |j|
+    assert_syntactical_equivalence("li#linkcat-7", ".//li[@id = 'linkcat-7']", "linkcat-7") do |j|
       j.first["id"]
     end
   end
