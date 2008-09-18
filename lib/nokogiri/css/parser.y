@@ -80,7 +80,7 @@ rule
     | pseudo
     ;
   attribute_id
-    : HASH { result = IDCondition.new(val.first) }
+    : HASH { result = Node.new(:ID, val) }
     ;
   attrib_val_0or1
     : eql_incl_dash s_0toN IDENT s_0toN { result = [val.first, val[2]] }

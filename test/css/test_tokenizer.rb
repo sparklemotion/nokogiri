@@ -7,6 +7,11 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_scan_id
+        @scanner.scan('#foo')
+        assert_tokens([ [:HASH, '#foo'] ], @scanner)
+      end
+
       def test_scan_pseudo
         @scanner.scan('a:visited')
         assert_tokens([ [:IDENT, 'a'],

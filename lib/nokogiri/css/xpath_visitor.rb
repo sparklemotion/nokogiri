@@ -1,6 +1,11 @@
 module Nokogiri
   module CSS
     class XPathVisitor
+      def visit_id node
+        node.value.first =~ /^#(.*)$/
+        "@id = '#{$1}'"
+      end
+
       def visit_pseudo_class node
         '1 = 1' # Ignore pseudo classes for now
       end

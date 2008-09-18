@@ -13,7 +13,7 @@ macro
   nmchar    [_a-z0-9-]|{nonascii}|{escape}
   nmstart   [_a-z]|{nonascii}|{escape}
   ident     [-]?({nmstart})({nmchar})*
-  name      {nmchar}+
+  name      ({nmchar})+
   string1   \"([^\n\r\f\\"]|\\{nl}|{nonascii}|{escape})*\"
   string2   \'([^\n\r\f\\']|\\{nl}|{nonascii}|{escape})*\'
   string    {string1}|{string2}
@@ -34,7 +34,7 @@ rule
             {ident}          { [:IDENT, text] }
             {ident}\(        { [:FUNCTION, text] }
             {num}            { [:NUMBER, text] }
-            #{name}          { [:HASH, text] }
+            \#{name}         { [:HASH, text] }
             {w}\+            { [:PLUS, text] }
             {w}>             { [:GREATER, text] }
             {w},             { [:COMMA, text] }
