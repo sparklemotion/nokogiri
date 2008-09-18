@@ -1,6 +1,10 @@
 module Nokogiri
   module CSS
     class XPathVisitor
+      def visit_function node
+        node.value.first + ')'
+      end
+
       def visit_preceding_selector node
         node.value.last.accept(self) +
           '[preceding-sibling:' +
@@ -14,9 +18,15 @@ module Nokogiri
       end
 
       def visit_attribute_condition node
-        '@' + node.value.first.accept(self) +
-          " #{node.value[1]} " +
-          "#{node.value.last}"
+        attribute = node.value.first.type == :FUNCTION ? '' : '@'
+        attribute += node.value.first.accept(self)
+
+        case node.value[1]
+        when '*='
+          "contains(#{attribute}, #{node.value.last})"
+        else
+          attribute + " #{node.value[1]} " + "#{node.value.last}"
+        end
       end
 
       def visit_pseudo_class node

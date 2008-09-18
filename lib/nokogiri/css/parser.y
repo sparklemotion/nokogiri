@@ -23,6 +23,7 @@ rule
                     Node.new(:CONDITIONAL_SELECTOR, [val.first, val[1]])
                   end
       }
+    | function
     | hcap_1toN {
         result = Node.new(:CONDITIONAL_SELECTOR,
           [Node.new(:ELEMENT_NAME, ['*']), val.first]
@@ -48,11 +49,16 @@ rule
           [Node.new(:ELEMENT_NAME, [val[2]])] + (val[4] || [])
         )
       }
+    | '[' s_0toN function s_0toN attrib_val_0or1 ']' {
+        result = Node.new(:ATTRIBUTE_CONDITION,
+          [val[2]] + (val[4] || [])
+        )
+      }
     ;
   function
     : FUNCTION s_0toN ')' s_0toN {
         ### We only support 0 argument functions for now....
-        result = Function.new(val[0], val[2].flatten.select { |x| x !~ /,/ })
+        result = Node.new(:FUNCTION, [val.first])
       }
     ;
   pseudo

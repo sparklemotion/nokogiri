@@ -31,8 +31,8 @@ rule
             \^=              { [:PREFIXMATCH, text] }
             \$=              { [:SUFFIXMATCH, text] }
             \*=              { [:SUBSTRINGMATCH, text] }
-            {ident}          { [:IDENT, text] }
             {ident}\(        { [:FUNCTION, text] }
+            {ident}          { [:IDENT, text] }
             {num}            { [:NUMBER, text] }
             \#{name}         { [:HASH, text] }
             {w}\+            { [:PLUS, text] }
@@ -50,7 +50,7 @@ rule
             
             {Comment}                    /* ignore comments */
             [\s\t\r\n\f]+    { [:S, text] }
-            [\.*:\[\]=]      { [text, text] }
+            [\.*:\[\]=\)]    { [text, text] }
             {string}         { [:STRING, text] }
             {invalid}        { [:INVALID, text] }
             .                { [text, text] }

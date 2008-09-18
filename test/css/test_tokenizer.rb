@@ -7,6 +7,15 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_function
+        @scanner.scan("script comment()")
+        assert_tokens([ [:IDENT, 'script'],
+                        [:S, ' '],
+                        [:FUNCTION, ' comment'],
+                        [')', ')'],
+        ], @scanner)
+      end
+
       def test_preceding_selector
         @scanner.scan("E ~ F")
         assert_tokens([ [:IDENT, 'E'],

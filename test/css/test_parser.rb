@@ -7,6 +7,16 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_function
+        ## This is non standard CSS
+        assert_xpath  "//a[contains(text(), 'Boing')]",
+                      @parser.parse("a[text()*='Boing']")
+
+        ## This is non standard CSS
+        assert_xpath  "//script//comment()",
+                      @parser.parse("script comment()")
+      end
+
       def test_preceding_selector
         assert_xpath  "//F[preceding-sibling:E]",
                       @parser.parse("E ~ F")
