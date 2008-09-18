@@ -24,6 +24,7 @@ module Nokogiri
       def add_decorators(doc)
         doc.decorators['node'] << Decorators::Hpricot::Node
         doc.decorators['document'] << Decorators::Hpricot::Node
+        doc.decorators['nodeset'] << Decorators::Hpricot::NodeSet
         doc.decorate!
         doc
       end

@@ -11,8 +11,8 @@ module Nokogiri
         visitor.send(:"visit_#{type.to_s.downcase}", self)
       end
 
-      def to_xpath
-        "//" + XPathVisitor.new.accept(self)
+      def to_xpath prefix = '//'
+        prefix + XPathVisitor.new.accept(self)
       end
     end
   end

@@ -29,7 +29,6 @@ module Nokogiri
         sub_set
       end
       alias :/ :search
-      alias :filter :search
 
       def at path
         search(path).first
