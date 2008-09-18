@@ -43,7 +43,7 @@ module Nokogiri
       end
 
       def test_preceding_selector
-        assert_xpath  "//F[preceding-sibling:E]",
+        assert_xpath  "//F[preceding-sibling::E]",
                       @parser.parse("E ~ F")
       end
 

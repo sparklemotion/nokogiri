@@ -14,7 +14,7 @@ module Nokogiri
 
       def visit_preceding_selector node
         node.value.last.accept(self) +
-          '[preceding-sibling:' +
+          '[preceding-sibling::' +
           node.value.first.accept(self) +
           ']'
       end

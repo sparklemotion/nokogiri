@@ -51,10 +51,10 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_filter_text
-    assert_syntactical_equivalence("a[text()]", ".//a[text()]", "<a href=\"http://tenderlovemaking.com\">Tender Lovemaking</a>") do |j|
+    assert_syntactical_equivalence("a[text()]", ".//a[normalize-space(child::text())]", "<a href=\"http://tenderlovemaking.com\">Tender Lovemaking</a>") do |j|
       j.first.to_s
     end
-    assert_syntactical_equivalence("a[text()='Tender Lovemaking']", ".//a[text()='Tender Lovemaking']", "<a href=\"http://tenderlovemaking.com\">Tender Lovemaking</a>") do |j|
+    assert_syntactical_equivalence("a[text()='Tender Lovemaking']", ".//a[normalize-space(child::text()) = 'Tender Lovemaking']", "<a href=\"http://tenderlovemaking.com\">Tender Lovemaking</a>") do |j|
       j.first.to_s
     end
     assert_syntactical_equivalence("a/text()", ".//a/text()", "Tender Lovemaking") do |j|
@@ -74,10 +74,10 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_css_id
-    assert_syntactical_equivalence("#linkcat-7", ".//*[@id='linkcat-7']", "linkcat-7") do |j|
+    assert_syntactical_equivalence("#linkcat-7", ".//*[@id = 'linkcat-7']", "linkcat-7") do |j|
       j.first["id"]
     end
-    assert_syntactical_equivalence("li#linkcat-7", ".//li[@id='linkcat-7']", "linkcat-7") do |j|
+    assert_syntactical_equivalence("li#linkcat-7", ".//li[@id = 'linkcat-7']", "linkcat-7") do |j|
       j.first["id"]
     end
   end
@@ -100,10 +100,10 @@ class TestConvertXPath < Nokogiri::TestCase
     assert_syntactical_equivalence("div li > a", ".//div//li/a", "http://brobinius.org/") do |j|
       j.first.inner_text
     end
-    assert_syntactical_equivalence("h1 ~ small", ".//h1/../small", "The act of making love, tenderly.") do |j|
+    assert_syntactical_equivalence("h1 ~ small", ".//small[preceding-sibling::h1]", "The act of making love, tenderly.") do |j|
       j.first.inner_text
     end
-    assert_syntactical_equivalence("h1 ~ small", ".//h1/../small", "The act of making love, tenderly.") do |j|
+    assert_syntactical_equivalence("h1 ~ small", ".//small[preceding-sibling::h1]", "The act of making love, tenderly.") do |j|
       j.first.inner_text
     end
   end
