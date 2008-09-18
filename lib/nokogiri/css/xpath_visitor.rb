@@ -6,6 +6,12 @@ module Nokogiri
         "@id = '#{$1}'"
       end
 
+      def visit_attribute_condition node
+        '@' + node.value.first.accept(self) +
+          " #{node.value[1]} " +
+          "#{node.value.last}"
+      end
+
       def visit_pseudo_class node
         '1 = 1' # Ignore pseudo classes for now
       end

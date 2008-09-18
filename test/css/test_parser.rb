@@ -7,6 +7,11 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_attribute
+        assert_xpath  "//h1[@a = 'Tender Lovemaking']",
+                      @parser.parse("h1[a='Tender Lovemaking']")
+      end
+
       def test_id
         assert_xpath "//*[@id = 'foo']", @parser.parse('#foo')
       end

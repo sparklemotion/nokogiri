@@ -14,8 +14,8 @@ macro
   nmstart   [_a-z]|{nonascii}|{escape}
   ident     [-]?({nmstart})({nmchar})*
   name      ({nmchar})+
-  string1   \"([^\n\r\f\\"]|\\{nl}|{nonascii}|{escape})*\"
-  string2   \'([^\n\r\f\\']|\\{nl}|{nonascii}|{escape})*\'
+  string1   "([^\n\r\f"]|\\{nl}|{nonascii}|{escape})*"
+  string2   '([^\n\r\f']|\\{nl}|{nonascii}|{escape})*'
   string    {string1}|{string2}
   invalid1  \"([^\n\r\f\\"]|\\{nl}|{nonascii}|{escape})*
   invalid2  \'([^\n\r\f\\']|\\{nl}|{nonascii}|{escape})*
@@ -28,7 +28,7 @@ rule
 
             ~=               { [:INCLUDES, text] }
             \|=              { [:DASHMATCH, text] }
-            ^=               { [:PREFIXMATCH, text] }
+            \^=              { [:PREFIXMATCH, text] }
             \$=              { [:SUFFIXMATCH, text] }
             \*=              { [:SUBSTRINGMATCH, text] }
             {ident}          { [:IDENT, text] }
@@ -50,7 +50,7 @@ rule
             
             {Comment}                    /* ignore comments */
             [\s\t\r\n\f]+    { [:S, text] }
-            [\.*:]           { [text, text] }
+            [\.*:\[\]=]      { [text, text] }
             {string}         { [:STRING, text] }
             {invalid}        { [:INVALID, text] }
             .                { [text, text] }

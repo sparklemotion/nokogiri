@@ -7,6 +7,25 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_scan_attribute_string
+        @scanner.scan("h1[a='Tender Lovemaking']")
+        assert_tokens([ [:IDENT, 'h1'],
+                        ['[', '['],
+                        [:IDENT, 'a'],
+                        ['=', '='],
+                        [:STRING, "'Tender Lovemaking'"],
+                        [']', ']'],
+        ], @scanner)
+        @scanner.scan('h1[a="Tender Lovemaking"]')
+        assert_tokens([ [:IDENT, 'h1'],
+                        ['[', '['],
+                        [:IDENT, 'a'],
+                        ['=', '='],
+                        [:STRING, '"Tender Lovemaking"'],
+                        [']', ']'],
+        ], @scanner)
+      end
+
       def test_scan_id
         @scanner.scan('#foo')
         assert_tokens([ [:HASH, '#foo'] ], @scanner)

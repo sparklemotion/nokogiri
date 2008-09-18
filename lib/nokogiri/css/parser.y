@@ -3,6 +3,7 @@ class Nokogiri::CSS::GeneratedParser
 token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS GREATER S STRING IDENT
 token COMMA URI CDO CDC NUMBER PERCENTAGE LENGTH EMS EXS ANGLE TIME FREQ
 token IMPORTANT_SYM IMPORT_SYM MEDIA_SYM PAGE_SYM CHARSET_SYM DIMENSION
+token PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH
 
 rule
   selector
@@ -42,7 +43,9 @@ rule
     ;
   attrib
     : '[' s_0toN IDENT s_0toN attrib_val_0or1 ']' {
-        result = AttributeCondition.build(val[2], val[4])
+        result = Node.new(:ATTRIBUTE_CONDITION,
+          [Node.new(:ELEMENT_NAME, [val[2]])] + (val[4] || [])
+        )
       }
     ;
   function
@@ -89,6 +92,9 @@ rule
     ;
   eql_incl_dash
     : '='
+    | PREFIXMATCH
+    | SUFFIXMATCH
+    | SUBSTRINGMATCH
     | INCLUDES
     | DASHMATCH
     ;

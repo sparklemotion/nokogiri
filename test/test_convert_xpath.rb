@@ -26,13 +26,13 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_child_tag
-    assert_syntactical_equivalence("h1[a]", ".//h1[a]", "Tender Lovemaking") do |j|
+    assert_syntactical_equivalence("h1[a]", ".//h1[child::a]", "Tender Lovemaking") do |j|
       j.inner_text
     end
   end
 
   def test_child_tag_equals
-    assert_syntactical_equivalence("h1[a='Tender Lovemaking']", ".//h1[a='Tender Lovemaking']", "Tender Lovemaking") do |j|
+    assert_syntactical_equivalence("h1[a='Tender Lovemaking']", ".//h1[child::a='Tender Lovemaking']", "Tender Lovemaking") do |j|
       j.inner_text
     end
   end
