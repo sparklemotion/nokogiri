@@ -39,6 +39,10 @@ module Nokogiri
             './/' + visitor.accept(ctx)
           end
         end
+
+        def to_original_html
+          to_html
+        end
       end
     end
   end

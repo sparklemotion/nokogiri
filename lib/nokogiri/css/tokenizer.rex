@@ -32,7 +32,7 @@ rule
             \$=              { [:SUFFIXMATCH, text] }
             \*=              { [:SUBSTRINGMATCH, text] }
             !=               { [:NOT_EQUAL, text] }
-            {ident}\(        { [:FUNCTION, text] }
+            {ident}\(\s*     { [:FUNCTION, text] }
             @{ident}         { [:IDENT, text] }
             {ident}          { [:IDENT, text] }
             {num}            { [:NUMBER, text] }

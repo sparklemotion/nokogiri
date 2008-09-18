@@ -7,6 +7,11 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_function_with_arguments
+        assert_xpath  "//a[position() = 2]",
+                      @parser.parse("a:nth-child(2)")
+      end
+
       def test_attributes_with_at
         ## This is non standard CSS
         assert_xpath  "//a[@id = 'Boing']",

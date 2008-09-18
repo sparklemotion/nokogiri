@@ -2,8 +2,14 @@ module Nokogiri
   module CSS
     class XPathVisitor
       def visit_function node
-        return 'child::text()' if node.value.first == 'text('
-        node.value.first + ')'
+        case node.value.first
+        when /^text\(/
+          'child::text()'
+        when /^nth-child\(/
+          'position() = ' + node.value[1]
+        else
+          node.value.first + ')'
+        end
       end
 
       def visit_preceding_selector node
@@ -42,7 +48,11 @@ module Nokogiri
       end
 
       def visit_pseudo_class node
-        '1 = 1' # Ignore pseudo classes for now
+        if node.value.first.type == :FUNCTION
+          node.value.first.accept(self)
+        else
+          '1 = 1'
+        end
       end
 
       def visit_class_condition node

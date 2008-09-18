@@ -56,14 +56,19 @@ rule
       }
     ;
   function
-    : FUNCTION s_0toN ')' s_0toN {
-        ### We only support 0 argument functions for now....
-        result = Node.new(:FUNCTION, [val.first])
+    : FUNCTION ')' {
+        result = Node.new(:FUNCTION, [val.first.strip])
       }
+    | FUNCTION expr ')' {
+        result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
+      }
+    ;
+    expr
+    : NUMBER
     ;
   pseudo
     : ':' function {
-        result = PseudoClassCondition.new(val[1])
+        result = Node.new(:PSEUDO_CLASS, [val[1]])
       }
     | ':' IDENT { result = Node.new(:PSEUDO_CLASS, [val[1]]) }
     ;
