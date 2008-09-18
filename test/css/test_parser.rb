@@ -7,6 +7,12 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_attributes_with_at
+        ## This is non standard CSS
+        assert_xpath  "//a[@id = 'Boing']",
+                      @parser.parse("a[@id='Boing']")
+      end
+
       def test_not_equal
         ## This is non standard CSS
         assert_xpath  "//a[child::text() != 'Boing']",

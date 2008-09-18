@@ -21,17 +21,23 @@ module Nokogiri
       def visit_attribute_condition node
         attribute = node.value.first.type == :FUNCTION ? '' : '@'
         attribute += node.value.first.accept(self)
+
+        # Support non-standard css
+        attribute.gsub!(/^@@/, '@')
+
         return attribute unless node.value.length == 3
+
+        value = node.value.last
+        value = "'#{value}'" if value !~ /^['"]/
 
         case node.value[1]
         when '*='
-          "contains(#{attribute}, #{node.value.last})"
+          "contains(#{attribute}, #{value})"
         when '$='
-          value = node.value.last
           "substring(#{attribute}, string-length(#{attribute}) - " +
             "string-length(#{value}) + 1, string-length(#{value})) = #{value}"
         else
-          attribute + " #{node.value[1]} " + "#{node.value.last}"
+          attribute + " #{node.value[1]} " + "#{value}"
         end
       end
 
