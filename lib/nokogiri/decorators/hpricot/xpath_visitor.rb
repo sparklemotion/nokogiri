@@ -4,9 +4,8 @@ module Nokogiri
       ####
       # This mixin does custom adjustments to deal with _whyML
       module XPathVisitor
-        def visit_function node
-          return 'normalize-space(child::text())' if node.value.first == 'text('
-          super
+        def visit_attribute_condition node
+          super(node).gsub(/child::text\(\)/, 'normalize-space(child::text())')
         end
       end
     end
