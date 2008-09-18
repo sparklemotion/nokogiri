@@ -21,6 +21,7 @@ module Nokogiri
       def visit_attribute_condition node
         attribute = node.value.first.type == :FUNCTION ? '' : '@'
         attribute += node.value.first.accept(self)
+        return attribute unless node.value.length == 3
 
         case node.value[1]
         when '*='

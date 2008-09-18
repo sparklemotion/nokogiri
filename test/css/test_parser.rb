@@ -15,6 +15,10 @@ module Nokogiri
 
       def test_function
         ## This is non standard CSS
+        assert_xpath  "//a[child::text()]",
+                      @parser.parse("a[text()]")
+
+        ## This is non standard CSS
         assert_xpath  "//child::text()",
                       @parser.parse("text()")
 
