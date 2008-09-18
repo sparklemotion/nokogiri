@@ -20,7 +20,6 @@ module Nokogiri
       def search path
         sub_set = NodeSet.new
         document.decorate(sub_set)
-        puts path
         each do |node|
           node.search(path).each do |sub_node|
             sub_set << sub_node
