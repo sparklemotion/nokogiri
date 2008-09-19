@@ -153,8 +153,19 @@ module Nokogiri
         assert_xpath '//x//y', @parser.parse('x//y')
       end
 
-      def assert_xpath expected, ast
-        assert_equal expected, ast.first.to_xpath
+      def test_multi_path
+        assert_xpath ['//x/y', '//y/z'], @parser.parse('x > y, y > z')
+        assert_xpath ['//x/y', '//y/z'], @parser.parse('x > y,y > z')
+        ###
+        # TODO: should we make this work?
+        # assert_xpath ['//x/y', '//y/z'], @parser.parse('x > y | y > z')
+      end
+
+      def assert_xpath expecteds, asts
+        expecteds = [expecteds].flatten
+        expecteds.zip(asts).each do |expected, actual|
+          assert_equal expected, actual.to_xpath
+        end
       end
     end
   end

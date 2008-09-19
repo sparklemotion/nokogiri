@@ -6,7 +6,7 @@ module Nokogiri
           ctx = CSS::Parser.parse(rule.to_s)
           visitor = CSS::XPathVisitor.new
           visitor.extend(Hpricot::XPathVisitor)
-          search('.//self::' + visitor.accept(ctx))
+          search('.//self::' + visitor.accept(ctx.first))
         end
       end
     end

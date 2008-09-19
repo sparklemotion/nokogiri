@@ -7,7 +7,10 @@ token PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH TILDE NOT_EQUAL SLASH DOUBLESLASH
 
 rule
   selector
-    : simple_selector_1toN { result = val.flatten }
+    : selector COMMA s_0toN simple_selector_1toN {
+        result = [val.first, val.last].flatten
+      }
+    | simple_selector_1toN { result = val.flatten }
     ;
   combinator
     : PLUS s_0toN { result = :DIRECT_ADJACENT_SELECTOR }
