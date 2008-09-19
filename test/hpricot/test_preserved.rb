@@ -20,23 +20,27 @@ class TestPreserved < Test::Unit::TestCase
     assert_equal str1, doc.to_original_html
   end
 
-  def test_simple
-    str = "<p>Hpricot is a <b>you know <i>uh</b> fine thing.</p>"
-    assert_html str, str
-    assert_html "<p class=\"new\">Hpricot is a <b>you know <i>uh</b> fine thing.</p>", str do |doc|
-      (doc/:p).set('class', 'new')
-    end
-  end
+  ####
+  # Not supporting to_original_html
+  #def test_simple
+  #  str = "<p>Hpricot is a <b>you know <i>uh</b> fine thing.</p>"
+  #  assert_html str, str
+  #  assert_html "<p class=\"new\">Hpricot is a <b>you know <i>uh</b> fine thing.</p>", str do |doc|
+  #    (doc/:p).set('class', 'new')
+  #  end
+  #end
 
-  def test_parent
-    str = "<html><base href='/'><head><title>Test</title></head><body><div id='wrap'><p>Paragraph one.</p><p>Paragraph two.</p></div></body></html>"
-    assert_html str, str
-    assert_html "<html><base href='/'><body><div id=\"all\"><div><p>Paragraph one.</p></div><div><p>Paragraph two.</p></div></div></body></html>", str do |doc|
-      (doc/:head).remove
-      (doc/:div).set('id', 'all')
-      (doc/:p).wrap('<div></div>')
-    end
-  end
+  ####
+  # Not supporting to_original_html
+  #def test_parent
+  #  str = "<html><base href='/'><head><title>Test</title></head><body><div id='wrap'><p>Paragraph one.</p><p>Paragraph two.</p></div></body></html>"
+  #  assert_html str, str
+  #  assert_html "<html><base href='/'><body><div id=\"all\"><div><p>Paragraph one.</p></div><div><p>Paragraph two.</p></div></div></body></html>", str do |doc|
+  #    (doc/:head).remove
+  #    (doc/:div).set('id', 'all')
+  #    (doc/:p).wrap('<div></div>')
+  #  end
+  #end
 
   def test_escaping_of_contents
     doc = Nokogiri.Hpricot(TestFiles::BOINGBOING)
