@@ -98,6 +98,16 @@ module Nokogiri
         assert_xpath '//x/y', @parser.parse('x > y')
       end
 
+      def test_parse_slash
+        ## This is non standard CSS
+        assert_xpath '//x/y', @parser.parse('x/y')
+      end
+
+      def test_parse_doubleslash
+        ## This is non standard CSS
+        assert_xpath '//x//y', @parser.parse('x//y')
+      end
+
       def assert_xpath expected, ast
         assert_equal expected, ast.to_xpath
       end

@@ -57,17 +57,17 @@ class TestConvertXPath < Nokogiri::TestCase
     assert_syntactical_equivalence("a[text()='Tender Lovemaking']", ".//a[normalize-space(child::text()) = 'Tender Lovemaking']", "<a href=\"http://tenderlovemaking.com\">Tender Lovemaking</a>") do |j|
       j.first.to_s
     end
-    assert_syntactical_equivalence("a/text()", ".//a/text()", "Tender Lovemaking") do |j|
+    assert_syntactical_equivalence("a/text()", ".//a/child::text()", "Tender Lovemaking") do |j|
       j.first.to_s
     end
-    assert_syntactical_equivalence("h2//a[text()!='Back Home!']", ".//h2//a[text()!='Back Home!']", "Meow meow meow meow meow") do |j|
+    assert_syntactical_equivalence("h2//a[text()!='Back Home!']", ".//h2//a[normalize-space(child::text()) != 'Back Home!']", "Meow meow meow meow meow") do |j|
       j.first.inner_text
     end
   end
 
   def test_filter_by_attr
     assert_syntactical_equivalence("a[@href='http://blog.geminigeek.com/wordpress-theme']",
-                                   ".//a[@href='http://blog.geminigeek.com/wordpress-theme']",
+                                   ".//a[@href = 'http://blog.geminigeek.com/wordpress-theme']",
                                    "http://blog.geminigeek.com/wordpress-theme") do |j|
       j.first["href"]
     end

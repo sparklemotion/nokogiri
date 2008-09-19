@@ -90,6 +90,22 @@ module Nokogiri
         ], @scanner)
       end
 
+      def test_scan_slash
+        @scanner.scan('x/y')
+        assert_tokens([ [:IDENT, 'x'],
+                        [:SLASH, '/'],
+                        [:IDENT, 'y']
+        ], @scanner)
+      end
+
+      def test_scan_doubleslash
+        @scanner.scan('x//y')
+        assert_tokens([ [:IDENT, 'x'],
+                        [:DOUBLESLASH, '//'],
+                        [:IDENT, 'y']
+        ], @scanner)
+      end
+
       def assert_tokens(tokens, scanner)
         toks = []
         while tok = @scanner.next_token
