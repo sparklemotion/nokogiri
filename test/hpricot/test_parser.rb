@@ -223,10 +223,12 @@ class TestParser < Test::Unit::TestCase
     assert_equal 20, @boingboing.search('//div/p[a/img]|//link[@rel="alternate"]').length
   end
 
-  def test_stacked_search
-    @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
-    assert_kind_of Hpricot::Elements, @boingboing.search('//div/p').search('a img')
-  end
+  ####
+  # Modified.  Epic Fail.  We're on the duck type train folks.
+  #def test_stacked_search
+  #  @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
+  #  assert_kind_of Hpricot::Elements, @boingboing.search('//div/p').search('a img')
+  #end
 
   def test_class_search
     # test case sent by Chih-Chao Lam
