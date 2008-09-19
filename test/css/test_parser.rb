@@ -7,6 +7,44 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_find_by_type
+        ast = @parser.parse("a:nth-child(2)").first
+        matches = ast.find_by_type(
+          [:CONDITIONAL_SELECTOR,
+            [:ELEMENT_NAME],
+            [:PSEUDO_CLASS,
+              [:FUNCTION]
+            ]
+          ]
+        )
+        assert_equal(1, matches.length)
+        assert_equal(ast, matches.first)
+      end
+
+      def test_to_type
+        ast = @parser.parse("a:nth-child(2)").first
+        assert_equal(
+          [:CONDITIONAL_SELECTOR,
+            [:ELEMENT_NAME],
+            [:PSEUDO_CLASS,
+              [:FUNCTION]
+            ]
+          ], ast.to_type
+        )
+      end
+
+      def test_to_a
+        asts = @parser.parse("a:nth-child(2)")
+        assert_equal(
+          [:CONDITIONAL_SELECTOR,
+            [:ELEMENT_NAME, ["a"]],
+            [:PSEUDO_CLASS,
+              [:FUNCTION, ["nth-child("], ["2"]]
+            ]
+          ], asts.first.to_a
+        )
+      end
+
       def test_function_with_arguments
         assert_xpath  "//a[position() = 2]",
                       @parser.parse("a[2]")
