@@ -73,9 +73,32 @@ rule
     | FUNCTION expr ')' {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
+    | FUNCTION an_plus_b ')' {
+        result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
+      }
     ;
-    expr
+  expr
     : NUMBER
+    ;
+  an_plus_b
+    : NUMBER IDENT PLUS NUMBER {
+        if val[1] != 'n'
+          raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
+        end
+        result = Node.new(:AN_PLUS_B, val)
+      }
+    | NUMBER IDENT {
+        if val[1] != 'n'
+          raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
+        end
+        result = Node.new(:AN_PLUS_B, val)
+      }
+    | IDENT {
+        if val[0] != 'even' and val[0] != 'odd'
+          raise Racc::ParseError, "parse error on IDENT '#{val[0]}'"
+        end
+        result = Node.new(:AN_PLUS_B, val)
+      }
     ;
   pseudo
     : ':' function {

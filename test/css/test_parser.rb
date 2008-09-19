@@ -46,18 +46,16 @@ module Nokogiri
 
       def test_nonstandard_nth_selectors
         ## These are non standard CSS
-        assert_xpath '//a[position() = 100]', @parser.parse('a:eq(99)')
+        assert_xpath '//a[position() = 99]', @parser.parse('a:eq(99)')
         assert_xpath '//a[position() = 1]', @parser.parse('a:first') # no parens
         assert_xpath '//a[position() = last()]', @parser.parse('a:last') # no parens
-        assert_xpath '//a[position() = 100]', @parser.parse('a:nth(99)')
+        assert_xpath '//a[position() = 99]', @parser.parse('a:nth(99)')
         assert_xpath '//a[position() = 1]', @parser.parse('a:first()')
         assert_xpath '//a[position() = last()]', @parser.parse('a:last()')
-
-        # TODO: this is ambiguous because Hpricot has an off-by-one error
-        assert_xpath '//a[position() = 100]', @parser.parse('a:nth-of-type(99)')
       end
 
       def test_standard_nth_selectors
+        assert_xpath '//a[position() = 99]', @parser.parse('a:nth-of-type(99)')
         assert_xpath '//a[position() = 1]', @parser.parse('a:first-of-type()')
         assert_xpath '//a[position() = last()]', @parser.parse('a:last-of-type()')
         assert_xpath '//a[position() = last() - 99]', @parser.parse('a:nth-last-of-type(99)')

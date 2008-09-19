@@ -8,7 +8,18 @@ module Nokogiri
         when /^nth-child\(/
           'position() = ' + node.value[1] # TODO: think this needs to be fixed. see test cases.
         when /^(eq|nth|nth-of-type)\(/
-          "position() = " + node.value[1]
+          # TODO: ick. clean this up.
+          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
+            if node.value[1].value[0] == 'even'
+              "(position() mod 2) = 0"
+            elsif node.value[1].value[0] == 'odd'
+              "(position() mod 2) = 1"
+            else
+              "(position() mod #{node.value[1].value[0]}) = #{node.value[1].value[3] || 0}"
+            end
+          else
+            "position() = " + node.value[1]
+          end
         when /^(first|first-of-type)\(/
           "position() = 1"
         when /^(last|last-of-type)\(/
