@@ -109,22 +109,22 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_positional
-    assert_syntactical_equivalence("div > div:eq(0)", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+    assert_syntactical_equivalence("div > div:eq(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
       j.first.inner_text
     end
-    assert_syntactical_equivalence("div/div:eq(0)", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+    assert_syntactical_equivalence("div/div:eq(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
       j.first.inner_text
     end
-    assert_syntactical_equivalence("div/div:nth(0)", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+    assert_syntactical_equivalence("div/div:nth(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
       j.first.inner_text
     end
-    assert_syntactical_equivalence("div/div:nth-of-type(0)", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+    assert_syntactical_equivalence("div/div:nth-of-type(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
       j.first.inner_text
     end
-    assert_syntactical_equivalence("div/div:first()", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+    assert_syntactical_equivalence("div/div:first()", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
       j.first.inner_text
     end
-    assert_syntactical_equivalence("div/div:first", ".//div/div[1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+    assert_syntactical_equivalence("div/div:first", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
       j.first.inner_text
     end
     assert_syntactical_equivalence("div//a:last()", ".//div//a[position() = last()]", "Wordpress") do |j|

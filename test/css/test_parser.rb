@@ -42,13 +42,13 @@ module Nokogiri
                       @parser.parse("script comment()")
 
         ## This is non standard CSS
-        assert_xpath '//a[100]', @parser.parse('a:eq(99)')
-        assert_xpath '//a[100]', @parser.parse('a:nth-of-type(99)')
-        assert_xpath '//a[100]', @parser.parse('a:nth(99)')
+        assert_xpath '//a[position() = 100]', @parser.parse('a:eq(99)')
+        assert_xpath '//a[position() = 100]', @parser.parse('a:nth-of-type(99)')
+        assert_xpath '//a[position() = 100]', @parser.parse('a:nth(99)')
 
         ## This is non standard CSS
-        assert_xpath '//a[1]', @parser.parse('a:first')
-        assert_xpath '//a[1]', @parser.parse('a:first()')
+        assert_xpath '//a[position() = 1]', @parser.parse('a:first')
+        assert_xpath '//a[position() = 1]', @parser.parse('a:first()')
         assert_xpath '//a[position() = last()]', @parser.parse('a:last')
         assert_xpath '//a[position() = last()]', @parser.parse('a:last()')
       end

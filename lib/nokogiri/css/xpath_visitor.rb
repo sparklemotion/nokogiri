@@ -8,9 +8,9 @@ module Nokogiri
         when /^nth-child\(/
           'position() = ' + node.value[1]
         when /^(eq|nth|nth-of-type)\(/
-          (node.value[1].to_i + 1).to_s
+          "position() = " + (node.value[1].to_i + 1).to_s
         when /^first\(/
-          "1"
+          "position() = 1"
         when /^last\(/
           "position() = last()"
         else
@@ -58,7 +58,7 @@ module Nokogiri
           node.value.first.accept(self)
         else
           case node.value.first
-          when "first" then "1"
+          when "first" then "position() = 1"
           when "last" then "position() = last()"
           else
             '1 = 1'
