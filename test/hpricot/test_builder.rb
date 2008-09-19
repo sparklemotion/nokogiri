@@ -9,7 +9,7 @@ class TestBuilder < Test::Unit::TestCase
   def test_escaping_text
     doc = Nokogiri.Hpricot() { b "<a\"b>" }
     assert_equal "<b>&lt;a\"b&gt;</b>", doc.to_html.chomp
-    assert_equal %{<a"b>}, doc.at("text()").to_s
+    assert_equal %{&lt;a\"b&gt;}, doc.at("text()").to_s
   end
 
   ####
@@ -18,7 +18,7 @@ class TestBuilder < Test::Unit::TestCase
     doc = Nokogiri.Hpricot() { div.test.me! { text "<a\"b>" } }
     assert_equal %{<div class="test" id="me">&lt;a"b&gt;</div>},
       doc.to_html.chomp
-    assert_equal %{<a"b>}, doc.at("text()").to_s
+    assert_equal %{&lt;a\"b&gt;}, doc.at("text()").to_s
   end
 
   ####
