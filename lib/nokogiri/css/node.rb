@@ -11,8 +11,57 @@ module Nokogiri
         visitor.send(:"visit_#{type.to_s.downcase}", self)
       end
 
-      def to_xpath prefix = '//'
+      def to_xpath prefix = '//', preprocess = true
+        self.preprocess if preprocess
         prefix + XPathVisitor.new.accept(self)
+      end
+
+      def preprocess
+        ### Deal with nth-child
+        matches = find_by_type(
+          [:CONDITIONAL_SELECTOR,
+            [:ELEMENT_NAME],
+            [:PSEUDO_CLASS,
+              [:FUNCTION]
+            ]
+          ]
+        )
+        matches.each do |match|
+          if match.value[1].value[0].value[0] =~ /^nth-child/
+            tag_name = match.value[0].value.first
+            match.value[0].value = ['*']
+            match.value[1] = Node.new(:COMBINATOR, [
+              match.value[1].value[0],
+              Node.new(:FUNCTION, ['self(', tag_name])
+            ])
+          end
+          if match.value[1].value[0].value[0] =~ /^nth-last-child/
+            tag_name = match.value[0].value.first
+            match.value[0].value = ['*']
+            match.value[1].value[0].value[0] = 'nth-last-of-type('
+            match.value[1] = Node.new(:COMBINATOR, [
+              match.value[1].value[0],
+              Node.new(:FUNCTION, ['self(', tag_name])
+            ])
+          end
+        end
+
+        ### Deal with first-child, last-child
+        matches = find_by_type(
+          [:CONDITIONAL_SELECTOR,
+            [:ELEMENT_NAME], [:PSEUDO_CLASS]
+        ])
+        matches.each do |match|
+          if ['first-child', 'last-child'].include?(match.value[1].value.first)
+            which = match.value[1].value.first.gsub(/-\w*$/, '')
+            tag_name = match.value[0].value.first
+            match.value[0].value = ['*']
+            match.value[1] = Node.new(:COMBINATOR, [
+              Node.new(:FUNCTION, ["#{which}("]),
+              Node.new(:FUNCTION, ['self(', tag_name])
+            ])
+          end
+        end
       end
 
       def find_by_type(types)

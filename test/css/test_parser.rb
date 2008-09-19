@@ -46,9 +46,9 @@ module Nokogiri
       end
 
       def test_function_with_arguments
-        assert_xpath  "//a[position() = 2]",
+        assert_xpath  "//*[position() = 2 and self::a]",
                       @parser.parse("a[2]")
-        assert_xpath  "//*[position() = 2][self::a]",
+        assert_xpath  "//*[position() = 2 and self::a]",
                       @parser.parse("a:nth-child(2)")
       end
 
@@ -102,10 +102,10 @@ module Nokogiri
 
       def test_nth_child_selectors
         # TODO: verify the xpath is correct for these -child pseudoclasses
-        assert_xpath '//*[position() = 1][self::a]', @parser.parse('a:first-child')
-        assert_xpath '//*[position() = last()][self::a]', @parser.parse('a:last-child')
-        assert_xpath '//*[position() = 100][self::a]', @parser.parse('a:nth-child(99)')
-        assert_xpath '//*[position() = last() - 99][self::a]', @parser.parse('a:nth-last-child(99)')
+        assert_xpath '//*[position() = 1 and self::a]', @parser.parse('a:first-child')
+        assert_xpath '//*[position() = last() and self::a]', @parser.parse('a:last-child')
+        assert_xpath '//*[position() = 99 and self::a]', @parser.parse('a:nth-child(99)')
+        assert_xpath '//*[position() = last() - 99 and self::a]', @parser.parse('a:nth-last-child(99)')
       end
 
       def test_miscellaneous_selectors

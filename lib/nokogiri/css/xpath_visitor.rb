@@ -5,6 +5,8 @@ module Nokogiri
         case node.value.first
         when /^text\(/
           'child::text()'
+        when /^self\(/
+          "self::#{node.value[1]}"
         when /^nth-child\(/
           'position() = ' + node.value[1] # TODO: think this needs to be fixed. see test cases.
         when /^(eq|nth|nth-of-type)\(/
