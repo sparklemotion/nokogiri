@@ -40,17 +40,49 @@ module Nokogiri
         ## This is non standard CSS
         assert_xpath  "//script//comment()",
                       @parser.parse("script comment()")
+      end
 
-        ## This is non standard CSS
+      def test_nonstandard_nth_selectors
+        ## These are non standard CSS
         assert_xpath '//a[position() = 100]', @parser.parse('a:eq(99)')
-        assert_xpath '//a[position() = 100]', @parser.parse('a:nth-of-type(99)')
+        assert_xpath '//a[position() = 1]', @parser.parse('a:first') # no parens
+        assert_xpath '//a[position() = last()]', @parser.parse('a:last') # no parens
         assert_xpath '//a[position() = 100]', @parser.parse('a:nth(99)')
-
-        ## This is non standard CSS
-        assert_xpath '//a[position() = 1]', @parser.parse('a:first')
         assert_xpath '//a[position() = 1]', @parser.parse('a:first()')
-        assert_xpath '//a[position() = last()]', @parser.parse('a:last')
         assert_xpath '//a[position() = last()]', @parser.parse('a:last()')
+
+        # TODO: this is ambiguous because Hpricot has an off-by-one error
+        assert_xpath '//a[position() = 100]', @parser.parse('a:nth-of-type(99)')
+      end
+
+      def test_standard_nth_selectors
+        assert_xpath '//a[position() = 1]', @parser.parse('a:first-of-type()')
+        assert_xpath '//a[position() = last()]', @parser.parse('a:last-of-type()')
+        assert_xpath '//a[position() = last() - 99]', @parser.parse('a:nth-last-of-type(99)')
+        assert_xpath '//a[position() = last() - 99]', @parser.parse('a:nth-last-of-type(99)')
+      end
+
+      def test_nth_child_selectors
+        # TODO: verify the xpath is correct for these -child pseudoclasses
+        assert_xpath '//*[position() = 1][self::a]', @parser.parse('a:first-child')
+        assert_xpath '//*[position() = last()][self::a]', @parser.parse('a:last-child')
+        assert_xpath '//*[position() = 100][self::a]', @parser.parse('a:nth-child(99)')
+        assert_xpath '//*[position() = last() - 99][self::a]', @parser.parse('a:nth-last-child(99)')
+      end
+
+      def test_miscellaneous_selectors
+        # TODO: figure out the xpath equivalents
+        assert_xpath '//i-do-not-know', @parser.parse('a:only-child')
+        assert_xpath '//i-do-not-know', @parser.parse('a:only-of-type')
+        assert_xpath '//i-do-not-know', @parser.parse('a:empty')
+      end
+
+      def test_nth_a_n_plus_b
+        assert_xpath '//a[(position() mod 2) = 0]', @parser.parse('a:nth-of-type(2n)')
+        assert_xpath '//a[(position() mod 2) = 1]', @parser.parse('a:nth-of-type(2n+1)')
+        assert_xpath '//a[(position() mod 2) = 0]', @parser.parse('a:nth-of-type(even)')
+        assert_xpath '//a[(position() mod 2) = 1]', @parser.parse('a:nth-of-type(odd)')
+        assert_xpath '//a[(position() mod 4) = 3]', @parser.parse('a:nth-of-type(4n+3)')
       end
 
       def test_preceding_selector

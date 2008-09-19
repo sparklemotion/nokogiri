@@ -8,11 +8,13 @@ module Nokogiri
         when /^nth-child\(/
           'position() = ' + node.value[1]
         when /^(eq|nth|nth-of-type)\(/
-          "position() = " + (node.value[1].to_i + 1).to_s
-        when /^first\(/
+          "position() = " + (node.value[1].to_i + 1).to_s # TODO: make a decision on nth-of-type()
+        when /^(first|first-of-type)\(/
           "position() = 1"
-        when /^last\(/
+        when /^(last|last-of-type)\(/
           "position() = last()"
+        when /^nth-last-of-type\(/
+          "position() = last() - #{node.value[1]}"
         else
           node.value.first + ')'
         end
