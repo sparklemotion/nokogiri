@@ -38,7 +38,6 @@ module Nokogiri
           if match.value[1].value[0].value[0] =~ /^nth-last-child/
             tag_name = match.value[0].value.first
             match.value[0].value = ['*']
-            match.value[1].value[0].value[0] = 'nth-last-of-type('
             match.value[1] = Node.new(:COMBINATOR, [
               match.value[1].value[0],
               Node.new(:FUNCTION, ['self(', tag_name])
