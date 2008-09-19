@@ -3,7 +3,7 @@ module Nokogiri
     module Hpricot
       module Node
         def search path
-          super(convert_to_xpath(path))
+          super(*convert_to_xpath(path))
         end
         def /(path); search(path) end
 
@@ -25,16 +25,16 @@ module Nokogiri
           rule = rule.to_s
           case rule
           when %r{^//}
-            ".#{rule}"
+            [".#{rule}"]
           when %r{^/}
-            rule
+            [rule]
           when %r{^.//}
-            rule
+            [rule]
           else
             ctx = CSS::Parser.parse(rule)
             visitor = CSS::XPathVisitor.new
             visitor.extend(Hpricot::XPathVisitor)
-            './/' + visitor.accept(ctx.first)
+            ctx.map { |ast| './/' + visitor.accept(ast) }
           end
         end
 
