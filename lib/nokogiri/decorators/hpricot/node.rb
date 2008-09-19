@@ -34,7 +34,7 @@ module Nokogiri
             ctx = CSS::Parser.parse(rule)
             visitor = CSS::XPathVisitor.new
             visitor.extend(Hpricot::XPathVisitor)
-            './/' + visitor.accept(ctx)
+            './/' + visitor.accept(ctx.first)
           end
         end
 

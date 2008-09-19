@@ -154,7 +154,7 @@ module Nokogiri
       end
 
       def assert_xpath expected, ast
-        assert_equal expected, ast.to_xpath
+        assert_equal expected, ast.first.to_xpath
       end
     end
   end

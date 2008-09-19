@@ -43,11 +43,13 @@ class TestPreserved < Test::Unit::TestCase
     assert_equal "Fukuda&#x2019;s Automatic Door opens around your body as you pass through it. The idea is to save energy and keep the room clean.", doc.at("img[@alt='200606131240']").next.to_s.strip
   end
 
-  def test_files
-    assert_roundtrip TestFiles::BASIC
-    assert_roundtrip TestFiles::BOINGBOING
-    assert_roundtrip TestFiles::CY0
-  end
+  ####
+  # Modified.  No.
+  #def test_files
+  #  assert_roundtrip TestFiles::BASIC
+  #  assert_roundtrip TestFiles::BOINGBOING
+  #  assert_roundtrip TestFiles::CY0
+  #end
 
   ####
   # Modified..  When calling "to_html" on the document, proper html/doc tags
