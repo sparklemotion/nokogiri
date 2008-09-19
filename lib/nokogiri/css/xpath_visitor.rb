@@ -7,6 +7,12 @@ module Nokogiri
           'child::text()'
         when /^nth-child\(/
           'position() = ' + node.value[1]
+        when /^(eq|nth|nth-of-type)\(/
+          (node.value[1].to_i + 1).to_s
+        when /^first\(/
+          "1"
+        when /^last\(/
+          "position() = last()"
         else
           node.value.first + ')'
         end
@@ -48,10 +54,15 @@ module Nokogiri
       end
 
       def visit_pseudo_class node
-        if node.value.first.type == :FUNCTION
+        if node.value.first.is_a?(Nokogiri::CSS::Node) and node.value.first.type == :FUNCTION
           node.value.first.accept(self)
         else
-          '1 = 1'
+          case node.value.first
+          when "first" then "1"
+          when "last" then "position() = last()"
+          else
+            '1 = 1'
+          end
         end
       end
 

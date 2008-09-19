@@ -106,6 +106,16 @@ module Nokogiri
         ], @scanner)
       end
 
+      def test_scan_function_selector
+        @scanner.scan('x:eq(0)')
+        assert_tokens([ [:IDENT, 'x'],
+                        [':', ':'],
+                        [:FUNCTION, 'eq('],
+                        [:NUMBER, "0"],
+                        [")", ")"]
+        ], @scanner)
+      end
+
       def assert_tokens(tokens, scanner)
         toks = []
         while tok = @scanner.next_token
