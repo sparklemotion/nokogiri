@@ -6,9 +6,9 @@ module Nokogiri
         when /^text\(/
           'child::text()'
         when /^nth-child\(/
-          'position() = ' + node.value[1]
+          'position() = ' + node.value[1] # TODO: think this needs to be fixed. see test cases.
         when /^(eq|nth|nth-of-type)\(/
-          "position() = " + (node.value[1].to_i + 1).to_s # TODO: make a decision on nth-of-type()
+          "position() = " + node.value[1]
         when /^(first|first-of-type)\(/
           "position() = 1"
         when /^(last|last-of-type)\(/

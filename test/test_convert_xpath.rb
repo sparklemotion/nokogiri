@@ -109,18 +109,21 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_positional
-    assert_syntactical_equivalence("div > div:eq(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
-      j.first.inner_text
-    end
-    assert_syntactical_equivalence("div/div:eq(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
-      j.first.inner_text
-    end
-    assert_syntactical_equivalence("div/div:nth(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
-      j.first.inner_text
-    end
-    assert_syntactical_equivalence("div/div:nth-of-type(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
-      j.first.inner_text
-    end
+##
+#  we are intentionally NOT staying compatible with nth-and-friends, as Hpricot has an OB1 bug.
+#
+#     assert_syntactical_equivalence("div > div:eq(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+#       j.first.inner_text
+#     end
+#     assert_syntactical_equivalence("div/div:eq(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+#       j.first.inner_text
+#     end
+#     assert_syntactical_equivalence("div/div:nth(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+#       j.first.inner_text
+#     end
+#     assert_syntactical_equivalence("div/div:nth-of-type(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
+#       j.first.inner_text
+#     end
     assert_syntactical_equivalence("div/div:first()", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
       j.first.inner_text
     end
