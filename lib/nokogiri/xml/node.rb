@@ -32,11 +32,23 @@ module Nokogiri
         list
       end
 
-      def search(search_path)
-        set = XPath.new(self, search_path).node_set
-        set.document = document
-        document.decorate(set)
-        set
+      def search(*search_paths)
+        sets = search_paths.map { |search_path|
+          set = XPath.new(self, search_path).node_set
+          set.document = document
+          document.decorate(set)
+          set
+        }
+        return sets.first if sets.length == 1
+
+        NodeSet.new do |combined|
+          document.decorate(combined)
+          sets.each do |set|
+            set.each do |node|
+              combined << node
+            end
+          end
+        end
       end
       alias :/ :search
 

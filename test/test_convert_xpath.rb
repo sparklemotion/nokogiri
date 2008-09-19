@@ -15,14 +15,14 @@ class TestConvertXPath < Nokogiri::TestCase
     blk ||= lambda {|j| j.first}
     assert_equal match, blk.call(@N.search(xpath)), "xpath result did not match"
     assert_equal match, blk.call(@H.search(hpath)), "hpath result did not match"
-    assert_equal xpath, @NH.convert_to_xpath(hpath), "converted hpath did not match xpath"
+    assert_equal [xpath], @NH.convert_to_xpath(hpath), "converted hpath did not match xpath"
   end
 
   def test_ordinary_xpath_conversions
-    assert_equal(".//p", @NH.convert_to_xpath("p"))
-    assert_equal(".//p", @NH.convert_to_xpath(:p))
-    assert_equal(".//p", @NH.convert_to_xpath("//p"))
-    assert_equal(".//p", @NH.convert_to_xpath(".//p"))
+    assert_equal(".//p", @NH.convert_to_xpath("p").first)
+    assert_equal(".//p", @NH.convert_to_xpath(:p).first)
+    assert_equal(".//p", @NH.convert_to_xpath("//p").first)
+    assert_equal(".//p", @NH.convert_to_xpath(".//p").first)
   end
 
   def test_child_tag

@@ -15,6 +15,13 @@ module Nokogiri
         assert @xml.document
       end
 
+      def test_multiple_search
+        assert node_set = @xml.search('//employee', '//name')
+        employees = @xml.search('//employee')
+        names = @xml.search('//name')
+        assert_equal(employees.length + names.length, node_set.length)
+      end
+
       def test_node_set_index
         assert node_set = @xml.search('//employee')
 

@@ -5,6 +5,10 @@ module Nokogiri
 
       attr_accessor :document
 
+      def initialize
+        yield self if block_given?
+      end
+
       def first
         self[0]
       end
