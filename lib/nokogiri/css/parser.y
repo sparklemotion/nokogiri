@@ -56,6 +56,12 @@ rule
           [val[2]] + (val[4] || [])
         )
       }
+    | '[' s_0toN NUMBER s_0toN ']' {
+        # Non standard, but hpricot supports it.
+        result = Node.new(:PSEUDO_CLASS,
+          [Node.new(:FUNCTION, ['nth-child(', val[2]])]
+        )
+      }
     ;
   function
     : FUNCTION ')' {

@@ -83,6 +83,16 @@ module Nokogiri
       end
       alias :to_s :to_html
       alias :inner_html :to_html
+
+      def css_path
+        path.split(/\//).map { |part|
+          part.length == 0 ? nil : part.gsub(/\[(\d+)\]/, ':nth-child(\1)')
+        }.compact.join(' > ')
+      end
+
+      def xpath
+        path
+      end
     end
   end
 end

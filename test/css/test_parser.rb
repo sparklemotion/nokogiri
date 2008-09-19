@@ -9,6 +9,8 @@ module Nokogiri
 
       def test_function_with_arguments
         assert_xpath  "//a[position() = 2]",
+                      @parser.parse("a[2]")
+        assert_xpath  "//a[position() = 2]",
                       @parser.parse("a:nth-child(2)")
       end
 
