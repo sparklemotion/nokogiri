@@ -18,7 +18,7 @@
 
 extern VALUE mNokogiri ;
 extern VALUE mNokogiriXml ;
-extern VALUE mNokogiriXml ;
+extern VALUE mNokogiriXmlSax ;
 extern VALUE mNokogiriHtml ;
 extern VALUE mNokogiriXslt ;
 
