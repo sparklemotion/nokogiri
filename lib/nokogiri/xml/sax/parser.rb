@@ -3,7 +3,7 @@ module Nokogiri
     module SAX
       class Parser
         attr_accessor :document
-        def initialize(doc = SAX::Document.new)
+        def initialize(doc = XML::SAX::Document.new)
           @document = doc
         end
 
