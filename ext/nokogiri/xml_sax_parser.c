@@ -25,6 +25,7 @@ static void internal_subset(  void * ctx,
       rb_str_new2((char *)system_id));
 }
 
+/* Not using these yet...
 static int is_standalone(void * ctx)
 {
   VALUE self = (VALUE)ctx;
@@ -53,6 +54,14 @@ static int has_external_subset(void * ctx)
     return 1;
 
   return 0;
+}
+*/
+
+static void start_document(void * ctx)
+{
+  VALUE self = (VALUE)ctx;
+  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  rb_funcall(doc, rb_intern("start_document"), 0);
 }
 
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
@@ -88,9 +97,12 @@ static VALUE allocate(VALUE klass)
   xmlSAXHandlerPtr handler = calloc(1, sizeof(xmlSAXHandler));
 
   handler->internalSubset = internal_subset;
+  /*
   handler->isStandalone = is_standalone;
   handler->hasInternalSubset = has_internal_subset;
   handler->hasExternalSubset = has_external_subset;
+  */
+  handler->startDocument = start_document;
   handler->startElement = start_element;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);

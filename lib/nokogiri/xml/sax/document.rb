@@ -5,16 +5,7 @@ module Nokogiri
         def internal_subset name, external_id, system_id
         end
 
-        def standalone?
-          true
-        end
-
-        def internal_subset?
-          false
-        end
-
-        def external_subset?
-          false
+        def start_document
         end
 
         def start_element name, attrs = []
