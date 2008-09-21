@@ -6,8 +6,14 @@ module Nokogiri
       class TestParser < Nokogiri::TestCase
         class Doc
           attr_reader :start_elements, :start_document_called
+          attr_reader :end_document_called
+
           def start_document
             @start_document_called = true
+          end
+
+          def end_document
+            @end_document_called = true
           end
 
           def start_element *args
@@ -17,6 +23,13 @@ module Nokogiri
 
         def setup
           @parser = XML::SAX::Parser.new(Doc.new)
+        end
+
+        def test_end_document
+          @parser.parse_memory(<<-eoxml)
+            <p id="asdfasdf">Paragraph 1</p>
+          eoxml
+          assert @parser.document.end_document_called
         end
 
         def test_start_document

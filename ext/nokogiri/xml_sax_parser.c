@@ -64,6 +64,13 @@ static void start_document(void * ctx)
   rb_funcall(doc, rb_intern("start_document"), 0);
 }
 
+static void end_document(void * ctx)
+{
+  VALUE self = (VALUE)ctx;
+  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  rb_funcall(doc, rb_intern("end_document"), 0);
+}
+
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
   VALUE self = (VALUE)ctx;
@@ -103,6 +110,7 @@ static VALUE allocate(VALUE klass)
   handler->hasExternalSubset = has_external_subset;
   */
   handler->startDocument = start_document;
+  handler->endDocument = end_document;
   handler->startElement = start_element;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);
