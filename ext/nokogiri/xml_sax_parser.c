@@ -35,6 +35,26 @@ static int is_standalone(void * ctx)
   return 0;
 }
 
+static int has_internal_subset(void * ctx)
+{
+  VALUE self = (VALUE)ctx;
+  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  if(Qtrue == rb_funcall(doc, rb_intern("internal_subset?"), 0))
+    return 1;
+
+  return 0;
+}
+
+static int has_external_subset(void * ctx)
+{
+  VALUE self = (VALUE)ctx;
+  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  if(Qtrue == rb_funcall(doc, rb_intern("external_subset?"), 0))
+    return 1;
+
+  return 0;
+}
+
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
   VALUE self = (VALUE)ctx;
@@ -69,6 +89,8 @@ static VALUE allocate(VALUE klass)
 
   handler->internalSubset = internal_subset;
   handler->isStandalone = is_standalone;
+  handler->hasInternalSubset = has_internal_subset;
+  handler->hasExternalSubset = has_external_subset;
   handler->startElement = start_element;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);

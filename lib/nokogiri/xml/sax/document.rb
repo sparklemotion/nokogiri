@@ -9,6 +9,14 @@ module Nokogiri
           true
         end
 
+        def internal_subset?
+          false
+        end
+
+        def external_subset?
+          false
+        end
+
         def start_element name, attrs = []
         end
       end
