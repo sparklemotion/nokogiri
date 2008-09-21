@@ -4,24 +4,28 @@ module Nokogiri
   module XML
     module SAX
       class TestParser < Nokogiri::TestCase
-        class Doc
+        class Doc < SAX::Document
           attr_reader :start_elements, :start_document_called
           attr_reader :end_elements, :end_document_called
 
           def start_document
             @start_document_called = true
+            super
           end
 
           def end_document
             @end_document_called = true
+            super
           end
 
           def start_element *args
             (@start_elements ||= []) << args
+            super
           end
 
           def end_element *args
             (@end_elements ||= []) << args
+            super
           end
         end
 

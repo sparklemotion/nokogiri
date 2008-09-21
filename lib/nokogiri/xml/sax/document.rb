@@ -13,6 +13,9 @@ module Nokogiri
 
         def start_element name, attrs = []
         end
+
+        def end_element name
+        end
       end
     end
   end
