@@ -8,6 +8,9 @@ module Nokogiri
         def start_document
         end
 
+        def end_document
+        end
+
         def start_element name, attrs = []
         end
       end

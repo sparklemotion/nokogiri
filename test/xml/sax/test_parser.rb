@@ -6,7 +6,7 @@ module Nokogiri
       class TestParser < Nokogiri::TestCase
         class Doc
           attr_reader :start_elements, :start_document_called
-          attr_reader :end_document_called
+          attr_reader :end_elements, :end_document_called
 
           def start_document
             @start_document_called = true
@@ -18,6 +18,10 @@ module Nokogiri
 
           def start_element *args
             (@start_elements ||= []) << args
+          end
+
+          def end_element *args
+            (@end_elements ||= []) << args
           end
         end
 
@@ -32,11 +36,19 @@ module Nokogiri
           assert @parser.document.end_document_called
         end
 
-        def test_start_document
+        def test_end_document
           @parser.parse_memory(<<-eoxml)
             <p id="asdfasdf">Paragraph 1</p>
           eoxml
-          assert @parser.document.start_document_called
+          assert @parser.document.end_document_called
+        end
+
+        def test_end_element
+          @parser.parse_memory(<<-eoxml)
+            <p id="asdfasdf">Paragraph 1</p>
+          eoxml
+          assert_equal [["p"]],
+            @parser.document.end_elements
         end
 
         def test_start_element_attrs

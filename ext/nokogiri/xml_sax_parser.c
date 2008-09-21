@@ -93,6 +93,13 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   );
 }
 
+static void end_element(void * ctx, const xmlChar *name)
+{
+  VALUE self = (VALUE)ctx;
+  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  rb_funcall(doc, rb_intern("end_element"), 1, rb_str_new2((char *)name));
+}
+
 static void deallocate(xmlSAXHandlerPtr handler)
 {
   /* FIXME */
@@ -112,6 +119,7 @@ static VALUE allocate(VALUE klass)
   handler->startDocument = start_document;
   handler->endDocument = end_document;
   handler->startElement = start_element;
+  handler->endElement = end_element;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);
 }
