@@ -7,6 +7,7 @@ module Nokogiri
         class Doc < SAX::Document
           attr_reader :start_elements, :start_document_called
           attr_reader :end_elements, :end_document_called
+          attr_reader :data, :comments, :cdata_blocks
 
           def start_document
             @start_document_called = true
@@ -27,10 +28,78 @@ module Nokogiri
             (@end_elements ||= []) << args
             super
           end
+
+          def characters string
+            @data ||= []
+            @data += [string]
+            super
+          end
+
+          def comment string
+            @comments ||= []
+            @comments += [string]
+            super
+          end
+
+          def cdata_block string
+            @cdata_blocks ||= []
+            @cdata_blocks += [string]
+            super
+          end
         end
 
         def setup
           @parser = XML::SAX::Parser.new(Doc.new)
+        end
+
+        def test_parse
+          File.open(XML_FILE, 'rb') { |f|
+            @parser.parse(f)
+          }
+          @parser.parse(File.read(XML_FILE))
+        end
+
+        def test_parse_io
+          File.open(XML_FILE, 'rb') { |f|
+            @parser.parse_io(f)
+          }
+        end
+
+        def test_parse_file
+          @parser.parse_file(XML_FILE)
+          assert_raises(Errno::ENOENT) {
+            @parser.parse_file('')
+          }
+          assert_raises(Errno::EISDIR) {
+            @parser.parse_file(File.expand_path(File.dirname(__FILE__)))
+          }
+        end
+
+        def test_ctag
+          @parser.parse_memory(<<-eoxml)
+            <p id="asdfasdf">
+              <![CDATA[ This is a comment ]]>
+              Paragraph 1
+            </p>
+          eoxml
+          assert_equal [' This is a comment '], @parser.document.cdata_blocks
+        end
+
+        def test_comment
+          @parser.parse_memory(<<-eoxml)
+            <p id="asdfasdf">
+              <!-- This is a comment -->
+              Paragraph 1
+            </p>
+          eoxml
+          assert_equal [' This is a comment '], @parser.document.comments
+        end
+
+        def test_characters
+          @parser.parse_memory(<<-eoxml)
+            <p id="asdfasdf">Paragraph 1</p>
+          eoxml
+          assert_equal ['Paragraph 1'], @parser.document.data
         end
 
         def test_end_document
