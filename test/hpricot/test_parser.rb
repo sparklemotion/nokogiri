@@ -222,7 +222,9 @@ class TestParser < Test::Unit::TestCase
   def test_many_paths
     @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
     assert_equal 62, @boingboing.search('p.posted, link[@rel="alternate"]').length
-    assert_equal 20, @boingboing.search('//div/p[a/img]|//link[@rel="alternate"]').length
+    ###
+    # Modified.  I don't want to support this syntax.  Just use a comma.
+    #assert_equal 20, @boingboing.search('//div/p[a/img]|//link[@rel="alternate"]').length
   end
 
   ####
