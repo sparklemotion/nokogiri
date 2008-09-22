@@ -1,8 +1,8 @@
 #include <xml_xpath.h>
 
-static void free_context(xmlXPathContextPtr ctx)
+static void free_xpath_object(xmlXPathObjectPtr xpath)
 {
-    xmlXPathFreeContext(ctx);
+    xmlXPathFreeNodeSetList(xpath); // despite the name, this frees the xpath but not the contained node set
 }
 
 /*
@@ -37,11 +37,8 @@ static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)
     xmlXPathFreeContext(ctx);
     rb_raise(rb_eRuntimeError, "Couldn't evaluate expression '%s'", query);
   }
-
-  // FIXME: GC
-  VALUE self = Data_Wrap_Struct(klass, NULL, NULL, xpath);
-  VALUE rb_ctx = Data_Wrap_Struct(rb_cObject, NULL, free_context, ctx);
-  rb_iv_set(self, "@context", rb_ctx);
+  VALUE self = Data_Wrap_Struct(klass, NULL, free_xpath_object, xpath);
+  xmlXPathFreeContext(ctx);
 
   return self;
 }

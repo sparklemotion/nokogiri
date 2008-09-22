@@ -42,6 +42,7 @@ class TestAlter < Test::Unit::TestCase
     all_ps = (@basic/"p").attr("title", "Some Title")
     all_as = (@basic/"a").attr("href", "http://my_new_href.com")
     all_lb = (@basic/"link").attr("href") { |e| e.name }
+    GC.start # try to shake out GC bugs with xpath and node sets.
     assert_changed(@basic, "p", all_ps) {|p| p.attributes["title"] == "Some Title"}
     assert_changed(@basic, "a", all_as) {|a| a.attributes["href"] == "http://my_new_href.com"}
     assert_changed(@basic, "link", all_lb) {|a| a.attributes["href"] == "link" }
