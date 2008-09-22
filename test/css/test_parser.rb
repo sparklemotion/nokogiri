@@ -101,7 +101,6 @@ module Nokogiri
       end
 
       def test_nth_child_selectors
-        # TODO: verify the xpath is correct for these -child pseudoclasses
         assert_xpath '//*[position() = 1 and self::a]', @parser.parse('a:first-child')
         assert_xpath '//*[position() = last() and self::a]', @parser.parse('a:last-child')
         assert_xpath '//*[position() = 99 and self::a]', @parser.parse('a:nth-child(99)')
@@ -117,10 +116,14 @@ module Nokogiri
 
       def test_nth_a_n_plus_b
         assert_xpath '//a[(position() mod 2) = 0]', @parser.parse('a:nth-of-type(2n)')
-        assert_xpath '//a[(position() mod 2) = 1]', @parser.parse('a:nth-of-type(2n+1)')
+        assert_xpath '//a[(position() >= 1) and (((position()-1) mod 2) = 0)]', @parser.parse('a:nth-of-type(2n+1)')
         assert_xpath '//a[(position() mod 2) = 0]', @parser.parse('a:nth-of-type(even)')
-        assert_xpath '//a[(position() mod 2) = 1]', @parser.parse('a:nth-of-type(odd)')
-        assert_xpath '//a[(position() mod 4) = 3]', @parser.parse('a:nth-of-type(4n+3)')
+        assert_xpath '//a[(position() >= 1) and (((position()-1) mod 2) = 0)]', @parser.parse('a:nth-of-type(odd)')
+        assert_xpath '//a[(position() >= 3) and (((position()-3) mod 4) = 0)]', @parser.parse('a:nth-of-type(4n+3)')
+        assert_xpath '//a[(position() <= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(-1n+3)')
+        assert_xpath '//a[(position() <= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(-n+3)')
+        assert_xpath '//a[(position() >= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(1n+3)')
+        assert_xpath '//a[(position() >= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(n+3)')
       end
 
       def test_preceding_selector

@@ -9,15 +9,8 @@ module Nokogiri
         when /^self\(/
           "self::#{node.value[1]}"
         when /^(eq|nth|nth-of-type|nth-child)\(/
-          # TODO: ick. clean this up.
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
-            if node.value[1].value[0] == 'even'
-              "(position() mod 2) = 0"
-            elsif node.value[1].value[0] == 'odd'
-              "(position() mod 2) = 1"
-            else
-              "(position() mod #{node.value[1].value[0]}) = #{node.value[1].value[3] || 0}"
-            end
+            an_plus_b(node.value[1])
           else
             "position() = " + node.value[1]
           end
@@ -119,7 +112,18 @@ module Nokogiri
       end
 
     private
-      def an_plus_b string
+      def an_plus_b node
+        raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
+
+        a = node.value[0].to_i
+        b = node.value[3].to_i
+
+        if (b == 0)
+          return "(position() mod #{a}) = 0"
+        else
+          compare = (a < 0) ? "<=" : ">="
+          return "(position() #{compare} #{b}) and (((position()-#{b}) mod #{a.abs}) = 0)"
+        end
       end
 
     end

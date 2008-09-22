@@ -6,7 +6,7 @@ macro
   nl        \n|\r\n|\r|\f
   w         [\s\r\n\f]*
   nonascii  [^\\\\0-\\\\177]
-  num       [0-9]+|[0-9]*\.[0-9]+
+  num       -?([0-9]+|[0-9]*\.[0-9]+)
   unicode   \\\\\\\\\[0-9a-f]{1,6}(\r\n|[\s\n\r\t\f])?
 
   escape    {unicode}|\\\\\\\[^\n\r\f0-9a-f]

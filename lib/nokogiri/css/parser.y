@@ -85,23 +85,47 @@ rule
     | STRING
     ;
   an_plus_b
-    : NUMBER IDENT PLUS NUMBER {
-        if val[1] != 'n'
+    : NUMBER IDENT PLUS NUMBER          # 5n+3 -5n+3
+      {
+        if val[1] == 'n'
+          result = Node.new(:AN_PLUS_B, val)
+        else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
         end
-        result = Node.new(:AN_PLUS_B, val)
       }
-    | NUMBER IDENT {
-        if val[1] != 'n'
+    | IDENT PLUS NUMBER {               # n+3, -n+3
+        if val[0] == 'n'
+          val.unshift("1")
+          result = Node.new(:AN_PLUS_B, val)
+        elsif val[0] == '-n'
+          val[0] = 'n'
+          val.unshift("-1")
+          result = Node.new(:AN_PLUS_B, val)
+        else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
         end
-        result = Node.new(:AN_PLUS_B, val)
       }
-    | IDENT {
-        if val[0] != 'even' and val[0] != 'odd'
+    | NUMBER IDENT                      # 5n, -5n
+      {
+        if val[1] == 'n'
+          val << "+"
+          val << "0"
+          result = Node.new(:AN_PLUS_B, val)
+        else
+          raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
+        end
+      }
+    | IDENT                             # even, odd
+      {
+        if val[0] == 'even'
+          val = ["2","n","+","0"]
+          result = Node.new(:AN_PLUS_B, val)
+        elsif val[0] == 'odd'
+          val = ["2","n","+","1"]
+          result = Node.new(:AN_PLUS_B, val)
+        else
           raise Racc::ParseError, "parse error on IDENT '#{val[0]}'"
         end
-        result = Node.new(:AN_PLUS_B, val)
       }
     ;
   pseudo

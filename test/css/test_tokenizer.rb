@@ -127,6 +127,27 @@ module Nokogiri
                         [:NUMBER, '3'],
                         [")", ")"]
         ], @scanner)
+
+        @scanner.scan('x:nth-child(-1n+3)')
+        assert_tokens([ [:IDENT, 'x'],
+                        [':', ':'],
+                        [:FUNCTION, 'nth-child('],
+                        [:NUMBER, '-1'],
+                        [:IDENT, 'n'],
+                        [:PLUS, '+'],
+                        [:NUMBER, '3'],
+                        [")", ")"]
+        ], @scanner)
+
+        @scanner.scan('x:nth-child(-n+3)')
+        assert_tokens([ [:IDENT, 'x'],
+                        [':', ':'],
+                        [:FUNCTION, 'nth-child('],
+                        [:IDENT, '-n'],
+                        [:PLUS, '+'],
+                        [:NUMBER, '3'],
+                        [")", ")"]
+        ], @scanner)
       end
 
       def assert_tokens(tokens, scanner)

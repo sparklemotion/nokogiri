@@ -22,10 +22,10 @@ module Nokogiri
   <tr><td>row14 </td></tr>
 </table>
 <div>
-  <b>bold1</b>
-  <i>italic1</i>
-  <b>bold2</b>
-  <i>italic2</i>
+  <b>bold1 </b>
+  <i>italic1 </i>
+  <b>bold2 </b>
+  <i>italic2 </i>
 </div>
 EOF
 )
