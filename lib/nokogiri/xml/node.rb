@@ -61,6 +61,32 @@ module Nokogiri
         next_sibling
       end
 
+      ####
+      # Create nodes from +data+ and insert them before this node
+      # (as a sibling).
+      def before data
+        classes = document.class.name.split('::')
+        classes[-1] = 'SAX::Parser'
+
+        parser = eval(classes.join('::')).new(BeforeHandler.new(self, data))
+        parser.parse(data)
+      end
+
+      ####
+      # Create nodes from +data+ and insert them after this node
+      # (as a sibling).
+      def after data
+        classes = document.class.name.split('::')
+        classes[-1] = 'SAX::Parser'
+
+        handler = AfterHandler.new(self, data)
+        parser = eval(classes.join('::')).new(handler)
+        parser.parse(data)
+        handler.after_nodes.reverse.each do |sibling|
+          self.add_next_sibling sibling
+        end
+      end
+
       def has_attribute?(property)
         key? property
       end

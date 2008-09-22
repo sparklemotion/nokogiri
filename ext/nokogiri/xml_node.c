@@ -332,57 +332,53 @@ static VALUE document(VALUE self)
 
 /*
  *  call-seq:
- *    after(html)
+ *    add_next_sibling(node)
  *
- *  create a node from +html+ and insert it after this node (as a sibling).
+ *  Insert +node+ after this node (as a sibling).
  */
-static VALUE after(VALUE self, VALUE xml)
+static VALUE add_next_sibling(VALUE self, VALUE rb_node)
 {
-    xmlNodePtr node, new_node ;
-    VALUE rb_new_node ;
-    Data_Get_Struct(self, xmlNode, node);
-    rb_new_node = rb_funcall(cNokogiriXmlNode, rb_intern("new_from_str"), 1, xml);
-    Data_Get_Struct(rb_new_node, xmlNode, new_node);
-    xmlAddNextSibling(node, new_node);
+  xmlNodePtr node, new_sibling;
+  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(rb_node, xmlNode, new_sibling);
+  xmlAddNextSibling(node, new_sibling);
 
-    rb_funcall(rb_new_node, rb_intern("decorate!"), 0);
+  rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
-    return rb_new_node ;
+  return rb_node;
 }
 
 /*
  *  call-seq:
- *    before(html)
+ *    add_previous_sibling(node)
  *
- *  create a node from +html+ and insert it before this node (as a sibling).
+ *  Insert +node+ before this node (as a sibling).
  */
-static VALUE before(VALUE self, VALUE xml)
+static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 {
-    xmlNodePtr node, new_node ;
-    VALUE rb_new_node ;
-    Data_Get_Struct(self, xmlNode, node);
-    rb_new_node = rb_funcall(cNokogiriXmlNode, rb_intern("new_from_str"), 1, xml);
-    Data_Get_Struct(rb_new_node, xmlNode, new_node);
-    xmlAddPrevSibling(node, new_node);
+  xmlNodePtr node, new_sibling;
+  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(rb_node, xmlNode, new_sibling);
+  xmlAddPrevSibling(node, new_sibling);
 
-    rb_funcall(rb_new_node, rb_intern("decorate!"), 0);
+  rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
-    return rb_new_node ;
+  return rb_node;
 }
 
 static VALUE to_xml(VALUE self)
 {
-    xmlBufferPtr buf ;
-    xmlNodePtr node ;
-    VALUE xml ;
+  xmlBufferPtr buf ;
+  xmlNodePtr node ;
+  VALUE xml ;
 
-    Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(self, xmlNode, node);
 
-    buf = xmlBufferCreate() ;
-    xmlNodeDump(buf, node->doc, node, 2, 1);
-    xml = rb_str_new2((char*)buf->content);
-    xmlBufferFree(buf);
-    return xml ;
+  buf = xmlBufferCreate() ;
+  xmlNodeDump(buf, node->doc, node, 2, 1);
+  xml = rb_str_new2((char*)buf->content);
+  xmlBufferFree(buf);
+  return xml ;
 }
 
 
@@ -452,8 +448,8 @@ void init_xml_node()
   rb_define_method(klass, "[]=", set, 2);
   rb_define_method(klass, "remove", remove_prop, 1);
   rb_define_method(klass, "attributes", attributes, 0);
-  rb_define_method(klass, "after", after, 1);
-  rb_define_method(klass, "before", before, 1);
+  rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
+  rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "to_xml", to_xml, 0);
 
   rb_define_private_method(klass, "get", get, 1);

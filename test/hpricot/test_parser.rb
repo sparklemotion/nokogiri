@@ -206,7 +206,8 @@ class TestParser < Test::Unit::TestCase
     (doc/'div').each do |element|
       element.after('<p>Paragraph 1</p><p>Paragraph 2</p>')
     end
-    assert_equal doc.to_html, '<html><body><div id="a-div"></div><p>Paragraph 1</p><p>Paragraph 2</p></body></html>'
+    assert_match '<div id="a-div"></div><p>Paragraph 1</p><p>Paragraph 2</p>',
+      doc.to_html.gsub(/\n/, '')
   end
 
   def test_insert_before # ticket #61
@@ -214,7 +215,8 @@ class TestParser < Test::Unit::TestCase
     (doc/'div').each do |element|
       element.before('<p>Paragraph 1</p><p>Paragraph 2</p>')
     end
-    assert_equal doc.to_html, '<html><body><p>Paragraph 1</p><p>Paragraph 2</p><div id="a-div"></div></body></html>'
+    assert_match '<p>Paragraph 1</p><p>Paragraph 2</p><div id="a-div"></div>',
+      doc.to_html.gsub(/\n/, '')
   end
 
   def test_many_paths
