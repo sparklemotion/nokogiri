@@ -2,14 +2,13 @@ module Nokogiri
   module CSS
     class XPathVisitor
       def visit_function node
+        #  note that nth-child and nth-last-child are preprocessed in css/node.rb.
         case node.value.first
         when /^text\(/
           'child::text()'
         when /^self\(/
           "self::#{node.value[1]}"
-        when /^nth-child\(/
-          'position() = ' + node.value[1] # TODO: think this needs to be fixed. see test cases.
-        when /^(eq|nth|nth-of-type)\(/
+        when /^(eq|nth|nth-of-type|nth-child)\(/
           # TODO: ick. clean this up.
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
             if node.value[1].value[0] == 'even'
@@ -26,7 +25,7 @@ module Nokogiri
           "position() = 1"
         when /^(last|last-of-type)\(/
           "position() = last()"
-        when /^nth-last-of-type\(/
+        when /^(nth-last-child|nth-last-of-type)\(/
           "position() = last() - #{node.value[1]}"
         when /^contains\(/
           "contains(., #{node.value[1]})"
@@ -118,6 +117,11 @@ module Nokogiri
       def accept node
         node.accept(self)
       end
+
+    private
+      def an_plus_b string
+      end
+
     end
   end
 end
