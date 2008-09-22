@@ -159,8 +159,13 @@ static VALUE remove_prop(VALUE self, VALUE property)
 static VALUE get(VALUE self, VALUE attribute)
 {
   xmlNodePtr node;
+  xmlChar* propstr ;
+  VALUE rval ;
   Data_Get_Struct(self, xmlNode, node);
-  return rb_str_new2((char *)xmlGetProp(node, (xmlChar *)StringValuePtr(attribute)));
+  propstr = xmlGetProp(node, (xmlChar *)StringValuePtr(attribute));
+  rval = rb_str_new2((char *)propstr) ;
+  xmlFree(propstr);
+  return rval ;
 }
 
 /*
@@ -175,14 +180,17 @@ static VALUE attributes(VALUE self)
     xmlNodePtr node ;
     xmlAttrPtr prop;
     VALUE attr ;
+    xmlChar* propstr ;
 
     attr = rb_hash_new() ;
     Data_Get_Struct(self, xmlNode, node);
 
     prop = node->properties ;
     while (prop != NULL) {
+        propstr = xmlGetProp(node, prop->name) ;
         rb_hash_aset(attr, rb_str_new2((const char*)prop->name),
-                     rb_str_new2((char*)xmlGetProp(node, prop->name)));
+                     rb_str_new2((char*)propstr));
+        xmlFree(propstr);
         prop = prop->next ;
     }
     return attr ;
@@ -227,9 +235,11 @@ static VALUE get_content(VALUE self)
   Data_Get_Struct(self, xmlNode, node);
 
   xmlChar * content = xmlNodeGetContent(node);
-  if(content)
-    return rb_str_new2((char *)content);
-
+  if(content) {
+    VALUE rval = rb_str_new2((char *)content);
+    xmlFree(content);
+    return rval;
+  }
   return Qnil;
 }
 
@@ -255,7 +265,7 @@ static VALUE set_parent(VALUE self, VALUE parent_node)
  *
  * Get the parent Node for this Node
  */
-static VALUE get_parent(VALUE self, VALUE parent_node)
+static VALUE get_parent(VALUE self)
 {
   xmlNodePtr node, parent;
   Data_Get_Struct(self, xmlNode, node);
@@ -311,8 +321,14 @@ static VALUE get_name(VALUE self)
 static VALUE path(VALUE self)
 {
   xmlNodePtr node;
+  xmlChar *path ;
+  VALUE rval ;
   Data_Get_Struct(self, xmlNode, node);
-  return rb_str_new2((char *)xmlGetNodePath(node));
+  
+  path = xmlGetNodePath(node);
+  rval = rb_str_new2((char *)path);
+  xmlFree(path);
+  return rval ;
 }
 
 /*

@@ -81,7 +81,7 @@ static VALUE allocate(VALUE klass)
   return Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL));
 }
 
-VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr *node_set)
+VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set)
 {
     return Data_Wrap_Struct(cNokogiriXmlNodeSet, gc_mark, deallocate, node_set);
 }

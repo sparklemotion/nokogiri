@@ -4,7 +4,7 @@ static VALUE native_parse_file(VALUE self, VALUE data, VALUE encoding)
 {
   xmlSAXHandlerPtr handler;
   Data_Get_Struct(self, xmlSAXHandler, handler);
-  htmlSAXParseFile( (xmlChar *)StringValuePtr(data),
+  htmlSAXParseFile( StringValuePtr(data),
                     (const char *)StringValuePtr(encoding),
                     (htmlSAXHandlerPtr)handler,
                     (void *)self );
