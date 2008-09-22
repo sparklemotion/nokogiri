@@ -15,6 +15,11 @@ void Init_native()
   mNokogiriXmlSax = rb_const_get(mNokogiriXml, rb_intern("SAX"));
   mNokogiriHtmlSax = rb_const_get(mNokogiriHtml, rb_intern("SAX"));
 
+  rb_const_set( mNokogiri,
+                rb_intern("LIBXML_VERSION"),
+                rb_str_new2(LIBXML_DOTTED_VERSION)
+              );
+
   init_xml_document();
   init_html_document();
   init_xml_node();
