@@ -29,6 +29,9 @@ rule
                   end
       }
     | function
+    | function attrib {
+        result = Node.new(:CONDITIONAL_SELECTOR, val)
+      }
     | hcap_1toN {
         result = Node.new(:CONDITIONAL_SELECTOR,
           [Node.new(:ELEMENT_NAME, ['*']), val.first]

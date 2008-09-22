@@ -45,7 +45,7 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_filter_comment
-    assert_syntactical_equivalence("div comment()[2]", ".//div//comment()[2]", "<!-- end of header -->") do |j|
+    assert_syntactical_equivalence("div comment()[2]", ".//div//comment()[position() = 2]", "<!-- end of header -->") do |j|
       j.first.to_s
     end
   end
