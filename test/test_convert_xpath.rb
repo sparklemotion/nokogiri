@@ -38,7 +38,7 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_filter_contains
-    assert_syntactical_equivalence("title:contains('Tender')", ".//title[contains(.,'Tender')]",
+    assert_syntactical_equivalence("title:contains('Tender')", ".//title[contains(., 'Tender')]",
                                    "Tender Lovemaking  ") do |j|
       j.inner_text
     end

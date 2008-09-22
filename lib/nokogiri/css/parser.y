@@ -82,6 +82,7 @@ rule
     ;
   expr
     : NUMBER
+    | STRING
     ;
   an_plus_b
     : NUMBER IDENT PLUS NUMBER {

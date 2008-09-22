@@ -28,6 +28,8 @@ module Nokogiri
           "position() = last()"
         when /^nth-last-of-type\(/
           "position() = last() - #{node.value[1]}"
+        when /^contains\(/
+          "contains(., #{node.value[1]})"
         else
           node.value.first + ')'
         end
