@@ -30,6 +30,8 @@ module Nokogiri
           "position() = last() - #{node.value[1]}"
         when /^contains\(/
           "contains(., #{node.value[1]})"
+        when /^gt\(/
+          "position() > #{node.value[1]}"
         else
           node.value.first + ')'
         end
