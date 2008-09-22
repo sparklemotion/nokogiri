@@ -139,7 +139,7 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_multiple_filters
-    assert_syntactical_equivalence("a[@rel='bookmark'][1]", ".//a[@rel='bookmark'][1]", "Back Home!") do |j|
+    assert_syntactical_equivalence("a[@rel='bookmark'][1]", ".//a[@rel = 'bookmark' and position() = 1]", "Back Home!") do |j|
       j.first.inner_text
     end
   end

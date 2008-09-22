@@ -116,13 +116,13 @@ rule
     ;
   hcap_1toN
     : attribute_id hcap_1toN {
-        result = CombinatorCondition.new(val[0], val[1])
+        result = Node.new(:COMBINATOR, val)
       }
     | class hcap_1toN {
         result = Node.new(:COMBINATOR, val)
       }
     | attrib hcap_1toN {
-        result = CombinatorCondition.new(val[0], val[1])
+        result = Node.new(:COMBINATOR, val)
       }
     | pseudo hcap_1toN {
         result = Node.new(:COMBINATOR, val)
