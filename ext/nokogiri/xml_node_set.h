@@ -5,4 +5,5 @@
 void init_xml_node_set();
 
 extern VALUE cNokogiriXmlNodeSet ;
+VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr *node_set) ;
 #endif

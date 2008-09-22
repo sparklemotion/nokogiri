@@ -2,7 +2,7 @@
 
 static void free_context(xmlXPathContextPtr ctx)
 {
-  xmlXPathFreeContext(ctx);
+    xmlXPathFreeContext(ctx);
 }
 
 /*
@@ -17,9 +17,9 @@ static VALUE node_set(VALUE self)
   Data_Get_Struct(self, xmlXPathObject, xpath);
 
   if (xpath->nodesetval)
-      return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xpath->nodesetval);
+      return Nokogiri_wrap_xml_node_set(xpath->nodesetval);
   else
-      return Data_Wrap_Struct(cNokogiriXmlNodeSet, NULL, NULL, xmlXPathNodeSetCreate(NULL));
+      return Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL));
 }
 
 static VALUE new(VALUE klass, VALUE nodeobj, VALUE search_path)

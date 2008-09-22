@@ -1,5 +1,5 @@
 #include <xml_node_set.h>
-
+#include <libxml/xpathInternals.h>
 /*
  * call-seq:
  *  length
@@ -62,6 +62,15 @@ static VALUE index_at(VALUE self, VALUE number)
   return rb_node;
 }
 
+static void gc_mark(xmlNodeSetPtr node_set)
+{
+    int j ;
+    for (j = 0 ; j < node_set->nodeNr ; ++j) {
+        if (node_set->nodeTab[j]->_private)
+            rb_gc_mark((VALUE)node_set->nodeTab[j]->_private);
+    }
+}
+
 static void deallocate(xmlNodeSetPtr node_set)
 {
   xmlXPathFreeNodeSet(node_set);
@@ -69,8 +78,12 @@ static void deallocate(xmlNodeSetPtr node_set)
 
 static VALUE allocate(VALUE klass)
 {
-  xmlNodeSetPtr node_set = xmlXPathNodeSetCreate(NULL);
-  return Data_Wrap_Struct(klass, NULL, deallocate, node_set);
+  return Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL));
+}
+
+VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr *node_set)
+{
+    return Data_Wrap_Struct(cNokogiriXmlNodeSet, gc_mark, deallocate, node_set);
 }
 
 VALUE cNokogiriXmlNodeSet ;
