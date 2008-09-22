@@ -17,6 +17,14 @@ module Nokogiri
         self[length - 1]
       end
 
+      def before datum
+        first.before datum
+      end
+
+      def after datum
+        last.after datum
+      end
+
       def << node
         push(node)
       end
