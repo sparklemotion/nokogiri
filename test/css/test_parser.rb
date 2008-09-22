@@ -109,10 +109,10 @@ module Nokogiri
       end
 
       def test_miscellaneous_selectors
-        # TODO: figure out the xpath equivalents
-        assert_xpath '//i-do-not-know', @parser.parse('a:only-child')
-        assert_xpath '//i-do-not-know', @parser.parse('a:only-of-type')
-        assert_xpath '//i-do-not-know', @parser.parse('a:empty')
+        assert_xpath '//*[last() = 1 and self::a]',
+          @parser.parse('a:only-child')
+        assert_xpath '//a[last() = 1]', @parser.parse('a:only-of-type')
+        assert_xpath '//a[not(@content)]', @parser.parse('a:empty')
       end
 
       def test_nth_a_n_plus_b

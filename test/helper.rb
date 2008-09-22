@@ -15,4 +15,52 @@ module Nokogiri
 
     undef :default_test
   end
+
+  module SAX
+    class TestCase < Nokogiri::TestCase
+      class Doc < XML::SAX::Document
+        attr_reader :start_elements, :start_document_called
+        attr_reader :end_elements, :end_document_called
+        attr_reader :data, :comments, :cdata_blocks
+
+        def start_document
+          @start_document_called = true
+          super
+        end
+
+        def end_document
+          @end_document_called = true
+          super
+        end
+
+        def start_element *args
+          (@start_elements ||= []) << args
+          super
+        end
+
+        def end_element *args
+          (@end_elements ||= []) << args
+          super
+        end
+
+        def characters string
+          @data ||= []
+          @data += [string]
+          super
+        end
+
+        def comment string
+          @comments ||= []
+          @comments += [string]
+          super
+        end
+
+        def cdata_block string
+          @cdata_blocks ||= []
+          @cdata_blocks += [string]
+          super
+        end
+      end
+    end
+  end
 end

@@ -1,3 +1,6 @@
+require 'nokogiri/xml/sax'
+require 'nokogiri/xml/before_handler'
+require 'nokogiri/xml/after_handler'
 require 'nokogiri/xml/node'
 require 'nokogiri/xml/text'
 require 'nokogiri/xml/document'

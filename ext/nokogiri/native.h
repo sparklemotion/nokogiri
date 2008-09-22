@@ -14,12 +14,15 @@
 #include <xml_text.h>
 #include <xml_node_set.h>
 #include <xml_xpath.h>
+#include <xml_sax_parser.h>
+#include <html_sax_parser.h>
 #include <xslt_stylesheet.h>
 
 extern VALUE mNokogiri ;
 extern VALUE mNokogiriXml ;
-extern VALUE mNokogiriXml ;
+extern VALUE mNokogiriXmlSax ;
 extern VALUE mNokogiriHtml ;
+extern VALUE mNokogiriHtmlSax ;
 extern VALUE mNokogiriXslt ;
 
 #endif

@@ -17,6 +17,14 @@ module Nokogiri
         self[length - 1]
       end
 
+      def before datum
+        first.before datum
+      end
+
+      def after datum
+        last.after datum
+      end
+
       def << node
         push(node)
       end
@@ -116,6 +124,9 @@ module Nokogiri
         map { |x| x.to_s }.join
       end
 
+      def size
+        length
+      end
     end
   end
 end

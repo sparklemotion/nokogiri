@@ -29,6 +29,9 @@ rule
                   end
       }
     | function
+    | function attrib {
+        result = Node.new(:CONDITIONAL_SELECTOR, val)
+      }
     | hcap_1toN {
         result = Node.new(:CONDITIONAL_SELECTOR,
           [Node.new(:ELEMENT_NAME, ['*']), val.first]
@@ -79,6 +82,7 @@ rule
     ;
   expr
     : NUMBER
+    | STRING
     ;
   an_plus_b
     : NUMBER IDENT PLUS NUMBER {
@@ -112,13 +116,13 @@ rule
     ;
   hcap_1toN
     : attribute_id hcap_1toN {
-        result = CombinatorCondition.new(val[0], val[1])
+        result = Node.new(:COMBINATOR, val)
       }
     | class hcap_1toN {
         result = Node.new(:COMBINATOR, val)
       }
     | attrib hcap_1toN {
-        result = CombinatorCondition.new(val[0], val[1])
+        result = Node.new(:COMBINATOR, val)
       }
     | pseudo hcap_1toN {
         result = Node.new(:COMBINATOR, val)

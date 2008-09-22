@@ -1,4 +1,5 @@
 require 'nokogiri/html/document'
+require 'nokogiri/html/sax/parser'
 
 module Nokogiri
   module HTML

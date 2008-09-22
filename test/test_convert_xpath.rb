@@ -38,14 +38,14 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_filter_contains
-    assert_syntactical_equivalence("title:contains('Tender')", ".//title[contains(.,'Tender')]",
+    assert_syntactical_equivalence("title:contains('Tender')", ".//title[contains(., 'Tender')]",
                                    "Tender Lovemaking  ") do |j|
       j.inner_text
     end
   end
 
   def test_filter_comment
-    assert_syntactical_equivalence("div comment()[2]", ".//div//comment()[2]", "<!-- end of header -->") do |j|
+    assert_syntactical_equivalence("div comment()[2]", ".//div//comment()[position() = 2]", "<!-- end of header -->") do |j|
       j.first.to_s
     end
   end
@@ -139,7 +139,7 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_multiple_filters
-    assert_syntactical_equivalence("a[@rel='bookmark'][1]", ".//a[@rel='bookmark'][1]", "Back Home!") do |j|
+    assert_syntactical_equivalence("a[@rel='bookmark'][1]", ".//a[@rel = 'bookmark' and position() = 1]", "Back Home!") do |j|
       j.first.inner_text
     end
   end
