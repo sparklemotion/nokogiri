@@ -29,16 +29,7 @@ static VALUE next_sibling(VALUE self)
   sibling = node->next;
   if(!sibling) return Qnil;
 
-  if(sibling->_private)
-    return (VALUE)sibling->_private;
-
-  // FIXME: Do we need to GC?
-  VALUE rb_next = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, sibling);
-  sibling->_private = (void *)rb_next;
-
-  rb_funcall(rb_next, rb_intern("decorate!"), 0);
-
-  return rb_next;
+  return Nokogiri_wrap_xml_node(sibling) ;
 }
 
 /*
@@ -55,16 +46,7 @@ static VALUE previous_sibling(VALUE self)
   sibling = node->prev;
   if(!sibling) return Qnil;
 
-  if(sibling->_private)
-    return (VALUE)sibling->_private;
-
-  // FIXME: Do we need to GC?
-  VALUE rb_prev = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, sibling);
-  sibling->_private = (void *)rb_prev;
-
-  rb_funcall(rb_prev, rb_intern("decorate!"), 0);
-
-  return rb_prev;
+  return Nokogiri_wrap_xml_node(sibling);
 }
 
 /*
@@ -98,15 +80,7 @@ static VALUE child(VALUE self)
   child = node->children;
   if(!child) return Qnil;
 
-  if(child->_private)
-    return (VALUE)child->_private;
-
-  // FIXME: Do we need to GC?
-  VALUE rb_child = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, child);
-  child->_private = (void *)rb_child;
-
-  rb_funcall(rb_child, rb_intern("decorate!"), 0);
-  return rb_child;
+  return Nokogiri_wrap_xml_node(child);
 }
 
 /*
@@ -273,16 +247,7 @@ static VALUE get_parent(VALUE self)
   parent = node->parent;
   if(!parent) return Qnil;
 
-  if(parent->_private)
-    return (VALUE)parent->_private;
-
-  // FIXME: Do we need to GC?
-  VALUE rb_parent = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, parent);
-  parent->_private = (void *)rb_parent;
-
-  rb_funcall(rb_parent, rb_intern("decorate!"), 0);
-
-  return rb_parent;
+  return Nokogiri_wrap_xml_node(parent) ;
 }
 
 /*
@@ -409,8 +374,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
     Data_Get_Struct(ns, xmlNs, xml_ns);
 
   xmlNodePtr node = xmlNewNode(xml_ns, (xmlChar *)StringValuePtr(name));
-  VALUE rb_node = Data_Wrap_Struct(klass, NULL, NULL, node);
-  node->_private = (void *)rb_node;
+  VALUE rb_node = Nokogiri_wrap_xml_node(node) ;
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
@@ -432,11 +396,19 @@ static VALUE new_from_str(VALUE klass, VALUE xml)
                         xml, Qnil, Qnil, INT2NUM(0));
     Data_Get_Struct(rb_doc, xmlDoc, doc);
     node = xmlCopyNode(xmlDocGetRootElement(doc), 1); /* 1 => recursive */
-    VALUE rb_node = Data_Wrap_Struct(klass, NULL, NULL, node);
-    node->_private = (void *)rb_node;
-    return rb_node;
+    return Nokogiri_wrap_xml_node(node);
 }
 
+
+VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
+{
+  if (node->_private)
+      return node->_private ;
+  VALUE rb_node = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, node) ;
+  node->_private = rb_node ;
+  rb_funcall(rb_node, rb_intern("decorate!"), 0);
+  return rb_node ;
+}
 
 VALUE cNokogiriXmlNode ;
 void init_xml_node()
