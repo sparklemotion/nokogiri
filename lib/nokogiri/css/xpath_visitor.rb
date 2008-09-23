@@ -44,7 +44,11 @@ module Nokogiri
       end
 
       def visit_attribute_condition node
-        attribute = node.value.first.type == :FUNCTION ? '' : '@'
+        attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /^@/)
+                      ''
+                    else
+                      'child::'
+                    end
         attribute += node.value.first.accept(self)
 
         # Support non-standard css
@@ -77,6 +81,7 @@ module Nokogiri
           when "last-of-type" then "position() = last()"
           when "only-of-type" then "last() = 1"
           when "empty" then "not(node())"
+          when "parent" then "node()"
           else
             '1 = 1'
           end
