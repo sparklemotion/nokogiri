@@ -12,11 +12,11 @@ module Nokogiri
       end
 
       def to_xpath prefix = '//', preprocess = true
-        self.preprocess if preprocess
+        self.preprocess! if preprocess
         prefix + XPathVisitor.new.accept(self)
       end
 
-      def preprocess
+      def preprocess!
         ### Deal with nth-child
         matches = find_by_type(
           [:CONDITIONAL_SELECTOR,
@@ -68,6 +68,8 @@ module Nokogiri
             ])                                        
           end
         end
+
+        self
       end
 
       def find_by_type(types)
