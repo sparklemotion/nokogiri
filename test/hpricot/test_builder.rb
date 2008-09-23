@@ -26,6 +26,5 @@ class TestBuilder < Test::Unit::TestCase
   def test_latin1_entities
     doc = Nokogiri.Hpricot() { b "\200\225" }
     assert_equal "<b>&#21;</b>", doc.to_html.chomp
-    assert_equal "\342\202\254\342\200\242", doc.at("text()").to_s
   end
 end
