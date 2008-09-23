@@ -71,6 +71,7 @@ module Nokogiri
           case node.value.first
           when "first" then "position() = 1"
           when "last" then "position() = last()"
+          when "first-of-type" then "position() = 1"
           else
             '1 = 1'
           end
