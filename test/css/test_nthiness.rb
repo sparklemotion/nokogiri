@@ -123,6 +123,15 @@ EOF
         assert_equal 'empty', result.first['class']
       end
 
+      def test_parent
+        result = @parser.search("p:parent")
+        assert_equal 5, result.size
+        0.upto(3) do |j|
+          assert_equal "para#{j+1} ", result[j].inner_text
+        end
+        assert_equal "not-empty", result[4]['class']
+      end
+
       def assert_result_rows intarray, result, word="row"
         assert_equal intarray.size, result.size, "unexpected number of rows returned: '#{result.inner_text}'"
         assert_equal intarray.map{|j| "#{word}#{j}"}.join(' '), result.inner_text.strip, result.inner_text

@@ -90,6 +90,7 @@ module Nokogiri
         assert_xpath '//a[position() = 99]', @parser.parse('a:nth(99)')
         assert_xpath '//a[position() = 1]', @parser.parse('a:first()')
         assert_xpath '//a[position() = last()]', @parser.parse('a:last()')
+        assert_xpath '//a[node()]', @parser.parse('a:parent')
       end
 
       def test_standard_nth_selectors
@@ -113,7 +114,7 @@ module Nokogiri
         assert_xpath '//*[last() = 1 and self::a]',
           @parser.parse('a:only-child')
         assert_xpath '//a[last() = 1]', @parser.parse('a:only-of-type')
-        assert_xpath '//a[string-length() = 0]', @parser.parse('a:empty')
+        assert_xpath '//a[not(node())]', @parser.parse('a:empty')
       end
 
       def test_nth_a_n_plus_b
@@ -134,7 +135,7 @@ module Nokogiri
       end
 
       def test_attribute
-        assert_xpath  "//h1[@a = 'Tender Lovemaking']",
+        assert_xpath  "//h1[child::a = 'Tender Lovemaking']",
                       @parser.parse("h1[a='Tender Lovemaking']")
       end
 
