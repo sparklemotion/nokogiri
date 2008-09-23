@@ -37,7 +37,8 @@ module Nokogiri
 <div>
   <p>para4 </p>
 </div>
-<p id='empty'></p>
+<p class='empty'></p>
+<p class='not-empty'><b></b></p>
 </html>
 EOF
         @parser = Nokogiri.Hpricot doc
@@ -117,9 +118,9 @@ EOF
       end
 
       def test_empty
-        result = @xpath.search("//p[string-length() = 0]")
-        assert_equal 1, result.size
-        assert_equal 'empty', result.first['id']
+        result = @parser.search("p:empty")
+        assert_equal 1, result.size, "unexpected number of rows returned: '#{result.inner_text}'"
+        assert_equal 'empty', result.first['class']
       end
 
       def assert_result_rows intarray, result, word="row"
