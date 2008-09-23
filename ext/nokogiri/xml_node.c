@@ -399,13 +399,18 @@ static VALUE new_from_str(VALUE klass, VALUE xml)
     return Nokogiri_wrap_xml_node(node);
 }
 
+static void gc_mark_node(xmlNodePtr node)
+{
+  if (node->doc && node->doc->_private)
+    rb_gc_mark((VALUE)node->doc->_private);
+}
 
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 {
   if (node->_private)
-      return node->_private ;
-  VALUE rb_node = Data_Wrap_Struct(cNokogiriXmlNode, NULL, NULL, node) ;
-  node->_private = rb_node ;
+    return (VALUE)node->_private ;
+  VALUE rb_node = Data_Wrap_Struct(cNokogiriXmlNode, gc_mark_node, NULL, node) ;
+  node->_private = (void*)rb_node ;
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
   return rb_node ;
 }
