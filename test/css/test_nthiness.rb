@@ -4,7 +4,8 @@ module Nokogiri
   module CSS
     class TestNthiness < Nokogiri::TestCase
       def setup
-        @parser = Nokogiri.Hpricot <<-EOF
+        doc = <<EOF
+<html>
 <table>
   <tr><td>row1 </td></tr>
   <tr><td>row2 </td></tr>
@@ -27,6 +28,7 @@ module Nokogiri
   <b>bold2 </b>
   <i>italic2 </i>
   <p>para1 </p>
+  <b>bold3 </b>
 </div>
 <div>
   <p>para2 </p>
@@ -35,10 +37,12 @@ module Nokogiri
 <div>
   <p>para4 </p>
 </div>
-<div>empty
-  <b></b>
-</div>
+<p id='empty'></p>
+</html>
 EOF
+        @parser = Nokogiri.Hpricot doc
+        @xpath = Nokogiri doc
+        @cssparser = Nokogiri::CSS::Parser.new
       end
 
 
@@ -90,7 +94,7 @@ EOF
       end
 
       def test_last_child
-        assert_result_rows [2], @parser.search("div/b:last-child"), "bold"
+        assert_result_rows [3], @parser.search("div/b:last-child"), "bold"
         assert_result_rows [14], @parser.search("table/tr:last-child")
       end
 
@@ -101,7 +105,7 @@ EOF
 
       def test_last_of_type
         assert_result_rows [14], @parser.search("table/tr:last-of-type")
-        assert_result_rows [2], @parser.search("div/b:last-of-type"), "bold"
+        assert_result_rows [3], @parser.search("div/b:last-of-type"), "bold"
       end
 
       def test_only_of_type
@@ -113,8 +117,9 @@ EOF
       end
 
       def test_empty
-        result = @parser.search("div/b:empty")
+        result = @xpath.search("//p[string-length() = 0]")
         assert_equal 1, result.size
+        assert_equal 'empty', result.first['id']
       end
 
       def assert_result_rows intarray, result, word="row"
@@ -124,4 +129,3 @@ EOF
     end
   end
 end
-

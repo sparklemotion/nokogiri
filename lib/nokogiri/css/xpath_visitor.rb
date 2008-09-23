@@ -74,8 +74,9 @@ module Nokogiri
           when "first" then "position() = 1"
           when "last" then "position() = last()"
           when "first-of-type" then "position() = 1"
+          when "last-of-type" then "position() = last()"
           when "only-of-type" then "last() = 1"
-          when "empty" then "not(@content)"
+          when "empty" then "string-length() = 0"
           else
             '1 = 1'
           end

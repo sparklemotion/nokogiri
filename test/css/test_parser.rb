@@ -96,6 +96,8 @@ module Nokogiri
         assert_xpath '//a[position() = 99]', @parser.parse('a:nth-of-type(99)')
         assert_xpath '//a[position() = 1]', @parser.parse('a:first-of-type()')
         assert_xpath '//a[position() = last()]', @parser.parse('a:last-of-type()')
+        assert_xpath '//a[position() = 1]', @parser.parse('a:first-of-type') # no parens
+        assert_xpath '//a[position() = last()]', @parser.parse('a:last-of-type') # no parens
         assert_xpath '//a[position() = last() - 99]', @parser.parse('a:nth-last-of-type(99)')
         assert_xpath '//a[position() = last() - 99]', @parser.parse('a:nth-last-of-type(99)')
       end
@@ -111,7 +113,7 @@ module Nokogiri
         assert_xpath '//*[last() = 1 and self::a]',
           @parser.parse('a:only-child')
         assert_xpath '//a[last() = 1]', @parser.parse('a:only-of-type')
-        assert_xpath '//a[not(@content)]', @parser.parse('a:empty')
+        assert_xpath '//a[string-length() = 0]', @parser.parse('a:empty')
       end
 
       def test_nth_a_n_plus_b
