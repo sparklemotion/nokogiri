@@ -97,9 +97,9 @@ class TestParser < Test::Unit::TestCase
 
   def test_positional
     h = Nokogiri.Hpricot( "<div><br/><p>one</p><p>two</p></div>" )
-    assert_equal "<p>one</p>", h.search("//div/p:eq(0)").to_s
-    assert_equal "<p>one</p>", h.search("//div/p:first").to_s
-    assert_equal "<p>one</p>", h.search("//div/p:first()").to_s
+    assert_equal "<p>one</p>", h.search("div/p:eq(1)").to_s # MODIFIED: eq(0) -> eq(1), and removed initial '//'
+    assert_equal "<p>one</p>", h.search("div/p:first").to_s # MODIFIED: removed initial '//'
+    assert_equal "<p>one</p>", h.search("div/p:first()").to_s # MODIFIED: removed initial '//'
   end
 
   def test_pace
@@ -112,7 +112,8 @@ class TestParser < Test::Unit::TestCase
     @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
     assert_equal 60, (@boingboing/'p.posted').length
     assert_equal 1, @boingboing.search("//a[@name='027906']").length
-    assert_equal 10, @boingboing.search("script comment()").length
+    ###  MODIFIED: libxml wraps the contents of <script> in a CDATA tag, so we won't be able to parse comments.
+#    assert_equal 10, @boingboing.search("script comment()").length
     assert_equal 3, @boingboing.search("a[text()*='Boing']").length
     assert_equal 1, @boingboing.search("h3[text()='College kids reportedly taking more smart drugs']").length
     assert_equal 0, @boingboing.search("h3[text()='College']").length
@@ -121,7 +122,7 @@ class TestParser < Test::Unit::TestCase
     assert_equal 17, @boingboing.search("h3[text()$='s']").length
     ### Modified.  Hpricot is wrong
     #assert_equal 129, @boingboing.search("p[text()]").length
-    assert_equal 111, @boingboing.search("p[text()]").length
+    assert_equal 110, @boingboing.search("p[text()]").length
     assert_equal 211, @boingboing.search("p").length
   end
 
@@ -191,14 +192,19 @@ class TestParser < Test::Unit::TestCase
 
   def test_alt_predicates
     @boingboing = Hpricot.parse(TestFiles::BOINGBOING)
-    assert_equal 1, @boingboing.search('//table/tr:last').length
+    assert_equal 2, @boingboing.search('table/tr:last').length # MODIFIED to not have '//' prefix
 
     @basic = Hpricot.parse(TestFiles::BASIC)
+    ##
+    #  MODIFIED:
+    #  hpricot has an off-by-one bug eith eq-and-friends.
     assert_equal "<p>The third paragraph</p>",
-        @basic.search('p:eq(2)').to_html
-    assert_equal '<p class="last final"><b>THE FINAL PARAGRAPH</b></p>',
-        @basic.search('p:last').to_html
-    assert_equal 'last final', @basic.search('//p:last-of-type').first.get_attribute('class')
+        @basic.search('p:eq(3)').to_html # under Hpricot this was eq(2)
+    ##
+    #  MODIFIED: to be blank-agnostic, because Nokogiri's to_html is slightly different compared to Hpricot.
+    assert_equal '<p class="last final"> <b>THE FINAL PARAGRAPH</b> </p>',
+        @basic.search('p:last').to_html.gsub(/\s+/,' ')
+    assert_equal 'last final', @basic.search('p:last-of-type').first.get_attribute('class') # MODIFIED to not have '//' prefix
   end
 
   def test_insert_after # ticket #63
@@ -313,7 +319,7 @@ class TestParser < Test::Unit::TestCase
 
   def test_procins
     doc = Nokogiri.Hpricot("<?php print('hello') ?>\n<?xml blah='blah'?>")
-    assert_equal "php", doc.children[0].target
+    assert_equal "php", doc.children[1].target
     assert_equal "blah='blah'", doc.children[2].content
   end
 
@@ -374,10 +380,14 @@ class TestParser < Test::Unit::TestCase
 
   def test_filters
     @basic = Hpricot.parse(TestFiles::BASIC)
-    assert_equal 0, (@basic/"title:parent").size
-    assert_equal 3, (@basic/"p:parent").size
-    assert_equal 1, (@basic/"title:empty").size
-    assert_equal 1, (@basic/"p:empty").size
+    ##
+    #  MODIFIED:
+    #  Hpricot considers nodes with text-only (but no child tags) to be empty.
+    #  Nokogiri considers that any content makes a parent.
+    assert_equal 1, (@basic/"title:parent").size # so this was 0 under Hpricot
+    assert_equal 4, (@basic/"p:parent").size
+    assert_equal 0, (@basic/"title:empty").size
+    assert_equal 3, (@basic/"link:empty").size
   end
 
   def test_keep_cdata
