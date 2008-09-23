@@ -3,7 +3,7 @@
 require 'test/unit'
 require "nokogiri"
 
-class TestBuilder < Test::Unit::TestCase
+class TestBuilder < Nokogiri::TestCase
   ####
   # Modified
   def test_escaping_text

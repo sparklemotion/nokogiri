@@ -14,6 +14,10 @@ module Nokogiri
     HTML_FILE = File.join(ASSETS_DIR, 'tlm.html')
 
     undef :default_test
+
+    def teardown
+      GC.start if ENV['NOKOGIRI_GC']
+    end
   end
 
   module SAX

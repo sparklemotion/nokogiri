@@ -4,7 +4,7 @@ require 'test/unit'
 require "nokogiri"
 require File.join(File.dirname(__FILE__),"load_files")
 
-class TestParser < Test::Unit::TestCase
+class TestParser < Nokogiri::TestCase
   include Nokogiri
   # normally, the link tags are empty HTML tags.
   # contributed by laudney.

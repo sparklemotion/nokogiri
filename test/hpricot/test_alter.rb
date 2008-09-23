@@ -4,7 +4,7 @@ require 'test/unit'
 require "nokogiri"
 require File.join(File.dirname(__FILE__),"load_files")
 
-class TestAlter < Test::Unit::TestCase
+class TestAlter < Nokogiri::TestCase
   include Nokogiri
 
   def setup

@@ -4,7 +4,7 @@ require 'test/unit'
 require "nokogiri"
 require File.join(File.dirname(__FILE__),"load_files")
 
-class TestPreserved < Test::Unit::TestCase
+class TestPreserved < Nokogiri::TestCase
   def assert_roundtrip str
     doc = Nokogiri.Hpricot(str)
     yield doc if block_given?
