@@ -4,7 +4,7 @@ module Nokogiri
   module CSS
     class TestNthiness < Nokogiri::TestCase
       def setup
-        @parser = Nokogiri.Hpricot(<<-EOF
+        @parser = Nokogiri.Hpricot <<-EOF
 <table>
   <tr><td>row1 </td></tr>
   <tr><td>row2 </td></tr>
@@ -26,9 +26,19 @@ module Nokogiri
   <i>italic1 </i>
   <b>bold2 </b>
   <i>italic2 </i>
+  <p>para1 </p>
+</div>
+<div>
+  <p>para2 </p>
+  <p>para3 </p>
+</div>
+<div>
+  <p>para4 </p>
+</div>
+<div>empty
+  <b></b>
 </div>
 EOF
-)
       end
 
 
@@ -94,8 +104,21 @@ EOF
         assert_result_rows [2], @parser.search("div/b:last-of-type"), "bold"
       end
 
+      def test_only_of_type
+        assert_result_rows [1,4], @parser.search("div/p:only-of-type"), "para"
+      end
+
+      def test_only_child
+        assert_result_rows [4], @parser.search("div/p:only-child"), "para"
+      end
+
+      def test_empty
+        result = @parser.search("div/b:empty")
+        assert_equal 1, result.size
+      end
+
       def assert_result_rows intarray, result, word="row"
-        assert_equal intarray.size, result.size, "unexpected number of rows returned"
+        assert_equal intarray.size, result.size, "unexpected number of rows returned: '#{result.inner_text}'"
         assert_equal intarray.map{|j| "#{word}#{j}"}.join(' '), result.inner_text.strip, result.inner_text
       end
     end
