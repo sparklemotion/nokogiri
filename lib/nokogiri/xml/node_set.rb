@@ -124,6 +124,10 @@ module Nokogiri
         map { |x| x.to_s }.join
       end
 
+      def to_html
+        map { |x| x.to_html }.join('')
+      end
+
       def size
         length
       end
