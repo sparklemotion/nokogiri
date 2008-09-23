@@ -24,6 +24,8 @@ module Nokogiri
           "contains(., #{node.value[1]})"
         when /^gt\(/
           "position() > #{node.value[1]}"
+        when /^only-child\(/
+          "last() = 1"
         else
           node.value.first + ')'
         end
@@ -72,6 +74,8 @@ module Nokogiri
           when "first" then "position() = 1"
           when "last" then "position() = last()"
           when "first-of-type" then "position() = 1"
+          when "only-of-type" then "last() = 1"
+          when "empty" then "not(@content)"
           else
             '1 = 1'
           end

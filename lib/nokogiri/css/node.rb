@@ -59,6 +59,13 @@ module Nokogiri
               Node.new(:FUNCTION, ["#{which}("]),
               Node.new(:FUNCTION, ['self(', tag_name])
             ])
+          elsif 'only-child' == match.value[1].value.first
+            tag_name = match.value[0].value.first
+            match.value[0].value = ['*']
+            match.value[1] = Node.new(:COMBINATOR, [
+              Node.new(:FUNCTION, ["#{match.value[1].value.first}("]),
+              Node.new(:FUNCTION, ['self(', tag_name])
+            ])                                        
           end
         end
       end
