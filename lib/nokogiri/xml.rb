@@ -12,6 +12,7 @@ module Nokogiri
   module XML
     class << self
       def parse(string, url = nil, encoding = nil, options = 1)
+        return Document.new if string.nil? or string.empty? # read_memory pukes on empty docs
         Document.read_memory(string, url, encoding, options)
       end
 

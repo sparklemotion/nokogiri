@@ -4,6 +4,7 @@ module Nokogiri
   module Hpricot
     STag = String
     Elem = XML::Node
+    NamedCharacters = Nokogiri::HTML::NamedCharacters
     class << self
       def parse(*args)
         doc = Nokogiri.parse(*args)
