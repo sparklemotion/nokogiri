@@ -24,6 +24,13 @@ static VALUE serialize(VALUE self)
   return rb_str;
 }
 
+/*
+ * call-seq:
+ *  read_memory(string, url, encoding, options)
+ *
+ * Read the HTML document contained in +string+ with given +url+, +encoding+,
+ * and +options+.  See Nokogiri::HTML.parse
+ */
 static VALUE read_memory( VALUE klass,
                           VALUE string,
                           VALUE url,
@@ -45,6 +52,12 @@ static VALUE read_memory( VALUE klass,
   return rb_doc;
 }
 
+/*
+ * call-seq:
+ *  type
+ *
+ * The type for this document
+ */
 static VALUE type(VALUE self)
 {
   htmlDocPtr doc;
@@ -55,6 +68,15 @@ static VALUE type(VALUE self)
 VALUE cNokogiriHtmlDocument ;
 void init_html_document()
 {
+  /*
+   * HACK.  This is so that rdoc will work with this C file.
+   */
+  /*
+  VALUE nokogiri = rb_define_module("Nokogiri");
+  VALUE xml = rb_define_module_under(nokogiri, "HTML");
+  VALUE klass = rb_define_class_under(xml, "Document", rb_cObject);
+  */
+
   VALUE klass ;
   klass = cNokogiriHtmlDocument = rb_const_get(mNokogiriHtml, rb_intern("Document"));
 
