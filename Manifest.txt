@@ -7,6 +7,8 @@ ext/nokogiri/conftest.dSYM/Contents/Resources/DWARF/conftest
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
 ext/nokogiri/html_document.h
+ext/nokogiri/html_sax_parser.c
+ext/nokogiri/html_sax_parser.h
 ext/nokogiri/native.c
 ext/nokogiri/native.h
 ext/nokogiri/xml_document.c
@@ -41,8 +43,11 @@ lib/nokogiri/hpricot.rb
 lib/nokogiri/html.rb
 lib/nokogiri/html/builder.rb
 lib/nokogiri/html/document.rb
+lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/version.rb
 lib/nokogiri/xml.rb
+lib/nokogiri/xml/after_handler.rb
+lib/nokogiri/xml/before_handler.rb
 lib/nokogiri/xml/builder.rb
 lib/nokogiri/xml/document.rb
 lib/nokogiri/xml/node.rb
@@ -51,11 +56,11 @@ lib/nokogiri/xml/sax.rb
 lib/nokogiri/xml/sax/document.rb
 lib/nokogiri/xml/sax/parser.rb
 lib/nokogiri/xml/text.rb
-lib/nokogiri/xml/text_node.rb
 lib/nokogiri/xml/xpath.rb
 lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 nokogiri.gemspec
+test/css/test_nthiness.rb
 test/css/test_parser.rb
 test/css/test_tokenizer.rb
 test/files/staff.xml
@@ -79,6 +84,7 @@ test/hpricot/test_parser.rb
 test/hpricot/test_paths.rb
 test/hpricot/test_preserved.rb
 test/hpricot/test_xml.rb
+test/html/sax/test_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
 test/test_convert_xpath.rb
