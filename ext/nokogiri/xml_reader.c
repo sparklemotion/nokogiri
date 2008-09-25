@@ -5,6 +5,24 @@ static void dealloc(xmlTextReaderPtr reader)
   xmlFreeTextReader(reader);
 }
 
+static int has_attributes(xmlTextReaderPtr reader)
+{
+  /*
+   *  this implementation of xmlTextReaderHasAttributes explicitly includes
+   *  namespaces and properties, because some earlier versions ignore
+   *  namespaces.
+   */
+  xmlNodePtr node ;
+  node = xmlTextReaderCurrentNode(reader);
+  if (node == NULL)
+    return(0);
+
+  if ((node->type == XML_ELEMENT_NODE) &&
+      ((node->properties != NULL) || (node->nsDef != NULL)))
+    return(1);
+  return(0);
+}
+
 /*
  * call-seq:
  *   default?
@@ -49,7 +67,7 @@ static VALUE attributes_eh(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
-  int eh = xmlTextReaderHasAttributes(reader);
+  int eh = has_attributes(reader);
   if(eh == 0) return Qfalse;
   if(eh == 1) return Qtrue;
 
@@ -71,7 +89,7 @@ static VALUE attributes(VALUE self)
 
   attr = rb_hash_new() ;
 
-  if (! xmlTextReaderHasAttributes(reader))
+  if (! has_attributes(reader))
     return attr ;
 
   xmlNodePtr ptr = xmlTextReaderExpand(reader);
