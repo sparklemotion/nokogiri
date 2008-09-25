@@ -130,6 +130,12 @@ static VALUE remove_prop(VALUE self, VALUE property)
   return Qnil;
 }
 
+/*
+ * call-seq
+ *   get(attribute)
+ *
+ * Get the value for +attribute+
+ */
 static VALUE get(VALUE self, VALUE attribute)
 {
   xmlNodePtr node;
@@ -330,10 +336,10 @@ static VALUE add_next_sibling(VALUE self, VALUE rb_node)
 }
 
 /*
- *  call-seq:
- *    add_previous_sibling(node)
+ * call-seq:
+ *  add_previous_sibling(node)
  *
- *  Insert +node+ before this node (as a sibling).
+ * Insert +node+ before this node (as a sibling).
  */
 static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 {
@@ -347,6 +353,12 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
   return rb_node;
 }
 
+/*
+ * call-seq:
+ *  to_xml
+ *
+ * Returns this node as XML
+ */
 static VALUE to_xml(VALUE self)
 {
   xmlBufferPtr buf ;
@@ -363,6 +375,12 @@ static VALUE to_xml(VALUE self)
 }
 
 
+/*
+ * call-seq
+ *   new(name, namespace=nil)
+ *
+ * Create a new node with +name+ and options +namespace+
+ */
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
   VALUE name, ns;
@@ -382,6 +400,12 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 }
 
 
+/*
+ * call-seq
+ *   new_from_str(string)
+ *
+ * Create a new node by parsing +string+
+ */
 static VALUE new_from_str(VALUE klass, VALUE xml)
 {
     /*
@@ -418,6 +442,15 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 VALUE cNokogiriXmlNode ;
 void init_xml_node()
 {
+  /*
+   * HACK.  This is so that rdoc will work with this C file.
+   */
+  /*
+  VALUE nokogiri = rb_define_module("Nokogiri");
+  VALUE xml = rb_define_module_under(nokogiri, "XML");
+  VALUE klass = rb_define_class_under(xml, "Node", rb_cObject);
+  */
+
   VALUE klass = cNokogiriXmlNode = rb_const_get(mNokogiriXml, rb_intern("Node"));
 
   rb_define_singleton_method(klass, "new", new, -1);
