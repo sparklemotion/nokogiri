@@ -156,7 +156,7 @@ static VALUE get(VALUE self, VALUE attribute)
  */
 static VALUE attributes(VALUE self)
 {
-    /* this code in the mod eof xmlHasProp() */
+    /* this code in the mode of xmlHasProp() */
     xmlNodePtr node ;
     xmlAttrPtr prop;
     VALUE attr ;

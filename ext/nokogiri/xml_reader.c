@@ -67,6 +67,9 @@ static VALUE attributes(VALUE self)
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
 
+  if (! xmlTextReaderHasAttributes(reader))
+    return rb_hash_new();
+
   xmlNodePtr ptr = xmlTextReaderExpand(reader);
   if(ptr == NULL) return Qnil;
 
@@ -330,13 +333,14 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "13", &rb_buffer, &rb_url, &encoding, &rb_options);
 
+  rb_buffer = StringValue(rb_buffer) ;
   if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
   if (RTEST(encoding)) c_encoding = StringValuePtr(rb_url);
   if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
 
   xmlTextReaderPtr reader = xmlReaderForMemory(
-      StringValuePtr(rb_buffer),
-      NUM2INT(rb_funcall(rb_buffer, rb_intern("length"), 0)),
+      RSTRING(rb_buffer)->ptr,
+      RSTRING(rb_buffer)->len,
       c_url,
       c_encoding,
       c_options

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestReader < Nokogiri::TestCase
@@ -30,6 +31,7 @@ class TestReader < Nokogiri::TestCase
     </x>
     eoxml
     assert_equal false, reader.attributes?
+    # TODO: xmlTextReaderHasAttributes considers namespace to be an attribute.
     assert_equal [false, false, true, false, true, false, false],
       reader.map { |x| x.attributes? }
   end
@@ -40,7 +42,7 @@ class TestReader < Nokogiri::TestCase
       <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     </x>
     eoxml
-    assert_nil reader.attributes
+    assert_equal({}, reader.attributes)
     assert_equal [{}, {}, {"awesome"=>"true"}, {}, {"awesome"=>"true"}, {}, {}],
       reader.map { |x| x.attributes }
   end
