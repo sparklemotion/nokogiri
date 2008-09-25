@@ -52,6 +52,10 @@ module Nokogiri
       end
       alias :/ :search
 
+      def at path
+        search("#{path}").first
+      end
+
       def [](property)
         return nil unless key?(property)
         get(property)
@@ -124,7 +128,7 @@ module Nokogiri
 
       def css_path
         path.split(/\//).map { |part|
-          part.length == 0 ? nil : part.gsub(/\[(\d+)\]/, ':nth-child(\1)')
+          part.length == 0 ? nil : part.gsub(/\[(\d+)\]/, ':nth-of-type(\1)')
         }.compact.join(' > ')
       end
 

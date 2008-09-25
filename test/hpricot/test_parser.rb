@@ -1,7 +1,4 @@
-#!/usr/bin/env ruby
-
-require 'test/unit'
-require "nokogiri"
+require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestParser < Nokogiri::TestCase
@@ -122,7 +119,7 @@ class TestParser < Nokogiri::TestCase
     assert_equal 17, @boingboing.search("h3[text()$='s']").length
     ### Modified.  Hpricot is wrong
     #assert_equal 129, @boingboing.search("p[text()]").length
-    assert_equal 110, @boingboing.search("p[text()]").length
+    assert_equal 111, @boingboing.search("p[text()]").length
     assert_equal 211, @boingboing.search("p").length
   end
 
@@ -317,10 +314,12 @@ class TestParser < Nokogiri::TestCase
     end
   end
 
+  ####
+  # Modified.  Added question.  Don't care.
   def test_procins
     doc = Nokogiri.Hpricot("<?php print('hello') ?>\n<?xml blah='blah'?>")
     assert_equal "php", doc.children[1].target
-    assert_equal "blah='blah'", doc.children[2].content
+    assert_equal "blah='blah'?", doc.children[2].content
   end
 
   ####

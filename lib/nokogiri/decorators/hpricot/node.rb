@@ -7,10 +7,6 @@ module Nokogiri
         end
         def /(path); search(path) end
 
-        def at path
-          search("#{path}").first
-        end
-
         def raw_attributes; self end
 
         def get_element_by_id element_id
@@ -36,6 +32,10 @@ module Nokogiri
             visitor.extend(Hpricot::XPathVisitor)
             ctx.map { |ast| './/' + visitor.accept(ast.preprocess!) }
           end
+        end
+
+        def target
+          name
         end
 
         def to_original_html

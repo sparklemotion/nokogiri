@@ -31,6 +31,10 @@ module Nokogiri
         end
       end
 
+      def visit_not node
+        'not(' + node.value.first.accept(self) + ')'
+      end
+
       def visit_preceding_selector node
         node.value.last.accept(self) +
           '[preceding-sibling::' +

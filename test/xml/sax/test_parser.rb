@@ -65,13 +65,6 @@ module Nokogiri
           assert @parser.document.end_document_called
         end
 
-        def test_end_document
-          @parser.parse_memory(<<-eoxml)
-            <p id="asdfasdf">Paragraph 1</p>
-          eoxml
-          assert @parser.document.end_document_called
-        end
-
         def test_end_element
           @parser.parse_memory(<<-eoxml)
             <p id="asdfasdf">Paragraph 1</p>

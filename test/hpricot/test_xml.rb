@@ -1,7 +1,4 @@
-#!/usr/bin/env ruby
-
-require 'test/unit'
-require "nokogiri"
+require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 require File.join(File.dirname(__FILE__),"load_files")
 
 class TestParser < Nokogiri::TestCase

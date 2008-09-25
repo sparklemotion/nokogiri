@@ -4,6 +4,7 @@ token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS GREATER S STRING IDENT
 token COMMA URI CDO CDC NUMBER PERCENTAGE LENGTH EMS EXS ANGLE TIME FREQ
 token IMPORTANT_SYM IMPORT_SYM MEDIA_SYM PAGE_SYM CHARSET_SYM DIMENSION
 token PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH TILDE NOT_EQUAL SLASH DOUBLESLASH
+token NOT
 
 rule
   selector
@@ -27,6 +28,9 @@ rule
                   else
                     Node.new(:CONDITIONAL_SELECTOR, [val.first, val[1]])
                   end
+      }
+    | element_name negation {
+        result = Node.new(:CONDITIONAL_SELECTOR, val)
       }
     | function
     | function attrib {
@@ -77,6 +81,9 @@ rule
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
     | FUNCTION an_plus_b ')' {
+        result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
+      }
+    | NOT expr ')' {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
     ;
@@ -172,6 +179,14 @@ rule
     | NOT_EQUAL
     | INCLUDES
     | DASHMATCH
+    ;
+  negation
+    : NOT s_0toN negation_arg s_0toN ')' {
+        result = Node.new(:NOT, [val[2]])
+      }
+    ;
+  negation_arg
+    : hcap_1toN
     ;
   s_0toN
     : S s_0toN
