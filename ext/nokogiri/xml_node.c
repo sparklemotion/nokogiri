@@ -158,21 +158,13 @@ static VALUE attributes(VALUE self)
 {
     /* this code in the mode of xmlHasProp() */
     xmlNodePtr node ;
-    xmlAttrPtr prop;
     VALUE attr ;
-    xmlChar* propstr ;
 
     attr = rb_hash_new() ;
     Data_Get_Struct(self, xmlNode, node);
 
-    prop = node->properties ;
-    while (prop != NULL) {
-        propstr = xmlGetProp(node, prop->name) ;
-        rb_hash_aset(attr, rb_str_new2((const char*)prop->name),
-                     rb_str_new2((char*)propstr));
-        xmlFree(propstr);
-        prop = prop->next ;
-    }
+    Nokogiri_xml_node_properties(node, attr);
+
     return attr ;
 }
 
@@ -438,6 +430,57 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
   return rb_node ;
 }
+
+
+void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_hash)
+{
+  xmlAttrPtr prop;
+  xmlChar* propstr ;
+  prop = node->properties ;
+  while (prop != NULL) {
+    propstr = xmlGetProp(node, prop->name) ;
+    rb_hash_aset(attr_hash, rb_str_new2((const char*)prop->name),
+                 rb_str_new2((char*)propstr));
+    xmlFree(propstr);
+    prop = prop->next ;
+  }
+}
+
+
+#define XMLNS_PREFIX "xmlns"
+#define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
+#define XMLNS_BUFFER_LEN 128
+void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
+{
+  xmlNsPtr ns;
+  static char buffer[XMLNS_BUFFER_LEN] ;
+  char *key ;
+  size_t keylen ;
+
+  ns = node->nsDef;
+  while (ns != NULL) {
+
+    keylen = XMLNS_PREFIX_LEN + (ns->prefix ? (strlen((const char*)ns->prefix) + 1) : 0) ;
+    if (keylen > XMLNS_BUFFER_LEN) {
+      key = (char*)malloc(keylen) ;
+    } else {
+      key = buffer ;
+    }
+
+    if (ns->prefix) {
+      sprintf(key, "%s:%s", XMLNS_PREFIX, ns->prefix);
+    } else {
+      sprintf(key, "%s", XMLNS_PREFIX);
+    }
+
+    rb_hash_aset(attr_hash, rb_str_new2(key), rb_str_new2((const char*)ns->href)) ;
+    if (key != buffer) {
+      free(key);
+    }
+    ns = ns->next ;
+  }
+}
+
 
 VALUE cNokogiriXmlNode ;
 void init_xml_node()

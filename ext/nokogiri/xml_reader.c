@@ -65,16 +65,22 @@ static VALUE attributes_eh(VALUE self)
 static VALUE attributes(VALUE self)
 {
   xmlTextReaderPtr reader;
+  VALUE attr ;
+
   Data_Get_Struct(self, xmlTextReader, reader);
 
+  attr = rb_hash_new() ;
+
   if (! xmlTextReaderHasAttributes(reader))
-    return rb_hash_new();
+    return attr ;
 
   xmlNodePtr ptr = xmlTextReaderExpand(reader);
   if(ptr == NULL) return Qnil;
 
-  VALUE rb_node = Data_Wrap_Struct(cNokogiriXmlNode, 0, 0, ptr);
-  return rb_funcall(rb_node, rb_intern("attributes"), 0);
+  Nokogiri_xml_node_namespaces(ptr, attr);
+  Nokogiri_xml_node_properties(ptr, attr);
+
+  return attr ;
 }
 
 /*

@@ -31,20 +31,40 @@ class TestReader < Nokogiri::TestCase
     </x>
     eoxml
     assert_equal false, reader.attributes?
-    # TODO: xmlTextReaderHasAttributes considers namespace to be an attribute.
-    assert_equal [false, false, true, false, true, false, false],
+    assert_equal [true, false, true, false, true, false, true],
       reader.map { |x| x.attributes? }
   end
 
   def test_attributes
     reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
-    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'
+       xmlns='http://mothership.connection.com/'
+       >
       <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     </x>
     eoxml
     assert_equal({}, reader.attributes)
-    assert_equal [{}, {}, {"awesome"=>"true"}, {}, {"awesome"=>"true"}, {}, {}],
+    assert_equal [{'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
+                   'xmlns'=>'http://mothership.connection.com/'},
+                  {}, {"awesome"=>"true"}, {}, {"awesome"=>"true"}, {},
+                  {'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
+                   'xmlns'=>'http://mothership.connection.com/'}],
       reader.map { |x| x.attributes }
+  end
+
+  def test_attribute_roundtrip
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'
+       xmlns='http://mothership.connection.com/'
+       >
+      <tenderlove:foo awesome='true' size='giant'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader.each do |node|
+      node.attributes.each do |key, value|
+        assert_equal value, node.attribute(key)
+      end
+    end
   end
 
   def test_attribute_at
