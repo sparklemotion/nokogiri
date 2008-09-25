@@ -5,6 +5,7 @@
 #include <ruby.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
+#include <libxml/xmlreader.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 
@@ -15,6 +16,7 @@
 #include <xml_node_set.h>
 #include <xml_xpath.h>
 #include <xml_sax_parser.h>
+#include <xml_reader.h>
 #include <html_sax_parser.h>
 #include <xslt_stylesheet.h>
 
