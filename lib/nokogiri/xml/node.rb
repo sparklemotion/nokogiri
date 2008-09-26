@@ -32,9 +32,14 @@ module Nokogiri
         list
       end
 
-      def search(*search_paths)
-        sets = search_paths.map { |search_path|
-          set = XPath.new(self, search_path).node_set
+      def search(*paths)
+        find_by_xpath(*paths)
+      end
+      alias :/ :search
+
+      def find_by_xpath *paths
+        sets = paths.map { |path|
+          set = XPath.new(self, path).node_set
           set.document = document
           document.decorate(set)
           set
@@ -50,7 +55,12 @@ module Nokogiri
           end
         end
       end
-      alias :/ :search
+
+      def find_by_css *rules
+        find_by_xpath(*(rules.map { |rule|
+          CSS::Parser.parse(rule).map { |ast| ast.to_xpath }
+        }.flatten.uniq))
+      end
 
       def at path
         search("#{path}").first

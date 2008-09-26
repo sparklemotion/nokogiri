@@ -3,6 +3,12 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
+      def test_find_by_css
+        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
+        found = html.find_by_css('div > a')
+        assert_equal 3, found.length
+      end
+
       def test_next_sibling
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         assert node = xml.root
