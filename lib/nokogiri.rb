@@ -29,7 +29,7 @@ module Nokogiri
       if input
         Nokogiri::XML::Node.new_from_str(input)
       else
-        Nokogiri &blk
+        Nokogiri(&blk)
       end
     end
   end
