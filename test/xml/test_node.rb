@@ -3,6 +3,20 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
+      def test_search_can_handle_xpath_and_css
+        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
+        found = html.search('//div/a', 'div > p')
+        length = html.find_by_xpath('//div/a').length +
+          html.find_by_css('div > p').length
+        assert_equal length, found.length
+      end
+
+      def test_find_by_xpath
+        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
+        found = html.find_by_xpath('//div/a')
+        assert_equal 3, found.length
+      end
+
       def test_find_by_css
         html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
         found = html.find_by_css('div > a')

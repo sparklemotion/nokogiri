@@ -33,7 +33,11 @@ module Nokogiri
       end
 
       def search(*paths)
-        find_by_xpath(*paths)
+        find_by_xpath(*(paths.map { |path|
+          path =~ /^(\.\/|\/)/ ? path : CSS::Parser.parse(path).map { |ast|
+            ast.to_xpath
+          }
+        }.flatten.uniq))
       end
       alias :/ :search
 
