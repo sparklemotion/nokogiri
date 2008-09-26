@@ -32,14 +32,15 @@ module Nokogiri
         list
       end
 
-      def search(*paths)
+      def find(*paths)
         find_by_xpath(*(paths.map { |path|
           path =~ /^(\.\/|\/)/ ? path : CSS::Parser.parse(path).map { |ast|
             ast.to_xpath
           }
         }.flatten.uniq))
       end
-      alias :/ :search
+      alias :search :find
+      alias :/ :find
 
       def find_by_xpath *paths
         sets = paths.map { |path|
