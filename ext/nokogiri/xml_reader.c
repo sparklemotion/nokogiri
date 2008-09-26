@@ -135,14 +135,25 @@ static VALUE attribute_at(VALUE self, VALUE index)
 static VALUE reader_attribute(VALUE self, VALUE name)
 {
   xmlTextReaderPtr reader;
+  xmlChar *value ;
   Data_Get_Struct(self, xmlTextReader, reader);
 
   if(name == Qnil) return Qnil;
+  name = StringValue(name) ;
 
-  xmlChar * value = xmlTextReaderGetAttribute(
-      reader,
-      (const xmlChar *)StringValuePtr(name)
-  );
+  value = xmlTextReaderGetAttribute(reader, (xmlChar*)RSTRING(name)->ptr );
+  if(value == NULL) {
+    /* this section is an attempt to workaround older versions of libxml that
+       don't handle namespaces properly in all attribute-and-friends functions */
+    xmlChar *prefix = NULL ;
+    xmlChar *localname = xmlSplitQName2((xmlChar*)RSTRING(name)->ptr, &prefix);
+    if (localname != NULL) {
+      value = xmlTextReaderLookupNamespace(reader, localname);
+      free(localname) ;
+    } else {
+      value = xmlTextReaderLookupNamespace(reader, prefix);
+    }
+  }
   if(value == NULL) return Qnil;
 
   VALUE rb_value = rb_str_new2((const char *)value);
