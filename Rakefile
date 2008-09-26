@@ -21,6 +21,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
     'ext/nokogiri/Makefile',
     'ext/nokogiri/*.{o,so,bundle,a,log}',
     GENERATED_PARSER,
+    GENERATED_TOKENIZER,
   ]
 end
 
@@ -62,5 +63,7 @@ end
 task :build => [EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
 
 Rake::Task[:test].prerequisites << :build
+Rake::Task[:check_manifest].prerequisites << GENERATED_PARSER
+Rake::Task[:check_manifest].prerequisites << GENERATED_TOKENIZER
 
 # vim: syntax=Ruby

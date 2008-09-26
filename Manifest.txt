@@ -27,6 +27,7 @@ ext/nokogiri/xslt_stylesheet.c
 ext/nokogiri/xslt_stylesheet.h
 lib/nokogiri.rb
 lib/nokogiri/css.rb
+lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb
 lib/nokogiri/css/node.rb
 lib/nokogiri/css/parser.rb
