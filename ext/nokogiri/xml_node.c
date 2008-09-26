@@ -14,7 +14,10 @@ static VALUE dup(VALUE self)
   dup = xmlCopyNode(node, 1);
   if(dup == NULL) return Qnil;
 
-  return Nokogiri_wrap_xml_node(dup);
+  VALUE rb_dup = Nokogiri_wrap_xml_node(dup);
+  node->_private = (void*)rb_dup;
+
+  return rb_dup;
 }
 
 /*
