@@ -3,6 +3,14 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
+      def test_dup
+        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
+        found = html.search('//div/a').first
+        dup = found.dup
+        assert dup
+        assert_equal found.content, dup.content
+      end
+
       def test_search_can_handle_xpath_and_css
         html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
         found = html.search('//div/a', 'div > p')

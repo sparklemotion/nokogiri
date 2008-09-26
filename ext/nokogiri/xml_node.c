@@ -2,6 +2,23 @@
 
 /*
  * call-seq:
+ *  dup
+ *
+ * Copy this node
+ */
+static VALUE dup(VALUE self)
+{
+  xmlNodePtr node, dup;
+  Data_Get_Struct(self, xmlNode, node);
+
+  dup = xmlCopyNode(node, 1);
+  if(dup == NULL) return Qnil;
+
+  return Nokogiri_wrap_xml_node(dup);
+}
+
+/*
+ * call-seq:
  *  blank?
  *
  * Is this node blank?
@@ -520,6 +537,7 @@ void init_xml_node()
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "to_xml", to_xml, 0);
+  rb_define_method(klass, "dup", dup, 0);
 
   rb_define_private_method(klass, "get", get, 1);
 }
