@@ -7,6 +7,16 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_find_with_namespace
+        doc = Nokogiri::XML.parse(<<-eoxml)
+        <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+          <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+        </x>
+        eoxml
+        set = doc.find('//tenderlove:foo')
+        assert_equal 1, set.length
+      end
+
       def test_xml?
         assert @xml.xml?
       end
