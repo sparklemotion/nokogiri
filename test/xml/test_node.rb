@@ -3,6 +3,23 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
+      def test_find_by_css_with_tilde_eql
+        xml = Nokogiri::XML.parse(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+          <a class='foo bar'>Bar</a>
+          <a class='bar foo'>Bar</a>
+          <a class='bar'>Bar</a>
+          <a class='baz bar foo'>Bar</a>
+          <a class='bazbarfoo'>Awesome</a>
+          <a class='bazbar'>Awesome</a>
+        </root>
+        eoxml
+        set = xml.find_by_css('a[@class~="bar"]')
+        assert_equal 4, set.length
+        assert_equal ['Bar'], set.map { |node| node.content }.uniq
+      end
+
       def test_dup
         html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
         found = html.search('//div/a').first
