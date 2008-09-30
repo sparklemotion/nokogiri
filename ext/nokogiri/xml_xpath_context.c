@@ -7,6 +7,24 @@ static void deallocate(xmlXPathContextPtr ctx)
 
 /*
  * call-seq:
+ *  register_ns(prefix, uri)
+ *
+ * Register the namespace with +prefix+ and +uri+.
+ */
+static VALUE register_ns(VALUE self, VALUE prefix, VALUE uri)
+{
+  xmlXPathContextPtr ctx;
+  Data_Get_Struct(self, xmlXPathContext, ctx);
+
+  xmlXPathRegisterNs( ctx,
+                      (const xmlChar *)StringValuePtr(prefix),
+                      (const xmlChar *)StringValuePtr(uri)
+  );
+  return self;
+}
+
+/*
+ * call-seq:
  *  evaluate(search_path)
  *
  * Evaluate the +search_path+ returning an XML::XPath object.
@@ -48,4 +66,5 @@ void init_xml_xpath_context(void)
 
   rb_define_singleton_method(klass, "new", new, 1);
   rb_define_method(klass, "evaluate", evaluate, 1);
+  rb_define_method(klass, "register_ns", register_ns, 2);
 }
