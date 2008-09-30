@@ -47,9 +47,7 @@ static VALUE read_memory( VALUE klass,
   if(doc == NULL)
     doc = htmlNewDoc((const xmlChar *)c_url, NULL);
 
-  VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
-  doc->_private = (void*)rb_doc;
-  return rb_doc;
+  return Nokogiri_wrap_xml_document(klass, doc);
 }
 
 /*

@@ -1,5 +1,22 @@
 #include <xml_document.h>
 
+/*
+ *  note that xmlDocPtr is being cast as an xmlNodePtr, which is legal for the
+ *  "common part" struct header which contains only node pointers. casting like
+ *  this allows us to recurse through the tree with a single function.
+ */
+static void gc_mark(xmlNodePtr doc)
+{
+  xmlNodePtr j ;
+  j = doc->children ;
+  while (j != NULL) {
+    if (j->_private)
+      rb_gc_mark((VALUE)j->_private);
+    gc_mark(j); /* recurse */
+    j = j->next ;
+  }
+}
+
 static void dealloc(xmlDocPtr doc)
 {
   xmlFreeDoc(doc);
@@ -78,9 +95,7 @@ static VALUE read_memory( VALUE klass,
     rb_raise(rb_eRuntimeError, "Couldn't create a document");
   }
 
-  VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
-  doc->_private = (void *)rb_doc;
-  return rb_doc;
+  return Nokogiri_wrap_xml_document(klass, doc);
 }
 
 static VALUE new(int argc, VALUE *argv, VALUE klass)
@@ -90,9 +105,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
     version = rb_str_new2("1.0");
 
   xmlDocPtr doc = xmlNewDoc((xmlChar *)StringValuePtr(version));
-  VALUE rb_doc = Data_Wrap_Struct(klass, NULL, dealloc, doc);
-  doc->_private = (void *)rb_doc;
-  return rb_doc;
+  return Nokogiri_wrap_xml_document(klass, doc);
 }
 
 /*
@@ -135,8 +148,12 @@ void init_xml_document()
 }
 
 
-/* public API */
-VALUE Nokogiri_wrap_xml_document(xmlDocPtr doc)
+/* this takes klass as a param because it's used for HtmlDocument, too. */
+VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
 {
-  return Data_Wrap_Struct(cNokogiriXmlDocument, 0, dealloc, doc) ;
+  if (doc->_private)
+    return (VALUE)doc->_private ;
+  VALUE rb_doc = Data_Wrap_Struct(klass ? klass : cNokogiriXmlDocument, gc_mark, dealloc, doc) ;
+  doc->_private = (void*)rb_doc ;
+  return rb_doc ;
 }

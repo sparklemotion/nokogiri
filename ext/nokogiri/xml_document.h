@@ -4,7 +4,7 @@
 #include <native.h>
 
 void init_xml_document();
-VALUE Nokogiri_wrap_xml_document(xmlDocPtr doc);
+VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc);
 
 extern VALUE cNokogiriXmlDocument ;
 #endif

@@ -68,7 +68,7 @@ static VALUE apply_to(int argc, VALUE* argv, VALUE self)
 
     result = xsltApplyStylesheet(ss, xml, params);
     free(params);
-    resultobj = Nokogiri_wrap_xml_document(result) ;
+    resultobj = Nokogiri_wrap_xml_document(0, result) ;
     return rb_funcall(self, rb_intern("serialize"), 1, resultobj);
 }
 
