@@ -34,7 +34,7 @@ static VALUE new(VALUE klass, VALUE nodeobj)
 
   xmlXPathContextPtr ctx = xmlXPathNewContext(node->doc);
   ctx->node = node ;
-  return Data_Wrap_Struct(klass, NULL, deallocate, ctx);
+  return Data_Wrap_Struct(klass, deallocate, 0, ctx);
 }
 
 VALUE cNokogiriXmlXpathContext;
