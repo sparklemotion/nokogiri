@@ -15,6 +15,7 @@
 #include <xml_text.h>
 #include <xml_node_set.h>
 #include <xml_xpath.h>
+#include <xml_xpath_context.h>
 #include <xml_sax_parser.h>
 #include <xml_reader.h>
 #include <html_sax_parser.h>

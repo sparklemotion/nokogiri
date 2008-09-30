@@ -44,7 +44,7 @@ module Nokogiri
 
       def find_by_xpath *paths
         sets = paths.map { |path|
-          set = XPath.new(self, path).node_set
+          set = XPathContext.new(self).evaluate(path).node_set
           set.document = document
           document.decorate(set)
           set
