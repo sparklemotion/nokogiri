@@ -37,7 +37,6 @@ static VALUE evaluate(VALUE self, VALUE search_path)
   xmlChar* query = (xmlChar *)StringValuePtr(search_path);
   xmlXPathObjectPtr xpath = xmlXPathEvalExpression(query, ctx);
   if(xpath == NULL) {
-    xmlXPathFreeContext(ctx);
     rb_raise(rb_eRuntimeError, "Couldn't evaluate expression '%s'", query);
   }
   return Nokogiri_wrap_xml_xpath(xpath);
@@ -52,7 +51,7 @@ static VALUE new(VALUE klass, VALUE nodeobj)
 
   xmlXPathContextPtr ctx = xmlXPathNewContext(node->doc);
   ctx->node = node ;
-  return Data_Wrap_Struct(klass, deallocate, 0, ctx);
+  return Data_Wrap_Struct(klass, 0, deallocate, ctx);
 }
 
 VALUE cNokogiriXmlXpathContext;
