@@ -20,6 +20,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.clean_globs = [
     'ext/nokogiri/Makefile',
     'ext/nokogiri/*.{o,so,bundle,a,log}',
+    'ext/nokogiri/conftest.dSYM',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
   ]
