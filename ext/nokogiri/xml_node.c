@@ -2,6 +2,27 @@
 
 /*
  * call-seq:
+ *  encode_special_chars(string)
+ *
+ * Encode any special characters in +string+
+ */
+static VALUE encode_special_chars(VALUE self, VALUE string)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  xmlChar * encoded = xmlEncodeSpecialChars(
+      node->doc,
+      (const xmlChar *)StringValuePtr(string)
+  );
+
+  VALUE encoded_str = rb_str_new2((const char *)encoded);
+  free(encoded);
+
+  return encoded_str;
+}
+
+/*
+ * call-seq:
  *  dup
  *
  * Copy this node
@@ -535,7 +556,6 @@ void init_xml_node()
   rb_define_method(klass, "replace", replace, 1);
   rb_define_method(klass, "type", type, 0);
   rb_define_method(klass, "content", get_content, 0);
-  rb_define_method(klass, "content=", set_content, 1);
   rb_define_method(klass, "path", path, 0);
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "blank?", blank_eh, 0);
@@ -544,8 +564,10 @@ void init_xml_node()
   rb_define_method(klass, "attributes", attributes, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
+  rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
   rb_define_method(klass, "to_xml", to_xml, 0);
   rb_define_method(klass, "dup", dup, 0);
 
+  rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
 }

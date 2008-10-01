@@ -16,6 +16,10 @@ module Nokogiri
         insert(node)
       end
 
+      def to_xml
+        @doc.to_xml
+      end
+
       def method_missing(method, *args, &block)
         node = Nokogiri::XML::Node.new(method.to_s) { |n|
           n.content = args.first if args.first

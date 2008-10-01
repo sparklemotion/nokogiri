@@ -123,6 +123,13 @@ module Nokogiri
         content
       end
 
+      ####
+      # Set the content to +string+.
+      # If +encode+, encode any special characters first.
+      def content= string, encode = true
+        self.native_content = encode_special_chars(string)
+      end
+
       def comment?
         type == COMMENT_NODE
       end
