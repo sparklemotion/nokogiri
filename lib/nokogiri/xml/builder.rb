@@ -16,6 +16,11 @@ module Nokogiri
         insert(node)
       end
 
+      def cdata(string)
+        node = Nokogiri::XML::CData.new(@doc, string)
+        insert(node)
+      end
+
       def to_xml
         @doc.to_xml
       end

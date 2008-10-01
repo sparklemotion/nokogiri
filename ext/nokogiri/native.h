@@ -13,6 +13,7 @@
 #include <html_document.h>
 #include <xml_node.h>
 #include <xml_text.h>
+#include <xml_cdata.h>
 #include <xml_node_set.h>
 #include <xml_xpath.h>
 #include <xml_xpath_context.h>
