@@ -143,6 +143,36 @@ module Nokogiri
         assert_equal set[0].to_xml, second.to_xml
       end
 
+      def test_namespaces
+        xml = Nokogiri::XML.parse(<<-EOF)
+<x xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
+  <y xmlns:c='http://bazz.com/'>
+    <a:div>hello a</a:div>
+    <b:div>hello b</b:div>
+    <c:div>hello c</c:div>
+  </y>  
+</x>
+EOF
+        assert namespaces = xml.root.namespaces
+        assert namespaces.key?('xmlns:a')
+        assert_equal 'http://foo.com/', namespaces['xmlns:a']
+        assert namespaces.key?('xmlns:b')
+        assert_equal 'http://bar.com/', namespaces['xmlns:b']
+        assert ! namespaces.key?('xmlns:c')
+
+        assert namespaces = xml.namespaces
+        assert namespaces.key?('xmlns:a')
+        assert_equal 'http://foo.com/', namespaces['xmlns:a']
+        assert namespaces.key?('xmlns:b')
+        assert_equal 'http://bar.com/', namespaces['xmlns:b']
+        assert namespaces.key?('xmlns:c')
+        assert_equal 'http://bazz.com/', namespaces['xmlns:c']
+
+        assert_equal "hello a", xml.search("//a:div").first.inner_text
+        assert_equal "hello b", xml.search("//b:div").first.inner_text
+        assert_equal "hello c", xml.search("//c:div").first.inner_text
+      end
+
     end
   end
 end

@@ -44,7 +44,9 @@ module Nokogiri
 
       def find_by_xpath *paths
         sets = paths.map { |path|
-          set = XPathContext.new(self).evaluate(path).node_set
+          ctx = XPathContext.new(self)
+          ctx.register_namespaces(document.namespaces)
+          set = ctx.evaluate(path).node_set
           set.document = document
           document.decorate(set)
           set
@@ -156,6 +158,19 @@ module Nokogiri
 
       def xpath
         path
+      end
+
+      #  recursively get all namespaces from this node and its subtree
+      def collect_namespaces
+        # TODO: print warning message if a prefix refers to more than one URI in the document?
+        ns = {}
+        traverse {|j| ns.merge!(j.namespaces)}
+        ns
+      end
+
+      def traverse(&block)
+        children.each{|j| j.traverse(&block) }
+        block.call(self)
       end
     end
   end

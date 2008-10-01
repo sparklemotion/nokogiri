@@ -63,6 +63,7 @@ lib/nokogiri/xml/sax/document.rb
 lib/nokogiri/xml/sax/parser.rb
 lib/nokogiri/xml/text.rb
 lib/nokogiri/xml/xpath.rb
+lib/nokogiri/xml/xpath_context.rb
 lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 nokogiri.gemspec

@@ -6,6 +6,7 @@ require 'nokogiri/xml/text'
 require 'nokogiri/xml/document'
 require 'nokogiri/xml/node_set'
 require 'nokogiri/xml/xpath'
+require 'nokogiri/xml/xpath_context'
 require 'nokogiri/xml/builder'
 require 'nokogiri/xml/reader'
 

@@ -207,6 +207,26 @@ static VALUE attributes(VALUE self)
 }
 
 /*
+ *  call-seq
+ *    namespaces()
+ *
+ *  returns a hash containing the node's namespaces.
+ */
+static VALUE namespaces(VALUE self)
+{
+    /* this code in the mode of xmlHasProp() */
+    xmlNodePtr node ;
+    VALUE attr ;
+
+    attr = rb_hash_new() ;
+    Data_Get_Struct(self, xmlNode, node);
+
+    Nokogiri_xml_node_namespaces(node, attr);
+
+    return attr ;
+}
+
+/*
  * call-seq:
  *  type
  *
@@ -503,6 +523,8 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
   char *key ;
   size_t keylen ;
 
+  if (node->type != XML_ELEMENT_NODE) return ;
+
   ns = node->nsDef;
   while (ns != NULL) {
 
@@ -562,6 +584,7 @@ void init_xml_node()
   rb_define_method(klass, "[]=", set, 2);
   rb_define_method(klass, "remove", remove_prop, 1);
   rb_define_method(klass, "attributes", attributes, 0);
+  rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);

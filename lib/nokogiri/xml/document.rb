@@ -17,6 +17,10 @@ module Nokogiri
       def to_xml
         serialize
       end
+
+      def namespaces
+        root.collect_namespaces
+      end
     end
   end
 end
