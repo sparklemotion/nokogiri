@@ -27,7 +27,13 @@ module Nokogiri
 
       def method_missing(method, *args, &block)
         node = Nokogiri::XML::Node.new(method.to_s) { |n|
-          n.content = args.first if args.first
+          if content = args.first
+            if content.is_a?(Hash)
+              content.each { |k,v| n[k.to_s] = v.to_s }
+            else
+              n.content = content
+            end
+          end
         }
         insert(node, &block)
       end

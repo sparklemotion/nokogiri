@@ -3,6 +3,16 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module HTML
     class TestBuilder < Nokogiri::TestCase
+      def test_hash_as_attributes
+        builder = Nokogiri::HTML::Builder.new do
+          div(:id => 'awesome') {
+            h1 "america"
+          }
+        end
+        assert_equal('<div id="awesome"><h1>america</h1></div>',
+                     builder.to_html.gsub(/\n/, ''))
+      end
+
       def test_has_ampersand
         builder = Nokogiri::HTML::Builder.new do
           div.rad.thing! {
