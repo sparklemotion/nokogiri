@@ -14,7 +14,11 @@ class TestParser < Nokogiri::TestCase
   # make sure XML doesn't get downcased
   def test_casing
     doc = Hpricot::XML(TestFiles::WHY)
-    assert_equal "hourly", (doc.at "sy:updatePeriod").inner_html
+
+    ### Modified.
+    # I don't want to differentiate pseudo classes from namespaces.  If
+    # you're parsing xml, use XPath.  That's what its for.  :-P
+    assert_equal "hourly", (doc.at "//sy:updatePeriod").content
     assert_equal 1, (doc/"guid[@isPermaLink]").length
   end
 
