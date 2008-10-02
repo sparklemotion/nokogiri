@@ -18,8 +18,8 @@ rule
     | GREATER s_0toN { result = :CHILD_SELECTOR }
     | TILDE s_0toN { result = :PRECEDING_SELECTOR }
     | S { result = :DESCENDANT_SELECTOR }
-    | DOUBLESLASH { result = :DESCENDANT_SELECTOR }
-    | SLASH { result = :CHILD_SELECTOR }
+    | DOUBLESLASH s_0toN { result = :DESCENDANT_SELECTOR }
+    | SLASH s_0toN { result = :CHILD_SELECTOR }
     ;
   simple_selector
     : element_name hcap_0toN {

@@ -67,21 +67,25 @@ class TestParser < Nokogiri::TestCase
     assert_equal 'link1', doc.at("p a")['id']
     assert_equal 'link1', (doc/:p/:a).first['id']
     assert_equal 'link1', doc.search('p').at('a').get_attribute('id')
-    assert_equal 'link2', (doc/'p').filter('.ohmy').search('a').first.get_attribute('id')
-    assert_equal (doc/'p')[2], (doc/'p').filter(':nth(2)')[0]
-    assert_equal (doc/'p')[2], (doc/'p').filter(':nth(2)')[0]
-    assert_equal (doc/'p')[2], (doc/'p').filter('[3]')[0]
-    assert_equal 4, (doc/'p').filter('*').length
-    assert_equal 4, (doc/'p').filter('* *').length
-    eles = (doc/'p').filter('.ohmy')
-    assert_equal 1, eles.length
-    assert_equal 'ohmy', eles.first.get_attribute('class')
+
+    ### Modified: We're not supporting the filter() function
+    #assert_equal 'link2', (doc/'p').filter('.ohmy').search('a').first.get_attribute('id')
+    #assert_equal (doc/'p')[2], (doc/'p').filter(':nth(2)')[0]
+    #assert_equal (doc/'p')[2], (doc/'p').filter(':nth(2)')[0]
+    #assert_equal (doc/'p')[2], (doc/'p').filter('[3]')[0]
+    #assert_equal 4, (doc/'p').filter('*').length
+    #assert_equal 4, (doc/'p').filter('* *').length
+    #eles = (doc/'p').filter('.ohmy')
+    #assert_equal 1, eles.length
+    #assert_equal 'ohmy', eles.first.get_attribute('class')
     assert_equal 3, (doc/'p:not(.ohmy)').length
-    assert_equal 3, (doc/'p').not('.ohmy').length
-    assert_equal 3, (doc/'p').not(eles.first).length
-    assert_equal 2, (doc/'p').filter('[@class]').length
+
+    ### Modified: We're not supporting the not() function
+    #assert_equal 3, (doc/'p').not('.ohmy').length
+    #assert_equal 3, (doc/'p').not(eles.first).length
+    #assert_equal 2, (doc/'p').filter('[@class]').length
     assert_equal 'last final', (doc/'p[@class~="final"]').first.get_attribute('class')
-    assert_equal 1, (doc/'p').filter('[@class~="final"]').length
+    #assert_equal 1, (doc/'p').filter('[@class~="final"]').length
     assert_equal 2, (doc/'p > a').length
     assert_equal 1, (doc/'p.ohmy > a').length
     assert_equal 2, (doc/'p / a').length

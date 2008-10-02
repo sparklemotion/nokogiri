@@ -47,8 +47,8 @@ rule
             {num}{ident}     { [:DIMENSION, text] }
             <!--             { [:CDO, text] }
             -->              { [:CDC, text] }
-            \/\/             { [:DOUBLESLASH, text] }
-            \/               { [:SLASH, text] }
+            {w}\/\/          { [:DOUBLESLASH, text] }
+            {w}\/            { [:SLASH, text] }
             
             U\+[0-9a-f?]{1,6}(-[0-9a-f]{1,6})?  {[:UNICODE_RANGE, text] }
             
