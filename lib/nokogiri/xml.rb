@@ -9,6 +9,7 @@ require 'nokogiri/xml/xpath'
 require 'nokogiri/xml/xpath_context'
 require 'nokogiri/xml/builder'
 require 'nokogiri/xml/reader'
+require 'nokogiri/xml/syntax_error'
 
 module Nokogiri
   module XML

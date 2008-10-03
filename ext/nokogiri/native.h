@@ -21,6 +21,7 @@
 #include <xml_reader.h>
 #include <html_sax_parser.h>
 #include <xslt_stylesheet.h>
+#include <xml_syntax_error.h>
 
 extern VALUE mNokogiri ;
 extern VALUE mNokogiriXml ;

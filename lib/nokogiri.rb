@@ -10,6 +10,8 @@ require 'nokogiri/native'
 
 module Nokogiri
   class << self
+    attr_accessor :error_handler
+
     def parse(string, url = nil, encoding = nil, options = 32)
       doc =
         if string =~ /^\s*<[^Hh>]*html/i # Probably html
@@ -33,6 +35,8 @@ module Nokogiri
       end
     end
   end
+
+  self.error_handler = lambda { |syntax_error| }
 end
 
 def Nokogiri(*args, &block)

@@ -6,6 +6,7 @@ VALUE mNokogiriHtml ;
 VALUE mNokogiriXslt ;
 VALUE mNokogiriXmlSax ;
 VALUE mNokogiriHtmlSax ;
+
 void Init_native()
 {
   mNokogiri = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
@@ -20,6 +21,8 @@ void Init_native()
                 rb_str_new2(LIBXML_DOTTED_VERSION)
               );
 
+  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_handler);
+
   init_xml_document();
   init_html_document();
   init_xml_node();
@@ -32,4 +35,5 @@ void Init_native()
   init_xml_reader();
   init_html_sax_parser();
   init_xslt_stylesheet();
+  init_xml_syntax_error();
 }
