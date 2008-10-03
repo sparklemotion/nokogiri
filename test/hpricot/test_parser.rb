@@ -299,9 +299,13 @@ class TestParser < Nokogiri::TestCase
     assert_equal 3, (@immob/:script)[0].inner_html.scan(/<LINK/).length
   end
 
+  ####
+  # Modified.  This test passes with later versions of libxml
   def test_nested_scripts
     @week9 = Hpricot.parse(TestFiles::WEEK9)
-    assert_equal 14, (@week9/"a").find_all { |x| x.inner_html.include? "GameCenter" }.length
+    unless Nokogiri::LIBXML_VERSION == '2.6.16'
+      assert_equal 14, (@week9/"a").find_all { |x| x.inner_html.include? "GameCenter" }.length
+    end
   end
 
   def test_uswebgen
