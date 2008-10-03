@@ -42,8 +42,6 @@ module Nokogiri
 </html>
 EOF
         @parser = Nokogiri.Hpricot doc
-        @xpath = Nokogiri doc
-        @cssparser = Nokogiri::CSS::Parser.new
       end
 
 
@@ -130,6 +128,26 @@ EOF
           assert_equal "para#{j+1} ", result[j].inner_text
         end
         assert_equal "not-empty", result[4]['class']
+      end
+
+      def test_siblings
+        doc = <<-EOF
+<html><body><div>
+<p id="1">p1 </p>
+<p id="2">p2 </p>
+<p id="3">p3 </p>
+<p id="4">p4 </p>
+<p id="5">p5 </p>
+EOF
+        parser = Nokogiri.Hpricot doc
+        
+        assert_equal 2, parser.search("#3 ~ p").size
+        assert_equal "p4 p5 ", parser.search("#3 ~ p").inner_text
+        assert_equal 0, parser.search("#5 ~ p").size
+
+        assert_equal 1, parser.search("#3 + p").size
+        assert_equal "p4 ", parser.search("#3 + p").inner_text
+        assert_equal 0, parser.search("#5 + p").size
       end
 
       def assert_result_rows intarray, result, word="row"

@@ -134,6 +134,11 @@ module Nokogiri
                       @parser.parse("E ~ F")
       end
 
+      def test_direct_preceding_selector
+        assert_xpath  "//F[preceding-sibling::E][position()=1]",
+                      @parser.parse("E + F")
+      end
+
       def test_attribute
         assert_xpath  "//h1[child::a = 'Tender Lovemaking']",
                       @parser.parse("h1[a='Tender Lovemaking']")

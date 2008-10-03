@@ -42,6 +42,13 @@ module Nokogiri
           ']'
       end
 
+      def visit_direct_adjacent_selector node
+         node.value.last.accept(self) +
+           '[preceding-sibling::' +
+           node.value.first.accept(self) +
+           '][position()=1]'
+      end
+
       def visit_id node
         node.value.first =~ /^#(.*)$/
         "@id = '#{$1}'"
