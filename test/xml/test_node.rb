@@ -15,7 +15,7 @@ module Nokogiri
           <a class='bazbar'>Awesome</a>
         </root>
         eoxml
-        set = xml.find_by_css('a[@class~="bar"]')
+        set = xml.css('a[@class~="bar"]')
         assert_equal 4, set.length
         assert_equal ['Bar'], set.map { |node| node.content }.uniq
       end
@@ -31,20 +31,20 @@ module Nokogiri
       def test_search_can_handle_xpath_and_css
         html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
         found = html.search('//div/a', 'div > p')
-        length = html.find_by_xpath('//div/a').length +
-          html.find_by_css('div > p').length
+        length = html.xpath('//div/a').length +
+          html.css('div > p').length
         assert_equal length, found.length
       end
 
       def test_find_by_xpath
         html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
-        found = html.find_by_xpath('//div/a')
+        found = html.xpath('//div/a')
         assert_equal 3, found.length
       end
 
       def test_find_by_css
         html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
-        found = html.find_by_css('div > a')
+        found = html.css('div > a')
         assert_equal 3, found.length
       end
 
@@ -143,6 +143,22 @@ module Nokogiri
         assert_equal set[0].to_xml, second.to_xml
       end
 
+      def test_namespace_as_hash
+        xml = Nokogiri::XML.parse(<<-eoxml)
+<root>
+ <car xmlns:part="http://general-motors.com/">
+  <part:tire>Michelin Model XGV</part:tire>
+ </car>
+ <bicycle xmlns:part="http://schwinn.com/">
+  <part:tire>I'm a bicycle tire!</part:tire>
+ </bicycle>
+</root>
+        eoxml
+
+        tires = xml.xpath('//bike:tire', {'bike' => 'http://schwinn.com/'})
+        assert_equal 1, tires.length
+      end
+
       def test_namespaces
         xml = Nokogiri::XML.parse(<<-EOF)
 <x xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
@@ -168,9 +184,9 @@ EOF
         assert namespaces.key?('xmlns:c')
         assert_equal 'http://bazz.com/', namespaces['xmlns:c']
 
-        assert_equal "hello a", xml.search("//a:div").first.inner_text
-        assert_equal "hello b", xml.search("//b:div").first.inner_text
-        assert_equal "hello c", xml.search("//c:div").first.inner_text
+        assert_equal "hello a", xml.search("//a:div", xml.namespaces).first.inner_text
+        assert_equal "hello b", xml.search("//b:div", xml.namespaces).first.inner_text
+        assert_equal "hello c", xml.search("//c:div", xml.namespaces).first.inner_text
       end
 
     end

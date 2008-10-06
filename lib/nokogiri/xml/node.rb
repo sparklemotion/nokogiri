@@ -32,20 +32,22 @@ module Nokogiri
         list
       end
 
-      def find(*paths)
-        find_by_xpath(*(paths.map { |path|
+      def search *paths
+        ns = paths.last.is_a?(Hash) ? paths.pop : {}
+        xpath(*(paths.map { |path|
           path =~ /^(\.\/|\/)/ ? path : CSS::Parser.parse(path).map { |ast|
             ast.to_xpath
           }
-        }.flatten.uniq))
+        }.flatten.uniq) + [ns])
       end
-      alias :search :find
-      alias :/ :find
+      alias :/ :search
 
-      def find_by_xpath *paths
+      def xpath *paths
+        ns = paths.last.is_a?(Hash) ? paths.pop : {}
+
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
-          ctx.register_namespaces(document.namespaces)
+          ctx.register_namespaces(ns)
           set = ctx.evaluate(path).node_set
           set.document = document
           document.decorate(set)
@@ -63,14 +65,14 @@ module Nokogiri
         end
       end
 
-      def find_by_css *rules
-        find_by_xpath(*(rules.map { |rule|
+      def css *rules
+        xpath(*(rules.map { |rule|
           CSS::Parser.parse(rule).map { |ast| ast.to_xpath }
         }.flatten.uniq))
       end
 
-      def at path
-        search("#{path}").first
+      def at path, ns = {}
+        search("#{path}", ns).first
       end
 
       def [](property)
@@ -156,10 +158,6 @@ module Nokogiri
         }.compact.join(' > ')
       end
 
-      def xpath
-        path
-      end
-
       #  recursively get all namespaces from this node and its subtree
       def collect_namespaces
         # TODO: print warning message if a prefix refers to more than one URI in the document?
@@ -168,6 +166,8 @@ module Nokogiri
         ns
       end
 
+      ####
+      # Yields self and all children to +block+ recursively.
       def traverse(&block)
         children.each{|j| j.traverse(&block) }
         block.call(self)

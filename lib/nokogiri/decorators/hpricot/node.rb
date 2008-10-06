@@ -2,10 +2,20 @@ module Nokogiri
   module Decorators
     module Hpricot
       module Node
-        def search path
-          super(*convert_to_xpath(path))
+        def search *paths
+          ns = paths.last.is_a?(Hash) ? paths.pop : {}
+          converted = paths.map { |path|
+            convert_to_xpath(path)
+          }.flatten.uniq
+
+          super(*converted + [document.namespaces.merge(ns)])
         end
         def /(path); search(path) end
+
+        def xpath *args
+          return super if args.length > 0
+          path
+        end
 
         def raw_attributes; self end
 

@@ -7,6 +7,23 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_nodeset_search_takes_namespace
+        @xml = Nokogiri::XML.parse(<<-eoxml)
+<root>
+ <car xmlns:part="http://general-motors.com/">
+  <part:tire>Michelin Model XGV</part:tire>
+ </car>
+ <bicycle xmlns:part="http://schwinn.com/">
+  <part:tire>I'm a bicycle tire!</part:tire>
+ </bicycle>
+</root>
+        eoxml
+        set = @xml/'root'
+        assert_equal 1, set.length
+        bike_tire = set.search('//bike:tire', 'bike' => "http://schwinn.com/")
+        assert_equal 1, bike_tire.length
+      end
+
       def test_new_nodeset
         node_set = Nokogiri::XML::NodeSet.new
         assert_equal(0, node_set.length)

@@ -29,11 +29,11 @@ module Nokogiri
         push(node)
       end
 
-      def search path
+      def search *paths
         sub_set = NodeSet.new
         document.decorate(sub_set)
         each do |node|
-          node.search(path).each do |sub_node|
+          node.search(*paths).each do |sub_node|
             sub_set << sub_node
           end
         end
@@ -41,9 +41,11 @@ module Nokogiri
         sub_set
       end
       alias :/ :search
+      alias :xpath :search
+      alias :css :search
 
-      def at path
-        search(path).first
+      def at path, ns = {}
+        search(path, ns).first
       end
 
       def add_class name
