@@ -39,10 +39,16 @@ class TestPreserved < Nokogiri::TestCase
   #  end
   #end
 
-  def test_escaping_of_contents
-    doc = Nokogiri.Hpricot(TestFiles::BOINGBOING)
-    assert_equal "Fukuda&#x2019;s Automatic Door opens around your body as you pass through it. The idea is to save energy and keep the room clean.", doc.at("img[@alt='200606131240']").next.to_s.strip
-  end
+  # Not really a valid test.  If libxml can figure out the encoding of the file,
+  # it will use that encoding, otherwise it uses the &#xwhatever so that no data
+  # is lost.
+  #
+  # libxml on OSX can't figure out the encoding, so this tests passes.  linux
+  # can figure out the encoding, so it fails.
+  #def test_escaping_of_contents
+  #  doc = Nokogiri.Hpricot(TestFiles::BOINGBOING)
+  #  assert_equal "Fukuda&#x2019;s Automatic Door opens around your body as you pass through it. The idea is to save energy and keep the room clean.", doc.at("img[@alt='200606131240']").next.to_s.strip
+  #end
 
   ####
   # Modified.  No.
