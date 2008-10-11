@@ -141,12 +141,12 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   if(name == Qnil) return Qnil;
   name = StringValue(name) ;
 
-  value = xmlTextReaderGetAttribute(reader, (xmlChar*)RSTRING(name)->ptr );
+  value = xmlTextReaderGetAttribute(reader, (xmlChar*)StringValuePtr(name));
   if(value == NULL) {
     /* this section is an attempt to workaround older versions of libxml that
        don't handle namespaces properly in all attribute-and-friends functions */
     xmlChar *prefix = NULL ;
-    xmlChar *localname = xmlSplitQName2((xmlChar*)RSTRING(name)->ptr, &prefix);
+    xmlChar *localname = xmlSplitQName2((xmlChar*)StringValuePtr(name), &prefix);
     if (localname != NULL) {
       value = xmlTextReaderLookupNamespace(reader, localname);
       free(localname) ;
@@ -374,8 +374,8 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
   if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
 
   xmlTextReaderPtr reader = xmlReaderForMemory(
-      RSTRING(rb_buffer)->ptr,
-      RSTRING(rb_buffer)->len,
+      StringValuePtr(rb_buffer),
+      NUM2INT(rb_funcall(rb_buffer, rb_intern("length"), 0)),
       c_url,
       c_encoding,
       c_options

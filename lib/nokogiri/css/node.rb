@@ -88,7 +88,7 @@ module Nokogiri
       end
 
       def to_a
-        [@type] + @value.map { |n| n.to_a }
+        [@type] + @value.map { |n| n.respond_to?(:to_a) ? n.to_a : [n] }
       end
     end
   end

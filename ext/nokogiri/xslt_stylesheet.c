@@ -62,7 +62,9 @@ static VALUE apply_to(int argc, VALUE* argv, VALUE self)
     param_len = RARRAY_LEN(paramobj);
     params = calloc((size_t)param_len+1, sizeof(char*));
     for (j = 0 ; j < param_len ; j++) {
-        params[j] = RSTRING(rb_ary_entry(paramobj, j))->ptr ;
+      VALUE entry = rb_ary_entry(paramobj, j);
+      const char * ptr = StringValuePtr(entry);
+      params[j] = ptr;
     }
     params[param_len] = 0 ;
 
