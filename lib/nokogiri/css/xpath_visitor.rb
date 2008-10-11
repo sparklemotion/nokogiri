@@ -74,12 +74,7 @@ module Nokogiri
         when '*='
           "contains(#{attribute}, #{value})"
         when '~='
-          [ "#{attribute} = #{value}",
-            "starts-with(#{attribute}, concat(#{value}, \" \"))",
-            "contains(#{attribute}, concat(\" \", #{value}, \" \"))",
-            "(substring(#{attribute}, string-length(#{attribute}) - " +
-              "string-length(#{value}), string-length(#{value}) + 1) = concat(\" \", #{value}))"
-          ].join(' or ')
+          "contains(concat(\" \", #{attribute}, \" \"),concat(\" \", #{value}, \" \"))"
         when '$='
           "substring(#{attribute}, string-length(#{attribute}) - " +
             "string-length(#{value}) + 1, string-length(#{value})) = #{value}"

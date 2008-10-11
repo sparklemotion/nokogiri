@@ -123,9 +123,10 @@ module Nokogiri
         remove(name)
       end
 
-      def inner_text
+      def text
         content
       end
+      alias :inner_text :text
 
       ####
       # Set the content to +string+.

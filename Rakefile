@@ -24,6 +24,8 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
   ]
+  p.spec_extras = { :extensions => ["Rakefile"] }
+  p.extra_deps = ["rake"]
 end
 
 namespace :gem do

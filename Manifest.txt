@@ -21,6 +21,8 @@ ext/nokogiri/xml_reader.c
 ext/nokogiri/xml_reader.h
 ext/nokogiri/xml_sax_parser.c
 ext/nokogiri/xml_sax_parser.h
+ext/nokogiri/xml_syntax_error.c
+ext/nokogiri/xml_syntax_error.h
 ext/nokogiri/xml_text.c
 ext/nokogiri/xml_text.h
 ext/nokogiri/xml_xpath.c
@@ -61,6 +63,7 @@ lib/nokogiri/xml/reader.rb
 lib/nokogiri/xml/sax.rb
 lib/nokogiri/xml/sax/document.rb
 lib/nokogiri/xml/sax/parser.rb
+lib/nokogiri/xml/syntax_error.rb
 lib/nokogiri/xml/text.rb
 lib/nokogiri/xml/xpath.rb
 lib/nokogiri/xml/xpath_context.rb
