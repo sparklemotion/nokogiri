@@ -52,8 +52,9 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
 end
 
 task 'ext/nokogiri/Makefile' do
+  dash_i = ENV['CROSSLIB'] ? " -I #{ENV['CROSSLIB']}" : ''
   Dir.chdir('ext/nokogiri') do
-    ruby 'extconf.rb'
+    ruby " #{dash_i} extconf.rb"
   end
 end
 

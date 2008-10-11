@@ -1,8 +1,8 @@
 #include <xslt_stylesheet.h>
 
-#include "libxslt/xsltInternals.h"
-#include "libxslt/xsltutils.h"
-#include "libxslt/transform.h"
+#include <libxslt/xsltInternals.h>
+#include <libxslt/xsltutils.h>
+#include <libxslt/transform.h>
 
 static void dealloc(xsltStylesheetPtr doc)
 {

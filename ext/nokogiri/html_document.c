@@ -1,10 +1,5 @@
 #include <html_document.h>
 
-static void dealloc(xmlDocPtr doc)
-{
-  xmlFreeDoc(doc);
-}
-
 /*
  * call-seq:
  *  serialize

@@ -340,7 +340,7 @@ static VALUE state(VALUE self)
  *
  * Move the Reader forward through the XML document.
  */
-static VALUE read(VALUE self)
+static VALUE read_more(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
@@ -399,7 +399,7 @@ void init_xml_reader()
   cNokogiriXmlReader = klass;
 
   rb_define_singleton_method(klass, "from_memory", from_memory, -1);
-  rb_define_method(klass, "read", read, 0);
+  rb_define_method(klass, "read", read_more, 0);
   rb_define_method(klass, "state", state, 0);
   rb_define_method(klass, "name", name, 0);
   rb_define_method(klass, "local_name", local_name, 0);

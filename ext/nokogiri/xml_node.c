@@ -27,7 +27,7 @@ static VALUE encode_special_chars(VALUE self, VALUE string)
  *
  * Copy this node
  */
-static VALUE dup(VALUE self)
+static VALUE duplicate_node(VALUE self)
 {
   xmlNodePtr node, dup;
   Data_Get_Struct(self, xmlNode, node);
@@ -581,7 +581,7 @@ void init_xml_node()
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
   rb_define_method(klass, "to_xml", to_xml, 0);
-  rb_define_method(klass, "dup", dup, 0);
+  rb_define_method(klass, "dup", duplicate_node, 0);
 
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
