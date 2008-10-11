@@ -19,7 +19,7 @@ module Nokogiri
       end
 
       def namespaces
-        root.collect_namespaces
+        root ? root.collect_namespaces : {}
       end
     end
   end

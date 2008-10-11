@@ -7,6 +7,17 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_search_on_empty_documents
+        doc = Nokogiri::XML::Document.new
+        ns = doc.search('//foo')
+        assert_equal 0, ns.length
+      end
+
+      def test_new_document_collect_namespaces
+        doc = Nokogiri::XML::Document.new
+        assert_equal({}, doc.collect_namespaces)
+      end
+
       def test_find_with_namespace
         doc = Nokogiri::XML.parse(<<-eoxml)
         <x xmlns:tenderlove='http://tenderlovemaking.com/'>

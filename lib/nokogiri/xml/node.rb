@@ -45,6 +45,8 @@ module Nokogiri
       def xpath *paths
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
 
+        return NodeSet.new unless document.root
+
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
