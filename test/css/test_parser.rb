@@ -54,7 +54,7 @@ module Nokogiri
 
       def test_carrot
         assert_xpath  "//a[starts-with(@id, 'Boing')]",
-                      @parser.parse("a[@id^='Boing']")
+                      @parser.parse("a[id^='Boing']")
       end
 
       def test_attributes_with_at
@@ -145,7 +145,7 @@ module Nokogiri
       end
 
       def test_attribute
-        assert_xpath  "//h1[child::a = 'Tender Lovemaking']",
+        assert_xpath  "//h1[@a = 'Tender Lovemaking']",
                       @parser.parse("h1[a='Tender Lovemaking']")
       end
 
