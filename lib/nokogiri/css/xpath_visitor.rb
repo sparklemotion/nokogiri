@@ -73,6 +73,8 @@ module Nokogiri
         case node.value[1]
         when '*='
           "contains(#{attribute}, #{value})"
+        when '^='
+          "starts-with(#{attribute}, #{value})"
         when '~='
           "contains(concat(\" \", #{attribute}, \" \"),concat(\" \", #{value}, \" \"))"
         when '$='

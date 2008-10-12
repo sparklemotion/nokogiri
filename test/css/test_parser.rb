@@ -52,6 +52,11 @@ module Nokogiri
                       @parser.parse("a:nth-child(2)")
       end
 
+      def test_carrot
+        assert_xpath  "//a[starts-with(@id, 'Boing')]",
+                      @parser.parse("a[@id^='Boing']")
+      end
+
       def test_attributes_with_at
         ## This is non standard CSS
         assert_xpath  "//a[@id = 'Boing']",
