@@ -75,6 +75,8 @@ module Nokogiri
           "contains(#{attribute}, #{value})"
         when '^='
           "starts-with(#{attribute}, #{value})"
+        when '|='
+          "#{attribute} = #{value} or starts-with(#{attribute}, concat(#{value}, '-'))"
         when '~='
           "contains(concat(\" \", #{attribute}, \" \"),concat(\" \", #{value}, \" \"))"
         when '$='
