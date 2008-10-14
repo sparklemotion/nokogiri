@@ -7,6 +7,19 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_HTML_function
+        html = Nokogiri::HTML(File.read(HTML_FILE))
+        assert html.html?
+      end
+
+      def test_parse_can_take_io
+        html = nil
+        File.open(HTML_FILE, 'rb') { |f|
+          html = Nokogiri::HTML(f)
+        }
+        assert html.html?
+      end
+
       def test_html?
         assert !@html.xml?
         assert @html.html?

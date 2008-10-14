@@ -2,10 +2,21 @@ require 'nokogiri/html/document'
 require 'nokogiri/html/sax/parser'
 
 module Nokogiri
+  class << self
+    def HTML thing, url = nil, encoding = nil, options = 32
+      Nokogiri::HTML.parse(thing, url, encoding, options)
+    end
+  end
+
   module HTML
     class << self
-      def parse(string, url = nil, encoding = nil, options = 32)
-        Document.read_memory(string, url, encoding, options)
+      def parse string_or_io, url = nil, encoding = nil, options = 32
+        if string_or_io.respond_to?(:read)
+          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+          string_or_io = string_or_io.read
+        end
+
+        Document.read_memory(string_or_io, url, encoding, options)
       end
     end
 

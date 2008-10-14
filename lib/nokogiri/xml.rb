@@ -12,11 +12,24 @@ require 'nokogiri/xml/reader'
 require 'nokogiri/xml/syntax_error'
 
 module Nokogiri
+  class << self
+    def XML thing, url = nil, encoding = nil, options = 1
+      Nokogiri::XML.parse(thing, url, encoding, options)
+    end
+  end
+
   module XML
     class << self
-      def parse(string, url = nil, encoding = nil, options = 1)
-        return Document.new if string.nil? or string.empty? # read_memory pukes on empty docs
-        Document.read_memory(string, url, encoding, options)
+      def parse string_or_io, url = nil, encoding = nil, options = 1
+        if string_or_io.respond_to?(:read)
+          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+          string_or_io = string_or_io.read
+        end
+
+        # read_memory pukes on empty docs
+        return Document.new if string_or_io.nil? or string_or_io.empty?
+
+        Document.read_memory(string_or_io, url, encoding, options)
       end
 
       def substitute_entities=(value = true)

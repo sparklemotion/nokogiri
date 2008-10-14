@@ -7,6 +7,19 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_XML_function
+        xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+        assert xml.xml?
+      end
+
+      def test_parse_can_take_io
+        xml = nil
+        File.open(XML_FILE, 'rb') { |f|
+          xml = Nokogiri::XML(f)
+        }
+        assert xml.xml?
+      end
+
       def test_search_on_empty_documents
         doc = Nokogiri::XML::Document.new
         ns = doc.search('//foo')

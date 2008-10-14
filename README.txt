@@ -4,23 +4,55 @@
 
 == DESCRIPTION:
 
-FIX (describe your package)
+Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.
 
-== FEATURES/PROBLEMS:
+== FEATURES:
 
-* FIX (list of features or problems)
+* XPath support for document searching
+* CSS3 selector support for document searching
+* XML/HTML builder
+* Drop in replacement for Hpricot
+
+Nokogiri parses and searches XML/HTML faster than Hpricot, and also has
+correctly implemented CSS3 selector support as well as XPath support.
+
+Nokogiri also features an Hpricot compatibility layer to help ease the change
+to using correct CSS and XPath.
 
 == SYNOPSIS:
 
-  FIX (code sample of usage)
+  require 'nokogiri'
+  require 'open-uri'
+  
+  doc = Nokogiri::HTML(open('http://www.google.com/search?q=tenderlove'))
+  
+  ####
+  # Search for nodes by css
+  doc.css('h3.r a.l').each do |link|
+    puts link.content
+  end
+  
+  ####
+  # Search for nodes by xpath
+  doc.xpath('//h3/a[@class="l"]').each do |link|
+    puts link.content
+  end
+  
+  ####
+  # Or mix and match.
+  doc.search('h3.r a.l', '//h3/a[@class="l"]').each do |link|
+    puts link.content
+  end
+
 
 == REQUIREMENTS:
 
-* FIX (list of requirements)
+* ruby 1.8 or 1.9
+* libxml
 
 == INSTALL:
 
-* FIX (sudo gem install, anything else)
+* sudo gem install nokogiri
 
 == LICENSE:
 

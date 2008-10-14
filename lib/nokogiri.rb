@@ -23,10 +23,6 @@ module Nokogiri
       doc
     end
 
-    def XML(string)
-      Nokogiri::XML.parse(string)
-    end
-
     def make(input = nil, opts = {}, &blk)
       if input
         Nokogiri::XML::Node.new_from_str(input)
