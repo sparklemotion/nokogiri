@@ -115,7 +115,7 @@ static VALUE level(VALUE self)
 {
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
-  return INT2NUM(error->level);
+  return INT2NUM((short)error->level);
 }
 
 /*
