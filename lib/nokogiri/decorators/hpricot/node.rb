@@ -8,7 +8,8 @@ module Nokogiri
             convert_to_xpath(path)
           }.flatten.uniq
 
-          super(*converted + [document.namespaces.merge(ns)])
+          namespaces = document.xml? ? document.namespaces.merge(ns) : ns
+          super(*converted + [namespaces])
         end
         def /(path); search(path) end
 
