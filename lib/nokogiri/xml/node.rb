@@ -121,10 +121,6 @@ module Nokogiri
         self[name] = value
       end
 
-      def remove_attribute name
-        remove(name)
-      end
-
       def text
         content
       end

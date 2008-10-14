@@ -154,7 +154,7 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 
 /*
  *  call-seq:
- *    remove(property)
+ *    remove_attribute(property)
  *
  *  remove the property +property+
  */
@@ -574,7 +574,7 @@ void init_xml_node()
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
-  rb_define_method(klass, "remove", remove_prop, 1);
+  rb_define_method(klass, "remove_attribute", remove_prop, 1);
   rb_define_method(klass, "attributes", attributes, 0);
   rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
