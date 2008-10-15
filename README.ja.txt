@@ -2,7 +2,7 @@
 
 * http://github.com/tenderlove/nokogiri/tree/master
 
-== 描写:
+== DESCRIPTION:
 
 Nokogiri はHTMLやXMLやSAXやReaderのパーサーです。
 
@@ -11,3 +11,6 @@ Nokogiri はHTMLやXMLやSAXやReaderのパーサーです。
 * XPath で探せる
 * CSS3 のセレクターで探せる
 * XML/HTMLのビルダーはある
+
+NokogiriはHpricotより早くパーサーし、検索出来る
+Nokogiriは正確にCSS3とXPathをサポート出来る
