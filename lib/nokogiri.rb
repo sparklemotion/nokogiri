@@ -12,18 +12,18 @@ module Nokogiri
   class << self
     attr_accessor :error_handler
 
-    def parse(string, url = nil, encoding = nil, options = 32)
+    def parse string, url = nil, encoding = nil, options = nil
       doc =
         if string =~ /^\s*<[^Hh>]*html/i # Probably html
-          Nokogiri::HTML.parse(string, url, encoding, options)
+          Nokogiri::HTML.parse(string, url, encoding, options || 2145)
         else
-          Nokogiri::XML.parse(string, url, encoding, options)
+          Nokogiri::XML.parse(string, url, encoding, options || 2159)
         end
       yield doc if block_given?
       doc
     end
 
-    def make(input = nil, opts = {}, &blk)
+    def make input = nil, opts = {}, &blk
       if input
         Nokogiri::XML::Node.new_from_str(input)
       else

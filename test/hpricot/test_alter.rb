@@ -29,7 +29,7 @@ class TestAlter < Nokogiri::TestCase
   def test_add_class
     first_p = (@basic/"p:first").add_class("testing123")
     assert first_p[0].get_attribute("class").split(" ").include?("testing123")
-    assert (Nokogiri.Hpricot(@basic.to_html)/"p:first")[0].attributes["class"].split(" ").include?("testing123")
+    assert((Nokogiri.Hpricot(@basic.to_html)/"p:first")[0].attributes["class"].split(" ").include?("testing123"))
     ####
     # Modified.  We do not support OB1 bug.
     assert !(Nokogiri.Hpricot(@basic.to_html)/"p:gt(1)")[0].attributes["class"].split(" ").include?("testing123")

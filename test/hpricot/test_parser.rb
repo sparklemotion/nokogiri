@@ -417,7 +417,7 @@ class TestParser < Nokogiri::TestCase
     </a>
     END
     doc = Hpricot::XML(chunk)
-    assert (doc/"//t:sam").size > 0 # at least this should probably work
+    assert((doc/"//t:sam").size > 0) # at least this should probably work
     # assert (doc/"//sam").size > 0  # this would be nice 
   end
 end

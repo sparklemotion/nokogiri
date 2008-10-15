@@ -19,8 +19,26 @@ module Nokogiri
   end
 
   module XML
+    # Parser options
+    PARSE_RECOVER     = 1 << 0  # Recover from errors
+    PARSE_NOENT       = 1 << 1  # Substitute entities
+    PARSE_DTDLOAD     = 1 << 2  # Load external subsets
+    PARSE_DTDATTR     = 1 << 3  # Default DTD attributes
+    PARSE_DTDVALID    = 1 << 4  # validate with the DTD
+    PARSE_NOERROR     = 1 << 5  # suppress error reports
+    PARSE_NOWARNING   = 1 << 6  # suppress warning reports
+    PARSE_PEDANTIC    = 1 << 7  # pedantic error reporting
+    PARSE_NOBLANKS    = 1 << 8  # remove blank nodes
+    PARSE_SAX1        = 1 << 9  # use the SAX1 interface internally
+    PARSE_XINCLUDE    = 1 << 10 # Implement XInclude substitition
+    PARSE_NONET       = 1 << 11 # Forbid network access
+    PARSE_NODICT      = 1 << 12 # Do not reuse the context dictionnary
+    PARSE_NSCLEAN     = 1 << 13 # remove redundant namespaces declarations
+    PARSE_NOCDATA     = 1 << 14 # merge CDATA as text nodes
+    PARSE_NOXINCNODE  = 1 << 15 # do not generate XINCLUDE START/END nodes
+
     class << self
-      def parse string_or_io, url = nil, encoding = nil, options = 1
+      def parse string_or_io, url = nil, encoding = nil, options = 2159
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
           string_or_io = string_or_io.read

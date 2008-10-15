@@ -3,14 +3,21 @@ require 'nokogiri/html/sax/parser'
 
 module Nokogiri
   class << self
-    def HTML thing, url = nil, encoding = nil, options = 32
+    def HTML thing, url = nil, encoding = nil, options = 2145
       Nokogiri::HTML.parse(thing, url, encoding, options)
     end
   end
 
   module HTML
+    # Parser options
+    PARSE_NOERROR   = 1 << 5  # No error reports
+    PARSE_NOWARNING = 1 << 6  # No warnings 
+    PARSE_PEDANTIC  = 1 << 7  # Pedantic errors
+    PARSE_NOBLANKS  = 1 << 8  # Remove blanks nodes
+    PARSE_NONET     = 1 << 11 # No network access
+
     class << self
-      def parse string_or_io, url = nil, encoding = nil, options = 32
+      def parse string_or_io, url = nil, encoding = nil, options = 2145
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
           string_or_io = string_or_io.read
