@@ -162,24 +162,24 @@ module Nokogiri
         assert_xpath "//a[1 = 1]", @parser.parse('a:visited')
         assert_xpath "//a[1 = 1]", @parser.parse('a:hover')
         assert_xpath "//a[1 = 1]", @parser.parse('a:active')
-        assert_xpath  "//a[1 = 1 and contains(@class, 'foo')]",
+        assert_xpath  "//a[1 = 1 and contains(concat(' ', @class, ' '),concat(' ', 'foo', ' '))]",
                       @parser.parse('a:active.foo')
       end
 
       def test_star
         assert_xpath "//*", @parser.parse('*')
-        assert_xpath "//*[contains(@class, 'pastoral')]",
+        assert_xpath "//*[contains(concat(' ', @class, ' '),concat(' ', 'pastoral', ' '))]",
                       @parser.parse('*.pastoral')
       end
 
       def test_class
-        assert_xpath  "//*[contains(@class, 'a') and contains(@class, 'b')]",
+        assert_xpath  "//*[contains(concat(' ', @class, ' '),concat(' ', 'a', ' ')) and contains(concat(' ', @class, ' '),concat(' ', 'b', ' '))]",
                       @parser.parse('.a.b')
-        assert_xpath  "//*[contains(@class, 'awesome')]",
+        assert_xpath  "//*[contains(concat(' ', @class, ' '),concat(' ', 'awesome', ' '))]",
                       @parser.parse('.awesome')
-        assert_xpath  "//foo[contains(@class, 'awesome')]",
+        assert_xpath  "//foo[contains(concat(' ', @class, ' '),concat(' ', 'awesome', ' '))]",
                       @parser.parse('foo.awesome')
-        assert_xpath  "//foo//*[contains(@class, 'awesome')]",
+        assert_xpath  "//foo//*[contains(concat(' ', @class, ' '),concat(' ', 'awesome', ' '))]",
                       @parser.parse('foo .awesome')
       end
 

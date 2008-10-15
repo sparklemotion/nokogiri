@@ -106,7 +106,7 @@ module Nokogiri
       end
 
       def visit_class_condition node
-        "contains(@class, '#{node.value.first}')"
+        "contains(concat(' ', @class, ' '),concat(' ', '#{node.value.first}', ' '))"
       end
 
       def visit_combinator node

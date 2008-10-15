@@ -1,5 +1,6 @@
 History.txt
 Manifest.txt
+README.ja.txt
 README.txt
 Rakefile
 ext/nokogiri/extconf.rb
@@ -73,6 +74,7 @@ nokogiri.gemspec
 test/css/test_nthiness.rb
 test/css/test_parser.rb
 test/css/test_tokenizer.rb
+test/css/test_xpath_visitor.rb
 test/files/staff.xml
 test/files/staff.xslt
 test/files/tlm.html

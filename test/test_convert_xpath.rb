@@ -83,11 +83,11 @@ class TestConvertXPath < Nokogiri::TestCase
   end
 
   def test_css_class
-    assert_syntactical_equivalence(".cat-item-15", ".//*[contains(@class, 'cat-item-15')]",
+    assert_syntactical_equivalence(".cat-item-15", ".//*[contains(concat(' ', @class, ' '),concat(' ', 'cat-item-15', ' '))]",
                                    "cat-item cat-item-15") do |j|
       j.first["class"]
     end
-    assert_syntactical_equivalence("li.cat-item-15", ".//li[contains(@class, 'cat-item-15')]",
+    assert_syntactical_equivalence("li.cat-item-15", ".//li[contains(concat(' ', @class, ' '),concat(' ', 'cat-item-15', ' '))]",
                                    "cat-item cat-item-15") do |j|
       j.first["class"]
     end
