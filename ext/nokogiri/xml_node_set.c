@@ -66,7 +66,9 @@ static void gc_mark(xmlNodeSetPtr node_set)
 
 static void deallocate(xmlNodeSetPtr node_set)
 {
+  NOKOGIRI_DEBUG_START(node_set) ;
   xmlXPathFreeNodeSet(node_set);
+  NOKOGIRI_DEBUG_END(node_set) ;
 }
 
 static VALUE allocate(VALUE klass)

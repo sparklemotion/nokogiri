@@ -469,7 +469,9 @@ static void deallocate(xmlNodePtr node)
 {
   if (node && !node->doc) {
     node->_private = NULL;
+    NOKOGIRI_DEBUG_START(node);
     xmlFreeNode(node);
+    NOKOGIRI_DEBUG_END(node);
   }
 }
 

@@ -31,4 +31,12 @@ extern VALUE mNokogiriHtml ;
 extern VALUE mNokogiriHtmlSax ;
 extern VALUE mNokogiriXslt ;
 
+#ifdef DEBUG
+#define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);
+#define NOKOGIRI_DEBUG_END(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p end\n", __FILE__, __LINE__, p);
+#else
+#define NOKOGIRI_DEBUG_START(p)
+#define NOKOGIRI_DEBUG_END(p)
+#endif
+
 #endif

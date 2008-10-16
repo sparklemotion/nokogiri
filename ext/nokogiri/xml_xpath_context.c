@@ -2,7 +2,9 @@
 
 static void deallocate(xmlXPathContextPtr ctx)
 {
+  NOKOGIRI_DEBUG_START(ctx);
   xmlXPathFreeContext(ctx);
+  NOKOGIRI_DEBUG_END(ctx);
 }
 
 /*

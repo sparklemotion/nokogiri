@@ -134,7 +134,9 @@ static void cdata_block(void * ctx, const xmlChar * value, int len)
 
 static void deallocate(xmlSAXHandlerPtr handler)
 {
+  NOKOGIRI_DEBUG_START(handler);
   free(handler);
+  NOKOGIRI_DEBUG_END(handler);
 }
 
 static VALUE allocate(VALUE klass)

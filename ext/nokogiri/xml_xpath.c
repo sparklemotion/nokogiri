@@ -2,7 +2,9 @@
 
 static void deallocate(xmlXPathObjectPtr xpath)
 {
+  NOKOGIRI_DEBUG_START(xpath);
   xmlXPathFreeNodeSetList(xpath); // despite the name, this frees the xpath but not the contained node set
+  NOKOGIRI_DEBUG_END(xpath);
 }
 
 VALUE Nokogiri_wrap_xml_xpath(xmlXPathObjectPtr xpath)

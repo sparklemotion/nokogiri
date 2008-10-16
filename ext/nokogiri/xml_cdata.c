@@ -2,7 +2,11 @@
 
 static void dealloc(xmlNodePtr node)
 {
-  if(node->doc == NULL) xmlFreeNode(node);
+  if (node->doc == NULL) {
+    NOKOGIRI_DEBUG_START(node);
+    xmlFreeNode(node);
+    NOKOGIRI_DEBUG_END(node);
+  }
 }
 
 static VALUE new(VALUE klass, VALUE doc, VALUE content)

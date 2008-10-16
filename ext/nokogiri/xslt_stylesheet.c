@@ -6,7 +6,9 @@
 
 static void dealloc(xsltStylesheetPtr doc)
 {
+    NOKOGIRI_DEBUG_START(doc);
     xsltFreeStylesheet(doc); // commented out for now.
+    NOKOGIRI_DEBUG_END(doc);
 }
 
 static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)

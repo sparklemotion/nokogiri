@@ -19,7 +19,9 @@ static void gc_mark(xmlNodePtr doc)
 
 static void dealloc(xmlDocPtr doc)
 {
+  NOKOGIRI_DEBUG_START(doc);
   xmlFreeDoc(doc);
+  NOKOGIRI_DEBUG_END(doc);
 }
 
 /*
