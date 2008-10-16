@@ -20,6 +20,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.clean_globs = [
     'ext/nokogiri/Makefile',
     'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
+    '*.{dll}',
     'ext/nokogiri/conftest.dSYM',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
@@ -115,7 +116,7 @@ namespace :build do
     dlls = Dir[File.join(File.dirname(__FILE__), 'cross', '**/*.dll')]
     dlls.each do |dll|
       next if dll =~ /ruby/
-      cp dll, 'ext/nokogiri'
+      cp dll, '.'
     end
   end
 
