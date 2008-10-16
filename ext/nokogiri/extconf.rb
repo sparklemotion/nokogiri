@@ -23,15 +23,25 @@ else
 end
 
 
-unless find_header('libxml/xmlversion.h', '/usr/include/libxml2')
-  abort "need libxml"
-end
-
 if Config::CONFIG['target_os'] == 'mingw32'
-  unless find_header('libxslt/xslt.h', ENV['HOME'] + '/cross/include')
+  header = File.join(ROOT, 'cross', 'libxml2-2.7.1.win32', 'include')
+  unless find_header('libxml/xmlversion.h', header)
+    abort "need libxml"
+  end
+
+  header = File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'include')
+  unless find_header('libxslt/libxslt.h', header)
     abort "need libxslt"
   end
+
+  header = File.join(ROOT, 'cross', 'iconv-1.9.2.win32', 'include')
+  unless find_header('iconv.h', header)
+    abort "need iconv"
+  end
 else
+  unless find_header('libxml/xmlversion.h', '/usr/include/libxml2')
+    abort "need libxml"
+  end
   unless find_header('libxslt/xslt.h', '/usr/include')
     abort "need libxslt"
   end
