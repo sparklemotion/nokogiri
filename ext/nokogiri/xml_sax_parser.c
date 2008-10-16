@@ -90,6 +90,7 @@ static void comment_func(void * ctx, const xmlChar * value)
   rb_funcall(doc, rb_intern("comment"), 1, str);
 }
 
+#ifndef XP_WIN
 static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
@@ -104,7 +105,9 @@ static void warning_func(void * ctx, const char *msg, ...)
   rb_funcall(doc, rb_intern("warning"), 1, rb_str_new2(message));
   free(message);
 }
+#endif
 
+#ifndef XP_WIN
 static void error_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
@@ -119,6 +122,7 @@ static void error_func(void * ctx, const char *msg, ...)
   rb_funcall(doc, rb_intern("error"), 1, rb_str_new2(message));
   free(message);
 }
+#endif
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
@@ -143,8 +147,15 @@ static VALUE allocate(VALUE klass)
   handler->endElement = end_element;
   handler->characters = characters_func;
   handler->comment = comment_func;
+#ifndef XP_WIN
+  /*
+   * The va*functions aren't in ming, and I don't want to deal with
+   * it right now.....
+   *
+   */
   handler->warning = warning_func;
   handler->error = error_func;
+#endif
   handler->cdataBlock = cdata_block;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);

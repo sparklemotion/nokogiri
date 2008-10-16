@@ -2,6 +2,8 @@ ENV["ARCHFLAGS"] = "-arch #{`uname -p` =~ /powerpc/ ? 'ppc' : 'i386'}"
 
 require 'mkmf'
 
+ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+
 if Config::CONFIG['target_os'] == 'mingw32'
   $CFLAGS << " -DXP_WIN -DXP_WIN32"
 else
@@ -10,8 +12,16 @@ end
 
 $CFLAGS << " -O3 -Wall -Wextra -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
-find_library('xml2', 'xmlParseDoc')
-find_library('xslt', 'xsltParseStylesheetDoc')
+if Config::CONFIG['target_os'] == 'mingw32'
+  find_library('xml2', 'xmlParseDoc',
+               File.join(ROOT, 'cross', 'libxml2-2.7.1.win32', 'bin'))
+  find_library('xslt', 'xsltParseStylesheetDoc',
+               File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
+else
+  find_library('xml2', 'xmlParseDoc')
+  find_library('xslt', 'xsltParseStylesheetDoc')
+end
+
 
 unless find_header('libxml/xmlversion.h', '/usr/include/libxml2')
   abort "need libxml"
