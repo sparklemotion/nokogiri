@@ -84,6 +84,11 @@ namespace :build do
           end
         end
         File.open('Makefile.in', 'wb') { |f| f.write str }
+        buildopts = if File.exists?('/usr/bin/i586-mingw32msvc-gcc')
+                      "--host=i586-mingw32msvc --target=i386-mingw32 --build=i686-linux"
+                    else
+                      "--host=i386-mingw32 --target=i386-mingw32"
+                    end
         sh(<<-eocommand)
           env ac_cv_func_getpgrp_void=no \
             ac_cv_func_setpgrp_void=yes \
@@ -91,8 +96,7 @@ namespace :build do
             ac_cv_func_memcmp_working=yes \
             rb_cv_binary_elf=no \
             ./configure \
-            --host=i386-mingw32 \
-            --target=i386-mingw32 \
+            #{buildopts} \
             --prefix=#{File.expand_path(File.join(Dir.pwd, '..'))}
         eocommand
         sh 'make'
