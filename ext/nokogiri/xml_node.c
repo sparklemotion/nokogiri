@@ -468,8 +468,7 @@ static VALUE new_from_str(VALUE klass, VALUE xml)
 static void deallocate(xmlNodePtr node)
 {
   if (node && !node->doc) {
-    node->_private = NULL;
-    NOKOGIRI_DEBUG_START(node);
+    NOKOGIRI_DEBUG_START_NODE(node);
     xmlFreeNode(node);
     NOKOGIRI_DEBUG_END(node);
   }

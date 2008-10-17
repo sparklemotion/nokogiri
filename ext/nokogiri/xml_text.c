@@ -3,7 +3,7 @@
 static void dealloc(xmlNodePtr node)
 {
   if (node->doc == NULL) {
-    NOKOGIRI_DEBUG_START(node);
+    NOKOGIRI_DEBUG_START_TEXT(node);
     xmlFreeNode(node);
     NOKOGIRI_DEBUG_END(node);
   }
