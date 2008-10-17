@@ -132,26 +132,39 @@ namespace :build do
   }
 
   libs.each do |lib|
-    file "cross/#{lib}" do |t|
+    file "stash/#{lib}.zip" do |t|
       puts "downloading #{lib}"
-      FileUtils.mkdir_p('cross')
-      Dir.chdir('cross') do
+      FileUtils.mkdir_p('stash')
+      Dir.chdir('stash') do 
         File.open("#{lib}.zip", 'wb') { |f|
           f.write open("http://www.zlatkovic.com/pub/libxml/#{lib}.zip").read
         }
-        sh "unzip #{lib}.zip"
+      end
+    end
+    file "cross/#{lib}" => ["stash/#{lib}.zip"] do |t|
+      puts "unzipping #{lib}.zip"
+      FileUtils.mkdir_p('cross')
+      Dir.chdir('cross') do
+        sh "unzip ../stash/#{lib}.zip"
+        sh "touch #{lib}"
       end
     end
   end
 
-  file 'cross/ruby-1.8.6-p287' do |t|
+  file "stash/ruby-1.8.6-p287.tar.gz" do |t|
     puts "downloading ruby"
-    FileUtils.mkdir_p('cross')
-    Dir.chdir('cross') do
+    FileUtils.mkdir_p('stash')
+    Dir.chdir('stash') do 
       File.open("ruby-1.8.6-p287.tar.gz", 'wb') { |f|
         f.write open("ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6-p287.tar.gz").read
       }
-      sh "tar zxvf ruby-1.8.6-p287.tar.gz"
+    end
+  end
+  file 'cross/ruby-1.8.6-p287' => ["stash/ruby-1.8.6-p287.tar.gz"] do |t|
+    puts "unzipping ruby"
+    FileUtils.mkdir_p('cross')
+    Dir.chdir('cross') do
+      sh "tar zxvf ../stash/ruby-1.8.6-p287.tar.gz"
     end
   end
 
