@@ -100,6 +100,8 @@ static VALUE replace(VALUE self, VALUE _new_node)
   Data_Get_Struct(_new_node, xmlNode, new_node);
 
   xmlReplaceNode(node, new_node);
+  Nokogiri_xml_node_owned_set(node);
+  Nokogiri_xml_node_owned_set(new_node);
   return self ;
 }
 
@@ -286,6 +288,7 @@ static VALUE set_parent(VALUE self, VALUE parent_node)
   Data_Get_Struct(parent_node, xmlNode, parent);
 
   xmlAddChild(parent, node);
+  Nokogiri_xml_node_owned_set(node);
   return parent_node;
 }
 
@@ -381,6 +384,7 @@ static VALUE add_next_sibling(VALUE self, VALUE rb_node)
   xmlAddNextSibling(node, new_sibling);
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
+  Nokogiri_xml_node_owned_set(new_sibling);
 
   return rb_node;
 }
@@ -399,6 +403,7 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
   xmlAddPrevSibling(node, new_sibling);
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
+  Nokogiri_xml_node_owned_set(new_sibling);
 
   return rb_node;
 }
@@ -438,6 +443,8 @@ static VALUE new(VALUE klass, VALUE name)
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
+  Nokogiri_xml_node_owned_set(node);
+
   return rb_node;
 }
 
@@ -467,7 +474,7 @@ static VALUE new_from_str(VALUE klass, VALUE xml)
 
 static void deallocate(xmlNodePtr node)
 {
-  if (node && !node->doc) {
+  if (! Nokogiri_xml_node_owned_get(node)) {
     NOKOGIRI_DEBUG_START_NODE(node);
     xmlFreeNode(node);
     NOKOGIRI_DEBUG_END(node);
@@ -487,6 +494,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
   VALUE rb_node = Data_Wrap_Struct(cNokogiriXmlNode, gc_mark_node, deallocate, node) ;
   node->_private = (void*)rb_node ;
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
+  Nokogiri_xml_node_owned_set(node);
   return rb_node ;
 }
 
@@ -543,6 +551,20 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 }
 
 
+void Nokogiri_xml_node_owned_set(xmlNodePtr node)
+{
+  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@owned"));
+  rb_hash_aset(hash, INT2NUM((long)node), node->doc ? Qtrue : Qfalse) ;
+}
+
+int Nokogiri_xml_node_owned_get(xmlNodePtr node)
+{
+  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@owned"));
+  VALUE q = rb_hash_aref(hash, INT2NUM((long)node)) ;
+  return q == Qtrue ? Qtrue : Qfalse ;
+}
+
+
 VALUE cNokogiriXmlNode ;
 void init_xml_node()
 {
@@ -586,4 +608,6 @@ void init_xml_node()
 
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
+
+  rb_define_class_variable(klass, "@@owned", rb_hash_new());
 }

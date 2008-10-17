@@ -58,6 +58,7 @@ static VALUE set_root(VALUE self, VALUE root)
   Data_Get_Struct(root, xmlNode, new_root);
 
   xmlDocSetRootElement(doc, new_root);
+  Nokogiri_xml_node_owned_set(new_root);
   return root;
 }
 
