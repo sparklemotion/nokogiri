@@ -9,35 +9,54 @@ module Nokogiri
         yield self if block_given?
       end
 
+      ###
+      # Get the first element of the NodeSet.
       def first
         self[0]
       end
 
+      ###
+      # Get the last element of the NodeSet.
       def last
         self[length - 1]
       end
 
+      ###
+      # Is this NodeSet empty?
       def empty?
         length == 0
       end
 
+      ###
+      # Insert +datum+ before the first Node in this NodeSet
       def before datum
         first.before datum
       end
 
+      ###
+      # Insert +datum+ after the last Node in this NodeSet
       def after datum
         last.after datum
       end
 
+      ###
+      # Append +node+ to the NodeSet.
       def << node
         push(node)
       end
 
+      ###
+      # Unlink this NodeSet and all Node objects it contains from their
+      # current context.
       def unlink
         each { |node| node.unlink }
+        self.document = nil
+        self
       end
       alias :remove :unlink
 
+      ###
+      # Search this document for +paths+
       def search *paths
         sub_set = NodeSet.new
         document.decorate(sub_set)
@@ -53,10 +72,16 @@ module Nokogiri
       alias :xpath :search
       alias :css :search
 
+      ###
+      # If path is a string, search this document for +path+ returning the
+      # first Node.  Otherwise, index in to the array with +path+.
       def at path, ns = {}
+        return self[path] if path.is_a?(Numeric)
         search(path, ns).first
       end
 
+      ###
+      # Append the class attribute +name+ to all Node objects in the NodeSet.
       def add_class name
         each do |el|
           next unless el.respond_to? :get_attribute
@@ -66,6 +91,8 @@ module Nokogiri
         self
       end
 
+      ###
+      # Remove the class attribute +name+ from all Node objects in the NodeSet.
       def remove_class name = nil
         each do |el|
           next unless el.respond_to? :get_attribute
@@ -79,6 +106,9 @@ module Nokogiri
         self
       end
 
+      ###
+      # Set the attribute +key+ to +value+ or the return value of +blk+
+      # on all Node objects in the NodeSet.
       def attr key, value = nil, &blk
         if value or blk
           each do |el|
@@ -95,6 +125,8 @@ module Nokogiri
       end
       alias_method :set, :attr
 
+      ###
+      # Remove the attributed named +name+ from all Node objects in the NodeSet
       def remove_attr name
         each do |el|
           next unless el.respond_to? :remove_attribute
@@ -113,11 +145,15 @@ module Nokogiri
         end
       end
 
+      ###
+      # Get the inner text of all contained Node objects
       def inner_text
         collect{|j| j.inner_text}.join('')
       end
       alias :text :inner_text
 
+      ###
+      # Wrap this NodeSet with +html+ or the results of the builder in +blk+
       def wrap(html, &blk)
         each do |j|
           new_parent = Nokogiri.make(html, &blk)

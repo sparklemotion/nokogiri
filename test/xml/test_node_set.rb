@@ -7,6 +7,26 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_length_size
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.length, node_set.size
+      end
+
+      def test_at
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first, node_set.at(0)
+      end
+
+      def test_push
+        node = Nokogiri::XML::Node.new('foo')
+        node.content = 'bar'
+
+        assert node_set = @xml.search('//employee')
+        node_set.push(node)
+
+        assert node_set.include?(node)
+      end
+
       def test_unlink
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
@@ -25,6 +45,7 @@ module Nokogiri
           assert !node.parent
           assert !node.document
         end
+        assert !set.document
         assert_no_match(/Hello world/, xml.to_s)
       end
 

@@ -15,10 +15,14 @@ module Nokogiri
 
       @@owned = {}
 
+      ###
+      # Decorate this node with the decorators set up in this node's Document
       def decorate!
         document.decorate(self) if document
       end
 
+      ###
+      # Get the list of children for this node as a NodeSet
       def children
         list = NodeSet.new
         list.document = document
@@ -34,6 +38,10 @@ module Nokogiri
         list
       end
 
+      ###
+      # Search this node for +paths+.  +paths+ can be XPath or CSS, and an
+      # optional hash of namespaces may be appended.
+      # See Node#xpath and Node#css.
       def search *paths
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
         xpath(*(paths.map { |path|
