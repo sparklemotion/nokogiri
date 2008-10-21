@@ -222,6 +222,12 @@ namespace :test do
     puts cmdline
     system cmdline
   end
+
+  desc "run test suite with aggressive GC"
+  task :gc => :build do
+    ENV['NOKOGIRI_GC'] = "true"
+    Rake::Task["test"].invoke
+  end
 end
 
 
