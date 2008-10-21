@@ -2,18 +2,15 @@
 
 /*
  *  note that xmlDocPtr is being cast as an xmlNodePtr, which is legal for the
- *  "common part" struct header which contains only node pointers. casting like
- *  this allows us to recurse through the tree with a single function.
+ *  "common part" struct header which contains only node pointers.
  */
-static void gc_mark(xmlNodePtr doc)
+static void gc_mark(xmlNodePtr node)
 {
-  xmlNodePtr j ;
-  j = doc->children ;
-  while (j != NULL) {
-    if (j->_private)
-      rb_gc_mark((VALUE)j->_private);
-    gc_mark(j); /* recurse */
-    j = j->next ;
+  xmlNodePtr child ;
+  /* mark children nodes */
+  for (child = node->children ; child ; child = child->next) {
+    if (child->_private)
+      rb_gc_mark((VALUE)child->_private);
   }
 }
 

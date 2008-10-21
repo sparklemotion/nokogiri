@@ -498,8 +498,23 @@ static void deallocate(xmlNodePtr node)
 
 static void gc_mark_node(xmlNodePtr node)
 {
+  xmlNodePtr child ;
+  /* mark document */
   if (node && node->doc && node->doc->_private)
     rb_gc_mark((VALUE)node->doc->_private);
+  /* mark parent node */
+  if (node && node->parent && node->parent->_private)
+    rb_gc_mark((VALUE)node->parent->_private);
+  /* mark children nodes */
+  for (child = node->children ; child ; child = child->next) {
+    if (child->_private)
+      rb_gc_mark((VALUE)child->_private);
+  }
+  /* mark sibling nodes */
+  if (node->next && node->next->_private)
+    rb_gc_mark((VALUE)node->next->_private) ;
+  if (node->prev && node->prev->_private)
+    rb_gc_mark((VALUE)node->prev->_private) ;
 }
 
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
