@@ -34,6 +34,11 @@ void init_xml_xpath(void)
 {
   VALUE module = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(module, "XML");
+
+  /*
+   * This class wraps an XPath object and should only be instantiated from
+   * XPathContext.
+   */
   VALUE klass = rb_define_class_under(xml, "XPath", rb_cObject);
 
   cNokogiriXmlXpath = klass;

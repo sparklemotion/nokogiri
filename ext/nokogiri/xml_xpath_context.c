@@ -44,6 +44,12 @@ static VALUE evaluate(VALUE self, VALUE search_path)
   return Nokogiri_wrap_xml_xpath(xpath);
 }
 
+/*
+ * call-seq:
+ *  new(node)
+ *
+ * Create a new XPathContext with +node+ as the reference point.
+ */
 static VALUE new(VALUE klass, VALUE nodeobj)
 {
   xmlXPathInit();
@@ -61,6 +67,10 @@ void init_xml_xpath_context(void)
 {
   VALUE module = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(module, "XML");
+
+  /*
+   * XPathContext is the entry point for searching a Document by using XPath.
+   */
   VALUE klass = rb_define_class_under(xml, "XPathContext", rb_cObject);
 
   cNokogiriXmlXpathContext = klass;

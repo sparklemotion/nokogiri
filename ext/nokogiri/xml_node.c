@@ -190,7 +190,7 @@ static VALUE remove_prop(VALUE self, VALUE property)
 }
 
 /*
- * call-seq
+ * call-seq:
  *   get(attribute)
  *
  * Get the value for +attribute+
@@ -208,7 +208,7 @@ static VALUE get(VALUE self, VALUE attribute)
 }
 
 /*
- *  call-seq
+ *  call-seq:
  *    attributes()
  *
  *  returns a hash containing the node's attributes.
@@ -228,7 +228,7 @@ static VALUE attributes(VALUE self)
 }
 
 /*
- *  call-seq
+ *  call-seq:
  *    namespaces()
  *
  *  returns a hash containing the node's namespaces.
@@ -450,7 +450,7 @@ static VALUE to_xml(VALUE self)
 
 
 /*
- * call-seq
+ * call-seq:
  *   new(name)
  *
  * Create a new node with +name+
@@ -469,7 +469,7 @@ static VALUE new(VALUE klass, VALUE name)
 
 
 /*
- * call-seq
+ * call-seq:
  *   new_from_str(string)
  *
  * Create a new node by parsing +string+

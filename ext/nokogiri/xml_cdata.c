@@ -9,6 +9,12 @@ static void dealloc(xmlNodePtr node)
   }
 }
 
+/*
+ * call-seq:
+ *  new(document, content)
+ *
+ * Create a new CData element on the +document+ with +content+
+ */
 static VALUE new(VALUE klass, VALUE doc, VALUE content)
 {
   xmlDocPtr xml_doc;
@@ -33,7 +39,13 @@ void init_xml_cdata()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
+
+  /*
+   * CData represents a CData node in an xml document.
+   */
   VALUE klass = rb_define_class_under(xml, "CData", cNokogiriXmlNode);
+
+
   cNokogiriXmlCData = klass;
 
   rb_define_singleton_method(klass, "new", new, 2);
