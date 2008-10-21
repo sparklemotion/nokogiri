@@ -23,23 +23,29 @@ module Nokogiri
       def test_unlink
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
-          <a>Hello world</a>
           <a class='foo bar'>Bar</a>
           <a class='bar foo'>Bar</a>
           <a class='bar'>Bar</a>
+          <a>Hello world</a>
           <a class='baz bar foo'>Bar</a>
           <a class='bazbarfoo'>Awesome</a>
           <a class='bazbar'>Awesome</a>
         </root>
         eoxml
-        node = xml.xpath('//a').first
+        node = xml.xpath('//a')[3]
         assert_equal('Hello world', node.text)
         assert_match(/Hello world/, xml.to_s)
         assert node.parent
         assert node.document
+        assert node.previous_sibling
+        assert node.next_sibling
+        assert node.instance_eval{ owned? }
         node.unlink
         assert !node.parent
-        assert !node.document
+        # assert !node.document # ugh. libxml doesn't clear node->doc pointer, due to xmlDict implementation.
+        assert !node.previous_sibling
+        assert !node.next_sibling
+        assert !node.instance_eval{ owned? }
         assert_no_match(/Hello world/, xml.to_s)
       end
 

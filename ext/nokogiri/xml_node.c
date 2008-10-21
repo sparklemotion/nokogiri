@@ -48,12 +48,8 @@ static VALUE unlink(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-
   xmlUnlinkNode(node);
-
-  /* For some reason, xmlUnlinkNode doesn't remove the doc pointer.  WTF? */
-  node->doc = NULL;
-
+  Nokogiri_xml_node_owned_set(node);
   return self;
 }
 
@@ -573,7 +569,7 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 void Nokogiri_xml_node_owned_set(xmlNodePtr node)
 {
   VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@owned"));
-  rb_hash_aset(hash, INT2NUM((long)node), node->doc ? Qtrue : Qfalse) ;
+  rb_hash_aset(hash, INT2NUM((long)node), node->parent ? Qtrue : Qfalse) ;
 }
 
 int Nokogiri_xml_node_owned_get(xmlNodePtr node)
@@ -581,6 +577,14 @@ int Nokogiri_xml_node_owned_get(xmlNodePtr node)
   VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@owned"));
   VALUE q = rb_hash_aref(hash, INT2NUM((long)node)) ;
   return q == Qtrue ? Qtrue : Qfalse ;
+}
+
+static VALUE owned_eh(VALUE self)
+{
+  xmlNodePtr node ;
+  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@owned"));
+  Data_Get_Struct(self, xmlNode, node);
+  return rb_hash_aref(hash, INT2NUM((long)node)) == Qtrue ? Qtrue : Qfalse ;
 }
 
 
@@ -628,4 +632,5 @@ void init_xml_node()
 
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
+  rb_define_private_method(klass, "owned?", owned_eh, 0);
 }
