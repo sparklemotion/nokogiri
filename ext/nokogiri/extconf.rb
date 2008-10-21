@@ -4,6 +4,7 @@ require 'mkmf'
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 
+$CFLAGS << " #{ENV["CFLAGS"]}"
 if Config::CONFIG['target_os'] == 'mingw32'
   $CFLAGS << " -DXP_WIN -DXP_WIN32"
 else
