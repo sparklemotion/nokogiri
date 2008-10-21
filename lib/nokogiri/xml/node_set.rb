@@ -17,6 +17,10 @@ module Nokogiri
         self[length - 1]
       end
 
+      def empty?
+        length == 0
+      end
+
       def before datum
         first.before datum
       end
@@ -28,6 +32,11 @@ module Nokogiri
       def << node
         push(node)
       end
+
+      def unlink
+        each { |node| node.unlink }
+      end
+      alias :remove :unlink
 
       def search *paths
         sub_set = NodeSet.new

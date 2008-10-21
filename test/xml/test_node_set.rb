@@ -7,6 +7,27 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_unlink
+        xml = Nokogiri::XML.parse(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+          <a class='foo bar'>Bar</a>
+          <a class='bar foo'>Bar</a>
+          <a class='bar'>Bar</a>
+          <a class='baz bar foo'>Bar</a>
+          <a class='bazbarfoo'>Awesome</a>
+          <a class='bazbar'>Awesome</a>
+        </root>
+        eoxml
+        set = xml.xpath('//a')
+        set.unlink
+        set.each do |node|
+          assert !node.parent
+          assert !node.document
+        end
+        assert_no_match(/Hello world/, xml.to_s)
+      end
+
       def test_nodeset_search_takes_namespace
         @xml = Nokogiri::XML.parse(<<-eoxml)
 <root>

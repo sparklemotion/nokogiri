@@ -20,6 +20,29 @@ module Nokogiri
         assert_equal ['Bar'], set.map { |node| node.content }.uniq
       end
 
+      def test_unlink
+        xml = Nokogiri::XML.parse(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+          <a class='foo bar'>Bar</a>
+          <a class='bar foo'>Bar</a>
+          <a class='bar'>Bar</a>
+          <a class='baz bar foo'>Bar</a>
+          <a class='bazbarfoo'>Awesome</a>
+          <a class='bazbar'>Awesome</a>
+        </root>
+        eoxml
+        node = xml.xpath('//a').first
+        assert_equal('Hello world', node.text)
+        assert_match(/Hello world/, xml.to_s)
+        assert node.parent
+        assert node.document
+        node.unlink
+        assert !node.parent
+        assert !node.document
+        assert_no_match(/Hello world/, xml.to_s)
+      end
+
       def test_dup
         html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
         found = html.search('//div/a').first

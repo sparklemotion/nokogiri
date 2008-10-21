@@ -13,6 +13,8 @@ module Nokogiri
       XINCLUDE_END = 20
       DOCB_DOCUMENT_NODE = 21
 
+      @@owned = {}
+
       def decorate!
         document.decorate(self) if document
       end
@@ -84,6 +86,10 @@ module Nokogiri
 
       def next
         next_sibling
+      end
+
+      def remove
+        unlink
       end
 
       ####
