@@ -171,7 +171,7 @@ namespace :build do
   task :externals => libs.map { |x| "cross/#{x}" } + ['cross/ruby-1.8.6-p287']
 end
 
-def valgrind_cmdline
+def test_suite_cmdline
   require 'find'
   files = []
   Find.find("test") do |f|
@@ -188,7 +188,7 @@ namespace :valgrind do
 
   desc "run valgrind with basic ruby options on the test suite"
   task :ruby => :build do
-    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} #{valgrind_cmdline}"
+    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} #{test_suite_cmdline}"
     puts cmdline
     system cmdline
   end
@@ -196,7 +196,7 @@ namespace :valgrind do
   desc "run valgrind with memory-fill ruby options on the test suite"
   task :ruby_mem => :build do
     # fill malloced memory with "m" and freed memory with "f"
-    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=6D --free-fill=66 #{valgrind_cmdline}"
+    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=6D --free-fill=66 #{test_suite_cmdline}"
     puts cmdline
     system cmdline
   end
@@ -204,11 +204,18 @@ namespace :valgrind do
   desc "run valgrind with memory-zero ruby options on the test suite"
   task :ruby_mem0 => :build do
     # fill malloced and freed memory with 0
-    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=00 --free-fill=00 #{valgrind_cmdline}"
+    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=00 --free-fill=00 #{test_suite_cmdline}"
     puts cmdline
     system cmdline
   end
 end
+
+task :gdb => :build do
+  cmdline = "gdb --args #{test_suite_cmdline}"
+  puts cmdline
+  system cmdline
+end
+
 
 Rake::Task[:test].prerequisites << :build
 Rake::Task[:check_manifest].prerequisites << GENERATED_PARSER
