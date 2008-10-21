@@ -44,7 +44,7 @@ static VALUE duplicate_node(VALUE self)
  *
  * Unlink this node from its current context.
  */
-static VALUE unlink(VALUE self)
+static VALUE unlink_node(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
@@ -643,7 +643,7 @@ void init_xml_node()
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
   rb_define_method(klass, "to_xml", to_xml, 0);
   rb_define_method(klass, "dup", duplicate_node, 0);
-  rb_define_method(klass, "unlink", unlink, 0);
+  rb_define_method(klass, "unlink", unlink_node, 0);
 
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
