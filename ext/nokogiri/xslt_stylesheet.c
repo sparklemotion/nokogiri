@@ -11,6 +11,12 @@ static void dealloc(xsltStylesheetPtr doc)
     NOKOGIRI_DEBUG_END(doc);
 }
 
+/*
+ * call-seq:
+ *   parse_stylesheet_doc(document)
+ *
+ * Parse a stylesheet from +document+.
+ */
 static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
 {
     xmlDocPtr xml ;
@@ -21,6 +27,12 @@ static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
 }
 
 
+/*
+ * call-seq:
+ *   serialize(document)
+ *
+ * Serialize +document+ to an xml string.
+ */
 static VALUE serialize(VALUE self, VALUE xmlobj)
 {
     xmlDocPtr xml ;
@@ -40,10 +52,10 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
 
 /*
  *  call-seq:
- *    apply_to(Nokogiri::XML::Document, params)
+ *    apply_to(document, params)
  *
- *  Apply an XSLT stylesheet to an XML document.
- *  +params+ is an array of strings.
+ *  Apply an XSLT stylesheet to an XML::Document.
+ *  +params+ is an array of strings used as XSLT parameters.
  */
 static VALUE apply_to(int argc, VALUE* argv, VALUE self)
 {
@@ -79,6 +91,15 @@ static VALUE apply_to(int argc, VALUE* argv, VALUE self)
 VALUE cNokogiriXsltStylesheet ;
 void init_xslt_stylesheet()
 {
+  /*
+   * HACK.  This is so that rdoc will work with this C file.
+   */
+  /*
+  VALUE nokogiri = rb_define_module("Nokogiri");
+  VALUE xslt = rb_define_module_under(nokogiri, "XSLT");
+  VALUE klass = rb_define_class_under(xslt, "Stylesheet", rb_cObject);
+  */
+
   VALUE klass = cNokogiriXsltStylesheet = rb_const_get(mNokogiriXslt, rb_intern("Stylesheet"));
     
   rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);

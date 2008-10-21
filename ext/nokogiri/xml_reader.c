@@ -397,7 +397,14 @@ void init_xml_reader()
 {
   VALUE module = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(module, "XML");
+
+  /*
+   * The Reader parser allows you to effectively pull parse an XML document.
+   * Once instantiated, call Nokogiri::XML::Reader#each to iterate over each
+   * node.  Note that you may only iterate over the document once!
+   */
   VALUE klass = rb_define_class_under(xml, "Reader", rb_cObject);
+
   cNokogiriXmlReader = klass;
 
   rb_define_singleton_method(klass, "from_memory", from_memory, -1);
