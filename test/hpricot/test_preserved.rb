@@ -73,6 +73,6 @@ class TestPreserved < Nokogiri::TestCase
 
     # alter the url
     link['href'] = "javascript:alert(\"AGGA-KA-BOO!\")"
-    assert_equal %{<a href="javascript:alert(&quot;AGGA-KA-BOO!&quot;)">Google</a>}, link.to_html
+    assert_equal %{<a href="javascript:alert(&quot;AGGA-KA-BOO!&quot;)">Google</a>}, link.to_html.gsub(/%22/, '&quot;')
   end
 end

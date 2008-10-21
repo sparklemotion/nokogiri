@@ -124,11 +124,11 @@ class TestConvertXPath < Nokogiri::TestCase
 #     assert_syntactical_equivalence("div/div:nth-of-type(0)", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
 #       j.first.inner_text
 #     end
-    assert_syntactical_equivalence("div/div:first()", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
-      j.first.inner_text
+    assert_syntactical_equivalence("div/div:first()", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n".gsub(/[\r\n]/, '')) do |j|
+      j.first.inner_text.gsub(/[\r\n]/, '')
     end
-    assert_syntactical_equivalence("div/div:first", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n") do |j|
-      j.first.inner_text
+    assert_syntactical_equivalence("div/div:first", ".//div/div[position() = 1]", "\r\nTender Lovemaking\r\nThe act of making love, tenderly.\r\n".gsub(/[\r\n]/, '')) do |j|
+      j.first.inner_text.gsub(/[\r\n]/, '')
     end
     assert_syntactical_equivalence("div//a:last()", ".//div//a[position() = last()]", "Wordpress") do |j|
       j.last.inner_text
