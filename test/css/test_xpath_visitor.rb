@@ -8,7 +8,7 @@ module Nokogiri
       end
 
       def test_class_selectors
-        assert_xpath  "//*[contains(concat(' ', @class, ' '),concat(' ', 'red', ' '))]",
+        assert_xpath  "//*[contains(concat(' ', @class, ' '), ' red ')]",
                       @parser.parse(".red")
       end
 
