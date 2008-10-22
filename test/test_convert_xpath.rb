@@ -1,20 +1,27 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
-require 'rubygems'
-require 'hpricot'
+begin
+  require 'rubygems'
+  require 'hpricot'
+  HAS_HPRICOT = true
+rescue LoadError
+  HAS_HPRICOT = false
+end
 
 class TestConvertXPath < Nokogiri::TestCase
 
   def setup
     @N = Nokogiri(File.read(HTML_FILE))
     @NH = Nokogiri.Hpricot(File.read(HTML_FILE)) # decorated document
-    @H = Hpricot(File.read(HTML_FILE))
+    @H = Hpricot(File.read(HTML_FILE)) if HAS_HPRICOT
   end
 
   def assert_syntactical_equivalence(hpath, xpath, match, &blk)
     blk ||= lambda {|j| j.first}
     assert_equal match, blk.call(@N.search(xpath)), "xpath result did not match"
-    assert_equal match, blk.call(@H.search(hpath)), "hpath result did not match"
+    if HAS_HPRICOT
+      assert_equal match, blk.call(@H.search(hpath)), "hpath result did not match"
+    end
     assert_equal [xpath], @NH.convert_to_xpath(hpath), "converted hpath did not match xpath"
   end
 
