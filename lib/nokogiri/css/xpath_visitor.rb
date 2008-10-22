@@ -43,10 +43,9 @@ module Nokogiri
       end
 
       def visit_direct_adjacent_selector node
-         node.value.last.accept(self) +
-           '[preceding-sibling::' +
-           node.value.first.accept(self) +
-           '][position()=1]'
+        node.value.first.accept(self) +
+          "/following-sibling::*[1]/self::" +
+           node.value.last.accept(self)
       end
 
       def visit_id node
@@ -55,12 +54,12 @@ module Nokogiri
       end
 
       def visit_attribute_condition node
-        attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /::/)
-                      ''
-                    else
-                      '@'
-                    end
-        attribute += node.value.first.accept(self)
+        # attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /^@/)
+        #               ''
+        #             else
+        #               'child::'
+        #             end
+        attribute = "@#{node.value.first.accept(self)}"
 
         # Support non-standard css
         attribute.gsub!(/^@@/, '@')
@@ -82,6 +81,8 @@ module Nokogiri
         when '$='
           "substring(#{attribute}, string-length(#{attribute}) - " +
             "string-length(#{value}) + 1, string-length(#{value})) = #{value}"
+        when '^='
+          "starts-with(#{attribute}, #{value})"
         else
           attribute + " #{node.value[1]} " + "#{value}"
         end
@@ -99,6 +100,7 @@ module Nokogiri
           when "only-of-type" then "last() = 1"
           when "empty" then "not(node())"
           when "parent" then "node()"
+          when "root" then "not(parent::*)"
           else
             '1 = 1'
           end
@@ -106,7 +108,7 @@ module Nokogiri
       end
 
       def visit_class_condition node
-        "contains(concat(' ', @class, ' '),concat(' ', '#{node.value.first}', ' '))"
+        "contains(concat(' ', @class, ' '), ' #{node.value.first} ')"
       end
 
       def visit_combinator node
