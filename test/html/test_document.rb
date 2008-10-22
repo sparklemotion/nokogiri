@@ -12,6 +12,30 @@ module Nokogiri
         assert html.html?
       end
 
+      def test_relative_css_finder
+        doc = Nokogiri::HTML(<<-eohtml)
+          <html>
+            <body>
+              <div class="red">
+                <p>
+                  inside red
+                </p>
+              </div>
+              <div class="green">
+                <p>
+                  inside green
+                </p>
+              </div>
+            </body>
+          </html>
+        eohtml
+        red_divs = doc.css('div.red')
+        assert_equal 1, red_divs.length
+        p_tags = red_divs.first.css('p')
+        assert_equal 1, p_tags.length
+        assert_equal 'inside red', p_tags.first.text.strip
+      end
+
       def test_find_classes
         doc = Nokogiri::HTML(<<-eohtml)
           <html>

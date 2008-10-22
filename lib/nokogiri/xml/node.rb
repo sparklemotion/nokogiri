@@ -79,7 +79,7 @@ module Nokogiri
 
       def css *rules
         xpath(*(rules.map { |rule|
-          CSS::Parser.parse(rule).map { |ast| ast.to_xpath }
+          CSS::Parser.parse(rule).map { |ast| "." + ast.to_xpath }
         }.flatten.uniq))
       end
 
