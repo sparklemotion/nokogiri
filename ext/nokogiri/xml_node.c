@@ -594,6 +594,12 @@ int Nokogiri_xml_node_owned_get(xmlNodePtr node)
   return q == Qtrue ? Qtrue : Qfalse ;
 }
 
+/*
+ * call-seq:
+ *   owned?
+ *
+ * Is this node owned by a document?
+ */
 static VALUE owned_eh(VALUE self)
 {
   xmlNodePtr node ;
