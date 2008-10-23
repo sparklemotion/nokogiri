@@ -12,6 +12,17 @@ module Nokogiri
         assert html.html?
       end
 
+      def test_fragment
+        node_set = Nokogiri::HTML.fragment(<<-eohtml)
+          <div>
+            <b>Hello World</b>
+          </div>
+        eohtml
+        assert_equal 1, node_set.length
+        assert_equal 'div', node_set.first.name
+        assert_match /Hello World/, node_set.to_html
+      end
+
       def test_relative_css_finder
         doc = Nokogiri::HTML(<<-eohtml)
           <html>

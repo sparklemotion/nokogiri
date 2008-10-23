@@ -25,6 +25,19 @@ module Nokogiri
 
         Document.read_memory(string_or_io, url, encoding, options)
       end
+
+      ####
+      # Parse a fragment from +string+ in to a NodeSet.
+      def fragment string
+        doc = parse(string)
+        finder = lambda { |children, f|
+          children.each do |child|
+            return children if string =~ /<#{child.name}/
+            finder.call(child.children, f)
+          end
+        }
+        finder.call(doc.children, finder)
+      end
     end
 
   NamedCharacters =
