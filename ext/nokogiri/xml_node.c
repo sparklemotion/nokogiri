@@ -23,6 +23,27 @@ static VALUE encode_special_chars(VALUE self, VALUE string)
 
 /*
  * call-seq:
+ *  internal_subset
+ *
+ * Get the internal subset
+ */
+static VALUE internal_subset(VALUE self)
+{
+  xmlNodePtr node;
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlNode, node);
+
+  if(!node->doc) return Qnil;
+
+  doc = node->doc;
+
+  if(!doc->intSubset) return Qnil;
+
+  return Nokogiri_wrap_xml_node((xmlNodePtr)doc->intSubset);
+}
+
+/*
+ * call-seq:
  *  dup
  *
  * Copy this node
@@ -524,11 +545,20 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 
   VALUE rb_node = Qnil;
   
-  if(node->type == XML_TEXT_NODE) {
-    VALUE klass = rb_const_get(mNokogiriXml, rb_intern("Text"));
-    rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
-  } else {
-    rb_node = Data_Wrap_Struct(cNokogiriXmlNode, gc_mark_node, deallocate, node) ;
+  switch(node->type)
+  {
+    VALUE klass;
+
+    case XML_TEXT_NODE:
+      klass = rb_const_get(mNokogiriXml, rb_intern("Text"));
+      rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+      break;
+    case XML_DTD_NODE:
+      klass = rb_const_get(mNokogiriXml, rb_intern("DTD"));
+      rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+      break;
+    default:
+      rb_node = Data_Wrap_Struct(cNokogiriXmlNode, gc_mark_node, deallocate, node) ;
   }
 
   node->_private = (void*)rb_node ;
@@ -659,6 +689,7 @@ void init_xml_node()
   rb_define_method(klass, "to_xml", to_xml, 0);
   rb_define_method(klass, "dup", duplicate_node, 0);
   rb_define_method(klass, "unlink", unlink_node, 0);
+  rb_define_method(klass, "internal_subset", internal_subset, 0);
 
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
