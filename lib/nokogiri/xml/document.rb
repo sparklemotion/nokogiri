@@ -5,6 +5,10 @@ module Nokogiri
         @decorators ||= Hash.new { |h,k| h[k] = [] }
       end
 
+      def name
+        'document'
+      end
+
       ###
       # Apply any decorators to +node+
       def decorate(node)
