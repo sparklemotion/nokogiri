@@ -521,7 +521,16 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 {
   if (node->_private)
     return (VALUE)node->_private ;
-  VALUE rb_node = Data_Wrap_Struct(cNokogiriXmlNode, gc_mark_node, deallocate, node) ;
+
+  VALUE rb_node = Qnil;
+  
+  if(node->type == XML_TEXT_NODE) {
+    VALUE klass = rb_const_get(mNokogiriXml, rb_intern("Text"));
+    rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+  } else {
+    rb_node = Data_Wrap_Struct(cNokogiriXmlNode, gc_mark_node, deallocate, node) ;
+  }
+
   node->_private = (void*)rb_node ;
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
   Nokogiri_xml_node_owned_set(node);
