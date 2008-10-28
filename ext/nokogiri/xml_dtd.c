@@ -12,7 +12,7 @@ static void notation_copier(void *payload, void *data, xmlChar *name)
       c_notation->PublicID ? rb_str_new2((const char *)c_notation->PublicID) : Qnil,
       c_notation->SystemID ? rb_str_new2((const char *)c_notation->SystemID) : Qnil);
 
-  rb_hash_aset(hash, rb_str_new2(name), notation);
+  rb_hash_aset(hash, rb_str_new2((const char *)name), notation);
 }
 
 /*
