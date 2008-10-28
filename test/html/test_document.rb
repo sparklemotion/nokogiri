@@ -12,11 +12,6 @@ module Nokogiri
         assert html.html?
       end
 
-      def test_external_subsets
-        assert subset = @html.internal_subset
-        assert_equal 'html', subset.name
-      end
-
       def test_fragment
         node_set = Nokogiri::HTML.fragment(<<-eohtml)
           <div>

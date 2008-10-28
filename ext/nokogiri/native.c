@@ -33,6 +33,7 @@ void Init_native()
   init_xml_xpath();
   init_xml_sax_parser();
   init_xml_reader();
+  init_xml_dtd();
   init_html_sax_parser();
   init_xslt_stylesheet();
   init_xml_syntax_error();

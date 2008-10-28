@@ -11,6 +11,7 @@ require 'nokogiri/xml/xpath_context'
 require 'nokogiri/xml/builder'
 require 'nokogiri/xml/reader'
 require 'nokogiri/xml/syntax_error'
+require 'nokogiri/xml/notation'
 
 module Nokogiri
   class << self
