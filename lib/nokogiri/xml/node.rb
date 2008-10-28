@@ -1,6 +1,7 @@
 module Nokogiri
   module XML
     class Node
+      CDATA_SECTION_NODE = 4
       COMMENT_NODE = 8
       DOCUMENT_NODE = 9
       HTML_DOCUMENT_NODE = 13
@@ -149,6 +150,10 @@ module Nokogiri
 
       def comment?
         type == COMMENT_NODE
+      end
+
+      def cdata?
+        type == CDATA_SECTION_NODE
       end
 
       def xml?
