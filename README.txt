@@ -61,7 +61,7 @@ to using correct CSS and XPath.
 Copyright (c) 2008:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
-* Mike Dalessio
+* {Mike Dalessio}[http://mike.daless.io]
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
