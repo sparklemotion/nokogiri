@@ -3,6 +3,9 @@ module Nokogiri
     class XPathVisitor
       def visit_function node
         #  note that nth-child and nth-last-child are preprocessed in css/node.rb.
+        msg = :"visit_function_#{node.value.first.gsub(/[(]/, '')}"
+        return self.send(msg, node) if self.respond_to?(msg)
+
         case node.value.first
         when /^text\(/
           'child::text()'
@@ -90,6 +93,9 @@ module Nokogiri
         if node.value.first.is_a?(Nokogiri::CSS::Node) and node.value.first.type == :FUNCTION
           node.value.first.accept(self)
         else
+          msg = :"visit_pseudo_class_#{node.value.first.gsub(/[(]/, '')}"
+          return self.send(msg, node) if self.respond_to?(msg)
+
           case node.value.first
           when "first" then "position() = 1"
           when "last" then "position() = last()"

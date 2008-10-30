@@ -17,6 +17,32 @@ module Nokogiri
                       @parser.parse("a[id|='Boing']")
       end
 
+      def test_custom_functions
+        visitor = Class.new(XPathVisitor) do
+          attr_accessor :awesome
+          def visit_function_aaron node
+            @awesome = true
+            'aaron() = 1'
+          end
+        end.new
+        ast = @parser.parse('a:aaron()').first
+        assert_equal 'a[aaron() = 1]', visitor.accept(ast)
+        assert visitor.awesome
+      end
+
+      def test_custom_psuedo_classes
+        visitor = Class.new(XPathVisitor) do
+          attr_accessor :awesome
+          def visit_pseudo_class_aaron node
+            @awesome = true
+            'aaron() = 1'
+          end
+        end.new
+        ast = @parser.parse('a:aaron').first
+        assert_equal 'a[aaron() = 1]', visitor.accept(ast)
+        assert visitor.awesome
+      end
+
       def assert_xpath expecteds, asts
         expecteds = [expecteds].flatten
         expecteds.zip(asts).each do |expected, actual|
