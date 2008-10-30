@@ -557,6 +557,10 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       klass = rb_const_get(mNokogiriXml, rb_intern("Element"));
       rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
       break;
+    case XML_ENTITY_DECL:
+      klass = rb_const_get(mNokogiriXml, rb_intern("EntityDeclaration"));
+      rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+      break;
     case XML_CDATA_SECTION_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("CDATA"));
       rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
