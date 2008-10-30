@@ -5,6 +5,7 @@ module Nokogiri
     class TestDTD < Nokogiri::TestCase
       def setup
         @xml = Nokogiri::XML.parse(File.read(XML_FILE))
+        assert @dtd = @xml.internal_subset
       end
 
       def test_external_subsets
@@ -12,10 +13,25 @@ module Nokogiri
         assert_equal 'staff', subset.name
       end
 
+      def test_entities
+        assert entities = @dtd.entities
+        assert_equal %w[ ent1 ent2 ent3 ent4 ent5 ].sort, entities.keys.sort
+      end
+
+      def test_attributes
+        assert attributes = @dtd.attributes
+        assert_equal %w[ width ], attributes.keys
+        assert_equal 'width', attributes['width'].name
+      end
+
+      def test_elements
+        assert elements = @dtd.elements
+        assert_equal %w[ br ], elements.keys
+        assert_equal 'br', elements['br'].name
+      end
+
       def test_notations
-        dtd = @xml.internal_subset
-        assert dtd
-        assert notations = dtd.notations
+        assert notations = @dtd.notations
         assert_equal %w[ notation1 notation2 ].sort, notations.keys.sort
         assert notation1 = notations['notation1']
         assert_equal 'notation1', notation1.name

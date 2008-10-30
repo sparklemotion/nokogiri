@@ -15,7 +15,7 @@ $CFLAGS << " -O3 -Wall -Wextra -Wcast-qual -Wwrite-strings -Wconversion -Wmissin
 
 if Config::CONFIG['target_os'] == 'mingw32'
   find_library('xml2', 'xmlParseDoc',
-               File.join(ROOT, 'cross', 'libxml2-2.7.1.win32', 'bin'))
+               File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'bin'))
   find_library('xslt', 'xsltParseStylesheetDoc',
                File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
 else
@@ -25,7 +25,7 @@ end
 
 
 if Config::CONFIG['target_os'] == 'mingw32'
-  header = File.join(ROOT, 'cross', 'libxml2-2.7.1.win32', 'include')
+  header = File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'include')
   unless find_header('libxml/xmlversion.h', header)
     abort "need libxml"
   end

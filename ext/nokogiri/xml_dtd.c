@@ -15,6 +15,55 @@ static void notation_copier(void *payload, void *data, xmlChar *name)
   rb_hash_aset(hash, rb_str_new2((const char *)name), notation);
 }
 
+static void element_copier(void *payload, void *data, xmlChar *name)
+{
+  VALUE hash = (VALUE)data;
+
+  VALUE element = Nokogiri_wrap_xml_node((xmlNodePtr)payload);
+
+  rb_hash_aset(hash, rb_str_new2((const char *)name), element);
+}
+
+/*
+ * call-seq:
+ *   entities
+ *
+ * Get a hash of the elements for this DTD.
+ */
+static VALUE entities(VALUE self)
+{
+  xmlDtdPtr dtd;
+  Data_Get_Struct(self, xmlDtd, dtd);
+
+  if(!dtd->entities) return Qnil;
+
+  VALUE hash = rb_hash_new();
+
+  xmlHashScan((xmlHashTablePtr)dtd->entities, element_copier, (void *)hash);
+
+  return hash;
+}
+
+/*
+ * call-seq:
+ *   attributes
+ *
+ * Get a hash of the attributes for this DTD.
+ */
+static VALUE attributes(VALUE self)
+{
+  xmlDtdPtr dtd;
+  Data_Get_Struct(self, xmlDtd, dtd);
+
+  if(!dtd->attributes) return Qnil;
+
+  VALUE hash = rb_hash_new();
+
+  xmlHashScan((xmlHashTablePtr)dtd->attributes, element_copier, (void *)hash);
+
+  return hash;
+}
+
 /*
  * call-seq:
  *   notations
@@ -35,6 +84,26 @@ static VALUE notations(VALUE self)
   return hash;
 }
 
+/*
+ * call-seq:
+ *   elements
+ *
+ * Get a hash of the elements for this DTD.
+ */
+static VALUE elements(VALUE self)
+{
+  xmlDtdPtr dtd;
+  Data_Get_Struct(self, xmlDtd, dtd);
+
+  if(!dtd->elements) return Qnil;
+
+  VALUE hash = rb_hash_new();
+
+  xmlHashScan((xmlHashTablePtr)dtd->elements, element_copier, (void *)hash);
+
+  return hash;
+}
+
 void init_xml_dtd()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
@@ -42,4 +111,7 @@ void init_xml_dtd()
   VALUE klass = rb_define_class_under(xml, "DTD", cNokogiriXmlNode);
 
   rb_define_method(klass, "notations", notations, 0);
+  rb_define_method(klass, "elements", elements, 0);
+  rb_define_method(klass, "attributes", attributes, 0);
+  rb_define_method(klass, "entities", entities, 0);
 }

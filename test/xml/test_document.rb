@@ -128,7 +128,7 @@ module Nokogiri
         assert node_set = @xml.search('//employee')
         assert node_set.respond_to?(:awesome!)
         node_set.each do |node|
-          assert node.respond_to?(:awesome!)
+          assert node.respond_to?(:awesome!), node.class
         end
         assert @xml.root.respond_to?(:awesome!)
       end
@@ -162,6 +162,7 @@ module Nokogiri
       def util_decorate(document, x)
         document.decorators['document'] << x
         document.decorators['node'] << x
+        document.decorators['element'] << x
         document.decorators['nodeset'] << x
         document.decorate!
       end

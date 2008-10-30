@@ -13,6 +13,7 @@ require 'nokogiri/xml/builder'
 require 'nokogiri/xml/reader'
 require 'nokogiri/xml/syntax_error'
 require 'nokogiri/xml/notation'
+require 'nokogiri/xml/element'
 
 module Nokogiri
   class << self
