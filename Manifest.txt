@@ -3,8 +3,6 @@ Manifest.txt
 README.ja.txt
 README.txt
 Rakefile
-ext/nokogiri/.xml_dtd.c.swp
-ext/nokogiri/.xml_node.c.swp
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
 ext/nokogiri/html_document.h
@@ -37,7 +35,6 @@ ext/nokogiri/xml_xpath_context.h
 ext/nokogiri/xslt_stylesheet.c
 ext/nokogiri/xslt_stylesheet.h
 lib/nokogiri.rb
-lib/nokogiri/.xml.rb.swp
 lib/nokogiri/css.rb
 lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb

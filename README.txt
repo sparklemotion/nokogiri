@@ -1,5 +1,7 @@
 = Nokogiri
 
+* http://nokogiri.rubyforge.org/
+* http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
 
 == DESCRIPTION:
