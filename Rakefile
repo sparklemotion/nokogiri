@@ -1,6 +1,7 @@
 # -*- ruby -*-
 
 require 'rubygems'
+require 'mkmf'
 require 'hoe'
 
 kind = Config::CONFIG['DLEXT']
@@ -72,10 +73,16 @@ task :coverage do
 end
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
+  unless find_executable("racc")
+    abort "need racc, get the tarball from http://i.loveruby.net/archive/racc/racc-1.4.5-all.tar.gz" 
+  end
   sh "racc -o #{t.name} #{t.prerequisites.first}"
 end
 
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
+  unless find_executable("frex")
+    abort "need frex, sudo gem install aaronp-frex -s http://gems.github.com"   
+  end
   sh "frex -i --independent -o #{t.name} #{t.prerequisites.first}"
 end
 

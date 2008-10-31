@@ -52,12 +52,4 @@ else
   end
 end
 
-unless find_executable("racc")
-  abort "need racc, get the tarball from http://i.loveruby.net/archive/racc/racc-1.4.5-all.tar.gz" 
-end
-
-unless find_executable("frex")
-  abort "need frex, sudo gem install aaronp-frex -s http://gems.github.com"   
-end
-
 create_makefile('nokogiri/native')
