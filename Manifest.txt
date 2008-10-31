@@ -77,7 +77,6 @@ lib/nokogiri/xml/xpath.rb
 lib/nokogiri/xml/xpath_context.rb
 lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
-nokogiri.gemspec
 test/css/test_nthiness.rb
 test/css/test_parser.rb
 test/css/test_tokenizer.rb
