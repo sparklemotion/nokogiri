@@ -1,3 +1,10 @@
+=== 1.0.1
+
+* 1 Bugfix
+
+  * Made sure extconf.rb searched libdir and prefix so that ports libxml/ruby
+    will link properly.  Thanks lucsky!
+
 === 1.0.0 / 2008-07-13
 
 * 1 major enhancement
