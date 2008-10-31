@@ -3,7 +3,8 @@ ENV["ARCHFLAGS"] = "-arch #{`uname -p` =~ /powerpc/ ? 'ppc' : 'i386'}"
 require 'mkmf'
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
-PREFIX = Config::CONFIG['prefix']
+LIBDIR = Config::CONFIG['libdir']
+INCLUDEDIR = Config::CONFIG['includedir']
 
 $CFLAGS << " #{ENV["CFLAGS"]}"
 if Config::CONFIG['target_os'] == 'mingw32'
@@ -20,8 +21,8 @@ if Config::CONFIG['target_os'] == 'mingw32'
   find_library('xslt', 'xsltParseStylesheetDoc',
                File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
 else
-  find_library('xml2', 'xmlParseDoc', "#{PREFIX}/lib")
-  find_library('xslt', 'xsltParseStylesheetDoc', "#{PREFIX}/lib")
+  find_library('xml2', 'xmlParseDoc', LIBDIR)
+  find_library('xslt', 'xsltParseStylesheetDoc', LIBDIR)
 end
 
 
@@ -41,10 +42,10 @@ if Config::CONFIG['target_os'] == 'mingw32'
     abort "need iconv"
   end
 else
-  unless find_header('libxml/xmlversion.h', "#{PREFIX}/include/libxml2")
+  unless find_header('libxml/xmlversion.h', File.join(INCLUDEDIR, "libxml2"))
     abort "need libxml"
   end
-  unless find_header('libxslt/xslt.h', "#{PREFIX}/include")
+  unless find_header('libxslt/xslt.h', INCLUDEDIR)
     abort "need libxslt"
   end
 end
