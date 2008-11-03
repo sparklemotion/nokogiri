@@ -13,12 +13,10 @@ Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.
 * XPath support for document searching
 * CSS3 selector support for document searching
 * XML/HTML builder
-* Drop in replacement for Hpricot
+* Drop in replacement for Hpricot (though not bug for bug)
 
-Nokogiri parses and searches XML/HTML faster than Hpricot, and also has
+Nokogiri parses and searches XML/HTML very quickly, and also has
 correctly implemented CSS3 selector support as well as XPath support.
-
-  * http://gist.github.com/18533
 
 Nokogiri also features an Hpricot compatibility layer to help ease the change
 to using correct CSS and XPath.
