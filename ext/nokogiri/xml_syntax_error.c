@@ -3,7 +3,7 @@
 static void dealloc(xmlErrorPtr ptr)
 {
   NOKOGIRI_DEBUG_START(ptr);
-  free(ptr);
+  xmlFree(ptr);
   NOKOGIRI_DEBUG_END(ptr);
 }
 

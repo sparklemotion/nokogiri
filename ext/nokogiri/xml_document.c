@@ -36,7 +36,7 @@ static VALUE serialize(VALUE self)
 
   xmlDocDumpMemory(doc, &buf, &size);
   VALUE rb_str = rb_str_new((char *)buf, (long)size);
-  free(buf);
+  xmlFree(buf);
   return rb_str;
 }
 

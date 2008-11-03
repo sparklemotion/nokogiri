@@ -2,7 +2,7 @@
 
 static void dealloc(xmlNodePtr node)
 {
-  if (node->doc == NULL) {
+  if (! Nokogiri_xml_node_owned_get(node)) {
     NOKOGIRI_DEBUG_START_NODE(node);
     xmlFreeNode(node);
     NOKOGIRI_DEBUG_END(node);

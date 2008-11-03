@@ -151,7 +151,7 @@ static VALUE reader_attribute(VALUE self, VALUE name)
     xmlChar *localname = xmlSplitQName2((xmlChar*)StringValuePtr(name), &prefix);
     if (localname != NULL) {
       value = xmlTextReaderLookupNamespace(reader, localname);
-      free(localname) ;
+      xmlFree(localname) ;
     } else {
       value = xmlTextReaderLookupNamespace(reader, prefix);
     }

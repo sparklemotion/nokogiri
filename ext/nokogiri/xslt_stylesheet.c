@@ -45,7 +45,7 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
     Data_Get_Struct(self, xsltStylesheet, ss);
     xsltSaveResultToString(&doc_ptr, &doc_len, xml, ss);
     rval = rb_str_new((char*)doc_ptr, doc_len);
-    free(doc_ptr);
+    xmlFree(doc_ptr);
     return rval ;
 }
 

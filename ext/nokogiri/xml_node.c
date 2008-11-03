@@ -16,7 +16,7 @@ static VALUE encode_special_chars(VALUE self, VALUE string)
   );
 
   VALUE encoded_str = rb_str_new2((const char *)encoded);
-  free(encoded);
+  xmlFree(encoded);
 
   return encoded_str;
 }
