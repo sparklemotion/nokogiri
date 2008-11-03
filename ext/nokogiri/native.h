@@ -34,9 +34,9 @@ extern VALUE mNokogiriXslt ;
 
 #ifdef DEBUG
 
-#define NOKOGIRI_DEBUG_START_NODE(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"\nnokogiri: %s:%d %p start node (%p %x %p/%s)\n", __FILE__, __LINE__, p, p->_private, p->type, p->name, p->name);
-#define NOKOGIRI_DEBUG_START_TEXT(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"\nnokogiri: %s:%d %p start node (%p %x %p/%s) '%s'\n", __FILE__, __LINE__, p, p->_private, p->type, p->name, p->name, p->content);
-#define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);
+#define NOKOGIRI_DEBUG_START_NODE(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"\nnokogiri: %s:%d %p start node (%p %x %p/%s)\n", __FILE__, __LINE__, p, p->_private, p->type, p->name, p->name);
+#define NOKOGIRI_DEBUG_START_TEXT(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"\nnokogiri: %s:%d %p start node (%p %x %p/%s) '%s'\n", __FILE__, __LINE__, p, p->_private, p->type, p->name, p->name, p->content);
+#define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);
 #define NOKOGIRI_DEBUG_END(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p end\n", __FILE__, __LINE__, p);
 
 #else
