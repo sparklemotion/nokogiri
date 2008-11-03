@@ -1,3 +1,9 @@
+=== 1.0.3 (unreleased)
+
+* 1 Bugfix
+
+  * Removed RARRAY_LEN for 1.8.5 compatibility.  Thanks Shane Hanna.
+
 === 1.0.2
 
 * 1 Bugfix
