@@ -1,19 +1,9 @@
 #include <xml_text.h>
 
-static void dealloc(xmlNodePtr node)
-{
-  if (! Nokogiri_xml_node_owned_get(node)) {
-    NOKOGIRI_DEBUG_START_TEXT(node);
-    xmlFreeNode(node);
-    NOKOGIRI_DEBUG_END(node);
-  }
-}
-
 static VALUE new(VALUE klass, VALUE string)
 {
   xmlNodePtr node = xmlNewText((xmlChar *)StringValuePtr(string));
-  VALUE rb_node = Data_Wrap_Struct(klass, NULL, dealloc, node);
-  node->_private = (void *)rb_node;
+  VALUE rb_node = Nokogiri_wrap_xml_node(node) ;
 
   if(rb_block_given_p()) rb_yield(rb_node);
 

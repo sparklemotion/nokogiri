@@ -1,14 +1,5 @@
 #include <xml_cdata.h>
 
-static void dealloc(xmlNodePtr node)
-{
-  if (! Nokogiri_xml_node_owned_get(node)) {
-    NOKOGIRI_DEBUG_START_NODE(node);
-    xmlFreeNode(node);
-    NOKOGIRI_DEBUG_END(node);
-  }
-}
-
 /*
  * call-seq:
  *  new(document, content)
@@ -26,8 +17,7 @@ static VALUE new(VALUE klass, VALUE doc, VALUE content)
       NUM2INT(rb_funcall(content, rb_intern("length"), 0))
   );
 
-  VALUE rb_node = Data_Wrap_Struct(klass, NULL, dealloc, node);
-  node->_private = (void *)rb_node;
+  VALUE rb_node = Nokogiri_wrap_xml_node(node);
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
