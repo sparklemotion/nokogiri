@@ -1,7 +1,9 @@
 === 1.0.3 (unreleased)
 
-* 1 Bugfix
+* 2 Bigfixes
 
+  * NodeSet now implements to_ary
+  * XML::Document should not implement parent
   * Removed RARRAY_LEN for 1.8.5 compatibility.  Thanks Shane Hanna.
 
 === 1.0.2

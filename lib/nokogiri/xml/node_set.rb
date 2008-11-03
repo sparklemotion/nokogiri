@@ -178,6 +178,10 @@ module Nokogiri
       def size
         length
       end
+
+      def to_ary
+        to_a
+      end
     end
   end
 end

@@ -17,6 +17,13 @@ module Nokogiri
         assert_equal node_set.first, node_set.at(0)
       end
 
+      def test_to_ary
+        assert node_set = @xml.search('//employee')
+        foo = []
+        foo += node_set
+        assert_equal node_set.length, foo.length
+      end
+
       def test_push
         node = Nokogiri::XML::Node.new('foo')
         node.content = 'bar'
