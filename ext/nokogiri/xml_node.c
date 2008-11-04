@@ -515,6 +515,7 @@ static void deallocate(xmlNodePtr node)
     xmlFreeNode(node);
     NOKOGIRI_DEBUG_END(node);
   }
+  node->_private = NULL;
 }
 
 static void gc_mark_node(xmlNodePtr node)
