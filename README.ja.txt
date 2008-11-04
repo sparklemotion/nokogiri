@@ -16,6 +16,10 @@ Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。
 
 検索出来たり、正確にCSS3とXPathをサポート出来たりする。
 
+これはスピッドテストです：
+
+  * http://gist.github.com/22176
+
 NokogiriはHpricotの代わりに使用出来る。
 その互換性は簡単に正しいCSSとXPathを使用する事が出来る。
 
