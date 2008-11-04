@@ -1,10 +1,12 @@
-=== 1.0.3 (unreleased)
+=== 1.0.3
 
-* 2 Bigfixes
+* 5 Bigfixes
 
   * NodeSet now implements to_ary
   * XML::Document should not implement parent
+  * More GC Bugs fixed.  (Mike is AWESOME!)
   * Removed RARRAY_LEN for 1.8.5 compatibility.  Thanks Shane Hanna.
+  * inner_html fixed. (Thanks Yehuda!)
 
 === 1.0.2
 

@@ -12,6 +12,38 @@ module Nokogiri
         assert html.html?
       end
 
+      def test_inner_text
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <body>
+            <div>
+              <p>
+                Hello world!
+              </p>
+            </div>
+          </body>
+        </html>
+        eohtml
+        node = html.xpath('//div').first
+        assert_equal('Hello world!', node.inner_text.strip)
+      end
+
+      def test_inner_html
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <body>
+            <div>
+              <p>
+                Hello world!
+              </p>
+            </div>
+          </body>
+        </html>
+        eohtml
+        node = html.xpath('//div').first
+        assert_equal('<p>Helloworld!</p>', node.inner_html.gsub(/\s/, ''))
+      end
+
       def test_fragment
         node_set = Nokogiri::HTML.fragment(<<-eohtml)
           <div>

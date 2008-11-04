@@ -22,6 +22,10 @@ module Nokogiri
         serialize
       end
 
+      def inner_html
+        serialize
+      end
+
       def namespaces
         root ? root.collect_namespaces : {}
       end
