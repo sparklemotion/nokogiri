@@ -15,6 +15,7 @@ module Nokogiri
       DOCB_DOCUMENT_NODE = 21
 
       @@owned = {}
+      @@node2obj = {}
 
       ###
       # Decorate this node with the decorators set up in this node's Document

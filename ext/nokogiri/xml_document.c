@@ -6,17 +6,19 @@
  */
 static void gc_mark(xmlNodePtr node)
 {
+  VALUE rb_obj ;
   xmlNodePtr child ;
   /* mark children nodes */
   for (child = node->children ; child ; child = child->next) {
-    if (child->_private)
-      rb_gc_mark((VALUE)child->_private);
+    if ((rb_obj = Nokogiri_xml_node2obj_get(child)) != Qnil)
+      rb_gc_mark(rb_obj);
   }
 }
 
 static void dealloc(xmlDocPtr doc)
 {
   NOKOGIRI_DEBUG_START(doc);
+  Nokogiri_xml_node2obj_remove((xmlNodePtr)doc);
   xmlFreeDoc(doc);
   NOKOGIRI_DEBUG_END(doc);
 }
@@ -152,9 +154,13 @@ void init_xml_document()
 /* this takes klass as a param because it's used for HtmlDocument, too. */
 VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
 {
-  if (doc->_private)
-    return (VALUE)doc->_private ;
-  VALUE rb_doc = Data_Wrap_Struct(klass ? klass : cNokogiriXmlDocument, gc_mark, dealloc, doc) ;
-  doc->_private = (void*)rb_doc ;
+  VALUE rb_doc = Qnil;
+
+  if ((rb_doc = Nokogiri_xml_node2obj_get((xmlNodePtr)doc)) != Qnil)
+    return rb_doc ;
+
+  rb_doc = Data_Wrap_Struct(klass ? klass : cNokogiriXmlDocument, gc_mark, dealloc, doc) ;
+
+  Nokogiri_xml_node2obj_set((xmlNodePtr)doc, rb_doc);
   return rb_doc ;
 }

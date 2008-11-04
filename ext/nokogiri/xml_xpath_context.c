@@ -9,8 +9,9 @@ static void deallocate(xmlXPathContextPtr ctx)
 
 static void gc_mark_context(xmlXPathContextPtr ctx)
 {
-  if (ctx && ctx->node && ctx->node->_private)
-    rb_gc_mark((VALUE)ctx->node->_private);
+  VALUE rb_obj ;
+  if (ctx && ctx->node && (rb_obj = Nokogiri_xml_node2obj_get(ctx->node)) != Qnil)
+    rb_gc_mark(rb_obj);
 }
 
 /*

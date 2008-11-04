@@ -57,11 +57,12 @@ static VALUE index_at(VALUE self, VALUE number)
 
 static void gc_mark(xmlNodeSetPtr node_set)
 {
-    int j ;
-    for (j = 0 ; j < node_set->nodeNr ; ++j) {
-        if (node_set->nodeTab[j]->_private)
-            rb_gc_mark((VALUE)node_set->nodeTab[j]->_private);
-    }
+  VALUE rb_obj ;
+  int j ;
+  for (j = 0 ; j < node_set->nodeNr ; ++j) {
+    if ((rb_obj = Nokogiri_xml_node2obj_get(node_set->nodeTab[j])) != Qnil)
+      rb_gc_mark(rb_obj);
+  }
 }
 
 static void deallocate(xmlNodeSetPtr node_set)
