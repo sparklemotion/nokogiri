@@ -81,6 +81,7 @@ test/css/test_nthiness.rb
 test/css/test_parser.rb
 test/css/test_tokenizer.rb
 test/css/test_xpath_visitor.rb
+test/files/dont_hurt_em_why.xml
 test/files/staff.xml
 test/files/staff.xslt
 test/files/tlm.html
@@ -106,6 +107,7 @@ test/html/sax/test_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
 test/test_convert_xpath.rb
+test/test_gc.rb
 test/test_nokogiri.rb
 test/test_reader.rb
 test/test_xslt_transforms.rb
