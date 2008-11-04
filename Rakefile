@@ -41,7 +41,7 @@ namespace :gem do
   end
 
   namespace :win32 do
-    task :spec do
+    task :spec => ['build:win32'] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.files += Dir['ext/nokogiri/**.{dll,so}']
         if windows
