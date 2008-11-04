@@ -16,7 +16,10 @@ module Nokogiri
     undef :default_test
 
     def teardown
-      GC.start if ENV['NOKOGIRI_GC']
+      if ENV['NOKOGIRI_GC']
+        STDOUT.putc '!'
+        GC.start 
+      end
     end
   end
 
