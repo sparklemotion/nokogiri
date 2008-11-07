@@ -1,8 +1,14 @@
 # -*- ruby -*-
 
 require 'rubygems'
-require 'mkmf'
-require 'hoe'
+require 'rake'
+
+begin
+  require 'hoe'
+  HAVE_HOE = true
+rescue LoadError
+  HAVE_HOE = false
+end
 
 kind = Config::CONFIG['DLEXT']
 windows = RUBY_PLATFORM =~ /mswin/i ? true : false
@@ -17,17 +23,19 @@ EXT = "ext/nokogiri/native.#{kind}"
 
 require 'nokogiri/version'
 
-HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
-  p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
-  p.clean_globs = [
-    'ext/nokogiri/Makefile',
-    'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
-    'ext/nokogiri/conftest.dSYM',
-    GENERATED_PARSER,
-    GENERATED_TOKENIZER,
-    'cross',
-  ]
-  p.spec_extras = { :extensions => ["Rakefile"] }
+if HAVE_HOE
+  HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
+    p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
+    p.clean_globs = [
+      'ext/nokogiri/Makefile',
+      'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
+      'ext/nokogiri/conftest.dSYM',
+      GENERATED_PARSER,
+      GENERATED_TOKENIZER,
+      'cross',
+    ]
+    p.spec_extras = { :extensions => ["Rakefile"] }
+  end
 end
 
 namespace :gem do
@@ -55,6 +63,16 @@ namespace :gem do
     end
   end
 
+  namespace :jruby do
+    task :spec => ['build'] do
+      File.open("#{HOE.name}.gemspec", 'w') do |f|
+        HOE.spec.platform = 'jruby'
+        HOE.spec.extensions = []
+        f.write(HOE.spec.to_ruby)
+      end
+    end
+  end
+
   namespace :unix do
     task :spec do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
@@ -73,17 +91,19 @@ task :coverage do
 end
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
-  unless find_executable("racc")
+  begin
+    sh "racc -o #{t.name} #{t.prerequisites.first}"
+  rescue
     abort "need racc, get the tarball from http://i.loveruby.net/archive/racc/racc-1.4.5-all.tar.gz" 
   end
-  sh "racc -o #{t.name} #{t.prerequisites.first}"
 end
 
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
-  unless find_executable("frex")
+  begin
+    sh "frex -i --independent -o #{t.name} #{t.prerequisites.first}"
+  rescue
     abort "need frex, sudo gem install aaronp-frex -s http://gems.github.com"   
   end
-  sh "frex -i --independent -o #{t.name} #{t.prerequisites.first}"
 end
 
 task 'ext/nokogiri/Makefile' do
@@ -98,7 +118,11 @@ task EXT => 'ext/nokogiri/Makefile' do
   end
 end
 
-task :build => [EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
+if RUBY_PLATFORM == 'java'
+  task :build => [GENERATED_PARSER, GENERATED_TOKENIZER]
+else
+  task :build => [EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
+end
 
 namespace :build do
   namespace :win32 do
@@ -263,9 +287,11 @@ end
 
 # Only do this on unix, since we can't build on windows
 unless windows
-  Rake::Task[:test].prerequisites << :build
-  Rake::Task[:check_manifest].prerequisites << GENERATED_PARSER
-  Rake::Task[:check_manifest].prerequisites << GENERATED_TOKENIZER
+  if HAVE_HOE
+    Rake::Task[:test].prerequisites << :build
+    Rake::Task[:check_manifest].prerequisites << GENERATED_PARSER
+    Rake::Task[:check_manifest].prerequisites << GENERATED_TOKENIZER
+  end
 end
 
 # vim: syntax=Ruby
