@@ -3,18 +3,16 @@
 require 'rubygems'
 require 'rake'
 
-begin
-  require 'hoe'
-  HAVE_HOE = true
-rescue LoadError
-  HAVE_HOE = false
-end
 
 kind = Config::CONFIG['DLEXT']
 windows = RUBY_PLATFORM =~ /mswin/i ? true : false
 
 LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 $LOAD_PATH << LIB_DIR
+
+$LOAD_PATH << File.expand_path(File.join(File.dirname(__FILE__), 'vendor'))
+
+require 'hoe'
 
 GENERATED_PARSER = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
@@ -23,19 +21,17 @@ EXT = "ext/nokogiri/native.#{kind}"
 
 require 'nokogiri/version'
 
-if HAVE_HOE
-  HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
-    p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
-    p.clean_globs = [
-      'ext/nokogiri/Makefile',
-      'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
-      'ext/nokogiri/conftest.dSYM',
-      GENERATED_PARSER,
-      GENERATED_TOKENIZER,
-      'cross',
-    ]
-    p.spec_extras = { :extensions => ["Rakefile"] }
-  end
+HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
+  p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
+  p.clean_globs = [
+    'ext/nokogiri/Makefile',
+    'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
+    'ext/nokogiri/conftest.dSYM',
+    GENERATED_PARSER,
+    GENERATED_TOKENIZER,
+    'cross',
+  ]
+  p.spec_extras = { :extensions => ["Rakefile"] }
 end
 
 namespace :gem do
@@ -287,11 +283,9 @@ end
 
 # Only do this on unix, since we can't build on windows
 unless windows
-  if HAVE_HOE
-    Rake::Task[:test].prerequisites << :build
-    Rake::Task[:check_manifest].prerequisites << GENERATED_PARSER
-    Rake::Task[:check_manifest].prerequisites << GENERATED_TOKENIZER
-  end
+  Rake::Task[:test].prerequisites << :build
+  Rake::Task[:check_manifest].prerequisites << GENERATED_PARSER
+  Rake::Task[:check_manifest].prerequisites << GENERATED_TOKENIZER
 end
 
 # vim: syntax=Ruby
