@@ -158,7 +158,7 @@ module Nokogiri
         assert doc
         assert doc.xml?
         assert_nil doc.root
-        node = Nokogiri::XML::Node.new("b") { |n|
+        node = Nokogiri::XML::Node.new("b", doc) { |n|
           n.content = 'hello world'
         }
         assert_equal('hello world', node.content)

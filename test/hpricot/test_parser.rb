@@ -11,12 +11,13 @@ class TestParser < Nokogiri::TestCase
     assert_equal 4, @basic.search('//p').find_all { |x| x['class'] == 'para' }.length
   end
 
-  # Test creating a new element 
-  def test_new_element 
-    elem = Hpricot::Elem.new(Hpricot::STag.new('form')) 
-    assert_not_nil(elem) 
-    assert_not_nil(elem.attributes) 
-  end 
+  # Modified.  Not supported
+  ## Test creating a new element 
+  #def test_new_element 
+  #  elem = Hpricot::Elem.new(Hpricot::STag.new('form')) 
+  #  assert_not_nil(elem) 
+  #  assert_not_nil(elem.attributes) 
+  #end 
 
   def test_scan_text
     assert_equal 'FOO', Hpricot.make("FOO").first.content

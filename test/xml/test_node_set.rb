@@ -25,7 +25,7 @@ module Nokogiri
       end
 
       def test_push
-        node = Nokogiri::XML::Node.new('foo')
+        node = Nokogiri::XML::Node.new('foo', @xml)
         node.content = 'bar'
 
         assert node_set = @xml.search('//employee')
@@ -79,7 +79,7 @@ module Nokogiri
       def test_new_nodeset
         node_set = Nokogiri::XML::NodeSet.new
         assert_equal(0, node_set.length)
-        node = Nokogiri::XML::Node.new('form')
+        node = Nokogiri::XML::Node.new('form', @xml)
         node_set << node
         assert_equal(1, node_set.length)
         assert_equal(node, node_set.last)

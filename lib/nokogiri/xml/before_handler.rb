@@ -4,12 +4,13 @@ module Nokogiri
       def initialize node, original_html
         @original_html = original_html
         @node = node
+        @document = node.document
         @stack = []
       end
 
       def start_element name, attrs = []
         return unless @original_html =~ /<#{name}/i
-        node = Node.new(name)
+        node = Node.new(name, @document)
         Hash[*attrs].each do |k,v|
           node[k] = v
         end

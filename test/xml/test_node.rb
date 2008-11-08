@@ -140,13 +140,15 @@ module Nokogiri
       end
 
       def test_new_node
-        node = Nokogiri::XML::Node.new('form')
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        node = Nokogiri::XML::Node.new('form', xml)
         assert_equal('form', node.name)
-        assert_nil(node.document)
+        assert(node.document)
       end
 
       def test_content
-        node = Nokogiri::XML::Node.new('form')
+        xml = Nokogiri::XML.parse(File.read(XML_FILE))
+        node = Nokogiri::XML::Node.new('form', xml)
         assert_equal('', node.content)
 
         node.content = 'hello world!'
@@ -162,7 +164,7 @@ module Nokogiri
         first = set[0]
         second = set[1]
 
-        node = Nokogiri::XML::Node.new('form')
+        node = Nokogiri::XML::Node.new('form', xml)
         first.replace(node)
 
         assert set = xml.search('//employee')
