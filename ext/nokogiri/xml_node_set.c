@@ -60,8 +60,8 @@ static void gc_mark(xmlNodeSetPtr node_set)
   VALUE rb_obj ;
   int j ;
   for (j = 0 ; j < node_set->nodeNr ; ++j) {
-    if ((rb_obj = Nokogiri_xml_node2obj_get(node_set->nodeTab[j])) != Qnil)
-      rb_gc_mark(rb_obj);
+    if (node_set->nodeTab[j] && node_set->nodeTab[j]->_private)
+      rb_gc_mark((VALUE)node_set->nodeTab[j]->_private);
   }
 }
 

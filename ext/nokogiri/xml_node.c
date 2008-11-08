@@ -70,7 +70,6 @@ static VALUE unlink_node(VALUE self)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
   xmlUnlinkNode(node);
-  Nokogiri_xml_node_owned_set(node);
   return self;
 }
 
@@ -136,8 +135,6 @@ static VALUE replace(VALUE self, VALUE _new_node)
   Data_Get_Struct(_new_node, xmlNode, new_node);
 
   xmlReplaceNode(node, new_node);
-  Nokogiri_xml_node_owned_set(node);
-  Nokogiri_xml_node_owned_set(new_node);
   return self ;
 }
 
@@ -324,7 +321,6 @@ static VALUE set_parent(VALUE self, VALUE parent_node)
   Data_Get_Struct(parent_node, xmlNode, parent);
 
   xmlAddChild(parent, node);
-  Nokogiri_xml_node_owned_set(node);
   return parent_node;
 }
 
@@ -403,7 +399,7 @@ static VALUE document(VALUE self)
   Data_Get_Struct(self, xmlNode, node);
 
   if(!node->doc) return Qnil;
-  return Nokogiri_xml_node2obj_get(node->doc);
+  return (VALUE)node->doc->_private;
 }
 
 /*
@@ -420,7 +416,6 @@ static VALUE add_next_sibling(VALUE self, VALUE rb_node)
   xmlAddNextSibling(node, new_sibling);
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
-  Nokogiri_xml_node_owned_set(new_sibling);
 
   return rb_node;
 }
@@ -439,7 +434,6 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
   xmlAddPrevSibling(node, new_sibling);
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
-  Nokogiri_xml_node_owned_set(new_sibling);
 
   return rb_node;
 }
@@ -479,7 +473,6 @@ static VALUE new(VALUE klass, VALUE name)
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
-  Nokogiri_xml_node_owned_set(node);
 
   return rb_node;
 }
@@ -510,8 +503,8 @@ static VALUE new_from_str(VALUE klass, VALUE xml)
 
 static void deallocate(xmlNodePtr node)
 {
-  Nokogiri_xml_node2obj_remove(node);
-  if (! Nokogiri_xml_node_owned_get(node)) {
+  node->_private = NULL;
+  if (!node->doc) {
     NOKOGIRI_DEBUG_START_NODE(node);
     xmlFreeNode(node);
     NOKOGIRI_DEBUG_END(node);
@@ -522,29 +515,35 @@ static void gc_mark_node(xmlNodePtr node)
 {
   xmlNodePtr child ;
   VALUE rb_obj ;
+
+  xmlDocPtr doc = node->doc;
+
   /* mark document */
-  if (node && node->doc && (rb_obj = Nokogiri_xml_node2obj_get((xmlNodePtr)node->doc)) != Qnil)
-    rb_gc_mark(rb_obj);
+  if(doc && doc->_private)
+    rb_gc_mark((VALUE)doc->_private);
+
   /* mark parent node */
-  if (node && node->parent && (rb_obj = Nokogiri_xml_node2obj_get(node->parent)) != Qnil)
-    rb_gc_mark(rb_obj);
+  if(node->parent && node->parent->_private)
+    rb_gc_mark((VALUE)node->parent->_private);
+
   /* mark children nodes */
   for (child = node->children ; child ; child = child->next) {
-    if ((rb_obj = Nokogiri_xml_node2obj_get(child)) != Qnil)
-      rb_gc_mark(rb_obj);
+    if (child->_private)
+      rb_gc_mark((VALUE)child->_private);
   }
+
   /* mark sibling nodes */
-  if (node->next && (rb_obj = Nokogiri_xml_node2obj_get(node->next)) != Qnil)
-    rb_gc_mark(rb_obj);
-  if (node->prev && (rb_obj = Nokogiri_xml_node2obj_get(node->prev)) != Qnil)
-    rb_gc_mark(rb_obj);
+  if (node->next && node->next->_private)
+    rb_gc_mark((VALUE)node->next->_private);
+  if (node->prev && node->prev->_private)
+    rb_gc_mark((VALUE)node->prev->_private);
 }
 
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 {
   VALUE rb_node = Qnil;
 
-  if ((rb_node = Nokogiri_xml_node2obj_get(node)) != Qnil)
+  if ((rb_node = node->_private) != (VALUE)NULL)
     return rb_node ;
   
   switch(node->type)
@@ -575,9 +574,8 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       rb_node = Data_Wrap_Struct(cNokogiriXmlNode, gc_mark_node, deallocate, node) ;
   }
 
-  Nokogiri_xml_node2obj_set(node, rb_node);
+  node->_private = (void *)rb_node;
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
-  Nokogiri_xml_node_owned_set(node);
   return rb_node ;
 }
 
@@ -633,50 +631,6 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
   }
 }
 
-
-void Nokogiri_xml_node2obj_set(xmlNodePtr node, VALUE rb_obj)
-{
-  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@node2obj"));
-  VALUE weakref = rb_obj_id(rb_obj) ; /* so GC won't mark the object. sneaky
-                                         sneaky. */
-  rb_hash_aset(hash, INT2NUM((long)node), weakref);
-}
-
-VALUE Nokogiri_xml_node2obj_get(xmlNodePtr node)
-{
-  static VALUE ObjectSpace = 0 ;
-  static ID id2ref = 0 ;
-
-  if (! ObjectSpace) ObjectSpace = rb_const_get(rb_cObject, rb_intern("ObjectSpace"));
-  if (! id2ref) id2ref = rb_intern("_id2ref");
-
-  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@node2obj"));
-  VALUE weakref = rb_hash_aref(hash, INT2NUM((long)node)) ;
-  if (weakref == Qnil)
-    return Qnil ;
-  return rb_funcall(ObjectSpace, id2ref, 1, weakref); /* translate weakref to
-                                                       * the object */
-}
-
-void Nokogiri_xml_node2obj_remove(xmlNodePtr node)
-{
-  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@node2obj"));
-  rb_hash_delete(hash, INT2NUM((long)node));
-}
-
-void Nokogiri_xml_node_owned_set(xmlNodePtr node)
-{
-  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@owned"));
-  rb_hash_aset(hash, INT2NUM((long)node), node->parent ? Qtrue : Qfalse) ;
-}
-
-int Nokogiri_xml_node_owned_get(xmlNodePtr node)
-{
-  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@owned"));
-  VALUE q = rb_hash_aref(hash, INT2NUM((long)node)) ;
-  return q == Qtrue ? Qtrue : Qfalse ;
-}
-
 /*
  * call-seq:
  *   owned?
@@ -686,9 +640,8 @@ int Nokogiri_xml_node_owned_get(xmlNodePtr node)
 static VALUE owned_eh(VALUE self)
 {
   xmlNodePtr node ;
-  VALUE hash = rb_cvar_get(cNokogiriXmlNode, rb_intern("@@owned"));
   Data_Get_Struct(self, xmlNode, node);
-  return rb_hash_aref(hash, INT2NUM((long)node)) == Qtrue ? Qtrue : Qfalse ;
+  return node->doc ? Qtrue : Qfalse;
 }
 
 

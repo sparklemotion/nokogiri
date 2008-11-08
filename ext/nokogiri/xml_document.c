@@ -10,15 +10,15 @@ static void gc_mark(xmlNodePtr node)
   xmlNodePtr child ;
   /* mark children nodes */
   for (child = node->children ; child ; child = child->next) {
-    if ((rb_obj = Nokogiri_xml_node2obj_get(child)) != Qnil)
+    if ((rb_obj = (VALUE)child->_private) != (VALUE)NULL)
       rb_gc_mark(rb_obj);
   }
 }
 
 static void dealloc(xmlDocPtr doc)
 {
+  doc->_private = NULL;
   NOKOGIRI_DEBUG_START(doc);
-  Nokogiri_xml_node2obj_remove((xmlNodePtr)doc);
   xmlFreeDoc(doc);
   NOKOGIRI_DEBUG_END(doc);
 }
@@ -57,7 +57,6 @@ static VALUE set_root(VALUE self, VALUE root)
   Data_Get_Struct(root, xmlNode, new_root);
 
   xmlDocSetRootElement(doc, new_root);
-  Nokogiri_xml_node_owned_set(new_root);
   return root;
 }
 
@@ -156,11 +155,9 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
 {
   VALUE rb_doc = Qnil;
 
-  if ((rb_doc = Nokogiri_xml_node2obj_get((xmlNodePtr)doc)) != Qnil)
-    return rb_doc ;
-
   rb_doc = Data_Wrap_Struct(klass ? klass : cNokogiriXmlDocument, gc_mark, dealloc, doc) ;
 
-  Nokogiri_xml_node2obj_set((xmlNodePtr)doc, rb_doc);
+  doc->_private = (void *)rb_doc;
+
   return rb_doc ;
 }

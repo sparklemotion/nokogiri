@@ -1,8 +1,6 @@
 # -*- ruby -*-
 
-require 'rubygems'
 require 'rake'
-
 
 kind = Config::CONFIG['DLEXT']
 windows = RUBY_PLATFORM =~ /mswin/i ? true : false
