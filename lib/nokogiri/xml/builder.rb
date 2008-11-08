@@ -7,6 +7,7 @@ module Nokogiri
         namespace[-1] = 'Document'
         @doc = eval(namespace.join('::')).new
         @parent = @doc
+        @context = eval('self', block.binding)
         instance_eval(&block)
         @parent = @doc
       end
@@ -26,16 +27,20 @@ module Nokogiri
       end
 
       def method_missing(method, *args, &block)
-        node = Nokogiri::XML::Node.new(method.to_s) { |n|
-          if content = args.first
-            if content.is_a?(Hash)
-              content.each { |k,v| n[k.to_s] = v.to_s }
-            else
-              n.content = content
+        if @context.respond_to?(method)
+          @context.send(method, *args, &block)
+        else
+          node = Nokogiri::XML::Node.new(method.to_s) { |n|
+            if content = args.first
+              if content.is_a?(Hash)
+                content.each { |k,v| n[k.to_s] = v.to_s }
+              else
+                n.content = content
+              end
             end
-          end
-        }
-        insert(node, &block)
+          }
+          insert(node, &block)
+        end
       end
 
       private

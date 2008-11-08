@@ -73,6 +73,17 @@ module Nokogiri
         assert_equal('<html><body><b>bold tag</b></body></html>',
                      builder.doc.to_html.chomp)
       end
+      
+      def test_instance_eval_with_delegation_to_block_context
+        class << self
+          def foo
+            "foo!"
+          end
+        end
+
+        builder = Nokogiri::HTML::Builder.new { text foo }
+        assert builder.to_html.include?("foo!")
+      end
     end
   end
 end
