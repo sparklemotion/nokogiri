@@ -14,6 +14,9 @@ module Nokogiri
       XINCLUDE_END = 20
       DOCB_DOCUMENT_NODE = 21
 
+      @@owned = {}
+      @@node2obj = {}
+
       ###
       # Decorate this node with the decorators set up in this node's Document
       def decorate!

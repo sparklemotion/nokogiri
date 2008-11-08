@@ -77,13 +77,11 @@ lib/nokogiri/xml/xpath.rb
 lib/nokogiri/xml/xpath_context.rb
 lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
-nokogiri.gemspec
 test/css/test_nthiness.rb
 test/css/test_parser.rb
 test/css/test_tokenizer.rb
 test/css/test_xpath_visitor.rb
 test/files/dont_hurt_em_why.xml
-test/files/f.html
 test/files/staff.xml
 test/files/staff.xslt
 test/files/tlm.html
@@ -121,4 +119,3 @@ test/xml/test_dtd.rb
 test/xml/test_node.rb
 test/xml/test_node_set.rb
 test/xml/test_text.rb
-vendor/hoe.rb
