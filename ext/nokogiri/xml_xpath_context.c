@@ -7,13 +7,6 @@ static void deallocate(xmlXPathContextPtr ctx)
   NOKOGIRI_DEBUG_END(ctx);
 }
 
-static void gc_mark_context(xmlXPathContextPtr ctx)
-{
-  VALUE rb_obj ;
-  if (ctx && ctx->node && (rb_obj = Nokogiri_xml_node2obj_get(ctx->node)) != Qnil)
-    rb_gc_mark(rb_obj);
-}
-
 /*
  * call-seq:
  *  register_ns(prefix, uri)
@@ -66,7 +59,7 @@ static VALUE new(VALUE klass, VALUE nodeobj)
 
   xmlXPathContextPtr ctx = xmlXPathNewContext(node->doc);
   ctx->node = node ;
-  return Data_Wrap_Struct(klass, gc_mark_context, deallocate, ctx);
+  return Data_Wrap_Struct(klass, 0, deallocate, ctx);
 }
 
 VALUE cNokogiriXmlXpathContext;

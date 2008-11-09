@@ -55,16 +55,6 @@ static VALUE index_at(VALUE self, VALUE number)
   return Nokogiri_wrap_xml_node(node_set->nodeTab[i]);
 }
 
-static void gc_mark(xmlNodeSetPtr node_set)
-{
-  VALUE rb_obj ;
-  int j ;
-  for (j = 0 ; j < node_set->nodeNr ; ++j) {
-    if ((rb_obj = Nokogiri_xml_node2obj_get(node_set->nodeTab[j])) != Qnil)
-      rb_gc_mark(rb_obj);
-  }
-}
-
 static void deallocate(xmlNodeSetPtr node_set)
 {
   /*
@@ -111,7 +101,7 @@ static VALUE allocate(VALUE klass)
 
 VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set)
 {
-    return Data_Wrap_Struct(cNokogiriXmlNodeSet, gc_mark, deallocate, node_set);
+    return Data_Wrap_Struct(cNokogiriXmlNodeSet, 0, deallocate, node_set);
 }
 
 VALUE cNokogiriXmlNodeSet ;

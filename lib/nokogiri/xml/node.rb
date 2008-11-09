@@ -14,9 +14,6 @@ module Nokogiri
       XINCLUDE_END = 20
       DOCB_DOCUMENT_NODE = 21
 
-      @@owned = {}
-      @@node2obj = {}
-
       attr_accessor :document
 
       ###

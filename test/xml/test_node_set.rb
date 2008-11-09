@@ -53,7 +53,6 @@ module Nokogiri
           # assert !node.document # ugh. libxml doesn't clear node->doc pointer, due to xmlDict implementation.
           assert !node.previous_sibling
           assert !node.next_sibling
-          assert !node.instance_eval{ owned? }
         end
         assert !set.document
         assert_no_match(/Hello world/, xml.to_s)
