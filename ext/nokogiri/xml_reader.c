@@ -155,6 +155,7 @@ static VALUE reader_attribute(VALUE self, VALUE name)
     } else {
       value = xmlTextReaderLookupNamespace(reader, prefix);
     }
+    xmlFree(prefix);
   }
   if(value == NULL) return Qnil;
 
