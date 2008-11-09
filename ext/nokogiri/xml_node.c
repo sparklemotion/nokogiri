@@ -2,6 +2,20 @@
 
 /*
  * call-seq:
+ *  pointer_id
+ *
+ * Get the internal pointer number
+ */
+static VALUE pointer_id(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+
+  return INT2NUM((int)(node));
+}
+
+/*
+ * call-seq:
  *  encode_special_chars(string)
  *
  * Encode any special characters in +string+
@@ -514,76 +528,39 @@ static VALUE new_from_str(VALUE klass, VALUE xml)
     return Nokogiri_wrap_xml_node(node);
 }
 
-static void deallocate(xmlNodePtr node)
-{
-  Nokogiri_xml_node2obj_remove(node);
-  if (! Nokogiri_xml_node_owned_get(node)) {
-    NOKOGIRI_DEBUG_START_NODE(node);
-    xmlFreeNode(node);
-    NOKOGIRI_DEBUG_END(node);
-  }
-}
-
-static void gc_mark_node(xmlNodePtr node)
-{
-  xmlNodePtr child ;
-  VALUE rb_obj ;
-  /* mark document */
-  if (node && node->doc && (rb_obj = Nokogiri_xml_node2obj_get((xmlNodePtr)node->doc)) != Qnil)
-    rb_gc_mark(rb_obj);
-  /* mark parent node */
-  if (node && node->parent && (rb_obj = Nokogiri_xml_node2obj_get(node->parent)) != Qnil)
-    rb_gc_mark(rb_obj);
-  /* mark children nodes */
-  for (child = node->children ; child ; child = child->next) {
-    if ((rb_obj = Nokogiri_xml_node2obj_get(child)) != Qnil)
-      rb_gc_mark(rb_obj);
-  }
-  /* mark sibling nodes */
-  if (node->next && (rb_obj = Nokogiri_xml_node2obj_get(node->next)) != Qnil)
-    rb_gc_mark(rb_obj);
-  if (node->prev && (rb_obj = Nokogiri_xml_node2obj_get(node->prev)) != Qnil)
-    rb_gc_mark(rb_obj);
-}
-
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 {
   VALUE rb_node = Qnil;
 
-  if ((rb_node = Nokogiri_xml_node2obj_get(node)) != Qnil)
-    return rb_node ;
-  
   switch(node->type)
   {
     VALUE klass;
 
     case XML_TEXT_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("Text"));
-      rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
       break;
     case XML_ELEMENT_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("Element"));
-      rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
       break;
     case XML_ENTITY_DECL:
       klass = rb_const_get(mNokogiriXml, rb_intern("EntityDeclaration"));
-      rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
       break;
     case XML_CDATA_SECTION_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("CDATA"));
-      rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
       break;
     case XML_DTD_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("DTD"));
-      rb_node = Data_Wrap_Struct(klass, gc_mark_node, deallocate, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
       break;
     default:
-      rb_node = Data_Wrap_Struct(cNokogiriXmlNode, gc_mark_node, deallocate, node) ;
+      rb_node = Data_Wrap_Struct(cNokogiriXmlNode, 0, 0, node) ;
   }
 
-  Nokogiri_xml_node2obj_set(node, rb_node);
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
-  Nokogiri_xml_node_owned_set(node);
   return rb_node ;
 }
 
@@ -740,6 +717,7 @@ void init_xml_node()
   rb_define_method(klass, "dup", duplicate_node, 0);
   rb_define_method(klass, "unlink", unlink_node, 0);
   rb_define_method(klass, "internal_subset", internal_subset, 0);
+  rb_define_method(klass, "pointer_id", pointer_id, 0);
 
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
