@@ -119,3 +119,4 @@ test/xml/test_dtd.rb
 test/xml/test_node.rb
 test/xml/test_node_set.rb
 test/xml/test_text.rb
+vendor/hoe.rb
