@@ -39,8 +39,11 @@ static VALUE read_memory( VALUE klass,
 
   htmlDocPtr doc = htmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
 
-  if(doc == NULL)
-    doc = htmlNewDoc((const xmlChar *)c_url, NULL);
+  if(doc == NULL) {
+    xmlFreeDoc(doc);
+    rb_raise(rb_eRuntimeError, "Couldn't create a document");
+    return Qnil;
+  }
 
   return Nokogiri_wrap_xml_document(klass, doc);
 }

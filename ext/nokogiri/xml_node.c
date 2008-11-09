@@ -70,6 +70,9 @@ static VALUE duplicate_node(VALUE self)
   dup = xmlCopyNode(node, 1);
   if(dup == NULL) return Qnil;
   dup->doc = node->doc;
+  assert(node->parent);
+
+  xmlAddChild(node->parent, dup);
 
   return Nokogiri_wrap_xml_node(dup);
 }

@@ -79,6 +79,7 @@ static VALUE read_memory( VALUE klass,
   if(doc == NULL) {
     xmlFreeDoc(doc);
     rb_raise(rb_eRuntimeError, "Couldn't create a document");
+    return Qnil;
   }
 
   return Nokogiri_wrap_xml_document(klass, doc);
