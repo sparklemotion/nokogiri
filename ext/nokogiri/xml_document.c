@@ -19,6 +19,7 @@ static void dealloc(xmlDocPtr doc)
 {
   NOKOGIRI_DEBUG_START(doc);
   Nokogiri_xml_node2obj_remove((xmlNodePtr)doc);
+  doc->_private = NULL;
   xmlFreeDoc(doc);
   NOKOGIRI_DEBUG_END(doc);
 }
@@ -160,6 +161,7 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
     return rb_doc ;
 
   rb_doc = Data_Wrap_Struct(klass ? klass : cNokogiriXmlDocument, gc_mark, dealloc, doc) ;
+  doc->_private = (void *)rb_doc;
 
   Nokogiri_xml_node2obj_set((xmlNodePtr)doc, rb_doc);
   return rb_doc ;

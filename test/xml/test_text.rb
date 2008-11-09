@@ -4,7 +4,7 @@ module Nokogiri
   module XML
     class TestText < Nokogiri::TestCase
       def test_new
-        node = Text.new('hello world')
+        node = Text.new('hello world', Document.new)
         assert node
         assert_equal('hello world', node.content)
       end

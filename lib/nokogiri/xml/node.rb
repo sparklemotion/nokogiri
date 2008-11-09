@@ -17,6 +17,8 @@ module Nokogiri
       @@owned = {}
       @@node2obj = {}
 
+      attr_accessor :document
+
       ###
       # Decorate this node with the decorators set up in this node's Document
       def decorate!

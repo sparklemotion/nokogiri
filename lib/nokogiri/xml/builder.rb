@@ -13,7 +13,7 @@ module Nokogiri
       end
 
       def text(string)
-        node = Nokogiri::XML::Text.new(string)
+        node = Nokogiri::XML::Text.new(string, @doc)
         insert(node)
       end
 

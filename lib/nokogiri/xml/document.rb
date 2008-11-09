@@ -9,6 +9,10 @@ module Nokogiri
         'document'
       end
 
+      def document
+        self
+      end
+
       ###
       # Apply any decorators to +node+
       def decorate(node)

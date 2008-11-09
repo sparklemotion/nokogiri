@@ -2,6 +2,7 @@
 #define NOKOGIRI_NATIVE
 
 #include <stdlib.h>
+#include <assert.h>
 #include <ruby.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
