@@ -50,6 +50,11 @@ else
   unless find_header('libxslt/xslt.h', INCLUDEDIR, '/usr/include')
     abort "need libxslt"
   end
+
+  version = try_constant('LIBXML_VERSION', 'libxml/xmlversion.h')
+  if version > 20699 || version < 20616
+    abort "Make sure your libxml is in the 2.6.X series"
+  end
 end
 
 create_makefile('nokogiri/native')
