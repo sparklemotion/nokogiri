@@ -21,6 +21,7 @@ require 'nokogiri/version'
 
 HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
+  p.developer('Mike Dalessio', 'mike.dalessio@gmail.com')
   p.clean_globs = [
     'ext/nokogiri/Makefile',
     'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
