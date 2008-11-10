@@ -1,6 +1,15 @@
+=== 1.0.4
+
+* Bugfixes
+
+  * Changed memory mangement from weak refs to document refs
+  * Plugged some memory leaks
+  * extconf.rb now complains if your libxml2 is not between 2.6.13 and 2.6.99
+  * Builder blocks can call methods from surrounding contexts
+
 === 1.0.3
 
-* 5 Bigfixes
+* 5 Bugfixes
 
   * NodeSet now implements to_ary
   * XML::Document should not implement parent

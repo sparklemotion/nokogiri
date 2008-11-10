@@ -10,9 +10,7 @@ windows = RUBY_PLATFORM =~ /mswin/i ? true : false
 LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 $LOAD_PATH << LIB_DIR
 
-$LOAD_PATH << File.expand_path(File.join(File.dirname(__FILE__), 'vendor'))
-
-require 'hoe'
+require 'vendor/hoe'
 
 GENERATED_PARSER = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
@@ -286,6 +284,14 @@ unless windows
   Rake::Task[:test].prerequisites << :build
   Rake::Task[:check_manifest].prerequisites << GENERATED_PARSER
   Rake::Task[:check_manifest].prerequisites << GENERATED_TOKENIZER
+end
+
+# Evil evil hack.  Do not run tests when gem installs
+if ENV['RUBYARCHDIR']
+  class << Rake::Task[:default]
+    attr_writer :prerequisites
+  end
+  Rake::Task[:default].prerequisites = [:build]
 end
 
 # vim: syntax=Ruby
