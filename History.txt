@@ -4,7 +4,6 @@
 
   * Changed memory mangement from weak refs to document refs
   * Plugged some memory leaks
-  * extconf.rb now complains if your libxml2 is not between 2.6.13 and 2.6.99
   * Builder blocks can call methods from surrounding contexts
 
 === 1.0.3
