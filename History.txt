@@ -4,6 +4,7 @@
 
   * Added mailing list and ticket tracking information to the README.txt
   * Sets ENV['PATH'] on windows if it doesn't exist
+  * Caching results of NodeSet#[] on Document
 
 === 1.0.4
 

@@ -22,6 +22,10 @@ module Nokogiri
         end
       end
 
+      def node_cache
+        @node_cache ||= {}
+      end
+
       def to_xml
         serialize
       end

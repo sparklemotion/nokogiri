@@ -78,6 +78,17 @@ module Nokogiri
         assert @xml.document
       end
 
+      def test_singleton_methods
+        assert node_set = @xml.search('//name')
+        assert node_set.length > 0
+        node = node_set.first
+        def node.test
+          'test'
+        end
+        assert node_set = @xml.search('//name')
+        assert_equal 'test', node_set.first.test
+      end
+
       def test_multiple_search
         assert node_set = @xml.search('//employee', '//name')
         employees = @xml.search('//employee')

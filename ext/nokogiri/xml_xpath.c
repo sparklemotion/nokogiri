@@ -23,10 +23,17 @@ static VALUE node_set(VALUE self)
   xmlXPathObjectPtr xpath;
   Data_Get_Struct(self, xmlXPathObject, xpath);
 
-  if (xpath->nodesetval)
-    return Nokogiri_wrap_xml_node_set(xpath->nodesetval);
+  VALUE node_set = Qnil;
 
-  return Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL));
+  if (xpath->nodesetval)
+    node_set = Nokogiri_wrap_xml_node_set(xpath->nodesetval);
+
+  if(Qnil == node_set)
+    node_set = Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL));
+
+  rb_funcall(node_set, rb_intern("document="), 1, rb_iv_get(self, "@document"));
+
+  return node_set;
 }
 
 VALUE cNokogiriXmlXpath;

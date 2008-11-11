@@ -54,7 +54,6 @@ module Nokogiri
           assert !node.previous_sibling
           assert !node.next_sibling
         end
-        assert !set.document
         assert_no_match(/Hello world/, xml.to_s)
       end
 
@@ -76,7 +75,7 @@ module Nokogiri
       end
 
       def test_new_nodeset
-        node_set = Nokogiri::XML::NodeSet.new
+        node_set = Nokogiri::XML::NodeSet.new(@xml)
         assert_equal(0, node_set.length)
         node = Nokogiri::XML::Node.new('form', @xml)
         node_set << node

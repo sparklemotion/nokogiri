@@ -17,8 +17,9 @@ module Nokogiri
       end
 
       def make string
-        ns = XML::NodeSet.new
-        ns << XML::Text.new(string, XML::Document.new)
+        doc = XML::Document.new
+        ns = XML::NodeSet.new(doc)
+        ns << XML::Text.new(string, doc)
         ns
       end
 

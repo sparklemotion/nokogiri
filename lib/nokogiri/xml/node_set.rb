@@ -5,7 +5,8 @@ module Nokogiri
 
       attr_accessor :document
 
-      def initialize
+      def initialize document
+        @document = document
         yield self if block_given?
       end
 
@@ -50,7 +51,6 @@ module Nokogiri
       # current context.
       def unlink
         each { |node| node.unlink }
-        self.document = nil
         self
       end
       alias :remove :unlink
@@ -58,14 +58,13 @@ module Nokogiri
       ###
       # Search this document for +paths+
       def search *paths
-        sub_set = NodeSet.new
+        sub_set = NodeSet.new(document)
         document.decorate(sub_set)
         each do |node|
           node.search(*paths).each do |sub_node|
             sub_set << sub_node
           end
         end
-        sub_set.document = document
         sub_set
       end
       alias :/ :search

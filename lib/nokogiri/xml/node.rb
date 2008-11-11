@@ -25,8 +25,7 @@ module Nokogiri
       ###
       # Get the list of children for this node as a NodeSet
       def children
-        list = NodeSet.new
-        list.document = document
+        list = NodeSet.new(document)
         document.decorate(list)
 
         first = self.child
@@ -56,7 +55,7 @@ module Nokogiri
       def xpath *paths
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
 
-        return NodeSet.new unless document.root
+        return NodeSet.new(document) unless document.root
 
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
@@ -68,7 +67,7 @@ module Nokogiri
         }
         return sets.first if sets.length == 1
 
-        NodeSet.new do |combined|
+        NodeSet.new(document) do |combined|
           document.decorate(combined)
           sets.each do |set|
             set.each do |node|
