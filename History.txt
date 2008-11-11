@@ -1,3 +1,9 @@
+=== 1.0.5
+
+* Bugfixes
+
+  * Sets ENV['PATH'] on windows if it doesn't exist
+
 === 1.0.4
 
 * Bugfixes
