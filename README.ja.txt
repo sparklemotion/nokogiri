@@ -3,6 +3,8 @@
 * http://nokogiri.rubyforge.org/
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
+* http://rubyforge.org/mailman/listinfo/nokogiri-talk
+* http://nokogiri.lighthouseapp.com/projects/19607-nokogiri/overview
 
 == DESCRIPTION:
 

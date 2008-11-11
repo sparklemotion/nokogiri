@@ -3,6 +3,8 @@
 * http://nokogiri.rubyforge.org/
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
+* http://rubyforge.org/mailman/listinfo/nokogiri-talk
+* http://nokogiri.lighthouseapp.com/projects/19607-nokogiri/overview
 
 == DESCRIPTION:
 
@@ -24,6 +26,16 @@ Here is a speed test:
 
 Nokogiri also features an Hpricot compatibility layer to help ease the change
 to using correct CSS and XPath.
+
+== SUPPORT:
+
+The Nokogiri mailing list is available here:
+
+  * http://rubyforge.org/mailman/listinfo/nokogiri-talk
+
+The bug tracker is available here:
+
+  * http://nokogiri.lighthouseapp.com/projects/19607-nokogiri/overview
 
 == SYNOPSIS:
 
