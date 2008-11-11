@@ -383,7 +383,8 @@ static VALUE get_name(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-  return rb_str_new2((const char *)node->name);
+  if(node->name) return rb_str_new2((const char *)node->name);
+  return Qnil;
 }
 
 /*
