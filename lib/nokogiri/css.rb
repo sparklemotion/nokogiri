@@ -1,6 +1,6 @@
 require 'nokogiri/css/node'
 require 'nokogiri/css/xpath_visitor'
-require 'nokogiri/css/generated_tokenizer'
 require 'nokogiri/css/generated_parser'
+require 'nokogiri/css/generated_tokenizer'
 require 'nokogiri/css/tokenizer'
 require 'nokogiri/css/parser'
