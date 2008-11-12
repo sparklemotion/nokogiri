@@ -192,11 +192,6 @@ module Nokogiri
         children.each{|j| j.traverse(&block) }
         block.call(self)
       end
-
-      def == other
-        pointer_id == other.pointer_id
-      end
-      alias :eql? :==
     end
   end
 end

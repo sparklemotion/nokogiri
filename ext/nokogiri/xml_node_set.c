@@ -52,22 +52,7 @@ static VALUE index_at(VALUE self, VALUE number)
   if(i < 0)
     i = i + node_set->nodeNr;
 
-  VALUE document = rb_funcall(self, rb_intern("document"), 0);
-  if(Qnil == document)
-    rb_raise(rb_eRuntimeError, "You forgot to set a document.");
-
-  VALUE index = INT2NUM((int)node_set->nodeTab[i]);
-
-  VALUE node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
-
-  VALUE node = rb_hash_aref(node_cache, index);
-
-  if(Qnil == node) {
-    node = Nokogiri_wrap_xml_node(node_set->nodeTab[i]);
-    rb_hash_aset(node_cache, index, node);
-  }
-
-  return node;
+  return Nokogiri_wrap_xml_node(node_set->nodeTab[i]);
 }
 
 static void deallocate(xmlNodeSetPtr node_set)
