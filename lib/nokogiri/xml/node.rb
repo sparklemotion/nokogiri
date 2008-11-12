@@ -46,7 +46,7 @@ module Nokogiri
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
         xpath(*(paths.map { |path|
           path =~ /^(\.\/|\/)/ ? path : CSS.parse(path).map { |ast|
-            ast.to_xpath
+            "." + ast.to_xpath
           }
         }.flatten.uniq) + [ns])
       end
