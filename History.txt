@@ -1,3 +1,10 @@
+=== 1.0.6
+
+* Bugfixes
+
+  * CSS Parser raises a SyntaxError on parse failure
+  * filter() and not() hpricot compatibility added
+
 === 1.0.5
 
 * Bugfixes

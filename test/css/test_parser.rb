@@ -7,6 +7,10 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_syntax_error_raised
+        assert_raises(CSS::SyntaxError) { @parser.parse("a[x=]") }
+      end
+
       def test_find_by_type
         ast = @parser.parse("a:nth-child(2)").first
         matches = ast.find_by_type(
