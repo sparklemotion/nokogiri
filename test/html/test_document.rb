@@ -12,6 +12,22 @@ module Nokogiri
         assert html.html?
       end
 
+      def test_multi_css
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <body>
+            <div>
+              <p>p tag</p>
+              <a>a tag</a>
+            </div>
+          </body>
+        </html>
+        eohtml
+        set = html.css('p, a')
+        assert_equal(2, set.length)
+        assert_equal ['a tag', 'p tag'].sort, set.map { |x| x.content }.sort
+      end
+
       def test_inner_text
         html = Nokogiri::HTML(<<-eohtml)
         <html>
