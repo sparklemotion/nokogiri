@@ -39,7 +39,9 @@ static VALUE evaluate(VALUE self, VALUE search_path)
   xmlChar* query = (xmlChar *)StringValuePtr(search_path);
   xmlXPathObjectPtr xpath = xmlXPathEvalExpression(query, ctx);
   if(xpath == NULL) {
-    rb_raise(rb_eRuntimeError, "Couldn't evaluate expression '%s'", query);
+    VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
+    VALUE error = rb_const_get(xpath, rb_intern("SyntaxError"));
+    rb_raise(error, "Couldn't evaluate expression '%s'", query);
   }
 
   VALUE xpath_object = Nokogiri_wrap_xml_xpath(xpath);

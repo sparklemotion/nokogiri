@@ -38,6 +38,12 @@ module Nokogiri
         assert_equal 0, ns.length
       end
 
+      def test_bad_xpath_raises_syntax_error
+        assert_raises(XML::XPath::SyntaxError) {
+          @xml.xpath('\\')
+        }
+      end
+
       def test_new_document_collect_namespaces
         doc = Nokogiri::XML::Document.new
         assert_equal({}, doc.collect_namespaces)
