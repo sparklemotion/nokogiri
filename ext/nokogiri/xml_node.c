@@ -524,11 +524,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
   VALUE node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
   VALUE rb_node = rb_hash_aref(node_cache, index);
 
-  if(rb_node != Qnil) {
-    rb_iv_set(rb_node, "@document", document);
-    rb_funcall(rb_node, rb_intern("decorate!"), 0);
-    return rb_node;
-  }
+  if(rb_node != Qnil) return rb_node;
 
   switch(node->type)
   {
