@@ -65,6 +65,7 @@ NokogiriはHpricotの代わりに使用出来る。
 
 * ruby 1.8 or 1.9
 * libxml
+* libxslt
 
 == INSTALL:
 

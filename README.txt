@@ -67,6 +67,7 @@ The bug tracker is available here:
 
 * ruby 1.8 or 1.9
 * libxml
+* libxslt
 
 == INSTALL:
 
