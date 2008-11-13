@@ -6,6 +6,7 @@ require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/testtask'
 require 'rbconfig'
+require 'uri'
 
 if ENV['RUBYARCHDIR']
   class RubyForge

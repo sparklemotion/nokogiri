@@ -289,10 +289,9 @@ end
 
 # Evil evil hack.  Do not run tests when gem installs
 if ENV['RUBYARCHDIR']
-  class << Rake::Task[:default]
-    attr_writer :prerequisites
-  end
-  Rake::Task[:default].prerequisites = [:build]
+  prereqs = Rake::Task[:default].prerequisites
+  prereqs.clear
+  prereqs << :build
 end
 
 # vim: syntax=Ruby
