@@ -18,7 +18,7 @@ Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。
 
 検索出来たり、正確にCSS3とXPathをサポート出来たりする。
 
-これはスピッドテストです：
+これはスピードテストです：
 
   * http://gist.github.com/22176
 
