@@ -45,7 +45,7 @@ module Nokogiri
       def search *paths
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
         xpath(*(paths.map { |path|
-          path =~ /^(\.\/|\/)/ ? path : CSS.parse_to_xpath(path, :prefix => ".//")
+          path =~ /^(\.\/|\/)/ ? path : CSS.xpath_for(path, :prefix => ".//")
         }.flatten.uniq) + [ns])
       end
       alias :/ :search
@@ -76,7 +76,7 @@ module Nokogiri
       end
 
       def css *rules
-        xpath(*(rules.map { |rule| CSS.parse_to_xpath(rule, :prefix => ".//") }.flatten.uniq))
+        xpath(*(rules.map { |rule| CSS.xpath_for(rule, :prefix => ".//") }.flatten.uniq))
       end
 
       def at path, ns = {}

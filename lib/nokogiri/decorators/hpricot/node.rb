@@ -40,7 +40,7 @@ module Nokogiri
           else
             visitor = CSS::XPathVisitor.new
             visitor.extend(Hpricot::XPathVisitor)
-            CSS.parse_to_xpath(rule, :prefix => ".//", :visitor => visitor)
+            CSS.xpath_for(rule, :prefix => ".//", :visitor => visitor)
           end
         end
 

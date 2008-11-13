@@ -23,12 +23,12 @@ class TestCssCache < Nokogiri::TestCase
       Nokogiri::CSS::Parser.any_instance.expects(:parse).with(@css).returns(@parse_result).times(times)
       Nokogiri::CSS::Node.any_instance.expects(:to_xpath).returns(@to_xpath_result).times(times)
       
-      Nokogiri::CSS.parse_to_xpath(@css)
-      Nokogiri::CSS.parse_to_xpath(@css)
-      Nokogiri::CSS::Parser.parse_to_xpath(@css)
-      Nokogiri::CSS::Parser.parse_to_xpath(@css)
-      Nokogiri::CSS::Parser.new.parse_to_xpath(@css)
-      Nokogiri::CSS::Parser.new.parse_to_xpath(@css)
+      Nokogiri::CSS.xpath_for(@css)
+      Nokogiri::CSS.xpath_for(@css)
+      Nokogiri::CSS::Parser.xpath_for(@css)
+      Nokogiri::CSS::Parser.xpath_for(@css)
+      Nokogiri::CSS::Parser.new.xpath_for(@css)
+      Nokogiri::CSS::Parser.new.xpath_for(@css)
     end
 
     define_method "test_hpricot_cache_#{cache_setting ? "true" : "false"}" do

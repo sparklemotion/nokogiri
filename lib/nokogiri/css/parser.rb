@@ -5,8 +5,8 @@ module Nokogiri
         def parse string
           new.parse(string)
         end
-        def parse_to_xpath string, options={}
-          new.parse_to_xpath(string, options)
+        def xpath_for string, options={}
+          new.xpath_for(string, options)
         end
 
         def cache setting
@@ -14,16 +14,15 @@ module Nokogiri
         end
         alias_method :set_cache, :cache
         def cache?
+          @cache ||= {}
           instance_variable_defined?('@cache_off') ? @cache_off : false
         end
         def check_cache string
           return if cache?
-          @cache ||= {}
           @cache[string]
         end
         def add_cache string, value
           return value if cache?
-          @cache ||= {}
           @cache[string] = value
         end
         def clear_cache
@@ -32,7 +31,7 @@ module Nokogiri
       end
       alias :parse :scan_str
 
-      def parse_to_xpath string, options={}
+      def xpath_for string, options={}
         v = self.class.check_cache(string)
         return v unless v.nil?
 
