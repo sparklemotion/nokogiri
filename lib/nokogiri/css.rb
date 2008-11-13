@@ -12,6 +12,9 @@ module Nokogiri
       def parse string
         Parser.new.parse string
       end
+      def parse_to_xpath string, options={}
+        Parser.new.parse_to_xpath string, options
+      end
     end
   end
 end
