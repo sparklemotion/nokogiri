@@ -629,8 +629,6 @@ class Hoe
 
     Rake::RDocTask.new(:docs) do |rd|
       rd.main = "README.txt"
-      rd.options << '-d' if
-        `which dot` =~ /\/dot/ unless ENV['NODOT'] unless WINDOZE
       rd.rdoc_dir = 'doc'
       files = spec.files.grep(rdoc_pattern)
       files -= ['Manifest.txt']
