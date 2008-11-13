@@ -108,6 +108,10 @@ void init_xml_dtd()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
+
+  /*
+   * Nokogiri::XML::DTD wraps DTD nodes in an XML document
+   */
   VALUE klass = rb_define_class_under(xml, "DTD", cNokogiriXmlNode);
 
   rb_define_method(klass, "notations", notations, 0);
