@@ -9,20 +9,19 @@ module Nokogiri
           new.xpath_for(string, options)
         end
 
-        def cache setting
-          @cache_off = setting ? false : true
+        def set_cache setting
+          @cache_on = setting ? true : false
         end
-        alias_method :set_cache, :cache
-        def cache?
+        def cache_on?
           @cache ||= {}
-          instance_variable_defined?('@cache_off') ? @cache_off : false
+          instance_variable_defined?('@cache_on') ? @cache_on : true
         end
         def check_cache string
-          return if cache?
+          return unless cache_on?
           @cache[string]
         end
         def add_cache string, value
-          return value if cache?
+          return value unless cache_on?
           @cache[string] = value
         end
         def clear_cache

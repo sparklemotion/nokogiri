@@ -13,6 +13,7 @@ class TestCssCache < Nokogiri::TestCase
 
   def teardown
     Nokogiri::CSS::Parser.clear_cache
+    Nokogiri::CSS::Parser.set_cache true
   end
 
   [ false, true ].each do |cache_setting|
