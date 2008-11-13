@@ -1,3 +1,4 @@
+History.ja.txt
 History.txt
 Manifest.txt
 README.ja.txt
