@@ -11,9 +11,11 @@ module Nokogiri
         visitor.send(:"visit_#{type.to_s.downcase}", self)
       end
 
-      def to_xpath prefix = '//', preprocess = true
-        self.preprocess! if preprocess
-        prefix + XPathVisitor.new.accept(self)
+      def to_xpath prefix = nil, visitor = nil
+        prefix ||= '//'
+        visitor ||= XPathVisitor.new
+        self.preprocess!
+        prefix + visitor.accept(self)
       end
 
       def preprocess!
