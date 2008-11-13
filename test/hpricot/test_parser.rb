@@ -70,10 +70,10 @@ class TestParser < Nokogiri::TestCase
     assert_equal 'link1', doc.search('p').at('a').get_attribute('id')
 
     assert_equal 'link2', (doc/'p').filter('.ohmy').search('a').first.get_attribute('id')
-    assert_equal (doc/'p')[2], (doc/'p').filter('[text()="The third paragraph"]')[0]
-    assert_equal (doc/'p')[3], (doc/'p').filter('b')[0]
-    assert_equal (doc/'p')[1], (doc/'p').filter('a[@id="link2"]')[0]
-    assert_equal (doc/'p')[3], (doc/'p').filter('.last')[0]
+    assert_equal((doc/'p')[2], (doc/'p').filter('[text()="The third paragraph"]')[0])
+    assert_equal((doc/'p')[3], (doc/'p').filter('b')[0])
+    assert_equal((doc/'p')[1], (doc/'p').filter('a[@id="link2"]')[0])
+    assert_equal((doc/'p')[3], (doc/'p').filter('.last')[0])
     assert_equal 4, (doc/'p').filter('*').length
     assert_equal 3, (doc/'p').filter('* *').length
     eles = (doc/'p').filter('.ohmy')
