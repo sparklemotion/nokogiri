@@ -8,8 +8,7 @@ module Nokogiri
             convert_to_xpath(path)
           }.flatten.uniq
 
-          namespaces = document.xml? ? document.namespaces.merge(ns) : ns
-          super(*converted + [namespaces])
+          super(*converted + [ns])
         end
         def /(path); search(path) end
 
@@ -32,11 +31,11 @@ module Nokogiri
           rule = rule.to_s
           case rule
           when %r{^//}
-            [".#{rule}"]
+            [".#{Hpricot::XPathVisitor.xpath_namespace_helper(rule)}"]
           when %r{^/}
-            [rule]
+            [Hpricot::XPathVisitor.xpath_namespace_helper(rule)]
           when %r{^.//}
-            [rule]
+            [Hpricot::XPathVisitor.xpath_namespace_helper(rule)]
           else
             visitor = CSS::XPathVisitor.new
             visitor.extend(Hpricot::XPathVisitor)

@@ -151,6 +151,11 @@ class TestConvertXPath < Nokogiri::TestCase
     end
   end
 
+  def test_compat_mode_namespaces
+    assert_equal(".//*[name()='t:sam']", @NH.convert_to_xpath("//t:sam").first)
+    assert_equal(".//*[name()='t:sam'][@rel='bookmark'][1]", @NH.convert_to_xpath("//t:sam[@rel='bookmark'][1]").first)
+  end
+
   ##
   #  'and' is not supported by hpricot
 #   def test_and

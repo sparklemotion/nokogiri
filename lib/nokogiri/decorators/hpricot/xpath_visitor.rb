@@ -11,6 +11,17 @@ module Nokogiri
           end
           super(node).gsub(/child::text\(\)/, 'normalize-space(child::text())')
         end
+
+        #  take a path like '//t:sam' and convert to xpath "*[name()='t:sam']"
+        def self.xpath_namespace_helper rule
+          rule.split(/\//).collect do |tag|
+            if match = tag.match(/^(\w+:\w+)(.*)/)
+              "*[name()='#{match[1]}']#{match[2]}"
+            else
+              tag
+            end
+          end.join("/")
+        end
       end
     end
   end
