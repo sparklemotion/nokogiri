@@ -8,14 +8,38 @@ module Nokogiri
         def parse_to_xpath string, options={}
           new.parse_to_xpath(string, options)
         end
+
+        def cache setting
+          @cache_off = setting ? false : true
+        end
+        alias_method :set_cache, :cache
+        def cache?
+          instance_variable_defined?('@cache_off') ? @cache_off : false
+        end
+        def check_cache string
+          return if cache?
+          @cache ||= {}
+          @cache[string]
+        end
+        def add_cache string, value
+          return value if cache?
+          @cache ||= {}
+          @cache[string] = value
+        end
+        def clear_cache
+          @cache = {}
+        end
       end
       alias :parse :scan_str
 
       def parse_to_xpath string, options={}
+        v = self.class.check_cache(string)
+        return v unless v.nil?
+
         prefix = options[:prefix] || nil
         visitor = options[:visitor] || nil
         args = [prefix, visitor]
-        parse(string).map {|ast| ast.to_xpath(prefix, visitor)}
+        self.class.add_cache(string, parse(string).map {|ast| ast.to_xpath(prefix, visitor)})
       end
 
       def on_error error_token_id, error_value, value_stack
