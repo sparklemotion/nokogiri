@@ -6,7 +6,15 @@ require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/testtask'
 require 'rbconfig'
-require 'rubyforge'
+
+if ENV['RUBYARCHDIR']
+  class RubyForge
+    VERSION = 'awesome'
+  end
+else
+  require 'rubyforge'
+end
+
 require 'yaml'
 
 begin
