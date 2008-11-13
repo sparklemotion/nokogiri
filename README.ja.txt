@@ -25,6 +25,16 @@ Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。
 NokogiriはHpricotの代わりに使用出来る。
 その互換性は簡単に正しいCSSとXPathを使用する事が出来る。
 
+== SUPPORT:
+
+ノコギリのメーリングリストは:
+
+  * http://rubyforge.org/mailman/listinfo/nokogiri-talk
+
+バグファイルは:
+
+  * http://nokogiri.lighthouseapp.com/projects/19607-nokogiri/overview
+
 == SYNOPSIS:
 
   require 'nokogiri'
