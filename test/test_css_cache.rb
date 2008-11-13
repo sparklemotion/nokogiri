@@ -9,6 +9,7 @@ class TestCssCache < Nokogiri::TestCase
     @css = "a1 > b2 > c3"
     @parse_result = Nokogiri::CSS.parse(@css)
     @to_xpath_result = @parse_result.map {|ast| ast.to_xpath}
+    assert Nokogiri::CSS::Parser.cache_on?
   end
 
   def teardown
