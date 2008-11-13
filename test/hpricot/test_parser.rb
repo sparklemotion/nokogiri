@@ -248,17 +248,17 @@ class TestParser < Nokogiri::TestCase
   def test_class_search
     # test case sent by Chih-Chao Lam
     # Modified.  libxml corrects this differently than hpricot
-    doc = Nokogiri.Hpricot("<div class=xyz '>abc</div>")
+    doc = Nokogiri::Hpricot.HTML("<div class=xyz '>abc</div>")
     assert_equal 1, doc.search(".xyz").length
 
-    doc = Nokogiri.Hpricot("<div class=xyz>abc</div><div class=abc>xyz</div>")
+    doc = Nokogiri::Hpricot.HTML("<div class=xyz>abc</div><div class=abc>xyz</div>")
     assert_equal 1, doc.search(".xyz").length
     assert_equal 4, doc.search("*").length
   end
 
   def test_kleene_star
     # bug noticed by raja bhatia
-    doc = Nokogiri.Hpricot("<span class='small'>1</span><div class='large'>2</div><div class='small'>3</div><span class='blue large'>4</span>")
+    doc = Nokogiri::Hpricot.HTML("<span class='small'>1</span><div class='large'>2</div><div class='small'>3</div><span class='blue large'>4</span>")
     assert_equal 2, doc.search("*[@class*='small']").length
     assert_equal 2, doc.search("*.small").length
     assert_equal 2, doc.search(".small").length
@@ -266,11 +266,11 @@ class TestParser < Nokogiri::TestCase
   end
 
   def test_empty_comment
-    doc = Nokogiri.Hpricot("<p><!----></p>")
+    doc = Nokogiri::Hpricot.HTML("<p><!----></p>")
     doc = doc.search('//body').first
     assert doc.children[0].children[0].comment?
 
-    doc = Nokogiri.Hpricot("<p><!-- --></p>")
+    doc = Nokogiri::Hpricot.HTML("<p><!-- --></p>")
     doc = doc.search('//body').first
     assert doc.children[0].children[0].comment?
   end
@@ -331,9 +331,9 @@ class TestParser < Nokogiri::TestCase
   ####
   # Modified.  Added question.  Don't care.
   def test_procins
-    doc = Nokogiri.Hpricot("<?php print('hello') ?>\n<?xml blah='blah'?>")
+    doc = Nokogiri::Hpricot.HTML("<?php print('hello') ?>\n<?xml blah='blah'?>")
     assert_equal "php", doc.children[1].target
-    assert_equal "blah='blah'?", doc.children[2].content
+    assert_equal "blah='blah'?", doc.children[2].content #"# quote added so emacs ruby-mode parser doesn't barf
   end
 
   ####
