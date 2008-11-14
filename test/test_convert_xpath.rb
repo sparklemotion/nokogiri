@@ -2,7 +2,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 begin
   require 'rubygems'
-  require 'askldfhj'
+  require 'hpricot'
   HAS_HPRICOT = true
 rescue LoadError
   HAS_HPRICOT = false
