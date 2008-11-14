@@ -6,6 +6,7 @@
   * CSS Parser raises a SyntaxError on parse failure
   * filter() and not() hpricot compatibility added
   * CSS searches via Node#search are now always relative
+  * CSS to XPath conversion is now cached
 
 === 1.0.5
 

@@ -30,6 +30,8 @@ module Nokogiri
           xml = Nokogiri::XML(f)
         }
         assert xml.xml?
+        set = xml.search('//employee')
+        assert set.length > 0
       end
 
       def test_search_on_empty_documents

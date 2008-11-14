@@ -46,7 +46,7 @@ module Nokogiri
       def parse string_or_io, url = nil, encoding = nil, options = 2159
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          string_or_io = string_or_io.read
+          return Document.read_io(string_or_io, url, encoding, options)
         end
 
         # read_memory pukes on empty docs
