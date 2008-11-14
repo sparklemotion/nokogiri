@@ -2,8 +2,8 @@
 
 * 5つの修正
 
-  * XPath のパーサーが SyntaxError を生じさせ parse を停止させる
-  * CSS のパーサーが SyntaxError を生じさせ parse を停止させる
+  * XPath のパーサーが SyntaxError を生じさせ解析停止させる
+  * CSS のパーサーが SyntaxError を生じさせ解析停止させる
   * filter() と not() hpricot の互換性を追加
   * CSS が Node#search 経由で検索し、常時対応する事が出来るようになった
   * CSS より XPath 変換がキャッシュに入れられるようになった
