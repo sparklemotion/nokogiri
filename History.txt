@@ -1,6 +1,6 @@
 === 1.0.6
 
-* Bugfixes
+* 5 Bugfixes
 
   * XPath Parser raises a SyntaxError on parse failure
   * CSS Parser raises a SyntaxError on parse failure
