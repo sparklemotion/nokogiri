@@ -186,10 +186,10 @@ module Nokogiri
       end
 
       def util_decorate(document, x)
-        document.decorators['document'] << x
-        document.decorators['node'] << x
-        document.decorators['element'] << x
-        document.decorators['nodeset'] << x
+        document.decorators('document') << x
+        document.decorators('node') << x
+        document.decorators('element') << x
+        document.decorators('nodeset') << x
         document.decorate!
       end
     end
