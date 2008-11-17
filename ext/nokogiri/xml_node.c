@@ -1,5 +1,15 @@
 #include <xml_node.h>
 
+#ifdef DEBUG
+static void debug_node_dealloc(xmlNodePtr x)
+{
+  NOKOGIRI_DEBUG_START(x)
+  NOKOGIRI_DEBUG_END(x)
+}
+#else
+#  define debug_node_dealloc 0
+#endif
+
 /*
  * call-seq:
  *  pointer_id
@@ -532,26 +542,26 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 
     case XML_TEXT_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("Text"));
-      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_ELEMENT_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("Element"));
-      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_ENTITY_DECL:
       klass = rb_const_get(mNokogiriXml, rb_intern("EntityDeclaration"));
-      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_CDATA_SECTION_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("CDATA"));
-      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_DTD_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("DTD"));
-      rb_node = Data_Wrap_Struct(klass, 0, 0, node) ;
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     default:
-      rb_node = Data_Wrap_Struct(cNokogiriXmlNode, 0, 0, node) ;
+      rb_node = Data_Wrap_Struct(cNokogiriXmlNode, 0, debug_node_dealloc, node) ;
   }
 
   rb_hash_aset(node_cache, index, rb_node);
