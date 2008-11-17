@@ -2,8 +2,8 @@ module Nokogiri
   module XML
     class Document < Node
       def decorators(key)
-        @decorators ||= Hash.new { |h,k| h[k] = [] }
-        @decorators[key]
+        @decorators ||= Hash.new
+        @decorators[key] ||= []
       end
 
       def name
