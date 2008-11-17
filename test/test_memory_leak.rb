@@ -22,9 +22,9 @@ class TestMemoryLeak < Nokogiri::TestCase
         doc = Nokogiri::XML(xml_data)
         doc.xpath("//item")
       end
-      GC.start
+      2.times { GC.start }
       count_end = count_object_space_documents
-      assert((count_end - count_start) <= 1, "memory leak detected")
+      assert((count_end - count_start) == 0, "memory leak detected")
     rescue LoadError
       puts "\ndike is not installed, skipping memory leak test"
     end
