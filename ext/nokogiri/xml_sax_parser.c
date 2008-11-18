@@ -20,6 +20,31 @@ static VALUE parse_memory(VALUE self, VALUE data)
   return data;
 }
 
+/*
+ * call-seq:
+ *  native_parse_io(data, encoding)
+ *
+ * Parse the document accessable via +io+
+ */
+static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
+{
+  xmlSAXHandlerPtr handler;
+  Data_Get_Struct(self, xmlSAXHandler, handler);
+
+  xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding); 
+
+  xmlParserCtxtPtr sax_ctx = xmlCreateIOParserCtxt(
+      handler,
+      (void *)self,
+      (xmlInputReadCallback)io_read_callback,
+      (xmlInputCloseCallback)io_close_callback,
+      (void *)io,
+      enc
+  );
+  xmlParseDocument(sax_ctx);
+  return io;
+}
+
 static VALUE native_parse_file(VALUE self, VALUE data)
 {
   xmlSAXHandlerPtr handler;
@@ -171,4 +196,5 @@ void init_xml_sax_parser()
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "parse_memory", parse_memory, 1);
   rb_define_private_method(klass, "native_parse_file", native_parse_file, 1);
+  rb_define_private_method(klass, "native_parse_io", native_parse_io, 2);
 }

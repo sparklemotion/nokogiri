@@ -13,12 +13,14 @@ module Nokogiri
             @parser.parse(f)
           }
           @parser.parse(File.read(XML_FILE))
+          assert(@parser.document.cdata_blocks.length > 0)
         end
 
         def test_parse_io
           File.open(XML_FILE, 'rb') { |f|
             @parser.parse_io(f)
           }
+          assert(@parser.document.cdata_blocks.length > 0)
         end
 
         def test_parse_file

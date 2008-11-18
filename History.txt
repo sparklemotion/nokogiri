@@ -1,3 +1,10 @@
+=== HEAD
+
+* Bugfixes
+
+  * Fixed memory leak when using Dike
+  * SAX parser now parses streams
+
 === 1.0.6
 
 * 5 Bugfixes

@@ -16,8 +16,8 @@ module Nokogiri
 
         ###
         # Parse given +io+
-        def parse_io io
-          parse_memory io.read
+        def parse_io io, encoding = 0
+          native_parse_io io, encoding
         end
 
         ###
