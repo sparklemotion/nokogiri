@@ -3,7 +3,8 @@
 * Bugfixes
 
   * Fixed memory leak when using Dike
-  * SAX parser now parses streams
+  * SAX parser now parses IO streams
+  * Comment nodes have their own class
 
 === 1.0.6
 
