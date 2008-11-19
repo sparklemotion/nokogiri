@@ -3,6 +3,19 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
+      def test_add_previous_sibling
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+        </root>
+        eoxml
+        b_node = Nokogiri::XML::Node.new('a', xml)
+        b_node.content = 'first'
+        a_node = xml.xpath('//a').first
+        a_node.add_previous_sibling(b_node)
+        assert_equal('first', xml.xpath('//a').first.text)
+      end
+
       def test_find_by_css_with_tilde_eql
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
