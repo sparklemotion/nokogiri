@@ -46,6 +46,6 @@ def Nokogiri(*args, &block)
     builder = Nokogiri::HTML::Builder.new(&block)
     return builder.doc
   else
-    Nokogiri::HTML.parse(*args)
+    Nokogiri.parse(*args)
   end
 end

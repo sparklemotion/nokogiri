@@ -5,6 +5,7 @@
   * Fixed memory leak when using Dike
   * SAX parser now parses IO streams
   * Comment nodes have their own class
+  * Nokogiri() should delegate to Nokogiri.parse()
 
 === 1.0.6
 
