@@ -73,7 +73,7 @@ static VALUE apply_to(int argc, VALUE* argv, VALUE self)
     Data_Get_Struct(xmldoc, xmlDoc, xml);
     Data_Get_Struct(self, xsltStylesheet, ss);
 
-    param_len = RARRAY(paramobj)->len;
+    param_len = NUM2INT(rb_funcall(paramobj, rb_intern("length"), 0));
     params = calloc((size_t)param_len+1, sizeof(char*));
     for (j = 0 ; j < param_len ; j++) {
       VALUE entry = rb_ary_entry(paramobj, j);

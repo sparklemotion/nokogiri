@@ -13,7 +13,9 @@ module Nokogiri
     XSLT_FILE = File.join(ASSETS_DIR, 'staff.xslt')
     HTML_FILE = File.join(ASSETS_DIR, 'tlm.html')
 
-    undef :default_test
+    unless RUBY_VERSION >= '1.9'
+      undef :default_test
+    end
 
     def teardown
       if ENV['NOKOGIRI_GC']
