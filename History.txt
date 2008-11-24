@@ -6,6 +6,7 @@
   * SAX parser now parses IO streams
   * Comment nodes have their own class
   * Nokogiri() should delegate to Nokogiri.parse()
+  * Prepending rather than appending to ENV['PATH'] on windows
 
 === 1.0.6
 
