@@ -444,9 +444,13 @@ class Hoe
     desc 'Run the default tasks.'
     task :default => :test
 
-    desc 'Run the test suite. Use FILTER to add to the command line.'
-    task :test do
-      run_tests
+    Rake::TestTask.new do |t|
+      %w[ ext lib bin test ].each do |dir|
+        t.libs << dir
+      end
+      t.test_files = FileList['test/**/test_*.rb'] +
+        FileList['test/**/*_test.rb']
+      t.verbose = true
     end
 
     desc 'Show which test files fail when run alone.'
