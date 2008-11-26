@@ -1,11 +1,6 @@
 module Nokogiri
   module XML
     class Document < Node
-      def decorators(key)
-        @decorators ||= Hash.new
-        @decorators[key] ||= []
-      end
-
       def name
         'document'
       end
@@ -14,13 +9,19 @@ module Nokogiri
         self
       end
 
+      def decorators(key)
+        @decorators ||= Hash.new
+        @decorators[key] ||= []
+      end
+
       ###
       # Apply any decorators to +node+
       def decorate(node)
-        key = node.class.name.split('::').last.downcase
-        decorators(key).each do |klass|
-          node.extend(klass)
-        end
+        return unless @decorators
+        @decorators.each { |klass,list|
+          next unless node.is_a?(klass)
+          list.each { |moodule| node.extend(moodule) }
+        }
       end
 
       def node_cache
