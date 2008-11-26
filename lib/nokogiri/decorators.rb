@@ -1,2 +1,2 @@
-require 'nokogiri/decorators/explorable'
 require 'nokogiri/decorators/hpricot'
+require 'nokogiri/decorators/slop'

@@ -36,9 +36,13 @@ module Nokogiri
         Nokogiri(&blk)
       end
     end
+    
+    def Slop(*args, &block)
+      Nokogiri(*args, &block).slop!
+    end
   end
 
-  self.error_handler = lambda { |syntax_error| }
+  self.error_handler = lambda { |syntax_error| }  
 end
 
 def Nokogiri(*args, &block)

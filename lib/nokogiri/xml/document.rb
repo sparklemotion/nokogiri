@@ -17,13 +17,12 @@ module Nokogiri
       ###
       # Explore a document with shortcut methods.
 
-      def explore(&block)
-        unless Nokogiri::Decorators::Explorable === self
-          decorators(XML::Node) << Nokogiri::Decorators::Explorable
+      def slop!
+        unless Nokogiri::Decorators::Slop === self
+          decorators(XML::Node) << Nokogiri::Decorators::Slop
           decorate!
         end
 
-        yield self if block_given?
         self
       end
 
