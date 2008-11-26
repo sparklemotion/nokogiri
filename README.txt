@@ -73,6 +73,13 @@ The bug tracker is available here:
 
 * sudo gem install nokogiri
 
+== DEVELOPMENT:
+
+Developing Nokogiri requires racc and frex.
+
+* rake install:deps
+* rake test
+
 == LICENSE:
 
 (The MIT License)
