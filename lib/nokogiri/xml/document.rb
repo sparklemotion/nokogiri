@@ -15,6 +15,19 @@ module Nokogiri
       end
 
       ###
+      # Explore a document with shortcut methods.
+
+      def explore(&block)
+        unless Nokogiri::Decorators::Explorable === self
+          decorators(XML::Node) << Nokogiri::Decorators::Explorable
+          decorate!
+        end
+
+        yield self if block_given?
+        self
+      end
+
+      ###
       # Apply any decorators to +node+
       def decorate(node)
         return unless @decorators

@@ -33,4 +33,15 @@ class TestNokogiri < Nokogiri::TestCase
     doc = Nokogiri.make { b "bold tag" }
     assert_equal('<b>bold tag</b>', doc.to_html.chomp)
   end
+
+  def test_explore
+    doc = Nokogiri("<foo><bar>first</bar><bar>second</bar></foo>")
+
+    doc.explore do |d|
+      assert_not_nil doc.foo
+      assert_equal 2, doc.foo.bar.length
+      assert_equal "second", doc.foo.bar[1].text
+      assert_raise(NoMethodError) { doc.nonexistent }
+    end
+  end
 end
