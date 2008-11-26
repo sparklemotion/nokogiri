@@ -51,6 +51,7 @@ lib/nokogiri/css/tokenizer.rb
 lib/nokogiri/css/tokenizer.rex
 lib/nokogiri/css/xpath_visitor.rb
 lib/nokogiri/decorators.rb
+lib/nokogiri/decorators/slop.rb
 lib/nokogiri/decorators/hpricot.rb
 lib/nokogiri/decorators/hpricot/node.rb
 lib/nokogiri/decorators/hpricot/node_set.rb
