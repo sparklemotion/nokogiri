@@ -199,6 +199,7 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
   VALUE rb_doc = Qnil;
 
   rb_doc = Data_Wrap_Struct(klass ? klass : cNokogiriXmlDocument, 0, dealloc, doc) ;
+  rb_iv_set(rb_doc, "@decorators", Qnil);
   doc->_private = (void *)rb_doc;
 
   return rb_doc ;

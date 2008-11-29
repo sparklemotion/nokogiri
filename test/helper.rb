@@ -1,3 +1,4 @@
+$VERBOSE = true
 require 'test/unit'
 
 %w(../lib ../ext).each do |path|
