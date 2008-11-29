@@ -30,7 +30,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
     GENERATED_TOKENIZER,
     'cross',
   ]
-  p.spec_extras = { :extensions => ["Rakefile"] }
+  p.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
 
 namespace :gem do
