@@ -7,6 +7,7 @@
   * Comment nodes have their own class
   * Nokogiri() should delegate to Nokogiri.parse()
   * Prepending rather than appending to ENV['PATH'] on windows
+  * Fixed a bug in complex CSS negation selectors
 
 === 1.0.6
 

@@ -36,6 +36,14 @@ rule
     | function attrib {
         result = Node.new(:CONDITIONAL_SELECTOR, val)
       }
+    | hcap_1toN negation {
+        result = Node.new(:CONDITIONAL_SELECTOR,
+          [
+            Node.new(:ELEMENT_NAME, ['*']),
+            Node.new(:COMBINATOR, val)
+          ]
+        )
+      }
     | hcap_1toN {
         result = Node.new(:CONDITIONAL_SELECTOR,
           [Node.new(:ELEMENT_NAME, ['*']), val.first]

@@ -11,6 +11,19 @@ module Nokogiri
         assert_raises(CSS::SyntaxError) { @parser.parse("a[x=]") }
       end
 
+      def test_not_so_simple_not
+        selector = '#p:not(.a)'
+        assert_xpath(
+          "//*[@id = 'p' and not(contains(concat(' ', @class, ' '), ' a '))]",
+          @parser.parse(selector)
+        )
+        doc = Nokogiri::HTML(<<-eohtml)
+          <a id='p' class='a b' />
+          <a id='p' class='b' />
+        eohtml
+        assert_equal(1, doc.css(selector).length)
+      end
+
       def test_find_by_type
         ast = @parser.parse("a:nth-child(2)").first
         matches = ast.find_by_type(
