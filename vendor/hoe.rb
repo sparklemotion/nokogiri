@@ -469,7 +469,7 @@ class Hoe
 
     desc 'Run the test suite using multiruby.'
     task :multi do
-      run_tests :multi
+      sh "multiruby -S rake clean test"
     end
 
     ############################################################
@@ -978,24 +978,6 @@ class Hoe
     urls    = Array(url).map { |s| "* <#{s.strip.rdoc_to_markdown}>" }.join("\n")
 
     return subject, title, body, urls
-  end
-
-  def run_tests(multi=false) # :nodoc:
-    msg = multi ? :sh : :ruby
-    cmd = if test ?f, 'test/test_all.rb' then
-            "#{RUBY_FLAGS} test/test_all.rb #{FILTER}"
-          else
-            tests = ["rubygems", self.testlib] +
-              test_globs.map { |g| Dir.glob(g) }.flatten
-            tests.map! {|f| %Q(require "#{f}")}
-            "#{RUBY_FLAGS} -e '#{tests.join("; ")}' #{FILTER}"
-          end
-
-    excludes = multiruby_skip.join(":")
-    ENV['EXCLUDED_VERSIONS'] = excludes
-    cmd = "multiruby #{cmd}" if multi
-
-    send msg, cmd
   end
 
   ##
