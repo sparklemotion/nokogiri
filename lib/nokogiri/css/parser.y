@@ -170,6 +170,7 @@ rule
     | class
     | attrib
     | pseudo
+    | negation
     ;
   attribute_id
     : HASH { result = Node.new(:ID, val) }

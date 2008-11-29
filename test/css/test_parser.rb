@@ -11,19 +11,6 @@ module Nokogiri
         assert_raises(CSS::SyntaxError) { @parser.parse("a[x=]") }
       end
 
-      def test_not_so_simple_not
-        selector = '#p:not(.a)'
-        assert_xpath(
-          "//*[@id = 'p' and not(contains(concat(' ', @class, ' '), ' a '))]",
-          @parser.parse(selector)
-        )
-        doc = Nokogiri::HTML(<<-eohtml)
-          <a id='p' class='a b' />
-          <a id='p' class='b' />
-        eohtml
-        assert_equal(1, doc.css(selector).length)
-      end
-
       def test_find_by_type
         ast = @parser.parse("a:nth-child(2)").first
         matches = ast.find_by_type(
@@ -198,6 +185,15 @@ module Nokogiri
                       @parser.parse('foo.awesome')
         assert_xpath  "//foo//*[contains(concat(' ', @class, ' '), ' awesome ')]",
                       @parser.parse('foo .awesome')
+      end
+
+      def test_not_so_simple_not
+        assert_xpath "//*[@id = 'p' and not(contains(concat(' ', @class, ' '), ' a '))]",
+                     @parser.parse('#p:not(.a)')
+        assert_xpath "//p[contains(concat(' ', @class, ' '), ' a ') and not(contains(concat(' ', @class, ' '), ' b '))]",
+                     @parser.parse('p.a:not(.b)')
+        assert_xpath "//p[@a = 'foo' and not(contains(concat(' ', @class, ' '), ' b '))]",
+                     @parser.parse("p[a='foo']:not(.b)")
       end
 
       def test_ident
