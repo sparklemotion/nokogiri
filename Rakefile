@@ -279,6 +279,14 @@ namespace :test do
     ENV['NOKOGIRI_GC'] = "true"
     Rake::Task["test"].invoke
   end
+
+  desc "find call-seq in the rdoc"
+  task :rdoc => 'docs' do
+    Dir['doc/**/*.html'].each { |docfile|
+      next if docfile =~ /\.src/
+      puts "FAIL: #{docfile}" if File.read(docfile) =~ /call-seq/
+    }
+  end
 end
 
 namespace :install do

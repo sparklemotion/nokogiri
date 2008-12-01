@@ -18,7 +18,15 @@ static VALUE new(VALUE klass, VALUE string, VALUE document)
 VALUE cNokogiriXmlText ;
 void init_xml_text()
 {
-  VALUE klass = cNokogiriXmlText = rb_const_get(mNokogiriXml, rb_intern("Text"));
+  VALUE nokogiri = rb_define_module("Nokogiri");
+  VALUE xml = rb_define_module_under(nokogiri, "XML");
+
+  /*
+   * Wraps Text nodes.
+   */
+  VALUE klass = rb_define_class_under(xml, "Text", cNokogiriXmlNode);
+
+  cNokogiriXmlText = klass;
 
   rb_define_singleton_method(klass, "new", new, 2);
 }
