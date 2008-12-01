@@ -80,6 +80,10 @@ VALUE cNokogiriXmlXpathContext;
 void init_xml_xpath_context(void)
 {
   VALUE module = rb_define_module("Nokogiri");
+
+  /*
+   * Nokogiri::XML
+   */
   VALUE xml = rb_define_module_under(module, "XML");
 
   /*
