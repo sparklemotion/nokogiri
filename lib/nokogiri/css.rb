@@ -9,11 +9,16 @@ require 'nokogiri/css/syntax_error'
 module Nokogiri
   module CSS
     class << self
-      def parse string
-        Parser.new.parse string
+      ###
+      # Parse this CSS selector in +selector+.  Returns an AST.
+      def parse selector
+        Parser.new.parse selector
       end
-      def xpath_for string, options={}
-        Parser.new.xpath_for string, options
+
+      ###
+      # Get the XPath for +selector+.
+      def xpath_for selector, options={}
+        Parser.new.xpath_for selector, options
       end
     end
   end

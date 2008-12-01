@@ -19,6 +19,14 @@ require 'nokogiri/xml/entity_declaration'
 
 module Nokogiri
   class << self
+    ###
+    # Parse an XML file.  +thing+ may be a String, or any object that
+    # responds to _read_ and _close_ such as an IO, or StringIO.
+    # +url+ is resource where this document is located.  +encoding+ is the
+    # encoding that should be used when processing the document. +options+
+    # is a number that sets options in the parser, such as
+    # Nokogiri::XML::PARSE_RECOVER.  See the constants in
+    # Nokogiri::XML.
     def XML thing, url = nil, encoding = nil, options = 1
       Nokogiri::XML.parse(thing, url, encoding, options)
     end
@@ -44,6 +52,8 @@ module Nokogiri
     PARSE_NOXINCNODE  = 1 << 15 # do not generate XINCLUDE START/END nodes
 
     class << self
+      ###
+      # Parse an XML document.  See Nokogiri.XML.
       def parse string_or_io, url = nil, encoding = nil, options = 2159
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
@@ -56,10 +66,14 @@ module Nokogiri
         Document.read_memory(string_or_io, url, encoding, options)
       end
 
+      ###
+      # Sets whether or not entities should be substituted.
       def substitute_entities=(value = true)
         Document.substitute_entities = value
       end
 
+      ###
+      # Sets whether or not external subsets should be loaded
       def load_external_subsets=(value = true)
         Document.load_external_subsets = value
       end
