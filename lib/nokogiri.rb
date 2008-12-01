@@ -18,6 +18,8 @@ module Nokogiri
   class << self
     attr_accessor :error_handler
 
+    ###
+    # Parse an HTML or XML document.  +string+ contains the document.
     def parse string, url = nil, encoding = nil, options = nil
       doc =
         if string =~ /^\s*<[^Hh>]*html/i # Probably html
@@ -37,6 +39,21 @@ module Nokogiri
       end
     end
     
+    ###
+    # Parse a document and add the Slop decorator.  The Slop decorator
+    # implements method_missing such that methods may be used instead of CSS
+    # or XPath.  For example:
+    #
+    #   doc = Nokogiri::Slop(<<-eohtml)
+    #     <html>
+    #       <body>
+    #         <p>first</p>
+    #         <p>second</p>
+    #       </body>
+    #     </html>
+    #   eohtml
+    #   assert_equal('second', doc.html.body.p[1].text)
+    #
     def Slop(*args, &block)
       Nokogiri(*args, &block).slop!
     end

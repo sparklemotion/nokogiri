@@ -1,5 +1,8 @@
 module Nokogiri
   module Decorators
+    ###
+    # The Slop decorator implements method missing such that a methods may be
+    # used instead of XPath or CSS.  See Nokogiri.Slop
     module Slop
       def method_missing name, *args, &block
         if args.empty?
@@ -13,7 +16,11 @@ module Nokogiri
             list = xpath("./#{name}#{conds}")
           end
         else
-          list = css("#{name}#{args.first}")
+          CSS::Parser.without_cache do
+            list = xpath(
+              *CSS.xpath_for("#{name}#{args.first}", :prefix => "./")
+            )
+          end
         end
         
         super if list.empty?

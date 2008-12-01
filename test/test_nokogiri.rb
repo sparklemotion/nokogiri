@@ -49,6 +49,25 @@ class TestNokogiri < Nokogiri::TestCase
   </html>
   END
 
+  def test_slop_css
+    doc = Nokogiri::Slop(<<-eohtml)
+    <html>
+      <body>
+        <div>
+          one
+          <div class='foo'>
+            div two
+            <div class='foo'>
+              div three
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+    eohtml
+    assert_equal "div", doc.html.body.div.div('.foo').name
+  end
+
   def test_slop
     doc = Nokogiri::Slop(SLOP_HTML)
 
