@@ -1,4 +1,4 @@
-=== HEAD
+=== 1.0.7
 
 * Bugfixes
 
