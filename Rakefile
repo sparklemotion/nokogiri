@@ -26,7 +26,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.developer('Mike Dalessio', 'mike.dalessio@gmail.com')
   p.clean_globs = [
     'ext/nokogiri/Makefile',
-    'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
+    'ext/nokogiri/*.{o,so,bundle,a,log,dll,class,jar}',
     'ext/nokogiri/conftest.dSYM',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
@@ -118,9 +118,9 @@ task EXT => 'ext/nokogiri/Makefile' do
 end
 
 task JAVA_EXT do
-  Dir.chdir('ext/nokogiri') do
-    sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar NokogiriJavaService.java"
-    sh "jar cf nokogiri_java.jar NokogiriJavaService*.class"
+  Dir.chdir('ext') do
+    sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar nokogiri/NokogiriJavaService.java"
+    sh "jar cf nokogiri/nokogiri_java.jar nokogiri/NokogiriJavaService*.class"
   end
 end
 
