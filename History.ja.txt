@@ -4,6 +4,10 @@
 
   * Dike 使用時中のメモリーリークの修正
   * SAX パーサーが現在 IO Stream 同時解析
+  * コメント nodes が独自のクラスを継承する
+  * Nokogiri() は Nokogiri.parse() へデリゲートする
+  * ENV['PATH'] に付加せれる代わりに先頭へデータ挿入される
+  * 複雑な CSS 内のバグを修正完了 :not selector ではありません
 
 === 1.0.6
 
