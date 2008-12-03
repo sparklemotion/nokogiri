@@ -7,6 +7,8 @@ ext/nokogiri/*.log
 ext/nokogiri/*.bundle
 ext/nokogiri/*.a
 ext/nokogiri/*.so
+ext/nokogiri/*.class
+ext/nokogiri/*.jar
 ext/nokogiri/conftest.dSYM
 lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb
