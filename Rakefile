@@ -16,6 +16,8 @@ GENERATED_PARSER = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 
 EXT = "ext/nokogiri/native.#{kind}"
+JAVA_EXT = "ext/nokogiri/nokogiri_java.jar"
+JRUBY_HOME = Config::CONFIG['prefix']
 
 require 'nokogiri/version'
 
@@ -115,8 +117,16 @@ task EXT => 'ext/nokogiri/Makefile' do
   end
 end
 
+task JAVA_EXT do
+  Dir.chdir('ext/nokogiri') do
+    sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar NokogiriJavaService.java"
+    sh "jar cf nokogiri_java.jar NokogiriJavaService*.class"
+  end
+end
+
 if RUBY_PLATFORM == 'java'
-  task :build => [GENERATED_PARSER, GENERATED_TOKENIZER]
+  task :build => [JAVA_EXT]
+  #task :build => [JAVA_EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
 else
   task :build => [EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
 end
