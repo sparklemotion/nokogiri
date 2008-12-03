@@ -1,5 +1,11 @@
 #include <xml_text.h>
 
+/*
+ * call-seq:
+ *  new(content, document)
+ *
+ * Create a new Text element on the +document+ with +content+
+ */
 static VALUE new(VALUE klass, VALUE string, VALUE document)
 {
   xmlDocPtr doc;
@@ -20,11 +26,12 @@ void init_xml_text()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
+  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
 
   /*
    * Wraps Text nodes.
    */
-  VALUE klass = rb_define_class_under(xml, "Text", cNokogiriXmlNode);
+  VALUE klass = rb_define_class_under(xml, "Text", node);
 
   cNokogiriXmlText = klass;
 
