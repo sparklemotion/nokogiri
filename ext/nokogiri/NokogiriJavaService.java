@@ -12,143 +12,133 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.runtime.load.BasicLibraryService;
 
 /**
  *
  * @author headius
  */
-public class NokogiriJava {
-    public void basicLoad(Ruby ruby) {
+public class NokogiriJavaService implements BasicLibraryService{
+    public boolean basicLoad(Ruby ruby) {
         init(ruby);
+        return true;
     }
 
     public static void init(Ruby ruby) {
-        init_xml_document(ruby);
-        init_html_document(ruby);
-        init_xml_node(ruby);
-        init_xml_text(ruby);
-        init_xml_cdata(ruby);
-        init_xml_comment(ruby);
-        init_xml_node_set(ruby);
-        init_xml_xpath_context(ruby);
-        init_xml_xpath(ruby);
-        init_xml_sax_parser(ruby);
-        init_xml_reader(ruby);
-        init_xml_dtd(ruby);
-        init_html_sax_parser(ruby);
-        init_xslt_stylesheet(ruby);
-        init_xml_syntax_error(ruby);
-    }
-
-    public static void init_xml_document(Ruby ruby) {
         RubyModule nokogiri = ruby.defineModule("Nokogiri");
         RubyModule xml = nokogiri.defineModuleUnder("XML");
-        RubyClass node = xml.defineClassUnder("Node", ruby.getObject(), XML_NODE_ALLOCATOR);
+        RubyModule html = nokogiri.defineModuleUnder("HTML");
 
+        RubyClass node = xml.defineClassUnder("Node", ruby.getObject(), XML_NODE_ALLOCATOR);
+        
+        init_xml_document(ruby, xml, node);
+        init_html_document(ruby, html, node);
+        init_xml_node(ruby, node);
+        RubyClass text = init_xml_text(ruby, xml, node);
+        init_xml_cdata(ruby, xml, text);
+        init_xml_comment(ruby, xml, node);
+        init_xml_node_set(ruby, xml);
+        init_xml_xpath_context(ruby, xml);
+        init_xml_xpath(ruby, xml);
+        init_xml_sax_parser(ruby, xml);
+        init_xml_reader(ruby, xml);
+        init_xml_dtd(ruby, xml, node);
+        init_html_sax_parser(ruby, html);
+        init_xslt_stylesheet(ruby, nokogiri);
+        init_xml_syntax_error(ruby, xml);
+    }
+
+    public static void init_xml_document(Ruby ruby, RubyModule xml, RubyClass node) {
         RubyClass document = xml.defineClassUnder("Document", node, XML_DOCUMENT_ALLOCATOR);
 
         document.defineAnnotatedMethods(XmlDocument.class);
         document.undefineMethod("parent");
     }
 
-    public static void init_html_document(Ruby ruby) {
-        RubyModule htmlDoc = ruby.getClassFromPath("Nokogiri::HTML::Document");
+    public static void init_html_document(Ruby ruby, RubyModule html, RubyClass node) {
+        RubyModule htmlDoc = html.defineOrGetClassUnder("Document", node);
 
         htmlDoc.defineAnnotatedMethods(HtmlDocument.class);
     }
 
-    public static void init_xml_node(Ruby ruby) {
-        RubyModule xmlNode = ruby.getClassFromPath("Nokogiri::XML::Node");
-
-        xmlNode.defineAnnotatedMethods(XmlNode.class);
+    public static void init_xml_node(Ruby ruby, RubyClass node) {
+        node.defineAnnotatedMethods(XmlNode.class);
     }
 
-    public static void init_xml_text(Ruby ruby) {
-        RubyClass node = (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node");
-        RubyModule nokoXml = ruby.getClassFromPath("Nokogiri::XML");
-        
-        RubyModule xmlNode = nokoXml.defineClassUnder("Text", node, XML_TEXT_ALLOCATOR);
+    public static RubyClass init_xml_text(Ruby ruby, RubyModule xml, RubyClass node) {
+        RubyClass text = xml.defineClassUnder("Text", node, XML_TEXT_ALLOCATOR);
 
-        xmlNode.defineAnnotatedMethods(XmlText.class);
+        text.defineAnnotatedMethods(XmlText.class);
+
+        return text;
     }
 
-    public static void init_xml_cdata(Ruby ruby) {
-        RubyClass text = (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Text");
-        RubyModule nokoXml = ruby.getClassFromPath("Nokogiri::XML");
+    public static void init_xml_cdata(Ruby ruby, RubyModule xml, RubyClass text) {
+        RubyModule cdata = xml.defineClassUnder("CDATA", text, XML_CDATA_ALLOCATOR);
 
-        RubyModule xmlNode = nokoXml.defineClassUnder("CDATA", text, XML_CDATA_ALLOCATOR);
-
-        xmlNode.defineAnnotatedMethods(XmlCdata.class);
+        cdata.defineAnnotatedMethods(XmlCdata.class);
     }
 
-    public static void init_xml_comment(Ruby ruby) {
-        RubyClass node = (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node");
-        RubyModule nokoXml = ruby.getClassFromPath("Nokogiri::XML");
+    public static void init_xml_comment(Ruby ruby, RubyModule xml, RubyClass node) {
+        RubyModule comment = xml.defineClassUnder("Comment", node, XML_COMMENT_ALLOCATOR);
 
-        RubyModule xmlNode = nokoXml.defineClassUnder("Comment", node, XML_COMMENT_ALLOCATOR);
-
-        xmlNode.defineAnnotatedMethods(XmlComment.class);
+        comment.defineAnnotatedMethods(XmlComment.class);
     }
 
-    public static void init_xml_node_set(Ruby ruby) {
-        RubyClass nodeSet = (RubyClass)ruby.getClassFromPath("Nokogiri::XML::NodeSet");
+    public static void init_xml_node_set(Ruby ruby, RubyModule xml) {
+        RubyModule nodeSet = xml.defineClassUnder("NodeSet", ruby.getObject(), XML_NODESET_ALLOCATOR);
 
-        nodeSet.setAllocator(XML_NODESET_ALLOCATOR);
         nodeSet.defineAnnotatedMethods(XmlNodeSet.class);
     }
 
-    public static void init_xml_xpath_context(Ruby ruby) {
-        RubyModule nokoXml = ruby.getClassFromPath("Nokogiri::XML");
-        RubyClass xpathContext = nokoXml.defineClassUnder("XPathContext", ruby.getObject(), XML_XPATHCONTEXT_ALLOCATOR);
+    public static void init_xml_xpath_context(Ruby ruby, RubyModule xml) {
+        RubyClass xpathContext = xml.defineClassUnder("XPathContext", ruby.getObject(), XML_XPATHCONTEXT_ALLOCATOR);
 
         xpathContext.defineAnnotatedMethods(XpathContext.class);
     }
 
-    public static void init_xml_xpath(Ruby ruby) {
-        RubyModule nokoXml = ruby.getClassFromPath("Nokogiri::XML");
-        RubyClass xpathContext = nokoXml.defineClassUnder("XPath", ruby.getObject(), XML_XPATH_ALLOCATOR);
+    public static void init_xml_xpath(Ruby ruby, RubyModule xml) {
+        RubyClass xpathContext = xml.defineClassUnder("XPath", ruby.getObject(), XML_XPATH_ALLOCATOR);
 
         xpathContext.defineAnnotatedMethods(Xpath.class);
     }
 
-    public static void init_xml_sax_parser(Ruby ruby) {
-        RubyClass saxParser = (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::Parser");
+    public static void init_xml_sax_parser(Ruby ruby, RubyModule xml) {
+        RubyModule xmlSax = xml.defineModuleUnder("SAX");
+        RubyClass saxParser = xmlSax.defineClassUnder("Parser", ruby.getObject(), XML_SAXPARSER_ALLOCATOR);
 
-        saxParser.setAllocator(XML_SAXPARSER_ALLOCATOR);
         saxParser.defineAnnotatedMethods(SaxParser.class);
     }
 
-    public static void init_xml_reader(Ruby ruby) {
-        RubyModule nokoXml = ruby.getClassFromPath("Nokogiri::XML");
-        RubyClass reader = nokoXml.defineClassUnder("Reader", ruby.getObject(), XML_READER_ALLOCATOR);
+    public static void init_xml_reader(Ruby ruby, RubyModule xml) {
+        RubyClass reader = xml.defineClassUnder("Reader", ruby.getObject(), XML_READER_ALLOCATOR);
 
         reader.defineAnnotatedMethods(Reader.class);
     }
 
-    public static void init_xml_dtd(Ruby ruby) {
-        RubyClass node = (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node");
-        RubyModule nokoXml = ruby.getClassFromPath("Nokogiri::XML");
-        RubyClass xpathContext = nokoXml.defineClassUnder("DTD", node, XML_DTD_ALLOCATOR);
+    public static void init_xml_dtd(Ruby ruby, RubyModule xml, RubyClass node) {
+        RubyClass xpathContext = xml.defineClassUnder("DTD", node, XML_DTD_ALLOCATOR);
 
         xpathContext.defineAnnotatedMethods(DTD.class);
     }
 
-    public static void init_html_sax_parser(Ruby ruby) {
-        RubyClass saxParser = (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::SAX::Parser");
+    public static void init_html_sax_parser(Ruby ruby, RubyModule html) {
+        RubyModule htmlSax = html.defineModuleUnder("SAX");
+        RubyClass saxParser = htmlSax.defineClassUnder("Parser", ruby.getObject(), HTML_SAXPARSER_ALLOCATOR);
 
         saxParser.setAllocator(HTML_SAXPARSER_ALLOCATOR);
         saxParser.defineAnnotatedMethods(HtmlSaxParser.class);
     }
 
-    public static void init_xslt_stylesheet(Ruby ruby) {
-        RubyClass stylesheet = (RubyClass)ruby.getClassFromPath("Nokogiri::XSLT::Stylesheet");
+    public static void init_xslt_stylesheet(Ruby ruby, RubyModule nokogiri) {
+        RubyModule xslt = nokogiri.defineModuleUnder("XSLT");
+        RubyClass stylesheet = xslt.defineClassUnder("Sylesheet", ruby.getObject(), XSLT_STYLESHEET_ALLOCATOR);
 
         stylesheet.defineAnnotatedMethods(XsltStylesheet.class);
     }
 
-    public static void init_xml_syntax_error(Ruby ruby) {
-        RubyModule nokoXml = ruby.getClassFromPath("Nokogiri::XML");
-        RubyClass syntaxError = nokoXml.defineClassUnder("SyntaxError", ruby.getSyntaxError(), XML_SYNTAXERROR_ALLOCATOR);
+    public static void init_xml_syntax_error(Ruby ruby, RubyModule xml) {
+        RubyClass syntaxError = xml.defineClassUnder("SyntaxError", ruby.getSyntaxError(), XML_SYNTAXERROR_ALLOCATOR);
 
         syntaxError.defineAnnotatedMethods(SyntaxError.class);
     }
@@ -219,6 +209,12 @@ public class NokogiriJava {
         }
     };
 
+    private static ObjectAllocator XSLT_STYLESHEET_ALLOCATOR = new ObjectAllocator() {
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+    };
+
     private static ObjectAllocator XML_SYNTAXERROR_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             throw new UnsupportedOperationException("Not supported yet.");
@@ -236,17 +232,17 @@ public class NokogiriJava {
             super(ruby, klass);
         }
 
-        @JRubyMethod(meta = true)
+        @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_memory(IRubyObject cls, IRubyObject[] args) {
             return cls.getRuntime().getNil();
         }
 
-        @JRubyMethod(meta = true)
+        @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_io(IRubyObject cls, IRubyObject[] args) {
             return cls.getRuntime().getNil();
         }
 
-        @JRubyMethod(meta = true)
+        @JRubyMethod(meta = true, rest = true)
         public static IRubyObject rbNew(IRubyObject cls, IRubyObject[] args) {
             return cls.getRuntime().getNil();
         }
@@ -278,7 +274,7 @@ public class NokogiriJava {
     }
 
     public static class HtmlDocument {
-        @JRubyMethod(meta = true)
+        @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_memory(IRubyObject cls, IRubyObject[] args) {
             return cls.getRuntime().getNil();
         }
@@ -295,12 +291,12 @@ public class NokogiriJava {
     }
 
     public static class XmlNode {
-        @JRubyMethod(meta = true)
+        @JRubyMethod(meta = true, rest = true)
         public static IRubyObject rbNew(IRubyObject cls, IRubyObject[] args) {
             return cls.getRuntime().getNil();
         }
 
-        @JRubyMethod(meta = true)
+        @JRubyMethod(meta = true, rest = true)
         public static IRubyObject new_from_str(IRubyObject cls, IRubyObject[] args) {
             return cls.getRuntime().getNil();
         }
@@ -569,7 +565,7 @@ public class NokogiriJava {
             super(ruby, rubyClass);
         }
 
-        @JRubyMethod(meta = true)
+        @JRubyMethod(meta = true, rest = true)
         public static IRubyObject from_memory(IRubyObject cls, IRubyObject args[]) {
             return cls.getRuntime().getNil();
         }
@@ -701,7 +697,7 @@ public class NokogiriJava {
             return getRuntime().getNil();
         }
 
-        @JRubyMethod
+        @JRubyMethod(rest = true)
         public IRubyObject apply_to(IRubyObject[] args) {
             return getRuntime().getNil();
         }
@@ -718,52 +714,52 @@ public class NokogiriJava {
         }
 
         @JRubyMethod
-        public IRubyObject domain(IRubyObject[] args) {
+        public IRubyObject domain(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject code(IRubyObject[] args) {
+        public IRubyObject code(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject level(IRubyObject[] args) {
+        public IRubyObject level(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject file(IRubyObject[] args) {
+        public IRubyObject file(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject line(IRubyObject[] args) {
+        public IRubyObject line(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject str1(IRubyObject[] args) {
+        public IRubyObject str1(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject str2(IRubyObject[] args) {
+        public IRubyObject str2(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject str3(IRubyObject[] args) {
+        public IRubyObject str3(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject int1(IRubyObject[] args) {
+        public IRubyObject int1(IRubyObject arg) {
             return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject column(IRubyObject[] args) {
+        public IRubyObject column(IRubyObject arg) {
             return getRuntime().getNil();
         }
     }
