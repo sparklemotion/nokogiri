@@ -328,11 +328,4 @@ unless windows
   Rake::Task[:check_manifest].prerequisites << GENERATED_TOKENIZER
 end
 
-# Evil evil hack.  Do not run tests when gem installs
-if ENV['RUBYARCHDIR']
-  prereqs = Rake::Task[:default].prerequisites
-  prereqs.clear
-  prereqs << :build
-end
-
 # vim: syntax=Ruby
