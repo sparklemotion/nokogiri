@@ -50,6 +50,14 @@ module Nokogiri
       end
       alias :/ :search
 
+      ###
+      # Search this node for XPath +paths+. +paths+ must be one or more XPath
+      # queries.  A hash of namespaces may be appended.  For example:
+      #
+      #   node.xpath('.//title')
+      #   node.xpath('.//foo:name', { 'foo' => 'http://example.org/' })
+      #   node.xpath('.//xmlns:name', node.root.namespaces)
+      #
       def xpath *paths
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
 
@@ -75,6 +83,14 @@ module Nokogiri
         end
       end
 
+      ###
+      # Search this node for CSS +rules+. +rules+ must be one or more CSS
+      # selectors.  For example:
+      #
+      #   node.css('title')
+      #   node.css('body h1.bold')
+      #   node.css('div + p.green', 'div#one')
+      #
       def css *rules
         xpath(*(rules.map { |rule| CSS.xpath_for(rule, :prefix => ".//") }.flatten.uniq))
       end

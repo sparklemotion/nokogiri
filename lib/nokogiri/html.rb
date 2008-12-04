@@ -3,6 +3,14 @@ require 'nokogiri/html/sax/parser'
 
 module Nokogiri
   class << self
+    ###
+    # Parse HTML.  +thing+ may be a String, or any object that
+    # responds to _read_ and _close_ such as an IO, or StringIO.
+    # +url+ is resource where this document is located.  +encoding+ is the
+    # encoding that should be used when processing the document. +options+
+    # is a number that sets options in the parser, such as
+    # Nokogiri::XML::PARSE_RECOVER.  See the constants in
+    # Nokogiri::XML.
     def HTML thing, url = nil, encoding = nil, options = 2145
       Nokogiri::HTML.parse(thing, url, encoding, options)
     end
@@ -17,6 +25,8 @@ module Nokogiri
     PARSE_NONET     = 1 << 11 # No network access
 
     class << self
+      ###
+      # Parse HTML.  See Nokogiri.HTML.
       def parse string_or_io, url = nil, encoding = nil, options = 2145
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
