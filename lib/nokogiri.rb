@@ -12,7 +12,11 @@ ENV['PATH'] = [File.expand_path(
   File.join(File.dirname(__FILE__), "..", "ext", "nokogiri")
 ), ENV['PATH']].compact.join(';') if RUBY_PLATFORM =~ /mswin/i
 
-require 'nokogiri/native' unless RUBY_PLATFORM =~ /java/
+if RUBY_PLATFORM =~ /java/
+  require 'nokogiri/nokogiri_java'
+else
+  require 'nokogiri/native'
+end
 
 module Nokogiri
   class << self
