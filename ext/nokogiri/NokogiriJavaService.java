@@ -4,15 +4,29 @@
  */
 package nokogiri;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.jruby.NativeException;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyIO;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.exceptions.RaiseException;
+import org.jruby.runtime.Arity;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.load.BasicLibraryService;
+import org.jruby.util.ByteList;
+import org.jruby.util.TypeConverter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -231,19 +245,54 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
     };
 
-    public static class XmlDocument extends RubyObject {
-        public XmlDocument(Ruby ruby, RubyClass klass) {
-            super(ruby, klass);
+    public static class XmlDocument extends XmlNode {
+        private Document document;
+        
+        public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
+            super(ruby, klass, document);
+            this.document = document;
         }
 
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_memory(IRubyObject cls, IRubyObject[] args) {
-            return cls.getRuntime().getNil();
+            Ruby ruby = cls.getRuntime();
+            Arity.checkArgumentCount(ruby, args, 4, 4);
+            try {
+                Document document;
+                RubyString content = args[0].convertToString();
+                ByteList byteList = content.getByteList();
+                ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
+                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(bais);
+                return new XmlDocument(ruby, (RubyClass)cls, document);
+            } catch (ParserConfigurationException pce) {
+                throw RaiseException.createNativeRaiseException(ruby, pce);
+            } catch (SAXException saxe) {
+                throw RaiseException.createNativeRaiseException(ruby, saxe);
+            } catch (IOException ioe) {
+                throw RaiseException.createNativeRaiseException(ruby, ioe);
+            }
         }
 
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_io(IRubyObject cls, IRubyObject[] args) {
-            return cls.getRuntime().getNil();
+            Ruby ruby = cls.getRuntime();
+            Arity.checkArgumentCount(ruby, args, 4, 4);
+            try {
+                Document document;
+                if (args[0] instanceof RubyIO) {
+                    RubyIO io = (RubyIO)args[0];
+                    document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(io.getInStream());
+                    return new XmlDocument(ruby, (RubyClass)cls, document);
+                } else {
+                    throw ruby.newTypeError("Only IO supported for Document.read_io currently");
+                }
+            } catch (ParserConfigurationException pce) {
+                throw RaiseException.createNativeRaiseException(ruby, pce);
+            } catch (SAXException saxe) {
+                throw RaiseException.createNativeRaiseException(ruby, saxe);
+            } catch (IOException ioe) {
+                throw RaiseException.createNativeRaiseException(ruby, ioe);
+            }
         }
 
         @JRubyMethod(meta = true, rest = true)
@@ -294,7 +343,14 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
     }
 
-    public static class XmlNode {
+    public static class XmlNode extends RubyObject {
+        private Node node;
+
+        public XmlNode(Ruby ruby, RubyClass cls, Node node) {
+            super(ruby, cls);
+            this.node = node;
+        }
+        
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject rbNew(IRubyObject cls, IRubyObject[] args) {
             return cls.getRuntime().getNil();
@@ -306,138 +362,151 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public static IRubyObject name(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject name() {
+            return RubyString.newString(getRuntime(), node.getNodeName());
+        }
+
+        @JRubyMethod(name = "name=")
+        public IRubyObject name_set(IRubyObject arg) {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject name_set(IRubyObject xmlNode, IRubyObject arg) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject parent() {
+            return constructNode(getRuntime(), node.getParentNode());
+        }
+
+        @JRubyMethod(name = "parent=")
+        public IRubyObject parent_set(IRubyObject arg) {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject parent(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject child() {
+            return constructNode(getRuntime(), node.getFirstChild());
+        }
+
+        protected IRubyObject constructNode(Ruby ruby, Node node) {
+            if (node == null) return getRuntime().getNil();
+            // this is slow; need a way to cache nokogiri classes/modules somewhere
+            return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"), node);
         }
 
         @JRubyMethod
-        public static IRubyObject parent_set(IRubyObject xmlNode, IRubyObject arg) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject next_sibling() {
+            return constructNode(getRuntime(), node.getNextSibling());
         }
 
         @JRubyMethod
-        public static IRubyObject child(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject previous_sibling() {
+            return constructNode(getRuntime(), node.getPreviousSibling());
         }
 
         @JRubyMethod
-        public static IRubyObject next_sibling(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject replace(IRubyObject arg) {
+            Ruby ruby = getRuntime();
+            
+            if (!(arg instanceof XmlNode)) throw ruby.newTypeError(arg, ruby.getClassFromPath("Nokogiri::XML::Node"));
+            XmlNode otherNode = (XmlNode)arg;
+
+            node.getParentNode().replaceChild(node, otherNode.node);
+
+            return this
+        }
+
+        @JRubyMethod(name = "type")
+        public IRubyObject xmlType() {
+            return RubyFixnum.newFixnum(getRuntime(), node.getNodeType());
         }
 
         @JRubyMethod
-        public static IRubyObject previous_sibling(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject content() {
+            return RubyString.newString(getRuntime(), node.getTextContent());
         }
 
         @JRubyMethod
-        public static IRubyObject replace(IRubyObject xmlNode, IRubyObject arg) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject path() {
+            return getRuntime().getNil();
         }
 
-        @JRubyMethod
-        public static IRubyObject type(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        @JRubyMethod(name = "key?")
+        public IRubyObject key_p(IRubyObject arg) {
+            return getRuntime().getNil();
         }
 
-        @JRubyMethod
-        public static IRubyObject content(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
-        }
-
-        @JRubyMethod
-        public static IRubyObject path(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
-        }
-
-        @JRubyMethod
-        public static IRubyObject key_p(IRubyObject xmlNode, IRubyObject arg) {
-            return xmlNode.getRuntime().getNil();
-        }
-
-        @JRubyMethod
-        public static IRubyObject blank_p(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        @JRubyMethod(name = "blank?")
+        public IRubyObject blank_p() {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod(name = "[]=")
-        public static IRubyObject op_aset(IRubyObject xmlNode, IRubyObject arg1, IRubyObject arg2) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject op_aset(IRubyObject arg1, IRubyObject arg2) {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject remove_attribute(IRubyObject xmlNode, IRubyObject arg1) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject remove_attribute(IRubyObject arg1) {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject attributes(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject attributes() {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject namespaces(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject namespaces() {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject add_previous_sibling(IRubyObject xmlNode, IRubyObject arg) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject add_previous_sibling(IRubyObject arg) {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject add_next_sibling(IRubyObject xmlNode, IRubyObject arg) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject add_next_sibling(IRubyObject arg) {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject encode_special_chars(IRubyObject xmlNode, IRubyObject arg) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject encode_special_chars(IRubyObject arg) {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject to_xml(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject to_xml() {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject dup(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject dup() {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject unlink(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject unlink() {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject internal_subset(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject internal_subset() {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod
-        public static IRubyObject pointer_id(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject pointer_id() {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public static IRubyObject native_content_set(IRubyObject xmlNode, IRubyObject arg) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject native_content_set(IRubyObject arg) {
+            return getRuntime().getNil();
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public static IRubyObject get(IRubyObject xmlNode) {
-            return xmlNode.getRuntime().getNil();
+        public IRubyObject get() {
+            return getRuntime().getNil();
         }
     }
 
