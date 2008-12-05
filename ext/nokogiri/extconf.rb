@@ -21,8 +21,18 @@ if Config::CONFIG['target_os'] == 'mingw32'
   find_library('xslt', 'xsltParseStylesheetDoc',
                File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
 else
-  find_library('xml2', 'xmlParseDoc', LIBDIR)
-  find_library('xslt', 'xsltParseStylesheetDoc', LIBDIR)
+  find_library('xml2', 'xmlParseDoc',
+               LIBDIR,
+               '/opt/local/lib',
+               '/usr/local/lib',
+               '/usr/lib'
+    )
+  find_library('xslt', 'xsltParseStylesheetDoc',
+               LIBDIR,
+               '/opt/local/lib',
+               '/usr/local/lib',
+               '/usr/lib'
+              )
 end
 
 
