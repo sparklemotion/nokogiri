@@ -22,7 +22,7 @@ correctly implemented CSS3 selector support as well as XPath support.
 
 Here is a speed test:
 
-  * http://gist.github.com/22176
+  * http://gist.github.com/24605
 
 Nokogiri also features an Hpricot compatibility layer to help ease the change
 to using correct CSS and XPath.
