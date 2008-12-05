@@ -1,3 +1,9 @@
+=== HEAD
+
+* Bugfixes
+
+  * Mutex lock on CSS cache access
+
 === 1.0.7
 
 * Bugfixes
