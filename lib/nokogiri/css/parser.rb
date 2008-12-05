@@ -1,35 +1,37 @@
+require 'thread'
+
 module Nokogiri
   module CSS
     class Parser < GeneratedTokenizer
+      @cache_on = true
+      @cache    = {}
+      @mutex    = Mutex.new
+
       class << self
+        attr_accessor :cache_on
+        alias :cache_on? :cache_on
+        alias :set_cache :cache_on=
+
         def parse string
           new.parse(string)
         end
+
         def xpath_for string, options={}
           new.xpath_for(string, options)
         end
 
-        def set_cache setting
-          @cache_on = setting ? true : false
+        def [] string
+          return unless @cache_on
+          @mutex.synchronize { @cache[string] }
         end
 
-        def cache_on?
-          @cache ||= {}
-          instance_variable_defined?('@cache_on') ? @cache_on : true
-        end
-
-        def check_cache string
-          return unless cache_on?
-          @cache[string]
-        end
-
-        def add_cache string, value
-          return value unless cache_on?
-          @cache[string] = value
+        def []= string, value
+          return value unless @cache_on
+          @mutex.synchronize { @cache[string] = value }
         end
 
         def clear_cache
-          @cache = {}
+          @mutex.synchronize { @cache = {} }
         end
 
         def without_cache &block
@@ -42,13 +44,15 @@ module Nokogiri
       alias :parse :scan_str
 
       def xpath_for string, options={}
-        v = self.class.check_cache(string)
-        return v unless v.nil?
+        v = self.class[string]
+        return v if v
 
         prefix = options[:prefix] || nil
         visitor = options[:visitor] || nil
         args = [prefix, visitor]
-        self.class.add_cache(string, parse(string).map {|ast| ast.to_xpath(prefix, visitor)})
+        self.class[string] = parse(string).map { |ast|
+          ast.to_xpath(prefix, visitor)
+        }
       end
 
       def on_error error_token_id, error_value, value_stack

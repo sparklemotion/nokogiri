@@ -20,7 +20,7 @@ Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。
 
 これはスピードテストです：
 
-  * http://gist.github.com/22176
+  * http://gist.github.com/24605
 
 NokogiriはHpricotの代わりに使用出来る。
 その互換性は簡単に正しいCSSとXPathを使用する事が出来る。
