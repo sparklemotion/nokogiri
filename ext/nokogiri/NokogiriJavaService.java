@@ -8,9 +8,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.jruby.NativeException;
 import org.jruby.Ruby;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.RubyIO;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
@@ -23,9 +24,10 @@ import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.load.BasicLibraryService;
 import org.jruby.util.ByteList;
-import org.jruby.util.TypeConverter;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
@@ -368,7 +370,9 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(name = "name=")
         public IRubyObject name_set(IRubyObject arg) {
-            return getRuntime().getNil();
+            String newName = arg.convertToString().asJavaString();
+            node.getAttributes().getNamedItem("nodeName").setNodeValue(newName);
+            return arg;
         }
 
         @JRubyMethod
@@ -376,9 +380,17 @@ public class NokogiriJavaService implements BasicLibraryService{
             return constructNode(getRuntime(), node.getParentNode());
         }
 
+        private Node getNode(IRubyObject arg) {
+            Ruby ruby = arg.getRuntime();
+            if (!(arg instanceof XmlNode)) throw ruby.newTypeError(arg, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
+            return ((XmlNode)arg).node;
+        }
+
         @JRubyMethod(name = "parent=")
         public IRubyObject parent_set(IRubyObject arg) {
-            return getRuntime().getNil();
+            Node otherNode = getNode(arg);
+            otherNode.appendChild(node);
+            return arg;
         }
 
         @JRubyMethod
@@ -406,12 +418,11 @@ public class NokogiriJavaService implements BasicLibraryService{
         public IRubyObject replace(IRubyObject arg) {
             Ruby ruby = getRuntime();
             
-            if (!(arg instanceof XmlNode)) throw ruby.newTypeError(arg, ruby.getClassFromPath("Nokogiri::XML::Node"));
-            XmlNode otherNode = (XmlNode)arg;
+            Node otherNode = getNode(arg);
 
-            node.getParentNode().replaceChild(node, otherNode.node);
+            node.getParentNode().replaceChild(node, otherNode);
 
-            return this
+            return this;
         }
 
         @JRubyMethod(name = "type")
@@ -426,26 +437,45 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject path() {
-            return getRuntime().getNil();
+            return RubyString.newString(getRuntime(), node.getNodeName());
         }
 
         @JRubyMethod(name = "key?")
         public IRubyObject key_p(IRubyObject arg) {
-            return getRuntime().getNil();
+            Ruby ruby = getRuntime();
+            String key = arg.convertToString().asJavaString();
+            if (node instanceof Element) {
+                Element element = (Element)node;
+                if (element.hasAttribute(key)) {
+                    return ruby.getTrue();
+                }
+            }
+            return ruby.getFalse();
         }
 
         @JRubyMethod(name = "blank?")
         public IRubyObject blank_p() {
-            return getRuntime().getNil();
+            return RubyBoolean.newBoolean(getRuntime(), node instanceof Text && ((Text)node).isElementContentWhitespace());
         }
 
         @JRubyMethod(name = "[]=")
         public IRubyObject op_aset(IRubyObject arg1, IRubyObject arg2) {
-            return getRuntime().getNil();
+            String key = arg1.convertToString().asJavaString();
+            String value = arg2.convertToString().asJavaString();
+            if (node instanceof Element) {
+                Element element = (Element)node;
+                element.setAttribute(key, value);
+            }
+            return arg2;
         }
 
         @JRubyMethod
         public IRubyObject remove_attribute(IRubyObject arg1) {
+            String key = arg1.convertToString().asJavaString();
+            if (node instanceof Element) {
+                Element element = (Element)node;
+                element.removeAttribute(key);
+            }
             return getRuntime().getNil();
         }
 
@@ -505,7 +535,13 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject get() {
+        public IRubyObject get(IRubyObject arg1) {
+            String key = arg1.convertToString().asJavaString();
+            if (node instanceof Element) {
+                Element element = (Element)node;
+                String value = element.getAttribute(key);
+                return RubyString.newString(getRuntime(), value);
+            }
             return getRuntime().getNil();
         }
     }
