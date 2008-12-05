@@ -45,7 +45,7 @@ module Nokogiri
 
       def xpath_for string, options={}
         v = self.class[string]
-        return v unless v.nil?
+        return v if v
 
         prefix = options[:prefix] || nil
         visitor = options[:visitor] || nil
