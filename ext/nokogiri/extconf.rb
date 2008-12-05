@@ -43,11 +43,19 @@ if Config::CONFIG['target_os'] == 'mingw32'
   end
 else
   unless find_header('libxml/xmlversion.h',
-                     File.join(INCLUDEDIR, "libxml2"), '/usr/include/libxml2'
+                     File.join(INCLUDEDIR, "libxml2"),
+                     '/opt/local/include/libxml2',
+                     '/usr/local/include/libxml2',
+                     '/usr/include/libxml2'
                     )
     abort "need libxml"
   end
-  unless find_header('libxslt/xslt.h', INCLUDEDIR, '/usr/include')
+  unless find_header('libxslt/xslt.h',
+                     INCLUDEDIR,
+                     '/opt/local/include',
+                     '/usr/local/include',
+                     '/usr/include'
+                    )
     abort "need libxslt"
   end
 
