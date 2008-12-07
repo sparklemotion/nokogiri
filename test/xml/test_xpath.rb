@@ -39,6 +39,13 @@ module Nokogiri
         assert_equal(set.length, @handler.things.length)
         assert_equal([false] * set.length, @handler.things)
       end
+
+      def test_custom_xpath_gets_numbers
+        set = @xml.xpath('//employee')
+        @xml.xpath('//employee[thing(10)]', @handler)
+        assert_equal(set.length, @handler.things.length)
+        assert_equal([10] * set.length, @handler.things)
+      end
     end
   end
 end

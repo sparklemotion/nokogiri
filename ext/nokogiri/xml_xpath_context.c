@@ -48,6 +48,9 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
       case XPATH_BOOLEAN:
         argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
         break;
+      case XPATH_NUMBER:
+        argv[i] = rb_float_new(obj->floatval);
+        break;
       default:
         argv[i] = rb_str_new2((char *)xmlXPathCastToString(obj));
     }
