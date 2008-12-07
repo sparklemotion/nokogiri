@@ -57,6 +57,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
       default:
         argv[i] = rb_str_new2((char *)xmlXPathCastToString(obj));
     }
+    xmlXPathFreeNodeSetList(obj);
   }
 
   rb_funcall2(xpath_handler,
