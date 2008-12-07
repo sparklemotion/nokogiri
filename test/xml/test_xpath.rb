@@ -46,6 +46,13 @@ module Nokogiri
         assert_equal(set.length, @handler.things.length)
         assert_equal([10] * set.length, @handler.things)
       end
+
+      def test_custom_xpath_gets_node_sets
+        set = @xml.xpath('//employee/name')
+        @xml.xpath('//employee[thing(name)]', @handler)
+        assert_equal(set.length, @handler.things.length)
+        assert_equal(set.to_a, @handler.things.map { |x| x.first }) 
+      end
     end
   end
 end
