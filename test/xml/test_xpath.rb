@@ -7,42 +7,37 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
 
         @handler = Class.new(XPathHandler) {
-          attr_reader :strings, :booleans
+          attr_reader :things
 
           def initialize
-            @strings = []
-            @booleans = []
+            @things = []
           end
 
-          def string_func string
-            @strings << string
-          end
-
-          def boolean_func bool
-            @booleans << bool
+          def thing string
+            @things << string
           end
         }.new
       end
 
       def test_custom_xpath_function_gets_strings
         set = @xml.xpath('//employee')
-        @xml.xpath('//employee[string_func("asdf")]', @handler)
-        assert_equal(set.length, @handler.strings.length)
-        assert_equal(['asdf'] * set.length, @handler.strings)
+        @xml.xpath('//employee[thing("asdf")]', @handler)
+        assert_equal(set.length, @handler.things.length)
+        assert_equal(['asdf'] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_true_booleans
         set = @xml.xpath('//employee')
-        @xml.xpath('//employee[boolean_func(true())]', @handler)
-        assert_equal(set.length, @handler.booleans.length)
-        assert_equal([true] * set.length, @handler.booleans)
+        @xml.xpath('//employee[thing(true())]', @handler)
+        assert_equal(set.length, @handler.things.length)
+        assert_equal([true] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_false_booleans
         set = @xml.xpath('//employee')
-        @xml.xpath('//employee[boolean_func(false())]', @handler)
-        assert_equal(set.length, @handler.booleans.length)
-        assert_equal([false] * set.length, @handler.booleans)
+        @xml.xpath('//employee[thing(false())]', @handler)
+        assert_equal(set.length, @handler.things.length)
+        assert_equal([false] * set.length, @handler.things)
       end
     end
   end
