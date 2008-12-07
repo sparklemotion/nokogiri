@@ -1,4 +1,5 @@
 require 'nokogiri/xml/sax'
+require 'nokogiri/xml/xpath_handler'
 require 'nokogiri/xml/before_handler'
 require 'nokogiri/xml/after_handler'
 require 'nokogiri/xml/node'

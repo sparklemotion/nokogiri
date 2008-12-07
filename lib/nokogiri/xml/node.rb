@@ -68,6 +68,7 @@ module Nokogiri
       #   node.xpath('.//xmlns:name', node.root.namespaces)
       #
       def xpath *paths
+        handler = paths.last.is_a?(XPathHandler) ? paths.pop : nil
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
 
         return NodeSet.new(document) unless document.root
@@ -75,7 +76,7 @@ module Nokogiri
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
-          set = ctx.evaluate(path).node_set
+          set = ctx.evaluate(path, handler).node_set
           set.document = document
           document.decorate(set)
           set
