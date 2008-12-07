@@ -28,7 +28,6 @@ static VALUE register_ns(VALUE self, VALUE prefix, VALUE uri)
 static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
 {
   VALUE xpath_handler = Qnil;
-  VALUE node_set = Qnil;
   xmlXPathObjectPtr obj;
 
   assert(ctx);
@@ -45,6 +44,10 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     switch(obj->type) {
       case XPATH_STRING:
         argv[i] = rb_str_new2((char *)obj->stringval);
+        break;
+      case XPATH_BOOLEAN:
+        argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
+        break;
       default:
         argv[i] = rb_str_new2((char *)xmlXPathCastToString(obj));
     }
