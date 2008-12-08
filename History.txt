@@ -3,6 +3,7 @@
 * Bugfixes
 
   * Mutex lock on CSS cache access
+  * Fixed build problems with GCC 3.3.5
 
 === 1.0.7
 
