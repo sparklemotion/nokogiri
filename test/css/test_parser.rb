@@ -158,15 +158,15 @@ module Nokogiri
       end
 
       def test_pseudo_class_no_ident
-        assert_xpath "//*[1 = 1]", @parser.parse(':link')
+        assert_xpath "//*[link(.)]", @parser.parse(':link')
       end
 
       def test_pseudo_class
-        assert_xpath "//a[1 = 1]", @parser.parse('a:link')
-        assert_xpath "//a[1 = 1]", @parser.parse('a:visited')
-        assert_xpath "//a[1 = 1]", @parser.parse('a:hover')
-        assert_xpath "//a[1 = 1]", @parser.parse('a:active')
-        assert_xpath  "//a[1 = 1 and contains(concat(' ', @class, ' '), ' foo ')]",
+        assert_xpath "//a[link(.)]", @parser.parse('a:link')
+        assert_xpath "//a[visited(.)]", @parser.parse('a:visited')
+        assert_xpath "//a[hover(.)]", @parser.parse('a:hover')
+        assert_xpath "//a[active(.)]", @parser.parse('a:active')
+        assert_xpath  "//a[active(.) and contains(concat(' ', @class, ' '), ' foo ')]",
                       @parser.parse('a:active.foo')
       end
 

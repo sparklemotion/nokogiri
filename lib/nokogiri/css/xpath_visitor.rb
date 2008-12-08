@@ -109,7 +109,7 @@ module Nokogiri
           when "parent" then "node()"
           when "root" then "not(parent::*)"
           else
-            '1 = 1'
+            node.value.first + "(.)"
           end
         end
       end
