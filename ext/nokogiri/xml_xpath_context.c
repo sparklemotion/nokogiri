@@ -33,10 +33,13 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
   assert(ctx);
   assert(ctx->context);
   assert(ctx->context->userData);
+  assert(ctx->context->doc);
+  assert(ctx->context->doc->_private);
 
   xpath_handler = (VALUE)(ctx->context->userData);
 
   VALUE * argv = (VALUE *)calloc((unsigned int)nargs, sizeof(VALUE));
+  VALUE doc = (VALUE)ctx->context->doc->_private;
 
   int i = 0;
   for(i = 0; i < nargs; i++) {
@@ -60,13 +63,52 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     xmlXPathFreeNodeSetList(obj);
   }
 
-  rb_funcall2(xpath_handler,
-              rb_intern((const char *)ctx->context->function),
-              nargs,
-              argv
+  VALUE result = rb_funcall2(
+      xpath_handler,
+      rb_intern((const char *)ctx->context->function),
+      nargs,
+      argv
   );
-
   free(argv);
+
+  VALUE node_set = Qnil;
+  xmlNodeSetPtr xml_node_set = NULL;
+
+  switch(TYPE(result)) {
+    case T_FLOAT:
+    case T_BIGNUM:
+    case T_FIXNUM:
+      xmlXPathReturnNumber(ctx, NUM2DBL(result));
+      break;
+    case T_STRING:
+      xmlXPathReturnString(
+          ctx,
+          xmlXPathWrapCString(StringValuePtr(result))
+      );
+      break;
+    case T_TRUE:
+      xmlXPathReturnTrue(ctx);
+      break;
+    case T_FALSE:
+      xmlXPathReturnFalse(ctx);
+      break;
+    case T_NIL:
+      break;
+    case T_ARRAY:
+      node_set = rb_funcall(
+          cNokogiriXmlNodeSet,
+          rb_intern("new"),
+          2,
+          doc,
+          result
+      );
+      Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
+      xmlXPathReturnNodeSet(ctx, xml_node_set);
+      break;
+    case T_DATA:
+    default:
+      rb_raise(rb_eRuntimeError, "Invalid return type");
+  }
 }
 
 static xmlXPathFunction lookup( void *ctx,

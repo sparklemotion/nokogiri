@@ -13,8 +13,9 @@ module Nokogiri
             @things = []
           end
 
-          def thing string
-            @things << string
+          def thing thing
+            @things << thing
+            thing
           end
         }.new
       end
