@@ -104,7 +104,9 @@ rule
       }
     ;
   expr
-    : NUMBER
+    : NUMBER COMMA s_0toN expr { result = [val.first, val.last] }
+    | STRING COMMA s_0toN expr { result = [val.first, val.last] }
+    | NUMBER
     | STRING
     ;
   an_plus_b

@@ -102,7 +102,14 @@ module Nokogiri
       #   node.css('div + p.green', 'div#one')
       #
       def css *rules
-        xpath(*(rules.map { |rule| CSS.xpath_for(rule, :prefix => ".//") }.flatten.uniq))
+        handler = rules.last.is_a?(XPathHandler) ? rules.pop : nil
+        ns = rules.last.is_a?(Hash) ? rules.pop : {}
+
+        rules = rules.map { |rule|
+          CSS.xpath_for(rule, :prefix => ".//")
+        }.flatten.uniq + [ns, handler].compact
+
+        xpath(*rules)
       end
 
       def at path, ns = {}

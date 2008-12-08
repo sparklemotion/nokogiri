@@ -29,6 +29,21 @@ module Nokogiri
         }.new
       end
 
+      def test_css_search_uses_custom_selectors_with_arguments
+        set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
+        assert set.length > 0
+        set.each do |node|
+          assert_equal 'Yes', node['domestic']
+        end
+      end
+
+      def test_css_search_uses_custom_selectors
+        set = @xml.xpath('//employee')
+        css_set = @xml.css('employee:thing()', @handler)
+        assert_equal(set.length, @handler.things.length)
+        assert_equal(set.to_a, @handler.things.flatten)
+      end
+
       def test_pass_self_to_function
         set = @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
         assert set.length > 0

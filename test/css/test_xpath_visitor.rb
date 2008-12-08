@@ -14,6 +14,7 @@ module Nokogiri
       def test_unknown_functions_get_dot_plus_args
         assert_xpath("//a[aaron(.)]", @parser.parse('a:aaron()'))
         assert_xpath("//a[aaron(., 12)]", @parser.parse('a:aaron(12)'))
+        assert_xpath("//a[aaron(., 12, 1)]", @parser.parse('a:aaron(12, 1)'))
       end
 
       def test_class_selectors
