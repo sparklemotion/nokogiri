@@ -13,7 +13,7 @@ else
   $CFLAGS << " -g -DXP_UNIX"
 end
 
-$CFLAGS << " -O3 -Wall -Wextra -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
+$CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
 if Config::CONFIG['target_os'] == 'mingw32'
   find_library('xml2', 'xmlParseDoc',
@@ -54,17 +54,17 @@ if Config::CONFIG['target_os'] == 'mingw32'
 else
   unless find_header('libxml/xmlversion.h',
                      File.join(INCLUDEDIR, "libxml2"),
+                     '/usr/include/libxml2',
                      '/opt/local/include/libxml2',
-                     '/usr/local/include/libxml2',
-                     '/usr/include/libxml2'
+                     '/usr/local/include/libxml2'
                     )
     abort "need libxml"
   end
   unless find_header('libxslt/xslt.h',
                      INCLUDEDIR,
+                     '/usr/include',
                      '/opt/local/include',
-                     '/usr/local/include',
-                     '/usr/include'
+                     '/usr/local/include'
                     )
     abort "need libxslt"
   end
