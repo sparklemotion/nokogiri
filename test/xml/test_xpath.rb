@@ -22,7 +22,19 @@ module Nokogiri
             @things << node_set.to_a
             node_set.to_a
           end
+
+          def my_filter set, attribute, value
+            set.find_all { |x| x[attribute] == value }
+          end
         }.new
+      end
+
+      def test_pass_self_to_function
+        set = @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
+        assert set.length > 0
+        set.each do |node|
+          assert_equal 'Yes', node['domestic']
+        end
       end
 
       def test_custom_xpath_function_gets_strings
@@ -57,14 +69,14 @@ module Nokogiri
         set = @xml.xpath('//employee/name')
         @xml.xpath('//employee[thing(name)]', @handler)
         assert_equal(set.length, @handler.things.length)
-        assert_equal(set.to_a, @handler.things.map { |x| x.first }) 
+        assert_equal(set.to_a, @handler.things.flatten)
       end
 
       def test_custom_xpath_gets_node_sets_and_returns_array
         set = @xml.xpath('//employee/name')
         @xml.xpath('//employee[returns_array(name)]', @handler)
         assert_equal(set.length, @handler.things.length)
-        assert_equal(set.to_a, @handler.things.map { |x| x.first })
+        assert_equal(set.to_a, @handler.things.flatten)
       end
     end
   end

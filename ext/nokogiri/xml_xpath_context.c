@@ -41,8 +41,8 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
   VALUE * argv = (VALUE *)calloc((unsigned int)nargs, sizeof(VALUE));
   VALUE doc = (VALUE)ctx->context->doc->_private;
 
-  int i = 0;
-  for(i = 0; i < nargs; i++) {
+  int i = nargs - 1;
+  do {
     obj = valuePop(ctx);
     switch(obj->type) {
       case XPATH_STRING:
@@ -61,7 +61,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
         argv[i] = rb_str_new2((char *)xmlXPathCastToString(obj));
     }
     xmlXPathFreeNodeSetList(obj);
-  }
+  } while(i-- > 0);
 
   VALUE result = rb_funcall2(
       xpath_handler,
