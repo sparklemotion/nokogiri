@@ -7,6 +7,11 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_unknown_functions_get_dot_plus_args
+        assert_xpath("//a[aaron(.)]", @parser.parse('a:aaron()'))
+        assert_xpath("//a[aaron(., 12)]", @parser.parse('a:aaron(12)'))
+      end
+
       def test_class_selectors
         assert_xpath  "//*[contains(concat(' ', @class, ' '), ' red ')]",
                       @parser.parse(".red")

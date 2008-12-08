@@ -29,8 +29,11 @@ module Nokogiri
           "position() > #{node.value[1]}"
         when /^only-child\(/
           "last() = 1"
+        when /^comment\(/
+          "comment()"
         else
-          node.value.first + ')'
+          args = ['.'] + node.value[1..-1]
+          "#{node.value.first}#{args.join(', ')})"
         end
       end
 
