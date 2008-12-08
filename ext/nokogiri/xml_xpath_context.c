@@ -106,6 +106,12 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
       xmlXPathReturnNodeSet(ctx, xml_node_set);
       break;
     case T_DATA:
+      if(rb_funcall(result, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet)) {
+        Data_Get_Struct(result, xmlNodeSet, xml_node_set);
+        // Copy the node set, otherwise it will get GC'd.
+        xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+        break;
+      }
     default:
       rb_raise(rb_eRuntimeError, "Invalid return type");
   }
