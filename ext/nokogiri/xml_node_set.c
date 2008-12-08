@@ -28,6 +28,9 @@ static VALUE push(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
+  if(! rb_funcall(rb_node, rb_intern("is_a?"), 1, cNokogiriXmlNode))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
+
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
   xmlXPathNodeSetAdd(node_set, node);

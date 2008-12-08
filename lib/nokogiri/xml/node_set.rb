@@ -5,8 +5,9 @@ module Nokogiri
 
       attr_accessor :document
 
-      def initialize document
+      def initialize document, list = []
         @document = document
+        list.each { |x| self << x }
         yield self if block_given?
       end
 

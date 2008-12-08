@@ -17,6 +17,11 @@ module Nokogiri
             @things << thing
             thing
           end
+
+          def returns_array node_set
+            @things << node_set.to_a
+            node_set.to_a
+          end
         }.new
       end
 
@@ -53,6 +58,13 @@ module Nokogiri
         @xml.xpath('//employee[thing(name)]', @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.map { |x| x.first }) 
+      end
+
+      def test_custom_xpath_gets_node_sets_and_returns_array
+        set = @xml.xpath('//employee/name')
+        @xml.xpath('//employee[returns_array(name)]', @handler)
+        assert_equal(set.length, @handler.things.length)
+        assert_equal(set.to_a, @handler.things.map { |x| x.first })
       end
     end
   end

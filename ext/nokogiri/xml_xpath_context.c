@@ -103,7 +103,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
           result
       );
       Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
-      xmlXPathReturnNodeSet(ctx, xml_node_set);
+      xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
       break;
     case T_DATA:
       if(rb_funcall(result, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet)) {
