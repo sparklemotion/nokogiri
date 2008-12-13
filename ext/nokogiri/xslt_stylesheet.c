@@ -3,6 +3,7 @@
 #include <libxslt/xsltInternals.h>
 #include <libxslt/xsltutils.h>
 #include <libxslt/transform.h>
+#include <libexslt/exslt.h>
 
 static void dealloc(xsltStylesheetPtr doc)
 {
@@ -22,6 +23,7 @@ static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
     xmlDocPtr xml ;
     xsltStylesheetPtr ss ;
     Data_Get_Struct(xmldocobj, xmlDoc, xml);
+    exsltRegisterAll();
     ss = xsltParseStylesheetDoc(xmlCopyDoc(xml, 1)); /* 1 => recursive */
     return Data_Wrap_Struct(klass, NULL, dealloc, ss);
 }

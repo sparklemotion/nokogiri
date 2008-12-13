@@ -26,4 +26,19 @@ class TestXsltTransforms < Nokogiri::TestCase
     assert result = style.apply_to(doc)
     assert_match %r{<h1></h1>}, result
   end
+  
+  def test_exslt
+    assert doc = Nokogiri::XML.parse(File.read(EXML_FILE))
+    assert doc.xml?
+    
+    assert style = Nokogiri::XSLT.parse(File.read(EXSLT_FILE))
+    result_doc = Nokogiri::XML.parse(style.apply_to(doc))
+    
+    assert_equal 'func-result', result_doc.at('/root/function').content
+    assert_equal 3, result_doc.at('/root/max').content.to_i
+    assert_match(
+      /\d{4}-\d\d-\d\d-\d\d:\d\d/, 
+      result_doc.at('/root/date').content
+      )
+  end
 end

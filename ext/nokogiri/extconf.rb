@@ -34,7 +34,13 @@ else
                '/opt/local/lib',
                '/usr/local/lib',
                '/usr/lib'
-              )
+    )
+  find_library('exslt', 'exsltFuncRegister',
+               LIBDIR,
+               '/opt/local/lib',
+               '/usr/local/lib',
+               '/usr/lib'
+    )
 end
 
 
@@ -66,6 +72,14 @@ else
                      '/opt/local/include',
                      INCLUDEDIR,
                      '/usr/include',
+                     '/usr/local/include'
+                    )
+    abort "need libxslt"
+  end
+  unless find_header('libexslt/exslt.h',
+                     INCLUDEDIR,
+                     '/usr/include',
+                     '/opt/local/include',
                      '/usr/local/include'
                     )
     abort "need libxslt"
