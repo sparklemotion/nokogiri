@@ -5,27 +5,41 @@
 package nokogiri;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.RubyHash;
 import org.jruby.RubyIO;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
+import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ObjectAllocator;
+import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.load.BasicLibraryService;
 import org.jruby.util.ByteList;
+import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
@@ -255,6 +269,10 @@ public class NokogiriJavaService implements BasicLibraryService{
             this.document = document;
         }
 
+        public Document getDocument() {
+            return document;
+        }
+
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_memory(IRubyObject cls, IRubyObject[] args) {
             Ruby ruby = cls.getRuntime();
@@ -353,14 +371,33 @@ public class NokogiriJavaService implements BasicLibraryService{
             this.node = node;
         }
         
-        @JRubyMethod(meta = true, rest = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject[] args) {
-            return cls.getRuntime().getNil();
+        @JRubyMethod(name = "new", meta = true)
+        public static IRubyObject rbNew(IRubyObject cls, IRubyObject name, IRubyObject doc) {
+            XmlDocument xmlDoc = (XmlDocument)doc;
+            Document document = xmlDoc.getDocument();
+            Element element = document.createElement(name.convertToString().asJavaString());
+            return new XmlNode(cls.getRuntime(), (RubyClass)cls, element);
         }
 
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject new_from_str(IRubyObject cls, IRubyObject[] args) {
-            return cls.getRuntime().getNil();
+            // TODO: duplicating code from Document.read_memory
+            Ruby ruby = cls.getRuntime();
+            Arity.checkArgumentCount(ruby, args, 4, 4);
+            try {
+                Document document;
+                RubyString content = args[0].convertToString();
+                ByteList byteList = content.getByteList();
+                ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
+                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(bais);
+                return constructNode(ruby, document.getFirstChild());
+            } catch (ParserConfigurationException pce) {
+                throw RaiseException.createNativeRaiseException(ruby, pce);
+            } catch (SAXException saxe) {
+                throw RaiseException.createNativeRaiseException(ruby, saxe);
+            } catch (IOException ioe) {
+                throw RaiseException.createNativeRaiseException(ruby, ioe);
+            }
         }
 
         @JRubyMethod
@@ -398,10 +435,25 @@ public class NokogiriJavaService implements BasicLibraryService{
             return constructNode(getRuntime(), node.getFirstChild());
         }
 
-        protected IRubyObject constructNode(Ruby ruby, Node node) {
-            if (node == null) return getRuntime().getNil();
+        protected static IRubyObject constructNode(Ruby ruby, Node node) {
+            if (node == null) return ruby.getNil();
             // this is slow; need a way to cache nokogiri classes/modules somewhere
-            return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"), node);
+            switch (node.getNodeType()) {
+                case Node.TEXT_NODE:
+                    return new XmlText(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Text"), node);
+                case Node.COMMENT_NODE:
+                    return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Comment"), node);
+                case Node.ELEMENT_NODE:
+                    return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
+                case Node.ENTITY_NODE:
+                    return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDeclaration"), node);
+                case Node.CDATA_SECTION_NODE:
+                    return new XmlCdata(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"), node);
+                case Node.DOCUMENT_TYPE_NODE:
+                    return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DTD"), node);
+                default:
+                    return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"), node);
+            }
         }
 
         @JRubyMethod
@@ -481,57 +533,104 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject attributes() {
-            return getRuntime().getNil();
+            Ruby ruby = getRuntime();
+            ThreadContext context = ruby.getCurrentContext();
+            RubyHash hash = RubyHash.newHash(ruby);
+            NamedNodeMap attrs = node.getAttributes();
+            for (int i = 0; i < attrs.getLength(); i++) {
+                Node attr = attrs.item(i);
+                hash.op_aset(context, RubyString.newString(ruby, attr.getNodeName()), RubyString.newString(ruby, attr.getNodeValue()));
+            }
+            return hash;
         }
 
         @JRubyMethod
         public IRubyObject namespaces() {
-            return getRuntime().getNil();
+            Ruby ruby = getRuntime();
+            ThreadContext context = ruby.getCurrentContext();
+            RubyHash hash = RubyHash.newHash(ruby);
+            NamedNodeMap attrs = node.getAttributes();
+            for (int i = 0; i < attrs.getLength(); i++) {
+                Node attr = attrs.item(i);
+                hash.op_aset(context, RubyString.newString(ruby, attr.getNodeName()), RubyString.newString(ruby, attr.getNodeValue()));
+            }
+            return hash;
         }
 
         @JRubyMethod
         public IRubyObject add_previous_sibling(IRubyObject arg) {
-            return getRuntime().getNil();
+            if (arg instanceof XmlNode) {
+                node.getParentNode().insertBefore(((XmlNode)arg).node, node);
+                RuntimeHelpers.invoke(getRuntime().getCurrentContext(), arg, "decorate!");
+                return arg;
+            } else {
+                throw getRuntime().newTypeError(arg, (RubyClass)getRuntime().getClassFromPath("Nokogiri::XML::Node"));
+            }
         }
 
         @JRubyMethod
         public IRubyObject add_next_sibling(IRubyObject arg) {
-            return getRuntime().getNil();
+            if (arg instanceof XmlNode) {
+                Node next = node.getNextSibling();
+                if (next != null) {
+                    node.getParentNode().insertBefore(((XmlNode)arg).node, next);
+                } else {
+                    node.getParentNode().appendChild(((XmlNode)arg).node);
+                }
+                RuntimeHelpers.invoke(getRuntime().getCurrentContext(), arg, "decorate!");
+                return arg;
+            } else {
+                throw getRuntime().newTypeError(arg, (RubyClass)getRuntime().getClassFromPath("Nokogiri::XML::Node"));
+            }
         }
 
         @JRubyMethod
         public IRubyObject encode_special_chars(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject to_xml() {
-            return getRuntime().getNil();
+            try {
+                Transformer xformer = TransformerFactory.newInstance().newTransformer();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+                xformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                xformer.transform(new DOMSource(node), new StreamResult(baos));
+                return RubyString.newString(getRuntime(), baos.toByteArray());
+            } catch (TransformerFactoryConfigurationError tfce) {
+                throw RaiseException.createNativeRaiseException(getRuntime(), tfce);
+            } catch (TransformerConfigurationException tce) {
+                throw RaiseException.createNativeRaiseException(getRuntime(), tce);
+            } catch (TransformerException te) {
+                throw RaiseException.createNativeRaiseException(getRuntime(), te);
+            }
         }
 
         @JRubyMethod
         public IRubyObject dup() {
-            return getRuntime().getNil();
+            return constructNode(getRuntime(), node);
         }
 
         @JRubyMethod
         public IRubyObject unlink() {
-            return getRuntime().getNil();
+            node.getParentNode().removeChild(node);
+            return this;
         }
 
         @JRubyMethod
         public IRubyObject internal_subset() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject pointer_id() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
-        @JRubyMethod(visibility = Visibility.PRIVATE)
+        @JRubyMethod(name = "native_content=", visibility = Visibility.PRIVATE)
         public IRubyObject native_content_set(IRubyObject arg) {
-            return getRuntime().getNil();
+            node.setTextContent(arg.convertToString().asJavaString());
+            return arg;
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
@@ -546,36 +645,45 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
     }
 
-    public static class XmlText extends RubyObject {
-        public XmlText(Ruby ruby, RubyClass rubyClass) {
-            super(ruby, rubyClass);
+    public static class XmlText extends XmlNode {
+        public XmlText(Ruby ruby, RubyClass rubyClass, Node node) {
+            super(ruby, rubyClass, node);
         }
 
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject arg1, IRubyObject arg2) {
-            return cls.getRuntime().getNil();
+        public static IRubyObject rbNew(IRubyObject cls, IRubyObject text, IRubyObject doc) {
+            XmlDocument xmlDoc = (XmlDocument)doc;
+            Document document = xmlDoc.getDocument();
+            Node node = document.createTextNode(text.convertToString().asJavaString());
+            return XmlNode.constructNode(cls.getRuntime(), node);
         }
     }
 
-    public static class XmlCdata extends RubyObject {
-        public XmlCdata(Ruby ruby, RubyClass rubyClass) {
-            super(ruby, rubyClass);
+    public static class XmlCdata extends XmlText {
+        public XmlCdata(Ruby ruby, RubyClass rubyClass, Node node) {
+            super(ruby, rubyClass, node);
         }
 
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject arg1, IRubyObject arg2) {
-            return cls.getRuntime().getNil();
+        public static IRubyObject rbNew(IRubyObject cls, IRubyObject text, IRubyObject doc) {
+            XmlDocument xmlDoc = (XmlDocument)doc;
+            Document document = xmlDoc.getDocument();
+            Node node = document.createCDATASection(text.convertToString().asJavaString());
+            return XmlNode.constructNode(cls.getRuntime(), node);
         }
     }
 
-    public static class XmlComment extends RubyObject {
-        public XmlComment(Ruby ruby, RubyClass rubyClass) {
-            super(ruby, rubyClass);
+    public static class XmlComment extends XmlNode {
+        public XmlComment(Ruby ruby, RubyClass rubyClass, Node node) {
+            super(ruby, rubyClass, node);
         }
 
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject arg1, IRubyObject arg2) {
-            return cls.getRuntime().getNil();
+        public static IRubyObject rbNew(IRubyObject cls, IRubyObject text, IRubyObject doc) {
+            XmlDocument xmlDoc = (XmlDocument)doc;
+            Document document = xmlDoc.getDocument();
+            Node node = document.createComment(text.convertToString().asJavaString());
+            return XmlNode.constructNode(cls.getRuntime(), node);
         }
     }
 
