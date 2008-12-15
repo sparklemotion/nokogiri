@@ -67,6 +67,16 @@ module Nokogiri
       #   node.xpath('.//foo:name', { 'foo' => 'http://example.org/' })
       #   node.xpath('.//xmlns:name', node.root.namespaces)
       #
+      # Custom XPath functions may also be defined.  To define custom functions
+      # create a class which subclasses XPathHandler and implement the
+      # function you want to define.  For example:
+      #
+      #   node.xpath('.//title[regex(., "\w+")]', Class.new(XPathHandler) {
+      #     def regex node_set, regex
+      #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
+      #     end
+      #   })
+      #
       def xpath *paths
         handler = paths.last.is_a?(XPathHandler) ? paths.pop : nil
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
@@ -100,6 +110,18 @@ module Nokogiri
       #   node.css('title')
       #   node.css('body h1.bold')
       #   node.css('div + p.green', 'div#one')
+      #
+      # Custom CSS pseudo classes may also be defined.  To define custom pseudo
+      # classes, create a class which subclasses SelectorHandler and implement
+      # the the custom pseudo class you want defined.  The first argument to
+      # the method will be the current matching NodeSet.  Any other arguments
+      # are ones that you pass in.  For example:
+      #
+      #   node.css('title:regex("\w+")', Class.new(SelectorHandler) {
+      #     def regex node_set, regex
+      #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
+      #     end
+      #   })
       #
       def css *rules
         handler = rules.last.is_a?(XPathHandler) ? rules.pop : nil
@@ -213,6 +235,20 @@ module Nokogiri
         ns = {}
         traverse {|j| ns.merge!(j.namespaces)}
         ns
+      end
+
+      ###
+      # Get a list of ancestor Node for this Node
+      def ancestors
+        parents = []
+
+        this_parent = self.parent
+
+        while this_parent != nil
+          parents << this_parent
+          this_parent = this_parent.parent
+        end
+        parents
       end
 
       ####

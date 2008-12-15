@@ -1,5 +1,10 @@
 === HEAD
 
+* New Features
+
+  * Custom XPath functions are now supported.  See Node#xpath
+  * Custom CSS pseudo classes are now supported.  See Node#css
+
 * Bugfixes
 
   * Mutex lock on CSS cache access

@@ -3,6 +3,14 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
+      def test_ancestors
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        address = xml.xpath('//address').first
+        assert_equal 3, address.ancestors.length
+        assert_equal ['employee', 'staff', nil],
+          address.ancestors.map { |x| x.name }
+      end
+
       def test_add_previous_sibling
         xml = Nokogiri::XML(<<-eoxml)
         <root>
