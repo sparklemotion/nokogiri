@@ -7,6 +7,8 @@ package nokogiri;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -17,6 +19,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
@@ -41,7 +48,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -179,37 +189,37 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_NODE_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator XML_TEXT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator XML_CDATA_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator XML_COMMENT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator XML_NODESET_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
@@ -221,25 +231,25 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_READER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator XML_DTD_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator XML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator HTML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
@@ -251,13 +261,13 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_SYNTAXERROR_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
     private static ObjectAllocator XML_DOCUMENT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            throw runtime.newNotImplementedError("not implemented");
         }
     };
 
@@ -282,7 +292,14 @@ public class NokogiriJavaService implements BasicLibraryService{
                 RubyString content = args[0].convertToString();
                 ByteList byteList = content.getByteList();
                 ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(bais);
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder db = dbf.newDocumentBuilder();
+                db.setEntityResolver(new EntityResolver() {
+                    public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
+                        return new InputSource(new ByteArrayInputStream(new byte[0]));
+                    }
+                });
+                document = db.parse(bais);
                 return new XmlDocument(ruby, (RubyClass)cls, document);
             } catch (ParserConfigurationException pce) {
                 throw RaiseException.createNativeRaiseException(ruby, pce);
@@ -301,7 +318,14 @@ public class NokogiriJavaService implements BasicLibraryService{
                 Document document;
                 if (args[0] instanceof RubyIO) {
                     RubyIO io = (RubyIO)args[0];
-                    document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(io.getInStream());
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder db = dbf.newDocumentBuilder();
+                    db.setEntityResolver(new EntityResolver() {
+                        public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
+                            return new InputSource(new ByteArrayInputStream(new byte[0]));
+                        }
+                    });
+                    document = db.parse(io.getInStream());
                     return new XmlDocument(ruby, (RubyClass)cls, document);
                 } else {
                     throw ruby.newTypeError("Only IO supported for Document.read_io currently");
@@ -317,49 +341,51 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject rbNew(IRubyObject cls, IRubyObject[] args) {
-            return cls.getRuntime().getNil();
+            throw cls.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(meta = true)
         public static IRubyObject substitute_entities_set(IRubyObject cls, IRubyObject arg) {
-            return cls.getRuntime().getNil();
+            throw cls.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(meta = true)
         public static IRubyObject load_external_subsets_set(IRubyObject cls, IRubyObject arg) {
-            return cls.getRuntime().getNil();
+            throw cls.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject root() {
-            return getRuntime().getNil();
+            return XmlNode.constructNode(getRuntime(), document.getDocumentElement());
         }
 
         @JRubyMethod
         public IRubyObject root_set(IRubyObject arg) {
-            return getRuntime().getNil();
+            Node node = XmlNode.getNodeFromXmlNode(arg);
+            document.replaceChild(node, document.getDocumentElement());
+            return arg;
         }
 
         @JRubyMethod
         public IRubyObject serialize() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
     }
 
     public static class HtmlDocument {
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_memory(IRubyObject cls, IRubyObject[] args) {
-            return cls.getRuntime().getNil();
+            throw cls.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public static IRubyObject type(IRubyObject htmlDoc) {
-            return htmlDoc.getRuntime().getNil();
+            throw htmlDoc.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public static IRubyObject serialize(IRubyObject htmlDoc) {
-            return htmlDoc.getRuntime().getNil();
+            throw htmlDoc.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -389,7 +415,14 @@ public class NokogiriJavaService implements BasicLibraryService{
                 RubyString content = args[0].convertToString();
                 ByteList byteList = content.getByteList();
                 ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-                document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(bais);
+                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                DocumentBuilder db = dbf.newDocumentBuilder();
+                db.setEntityResolver(new EntityResolver() {
+                    public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
+                        return new InputSource(new ByteArrayInputStream(new byte[0]));
+                    }
+                });
+                document = db.parse(bais);
                 return constructNode(ruby, document.getFirstChild());
             } catch (ParserConfigurationException pce) {
                 throw RaiseException.createNativeRaiseException(ruby, pce);
@@ -407,9 +440,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(name = "name=")
         public IRubyObject name_set(IRubyObject arg) {
-            String newName = arg.convertToString().asJavaString();
-            node.getAttributes().getNamedItem("nodeName").setNodeValue(newName);
-            return arg;
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
@@ -417,7 +448,11 @@ public class NokogiriJavaService implements BasicLibraryService{
             return constructNode(getRuntime(), node.getParentNode());
         }
 
-        private Node getNode(IRubyObject arg) {
+        public Node getNode() {
+            return node;
+        }
+
+        private static Node getNodeFromXmlNode(IRubyObject arg) {
             Ruby ruby = arg.getRuntime();
             if (!(arg instanceof XmlNode)) throw ruby.newTypeError(arg, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
             return ((XmlNode)arg).node;
@@ -425,7 +460,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(name = "parent=")
         public IRubyObject parent_set(IRubyObject arg) {
-            Node otherNode = getNode(arg);
+            Node otherNode = getNodeFromXmlNode(arg);
             otherNode.appendChild(node);
             return arg;
         }
@@ -468,11 +503,8 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject replace(IRubyObject arg) {
-            Ruby ruby = getRuntime();
-            
-            Node otherNode = getNode(arg);
-
-            node.getParentNode().replaceChild(node, otherNode);
+            Node otherNode = getNodeFromXmlNode(arg);
+            node.getParentNode().replaceChild(otherNode, node);
 
             return this;
         }
@@ -586,7 +618,8 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject encode_special_chars(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+            // TODO: actually encode :)
+            return arg;
         }
 
         @JRubyMethod
@@ -679,7 +712,7 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject text, IRubyObject doc) {
+        public static IRubyObject rbNew(IRubyObject cls, IRubyObject doc, IRubyObject text) {
             XmlDocument xmlDoc = (XmlDocument)doc;
             Document document = xmlDoc.getDocument();
             Node node = document.createComment(text.convertToString().asJavaString());
@@ -688,39 +721,56 @@ public class NokogiriJavaService implements BasicLibraryService{
     }
 
     public static class XmlNodeSet extends RubyObject {
-        public XmlNodeSet(Ruby ruby, RubyClass rubyClass) {
+        private NodeList nodes;
+
+        public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
             super(ruby, rubyClass);
+            this.nodes = nodes;
         }
 
         @JRubyMethod
         public IRubyObject length() {
-            return getRuntime().getNil();
+            return RubyFixnum.newFixnum(getRuntime(), nodes.getLength());
         }
 
         @JRubyMethod(name = "[]")
         public IRubyObject op_aref(IRubyObject arg1) {
-            return getRuntime().getNil();
+            int index = (int)arg1.convertToInteger().getLongValue();
+            if (index < 0) index = nodes.getLength() + index;
+            return XmlNode.constructNode(getRuntime(), nodes.item(index));
         }
 
         @JRubyMethod
         public IRubyObject push(IRubyObject arg1) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
     }
 
     public static class XpathContext extends RubyObject {
-        public XpathContext(Ruby ruby, RubyClass rubyClass) {
+        private Node context;
+        private XPath xpath;
+        
+        public XpathContext(Ruby ruby, RubyClass rubyClass, Node context) {
             super(ruby, rubyClass);
+            this.context = context;
+            this.xpath = XPathFactory.newInstance().newXPath();
         }
 
         @JRubyMethod(name = "new", meta = true)
         public static IRubyObject rbNew(IRubyObject cls, IRubyObject arg1) {
-            return cls.getRuntime().getNil();
+            XmlNode node = (XmlNode)arg1;
+            return new XpathContext(cls.getRuntime(), (RubyClass)cls, node.getNode());
         }
 
         @JRubyMethod
         public IRubyObject evaluate(IRubyObject arg1) {
-            return getRuntime().getNil();
+            String src = arg1.convertToString().asJavaString();
+            try {
+                XPathExpression xpathExpression = xpath.compile(src);
+                return new Xpath(getRuntime(), (RubyClass)getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, context);
+            } catch (XPathExpressionException xpee) {
+                throw getRuntime().newSyntaxError("Couldn't evaluate expression '" + src + "'");
+            }
         }
 
         @JRubyMethod
@@ -730,13 +780,23 @@ public class NokogiriJavaService implements BasicLibraryService{
     }
 
     public static class Xpath extends RubyObject {
-        public Xpath(Ruby ruby, RubyClass rubyClass) {
+        private XPathExpression xpath;
+        private Node context;
+        
+        public Xpath(Ruby ruby, RubyClass rubyClass, XPathExpression xpath, Node context) {
             super(ruby, rubyClass);
+            this.xpath = xpath;
+            this.context = context;
         }
 
-        @JRubyMethod(name = "node=")
+        @JRubyMethod(name = "node_set")
         public IRubyObject node_set() {
-            return getRuntime().getNil();
+            try {
+                NodeList nodes = (NodeList)xpath.evaluate(context, XPathConstants.NODESET);
+                return new XmlNodeSet(getRuntime(), (RubyClass)getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+            } catch (XPathExpressionException xpee) {
+                throw getRuntime().newSyntaxError("Couldn't evaluate expression '" + xpath.toString() + "'");
+            }
         }
     }
 
@@ -746,18 +806,18 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject parse_memory(IRubyObject arg1) {
-            return getRuntime().getNil();
+        public static IRubyObject parse_memory(IRubyObject self, IRubyObject arg1) {
+            throw self.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject native_parse_file(IRubyObject arg1) {
-            return getRuntime().getNil();
+        public static IRubyObject native_parse_file(IRubyObject self, IRubyObject arg1) {
+            throw self.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject native_parse_io(IRubyObject arg1, IRubyObject arg2) {
-            return getRuntime().getNil();
+        public static IRubyObject native_parse_io(IRubyObject self, IRubyObject arg1, IRubyObject arg2) {
+            throw self.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -767,13 +827,13 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject native_parse_memory(IRubyObject arg1, IRubyObject arg2) {
-            return getRuntime().getNil();
+        public static IRubyObject native_parse_memory(IRubyObject self, IRubyObject arg1, IRubyObject arg2) {
+            throw self.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject native_parse_file(IRubyObject arg1, IRubyObject arg2) {
-            return getRuntime().getNil();
+        public static IRubyObject native_parse_file(IRubyObject self, IRubyObject arg1, IRubyObject arg2) {
+            throw self.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -784,92 +844,92 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject from_memory(IRubyObject cls, IRubyObject args[]) {
-            return cls.getRuntime().getNil();
+            throw cls.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject read() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject state() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject name() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject local_name() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject namespace_uri() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject prefix() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject value() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject lang() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject xml_version() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject encoding() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject depth() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject attribute_count() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject attribute(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject attribute_at(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject attributes() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(name = "attributes?")
         public IRubyObject attributes_p() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(name = "value?")
         public IRubyObject value_p() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -880,22 +940,22 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject notations() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject elements() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject attributes() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject entities() {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -906,17 +966,17 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(meta = true)
         public static IRubyObject parse_stylesheet_doc(IRubyObject cls, IRubyObject arg1) {
-            return cls.getRuntime().getNil();
+            throw cls.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject serialize(IRubyObject arg1) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(rest = true)
         public IRubyObject apply_to(IRubyObject[] args) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -927,57 +987,57 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject message(IRubyObject arg1) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject domain(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject code(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject level(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject file(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject line(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject str1(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject str2(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject str3(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject int1(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
         public IRubyObject column(IRubyObject arg) {
-            return getRuntime().getNil();
+            throw getRuntime().newNotImplementedError("not implemented");
         }
     }
 }
