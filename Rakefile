@@ -231,9 +231,13 @@ end
 
 def test_suite_cmdline
   require 'find'
+  match = ENV['MATCH'] ? /#{ENV['MATCH']}/ : /./
+
   files = []
   Find.find("test") do |f|
-    files << f if File.basename(f) =~ /.*test.*\.rb$/
+    basename = File.basename(f)
+
+    files << f if basename =~ /.*test.*\.rb$/ && basename =~ match
   end
   cmdline = "ruby -w -I.:lib:ext:test -rtest/unit -e '%w[#{files.join(' ')}].each {|f| require f}'"
 end

@@ -443,9 +443,13 @@ static VALUE add_next_sibling(VALUE self, VALUE rb_node)
 static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 {
   xmlNodePtr node, new_sibling;
+  Check_Type(rb_node, T_DATA);
+
   Data_Get_Struct(self, xmlNode, node);
   Data_Get_Struct(rb_node, xmlNode, new_sibling);
-  xmlAddPrevSibling(node, new_sibling);
+
+  if(!xmlAddPrevSibling(node, new_sibling))
+    rb_raise(rb_eRuntimeError, "Could not add previous sibling");
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
