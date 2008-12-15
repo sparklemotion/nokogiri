@@ -6,11 +6,13 @@ package nokogiri;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -25,6 +27,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
@@ -43,16 +46,24 @@ import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.load.BasicLibraryService;
 import org.jruby.util.ByteList;
-import org.w3c.dom.CDATASection;
+import org.jruby.util.TypeConverter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.xml.sax.AttributeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.ext.DefaultHandler2;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  *
@@ -150,6 +161,7 @@ public class NokogiriJavaService implements BasicLibraryService{
         // Nokogiri::XML::SAX::Parser is defined by nokogiri/xml/sax/parser.rb
         RubyClass saxParser = xmlSax.getClass("Parser");
 
+        saxParser.setAllocator(XML_SAXPARSER_ALLOCATOR);
         saxParser.defineAnnotatedMethods(SaxParser.class);
     }
 
@@ -243,7 +255,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            return new SaxParser(runtime, klazz);
         }
     };
 
@@ -801,23 +813,141 @@ public class NokogiriJavaService implements BasicLibraryService{
     }
 
     public static class SaxParser extends RubyObject {
-        public SaxParser(Ruby ruby, RubyClass rubyClass) {
+        private DefaultHandler2 handler;
+        private XMLReader reader;
+
+        public SaxParser(final Ruby ruby, RubyClass rubyClass) {
             super(ruby, rubyClass);
+
+            final IRubyObject self = this;
+            handler = new DefaultHandler2() {
+                public void startDocument() throws SAXException {
+                    ThreadContext context = ruby.getCurrentContext();
+                    RuntimeHelpers.invoke(context, self, "start_document",
+                            RuntimeHelpers.invoke(context, self, "document"));
+                }
+
+                public void endDocument() throws SAXException {
+                    ThreadContext context = ruby.getCurrentContext();
+                    RuntimeHelpers.invoke(context, self, "start_document",
+                            RuntimeHelpers.invoke(context, self, "document"));
+                }
+
+                public void startElement(String arg0, String arg1, String arg2, Attributes arg3) throws SAXException {
+                    ThreadContext context = ruby.getCurrentContext();
+                    RubyArray attrs = RubyArray.newArray(ruby, arg3.getLength());
+                    for (int i = 0; i < arg3.getLength(); i++) {
+                        attrs.append(RubyString.newString(ruby, arg3.getQName(i)));
+                        attrs.append(RubyString.newString(ruby, arg3.getValue(i)));
+                    }
+                    RuntimeHelpers.invoke(context, self, "start_element",
+                            RuntimeHelpers.invoke(context, self, "document"),
+                            RubyString.newString(ruby, arg2),
+                            attrs);
+                }
+
+                public void endElement(String arg0, String arg1, String arg2) throws SAXException {
+                    ThreadContext context = ruby.getCurrentContext();
+                    RuntimeHelpers.invoke(context, self, "end_element",
+                            RuntimeHelpers.invoke(context, self, "document"),
+                            RubyString.newString(ruby, arg2));
+                }
+
+                public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
+                    ThreadContext context = ruby.getCurrentContext();
+                    String target;
+                    if (inCDATA) {
+                        target = "cdata_block";
+                    } else {
+                        target = "characters";
+                    }
+                    RuntimeHelpers.invoke(context, self, target,
+                            RuntimeHelpers.invoke(context, self, "document"),
+                            RubyString.newString(ruby, new String(arg0, arg1, arg2)));
+                }
+
+                @Override
+                public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
+                    ThreadContext context = ruby.getCurrentContext();
+                    RuntimeHelpers.invoke(context, self, "comment",
+                            RuntimeHelpers.invoke(context, self, "document"),
+                            RubyString.newString(ruby, new String(arg0, arg1, arg2)));
+                }
+
+                boolean inCDATA = false;
+
+                public void startCDATA() throws SAXException {
+                    inCDATA = true;
+                }
+
+                public void endCDATA() throws SAXException {
+                    inCDATA = false;
+                }
+
+                public void error(SAXParseException saxpe) {
+                    ThreadContext context = ruby.getCurrentContext();
+                    RuntimeHelpers.invoke(context, self, "error",
+                            RuntimeHelpers.invoke(context, self, "document"),
+                            RubyString.newString(ruby, saxpe.getMessage()));
+                }
+
+                public void warning(SAXParseException saxpe) {
+                    ThreadContext context = ruby.getCurrentContext();
+                    RuntimeHelpers.invoke(context, self, "warning",
+                            RuntimeHelpers.invoke(context, self, "document"),
+                            RubyString.newString(ruby, saxpe.getMessage()));
+                }
+            };
+            try {
+                reader = XMLReaderFactory.createXMLReader();
+                reader.setContentHandler(handler);
+                reader.setErrorHandler(handler);
+                reader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+            } catch (SAXException se) {
+                throw RaiseException.createNativeRaiseException(getRuntime(), se);
+            }
         }
 
         @JRubyMethod
-        public static IRubyObject parse_memory(IRubyObject self, IRubyObject arg1) {
-            throw self.getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject parse_memory(IRubyObject arg1) {
+            try {
+                RubyString content = arg1.convertToString();
+                ByteList byteList = content.getByteList();
+                ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
+                reader.parse(new InputSource(bais));
+                return arg1;
+            } catch (SAXException se) {
+                throw RaiseException.createNativeRaiseException(getRuntime(), se);
+            } catch (IOException ioe) {
+                throw getRuntime().newIOErrorFromException(ioe);
+            }
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public static IRubyObject native_parse_file(IRubyObject self, IRubyObject arg1) {
-            throw self.getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject native_parse_file(IRubyObject arg1) {
+            try {
+                String filename = arg1.convertToString().asJavaString();
+                reader.parse(new InputSource(new FileInputStream(filename)));
+                return arg1;
+            } catch (SAXException se) {
+                throw RaiseException.createNativeRaiseException(getRuntime(), se);
+            } catch (IOException ioe) {
+                throw getRuntime().newIOErrorFromException(ioe);
+            }
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public static IRubyObject native_parse_io(IRubyObject self, IRubyObject arg1, IRubyObject arg2) {
-            throw self.getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject native_parse_io(IRubyObject arg1, IRubyObject arg2) {
+            try {
+                int encoding = (int)arg2.convertToInteger().getLongValue();
+                RubyIO io = (RubyIO)TypeConverter.convertToType(arg1, getRuntime().getIO(), "to_io");
+                reader.parse(new InputSource(io.getInStream()));
+                return arg1;
+            } catch (SAXException se) {
+                throw RaiseException.createNativeRaiseException(getRuntime(), se);
+            } catch (IOException ioe) {
+                throw getRuntime().newIOErrorFromException(ioe);
+            }
         }
     }
 
