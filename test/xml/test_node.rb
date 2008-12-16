@@ -68,6 +68,14 @@ module Nokogiri
         assert_no_match(/Hello world/, xml.to_s)
       end
 
+      def test_dup_shallow
+        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
+        found = html.search('//div/a').first
+        dup = found.dup(0)
+        assert dup
+        assert_equal '', dup.content
+      end
+
       def test_dup
         html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
         found = html.search('//div/a').first
