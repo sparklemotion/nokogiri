@@ -4,6 +4,7 @@
 
   * Custom XPath functions are now supported.  See Nokogiri::XML::Node#xpath
   * Custom CSS pseudo classes are now supported.  See Nokogiri::XML::Node#css
+  * Nokogiri::XML::Node#<< will add a child to the current node
 
 * Bugfixes
 

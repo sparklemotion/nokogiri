@@ -198,6 +198,17 @@ module Nokogiri
         self.native_content = encode_special_chars(string)
       end
 
+      ###
+      # Set the parent Node for this Node
+      def parent= parent_node
+        parent_node.add_child(self)
+        parent_node
+      end
+
+      def << child
+        add_child child
+      end
+
       def comment?
         type == COMMENT_NODE
       end

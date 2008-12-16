@@ -11,6 +11,28 @@ module Nokogiri
           address.ancestors.map { |x| x.name }
       end
 
+      def test_add_child
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+        </root>
+        eoxml
+        text_node = Nokogiri::XML::Text.new('hello', xml)
+        xml.root.add_child text_node
+        assert_match 'hello', xml.to_s
+      end
+
+      def test_chevron_works_as_add_child
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+        </root>
+        eoxml
+        text_node = Nokogiri::XML::Text.new('hello', xml)
+        xml.root << text_node
+        assert_match 'hello', xml.to_s
+      end
+
       def test_add_previous_sibling
         xml = Nokogiri::XML(<<-eoxml)
         <root>

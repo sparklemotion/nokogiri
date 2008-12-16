@@ -344,18 +344,20 @@ static VALUE get_content(VALUE self)
 
 /*
  * call-seq:
- *  parent=(parent_node)
+ *  add_child(node)
  *
- * Set the parent Node for this Node
+ * Add +node+ as a child of this node. Returns the new child node.
  */
-static VALUE set_parent(VALUE self, VALUE parent_node)
+static VALUE add_child(VALUE self, VALUE child)
 {
-  xmlNodePtr node, parent;
-  Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(parent_node, xmlNode, parent);
+  xmlNodePtr node, parent, new_child;
+  Data_Get_Struct(child, xmlNode, node);
+  Data_Get_Struct(self, xmlNode, parent);
 
-  xmlAddChild(parent, node);
-  return parent_node;
+  if(!(new_child = xmlAddChild(parent, node)))
+    rb_raise(rb_eRuntimeError, "Could not add new child");
+
+  return Nokogiri_wrap_xml_node(new_child);
 }
 
 /*
@@ -664,7 +666,7 @@ void init_xml_node()
 
   rb_define_method(klass, "name", get_name, 0);
   rb_define_method(klass, "name=", set_name, 1);
-  rb_define_method(klass, "parent=", set_parent, 1);
+  rb_define_method(klass, "add_child", add_child, 1);
   rb_define_method(klass, "parent", get_parent, 0);
   rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "next_sibling", next_sibling, 0);
