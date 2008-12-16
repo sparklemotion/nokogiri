@@ -11,6 +11,7 @@
   * Fixed build problems with GCC 3.3.5
   * XML::Node#to_xml now takes an intentation argument
   * XML::Node#dup takes an option depth argument
+  * XML::Node#add_previous_sibling returns new sibling node.
 
 === 1.0.7
 

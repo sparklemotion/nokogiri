@@ -454,12 +454,15 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
   Data_Get_Struct(self, xmlNode, node);
   Data_Get_Struct(rb_node, xmlNode, new_sibling);
 
-  if(!xmlAddPrevSibling(node, new_sibling))
+  if(!(new_sibling = xmlAddPrevSibling(node, new_sibling)))
     rb_raise(rb_eRuntimeError, "Could not add previous sibling");
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
-  return rb_node;
+  VALUE rb_new_sibling = Nokogiri_wrap_xml_node(new_sibling);
+  rb_funcall(rb_new_sibling, rb_intern("decorate!"), 0);
+
+  return rb_new_sibling;
 }
 
 /*
