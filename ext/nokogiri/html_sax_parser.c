@@ -2,23 +2,29 @@
 
 static VALUE native_parse_file(VALUE self, VALUE data, VALUE encoding)
 {
+  // TODO: isn't it more interesting to return the doc tree than the data we passed in?
   xmlSAXHandlerPtr handler;
+  htmlDocPtr hdoc ;
   Data_Get_Struct(self, xmlSAXHandler, handler);
-  htmlSAXParseFile( StringValuePtr(data),
-                    (const char *)StringValuePtr(encoding),
-                    (htmlSAXHandlerPtr)handler,
-                    (void *)self );
+  hdoc = htmlSAXParseFile( StringValuePtr(data),
+                           (const char *)StringValuePtr(encoding),
+                           (htmlSAXHandlerPtr)handler,
+                           (void *)self );
+  xmlFreeDoc(hdoc);
   return data;
 }
 
 static VALUE native_parse_memory(VALUE self, VALUE data, VALUE encoding)
 {
+  // TODO: isn't it more interesting to return the doc tree than the data we passed in?
   xmlSAXHandlerPtr handler;
+  htmlDocPtr hdoc ;
   Data_Get_Struct(self, xmlSAXHandler, handler);
-  htmlSAXParseDoc(  (xmlChar *)StringValuePtr(data),
-                    (const char *)StringValuePtr(encoding),
-                    (htmlSAXHandlerPtr)handler,
-                    (void *)self );
+  hdoc = htmlSAXParseDoc(  (xmlChar *)StringValuePtr(data),
+                           (const char *)StringValuePtr(encoding),
+                           (htmlSAXHandlerPtr)handler,
+                           (void *)self );
+  xmlFreeDoc(hdoc);
   return data;
 }
 
