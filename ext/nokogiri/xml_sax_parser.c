@@ -42,6 +42,7 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
       enc
   );
   xmlParseDocument(sax_ctx);
+  xmlFreeParserCtxt(sax_ctx);
   return io;
 }
 
