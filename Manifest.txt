@@ -94,6 +94,8 @@ test/css/test_parser.rb
 test/css/test_tokenizer.rb
 test/css/test_xpath_visitor.rb
 test/files/dont_hurt_em_why.xml
+test/files/exslt.xml
+test/files/exslt.xslt
 test/files/staff.xml
 test/files/staff.xslt
 test/files/tlm.html
