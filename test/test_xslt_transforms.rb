@@ -26,7 +26,7 @@ class TestXsltTransforms < Nokogiri::TestCase
     assert result = style.apply_to(doc)
     assert_match %r{<h1></h1>}, result
   end
-  def test_transform
+  def test_transform2
     assert doc = Nokogiri::XML.parse(File.read(XML_FILE))
     assert doc.xml?
 
