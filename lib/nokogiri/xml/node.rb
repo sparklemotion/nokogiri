@@ -268,6 +268,18 @@ module Nokogiri
         children.each{|j| j.traverse(&block) }
         block.call(self)
       end
+
+      ####
+      #  replace node with the new node in the document.
+      def replace(new_node)
+        if new_node.is_a?(Document)
+          raise ArgumentError, <<-EOERR
+Node.replace requires a Node argument, and cannot accept a Document.
+(You probably want to select a node from the Document with at() or search(), or create a new Node via Node.new().)
+          EOERR
+        end
+        replace_with_node new_node
+      end
     end
   end
 end

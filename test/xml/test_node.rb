@@ -225,6 +225,13 @@ module Nokogiri
         assert_not_equal set[0].to_xml, set[0].to_xml(5)
       end
 
+      def test_illegal_replace_of_node_with_doc
+        xml = Nokogiri::XML.parse(File.read(XML_FILE))
+        new_node = Nokogiri::XML.parse('<foo>bar</foo>')
+        old_node = xml.at('//employee')
+        assert_raises(ArgumentError){ old_node.replace new_node }
+      end
+
       def test_namespace_as_hash
         xml = Nokogiri::XML.parse(<<-eoxml)
 <root>

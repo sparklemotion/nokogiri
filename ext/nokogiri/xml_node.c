@@ -156,12 +156,7 @@ static VALUE previous_sibling(VALUE self)
   return Nokogiri_wrap_xml_node(sibling);
 }
 
-/*
- *  call-seq:
- *    replace(new_node)
- *
- *  replace node with the new node in the document.
- */
+/* :nodoc: */
 static VALUE replace(VALUE self, VALUE _new_node)
 {
   xmlNodePtr node, new_node;
@@ -671,7 +666,6 @@ void init_xml_node()
   rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "next_sibling", next_sibling, 0);
   rb_define_method(klass, "previous_sibling", previous_sibling, 0);
-  rb_define_method(klass, "replace", replace, 1);
   rb_define_method(klass, "type", type, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "path", path, 0);
@@ -690,6 +684,7 @@ void init_xml_node()
   rb_define_method(klass, "internal_subset", internal_subset, 0);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
 
+  rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
 }
