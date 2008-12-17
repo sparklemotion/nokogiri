@@ -22,6 +22,8 @@ if Config::CONFIG['target_os'] == 'mingw32'
                File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'bin'))
   find_library('xslt', 'xsltParseStylesheetDoc',
                File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
+  find_library('exslt', 'exsltFuncRegister',
+               File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
 else
   find_library('xml2', 'xmlParseDoc',
                LIBDIR,
@@ -34,7 +36,13 @@ else
                '/opt/local/lib',
                '/usr/local/lib',
                '/usr/lib'
-              )
+    )
+  find_library('exslt', 'exsltFuncRegister',
+               LIBDIR,
+               '/opt/local/lib',
+               '/usr/local/lib',
+               '/usr/lib'
+    )
 end
 
 
@@ -47,6 +55,9 @@ if Config::CONFIG['target_os'] == 'mingw32'
   header = File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'include')
   unless find_header('libxslt/libxslt.h', header)
     abort "need libxslt"
+  end
+  unless find_header('libexslt/libexslt.h', header)
+    abort "need libexslt"
   end
 
   header = File.join(ROOT, 'cross', 'iconv-1.9.2.win32', 'include')
@@ -66,6 +77,14 @@ else
                      '/opt/local/include',
                      INCLUDEDIR,
                      '/usr/include',
+                     '/usr/local/include'
+                    )
+    abort "need libxslt"
+  end
+  unless find_header('libexslt/exslt.h',
+                     INCLUDEDIR,
+                     '/usr/include',
+                     '/opt/local/include',
                      '/usr/local/include'
                     )
     abort "need libxslt"

@@ -3,6 +3,7 @@
 #include <libxslt/xsltInternals.h>
 #include <libxslt/xsltutils.h>
 #include <libxslt/transform.h>
+#include <libexslt/exslt.h>
 
 static void dealloc(xsltStylesheetPtr doc)
 {
@@ -22,6 +23,7 @@ static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
     xmlDocPtr xml ;
     xsltStylesheetPtr ss ;
     Data_Get_Struct(xmldocobj, xmlDoc, xml);
+    exsltRegisterAll();
     ss = xsltParseStylesheetDoc(xmlCopyDoc(xml, 1)); /* 1 => recursive */
     return Data_Wrap_Struct(klass, NULL, dealloc, ss);
 }
@@ -48,16 +50,15 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
     xmlFree(doc_ptr);
     return rval ;
 }
-
-
 /*
  *  call-seq:
- *    apply_to(document, params)
+ *    transform(document, params)
  *
  *  Apply an XSLT stylesheet to an XML::Document.
  *  +params+ is an array of strings used as XSLT parameters.
+ *  returns Nokogiri::XML::Document
  */
-static VALUE apply_to(int argc, VALUE* argv, VALUE self)
+static VALUE transform(int argc, VALUE* argv, VALUE self)
 {
     VALUE xmldoc, paramobj ;
     xmlDocPtr xml ;
@@ -65,7 +66,6 @@ static VALUE apply_to(int argc, VALUE* argv, VALUE self)
     xsltStylesheetPtr ss ;
     const char** params ;
     int param_len, j ;
-    VALUE resultobj ;
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
     if (paramobj == Qnil) { paramobj = rb_ary_new2(0) ; }
@@ -84,8 +84,22 @@ static VALUE apply_to(int argc, VALUE* argv, VALUE self)
 
     result = xsltApplyStylesheet(ss, xml, params);
     free(params);
-    resultobj = Nokogiri_wrap_xml_document(0, result) ;
-    return rb_funcall(self, rb_intern("serialize"), 1, resultobj);
+
+    return Nokogiri_wrap_xml_document(0, result) ;
+}
+
+/*
+ *  call-seq:
+ *    apply_to(document, params)
+ *
+ *  Apply an XSLT stylesheet to an XML::Document.
+ *  +params+ is an array of strings used as XSLT parameters.
+ *  returns serialized document
+ */
+static VALUE apply_to(int argc, VALUE* argv, VALUE self)
+{
+  return rb_funcall(self, rb_intern("serialize"), 1, 
+                    transform(argc, argv, self));
 }
 
 VALUE cNokogiriXsltStylesheet ;
@@ -105,4 +119,5 @@ void init_xslt_stylesheet()
   rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
   rb_define_method(klass, "serialize", serialize, 1);
   rb_define_method(klass, "apply_to", apply_to, -1);
+  rb_define_method(klass, "transform", transform, -1);
 }
