@@ -1,5 +1,11 @@
 === HEAD
 
+* 新しい機能
+
+  * カスタム XPath 機能はある。参照 Nokogiri::XML::Node#xpath
+  * カスタム CSS 擬似クラスと機能はある。参照 Nokogiri::XML::Node#css
+  * Nokogiri::XML::Node#<< は参照に子ノードを添える
+
 * バグの修正
 
 === 1.0.7
