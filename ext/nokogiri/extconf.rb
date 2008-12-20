@@ -6,6 +6,8 @@ ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 LIBDIR = Config::CONFIG['libdir']
 INCLUDEDIR = Config::CONFIG['includedir']
 
+  use_macports = !(defined?(RUBY_ENGINE) && RUBY_ENGINE != 'ruby')
+
 $CFLAGS << " #{ENV["CFLAGS"]}"
 if Config::CONFIG['target_os'] == 'mingw32'
   $CFLAGS << " -DXP_WIN -DXP_WIN32"
@@ -13,7 +15,7 @@ else
   $CFLAGS << " -g -DXP_UNIX"
 end
 
-$LIBPATH << "/opt/local/lib"
+$LIBPATH << "/opt/local/lib" if use_macports
 
 $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
@@ -65,28 +67,26 @@ if Config::CONFIG['target_os'] == 'mingw32'
     abort "need iconv"
   end
 else
-  unless find_header('libxml/xmlversion.h',
-                     '/opt/local/include/libxml2',
-                     File.join(INCLUDEDIR, "libxml2"),
-                     '/usr/include/libxml2',
-                     '/usr/local/include/libxml2'
-                    )
+  HEADER_DIRS = [
+    File.join(INCLUDEDIR, "libxml2"),
+    INCLUDEDIR,
+    '/usr/include/libxml2',
+    '/usr/local/include/libxml2'
+  ]
+
+  [
+    '/opt/local/include/libxml2',
+    '/opt/local/include',
+  ].each { |x| HEADER_DIRS.unshift(x) } if use_macports
+
+  unless find_header('libxml/xmlversion.h', *HEADER_DIRS)
     abort "need libxml"
   end
-  unless find_header('libxslt/xslt.h',
-                     '/opt/local/include',
-                     INCLUDEDIR,
-                     '/usr/include',
-                     '/usr/local/include'
-                    )
+
+  unless find_header('libxslt/xslt.h', *HEADER_DIRS)
     abort "need libxslt"
   end
-  unless find_header('libexslt/exslt.h',
-                     INCLUDEDIR,
-                     '/usr/include',
-                     '/opt/local/include',
-                     '/usr/local/include'
-                    )
+  unless find_header('libexslt/exslt.h', *HEADER_DIRS)
     abort "need libxslt"
   end
 

@@ -8,19 +8,21 @@ require 'rake/testtask'
 require 'rbconfig'
 require 'uri'
 
-if ENV['RUBYARCHDIR']
+begin
+  require 'rubyforge'
+  RUBYFORGE = true
+rescue LoadError
+  RUBYFORGE = false
   class RubyForge
     VERSION = 'awesome'
   end
-else
-  require 'rubyforge'
 end
 
 require 'yaml'
 
 begin
   gem 'rdoc'
-rescue Gem::LoadError
+rescue LoadError
 end
 
 ##
@@ -382,20 +384,22 @@ class Hoe
     # Intuit values:
 
     readme   = File.read("README.txt").split(/^(=+ .*)$/)[1..-1] rescue ''
-    unless readme.empty? then
-      sections = readme.map { |s|
-        s =~ /^=/ ? s.strip.downcase.chomp(':').split.last : s.strip
-      }
-      sections = Hash[*sections]
-      desc = sections.values_at(*description_sections).join("\n\n")
-      summ = desc.split(/\.\s+/).first(summary_sentences).join(". ")
+    begin
+      unless readme.empty? then
+        sections = readme.map { |s|
+          s =~ /^=/ ? s.strip.downcase.chomp(':').split.last : s.strip
+        }
+        sections = Hash[*sections]
+        desc = sections.values_at(*description_sections).join("\n\n")
+        summ = desc.split(/\.\s+/).first(summary_sentences).join(". ")
 
-      self.description ||= desc
-      self.summary ||= summ
-      self.url ||= readme[1].gsub(/^\* /, '').split(/\n/).grep(/\S+/)
-    else
-      missing 'README.txt'
-    end
+        self.description ||= desc
+        self.summary ||= summ
+        self.url ||= readme[1].gsub(/^\* /, '').split(/\n/).grep(/\S+/)
+      else
+        missing 'README.txt'
+      end
+    end if RUBYFORGE
 
     self.changes ||= begin
                        h = File.read("History.txt")
