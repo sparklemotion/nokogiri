@@ -2,11 +2,15 @@
 
 * 新しい機能
 
-  * カスタム XPath 機能はある。参照 Nokogiri::XML::Node#xpath
-  * カスタム CSS 擬似クラスと機能はある。参照 Nokogiri::XML::Node#css
+  * カスタム XPath 機能はある。（ 参照 Nokogiri::XML::Node#xpath ）
+  * カスタム CSS 擬似クラスと機能はある。（ 参照 Nokogiri::XML::Node#css ）
   * Nokogiri::XML::Node#<< は参照に子ノードを添える
 
 * バグの修正
+
+  * mutex が CSS のキャッシュのアクセスをロックする
+  * GCC 3.3.5 のビルドが修正された
+  * XML::Node#to_xml は
 
 === 1.0.7
 

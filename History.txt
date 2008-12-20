@@ -10,7 +10,7 @@
 
   * Mutex lock on CSS cache access
   * Fixed build problems with GCC 3.3.5
-  * XML::Node#to_xml now takes an intentation argument
+  * XML::Node#to_xml now takes an indentation argument
   * XML::Node#dup takes an optional depth argument
   * XML::Node#add_previous_sibling returns new sibling node.
 
