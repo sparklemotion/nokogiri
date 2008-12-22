@@ -2,15 +2,17 @@
 
 * 新しい機能
 
-  * カスタム XPath 機能はある。（ 参照 Nokogiri::XML::Node#xpath ）
-  * カスタム CSS 擬似クラスと機能はある。（ 参照 Nokogiri::XML::Node#css ）
-  * Nokogiri::XML::Node#<< は参照に子ノードを添える
+  * カスタム XPath 機能はある。（ Nokogiri::XML::Node#xpath 参照 ）
+  * カスタム CSS 擬似クラスと機能はある。（ Nokogiri::XML::Node#css 参照 ）
+  * Nokogiri::XML::Node#<< が作成中に子ノードを自動追加
 
 * バグの修正
 
   * mutex が CSS のキャッシュのアクセスをロックする
-  * GCC 3.3.5 のビルドが修正された
-  * XML::Node#to_xml は
+  * GCC 3.3.5 のビルドに関する問題を修正
+  * XML::Node#to_xml が引数indentationを取る 
+  * XML::Node#dup が引数任意のdepthを取る 
+  * XML::Node#add_previous_sibling が新しい兄弟ノードで返す
 
 === 1.0.7
 
