@@ -18,6 +18,7 @@ module Nokogiri
         </root>
         eoxml
         text_node = Nokogiri::XML::Text.new('hello', xml)
+        assert_equal Nokogiri::XML::Node::TEXT_NODE, text_node.type
         xml.root.add_child text_node
         assert_match 'hello', xml.to_s
       end
@@ -40,6 +41,7 @@ module Nokogiri
         </root>
         eoxml
         b_node = Nokogiri::XML::Node.new('a', xml)
+        assert_equal Nokogiri::XML::Node::ELEMENT_NODE, b_node.type
         b_node.content = 'first'
         a_node = xml.xpath('//a').first
         a_node.add_previous_sibling(b_node)
