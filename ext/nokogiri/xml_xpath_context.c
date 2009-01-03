@@ -160,15 +160,14 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
 
   VALUE xpath_object = Nokogiri_wrap_xml_xpath(xpath);
 
-  assert(ctx->node);
-  assert(ctx->node->doc);
-  assert(ctx->node->doc->_private);
+  assert(ctx->doc);
+  assert(ctx->doc->_private);
 
   rb_funcall( xpath_object,
               rb_intern("document="),
               1,
-              (VALUE)ctx->node->doc->_private
-            );
+              (VALUE)ctx->doc->_private
+    );
   return xpath_object;
 }
 
