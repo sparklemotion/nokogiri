@@ -20,35 +20,6 @@ $LIBPATH << "/opt/local/lib" if use_macports
 $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
 if Config::CONFIG['target_os'] == 'mingw32'
-  find_library('xml2', 'xmlParseDoc',
-               File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'bin'))
-  find_library('xslt', 'xsltParseStylesheetDoc',
-               File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
-  find_library('exslt', 'exsltFuncRegister',
-               File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
-else
-  find_library('xml2', 'xmlParseDoc',
-               LIBDIR,
-               '/opt/local/lib',
-               '/usr/local/lib',
-               '/usr/lib'
-    )
-  find_library('xslt', 'xsltParseStylesheetDoc',
-               LIBDIR,
-               '/opt/local/lib',
-               '/usr/local/lib',
-               '/usr/lib'
-    )
-  find_library('exslt', 'exsltFuncRegister',
-               LIBDIR,
-               '/opt/local/lib',
-               '/usr/local/lib',
-               '/usr/lib'
-    )
-end
-
-
-if Config::CONFIG['target_os'] == 'mingw32'
   header = File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'include')
   unless find_header('libxml/xmlversion.h', header)
     abort "need libxml"
@@ -89,8 +60,34 @@ else
   unless find_header('libexslt/exslt.h', *HEADER_DIRS)
     abort "need libxslt"
   end
+end
 
-  version = try_constant('LIBXML_VERSION', 'libxml/xmlversion.h')
+if Config::CONFIG['target_os'] == 'mingw32'
+  find_library('xml2', 'xmlParseDoc',
+               File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'bin'))
+  find_library('xslt', 'xsltParseStylesheetDoc',
+               File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
+  find_library('exslt', 'exsltFuncRegister',
+               File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
+else
+  find_library('xml2', 'xmlParseDoc',
+               LIBDIR,
+               '/opt/local/lib',
+               '/usr/local/lib',
+               '/usr/lib'
+    )
+  find_library('xslt', 'xsltParseStylesheetDoc',
+               LIBDIR,
+               '/opt/local/lib',
+               '/usr/local/lib',
+               '/usr/lib'
+    )
+  find_library('exslt', 'exsltFuncRegister',
+               LIBDIR,
+               '/opt/local/lib',
+               '/usr/local/lib',
+               '/usr/lib'
+    )
 end
 
 create_makefile('nokogiri/native')
