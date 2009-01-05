@@ -280,6 +280,24 @@ EOF
         assert_equal "hello c", xml.search("//c:div", xml.namespaces).first.inner_text
       end
 
+      def test_namespace
+        xml = Nokogiri::XML.parse(<<-EOF)
+<x xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
+  <y xmlns:c='http://bazz.com/'>
+    <a:div>hello a</a:div>
+    <b:div>hello b</b:div>
+    <c:div>hello c</c:div>
+    <div>hello moon</div>
+  </y>  
+</x>
+EOF
+        set = xml.search("//y/*")
+        assert_equal "a", set[0].namespace
+        assert_equal "b", set[1].namespace
+        assert_equal "c", set[2].namespace
+        assert_equal nil, set[3].namespace
+      end
+
     end
   end
 end
