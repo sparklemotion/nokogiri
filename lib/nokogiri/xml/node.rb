@@ -40,9 +40,9 @@ module Nokogiri
         first = self.child
         return list unless first # Empty list
 
-        list << first unless first.blank?
+        list << first
         while first = first.next
-          list << first unless first.blank?
+          list << first
         end
         list
       end

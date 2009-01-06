@@ -215,6 +215,13 @@ module Nokogiri
         assert_equal('hello world!', node.content)
       end
 
+      def test_whitespace_nodes
+        doc = Nokogiri::XML.parse("<root><b>Foo</b>\n<i>Bar</i> <p>Bazz</p></root>")
+        children = doc.at('//root').children.collect{|j| j.to_s}
+        assert_equal "\n", children[1]
+        assert_equal " ", children[3]
+      end
+
       def test_replace
         xml = Nokogiri::XML.parse(File.read(XML_FILE))
         set = xml.search('//employee')
