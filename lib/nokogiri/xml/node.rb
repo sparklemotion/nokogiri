@@ -226,6 +226,11 @@ module Nokogiri
         type == HTML_DOCUMENT_NODE
       end
 
+      def element?
+        type == ELEMENT_NODE
+      end
+      alias :elem? :element?
+
       def to_s
         xml? ? to_xml : to_html
       end

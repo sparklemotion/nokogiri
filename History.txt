@@ -3,6 +3,7 @@
 * Bugfixes
 
   * Not including an HTML entity for \r for HTML nodes.
+  * Adding Node#elem?
 
 === 1.1.0
 
