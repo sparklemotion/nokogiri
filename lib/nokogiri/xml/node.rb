@@ -40,9 +40,9 @@ module Nokogiri
         first = self.child
         return list unless first # Empty list
 
-        list << first unless first.blank?
+        list << first
         while first = first.next
-          list << first unless first.blank?
+          list << first
         end
         list
       end
@@ -54,6 +54,7 @@ module Nokogiri
       def search *paths
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
         xpath(*(paths.map { |path|
+          path = path.to_s
           path =~ /^(\.\/|\/)/ ? path : CSS.xpath_for(path, :prefix => ".//")
         }.flatten.uniq) + [ns])
       end
@@ -135,7 +136,7 @@ module Nokogiri
       end
 
       def at path, ns = {}
-        search("#{path}", ns).first
+        search(path, ns).first
       end
 
       def [](property)
