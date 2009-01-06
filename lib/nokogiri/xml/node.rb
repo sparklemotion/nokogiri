@@ -225,10 +225,9 @@ module Nokogiri
         type == HTML_DOCUMENT_NODE
       end
 
-      def to_html
-        to_xml
+      def to_s
+        xml? ? to_xml : to_html
       end
-      alias :to_s :to_html
 
       def inner_html
         children.map { |x| x.to_html }.join

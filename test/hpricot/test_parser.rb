@@ -33,7 +33,7 @@ class TestParser < Nokogiri::TestCase
   
   def test_filter_contains
     @basic = Hpricot.parse(TestFiles::BASIC)
-    assert_equal '<title>Sample XHTML</title>', @basic.search("title:contains('Sample')").to_s
+    assert_equal '<title>Sample XHTML</title>', @basic.search("title:contains('Sample')").to_s.chomp
   end
 
   def test_get_element_by_id
@@ -98,9 +98,9 @@ class TestParser < Nokogiri::TestCase
 
   def test_positional
     h = Nokogiri.Hpricot( "<div><br/><p>one</p><p>two</p></div>" )
-    assert_equal "<p>one</p>", h.search("div/p:eq(1)").to_s # MODIFIED: eq(0) -> eq(1), and removed initial '//'
-    assert_equal "<p>one</p>", h.search("div/p:first").to_s # MODIFIED: removed initial '//'
-    assert_equal "<p>one</p>", h.search("div/p:first()").to_s # MODIFIED: removed initial '//'
+    assert_equal "<p>one</p>", h.search("div/p:eq(1)").to_s.chomp # MODIFIED: eq(0) -> eq(1), and removed initial '//'
+    assert_equal "<p>one</p>", h.search("div/p:first").to_s.chomp # MODIFIED: removed initial '//'
+    assert_equal "<p>one</p>", h.search("div/p:first()").to_s.chomp # MODIFIED: removed initial '//'
   end
 
   def test_pace
@@ -209,7 +209,7 @@ class TestParser < Nokogiri::TestCase
         @basic.search('p:eq(3)').to_html # under Hpricot this was eq(2)
     ##
     #  MODIFIED: to be blank-agnostic, because Nokogiri's to_html is slightly different compared to Hpricot.
-    assert_equal '<p class="last final"> <b>THE FINAL PARAGRAPH</b> </p>',
+    assert_equal '<p class="last final"><b>THE FINAL PARAGRAPH</b></p>',
         @basic.search('p:last').to_html.gsub(/\s+/,' ')
     assert_equal 'last final', @basic.search('p:last-of-type').first.get_attribute('class') # MODIFIED to not have '//' prefix
   end
@@ -409,7 +409,8 @@ class TestParser < Nokogiri::TestCase
   def test_keep_cdata
     str = %{<script> /*<![CDATA[*/
     /*]]>*/ </script>}
-    assert_match str, Nokogiri.Hpricot(str).to_html
+    # MODIFIED: if you want the cdata, to_xml it
+    assert_match str, Nokogiri.Hpricot(str).to_xml
   end
 
   def test_namespace

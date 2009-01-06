@@ -1,3 +1,9 @@
+=== HEAD
+
+* Bugfixes
+
+  * Not including an HTML entity for \r for HTML nodes.
+
 === 1.1.0
 
 * New Features
