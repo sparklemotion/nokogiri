@@ -190,6 +190,15 @@ module Nokogiri
         assert_equal('/staff/employee[1]', node.path)
       end
 
+      def test_search_by_symbol
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        assert set = xml.search(:employee)
+        assert 5, set.length
+
+        assert node = xml.at(:employee)
+        assert node.text =~ /EMP0001/
+      end
+
       def test_new_node
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         node = Nokogiri::XML::Node.new('form', xml)
