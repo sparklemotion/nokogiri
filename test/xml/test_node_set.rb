@@ -12,6 +12,11 @@ module Nokogiri
         assert_equal node_set.length, node_set.size
       end
 
+      def test_to_xml
+        assert node_set = @xml.search('//employee')
+        assert node_set.to_xml
+      end
+
       def test_at
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set.at(0)

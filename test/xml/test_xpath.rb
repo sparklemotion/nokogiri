@@ -6,7 +6,7 @@ module Nokogiri
       def setup
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
 
-        @handler = Class.new(XPathHandler) {
+        @handler = Class.new {
           attr_reader :things
 
           def initialize

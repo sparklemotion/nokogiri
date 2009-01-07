@@ -69,17 +69,21 @@ module Nokogiri
       #   node.xpath('.//xmlns:name', node.root.namespaces)
       #
       # Custom XPath functions may also be defined.  To define custom functions
-      # create a class which subclasses XPathHandler and implement the
-      # function you want to define.  For example:
+      # create a class and implement the # function you want to define.
+      # For example:
       #
-      #   node.xpath('.//title[regex(., "\w+")]', Class.new(XPathHandler) {
+      #   node.xpath('.//title[regex(., "\w+")]', Class.new {
       #     def regex node_set, regex
       #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
       #     end
       #   })
       #
       def xpath *paths
-        handler = paths.last.is_a?(XPathHandler) ? paths.pop : nil
+        # Pop off our custom function handler if it exists
+        handler = ![
+          Hash, String, Symbol
+        ].include?(paths.last.class) ? paths.pop : nil
+
         ns = paths.last.is_a?(Hash) ? paths.pop : {}
 
         return NodeSet.new(document) unless document.root
@@ -113,19 +117,23 @@ module Nokogiri
       #   node.css('div + p.green', 'div#one')
       #
       # Custom CSS pseudo classes may also be defined.  To define custom pseudo
-      # classes, create a class which subclasses SelectorHandler and implement
-      # the the custom pseudo class you want defined.  The first argument to
-      # the method will be the current matching NodeSet.  Any other arguments
-      # are ones that you pass in.  For example:
+      # classes, create a class and implement the custom pseudo class you
+      # want defined.  The first argument to the method will be the current
+      # matching NodeSet.  Any other arguments are ones that you pass in.
+      # For example:
       #
-      #   node.css('title:regex("\w+")', Class.new(SelectorHandler) {
+      #   node.css('title:regex("\w+")', Class.new {
       #     def regex node_set, regex
       #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
       #     end
       #   })
       #
       def css *rules
-        handler = rules.last.is_a?(XPathHandler) ? rules.pop : nil
+        # Pop off our custom function handler if it exists
+        handler = ![
+          Hash, String, Symbol
+        ].include?(rules.last.class) ? rules.pop : nil
+
         ns = rules.last.is_a?(Hash) ? rules.pop : {}
 
         rules = rules.map { |rule|

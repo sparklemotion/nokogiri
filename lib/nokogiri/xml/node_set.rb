@@ -175,6 +175,10 @@ module Nokogiri
         map { |x| x.to_html }.join('')
       end
 
+      def to_xml *args
+        map { |x| x.to_xml(*args) }.join('')
+      end
+
       def size
         length
       end

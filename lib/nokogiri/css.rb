@@ -5,7 +5,6 @@ require 'nokogiri/css/generated_tokenizer'
 require 'nokogiri/css/tokenizer'
 require 'nokogiri/css/parser'
 require 'nokogiri/css/syntax_error'
-require 'nokogiri/css/selector_handler'
 
 module Nokogiri
   module CSS
