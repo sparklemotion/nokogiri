@@ -604,6 +604,10 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       klass = rb_const_get(mNokogiriXml, rb_intern("Element"));
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
+    case XML_ATTRIBUTE_NODE:
+      klass = rb_const_get(mNokogiriXml, rb_intern("Attr"));
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
+      break;
     case XML_ENTITY_DECL:
       klass = rb_const_get(mNokogiriXml, rb_intern("EntityDeclaration"));
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;

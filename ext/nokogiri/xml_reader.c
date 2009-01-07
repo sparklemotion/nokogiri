@@ -78,11 +78,11 @@ static VALUE attributes_eh(VALUE self)
 
 /*
  * call-seq:
- *   attributes
+ *   namespaces
  *
- * Get a Hash of attributes for this node
+ * Get a hash of namespaces for this Node
  */
-static VALUE attributes(VALUE self)
+static VALUE namespaces(VALUE self)
 {
   xmlTextReaderPtr reader;
   VALUE attr ;
@@ -98,7 +98,41 @@ static VALUE attributes(VALUE self)
   if(ptr == NULL) return Qnil;
 
   Nokogiri_xml_node_namespaces(ptr, attr);
-  //Nokogiri_xml_node_properties(ptr, attr);
+
+  return attr ;
+}
+
+/*
+ * call-seq:
+ *   attribute_nodes
+ *
+ * Get a list of attributes for this Node
+ */
+static VALUE attribute_nodes(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  VALUE attr ;
+
+  Data_Get_Struct(self, xmlTextReader, reader);
+
+  attr = rb_ary_new() ;
+
+  if (! has_attributes(reader))
+    return attr ;
+
+  xmlNodePtr ptr = xmlTextReaderExpand(reader);
+  if(ptr == NULL) return Qnil;
+
+  // FIXME I'm not sure if this is correct.....  I don't really like pointing
+  // at this document, but I have to because of the assertions in
+  // the node wrapping code.
+  if(!ptr->doc->_private) {
+    VALUE rb_doc = Data_Wrap_Struct(cNokogiriXmlDocument, 0, 0, ptr->doc);
+    rb_iv_set(rb_doc, "@decorators", Qnil);
+    ptr->doc->_private = (void *)rb_doc;
+  }
+
+  Nokogiri_xml_node_properties(ptr, attr);
 
   return attr ;
 }
@@ -422,8 +456,9 @@ void init_xml_reader()
   rb_define_method(klass, "depth", depth, 0);
   rb_define_method(klass, "attribute_count", attribute_count, 0);
   rb_define_method(klass, "attribute", reader_attribute, 1);
+  rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "attribute_at", attribute_at, 1);
-  rb_define_method(klass, "attributes", attributes, 0);
+  rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "attributes?", attributes_eh, 0);
   rb_define_method(klass, "value?", value_eh, 0);
   rb_define_method(klass, "default?", default_eh, 0);
