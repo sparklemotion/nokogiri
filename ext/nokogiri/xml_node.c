@@ -270,6 +270,22 @@ static VALUE attributes(VALUE self)
     return attr ;
 }
 
+
+/*
+ *  call-seq:
+ *    namespace()
+ *
+ *  returns the namespace prefix for the node, if one exists.
+ */
+static VALUE namespace(VALUE self)
+{
+  xmlNodePtr node ;
+  Data_Get_Struct(self, xmlNode, node);
+  if (node->ns && node->ns->prefix)
+    return rb_str_new2(node->ns->prefix) ;
+  return Qnil ;
+}
+
 /*
  *  call-seq:
  *    namespaces()
@@ -460,6 +476,27 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
   rb_funcall(rb_new_sibling, rb_intern("decorate!"), 0);
 
   return rb_new_sibling;
+}
+
+/*
+ * call-seq:
+ *  to_html
+ *
+ * Returns this node as HTML
+ */
+static VALUE to_html(VALUE self)
+{
+  xmlBufferPtr buf ;
+  xmlNodePtr node ;
+  Data_Get_Struct(self, xmlNode, node);
+
+  VALUE html;
+
+  buf = xmlBufferCreate() ;
+  htmlNodeDump(buf, node->doc, node);
+  html = rb_str_new2((char*)buf->content);
+  xmlBufferFree(buf);
+  return html ;
 }
 
 /*
@@ -674,11 +711,13 @@ void init_xml_node()
   rb_define_method(klass, "[]=", set, 2);
   rb_define_method(klass, "remove_attribute", remove_prop, 1);
   rb_define_method(klass, "attributes", attributes, 0);
+  rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
   rb_define_method(klass, "to_xml", to_xml, -1);
+  rb_define_method(klass, "to_html", to_html, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "unlink", unlink_node, 0);
   rb_define_method(klass, "internal_subset", internal_subset, 0);

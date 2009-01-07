@@ -62,6 +62,8 @@ namespace :gem do
     task :spec => ['build'] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'jruby'
+        HOE.spec.files << GENERATED_PARSER
+        HOE.spec.files << GENERATED_TOKENIZER
         HOE.spec.extensions = []
         f.write(HOE.spec.to_ruby)
       end
