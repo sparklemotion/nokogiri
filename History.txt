@@ -3,9 +3,10 @@
 * Bugfixes
 
   * Not including an HTML entity for \r for HTML nodes.
-  * Adding Node#elem?
+  * Added Node#elem?
   * Removed CSS::SelectorHandler and XML::XPathHandler
   * NodeSet implements to_xml
+  * Added Node#attribute_nodes
 
 === 1.1.0
 
