@@ -98,7 +98,7 @@ static VALUE attributes(VALUE self)
   if(ptr == NULL) return Qnil;
 
   Nokogiri_xml_node_namespaces(ptr, attr);
-  Nokogiri_xml_node_properties(ptr, attr);
+  //Nokogiri_xml_node_properties(ptr, attr);
 
   return attr ;
 }

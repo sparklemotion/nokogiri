@@ -252,17 +252,17 @@ static VALUE get(VALUE self, VALUE attribute)
 
 /*
  *  call-seq:
- *    attributes()
+ *    attribute_nodes()
  *
- *  returns a hash containing the node's attributes.
+ *  returns a list containing the Node attributes.
  */
-static VALUE attributes(VALUE self)
+static VALUE attribute_nodes(VALUE self)
 {
     /* this code in the mode of xmlHasProp() */
     xmlNodePtr node ;
     VALUE attr ;
 
-    attr = rb_hash_new() ;
+    attr = rb_ary_new() ;
     Data_Get_Struct(self, xmlNode, node);
 
     Nokogiri_xml_node_properties(node, attr);
@@ -627,16 +627,12 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 }
 
 
-void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_hash)
+void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_list)
 {
   xmlAttrPtr prop;
-  xmlChar* propstr ;
   prop = node->properties ;
   while (prop != NULL) {
-    propstr = xmlGetProp(node, prop->name) ;
-    rb_hash_aset(attr_hash, rb_str_new2((const char*)prop->name),
-                 rb_str_new2((char*)propstr));
-    xmlFree(propstr);
+    rb_ary_push(attr_list, Nokogiri_wrap_xml_node((xmlNodePtr)prop));
     prop = prop->next ;
   }
 }
@@ -710,7 +706,7 @@ void init_xml_node()
   rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
   rb_define_method(klass, "remove_attribute", remove_prop, 1);
-  rb_define_method(klass, "attributes", attributes, 0);
+  rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
