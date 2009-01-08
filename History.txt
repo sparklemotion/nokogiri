@@ -9,6 +9,7 @@
   * Removed CSS::SelectorHandler and XML::XPathHandler
   * XML::NodeSet implements to_xml
   * XML::Node#attributes returns an Attr node for the value.
+  * XML::NodeSet#inner_html added.
 
 === 1.1.0
 

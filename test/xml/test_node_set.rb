@@ -17,6 +17,23 @@ module Nokogiri
         assert node_set.to_xml
       end
 
+      def test_inner_html
+        doc = Nokogiri::HTML(<<-eohtml)
+          <html>
+            <body>
+              <div>
+                <a>one</a>
+              </div>
+              <div>
+                <a>two</a>
+              </div>
+            </body>
+          </html>
+        eohtml
+        assert html = doc.css('div').inner_html
+        assert_match '<a>', html
+      end
+
       def test_at
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set.at(0)
