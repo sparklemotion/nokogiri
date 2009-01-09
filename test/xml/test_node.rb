@@ -18,6 +18,7 @@ module Nokogiri
         assert new_child = child.children.first
 
         child.add_child(new_child)
+        assert_equal nil, new_child.text
         assert_equal new_child, child.children.last
       end
 

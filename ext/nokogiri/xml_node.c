@@ -370,6 +370,11 @@ static VALUE add_child(VALUE self, VALUE child)
   if(!(new_child = xmlAddChild(parent, node)))
     rb_raise(rb_eRuntimeError, "Could not add new child");
 
+  // the child was a text node that was coalesced. we need to have the object
+  // point at SOMETHING, or we'll totally bomb out.
+  if (new_child != node)
+    DATA_PTR(child) = xmlNewText(NULL) ;
+
   return Nokogiri_wrap_xml_node(new_child);
 }
 
