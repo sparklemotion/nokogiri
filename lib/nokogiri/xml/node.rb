@@ -156,6 +156,10 @@ module Nokogiri
         next_sibling
       end
 
+      def previous
+        previous_sibling
+      end
+
       def remove
         unlink
       end
@@ -247,6 +251,10 @@ module Nokogiri
         type == ELEMENT_NODE
       end
       alias :elem? :element?
+
+      def text?
+        type == TEXT_NODE
+      end
 
       def to_s
         xml? ? to_xml : to_html

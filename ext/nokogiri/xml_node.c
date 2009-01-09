@@ -468,14 +468,18 @@ static VALUE add_next_sibling(VALUE self, VALUE rb_node)
  */
 static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 {
-  xmlNodePtr node, new_sibling;
+  xmlNodePtr node, sibling, new_sibling;
   Check_Type(rb_node, T_DATA);
 
   Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(rb_node, xmlNode, new_sibling);
+  Data_Get_Struct(rb_node, xmlNode, sibling);
 
-  if(!(new_sibling = xmlAddPrevSibling(node, new_sibling)))
+  if(!(new_sibling = xmlAddPrevSibling(node, sibling)))
     rb_raise(rb_eRuntimeError, "Could not add previous sibling");
+
+  // the sibling was a text node that was coalesced. we need to have the object
+  // point at SOMETHING, or we'll totally bomb out.
+  if(sibling != new_sibling) DATA_PTR(rb_node) = new_sibling;
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
 

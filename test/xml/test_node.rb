@@ -62,6 +62,24 @@ module Nokogiri
         assert_equal('first', xml.xpath('//a').first.text)
       end
 
+      def test_add_previous_sibling_merge
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+        </root>
+        eoxml
+
+        assert a_tag = xml.css('a').first
+
+        left_space = a_tag.previous
+        right_space = a_tag.next
+        assert left_space.text?
+        assert right_space.text?
+
+        left_space.add_previous_sibling(right_space)
+        assert_equal left_space, right_space
+      end
+
       def test_find_by_css_with_tilde_eql
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
