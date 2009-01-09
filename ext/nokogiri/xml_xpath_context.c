@@ -83,7 +83,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     case T_STRING:
       xmlXPathReturnString(
           ctx,
-          xmlXPathWrapCString(StringValuePtr(result))
+          (xmlChar *)xmlXPathWrapCString(StringValuePtr(result))
       );
       break;
     case T_TRUE:

@@ -282,7 +282,7 @@ static VALUE namespace(VALUE self)
   xmlNodePtr node ;
   Data_Get_Struct(self, xmlNode, node);
   if (node->ns && node->ns->prefix)
-    return rb_str_new2(node->ns->prefix) ;
+    return rb_str_new2((const char *)node->ns->prefix) ;
   return Qnil ;
 }
 
