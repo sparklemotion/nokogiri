@@ -450,10 +450,16 @@ static VALUE path(VALUE self)
  */
 static VALUE add_next_sibling(VALUE self, VALUE rb_node)
 {
-  xmlNodePtr node, new_sibling;
+  xmlNodePtr node, _new_sibling, new_sibling;
   Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(rb_node, xmlNode, new_sibling);
-  xmlAddNextSibling(node, new_sibling);
+  Data_Get_Struct(rb_node, xmlNode, _new_sibling);
+
+  if(!(new_sibling = xmlAddNextSibling(node, _new_sibling)))
+    rb_raise(rb_eRuntimeError, "Could not add next sibling");
+
+  // the sibling was a text node that was coalesced. we need to have the object
+  // point at SOMETHING, or we'll totally bomb out.
+  if(new_sibling != _new_sibling) DATA_PTR(rb_node) = new_sibling;
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
@@ -483,10 +489,7 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
-  VALUE rb_new_sibling = Nokogiri_wrap_xml_node(new_sibling);
-  rb_funcall(rb_new_sibling, rb_intern("decorate!"), 0);
-
-  return rb_new_sibling;
+  return rb_node;
 }
 
 /*

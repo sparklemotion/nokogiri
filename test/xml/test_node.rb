@@ -80,6 +80,24 @@ module Nokogiri
         assert_equal left_space, right_space
       end
 
+      def test_add_next_sibling_merge
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+        </root>
+        eoxml
+
+        assert a_tag = xml.css('a').first
+
+        left_space = a_tag.previous
+        right_space = a_tag.next
+        assert left_space.text?
+        assert right_space.text?
+
+        right_space.add_next_sibling(left_space)
+        assert_equal left_space, right_space
+      end
+
       def test_find_by_css_with_tilde_eql
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
