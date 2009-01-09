@@ -244,18 +244,31 @@ def test_suite_cmdline
   cmdline = "ruby -w -I.:lib:ext:test -rtest/unit -e '%w[#{files.join(' ')}].each {|f| require f}'"
 end
 
+VALGRIND_BASIC_OPTS = "--num-callers=50 --error-limit=no --partial-loads-ok=yes --undef-value-errors=no"
+
+desc "run test suite under valgrind with basic ruby options"
+Rake::TestTask.new('test:valgrind') do |t|
+  %w[ ext lib bin test ].each do |dir|
+    t.libs << dir
+  end
+  t.test_files = FileList['test/**/test_*.rb'] +
+    FileList['test/**/*_test.rb']
+  t.verbose = true
+  t.warning = true
+  t.extend(Module.new {
+    def ruby *args
+      cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')}"
+      puts cmd
+      system cmd
+    end
+  })
+end
+Rake::Task['test:valgrind'].prerequisites << :build
+
 namespace :test do
   # partial-loads-ok and undef-value-errors necessary to ignore
   # spurious (and eminently ignorable) warnings from the ruby
   # interpreter
-  VALGRIND_BASIC_OPTS = "--num-callers=50 --error-limit=no --partial-loads-ok=yes --undef-value-errors=no"
-
-  desc "run test suite under valgrind with basic ruby options"
-  task :valgrind => :build do
-    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} #{test_suite_cmdline}"
-    puts cmdline
-    system cmdline
-  end
 
   desc "run test suite under valgrind with memory-fill ruby options"
   task :valgrind_mem => :build do

@@ -455,6 +455,7 @@ class Hoe
       t.test_files = FileList['test/**/test_*.rb'] +
         FileList['test/**/*_test.rb']
       t.verbose = true
+      t.warning = true
     end
 
     desc 'Show which test files fail when run alone.'

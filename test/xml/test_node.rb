@@ -11,6 +11,16 @@ module Nokogiri
           address.ancestors.map { |x| x.name }
       end
 
+      def test_angry_add_child
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        child = xml.css('employee').first
+
+        assert new_child = child.children.first
+
+        child.add_child(new_child)
+        assert_equal new_child, child.children.last
+      end
+
       def test_add_child
         xml = Nokogiri::XML(<<-eoxml)
         <root>
