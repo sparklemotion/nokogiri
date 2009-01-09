@@ -365,6 +365,8 @@ static VALUE add_child(VALUE self, VALUE child)
   Data_Get_Struct(child, xmlNode, node);
   Data_Get_Struct(self, xmlNode, parent);
 
+  xmlUnlinkNode(node) ;
+
   if(!(new_child = xmlAddChild(parent, node)))
     rb_raise(rb_eRuntimeError, "Could not add new child");
 
