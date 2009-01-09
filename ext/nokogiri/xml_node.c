@@ -373,7 +373,7 @@ static VALUE add_child(VALUE self, VALUE child)
   // the child was a text node that was coalesced. we need to have the object
   // point at SOMETHING, or we'll totally bomb out.
   if (new_child != node)
-    DATA_PTR(child) = xmlNewText(NULL) ;
+    DATA_PTR(child) = new_child ;
 
   return Nokogiri_wrap_xml_node(new_child);
 }

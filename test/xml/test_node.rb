@@ -17,9 +17,12 @@ module Nokogiri
 
         assert new_child = child.children.first
 
+        last = child.children.last
+
+        # Magic!  Don't try this at home folks
         child.add_child(new_child)
-        assert_equal nil, new_child.text
         assert_equal new_child, child.children.last
+        assert_equal last, child.children.last
       end
 
       def test_add_child
