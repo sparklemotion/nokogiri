@@ -257,7 +257,7 @@ module Nokogiri
       end
 
       def to_s
-        xml? ? to_xml : to_html
+        document.xml? ? to_xml : to_html
       end
 
       def inner_html

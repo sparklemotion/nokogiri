@@ -506,6 +506,9 @@ static VALUE to_html(VALUE self)
 
   VALUE html;
 
+  if(node->doc->type == XML_DOCUMENT_NODE)
+    return rb_funcall(self, rb_intern("to_xml"), 0);
+
   buf = xmlBufferCreate() ;
   htmlNodeDump(buf, node->doc, node);
   html = rb_str_new2((char*)buf->content);
