@@ -260,7 +260,7 @@ end
 VALGRIND_BASIC_OPTS = "--num-callers=50 --error-limit=no --partial-loads-ok=yes --undef-value-errors=no"
 
 desc "run test suite under valgrind with basic ruby options"
-Rake::TestTask.new('test:valgrind').extend(Module.new {
+ValgrindTestTask.new('test:valgrind').extend(Module.new {
   def ruby *args
     cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')}"
     puts cmd
