@@ -47,7 +47,6 @@ lib/nokogiri/css/generated_tokenizer.rb
 lib/nokogiri/css/node.rb
 lib/nokogiri/css/parser.rb
 lib/nokogiri/css/parser.y
-lib/nokogiri/css/selector_handler.rb
 lib/nokogiri/css/syntax_error.rb
 lib/nokogiri/css/tokenizer.rb
 lib/nokogiri/css/tokenizer.rex
@@ -66,6 +65,7 @@ lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/version.rb
 lib/nokogiri/xml.rb
 lib/nokogiri/xml/after_handler.rb
+lib/nokogiri/xml/attr.rb
 lib/nokogiri/xml/before_handler.rb
 lib/nokogiri/xml/builder.rb
 lib/nokogiri/xml/cdata.rb
@@ -86,7 +86,6 @@ lib/nokogiri/xml/text.rb
 lib/nokogiri/xml/xpath.rb
 lib/nokogiri/xml/xpath/syntax_error.rb
 lib/nokogiri/xml/xpath_context.rb
-lib/nokogiri/xml/xpath_handler.rb
 lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 test/css/test_nthiness.rb
@@ -120,6 +119,7 @@ test/hpricot/test_xml.rb
 test/html/sax/test_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
+test/html/test_node.rb
 test/test_convert_xpath.rb
 test/test_css_cache.rb
 test/test_gc.rb
@@ -128,6 +128,7 @@ test/test_nokogiri.rb
 test/test_reader.rb
 test/test_xslt_transforms.rb
 test/xml/sax/test_parser.rb
+test/xml/test_attr.rb
 test/xml/test_builder.rb
 test/xml/test_cdata.rb
 test/xml/test_comment.rb

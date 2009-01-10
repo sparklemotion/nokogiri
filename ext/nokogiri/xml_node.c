@@ -217,22 +217,6 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 }
 
 /*
- *  call-seq:
- *    remove_attribute(property)
- *
- *  remove the property +property+
- */
-static VALUE remove_prop(VALUE self, VALUE property)
-{
-  xmlNodePtr node;
-  xmlAttrPtr attr ;
-  Data_Get_Struct(self, xmlNode, node);
-  attr = xmlHasProp(node, (xmlChar *)StringValuePtr(property));
-  if (attr) { xmlRemoveProp(attr); }
-  return Qnil;
-}
-
-/*
  * call-seq:
  *   get(attribute)
  *
@@ -726,7 +710,6 @@ void init_xml_node()
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
-  rb_define_method(klass, "remove_attribute", remove_prop, 1);
   rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespaces", namespaces, 0);

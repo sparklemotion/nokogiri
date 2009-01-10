@@ -11,6 +11,14 @@ module Nokogiri
           address.ancestors.map { |x| x.name }
       end
 
+      def test_remove_attribute
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        address = xml.xpath('/staff/employee/address').first
+        assert_equal 'Yes', address['domestic']
+        address.remove_attribute 'domestic'
+        assert_nil address['domestic']
+      end
+
       def test_angry_add_child
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         child = xml.css('employee').first

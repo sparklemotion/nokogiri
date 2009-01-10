@@ -173,6 +173,12 @@ module Nokogiri
         }.flatten)]
       end
 
+      ###
+      # Remove the attribute named +name+
+      def remove_attribute name
+        attributes[name].remove if key? name
+      end
+
       ####
       # Create nodes from +data+ and insert them before this node
       # (as a sibling).
