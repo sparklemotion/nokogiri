@@ -178,6 +178,7 @@ module Nokogiri
       def remove_attribute name
         attributes[name].remove if key? name
       end
+      alias :delete :remove_attribute
 
       ####
       # Create nodes from +data+ and insert them before this node

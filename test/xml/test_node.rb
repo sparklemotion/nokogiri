@@ -19,6 +19,14 @@ module Nokogiri
         assert_nil address['domestic']
       end
 
+      def test_delete
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        address = xml.xpath('/staff/employee/address').first
+        assert_equal 'Yes', address['domestic']
+        address.delete 'domestic'
+        assert_nil address['domestic']
+      end
+
       def test_angry_add_child
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         child = xml.css('employee').first
