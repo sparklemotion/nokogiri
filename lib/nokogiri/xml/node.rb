@@ -254,6 +254,15 @@ module Nokogiri
         type == HTML_DOCUMENT_NODE
       end
 
+      def text?
+        type == TEXT_NODE
+      end
+
+      def read_only?
+        # According to gdome2, these are read-only node types
+        [NOTATION_NODE, ENTITY_NODE, ENTITY_DECL].include?(type)
+      end
+
       def element?
         type == ELEMENT_NODE
       end

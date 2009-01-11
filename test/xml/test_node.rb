@@ -11,6 +11,14 @@ module Nokogiri
           address.ancestors.map { |x| x.name }
       end
 
+      def test_read_only?
+        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        assert entity_decl = xml.internal_subset.children.find { |x|
+          x.type == Node::ENTITY_DECL
+        }
+        assert entity_decl.read_only?
+      end
+
       def test_remove_attribute
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath('/staff/employee/address').first
