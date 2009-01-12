@@ -268,10 +268,6 @@ module Nokogiri
       end
       alias :elem? :element?
 
-      def text?
-        type == TEXT_NODE
-      end
-
       def to_s
         document.xml? ? to_xml : to_html
       end

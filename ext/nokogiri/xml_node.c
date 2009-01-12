@@ -60,10 +60,11 @@ static VALUE internal_subset(VALUE self)
   if(!node->doc) return Qnil;
 
   doc = node->doc;
+  xmlDtdPtr dtd = xmlGetIntSubset(doc);
 
-  if(!doc->intSubset) return Qnil;
+  if(!dtd) return Qnil;
 
-  return Nokogiri_wrap_xml_node((xmlNodePtr)doc->intSubset);
+  return Nokogiri_wrap_xml_node((xmlNodePtr)dtd);
 }
 
 /*
