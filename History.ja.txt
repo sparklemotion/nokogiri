@@ -1,3 +1,19 @@
+=== HEAD
+
+* 新しい機能
+  * XML::Node#elem? なった
+  * XML::Node#attribute_nodes なった
+  * XML::Attr なった
+  * XML::Node#delete なった
+  * XML::NodeSet#inner_html なった
+
+* バグの修正
+
+  * HTML のノードを \r のエンティティに入れない
+  * CSS::SelectorHandler と XML::XPathHandler を除去
+  * XML::Node#attributes は value へ Attr を返す
+  * XML::NodeSet が to_xml へ実行
+
 === 1.1.0
 
 * 新しい機能

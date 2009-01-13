@@ -4,13 +4,13 @@
 
   * Added XML::Node#elem?
   * Added XML::Node#attribute_nodes
+  * Added XML::Attr
   * XML::Node#delete added.
   * XML::NodeSet#inner_html added.
 
 * Bugfixes
 
   * Not including an HTML entity for \r for HTML nodes.
-  * Added XML::Attr
   * Removed CSS::SelectorHandler and XML::XPathHandler
   * XML::Node#attributes returns an Attr node for the value.
   * XML::NodeSet implements to_xml
