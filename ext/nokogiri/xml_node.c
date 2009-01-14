@@ -685,9 +685,6 @@ VALUE cNokogiriXmlNode ;
 void init_xml_node()
 {
   /*
-   * HACK.  This is so that rdoc will work with this C file.
-   */
-  /*
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
   VALUE klass = rb_define_class_under(xml, "Node", rb_cObject);
