@@ -7,6 +7,12 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         fragment = Nokogiri::XML::DocumentFragment.new(@xml)
       end
+
+      def test_name
+        @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        fragment = Nokogiri::XML::DocumentFragment.new(@xml)
+        assert_equal '#document-fragment', fragment.name
+      end
     end
   end
 end

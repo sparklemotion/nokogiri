@@ -602,6 +602,10 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       klass = cNokogiriXmlComment;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
+    case XML_DOCUMENT_FRAG_NODE:
+      klass = cNokogiriXmlDocumentFragment;
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
+      break;
     case XML_ELEMENT_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("Element"));
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
