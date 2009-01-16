@@ -1,5 +1,9 @@
 === HEAD
 
+* New features
+
+  * XML::Node#to_str
+
 === 1.1.1
 
 * New features

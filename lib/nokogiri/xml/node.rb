@@ -323,6 +323,10 @@ Node.replace requires a Node argument, and cannot accept a Document.
         replace_with_node new_node
       end
 
+      def to_str
+        text
+      end
+
       def == other
         return false unless other
         return false unless other.respond_to?(:pointer_id)

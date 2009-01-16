@@ -7,6 +7,12 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_to_str
+        name = @xml.xpath('//name').first
+        assert_match(/Margaret/, '' + name)
+        assert_equal('Margaret Martin', '' + name.children.first)
+      end
+
       def test_ancestors
         address = @xml.xpath('//address').first
         assert_equal 3, address.ancestors.length
