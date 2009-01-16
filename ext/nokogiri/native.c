@@ -26,6 +26,7 @@ void Init_native()
   init_xml_document();
   init_html_document();
   init_xml_node();
+  init_xml_document_fragment();
   init_xml_text();
   init_xml_cdata();
   init_xml_comment();
