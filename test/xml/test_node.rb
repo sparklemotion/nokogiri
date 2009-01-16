@@ -15,10 +15,11 @@ module Nokogiri
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         child = xml.css('employee').first
 
+        assert previous_last_child = child.children.last
         assert new_child = child.children.first
 
-        child.add_child(new_child)
-        assert_equal nil, new_child.text
+        new_child = child.add_child(new_child)
+        assert_equal previous_last_child.text, new_child.text
         assert_equal new_child, child.children.last
       end
 
@@ -260,6 +261,14 @@ module Nokogiri
         new_node = Nokogiri::XML.parse('<foo>bar</foo>')
         old_node = xml.at('//employee')
         assert_raises(ArgumentError){ old_node.replace new_node }
+      end
+
+      def test_node_nonequality
+        address1 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE).xpath('//address').first
+        address2 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE).xpath('//address').first
+
+        # specify behavior
+        assert_not_equal address1, address2
       end
 
       def test_namespace_as_hash
