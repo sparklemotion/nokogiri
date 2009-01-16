@@ -84,11 +84,22 @@ module Nokogiri
         assert_equal length, found.length
       end
 
+      def test_dup_document
+        assert dup = @html.dup
+        assert_not_equal dup, @html
+      end
+
+      def test_dup_document_shallow
+        assert dup = @html.dup(0)
+        assert_not_equal dup, @html
+      end
+
       def test_dup
         found = @html.search('//div/a').first
         dup = found.dup
         assert dup
         assert_equal found.content, dup.content
+        assert_equal found.document, dup.document
       end
 
       def test_inner_html

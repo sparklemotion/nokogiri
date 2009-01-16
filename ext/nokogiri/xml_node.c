@@ -84,12 +84,8 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   xmlNodePtr node, dup;
   Data_Get_Struct(self, xmlNode, node);
 
-  dup = xmlCopyNode(node, NUM2INT(level));
+  dup = xmlDocCopyNode(node, node->doc, NUM2INT(level));
   if(dup == NULL) return Qnil;
-  dup->doc = node->doc;
-  assert(node->parent);
-
-  xmlAddChild(node->parent, dup);
 
   return Nokogiri_wrap_xml_node(dup);
 }

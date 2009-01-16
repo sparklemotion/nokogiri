@@ -4,6 +4,10 @@
 
   * XML::Node#to_str
 
+* Bugfixes
+
+  * Fixed XML::Document#dup
+
 === 1.1.1
 
 * New features
