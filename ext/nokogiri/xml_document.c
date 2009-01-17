@@ -128,6 +128,29 @@ static VALUE read_memory( VALUE klass,
 
 /*
  * call-seq:
+ *  dup
+ *
+ * Copy this Document.  An optional depth may be passed in, but it defaults
+ * to a deep copy.  0 is a shallow copy, 1 is a deep copy.
+ */
+static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
+{
+  VALUE level;
+
+  if(rb_scan_args(argc, argv, "01", &level) == 0)
+    level = INT2NUM(1);
+
+  xmlDocPtr doc, dup;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  dup = xmlCopyDoc(doc, NUM2INT(level));
+  if(dup == NULL) return Qnil;
+
+  return Nokogiri_wrap_xml_document(cNokogiriXmlDocument, dup);
+}
+
+/*
+ * call-seq:
  *  new
  *
  * Create a new document
@@ -189,6 +212,7 @@ void init_xml_document()
   rb_define_method(klass, "root", root, 0);
   rb_define_method(klass, "root=", set_root, 1);
   rb_define_method(klass, "serialize", serialize, 0);
+  rb_define_method(klass, "dup", duplicate_node, -1);
   rb_undef_method(klass, "parent");
 }
 

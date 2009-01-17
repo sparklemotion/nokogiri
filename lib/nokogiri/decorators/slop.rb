@@ -12,8 +12,8 @@ module Nokogiri
           if hash[:css]
             list = css("#{name}#{hash[:css]}")
           elsif hash[:xpath]
-            conds = Array(hash[:xpath]).collect{|j| "[#{j}]"}
-            list = xpath("./#{name}#{conds}")
+            conds = Array(hash[:xpath]).join(' and ')
+            list = xpath("./#{name}[#{conds}]")
           end
         else
           CSS::Parser.without_cache do

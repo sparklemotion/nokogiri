@@ -60,10 +60,11 @@ static VALUE internal_subset(VALUE self)
   if(!node->doc) return Qnil;
 
   doc = node->doc;
+  xmlDtdPtr dtd = xmlGetIntSubset(doc);
 
-  if(!doc->intSubset) return Qnil;
+  if(!dtd) return Qnil;
 
-  return Nokogiri_wrap_xml_node((xmlNodePtr)doc->intSubset);
+  return Nokogiri_wrap_xml_node((xmlNodePtr)dtd);
 }
 
 /*
@@ -83,12 +84,8 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   xmlNodePtr node, dup;
   Data_Get_Struct(self, xmlNode, node);
 
-  dup = xmlCopyNode(node, NUM2INT(level));
+  dup = xmlDocCopyNode(node, node->doc, NUM2INT(level));
   if(dup == NULL) return Qnil;
-  dup->doc = node->doc;
-  assert(node->parent);
-
-  xmlAddChild(node->parent, dup);
 
   return Nokogiri_wrap_xml_node(dup);
 }
@@ -217,22 +214,6 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 }
 
 /*
- *  call-seq:
- *    remove_attribute(property)
- *
- *  remove the property +property+
- */
-static VALUE remove_prop(VALUE self, VALUE property)
-{
-  xmlNodePtr node;
-  xmlAttrPtr attr ;
-  Data_Get_Struct(self, xmlNode, node);
-  attr = xmlHasProp(node, (xmlChar *)StringValuePtr(property));
-  if (attr) { xmlRemoveProp(attr); }
-  return Qnil;
-}
-
-/*
  * call-seq:
  *   get(attribute)
  *
@@ -282,7 +263,7 @@ static VALUE namespace(VALUE self)
   xmlNodePtr node ;
   Data_Get_Struct(self, xmlNode, node);
   if (node->ns && node->ns->prefix)
-    return rb_str_new2(node->ns->prefix) ;
+    return rb_str_new2((const char *)node->ns->prefix) ;
   return Qnil ;
 }
 
@@ -373,7 +354,7 @@ static VALUE add_child(VALUE self, VALUE child)
   // the child was a text node that was coalesced. we need to have the object
   // point at SOMETHING, or we'll totally bomb out.
   if (new_child != node)
-    DATA_PTR(child) = xmlNewText(NULL) ;
+    DATA_PTR(child) = new_child ;
 
   return Nokogiri_wrap_xml_node(new_child);
 }
@@ -450,10 +431,16 @@ static VALUE path(VALUE self)
  */
 static VALUE add_next_sibling(VALUE self, VALUE rb_node)
 {
-  xmlNodePtr node, new_sibling;
+  xmlNodePtr node, _new_sibling, new_sibling;
   Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(rb_node, xmlNode, new_sibling);
-  xmlAddNextSibling(node, new_sibling);
+  Data_Get_Struct(rb_node, xmlNode, _new_sibling);
+
+  if(!(new_sibling = xmlAddNextSibling(node, _new_sibling)))
+    rb_raise(rb_eRuntimeError, "Could not add next sibling");
+
+  // the sibling was a text node that was coalesced. we need to have the object
+  // point at SOMETHING, or we'll totally bomb out.
+  if(new_sibling != _new_sibling) DATA_PTR(rb_node) = new_sibling;
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
@@ -468,21 +455,22 @@ static VALUE add_next_sibling(VALUE self, VALUE rb_node)
  */
 static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 {
-  xmlNodePtr node, new_sibling;
+  xmlNodePtr node, sibling, new_sibling;
   Check_Type(rb_node, T_DATA);
 
   Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(rb_node, xmlNode, new_sibling);
+  Data_Get_Struct(rb_node, xmlNode, sibling);
 
-  if(!(new_sibling = xmlAddPrevSibling(node, new_sibling)))
+  if(!(new_sibling = xmlAddPrevSibling(node, sibling)))
     rb_raise(rb_eRuntimeError, "Could not add previous sibling");
+
+  // the sibling was a text node that was coalesced. we need to have the object
+  // point at SOMETHING, or we'll totally bomb out.
+  if(sibling != new_sibling) DATA_PTR(rb_node) = new_sibling;
 
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
-  VALUE rb_new_sibling = Nokogiri_wrap_xml_node(new_sibling);
-  rb_funcall(rb_new_sibling, rb_intern("decorate!"), 0);
-
-  return rb_new_sibling;
+  return rb_node;
 }
 
 /*
@@ -498,6 +486,9 @@ static VALUE to_html(VALUE self)
   Data_Get_Struct(self, xmlNode, node);
 
   VALUE html;
+
+  if(node->doc->type == XML_DOCUMENT_NODE)
+    return rb_funcall(self, rb_intern("to_xml"), 0);
 
   buf = xmlBufferCreate() ;
   htmlNodeDump(buf, node->doc, node);
@@ -607,6 +598,10 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       klass = cNokogiriXmlComment;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
+    case XML_DOCUMENT_FRAG_NODE:
+      klass = cNokogiriXmlDocumentFragment;
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
+      break;
     case XML_ELEMENT_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("Element"));
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
@@ -690,9 +685,6 @@ VALUE cNokogiriXmlNode ;
 void init_xml_node()
 {
   /*
-   * HACK.  This is so that rdoc will work with this C file.
-   */
-  /*
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
   VALUE klass = rb_define_class_under(xml, "Node", rb_cObject);
@@ -716,7 +708,6 @@ void init_xml_node()
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
-  rb_define_method(klass, "remove_attribute", remove_prop, 1);
   rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespaces", namespaces, 0);

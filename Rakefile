@@ -61,7 +61,7 @@ namespace :gem do
   namespace :jruby do
     task :spec => ['build'] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
-        HOE.spec.platform = 'jruby'
+        HOE.spec.platform = 'java'
         HOE.spec.files << GENERATED_PARSER
         HOE.spec.files << GENERATED_TOKENIZER
         HOE.spec.extensions = []
@@ -93,7 +93,7 @@ file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
     racc = "#{::Config::CONFIG['bindir']}/racc" if racc.empty?
     sh "#{racc} -o #{t.name} #{t.prerequisites.first}"
   rescue
-    abort "need racc, get the tarball from http://i.loveruby.net/archive/racc/racc-1.4.5-all.tar.gz" 
+    abort "need racc, sudo gem install racc"
   end
 end
 
@@ -244,25 +244,29 @@ def test_suite_cmdline
   cmdline = "ruby -w -I.:lib:ext:test -rtest/unit -e '%w[#{files.join(' ')}].each {|f| require f}'"
 end
 
+class ValgrindTestTask < Rake::TestTask
+  def initialize *args
+    super
+    %w[ ext lib bin test ].each do |dir|
+      self.libs << dir
+    end
+    self.test_files = FileList['test/**/test_*.rb'] +
+      FileList['test/**/*_test.rb']
+    self.verbose = true
+    self.warning = true
+  end
+end
+
 VALGRIND_BASIC_OPTS = "--num-callers=50 --error-limit=no --partial-loads-ok=yes --undef-value-errors=no"
 
 desc "run test suite under valgrind with basic ruby options"
-Rake::TestTask.new('test:valgrind') do |t|
-  %w[ ext lib bin test ].each do |dir|
-    t.libs << dir
+ValgrindTestTask.new('test:valgrind').extend(Module.new {
+  def ruby *args
+    cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')}"
+    puts cmd
+    system cmd
   end
-  t.test_files = FileList['test/**/test_*.rb'] +
-    FileList['test/**/*_test.rb']
-  t.verbose = true
-  t.warning = true
-  t.extend(Module.new {
-    def ruby *args
-      cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')}"
-      puts cmd
-      system cmd
-    end
-  })
-end
+})
 Rake::Task['test:valgrind'].prerequisites << :build
 
 namespace :test do

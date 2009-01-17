@@ -16,7 +16,6 @@ module Nokogiri
 
       ###
       # Explore a document with shortcut methods.
-
       def slop!
         unless decorators(XML::Node).include? Nokogiri::Decorators::Slop
           decorators(XML::Node) << Nokogiri::Decorators::Slop

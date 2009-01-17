@@ -60,6 +60,48 @@ module Nokogiri
         assert_equal('Hello world!', node.inner_text.strip)
       end
 
+      def test_find_by_xpath
+        found = @html.xpath('//div/a')
+        assert_equal 3, found.length
+      end
+
+      def test_find_by_css
+        found = @html.css('div > a')
+        assert_equal 3, found.length
+      end
+
+      def test_dup_shallow
+        found = @html.search('//div/a').first
+        dup = found.dup(0)
+        assert dup
+        assert_equal '', dup.content
+      end
+
+      def test_search_can_handle_xpath_and_css
+        found = @html.search('//div/a', 'div > p')
+        length = @html.xpath('//div/a').length +
+          @html.css('div > p').length
+        assert_equal length, found.length
+      end
+
+      def test_dup_document
+        assert dup = @html.dup
+        assert_not_equal dup, @html
+      end
+
+      def test_dup_document_shallow
+        assert dup = @html.dup(0)
+        assert_not_equal dup, @html
+      end
+
+      def test_dup
+        found = @html.search('//div/a').first
+        dup = found.dup
+        assert dup
+        assert_equal found.content, dup.content
+        assert_equal found.document, dup.document
+      end
+
       def test_inner_html
         html = Nokogiri::HTML(<<-eohtml)
         <html>

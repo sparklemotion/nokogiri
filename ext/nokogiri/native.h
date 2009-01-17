@@ -17,6 +17,7 @@
 #include <xml_node.h>
 #include <xml_text.h>
 #include <xml_cdata.h>
+#include <xml_document_fragment.h>
 #include <xml_comment.h>
 #include <xml_node_set.h>
 #include <xml_xpath.h>

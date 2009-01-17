@@ -3,24 +3,56 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
+      def setup
+        @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+      end
+
+      def test_to_str
+        name = @xml.xpath('//name').first
+        assert_match(/Margaret/, '' + name)
+        assert_equal('Margaret Martin', '' + name.children.first)
+      end
+
       def test_ancestors
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        address = xml.xpath('//address').first
+        address = @xml.xpath('//address').first
         assert_equal 3, address.ancestors.length
         assert_equal ['employee', 'staff', nil],
           address.ancestors.map { |x| x.name }
       end
 
+      def test_read_only?
+        assert entity_decl = @xml.internal_subset.children.find { |x|
+          x.type == Node::ENTITY_DECL
+        }
+        assert entity_decl.read_only?
+      end
+
+      def test_remove_attribute
+        address = @xml.xpath('/staff/employee/address').first
+        assert_equal 'Yes', address['domestic']
+        address.remove_attribute 'domestic'
+        assert_nil address['domestic']
+      end
+
+      def test_delete
+        address = @xml.xpath('/staff/employee/address').first
+        assert_equal 'Yes', address['domestic']
+        address.delete 'domestic'
+        assert_nil address['domestic']
+      end
+
       def test_angry_add_child
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        child = xml.css('employee').first
+        child = @xml.css('employee').first
 
         assert previous_last_child = child.children.last
         assert new_child = child.children.first
 
-        new_child = child.add_child(new_child)
-        assert_equal previous_last_child.text, new_child.text
+        last = child.children.last
+
+        # Magic!  Don't try this at home folks
+        child.add_child(new_child)
         assert_equal new_child, child.children.last
+        assert_equal last, child.children.last
       end
 
       def test_add_child
@@ -58,6 +90,42 @@ module Nokogiri
         a_node = xml.xpath('//a').first
         a_node.add_previous_sibling(b_node)
         assert_equal('first', xml.xpath('//a').first.text)
+      end
+
+      def test_add_previous_sibling_merge
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+        </root>
+        eoxml
+
+        assert a_tag = xml.css('a').first
+
+        left_space = a_tag.previous
+        right_space = a_tag.next
+        assert left_space.text?
+        assert right_space.text?
+
+        left_space.add_previous_sibling(right_space)
+        assert_equal left_space, right_space
+      end
+
+      def test_add_next_sibling_merge
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>Hello world</a>
+        </root>
+        eoxml
+
+        assert a_tag = xml.css('a').first
+
+        left_space = a_tag.previous
+        right_space = a_tag.next
+        assert left_space.text?
+        assert right_space.text?
+
+        right_space.add_next_sibling(left_space)
+        assert_equal left_space, right_space
       end
 
       def test_find_by_css_with_tilde_eql
@@ -104,91 +172,48 @@ module Nokogiri
         assert_no_match(/Hello world/, xml.to_s)
       end
 
-      def test_dup_shallow
-        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
-        found = html.search('//div/a').first
-        dup = found.dup(0)
-        assert dup
-        assert_equal '', dup.content
-      end
-
-      def test_dup
-        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
-        found = html.search('//div/a').first
-        dup = found.dup
-        assert dup
-        assert_equal found.content, dup.content
-      end
-
-      def test_search_can_handle_xpath_and_css
-        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
-        found = html.search('//div/a', 'div > p')
-        length = html.xpath('//div/a').length +
-          html.css('div > p').length
-        assert_equal length, found.length
-      end
-
-      def test_find_by_xpath
-        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
-        found = html.xpath('//div/a')
-        assert_equal 3, found.length
-      end
-
-      def test_find_by_css
-        html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
-        found = html.css('div > a')
-        assert_equal 3, found.length
-      end
-
       def test_next_sibling
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert node = xml.root
+        assert node = @xml.root
         assert sibling = node.child.next_sibling
         assert_equal('employee', sibling.name)
       end
 
       def test_previous_sibling
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert node = xml.root
+        assert node = @xml.root
         assert sibling = node.child.next_sibling
         assert_equal('employee', sibling.name)
         assert_equal(sibling.previous_sibling, node.child)
       end
 
       def test_name=
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert node = xml.root
+        assert node = @xml.root
         node.name = 'awesome'
         assert_equal('awesome', node.name)
       end
 
       def test_child
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert node = xml.root
+        assert node = @xml.root
         assert child = node.child
         assert_equal('text', child.name)
       end
 
       def test_key?
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert node = xml.search('//address').first
+        assert node = @xml.search('//address').first
         assert(!node.key?('asdfasdf'))
       end
 
       def test_set_property
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert node = xml.search('//address').first
+        assert node = @xml.search('//address').first
         node['foo'] = 'bar'
         assert_equal('bar', node['foo'])
       end
 
       def test_attributes
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert node = xml.search('//address').first
+        assert node = @xml.search('//address').first
         assert_nil(node['asdfasdfasdf'])
         assert_equal('Yes', node['domestic'])
 
-        assert node = xml.search('//address')[2]
+        assert node = @xml.search('//address')[2]
         attr = node.attributes
         assert_equal 2, attr.size
         assert_equal 'Yes', attr['domestic'].value
@@ -197,31 +222,27 @@ module Nokogiri
       end
 
       def test_path
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert set = xml.search('//employee')
+        assert set = @xml.search('//employee')
         assert node = set.first
         assert_equal('/staff/employee[1]', node.path)
       end
 
       def test_search_by_symbol
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        assert set = xml.search(:employee)
+        assert set = @xml.search(:employee)
         assert 5, set.length
 
-        assert node = xml.at(:employee)
+        assert node = @xml.at(:employee)
         assert node.text =~ /EMP0001/
       end
 
       def test_new_node
-        xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        node = Nokogiri::XML::Node.new('form', xml)
+        node = Nokogiri::XML::Node.new('form', @xml)
         assert_equal('form', node.name)
         assert(node.document)
       end
 
       def test_content
-        xml = Nokogiri::XML.parse(File.read(XML_FILE))
-        node = Nokogiri::XML::Node.new('form', xml)
+        node = Nokogiri::XML::Node.new('form', @xml)
         assert_equal('', node.content)
 
         node.content = 'hello world!'
@@ -236,20 +257,19 @@ module Nokogiri
       end
 
       def test_replace
-        xml = Nokogiri::XML.parse(File.read(XML_FILE))
-        set = xml.search('//employee')
+        set = @xml.search('//employee')
         assert 5, set.length
-        assert 0, xml.search('//form').length
+        assert 0, @xml.search('//form').length
 
         first = set[0]
         second = set[1]
 
-        node = Nokogiri::XML::Node.new('form', xml)
+        node = Nokogiri::XML::Node.new('form', @xml)
         first.replace(node)
 
-        assert set = xml.search('//employee')
+        assert set = @xml.search('//employee')
         assert_equal 4, set.length
-        assert 1, xml.search('//form').length
+        assert 1, @xml.search('//form').length
 
         assert_equal set[0].to_xml, second.to_xml
         assert_equal set[0].to_xml(5), second.to_xml(5)
@@ -257,9 +277,8 @@ module Nokogiri
       end
 
       def test_illegal_replace_of_node_with_doc
-        xml = Nokogiri::XML.parse(File.read(XML_FILE))
         new_node = Nokogiri::XML.parse('<foo>bar</foo>')
-        old_node = xml.at('//employee')
+        old_node = @xml.at('//employee')
         assert_raises(ArgumentError){ old_node.replace new_node }
       end
 
@@ -334,7 +353,6 @@ EOF
         assert_equal "c", set[2].namespace
         assert_equal nil, set[3].namespace
       end
-
     end
   end
 end

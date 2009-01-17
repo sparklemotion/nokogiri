@@ -1,15 +1,29 @@
 === HEAD
 
+* New features
+
+  * XML::Node#to_str
+
 * Bugfixes
 
-  * Not including an HTML entity for \r for HTML nodes.
+  * Fixed XML::Document#dup
+
+=== 1.1.1
+
+* New features
+
   * Added XML::Node#elem?
   * Added XML::Node#attribute_nodes
   * Added XML::Attr
-  * Removed CSS::SelectorHandler and XML::XPathHandler
-  * XML::NodeSet implements to_xml
-  * XML::Node#attributes returns an Attr node for the value.
+  * XML::Node#delete added.
   * XML::NodeSet#inner_html added.
+
+* Bugfixes
+
+  * Not including an HTML entity for \r for HTML nodes.
+  * Removed CSS::SelectorHandler and XML::XPathHandler
+  * XML::Node#attributes returns an Attr node for the value.
+  * XML::NodeSet implements to_xml
 
 === 1.1.0
 

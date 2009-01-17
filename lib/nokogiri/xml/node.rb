@@ -156,6 +156,10 @@ module Nokogiri
         next_sibling
       end
 
+      def previous
+        previous_sibling
+      end
+
       def remove
         unlink
       end
@@ -168,6 +172,13 @@ module Nokogiri
           [node.name, node]
         }.flatten)]
       end
+
+      ###
+      # Remove the attribute named +name+
+      def remove_attribute name
+        attributes[name].remove if key? name
+      end
+      alias :delete :remove_attribute
 
       ####
       # Create nodes from +data+ and insert them before this node
@@ -243,13 +254,22 @@ module Nokogiri
         type == HTML_DOCUMENT_NODE
       end
 
+      def text?
+        type == TEXT_NODE
+      end
+
+      def read_only?
+        # According to gdome2, these are read-only node types
+        [NOTATION_NODE, ENTITY_NODE, ENTITY_DECL].include?(type)
+      end
+
       def element?
         type == ELEMENT_NODE
       end
       alias :elem? :element?
 
       def to_s
-        xml? ? to_xml : to_html
+        document.xml? ? to_xml : to_html
       end
 
       def inner_html
@@ -301,6 +321,16 @@ Node.replace requires a Node argument, and cannot accept a Document.
           EOERR
         end
         replace_with_node new_node
+      end
+
+      def to_str
+        text
+      end
+
+      def == other
+        return false unless other
+        return false unless other.respond_to?(:pointer_id)
+        pointer_id == other.pointer_id
       end
     end
   end
