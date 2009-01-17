@@ -21,6 +21,7 @@
 #include <xml_comment.h>
 #include <xml_node_set.h>
 #include <xml_xpath.h>
+#include <xml_attr.h>
 #include <xml_dtd.h>
 #include <xml_xpath_context.h>
 #include <xml_sax_parser.h>

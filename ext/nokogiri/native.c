@@ -29,6 +29,7 @@ void Init_native()
   init_xml_document_fragment();
   init_xml_text();
   init_xml_cdata();
+  init_xml_attr();
   init_xml_comment();
   init_xml_node_set();
   init_xml_xpath_context();
