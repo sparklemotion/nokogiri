@@ -207,8 +207,12 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-  xmlSetProp(node, (xmlChar *)StringValuePtr(property),
+
+  xmlChar *buffer = xmlEncodeEntitiesReentrant(node->doc,
       (xmlChar *)StringValuePtr(value));
+
+  xmlSetProp(node, (xmlChar *)StringValuePtr(property), buffer);
+  xmlFree(buffer);
 
   return value;
 }
@@ -611,7 +615,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_ATTRIBUTE_NODE:
-      klass = rb_const_get(mNokogiriXml, rb_intern("Attr"));
+      klass = cNokogiriXmlAttr;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_ENTITY_DECL:

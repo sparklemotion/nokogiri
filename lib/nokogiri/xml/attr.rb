@@ -2,9 +2,13 @@ module Nokogiri
   module XML
     class Attr < Node
       def value
-        children.first.to_s
+        content
       end
       alias :to_s :value
+
+      def content= value
+        self.value = value
+      end
     end
   end
 end

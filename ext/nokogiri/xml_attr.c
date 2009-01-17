@@ -2,6 +2,46 @@
 
 /*
  * call-seq:
+ *  value=(content)
+ *
+ * Set the value for this Attr to +content+
+ */
+static VALUE set_value(VALUE self, VALUE content)
+{
+  xmlAttrPtr attr;
+  Data_Get_Struct(self, xmlAttr, attr);
+
+  if(attr->children) xmlFreeNodeList(attr->children);
+
+  attr->children = attr->last = NULL;
+
+  if(content) {
+    xmlChar *buffer;
+    xmlNode *tmp;
+
+    // Encode our content
+    buffer = xmlEncodeEntitiesReentrant(attr->doc, (unsigned char *)StringValuePtr(content));
+
+    attr->children = xmlStringGetNodeList(attr->doc, buffer);
+    attr->last = NULL;
+    tmp = attr->children;
+
+    // Loop through the children
+    for(tmp = attr->children; tmp; tmp = tmp->next) {
+      tmp->parent = (xmlNode *)attr;
+      tmp->doc = attr->doc;
+      if(tmp->next == NULL) attr->last = tmp;
+    }
+
+    // Free up memory
+    xmlFree(buffer);
+  }
+
+  return content;
+}
+
+/*
+ * call-seq:
  *  new(document, content)
  *
  * Create a new Attr element on the +document+ with +name+
@@ -36,8 +76,8 @@ void init_xml_attr()
    */
   VALUE klass = rb_define_class_under(xml, "Attr", node);
 
-
   cNokogiriXmlAttr = klass;
 
   rb_define_singleton_method(klass, "new", new, 2);
+  rb_define_method(klass, "value=", set_value, 1);
 }
