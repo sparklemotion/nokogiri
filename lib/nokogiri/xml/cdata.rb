@@ -2,7 +2,7 @@ module Nokogiri
   module XML
     class CDATA < Text
       def name
-        'cdata-section'
+        '#cdata-section'
       end
     end
   end

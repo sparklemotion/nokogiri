@@ -11,7 +11,7 @@ module Nokogiri
         name = @xml.xpath('//employee[2]/name').first
         assert cdata = name.children[1]
         assert cdata.cdata?
-        assert_equal 'cdata-section', cdata.name
+        assert_equal '#cdata-section', cdata.name
       end
     end
   end
