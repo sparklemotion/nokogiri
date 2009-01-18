@@ -10,6 +10,23 @@ static void dealloc(xmlDocPtr doc)
 
 /*
  * call-seq:
+ *  url
+ *
+ * Get the url name for this document.
+ */
+static VALUE url(VALUE self)
+{
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  if(doc->URL)
+    return rb_str_new2((const char *)doc->URL);
+
+  return Qnil;
+}
+
+/*
+ * call-seq:
  *  serialize
  *
  * Serialize this document
@@ -213,6 +230,7 @@ void init_xml_document()
   rb_define_method(klass, "root=", set_root, 1);
   rb_define_method(klass, "serialize", serialize, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
+  rb_define_method(klass, "url", url, 0);
   rb_undef_method(klass, "parent");
 }
 

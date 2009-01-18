@@ -3,6 +3,7 @@
 * New features
 
   * XML::Node#to_str
+  * XML::Document#url
 
 * Bugfixes
 
