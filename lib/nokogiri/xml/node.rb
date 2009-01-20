@@ -323,6 +323,14 @@ Node.replace requires a Node argument, and cannot accept a Document.
         replace_with_node new_node
       end
 
+      def name
+        node_name
+      end
+
+      def name= new_name
+        self.node_name = new_name
+      end
+
       def to_str
         text
       end

@@ -703,8 +703,8 @@ void init_xml_node()
   rb_define_singleton_method(klass, "new", new, 2);
   rb_define_singleton_method(klass, "new_from_str", new_from_str, 1);
 
-  rb_define_method(klass, "name", get_name, 0);
-  rb_define_method(klass, "name=", set_name, 1);
+  rb_define_method(klass, "node_name", get_name, 0);
+  rb_define_method(klass, "node_name=", set_name, 1);
   rb_define_method(klass, "add_child", add_child, 1);
   rb_define_method(klass, "parent", get_parent, 0);
   rb_define_method(klass, "child", child, 0);
