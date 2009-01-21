@@ -236,6 +236,23 @@ static VALUE get(VALUE self, VALUE attribute)
 }
 
 /*
+ * call-seq:
+ *   attribute(name)
+ *
+ * Get the attribute node with +name+
+ */
+static VALUE attr(VALUE self, VALUE name)
+{
+  xmlNodePtr node;
+  xmlAttrPtr prop;
+  Data_Get_Struct(self, xmlNode, node);
+  prop = xmlHasProp(node, (xmlChar *)StringValuePtr(name));
+
+  if(! prop) return Qnil;
+  return Nokogiri_wrap_xml_node((xmlNodePtr)prop);
+}
+
+/*
  *  call-seq:
  *    attribute_nodes()
  *
@@ -717,6 +734,7 @@ void init_xml_node()
   rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
   rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
+  rb_define_method(klass, "attribute", attr, 1);
   rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
