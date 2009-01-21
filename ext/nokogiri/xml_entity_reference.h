@@ -5,4 +5,5 @@
 
 void init_xml_entity_reference();
 
+extern VALUE cNokogiriXmlEntityReference;
 #endif

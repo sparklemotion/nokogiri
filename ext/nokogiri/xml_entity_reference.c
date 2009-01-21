@@ -23,6 +23,7 @@ static VALUE new(VALUE klass, VALUE doc, VALUE name)
   return rb_node;
 }
 
+VALUE cNokogiriXmlEntityReference;
 void init_xml_entity_reference()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
@@ -33,6 +34,8 @@ void init_xml_entity_reference()
    * EntityReference represents an EntityReference node in an xml document.
    */
   VALUE klass = rb_define_class_under(xml, "EntityReference", node);
+
+  cNokogiriXmlEntityReference = klass;
 
   rb_define_singleton_method(klass, "new", new, 2);
 }
