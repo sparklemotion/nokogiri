@@ -229,7 +229,13 @@ static VALUE get(VALUE self, VALUE attribute)
   xmlChar* propstr ;
   VALUE rval ;
   Data_Get_Struct(self, xmlNode, node);
+
+  if(attribute == Qnil) return Qnil;
+
   propstr = xmlGetProp(node, (xmlChar *)StringValuePtr(attribute));
+
+  if(NULL == propstr) return Qnil;
+
   rval = rb_str_new2((char *)propstr) ;
   xmlFree(propstr);
   return rval ;
