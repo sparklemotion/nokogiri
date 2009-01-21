@@ -169,8 +169,22 @@ module Nokogiri
       # attribute name, the value is the string value of the attribute.
       def attributes
         Hash[*(attribute_nodes.map { |node|
-          [node.name, node]
+          [node.node_name, node]
         }.flatten)]
+      end
+
+      def values
+        attribute_nodes.map { |node| node.value }
+      end
+
+      def keys
+        attribute_nodes.map { |node| node.node_name }
+      end
+
+      def each &block
+        attribute_nodes.each { |node|
+          block.call(node.node_name, node.value)
+        }
       end
 
       ###

@@ -7,6 +7,22 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_values
+        assert_equal %w{ Yes Yes }, @xml.xpath('//address')[1].values
+      end
+
+      def test_keys
+        assert_equal %w{ domestic street }, @xml.xpath('//address')[1].keys
+      end
+
+      def test_each
+        attributes = []
+        @xml.xpath('//address')[1].each do |key, value|
+          attributes << [key, value]
+        end
+        assert_equal [['domestic', 'Yes'], ['street', 'Yes']], attributes
+      end
+
       def test_to_str
         name = @xml.xpath('//name').first
         assert_match(/Margaret/, '' + name)
