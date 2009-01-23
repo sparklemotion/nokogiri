@@ -31,6 +31,8 @@ ext/nokogiri/xml_node.c
 ext/nokogiri/xml_node.h
 ext/nokogiri/xml_node_set.c
 ext/nokogiri/xml_node_set.h
+ext/nokogiri/xml_processing_instruction.c
+ext/nokogiri/xml_processing_instruction.h
 ext/nokogiri/xml_reader.c
 ext/nokogiri/xml_reader.h
 ext/nokogiri/xml_sax_parser.c
@@ -143,6 +145,7 @@ test/xml/test_comment.rb
 test/xml/test_document.rb
 test/xml/test_document_fragment.rb
 test/xml/test_dtd.rb
+test/xml/test_entity_reference.rb
 test/xml/test_node.rb
 test/xml/test_node_set.rb
 test/xml/test_processing_instruction.rb
