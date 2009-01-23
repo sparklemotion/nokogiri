@@ -7,6 +7,7 @@
   * XML::Node#keys get all attribute names
   * XML::Node#values get all attribute values
   * XML::Node#each iterate over attribute name, value pairs
+  * XML::ProcessingInstrunction.new
 
 * Bugfixes
 

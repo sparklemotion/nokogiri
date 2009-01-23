@@ -14,6 +14,11 @@ module Nokogiri
       def test_name
         assert_equal 'TEST-STYLE', @xml.children[0].name
       end
+
+      def test_new
+        assert ref = ProcessingInstruction.new(@xml, 'name', 'content')
+        assert_instance_of ProcessingInstruction, ref
+      end
     end
   end
 end

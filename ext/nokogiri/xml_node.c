@@ -634,7 +634,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_PI_NODE:
-      klass = rb_const_get(mNokogiriXml, rb_intern("ProcessingInstruction"));
+      klass = cNokogiriXmlProcessingInstruction;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_ELEMENT_NODE:

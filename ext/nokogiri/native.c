@@ -29,6 +29,7 @@ void Init_native()
   init_xml_document_fragment();
   init_xml_text();
   init_xml_cdata();
+  init_xml_processing_instruction();
   init_xml_attr();
   init_xml_entity_reference();
   init_xml_comment();

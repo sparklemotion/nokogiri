@@ -18,6 +18,7 @@
 #include <xml_text.h>
 #include <xml_cdata.h>
 #include <xml_attr.h>
+#include <xml_processing_instruction.h>
 #include <xml_entity_reference.h>
 #include <xml_document_fragment.h>
 #include <xml_comment.h>
