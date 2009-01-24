@@ -41,8 +41,8 @@ else
   HEADER_DIRS = [
     File.join(INCLUDEDIR, "libxml2"),
     INCLUDEDIR,
+    '/usr/local/include/libxml2',
     '/usr/include/libxml2',
-    '/usr/local/include/libxml2'
   ]
 
   [
@@ -50,7 +50,7 @@ else
     '/opt/local/include',
   ].each { |x| HEADER_DIRS.unshift(x) } if use_macports
 
-  unless find_header('libxml/xmlversion.h', *HEADER_DIRS)
+  unless find_header('libxml/parser.h', *HEADER_DIRS)
     abort "need libxml"
   end
 

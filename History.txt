@@ -12,6 +12,7 @@
 * Bugfixes
 
   * Fixed XML::Document#dup
+  * Fixed header detection. Thanks rubikitch!
 
 === 1.1.1
 
