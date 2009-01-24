@@ -15,6 +15,10 @@
   * Fixed header detection. Thanks rubikitch!
   * Fixed a problem where invalid CSS would cause the parser to hang
 
+* Deprecations
+
+  * Nokogiri::XML::Node.new_from_str will be deprecated in 1.2.0 or March 1
+
 === 1.1.1
 
 * New features
