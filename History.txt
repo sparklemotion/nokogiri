@@ -13,6 +13,7 @@
 
   * Fixed XML::Document#dup
   * Fixed header detection. Thanks rubikitch!
+  * Fixed a problem where invalid CSS would cause the parser to hang
 
 === 1.1.1
 

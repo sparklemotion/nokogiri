@@ -7,6 +7,10 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_extra_single_quote
+        assert_raises(CSS::SyntaxError) { @parser.parse("'") }
+      end
+
       def test_syntax_error_raised
         assert_raises(CSS::SyntaxError) { @parser.parse("a[x=]") }
       end
