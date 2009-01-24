@@ -33,7 +33,7 @@ module Nokogiri
 
     def make input = nil, opts = {}, &blk
       if input
-        Nokogiri::XML::Node.new_from_str(input)
+        Nokogiri::HTML.fragment(input).first
       else
         Nokogiri(&blk)
       end

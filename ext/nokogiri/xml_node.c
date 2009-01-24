@@ -573,32 +573,6 @@ static VALUE new(VALUE klass, VALUE name, VALUE document)
   return rb_node;
 }
 
-
-/*
- * call-seq:
- *   new_from_str(string)
- *
- * Create a new node by parsing +string+
- */
-static VALUE new_from_str(VALUE klass, VALUE xml)
-{
-    /*
-     *  I couldn't find a more efficient way to do this. So we create a new
-     *  document and copy (recursively) the root node.
-     */
-    VALUE rb_doc ;
-    xmlDocPtr doc ;
-    xmlNodePtr node ;
-
-    rb_doc = rb_funcall(cNokogiriXmlDocument, rb_intern("read_memory"), 4,
-                        xml, Qnil, Qnil, INT2NUM(0));
-    Data_Get_Struct(rb_doc, xmlDoc, doc);
-    node = xmlCopyNode(xmlDocGetRootElement(doc), 1); /* 1 => recursive */
-    node->doc = doc;
-
-    return Nokogiri_wrap_xml_node(node);
-}
-
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 {
   assert(node);
@@ -728,7 +702,6 @@ void init_xml_node()
   VALUE klass = cNokogiriXmlNode = rb_const_get(mNokogiriXml, rb_intern("Node"));
 
   rb_define_singleton_method(klass, "new", new, 2);
-  rb_define_singleton_method(klass, "new_from_str", new_from_str, 1);
 
   rb_define_method(klass, "node_name", get_name, 0);
   rb_define_method(klass, "node_name=", set_name, 1);

@@ -354,6 +354,11 @@ Node.replace requires a Node argument, and cannot accept a Document.
         return false unless other.respond_to?(:pointer_id)
         pointer_id == other.pointer_id
       end
+
+      def self.new_from_str string
+        $stderr.puts("This method is deprecated and will be removed in 1.2.0 or by March 1, 2009. Instead, use Nokogiri::HTML.fragment()")
+        Nokogiri::HTML.fragment(string).first
+      end
     end
   end
 end
