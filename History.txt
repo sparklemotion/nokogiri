@@ -14,6 +14,7 @@
   * Fixed XML::Document#dup
   * Fixed header detection. Thanks rubikitch!
   * Fixed a problem where invalid CSS would cause the parser to hang
+  * XML::Node#replace() will now replace underlying DATA poiters
 
 * Deprecations
 

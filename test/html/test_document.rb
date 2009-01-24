@@ -7,6 +7,15 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_fragment_replace
+        frag = Nokogiri::HTML.fragment('<div><br /></div>')
+        pre = Nokogiri.make('<pre><br /></pre>')
+        frag.xpath('//div').each { |div|
+          div.replace(pre)
+        }
+        assert_equal pre, frag.first
+      end
+
       def test_HTML_function
         html = Nokogiri::HTML(File.read(HTML_FILE))
         assert html.html?

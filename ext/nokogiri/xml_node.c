@@ -161,6 +161,11 @@ static VALUE replace(VALUE self, VALUE _new_node)
   Data_Get_Struct(_new_node, xmlNode, new_node);
 
   xmlReplaceNode(node, new_node);
+
+  // self's DATA_PTR needs to change because it has been replaced with
+  // _new_node.  EVIL EVIL EVIL!
+  DATA_PTR(self) = new_node ;
+
   return self ;
 }
 
