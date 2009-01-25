@@ -23,6 +23,11 @@ module Nokogiri
         assert_equal [['domestic', 'Yes'], ['street', 'Yes']], attributes
       end
 
+      def test_new
+        assert node = Nokogiri::XML::Node.new('input', @xml)
+        assert_equal 1, node.node_type
+      end
+
       def test_to_str
         name = @xml.xpath('//name').first
         assert_match(/Margaret/, '' + name)

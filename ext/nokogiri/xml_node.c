@@ -316,11 +316,11 @@ static VALUE namespaces(VALUE self)
 
 /*
  * call-seq:
- *  type
+ *  node_type
  *
- * Get the type for this node
+ * Get the type for this Node
  */
-static VALUE type(VALUE self)
+static VALUE node_type(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
@@ -710,7 +710,7 @@ void init_xml_node()
   rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "next_sibling", next_sibling, 0);
   rb_define_method(klass, "previous_sibling", previous_sibling, 0);
-  rb_define_method(klass, "type", type, 0);
+  rb_define_method(klass, "node_type", node_type, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "path", path, 0);
   rb_define_method(klass, "key?", key_eh, 1);

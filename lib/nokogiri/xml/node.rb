@@ -345,6 +345,12 @@ Node.replace requires a Node argument, and cannot accept a Document.
         self.node_name = new_name
       end
 
+      ###
+      # Get the type for this Node
+      def type
+        node_type
+      end
+
       def to_str
         text
       end
