@@ -27,6 +27,7 @@
 #include <xml_dtd.h>
 #include <xml_xpath_context.h>
 #include <xml_sax_parser.h>
+#include <xml_sax_push_parser.h>
 #include <xml_reader.h>
 #include <html_sax_parser.h>
 #include <xslt_stylesheet.h>
