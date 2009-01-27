@@ -1,13 +1,36 @@
 #include <xml_sax_push_parser.h>
 
-static void deallocate(VALUE klass)
+static void deallocate(xmlParserCtxtPtr ctx)
 {
-  printf("XML::SAX::PushParser dealloc\n");
+  NOKOGIRI_DEBUG_START(handler);
+  if(ctx != NULL) xmlFreeParserCtxt(ctx);
+  NOKOGIRI_DEBUG_END(handler);
 }
 
 static VALUE allocate(VALUE klass)
 {
   return Data_Wrap_Struct(klass, NULL, deallocate, NULL);
+}
+
+static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
+{
+  xmlParserCtxtPtr ctx;
+  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  const char * chunk  = NULL;
+  int last_chunk      = 0;
+  int size            = 0;
+
+  if(Qnil != _chunk) {
+    chunk = StringValuePtr(_chunk);
+    size = NUM2INT(rb_funcall(_chunk, rb_intern("length"), 0));
+  }
+  if(Qtrue == _last_chunk) last_chunk = 1;
+
+  if(xmlParseChunk(ctx, chunk, size, last_chunk))
+    rb_raise(rb_eRuntimeError, "Couldn't parse chunk");
+
+  return self;
 }
 
 static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
@@ -27,6 +50,8 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
       0,
       filename
   );
+  if(ctx == NULL)
+    rb_raise(rb_eRuntimeError, "Could not create a parser context");
 
   DATA_PTR(self) = ctx;
   return self;
@@ -44,4 +69,5 @@ void init_xml_sax_push_parser()
 
   rb_define_alloc_func(klass, allocate);
   rb_define_private_method(klass, "initialize_native", initialize_native, 2);
+  rb_define_private_method(klass, "native_write", native_write, 2);
 }

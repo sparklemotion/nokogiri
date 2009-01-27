@@ -15,6 +15,7 @@ module Nokogiri
               Paragraph 1
             </p>
           eoxml
+          @parser.finish
           assert_equal [' This is a comment '], @parser.document.comments
         end
       end

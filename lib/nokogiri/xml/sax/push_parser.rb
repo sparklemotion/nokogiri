@@ -11,6 +11,15 @@ module Nokogiri
           ## Create our push parser context
           initialize_native(@sax_parser, file_name)
         end
+
+        def write chunk, last_chunk = false
+          native_write(chunk, last_chunk)
+        end
+        alias :<< :write
+
+        def finish
+          write '', true
+        end
       end
     end
   end
