@@ -45,7 +45,7 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 
   xmlParserCtxtPtr ctx = xmlCreatePushParserCtxt(
       sax,
-      NULL,
+      (void *)self,
       NULL,
       0,
       filename
