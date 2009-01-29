@@ -6,7 +6,11 @@ ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 LIBDIR = Config::CONFIG['libdir']
 INCLUDEDIR = Config::CONFIG['includedir']
 
-  use_macports = !(defined?(RUBY_ENGINE) && RUBY_ENGINE != 'ruby')
+use_macports = !(defined?(RUBY_ENGINE) && RUBY_ENGINE != 'ruby')
+
+if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
+  $LIBRUBYARG_STATIC.gsub!(/-static/, '')
+end
 
 $CFLAGS << " #{ENV["CFLAGS"]}"
 if Config::CONFIG['target_os'] == 'mingw32'
