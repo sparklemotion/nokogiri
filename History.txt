@@ -2,6 +2,7 @@
 
 * New features
 
+  * XML::SAX::PushParser for all your push parsing needs.
   * XML::Node#to_str
   * XML::Document#url get the document url
   * XML::Node#keys get all attribute names

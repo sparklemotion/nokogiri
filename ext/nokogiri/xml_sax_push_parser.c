@@ -12,6 +12,12 @@ static VALUE allocate(VALUE klass)
   return Data_Wrap_Struct(klass, NULL, deallocate, NULL);
 }
 
+/*
+ * call-seq:
+ *  native_write(chunk, last_chunk)
+ *
+ * Write +chunk+ to PushParser. +last_chunk+ triggers the end_document handle
+ */
 static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 {
   xmlParserCtxtPtr ctx;
@@ -33,6 +39,12 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   return self;
 }
 
+/*
+ * call-seq:
+ *  initialize_native(xml_sax, filename)
+ *
+ * Initialize the push parser with +xml_sax+ using +filename+
+ */
 static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 {
   xmlSAXHandlerPtr sax;
