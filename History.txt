@@ -5,6 +5,7 @@
   * XML::SAX::PushParser for all your push parsing needs.
   * XML::Node#to_str
   * XML::Document#url get the document url
+  * XML::Document#encoding get encoding used for this document
   * XML::Node#keys get all attribute names
   * XML::Node#values get all attribute values
   * XML::Node#each iterate over attribute name, value pairs

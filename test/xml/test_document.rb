@@ -7,6 +7,11 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_encoding
+        xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE, 'UTF-8')
+        assert_equal 'UTF-8', xml.encoding
+      end
+
       def test_XML_function
         xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
         assert xml.xml?

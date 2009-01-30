@@ -81,6 +81,21 @@ static VALUE root(VALUE self)
 
 /*
  * call-seq:
+ *  encoding
+ *
+ * Get the encoding for this Document
+ */
+static VALUE encoding(VALUE self)
+{
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  if(!doc->encoding) return Qnil;
+  return rb_str_new2((const char *)doc->encoding);
+}
+
+/*
+ * call-seq:
  *  read_io(io, url, encoding, options)
  *
  * Create a new document from an IO object
@@ -229,6 +244,7 @@ void init_xml_document()
   rb_define_method(klass, "root", root, 0);
   rb_define_method(klass, "root=", set_root, 1);
   rb_define_method(klass, "serialize", serialize, 0);
+  rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
   rb_undef_method(klass, "parent");
