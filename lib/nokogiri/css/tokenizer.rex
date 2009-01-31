@@ -7,11 +7,11 @@ macro
   w         [\s\r\n\f]*
   nonascii  [^\\\\0-\\\\177]
   num       -?([0-9]+|[0-9]*\.[0-9]+)
-  unicode   \\\\\\\\\[0-9a-f]{1,6}(\r\n|[\s\n\r\t\f])?
+  unicode   \\\\\\\\\[0-9A-Fa-f]{1,6}(\r\n|[\s\n\r\t\f])?
 
-  escape    {unicode}|\\\\\\\[^\n\r\f0-9a-f]
-  nmchar    [_a-z0-9-]|{nonascii}|{escape}
-  nmstart   [_a-z]|{nonascii}|{escape}
+  escape    {unicode}|\\\\\\\[^\n\r\f0-9A-Fa-f]
+  nmchar    [_A-Za-z0-9-]|{nonascii}|{escape}
+  nmstart   [_A-Za-z]|{nonascii}|{escape}
   ident     [-]?({nmstart})({nmchar})*
   name      ({nmchar})+
   string1   "([^\n\r\f"]|\\{nl}|{nonascii}|{escape})*"
