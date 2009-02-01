@@ -74,24 +74,32 @@ if Config::CONFIG['target_os'] == 'mingw32'
   find_library('exslt', 'exsltFuncRegister',
                File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
 else
-  find_library('xml2', 'xmlParseDoc',
+  unless find_library('xml2', 'xmlParseDoc',
                LIBDIR,
                '/opt/local/lib',
                '/usr/local/lib',
                '/usr/lib'
     )
-  find_library('xslt', 'xsltParseStylesheetDoc',
+    abort "need libxml2"
+  end
+
+  unless find_library('xslt', 'xsltParseStylesheetDoc',
                LIBDIR,
                '/opt/local/lib',
                '/usr/local/lib',
                '/usr/lib'
     )
-  find_library('exslt', 'exsltFuncRegister',
+    abort "need libxslt"
+  end
+
+  unless find_library('exslt', 'exsltFuncRegister',
                LIBDIR,
                '/opt/local/lib',
                '/usr/local/lib',
                '/usr/lib'
     )
+    abort "need libxslt"
+  end
 end
 
 create_makefile('nokogiri/native')
