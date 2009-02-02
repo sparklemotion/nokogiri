@@ -49,10 +49,29 @@ else
     '/usr/include/libxml2',
   ]
 
+  LIB_DIRS = [
+    LIBDIR,
+    '/opt/local/lib',
+    '/usr/local/lib',
+    '/usr/lib'
+  ]
+
   [
     '/opt/local/include/libxml2',
     '/opt/local/include',
   ].each { |x| HEADER_DIRS.unshift(x) } if use_macports
+
+  xml2_dirs = dir_config('xml2')
+  unless [nil, nil] == xml2_dirs
+    HEADER_DIRS.unshift xml2_dirs.first
+    LIB_DIRS.unshift xml2_dirs[1]
+  end
+
+  xslt_dirs = dir_config('xslt')
+  unless [nil, nil] == xslt_dirs
+    HEADER_DIRS.unshift xslt_dirs.first
+    LIB_DIRS.unshift xslt_dirs[1]
+  end
 
   unless find_header('libxml/parser.h', *HEADER_DIRS)
     abort "need libxml"
@@ -74,30 +93,15 @@ if Config::CONFIG['target_os'] == 'mingw32'
   find_library('exslt', 'exsltFuncRegister',
                File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
 else
-  unless find_library('xml2', 'xmlParseDoc',
-               LIBDIR,
-               '/opt/local/lib',
-               '/usr/local/lib',
-               '/usr/lib'
-    )
+  unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
     abort "need libxml2"
   end
 
-  unless find_library('xslt', 'xsltParseStylesheetDoc',
-               LIBDIR,
-               '/opt/local/lib',
-               '/usr/local/lib',
-               '/usr/lib'
-    )
+  unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
     abort "need libxslt"
   end
 
-  unless find_library('exslt', 'exsltFuncRegister',
-               LIBDIR,
-               '/opt/local/lib',
-               '/usr/local/lib',
-               '/usr/lib'
-    )
+  unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
     abort "need libxslt"
   end
 end

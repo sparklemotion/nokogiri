@@ -107,7 +107,7 @@ end
 
 task 'ext/nokogiri/Makefile' do
   Dir.chdir('ext/nokogiri') do
-    ruby "extconf.rb"
+    ruby "extconf.rb #{ENV['EXTOPTS']}"
   end
 end
 
@@ -309,6 +309,63 @@ namespace :test do
       next if docfile =~ /\.src/
       puts "FAIL: #{docfile}" if File.read(docfile) =~ /call-seq/
     }
+  end
+
+  desc "Test against multiple versions of libxml2"
+  task :multixml2 do
+    MULTI_XML = File.join(ENV['HOME'], '.multixml2')
+    unless File.exists?(MULTI_XML)
+      %w{ versions install build }.each { |x|
+        FileUtils.mkdir_p(File.join(MULTI_XML, x))
+      }
+      Dir.chdir File.join(MULTI_XML, 'versions') do
+        require 'net/ftp'
+        ftp = Net::FTP.new('xmlsoft.org')
+        ftp.login('anonymous', 'anonymous')
+        ftp.chdir('libxml2')
+        ftp.list('libxml2-2.*.tar.gz').each do |x|
+          file = x[/[^\s]*$/]
+          puts "Downloading #{file}"
+          ftp.getbinaryfile(file)
+        end
+      end
+    end
+
+    # Build any libxml2 versions in $HOME/.multixml2/versions that
+    # haven't been built yet
+    Dir[File.join(MULTI_XML, 'versions','*.tar.gz')].each do |f|
+      filename = File.basename(f, '.tar.gz')
+
+      install_dir = File.join(MULTI_XML, 'install', filename)
+      next if File.exists?(install_dir)
+
+      Dir.chdir File.join(MULTI_XML, 'versions') do
+        system "tar zxvf #{f} -C #{File.join(MULTI_XML, 'build')}"
+      end
+
+      Dir.chdir File.join(MULTI_XML, 'build', filename) do
+        system "./configure --prefix=#{install_dir}"
+        system "make && make install"
+      end
+    end
+
+    test_results = {}
+    Dir[File.join(MULTI_XML, 'install', '*')].each do |xml2_version|
+      extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib"
+      cmd = "rake clean test EXTOPTS='#{extopts}'"
+
+      version = File.basename(xml2_version)
+      result = system(cmd)
+      test_results[version] = {
+        :result => result,
+        :cmd    => cmd
+      }
+    end
+    test_results.sort_by { |k,v| k }.each do |k,v|
+      passed = v[:result]
+      puts "#{k}: #{passed ? 'PASS' : 'FAIL'}"
+      puts "repro: #{v[:cmd]}" unless passed
+    end
   end
 end
 

@@ -206,7 +206,7 @@ class TestParser < Nokogiri::TestCase
     #  MODIFIED:
     #  hpricot has an off-by-one bug eith eq-and-friends.
     assert_equal "<p>The third paragraph</p>",
-        @basic.search('p:eq(3)').to_html # under Hpricot this was eq(2)
+        @basic.search('p:eq(3)').to_html.chomp # under Hpricot this was eq(2)
     ##
     #  MODIFIED: to be blank-agnostic, because Nokogiri's to_html is slightly different compared to Hpricot.
     assert_equal '<p class="last final"><b>THE FINAL PARAGRAPH</b></p>',
