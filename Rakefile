@@ -33,6 +33,13 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
 
+namespace :libxml do
+  desc "What version of LibXML are we building against?"
+  task :version => :build do
+    sh "ruby -Ilib:ext -rnokogiri -e 'puts Nokogiri::LIBXML_VERSION'"
+  end
+end
+
 namespace :gem do
   namespace :dev do
     task :spec do
