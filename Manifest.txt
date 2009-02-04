@@ -72,6 +72,7 @@ lib/nokogiri/html.rb
 lib/nokogiri/html/builder.rb
 lib/nokogiri/html/document.rb
 lib/nokogiri/html/sax/parser.rb
+lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
 lib/nokogiri/xml.rb
 lib/nokogiri/xml/after_handler.rb
