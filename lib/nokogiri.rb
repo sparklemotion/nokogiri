@@ -1,4 +1,5 @@
 require 'nokogiri/version'
+require 'nokogiri/syntax_error'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'
 require 'nokogiri/html'

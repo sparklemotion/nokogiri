@@ -1,6 +1,6 @@
 module Nokogiri
   module CSS
-    class SyntaxError < ::StandardError
+    class SyntaxError < ::Nokogiri::SyntaxError
     end
   end
 end

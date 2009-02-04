@@ -1,7 +1,7 @@
 module Nokogiri
   module XML
     class XPath
-      class SyntaxError < ::StandardError
+      class SyntaxError < ::Nokogiri::SyntaxError
       end
     end
   end

@@ -182,7 +182,8 @@ void init_xml_syntax_error()
   /*
    * The XML::SyntaxError is raised on parse errors
    */
-  VALUE klass = rb_define_class_under(xml, "SyntaxError", rb_eStandardError);
+  VALUE syntax_error_mommy = rb_define_class_under(nokogiri, "SyntaxError", rb_eStandardError);
+  VALUE klass = rb_define_class_under(xml, "SyntaxError", syntax_error_mommy);
   cNokogiriXmlSyntaxError = klass;
 
   rb_define_method(klass, "message", message, 0);
