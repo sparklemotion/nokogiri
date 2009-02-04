@@ -1,6 +1,6 @@
 module Nokogiri
   module XML
-    class SyntaxError < SyntaxError
+    class SyntaxError < StandardError
       def none?
         level == 0
       end
