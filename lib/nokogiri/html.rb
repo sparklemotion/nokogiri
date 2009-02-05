@@ -40,13 +40,16 @@ module Nokogiri
       # Parse a fragment from +string+ in to a NodeSet.
       def fragment string
         doc = parse(string)
-        finder = lambda { |children, f|
+        finder = lambda { |children, fragment, f|
           children.each do |child|
-            return children if string =~ /<#{child.name}/
-            finder.call(child.children, f)
+            if string =~ /<#{child.name}/
+              fragment.add_child(child)
+              return fragment
+            end
+            finder.call(child.children, fragment, f)
           end
         }
-        finder.call(doc.children, finder)
+        finder.call(doc.children, XML::DocumentFragment.new(doc), finder)
       end
     end
 

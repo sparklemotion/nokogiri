@@ -21,6 +21,10 @@
 
   * Nokogiri::XML::Node.new_from_str will be deprecated in 1.2.0 or March 1
 
+* API Changes
+
+  * Nokogiri::HTML.fragment now returns an XML::DocumentFragment (LH #32)
+
 === 1.1.1
 
 * New features

@@ -34,7 +34,7 @@ module Nokogiri
 
     def make input = nil, opts = {}, &blk
       if input
-        Nokogiri::HTML.fragment(input).first
+        Nokogiri::HTML.fragment(input).children.first
       else
         Nokogiri(&blk)
       end
