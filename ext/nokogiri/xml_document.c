@@ -145,17 +145,25 @@ static VALUE read_memory( VALUE klass,
   const char * c_url    = (url == Qnil) ? NULL : StringValuePtr(url);
   const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
   int len               = NUM2INT(rb_funcall(string, rb_intern("length"), 0));
+  VALUE error_list      = rb_ary_new();
 
   xmlInitParser();
+  xmlResetLastError();
+  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
   xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
+  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_handler);
 
   if(doc == NULL) {
     xmlFreeDoc(doc);
-    rb_raise(rb_eRuntimeError, "Couldn't create a document");
+    rb_funcall(rb_mKernel, rb_intern("raise"), 1,
+        Nokogiri_wrap_xml_syntax_error(xmlGetLastError())
+    );
     return Qnil;
   }
 
-  return Nokogiri_wrap_xml_document(klass, doc);
+  VALUE document = Nokogiri_wrap_xml_document(klass, doc);
+  rb_funcall(document, rb_intern("errors="), 1, error_list);
+  return document;
 }
 
 /*

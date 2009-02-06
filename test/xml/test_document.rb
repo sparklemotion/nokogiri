@@ -15,6 +15,23 @@ module Nokogiri
         end
       end
 
+      def test_document_has_errors
+        doc = Nokogiri::XML(<<-eoxml)
+          <foo><bar></foo>
+        eoxml
+        assert doc.errors.length > 0
+        doc.errors.each do |error|
+          assert_match error.message, error.inspect
+          assert_match error.message, error.to_s
+        end
+      end
+
+      def test_strict_document_throws_syntax_error
+        assert_raises(Nokogiri::XML::SyntaxError) {
+          Nokogiri::XML('<foo><bar></foo>', nil, nil, 0)
+        }
+      end
+
       def test_XML_function
         xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
         assert xml.xml?

@@ -1,6 +1,8 @@
 module Nokogiri
   module XML
     class Document < Node
+      attr_accessor :errors
+
       def name
         'document'
       end

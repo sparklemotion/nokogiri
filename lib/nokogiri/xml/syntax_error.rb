@@ -17,6 +17,10 @@ module Nokogiri
       def fatal?
         level == 3
       end
+
+      def to_s
+        message
+      end
     end
   end
 end
