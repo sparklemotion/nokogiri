@@ -23,12 +23,16 @@ rule
 
 # [:state]  pattern  [actions]
 
-            ~=               { [:INCLUDES, text] }
-            \|=              { [:DASHMATCH, text] }
-            \^=              { [:PREFIXMATCH, text] }
-            \$=              { [:SUFFIXMATCH, text] }
-            \*=              { [:SUBSTRINGMATCH, text] }
-            !=               { [:NOT_EQUAL, text] }
+            {w}~={w}         { [:INCLUDES, text] }
+            {w}\|={w}        { [:DASHMATCH, text] }
+            {w}\^={w}        { [:PREFIXMATCH, text] }
+            {w}\$={w}        { [:SUFFIXMATCH, text] }
+            {w}\*={w}        { [:SUBSTRINGMATCH, text] }
+            {w}!={w}         { [:NOT_EQUAL, text] }
+            {w}={w}          { [:EQUAL, text] }
+            {w}\){w}         { [:RPAREN, text] }
+            {w}\[{w}         { [:LSQUARE, text] }
+            {w}\]{w}         { [:RSQUARE, text] }
             {ident}\(\s*     { [:FUNCTION, text] }
             @{ident}         { [:IDENT, text] }
             {ident}          { [:IDENT, text] }
@@ -36,9 +40,9 @@ rule
             \#{name}         { [:HASH, text] }
             {w}\+            { [:PLUS, text] }
             {w}>             { [:GREATER, text] }
-            {w},             { [:COMMA, text] }
+            {w},{w}          { [:COMMA, text] }
             {w}~             { [:TILDE, text] }
-            \:not\(          { [:NOT, text] }
+            \:not\({w}       { [:NOT, text] }
             @{ident}         { [:ATKEYWORD, text] }
             {num}%           { [:PERCENTAGE, text] }
             {num}{ident}     { [:DIMENSION, text] }

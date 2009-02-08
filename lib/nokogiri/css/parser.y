@@ -4,7 +4,7 @@ token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS GREATER S STRING IDENT
 token COMMA URI CDO CDC NUMBER PERCENTAGE LENGTH EMS EXS ANGLE TIME FREQ
 token IMPORTANT_SYM IMPORT_SYM MEDIA_SYM PAGE_SYM CHARSET_SYM DIMENSION
 token PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH TILDE NOT_EQUAL SLASH DOUBLESLASH
-token NOT
+token NOT EQUAL RPAREN LSQUARE RSQUARE
 
 rule
   selector
@@ -72,40 +72,40 @@ rule
     | '*' { result = Node.new(:ELEMENT_NAME, val) }
     ;
   attrib
-    : '[' s_0toN IDENT s_0toN attrib_val_0or1 ']' {
+    : LSQUARE IDENT attrib_val_0or1 RSQUARE {
         result = Node.new(:ATTRIBUTE_CONDITION,
-          [Node.new(:ELEMENT_NAME, [val[2]])] + (val[4] || [])
+          [Node.new(:ELEMENT_NAME, [val[1]])] + (val[2] || [])
         )
       }
-    | '[' s_0toN function s_0toN attrib_val_0or1 ']' {
+    | LSQUARE function attrib_val_0or1 RSQUARE {
         result = Node.new(:ATTRIBUTE_CONDITION,
-          [val[2]] + (val[4] || [])
+          [val[1]] + (val[2] || [])
         )
       }
-    | '[' s_0toN NUMBER s_0toN ']' {
+    | LSQUARE NUMBER RSQUARE {
         # Non standard, but hpricot supports it.
         result = Node.new(:PSEUDO_CLASS,
-          [Node.new(:FUNCTION, ['nth-child(', val[2]])]
+          [Node.new(:FUNCTION, ['nth-child(', val[1]])]
         )
       }
     ;
   function
-    : FUNCTION ')' {
+    : FUNCTION RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip])
       }
-    | FUNCTION expr ')' {
+    | FUNCTION expr RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
-    | FUNCTION an_plus_b ')' {
+    | FUNCTION an_plus_b RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
-    | NOT expr ')' {
+    | NOT expr RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
     ;
   expr
-    : NUMBER COMMA s_0toN expr { result = [val.first, val.last] }
-    | STRING COMMA s_0toN expr { result = [val.first, val.last] }
+    : NUMBER COMMA expr { result = [val.first, val.last] }
+    | STRING COMMA expr { result = [val.first, val.last] }
     | NUMBER
     | STRING
     ;
@@ -185,12 +185,12 @@ rule
     : HASH { result = Node.new(:ID, val) }
     ;
   attrib_val_0or1
-    : eql_incl_dash s_0toN IDENT s_0toN { result = [val.first, val[2]] }
-    | eql_incl_dash s_0toN STRING s_0toN { result = [val.first, val[2]] }
+    : eql_incl_dash IDENT s_0toN { result = [val.first, val[1]] }
+    | eql_incl_dash STRING s_0toN { result = [val.first, val[1]] }
     |
     ;
   eql_incl_dash
-    : '='
+    : EQUAL
     | PREFIXMATCH
     | SUFFIXMATCH
     | SUBSTRINGMATCH
@@ -199,8 +199,8 @@ rule
     | DASHMATCH
     ;
   negation
-    : NOT s_0toN negation_arg s_0toN ')' {
-        result = Node.new(:NOT, [val[2]])
+    : NOT negation_arg RPAREN {
+        result = Node.new(:NOT, [val[1]])
       }
     ;
   negation_arg
