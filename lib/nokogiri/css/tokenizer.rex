@@ -43,11 +43,6 @@ rule
             {w},{w}          { [:COMMA, text] }
             {w}~{w}          { [:TILDE, text] }
             \:not\({w}       { [:NOT, text] }
-            @{ident}         { [:ATKEYWORD, text] }
-            {num}%           { [:PERCENTAGE, text] }
-            {num}{ident}     { [:DIMENSION, text] }
-            <!--             { [:CDO, text] }
-            -->              { [:CDC, text] }
             {w}\/\/{w}       { [:DOUBLESLASH, text] }
             {w}\/{w}         { [:SLASH, text] }
             
@@ -55,7 +50,7 @@ rule
             
             {Comment}                    /* ignore comments */
             [\s\t\r\n\f]+    { [:S, text] }
-            [\.*:\[\]=\)]    { [text, text] }
+            [\.:]            { [text, text] }
             {string}         { [:STRING, text] }
             .                { [text, text] }
 end
