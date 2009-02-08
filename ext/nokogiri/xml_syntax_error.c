@@ -160,13 +160,6 @@ static VALUE message(VALUE self)
   return rb_str_new2(error->message);
 }
 
-void Nokogiri_error_handler(void * ctx, xmlErrorPtr error)
-{
-  VALUE err = Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error);
-  VALUE block = rb_funcall(mNokogiri, rb_intern("error_handler"), 0);
-  rb_funcall(block, rb_intern("call"), 1, err);
-}
-
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 {
   VALUE list = (VALUE)ctx;
