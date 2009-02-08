@@ -8,18 +8,18 @@ token NOT EQUAL RPAREN LSQUARE RSQUARE
 
 rule
   selector
-    : selector COMMA s_0toN simple_selector_1toN {
+    : selector COMMA simple_selector_1toN {
         result = [val.first, val.last].flatten
       }
     | simple_selector_1toN { result = val.flatten }
     ;
   combinator
-    : PLUS s_0toN { result = :DIRECT_ADJACENT_SELECTOR }
-    | GREATER s_0toN { result = :CHILD_SELECTOR }
-    | TILDE s_0toN { result = :PRECEDING_SELECTOR }
+    : PLUS { result = :DIRECT_ADJACENT_SELECTOR }
+    | GREATER { result = :CHILD_SELECTOR }
+    | TILDE { result = :PRECEDING_SELECTOR }
     | S { result = :DESCENDANT_SELECTOR }
-    | DOUBLESLASH s_0toN { result = :DESCENDANT_SELECTOR }
-    | SLASH s_0toN { result = :CHILD_SELECTOR }
+    | DOUBLESLASH { result = :DESCENDANT_SELECTOR }
+    | SLASH { result = :CHILD_SELECTOR }
     ;
   simple_selector
     : element_name hcap_0toN {
@@ -185,8 +185,8 @@ rule
     : HASH { result = Node.new(:ID, val) }
     ;
   attrib_val_0or1
-    : eql_incl_dash IDENT s_0toN { result = [val.first, val[1]] }
-    | eql_incl_dash STRING s_0toN { result = [val.first, val[1]] }
+    : eql_incl_dash IDENT { result = [val.first, val[1]] }
+    | eql_incl_dash STRING { result = [val.first, val[1]] }
     |
     ;
   eql_incl_dash
@@ -205,10 +205,6 @@ rule
     ;
   negation_arg
     : hcap_1toN
-    ;
-  s_0toN
-    : S s_0toN
-    |
     ;
 end
 

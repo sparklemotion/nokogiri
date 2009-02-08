@@ -45,8 +45,7 @@ module Nokogiri
       def test_preceding_selector
         @scanner.scan("E ~ F")
         assert_tokens([ [:IDENT, 'E'],
-                        [:TILDE, ' ~'],
-                        [:S, ' '],
+                        [:TILDE, ' ~ '],
                         [:IDENT, 'F'],
         ], @scanner)
       end
@@ -99,8 +98,7 @@ module Nokogiri
       def test_scan_greater
         @scanner.scan('x > y')
         assert_tokens([ [:IDENT, 'x'],
-                        [:GREATER, ' >'],
-                        [:S, ' '],
+                        [:GREATER, ' > '],
                         [:IDENT, 'y']
         ], @scanner)
       end

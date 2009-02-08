@@ -38,18 +38,18 @@ rule
             {ident}          { [:IDENT, text] }
             {num}            { [:NUMBER, text] }
             \#{name}         { [:HASH, text] }
-            {w}\+            { [:PLUS, text] }
-            {w}>             { [:GREATER, text] }
+            {w}\+{w}         { [:PLUS, text] }
+            {w}>{w}          { [:GREATER, text] }
             {w},{w}          { [:COMMA, text] }
-            {w}~             { [:TILDE, text] }
+            {w}~{w}          { [:TILDE, text] }
             \:not\({w}       { [:NOT, text] }
             @{ident}         { [:ATKEYWORD, text] }
             {num}%           { [:PERCENTAGE, text] }
             {num}{ident}     { [:DIMENSION, text] }
             <!--             { [:CDO, text] }
             -->              { [:CDC, text] }
-            {w}\/\/          { [:DOUBLESLASH, text] }
-            {w}\/            { [:SLASH, text] }
+            {w}\/\/{w}       { [:DOUBLESLASH, text] }
+            {w}\/{w}         { [:SLASH, text] }
             
             U\+[0-9a-f?]{1,6}(-[0-9a-f]{1,6})?  {[:UNICODE_RANGE, text] }
             
