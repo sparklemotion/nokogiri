@@ -12,6 +12,20 @@ module Nokogiri
         assert html.html?
       end
 
+      def test_document_has_error
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <body>
+            <div awesome="asdf>
+              <p>inside div tag</p>
+            </div>
+            <p>outside div tag</p>
+          </body>
+        </html>
+        eohtml
+        assert html.errors.length > 0
+      end
+
       def test_relative_css
         html = Nokogiri::HTML(<<-eohtml)
         <html>

@@ -22,7 +22,7 @@ module Nokogiri
           assert @parser.document.errors
           assert @parser.document.errors.length > 0
 
-          assert_equal doc.errors.lenth, @parser.document.errors.length
+          assert_equal doc.errors.length, @parser.document.errors.length
         end
 
         def test_parse
