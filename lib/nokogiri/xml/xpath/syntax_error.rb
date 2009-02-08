@@ -1,8 +1,7 @@
-require 'nokogiri/syntax_error'
 module Nokogiri
   module XML
     class XPath
-      class SyntaxError < ::Nokogiri::SyntaxError
+      class SyntaxError < XML::SyntaxError
       end
     end
   end

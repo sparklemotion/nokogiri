@@ -1,4 +1,3 @@
-require 'nokogiri/syntax_error'
 module Nokogiri
   module XML
     class SyntaxError < ::Nokogiri::SyntaxError
