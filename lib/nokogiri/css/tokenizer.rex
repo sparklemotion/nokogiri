@@ -17,7 +17,6 @@ macro
   string1   "([^\n\r\f"]|\\{nl}|{nonascii}|{escape})*"
   string2   '([^\n\r\f']|\\{nl}|{nonascii}|{escape})*'
   string    {string1}|{string2}
-  Comment   \/\*(.|[\r\n])*?\*\/
 
 rule
 
@@ -48,9 +47,7 @@ rule
             
             U\+[0-9a-f?]{1,6}(-[0-9a-f]{1,6})?  {[:UNICODE_RANGE, text] }
             
-            {Comment}                    /* ignore comments */
             [\s\t\r\n\f]+    { [:S, text] }
-            [\.:]            { [text, text] }
             {string}         { [:STRING, text] }
             .                { [text, text] }
 end
