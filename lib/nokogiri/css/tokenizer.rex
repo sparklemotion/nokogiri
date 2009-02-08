@@ -25,7 +25,6 @@ rule
             {ident}\(\s*     { [:FUNCTION, text] }
             @{ident}         { [:IDENT, text] }
             {ident}          { [:IDENT, text] }
-            {num}            { [:NUMBER, text] }
             \#{name}         { [:HASH, text] }
             {w}~={w}         { [:INCLUDES, text] }
             {w}\|={w}        { [:DASHMATCH, text] }
@@ -42,6 +41,7 @@ rule
             {w},{w}          { [:COMMA, text] }
             {w}~{w}          { [:TILDE, text] }
             \:not\({w}       { [:NOT, text] }
+            {num}            { [:NUMBER, text] }
             {w}\/\/{w}       { [:DOUBLESLASH, text] }
             {w}\/{w}         { [:SLASH, text] }
             
