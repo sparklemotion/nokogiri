@@ -34,6 +34,7 @@ module Nokogiri
         attr_reader :start_elements, :start_document_called
         attr_reader :end_elements, :end_document_called
         attr_reader :data, :comments, :cdata_blocks
+        attr_reader :errors, :warnings
 
         def start_document
           @start_document_called = true
@@ -42,6 +43,16 @@ module Nokogiri
 
         def end_document
           @end_document_called = true
+          super
+        end
+
+        def error error
+          (@errors ||= []) << error
+          super
+        end
+
+        def warning warning
+          (@warning ||= []) << warning
           super
         end
 
