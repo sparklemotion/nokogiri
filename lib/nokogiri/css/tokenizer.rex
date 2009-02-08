@@ -22,6 +22,11 @@ rule
 
 # [:state]  pattern  [actions]
 
+            {ident}\(\s*     { [:FUNCTION, text] }
+            @{ident}         { [:IDENT, text] }
+            {ident}          { [:IDENT, text] }
+            {num}            { [:NUMBER, text] }
+            \#{name}         { [:HASH, text] }
             {w}~={w}         { [:INCLUDES, text] }
             {w}\|={w}        { [:DASHMATCH, text] }
             {w}\^={w}        { [:PREFIXMATCH, text] }
@@ -32,11 +37,6 @@ rule
             {w}\){w}         { [:RPAREN, text] }
             {w}\[{w}         { [:LSQUARE, text] }
             {w}\]{w}         { [:RSQUARE, text] }
-            {ident}\(\s*     { [:FUNCTION, text] }
-            @{ident}         { [:IDENT, text] }
-            {ident}          { [:IDENT, text] }
-            {num}            { [:NUMBER, text] }
-            \#{name}         { [:HASH, text] }
             {w}\+{w}         { [:PLUS, text] }
             {w}>{w}          { [:GREATER, text] }
             {w},{w}          { [:COMMA, text] }
