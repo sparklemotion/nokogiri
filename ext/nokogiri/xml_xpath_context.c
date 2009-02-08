@@ -139,6 +139,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   VALUE search_path, xpath_handler;
   xmlXPathContextPtr ctx;
   Data_Get_Struct(self, xmlXPathContext, ctx);
+  VALUE error_list      = rb_ary_new();
 
   if(rb_scan_args(argc, argv, "11", &search_path, &xpath_handler) == 1)
     xpath_handler = Qnil;
@@ -151,11 +152,19 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
     xmlXPathRegisterFuncLookup(ctx, lookup, (void *)xpath_handler);
   }
 
+  xmlResetLastError();
+  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
   xmlXPathObjectPtr xpath = xmlXPathEvalExpression(query, ctx);
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
   if(xpath == NULL) {
     VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
-    VALUE error = rb_const_get(xpath, rb_intern("SyntaxError"));
-    rb_raise(error, "Couldn't evaluate expression '%s'", query);
+    VALUE klass = rb_const_get(xpath, rb_intern("SyntaxError"));
+
+    xmlErrorPtr error = xmlGetLastError();
+    rb_funcall(rb_mKernel, rb_intern("raise"), 1,
+        Nokogiri_wrap_xml_syntax_error(klass, error)
+    );
   }
 
   VALUE xpath_object = Nokogiri_wrap_xml_xpath(xpath);
