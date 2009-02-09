@@ -382,11 +382,24 @@ static VALUE read_more(VALUE self)
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
 
+  VALUE error_list = rb_funcall(self, rb_intern("errors"), 0);
+
+  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
   int ret = xmlTextReaderRead(reader);
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
   if(ret == 1) return self;
   if(ret == 0) return Qnil;
 
-  rb_raise(rb_eRuntimeError, "Error pulling: %d", ret);
+  xmlErrorPtr error = xmlGetLastError();
+  if(error)
+    rb_funcall(rb_mKernel, rb_intern("raise"), 1,
+        Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error)
+    );
+  else
+    rb_raise(rb_eRuntimeError, "Error pulling: %d", ret);
+
+  return Qnil;
 }
 
 /*
@@ -423,7 +436,10 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
     rb_raise(rb_eRuntimeError, "couldn't create a parser");
   }
 
-  return Data_Wrap_Struct(klass, NULL, dealloc, reader);
+  VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
+  rb_funcall(rb_reader, rb_intern("initialize"), 0);
+
+  return rb_reader;
 }
 
 VALUE cNokogiriXmlReader;
