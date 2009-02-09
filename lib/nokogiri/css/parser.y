@@ -66,8 +66,15 @@ rule
     : '.' IDENT { result = Node.new(:CLASS_CONDITION, [val[1]]) }
     ;
   element_name
-    : IDENT { result = Node.new(:ELEMENT_NAME, val) }
+    : namespace '|' element_name {
+        result = Node.new(:NAMESPACE, [val.first, val.last])
+      }
+    | IDENT { result = Node.new(:ELEMENT_NAME, val) }
     | '*' { result = Node.new(:ELEMENT_NAME, val) }
+    ;
+  namespace
+    : IDENT { result = val[0] }
+    |
     ;
   attrib
     : LSQUARE IDENT attrib_val_0or1 RSQUARE {

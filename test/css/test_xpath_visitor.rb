@@ -7,6 +7,11 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_namespace_conversion
+        assert_xpath("//aaron:a", @parser.parse('aaron|a'))
+        assert_xpath("//a", @parser.parse('|a'))
+      end
+
       def test_unknown_psuedo_classes_get_pushed_down
         assert_xpath("//a[aaron(.)]", @parser.parse('a:aaron'))
       end
