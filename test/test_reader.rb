@@ -38,6 +38,7 @@ class TestReader < Nokogiri::TestCase
       error_happened = true
     end
     assert error_happened
+    assert 1, reader.errors.length
   end
 
   def test_attributes?
