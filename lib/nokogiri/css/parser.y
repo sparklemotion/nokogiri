@@ -111,8 +111,25 @@ rule
   expr
     : NUMBER COMMA expr { result = [val.first, val.last] }
     | STRING COMMA expr { result = [val.first, val.last] }
+    | IDENT COMMA expr { result = [val.first, val.last] }
     | NUMBER
     | STRING
+    | IDENT                             # even, odd
+      {
+        if val[0] == 'even'
+          val = ["2","n","+","0"]
+          result = Node.new(:AN_PLUS_B, val)
+        elsif val[0] == 'odd'
+          val = ["2","n","+","1"]
+          result = Node.new(:AN_PLUS_B, val)
+        else
+          # This is not CSS standard.  It allows us to support this:
+          # assert_xpath("//a[foo(., @href)]", @parser.parse('a:foo(@href)'))
+          # assert_xpath("//a[foo(., @a, b)]", @parser.parse('a:foo(@a, b)'))
+          # assert_xpath("//a[foo(., a, 10)]", @parser.parse('a:foo(a, 10)'))
+          result = val
+        end
+      }
     ;
   an_plus_b
     : NUMBER IDENT PLUS NUMBER          # 5n+3 -5n+3
@@ -143,18 +160,6 @@ rule
           result = Node.new(:AN_PLUS_B, val)
         else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
-        end
-      }
-    | IDENT                             # even, odd
-      {
-        if val[0] == 'even'
-          val = ["2","n","+","0"]
-          result = Node.new(:AN_PLUS_B, val)
-        elsif val[0] == 'odd'
-          val = ["2","n","+","1"]
-          result = Node.new(:AN_PLUS_B, val)
-        else
-          raise Racc::ParseError, "parse error on IDENT '#{val[0]}'"
         end
       }
     ;

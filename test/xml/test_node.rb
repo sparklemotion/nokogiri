@@ -344,7 +344,7 @@ module Nokogiri
 </root>
         eoxml
 
-        tires = xml.css('bike|tire', {'bike' => 'http://schwinn.com/'})
+        tires = xml.css('bike|tire', 'bike' => 'http://schwinn.com/')
         assert_equal 1, tires.length
       end
 
