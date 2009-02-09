@@ -407,12 +407,12 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
 
   rb_buffer = StringValue(rb_buffer) ;
   if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
-  if (RTEST(encoding)) c_encoding = StringValuePtr(rb_url);
+  if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
   if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
 
   xmlTextReaderPtr reader = xmlReaderForMemory(
       StringValuePtr(rb_buffer),
-      NUM2INT(rb_funcall(rb_buffer, rb_intern("length"), 0)),
+      RSTRING_LEN(rb_buffer),
       c_url,
       c_encoding,
       c_options

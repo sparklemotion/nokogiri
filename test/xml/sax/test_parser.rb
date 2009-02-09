@@ -8,6 +8,23 @@ module Nokogiri
           @parser = XML::SAX::Parser.new(Doc.new)
         end
 
+        def test_bad_document_calls_error_handler
+          @parser.parse('<foo><bar></foo>')
+          assert @parser.document.errors
+          assert @parser.document.errors.length > 0
+        end
+
+        def test_errors_set_after_parsing_bad_dom
+          doc = Nokogiri::XML('<foo><bar></foo>')
+          assert doc.errors
+
+          @parser.parse('<foo><bar></foo>')
+          assert @parser.document.errors
+          assert @parser.document.errors.length > 0
+
+          assert_equal doc.errors.length, @parser.document.errors.length
+        end
+
         def test_parse
           File.open(XML_FILE, 'rb') { |f|
             @parser.parse(f)

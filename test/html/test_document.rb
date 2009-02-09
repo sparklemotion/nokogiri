@@ -12,6 +12,20 @@ module Nokogiri
         assert html.html?
       end
 
+      def test_document_has_error
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <body>
+            <div awesome="asdf>
+              <p>inside div tag</p>
+            </div>
+            <p>outside div tag</p>
+          </body>
+        </html>
+        eohtml
+        assert html.errors.length > 0
+      end
+
       def test_relative_css
         html = Nokogiri::HTML(<<-eohtml)
         <html>
@@ -119,14 +133,15 @@ module Nokogiri
       end
 
       def test_fragment
-        node_set = Nokogiri::HTML.fragment(<<-eohtml)
+        fragment = Nokogiri::HTML.fragment(<<-eohtml)
           <div>
             <b>Hello World</b>
           </div>
         eohtml
-        assert_equal 1, node_set.length
-        assert_equal 'div', node_set.first.name
-        assert_match(/Hello World/, node_set.to_html)
+        assert_equal 1, fragment.children.length
+        assert_equal 'div', fragment.children.first.name
+        assert_match(/Hello World/, fragment.to_html)
+        assert_equal 1, fragment.css('div').length
       end
 
       def test_relative_css_finder

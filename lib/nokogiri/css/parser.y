@@ -1,25 +1,23 @@
 class Nokogiri::CSS::GeneratedParser
 
 token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS GREATER S STRING IDENT
-token COMMA URI CDO CDC NUMBER PERCENTAGE LENGTH EMS EXS ANGLE TIME FREQ
-token IMPORTANT_SYM IMPORT_SYM MEDIA_SYM PAGE_SYM CHARSET_SYM DIMENSION
-token PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH TILDE NOT_EQUAL SLASH DOUBLESLASH
-token NOT
+token COMMA NUMBER PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH TILDE NOT_EQUAL
+token SLASH DOUBLESLASH NOT EQUAL RPAREN LSQUARE RSQUARE
 
 rule
   selector
-    : selector COMMA s_0toN simple_selector_1toN {
+    : selector COMMA simple_selector_1toN {
         result = [val.first, val.last].flatten
       }
     | simple_selector_1toN { result = val.flatten }
     ;
   combinator
-    : PLUS s_0toN { result = :DIRECT_ADJACENT_SELECTOR }
-    | GREATER s_0toN { result = :CHILD_SELECTOR }
-    | TILDE s_0toN { result = :PRECEDING_SELECTOR }
+    : PLUS { result = :DIRECT_ADJACENT_SELECTOR }
+    | GREATER { result = :CHILD_SELECTOR }
+    | TILDE { result = :PRECEDING_SELECTOR }
     | S { result = :DESCENDANT_SELECTOR }
-    | DOUBLESLASH s_0toN { result = :DESCENDANT_SELECTOR }
-    | SLASH s_0toN { result = :CHILD_SELECTOR }
+    | DOUBLESLASH { result = :DESCENDANT_SELECTOR }
+    | SLASH { result = :CHILD_SELECTOR }
     ;
   simple_selector
     : element_name hcap_0toN {
@@ -68,46 +66,70 @@ rule
     : '.' IDENT { result = Node.new(:CLASS_CONDITION, [val[1]]) }
     ;
   element_name
-    : IDENT { result = Node.new(:ELEMENT_NAME, val) }
+    : namespace '|' element_name {
+        result = Node.new(:NAMESPACE, [val.first, val.last])
+      }
+    | IDENT { result = Node.new(:ELEMENT_NAME, val) }
     | '*' { result = Node.new(:ELEMENT_NAME, val) }
     ;
+  namespace
+    : IDENT { result = val[0] }
+    |
+    ;
   attrib
-    : '[' s_0toN IDENT s_0toN attrib_val_0or1 ']' {
+    : LSQUARE IDENT attrib_val_0or1 RSQUARE {
         result = Node.new(:ATTRIBUTE_CONDITION,
-          [Node.new(:ELEMENT_NAME, [val[2]])] + (val[4] || [])
+          [Node.new(:ELEMENT_NAME, [val[1]])] + (val[2] || [])
         )
       }
-    | '[' s_0toN function s_0toN attrib_val_0or1 ']' {
+    | LSQUARE function attrib_val_0or1 RSQUARE {
         result = Node.new(:ATTRIBUTE_CONDITION,
-          [val[2]] + (val[4] || [])
+          [val[1]] + (val[2] || [])
         )
       }
-    | '[' s_0toN NUMBER s_0toN ']' {
+    | LSQUARE NUMBER RSQUARE {
         # Non standard, but hpricot supports it.
         result = Node.new(:PSEUDO_CLASS,
-          [Node.new(:FUNCTION, ['nth-child(', val[2]])]
+          [Node.new(:FUNCTION, ['nth-child(', val[1]])]
         )
       }
     ;
   function
-    : FUNCTION ')' {
+    : FUNCTION RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip])
       }
-    | FUNCTION expr ')' {
+    | FUNCTION expr RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
-    | FUNCTION an_plus_b ')' {
+    | FUNCTION an_plus_b RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
-    | NOT expr ')' {
+    | NOT expr RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
     ;
   expr
-    : NUMBER COMMA s_0toN expr { result = [val.first, val.last] }
-    | STRING COMMA s_0toN expr { result = [val.first, val.last] }
+    : NUMBER COMMA expr { result = [val.first, val.last] }
+    | STRING COMMA expr { result = [val.first, val.last] }
+    | IDENT COMMA expr { result = [val.first, val.last] }
     | NUMBER
     | STRING
+    | IDENT                             # even, odd
+      {
+        if val[0] == 'even'
+          val = ["2","n","+","0"]
+          result = Node.new(:AN_PLUS_B, val)
+        elsif val[0] == 'odd'
+          val = ["2","n","+","1"]
+          result = Node.new(:AN_PLUS_B, val)
+        else
+          # This is not CSS standard.  It allows us to support this:
+          # assert_xpath("//a[foo(., @href)]", @parser.parse('a:foo(@href)'))
+          # assert_xpath("//a[foo(., @a, b)]", @parser.parse('a:foo(@a, b)'))
+          # assert_xpath("//a[foo(., a, 10)]", @parser.parse('a:foo(a, 10)'))
+          result = val
+        end
+      }
     ;
   an_plus_b
     : NUMBER IDENT PLUS NUMBER          # 5n+3 -5n+3
@@ -138,18 +160,6 @@ rule
           result = Node.new(:AN_PLUS_B, val)
         else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
-        end
-      }
-    | IDENT                             # even, odd
-      {
-        if val[0] == 'even'
-          val = ["2","n","+","0"]
-          result = Node.new(:AN_PLUS_B, val)
-        elsif val[0] == 'odd'
-          val = ["2","n","+","1"]
-          result = Node.new(:AN_PLUS_B, val)
-        else
-          raise Racc::ParseError, "parse error on IDENT '#{val[0]}'"
         end
       }
     ;
@@ -185,12 +195,12 @@ rule
     : HASH { result = Node.new(:ID, val) }
     ;
   attrib_val_0or1
-    : eql_incl_dash s_0toN IDENT s_0toN { result = [val.first, val[2]] }
-    | eql_incl_dash s_0toN STRING s_0toN { result = [val.first, val[2]] }
+    : eql_incl_dash IDENT { result = [val.first, val[1]] }
+    | eql_incl_dash STRING { result = [val.first, val[1]] }
     |
     ;
   eql_incl_dash
-    : '='
+    : EQUAL
     | PREFIXMATCH
     | SUFFIXMATCH
     | SUBSTRINGMATCH
@@ -199,16 +209,12 @@ rule
     | DASHMATCH
     ;
   negation
-    : NOT s_0toN negation_arg s_0toN ')' {
-        result = Node.new(:NOT, [val[2]])
+    : NOT negation_arg RPAREN {
+        result = Node.new(:NOT, [val[1]])
       }
     ;
   negation_arg
     : hcap_1toN
-    ;
-  s_0toN
-    : S s_0toN
-    |
     ;
 end
 

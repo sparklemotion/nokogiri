@@ -160,17 +160,20 @@ static VALUE message(VALUE self)
   return rb_str_new2(error->message);
 }
 
-void Nokogiri_error_handler(void * ctx, xmlErrorPtr error)
+void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 {
-  // FIXME: I'm interneting this.  I *think* the pointer passed in here gets
-  // freed on its own, thats why I copy it.
-  // The files are *in* the computer.
+  VALUE list = (VALUE)ctx;
+  rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+}
+
+VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error)
+{
+  if(!klass) klass = cNokogiriXmlSyntaxError;
+
   xmlErrorPtr ptr = calloc(1, sizeof(xmlError));
   xmlCopyError(error, ptr);
 
-  VALUE err = Data_Wrap_Struct(cNokogiriXmlSyntaxError, NULL, dealloc, ptr);
-  VALUE block = rb_funcall(mNokogiri, rb_intern("error_handler"), 0);
-  rb_funcall(block, rb_intern("call"), 1, err);
+  return Data_Wrap_Struct(klass, NULL, dealloc, ptr);
 }
 
 VALUE cNokogiriXmlSyntaxError;

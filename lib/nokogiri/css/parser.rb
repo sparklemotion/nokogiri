@@ -47,11 +47,9 @@ module Nokogiri
         v = self.class[string]
         return v if v
 
-        prefix = options[:prefix] || nil
-        visitor = options[:visitor] || nil
-        args = [prefix, visitor]
+        args = [options[:prefix], options[:visitor]].compact
         self.class[string] = parse(string).map { |ast|
-          ast.to_xpath(prefix, visitor)
+          ast.to_xpath(*args)
         }
       end
 

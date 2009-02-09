@@ -10,6 +10,7 @@
   * XML::Node#values get all attribute values
   * XML::Node#each iterate over attribute name, value pairs
   * XML::ProcessingInstrunction.new
+  * CSS search now supports CSS3 namespace queries
 
 * Bugfixes
 
@@ -19,7 +20,11 @@
 
 * Deprecations
 
-  * Nokogiri::XML::Node.new_from_str will be deprecated in 1.2.0 or March 1
+  * Nokogiri::XML::Node.new_from_str will be deprecated in 1.3.0 or March 1
+
+* API Changes
+
+  * Nokogiri::HTML.fragment now returns an XML::DocumentFragment (LH #32)
 
 === 1.1.1
 

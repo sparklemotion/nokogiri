@@ -1,4 +1,3 @@
-require 'nokogiri/syntax_error'
 module Nokogiri
   module XML
     class SyntaxError < ::Nokogiri::SyntaxError
@@ -16,6 +15,10 @@ module Nokogiri
 
       def fatal?
         level == 3
+      end
+
+      def to_s
+        message
       end
     end
   end
