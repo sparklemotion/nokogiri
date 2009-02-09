@@ -158,7 +158,7 @@ static VALUE read_memory( VALUE klass,
   const char * c_buffer = StringValuePtr(string);
   const char * c_url    = (url == Qnil) ? NULL : StringValuePtr(url);
   const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
-  int len               = NUM2INT(rb_funcall(string, rb_intern("length"), 0));
+  int len               = RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
 
   xmlInitParser();

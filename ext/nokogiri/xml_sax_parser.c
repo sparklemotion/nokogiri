@@ -14,7 +14,7 @@ static VALUE parse_memory(VALUE self, VALUE data)
   xmlSAXUserParseMemory(  handler,
                           (void *)self,
                           StringValuePtr(data),
-                          NUM2INT(rb_funcall(data, rb_intern("length"), 0))
+                          RSTRING_LEN(data)
   );
   return data;
 }

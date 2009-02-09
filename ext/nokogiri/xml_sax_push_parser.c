@@ -29,7 +29,7 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 
   if(Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
-    size = NUM2INT(rb_funcall(_chunk, rb_intern("length"), 0));
+    size = RSTRING_LEN(_chunk);
   }
   if(Qtrue == _last_chunk) last_chunk = 1;
 

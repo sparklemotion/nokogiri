@@ -14,7 +14,7 @@ static VALUE new(VALUE klass, VALUE doc, VALUE content)
   xmlNodePtr node = xmlNewCDataBlock(
       xml_doc,
       (const xmlChar *)StringValuePtr(content),
-      NUM2INT(rb_funcall(content, rb_intern("length"), 0))
+      RSTRING_LEN(content)
   );
 
   VALUE rb_node = Nokogiri_wrap_xml_node(node);
