@@ -36,7 +36,7 @@ end
 namespace :libxml do
   desc "What version of LibXML are we building against?"
   task :version => :build do
-    sh "ruby -Ilib:ext -rnokogiri -e 'puts Nokogiri::LIBXML_VERSION'"
+    sh "#{RUBY} -Ilib:ext -rnokogiri -e 'puts Nokogiri::LIBXML_VERSION'"
   end
 end
 
@@ -86,12 +86,6 @@ namespace :gem do
   end
 
   task :spec => ['gem:dev:spec']
-end
-
-desc "Run code-coverage analysis"
-task :coverage do
-  rm_rf "coverage"
-  sh "rcov -x Library -I lib:test #{Dir[*HOE.test_globs].join(' ')}"
 end
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
@@ -238,143 +232,12 @@ task :debug do
   ENV['CFLAGS'] += " -DDEBUG"
 end
 
-def test_suite_cmdline
-  require 'find'
-  match = ENV['MATCH'] ? /#{ENV['MATCH']}/ : /./
+require 'tasks/test'
 
-  files = []
-  Find.find("test") do |f|
-    basename = File.basename(f)
-
-    files << f if basename =~ /.*test.*\.rb$/ && basename =~ match
-  end
-  "ruby -w -I.:lib:ext:test -rtest/unit -e '%w[#{files.join(' ')}].each {|f| require f}' test/test_nokogiri.rb --verbose=verbose"
-end
-
-class ValgrindTestTask < Rake::TestTask
-  def initialize *args
-    super
-    %w[ ext lib bin test ].each do |dir|
-      self.libs << dir
-    end
-    self.test_files = FileList['test/**/test_*.rb'] +
-      FileList['test/**/*_test.rb']
-    self.verbose = true
-    self.warning = true
-  end
-end
-
-VALGRIND_BASIC_OPTS = "--num-callers=50 --error-limit=no --partial-loads-ok=yes --undef-value-errors=no"
-
-desc "run test suite under valgrind with basic ruby options"
-ValgrindTestTask.new('test:valgrind').extend(Module.new {
-  def ruby *args
-    cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{test_suite_cmdline}"
-    puts cmd
-    system cmd
-  end
-})
 Rake::Task['test:valgrind'].prerequisites << :build
-
-namespace :test do
-  # partial-loads-ok and undef-value-errors necessary to ignore
-  # spurious (and eminently ignorable) warnings from the ruby
-  # interpreter
-
-  desc "run test suite under valgrind with memory-fill ruby options"
-  task :valgrind_mem => :build do
-    # fill malloced memory with "m" and freed memory with "f"
-    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=6D --free-fill=66 #{test_suite_cmdline}"
-    puts cmdline
-    system cmdline
-  end
-
-  desc "run test suite under valgrind with memory-zero ruby options"
-  task :valgrind_mem0 => :build do
-    # fill malloced and freed memory with 0
-    cmdline = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=00 --free-fill=00 #{test_suite_cmdline}"
-    puts cmdline
-    system cmdline
-  end
-
-  desc "run test suite under gdb"
-  task :gdb => :build do
-    cmdline = "gdb --args #{test_suite_cmdline}"
-    puts cmdline
-    system cmdline
-  end
-
-  desc "run test suite with aggressive GC"
-  task :gc => :build do
-    ENV['NOKOGIRI_GC'] = "true"
-    Rake::Task["test"].invoke
-  end
-
-  desc "find call-seq in the rdoc"
-  task :rdoc => 'docs' do
-    Dir['doc/**/*.html'].each { |docfile|
-      next if docfile =~ /\.src/
-      puts "FAIL: #{docfile}" if File.read(docfile) =~ /call-seq/
-    }
-  end
-
-  desc "Test against multiple versions of libxml2"
-  task :multixml2 do
-    MULTI_XML = File.join(ENV['HOME'], '.multixml2')
-    unless File.exists?(MULTI_XML)
-      %w{ versions install build }.each { |x|
-        FileUtils.mkdir_p(File.join(MULTI_XML, x))
-      }
-      Dir.chdir File.join(MULTI_XML, 'versions') do
-        require 'net/ftp'
-        ftp = Net::FTP.new('xmlsoft.org')
-        ftp.login('anonymous', 'anonymous')
-        ftp.chdir('libxml2')
-        ftp.list('libxml2-2.*.tar.gz').each do |x|
-          file = x[/[^\s]*$/]
-          puts "Downloading #{file}"
-          ftp.getbinaryfile(file)
-        end
-      end
-    end
-
-    # Build any libxml2 versions in $HOME/.multixml2/versions that
-    # haven't been built yet
-    Dir[File.join(MULTI_XML, 'versions','*.tar.gz')].each do |f|
-      filename = File.basename(f, '.tar.gz')
-
-      install_dir = File.join(MULTI_XML, 'install', filename)
-      next if File.exists?(install_dir)
-
-      Dir.chdir File.join(MULTI_XML, 'versions') do
-        system "tar zxvf #{f} -C #{File.join(MULTI_XML, 'build')}"
-      end
-
-      Dir.chdir File.join(MULTI_XML, 'build', filename) do
-        system "./configure --prefix=#{install_dir}"
-        system "make && make install"
-      end
-    end
-
-    test_results = {}
-    Dir[File.join(MULTI_XML, 'install', '*')].each do |xml2_version|
-      extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib"
-      cmd = "rake clean test EXTOPTS='#{extopts}'"
-
-      version = File.basename(xml2_version)
-      result = system(cmd)
-      test_results[version] = {
-        :result => result,
-        :cmd    => cmd
-      }
-    end
-    test_results.sort_by { |k,v| k }.each do |k,v|
-      passed = v[:result]
-      puts "#{k}: #{passed ? 'PASS' : 'FAIL'}"
-      puts "repro: #{v[:cmd]}" unless passed
-    end
-  end
-end
+Rake::Task['test:valgrind_mem'].prerequisites << :build
+Rake::Task['test:valgrind_mem0'].prerequisites << :build
+Rake::Task['test:coverage'].prerequisites << :build
 
 namespace :install do
   desc "Install frex and racc for development"
