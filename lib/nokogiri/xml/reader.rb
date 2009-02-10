@@ -2,6 +2,11 @@ module Nokogiri
   module XML
     class Reader
       include Enumerable
+      attr_accessor :errors
+
+      def initialize
+        @errors = []
+      end
 
       def attributes
         Hash[*(attribute_nodes.map { |node|

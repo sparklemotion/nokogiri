@@ -24,6 +24,23 @@ class TestReader < Nokogiri::TestCase
       reader.map { |x| x.value? }
   end
 
+  def test_read_error_document
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+      <foo>
+    </x>
+    eoxml
+    error_happened = false
+    begin
+      reader.each { |node| }
+    rescue Nokogiri::XML::SyntaxError => ex
+      error_happened = true
+    end
+    assert error_happened
+    assert 1, reader.errors.length
+  end
+
   def test_attributes?
     reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>

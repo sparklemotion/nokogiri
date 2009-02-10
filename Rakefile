@@ -248,7 +248,7 @@ def test_suite_cmdline
 
     files << f if basename =~ /.*test.*\.rb$/ && basename =~ match
   end
-  cmdline = "ruby -w -I.:lib:ext:test -rtest/unit -e '%w[#{files.join(' ')}].each {|f| require f}'"
+  "ruby -w -I.:lib:ext:test -rtest/unit -e '%w[#{files.join(' ')}].each {|f| require f}' test/test_nokogiri.rb --verbose=verbose"
 end
 
 class ValgrindTestTask < Rake::TestTask
@@ -269,7 +269,7 @@ VALGRIND_BASIC_OPTS = "--num-callers=50 --error-limit=no --partial-loads-ok=yes 
 desc "run test suite under valgrind with basic ruby options"
 ValgrindTestTask.new('test:valgrind').extend(Module.new {
   def ruby *args
-    cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')}"
+    cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{test_suite_cmdline}"
     puts cmd
     system cmd
   end
