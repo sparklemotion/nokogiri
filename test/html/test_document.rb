@@ -132,6 +132,10 @@ module Nokogiri
         assert_equal('<p>Helloworld!</p>', node.inner_html.gsub(/\s/, ''))
       end
 
+      def test_fragment_includes_two_tags
+        assert_equal 2, Nokogiri::HTML.fragment("<br/><hr/>").children.length
+      end
+
       def test_fragment
         fragment = Nokogiri::HTML.fragment(<<-eohtml)
           <div>

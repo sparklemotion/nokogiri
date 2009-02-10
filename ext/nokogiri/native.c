@@ -9,6 +9,13 @@ VALUE mNokogiriHtmlSax ;
 
 void Init_native()
 {
+  xmlMemSetup(
+      (xmlFreeFunc)ruby_xfree,
+      (xmlMallocFunc)ruby_xmalloc,
+      (xmlReallocFunc)ruby_xrealloc,
+      strdup
+  );
+
   mNokogiri = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
   mNokogiriXml = rb_const_get(mNokogiri, rb_intern("XML"));
   mNokogiriHtml = rb_const_get(mNokogiri, rb_intern("HTML"));
