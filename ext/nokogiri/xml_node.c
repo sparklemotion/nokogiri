@@ -550,6 +550,19 @@ static VALUE to_xml(int argc, VALUE *argv, VALUE self)
   return xml ;
 }
 
+/*
+ * call-seq:
+ *  line
+ *
+ * Returns the line for this Node
+ */
+static VALUE line(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+
+  return INT2NUM(node->line);
+}
 
 /*
  * call-seq:
@@ -729,6 +742,7 @@ void init_xml_node()
   rb_define_method(klass, "unlink", unlink_node, 0);
   rb_define_method(klass, "internal_subset", internal_subset, 0);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
+  rb_define_method(klass, "line", line, 0);
 
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
