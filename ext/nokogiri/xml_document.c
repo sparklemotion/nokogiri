@@ -33,14 +33,28 @@ static VALUE url(VALUE self)
  */
 static VALUE serialize(VALUE self)
 {
-  xmlDocPtr doc;
-  xmlChar *buf;
-  int size;
-  Data_Get_Struct(self, xmlDoc, doc);
+  xmlNodePtr doc;
+  xmlBufferPtr buf = xmlBufferCreate();
 
-  xmlDocDumpMemory(doc, &buf, &size);
-  VALUE rb_str = rb_str_new((char *)buf, (long)size);
-  xmlFree(buf);
+  Data_Get_Struct(self, xmlNode, doc);
+
+  xmlSaveCtxtPtr savectx = xmlSaveToBuffer(
+      buf,
+      NULL,
+      1
+  );
+
+  xmlSaveTree(savectx, doc);
+  xmlSaveFlush(savectx);
+
+  VALUE rb_str = rb_str_new(
+      (char *)buf->content,
+      (long)buf->use
+  );
+
+  xmlSaveClose(savectx);
+  xmlBufferEmpty(buf);
+  xmlBufferFree(buf);
   return rb_str;
 }
 
