@@ -1,14 +1,9 @@
 module Nokogiri
   module XML
     class Attr < Node
-      def value
-        content
-      end
-      alias :to_s :value
-
-      def content= value
-        self.value = value
-      end
+      alias :value :content
+      alias :to_s :content
+      alias :content= :value=
     end
   end
 end

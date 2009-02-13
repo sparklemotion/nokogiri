@@ -17,9 +17,7 @@ module Nokogiri
         level == 3
       end
 
-      def to_s
-        message
-      end
+      alias :to_s :message
     end
   end
 end

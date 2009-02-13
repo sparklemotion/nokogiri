@@ -152,15 +152,19 @@ module Nokogiri
         get(property)
       end
 
-      alias :next :next_sibling
-
-      def previous
-        previous_sibling
-      end
-
-      def remove
-        unlink
-      end
+      alias :next           :next_sibling
+      alias :previous       :previous_sibling
+      alias :remove         :unlink
+      alias :get_attribute  :[]
+      alias :set_attribute  :[]=
+      alias :text           :content
+      alias :inner_text     :content
+      alias :has_attribute? :key?
+      alias :<<             :add_child
+      alias :name           :node_name
+      alias :name=          :node_name=
+      alias :type           :node_type
+      alias :to_str         :text
 
       ####
       # Returns a hash containing the node's attributes.  The key is the
@@ -218,20 +222,6 @@ module Nokogiri
         end
       end
 
-      def has_attribute?(property)
-        key? property
-      end
-
-      alias :get_attribute :[]
-      def set_attribute(name, value)
-        self[name] = value
-      end
-
-      def text
-        content
-      end
-      alias :inner_text :text
-
       ####
       # Set the content to +string+.
       # If +encode+, encode any special characters first.
@@ -244,10 +234,6 @@ module Nokogiri
       def parent= parent_node
         parent_node.add_child(self)
         parent_node
-      end
-
-      def << child
-        add_child child
       end
 
       def comment?
@@ -333,24 +319,6 @@ Node.replace requires a Node argument, and cannot accept a Document.
           EOERR
         end
         replace_with_node new_node
-      end
-
-      def name
-        node_name
-      end
-
-      def name= new_name
-        self.node_name = new_name
-      end
-
-      ###
-      # Get the type for this Node
-      def type
-        node_type
-      end
-
-      def to_str
-        text
       end
 
       def == other

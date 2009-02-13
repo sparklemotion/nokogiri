@@ -41,13 +41,8 @@ module Nokogiri
         @node_cache ||= {}
       end
 
-      def to_xml
-        serialize
-      end
-
-      def inner_html
-        serialize
-      end
+      alias :to_xml :serialize
+      alias :inner_html :serialize
 
       def namespaces
         root ? root.collect_namespaces : {}
