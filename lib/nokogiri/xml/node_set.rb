@@ -170,11 +170,11 @@ module Nokogiri
       end
 
       def to_html *args
-        map { |x| x.to_html *args }.join('')
+        map { |x| x.to_html(*args) }.join('')
       end
 
       def to_xhtml *args
-        map { |x| x.to_xhtml *args }.join('')
+        map { |x| x.to_xhtml(*args) }.join('')
       end
 
       def to_xml *args
