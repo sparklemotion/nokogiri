@@ -10,7 +10,7 @@ module Nokogiri
           }
         end
         assert_equal('<div id="awesome"><h1>america</h1></div>',
-                     builder.to_html.gsub(/\n/, ''))
+                     builder.doc.root.to_html.gsub(/\n/, ''))
       end
 
       def test_has_ampersand
@@ -22,7 +22,7 @@ module Nokogiri
         end
         assert_equal(
           '<div class="rad" id="thing">&lt;awe&amp;some&gt;<b>hello &amp; world</b></div>',
-                     builder.to_html.gsub(/\n/, ''))
+                     builder.doc.root.to_html.gsub(/\n/, ''))
       end
 
       def test_multi_tags
@@ -34,7 +34,7 @@ module Nokogiri
         end
         assert_equal(
           '<div class="rad" id="thing">&lt;awesome&gt;<b>hello</b></div>',
-                     builder.doc.to_html.gsub(/\n/, ''))
+                     builder.doc.root.to_html.gsub(/\n/, ''))
       end
 
       def test_attributes_plus_block
@@ -44,7 +44,7 @@ module Nokogiri
           }
         end
         assert_equal('<div class="rad" id="thing">&lt;awesome&gt;</div>',
-                     builder.doc.to_html.chomp)
+                     builder.doc.root.to_html.chomp)
       end
 
       def test_builder_adds_attributes
@@ -52,14 +52,14 @@ module Nokogiri
           div.rad.thing! "tender div"
         end
         assert_equal('<div class="rad" id="thing">tender div</div>',
-                     builder.doc.to_html.chomp)
+                     builder.doc.root.to_html.chomp)
       end
 
       def test_bold_tag
         builder = Nokogiri::HTML::Builder.new do
           b "bold tag"
         end
-        assert_equal('<b>bold tag</b>', builder.doc.to_html.chomp)
+        assert_equal('<b>bold tag</b>', builder.doc.root.to_html.chomp)
       end
 
       def test_html_then_body_tag
@@ -71,7 +71,7 @@ module Nokogiri
           }
         end
         assert_equal('<html><body><b>bold tag</b></body></html>',
-                     builder.doc.to_html.chomp)
+                     builder.doc.root.to_html.chomp)
       end
       
       def test_instance_eval_with_delegation_to_block_context

@@ -293,8 +293,6 @@ module Nokogiri
         assert 1, @xml.search('//form').length
 
         assert_equal set[0].to_xml, second.to_xml
-        assert_equal set[0].to_xml(5), second.to_xml(5)
-        assert_not_equal set[0].to_xml, set[0].to_xml(5)
       end
 
       def test_illegal_replace_of_node_with_doc

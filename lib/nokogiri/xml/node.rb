@@ -327,6 +327,28 @@ Node.replace requires a Node argument, and cannot accept a Document.
         pointer_id == other.pointer_id
       end
 
+      def serialize encoding = nil, options = 1
+        native_serialize(encoding, options)
+      end
+
+      ###
+      # Serialize this Node to HTML using +encoding+
+      def to_html encoding = nil
+        serialize(encoding, 1 & 64)
+      end
+
+      ###
+      # Serialize this Node to XML using +encoding+
+      def to_xml encoding = nil
+        serialize(encoding, 1 & 32)
+      end
+
+      ###
+      # Serialize this Node to XML using +encoding+
+      def to_xhtml encoding = nil
+        serialize(encoding, 1 & 16)
+      end
+
       def self.new_from_str string
         $stderr.puts("This method is deprecated and will be removed in 1.2.0 or by March 1, 2009. Instead, use Nokogiri::HTML.fragment()")
         Nokogiri::HTML.fragment(string).first

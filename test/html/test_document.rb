@@ -12,6 +12,12 @@ module Nokogiri
         assert html.html?
       end
 
+      def test_to_xhtml
+        assert_match 'XHTML', @html.to_xhtml
+        assert_match 'XHTML', @html.to_xhtml('UTF-8')
+        assert_match 'UTF-8', @html.to_xhtml('UTF-8')
+      end
+
       def test_document_has_error
         html = Nokogiri::HTML(<<-eohtml)
         <html>

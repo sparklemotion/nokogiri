@@ -62,7 +62,7 @@ end
 def Nokogiri(*args, &block)
   if block_given?
     builder = Nokogiri::HTML::Builder.new(&block)
-    return builder.doc
+    return builder.doc.root
   else
     Nokogiri.parse(*args)
   end

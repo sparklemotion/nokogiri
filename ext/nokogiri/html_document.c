@@ -2,21 +2,21 @@
 
 /*
  * call-seq:
- *  serialize
+ *  new
  *
- * Serialize this document
+ * Create a new document
  */
-static VALUE serialize(VALUE self)
+static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
-  xmlDocPtr doc;
-  xmlChar *buf;
-  int size;
-  Data_Get_Struct(self, xmlDoc, doc);
+  VALUE uri, external_id;
 
-  htmlDocDumpMemory(doc, &buf, &size);
-  VALUE rb_str = rb_str_new((char *)buf, (long)size);
-  xmlFree(buf);
-  return rb_str;
+  rb_scan_args(argc, argv, "02", &uri, &external_id);
+
+  htmlDocPtr doc = htmlNewDoc(
+      RTEST(uri) ? (const xmlChar *)StringValuePtr(uri) : NULL,
+      RTEST(external_id) ? (const xmlChar *)StringValuePtr(external_id) : NULL
+  );
+  return Nokogiri_wrap_xml_document(klass, doc);
 }
 
 /*
@@ -90,7 +90,7 @@ void init_html_document()
   cNokogiriHtmlDocument = klass;
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
+  rb_define_singleton_method(klass, "new", new, -1);
 
   rb_define_method(klass, "type", type, 0);
-  rb_define_method(klass, "serialize", serialize, 0);
 }

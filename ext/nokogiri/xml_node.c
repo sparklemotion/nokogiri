@@ -502,61 +502,11 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 
 /*
  * call-seq:
- *  to_html
- *
- * Returns this node as HTML
- */
-static VALUE to_html(VALUE self)
-{
-  xmlBufferPtr buf ;
-  xmlNodePtr node ;
-  Data_Get_Struct(self, xmlNode, node);
-
-  VALUE html;
-
-  if(node->doc->type == XML_DOCUMENT_NODE)
-    return rb_funcall(self, rb_intern("to_xml"), 0);
-
-  buf = xmlBufferCreate() ;
-  htmlNodeDump(buf, node->doc, node);
-  html = rb_str_new2((char*)buf->content);
-  xmlBufferFree(buf);
-  return html ;
-}
-
-/*
- * call-seq:
- *  to_xml
- *
- * Returns this node as XML
- */
-static VALUE to_xml(int argc, VALUE *argv, VALUE self)
-{
-  xmlBufferPtr buf ;
-  xmlNodePtr node ;
-  VALUE xml, level;
-
-  if(rb_scan_args(argc, argv, "01", &level) == 0)
-    level = INT2NUM(1);
-
-  Check_Type(level, T_FIXNUM);
-
-  Data_Get_Struct(self, xmlNode, node);
-
-  buf = xmlBufferCreate() ;
-  xmlNodeDump(buf, node->doc, node, 2, NUM2INT(level));
-  xml = rb_str_new2((char*)buf->content);
-  xmlBufferFree(buf);
-  return xml ;
-}
-
-/*
- * call-seq:
- *  serialize
+ *  native_serialize
  *
  * Serialize this document
  */
-static VALUE serialize(VALUE self)
+static VALUE native_serialize(VALUE self, VALUE encoding, VALUE options)
 {
   xmlNodePtr doc;
   xmlBufferPtr buf = xmlBufferCreate();
@@ -565,8 +515,8 @@ static VALUE serialize(VALUE self)
 
   xmlSaveCtxtPtr savectx = xmlSaveToBuffer(
       buf,
-      NULL,
-      1
+      RTEST(encoding) ? StringValuePtr(encoding) : NULL,
+      NUM2INT(options)
   );
 
   xmlSaveTree(savectx, doc);
@@ -767,15 +717,13 @@ void init_xml_node()
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
-  rb_define_method(klass, "serialize", serialize, 0);
-  rb_define_method(klass, "to_xml", to_xml, -1);
-  rb_define_method(klass, "to_html", to_html, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "unlink", unlink_node, 0);
   rb_define_method(klass, "internal_subset", internal_subset, 0);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
 
+  rb_define_private_method(klass, "native_serialize", native_serialize, 2);
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);

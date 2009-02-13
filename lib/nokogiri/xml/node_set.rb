@@ -169,8 +169,12 @@ module Nokogiri
         map { |x| x.to_s }.join
       end
 
-      def to_html
-        map { |x| x.to_html }.join('')
+      def to_html *args
+        map { |x| x.to_html *args }.join('')
+      end
+
+      def to_xhtml *args
+        map { |x| x.to_xhtml *args }.join('')
       end
 
       def to_xml *args
