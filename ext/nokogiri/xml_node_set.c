@@ -110,7 +110,11 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set)
 VALUE cNokogiriXmlNodeSet ;
 void init_xml_node_set(void)
 {
-  VALUE klass = cNokogiriXmlNodeSet = rb_eval_string("Nokogiri::XML::NodeSet");
+  VALUE nokogiri  = rb_define_module("Nokogiri");
+  VALUE xml       = rb_define_module_under(nokogiri, "XML");
+  VALUE klass     = rb_define_class_under(xml, "NodeSet", rb_cObject);
+  cNokogiriXmlNodeSet = klass;
+
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "length", length, 0);
   rb_define_method(klass, "[]", index_at, 1);

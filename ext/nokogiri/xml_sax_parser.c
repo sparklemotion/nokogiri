@@ -191,8 +191,13 @@ static VALUE allocate(VALUE klass)
 VALUE cNokogiriXmlSaxParser ;
 void init_xml_sax_parser()
 {
-  VALUE klass = cNokogiriXmlSaxParser =
-    rb_const_get(mNokogiriXmlSax, rb_intern("Parser"));
+  VALUE nokogiri  = rb_define_module("Nokogiri");
+  VALUE xml       = rb_define_module_under(nokogiri, "XML");
+  VALUE sax       = rb_define_module_under(xml, "SAX");
+  VALUE klass     = rb_define_class_under(sax, "Parser", rb_cObject);
+
+  cNokogiriXmlSaxParser = klass;
+
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "parse_memory", parse_memory, 1);
   rb_define_private_method(klass, "native_parse_file", native_parse_file, 1);

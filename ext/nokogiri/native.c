@@ -16,12 +16,12 @@ void Init_native()
       strdup
   );
 
-  mNokogiri = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
-  mNokogiriXml = rb_const_get(mNokogiri, rb_intern("XML"));
-  mNokogiriHtml = rb_const_get(mNokogiri, rb_intern("HTML"));
-  mNokogiriXslt = rb_const_get(mNokogiri, rb_intern("XSLT"));
-  mNokogiriXmlSax = rb_const_get(mNokogiriXml, rb_intern("SAX"));
-  mNokogiriHtmlSax = rb_const_get(mNokogiriHtml, rb_intern("SAX"));
+  mNokogiri         = rb_define_module("Nokogiri");
+  mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
+  mNokogiriHtml     = rb_define_module_under(mNokogiri, "HTML");
+  mNokogiriXslt     = rb_define_module_under(mNokogiri, "XSLT");
+  mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");
+  mNokogiriHtmlSax  = rb_define_module_under(mNokogiriHtml, "SAX");
 
   rb_const_set( mNokogiri,
                 rb_intern("LIBXML_VERSION"),

@@ -233,9 +233,9 @@ static VALUE load_external_subsets_set(VALUE klass, VALUE value)
 VALUE cNokogiriXmlDocument ;
 void init_xml_document()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
+  VALUE nokogiri  = rb_define_module("Nokogiri");
+  VALUE xml       = rb_define_module_under(nokogiri, "XML");
+  VALUE node      = rb_define_class_under(xml, "Node", rb_cObject);
 
   /*
    * Nokogiri::XML::Document wraps an xml document.

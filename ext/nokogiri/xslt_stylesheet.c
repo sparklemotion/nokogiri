@@ -105,16 +105,11 @@ static VALUE apply_to(int argc, VALUE* argv, VALUE self)
 VALUE cNokogiriXsltStylesheet ;
 void init_xslt_stylesheet()
 {
-  /*
-   * HACK.  This is so that rdoc will work with this C file.
-   */
-  /*
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xslt = rb_define_module_under(nokogiri, "XSLT");
   VALUE klass = rb_define_class_under(xslt, "Stylesheet", rb_cObject);
-  */
 
-  VALUE klass = cNokogiriXsltStylesheet = rb_const_get(mNokogiriXslt, rb_intern("Stylesheet"));
+  cNokogiriXsltStylesheet = klass;
     
   rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
   rb_define_method(klass, "serialize", serialize, 1);

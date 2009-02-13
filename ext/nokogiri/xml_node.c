@@ -584,7 +584,6 @@ static VALUE serialize(VALUE self)
 }
 
 
-
 /*
  * call-seq:
  *   new(name)
@@ -727,13 +726,11 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 VALUE cNokogiriXmlNode ;
 void init_xml_node()
 {
-  /*
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
   VALUE klass = rb_define_class_under(xml, "Node", rb_cObject);
-  */
 
-  VALUE klass = cNokogiriXmlNode = rb_const_get(mNokogiriXml, rb_intern("Node"));
+  cNokogiriXmlNode = klass;
 
   rb_define_singleton_method(klass, "new", new, 2);
 

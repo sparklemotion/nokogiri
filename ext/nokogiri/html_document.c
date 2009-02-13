@@ -80,20 +80,14 @@ static VALUE type(VALUE self)
 VALUE cNokogiriHtmlDocument ;
 void init_html_document()
 {
-  /*
-   * HACK.  This is so that rdoc will work with this C file.
-   */
-  /*
-  VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE html = rb_define_module_under(nokogiri, "HTML");
-  VALUE xml = rb_define_module_under(nokogiri, "XML");
-  VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-  VALUE xml_doc = rb_define_class_under(xml, "Document", node);
-  VALUE klass = rb_define_class_under(html, "Document", xml_doc);
-  */
+  VALUE nokogiri  = rb_define_module("Nokogiri");
+  VALUE html      = rb_define_module_under(nokogiri, "HTML");
+  VALUE xml       = rb_define_module_under(nokogiri, "XML");
+  VALUE node      = rb_define_class_under(xml, "Node", rb_cObject);
+  VALUE xml_doc   = rb_define_class_under(xml, "Document", node);
+  VALUE klass     = rb_define_class_under(html, "Document", xml_doc);
 
-  VALUE klass ;
-  klass = cNokogiriHtmlDocument = rb_const_get(mNokogiriHtml, rb_intern("Document"));
+  cNokogiriHtmlDocument = klass;
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
 

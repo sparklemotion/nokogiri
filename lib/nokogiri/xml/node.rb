@@ -152,9 +152,7 @@ module Nokogiri
         get(property)
       end
 
-      def next
-        next_sibling
-      end
+      alias :next :next_sibling
 
       def previous
         previous_sibling
