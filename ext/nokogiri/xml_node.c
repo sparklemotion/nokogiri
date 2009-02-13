@@ -550,6 +550,40 @@ static VALUE to_xml(int argc, VALUE *argv, VALUE self)
   return xml ;
 }
 
+/*
+ * call-seq:
+ *  serialize
+ *
+ * Serialize this document
+ */
+static VALUE serialize(VALUE self)
+{
+  xmlNodePtr doc;
+  xmlBufferPtr buf = xmlBufferCreate();
+
+  Data_Get_Struct(self, xmlNode, doc);
+
+  xmlSaveCtxtPtr savectx = xmlSaveToBuffer(
+      buf,
+      NULL,
+      1
+  );
+
+  xmlSaveTree(savectx, doc);
+  xmlSaveFlush(savectx);
+
+  VALUE rb_str = rb_str_new(
+      (char *)buf->content,
+      (long)buf->use
+  );
+
+  xmlSaveClose(savectx);
+  xmlBufferEmpty(buf);
+  xmlBufferFree(buf);
+  return rb_str;
+}
+
+
 
 /*
  * call-seq:
@@ -723,6 +757,7 @@ void init_xml_node()
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
+  rb_define_method(klass, "serialize", serialize, 0);
   rb_define_method(klass, "to_xml", to_xml, -1);
   rb_define_method(klass, "to_html", to_html, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);

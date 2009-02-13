@@ -27,39 +27,6 @@ static VALUE url(VALUE self)
 
 /*
  * call-seq:
- *  serialize
- *
- * Serialize this document
- */
-static VALUE serialize(VALUE self)
-{
-  xmlNodePtr doc;
-  xmlBufferPtr buf = xmlBufferCreate();
-
-  Data_Get_Struct(self, xmlNode, doc);
-
-  xmlSaveCtxtPtr savectx = xmlSaveToBuffer(
-      buf,
-      NULL,
-      1
-  );
-
-  xmlSaveTree(savectx, doc);
-  xmlSaveFlush(savectx);
-
-  VALUE rb_str = rb_str_new(
-      (char *)buf->content,
-      (long)buf->use
-  );
-
-  xmlSaveClose(savectx);
-  xmlBufferEmpty(buf);
-  xmlBufferFree(buf);
-  return rb_str;
-}
-
-/*
- * call-seq:
  *  root=
  *
  * Set the root element on this document
@@ -285,7 +252,6 @@ void init_xml_document()
 
   rb_define_method(klass, "root", root, 0);
   rb_define_method(klass, "root=", set_root, 1);
-  rb_define_method(klass, "serialize", serialize, 0);
   rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
