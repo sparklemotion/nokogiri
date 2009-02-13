@@ -395,6 +395,21 @@ EOF
         assert_equal "c", set[2].namespace
         assert_equal nil, set[3].namespace
       end
+
+      def test_line
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>
+            Hello world
+          </a>
+        </root>
+        eoxml
+
+        set = xml.search("//a")
+        node = set.first
+        assert_equal 2, node.line
+      end
+
     end
   end
 end

@@ -51,6 +51,22 @@ extern VALUE mNokogiriXslt ;
 #define NOKOGIRI_DEBUG_START(p)
 #define NOKOGIRI_DEBUG_END(p)
 
+#ifndef RSTRING_PTR
+#define RSTRING_PTR(s) (RSTRING(s)->ptr)
+#endif
+
+#ifndef RSTRING_LEN
+#define RSTRING_LEN(s) (RSTRING(s)->len)
+#endif
+
+#ifndef RARRAY_PTR
+#define RARRAY_PTR(a) RARRAY(a)->ptr
+#endif
+
+#ifndef RARRAY_LEN
+#define RARRAY_LEN(a) RARRAY(a)->len
+#endif
+
 #endif
 
 #endif

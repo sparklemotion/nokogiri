@@ -9,6 +9,7 @@
   * XML::Node#keys get all attribute names
   * XML::Node#values get all attribute values
   * XML::Node#each iterate over attribute name, value pairs
+  * XML::Node#line get the line number for a node (Thanks Dirkjan Bussink!)
   * XML::ProcessingInstrunction.new
   * CSS search now supports CSS3 namespace queries
 
