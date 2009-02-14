@@ -1,10 +1,28 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 
+require 'stringio'
+
 module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
       def setup
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+      end
+
+      def test_write_to
+        io = StringIO.new
+        assert @xml.write_to io
+        io.rewind
+        assert_equal @xml.to_xml, io.read
+      end
+
+      %w{ xml html xhtml }.each do |type|
+        define_method(:"test_write_#{type}_to") do
+          io = StringIO.new
+          assert @xml.send(:"write_#{type}_to", io)
+          io.rewind
+          assert_equal @xml.send(:"to_#{type}"), io.read
+        end
       end
 
       def test_values

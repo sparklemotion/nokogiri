@@ -327,6 +327,8 @@ Node.replace requires a Node argument, and cannot accept a Document.
         pointer_id == other.pointer_id
       end
 
+      ###
+      # Serialize Node using +encoding+ and +options+
       def serialize encoding = nil, options = 1
         native_serialize(encoding, options)
       end
@@ -347,6 +349,30 @@ Node.replace requires a Node argument, and cannot accept a Document.
       # Serialize this Node to XML using +encoding+
       def to_xhtml encoding = nil
         serialize(encoding, 1 & 16)
+      end
+
+      ###
+      # Write Node to +io+ with +encoding+ and +options+
+      def write_to io, encoding = nil, options = 1
+        native_write_to(io, encoding, options)
+      end
+
+      ###
+      # Write Node as HTML to +io+ with +encoding+
+      def write_html_to io, encoding = nil
+        write_to io, encoding, 1 & 64
+      end
+
+      ###
+      # Write Node as XHTML to +io+ with +encoding+
+      def write_xhtml_to io, encoding = nil
+        write_to io, encoding, 1 & 16
+      end
+
+      ###
+      # Write Node as XML to +io+ with +encoding+
+      def write_xml_to io, encoding = nil
+        write_to io, encoding, 1 & 32
       end
 
       def self.new_from_str string

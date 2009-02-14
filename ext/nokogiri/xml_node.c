@@ -502,6 +502,31 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 
 /*
  * call-seq:
+ *  native_write_to(io, encoding, options)
+ *
+ * Write this Node to +io+ with +encoding+ and +options+
+ */
+static VALUE native_write_to(VALUE self, VALUE io, VALUE encoding, VALUE options)
+{
+  xmlNodePtr node;
+
+  Data_Get_Struct(self, xmlNode, node);
+
+  xmlSaveCtxtPtr savectx = xmlSaveToIO(
+      (xmlOutputWriteCallback)io_write_callback,
+      (xmlOutputCloseCallback)io_close_callback,
+      (void *)io,
+      RTEST(encoding) ? StringValuePtr(encoding) : NULL,
+      NUM2INT(options)
+  );
+
+  xmlSaveTree(savectx, node);
+  xmlSaveClose(savectx);
+  return io;
+}
+
+/*
+ * call-seq:
  *  native_serialize
  *
  * Serialize this document
@@ -723,6 +748,7 @@ void init_xml_node()
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
 
+  rb_define_private_method(klass, "native_write_to", native_write_to, 3);
   rb_define_private_method(klass, "native_serialize", native_serialize, 2);
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);

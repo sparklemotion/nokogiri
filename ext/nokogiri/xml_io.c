@@ -11,6 +11,14 @@ int io_read_callback(void * ctx, char * buffer, int len) {
   return RSTRING_LEN(string);
 }
 
+int io_write_callback(void * ctx, char * buffer, int len) {
+  VALUE io = (VALUE)ctx;
+  VALUE string = rb_str_new(buffer, len);
+
+  rb_funcall(io, rb_intern("write"), 1, string);
+  return len;
+}
+
 int io_close_callback(void * ctx) {
   return 0;
 }
