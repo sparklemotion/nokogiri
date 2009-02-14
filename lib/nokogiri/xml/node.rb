@@ -321,16 +321,56 @@ Node.replace requires a Node argument, and cannot accept a Document.
         replace_with_node new_node
       end
 
+      ###
+      # Test to see if this Node is equal to +other+
       def == other
         return false unless other
         return false unless other.respond_to?(:pointer_id)
         pointer_id == other.pointer_id
       end
 
+      FORMAT          = 1  # Format serialized xml
+      NO_DECLARATION  = 2  # Do not include delcarations
+      NO_EMPTY_TAGS   = 4
+      NO_XHTML        = 8
+      AS_XHTML        = 16
+      AS_XML          = 32
+      AS_HTML         = 64
+
       ###
-      # Serialize Node using +encoding+ and +options+
-      def serialize encoding = nil, options = 1
-        native_serialize(encoding, options)
+      # Save options for serializing nodes
+      SaveOptions = Class.new {
+        attr_reader :options
+        def initialize options; @options = options; end
+        %w{
+          format no_declaration no_empty_tags no_xhtml as_xhtml as_html as_xml
+        }.each do |type|
+          define_method(type.to_sym) do
+            @options &= Node.const_get(type.upcase.to_sym)
+            self
+          end
+        end
+      }
+
+      ###
+      # Serialize Node using +encoding+ and +save_options+.  Save options 
+      # can also be set using a block. See SaveOptions.
+      #
+      # These two statements are equivalent:
+      #
+      #  node.serialize('UTF-8', FORMAT & AS_XML)
+      #
+      # or
+      #
+      #   node.serialize('UTF-8') do |config|
+      #     config.format.as_xml
+      #   end
+      #
+      def serialize encoding = nil, save_options = 1
+        config = SaveOptions.new(save_options)
+        yield config if block_given?
+
+        native_serialize(encoding, config.options)
       end
 
       ###
@@ -352,9 +392,12 @@ Node.replace requires a Node argument, and cannot accept a Document.
       end
 
       ###
-      # Write Node to +io+ with +encoding+ and +options+
-      def write_to io, encoding = nil, options = 1
-        native_write_to(io, encoding, options)
+      # Write Node to +io+ with +encoding+ and +save_options+
+      def write_to io, encoding = nil, save_options = 1
+        config = SaveOptions.new(save_options)
+        yield config if block_given?
+
+        native_write_to(io, encoding, config.options)
       end
 
       ###
