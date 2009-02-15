@@ -84,7 +84,7 @@ Developing Nokogiri requires racc and frex.
 
 (The MIT License)
 
-Copyright (c) 2008:
+Copyright (c) 2008 - 2009:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]

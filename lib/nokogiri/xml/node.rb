@@ -23,6 +23,7 @@ module Nokogiri
       XINCLUDE_END =       20
       DOCB_DOCUMENT_NODE = 21
 
+      # The Document associated with this Node.
       attr_accessor :document
 
       ###
@@ -84,7 +85,7 @@ module Nokogiri
           Hash, String, Symbol
         ].include?(paths.last.class) ? paths.pop : nil
 
-        ns = paths.last.is_a?(Hash) ? paths.pop : {}
+        ns = paths.last.is_a?(Hash) ? paths.pop : document.root.namespaces
 
         return NodeSet.new(document) unless document.root
 
@@ -143,13 +144,18 @@ module Nokogiri
         xpath(*rules)
       end
 
-      def at path, ns = {}
+      ###
+      # Search for the first occurrence of +path+.
+      # Returns nil if nothing is found, otherwise a Node.
+      def at path, ns = document.root.namespaces
         search(path, ns).first
       end
 
-      def [](property)
-        return nil unless key?(property)
-        get(property)
+      ###
+      # Get the attribute value for the attribute +name+
+      def [](name)
+        return nil unless key?(name)
+        get(name)
       end
 
       alias :next           :next_sibling
@@ -175,14 +181,20 @@ module Nokogiri
         }.flatten)]
       end
 
+      ###
+      # Get the attribute values for this Node.
       def values
         attribute_nodes.map { |node| node.value }
       end
 
+      ###
+      # Get the attribute names for this Node.
       def keys
         attribute_nodes.map { |node| node.node_name }
       end
 
+      ###
+      # Iterate over each attribute name and value pair for this Node.
       def each &block
         attribute_nodes.each { |node|
           block.call(node.node_name, node.value)

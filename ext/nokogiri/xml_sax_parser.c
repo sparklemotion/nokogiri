@@ -45,6 +45,12 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
   return io;
 }
 
+/*
+ * call-seq:
+ *  native_parse_file(data)
+ *
+ * Parse the document stored in +data+
+ */
 static VALUE native_parse_file(VALUE self, VALUE data)
 {
   xmlSAXHandlerPtr handler;

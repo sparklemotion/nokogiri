@@ -10,10 +10,12 @@
   * XML::Node#each iterate over attribute name, value pairs
   * XML::Node#keys get all attribute names
   * XML::Node#line get the line number for a node (Thanks Dirkjan Bussink!)
+  * XML::Node#serialize now takes an optional encoding parameter
   * XML::Node#to_html, to_xml, and to_xhtml take an optional encoding
   * XML::Node#to_str
   * XML::Node#to_xhtml to produce XHTML documents
   * XML::Node#values get all attribute values
+  * XML::Node#write_to writes the node to an IO object with optional encoding
   * XML::ProcessingInstrunction.new
   * XML::SAX::PushParser for all your push parsing needs.
 

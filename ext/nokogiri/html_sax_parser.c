@@ -1,5 +1,11 @@
 #include <html_sax_parser.h>
 
+/*
+ * call-seq:
+ *  native_parse_file(data, encoding)
+ *
+ * Parse +data+ with +encoding+
+ */
 static VALUE native_parse_file(VALUE self, VALUE data, VALUE encoding)
 {
   xmlSAXHandlerPtr handler;
@@ -13,6 +19,12 @@ static VALUE native_parse_file(VALUE self, VALUE data, VALUE encoding)
   return data;
 }
 
+/*
+ * call-seq:
+ *  native_parse_memory(data, encoding)
+ *
+ * Parse +data+ with +encoding+
+ */
 static VALUE native_parse_memory(VALUE self, VALUE data, VALUE encoding)
 {
   xmlSAXHandlerPtr handler;
@@ -32,6 +44,10 @@ void init_html_sax_parser()
   VALUE nokogiri  = rb_define_module("Nokogiri");
   VALUE html      = rb_define_module_under(nokogiri, "HTML");
   VALUE sax       = rb_define_module_under(html, "SAX");
+  /*
+   * Nokogiri::HTML::SAX::Parser is used for parsing HTML with SAX
+   * callbacks.
+   */
   VALUE klass     = rb_define_class_under(sax, "Parser", cNokogiriXmlSaxParser);
 
   cNokogiriHtmlSaxParser = klass;
