@@ -7,6 +7,19 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_xmlns_is_automatically_registered
+        doc = Nokogiri::XML(<<-eoxml)
+          <root xmlns="http://tenderlovemaking.com/">
+            <foo>
+              bar
+            </foo>
+          </root>
+        eoxml
+        assert_equal 1, doc.css('xmlns|foo').length
+        assert_equal 1, doc.css('foo').length
+        assert_equal 0, doc.css('|foo').length
+      end
+
       # wtf...  osx's libxml sucks.
       unless Nokogiri::LIBXML_VERSION =~ /^2\.6\./
         def test_encoding
