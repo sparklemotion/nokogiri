@@ -12,10 +12,6 @@ module Nokogiri
         alias :cache_on? :cache_on
         alias :set_cache :cache_on=
 
-        def parse string
-          new.parse(string)
-        end
-
         def [] string
           return unless @cache_on
           @mutex.synchronize { @cache[string] }

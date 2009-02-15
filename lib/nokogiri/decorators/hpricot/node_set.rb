@@ -38,7 +38,7 @@ module Nokogiri
             return sub_set
           end
 
-          ctx = CSS::Parser.parse(rule.to_s)
+          ctx = CSS.parse(rule.to_s)
           visitor = CSS::XPathVisitor.new
           visitor.extend(Hpricot::XPathVisitor)
           each do |node|
