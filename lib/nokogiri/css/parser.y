@@ -67,8 +67,8 @@ rule
     ;
   element_name
     : namespace '|' IDENT {
-        result = Node.new(:NAMESPACE,
-          [val.first, Node.new(:ELEMENT_NAME, [val.last])]
+        result = Node.new(:ELEMENT_NAME,
+          [[val.first, val.last].compact.join(':')]
         )
       }
     | IDENT { result = Node.new(:ELEMENT_NAME, val) }
