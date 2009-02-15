@@ -66,8 +66,10 @@ rule
     : '.' IDENT { result = Node.new(:CLASS_CONDITION, [val[1]]) }
     ;
   element_name
-    : namespace '|' element_name {
-        result = Node.new(:NAMESPACE, [val.first, val.last])
+    : namespace '|' IDENT {
+        result = Node.new(:NAMESPACE,
+          [val.first, Node.new(:ELEMENT_NAME, [val.last])]
+        )
       }
     | IDENT { result = Node.new(:ELEMENT_NAME, val) }
     | '*' { result = Node.new(:ELEMENT_NAME, val) }
