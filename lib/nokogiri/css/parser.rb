@@ -16,10 +16,6 @@ module Nokogiri
           new.parse(string)
         end
 
-        def xpath_for string, options={}
-          new.xpath_for(string, options)
-        end
-
         def [] string
           return unless @cache_on
           @mutex.synchronize { @cache[string] }
@@ -47,7 +43,10 @@ module Nokogiri
         v = self.class[string]
         return v if v
 
-        args = [options[:prefix], options[:visitor]].compact
+        args = [
+          options[:prefix] || '//',
+          options[:visitor] || XPathVisitor.new
+        ]
         self.class[string] = parse(string).map { |ast|
           ast.to_xpath(*args)
         }

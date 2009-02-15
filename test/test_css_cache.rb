@@ -27,14 +27,12 @@ class TestCssCache < Nokogiri::TestCase
 
   [ false, true ].each do |cache_setting|
     define_method "test_css_cache_#{cache_setting ? "true" : "false"}" do
-      times = cache_setting ? 6 : nil
+      times = cache_setting ? 4 : nil
 
       Nokogiri::CSS::Parser.set_cache cache_setting
       
       Nokogiri::CSS.xpath_for(@css)
       Nokogiri::CSS.xpath_for(@css)
-      Nokogiri::CSS::Parser.xpath_for(@css)
-      Nokogiri::CSS::Parser.xpath_for(@css)
       Nokogiri::CSS::Parser.new.xpath_for(@css)
       Nokogiri::CSS::Parser.new.xpath_for(@css)
 
