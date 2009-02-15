@@ -33,6 +33,11 @@ module Nokogiri
           @cache_on = tmp
         end
       end
+
+      def initialize namespaces = {}
+        @namespaces = namespaces
+        super()
+      end
       alias :parse :scan_str
 
       def xpath_for string, options={}

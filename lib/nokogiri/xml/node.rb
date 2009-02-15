@@ -134,10 +134,10 @@ module Nokogiri
           Hash, String, Symbol
         ].include?(rules.last.class) ? rules.pop : nil
 
-        ns = rules.last.is_a?(Hash) ? rules.pop : {}
+        ns = rules.last.is_a?(Hash) ? rules.pop : document.root.namespaces
 
         rules = rules.map { |rule|
-          CSS.xpath_for(rule, :prefix => ".//")
+          CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
         }.flatten.uniq + [ns, handler].compact
 
         xpath(*rules)

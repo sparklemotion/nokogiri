@@ -3,6 +3,8 @@
 * New features
 
   * CSS search now supports CSS3 namespace queries
+  * Namespaces on the root node are automatically registered
+  * CSS queries use the default namespace
   * XML::Document#encoding get encoding used for this document
   * XML::Document#url get the document url
   * XML::Node#each iterate over attribute name, value pairs

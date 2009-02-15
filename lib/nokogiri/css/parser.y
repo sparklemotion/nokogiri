@@ -71,7 +71,10 @@ rule
           [[val.first, val.last].compact.join(':')]
         )
       }
-    | IDENT { result = Node.new(:ELEMENT_NAME, val) }
+    | IDENT {
+        name = @namespaces.key?('xmlns') ? "xmlns:#{val.first}" : val.first
+        result = Node.new(:ELEMENT_NAME, [name])
+      }
     | '*' { result = Node.new(:ELEMENT_NAME, val) }
     ;
   namespace
