@@ -1,3 +1,51 @@
+=== HEAD
+
+* 新しい機能
+  * CSS search now supports CSS3 namespace queries
+  * CSSの探すのは CSS3 名前空間の問い合わせが出来る
+
+  * Namespaces on the root node are automatically registered
+  * Root ノッドの名前空間は 自動的に登録する
+
+  * CSS queries use the default namespace
+  * CSSの問い合わせは初期設定名前空間を使う
+
+  * XML::Document#encoding get encoding used for this document
+  * XML::Document#encoding: このドキュメントのエンコード
+
+  * XML::Document#url get the document url
+  * XML::Document#url このドキュメントの URL
+
+  * XML::Node#each iterate over attribute name, value pairs
+  * XML::Node#each 
+
+  * XML::Node#keys get all attribute names
+  * XML::Node#keys 
+
+  * XML::Node#line get the line number for a node (Thanks Dirkjan Bussink!)
+  * XML::Node#serialize now takes an optional encoding parameter
+  * XML::Node#to_html, to_xml, and to_xhtml take an optional encoding
+  * XML::Node#to_str
+  * XML::Node#to_xhtml to produce XHTML documents
+  * XML::Node#values get all attribute values
+  * XML::Node#write_to writes the node to an IO object with optional encoding
+  * XML::ProcessingInstrunction.new
+  * XML::SAX::PushParser for all your push parsing needs.
+
+* バグの修正
+
+  * Fixed XML::Document#dup
+  * Fixed header detection. Thanks rubikitch!
+  * Fixed a problem where invalid CSS would cause the parser to hang
+
+* Deprecations
+
+  * Nokogiri::XML::Node.new_from_str will be deprecated in 1.3.0 or March 1
+
+* API Changes
+
+  * Nokogiri::HTML.fragment now returns an XML::DocumentFragment (LH #32)
+
 === 1.1.1
 
 * 新しい機能
