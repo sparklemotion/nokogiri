@@ -6,8 +6,6 @@ ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 LIBDIR = Config::CONFIG['libdir']
 INCLUDEDIR = Config::CONFIG['includedir']
 
-use_macports = !(defined?(RUBY_ENGINE) && RUBY_ENGINE != 'ruby')
-
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
   $LIBRUBYARG_STATIC.gsub!(/-static/, '')
 end
@@ -19,12 +17,10 @@ else
   $CFLAGS << " -g -DXP_UNIX"
 end
 
-$LIBPATH << "/opt/local/lib" if use_macports
-
 $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
 if Config::CONFIG['target_os'] == 'mingw32'
-  header = File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'include')
+  header = File.join(ROOT, 'cross', 'libxml2-2.7.3.win32', 'include')
   unless find_header('libxml/xmlversion.h', header)
     abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
   end
@@ -56,18 +52,13 @@ else
     '/usr/lib'
   ]
 
-  [
-    '/opt/local/include/libxml2',
-    '/opt/local/include',
-  ].each { |x| HEADER_DIRS.unshift(x) } if use_macports
-
-  xml2_dirs = dir_config('xml2')
+  xml2_dirs = dir_config('xml2', '/opt/local/include/libxml2', '/opt/local/lib')
   unless [nil, nil] == xml2_dirs
     HEADER_DIRS.unshift xml2_dirs.first
     LIB_DIRS.unshift xml2_dirs[1]
   end
 
-  xslt_dirs = dir_config('xslt')
+  xslt_dirs = dir_config('xslt', '/opt/local/include/', '/opt/local/lib')
   unless [nil, nil] == xslt_dirs
     HEADER_DIRS.unshift xslt_dirs.first
     LIB_DIRS.unshift xslt_dirs[1]
