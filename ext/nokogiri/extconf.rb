@@ -26,12 +26,12 @@ $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noretu
 if Config::CONFIG['target_os'] == 'mingw32'
   header = File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'include')
   unless find_header('libxml/xmlversion.h', header)
-    abort "need libxml"
+    abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
   end
 
   header = File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'include')
   unless find_header('libxslt/libxslt.h', header)
-    abort "need libxslt"
+    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
   end
   unless find_header('libexslt/libexslt.h', header)
     abort "need libexslt"
@@ -74,14 +74,14 @@ else
   end
 
   unless find_header('libxml/parser.h', *HEADER_DIRS)
-    abort "need libxml"
+    abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
   end
 
   unless find_header('libxslt/xslt.h', *HEADER_DIRS)
-    abort "need libxslt"
+    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
   end
   unless find_header('libexslt/exslt.h', *HEADER_DIRS)
-    abort "need libxslt"
+    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
   end
 end
 
@@ -94,15 +94,15 @@ if Config::CONFIG['target_os'] == 'mingw32'
                File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
 else
   unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
-    abort "need libxml2"
+    abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
   end
 
   unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
-    abort "need libxslt"
+    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
   end
 
   unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
-    abort "need libxslt"
+    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
   end
 end
 
