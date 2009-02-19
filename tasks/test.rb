@@ -117,7 +117,7 @@ namespace :test do
 
     test_results = {}
     Dir[File.join(MULTI_XML, 'install', '*')].each do |xml2_version|
-      extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib"
+      extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib --with-xslt-dir=/usr/local"
       cmd = "#{$0} clean test EXTOPTS='#{extopts}'"
 
       version = File.basename(xml2_version)

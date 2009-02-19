@@ -1,5 +1,7 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 
+require 'uri'
+
 module Nokogiri
   module XML
     class TestDocument < Nokogiri::TestCase
