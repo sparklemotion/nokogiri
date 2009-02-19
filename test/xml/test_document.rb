@@ -52,7 +52,7 @@ module Nokogiri
 
       def test_url
         assert @xml.url
-        assert_equal XML_FILE, @xml.url
+        assert_equal XML_FILE, @xml.url.sub('file:\/\/\/', '')
       end
 
       def test_document_parent
