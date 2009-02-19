@@ -1,3 +1,5 @@
+require 'stringio'
+
 module Nokogiri
   module XML
     class Node
@@ -378,11 +380,11 @@ Node.replace requires a Node argument, and cannot accept a Document.
       #     config.format.as_xml
       #   end
       #
-      def serialize encoding = nil, save_options = 1
-        config = SaveOptions.new(save_options)
-        yield config if block_given?
-
-        native_serialize(encoding, config.options)
+      def serialize encoding = nil, save_options = 1, &block
+        io = StringIO.new
+        write_to io, encoding, save_options, &block
+        io.rewind
+        io.read
       end
 
       ###

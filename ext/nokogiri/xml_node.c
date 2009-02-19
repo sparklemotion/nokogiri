@@ -527,39 +527,6 @@ static VALUE native_write_to(VALUE self, VALUE io, VALUE encoding, VALUE options
 
 /*
  * call-seq:
- *  native_serialize
- *
- * Serialize this document
- */
-static VALUE native_serialize(VALUE self, VALUE encoding, VALUE options)
-{
-  xmlNodePtr doc;
-  xmlBufferPtr buf = xmlBufferCreate();
-
-  Data_Get_Struct(self, xmlNode, doc);
-
-  xmlSaveCtxtPtr savectx = xmlSaveToBuffer(
-      buf,
-      RTEST(encoding) ? StringValuePtr(encoding) : NULL,
-      NUM2INT(options)
-  );
-
-  xmlSaveTree(savectx, doc);
-  xmlSaveFlush(savectx);
-
-  VALUE rb_str = rb_str_new(
-      (char *)buf->content,
-      (long)buf->use
-  );
-
-  xmlSaveClose(savectx);
-  xmlBufferEmpty(buf);
-  xmlBufferFree(buf);
-  return rb_str;
-}
-
-/*
- * call-seq:
  *  line
  *
  * Returns the line for this Node
@@ -749,7 +716,6 @@ void init_xml_node()
   rb_define_method(klass, "line", line, 0);
 
   rb_define_private_method(klass, "native_write_to", native_write_to, 3);
-  rb_define_private_method(klass, "native_serialize", native_serialize, 2);
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
