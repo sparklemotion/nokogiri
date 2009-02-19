@@ -23,6 +23,7 @@ module Nokogiri
         <html>
         </html>
         eohtml
+        assert html.to_html.length > 0, 'html length is too short'
         assert_no_match /^<\?xml/, html.to_html
       end
 
