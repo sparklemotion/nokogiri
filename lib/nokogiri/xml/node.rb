@@ -372,7 +372,7 @@ Node.replace requires a Node argument, and cannot accept a Document.
       #
       # These two statements are equivalent:
       #
-      #  node.serialize('UTF-8', FORMAT & AS_XML)
+      #  node.serialize('UTF-8', FORMAT | AS_XML)
       #
       # or
       #
@@ -390,19 +390,19 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Serialize this Node to HTML using +encoding+
       def to_html encoding = nil
-        serialize(encoding, 1 & 64)
+        serialize(encoding, 1 | 64)
       end
 
       ###
       # Serialize this Node to XML using +encoding+
       def to_xml encoding = nil
-        serialize(encoding, 1 & 32)
+        serialize(encoding, 1 | 32)
       end
 
       ###
       # Serialize this Node to XML using +encoding+
       def to_xhtml encoding = nil
-        serialize(encoding, 1 & 16)
+        serialize(encoding, 1 | 16)
       end
 
       ###
@@ -417,19 +417,19 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Write Node as HTML to +io+ with +encoding+
       def write_html_to io, encoding = nil
-        write_to io, encoding, 1 & 64
+        write_to io, encoding, 1 | 64
       end
 
       ###
       # Write Node as XHTML to +io+ with +encoding+
       def write_xhtml_to io, encoding = nil
-        write_to io, encoding, 1 & 16
+        write_to io, encoding, 1 | 16
       end
 
       ###
       # Write Node as XML to +io+ with +encoding+
       def write_xml_to io, encoding = nil
-        write_to io, encoding, 1 & 32
+        write_to io, encoding, 1 | 32
       end
 
       def self.new_from_str string
