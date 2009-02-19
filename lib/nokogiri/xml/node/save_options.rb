@@ -13,14 +13,18 @@ module Nokogiri
         AS_HTML         = 64
 
         attr_reader :options
-        def initialize options; @options = options; end
-        %w{
-          format no_declaration no_empty_tags no_xhtml as_xhtml as_html as_xml
-        }.each do |type|
-          define_method(type.to_sym) do
-            @options |= self.class.const_get(type.upcase.to_sym)
-            self
-          end
+        def initialize options = 0; @options = options; end
+        constants.each do |constant|
+          class_eval %{
+            def #{constant.downcase}
+              @options |= #{constant}
+              self
+            end
+
+            def #{constant.downcase}?
+              #{constant} & @options == #{constant}
+            end
+          }
         end
       end
     end
