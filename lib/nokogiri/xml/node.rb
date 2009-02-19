@@ -380,7 +380,7 @@ Node.replace requires a Node argument, and cannot accept a Document.
       #     config.format.as_xml
       #   end
       #
-      def serialize encoding = nil, save_options = 1, &block
+      def serialize encoding = nil, save_options = FORMAT, &block
         io = StringIO.new
         write_to io, encoding, save_options, &block
         io.rewind
@@ -390,24 +390,24 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Serialize this Node to HTML using +encoding+
       def to_html encoding = nil
-        serialize(encoding, 1 | 64)
+        serialize(encoding, FORMAT | AS_HTML)
       end
 
       ###
       # Serialize this Node to XML using +encoding+
       def to_xml encoding = nil
-        serialize(encoding, 1 | 32)
+        serialize(encoding, FORMAT | AS_XML)
       end
 
       ###
       # Serialize this Node to XML using +encoding+
       def to_xhtml encoding = nil
-        serialize(encoding, 1 | 16)
+        serialize(encoding, FORMAT | AS_XHTML)
       end
 
       ###
       # Write Node to +io+ with +encoding+ and +save_options+
-      def write_to io, encoding = nil, save_options = 1
+      def write_to io, encoding = nil, save_options = FORMAT
         config = SaveOptions.new(save_options)
         yield config if block_given?
 
@@ -417,19 +417,19 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Write Node as HTML to +io+ with +encoding+
       def write_html_to io, encoding = nil
-        write_to io, encoding, 1 | 64
+        write_to io, encoding, FORMAT | AS_HTML
       end
 
       ###
       # Write Node as XHTML to +io+ with +encoding+
       def write_xhtml_to io, encoding = nil
-        write_to io, encoding, 1 | 16
+        write_to io, encoding, FORMAT | AS_XHTML
       end
 
       ###
       # Write Node as XML to +io+ with +encoding+
       def write_xml_to io, encoding = nil
-        write_to io, encoding, 1 | 32
+        write_to io, encoding, FORMAT | AS_XML
       end
 
       def self.new_from_str string
