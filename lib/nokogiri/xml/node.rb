@@ -1,4 +1,5 @@
 require 'stringio'
+require 'nokogiri/xml/node/save_options'
 
 module Nokogiri
   module XML
@@ -343,29 +344,6 @@ Node.replace requires a Node argument, and cannot accept a Document.
         pointer_id == other.pointer_id
       end
 
-      FORMAT          = 1  # Format serialized xml
-      NO_DECLARATION  = 2  # Do not include delcarations
-      NO_EMPTY_TAGS   = 4
-      NO_XHTML        = 8
-      AS_XHTML        = 16
-      AS_XML          = 32
-      AS_HTML         = 64
-
-      ###
-      # Save options for serializing nodes
-      SaveOptions = Class.new {
-        attr_reader :options
-        def initialize options; @options = options; end
-        %w{
-          format no_declaration no_empty_tags no_xhtml as_xhtml as_html as_xml
-        }.each do |type|
-          define_method(type.to_sym) do
-            @options &= Node.const_get(type.upcase.to_sym)
-            self
-          end
-        end
-      }
-
       ###
       # Serialize Node using +encoding+ and +save_options+.  Save options 
       # can also be set using a block. See SaveOptions.
@@ -380,7 +358,7 @@ Node.replace requires a Node argument, and cannot accept a Document.
       #     config.format.as_xml
       #   end
       #
-      def serialize encoding = nil, save_options = FORMAT, &block
+      def serialize encoding = nil, save_options = SaveOptions::FORMAT, &block
         io = StringIO.new
         write_to io, encoding, save_options, &block
         io.rewind
@@ -390,24 +368,28 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Serialize this Node to HTML using +encoding+
       def to_html encoding = nil
-        serialize(encoding, FORMAT | AS_HTML)
+        serialize(encoding, SaveOptions::FORMAT |
+                            SaveOptions::NO_DECLARATION |
+                            SaveOptions::AS_HTML)
       end
 
       ###
       # Serialize this Node to XML using +encoding+
       def to_xml encoding = nil
-        serialize(encoding, FORMAT | AS_XML)
+        serialize(encoding, SaveOptions::FORMAT | SaveOptions::AS_XML)
       end
 
       ###
       # Serialize this Node to XML using +encoding+
       def to_xhtml encoding = nil
-        serialize(encoding, FORMAT | AS_XHTML)
+        serialize(encoding, SaveOptions::FORMAT |
+                            SaveOptions::NO_DECLARATION |
+                            SaveOptions::AS_XHTML)
       end
 
       ###
       # Write Node to +io+ with +encoding+ and +save_options+
-      def write_to io, encoding = nil, save_options = FORMAT
+      def write_to io, encoding = nil, save_options = SaveOptions::FORMAT
         config = SaveOptions.new(save_options)
         yield config if block_given?
 
@@ -417,19 +399,23 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Write Node as HTML to +io+ with +encoding+
       def write_html_to io, encoding = nil
-        write_to io, encoding, FORMAT | AS_HTML
+        write_to io, encoding, SaveOptions::FORMAT |
+          SaveOptions::NO_DECLARATION |
+          SaveOptions::AS_HTML
       end
 
       ###
       # Write Node as XHTML to +io+ with +encoding+
       def write_xhtml_to io, encoding = nil
-        write_to io, encoding, FORMAT | AS_XHTML
+        write_to io, encoding, SaveOptions::FORMAT |
+          SaveOptions::NO_DECLARATION |
+          SaveOptions::AS_XHTML
       end
 
       ###
       # Write Node as XML to +io+ with +encoding+
       def write_xml_to io, encoding = nil
-        write_to io, encoding, FORMAT | AS_XML
+        write_to io, encoding, SaveOptions::FORMAT | SaveOptions::AS_XML
       end
 
       def self.new_from_str string

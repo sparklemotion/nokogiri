@@ -18,6 +18,14 @@ module Nokogiri
         assert_match 'UTF-8', @html.to_xhtml('UTF-8')
       end
 
+      def test_no_xml_header
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+        </html>
+        eohtml
+        assert_no_match /^<\?xml/, html.to_html
+      end
+
       def test_document_has_error
         html = Nokogiri::HTML(<<-eohtml)
         <html>
