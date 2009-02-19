@@ -121,7 +121,43 @@ static void comment_func(void * ctx, const xmlChar * value)
   rb_funcall(doc, rb_intern("comment"), 1, str);
 }
 
-#ifndef XP_WIN
+#ifdef XP_WIN
+/*
+ * I srsly hate windows.  it doesn't have vasprintf.
+ * This is stolen from here:
+ *   http://eleves.ec-lille.fr/~couprieg/index.php?2008/06/17/39-first-issues-when-porting-an-application-on-windows-ce
+ * and slightly modified
+ */
+static inline int vasprintf(char **strp, const char *fmt, va_list ap) {
+  int n;
+  size_t size = 4096;
+  char *res, *np;
+
+  if ( (res = (char *) malloc(size)) == NULL )
+    return -1;
+
+  while (1) {
+    n = vsnprintf (res, size, fmt, ap);
+    /* If that worked, return the string. */
+    if (n > -1 && n < size) {
+      *strp = res;
+      return n;
+    }
+
+    /* Else try again with more space. */
+    if (n == -1)
+      size *= 2; /* twice the old size */
+
+    if ( (np = (char *) realloc(res, size)) == NULL ) {
+      free(res);
+      return -1;
+    } else {
+      res = np;
+    }
+  }
+}
+#endif
+
 static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
@@ -136,9 +172,7 @@ static void warning_func(void * ctx, const char *msg, ...)
   rb_funcall(doc, rb_intern("warning"), 1, rb_str_new2(message));
   free(message);
 }
-#endif
 
-#ifndef XP_WIN
 static void error_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
@@ -153,7 +187,6 @@ static void error_func(void * ctx, const char *msg, ...)
   rb_funcall(doc, rb_intern("error"), 1, rb_str_new2(message));
   free(message);
 }
-#endif
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
@@ -180,15 +213,8 @@ static VALUE allocate(VALUE klass)
   handler->endElement = end_element;
   handler->characters = characters_func;
   handler->comment = comment_func;
-#ifndef XP_WIN
-  /*
-   * The va*functions aren't in ming, and I don't want to deal with
-   * it right now.....
-   *
-   */
   handler->warning = warning_func;
   handler->error = error_func;
-#endif
   handler->cdataBlock = cdata_block;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);

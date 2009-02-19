@@ -169,8 +169,19 @@ namespace :build do
     dash_i = File.expand_path(
       File.join(File.dirname(__FILE__), 'cross/lib/ruby/1.8/i386-mingw32/')
     )
+
+    xml2_lib =
+      File.join(File.dirname(__FILE__), 'cross/libxml2-2.7.3.win32/bin')
+    xml2_inc =
+      File.join(File.dirname(__FILE__), 'cross/libxml2-2.7.3.win32/include')
+
+    xslt_lib =
+      File.join(File.dirname(__FILE__), 'cross/libxslt-1.1.24.win32/bin')
+    xslt_inc =
+      File.join(File.dirname(__FILE__), 'cross/libxslt-1.1.24.win32/include')
+
     Dir.chdir('ext/nokogiri') do
-      ruby " -I #{dash_i} extconf.rb"
+      ruby " -I #{dash_i} extconf.rb --with-xml2-lib=#{xml2_lib} --with-xml2-include=#{xml2_inc} --with-xslt-lib=#{xslt_lib} --with-xslt-include=#{xslt_inc}"
       sh 'make'
     end
     dlls = Dir[File.join(File.dirname(__FILE__), 'cross', '**/*.dll')]
@@ -183,7 +194,7 @@ namespace :build do
   libs = %w{
     iconv-1.9.2.win32
     zlib-1.2.3.win32
-    libxml2-2.7.2.win32
+    libxml2-2.7.3.win32
     libxslt-1.1.24.win32
   }
 

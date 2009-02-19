@@ -19,61 +19,48 @@ end
 
 $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
+HEADER_DIRS = [
+  File.join(INCLUDEDIR, "libxml2"),
+  INCLUDEDIR,
+  '/usr/local/include/libxml2',
+  '/usr/include/libxml2',
+]
+
+LIB_DIRS = [
+  LIBDIR,
+  '/opt/local/lib',
+  '/usr/local/lib',
+  '/usr/lib'
+]
+
 if Config::CONFIG['target_os'] == 'mingw32'
-  header = File.join(ROOT, 'cross', 'libxml2-2.7.3.win32', 'include')
-  unless find_header('libxml/xmlversion.h', header)
-    abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
-  end
-
-  header = File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'include')
-  unless find_header('libxslt/libxslt.h', header)
-    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
-  end
-  unless find_header('libexslt/libexslt.h', header)
-    abort "need libexslt"
-  end
-
   header = File.join(ROOT, 'cross', 'iconv-1.9.2.win32', 'include')
   unless find_header('iconv.h', header)
     abort "need iconv"
   end
-else
-  HEADER_DIRS = [
-    File.join(INCLUDEDIR, "libxml2"),
-    INCLUDEDIR,
-    '/usr/local/include/libxml2',
-    '/usr/include/libxml2',
-  ]
+end
 
-  LIB_DIRS = [
-    LIBDIR,
-    '/opt/local/lib',
-    '/usr/local/lib',
-    '/usr/lib'
-  ]
+xml2_dirs = dir_config('xml2', '/opt/local/include/libxml2', '/opt/local/lib')
+unless [nil, nil] == xml2_dirs
+  HEADER_DIRS.unshift xml2_dirs.first
+  LIB_DIRS.unshift xml2_dirs[1]
+end
 
-  xml2_dirs = dir_config('xml2', '/opt/local/include/libxml2', '/opt/local/lib')
-  unless [nil, nil] == xml2_dirs
-    HEADER_DIRS.unshift xml2_dirs.first
-    LIB_DIRS.unshift xml2_dirs[1]
-  end
+xslt_dirs = dir_config('xslt', '/opt/local/include/', '/opt/local/lib')
+unless [nil, nil] == xslt_dirs
+  HEADER_DIRS.unshift xslt_dirs.first
+  LIB_DIRS.unshift xslt_dirs[1]
+end
 
-  xslt_dirs = dir_config('xslt', '/opt/local/include/', '/opt/local/lib')
-  unless [nil, nil] == xslt_dirs
-    HEADER_DIRS.unshift xslt_dirs.first
-    LIB_DIRS.unshift xslt_dirs[1]
-  end
+unless find_header('libxml/parser.h', *HEADER_DIRS)
+  abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
+end
 
-  unless find_header('libxml/parser.h', *HEADER_DIRS)
-    abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
-  end
-
-  unless find_header('libxslt/xslt.h', *HEADER_DIRS)
-    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
-  end
-  unless find_header('libexslt/exslt.h', *HEADER_DIRS)
-    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
-  end
+unless find_header('libxslt/xslt.h', *HEADER_DIRS)
+  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
+end
+unless find_header('libexslt/exslt.h', *HEADER_DIRS)
+  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
 end
 
 if Config::CONFIG['target_os'] == 'mingw32'
