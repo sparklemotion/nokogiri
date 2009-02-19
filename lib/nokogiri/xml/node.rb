@@ -370,6 +370,7 @@ Node.replace requires a Node argument, and cannot accept a Document.
       def to_html encoding = nil
         doc = serialize(encoding, SaveOptions::FORMAT |
                             SaveOptions::NO_DECLARATION |
+                            SaveOptions::NO_EMPTY_TAGS |
                             SaveOptions::AS_HTML)
 
         return doc unless LIBXML_VERSION =~ /^2\.6\./

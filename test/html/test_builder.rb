@@ -10,7 +10,7 @@ module Nokogiri
           }
         end
         assert_equal('<div id="awesome"><h1>america</h1></div>',
-                     builder.doc.root.to_html.gsub(/\n/, ''))
+                     builder.doc.root.to_html.gsub(/\n/, '').gsub(/>\s*</, '><'))
       end
 
       def test_has_ampersand
@@ -71,7 +71,7 @@ module Nokogiri
           }
         end
         assert_equal('<html><body><b>bold tag</b></body></html>',
-                     builder.doc.root.to_html.chomp)
+                     builder.doc.root.to_html.chomp.gsub(/>\s*</, '><'))
       end
       
       def test_instance_eval_with_delegation_to_block_context

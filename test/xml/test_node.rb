@@ -25,7 +25,7 @@ module Nokogiri
         end
         io.rewind
         assert called
-        assert_equal @xml.serialize(nil, 1 & 64 & 4), io.read
+        assert_equal @xml.serialize(nil, 1 | 64 | 4), io.read
       end
 
       %w{ xml html xhtml }.each do |type|
@@ -44,7 +44,7 @@ module Nokogiri
           config.format.as_html.no_empty_tags
         end
         assert called
-        assert_equal @xml.serialize(nil, 1 & 64 & 4), string
+        assert_equal @xml.serialize(nil, 1 | 64 | 4), string
       end
 
       def test_values

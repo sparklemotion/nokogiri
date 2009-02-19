@@ -210,7 +210,7 @@ class TestParser < Nokogiri::TestCase
     ##
     #  MODIFIED: to be blank-agnostic, because Nokogiri's to_html is slightly different compared to Hpricot.
     assert_equal '<p class="last final"><b>THE FINAL PARAGRAPH</b></p>',
-        @basic.search('p:last').to_html.gsub(/\s+/,' ')
+        @basic.search('p:last').to_html.gsub(/\s+/,' ').gsub(/>\s*</, '><')
     assert_equal 'last final', @basic.search('p:last-of-type').first.get_attribute('class') # MODIFIED to not have '//' prefix
   end
 
@@ -220,7 +220,7 @@ class TestParser < Nokogiri::TestCase
       element.after('<p>Paragraph 1</p><p>Paragraph 2</p>')
     end
     assert_match '<div id="a-div"></div><p>Paragraph 1</p><p>Paragraph 2</p>',
-      doc.to_html.gsub(/\n/, '')
+      doc.to_html.gsub(/\n/, '').gsub(/>\s*</, '><')
   end
 
   def test_insert_before # ticket #61
@@ -229,7 +229,7 @@ class TestParser < Nokogiri::TestCase
       element.before('<p>Paragraph 1</p><p>Paragraph 2</p>')
     end
     assert_match '<p>Paragraph 1</p><p>Paragraph 2</p><div id="a-div"></div>',
-      doc.to_html.gsub(/\n/, '')
+      doc.to_html.gsub(/\n/, '').gsub(/>\s*</, '><')
   end
 
   def test_many_paths
