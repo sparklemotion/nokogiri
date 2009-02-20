@@ -12,6 +12,12 @@ module Nokogiri
         assert html.html?
       end
 
+      def test_parse_io
+        assert doc = File.open(HTML_FILE, 'rb') { |f|
+          Document.read_io(f, nil, 'UTF-8', PARSE_NOERROR | PARSE_NOWARNING)
+        }
+      end
+
       def test_to_xhtml
         assert_match 'XHTML', @html.to_xhtml
         assert_match 'XHTML', @html.to_xhtml('UTF-8')
