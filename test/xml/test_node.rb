@@ -9,6 +9,12 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_add_namespace
+        node = @xml.at('address')
+        node.add_namespace('foo', 'http://tenderlovemaking.com')
+        assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns:foo']
+      end
+
       def test_write_to
         io = StringIO.new
         @xml.write_to io

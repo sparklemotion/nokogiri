@@ -541,6 +541,35 @@ static VALUE line(VALUE self)
 
 /*
  * call-seq:
+ *  add_namespace(prefix, href)
+ *
+ * Add a namespace with +prefix+ using +href+
+ */
+static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+
+  xmlNsPtr ns = xmlNewNs(
+      node,
+      (const xmlChar *)StringValuePtr(href),
+      (const xmlChar *)StringValuePtr(prefix)
+  );
+
+  if(NULL == ns) return self;
+
+  xmlNewNsProp(
+      node,
+      ns,
+      (const xmlChar *)StringValuePtr(href),
+      (const xmlChar *)StringValuePtr(prefix)
+  );
+
+  return self;
+}
+
+/*
+ * call-seq:
  *   new(name)
  *
  * Create a new node with +name+
@@ -689,6 +718,7 @@ void init_xml_node()
 
   rb_define_singleton_method(klass, "new", new, 2);
 
+  rb_define_method(klass, "add_namespace", add_namespace, 2);
   rb_define_method(klass, "node_name", get_name, 0);
   rb_define_method(klass, "node_name=", set_name, 1);
   rb_define_method(klass, "add_child", add_child, 1);

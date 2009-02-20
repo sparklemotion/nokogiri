@@ -7,6 +7,7 @@
   * CSS queries use the default namespace
   * XML::Document#encoding get encoding used for this document
   * XML::Document#url get the document url
+  * XML::Node#add_namespace add a namespace to the node LH#38
   * XML::Node#each iterate over attribute name, value pairs
   * XML::Node#keys get all attribute names
   * XML::Node#line get the line number for a node (Thanks Dirkjan Bussink!)
