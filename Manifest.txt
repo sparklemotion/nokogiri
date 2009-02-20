@@ -87,6 +87,7 @@ lib/nokogiri/xml/dtd.rb
 lib/nokogiri/xml/element.rb
 lib/nokogiri/xml/entity_declaration.rb
 lib/nokogiri/xml/node.rb
+lib/nokogiri/xml/node/save_options.rb
 lib/nokogiri/xml/node_set.rb
 lib/nokogiri/xml/notation.rb
 lib/nokogiri/xml/processing_instruction.rb
@@ -142,6 +143,7 @@ test/test_memory_leak.rb
 test/test_nokogiri.rb
 test/test_reader.rb
 test/test_xslt_transforms.rb
+test/xml/node/test_save_options.rb
 test/xml/sax/test_parser.rb
 test/xml/sax/test_push_parser.rb
 test/xml/test_attr.rb

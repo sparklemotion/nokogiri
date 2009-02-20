@@ -32,6 +32,12 @@ module Nokogiri
           block.call
           @cache_on = tmp
         end
+
+        ###
+        # Parse this CSS selector in +selector+.  Returns an AST.
+        def parse selector
+          new.parse selector
+        end
       end
 
       def initialize namespaces = {}
