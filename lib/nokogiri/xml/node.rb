@@ -392,6 +392,7 @@ Node.replace requires a Node argument, and cannot accept a Document.
       def to_xhtml encoding = nil
         serialize(encoding, SaveOptions::FORMAT |
                             SaveOptions::NO_DECLARATION |
+                            SaveOptions::NO_EMPTY_TAGS |
                             SaveOptions::AS_XHTML)
       end
 
@@ -409,6 +410,7 @@ Node.replace requires a Node argument, and cannot accept a Document.
       def write_html_to io, encoding = nil
         write_to io, encoding, SaveOptions::FORMAT |
           SaveOptions::NO_DECLARATION |
+          SaveOptions::NO_EMPTY_TAGS |
           SaveOptions::AS_HTML
       end
 
@@ -417,6 +419,7 @@ Node.replace requires a Node argument, and cannot accept a Document.
       def write_xhtml_to io, encoding = nil
         write_to io, encoding, SaveOptions::FORMAT |
           SaveOptions::NO_DECLARATION |
+          SaveOptions::NO_EMPTY_TAGS |
           SaveOptions::AS_XHTML
       end
 

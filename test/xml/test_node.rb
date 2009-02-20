@@ -19,13 +19,15 @@ module Nokogiri
       def test_write_to_with_block
         called = false
         io = StringIO.new
+        conf = nil
         @xml.write_to io do |config|
           called = true
+          conf = config
           config.format.as_html.no_empty_tags
         end
         io.rewind
         assert called
-        assert_equal @xml.serialize(nil, 1 | 64 | 4), io.read
+        assert_equal @xml.serialize(nil, conf.options), io.read
       end
 
       %w{ xml html xhtml }.each do |type|
@@ -33,18 +35,20 @@ module Nokogiri
           io = StringIO.new
           assert @xml.send(:"write_#{type}_to", io)
           io.rewind
-          assert_equal @xml.send(:"to_#{type}"), io.read
+          assert_match @xml.send(:"to_#{type}"), io.read
         end
       end
 
       def test_serialize_with_block
         called = false
+        conf = nil
         string = @xml.serialize do |config|
           called = true
+          conf = config
           config.format.as_html.no_empty_tags
         end
         assert called
-        assert_equal @xml.serialize(nil, 1 | 64 | 4), string
+        assert_equal @xml.serialize(nil, conf.options), string
       end
 
       def test_values
