@@ -63,25 +63,16 @@ unless find_header('libexslt/exslt.h', *HEADER_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
 end
 
-if Config::CONFIG['target_os'] == 'mingw32'
-  find_library('xml2', 'xmlParseDoc',
-               File.join(ROOT, 'cross', 'libxml2-2.7.2.win32', 'bin'))
-  find_library('xslt', 'xsltParseStylesheetDoc',
-               File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
-  find_library('exslt', 'exsltFuncRegister',
-               File.join(ROOT, 'cross', 'libxslt-1.1.24.win32', 'bin'))
-else
-  unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
-    abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
-  end
+unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
+  abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
+end
 
-  unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
-    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
-  end
+unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
+  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
+end
 
-  unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
-    abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
-  end
+unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
+  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
 end
 
 create_makefile('nokogiri/native')
