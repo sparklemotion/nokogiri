@@ -105,6 +105,12 @@ module Nokogiri
         assert_equal 3, found.length
       end
 
+      def test_find_by_css_with_square_brackets
+        found = @html.css("div[@id='header'] > h1")
+        found = @html.css("div[@id='header'] h1") # this blows up on commit 6fa0f6d329d9dbf1cc21c0ac72f7e627bb4c05fc
+        assert_equal 1, found.length
+      end
+
       def test_dup_shallow
         found = @html.search('//div/a').first
         dup = found.dup(0)
