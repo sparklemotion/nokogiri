@@ -15,12 +15,6 @@ module Nokogiri
         assert_raises(CSS::SyntaxError) { @parser.parse("a[x=]") }
       end
 
-      # Used in webrat
-      def test_parser_class_can_parse_css
-        assert_xpath  "//a[starts-with(@id, 'Boing')]",
-                      Parser.parse("a[id^='Boing']")
-      end
-
       def test_find_by_type
         ast = @parser.parse("a:nth-child(2)").first
         matches = ast.find_by_type(

@@ -36,6 +36,11 @@ module Nokogiri
         ###
         # Parse this CSS selector in +selector+.  Returns an AST.
         def parse selector
+          @warned ||= false
+          unless @warned
+            $stderr.puts('Nokogiri::CSS::Parser.parse is deprecated, call Nokogiri::CSS.parse()')
+            @warned = true
+          end
           new.parse selector
         end
       end
