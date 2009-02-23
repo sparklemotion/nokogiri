@@ -20,7 +20,7 @@ static VALUE url(VALUE self)
   Data_Get_Struct(self, xmlDoc, doc);
 
   if(doc->URL)
-    return rb_str_new2((const char *)doc->URL);
+    return NOKOGIRI_WRAP_CSTR(doc->URL, doc);
 
   return Qnil;
 }
@@ -72,7 +72,7 @@ static VALUE encoding(VALUE self)
   Data_Get_Struct(self, xmlDoc, doc);
 
   if(!doc->encoding) return Qnil;
-  return rb_str_new2((const char *)doc->encoding);
+  return NOKOGIRI_WRAP_CSTR(doc->encoding, doc);
 }
 
 /*
