@@ -71,6 +71,12 @@ module Nokogiri
                       @parser.parse("a[@id='Boing']")
       end
 
+      def test_attributes_with_at_and_stuff
+        ## This is non standard CSS
+        assert_xpath  "//a[@id = 'Boing'] div",
+                      @parser.parse("a[@id='Boing'] div")
+      end
+
       def test_not_equal
         ## This is non standard CSS
         assert_xpath  "//a[child::text() != 'Boing']",
