@@ -22,10 +22,7 @@
   })
 #else
 #define NOKOGIRI_WRAP_CSTR(str, doc) \
-  ({ \
-    VALUE _string = rb_str_new2((const char *)(str)); \
-    _string; \
-  })
+  rb_str_new2((const char *)str)
 #endif
 
 #include <xml_io.h>
