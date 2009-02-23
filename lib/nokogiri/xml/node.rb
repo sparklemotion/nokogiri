@@ -369,9 +369,8 @@ Node.replace requires a Node argument, and cannot accept a Document.
       # Serialize this Node to HTML using +encoding+
       def to_html encoding = nil
         # FIXME: this is a hack around broken libxml versions
-        if Range.new(16, 20) === LIBXML_VERSION.split('.').last.to_i
-          return dump_html
-        end
+        return dump_html if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+
         serialize(encoding, SaveOptions::FORMAT |
                             SaveOptions::NO_DECLARATION |
                             SaveOptions::NO_EMPTY_TAGS |
@@ -387,6 +386,9 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Serialize this Node to XML using +encoding+
       def to_xhtml encoding = nil
+        # FIXME: this is a hack around broken libxml versions
+        return dump_html if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+
         serialize(encoding, SaveOptions::FORMAT |
                             SaveOptions::NO_DECLARATION |
                             SaveOptions::NO_EMPTY_TAGS |

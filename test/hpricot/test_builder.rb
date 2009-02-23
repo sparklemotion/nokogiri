@@ -17,11 +17,4 @@ class TestBuilder < Nokogiri::TestCase
       doc.to_html.chomp
     assert_equal %{&lt;a\"b&gt;}, doc.at("text()").to_s
   end
-
-  ####
-  # Modified
-  def test_latin1_entities
-    doc = Nokogiri.Hpricot() { b "\200\225" }
-    assert_match "<b>&#21;</b>", doc.to_html.chomp
-  end
 end

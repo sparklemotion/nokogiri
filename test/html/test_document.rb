@@ -166,7 +166,11 @@ module Nokogiri
         assert_equal 1, fragment.children.length
         assert_equal 'div', fragment.children.first.name
         assert_match(/Hello World/, fragment.to_html)
-        assert_equal 1, fragment.css('div').length
+
+        # libxml2 is broken in 2.6.16 and 2.6.17
+        unless [16, 17].include?(Nokogiri::LIBXML_VERSION.split('.').last.to_i)
+          assert_equal 1, fragment.css('div').length
+        end
       end
 
       def test_relative_css_finder
