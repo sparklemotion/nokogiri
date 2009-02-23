@@ -25,7 +25,7 @@ void Init_native()
 
   rb_const_set( mNokogiri,
                 rb_intern("LIBXML_VERSION"),
-                rb_str_new2(LIBXML_DOTTED_VERSION)
+                NOKOGIRI_WRAP_CSTR(LIBXML_DOTTED_VERSION, "UTF-8")
               );
 
   init_xml_document();

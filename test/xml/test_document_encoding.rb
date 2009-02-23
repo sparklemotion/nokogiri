@@ -15,6 +15,10 @@ module Nokogiri
       def test_encoding
         assert_equal @xml.encoding, @xml.encoding.encoding.name
       end
+
+      def test_dotted_version
+        assert_equal 'UTF-8', Nokogiri::LIBXML_VERSION.encoding.name
+      end
     end
    end
   end

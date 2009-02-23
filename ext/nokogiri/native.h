@@ -13,11 +13,11 @@
 #include <libxml/HTMLtree.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
-#define NOKOGIRI_WRAP_CSTR(str, doc) \
+#define NOKOGIRI_WRAP_CSTR(str, encoding) \
   ({ \
     VALUE _string = rb_str_new2((const char *)str); \
-    if(NULL != doc->encoding) \
-      rb_enc_associate_index(_string, rb_enc_find_index(doc->encoding)); \
+    if(NULL != encoding) \
+      rb_enc_associate_index(_string, rb_enc_find_index(encoding)); \
     _string; \
   })
 #else
