@@ -73,7 +73,7 @@ module Nokogiri
 
       def test_attributes_with_at_and_stuff
         ## This is non standard CSS
-        assert_xpath  "//a[@id = 'Boing'] div",
+        assert_xpath  "//a[@id = 'Boing']//div",
                       @parser.parse("a[@id='Boing'] div")
       end
 

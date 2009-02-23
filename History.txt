@@ -1,3 +1,9 @@
+=== HEAD
+
+* Bugfixes
+
+  * Fixed a CSS selector space bug
+
 === 1.2.0 / 2008-02-22
 
 * New features

@@ -111,6 +111,14 @@ module Nokogiri
         assert_equal 1, found.length
       end
 
+      def test_find_with_function
+        found = @html.css("div:awesome() h1", Class.new {
+          def awesome divs
+            [divs.first]
+          end
+        }.new)
+      end
+
       def test_dup_shallow
         found = @html.search('//div/a').first
         dup = found.dup(0)

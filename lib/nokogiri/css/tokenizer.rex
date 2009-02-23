@@ -32,9 +32,9 @@ rule
             {w}\*={w}        { [:SUBSTRINGMATCH, text] }
             {w}!={w}         { [:NOT_EQUAL, text] }
             {w}={w}          { [:EQUAL, text] }
-            {w}\){w}         { [:RPAREN, text] }
+            {w}\)            { [:RPAREN, text] }
             {w}\[{w}         { [:LSQUARE, text] }
-            {w}\]{w}         { [:RSQUARE, text] }
+            {w}\]            { [:RSQUARE, text] }
             {w}\+{w}         { [:PLUS, text] }
             {w}>{w}          { [:GREATER, text] }
             {w},{w}          { [:COMMA, text] }
