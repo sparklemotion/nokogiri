@@ -590,6 +590,32 @@ static VALUE new(VALUE klass, VALUE name, VALUE document)
   return rb_node;
 }
 
+/*
+ * call-seq:
+ *  dump_html
+ *
+ * Returns the Node as html.
+ * *DEPRECATED*
+ * ONLY USE THIS METHOD IF YOUR VERSION OF libxml2 IS OLDER THAN 2.7.x
+ */
+static VALUE dump_html(VALUE self)
+{
+  xmlBufferPtr buf ;
+  xmlNodePtr node ;
+  Data_Get_Struct(self, xmlNode, node);
+
+  VALUE html;
+
+  if(node->doc->type == XML_DOCUMENT_NODE)
+    return rb_funcall(self, rb_intern("to_xml"), 0);
+
+  buf = xmlBufferCreate() ;
+  htmlNodeDump(buf, node->doc, node);
+  html = rb_str_new2((char*)buf->content);
+  xmlBufferFree(buf);
+  return html ;
+}
+
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 {
   assert(node);
@@ -719,6 +745,7 @@ void init_xml_node()
   rb_define_singleton_method(klass, "new", new, 2);
 
   rb_define_method(klass, "add_namespace", add_namespace, 2);
+  rb_define_method(klass, "dump_html", dump_html, 0);
   rb_define_method(klass, "node_name", get_name, 0);
   rb_define_method(klass, "node_name=", set_name, 1);
   rb_define_method(klass, "add_child", add_child, 1);
