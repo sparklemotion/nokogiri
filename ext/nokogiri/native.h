@@ -12,6 +12,19 @@
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 
+#ifdef HAVE_RUBY_ENCODING_H
+#define NOKOGIRI_WRAP_CSTR(str, doc) \
+  ({ \
+    VALUE _string = rb_str_new2((const char *)str); \
+    if(NULL != doc->encoding) \
+      rb_enc_associate_index(_string, rb_enc_find_index(doc->encoding)); \
+    _string; \
+  })
+#else
+#define NOKOGIRI_WRAP_CSTR(str, doc) \
+  rb_str_new2((const char *)str);
+#endif
+
 #include <xml_io.h>
 #include <xml_document.h>
 #include <html_document.h>
