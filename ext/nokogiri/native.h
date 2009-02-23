@@ -13,6 +13,7 @@
 #include <libxml/HTMLtree.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
+#include <ruby/encoding.h>
 #define NOKOGIRI_WRAP_CSTR(str, encoding) \
   ({ \
     VALUE _string = rb_str_new2((const char *)str); \

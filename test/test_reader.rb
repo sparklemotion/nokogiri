@@ -136,8 +136,7 @@ class TestReader < Nokogiri::TestCase
     </awesome>
     eoxml
     reader = Nokogiri::XML::Reader.from_memory(string, nil, 'UTF-8')
-    assert_nil reader.encoding
-    assert_equal [nil], reader.map { |x| x.encoding }.uniq
+    assert_equal ['UTF-8'], reader.map { |x| x.encoding }.uniq
   end
 
   def test_xml_version

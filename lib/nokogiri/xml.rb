@@ -55,6 +55,10 @@ module Nokogiri
     PARSE_NOXINCNODE  = 1 << 15 # do not generate XINCLUDE START/END nodes
 
     class << self
+      def Reader string, url = nil, encoding = nil, options = 0
+        Reader.from_memory(string, url, encoding, options)
+      end
+
       ###
       # Parse an XML document.  See Nokogiri.XML.
       def parse string_or_io, url = nil, encoding = nil, options = 2159

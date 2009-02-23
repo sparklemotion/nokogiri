@@ -3,9 +3,11 @@ module Nokogiri
     class Reader
       include Enumerable
       attr_accessor :errors
+      attr_reader :encoding
 
-      def initialize
+      def initialize url = nil, encoding = nil
         @errors = []
+        @encoding = encoding
       end
 
       def attributes
