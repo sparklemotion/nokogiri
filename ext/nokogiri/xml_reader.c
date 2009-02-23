@@ -323,7 +323,9 @@ static VALUE namespace_uri(VALUE self)
   const char * uri = (const char *)xmlTextReaderConstNamespaceUri(reader);
   if(uri == NULL) return Qnil;
 
-  return rb_str_new2(uri);
+  VALUE enc = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_WRAP_CSTR(uri,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*
@@ -339,7 +341,9 @@ static VALUE local_name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstLocalName(reader);
   if(name == NULL) return Qnil;
 
-  return rb_str_new2(name);
+  VALUE enc = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_WRAP_CSTR(name,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*
@@ -355,7 +359,9 @@ static VALUE name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstName(reader);
   if(name == NULL) return Qnil;
 
-  return rb_str_new2(name);
+  VALUE enc = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_WRAP_CSTR(name,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*

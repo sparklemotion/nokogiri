@@ -86,6 +86,39 @@ module Nokogiri
             assert_equal reader.encoding, prefix.encoding.name
           end
         end
+
+        def test_ns_uri
+          xml = <<-eoxml
+    <x xmlns:edi='http://ecommerce.example.org/schema'>
+      <edi:foo>hello</edi:foo>
+    </x>
+          eoxml
+          reader = Nokogiri::XML::Reader(xml, nil, 'UTF-8')
+          reader.each do |node|
+            next unless uri = node.namespace_uri
+            assert_equal reader.encoding, uri.encoding.name
+          end
+        end
+
+        def test_local_name
+          xml = <<-eoxml
+    <x xmlns:edi='http://ecommerce.example.org/schema'>
+      <edi:foo>hello</edi:foo>
+    </x>
+          eoxml
+          reader = Nokogiri::XML::Reader(xml, nil, 'UTF-8')
+          reader.each do |node|
+            next unless lname = node.local_name
+            assert_equal reader.encoding, lname.encoding.name
+          end
+        end
+
+        def test_name
+          @reader.each do |node|
+            next unless name = node.name
+            assert_equal @reader.encoding, name.encoding.name
+          end
+        end
       end
     end
   end
