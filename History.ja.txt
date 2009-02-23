@@ -4,23 +4,23 @@
   * CSSサーチが CSS3 名前空間クエリをサポートするようになった
   * ルート要素での名前空間が自動的に登録されるようになった
   * CSS クエリが初期設定の名前空間を使うようになった
-  * XML::Document#encoding で文書にエンコードを使用、受け取る
-  * XML::Document#url で文書のURLを受け取る
-  * XML::Node#each　はname属性、値を一組にし反復適用する
-  * XML::Node#keys　はすべてのname属性を受け取る
-  * XML::Node#line は行番号をノード用に受け取る (Dirkjan Bussinkさんに感謝感激)
-  * XML::Node#serialize は任意されたencodingパラメーターを受け入れる
-  * XML::Node#to_html, to_xml, と to_xhtml は任意されたencodingパラメーターを受け入れる
-  * XML::Node#to_str
-  * XML::Node#to_xhtml でXHTML文書を生成する
-  * XML::Node#values が全ての属性値を受け入れる
-  * XML::Node#write_to は任意されたencodingで要素をIOオブジェクトへ書く
-  * XML::ProcessingInstrunction.new
-  * XML::SAX::PushParser は全てのプッシュパースに必要な解析をする
+  * Nokogiri::XML::Document#encoding で文書にエンコードを使用、受け取る
+  * Nokogiri::XML::Document#url で文書のURLを受け取る
+  * Nokogiri::XML::Node#each　はname属性、値を一組にし反復適用する
+  * Nokogiri::XML::Node#keys　はすべてのname属性を受け取る
+  * Nokogiri::XML::Node#line は行番号をノード用に受け取る (Dirkjan Bussinkさんに感謝感激)
+  * Nokogiri::XML::Node#serialize は任意されたencodingパラメーターを受け入れる
+  * Nokogiri::XML::Node#to_html, to_xml, と to_xhtml は任意されたencodingパラメーターを受け入れる
+  * Nokogiri::XML::Node#to_str
+  * Nokogiri::XML::Node#to_xhtml でXHTML文書を生成する
+  * Nokogiri::XML::Node#values が全ての属性値を受け入れる
+  * Nokogiri::XML::Node#write_to は任意されたencodingで要素をIOオブジェクトへ書く
+  * Nokogiri::XML::ProcessingInstrunction.new
+  * Nokogiri::XML::SAX::PushParser は全てのプッシュパースに必要な解析をする
 
 * バグの修正
 
-  * XML::Document#dup を修正
+  * Nokogiri::XML::Document#dup を修正
   * ヘッダ検知を修正. 謝々るびきちさん！
   * 無効なCSS内にて解析機能を動かなくさせる原因を修正
 
