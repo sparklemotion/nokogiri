@@ -368,17 +368,14 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Serialize this Node to HTML using +encoding+
       def to_html encoding = nil
-        doc = serialize(encoding, SaveOptions::FORMAT |
+        # FIXME: this is a hack around broken libxml versions
+        if Range.new(16, 20) === LIBXML_VERSION.split('.').last.to_i
+          return dump_html
+        end
+        serialize(encoding, SaveOptions::FORMAT |
                             SaveOptions::NO_DECLARATION |
                             SaveOptions::NO_EMPTY_TAGS |
                             SaveOptions::AS_HTML)
-
-        return doc unless LIBXML_VERSION =~ /^2\.6\./
-        # FIXME: this is a hack around broken libxml versions
-        if Range.new(16, 20) === LIBXML_VERSION.split('.').last.to_i
-          return doc.sub(/^<\?xml[^>]*>/, '')
-        end
-        doc
       end
 
       ###

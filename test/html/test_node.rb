@@ -14,14 +14,8 @@ module Nokogiri
         EOH
         nokogiri = Nokogiri::HTML.parse(html)
 
-        # Fuck.  libxml2 2.6.something breaks. ugh
-        if Nokogiri::LIBXML_VERSION =~ /^2\.6\./
-          assert_equal "<p>testparagraph\r\nfoobar</p>",
-            nokogiri.at("p").dump_html.gsub(/ /, '')
-        else
-          assert_equal "<p>testparagraph\r\nfoobar</p>",
-            nokogiri.at("p").to_html.gsub(/ /, '')
-        end
+        assert_equal "<p>testparagraph\r\nfoobar</p>",
+          nokogiri.at("p").to_html.gsub(/ /, '')
       end
     end
   end

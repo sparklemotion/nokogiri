@@ -595,8 +595,6 @@ static VALUE new(VALUE klass, VALUE name, VALUE document)
  *  dump_html
  *
  * Returns the Node as html.
- * *DEPRECATED*
- * ONLY USE THIS METHOD IF YOUR VERSION OF libxml2 IS OLDER THAN 2.7.x
  */
 static VALUE dump_html(VALUE self)
 {
@@ -745,7 +743,6 @@ void init_xml_node()
   rb_define_singleton_method(klass, "new", new, 2);
 
   rb_define_method(klass, "add_namespace", add_namespace, 2);
-  rb_define_method(klass, "dump_html", dump_html, 0);
   rb_define_method(klass, "node_name", get_name, 0);
   rb_define_method(klass, "node_name=", set_name, 1);
   rb_define_method(klass, "add_child", add_child, 1);
@@ -772,6 +769,7 @@ void init_xml_node()
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
 
+  rb_define_private_method(klass, "dump_html", dump_html, 0);
   rb_define_private_method(klass, "native_write_to", native_write_to, 3);
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
