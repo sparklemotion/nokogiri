@@ -39,7 +39,7 @@ static VALUE encode_special_chars(VALUE self, VALUE string)
       (const xmlChar *)StringValuePtr(string)
   );
 
-  VALUE encoded_str = NOKOGIRI_WRAP_CSTR(encoded, node->doc->encoding);
+  VALUE encoded_str = NOKOGIRI_STR_NEW2(encoded, node->doc->encoding);
   xmlFree(encoded);
 
   return encoded_str;
@@ -236,7 +236,7 @@ static VALUE get(VALUE self, VALUE attribute)
 
   if(NULL == propstr) return Qnil;
 
-  rval = NOKOGIRI_WRAP_CSTR(propstr, node->doc->encoding);
+  rval = NOKOGIRI_STR_NEW2(propstr, node->doc->encoding);
 
   xmlFree(propstr);
   return rval ;
@@ -291,7 +291,7 @@ static VALUE namespace(VALUE self)
   xmlNodePtr node ;
   Data_Get_Struct(self, xmlNode, node);
   if (node->ns && node->ns->prefix) {
-    return NOKOGIRI_WRAP_CSTR(node->ns->prefix, node->doc->encoding);
+    return NOKOGIRI_STR_NEW2(node->ns->prefix, node->doc->encoding);
   }
   return Qnil ;
 }
@@ -356,7 +356,7 @@ static VALUE get_content(VALUE self)
 
   xmlChar * content = xmlNodeGetContent(node);
   if(content) {
-    VALUE rval = NOKOGIRI_WRAP_CSTR(content, node->doc->encoding);
+    VALUE rval = NOKOGIRI_STR_NEW2(content, node->doc->encoding);
     xmlFree(content);
     return rval;
   }
@@ -430,7 +430,7 @@ static VALUE get_name(VALUE self)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
   if(node->name)
-    return NOKOGIRI_WRAP_CSTR(node->name, node->doc->encoding);
+    return NOKOGIRI_STR_NEW2(node->name, node->doc->encoding);
   return Qnil;
 }
 
@@ -447,7 +447,7 @@ static VALUE path(VALUE self)
   Data_Get_Struct(self, xmlNode, node);
   
   path = xmlGetNodePath(node);
-  VALUE rval = NOKOGIRI_WRAP_CSTR(path, node->doc->encoding);
+  VALUE rval = NOKOGIRI_STR_NEW2(path, node->doc->encoding);
   xmlFree(path);
   return rval ;
 }
@@ -609,7 +609,7 @@ static VALUE dump_html(VALUE self)
 
   buf = xmlBufferCreate() ;
   htmlNodeDump(buf, node->doc, node);
-  VALUE html = NOKOGIRI_WRAP_CSTR(buf->content, node->doc->encoding);
+  VALUE html = NOKOGIRI_STR_NEW2(buf->content, node->doc->encoding);
   xmlBufferFree(buf);
   return html ;
 }
@@ -723,8 +723,8 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
     }
 
     rb_hash_aset(attr_hash,
-        NOKOGIRI_WRAP_CSTR(key, node->doc->encoding),
-        NOKOGIRI_WRAP_CSTR(ns->href, node->doc->encoding)
+        NOKOGIRI_STR_NEW2(key, node->doc->encoding),
+        NOKOGIRI_STR_NEW2(ns->href, node->doc->encoding)
     );
     if (key != buffer) {
       free(key);

@@ -87,7 +87,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   if(atts) {
     while((attr = atts[i]) != NULL) {
       rb_funcall(attributes, rb_intern("<<"), 1,
-          NOKOGIRI_WRAP_CSTR(attr, RTEST(enc) ? StringValuePtr(enc) : NULL)
+          NOKOGIRI_STR_NEW2(attr, RTEST(enc) ? StringValuePtr(enc) : NULL)
       );
       i++;
     }
@@ -96,7 +96,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   rb_funcall( doc,
               rb_intern("start_element"),
               2,
-              NOKOGIRI_WRAP_CSTR(name, RTEST(enc) ? StringValuePtr(enc) : NULL),
+              NOKOGIRI_STR_NEW2(name, RTEST(enc) ? StringValuePtr(enc) : NULL),
               attributes
   );
 }
@@ -107,7 +107,7 @@ static void end_element(void * ctx, const xmlChar *name)
   VALUE enc = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   rb_funcall(doc, rb_intern("end_element"), 1,
-      NOKOGIRI_WRAP_CSTR(name, RTEST(enc) ? StringValuePtr(enc) : NULL)
+      NOKOGIRI_STR_NEW2(name, RTEST(enc) ? StringValuePtr(enc) : NULL)
   );
 }
 
@@ -125,7 +125,7 @@ static void comment_func(void * ctx, const xmlChar * value)
   VALUE self = (VALUE)ctx;
   VALUE enc = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE str = NOKOGIRI_WRAP_CSTR(value, RTEST(enc) ? StringValuePtr(enc):NULL);
+  VALUE str = NOKOGIRI_STR_NEW2(value, RTEST(enc) ? StringValuePtr(enc):NULL);
   rb_funcall(doc, rb_intern("comment"), 1, str);
 }
 

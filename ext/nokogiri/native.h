@@ -16,7 +16,7 @@
 
 #include <ruby/encoding.h>
 
-#define NOKOGIRI_WRAP_CSTR(str, encoding) \
+#define NOKOGIRI_STR_NEW2(str, encoding) \
   ({ \
     VALUE _string = rb_str_new2((const char *)str); \
     if(NULL != encoding) \
@@ -34,7 +34,7 @@
 
 #else
 
-#define NOKOGIRI_WRAP_CSTR(str, doc) \
+#define NOKOGIRI_STR_NEW2(str, doc) \
   rb_str_new2((const char *)str)
 
 #define NOKOGIRI_STR_NEW(str, len, doc) \

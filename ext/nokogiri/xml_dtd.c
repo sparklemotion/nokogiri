@@ -8,11 +8,11 @@ static void notation_copier(void *payload, void *data, xmlChar *name)
   xmlNotationPtr c_notation = (xmlNotationPtr)payload;
 
   VALUE notation = rb_funcall(klass, rb_intern("new"), 3,
-      c_notation->name ? NOKOGIRI_WRAP_CSTR(c_notation->name, "UTF-8") : Qnil,
-      c_notation->PublicID ? NOKOGIRI_WRAP_CSTR(c_notation->PublicID, "UTF-8") : Qnil,
-      c_notation->SystemID ? NOKOGIRI_WRAP_CSTR(c_notation->SystemID, "UTF-8") : Qnil);
+      c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name, "UTF-8") : Qnil,
+      c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID, "UTF-8") : Qnil,
+      c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID, "UTF-8") : Qnil);
 
-  rb_hash_aset(hash, NOKOGIRI_WRAP_CSTR(name, "UTF-8"),notation);
+  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name, "UTF-8"),notation);
 }
 
 static void element_copier(void *_payload, void *data, xmlChar *name)
@@ -22,7 +22,7 @@ static void element_copier(void *_payload, void *data, xmlChar *name)
 
   VALUE element = Nokogiri_wrap_xml_node(payload);
 
-  rb_hash_aset(hash, NOKOGIRI_WRAP_CSTR(name, payload->doc->encoding), element);
+  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name, payload->doc->encoding), element);
 }
 
 /*

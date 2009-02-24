@@ -164,7 +164,7 @@ static VALUE attribute_at(VALUE self, VALUE index)
   if(value == NULL) return Qnil;
 
   VALUE enc = rb_iv_get(self, "@encoding");
-  VALUE rb_value = NOKOGIRI_WRAP_CSTR(value,
+  VALUE rb_value = NOKOGIRI_STR_NEW2(value,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
   xmlFree(value);
   return rb_value;
@@ -202,7 +202,7 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   if(value == NULL) return Qnil;
 
   VALUE enc = rb_iv_get(self, "@encoding");
-  VALUE rb_value = NOKOGIRI_WRAP_CSTR(value,
+  VALUE rb_value = NOKOGIRI_STR_NEW2(value,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
   xmlFree(value);
   return rb_value;
@@ -253,7 +253,7 @@ static VALUE xml_version(VALUE self)
   const char * version = (const char *)xmlTextReaderConstXmlVersion(reader);
   if(version == NULL) return Qnil;
 
-  return NOKOGIRI_WRAP_CSTR(version, "UTF-8");
+  return NOKOGIRI_STR_NEW2(version, "UTF-8");
 }
 
 /*
@@ -270,7 +270,7 @@ static VALUE lang(VALUE self)
   if(lang == NULL) return Qnil;
 
   VALUE enc = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_WRAP_CSTR(lang,
+  return NOKOGIRI_STR_NEW2(lang,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
@@ -288,7 +288,7 @@ static VALUE value(VALUE self)
   if(value == NULL) return Qnil;
 
   VALUE enc = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_WRAP_CSTR(value,
+  return NOKOGIRI_STR_NEW2(value,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
@@ -306,7 +306,7 @@ static VALUE prefix(VALUE self)
   if(prefix == NULL) return Qnil;
 
   VALUE enc = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_WRAP_CSTR(prefix,
+  return NOKOGIRI_STR_NEW2(prefix,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
@@ -324,7 +324,7 @@ static VALUE namespace_uri(VALUE self)
   if(uri == NULL) return Qnil;
 
   VALUE enc = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_WRAP_CSTR(uri,
+  return NOKOGIRI_STR_NEW2(uri,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
@@ -342,7 +342,7 @@ static VALUE local_name(VALUE self)
   if(name == NULL) return Qnil;
 
   VALUE enc = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_WRAP_CSTR(name,
+  return NOKOGIRI_STR_NEW2(name,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
@@ -360,7 +360,7 @@ static VALUE name(VALUE self)
   if(name == NULL) return Qnil;
 
   VALUE enc = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_WRAP_CSTR(name,
+  return NOKOGIRI_STR_NEW2(name,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
