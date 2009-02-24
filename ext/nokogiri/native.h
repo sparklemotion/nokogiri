@@ -13,7 +13,9 @@
 #include <libxml/HTMLtree.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
+
 #include <ruby/encoding.h>
+
 #define NOKOGIRI_WRAP_CSTR(str, encoding) \
   ({ \
     VALUE _string = rb_str_new2((const char *)str); \
@@ -21,9 +23,22 @@
       rb_enc_associate_index(_string, rb_enc_find_index(encoding)); \
     _string; \
   })
+
+#define NOKOGIRI_STR_NEW(str, len, encoding) \
+  ({ \
+    VALUE _string = rb_str_new((const char *)str, (long)len); \
+    if(NULL != encoding) \
+      rb_enc_associate_index(_string, rb_enc_find_index(encoding)); \
+    _string; \
+  })
+
 #else
+
 #define NOKOGIRI_WRAP_CSTR(str, doc) \
   rb_str_new2((const char *)str)
+
+#define NOKOGIRI_STR_NEW(str, len, doc) \
+  rb_str_new((const char *)str, (long)len)
 #endif
 
 #include <xml_io.h>

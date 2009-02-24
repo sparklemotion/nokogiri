@@ -81,11 +81,14 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   VALUE self = (VALUE)ctx;
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE attributes = rb_ary_new();
+  VALUE enc = rb_iv_get(self, "@encoding");
   const xmlChar * attr;
   int i = 0;
   if(atts) {
     while((attr = atts[i]) != NULL) {
-      rb_funcall(attributes, rb_intern("<<"), 1, rb_str_new2((const char *)attr));
+      rb_funcall(attributes, rb_intern("<<"), 1,
+          NOKOGIRI_WRAP_CSTR(attr, RTEST(enc) ? StringValuePtr(enc) : NULL)
+      );
       i++;
     }
   }
@@ -93,7 +96,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   rb_funcall( doc,
               rb_intern("start_element"),
               2,
-              rb_str_new2((const char *)name),
+              NOKOGIRI_WRAP_CSTR(name, RTEST(enc) ? StringValuePtr(enc) : NULL),
               attributes
   );
 }
@@ -101,23 +104,28 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 static void end_element(void * ctx, const xmlChar *name)
 {
   VALUE self = (VALUE)ctx;
+  VALUE enc = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  rb_funcall(doc, rb_intern("end_element"), 1, rb_str_new2((const char *)name));
+  rb_funcall(doc, rb_intern("end_element"), 1,
+      NOKOGIRI_WRAP_CSTR(name, RTEST(enc) ? StringValuePtr(enc) : NULL)
+  );
 }
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
   VALUE self = (VALUE)ctx;
+  VALUE enc = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE str = rb_str_new((const char *)ch, (long)len);
+  VALUE str = NOKOGIRI_STR_NEW(ch, len, RTEST(enc) ? StringValuePtr(enc):NULL);
   rb_funcall(doc, rb_intern("characters"), 1, str);
 }
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
   VALUE self = (VALUE)ctx;
+  VALUE enc = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE str = rb_str_new2((const char *)value);
+  VALUE str = NOKOGIRI_WRAP_CSTR(value, RTEST(enc) ? StringValuePtr(enc):NULL);
   rb_funcall(doc, rb_intern("comment"), 1, str);
 }
 

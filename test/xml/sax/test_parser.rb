@@ -35,13 +35,37 @@ module Nokogiri
 
         def test_parse_io
           File.open(XML_FILE, 'rb') { |f|
-            @parser.parse_io(f, 1)
+            @parser.parse_io(f, 'UTF-8')
           }
           assert(@parser.document.cdata_blocks.length > 0)
           if RUBY_VERSION =~ /^1\.9/
+            called = false
             @parser.document.start_elements.flatten.each do |thing|
               assert_equal 'UTF-8', thing.encoding.name
+              called = true
             end
+            assert called
+
+            called = false
+            @parser.document.end_elements.flatten.each do |thing|
+              assert_equal 'UTF-8', thing.encoding.name
+              called = true
+            end
+            assert called
+
+            called = false
+            @parser.document.data.each do |thing|
+              assert_equal 'UTF-8', thing.encoding.name
+              called = true
+            end
+            assert called
+
+            called = false
+            @parser.document.comments.flatten.each do |thing|
+              assert_equal 'UTF-8', thing.encoding.name
+              called = true
+            end
+            assert called
           end
         end
 
