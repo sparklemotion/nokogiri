@@ -170,6 +170,7 @@ static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE enc = rb_iv_get(self, "@encoding");
   char * message;
 
   va_list args;
@@ -177,13 +178,16 @@ static void warning_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, rb_intern("warning"), 1, rb_str_new2(message));
+  rb_funcall(doc, rb_intern("warning"), 1,
+      NOKOGIRI_STR_NEW2(message, RTEST(enc) ? StringValuePtr(enc) : NULL)
+  );
   free(message);
 }
 
 static void error_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
+  VALUE enc = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   char * message;
 
@@ -192,15 +196,19 @@ static void error_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, rb_intern("error"), 1, rb_str_new2(message));
+  rb_funcall(doc, rb_intern("error"), 1,
+      NOKOGIRI_STR_NEW2(message, RTEST(enc) ? StringValuePtr(enc) : NULL)
+  );
   free(message);
 }
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
   VALUE self = (VALUE)ctx;
+  VALUE enc = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE string = rb_str_new((const char *)value, (long)len);
+  VALUE string =
+    NOKOGIRI_STR_NEW(value, len, RTEST(enc) ? StringValuePtr(enc) : NULL);
   rb_funcall(doc, rb_intern("cdata_block"), 1, string);
 }
 

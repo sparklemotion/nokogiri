@@ -25,8 +25,9 @@ module Nokogiri
       class PushParser
         attr_accessor :document
 
-        def initialize(doc = XML::SAX::Document.new, file_name = nil)
+        def initialize(doc = XML::SAX::Document.new, file_name = nil, encoding = 'ASCII')
           @document = doc
+          @encoding = encoding
           @sax_parser = XML::SAX::Parser.new(doc)
 
           ## Create our push parser context

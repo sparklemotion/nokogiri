@@ -66,6 +66,13 @@ module Nokogiri
               called = true
             end
             assert called
+
+            called = false
+            @parser.document.cdata_blocks.flatten.each do |thing|
+              assert_equal 'UTF-8', thing.encoding.name
+              called = true
+            end
+            assert called
           end
         end
 
