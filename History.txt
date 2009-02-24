@@ -1,8 +1,9 @@
-=== HEAD
+=== 1.2.1 / 2008-02-23
 
 * Bugfixes
 
   * Fixed a CSS selector space bug
+  * Fixed Ruby 1.9 String Encoding (Thanks 角谷さん！)
 
 === 1.2.0 / 2008-02-22
 
