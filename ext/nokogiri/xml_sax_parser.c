@@ -81,7 +81,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   VALUE self = (VALUE)ctx;
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE attributes = rb_ary_new();
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   const xmlChar * attr;
   int i = 0;
   if(atts) {
@@ -104,7 +104,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 static void end_element(void * ctx, const xmlChar *name)
 {
   VALUE self = (VALUE)ctx;
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   rb_funcall(doc, rb_intern("end_element"), 1,
       NOKOGIRI_STR_NEW2(name, RTEST(enc) ? StringValuePtr(enc) : NULL)
@@ -114,7 +114,7 @@ static void end_element(void * ctx, const xmlChar *name)
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
   VALUE self = (VALUE)ctx;
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE str = NOKOGIRI_STR_NEW(ch, len, RTEST(enc) ? StringValuePtr(enc):NULL);
   rb_funcall(doc, rb_intern("characters"), 1, str);
@@ -123,7 +123,7 @@ static void characters_func(void * ctx, const xmlChar * ch, int len)
 static void comment_func(void * ctx, const xmlChar * value)
 {
   VALUE self = (VALUE)ctx;
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE str = NOKOGIRI_STR_NEW2(value, RTEST(enc) ? StringValuePtr(enc):NULL);
   rb_funcall(doc, rb_intern("comment"), 1, str);
@@ -170,7 +170,7 @@ static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   char * message;
 
   va_list args;
@@ -187,7 +187,7 @@ static void warning_func(void * ctx, const char *msg, ...)
 static void error_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   char * message;
 
@@ -205,7 +205,7 @@ static void error_func(void * ctx, const char *msg, ...)
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
   VALUE self = (VALUE)ctx;
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE string =
     NOKOGIRI_STR_NEW(value, len, RTEST(enc) ? StringValuePtr(enc) : NULL);

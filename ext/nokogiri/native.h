@@ -12,6 +12,17 @@
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 
+
+#ifndef UNUSED
+# if defined(__GNUC__)
+#  define MAYBE_UNUSED(name) name __attribute__((unused))
+#  define UNUSED(name) MAYBE_UNUSED(UNUSED_ ## name)
+# else
+#  define MAYBE_UNUSED(name) name
+#  define UNUSED(name) name
+# endif
+#endif
+
 #ifdef HAVE_RUBY_ENCODING_H
 
 #include <ruby/encoding.h>

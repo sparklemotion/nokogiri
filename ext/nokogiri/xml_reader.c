@@ -134,8 +134,12 @@ static VALUE attribute_nodes(VALUE self)
   VALUE enc = rb_iv_get(self, "@encoding");
 
   if(enc != Qnil && NULL == ptr->doc->encoding) {
-    ptr->doc->encoding = calloc(RSTRING_LEN(enc), sizeof(char));
-    strncpy(ptr->doc->encoding, StringValuePtr(enc), RSTRING_LEN(enc));
+    ptr->doc->encoding = calloc((size_t)RSTRING_LEN(enc), sizeof(char));
+    strncpy(
+      (char *)ptr->doc->encoding,
+      StringValuePtr(enc),
+      (size_t)RSTRING_LEN(enc)
+    );
   }
 
   Nokogiri_xml_node_properties(ptr, attr);
@@ -163,7 +167,7 @@ static VALUE attribute_at(VALUE self, VALUE index)
   );
   if(value == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE rb_value = NOKOGIRI_STR_NEW2(value,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
   xmlFree(value);
@@ -201,7 +205,7 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   }
   if(value == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE rb_value = NOKOGIRI_STR_NEW2(value,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
   xmlFree(value);
@@ -269,7 +273,7 @@ static VALUE lang(VALUE self)
   const char * lang = (const char *)xmlTextReaderConstXmlLang(reader);
   if(lang == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(lang,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
@@ -287,7 +291,7 @@ static VALUE value(VALUE self)
   const char * value = (const char *)xmlTextReaderConstValue(reader);
   if(value == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(value,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
@@ -305,7 +309,7 @@ static VALUE prefix(VALUE self)
   const char * prefix = (const char *)xmlTextReaderConstPrefix(reader);
   if(prefix == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(prefix,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
@@ -323,7 +327,7 @@ static VALUE namespace_uri(VALUE self)
   const char * uri = (const char *)xmlTextReaderConstNamespaceUri(reader);
   if(uri == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(uri,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
@@ -341,7 +345,7 @@ static VALUE local_name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstLocalName(reader);
   if(name == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(name,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
@@ -359,7 +363,7 @@ static VALUE name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstName(reader);
   if(name == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(name,
       RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
