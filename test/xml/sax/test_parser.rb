@@ -22,6 +22,12 @@ module Nokogiri
           assert @parser.document.errors
           assert @parser.document.errors.length > 0
 
+          if RUBY_VERSION =~ /^1\.9/
+            doc.errors.each do |error|
+              assert_equal 'UTF-8', error.message.encoding.name
+            end
+          end
+
           assert_equal doc.errors.length, @parser.document.errors.length
         end
 
