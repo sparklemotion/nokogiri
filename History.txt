@@ -1,3 +1,9 @@
+=== HEAD
+
+* Bugfixes
+
+ * Fixed a tag nesting problem in the Builder API (LH #41)
+
 === 1.2.1 / 2008-02-23
 
 * Bugfixes

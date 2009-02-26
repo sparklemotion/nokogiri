@@ -13,6 +13,18 @@ module Nokogiri
                      builder.doc.root.to_html.gsub(/\n/, '').gsub(/>\s*</, '><'))
       end
 
+      def test_tag_nesting
+        builder = Nokogiri::HTML::Builder.new do
+          span.left ''
+          span.middle {
+            div.icon ''
+          }
+          span.right ''
+        end
+        assert node = builder.doc.css('span.right').first
+        assert_equal 'middle', node.previous_sibling['class']
+      end
+
       def test_has_ampersand
         builder = Nokogiri::HTML::Builder.new do
           div.rad.thing! {

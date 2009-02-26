@@ -73,8 +73,11 @@ module Nokogiri
             @node.content = args.first if args.first
           end
           if block_given?
+            old_parent = @doc_builder.parent
             @doc_builder.parent = @node
-            return @doc_builder.instance_eval(&block)
+            value = @doc_builder.instance_eval(&block)
+            @doc_builder.parent = old_parent
+            return value
           end
           self
         end
