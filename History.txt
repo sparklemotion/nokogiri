@@ -2,13 +2,13 @@
 
 * Bugfixes
 
- * Fixed a tag nesting problem in the Builder API (LH #41)
- * Nokogiri::HTML.fragment will properly handle text only nodes (LH #43)
- * Nokogiri::XML::Node#before will prepend text nodes (LH #44)
- * Nokogiri::XML::Node#after will append text nodes
- * Nokogiri::XML::Node#search automatically registers root namepsaces (LH #42)
- * Nokogiri::XML::NodeSet#search automatically registers namespaces
- * Nokogiri::HTML::NamedCharacters delegates to libxml2
+  * Fixed a tag nesting problem in the Builder API (LH #41)
+  * Nokogiri::HTML.fragment will properly handle text only nodes (LH #43)
+  * Nokogiri::XML::Node#before will prepend text nodes (LH #44)
+  * Nokogiri::XML::Node#after will append text nodes
+  * Nokogiri::XML::Node#search automatically registers root namepsaces (LH #42)
+  * Nokogiri::XML::NodeSet#search automatically registers namespaces
+  * Nokogiri::HTML::NamedCharacters delegates to libxml2
 
 === 1.2.1 / 2008-02-23
 
