@@ -20,6 +20,21 @@ module Nokogiri
         assert_equal 'some text', html.at('//body').children.first.content.strip
       end
 
+      def test_after_will_append_text_nodes
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <head></head>
+          <body>
+            <div>first</div>
+          </body>
+        </html>
+        eohtml
+
+        assert node = html.at('//body/div')
+        node.after "some text"
+        assert_equal 'some text', node.next.text.strip
+      end
+
       def test_to_html_does_not_contain_entities
         html = NKF.nkf("-e --msdos", <<-EOH)
         <html><body>

@@ -5,6 +5,7 @@ module Nokogiri
 
       def initialize node, original_html
         super
+        @direction = 'next'
         @after_nodes = []
       end
 
