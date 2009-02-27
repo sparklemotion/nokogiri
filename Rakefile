@@ -254,27 +254,8 @@ namespace :install do
   desc "Install frex and racc for development"
   task :deps => %w(frex racc)
 
-  directory "stash"
-
-  file "stash/racc-1.4.5-all.tar.gz" => "stash" do |t|
-    puts "Downloading racc to #{t.name}..."
-
-    Dir.chdir File.dirname(t.name) do
-      url = "http://i.loveruby.net/archive/racc/racc-1.4.5-all.tar.gz"
-      system "wget #{url} || curl -O #{url}"
-    end
-  end
-
-  task :racc => "stash/racc-1.4.5-all.tar.gz" do |t|
-    sh "tar xvf #{t.prerequisites.first} -C stash"
-
-    Dir.chdir "stash/#{File.basename(t.prerequisites.first, ".tar.gz")}" do
-      sh "ruby setup.rb config"
-      sh "ruby setup.rb setup"
-      sh "sudo ruby setup.rb install"
-    end
-
-    puts "The racc binary is likely in #{::Config::CONFIG["bindir"]}."
+  task :racc do |t|
+    sh "sudo gem install racc"
   end
 
   task :frex do
