@@ -55,10 +55,11 @@ module Nokogiri
       ###
       # Search this document for +paths+
       def search *paths
+        ns = paths.last.is_a?(Hash) ? paths.pop : document.root.namespaces
         sub_set = NodeSet.new(document)
         document.decorate(sub_set)
         each do |node|
-          node.search(*paths).each do |sub_node|
+          node.search(*(paths + [ns])).each do |sub_node|
             sub_set << sub_node
           end
         end

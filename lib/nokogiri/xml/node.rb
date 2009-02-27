@@ -56,10 +56,15 @@ module Nokogiri
       # optional hash of namespaces may be appended.
       # See Node#xpath and Node#css.
       def search *paths
-        ns = paths.last.is_a?(Hash) ? paths.pop : document.root.namespaces
+        ns = paths.last.is_a?(Hash) ? paths.pop :
+          (document.root ? document.root.namespaces : {})
         xpath(*(paths.map { |path|
           path = path.to_s
-          path =~ /^(\.\/|\/)/ ? path : CSS.xpath_for(path, :prefix => ".//")
+          path =~ /^(\.\/|\/)/ ? path : CSS.xpath_for(
+            path,
+            :prefix => ".//",
+            :ns     => ns
+          )
         }.flatten.uniq) + [ns])
       end
       alias :/ :search
@@ -88,7 +93,8 @@ module Nokogiri
           Hash, String, Symbol
         ].include?(paths.last.class) ? paths.pop : nil
 
-        ns = paths.last.is_a?(Hash) ? paths.pop : document.root.namespaces
+        ns = paths.last.is_a?(Hash) ? paths.pop :
+          (document.root ? document.root.namespaces : {})
 
         return NodeSet.new(document) unless document.root
 
@@ -138,7 +144,8 @@ module Nokogiri
           Hash, String, Symbol
         ].include?(rules.last.class) ? rules.pop : nil
 
-        ns = rules.last.is_a?(Hash) ? rules.pop : document.root.namespaces
+        ns = rules.last.is_a?(Hash) ? rules.pop :
+          (document.root ? document.root.namespaces : {})
 
         rules = rules.map { |rule|
           CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
