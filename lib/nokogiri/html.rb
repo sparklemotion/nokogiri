@@ -43,6 +43,9 @@ module Nokogiri
         fragment = XML::DocumentFragment.new(doc)
         finder = lambda { |c, f|
           c.each do |child|
+            if string == child.content && child.name == 'text'
+              fragment.add_child(child)
+            end
             fragment.add_child(child) if string =~ /<#{child.name}/
           end
           return fragment if fragment.children.length > 0

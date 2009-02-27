@@ -3,6 +3,7 @@
 * Bugfixes
 
  * Fixed a tag nesting problem in the Builder API (LH #41)
+ * Nokogiri::HTML.fragment will properly handle text only nodes (LH #43)
 
 === 1.2.1 / 2008-02-23
 
