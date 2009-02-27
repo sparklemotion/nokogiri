@@ -20,6 +20,10 @@ module Nokogiri
 
       def characters string
         node = @stack.last
+        unless node
+          node = Nokogiri::XML::Text.new(string, @document)
+          return @node.add_previous_sibling node
+        end
         node.content += string
       end
 
