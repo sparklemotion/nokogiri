@@ -8,6 +8,7 @@
  * Nokogiri::XML::Node#after will append text nodes
  * Nokogiri::XML::Node#search automatically registers root namepsaces (LH #42)
  * Nokogiri::XML::NodeSet#search automatically registers namespaces
+ * Nokogiri::HTML::NamedCharacters delegates to libxml2
 
 === 1.2.1 / 2008-02-23
 

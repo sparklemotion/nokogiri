@@ -54,6 +54,7 @@
 
 #include <xml_io.h>
 #include <xml_document.h>
+#include <html_entity_lookup.h>
 #include <html_document.h>
 #include <xml_node.h>
 #include <xml_text.h>

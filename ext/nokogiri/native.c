@@ -48,4 +48,5 @@ void Init_native()
   init_html_sax_parser();
   init_xslt_stylesheet();
   init_xml_syntax_error();
+  init_html_entity_lookup();
 }
