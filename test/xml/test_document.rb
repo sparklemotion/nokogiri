@@ -102,7 +102,11 @@ module Nokogiri
       def test_search_on_empty_documents
         doc = Nokogiri::XML::Document.new
         ns = doc.search('//foo')
+        assert_equal 0, ns.length
+
         ns = doc.css('foo')
+        assert_equal 0, ns.length
+
         ns = doc.xpath('//foo')
         assert_equal 0, ns.length
       end

@@ -52,14 +52,15 @@ module Nokogiri
       alias :parse :scan_str
 
       def xpath_for string, options={}
-        v = self.class[string]
+        key = string + options[:ns].to_s
+        v = self.class[key]
         return v if v
 
         args = [
           options[:prefix] || '//',
           options[:visitor] || XPathVisitor.new
         ]
-        self.class[string] = parse(string).map { |ast|
+        self.class[key] = parse(string).map { |ast|
           ast.to_xpath(*args)
         }
       end
