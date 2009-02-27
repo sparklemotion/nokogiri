@@ -20,6 +20,9 @@ module Nokogiri
         assert_equal 1, doc.css('xmlns|foo').length
         assert_equal 1, doc.css('foo').length
         assert_equal 0, doc.css('|foo').length
+        assert_equal 1, doc.xpath('//xmlns:foo').length
+        assert_equal 1, doc.search('xmlns|foo').length
+        assert_equal 1, doc.search('//xmlns:foo').length
       end
 
       # wtf...  osx's libxml sucks.

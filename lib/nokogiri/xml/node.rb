@@ -56,7 +56,7 @@ module Nokogiri
       # optional hash of namespaces may be appended.
       # See Node#xpath and Node#css.
       def search *paths
-        ns = paths.last.is_a?(Hash) ? paths.pop : {}
+        ns = paths.last.is_a?(Hash) ? paths.pop : document.root.namespaces
         xpath(*(paths.map { |path|
           path = path.to_s
           path =~ /^(\.\/|\/)/ ? path : CSS.xpath_for(path, :prefix => ".//")

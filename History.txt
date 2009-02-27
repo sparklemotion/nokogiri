@@ -6,6 +6,7 @@
  * Nokogiri::HTML.fragment will properly handle text only nodes (LH #43)
  * Nokogiri::XML::Node#before will prepend text nodes (LH #44)
  * Nokogiri::XML::Node#after will append text nodes
+ * Nokogiri::XML::Node#search automatically registers root namepsaces (LH #42)
 
 === 1.2.1 / 2008-02-23
 
