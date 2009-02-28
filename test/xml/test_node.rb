@@ -22,6 +22,10 @@ module Nokogiri
         assert_equal @xml.to_xml, io.read
       end
 
+      def test_attribute_with_symbol
+        assert_equal 'Yes', @xml.css('address').first[:domestic]
+      end
+
       def test_write_to_with_block
         called = false
         io = StringIO.new

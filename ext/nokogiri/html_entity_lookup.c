@@ -15,7 +15,7 @@ static VALUE get(VALUE self, VALUE key)
   VALUE klass = rb_const_get(mNokogiriHtml, rb_intern("EntityDescription"));
 
   return rb_funcall(klass, rb_intern("new"), 3,
-      INT2NUM(desc->value),
+      INT2NUM((int)desc->value),
       NOKOGIRI_STR_NEW2(desc->name, "UTF-8"),
       NOKOGIRI_STR_NEW2(desc->desc, "UTF-8"));
 }
