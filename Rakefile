@@ -21,6 +21,9 @@ require 'nokogiri/version'
 HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
   p.developer('Mike Dalessio', 'mike.dalessio@gmail.com')
+  p.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
+  p.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
+  p.extra_rdoc_files  = [p.readme_file]
   p.clean_globs = [
     'ext/nokogiri/Makefile',
     'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
