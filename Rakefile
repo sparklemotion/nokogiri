@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'rake'
+require 'hoe'
 
 
 kind = Config::CONFIG['DLEXT']
@@ -9,8 +10,6 @@ windows = RUBY_PLATFORM =~ /mswin/i ? true : false
 
 LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 $LOAD_PATH << LIB_DIR
-
-require 'vendor/hoe'
 
 GENERATED_PARSER = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
