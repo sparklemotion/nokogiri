@@ -35,6 +35,22 @@ module Nokogiri
         assert_equal 'some text', node.next.text.strip
       end
 
+      def test_replace
+        doc = Nokogiri::HTML(<<-eohtml)
+          <html>
+            <head></head>
+            <body>
+              <center><img src='logo.gif' /></center>
+            </body>
+          </html>
+        eohtml
+        center = doc.at("//center")
+        img = center.search("//img")
+        assert_raises ArgumentError do
+          center.replace img
+        end
+      end
+
       def test_to_html_does_not_contain_entities
         html = NKF.nkf("-e --msdos", <<-EOH)
         <html><body>
