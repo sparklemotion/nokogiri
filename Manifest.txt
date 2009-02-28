@@ -1,12 +1,15 @@
-History.ja.txt
-History.txt
+.autotest
+CHANGELOG.ja.rdoc
+CHANGELOG.rdoc
 Manifest.txt
-README.ja.txt
-README.txt
+README.ja.rdoc
+README.rdoc
 Rakefile
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
 ext/nokogiri/html_document.h
+ext/nokogiri/html_entity_lookup.c
+ext/nokogiri/html_entity_lookup.h
 ext/nokogiri/html_sax_parser.c
 ext/nokogiri/html_sax_parser.h
 ext/nokogiri/native.c
@@ -71,6 +74,7 @@ lib/nokogiri/hpricot.rb
 lib/nokogiri/html.rb
 lib/nokogiri/html/builder.rb
 lib/nokogiri/html/document.rb
+lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
@@ -135,6 +139,7 @@ test/hpricot/test_xml.rb
 test/html/sax/test_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
+test/html/test_named_characters.rb
 test/html/test_node.rb
 test/test_convert_xpath.rb
 test/test_css_cache.rb
@@ -163,4 +168,3 @@ test/xml/test_processing_instruction.rb
 test/xml/test_reader_encoding.rb
 test/xml/test_text.rb
 test/xml/test_xpath.rb
-vendor/hoe.rb
