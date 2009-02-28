@@ -10,6 +10,7 @@
   * Nokogiri::XML::NodeSet#search automatically registers namespaces
   * Nokogiri::HTML::NamedCharacters delegates to libxml2
   * Nokogiri::XML::Node#[] can take a symbol (LH #48)
+  * vasprintf for windows updated.  Thanks Geoffroy Couprie!
 
 === 1.2.1 / 2008-02-23
 

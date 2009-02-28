@@ -132,37 +132,16 @@ static void comment_func(void * ctx, const xmlChar * value)
 #ifdef XP_WIN
 /*
  * I srsly hate windows.  it doesn't have vasprintf.
- * This is stolen from here:
- *   http://eleves.ec-lille.fr/~couprieg/index.php?2008/06/17/39-first-issues-when-porting-an-application-on-windows-ce
- * and slightly modified
+ * Thank you Geoffroy Couprie for this implementation of vasprintf!
  */
-static inline int vasprintf(char **strp, const char *fmt, va_list ap) {
-  int n;
-  size_t size = 4096;
-  char *res, *np;
-
-  if ( (res = (char *) malloc(size)) == NULL )
-    return -1;
-
-  while (1) {
-    n = vsnprintf (res, size, fmt, ap);
-    /* If that worked, return the string. */
-    if (n > -1 && n < size) {
-      *strp = res;
-      return n;
-    }
-
-    /* Else try again with more space. */
-    if (n == -1)
-      size *= 2; /* twice the old size */
-
-    if ( (np = (char *) realloc(res, size)) == NULL ) {
-      free(res);
+static int vasprintf (char **strp, const char *fmt, va_list ap)
+{
+  int len = vsnprintf (NULL, 0, fmt, ap) + 1;
+  char *res = (char *)malloc((unsigned int)len);
+  if (res == NULL)
       return -1;
-    } else {
-      res = np;
-    }
-  }
+  *strp = res;
+  return vsnprintf(res, (unsigned int)len, fmt, ap);
 }
 #endif
 
