@@ -312,6 +312,11 @@ module Nokogiri
         assert(node.document)
       end
 
+      def test_encode_special_chars
+        foo = @xml.css('employee').first.encode_special_chars('&')
+        assert_equal '&amp;', foo
+      end
+
       def test_content
         node = Nokogiri::XML::Node.new('form', @xml)
         assert_equal('', node.content)

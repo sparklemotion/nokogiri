@@ -246,8 +246,7 @@ module Nokogiri
 
       ####
       # Set the content to +string+.
-      # If +encode+, encode any special characters first.
-      def content= string, encode = true
+      def content= string
         self.native_content = encode_special_chars(string)
       end
 
