@@ -13,6 +13,18 @@ module Nokogiri
           assert_equal 1110, @parser.document.end_elements.length
         end
 
+        def test_parse_file_non_existant
+          assert_raise Errno::ENOENT do
+            @parser.parse_file('foo')
+          end
+        end
+
+        def test_parse_file_with_dir
+          assert_raise Errno::EISDIR do
+            @parser.parse_file(File.dirname(__FILE__))
+          end
+        end
+
         def test_parse_document
           @parser.parse_memory(<<-eoxml)
             <p>Paragraph 1</p>
