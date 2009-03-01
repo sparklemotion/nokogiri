@@ -3,6 +3,15 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module HTML
     class TestBuilder < Nokogiri::TestCase
+      def test_hash_as_attributes_for_attribute_method
+        html = Nokogiri::HTML::Builder.new {
+          div.slide(:class => 'another_class') {
+            span 'Slide 1'
+          }
+        }.to_html
+        assert_match 'class="slide another_class"', html
+      end
+
       def test_hash_as_attributes
         builder = Nokogiri::HTML::Builder.new do
           div(:id => 'awesome') {

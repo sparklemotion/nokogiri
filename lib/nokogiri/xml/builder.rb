@@ -61,6 +61,7 @@ module Nokogiri
         end
 
         def method_missing(method, *args, &block)
+          opts = args.last.is_a?(Hash) ? args.pop : {}
           case method.to_s
           when /^(.*)!$/
             @node['id'] = $1
@@ -72,6 +73,12 @@ module Nokogiri
               ((@node['class'] || '').split(/\s/) + [method.to_s]).join(' ')
             @node.content = args.first if args.first
           end
+
+          # Assign any extra options
+          opts.each do |k,v|
+            @node[k.to_s] = ((@node[k.to_s] || '').split(/\s/) + [v]).join(' ')
+          end
+
           if block_given?
             old_parent = @doc_builder.parent
             @doc_builder.parent = @node
