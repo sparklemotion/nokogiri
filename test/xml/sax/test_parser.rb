@@ -14,6 +14,11 @@ module Nokogiri
           assert @parser.document.errors.length > 0
         end
 
+        def test_parser_sets_encoding
+          parser = XML::SAX::Parser.new(Doc.new, 'UTF-8')
+          assert_equal 'UTF-8', parser.encoding
+        end
+
         def test_errors_set_after_parsing_bad_dom
           doc = Nokogiri::XML('<foo><bar></foo>')
           assert doc.errors

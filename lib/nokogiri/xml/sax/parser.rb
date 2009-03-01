@@ -28,9 +28,9 @@ module Nokogiri
           'ASCII'       => 22, # pure ASCII
         }
 
-        attr_accessor :document
-        def initialize(doc = XML::SAX::Document.new)
-          @encoding = 'ASCII'
+        attr_accessor :document, :encoding
+        def initialize(doc = XML::SAX::Document.new, encoding = 'ASCII')
+          @encoding = encoding
           @document = doc
         end
 
