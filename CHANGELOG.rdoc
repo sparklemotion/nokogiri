@@ -1,5 +1,9 @@
 === HEAD
 
+* New features
+
+  * Nokogiri may be used with soap4r. See XSD::XMLParser::Nokogiri
+
 * Bugfixes
 
   * Fixed a tag nesting problem in the Builder API (LH #41)
