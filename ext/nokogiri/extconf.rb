@@ -57,10 +57,10 @@ unless find_header('libxml/parser.h', *HEADER_DIRS)
 end
 
 unless find_header('libxslt/xslt.h', *HEADER_DIRS)
-  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
+  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 unless find_header('libexslt/exslt.h', *HEADER_DIRS)
-  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
+  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
 unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
@@ -68,11 +68,11 @@ unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
 end
 
 unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
-  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
+  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
 unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
-  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt'"
+  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
 create_makefile('nokogiri/native')
