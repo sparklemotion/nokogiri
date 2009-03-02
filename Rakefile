@@ -23,7 +23,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.developer('Mike Dalessio', 'mike.dalessio@gmail.com')
   p.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
   p.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
-  p.extra_rdoc_files  = [p.readme_file]
+  p.extra_rdoc_files  = FileList['*.rdoc']
   p.clean_globs = [
     'ext/nokogiri/Makefile',
     'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
