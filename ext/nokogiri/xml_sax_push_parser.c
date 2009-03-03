@@ -2,9 +2,9 @@
 
 static void deallocate(xmlParserCtxtPtr ctx)
 {
-  NOKOGIRI_DEBUG_START(handler);
+  NOKOGIRI_DEBUG_START(ctx);
   if(ctx != NULL) xmlFreeParserCtxt(ctx);
-  NOKOGIRI_DEBUG_END(handler);
+  NOKOGIRI_DEBUG_END(ctx);
 }
 
 static VALUE allocate(VALUE klass)
