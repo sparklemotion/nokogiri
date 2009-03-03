@@ -1,5 +1,4 @@
 require 'nokogiri/xml/sax'
-require 'nokogiri/xml/before_handler'
 require 'nokogiri/xml/fragment_handler'
 require 'nokogiri/xml/node'
 require 'nokogiri/xml/attr'

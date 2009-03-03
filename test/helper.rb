@@ -20,6 +20,10 @@ module Nokogiri
       undef :default_test
     end
 
+    def setup
+      warn "#{name}" if ENV['TESTOPTS'] == '-v'
+    end
+
     def teardown
       if ENV['NOKOGIRI_GC']
         STDOUT.putc '!'
