@@ -208,11 +208,7 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
 
-  xmlChar *buffer = xmlEncodeEntitiesReentrant(node->doc,
-      (xmlChar *)StringValuePtr(value));
-
-  xmlSetProp(node, (xmlChar *)StringValuePtr(property), buffer);
-  xmlFree(buffer);
+  xmlSetProp(node, (xmlChar *)StringValuePtr(property), StringValuePtr(value));
 
   return value;
 }

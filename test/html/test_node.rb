@@ -5,6 +5,23 @@ require 'nkf'
 module Nokogiri
   module HTML
     class TestNode < Nokogiri::TestCase
+      def test_attribute_decodes_entities
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <head></head>
+          <body>
+            <a>first</a>
+          </body>
+        </html>
+        eohtml
+        node = html.at('a')
+        node['href'] = 'foo&bar'
+        assert_equal 'foo&bar', node['href']
+        node['href'] += '&baz'
+        assert_equal 'foo&bar&baz', node['href']
+      end
+
+
       def test_before_will_prepend_text_nodes
         html = Nokogiri::HTML(<<-eohtml)
         <html>
