@@ -116,7 +116,7 @@ module Nokogiri
         assert_nil address['domestic']
       end
 
-      def test_angry_add_child
+      def test_add_child_in_same_document
         child = @xml.css('employee').first
 
         assert previous_last_child = child.children.last
@@ -124,10 +124,21 @@ module Nokogiri
 
         last = child.children.last
 
-        # Magic!  Don't try this at home folks
         child.add_child(new_child)
         assert_equal new_child, child.children.last
         assert_equal last, child.children.last
+      end
+
+      def test_add_child_from_other_document
+        d1 = Nokogiri::XML("<root><item>1</item><item>2</item></root>")
+        d2 = Nokogiri::XML("<root><item>3</item><item>4</item></root>")
+
+        d2.at('root').search('item').each do |i|
+          d1.at('root').add_child i
+        end
+
+        assert_equal 0, d2.search('item').size
+        assert_equal 4, d1.search('item').size
       end
 
       def test_add_child
