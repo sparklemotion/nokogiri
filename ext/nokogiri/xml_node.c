@@ -208,7 +208,8 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
 
-  xmlSetProp(node, (xmlChar *)StringValuePtr(property), StringValuePtr(value));
+  xmlSetProp(node, (xmlChar *)StringValuePtr(property),
+      (xmlChar *)StringValuePtr(value));
 
   return value;
 }
