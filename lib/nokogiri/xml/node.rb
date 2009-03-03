@@ -222,11 +222,9 @@ module Nokogiri
       # Create nodes from +data+ and insert them before this node
       # (as a sibling).
       def before data
-        classes = document.class.name.split('::')
-        classes[-1] = 'SAX::Parser'
-
-        parser = eval(classes.join('::')).new(BeforeHandler.new(self, data))
-        parser.parse(data)
+        fragment(data).children.each do |node|
+          add_previous_sibling node
+        end
       end
 
       ####
