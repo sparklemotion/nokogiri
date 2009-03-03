@@ -225,6 +225,7 @@ module Nokogiri
         fragment(data).children.each do |node|
           add_previous_sibling node
         end
+        self
       end
 
       ####
@@ -234,6 +235,18 @@ module Nokogiri
         fragment(data).children.to_a.reverse.each do |node|
           add_next_sibling node
         end
+        self
+      end
+
+      ####
+      # Set the inner_html for this Node to +tags+
+      def inner_html= tags
+        children.each { |x| x.remove}
+
+        fragment(tags).children.to_a.reverse.each do |node|
+          add_child node
+        end
+        self
       end
 
       ####

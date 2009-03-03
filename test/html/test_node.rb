@@ -20,6 +20,24 @@ module Nokogiri
         assert_equal 'some text', html.at('//body').children.first.content.strip
       end
 
+      def test_inner_html=
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <head></head>
+          <body>
+            <div>first</div>
+          </body>
+        </html>
+        eohtml
+
+        assert div = html.at('//div')
+        div.inner_html = '<span>testing</span>'
+        assert_equal 'span', div.children.first.name
+
+        div.inner_html = 'testing'
+        assert_equal 'testing', div.content
+      end
+
       def test_fragment
         html = Nokogiri::HTML(<<-eohtml)
         <html>
