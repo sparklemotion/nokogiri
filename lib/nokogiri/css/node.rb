@@ -11,6 +11,8 @@ module Nokogiri
         visitor.send(:"visit_#{type.to_s.downcase}", self)
       end
 
+      ###
+      # Convert this CSS node to xpath with +prefix+ using +visitor+
       def to_xpath prefix = '//', visitor = XPathVisitor.new
         self.preprocess!
         prefix + visitor.accept(self)

@@ -11,7 +11,7 @@ static VALUE new(VALUE klass, VALUE doc)
   xmlDocPtr xml_doc;
   Data_Get_Struct(doc, xmlDoc, xml_doc);
 
-  xmlNodePtr node = xmlNewDocFragment(xml_doc);
+  xmlNodePtr node = xmlNewDocFragment(xml_doc->doc);
 
   VALUE rb_node = Nokogiri_wrap_xml_node(node);
 

@@ -20,6 +20,29 @@ module Nokogiri
         assert_equal 'some text', html.at('//body').children.first.content.strip
       end
 
+      def test_fragment
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <head></head>
+          <body>
+            <div>first</div>
+          </body>
+        </html>
+        eohtml
+        fragment = html.fragment(<<-eohtml)
+          hello
+          <div class="foo">
+            <p>bar</p>
+          </div>
+          world
+        eohtml
+        assert_match(/^hello/, fragment.inner_html.strip)
+        assert_equal 3, fragment.children.length
+        assert p_tag = fragment.css('p').first
+        assert_equal 'div', p_tag.parent.name
+        assert_equal 'foo', p_tag.parent['class']
+      end
+
       def test_after_will_append_text_nodes
         html = Nokogiri::HTML(<<-eohtml)
         <html>
