@@ -1,6 +1,14 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestNokogiri < Nokogiri::TestCase
+  def test_version
+    Nokogiri::LIBXML_PARSER_VERSION =~ /(\d)(\d{2})(\d{2})/
+    major = $1.to_i
+    minor = $2.to_i
+    bug   = $3.to_i
+    assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::LIBXML_VERSION
+  end
+
   def test_xml?
     doc = Nokogiri.parse(File.read(XML_FILE))
     assert doc.xml?
