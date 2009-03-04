@@ -10,6 +10,52 @@ static void debug_node_dealloc(xmlNodePtr x)
 #  define debug_node_dealloc 0
 #endif
 
+
+/* :nodoc: */
+typedef xmlNodePtr (*node_other_func)(xmlNodePtr, xmlNodePtr);
+
+/* :nodoc: */
+static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func func)
+{
+  VALUE reparented_obj ;
+  xmlNodePtr node, other, reparented ;
+
+  Data_Get_Struct(node_obj, xmlNode, node);
+  Data_Get_Struct(other_obj, xmlNode, other);
+
+  if (node->doc == other->doc) {
+    xmlUnlinkNode(node) ;
+    if(!(reparented = (*func)(other, node))) {
+      rb_raise(rb_eRuntimeError, "Could not reparent node (1)");
+    }
+
+  } else {
+    xmlNodePtr duped_node ;
+    // recursively copy to the new document
+    if (!(duped_node = xmlDocCopyNode(node, other->doc, 1))) {
+      rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
+    }
+    if(!(reparented = (*func)(other, duped_node))) {
+      rb_raise(rb_eRuntimeError, "Could not reparent node (2)");
+    }
+    xmlUnlinkNode(node);
+    xmlFreeNode(node);
+  }
+
+  // the child was a text node that was coalesced. we need to have the object
+  // point at SOMETHING, or we'll totally bomb out.
+  if (reparented != node) {
+    DATA_PTR(node_obj) = reparented ;
+  }
+
+  reparented_obj = Nokogiri_wrap_xml_node(reparented);
+
+  rb_funcall(reparented_obj, rb_intern("decorate!"), 0);
+
+  return reparented_obj ;
+}
+
+
 /*
  * call-seq:
  *  pointer_id
@@ -368,36 +414,7 @@ static VALUE get_content(VALUE self)
  */
 static VALUE add_child(VALUE self, VALUE child)
 {
-  xmlNodePtr node, parent, new_child;
-  Data_Get_Struct(child, xmlNode, node);
-  Data_Get_Struct(self, xmlNode, parent);
-
-  if (node->doc == parent->doc) {
-    xmlUnlinkNode(node) ;
-
-    if(!(new_child = xmlAddChild(parent, node)))
-      rb_raise(rb_eRuntimeError, "Could not add new child (xmlAddChild) (1)");
-
-  } else {
-
-    xmlNodePtr duped_node ;
-    // recursively copy to the new document
-    if (!(duped_node = xmlDocCopyNode(node, parent->doc, 1)))
-      rb_raise(rb_eRuntimeError, "Could not add new child (xmlDocCopyNode)");
-
-    if(!(new_child = xmlAddChild(parent, duped_node)))
-      rb_raise(rb_eRuntimeError, "Could not add new child (xmlAddChild) (2)");
-
-
-    xmlUnlinkNode(node);
-    xmlFreeNode(node);
-  }
-
-  // the child was a text node that was coalesced. we need to have the object
-  // point at SOMETHING, or we'll totally bomb out.
-  if (new_child != node) DATA_PTR(child) = new_child ;
-
-  return Nokogiri_wrap_xml_node(new_child);
+  return reparent_node_with(child, self, xmlAddChild);
 }
 
 /*
@@ -472,20 +489,7 @@ static VALUE path(VALUE self)
  */
 static VALUE add_next_sibling(VALUE self, VALUE rb_node)
 {
-  xmlNodePtr node, _new_sibling, new_sibling;
-  Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(rb_node, xmlNode, _new_sibling);
-
-  if(!(new_sibling = xmlAddNextSibling(node, _new_sibling)))
-    rb_raise(rb_eRuntimeError, "Could not add next sibling");
-
-  // the sibling was a text node that was coalesced. we need to have the object
-  // point at SOMETHING, or we'll totally bomb out.
-  if(new_sibling != _new_sibling) DATA_PTR(rb_node) = new_sibling;
-
-  rb_funcall(rb_node, rb_intern("decorate!"), 0);
-
-  return rb_node;
+  return reparent_node_with(rb_node, self, xmlAddNextSibling) ;
 }
 
 /*
@@ -496,22 +500,7 @@ static VALUE add_next_sibling(VALUE self, VALUE rb_node)
  */
 static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 {
-  xmlNodePtr node, sibling, new_sibling;
-  Check_Type(rb_node, T_DATA);
-
-  Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(rb_node, xmlNode, sibling);
-
-  if(!(new_sibling = xmlAddPrevSibling(node, sibling)))
-    rb_raise(rb_eRuntimeError, "Could not add previous sibling");
-
-  // the sibling was a text node that was coalesced. we need to have the object
-  // point at SOMETHING, or we'll totally bomb out.
-  if(sibling != new_sibling) DATA_PTR(rb_node) = new_sibling;
-
-  rb_funcall(rb_node, rb_intern("decorate!"), 0);
-
-  return rb_node;
+  return reparent_node_with(rb_node, self, xmlAddPrevSibling) ;
 }
 
 /*
