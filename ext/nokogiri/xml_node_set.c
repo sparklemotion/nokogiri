@@ -58,6 +58,31 @@ static VALUE index_at(VALUE self, VALUE number)
   return Nokogiri_wrap_xml_node(node_set->nodeTab[i]);
 }
 
+/*
+ *  call-seq:
+ *    unlink
+ *
+ * Unlink this NodeSet and all Node objects it contains from their current context.
+ */
+static VALUE unlink(VALUE self)
+{
+  xmlNodeSetPtr node_set;
+  int j, nodeNr ;
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  nodeNr = node_set->nodeNr ;
+  for (j = 0 ; j < nodeNr ; j++) {
+    VALUE node ;
+    xmlNodePtr node_ptr;
+    node = Nokogiri_wrap_xml_node(node_set->nodeTab[j]);
+    rb_funcall(node, rb_intern("unlink"), 0); /* modifies the C struct out from under the object */
+    Data_Get_Struct(node, xmlNode, node_ptr);
+    node_set->nodeTab[j] = node_ptr ;
+  }
+  return self ;
+}
+
+
 static void deallocate(xmlNodeSetPtr node_set)
 {
   /*
@@ -119,4 +144,5 @@ void init_xml_node_set(void)
   rb_define_method(klass, "length", length, 0);
   rb_define_method(klass, "[]", index_at, 1);
   rb_define_method(klass, "push", push, 1);
+  rb_define_method(klass, "unlink", unlink, 0);
 }

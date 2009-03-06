@@ -72,7 +72,7 @@ module Nokogiri
         set.unlink
         set.each do |node|
           assert !node.parent
-          # assert !node.document # ugh. libxml doesn't clear node->doc pointer, due to xmlDict implementation.
+          assert !node.document
           assert !node.previous_sibling
           assert !node.next_sibling
         end

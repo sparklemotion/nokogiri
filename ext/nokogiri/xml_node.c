@@ -144,10 +144,39 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
  */
 static VALUE unlink_node(VALUE self)
 {
-  xmlNodePtr node;
+  /*
+   *  a few words of explanation are probably needed here.
+   *
+   *  because a node that was created in conjunction with its parent document
+   *  (as opposed to being created bare and inserted into an existing document)
+   *  will always contain references to the document (e.g., in the form of
+   *  strings that were allocated from the document's dictionary), it's
+   *  dangerous for us to unlink a node from the parent document without
+   *  explicitly and immediately freeing the node.
+   *
+   *  the danger is that the node might be GC'ed after the document has been
+   *  GC'ed, which will cause illegal memory access at best, and segfault at
+   *  worst.
+   *
+   *  so, we take the strategy you see here, which is:
+   *  - unlink the node
+   *  - dup the node
+   *  - free the original node
+   *  - return the dup'd node, which no longer contains references to the
+   *    original node's document
+   *
+   *  carry on.
+   */
+  xmlNodePtr node, dup;
   Data_Get_Struct(self, xmlNode, node);
+
   xmlUnlinkNode(node);
-  return self;
+  dup = xmlCopyNode(node, 1);
+  xmlFreeNode(node);
+
+  DATA_PTR(self) = dup ;
+  rb_iv_set(self, "@document", Qnil);
+  return Nokogiri_wrap_xml_node(dup);
 }
 
 /*
@@ -618,16 +647,18 @@ static VALUE dump_html(VALUE self)
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 {
   assert(node);
-  assert(node->doc);
-  assert(node->doc->_private);
 
   VALUE index = INT2NUM((int)node);
-  VALUE document = (VALUE)node->doc->_private;
+  VALUE document = Qnil ;
+  VALUE node_cache = Qnil ;
+  VALUE rb_node = Qnil ;
 
-  VALUE node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
-  VALUE rb_node = rb_hash_aref(node_cache, index);
-
-  if(rb_node != Qnil) return rb_node;
+  if (node->doc && node->doc->_private) {
+    document = (VALUE)node->doc->_private;
+    node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
+    rb_node = rb_hash_aref(node_cache, index);
+    if(rb_node != Qnil) return rb_node;
+  }
 
   switch(node->type)
   {
@@ -677,7 +708,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       rb_node = Data_Wrap_Struct(cNokogiriXmlNode, 0, debug_node_dealloc, node) ;
   }
 
-  rb_hash_aset(node_cache, index, rb_node);
+  if (node_cache != Qnil) rb_hash_aset(node_cache, index, rb_node);
   rb_iv_set(rb_node, "@document", document);
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
   return rb_node ;
