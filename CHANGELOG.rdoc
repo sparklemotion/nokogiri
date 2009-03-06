@@ -4,6 +4,7 @@
 
   * Nokogiri may be used with soap4r. See XSD::XMLParser::Nokogiri
   * Nokogiri::XML::Node#inner_html= to set the inner html for a node
+  * Nokogiri builder interface improvements
 
 * Bugfixes
 

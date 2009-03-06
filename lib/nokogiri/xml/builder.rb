@@ -1,14 +1,17 @@
 module Nokogiri
   module XML
     class Builder
-      attr_accessor :doc, :parent
+      attr_accessor :doc, :parent, :context
       def initialize(&block)
         namespace = self.class.name.split('::')
         namespace[-1] = 'Document'
         @doc = eval(namespace.join('::')).new
         @parent = @doc
-        @context = eval('self', block.binding)
-        instance_eval(&block)
+        @context = nil
+        if block_given?
+          @context = eval('self', block.binding)
+        end
+        instance_eval(&block) if block_given?
         @parent = @doc
       end
 
@@ -27,7 +30,7 @@ module Nokogiri
       end
 
       def method_missing(method, *args, &block)
-        if @context.respond_to?(method)
+        if @context && @context.respond_to?(method)
           @context.send(method, *args, &block)
         else
           node = Nokogiri::XML::Node.new(method.to_s, @doc) { |n|
