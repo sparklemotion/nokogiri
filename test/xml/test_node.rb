@@ -15,6 +15,19 @@ module Nokogiri
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns:foo']
       end
 
+      def test_add_child_should_inherit_namespace
+        doc = Nokogiri::XML(<<-eoxml)
+          <root xmlns="http://tenderlovemaking.com/">
+            <first>
+            </first>
+          </root>
+        eoxml
+        assert node = doc.at('//xmlns:first')
+        child = Nokogiri::XML::Node.new('second', doc)
+        node.add_child(child)
+        assert doc.at('//xmlns:second')
+      end
+
       def test_write_to
         io = StringIO.new
         @xml.write_to io

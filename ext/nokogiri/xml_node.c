@@ -48,6 +48,10 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
     DATA_PTR(node_obj) = reparented ;
   }
 
+  // Make sure that our reparented node has the correct namespaces
+  if(reparented->doc != reparented->parent)
+    reparented->ns = reparented->parent->ns;
+
   reparented_obj = Nokogiri_wrap_xml_node(reparented);
 
   rb_funcall(reparented_obj, rb_intern("decorate!"), 0);
@@ -590,12 +594,14 @@ static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
 
   if(NULL == ns) return self;
 
+  /*
   xmlNewNsProp(
       node,
       ns,
       (const xmlChar *)StringValuePtr(href),
       (const xmlChar *)StringValuePtr(prefix)
   );
+  */
 
   return self;
 }
