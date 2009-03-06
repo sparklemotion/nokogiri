@@ -94,9 +94,9 @@ module Nokogiri
         ].include?(paths.last.class) ? paths.pop : nil
 
         ns = paths.last.is_a?(Hash) ? paths.pop :
-          (document && document.root ? document.root.namespaces : {})
+          (document.root ? document.root.namespaces : {})
 
-        return NodeSet.new(document) unless document && document.root
+        return NodeSet.new(document) unless document.root
 
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
