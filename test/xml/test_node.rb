@@ -6,6 +6,7 @@ module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 

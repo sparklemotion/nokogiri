@@ -4,6 +4,7 @@ module Nokogiri
   module HTML
     class TestDocument < Nokogiri::TestCase
       def setup
+        super
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 

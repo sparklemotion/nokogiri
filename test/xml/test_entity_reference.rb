@@ -4,6 +4,7 @@ module Nokogiri
   module XML
     class TestEntityReference < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML(File.open(XML_FILE), XML_FILE)
       end
 

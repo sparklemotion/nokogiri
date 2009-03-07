@@ -5,6 +5,7 @@ class TestAlter < Nokogiri::TestCase
   include Nokogiri
 
   def setup
+    super
     @basic = Hpricot.parse(TestFiles::BASIC)
   end
   

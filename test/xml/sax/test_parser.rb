@@ -5,6 +5,7 @@ module Nokogiri
     module SAX
       class TestParser < Nokogiri::SAX::TestCase
         def setup
+          super
           @parser = XML::SAX::Parser.new(Doc.new)
         end
 
