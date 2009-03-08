@@ -79,9 +79,7 @@ lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
 lib/nokogiri/xml.rb
-lib/nokogiri/xml/after_handler.rb
 lib/nokogiri/xml/attr.rb
-lib/nokogiri/xml/before_handler.rb
 lib/nokogiri/xml/builder.rb
 lib/nokogiri/xml/cdata.rb
 lib/nokogiri/xml/comment.rb
@@ -90,6 +88,7 @@ lib/nokogiri/xml/document_fragment.rb
 lib/nokogiri/xml/dtd.rb
 lib/nokogiri/xml/element.rb
 lib/nokogiri/xml/entity_declaration.rb
+lib/nokogiri/xml/fragment_handler.rb
 lib/nokogiri/xml/node.rb
 lib/nokogiri/xml/node/save_options.rb
 lib/nokogiri/xml/node_set.rb
