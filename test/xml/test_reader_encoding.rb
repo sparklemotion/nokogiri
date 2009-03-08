@@ -6,6 +6,7 @@ module Nokogiri
     if RUBY_VERSION =~ /^1\.9/
       class TestReaderEncoding < Nokogiri::TestCase
         def setup
+          super
           @reader = Nokogiri::XML::Reader(
             File.read(XML_FILE),
             XML_FILE,

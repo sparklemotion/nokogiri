@@ -6,6 +6,7 @@ module Nokogiri
   module XML
     class TestNode < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
@@ -13,6 +14,19 @@ module Nokogiri
         node = @xml.at('address')
         node.add_namespace('foo', 'http://tenderlovemaking.com')
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns:foo']
+      end
+
+      def test_add_child_should_inherit_namespace
+        doc = Nokogiri::XML(<<-eoxml)
+          <root xmlns="http://tenderlovemaking.com/">
+            <first>
+            </first>
+          </root>
+        eoxml
+        assert node = doc.at('//xmlns:first')
+        child = Nokogiri::XML::Node.new('second', doc)
+        node.add_child(child)
+        assert doc.at('//xmlns:second')
       end
 
       def test_write_to
@@ -252,7 +266,7 @@ module Nokogiri
         assert node.next_sibling
         node.unlink
         assert !node.parent
-        # assert !node.document # ugh. libxml doesn't clear node->doc pointer, due to xmlDict implementation.
+        assert !node.document
         assert !node.previous_sibling
         assert !node.next_sibling
         assert_no_match(/Hello world/, xml.to_s)

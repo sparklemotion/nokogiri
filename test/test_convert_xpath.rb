@@ -11,6 +11,7 @@ end
 class TestConvertXPath < Nokogiri::TestCase
 
   def setup
+    super
     @N = Nokogiri(File.read(HTML_FILE))
     @NH = Nokogiri.Hpricot(File.read(HTML_FILE)) # decorated document
     @H = Hpricot(File.read(HTML_FILE)) if HAS_HPRICOT

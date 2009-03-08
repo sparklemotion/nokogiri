@@ -4,6 +4,7 @@ module Nokogiri
   module CSS
     class TestTokenizer < Nokogiri::TestCase
       def setup
+        super
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 

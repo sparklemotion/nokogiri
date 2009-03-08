@@ -4,6 +4,7 @@ module Nokogiri
   module CSS
     class TestXPathVisitor < Nokogiri::TestCase
       def setup
+        super
         @parser = Nokogiri::CSS::Parser.new
       end
 

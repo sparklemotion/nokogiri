@@ -11,7 +11,7 @@ class NokogiriTestTask < Rake::TestTask
     end
     self.test_files = FileList['test/**/test_*.rb'] +
       FileList['test/**/*_test.rb']
-    self.verbose = true
+    self.verbose = "verbose"
     self.warning = true
   end
 end
@@ -19,7 +19,7 @@ end
 desc "run test suite under valgrind with basic ruby options"
 NokogiriTestTask.new('test:valgrind').extend(Module.new {
   def ruby *args
-    cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')}"
+    cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
     puts cmd
     system cmd
   end
@@ -28,7 +28,7 @@ NokogiriTestTask.new('test:valgrind').extend(Module.new {
 desc "run test suite under valgrind with memory-fill ruby options"
 NokogiriTestTask.new('test:valgrind_mem').extend(Module.new {
   def ruby *args
-    cmd = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=6D --free-fill=66 #{RUBY} #{args.join(' ')}"
+    cmd = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=6D --free-fill=66 #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
     puts cmd
     system cmd
   end
@@ -37,7 +37,7 @@ NokogiriTestTask.new('test:valgrind_mem').extend(Module.new {
 desc "run test suite under valgrind with memory-zero ruby options"
 NokogiriTestTask.new('test:valgrind_mem0').extend(Module.new {
   def ruby *args
-    cmd = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=00 --free-fill=00 #{RUBY} #{args.join(' ')}"
+    cmd = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=00 --free-fill=00 #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
     puts cmd
     system cmd
   end

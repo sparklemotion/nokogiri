@@ -4,6 +4,7 @@
 
   * Nokogiri may be used with soap4r. See XSD::XMLParser::Nokogiri
   * Nokogiri::XML::Node#inner_html= to set the inner html for a node
+  * Nokogiri builder interface improvements
 
 * Bugfixes
 
@@ -17,6 +18,7 @@
   * Nokogiri::XML::Node#[] can take a symbol (LH #48)
   * vasprintf for windows updated.  Thanks Geoffroy Couprie!
   * Nokogiri::XML::Node#[]= should not encode entities (LH #55)
+  * Namespaces should be copied to reparented nodes (LH #56)
 
 === 1.2.1 / 2008-02-23
 

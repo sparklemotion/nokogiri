@@ -4,6 +4,7 @@ module Nokogiri
   module HTML
     class TestDTD < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML(File.open(XML_FILE))
         assert @dtd = @xml.internal_subset
       end

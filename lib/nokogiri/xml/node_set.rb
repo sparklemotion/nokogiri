@@ -42,14 +42,6 @@ module Nokogiri
       end
 
       alias :<< :push
-
-      ###
-      # Unlink this NodeSet and all Node objects it contains from their
-      # current context.
-      def unlink
-        each { |node| node.unlink }
-        self
-      end
       alias :remove :unlink
 
       ###

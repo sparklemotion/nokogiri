@@ -5,6 +5,7 @@ module Nokogiri
     if RUBY_VERSION =~ /^1\.9/
       class TestNodeEncoding < Nokogiri::TestCase
         def setup
+          super
           @html = Nokogiri::HTML(File.read(HTML_FILE), HTML_FILE)
         end
 

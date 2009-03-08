@@ -4,6 +4,7 @@ module Nokogiri
   module XML
     class TestXPath < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
 
         @handler = Class.new {

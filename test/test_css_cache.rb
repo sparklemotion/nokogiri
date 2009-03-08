@@ -3,6 +3,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 class TestCssCache < Nokogiri::TestCase
 
   def setup
+    super
     @css = "a1 > b2 > c3"
     @parse_result = Nokogiri::CSS.parse(@css)
     @to_xpath_result = @parse_result.map {|ast| ast.to_xpath}

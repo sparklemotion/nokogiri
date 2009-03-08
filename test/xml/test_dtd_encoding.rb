@@ -5,6 +5,7 @@ module Nokogiri
    if RUBY_VERSION =~ /^1\.9/
     class TestDTDEncoding < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE, 'UTF-8')
         assert @dtd = @xml.internal_subset
       end
