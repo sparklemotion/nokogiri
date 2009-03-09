@@ -15,8 +15,8 @@ module Nokogiri
       def test_builder_no_block
         string = "hello world"
         builder = Nokogiri::XML::Builder.new
-        builder.root { |root|
-          root.cdata string
+        builder.root {
+          cdata string
         }
         assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>", builder.to_xml.gsub(/\n/, ''))
       end

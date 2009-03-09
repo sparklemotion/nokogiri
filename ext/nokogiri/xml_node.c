@@ -176,6 +176,16 @@ static VALUE unlink_node(VALUE self)
 
   xmlUnlinkNode(node);
   dup = xmlCopyNode(node, 1);
+
+  /* We need to remove our node from the document cache. Because pointers
+   * can (and do) get reused after being freed.  */
+  VALUE node_cache = rb_funcall(
+      rb_iv_get(self, "@document"),
+      rb_intern("node_cache"),
+      0
+  );
+  rb_hash_delete(node_cache, INT2NUM((int)node));
+
   xmlFreeNode(node);
 
   DATA_PTR(self) = dup ;

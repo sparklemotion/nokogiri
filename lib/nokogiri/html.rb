@@ -29,6 +29,10 @@ module Nokogiri
       ###
       # Parse HTML.  See Nokogiri.HTML.
       def parse string_or_io, url = nil, encoding = nil, options = 2145
+        if string_or_io.respond_to?(:encoding)
+          encoding ||= string_or_io.encoding.name
+        end
+
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
           return Document.read_io(string_or_io, url, encoding, options)

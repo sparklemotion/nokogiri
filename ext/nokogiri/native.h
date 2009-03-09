@@ -30,16 +30,26 @@
 #define NOKOGIRI_STR_NEW2(str, encoding) \
   ({ \
     VALUE _string = rb_str_new2((const char *)str); \
-    if(NULL != encoding) \
-      rb_enc_associate_index(_string, rb_enc_find_index(encoding)); \
+    if(NULL != encoding) { \
+      int _enc = rb_enc_find_index(encoding); \
+      if(_enc == -1) \
+        rb_enc_associate_index(_string, rb_enc_find_index("ASCII")); \
+      else \
+        rb_enc_associate_index(_string, _enc); \
+    } \
     _string; \
   })
 
 #define NOKOGIRI_STR_NEW(str, len, encoding) \
   ({ \
     VALUE _string = rb_str_new((const char *)str, (long)len); \
-    if(NULL != encoding) \
-      rb_enc_associate_index(_string, rb_enc_find_index(encoding)); \
+    if(NULL != encoding) { \
+      int _enc = rb_enc_find_index(encoding); \
+      if(_enc == -1) \
+        rb_enc_associate_index(_string, rb_enc_find_index("ASCII")); \
+      else \
+        rb_enc_associate_index(_string, _enc); \
+    } \
     _string; \
   })
 
