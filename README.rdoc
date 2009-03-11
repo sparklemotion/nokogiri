@@ -42,8 +42,12 @@ The bug tracker is available here:
   require 'nokogiri'
   require 'open-uri'
   
+  # Get a Nokogiri::HTML:Document for the page we’re interested in...
+
   doc = Nokogiri::HTML(open('http://www.google.com/search?q=tenderlove'))
   
+  # Do funky things with it using Nokogiri::XML::Node methods...
+
   ####
   # Search for nodes by css
   doc.css('h3.r a.l').each do |link|
