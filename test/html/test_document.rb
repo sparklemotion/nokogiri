@@ -8,6 +8,13 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_parse_empty_document
+        doc = Nokogiri::HTML("\n")
+        assert_equal 0, doc.css('a').length
+        assert_equal 0, doc.xpath('//a').length
+        assert_equal 0, doc.search('//a').length
+      end
+
       def test_HTML_function
         html = Nokogiri::HTML(File.read(HTML_FILE))
         assert html.html?
