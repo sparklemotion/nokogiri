@@ -20,6 +20,7 @@
   * Nokogiri::XML::Node#[]= should not encode entities (LH #55)
   * Namespaces should be copied to reparented nodes (LH #56)
   * Nokogiri uses encoding set on the string for default in Ruby 1.9
+  * Document#dup should create a new document of the same type (LH #59)
 
 === 1.2.1 / 2008-02-23
 

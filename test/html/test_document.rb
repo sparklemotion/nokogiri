@@ -144,6 +144,10 @@ module Nokogiri
       def test_dup_document
         assert dup = @html.dup
         assert_not_equal dup, @html
+        assert @html.html?
+        assert_instance_of Nokogiri::HTML::Document, dup
+        assert dup.html?, 'duplicate should be html'
+        assert_equal @html.to_s, dup.to_s
       end
 
       def test_dup_document_shallow

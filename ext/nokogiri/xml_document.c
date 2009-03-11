@@ -187,7 +187,11 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   dup = xmlCopyDoc(doc, NUM2INT(level));
   if(dup == NULL) return Qnil;
 
-  return Nokogiri_wrap_xml_document(cNokogiriXmlDocument, dup);
+  dup->type = doc->type;
+  if(dup->type == XML_DOCUMENT_NODE)
+    return Nokogiri_wrap_xml_document(cNokogiriXmlDocument, dup);
+  else
+    return Nokogiri_wrap_xml_document(cNokogiriHtmlDocument, dup);
 }
 
 /*

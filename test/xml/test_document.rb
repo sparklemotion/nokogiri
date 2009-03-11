@@ -199,6 +199,12 @@ module Nokogiri
         assert @xml.to_xml
       end
 
+      def test_dup
+        dup = @xml.dup
+        assert_instance_of Nokogiri::XML::Document, dup
+        assert dup.xml?, 'duplicate should be xml'
+      end
+
       def test_subset_is_decorated
         x = Module.new do
           def awesome!
