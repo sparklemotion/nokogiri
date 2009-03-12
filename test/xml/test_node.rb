@@ -75,6 +75,20 @@ module Nokogiri
         assert_equal @xml.serialize(nil, conf.options), string
       end
 
+      def test_hold_refence_to_subnode
+        doc = Nokogiri::XML(<<-eoxml)
+          <root>
+            <a>
+              <b />
+            </a>
+          </root>
+        eoxml
+        assert node_a = doc.css('a').first
+        assert node_b = node_a.css('b').first
+        node_a.unlink
+        assert_equal 'b', node_b.name
+      end
+
       def test_values
         assert_equal %w{ Yes Yes }, @xml.xpath('//address')[1].values
       end
