@@ -92,6 +92,14 @@ extern VALUE mNokogiriHtml ;
 extern VALUE mNokogiriHtmlSax ;
 extern VALUE mNokogiriXslt ;
 
+#define NOKOGIRI_ROOT_NODE(_node) \
+  ({ \
+    nokogiriDocPtr doc = (nokogiriDocPtr)_node->doc; \
+    xmlNodeSetPtr node_set = (xmlNodeSetPtr)doc->unlinkedNodes; \
+    xmlXPathNodeSetAdd(node_set, _node); \
+    _node; \
+  })
+
 #ifdef DEBUG
 
 #define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);

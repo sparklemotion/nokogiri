@@ -1,10 +1,22 @@
 #include <xml_document.h>
 
-static void dealloc(xmlDocPtr doc)
+static void dealloc(nokogiriDocPtr ndoc)
 {
   NOKOGIRI_DEBUG_START(doc);
-  doc->_private = NULL;
-  xmlFreeDoc(doc);
+
+  xmlNodeSetPtr node_set = ndoc->unlinkedNodes;
+
+  int i;
+  for(i = 0; i < node_set->nodeNr; i++) {
+    xmlAddChild((xmlNodePtr)ndoc, node_set->nodeTab[i]);
+  }
+
+  if (node_set->nodeTab != NULL)
+    xmlFree(node_set->nodeTab);
+  xmlFree(node_set);
+
+  ((xmlDocPtr)ndoc)->_private = NULL;
+  xmlFreeDoc((xmlDocPtr)ndoc);
   NOKOGIRI_DEBUG_END(doc);
 }
 
@@ -268,9 +280,22 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
 {
   VALUE rb_doc = Qnil;
 
-  rb_doc = Data_Wrap_Struct(klass ? klass : cNokogiriXmlDocument, 0, dealloc, doc) ;
+  nokogiriDocPtr ndoc = (nokogiriDocPtr)malloc(sizeof(nokogiriDoc));
+  memcpy(ndoc, doc, sizeof(xmlDoc));
+  ndoc->unlinkedNodes = xmlXPathNodeSetCreate(NULL);
+
+  xmlSetTreeDoc((xmlNodePtr)ndoc, (xmlDocPtr)ndoc);
+  xmlSetTreeDoc((xmlNodePtr)doc, (xmlDocPtr)ndoc);
+  assert((xmlDocPtr)ndoc == ((xmlDocPtr)ndoc)->doc);
+
+  rb_doc = Data_Wrap_Struct(
+      klass ? klass : cNokogiriXmlDocument,
+      0,
+      dealloc,
+      ndoc
+  );
   rb_iv_set(rb_doc, "@decorators", Qnil);
-  doc->_private = (void *)rb_doc;
+  ((xmlDocPtr)ndoc)->_private = (void *)rb_doc;
 
   return rb_doc ;
 }

@@ -10,7 +10,6 @@ static void debug_node_dealloc(xmlNodePtr x)
 #  define debug_node_dealloc 0
 #endif
 
-
 /* :nodoc: */
 typedef xmlNodePtr (*node_other_func)(xmlNodePtr, xmlNodePtr);
 
@@ -39,7 +38,7 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
       rb_raise(rb_eRuntimeError, "Could not reparent node (2)");
     }
     xmlUnlinkNode(node);
-    xmlFreeNode(node);
+    NOKOGIRI_ROOT_NODE(node);
   }
 
   // the child was a text node that was coalesced. we need to have the object
@@ -148,49 +147,11 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
  */
 static VALUE unlink_node(VALUE self)
 {
-  /*
-   *  a few words of explanation are probably needed here.
-   *
-   *  because a node that was created in conjunction with its parent document
-   *  (as opposed to being created bare and inserted into an existing document)
-   *  will always contain references to the document (e.g., in the form of
-   *  strings that were allocated from the document's dictionary), it's
-   *  dangerous for us to unlink a node from the parent document without
-   *  explicitly and immediately freeing the node.
-   *
-   *  the danger is that the node might be GC'ed after the document has been
-   *  GC'ed, which will cause illegal memory access at best, and segfault at
-   *  worst.
-   *
-   *  so, we take the strategy you see here, which is:
-   *  - unlink the node
-   *  - dup the node
-   *  - free the original node
-   *  - return the dup'd node, which no longer contains references to the
-   *    original node's document
-   *
-   *  carry on.
-   */
-  xmlNodePtr node, dup;
+  xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-
   xmlUnlinkNode(node);
-  dup = xmlCopyNode(node, 1);
-
-  /* We need to remove our node from the document cache. Because pointers
-   * can (and do) get reused after being freed.  */
-  VALUE node_cache = rb_funcall(
-      rb_iv_get(self, "@document"),
-      rb_intern("node_cache"),
-      0
-  );
-  rb_hash_delete(node_cache, INT2NUM((int)node));
-
-  xmlFreeNode(node);
-
-  DATA_PTR(self) = dup ;
-  rb_iv_set(self, "@document", Qnil);
-  return Nokogiri_wrap_xml_node(dup);
+  NOKOGIRI_ROOT_NODE(node);
+  return self;
 }
 
 /*
