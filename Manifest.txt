@@ -139,6 +139,7 @@ test/hpricot/test_xml.rb
 test/html/sax/test_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
+test/html/test_document_encoding.rb
 test/html/test_named_characters.rb
 test/html/test_node.rb
 test/test_convert_xpath.rb
@@ -167,4 +168,5 @@ test/xml/test_node_set.rb
 test/xml/test_processing_instruction.rb
 test/xml/test_reader_encoding.rb
 test/xml/test_text.rb
+test/xml/test_unparented_node.rb
 test/xml/test_xpath.rb
