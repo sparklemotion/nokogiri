@@ -96,7 +96,7 @@ module Nokogiri
         ns = paths.last.is_a?(Hash) ? paths.pop :
           (document.root ? document.root.namespaces : {})
 
-        return NodeSet.new(document) unless document.root
+        return NodeSet.new(document) unless document
 
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
@@ -157,7 +157,7 @@ module Nokogiri
       ###
       # Search for the first occurrence of +path+.
       # Returns nil if nothing is found, otherwise a Node.
-      def at path, ns = document.root.namespaces
+      def at path, ns = document.root ? document.root.namespaces : {}
         search(path, ns).first
       end
 

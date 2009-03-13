@@ -14,6 +14,10 @@ module Nokogiri
         GC.start # try to GC the document
       end
 
+      def test_node_still_has_document
+        assert @node.document
+      end
+
       def test_add_namespace
         node = @node.at('address')
         node.unlink
@@ -68,16 +72,16 @@ module Nokogiri
       end
 
       def test_values
-        assert_equal %w{ Yes Yes }, @node.xpath('//address')[1].values
+        assert_equal %w{ Yes Yes }, @node.xpath('.//address')[1].values
       end
 
       def test_keys
-        assert_equal %w{ domestic street }, @node.xpath('//address')[1].keys
+        assert_equal %w{ domestic street }, @node.xpath('.//address')[1].keys
       end
 
       def test_each
         attributes = []
-        @node.xpath('//address')[1].each do |key, value|
+        @node.xpath('.//address')[1].each do |key, value|
           attributes << [key, value]
         end
         assert_equal [['domestic', 'Yes'], ['street', 'Yes']], attributes
@@ -89,15 +93,15 @@ module Nokogiri
       end
 
       def test_to_str
-        assert name = @node.xpath('//name').first
+        assert name = @node.xpath('.//name').first
         assert_match(/Margaret/, '' + name)
         assert_equal('Margaret Martin', '' + name.children.first)
       end
 
       def test_ancestors
-        assert(address = @node.xpath('//address').first)
-        assert_equal 3, address.ancestors.length
-        assert_equal ['employee', 'staff', nil],
+        assert(address = @node.xpath('.//address').first)
+        assert_equal 2, address.ancestors.length
+        assert_equal ['employee', 'staff'],
           address.ancestors.map { |x| x.name }
       end
 
@@ -109,14 +113,14 @@ module Nokogiri
       end
 
       def test_remove_attribute
-        address = @node.xpath('/staff/employee/address').first
+        address = @node.xpath('./employee/address').first
         assert_equal 'Yes', address['domestic']
         address.remove_attribute 'domestic'
         assert_nil address['domestic']
       end
 
       def test_delete
-        address = @node.xpath('/staff/employee/address').first
+        address = @node.xpath('./employee/address').first
         assert_equal 'Yes', address['domestic']
         address.delete 'domestic'
         assert_nil address['domestic']
@@ -179,9 +183,9 @@ module Nokogiri
         b_node = Nokogiri::XML::Node.new('a', xml)
         assert_equal Nokogiri::XML::Node::ELEMENT_NODE, b_node.type
         b_node.content = 'first'
-        a_node = xml.xpath('//a').first
+        a_node = xml.xpath('.//a').first
         a_node.add_previous_sibling(b_node)
-        assert_equal('first', xml.xpath('//a').first.text)
+        assert_equal('first', xml.xpath('.//a').first.text)
       end
 
       def test_add_previous_sibling_merge
@@ -249,7 +253,7 @@ module Nokogiri
           <a class='bazbar'>Awesome</a>
         </root>
         eoxml
-        node = xml.xpath('//a')[3]
+        node = xml.xpath('.//a')[3]
         assert_equal('Hello world', node.text)
         assert_match(/Hello world/, xml.to_s)
         assert node.parent
@@ -265,47 +269,43 @@ module Nokogiri
       end
 
       def test_next_sibling
-        assert node = @node.root
-        assert sibling = node.child.next_sibling
+        assert sibling = @node.child.next_sibling
         assert_equal('employee', sibling.name)
       end
 
       def test_previous_sibling
-        assert node = @node.root
-        assert sibling = node.child.next_sibling
+        assert sibling = @node.child.next_sibling
         assert_equal('employee', sibling.name)
-        assert_equal(sibling.previous_sibling, node.child)
+        assert_equal(sibling.previous_sibling, @node.child)
       end
 
       def test_name=
-        assert node = @node.root
-        node.name = 'awesome'
-        assert_equal('awesome', node.name)
+        @node.name = 'awesome'
+        assert_equal('awesome', @node.name)
       end
 
       def test_child
-        assert node = @node.root
-        assert child = node.child
+        assert child = @node.child
         assert_equal('text', child.name)
       end
 
       def test_key?
-        assert node = @node.search('//address').first
+        assert node = @node.search('.//address').first
         assert(!node.key?('asdfasdf'))
       end
 
       def test_set_property
-        assert node = @node.search('//address').first
+        assert node = @node.search('.//address').first
         node['foo'] = 'bar'
         assert_equal('bar', node['foo'])
       end
 
       def test_attributes
-        assert node = @node.search('//address').first
+        assert node = @node.search('.//address').first
         assert_nil(node['asdfasdfasdf'])
         assert_equal('Yes', node['domestic'])
 
-        assert node = @node.search('//address')[2]
+        assert node = @node.search('.//address')[2]
         attr = node.attributes
         assert_equal 2, attr.size
         assert_equal 'Yes', attr['domestic'].value
@@ -314,7 +314,7 @@ module Nokogiri
       end
 
       def test_path
-        assert set = @node.search('//employee')
+        assert set = @node.search('.//employee')
         assert node = set.first
         assert_equal('/staff/employee[1]', node.path)
       end
@@ -328,7 +328,7 @@ module Nokogiri
       end
 
       def test_new_node
-        node = Nokogiri::XML::Node.new('form', @node)
+        node = Nokogiri::XML::Node.new('form', @node.document)
         assert_equal('form', node.name)
         assert(node.document)
       end
@@ -348,15 +348,15 @@ module Nokogiri
 
       def test_whitespace_nodes
         doc = Nokogiri::XML.parse("<root><b>Foo</b>\n<i>Bar</i> <p>Bazz</p></root>")
-        children = doc.at('//root').children.collect{|j| j.to_s}
+        children = doc.at('.//root').children.collect{|j| j.to_s}
         assert_equal "\n", children[1]
         assert_equal " ", children[3]
       end
 
       def test_replace
-        set = @node.search('//employee')
+        set = @node.search('.//employee')
         assert 5, set.length
-        assert 0, @node.search('//form').length
+        assert 0, @node.search('.//form').length
 
         first = set[0]
         second = set[1]
@@ -364,16 +364,16 @@ module Nokogiri
         node = Nokogiri::XML::Node.new('form', @node)
         first.replace(node)
 
-        assert set = @node.search('//employee')
+        assert set = @node.search('.//employee')
         assert_equal 4, set.length
-        assert 1, @node.search('//form').length
+        assert 1, @node.search('.//form').length
 
         assert_equal set[0].to_xml, second.to_xml
       end
 
       def test_illegal_replace_of_node_with_doc
         new_node = Nokogiri::XML.parse('<foo>bar</foo>')
-        old_node = @node.at('//employee')
+        old_node = @node.at('.//employee')
         assert_raises(ArgumentError){ old_node.replace new_node }
       end
     end
