@@ -94,8 +94,8 @@ extern VALUE mNokogiriXslt ;
 
 #define NOKOGIRI_ROOT_NODE(_node) \
   ({ \
-    nokogiriDocPtr doc = (nokogiriDocPtr)_node->doc; \
-    xmlNodeSetPtr node_set = (xmlNodeSetPtr)doc->unlinkedNodes; \
+    nokogiriTuplePtr tuple = (nokogiriTuplePtr)(_node->doc->_private);       \
+    xmlNodeSetPtr node_set = (xmlNodeSetPtr)(tuple->unlinkedNodes);     \
     xmlXPathNodeSetAdd(node_set, _node); \
     _node; \
   })

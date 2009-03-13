@@ -34,12 +34,12 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
   assert(ctx->context);
   assert(ctx->context->userData);
   assert(ctx->context->doc);
-  assert(ctx->context->doc->_private);
+  assert(DOC_RUBY_OBJECT(ctx->context->doc));
 
   xpath_handler = (VALUE)(ctx->context->userData);
 
   VALUE * argv = (VALUE *)calloc((unsigned int)nargs, sizeof(VALUE));
-  VALUE doc = (VALUE)ctx->context->doc->_private;
+  VALUE doc = DOC_RUBY_OBJECT(ctx->context->doc);
 
   int i = nargs - 1;
   do {
@@ -172,13 +172,13 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   VALUE xpath_object = Nokogiri_wrap_xml_xpath(xpath);
 
   assert(ctx->doc);
-  assert(ctx->doc->_private);
+  assert(DOC_RUBY_OBJECT(ctx->doc));
 
   rb_funcall( xpath_object,
               rb_intern("document="),
               1,
-              (VALUE)ctx->doc->_private
-    );
+              DOC_RUBY_OBJECT(ctx->doc)
+   );
   return xpath_object;
 }
 
