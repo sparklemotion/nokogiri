@@ -274,8 +274,6 @@ void init_xml_document()
   rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
-  rb_undef_method(klass, "parent");
-  rb_undef_method(klass, "namespace");
 }
 
 

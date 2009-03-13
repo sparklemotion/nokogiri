@@ -239,6 +239,14 @@ module Nokogiri
       end
 
       ####
+      # Swap this Node for new nodes made from +data+
+      def swap data
+        before(data)
+        remove
+        self
+      end
+
+      ####
       # Set the inner_html for this Node to +tags+
       def inner_html= tags
         children.each { |x| x.remove}

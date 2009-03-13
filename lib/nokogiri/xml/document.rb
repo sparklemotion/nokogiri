@@ -47,6 +47,8 @@ module Nokogiri
       def namespaces
         root ? root.collect_namespaces : {}
       end
+
+      undef_method :swap, :parent, :namespace
     end
   end
 end

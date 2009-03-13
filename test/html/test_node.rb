@@ -17,6 +17,13 @@ module Nokogiri
         eohtml
       end
 
+      def test_swap
+        @html.at('div').swap('<a href="foo">bar</a>')
+        a_tag = @html.css('a').first
+        assert_equal 'body', a_tag.parent.name
+        assert_equal 0, @html.css('div').length
+      end
+
       def test_attribute_decodes_entities
         node = @html.at('div')
         node['href'] = 'foo&bar'

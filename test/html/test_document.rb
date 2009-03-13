@@ -8,6 +8,12 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_swap_should_not_exist
+        assert_raises(NoMethodError) {
+          @html.swap
+        }
+      end
+
       def test_namespace_should_not_exist
         assert_raises(NoMethodError) {
           @html.namespace
