@@ -15,6 +15,31 @@ require 'nokogiri/css'
 require 'nokogiri/html/builder'
 require 'nokogiri/hpricot'
 
+# Nokogiri parses and searches XML/HTML very quickly, and also has
+# correctly implemented CSS3 selector support as well as XPath support.
+#
+# Parsing a document returns either a Nokogiri::XML::Document, or a
+# Nokogiri::HTML::Document depending on the kind of document you parse.
+#
+# Here is an example:
+#
+#   require 'nokogiri'
+#   require 'open-uri'
+#
+#   # Get a Nokogiri::HTML:Document for the page we’re interested in...
+#
+#   doc = Nokogiri::HTML(open('http://www.google.com/search?q=tenderlove'))
+#
+#   # Do funky things with it using Nokogiri::XML::Node methods...
+#
+#   ####
+#   # Search for nodes by css
+#   doc.css('h3.r a.l').each do |link|
+#     puts link.content
+#   end
+#
+# See Nokogiri::XML::Node#css for more information about CSS searching.
+# See Nokogiri::XML::Node#xpath for more information about XPath searching.
 module Nokogiri
   class << self
     ###

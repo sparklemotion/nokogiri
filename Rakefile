@@ -104,7 +104,7 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   begin
     sh "frex --independent -o #{t.name} #{t.prerequisites.first}"
   rescue
-    abort "need frex, sudo gem install aaronp-frex -s http://gems.github.com"   
+    abort "need frex, sudo gem install tenderlove-frex -s http://gems.github.com"   
   end
 end
 
@@ -261,7 +261,7 @@ namespace :install do
   end
 
   task :frex do
-    sh "sudo gem install aaronp-frex -s http://gems.github.com"
+    sh "sudo gem install tenderlove-frex -s http://gems.github.com"
   end
 end
 
