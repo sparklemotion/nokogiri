@@ -630,7 +630,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
   VALUE node_cache = Qnil ;
   VALUE rb_node = Qnil ;
 
-  if (DOC_RUBY_OBJECT(node->doc)) {
+  if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc)) {
     document = DOC_RUBY_OBJECT(node->doc);
     node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
     rb_node = rb_hash_aref(node_cache, index);
