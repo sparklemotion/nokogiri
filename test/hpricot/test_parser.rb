@@ -135,7 +135,6 @@ class TestParser < Nokogiri::TestCase
 
   def test_reparent
     doc = Nokogiri.Hpricot(%{<div id="blurb_1"></div>})
-    assert doc.html?
     div1 = doc.search('#blurb_1')
     div1.before('<div id="blurb_0"></div>')
 
