@@ -3,6 +3,36 @@ require 'nokogiri/xml/node/save_options'
 
 module Nokogiri
   module XML
+    ####
+    # Nokogiri::XML::Node is your window to the fun filled world of dealing
+    # with XML and HTML tags.  A Nokogiri::XML::Node may be treated similarly
+    # to a hash with regard to attributes.  For example (from irb):
+    #
+    #   irb(main):004:0> node
+    #   => <a href="#foo" id="link">link</a>
+    #   irb(main):005:0> node['href']
+    #   => "#foo"
+    #   irb(main):006:0> node.keys
+    #   => ["href", "id"]
+    #   irb(main):007:0> node.values
+    #   => ["#foo", "link"]
+    #   irb(main):008:0> node['class'] = 'green'
+    #   => "green"
+    #   irb(main):009:0> node
+    #   => <a href="#foo" id="link" class="green">link</a>
+    #   irb(main):010:0>
+    #
+    # See Nokogiri::XML::Node#[] and Nokogiri::XML#[]= for more information.
+    #
+    # Nokogiri::XML::Node also has methods that let you move around your
+    # tree.  For navigating your tree, see:
+    #
+    # * Nokogiri::XML::Node#parent
+    # * Nokogiri::XML::Node#children
+    # * Nokogiri::XML::Node#next
+    # * Nokogiri::XML::Node#previous
+    #
+    # You may search this node's subtree using Node#xpath and Node#css
     class Node
       ELEMENT_NODE =       1
       ATTRIBUTE_NODE =     2
@@ -285,22 +315,27 @@ module Nokogiri
         parent_node
       end
 
+      # Returns true if this is a Comment
       def comment?
         type == COMMENT_NODE
       end
 
+      # Returns true if this is a CDATA
       def cdata?
         type == CDATA_SECTION_NODE
       end
 
+      # Returns true if this is an XML::Document node
       def xml?
         type == DOCUMENT_NODE
       end
 
+      # Returns true if this is an HTML::Document node
       def html?
         type == HTML_DOCUMENT_NODE
       end
 
+      # Returns true if this is a Text node
       def text?
         type == TEXT_NODE
       end
@@ -310,6 +345,7 @@ module Nokogiri
         [NOTATION_NODE, ENTITY_NODE, ENTITY_DECL].include?(type)
       end
 
+      # Returns true if this is an Element node
       def element?
         type == ELEMENT_NODE
       end
@@ -323,6 +359,7 @@ module Nokogiri
         children.map { |x| x.to_html }.join
       end
 
+      # Get the path to this node as a CSS expression
       def css_path
         path.split(/\//).map { |part|
           part.length == 0 ? nil : part.gsub(/\[(\d+)\]/, ':nth-of-type(\1)')
@@ -461,8 +498,13 @@ Node.replace requires a Node argument, and cannot accept a Document.
         write_to io, encoding, SaveOptions::FORMAT | SaveOptions::AS_XML
       end
 
+      # Create a new node from +string+
+      #
+      # THIS METHOD IS DEPRECATED
+      # This method is deprecated and will be removed in 1.3.0 or by
+      # March 1, 2009. Instead, use Nokogiri::XML::Node#fragment()
       def self.new_from_str string
-        $stderr.puts("This method is deprecated and will be removed in 1.2.0 or by March 1, 2009. Instead, use Nokogiri::HTML.fragment()")
+        $stderr.puts("This method is deprecated and will be removed in 1.3.0 or by March 1, 2009. Instead, use Nokogiri::XML::Node#fragment")
         Nokogiri::HTML.fragment(string).first
       end
     end
