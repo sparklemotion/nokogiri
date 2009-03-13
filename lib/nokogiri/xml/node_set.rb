@@ -73,7 +73,7 @@ module Nokogiri
       ###
       # If path is a string, search this document for +path+ returning the
       # first Node.  Otherwise, index in to the array with +path+.
-      def at path, ns = {}
+      def at path, ns = document.root ? document.root.namespaces : {}
         return self[path] if path.is_a?(Numeric)
         search(path, ns).first
       end

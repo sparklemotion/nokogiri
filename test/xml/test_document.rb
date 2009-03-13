@@ -40,6 +40,9 @@ module Nokogiri
         assert_equal 1, doc.xpath('//xmlns:foo').length
         assert_equal 1, doc.search('xmlns|foo').length
         assert_equal 1, doc.search('//xmlns:foo').length
+        assert doc.at('xmlns|foo')
+        assert doc.at('//xmlns:foo')
+        assert doc.at('foo')
       end
 
       def test_xmlns_is_registered_for_nodesets
