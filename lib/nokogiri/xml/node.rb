@@ -332,13 +332,12 @@ module Nokogiri
       ###
       # Get a list of ancestor Node for this Node
       def ancestors
-        parents = []
+        return [] unless respond_to?(:parent)
 
-        this_parent = self.parent
+        parents = [parent]
 
-        while this_parent != nil
-          parents << this_parent
-          this_parent = this_parent.parent
+        while parents.last.respond_to?(:parent)
+          parents << parents.last.parent
         end
         parents
       end

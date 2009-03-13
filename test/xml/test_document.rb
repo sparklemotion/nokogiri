@@ -10,6 +10,22 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_namespace_should_not_exist
+        assert_raises(NoMethodError) {
+          @xml.namespace
+        }
+      end
+
+      def test_ancestors
+        assert_equal [], @xml.ancestors
+      end
+
+      def test_root_node_parent_is_document
+        parent = @xml.root.parent
+        assert_equal @xml, parent
+        assert_instance_of Nokogiri::XML::Document, parent
+      end
+
       def test_xmlns_is_automatically_registered
         doc = Nokogiri::XML(<<-eoxml)
           <root xmlns="http://tenderlovemaking.com/">

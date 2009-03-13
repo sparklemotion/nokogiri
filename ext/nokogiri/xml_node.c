@@ -681,6 +681,10 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       klass = rb_const_get(mNokogiriXml, rb_intern("DTD"));
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
+    case XML_DOCUMENT_NODE:
+      return DOC_RUBY_OBJECT(node->doc);
+    case XML_HTML_DOCUMENT_NODE:
+      return DOC_RUBY_OBJECT(node->doc);
     default:
       rb_node = Data_Wrap_Struct(cNokogiriXmlNode, 0, debug_node_dealloc, node) ;
   }

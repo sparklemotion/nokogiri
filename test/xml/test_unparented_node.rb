@@ -100,9 +100,9 @@ module Nokogiri
 
       def test_ancestors
         assert(address = @node.xpath('.//address').first)
-        assert_equal 2, address.ancestors.length
-        assert_equal ['employee', 'staff'],
-          address.ancestors.map { |x| x.name }
+        assert_equal 3, address.ancestors.length
+        assert_equal ['employee', 'staff', nil],
+          address.ancestors.map { |x| x ? x.name : x }
       end
 
       def test_read_only?

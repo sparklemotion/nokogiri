@@ -119,7 +119,7 @@ module Nokogiri
       def test_ancestors
         address = @xml.xpath('//address').first
         assert_equal 3, address.ancestors.length
-        assert_equal ['employee', 'staff', nil],
+        assert_equal ['employee', 'staff', 'document'],
           address.ancestors.map { |x| x.name }
       end
 

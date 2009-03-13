@@ -8,6 +8,18 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_namespace_should_not_exist
+        assert_raises(NoMethodError) {
+          @html.namespace
+        }
+      end
+
+      def test_root_node_parent_is_document
+        parent = @html.root.parent
+        assert_equal @html, parent
+        assert_instance_of Nokogiri::HTML::Document, parent
+      end
+
       def test_parse_empty_document
         doc = Nokogiri::HTML("\n")
         assert_equal 0, doc.css('a').length
