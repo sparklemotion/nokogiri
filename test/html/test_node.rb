@@ -5,16 +5,20 @@ require 'nkf'
 module Nokogiri
   module HTML
     class TestNode < Nokogiri::TestCase
-      def test_attribute_decodes_entities
-        html = Nokogiri::HTML(<<-eohtml)
+      def setup
+        super
+        @html = Nokogiri::HTML(<<-eohtml)
         <html>
           <head></head>
           <body>
-            <a>first</a>
+            <div>first</div>
           </body>
         </html>
         eohtml
-        node = html.at('a')
+      end
+
+      def test_attribute_decodes_entities
+        node = @html.at('div')
         node['href'] = 'foo&bar'
         assert_equal 'foo&bar', node['href']
         node['href'] += '&baz'
@@ -23,31 +27,13 @@ module Nokogiri
 
 
       def test_before_will_prepend_text_nodes
-        html = Nokogiri::HTML(<<-eohtml)
-        <html>
-          <head></head>
-          <body>
-            <div>first</div>
-          </body>
-        </html>
-        eohtml
-
-        assert node = html.at('//body').children.first
+        assert node = @html.at('//body').children.first
         node.before "some text"
-        assert_equal 'some text', html.at('//body').children.first.content.strip
+        assert_equal 'some text', @html.at('//body').children[0].content.strip
       end
 
       def test_inner_html=
-        html = Nokogiri::HTML(<<-eohtml)
-        <html>
-          <head></head>
-          <body>
-            <div>first</div>
-          </body>
-        </html>
-        eohtml
-
-        assert div = html.at('//div')
+        assert div = @html.at('//div')
         div.inner_html = '<span>testing</span>'
         assert_equal 'span', div.children.first.name
 
@@ -56,15 +42,7 @@ module Nokogiri
       end
 
       def test_fragment
-        html = Nokogiri::HTML(<<-eohtml)
-        <html>
-          <head></head>
-          <body>
-            <div>first</div>
-          </body>
-        </html>
-        eohtml
-        fragment = html.fragment(<<-eohtml)
+        fragment = @html.fragment(<<-eohtml)
           hello
           <div class="foo">
             <p>bar</p>
@@ -79,16 +57,7 @@ module Nokogiri
       end
 
       def test_after_will_append_text_nodes
-        html = Nokogiri::HTML(<<-eohtml)
-        <html>
-          <head></head>
-          <body>
-            <div>first</div>
-          </body>
-        </html>
-        eohtml
-
-        assert node = html.at('//body/div')
+        assert node = @html.at('//body/div')
         node.after "some text"
         assert_equal 'some text', node.next.text.strip
       end
