@@ -1,11 +1,39 @@
-=== 1.2.1 / ２００８年２月２３日
+=== HEAD
+
+* 新しい機能
+
+  * Nokogiri は soap4r と一緒に使う事が可能。(XSD::XMLParser::Nokogiri 参照)
+  * Nokogiri::XML::Node#inner_html= はノードの中のHTMLをセット出来る
+  * Nokogiriのビルダーのインタフェースの改良
+  * Nokogiri::XML::Node#swap　は、現在のノードに新しいhtmlを交換する事が出来る
+
+
+* バグの修正
+
+  * ビルダーAPIのタグのネスティングを修正 (LH #41)
+  * Nokogiri::HTML.fragment はテキストだけのノードを適切に扱う事が出来る(LH #43)
+  * Nokogiri::XML::Node#before はテキストノードのはじめに挿入する事が出来る (LH #44)
+  * Nokogiri::XML::Node#after はテキストノードの文末に挿入する事が出来る
+  * Nokogiri::XML::Node#search 名前空間が自動的に登録されるようになった(LH#42)
+  * Nokogiri::XML::NodeSet#search 名前空間が自動的に登録されるようになった
+  * Nokogiri::HTML::NamedCharacters はlibxml2に委任
+  * Nokogiri::XML::Node#[] はSymbolを使う (LH #48)
+  * vasprintf にwindowsを修正 (Geffroy Couprie ありがとう！)
+  * Nokogiri::XML::Node#[]= はentityを符号化しない (LH #55)
+  * 名前空間はreparentedのノードに模写する (LH #56)
+  * StringのエンコードはRuby 1.9での初期設定を使用する
+  * Document#dup は新しいドキュメントに同じタイプを作る (LH #59)
+  * Document#parent は存在しない (LH #64)
+
+
+=== 1.2.1 / ２００９年２月２３日
 
 * 修正
 
   * CSS のセレクターのスペースを修正
   * Ruby 1.9 のStringのエンコードを修正 （角谷さんに感謝！）
 
-=== 1.2.0 / ２００８年２月２２日
+=== 1.2.0 / ２００９年２月２２日
 
 * 新しい機能
   * CSSサーチが CSS3 名前空間クエリをサポートするようになった
