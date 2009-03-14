@@ -70,8 +70,10 @@ The bug tracker is available here:
 == REQUIREMENTS:
 
 * ruby 1.8 or 1.9
-* libxml
+* libxml2
+* libxml2-dev
 * libxslt
+* libxslt-dev
 
 == INSTALL:
 
