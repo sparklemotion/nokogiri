@@ -129,22 +129,6 @@ static void comment_func(void * ctx, const xmlChar * value)
   rb_funcall(doc, rb_intern("comment"), 1, str);
 }
 
-#ifdef XP_WIN
-/*
- * I srsly hate windows.  it doesn't have vasprintf.
- * Thank you Geoffroy Couprie for this implementation of vasprintf!
- */
-static int vasprintf (char **strp, const char *fmt, va_list ap)
-{
-  int len = vsnprintf (NULL, 0, fmt, ap) + 1;
-  char *res = (char *)malloc((unsigned int)len);
-  if (res == NULL)
-      return -1;
-  *strp = res;
-  return vsnprintf(res, (unsigned int)len, fmt, ap);
-}
-#endif
-
 static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;

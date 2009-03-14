@@ -16,6 +16,12 @@ module Nokogiri
         }
       end
 
+      def test_non_existant_function
+        assert_raises(RuntimeError) {
+          @xml.xpath('//name[foo()]')
+        }
+      end
+
       def test_ancestors
         assert_equal [], @xml.ancestors
       end

@@ -62,6 +62,10 @@
   rb_str_new((const char *)str, (long)len)
 #endif
 
+#ifdef XP_WIN
+int vasprintf (char **strp, const char *fmt, va_list ap)
+#endif
+
 #include <xml_io.h>
 #include <xml_document.h>
 #include <html_entity_lookup.h>
