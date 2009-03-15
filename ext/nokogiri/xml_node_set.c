@@ -64,7 +64,7 @@ static VALUE index_at(VALUE self, VALUE number)
  *
  * Unlink this NodeSet and all Node objects it contains from their current context.
  */
-static VALUE unlink(VALUE self)
+static VALUE unlink_nodeset(VALUE self)
 {
   xmlNodeSetPtr node_set;
   int j, nodeNr ;
@@ -144,5 +144,5 @@ void init_xml_node_set(void)
   rb_define_method(klass, "length", length, 0);
   rb_define_method(klass, "[]", index_at, 1);
   rb_define_method(klass, "push", push, 1);
-  rb_define_method(klass, "unlink", unlink, 0);
+  rb_define_method(klass, "unlink", unlink_nodeset, 0);
 }

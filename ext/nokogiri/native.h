@@ -63,7 +63,7 @@
 #endif
 
 #ifdef XP_WIN
-int vasprintf (char **strp, const char *fmt, va_list ap)
+int vasprintf (char **strp, const char *fmt, va_list ap);
 #endif
 
 #include <xml_io.h>
