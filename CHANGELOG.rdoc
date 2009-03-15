@@ -1,4 +1,4 @@
-=== HEAD
+=== 1.2.2 / 2009-03-14
 
 * New features
 
@@ -24,14 +24,14 @@
   * Document#dup should create a new document of the same type (LH #59)
   * Document should not have a parent method (LH #64)
 
-=== 1.2.1 / 2008-02-23
+=== 1.2.1 / 2009-02-23
 
 * Bugfixes
 
   * Fixed a CSS selector space bug
   * Fixed Ruby 1.9 String Encoding (Thanks 角谷さん！)
 
-=== 1.2.0 / 2008-02-22
+=== 1.2.0 / 2009-02-22
 
 * New features
 
