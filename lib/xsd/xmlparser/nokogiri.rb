@@ -14,11 +14,12 @@ module XSD
     #
     #   require 'rubygems'
     #   gem 'soap4r'
+    #   require 'nokogiri'
     #   require 'xsd/xmlparser/nokogiri'
     #   require 'defaultDriver'
     #
     #   obj = AvlPortType.new
-    #   obj.getLatestByRout(obj.getAgencies, 8).each do |event|
+    #   obj.getLatestByRoute(obj.getAgencies, 8).each do |event|
     #     ...
     #   end
     class Nokogiri < XSD::XMLParser::Parser
