@@ -1,3 +1,9 @@
+=== HEAD
+
+* Bugfixes
+
+  * Fixing bug where a node is passed in to Node#new
+
 === 1.2.2 / 2009-03-14
 
 * New features

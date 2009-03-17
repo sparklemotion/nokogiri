@@ -590,7 +590,7 @@ static VALUE new(VALUE klass, VALUE name, VALUE document)
   Data_Get_Struct(document, xmlDoc, doc);
 
   xmlNodePtr node = xmlNewNode(NULL, (xmlChar *)StringValuePtr(name));
-  node->doc = doc;
+  node->doc = doc->doc;
 
   VALUE rb_node = Nokogiri_wrap_xml_node(node);
 
@@ -630,19 +630,21 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
   VALUE node_cache = Qnil ;
   VALUE rb_node = Qnil ;
 
-  if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc)) {
-    document = DOC_RUBY_OBJECT(node->doc);
-    node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
-    rb_node = rb_hash_aref(node_cache, index);
-    if(rb_node != Qnil) return rb_node;
-  }
+  if(node->type == XML_DOCUMENT_NODE || node->type == XML_HTML_DOCUMENT_NODE)
+      return DOC_RUBY_OBJECT(node->doc);
+
+  if(NULL != node->_private) return (VALUE)node->_private;
 
   switch(node->type)
   {
     VALUE klass;
 
+    case XML_ELEMENT_NODE:
+      klass = cNokogiriXmlElement;
+      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
+      break;
     case XML_TEXT_NODE:
-      klass = rb_const_get(mNokogiriXml, rb_intern("Text"));
+      klass = cNokogiriXmlText;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_ENTITY_REF_NODE:
@@ -661,10 +663,6 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       klass = cNokogiriXmlProcessingInstruction;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
-    case XML_ELEMENT_NODE:
-      klass = rb_const_get(mNokogiriXml, rb_intern("Element"));
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
-      break;
     case XML_ATTRIBUTE_NODE:
       klass = cNokogiriXmlAttr;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
@@ -681,17 +679,21 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       klass = rb_const_get(mNokogiriXml, rb_intern("DTD"));
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
-    case XML_DOCUMENT_NODE:
-      return DOC_RUBY_OBJECT(node->doc);
-    case XML_HTML_DOCUMENT_NODE:
-      return DOC_RUBY_OBJECT(node->doc);
     default:
       rb_node = Data_Wrap_Struct(cNokogiriXmlNode, 0, debug_node_dealloc, node) ;
+  }
+
+  node->_private = (void *)rb_node;
+
+  if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc)) {
+    document = DOC_RUBY_OBJECT(node->doc);
+    node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
   }
 
   if (node_cache != Qnil) rb_hash_aset(node_cache, index, rb_node);
   rb_iv_set(rb_node, "@document", document);
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
+
   return rb_node ;
 }
 
@@ -748,6 +750,8 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 
 
 VALUE cNokogiriXmlNode ;
+VALUE cNokogiriXmlElement ;
+
 void init_xml_node()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
@@ -755,6 +759,8 @@ void init_xml_node()
   VALUE klass = rb_define_class_under(xml, "Node", rb_cObject);
 
   cNokogiriXmlNode = klass;
+
+  cNokogiriXmlElement = rb_define_class_under(xml, "Element", klass);
 
   rb_define_singleton_method(klass, "new", new, 2);
 
