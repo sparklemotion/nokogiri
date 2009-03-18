@@ -10,6 +10,20 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_children
+        doc = Nokogiri::XML(<<-eoxml)
+          <root>#{'<a/>' * 9 }</root>
+        eoxml
+        assert_equal 9, doc.root.children.length
+        assert_equal 9, doc.root.children.to_a.length
+
+        doc = Nokogiri::XML(<<-eoxml)
+          <root>#{'<a/>' * 15 }</root>
+        eoxml
+        assert_equal 15, doc.root.children.length
+        assert_equal 15, doc.root.children.to_a.length
+      end
+
       def test_add_namespace
         node = @xml.at('address')
         node.add_namespace('foo', 'http://tenderlovemaking.com')

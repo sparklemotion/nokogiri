@@ -66,22 +66,6 @@ module Nokogiri
       end
 
       ###
-      # Get the list of children for this node as a NodeSet
-      def children
-        list = NodeSet.new(document)
-        document.decorate(list)
-
-        first = self.child
-        return list unless first # Empty list
-
-        list << first
-        while first = first.next
-          list << first
-        end
-        list
-      end
-
-      ###
       # Search this node for +paths+.  +paths+ can be XPath or CSS, and an
       # optional hash of namespaces may be appended.
       # See Node#xpath and Node#css.

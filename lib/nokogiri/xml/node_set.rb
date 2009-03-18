@@ -136,10 +136,8 @@ module Nokogiri
       ###
       # Iterate over each node, yielding  to +block+
       def each(&block)
-        x = 0
-        while x < length
+        0.upto(length - 1) do |x|
           yield self[x]
-          x += 1
         end
       end
 

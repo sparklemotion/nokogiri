@@ -214,6 +214,36 @@ static VALUE replace(VALUE self, VALUE _new_node)
   return self ;
 }
 
+/*
+ * call-seq:
+ *  children
+ *
+ * Get the list of children for this node as a NodeSet
+ */
+static VALUE children(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+
+  xmlNodePtr child = node->children;
+  xmlNodeSetPtr set = xmlXPathNodeSetCreate(child);
+
+  if(!child) return Nokogiri_wrap_xml_node_set(set);
+
+  child = child->next;
+  while(NULL != child) {
+    if(set->nodeNr >= set->nodeMax) {
+      // This will grow the nodeset for us
+      xmlXPathNodeSetAdd(set, child);
+    } else {
+      set->nodeTab[set->nodeNr] = child;
+      set->nodeNr++;
+    }
+    child = child->next;
+  }
+
+  return Nokogiri_wrap_xml_node_set(set);
+}
 
 /*
  * call-seq:
@@ -770,6 +800,7 @@ void init_xml_node()
   rb_define_method(klass, "add_child", add_child, 1);
   rb_define_method(klass, "parent", get_parent, 0);
   rb_define_method(klass, "child", child, 0);
+  rb_define_method(klass, "children", children, 0);
   rb_define_method(klass, "next_sibling", next_sibling, 0);
   rb_define_method(klass, "previous_sibling", previous_sibling, 0);
   rb_define_method(klass, "node_type", node_type, 0);
