@@ -3,6 +3,7 @@
 * Bugfixes
 
   * Fixing bug where a node is passed in to Node#new
+  * Namespace should be assigned on DocumentFragment creation. LH #66
 
 === 1.2.2 / 2009-03-14
 

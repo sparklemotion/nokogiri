@@ -10,6 +10,16 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_node_added_to_root_should_get_namespace
+        fruits = Nokogiri::XML(<<-eoxml)
+          <Fruit xmlns='http://www.fruits.org'>
+          </Fruit>
+        eoxml
+        apple = fruits.fragment('<Apple/>')
+        fruits << apple
+        assert_equal 1, fruits.xpath('//xmlns:Apple').length
+      end
+
       def test_add_child_path_following_sequential_text_nodes
         xml = Nokogiri::XML('<root>text</root>')
         xml.root.add_child(Nokogiri::XML::Text.new('text', xml))
