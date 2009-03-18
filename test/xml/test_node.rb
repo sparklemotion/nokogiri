@@ -10,6 +10,13 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_add_child_path_following_sequential_text_nodes
+        xml = Nokogiri::XML('<root>text</root>')
+        xml.root.add_child(Nokogiri::XML::Text.new('text', xml))
+        item = xml.root.add_child(Nokogiri::XML::Element.new('item', xml))
+        assert_equal '/root/item', item.path
+      end
+
       def test_children
         doc = Nokogiri::XML(<<-eoxml)
           <root>#{'<a/>' * 9 }</root>
