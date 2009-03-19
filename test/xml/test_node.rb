@@ -10,6 +10,19 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_duplicate_node_removes_namespace
+        fruits = Nokogiri::XML(<<-eoxml)
+        <Fruit xmlns='www.fruits.org'>
+        <Apple></Apple>
+        </Fruit>
+        eoxml
+        apple = fruits.root.xpath('fruit:Apple', {'fruit'=>'www.fruits.org'})[0]
+        new_apple = apple.dup
+        fruits.root << new_apple
+        assert_equal 2, fruits.xpath('//xmlns:Apple').length
+        assert_equal 1, fruits.to_xml.scan('www.fruits.org').length
+      end
+      
       def test_node_added_to_root_should_get_namespace
         fruits = Nokogiri::XML(<<-eoxml)
           <Fruit xmlns='http://www.fruits.org'>

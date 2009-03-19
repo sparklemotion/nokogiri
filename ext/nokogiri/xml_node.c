@@ -48,8 +48,18 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   }
 
   // Make sure that our reparented node has the correct namespaces
-  if(reparented->doc != reparented->parent)
+  if(reparented->doc != (xmlDocPtr)reparented->parent)
     reparented->ns = reparented->parent->ns;
+
+  // Search our parents for an existing definition
+  if(reparented->nsDef) {
+    xmlNsPtr ns = xmlSearchNsByHref(
+        reparented->doc,
+        reparented,
+        reparented->nsDef->href
+    );
+    if(ns) reparented->nsDef = NULL;
+  }
 
   reparented_obj = Nokogiri_wrap_xml_node(reparented);
 

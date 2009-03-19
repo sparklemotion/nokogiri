@@ -6,6 +6,7 @@
   * Namespace should be assigned on DocumentFragment creation. LH #66
   * Nokogiri::XML::NodeSet#dup works GH #10
   * Nokogiri::HTML returns an empty Document when given a blank string GH#11
+  * Adding a child will remove duplicate namespace declarations LH #67
 
 === 1.2.2 / 2009-03-14
 
