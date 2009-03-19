@@ -38,6 +38,7 @@ module Nokogiri
           return Document.read_io(string_or_io, url, encoding, options)
         end
 
+        return Document.new if(string_or_io.length == 0)
         Document.read_memory(string_or_io, url, encoding, options)
       end
 

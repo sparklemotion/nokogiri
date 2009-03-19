@@ -8,6 +8,10 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_emtpy_string_returns_empty_doc
+        doc = Nokogiri::HTML('')
+      end
+
       def test_swap_should_not_exist
         assert_raises(NoMethodError) {
           @html.swap
