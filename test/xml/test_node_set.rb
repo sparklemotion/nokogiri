@@ -8,6 +8,15 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_dup
+        assert node_set = @xml.xpath('//employee')
+        dup = node_set.dup
+        assert_equal node_set.length, dup.length
+        node_set.zip(dup).each do |a,b|
+          assert_equal a, b
+        end
+      end
+
       def test_xmlns_is_automatically_registered
         doc = Nokogiri::XML(<<-eoxml)
           <root xmlns="http://tenderlovemaking.com/">

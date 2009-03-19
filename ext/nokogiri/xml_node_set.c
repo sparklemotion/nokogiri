@@ -1,5 +1,26 @@
 #include <xml_node_set.h>
 #include <libxml/xpathInternals.h>
+
+/*
+ * call-seq:
+ *  dup
+ *
+ * Duplicate this node set
+ */
+static VALUE dup(VALUE self)
+{
+  xmlNodeSetPtr node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  xmlNodeSetPtr dupl = xmlXPathNodeSetCreate(NULL);
+  int i;
+  for(i = 0; i < node_set->nodeNr; i++) {
+    xmlXPathNodeSetAdd(dupl, node_set->nodeTab[i]);
+  }
+
+  return Nokogiri_wrap_xml_node_set(dupl);
+}
+
 /*
  * call-seq:
  *  length
@@ -69,11 +90,11 @@ static VALUE to_array(VALUE self, VALUE rb_node)
   xmlNodeSetPtr set;
   Data_Get_Struct(self, xmlNodeSet, set);
 
-  VALUE *elts = calloc(set->nodeNr, sizeof(VALUE *));
+  VALUE *elts = calloc((size_t)set->nodeNr, sizeof(VALUE *));
   int i;
   for(i = 0; i < set->nodeNr; i++) {
     if(set->nodeTab[i]->_private) {
-      elts[i] = set->nodeTab[i]->_private;
+      elts[i] = (VALUE)set->nodeTab[i]->_private;
     } else {
       elts[i] = Nokogiri_wrap_xml_node(set->nodeTab[i]);
     }
@@ -174,4 +195,5 @@ void init_xml_node_set(void)
   rb_define_method(klass, "push", push, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
   rb_define_method(klass, "to_a", to_array, 0);
+  rb_define_method(klass, "dup", dup, 0);
 }

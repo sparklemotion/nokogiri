@@ -232,13 +232,7 @@ static VALUE children(VALUE self)
 
   child = child->next;
   while(NULL != child) {
-    if(set->nodeNr >= set->nodeMax) {
-      // This will grow the nodeset for us
-      xmlXPathNodeSetAdd(set, child);
-    } else {
-      set->nodeTab[set->nodeNr] = child;
-      set->nodeNr++;
-    }
+    xmlXPathNodeSetAdd(set, child);
     child = child->next;
   }
 
