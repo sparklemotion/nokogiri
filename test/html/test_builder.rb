@@ -16,7 +16,7 @@ module Nokogiri
       end
 
       def test_hash_as_attributes_for_attribute_method
-        html = Nokogiri::HTML::Builder.new {
+        html = Nokogiri::HTML::Builder.new { ||
           div.slide(:class => 'another_class') {
             span 'Slide 1'
           }
