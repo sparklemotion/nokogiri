@@ -3,6 +3,18 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module HTML
     class TestBuilder < Nokogiri::TestCase
+      def test_builder_with_explicit_tags
+        html_doc = Nokogiri::HTML::Builder.new {
+          div.slide(:class => 'another_class') {
+            node = Nokogiri::XML::Node.new("id", doc)
+            node.content = "hello"
+            insert(node)
+          }
+        }.doc
+        assert_equal 1, html_doc.css('div.slide > id').length
+        assert_equal 'hello', html_doc.at('div.slide > id').content
+      end
+
       def test_hash_as_attributes_for_attribute_method
         html = Nokogiri::HTML::Builder.new {
           div.slide(:class => 'another_class') {
