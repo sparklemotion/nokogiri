@@ -236,6 +236,12 @@ module Nokogiri
         assert_match 'hello', xml.to_s
       end
 
+      def test_set_content_with_symbol
+        node = @xml.at('//name')
+        node.content = :foo
+        assert_equal 'foo', node.content
+      end
+
       def test_add_previous_sibling
         xml = Nokogiri::XML(<<-eoxml)
         <root>

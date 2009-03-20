@@ -7,6 +7,7 @@
   * Nokogiri::XML::NodeSet#dup works GH #10
   * Nokogiri::HTML returns an empty Document when given a blank string GH#11
   * Adding a child will remove duplicate namespace declarations LH #67
+  * Builder methods take a hash as a second argument
 
 === 1.2.2 / 2009-03-14
 

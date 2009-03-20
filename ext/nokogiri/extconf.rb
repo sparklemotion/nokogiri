@@ -38,6 +38,11 @@ if Config::CONFIG['target_os'] == 'mingw32'
   unless find_header('iconv.h', header)
     abort "need iconv"
   end
+else
+  unless find_header('iconv.h', INCLUDEDIR, '/opt/local/include',
+                     '/usr/local/include', '/usr/include')
+    abort "iconv is missing.  try 'port install iconv' or 'yum install iconv'"
+  end
 end
 
 xml2_dirs = dir_config('xml2', '/opt/local/include/libxml2', '/opt/local/lib')
