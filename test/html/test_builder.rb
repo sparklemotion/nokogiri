@@ -22,6 +22,17 @@ module Nokogiri
                      builder.doc.root.to_html.gsub(/\n/, '').gsub(/>\s*</, '><'))
       end
 
+      def test_href_with_attributes
+        uri = 'http://tenderlovemaking.com/'
+        built = Nokogiri::XML::Builder.new { |x|
+          div {
+            a('King Khan & The Shrines', :href => uri)
+          }
+        }
+        assert_equal 'http://tenderlovemaking.com/',
+          built.doc.at('a')[:href]
+      end
+
       def test_tag_nesting
         builder = Nokogiri::HTML::Builder.new do
           span.left ''

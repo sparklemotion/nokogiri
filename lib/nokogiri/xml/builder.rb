@@ -34,11 +34,12 @@ module Nokogiri
           @context.send(method, *args, &block)
         else
           node = Nokogiri::XML::Node.new(method.to_s, @doc) { |n|
-            if content = args.first
-              if content.is_a?(Hash)
-                content.each { |k,v| n[k.to_s] = v.to_s }
+            args.each do |arg|
+              case arg
+              when Hash
+                arg.each { |k,v| n[k.to_s] = v.to_s }
               else
-                n.content = content
+                n.content = arg
               end
             end
           }
