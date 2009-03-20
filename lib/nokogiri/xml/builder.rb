@@ -14,7 +14,7 @@ module Nokogiri
           @context = eval('self', block.binding)
           instance_eval(&block)
         else
-          block.call(self)
+          yield self
         end
 
         @parent = @doc
