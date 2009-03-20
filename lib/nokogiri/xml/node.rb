@@ -289,7 +289,7 @@ module Nokogiri
       ####
       # Set the content to +string+.
       def content= string
-        self.native_content = encode_special_chars(string)
+        self.native_content = encode_special_chars(string.to_s)
       end
 
       ###
