@@ -8,10 +8,15 @@ module Nokogiri
         @doc = eval(namespace.join('::')).new
         @parent = @doc
         @context = nil
-        if block_given?
+        return unless block_given?
+
+        if block.arity <= 0
           @context = eval('self', block.binding)
+          instance_eval(&block)
+        else
+          block.call(self)
         end
-        instance_eval(&block) if block_given?
+
         @parent = @doc
       end
 
@@ -46,6 +51,7 @@ module Nokogiri
           insert(node, &block)
         end
       end
+      undef_method :id
 
       private
       def insert(node, &block)

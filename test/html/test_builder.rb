@@ -36,7 +36,7 @@ module Nokogiri
 
       def test_href_with_attributes
         uri = 'http://tenderlovemaking.com/'
-        built = Nokogiri::XML::Builder.new { |x|
+        built = Nokogiri::XML::Builder.new {
           div {
             a('King Khan & The Shrines', :href => uri)
           }
@@ -127,6 +127,29 @@ module Nokogiri
 
         builder = Nokogiri::HTML::Builder.new { text foo }
         assert builder.to_html.include?("foo!")
+      end
+
+      def test_builder_with_param
+        doc = Nokogiri::HTML::Builder.new { |html|
+          html.body {
+            html.p "hello world"
+          }
+        }.doc
+
+        assert node = doc.xpath('//body/p').first
+        assert_equal 'hello world', node.content
+      end
+
+      def test_builder_with_id
+        text = "hello world"
+        doc = Nokogiri::HTML::Builder.new { |html|
+          html.body {
+            html.id text
+          }
+        }.doc
+
+        assert node = doc.xpath('//body/id').first
+        assert_equal text, node.content
       end
     end
   end

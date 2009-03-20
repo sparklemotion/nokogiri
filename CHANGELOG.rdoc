@@ -1,5 +1,11 @@
 === 1.2.3 / 2009-03-22
 
+* New Features
+
+  * Builder changes scope based on block arity
+
+=== HEAD
+
 * Bugfixes
 
   * Fixing bug where a node is passed in to Node#new
