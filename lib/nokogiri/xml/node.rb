@@ -491,6 +491,15 @@ Node.replace requires a Node argument, and cannot accept a Document.
         $stderr.puts("This method is deprecated and will be removed in 1.3.0 or by March 1, 2009. Instead, use Nokogiri::XML::Node#fragment")
         Nokogiri::HTML.fragment(string).first
       end
+
+      ###
+      # Compare two Node objects with respect to their Document.  Nodes from
+      # different documents cannot be compared.
+      def <=> other
+        return nil unless other.is_a?(Nokogiri::XML::Node)
+        return nil unless document == other.document
+        compare other
+      end
     end
   end
 end

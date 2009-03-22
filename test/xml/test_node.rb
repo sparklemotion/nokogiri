@@ -10,6 +10,31 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_spaceship
+        nodes = @xml.xpath('//employee')
+        assert_equal -1, (nodes.first <=> nodes.last)
+        list = [nodes.first, nodes.last].sort
+        assert_equal nodes.first, list.first
+        assert_equal nodes.last, list.last
+      end
+
+      def test_incorrect_spaceship
+        nodes = @xml.xpath('//employee')
+        assert_nil(nodes.first <=> 'asdf')
+      end
+
+      def test_document_compare
+        nodes = @xml.xpath('//employee')
+        assert_equal -1, (nodes.first <=> @xml)
+      end
+
+      def test_different_document_compare
+        nodes = @xml.xpath('//employee')
+        doc = Nokogiri::XML('<a><b/></a>')
+        b = doc.at('b')
+        assert_nil(nodes.first <=> b)
+      end
+
       def test_duplicate_node_removes_namespace
         fruits = Nokogiri::XML(<<-eoxml)
         <Fruit xmlns='www.fruits.org'>

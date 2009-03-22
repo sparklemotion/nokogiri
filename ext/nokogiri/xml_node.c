@@ -655,6 +655,21 @@ static VALUE dump_html(VALUE self)
   return html ;
 }
 
+/*
+ * call-seq:
+ *  compare(other)
+ *
+ * Compare this Node to +other+ with respect to their Document
+ */
+static VALUE compare(VALUE self, VALUE _other)
+{
+  xmlNodePtr node, other;
+  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(_other, xmlNode, other);
+
+  return INT2NUM(xmlXPathCmpNodes(other, node));
+}
+
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 {
   assert(node);
@@ -831,4 +846,5 @@ void init_xml_node()
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
+  rb_define_private_method(klass, "compare", compare, 1);
 }
