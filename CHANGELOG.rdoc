@@ -6,6 +6,7 @@
   * Nokogiri::XML::Node#<=> compares nodes based on Document position
   * Nokogiri::XML::Node#matches? returns true if Node can be found with
     given selector.
+  * Nokogiri::XML::Node#ancestors now returns an Nokogiri::XML::NodeSet
 
 === 1.2.3 / 2009-03-22
 
