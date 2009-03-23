@@ -11,10 +11,17 @@ module Nokogiri
         <html>
           <head></head>
           <body>
-            <div><a href="foo" class="bar">first</a></div>
+            <div class='baz'><a href="foo" class="bar">first</a></div>
           </body>
         </html>
         eohtml
+      end
+
+      def test_ancestors_with_selector
+        assert node = @html.at('a.bar').child
+        assert list = node.ancestors('.baz')
+        assert_equal 1, list.length
+        assert_equal 'div', list.first.name
       end
 
       def test_css_matches?

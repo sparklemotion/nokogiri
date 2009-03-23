@@ -365,18 +365,23 @@ module Nokogiri
       end
 
       ###
-      # Get a list of ancestor Node for this Node
-      def ancestors
-        parents = NodeSet.new(document)
-        return parents unless respond_to?(:parent)
+      # Get a list of ancestor Node for this Node.  If +selector+ is given,
+      # the ancestors must match +selector+
+      def ancestors selector = nil
+        return NodeSet.new(document) unless respond_to?(:parent)
 
-        parents.push(parent)
+        parents = [parent]
 
         while parents.last.respond_to?(:parent)
           break unless ctx_parent = parents.last.parent
           parents << ctx_parent
         end
-        parents
+
+        return NodeSet.new(document, parents) unless selector
+
+        NodeSet.new(document, parents.find_all { |parent|
+          parent.matches?(selector)
+        })
       end
 
       ####

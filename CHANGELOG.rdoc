@@ -7,6 +7,7 @@
   * Nokogiri::XML::Node#matches? returns true if Node can be found with
     given selector.
   * Nokogiri::XML::Node#ancestors now returns an Nokogiri::XML::NodeSet
+  * Nokogiri::XML::Node#ancestors will match parents against optional selector
 
 === 1.2.3 / 2009-03-22
 
