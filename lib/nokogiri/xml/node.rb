@@ -232,6 +232,12 @@ module Nokogiri
       end
       alias :delete :remove_attribute
 
+      ###
+      # Returns true if this Node matches +selector+
+      def matches? selector
+        document.search(selector).include?(self)
+      end
+
       ####
       # Create nodes from +data+ and insert them before this node
       # (as a sibling).

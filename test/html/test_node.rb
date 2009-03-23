@@ -11,10 +11,20 @@ module Nokogiri
         <html>
           <head></head>
           <body>
-            <div>first</div>
+            <div><a href="foo" class="bar">first</a></div>
           </body>
         </html>
         eohtml
+      end
+
+      def test_css_matches?
+        assert node = @html.at('a.bar')
+        assert node.matches?('a.bar')
+      end
+
+      def test_xpath_matches?
+        assert node = @html.at('//a')
+        assert node.matches?('//a')
       end
 
       def test_swap
