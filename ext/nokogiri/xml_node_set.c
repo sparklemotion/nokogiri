@@ -7,7 +7,7 @@
  *
  * Duplicate this node set
  */
-static VALUE dup(VALUE self)
+static VALUE duplicate(VALUE self)
 {
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
@@ -195,5 +195,5 @@ void init_xml_node_set(void)
   rb_define_method(klass, "push", push, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
   rb_define_method(klass, "to_a", to_array, 0);
-  rb_define_method(klass, "dup", dup, 0);
+  rb_define_method(klass, "dup", duplicate, 0);
 }
