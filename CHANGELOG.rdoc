@@ -1,11 +1,11 @@
-=== 1.2.3 / 2009-03-22
+=== HEAD
 
 * New Features
 
   * Builder changes scope based on block arity
   * Nokogiri::XML::Node#<=> compares nodes based on Document position
 
-=== HEAD
+=== 1.2.3 / 2009-03-22
 
 * Bugfixes
 
