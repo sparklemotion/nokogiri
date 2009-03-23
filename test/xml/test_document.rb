@@ -23,7 +23,7 @@ module Nokogiri
       end
 
       def test_ancestors
-        assert_equal [], @xml.ancestors
+        assert_equal 0, @xml.ancestors.length
       end
 
       def test_root_node_parent_is_document

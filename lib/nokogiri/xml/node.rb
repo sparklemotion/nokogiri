@@ -367,12 +367,14 @@ module Nokogiri
       ###
       # Get a list of ancestor Node for this Node
       def ancestors
-        return [] unless respond_to?(:parent)
+        parents = NodeSet.new(document)
+        return parents unless respond_to?(:parent)
 
-        parents = [parent]
+        parents.push(parent)
 
         while parents.last.respond_to?(:parent)
-          parents << parents.last.parent
+          break unless ctx_parent = parents.last.parent
+          parents << ctx_parent
         end
         parents
       end
