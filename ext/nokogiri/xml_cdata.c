@@ -12,7 +12,7 @@ static VALUE new(VALUE klass, VALUE doc, VALUE content)
   Data_Get_Struct(doc, xmlDoc, xml_doc);
 
   xmlNodePtr node = xmlNewCDataBlock(
-      xml_doc,
+      xml_doc->doc,
       (const xmlChar *)StringValuePtr(content),
       RSTRING_LEN(content)
   );
