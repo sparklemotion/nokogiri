@@ -144,7 +144,7 @@ module Nokogiri
         text = "hello world"
         doc = Nokogiri::HTML::Builder.new { |html|
           html.body {
-            html.id text
+            html.id_ text
           }
         }.doc
 

@@ -3,6 +3,7 @@
 * New Features
 
   * Builder changes scope based on block arity
+  * Builder supports methods ending in underscore similar to tagz
   * Nokogiri::XML::Node#<=> compares nodes based on Document position
   * Nokogiri::XML::Node#matches? returns true if Node can be found with
     given selector.

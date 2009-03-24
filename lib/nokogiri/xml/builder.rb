@@ -38,7 +38,7 @@ module Nokogiri
         if @context && @context.respond_to?(method)
           @context.send(method, *args, &block)
         else
-          node = Nokogiri::XML::Node.new(method.to_s, @doc) { |n|
+          node = Nokogiri::XML::Node.new(method.to_s.sub(/_$/, ''), @doc) { |n|
             args.each do |arg|
               case arg
               when Hash
@@ -51,7 +51,6 @@ module Nokogiri
           insert(node, &block)
         end
       end
-      undef_method :id
 
       private
       def insert(node, &block)
