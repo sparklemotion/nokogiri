@@ -24,6 +24,15 @@ module Nokogiri
         }
       end
 
+      def test_meta_encoding
+        assert_equal 'UTF-8', @html.meta_encoding
+      end
+
+      def test_meta_encoding=
+        @html.meta_encoding = 'EUC-JP'
+        assert_equal 'EUC-JP', @html.meta_encoding
+      end
+
       def test_root_node_parent_is_document
         parent = @html.root.parent
         assert_equal @html, parent

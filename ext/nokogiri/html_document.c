@@ -127,6 +127,36 @@ static VALUE type(VALUE self)
   return INT2NUM((int)doc->type);
 }
 
+/*
+ * call-seq:
+ *  meta_encoding=
+ *
+ * Set the meta tag encoding for this document.
+ */
+static VALUE set_meta_encoding(VALUE self, VALUE encoding)
+{
+  htmlDocPtr doc;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  htmlSetMetaEncoding(doc, (const xmlChar *)StringValuePtr(encoding));
+
+  return encoding;
+}
+
+/*
+ * call-seq:
+ *  meta_encoding
+ *
+ * Get the meta tag encoding for this document.
+ */
+static VALUE meta_encoding(VALUE self)
+{
+  htmlDocPtr doc;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  return NOKOGIRI_STR_NEW2(htmlGetMetaEncoding(doc), doc->encoding);
+}
+
 VALUE cNokogiriHtmlDocument ;
 void init_html_document()
 {
@@ -144,4 +174,6 @@ void init_html_document()
   rb_define_singleton_method(klass, "new", new, -1);
 
   rb_define_method(klass, "type", type, 0);
+  rb_define_method(klass, "meta_encoding", meta_encoding, 0);
+  rb_define_method(klass, "meta_encoding=", set_meta_encoding, 1);
 }
