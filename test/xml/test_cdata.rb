@@ -22,6 +22,11 @@ module Nokogiri
         node = CDATA.new(@xml.root, "foo")
         assert_equal "foo", node.content
       end
+
+      def test_new_with_nil
+        node = CDATA.new(@xml, nil)
+        assert_equal nil, node.content
+      end
     end
   end
 end
