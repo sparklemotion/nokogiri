@@ -9,7 +9,7 @@ module Nokogiri
       end
 
       def start_element name, attrs = []
-        @doc_started = true if @original_html =~ /^<#{name}/
+        @doc_started = true if @original_html.start_with?('<' + name)
         return unless @doc_started
 
         node = Node.new(name, @document)
@@ -21,7 +21,7 @@ module Nokogiri
       end
 
       def characters string
-        @doc_started = true if @original_html =~ /^\s*#{string}/
+        @doc_started = true if @original_html.strip.start_with?(string)
         @stack.last << Nokogiri::XML::Text.new(string, @document)
       end
 

@@ -41,6 +41,12 @@ module Nokogiri
         assert_equal 0, @html.css('div').length
       end
 
+      def test_swap_with_regex_characters
+        @html.at('div').swap('<a href="foo">ba)r</a>')
+        a_tag = @html.css('a').first
+        assert_equal 'ba)r', a_tag.text
+      end
+
       def test_attribute_decodes_entities
         node = @html.at('div')
         node['href'] = 'foo&bar'
