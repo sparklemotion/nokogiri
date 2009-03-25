@@ -11,6 +11,7 @@
   * Nokogiri::XML::Node#ancestors will match parents against optional selector
   * Nokogiri::HTML::Document#meta_encoding for getting the meta encoding
   * Nokogiri::HTML::Document#meta_encoding= for setting the meta encoding
+  * Nokogiri::XML::Document#encoding= to set the document encoding
 
 * Bugfixes
 

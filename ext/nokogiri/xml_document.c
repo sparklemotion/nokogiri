@@ -77,6 +77,22 @@ static VALUE root(VALUE self)
 
 /*
  * call-seq:
+ *  encoding= encoding
+ *
+ * Set the encoding string for this Document
+ */
+static VALUE set_encoding(VALUE self, VALUE encoding)
+{
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  doc->encoding = xmlStrdup((xmlChar *)StringValuePtr(encoding));
+
+  return encoding;
+}
+
+/*
+ * call-seq:
  *  encoding
  *
  * Get the encoding for this Document
@@ -272,6 +288,7 @@ void init_xml_document()
   rb_define_method(klass, "root", root, 0);
   rb_define_method(klass, "root=", set_root, 1);
   rb_define_method(klass, "encoding", encoding, 0);
+  rb_define_method(klass, "encoding=", set_encoding, 1);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
 }

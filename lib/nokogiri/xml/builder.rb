@@ -2,13 +2,17 @@ module Nokogiri
   module XML
     class Builder
       attr_accessor :doc, :parent, :context, :arity
-      def initialize &block
+      def initialize options = {}, &block
         namespace = self.class.name.split('::')
         namespace[-1] = 'Document'
         @doc      = eval(namespace.join('::')).new
         @parent   = @doc
         @context  = nil
         @arity    = nil
+
+        options.each do |k,v|
+          @doc.send(:"#{k}=", v)
+        end
 
         return unless block_given?
 

@@ -3,6 +3,15 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_set_encoding
+        builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
+          xml.root do
+            xml.bar 'blah'
+          end
+        end
+        assert_match 'UTF-8', builder.to_xml
+      end
+
       def test_nested_local_variable
         @ivar     = 'hello'
         local_var = 'hello world'
