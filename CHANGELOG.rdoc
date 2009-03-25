@@ -17,6 +17,7 @@
   * Fixed a problem with nil passed to CDATA constructor
   * Fragment method deals with regular expression characters
     (Thanks Joel!) LH #73
+  * Fixing builder scope issues LH #61, LH #74, LH #70
 
 === 1.2.3 / 2009-03-22
 

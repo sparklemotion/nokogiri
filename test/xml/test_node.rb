@@ -12,7 +12,7 @@ module Nokogiri
 
       def test_spaceship
         nodes = @xml.xpath('//employee')
-        assert_equal -1, (nodes.first <=> nodes.last)
+        assert_equal(-1, (nodes.first <=> nodes.last))
         list = [nodes.first, nodes.last].sort
         assert_equal nodes.first, list.first
         assert_equal nodes.last, list.last
@@ -25,7 +25,7 @@ module Nokogiri
 
       def test_document_compare
         nodes = @xml.xpath('//employee')
-        assert_equal -1, (nodes.first <=> @xml)
+        assert_equal(-1, (nodes.first <=> @xml))
       end
 
       def test_different_document_compare

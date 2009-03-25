@@ -1,16 +1,19 @@
 module Nokogiri
   module XML
     class Builder
-      attr_accessor :doc, :parent, :context
+      attr_accessor :doc, :parent, :context, :arity
       def initialize &block
         namespace = self.class.name.split('::')
         namespace[-1] = 'Document'
-        @doc = eval(namespace.join('::')).new
-        @parent = @doc
-        @context = nil
+        @doc      = eval(namespace.join('::')).new
+        @parent   = @doc
+        @context  = nil
+        @arity    = nil
+
         return unless block_given?
 
-        if block.arity <= 0
+        @arity = block.arity
+        if @arity <= 0
           @context = eval('self', block.binding)
           instance_eval(&block)
         else
@@ -57,7 +60,12 @@ module Nokogiri
         node.parent = @parent
         if block_given?
           @parent = node
-          instance_eval(&block)
+          @arity ||= block.arity
+          if @arity <= 0
+            instance_eval(&block)
+          else
+            block.call(self)
+          end
           @parent = node.parent
         end
         NodeBuilder.new(node, self)
