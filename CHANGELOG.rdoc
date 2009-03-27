@@ -12,6 +12,8 @@
   * Nokogiri::HTML::Document#meta_encoding for getting the meta encoding
   * Nokogiri::HTML::Document#meta_encoding= for setting the meta encoding
   * Nokogiri::XML::Document#encoding= to set the document encoding
+  * Nokogiri::XML::Schema for validating documents against XSD schema
+  * Nokogiri::XML::RelaxNG for validating documents against RelaxNG schema
 
 * Bugfixes
 

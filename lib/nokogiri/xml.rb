@@ -18,6 +18,8 @@ require 'nokogiri/xml/reader'
 require 'nokogiri/xml/notation'
 require 'nokogiri/xml/element'
 require 'nokogiri/xml/entity_declaration'
+require 'nokogiri/xml/schema'
+require 'nokogiri/xml/relax_ng'
 
 module Nokogiri
   class << self

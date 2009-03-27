@@ -9,12 +9,16 @@ require 'nokogiri'
 
 module Nokogiri
   class TestCase < Test::Unit::TestCase
-    ASSETS_DIR = File.join(File.dirname(__FILE__), 'files')
-    XML_FILE = File.join(ASSETS_DIR, 'staff.xml')
-    XSLT_FILE = File.join(ASSETS_DIR, 'staff.xslt')
-    EXSLT_FILE = File.join(ASSETS_DIR, 'exslt.xslt')
-    EXML_FILE = File.join(ASSETS_DIR, 'exslt.xml')
-    HTML_FILE = File.join(ASSETS_DIR, 'tlm.html')
+    ASSETS_DIR      = File.join(File.dirname(__FILE__), 'files')
+    XML_FILE        = File.join(ASSETS_DIR, 'staff.xml')
+    XSLT_FILE       = File.join(ASSETS_DIR, 'staff.xslt')
+    EXSLT_FILE      = File.join(ASSETS_DIR, 'exslt.xslt')
+    EXML_FILE       = File.join(ASSETS_DIR, 'exslt.xml')
+    HTML_FILE       = File.join(ASSETS_DIR, 'tlm.html')
+    PO_XML_FILE     = File.join(ASSETS_DIR, 'po.xml')
+    PO_SCHEMA_FILE  = File.join(ASSETS_DIR, 'po.xsd')
+    ADDRESS_SCHEMA_FILE = File.join(ASSETS_DIR, 'address_book.rlx')
+    ADDRESS_XML_FILE = File.join(ASSETS_DIR, 'address_book.xml')
 
     unless RUBY_VERSION >= '1.9'
       undef :default_test
