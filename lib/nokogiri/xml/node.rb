@@ -330,6 +330,14 @@ module Nokogiri
         type == TEXT_NODE
       end
 
+      ###
+      # Fetch the Nokogiri::HTML::ElementDescription for this node.  Returns
+      # nil on XML documents and on unknown tags.
+      def description
+        return nil if document.xml?
+        Nokogiri::HTML::ElementDescription[name]
+      end
+
       def read_only?
         # According to gdome2, these are read-only node types
         [NOTATION_NODE, ENTITY_NODE, ENTITY_DECL].include?(type)

@@ -8,6 +8,8 @@ Rakefile
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
 ext/nokogiri/html_document.h
+ext/nokogiri/html_element_description.c
+ext/nokogiri/html_element_description.h
 ext/nokogiri/html_entity_lookup.c
 ext/nokogiri/html_entity_lookup.h
 ext/nokogiri/html_sax_parser.c
@@ -46,10 +48,13 @@ ext/nokogiri/xml_sax_push_parser.c
 ext/nokogiri/xml_sax_push_parser.h
 ext/nokogiri/xml_schema.c
 ext/nokogiri/xml_schema.h
+ext/nokogiri/xml_schema.o
 ext/nokogiri/xml_syntax_error.c
 ext/nokogiri/xml_syntax_error.h
+ext/nokogiri/xml_syntax_error.o
 ext/nokogiri/xml_text.c
 ext/nokogiri/xml_text.h
+ext/nokogiri/xml_text.o
 ext/nokogiri/xml_xpath.c
 ext/nokogiri/xml_xpath.h
 ext/nokogiri/xml_xpath_context.c
@@ -78,6 +83,7 @@ lib/nokogiri/hpricot.rb
 lib/nokogiri/html.rb
 lib/nokogiri/html/builder.rb
 lib/nokogiri/html/document.rb
+lib/nokogiri/html/element_description.rb
 lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/syntax_error.rb
@@ -150,6 +156,7 @@ test/html/sax/test_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
 test/html/test_document_encoding.rb
+test/html/test_element_description.rb
 test/html/test_named_characters.rb
 test/html/test_node.rb
 test/test_convert_xpath.rb

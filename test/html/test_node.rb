@@ -17,6 +17,11 @@ module Nokogiri
         eohtml
       end
 
+      def test_description
+        assert desc = @html.at('a.bar').description
+        assert_equal 'a', desc.name
+      end
+
       def test_ancestors_with_selector
         assert node = @html.at('a.bar').child
         assert list = node.ancestors('.baz')

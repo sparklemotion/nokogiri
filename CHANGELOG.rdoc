@@ -14,6 +14,8 @@
   * Nokogiri::XML::Document#encoding= to set the document encoding
   * Nokogiri::XML::Schema for validating documents against XSD schema
   * Nokogiri::XML::RelaxNG for validating documents against RelaxNG schema
+  * Nokogiri::HTML::ElementDescription for fetching HTML element descriptions
+  * Nokogiri::XML::Node#description to fetch the node description
 
 * Bugfixes
 

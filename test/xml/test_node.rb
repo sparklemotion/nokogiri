@@ -10,6 +10,10 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_description
+        assert_nil @xml.at('employee').description
+      end
+
       def test_spaceship
         nodes = @xml.xpath('//employee')
         assert_equal(-1, (nodes.first <=> nodes.last))
