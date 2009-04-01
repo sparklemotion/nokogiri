@@ -77,6 +77,7 @@ module Nokogiri
         return self[path] if path.is_a?(Numeric)
         search(path, ns).first
       end
+      alias :% :at
 
       ###
       # Append the class attribute +name+ to all Node objects in the NodeSet.
