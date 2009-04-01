@@ -12,7 +12,9 @@ end
 
 $CFLAGS << " #{ENV["CFLAGS"]}"
 if Config::CONFIG['target_os'] == 'mingw32'
-  $CFLAGS << " -DXP_WIN -DXP_WIN32"
+  $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
+elsif Config::CONFIG['target_os'] == 'solaris2'
+  $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
 else
   $CFLAGS << " -g -DXP_UNIX"
 end

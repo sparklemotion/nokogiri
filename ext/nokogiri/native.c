@@ -7,7 +7,7 @@ VALUE mNokogiriXslt ;
 VALUE mNokogiriXmlSax ;
 VALUE mNokogiriHtmlSax ;
 
-#ifdef XP_WIN
+#ifdef USE_INCLUDED_VASPRINTF
 /*
  * I srsly hate windows.  it doesn't have vasprintf.
  * Thank you Geoffroy Couprie for this implementation of vasprintf!

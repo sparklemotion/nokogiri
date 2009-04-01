@@ -63,7 +63,7 @@
   rb_str_new((const char *)str, (long)len)
 #endif
 
-#ifdef XP_WIN
+#ifdef USE_INCLUDED_VASPRINTF
 int vasprintf (char **strp, const char *fmt, va_list ap);
 #endif
 
