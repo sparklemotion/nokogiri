@@ -21,7 +21,7 @@ class TestConvertXPath < Nokogiri::TestCase
     blk ||= lambda {|j| j.first}
     assert_equal match, blk.call(@N.search(xpath)), "xpath result did not match"
     if HAS_HPRICOT
-      assert_equal match, blk.call(@H.search(hpath)), "hpath result did not match"
+      assert_equal match, blk.call(@H.search(hpath)).chomp, "hpath result did not match"
     end
     assert_equal [xpath], @NH.convert_to_xpath(hpath), "converted hpath did not match xpath"
   end
