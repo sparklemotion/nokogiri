@@ -36,6 +36,12 @@ module Nokogiri
         assert set.at('bar')
       end
 
+      def test_children_has_document
+        set = @xml.root.children
+        assert_instance_of(NodeSet, set)
+        assert_equal @xml, set.document
+      end
+
       def test_length_size
         assert node_set = @xml.search('//employee')
         assert_equal node_set.length, node_set.size

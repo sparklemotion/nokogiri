@@ -246,7 +246,10 @@ static VALUE children(VALUE self)
     child = child->next;
   }
 
-  return Nokogiri_wrap_xml_node_set(set);
+  VALUE node_set = Nokogiri_wrap_xml_node_set(set);
+  rb_iv_set(node_set, "@document", DOC_RUBY_OBJECT(node->doc));
+
+  return node_set;
 }
 
 /*
