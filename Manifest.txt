@@ -48,13 +48,10 @@ ext/nokogiri/xml_sax_push_parser.c
 ext/nokogiri/xml_sax_push_parser.h
 ext/nokogiri/xml_schema.c
 ext/nokogiri/xml_schema.h
-ext/nokogiri/xml_schema.o
 ext/nokogiri/xml_syntax_error.c
 ext/nokogiri/xml_syntax_error.h
-ext/nokogiri/xml_syntax_error.o
 ext/nokogiri/xml_text.c
 ext/nokogiri/xml_text.h
-ext/nokogiri/xml_text.o
 ext/nokogiri/xml_xpath.c
 ext/nokogiri/xml_xpath.h
 ext/nokogiri/xml_xpath_context.c
