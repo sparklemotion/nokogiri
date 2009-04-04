@@ -377,6 +377,7 @@ module Nokogiri
       # the ancestors must match +selector+
       def ancestors selector = nil
         return NodeSet.new(document) unless respond_to?(:parent)
+        return NodeSet.new(document) unless parent
 
         parents = [parent]
 

@@ -69,6 +69,12 @@ module Nokogiri
         assert_equal '/root/item', item.path
       end
 
+      def test_new_node_can_have_ancestors
+        xml = Nokogiri::XML('<root>text</root>')
+        item = Nokogiri::XML::Element.new('item', xml)
+        assert_equal 0, item.ancestors.length
+      end
+
       def test_children
         doc = Nokogiri::XML(<<-eoxml)
           <root>#{'<a/>' * 9 }</root>
