@@ -135,7 +135,7 @@ static VALUE inline_eh(VALUE self)
   htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  if(!description->isinline) return Qtrue;
+  if(description->isinline) return Qtrue;
   return Qfalse;
 }
 
