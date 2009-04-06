@@ -55,10 +55,10 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   if(reparented->nsDef) {
     xmlNsPtr ns = xmlSearchNsByHref(
         reparented->doc,
-        reparented,
+        reparented->parent,
         reparented->nsDef->href
     );
-    if(ns) reparented->nsDef = NULL;
+    if(ns && ns != reparented->nsDef) reparented->nsDef = NULL;
   }
 
   reparented_obj = Nokogiri_wrap_xml_node(reparented);

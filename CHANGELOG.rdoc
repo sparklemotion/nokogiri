@@ -23,6 +23,7 @@
   * Fragment method deals with regular expression characters
     (Thanks Joel!) LH #73
   * Fixing builder scope issues LH #61, LH #74, LH #70
+  * Fixed a problem when adding a child could remove the child namespace LH#78
 
 === 1.2.3 / 2009-03-22
 

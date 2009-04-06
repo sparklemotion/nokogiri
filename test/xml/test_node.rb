@@ -14,6 +14,18 @@ module Nokogiri
         assert_nil @xml.at('employee').description
       end
 
+      def test_add_namespace_add_child
+        doc   = Nokogiri::XML::Document.new
+        item  = Nokogiri::XML::Element.new('item', doc)
+        doc.root = item
+
+        entry = Nokogiri::XML::Element.new('entry', doc)
+        entry.add_namespace('tlm', 'http://tenderlovemaking.com')
+        assert_equal 'http://tenderlovemaking.com', entry.namespaces['xmlns:tlm']
+        item.add_child(entry)
+        assert_equal 'http://tenderlovemaking.com', entry.namespaces['xmlns:tlm']
+      end
+
       def test_spaceship
         nodes = @xml.xpath('//employee')
         assert_equal(-1, (nodes.first <=> nodes.last))
