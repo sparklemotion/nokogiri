@@ -41,8 +41,8 @@ module Nokogiri
       end
 
       def test_inline?
-        assert !ElementDescription['a'].inline?
-        assert ElementDescription['div'].inline?
+        assert ElementDescription['a'].inline?
+        assert !ElementDescription['div'].inline?
       end
 
       def test_block?
