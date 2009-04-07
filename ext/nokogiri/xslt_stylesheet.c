@@ -50,13 +50,21 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
     xmlFree(doc_ptr);
     return rval ;
 }
+
 /*
  *  call-seq:
- *    transform(document, params)
+ *    transform(document, params = [])
  *
  *  Apply an XSLT stylesheet to an XML::Document.
  *  +params+ is an array of strings used as XSLT parameters.
  *  returns Nokogiri::XML::Document
+ *
+ *  Example:
+ * 
+ *    doc   = Nokogiri::XML(File.read(ARGV[0]))
+ *    xslt  = Nokogiri::XSLT(File.read(ARGV[1]))
+ *    puts xslt.transform(doc, ['key', 'value'])
+ *
  */
 static VALUE transform(int argc, VALUE* argv, VALUE self)
 {
@@ -88,20 +96,6 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     return Nokogiri_wrap_xml_document(0, result) ;
 }
 
-/*
- *  call-seq:
- *    apply_to(document, params)
- *
- *  Apply an XSLT stylesheet to an XML::Document.
- *  +params+ is an array of strings used as XSLT parameters.
- *  returns serialized document
- */
-static VALUE apply_to(int argc, VALUE* argv, VALUE self)
-{
-  return rb_funcall(self, rb_intern("serialize"), 1, 
-                    transform(argc, argv, self));
-}
-
 VALUE cNokogiriXsltStylesheet ;
 void init_xslt_stylesheet()
 {
@@ -113,6 +107,5 @@ void init_xslt_stylesheet()
     
   rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
   rb_define_method(klass, "serialize", serialize, 1);
-  rb_define_method(klass, "apply_to", apply_to, -1);
   rb_define_method(klass, "transform", transform, -1);
 }

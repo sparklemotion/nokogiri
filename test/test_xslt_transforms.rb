@@ -1,6 +1,14 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestXsltTransforms < Nokogiri::TestCase
+  def test_class_methods
+    doc   = Nokogiri::XML(File.read(XML_FILE))
+    style = Nokogiri::XSLT(File.read(XSLT_FILE))
+
+    assert result = style.apply_to(doc, ['title', '"Grandma"'])
+    assert_match %r{<h1>Grandma</h1>}, result
+  end
+
   def test_transform
     assert doc = Nokogiri::XML.parse(File.read(XML_FILE))
     assert doc.xml?
@@ -26,8 +34,13 @@ class TestXsltTransforms < Nokogiri::TestCase
     assert result = style.apply_to(doc)
     assert_match %r{<h1></h1>}, result
   end
+
   def test_transform2
     assert doc = Nokogiri::XML.parse(File.read(XML_FILE))
+    assert doc.xml?
+
+    assert style = Nokogiri::XSLT.parse(File.read(XSLT_FILE))
+    assert result_doc = style.transform(doc)
     assert doc.xml?
 
     assert style = Nokogiri::XSLT.parse(File.read(XSLT_FILE))
@@ -37,6 +50,7 @@ class TestXsltTransforms < Nokogiri::TestCase
     assert result_string = style.apply_to(doc, ['title', '"Booyah"'])
     assert_equal result_string, style.serialize(result_doc)
   end
+
   def test_quote_params
     h = {
       :sym   => %{xxx},
