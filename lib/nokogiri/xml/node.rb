@@ -647,16 +647,6 @@ Please change to Node#write_xml_to(io, :encoding => #{options})
         write_to io, options
       end
 
-      # Create a new node from +string+
-      #
-      # THIS METHOD IS DEPRECATED
-      # This method is deprecated and will be removed in 1.3.0 or by
-      # March 1, 2009. Instead, use Nokogiri::XML::Node#fragment()
-      def self.new_from_str string
-        $stderr.puts("This method is deprecated and will be removed in 1.3.0 or by March 1, 2009. Instead, use Nokogiri::XML::Node#fragment")
-        Nokogiri::HTML.fragment(string).first
-      end
-
       ###
       # Compare two Node objects with respect to their Document.  Nodes from
       # different documents cannot be compared.
