@@ -107,6 +107,16 @@ module Nokogiri
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns:foo']
       end
 
+      def test_at
+        node = @xml.at('address')
+        assert_equal node, @xml.xpath('//address').first
+      end
+
+      def test_percent
+        node = @xml % ('address')
+        assert_equal node, @xml.xpath('//address').first
+      end
+
       def test_add_child_should_inherit_namespace
         doc = Nokogiri::XML(<<-eoxml)
           <root xmlns="http://tenderlovemaking.com/">
