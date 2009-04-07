@@ -582,8 +582,8 @@ Please change to: Node#write_to(io, :encoding => e, :save_options => opts)
         end
 
         options       = options.first.is_a?(Hash) ? options.shift : {}
-        encoding      = options[:encoding] || args[0]
-        save_options  = options[:save_with] || args[1] || SaveOptions::FORMAT
+        encoding      = options[:encoding] || options[0]
+        save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
         indent_text   = options[:indent_text] || ' '
         indent_times  = options[:indent] || 2
         
