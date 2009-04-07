@@ -133,6 +133,21 @@ module Nokogiri
         assert visitor.visited
       end
 
+      def test_replace_with_default_namespaces
+        fruits = Nokogiri::XML(<<-eoxml)
+          <fruit xmlns="http://fruits.org">
+            <apple />
+          </fruit>
+        eoxml
+
+        apple = fruits.css('apple').first
+
+        orange = Nokogiri::XML::Node.new('orange', fruits)
+        apple.replace(orange)
+
+        assert_equal orange, fruits.css('orange').first
+      end
+
       def test_add_child_should_inherit_namespace
         doc = Nokogiri::XML(<<-eoxml)
           <root xmlns="http://tenderlovemaking.com/">

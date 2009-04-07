@@ -14,6 +14,24 @@ static void debug_node_dealloc(xmlNodePtr x)
 typedef xmlNodePtr (*node_other_func)(xmlNodePtr, xmlNodePtr);
 
 /* :nodoc: */
+static void relink_namespace(xmlNodePtr reparented)
+{
+  // Make sure that our reparented node has the correct namespaces
+  if(reparented->doc != (xmlDocPtr)reparented->parent)
+    reparented->ns = reparented->parent->ns;
+
+  // Search our parents for an existing definition
+  if(reparented->nsDef) {
+    xmlNsPtr ns = xmlSearchNsByHref(
+        reparented->doc,
+        reparented->parent,
+        reparented->nsDef->href
+    );
+    if(ns && ns != reparented->nsDef) reparented->nsDef = NULL;
+  }
+}
+
+/* :nodoc: */
 static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func func)
 {
   VALUE reparented_obj ;
@@ -47,19 +65,8 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
     DATA_PTR(node_obj) = reparented ;
   }
 
-  // Make sure that our reparented node has the correct namespaces
-  if(reparented->doc != (xmlDocPtr)reparented->parent)
-    reparented->ns = reparented->parent->ns;
-
-  // Search our parents for an existing definition
-  if(reparented->nsDef) {
-    xmlNsPtr ns = xmlSearchNsByHref(
-        reparented->doc,
-        reparented->parent,
-        reparented->nsDef->href
-    );
-    if(ns && ns != reparented->nsDef) reparented->nsDef = NULL;
-  }
+  // Appropriately link in namespaces
+  relink_namespace(reparented);
 
   reparented_obj = Nokogiri_wrap_xml_node(reparented);
 
@@ -221,6 +228,9 @@ static VALUE replace(VALUE self, VALUE _new_node)
   Data_Get_Struct(_new_node, xmlNode, new_node);
 
   xmlReplaceNode(node, new_node);
+
+  // Appropriately link in namespaces
+  relink_namespace(new_node);
   return self ;
 }
 
