@@ -16,6 +16,7 @@
   * Nokogiri::XML::RelaxNG for validating documents against RelaxNG schema
   * Nokogiri::HTML::ElementDescription for fetching HTML element descriptions
   * Nokogiri::XML::Node#description to fetch the node description
+  * Nokogiri::XML::Node#accept implements Visitor pattern
 
 * Bugfixes
 

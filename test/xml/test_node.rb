@@ -117,6 +117,22 @@ module Nokogiri
         assert_equal node, @xml.xpath('//address').first
       end
 
+      def test_accept
+        visitor = Class.new {
+          attr_accessor :visited
+          def accept target
+            target.accept(self)
+          end
+
+          def visit node
+            node.children.each { |c| c.accept(self) }
+            @visited = true
+          end
+        }.new
+        visitor.accept(@xml.root)
+        assert visitor.visited
+      end
+
       def test_add_child_should_inherit_namespace
         doc = Nokogiri::XML(<<-eoxml)
           <root xmlns="http://tenderlovemaking.com/">

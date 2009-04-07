@@ -396,13 +396,19 @@ module Nokogiri
 
       ####
       # Yields self and all children to +block+ recursively.
-      def traverse(&block)
+      def traverse &block
         children.each{|j| j.traverse(&block) }
         block.call(self)
       end
 
+      ###
+      # Accept a visitor.  This method calls "visit" on +visitor+ with self.
+      def accept visitor
+        visitor.visit(self)
+      end
+
       ####
-      #  replace node with the new node in the document.
+      #  replace this Node with the +new_node+ in the Document.
       def replace(new_node)
         if new_node.is_a?(Document) || !new_node.is_a?(XML::Node)
           raise ArgumentError, <<-EOERR
