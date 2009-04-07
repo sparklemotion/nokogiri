@@ -174,6 +174,7 @@ module Nokogiri
       def at path, ns = document.root ? document.root.namespaces : {}
         search(path, ns).first
       end
+      alias :% :at
 
       ###
       # Get the attribute value for the attribute +name+

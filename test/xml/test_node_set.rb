@@ -73,6 +73,11 @@ module Nokogiri
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set.at(0)
       end
+      
+      def test_percent
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first, node_set % 0
+      end
 
       def test_to_ary
         assert node_set = @xml.search('//employee')
