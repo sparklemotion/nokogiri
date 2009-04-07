@@ -12,6 +12,21 @@ module Nokogiri
         doc = Nokogiri::HTML('')
       end
 
+      def test_to_xhtml_with_indent
+        doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
+        doc = Nokogiri::HTML(doc.to_xhtml(:indent => 2))
+        assert_indent 2, doc
+      end
+
+      def test_write_to_xhtml_with_indent
+        io = StringIO.new
+        doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
+        doc.write_xhtml_to io, :indent => 5
+        io.rewind
+        doc = Nokogiri::HTML(io.read)
+        assert_indent 5, doc
+      end
+
       def test_swap_should_not_exist
         assert_raises(NoMethodError) {
           @html.swap
@@ -59,8 +74,8 @@ module Nokogiri
 
       def test_to_xhtml
         assert_match 'XHTML', @html.to_xhtml
-        assert_match 'XHTML', @html.to_xhtml('UTF-8')
-        assert_match 'UTF-8', @html.to_xhtml('UTF-8')
+        assert_match 'XHTML', @html.to_xhtml(:encoding => 'UTF-8')
+        assert_match 'UTF-8', @html.to_xhtml(:encoding => 'UTF-8')
       end
 
       def test_no_xml_header

@@ -550,11 +550,20 @@ static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
  *
  * Write this Node to +io+ with +encoding+ and +options+
  */
-static VALUE native_write_to(VALUE self, VALUE io, VALUE encoding, VALUE options)
-{
+static VALUE native_write_to(
+    VALUE self,
+    VALUE io,
+    VALUE encoding,
+    VALUE indent_string,
+    VALUE options
+) {
   xmlNodePtr node;
 
   Data_Get_Struct(self, xmlNode, node);
+
+  xmlIndentTreeOutput = 1;
+
+  xmlTreeIndentString = xmlStrdup(StringValuePtr(indent_string));
 
   xmlSaveCtxtPtr savectx = xmlSaveToIO(
       (xmlOutputWriteCallback)io_write_callback,
@@ -845,7 +854,7 @@ void init_xml_node()
   rb_define_method(klass, "line", line, 0);
 
   rb_define_private_method(klass, "dump_html", dump_html, 0);
-  rb_define_private_method(klass, "native_write_to", native_write_to, 3);
+  rb_define_private_method(klass, "native_write_to", native_write_to, 4);
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);

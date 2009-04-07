@@ -47,7 +47,7 @@ module Nokogiri
         end
         io.rewind
         assert called
-        assert_equal @node.serialize(nil, conf.options), io.read
+        assert_equal @node.serialize(:save_with => conf.options), io.read
       end
 
       %w{ xml html xhtml }.each do |type|

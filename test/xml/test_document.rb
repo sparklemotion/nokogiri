@@ -76,6 +76,22 @@ module Nokogiri
         assert_equal 1, doc.search('//xmlns:foo').search('./xmlns:bar').length
       end
 
+      def test_to_xml_with_indent
+        doc = Nokogiri::XML('<root><foo><bar/></foo></root>')
+        doc = Nokogiri::XML(doc.to_xml(:indent => 5))
+
+        assert_indent 5, doc
+      end
+
+      def test_write_xml_to_with_indent
+        io = StringIO.new
+        doc = Nokogiri::XML('<root><foo><bar/></foo></root>')
+        doc.write_xml_to io, :indent => 5
+        io.rewind
+        doc = Nokogiri::XML(io.read)
+        assert_indent 5, doc
+      end
+
       # wtf...  osx's libxml sucks.
       unless Nokogiri::LIBXML_VERSION =~ /^2\.6\./
         def test_encoding
