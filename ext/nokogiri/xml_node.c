@@ -563,7 +563,7 @@ static VALUE native_write_to(
 
   xmlIndentTreeOutput = 1;
 
-  xmlTreeIndentString = xmlStrdup(StringValuePtr(indent_string));
+  xmlTreeIndentString = StringValuePtr(indent_string);
 
   xmlSaveCtxtPtr savectx = xmlSaveToIO(
       (xmlOutputWriteCallback)io_write_callback,
