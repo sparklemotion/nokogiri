@@ -551,9 +551,24 @@ Please change to Node#to_xhtml(:encoding => #{options})
       end
 
       ###
-      # Write Node to +io+ with +encoding+ and +save_options+
-      def write_to io, *args
-        if args.length > 0 && !args.first.is_a?(Hash)
+      # Write Node to +io+ with +options+. +options+ modify the output of
+      # this method.  Valid options are:
+      #
+      # * +:encoding+ for changing the encoding
+      # * +:indent_text+ the indentation text, defaults to one space
+      # * +:indent+ the number of +:indent_text+ to use, defaults to 2
+      # * +:save_with+ a combination of SaveOptions constants.
+      #
+      # To save with UTF-8 indented twice:
+      #
+      #   node.write_to(io, :encoding => 'UTF-8', :indent => 2)
+      #
+      # To save indented with two dashes:
+      #
+      #   node.write_to(io, :indent_text => '-', :indent => 2
+      #
+      def write_to io, *options
+        if options.length > 0 && !options.first.is_a?(Hash)
           $stderr.puts(<<-eowarn)
 Node#write_to(io, encoding, save_options) is deprecated and will be removed in
 Nokogiri version 1.4.0 *or* after June 1 2009.
@@ -565,7 +580,7 @@ Please change to: Node#write_to(io, :encoding => e, :save_options => opts)
           eowarn
         end
 
-        options       = args.first.is_a?(Hash) ? args.shift : {}
+        options       = options.first.is_a?(Hash) ? options.shift : {}
         encoding      = options[:encoding] || args[0]
         save_options  = options[:save_with] || args[1] || SaveOptions::FORMAT
         indent_text   = options[:indent_text] || ' '
@@ -580,6 +595,8 @@ Please change to: Node#write_to(io, :encoding => e, :save_options => opts)
 
       ###
       # Write Node as HTML to +io+ with +options+
+      #
+      # See Node#write_to for a list of +options+
       def write_html_to io, options = {}
         if options.is_a?(String)
           $stderr.puts(<<-eowarn)
@@ -603,6 +620,8 @@ Please change to Node#write_html_to(io, :encoding => #{options})
 
       ###
       # Write Node as XHTML to +io+ with +options+
+      #
+      # See Node#write_to for a list of +options+
       def write_xhtml_to io, options = {}
         if options.is_a?(String)
           $stderr.puts(<<-eowarn)
