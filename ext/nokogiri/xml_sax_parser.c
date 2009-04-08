@@ -11,6 +11,9 @@ static VALUE parse_memory(VALUE self, VALUE data)
 {
   xmlSAXHandlerPtr handler;
   Data_Get_Struct(self, xmlSAXHandler, handler);
+
+  if(Qnil == data) rb_raise(rb_eArgError, "data cannot be nil");
+
   xmlSAXUserParseMemory(  handler,
                           (void *)self,
                           StringValuePtr(data),

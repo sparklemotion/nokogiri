@@ -55,6 +55,7 @@ module Nokogiri
         ###
         # Parse a file with +filename+
         def parse_file filename
+          raise ArgumentError unless filename
           raise Errno::ENOENT unless File.exists?(filename)
           raise Errno::EISDIR if File.directory?(filename)
           native_parse_file filename

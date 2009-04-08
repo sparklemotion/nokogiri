@@ -14,6 +14,12 @@ module Nokogiri
           assert_equal 1110, @parser.document.end_elements.length
         end
 
+        def test_parse_file_nil_argument
+          assert_raises(ArgumentError) {
+            @parser.parse_file(nil)
+          }
+        end
+
         def test_parse_file_non_existant
           assert_raise Errno::ENOENT do
             @parser.parse_file('foo')
@@ -23,6 +29,12 @@ module Nokogiri
         def test_parse_file_with_dir
           assert_raise Errno::EISDIR do
             @parser.parse_file(File.dirname(__FILE__))
+          end
+        end
+
+        def test_parse_memory_nil
+          assert_raise ArgumentError do
+            @parser.parse_memory(nil)
           end
         end
 

@@ -90,12 +90,21 @@ module Nokogiri
 
         def test_parse_file
           @parser.parse_file(XML_FILE)
+
+          assert_raises(ArgumentError) {
+            @parser.parse_file(nil)
+          }
+
           assert_raises(Errno::ENOENT) {
             @parser.parse_file('')
           }
           assert_raises(Errno::EISDIR) {
             @parser.parse_file(File.expand_path(File.dirname(__FILE__)))
           }
+        end
+
+        def test_render_parse_nil_param
+          assert_raises(ArgumentError) { @parser.parse_memory(nil) }
         end
 
         def test_ctag
