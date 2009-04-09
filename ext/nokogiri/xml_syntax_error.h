@@ -1,7 +1,7 @@
 #ifndef NOKOGIRI_XML_SYNTAX_ERROR
 #define NOKOGIRI_XML_SYNTAX_ERROR
 
-#include <native.h>
+#include <nokogiri.h>
 
 void init_xml_syntax_error();
 VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error);

@@ -1,7 +1,7 @@
 #ifndef NOKOGIRI_XML_DOCUMENT_FRAGMENT
 #define NOKOGIRI_XML_DOCUMENT_FRAGMENT
 
-#include <native.h>
+#include <nokogiri.h>
 
 void init_xml_document_fragment();
 

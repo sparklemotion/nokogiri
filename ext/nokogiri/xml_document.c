@@ -227,9 +227,9 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
 
 /*
  * call-seq:
- *  new
+ *  new(version = '1.0')
  *
- * Create a new document
+ * Create a new document with +version+
  */
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {

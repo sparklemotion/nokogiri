@@ -1,7 +1,7 @@
 #ifndef NOKOGIRI_XML_ATTR
 #define NOKOGIRI_XML_ATTR
 
-#include <native.h>
+#include <nokogiri.h>
 
 void init_xml_attr();
 

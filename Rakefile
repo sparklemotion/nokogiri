@@ -3,18 +3,16 @@
 require 'rubygems'
 require 'rake'
 require 'hoe'
+require "rake/extensiontask"
 
-
-kind = Config::CONFIG['DLEXT']
-windows = RUBY_PLATFORM =~ /mswin/i ? true : false
 
 LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 $LOAD_PATH << LIB_DIR
 
-GENERATED_PARSER = "lib/nokogiri/css/generated_parser.rb"
-GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
+windows = RUBY_PLATFORM =~ /mswin/i ? true : false
 
-EXT = "ext/nokogiri/native.#{kind}"
+GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
+GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 
 require 'nokogiri/version'
 
@@ -32,14 +30,27 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
     GENERATED_TOKENIZER,
     'cross',
   ]
+
+  p.extra_dev_deps  << "racc"
+  p.extra_dev_deps  << "tenderlove-frex"
+  p.extra_dev_deps  << "rake-compiler"
+
   p.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
 
-namespace :libxml do
-  desc "What version of LibXML are we building against?"
-  task :version => :build do
-    sh "#{RUBY} -Ilib:ext -rnokogiri -e 'puts Nokogiri::LIBXML_VERSION'"
-  end
+Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
+  ext.lib_dir                         = "ext/nokogiri"
+  ### Uncomment this crap to do cross compile
+  #ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
+  #cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
+  #ext.cross_compile   = true
+  #ext.cross_platform  = 'i386-mswin32'
+  #ext.cross_config_options <<
+  #  "--with-iconv-dir=#{File.join(cross_dir, 'iconv')}"
+  #ext.cross_config_options <<
+  #  "--with-xml2-dir=#{File.join(cross_dir, 'libxml2')}"
+  #ext.cross_config_options <<
+  #  "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
 end
 
 namespace :gem do
@@ -52,21 +63,6 @@ namespace :gem do
     end
   end
 
-  namespace :win32 do
-    task :spec => ['build:win32'] do
-      File.open("#{HOE.name}.gemspec", 'w') do |f|
-        HOE.spec.files += Dir['ext/nokogiri/**.{dll,so}']
-        if windows
-          HOE.spec.platform = Gem::Platform::CURRENT
-        else
-          HOE.spec.platform = 'x86-mswin32-60'
-        end
-        HOE.spec.extensions = []
-        f.write(HOE.spec.to_ruby)
-      end
-    end
-  end
-
   namespace :jruby do
     task :spec => ['build'] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
@@ -74,14 +70,6 @@ namespace :gem do
         HOE.spec.files << GENERATED_PARSER
         HOE.spec.files << GENERATED_TOKENIZER
         HOE.spec.extensions = []
-        f.write(HOE.spec.to_ruby)
-      end
-    end
-  end
-
-  namespace :unix do
-    task :spec do
-      File.open("#{HOE.name}.gemspec", 'w') do |f|
         f.write(HOE.spec.to_ruby)
       end
     end
@@ -108,135 +96,39 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   end
 end
 
-task 'ext/nokogiri/Makefile' do
-  Dir.chdir('ext/nokogiri') do
-    ruby "extconf.rb #{ENV['EXTOPTS']}"
-  end
-end
+libs = %w{
+  iconv-1.9.2.win32
+  zlib-1.2.3.win32
+  libxml2-2.7.3.win32
+  libxslt-1.1.24.win32
+}
 
-task EXT => 'ext/nokogiri/Makefile' do
-  Dir.chdir('ext/nokogiri') do
-    sh 'make'
-  end
-end
-
-if RUBY_PLATFORM == 'java'
-  task :build => [GENERATED_PARSER, GENERATED_TOKENIZER]
-else
-  task :build => [EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
-end
-
-namespace :build do
-  namespace :win32 do
-    file 'cross/bin/ruby.exe' => ['cross/ruby-1.8.6-p287'] do
-      Dir.chdir('cross/ruby-1.8.6-p287') do
-        str = ''
-        File.open('Makefile.in', 'rb') do |f|
-          f.each_line do |line|
-            if line =~ /^\s*ALT_SEPARATOR =/
-              str += "\t\t    " + 'ALT_SEPARATOR = "\\\\\"; \\'
-              str += "\n"
-            else
-              str += line
-            end
-          end
-        end
-        File.open('Makefile.in', 'wb') { |f| f.write str }
-        buildopts = if File.exists?('/usr/bin/i586-mingw32msvc-gcc')
-                      "--host=i586-mingw32msvc --target=i386-mingw32 --build=i686-linux"
-                    else
-                      "--host=i386-mingw32 --target=i386-mingw32"
-                    end
-        sh(<<-eocommand)
-          env ac_cv_func_getpgrp_void=no \
-            ac_cv_func_setpgrp_void=yes \
-            rb_cv_negative_time_t=no \
-            ac_cv_func_memcmp_working=yes \
-            rb_cv_binary_elf=no \
-            ./configure \
-            #{buildopts} \
-            --prefix=#{File.expand_path(File.join(Dir.pwd, '..'))}
-        eocommand
-        sh 'make'
-        sh 'make install'
-      end
-    end
-
-    desc 'build cross compiled ruby'
-    task :ruby => 'cross/bin/ruby.exe'
-  end
-
-  desc 'build nokogiri for win32'
-  task :win32 => [GENERATED_PARSER, GENERATED_TOKENIZER, 'build:externals', 'build:win32:ruby'] do
-    dash_i = File.expand_path(
-      File.join(File.dirname(__FILE__), 'cross/lib/ruby/1.8/i386-mingw32/')
-    )
-
-    xml2_lib =
-      File.join(File.dirname(__FILE__), 'cross/libxml2-2.7.3.win32/bin')
-    xml2_inc =
-      File.join(File.dirname(__FILE__), 'cross/libxml2-2.7.3.win32/include')
-
-    xslt_lib =
-      File.join(File.dirname(__FILE__), 'cross/libxslt-1.1.24.win32/bin')
-    xslt_inc =
-      File.join(File.dirname(__FILE__), 'cross/libxslt-1.1.24.win32/include')
-
-    Dir.chdir('ext/nokogiri') do
-      ruby " -I #{dash_i} extconf.rb --with-xml2-lib=#{xml2_lib} --with-xml2-include=#{xml2_inc} --with-xslt-lib=#{xslt_lib} --with-xslt-include=#{xslt_inc}"
-      sh 'make'
-    end
-    dlls = Dir[File.join(File.dirname(__FILE__), 'cross', '**/*.dll')]
-    dlls.each do |dll|
-      next if dll =~ /ruby/
-      cp dll, 'ext/nokogiri'
-    end
-  end
-
-  libs = %w{
-    iconv-1.9.2.win32
-    zlib-1.2.3.win32
-    libxml2-2.7.3.win32
-    libxslt-1.1.24.win32
-  }
-
-  libs.each do |lib|
-    file "stash/#{lib}.zip" do |t|
-      puts "downloading #{lib}"
-      FileUtils.mkdir_p('stash')
-      Dir.chdir('stash') do 
-        url = "http://www.zlatkovic.com/pub/libxml/#{lib}.zip"
-        system("wget #{url} || curl -O #{url}")
-      end
-    end
-    file "cross/#{lib}" => ["stash/#{lib}.zip"] do |t|
-      puts "unzipping #{lib}.zip"
-      FileUtils.mkdir_p('cross')
-      Dir.chdir('cross') do
-        sh "unzip ../stash/#{lib}.zip"
-        sh "touch #{lib}"
-      end
-    end
-  end
-
-  file "stash/ruby-1.8.6-p287.tar.gz" do |t|
-    puts "downloading ruby"
-    FileUtils.mkdir_p('stash')
-    Dir.chdir('stash') do 
-      url = ("ftp://ftp.ruby-lang.org/pub/ruby/1.8/ruby-1.8.6-p287.tar.gz")
+libs.each do |lib|
+  file "tmp/stash/#{lib}.zip" do |t|
+    puts "downloading #{lib}"
+    FileUtils.mkdir_p('tmp/stash')
+    Dir.chdir('tmp/stash') do 
+      url = "http://www.zlatkovic.com/pub/libxml/#{lib}.zip"
       system("wget #{url} || curl -O #{url}")
     end
   end
-  file 'cross/ruby-1.8.6-p287' => ["stash/ruby-1.8.6-p287.tar.gz"] do |t|
-    puts "unzipping ruby"
-    FileUtils.mkdir_p('cross')
-    Dir.chdir('cross') do
-      sh "tar zxvf ../stash/ruby-1.8.6-p287.tar.gz"
+  file "tmp/cross/#{lib.split('-').first}" => ["tmp/stash/#{lib}.zip"] do |t|
+    puts "unzipping #{lib}.zip"
+    FileUtils.mkdir_p('tmp/cross')
+    Dir.chdir('tmp/cross') do
+      sh "unzip ../stash/#{lib}.zip"
+      sh "cp #{lib}/bin/* #{lib}/lib" # put DLL in lib, so dirconfig works
+      sh "cp #{lib}/bin/*.dll ../../ext/nokogiri/"
+      sh "mv #{lib} #{lib.split('-').first}"
+      sh "touch #{lib.split('-').first}"
     end
   end
-
-  task :externals => libs.map { |x| "cross/#{x}" } + ['cross/ruby-1.8.6-p287']
+  if Rake::Task.task_defined?(:cross)
+    Rake::Task[:cross].prerequisites << "tmp/cross/#{lib.split('-').first}"
+  end
 end
+
+require 'tasks/test'
 
 desc "set environment variables to build and/or test with debug options"
 task :debug do
@@ -245,12 +137,28 @@ task :debug do
   ENV['CFLAGS'] += " -DDEBUG"
 end
 
-require 'tasks/test'
+if Rake::Task.task_defined?(:cross)
+  task :add_dll_to_manifest do
+    HOE.spec.files += Dir['ext/nokogiri/**.{dll,so}']
+  end
 
-Rake::Task['test:valgrind'].prerequisites << :build
-Rake::Task['test:valgrind_mem'].prerequisites << :build
-Rake::Task['test:valgrind_mem0'].prerequisites << :build
-Rake::Task['test:coverage'].prerequisites << :build
+  Rake::Task[:cross].prerequisites << :add_dll_to_manifest
+end
+
+# required_ruby_version
+
+# Only do this on unix, since we can't build on windows
+unless windows
+  [:compile, :check_manifest].each do |task_name|
+    Rake::Task[task_name].prerequisites << GENERATED_PARSER
+    Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
+  end
+
+  Rake::Task[:test].prerequisites << :compile
+  ['valgrind', 'valgrind_mem', 'valgrind_mem0', 'coverage'].each do |task_name|
+    Rake::Task["test:#{task_name}"].prerequisites << :compile
+  end
+end
 
 namespace :install do
   desc "Install frex and racc for development"
@@ -265,11 +173,11 @@ namespace :install do
   end
 end
 
-# Only do this on unix, since we can't build on windows
-unless windows
-  Rake::Task[:test].prerequisites << :build
-  Rake::Task[:check_manifest].prerequisites << GENERATED_PARSER
-  Rake::Task[:check_manifest].prerequisites << GENERATED_TOKENIZER
+namespace :libxml do
+  desc "What version of LibXML are we building against?"
+  task :version => :compile do
+    sh "#{RUBY} -Ilib:ext -rnokogiri -e 'puts Nokogiri::LIBXML_VERSION'"
+  end
 end
 
 # vim: syntax=Ruby

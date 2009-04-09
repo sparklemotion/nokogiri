@@ -15,4 +15,4 @@ cross
 tags
 stash
 .rake_tasks
-
+tmp

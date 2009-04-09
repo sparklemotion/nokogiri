@@ -35,16 +35,10 @@ LIB_DIRS = [
   '/usr/lib'
 ]
 
-if Config::CONFIG['target_os'] == 'mingw32'
-  header = File.join(ROOT, 'cross', 'iconv-1.9.2.win32', 'include')
-  unless find_header('iconv.h', header)
-    abort "need iconv"
-  end
-else
-  unless find_header('iconv.h', INCLUDEDIR, '/opt/local/include',
-                     '/usr/local/include', '/usr/include')
-    abort "iconv is missing.  try 'port install iconv' or 'yum install iconv'"
-  end
+iconv_dirs = dir_config('iconv', '/opt/local/include', '/opt/local/lib')
+unless [nil, nil] == iconv_dirs
+  HEADER_DIRS.unshift iconv_dirs.first
+  LIB_DIRS.unshift iconv_dirs[1]
 end
 
 xml2_dirs = dir_config('xml2', '/opt/local/include/libxml2', '/opt/local/lib')
@@ -57,6 +51,10 @@ xslt_dirs = dir_config('xslt', '/opt/local/include/', '/opt/local/lib')
 unless [nil, nil] == xslt_dirs
   HEADER_DIRS.unshift xslt_dirs.first
   LIB_DIRS.unshift xslt_dirs[1]
+end
+
+unless find_header('iconv.h', *HEADER_DIRS)
+  abort "iconv is missing.  try 'port install iconv' or 'yum install iconv'"
 end
 
 unless find_header('libxml/parser.h', *HEADER_DIRS)
@@ -82,4 +80,4 @@ unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
-create_makefile('nokogiri/native')
+create_makefile('nokogiri/nokogiri')

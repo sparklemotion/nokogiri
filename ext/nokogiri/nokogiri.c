@@ -1,4 +1,4 @@
-#include <native.h>
+#include <nokogiri.h>
 
 VALUE mNokogiri ;
 VALUE mNokogiriXml ;
@@ -24,7 +24,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap)
 #endif
 
 
-void Init_native()
+void Init_nokogiri()
 {
   xmlMemSetup(
       (xmlFreeFunc)ruby_xfree,

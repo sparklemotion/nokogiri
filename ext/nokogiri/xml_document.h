@@ -1,7 +1,7 @@
 #ifndef NOKOGIRI_XML_DOCUMENT
 #define NOKOGIRI_XML_DOCUMENT
 
-#include <native.h>
+#include <nokogiri.h>
 
 struct _nokogiriTuple {
   xmlDocPtr     doc;

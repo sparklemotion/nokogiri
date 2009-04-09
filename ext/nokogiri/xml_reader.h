@@ -1,7 +1,7 @@
 #ifndef NOKOGIRI_XML_READER
 #define NOKOGIRI_XML_READER
 
-#include <native.h>
+#include <nokogiri.h>
 
 void init_xml_reader();
 
