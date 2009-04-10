@@ -3,6 +3,8 @@
 require 'rubygems'
 require 'rake'
 require 'hoe'
+
+gem 'rake-compiler', '>= 0.4.1'
 require "rake/extensiontask"
 
 
@@ -40,17 +42,16 @@ end
 
 Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
   ext.lib_dir                         = "ext/nokogiri"
-  ### Uncomment this crap to do cross compile
-  #ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
-  #cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
-  #ext.cross_compile   = true
-  #ext.cross_platform  = 'i386-mswin32'
-  #ext.cross_config_options <<
-  #  "--with-iconv-dir=#{File.join(cross_dir, 'iconv')}"
-  #ext.cross_config_options <<
-  #  "--with-xml2-dir=#{File.join(cross_dir, 'libxml2')}"
-  #ext.cross_config_options <<
-  #  "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
+  ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
+  cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
+  ext.cross_compile   = true
+  ext.cross_platform  = 'i386-mswin32'
+  ext.cross_config_options <<
+    "--with-iconv-dir=#{File.join(cross_dir, 'iconv')}"
+  ext.cross_config_options <<
+    "--with-xml2-dir=#{File.join(cross_dir, 'libxml2')}"
+  ext.cross_config_options <<
+    "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
 end
 
 namespace :gem do
