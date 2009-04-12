@@ -10,6 +10,19 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_namespace_goes_to_children
+        fruits = Nokogiri::XML(<<-eoxml)
+        <Fruit xmlns='www.fruits.org'>
+        </Fruit>
+        eoxml
+        apple = Nokogiri::XML::Node.new('Apple', fruits)
+        orange = Nokogiri::XML::Node.new('Orange', fruits)
+        apple << orange
+        fruits.root << apple
+        assert fruits.at('//fruit:Orange',{'fruit'=>'www.fruits.org'})
+        assert fruits.at('//fruit:Apple',{'fruit'=>'www.fruits.org'})
+      end
+
       def test_description
         assert_nil @xml.at('employee').description
       end

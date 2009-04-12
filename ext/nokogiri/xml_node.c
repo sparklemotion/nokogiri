@@ -29,6 +29,18 @@ static void relink_namespace(xmlNodePtr reparented)
     );
     if(ns && ns != reparented->nsDef) reparented->nsDef = NULL;
   }
+
+  // Only walk all children if there actually is a namespace we need to
+  // reparent.
+  if(NULL == reparented->ns) return;
+
+  // When a node gets reparented, walk it's children to make sure that
+  // their namespaces are reparented as well.
+  xmlNodePtr child = reparented->children;
+  while(NULL != child) {
+    relink_namespace(child);
+    child = child->next;
+  }
 }
 
 /* :nodoc: */
