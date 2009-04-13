@@ -120,6 +120,21 @@ module Nokogiri
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns:foo']
       end
 
+      def test_add_default_ns
+        node = @xml.at('address')
+        node.add_namespace(nil, 'http://tenderlovemaking.com')
+        assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns']
+      end
+
+      def test_default_namespace=
+        node = @xml.at('address')
+        node.default_namespace = 'http://tenderlovemaking.com'
+        assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns']
+        assert_equal node, @xml.xpath('//foo:address', {
+          'foo' => 'http://tenderlovemaking.com'
+        }).first
+      end
+
       def test_at
         node = @xml.at('address')
         assert_equal node, @xml.xpath('//address').first

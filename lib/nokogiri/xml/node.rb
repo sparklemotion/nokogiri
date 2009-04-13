@@ -394,6 +394,12 @@ module Nokogiri
         })
       end
 
+      ###
+      # Set the default namespace for this node to +url+
+      def default_namespace= url
+        add_namespace(nil, url)
+      end
+
       ####
       # Yields self and all children to +block+ recursively.
       def traverse &block

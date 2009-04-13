@@ -18,7 +18,7 @@ static void relink_namespace(xmlNodePtr reparented)
 {
   // Make sure that our reparented node has the correct namespaces
   if(reparented->doc != (xmlDocPtr)reparented->parent)
-    reparented->ns = reparented->parent->ns;
+    xmlSetNs(reparented, reparented->parent->ns);
 
   // Search our parents for an existing definition
   if(reparented->nsDef) {
@@ -625,22 +625,20 @@ static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
 
+
   xmlNsPtr ns = xmlNewNs(
       node,
       (const xmlChar *)StringValuePtr(href),
-      (const xmlChar *)StringValuePtr(prefix)
+      (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
   );
 
-  if(NULL == ns) return self;
-
-  /*
-  xmlNewNsProp(
-      node,
-      ns,
-      (const xmlChar *)StringValuePtr(href),
-      (const xmlChar *)StringValuePtr(prefix)
-  );
-  */
+  if(NULL == node->ns) {
+    node->ns = ns;
+  } else {
+    xmlNsPtr next_ns = node->ns;
+    while(next_ns->next != NULL) next_ns = next_ns->next;
+    next_ns->next = ns;
+  }
 
   return self;
 }
