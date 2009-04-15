@@ -294,7 +294,7 @@ module Nokogiri
       end
 
       ####
-      # Set the content to +string+.
+      # Set the Node content to +string+.  The content gets XML escaped.
       def content= string
         self.native_content = encode_special_chars(string.to_s)
       end
