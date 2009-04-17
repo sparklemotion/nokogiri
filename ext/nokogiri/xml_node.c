@@ -820,7 +820,7 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 
     rb_hash_aset(attr_hash,
         NOKOGIRI_STR_NEW2(key, node->doc->encoding),
-        NOKOGIRI_STR_NEW2(ns->href, node->doc->encoding)
+        (ns->href ? NOKOGIRI_STR_NEW2(ns->href, node->doc->encoding) : Qnil)
     );
     if (key != buffer) {
       free(key);

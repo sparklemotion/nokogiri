@@ -658,6 +658,19 @@ EOF
         assert_equal nil, set[3].namespace
       end
 
+      def test_namespace_without_an_href_on_html_node
+        # because microsoft word's HTML formatting does this. ick.
+        xml = Nokogiri::HTML.parse <<-EOF
+<div><o:p>foo</o:p></div>
+        EOF
+
+        assert (node = xml.at('p'))
+
+        assert_equal 1, node.namespaces.keys.size
+        assert       node.namespaces.has_key?('xmlns:o')
+        assert_equal nil, node.namespaces['xmlns:o']
+      end
+
       def test_line
         xml = Nokogiri::XML(<<-eoxml)
         <root>
