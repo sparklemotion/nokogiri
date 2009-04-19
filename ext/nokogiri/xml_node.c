@@ -632,13 +632,7 @@ static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
       (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
   );
 
-  if(NULL == node->ns) {
-    node->ns = ns;
-  } else {
-    xmlNsPtr next_ns = node->ns;
-    while(next_ns->next != NULL) next_ns = next_ns->next;
-    next_ns->next = ns;
-  }
+  xmlSetNs(node, ns);
 
   return self;
 }
