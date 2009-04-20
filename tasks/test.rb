@@ -62,6 +62,15 @@ NokogiriTestTask.new('test:coverage').extend(Module.new {
   end
 })
 
+desc "run test suite with verbose output"
+NokogiriTestTask.new('test:verbose').extend(Module.new {
+  def ruby *args
+    cmd = "#{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
+    puts cmd
+    system cmd
+  end
+})
+
 namespace :test do
   desc "run test suite with aggressive GC"
   task :gc => :build do
