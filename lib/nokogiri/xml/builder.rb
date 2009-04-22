@@ -212,6 +212,14 @@ module Nokogiri
           @doc_builder = doc_builder
         end
 
+        def []= k, v
+          @node[k] = v
+        end
+
+        def [] k
+          @node[k]
+        end
+
         def method_missing(method, *args, &block)
           opts = args.last.is_a?(Hash) ? args.pop : {}
           case method.to_s

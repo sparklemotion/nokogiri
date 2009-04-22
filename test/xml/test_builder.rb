@@ -12,6 +12,17 @@ module Nokogiri
         assert_match 'UTF-8', builder.to_xml
       end
 
+      def test_square_brackets_set_attributes
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.root do
+            foo = xml.foo
+            foo['id'] = 'hello'
+            assert_equal 'hello', foo['id']
+          end
+        end
+        assert_equal 1, builder.doc.xpath('//foo[@id = "hello"]').length
+      end
+
       def test_nested_local_variable
         @ivar     = 'hello'
         local_var = 'hello world'
