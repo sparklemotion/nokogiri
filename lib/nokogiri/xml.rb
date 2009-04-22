@@ -56,8 +56,12 @@ module Nokogiri
     PARSE_NOXINCNODE  = 1 << 15 # do not generate XINCLUDE START/END nodes
 
     class << self
-      def Reader string, url = nil, encoding = nil, options = 0
-        Reader.from_memory(string, url, encoding, options)
+      ###
+      # Parse an XML document using the Nokogiri::XML::Reader API.  See
+      # Nokogiri::XML::Reader for mor information
+      def Reader string_or_io, url = nil, encoding = nil, options = 0
+        string_or_io = string_or_io.read if string_or_io.respond_to? :read
+        Reader.from_memory(string_or_io, url, encoding, options)
       end
 
       ###

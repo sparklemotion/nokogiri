@@ -2,6 +2,26 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestReader < Nokogiri::TestCase
+  def test_io
+    io = StringIO.new(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader(io)
+    assert_equal false, reader.default?
+    assert_equal [false, false, false, false, false, false, false],
+      reader.map { |x| x.default? }
+  end
+
+  def test_in_memory
+    reader = Nokogiri::XML::Reader(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+  end
+
   def test_default?
     reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>
