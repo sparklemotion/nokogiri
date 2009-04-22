@@ -7,9 +7,12 @@ static void dealloc(xmlDocPtr doc)
   nokogiriTuplePtr tuple = doc->_private;
   xmlNodeSetPtr node_set = tuple->unlinkedNodes;
 
-  int i;
-  for(i = 0; i < node_set->nodeNr; i++) {
-    xmlAddChild((xmlNodePtr)doc, node_set->nodeTab[i]);
+  int j ;
+  for(j = 0 ; j < node_set->nodeNr ; j++) {
+    xmlNodePtr node = node_set->nodeTab[j];
+    if (node->parent == NULL) {
+      xmlAddChild((xmlNodePtr)doc, node);
+    }
   }
 
   if (node_set->nodeTab != NULL)

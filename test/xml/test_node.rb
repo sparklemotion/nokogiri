@@ -695,6 +695,34 @@ EOF
         assert_equal 2, node.line
       end
 
+      def test_unlink_then_reparent
+        # see http://github.com/tenderlove/nokogiri/issues#issue/22
+        10.times do
+          STDOUT.putc "."
+          STDOUT.flush
+          begin
+            doc = Nokogiri::XML <<-EOHTML
+              <root>
+                <a>
+                  <b/>
+                  <c/>
+                </a>
+              </root>
+            EOHTML
+
+            root = doc.at("root")
+            a = root.at("a")
+            b = a.at("b")
+            c = a.at("c")
+            a.add_next_sibling(b.unlink)
+            c.unlink
+          end
+
+          GC.start
+        end
+        
+      end
+
     end
   end
 end
