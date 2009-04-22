@@ -43,6 +43,7 @@ end
 Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
   ext.lib_dir                         = "ext/nokogiri"
   ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
+  ext.config_options << ENV['EXTOPTS']
   cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
   ext.cross_compile   = true
   ext.cross_platform  = 'i386-mswin32'
