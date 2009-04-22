@@ -129,7 +129,7 @@ namespace :test do
     Dir[File.join(MULTI_XML, 'install', '*')].each do |xml2_version|
       next unless xml2_version =~ /libxml2/
       extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib --with-xslt-dir=#{libxslt}"
-      cmd = "#{$0} clean test EXTOPTS='#{extopts}'"
+      cmd = "#{$0} clean test EXTOPTS='#{extopts}' LD_LIBRARY_PATH='#{xml2_version}/lib'"
 
       version = File.basename(xml2_version)
       result = system(cmd)
