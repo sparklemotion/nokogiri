@@ -1,12 +1,22 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestNokogiri < Nokogiri::TestCase
-  def test_version
+  def test_versions
+    version_match = /\d+\.\d+\.\d+/
+    assert_match version_match, Nokogiri::VERSION
+    assert_match version_match, Nokogiri::LIBXML_VERSION
+
+    assert_match version_match, Nokogiri::VERSION_INFO['libxml']['loaded']
+    assert_match version_match, Nokogiri::VERSION_INFO['libxml']['compiled']
+
+    assert_equal Nokogiri::LIBXML_VERSION, Nokogiri::VERSION_INFO['libxml']['compiled']
+    assert_equal 'extension', Nokogiri::VERSION_INFO['libxml']['binding']
+
     Nokogiri::LIBXML_PARSER_VERSION =~ /(\d)(\d{2})(\d{2})/
     major = $1.to_i
     minor = $2.to_i
     bug   = $3.to_i
-    assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::LIBXML_VERSION
+    assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO['libxml']['loaded']
   end
 
   def test_xml?

@@ -7,6 +7,8 @@ end
 
 require 'nokogiri'
 
+puts "#{__FILE__}:#{__LINE__}: libxml version info: #{Nokogiri::VERSION_INFO.inspect}"
+
 module Nokogiri
   class TestCase < Test::Unit::TestCase
     ASSETS_DIR      = File.join(File.dirname(__FILE__), 'files')
