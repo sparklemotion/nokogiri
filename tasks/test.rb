@@ -86,7 +86,7 @@ namespace :test do
     }
   end
 
-  desc "Test against multiple versions of libxml2"
+  desc "Test against multiple versions of libxml2 (MULTIXML2_DIR=directory)"
   task :multixml2 do
     MULTI_XML = File.join(ENV['HOME'], '.multixml2')
     unless File.exists?(MULTI_XML)
@@ -126,7 +126,9 @@ namespace :test do
 
     test_results = {}
     libxslt = Dir[File.join(MULTI_XML, 'install', 'libxslt*')].first
-    Dir[File.join(MULTI_XML, 'install', '*')].each do |xml2_version|
+
+    directories = ENV['MULTIXML2_DIR'] ? [ENV['MULTIXML2_DIR']] : Dir[File.join(MULTI_XML, 'install', '*')]
+    directories.each do |xml2_version|
       next unless xml2_version =~ /libxml2/
       extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib --with-xslt-dir=#{libxslt}"
       cmd = "#{$0} clean test EXTOPTS='#{extopts}' LD_LIBRARY_PATH='#{xml2_version}/lib'"
