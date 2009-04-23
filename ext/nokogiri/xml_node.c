@@ -651,6 +651,7 @@ static VALUE new(VALUE klass, VALUE name, VALUE document)
 
   xmlNodePtr node = xmlNewNode(NULL, (xmlChar *)StringValuePtr(name));
   node->doc = doc->doc;
+  NOKOGIRI_ROOT_NODE(node);
 
   VALUE rb_node = Nokogiri_wrap_xml_node(node);
 
