@@ -8,6 +8,10 @@ module Nokogiri
         assert node
         assert_equal('hello world', node.content)
       end
+
+      def test_lots_of_text
+        100.times { Text.new('hello world', Document.new) }
+      end
     end
   end
 end

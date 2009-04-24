@@ -10,8 +10,15 @@ static void dealloc(xmlDocPtr doc)
   int j ;
   for(j = 0 ; j < node_set->nodeNr ; j++) {
     xmlNodePtr node = node_set->nodeTab[j];
-    if (node->parent == NULL) {
-      xmlAddChild((xmlNodePtr)doc, node);
+    switch(node->type)
+    {
+      case XML_ATTRIBUTE_NODE:
+        xmlFreePropList(node);
+        break;
+      default:
+        if(node->parent == NULL) {
+          xmlAddChild((xmlNodePtr)doc, node);
+        }
     }
   }
 

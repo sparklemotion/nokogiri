@@ -17,6 +17,8 @@ static VALUE new(VALUE klass, VALUE doc, VALUE content)
       Qnil == content ? 0 : RSTRING_LEN(content)
   );
 
+  NOKOGIRI_ROOT_NODE(node);
+
   VALUE rb_node = Nokogiri_wrap_xml_node(node);
 
   if(rb_block_given_p()) rb_yield(rb_node);

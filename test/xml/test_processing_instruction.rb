@@ -20,6 +20,11 @@ module Nokogiri
         assert ref = ProcessingInstruction.new(@xml, 'name', 'content')
         assert_instance_of ProcessingInstruction, ref
       end
+
+      def test_many_new
+        100.times { ProcessingInstruction.new(@xml, 'foo', 'bar') }
+        @xml.root << ProcessingInstruction.new(@xml, 'foo', 'bar')
+      end
     end
   end
 end

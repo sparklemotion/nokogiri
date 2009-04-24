@@ -12,6 +12,10 @@ module Nokogiri
         assert ref = EntityReference.new(@xml, 'ent4')
         assert_instance_of EntityReference, ref
       end
+
+      def test_many_references
+        100.times { EntityReference.new(@xml, 'foo') }
+      end
     end
   end
 end

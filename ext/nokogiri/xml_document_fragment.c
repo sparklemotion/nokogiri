@@ -15,6 +15,8 @@ static VALUE new(VALUE klass, VALUE doc)
   if(node->doc->children)
     node->ns = node->doc->children->ns;
 
+  NOKOGIRI_ROOT_NODE(node);
+
   VALUE rb_node = Nokogiri_wrap_xml_node(node);
 
   if(rb_block_given_p()) rb_yield(rb_node);

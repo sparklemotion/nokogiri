@@ -27,6 +27,12 @@ module Nokogiri
         node = CDATA.new(@xml, nil)
         assert_equal nil, node.content
       end
+
+      def test_lots_of_new_cdata
+        100.times {
+          node = CDATA.new(@xml, "asdfasdf")
+        }
+      end
     end
   end
 end
