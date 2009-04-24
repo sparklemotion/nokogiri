@@ -4,14 +4,11 @@ require 'rubygems'
 require 'rake'
 require 'hoe'
 
-gem 'rake-compiler', '>= 0.4.1'
-require "rake/extensiontask"
-
-
 LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 $LOAD_PATH << LIB_DIR
 
 windows = RUBY_PLATFORM =~ /mswin/i ? true : false
+java = RUBY_PLATFORM =~ /java/ ? true : false
 
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
@@ -40,19 +37,26 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
 
-Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
-  ext.lib_dir                         = "ext/nokogiri"
-  ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
-  ext.config_options << ENV['EXTOPTS']
-  cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
-  ext.cross_compile   = true
-  ext.cross_platform  = 'i386-mswin32'
-  ext.cross_config_options <<
-    "--with-iconv-dir=#{File.join(cross_dir, 'iconv')}"
-  ext.cross_config_options <<
-    "--with-xml2-dir=#{File.join(cross_dir, 'libxml2')}"
-  ext.cross_config_options <<
-    "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
+unless java
+
+  gem 'rake-compiler', '>= 0.4.1'
+  require "rake/extensiontask"
+
+  Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
+    ext.lib_dir                         = "ext/nokogiri"
+    ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
+    ext.config_options << ENV['EXTOPTS']
+    cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
+    ext.cross_compile   = true
+    ext.cross_platform  = 'i386-mswin32'
+    ext.cross_config_options <<
+      "--with-iconv-dir=#{File.join(cross_dir, 'iconv')}"
+    ext.cross_config_options <<
+      "--with-xml2-dir=#{File.join(cross_dir, 'libxml2')}"
+    ext.cross_config_options <<
+      "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
+  end
+
 end
 
 namespace :gem do
@@ -150,7 +154,7 @@ end
 # required_ruby_version
 
 # Only do this on unix, since we can't build on windows
-unless windows
+unless windows || java
   [:compile, :check_manifest].each do |task_name|
     Rake::Task[task_name].prerequisites << GENERATED_PARSER
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
