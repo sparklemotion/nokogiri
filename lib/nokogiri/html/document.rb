@@ -1,6 +1,6 @@
 module Nokogiri
   module HTML
-    class Document < XML::Document
+    class Document < Nokogiri::XML::Document
       ####
       # Serialize this Document with +encoding+ using +options+
       def serialize *args
