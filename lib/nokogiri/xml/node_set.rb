@@ -113,8 +113,8 @@ module Nokogiri
           each do |el|
             el.set_attribute(key, value || blk[el])
           end
-          return self      
-        end    
+          return self
+        end
         if key.is_a? Hash
           key.each { |k,v| self.attr(k,v) }
           return self
@@ -131,7 +131,7 @@ module Nokogiri
           next unless el.respond_to? :remove_attribute
           el.remove_attribute(name)
         end
-        self      
+        self
       end
 
       ###
@@ -166,20 +166,28 @@ module Nokogiri
         self
       end
 
+      ###
+      # Convert this NodeSet to a string.
       def to_s
         map { |x| x.to_s }.join
       end
 
+      ###
+      # Convert this NodeSet to HTML
       def to_html *args
-        map { |x| x.to_html(*args) }.join('')
+        map { |x| x.to_html(*args) }.join
       end
 
+      ###
+      # Convert this NodeSet to XHTML
       def to_xhtml *args
-        map { |x| x.to_xhtml(*args) }.join('')
+        map { |x| x.to_xhtml(*args) }.join
       end
 
+      ###
+      # Convert this NodeSet to XML
       def to_xml *args
-        map { |x| x.to_xml(*args) }.join('')
+        map { |x| x.to_xml(*args) }.join
       end
 
       alias :size :length

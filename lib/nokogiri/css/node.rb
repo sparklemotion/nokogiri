@@ -1,12 +1,18 @@
 module Nokogiri
   module CSS
     class Node
-      attr_accessor :type, :value
+      # Get the type of this node
+      attr_accessor :type
+      # Get the value of this node
+      attr_accessor :value
+
+      # Create a new Node with +type+ and +value+
       def initialize type, value
         @type = type
         @value = value
       end
 
+      # Accept +visitor+
       def accept visitor
         visitor.send(:"visit_#{type.to_s.downcase}", self)
       end
@@ -18,6 +24,7 @@ module Nokogiri
         prefix + visitor.accept(self)
       end
 
+      # Preprocess this node tree
       def preprocess!
         ### Deal with nth-child
         matches = find_by_type(
@@ -67,14 +74,15 @@ module Nokogiri
             match.value[1] = Node.new(:COMBINATOR, [
               Node.new(:FUNCTION, ["#{match.value[1].value.first}("]),
               Node.new(:FUNCTION, ['self(', tag_name])
-            ])                                        
+            ])
           end
         end
 
         self
       end
 
-      def find_by_type(types)
+      # Find a node by type using +types+
+      def find_by_type types
         matches = []
         matches << self if to_type == types
         @value.each do |v|
@@ -83,12 +91,14 @@ module Nokogiri
         matches
       end
 
+      # Convert to_type
       def to_type
         [@type] + @value.map { |n|
           n.to_type if n.respond_to?(:to_type)
         }.compact
       end
 
+      # Convert to array
       def to_a
         [@type] + @value.map { |n| n.respond_to?(:to_a) ? n.to_a : [n] }
       end

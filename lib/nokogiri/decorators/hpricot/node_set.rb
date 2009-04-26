@@ -6,7 +6,7 @@ module Nokogiri
         # Select nodes matching the supplied rule.
         # Note that positional rules (like <tt>:nth()</tt>) aren't currently supported.
         #
-        # example: 
+        # example:
         #   node_set.filter('.ohmy')          # selects nodes from the set with class "ohmy"
         #   node_set.filter('a#link2')        # selects nodes from the set with child node <a id='link2'>
         #   node_set.filter('a[@id="link2"]') # selects nodes from the set with child node <a id='link2'>
@@ -29,7 +29,7 @@ module Nokogiri
         end
 
       private
-        def filter_transformer(transformer, rule)
+        def filter_transformer(transformer, rule) # :nodoc:
           sub_set = XML::NodeSet.new(document)
           document.decorate(sub_set)
 

@@ -19,12 +19,16 @@ module Nokogiri
   end
 
   module HTML
-    # Parser options
-    PARSE_NOERROR   = 1 << 5  # No error reports
-    PARSE_NOWARNING = 1 << 6  # No warnings 
-    PARSE_PEDANTIC  = 1 << 7  # Pedantic errors
-    PARSE_NOBLANKS  = 1 << 8  # Remove blanks nodes
-    PARSE_NONET     = 1 << 11 # No network access
+    # No error reports
+    PARSE_NOERROR   = 1 << 5
+    # No warnings
+    PARSE_NOWARNING = 1 << 6
+    # Pedantic errors
+    PARSE_PEDANTIC  = 1 << 7
+    # Remove blanks nodes
+    PARSE_NOBLANKS  = 1 << 8
+    # No network access
+    PARSE_NONET     = 1 << 11
 
     class << self
       ###
@@ -65,6 +69,8 @@ module Nokogiri
         fragment
       end
     end
+
+    # Instance of Nokogiri::HTML::EntityLookup
     NamedCharacters = EntityLookup.new
   end
 end

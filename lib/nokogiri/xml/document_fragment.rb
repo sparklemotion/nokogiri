@@ -1,6 +1,8 @@
 module Nokogiri
   module XML
-    class DocumentFragment < Node
+    class DocumentFragment < Nokogiri::XML::Node
+      ###
+      # return the name for DocumentFragment
       def name
         '#document-fragment'
       end

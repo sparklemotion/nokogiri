@@ -3,7 +3,6 @@ require 'nokogiri/xml/fragment_handler'
 require 'nokogiri/xml/node'
 require 'nokogiri/xml/attr'
 require 'nokogiri/xml/dtd'
-require 'nokogiri/xml/text'
 require 'nokogiri/xml/cdata'
 require 'nokogiri/xml/processing_instruction'
 require 'nokogiri/xml/comment'
@@ -38,22 +37,39 @@ module Nokogiri
 
   module XML
     # Parser options
-    PARSE_RECOVER     = 1 << 0  # Recover from errors
-    PARSE_NOENT       = 1 << 1  # Substitute entities
-    PARSE_DTDLOAD     = 1 << 2  # Load external subsets
-    PARSE_DTDATTR     = 1 << 3  # Default DTD attributes
-    PARSE_DTDVALID    = 1 << 4  # validate with the DTD
-    PARSE_NOERROR     = 1 << 5  # suppress error reports
-    PARSE_NOWARNING   = 1 << 6  # suppress warning reports
-    PARSE_PEDANTIC    = 1 << 7  # pedantic error reporting
-    PARSE_NOBLANKS    = 1 << 8  # remove blank nodes
-    PARSE_SAX1        = 1 << 9  # use the SAX1 interface internally
-    PARSE_XINCLUDE    = 1 << 10 # Implement XInclude substitition
-    PARSE_NONET       = 1 << 11 # Forbid network access
-    PARSE_NODICT      = 1 << 12 # Do not reuse the context dictionnary
-    PARSE_NSCLEAN     = 1 << 13 # remove redundant namespaces declarations
-    PARSE_NOCDATA     = 1 << 14 # merge CDATA as text nodes
-    PARSE_NOXINCNODE  = 1 << 15 # do not generate XINCLUDE START/END nodes
+
+    # Recover from errors
+    PARSE_RECOVER     = 1 << 0
+    # Substitute entities
+    PARSE_NOENT       = 1 << 1
+    # Load external subsets
+    PARSE_DTDLOAD     = 1 << 2
+    # Default DTD attributes
+    PARSE_DTDATTR     = 1 << 3
+    # validate with the DTD
+    PARSE_DTDVALID    = 1 << 4
+    # suppress error reports
+    PARSE_NOERROR     = 1 << 5
+    # suppress warning reports
+    PARSE_NOWARNING   = 1 << 6
+    # pedantic error reporting
+    PARSE_PEDANTIC    = 1 << 7
+    # remove blank nodes
+    PARSE_NOBLANKS    = 1 << 8
+    # use the SAX1 interface internally
+    PARSE_SAX1        = 1 << 9
+    # Implement XInclude substitition
+    PARSE_XINCLUDE    = 1 << 10
+    # Forbid network access
+    PARSE_NONET       = 1 << 11
+    # Do not reuse the context dictionnary
+    PARSE_NODICT      = 1 << 12
+    # remove redundant namespaces declarations
+    PARSE_NSCLEAN     = 1 << 13
+    # merge CDATA as text nodes
+    PARSE_NOCDATA     = 1 << 14
+    # do not generate XINCLUDE START/END nodes
+    PARSE_NOXINCNODE  = 1 << 15
 
     class << self
       ###

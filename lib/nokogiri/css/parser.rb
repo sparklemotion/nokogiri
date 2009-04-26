@@ -8,24 +8,29 @@ module Nokogiri
       @mutex    = Mutex.new
 
       class << self
+        # Turn on CSS parse caching
         attr_accessor :cache_on
         alias :cache_on? :cache_on
         alias :set_cache :cache_on=
 
+        # Get the css selector in +string+ from the cache
         def [] string
           return unless @cache_on
           @mutex.synchronize { @cache[string] }
         end
 
+        # Set the css selector in +string+ in the cache to +value+
         def []= string, value
           return value unless @cache_on
           @mutex.synchronize { @cache[string] = value }
         end
 
+        # Clear the cache
         def clear_cache
           @mutex.synchronize { @cache = {} }
         end
 
+        # Execute +block+ without cache
         def without_cache &block
           tmp = @cache_on
           @cache_on = false
@@ -45,12 +50,14 @@ module Nokogiri
         end
       end
 
+      # Create a new CSS parser with respect to +namespaces+
       def initialize namespaces = {}
         @namespaces = namespaces
         super()
       end
       alias :parse :scan_str
 
+      # Get the xpath for +string+ using +options+
       def xpath_for string, options={}
         key = string + options[:ns].to_s
         v = self.class[key]
@@ -65,6 +72,7 @@ module Nokogiri
         }
       end
 
+      # On CSS parser error, raise an exception
       def on_error error_token_id, error_value, value_stack
         after = value_stack.compact.last
         raise SyntaxError.new("unexpected '#{error_value}' after '#{after}'")

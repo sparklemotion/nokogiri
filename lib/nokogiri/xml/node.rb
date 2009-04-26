@@ -34,26 +34,47 @@ module Nokogiri
     #
     # You may search this node's subtree using Node#xpath and Node#css
     class Node
+      # Element node type, see Nokogiri::XML::Node#element?
       ELEMENT_NODE =       1
+      # Attribute node type
       ATTRIBUTE_NODE =     2
+      # Text node type, see Nokogiri::XML::Node#text?
       TEXT_NODE =          3
+      # CDATA node type, see Nokogiri::XML::Node#cdata?
       CDATA_SECTION_NODE = 4
+      # Entity reference node type
       ENTITY_REF_NODE =    5
+      # Entity node type
       ENTITY_NODE =        6
+      # PI node type
       PI_NODE =            7
+      # Comment node type, see Nokogiri::XML::Node#comment?
       COMMENT_NODE =       8
+      # Document node type, see Nokogiri::XML::Node#xml?
       DOCUMENT_NODE =      9
+      # Document type node type
       DOCUMENT_TYPE_NODE = 10
+      # Document fragment node type
       DOCUMENT_FRAG_NODE = 11
+      # Notation node type
       NOTATION_NODE =      12
+      # HTML document node type, see Nokogiri::XML::Node#html?
       HTML_DOCUMENT_NODE = 13
+      # DTD node type
       DTD_NODE =           14
+      # Element declaration type
       ELEMENT_DECL =       15
+      # Attribute declaration type
       ATTRIBUTE_DECL =     16
+      # Entity declaration type
       ENTITY_DECL =        17
+      # Namespace declaration type
       NAMESPACE_DECL =     18
+      # XInclude start type
       XINCLUDE_START =     19
+      # XInclude end type
       XINCLUDE_END =       20
+      # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
       # The Document associated with this Node.
@@ -339,6 +360,8 @@ module Nokogiri
         Nokogiri::HTML::ElementDescription[name]
       end
 
+      ###
+      # Is this a read only node?
       def read_only?
         # According to gdome2, these are read-only node types
         [NOTATION_NODE, ENTITY_NODE, ENTITY_DECL].include?(type)
@@ -350,10 +373,14 @@ module Nokogiri
       end
       alias :elem? :element?
 
+      ###
+      # Turn this node in to a string.  If the document is HTML, this method
+      # returns html.  If the document is XML, this method returns XML.
       def to_s
         document.xml? ? to_xml : to_html
       end
 
+      # Get the inner_html for this node's Node#children
       def inner_html
         children.map { |x| x.to_html }.join
       end
