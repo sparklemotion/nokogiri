@@ -823,14 +823,12 @@ public class NokogiriJavaService implements BasicLibraryService{
             handler = new DefaultHandler2() {
                 public void startDocument() throws SAXException {
                     ThreadContext context = ruby.getCurrentContext();
-                    RuntimeHelpers.invoke(context, self, "start_document",
-                            RuntimeHelpers.invoke(context, self, "document"));
+                    RuntimeHelpers.invoke(context, document(context), "start_document");
                 }
 
                 public void endDocument() throws SAXException {
                     ThreadContext context = ruby.getCurrentContext();
-                    RuntimeHelpers.invoke(context, self, "start_document",
-                            RuntimeHelpers.invoke(context, self, "document"));
+                    RuntimeHelpers.invoke(context, document(context), "end_document");
                 }
 
                 public void startElement(String arg0, String arg1, String arg2, Attributes arg3) throws SAXException {
@@ -840,16 +838,14 @@ public class NokogiriJavaService implements BasicLibraryService{
                         attrs.append(RubyString.newString(ruby, arg3.getQName(i)));
                         attrs.append(RubyString.newString(ruby, arg3.getValue(i)));
                     }
-                    RuntimeHelpers.invoke(context, self, "start_element",
-                            RuntimeHelpers.invoke(context, self, "document"),
+                    RuntimeHelpers.invoke(context, document(context), "start_element",
                             RubyString.newString(ruby, arg2),
                             attrs);
                 }
 
                 public void endElement(String arg0, String arg1, String arg2) throws SAXException {
                     ThreadContext context = ruby.getCurrentContext();
-                    RuntimeHelpers.invoke(context, self, "end_element",
-                            RuntimeHelpers.invoke(context, self, "document"),
+                    RuntimeHelpers.invoke(context, document(context), "end_element",
                             RubyString.newString(ruby, arg2));
                 }
 
@@ -861,16 +857,14 @@ public class NokogiriJavaService implements BasicLibraryService{
                     } else {
                         target = "characters";
                     }
-                    RuntimeHelpers.invoke(context, self, target,
-                            RuntimeHelpers.invoke(context, self, "document"),
+                    RuntimeHelpers.invoke(context, document(context), target,
                             RubyString.newString(ruby, new String(arg0, arg1, arg2)));
                 }
 
                 @Override
                 public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
                     ThreadContext context = ruby.getCurrentContext();
-                    RuntimeHelpers.invoke(context, self, "comment",
-                            RuntimeHelpers.invoke(context, self, "document"),
+                    RuntimeHelpers.invoke(context, document(context), "comment",
                             RubyString.newString(ruby, new String(arg0, arg1, arg2)));
                 }
 
@@ -886,15 +880,13 @@ public class NokogiriJavaService implements BasicLibraryService{
 
                 public void error(SAXParseException saxpe) {
                     ThreadContext context = ruby.getCurrentContext();
-                    RuntimeHelpers.invoke(context, self, "error",
-                            RuntimeHelpers.invoke(context, self, "document"),
+                    RuntimeHelpers.invoke(context, document(context), "error",
                             RubyString.newString(ruby, saxpe.getMessage()));
                 }
 
                 public void warning(SAXParseException saxpe) {
                     ThreadContext context = ruby.getCurrentContext();
-                    RuntimeHelpers.invoke(context, self, "warning",
-                            RuntimeHelpers.invoke(context, self, "document"),
+                    RuntimeHelpers.invoke(context, document(context), "warning",
                             RubyString.newString(ruby, saxpe.getMessage()));
                 }
             };
@@ -948,6 +940,10 @@ public class NokogiriJavaService implements BasicLibraryService{
             } catch (IOException ioe) {
                 throw getRuntime().newIOErrorFromException(ioe);
             }
+        }
+
+        private IRubyObject document(ThreadContext context){
+            return RuntimeHelpers.invoke(context, this, "document");
         }
     }
 
