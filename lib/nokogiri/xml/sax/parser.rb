@@ -1,7 +1,36 @@
 module Nokogiri
   module XML
     module SAX
+      ###
+      # This parser is a SAX style parser that reads it's input as it
+      # deems necessary.  The parser takes a Nokogiri::XML::SAX::Document,
+      # an optional encoding, then given an XML input, sends messages to
+      # the Nokogiri::XML::SAX::Document.
+      #
+      # Here is an example of using this parser:
+      #
+      #   # Create a subclass of Nokogiri::XML::SAX::Document and implement
+      #   # the events we care about:
+      #   class MyDoc < Nokogiri::XML::SAX::Document
+      #     def start_element name, attrs = []
+      #       puts "starting: #{name}"
+      #     end
+      #
+      #     def end_element name
+      #       puts "ending: #{name}"
+      #     end
+      #   end
+      #
+      #   # Create our parser
+      #   parser = Nokogiri::XML::SAX::Parser.new(MyDoc.new)
+      #
+      #   # Send some XML to the parser
+      #   parser.parse(File.read(ARGV[0]))
+      #
+      # For more information about SAX parsers, see Nokogiri::XML::SAX.  Also
+      # see Nokogiri::XML::SAX::Document for the available events.
       class Parser
+        # Encodinds this parser supports
         ENCODINGS = {
           'NONE'        => 0, # No char encoding detected
           'UTF-8'       => 1, # UTF-8
@@ -28,8 +57,14 @@ module Nokogiri
           'ASCII'       => 22, # pure ASCII
         }
 
-        attr_accessor :document, :encoding
-        def initialize(doc = XML::SAX::Document.new, encoding = 'ASCII')
+        # The Nokogiri::XML::SAX::Document where events will be sent.
+        attr_accessor :document
+
+        # The encoding beings used for this document.
+        attr_accessor :encoding
+
+        # Create a new Parser with +doc+ and +encoding+
+        def initialize(doc = Nokogiri::XML::SAX::Document.new, encoding = 'ASCII')
           @encoding = encoding
           @document = doc
         end

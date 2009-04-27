@@ -23,24 +23,34 @@ module XSD
     #     ...
     #   end
     class Nokogiri < XSD::XMLParser::Parser
+      ###
+      # Create a new XSD parser with +host+ and +opt+
       def initialize host, opt = {}
         super
         @parser = ::Nokogiri::XML::SAX::Parser.new(self, @charset || 'UTF-8')
       end
 
+      ###
+      # Start parsing +string_or_readable+
       def do_parse string_or_readable
         @parser.parse(string_or_readable)
       end
 
+      ###
+      # Handle the start_element event with +name+ and +attrs+
       def start_element name, attrs = []
         super(name, Hash[*attrs])
       end
 
+      ###
+      # Handle errors with message +msg+
       def error msg
         raise ParseError.new(msg)
       end
       alias :warning :error
 
+      ###
+      # Handle cdata_blocks containing +string+
       def cdata_block string
         characters string
       end

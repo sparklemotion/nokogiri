@@ -1,7 +1,7 @@
 module Nokogiri
   module Decorators
     module Hpricot
-      module Node
+      module Node # :nodoc:
         def search *paths
           ns = paths.last.is_a?(Hash) ? paths.pop : {}
           converted = paths.map { |path|

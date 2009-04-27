@@ -56,6 +56,8 @@ module Nokogiri
       doc
     end
 
+    ###
+    # Create a new Nokogiri::XML::DocumentFragment
     def make input = nil, opts = {}, &blk
       if input
         Nokogiri::HTML.fragment(input).children.first
@@ -63,7 +65,7 @@ module Nokogiri
         Nokogiri(&blk)
       end
     end
-    
+
     ###
     # Parse a document and add the Slop decorator.  The Slop decorator
     # implements method_missing such that methods may be used instead of CSS
@@ -85,6 +87,12 @@ module Nokogiri
   end
 end
 
+###
+# Parser a document contained in +args+.  Nokogiri will try to guess what
+# type of document you are attempting to parse.  For more information, see
+# Nokogiri.parse
+#
+# To specify the type of document, use Nokogiri.XML or Nokogiri.HTML.
 def Nokogiri(*args, &block)
   if block_given?
     builder = Nokogiri::HTML::Builder.new(&block)

@@ -1,6 +1,6 @@
 module Nokogiri
   module CSS
-    class XPathVisitor
+    class XPathVisitor # :nodoc:
       def visit_function node
         #  note that nth-child and nth-last-child are preprocessed in css/node.rb.
         msg = :"visit_function_#{node.value.first.gsub(/[(]/, '')}"

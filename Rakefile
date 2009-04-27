@@ -98,7 +98,7 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   begin
     sh "frex --independent -o #{t.name} #{t.prerequisites.first}"
   rescue
-    abort "need frex, sudo gem install tenderlove-frex -s http://gems.github.com"   
+    abort "need frex, sudo gem install tenderlove-frex -s http://gems.github.com"
   end
 end
 
@@ -113,7 +113,7 @@ libs.each do |lib|
   file "tmp/stash/#{lib}.zip" do |t|
     puts "downloading #{lib}"
     FileUtils.mkdir_p('tmp/stash')
-    Dir.chdir('tmp/stash') do 
+    Dir.chdir('tmp/stash') do
       url = "http://www.zlatkovic.com/pub/libxml/#{lib}.zip"
       system("wget #{url} || curl -O #{url}")
     end

@@ -20,4 +20,8 @@ module Nokogiri
       warn "WARNING: #{warning}"
     end
   end
+
+  def Nokogiri.ffi?
+    Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
+  end
 end

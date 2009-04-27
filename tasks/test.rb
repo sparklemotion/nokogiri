@@ -79,10 +79,28 @@ namespace :test do
   end
 
   desc "find call-seq in the rdoc"
-  task :rdoc => 'docs' do
+  task :rdoc_call_seq => 'docs' do
     Dir['doc/**/*.html'].each { |docfile|
       next if docfile =~ /\.src/
       puts "FAIL: #{docfile}" if File.read(docfile) =~ /call-seq/
+    }
+  end
+
+  desc "find all undocumented things"
+  task :rdoc => 'docs' do
+    base = File.expand_path(File.join(File.dirname(__FILE__), '..', 'doc'))
+    require 'test/unit'
+    test = Class.new(Test::Unit::TestCase)
+    Dir["#{base}/**/*.html"].each { |docfile|
+      test.class_eval(<<-eotest)
+        def test_#{docfile.sub("#{base}/", '').gsub(/[\/\.-]/, '_')}
+          assert_no_match(
+            /Not documented/,
+            File.read('#{docfile}'),
+            '#{docfile} has undocumented things'
+          )
+        end
+      eotest
     }
   end
 

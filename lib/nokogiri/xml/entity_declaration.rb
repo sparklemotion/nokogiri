@@ -1,6 +1,8 @@
 module Nokogiri
   module XML
-    class EntityDeclaration < Node
+    class EntityDeclaration < Nokogiri::XML::Node
+      ###
+      # return attributes.  Always returns +nil+
       def attributes
         nil
       end
