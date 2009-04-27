@@ -12,6 +12,16 @@ module Nokogiri
         assert_match 'UTF-8', builder.to_xml
       end
 
+      def test_bang_and_underscore_is_escaped
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.root do
+            xml.p_('adsfadsf')
+            xml.p!('adsfadsf')
+          end
+        end
+        assert_equal 2, builder.doc.xpath('//p').length
+      end
+
       def test_square_brackets_set_attributes
         builder = Nokogiri::XML::Builder.new do |xml|
           xml.root do
