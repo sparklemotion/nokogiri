@@ -4,7 +4,12 @@ module Nokogiri
   module CSS
     class TestParser < Nokogiri::TestCase
       def setup
+        super
         @parser = Nokogiri::CSS::Parser.new
+      end
+
+      def test_extra_single_quote
+        assert_raises(CSS::SyntaxError) { @parser.parse("'") }
       end
 
       def test_syntax_error_raised
@@ -65,6 +70,12 @@ module Nokogiri
         ## This is non standard CSS
         assert_xpath  "//a[@id = 'Boing']",
                       @parser.parse("a[@id='Boing']")
+      end
+
+      def test_attributes_with_at_and_stuff
+        ## This is non standard CSS
+        assert_xpath  "//a[@id = 'Boing']//div",
+                      @parser.parse("a[@id='Boing'] div")
       end
 
       def test_not_equal
@@ -158,15 +169,15 @@ module Nokogiri
       end
 
       def test_pseudo_class_no_ident
-        assert_xpath "//*[1 = 1]", @parser.parse(':link')
+        assert_xpath "//*[link(.)]", @parser.parse(':link')
       end
 
       def test_pseudo_class
-        assert_xpath "//a[1 = 1]", @parser.parse('a:link')
-        assert_xpath "//a[1 = 1]", @parser.parse('a:visited')
-        assert_xpath "//a[1 = 1]", @parser.parse('a:hover')
-        assert_xpath "//a[1 = 1]", @parser.parse('a:active')
-        assert_xpath  "//a[1 = 1 and contains(concat(' ', @class, ' '), ' foo ')]",
+        assert_xpath "//a[link(.)]", @parser.parse('a:link')
+        assert_xpath "//a[visited(.)]", @parser.parse('a:visited')
+        assert_xpath "//a[hover(.)]", @parser.parse('a:hover')
+        assert_xpath "//a[active(.)]", @parser.parse('a:active')
+        assert_xpath  "//a[active(.) and contains(concat(' ', @class, ' '), ' foo ')]",
                       @parser.parse('a:active.foo')
       end
 

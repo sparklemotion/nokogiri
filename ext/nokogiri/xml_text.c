@@ -26,6 +26,7 @@ void init_xml_text()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
+  /* */
   VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
 
   /*

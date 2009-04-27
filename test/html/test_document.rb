@@ -4,12 +4,101 @@ module Nokogiri
   module HTML
     class TestDocument < Nokogiri::TestCase
       def setup
+        super
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
+      end
+
+      def test_emtpy_string_returns_empty_doc
+        doc = Nokogiri::HTML('')
+      end
+
+      def test_to_xhtml_with_indent
+        doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
+        doc = Nokogiri::HTML(doc.to_xhtml(:indent => 2))
+        assert_indent 2, doc
+      end
+
+      def test_write_to_xhtml_with_indent
+        io = StringIO.new
+        doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
+        doc.write_xhtml_to io, :indent => 5
+        io.rewind
+        doc = Nokogiri::HTML(io.read)
+        assert_indent 5, doc
+      end
+
+      def test_swap_should_not_exist
+        assert_raises(NoMethodError) {
+          @html.swap
+        }
+      end
+
+      def test_namespace_should_not_exist
+        assert_raises(NoMethodError) {
+          @html.namespace
+        }
+      end
+
+      def test_meta_encoding
+        assert_equal 'UTF-8', @html.meta_encoding
+      end
+
+      def test_meta_encoding=
+        @html.meta_encoding = 'EUC-JP'
+        assert_equal 'EUC-JP', @html.meta_encoding
+      end
+
+      def test_root_node_parent_is_document
+        parent = @html.root.parent
+        assert_equal @html, parent
+        assert_instance_of Nokogiri::HTML::Document, parent
+      end
+
+      def test_parse_empty_document
+        doc = Nokogiri::HTML("\n")
+        assert_equal 0, doc.css('a').length
+        assert_equal 0, doc.xpath('//a').length
+        assert_equal 0, doc.search('//a').length
       end
 
       def test_HTML_function
         html = Nokogiri::HTML(File.read(HTML_FILE))
         assert html.html?
+      end
+
+      def test_parse_io
+        assert doc = File.open(HTML_FILE, 'rb') { |f|
+          Document.read_io(f, nil, 'UTF-8', PARSE_NOERROR | PARSE_NOWARNING)
+        }
+      end
+
+      def test_to_xhtml
+        assert_match 'XHTML', @html.to_xhtml
+        assert_match 'XHTML', @html.to_xhtml(:encoding => 'UTF-8')
+        assert_match 'UTF-8', @html.to_xhtml(:encoding => 'UTF-8')
+      end
+
+      def test_no_xml_header
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+        </html>
+        eohtml
+        assert html.to_html.length > 0, 'html length is too short'
+        assert_no_match(/^<\?xml/, html.to_html)
+      end
+
+      def test_document_has_error
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <body>
+            <div awesome="asdf>
+              <p>inside div tag</p>
+            </div>
+            <p>outside div tag</p>
+          </body>
+        </html>
+        eohtml
+        assert html.errors.length > 0
       end
 
       def test_relative_css
@@ -60,6 +149,66 @@ module Nokogiri
         assert_equal('Hello world!', node.inner_text.strip)
       end
 
+      def test_find_by_xpath
+        found = @html.xpath('//div/a')
+        assert_equal 3, found.length
+      end
+
+      def test_find_by_css
+        found = @html.css('div > a')
+        assert_equal 3, found.length
+      end
+
+      def test_find_by_css_with_square_brackets
+        found = @html.css("div[@id='header'] > h1")
+        found = @html.css("div[@id='header'] h1") # this blows up on commit 6fa0f6d329d9dbf1cc21c0ac72f7e627bb4c05fc
+        assert_equal 1, found.length
+      end
+
+      def test_find_with_function
+        found = @html.css("div:awesome() h1", Class.new {
+          def awesome divs
+            [divs.first]
+          end
+        }.new)
+      end
+
+      def test_dup_shallow
+        found = @html.search('//div/a').first
+        dup = found.dup(0)
+        assert dup
+        assert_equal '', dup.content
+      end
+
+      def test_search_can_handle_xpath_and_css
+        found = @html.search('//div/a', 'div > p')
+        length = @html.xpath('//div/a').length +
+          @html.css('div > p').length
+        assert_equal length, found.length
+      end
+
+      def test_dup_document
+        assert dup = @html.dup
+        assert_not_equal dup, @html
+        assert @html.html?
+        assert_instance_of Nokogiri::HTML::Document, dup
+        assert dup.html?, 'duplicate should be html'
+        assert_equal @html.to_s, dup.to_s
+      end
+
+      def test_dup_document_shallow
+        assert dup = @html.dup(0)
+        assert_not_equal dup, @html
+      end
+
+      def test_dup
+        found = @html.search('//div/a').first
+        dup = found.dup
+        assert dup
+        assert_equal found.content, dup.content
+        assert_equal found.document, dup.document
+      end
+
       def test_inner_html
         html = Nokogiri::HTML(<<-eohtml)
         <html>
@@ -76,15 +225,30 @@ module Nokogiri
         assert_equal('<p>Helloworld!</p>', node.inner_html.gsub(/\s/, ''))
       end
 
+      def test_fragment_contains_text_node
+        fragment = Nokogiri::HTML.fragment('fooo')
+        assert_equal 1, fragment.children.length
+        assert_equal 'fooo', fragment.inner_text
+      end
+
+      def test_fragment_includes_two_tags
+        assert_equal 2, Nokogiri::HTML.fragment("<br/><hr/>").children.length
+      end
+
       def test_fragment
-        node_set = Nokogiri::HTML.fragment(<<-eohtml)
+        fragment = Nokogiri::HTML.fragment(<<-eohtml)
           <div>
             <b>Hello World</b>
           </div>
         eohtml
-        assert_equal 1, node_set.length
-        assert_equal 'div', node_set.first.name
-        assert_match(/Hello World/, node_set.to_html)
+        assert_equal 1, fragment.children.length
+        assert_equal 'div', fragment.children.first.name
+        assert_match(/Hello World/, fragment.to_html)
+
+        # libxml2 is broken in 2.6.16 and 2.6.17
+        unless [16, 17].include?(Nokogiri::LIBXML_VERSION.split('.').last.to_i)
+          assert_equal 1, fragment.css('div').length
+        end
       end
 
       def test_relative_css_finder

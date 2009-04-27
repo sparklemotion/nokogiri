@@ -1,7 +1,7 @@
 #ifndef NOKOGIRI_XML_XPATH
 #define NOKOGIRI_XML_XPATH
 
-#include <native.h>
+#include <nokogiri.h>
 
 void init_xml_xpath();
 VALUE Nokogiri_wrap_xml_xpath(xmlXPathObjectPtr xpath);

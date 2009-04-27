@@ -2,6 +2,26 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestReader < Nokogiri::TestCase
+  def test_io
+    io = StringIO.new(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader(io)
+    assert_equal false, reader.default?
+    assert_equal [false, false, false, false, false, false, false],
+      reader.map { |x| x.default? }
+  end
+
+  def test_in_memory
+    reader = Nokogiri::XML::Reader(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+  end
+
   def test_default?
     reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>
@@ -22,6 +42,23 @@ class TestReader < Nokogiri::TestCase
     assert_equal false, reader.value?
     assert_equal [false, true, false, true, false, true, false],
       reader.map { |x| x.value? }
+  end
+
+  def test_read_error_document
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+      <foo>
+    </x>
+    eoxml
+    error_happened = false
+    begin
+      reader.each { |node| }
+    rescue Nokogiri::XML::SyntaxError => ex
+      error_happened = true
+    end
+    assert error_happened
+    assert 1, reader.errors.length
   end
 
   def test_attributes?
@@ -112,14 +149,14 @@ class TestReader < Nokogiri::TestCase
   end
 
   def test_encoding
-    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    string = <<-eoxml
     <awesome>
       <p xml:lang="en">The quick brown fox jumps over the lazy dog.</p>
       <p xml:lang="ja">日本語が上手です</p>
     </awesome>
     eoxml
-    assert_nil reader.encoding
-    assert_equal [nil], reader.map { |x| x.encoding }.uniq
+    reader = Nokogiri::XML::Reader.from_memory(string, nil, 'UTF-8')
+    assert_equal ['UTF-8'], reader.map { |x| x.encoding }.uniq
   end
 
   def test_xml_version

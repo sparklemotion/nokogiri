@@ -4,7 +4,7 @@
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
 * http://rubyforge.org/mailman/listinfo/nokogiri-talk
-* http://nokogiri.lighthouseapp.com/projects/19607-nokogiri/overview
+* http://github.com/tenderlove/nokogiri/issues
 
 == DESCRIPTION:
 
@@ -22,7 +22,7 @@ correctly implemented CSS3 selector support as well as XPath support.
 
 Here is a speed test:
 
-  * http://gist.github.com/22176
+  * http://gist.github.com/24605
 
 Nokogiri also features an Hpricot compatibility layer to help ease the change
 to using correct CSS and XPath.
@@ -35,15 +35,19 @@ The Nokogiri mailing list is available here:
 
 The bug tracker is available here:
 
-  * http://nokogiri.lighthouseapp.com/projects/19607-nokogiri/overview
+  * http://github.com/tenderlove/nokogiri/issues
 
 == SYNOPSIS:
 
   require 'nokogiri'
   require 'open-uri'
   
+  # Get a Nokogiri::HTML:Document for the page we’re interested in...
+
   doc = Nokogiri::HTML(open('http://www.google.com/search?q=tenderlove'))
   
+  # Do funky things with it using Nokogiri::XML::Node methods...
+
   ####
   # Search for nodes by css
   doc.css('h3.r a.l').each do |link|
@@ -66,8 +70,10 @@ The bug tracker is available here:
 == REQUIREMENTS:
 
 * ruby 1.8 or 1.9
-* libxml
+* libxml2
+* libxml2-dev
 * libxslt
+* libxslt-dev
 
 == INSTALL:
 
@@ -84,7 +90,7 @@ Developing Nokogiri requires racc and frex.
 
 (The MIT License)
 
-Copyright (c) 2008:
+Copyright (c) 2008 - 2009:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]

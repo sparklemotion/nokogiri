@@ -1,5 +1,26 @@
 #include <xml_node_set.h>
 #include <libxml/xpathInternals.h>
+
+/*
+ * call-seq:
+ *  dup
+ *
+ * Duplicate this node set
+ */
+static VALUE duplicate(VALUE self)
+{
+  xmlNodeSetPtr node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  xmlNodeSetPtr dupl = xmlXPathNodeSetCreate(NULL);
+  int i;
+  for(i = 0; i < node_set->nodeNr; i++) {
+    xmlXPathNodeSetAdd(dupl, node_set->nodeTab[i]);
+  }
+
+  return Nokogiri_wrap_xml_node_set(dupl);
+}
+
 /*
  * call-seq:
  *  length
@@ -28,6 +49,9 @@ static VALUE push(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
+  if(! rb_funcall(rb_node, rb_intern("is_a?"), 1, cNokogiriXmlNode))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
+
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
   xmlXPathNodeSetAdd(node_set, node);
@@ -54,6 +78,59 @@ static VALUE index_at(VALUE self, VALUE number)
 
   return Nokogiri_wrap_xml_node(node_set->nodeTab[i]);
 }
+
+/*
+ * call-seq:
+ *  to_a
+ *
+ * Return this list as an Array
+ */
+static VALUE to_array(VALUE self, VALUE rb_node)
+{
+  xmlNodeSetPtr set;
+  Data_Get_Struct(self, xmlNodeSet, set);
+
+  VALUE *elts = calloc((size_t)set->nodeNr, sizeof(VALUE *));
+  int i;
+  for(i = 0; i < set->nodeNr; i++) {
+    if(set->nodeTab[i]->_private) {
+      elts[i] = (VALUE)set->nodeTab[i]->_private;
+    } else {
+      elts[i] = Nokogiri_wrap_xml_node(set->nodeTab[i]);
+    }
+  }
+
+  VALUE list = rb_ary_new4(set->nodeNr, elts);
+
+  free(elts);
+
+  return list;
+}
+
+/*
+ *  call-seq:
+ *    unlink
+ *
+ * Unlink this NodeSet and all Node objects it contains from their current context.
+ */
+static VALUE unlink_nodeset(VALUE self)
+{
+  xmlNodeSetPtr node_set;
+  int j, nodeNr ;
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  nodeNr = node_set->nodeNr ;
+  for (j = 0 ; j < nodeNr ; j++) {
+    VALUE node ;
+    xmlNodePtr node_ptr;
+    node = Nokogiri_wrap_xml_node(node_set->nodeTab[j]);
+    rb_funcall(node, rb_intern("unlink"), 0); /* modifies the C struct out from under the object */
+    Data_Get_Struct(node, xmlNode, node_ptr);
+    node_set->nodeTab[j] = node_ptr ;
+  }
+  return self ;
+}
+
 
 static void deallocate(xmlNodeSetPtr node_set)
 {
@@ -107,9 +184,16 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set)
 VALUE cNokogiriXmlNodeSet ;
 void init_xml_node_set(void)
 {
-  VALUE klass = cNokogiriXmlNodeSet = rb_eval_string("Nokogiri::XML::NodeSet");
+  VALUE nokogiri  = rb_define_module("Nokogiri");
+  VALUE xml       = rb_define_module_under(nokogiri, "XML");
+  VALUE klass     = rb_define_class_under(xml, "NodeSet", rb_cObject);
+  cNokogiriXmlNodeSet = klass;
+
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "length", length, 0);
   rb_define_method(klass, "[]", index_at, 1);
   rb_define_method(klass, "push", push, 1);
+  rb_define_method(klass, "unlink", unlink_nodeset, 0);
+  rb_define_method(klass, "to_a", to_array, 0);
+  rb_define_method(klass, "dup", duplicate, 0);
 }

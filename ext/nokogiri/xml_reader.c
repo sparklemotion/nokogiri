@@ -78,11 +78,11 @@ static VALUE attributes_eh(VALUE self)
 
 /*
  * call-seq:
- *   attributes
+ *   namespaces
  *
- * Get a Hash of attributes for this node
+ * Get a hash of namespaces for this Node
  */
-static VALUE attributes(VALUE self)
+static VALUE namespaces(VALUE self)
 {
   xmlTextReaderPtr reader;
   VALUE attr ;
@@ -98,6 +98,52 @@ static VALUE attributes(VALUE self)
   if(ptr == NULL) return Qnil;
 
   Nokogiri_xml_node_namespaces(ptr, attr);
+
+  return attr ;
+}
+
+/*
+ * call-seq:
+ *   attribute_nodes
+ *
+ * Get a list of attributes for this Node
+ */
+static VALUE attribute_nodes(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  VALUE attr ;
+
+  Data_Get_Struct(self, xmlTextReader, reader);
+
+  attr = rb_ary_new() ;
+
+  if (! has_attributes(reader))
+    return attr ;
+
+  xmlNodePtr ptr = xmlTextReaderExpand(reader);
+  if(ptr == NULL) return Qnil;
+
+  // FIXME I'm not sure if this is correct.....  I don't really like pointing
+  // at this document, but I have to because of the assertions in
+  // the node wrapping code.
+  if(! DOC_RUBY_OBJECT_TEST(ptr->doc)) {
+    VALUE rb_doc = Data_Wrap_Struct(cNokogiriXmlDocument, 0, 0, ptr->doc);
+    ptr->doc->_private = malloc(sizeof(nokogiriTuple));
+    rb_iv_set(rb_doc, "@decorators", Qnil);
+    ((nokogiriTuplePtr)(ptr->doc->_private))->doc = (void *)rb_doc;
+    ((nokogiriTuplePtr)(ptr->doc->_private))->unlinkedNodes = xmlXPathNodeSetCreate(NULL);
+  }
+  VALUE enc = rb_iv_get(self, "@encoding");
+
+  if(enc != Qnil && NULL == ptr->doc->encoding) {
+    ptr->doc->encoding = calloc((size_t)RSTRING_LEN(enc), sizeof(char));
+    strncpy(
+      (char *)ptr->doc->encoding,
+      StringValuePtr(enc),
+      (size_t)RSTRING_LEN(enc)
+    );
+  }
+
   Nokogiri_xml_node_properties(ptr, attr);
 
   return attr ;
@@ -123,7 +169,9 @@ static VALUE attribute_at(VALUE self, VALUE index)
   );
   if(value == NULL) return Qnil;
 
-  VALUE rb_value = rb_str_new2((const char *)value);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  VALUE rb_value = NOKOGIRI_STR_NEW2(value,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
   xmlFree(value);
   return rb_value;
 }
@@ -159,7 +207,9 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   }
   if(value == NULL) return Qnil;
 
-  VALUE rb_value = rb_str_new2((const char *)value);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  VALUE rb_value = NOKOGIRI_STR_NEW2(value,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
   xmlFree(value);
   return rb_value;
 }
@@ -198,22 +248,6 @@ static VALUE depth(VALUE self)
 
 /*
  * call-seq:
- *   encoding
- *
- * Get the encoding for the document
- */
-static VALUE encoding(VALUE self)
-{
-  xmlTextReaderPtr reader;
-  Data_Get_Struct(self, xmlTextReader, reader);
-  const char * encoding = (const char *)xmlTextReaderConstEncoding(reader);
-  if(encoding == NULL) return Qnil;
-
-  return rb_str_new2(encoding);
-}
-
-/*
- * call-seq:
  *   xml_version
  *
  * Get the XML version of the document being read
@@ -225,7 +259,7 @@ static VALUE xml_version(VALUE self)
   const char * version = (const char *)xmlTextReaderConstXmlVersion(reader);
   if(version == NULL) return Qnil;
 
-  return rb_str_new2(version);
+  return NOKOGIRI_STR_NEW2(version, "UTF-8");
 }
 
 /*
@@ -241,7 +275,9 @@ static VALUE lang(VALUE self)
   const char * lang = (const char *)xmlTextReaderConstXmlLang(reader);
   if(lang == NULL) return Qnil;
 
-  return rb_str_new2(lang);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_STR_NEW2(lang,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*
@@ -257,7 +293,9 @@ static VALUE value(VALUE self)
   const char * value = (const char *)xmlTextReaderConstValue(reader);
   if(value == NULL) return Qnil;
 
-  return rb_str_new2(value);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_STR_NEW2(value,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*
@@ -273,7 +311,9 @@ static VALUE prefix(VALUE self)
   const char * prefix = (const char *)xmlTextReaderConstPrefix(reader);
   if(prefix == NULL) return Qnil;
 
-  return rb_str_new2(prefix);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_STR_NEW2(prefix,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*
@@ -289,7 +329,9 @@ static VALUE namespace_uri(VALUE self)
   const char * uri = (const char *)xmlTextReaderConstNamespaceUri(reader);
   if(uri == NULL) return Qnil;
 
-  return rb_str_new2(uri);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_STR_NEW2(uri,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*
@@ -305,7 +347,9 @@ static VALUE local_name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstLocalName(reader);
   if(name == NULL) return Qnil;
 
-  return rb_str_new2(name);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_STR_NEW2(name,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*
@@ -321,7 +365,9 @@ static VALUE name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstName(reader);
   if(name == NULL) return Qnil;
 
-  return rb_str_new2(name);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_STR_NEW2(name,
+      RTEST(enc) ? StringValuePtr(enc) : NULL);
 }
 
 /*
@@ -348,11 +394,24 @@ static VALUE read_more(VALUE self)
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
 
+  VALUE error_list = rb_funcall(self, rb_intern("errors"), 0);
+
+  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
   int ret = xmlTextReaderRead(reader);
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
   if(ret == 1) return self;
   if(ret == 0) return Qnil;
 
-  rb_raise(rb_eRuntimeError, "Error pulling: %d", ret);
+  xmlErrorPtr error = xmlGetLastError();
+  if(error)
+    rb_funcall(rb_mKernel, rb_intern("raise"), 1,
+        Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error)
+    );
+  else
+    rb_raise(rb_eRuntimeError, "Error pulling: %d", ret);
+
+  return Qnil;
 }
 
 /*
@@ -373,12 +432,12 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
 
   rb_buffer = StringValue(rb_buffer) ;
   if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
-  if (RTEST(encoding)) c_encoding = StringValuePtr(rb_url);
+  if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
   if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
 
   xmlTextReaderPtr reader = xmlReaderForMemory(
       StringValuePtr(rb_buffer),
-      NUM2INT(rb_funcall(rb_buffer, rb_intern("length"), 0)),
+      RSTRING_LEN(rb_buffer),
       c_url,
       c_encoding,
       c_options
@@ -389,7 +448,10 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
     rb_raise(rb_eRuntimeError, "couldn't create a parser");
   }
 
-  return Data_Wrap_Struct(klass, NULL, dealloc, reader);
+  VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
+  rb_funcall(rb_reader, rb_intern("initialize"), 2, rb_url, encoding);
+
+  return rb_reader;
 }
 
 VALUE cNokogiriXmlReader;
@@ -418,12 +480,12 @@ void init_xml_reader()
   rb_define_method(klass, "value", value, 0);
   rb_define_method(klass, "lang", lang, 0);
   rb_define_method(klass, "xml_version", xml_version, 0);
-  rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "depth", depth, 0);
   rb_define_method(klass, "attribute_count", attribute_count, 0);
   rb_define_method(klass, "attribute", reader_attribute, 1);
+  rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "attribute_at", attribute_at, 1);
-  rb_define_method(klass, "attributes", attributes, 0);
+  rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "attributes?", attributes_eh, 0);
   rb_define_method(klass, "value?", value_eh, 0);
   rb_define_method(klass, "default?", default_eh, 0);

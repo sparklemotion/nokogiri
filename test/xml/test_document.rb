@@ -1,15 +1,130 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 
+require 'uri'
+
 module Nokogiri
   module XML
     class TestDocument < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+      end
+
+      def test_encoding=
+        @xml.encoding = 'UTF-8'
+        assert_match 'UTF-8', @xml.to_xml
+
+        @xml.encoding = 'EUC-JP'
+        assert_match 'EUC-JP', @xml.to_xml
+      end
+
+      def test_namespace_should_not_exist
+        assert_raises(NoMethodError) {
+          @xml.namespace
+        }
+      end
+
+      def test_non_existant_function
+        assert_raises(RuntimeError) {
+          @xml.xpath('//name[foo()]')
+        }
+      end
+
+      def test_ancestors
+        assert_equal 0, @xml.ancestors.length
+      end
+
+      def test_root_node_parent_is_document
+        parent = @xml.root.parent
+        assert_equal @xml, parent
+        assert_instance_of Nokogiri::XML::Document, parent
+      end
+
+      def test_xmlns_is_automatically_registered
+        doc = Nokogiri::XML(<<-eoxml)
+          <root xmlns="http://tenderlovemaking.com/">
+            <foo>
+              bar
+            </foo>
+          </root>
+        eoxml
+        assert_equal 1, doc.css('xmlns|foo').length
+        assert_equal 1, doc.css('foo').length
+        assert_equal 0, doc.css('|foo').length
+        assert_equal 1, doc.xpath('//xmlns:foo').length
+        assert_equal 1, doc.search('xmlns|foo').length
+        assert_equal 1, doc.search('//xmlns:foo').length
+        assert doc.at('xmlns|foo')
+        assert doc.at('//xmlns:foo')
+        assert doc.at('foo')
+      end
+
+      def test_xmlns_is_registered_for_nodesets
+        doc = Nokogiri::XML(<<-eoxml)
+          <root xmlns="http://tenderlovemaking.com/">
+            <foo>
+              <bar>
+                baz
+              </bar>
+            </foo>
+          </root>
+        eoxml
+        assert_equal 1, doc.css('xmlns|foo').css('xmlns|bar').length
+        assert_equal 1, doc.css('foo').css('bar').length
+        assert_equal 1, doc.xpath('//xmlns:foo').xpath('./xmlns:bar').length
+        assert_equal 1, doc.search('xmlns|foo').search('xmlns|bar').length
+        assert_equal 1, doc.search('//xmlns:foo').search('./xmlns:bar').length
+      end
+
+      def test_to_xml_with_indent
+        doc = Nokogiri::XML('<root><foo><bar/></foo></root>')
+        doc = Nokogiri::XML(doc.to_xml(:indent => 5))
+
+        assert_indent 5, doc
+      end
+
+      def test_write_xml_to_with_indent
+        io = StringIO.new
+        doc = Nokogiri::XML('<root><foo><bar/></foo></root>')
+        doc.write_xml_to io, :indent => 5
+        io.rewind
+        doc = Nokogiri::XML(io.read)
+        assert_indent 5, doc
+      end
+
+      # wtf...  osx's libxml sucks.
+      unless Nokogiri::LIBXML_VERSION =~ /^2\.6\./
+        def test_encoding
+          xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE, 'UTF-8')
+          assert_equal 'UTF-8', xml.encoding
+        end
+      end
+
+      def test_document_has_errors
+        doc = Nokogiri::XML(<<-eoxml)
+          <foo><bar></foo>
+        eoxml
+        assert doc.errors.length > 0
+        doc.errors.each do |error|
+          assert_match error.message, error.inspect
+          assert_match error.message, error.to_s
+        end
+      end
+
+      def test_strict_document_throws_syntax_error
+        assert_raises(Nokogiri::XML::SyntaxError) {
+          Nokogiri::XML('<foo><bar></foo>', nil, nil, 0)
+        }
       end
 
       def test_XML_function
         xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
         assert xml.xml?
+      end
+
+      def test_url
+        assert @xml.url
+        assert_equal XML_FILE, URI.unescape(@xml.url).sub('file:///', '')
       end
 
       def test_document_parent
@@ -37,6 +152,12 @@ module Nokogiri
       def test_search_on_empty_documents
         doc = Nokogiri::XML::Document.new
         ns = doc.search('//foo')
+        assert_equal 0, ns.length
+
+        ns = doc.css('foo')
+        assert_equal 0, ns.length
+
+        ns = doc.xpath('//foo')
         assert_equal 0, ns.length
       end
 
@@ -125,6 +246,12 @@ module Nokogiri
       def test_dump
         assert @xml.serialize
         assert @xml.to_xml
+      end
+
+      def test_dup
+        dup = @xml.dup
+        assert_instance_of Nokogiri::XML::Document, dup
+        assert dup.xml?, 'duplicate should be xml'
       end
 
       def test_subset_is_decorated

@@ -4,6 +4,7 @@ module Nokogiri
   module CSS
     class TestNthiness < Nokogiri::TestCase
       def setup
+        super
         doc = <<EOF
 <html>
 <table>

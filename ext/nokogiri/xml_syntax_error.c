@@ -45,7 +45,7 @@ static VALUE str3(VALUE self)
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
   if(error->str3)
-    return rb_str_new2(error->str3);
+    return NOKOGIRI_STR_NEW2(error->str3, "UTF-8");
   return Qnil;
 }
 
@@ -60,7 +60,7 @@ static VALUE str2(VALUE self)
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
   if(error->str2)
-    return rb_str_new2(error->str2);
+    return NOKOGIRI_STR_NEW2(error->str2, "UTF-8");
   return Qnil;
 }
 
@@ -75,7 +75,7 @@ static VALUE str1(VALUE self)
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
   if(error->str1)
-    return rb_str_new2(error->str1);
+    return NOKOGIRI_STR_NEW2(error->str1, "UTF-8");
   return Qnil;
 }
 
@@ -103,7 +103,7 @@ static VALUE file(VALUE self)
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
   if(error->file)
-    return rb_str_new2(error->file);
+    return NOKOGIRI_STR_NEW2(error->file, "UTF-8");
 
   return Qnil;
 }
@@ -157,20 +157,23 @@ static VALUE message(VALUE self)
 {
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
-  return rb_str_new2(error->message);
+  return NOKOGIRI_STR_NEW2(error->message, "UTF-8");
 }
 
-void Nokogiri_error_handler(void * ctx, xmlErrorPtr error)
+void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 {
-  // FIXME: I'm interneting this.  I *think* the pointer passed in here gets
-  // freed on its own, thats why I copy it.
-  // The files are *in* the computer.
+  VALUE list = (VALUE)ctx;
+  rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+}
+
+VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error)
+{
+  if(!klass) klass = cNokogiriXmlSyntaxError;
+
   xmlErrorPtr ptr = calloc(1, sizeof(xmlError));
   xmlCopyError(error, ptr);
 
-  VALUE err = Data_Wrap_Struct(cNokogiriXmlSyntaxError, NULL, dealloc, ptr);
-  VALUE block = rb_funcall(mNokogiri, rb_intern("error_handler"), 0);
-  rb_funcall(block, rb_intern("call"), 1, err);
+  return Data_Wrap_Struct(klass, NULL, dealloc, ptr);
 }
 
 VALUE cNokogiriXmlSyntaxError;
@@ -182,7 +185,8 @@ void init_xml_syntax_error()
   /*
    * The XML::SyntaxError is raised on parse errors
    */
-  VALUE klass = rb_define_class_under(xml, "SyntaxError", rb_eSyntaxError);
+  VALUE syntax_error_mommy = rb_define_class_under(nokogiri, "SyntaxError", rb_eStandardError);
+  VALUE klass = rb_define_class_under(xml, "SyntaxError", syntax_error_mommy);
   cNokogiriXmlSyntaxError = klass;
 
   rb_define_method(klass, "message", message, 0);

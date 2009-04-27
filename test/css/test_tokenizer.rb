@@ -4,17 +4,33 @@ module Nokogiri
   module CSS
     class TestTokenizer < Nokogiri::TestCase
       def setup
+        super
         @scanner = Nokogiri::CSS::Tokenizer.new
+      end
+
+      def test_tokenize_bad_single_quote
+        @scanner.scan("'")
+        assert_tokens([["'", "'"]], @scanner)
       end
 
       def test_not_equal
         @scanner.scan("h1[a!='Tender Lovemaking']")
         assert_tokens([ [:IDENT, 'h1'],
-                        ['[', '['],
+                        [:LSQUARE, '['],
                         [:IDENT, 'a'],
                         [:NOT_EQUAL, '!='],
                         [:STRING, "'Tender Lovemaking'"],
-                        [']', ']'],
+                        [:RSQUARE, ']'],
+        ], @scanner)
+      end
+
+      def test_negation
+        @scanner.scan("p:not(.a)")
+        assert_tokens([ [:IDENT, 'p'],
+                        [:NOT, ':not('],
+                        ['.', '.'],
+                        [:IDENT, 'a'],
+                        [:RPAREN, ')'],
         ], @scanner)
       end
 
@@ -23,15 +39,14 @@ module Nokogiri
         assert_tokens([ [:IDENT, 'script'],
                         [:S, ' '],
                         [:FUNCTION, 'comment('],
-                        [')', ')'],
+                        [:RPAREN, ')'],
         ], @scanner)
       end
 
       def test_preceding_selector
         @scanner.scan("E ~ F")
         assert_tokens([ [:IDENT, 'E'],
-                        [:TILDE, ' ~'],
-                        [:S, ' '],
+                        [:TILDE, ' ~ '],
                         [:IDENT, 'F'],
         ], @scanner)
       end
@@ -39,19 +54,19 @@ module Nokogiri
       def test_scan_attribute_string
         @scanner.scan("h1[a='Tender Lovemaking']")
         assert_tokens([ [:IDENT, 'h1'],
-                        ['[', '['],
+                        [:LSQUARE, '['],
                         [:IDENT, 'a'],
-                        ['=', '='],
+                        [:EQUAL, '='],
                         [:STRING, "'Tender Lovemaking'"],
-                        [']', ']'],
+                        [:RSQUARE, ']'],
         ], @scanner)
         @scanner.scan('h1[a="Tender Lovemaking"]')
         assert_tokens([ [:IDENT, 'h1'],
-                        ['[', '['],
+                        [:LSQUARE, '['],
                         [:IDENT, 'a'],
-                        ['=', '='],
+                        [:EQUAL, '='],
                         [:STRING, '"Tender Lovemaking"'],
-                        [']', ']'],
+                        [:RSQUARE, ']'],
         ], @scanner)
       end
 
@@ -84,8 +99,7 @@ module Nokogiri
       def test_scan_greater
         @scanner.scan('x > y')
         assert_tokens([ [:IDENT, 'x'],
-                        [:GREATER, ' >'],
-                        [:S, ' '],
+                        [:GREATER, ' > '],
                         [:IDENT, 'y']
         ], @scanner)
       end
@@ -112,7 +126,7 @@ module Nokogiri
                         [':', ':'],
                         [:FUNCTION, 'eq('],
                         [:NUMBER, "0"],
-                        [")", ")"]
+                        [:RPAREN, ')'],
         ], @scanner)
       end
 
@@ -125,7 +139,7 @@ module Nokogiri
                         [:IDENT, 'n'],
                         [:PLUS, '+'],
                         [:NUMBER, '3'],
-                        [")", ")"]
+                        [:RPAREN, ')'],
         ], @scanner)
 
         @scanner.scan('x:nth-child(-1n+3)')
@@ -136,7 +150,7 @@ module Nokogiri
                         [:IDENT, 'n'],
                         [:PLUS, '+'],
                         [:NUMBER, '3'],
-                        [")", ")"]
+                        [:RPAREN, ')'],
         ], @scanner)
 
         @scanner.scan('x:nth-child(-n+3)')
@@ -146,7 +160,7 @@ module Nokogiri
                         [:IDENT, '-n'],
                         [:PLUS, '+'],
                         [:NUMBER, '3'],
-                        [")", ")"]
+                        [:RPAREN, ')'],
         ], @scanner)
       end
 

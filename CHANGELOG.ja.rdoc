@@ -1,0 +1,179 @@
+=== 1.2.3 / ２００９年３月２２日
+
+* バグの修正
+
+  * Node#new 内にて、バグを修正する
+  * DocumentFragmentの作成時、名前空間に割り当てる LH #66
+  * Nokogiri::XML::NodeSet#dup は機能するようになった GH #10
+  * Nokogiri::HTMLは文字列がブランクの時、空のドキュメントで返す GH#11
+  * 子ノードを付加する事で、重複した名前空間の宣言を取り除く LH#67
+  * ビルダ方法はハッシュを第二引数とする
+
+=== 1.2.2 / ２００９年３月１４日
+
+* 新しい機能
+
+  * Nokogiri は soap4r と一緒に使う事が可能。(XSD::XMLParser::Nokogiri 参照)
+  * Nokogiri::XML::Node#inner_html= はノードの中のHTMLをセット出来る
+  * Nokogiriのビルダーのインタフェースの改良
+  * Nokogiri::XML::Node#swap　は、現在のノードに新しいhtmlを交換する事が出来る
+
+
+* バグの修正
+
+  * ビルダーAPIのタグのネスティングを修正 (LH #41)
+  * Nokogiri::HTML.fragment はテキストだけのノードを適切に扱う事が出来る(LH #43)
+  * Nokogiri::XML::Node#before はテキストノードのはじめに挿入する事が出来る (LH #44)
+  * Nokogiri::XML::Node#after はテキストノードの文末に挿入する事が出来る
+  * Nokogiri::XML::Node#search 名前空間が自動的に登録されるようになった(LH#42)
+  * Nokogiri::XML::NodeSet#search 名前空間が自動的に登録されるようになった
+  * Nokogiri::HTML::NamedCharacters はlibxml2に委任
+  * Nokogiri::XML::Node#[] はSymbolを使う (LH #48)
+  * vasprintf にwindowsを修正 (Geffroy Couprie ありがとう！)
+  * Nokogiri::XML::Node#[]= はentityを符号化しない (LH #55)
+  * 名前空間はreparentedのノードに模写する (LH #56)
+  * StringのエンコードはRuby 1.9での初期設定を使用する
+  * Document#dup は新しいドキュメントに同じタイプを作る (LH #59)
+  * Document#parent は存在しない (LH #64)
+
+
+=== 1.2.1 / ２００９年２月２３日
+
+* 修正
+
+  * CSS のセレクターのスペースを修正
+  * Ruby 1.9 のStringのエンコードを修正 （角谷さんに感謝！）
+
+=== 1.2.0 / ２００９年２月２２日
+
+* 新しい機能
+  * CSSサーチが CSS3 名前空間クエリをサポートするようになった
+  * ルート要素での名前空間が自動的に登録されるようになった
+  * CSS クエリが初期設定の名前空間を使うようになった
+  * Nokogiri::XML::Document#encoding で文書にエンコードを使用、受け取る
+  * Nokogiri::XML::Document#url で文書のURLを受け取る
+  * Nokogiri::XML::Node#each　はname属性、値を一組にし反復適用する
+  * Nokogiri::XML::Node#keys　はすべてのname属性を受け取る
+  * Nokogiri::XML::Node#line は行番号をノード用に受け取る (Dirkjan Bussinkさんに感謝感激)
+  * Nokogiri::XML::Node#serialize は任意されたencodingパラメーターを受け入れる
+  * Nokogiri::XML::Node#to_html, to_xml, と to_xhtml は任意されたencodingパラメーターを受け入れる
+  * Nokogiri::XML::Node#to_str
+  * Nokogiri::XML::Node#to_xhtml でXHTML文書を生成する
+  * Nokogiri::XML::Node#values が全ての属性値を受け入れる
+  * Nokogiri::XML::Node#write_to は任意されたencodingで要素をIOオブジェクトへ書く
+  * Nokogiri::XML::ProcessingInstrunction.new
+  * Nokogiri::XML::SAX::PushParser は全てのプッシュパースに必要な解析をする
+
+* バグの修正
+
+  * Nokogiri::XML::Document#dup を修正
+  * ヘッダ検知を修正. 謝々るびきちさん！
+  * 無効なCSS内にて解析機能を動かなくさせる原因を修正
+
+* 廃棄予定
+
+  * Nokogiri::XML::Node.new_from_str は1.3.0にて廃棄予定
+
+* APIの変更
+
+  * Nokogiri::HTML.fragment は XML::DocumentFragment (LH #32)で返す
+
+=== 1.1.1
+
+* 新しい機能
+  * XML::Node#elem? を追加
+  * XML::Node#attribute_nodes を追加
+  * XML::Attr を追加
+  * XML::Node#delete を追加
+  * XML::NodeSet#inner_html を追加
+
+* バグの修正
+
+  * HTML のノードを \r のエンティティを含まない
+  * CSS::SelectorHandler と XML::XPathHandler を除去
+  * XML::Node#attributes が Attr node を value値に返す
+  * XML::NodeSet が to_xml へ実行
+
+=== 1.1.0
+
+* 新しい機能
+
+  * カスタム XPath 機能はある。（ Nokogiri::XML::Node#xpath 参照 ）
+  * カスタム CSS 擬似クラスと機能はある。（ Nokogiri::XML::Node#css 参照 ）
+  * Nokogiri::XML::Node#<< が作成中に子ノードを自動追加
+
+* バグの修正
+
+  * mutex が CSS のキャッシュのアクセスをロックする
+  * GCC 3.3.5 のビルドに関する問題を修正
+  * XML::Node#to_xml が引数indentationを取る 
+  * XML::Node#dup が引数任意のdepthを取る 
+  * XML::Node#add_previous_sibling が新しい兄弟ノードで返す
+
+=== 1.0.7
+
+* バグの修正
+
+  * Dike 使用時中のメモリーリークの修正
+  * SAX パーサーが現在 IO Stream 同時解析
+  * コメント nodes が独自のクラスを継承する
+  * Nokogiri() は Nokogiri.parse() へデリゲートする
+  * ENV['PATH'] に付加せれる代わりに先頭へデータ挿入される
+  * 複雑な CSS 内のバグを修正完了 :not selector ではありません
+
+=== 1.0.6
+
+* 5つの修正
+
+  * XPath のパーサーが SyntaxError を生じさせ解析停止させる
+  * CSS のパーサーが SyntaxError を生じさせ解析停止させる
+  * filter() と not() hpricot の互換性を追加
+  * CSS が Node#search 経由で検索し、常時対応する事が出来るようになった
+  * CSS より XPath 変換がキャッシュに入れられるようになった
+
+=== 1.0.5
+
+* バグフィックス
+
+  * メーリンクリストを作成
+  * バグファイルを作成
+  * Windows 内で ENV['PATH'] が存在しない場合でも、存在出来るように設定完了
+  * Document 内の NodeSet#[] の結果をキャッシュする
+
+=== 1.0.4
+
+* バグフィックス
+
+  * 弱参照からドキュメント参照へのメモリー管理の変換
+  * メモリリークに接続
+  * ビルダーブロックが取り囲んでいるコンテキストから
+    メソッドの呼び出しをする事が出来る
+
+=== 1.0.3
+
+* 5つのバグ修正
+
+  * NodeSet が to_ary へ実行
+  * XML::Document#parent を除去
+  * GCバグ修正済み (Mike は最高！)
+  * 1.8.5互換性の為の RARRAY_LEN 除去
+  * inner_html 修正済み (Yahuda に感謝)
+
+=== 1.0.2
+
+* 1つのバグ修正
+
+  * extconf.rb は frex や racc を調べないはず
+
+=== 1.0.1
+
+* 1つのバグ修正
+
+  * extconf.rb が libdir や prefix を検索しない事を確認済み
+    それによって、ports libxml/ruby が正しくリンクする (lucsky に感謝!)
+
+=== 1.0.0 / 2008-07-13
+
+* 1つの偉大な増進
+
+  * ご誕生である

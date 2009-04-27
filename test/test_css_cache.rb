@@ -3,6 +3,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 class TestCssCache < Nokogiri::TestCase
 
   def setup
+    super
     @css = "a1 > b2 > c3"
     @parse_result = Nokogiri::CSS.parse(@css)
     @to_xpath_result = @parse_result.map {|ast| ast.to_xpath}
@@ -27,14 +28,12 @@ class TestCssCache < Nokogiri::TestCase
 
   [ false, true ].each do |cache_setting|
     define_method "test_css_cache_#{cache_setting ? "true" : "false"}" do
-      times = cache_setting ? 6 : nil
+      times = cache_setting ? 4 : nil
 
       Nokogiri::CSS::Parser.set_cache cache_setting
       
       Nokogiri::CSS.xpath_for(@css)
       Nokogiri::CSS.xpath_for(@css)
-      Nokogiri::CSS::Parser.xpath_for(@css)
-      Nokogiri::CSS::Parser.xpath_for(@css)
       Nokogiri::CSS::Parser.new.xpath_for(@css)
       Nokogiri::CSS::Parser.new.xpath_for(@css)
 

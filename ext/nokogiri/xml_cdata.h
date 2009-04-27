@@ -1,7 +1,7 @@
 #ifndef NOKOGIRI_XML_CDATA
 #define NOKOGIRI_XML_CDATA
 
-#include <native.h>
+#include <nokogiri.h>
 
 void init_xml_cdata();
 

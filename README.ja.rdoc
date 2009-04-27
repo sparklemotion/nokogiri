@@ -4,7 +4,7 @@
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
 * http://rubyforge.org/mailman/listinfo/nokogiri-talk
-* http://nokogiri.lighthouseapp.com/projects/19607-nokogiri/overview
+* http://github.com/tenderlove/nokogiri/issues
 
 == DESCRIPTION:
 
@@ -20,7 +20,7 @@ Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。
 
 これはスピードテストです：
 
-  * http://gist.github.com/22176
+  * http://gist.github.com/24605
 
 NokogiriはHpricotの代わりに使用出来る。
 その互換性は簡単に正しいCSSとXPathを使用する事が出来る。
@@ -33,7 +33,7 @@ NokogiriはHpricotの代わりに使用出来る。
 
 バグファイルは:
 
-  * http://nokogiri.lighthouseapp.com/projects/19607-nokogiri/overview
+  * http://github.com/tenderlove/nokogiri/issues
 
 == SYNOPSIS:
 
@@ -64,8 +64,10 @@ NokogiriはHpricotの代わりに使用出来る。
 == REQUIREMENTS:
 
 * ruby 1.8 or 1.9
-* libxml
+* libxml2
+* libxml2-dev
 * libxslt
+* libxslt-dev
 
 == INSTALL:
 
@@ -75,7 +77,7 @@ NokogiriはHpricotの代わりに使用出来る。
 
 (The MIT License)
 
-Copyright (c) 2008:
+Copyright (c) 2008 - 2009:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]

@@ -4,7 +4,42 @@ module Nokogiri
   module XML
     class TestNodeSet < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+      end
+
+      def test_dup
+        assert node_set = @xml.xpath('//employee')
+        dup = node_set.dup
+        assert_equal node_set.length, dup.length
+        node_set.zip(dup).each do |a,b|
+          assert_equal a, b
+        end
+      end
+
+      def test_xmlns_is_automatically_registered
+        doc = Nokogiri::XML(<<-eoxml)
+          <root xmlns="http://tenderlovemaking.com/">
+            <foo>
+              <bar/>
+            </foo>
+          </root>
+        eoxml
+        set = doc.css('foo')
+        assert_equal 1, set.css('xmlns|bar').length
+        assert_equal 0, set.css('|bar').length
+        assert_equal 1, set.xpath('//xmlns:bar').length
+        assert_equal 1, set.search('xmlns|bar').length
+        assert_equal 1, set.search('//xmlns:bar').length
+        assert set.at('//xmlns:bar')
+        assert set.at('xmlns|bar')
+        assert set.at('bar')
+      end
+
+      def test_children_has_document
+        set = @xml.root.children
+        assert_instance_of(NodeSet, set)
+        assert_equal @xml, set.document
       end
 
       def test_length_size
@@ -12,9 +47,36 @@ module Nokogiri
         assert_equal node_set.length, node_set.size
       end
 
+      def test_to_xml
+        assert node_set = @xml.search('//employee')
+        assert node_set.to_xml
+      end
+
+      def test_inner_html
+        doc = Nokogiri::HTML(<<-eohtml)
+          <html>
+            <body>
+              <div>
+                <a>one</a>
+              </div>
+              <div>
+                <a>two</a>
+              </div>
+            </body>
+          </html>
+        eohtml
+        assert html = doc.css('div').inner_html
+        assert_match '<a>', html
+      end
+
       def test_at
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set.at(0)
+      end
+      
+      def test_percent
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first, node_set % 0
       end
 
       def test_to_ary
@@ -50,7 +112,7 @@ module Nokogiri
         set.unlink
         set.each do |node|
           assert !node.parent
-          # assert !node.document # ugh. libxml doesn't clear node->doc pointer, due to xmlDict implementation.
+          #assert !node.document
           assert !node.previous_sibling
           assert !node.next_sibling
         end

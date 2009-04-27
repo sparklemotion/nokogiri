@@ -14,6 +14,9 @@ require 'nokogiri'
 module ActionController
   module TestResponseBehavior
 
+    ###
+    # Get your response as a Nokogiri::XML::Document using the
+    # Nokogiri.HTML parser
     def html(flavor=nil)
       if flavor == :hpricot
         @_nokogiri_html_hpricot ||= Nokogiri::Hpricot(body)
@@ -22,6 +25,9 @@ module ActionController
       end
     end
 
+    ###
+    # Get your response as a Nokogiri::XML::Document using the
+    # Nokogiri.XML parser
     def xml
       @_nokogiri_xml ||= Nokogiri::XML(body)
     end

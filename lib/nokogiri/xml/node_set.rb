@@ -1,12 +1,19 @@
 module Nokogiri
   module XML
+    ####
+    # A NodeSet contains a list of Nokogiri::XML::Node objects.  Typically
+    # a NodeSet is return as a result of searching a Document via
+    # Nokogiri::XML::Node#css or Nokogiri::XML::Node#xpath
     class NodeSet
       include Enumerable
 
+      # The Document this NodeSet is associated with
       attr_accessor :document
 
-      def initialize document
+      # Create a NodeSet with +document+ defaulting to +list+
+      def initialize document, list = []
         @document = document
+        list.each { |x| self << x }
         yield self if block_given?
       end
 
@@ -40,28 +47,20 @@ module Nokogiri
         last.after datum
       end
 
-      ###
-      # Append +node+ to the NodeSet.
-      def << node
-        push(node)
-      end
-
-      ###
-      # Unlink this NodeSet and all Node objects it contains from their
-      # current context.
-      def unlink
-        each { |node| node.unlink }
-        self
-      end
+      alias :<< :push
       alias :remove :unlink
 
       ###
       # Search this document for +paths+
+      #
+      # For more information see Nokogiri::XML::Node#css and
+      # Nokogiri::XML::Node#xpath
       def search *paths
+        ns = paths.last.is_a?(Hash) ? paths.pop : document.root.namespaces
         sub_set = NodeSet.new(document)
         document.decorate(sub_set)
         each do |node|
-          node.search(*paths).each do |sub_node|
+          node.search(*(paths + [ns])).each do |sub_node|
             sub_set << sub_node
           end
         end
@@ -74,10 +73,11 @@ module Nokogiri
       ###
       # If path is a string, search this document for +path+ returning the
       # first Node.  Otherwise, index in to the array with +path+.
-      def at path, ns = {}
+      def at path, ns = document.root ? document.root.namespaces : {}
         return self[path] if path.is_a?(Numeric)
         search(path, ns).first
       end
+      alias :% :at
 
       ###
       # Append the class attribute +name+ to all Node objects in the NodeSet.
@@ -113,8 +113,8 @@ module Nokogiri
           each do |el|
             el.set_attribute(key, value || blk[el])
           end
-          return self      
-        end    
+          return self
+        end
         if key.is_a? Hash
           key.each { |k,v| self.attr(k,v) }
           return self
@@ -131,16 +131,14 @@ module Nokogiri
           next unless el.respond_to? :remove_attribute
           el.remove_attribute(name)
         end
-        self      
+        self
       end
 
       ###
       # Iterate over each node, yielding  to +block+
       def each(&block)
-        x = 0
-        while x < length
+        0.upto(length - 1) do |x|
           yield self[x]
-          x += 1
         end
       end
 
@@ -152,35 +150,48 @@ module Nokogiri
       alias :text :inner_text
 
       ###
+      # Get the inner html of all contained Node objects
+      def inner_html
+        collect{|j| j.inner_html}.join('')
+      end
+
+      ###
       # Wrap this NodeSet with +html+ or the results of the builder in +blk+
       def wrap(html, &blk)
         each do |j|
           new_parent = Nokogiri.make(html, &blk)
-          j.replace(new_parent)
-          nest = new_parent
-          if nest.child
-            nest = nest.child until nest.child.nil?
-          end
-          j.parent = nest
+          j.parent.add_child(new_parent)
+          new_parent.add_child(j)
         end
         self
       end
 
+      ###
+      # Convert this NodeSet to a string.
       def to_s
         map { |x| x.to_s }.join
       end
 
-      def to_html
-        map { |x| x.to_html }.join('')
+      ###
+      # Convert this NodeSet to HTML
+      def to_html *args
+        map { |x| x.to_html(*args) }.join
       end
 
-      def size
-        length
+      ###
+      # Convert this NodeSet to XHTML
+      def to_xhtml *args
+        map { |x| x.to_xhtml(*args) }.join
       end
 
-      def to_ary
-        to_a
+      ###
+      # Convert this NodeSet to XML
+      def to_xml *args
+        map { |x| x.to_xml(*args) }.join
       end
+
+      alias :size :length
+      alias :to_ary :to_a
     end
   end
 end

@@ -1,6 +1,7 @@
+require 'nokogiri/syntax_error'
 module Nokogiri
   module CSS
-    class SyntaxError < ::SyntaxError
+    class SyntaxError < ::Nokogiri::SyntaxError
     end
   end
 end

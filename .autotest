@@ -1,0 +1,15 @@
+# -*- ruby -*-
+
+Autotest.add_hook :run_command do |at|
+  if ENV['ONENINE']
+    system "rake1.9 build"
+  else
+    system "rake build"
+  end
+end
+
+class Autotest
+  def ruby
+    'ruby1.9'
+  end
+end if ENV['ONENINE']

@@ -18,7 +18,7 @@ module Nokogiri
       ###
       # Get the XPath for +selector+.
       def xpath_for selector, options={}
-        Parser.new.xpath_for selector, options
+        Parser.new(options[:ns] || {}).xpath_for selector, options
       end
     end
   end

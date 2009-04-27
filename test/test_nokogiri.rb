@@ -1,6 +1,35 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestNokogiri < Nokogiri::TestCase
+  def test_versions
+    version_match = /\d+\.\d+\.\d+/
+    assert_match version_match, Nokogiri::VERSION
+    assert_match version_match, Nokogiri::LIBXML_VERSION
+
+    if defined?(FFI)
+      assert_equal 'ffi', Nokogiri::VERSION_INFO['libxml']['binding']
+      if RUBY_PLATFORM =~ /java/
+        assert_equal 'jruby', Nokogiri::VERSION_INFO['libxml']['platform']
+      else
+        assert_equal 'ruby', Nokogiri::VERSION_INFO['libxml']['platform']
+      end
+      assert Nokogiri.ffi?
+    else
+      assert_equal 'extension', Nokogiri::VERSION_INFO['libxml']['binding']
+
+      assert_match version_match, Nokogiri::VERSION_INFO['libxml']['compiled']
+      assert_equal Nokogiri::LIBXML_VERSION, Nokogiri::VERSION_INFO['libxml']['compiled']
+      assert ! Nokogiri.ffi?
+    end
+
+    assert_match version_match, Nokogiri::VERSION_INFO['libxml']['loaded']
+    Nokogiri::LIBXML_PARSER_VERSION =~ /(\d)(\d{2})(\d{2})/
+    major = $1.to_i
+    minor = $2.to_i
+    bug   = $3.to_i
+    assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO['libxml']['loaded']
+  end
+
   def test_xml?
     doc = Nokogiri.parse(File.read(XML_FILE))
     assert doc.xml?

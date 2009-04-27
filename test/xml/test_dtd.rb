@@ -4,7 +4,8 @@ module Nokogiri
   module HTML
     class TestDTD < Nokogiri::TestCase
       def setup
-        @xml = Nokogiri::XML.parse(File.read(XML_FILE))
+        super
+        @xml = Nokogiri::XML(File.open(XML_FILE))
         assert @dtd = @xml.internal_subset
       end
 
@@ -19,9 +20,7 @@ module Nokogiri
       end
 
       def test_attributes
-        assert attributes = @dtd.attributes
-        assert_equal %w[ width ], attributes.keys
-        assert_equal 'width', attributes['width'].name
+        assert_nil @dtd.attributes
       end
 
       def test_elements

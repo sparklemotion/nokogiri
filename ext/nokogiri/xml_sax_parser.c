@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <xml_sax_parser.h>
 
@@ -12,10 +11,13 @@ static VALUE parse_memory(VALUE self, VALUE data)
 {
   xmlSAXHandlerPtr handler;
   Data_Get_Struct(self, xmlSAXHandler, handler);
+
+  if(Qnil == data) rb_raise(rb_eArgError, "data cannot be nil");
+
   xmlSAXUserParseMemory(  handler,
                           (void *)self,
                           StringValuePtr(data),
-                          NUM2INT(rb_funcall(data, rb_intern("length"), 0))
+                          RSTRING_LEN(data)
   );
   return data;
 }
@@ -42,9 +44,16 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
       enc
   );
   xmlParseDocument(sax_ctx);
+  xmlFreeParserCtxt(sax_ctx);
   return io;
 }
 
+/*
+ * call-seq:
+ *  native_parse_file(data)
+ *
+ * Parse the document stored in +data+
+ */
 static VALUE native_parse_file(VALUE self, VALUE data)
 {
   xmlSAXHandlerPtr handler;
@@ -75,11 +84,14 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   VALUE self = (VALUE)ctx;
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE attributes = rb_ary_new();
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   const xmlChar * attr;
   int i = 0;
   if(atts) {
     while((attr = atts[i]) != NULL) {
-      rb_funcall(attributes, rb_intern("<<"), 1, rb_str_new2((const char *)attr));
+      rb_funcall(attributes, rb_intern("<<"), 1,
+          NOKOGIRI_STR_NEW2(attr, RTEST(enc) ? StringValuePtr(enc) : NULL)
+      );
       i++;
     }
   }
@@ -87,7 +99,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   rb_funcall( doc,
               rb_intern("start_element"),
               2,
-              rb_str_new2((const char *)name),
+              NOKOGIRI_STR_NEW2(name, RTEST(enc) ? StringValuePtr(enc) : NULL),
               attributes
   );
 }
@@ -95,31 +107,36 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 static void end_element(void * ctx, const xmlChar *name)
 {
   VALUE self = (VALUE)ctx;
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  rb_funcall(doc, rb_intern("end_element"), 1, rb_str_new2((const char *)name));
+  rb_funcall(doc, rb_intern("end_element"), 1,
+      NOKOGIRI_STR_NEW2(name, RTEST(enc) ? StringValuePtr(enc) : NULL)
+  );
 }
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
   VALUE self = (VALUE)ctx;
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE str = rb_str_new((const char *)ch, (long)len);
+  VALUE str = NOKOGIRI_STR_NEW(ch, len, RTEST(enc) ? StringValuePtr(enc):NULL);
   rb_funcall(doc, rb_intern("characters"), 1, str);
 }
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
   VALUE self = (VALUE)ctx;
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE str = rb_str_new2((const char *)value);
+  VALUE str = NOKOGIRI_STR_NEW2(value, RTEST(enc) ? StringValuePtr(enc):NULL);
   rb_funcall(doc, rb_intern("comment"), 1, str);
 }
 
-#ifndef XP_WIN
 static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   char * message;
 
   va_list args;
@@ -127,15 +144,16 @@ static void warning_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, rb_intern("warning"), 1, rb_str_new2(message));
+  rb_funcall(doc, rb_intern("warning"), 1,
+      NOKOGIRI_STR_NEW2(message, RTEST(enc) ? StringValuePtr(enc) : NULL)
+  );
   free(message);
 }
-#endif
 
-#ifndef XP_WIN
 static void error_func(void * ctx, const char *msg, ...)
 {
   VALUE self = (VALUE)ctx;
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   char * message;
 
@@ -144,16 +162,19 @@ static void error_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, rb_intern("error"), 1, rb_str_new2(message));
+  rb_funcall(doc, rb_intern("error"), 1,
+      NOKOGIRI_STR_NEW2(message, RTEST(enc) ? StringValuePtr(enc) : NULL)
+  );
   free(message);
 }
-#endif
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
   VALUE self = (VALUE)ctx;
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE string = rb_str_new((const char *)value, (long)len);
+  VALUE string =
+    NOKOGIRI_STR_NEW(value, len, RTEST(enc) ? StringValuePtr(enc) : NULL);
   rb_funcall(doc, rb_intern("cdata_block"), 1, string);
 }
 
@@ -174,15 +195,8 @@ static VALUE allocate(VALUE klass)
   handler->endElement = end_element;
   handler->characters = characters_func;
   handler->comment = comment_func;
-#ifndef XP_WIN
-  /*
-   * The va*functions aren't in ming, and I don't want to deal with
-   * it right now.....
-   *
-   */
   handler->warning = warning_func;
   handler->error = error_func;
-#endif
   handler->cdataBlock = cdata_block;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);
@@ -191,8 +205,13 @@ static VALUE allocate(VALUE klass)
 VALUE cNokogiriXmlSaxParser ;
 void init_xml_sax_parser()
 {
-  VALUE klass = cNokogiriXmlSaxParser =
-    rb_const_get(mNokogiriXmlSax, rb_intern("Parser"));
+  VALUE nokogiri  = rb_define_module("Nokogiri");
+  VALUE xml       = rb_define_module_under(nokogiri, "XML");
+  VALUE sax       = rb_define_module_under(xml, "SAX");
+  VALUE klass     = rb_define_class_under(sax, "Parser", rb_cObject);
+
+  cNokogiriXmlSaxParser = klass;
+
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "parse_memory", parse_memory, 1);
   rb_define_private_method(klass, "native_parse_file", native_parse_file, 1);
