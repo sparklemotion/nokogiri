@@ -122,8 +122,15 @@ module Nokogiri
         EOH
         nokogiri = Nokogiri::HTML.parse(html)
 
-        assert_equal "<p>testparagraph\r\nfoobar</p>",
-          nokogiri.at("p").to_html.gsub(/ /, '')
+        if RUBY_PLATFORM =~ /java/
+          # NKF linebreak modes are not supported as of jruby 1.2
+          # see http://jira.codehaus.org/browse/JRUBY-3602 for status
+          assert_equal "<p>testparagraph\nfoobar</p>",
+            nokogiri.at("p").to_html.gsub(/ /, '')
+        else
+          assert_equal "<p>testparagraph\r\nfoobar</p>",
+            nokogiri.at("p").to_html.gsub(/ /, '')
+        end
       end
     end
   end
