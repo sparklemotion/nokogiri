@@ -1,13 +1,6 @@
 #ifndef NOKOGIRI_NATIVE
 #define NOKOGIRI_NATIVE
 
-#ifdef USE_INCLUDED_VASPRINTF
-int vasprintf (char **strp, const char *fmt, va_list ap);
-#else
-#  define _GNU_SOURCE
-#  include <stdio.h>
-#endif
-
 #include <stdlib.h>
 #include <assert.h>
 #include <ruby.h>
@@ -19,6 +12,19 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxml/xmlschemas.h>
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
+
+#ifdef USE_INCLUDED_VASPRINTF
+int vasprintf (char **strp, const char *fmt, va_list ap);
+#else
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#  include <stdio.h>
+
+#endif
+
 
 #ifndef UNUSED
 # if defined(__GNUC__)
