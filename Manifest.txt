@@ -5,6 +5,7 @@ Manifest.txt
 README.ja.rdoc
 README.rdoc
 Rakefile
+bin/nokogiri
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
 ext/nokogiri/html_document.h
@@ -89,18 +90,15 @@ lib/nokogiri/xml.rb
 lib/nokogiri/xml/attr.rb
 lib/nokogiri/xml/builder.rb
 lib/nokogiri/xml/cdata.rb
-lib/nokogiri/xml/comment.rb
 lib/nokogiri/xml/document.rb
 lib/nokogiri/xml/document_fragment.rb
 lib/nokogiri/xml/dtd.rb
-lib/nokogiri/xml/element.rb
 lib/nokogiri/xml/entity_declaration.rb
 lib/nokogiri/xml/fragment_handler.rb
 lib/nokogiri/xml/node.rb
 lib/nokogiri/xml/node/save_options.rb
 lib/nokogiri/xml/node_set.rb
 lib/nokogiri/xml/notation.rb
-lib/nokogiri/xml/processing_instruction.rb
 lib/nokogiri/xml/reader.rb
 lib/nokogiri/xml/relax_ng.rb
 lib/nokogiri/xml/sax.rb
@@ -109,7 +107,6 @@ lib/nokogiri/xml/sax/parser.rb
 lib/nokogiri/xml/sax/push_parser.rb
 lib/nokogiri/xml/schema.rb
 lib/nokogiri/xml/syntax_error.rb
-lib/nokogiri/xml/text.rb
 lib/nokogiri/xml/xpath.rb
 lib/nokogiri/xml/xpath/syntax_error.rb
 lib/nokogiri/xml/xpath_context.rb

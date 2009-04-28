@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <xml_sax_parser.h>
+#include <nokogiri.h>
 
 /*
  * call-seq:

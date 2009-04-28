@@ -13,7 +13,7 @@ static void dealloc(xmlDocPtr doc)
     switch(node->type)
     {
       case XML_ATTRIBUTE_NODE:
-        xmlFreePropList(node);
+        xmlFreePropList((xmlAttrPtr)node);
         break;
       default:
         if(node->parent == NULL) {
