@@ -237,7 +237,7 @@ static VALUE name(VALUE self)
  */
 static VALUE get_description(VALUE klass, VALUE tag_name)
 {
-  htmlElemDesc * description = htmlTagLookup(
+  const htmlElemDesc * description = htmlTagLookup(
       (const xmlChar *)StringValuePtr(tag_name)
   );
 
