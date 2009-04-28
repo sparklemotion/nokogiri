@@ -22,7 +22,8 @@ opts = OptionParser.new do |opts|
   end
 
   opts.on_tail("-v", "--version", "Show version") do
-    puts "Nokogiri #{Nokogiri::VERSION}"
+    require 'yaml'
+    puts Nokogiri::VERSION_INFO.to_yaml
     exit
   end
 end
