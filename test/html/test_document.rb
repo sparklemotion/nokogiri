@@ -12,19 +12,22 @@ module Nokogiri
         doc = Nokogiri::HTML('')
       end
 
-      def test_to_xhtml_with_indent
-        doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
-        doc = Nokogiri::HTML(doc.to_xhtml(:indent => 2))
-        assert_indent 2, doc
-      end
+      unless %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        # FIXME: this is a hack around broken libxml versions
+        def test_to_xhtml_with_indent
+          doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
+          doc = Nokogiri::HTML(doc.to_xhtml(:indent => 2))
+          assert_indent 2, doc
+        end
 
-      def test_write_to_xhtml_with_indent
-        io = StringIO.new
-        doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
-        doc.write_xhtml_to io, :indent => 5
-        io.rewind
-        doc = Nokogiri::HTML(io.read)
-        assert_indent 5, doc
+        def test_write_to_xhtml_with_indent
+          io = StringIO.new
+          doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
+          doc.write_xhtml_to io, :indent => 5
+          io.rewind
+          doc = Nokogiri::HTML(io.read)
+          assert_indent 5, doc
+        end
       end
 
       def test_swap_should_not_exist
