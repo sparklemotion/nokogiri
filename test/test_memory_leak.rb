@@ -1,15 +1,18 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestMemoryLeak < Nokogiri::TestCase
-  def test_for_memory_leak
-    begin
-      #  we don't use Dike in any tests, but requiring it has side effects
-      #  that can create memory leaks, and that's what we're testing for.
-      require 'rubygems'
-      require 'dike' # do not remove!
 
-      count_start = count_object_space_documents
-      xml_data = <<-EOS
+  if ENV['NOKOGIRI_GC'] # turning these off by default for now
+
+    def test_for_memory_leak
+      begin
+        #  we don't use Dike in any tests, but requiring it has side effects
+        #  that can create memory leaks, and that's what we're testing for.
+        require 'rubygems'
+        require 'dike' # do not remove!
+
+        count_start = count_object_space_documents
+        xml_data = <<-EOS
         <test>
           <items>
             <item>abc</item>
@@ -18,17 +21,53 @@ class TestMemoryLeak < Nokogiri::TestCase
           <items>
         </test>
         EOS
-      20.times do
-        doc = Nokogiri::XML(xml_data)
-        doc.xpath("//item")
+        20.times do
+          doc = Nokogiri::XML(xml_data)
+          doc.xpath("//item")
+        end
+        2.times { GC.start }
+        count_end = count_object_space_documents
+        assert((count_end - count_start) <= 2, "memory leak detected")
+      rescue LoadError
+        puts "\ndike is not installed, skipping memory leak test"
       end
-      2.times { GC.start }
-      count_end = count_object_space_documents
-      assert((count_end - count_start) <= 2, "memory leak detected")
-    rescue LoadError
-      puts "\ndike is not installed, skipping memory leak test"
     end
-  end
+
+    if Nokogiri.ffi?
+      [ ['Node', 'p', nil],
+        ['CDATA', nil, 'content'],
+        ['Comment', nil, 'content'],
+        ['DocumentFragment', nil],
+        ['EntityReference', nil, 'p'],
+        ['ProcessingInstruction', nil, 'p', 'content'] ].each do |klass, *args|
+
+        define_method "test_for_leaked_#{klass}_nodes" do
+          Nokogiri::LibXML.expects(:xmlAddChild).at_least(1) # more than once shows we're GCing properly
+          10.times {
+            xml = Nokogiri::XML("<root></root>")
+            2.times { Nokogiri::XML.const_get(klass).new(*(args.collect{|arg| arg || xml})) }
+            GC.start
+          }
+          GC.start
+        end
+
+      end
+
+      def test_for_leaked_attr_nodes
+        Nokogiri::LibXML.expects(:xmlFreePropList).at_least(1) # more than once shows we're GCing properly
+        10.times {
+          xml = Nokogiri::XML("<root></root>")
+          2.times { Nokogiri::XML::Attr.new(xml, "p") }
+          GC.start
+        }
+        GC.start
+      end
+
+    end # if ffi
+
+  end # if NOKOGIRI_GC
+
+  private
 
   def count_object_space_documents
     count = 0
