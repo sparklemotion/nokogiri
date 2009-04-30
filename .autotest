@@ -2,9 +2,9 @@
 
 Autotest.add_hook :run_command do |at|
   if ENV['ONENINE']
-    system "rake1.9 build"
+    system "rake1.9 compile"
   else
-    system "rake build"
+    system "rake compile"
   end
 end
 

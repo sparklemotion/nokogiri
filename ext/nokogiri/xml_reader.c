@@ -430,7 +430,7 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "13", &rb_buffer, &rb_url, &encoding, &rb_options);
 
-  rb_buffer = StringValue(rb_buffer) ;
+  if (!RTEST(rb_buffer)) rb_raise(rb_eArgError, "string cannot be nil");
   if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
   if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
   if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
@@ -449,7 +449,48 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
   }
 
   VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
-  rb_funcall(rb_reader, rb_intern("initialize"), 2, rb_url, encoding);
+  rb_funcall(rb_reader, rb_intern("initialize"), 3, rb_buffer, rb_url, encoding);
+
+  return rb_reader;
+}
+
+/*
+ * call-seq:
+ *   from_io(io, url = nil, encoding = nil, options = 0)
+ *
+ * Create a new reader that parses +io+
+ */
+static VALUE from_io(int argc, VALUE *argv, VALUE klass)
+{
+  VALUE rb_io, rb_url, encoding, rb_options;
+
+  const char * c_url      = NULL;
+  const char * c_encoding = NULL;
+  int c_options           = 0; 
+
+  rb_scan_args(argc, argv, "13", &rb_io, &rb_url, &encoding, &rb_options);
+
+  if (!RTEST(rb_io)) rb_raise(rb_eArgError, "io cannot be nil");
+  if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
+  if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
+  if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
+
+  xmlTextReaderPtr reader = xmlReaderForIO(
+      (xmlInputReadCallback)io_read_callback,
+      (xmlInputCloseCallback)io_close_callback,
+      (void *)rb_io,
+      c_url,
+      c_encoding,
+      c_options
+  );
+
+  if(reader == NULL) {
+    xmlFreeTextReader(reader);
+    rb_raise(rb_eRuntimeError, "couldn't create a parser");
+  }
+
+  VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
+  rb_funcall(rb_reader, rb_intern("initialize"), 3, rb_io, rb_url, encoding);
 
   return rb_reader;
 }
@@ -471,6 +512,8 @@ void init_xml_reader()
   cNokogiriXmlReader = klass;
 
   rb_define_singleton_method(klass, "from_memory", from_memory, -1);
+  rb_define_singleton_method(klass, "from_io", from_io, -1);
+
   rb_define_method(klass, "read", read_more, 0);
   rb_define_method(klass, "state", state, 0);
   rb_define_method(klass, "name", name, 0);

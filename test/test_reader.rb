@@ -2,6 +2,37 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestReader < Nokogiri::TestCase
+  def test_from_io_sets_io_as_source
+    io = StringIO.new(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader.from_io(io)
+    assert_equal io, reader.source
+  end
+
+  def test_nil_raises
+    assert_raises(ArgumentError) {
+      Nokogiri::XML::Reader.from_memory(nil)
+    }
+    assert_raises(ArgumentError) {
+      Nokogiri::XML::Reader.from_io(nil)
+    }
+  end
+
+  def test_from_io
+    io = StringIO.new(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader.from_io(io)
+    assert_equal false, reader.default?
+    assert_equal [false, false, false, false, false, false, false],
+      reader.map { |x| x.default? }
+  end
+
   def test_io
     io = StringIO.new(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>
@@ -20,6 +51,16 @@ class TestReader < Nokogiri::TestCase
       <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     </x>
     eoxml
+  end
+
+  def test_reader_holds_on_to_string
+    xml = <<-eoxml
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader(xml)
+    assert_equal xml, reader.source
   end
 
   def test_default?

@@ -73,7 +73,9 @@ module Nokogiri
       # Parse an XML document using the Nokogiri::XML::Reader API.  See
       # Nokogiri::XML::Reader for mor information
       def Reader string_or_io, url = nil, encoding = nil, options = 0
-        string_or_io = string_or_io.read if string_or_io.respond_to? :read
+        if string_or_io.respond_to? :read
+          return Reader.from_io(string_or_io, url, encoding, options)
+        end
         Reader.from_memory(string_or_io, url, encoding, options)
       end
 
