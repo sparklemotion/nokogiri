@@ -286,6 +286,7 @@ public class NokogiriJavaService implements BasicLibraryService{
     public static class XmlDocument extends XmlNode {
         private Document document;
         private static boolean substituteEntities = false;
+        private static boolean loadExternalSubset = false; // TODO: Verify this.
         
         public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
             super(ruby, klass, document);
@@ -359,13 +360,14 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(meta = true)
         public static IRubyObject substitute_entities_set(ThreadContext context, IRubyObject cls, IRubyObject arg) {
-                XmlDocument.substituteEntities = arg.isTrue();
-                return context.getRuntime().getNil();
+            XmlDocument.substituteEntities = arg.isTrue();
+            return context.getRuntime().getNil();
         }
 
         @JRubyMethod(meta = true)
         public static IRubyObject load_external_subsets_set(ThreadContext context, IRubyObject cls, IRubyObject arg) {
-            throw context.getRuntime().newNotImplementedError("not implemented");
+            XmlDocument.loadExternalSubset = arg.isTrue();
+            return context.getRuntime().getNil();
         }
 
         @JRubyMethod
@@ -380,13 +382,9 @@ public class NokogiriJavaService implements BasicLibraryService{
             return arg;
         }
 
-        @JRubyMethod
-        public IRubyObject serialize(ThreadContext context) {
-            throw context.getRuntime().newNotImplementedError("not implemented");
-        }
     }
 
-    public static class HtmlDocument {
+    public static class HtmlDocument extends XmlDocument{
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
             throw context.getRuntime().newNotImplementedError("not implemented");
