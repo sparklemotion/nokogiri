@@ -62,6 +62,14 @@ unless java
 
 end
 
+namespace :jruby do
+  task :clean do
+    FileList['ext/nokogiri/*.class'].to_a.each do |file|
+      File.delete file
+    end
+  end
+end
+
 namespace :gem do
   namespace :dev do
     task :spec do

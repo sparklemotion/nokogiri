@@ -296,14 +296,6 @@ public class NokogiriJavaService implements BasicLibraryService{
             return document;
         }
 
-        public static boolean getSubstituteEntities(){
-            return substituteEntities;
-        }
-
-        public static void setSubstituteEntitites(boolean value){
-            substituteEntities = value;
-        }
-
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
             Ruby ruby = context.getRuntime();
@@ -367,7 +359,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(meta = true)
         public static IRubyObject substitute_entities_set(ThreadContext context, IRubyObject cls, IRubyObject arg) {
-                XmlDocument.setSubstituteEntitites(arg.isTrue());
+                XmlDocument.substituteEntities = arg.isTrue();
                 return context.getRuntime().getNil();
         }
 
@@ -383,7 +375,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject root_set(ThreadContext context, IRubyObject arg) {
-            Node node = XmlNode.getNodeFromXmlNode(arg);
+            Node node = XmlNode.getNodeFromXmlNode(context, arg);
             document.replaceChild(node, document.getDocumentElement());
             return arg;
         }
@@ -406,7 +398,7 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public static IRubyObject serialize(ThreadContext contex, IRubyObject htmlDoc) {
+        public static IRubyObject serialize(ThreadContext context, IRubyObject htmlDoc) {
             throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
@@ -420,7 +412,7 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
         
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(ThreadContext context, cls, IRubyObject name, IRubyObject doc) {
+        public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
             XmlDocument xmlDoc = (XmlDocument)doc;
             Document document = xmlDoc.getDocument();
             Element element = document.createElement(name.convertToString().asJavaString());
@@ -637,7 +629,7 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject encode_special_chars(ThreadContext context, tIRubyObject arg) {
+        public IRubyObject encode_special_chars(ThreadContext context, IRubyObject arg) {
             // TODO: actually encode :)
             return arg;
         }
