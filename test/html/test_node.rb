@@ -22,6 +22,18 @@ module Nokogiri
         assert_equal 'a', desc.name
       end
 
+      def test_add_next_sibling_with_empty_nodeset
+        assert_raises(ArgumentError) {
+          @html.at('a').add_next_sibling(@html.at('head').children)
+        }
+      end
+
+      def test_add_next_sibling_with_non_empty_nodeset
+        assert_raises(ArgumentError) {
+          @html.at('head').add_next_sibling(@html.at('div').children)
+        }
+      end
+
       def test_ancestors_with_selector
         assert node = @html.at('a.bar').child
         assert list = node.ancestors('.baz')
