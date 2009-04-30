@@ -285,6 +285,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     public static class XmlDocument extends XmlNode {
         private Document document;
+        private static boolean substituteEntities = false;
         
         public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
             super(ruby, klass, document);
@@ -295,9 +296,17 @@ public class NokogiriJavaService implements BasicLibraryService{
             return document;
         }
 
+        public static boolean getSubstituteEntities(){
+            return substituteEntities;
+        }
+
+        public static void setSubstituteEntitites(boolean value){
+            substituteEntities = value;
+        }
+
         @JRubyMethod(meta = true, rest = true)
-        public static IRubyObject read_memory(IRubyObject cls, IRubyObject[] args) {
-            Ruby ruby = cls.getRuntime();
+        public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+            Ruby ruby = context.getRuntime();
             Arity.checkArgumentCount(ruby, args, 4, 4);
             try {
                 Document document;
@@ -323,8 +332,8 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(meta = true, rest = true)
-        public static IRubyObject read_io(IRubyObject cls, IRubyObject[] args) {
-            Ruby ruby = cls.getRuntime();
+        public static IRubyObject read_io(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+            Ruby ruby = context.getRuntime();
             Arity.checkArgumentCount(ruby, args, 4, 4);
             try {
                 Document document;
@@ -352,52 +361,53 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(meta = true, rest = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject[] args) {
-            throw cls.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(meta = true)
-        public static IRubyObject substitute_entities_set(IRubyObject cls, IRubyObject arg) {
-            throw cls.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject substitute_entities_set(ThreadContext context, IRubyObject cls, IRubyObject arg) {
+                XmlDocument.setSubstituteEntitites(arg.isTrue());
+                return context.getRuntime().getNil();
         }
 
         @JRubyMethod(meta = true)
-        public static IRubyObject load_external_subsets_set(IRubyObject cls, IRubyObject arg) {
-            throw cls.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject load_external_subsets_set(ThreadContext context, IRubyObject cls, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject root() {
-            return XmlNode.constructNode(getRuntime(), document.getDocumentElement());
+        public IRubyObject root(ThreadContext context) {
+            return XmlNode.constructNode(context.getRuntime(), document.getDocumentElement());
         }
 
         @JRubyMethod
-        public IRubyObject root_set(IRubyObject arg) {
+        public IRubyObject root_set(ThreadContext context, IRubyObject arg) {
             Node node = XmlNode.getNodeFromXmlNode(arg);
             document.replaceChild(node, document.getDocumentElement());
             return arg;
         }
 
         @JRubyMethod
-        public IRubyObject serialize() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject serialize(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
     public static class HtmlDocument {
         @JRubyMethod(meta = true, rest = true)
-        public static IRubyObject read_memory(IRubyObject cls, IRubyObject[] args) {
-            throw cls.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public static IRubyObject type(IRubyObject htmlDoc) {
-            throw htmlDoc.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject type(ThreadContext context, IRubyObject htmlDoc) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public static IRubyObject serialize(IRubyObject htmlDoc) {
-            throw htmlDoc.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject serialize(ThreadContext contex, IRubyObject htmlDoc) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -410,17 +420,17 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
         
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject name, IRubyObject doc) {
+        public static IRubyObject rbNew(ThreadContext context, cls, IRubyObject name, IRubyObject doc) {
             XmlDocument xmlDoc = (XmlDocument)doc;
             Document document = xmlDoc.getDocument();
             Element element = document.createElement(name.convertToString().asJavaString());
-            return new XmlNode(cls.getRuntime(), (RubyClass)cls, element);
+            return new XmlNode(context.getRuntime(), (RubyClass)cls, element);
         }
 
         @JRubyMethod(meta = true, rest = true)
-        public static IRubyObject new_from_str(IRubyObject cls, IRubyObject[] args) {
+        public static IRubyObject new_from_str(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
             // TODO: duplicating code from Document.read_memory
-            Ruby ruby = cls.getRuntime();
+            Ruby ruby = context.getRuntime();
             Arity.checkArgumentCount(ruby, args, 4, 4);
             try {
                 Document document;
@@ -446,40 +456,40 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject name() {
-            return RubyString.newString(getRuntime(), node.getNodeName());
+        public IRubyObject name(ThreadContext context) {
+            return RubyString.newString(context.getRuntime(), node.getNodeName());
         }
 
         @JRubyMethod(name = "name=")
-        public IRubyObject name_set(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject name_set(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject parent() {
-            return constructNode(getRuntime(), node.getParentNode());
+        public IRubyObject parent(ThreadContext context) {
+            return constructNode(context.getRuntime(), node.getParentNode());
         }
 
         public Node getNode() {
             return node;
         }
 
-        private static Node getNodeFromXmlNode(IRubyObject arg) {
-            Ruby ruby = arg.getRuntime();
+        private static Node getNodeFromXmlNode(ThreadContext context, IRubyObject arg) {
+            Ruby ruby = context.getRuntime();
             if (!(arg instanceof XmlNode)) throw ruby.newTypeError(arg, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
             return ((XmlNode)arg).node;
         }
 
         @JRubyMethod(name = "parent=")
-        public IRubyObject parent_set(IRubyObject arg) {
-            Node otherNode = getNodeFromXmlNode(arg);
+        public IRubyObject parent_set(ThreadContext context, IRubyObject arg) {
+            Node otherNode = getNodeFromXmlNode(context, arg);
             otherNode.appendChild(node);
             return arg;
         }
 
         @JRubyMethod
-        public IRubyObject child() {
-            return constructNode(getRuntime(), node.getFirstChild());
+        public IRubyObject child(ThreadContext context) {
+            return constructNode(context.getRuntime(), node.getFirstChild());
         }
 
         protected static IRubyObject constructNode(Ruby ruby, Node node) {
@@ -504,41 +514,41 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject next_sibling() {
-            return constructNode(getRuntime(), node.getNextSibling());
+        public IRubyObject next_sibling(ThreadContext context) {
+            return constructNode(context.getRuntime(), node.getNextSibling());
         }
 
         @JRubyMethod
-        public IRubyObject previous_sibling() {
-            return constructNode(getRuntime(), node.getPreviousSibling());
+        public IRubyObject previous_sibling(ThreadContext context) {
+            return constructNode(context.getRuntime(), node.getPreviousSibling());
         }
 
         @JRubyMethod
-        public IRubyObject replace(IRubyObject arg) {
-            Node otherNode = getNodeFromXmlNode(arg);
+        public IRubyObject replace(ThreadContext context, IRubyObject arg) {
+            Node otherNode = getNodeFromXmlNode(context, arg);
             node.getParentNode().replaceChild(otherNode, node);
 
             return this;
         }
 
         @JRubyMethod(name = "type")
-        public IRubyObject xmlType() {
-            return RubyFixnum.newFixnum(getRuntime(), node.getNodeType());
+        public IRubyObject xmlType(ThreadContext context) {
+            return RubyFixnum.newFixnum(context.getRuntime(), node.getNodeType());
         }
 
         @JRubyMethod
-        public IRubyObject content() {
-            return RubyString.newString(getRuntime(), node.getTextContent());
+        public IRubyObject content(ThreadContext context) {
+            return RubyString.newString(context.getRuntime(), node.getTextContent());
         }
 
         @JRubyMethod
-        public IRubyObject path() {
-            return RubyString.newString(getRuntime(), node.getNodeName());
+        public IRubyObject path(ThreadContext context) {
+            return RubyString.newString(context.getRuntime(), node.getNodeName());
         }
 
         @JRubyMethod(name = "key?")
-        public IRubyObject key_p(IRubyObject arg) {
-            Ruby ruby = getRuntime();
+        public IRubyObject key_p(ThreadContext context, IRubyObject arg) {
+            Ruby ruby = context.getRuntime();
             String key = arg.convertToString().asJavaString();
             if (node instanceof Element) {
                 Element element = (Element)node;
@@ -550,12 +560,12 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(name = "blank?")
-        public IRubyObject blank_p() {
-            return RubyBoolean.newBoolean(getRuntime(), node instanceof Text && ((Text)node).isElementContentWhitespace());
+        public IRubyObject blank_p(ThreadContext context) {
+            return RubyBoolean.newBoolean(context.getRuntime(), node instanceof Text && ((Text)node).isElementContentWhitespace());
         }
 
         @JRubyMethod(name = "[]=")
-        public IRubyObject op_aset(IRubyObject arg1, IRubyObject arg2) {
+        public IRubyObject op_aset(ThreadContext context, IRubyObject arg1, IRubyObject arg2) {
             String key = arg1.convertToString().asJavaString();
             String value = arg2.convertToString().asJavaString();
             if (node instanceof Element) {
@@ -566,19 +576,18 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject remove_attribute(IRubyObject arg1) {
+        public IRubyObject remove_attribute(ThreadContext context, IRubyObject arg1) {
             String key = arg1.convertToString().asJavaString();
             if (node instanceof Element) {
                 Element element = (Element)node;
                 element.removeAttribute(key);
             }
-            return getRuntime().getNil();
+            return context.getRuntime().getNil();
         }
 
         @JRubyMethod
-        public IRubyObject attributes() {
-            Ruby ruby = getRuntime();
-            ThreadContext context = ruby.getCurrentContext();
+        public IRubyObject attributes(ThreadContext context) {
+            Ruby ruby = context.getRuntime();
             RubyHash hash = RubyHash.newHash(ruby);
             NamedNodeMap attrs = node.getAttributes();
             for (int i = 0; i < attrs.getLength(); i++) {
@@ -589,9 +598,8 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject namespaces() {
-            Ruby ruby = getRuntime();
-            ThreadContext context = ruby.getCurrentContext();
+        public IRubyObject namespaces(ThreadContext context) {
+            Ruby ruby = context.getRuntime();
             RubyHash hash = RubyHash.newHash(ruby);
             NamedNodeMap attrs = node.getAttributes();
             for (int i = 0; i < attrs.getLength(); i++) {
@@ -602,18 +610,18 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject add_previous_sibling(IRubyObject arg) {
+        public IRubyObject add_previous_sibling(ThreadContext context, IRubyObject arg) {
             if (arg instanceof XmlNode) {
                 node.getParentNode().insertBefore(((XmlNode)arg).node, node);
-                RuntimeHelpers.invoke(getRuntime().getCurrentContext(), arg, "decorate!");
+                RuntimeHelpers.invoke(context , arg, "decorate!");
                 return arg;
             } else {
-                throw getRuntime().newTypeError(arg, (RubyClass)getRuntime().getClassFromPath("Nokogiri::XML::Node"));
+                throw context.getRuntime().newTypeError(arg, (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::Node"));
             }
         }
 
         @JRubyMethod
-        public IRubyObject add_next_sibling(IRubyObject arg) {
+        public IRubyObject add_next_sibling(ThreadContext context, IRubyObject arg) {
             if (arg instanceof XmlNode) {
                 Node next = node.getNextSibling();
                 if (next != null) {
@@ -621,72 +629,72 @@ public class NokogiriJavaService implements BasicLibraryService{
                 } else {
                     node.getParentNode().appendChild(((XmlNode)arg).node);
                 }
-                RuntimeHelpers.invoke(getRuntime().getCurrentContext(), arg, "decorate!");
+                RuntimeHelpers.invoke(context, arg, "decorate!");
                 return arg;
             } else {
-                throw getRuntime().newTypeError(arg, (RubyClass)getRuntime().getClassFromPath("Nokogiri::XML::Node"));
+                throw context.getRuntime().newTypeError(arg, (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::Node"));
             }
         }
 
         @JRubyMethod
-        public IRubyObject encode_special_chars(IRubyObject arg) {
+        public IRubyObject encode_special_chars(ThreadContext context, tIRubyObject arg) {
             // TODO: actually encode :)
             return arg;
         }
 
         @JRubyMethod
-        public IRubyObject to_xml() {
+        public IRubyObject to_xml(ThreadContext context) {
             try {
                 Transformer xformer = TransformerFactory.newInstance().newTransformer();
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
                 xformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
                 xformer.transform(new DOMSource(node), new StreamResult(baos));
-                return RubyString.newString(getRuntime(), baos.toByteArray());
+                return RubyString.newString(context.getRuntime(), baos.toByteArray());
             } catch (TransformerFactoryConfigurationError tfce) {
-                throw RaiseException.createNativeRaiseException(getRuntime(), tfce);
+                throw RaiseException.createNativeRaiseException(context.getRuntime(), tfce);
             } catch (TransformerConfigurationException tce) {
-                throw RaiseException.createNativeRaiseException(getRuntime(), tce);
+                throw RaiseException.createNativeRaiseException(context.getRuntime(), tce);
             } catch (TransformerException te) {
-                throw RaiseException.createNativeRaiseException(getRuntime(), te);
+                throw RaiseException.createNativeRaiseException(context.getRuntime(), te);
             }
         }
 
         @JRubyMethod
-        public IRubyObject dup() {
-            return constructNode(getRuntime(), node);
+        public IRubyObject dup(ThreadContext context) {
+            return constructNode(context.getRuntime(), node);
         }
 
         @JRubyMethod
-        public IRubyObject unlink() {
+        public IRubyObject unlink(ThreadContext context) {
             node.getParentNode().removeChild(node);
             return this;
         }
 
         @JRubyMethod
-        public IRubyObject internal_subset() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject internal_subset(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject pointer_id() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject pointer_id(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(name = "native_content=", visibility = Visibility.PRIVATE)
-        public IRubyObject native_content_set(IRubyObject arg) {
+        public IRubyObject native_content_set(ThreadContext context, IRubyObject arg) {
             node.setTextContent(arg.convertToString().asJavaString());
             return arg;
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject get(IRubyObject arg1) {
+        public IRubyObject get(ThreadContext context, IRubyObject arg1) {
             String key = arg1.convertToString().asJavaString();
             if (node instanceof Element) {
                 Element element = (Element)node;
                 String value = element.getAttribute(key);
-                return RubyString.newString(getRuntime(), value);
+                return RubyString.newString(context.getRuntime(), value);
             }
-            return getRuntime().getNil();
+            return context.getRuntime().getNil();
         }
     }
 
@@ -696,11 +704,11 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject text, IRubyObject doc) {
+        public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject text, IRubyObject doc) {
             XmlDocument xmlDoc = (XmlDocument)doc;
             Document document = xmlDoc.getDocument();
             Node node = document.createTextNode(text.convertToString().asJavaString());
-            return XmlNode.constructNode(cls.getRuntime(), node);
+            return XmlNode.constructNode(context.getRuntime(), node);
         }
     }
 
@@ -710,11 +718,11 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject text, IRubyObject doc) {
+        public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject text, IRubyObject doc) {
             XmlDocument xmlDoc = (XmlDocument)doc;
             Document document = xmlDoc.getDocument();
             Node node = document.createCDATASection(text.convertToString().asJavaString());
-            return XmlNode.constructNode(cls.getRuntime(), node);
+            return XmlNode.constructNode(context.getRuntime(), node);
         }
     }
 
@@ -724,11 +732,11 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject doc, IRubyObject text) {
+        public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject doc, IRubyObject text) {
             XmlDocument xmlDoc = (XmlDocument)doc;
             Document document = xmlDoc.getDocument();
             Node node = document.createComment(text.convertToString().asJavaString());
-            return XmlNode.constructNode(cls.getRuntime(), node);
+            return XmlNode.constructNode(context.getRuntime(), node);
         }
     }
 
@@ -741,20 +749,20 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject length() {
-            return RubyFixnum.newFixnum(getRuntime(), nodes.getLength());
+        public IRubyObject length(ThreadContext context) {
+            return RubyFixnum.newFixnum(context.getRuntime(), nodes.getLength());
         }
 
         @JRubyMethod(name = "[]")
-        public IRubyObject op_aref(IRubyObject arg1) {
+        public IRubyObject op_aref(ThreadContext context, IRubyObject arg1) {
             int index = (int)arg1.convertToInteger().getLongValue();
             if (index < 0) index = nodes.getLength() + index;
-            return XmlNode.constructNode(getRuntime(), nodes.item(index));
+            return XmlNode.constructNode(context.getRuntime(), nodes.item(index));
         }
 
         @JRubyMethod
-        public IRubyObject push(IRubyObject arg1) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject push(ThreadContext context, IRubyObject arg1) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -769,25 +777,25 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(name = "new", meta = true)
-        public static IRubyObject rbNew(IRubyObject cls, IRubyObject arg1) {
+        public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject arg1) {
             XmlNode node = (XmlNode)arg1;
-            return new XpathContext(cls.getRuntime(), (RubyClass)cls, node.getNode());
+            return new XpathContext(context.getRuntime(), (RubyClass)cls, node.getNode());
         }
 
         @JRubyMethod
-        public IRubyObject evaluate(IRubyObject arg1) {
+        public IRubyObject evaluate(ThreadContext context, IRubyObject arg1) {
             String src = arg1.convertToString().asJavaString();
             try {
                 XPathExpression xpathExpression = xpath.compile(src);
-                return new Xpath(getRuntime(), (RubyClass)getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, context);
+                return new Xpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
             } catch (XPathExpressionException xpee) {
-                throw getRuntime().newSyntaxError("Couldn't evaluate expression '" + src + "'");
+                throw context.getRuntime().newSyntaxError("Couldn't evaluate expression '" + src + "'");
             }
         }
 
         @JRubyMethod
-        public IRubyObject register_ns(IRubyObject arg1, IRubyObject arg2) {
-            return getRuntime().getNil();
+        public IRubyObject register_ns(ThreadContext context, IRubyObject arg1, IRubyObject arg2) {
+            return context.getRuntime().getNil();
         }
     }
 
@@ -802,12 +810,12 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(name = "node_set")
-        public IRubyObject node_set() {
+        public IRubyObject node_set(ThreadContext context) {
             try {
-                NodeList nodes = (NodeList)xpath.evaluate(context, XPathConstants.NODESET);
-                return new XmlNodeSet(getRuntime(), (RubyClass)getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+                NodeList nodes = (NodeList)xpath.evaluate(this.context, XPathConstants.NODESET);
+                return new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
             } catch (XPathExpressionException xpee) {
-                throw getRuntime().newSyntaxError("Couldn't evaluate expression '" + xpath.toString() + "'");
+                throw context.getRuntime().newSyntaxError("Couldn't evaluate expression '" + xpath.toString() + "'");
             }
         }
     }
@@ -819,20 +827,18 @@ public class NokogiriJavaService implements BasicLibraryService{
         public SaxParser(final Ruby ruby, RubyClass rubyClass) {
             super(ruby, rubyClass);
 
+            final ThreadContext context = ruby.getCurrentContext();
             final IRubyObject self = this;
             handler = new DefaultHandler2() {
                 public void startDocument() throws SAXException {
-                    ThreadContext context = ruby.getCurrentContext();
                     RuntimeHelpers.invoke(context, document(context), "start_document");
                 }
 
                 public void endDocument() throws SAXException {
-                    ThreadContext context = ruby.getCurrentContext();
                     RuntimeHelpers.invoke(context, document(context), "end_document");
                 }
 
                 public void startElement(String arg0, String arg1, String arg2, Attributes arg3) throws SAXException {
-                    ThreadContext context = ruby.getCurrentContext();
                     RubyArray attrs = RubyArray.newArray(ruby, arg3.getLength());
                     for (int i = 0; i < arg3.getLength(); i++) {
                         attrs.append(RubyString.newString(ruby, arg3.getQName(i)));
@@ -844,13 +850,11 @@ public class NokogiriJavaService implements BasicLibraryService{
                 }
 
                 public void endElement(String arg0, String arg1, String arg2) throws SAXException {
-                    ThreadContext context = ruby.getCurrentContext();
                     RuntimeHelpers.invoke(context, document(context), "end_element",
                             RubyString.newString(ruby, arg2));
                 }
 
                 public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
-                    ThreadContext context = ruby.getCurrentContext();
                     String target;
                     if (inCDATA) {
                         target = "cdata_block";
@@ -863,7 +867,6 @@ public class NokogiriJavaService implements BasicLibraryService{
 
                 @Override
                 public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
-                    ThreadContext context = ruby.getCurrentContext();
                     RuntimeHelpers.invoke(context, document(context), "comment",
                             RubyString.newString(ruby, new String(arg0, arg1, arg2)));
                 }
@@ -879,13 +882,11 @@ public class NokogiriJavaService implements BasicLibraryService{
                 }
 
                 public void error(SAXParseException saxpe) {
-                    ThreadContext context = ruby.getCurrentContext();
                     RuntimeHelpers.invoke(context, document(context), "error",
                             RubyString.newString(ruby, saxpe.getMessage()));
                 }
 
                 public void warning(SAXParseException saxpe) {
-                    ThreadContext context = ruby.getCurrentContext();
                     RuntimeHelpers.invoke(context, document(context), "warning",
                             RubyString.newString(ruby, saxpe.getMessage()));
                 }
@@ -896,12 +897,12 @@ public class NokogiriJavaService implements BasicLibraryService{
                 reader.setErrorHandler(handler);
                 reader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
             } catch (SAXException se) {
-                throw RaiseException.createNativeRaiseException(getRuntime(), se);
+                throw RaiseException.createNativeRaiseException(context.getRuntime(), se);
             }
         }
 
         @JRubyMethod
-        public IRubyObject parse_memory(IRubyObject arg1) {
+        public IRubyObject parse_memory(ThreadContext context, IRubyObject arg1) {
             try {
                 RubyString content = arg1.convertToString();
                 ByteList byteList = content.getByteList();
@@ -909,36 +910,36 @@ public class NokogiriJavaService implements BasicLibraryService{
                 reader.parse(new InputSource(bais));
                 return arg1;
             } catch (SAXException se) {
-                throw RaiseException.createNativeRaiseException(getRuntime(), se);
+                throw RaiseException.createNativeRaiseException(context.getRuntime(), se);
             } catch (IOException ioe) {
-                throw getRuntime().newIOErrorFromException(ioe);
+                throw context.getRuntime().newIOErrorFromException(ioe);
             }
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject native_parse_file(IRubyObject arg1) {
+        public IRubyObject native_parse_file(ThreadContext context, IRubyObject arg1) {
             try {
                 String filename = arg1.convertToString().asJavaString();
                 reader.parse(new InputSource(new FileInputStream(filename)));
                 return arg1;
             } catch (SAXException se) {
-                throw RaiseException.createNativeRaiseException(getRuntime(), se);
+                throw RaiseException.createNativeRaiseException(context.getRuntime(), se);
             } catch (IOException ioe) {
-                throw getRuntime().newIOErrorFromException(ioe);
+                throw context.getRuntime().newIOErrorFromException(ioe);
             }
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject native_parse_io(IRubyObject arg1, IRubyObject arg2) {
+        public IRubyObject native_parse_io(ThreadContext context, IRubyObject arg1, IRubyObject arg2) {
             try {
                 int encoding = (int)arg2.convertToInteger().getLongValue();
                 RubyIO io = (RubyIO)TypeConverter.convertToType(arg1, getRuntime().getIO(), "to_io");
                 reader.parse(new InputSource(io.getInStream()));
                 return arg1;
             } catch (SAXException se) {
-                throw RaiseException.createNativeRaiseException(getRuntime(), se);
+                throw RaiseException.createNativeRaiseException(context.getRuntime(), se);
             } catch (IOException ioe) {
-                throw getRuntime().newIOErrorFromException(ioe);
+                throw context.getRuntime().newIOErrorFromException(ioe);
             }
         }
 
@@ -953,13 +954,13 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public static IRubyObject native_parse_memory(IRubyObject self, IRubyObject arg1, IRubyObject arg2) {
-            throw self.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject native_parse_memory(ThreadContext context, IRubyObject self, IRubyObject arg1, IRubyObject arg2) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public static IRubyObject native_parse_file(IRubyObject self, IRubyObject arg1, IRubyObject arg2) {
-            throw self.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject native_parse_file(ThreadContext context, IRubyObject self, IRubyObject arg1, IRubyObject arg2) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -969,93 +970,93 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(meta = true, rest = true)
-        public static IRubyObject from_memory(IRubyObject cls, IRubyObject args[]) {
-            throw cls.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject from_memory(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject read() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject read(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject state() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject state(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject name() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject name(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject local_name() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject local_name(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject namespace_uri() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject namespace_uri(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject prefix() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject prefix(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject value() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject value(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject lang() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject lang(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject xml_version() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject xml_version(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject encoding() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject encoding(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject depth() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject depth(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject attribute_count() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject attribute_count(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject attribute(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject attribute(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject attribute_at(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject attribute_at(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject attributes() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject attributes(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(name = "attributes?")
-        public IRubyObject attributes_p() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject attributes_p(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(name = "value?")
-        public IRubyObject value_p() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject value_p(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -1065,23 +1066,23 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject notations() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject notations(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject elements() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject elements(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject attributes() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject attributes(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject entities() {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject entities(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -1091,18 +1092,18 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(meta = true)
-        public static IRubyObject parse_stylesheet_doc(IRubyObject cls, IRubyObject arg1) {
-            throw cls.getRuntime().newNotImplementedError("not implemented");
+        public static IRubyObject parse_stylesheet_doc(ThreadContext context, IRubyObject cls, IRubyObject arg1) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject serialize(IRubyObject arg1) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject serialize(ThreadContext context, IRubyObject arg1) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod(rest = true)
-        public IRubyObject apply_to(IRubyObject[] args) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject apply_to(ThreadContext context, IRubyObject[] args) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
 
@@ -1112,58 +1113,58 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject message(IRubyObject arg1) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject message(ThreadContext context, IRubyObject arg1) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject domain(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject domain(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject code(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject code(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject level(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject level(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject file(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject file(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject line(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject line(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject str1(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject str1(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject str2(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject str2(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject str3(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject str3(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject int1(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject int1(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
 
         @JRubyMethod
-        public IRubyObject column(IRubyObject arg) {
-            throw getRuntime().newNotImplementedError("not implemented");
+        public IRubyObject column(ThreadContext context, IRubyObject arg) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
         }
     }
 }
