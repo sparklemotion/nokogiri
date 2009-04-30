@@ -19,7 +19,7 @@ module Nokogiri
     #     puts node.name
     #
     #   end
-    # 
+    #
     # Note that Nokogiri::XML::Reader#each can only be called once!!  Once
     # the cursor moves through the entire document, you must parse the
     # document again.  So make sure that you capture any information you
@@ -36,8 +36,12 @@ module Nokogiri
       # The encoding for the document
       attr_reader :encoding
 
-      def initialize url = nil, encoding = nil # :nodoc:
-        @errors = []
+      # The XML source
+      attr_reader :source
+
+      def initialize source, url = nil, encoding = nil # :nodoc:
+        @source   = source
+        @errors   = []
         @encoding = encoding
       end
       private :initialize

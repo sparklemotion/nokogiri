@@ -22,6 +22,16 @@ class TestReader < Nokogiri::TestCase
     eoxml
   end
 
+  def test_reader_holds_on_to_string
+    xml = <<-eoxml
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader(xml)
+    assert_equal xml, reader.source
+  end
+
   def test_default?
     reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>

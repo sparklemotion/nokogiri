@@ -449,7 +449,7 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
   }
 
   VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
-  rb_funcall(rb_reader, rb_intern("initialize"), 2, rb_url, encoding);
+  rb_funcall(rb_reader, rb_intern("initialize"), 3, rb_buffer, rb_url, encoding);
 
   return rb_reader;
 }
