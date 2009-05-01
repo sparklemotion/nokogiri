@@ -1,0 +1,22 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+
+    class XmlXpathParserContext < FFI::Struct
+      @@@
+      struct do |s|
+        s.name "struct _xmlXPathParserContext"
+        s.include "libxml/xpath.h"
+        s.field :context, :pointer
+      end
+      @@@
+
+      def context
+        p = self[:context]
+        LibXML::XmlXpathContextCast.new(p)
+      end
+    end
+
+  end
+end

@@ -1,0 +1,98 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+
+    module XmlDocumentMixin
+      def self.included(base)
+        base.class_eval do
+          @@@
+          struct do |s|
+            s.name "struct _xmlDoc"
+            s.include "libxml/tree.h"
+            s.field :_private, :pointer
+            s.field :type, :int
+            s.field :name, :string
+            s.field :children, :pointer
+            s.field :last, :pointer
+            s.field :parent, :pointer
+            s.field :next, :pointer
+            s.field :prev, :pointer
+            s.field :doc, :pointer
+            s.field :intSubset, :pointer
+            s.field :encoding, :pointer
+            s.field :URL, :string
+          end
+          @@@
+        end
+      end
+
+      def document
+        p = self[:doc]
+        p.null? ? nil : LibXML::XmlDocumentCast.new(p)
+      end
+
+      def ruby_doc
+        ptr = self[:_private]
+        return nil if ptr.null?
+        ObjectSpace._id2ref(ptr.get_long(0))
+      end
+
+      def node_set
+        LibXML::XmlNodeSetCast.new(self[:_private].get_pointer(FFI.type_size(:pointer)))
+      end
+    end
+
+    #
+    #  use at the point of creation, so we can be sure the document will be GCed properly
+    #
+    class XmlDocument < FFI::ManagedStruct
+      include XmlDocumentMixin
+
+      def initialize(ptr)
+        super(ptr)
+        self[:_private] = LibXML.calloc(FFI.type_size(:pointer), 2)
+        self[:_private].put_pointer(FFI.type_size(:pointer), LibXML.xmlXPathNodeSetCreate(nil))
+      end
+
+      def self.release ptr
+        begin
+          doc = LibXML::XmlDocumentCast.new(ptr)
+
+          ns = LibXML::XmlNodeSetCast.new(doc[:_private].get_pointer(FFI.type_size(:pointer)))
+          ns[:nodeNr].times do |j|
+            node_cstruct = LibXML::XmlNode.new(ns[:nodeTab].get_pointer(j * FFI.type_size(:pointer)))
+            case node_cstruct[:type]
+            when Nokogiri::XML::Node::ATTRIBUTE_NODE
+              LibXML.xmlFreePropList(node_cstruct)
+            else
+              LibXML.xmlAddChild(doc, node_cstruct) if node_cstruct[:parent].null?
+            end
+          end
+          LibXML::XmlNodeSet.release(ns.pointer)
+
+          LibXML.free(doc[:_private])
+        rescue
+          puts "Nokogiri::LibXML::XmlDocument.release: exception: '#{$!}'"
+        end
+        LibXML.xmlFreeDoc(ptr)
+      end
+
+      def ruby_doc=(object)
+        self[:_private].put_long(0, object.object_id)
+      end
+
+    end
+
+    #
+    #  use when we don't want to cause the doc to be GCed
+    #
+    class XmlDocumentCast < FFI::Struct
+      include XmlDocumentMixin
+    end
+
+    HtmlDocument = XmlDocument # implemented identically in libxml2.6
+    HtmlDocumentCast = XmlDocumentCast # implemented identically in libxml2.6
+  end
+
+end    

@@ -1,0 +1,22 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+    class XmlXpath < FFI::ManagedStruct
+      
+      @@@
+      struct do |s|
+        s.name "struct _xmlXPathObject"
+        s.include "libxml/xpath.h"
+        s.field :type, :int
+        s.field :nodesetval, :pointer
+      end
+      @@@
+
+      def self.release ptr
+        LibXML.xmlXPathFreeNodeSetList(ptr) # despite the name, this frees the xpath but not the contained node set
+      end
+
+    end
+  end
+end

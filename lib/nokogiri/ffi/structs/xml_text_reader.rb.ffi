@@ -1,0 +1,21 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+    class XmlTextReader < FFI::ManagedStruct
+      @@@
+      struct do |s|
+        s.name "struct _xmlNotation"
+        s.include "libxml/tree.h"
+        s.field :name, :string
+        s.field :PublicID, :string
+        s.field :SystemID, :string
+      end
+      @@@
+
+      def self.release ptr
+        LibXML.xmlFreeTextReader(ptr)
+      end
+    end
+  end
+end    

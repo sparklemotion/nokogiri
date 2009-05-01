@@ -57,6 +57,12 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
 
   if (node->doc == other->doc) {
     xmlUnlinkNode(node) ;
+    if ( node->type == XML_TEXT_NODE
+         && other->type == XML_TEXT_NODE
+         && is_2_6_16() ) {
+      other->content = xmlStrdup(other->content); // we'd rather leak than segfault.
+    }
+
     if(!(reparented = (*func)(other, node))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (1)");
     }

@@ -19,36 +19,28 @@ end
 desc "run test suite under valgrind with basic ruby options"
 NokogiriTestTask.new('test:valgrind').extend(Module.new {
   def ruby *args
-    cmd = "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
-    puts cmd
-    system cmd
+    run_with_env "valgrind #{VALGRIND_BASIC_OPTS} #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
   end
 })
 
 desc "run test suite under valgrind with memory-fill ruby options"
 NokogiriTestTask.new('test:valgrind_mem').extend(Module.new {
   def ruby *args
-    cmd = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=6D --free-fill=66 #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
-    puts cmd
-    system cmd
+    run_with_env "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=6D --free-fill=66 #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
   end
 })
 
 desc "run test suite under valgrind with memory-zero ruby options"
 NokogiriTestTask.new('test:valgrind_mem0').extend(Module.new {
   def ruby *args
-    cmd = "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=00 --free-fill=00 #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
-    puts cmd
-    system cmd
+    run_with_env "valgrind #{VALGRIND_BASIC_OPTS} --freelist-vol=100000000 --malloc-fill=00 --free-fill=00 #{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
   end
 })
 
 desc "run test suite under gdb"
 NokogiriTestTask.new('test:gdb').extend(Module.new {
   def ruby *args
-    cmd = "gdb --args #{RUBY} #{args.join(' ')}"
-    puts cmd
-    system cmd
+    run_with_env "gdb --args #{RUBY} #{args.join(' ')}"
   end
 })
 
@@ -56,20 +48,22 @@ desc "test coverage"
 NokogiriTestTask.new('test:coverage').extend(Module.new {
   def ruby *args
     rm_rf "coverage"
-    cmd = "rcov -x Library -I lib:ext:test #{args.join(' ')}"
-    puts cmd
-    system cmd
+    run_with_env "rcov -x Library -I lib:ext:test #{args.join(' ')}"
   end
 })
 
 desc "run test suite with verbose output"
 NokogiriTestTask.new('test:verbose').extend(Module.new {
   def ruby *args
-    cmd = "#{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
-    puts cmd
-    system cmd
+    run_with_env "#{RUBY} #{args.join(' ')} test/test_nokogiri.rb --verbose=verbose"
   end
 })
+
+def run_with_env(cmd)
+  cmd = "LD_LIBRARY_PATH='#{ENV['LD_LIBRARY_PATH']}' #{cmd}"
+  puts "=> #{cmd}"
+  system cmd
+end
 
 namespace :test do
   desc "run test suite with aggressive GC"
@@ -146,7 +140,7 @@ namespace :test do
     libxslt = Dir[File.join(MULTI_XML, 'install', 'libxslt*')].first
 
     directories = ENV['MULTIXML2_DIR'] ? [ENV['MULTIXML2_DIR']] : Dir[File.join(MULTI_XML, 'install', '*')]
-    directories.each do |xml2_version|
+    directories.sort.reverse.each do |xml2_version|
       next unless xml2_version =~ /libxml2/
       extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib --with-xslt-dir=#{libxslt}"
       cmd = "#{$0} clean test EXTOPTS='#{extopts}' LD_LIBRARY_PATH='#{xml2_version}/lib'"

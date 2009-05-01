@@ -25,6 +25,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 
 #endif
 
+int is_2_6_16(void) ;
 
 #ifndef UNUSED
 # if defined(__GNUC__)
