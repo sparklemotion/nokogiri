@@ -19,6 +19,36 @@ module Nokogiri
     ffi_lib expand_library_path('libxslt')
     ffi_lib expand_library_path('libexslt')
 
+    # globals.c
+    attach_function :__xmlParserVersion, [], :pointer
+    attach_function :__xmlIndentTreeOutput, [], :pointer
+    attach_function :__xmlTreeIndentString, [], :pointer
+  end
+
+  # initialize constants
+  LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
+  LIBXML_VERSION = lambda {
+    LIBXML_PARSER_VERSION =~ /^(\d)(\d{2})(\d{2})$/
+    major = $1.to_i
+    minor = $2.to_i
+    bug   = $3.to_i
+    "#{major}.#{minor}.#{bug}"
+  }.call
+end
+
+require 'nokogiri/version'
+
+Nokogiri::VERSION_INFO['libxml'] = {}
+Nokogiri::VERSION_INFO['libxml']['loaded'] = Nokogiri::LIBXML_VERSION
+Nokogiri::VERSION_INFO['libxml']['binding'] = 'ffi'
+if RUBY_PLATFORM =~ /java/
+  Nokogiri::VERSION_INFO['libxml']['platform'] = 'jruby'
+else
+  Nokogiri::VERSION_INFO['libxml']['platform'] = 'ruby'
+end
+
+module Nokogiri
+  module LibXML
     # useful callback signatures
     callback :syntax_error_handler, [:pointer, :pointer], :void
     callback :generic_error_handler, [:pointer, :string], :void
@@ -128,11 +158,6 @@ module Nokogiri
     # entities.c
     attach_function :xmlEncodeSpecialChars, [:pointer, :string], :pointer # returns char* that must be freed
 
-    # globals.c
-    attach_function :__xmlParserVersion, [], :pointer
-    attach_function :__xmlIndentTreeOutput, [], :pointer
-    attach_function :__xmlTreeIndentString, [], :pointer
-
     # xpath.c
     attach_function :xmlXPathInit, [], :void
     attach_function :xmlXPathNewContext, [:pointer], :pointer
@@ -224,45 +249,24 @@ module Nokogiri
 
     # xmlschemas.c
     attach_function :xmlSchemaNewValidCtxt, [:pointer], :pointer
-    attach_function :xmlSchemaSetValidStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void
+    attach_function :xmlSchemaSetValidStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlSchemaValidateDoc, [:pointer, :pointer], :void
     attach_function :xmlSchemaFreeValidCtxt, [:pointer], :void
     attach_function :xmlSchemaNewMemParserCtxt, [:pointer, :int], :pointer # first arg could be string, but we pass length, so let's optimize
-    attach_function :xmlSchemaSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void
+    attach_function :xmlSchemaSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlSchemaParse, [:pointer], :pointer
     attach_function :xmlSchemaFreeParserCtxt, [:pointer], :void
 
     # relaxng.c
     attach_function :xmlRelaxNGNewValidCtxt, [:pointer], :pointer
-    attach_function :xmlRelaxNGSetValidStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void
+    attach_function :xmlRelaxNGSetValidStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlRelaxNGValidateDoc, [:pointer, :pointer], :int
     attach_function :xmlRelaxNGFreeValidCtxt, [:pointer], :void
     attach_function :xmlRelaxNGNewMemParserCtxt, [:pointer, :int], :pointer # first arg could be string, but we pass length, so let's optimize
-    attach_function :xmlRelaxNGSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void
+    attach_function :xmlRelaxNGSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlRelaxNGParse, [:pointer], :pointer
     attach_function :xmlRelaxNGFreeParserCtxt, [:pointer], :void
   end
-
-  # initialize constants
-  LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
-  LIBXML_VERSION = lambda {
-    LIBXML_PARSER_VERSION =~ /^(\d)(\d{2})(\d{2})$/
-    major = $1.to_i
-    minor = $2.to_i
-    bug   = $3.to_i
-    "#{major}.#{minor}.#{bug}"
-  }.call
-end
-
-require 'nokogiri/version'
-
-Nokogiri::VERSION_INFO['libxml'] = {}
-Nokogiri::VERSION_INFO['libxml']['loaded'] = Nokogiri::LIBXML_VERSION
-Nokogiri::VERSION_INFO['libxml']['binding'] = 'ffi'
-if RUBY_PLATFORM =~ /java/
-  Nokogiri::VERSION_INFO['libxml']['platform'] = 'jruby'
-else
-  Nokogiri::VERSION_INFO['libxml']['platform'] = 'ruby'
 end
 
 require 'nokogiri/syntax_error'

@@ -55,17 +55,21 @@ module Nokogiri
 
       def attribute(name)
         return nil if name.nil?
-        attr_ptr = LibXML.xmlTextReaderGetAttribute(cstruct, name)
+        attr_ptr = LibXML.xmlTextReaderGetAttribute(cstruct, name.to_s)
         if attr_ptr.null?
           # this section is an attempt to workaround older versions of libxml that
           # don't handle namespaces properly in all attribute-and-friends functions
           prefix = FFI::MemoryPointer.new :pointer
           localname = LibXML.xmlSplitQName2(name, prefix)
           if ! localname.null?
-            attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, localname)
+            attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, localname.read_string)
             LibXML.xmlFree(localname)
           else
-            attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, prefix.read_string)
+            if prefix.null? || prefix.read_string.length == 0
+              attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, nil)
+            else
+              attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, prefix.read_string)
+            end
           end
           LibXML.xmlFree(prefix.read_pointer)
         end

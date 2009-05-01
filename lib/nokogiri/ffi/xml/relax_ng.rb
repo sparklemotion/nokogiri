@@ -8,7 +8,7 @@ module Nokogiri
         raise RuntimeError.new("Could not create a validation context") if ctx.null?
 
         LibXML.xmlRelaxNGSetValidStructuredErrors(ctx,
-          SyntaxError.error_array_pusher(errors), nil)
+          SyntaxError.error_array_pusher(errors), nil) unless Nokogiri.is_2_6_16?
 
         LibXML.xmlRelaxNGValidateDoc(ctx, document.cstruct)
 
@@ -25,7 +25,7 @@ module Nokogiri
 
         LibXML.xmlSetStructuredErrorFunc(nil, SyntaxError.error_array_pusher(errors))
         LibXML.xmlRelaxNGSetParserStructuredErrors(
-          ctx, SyntaxError.error_array_pusher(errors), nil)
+          ctx, SyntaxError.error_array_pusher(errors), nil) unless Nokogiri.is_2_6_16?
 
         schema_ptr = LibXML.xmlRelaxNGParse(ctx)
 

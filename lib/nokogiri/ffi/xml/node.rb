@@ -301,6 +301,9 @@ module Nokogiri
 
         if node.cstruct[:doc] == other.cstruct[:doc]
           LibXML.xmlUnlinkNode(node.cstruct)
+          if node.type == TEXT_NODE && other.type == TEXT_NODE && Nokogiri.is_2_6_16?
+            other.cstruct.pointer.put_pointer(other.cstruct.offset_of(:content), LibXML.xmlStrdup(other.cstruct[:content]))
+          end
           reparented_struct = block.call(node.cstruct, other.cstruct)
           raise(RuntimeError, "Could not reparent node (1)") unless reparented_struct
         else

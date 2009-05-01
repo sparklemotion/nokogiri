@@ -24,4 +24,8 @@ module Nokogiri
   def Nokogiri.ffi?
     Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
   end
+
+  def Nokogiri.is_2_6_16?
+    Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
+  end
 end
