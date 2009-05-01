@@ -13,6 +13,7 @@ lib/nokogiri/css/generated_tokenizer.rb
 mkmf.log
 cross
 tags
+*.rbc
 stash
 .rake_tasks
 tmp

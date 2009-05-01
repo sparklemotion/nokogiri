@@ -1,0 +1,18 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+    class XmlNs < FFI::Struct
+      @@@
+      struct do |s|
+        s.name "struct _xmlNs"
+        s.include "libxml/tree.h"
+        s.field :type, :int
+        s.field :next, :pointer
+        s.field :href, :string
+        s.field :prefix, :string
+      end
+      @@@
+    end
+  end
+end    

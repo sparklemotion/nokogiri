@@ -1,0 +1,31 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+    class XmlDtd < FFI::Struct
+
+      @@@
+      struct do |s|
+        s.name "struct _xmlDtd"
+        s.include "libxml/tree.h"
+        s.field :_private, :long # actually a pointer we're casting as an integer
+        s.field :type, :int
+        s.field :name, :string
+        s.field :children, :pointer
+        s.field :last, :pointer
+        s.field :parent, :pointer
+        s.field :next, :pointer
+        s.field :prev, :pointer
+        s.field :doc, :pointer
+        s.field :notations, :pointer
+        s.field :elements, :pointer
+        s.field :attributes, :pointer
+        s.field :entities, :pointer
+      end
+      @@@
+
+      include CommonNode
+
+    end
+  end
+end    

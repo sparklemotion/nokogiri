@@ -4,7 +4,13 @@ ENV['PATH'] = [File.expand_path(
   File.join(File.dirname(__FILE__), "..", "ext", "nokogiri")
 ), ENV['PATH']].compact.join(';') if RUBY_PLATFORM =~ /mswin/i
 
-require 'nokogiri/nokogiri' unless RUBY_PLATFORM =~ /java/
+if ENV['NOKOGIRI_FFI'] || RUBY_PLATFORM =~ /java/
+  gem 'ffi', '>=0.3.2' unless RUBY_PLATFORM =~ /java/
+  require 'ffi'
+  require 'nokogiri/ffi/libxml'
+else
+  require 'nokogiri/nokogiri'
+end
 
 require 'nokogiri/version'
 require 'nokogiri/syntax_error'

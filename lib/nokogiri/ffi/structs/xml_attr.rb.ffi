@@ -1,0 +1,22 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+    class XmlAttr < FFI::Struct
+      @@@
+      struct do |s|
+        s.name "struct _xmlAttr"
+        s.include "libxml/tree.h"
+        s.field :type, :int
+        s.field :name, :string
+        s.field :children, :pointer
+        s.field :last, :pointer
+        s.field :parent, :pointer
+        s.field :next, :pointer
+        s.field :prev, :pointer
+        s.field :doc, :pointer
+      end
+      @@@
+    end
+  end
+end    

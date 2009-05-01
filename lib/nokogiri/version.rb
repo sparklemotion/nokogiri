@@ -6,7 +6,7 @@ module Nokogiri
   VERSION_INFO = {}
   VERSION_INFO['warnings']              = []
   VERSION_INFO['nokogiri']              = VERSION
-  if defined?(LIBXML_VERSION)
+  if defined?(LIBXML_VERSION) && ! defined?(FFI)
     VERSION_INFO['libxml']              = {}
     VERSION_INFO['libxml']['binding']   = 'extension'
     VERSION_INFO['libxml']['compiled']  = LIBXML_VERSION

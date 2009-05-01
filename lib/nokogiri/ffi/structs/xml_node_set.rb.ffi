@@ -1,0 +1,56 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+
+    module XmlNodeSetMixin
+      def self.included(base)
+        base.class_eval do
+          @@@
+          struct do |s|
+            s.name "struct _xmlNodeSet"
+            s.include "libxml/xpath.h"
+            s.field :nodeNr, :int
+            s.field :nodeMax, :int
+            s.field :nodeTab, :pointer
+          end
+          @@@
+        end
+      end
+
+      def document
+        p = self[:doc]
+        p.null? ? nil : LibXML::XmlDocumentCast.new(p)
+      end
+
+      def nodeTab
+        # TODO: think about whether we should take an argument and
+        # only return a single pointer instead of marshaling the
+        # entire array
+        self[:nodeTab].read_array_of_pointer(self[:nodeNr])
+      end
+
+      def nodeTab=(array)
+        # TODO: do we need to check nodeMax and allocate more memory? probably.
+        self[:nodeTab].write_array_of_pointer(array)
+      end
+    end
+
+
+    class XmlNodeSet < FFI::ManagedStruct
+      include XmlNodeSetMixin
+
+      def self.release ptr
+        ns = XmlNodeSetCast.new(ptr)
+        LibXML.xmlFree ns[:nodeTab] if ns[:nodeTab]
+        LibXML.xmlFree ptr
+      end
+    end
+
+
+    class XmlNodeSetCast < FFI::Struct
+      include XmlNodeSetMixin
+    end
+
+  end
+end    

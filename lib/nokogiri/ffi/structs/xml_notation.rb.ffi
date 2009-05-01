@@ -1,0 +1,17 @@
+# -*- ruby -*-
+
+module Nokogiri
+  module LibXML
+    class XmlNotation < FFI::Struct
+      @@@
+      struct do |s|
+        s.name "struct _xmlNotation"
+        s.include "libxml/tree.h"
+        s.field :name, :string
+        s.field :PublicID, :string
+        s.field :SystemID, :string
+      end
+      @@@
+    end
+  end
+end    
