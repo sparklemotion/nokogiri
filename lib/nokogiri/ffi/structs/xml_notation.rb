@@ -1,5 +1,3 @@
-# -*- ruby -*-
-
 module Nokogiri
   module LibXML
     class XmlNotation < FFI::Struct

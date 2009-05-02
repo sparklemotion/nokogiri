@@ -1,5 +1,3 @@
-# -*- ruby -*-
-
 module Nokogiri
   module LibXML
     class HtmlElemDesc < FFI::Struct
