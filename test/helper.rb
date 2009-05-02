@@ -1,4 +1,5 @@
 $VERBOSE = true
+require 'rubygems'
 require 'test/unit'
 
 %w(../lib ../ext).each do |path|
