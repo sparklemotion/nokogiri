@@ -3,7 +3,8 @@
 module Nokogiri
   module LibXML
 
-    class XmlXpathObject < FFI::Struct
+    class XmlXpathObject < FFI::ManagedStruct
+
       XPATH_UNDEFINED = 0
       XPATH_NODESET = 1
       XPATH_BOOLEAN = 2
@@ -15,21 +16,21 @@ module Nokogiri
       XPATH_USERS = 8
       XPATH_XSLT_TREE = 9
 
-      @@@
-      struct do |s|
-        s.name "struct _xmlXPathObject"
-        s.include "libxml/xpath.h"
-        s.field :type, :int
-        s.field :nodesetval, :pointer
-        s.field :boolval, :int
-        s.field :floatval, :double
-        s.field :stringval, :string
-        s.field :user, :pointer
-        s.field :index, :int
-        s.field :user2, :pointer
-        s.field :index2, :int
+      layout(
+        :type,          :int,
+        :nodesetval,    :pointer,
+        :boolval,       :int,
+        :floatval,      :double,
+        :stringval,     :string,
+        :user,          :pointer,
+        :index,         :int,
+        :user2,         :pointer,
+        :index2,        :int
+        )
+
+      def self.release ptr
+        LibXML.xmlXPathFreeNodeSetList(ptr) # despite the name, this frees the xpath but not the contained node set
       end
-      @@@
     end
 
   end

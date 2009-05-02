@@ -4,26 +4,24 @@ module Nokogiri
   module LibXML
     class XmlNode < FFI::Struct
 
-      @@@
-      struct do |s|
-        s.name "struct _xmlNode"
-        s.include "libxml/tree.h"
-        s.field :_private, :long # actually a pointer we're casting as an integer
-        s.field :type, :int
-        s.field :name, :string
-        s.field :children, :pointer
-        s.field :last, :pointer
-        s.field :parent, :pointer
-        s.field :next, :pointer
-        s.field :prev, :pointer
-        s.field :doc, :pointer
-        s.field :ns, :pointer
-        s.field :content, :string
-        s.field :properties, :pointer
-        s.field :nsDef, :pointer
-        s.field :line, :short
-      end
-      @@@
+      layout(
+        :_private,      :long, # actually a pointer we're casting as an integer
+        :type,          :int,
+        :name,          :string,
+        :children,      :pointer,
+        :last,          :pointer,
+        :parent,        :pointer,
+        :next,          :pointer,
+        :prev,          :pointer,
+        :doc,           :pointer,
+
+        :ns,            :pointer,
+        :content,       :string,
+        :properties,    :pointer,
+        :nsDef,         :pointer,
+        :psvi,          :pointer,
+        :line,          :short
+        )
 
       include CommonNode
 

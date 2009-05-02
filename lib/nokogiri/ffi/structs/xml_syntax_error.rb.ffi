@@ -4,25 +4,21 @@ module Nokogiri
   module LibXML
     class XmlSyntaxError < FFI::ManagedStruct
       
-      @@@
-      struct do |s|
-        s.name "struct _xmlError"
-        s.include "libxml/xmlerror.h"
-        s.field :domain, :int
-        s.field :code, :int
-        s.field :message, :string
-        s.field :level, :int
-        s.field :file, :string
-        s.field :line, :int
-        s.field :str1, :string
-        s.field :str2, :string
-        s.field :str3, :string
-        s.field :int1, :int
-        s.field :int2, :int
-        s.field :ctxt, :pointer
-        s.field :node, :pointer
-      end
-      @@@
+      layout(
+        :domain,  :int,
+        :code,    :int,
+        :message, :string,
+        :level,   :int,
+        :file,    :string,
+        :line,    :int,
+        :str1,    :string,
+        :str2,    :string,
+        :str3,    :string,
+        :int1,    :int,
+        :int2,    :int,
+        :ctxt,    :pointer,
+        :node,    :pointer
+        )
 
       def self.allocate
         LibXML.calloc(1, LibXML::XmlSyntaxError.size)

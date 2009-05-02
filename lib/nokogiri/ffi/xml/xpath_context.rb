@@ -42,7 +42,7 @@ module Nokogiri
         end
 
         xpath = XML::XPath.new
-        xpath.cstruct = LibXML::XmlXpath.new(xpath_ptr)
+        xpath.cstruct = LibXML::XmlXpathObject.new(xpath_ptr)
         xpath.document = cstruct[:doc]
         xpath
       end
@@ -91,7 +91,6 @@ module Nokogiri
               LibXML.xmlFree(char_ptr)
               string
             end
-            LibXML.xmlXPathFreeNodeSetList(obj)
           end
 
           result = xpath_handler.send(name, *params)

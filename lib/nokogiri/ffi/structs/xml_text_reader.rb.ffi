@@ -3,15 +3,8 @@
 module Nokogiri
   module LibXML
     class XmlTextReader < FFI::ManagedStruct
-      @@@
-      struct do |s|
-        s.name "struct _xmlNotation"
-        s.include "libxml/tree.h"
-        s.field :name, :string
-        s.field :PublicID, :string
-        s.field :SystemID, :string
-      end
-      @@@
+
+      layout :dummy, :int # to avoid @layout warnings
 
       def self.release ptr
         LibXML.xmlFreeTextReader(ptr)

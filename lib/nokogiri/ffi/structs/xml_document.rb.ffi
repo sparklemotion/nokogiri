@@ -6,24 +6,30 @@ module Nokogiri
     module XmlDocumentMixin
       def self.included(base)
         base.class_eval do
-          @@@
-          struct do |s|
-            s.name "struct _xmlDoc"
-            s.include "libxml/tree.h"
-            s.field :_private, :pointer
-            s.field :type, :int
-            s.field :name, :string
-            s.field :children, :pointer
-            s.field :last, :pointer
-            s.field :parent, :pointer
-            s.field :next, :pointer
-            s.field :prev, :pointer
-            s.field :doc, :pointer
-            s.field :intSubset, :pointer
-            s.field :encoding, :pointer
-            s.field :URL, :string
-          end
-          @@@
+
+          layout(
+            :_private,  :pointer,
+            :type,      :int,
+            :name,      :string,
+            :children,  :pointer,
+            :last,      :pointer,
+            :parent,    :pointer,
+            :next,      :pointer,
+            :prev,      :pointer,
+            :doc,       :pointer,
+
+            :compression,       :int,
+            :standalone,        :int,
+            :intSubset,         :pointer,
+            :extSubset,         :pointer,
+            :oldNs,             :pointer,
+            :version,           :string,
+            :encoding,          :pointer,
+            :ids,               :pointer,
+            :refs,              :pointer,
+            :URL,               :string
+            )
+
         end
       end
 

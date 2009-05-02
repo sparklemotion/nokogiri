@@ -3,15 +3,12 @@
 module Nokogiri
   module LibXML
     class XmlBuffer < FFI::ManagedStruct
-      @@@
-      struct do |s|
-        s.name 'struct _xmlBuffer'
-        s.include 'libxml/tree.h'
-        s.field :content, :string
-        s.field :use, :int
-        s.field :size, :int
-      end
-      @@@
+
+      layout(
+        :content,       :string,
+        :use,           :int,
+        :size,          :int
+        )
 
       def self.release ptr
         LibXML.xmlBufferFree(ptr)
