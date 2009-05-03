@@ -1,5 +1,3 @@
-# -*- ruby -*-
-
 module Nokogiri
   module LibXML
     class XmlAttr < FFI::Struct

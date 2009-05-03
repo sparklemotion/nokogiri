@@ -1,16 +1,14 @@
-# -*- ruby -*-
-
 module Nokogiri
   module LibXML
 
     class XmlXpathParserContext < FFI::Struct
-      @@@
-      struct do |s|
-        s.name "struct _xmlXPathParserContext"
-        s.include "libxml/xpath.h"
-        s.field :context, :pointer
-      end
-      @@@
+
+      layout(
+        :cur,     :pointer,
+        :base,    :pointer,
+        :error,   :int,
+        :context, :pointer
+        )
 
       def context
         p = self[:context]

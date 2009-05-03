@@ -207,6 +207,4 @@ namespace :libxml do
   end
 end
 
-require 'tasks/ffi'
-
 # vim: syntax=Ruby
