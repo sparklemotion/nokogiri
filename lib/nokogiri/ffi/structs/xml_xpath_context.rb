@@ -1,18 +1,14 @@
-# -*- ruby -*-
-
 module Nokogiri
   module LibXML
     module XmlXpathContextMixin
       def self.included(base)
         base.class_eval do
-          @@@
-          struct do |s|
-            s.name "struct _xmlXPathContext"
-            s.include "libxml/xpath.h"
-            s.field :doc, :pointer
-            s.field :node, :pointer
-          end
-          @@@
+
+          layout(
+            :doc,  :pointer,
+            :node, :pointer
+            )
+
         end
       end
 

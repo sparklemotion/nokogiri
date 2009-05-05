@@ -1,20 +1,16 @@
-# -*- ruby -*-
-
 module Nokogiri
   module LibXML
 
     module XmlNodeSetMixin
       def self.included(base)
         base.class_eval do
-          @@@
-          struct do |s|
-            s.name "struct _xmlNodeSet"
-            s.include "libxml/xpath.h"
-            s.field :nodeNr, :int
-            s.field :nodeMax, :int
-            s.field :nodeTab, :pointer
-          end
-          @@@
+
+          layout(
+            :nodeNr,    :int,
+            :nodeMax,   :int,
+            :nodeTab,   :pointer
+            )
+
         end
       end
 
