@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package nokogiri;
 
 import java.io.ByteArrayInputStream;
@@ -356,6 +352,9 @@ public class NokogiriJavaService implements BasicLibraryService{
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
             throw context.getRuntime().newNotImplementedError("not implemented");
+            /*
+             * this.document = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0");
+             */
         }
 
         @JRubyMethod(meta = true)
@@ -628,8 +627,14 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject encode_special_chars(ThreadContext context, IRubyObject arg) {
-            // TODO: actually encode :)
-            return arg;
+            String s = arg.convertToString().asJavaString();
+            // From entities.c
+            s = s.replaceAll("&", "&amp;");
+            s = s.replaceAll("<", "&lt;");
+            s = s.replaceAll(">", "&gt;");
+            s = s.replaceAll("\"", "&quot;");
+            s = s.replaceAll("\r", "&#13;");
+            return RubyString.newString(context.getRuntime(), s);
         }
 
         @JRubyMethod
@@ -662,7 +667,15 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject internal_subset(ThreadContext context) {
-            throw context.getRuntime().newNotImplementedError("not implemented");
+            if(this.node.getOwnerDocument() == null)
+                return context.getRuntime().getNil();
+
+            String dtd = this.node.getOwnerDocument().getDoctype().getInternalSubset();
+
+            if(dtd == null)
+                return context.getRuntime().getNil();
+
+            return RubyString.newString(context.getRuntime(), dtd);
         }
 
         @JRubyMethod
