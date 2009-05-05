@@ -18,12 +18,6 @@ module Nokogiri
       end
 
       ###
-      # Get the first element of the NodeSet.
-      def first
-        self[0]
-      end
-
-      ###
       # Get the last element of the NodeSet.
       def last
         self[length - 1]

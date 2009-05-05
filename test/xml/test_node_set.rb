@@ -8,6 +8,11 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_first_takes_arguments
+        assert node_set = @xml.xpath('//employee')
+        assert_equal 2, node_set.first(2).length
+      end
+
       def test_dup
         assert node_set = @xml.xpath('//employee')
         dup = node_set.dup
