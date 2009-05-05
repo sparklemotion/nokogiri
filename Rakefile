@@ -120,8 +120,8 @@ task JAVA_EXT do
   end
 end
 
-  task :build => [JAVA_EXT]
-  #task :build => [JAVA_EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
+task :build => [JAVA_EXT]
+#task :build => [JAVA_EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
 
 libs = %w{
   iconv-1.9.2.win32

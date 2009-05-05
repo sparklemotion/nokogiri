@@ -383,7 +383,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     }
 
-    public static class HtmlDocument extends XmlDocument{
+    public static class HtmlDocument {
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
             throw context.getRuntime().newNotImplementedError("not implemented");
@@ -680,7 +680,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject pointer_id(ThreadContext context) {
-            throw context.getRuntime().newNotImplementedError("not implemented");
+            return RubyFixnum.newFixnum(context.getRuntime(), this.node.hashCode());
         }
 
         @JRubyMethod(name = "native_content=", visibility = Visibility.PRIVATE)
