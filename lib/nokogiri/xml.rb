@@ -35,6 +35,8 @@ module Nokogiri
   module XML
     # Parser options
 
+    # Strict XML parsing
+    PARSE_STRICT      = 0
     # Recover from errors
     PARSE_RECOVER     = 1 << 0
     # Substitute entities
