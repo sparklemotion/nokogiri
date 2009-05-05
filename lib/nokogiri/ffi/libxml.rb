@@ -243,6 +243,7 @@ module Nokogiri
     attach_function :xsltFreeStylesheet, [:pointer], :void
     attach_function :xsltApplyStylesheet, [:pointer, :pointer, :pointer], :pointer
     attach_function :xsltSaveResultToString, [:pointer, :pointer, :pointer, :pointer], :int
+    attach_function :xsltSetGenericErrorFunc, [:pointer, :generic_error_handler], :void
 
     # exslt.c
     attach_function :exsltRegisterAll, [], :void

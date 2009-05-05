@@ -12,6 +12,18 @@ static void dealloc(xsltStylesheetPtr doc)
     NOKOGIRI_DEBUG_END(doc);
 }
 
+static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
+{
+  char * message;
+
+  va_list args;
+  va_start(args, msg);
+  vasprintf(&message, msg, args);
+  va_end(args);
+
+  rb_raise(rb_eRuntimeError, message);
+}
+
 /*
  * call-seq:
  *   parse_stylesheet_doc(document)
@@ -24,7 +36,13 @@ static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
     xsltStylesheetPtr ss ;
     Data_Get_Struct(xmldocobj, xmlDoc, xml);
     exsltRegisterAll();
+
+    xsltSetGenericErrorFunc(NULL, xslt_generic_error_handler);
+
     ss = xsltParseStylesheetDoc(xmlCopyDoc(xml, 1)); /* 1 => recursive */
+
+    xsltSetGenericErrorFunc(NULL, NULL);
+
     return Data_Wrap_Struct(klass, NULL, dealloc, ss);
 }
 
@@ -92,6 +110,8 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
 
     result = xsltApplyStylesheet(ss, xml, params);
     free(params);
+
+    if (!result) rb_raise(rb_eRuntimeError, "could not perform xslt transform on document");
 
     return Nokogiri_wrap_xml_document(0, result) ;
 }
