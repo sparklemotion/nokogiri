@@ -19,8 +19,13 @@ module Nokogiri
 
       ###
       # Get the first element of the NodeSet.
-      def first
-        self[0]
+      def first n = nil
+        return self[0] unless n
+        list = []
+        0.upto(n - 1) do |i|
+          list << self[i]
+        end
+        list
       end
 
       ###
