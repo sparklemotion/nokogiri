@@ -18,6 +18,8 @@
   * Nokogiri::XML::Node#description to fetch the node description
   * Nokogiri::XML::Node#accept implements Visitor pattern
   * bin/nokogiri for easily examining documents (Thanks Yutaka HARA!)
+  * Nokogiri::XML::NodeSet now supports more Array-like operators: "delete",
+    "-" (difference), and "+" (concatenation).
 
 * Bugfixes
 
@@ -26,6 +28,7 @@
     (Thanks Joel!) LH #73
   * Fixing builder scope issues LH #61, LH #74, LH #70
   * Fixed a problem when adding a child could remove the child namespace LH#78
+  * Fixed failure to catch errors during XSLT parsing (GH#32)
 
 === 1.2.3 / 2009-03-22
 
