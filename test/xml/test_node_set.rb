@@ -101,6 +101,36 @@ module Nokogiri
         assert node_set.include?(node)
       end
 
+      def test_delete_with_invalid_argument
+        employees = @xml.search("//employee")
+        positions = @xml.search("//position")
+
+        assert_raises(ArgumentError) { employees.delete(positions) }
+      end
+
+      def test_delete_when_present
+        employees = @xml.search("//employee")
+        wally = employees.first
+        assert employees.include?(wally) # testing setup
+        length = employees.length
+
+        result = employees.delete(wally)
+        assert_equal result, wally
+        assert ! employees.include?(wally)
+        assert length-1, employees.length
+      end
+
+      def test_delete_when_not_present
+        employees = @xml.search("//employee")
+        phb = @xml.search("//position").first
+        assert ! employees.include?(phb) # testing setup
+        length = employees.length
+
+        result = employees.delete(phb)
+        assert_nil result
+        assert length, employees.length
+      end
+
       def test_unlink
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
@@ -183,6 +213,43 @@ module Nokogiri
         assert_equal 'wrapper', employees[0].parent.name
         assert_equal 'employee', @xml.search("//wrapper").first.children[0].name
       end
+
+      def test_plus_operator
+        names = @xml.search("name")
+        positions = @xml.search("position")
+
+        names_len = names.length
+        positions_len = positions.length
+
+        assert_raises(ArgumentError) { result = names + positions.first }
+
+        result = names + positions
+        assert_equal names_len,                         names.length
+        assert_equal positions_len,                     positions.length
+        assert_equal names.length + positions.length,   result.length
+
+        names += positions
+        assert_equal result.length, names.length
+      end
+
+      def test_minus_operator
+        employees = @xml.search("//employee")
+        females = @xml.search("//employee[gender[text()='Female']]")
+
+        employees_len = employees.length
+        females_len = females.length
+
+        assert_raises(ArgumentError) { result = employees - females.first }
+
+        result = employees - females
+        assert_equal employees_len,                     employees.length
+        assert_equal females_len,                       females.length
+        assert_equal employees.length - females.length, result.length
+
+        employees -= females
+        assert_equal result.length, employees.length
+      end
+
     end
   end
 end

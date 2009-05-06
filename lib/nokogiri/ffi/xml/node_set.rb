@@ -20,9 +20,20 @@ module Nokogiri
       end
 
       def push(node)
-        raise ArgumentError("node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
+        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
         LibXML.xmlXPathNodeSetAdd(cstruct, node.cstruct)
         self
+      end
+
+      def delete(node)
+        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
+        cstruct[:nodeNr].times do |j|
+          if cstruct.nodeTab[j].address == node.cstruct.pointer.address
+            LibXML.xmlXPathNodeSetRemove(cstruct, j)
+            return node
+          end
+        end        
+        return nil
       end
 
       def [](number)
@@ -48,7 +59,6 @@ module Nokogiri
         cstruct.nodeTab = nodetab
         self
       end
-
 
       def self.new document, list = []
         set = allocate

@@ -52,6 +52,24 @@ module Nokogiri
         last.after datum
       end
 
+      ###
+      # Concatenation - returns a new NodeSet built by concatenating the two NodeSets together to produce a third NodeSet
+      def +(node_set)
+        raise(ArgumentError, "requires a NodeSet argument") unless node_set.is_a?(NodeSet)
+        temp = self.dup
+        node_set.each { |node| temp << node }
+        temp
+      end
+
+      ###
+      # Difference - returns a new NodeSet that is a copy of this NodeSet, removing each item that also appears in +node_set+
+      def -(node_set)
+        raise(ArgumentError, "requires a NodeSet argument") unless node_set.is_a?(NodeSet)
+        temp = self.dup
+        node_set.each { |node| temp.delete(node) }
+        temp
+      end
+
       alias :<< :push
       alias :remove :unlink
 
