@@ -5,7 +5,11 @@ module Nokogiri
     def self.expand_library_path(library)
       return File.expand_path(library) if library =~ %r{^[^/].*/}
 
-      dirs = ENV['LD_LIBRARY_PATH'].split(':') + ['/opt/local/lib', '/usr/local/lib', '/usr/lib']
+      dirs = ['/opt/local/lib', '/usr/local/lib', '/usr/lib']
+
+      ['LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH'].each do |dyld_dir|
+        dirs = ENV[dyld_dir].split(':') + dirs if ENV.key? dyld_dir
+      end
 
       library = Dir[ *( dirs.collect {|dir| File.join(dir, "#{library}.{so,dylib}")} ) ].first
 
