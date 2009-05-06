@@ -15,7 +15,9 @@ module Nokogiri
       def message
         cstruct[:message]
       end
+      undef_method :inspect
       alias_method :inspect, :message
+      undef_method :to_s
       alias_method :to_s, :message
 
       def level

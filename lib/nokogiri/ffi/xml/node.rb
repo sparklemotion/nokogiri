@@ -282,18 +282,6 @@ module Nokogiri
         node
       end
 
-      alias :next           :next_sibling
-      alias :previous       :previous_sibling
-      alias :remove         :unlink
-      alias :set_attribute  :[]=
-      alias :text           :content
-      alias :inner_text     :content
-      alias :has_attribute? :key?
-      alias :<<             :add_child
-      alias :name           :node_name
-      alias :name=          :node_name=
-      alias :type           :node_type
-
       private
 
       def self.reparent_node_with(node, other, &block)
