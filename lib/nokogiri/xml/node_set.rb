@@ -18,6 +18,17 @@ module Nokogiri
       end
 
       ###
+      # Get the first element of the NodeSet.
+      def first n = nil
+        return self[0] unless n
+        list = []
+        0.upto(n - 1) do |i|
+          list << self[i]
+        end
+        list
+      end
+
+      ###
       # Get the last element of the NodeSet.
       def last
         self[length - 1]
