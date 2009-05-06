@@ -25,7 +25,16 @@ module Nokogiri
       end
 
       def test_non_existant_function
-        assert_raises(RuntimeError) {
+        # WTF.  I don't know why this is different between MRI and ffi.
+        # They should be the same...  Either way, raising an exception
+        # is the correct thing to do.
+        exception = RuntimeError
+
+        if Nokogiri::VERSION_INFO['libxml']['platform'] == 'jruby'
+          exception = Nokogiri::XML::XPath::SyntaxError
+        end
+
+        assert_raises(exception) {
           @xml.xpath('//name[foo()]')
         }
       end

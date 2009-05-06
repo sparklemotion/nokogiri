@@ -1,7 +1,7 @@
 module Nokogiri
   module XML
     class XPathContext
-      
+
       attr_accessor :cstruct
 
       def register_ns(prefix, uri)
