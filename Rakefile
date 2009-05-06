@@ -114,7 +114,7 @@ libs.each do |lib|
     puts "downloading #{lib}"
     FileUtils.mkdir_p('tmp/stash')
     Dir.chdir('tmp/stash') do
-      url = "http://www.zlatkovic.com/pub/libxml/#{lib}.zip"
+      url = "ftp://ftp.xmlsoft.org/libxml2/win32/#{lib}.zip"
       system("wget #{url} || curl -O #{url}")
     end
   end
