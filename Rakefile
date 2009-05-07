@@ -42,7 +42,7 @@ unless java
   gem 'rake-compiler', '>= 0.4.1'
   require "rake/extensiontask"
 
-  Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
+  RET = Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir                         = "ext/nokogiri"
     ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
     ext.config_options << ENV['EXTOPTS']
@@ -55,6 +55,14 @@ unless java
       "--with-xml2-dir=#{File.join(cross_dir, 'libxml2')}"
     ext.cross_config_options <<
       "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
+  end
+
+  task :muck_with_lib_dir do
+    RET.lib_dir += "/#{RUBY_VERSION.sub(/\.\d$/, '')}"
+    FileUtils.mkdir_p(RET.lib_dir)
+  end
+  if Rake::Task.task_defined?(:cross)
+    Rake::Task[:cross].prerequisites << "muck_with_lib_dir"
   end
 
 end
