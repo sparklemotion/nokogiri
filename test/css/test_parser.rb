@@ -54,6 +54,20 @@ module Nokogiri
         )
       end
 
+      def test_dashmatch
+        assert_xpath  "//a[@class = 'bar' or starts-with(@class, concat('bar', '-'))]",
+                      @parser.parse("a[@class|='bar']")
+        assert_xpath  "//a[@class = 'bar' or starts-with(@class, concat('bar', '-'))]",
+                      @parser.parse("a[@class |= 'bar']")
+      end
+
+      def test_includes
+        assert_xpath  "//a[contains(concat(\" \", @class, \" \"),concat(\" \", 'bar', \" \"))]",
+                      @parser.parse("a[@class~='bar']")
+        assert_xpath  "//a[contains(concat(\" \", @class, \" \"),concat(\" \", 'bar', \" \"))]",
+                      @parser.parse("a[@class ~= 'bar']")
+      end
+
       def test_function_with_arguments
         assert_xpath  "//*[position() = 2 and self::a]",
                       @parser.parse("a[2]")
@@ -64,12 +78,23 @@ module Nokogiri
       def test_carrot
         assert_xpath  "//a[starts-with(@id, 'Boing')]",
                       @parser.parse("a[id^='Boing']")
+        assert_xpath  "//a[starts-with(@id, 'Boing')]",
+                      @parser.parse("a[id ^= 'Boing']")
+      end
+
+      def test_suffix_match
+        assert_xpath "//a[substring(@id, string-length(@id) - string-length('Boing') + 1, string-length('Boing')) = 'Boing']",
+                      @parser.parse("a[id$='Boing']")
+        assert_xpath "//a[substring(@id, string-length(@id) - string-length('Boing') + 1, string-length('Boing')) = 'Boing']",
+                      @parser.parse("a[id $= 'Boing']")
       end
 
       def test_attributes_with_at
         ## This is non standard CSS
         assert_xpath  "//a[@id = 'Boing']",
                       @parser.parse("a[@id='Boing']")
+        assert_xpath  "//a[@id = 'Boing']",
+                      @parser.parse("a[@id = 'Boing']")
       end
 
       def test_attributes_with_at_and_stuff
@@ -82,6 +107,8 @@ module Nokogiri
         ## This is non standard CSS
         assert_xpath  "//a[child::text() != 'Boing']",
                       @parser.parse("a[text()!='Boing']")
+        assert_xpath  "//a[child::text() != 'Boing']",
+                      @parser.parse("a[text() != 'Boing']")
       end
 
       def test_function
@@ -96,6 +123,8 @@ module Nokogiri
         ## This is non standard CSS
         assert_xpath  "//a[contains(child::text(), 'Boing')]",
                       @parser.parse("a[text()*='Boing']")
+        assert_xpath  "//a[contains(child::text(), 'Boing')]",
+                      @parser.parse("a[text() *= 'Boing']")
 
         ## This is non standard CSS
         assert_xpath  "//script//comment()",

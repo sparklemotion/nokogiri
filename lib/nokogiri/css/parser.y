@@ -205,13 +205,13 @@ rule
     |
     ;
   eql_incl_dash
-    : EQUAL
-    | PREFIXMATCH
-    | SUFFIXMATCH
-    | SUBSTRINGMATCH
-    | NOT_EQUAL
-    | INCLUDES
-    | DASHMATCH
+    : EQUAL           { result = '=' }
+    | PREFIXMATCH     { result = '^=' }
+    | SUFFIXMATCH     { result = '$=' }
+    | SUBSTRINGMATCH  { result = '*=' }
+    | NOT_EQUAL       { result = '!=' }
+    | INCLUDES        { result = '~=' }
+    | DASHMATCH       { result = '|=' }
     ;
   negation
     : NOT negation_arg RPAREN {
