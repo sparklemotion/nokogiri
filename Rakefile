@@ -7,7 +7,7 @@ require 'hoe'
 LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 $LOAD_PATH << LIB_DIR
 
-windows = RUBY_PLATFORM =~ /mswin/i ? true : false
+windows = RUBY_PLATFORM =~ /(mswin|mingw)/i ? true : false
 java = RUBY_PLATFORM =~ /java/ ? true : false
 
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
@@ -146,6 +146,7 @@ end
 if Rake::Task.task_defined?(:cross)
   task :add_dll_to_manifest do
     HOE.spec.files += Dir['ext/nokogiri/**.{dll,so}']
+    HOE.spec.files += Dir['ext/nokogiri/{1.8,1.9}/**.{dll,so}']
   end
 
   Rake::Task[:cross].prerequisites << :add_dll_to_manifest

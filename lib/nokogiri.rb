@@ -2,14 +2,19 @@
 # Modify the PATH on windows so that the external DLLs will get loaded.
 ENV['PATH'] = [File.expand_path(
   File.join(File.dirname(__FILE__), "..", "ext", "nokogiri")
-), ENV['PATH']].compact.join(';') if RUBY_PLATFORM =~ /mswin/i
+), ENV['PATH']].compact.join(';') if RUBY_PLATFORM =~ /(mswin|mingw)/i
 
 if ENV['NOKOGIRI_FFI'] || RUBY_PLATFORM =~ /java/
   gem 'ffi', '>=0.3.2' unless RUBY_PLATFORM =~ /java/
   require 'ffi'
   require 'nokogiri/ffi/libxml'
 else
-  require 'nokogiri/nokogiri'
+  if RUBY_PLATFORM =~/(mswin|mingw)/i
+    # Fat binary gems, you make the Rockin' world go round
+    require "nokogiri/#{RUBY_VERSION.sub(/\.\d+$/, '')}/nokogiri"
+  else
+    require 'nokogiri/nokogiri'
+  end
 end
 
 require 'nokogiri/version'
