@@ -76,15 +76,19 @@ module Nokogiri
         value = "'#{value}'" if value !~ /^['"]/
 
         case node.value[1]
-        when '*='
+        when :equal
+          attribute + " = " + "#{value}"
+        when :not_equal
+          attribute + " != " + "#{value}"
+        when :substring_match
           "contains(#{attribute}, #{value})"
-        when '^='
+        when :prefix_match
           "starts-with(#{attribute}, #{value})"
-        when '|='
+        when :dash_match
           "#{attribute} = #{value} or starts-with(#{attribute}, concat(#{value}, '-'))"
-        when '~='
+        when :includes
           "contains(concat(\" \", #{attribute}, \" \"),concat(\" \", #{value}, \" \"))"
-        when '$='
+        when :suffix_match
           "substring(#{attribute}, string-length(#{attribute}) - " +
             "string-length(#{value}) + 1, string-length(#{value})) = #{value}"
         else
