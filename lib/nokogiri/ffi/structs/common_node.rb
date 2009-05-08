@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    module CommonNode
+  module LibXML # :nodoc:
+    module CommonNode # :nodoc:
 
       def document
         p = self[:doc]

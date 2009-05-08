@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    class XmlBuffer < FFI::ManagedStruct
+  module LibXML # :nodoc:
+    class XmlBuffer < FFI::ManagedStruct # :nodoc:
 
       layout(
         :content,       :string,

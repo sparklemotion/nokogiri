@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    class XmlSaxHandler < FFI::ManagedStruct
+  module LibXML # :nodoc:
+    class XmlSaxHandler < FFI::ManagedStruct # :nodoc:
 
       layout(:internalSubset,           :pointer,
              :isStandalone,             :pointer,

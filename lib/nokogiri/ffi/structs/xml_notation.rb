@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    class XmlNotation < FFI::Struct
+  module LibXML # :nodoc:
+    class XmlNotation < FFI::Struct # :nodoc:
       layout(
         :name,          :string,
         :PublicID,      :string,
@@ -8,4 +8,4 @@ module Nokogiri
         )
     end
   end
-end    
+end

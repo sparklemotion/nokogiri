@@ -12,7 +12,7 @@ require 'nokogiri'
 #  end
 #
 module ActionController
-  module TestResponseBehavior
+  module TestResponseBehavior # :nodoc:
 
     ###
     # Get your response as a Nokogiri::XML::Document using the

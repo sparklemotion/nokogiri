@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    class HtmlEntityDesc < FFI::Struct
+  module LibXML # :nodoc:
+    class HtmlEntityDesc < FFI::Struct # :nodoc:
 
       layout(
         :value, :int,

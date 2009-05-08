@@ -1,6 +1,6 @@
 
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
 
     def self.expand_library_path(library)
       return File.expand_path(library) if library =~ %r{^[^/].*/}
@@ -52,7 +52,7 @@ else
 end
 
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
     # useful callback signatures
     callback :syntax_error_handler, [:pointer, :pointer], :void
     callback :generic_error_handler, [:pointer, :string], :void

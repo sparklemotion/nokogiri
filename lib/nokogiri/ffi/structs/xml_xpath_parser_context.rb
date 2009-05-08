@@ -1,7 +1,7 @@
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
 
-    class XmlXpathParserContext < FFI::Struct
+    class XmlXpathParserContext < FFI::Struct # :nodoc:
 
       layout(
         :cur,     :pointer,

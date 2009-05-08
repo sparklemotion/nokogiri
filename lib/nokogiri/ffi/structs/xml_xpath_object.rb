@@ -1,7 +1,7 @@
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
 
-    class XmlXpathObject < FFI::ManagedStruct
+    class XmlXpathObject < FFI::ManagedStruct # :nodoc:
 
       XPATH_UNDEFINED = 0
       XPATH_NODESET = 1

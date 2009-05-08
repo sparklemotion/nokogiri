@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    module XmlXpathContextMixin
+  module LibXML # :nodoc:
+    module XmlXpathContextMixin # :nodoc:
       def self.included(base)
         base.class_eval do
 
@@ -21,7 +21,7 @@ module Nokogiri
       end
     end
 
-    class XmlXpathContext < FFI::ManagedStruct
+    class XmlXpathContext < FFI::ManagedStruct # :nodoc:
       include XmlXpathContextMixin
 
       def self.release ptr
@@ -29,7 +29,7 @@ module Nokogiri
       end
     end
 
-    class XmlXpathContextCast < FFI::Struct
+    class XmlXpathContextCast < FFI::Struct # :nodoc:
       include XmlXpathContextMixin
     end
 

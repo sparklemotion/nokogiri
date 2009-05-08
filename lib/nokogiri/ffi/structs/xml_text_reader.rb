@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    class XmlTextReader < FFI::ManagedStruct
+  module LibXML # :nodoc:
+    class XmlTextReader < FFI::ManagedStruct # :nodoc:
 
       layout :dummy, :int # to avoid @layout warnings
 
@@ -9,4 +9,4 @@ module Nokogiri
       end
     end
   end
-end    
+end

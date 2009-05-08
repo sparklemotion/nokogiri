@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    class XmlNs < FFI::Struct
+  module LibXML # :nodoc:
+    class XmlNs < FFI::Struct # :nodoc:
       layout(
         :next,   :pointer,
         :type,   :int,
@@ -9,4 +9,4 @@ module Nokogiri
         )
     end
   end
-end    
+end
