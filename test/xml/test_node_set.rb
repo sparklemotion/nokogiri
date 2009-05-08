@@ -250,6 +250,14 @@ module Nokogiri
         assert_equal result.length, employees.length
       end
 
+      def test_array_index
+        employees = @xml.search("//employee")
+        other = @xml.search("//position").first
+
+        assert_equal 3, employees.index(employees[3])
+        assert_nil employees.index(other)
+      end
+
     end
   end
 end
