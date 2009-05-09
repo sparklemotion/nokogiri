@@ -42,11 +42,22 @@ module Nokogiri
         return nil
       end
 
-      def [](number)
-        return nil if (number >= cstruct[:nodeNr] || number.abs > cstruct[:nodeNr])
-        number = number + cstruct[:nodeNr] if number < 0
-        Node.wrap(cstruct.nodeTab[number])
+      def [](*args)
+        raise(ArgumentError, "got #{args.length} arguments, expected 1 (or 2)") if args.length > 2
+
+        if args.length == 2
+          beg = args[0]
+          len = args[1]
+          beg += cstruct[:nodeNr] if beg < 0
+          return subseq(beg, len)
+        end
+        arg = args[0]
+
+        return subseq(arg.first, arg.last) if arg.is_a?(Range)
+
+        index_at(arg)
       end
+      alias_method :slice, :[]
 
       def to_a
         cstruct.nodeTab.collect { |node| Node.wrap(node) }
@@ -72,6 +83,27 @@ module Nokogiri
         set.cstruct = LibXML::XmlNodeSet.new(LibXML.xmlXPathNodeSetCreate(nil))
         list.each { |x| set << x }
         yield set if block_given?
+        set
+      end
+
+      private
+
+      def index_at(number)
+        return nil if (number >= cstruct[:nodeNr] || number.abs > cstruct[:nodeNr])
+        number = number + cstruct[:nodeNr] if number < 0
+        Node.wrap(cstruct.nodeTab[number])
+      end
+
+      def subseq(beg, len)
+        return nil if beg > cstruct[:nodeNr]
+        return nil if beg < 0 || len < 0
+
+        nodetab = cstruct.nodeTab
+        set = self.class.allocate
+        set.cstruct = LibXML::XmlNodeSet.new(LibXML.xmlXPathNodeSetCreate(nil))
+        beg.upto(beg+len-1) do |j|
+          LibXML.xmlXPathNodeSetAdd(set.cstruct, nodetab[j]);
+        end
         set
       end
 

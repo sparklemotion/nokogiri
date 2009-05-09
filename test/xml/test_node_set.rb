@@ -258,6 +258,35 @@ module Nokogiri
         assert_nil employees.index(other)
       end
 
+      def test_array_slice_with_start_and_end
+        employees = @xml.search("//employee")
+        assert_equal [employees[1], employees[2], employees[3]], employees[1,3].to_a
+      end
+
+      def test_array_index_bracket_equivalence
+        employees = @xml.search("//employee")
+        assert_equal [employees[1], employees[2], employees[3]], employees[1,3].to_a
+        assert_equal [employees[1], employees[2], employees[3]], employees.slice(1,3).to_a
+      end
+
+      def test_array_slice_with_negative_start
+        employees = @xml.search("//employee")
+        assert_equal [employees[2]],                    employees[-3,1].to_a
+        assert_equal [employees[2], employees[3]],      employees[-3,2].to_a
+      end
+
+      def test_array_slice_with_invalid_args
+        employees = @xml.search("//employee")
+        assert_nil employees[99, 1] # large start
+        assert_nil employees[1, -1] # negative len
+        assert_equal [], employees[1, 0].to_a # zero len
+      end
+
+      def test_array_slice_with_range
+        employees = @xml.search("//employee")
+        assert_equal [employees[1], employees[2], employees[3]], employees[1..3].to_a
+      end
+
     end
   end
 end

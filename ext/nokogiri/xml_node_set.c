@@ -109,26 +109,89 @@ static VALUE plus(VALUE self, VALUE rb_other)
   return Nokogiri_wrap_xml_node_set(new);
 }
 
-/*
- * call-seq:
- *  [](i)
- *
- * Get the node at index +i+
- */
-static VALUE index_at(VALUE self, VALUE number)
+
+static VALUE index_at(VALUE self, long offset)
 {
-  int i = NUM2INT(number);
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  if(i >= node_set->nodeNr || abs(i) > node_set->nodeNr)
-    return Qnil;
+  if(offset >= node_set->nodeNr || abs(offset) > node_set->nodeNr) return Qnil;
+  if(offset < 0) offset = offset + node_set->nodeNr;
 
-  if(i < 0)
-    i = i + node_set->nodeNr;
-
-  return Nokogiri_wrap_xml_node(node_set->nodeTab[i]);
+  return Nokogiri_wrap_xml_node(node_set->nodeTab[offset]);
 }
+
+static VALUE subseq(VALUE self, long beg, long len)
+{
+  int j;
+  xmlNodeSetPtr node_set;
+  xmlNodeSetPtr new_set ;
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  if (beg > node_set->nodeNr) return Qnil ;
+  if (beg < 0 || len < 0) return Qnil ;
+
+  new_set = xmlXPathNodeSetCreate(NULL);
+  for (j = beg ; j < beg+len ; ++j) {
+    xmlXPathNodeSetAdd(new_set, node_set->nodeTab[j]);
+  }
+  return Nokogiri_wrap_xml_node_set(new_set);
+}
+
+/*
+ * call-seq:
+ *  [index] -> Node or nil
+ *  [start, length] -> NodeSet or nil
+ *  [range] -> NodeSet or nil
+ *  slice(index) -> Node or nil
+ *  slice(start, length) -> NodeSet or nil
+ *  slice(range) -> NodeSet or nil
+ *
+ * Element reference - returns the node at +index+, or returns a NodeSet
+ * containing nodes starting at +start+ and continuing for +length+ elements, or
+ * returns a NodeSet containing nodes specified by +range+. Negative +indices+
+ * count backward from the end of the +node_set+ (-1 is the last node). Returns
+ * nil if the +index+ (or +start+) are out of range.
+ */
+static VALUE slice(int argc, VALUE *argv, VALUE self)
+{
+  VALUE arg ;
+  long beg, len ;
+  xmlNodeSetPtr node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  if (argc == 2) {
+    beg = NUM2LONG(argv[0]);
+    len = NUM2LONG(argv[1]);
+    if (beg < 0) {
+      beg += node_set->nodeNr ;
+    }
+    return subseq(self, beg, len);
+  }
+
+  if (argc != 1) {
+    rb_scan_args(argc, argv, "11", NULL, NULL);
+  }
+  arg = argv[0];
+
+  if (FIXNUM_P(arg)) {
+    return index_at(self, FIX2LONG(arg));
+  }
+  
+  /* if arg is Range */
+  switch (rb_range_beg_len(arg, &beg, &len, node_set->nodeNr, 0)) {
+  case Qfalse:
+    break;
+  case Qnil:
+    return Qnil;
+  default:
+    return subseq(self, beg, len);
+  }
+
+  return index_at(self, NUM2LONG(arg));
+}
+
 
 /*
  * call-seq:
@@ -242,7 +305,8 @@ void init_xml_node_set(void)
 
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "length", length, 0);
-  rb_define_method(klass, "[]", index_at, 1);
+  rb_define_method(klass, "[]", slice, -1);
+  rb_define_method(klass, "slice", slice, -1);
   rb_define_method(klass, "push", push, 1);
   rb_define_method(klass, "+", plus, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
