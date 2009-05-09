@@ -33,12 +33,10 @@ module Nokogiri
 
       def delete(node)
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
-        cstruct[:nodeNr].times do |j|
-          if cstruct.nodeTab[j].address == node.cstruct.pointer.address
-            LibXML.xmlXPathNodeSetRemove(cstruct, j)
-            return node
-          end
-        end        
+        if LibXML.xmlXPathNodeSetContains(cstruct, node.cstruct) != 0
+          LibXML.xmlXPathNodeSetDel(cstruct, node.cstruct)
+          return node
+        end
         return nil
       end
 

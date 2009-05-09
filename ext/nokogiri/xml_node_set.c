@@ -65,7 +65,6 @@ static VALUE delete(VALUE self, VALUE rb_node)
 {
   xmlNodeSetPtr node_set ;
   xmlNodePtr node ;
-  int j ;
 
   if(! rb_funcall(rb_node, rb_intern("is_a?"), 1, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
@@ -73,14 +72,12 @@ static VALUE delete(VALUE self, VALUE rb_node)
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
 
-  for (j = 0 ; j < node_set->nodeNr ; j++) {
-    if (node_set->nodeTab[j] == node) {
-      xmlXPathNodeSetRemove(node_set, j) ;
-      return rb_node ;
-    }
+  if (xmlXPathNodeSetContains(node_set, node)) {
+    xmlXPathNodeSetDel(node_set, node);
+    return rb_node ;
   }
 
-  return Qnil;
+  return Qnil ;
 }
 
 
