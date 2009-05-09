@@ -6,9 +6,7 @@ module Nokogiri
 
       def dup
         dup = LibXML.xmlXPathNodeSetMerge(nil, self.cstruct)
-        set = NodeSet.allocate
-        set.cstruct = LibXML::XmlNodeSet.new(dup)
-        set
+        NodeSet.wrap(dup)
       end
 
       def length
@@ -25,10 +23,7 @@ module Nokogiri
         raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
         new_set_ptr = LibXML::xmlXPathNodeSetMerge(nil, self.cstruct)
         new_set_ptr = LibXML::xmlXPathNodeSetMerge(new_set_ptr, node_set.cstruct)
-        
-        new_set = NodeSet.allocate
-        new_set.cstruct = LibXML::XmlNodeSet.new(new_set_ptr)
-        new_set
+        NodeSet.wrap(new_set_ptr)
       end
 
       def -(node_set)
@@ -39,10 +34,7 @@ module Nokogiri
         node_set.cstruct[:nodeNr].times do |j|
           LibXML.xmlXPathNodeSetDel(new_set_ptr, other_nodetab[j])
         end        
-
-        new_set = NodeSet.allocate
-        new_set.cstruct = LibXML::XmlNodeSet.new(new_set_ptr)
-        new_set
+        NodeSet.wrap(new_set_ptr)
       end
 
       def delete(node)
@@ -90,15 +82,20 @@ module Nokogiri
       end
 
       def self.new document, list = []
-        set = allocate
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil))
         set.document = document
-        set.cstruct = LibXML::XmlNodeSet.new(LibXML.xmlXPathNodeSetCreate(nil))
         list.each { |x| set << x }
         yield set if block_given?
         set
       end
 
       private
+
+      def self.wrap(ptr)
+        set = allocate
+        set.cstruct = LibXML::XmlNodeSet.new(ptr)
+        set
+      end
 
       def index_at(number)
         return nil if (number >= cstruct[:nodeNr] || number.abs > cstruct[:nodeNr])
@@ -111,8 +108,7 @@ module Nokogiri
         return nil if beg < 0 || len < 0
 
         nodetab = cstruct.nodeTab
-        set = self.class.allocate
-        set.cstruct = LibXML::XmlNodeSet.new(LibXML.xmlXPathNodeSetCreate(nil))
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil))
         beg.upto(beg+len-1) do |j|
           LibXML.xmlXPathNodeSetAdd(set.cstruct, nodetab[j]);
         end
