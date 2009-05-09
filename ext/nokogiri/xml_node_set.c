@@ -91,7 +91,6 @@ static VALUE intersection(VALUE self, VALUE rb_other)
 {
   xmlNodeSetPtr node_set;
   xmlNodeSetPtr other;
-  xmlNodeSetPtr new;
 
   if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");

@@ -22,9 +22,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
   p.extra_rdoc_files  = FileList['*.rdoc']
   p.clean_globs = [
-    'ext/nokogiri/Makefile',
-    'ext/nokogiri/*.{o,so,bundle,a,log,dll}',
-    'ext/nokogiri/conftest.dSYM',
+    'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
     'cross',
@@ -43,7 +41,7 @@ unless java
   require "rake/extensiontask"
 
   RET = Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
-    ext.lib_dir                         = "ext/nokogiri"
+    ext.lib_dir                         = "lib/nokogiri"
     ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
     ext.config_options << ENV['EXTOPTS']
     cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
