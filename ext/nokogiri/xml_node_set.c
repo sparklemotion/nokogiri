@@ -12,11 +12,7 @@ static VALUE duplicate(VALUE self)
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  xmlNodeSetPtr dupl = xmlXPathNodeSetCreate(NULL);
-  int i;
-  for(i = 0; i < node_set->nodeNr; i++) {
-    xmlXPathNodeSetAdd(dupl, node_set->nodeTab[i]);
-  }
+  xmlNodeSetPtr dupl = xmlXPathNodeSetMerge(NULL, node_set);
 
   return Nokogiri_wrap_xml_node_set(dupl);
 }
@@ -87,6 +83,31 @@ static VALUE delete(VALUE self, VALUE rb_node)
   return Qnil;
 }
 
+
+/*
+ * call-seq:
+ *  +(node_set)
+ *
+ *  Concatenation - returns a new NodeSet built by concatenating the node set
+ *  with +node_set+ to produce a third NodeSet
+ */
+static VALUE plus(VALUE self, VALUE rb_other)
+{
+  xmlNodeSetPtr node_set;
+  xmlNodeSetPtr other;
+  xmlNodeSetPtr new;
+
+  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+    rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
+
+  new = xmlXPathNodeSetMerge(NULL, node_set);
+  new = xmlXPathNodeSetMerge(new, other);
+
+  return Nokogiri_wrap_xml_node_set(new);
+}
 
 /*
  * call-seq:
@@ -223,6 +244,7 @@ void init_xml_node_set(void)
   rb_define_method(klass, "length", length, 0);
   rb_define_method(klass, "[]", index_at, 1);
   rb_define_method(klass, "push", push, 1);
+  rb_define_method(klass, "+", plus, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
   rb_define_method(klass, "to_a", to_array, 0);
   rb_define_method(klass, "dup", duplicate, 0);

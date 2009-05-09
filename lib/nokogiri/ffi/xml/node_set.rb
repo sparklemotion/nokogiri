@@ -5,11 +5,7 @@ module Nokogiri
       attr_accessor :cstruct
 
       def dup
-        dup = LibXML.xmlXPathNodeSetCreate(nil)
-        cstruct.nodeTab.each do |node|
-          LibXML.xmlXPathNodeSetAdd(dup, node)
-        end
-        
+        dup = LibXML.xmlXPathNodeSetMerge(nil, self.cstruct)
         set = NodeSet.allocate
         set.cstruct = LibXML::XmlNodeSet.new(dup)
         set
@@ -23,6 +19,16 @@ module Nokogiri
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
         LibXML.xmlXPathNodeSetAdd(cstruct, node.cstruct)
         self
+      end
+
+      def +(node_set)
+        raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
+        new_set_ptr = LibXML::xmlXPathNodeSetMerge(nil, self.cstruct)
+        new_set_ptr = LibXML::xmlXPathNodeSetMerge(new_set_ptr, node_set.cstruct)
+        
+        new_set = NodeSet.allocate
+        new_set.cstruct = LibXML::XmlNodeSet.new(new_set_ptr)
+        new_set
       end
 
       def delete(node)
