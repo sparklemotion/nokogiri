@@ -31,6 +31,20 @@ module Nokogiri
         new_set
       end
 
+      def -(node_set)
+        raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
+        new_set_ptr = LibXML.xmlXPathNodeSetMerge(nil, self.cstruct)
+
+        other_nodetab = node_set.cstruct.nodeTab
+        node_set.cstruct[:nodeNr].times do |j|
+          LibXML.xmlXPathNodeSetDel(new_set_ptr, other_nodetab[j])
+        end        
+
+        new_set = NodeSet.allocate
+        new_set.cstruct = LibXML::XmlNodeSet.new(new_set_ptr)
+        new_set
+      end
+
       def delete(node)
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
         if LibXML.xmlXPathNodeSetContains(cstruct, node.cstruct) != 0

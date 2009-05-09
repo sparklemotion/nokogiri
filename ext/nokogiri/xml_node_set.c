@@ -106,6 +106,34 @@ static VALUE plus(VALUE self, VALUE rb_other)
   return Nokogiri_wrap_xml_node_set(new);
 }
 
+/*
+ * call-seq:
+ *  -(node_set)
+ *
+ *  Difference - returns a new NodeSet that is a copy of this NodeSet, removing
+ *  each item that also appears in +node_set+
+ */
+static VALUE minus(VALUE self, VALUE rb_other)
+{
+  xmlNodeSetPtr node_set;
+  xmlNodeSetPtr other;
+  xmlNodeSetPtr new;
+  int j ;
+
+  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+    rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
+
+  new = xmlXPathNodeSetMerge(NULL, node_set);
+  for (j = 0 ; j < other->nodeNr ; ++j) {
+    xmlXPathNodeSetDel(new, other->nodeTab[j]);
+  }
+
+  return Nokogiri_wrap_xml_node_set(new);
+}
+
 
 static VALUE index_at(VALUE self, long offset)
 {
@@ -306,6 +334,7 @@ void init_xml_node_set(void)
   rb_define_method(klass, "slice", slice, -1);
   rb_define_method(klass, "push", push, 1);
   rb_define_method(klass, "+", plus, 1);
+  rb_define_method(klass, "-", minus, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
   rb_define_method(klass, "to_a", to_array, 0);
   rb_define_method(klass, "dup", duplicate, 0);
