@@ -83,6 +83,28 @@ static VALUE delete(VALUE self, VALUE rb_node)
 
 /*
  * call-seq:
+ *  &(node_set)
+ *
+ * Set Intersection — Returns a new NodeSet containing nodes common to the two NodeSets.
+ */
+static VALUE intersection(VALUE self, VALUE rb_other)
+{
+  xmlNodeSetPtr node_set;
+  xmlNodeSetPtr other;
+  xmlNodeSetPtr new;
+
+  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+    rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
+
+  return Nokogiri_wrap_xml_node_set(xmlXPathIntersection(node_set, other));
+}
+
+
+/*
+ * call-seq:
  *  +(node_set)
  *
  *  Concatenation - returns a new NodeSet built by concatenating the node set
@@ -339,4 +361,5 @@ void init_xml_node_set(void)
   rb_define_method(klass, "to_a", to_array, 0);
   rb_define_method(klass, "dup", duplicate, 0);
   rb_define_method(klass, "delete", delete, 1);
+  rb_define_method(klass, "&", intersection, 1);
 }

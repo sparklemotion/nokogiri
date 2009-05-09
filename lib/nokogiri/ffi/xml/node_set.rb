@@ -57,11 +57,17 @@ module Nokogiri
         end
         arg = args[0]
 
-        return subseq(arg.first, arg.last) if arg.is_a?(Range)
+        return subseq(arg.first, arg.last-arg.first+1) if arg.is_a?(Range)
 
         index_at(arg)
       end
       alias_method :slice, :[]
+
+      def &(node_set)
+        raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
+        new_set_ptr = LibXML.xmlXPathIntersection(cstruct, node_set.cstruct)
+        NodeSet.wrap(new_set_ptr)
+      end
 
       def to_a
         cstruct.nodeTab.collect { |node| Node.wrap(node) }

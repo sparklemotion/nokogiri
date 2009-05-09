@@ -174,6 +174,7 @@ module Nokogiri
     attach_function :xmlXPathNodeSetRemove, [:pointer, :int], :void
     attach_function :xmlXPathNodeSetCreate, [:pointer], :pointer
     attach_function :xmlXPathNodeSetDel, [:pointer, :pointer], :void
+    attach_function :xmlXPathIntersection, [:pointer, :pointer], :pointer
     attach_function :xmlXPathFreeNodeSetList, [:pointer], :void
     attach_function :xmlXPathRegisterFuncLookup, [:pointer, :xpath_lookup_callback, :pointer], :void
     attach_function :valuePop, [:pointer], :pointer

@@ -285,6 +285,22 @@ module Nokogiri
       def test_array_slice_with_range
         employees = @xml.search("//employee")
         assert_equal [employees[1], employees[2], employees[3]], employees[1..3].to_a
+        assert_equal [employees[0], employees[1], employees[2], employees[3]], employees[0..3].to_a
+      end
+
+      def test_intersection_with_no_overlap
+        employees = @xml.search("//employee")
+        positions = @xml.search("//position")
+
+        assert_equal [], (employees & positions).to_a
+      end
+
+      def test_intersection
+        employees = @xml.search("//employee")
+        first_set = employees[0..2]
+        second_set = employees[2..4]
+
+        assert_equal [employees[2]], (first_set & second_set).to_a
       end
 
     end
