@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    class XmlAttr < FFI::Struct
+  module LibXML # :nodoc:
+    class XmlAttr < FFI::Struct # :nodoc:
 
       layout(
         :_private,      :pointer,
@@ -16,4 +16,4 @@ module Nokogiri
 
     end
   end
-end    
+end

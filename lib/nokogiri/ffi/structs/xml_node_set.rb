@@ -1,7 +1,7 @@
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
 
-    module XmlNodeSetMixin
+    module XmlNodeSetMixin # :nodoc:
       def self.included(base)
         base.class_eval do
 
@@ -33,7 +33,7 @@ module Nokogiri
     end
 
 
-    class XmlNodeSet < FFI::ManagedStruct
+    class XmlNodeSet < FFI::ManagedStruct # :nodoc:
       include XmlNodeSetMixin
 
       def self.release ptr
@@ -44,9 +44,9 @@ module Nokogiri
     end
 
 
-    class XmlNodeSetCast < FFI::Struct
+    class XmlNodeSetCast < FFI::Struct # :nodoc:
       include XmlNodeSetMixin
     end
 
   end
-end    
+end

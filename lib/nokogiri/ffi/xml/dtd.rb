@@ -2,10 +2,6 @@ module Nokogiri
   module XML
     class DTD < Node
       
-      def attributes
-        nil
-      end
-
       def elements
         things :elements
       end

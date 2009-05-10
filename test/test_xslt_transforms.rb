@@ -102,6 +102,25 @@ class TestXsltTransforms < Nokogiri::TestCase
       check_params result_doc, params
     end
     
+    def test_xslt_parse_error
+      xslt_str = <<-EOX
+<xsl:stylesheet version="1.0"
+ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <!-- Not well-formed: -->
+  <xsl:template match="/"/>
+    <values>
+      <xsl:for-each select="//*">
+        <value>
+          <xsl:value-of select="@id"/>
+        </value>
+      </xsl:for-each>
+    </values>
+  </xsl:template>
+</xsl:stylesheet>}
+      EOX
+      assert_raises(RuntimeError) { Nokogiri::XSLT.parse(xslt_str) }
+    end
+
     def check_params result_doc, params
       result_doc.xpath('/root/params/*').each do  |p|
         assert_equal p.content, params[p.name.intern]

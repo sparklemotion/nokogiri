@@ -19,8 +19,13 @@ module Nokogiri
 
       ###
       # Get the first element of the NodeSet.
-      def first
-        self[0]
+      def first n = nil
+        return self[0] unless n
+        list = []
+        0.upto(n - 1) do |i|
+          list << self[i]
+        end
+        list
       end
 
       ###
@@ -33,6 +38,13 @@ module Nokogiri
       # Is this NodeSet empty?
       def empty?
         length == 0
+      end
+
+      ###
+      # Returns the index of the first node in self that is == to +node+. Returns nil if no match is found. 
+      def index(node)
+        each_with_index { |member, j| return j if member == node }
+        nil
       end
 
       ###

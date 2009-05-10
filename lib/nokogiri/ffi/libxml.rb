@@ -1,11 +1,15 @@
 
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
 
     def self.expand_library_path(library)
       return File.expand_path(library) if library =~ %r{^[^/].*/}
 
-      dirs = ENV['LD_LIBRARY_PATH'].split(':') + ['/opt/local/lib', '/usr/local/lib', '/usr/lib']
+      dirs = ['/opt/local/lib', '/usr/local/lib', '/usr/lib']
+
+      ['LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH'].each do |dyld_dir|
+        dirs = ENV[dyld_dir].split(':') + dirs if ENV.key? dyld_dir
+      end
 
       library = Dir[ *( dirs.collect {|dir| File.join(dir, "#{library}.{so,dylib}")} ) ].first
 
@@ -48,7 +52,7 @@ else
 end
 
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
     # useful callback signatures
     callback :syntax_error_handler, [:pointer, :pointer], :void
     callback :generic_error_handler, [:pointer, :string], :void
@@ -165,8 +169,12 @@ module Nokogiri
     attach_function :xmlXPathEvalExpression, [:string, :pointer], :pointer
     attach_function :xmlXPathRegisterNs, [:pointer, :string, :string], :int
     attach_function :xmlXPathCmpNodes, [:pointer, :pointer], :int
+    attach_function :xmlXPathNodeSetContains, [:pointer, :pointer], :int
     attach_function :xmlXPathNodeSetAdd, [:pointer, :pointer], :void
+    attach_function :xmlXPathNodeSetRemove, [:pointer, :int], :void
     attach_function :xmlXPathNodeSetCreate, [:pointer], :pointer
+    attach_function :xmlXPathNodeSetDel, [:pointer, :pointer], :void
+    attach_function :xmlXPathIntersection, [:pointer, :pointer], :pointer
     attach_function :xmlXPathFreeNodeSetList, [:pointer], :void
     attach_function :xmlXPathRegisterFuncLookup, [:pointer, :xpath_lookup_callback, :pointer], :void
     attach_function :valuePop, [:pointer], :pointer
@@ -243,6 +251,7 @@ module Nokogiri
     attach_function :xsltFreeStylesheet, [:pointer], :void
     attach_function :xsltApplyStylesheet, [:pointer, :pointer, :pointer], :pointer
     attach_function :xsltSaveResultToString, [:pointer, :pointer, :pointer, :pointer], :int
+    attach_function :xsltSetGenericErrorFunc, [:pointer, :generic_error_handler], :void
 
     # exslt.c
     attach_function :exsltRegisterAll, [], :void

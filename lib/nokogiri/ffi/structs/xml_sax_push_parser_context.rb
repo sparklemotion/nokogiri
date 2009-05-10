@@ -1,7 +1,7 @@
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
 
-    class XmlSaxPushParserContext < FFI::ManagedStruct
+    class XmlSaxPushParserContext < FFI::ManagedStruct # :nodoc:
 
       layout :dummy, :int, 0 # to avoid @layout warnings
 

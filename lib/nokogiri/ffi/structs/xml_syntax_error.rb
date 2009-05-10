@@ -1,7 +1,7 @@
 module Nokogiri
-  module LibXML
-    class XmlSyntaxError < FFI::ManagedStruct
-      
+  module LibXML # :nodoc:
+    class XmlSyntaxError < FFI::ManagedStruct # :nodoc:
+
       layout(
         :domain,  :int,
         :code,    :int,

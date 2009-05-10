@@ -8,6 +8,11 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_first_takes_arguments
+        assert node_set = @xml.xpath('//employee')
+        assert_equal 2, node_set.first(2).length
+      end
+
       def test_dup
         assert node_set = @xml.xpath('//employee')
         dup = node_set.dup
@@ -96,6 +101,36 @@ module Nokogiri
         assert node_set.include?(node)
       end
 
+      def test_delete_with_invalid_argument
+        employees = @xml.search("//employee")
+        positions = @xml.search("//position")
+
+        assert_raises(ArgumentError) { employees.delete(positions) }
+      end
+
+      def test_delete_when_present
+        employees = @xml.search("//employee")
+        wally = employees.first
+        assert employees.include?(wally) # testing setup
+        length = employees.length
+
+        result = employees.delete(wally)
+        assert_equal result, wally
+        assert ! employees.include?(wally)
+        assert length-1, employees.length
+      end
+
+      def test_delete_when_not_present
+        employees = @xml.search("//employee")
+        phb = @xml.search("//position").first
+        assert ! employees.include?(phb) # testing setup
+        length = employees.length
+
+        result = employees.delete(phb)
+        assert_nil result
+        assert length, employees.length
+      end
+
       def test_unlink
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
@@ -178,6 +213,96 @@ module Nokogiri
         assert_equal 'wrapper', employees[0].parent.name
         assert_equal 'employee', @xml.search("//wrapper").first.children[0].name
       end
+
+      def test_plus_operator
+        names = @xml.search("name")
+        positions = @xml.search("position")
+
+        names_len = names.length
+        positions_len = positions.length
+
+        assert_raises(ArgumentError) { result = names + positions.first }
+
+        result = names + positions
+        assert_equal names_len,                         names.length
+        assert_equal positions_len,                     positions.length
+        assert_equal names.length + positions.length,   result.length
+
+        names += positions
+        assert_equal result.length, names.length
+      end
+
+      def test_minus_operator
+        employees = @xml.search("//employee")
+        females = @xml.search("//employee[gender[text()='Female']]")
+
+        employees_len = employees.length
+        females_len = females.length
+
+        assert_raises(ArgumentError) { result = employees - females.first }
+
+        result = employees - females
+        assert_equal employees_len,                     employees.length
+        assert_equal females_len,                       females.length
+        assert_equal employees.length - females.length, result.length
+
+        employees -= females
+        assert_equal result.length, employees.length
+      end
+
+      def test_array_index
+        employees = @xml.search("//employee")
+        other = @xml.search("//position").first
+
+        assert_equal 3, employees.index(employees[3])
+        assert_nil employees.index(other)
+      end
+
+      def test_array_slice_with_start_and_end
+        employees = @xml.search("//employee")
+        assert_equal [employees[1], employees[2], employees[3]], employees[1,3].to_a
+      end
+
+      def test_array_index_bracket_equivalence
+        employees = @xml.search("//employee")
+        assert_equal [employees[1], employees[2], employees[3]], employees[1,3].to_a
+        assert_equal [employees[1], employees[2], employees[3]], employees.slice(1,3).to_a
+      end
+
+      def test_array_slice_with_negative_start
+        employees = @xml.search("//employee")
+        assert_equal [employees[2]],                    employees[-3,1].to_a
+        assert_equal [employees[2], employees[3]],      employees[-3,2].to_a
+      end
+
+      def test_array_slice_with_invalid_args
+        employees = @xml.search("//employee")
+        assert_nil employees[99, 1] # large start
+        assert_nil employees[1, -1] # negative len
+        assert_equal [], employees[1, 0].to_a # zero len
+      end
+
+      def test_array_slice_with_range
+        employees = @xml.search("//employee")
+        assert_equal [employees[1], employees[2], employees[3]], employees[1..3].to_a
+        assert_equal [employees[0], employees[1], employees[2], employees[3]], employees[0..3].to_a
+      end
+
+      def test_intersection_with_no_overlap
+        employees = @xml.search("//employee")
+        positions = @xml.search("//position")
+
+        assert_equal [], (employees & positions).to_a
+      end
+
+      def test_intersection
+        employees = @xml.search("//employee")
+        first_set = employees[0..2]
+        second_set = employees[2..4]
+
+        assert_equal [employees[2]], (first_set & second_set).to_a
+      end
+
     end
   end
 end

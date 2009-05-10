@@ -6,7 +6,15 @@ module Nokogiri
 
       def self.parse_stylesheet_doc(document)
         LibXML.exsltRegisterAll
+
+        generic_exception_handler = lambda do |ctx, msg|
+          raise RuntimeError.new(msg) # TODO: varargs
+        end
+        LibXML.xsltSetGenericErrorFunc(nil, generic_exception_handler)
+
         ss = LibXML.xsltParseStylesheetDoc(LibXML.xmlCopyDoc(document.cstruct, 1)) # 1 => recursive
+
+        LibXML.xsltSetGenericErrorFunc(nil, nil)
 
         obj = allocate
         obj.cstruct = LibXML::XsltStylesheet.new(ss)
@@ -29,6 +37,8 @@ module Nokogiri
         param_arr[params.length].put_pointer(0,nil)
 
         ptr = LibXML.xsltApplyStylesheet(cstruct, document.cstruct, param_arr)
+        raise(RuntimeError, "could not perform xslt transform on document") if ptr.null?
+
         XML::Document.wrap(ptr)
       end
 

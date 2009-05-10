@@ -1,6 +1,6 @@
 module Nokogiri
   # The version of Nokogiri you are using
-  VERSION = '1.2.3'
+  VERSION = '1.2.4'
 
   # More complete version information about libxml
   VERSION_INFO = {}
@@ -21,11 +21,11 @@ module Nokogiri
     end
   end
 
-  def Nokogiri.ffi?
+  def Nokogiri.ffi? # :nodoc:
     Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
   end
 
-  def Nokogiri.is_2_6_16?
+  def Nokogiri.is_2_6_16? # :nodoc:
     Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
   end
 end

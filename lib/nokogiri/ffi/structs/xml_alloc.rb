@@ -1,9 +1,9 @@
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
     #
     #  this class only exists to create a xmlFree() finalizer
     #
-    class XmlAlloc < FFI::ManagedStruct
+    class XmlAlloc < FFI::ManagedStruct # :nodoc:
 
       layout :dummy, :int, 0 # to avoid @layout warnings
 

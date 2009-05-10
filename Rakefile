@@ -7,7 +7,7 @@ require 'hoe'
 LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
 $LOAD_PATH << LIB_DIR
 
-windows = RUBY_PLATFORM =~ /mswin/i ? true : false
+windows = RUBY_PLATFORM =~ /(mswin|mingw)/i ? true : false
 java = RUBY_PLATFORM =~ /java/ ? true : false
 
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
@@ -25,9 +25,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   p.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
   p.extra_rdoc_files  = FileList['*.rdoc']
   p.clean_globs = [
-    'ext/nokogiri/Makefile',
-    'ext/nokogiri/*.{o,so,bundle,a,log,dll,class,jar}',
-    'ext/nokogiri/conftest.dSYM',
+    'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
     'cross',
@@ -45,8 +43,8 @@ unless java
   gem 'rake-compiler', '>= 0.4.1'
   require "rake/extensiontask"
 
-  Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
-    ext.lib_dir                         = "ext/nokogiri"
+  RET = Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
+    ext.lib_dir                         = "lib/nokogiri"
     ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
     ext.config_options << ENV['EXTOPTS']
     cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
@@ -58,6 +56,14 @@ unless java
       "--with-xml2-dir=#{File.join(cross_dir, 'libxml2')}"
     ext.cross_config_options <<
       "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
+  end
+
+  task :muck_with_lib_dir do
+    RET.lib_dir += "/#{RUBY_VERSION.sub(/\.\d$/, '')}"
+    FileUtils.mkdir_p(RET.lib_dir)
+  end
+  if Rake::Task.task_defined?(:cross)
+    Rake::Task[:cross].prerequisites << "muck_with_lib_dir"
   end
 
 end
@@ -81,7 +87,7 @@ namespace :gem do
   end
 
   namespace :jruby do
-    task :spec => ['build'] do
+    task :spec => ['compile'] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'java'
         HOE.spec.files << GENERATED_PARSER
@@ -135,7 +141,7 @@ libs.each do |lib|
     puts "downloading #{lib}"
     FileUtils.mkdir_p('tmp/stash')
     Dir.chdir('tmp/stash') do
-      url = "http://www.zlatkovic.com/pub/libxml/#{lib}.zip"
+      url = "ftp://ftp.xmlsoft.org/libxml2/win32/#{lib}.zip"
       system("wget #{url} || curl -O #{url}")
     end
   end
@@ -167,6 +173,7 @@ end
 if Rake::Task.task_defined?(:cross)
   task :add_dll_to_manifest do
     HOE.spec.files += Dir['ext/nokogiri/**.{dll,so}']
+    HOE.spec.files += Dir['ext/nokogiri/{1.8,1.9}/**.{dll,so}']
   end
 
   Rake::Task[:cross].prerequisites << :add_dll_to_manifest

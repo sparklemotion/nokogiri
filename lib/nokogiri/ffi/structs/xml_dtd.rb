@@ -1,6 +1,6 @@
 module Nokogiri
-  module LibXML
-    class XmlDtd < FFI::Struct
+  module LibXML # :nodoc:
+    class XmlDtd < FFI::Struct # :nodoc:
 
       layout(
         :_private,      :long, # actually a pointer we're casting as an integer
@@ -12,7 +12,7 @@ module Nokogiri
         :next,          :pointer,
         :prev,          :pointer,
         :doc,           :pointer,
-        
+
         :notations,     :pointer,
         :elements,      :pointer,
         :attributes,    :pointer,
@@ -23,4 +23,4 @@ module Nokogiri
 
     end
   end
-end    
+end

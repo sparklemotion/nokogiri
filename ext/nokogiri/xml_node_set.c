@@ -12,11 +12,7 @@ static VALUE duplicate(VALUE self)
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  xmlNodeSetPtr dupl = xmlXPathNodeSetCreate(NULL);
-  int i;
-  for(i = 0; i < node_set->nodeNr; i++) {
-    xmlXPathNodeSetAdd(dupl, node_set->nodeTab[i]);
-  }
+  xmlNodeSetPtr dupl = xmlXPathNodeSetMerge(NULL, node_set);
 
   return Nokogiri_wrap_xml_node_set(dupl);
 }
@@ -59,25 +55,189 @@ static VALUE push(VALUE self, VALUE rb_node)
 }
 
 /*
- * call-seq:
- *  [](i)
+ *  call-seq:
+ *    delete(node)
  *
- * Get the node at index +i+
+ *  Delete +node+ from the Nodeset, if it is a member. Returns the deleted node
+ *  if found, otherwise returns nil.
  */
-static VALUE index_at(VALUE self, VALUE number)
+static VALUE delete(VALUE self, VALUE rb_node)
 {
-  int i = NUM2INT(number);
+  xmlNodeSetPtr node_set ;
+  xmlNodePtr node ;
+
+  if(! rb_funcall(rb_node, rb_intern("is_a?"), 1, cNokogiriXmlNode))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
+  
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_node, xmlNode, node);
+
+  if (xmlXPathNodeSetContains(node_set, node)) {
+    xmlXPathNodeSetDel(node_set, node);
+    return rb_node ;
+  }
+
+  return Qnil ;
+}
+
+
+/*
+ * call-seq:
+ *  &(node_set)
+ *
+ * Set Intersection — Returns a new NodeSet containing nodes common to the two NodeSets.
+ */
+static VALUE intersection(VALUE self, VALUE rb_other)
+{
+  xmlNodeSetPtr node_set;
+  xmlNodeSetPtr other;
+
+  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+    rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
+
+  return Nokogiri_wrap_xml_node_set(xmlXPathIntersection(node_set, other));
+}
+
+
+/*
+ * call-seq:
+ *  +(node_set)
+ *
+ *  Concatenation - returns a new NodeSet built by concatenating the node set
+ *  with +node_set+ to produce a third NodeSet
+ */
+static VALUE plus(VALUE self, VALUE rb_other)
+{
+  xmlNodeSetPtr node_set;
+  xmlNodeSetPtr other;
+  xmlNodeSetPtr new;
+
+  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+    rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
+
+  new = xmlXPathNodeSetMerge(NULL, node_set);
+  new = xmlXPathNodeSetMerge(new, other);
+
+  return Nokogiri_wrap_xml_node_set(new);
+}
+
+/*
+ * call-seq:
+ *  -(node_set)
+ *
+ *  Difference - returns a new NodeSet that is a copy of this NodeSet, removing
+ *  each item that also appears in +node_set+
+ */
+static VALUE minus(VALUE self, VALUE rb_other)
+{
+  xmlNodeSetPtr node_set;
+  xmlNodeSetPtr other;
+  xmlNodeSetPtr new;
+  int j ;
+
+  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+    rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
+
+  new = xmlXPathNodeSetMerge(NULL, node_set);
+  for (j = 0 ; j < other->nodeNr ; ++j) {
+    xmlXPathNodeSetDel(new, other->nodeTab[j]);
+  }
+
+  return Nokogiri_wrap_xml_node_set(new);
+}
+
+
+static VALUE index_at(VALUE self, long offset)
+{
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  if(i >= node_set->nodeNr || abs(i) > node_set->nodeNr)
-    return Qnil;
+  if(offset >= node_set->nodeNr || abs(offset) > node_set->nodeNr) return Qnil;
+  if(offset < 0) offset = offset + node_set->nodeNr;
 
-  if(i < 0)
-    i = i + node_set->nodeNr;
-
-  return Nokogiri_wrap_xml_node(node_set->nodeTab[i]);
+  return Nokogiri_wrap_xml_node(node_set->nodeTab[offset]);
 }
+
+static VALUE subseq(VALUE self, long beg, long len)
+{
+  int j;
+  xmlNodeSetPtr node_set;
+  xmlNodeSetPtr new_set ;
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  if (beg > node_set->nodeNr) return Qnil ;
+  if (beg < 0 || len < 0) return Qnil ;
+
+  new_set = xmlXPathNodeSetCreate(NULL);
+  for (j = beg ; j < beg+len ; ++j) {
+    xmlXPathNodeSetAdd(new_set, node_set->nodeTab[j]);
+  }
+  return Nokogiri_wrap_xml_node_set(new_set);
+}
+
+/*
+ * call-seq:
+ *  [index] -> Node or nil
+ *  [start, length] -> NodeSet or nil
+ *  [range] -> NodeSet or nil
+ *  slice(index) -> Node or nil
+ *  slice(start, length) -> NodeSet or nil
+ *  slice(range) -> NodeSet or nil
+ *
+ * Element reference - returns the node at +index+, or returns a NodeSet
+ * containing nodes starting at +start+ and continuing for +length+ elements, or
+ * returns a NodeSet containing nodes specified by +range+. Negative +indices+
+ * count backward from the end of the +node_set+ (-1 is the last node). Returns
+ * nil if the +index+ (or +start+) are out of range.
+ */
+static VALUE slice(int argc, VALUE *argv, VALUE self)
+{
+  VALUE arg ;
+  long beg, len ;
+  xmlNodeSetPtr node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  if (argc == 2) {
+    beg = NUM2LONG(argv[0]);
+    len = NUM2LONG(argv[1]);
+    if (beg < 0) {
+      beg += node_set->nodeNr ;
+    }
+    return subseq(self, beg, len);
+  }
+
+  if (argc != 1) {
+    rb_scan_args(argc, argv, "11", NULL, NULL);
+  }
+  arg = argv[0];
+
+  if (FIXNUM_P(arg)) {
+    return index_at(self, FIX2LONG(arg));
+  }
+  
+  /* if arg is Range */
+  switch (rb_range_beg_len(arg, &beg, &len, node_set->nodeNr, 0)) {
+  case Qfalse:
+    break;
+  case Qnil:
+    return Qnil;
+  default:
+    return subseq(self, beg, len);
+  }
+
+  return index_at(self, NUM2LONG(arg));
+}
+
 
 /*
  * call-seq:
@@ -191,9 +351,14 @@ void init_xml_node_set(void)
 
   rb_define_alloc_func(klass, allocate);
   rb_define_method(klass, "length", length, 0);
-  rb_define_method(klass, "[]", index_at, 1);
+  rb_define_method(klass, "[]", slice, -1);
+  rb_define_method(klass, "slice", slice, -1);
   rb_define_method(klass, "push", push, 1);
+  rb_define_method(klass, "+", plus, 1);
+  rb_define_method(klass, "-", minus, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
   rb_define_method(klass, "to_a", to_array, 0);
   rb_define_method(klass, "dup", duplicate, 0);
+  rb_define_method(klass, "delete", delete, 1);
+  rb_define_method(klass, "&", intersection, 1);
 }

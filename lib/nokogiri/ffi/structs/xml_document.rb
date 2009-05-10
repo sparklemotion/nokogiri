@@ -1,7 +1,7 @@
 module Nokogiri
-  module LibXML
+  module LibXML # :nodoc:
 
-    module XmlDocumentMixin
+    module XmlDocumentMixin # :nodoc:
       def self.included(base)
         base.class_eval do
 
@@ -50,7 +50,7 @@ module Nokogiri
     #
     #  use at the point of creation, so we can be sure the document will be GCed properly
     #
-    class XmlDocument < FFI::ManagedStruct
+    class XmlDocument < FFI::ManagedStruct # :nodoc:
       include XmlDocumentMixin
 
       def initialize(ptr)
@@ -91,7 +91,7 @@ module Nokogiri
     #
     #  use when we don't want to cause the doc to be GCed
     #
-    class XmlDocumentCast < FFI::Struct
+    class XmlDocumentCast < FFI::Struct # :nodoc:
       include XmlDocumentMixin
     end
 
@@ -99,4 +99,4 @@ module Nokogiri
     HtmlDocumentCast = XmlDocumentCast # implemented identically in libxml2.6
   end
 
-end    
+end
