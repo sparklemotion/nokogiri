@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Vector;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,7 +50,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-import org.xml.sax.AttributeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.EntityResolver;
@@ -744,28 +744,56 @@ public class NokogiriJavaService implements BasicLibraryService{
     }
 
     public static class XmlNodeSet extends RubyObject {
-        private NodeList nodes;
+        private Vector<XmlNode> nodes;
 
+        // TODO Change internal implementation.
         public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
+            super(ruby, rubyClass);
+            this.nodes = new Vector<XmlNode>(nodes.getLength());
+            for(int i = 0; i < nodes.getLength(); i++)
+                this.nodes.add((XmlNode) XmlNode.constructNode(ruby, nodes.item(i)));
+        }
+
+        private XmlNodeSet(Ruby ruby, RubyClass rubyClass, Vector<XmlNode> nodes){
             super(ruby, rubyClass);
             this.nodes = nodes;
         }
 
         @JRubyMethod
+        public IRubyObject dup(ThreadContext context){
+            return new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), (Vector<XmlNode>) this.nodes.clone());
+        }
+
+        @JRubyMethod
         public IRubyObject length(ThreadContext context) {
-            return RubyFixnum.newFixnum(context.getRuntime(), nodes.getLength());
+            return RubyFixnum.newFixnum(context.getRuntime(), nodes.size());
         }
 
         @JRubyMethod(name = "[]")
         public IRubyObject op_aref(ThreadContext context, IRubyObject arg1) {
             int index = (int)arg1.convertToInteger().getLongValue();
-            if (index < 0) index = nodes.getLength() + index;
-            return XmlNode.constructNode(context.getRuntime(), nodes.item(index));
+            if (index < 0) index = nodes.size() + index;
+            return nodes.get(index);
         }
 
         @JRubyMethod
         public IRubyObject push(ThreadContext context, IRubyObject arg1) {
-            throw context.getRuntime().newNotImplementedError("not implemented");
+            if(!(arg1 instanceof XmlNode)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node");
+            this.nodes.add((XmlNode) arg1);
+            return this;
+        }
+
+        @JRubyMethod
+        public IRubyObject to_a(ThreadContext context){
+           XmlNode[] narr = new XmlNode[this.nodes.size()];
+           return RubyArray.newArray(context.getRuntime(), this.nodes.toArray(narr));
+        }
+
+        @JRubyMethod
+        public IRubyObject unlink(ThreadContext context){
+            for(XmlNode node: nodes)
+                node.unlink(context);
+            return this;
         }
     }
 
