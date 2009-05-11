@@ -759,6 +759,24 @@ public class NokogiriJavaService implements BasicLibraryService{
             this.nodes = nodes;
         }
 
+        @JRubyMethod(name="&")
+        public IRubyObject and(ThreadContext context, IRubyObject arg){
+            // TODO: Talk to Enebo about this. Maybe calling "to_a & to_a" and adding it to the Vector would be better.
+            // who knows.
+            if(!(arg1 instanceof XmlNodeSet)) context.getRuntime().newArgumentError("node_set must be a Nokogiri::XML::NodeSet");
+            XmlNodeSet xns = (XmlNodeSet) arg;
+            Vector<XmlNode> v = new Vector<XmlNode>();
+            for(XmlNode node: this.nodes)
+                if(xns.nodes.contains(node))
+                    v.add(node);
+            return new XmlNodeSet(context.getRuntime(), context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), v);
+        }
+        @JRubyMethod
+        public IRubyObject delete(ThreadContext context, IRubyObject arg){
+            if(!(arg1 instanceof XmlNode)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node");
+            return  this.nodes.remove(arg1) ? arg : context.getRuntime().getNil();
+        }
+
         @JRubyMethod
         public IRubyObject dup(ThreadContext context){
             return new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), (Vector<XmlNode>) this.nodes.clone());
