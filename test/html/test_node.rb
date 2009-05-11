@@ -79,6 +79,12 @@ module Nokogiri
         assert_equal 'some text', @html.at('//body').children[0].content.strip
       end
 
+      def test_fragment_handler_does_not_regurge_on_invalid_attributes
+        iframe = %Q{<iframe style="width: 0%; height: 0px" src="http://someurl" allowtransparency></iframe>}
+        assert_nothing_raised { @html.at('div').before(iframe) }
+        assert_nothing_raised { @html.at('div').after(iframe) }
+      end
+
       def test_inner_html=
         assert div = @html.at('//div')
         div.inner_html = '<span>testing</span>'
