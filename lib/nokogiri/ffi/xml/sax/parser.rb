@@ -12,15 +12,7 @@ module Nokogiri
         end
 
         def native_parse_io(io, encoding)
-          reader = lambda do |ctx, buffer, len|
-            string = io.read(len)
-            return 0 if string.nil?
-            LibXML.memcpy(buffer, string, string.length)
-            string.length
-          end
-          closer = lambda { |ctx| return 0 }
-          
-          sax_ctx = LibXML.xmlCreateIOParserCtxt(cstruct, nil, reader, closer, nil, encoding)
+          sax_ctx = LibXML.xmlCreateIOParserCtxt(cstruct, nil, IoCallbacks.reader(io), IoCallbacks.closer(io), nil, encoding)
           LibXML.xmlParseDocument(sax_ctx)
           LibXML.xmlFreeParserCtxt(sax_ctx)
           io

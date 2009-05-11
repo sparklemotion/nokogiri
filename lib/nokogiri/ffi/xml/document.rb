@@ -29,15 +29,7 @@ module Nokogiri
 
       def self.read_io(io, url, encoding, options)
         wrap_with_error_handling(DOCUMENT_NODE) do
-          reader = lambda do |ctx, buffer, len|
-            string = io.read(len)
-            return 0 if string.nil?
-            LibXML.memcpy(buffer, string, string.length)
-            string.length
-          end
-          closer = lambda { |ctx| 0 } # coffee is for closers.
-          
-          LibXML.xmlReadIO(reader, closer, nil, url, encoding, options)
+          LibXML.xmlReadIO(IoCallbacks.reader(io), IoCallbacks.closer(io), nil, url, encoding, options)
         end
       end
 

@@ -20,6 +20,7 @@
   - [X] XML::RelaxNG
   - [X] SAX::PushParser
   - [X] ProcessingInstruction
+* DONE refactor reader/writer/closer io callbacks
 * miscellaneous issues
 *** DONE blanks being escaped in output
     CLOSED: [2009-04-30 Thu 19:03]
@@ -60,9 +61,8 @@ RangeError: 0xdb387178 is recycled object
 *** TODO then remove the 'rake ffi' task and supporting functions
 
 * TODO open jira tickets: support varags in callbacks (needed for syntax error and sax error)
+* TODO rdoc documentation
 * figure out how to cache the ruby objects (nodes and documents) without using Objectspace.
 
 * use (new) nested struct support in FFI?
 * do we have string encoding issues?
-* i feel like we should refactor reader/writer/closer io callbacks
-* rdoc documentation? shit.

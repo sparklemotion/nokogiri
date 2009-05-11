@@ -194,12 +194,7 @@ module Nokogiri
       def native_write_to(io, encoding, indent_string, options)
         set_xml_indent_tree_output 1
         set_xml_tree_indent_string indent_string
-        writer = lambda do |context, buffer, len|
-          io.write buffer
-          len
-        end
-        closer = lambda { |ctx| 0 } # coffee is for closers.
-        savectx = LibXML.xmlSaveToIO(writer, closer, nil, encoding, options)
+        savectx = LibXML.xmlSaveToIO(IoCallbacks.writer(io), IoCallbacks.closer(io), nil, encoding, options)
         LibXML.xmlSaveTree(savectx, cstruct)
         LibXML.xmlSaveClose(savectx)
         io

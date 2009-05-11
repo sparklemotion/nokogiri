@@ -76,7 +76,6 @@ module Nokogiri
     # libc
     attach_function :calloc, [:int, :int], :pointer
     attach_function :free, [:pointer], :void
-    attach_function :memcpy, [:pointer, :pointer, :int], :pointer
 
     # HTMLparser.c
     attach_function :htmlReadMemory, [:string, :int, :string, :string, :int], :pointer
@@ -282,7 +281,8 @@ end
 require 'nokogiri/syntax_error'
 require 'nokogiri/xml/syntax_error'
 
-[ "structs/common_node",
+[ "io_callbacks",
+  "structs/common_node",
   "structs/xml_alloc",
   "structs/xml_document",
   "structs/xml_node",
