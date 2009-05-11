@@ -30,6 +30,7 @@
   * Fixed a problem when adding a child could remove the child namespace LH#78
   * Fixed failure to catch errors during XSLT parsing (GH#32)
   * Fixed a bug with attribute conditions in CSS selectors (GH#36)
+  * Fixed intolerance of HTML attributes without values in Node#before/after/inner_html=. (GH#35)
 
 === 1.2.3 / 2009-03-22
 

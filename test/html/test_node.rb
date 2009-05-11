@@ -83,6 +83,7 @@ module Nokogiri
         iframe = %Q{<iframe style="width: 0%; height: 0px" src="http://someurl" allowtransparency></iframe>}
         assert_nothing_raised { @html.at('div').before(iframe) }
         assert_nothing_raised { @html.at('div').after(iframe) }
+        assert_nothing_raised { @html.at('div').inner_html=(iframe) }
       end
 
       def test_inner_html=
