@@ -104,6 +104,27 @@ static VALUE intersection(VALUE self, VALUE rb_other)
 
 /*
  * call-seq:
+ *  include?(node)
+ *
+ *  Returns true if any member of node set equals +node+.
+ */
+static VALUE include_eh(VALUE self, VALUE rb_node)
+{
+  xmlNodeSetPtr node_set;
+  xmlNodePtr node;
+
+  if(! rb_funcall(rb_node, rb_intern("is_a?"), 1, cNokogiriXmlNode))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_node, xmlNode, node);
+
+  return (xmlXPathNodeSetContains(node_set, node) ? Qtrue : Qfalse);
+}
+
+
+/*
+ * call-seq:
  *  +(node_set)
  *
  *  Concatenation - returns a new NodeSet built by concatenating the node set
@@ -361,4 +382,5 @@ void init_xml_node_set(void)
   rb_define_method(klass, "dup", duplicate, 0);
   rb_define_method(klass, "delete", delete, 1);
   rb_define_method(klass, "&", intersection, 1);
+  rb_define_method(klass, "include?", include_eh, 1);
 }

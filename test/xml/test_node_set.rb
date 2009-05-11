@@ -303,6 +303,15 @@ module Nokogiri
         assert_equal [employees[2]], (first_set & second_set).to_a
       end
 
+      def test_include?
+        employees = @xml.search("//employee")
+        yes = employees.first
+        no = @xml.search("//position").first
+
+        assert employees.include?(yes)
+        assert ! employees.include?(no)
+      end
+
     end
   end
 end

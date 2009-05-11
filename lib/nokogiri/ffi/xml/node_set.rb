@@ -69,6 +69,11 @@ module Nokogiri
         NodeSet.wrap(new_set_ptr)
       end
 
+      def include?(node)
+        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
+        (LibXML.xmlXPathNodeSetContains(cstruct, node.cstruct) != 0) ? true : false
+      end
+
       def to_a
         cstruct.nodeTab.collect { |node| Node.wrap(node) }
       end
