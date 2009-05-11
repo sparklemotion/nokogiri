@@ -47,6 +47,7 @@ Nokogiri::VERSION_INFO['libxml']['loaded'] = Nokogiri::LIBXML_VERSION
 Nokogiri::VERSION_INFO['libxml']['binding'] = 'ffi'
 if RUBY_PLATFORM =~ /java/
   Nokogiri::VERSION_INFO['libxml']['platform'] = 'jruby'
+  raise(RuntimeError, "Nokogiri requires JRuby 1.3.0 or later") if JRUBY_VERSION < "1.3.0"
 else
   Nokogiri::VERSION_INFO['libxml']['platform'] = 'ruby'
 end
