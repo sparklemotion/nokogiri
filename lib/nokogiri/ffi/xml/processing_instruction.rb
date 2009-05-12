@@ -2,9 +2,9 @@ module Nokogiri
   module XML
     class ProcessingInstruction < Node
 
-      attr_accessor :cstruct
+      attr_accessor :cstruct # :nodoc
 
-      def self.new(document, name, content)
+      def self.new(document, name, content) # :nodoc
         node_ptr = LibXML.xmlNewDocPI(document.cstruct, name.to_s, content.to_s)
 
         node_cstruct = LibXML::XmlNode.new(node_ptr)

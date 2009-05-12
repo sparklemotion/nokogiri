@@ -1,6 +1,6 @@
 
 module Nokogiri
-  module LibXML # :nodoc:
+  module LibXML # :nodoc: all
 
     def self.expand_library_path(library)
       return File.expand_path(library) if library =~ %r{^[^/].*/}
@@ -29,7 +29,6 @@ module Nokogiri
     attach_function :__xmlTreeIndentString, [], :pointer
   end
 
-  # initialize constants
   LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
   LIBXML_VERSION = lambda {
     LIBXML_PARSER_VERSION =~ /^(\d)(\d{2})(\d{2})$/

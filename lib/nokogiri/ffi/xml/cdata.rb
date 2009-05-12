@@ -2,7 +2,7 @@ module Nokogiri
   module XML
     class CDATA < Text
       
-      def self.new(document, content, &block)
+      def self.new(document, content, &block) # :nodoc
         length = content.nil? ? 0 : content.length
         node_ptr = LibXML.xmlNewCDataBlock(document.cstruct[:doc], content, length)
 

@@ -2,13 +2,13 @@ module Nokogiri
   module XML
     class Reader
       
-      attr_accessor :cstruct
+      attr_accessor :cstruct # :nodoc
 
-      def default?
+      def default? # :nodoc
         LibXML.xmlTextReaderIsDefault(cstruct) == 1
       end
 
-      def value?
+      def value? # :nodoc
         LibXML.xmlTextReaderHasValue(cstruct) == 1
       end
 
@@ -22,7 +22,7 @@ module Nokogiri
         node[:type] == Node::ELEMENT_NODE && (!node[:properties].null? || !node[:nsDef].null?)
       end
 
-      def namespaces
+      def namespaces # :nodoc
         return {} unless attributes?
 
         ptr = LibXML.xmlTextReaderExpand(cstruct)
@@ -32,7 +32,7 @@ module Nokogiri
         node.namespaces
       end
 
-      def attribute_nodes
+      def attribute_nodes # :nodoc
         return {} unless attributes?
 
         ptr = LibXML.xmlTextReaderExpand(cstruct)
@@ -42,7 +42,7 @@ module Nokogiri
         node.attribute_nodes
       end
 
-      def attribute_at(index)
+      def attribute_at(index) # :nodoc
         return nil if index.nil?
         index = index.to_i
         attr_ptr = LibXML.xmlTextReaderGetAttributeNo(cstruct, index)
@@ -53,7 +53,7 @@ module Nokogiri
         attr
       end
 
-      def attribute(name)
+      def attribute(name) # :nodoc
         return nil if name.nil?
         attr_ptr = LibXML.xmlTextReaderGetAttribute(cstruct, name.to_s)
         if attr_ptr.null?
@@ -80,56 +80,56 @@ module Nokogiri
         attr
       end
 
-      def attribute_count
+      def attribute_count # :nodoc
         count = LibXML.xmlTextReaderAttributeCount(cstruct)
         count == -1 ? nil : count
       end
 
-      def depth
+      def depth # :nodoc
         val = LibXML.xmlTextReaderDepth(cstruct)
         val == -1 ? nil : val
       end
 
-      def xml_version
+      def xml_version # :nodoc
         val = LibXML.xmlTextReaderConstXmlVersion(cstruct)
         val.null? ? nil : val.read_string
       end
 
-      def lang
+      def lang # :nodoc
         val = LibXML.xmlTextReaderConstXmlLang(cstruct)
         val.null? ? nil : val.read_string
       end
 
-      def value
+      def value # :nodoc
         val = LibXML.xmlTextReaderConstValue(cstruct)
         val.null? ? nil : val.read_string
       end
 
-      def prefix
+      def prefix # :nodoc
         val = LibXML.xmlTextReaderConstPrefix(cstruct)
         val.null? ? nil : val.read_string
       end
 
-      def namespace_uri
+      def namespace_uri # :nodoc
         val = LibXML.xmlTextReaderConstNamespaceUri(cstruct)
         val.null? ? nil : val.read_string
       end
 
-      def local_name
+      def local_name # :nodoc
         val = LibXML.xmlTextReaderConstLocalName(cstruct)
         val.null? ? nil : val.read_string
       end
 
-      def name
+      def name # :nodoc
         val = LibXML.xmlTextReaderConstName(cstruct)
         val.null? ? nil : val.read_string
       end
 
-      def state
+      def state # :nodoc
         LibXML.xmlTextReaderReadState(cstruct)
       end
 
-      def read
+      def read # :nodoc
         error_list = self.errors
 
         LibXML.xmlSetStructuredErrorFunc(nil, SyntaxError.error_array_pusher(error_list))
@@ -149,7 +149,7 @@ module Nokogiri
         nil
       end
 
-      def self.from_memory(buffer, url=nil, encoding=nil, options=0)
+      def self.from_memory(buffer, url=nil, encoding=nil, options=0) # :nodoc
         raise(ArgumentError, "string cannot be nil") if buffer.nil?
         reader_ptr = LibXML.xmlReaderForMemory(buffer, buffer.length, url, encoding, options)
         raise(RuntimeError, "couldn't create a reader") if reader_ptr.null?
@@ -160,7 +160,7 @@ module Nokogiri
         reader
       end
 
-      def self.from_io(io, url=nil, encoding=nil, options=0)
+      def self.from_io(io, url=nil, encoding=nil, options=0) # :nodoc
         raise(ArgumentError, "io cannot be nil") if io.nil?
 
         reader_ptr = LibXML.xmlReaderForIO(IoCallbacks.reader(io), IoCallbacks.closer(io), nil, url, encoding, options)
