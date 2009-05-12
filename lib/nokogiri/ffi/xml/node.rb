@@ -243,6 +243,8 @@ module Nokogiri
           node_struct = LibXML::XmlNode.new(node_struct) 
         end
 
+        raise "wrapping a node without a document" unless node_struct.document
+
         document_struct = node_struct.document
         document = document_struct.nil? ? nil : document_struct.ruby_doc
         if node_struct[:type] == DOCUMENT_NODE || node_struct[:type] == HTML_DOCUMENT_NODE
