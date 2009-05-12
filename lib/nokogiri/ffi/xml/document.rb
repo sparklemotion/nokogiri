@@ -2,44 +2,44 @@ module Nokogiri
   module XML
     class Document < Node
 
-      attr_accessor :cstruct # :nodoc
+      attr_accessor :cstruct # :nodoc:
 
-      def url # :nodoc
+      def url # :nodoc:
         cstruct[:URL]
       end
 
-      def root=(node) # :nodoc
+      def root=(node) # :nodoc:
         LibXML.xmlDocSetRootElement(cstruct, node.cstruct)
         node
       end
 
-      def root # :nodoc
+      def root # :nodoc:
         ptr = LibXML.xmlDocGetRootElement(cstruct)
         ptr.null? ? nil : Node.wrap(LibXML::XmlNode.new(ptr))
       end
 
-      def encoding=(encoding) # :nodoc
+      def encoding=(encoding) # :nodoc:
         # TODO: if :encoding is already set, then it's probably getting leaked.
         cstruct[:encoding] = LibXML.xmlStrdup(encoding)
       end
 
-      def encoding # :nodoc
+      def encoding # :nodoc:
         cstruct[:encoding].read_string
       end
 
-      def self.read_io(io, url, encoding, options) # :nodoc
+      def self.read_io(io, url, encoding, options) # :nodoc:
         wrap_with_error_handling(DOCUMENT_NODE) do
           LibXML.xmlReadIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
         end
       end
 
-      def self.read_memory(string, url, encoding, options) # :nodoc
+      def self.read_memory(string, url, encoding, options) # :nodoc:
         wrap_with_error_handling(DOCUMENT_NODE) do
           LibXML.xmlReadMemory(string, string.length, url, encoding, options)
         end
       end
 
-      def dup(deep = 1) # :nodoc
+      def dup(deep = 1) # :nodoc:
         dup_ptr = LibXML.xmlCopyDoc(cstruct, deep)
         return nil if dup_ptr.null?
 
@@ -50,16 +50,16 @@ module Nokogiri
         Document.wrap(dup_ptr)
       end
 
-      def self.new(*args) # :nodoc
+      def self.new(*args) # :nodoc:
         version = args.first || "1.0"
         Document.wrap(LibXML.xmlNewDoc(version))
       end
 
-      def self.substitute_entities=(entities) # :nodoc
+      def self.substitute_entities=(entities) # :nodoc:
         raise "Document#substitute_entities= not implemented"
       end
 
-      def load_external_subsets=(subsets) # :nodoc
+      def load_external_subsets=(subsets) # :nodoc:
         raise "Document#load_external_subsets= not implemented"
       end
 
@@ -78,7 +78,7 @@ module Nokogiri
 
       private
       
-      def self.wrap_with_error_handling(type, &block) # :nodoc
+      def self.wrap_with_error_handling(type, &block) # :nodoc:
         error_list = []
         LibXML.xmlInitParser()
         LibXML.xmlResetLastError()

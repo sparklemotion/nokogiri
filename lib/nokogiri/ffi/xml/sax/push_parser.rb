@@ -3,11 +3,11 @@ module Nokogiri
     module SAX
       class PushParser
 
-        attr_accessor :cstruct # :nodoc
+        attr_accessor :cstruct # :nodoc:
 
         private
 
-        def native_write(chunk, last_chunk) # :nodoc
+        def native_write(chunk, last_chunk) # :nodoc:
           size = 0
           unless chunk.nil?
             chunk = chunk.to_s
@@ -22,7 +22,7 @@ module Nokogiri
           self
         end
 
-        def initialize_native(sax, filename) # :nodoc
+        def initialize_native(sax, filename) # :nodoc:
           filename = filename.to_s unless filename.nil?
           ctx_ptr = LibXML.xmlCreatePushParserCtxt(
             sax.cstruct, nil, nil, 0, filename

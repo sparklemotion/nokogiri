@@ -2,9 +2,9 @@ module Nokogiri
   module XML
     class Schema
 
-      attr_accessor :cstruct # :nodoc
+      attr_accessor :cstruct # :nodoc:
 
-      def validate_document(document) # :nodoc
+      def validate_document(document) # :nodoc:
         errors = []
 
         ctx = LibXML.xmlSchemaNewValidCtxt(cstruct)
@@ -21,7 +21,7 @@ module Nokogiri
       end
       private :validate_document
 
-      def self.read_memory(content) # :nodoc
+      def self.read_memory(content) # :nodoc:
         ctx = LibXML.xmlSchemaNewMemParserCtxt(content, content.length)
 
         errors = []

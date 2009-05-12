@@ -2,17 +2,17 @@ module Nokogiri
   module XML
     class SyntaxError < ::Nokogiri::SyntaxError
 
-      attr_accessor :cstruct # :nodoc
+      attr_accessor :cstruct # :nodoc:
 
-      def domain # :nodoc
+      def domain # :nodoc:
         cstruct[:domain]
       end
 
-      def code # :nodoc
+      def code # :nodoc:
         cstruct[:code]
       end
 
-      def message # :nodoc
+      def message # :nodoc:
         cstruct[:message]
       end
       undef_method :inspect
@@ -20,47 +20,47 @@ module Nokogiri
       undef_method :to_s
       alias_method :to_s, :message
 
-      def level # :nodoc
+      def level # :nodoc:
         cstruct[:level]
       end
 
-      def file # :nodoc
+      def file # :nodoc:
         cstruct[:file].null? ? nil : cstruct[:file]
       end
 
-      def line # :nodoc
+      def line # :nodoc:
         cstruct[:line]
       end
 
-      def str1 # :nodoc
+      def str1 # :nodoc:
         cstruct[:str1].null? ? nil : cstruct[:str1]
       end
 
-      def str2 # :nodoc
+      def str2 # :nodoc:
         cstruct[:str].null? ? nil : cstruct[:str]
       end
 
-      def str3 # :nodoc
+      def str3 # :nodoc:
         cstruct[:str3].null? ? nil : cstruct[:str3]
       end
 
-      def int1 # :nodoc
+      def int1 # :nodoc:
         cstruct[:int1]
       end
 
-      def column # :nodoc
+      def column # :nodoc:
         cstruct[:int2]
       end
       alias_method :int2, :column
 
       class << self
-        def error_array_pusher(array) # :nodoc
+        def error_array_pusher(array) # :nodoc:
           Proc.new do |_ignored_, error|
             array << wrap(error) if array
           end
         end
 
-        def wrap(error_ptr) # :nodoc
+        def wrap(error_ptr) # :nodoc:
           error_struct = LibXML::XmlSyntaxError.allocate
           LibXML.xmlCopyError(error_ptr, error_struct)
           error_cstruct = LibXML::XmlSyntaxError.new(error_struct)

@@ -2,7 +2,7 @@ module Nokogiri
   module XML
     class Attr < Node
 
-      def self.new(document, name) # :nodoc
+      def self.new(document, name) # :nodoc:
         node_ptr = LibXML.xmlNewDocProp(document.cstruct, name.to_s, nil)
 
         node_cstruct = LibXML::XmlNode.new(node_ptr)
@@ -14,7 +14,7 @@ module Nokogiri
         node
       end
 
-      def value=(content) # :nodoc
+      def value=(content) # :nodoc:
         unless cstruct[:children].null?
           LibXML.xmlFreeNodeList(cstruct[:children])
         end

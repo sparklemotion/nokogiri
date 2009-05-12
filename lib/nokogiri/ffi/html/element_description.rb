@@ -2,61 +2,61 @@ module Nokogiri
   module HTML
     class ElementDescription
 
-      attr_accessor :cstruct # :nodoc
+      attr_accessor :cstruct # :nodoc:
 
-      def required_attributes # :nodoc
+      def required_attributes # :nodoc:
         get_string_array_from :attrs_req
       end
 
-      def deprecated_attributes # :nodoc
+      def deprecated_attributes # :nodoc:
         get_string_array_from :attrs_depr
       end
 
-      def optional_attributes # :nodoc
+      def optional_attributes # :nodoc:
         get_string_array_from :attrs_opt
       end
 
-      def default_sub_element # :nodoc
+      def default_sub_element # :nodoc:
         cstruct[:defaultsubelt]
       end
 
-      def sub_elements # :nodoc
+      def sub_elements # :nodoc:
         get_string_array_from :subelts
       end
 
-      def description # :nodoc
+      def description # :nodoc:
         cstruct[:desc]
       end
 
-      def inline? # :nodoc
+      def inline? # :nodoc:
         cstruct[:isinline] != 0
       end
 
-      def deprecated? # :nodoc
+      def deprecated? # :nodoc:
         cstruct[:depr] != 0
       end
 
-      def empty? # :nodoc
+      def empty? # :nodoc:
         cstruct[:empty] != 0
       end
 
-      def save_end_tag? # :nodoc
+      def save_end_tag? # :nodoc:
         cstruct[:saveEndTag] != 0
       end
 
-      def implied_end_tag? # :nodoc
+      def implied_end_tag? # :nodoc:
         cstruct[:endTag] != 0
       end
 
-      def implied_start_tag? # :nodoc
+      def implied_start_tag? # :nodoc:
         cstruct[:startTag] != 0
       end
 
-      def name # :nodoc
+      def name # :nodoc:
         cstruct[:name]
       end
 
-      def self.[](tag_name) # :nodoc
+      def self.[](tag_name) # :nodoc:
         ptr = LibXML.htmlTagLookup(tag_name)
         return nil if ptr.null?
 
@@ -67,7 +67,7 @@ module Nokogiri
 
       private
 
-      def get_string_array_from(sym) # :nodoc
+      def get_string_array_from(sym) # :nodoc:
         list = []
         return list if cstruct[sym].null?
 

@@ -2,13 +2,13 @@ module Nokogiri
   module XML
     class Node
 
-      attr_accessor :cstruct # :nodoc
+      attr_accessor :cstruct # :nodoc:
 
-      def pointer_id # :nodoc
+      def pointer_id # :nodoc:
         cstruct.pointer
       end
 
-      def encode_special_chars(string) # :nodoc
+      def encode_special_chars(string) # :nodoc:
         char_ptr = LibXML.xmlEncodeSpecialChars(self[:doc], string)
         encoded = char_ptr.read_string
         # TODO: encoding?
@@ -16,7 +16,7 @@ module Nokogiri
         encoded
       end
 
-      def internal_subset # :nodoc
+      def internal_subset # :nodoc:
         return nil if cstruct[:doc].null?
         doc = cstruct.document
         dtd = LibXML.xmlGetIntSubset(doc)
@@ -24,37 +24,37 @@ module Nokogiri
         Node.wrap(dtd)
       end
 
-      def dup(deep = 1) # :nodoc
+      def dup(deep = 1) # :nodoc:
         dup_ptr = LibXML.xmlDocCopyNode(cstruct, cstruct.document, deep)
         return nil if dup_ptr.null?
         Node.wrap(dup_ptr)
       end
 
-      def unlink # :nodoc
+      def unlink # :nodoc:
         LibXML.xmlUnlinkNode(cstruct)
         LibXML.xmlXPathNodeSetAdd(cstruct.document.node_set, cstruct);
         self
       end
 
-      def blank? # :nodoc
+      def blank? # :nodoc:
         LibXML.xmlIsBlankNode(cstruct) == 1
       end
 
-      def next_sibling # :nodoc
+      def next_sibling # :nodoc:
         cstruct_node_from :next
       end
 
-      def previous_sibling # :nodoc
+      def previous_sibling # :nodoc:
         cstruct_node_from :prev
       end
 
-      def replace_with_node(new_node) # :nodoc
+      def replace_with_node(new_node) # :nodoc:
         LibXML.xmlReplaceNode(cstruct, new_node.cstruct)
         Node.send(:relink_namespace, new_node.cstruct)
         self
       end
 
-      def children # :nodoc
+      def children # :nodoc:
         return NodeSet.new(nil) if cstruct[:children].null?
         child = Node.wrap(cstruct[:children])
 
@@ -74,20 +74,20 @@ module Nokogiri
         return set
       end
 
-      def child # :nodoc
+      def child # :nodoc:
         (val = cstruct[:children]).null? ? nil : Node.wrap(val)
       end
 
-      def key?(attribute) # :nodoc
+      def key?(attribute) # :nodoc:
         ! (prop = LibXML.xmlHasProp(cstruct, attribute.to_s)).null?
       end
 
-      def []=(property, value) # :nodoc
+      def []=(property, value) # :nodoc:
         LibXML.xmlSetProp(cstruct, property, value)
         value
       end
 
-      def get(attribute) # :nodoc
+      def get(attribute) # :nodoc:
         return nil unless attribute
         propstr = LibXML.xmlGetProp(cstruct, attribute.to_s)
         return nil if propstr.null?
@@ -96,11 +96,11 @@ module Nokogiri
         rval
       end
 
-      def attribute(name) # :nodoc
+      def attribute(name) # :nodoc:
         raise "Node#attribute not implemented yet"
       end
 
-      def attribute_nodes # :nodoc
+      def attribute_nodes # :nodoc:
         attr = []
         prop_cstruct = cstruct[:properties]
         while ! prop_cstruct.null?
@@ -111,14 +111,14 @@ module Nokogiri
         attr
       end
 
-      def namespace # :nodoc
+      def namespace # :nodoc:
         return nil if cstruct[:ns].null?
         prefix = LibXML::XmlNs.new(cstruct[:ns])[:prefix]
         return prefix if prefix # TODO: encoding?
         nil
       end
 
-      def namespaces # :nodoc
+      def namespaces # :nodoc:
         ahash = {}
         return ahash unless cstruct[:type] == ELEMENT_NODE
         ns = cstruct[:nsDef]
@@ -136,16 +136,16 @@ module Nokogiri
         ahash
       end
 
-      def node_type # :nodoc
+      def node_type # :nodoc:
         cstruct[:type]
       end
 
-      def native_content=(content) # :nodoc
+      def native_content=(content) # :nodoc:
         LibXML.xmlNodeSetContent(cstruct, content)
         content
       end
 
-      def content # :nodoc
+      def content # :nodoc:
         content_ptr = LibXML.xmlNodeGetContent(cstruct)
         return nil if content_ptr.null?
         content = content_ptr.read_string # TODO: encoding?
@@ -153,45 +153,45 @@ module Nokogiri
         content
       end
 
-      def add_child(child) # :nodoc
+      def add_child(child) # :nodoc:
         Node.reparent_node_with(child, self) do |child_cstruct, my_cstruct|
           LibXML.xmlAddChild(my_cstruct, child_cstruct)
         end
       end
 
-      def parent # :nodoc
+      def parent # :nodoc:
         cstruct_node_from :parent
       end
       
-      def node_name=(string) # :nodoc
+      def node_name=(string) # :nodoc:
         LibXML.xmlNodeSetName(cstruct, string)
         string
       end
 
-      def node_name # :nodoc
+      def node_name # :nodoc:
         cstruct[:name] # TODO: encoding?
       end
 
-      def path # :nodoc
+      def path # :nodoc:
         path_ptr = LibXML.xmlGetNodePath(cstruct)
         val = path_ptr.null? ? nil : path_ptr.read_string # TODO: encoding?
         LibXML.xmlFree(path_ptr)
         val
       end
 
-      def add_next_sibling(next_sibling) # :nodoc
+      def add_next_sibling(next_sibling) # :nodoc:
         Node.reparent_node_with(next_sibling, self) do |sibling_cstruct, my_cstruct|
           LibXML.xmlAddNextSibling(my_cstruct, sibling_cstruct)
         end
       end
 
-      def add_previous_sibling(prev_sibling) # :nodoc
+      def add_previous_sibling(prev_sibling) # :nodoc:
         Node.reparent_node_with(prev_sibling, self) do |sibling_cstruct, my_cstruct|
           LibXML.xmlAddPrevSibling(my_cstruct, sibling_cstruct)
         end
       end
 
-      def native_write_to(io, encoding, indent_string, options) # :nodoc
+      def native_write_to(io, encoding, indent_string, options) # :nodoc:
         set_xml_indent_tree_output 1
         set_xml_tree_indent_string indent_string
         savectx = LibXML.xmlSaveToIO(IoCallbacks.writer(io), nil, nil, encoding, options)
@@ -200,17 +200,17 @@ module Nokogiri
         io
       end
 
-      def line # :nodoc
+      def line # :nodoc:
         cstruct[:line]
       end
 
-      def add_namespace(prefix, href) # :nodoc
+      def add_namespace(prefix, href) # :nodoc:
         ns = LibXML.xmlNewNs(cstruct, href, prefix)
         LibXML.xmlSetNs(cstruct, ns)
         self
       end
 
-      def self.new(name, document, &block) # :nodoc
+      def self.new(name, document, &block) # :nodoc:
         ptr = LibXML.xmlNewNode(nil, name.to_s)
 
         node_cstruct = LibXML::XmlNode.new(ptr)
@@ -225,14 +225,14 @@ module Nokogiri
         node
       end
 
-      def dump_html # :nodoc
+      def dump_html # :nodoc:
         return to_xml if type == DOCUMENT_NODE
         buffer = LibXML::XmlBuffer.new(LibXML.xmlBufferCreate())
         LibXML.htmlNodeDump(buffer, cstruct[:doc], cstruct)
         buffer[:content] # TODO: encoding?
       end
 
-      def compare(other) # :nodoc
+      def compare(other) # :nodoc:
         LibXML.xmlXPathCmpNodes(other.cstruct, self.cstruct)
       end
 
@@ -279,7 +279,7 @@ module Nokogiri
 
       private
 
-      def self.reparent_node_with(node, other, &block) # :nodoc
+      def self.reparent_node_with(node, other, &block) # :nodoc:
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(Nokogiri::XML::Node)
 
         if node.cstruct[:doc] == other.cstruct[:doc]
@@ -313,7 +313,7 @@ module Nokogiri
         reparented
       end
 
-      def self.relink_namespace(reparented_struct) # :nodoc
+      def self.relink_namespace(reparented_struct) # :nodoc:
         # Make sure that our reparented node has the correct namespaces
         if reparented_struct[:doc] != reparented_struct[:parent]
           LibXML.xmlSetNs(reparented_struct, LibXML::XmlNode.new(reparented_struct[:parent])[:ns])
@@ -342,15 +342,15 @@ module Nokogiri
         end
       end
 
-      def cstruct_node_from(sym) # :nodoc
+      def cstruct_node_from(sym) # :nodoc:
         (val = cstruct[sym]).null? ? nil : Node.wrap(val)
       end
 
-      def set_xml_indent_tree_output(value) # :nodoc
+      def set_xml_indent_tree_output(value) # :nodoc:
         LibXML.__xmlIndentTreeOutput.write_int(value)
       end
 
-      def set_xml_tree_indent_string(value) # :nodoc
+      def set_xml_tree_indent_string(value) # :nodoc:
         LibXML.__xmlTreeIndentString.write_pointer(LibXML.xmlStrdup(value.to_s))
       end
 
