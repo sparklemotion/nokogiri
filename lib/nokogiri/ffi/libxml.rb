@@ -2,26 +2,10 @@
 module Nokogiri
   module LibXML # :nodoc: all
 
-    def self.expand_library_path(library)
-      return File.expand_path(library) if library =~ %r{^[^/].*/}
-
-      dirs = ['/opt/local/lib', '/usr/local/lib', '/usr/lib']
-
-      ['LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH'].each do |dyld_dir|
-        dirs = ENV[dyld_dir].split(':') + dirs if ENV.key? dyld_dir
-      end
-
-      library = Dir[ *( dirs.collect {|dir| File.join(dir, "#{library}.{so,dylib}")} ) ].first
-
-      raise "Couldn't find #{library}" unless library
-
-      library
-    end
-
     extend FFI::Library
-    ffi_lib expand_library_path('libxml2')
-    ffi_lib expand_library_path('libxslt')
-    ffi_lib expand_library_path('libexslt')
+    ffi_lib 'xml2'
+    ffi_lib 'xslt'
+    ffi_lib 'exslt'
 
     # globals.c
     attach_function :__xmlParserVersion, [], :pointer
