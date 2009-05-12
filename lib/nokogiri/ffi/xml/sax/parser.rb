@@ -12,7 +12,7 @@ module Nokogiri
         end
 
         def native_parse_io(io, encoding) # :nodoc
-          sax_ctx = LibXML.xmlCreateIOParserCtxt(cstruct, nil, IoCallbacks.reader(io), IoCallbacks.closer(io), nil, encoding)
+          sax_ctx = LibXML.xmlCreateIOParserCtxt(cstruct, nil, IoCallbacks.reader(io), nil, nil, encoding)
           LibXML.xmlParseDocument(sax_ctx)
           LibXML.xmlFreeParserCtxt(sax_ctx)
           io

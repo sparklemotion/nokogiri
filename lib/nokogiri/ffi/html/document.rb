@@ -10,7 +10,7 @@ module Nokogiri
 
       def self.read_io(io, url, encoding, options) # :nodoc
         wrap_with_error_handling(HTML_DOCUMENT_NODE) do
-          LibXML.htmlReadIO(IoCallbacks.reader(io), IoCallbacks.closer(io), nil, url, encoding, options)
+          LibXML.htmlReadIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
         end
       end
 

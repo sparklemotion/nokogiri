@@ -163,7 +163,7 @@ module Nokogiri
       def self.from_io(io, url=nil, encoding=nil, options=0) # :nodoc
         raise(ArgumentError, "io cannot be nil") if io.nil?
 
-        reader_ptr = LibXML.xmlReaderForIO(IoCallbacks.reader(io), IoCallbacks.closer(io), nil, url, encoding, options)
+        reader_ptr = LibXML.xmlReaderForIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
         raise "couldn't create a parser" if reader_ptr.null?
 
         reader = allocate

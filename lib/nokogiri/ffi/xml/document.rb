@@ -29,7 +29,7 @@ module Nokogiri
 
       def self.read_io(io, url, encoding, options) # :nodoc
         wrap_with_error_handling(DOCUMENT_NODE) do
-          LibXML.xmlReadIO(IoCallbacks.reader(io), IoCallbacks.closer(io), nil, url, encoding, options)
+          LibXML.xmlReadIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
         end
       end
 
