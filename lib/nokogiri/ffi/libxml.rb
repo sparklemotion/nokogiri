@@ -2,9 +2,7 @@
 module Nokogiri
   module LibXML # :nodoc: all
     extend FFI::Library
-    ffi_lib 'xml2'
-    ffi_lib 'xslt'
-    ffi_lib 'exslt'
+    ffi_lib 'xml2', 'xslt', 'exslt'
 
     # globals.c
     attach_function :__xmlParserVersion, [], :pointer
