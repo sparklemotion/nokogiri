@@ -23,21 +23,9 @@
 * DONE refactor reader/writer/closer io callbacks
 * DONE rdoc documentation
 
-* miscellaneous issues
-*** DONE blanks being escaped in output
-    CLOSED: [2009-04-30 Thu 19:03]
-*** TODO heisenbug:
-test_attribute_roundtrip(TestReader):
-NoMethodError: undefined method `attribute_nodes' for [-617503368]:Array
-    /home/mike/code/nokogiri/lib/nokogiri/ffi/xml/reader.rb:42:in `attribute_nodes'
-    /home/mike/code/nokogiri/lib/nokogiri/xml/reader.rb:14:in `attributes'
-    ./test/test_reader.rb:81:in `test_attribute_roundtrip'
-    /home/mike/code/nokogiri/lib/nokogiri/xml/reader.rb:21:in `call'
-    /home/mike/code/nokogiri/lib/nokogiri/xml/reader.rb:21:in `each'
-    ./test/test_reader.rb:80:in `test_attribute_roundtrip'
-    /usr/lib/ruby/gems/1.8/gems/mocha-0.9.3/lib/mocha/test_case_adapter.rb:69:in `__send__'
-    /usr/lib/ruby/gems/1.8/gems/mocha-0.9.3/lib/mocha/test_case_adapter.rb:69:in `run'
-
+* [2/2] miscellaneous issues
+  - [X] blanks being escaped in output
+  - [X] heisenbug:
 test_attributes(TestReader):
 RangeError: 0xdb387178 is recycled object
     /home/mike/code/nokogiri/lib/nokogiri/ffi/structs/common_node.rb:15:in `_id2ref'
@@ -56,11 +44,10 @@ RangeError: 0xdb387178 is recycled object
 
 * jruby-only bugs
 *** DONE annoying "warning: too many arguments for format string" messages everywhere
+*** DONE how to lookup and find libxml2.so and libxslt.so?
 *** TODO lingering syntax error issues. try test/xml/test_document.rb
-*** TODO how to lookup and find libxml2.so and libxslt.so?
-
-* TODO convert structs to using layout() instead of FFI::Generator stubs
-*** TODO then remove the 'rake ffi' task and supporting functions
+* DONE convert structs to using layout() instead of FFI::Generator stubs
+*** DONE then remove the 'rake ffi' task and supporting functions
 
 * TODO open jira tickets: support varags in callbacks (needed for syntax error and sax error)
 * figure out how to cache the ruby objects (nodes and documents) without using Objectspace.
