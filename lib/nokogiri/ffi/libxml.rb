@@ -1,7 +1,6 @@
 
 module Nokogiri
   module LibXML # :nodoc: all
-
     extend FFI::Library
     ffi_lib 'xml2'
     ffi_lib 'xslt'
@@ -14,13 +13,7 @@ module Nokogiri
   end
 
   LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
-  LIBXML_VERSION = lambda {
-    LIBXML_PARSER_VERSION =~ /^(\d)(\d{2})(\d{2})$/
-    major = $1.to_i
-    minor = $2.to_i
-    bug   = $3.to_i
-    "#{major}.#{minor}.#{bug}"
-  }.call
+  LIBXML_VERSION = LIBXML_PARSER_VERSION.scan(/^(.*)(..)(..)$/).first.collect{|j|j.to_i}.join(".")
 end
 
 require 'nokogiri/version'
