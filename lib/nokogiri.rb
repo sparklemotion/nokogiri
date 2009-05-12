@@ -5,7 +5,7 @@ ENV['PATH'] = [File.expand_path(
 ), ENV['PATH']].compact.join(';') if RUBY_PLATFORM =~ /(mswin|mingw)/i
 
 if ENV['NOKOGIRI_FFI'] || RUBY_PLATFORM =~ /java/
-  gem 'ffi', '>=0.3.2' unless RUBY_PLATFORM =~ /java/
+  gem 'ffi', '>=0.4.0' unless RUBY_PLATFORM =~ /java/
   require 'ffi'
   require 'nokogiri/ffi/libxml'
 else
