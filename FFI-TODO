@@ -66,3 +66,4 @@ RangeError: 0xdb387178 is recycled object
 
 * use (new) nested struct support in FFI?
 * do we have string encoding issues?
+* PENDING use FFI::IO.read in IoCallbacks once it's released - http://jira.codehaus.org/browse/JRUBY-3636
