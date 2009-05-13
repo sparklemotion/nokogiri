@@ -21,11 +21,11 @@ module Nokogiri
     end
   end
 
-  def Nokogiri.ffi? # :nodoc:
+  def self.ffi? # :nodoc:
     Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
   end
 
-  def Nokogiri.is_2_6_16? # :nodoc:
+  def self.is_2_6_16? # :nodoc:
     Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
   end
 end
