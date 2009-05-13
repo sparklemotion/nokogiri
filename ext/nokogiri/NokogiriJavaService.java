@@ -221,7 +221,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_NODESET_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            return new XmlNodeSet(runtime, klazz, RubyArray.newEmptyArray(runtime));
         }
     };
 
@@ -481,6 +481,11 @@ public class NokogiriJavaService implements BasicLibraryService{
             return constructNode(context.getRuntime(), node.getFirstChild());
         }
 
+        @JRubyMethod
+        public IRubyObject children(ThreadContext context){
+           return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), this.node.getChildNodes()); 
+        }
+
         protected static IRubyObject constructNode(Ruby ruby, Node node) {
             if (node == null) return ruby.getNil();
             // this is slow; need a way to cache nokogiri classes/modules somewhere
@@ -584,6 +589,19 @@ public class NokogiriJavaService implements BasicLibraryService{
                 hash.op_aset(context, RubyString.newString(ruby, attr.getNodeName()), RubyString.newString(ruby, attr.getNodeValue()));
             }
             return hash;
+        }
+
+        @JRubyMethod
+        public IRubyObject attribute_node(ThreadContext context){
+            Ruby ruby = context.getRuntime();
+            NamedNodeMap attrs = node.getAttributes();
+            RubyArray arr = RubyArray.newArray(ruby,attrs.getLength());
+            Node attr;
+            for(int i = 0; i < attrs.getLength(); i++){
+                attr = attrs.item(i);
+                arr.append(constructNode(ruby,attr));
+            }
+            return arr;
         }
 
         @JRubyMethod
@@ -699,6 +717,16 @@ public class NokogiriJavaService implements BasicLibraryService{
             }
             return context.getRuntime().getNil();
         }
+
+        @JRubyMethod
+        public IRubyObject attribute(ThreadContext context, IRubyObject arg){
+            NamedNodeMap attrs = this.node.getAttributes();
+            Node attr = attrs.getNamedItem(arg.convertToString().asJavaString());
+            if(attr == null)
+                return  context.getRuntime().getNil();
+            return constructNode(context.getRuntime(), attr);
+        }
+
     }
 
     public static class XmlText extends XmlNode {
@@ -744,73 +772,68 @@ public class NokogiriJavaService implements BasicLibraryService{
     }
 
     public static class XmlNodeSet extends RubyObject {
-        private Vector<XmlNode> nodes;
+        protected RubyArray nodes;
 
         // TODO Change internal implementation.
         public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
             super(ruby, rubyClass);
-            this.nodes = new Vector<XmlNode>(nodes.getLength());
+            this.nodes = RubyArray.newArray(ruby, nodes.getLength());
             for(int i = 0; i < nodes.getLength(); i++)
-                this.nodes.add((XmlNode) XmlNode.constructNode(ruby, nodes.item(i)));
+                this.nodes.append((XmlNode) XmlNode.constructNode(ruby, nodes.item(i)));
         }
 
-        private XmlNodeSet(Ruby ruby, RubyClass rubyClass, Vector<XmlNode> nodes){
+        public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){
             super(ruby, rubyClass);
             this.nodes = nodes;
         }
 
         @JRubyMethod(name="&")
         public IRubyObject and(ThreadContext context, IRubyObject arg){
-            // TODO: Talk to Enebo about this. Maybe calling "to_a & to_a" and adding it to the Vector would be better.
-            // who knows.
-            if(!(arg1 instanceof XmlNodeSet)) context.getRuntime().newArgumentError("node_set must be a Nokogiri::XML::NodeSet");
+            if(!(arg instanceof XmlNodeSet)) context.getRuntime().newArgumentError("node_set must be a Nokogiri::XML::NodeSet");
             XmlNodeSet xns = (XmlNodeSet) arg;
-            Vector<XmlNode> v = new Vector<XmlNode>();
-            for(XmlNode node: this.nodes)
-                if(xns.nodes.contains(node))
-                    v.add(node);
-            return new XmlNodeSet(context.getRuntime(), context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), v);
+            
+            return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"),(RubyArray) this.nodes.op_and(xns.nodes));
         }
         @JRubyMethod
         public IRubyObject delete(ThreadContext context, IRubyObject arg){
-            if(!(arg1 instanceof XmlNode)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node");
-            return  this.nodes.remove(arg1) ? arg : context.getRuntime().getNil();
+            if(!(arg instanceof XmlNode)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node");
+            return this.nodes.delete(context, arg, null); 
         }
 
         @JRubyMethod
         public IRubyObject dup(ThreadContext context){
-            return new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), (Vector<XmlNode>) this.nodes.clone());
+            return new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), this.nodes.aryDup());
         }
 
         @JRubyMethod
         public IRubyObject length(ThreadContext context) {
-            return RubyFixnum.newFixnum(context.getRuntime(), nodes.size());
+            return nodes.length();
         }
 
         @JRubyMethod(name = "[]")
         public IRubyObject op_aref(ThreadContext context, IRubyObject arg1) {
-            int index = (int)arg1.convertToInteger().getLongValue();
-            if (index < 0) index = nodes.size() + index;
-            return nodes.get(index);
+            return this.nodes.aref(arg1);
         }
 
         @JRubyMethod
         public IRubyObject push(ThreadContext context, IRubyObject arg1) {
             if(!(arg1 instanceof XmlNode)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node");
-            this.nodes.add((XmlNode) arg1);
+            this.nodes.append(arg1);
             return this;
         }
 
         @JRubyMethod
         public IRubyObject to_a(ThreadContext context){
-           XmlNode[] narr = new XmlNode[this.nodes.size()];
-           return RubyArray.newArray(context.getRuntime(), this.nodes.toArray(narr));
+           return this.nodes;
         }
 
         @JRubyMethod
         public IRubyObject unlink(ThreadContext context){
-            for(XmlNode node: nodes)
-                node.unlink(context);
+            // TODO: Faster if only RubyFixnum?
+            Ruby ruby = context.getRuntime();
+            long length = this.nodes.length().getLongValue();
+            for(int i = 0; i < length; i++)
+                ((XmlNode) this.nodes.aref(RubyFixnum.newFixnum(ruby, i))).unlink(context);
             return this;
         }
     }
