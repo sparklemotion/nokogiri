@@ -850,11 +850,11 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject unlink(ThreadContext context){
-            // TODO: Faster if only RubyFixnum?
             Ruby ruby = context.getRuntime();
-            long length = this.nodes.length().getLongValue();
+            IRubyObject[] arr = this.nodes.toJavaArrayUnsafe();
+            long length = arr.length;
             for(int i = 0; i < length; i++)
-                ((XmlNode) this.nodes.aref(RubyFixnum.newFixnum(ruby, i))).unlink(context);
+                ((XmlNode) arr[i] ).unlink(context);
             return this;
         }
     }

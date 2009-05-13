@@ -73,6 +73,7 @@ namespace :jruby do
     FileList['ext/nokogiri/*.class'].to_a.each do |file|
       File.delete file
     end
+    File.delete File.join(File.dirname(__FILE__), 'ext', 'nokogiri', 'nokogiri_java.jar')
   end
 end
 
