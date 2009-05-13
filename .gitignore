@@ -1,15 +1,8 @@
 .*.swp
 *.tmproj
-ext/nokogiri/*.o
-ext/nokogiri/*.dll
-ext/nokogiri/Makefile
-ext/nokogiri/*.log
-ext/nokogiri/*.bundle
-ext/nokogiri/*.a
-ext/nokogiri/*.so
 ext/nokogiri/*.class
 ext/nokogiri/*.jar
-ext/nokogiri/conftest.dSYM
+lib/nokogiri/nokogiri.so
 lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb
 mkmf.log

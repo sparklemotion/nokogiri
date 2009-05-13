@@ -58,7 +58,7 @@ unless find_header('iconv.h', *HEADER_DIRS)
 end
 
 unless find_header('libxml/parser.h', *HEADER_DIRS)
-  abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
+  abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2-devel'"
 end
 
 unless find_header('libxslt/xslt.h', *HEADER_DIRS)

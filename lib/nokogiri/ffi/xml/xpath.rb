@@ -2,9 +2,9 @@ module Nokogiri
   module XML
     class XPath
       
-      attr_accessor :cstruct
+      attr_accessor :cstruct # :nodoc:
 
-      def node_set
+      def node_set # :nodoc:
         ptr = cstruct[:nodesetval] if cstruct[:nodesetval]
         ptr = LibXML.xmlXPathNodeSetCreate(nil) if ptr.null?
 

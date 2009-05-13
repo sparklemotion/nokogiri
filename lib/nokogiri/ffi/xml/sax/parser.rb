@@ -3,34 +3,26 @@ module Nokogiri
     module SAX
       class Parser
         
-        attr_accessor :cstruct
+        attr_accessor :cstruct # :nodoc:
 
-        def parse_memory(data)
+        def parse_memory(data) # :nodoc:
           raise(ArgumentError, 'data cannot be nil') if data.nil?
           LibXML.xmlSAXUserParseMemory(cstruct, nil, data, data.length)
           data
         end
 
-        def native_parse_io(io, encoding)
-          reader = lambda do |ctx, buffer, len|
-            string = io.read(len)
-            return 0 if string.nil?
-            LibXML.memcpy(buffer, string, string.length)
-            string.length
-          end
-          closer = lambda { |ctx| return 0 }
-          
-          sax_ctx = LibXML.xmlCreateIOParserCtxt(cstruct, nil, reader, closer, nil, encoding)
+        def native_parse_io(io, encoding) # :nodoc:
+          sax_ctx = LibXML.xmlCreateIOParserCtxt(cstruct, nil, IoCallbacks.reader(io), nil, nil, encoding)
           LibXML.xmlParseDocument(sax_ctx)
           LibXML.xmlFreeParserCtxt(sax_ctx)
           io
         end
 
-        def native_parse_file(data)
+        def native_parse_file(data) # :nodoc:
           LibXML.xmlSAXUserParseFile(cstruct, nil, data)
         end
 
-        def self.new(doc = XML::SAX::Document.new, encoding = 'ASCII')
+        def self.new(doc = XML::SAX::Document.new, encoding = 'ASCII') # :nodoc:
           parser = allocate
           parser.document = doc
           parser.encoding = encoding
@@ -40,7 +32,7 @@ module Nokogiri
         end
 
       private
-        def setup_lambdas
+        def setup_lambdas # :nodoc:
           @closures = {} # we need to keep references to the closures to avoid GC
           
           @closures[:startDocument] = lambda { |_| @document.start_document }

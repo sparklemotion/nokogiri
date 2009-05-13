@@ -2,7 +2,7 @@ module Nokogiri
   module XML
     class EntityReference < Node
 
-      def self.new(document, name, &block)
+      def self.new(document, name, &block) # :nodoc:
         node_ptr = LibXML.xmlNewReference(document.cstruct, name)
 
         node_cstruct = LibXML::XmlNode.new(node_ptr)

@@ -2,15 +2,15 @@ module Nokogiri
   module XML
     class DTD < Node
       
-      def elements
-        things :elements
+      def elements # :nodoc:
+        internal_attributes :elements
       end
 
-      def entities
-        things :entities
+      def entities # :nodoc:
+        internal_attributes :entities
       end
 
-      def notations
+      def notations # :nodoc:
         attr_ptr = cstruct[:notations]
         return nil if attr_ptr.null?
 
@@ -25,8 +25,8 @@ module Nokogiri
       end
 
     private
-      def things what # :nodoc:
-        attr_ptr = cstruct[what.to_sym]
+      def internal_attributes(attr_name) # :nodoc:
+        attr_ptr = cstruct[attr_name.to_sym]
         return nil if attr_ptr.null?
 
         ahash = {}

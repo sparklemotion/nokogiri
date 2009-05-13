@@ -2,52 +2,44 @@ module Nokogiri
   module XML
     class Document < Node
 
-      attr_accessor :cstruct
+      attr_accessor :cstruct # :nodoc:
 
-      def url
+      def url # :nodoc:
         cstruct[:URL]
       end
 
-      def root=(node)
+      def root=(node) # :nodoc:
         LibXML.xmlDocSetRootElement(cstruct, node.cstruct)
         node
       end
 
-      def root
+      def root # :nodoc:
         ptr = LibXML.xmlDocGetRootElement(cstruct)
         ptr.null? ? nil : Node.wrap(LibXML::XmlNode.new(ptr))
       end
 
-      def encoding=(encoding)
+      def encoding=(encoding) # :nodoc:
         # TODO: if :encoding is already set, then it's probably getting leaked.
         cstruct[:encoding] = LibXML.xmlStrdup(encoding)
       end
 
-      def encoding
+      def encoding # :nodoc:
         cstruct[:encoding].read_string
       end
 
-      def self.read_io(io, url, encoding, options)
+      def self.read_io(io, url, encoding, options) # :nodoc:
         wrap_with_error_handling(DOCUMENT_NODE) do
-          reader = lambda do |ctx, buffer, len|
-            string = io.read(len)
-            return 0 if string.nil?
-            LibXML.memcpy(buffer, string, string.length)
-            string.length
-          end
-          closer = lambda { |ctx| 0 } # coffee is for closers.
-          
-          LibXML.xmlReadIO(reader, closer, nil, url, encoding, options)
+          LibXML.xmlReadIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
         end
       end
 
-      def self.read_memory(string, url, encoding, options)
+      def self.read_memory(string, url, encoding, options) # :nodoc:
         wrap_with_error_handling(DOCUMENT_NODE) do
           LibXML.xmlReadMemory(string, string.length, url, encoding, options)
         end
       end
 
-      def dup(deep = 1)
+      def dup(deep = 1) # :nodoc:
         dup_ptr = LibXML.xmlCopyDoc(cstruct, deep)
         return nil if dup_ptr.null?
 
@@ -58,27 +50,32 @@ module Nokogiri
         Document.wrap(dup_ptr)
       end
 
-      def self.new(*args)
+      def self.new(*args) # :nodoc:
         version = args.first || "1.0"
         Document.wrap(LibXML.xmlNewDoc(version))
       end
 
-      def self.substitute_entities=(entities)
+      def self.substitute_entities=(entities) # :nodoc:
         raise "Document#substitute_entities= not implemented"
       end
 
-      def load_external_subsets=(subsets)
+      def load_external_subsets=(subsets) # :nodoc:
         raise "Document#load_external_subsets= not implemented"
       end
 
-      def self.wrap(ptr) # :nodoc:
-        cstruct = LibXML::XmlDocument.new(ptr)
-        doc = if cstruct[:type] == HTML_DOCUMENT_NODE
+      def self.wrap(doc_struct) # :nodoc: #
+        if doc_struct.is_a?(FFI::Pointer)
+          # cast native pointers up into a doc cstruct
+          return nil if doc_struct.null?
+          doc_struct = LibXML::XmlDocument.new(doc_struct)
+        end
+
+        doc = if doc_struct[:type] == HTML_DOCUMENT_NODE
                 Nokogiri::HTML::Document.allocate
               else
                 allocate
               end
-        doc.cstruct = cstruct
+        doc.cstruct = doc_struct
         doc.cstruct.ruby_doc = doc
         doc.instance_eval { @decorators = nil }
         doc
@@ -86,7 +83,7 @@ module Nokogiri
 
       private
       
-      def self.wrap_with_error_handling(type, &block)
+      def self.wrap_with_error_handling(type, &block) # :nodoc:
         error_list = []
         LibXML.xmlInitParser()
         LibXML.xmlResetLastError()

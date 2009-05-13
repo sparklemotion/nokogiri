@@ -1,7 +1,7 @@
 module Nokogiri
   module XML
     class RelaxNG < Schema
-      def validate_document(document)
+      def validate_document(document) # :nodoc:
         errors = []
 
         ctx = LibXML.xmlRelaxNGNewValidCtxt(cstruct)
@@ -18,7 +18,7 @@ module Nokogiri
       end
       private :validate_document
 
-      def self.read_memory(content)
+      def self.read_memory(content) # :nodoc:
         ctx = LibXML.xmlRelaxNGNewMemParserCtxt(content, content.length)
 
         errors = []

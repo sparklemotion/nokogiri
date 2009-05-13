@@ -1,27 +1,8 @@
 
 module Nokogiri
-  module LibXML # :nodoc:
-
-    def self.expand_library_path(library)
-      return File.expand_path(library) if library =~ %r{^[^/].*/}
-
-      dirs = ['/opt/local/lib', '/usr/local/lib', '/usr/lib']
-
-      ['LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH'].each do |dyld_dir|
-        dirs = ENV[dyld_dir].split(':') + dirs if ENV.key? dyld_dir
-      end
-
-      library = Dir[ *( dirs.collect {|dir| File.join(dir, "#{library}.{so,dylib}")} ) ].first
-
-      raise "Couldn't find #{library}" unless library
-
-      library
-    end
-
+  module LibXML # :nodoc: all
     extend FFI::Library
-    ffi_lib expand_library_path('libxml2')
-    ffi_lib expand_library_path('libxslt')
-    ffi_lib expand_library_path('libexslt')
+    ffi_lib 'xml2', 'xslt', 'exslt'
 
     # globals.c
     attach_function :__xmlParserVersion, [], :pointer
@@ -29,15 +10,8 @@ module Nokogiri
     attach_function :__xmlTreeIndentString, [], :pointer
   end
 
-  # initialize constants
   LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
-  LIBXML_VERSION = lambda {
-    LIBXML_PARSER_VERSION =~ /^(\d)(\d{2})(\d{2})$/
-    major = $1.to_i
-    minor = $2.to_i
-    bug   = $3.to_i
-    "#{major}.#{minor}.#{bug}"
-  }.call
+  LIBXML_VERSION = LIBXML_PARSER_VERSION.scan(/^(.*)(..)(..)$/).first.collect{|j|j.to_i}.join(".")
 end
 
 require 'nokogiri/version'
@@ -76,7 +50,6 @@ module Nokogiri
     # libc
     attach_function :calloc, [:int, :int], :pointer
     attach_function :free, [:pointer], :void
-    attach_function :memcpy, [:pointer, :pointer, :int], :pointer
 
     # HTMLparser.c
     attach_function :htmlReadMemory, [:string, :int, :string, :string, :int], :pointer
@@ -282,7 +255,8 @@ end
 require 'nokogiri/syntax_error'
 require 'nokogiri/xml/syntax_error'
 
-[ "structs/common_node",
+[ "io_callbacks",
+  "structs/common_node",
   "structs/xml_alloc",
   "structs/xml_document",
   "structs/xml_node",

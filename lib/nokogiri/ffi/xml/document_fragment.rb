@@ -2,7 +2,7 @@ module Nokogiri
   module XML
     class DocumentFragment < Node
 
-      def self.new(document, &block)
+      def self.new(document, &block) # :nodoc:
         node_ptr = LibXML.xmlNewDocFragment(document.cstruct)
 
         node_cstruct = LibXML::XmlNode.new(node_ptr)

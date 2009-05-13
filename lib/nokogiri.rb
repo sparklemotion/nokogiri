@@ -20,6 +20,7 @@ else
 end
 
 require 'nokogiri/version'
+require 'nokogiri/version_warning'
 require 'nokogiri/syntax_error'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'
