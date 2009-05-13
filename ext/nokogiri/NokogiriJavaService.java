@@ -805,14 +805,25 @@ public class NokogiriJavaService implements BasicLibraryService{
             return new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), this.nodes.aryDup());
         }
 
+        @JRubyMethod(name = "include?")
+        public IRubyObject include_p(ThreadContext context, IRubyObject arg){
+            if(!(arg instanceof XmlNode)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node");
+            return this.nodes.include_p(context, arg);
+        }
         @JRubyMethod
         public IRubyObject length(ThreadContext context) {
             return nodes.length();
         }
 
-        @JRubyMethod(name = "[]")
-        public IRubyObject op_aref(ThreadContext context, IRubyObject arg1) {
-            return this.nodes.aref(arg1);
+        @JRubyMethod(name="-")
+        public IRubyObject op_diff(ThreadContext context, IRubyObject arg){
+            if(!(arg instanceof XmlNodeSet)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");
+            return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), (RubyArray) this.nodes.op_diff(((XmlNodeSet) arg).nodes));
+        }
+
+        @JRubyMethod(name="+")
+        public IRubyObject op_plus(ThreadContext context, IRubyObject arg){
+            if(!(arg instanceof XmlNodeSet)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");            return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), (RubyArray) this.nodes.op_plus(((XmlNodeSet) arg).nodes));
         }
 
         @JRubyMethod
@@ -820,6 +831,16 @@ public class NokogiriJavaService implements BasicLibraryService{
             if(!(arg1 instanceof XmlNode)) context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node");
             this.nodes.append(arg1);
             return this;
+        }
+
+        @JRubyMethod(name={"[]", "slice"})
+        public IRubyObject slice(ThreadContext context, IRubyObject arg){
+            return this.nodes.aref(arg);
+        }
+
+        @JRubyMethod(name={"[]", "slice"})
+        public IRubyObject slice(ThreadContext context, IRubyObject arg0, IRubyObject arg1){
+            return this.nodes.aref(arg0, arg1);
         }
 
         @JRubyMethod
