@@ -171,7 +171,7 @@ module Nokogiri
       #     def regex node_set, regex
       #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
       #     end
-      #   })
+      #   }.new)
       #
       def css *rules
         # Pop off our custom function handler if it exists
