@@ -217,6 +217,7 @@ module Nokogiri
       alias :name=          :node_name=
       alias :type           :node_type
       alias :to_str         :text
+      alias :clone          :dup
 
       ####
       # Returns a hash containing the node's attributes.  The key is the

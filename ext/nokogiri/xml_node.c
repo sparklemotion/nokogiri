@@ -648,9 +648,9 @@ static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
 
 /*
  * call-seq:
- *   new(name)
+ *   new(name, document)
  *
- * Create a new node with +name+
+ * Create a new node with +name+ sharing GC lifecycle with +document+
  */
 static VALUE new(VALUE klass, VALUE name, VALUE document)
 {
@@ -753,7 +753,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_ENTITY_DECL:
-      klass = rb_const_get(mNokogiriXml, rb_intern("EntityDeclaration"));
+      klass = cNokogiriXmlEntityDeclaration;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_CDATA_SECTION_NODE:
@@ -836,6 +836,7 @@ void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 
 VALUE cNokogiriXmlNode ;
 VALUE cNokogiriXmlElement ;
+VALUE cNokogiriXmlEntityDeclaration ;
 
 void init_xml_node()
 {
@@ -846,6 +847,8 @@ void init_xml_node()
   cNokogiriXmlNode = klass;
 
   cNokogiriXmlElement = rb_define_class_under(xml, "Element", klass);
+  cNokogiriXmlEntityDeclaration =
+    rb_define_class_under(xml, "EntityDeclaration", klass);
 
   rb_define_singleton_method(klass, "new", new, 2);
 
