@@ -8,6 +8,7 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr root);
 
 extern VALUE cNokogiriXmlNode ;
 extern VALUE cNokogiriXmlElement ;
+extern VALUE cNokogiriXmlEntityDeclaration ;
 
 VALUE Nokogiri_wrap_xml_node(xmlNodePtr node) ;
 void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_hash) ;
