@@ -13,6 +13,7 @@ module Nokogiri
         return unless @doc_started
 
         node = Node.new(name, @document)
+        attrs << "" unless (attrs.length % 2) == 0
         Hash[*attrs].each do |k,v|
           node[k] = v
         end

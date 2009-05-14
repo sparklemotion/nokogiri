@@ -10,9 +10,7 @@ module Nokogiri
     VERSION_INFO['libxml']              = {}
     VERSION_INFO['libxml']['binding']   = 'extension'
     VERSION_INFO['libxml']['compiled']  = LIBXML_VERSION
-
-    match = LIBXML_PARSER_VERSION.match(/(\d)(\d{2})(\d{2})/)
-    VERSION_INFO['libxml']['loaded']    = "#{match[1].to_i}.#{match[2].to_i}.#{match[3].to_i}"
+    VERSION_INFO['libxml']['loaded']    = LIBXML_PARSER_VERSION.scan(/^(.*)(..)(..)$/).first.collect{|j|j.to_i}.join(".")
 
     if VERSION_INFO['libxml']['compiled'] != VERSION_INFO['libxml']['loaded']
       warning = "Nokogiri was built against LibXML version #{VERSION_INFO['libxml']['compiled']}, but has dynamically loaded #{VERSION_INFO['libxml']['loaded']}"
@@ -21,11 +19,11 @@ module Nokogiri
     end
   end
 
-  def Nokogiri.ffi? # :nodoc:
+  def self.ffi? # :nodoc:
     Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
   end
 
-  def Nokogiri.is_2_6_16? # :nodoc:
+  def self.is_2_6_16? # :nodoc:
     Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
   end
 end

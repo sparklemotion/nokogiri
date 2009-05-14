@@ -2,61 +2,61 @@ module Nokogiri
   module HTML
     class ElementDescription
 
-      attr_accessor :cstruct
+      attr_accessor :cstruct # :nodoc:
 
-      def required_attributes
+      def required_attributes # :nodoc:
         get_string_array_from :attrs_req
       end
 
-      def deprecated_attributes
+      def deprecated_attributes # :nodoc:
         get_string_array_from :attrs_depr
       end
 
-      def optional_attributes
+      def optional_attributes # :nodoc:
         get_string_array_from :attrs_opt
       end
 
-      def default_sub_element
+      def default_sub_element # :nodoc:
         cstruct[:defaultsubelt]
       end
 
-      def sub_elements
+      def sub_elements # :nodoc:
         get_string_array_from :subelts
       end
 
-      def description
+      def description # :nodoc:
         cstruct[:desc]
       end
 
-      def inline?
+      def inline? # :nodoc:
         cstruct[:isinline] != 0
       end
 
-      def deprecated?
+      def deprecated? # :nodoc:
         cstruct[:depr] != 0
       end
 
-      def empty?
+      def empty? # :nodoc:
         cstruct[:empty] != 0
       end
 
-      def save_end_tag?
+      def save_end_tag? # :nodoc:
         cstruct[:saveEndTag] != 0
       end
 
-      def implied_end_tag?
+      def implied_end_tag? # :nodoc:
         cstruct[:endTag] != 0
       end
 
-      def implied_start_tag?
+      def implied_start_tag? # :nodoc:
         cstruct[:startTag] != 0
       end
 
-      def name
+      def name # :nodoc:
         cstruct[:name]
       end
 
-      def self.[](tag_name)
+      def self.[](tag_name) # :nodoc:
         ptr = LibXML.htmlTagLookup(tag_name)
         return nil if ptr.null?
 
@@ -67,7 +67,7 @@ module Nokogiri
 
       private
 
-      def get_string_array_from(sym)
+      def get_string_array_from(sym) # :nodoc:
         list = []
         return list if cstruct[sym].null?
 

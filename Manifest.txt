@@ -82,6 +82,7 @@ lib/nokogiri/ffi/html/document.rb
 lib/nokogiri/ffi/html/element_description.rb
 lib/nokogiri/ffi/html/entity_lookup.rb
 lib/nokogiri/ffi/html/sax/parser.rb
+lib/nokogiri/ffi/io_callbacks.rb
 lib/nokogiri/ffi/libxml.rb
 lib/nokogiri/ffi/structs/common_node.rb
 lib/nokogiri/ffi/structs/html_elem_desc.rb
@@ -134,6 +135,7 @@ lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
+lib/nokogiri/version_warning.rb
 lib/nokogiri/xml.rb
 lib/nokogiri/xml/attr.rb
 lib/nokogiri/xml/builder.rb

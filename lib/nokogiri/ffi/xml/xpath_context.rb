@@ -2,13 +2,13 @@ module Nokogiri
   module XML
     class XPathContext
 
-      attr_accessor :cstruct
+      attr_accessor :cstruct # :nodoc:
 
-      def register_ns(prefix, uri)
+      def register_ns(prefix, uri) # :nodoc:
         LibXML.xmlXPathRegisterNs(cstruct, prefix, uri)
       end
 
-      def evaluate(search_path, xpath_handler=nil)
+      def evaluate(search_path, xpath_handler=nil) # :nodoc:
         lookup = nil # to keep lambda in scope long enough to avoid a possible GC tragedy
         query = search_path.to_s
 
@@ -47,7 +47,7 @@ module Nokogiri
         xpath
       end
 
-      def self.new(node)
+      def self.new(node) # :nodoc:
         LibXML.xmlXPathInit()
 
         ptr = LibXML.xmlXPathNewContext(node.cstruct[:doc])
@@ -63,7 +63,7 @@ module Nokogiri
       #
       #  returns a lambda that will call the handler function with marshalled parameters
       #
-      def ruby_funcall(name, xpath_handler)
+      def ruby_funcall(name, xpath_handler) # :nodoc:
         lambda do |ctx, nargs|
           parser_context = LibXML::XmlXpathParserContext.new(ctx)
           context = parser_context.context

@@ -648,9 +648,9 @@ static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
 
 /*
  * call-seq:
- *   new(name)
+ *   new(name, document)
  *
- * Create a new node with +name+
+ * Create a new node with +name+ sharing GC lifecycle with +document+
  */
 static VALUE new(VALUE klass, VALUE name, VALUE document)
 {

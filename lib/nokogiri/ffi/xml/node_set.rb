@@ -2,31 +2,31 @@ module Nokogiri
   module XML
     class NodeSet
 
-      attr_accessor :cstruct
+      attr_accessor :cstruct # :nodoc:
 
-      def dup
+      def dup # :nodoc:
         dup = LibXML.xmlXPathNodeSetMerge(nil, self.cstruct)
         NodeSet.wrap(dup)
       end
 
-      def length
+      def length # :nodoc:
         cstruct.pointer.null? ? 0 : cstruct[:nodeNr]
       end
 
-      def push(node)
+      def push(node) # :nodoc:
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
         LibXML.xmlXPathNodeSetAdd(cstruct, node.cstruct)
         self
       end
 
-      def +(node_set)
+      def +(node_set) # :nodoc:
         raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
         new_set_ptr = LibXML::xmlXPathNodeSetMerge(nil, self.cstruct)
         new_set_ptr = LibXML::xmlXPathNodeSetMerge(new_set_ptr, node_set.cstruct)
         NodeSet.wrap(new_set_ptr)
       end
 
-      def -(node_set)
+      def -(node_set) # :nodoc:
         raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
         new_set_ptr = LibXML.xmlXPathNodeSetMerge(nil, self.cstruct)
 
@@ -37,7 +37,7 @@ module Nokogiri
         NodeSet.wrap(new_set_ptr)
       end
 
-      def delete(node)
+      def delete(node) # :nodoc:
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
         if LibXML.xmlXPathNodeSetContains(cstruct, node.cstruct) != 0
           LibXML.xmlXPathNodeSetDel(cstruct, node.cstruct)
@@ -46,7 +46,7 @@ module Nokogiri
         return nil
       end
 
-      def [](*args)
+      def [](*args) # :nodoc:
         raise(ArgumentError, "got #{args.length} arguments, expected 1 (or 2)") if args.length > 2
 
         if args.length == 2
@@ -63,17 +63,22 @@ module Nokogiri
       end
       alias_method :slice, :[]
 
-      def &(node_set)
+      def &(node_set) # :nodoc:
         raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
         new_set_ptr = LibXML.xmlXPathIntersection(cstruct, node_set.cstruct)
         NodeSet.wrap(new_set_ptr)
       end
 
-      def to_a
+      def include?(node) # :nodoc:
+        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
+        (LibXML.xmlXPathNodeSetContains(cstruct, node.cstruct) != 0) ? true : false
+      end
+
+      def to_a # :nodoc:
         cstruct.nodeTab.collect { |node| Node.wrap(node) }
       end
 
-      def unlink
+      def unlink # :nodoc:
         # TODO: is this simpler implementation viable:
         #  cstruct.nodeTab.collect {|node| Node.wrap(node)}.each(&:unlink)
         # ?
@@ -87,7 +92,7 @@ module Nokogiri
         self
       end
 
-      def self.new document, list = []
+      def self.new document, list = [] # :nodoc:
         set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil))
         set.document = document
         list.each { |x| set << x }
@@ -97,19 +102,19 @@ module Nokogiri
 
       private
 
-      def self.wrap(ptr)
+      def self.wrap(ptr) # :nodoc:
         set = allocate
         set.cstruct = LibXML::XmlNodeSet.new(ptr)
         set
       end
 
-      def index_at(number)
+      def index_at(number) # :nodoc:
         return nil if (number >= cstruct[:nodeNr] || number.abs > cstruct[:nodeNr])
         number = number + cstruct[:nodeNr] if number < 0
         Node.wrap(cstruct.nodeTab[number])
       end
 
-      def subseq(beg, len)
+      def subseq(beg, len) # :nodoc:
         return nil if beg > cstruct[:nodeNr]
         return nil if beg < 0 || len < 0
 

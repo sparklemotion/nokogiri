@@ -42,8 +42,17 @@ module Nokogiri
         ObjectSpace._id2ref(ptr.get_long(0))
       end
 
+      def ruby_doc=(object)
+        self[:_private].put_long(0, object.object_id)
+      end
+
       def node_set
         LibXML::XmlNodeSetCast.new(self[:_private].get_pointer(FFI.type_size(:pointer)))
+      end
+
+      def alloc_tuple
+        self[:_private] = LibXML.calloc(FFI.type_size(:pointer), 2)
+        self[:_private].put_pointer(FFI.type_size(:pointer), LibXML.xmlXPathNodeSetCreate(nil))
       end
     end
 
@@ -55,8 +64,7 @@ module Nokogiri
 
       def initialize(ptr)
         super(ptr)
-        self[:_private] = LibXML.calloc(FFI.type_size(:pointer), 2)
-        self[:_private].put_pointer(FFI.type_size(:pointer), LibXML.xmlXPathNodeSetCreate(nil))
+        self.alloc_tuple
       end
 
       def self.release ptr
@@ -81,11 +89,6 @@ module Nokogiri
         end
         LibXML.xmlFreeDoc(ptr)
       end
-
-      def ruby_doc=(object)
-        self[:_private].put_long(0, object.object_id)
-      end
-
     end
 
     #

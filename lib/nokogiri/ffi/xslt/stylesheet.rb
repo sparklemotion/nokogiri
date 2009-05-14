@@ -2,9 +2,9 @@ module Nokogiri
   module XSLT
     class Stylesheet
 
-      attr_accessor :cstruct
+      attr_accessor :cstruct # :nodoc:
 
-      def self.parse_stylesheet_doc(document)
+      def self.parse_stylesheet_doc(document) # :nodoc:
         LibXML.exsltRegisterAll
 
         generic_exception_handler = lambda do |ctx, msg|
@@ -21,7 +21,7 @@ module Nokogiri
         obj
       end
 
-      def serialize(document)
+      def serialize(document) # :nodoc:
         buf_ptr = FFI::MemoryPointer.new :pointer
         buf_len = FFI::MemoryPointer.new :int
         LibXML.xsltSaveResultToString(buf_ptr, buf_len, document.cstruct, cstruct)
@@ -29,7 +29,7 @@ module Nokogiri
         buf.pointer.read_string(buf_len.read_int)
       end
 
-      def transform(document, params=[])
+      def transform(document, params=[]) # :nodoc:
         param_arr = FFI::MemoryPointer.new(:pointer, params.length + 1)
         params.each_with_index do |param, j|
           param_arr[j].put_pointer(0, FFI::MemoryPointer.from_string(param.to_s))
