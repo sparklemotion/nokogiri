@@ -77,6 +77,15 @@ module Nokogiri
         assert_equal 1, fruits.to_xml.scan('www.fruits.org').length
       end
       
+      [:clone, :dup].each do |symbol|
+        define_method "test_#{symbol}" do
+          node = @xml.at('//employee')
+          other = node.send(symbol)
+          assert_equal "employee", other.name
+          assert_nil other.parent
+        end
+      end
+
       def test_node_added_to_root_should_get_namespace
         fruits = Nokogiri::XML(<<-eoxml)
           <Fruit xmlns='http://www.fruits.org'>
