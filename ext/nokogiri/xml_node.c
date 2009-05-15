@@ -317,6 +317,22 @@ static VALUE key_eh(VALUE self, VALUE attribute)
 
 /*
  * call-seq:
+ *  namespaced_key?(attribute, namespace)
+ *
+ * Returns true if +attribute+ is set with +namespace+
+ */
+static VALUE namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  if(xmlHasNsProp(node, (xmlChar *)StringValuePtr(attribute),
+        Qnil == namespace ? NULL : (xmlChar *)StringValuePtr(namespace)))
+    return Qtrue;
+  return Qfalse;
+}
+
+/*
+ * call-seq:
  *  []=(property, value)
  *
  * Set the +property+ to +value+
@@ -369,6 +385,24 @@ static VALUE attr(VALUE self, VALUE name)
   xmlAttrPtr prop;
   Data_Get_Struct(self, xmlNode, node);
   prop = xmlHasProp(node, (xmlChar *)StringValuePtr(name));
+
+  if(! prop) return Qnil;
+  return Nokogiri_wrap_xml_node((xmlNodePtr)prop);
+}
+
+/*
+ * call-seq:
+ *   attribute_with_ns(name, namespace)
+ *
+ * Get the attribute node with +name+ and +namespace+
+ */
+static VALUE attribute_with_ns(VALUE self, VALUE name, VALUE namespace)
+{
+  xmlNodePtr node;
+  xmlAttrPtr prop;
+  Data_Get_Struct(self, xmlNode, node);
+  prop = xmlHasNsProp(node, (xmlChar *)StringValuePtr(name),
+      Qnil == namespace ? NULL : (xmlChar *)StringValuePtr(namespace));
 
   if(! prop) return Qnil;
   return Nokogiri_wrap_xml_node((xmlNodePtr)prop);
@@ -865,10 +899,12 @@ void init_xml_node()
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "path", path, 0);
   rb_define_method(klass, "key?", key_eh, 1);
+  rb_define_method(klass, "namespaced_key?", namespaced_key_eh, 2);
   rb_define_method(klass, "blank?", blank_eh, 0);
   rb_define_method(klass, "[]=", set, 2);
   rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "attribute", attr, 1);
+  rb_define_method(klass, "attribute_with_ns", attribute_with_ns, 2);
   rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);

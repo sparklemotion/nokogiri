@@ -76,7 +76,7 @@ module Nokogiri
         assert_equal 2, fruits.xpath('//xmlns:Apple').length
         assert_equal 1, fruits.to_xml.scan('www.fruits.org').length
       end
-      
+
       [:clone, :dup].each do |symbol|
         define_method "test_#{symbol}" do
           node = @xml.at('//employee')
@@ -587,12 +587,12 @@ module Nokogiri
       def test_node_equality
         doc1 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         doc2 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        
+
         address1_1 = doc1.xpath('//address').first
         address1_2 = doc1.xpath('//address').first
-        
+
         address2 = doc2.xpath('//address').first
-        
+
         assert_not_equal address1_1, address2 # two references to very, very similar nodes
         assert_equal address1_1, address1_2 # two references to the exact same node
       end
@@ -729,7 +729,7 @@ EOF
 
           GC.start
         end
-        
+
       end
 
     end
