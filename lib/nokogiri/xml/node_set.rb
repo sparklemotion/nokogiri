@@ -207,6 +207,35 @@ module Nokogiri
 
       alias :size :length
       alias :to_ary :to_a
+
+      ###
+      # Removes the last element from set and returns it, or +nil+ if
+      # the set is empty
+      def pop
+        return nil if length == 0
+        delete last
+      end
+
+      ###
+      # Returns the first element of the NodeSet and removes it.  Returns
+      # +nil+ if the set is empty.
+      def shift
+        return nil if length == 0
+        delete first
+      end
+
+      ###
+      # Equality -- Two NodeSets are equal if the contain the same number
+      # of elements and if each element is equal to the corresponding
+      # element in the other NodeSet
+      def == other
+        return false unless other.is_a?(Nokogiri::XML::NodeSet)
+        return false unless length == other.length
+        each_with_index do |node, i|
+          return false unless node == other[i]
+        end
+        true
+      end
     end
   end
 end

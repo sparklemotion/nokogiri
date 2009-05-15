@@ -19,7 +19,8 @@
   * Nokogiri::XML::Node#accept implements Visitor pattern
   * bin/nokogiri for easily examining documents (Thanks Yutaka HARA!)
   * Nokogiri::XML::NodeSet now supports more Array and Enumerable operators:
-    index, delete, slice, - (difference), + (concatenation), and & (intersection).
+    index, delete, slice, - (difference), + (concatenation), & (intersection),
+    push, pop, shift, ==
 
 * Bugfixes
 
