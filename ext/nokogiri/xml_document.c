@@ -7,6 +7,8 @@ static void dealloc(xmlDocPtr doc)
   nokogiriTuplePtr tuple = doc->_private;
   xmlNodeSetPtr node_set = tuple->unlinkedNodes;
 
+  xmlDeregisterNodeFunc func = xmlDeregisterNodeDefault(NULL);
+
   int j ;
   for(j = 0 ; j < node_set->nodeNr ; j++) {
     xmlNodePtr node = node_set->nodeTab[j];
@@ -29,6 +31,8 @@ static void dealloc(xmlDocPtr doc)
   free(doc->_private);
   doc->_private = NULL;
   xmlFreeDoc(doc);
+
+  xmlDeregisterNodeDefault(func);
 
   NOKOGIRI_DEBUG_END(doc);
 }
