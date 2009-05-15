@@ -5,7 +5,58 @@ module Nokogiri
     class TestNodeSet < Nokogiri::TestCase
       def setup
         super
-        @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+      end
+
+      def test_double_equal
+        assert node_set_one = @xml.xpath('//employee')
+        assert node_set_two = @xml.xpath('//employee')
+
+        assert_not_equal node_set_one.object_id, node_set_two.object_id
+
+        assert_equal node_set_one, node_set_two
+      end
+
+      def test_node_set_not_equal_to_string
+        node_set_one = @xml.xpath('//employee')
+        assert_not_equal node_set_one, "asdfadsf"
+      end
+
+      def test_out_of_order_not_equal
+        one = @xml.xpath('//employee')
+        two = @xml.xpath('//employee')
+        two.push two.shift
+        assert_not_equal one, two
+      end
+
+      def test_shorter_is_not_equal
+        node_set_one = @xml.xpath('//employee')
+        node_set_two = @xml.xpath('//employee')
+        node_set_two.delete(node_set_two.first)
+
+        assert_not_equal node_set_one, node_set_two
+      end
+
+      def test_pop
+        set = @xml.xpath('//employee')
+        last = set.last
+        assert_equal last, set.pop
+      end
+
+      def test_shift
+        set = @xml.xpath('//employee')
+        first = set.first
+        assert_equal first, set.shift
+      end
+
+      def test_shift_empty
+        set = Nokogiri::XML::NodeSet.new(@xml)
+        assert_nil set.shift
+      end
+
+      def test_pop_empty
+        set = Nokogiri::XML::NodeSet.new(@xml)
+        assert_nil set.pop
       end
 
       def test_first_takes_arguments
