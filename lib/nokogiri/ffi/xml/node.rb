@@ -82,6 +82,12 @@ module Nokogiri
         ! (prop = LibXML.xmlHasProp(cstruct, attribute.to_s)).null?
       end
 
+      def namespaced_key?(attribute, namespace) # :nodoc:
+        prop = LibXML.xmlHasNsProp(cstruct, attribute.to_s,
+          namespace.nil? ? nil : namespace.to_s)
+        prop.null? ? false : true
+      end
+
       def []=(property, value) # :nodoc:
         LibXML.xmlSetProp(cstruct, property, value)
         value
@@ -98,6 +104,13 @@ module Nokogiri
 
       def attribute(name) # :nodoc:
         raise "Node#attribute not implemented yet"
+      end
+
+      def attribute_with_ns(name, namespace) # :nodoc:
+        prop = LibXML.xmlHasNsProp(cstruct, name.to_s,
+          namespace.nil? ? NULL : namespace.to_s)
+        return prop if prop.null?
+        Node.wrap(prop)
       end
 
       def attribute_nodes # :nodoc:
