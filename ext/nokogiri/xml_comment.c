@@ -16,7 +16,7 @@ static VALUE new(VALUE klass, VALUE doc, VALUE content)
       (const xmlChar *)StringValuePtr(content)
   );
 
-  VALUE rb_node = Nokogiri_wrap_xml_node(node);
+  VALUE rb_node = Nokogiri_wrap_xml_node(klass, node);
 
   NOKOGIRI_ROOT_NODE(node);
 

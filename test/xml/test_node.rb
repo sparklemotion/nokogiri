@@ -10,6 +10,18 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_node_subclass
+        subclass = Class.new(Nokogiri::XML::Node)
+        node = subclass.new('foo', @xml)
+        assert_instance_of subclass, node
+      end
+
+      def test_subclass_dup
+        subclass = Class.new(Nokogiri::XML::Node)
+        node = subclass.new('foo', @xml).dup
+        assert_instance_of subclass, node
+      end
+
       def test_namespace_goes_to_children
         fruits = Nokogiri::XML(<<-eoxml)
         <Fruit xmlns='www.fruits.org'>
@@ -287,6 +299,7 @@ module Nokogiri
       def test_new
         assert node = Nokogiri::XML::Node.new('input', @xml)
         assert_equal 1, node.node_type
+        assert_instance_of Nokogiri::XML::Node, node
       end
 
       def test_to_str

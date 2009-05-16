@@ -185,7 +185,7 @@ static VALUE index_at(VALUE self, long offset)
   if(offset >= node_set->nodeNr || abs(offset) > node_set->nodeNr) return Qnil;
   if(offset < 0) offset = offset + node_set->nodeNr;
 
-  return Nokogiri_wrap_xml_node(node_set->nodeTab[offset]);
+  return Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[offset]);
 }
 
 static VALUE subseq(VALUE self, long beg, long len)
@@ -277,7 +277,7 @@ static VALUE to_array(VALUE self, VALUE rb_node)
     if(set->nodeTab[i]->_private) {
       elts[i] = (VALUE)set->nodeTab[i]->_private;
     } else {
-      elts[i] = Nokogiri_wrap_xml_node(set->nodeTab[i]);
+      elts[i] = Nokogiri_wrap_xml_node(Qnil, set->nodeTab[i]);
     }
   }
 
@@ -304,7 +304,7 @@ static VALUE unlink_nodeset(VALUE self)
   for (j = 0 ; j < nodeNr ; j++) {
     VALUE node ;
     xmlNodePtr node_ptr;
-    node = Nokogiri_wrap_xml_node(node_set->nodeTab[j]);
+    node = Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[j]);
     rb_funcall(node, rb_intern("unlink"), 0); /* modifies the C struct out from under the object */
     Data_Get_Struct(node, xmlNode, node_ptr);
     node_set->nodeTab[j] = node_ptr ;

@@ -59,7 +59,7 @@ static VALUE new(VALUE klass, VALUE doc, VALUE name)
 
   NOKOGIRI_ROOT_NODE((xmlNodePtr)node);
 
-  VALUE rb_node = Nokogiri_wrap_xml_node((xmlNodePtr)node);
+  VALUE rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
 
   if(rb_block_given_p()) rb_yield(rb_node);
 

@@ -86,7 +86,7 @@ static VALUE root(VALUE self)
   xmlNodePtr root = xmlDocGetRootElement(doc);
 
   if(!root) return Qnil;
-  return Nokogiri_wrap_xml_node(root) ;
+  return Nokogiri_wrap_xml_node(Qnil, root) ;
 }
 
 /*

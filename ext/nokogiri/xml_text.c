@@ -14,7 +14,7 @@ static VALUE new(VALUE klass, VALUE string, VALUE document)
   xmlNodePtr node = xmlNewText((xmlChar *)StringValuePtr(string));
   node->doc = doc;
 
-  VALUE rb_node = Nokogiri_wrap_xml_node(node) ;
+  VALUE rb_node = Nokogiri_wrap_xml_node(klass, node) ;
 
   if(rb_block_given_p()) rb_yield(rb_node);
 

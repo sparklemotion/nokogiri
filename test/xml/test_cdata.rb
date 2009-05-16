@@ -8,6 +8,12 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_subclass
+        klass = Class.new(Nokogiri::XML::CDATA)
+        node = klass.new(@xml, "foo")
+        assert_instance_of klass, node
+      end
+
       def test_cdata_node
         name = @xml.xpath('//employee[2]/name').first
         assert cdata = name.children[1]

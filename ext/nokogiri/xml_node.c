@@ -89,7 +89,7 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   // Appropriately link in namespaces
   relink_namespace(reparented);
 
-  reparented_obj = Nokogiri_wrap_xml_node(reparented);
+  reparented_obj = Nokogiri_wrap_xml_node(Qnil, reparented);
 
   rb_funcall(reparented_obj, rb_intern("decorate!"), 0);
 
@@ -151,7 +151,7 @@ static VALUE internal_subset(VALUE self)
 
   if(!dtd) return Qnil;
 
-  return Nokogiri_wrap_xml_node((xmlNodePtr)dtd);
+  return Nokogiri_wrap_xml_node(Qnil, (xmlNodePtr)dtd);
 }
 
 /*
@@ -174,7 +174,7 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   dup = xmlDocCopyNode(node, node->doc, NUM2INT(level));
   if(dup == NULL) return Qnil;
 
-  return Nokogiri_wrap_xml_node(dup);
+  return Nokogiri_wrap_xml_node(rb_obj_class(self), dup);
 }
 
 /*
@@ -221,7 +221,7 @@ static VALUE next_sibling(VALUE self)
   sibling = node->next;
   if(!sibling) return Qnil;
 
-  return Nokogiri_wrap_xml_node(sibling) ;
+  return Nokogiri_wrap_xml_node(Qnil, sibling) ;
 }
 
 /*
@@ -238,7 +238,7 @@ static VALUE previous_sibling(VALUE self)
   sibling = node->prev;
   if(!sibling) return Qnil;
 
-  return Nokogiri_wrap_xml_node(sibling);
+  return Nokogiri_wrap_xml_node(Qnil, sibling);
 }
 
 /* :nodoc: */
@@ -297,7 +297,7 @@ static VALUE child(VALUE self)
   child = node->children;
   if(!child) return Qnil;
 
-  return Nokogiri_wrap_xml_node(child);
+  return Nokogiri_wrap_xml_node(Qnil, child);
 }
 
 /*
@@ -387,7 +387,7 @@ static VALUE attr(VALUE self, VALUE name)
   prop = xmlHasProp(node, (xmlChar *)StringValuePtr(name));
 
   if(! prop) return Qnil;
-  return Nokogiri_wrap_xml_node((xmlNodePtr)prop);
+  return Nokogiri_wrap_xml_node(Qnil, (xmlNodePtr)prop);
 }
 
 /*
@@ -405,7 +405,7 @@ static VALUE attribute_with_ns(VALUE self, VALUE name, VALUE namespace)
       Qnil == namespace ? NULL : (xmlChar *)StringValuePtr(namespace));
 
   if(! prop) return Qnil;
-  return Nokogiri_wrap_xml_node((xmlNodePtr)prop);
+  return Nokogiri_wrap_xml_node(Qnil, (xmlNodePtr)prop);
 }
 
 /*
@@ -537,7 +537,7 @@ static VALUE get_parent(VALUE self)
   parent = node->parent;
   if(!parent) return Qnil;
 
-  return Nokogiri_wrap_xml_node(parent) ;
+  return Nokogiri_wrap_xml_node(Qnil, parent) ;
 }
 
 /*
@@ -696,7 +696,7 @@ static VALUE new(VALUE klass, VALUE name, VALUE document)
   node->doc = doc->doc;
   NOKOGIRI_ROOT_NODE(node);
 
-  VALUE rb_node = Nokogiri_wrap_xml_node(node);
+  VALUE rb_node = Nokogiri_wrap_xml_node(klass, node);
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
@@ -740,7 +740,7 @@ static VALUE compare(VALUE self, VALUE _other)
   return INT2NUM(xmlXPathCmpNodes(other, node));
 }
 
-VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
+VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
 {
   assert(node);
 
@@ -754,10 +754,11 @@ VALUE Nokogiri_wrap_xml_node(xmlNodePtr node)
 
   if(NULL != node->_private) return (VALUE)node->_private;
 
-  switch(node->type)
-  {
-    VALUE klass;
+  if(RTEST(klass))
+    rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
 
+  if(!RTEST(klass)) switch(node->type)
+  {
     case XML_ELEMENT_NODE:
       klass = cNokogiriXmlElement;
       rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
@@ -822,7 +823,7 @@ void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_list)
   xmlAttrPtr prop;
   prop = node->properties ;
   while (prop != NULL) {
-    rb_ary_push(attr_list, Nokogiri_wrap_xml_node((xmlNodePtr)prop));
+    rb_ary_push(attr_list, Nokogiri_wrap_xml_node(Qnil, (xmlNodePtr)prop));
     prop = prop->next ;
   }
 }
