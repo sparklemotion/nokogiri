@@ -10,7 +10,7 @@ module Nokogiri
 
         LibXML.xmlXPathNodeSetAdd(node_cstruct.document.node_set, node_cstruct);
 
-        node = Node.wrap(node_cstruct)
+        node = Node.wrap(node_cstruct, self)
 
         yield node if block_given?
 

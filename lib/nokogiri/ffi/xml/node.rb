@@ -27,7 +27,7 @@ module Nokogiri
       def dup(deep = 1) # :nodoc:
         dup_ptr = LibXML.xmlDocCopyNode(cstruct, cstruct.document, deep)
         return nil if dup_ptr.null?
-        Node.wrap(dup_ptr)
+        Node.wrap(dup_ptr, self.class)
       end
 
       def unlink # :nodoc:
@@ -231,7 +231,7 @@ module Nokogiri
 
         LibXML.xmlXPathNodeSetAdd(node_cstruct.document.node_set, node_cstruct);
 
-        node = Node.wrap(node_cstruct)
+        node = Node.wrap(node_cstruct, self)
 
         yield node if block_given?
 
@@ -249,7 +249,7 @@ module Nokogiri
         LibXML.xmlXPathCmpNodes(other.cstruct, self.cstruct)
       end
 
-      def self.wrap(node_struct) # :nodoc:
+      def self.wrap(node_struct, klass=nil) # :nodoc:
         if node_struct.is_a?(FFI::Pointer)
           # cast native pointers up into a node cstruct
           return nil if node_struct.null?
@@ -280,7 +280,12 @@ module Nokogiri
                   when DTD_NODE then [XML::DTD, LibXML::XmlDtd]
                   else [XML::Node]
                   end
-        node = klasses.first.allocate
+
+        if klass
+          node = klass.allocate
+        else
+          node = klasses.first.allocate
+        end
         node.cstruct = klasses[1] ? klasses[1].new(node_struct.pointer) : node_struct
 
         node.cstruct.ruby_node = node

@@ -6,7 +6,7 @@ module Nokogiri
         node_ptr = LibXML.xmlNewText(string)
         node_cstruct = LibXML::XmlNode.new(node_ptr)
         node_cstruct[:doc] = document.cstruct
-        node = Node.wrap(node_cstruct)
+        node = Node.wrap(node_cstruct, self)
         yield node if block_given?
         node
       end

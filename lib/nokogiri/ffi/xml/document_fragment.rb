@@ -10,7 +10,7 @@ module Nokogiri
 
         LibXML.xmlXPathNodeSetAdd(node_cstruct.document.node_set, node_cstruct)
 
-        node = Node.wrap(node_cstruct)
+        node = Node.wrap(node_cstruct, self)
         
         if node.document.child && node.document.child.node_type == ELEMENT_NODE
           # TODO: node_type check should be ported into master, because of e.g. DTD nodes
