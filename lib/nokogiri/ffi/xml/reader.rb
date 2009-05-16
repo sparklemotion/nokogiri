@@ -3,6 +3,7 @@ module Nokogiri
     class Reader
       
       attr_accessor :cstruct # :nodoc:
+      attr_accessor :reader_callback # :nodoc:
 
       def default? # :nodoc:
         LibXML.xmlTextReaderIsDefault(cstruct) == 1
@@ -174,12 +175,14 @@ module Nokogiri
       def self.from_io(io, url=nil, encoding=nil, options=0) # :nodoc:
         raise(ArgumentError, "io cannot be nil") if io.nil?
 
-        reader_ptr = LibXML.xmlReaderForIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
+        cb = IoCallbacks.reader(io) # we will keep a reference to prevent it from being GC'd
+        reader_ptr = LibXML.xmlReaderForIO(cb, nil, nil, url, encoding, options)
         raise "couldn't create a parser" if reader_ptr.null?
 
         reader = allocate
         reader.cstruct = LibXML::XmlTextReader.new(reader_ptr)
         reader.send(:initialize, io, url, encoding)
+        reader.reader_callback = cb
         reader
       end
 
