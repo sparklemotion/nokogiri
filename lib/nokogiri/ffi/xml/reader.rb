@@ -69,8 +69,9 @@ module Nokogiri
         if attr_ptr.null?
           # this section is an attempt to workaround older versions of libxml that
           # don't handle namespaces properly in all attribute-and-friends functions
-          prefix = FFI::MemoryPointer.new :pointer
-          localname = LibXML.xmlSplitQName2(name, prefix)
+          prefix_ptr = FFI::MemoryPointer.new :pointer
+          localname = LibXML.xmlSplitQName2(name, prefix_ptr)
+          prefix = prefix_ptr.get_pointer(0)
           if ! localname.null?
             attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, localname.read_string)
             LibXML.xmlFree(localname)
@@ -81,7 +82,7 @@ module Nokogiri
               attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, prefix.read_string)
             end
           end
-          LibXML.xmlFree(prefix.read_pointer)
+          LibXML.xmlFree(prefix)
         end
         return nil if attr_ptr.null?
 
