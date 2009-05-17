@@ -687,11 +687,11 @@ static VALUE line(VALUE self)
 
 /*
  * call-seq:
- *  add_namespace(prefix, href)
+ *  add_namespace_definition(prefix, href)
  *
- * Add a namespace with +prefix+ using +href+
+ * Adds a namespace definition with +prefix+ using +href+
  */
-static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
+static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
@@ -705,7 +705,7 @@ static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
 
   xmlSetNs(node, ns);
 
-  return self;
+  return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }
 
 /*
@@ -921,7 +921,7 @@ void init_xml_node()
 
   rb_define_singleton_method(klass, "new", new, -1);
 
-  rb_define_method(klass, "add_namespace", add_namespace, 2);
+  rb_define_method(klass, "add_namespace_definition", add_namespace_definition, 2);
   rb_define_method(klass, "node_name", get_name, 0);
   rb_define_method(klass, "node_name=", set_name, 1);
   rb_define_method(klass, "add_child", add_child, 1);

@@ -431,6 +431,7 @@ module Nokogiri
       def default_namespace= url
         add_namespace(nil, url)
       end
+      alias :add_namespace :add_namespace_definition
 
       ####
       # Yields self and all children to +block+ recursively.

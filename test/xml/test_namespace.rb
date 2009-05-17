@@ -28,6 +28,16 @@ module Nokogiri
         namespaces = @xml.root.namespace_definitions
         assert_equal namespaces, @xml.root.namespace_definitions
       end
+
+      def test_add_definition
+        @xml.root.add_namespace_definition('baz', 'bar')
+        assert_equal 3, @xml.root.namespace_definitions.length
+      end
+
+      def test_add_definition_return
+        ns = @xml.root.add_namespace_definition('baz', 'bar')
+        assert_equal 'baz', ns.prefix
+      end
     end
   end
 end
