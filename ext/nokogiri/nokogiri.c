@@ -70,6 +70,7 @@ void Init_nokogiri()
   init_xml_sax_push_parser();
   init_xml_reader();
   init_xml_dtd();
+  init_xml_namespace();
   init_html_sax_parser();
   init_xslt_stylesheet();
   init_xml_syntax_error();

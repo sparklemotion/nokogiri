@@ -7,42 +7,29 @@ module Nokogiri
     class TestNode < Nokogiri::TestCase
       def setup
         super
-        @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
-      {
-        Nokogiri::XML::CDATA                  => 'doc, "foo"',
-        Nokogiri::XML::Attr                   => 'doc, "foo"',
-        Nokogiri::XML::Comment                => 'doc, "foo"',
-        Nokogiri::XML::EntityReference        => 'doc, "foo"',
-        Nokogiri::XML::ProcessingInstruction  => 'doc, "foo", "bar"',
-        Nokogiri::XML::DocumentFragment       => 'doc',
-        Nokogiri::XML::Node                   => '"foo", doc',
-        Nokogiri::XML::Text                   => '"foo", doc',
-      }.each do |klass, constructor|
-        class_eval %{
-          def test_subclass_#{klass.name.gsub('::', '_')}
-            doc = Nokogiri::XML::Document.new
-            klass = Class.new(#{klass.name})
-            node = klass.new(#{constructor})
-            assert_instance_of klass, node
-          end
-        }
+      def test_namespace_nodes
+        xml = Nokogiri::XML <<-eoxml
+          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
+            <awesome/>
+          </root>
+        eoxml
+        awesome = xml.root
+        namespaces = awesome.namespace_definitions
+        assert_equal 2, namespaces.length
+      end
 
-        class_eval <<-eocode, __FILE__, __LINE__ + 1
-          def test_subclass_initialize_#{klass.name.gsub('::', '_')}
-            doc = Nokogiri::XML::Document.new
-            klass = Class.new(#{klass.name}) do
-              attr_accessor :initialized_with
-
-              def initialize *args
-                @initialized_with = args
-              end
-            end
-            node = klass.new(#{constructor}, 1)
-            assert_equal [#{constructor}, 1], node.initialized_with
-          end
-        eocode
+      def test_no_definitions
+        xml = Nokogiri::XML <<-eoxml
+          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
+            <awesome/>
+          </root>
+        eoxml
+        awesome = xml.at('//xmlns:awesome')
+        namespaces = awesome.namespace_definitions
+        assert_equal 0, namespaces.length
       end
 
       def test_subclass_dup

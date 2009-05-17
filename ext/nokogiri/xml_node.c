@@ -453,16 +453,43 @@ static VALUE namespace(VALUE self)
  */
 static VALUE namespaces(VALUE self)
 {
-    /* this code in the mode of xmlHasProp() */
-    xmlNodePtr node ;
-    VALUE attr ;
+  /* this code in the mode of xmlHasProp() */
+  xmlNodePtr node ;
+  VALUE attr ;
 
-    attr = rb_hash_new() ;
-    Data_Get_Struct(self, xmlNode, node);
+  attr = rb_hash_new() ;
+  Data_Get_Struct(self, xmlNode, node);
 
-    Nokogiri_xml_node_namespaces(node, attr);
+  Nokogiri_xml_node_namespaces(node, attr);
 
-    return attr ;
+  return attr ;
+}
+
+/*
+ *  call-seq:
+ *    namespace_definitions()
+ *
+ *  returns a list of Namespace nodes defined on _self_
+ */
+static VALUE namespace_definitions(VALUE self)
+{
+  /* this code in the mode of xmlHasProp() */
+  xmlNodePtr node ;
+
+  Data_Get_Struct(self, xmlNode, node);
+
+  VALUE list = rb_ary_new();
+
+  xmlNsPtr ns = node->nsDef;
+
+  if(!ns) return list;
+
+  while(NULL != ns) {
+    rb_ary_push(list, Nokogiri_wrap_xml_namespace(node->doc, ns));
+    ns = ns->next;
+  }
+
+  return list;
 }
 
 /*
@@ -914,6 +941,7 @@ void init_xml_node()
   rb_define_method(klass, "attribute_with_ns", attribute_with_ns, 2);
   rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespaces", namespaces, 0);
+  rb_define_method(klass, "namespace_definitions", namespace_definitions, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);

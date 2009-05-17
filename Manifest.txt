@@ -33,6 +33,8 @@ ext/nokogiri/xml_entity_reference.c
 ext/nokogiri/xml_entity_reference.h
 ext/nokogiri/xml_io.c
 ext/nokogiri/xml_io.h
+ext/nokogiri/xml_namespace.c
+ext/nokogiri/xml_namespace.h
 ext/nokogiri/xml_node.c
 ext/nokogiri/xml_node.h
 ext/nokogiri/xml_node_set.c
@@ -212,6 +214,7 @@ test/test_nokogiri.rb
 test/test_reader.rb
 test/test_xslt_transforms.rb
 test/xml/node/test_save_options.rb
+test/xml/node/test_subclass.rb
 test/xml/sax/test_parser.rb
 test/xml/sax/test_push_parser.rb
 test/xml/test_attr.rb
@@ -224,6 +227,7 @@ test/xml/test_document_fragment.rb
 test/xml/test_dtd.rb
 test/xml/test_dtd_encoding.rb
 test/xml/test_entity_reference.rb
+test/xml/test_namespace.rb
 test/xml/test_node.rb
 test/xml/test_node_attributes.rb
 test/xml/test_node_encoding.rb
