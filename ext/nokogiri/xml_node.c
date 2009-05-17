@@ -433,15 +433,16 @@ static VALUE attribute_nodes(VALUE self)
  *  call-seq:
  *    namespace()
  *
- *  returns the namespace prefix for the node, if one exists.
+ *  returns the Nokogiri::XML::Namespace for the node, if one exists.
  */
 static VALUE namespace(VALUE self)
 {
   xmlNodePtr node ;
   Data_Get_Struct(self, xmlNode, node);
-  if (node->ns && node->ns->prefix) {
-    return NOKOGIRI_STR_NEW2(node->ns->prefix, node->doc->encoding);
-  }
+
+  if (node->ns)
+    return Nokogiri_wrap_xml_namespace(node->doc, node->ns);
+
   return Qnil ;
 }
 

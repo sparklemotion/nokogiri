@@ -700,9 +700,9 @@ EOF
 </x>
 EOF
         set = xml.search("//y/*")
-        assert_equal "a", set[0].namespace
-        assert_equal "b", set[1].namespace
-        assert_equal "c", set[2].namespace
+        assert_equal "a", set[0].namespace.prefix
+        assert_equal "b", set[1].namespace.prefix
+        assert_equal "c", set[2].namespace.prefix
         assert_equal nil, set[3].namespace
       end
 
