@@ -163,12 +163,15 @@ module Nokogiri
 
       def self.from_memory(buffer, url=nil, encoding=nil, options=0) # :nodoc:
         raise(ArgumentError, "string cannot be nil") if buffer.nil?
-        reader_ptr = LibXML.xmlReaderForMemory(buffer, buffer.length, url, encoding, options)
+
+        memory = FFI::MemoryPointer.new(buffer.length) # we need to manage native memory lifecycle
+        memory.put_bytes(0, buffer)
+        reader_ptr = LibXML.xmlReaderForMemory(memory, memory.total, url, encoding, options)
         raise(RuntimeError, "couldn't create a reader") if reader_ptr.null?
 
         reader = allocate
         reader.cstruct = LibXML::XmlTextReader.new(reader_ptr)
-        reader.send(:initialize, buffer, url, encoding)
+        reader.send(:initialize, memory, url, encoding)
         reader
       end
 
