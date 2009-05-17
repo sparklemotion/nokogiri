@@ -75,6 +75,7 @@ namespace :gem do
     end
   end
 
+  desc "Build a gem targetted for JRuby"
   task :jruby => ['gem:jruby:spec'] do
     system "gem build nokogiri.gemspec"
     FileUtils.mkdir_p "pkg"
