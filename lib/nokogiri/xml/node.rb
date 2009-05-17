@@ -80,6 +80,10 @@ module Nokogiri
       # The Document associated with this Node.
       attr_accessor :document
 
+      def initialize name, document
+        # ... Ya.  This is empty on purpose.
+      end
+
       ###
       # Decorate this node with the decorators set up in this node's Document
       def decorate!

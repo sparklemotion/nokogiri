@@ -686,9 +686,14 @@ static VALUE add_namespace(VALUE self, VALUE prefix, VALUE href)
  *
  * Create a new node with +name+ sharing GC lifecycle with +document+
  */
-static VALUE new(VALUE klass, VALUE name, VALUE document)
+static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr doc;
+  VALUE name;
+  VALUE document;
+  VALUE rest;
+
+  rb_scan_args(argc, argv, "2*", &name, &document, &rest);
 
   Data_Get_Struct(document, xmlDoc, doc);
 
@@ -697,6 +702,7 @@ static VALUE new(VALUE klass, VALUE name, VALUE document)
   NOKOGIRI_ROOT_NODE(node);
 
   VALUE rb_node = Nokogiri_wrap_xml_node(klass, node);
+  rb_funcall2(rb_node, rb_intern("initialize"), argc, argv);
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
@@ -885,7 +891,7 @@ void init_xml_node()
   cNokogiriXmlEntityDeclaration =
     rb_define_class_under(xml, "EntityDeclaration", klass);
 
-  rb_define_singleton_method(klass, "new", new, 2);
+  rb_define_singleton_method(klass, "new", new, -1);
 
   rb_define_method(klass, "add_namespace", add_namespace, 2);
   rb_define_method(klass, "node_name", get_name, 0);

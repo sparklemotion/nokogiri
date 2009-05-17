@@ -42,14 +42,20 @@ static VALUE set_value(VALUE self, VALUE content)
 
 /*
  * call-seq:
- *  new(document, content)
+ *  new(document, name)
  *
  * Create a new Attr element on the +document+ with +name+
  */
-static VALUE new(VALUE klass, VALUE doc, VALUE name)
+static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
-  Data_Get_Struct(doc, xmlDoc, xml_doc);
+  VALUE document;
+  VALUE name;
+  VALUE rest;
+
+  rb_scan_args(argc, argv, "2*", &document, &name, &rest);
+
+  Data_Get_Struct(document, xmlDoc, xml_doc);
 
   xmlAttrPtr node = xmlNewDocProp(
       xml_doc,
@@ -60,6 +66,7 @@ static VALUE new(VALUE klass, VALUE doc, VALUE name)
   NOKOGIRI_ROOT_NODE((xmlNodePtr)node);
 
   VALUE rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
+  rb_funcall2(rb_node, rb_intern("initialize"), argc, argv);
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
@@ -80,6 +87,6 @@ void init_xml_attr()
 
   cNokogiriXmlAttr = klass;
 
-  rb_define_singleton_method(klass, "new", new, 2);
+  rb_define_singleton_method(klass, "new", new, -1);
   rb_define_method(klass, "value=", set_value, 1);
 }

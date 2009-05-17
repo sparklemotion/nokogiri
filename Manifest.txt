@@ -148,6 +148,7 @@ lib/nokogiri/xml/node.rb
 lib/nokogiri/xml/node/save_options.rb
 lib/nokogiri/xml/node_set.rb
 lib/nokogiri/xml/notation.rb
+lib/nokogiri/xml/processing_instruction.rb
 lib/nokogiri/xml/reader.rb
 lib/nokogiri/xml/relax_ng.rb
 lib/nokogiri/xml/sax.rb
