@@ -76,7 +76,7 @@ namespace :gem do
   end
 
   namespace :jruby do
-    task :spec => ['compile'] do
+    task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'java'
         HOE.spec.files << GENERATED_PARSER
