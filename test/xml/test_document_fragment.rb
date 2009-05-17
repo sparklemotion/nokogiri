@@ -8,12 +8,6 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
-      def test_subclass
-        klass = Class.new(Nokogiri::XML::DocumentFragment)
-        fragment = klass.new(@xml)
-        assert_instance_of klass, fragment
-      end
-
       def test_new
         fragment = Nokogiri::XML::DocumentFragment.new(@xml)
       end

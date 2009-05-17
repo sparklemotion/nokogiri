@@ -8,12 +8,6 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
-      def test_subclass
-        klass = Class.new(Nokogiri::XML::Comment)
-        comment = klass.new(@xml, 'hello world')
-        assert_instance_of klass, comment
-      end
-
       def test_new
         comment = Nokogiri::XML::Comment.new(@xml, 'hello world')
         assert_equal('<!--hello world-->', comment.to_s)

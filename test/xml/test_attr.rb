@@ -10,13 +10,6 @@ module Nokogiri
         }
       end
 
-      def test_subclass
-        doc = Nokogiri::XML::Document.new
-        klass = Class.new(Nokogiri::XML::Attr)
-        attribute = klass.new(doc, 'foo')
-        assert_instance_of klass, attribute
-      end
-
       def test_content=
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath('//address')[3]

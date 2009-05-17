@@ -16,12 +16,6 @@ module Nokogiri
         assert_equal 'TEST-STYLE', @xml.children[0].name
       end
 
-      def test_subclass
-        klass = Class.new(Nokogiri::XML::ProcessingInstruction)
-        node = klass.new(@xml, 'name', 'content')
-        assert_instance_of klass, node
-      end
-
       def test_new
         assert ref = ProcessingInstruction.new(@xml, 'name', 'content')
         assert_instance_of ProcessingInstruction, ref

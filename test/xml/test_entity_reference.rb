@@ -8,12 +8,6 @@ module Nokogiri
         @xml = Nokogiri::XML(File.open(XML_FILE), XML_FILE)
       end
 
-      def test_subclass
-        klass = Class.new(Nokogiri::XML::EntityReference)
-        ref = klass.new(@xml, 'ent4')
-        assert_instance_of klass, ref
-      end
-
       def test_new
         assert ref = EntityReference.new(@xml, 'ent4')
         assert_instance_of EntityReference, ref
