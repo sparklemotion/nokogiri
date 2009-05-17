@@ -75,6 +75,12 @@ namespace :gem do
     end
   end
 
+  task :jruby => ['gem:jruby:spec'] do
+    system "gem build nokogiri.gemspec"
+    FileUtils.mkdir_p "pkg"
+    FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
+  end
+
   namespace :jruby do
     task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
