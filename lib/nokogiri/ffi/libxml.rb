@@ -280,6 +280,7 @@ require 'nokogiri/xml/syntax_error'
   "structs/html_entity_desc",
   "structs/xslt_stylesheet",
   "xml/node",
+  "xml/namespace",
   "xml/dtd",
   "xml/attr",
   "xml/document",

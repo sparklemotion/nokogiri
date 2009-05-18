@@ -125,10 +125,7 @@ module Nokogiri
       end
 
       def namespace # :nodoc:
-        return nil if cstruct[:ns].null?
-        prefix = LibXML::XmlNs.new(cstruct[:ns])[:prefix]
-        return prefix if prefix # TODO: encoding?
-        nil
+        cstruct[:ns].null? ? nil : Namespace.wrap(cstruct.document, cstruct[:ns])
       end
 
       def namespaces # :nodoc:
@@ -147,6 +144,18 @@ module Nokogiri
           ns = ns_cstruct[:next] # TODO: encoding?
         end
         ahash
+      end
+
+      def namespace_definitions # :nodoc:
+        list = []
+        ns_ptr = cstruct[:nsDef]
+        return list if ns_ptr.null?
+        while ! ns_ptr.null?
+          ns = Namespace.wrap(cstruct.document, ns_ptr)
+          list << ns
+          ns_ptr = ns.cstruct[:next]
+        end
+        list
       end
 
       def node_type # :nodoc:
@@ -217,10 +226,10 @@ module Nokogiri
         cstruct[:line]
       end
 
-      def add_namespace(prefix, href) # :nodoc:
+      def add_namespace_definition(prefix, href) # :nodoc:
         ns = LibXML.xmlNewNs(cstruct, href, prefix)
         LibXML.xmlSetNs(cstruct, ns)
-        self
+        Namespace.wrap(cstruct.document, ns)
       end
 
       def self.new(name, document, &block) # :nodoc:
