@@ -232,7 +232,7 @@ module Nokogiri
         Namespace.wrap(cstruct.document, ns)
       end
 
-      def self.new(name, document, &block) # :nodoc:
+      def self.new(name, document, *rest) # :nodoc:
         ptr = LibXML.xmlNewNode(nil, name.to_s)
 
         node_cstruct = LibXML::XmlNode.new(ptr)
@@ -240,6 +240,7 @@ module Nokogiri
         node_cstruct.keep_reference_from_document!
 
         node = Node.wrap(node_cstruct, self)
+        node.send :initialize, name, document, *rest
         yield node if block_given?
         node
       end
