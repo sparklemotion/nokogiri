@@ -32,7 +32,7 @@ module Nokogiri
 
       def unlink # :nodoc:
         LibXML.xmlUnlinkNode(cstruct)
-        LibXML.xmlXPathNodeSetAdd(cstruct.document.node_set, cstruct);
+        cstruct.keep_reference_from_document!
         self
       end
 
@@ -237,13 +237,10 @@ module Nokogiri
 
         node_cstruct = LibXML::XmlNode.new(ptr)
         node_cstruct[:doc] = document.cstruct[:doc]
-
-        LibXML.xmlXPathNodeSetAdd(node_cstruct.document.node_set, node_cstruct);
+        node_cstruct.keep_reference_from_document!
 
         node = Node.wrap(node_cstruct, self)
-
         yield node if block_given?
-
         node
       end
 
@@ -324,7 +321,7 @@ module Nokogiri
           reparented_struct = block.call(duped_node, other.cstruct)
           raise(RuntimeError, "Could not reparent node (2)") unless reparented_struct
           LibXML.xmlUnlinkNode(node.cstruct)
-          LibXML.xmlXPathNodeSetAdd(node.cstruct.document.node_set, node.cstruct);
+          node.cstruct.keep_reference_from_document!
         end
         
         reparented_struct = LibXML::XmlNode.new(reparented_struct)

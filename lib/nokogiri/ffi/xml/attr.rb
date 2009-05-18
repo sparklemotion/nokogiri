@@ -4,10 +4,8 @@ module Nokogiri
 
       def self.new(document, name) # :nodoc:
         node_ptr = LibXML.xmlNewDocProp(document.cstruct, name.to_s, nil)
-
         node_cstruct = LibXML::XmlNode.new(node_ptr)
-        node_cstruct[:doc] = document.cstruct[:doc]
-        LibXML.xmlXPathNodeSetAdd(node_cstruct.document.node_set, node_cstruct)
+        node_cstruct.keep_reference_from_document!
 
         node = Node.wrap(node_cstruct, self)
         yield node if block_given?
