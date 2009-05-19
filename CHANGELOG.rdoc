@@ -21,6 +21,8 @@
   * Nokogiri::XML::NodeSet now supports more Array and Enumerable operators:
     index, delete, slice, - (difference), + (concatenation), & (intersection),
     push, pop, shift, ==
+  * Nokogiri.XML, Nokogiri.HTML take blocks that receive
+    Nokogiri::XML::ParseOptions objects
   * JRuby 1.3.0 support via FFI.
 
 * Bugfixes

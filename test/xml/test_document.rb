@@ -10,6 +10,36 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_parse_takes_block
+        options = nil
+        Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|
+          options = cfg
+        end
+        assert options
+      end
+
+      def test_parse_yields_parse_options
+        options = nil
+        Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|
+          options = cfg
+          options.nonet.nowarning.dtdattr
+        end
+        assert options.nonet?
+        assert options.nowarning?
+        assert options.dtdattr?
+      end
+
+      def test_XML_takes_block
+        options = nil
+        Nokogiri::XML(File.read(XML_FILE), XML_FILE) do |cfg|
+          options = cfg
+          options.nonet.nowarning.dtdattr
+        end
+        assert options.nonet?
+        assert options.nowarning?
+        assert options.dtdattr?
+      end
+
       def test_encoding=
         @xml.encoding = 'UTF-8'
         assert_match 'UTF-8', @xml.to_xml

@@ -13,38 +13,32 @@ module Nokogiri
     # is a number that sets options in the parser, such as
     # Nokogiri::XML::PARSE_RECOVER.  See the constants in
     # Nokogiri::XML.
-    def HTML thing, url = nil, encoding = nil, options = 2145
-      Nokogiri::HTML.parse(thing, url, encoding, options)
+    def HTML thing, url = nil, encoding = nil, options = 2145, &block
+      Nokogiri::HTML.parse(thing, url, encoding, options, &block)
     end
   end
 
   module HTML
-    # No error reports
-    PARSE_NOERROR   = 1 << 5
-    # No warnings
-    PARSE_NOWARNING = 1 << 6
-    # Pedantic errors
-    PARSE_PEDANTIC  = 1 << 7
-    # Remove blanks nodes
-    PARSE_NOBLANKS  = 1 << 8
-    # No network access
-    PARSE_NONET     = 1 << 11
-
     class << self
       ###
       # Parse HTML.  See Nokogiri.HTML.
-      def parse string_or_io, url = nil, encoding = nil, options = 2145
+      def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
+
+        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
+        # Give the options to the user
+        yield options if block_given?
+
         if string_or_io.respond_to?(:encoding)
           encoding ||= string_or_io.encoding.name
         end
 
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          return Document.read_io(string_or_io, url, encoding, options)
+          return Document.read_io(string_or_io, url, encoding, options.to_i)
         end
 
         return Document.new if(string_or_io.length == 0)
-        Document.read_memory(string_or_io, url, encoding, options)
+        Document.read_memory(string_or_io, url, encoding, options.to_i)
       end
 
       ####

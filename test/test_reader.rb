@@ -12,6 +12,17 @@ class TestReader < Nokogiri::TestCase
     assert_equal io, reader.source
   end
 
+  def test_reader_takes_block
+    options = nil
+    Nokogiri::XML::Reader(File.read(XML_FILE), XML_FILE) do |cfg|
+      options = cfg
+      options.nonet.nowarning.dtdattr
+    end
+    assert options.nonet?
+    assert options.nowarning?
+    assert options.dtdattr?
+  end
+
   def test_nil_raises
     assert_raises(ArgumentError) {
       Nokogiri::XML::Reader.from_memory(nil)

@@ -114,6 +114,7 @@ lib/nokogiri/ffi/xml/document.rb
 lib/nokogiri/ffi/xml/document_fragment.rb
 lib/nokogiri/ffi/xml/dtd.rb
 lib/nokogiri/ffi/xml/entity_reference.rb
+lib/nokogiri/ffi/xml/namespace.rb
 lib/nokogiri/ffi/xml/node.rb
 lib/nokogiri/ffi/xml/node_set.rb
 lib/nokogiri/ffi/xml/processing_instruction.rb
@@ -150,6 +151,7 @@ lib/nokogiri/xml/node.rb
 lib/nokogiri/xml/node/save_options.rb
 lib/nokogiri/xml/node_set.rb
 lib/nokogiri/xml/notation.rb
+lib/nokogiri/xml/parse_options.rb
 lib/nokogiri/xml/processing_instruction.rb
 lib/nokogiri/xml/reader.rb
 lib/nokogiri/xml/relax_ng.rb
@@ -232,6 +234,7 @@ test/xml/test_node.rb
 test/xml/test_node_attributes.rb
 test/xml/test_node_encoding.rb
 test/xml/test_node_set.rb
+test/xml/test_parse_options.rb
 test/xml/test_processing_instruction.rb
 test/xml/test_reader_encoding.rb
 test/xml/test_relax_ng.rb
