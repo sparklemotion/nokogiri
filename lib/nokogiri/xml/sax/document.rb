@@ -91,6 +91,24 @@ module Nokogiri
         end
 
         ###
+        # Called at the beginning of an element
+        # +name+ is the element name
+        # +attrs+ is a hash of attributes
+        # +prefix+ is the namespace prefix for the element
+        # +uri+ is the associated namespace URI
+        # +namespaces+ is a hash of namespace prefix:urls associated with the element
+        def start_element_ns(name, attrs = {}, prefix = nil, uri = nil, namespaces = {})
+        end
+
+        ###
+        # Called at the end of an element
+        # +name+ is the element's name
+        # +prefix+ is the namespace prefix associated with the element
+        # +uri+ is the associated namespace URI
+        def end_element_ns(name, prefix = nil, uri = nil)
+        end
+
+        ###
         # Characters read between a tag
         # +string+ contains the character data
         def characters string

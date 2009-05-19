@@ -38,6 +38,30 @@ module Nokogiri
           @parser.finish
         end
 
+        def test_start_element_ns
+          @parser.<<(<<-eoxml)
+            <stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'></stream:stream>
+          eoxml
+
+          assert_equal [[ 'stream',
+                          {'version' => '1.0'},
+                          'stream',
+                          'http://etherx.jabber.org/streams',
+                          {nil => 'jabber:client', 'stream' => 'http://etherx.jabber.org/streams'}]],
+            @parser.document.start_elements_ns
+          @parser.finish
+        end
+
+        def test_end_element_ns
+          @parser.<<(<<-eoxml)
+            <stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'></stream:stream>
+          eoxml
+
+          assert_equal [['stream', 'stream', 'http://etherx.jabber.org/streams']],
+            @parser.document.end_elements_ns
+          @parser.finish
+        end
+
         def test_chevron_partial_xml
           @parser.<<(<<-eoxml)
             <p id="asdfasdf">

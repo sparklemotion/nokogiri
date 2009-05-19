@@ -65,6 +65,7 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
   if(ctx == NULL)
     rb_raise(rb_eRuntimeError, "Could not create a parser context");
 
+  ctx->sax2 = 1;
   DATA_PTR(self) = ctx;
   return self;
 }

@@ -113,6 +113,120 @@ static void end_element(void * ctx, const xmlChar *name)
   );
 }
 
+/**
+ * start_element_ns was borrowed heavily from libxml-ruby. 
+ */
+static void
+start_element_ns (
+  void * ctx,
+  const xmlChar * localname,
+  const xmlChar * prefix,
+  const xmlChar * URI,
+  int nb_namespaces,
+  const xmlChar ** namespaces,
+  int nb_attributes,
+  int nb_defaulted,
+  const xmlChar ** attributes)
+{
+  VALUE self = (VALUE)ctx;
+  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+
+  VALUE attrHash = rb_hash_new();
+  VALUE nsHash = rb_hash_new();
+
+  if (attributes)
+  {
+    /* Each attribute is an array of [localname, prefix, URI, value, end] */
+    int i;
+    for (i = 0; i < nb_attributes * 5; i += 5)
+    {
+      rb_hash_aset( attrHash,
+                    NOKOGIRI_STR_NEW2((const char*)attributes[i+0], RTEST(enc) ? StringValuePtr(enc) : NULL),
+                    NOKOGIRI_STR_NEW((const char*)attributes[i+3], (attributes[i+4] - attributes[i+3]), RTEST(enc) ? StringValuePtr(enc) : NULL));
+    }
+  }
+
+  if (namespaces)
+  {
+    int i;
+    for (i = 0; i < nb_namespaces * 2; i += 2)
+    {
+      rb_hash_aset( nsHash,
+                    namespaces[i+0] ? NOKOGIRI_STR_NEW2((const char*)namespaces[i+0], RTEST(enc) ? StringValuePtr(enc) : NULL) : Qnil,
+                    namespaces[i+1] ? NOKOGIRI_STR_NEW2((const char*)namespaces[i+1], RTEST(enc) ? StringValuePtr(enc) : NULL) : Qnil);
+    }
+  }
+
+  rb_funcall( doc,
+              rb_intern("start_element_ns"),
+              5,
+              NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL),
+              attrHash,
+              prefix ? NOKOGIRI_STR_NEW2(prefix, RTEST(enc) ? StringValuePtr(enc) : NULL) : Qnil,
+              URI ? NOKOGIRI_STR_NEW2(URI, RTEST(enc) ? StringValuePtr(enc) : NULL) : Qnil,
+              nsHash
+  );
+
+  /* Call start element if it's there' */
+  if (rb_respond_to(doc, rb_intern("start_element")))
+  {
+    VALUE name;
+    if (prefix)
+    {
+      name = NOKOGIRI_STR_NEW2(prefix, RTEST(enc) ? StringValuePtr(enc) : NULL);
+      rb_funcall(name, rb_intern("<<"), 1, NOKOGIRI_STR_NEW2(":", RTEST(enc) ? StringValuePtr(enc) : NULL));
+      rb_funcall(name, rb_intern("<<"), 1, NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL));
+    }
+    else
+    {
+      name = NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL);
+    }
+    VALUE attrArray = rb_funcall(attrHash, rb_intern("to_a"), 0);
+    attrArray = rb_funcall(attrArray, rb_intern("flatten"), 0);
+    rb_funcall(doc, rb_intern("start_element"), 2, name, attrArray);
+  }
+
+}
+
+/**
+ * end_element_ns was borrowed heavily from libxml-ruby. 
+ */
+static void
+end_element_ns (
+  void * ctx,
+  const xmlChar * localname,
+  const xmlChar * prefix,
+  const xmlChar * URI)
+{
+  VALUE self = (VALUE)ctx;
+  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+
+  rb_funcall(doc, rb_intern("end_element_ns"), 3, 
+             NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL),
+             prefix ? NOKOGIRI_STR_NEW2(prefix, RTEST(enc) ? StringValuePtr(enc) : NULL) : Qnil,
+             URI ? NOKOGIRI_STR_NEW2(URI, RTEST(enc) ? StringValuePtr(enc) : NULL) : Qnil
+  );
+
+  /* Call end element for old-times sake */
+  if (rb_respond_to(doc, rb_intern("end_element")))
+  {
+    VALUE name;
+    if (prefix)
+    {
+      name = NOKOGIRI_STR_NEW2(prefix, RTEST(enc) ? StringValuePtr(enc) : NULL);
+      rb_funcall(name, rb_intern("<<"), 1, NOKOGIRI_STR_NEW2(":", RTEST(enc) ? StringValuePtr(enc) : NULL));
+      rb_funcall(name, rb_intern("<<"), 1, NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL));
+    }
+    else
+    {
+      name = NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL);
+    }
+    rb_funcall(doc, rb_intern("end_element"), 1, name);
+  }
+
+}
+
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
   VALUE self = (VALUE)ctx;
@@ -192,11 +306,14 @@ static VALUE allocate(VALUE klass)
   handler->endDocument = end_document;
   handler->startElement = start_element;
   handler->endElement = end_element;
+  handler->startElementNs = start_element_ns;
+  handler->endElementNs = end_element_ns;
   handler->characters = characters_func;
   handler->comment = comment_func;
   handler->warning = warning_func;
   handler->error = error_func;
   handler->cdataBlock = cdata_block;
+  handler->initialized = XML_SAX2_MAGIC;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);
 }
