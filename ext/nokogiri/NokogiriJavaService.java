@@ -303,6 +303,7 @@ public class NokogiriJavaService implements BasicLibraryService{
                 ByteList byteList = content.getByteList();
                 ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setNamespaceAware(true);
                 DocumentBuilder db = dbf.newDocumentBuilder();
                 db.setEntityResolver(new EntityResolver() {
                     public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
@@ -329,6 +330,7 @@ public class NokogiriJavaService implements BasicLibraryService{
                 if (args[0] instanceof RubyIO) {
                     RubyIO io = (RubyIO)args[0];
                     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    dbf.setNamespaceAware(true);
                     DocumentBuilder db = dbf.newDocumentBuilder();
                     db.setEntityResolver(new EntityResolver() {
                         public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
@@ -427,6 +429,7 @@ public class NokogiriJavaService implements BasicLibraryService{
                 ByteList byteList = content.getByteList();
                 ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
                 DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                dbf.setNamespaceAware(true);
                 DocumentBuilder db = dbf.newDocumentBuilder();
                 db.setEntityResolver(new EntityResolver() {
                     public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
@@ -774,7 +777,6 @@ public class NokogiriJavaService implements BasicLibraryService{
     public static class XmlNodeSet extends RubyObject {
         protected RubyArray nodes;
 
-        // TODO Change internal implementation.
         public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
             super(ruby, rubyClass);
             this.nodes = RubyArray.newArray(ruby, nodes.getLength());
