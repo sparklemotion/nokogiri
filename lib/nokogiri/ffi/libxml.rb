@@ -46,6 +46,8 @@ module Nokogiri
     callback :warning_sax_func, [:pointer, :string], :void
     callback :error_sax_func, [:pointer, :string], :void
     callback :cdata_block_sax_func, [:pointer, :string, :int], :void
+    callback :start_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer, :int, :pointer, :int, :int, :pointer], :void
+    callback :end_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer], :void
 
     # libc
     attach_function :calloc, [:int, :int], :pointer
@@ -97,6 +99,7 @@ module Nokogiri
     attach_function :xmlAddPrevSibling, [:pointer, :pointer], :pointer
     attach_function :xmlIsBlankNode, [:pointer], :int
     attach_function :xmlHasProp, [:pointer, :string], :pointer
+    attach_function :xmlHasNsProp, [:pointer, :string, :string], :pointer
     attach_function :xmlGetProp, [:pointer, :string], :pointer # returns char* that must be freed
     attach_function :xmlSetProp, [:pointer, :string, :string], :pointer
     attach_function :xmlRemoveProp, [:pointer], :int
@@ -249,6 +252,11 @@ module Nokogiri
     attach_function :xmlRelaxNGSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlRelaxNGParse, [:pointer], :pointer
     attach_function :xmlRelaxNGFreeParserCtxt, [:pointer], :void
+
+    # helpers
+    def self.pointer_offset(n)
+      n * FFI.type_size(:pointer) # byte offset of nth pointer in an array of pointers
+    end
   end
 end
 
@@ -279,6 +287,7 @@ require 'nokogiri/xml/syntax_error'
   "structs/html_entity_desc",
   "structs/xslt_stylesheet",
   "xml/node",
+  "xml/namespace",
   "xml/dtd",
   "xml/attr",
   "xml/document",

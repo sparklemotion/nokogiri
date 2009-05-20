@@ -20,7 +20,7 @@ static void element_copier(void *_payload, void *data, xmlChar *name)
   VALUE hash = (VALUE)data;
   xmlNodePtr payload = (xmlNodePtr)_payload;
 
-  VALUE element = Nokogiri_wrap_xml_node(payload);
+  VALUE element = Nokogiri_wrap_xml_node(Qnil, payload);
 
   rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name, payload->doc->encoding), element);
 }

@@ -2,6 +2,8 @@ module Nokogiri
   module LibXML # :nodoc:
     class XmlSaxHandler < FFI::ManagedStruct # :nodoc:
 
+      XML_SAX2_MAGIC = 0xDEEDBEAF # see, the libxml2 authors DO have a sense of humor. i think.
+
       layout(:internalSubset,           :pointer,
              :isStandalone,             :pointer,
              :hasInternalSubset,        :pointer,
@@ -29,7 +31,11 @@ module Nokogiri
              :getParameterEntity,       :pointer,
              :cdataBlock,               :cdata_block_sax_func, 
              :externalSubset,           :pointer,
-             :initialized,              :uint
+             :initialized,              :uint,
+             :_private,                 :pointer,
+             :startElementNs,           :start_element_ns_sax2_func,
+             :endElementNs,             :end_element_ns_sax2_func,
+             :serror,                   :syntax_error_handler
              )
 
       def self.allocate

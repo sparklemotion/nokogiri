@@ -47,12 +47,14 @@ module Nokogiri
         cstruct = LibXML::XmlDocumentCast.new(dup_ptr)
         cstruct[:type] = self.type
 
-        Document.wrap(dup_ptr)
+        Document.wrap(dup_ptr, self.class)
       end
 
       def self.new(*args) # :nodoc:
         version = args.first || "1.0"
-        Document.wrap(LibXML.xmlNewDoc(version))
+        doc = Document.wrap(LibXML.xmlNewDoc(version), self)
+        doc.send :initialize, *args
+        doc
       end
 
       def self.substitute_entities=(entities) # :nodoc:
@@ -63,19 +65,17 @@ module Nokogiri
         raise "Document#load_external_subsets= not implemented"
       end
 
-      def self.wrap(doc_struct) # :nodoc: #
+      def self.wrap(doc_struct, klass=nil) # :nodoc: #
         if doc_struct.is_a?(FFI::Pointer)
           # cast native pointers up into a doc cstruct
           return nil if doc_struct.null?
           doc_struct = LibXML::XmlDocument.new(doc_struct)
         end
 
-        doc = if doc_struct[:type] == HTML_DOCUMENT_NODE
-                Nokogiri::HTML::Document.allocate
-              else
-                allocate
-              end
-        doc.cstruct = doc_struct
+        klass ||= (doc_struct[:type] == HTML_DOCUMENT_NODE) ? Nokogiri::HTML::Document : Nokogiri::XML::Document
+
+        doc                  = klass.allocate
+        doc.cstruct          = doc_struct
         doc.cstruct.ruby_doc = doc
         doc.instance_eval { @decorators = nil }
         doc

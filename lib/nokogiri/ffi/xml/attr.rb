@@ -2,14 +2,13 @@ module Nokogiri
   module XML
     class Attr < Node
 
-      def self.new(document, name) # :nodoc:
+      def self.new(document, name, *rest) # :nodoc:
         node_ptr = LibXML.xmlNewDocProp(document.cstruct, name.to_s, nil)
-
         node_cstruct = LibXML::XmlNode.new(node_ptr)
-        node_cstruct[:doc] = document.cstruct[:doc]
-        LibXML.xmlXPathNodeSetAdd(node_cstruct.document.node_set, node_cstruct)
+        node_cstruct.keep_reference_from_document!
 
-        node = Node.wrap(node_cstruct)
+        node = Node.wrap(node_cstruct, self)
+        node.send :initialize, document, name, *rest
         yield node if block_given?
         node
       end

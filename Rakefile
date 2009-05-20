@@ -87,8 +87,15 @@ namespace :gem do
     end
   end
 
+  desc "Build a gem targetted for JRuby"
+  task :jruby => ['gem:jruby:spec'] do
+    system "gem build nokogiri.gemspec"
+    FileUtils.mkdir_p "pkg"
+    FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
+  end
+
   namespace :jruby do
-    task :spec => ['compile'] do
+    task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'java'
         HOE.spec.files << GENERATED_PARSER
@@ -183,7 +190,7 @@ end
 # required_ruby_version
 
 # Only do this on unix, since we can't build on windows
-unless windows || java
+unless windows || java || ENV['NOKOGIRI_FFI']
   [:compile, :check_manifest].each do |task_name|
     Rake::Task[task_name].prerequisites << GENERATED_PARSER
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER

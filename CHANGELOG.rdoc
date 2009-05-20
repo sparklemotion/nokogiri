@@ -21,6 +21,9 @@
   * Nokogiri::XML::NodeSet now supports more Array and Enumerable operators:
     index, delete, slice, - (difference), + (concatenation), & (intersection),
     push, pop, shift, ==
+  * Nokogiri.XML, Nokogiri.HTML take blocks that receive
+    Nokogiri::XML::ParseOptions objects
+  * JRuby 1.3.0 support via FFI.
 
 * Bugfixes
 
@@ -29,6 +32,7 @@
     (Thanks Joel!) LH #73
   * Fixing builder scope issues LH #61, LH #74, LH #70
   * Fixed a problem when adding a child could remove the child namespace LH#78
+  * Fixed bug with unlinking a node then reparenting it. (GH#22)
   * Fixed failure to catch errors during XSLT parsing (GH#32)
   * Fixed a bug with attribute conditions in CSS selectors (GH#36)
   * Fixed intolerance of HTML attributes without values in Node#before/after/inner_html=. (GH#35)

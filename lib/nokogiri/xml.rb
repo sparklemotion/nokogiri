@@ -1,3 +1,4 @@
+require 'nokogiri/xml/parse_options'
 require 'nokogiri/xml/sax'
 require 'nokogiri/xml/fragment_handler'
 require 'nokogiri/xml/node'
@@ -6,6 +7,7 @@ require 'nokogiri/xml/dtd'
 require 'nokogiri/xml/cdata'
 require 'nokogiri/xml/document'
 require 'nokogiri/xml/document_fragment'
+require 'nokogiri/xml/processing_instruction'
 require 'nokogiri/xml/node_set'
 require 'nokogiri/xml/syntax_error'
 require 'nokogiri/xml/xpath'
@@ -27,72 +29,45 @@ module Nokogiri
     # is a number that sets options in the parser, such as
     # Nokogiri::XML::PARSE_RECOVER.  See the constants in
     # Nokogiri::XML.
-    def XML thing, url = nil, encoding = nil, options = 1
-      Nokogiri::XML.parse(thing, url, encoding, options)
+    def XML thing, url = nil, encoding = nil, options = 1, &block
+      Nokogiri::XML.parse(thing, url, encoding, options, &block)
     end
   end
 
   module XML
-    # Parser options
-
-    # Strict XML parsing
-    PARSE_STRICT      = 0
-    # Recover from errors
-    PARSE_RECOVER     = 1 << 0
-    # Substitute entities
-    PARSE_NOENT       = 1 << 1
-    # Load external subsets
-    PARSE_DTDLOAD     = 1 << 2
-    # Default DTD attributes
-    PARSE_DTDATTR     = 1 << 3
-    # validate with the DTD
-    PARSE_DTDVALID    = 1 << 4
-    # suppress error reports
-    PARSE_NOERROR     = 1 << 5
-    # suppress warning reports
-    PARSE_NOWARNING   = 1 << 6
-    # pedantic error reporting
-    PARSE_PEDANTIC    = 1 << 7
-    # remove blank nodes
-    PARSE_NOBLANKS    = 1 << 8
-    # use the SAX1 interface internally
-    PARSE_SAX1        = 1 << 9
-    # Implement XInclude substitition
-    PARSE_XINCLUDE    = 1 << 10
-    # Forbid network access
-    PARSE_NONET       = 1 << 11
-    # Do not reuse the context dictionnary
-    PARSE_NODICT      = 1 << 12
-    # remove redundant namespaces declarations
-    PARSE_NSCLEAN     = 1 << 13
-    # merge CDATA as text nodes
-    PARSE_NOCDATA     = 1 << 14
-    # do not generate XINCLUDE START/END nodes
-    PARSE_NOXINCNODE  = 1 << 15
-
     class << self
       ###
       # Parse an XML document using the Nokogiri::XML::Reader API.  See
       # Nokogiri::XML::Reader for mor information
       def Reader string_or_io, url = nil, encoding = nil, options = 0
+
+        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
+        # Give the options to the user
+        yield options if block_given?
+
         if string_or_io.respond_to? :read
-          return Reader.from_io(string_or_io, url, encoding, options)
+          return Reader.from_io(string_or_io, url, encoding, options.to_i)
         end
-        Reader.from_memory(string_or_io, url, encoding, options)
+        Reader.from_memory(string_or_io, url, encoding, options.to_i)
       end
 
       ###
       # Parse an XML document.  See Nokogiri.XML.
-      def parse string_or_io, url = nil, encoding = nil, options = 2159
+      def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
+
+        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
+        # Give the options to the user
+        yield options if block_given?
+
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          return Document.read_io(string_or_io, url, encoding, options)
+          return Document.read_io(string_or_io, url, encoding, options.to_i)
         end
 
         # read_memory pukes on empty docs
         return Document.new if string_or_io.nil? or string_or_io.empty?
 
-        Document.read_memory(string_or_io, url, encoding, options)
+        Document.read_memory(string_or_io, url, encoding, options.to_i)
       end
 
       ###

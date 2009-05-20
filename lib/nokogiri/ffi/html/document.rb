@@ -4,8 +4,12 @@ module Nokogiri
 
       attr_accessor :cstruct # :nodoc:
 
-      def self.new(uri=nil, external_id=nil) # :nodoc:
-        Document.wrap(LibXML.htmlNewDoc(uri, external_id))
+      def self.new(*args) # :nodoc:
+        uri         = args[0]
+        external_id = args[1]
+        doc = Document.wrap(LibXML.htmlNewDoc(uri, external_id), self)
+        doc.send :initialize, *args
+        doc
       end
 
       def self.read_io(io, url, encoding, options) # :nodoc:

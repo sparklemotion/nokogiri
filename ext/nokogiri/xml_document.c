@@ -7,6 +7,8 @@ static void dealloc(xmlDocPtr doc)
   nokogiriTuplePtr tuple = doc->_private;
   xmlNodeSetPtr node_set = tuple->unlinkedNodes;
 
+  xmlDeregisterNodeFunc func = xmlDeregisterNodeDefault(NULL);
+
   int j ;
   for(j = 0 ; j < node_set->nodeNr ; j++) {
     xmlNodePtr node = node_set->nodeTab[j];
@@ -29,6 +31,8 @@ static void dealloc(xmlDocPtr doc)
   free(doc->_private);
   doc->_private = NULL;
   xmlFreeDoc(doc);
+
+  xmlDeregisterNodeDefault(func);
 
   NOKOGIRI_DEBUG_END(doc);
 }
@@ -82,7 +86,7 @@ static VALUE root(VALUE self)
   xmlNodePtr root = xmlDocGetRootElement(doc);
 
   if(!root) return Qnil;
-  return Nokogiri_wrap_xml_node(root) ;
+  return Nokogiri_wrap_xml_node(Qnil, root) ;
 }
 
 /*
@@ -229,10 +233,7 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   if(dup == NULL) return Qnil;
 
   dup->type = doc->type;
-  if(dup->type == XML_DOCUMENT_NODE)
-    return Nokogiri_wrap_xml_document(cNokogiriXmlDocument, dup);
-  else
-    return Nokogiri_wrap_xml_document(cNokogiriHtmlDocument, dup);
+  return Nokogiri_wrap_xml_document(RBASIC(self)->klass, dup);
 }
 
 /*
@@ -243,12 +244,18 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
  */
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
-  VALUE version;
-  if(rb_scan_args(argc, argv, "01", &version) == 0)
+  VALUE version, rest, rb_doc ;
+
+  rb_scan_args(argc, argv, "0*", &rest);
+  version = rb_ary_entry(rest, 0);
+  if (version == Qnil) {
     version = rb_str_new2("1.0");
+  }
 
   xmlDocPtr doc = xmlNewDoc((xmlChar *)StringValuePtr(version));
-  return Nokogiri_wrap_xml_document(klass, doc);
+  rb_doc = Nokogiri_wrap_xml_document(klass, doc);
+  rb_funcall2(rb_doc, rb_intern("initialize"), argc, argv);
+  return rb_doc ;
 }
 
 /*

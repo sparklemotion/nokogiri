@@ -1,3 +1,45 @@
+=== HEAD
+
+* 新しい機能
+
+  * Builder changes scope based on block arity
+  * Builder は
+
+  * Builder supports methods ending in underscore similar to tagz
+
+  * Nokogiri::XML::Node#<=> compares nodes based on Document position
+  * Nokogiri::XML::Node#matches? returns true if Node can be found with
+    given selector.
+  * Nokogiri::XML::Node#ancestors now returns an Nokogiri::XML::NodeSet
+  * Nokogiri::XML::Node#ancestors will match parents against optional selector
+  * Nokogiri::HTML::Document#meta_encoding for getting the meta encoding
+  * Nokogiri::HTML::Document#meta_encoding= for setting the meta encoding
+  * Nokogiri::XML::Document#encoding= to set the document encoding
+  * Nokogiri::XML::Schema for validating documents against XSD schema
+  * Nokogiri::XML::RelaxNG for validating documents against RelaxNG schema
+  * Nokogiri::HTML::ElementDescription for fetching HTML element descriptions
+  * Nokogiri::XML::Node#description to fetch the node description
+  * Nokogiri::XML::Node#accept implements Visitor pattern
+  * bin/nokogiri for easily examining documents (Thanks Yutaka HARA!)
+  * Nokogiri::XML::NodeSet now supports more Array and Enumerable operators:
+    index, delete, slice, - (difference), + (concatenation), & (intersection),
+    push, pop, shift, ==
+  * Nokogiri.XML, Nokogiri.HTML take blocks that receive
+    Nokogiri::XML::ParseOptions objects
+  * JRuby 1.3.0 support via FFI.
+
+* バグの修正
+
+  * Fixed a problem with nil passed to CDATA constructor
+  * Fragment method deals with regular expression characters
+    (Thanks Joel!) LH #73
+  * Fixing builder scope issues LH #61, LH #74, LH #70
+  * Fixed a problem when adding a child could remove the child namespace LH#78
+  * Fixed bug with unlinking a node then reparenting it. (GH#22)
+  * Fixed failure to catch errors during XSLT parsing (GH#32)
+  * Fixed a bug with attribute conditions in CSS selectors (GH#36)
+  * Fixed intolerance of HTML attributes without values in Node#before/after/inner_html=. (GH#35)
+
 === 1.2.3 / ２００９年３月２２日
 
 * バグの修正

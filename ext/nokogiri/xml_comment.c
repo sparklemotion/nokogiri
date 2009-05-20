@@ -6,17 +6,24 @@
  *
  * Create a new Comment element on the +document+ with +content+
  */
-static VALUE new(VALUE klass, VALUE doc, VALUE content)
+static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
-  Data_Get_Struct(doc, xmlDoc, xml_doc);
+  VALUE document;
+  VALUE content;
+  VALUE rest;
+
+  rb_scan_args(argc, argv, "2*", &document, &content, &rest);
+
+  Data_Get_Struct(document, xmlDoc, xml_doc);
 
   xmlNodePtr node = xmlNewDocComment(
       xml_doc,
       (const xmlChar *)StringValuePtr(content)
   );
 
-  VALUE rb_node = Nokogiri_wrap_xml_node(node);
+  VALUE rb_node = Nokogiri_wrap_xml_node(klass, node);
+  rb_funcall2(rb_node, rb_intern("initialize"), argc, argv);
 
   NOKOGIRI_ROOT_NODE(node);
 
@@ -40,5 +47,5 @@ void init_xml_comment()
 
   cNokogiriXmlComment = klass;
 
-  rb_define_singleton_method(klass, "new", new, 2);
+  rb_define_singleton_method(klass, "new", new, -1);
 }

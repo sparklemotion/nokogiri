@@ -27,12 +27,12 @@ module Nokogiri
       def dup(deep = 1) # :nodoc:
         dup_ptr = LibXML.xmlDocCopyNode(cstruct, cstruct.document, deep)
         return nil if dup_ptr.null?
-        Node.wrap(dup_ptr)
+        Node.wrap(dup_ptr, self.class)
       end
 
       def unlink # :nodoc:
         LibXML.xmlUnlinkNode(cstruct)
-        LibXML.xmlXPathNodeSetAdd(cstruct.document.node_set, cstruct);
+        cstruct.keep_reference_from_document!
         self
       end
 
@@ -82,6 +82,12 @@ module Nokogiri
         ! (prop = LibXML.xmlHasProp(cstruct, attribute.to_s)).null?
       end
 
+      def namespaced_key?(attribute, namespace) # :nodoc:
+        prop = LibXML.xmlHasNsProp(cstruct, attribute.to_s,
+          namespace.nil? ? nil : namespace.to_s)
+        prop.null? ? false : true
+      end
+
       def []=(property, value) # :nodoc:
         LibXML.xmlSetProp(cstruct, property, value)
         value
@@ -100,6 +106,13 @@ module Nokogiri
         raise "Node#attribute not implemented yet"
       end
 
+      def attribute_with_ns(name, namespace) # :nodoc:
+        prop = LibXML.xmlHasNsProp(cstruct, name.to_s,
+          namespace.nil? ? NULL : namespace.to_s)
+        return prop if prop.null?
+        Node.wrap(prop)
+      end
+
       def attribute_nodes # :nodoc:
         attr = []
         prop_cstruct = cstruct[:properties]
@@ -112,10 +125,7 @@ module Nokogiri
       end
 
       def namespace # :nodoc:
-        return nil if cstruct[:ns].null?
-        prefix = LibXML::XmlNs.new(cstruct[:ns])[:prefix]
-        return prefix if prefix # TODO: encoding?
-        nil
+        cstruct[:ns].null? ? nil : Namespace.wrap(cstruct.document, cstruct[:ns])
       end
 
       def namespaces # :nodoc:
@@ -134,6 +144,18 @@ module Nokogiri
           ns = ns_cstruct[:next] # TODO: encoding?
         end
         ahash
+      end
+
+      def namespace_definitions # :nodoc:
+        list = []
+        ns_ptr = cstruct[:nsDef]
+        return list if ns_ptr.null?
+        while ! ns_ptr.null?
+          ns = Namespace.wrap(cstruct.document, ns_ptr)
+          list << ns
+          ns_ptr = ns.cstruct[:next]
+        end
+        list
       end
 
       def node_type # :nodoc:
@@ -204,24 +226,22 @@ module Nokogiri
         cstruct[:line]
       end
 
-      def add_namespace(prefix, href) # :nodoc:
+      def add_namespace_definition(prefix, href) # :nodoc:
         ns = LibXML.xmlNewNs(cstruct, href, prefix)
         LibXML.xmlSetNs(cstruct, ns)
-        self
+        Namespace.wrap(cstruct.document, ns)
       end
 
-      def self.new(name, document, &block) # :nodoc:
+      def self.new(name, document, *rest) # :nodoc:
         ptr = LibXML.xmlNewNode(nil, name.to_s)
 
         node_cstruct = LibXML::XmlNode.new(ptr)
         node_cstruct[:doc] = document.cstruct[:doc]
+        node_cstruct.keep_reference_from_document!
 
-        LibXML.xmlXPathNodeSetAdd(node_cstruct.document.node_set, node_cstruct);
-
-        node = Node.wrap(node_cstruct)
-
+        node = Node.wrap(node_cstruct, self)
+        node.send :initialize, name, document, *rest
         yield node if block_given?
-
         node
       end
 
@@ -236,7 +256,7 @@ module Nokogiri
         LibXML.xmlXPathCmpNodes(other.cstruct, self.cstruct)
       end
 
-      def self.wrap(node_struct) # :nodoc:
+      def self.wrap(node_struct, klass=nil) # :nodoc:
         if node_struct.is_a?(FFI::Pointer)
           # cast native pointers up into a node cstruct
           return nil if node_struct.null?
@@ -267,7 +287,12 @@ module Nokogiri
                   when DTD_NODE then [XML::DTD, LibXML::XmlDtd]
                   else [XML::Node]
                   end
-        node = klasses.first.allocate
+
+        if klass
+          node = klass.allocate
+        else
+          node = klasses.first.allocate
+        end
         node.cstruct = klasses[1] ? klasses[1].new(node_struct.pointer) : node_struct
 
         node.cstruct.ruby_node = node
@@ -297,7 +322,7 @@ module Nokogiri
           reparented_struct = block.call(duped_node, other.cstruct)
           raise(RuntimeError, "Could not reparent node (2)") unless reparented_struct
           LibXML.xmlUnlinkNode(node.cstruct)
-          LibXML.xmlXPathNodeSetAdd(node.cstruct.document.node_set, node.cstruct);
+          node.cstruct.keep_reference_from_document!
         end
         
         reparented_struct = LibXML::XmlNode.new(reparented_struct)

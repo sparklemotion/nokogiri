@@ -8,6 +8,52 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_document_takes_config_block
+        options = nil
+        Nokogiri::HTML(File.read(HTML_FILE), HTML_FILE) do |cfg|
+          options = cfg
+          options.nonet.nowarning.dtdattr
+        end
+        assert options.nonet?
+        assert options.nowarning?
+        assert options.dtdattr?
+      end
+
+      def test_parse_takes_config_block
+        options = nil
+        Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE) do |cfg|
+          options = cfg
+          options.nonet.nowarning.dtdattr
+        end
+        assert options.nonet?
+        assert options.nowarning?
+        assert options.dtdattr?
+      end
+
+      def test_subclass
+        klass = Class.new(Nokogiri::HTML::Document)
+        doc = klass.new
+        assert_instance_of klass, doc
+      end
+
+      def test_subclass_initialize
+        klass = Class.new(Nokogiri::HTML::Document) do
+          attr_accessor :initialized_with
+
+          def initialize(*args)
+            @initialized_with = args
+          end
+        end
+        doc = klass.new("uri", "external_id", 1)
+        assert_equal ["uri", "external_id", 1], doc.initialized_with
+      end
+
+      def test_subclass_dup
+        klass = Class.new(Nokogiri::HTML::Document)
+        doc = klass.new.dup
+        assert_instance_of klass, doc
+      end
+
       def test_emtpy_string_returns_empty_doc
         doc = Nokogiri::HTML('')
       end
@@ -71,7 +117,9 @@ module Nokogiri
 
       def test_parse_io
         assert doc = File.open(HTML_FILE, 'rb') { |f|
-          Document.read_io(f, nil, 'UTF-8', PARSE_NOERROR | PARSE_NOWARNING)
+          Document.read_io(f, nil, 'UTF-8',
+                           XML::ParseOptions::NOERROR | XML::ParseOptions::NOWARNING
+                          )
         }
       end
 

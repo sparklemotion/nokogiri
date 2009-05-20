@@ -7,7 +7,35 @@ module Nokogiri
     class TestNode < Nokogiri::TestCase
       def setup
         super
-        @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+        @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+      end
+
+      def test_namespace_nodes
+        xml = Nokogiri::XML <<-eoxml
+          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
+            <awesome/>
+          </root>
+        eoxml
+        awesome = xml.root
+        namespaces = awesome.namespace_definitions
+        assert_equal 2, namespaces.length
+      end
+
+      def test_no_definitions
+        xml = Nokogiri::XML <<-eoxml
+          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
+            <awesome/>
+          </root>
+        eoxml
+        awesome = xml.at('//xmlns:awesome')
+        namespaces = awesome.namespace_definitions
+        assert_equal 0, namespaces.length
+      end
+
+      def test_subclass_dup
+        subclass = Class.new(Nokogiri::XML::Node)
+        node = subclass.new('foo', @xml).dup
+        assert_instance_of subclass, node
       end
 
       def test_namespace_goes_to_children
@@ -76,7 +104,7 @@ module Nokogiri
         assert_equal 2, fruits.xpath('//xmlns:Apple').length
         assert_equal 1, fruits.to_xml.scan('www.fruits.org').length
       end
-      
+
       [:clone, :dup].each do |symbol|
         define_method "test_#{symbol}" do
           node = @xml.at('//employee')
@@ -287,6 +315,7 @@ module Nokogiri
       def test_new
         assert node = Nokogiri::XML::Node.new('input', @xml)
         assert_equal 1, node.node_type
+        assert_instance_of Nokogiri::XML::Node, node
       end
 
       def test_to_str
@@ -587,12 +616,12 @@ module Nokogiri
       def test_node_equality
         doc1 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         doc2 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
-        
+
         address1_1 = doc1.xpath('//address').first
         address1_2 = doc1.xpath('//address').first
-        
+
         address2 = doc2.xpath('//address').first
-        
+
         assert_not_equal address1_1, address2 # two references to very, very similar nodes
         assert_equal address1_1, address1_2 # two references to the exact same node
       end
@@ -671,9 +700,9 @@ EOF
 </x>
 EOF
         set = xml.search("//y/*")
-        assert_equal "a", set[0].namespace
-        assert_equal "b", set[1].namespace
-        assert_equal "c", set[2].namespace
+        assert_equal "a", set[0].namespace.prefix
+        assert_equal "b", set[1].namespace.prefix
+        assert_equal "c", set[2].namespace.prefix
         assert_equal nil, set[3].namespace
       end
 
@@ -729,7 +758,7 @@ EOF
 
           GC.start
         end
-        
+
       end
 
     end

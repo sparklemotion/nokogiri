@@ -6,15 +6,22 @@
  *
  * Create a new Text element on the +document+ with +content+
  */
-static VALUE new(VALUE klass, VALUE string, VALUE document)
+static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr doc;
+  VALUE string;
+  VALUE document;
+  VALUE rest;
+
+  rb_scan_args(argc, argv, "2*", &string, &document, &rest);
+
   Data_Get_Struct(document, xmlDoc, doc);
 
   xmlNodePtr node = xmlNewText((xmlChar *)StringValuePtr(string));
   node->doc = doc;
 
-  VALUE rb_node = Nokogiri_wrap_xml_node(node) ;
+  VALUE rb_node = Nokogiri_wrap_xml_node(klass, node) ;
+  rb_funcall2(rb_node, rb_intern("initialize"), argc, argv);
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
@@ -36,5 +43,5 @@ void init_xml_text()
 
   cNokogiriXmlText = klass;
 
-  rb_define_singleton_method(klass, "new", new, 2);
+  rb_define_singleton_method(klass, "new", new, -1);
 }

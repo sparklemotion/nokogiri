@@ -3,6 +3,7 @@ module Nokogiri
     class Reader
       
       attr_accessor :cstruct # :nodoc:
+      attr_accessor :reader_callback # :nodoc:
 
       def default? # :nodoc:
         LibXML.xmlTextReaderIsDefault(cstruct) == 1
@@ -69,8 +70,9 @@ module Nokogiri
         if attr_ptr.null?
           # this section is an attempt to workaround older versions of libxml that
           # don't handle namespaces properly in all attribute-and-friends functions
-          prefix = FFI::MemoryPointer.new :pointer
-          localname = LibXML.xmlSplitQName2(name, prefix)
+          prefix_ptr = FFI::MemoryPointer.new :pointer
+          localname = LibXML.xmlSplitQName2(name, prefix_ptr)
+          prefix = prefix_ptr.get_pointer(0)
           if ! localname.null?
             attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, localname.read_string)
             LibXML.xmlFree(localname)
@@ -81,7 +83,7 @@ module Nokogiri
               attr_ptr = LibXML.xmlTextReaderLookupNamespace(cstruct, prefix.read_string)
             end
           end
-          LibXML.xmlFree(prefix.read_pointer)
+          LibXML.xmlFree(prefix)
         end
         return nil if attr_ptr.null?
 
@@ -161,24 +163,29 @@ module Nokogiri
 
       def self.from_memory(buffer, url=nil, encoding=nil, options=0) # :nodoc:
         raise(ArgumentError, "string cannot be nil") if buffer.nil?
-        reader_ptr = LibXML.xmlReaderForMemory(buffer, buffer.length, url, encoding, options)
+
+        memory = FFI::MemoryPointer.new(buffer.length) # we need to manage native memory lifecycle
+        memory.put_bytes(0, buffer)
+        reader_ptr = LibXML.xmlReaderForMemory(memory, memory.total, url, encoding, options)
         raise(RuntimeError, "couldn't create a reader") if reader_ptr.null?
 
         reader = allocate
         reader.cstruct = LibXML::XmlTextReader.new(reader_ptr)
-        reader.send(:initialize, buffer, url, encoding)
+        reader.send(:initialize, memory, url, encoding)
         reader
       end
 
       def self.from_io(io, url=nil, encoding=nil, options=0) # :nodoc:
         raise(ArgumentError, "io cannot be nil") if io.nil?
 
-        reader_ptr = LibXML.xmlReaderForIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
+        cb = IoCallbacks.reader(io) # we will keep a reference to prevent it from being GC'd
+        reader_ptr = LibXML.xmlReaderForIO(cb, nil, nil, url, encoding, options)
         raise "couldn't create a parser" if reader_ptr.null?
 
         reader = allocate
         reader.cstruct = LibXML::XmlTextReader.new(reader_ptr)
         reader.send(:initialize, io, url, encoding)
+        reader.reader_callback = cb
         reader
       end
 
