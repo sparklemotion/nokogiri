@@ -4,6 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Iterator;
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -856,6 +860,42 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
     }
 
+    public static class NokogiriNamespaceContext implements NamespaceContext{
+
+        Hashtable<String,String> register;
+
+        public NokogiriNamespaceContext(){
+            this.register = new Hashtable<String,String>();
+        }
+
+        public String getNamespaceURI(String prefix){
+            if(prefix == null)
+                throw new IllegalArgumentException();
+            else if(prefix.equals(XMLConstants.XML_NS_PREFIX))
+                return XMLConstants.XML_NS_URI;
+            else if(prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
+                return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
+
+            String uri = this.register.get(prefix);
+            if(uri != null)
+                return uri;
+
+            return XMLConstants.NULL_NS_URI;
+        }
+
+        public String getPrefix(String uri){
+            throw new UnsupportedOperationException();
+        }
+
+        public Iterator getPrefixes(String uri){
+            throw new UnsupportedOperationException();
+        }
+
+        public void registerNamespace(String prefix, String uri){
+            this.register.put(prefix, uri);
+        }
+    }
+
     public static class XpathContext extends RubyObject {
         private Node context;
         private XPath xpath;
@@ -864,6 +904,7 @@ public class NokogiriJavaService implements BasicLibraryService{
             super(ruby, rubyClass);
             this.context = context;
             this.xpath = XPathFactory.newInstance().newXPath();
+            this.xpath.setNamespaceContext(new NokogiriNamespaceContext());
         }
 
         @JRubyMethod(name = "new", meta = true)
@@ -885,7 +926,8 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject register_ns(ThreadContext context, IRubyObject arg1, IRubyObject arg2) {
-            return context.getRuntime().getNil();
+            ((NokogiriNamespaceContext) this.register.getNamespaceContext()).registerNamespace(arg1.convertToString().asJavaString(), arg2.convertToString().asJavaString());
+            return this;
         }
     }
 
