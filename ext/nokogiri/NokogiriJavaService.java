@@ -439,13 +439,25 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod
-        public IRubyObject name(ThreadContext context) {
+        public IRubyObject add_namespace_definition(ThreadContext context) {
+            throw context.getRuntime().newNotImplementedError("not implemented");
+        }
+
+        @JRubyMethod
+        public IRubyObject node_name(ThreadContext context) {
             return RubyString.newString(context.getRuntime(), node.getNodeName());
         }
 
-        @JRubyMethod(name = "name=")
-        public IRubyObject name_set(ThreadContext context, IRubyObject arg) {
+        @JRubyMethod(name = "node_name=")
+        public IRubyObject node_name_set(ThreadContext context, IRubyObject arg) {
             throw context.getRuntime().newNotImplementedError("not implemented");
+        }
+
+        @JRubyMethod
+        public IRubyObject add_child(ThreadContext context, IRubyObject child) {
+            node.appendChild(asXmlNode(context, child).node);
+
+            return child;
         }
 
         @JRubyMethod
@@ -519,7 +531,7 @@ public class NokogiriJavaService implements BasicLibraryService{
             return this;
         }
 
-        @JRubyMethod(name = "type")
+        @JRubyMethod(name = "node_type")
         public IRubyObject xmlType(ThreadContext context) {
             return RubyFixnum.newFixnum(context.getRuntime(), node.getNodeType());
         }
@@ -721,6 +733,13 @@ public class NokogiriJavaService implements BasicLibraryService{
             return constructNode(context.getRuntime(), attr);
         }
 
+        private XmlNode asXmlNode(ThreadContext context, IRubyObject arg) {
+            if (!(arg instanceof XmlNode)) {
+                throw context.getRuntime().newTypeError(arg, (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::Node"));
+            }
+
+            return (XmlNode) arg;
+        }
     }
 
     public static class XmlText extends XmlNode {
