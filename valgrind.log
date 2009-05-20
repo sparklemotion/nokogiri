@@ -1,0 +1,738 @@
+(in /home/mike/code/nokogiri)
+rake-compiler must be configured first to enable cross-compilation
+cp tmp/i486-linux/nokogiri/nokogiri.so lib/nokogiri/nokogiri.so
+=> LD_LIBRARY_PATH=':/usr/local/lib' valgrind --num-callers=50 --error-limit=no --partial-loads-ok=yes --undef-value-errors=no /usr/bin/ruby1.8 -w -I"/home/mike/code/nokogiri/lib" "/usr/lib/ruby/gems/1.8/gems/rake-0.8.4/lib/rake/rake_test_loader.rb" "test/test_reader.rb" "test/xml/test_node.rb" "test/xml/test_relax_ng.rb" "test/xml/test_xpath.rb" "test/xml/test_cdata.rb" "test/xml/test_document_encoding.rb" "test/xml/test_comment.rb" "test/xml/node/test_save_options.rb" "test/xml/node/test_subclass.rb" "test/xml/test_schema.rb" "test/xml/test_node_attributes.rb" "test/xml/test_attr.rb" "test/xml/test_node_encoding.rb" "test/xml/test_text.rb" "test/xml/test_builder.rb" "test/xml/test_document.rb" "test/xml/test_namespace.rb" "test/xml/test_dtd.rb" "test/xml/sax/test_parser.rb" "test/xml/sax/test_push_parser.rb" "test/xml/test_entity_reference.rb" "test/xml/test_dtd_encoding.rb" "test/xml/test_document_fragment.rb" "test/xml/test_unparented_node.rb" "test/xml/test_reader_encoding.rb" "test/xml/test_node_set.rb" "test/xml/test_processing_instruction.rb" "test/test_nokogiri.rb" "test/css/test_parser.rb" "test/css/test_nthiness.rb" "test/css/test_xpath_visitor.rb" "test/css/test_tokenizer.rb" "test/ffi/test_document.rb" "test/html/test_node.rb" "test/html/test_document_encoding.rb" "test/html/test_element_description.rb" "test/html/test_builder.rb" "test/html/test_document.rb" "test/html/sax/test_parser.rb" "test/html/test_named_characters.rb" "test/test_css_cache.rb" "test/test_gc.rb" "test/test_memory_leak.rb" "test/test_xslt_transforms.rb" "test/test_convert_xpath.rb" "test/hpricot/test_parser.rb" "test/hpricot/test_alter.rb" "test/hpricot/test_builder.rb" "test/hpricot/test_preserved.rb" "test/hpricot/test_xml.rb" "test/hpricot/test_paths.rb" "test/test_reader.rb" "test/test_nokogiri.rb" "test/test_css_cache.rb" "test/test_gc.rb" "test/test_memory_leak.rb" "test/test_xslt_transforms.rb" "test/test_convert_xpath.rb"  test/test_nokogiri.rb --verbose=verbose
+==2649== Memcheck, a memory error detector.
+==2649== Copyright (C) 2002-2007, and GNU GPL'd, by Julian Seward et al.
+==2649== Using LibVEX rev 1804, a library for dynamic binary translation.
+==2649== Copyright (C) 2004-2007, and GNU GPL'd, by OpenWorks LLP.
+==2649== Using valgrind-3.3.0-Debian, a dynamic binary instrumentation framework.
+==2649== Copyright (C) 2000-2007, and GNU GPL'd, by Julian Seward et al.
+==2649== For more details, rerun with: -v
+==2649== 
+/usr/lib/ruby/gems/1.8/gems/ffi-0.4/lib/ffi/struct.rb:24: warning: method redefined; discarding old offset
+/usr/lib/ruby/gems/1.8/gems/ffi-0.4/lib/ffi/variadic.rb:15: warning: method redefined; discarding old call
+./test/test_reader.rb:5: warning: method redefined; discarding old test_from_io_sets_io_as_source
+./test/test_reader.rb:15: warning: method redefined; discarding old test_nil_raises
+./test/test_reader.rb:24: warning: method redefined; discarding old test_from_io
+./test/test_reader.rb:36: warning: method redefined; discarding old test_io
+./test/test_reader.rb:48: warning: method redefined; discarding old test_in_memory
+./test/test_reader.rb:56: warning: method redefined; discarding old test_reader_holds_on_to_string
+./test/test_reader.rb:71: warning: method redefined; discarding old test_default?
+./test/test_reader.rb:82: warning: method redefined; discarding old test_value?
+./test/test_reader.rb:93: warning: method redefined; discarding old test_read_error_document
+./test/test_reader.rb:110: warning: method redefined; discarding old test_attributes?
+./test/test_reader.rb:121: warning: method redefined; discarding old test_attributes
+./test/test_reader.rb:138: warning: method redefined; discarding old test_attribute_roundtrip
+./test/test_reader.rb:153: warning: method redefined; discarding old test_attribute_at
+./test/test_reader.rb:165: warning: method redefined; discarding old test_attribute
+./test/test_reader.rb:177: warning: method redefined; discarding old test_attribute_length
+./test/test_reader.rb:187: warning: method redefined; discarding old test_depth
+./test/test_reader.rb:197: warning: method redefined; discarding old test_encoding
+./test/test_reader.rb:208: warning: method redefined; discarding old test_xml_version
+./test/test_reader.rb:218: warning: method redefined; discarding old test_lang
+./test/test_reader.rb:230: warning: method redefined; discarding old test_value
+./test/test_reader.rb:241: warning: method redefined; discarding old test_prefix
+./test/test_reader.rb:252: warning: method redefined; discarding old test_state
+./test/test_reader.rb:257: warning: method redefined; discarding old test_ns_uri
+./test/test_reader.rb:274: warning: method redefined; discarding old test_local_name
+./test/test_reader.rb:285: warning: method redefined; discarding old test_name
+./test/test_reader.rb:296: warning: method redefined; discarding old test_read_from_memory
+./test/test_nokogiri.rb:4: warning: method redefined; discarding old test_versions
+./test/test_nokogiri.rb:33: warning: method redefined; discarding old test_xml?
+./test/test_nokogiri.rb:39: warning: method redefined; discarding old test_html?
+./test/test_nokogiri.rb:45: warning: method redefined; discarding old test_nokogiri_method_with_html
+./test/test_nokogiri.rb:51: warning: method redefined; discarding old test_nokogiri_method_with_block
+./test/test_nokogiri.rb:56: warning: method redefined; discarding old test_make_with_html
+./test/test_nokogiri.rb:61: warning: method redefined; discarding old test_make_with_block
+./test/test_nokogiri.rb:66: warning: already initialized constant SLOP_HTML
+./test/test_nokogiri.rb:81: warning: method redefined; discarding old test_slop_css
+./test/test_nokogiri.rb:100: warning: method redefined; discarding old test_slop
+./test/test_nokogiri.rb:116: warning: method redefined; discarding old test_slop_decorator
+./test/test_css_cache.rb:5: warning: method redefined; discarding old setup
+./test/test_css_cache.rb:24: warning: method redefined; discarding old teardown
+./test/test_gc.rb:5: warning: method redefined; discarding old test_dont_hurt_em_why
+./test/test_memory_leak.rb:72: warning: method redefined; discarding old count_object_space_documents
+./test/test_xslt_transforms.rb:7: warning: method redefined; discarding old test_class_methods
+./test/test_xslt_transforms.rb:15: warning: method redefined; discarding old test_transform
+./test/test_xslt_transforms.rb:41: warning: method redefined; discarding old test_transform2
+./test/test_xslt_transforms.rb:57: warning: method redefined; discarding old test_quote_params
+./test/test_xslt_transforms.rb:76: warning: method redefined; discarding old test_exslt
+./test/test_xslt_transforms.rb:105: warning: method redefined; discarding old test_xslt_parse_error
+./test/test_xslt_transforms.rb:124: warning: method redefined; discarding old check_params
+./test/test_convert_xpath.rb:6: warning: already initialized constant HAS_HPRICOT
+./test/test_convert_xpath.rb:13: warning: method redefined; discarding old setup
+./test/test_convert_xpath.rb:20: warning: method redefined; discarding old assert_syntactical_equivalence
+./test/test_convert_xpath.rb:29: warning: method redefined; discarding old test_ordinary_xpath_conversions
+./test/test_convert_xpath.rb:36: warning: method redefined; discarding old test_child_tag
+./test/test_convert_xpath.rb:42: warning: method redefined; discarding old test_child_tag_equals
+./test/test_convert_xpath.rb:48: warning: method redefined; discarding old test_filter_contains
+./test/test_convert_xpath.rb:55: warning: method redefined; discarding old test_filter_comment
+./test/test_convert_xpath.rb:61: warning: method redefined; discarding old test_filter_text
+./test/test_convert_xpath.rb:76: warning: method redefined; discarding old test_filter_by_attr
+./test/test_convert_xpath.rb:84: warning: method redefined; discarding old test_css_id
+./test/test_convert_xpath.rb:93: warning: method redefined; discarding old test_css_class
+./test/test_convert_xpath.rb:104: warning: method redefined; discarding old test_css_tags
+./test/test_convert_xpath.rb:119: warning: method redefined; discarding old test_positional
+./test/test_convert_xpath.rb:149: warning: method redefined; discarding old test_multiple_filters
+./test/test_convert_xpath.rb:155: warning: method redefined; discarding old test_compat_mode_namespaces
+./test/test_nokogiri.rb:4: warning: method redefined; discarding old test_versions
+./test/test_nokogiri.rb:33: warning: method redefined; discarding old test_xml?
+./test/test_nokogiri.rb:39: warning: method redefined; discarding old test_html?
+./test/test_nokogiri.rb:45: warning: method redefined; discarding old test_nokogiri_method_with_html
+./test/test_nokogiri.rb:51: warning: method redefined; discarding old test_nokogiri_method_with_block
+./test/test_nokogiri.rb:56: warning: method redefined; discarding old test_make_with_html
+./test/test_nokogiri.rb:61: warning: method redefined; discarding old test_make_with_block
+./test/test_nokogiri.rb:66: warning: already initialized constant SLOP_HTML
+./test/test_nokogiri.rb:81: warning: method redefined; discarding old test_slop_css
+./test/test_nokogiri.rb:100: warning: method redefined; discarding old test_slop
+./test/test_nokogiri.rb:116: warning: method redefined; discarding old test_slop_decorator
+/home/mike/code/nokogiri/test/helper.rb:11: libxml version info: {"nokogiri"=>"1.2.4", "warnings"=>[], "libxml"=>{"platform"=>"ruby", "binding"=>"ffi", "loaded"=>"2.6.31"}}
+Loaded suite /usr/lib/ruby/gems/1.8/gems/rake-0.8.4/lib/rake/rake_test_loader
+Started
+test_node_set(FFI::TestDocument): .
+test_node_set_contains_unlinked_nodes(FFI::TestDocument): .
+test_ruby_doc_reflection(FFI::TestDocument): .
+test_ruby_doc_setter(FFI::TestDocument): .
+test_2n(Nokogiri::CSS::TestNthiness): .
+test_2np1(Nokogiri::CSS::TestNthiness): .
+test_3np4(Nokogiri::CSS::TestNthiness): .
+test_4np3(Nokogiri::CSS::TestNthiness): .
+test_empty(Nokogiri::CSS::TestNthiness): .
+test_even(Nokogiri::CSS::TestNthiness): .
+test_first(Nokogiri::CSS::TestNthiness): .
+test_first_child(Nokogiri::CSS::TestNthiness): .
+test_first_of_type(Nokogiri::CSS::TestNthiness): .
+test_last(Nokogiri::CSS::TestNthiness): .
+test_last_child(Nokogiri::CSS::TestNthiness): .
+test_last_of_type(Nokogiri::CSS::TestNthiness): .
+test_mnp3(Nokogiri::CSS::TestNthiness): .
+test_np3(Nokogiri::CSS::TestNthiness): .
+test_odd(Nokogiri::CSS::TestNthiness): .
+test_only_child(Nokogiri::CSS::TestNthiness): .
+test_only_of_type(Nokogiri::CSS::TestNthiness): .
+test_parent(Nokogiri::CSS::TestNthiness): .
+test_siblings(Nokogiri::CSS::TestNthiness): .
+test_attribute(Nokogiri::CSS::TestParser): .
+test_attributes_with_at(Nokogiri::CSS::TestParser): .
+test_attributes_with_at_and_stuff(Nokogiri::CSS::TestParser): .
+test_carrot(Nokogiri::CSS::TestParser): .
+test_class(Nokogiri::CSS::TestParser): .
+test_dashmatch(Nokogiri::CSS::TestParser): .
+test_direct_preceding_selector(Nokogiri::CSS::TestParser): .
+test_extra_single_quote(Nokogiri::CSS::TestParser): .
+test_find_by_type(Nokogiri::CSS::TestParser): .
+test_function(Nokogiri::CSS::TestParser): .
+test_function_with_arguments(Nokogiri::CSS::TestParser): .
+test_id(Nokogiri::CSS::TestParser): .
+test_ident(Nokogiri::CSS::TestParser): .
+test_includes(Nokogiri::CSS::TestParser): .
+test_miscellaneous_selectors(Nokogiri::CSS::TestParser): .
+test_multi_path(Nokogiri::CSS::TestParser): .
+test_nonstandard_nth_selectors(Nokogiri::CSS::TestParser): .
+test_not_equal(Nokogiri::CSS::TestParser): .
+test_not_so_simple_not(Nokogiri::CSS::TestParser): .
+test_nth_a_n_plus_b(Nokogiri::CSS::TestParser): .
+test_nth_child_selectors(Nokogiri::CSS::TestParser): .
+test_parse_descendant(Nokogiri::CSS::TestParser): .
+test_parse_doubleslash(Nokogiri::CSS::TestParser): .
+test_parse_slash(Nokogiri::CSS::TestParser): .
+test_parse_space(Nokogiri::CSS::TestParser): .
+test_preceding_selector(Nokogiri::CSS::TestParser): .
+test_pseudo_class(Nokogiri::CSS::TestParser): .
+test_pseudo_class_no_ident(Nokogiri::CSS::TestParser): .
+test_standard_nth_selectors(Nokogiri::CSS::TestParser): .
+test_star(Nokogiri::CSS::TestParser): .
+test_suffix_match(Nokogiri::CSS::TestParser): .
+test_syntax_error_raised(Nokogiri::CSS::TestParser): .
+test_to_a(Nokogiri::CSS::TestParser): .
+test_to_type(Nokogiri::CSS::TestParser): .
+test_function(Nokogiri::CSS::TestTokenizer): .
+test_negation(Nokogiri::CSS::TestTokenizer): .
+test_not_equal(Nokogiri::CSS::TestTokenizer): .
+test_preceding_selector(Nokogiri::CSS::TestTokenizer): .
+test_scan_an_plus_b(Nokogiri::CSS::TestTokenizer): .
+test_scan_attribute_string(Nokogiri::CSS::TestTokenizer): .
+test_scan_class(Nokogiri::CSS::TestTokenizer): .
+test_scan_doubleslash(Nokogiri::CSS::TestTokenizer): .
+test_scan_function_selector(Nokogiri::CSS::TestTokenizer): .
+test_scan_greater(Nokogiri::CSS::TestTokenizer): .
+test_scan_id(Nokogiri::CSS::TestTokenizer): .
+test_scan_pseudo(Nokogiri::CSS::TestTokenizer): .
+test_scan_slash(Nokogiri::CSS::TestTokenizer): .
+test_scan_star(Nokogiri::CSS::TestTokenizer): .
+test_tokenize_bad_single_quote(Nokogiri::CSS::TestTokenizer): .
+test_class_selectors(Nokogiri::CSS::TestXPathVisitor): .
+test_custom_functions(Nokogiri::CSS::TestXPathVisitor): .
+test_custom_psuedo_classes(Nokogiri::CSS::TestXPathVisitor): .
+test_function_calls_allow_at_params(Nokogiri::CSS::TestXPathVisitor): .
+test_namespace_conversion(Nokogiri::CSS::TestXPathVisitor): .
+test_pipe(Nokogiri::CSS::TestXPathVisitor): .
+test_unknown_functions_get_dot_plus_args(Nokogiri::CSS::TestXPathVisitor): .
+test_unknown_psuedo_classes_get_pushed_down(Nokogiri::CSS::TestXPathVisitor): .
+test_parse_document(Nokogiri::HTML::SAX::TestParser): .
+test_parse_file(Nokogiri::HTML::SAX::TestParser): .
+test_parse_file_nil_argument(Nokogiri::HTML::SAX::TestParser): .
+test_parse_file_non_existant(Nokogiri::HTML::SAX::TestParser): .
+test_parse_file_with_dir(Nokogiri::HTML::SAX::TestParser): .
+test_parse_memory_nil(Nokogiri::HTML::SAX::TestParser): .
+test_attributes_plus_block(Nokogiri::HTML::TestBuilder): .
+test_bold_tag(Nokogiri::HTML::TestBuilder): .
+test_builder_adds_attributes(Nokogiri::HTML::TestBuilder): .
+test_builder_with_explicit_tags(Nokogiri::HTML::TestBuilder): .
+test_builder_with_id(Nokogiri::HTML::TestBuilder): .
+test_builder_with_param(Nokogiri::HTML::TestBuilder): .
+test_has_ampersand(Nokogiri::HTML::TestBuilder): .
+test_hash_as_attributes(Nokogiri::HTML::TestBuilder): .
+test_hash_as_attributes_for_attribute_method(Nokogiri::HTML::TestBuilder): .
+test_href_with_attributes(Nokogiri::HTML::TestBuilder): .
+test_html_then_body_tag(Nokogiri::HTML::TestBuilder): .
+test_instance_eval_with_delegation_to_block_context(Nokogiri::HTML::TestBuilder): .
+test_multi_tags(Nokogiri::HTML::TestBuilder): .
+test_tag_nesting(Nokogiri::HTML::TestBuilder): .
+test_attributes(Nokogiri::HTML::TestDTD): .
+test_elements(Nokogiri::HTML::TestDTD): .
+test_entities(Nokogiri::HTML::TestDTD): .
+test_external_subsets(Nokogiri::HTML::TestDTD): .
+test_notations(Nokogiri::HTML::TestDTD): .
+test_HTML_function(Nokogiri::HTML::TestDocument): .
+test_document_has_error(Nokogiri::HTML::TestDocument): .
+test_dup(Nokogiri::HTML::TestDocument): .
+test_dup_document(Nokogiri::HTML::TestDocument): .
+test_dup_document_shallow(Nokogiri::HTML::TestDocument): .
+test_dup_shallow(Nokogiri::HTML::TestDocument): .
+test_emtpy_string_returns_empty_doc(Nokogiri::HTML::TestDocument): .
+test_find_by_css(Nokogiri::HTML::TestDocument): .
+test_find_by_css_with_square_brackets(Nokogiri::HTML::TestDocument): .
+test_find_by_xpath(Nokogiri::HTML::TestDocument): .
+test_find_classes(Nokogiri::HTML::TestDocument): .
+test_find_with_function(Nokogiri::HTML::TestDocument): .
+test_fragment(Nokogiri::HTML::TestDocument): .
+test_fragment_contains_text_node(Nokogiri::HTML::TestDocument): .
+test_fragment_includes_two_tags(Nokogiri::HTML::TestDocument): .
+test_html?(Nokogiri::HTML::TestDocument): .
+test_inner_html(Nokogiri::HTML::TestDocument): .
+test_inner_text(Nokogiri::HTML::TestDocument): .
+test_meta_encoding(Nokogiri::HTML::TestDocument): .
+test_meta_encoding=(Nokogiri::HTML::TestDocument): .
+test_multi_css(Nokogiri::HTML::TestDocument): .
+test_namespace_should_not_exist(Nokogiri::HTML::TestDocument): .
+test_no_xml_header(Nokogiri::HTML::TestDocument): .
+test_parse_can_take_io(Nokogiri::HTML::TestDocument): .
+test_parse_empty_document(Nokogiri::HTML::TestDocument): .
+test_parse_io(Nokogiri::HTML::TestDocument): .
+test_relative_css(Nokogiri::HTML::TestDocument): .
+test_relative_css_finder(Nokogiri::HTML::TestDocument): .
+test_root_node_parent_is_document(Nokogiri::HTML::TestDocument): .
+test_search_can_handle_xpath_and_css(Nokogiri::HTML::TestDocument): .
+test_serialize(Nokogiri::HTML::TestDocument): .
+test_swap_should_not_exist(Nokogiri::HTML::TestDocument): .
+test_to_xhtml(Nokogiri::HTML::TestDocument): .
+test_block?(Nokogiri::HTML::TestElementDescription): .
+test_default_sub_element(Nokogiri::HTML::TestElementDescription): .
+test_deprecated?(Nokogiri::HTML::TestElementDescription): .
+test_deprecated_attributes(Nokogiri::HTML::TestElementDescription): .
+test_description(Nokogiri::HTML::TestElementDescription): .
+test_empty?(Nokogiri::HTML::TestElementDescription): .
+test_fetch_element_description(Nokogiri::HTML::TestElementDescription): .
+test_fetch_nonexistent(Nokogiri::HTML::TestElementDescription): .
+test_implied_end_tag?(Nokogiri::HTML::TestElementDescription): .
+test_implied_start_tag?(Nokogiri::HTML::TestElementDescription): .
+test_inline?(Nokogiri::HTML::TestElementDescription): .
+test_inspect(Nokogiri::HTML::TestElementDescription): .
+test_name(Nokogiri::HTML::TestElementDescription): .
+test_optional_attributes(Nokogiri::HTML::TestElementDescription): .
+test_required_attributes(Nokogiri::HTML::TestElementDescription): .
+test_save_end_tag?(Nokogiri::HTML::TestElementDescription): .
+test_subelements(Nokogiri::HTML::TestElementDescription): .
+test_to_s(Nokogiri::HTML::TestElementDescription): .
+test_named_character(Nokogiri::HTML::TestNamedCharacters): .
+test_add_next_sibling_with_empty_nodeset(Nokogiri::HTML::TestNode): .
+test_add_next_sibling_with_non_empty_nodeset(Nokogiri::HTML::TestNode): .
+test_after_will_append_text_nodes(Nokogiri::HTML::TestNode): .
+test_ancestors_with_selector(Nokogiri::HTML::TestNode): .
+test_attribute_decodes_entities(Nokogiri::HTML::TestNode): .
+test_before_will_prepend_text_nodes(Nokogiri::HTML::TestNode): .
+test_css_matches?(Nokogiri::HTML::TestNode): .
+test_description(Nokogiri::HTML::TestNode): .
+test_fragment(Nokogiri::HTML::TestNode): .
+test_fragment_handler_does_not_regurge_on_invalid_attributes(Nokogiri::HTML::TestNode): .
+test_inner_html=(Nokogiri::HTML::TestNode): .
+test_replace(Nokogiri::HTML::TestNode): .
+test_swap(Nokogiri::HTML::TestNode): .
+test_swap_with_regex_characters(Nokogiri::HTML::TestNode): .
+test_to_html_does_not_contain_entities(Nokogiri::HTML::TestNode): .
+test_xpath_matches?(Nokogiri::HTML::TestNode): .
+test_predicate_as_html(Nokogiri::XML::Node::TestSaveOptions): .
+test_predicate_as_xhtml(Nokogiri::XML::Node::TestSaveOptions): .
+test_predicate_as_xml(Nokogiri::XML::Node::TestSaveOptions): .
+test_predicate_format(Nokogiri::XML::Node::TestSaveOptions): .
+test_predicate_no_declaration(Nokogiri::XML::Node::TestSaveOptions): .
+test_predicate_no_empty_tags(Nokogiri::XML::Node::TestSaveOptions): .
+test_predicate_no_xhtml(Nokogiri::XML::Node::TestSaveOptions): .
+test_subclass_Nokogiri_XML_Attr(Nokogiri::XML::Node::TestSubclass): .
+test_subclass_Nokogiri_XML_CDATA(Nokogiri::XML::Node::TestSubclass): .
+test_subclass_Nokogiri_XML_Comment(Nokogiri::XML::Node::TestSubclass): .
+test_subclass_Nokogiri_XML_DocumentFragment(Nokogiri::XML::Node::TestSubclass): .
+test_subclass_Nokogiri_XML_EntityReference(Nokogiri::XML::Node::TestSubclass): .
+test_subclass_Nokogiri_XML_Node(Nokogiri::XML::Node::TestSubclass): .
+test_subclass_Nokogiri_XML_ProcessingInstruction(Nokogiri::XML::Node::TestSubclass): .
+test_subclass_Nokogiri_XML_Text(Nokogiri::XML::Node::TestSubclass): .
+test_subclass_initialize_Nokogiri_XML_Attr(Nokogiri::XML::Node::TestSubclass): E
+test_subclass_initialize_Nokogiri_XML_CDATA(Nokogiri::XML::Node::TestSubclass): E
+test_subclass_initialize_Nokogiri_XML_Comment(Nokogiri::XML::Node::TestSubclass): E
+test_subclass_initialize_Nokogiri_XML_DocumentFragment(Nokogiri::XML::Node::TestSubclass): E
+test_subclass_initialize_Nokogiri_XML_EntityReference(Nokogiri::XML::Node::TestSubclass): E
+test_subclass_initialize_Nokogiri_XML_Node(Nokogiri::XML::Node::TestSubclass): E
+test_subclass_initialize_Nokogiri_XML_ProcessingInstruction(Nokogiri::XML::Node::TestSubclass): E
+test_subclass_initialize_Nokogiri_XML_Text(Nokogiri::XML::Node::TestSubclass): E
+test_bad_document_calls_error_handler(Nokogiri::XML::SAX::TestParser): .
+test_characters(Nokogiri::XML::SAX::TestParser): .
+test_comment(Nokogiri::XML::SAX::TestParser): .
+test_ctag(Nokogiri::XML::SAX::TestParser): .
+test_end_document(Nokogiri::XML::SAX::TestParser): .
+test_end_element(Nokogiri::XML::SAX::TestParser): .
+test_errors_set_after_parsing_bad_dom(Nokogiri::XML::SAX::TestParser): .
+test_parse(Nokogiri::XML::SAX::TestParser): .
+test_parse_document(Nokogiri::XML::SAX::TestParser): .
+test_parse_file(Nokogiri::XML::SAX::TestParser): .
+test_parse_io(Nokogiri::XML::SAX::TestParser): .
+test_parser_sets_encoding(Nokogiri::XML::SAX::TestParser): .
+test_render_parse_nil_param(Nokogiri::XML::SAX::TestParser): .
+test_start_element_attrs(Nokogiri::XML::SAX::TestParser): .
+test_chevron(Nokogiri::XML::SAX::TestPushParser): .
+test_chevron_partial_xml(Nokogiri::XML::SAX::TestPushParser): .
+test_end_document_called(Nokogiri::XML::SAX::TestPushParser): .
+test_start_element(Nokogiri::XML::SAX::TestPushParser): .
+test_content=(Nokogiri::XML::TestAttr): .
+test_new(Nokogiri::XML::TestAttr): .
+test_unlink(Nokogiri::XML::TestAttr): .
+test_value=(Nokogiri::XML::TestAttr): .
+test_bang_and_underscore_is_escaped(Nokogiri::XML::TestBuilder): .
+test_builder_no_block(Nokogiri::XML::TestBuilder): .
+test_cdata(Nokogiri::XML::TestBuilder): .
+test_nested_local_variable(Nokogiri::XML::TestBuilder): .
+test_set_encoding(Nokogiri::XML::TestBuilder): .
+test_square_brackets_set_attributes(Nokogiri::XML::TestBuilder): .
+test_cdata_node(Nokogiri::XML::TestCDATA): .
+test_lots_of_new_cdata(Nokogiri::XML::TestCDATA): .
+test_new(Nokogiri::XML::TestCDATA): .
+test_new_with_nil(Nokogiri::XML::TestCDATA): .
+test_many_comments(Nokogiri::XML::TestComment): .
+test_new(Nokogiri::XML::TestComment): .
+test_XML_function(Nokogiri::XML::TestDocument): .
+test_ancestors(Nokogiri::XML::TestDocument): .
+test_bad_xpath_raises_syntax_error(Nokogiri::XML::TestDocument): .
+test_decorator_is_applied(Nokogiri::XML::TestDocument): .
+test_document(Nokogiri::XML::TestDocument): .
+test_document_has_errors(Nokogiri::XML::TestDocument): .
+test_document_name(Nokogiri::XML::TestDocument): .
+test_document_parent(Nokogiri::XML::TestDocument): .
+test_dump(Nokogiri::XML::TestDocument): .
+test_dup(Nokogiri::XML::TestDocument): .
+test_encoding=(Nokogiri::XML::TestDocument): .
+test_find_with_namespace(Nokogiri::XML::TestDocument): .
+test_multiple_search(Nokogiri::XML::TestDocument): .
+test_namespace_should_not_exist(Nokogiri::XML::TestDocument): .
+test_new(Nokogiri::XML::TestDocument): .
+test_new_document_collect_namespaces(Nokogiri::XML::TestDocument): .
+test_node_set_index(Nokogiri::XML::TestDocument): .
+test_non_existant_function(Nokogiri::XML::TestDocument): .
+test_parse_can_take_io(Nokogiri::XML::TestDocument): .
+test_root_node_parent_is_document(Nokogiri::XML::TestDocument): .
+test_search(Nokogiri::XML::TestDocument): .
+test_search_on_empty_documents(Nokogiri::XML::TestDocument): .
+test_set_root(Nokogiri::XML::TestDocument): .
+test_singleton_methods(Nokogiri::XML::TestDocument): .
+test_strict_document_throws_syntax_error(Nokogiri::XML::TestDocument): .
+test_subset_is_decorated(Nokogiri::XML::TestDocument): .
+test_to_xml_with_indent(Nokogiri::XML::TestDocument): .
+test_url(Nokogiri::XML::TestDocument): .
+test_write_xml_to_with_indent(Nokogiri::XML::TestDocument): .
+test_xml?(Nokogiri::XML::TestDocument): .
+test_xmlns_is_automatically_registered(Nokogiri::XML::TestDocument): .
+test_xmlns_is_registered_for_nodesets(Nokogiri::XML::TestDocument): .
+test_fragment_should_have_document(Nokogiri::XML::TestDocumentFragment): .
+test_many_fragments(Nokogiri::XML::TestDocumentFragment): .
+test_name(Nokogiri::XML::TestDocumentFragment): .
+test_new(Nokogiri::XML::TestDocumentFragment): .
+test_many_references(Nokogiri::XML::TestEntityReference): .
+test_new(Nokogiri::XML::TestEntityReference): .
+test_add_definition(Nokogiri::XML::TestNamespace): .
+test_add_definition_return(Nokogiri::XML::TestNamespace): .
+test_equality(Nokogiri::XML::TestNamespace): .
+test_namespace_node_href(Nokogiri::XML::TestNamespace): .
+test_namespace_node_prefix(Nokogiri::XML::TestNamespace): .
+test_accept(Nokogiri::XML::TestNode): .
+test_add_child(Nokogiri::XML::TestNode): .
+test_add_child_from_other_document(Nokogiri::XML::TestNode): .
+test_add_child_in_same_document(Nokogiri::XML::TestNode): .
+test_add_child_path_following_sequential_text_nodes(Nokogiri::XML::TestNode): .
+test_add_child_should_inherit_namespace(Nokogiri::XML::TestNode): .
+test_add_default_ns(Nokogiri::XML::TestNode): .
+test_add_multiple_namespaces(Nokogiri::XML::TestNode): .
+test_add_namespace(Nokogiri::XML::TestNode): .
+test_add_namespace_add_child(Nokogiri::XML::TestNode): .
+test_add_next_sibling_merge(Nokogiri::XML::TestNode): .
+test_add_previous_sibling(Nokogiri::XML::TestNode): .
+test_add_previous_sibling_merge(Nokogiri::XML::TestNode): .
+test_ancestors(Nokogiri::XML::TestNode): .
+test_at(Nokogiri::XML::TestNode): .
+test_attribute_with_symbol(Nokogiri::XML::TestNode): .
+test_attributes(Nokogiri::XML::TestNode): .
+test_chevron_works_as_add_child(Nokogiri::XML::TestNode): .
+test_child(Nokogiri::XML::TestNode): .
+test_children(Nokogiri::XML::TestNode): .
+test_clone(Nokogiri::XML::TestNode): .
+test_content(Nokogiri::XML::TestNode): .
+test_default_namespace=(Nokogiri::XML::TestNode): .
+test_delete(Nokogiri::XML::TestNode): .
+test_description(Nokogiri::XML::TestNode): .
+test_different_document_compare(Nokogiri::XML::TestNode): .
+test_document_compare(Nokogiri::XML::TestNode): .
+test_dup(Nokogiri::XML::TestNode): .
+test_duplicate_node_removes_namespace(Nokogiri::XML::TestNode): .
+test_each(Nokogiri::XML::TestNode): .
+test_encode_special_chars(Nokogiri::XML::TestNode): .
+test_find_by_css_with_tilde_eql(Nokogiri::XML::TestNode): .
+test_hold_refence_to_subnode(Nokogiri::XML::TestNode): .
+test_illegal_replace_of_node_with_doc(Nokogiri::XML::TestNode): .
+test_incorrect_spaceship(Nokogiri::XML::TestNode): .
+test_key?(Nokogiri::XML::TestNode): .
+test_keys(Nokogiri::XML::TestNode): .
+test_line(Nokogiri::XML::TestNode): .
+test_name=(Nokogiri::XML::TestNode): .
+test_namespace(Nokogiri::XML::TestNode): .
+test_namespace_as_hash(Nokogiri::XML::TestNode): .
+test_namespace_goes_to_children(Nokogiri::XML::TestNode): .
+test_namespace_nodes(Nokogiri::XML::TestNode): .
+test_namespace_search_with_css(Nokogiri::XML::TestNode): .
+test_namespace_without_an_href_on_html_node(Nokogiri::XML::TestNode): .
+test_namespaces(Nokogiri::XML::TestNode): .
+test_new(Nokogiri::XML::TestNode): .
+test_new_node(Nokogiri::XML::TestNode): .
+test_new_node_can_have_ancestors(Nokogiri::XML::TestNode): .
+test_next_sibling(Nokogiri::XML::TestNode): .
+test_no_definitions(Nokogiri::XML::TestNode): .
+test_node_added_to_root_should_get_namespace(Nokogiri::XML::TestNode): .
+test_node_equality(Nokogiri::XML::TestNode): .
+test_path(Nokogiri::XML::TestNode): .
+test_percent(Nokogiri::XML::TestNode): .
+test_previous_sibling(Nokogiri::XML::TestNode): .
+test_read_only?(Nokogiri::XML::TestNode): .
+test_remove_attribute(Nokogiri::XML::TestNode): .
+test_replace(Nokogiri::XML::TestNode): .
+test_replace_with_default_namespaces(Nokogiri::XML::TestNode): .
+test_search_by_symbol(Nokogiri::XML::TestNode): .
+test_serialize_with_block(Nokogiri::XML::TestNode): .
+test_set_content_with_symbol(Nokogiri::XML::TestNode): .
+test_set_property(Nokogiri::XML::TestNode): .
+test_spaceship(Nokogiri::XML::TestNode): .
+test_subclass_dup(Nokogiri::XML::TestNode): .
+test_to_str(Nokogiri::XML::TestNode): .
+test_unlink(Nokogiri::XML::TestNode): .
+test_unlink_then_reparent(Nokogiri::XML::TestNode): ...........
+test_values(Nokogiri::XML::TestNode): .
+test_whitespace_nodes(Nokogiri::XML::TestNode): .
+test_write_html_to(Nokogiri::XML::TestNode): .
+test_write_to(Nokogiri::XML::TestNode): .
+test_write_to_with_block(Nokogiri::XML::TestNode): .
+test_write_xhtml_to(Nokogiri::XML::TestNode): .
+test_write_xml_to(Nokogiri::XML::TestNode): .
+test_attribute_with_ns(Nokogiri::XML::TestNodeAttributes): .
+test_namespace_key?(Nokogiri::XML::TestNodeAttributes): .
+test_array_index(Nokogiri::XML::TestNodeSet): .
+test_array_index_bracket_equivalence(Nokogiri::XML::TestNodeSet): .
+test_array_slice_with_invalid_args(Nokogiri::XML::TestNodeSet): .
+test_array_slice_with_negative_start(Nokogiri::XML::TestNodeSet): .
+test_array_slice_with_range(Nokogiri::XML::TestNodeSet): .
+test_array_slice_with_start_and_end(Nokogiri::XML::TestNodeSet): .
+test_at(Nokogiri::XML::TestNodeSet): .
+test_children_has_document(Nokogiri::XML::TestNodeSet): .
+test_delete_when_not_present(Nokogiri::XML::TestNodeSet): .
+test_delete_when_present(Nokogiri::XML::TestNodeSet): .
+test_delete_with_invalid_argument(Nokogiri::XML::TestNodeSet): .
+test_double_equal(Nokogiri::XML::TestNodeSet): .
+test_dup(Nokogiri::XML::TestNodeSet): .
+test_first_takes_arguments(Nokogiri::XML::TestNodeSet): .
+test_include?(Nokogiri::XML::TestNodeSet): .
+test_inner_html(Nokogiri::XML::TestNodeSet): .
+test_intersection(Nokogiri::XML::TestNodeSet): .
+test_intersection_with_no_overlap(Nokogiri::XML::TestNodeSet): .
+test_large_negative_index_returns_nil(Nokogiri::XML::TestNodeSet): .
+test_length_size(Nokogiri::XML::TestNodeSet): .
+test_minus_operator(Nokogiri::XML::TestNodeSet): .
+test_negative_index_works(Nokogiri::XML::TestNodeSet): .
+test_new_nodeset(Nokogiri::XML::TestNodeSet): .
+test_node_set_fetches_private_data(Nokogiri::XML::TestNodeSet): .
+test_node_set_not_equal_to_string(Nokogiri::XML::TestNodeSet): .
+test_node_set_returns_0(Nokogiri::XML::TestNodeSet): .
+test_nodeset_search_takes_namespace(Nokogiri::XML::TestNodeSet): .
+test_out_of_order_not_equal(Nokogiri::XML::TestNodeSet): .
+test_percent(Nokogiri::XML::TestNodeSet): .
+test_plus_operator(Nokogiri::XML::TestNodeSet): .
+test_pop(Nokogiri::XML::TestNodeSet): .
+test_pop_empty(Nokogiri::XML::TestNodeSet): .
+test_push(Nokogiri::XML::TestNodeSet): .
+test_search_on_nodeset(Nokogiri::XML::TestNodeSet): .
+test_shift(Nokogiri::XML::TestNodeSet): .
+test_shift_empty(Nokogiri::XML::TestNodeSet): .
+test_shorter_is_not_equal(Nokogiri::XML::TestNodeSet): .
+test_to_ary(Nokogiri::XML::TestNodeSet): .
+test_to_xml(Nokogiri::XML::TestNodeSet): .
+test_unlink(Nokogiri::XML::TestNodeSet): .
+test_wrap(Nokogiri::XML::TestNodeSet): .
+test_xmlns_is_automatically_registered(Nokogiri::XML::TestNodeSet): .
+test_many_new(Nokogiri::XML::TestProcessingInstruction): .
+test_name(Nokogiri::XML::TestProcessingInstruction): .
+test_new(Nokogiri::XML::TestProcessingInstruction): .
+test_type(Nokogiri::XML::TestProcessingInstruction): .
+test_new(Nokogiri::XML::TestRelaxNG): .
+test_parse_with_errors(Nokogiri::XML::TestRelaxNG): .
+test_parse_with_io(Nokogiri::XML::TestRelaxNG): .
+test_parse_with_memory(Nokogiri::XML::TestRelaxNG): .
+test_valid?(Nokogiri::XML::TestRelaxNG): .
+test_validate_document(Nokogiri::XML::TestRelaxNG): .
+test_validate_invalid_document(Nokogiri::XML::TestRelaxNG): .
+test_new(Nokogiri::XML::TestSchema): .
+test_parse_with_errors(Nokogiri::XML::TestSchema): .
+test_parse_with_io(Nokogiri::XML::TestSchema): .
+test_parse_with_memory(Nokogiri::XML::TestSchema): .
+test_valid?(Nokogiri::XML::TestSchema): .
+test_validate_document(Nokogiri::XML::TestSchema): .
+test_validate_file(Nokogiri::XML::TestSchema): .
+test_validate_invalid_document(Nokogiri::XML::TestSchema): .
+test_lots_of_text(Nokogiri::XML::TestText): .
+test_new(Nokogiri::XML::TestText): .
+test_add_child(Nokogiri::XML::TestUnparentedNode): .
+test_add_child_from_other_document(Nokogiri::XML::TestUnparentedNode): .
+test_add_child_in_same_document(Nokogiri::XML::TestUnparentedNode): .
+test_add_namespace(Nokogiri::XML::TestUnparentedNode): .
+test_add_next_sibling_merge(Nokogiri::XML::TestUnparentedNode): .
+test_add_previous_sibling(Nokogiri::XML::TestUnparentedNode): .
+test_add_previous_sibling_merge(Nokogiri::XML::TestUnparentedNode): .
+test_ancestors(Nokogiri::XML::TestUnparentedNode): .
+test_attribute_with_symbol(Nokogiri::XML::TestUnparentedNode): .
+test_attributes(Nokogiri::XML::TestUnparentedNode): .
+test_chevron_works_as_add_child(Nokogiri::XML::TestUnparentedNode): .
+test_child(Nokogiri::XML::TestUnparentedNode): .
+test_content(Nokogiri::XML::TestUnparentedNode): .
+test_delete(Nokogiri::XML::TestUnparentedNode): .
+test_each(Nokogiri::XML::TestUnparentedNode): .
+test_encode_special_chars(Nokogiri::XML::TestUnparentedNode): .
+test_find_by_css_with_tilde_eql(Nokogiri::XML::TestUnparentedNode): .
+test_illegal_replace_of_node_with_doc(Nokogiri::XML::TestUnparentedNode): .
+test_key?(Nokogiri::XML::TestUnparentedNode): .
+test_keys(Nokogiri::XML::TestUnparentedNode): .
+test_name=(Nokogiri::XML::TestUnparentedNode): .
+test_new(Nokogiri::XML::TestUnparentedNode): .
+test_new_node(Nokogiri::XML::TestUnparentedNode): .
+test_next_sibling(Nokogiri::XML::TestUnparentedNode): .
+test_node_still_has_document(Nokogiri::XML::TestUnparentedNode): .
+test_path(Nokogiri::XML::TestUnparentedNode): .
+test_previous_sibling(Nokogiri::XML::TestUnparentedNode): .
+test_read_only?(Nokogiri::XML::TestUnparentedNode): .
+test_remove_attribute(Nokogiri::XML::TestUnparentedNode): .
+test_replace(Nokogiri::XML::TestUnparentedNode): .
+test_search_by_symbol(Nokogiri::XML::TestUnparentedNode): .
+test_serialize_with_block(Nokogiri::XML::TestUnparentedNode): .
+test_set_property(Nokogiri::XML::TestUnparentedNode): .
+test_to_str(Nokogiri::XML::TestUnparentedNode): .
+test_unlink(Nokogiri::XML::TestUnparentedNode): .
+test_values(Nokogiri::XML::TestUnparentedNode): .
+test_whitespace_nodes(Nokogiri::XML::TestUnparentedNode): .
+test_write_html_to(Nokogiri::XML::TestUnparentedNode): .
+test_write_to(Nokogiri::XML::TestUnparentedNode): .
+test_write_to_with_block(Nokogiri::XML::TestUnparentedNode): .
+test_write_xhtml_to(Nokogiri::XML::TestUnparentedNode): .
+test_write_xml_to(Nokogiri::XML::TestUnparentedNode): .
+test_code_that_invokes_OP_RESET_inside_libxml2(Nokogiri::XML::TestXPath): .
+test_css_search_uses_custom_selectors(Nokogiri::XML::TestXPath): .
+test_css_search_uses_custom_selectors_with_arguments(Nokogiri::XML::TestXPath): .
+test_custom_xpath_function_gets_strings(Nokogiri::XML::TestXPath): .
+test_custom_xpath_gets_false_booleans(Nokogiri::XML::TestXPath): .
+test_custom_xpath_gets_node_sets(Nokogiri::XML::TestXPath): .
+test_custom_xpath_gets_node_sets_and_returns_array(Nokogiri::XML::TestXPath): .
+test_custom_xpath_gets_numbers(Nokogiri::XML::TestXPath): .
+test_custom_xpath_gets_true_booleans(Nokogiri::XML::TestXPath): .
+test_pass_self_to_function(Nokogiri::XML::TestXPath): .
+test_add_class(TestAlter): .
+test_after(TestAlter): .
+test_before(TestAlter): .
+test_change_attributes(TestAlter): .
+test_remove_all_classes(TestAlter): .
+test_remove_attr(TestAlter): .
+test_remove_class(TestAlter): .
+test_wrap(TestAlter): .
+test_escaping_text(TestBuilder): .
+test_no_escaping_text(TestBuilder): .
+test_child_tag(TestConvertXPath): .
+test_child_tag_equals(TestConvertXPath): .
+test_compat_mode_namespaces(TestConvertXPath): .
+test_css_class(TestConvertXPath): .
+test_css_id(TestConvertXPath): .
+test_css_tags(TestConvertXPath): .
+test_filter_by_attr(TestConvertXPath): .
+test_filter_comment(TestConvertXPath): .
+test_filter_contains(TestConvertXPath): .
+test_filter_text(TestConvertXPath): .
+test_multiple_filters(TestConvertXPath): .
+test_ordinary_xpath_conversions(TestConvertXPath): .
+test_positional(TestConvertXPath): .
+test_css_cache_false(TestCssCache): .
+test_css_cache_true(TestCssCache): .
+test_hpricot_cache_false(TestCssCache): .
+test_hpricot_cache_true(TestCssCache): .
+test_dont_hurt_em_why(TestGc): .
+test_html?(TestNokogiri): .
+test_make_with_block(TestNokogiri): .
+test_make_with_html(TestNokogiri): .
+test_nokogiri_method_with_block(TestNokogiri): .
+test_nokogiri_method_with_html(TestNokogiri): .
+test_slop(TestNokogiri): .
+test_slop_css(TestNokogiri): .
+test_slop_decorator(TestNokogiri): .
+test_versions(TestNokogiri): .
+test_xml?(TestNokogiri): .
+test_abs_xpath(TestParser): .
+test_alt_predicates(TestParser): .
+test_body_newlines(TestParser): .
+test_buffer_error(TestParser): .
+test_casing(TestParser): .
+test_class_search(TestParser): .
+test_css_negation(TestParser): .
+test_empty_comment(TestParser): .
+test_filter_by_attr(TestParser): .
+test_filter_contains(TestParser): .
+test_filters(TestParser): .
+test_get_element_by_id(TestParser): .
+test_get_element_by_tag_name(TestParser): .
+test_insert_after(TestParser): .
+test_insert_before(TestParser): .
+test_javascripts(TestParser): .
+test_keep_cdata(TestParser): .
+test_kleene_star(TestParser): .
+test_mangled_tags(TestParser): .
+test_many_paths(TestParser): .
+test_namespace(TestParser): .
+test_nested_scripts(TestParser): .
+test_nested_twins(TestParser): .
+test_normally_empty(TestParser): .
+test_output_basic(TestParser): .
+test_pace(TestParser): .
+test_positional(TestParser): .
+test_predicates(TestParser): .
+test_procins(TestParser): .
+test_remove_attribute(TestParser): .
+test_reparent(TestParser): .
+test_roundtrip(TestParser): .
+test_scan_basic(TestParser): .
+test_scan_boingboing(TestParser): .
+test_scan_text(TestParser): .
+test_screwed_xmlns(TestParser): .
+test_set_attr(TestParser): .
+test_siblings(TestParser): .
+test_tag_case(TestParser): .
+test_text_tags(TestParser): .
+test_uswebgen(TestParser): .
+test_wildcard(TestParser): .
+test_youtube_attr(TestParser): .
+test_escaping_of_attrs(TestPreserved): .
+test_attribute(TestReader): .
+test_attribute_at(TestReader): .
+test_attribute_length(TestReader): .
+test_attribute_roundtrip(TestReader): .
+test_attributes(TestReader): .
+test_attributes?(TestReader): .
+test_default?(TestReader): .
+test_depth(TestReader): .
+test_encoding(TestReader): .
+test_from_io(TestReader): .
+test_from_io_sets_io_as_source(TestReader): .
+test_in_memory(TestReader): .
+test_io(TestReader): .
+test_lang(TestReader): .
+test_local_name(TestReader): .
+test_name(TestReader): .
+test_nil_raises(TestReader): .
+test_ns_uri(TestReader): .
+test_prefix(TestReader): .
+test_read_error_document(TestReader): .
+test_read_from_memory(TestReader): .
+test_reader_holds_on_to_string(TestReader): .
+test_state(TestReader): .
+test_value(TestReader): .
+test_value?(TestReader): .
+test_xml_version(TestReader): .
+test_class_methods(TestXsltTransforms): .
+test_exslt(TestXsltTransforms): .
+test_quote_params(TestXsltTransforms): .
+test_transform(TestXsltTransforms): .
+test_transform2(TestXsltTransforms): .
+test_xslt_parse_error(TestXsltTransforms): .
+
+Finished in 76.811938 seconds.
+
+  1) Error:
+test_subclass_initialize_Nokogiri_XML_Attr(Nokogiri::XML::Node::TestSubclass):
+ArgumentError: wrong number of arguments (3 for 2)
+    ./test/xml/node/test_subclass.rb:36:in `new'
+    ./test/xml/node/test_subclass.rb:36:in `test_subclass_initialize_Nokogiri_XML_Attr'
+
+  2) Error:
+test_subclass_initialize_Nokogiri_XML_CDATA(Nokogiri::XML::Node::TestSubclass):
+ArgumentError: wrong number of arguments (3 for 2)
+    ./test/xml/node/test_subclass.rb:36:in `new'
+    ./test/xml/node/test_subclass.rb:36:in `test_subclass_initialize_Nokogiri_XML_CDATA'
+
+  3) Error:
+test_subclass_initialize_Nokogiri_XML_Comment(Nokogiri::XML::Node::TestSubclass):
+ArgumentError: wrong number of arguments (3 for 2)
+    ./test/xml/node/test_subclass.rb:36:in `new'
+    ./test/xml/node/test_subclass.rb:36:in `test_subclass_initialize_Nokogiri_XML_Comment'
+
+  4) Error:
+test_subclass_initialize_Nokogiri_XML_DocumentFragment(Nokogiri::XML::Node::TestSubclass):
+ArgumentError: wrong number of arguments (2 for 1)
+    ./test/xml/node/test_subclass.rb:36:in `new'
+    ./test/xml/node/test_subclass.rb:36:in `test_subclass_initialize_Nokogiri_XML_DocumentFragment'
+
+  5) Error:
+test_subclass_initialize_Nokogiri_XML_EntityReference(Nokogiri::XML::Node::TestSubclass):
+ArgumentError: wrong number of arguments (3 for 2)
+    ./test/xml/node/test_subclass.rb:36:in `new'
+    ./test/xml/node/test_subclass.rb:36:in `test_subclass_initialize_Nokogiri_XML_EntityReference'
+
+  6) Error:
+test_subclass_initialize_Nokogiri_XML_Node(Nokogiri::XML::Node::TestSubclass):
+ArgumentError: wrong number of arguments (3 for 2)
+    ./test/xml/node/test_subclass.rb:36:in `new'
+    ./test/xml/node/test_subclass.rb:36:in `test_subclass_initialize_Nokogiri_XML_Node'
+
+  7) Error:
+test_subclass_initialize_Nokogiri_XML_ProcessingInstruction(Nokogiri::XML::Node::TestSubclass):
+ArgumentError: wrong number of arguments (4 for 3)
+    ./test/xml/node/test_subclass.rb:36:in `new'
+    ./test/xml/node/test_subclass.rb:36:in `test_subclass_initialize_Nokogiri_XML_ProcessingInstruction'
+
+  8) Error:
+test_subclass_initialize_Nokogiri_XML_Text(Nokogiri::XML::Node::TestSubclass):
+ArgumentError: wrong number of arguments (3 for 2)
+    ./test/xml/node/test_subclass.rb:36:in `new'
+    ./test/xml/node/test_subclass.rb:36:in `test_subclass_initialize_Nokogiri_XML_Text'
+
+580 tests, 1409 assertions, 0 failures, 8 errors
+==2649== 
+==2649== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==2649== malloc/free: in use at exit: 29,691,156 bytes in 405,705 blocks.
+==2649== malloc/free: 3,856,242 allocs, 3,450,537 frees, 1,267,058,253 bytes allocated.
+==2649== For counts of detected errors, rerun with: -v
+==2649== searching for pointers to 405,705 not-freed blocks.
+==2649== checked 28,996,488 bytes.
+==2649== 
+==2649== LEAK SUMMARY:
+==2649==    definitely lost: 892,612 bytes in 21,000 blocks.
+==2649==      possibly lost: 210,015 bytes in 8,164 blocks.
+==2649==    still reachable: 28,588,529 bytes in 376,541 blocks.
+==2649==         suppressed: 0 bytes in 0 blocks.
+==2649== Rerun with --leak-check=full to see details of leaked memory.

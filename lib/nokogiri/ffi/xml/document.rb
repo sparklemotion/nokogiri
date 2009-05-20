@@ -47,12 +47,14 @@ module Nokogiri
         cstruct = LibXML::XmlDocumentCast.new(dup_ptr)
         cstruct[:type] = self.type
 
-        Document.wrap(dup_ptr)
+        Document.wrap(dup_ptr, self.class)
       end
 
       def self.new(*args) # :nodoc:
         version = args.first || "1.0"
-        Document.wrap(LibXML.xmlNewDoc(version))
+        doc = Document.wrap(LibXML.xmlNewDoc(version), self)
+        doc.send :initialize, *args
+        doc
       end
 
       def self.substitute_entities=(entities) # :nodoc:

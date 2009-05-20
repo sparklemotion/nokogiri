@@ -8,15 +8,19 @@
  */
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
-  VALUE uri, external_id;
+  VALUE uri, external_id, rest, rb_doc;
 
-  rb_scan_args(argc, argv, "02", &uri, &external_id);
+  rb_scan_args(argc, argv, "0*", &rest);
+  uri         = rb_ary_entry(rest, 0);
+  external_id = rb_ary_entry(rest, 1);
 
   htmlDocPtr doc = htmlNewDoc(
       RTEST(uri) ? (const xmlChar *)StringValuePtr(uri) : NULL,
       RTEST(external_id) ? (const xmlChar *)StringValuePtr(external_id) : NULL
   );
-  return Nokogiri_wrap_xml_document(klass, doc);
+  rb_doc = Nokogiri_wrap_xml_document(klass, doc);
+  rb_funcall2(rb_doc, rb_intern("initialize"), argc, argv);
+  return rb_doc ;
 }
 
 /*
