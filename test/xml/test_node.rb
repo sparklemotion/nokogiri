@@ -177,9 +177,51 @@ module Nokogiri
         node = @xml.at('address')
         node.default_namespace = 'http://tenderlovemaking.com'
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns']
-        assert_equal node, @xml.xpath('//foo:address', {
-          'foo' => 'http://tenderlovemaking.com'
-        }).first
+      end
+
+      def test_namespace=
+        node = @xml.at('address')
+        assert_nil node.namespace
+        definition = node.add_namespace_definition 'bar', 'http://tlm.com/'
+
+        node.namespace = definition
+
+        assert_equal definition, node.namespace
+
+        assert_equal node, @xml.at('//foo:address', {
+          'foo' => 'http://tlm.com/'
+        })
+      end
+
+      def test_add_namespace_with_nil_associates_node
+        node = @xml.at('address')
+        assert_nil node.namespace
+        definition = node.add_namespace_definition nil, 'http://tlm.com/'
+        assert_equal definition, node.namespace
+      end
+
+      def test_add_namespace_does_not_associate_node
+        node = @xml.at('address')
+        assert_nil node.namespace
+        definition = node.add_namespace_definition 'foo', 'http://tlm.com/'
+        assert_nil node.namespace
+      end
+
+      def test_set_namespace_from_different_doc
+        node = @xml.at('address')
+        doc = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+        decl = doc.root.add_namespace_definition 'foo', 'bar'
+
+        assert_raises(ArgumentError) do
+          node.namespace = decl
+        end
+      end
+
+      def test_set_namespace_must_only_take_a_namespace
+        node = @xml.at('address')
+        assert_raises(TypeError) do
+          node.namespace = node
+        end
       end
 
       def test_at

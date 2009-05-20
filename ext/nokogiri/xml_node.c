@@ -375,6 +375,25 @@ static VALUE get(VALUE self, VALUE attribute)
 
 /*
  * call-seq:
+ *   set_namespace(namespace)
+ *
+ * Set the namespace to +namespace+
+ */
+static VALUE set_namespace(VALUE self, VALUE namespace)
+{
+  xmlNodePtr node;
+  xmlNsPtr ns;
+
+  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(namespace, xmlNs, ns);
+
+  xmlSetNs(node, ns);
+
+  return self;
+}
+
+/*
+ * call-seq:
  *   attribute(name)
  *
  * Get the attribute node with +name+
@@ -703,7 +722,7 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
       (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
   );
 
-  xmlSetNs(node, ns);
+  if(Qnil == prefix) xmlSetNs(node, ns);
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }
@@ -957,5 +976,6 @@ void init_xml_node()
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
+  rb_define_private_method(klass, "set_namespace", set_namespace, 1);
   rb_define_private_method(klass, "compare", compare, 1);
 }

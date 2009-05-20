@@ -147,6 +147,7 @@ lib/nokogiri/xml/document_fragment.rb
 lib/nokogiri/xml/dtd.rb
 lib/nokogiri/xml/entity_declaration.rb
 lib/nokogiri/xml/fragment_handler.rb
+lib/nokogiri/xml/namespace.rb
 lib/nokogiri/xml/node.rb
 lib/nokogiri/xml/node/save_options.rb
 lib/nokogiri/xml/node_set.rb
