@@ -150,9 +150,7 @@ public class NokogiriJavaService implements BasicLibraryService{
     public static void init_xml_sax_parser(Ruby ruby, RubyModule xml) {
         RubyModule xmlSax = xml.defineModuleUnder("SAX");
         // Nokogiri::XML::SAX::Parser is defined by nokogiri/xml/sax/parser.rb
-        RubyClass saxParser = xmlSax.getClass("Parser");
-
-        saxParser.setAllocator(XML_SAXPARSER_ALLOCATOR);
+        RubyClass saxParser = xmlSax.defineClassUnder("Parser", ruby.getObject(), XML_SAXPARSER_ALLOCATOR);
         saxParser.defineAnnotatedMethods(SaxParser.class);
     }
 
@@ -170,10 +168,8 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     public static void init_html_sax_parser(Ruby ruby, RubyModule html) {
         RubyModule htmlSax = html.defineModuleUnder("SAX");
-        // Nokogiri::XML::SAX::Parser is defined by nokogiri/html/sax/parser.rb
-        RubyClass saxParser = htmlSax.getClass("Parser");
-
-        saxParser.setAllocator(HTML_SAXPARSER_ALLOCATOR);
+        // Nokogiri::HTML::SAX::Parser is defined by nokogiri/html/sax/parser.rb
+        RubyClass saxParser = htmlSax.defineClassUnder("Parser", ruby.getObject(), HTML_SAXPARSER_ALLOCATOR);
         saxParser.defineAnnotatedMethods(HtmlSaxParser.class);
     }
 
