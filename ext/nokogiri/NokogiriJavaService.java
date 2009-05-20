@@ -2,14 +2,11 @@ package nokogiri;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Vector;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -51,10 +48,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.Attributes;
-import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
@@ -923,14 +918,17 @@ public class NokogiriJavaService implements BasicLibraryService{
             final ThreadContext context = ruby.getCurrentContext();
             final IRubyObject self = this;
             handler = new DefaultHandler2() {
+                @Override
                 public void startDocument() throws SAXException {
                     RuntimeHelpers.invoke(context, document(context), "start_document");
                 }
 
+                @Override
                 public void endDocument() throws SAXException {
                     RuntimeHelpers.invoke(context, document(context), "end_document");
                 }
 
+                @Override
                 public void startElement(String arg0, String arg1, String arg2, Attributes arg3) throws SAXException {
                     RubyArray attrs = RubyArray.newArray(ruby, arg3.getLength());
                     for (int i = 0; i < arg3.getLength(); i++) {
@@ -942,11 +940,13 @@ public class NokogiriJavaService implements BasicLibraryService{
                             attrs);
                 }
 
+                @Override
                 public void endElement(String arg0, String arg1, String arg2) throws SAXException {
                     RuntimeHelpers.invoke(context, document(context), "end_element",
                             RubyString.newString(ruby, arg2));
                 }
 
+                @Override
                 public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
                     String target;
                     if (inCDATA) {
@@ -966,19 +966,23 @@ public class NokogiriJavaService implements BasicLibraryService{
 
                 boolean inCDATA = false;
 
+                @Override
                 public void startCDATA() throws SAXException {
                     inCDATA = true;
                 }
 
+                @Override
                 public void endCDATA() throws SAXException {
                     inCDATA = false;
                 }
 
+                @Override
                 public void error(SAXParseException saxpe) {
                     RuntimeHelpers.invoke(context, document(context), "error",
                             RubyString.newString(ruby, saxpe.getMessage()));
                 }
 
+                @Override
                 public void warning(SAXParseException saxpe) {
                     RuntimeHelpers.invoke(context, document(context), "warning",
                             RubyString.newString(ruby, saxpe.getMessage()));
