@@ -40,11 +40,11 @@ module Nokogiri
 
         def test_start_element_ns
           @parser.<<(<<-eoxml)
-            <stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'></stream:stream>
+            <stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0' size='large'></stream:stream>
           eoxml
 
           assert_equal [[ 'stream',
-                          {'version' => '1.0'},
+                          {'version' => '1.0', 'size' => 'large'},
                           'stream',
                           'http://etherx.jabber.org/streams',
                           {nil => 'jabber:client', 'stream' => 'http://etherx.jabber.org/streams'}]],
