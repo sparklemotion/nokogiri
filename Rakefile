@@ -168,7 +168,7 @@ end
 # required_ruby_version
 
 # Only do this on unix, since we can't build on windows
-unless windows || java
+unless windows || java || ENV['NOKOGIRI_FFI']
   [:compile, :check_manifest].each do |task_name|
     Rake::Task[task_name].prerequisites << GENERATED_PARSER
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
