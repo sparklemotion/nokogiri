@@ -8,7 +8,7 @@ if ENV['NOKOGIRI_FFI']
   gem 'ffi', '>=0.3.2'
   require 'ffi'
   require 'nokogiri/ffi/libxml'
-else RUBY_PLATFORM =~ /java/
+elsif RUBY_PLATFORM =~ /java/
   require 'nokogiri/nokogiri_java'
 else
   if RUBY_PLATFORM =~/(mswin|mingw)/i
