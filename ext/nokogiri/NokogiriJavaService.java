@@ -915,56 +915,45 @@ public class NokogiriJavaService implements BasicLibraryService{
         public SaxParser(final Ruby ruby, RubyClass rubyClass) {
             super(ruby, rubyClass);
 
-            final ThreadContext context = ruby.getCurrentContext();
-            final IRubyObject self = this;
+            final Ruby runtime = ruby;
             handler = new DefaultHandler2() {
+                boolean inCDATA = false;
+
                 @Override
                 public void startDocument() throws SAXException {
-                    RuntimeHelpers.invoke(context, document(context), "start_document");
+                    call("start_document");
                 }
 
                 @Override
                 public void endDocument() throws SAXException {
-                    RuntimeHelpers.invoke(context, document(context), "end_document");
+                    call("end_document");
                 }
 
                 @Override
                 public void startElement(String arg0, String arg1, String arg2, Attributes arg3) throws SAXException {
                     RubyArray attrs = RubyArray.newArray(ruby, arg3.getLength());
                     for (int i = 0; i < arg3.getLength(); i++) {
-                        attrs.append(RubyString.newString(ruby, arg3.getQName(i)));
-                        attrs.append(RubyString.newString(ruby, arg3.getValue(i)));
+                        attrs.append(ruby.newString(arg3.getQName(i)));
+                        attrs.append(ruby.newString(arg3.getValue(i)));
                     }
-                    RuntimeHelpers.invoke(context, document(context), "start_element",
-                            RubyString.newString(ruby, arg2),
-                            attrs);
+                    call("start_element", ruby.newString(arg2), attrs);
                 }
 
                 @Override
                 public void endElement(String arg0, String arg1, String arg2) throws SAXException {
-                    RuntimeHelpers.invoke(context, document(context), "end_element",
-                            RubyString.newString(ruby, arg2));
+                    call("end_element", ruby.newString(arg2));
                 }
 
                 @Override
                 public void characters(char[] arg0, int arg1, int arg2) throws SAXException {
-                    String target;
-                    if (inCDATA) {
-                        target = "cdata_block";
-                    } else {
-                        target = "characters";
-                    }
-                    RuntimeHelpers.invoke(context, document(context), target,
-                            RubyString.newString(ruby, new String(arg0, arg1, arg2)));
+                    String target = inCDATA ? "cdata_block" : "characters";
+                    call(target, ruby.newString(new String(arg0, arg1, arg2)));
                 }
 
                 @Override
                 public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
-                    RuntimeHelpers.invoke(context, document(context), "comment",
-                            RubyString.newString(ruby, new String(arg0, arg1, arg2)));
+                    call("comment", ruby.newString(new String(arg0, arg1, arg2)));
                 }
-
-                boolean inCDATA = false;
 
                 @Override
                 public void startCDATA() throws SAXException {
@@ -978,14 +967,27 @@ public class NokogiriJavaService implements BasicLibraryService{
 
                 @Override
                 public void error(SAXParseException saxpe) {
-                    RuntimeHelpers.invoke(context, document(context), "error",
-                            RubyString.newString(ruby, saxpe.getMessage()));
+                    call("error", ruby.newString(saxpe.getMessage()));
                 }
 
                 @Override
                 public void warning(SAXParseException saxpe) {
-                    RuntimeHelpers.invoke(context, document(context), "warning",
-                            RubyString.newString(ruby, saxpe.getMessage()));
+                    call("warning", ruby.newString(saxpe.getMessage()));
+                }
+
+                private void call(String methodName) {
+                    ThreadContext context = runtime.getCurrentContext();
+                    RuntimeHelpers.invoke(context, document(context), methodName);
+                }
+
+                private void call(String methodName, IRubyObject argument) {
+                    ThreadContext context = runtime.getCurrentContext();
+                    RuntimeHelpers.invoke(context, document(context), methodName, argument);
+                }
+
+                private void call(String methodName, IRubyObject arg1, IRubyObject arg2) {
+                    ThreadContext context = runtime.getCurrentContext();
+                    RuntimeHelpers.invoke(context, document(context), methodName, arg1, arg2);
                 }
             };
             try {
@@ -994,7 +996,7 @@ public class NokogiriJavaService implements BasicLibraryService{
                 reader.setErrorHandler(handler);
                 reader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
             } catch (SAXException se) {
-                throw RaiseException.createNativeRaiseException(context.getRuntime(), se);
+                throw RaiseException.createNativeRaiseException(runtime, se);
             }
         }
 
