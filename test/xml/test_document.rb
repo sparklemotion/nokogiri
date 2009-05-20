@@ -40,6 +40,30 @@ module Nokogiri
         assert options.dtdattr?
       end
 
+      def test_subclass
+        klass = Class.new(Nokogiri::XML::Document)
+        doc = klass.new
+        assert_instance_of klass, doc
+      end
+
+      def test_subclass_initialize
+        klass = Class.new(Nokogiri::XML::Document) do
+          attr_accessor :initialized_with
+
+          def initialize(*args)
+            @initialized_with = args
+          end
+        end
+        doc = klass.new("1.0", 1)
+        assert_equal ["1.0", 1], doc.initialized_with
+      end
+
+      def test_subclass_dup
+        klass = Class.new(Nokogiri::XML::Document)
+        doc = klass.new.dup
+        assert_instance_of klass, doc
+      end
+
       def test_encoding=
         @xml.encoding = 'UTF-8'
         assert_match 'UTF-8', @xml.to_xml

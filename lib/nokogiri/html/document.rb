@@ -1,6 +1,10 @@
 module Nokogiri
   module HTML
     class Document < Nokogiri::XML::Document
+
+      def initialize(*args)
+      end
+
       ####
       # Serialize this Document with +encoding+ using +options+
       def serialize *args

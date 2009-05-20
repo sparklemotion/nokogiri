@@ -11,6 +11,9 @@ module Nokogiri
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
       attr_accessor :errors
 
+      def initialize(*args)
+      end
+
       # The name of this document.  Always returns "document"
       def name
         'document'
