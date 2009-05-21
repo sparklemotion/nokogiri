@@ -11,6 +11,10 @@ module Nokogiri
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
       attr_accessor :errors
 
+      def node_cache # :nodoc:
+        @node_cache ||= []
+      end
+
       def initialize(*args)
       end
 
@@ -49,10 +53,6 @@ module Nokogiri
           next unless node.is_a?(klass)
           list.each { |moodule| node.extend(moodule) }
         }
-      end
-
-      def node_cache # :nodoc:
-        @node_cache ||= {}
       end
 
       alias :to_xml :serialize

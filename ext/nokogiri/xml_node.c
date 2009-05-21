@@ -797,7 +797,6 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
 {
   assert(node);
 
-  VALUE index = INT2NUM((int)node);
   VALUE document = Qnil ;
   VALUE node_cache = Qnil ;
   VALUE rb_node = Qnil ;
@@ -863,7 +862,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
     node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
   }
 
-  rb_hash_aset(node_cache, index, rb_node);
+  rb_ary_push(node_cache, rb_node);
   rb_iv_set(rb_node, "@document", document);
   rb_funcall(document, rb_intern("decorate"), 1, rb_node);
 
