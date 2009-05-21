@@ -80,4 +80,10 @@ unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
+if ENV['CPUPROFILE']
+  unless find_library('profiler', 'ProfilerEnable', *LIB_DIRS)
+    abort "google performance tools are not installed"
+  end
+end
+
 create_makefile('nokogiri/nokogiri')
