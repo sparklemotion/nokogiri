@@ -11,11 +11,7 @@ module Nokogiri
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
       attr_accessor :errors
 
-      def node_cache # :nodoc:
-        @node_cache ||= []
-      end
-
-      def initialize(*args)
+      def initialize *args
       end
 
       # The name of this document.  Always returns "document"
@@ -29,7 +25,7 @@ module Nokogiri
       end
 
       # Get the list of decorators given +key+
-      def decorators(key)
+      def decorators key
         @decorators ||= Hash.new
         @decorators[key] ||= []
       end
@@ -47,7 +43,7 @@ module Nokogiri
 
       ###
       # Apply any decorators to +node+
-      def decorate(node)
+      def decorate node
         return unless @decorators
         @decorators.each { |klass,list|
           next unless node.is_a?(klass)

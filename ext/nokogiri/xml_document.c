@@ -323,6 +323,8 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
       doc
   );
   rb_iv_set(rb_doc, "@decorators", Qnil);
+  rb_iv_set(rb_doc, "@node_cache", rb_ary_new());
+  rb_funcall(rb_doc, rb_intern("initialize"), 0);
 
   tuple->doc = (void *)rb_doc;
   tuple->unlinkedNodes = xmlXPathNodeSetCreate(NULL);
