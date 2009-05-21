@@ -9,6 +9,9 @@ module Nokogiri
       def name
         '#document-fragment'
       end
+
+      alias :to_s     :inner_html
+      alias :to_html  :inner_html
     end
   end
 end
