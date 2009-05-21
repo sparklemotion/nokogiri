@@ -569,14 +569,14 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(name = "[]=")
-        public IRubyObject op_aset(ThreadContext context, IRubyObject index, IRubyObject value) {
+        public IRubyObject op_aset(ThreadContext context, IRubyObject index, IRubyObject val) {
             String key = index.convertToString().asJavaString();
-            String value = value.convertToString().asJavaString();
+            String value = val.convertToString().asJavaString();
             if (node instanceof Element) {
                 Element element = (Element)node;
                 element.setAttribute(key, value);
             }
-            return value;
+            return val;
         }
 
         @JRubyMethod
@@ -629,7 +629,7 @@ public class NokogiriJavaService implements BasicLibraryService{
         @JRubyMethod
         public IRubyObject add_previous_sibling(ThreadContext context, IRubyObject node) {
             if (node instanceof XmlNode) {
-                node.getParentNode().insertBefore(((XmlNode)node).node, node);
+                this.node.getParentNode().insertBefore(((XmlNode)node).node, this.node);
                 RuntimeHelpers.invoke(context , node, "decorate!");
                 return node;
             } else {
@@ -640,11 +640,11 @@ public class NokogiriJavaService implements BasicLibraryService{
         @JRubyMethod
         public IRubyObject add_next_sibling(ThreadContext context, IRubyObject node) {
             if (node instanceof XmlNode) {
-                Node next = node.getNextSibling();
+                Node next = this.node.getNextSibling();
                 if (next != null) {
-                    node.getParentNode().insertBefore(((XmlNode)node).node, next);
+                    this.node.getParentNode().insertBefore(((XmlNode)node).node, next);
                 } else {
-                    node.getParentNode().appendChild(((XmlNode)node).node);
+                    this.node.getParentNode().appendChild(((XmlNode)node).node);
                 }
                 RuntimeHelpers.invoke(context, node, "decorate!");
                 return node;
@@ -945,8 +945,8 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(name = "new", meta = true)
         public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject node) {
-            XmlNode node = (XmlNode)node;
-            return new XpathContext(context.getRuntime(), (RubyClass)cls, node.getNode());
+            XmlNode xmlNode = (XmlNode)node;
+            return new XpathContext(context.getRuntime(), (RubyClass)cls, xmlNode.getNode());
         }
 
         @JRubyMethod
@@ -1011,10 +1011,10 @@ public class NokogiriJavaService implements BasicLibraryService{
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attr) throws SAXException {
-                    RubyArray attrs = RubyArray.newArray(ruby, arg3.getLength());
-                    for (int i = 0; i < arg3.getLength(); i++) {
-                        attrs.append(ruby.newString(arg3.getQName(i)));
-                        attrs.append(ruby.newString(arg3.getValue(i)));
+                    RubyArray attrs = RubyArray.newArray(ruby, attr.getLength());
+                    for (int i = 0; i < attr.getLength(); i++) {
+                        attrs.append(ruby.newString(attr.getQName(i)));
+                        attrs.append(ruby.newString(attr.getValue(i)));
                     }
                     call("start_element", ruby.newString(qName), attrs);
                 }
@@ -1109,9 +1109,9 @@ public class NokogiriJavaService implements BasicLibraryService{
         }
 
         @JRubyMethod(visibility = Visibility.PRIVATE)
-        public IRubyObject native_parse_io(ThreadContext context, IRubyObject data, IRubyObject encoding) {
+        public IRubyObject native_parse_io(ThreadContext context, IRubyObject data, IRubyObject enc) {
             try {
-                int encoding = (int)encoding.convertToInteger().getLongValue();
+                int encoding = (int)enc.convertToInteger().getLongValue();
                 RubyIO io = (RubyIO)TypeConverter.convertToType(data, getRuntime().getIO(), "to_io");
                 reader.parse(new InputSource(io.getInStream()));
                 return data;
