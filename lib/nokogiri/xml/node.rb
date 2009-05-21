@@ -87,7 +87,7 @@ module Nokogiri
       ###
       # Decorate this node with the decorators set up in this node's Document
       def decorate!
-        document.decorate(self) if document
+        document.decorate(self)
       end
 
       ###
