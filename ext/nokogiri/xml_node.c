@@ -863,7 +863,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
     node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
   }
 
-  if (node_cache != Qnil) rb_hash_aset(node_cache, index, rb_node);
+  rb_hash_aset(node_cache, index, rb_node);
   rb_iv_set(rb_node, "@document", document);
   rb_funcall(rb_node, rb_intern("decorate!"), 0);
 
