@@ -127,11 +127,8 @@ static VALUE attribute_nodes(VALUE self)
   // at this document, but I have to because of the assertions in
   // the node wrapping code.
   if(! DOC_RUBY_OBJECT_TEST(ptr->doc)) {
-    VALUE rb_doc = Data_Wrap_Struct(cNokogiriXmlDocument, 0, 0, ptr->doc);
-    ptr->doc->_private = malloc(sizeof(nokogiriTuple));
-    rb_iv_set(rb_doc, "@decorators", Qnil);
-    ((nokogiriTuplePtr)(ptr->doc->_private))->doc = (void *)rb_doc;
-    ((nokogiriTuplePtr)(ptr->doc->_private))->unlinkedNodes = xmlXPathNodeSetCreate(NULL);
+    VALUE rb_doc = Nokogiri_wrap_xml_document(cNokogiriXmlDocument, ptr->doc);
+    RDATA(rb_doc)->dfree = NULL;
   }
   VALUE enc = rb_iv_get(self, "@encoding");
 

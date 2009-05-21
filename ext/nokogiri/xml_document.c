@@ -314,10 +314,9 @@ void init_xml_document()
 /* this takes klass as a param because it's used for HtmlDocument, too. */
 VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
 {
-  VALUE rb_doc = Qnil;
   nokogiriTuplePtr tuple = (nokogiriTuplePtr)malloc(sizeof(nokogiriTuple));
 
-  rb_doc = Data_Wrap_Struct(
+  VALUE rb_doc = Data_Wrap_Struct(
       klass ? klass : cNokogiriXmlDocument,
       0,
       dealloc,
