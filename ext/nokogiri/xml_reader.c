@@ -25,6 +25,46 @@ static int has_attributes(xmlTextReaderPtr reader)
   return(0);
 }
 
+#define XMLNS_PREFIX "xmlns"
+#define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
+#define XMLNS_BUFFER_LEN 128
+static void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
+{
+  xmlNsPtr ns;
+  static char buffer[XMLNS_BUFFER_LEN] ;
+  char *key ;
+  size_t keylen ;
+
+  if (node->type != XML_ELEMENT_NODE) return ;
+
+  ns = node->nsDef;
+  while (ns != NULL) {
+
+    keylen = XMLNS_PREFIX_LEN + (ns->prefix ? (strlen((const char*)ns->prefix) + 1) : 0) ;
+    if (keylen > XMLNS_BUFFER_LEN) {
+      key = (char*)malloc(keylen) ;
+    } else {
+      key = buffer ;
+    }
+
+    if (ns->prefix) {
+      sprintf(key, "%s:%s", XMLNS_PREFIX, ns->prefix);
+    } else {
+      sprintf(key, "%s", XMLNS_PREFIX);
+    }
+
+    rb_hash_aset(attr_hash,
+        NOKOGIRI_STR_NEW2(key, node->doc->encoding),
+        (ns->href ? NOKOGIRI_STR_NEW2(ns->href, node->doc->encoding) : Qnil)
+    );
+    if (key != buffer) {
+      free(key);
+    }
+    ns = ns->next ;
+  }
+}
+
+
 /*
  * call-seq:
  *   default?

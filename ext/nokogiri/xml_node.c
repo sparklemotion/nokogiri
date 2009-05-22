@@ -467,26 +467,6 @@ static VALUE namespace(VALUE self)
 
 /*
  *  call-seq:
- *    namespaces()
- *
- *  returns a hash containing the node's namespaces.
- */
-static VALUE namespaces(VALUE self)
-{
-  /* this code in the mode of xmlHasProp() */
-  xmlNodePtr node ;
-  VALUE attr ;
-
-  attr = rb_hash_new() ;
-  Data_Get_Struct(self, xmlNode, node);
-
-  Nokogiri_xml_node_namespaces(node, attr);
-
-  return attr ;
-}
-
-/*
- *  call-seq:
  *    namespace_definitions()
  *
  *  returns a list of Namespace nodes defined on _self_
@@ -880,47 +860,6 @@ void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_list)
   }
 }
 
-
-#define XMLNS_PREFIX "xmlns"
-#define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
-#define XMLNS_BUFFER_LEN 128
-void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
-{
-  xmlNsPtr ns;
-  static char buffer[XMLNS_BUFFER_LEN] ;
-  char *key ;
-  size_t keylen ;
-
-  if (node->type != XML_ELEMENT_NODE) return ;
-
-  ns = node->nsDef;
-  while (ns != NULL) {
-
-    keylen = XMLNS_PREFIX_LEN + (ns->prefix ? (strlen((const char*)ns->prefix) + 1) : 0) ;
-    if (keylen > XMLNS_BUFFER_LEN) {
-      key = (char*)malloc(keylen) ;
-    } else {
-      key = buffer ;
-    }
-
-    if (ns->prefix) {
-      sprintf(key, "%s:%s", XMLNS_PREFIX, ns->prefix);
-    } else {
-      sprintf(key, "%s", XMLNS_PREFIX);
-    }
-
-    rb_hash_aset(attr_hash,
-        NOKOGIRI_STR_NEW2(key, node->doc->encoding),
-        (ns->href ? NOKOGIRI_STR_NEW2(ns->href, node->doc->encoding) : Qnil)
-    );
-    if (key != buffer) {
-      free(key);
-    }
-    ns = ns->next ;
-  }
-}
-
-
 VALUE cNokogiriXmlNode ;
 VALUE cNokogiriXmlElement ;
 VALUE cNokogiriXmlEntityDeclaration ;
@@ -959,7 +898,6 @@ void init_xml_node()
   rb_define_method(klass, "attribute", attr, 1);
   rb_define_method(klass, "attribute_with_ns", attribute_with_ns, 2);
   rb_define_method(klass, "namespace", namespace, 0);
-  rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "namespace_definitions", namespace_definitions, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);

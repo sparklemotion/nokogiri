@@ -332,6 +332,14 @@ module Nokogiri
         parent_node
       end
 
+      ###
+      # Get a hash containing the Namespace definitions for this Node
+      def namespaces
+        Hash[*namespace_definitions.map { |nd|
+          [nd.prefix ? "xmlns:#{nd.prefix}" : "xmlns", nd.href]
+        }.flatten]
+      end
+
       # Returns true if this is a Comment
       def comment?
         type == COMMENT_NODE
