@@ -336,7 +336,7 @@ module Nokogiri
       # Get a hash containing the Namespace definitions for this Node
       def namespaces
         Hash[*namespace_definitions.map { |nd|
-          [nd.prefix ? "xmlns:#{nd.prefix}" : "xmlns", nd.href]
+          [['xmlns', nd.prefix].compact.join(':'), nd.href]
         }.flatten]
       end
 
