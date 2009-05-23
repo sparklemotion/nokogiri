@@ -110,6 +110,15 @@ module Nokogiri
         assert_equal 'foo', p_tag.parent['class']
       end
 
+      def test_fragment_serialization
+        fragment = Nokogiri::HTML.fragment("<div>foo</div>")
+        assert_equal "<div>foo</div>", fragment.serialize.chomp
+        assert_equal "<div>foo</div>", fragment.to_xml.chomp
+        assert_equal "<div>foo</div>", fragment.inner_html
+        assert_equal "<div>foo</div>", fragment.to_html
+        assert_equal "<div>foo</div>", fragment.to_s
+      end
+
       def test_after_will_append_text_nodes
         assert node = @html.at('//body/div')
         node.after "some text"

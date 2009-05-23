@@ -87,7 +87,7 @@ module Nokogiri
       ###
       # Decorate this node with the decorators set up in this node's Document
       def decorate!
-        document.decorate(self) if document
+        document.decorate(self)
       end
 
       ###
@@ -332,6 +332,14 @@ module Nokogiri
         parent_node
       end
 
+      ###
+      # Get a hash containing the Namespace definitions for this Node
+      def namespaces
+        Hash[*namespace_definitions.map { |nd|
+          [nd.prefix ? "xmlns:#{nd.prefix}" : "xmlns", nd.href]
+        }.flatten]
+      end
+
       # Returns true if this is a Comment
       def comment?
         type == COMMENT_NODE
@@ -429,9 +437,21 @@ module Nokogiri
       ###
       # Set the default namespace for this node to +url+
       def default_namespace= url
-        add_namespace(nil, url)
+        add_namespace_definition(nil, url)
       end
       alias :add_namespace :add_namespace_definition
+
+      ###
+      # Set the namespace for this node to +ns+
+      def namespace= ns
+        if ns.document != document
+          raise ArgumentError, 'namespace must be declared on the same document'
+        end
+        unless ns.is_a? Nokogiri::XML::Namespace
+          raise TypeError, "#{ns.class} can't be coerced into Nokogiri::XML::Namespace"
+        end
+        set_namespace ns
+      end
 
       ####
       # Yields self and all children to +block+ recursively.
@@ -631,7 +651,7 @@ Please change to: Node#write_to(io, :encoding => e, :save_options => opts)
         save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
         indent_text   = options[:indent_text] || ' '
         indent_times  = options[:indent] || 2
-        
+
 
         config = SaveOptions.new(save_options)
         yield config if block_given?

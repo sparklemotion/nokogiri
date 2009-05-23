@@ -2,7 +2,8 @@ module Nokogiri
   module HTML
     class Document < Nokogiri::XML::Document
 
-      def initialize(*args)
+      def initialize *args
+        super
       end
 
       ####

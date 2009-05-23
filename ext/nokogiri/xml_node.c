@@ -375,6 +375,25 @@ static VALUE get(VALUE self, VALUE attribute)
 
 /*
  * call-seq:
+ *   set_namespace(namespace)
+ *
+ * Set the namespace to +namespace+
+ */
+static VALUE set_namespace(VALUE self, VALUE namespace)
+{
+  xmlNodePtr node;
+  xmlNsPtr ns;
+
+  Data_Get_Struct(self, xmlNode, node);
+  Data_Get_Struct(namespace, xmlNs, ns);
+
+  xmlSetNs(node, ns);
+
+  return self;
+}
+
+/*
+ * call-seq:
  *   attribute(name)
  *
  * Get the attribute node with +name+
@@ -444,26 +463,6 @@ static VALUE namespace(VALUE self)
     return Nokogiri_wrap_xml_namespace(node->doc, node->ns);
 
   return Qnil ;
-}
-
-/*
- *  call-seq:
- *    namespaces()
- *
- *  returns a hash containing the node's namespaces.
- */
-static VALUE namespaces(VALUE self)
-{
-  /* this code in the mode of xmlHasProp() */
-  xmlNodePtr node ;
-  VALUE attr ;
-
-  attr = rb_hash_new() ;
-  Data_Get_Struct(self, xmlNode, node);
-
-  Nokogiri_xml_node_namespaces(node, attr);
-
-  return attr ;
 }
 
 /*
@@ -703,7 +702,7 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
       (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
   );
 
-  xmlSetNs(node, ns);
+  if(Qnil == prefix) xmlSetNs(node, ns);
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }
@@ -778,7 +777,6 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
 {
   assert(node);
 
-  VALUE index = INT2NUM((int)node);
   VALUE document = Qnil ;
   VALUE node_cache = Qnil ;
   VALUE rb_node = Qnil ;
@@ -841,12 +839,12 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
 
   if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc)) {
     document = DOC_RUBY_OBJECT(node->doc);
-    node_cache = rb_funcall(document, rb_intern("node_cache"), 0);
+    node_cache = rb_iv_get(document, "@node_cache");
   }
 
-  if (node_cache != Qnil) rb_hash_aset(node_cache, index, rb_node);
+  rb_ary_push(node_cache, rb_node);
   rb_iv_set(rb_node, "@document", document);
-  rb_funcall(rb_node, rb_intern("decorate!"), 0);
+  rb_funcall(document, rb_intern("decorate"), 1, rb_node);
 
   return rb_node ;
 }
@@ -861,47 +859,6 @@ void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_list)
     prop = prop->next ;
   }
 }
-
-
-#define XMLNS_PREFIX "xmlns"
-#define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
-#define XMLNS_BUFFER_LEN 128
-void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
-{
-  xmlNsPtr ns;
-  static char buffer[XMLNS_BUFFER_LEN] ;
-  char *key ;
-  size_t keylen ;
-
-  if (node->type != XML_ELEMENT_NODE) return ;
-
-  ns = node->nsDef;
-  while (ns != NULL) {
-
-    keylen = XMLNS_PREFIX_LEN + (ns->prefix ? (strlen((const char*)ns->prefix) + 1) : 0) ;
-    if (keylen > XMLNS_BUFFER_LEN) {
-      key = (char*)malloc(keylen) ;
-    } else {
-      key = buffer ;
-    }
-
-    if (ns->prefix) {
-      sprintf(key, "%s:%s", XMLNS_PREFIX, ns->prefix);
-    } else {
-      sprintf(key, "%s", XMLNS_PREFIX);
-    }
-
-    rb_hash_aset(attr_hash,
-        NOKOGIRI_STR_NEW2(key, node->doc->encoding),
-        (ns->href ? NOKOGIRI_STR_NEW2(ns->href, node->doc->encoding) : Qnil)
-    );
-    if (key != buffer) {
-      free(key);
-    }
-    ns = ns->next ;
-  }
-}
-
 
 VALUE cNokogiriXmlNode ;
 VALUE cNokogiriXmlElement ;
@@ -941,7 +898,6 @@ void init_xml_node()
   rb_define_method(klass, "attribute", attr, 1);
   rb_define_method(klass, "attribute_with_ns", attribute_with_ns, 2);
   rb_define_method(klass, "namespace", namespace, 0);
-  rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "namespace_definitions", namespace_definitions, 0);
   rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
   rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
@@ -957,5 +913,6 @@ void init_xml_node()
   rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
+  rb_define_private_method(klass, "set_namespace", set_namespace, 1);
   rb_define_private_method(klass, "compare", compare, 1);
 }
