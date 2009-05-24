@@ -201,6 +201,7 @@ end_element_ns (
 {
   VALUE self = (VALUE)ctx;
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
   rb_funcall(doc, rb_intern("end_element_ns"), 3, 
              NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL),
