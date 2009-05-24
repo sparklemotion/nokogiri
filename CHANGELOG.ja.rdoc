@@ -3,10 +3,7 @@
 * 新しい機能
 
   * Builder changes scope based on block arity
-  * Builder は
-
   * Builder supports methods ending in underscore similar to tagz
-
   * Nokogiri::XML::Node#<=> compares nodes based on Document position
   * Nokogiri::XML::Node#matches? returns true if Node can be found with
     given selector.
@@ -21,12 +18,27 @@
   * Nokogiri::XML::Node#description to fetch the node description
   * Nokogiri::XML::Node#accept implements Visitor pattern
   * bin/nokogiri for easily examining documents (Thanks Yutaka HARA!)
+
   * Nokogiri::XML::NodeSet now supports more Array and Enumerable operators:
     index, delete, slice, - (difference), + (concatenation), & (intersection),
     push, pop, shift, ==
+  * Nokogiri::XML::NodeSet はもっと Array と Enumerable のオペレータを
+    サポート出来る: index, delete, slice, - (相違), + (連結する),
+    & (交差), push, pop, shift, ==
+
   * Nokogiri.XML, Nokogiri.HTML take blocks that receive
     Nokogiri::XML::ParseOptions objects
+  * Nokogiri.XML, Nokogiri.HTML take blocks that receive
+    Nokogiri::XML::ParseOptions objects
+
+  * Nokogiri::XML::Node#namespace returns a Nokogiri::XML::Namespace
+  * Nokogiri::XML::Node#namespace は Nokogiri::XML::Namespace を返す
+
+  * Nokogiri::XML::Node#namespace= for setting a node's namespace
+  * Nokogiri::XML::Node#namespace= ノードの名前空間をセット出来る
+
   * JRuby 1.3.0 support via FFI.
+  * FFI で JRuby 1.3.0 はサポート出来ます
 
 * バグの修正
 
