@@ -133,24 +133,6 @@ module Nokogiri
         cstruct[:ns].null? ? nil : Namespace.wrap(cstruct.document, cstruct[:ns])
       end
 
-      def namespaces # :nodoc:
-        ahash = {}
-        return ahash unless cstruct[:type] == ELEMENT_NODE
-        ns = cstruct[:nsDef]
-        while ! ns.null?
-          ns_cstruct = LibXML::XmlNs.new(ns)
-          prefix = ns_cstruct[:prefix]
-          key = if prefix.nil? || prefix.empty?
-                  "xmlns"
-                else
-                  "xmlns:#{prefix}"
-                end
-          ahash[key] = ns_cstruct[:href] # TODO: encoding?
-          ns = ns_cstruct[:next] # TODO: encoding?
-        end
-        ahash
-      end
-
       def namespace_definitions # :nodoc:
         list = []
         ns_ptr = cstruct[:nsDef]

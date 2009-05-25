@@ -25,7 +25,7 @@ module Nokogiri
           return ruby_node unless ruby_node.nil?
 
           ns = Nokogiri::XML::Namespace.allocate
-          ns.document = document
+          ns.document = document.ruby_doc
           ns.cstruct = node_struct
           
           ns.cstruct.ruby_node = ns

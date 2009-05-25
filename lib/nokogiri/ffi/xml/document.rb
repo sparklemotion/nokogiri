@@ -78,6 +78,7 @@ module Nokogiri
         doc.cstruct          = doc_struct
         doc.cstruct.ruby_doc = doc
         doc.instance_eval { @decorators = nil; @node_cache = [] }
+        doc.send :initialize
         doc
       end
 
