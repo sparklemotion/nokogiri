@@ -77,12 +77,12 @@ module Nokogiri
         doc                  = klass.allocate
         doc.cstruct          = doc_struct
         doc.cstruct.ruby_doc = doc
-        doc.instance_eval { @decorators = nil }
+        doc.instance_eval { @decorators = nil; @node_cache = [] }
         doc
       end
 
       private
-      
+
       def self.wrap_with_error_handling(type, &block) # :nodoc:
         error_list = []
         LibXML.xmlInitParser()

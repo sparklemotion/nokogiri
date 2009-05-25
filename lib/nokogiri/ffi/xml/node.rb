@@ -297,7 +297,8 @@ module Nokogiri
 
         node.cstruct.ruby_node = node
 
-        document.node_cache[node_struct.pointer.address] = node if document
+        cache = document.instance_variable_get(:@node_cache)
+        cache << node
 
         node.document = document
         node.decorate!

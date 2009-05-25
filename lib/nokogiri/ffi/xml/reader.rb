@@ -1,7 +1,7 @@
 module Nokogiri
   module XML
     class Reader
-      
+
       attr_accessor :cstruct # :nodoc:
       attr_accessor :reader_callback # :nodoc:
 
