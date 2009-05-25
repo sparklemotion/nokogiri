@@ -102,6 +102,11 @@ module Nokogiri
         rval
       end
 
+      def set_namespace(namespace)
+        LibXML.xmlSetNs(cstruct, namespace.cstruct)
+        self
+      end
+
       def attribute(name) # :nodoc:
         raise "Node#attribute not implemented yet"
       end
@@ -228,7 +233,7 @@ module Nokogiri
 
       def add_namespace_definition(prefix, href) # :nodoc:
         ns = LibXML.xmlNewNs(cstruct, href, prefix)
-        LibXML.xmlSetNs(cstruct, ns)
+        LibXML.xmlSetNs(cstruct, ns) if prefix.nil?
         Namespace.wrap(cstruct.document, ns)
       end
 
