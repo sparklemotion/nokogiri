@@ -41,8 +41,8 @@ unless java
   require "rake/extensiontask"
 
   RET = Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
-    ext.lib_dir                         = "lib/nokogiri"
-    ext.gem_spec.required_ruby_version  = "~> #{RUBY_VERSION.sub(/\.\d+$/, '.0')}"
+    ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
+
     ext.config_options << ENV['EXTOPTS']
     cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
     ext.cross_compile   = true
@@ -55,14 +55,31 @@ unless java
       "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
   end
 
-  task :muck_with_lib_dir do
-    RET.lib_dir += "/#{RUBY_VERSION.sub(/\.\d$/, '')}"
-    FileUtils.mkdir_p(RET.lib_dir)
+  ###
+  # To build the windows fat binary, do:
+  #
+  #   rake fat_binary native gem
+  #
+  # I keep my ruby in multiruby, so my command is like this:
+  #
+  #   RAKE19=~/.multiruby/install/1.9.1-p129/bin/rake \
+  #     rake fat_binary native gem
+  task 'fat_binary' do
+    rake19 = ENV['RAKE19'] || 'rake1.9'
+    system("rake clean cross compile RUBY_CC_VERSION=1.8.6 FAT_DIR=1.8")
+    system("#{rake19} clean cross compile RUBY_CC_VERSION=1.9.1 FAT_DIR=1.9")
+    File.open("lib/#{HOE.name}/#{HOE.name}.rb", 'wb') do |f|
+      f.write <<-eoruby
+require "#{HOE.name}/\#{RUBY_VERSION.sub(/\.\d+$/, '')}/#{HOE.name}"
+      eoruby
+    end
+    HOE.spec.extensions = []
+    HOE.spec.platform = 'i386-mingw32'
+    HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
+    HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/*"]
   end
-  if Rake::Task.task_defined?(:cross)
-    Rake::Task[:cross].prerequisites << "muck_with_lib_dir"
-  end
-
+  CLOBBER.include("lib/nokogiri/nokogiri.rb")
+  CLOBBER.include("lib/nokogiri/1.{8,9}")
 end
 
 namespace :gem do
@@ -156,15 +173,6 @@ task :debug do
   ENV['CFLAGS'] += " -DDEBUG"
 end
 
-if Rake::Task.task_defined?(:cross)
-  task :add_dll_to_manifest do
-    HOE.spec.files += Dir['ext/nokogiri/**.{dll,so}']
-    HOE.spec.files += Dir['ext/nokogiri/{1.8,1.9}/**.{dll,so}']
-  end
-
-  Rake::Task[:cross].prerequisites << :add_dll_to_manifest
-end
-
 # required_ruby_version
 
 # Only do this on unix, since we can't build on windows
@@ -190,13 +198,6 @@ namespace :install do
 
   task :frex do
     sh "sudo gem install tenderlove-frex -s http://gems.github.com"
-  end
-end
-
-namespace :libxml do
-  desc "What version of LibXML are we building against?"
-  task :version => :compile do
-    sh "#{RUBY} -Ilib:ext -rnokogiri -e 'puts Nokogiri::LIBXML_VERSION'"
   end
 end
 

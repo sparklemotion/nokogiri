@@ -9,12 +9,7 @@ if ENV['NOKOGIRI_FFI'] || RUBY_PLATFORM =~ /java/
   require 'ffi'
   require 'nokogiri/ffi/libxml'
 else
-  if RUBY_PLATFORM =~/(mswin|mingw)/i
-    # Fat binary gems, you make the Rockin' world go round
-    require "nokogiri/#{RUBY_VERSION.sub(/\.\d+$/, '')}/nokogiri"
-  else
-    require 'nokogiri/nokogiri'
-  end
+  require 'nokogiri/nokogiri'
 end
 
 require 'nokogiri/version'
