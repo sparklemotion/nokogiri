@@ -23,13 +23,7 @@ require 'nokogiri/xml/relax_ng'
 module Nokogiri
   class << self
     ###
-    # Parse an XML file.  +thing+ may be a String, or any object that
-    # responds to _read_ and _close_ such as an IO, or StringIO.
-    # +url+ is resource where this document is located.  +encoding+ is the
-    # encoding that should be used when processing the document. +options+
-    # is a number that sets options in the parser, such as
-    # Nokogiri::XML::PARSE_RECOVER.  See the constants in
-    # Nokogiri::XML.
+    # Parse XML.  Convenience method for Nokogiri::XML::Document.parse
     def XML thing, url = nil, encoding = nil, options = 1, &block
       Nokogiri::XML::Document.parse(thing, url, encoding, options, &block)
     end
@@ -53,7 +47,7 @@ module Nokogiri
       end
 
       ###
-      # Parse an XML document.  See Nokogiri.XML.
+      # Parse XML.  Convenience method for Nokogiri::XML::Document.parse
       def parse thing, url = nil, encoding = nil, options = 1, &block
         Document.parse(thing, url, encoding, options, &block)
       end

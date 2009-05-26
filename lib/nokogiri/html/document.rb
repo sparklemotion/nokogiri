@@ -33,7 +33,13 @@ Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
 
       class << self
         ###
-        # Parse HTML.  See Nokogiri.HTML.
+        # Parse HTML.  +thing+ may be a String, or any object that
+        # responds to _read_ and _close_ such as an IO, or StringIO.
+        # +url+ is resource where this document is located.  +encoding+ is the
+        # encoding that should be used when processing the document. +options+
+        # is a number that sets options in the parser, such as
+        # Nokogiri::XML::PARSE_RECOVER.  See the constants in
+        # Nokogiri::XML.
         def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
 
           options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options

@@ -6,13 +6,7 @@ require 'nokogiri/html/element_description'
 module Nokogiri
   class << self
     ###
-    # Parse HTML.  +thing+ may be a String, or any object that
-    # responds to _read_ and _close_ such as an IO, or StringIO.
-    # +url+ is resource where this document is located.  +encoding+ is the
-    # encoding that should be used when processing the document. +options+
-    # is a number that sets options in the parser, such as
-    # Nokogiri::XML::PARSE_RECOVER.  See the constants in
-    # Nokogiri::XML.
+    # Parse HTML.  Convenience method for Nokogiri::HTML::Document.parse
     def HTML thing, url = nil, encoding = nil, options = 2145, &block
       Nokogiri::HTML::Document.parse(thing, url, encoding, options, &block)
     end
@@ -21,7 +15,7 @@ module Nokogiri
   module HTML
     class << self
       ###
-      # Parse HTML.  See Nokogiri.HTML.
+      # Parse HTML.  Convenience method for Nokogiri::HTML::Document.parse
       def parse thing, url = nil, encoding = nil, options = 2145, &block
         Document.parse(thing, url, encoding, options, &block)
       end
