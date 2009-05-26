@@ -54,7 +54,19 @@ module Nokogiri
         assert_instance_of klass, doc
       end
 
-      def test_emtpy_string_returns_empty_doc
+      def test_subclass_parse
+        klass = Class.new(Nokogiri::HTML::Document)
+        doc = klass.parse(File.read(HTML_FILE))
+        assert_equal @html.to_s, doc.to_s
+        assert_instance_of klass, doc
+      end
+
+      def test_document_parse_method
+        html = Nokogiri::HTML::Document.parse(File.read(HTML_FILE))
+        assert_equal @html.to_s, html.to_s
+      end
+
+      def test_empty_string_returns_empty_doc
         doc = Nokogiri::HTML('')
       end
 
