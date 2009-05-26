@@ -22,9 +22,10 @@
   * Nokogiri::XML::NodeSet now supports more Array and Enumerable operators:
     index, delete, slice, - (difference), + (concatenation), & (intersection),
     push, pop, shift, ==
-  * Nokogiri::XML::NodeSet はもっと Array と Enumerable のオペレータを
-    サポート出来る: index, delete, slice, - (相違), + (連結する),
-    & (交差), push, pop, shift, ==
+  * Nokogiri::XML::NodeSet
+    が更にArrayとEnumerableの演算をサポートするようになりました:
+    index, delete, slice, - (差分), + (連結), & (共通部分),
+    push, pop, shift, ==
 
   * Nokogiri.XML, Nokogiri.HTML take blocks that receive
     Nokogiri::XML::ParseOptions objects
@@ -32,13 +33,14 @@
     Nokogiri::XML::ParseOptions objects
 
   * Nokogiri::XML::Node#namespace returns a Nokogiri::XML::Namespace
-  * Nokogiri::XML::Node#namespace は Nokogiri::XML::Namespace を返す
+  * Nokogiri::XML::Node#namespace は Nokogiri::XML::Namespace
+  を返すようになりました
 
   * Nokogiri::XML::Node#namespace= for setting a node's namespace
-  * Nokogiri::XML::Node#namespace= ノードの名前空間をセット出来る
+  * Nokogiri::XML::Node#namespace= ノードの名前空間を設定します
 
   * JRuby 1.3.0 support via FFI.
-  * FFI で JRuby 1.3.0 はサポート出来ます
+  * FFI で JRuby 1.3.0 をサポートしました
 
 * バグの修正
 
