@@ -14,7 +14,7 @@ module Nokogiri
     # Nokogiri::XML::PARSE_RECOVER.  See the constants in
     # Nokogiri::XML.
     def HTML thing, url = nil, encoding = nil, options = 2145, &block
-      Nokogiri::HTML.parse(thing, url, encoding, options, &block)
+      Nokogiri::HTML::Document.parse(thing, url, encoding, options, &block)
     end
   end
 
@@ -22,23 +22,8 @@ module Nokogiri
     class << self
       ###
       # Parse HTML.  See Nokogiri.HTML.
-      def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
-
-        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
-        # Give the options to the user
-        yield options if block_given?
-
-        if string_or_io.respond_to?(:encoding)
-          encoding ||= string_or_io.encoding.name
-        end
-
-        if string_or_io.respond_to?(:read)
-          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          return Document.read_io(string_or_io, url, encoding, options.to_i)
-        end
-
-        return Document.new if(string_or_io.length == 0)
-        Document.read_memory(string_or_io, url, encoding, options.to_i)
+      def parse thing, url = nil, encoding = nil, options = 2145, &block
+        Document.parse(thing, url, encoding, options, &block)
       end
 
       ####

@@ -30,6 +30,30 @@ Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
         }
         super(options)
       end
+
+      class << self
+        ###
+        # Parse HTML.  See Nokogiri.HTML.
+        def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
+
+          options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
+          # Give the options to the user
+          yield options if block_given?
+
+          if string_or_io.respond_to?(:encoding)
+            encoding ||= string_or_io.encoding.name
+          end
+
+          if string_or_io.respond_to?(:read)
+            url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+            return self.read_io(string_or_io, url, encoding, options.to_i)
+          end
+
+          return self.new if(string_or_io.length == 0)
+          self.read_memory(string_or_io, url, encoding, options.to_i)
+        end
+      end
+
     end
   end
 end

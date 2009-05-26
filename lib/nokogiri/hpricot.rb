@@ -17,13 +17,13 @@ module Nokogiri
 
       # XML proxy
       def XML(string)
-        doc = Nokogiri::XML.parse(string)
+        doc = Nokogiri::XML::Document.parse(string)
         add_decorators(doc)
       end
 
       # HTML proxy
       def HTML(string)
-        doc = Nokogiri::HTML.parse(string)
+        doc = Nokogiri::HTML::Document.parse(string)
         add_decorators(doc)
       end
 

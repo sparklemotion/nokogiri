@@ -31,7 +31,7 @@ module Nokogiri
     # Nokogiri::XML::PARSE_RECOVER.  See the constants in
     # Nokogiri::XML.
     def XML thing, url = nil, encoding = nil, options = 1, &block
-      Nokogiri::XML.parse(thing, url, encoding, options, &block)
+      Nokogiri::XML::Document.parse(thing, url, encoding, options, &block)
     end
   end
 
@@ -54,21 +54,8 @@ module Nokogiri
 
       ###
       # Parse an XML document.  See Nokogiri.XML.
-      def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
-
-        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
-        # Give the options to the user
-        yield options if block_given?
-
-        if string_or_io.respond_to?(:read)
-          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          return Document.read_io(string_or_io, url, encoding, options.to_i)
-        end
-
-        # read_memory pukes on empty docs
-        return Document.new if string_or_io.nil? or string_or_io.empty?
-
-        Document.read_memory(string_or_io, url, encoding, options.to_i)
+      def parse thing, url = nil, encoding = nil, options = 1, &block
+        Document.parse(thing, url, encoding, options, &block)
       end
 
       ###
