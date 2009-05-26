@@ -12,26 +12,25 @@ Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。
 
 == FEATURES:
 
-* XPath で探せる
-* CSS3 のセレクターで探せる
-* XML/HTMLのビルダーはある
+* XPath による探索
+* CSS3 のセレクターによる探索
+* XML/HTMLのビルダー
 
-検索出来たり、正確にCSS3とXPathをサポート出来たりする。
+XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPathをサポートしています。
 
-これはスピードテストです：
+スピードテスト：
 
   * http://gist.github.com/24605
 
-NokogiriはHpricotの代わりに使用出来る。
-その互換性は簡単に正しいCSSとXPathを使用する事が出来る。
+また、NokogiriはHpricot互換の特徴を持ち、CSSやXPathも簡単に取り扱うことが出来ます。
 
 == SUPPORT:
 
-ノコギリのメーリングリストは:
+Nokogiriのメーリングリスト:
 
   * http://rubyforge.org/mailman/listinfo/nokogiri-talk
 
-バグファイルは:
+バグ報告:
 
   * http://github.com/tenderlove/nokogiri/issues
 
