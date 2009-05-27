@@ -25,6 +25,8 @@
     Nokogiri::XML::ParseOptions objects
   * Nokogiri::XML::Node#namespace returns a Nokogiri::XML::Namespace
   * Nokogiri::XML::Node#namespace= for setting a node's namespace
+  * Nokogiri::XML::DocumentFragment and Nokogiri::HTML::DocumentFragment
+    have a sensible API and a more robust implementation.
   * JRuby 1.3.0 support via FFI.
 
 * Bugfixes
