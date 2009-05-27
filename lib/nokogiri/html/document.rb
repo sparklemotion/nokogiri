@@ -31,6 +31,12 @@ Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
         super(options)
       end
 
+      ####
+      # Create a Nokogiri::XML::DocumentFragment from +tags+
+      def fragment tags
+        DocumentFragment.new(self, tags)
+      end
+
       class << self
         ###
         # Parse HTML.  +thing+ may be a String, or any object that

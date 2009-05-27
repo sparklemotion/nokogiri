@@ -304,19 +304,9 @@ module Nokogiri
         self
       end
 
-      ####
-      # Create a Nokogiri::XML::DocumentFragment from +tags+
-      def fragment tags
-        classes = document.class.name.split('::')
-        classes[-1] = 'SAX::Parser'
-
-
-        fragment = DocumentFragment.new(self.document)
-        parser = eval(classes.join('::')).new(
-          FragmentHandler.new(fragment, tags)
-        )
-        parser.parse(tags)
-        fragment
+      def fragment tags # :nodoc:
+        # TODO: deprecate?
+        document.fragment(tags)
       end
 
       ####

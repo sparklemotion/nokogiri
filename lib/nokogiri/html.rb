@@ -1,5 +1,6 @@
 require 'nokogiri/html/entity_lookup'
 require 'nokogiri/html/document'
+require 'nokogiri/html/document_fragment'
 require 'nokogiri/html/sax/parser'
 require 'nokogiri/html/element_description'
 

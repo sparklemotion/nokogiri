@@ -59,6 +59,12 @@ module Nokogiri
         root ? root.collect_namespaces : {}
       end
 
+      ####
+      # Create a Nokogiri::XML::DocumentFragment from +tags+
+      def fragment tags
+        DocumentFragment.new(self, tags)
+      end
+
       undef_method :swap, :parent, :namespace
 
       class << self
