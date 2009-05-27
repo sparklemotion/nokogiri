@@ -37,6 +37,11 @@ module Nokogiri
         assert_instance_of klass, fragment
       end
 
+      def test_xml_fragment
+        fragment = Nokogiri::XML.fragment("<div>a</div>")
+        assert_equal "<div>a</div>", fragment.to_s
+      end
+
     end
   end
 end
