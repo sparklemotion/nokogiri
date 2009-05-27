@@ -52,6 +52,12 @@ module Nokogiri
         Document.parse(thing, url, encoding, options, &block)
       end
 
+      ####
+      # Parse a fragment from +string+ in to a NodeSet.
+      def fragment string
+        XML::DocumentFragment.parse(string)
+      end
+
       ###
       # Sets whether or not entities should be substituted.
       def substitute_entities=(value = true)
