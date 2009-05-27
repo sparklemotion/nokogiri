@@ -18,10 +18,23 @@ module Nokogiri
         '#document-fragment'
       end
 
-      alias :to_s       :inner_html
-      alias :to_html    :inner_html
-      alias :to_xml     :inner_html
-      alias :serialize  :inner_html
+      def to_s
+        children.to_s
+      end
+
+      def to_html *args
+        children.to_html *args
+      end
+
+      def to_xhtml *args
+        children.to_xhtml *args
+      end
+
+      def to_xml *args
+        children.to_xml *args
+      end
+
+      alias :serialize :to_s
 
       class << self
         ####
