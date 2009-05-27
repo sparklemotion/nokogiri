@@ -45,7 +45,11 @@ module Nokogiri
       def test_html_fragment_has_outer_text
         doc = "a<div>b</div>c"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "a<div>b</div>c", fragment.to_s
+        if Nokogiri::VERSION_INFO['libxml']['loaded'] <= "2.6.16"
+          assert_equal "a<div>b</div><p>c</p>", fragment.to_s
+        else
+          assert_equal "a<div>b</div>c", fragment.to_s
+        end
       end
 
       def test_html_fragment_case_insensitivity
@@ -75,7 +79,11 @@ module Nokogiri
       def test_to_xhtml
         doc = "<span>foo<br></span><span>bar</span>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "<span>foo<br></span><span>bar</span>", fragment.to_xhtml
+        if Nokogiri::VERSION_INFO['libxml']['loaded'] >= "2.7.0"
+          assert_equal "<span>foo<br /></span><span>bar</span>", fragment.to_xhtml
+        else
+          assert_equal "<span>foo<br></span><span>bar</span>", fragment.to_xhtml
+        end
       end
 
       def test_to_xml
