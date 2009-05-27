@@ -22,9 +22,21 @@ module Nokogiri
         assert_equal '#document-fragment', fragment.name
       end
 
+      def test_static_method
+        fragment = Nokogiri::XML::DocumentFragment.parse("<div>a</div>")
+        assert_instance_of Nokogiri::XML::DocumentFragment, fragment
+      end
+
       def test_many_fragments
         100.times { Nokogiri::XML::DocumentFragment.new(@xml) }
       end
+
+      def test_subclass
+        klass = Class.new(Nokogiri::XML::DocumentFragment)
+        fragment = klass.new(@xml, "<div>a</div>")
+        assert_instance_of klass, fragment
+      end
+
     end
   end
 end
