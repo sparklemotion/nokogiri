@@ -42,6 +42,35 @@ module Nokogiri
         assert_equal "<div>a</div>", fragment.to_s
       end
 
+      def test_xml_fragment_has_multiple_toplevel_children
+        # TODO: this is lame. xml fragment() should support multiple top-level children
+        doc = "<div>b</div><div>e</div>"
+        fragment = Nokogiri::XML::Document.new.fragment(doc)
+        assert_equal "<div>b</div>", fragment.to_s
+      end
+
+      def test_xml_fragment_has_outer_text
+        # this test is descriptive, not prescriptive.
+        doc = "a<div>b</div>"
+        fragment = Nokogiri::XML::Document.new.fragment(doc)
+        assert_equal "", fragment.to_s
+
+        doc = "<div>b</div>c"
+        fragment = Nokogiri::XML::Document.new.fragment(doc)
+        assert_equal "<div>b</div>", fragment.to_s
+      end
+
+      def test_xml_fragment_case_sensitivity
+        doc = "<crazyDiv>b</crazyDiv>"
+        fragment = Nokogiri::XML::Document.new.fragment(doc)
+        assert_equal "<crazyDiv>b</crazyDiv>", fragment.to_s
+      end
+
+      def test_xml_fragment_with_leading_whitespace
+        doc = "     <div>b</div>  "
+        fragment = Nokogiri::XML::Document.new.fragment(doc)
+        assert_equal "<div>b</div>", fragment.to_s
+      end
     end
   end
 end

@@ -42,6 +42,48 @@ module Nokogiri
         assert_equal "<div>a</div>", fragment.to_s
       end
 
+      def test_html_fragment_has_outer_text
+        doc = "a<div>b</div>c"
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "a<div>b</div>c", fragment.to_s
+      end
+
+      def test_html_fragment_case_insensitivity
+        doc = "<crazyDiv>b</crazyDiv>"
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<crazydiv>b</crazydiv>", fragment.to_s
+      end
+
+      def test_html_fragment_with_leading_whitespace
+        doc = "     <div>b</div>  "
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<div>b</div>", fragment.to_s
+      end
+
+      def test_to_s
+        doc = "<span>foo<br></span><span>bar</span>"
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<span>foo<br></span><span>bar</span>", fragment.to_s
+      end
+
+      def test_to_html
+        doc = "<span>foo<br></span><span>bar</span>"
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<span>foo<br></span><span>bar</span>", fragment.to_html
+      end
+
+      def test_to_xhtml
+        doc = "<span>foo<br></span><span>bar</span>"
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<span>foo<br></span><span>bar</span>", fragment.to_xhtml
+      end
+
+      def test_to_xml
+        doc = "<span>foo<br></span><span>bar</span>"
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<span>foo<br/></span><span>bar</span>", fragment.to_xml
+      end
+
     end
   end
 end
