@@ -23,15 +23,15 @@ module Nokogiri
       end
 
       def to_html *args
-        children.to_html *args
+        children.to_html(*args)
       end
 
       def to_xhtml *args
-        children.to_xhtml *args
+        children.to_xhtml(*args)
       end
 
       def to_xml *args
-        children.to_xml *args
+        children.to_xml(*args)
       end
 
       alias :serialize :to_s
