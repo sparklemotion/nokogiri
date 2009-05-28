@@ -7,19 +7,19 @@ module Nokogiri
       def self.new(*args) # :nodoc:
         uri         = args[0]
         external_id = args[1]
-        doc = Document.wrap(LibXML.htmlNewDoc(uri, external_id), self)
+        doc = wrap(LibXML.htmlNewDoc(uri, external_id))
         doc.send :initialize, *args
         doc
       end
 
       def self.read_io(io, url, encoding, options) # :nodoc:
-        wrap_with_error_handling(HTML_DOCUMENT_NODE) do
+        wrap_with_error_handling do
           LibXML.htmlReadIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
         end
       end
 
       def self.read_memory(string, url, encoding, options) # :nodoc:
-        wrap_with_error_handling(HTML_DOCUMENT_NODE) do
+        wrap_with_error_handling do
           LibXML.htmlReadMemory(string, string.length, url, encoding, options)
         end
       end
