@@ -237,8 +237,9 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_READER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            return new Reader(runtime, klazz);
         }
+
     };
 
     private static ObjectAllocator XML_DTD_ALLOCATOR = new ObjectAllocator() {
@@ -1157,12 +1158,27 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod(meta = true, rest = true)
         public static IRubyObject from_memory(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
-            throw context.getRuntime().newNotImplementedError("not implemented");
+            //TODO: Do actual work.
+            Ruby ruby = context.getRuntime();
+            Reader r = new Reader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
+            try{
+                XMLReader reader = r.createReader(ruby);
+                RubyString content = args[0].convertToString();
+                ByteList byteList = content.getByteList();
+                ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
+                reader.parse(new InputSource(bais));
+            } catch(IOException ioe) {
+                throw RaiseException.createNativeRaiseException(ruby, ioe);
+            } catch(SAXException saxe) {
+                throw RaiseException.createNativeRaiseException(ruby, saxe);
+            }
+            return r;
         }
 
         @JRubyMethod
         public IRubyObject read(ThreadContext context) {
-            throw context.getRuntime().newNotImplementedError("not implemented");
+            this.nodeQueue.poll();
+            return this;
         }
 
         @JRubyMethod
@@ -1177,7 +1193,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
         @JRubyMethod
         public IRubyObject local_name(ThreadContext context) {
-            throw context.getRuntime().newNotImplementedError("not implemented");
+            return this.nodeQueue.peek().getLocalName();
         }
 
         @JRubyMethod

@@ -9,7 +9,7 @@ if ENV['NOKOGIRI_FFI']
   require 'ffi'
   require 'nokogiri/ffi/libxml'
 elsif RUBY_PLATFORM =~ /java/
-  require 'nokogiri/nokogiri_java'
+  require 'nokogiri/nokogiri_java.jar'
 else
   if RUBY_PLATFORM =~/(mswin|mingw)/i
     # Fat binary gems, you make the Rockin' world go round

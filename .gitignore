@@ -1,7 +1,7 @@
 .*.swp
 *.tmproj
 ext/nokogiri/*.class
-ext/nokogiri/*.jar
+**.jar
 lib/nokogiri/nokogiri.so
 lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb
