@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -1144,8 +1147,12 @@ public class NokogiriJavaService implements BasicLibraryService{
     }
 
     public static class Reader extends RubyObject {
+
+        final Queue<ReaderNode> nodeQueue;
+
         public Reader(Ruby ruby, RubyClass rubyClass) {
             super(ruby, rubyClass);
+            this.nodeQueue = new LinkedList<ReaderNode>();
         }
 
         @JRubyMethod(meta = true, rest = true)
@@ -1236,6 +1243,67 @@ public class NokogiriJavaService implements BasicLibraryService{
         @JRubyMethod(name = "value?")
         public IRubyObject value_p(ThreadContext context) {
             throw context.getRuntime().newNotImplementedError("not implemented");
+        }
+
+        protected XMLReader createReader(final Ruby ruby){
+            DefaultHandler2 handler = new DefaultHandler2(){
+                Stack<ReaderNode> nodeStack;
+
+                private void add(ReaderNode node){ nodeQueue.add(node); }
+
+                private void addToBoth(ReaderNode node){ nodeStack.push(node); nodeQueue.add(node); }
+
+                public void characters(char[] chars, int start, int length){
+                    add(new ReaderNode(ruby, new String(chars, start, length)));
+                }
+
+                public void startDocument(){ nodeStack = new Stack<ReaderNode>();}
+
+                public void startElement(String uri, String localName, String qName, Attributes attrs){
+                    addToBoth(new ReaderNode(ruby, uri, localName, qName, attrs));
+                }
+            };
+            try {
+                XMLReader reader = XMLReaderFactory.createXMLReader();
+                reader.setContentHandler(handler);
+                reader.setErrorHandler(handler);
+                return reader;
+            }catch(SAXException saxe){
+                throw RaiseException.createNativeRaiseException(ruby, saxe);
+            }
+        }
+
+        public static class ReaderNode {
+
+            Ruby ruby;
+            RubyString uri, localName, qName, value;
+            Attributes attrs;
+
+            public ReaderNode(Ruby ruby, String content){
+                this.ruby = ruby;
+                this.value = toRubyString(content);
+                this.localName = toRubyString("#text");
+            }
+
+            public ReaderNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs){
+                this.ruby = ruby;
+                this.uri = toRubyString(uri);
+                this.localName = toRubyString(localName);
+                this.qName = toRubyString(qName);
+                this.attrs = attrs; // I don't know what to do with you yet, my friend.
+            }
+
+            public RubyString getUri() { return this.uri; }
+
+            public RubyString getLocalName() { return this.localName; }
+
+            public RubyString getQName(){ return this.qName; }
+
+            public RubyString getValue(){ return this.value; }
+
+            protected RubyString toRubyString(String string){
+                return (string == null) ? this.ruby.newString() : this.ruby.newString(string);
+            }
         }
     }
 
