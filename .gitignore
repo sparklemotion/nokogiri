@@ -12,3 +12,4 @@ tags
 stash
 .rake_tasks
 tmp
+*.gemspec
