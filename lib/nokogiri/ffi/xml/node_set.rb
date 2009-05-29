@@ -111,17 +111,16 @@ module Nokogiri
       def index_at(number) # :nodoc:
         return nil if (number >= cstruct[:nodeNr] || number.abs > cstruct[:nodeNr])
         number = number + cstruct[:nodeNr] if number < 0
-        Node.wrap(cstruct.nodeTab[number])
+        Node.wrap(cstruct.nodeAt(number))
       end
 
       def subseq(beg, len) # :nodoc:
         return nil if beg > cstruct[:nodeNr]
         return nil if beg < 0 || len < 0
 
-        nodetab = cstruct.nodeTab
         set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil))
         beg.upto(beg+len-1) do |j|
-          LibXML.xmlXPathNodeSetAdd(set.cstruct, nodetab[j]);
+          LibXML.xmlXPathNodeSetAdd(set.cstruct, cstruct.nodeAt(j));
         end
         set
       end
