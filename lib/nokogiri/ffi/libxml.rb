@@ -8,6 +8,7 @@ module Nokogiri
     attach_function :__xmlParserVersion, [], :pointer
     attach_function :__xmlIndentTreeOutput, [], :pointer
     attach_function :__xmlTreeIndentString, [], :pointer
+    attach_function :xmlDeregisterNodeDefault, [:pointer], :pointer
   end
 
   LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
