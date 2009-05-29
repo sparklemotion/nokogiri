@@ -34,7 +34,7 @@ Nokogiriのメーリングリスト:
 
   * http://github.com/tenderlove/nokogiri/issues
 
-freenodeのIRCチャンネル＃nokogiriされています。
+IRCのチャンネルはfreenodeの #nokogiri です。
 
 == SYNOPSIS:
 
