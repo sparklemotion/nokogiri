@@ -59,14 +59,14 @@ module Nokogiri
       end
 
       ###
-      # Sets whether or not entities should be substituted.
-      def substitute_entities=(value = true)
+      # Set the global XML default for substitute entities.
+      def substitute_entities=(value=1)
         Document.substitute_entities = value
       end
 
       ###
-      # Sets whether or not external subsets should be loaded
-      def load_external_subsets=(value = true)
+      # Set the global XML default for load external subsets.
+      def load_external_subsets=(value=1)
         Document.load_external_subsets = value
       end
     end

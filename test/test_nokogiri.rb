@@ -123,4 +123,31 @@ class TestNokogiri < Nokogiri::TestCase
     doc.slop!
     assert_equal 1, doc.decorators(Nokogiri::XML::Node).select { |d| d == Nokogiri::Decorators::Slop }.size
   end
+
+  def test_substitute_entities
+    #
+    #  this example taken from http://xmlsoft.org/entities.html
+    #
+    xml = <<EOXML
+<?xml version="1.0"?>
+<!DOCTYPE EXAMPLE SYSTEM "example.dtd" [
+<!ENTITY xml "Extensible Markup Language">
+]>
+<EXAMPLE>
+   &xml;
+</EXAMPLE>
+EOXML
+
+    Nokogiri::XML.substitute_entities = 0
+    doc = Nokogiri::XML.parse(xml)
+    assert_match %r(&xml;), doc.xpath("/EXAMPLE").to_xml
+    assert_no_match %r(Extensible Markup Language), doc.xpath("/EXAMPLE").to_xml
+
+# TODO: libxml appears to be totally borked with regards to substituting entities.
+#     Nokogiri::XML.substitute_entities = 1
+#     doc = Nokogiri::XML.parse(xml)
+#     assert_no_match %r(&xml;), doc.xpath("/EXAMPLE").to_xml
+#     assert_match %r(Extensible Markup Language), doc.xpath("/EXAMPLE").to_xml
+  end
+
 end
