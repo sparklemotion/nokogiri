@@ -57,18 +57,6 @@ module Nokogiri
       def fragment string
         XML::DocumentFragment.parse(string)
       end
-
-      ###
-      # Set the global XML default for substitute entities.
-      def substitute_entities=(value=1)
-        Document.substitute_entities = value
-      end
-
-      ###
-      # Set the global XML default for load external subsets.
-      def load_external_subsets=(value=1)
-        Document.load_external_subsets = value
-      end
     end
   end
 end

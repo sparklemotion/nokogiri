@@ -134,9 +134,6 @@ module Nokogiri
     attach_function :xmlSaveClose, [:pointer], :int
     attach_function :xmlSetNs, [:pointer, :pointer], :void
 
-    # parserInternals.c
-    attach_function :xmlSubstituteEntitiesDefault, [:int], :int
-
     # entities.c
     attach_function :xmlEncodeSpecialChars, [:pointer, :string], :pointer # returns char* that must be freed
 
