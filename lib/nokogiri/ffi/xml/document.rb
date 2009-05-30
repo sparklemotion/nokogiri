@@ -50,11 +50,11 @@ module Nokogiri
         self.class.wrap(dup_ptr)
       end
 
-      def self.substitute_entities=(entities) # :nodoc:
-        raise "Document#substitute_entities= not implemented"
+      def self.substitute_entities=(value) # :nodoc:
+        LibXML.xmlSubstituteEntitiesDefault(value)
       end
 
-      def load_external_subsets=(subsets) # :nodoc:
+      def self.load_external_subsets=(value) # :nodoc:
         raise "Document#load_external_subsets= not implemented"
       end
 
