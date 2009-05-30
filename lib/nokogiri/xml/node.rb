@@ -77,9 +77,6 @@ module Nokogiri
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
-      # The Document associated with this Node.
-      attr_accessor :document
-
       def initialize name, document
         # ... Ya.  This is empty on purpose.
       end
@@ -327,9 +324,9 @@ module Nokogiri
       def namespaces
         Hash[*namespace_definitions.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
-          if defined?(Encoding) && @document.encoding
+          if defined?(Encoding) && document.encoding
             begin
-              key.force_encoding @document.encoding
+              key.force_encoding document.encoding
             rescue ArgumentError
             end
           end
