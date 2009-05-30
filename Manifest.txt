@@ -206,8 +206,8 @@ test/hpricot/test_xml.rb
 test/html/sax/test_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
-test/html/test_document_fragment.rb
 test/html/test_document_encoding.rb
+test/html/test_document_fragment.rb
 test/html/test_element_description.rb
 test/html/test_named_characters.rb
 test/html/test_node.rb
