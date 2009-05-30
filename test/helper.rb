@@ -1,4 +1,4 @@
-Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY)
+Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /java/
 $VERBOSE = true
 require 'rubygems'
 require 'test/unit'
