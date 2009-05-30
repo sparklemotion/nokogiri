@@ -287,9 +287,13 @@ module Nokogiri
         cache = document.instance_variable_get(:@node_cache)
         cache << node
 
-        node.document = document
-        node.decorate!
+        node.instance_variable_set(:@document, document)
+        document.decorate(node)
         node
+      end
+
+      def document
+        cstruct.document.ruby_doc
       end
 
       private
