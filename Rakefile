@@ -70,7 +70,7 @@ end
 
 namespace :jruby do
   task :clean do
-    FileList['ext/java/*.class'].to_a.each do |file|
+    FileList['ext/java/nokogiri/*.class'].to_a.each do |file|
       File.delete file
     end
   end
@@ -128,8 +128,8 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
 end
 
 task JAVA_EXT do
-  sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar ext/java/NokogiriJavaService.java"
-  sh "jar cf #{JAVA_EXT} ext/java/NokogiriJavaService*.class"
+  sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar ext/java/nokogiri/*.java"
+  sh "jar cf #{JAVA_EXT} ext/java/nokogiri/*.class"
 end
 
 task :build => [JAVA_EXT, "jruby:clean" ]
