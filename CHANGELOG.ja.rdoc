@@ -1,58 +1,40 @@
-=== HEAD
+=== 1.3.0 / ２００９年５月３０日
 
 * 新しい機能
 
-  * Builder changes scope based on block arity
-  * Builder supports methods ending in underscore similar to tagz
-  * Nokogiri::XML::Node#<=> compares nodes based on Document position
-  * Nokogiri::XML::Node#matches? returns true if Node can be found with
-    given selector.
-  * Nokogiri::XML::Node#ancestors now returns an Nokogiri::XML::NodeSet
-  * Nokogiri::XML::Node#ancestors will match parents against optional selector
-  * Nokogiri::HTML::Document#meta_encoding for getting the meta encoding
-  * Nokogiri::HTML::Document#meta_encoding= for setting the meta encoding
-  * Nokogiri::XML::Document#encoding= to set the document encoding
-  * Nokogiri::XML::Schema for validating documents against XSD schema
-  * Nokogiri::XML::RelaxNG for validating documents against RelaxNG schema
-  * Nokogiri::HTML::ElementDescription for fetching HTML element descriptions
-  * Nokogiri::XML::Node#description to fetch the node description
-  * Nokogiri::XML::Node#accept implements Visitor pattern
-  * bin/nokogiri for easily examining documents (Thanks Yutaka HARA!)
-
-  * Nokogiri::XML::NodeSet now supports more Array and Enumerable operators:
-    index, delete, slice, - (difference), + (concatenation), & (intersection),
-    push, pop, shift, ==
-  * Nokogiri::XML::NodeSet
-    が更にArrayとEnumerableの演算をサポートするようになりました:
+  * ビルダーはブロックのアリティによりスコープを変換出来るようになった
+  * ビルダーはアンダースコア、アンダーラインで終わるメソッドをtagzと同様の機能でサポートするようになった
+  * Nokogiri::XML::Node#<=> はドキュメントの位置によりノードを比較するようになった
+  * Nokogiri::XML::Node#matches?は与えられたセレクタ内でノードが認知されたらtrueを返す事が出来るようになった
+  * Nokogiri::XML::Node#ancestors はNokogiri::XML::NodeSetを返すようになった
+  * Nokogiri::XML::Node#ancestorsはオプションのセレクタに対応する親をマッチするようになった
+  * Nokogiri::HTML::Document#meta_encoding はメタデータのエンコードを返すようになった
+  * Nokogiri::HTML::Document#meta_encoding= はメタデータのエンコードを設定するようになった
+  * Nokogiri::XML::Document#encoding= はドキュメントのエンコードを設定するようになった
+  * Nokogiri::XML::Schema はドキュメントがXSDのスキーマに沿って記述されているかを検証するようになった
+  * Nokogiri::XML::RelaxNG はドキュメントがRelaxNGのスキーマに沿って記述されているかを検証するようになった
+  * Nokogiri::HTML::ElementDescription はHTML要素の説明フェッチ動作するようになった
+  * Nokogiri::XML::Node#descriptionは ノードの説明をフェッチ動作するようになった
+  * Nokogiri::XML::Node#accept は Visitor パターンを実行するようになった
+  * bin/nokogiri にドキュメントを簡単に監査するようになった (Yataka HARAさんに感謝感激)
+  * Nokogiri::XML::NodeSetが更にArrayとEnumerableの演算をサポートするようになった:
     index, delete, slice, - (差分), + (連結), & (共通部分),
     push, pop, shift, ==
-
-  * Nokogiri.XML, Nokogiri.HTML take blocks that receive
-    Nokogiri::XML::ParseOptions objects
-  * Nokogiri.XML, Nokogiri.HTML take blocks that receive
-    Nokogiri::XML::ParseOptions objects
-
-  * Nokogiri::XML::Node#namespace returns a Nokogiri::XML::Namespace
-  * Nokogiri::XML::Node#namespace は Nokogiri::XML::Namespace
-  を返すようになりました
-
-  * Nokogiri::XML::Node#namespace= for setting a node's namespace
-  * Nokogiri::XML::Node#namespace= ノードの名前空間を設定します
-
-  * JRuby 1.3.0 support via FFI.
-  * FFI で JRuby 1.3.0 をサポートしました
+  * Nokogiri.XML, Nokogiri.HTML はNokogiri::XML::ParseOptions objectと一緒に呼び出されるブロックを受け入れるようになった
+  * Nokogiri::XML::Node#namespace は Nokogiri::XML::Namespaceを返すようになった
+  * Nokogiri::XML::Node#namespaceはノードの名前空間を設定するようになった
+  * FFI 経由で JRuby 1.3.0 をサポートするようになった
 
 * バグの修正
 
-  * Fixed a problem with nil passed to CDATA constructor
-  * Fragment method deals with regular expression characters
-    (Thanks Joel!) LH #73
-  * Fixing builder scope issues LH #61, LH #74, LH #70
-  * Fixed a problem when adding a child could remove the child namespace LH#78
-  * Fixed bug with unlinking a node then reparenting it. (GH#22)
-  * Fixed failure to catch errors during XSLT parsing (GH#32)
-  * Fixed a bug with attribute conditions in CSS selectors (GH#36)
-  * Fixed intolerance of HTML attributes without values in Node#before/after/inner_html=. (GH#35)
+  * nilがCDATAsonstructorに渡される際の問題を修正
+  * Fragment メソッドが正規表現を抜け出させるようになった (Thanks Joel!) (LH #73)
+  * Builder スコープのLH #61, LH #74, LH #70に関しての様々な問題を修正
+  * 名前空間を付け加える時、名前空間が LH#78より除去されてしまう問題を修正
+  * 連結しないノードが発生し、再育成してしまう問題を修正(GH#22)
+  * XSLT が解析中にエラーを発見し損なう問題を修正(GH#32)
+  * CSS selectors内での条件属性のバグ問題を修正(GH#36)
+  * Node#before/after/inner_html=で値なしのHTML属性が受け入れられなかった問題を修正　(GH#35)
 
 === 1.2.3 / ２００９年３月２２日
 
