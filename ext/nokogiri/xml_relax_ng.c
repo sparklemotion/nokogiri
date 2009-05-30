@@ -2,9 +2,9 @@
 
 static void dealloc(xmlRelaxNGPtr schema)
 {
-  NOKOGIRI_DEBUG_START(doc);
+  NOKOGIRI_DEBUG_START(schema);
   xmlRelaxNGFree(schema);
-  NOKOGIRI_DEBUG_END(doc);
+  NOKOGIRI_DEBUG_END(schema);
 }
 
 /*

@@ -1,3 +1,4 @@
+Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY)
 $VERBOSE = true
 require 'rubygems'
 require 'test/unit'

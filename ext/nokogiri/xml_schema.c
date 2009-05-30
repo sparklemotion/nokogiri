@@ -2,9 +2,9 @@
 
 static void dealloc(xmlSchemaPtr schema)
 {
-  NOKOGIRI_DEBUG_START(doc);
+  NOKOGIRI_DEBUG_START(schema);
   xmlSchemaFree(schema);
-  NOKOGIRI_DEBUG_END(doc);
+  NOKOGIRI_DEBUG_END(schema);
 }
 
 /*
