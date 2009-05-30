@@ -70,13 +70,14 @@ unless java
     system("#{rake19} clean cross compile RUBY_CC_VERSION=1.9.1 FAT_DIR=1.9")
     File.open("lib/#{HOE.name}/#{HOE.name}.rb", 'wb') do |f|
       f.write <<-eoruby
-require "#{HOE.name}/\#{RUBY_VERSION.sub(/\.\d+$/, '')}/#{HOE.name}"
+require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
       eoruby
     end
     HOE.spec.extensions = []
     HOE.spec.platform = 'i386-mingw32'
     HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
     HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/*"]
+    HOE.spec.files += Dir["ext/nokogiri/*.dll"]
   end
   CLOBBER.include("lib/nokogiri/nokogiri.rb")
   CLOBBER.include("lib/nokogiri/1.{8,9}")
