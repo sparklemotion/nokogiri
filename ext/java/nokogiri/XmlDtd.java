@@ -7,8 +7,8 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
-public class DTD extends RubyObject {
-    public DTD(Ruby ruby, RubyClass rubyClass) {
+public class XmlDtd extends RubyObject {
+    public XmlDtd(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
 

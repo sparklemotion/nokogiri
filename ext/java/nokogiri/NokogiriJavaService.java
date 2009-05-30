@@ -90,32 +90,32 @@ public class NokogiriJavaService implements BasicLibraryService{
     public static void init_xml_xpath_context(Ruby ruby, RubyModule xml) {
         RubyClass xpathContext = xml.defineClassUnder("XPathContext", ruby.getObject(), XML_XPATHCONTEXT_ALLOCATOR);
 
-        xpathContext.defineAnnotatedMethods(XpathContext.class);
+        xpathContext.defineAnnotatedMethods(XmlXpathContext.class);
     }
 
     public static void init_xml_xpath(Ruby ruby, RubyModule xml) {
         RubyClass xpathContext = xml.defineClassUnder("XPath", ruby.getObject(), XML_XPATH_ALLOCATOR);
 
-        xpathContext.defineAnnotatedMethods(Xpath.class);
+        xpathContext.defineAnnotatedMethods(XmlXpath.class);
     }
 
     public static void init_xml_sax_parser(Ruby ruby, RubyModule xml) {
         RubyModule xmlSax = xml.defineModuleUnder("SAX");
         // Nokogiri::XML::SAX::Parser is defined by nokogiri/xml/sax/parser.rb
         RubyClass saxParser = xmlSax.defineClassUnder("Parser", ruby.getObject(), XML_SAXPARSER_ALLOCATOR);
-        saxParser.defineAnnotatedMethods(SaxParser.class);
+        saxParser.defineAnnotatedMethods(XmlSaxParser.class);
     }
 
     public static void init_xml_reader(Ruby ruby, RubyModule xml) {
         RubyClass reader = xml.defineClassUnder("Reader", ruby.getObject(), XML_READER_ALLOCATOR);
 
-        reader.defineAnnotatedMethods(Reader.class);
+        reader.defineAnnotatedMethods(XmlReader.class);
     }
 
     public static void init_xml_dtd(Ruby ruby, RubyModule xml, RubyClass node) {
         RubyClass xpathContext = xml.defineClassUnder("DTD", node, XML_DTD_ALLOCATOR);
 
-        xpathContext.defineAnnotatedMethods(DTD.class);
+        xpathContext.defineAnnotatedMethods(XmlDtd.class);
     }
 
     public static void init_html_sax_parser(Ruby ruby, RubyModule html) {
@@ -135,7 +135,7 @@ public class NokogiriJavaService implements BasicLibraryService{
     public static void init_xml_syntax_error(Ruby ruby, RubyModule xml) {
         RubyClass syntaxError = xml.defineClassUnder("SyntaxError", ruby.getSyntaxError(), XML_SYNTAXERROR_ALLOCATOR);
 
-        syntaxError.defineAnnotatedMethods(SyntaxError.class);
+        syntaxError.defineAnnotatedMethods(XmlSyntaxError.class);
     }
 
     private static ObjectAllocator XML_NODE_ALLOCATOR = new ObjectAllocator() {
@@ -182,7 +182,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_READER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new Reader(runtime, klazz);
+            return new XmlReader(runtime, klazz);
         }
 
     };
@@ -195,7 +195,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new SaxParser(runtime, klazz);
+            return new XmlSaxParser(runtime, klazz);
         }
     };
 

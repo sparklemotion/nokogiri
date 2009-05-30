@@ -22,11 +22,11 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class Reader extends RubyObject {
+public class XmlReader extends RubyObject {
 
     final Queue<ReaderNode> nodeQueue;
 
-    public Reader(Ruby ruby, RubyClass rubyClass) {
+    public XmlReader(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
         this.nodeQueue = new LinkedList<ReaderNode>();
     }
@@ -35,7 +35,7 @@ public class Reader extends RubyObject {
     public static IRubyObject from_memory(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
         //TODO: Do actual work.
         Ruby ruby = context.getRuntime();
-        Reader r = new Reader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
+        XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
         try{
             XMLReader reader = r.createReader(ruby);
             RubyString content = args[0].convertToString();

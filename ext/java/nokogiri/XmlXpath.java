@@ -12,11 +12,11 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Xpath extends RubyObject {
+public class XmlXpath extends RubyObject {
     private XPathExpression xpath;
     private Node context;
 
-    public Xpath(Ruby ruby, RubyClass rubyClass, XPathExpression xpath, Node context) {
+    public XmlXpath(Ruby ruby, RubyClass rubyClass, XPathExpression xpath, Node context) {
         super(ruby, rubyClass);
         this.xpath = xpath;
         this.context = context;

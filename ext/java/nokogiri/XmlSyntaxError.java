@@ -7,8 +7,8 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
-public class SyntaxError extends RubyObject {
-    public SyntaxError(Ruby ruby, RubyClass rubyClass) {
+public class XmlSyntaxError extends RubyObject {
+    public XmlSyntaxError(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
 

@@ -12,11 +12,11 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 
-public class XpathContext extends RubyObject {
+public class XmlXpathContext extends RubyObject {
     private Node context;
     private XPath xpath;
 
-    public XpathContext(Ruby ruby, RubyClass rubyClass, Node context) {
+    public XmlXpathContext(Ruby ruby, RubyClass rubyClass, Node context) {
         super(ruby, rubyClass);
         this.context = context;
         this.xpath = XPathFactory.newInstance().newXPath();
@@ -26,7 +26,7 @@ public class XpathContext extends RubyObject {
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject node) {
         XmlNode xmlNode = (XmlNode)node;
-        return new XpathContext(context.getRuntime(), (RubyClass)cls, xmlNode.getNode());
+        return new XmlXpathContext(context.getRuntime(), (RubyClass)cls, xmlNode.getNode());
     }
 
     @JRubyMethod
@@ -34,7 +34,7 @@ public class XpathContext extends RubyObject {
         String src = expr.convertToString().asJavaString();
         try {
             XPathExpression xpathExpression = xpath.compile(src);
-            return new Xpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
+            return new XmlXpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
         } catch (XPathExpressionException xpee) {
             throw context.getRuntime().newSyntaxError("Couldn't evaluate expression '" + src + "'");
         }
