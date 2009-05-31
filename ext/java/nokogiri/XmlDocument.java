@@ -34,33 +34,21 @@ public class XmlDocument extends XmlNode {
     public Document getDocument() {
         return document;
     }
+    
+    
 
     @JRubyMethod(meta = true, rest = true)
-    public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
-        Ruby ruby = context.getRuntime();
-        Arity.checkArgumentCount(ruby, args, 4, 4);
-        try {
-            Document document;
-            RubyString content = args[0].convertToString();
-            ByteList byteList = content.getByteList();
-            ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            db.setEntityResolver(new EntityResolver() {
-                public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
-                    return new InputSource(new ByteArrayInputStream(new byte[0]));
-                }
-            });
-            document = db.parse(bais);
-            return new XmlDocument(ruby, (RubyClass)cls, document);
-        } catch (ParserConfigurationException pce) {
-            throw RaiseException.createNativeRaiseException(ruby, pce);
-        } catch (SAXException saxe) {
-            throw RaiseException.createNativeRaiseException(ruby, saxe);
-        } catch (IOException ioe) {
-            throw RaiseException.createNativeRaiseException(ruby, ioe);
-        }
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+        throw context.getRuntime().newNotImplementedError("not implemented");
+        /*
+         * this.document = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0");
+         */
+    }
+
+    @JRubyMethod(meta = true)
+    public static IRubyObject load_external_subsets_set(ThreadContext context, IRubyObject cls, IRubyObject value) {
+        XmlDocument.loadExternalSubset = value.isTrue();
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod(meta = true, rest = true)
@@ -94,23 +82,31 @@ public class XmlDocument extends XmlNode {
     }
 
     @JRubyMethod(meta = true, rest = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
-        /*
-         * this.document = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0");
-         */
-    }
-
-    @JRubyMethod(meta = true)
-    public static IRubyObject substitute_entities_set(ThreadContext context, IRubyObject cls, IRubyObject value) {
-        XmlDocument.substituteEntities = value.isTrue();
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod(meta = true)
-    public static IRubyObject load_external_subsets_set(ThreadContext context, IRubyObject cls, IRubyObject value) {
-        XmlDocument.loadExternalSubset = value.isTrue();
-        return context.getRuntime().getNil();
+    public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+        Ruby ruby = context.getRuntime();
+        Arity.checkArgumentCount(ruby, args, 4, 4);
+        try {
+            Document document;
+            RubyString content = args[0].convertToString();
+            ByteList byteList = content.getByteList();
+            ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setEntityResolver(new EntityResolver() {
+                public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
+                    return new InputSource(new ByteArrayInputStream(new byte[0]));
+                }
+            });
+            document = db.parse(bais);
+            return new XmlDocument(ruby, (RubyClass)cls, document);
+        } catch (ParserConfigurationException pce) {
+            throw RaiseException.createNativeRaiseException(ruby, pce);
+        } catch (SAXException saxe) {
+            throw RaiseException.createNativeRaiseException(ruby, saxe);
+        } catch (IOException ioe) {
+            throw RaiseException.createNativeRaiseException(ruby, ioe);
+        }
     }
 
     @JRubyMethod
@@ -125,4 +121,9 @@ public class XmlDocument extends XmlNode {
         return root;
     }
 
+    @JRubyMethod(meta = true)
+    public static IRubyObject substitute_entities_set(ThreadContext context, IRubyObject cls, IRubyObject value) {
+        XmlDocument.substituteEntities = value.isTrue();
+        return context.getRuntime().getNil();
+    }
 }

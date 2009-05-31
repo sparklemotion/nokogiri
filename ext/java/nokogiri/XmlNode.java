@@ -51,12 +51,65 @@ public class XmlNode extends RubyObject {
         this.node = node;
     }
 
+    protected static IRubyObject constructNode(Ruby ruby, Node node) {
+        if (node == null) return ruby.getNil();
+        // this is slow; need a way to cache nokogiri classes/modules somewhere
+        switch (node.getNodeType()) {
+            case Node.TEXT_NODE:
+                return new XmlText(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Text"), node);
+            case Node.COMMENT_NODE:
+                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Comment"), node);
+            case Node.ELEMENT_NODE:
+                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
+            case Node.ENTITY_NODE:
+                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDeclaration"), node);
+            case Node.CDATA_SECTION_NODE:
+                return new XmlCdata(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"), node);
+            case Node.DOCUMENT_TYPE_NODE:
+                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DTD"), node);
+            default:
+                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"), node);
+        }
+    }
+
+    public Node getNode() {
+        return node;
+    }
+
+    public static Node getNodeFromXmlNode(ThreadContext context, IRubyObject xmlNode) {
+        Ruby ruby = context.getRuntime();
+        if (!(xmlNode instanceof XmlNode)) throw ruby.newTypeError(xmlNode, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
+        return ((XmlNode)xmlNode).node;
+    }
+
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
         XmlDocument xmlDoc = (XmlDocument)doc;
         Document document = xmlDoc.getDocument();
         Element element = document.createElement(name.convertToString().asJavaString());
         return new XmlNode(context.getRuntime(), (RubyClass)cls, element);
+    }
+
+    @JRubyMethod
+    public IRubyObject add_child(ThreadContext context, IRubyObject child) {
+        node.appendChild(asXmlNode(context, child).node);
+
+        return child;
+    }
+
+    @JRubyMethod
+    public IRubyObject add_namespace_definition(ThreadContext context) {
+        throw context.getRuntime().newNotImplementedError("not implemented");
+    }
+
+    @JRubyMethod
+    public IRubyObject child(ThreadContext context) {
+        return constructNode(context.getRuntime(), node.getFirstChild());
+    }
+
+    @JRubyMethod
+    public IRubyObject children(ThreadContext context){
+       return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), this.node.getChildNodes());
     }
 
     @JRubyMethod(meta = true, rest = true)
@@ -89,8 +142,13 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject add_namespace_definition(ThreadContext context) {
+    public IRubyObject namespace(ThreadContext context){
         throw context.getRuntime().newNotImplementedError("not implemented");
+    }
+
+    @JRubyMethod
+    public IRubyObject next_sibling(ThreadContext context) {
+        return constructNode(context.getRuntime(), node.getNextSibling());
     }
 
     @JRubyMethod
@@ -104,25 +162,8 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject add_child(ThreadContext context, IRubyObject child) {
-        node.appendChild(asXmlNode(context, child).node);
-
-        return child;
-    }
-
-    @JRubyMethod
     public IRubyObject parent(ThreadContext context) {
         return constructNode(context.getRuntime(), node.getParentNode());
-    }
-
-    public Node getNode() {
-        return node;
-    }
-
-    public static Node getNodeFromXmlNode(ThreadContext context, IRubyObject xmlNode) {
-        Ruby ruby = context.getRuntime();
-        if (!(xmlNode instanceof XmlNode)) throw ruby.newTypeError(xmlNode, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
-        return ((XmlNode)xmlNode).node;
     }
 
     @JRubyMethod(name = "parent=")
@@ -130,42 +171,6 @@ public class XmlNode extends RubyObject {
         Node otherNode = getNodeFromXmlNode(context, parent);
         otherNode.appendChild(node);
         return parent;
-    }
-
-    @JRubyMethod
-    public IRubyObject child(ThreadContext context) {
-        return constructNode(context.getRuntime(), node.getFirstChild());
-    }
-
-    @JRubyMethod
-    public IRubyObject children(ThreadContext context){
-       return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), this.node.getChildNodes());
-    }
-
-    protected static IRubyObject constructNode(Ruby ruby, Node node) {
-        if (node == null) return ruby.getNil();
-        // this is slow; need a way to cache nokogiri classes/modules somewhere
-        switch (node.getNodeType()) {
-            case Node.TEXT_NODE:
-                return new XmlText(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Text"), node);
-            case Node.COMMENT_NODE:
-                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Comment"), node);
-            case Node.ELEMENT_NODE:
-                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
-            case Node.ENTITY_NODE:
-                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDeclaration"), node);
-            case Node.CDATA_SECTION_NODE:
-                return new XmlCdata(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"), node);
-            case Node.DOCUMENT_TYPE_NODE:
-                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DTD"), node);
-            default:
-                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"), node);
-        }
-    }
-
-    @JRubyMethod
-    public IRubyObject next_sibling(ThreadContext context) {
-        return constructNode(context.getRuntime(), node.getNextSibling());
     }
 
     @JRubyMethod

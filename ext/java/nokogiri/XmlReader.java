@@ -29,6 +29,7 @@ public class XmlReader extends RubyObject {
     public XmlReader(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
         this.nodeQueue = new LinkedList<ReaderNode>();
+        this.nodeQueue.add(ReaderNode.getEmptyNode(ruby));
     }
 
     @JRubyMethod(meta = true, rest = true)
@@ -53,7 +54,7 @@ public class XmlReader extends RubyObject {
     @JRubyMethod
     public IRubyObject read(ThreadContext context) {
         this.nodeQueue.poll();
-        return this;
+        return (this.nodeQueue.peek() == null) ? context.getRuntime().getNil() : this;
     }
 
     @JRubyMethod
@@ -150,6 +151,15 @@ public class XmlReader extends RubyObject {
             }
 
             @Override
+            public void endElement(String uri, String localName, String qName){
+                if(nodeStack.peek().fits(uri, localName, qName)){
+                    nodeQueue.add(nodeStack.pop());
+                }else{
+
+                }
+            }
+
+            @Override
             public void startDocument(){ nodeStack = new Stack<ReaderNode>();}
 
             @Override
@@ -187,11 +197,19 @@ public class XmlReader extends RubyObject {
             this.attrs = attrs; // I don't know what to do with you yet, my friend.
         }
 
-        public RubyString getUri() { return this.uri; }
+        public boolean fits(String uri, String localName, String qName){
+            return  this.uri.asJavaString().equals(uri) &&
+                    this.localName.asJavaString().equals(localName) &&
+                    this.qName.asJavaString().equals(qName);
+        }
+
+        public static ReaderNode getEmptyNode(Ruby ruby) { return new ReaderNode(ruby, "#empty"); }
 
         public RubyString getLocalName() { return this.localName; }
 
         public RubyString getQName(){ return this.qName; }
+
+        public RubyString getUri() { return this.uri; }
 
         public RubyString getValue(){ return this.value; }
 

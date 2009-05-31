@@ -126,8 +126,8 @@ end
 
 task JAVA_EXT do
   Dir.chdir('ext/java') do
-    sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar NokogiriService.java nokogiri/*.java"
-    sh "jar cf ../../#{JAVA_EXT}  *.class nokogiri/*.class"
+    sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar nokogiri/*.java"
+    sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class"
   end
 end
 
