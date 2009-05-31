@@ -12,6 +12,7 @@ module Nokogiri
       attr_accessor :errors
 
       def initialize *args
+        @decorators = nil
       end
 
       # The name of this document.  Always returns "document"
