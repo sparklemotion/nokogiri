@@ -42,6 +42,10 @@ import org.xml.sax.SAXException;
 public class XmlNode extends RubyObject {
     private Node node;
 
+    public XmlNode(Ruby ruby, RubyClass cls){
+        this(ruby,cls,null);
+    }
+
     public XmlNode(Ruby ruby, RubyClass cls, Node node) {
         super(ruby, cls);
         this.node = node;

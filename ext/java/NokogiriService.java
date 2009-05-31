@@ -1,5 +1,19 @@
-package nokogiri;
 
+import nokogiri.HtmlDocument;
+import nokogiri.HtmlSaxParser;
+import nokogiri.XmlCdata;
+import nokogiri.XmlComment;
+import nokogiri.XmlDocument;
+import nokogiri.XmlDtd;
+import nokogiri.XmlNode;
+import nokogiri.XmlNodeSet;
+import nokogiri.XmlReader;
+import nokogiri.XmlSaxParser;
+import nokogiri.XmlSyntaxError;
+import nokogiri.XmlText;
+import nokogiri.XmlXpath;
+import nokogiri.XmlXpathContext;
+import nokogiri.XsltStylesheet;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -12,7 +26,7 @@ import org.jruby.runtime.load.BasicLibraryService;
  *
  * @author headius
  */
-public class NokogiriJavaService implements BasicLibraryService{
+public class NokogiriService implements BasicLibraryService{
     public boolean basicLoad(Ruby ruby) {
         init(ruby);
         return true;
@@ -140,7 +154,7 @@ public class NokogiriJavaService implements BasicLibraryService{
 
     private static ObjectAllocator XML_NODE_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            return new XmlNode(runtime, klazz);
         }
     };
 

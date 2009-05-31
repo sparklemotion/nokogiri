@@ -13,7 +13,7 @@ java = RUBY_PLATFORM =~ /java/ ? true : false
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 
-JAVA_EXT = "lib/nokogiri/nokogiri_java.jar"
+JAVA_EXT = "lib/nokogiri/nokogiri.jar"
 JRUBY_HOME = Config::CONFIG['prefix']
 
 require 'nokogiri/version'
@@ -57,7 +57,6 @@ unless java
     ext.cross_config_options <<
       "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
   end
-
   task :muck_with_lib_dir do
     RET.lib_dir += "/#{RUBY_VERSION.sub(/\.\d$/, '')}"
     FileUtils.mkdir_p(RET.lib_dir)
@@ -70,7 +69,7 @@ end
 
 namespace :jruby do
   task :clean do
-    FileList['ext/java/nokogiri/*.class'].to_a.each do |file|
+    (FileList['ext/java/nokogiri/*.class'] + FileList['ext/java/*.class']).to_a.each do |file|
       File.delete file
     end
   end
@@ -94,12 +93,10 @@ namespace :gem do
   end
 
   namespace :jruby do
-    task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER, :build] do
+    task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'java'
-        HOE.spec.files << GENERATED_PARSER
-        HOE.spec.files << GENERATED_TOKENIZER
-	HOE.spec.files << JAVA_EXT
+        HOE.spec.files += [GENERATED_PARSER, GENERATED_TOKENIZER, JAVA_EXT]
         HOE.spec.extensions = []
         f.write(HOE.spec.to_ruby)
       end
@@ -128,8 +125,10 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
 end
 
 task JAVA_EXT do
-  sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar ext/java/nokogiri/*.java"
-  sh "jar cf #{JAVA_EXT} ext/java/nokogiri/*.class"
+  Dir.chdir('ext/java') do
+    sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar NokogiriService.java nokogiri/*.java"
+    sh "jar cf ../../#{JAVA_EXT}  *.class nokogiri/*.class"
+  end
 end
 
 task :build => [JAVA_EXT, "jruby:clean" ]

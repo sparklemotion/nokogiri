@@ -8,15 +8,13 @@ if ENV['NOKOGIRI_FFI']
   gem 'ffi', '>=0.3.2'
   require 'ffi'
   require 'nokogiri/ffi/libxml'
+elsif RUBY_PLATFORM =~/(mswin|mingw)/i
+  # Fat binary gems, you make the Rockin' world go round
+  require "nokogiri/#{RUBY_VERSION.sub(/\.\d+$/, '')}/nokogiri"
 elsif RUBY_PLATFORM =~ /java/
-  require 'nokogiri/nokogiri_java.jar'
-else
-  if RUBY_PLATFORM =~/(mswin|mingw)/i
-    # Fat binary gems, you make the Rockin' world go round
-    require "nokogiri/#{RUBY_VERSION.sub(/\.\d+$/, '')}/nokogiri"
-  else
-    require 'nokogiri/nokogiri'
-  end
+  require 'nokogiri/nokogiri.jar'
+else # Both MRI and JRuby!
+  require 'nokogiri/nokogiri'
 end
 
 require 'nokogiri/version'

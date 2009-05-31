@@ -13,3 +13,4 @@ stash
 .rake_tasks
 tmp
 *.gemspec
+pkg
