@@ -75,4 +75,25 @@ describe Nokogiri::XML::Reader do
     reader = Nokogiri::XML::Reader(xml)
     reader.source.should == xml
   end
+
+  it "should return false for default" do # Sorry for the description. Couldn't avoid to.
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader.should_not be_default
+    reader.map { |x| x.default? }.should == [false, false, false, false, false, false, false]
+  end
+
+  it "should return the correct boolean value when asked for value?" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+
+    reader.value?.should == false # Look for how should I do this in RSpec.
+    reader.map {|x| x.value? }.should == [false, true, false, true, false, true, false]
+  end
 end

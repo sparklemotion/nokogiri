@@ -177,7 +177,7 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod(name = "value?")
     public IRubyObject value_p(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return peek().hasValue();
     }
 
     protected XMLReader createReader(final Ruby ruby) {
@@ -230,21 +230,26 @@ public class XmlReader extends RubyObject {
     public static class ReaderNode {
 
         Ruby ruby;
+        RubyBoolean value_p;
         RubyString uri, localName, qName, value;
         Attributes attrs;
 
+        // Construct a Text Node.
         public ReaderNode(Ruby ruby, String content) {
             this.ruby = ruby;
             this.uri = ruby.newString();
             this.value = toRubyString(content);
+            this.value_p = ruby.getTrue();
             this.localName = this.qName = toRubyString("#text");
         }
 
+        // Construct an Element Node. Maybe, if this go further, I should make subclasses.
         public ReaderNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs) {
             this.ruby = ruby;
             this.uri = toRubyString(uri);
             this.localName = toRubyString(localName);
             this.qName = toRubyString(qName);
+            this.value_p = ruby.getFalse();
             this.attrs = attrs; // I don't know what to do with you yet, my friend.
         }
 
@@ -255,7 +260,9 @@ public class XmlReader extends RubyObject {
         }
 
         public static ReaderNode getEmptyNode(Ruby ruby) {
-            return new ReaderNode(ruby, "#empty");
+            ReaderNode node = new ReaderNode(ruby, "#empty");
+            node.value_p = ruby.getFalse();
+            return node;
         }
 
         public RubyString getLocalName() {
@@ -277,6 +284,8 @@ public class XmlReader extends RubyObject {
         public RubyString getValue() {
             return this.value;
         }
+
+        public RubyBoolean hasValue() { return this.value_p; }
 
         public RubyBoolean isDefault(){
             // TODO Implement.
