@@ -6,12 +6,14 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 import org.jruby.Ruby;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
+import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -31,6 +33,22 @@ public class XmlReader extends RubyObject {
         this.nodeQueue = new LinkedList<ReaderNode>();
         this.nodeQueue.add(ReaderNode.getEmptyNode(ruby));
     }
+
+    private void parseRubyString(ThreadContext context, RubyString content){
+        Ruby ruby = context.getRuntime();
+        try {
+            XMLReader reader = this.createReader(ruby);
+            ByteList byteList = content.getByteList();
+            ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
+            reader.parse(new InputSource(bais));
+        } catch (IOException ioe) {
+            throw RaiseException.createNativeRaiseException(ruby, ioe);
+        } catch (SAXException saxe) {
+            throw RaiseException.createNativeRaiseException(ruby, saxe);
+        }
+    }
+
+    public ReaderNode peek() { return this.nodeQueue.peek(); }
 
     @JRubyMethod
     public IRubyObject attribute(ThreadContext context, IRubyObject name) {
@@ -57,6 +75,11 @@ public class XmlReader extends RubyObject {
         throw context.getRuntime().newNotImplementedError("not implemented");
     }
 
+    @JRubyMethod(name="default?")
+    public IRubyObject default_p(ThreadContext context){
+        return peek().isDefault();
+    }
+
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_io(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
         // Only to pass the  source test.
@@ -67,6 +90,10 @@ public class XmlReader extends RubyObject {
 
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
         r.setInstanceVariable("@source", args[0]);
+        
+        RubyString content = RuntimeHelpers.invoke(context, args[0], "read").convertToString();
+
+        r.parseRubyString(context, content);
         return r;
     }
 
@@ -79,24 +106,16 @@ public class XmlReader extends RubyObject {
         if(args[0].isNil()) throw ruby.newArgumentError("string cannot be nil");
 
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
-        try {
-            XMLReader reader = r.createReader(ruby);
-            RubyString content = args[0].convertToString();
-            ByteList byteList = content.getByteList();
-            ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            reader.parse(new InputSource(bais));
-        } catch (IOException ioe) {
-            throw RaiseException.createNativeRaiseException(ruby, ioe);
-        } catch (SAXException saxe) {
-            throw RaiseException.createNativeRaiseException(ruby, saxe);
-        }
+        
+        r.parseRubyString(context, args[0].convertToString());
+
         return r;
     }
 
     @JRubyMethod
     public IRubyObject read(ThreadContext context) {
         this.nodeQueue.poll();
-        return (this.nodeQueue.peek() == null) ? context.getRuntime().getNil() : this;
+        return (peek() == null) ? context.getRuntime().getNil() : this;
     }
 
     @JRubyMethod
@@ -106,12 +125,12 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject name(ThreadContext context) {
-        return this.nodeQueue.peek().getName();
+        return peek().getName();
     }
 
     @JRubyMethod
     public IRubyObject local_name(ThreadContext context) {
-        return this.nodeQueue.peek().getLocalName();
+        return peek().getLocalName();
     }
 
     @JRubyMethod
@@ -250,6 +269,11 @@ public class XmlReader extends RubyObject {
 
         public RubyString getValue() {
             return this.value;
+        }
+
+        public RubyBoolean isDefault(){
+            // TODO Implement.
+            return ruby.getFalse();
         }
 
         protected RubyString toRubyString(String string) {

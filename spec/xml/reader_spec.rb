@@ -43,4 +43,15 @@ describe Nokogiri::XML::Reader do
       Nokogiri::XML::Reader.from_io(nil)
     }.should raise_error(ArgumentError)
   end
+
+  it "should parse from_io" do
+    io = StringIO.new(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader.from_io(io)
+    reader.should_not be_default
+    reader.map{ |x| x.default? }.should == [false, false, false, false, false, false, false]
+  end
 end
