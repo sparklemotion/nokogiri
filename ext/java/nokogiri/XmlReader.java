@@ -50,6 +50,10 @@ public class XmlReader extends RubyObject {
 
     public ReaderNode peek() { return this.nodeQueue.peek(); }
 
+    private void setSource(IRubyObject source){
+        this.setInstanceVariable("@source", source);
+    }
+
     @JRubyMethod
     public IRubyObject attribute(ThreadContext context, IRubyObject name) {
         throw context.getRuntime().newNotImplementedError("not implemented");
@@ -89,7 +93,8 @@ public class XmlReader extends RubyObject {
         if(args[0].isNil()) throw ruby.newArgumentError("io cannot be nil");
 
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
-        r.setInstanceVariable("@source", args[0]);
+        
+        r.setSource(args[0]);
         
         RubyString content = RuntimeHelpers.invoke(context, args[0], "read").convertToString();
 
@@ -106,7 +111,9 @@ public class XmlReader extends RubyObject {
         if(args[0].isNil()) throw ruby.newArgumentError("string cannot be nil");
 
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
-        
+
+        r.setSource(args[0]);
+
         r.parseRubyString(context, args[0].convertToString());
 
         return r;

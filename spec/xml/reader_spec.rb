@@ -54,4 +54,25 @@ describe Nokogiri::XML::Reader do
     reader.should_not be_default
     reader.map{ |x| x.default? }.should == [false, false, false, false, false, false, false]
   end
+
+  it "should parse when passed an io object" do
+    io = StringIO.new(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader(io)
+    reader.should_not be_default
+    reader.map{ |x| x.default? }.should == [false, false, false, false, false, false, false]
+  end
+
+  it "should set string as source when called from_memory" do
+    xml = <<-eoxml
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader(xml)
+    reader.source.should == xml
+  end
 end
