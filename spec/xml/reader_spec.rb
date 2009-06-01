@@ -1,5 +1,4 @@
-require 'rubygems'
-require 'nokogiri'
+require File.join(File.dirname(__FILE__), '..', 'helper')
 
 include Nokogiri::XML
 
@@ -24,5 +23,15 @@ describe Nokogiri::XML::Reader do
     eoxml
     reader.should_not be_nil
     reader.map{|x| x.name}.should == ["x", "#text", "edi:foo", "#text", "edi:foo", "#text", "x"]
+  end
+
+  it "should set io as source when called from_io method" do
+    io = StringIO.new(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader = Nokogiri::XML::Reader.from_io(io)
+    reader.source.should be_equal(io)
   end
 end
