@@ -2,6 +2,7 @@ package nokogiri;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -64,7 +65,7 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject name(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return this.nodeQueue.peek().getName();
     }
 
     @JRubyMethod
@@ -140,7 +141,7 @@ public class XmlReader extends RubyObject {
     protected XMLReader createReader(final Ruby ruby){
         DefaultHandler2 handler = new DefaultHandler2(){
             Stack<ReaderNode> nodeStack;
-
+            
             private void add(ReaderNode node){ nodeQueue.add(node); }
 
             private void addToBoth(ReaderNode node){ nodeStack.push(node); nodeQueue.add(node); }
@@ -160,7 +161,7 @@ public class XmlReader extends RubyObject {
             }
 
             @Override
-            public void startDocument(){ nodeStack = new Stack<ReaderNode>();}
+            public void startDocument(){ nodeStack = new Stack<ReaderNode>(); }
 
             @Override
             public void startElement(String uri, String localName, String qName, Attributes attrs){
@@ -185,8 +186,9 @@ public class XmlReader extends RubyObject {
 
         public ReaderNode(Ruby ruby, String content){
             this.ruby = ruby;
+            this.uri = ruby.newString();
             this.value = toRubyString(content);
-            this.localName = toRubyString("#text");
+            this.localName = this.qName = toRubyString("#text");
         }
 
         public ReaderNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs){
@@ -206,6 +208,10 @@ public class XmlReader extends RubyObject {
         public static ReaderNode getEmptyNode(Ruby ruby) { return new ReaderNode(ruby, "#empty"); }
 
         public RubyString getLocalName() { return this.localName; }
+
+        public RubyString getName() {
+            return this.qName;
+        }
 
         public RubyString getQName(){ return this.qName; }
 
