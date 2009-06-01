@@ -30,13 +30,13 @@ static VALUE validate_document(VALUE self, VALUE document)
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
 
-  if (! is_2_6_16()) {
+#ifdef xmlSchemaSetValidStructuredErrors
     xmlSchemaSetValidStructuredErrors(
       valid_ctxt,
       Nokogiri_error_array_pusher,
       (void *)errors
     );
-  }
+#endif
 
   xmlSchemaValidateDoc(valid_ctxt, doc);
 
@@ -62,13 +62,14 @@ static VALUE read_memory(VALUE klass, VALUE content)
   VALUE errors = rb_ary_new();
   xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
 
-  if (! is_2_6_16()) {
+#ifdef xmlSchemaSetParserStructuredErrors
     xmlSchemaSetParserStructuredErrors(
       ctx,
       Nokogiri_error_array_pusher,
       (void *)errors
     );
   }
+#endif
 
   xmlSchemaPtr schema = xmlSchemaParse(ctx);
 
