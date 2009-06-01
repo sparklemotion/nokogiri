@@ -74,7 +74,7 @@ require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
       eoruby
     end
     HOE.spec.extensions = []
-    HOE.spec.platform = 'i386-mingw32'
+    HOE.spec.platform = 'i386-mswin32'
     HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
     HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/*"]
     HOE.spec.files += Dir["ext/nokogiri/*.dll"]
