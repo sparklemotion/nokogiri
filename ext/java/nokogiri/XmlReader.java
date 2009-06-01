@@ -61,6 +61,10 @@ public class XmlReader extends RubyObject {
     public static IRubyObject from_io(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
         // Only to pass the  source test.
         Ruby ruby = context.getRuntime();
+
+        // Not nil allowed!
+        if(args[0].isNil()) throw ruby.newArgumentError("io cannot be nil");
+
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
         r.setInstanceVariable("@source", args[0]);
         return r;
@@ -70,6 +74,10 @@ public class XmlReader extends RubyObject {
     public static IRubyObject from_memory(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
         //TODO: Do actual work.
         Ruby ruby = context.getRuntime();
+        
+        // Not nil allowed!
+        if(args[0].isNil()) throw ruby.newArgumentError("string cannot be nil");
+
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
         try {
             XMLReader reader = r.createReader(ruby);

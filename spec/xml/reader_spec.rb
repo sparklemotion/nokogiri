@@ -34,4 +34,13 @@ describe Nokogiri::XML::Reader do
     reader = Nokogiri::XML::Reader.from_io(io)
     reader.source.should be_equal(io)
   end
+
+  it "should raise ArgumentError if nil is passed" do
+    lambda{
+      Nokogiri::XML::Reader.from_memory(nil)
+    }.should raise_error(ArgumentError)
+    lambda{
+      Nokogiri::XML::Reader.from_io(nil)
+    }.should raise_error(ArgumentError)
+  end
 end
