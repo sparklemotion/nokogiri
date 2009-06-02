@@ -324,7 +324,7 @@ module Nokogiri
       def namespaces
         Hash[*namespace_definitions.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
-          if defined?(Encoding) && document.encoding
+          if RUBY_VERSION >= '1.9' && document.encoding
             begin
               key.force_encoding document.encoding
             rescue ArgumentError
