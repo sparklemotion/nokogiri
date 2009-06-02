@@ -11,6 +11,11 @@ module Nokogiri
         eoxml
       end
 
+      def test_namespace_is_in_node_cache
+        node = @xml.root.namespace
+        assert @xml.instance_variable_get(:@node_cache).include?(node)
+      end
+
       def test_namespace_node_prefix
         namespaces = @xml.root.namespace_definitions
         assert_equal [nil, 'foo'], namespaces.map { |x| x.prefix }
