@@ -80,6 +80,11 @@ unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
+have_func('xmlRelaxNGSetParserStructuredErrors')
+have_func('xmlRelaxNGSetValidStructuredErrors')
+have_func('xmlSchemaSetValidStructuredErrors')
+have_func('xmlSchemaSetParserStructuredErrors')
+
 if ENV['CPUPROFILE']
   unless find_library('profiler', 'ProfilerEnable', *LIB_DIRS)
     abort "google performance tools are not installed"
