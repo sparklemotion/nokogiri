@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 import org.jruby.Ruby;
-import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
@@ -48,7 +47,7 @@ public class XmlReader extends RubyObject {
         }
     }
 
-    public ReaderNode peek() { return this.nodeQueue.peek(); }
+    protected ReaderNode peek() { return this.nodeQueue.peek(); }
 
     private void setSource(IRubyObject source){
         this.setInstanceVariable("@source", source);
@@ -196,7 +195,7 @@ public class XmlReader extends RubyObject {
 
             @Override
             public void characters(char[] chars, int start, int length) {
-                add(new ReaderNode(ruby, new String(chars, start, length)));
+                add( ReaderNode.createTextNode(ruby, new String(chars, start, length)));
             }
 
             @Override
@@ -214,7 +213,7 @@ public class XmlReader extends RubyObject {
 
             @Override
             public void startElement(String uri, String localName, String qName, Attributes attrs) {
-                addToBoth(new ReaderNode(ruby, uri, localName, qName, attrs));
+                addToBoth( ReaderNode.createElementNode(ruby, uri, localName, qName, attrs));
             }
         };
         try {
@@ -227,73 +226,5 @@ public class XmlReader extends RubyObject {
         }
     }
 
-    public static class ReaderNode {
 
-        Ruby ruby;
-        RubyBoolean value_p;
-        RubyString uri, localName, qName, value;
-        Attributes attrs;
-
-        // Construct a Text Node.
-        public ReaderNode(Ruby ruby, String content) {
-            this.ruby = ruby;
-            this.uri = ruby.newString();
-            this.value = toRubyString(content);
-            this.value_p = ruby.getTrue();
-            this.localName = this.qName = toRubyString("#text");
-        }
-
-        // Construct an Element Node. Maybe, if this go further, I should make subclasses.
-        public ReaderNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs) {
-            this.ruby = ruby;
-            this.uri = toRubyString(uri);
-            this.localName = toRubyString(localName);
-            this.qName = toRubyString(qName);
-            this.value_p = ruby.getFalse();
-            this.attrs = attrs; // I don't know what to do with you yet, my friend.
-        }
-
-        public boolean fits(String uri, String localName, String qName) {
-            return this.uri.asJavaString().equals(uri) &&
-                    this.localName.asJavaString().equals(localName) &&
-                    this.qName.asJavaString().equals(qName);
-        }
-
-        public static ReaderNode getEmptyNode(Ruby ruby) {
-            ReaderNode node = new ReaderNode(ruby, "#empty");
-            node.value_p = ruby.getFalse();
-            return node;
-        }
-
-        public RubyString getLocalName() {
-            return this.localName;
-        }
-
-        public RubyString getName() {
-            return this.qName;
-        }
-
-        public RubyString getQName() {
-            return this.qName;
-        }
-
-        public RubyString getUri() {
-            return this.uri;
-        }
-
-        public RubyString getValue() {
-            return this.value;
-        }
-
-        public RubyBoolean hasValue() { return this.value_p; }
-
-        public RubyBoolean isDefault(){
-            // TODO Implement.
-            return ruby.getFalse();
-        }
-
-        protected RubyString toRubyString(String string) {
-            return (string == null) ? this.ruby.newString() : this.ruby.newString(string);
-        }
-    }
 }

@@ -12,6 +12,7 @@ describe Nokogiri::XML::Reader do
     oexml
     r = Reader.from_memory(xml)
     r.should_not be_nil
+    r.local_name.should be_nil
     r.map{|x| x.local_name}.should == ["x","#text","foo","#text","foo","#text","x"]
   end
 
@@ -22,6 +23,7 @@ describe Nokogiri::XML::Reader do
     </x>
     eoxml
     reader.should_not be_nil
+    reader.name.should be_nil
     reader.map{|x| x.name}.should == ["x", "#text", "edi:foo", "#text", "edi:foo", "#text", "x"]
   end
 
@@ -73,7 +75,7 @@ describe Nokogiri::XML::Reader do
     </x>
     eoxml
     reader = Nokogiri::XML::Reader(xml)
-    reader.source.should == xml
+    reader.source.should be_equal(xml)
   end
 
   it "should return false for default" do # Sorry for the description. Couldn't avoid to.
@@ -95,5 +97,22 @@ describe Nokogiri::XML::Reader do
 
     reader.value?.should == false # Look for how should I do this in RSpec.
     reader.map {|x| x.value? }.should == [false, true, false, true, false, true, false]
+  end
+
+  it "should be able to deal with errors" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+      <foo>
+    </x>
+    eoxml
+
+    reader.errors.should have(0).items
+    
+    lambda {
+      reader.each { |node| }
+    }.should raise_error(Nokogiri::XML::SyntaxError)
+    
+    reader.errors.should have(1).items
   end
 end
