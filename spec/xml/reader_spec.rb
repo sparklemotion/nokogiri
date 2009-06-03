@@ -108,11 +108,11 @@ describe Nokogiri::XML::Reader do
     eoxml
 
     reader.errors.should have(0).items
-    
+
     lambda {
       reader.each { |node| }
     }.should raise_error(Nokogiri::XML::SyntaxError)
-    
-    reader.errors.should have(1).items
+ 
+    reader.errors.should have(1).item
   end
 end

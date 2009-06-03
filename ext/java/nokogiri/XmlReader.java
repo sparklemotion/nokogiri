@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
@@ -13,12 +14,14 @@ import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -30,7 +33,15 @@ public class XmlReader extends RubyObject {
     public XmlReader(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
         this.nodeQueue = new LinkedList<ReaderNode>();
-        this.nodeQueue.add(ReaderNode.getEmptyNode(ruby));
+        this.nodeQueue.add(ReaderNode.createEmptyNode(ruby));
+    }
+
+    private static IRubyObject[] getArgs(IRubyObject[] args) {
+        int size = Math.min(args.length, 3);
+        IRubyObject[] newArgs = new IRubyObject[size];
+        for(int i = 0; i < size; i++)
+            newArgs[i] = args[i];
+        return newArgs;
     }
 
     private void parseRubyString(ThreadContext context, RubyString content){
@@ -40,6 +51,8 @@ public class XmlReader extends RubyObject {
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
             reader.parse(new InputSource(bais));
+        } catch (SAXParseException spe) {
+            this.nodeQueue.add(ReaderNode.createExceptionNode(ruby, spe));
         } catch (IOException ioe) {
             throw RaiseException.createNativeRaiseException(ruby, ioe);
         } catch (SAXException saxe) {
@@ -93,6 +106,8 @@ public class XmlReader extends RubyObject {
 
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
         
+        r.callInit(getArgs(args), Block.NULL_BLOCK);
+
         r.setSource(args[0]);
         
         RubyString content = RuntimeHelpers.invoke(context, args[0], "read").convertToString();
@@ -111,6 +126,8 @@ public class XmlReader extends RubyObject {
 
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
 
+        r.callInit(getArgs(args), Block.NULL_BLOCK);
+
         r.setSource(args[0]);
 
         r.parseRubyString(context, args[0].convertToString());
@@ -121,7 +138,18 @@ public class XmlReader extends RubyObject {
     @JRubyMethod
     public IRubyObject read(ThreadContext context) {
         this.nodeQueue.poll();
-        return (peek() == null) ? context.getRuntime().getNil() : this;
+        if(peek() == null) {
+            return context.getRuntime().getNil();
+        } else if(peek().isError()) {
+            RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
+            errors.append(peek().toSyntaxError());
+
+            this.setInstanceVariable("@errors", errors);
+
+            throw new RaiseException((XmlSyntaxError) peek().toSyntaxError()); //TODO: ask Tom if this is ok.
+        } else {
+            return this;
+        }
     }
 
     @JRubyMethod
@@ -207,6 +235,18 @@ public class XmlReader extends RubyObject {
             }
 
             @Override
+            public void error(SAXParseException ex) throws SAXParseException {
+                add(ReaderNode.createExceptionNode(ruby, ex));
+                throw ex;
+            }
+
+            @Override
+            public void fatalError(SAXParseException ex) throws SAXParseException {
+                add(ReaderNode.createExceptionNode(ruby, ex));
+                throw ex;
+            }
+
+            @Override
             public void startDocument() {
                 nodeStack = new Stack<ReaderNode>();
             }
@@ -214,6 +254,12 @@ public class XmlReader extends RubyObject {
             @Override
             public void startElement(String uri, String localName, String qName, Attributes attrs) {
                 addToBoth( ReaderNode.createElementNode(ruby, uri, localName, qName, attrs));
+            }
+
+            @Override
+            public void warning(SAXParseException ex) throws SAXParseException {
+                add(ReaderNode.createExceptionNode(ruby, ex));
+                throw ex;
             }
         };
         try {

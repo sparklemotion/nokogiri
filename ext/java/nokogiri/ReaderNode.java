@@ -4,6 +4,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXParseException;
 
 abstract class ReaderNode {
 
@@ -12,24 +13,28 @@ abstract class ReaderNode {
     IRubyObject uri, localName, qName, value;
     Attributes attrs;
 
-    // Construct a Text Node.
-    public static ReaderNode createTextNode(Ruby ruby, String content) {
-        return new TextNode(ruby, content);
-    }
-
     // Construct an Element Node. Maybe, if this go further, I should make subclasses.
     public static ReaderNode createElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs) {
         return new ElementNode(ruby, uri, localName, qName, attrs);
+    }
+
+    public static ReaderNode createEmptyNode(Ruby ruby) {
+        return new EmptyNode(ruby);
+    }
+
+    public static ReaderNode createExceptionNode(Ruby ruby, SAXParseException ex) {
+        return new ExceptionNode(ruby, ex);
+    }
+
+    // Construct a Text Node.
+    public static ReaderNode createTextNode(Ruby ruby, String content) {
+        return new TextNode(ruby, content);
     }
 
     public boolean fits(String uri, String localName, String qName) {
         return this.uri.asJavaString().equals(uri) &&
                 this.localName.asJavaString().equals(localName) &&
                 this.qName.asJavaString().equals(qName);
-    }
-
-    public static ReaderNode getEmptyNode(Ruby ruby) {
-        return new EmptyNode(ruby);
     }
 
     public IRubyObject getLocalName() {
@@ -59,9 +64,13 @@ abstract class ReaderNode {
         return ruby.getFalse();
     }
 
+    public boolean isError() { return false; }
+
     protected IRubyObject toRubyString(String string) {
         return (string == null) ? this.ruby.newString() : this.ruby.newString(string);
     }
+
+    public IRubyObject toSyntaxError() { return this.ruby.getNil(); }
 }
 
 class ElementNode extends ReaderNode {
@@ -92,6 +101,24 @@ class EmptyNode extends ReaderNode {
     @Override
     public RubyBoolean hasValue() {
         return ruby.getFalse();
+    }
+}
+
+class ExceptionNode extends EmptyNode {
+    private final XmlSyntaxError exception;
+
+    // Still don't know what to do with ex.
+    public ExceptionNode(Ruby ruby, SAXParseException ex) {
+        super(ruby);
+        this.exception = new XmlSyntaxError(ruby);
+    }
+    
+    @Override
+    public boolean isError() { return true; }
+
+    @Override
+    public IRubyObject toSyntaxError(){
+        return this.exception;
     }
 }
 class TextNode extends ReaderNode {
