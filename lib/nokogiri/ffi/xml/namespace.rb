@@ -29,6 +29,10 @@ module Nokogiri
           ns.cstruct = node_struct
           
           ns.cstruct.ruby_node = ns
+
+          cache = ns.document.instance_variable_get(:@node_cache)
+          cache << ns
+
           ns
         end
       end
