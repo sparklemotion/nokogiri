@@ -115,4 +115,35 @@ describe Nokogiri::XML::Reader do
  
     reader.errors.should have(1).item
   end
+
+  it "should retrieve the right arguments" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'
+       xmlns='http://mothership.connection.com/'
+    >
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader.attributes.should be_empty
+    reader.map { |x| x.attributes }.should == [{'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
+						'xmlns'=>'http://mothership.connection.com/'},
+					       {}, {"awesome"=>"true"}, {}, {"awesome"=>"true"}, {},
+					       {'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
+						'xmlns'=>'http://mothership.connection.com/'}]
+  end
+
+  it "should be able to acces the same attribute through both attribute and attributes method" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'
+       xmlns='http://mothership.connection.com/'
+      >
+      <tenderlove:foo awesome='true' size='giant'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+    reader.each do |node|
+      node.attributes.each do |key, value|
+	node.attribute(key).should == value
+      end
+    end
+  end
 end

@@ -156,7 +156,7 @@ public class NokogiriService implements BasicLibraryService{
 
     private static ObjectAllocator XML_ATTR_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz){
-            throw runtime.newNotImplementedError("not implemented");
+            return new XmlAttr(runtime, klazz);
         }
     };
 

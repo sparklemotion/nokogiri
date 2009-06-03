@@ -40,7 +40,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class XmlNode extends RubyObject {
+    // TODO: Talk to Tom about this.
+    // Try not to have node, but its attributes.
     private Node node;
+    private IRubyObject name, content;
 
     public XmlNode(Ruby ruby, RubyClass cls){
         this(ruby,cls,null);
@@ -49,6 +52,10 @@ public class XmlNode extends RubyObject {
     public XmlNode(Ruby ruby, RubyClass cls, Node node) {
         super(ruby, cls);
         this.node = node;
+        if(node != null) {
+            this.name = ruby.newString(node.getNodeName());
+            this.content = ruby.newString(node.getTextContent());
+        }
     }
 
     protected static IRubyObject constructNode(Ruby ruby, Node node) {
@@ -153,7 +160,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject node_name(ThreadContext context) {
-        return RubyString.newString(context.getRuntime(), node.getNodeName());
+        return this.name;
     }
 
     @JRubyMethod(name = "node_name=")
@@ -193,7 +200,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject content(ThreadContext context) {
-        return RubyString.newString(context.getRuntime(), node.getTextContent());
+        return this.content;
     }
 
     @JRubyMethod

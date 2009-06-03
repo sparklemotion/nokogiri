@@ -68,7 +68,7 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject attribute(ThreadContext context, IRubyObject name) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return peek().getAttributeByName(name);
     }
 
     @JRubyMethod
@@ -82,8 +82,8 @@ public class XmlReader extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject attributes(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject attribute_nodes(ThreadContext context) {
+        return peek().getAttributesNodes();
     }
 
     @JRubyMethod(name = "attributes?")
@@ -133,6 +133,11 @@ public class XmlReader extends RubyObject {
         r.parseRubyString(context, args[0].convertToString());
 
         return r;
+    }
+
+    @JRubyMethod
+    public IRubyObject namespaces(ThreadContext context) {
+        return peek().getNamespaces();
     }
 
     @JRubyMethod
@@ -266,6 +271,7 @@ public class XmlReader extends RubyObject {
             XMLReader reader = XMLReaderFactory.createXMLReader();
             reader.setContentHandler(handler);
             reader.setErrorHandler(handler);
+            reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
             return reader;
         } catch (SAXException saxe) {
             throw RaiseException.createNativeRaiseException(ruby, saxe);
