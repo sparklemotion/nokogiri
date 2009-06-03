@@ -2,32 +2,31 @@
 
 * 新しい機能
 
-  * ビルダーはブロックのアリティによりスコープを変換出来るようになった
-  * ビルダーはアンダースコア、アンダーラインで終わるメソッドをtagzと同様の機能で
-    サポートするようになった
-  * Nokogiri::XML::Node#<=> はドキュメントの位置によりノードを比較するように
+  * Builderがブロックの引数の数に応じてスコープが定まるようになった
+  * Builderがアンダースコアで終わるメソッドをtagzと同様にサポートするようになった
+  * Nokogiri::XML::Node#<=> がドキュメントの位置によりノードを比較するように
     なった
-  * Nokogiri::XML::Node#matches?は与えられたセレクタ内でノードが認知されたらtrue
-    を返す事が出来るようになった
-  * Nokogiri::XML::Node#ancestors はNokogiri::XML::NodeSetを返すようになった
-  * Nokogiri::XML::Node#ancestorsはオプションのセレクタに対応する親をマッチする
+  * Nokogiri::XML::Node#matches?が与えられたセレクタ内でノードがあればtrue
+    を返すようになった
+  * Nokogiri::XML::Node#ancestors がNokogiri::XML::NodeSetオブジェクトを返すようになった
+  * Nokogiri::XML::Node#ancestorsがオプションのセレクタに対応する親をマッチする
     ようになった
-  * Nokogiri::HTML::Document#meta_encoding はメタデータのエンコードを返すように
+  * Nokogiri::HTML::Document#meta_encoding がメタデータのエンコードを返すように
     なった
-  * Nokogiri::HTML::Document#meta_encoding= はメタデータのエンコードを
-    設定するようになった
-  * Nokogiri::XML::Document#encoding= はドキュメントのエンコードを
-    設定するようになった
-  * Nokogiri::XML::Schema はドキュメントがXSDのスキーマに沿って記述されているか
-    を検証するようになった
-  * Nokogiri::XML::RelaxNG はドキュメントがRelaxNGのスキーマに沿って
-    記述されているかを検証するようになった
+  * Nokogiri::HTML::Document#meta_encoding= でメタデータのエンコードを
+    設定できるようになった
+  * Nokogiri::XML::Document#encoding= でドキュメントのエンコードを
+    設定できるようになった
+  * Nokogiri::XML::Schema でドキュメントがXSDのスキーマに沿って記述されているか
+    を検証できるようになった
+  * Nokogiri::XML::RelaxNG でドキュメントがRelaxNGのスキーマに沿って
+    記述されているかを検証できるようになった
   * Nokogiri::HTML::ElementDescription はHTML要素の説明フェッチ動作するよう
     になった
   * Nokogiri::XML::Node#descriptionは ノードの説明をフェッチ動作するよう
     になった
   * Nokogiri::XML::Node#accept は Visitor パターンを実行するようになった
-  * bin/nokogiri にドキュメントを簡単に監査するようになった
+  * 簡単にドキュメントを解析するコマンド bin/nokogiri を追加
     (Yataka HARAさんに感謝感激)
   * Nokogiri::XML::NodeSetが更にArrayとEnumerableの演算を
     サポートするようになった:
@@ -43,7 +42,7 @@
 
   * nilがCDATAsonstructorに渡される際の問題を修正
   * Fragment メソッドが正規表現を抜け出させるようになった
-    (Thanks Joel!) (LH #73)
+    (Joelさんに感謝感激) (LH #73)
   * Builder スコープのLH #61, LH #74, LH #70に関しての様々な問題を修正
   * 名前空間を付け加える時、名前空間が LH#78より除去されてしまう問題を修正
   * 連結しないノードが発生し、再育成してしまう問題を修正(GH#22)
@@ -69,13 +68,13 @@
 
   * Nokogiri は soap4r と一緒に使う事が可能。(XSD::XMLParser::Nokogiri 参照)
   * Nokogiri::XML::Node#inner_html= はノードの中のHTMLをセット出来る
-  * Nokogiriのビルダーのインタフェースの改良
+  * NokogiriのBuilderのインタフェースの改良
   * Nokogiri::XML::Node#swap　は、現在のノードに新しいhtmlを交換する事が出来る
 
 
 * バグの修正
 
-  * ビルダーAPIのタグのネスティングを修正 (LH #41)
+  * BuilderAPIのタグのネスティングを修正 (LH #41)
   * Nokogiri::HTML.fragment はテキストだけのノードを適切に扱う事が出来る(LH #43)
   * Nokogiri::XML::Node#before はテキストノードのはじめに挿入する事が出来る (LH #44)
   * Nokogiri::XML::Node#after はテキストノードの文末に挿入する事が出来る
@@ -200,7 +199,7 @@
 
   * 弱参照からドキュメント参照へのメモリー管理の変換
   * メモリリークに接続
-  * ビルダーブロックが取り囲んでいるコンテキストから
+  * Builderブロックが取り囲んでいるコンテキストから
     メソッドの呼び出しをする事が出来る
 
 === 1.0.3
