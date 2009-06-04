@@ -96,6 +96,11 @@ public class XmlReader extends RubyObject {
         return peek().isDefault();
     }
 
+    @JRubyMethod
+    public IRubyObject depth(ThreadContext context) {
+        return peek().getDepth();
+    }
+
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_io(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
         // Only to pass the  source test.
@@ -202,11 +207,6 @@ public class XmlReader extends RubyObject {
         throw context.getRuntime().newNotImplementedError("not implemented");
     }
 
-    @JRubyMethod
-    public IRubyObject depth(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
-    }
-
     @JRubyMethod(name = "value?")
     public IRubyObject value_p(ThreadContext context) {
         return peek().hasValue();
@@ -216,6 +216,7 @@ public class XmlReader extends RubyObject {
         DefaultHandler2 handler = new DefaultHandler2() {
 
             Stack<ReaderNode> nodeStack;
+            int depth;
 
             private void add(ReaderNode node) {
                 nodeQueue.add(node);
@@ -228,7 +229,7 @@ public class XmlReader extends RubyObject {
 
             @Override
             public void characters(char[] chars, int start, int length) {
-                add( ReaderNode.createTextNode(ruby, new String(chars, start, length)));
+                add( ReaderNode.createTextNode(ruby, new String(chars, start, length), depth));
             }
 
             @Override
@@ -237,6 +238,7 @@ public class XmlReader extends RubyObject {
                     nodeQueue.add(nodeStack.pop().getClosingNode());
                 } else {
                 }
+                depth--;
             }
 
             @Override
@@ -254,11 +256,13 @@ public class XmlReader extends RubyObject {
             @Override
             public void startDocument() {
                 nodeStack = new Stack<ReaderNode>();
+                depth = 0;
             }
 
             @Override
             public void startElement(String uri, String localName, String qName, Attributes attrs) {
-                addToBoth( ReaderNode.createElementNode(ruby, uri, localName, qName, attrs));
+                addToBoth( ReaderNode.createElementNode(ruby, uri, localName, qName, attrs, depth));
+                depth++;
             }
 
             @Override

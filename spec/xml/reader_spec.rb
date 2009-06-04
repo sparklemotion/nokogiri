@@ -186,4 +186,16 @@ describe Nokogiri::XML::Reader do
     reader.attribute_count.should == 0
     reader.map {|x| x.attribute_count}.should == [1, 0, 1, 0, 0, 0, 0]
   end
+
+  it "should return the depth of the current node" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+
+    reader.depth.should == 0
+
+    reader.map {|x| x.depth}.should == [0,1,1,2,1,1,0]
+  end
 end

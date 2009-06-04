@@ -22,7 +22,7 @@ import org.xml.sax.SAXParseException;
 abstract class ReaderNode {
 
     Ruby ruby;
-    IRubyObject attrs, namespaces, uri, localName, qName, value;
+    IRubyObject attrs, depth, localName, namespaces, qName, uri, value;
     /*
      * Difference between attrs and attributes is that attributes map includes
      * namespaces.
@@ -38,8 +38,8 @@ abstract class ReaderNode {
     }
 
     // Construct an Element Node. Maybe, if this go further, I should make subclasses.
-    public static ReaderNode createElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs) {
-        return new ElementNode(ruby, uri, localName, qName, attrs);
+    public static ReaderNode createElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth) {
+        return new ElementNode(ruby, uri, localName, qName, attrs, depth);
     }
 
     public static ReaderNode createEmptyNode(Ruby ruby) {
@@ -51,8 +51,8 @@ abstract class ReaderNode {
     }
 
     // Construct a Text Node.
-    public static ReaderNode createTextNode(Ruby ruby, String content) {
-        return new TextNode(ruby, content);
+    public static ReaderNode createTextNode(Ruby ruby, String content, int depth) {
+        return new TextNode(ruby, content, depth);
     }
 
     public boolean fits(String uri, String localName, String qName) {
@@ -94,6 +94,12 @@ abstract class ReaderNode {
         if(this.attrs == null)
             this.attrs = this.ruby.newArray();
         return this.attrs;
+    }
+
+    public IRubyObject getDepth() {
+        if(this.depth == null)
+            this.depth = ruby.newFixnum(0);
+        return this.depth;
     }
 
     public IRubyObject getLocalName() {
@@ -184,6 +190,11 @@ class ClosingNode extends ReaderNode{
     }
 
     @Override
+    public IRubyObject getDepth(){
+        return this.node.getDepth();
+    }
+
+    @Override
     public IRubyObject getLocalName() {
         return this.node.getLocalName();
     }
@@ -218,11 +229,12 @@ class ClosingNode extends ReaderNode{
 }
 class ElementNode extends ReaderNode {
 
-    public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs) {
+    public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth) {
         this.ruby = ruby;
         this.uri = toRubyString(uri);
         this.localName = toRubyString(localName);
         this.qName = toRubyString(qName);
+        this.depth = ruby.newFixnum(depth);
         parseAttrs(attrs); // I don't know what to do with you yet, my friend.
     }
 
@@ -306,11 +318,12 @@ class ExceptionNode extends EmptyNode {
 }
 class TextNode extends ReaderNode {
 
-    public TextNode(Ruby ruby, String content) {
+    public TextNode(Ruby ruby, String content, int depth) {
         this.ruby = ruby;
         this.value = toRubyString(content);
         this.localName = toRubyString("#text");
         this.qName = toRubyString("#text");
+        this.depth = ruby.newFixnum(depth);
     }
 
     @Override
