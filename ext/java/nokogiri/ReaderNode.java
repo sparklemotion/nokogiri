@@ -22,7 +22,7 @@ import org.xml.sax.SAXParseException;
 abstract class ReaderNode {
 
     Ruby ruby;
-    IRubyObject attrs, depth, localName, namespaces, qName, uri, value;
+    IRubyObject attrs, depth, localName, namespaces, qName, uri, value, xmlVersion;
     /*
      * Difference between attrs and attributes is that attributes map includes
      * namespaces.
@@ -124,6 +124,12 @@ abstract class ReaderNode {
         if(this.qName == null)
             this.qName = ruby.getNil();
         return this.qName;
+    }
+
+    public IRubyObject getXmlVersion() {
+        if(this.xmlVersion == null)
+            this.xmlVersion = ruby.newString("1.0");
+        return this.xmlVersion;
     }
 
     public IRubyObject getUri() {
@@ -292,6 +298,9 @@ class EmptyNode extends ReaderNode {
     public EmptyNode(Ruby ruby) {
         this.ruby = ruby;
     }
+
+    @Override
+    public IRubyObject getXmlVersion() { return this.ruby.getNil(); }
 
     @Override
     public RubyBoolean hasValue() {

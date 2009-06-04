@@ -199,7 +199,8 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject xml_version(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        // TODO: Implement it.
+        return peek().getXmlVersion();
     }
 
     @JRubyMethod

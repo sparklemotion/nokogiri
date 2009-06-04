@@ -198,4 +198,27 @@ describe Nokogiri::XML::Reader do
 
     reader.map {|x| x.depth}.should == [0,1,1,2,1,1,0]
   end
+
+  it "should return the right encoding" do
+    string = <<-eoxml
+    <awesome>
+      <p xml:lang="en">The quick brown fox jumps over the lazy dog.</p>
+      <p xml:lang="ja">日本語が上手です</p>
+    </awesome>
+    eoxml
+    reader = Nokogiri::XML::Reader.from_memory(string, nil, 'UTF-8')
+    reader.map { |x| x.encoding }.uniq.should == ['UTF-8']
+  end
+
+  it "should return the right xml version" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+
+    reader.xml_version.should be_nil
+
+    reader.map { |x| x.xml_version }.uniq.should == ['1.0']
+  end
 end
