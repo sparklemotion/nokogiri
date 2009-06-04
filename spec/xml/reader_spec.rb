@@ -140,10 +140,26 @@ describe Nokogiri::XML::Reader do
       <tenderlove:foo awesome='true' size='giant'>snuggles!</tenderlove:foo>
     </x>
     eoxml
+    
+    reader.attribute(nil).should be_nil
+    
     reader.each do |node|
       node.attributes.each do |key, value|
 	node.attribute(key).should == value
       end
     end
+  end
+
+  it "should be able to retrieve an attribute given an index" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+
+    reader.attribute_at(nil).should be_nil
+    reader.attribute_at(0).should be_nil
+
+    reader.map {|x| x.attribute_at(0) }.should == ['http://tenderlovemaking.com/', nil, 'true', nil, 'true', nil, 'http://tenderlovemaking.com/']
   end
 end

@@ -73,7 +73,12 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject attribute_at(ThreadContext context, IRubyObject index) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        if(index.isNil()) return index;
+        
+        long i = index.convertToInteger().getLongValue();
+        if(i > Integer.MAX_VALUE)
+            throw context.getRuntime().newArgumentError("value too long to be an array index");
+        return peek().getAttributeByIndex((int) i);
     }
 
     @JRubyMethod
