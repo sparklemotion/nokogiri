@@ -162,4 +162,17 @@ describe Nokogiri::XML::Reader do
 
     reader.map {|x| x.attribute_at(0) }.should == ['http://tenderlovemaking.com/', nil, 'true', nil, 'true', nil, 'http://tenderlovemaking.com/']
   end
+
+  it "should be able to access an attribute value by its name" do # I should get this test for free
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+
+    reader.attribute(nil).should be_nil
+    reader.attribute('awesome').should be_nil
+    
+    reader.map {|x| x.attribute('awesome') }.should ==[nil, nil, 'true', nil, 'true', nil, nil]
+  end
 end
