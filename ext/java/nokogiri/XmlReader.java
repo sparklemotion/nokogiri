@@ -73,17 +73,12 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject attribute_at(ThreadContext context, IRubyObject index) {
-        if(index.isNil()) return index;
-        
-        long i = index.convertToInteger().getLongValue();
-        if(i > Integer.MAX_VALUE)
-            throw context.getRuntime().newArgumentError("value too long to be an array index");
-        return peek().getAttributeByIndex((int) i);
+        return peek().getAttributeByIndex(index);
     }
 
     @JRubyMethod
     public IRubyObject attribute_count(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return peek().getAttributeCount();
     }
 
     @JRubyMethod
@@ -239,7 +234,7 @@ public class XmlReader extends RubyObject {
             @Override
             public void endElement(String uri, String localName, String qName) {
                 if (nodeStack.peek().fits(uri, localName, qName)) {
-                    nodeQueue.add(nodeStack.pop());
+                    nodeQueue.add(nodeStack.pop().getClosingNode());
                 } else {
                 }
             }

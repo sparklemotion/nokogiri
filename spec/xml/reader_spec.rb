@@ -175,4 +175,15 @@ describe Nokogiri::XML::Reader do
     
     reader.map {|x| x.attribute('awesome') }.should ==[nil, nil, 'true', nil, 'true', nil, nil]
   end
+
+  it "should retrieve the correct number of attributes" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+
+    reader.attribute_count.should == 0
+    reader.map {|x| x.attribute_count}.should == [1, 0, 1, 0, 0, 0, 0]
+  end
 end

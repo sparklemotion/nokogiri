@@ -17,6 +17,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXParseException;
 
+
+
 abstract class ReaderNode {
 
     Ruby ruby;
@@ -28,6 +30,12 @@ abstract class ReaderNode {
     // FIXME: Maybe faster to return this instead of standar attributes method
     Map<IRubyObject,IRubyObject> attributes;
     IRubyObject[] attributeValues;
+    private boolean closing;
+
+
+    public ReaderNode getClosingNode(){
+        return new ClosingNode(this.ruby, this);
+    }
 
     // Construct an Element Node. Maybe, if this go further, I should make subclasses.
     public static ReaderNode createElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs) {
@@ -53,13 +61,19 @@ abstract class ReaderNode {
                 this.qName.asJavaString().equals(qName);
     }
 
-    public IRubyObject getAttributeByIndex(int i){
+    public IRubyObject getAttributeByIndex(IRubyObject index){
+        if(index.isNil()) return index;
+        
+        long i = index.convertToInteger().getLongValue();
+        if(i > Integer.MAX_VALUE)
+            throw ruby.newArgumentError("value too long to be an array index");
+
         if(this.attributeValues == null){
             return ruby.getNil();
         } else if (i<0 ||this.attributeValues.length<=i){
             return ruby.getNil();
         } else {
-            return this.attributeValues[i];
+            return this.attributeValues[(int) i];
         }
     }
 
@@ -68,6 +82,12 @@ abstract class ReaderNode {
             return ruby.getNil();
         IRubyObject attrValue = this.attributes.get(name);
         return (attrValue == null) ? ruby.getNil() : attrValue;
+    }
+
+    public IRubyObject getAttributeCount(){
+        if(this.attributes == null)
+            return ruby.newFixnum(0);
+        return ruby.newFixnum(this.attributes.size());
     }
 
     public IRubyObject getAttributesNodes() {
@@ -129,6 +149,73 @@ abstract class ReaderNode {
 }
 
 
+class ClosingNode extends ReaderNode{
+    
+    ReaderNode node;
+    
+    public ClosingNode(Ruby ruby, ReaderNode node){
+        this.ruby = ruby;
+        this.node = node;
+    }
+    
+    @Override
+    public boolean fits(String uri, String localName, String qName) {
+        return this.node.fits(uri, localName, qName);
+    }
+
+    @Override
+    public IRubyObject getAttributeByIndex(IRubyObject index){
+        return this.node.getAttributeByIndex(index);
+    }
+
+    @Override
+    public IRubyObject getAttributeByName(IRubyObject name){
+        return this.node.getAttributeByName(name);
+    }
+
+    @Override
+    public IRubyObject getAttributeCount(){
+        return ruby.newFixnum(0);
+    }
+
+    @Override
+    public IRubyObject getAttributesNodes() {
+        return this.node.getAttributesNodes();
+    }
+
+    @Override
+    public IRubyObject getLocalName() {
+        return this.node.getLocalName();
+    }
+
+    @Override
+    public IRubyObject getName() {
+        return this.node.getName();
+    }
+    
+    @Override
+    public IRubyObject getNamespaces() {
+        return this.node.getNamespaces();
+    }
+
+    @Override
+    public IRubyObject getQName() { return this.node.getQName(); }
+
+    @Override
+    public IRubyObject getUri() { return this.node.getUri(); }
+
+    @Override
+    public IRubyObject getValue() { return this.node.getValue(); }
+
+    @Override
+    public RubyBoolean hasValue() { return this.node.hasValue(); };
+
+    @Override
+    public RubyBoolean isDefault() { return this.node.isDefault(); }
+
+    @Override
+    public boolean isError() { return this.node.isError(); }
+}
 class ElementNode extends ReaderNode {
 
     public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs) {
