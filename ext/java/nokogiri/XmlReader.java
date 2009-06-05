@@ -28,7 +28,15 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 public class XmlReader extends RubyObject {
 
+    private static final int XML_TEXTREADER_MODE_INITIAL = 0;
+    private static final int XML_TEXTREADER_MODE_INTERACTIVE = 1;
+    private static final int XML_TEXTREADER_MODE_ERROR = 2;
+    private static final int XML_TEXTREADER_MODE_EOF = 3;
+    private static final int XML_TEXTREADER_MODE_CLOSED = 4;
+    private static final int XML_TEXTREADER_MODE_READING = 5;
+
     final Queue<ReaderNode> nodeQueue;
+    private int state;
     
     public XmlReader(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -47,11 +55,14 @@ public class XmlReader extends RubyObject {
     private void parseRubyString(ThreadContext context, RubyString content){
         Ruby ruby = context.getRuntime();
         try {
+            this.setState(XML_TEXTREADER_MODE_READING);
             XMLReader reader = this.createReader(ruby);
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
             reader.parse(new InputSource(bais));
+            this.setState(this.XML_TEXTREADER_MODE_CLOSED);
         } catch (SAXParseException spe) {
+            this.setState(this.XML_TEXTREADER_MODE_ERROR);
             this.nodeQueue.add(ReaderNode.createExceptionNode(ruby, spe));
         } catch (IOException ioe) {
             throw RaiseException.createNativeRaiseException(ruby, ioe);
@@ -60,11 +71,13 @@ public class XmlReader extends RubyObject {
         }
     }
 
-    protected ReaderNode peek() { return this.nodeQueue.peek(); }
+    private ReaderNode peek() { return this.nodeQueue.peek(); }
 
     private void setSource(IRubyObject source){
         this.setInstanceVariable("@source", source);
     }
+
+    private void setState(int state) { this.state = state; }
 
     @JRubyMethod
     public IRubyObject attribute(ThreadContext context, IRubyObject name) {
@@ -101,13 +114,9 @@ public class XmlReader extends RubyObject {
         return peek().getDepth();
     }
 
-    @JRubyMethod
-    public IRubyObject encoding(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
-    }
-
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_io(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
+
         // Only to pass the  source test.
         Ruby ruby = context.getRuntime();
 
@@ -115,7 +124,7 @@ public class XmlReader extends RubyObject {
         if(args[0].isNil()) throw ruby.newArgumentError("io cannot be nil");
 
         XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
-        
+
         r.callInit(getArgs(args), Block.NULL_BLOCK);
 
         r.setSource(args[0]);
@@ -194,7 +203,7 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject state(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return context.getRuntime().newFixnum(this.state);
     }
 
     @JRubyMethod
