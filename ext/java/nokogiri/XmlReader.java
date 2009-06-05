@@ -162,7 +162,7 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject namespace_uri(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return peek().getUri();
     }
 
     @JRubyMethod

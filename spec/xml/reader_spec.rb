@@ -10,7 +10,7 @@ describe Nokogiri::XML::Reader do
       <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     </x>
     oexml
-    r = Reader.from_memory(xml)
+    r = Nokogiri::XML::Reader.from_memory(xml)
     r.should_not be_nil
     r.local_name.should be_nil
     r.map{|x| x.local_name}.should == ["x","#text","foo","#text","foo","#text","x"]
@@ -257,5 +257,27 @@ describe Nokogiri::XML::Reader do
     reader.prefix.should be_nil
 
     reader.map { |n| n.prefix }.should == [nil, nil, "edi", nil, "edi", nil, nil]
+  end
+
+  it "should return the reader state, whatever it is" do
+    reader = Nokogiri::XML::Reader.from_memory('<foo>bar</bar>')
+    reader.state.should_not be_nil
+  end
+
+  it "should return the namespace's uri" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:edi='http://ecommerce.example.org/schema'>
+      <edi:foo>hello</edi:foo>
+    </x>
+    eoxml
+    reader.namespace_uri.should be_nil
+
+    reader.map { |n| n.namespace_uri }.should == [nil,
+                                                  nil,
+                                                  "http://ecommerce.example.org/schema",
+                                                  nil,
+                                                  "http://ecommerce.example.org/schema",
+                                                  nil,
+                                                  nil]
   end
 end

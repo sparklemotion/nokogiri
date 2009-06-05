@@ -56,7 +56,12 @@ abstract class ReaderNode {
     }
 
     public boolean fits(String uri, String localName, String qName) {
-        return node().uri.asJavaString().equals(uri) &&
+        boolean uriFits = true;
+        if(!node().uri.isNil())
+            uriFits = node().uri.asJavaString().equals(uri);
+        else
+            uriFits = uri.equals(uri);
+        return  uriFits &&
                 node().localName.asJavaString().equals(localName) &&
                 node().qName.asJavaString().equals(qName);
     }
@@ -219,7 +224,7 @@ class ElementNode extends ReaderNode {
 
     public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth) {
         this.ruby = ruby;
-        this.uri = toRubyString(uri);
+        this.uri = (uri.equals("")) ? ruby.getNil() : toRubyString(uri);
         this.localName = toRubyString(localName);
         this.qName = toRubyString(qName);
         this.prefix = parsePrefix(qName);
