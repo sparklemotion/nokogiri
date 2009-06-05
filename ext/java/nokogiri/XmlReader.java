@@ -60,9 +60,9 @@ public class XmlReader extends RubyObject {
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
             reader.parse(new InputSource(bais));
-            this.setState(this.XML_TEXTREADER_MODE_CLOSED);
+            this.setState(XML_TEXTREADER_MODE_CLOSED);
         } catch (SAXParseException spe) {
-            this.setState(this.XML_TEXTREADER_MODE_ERROR);
+            this.setState(XML_TEXTREADER_MODE_ERROR);
             this.nodeQueue.add(ReaderNode.createExceptionNode(ruby, spe));
         } catch (IOException ioe) {
             throw RaiseException.createNativeRaiseException(ruby, ioe);
@@ -101,7 +101,7 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod(name = "attributes?")
     public IRubyObject attributes_p(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return peek().hasAttributes();
     }
 
     @JRubyMethod(name="default?")

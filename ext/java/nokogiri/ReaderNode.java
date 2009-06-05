@@ -165,6 +165,12 @@ abstract class ReaderNode {
         return node().xmlVersion;
     }
 
+    public RubyBoolean hasAttributes() {
+        if (node().attributes == null)
+            return node().ruby.getFalse();
+        return node().attributes.isEmpty() ? node().ruby.getFalse() : node().ruby.getTrue();
+    }
+
     public abstract RubyBoolean hasValue();
 
     public RubyBoolean isDefault(){
