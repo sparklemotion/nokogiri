@@ -376,5 +376,3 @@ module Nokogiri
     end
   end
 end
-
-class Nokogiri::XML::Element < Nokogiri::XML::Node ; end
