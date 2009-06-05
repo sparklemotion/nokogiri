@@ -19,8 +19,12 @@ module Nokogiri
     end
   end
 
+  def self.uses_libxml? # :nodoc:
+    !Nokogiri::VERSION_INFO['libxml'].nil?
+  end
+
   def self.ffi? # :nodoc:
-    Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
+    uses_libxml? && Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
   end
 
   def self.is_2_6_16? # :nodoc:
