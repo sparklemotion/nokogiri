@@ -101,6 +101,11 @@ public class XmlReader extends RubyObject {
         return peek().getDepth();
     }
 
+    @JRubyMethod
+    public IRubyObject encoding(ThreadContext context) {
+        throw context.getRuntime().newNotImplementedError("not implemented");
+    }
+
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_io(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
         // Only to pass the  source test.
@@ -141,8 +146,33 @@ public class XmlReader extends RubyObject {
     }
 
     @JRubyMethod
+    public IRubyObject lang(ThreadContext context) {
+        return peek().getLang();
+    }
+
+    @JRubyMethod
+    public IRubyObject local_name(ThreadContext context) {
+        return peek().getLocalName();
+    }
+
+    @JRubyMethod
+    public IRubyObject name(ThreadContext context) {
+        return peek().getName();
+    }
+
+    @JRubyMethod
+    public IRubyObject namespace_uri(ThreadContext context) {
+        throw context.getRuntime().newNotImplementedError("not implemented");
+    }
+
+    @JRubyMethod
     public IRubyObject namespaces(ThreadContext context) {
         return peek().getNamespaces();
+    }
+
+    @JRubyMethod
+    public IRubyObject prefix(ThreadContext context) {
+        throw context.getRuntime().newNotImplementedError("not implemented");
     }
 
     @JRubyMethod
@@ -168,49 +198,19 @@ public class XmlReader extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject name(ThreadContext context) {
-        return peek().getName();
-    }
-
-    @JRubyMethod
-    public IRubyObject local_name(ThreadContext context) {
-        return peek().getLocalName();
-    }
-
-    @JRubyMethod
-    public IRubyObject namespace_uri(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
-    }
-
-    @JRubyMethod
-    public IRubyObject prefix(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
-    }
-
-    @JRubyMethod
     public IRubyObject value(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return peek().getValue();
     }
 
-    @JRubyMethod
-    public IRubyObject lang(ThreadContext context) {
-        return peek().getLang();
+    @JRubyMethod(name = "value?")
+    public IRubyObject value_p(ThreadContext context) {
+        return peek().hasValue();
     }
 
     @JRubyMethod
     public IRubyObject xml_version(ThreadContext context) {
         // TODO: Implement it.
         return peek().getXmlVersion();
-    }
-
-    @JRubyMethod
-    public IRubyObject encoding(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
-    }
-
-    @JRubyMethod(name = "value?")
-    public IRubyObject value_p(ThreadContext context) {
-        return peek().hasValue();
     }
 
     protected XMLReader createReader(final Ruby ruby) {

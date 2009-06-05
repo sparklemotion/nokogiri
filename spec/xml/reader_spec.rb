@@ -234,4 +234,16 @@ describe Nokogiri::XML::Reader do
    
     reader.map {|x| x.lang}.should == [nil, nil, "en", "en", "en", nil, "ja", "ja", "ja", nil, nil]
   end
+
+  it "should retrieve the correct value" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
+      <tenderlove:foo>snuggles!</tenderlove:foo>
+    </x>
+    eoxml
+
+    reader.value.should be_nil
+
+    reader.map {|x| x.value }.should == [nil, "\n      ", nil, "snuggles!", nil, "\n    ", nil]
+  end
 end
