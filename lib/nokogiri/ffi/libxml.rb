@@ -8,6 +8,7 @@ module Nokogiri
     attach_function :__xmlParserVersion, [], :pointer
     attach_function :__xmlIndentTreeOutput, [], :pointer
     attach_function :__xmlTreeIndentString, [], :pointer
+    attach_function :xmlDeregisterNodeDefault, [:pointer], :pointer
   end
 
   LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
@@ -132,9 +133,6 @@ module Nokogiri
     attach_function :xmlSaveTree, [:pointer, :pointer], :int
     attach_function :xmlSaveClose, [:pointer], :int
     attach_function :xmlSetNs, [:pointer, :pointer], :void
-
-    # parserInternals.c
-    attach_function :xmlSubstituteEntitiesDefault, [:int], :int
 
     # entities.c
     attach_function :xmlEncodeSpecialChars, [:pointer, :string], :pointer # returns char* that must be freed

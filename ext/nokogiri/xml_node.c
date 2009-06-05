@@ -10,6 +10,11 @@ static void debug_node_dealloc(xmlNodePtr x)
 #  define debug_node_dealloc 0
 #endif
 
+static void mark(xmlNodePtr node)
+{
+  rb_gc_mark(DOC_RUBY_OBJECT(node->doc));
+}
+
 /* :nodoc: */
 typedef xmlNodePtr (*node_other_func)(xmlNodePtr, xmlNodePtr);
 
@@ -96,6 +101,19 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   return reparented_obj ;
 }
 
+
+/*
+ * call-seq:
+ *  document
+ *
+ * Get the document for this Node
+ */
+static VALUE document(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+  return DOC_RUBY_OBJECT(node->doc);
+}
 
 /*
  * call-seq:
@@ -787,53 +805,45 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   if(NULL != node->_private) return (VALUE)node->_private;
 
   if(RTEST(klass))
-    rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
+    rb_node = Data_Wrap_Struct(klass, mark, debug_node_dealloc, node) ;
 
-  if(!RTEST(klass)) switch(node->type)
+  else switch(node->type)
   {
     case XML_ELEMENT_NODE:
       klass = cNokogiriXmlElement;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_TEXT_NODE:
       klass = cNokogiriXmlText;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
-      break;
-    case XML_ENTITY_REF_NODE:
-      klass = cNokogiriXmlEntityReference;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
-      break;
-    case XML_COMMENT_NODE:
-      klass = cNokogiriXmlComment;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
-      break;
-    case XML_DOCUMENT_FRAG_NODE:
-      klass = cNokogiriXmlDocumentFragment;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
-      break;
-    case XML_PI_NODE:
-      klass = cNokogiriXmlProcessingInstruction;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_ATTRIBUTE_NODE:
       klass = cNokogiriXmlAttr;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
+      break;
+    case XML_ENTITY_REF_NODE:
+      klass = cNokogiriXmlEntityReference;
+      break;
+    case XML_COMMENT_NODE:
+      klass = cNokogiriXmlComment;
+      break;
+    case XML_DOCUMENT_FRAG_NODE:
+      klass = cNokogiriXmlDocumentFragment;
+      break;
+    case XML_PI_NODE:
+      klass = cNokogiriXmlProcessingInstruction;
       break;
     case XML_ENTITY_DECL:
       klass = cNokogiriXmlEntityDeclaration;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_CDATA_SECTION_NODE:
       klass = cNokogiriXmlCData;
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     case XML_DTD_NODE:
       klass = rb_const_get(mNokogiriXml, rb_intern("DTD"));
-      rb_node = Data_Wrap_Struct(klass, 0, debug_node_dealloc, node) ;
       break;
     default:
-      rb_node = Data_Wrap_Struct(cNokogiriXmlNode, 0, debug_node_dealloc, node) ;
+      klass = cNokogiriXmlNode;
   }
+
+  rb_node = Data_Wrap_Struct(klass, mark, debug_node_dealloc, node) ;
 
   node->_private = (void *)rb_node;
 
@@ -843,7 +853,6 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   }
 
   rb_ary_push(node_cache, rb_node);
-  rb_iv_set(rb_node, "@document", document);
   rb_funcall(document, rb_intern("decorate"), 1, rb_node);
 
   return rb_node ;
@@ -880,6 +889,7 @@ void init_xml_node()
 
   rb_define_method(klass, "add_namespace_definition", add_namespace_definition, 2);
   rb_define_method(klass, "node_name", get_name, 0);
+  rb_define_method(klass, "document", document, 0);
   rb_define_method(klass, "node_name=", set_name, 1);
   rb_define_method(klass, "add_child", add_child, 1);
   rb_define_method(klass, "parent", get_parent, 0);

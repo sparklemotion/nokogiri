@@ -22,17 +22,35 @@ end
 $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
 HEADER_DIRS = [
-  File.join(INCLUDEDIR, "libxml2"),
-  INCLUDEDIR,
+  # First search /opt/local for macports
+  '/opt/local/include',
+  '/opt/local/include/libxml2',
+
+  # Then search /usr/local for people that installed from source
+  '/usr/local/include',
   '/usr/local/include/libxml2',
+
+  # Check the ruby install locations
+  INCLUDEDIR,
+  File.join(INCLUDEDIR, "libxml2"),
+
+  # Finally fall back to /usr
+  '/usr/include',
   '/usr/include/libxml2',
 ]
 
 LIB_DIRS = [
-  LIBDIR,
+  # First search /opt/local for macports
   '/opt/local/lib',
+
+  # Then search /usr/local for people that installed from source
   '/usr/local/lib',
-  '/usr/lib'
+
+  # Check the ruby install locations
+  LIBDIR,
+
+  # Finally fall back to /usr
+  '/usr/lib',
 ]
 
 iconv_dirs = dir_config('iconv', '/opt/local/include', '/opt/local/lib')
@@ -79,6 +97,11 @@ end
 unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
+
+have_func('xmlRelaxNGSetParserStructuredErrors')
+have_func('xmlRelaxNGSetValidStructuredErrors')
+have_func('xmlSchemaSetValidStructuredErrors')
+have_func('xmlSchemaSetParserStructuredErrors')
 
 if ENV['CPUPROFILE']
   unless find_library('profiler', 'ProfilerEnable', *LIB_DIRS)

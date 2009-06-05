@@ -49,7 +49,8 @@ module Nokogiri
           assert_equal 'UTF-8', doc.encoding
           n = doc.xpath('//part:tire', { 'part' => 'http://schwinn.com/' }).first
           assert n
-          assert_equal doc.encoding, n.namespace.encoding.name
+          assert_equal doc.encoding, n.namespace.href.encoding.name
+          assert_equal doc.encoding, n.namespace.prefix.encoding.name
         end
 
         def test_namespace_as_hash
@@ -66,9 +67,15 @@ module Nokogiri
           doc = Nokogiri::XML(xml, nil, 'UTF-8')
           assert_equal 'UTF-8', doc.encoding
           assert n = doc.xpath('//car').first
+
+          n.namespace_definitions.each do |nd|
+            assert_equal doc.encoding, nd.href.encoding.name
+            assert_equal doc.encoding, nd.prefix.encoding.name
+          end
+
           n.namespaces.each do |k,v|
-            assert_equal doc.encoding, v.encoding.name
             assert_equal doc.encoding, k.encoding.name
+            assert_equal doc.encoding, v.encoding.name
           end
         end
       end

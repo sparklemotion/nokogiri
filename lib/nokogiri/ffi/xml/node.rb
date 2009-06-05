@@ -102,6 +102,11 @@ module Nokogiri
         rval
       end
 
+      def set_namespace(namespace)
+        LibXML.xmlSetNs(cstruct, namespace.cstruct)
+        self
+      end
+
       def attribute(name) # :nodoc:
         raise "Node#attribute not implemented yet"
       end
@@ -126,24 +131,6 @@ module Nokogiri
 
       def namespace # :nodoc:
         cstruct[:ns].null? ? nil : Namespace.wrap(cstruct.document, cstruct[:ns])
-      end
-
-      def namespaces # :nodoc:
-        ahash = {}
-        return ahash unless cstruct[:type] == ELEMENT_NODE
-        ns = cstruct[:nsDef]
-        while ! ns.null?
-          ns_cstruct = LibXML::XmlNs.new(ns)
-          prefix = ns_cstruct[:prefix]
-          key = if prefix.nil? || prefix.empty?
-                  "xmlns"
-                else
-                  "xmlns:#{prefix}"
-                end
-          ahash[key] = ns_cstruct[:href] # TODO: encoding?
-          ns = ns_cstruct[:next] # TODO: encoding?
-        end
-        ahash
       end
 
       def namespace_definitions # :nodoc:
@@ -228,7 +215,7 @@ module Nokogiri
 
       def add_namespace_definition(prefix, href) # :nodoc:
         ns = LibXML.xmlNewNs(cstruct, href, prefix)
-        LibXML.xmlSetNs(cstruct, ns)
+        LibXML.xmlSetNs(cstruct, ns) if prefix.nil?
         Namespace.wrap(cstruct.document, ns)
       end
 
@@ -297,11 +284,16 @@ module Nokogiri
 
         node.cstruct.ruby_node = node
 
-        document.node_cache[node_struct.pointer.address] = node if document
+        cache = document.instance_variable_get(:@node_cache)
+        cache << node
 
-        node.document = document
-        node.decorate!
+        node.instance_variable_set(:@document, document)
+        document.decorate(node)
         node
+      end
+
+      def document
+        cstruct.document.ruby_doc
       end
 
       private

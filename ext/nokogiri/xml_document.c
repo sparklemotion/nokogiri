@@ -258,30 +258,6 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   return rb_doc ;
 }
 
-/*
- *  call-seq:
- *    substitute_entities=(boolean)
- *
- *  Set the global XML default for substitute entities.
- */
-static VALUE substitute_entities_set(VALUE klass, VALUE value)
-{
-    xmlSubstituteEntitiesDefault(NUM2INT(value));
-    return Qnil ;
-}
-
-/*
- *  call-seq:
- *    load_external_subsets=(boolean)
- *
- *  Set the global XML default for load external subsets.
- */
-static VALUE load_external_subsets_set(VALUE klass, VALUE value)
-{
-    xmlLoadExtDtdDefaultValue = NUM2INT(value);
-    return Qnil ;
-}
-
 VALUE cNokogiriXmlDocument ;
 void init_xml_document()
 {
@@ -299,8 +275,6 @@ void init_xml_document()
   rb_define_singleton_method(klass, "read_memory", read_memory, 4);
   rb_define_singleton_method(klass, "read_io", read_io, 4);
   rb_define_singleton_method(klass, "new", new, -1);
-  rb_define_singleton_method(klass, "substitute_entities=", substitute_entities_set, 1);
-  rb_define_singleton_method(klass, "load_external_subsets=", load_external_subsets_set, 1);
 
   rb_define_method(klass, "root", root, 0);
   rb_define_method(klass, "root=", set_root, 1);

@@ -8,11 +8,6 @@ if ENV['NOKOGIRI_FFI']
   gem 'ffi', '>=0.3.2'
   require 'ffi'
   require 'nokogiri/ffi/libxml'
-elsif RUBY_PLATFORM =~/(mswin|mingw)/i
-  # Fat binary gems, you make the Rockin' world go round
-  require "nokogiri/#{RUBY_VERSION.sub(/\.\d+$/, '')}/nokogiri"
-elsif RUBY_PLATFORM =~ /java/
-  require 'nokogiri/nokogiri.jar'
 else # Both MRI and JRuby!
   require 'nokogiri/nokogiri'
 end
@@ -60,9 +55,9 @@ module Nokogiri
     def parse string, url = nil, encoding = nil, options = nil
       doc =
         if string =~ /^\s*<[^Hh>]*html/i # Probably html
-          Nokogiri::HTML.parse(string, url, encoding, options || 2145)
+          Nokogiri::HTML::Document.parse(string, url, encoding, options || 2145)
         else
-          Nokogiri::XML.parse(string, url, encoding, options || 2159)
+          Nokogiri::XML::Document.parse(string, url, encoding, options || 2159)
         end
       yield doc if block_given?
       doc

@@ -37,6 +37,8 @@ The bug tracker is available here:
 
   * http://github.com/tenderlove/nokogiri/issues
 
+The IRC channel is #nokogiri on freenode.
+
 == SYNOPSIS:
 
   require 'nokogiri'

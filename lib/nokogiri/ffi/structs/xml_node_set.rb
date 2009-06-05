@@ -19,10 +19,11 @@ module Nokogiri
         p.null? ? nil : LibXML::XmlDocumentCast.new(p)
       end
 
+      def nodeAt(index)
+        self[:nodeTab].get_pointer(LibXML.pointer_offset(index))
+      end
+
       def nodeTab
-        # TODO: think about whether we should take an argument and
-        # only return a single pointer instead of marshaling the
-        # entire array
         self[:nodeTab].read_array_of_pointer(self[:nodeNr])
       end
 

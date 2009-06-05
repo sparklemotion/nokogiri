@@ -49,6 +49,11 @@ VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 
   VALUE ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
 
+  VALUE document = DOC_RUBY_OBJECT(doc);
+
+  VALUE node_cache = rb_iv_get(document, "@node_cache");
+  rb_ary_push(node_cache, ns);
+
   rb_iv_set(ns, "@document", DOC_RUBY_OBJECT(doc));
 
   node->_private = (void *)ns;

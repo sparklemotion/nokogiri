@@ -68,12 +68,13 @@ module Nokogiri
       end
 
       def self.release ptr
+        doc = LibXML::XmlDocumentCast.new(ptr)
+        func = LibXML.xmlDeregisterNodeDefault(nil)
         begin
-          doc = LibXML::XmlDocumentCast.new(ptr)
+          ns  = LibXML::XmlNodeSetCast.new(doc[:_private].get_pointer(LibXML.pointer_offset(1)))
 
-          ns = LibXML::XmlNodeSetCast.new(doc[:_private].get_pointer(FFI.type_size(:pointer)))
           ns[:nodeNr].times do |j|
-            node_cstruct = LibXML::XmlNode.new(ns[:nodeTab].get_pointer(j * FFI.type_size(:pointer)))
+            node_cstruct = LibXML::XmlNode.new(ns[:nodeTab].get_pointer(LibXML.pointer_offset(j)))
             case node_cstruct[:type]
             when Nokogiri::XML::Node::ATTRIBUTE_NODE
               LibXML.xmlFreePropList(node_cstruct)
@@ -86,8 +87,10 @@ module Nokogiri
           LibXML.free(doc[:_private])
         rescue
           puts "Nokogiri::LibXML::XmlDocument.release: exception: '#{$!}'"
+        ensure
+          LibXML.xmlFreeDoc(ptr)
+          LibXML.xmlDeregisterNodeDefault(func)
         end
-        LibXML.xmlFreeDoc(ptr)
       end
     end
 

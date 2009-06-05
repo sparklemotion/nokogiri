@@ -1,5 +1,10 @@
 # -*- ruby -*-
 
+begin
+  require 'autotest/fsevent'
+rescue LoadError
+end
+
 Autotest.add_hook :run_command do |at|
   at.unit_diff = 'cat'
   if ENV['ONENINE']

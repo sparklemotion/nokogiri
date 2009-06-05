@@ -1,6 +1,6 @@
 module Nokogiri
   # The version of Nokogiri you are using
-  VERSION = '1.2.4'
+  VERSION = '1.3.0'
 
   # More complete version information about libxml
   VERSION_INFO = {}

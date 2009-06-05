@@ -123,4 +123,5 @@ class TestNokogiri < Nokogiri::TestCase
     doc.slop!
     assert_equal 1, doc.decorators(Nokogiri::XML::Node).select { |d| d == Nokogiri::Decorators::Slop }.size
   end
+
 end

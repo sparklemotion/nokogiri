@@ -1,7 +1,7 @@
 module Nokogiri
   module XML
     class Reader
-      
+
       attr_accessor :cstruct # :nodoc:
       attr_accessor :reader_callback # :nodoc:
 
@@ -30,7 +30,7 @@ module Nokogiri
         return nil if ptr.null?
 
         node = Node.wrap(ptr)
-        node.namespaces
+        Reader.node_namespaces(node)
       end
 
       def attribute_nodes # :nodoc:
@@ -189,6 +189,29 @@ module Nokogiri
         reader
       end
 
+      private
+
+      class << self
+        def node_namespaces(node) # :nodoc:
+          cstruct = node.cstruct
+          ahash = {}
+          return ahash unless cstruct[:type] == Node::ELEMENT_NODE
+          ns = cstruct[:nsDef]
+          while ! ns.null?
+            ns_cstruct = LibXML::XmlNs.new(ns)
+            prefix = ns_cstruct[:prefix]
+            key = if prefix.nil? || prefix.empty?
+                    "xmlns"
+                  else
+                    "xmlns:#{prefix}"
+                  end
+            ahash[key] = ns_cstruct[:href] # TODO: encoding?
+            ns = ns_cstruct[:next] # TODO: encoding?
+          end
+          ahash
+        end
+      end
+      
     end
   end
 end

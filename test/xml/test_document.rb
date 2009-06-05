@@ -64,6 +64,18 @@ module Nokogiri
         assert_instance_of klass, doc
       end
 
+      def test_subclass_parse
+        klass = Class.new(Nokogiri::XML::Document)
+        doc = klass.parse(File.read(XML_FILE))
+        assert_equal @xml.to_s, doc.to_s
+        assert_instance_of klass, doc
+      end
+
+      def test_document_parse_method
+        xml = Nokogiri::XML::Document.parse(File.read(XML_FILE))
+        assert_equal @xml.to_s, xml.to_s
+      end
+
       def test_encoding=
         @xml.encoding = 'UTF-8'
         assert_match 'UTF-8', @xml.to_xml

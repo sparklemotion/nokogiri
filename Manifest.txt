@@ -132,6 +132,7 @@ lib/nokogiri/hpricot.rb
 lib/nokogiri/html.rb
 lib/nokogiri/html/builder.rb
 lib/nokogiri/html/document.rb
+lib/nokogiri/html/document_fragment.rb
 lib/nokogiri/html/element_description.rb
 lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
@@ -206,6 +207,7 @@ test/html/sax/test_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
 test/html/test_document_encoding.rb
+test/html/test_document_fragment.rb
 test/html/test_element_description.rb
 test/html/test_named_characters.rb
 test/html/test_node.rb

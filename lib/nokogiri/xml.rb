@@ -23,15 +23,9 @@ require 'nokogiri/xml/relax_ng'
 module Nokogiri
   class << self
     ###
-    # Parse an XML file.  +thing+ may be a String, or any object that
-    # responds to _read_ and _close_ such as an IO, or StringIO.
-    # +url+ is resource where this document is located.  +encoding+ is the
-    # encoding that should be used when processing the document. +options+
-    # is a number that sets options in the parser, such as
-    # Nokogiri::XML::PARSE_RECOVER.  See the constants in
-    # Nokogiri::XML.
+    # Parse XML.  Convenience method for Nokogiri::XML::Document.parse
     def XML thing, url = nil, encoding = nil, options = 1, &block
-      Nokogiri::XML.parse(thing, url, encoding, options, &block)
+      Nokogiri::XML::Document.parse(thing, url, encoding, options, &block)
     end
   end
 
@@ -53,34 +47,15 @@ module Nokogiri
       end
 
       ###
-      # Parse an XML document.  See Nokogiri.XML.
-      def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
-
-        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
-        # Give the options to the user
-        yield options if block_given?
-
-        if string_or_io.respond_to?(:read)
-          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          return Document.read_io(string_or_io, url, encoding, options.to_i)
-        end
-
-        # read_memory pukes on empty docs
-        return Document.new if string_or_io.nil? or string_or_io.empty?
-
-        Document.read_memory(string_or_io, url, encoding, options.to_i)
+      # Parse XML.  Convenience method for Nokogiri::XML::Document.parse
+      def parse thing, url = nil, encoding = nil, options = 1, &block
+        Document.parse(thing, url, encoding, options, &block)
       end
 
-      ###
-      # Sets whether or not entities should be substituted.
-      def substitute_entities=(value = true)
-        Document.substitute_entities = value
-      end
-
-      ###
-      # Sets whether or not external subsets should be loaded
-      def load_external_subsets=(value = true)
-        Document.load_external_subsets = value
+      ####
+      # Parse a fragment from +string+ in to a NodeSet.
+      def fragment string
+        XML::DocumentFragment.parse(string)
       end
     end
   end

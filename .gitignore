@@ -14,3 +14,4 @@ stash
 tmp
 *.gemspec
 pkg
+TAGS

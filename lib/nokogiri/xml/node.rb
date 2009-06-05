@@ -77,9 +77,6 @@ module Nokogiri
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
-      # The Document associated with this Node.
-      attr_accessor :document
-
       def initialize name, document
         # ... Ya.  This is empty on purpose.
       end
@@ -304,19 +301,9 @@ module Nokogiri
         self
       end
 
-      ####
-      # Create a Nokogiri::XML::DocumentFragment from +tags+
-      def fragment tags
-        classes = document.class.name.split('::')
-        classes[-1] = 'SAX::Parser'
-
-
-        fragment = DocumentFragment.new(self.document)
-        parser = eval(classes.join('::')).new(
-          FragmentHandler.new(fragment, tags)
-        )
-        parser.parse(tags)
-        fragment
+      def fragment tags # :nodoc:
+        # TODO: deprecate?
+        document.fragment(tags)
       end
 
       ####
@@ -336,7 +323,14 @@ module Nokogiri
       # Get a hash containing the Namespace definitions for this Node
       def namespaces
         Hash[*namespace_definitions.map { |nd|
-          [nd.prefix ? "xmlns:#{nd.prefix}" : "xmlns", nd.href]
+          key = ['xmlns', nd.prefix].compact.join(':')
+          if RUBY_VERSION >= '1.9' && document.encoding
+            begin
+              key.force_encoding document.encoding
+            rescue ArgumentError
+            end
+          end
+          [key, nd.href]
         }.flatten]
       end
 

@@ -54,7 +54,19 @@ module Nokogiri
         assert_instance_of klass, doc
       end
 
-      def test_emtpy_string_returns_empty_doc
+      def test_subclass_parse
+        klass = Class.new(Nokogiri::HTML::Document)
+        doc = klass.parse(File.read(HTML_FILE))
+        assert_equal @html.to_s, doc.to_s
+        assert_instance_of klass, doc
+      end
+
+      def test_document_parse_method
+        html = Nokogiri::HTML::Document.parse(File.read(HTML_FILE))
+        assert_equal @html.to_s, html.to_s
+      end
+
+      def test_empty_string_returns_empty_doc
         doc = Nokogiri::HTML('')
       end
 
@@ -284,22 +296,6 @@ module Nokogiri
 
       def test_fragment_includes_two_tags
         assert_equal 2, Nokogiri::HTML.fragment("<br/><hr/>").children.length
-      end
-
-      def test_fragment
-        fragment = Nokogiri::HTML.fragment(<<-eohtml)
-          <div>
-            <b>Hello World</b>
-          </div>
-        eohtml
-        assert_equal 1, fragment.children.length
-        assert_equal 'div', fragment.children.first.name
-        assert_match(/Hello World/, fragment.to_html)
-
-        # libxml2 is broken in 2.6.16 and 2.6.17
-        unless [16, 17].include?(Nokogiri::LIBXML_VERSION.split('.').last.to_i)
-          assert_equal 1, fragment.css('div').length
-        end
       end
 
       def test_relative_css_finder
