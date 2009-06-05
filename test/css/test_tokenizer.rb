@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 
 module Nokogiri
@@ -6,6 +8,11 @@ module Nokogiri
       def setup
         super
         @scanner = Nokogiri::CSS::Tokenizer.new
+      end
+
+      def test_unicode
+        @scanner.scan("a日本語")
+        assert_tokens([[:IDENT, 'a日本語']], @scanner)
       end
 
       def test_tokenize_bad_single_quote
