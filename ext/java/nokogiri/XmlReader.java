@@ -172,7 +172,7 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject prefix(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return peek().getPrefix();
     }
 
     @JRubyMethod

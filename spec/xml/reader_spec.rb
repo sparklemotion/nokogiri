@@ -246,4 +246,16 @@ describe Nokogiri::XML::Reader do
 
     reader.map {|x| x.value }.should == [nil, "\n      ", nil, "snuggles!", nil, "\n    ", nil]
   end
+
+  it "should return the node's prefix" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:edi='http://ecommerce.example.org/schema'>
+      <edi:foo>hello</edi:foo>
+    </x>
+    eoxml
+
+    reader.prefix.should be_nil
+
+    reader.map { |n| n.prefix }.should == [nil, nil, "edi", nil, "edi", nil, nil]
+  end
 end

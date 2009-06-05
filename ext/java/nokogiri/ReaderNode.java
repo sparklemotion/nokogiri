@@ -22,7 +22,7 @@ import org.xml.sax.SAXParseException;
 abstract class ReaderNode {
 
     Ruby ruby;
-    IRubyObject attrs, depth, lang, localName, namespaces, qName, uri, value, xmlVersion;
+    IRubyObject attrs, depth, lang, localName, namespaces, prefix, qName, uri, value, xmlVersion;
     /*
      * Difference between attrs and attributes is that attributes map includes
      * namespaces.
@@ -130,16 +130,16 @@ abstract class ReaderNode {
         return this.namespaces;
     }
 
+    public IRubyObject getPrefix() {
+        if(this.prefix == null)
+            this.prefix = ruby.getNil();
+        return this.prefix;
+    }
+
     public IRubyObject getQName() {
         if(this.qName == null)
             this.qName = ruby.getNil();
         return this.qName;
-    }
-
-    public IRubyObject getXmlVersion() {
-        if(this.xmlVersion == null)
-            this.xmlVersion = ruby.newString("1.0");
-        return this.xmlVersion;
     }
 
     public IRubyObject getUri() {
@@ -154,6 +154,12 @@ abstract class ReaderNode {
         return this.value;
     }
 
+    public IRubyObject getXmlVersion() {
+        if(this.xmlVersion == null)
+            this.xmlVersion = ruby.newString("1.0");
+        return this.xmlVersion;
+    }
+
     public abstract RubyBoolean hasValue();
 
     public RubyBoolean isDefault(){
@@ -162,6 +168,13 @@ abstract class ReaderNode {
     }
 
     public boolean isError() { return false; }
+
+    protected IRubyObject parsePrefix(String qName) {
+        int index = qName.indexOf(':');
+        if(index != -1)
+            return ruby.newString(qName.substring(0, index));
+        return ruby.getNil();
+    }
 
     public void setLang(String lang) {
         this.lang = (lang == null) ? ruby.getNil() : ruby.newString(lang);
@@ -235,6 +248,11 @@ class ClosingNode extends ReaderNode{
     }
 
     @Override
+    public IRubyObject getPrefix() {
+        return this.node.getPrefix();
+    }
+
+    @Override
     public IRubyObject getQName() { return this.node.getQName(); }
 
     @Override
@@ -259,6 +277,7 @@ class ElementNode extends ReaderNode {
         this.uri = toRubyString(uri);
         this.localName = toRubyString(localName);
         this.qName = toRubyString(qName);
+        this.prefix = parsePrefix(qName);
         this.depth = ruby.newFixnum(depth);
         parseAttrs(attrs); // I don't know what to do with you yet, my friend.
     }
