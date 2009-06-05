@@ -743,3 +743,5 @@ Please change to Node#write_xml_to(io, :encoding => #{options})
     end
   end
 end
+
+class Nokogiri::XML::Element < Nokogiri::XML::Node ; end
