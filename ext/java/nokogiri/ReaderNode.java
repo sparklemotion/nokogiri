@@ -56,9 +56,9 @@ abstract class ReaderNode {
     }
 
     public boolean fits(String uri, String localName, String qName) {
-        return this.uri.asJavaString().equals(uri) &&
-                this.localName.asJavaString().equals(localName) &&
-                this.qName.asJavaString().equals(qName);
+        return node().uri.asJavaString().equals(uri) &&
+                node().localName.asJavaString().equals(localName) &&
+                node().qName.asJavaString().equals(qName);
     }
 
     public IRubyObject getAttributeByIndex(IRubyObject index){
@@ -66,126 +66,129 @@ abstract class ReaderNode {
         
         long i = index.convertToInteger().getLongValue();
         if(i > Integer.MAX_VALUE)
-            throw ruby.newArgumentError("value too long to be an array index");
+            throw node().ruby.newArgumentError("value too long to be an array index");
 
-        if(this.attributeValues == null){
-            return ruby.getNil();
-        } else if (i<0 ||this.attributeValues.length<=i){
-            return ruby.getNil();
+        if(node().attributeValues == null){
+            return node().ruby.getNil();
+        } else if (i<0 || node().attributeValues.length<=i){
+            return node().ruby.getNil();
         } else {
-            return this.attributeValues[(int) i];
+            return node().attributeValues[(int) i];
         }
     }
 
     public IRubyObject getAttributeByName(IRubyObject name){
-        if(this.attributes == null)
-            return ruby.getNil();
-        IRubyObject attrValue = this.attributes.get(name);
-        return (attrValue == null) ? ruby.getNil() : attrValue;
+        if(node().attributes == null)
+            return node().ruby.getNil();
+        IRubyObject attrValue = node().attributes.get(name);
+        return (attrValue == null) ? node().ruby.getNil() : attrValue;
     }
 
     public IRubyObject getAttributeByName(String name) {
-        return this.getAttributeByName(ruby.newString(name));
+        return this.getAttributeByName(node().ruby.newString(name));
     }
 
     public IRubyObject getAttributeCount(){
-        if(this.attributes == null)
-            return ruby.newFixnum(0);
-        return ruby.newFixnum(this.attributes.size());
+        if(node().attributes == null)
+            return node().ruby.newFixnum(0);
+        return node().ruby.newFixnum(node().attributes.size());
     }
 
     public IRubyObject getAttributesNodes() {
-        if(this.attrs == null)
-            this.attrs = this.ruby.newArray();
-        return this.attrs;
+        if(node().attrs == null)
+            node().attrs = node().ruby.newArray();
+        return node().attrs;
     }
 
     public IRubyObject getDepth() {
-        if(this.depth == null)
-            this.depth = ruby.newFixnum(0);
-        return this.depth;
+        if(node().depth == null)
+            node().depth = node().ruby.newFixnum(0);
+        return node().depth;
     }
 
     public IRubyObject getLang() {
-        if(this.lang == null)
-            this.lang = ruby.getNil();
-        return this.lang;
+        if(node().lang == null)
+            node().lang = node().ruby.getNil();
+        return node().lang;
     }
 
     public IRubyObject getLocalName() {
-        if(this.localName == null)
-            this.localName = ruby.getNil();
-        return this.localName;
+        if(node().localName == null)
+            node().localName = node().ruby.getNil();
+        return node().localName;
     }
 
     public IRubyObject getName() {
-        if(this.qName == null)
-            this.qName = ruby.getNil();
-        return this.qName;
+        if(node().qName == null)
+            node().qName = node().ruby.getNil();
+        return node().qName;
     }
 
     public IRubyObject getNamespaces() {
-        if(this.namespaces == null)
-            this.namespaces = ruby.getNil();
-        return this.namespaces;
+        if(node().namespaces == null)
+            node().namespaces = node().ruby.getNil();
+        return node().namespaces;
     }
 
     public IRubyObject getPrefix() {
-        if(this.prefix == null)
-            this.prefix = ruby.getNil();
-        return this.prefix;
+        if(node().prefix == null)
+            node().prefix = node().ruby.getNil();
+        return node().prefix;
     }
 
     public IRubyObject getQName() {
-        if(this.qName == null)
-            this.qName = ruby.getNil();
-        return this.qName;
+        if(node().qName == null)
+            node().qName = node().ruby.getNil();
+        return node().qName;
     }
 
     public IRubyObject getUri() {
-        if(this.uri == null)
-            this.uri = ruby.getNil();
-        return this.uri;
+        if(node().uri == null)
+            node().uri = node().ruby.getNil();
+        return node().uri;
     }
 
     public IRubyObject getValue() {
-        if(this.value == null)
-            this.value = ruby.getNil();
-        return this.value;
+        if(node().value == null)
+            node().value = node().ruby.getNil();
+        return node().value;
     }
 
     public IRubyObject getXmlVersion() {
-        if(this.xmlVersion == null)
-            this.xmlVersion = ruby.newString("1.0");
-        return this.xmlVersion;
+        if(node().xmlVersion == null)
+            node().xmlVersion = node().ruby.newString("1.0");
+        return node().xmlVersion;
     }
 
     public abstract RubyBoolean hasValue();
 
     public RubyBoolean isDefault(){
         // TODO Implement.
-        return ruby.getFalse();
+        return node().ruby.getFalse();
     }
 
     public boolean isError() { return false; }
 
+    protected ReaderNode node() { return this; }
+
     protected IRubyObject parsePrefix(String qName) {
         int index = qName.indexOf(':');
         if(index != -1)
-            return ruby.newString(qName.substring(0, index));
-        return ruby.getNil();
+            return node().ruby.newString(qName.substring(0, index));
+        return node().ruby.getNil();
     }
 
     public void setLang(String lang) {
-        this.lang = (lang == null) ? ruby.getNil() : ruby.newString(lang);
+        node().lang = (lang == null) ? node().ruby.getNil() : node().ruby.newString(lang);
     }
 
     protected IRubyObject toRubyString(String string) {
-        return (string == null) ? this.ruby.newString() : this.ruby.newString(string);
+        return (string == null) ? node().ruby.newString() : node().ruby.newString(string);
     }
 
-    public IRubyObject toSyntaxError() { return this.ruby.getNil(); }
+    public IRubyObject toSyntaxError() { return node().ruby.getNil(); }
 }
+
 
 
 class ClosingNode extends ReaderNode{
@@ -196,21 +199,6 @@ class ClosingNode extends ReaderNode{
         this.ruby = ruby;
         this.node = node;
     }
-    
-    @Override
-    public boolean fits(String uri, String localName, String qName) {
-        return this.node.fits(uri, localName, qName);
-    }
-
-    @Override
-    public IRubyObject getAttributeByIndex(IRubyObject index){
-        return this.node.getAttributeByIndex(index);
-    }
-
-    @Override
-    public IRubyObject getAttributeByName(IRubyObject name){
-        return this.node.getAttributeByName(name);
-    }
 
     @Override
     public IRubyObject getAttributeCount(){
@@ -218,57 +206,14 @@ class ClosingNode extends ReaderNode{
     }
 
     @Override
-    public IRubyObject getAttributesNodes() {
-        return this.node.getAttributesNodes();
+    public RubyBoolean hasValue() {
+        return node().hasValue();
     }
 
     @Override
-    public IRubyObject getDepth() {
-        return this.node.getDepth();
+    protected ReaderNode node() {
+        return this.node;
     }
-
-    @Override
-    public IRubyObject getLang() {
-        return this.node.getLang();
-    }
-
-    @Override
-    public IRubyObject getLocalName() {
-        return this.node.getLocalName();
-    }
-
-    @Override
-    public IRubyObject getName() {
-        return this.node.getName();
-    }
-    
-    @Override
-    public IRubyObject getNamespaces() {
-        return this.node.getNamespaces();
-    }
-
-    @Override
-    public IRubyObject getPrefix() {
-        return this.node.getPrefix();
-    }
-
-    @Override
-    public IRubyObject getQName() { return this.node.getQName(); }
-
-    @Override
-    public IRubyObject getUri() { return this.node.getUri(); }
-
-    @Override
-    public IRubyObject getValue() { return this.node.getValue(); }
-
-    @Override
-    public RubyBoolean hasValue() { return this.node.hasValue(); };
-
-    @Override
-    public RubyBoolean isDefault() { return this.node.isDefault(); }
-
-    @Override
-    public boolean isError() { return this.node.isError(); }
 }
 class ElementNode extends ReaderNode {
 
