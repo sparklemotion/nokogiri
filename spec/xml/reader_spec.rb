@@ -280,4 +280,28 @@ describe Nokogiri::XML::Reader do
                                                   nil,
                                                   nil]
   end
+
+  it "should return the node's local_name" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:edi='http://ecommerce.example.org/schema'>
+      <edi:foo>hello</edi:foo>
+    </x>
+    eoxml
+
+    reader.local_name.should be_nil
+
+    reader.map {|n| n.local_name }.should == ["x", "#text", "foo", "#text", "foo", "#text", "x"]
+  end
+
+  it "should return node's name" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:edi='http://ecommerce.example.org/schema'>
+      <edi:foo>hello</edi:foo>
+    </x>
+    eoxml
+
+    reader.name.should be_nil
+
+    reader.map { |n| n.name }.should ==["x", "#text", "edi:foo", "#text", "edi:foo", "#text", "x"]
+  end
 end
