@@ -119,7 +119,7 @@ file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   begin
     racc = `which racc`.strip
     racc = "#{::Config::CONFIG['bindir']}/racc" if racc.empty?
-    sh "#{racc} -o #{t.name} #{t.prerequisites.first}"
+    sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
   rescue
     abort "need racc, sudo gem install racc"
   end
