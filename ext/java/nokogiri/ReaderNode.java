@@ -22,7 +22,7 @@ import org.xml.sax.SAXParseException;
 abstract class ReaderNode {
 
     Ruby ruby;
-    IRubyObject attrs, depth, localName, namespaces, qName, uri, value, xmlVersion;
+    IRubyObject attrs, depth, lang, localName, namespaces, qName, uri, value, xmlVersion;
     /*
      * Difference between attrs and attributes is that attributes map includes
      * namespaces.
@@ -84,6 +84,10 @@ abstract class ReaderNode {
         return (attrValue == null) ? ruby.getNil() : attrValue;
     }
 
+    public IRubyObject getAttributeByName(String name) {
+        return this.getAttributeByName(ruby.newString(name));
+    }
+
     public IRubyObject getAttributeCount(){
         if(this.attributes == null)
             return ruby.newFixnum(0);
@@ -100,6 +104,12 @@ abstract class ReaderNode {
         if(this.depth == null)
             this.depth = ruby.newFixnum(0);
         return this.depth;
+    }
+
+    public IRubyObject getLang() {
+        if(this.lang == null)
+            this.lang = ruby.getNil();
+        return this.lang;
     }
 
     public IRubyObject getLocalName() {
@@ -153,6 +163,10 @@ abstract class ReaderNode {
 
     public boolean isError() { return false; }
 
+    public void setLang(String lang) {
+        this.lang = (lang == null) ? ruby.getNil() : ruby.newString(lang);
+    }
+
     protected IRubyObject toRubyString(String string) {
         return (string == null) ? this.ruby.newString() : this.ruby.newString(string);
     }
@@ -196,8 +210,13 @@ class ClosingNode extends ReaderNode{
     }
 
     @Override
-    public IRubyObject getDepth(){
+    public IRubyObject getDepth() {
         return this.node.getDepth();
+    }
+
+    @Override
+    public IRubyObject getLang() {
+        return this.node.getLang();
     }
 
     @Override

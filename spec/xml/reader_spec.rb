@@ -221,4 +221,17 @@ describe Nokogiri::XML::Reader do
 
     reader.map { |x| x.xml_version }.uniq.should == ['1.0']
   end
+
+  it "should retrieve the correct lang" do
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <awesome>
+      <p xml:lang="en">The quick brown fox jumps over the lazy dog.</p>
+      <p xml:lang="ja">日本語が上手です</p>
+    </awesome>
+    eoxml
+
+    reader.lang.should be_nil
+   
+    reader.map {|x| x.lang}.should == [nil, nil, "en", "en", "en", nil, "ja", "ja", "ja", nil, nil]
+  end
 end

@@ -194,7 +194,7 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject lang(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return peek().getLang();
     }
 
     @JRubyMethod
@@ -217,29 +217,34 @@ public class XmlReader extends RubyObject {
         DefaultHandler2 handler = new DefaultHandler2() {
 
             Stack<ReaderNode> nodeStack;
+            LangStack langStack;
             int depth;
 
             private void add(ReaderNode node) {
+                this.langStack.setLangToNode(node);
                 nodeQueue.add(node);
             }
 
             private void addToBoth(ReaderNode node) {
+                add(node);
                 nodeStack.push(node);
-                nodeQueue.add(node);
             }
 
             @Override
             public void characters(char[] chars, int start, int length) {
                 add( ReaderNode.createTextNode(ruby, new String(chars, start, length), depth));
+
             }
 
             @Override
             public void endElement(String uri, String localName, String qName) {
+                depth--;
                 if (nodeStack.peek().fits(uri, localName, qName)) {
-                    nodeQueue.add(nodeStack.pop().getClosingNode());
+                    ReaderNode node = nodeStack.pop().getClosingNode();
+                    this.langStack.updateStack(node);
+                    nodeQueue.add(node);
                 } else {
                 }
-                depth--;
             }
 
             @Override
@@ -256,6 +261,7 @@ public class XmlReader extends RubyObject {
 
             @Override
             public void startDocument() {
+                langStack = new LangStack();
                 nodeStack = new Stack<ReaderNode>();
                 depth = 0;
             }
@@ -284,4 +290,50 @@ public class XmlReader extends RubyObject {
     }
 
 
+}
+
+class LangStack {
+
+    Stack<Integer> depth;
+    Stack<String> lang;
+
+    public LangStack(){
+        this.depth = new Stack<Integer>();
+        this.lang = new Stack<String>();
+    }
+
+    private int currentDepth() {
+        return (this.depth.empty()) ? 0 : this.depth.peek().intValue();
+    }
+
+    private String currentLang() {
+        return (this.lang.empty()) ? null : this.lang.peek();
+    }
+
+    private void pop() {
+        if(!this.depth.empty()) this.depth.pop();
+        if(!this.lang.empty()) this.lang.pop();
+    }
+
+    public void push(int depth, String lang) {
+        this.depth.push(new Integer(depth));
+        this.lang.push(lang);
+    }
+
+    public void setLangToNode(ReaderNode node) {
+        IRubyObject langString = node.getAttributeByName("xml:lang");
+
+        if(!langString.isNil()){
+            this.depth.push(new Integer((int) node.getDepth().convertToInteger().getLongValue()));
+            this.lang.push(langString.convertToString().asJavaString());
+        }
+
+        node.setLang(currentLang());
+    }
+
+    public void updateStack(ReaderNode node) {
+        if(node.getDepth().convertToInteger().getLongValue() == currentDepth()) {
+            pop();
+        }
+    }
 }
