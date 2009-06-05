@@ -1,6 +1,7 @@
 package nokogiri;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -290,8 +291,10 @@ public class XmlReader extends RubyObject {
         try {
             XMLReader reader = XMLReaderFactory.createXMLReader();
             reader.setContentHandler(handler);
+            reader.setDTDHandler(handler);
             reader.setErrorHandler(handler);
             reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
+            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             return reader;
         } catch (SAXException saxe) {
             throw RaiseException.createNativeRaiseException(ruby, saxe);
