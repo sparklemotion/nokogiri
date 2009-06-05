@@ -29,7 +29,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   ]
 
   p.extra_dev_deps  << "racc"
-  p.extra_dev_deps  << "tenderlove-frex"
+  p.extra_dev_deps  << "rex"
   p.extra_dev_deps  << "rake-compiler"
 
   p.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
@@ -127,9 +127,9 @@ end
 
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   begin
-    sh "frex --independent -o #{t.name} #{t.prerequisites.first}"
+    sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
   rescue
-    abort "need frex, sudo gem install tenderlove-frex -s http://gems.github.com"
+    abort "need rex, sudo gem install rex"
   end
 end
 
@@ -190,15 +190,15 @@ unless windows || java || ENV['NOKOGIRI_FFI']
 end
 
 namespace :install do
-  desc "Install frex and racc for development"
-  task :deps => %w(frex racc)
+  desc "Install rex and racc for development"
+  task :deps => %w(rex racc)
 
   task :racc do |t|
     sh "sudo gem install racc"
   end
 
-  task :frex do
-    sh "sudo gem install tenderlove-frex -s http://gems.github.com"
+  task :rex do
+    sh "sudo gem install rex"
   end
 end
 

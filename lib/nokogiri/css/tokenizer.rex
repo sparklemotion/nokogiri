@@ -5,17 +5,17 @@ class GeneratedTokenizer < GeneratedParser
 macro
   nl        \n|\r\n|\r|\f
   w         [\s\r\n\f]*
-  nonascii  [^\\\\0-\\\\177]
+  nonascii  [^\0-\177]
   num       -?([0-9]+|[0-9]*\.[0-9]+)
-  unicode   \\\\\\\\\[0-9A-Fa-f]{1,6}(\r\n|[\s\n\r\t\f])?
+  unicode   \\[0-9A-Fa-f]{1,6}(\r\n|[\s\n\r\t\f])?
 
-  escape    {unicode}|\\\\\\\[^\n\r\f0-9A-Fa-f]
+  escape    {unicode}|\\[^\n\r\f0-9A-Fa-f]
   nmchar    [_A-Za-z0-9-]|{nonascii}|{escape}
   nmstart   [_A-Za-z]|{nonascii}|{escape}
   ident     [-@]?({nmstart})({nmchar})*
   name      ({nmchar})+
-  string1   "([^\n\r\f"]|\\{nl}|{nonascii}|{escape})*"
-  string2   '([^\n\r\f']|\\{nl}|{nonascii}|{escape})*'
+  string1   "([^\n\r\f"]|{nl}|{nonascii}|{escape})*"
+  string2   '([^\n\r\f']|{nl}|{nonascii}|{escape})*'
   string    {string1}|{string2}
 
 rule
