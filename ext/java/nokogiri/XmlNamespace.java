@@ -34,6 +34,17 @@ public class XmlNamespace extends RubyObject {
         this.href = (href == null) ? ruby.getNil() : ruby.newString(href);
     }
 
+    public XmlNamespace(Ruby ruby, IRubyObject prefix, IRubyObject href) {
+        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"),
+             prefix, href);
+    }
+
+    public XmlNamespace(Ruby ruby, RubyClass klazz, IRubyObject prefix, IRubyObject href) {
+        super(ruby, klazz);
+        this.prefix = prefix;
+        this.href = href;
+    }
+
     public static XmlNamespace fromNode(Ruby ruby, Node node) {
         String localName = getLocalName(node.getNodeName());
         return new XmlNamespace(ruby,

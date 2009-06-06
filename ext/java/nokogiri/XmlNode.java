@@ -46,7 +46,7 @@ public class XmlNode extends RubyObject {
     // Try not to have node, but its attributes.
     private Node node;
     private IRubyObject name, namespace_definitions, content;
-
+    
     public XmlNode(Ruby ruby, RubyClass cls){
         this(ruby,cls,null);
     }
@@ -82,6 +82,23 @@ public class XmlNode extends RubyObject {
         }
     }
 
+    protected RubyArray getNsDefinitions(Ruby ruby) {
+        if(this.namespace_definitions == null) {
+            RubyArray arr = ruby.newArray();
+            NamedNodeMap nodes = this.node.getAttributes();
+
+            for(int i = 0; i < nodes.getLength(); i++) {
+                Node n = nodes.item(i);
+                if(isNamespace(n))
+                    arr.append(XmlNamespace.fromNode(ruby, n));
+            }
+
+            this.namespace_definitions = arr;
+        }
+
+        return (RubyArray) this.namespace_definitions;
+    }
+
     public Node getNode() {
         return node;
     }
@@ -92,14 +109,20 @@ public class XmlNode extends RubyObject {
         return ((XmlNode)xmlNode).node;
     }
 
-
-
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
         XmlDocument xmlDoc = (XmlDocument)doc;
         Document document = xmlDoc.getDocument();
         Element element = document.createElement(name.convertToString().asJavaString());
-        return new XmlNode(context.getRuntime(), (RubyClass)cls, element);
+        RubyArray node_cache = (RubyArray) RuntimeHelpers.getInstanceVariable(xmlDoc,
+                                            context.getRuntime(), "@node_cache");
+
+        XmlNode node = new XmlNode(context.getRuntime(), (RubyClass)cls, element);
+
+        node_cache.append(node);
+        RuntimeHelpers.invoke(context, xmlDoc, "decorate", node);
+
+        return node;
     }
 
     @JRubyMethod
@@ -110,8 +133,12 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject add_namespace_definition(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject add_namespace_definition(ThreadContext context, IRubyObject prefix, IRubyObject href) {
+        Ruby ruby = context.getRuntime();
+        XmlNamespace ns = new XmlNamespace(ruby, prefix, href);
+
+        this.getNsDefinitions(ruby).append(ns);
+        return ns;
     }
 
     @JRubyMethod
@@ -160,21 +187,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject namespace_definitions(ThreadContext context) {
-        if(this.namespace_definitions == null) {
-            Ruby ruby = context.getRuntime();
-            NamedNodeMap nodes = this.node.getAttributes();
-            RubyArray arr = ruby.newArray();
-
-            for(int i = 0; i < nodes.getLength(); i++) {
-                Node n = nodes.item(i);
-                if(isNamespace(n))
-                    arr.append(XmlNamespace.fromNode(ruby, n));
-            }
-
-            this.namespace_definitions = arr;
-        }
-
-        return this.namespace_definitions;
+        return this.getNsDefinitions(context.getRuntime());
     }
 
     @JRubyMethod
