@@ -13,6 +13,7 @@ import org.jruby.runtime.load.BasicLibraryService;
  * @author headius
  */
 public class NokogiriService implements BasicLibraryService{
+
     public boolean basicLoad(Ruby ruby) {
         init(ruby);
         return true;
@@ -31,6 +32,7 @@ public class NokogiriService implements BasicLibraryService{
         RubyClass document = init_xml_document(ruby, xml, node);
         init_html_document(ruby, html, document);
         init_xml_dtd(ruby, xml, node);
+        init_xml_namespace(ruby, xml);
         init_xml_node_set(ruby, xml);
         init_xml_reader(ruby, xml);
         RubyClass xmlSaxParser = init_xml_sax_parser(ruby, xml);
@@ -87,6 +89,12 @@ public class NokogiriService implements BasicLibraryService{
         RubyClass xpathContext = xml.defineClassUnder("DTD", node, XML_DTD_ALLOCATOR);
 
         xpathContext.defineAnnotatedMethods(XmlDtd.class);
+    }
+
+    public static void init_xml_namespace(Ruby ruby, RubyModule xml) {
+        RubyClass namespace = xml.defineClassUnder("Namespace", ruby.getObject(), XML_NAMESPACE_ALLOCATOR);
+
+        namespace.defineAnnotatedMethods(XmlNamespace.class);
     }
 
     public static void init_xml_node(Ruby ruby, RubyClass node) {
@@ -181,6 +189,12 @@ public class NokogiriService implements BasicLibraryService{
     private static ObjectAllocator XML_DTD_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             throw runtime.newNotImplementedError("not implemented");
+        }
+    };
+
+    private static ObjectAllocator XML_NAMESPACE_ALLOCATOR = new ObjectAllocator() {
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            return new XmlNamespace(runtime, klazz);
         }
     };
 

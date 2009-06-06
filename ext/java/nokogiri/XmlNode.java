@@ -54,7 +54,8 @@ public class XmlNode extends RubyObject {
         this.node = node;
         if(node != null) {
             this.name = ruby.newString(node.getNodeName());
-            this.content = ruby.newString(node.getTextContent());
+            String textContent = node.getTextContent();
+            this.content = (textContent == null) ? ruby.newString() : ruby.newString(node.getTextContent());
         }
     }
 
