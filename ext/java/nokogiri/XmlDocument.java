@@ -26,6 +26,8 @@ public class XmlDocument extends XmlNode {
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
 
+    IRubyObject root;
+
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
         super(ruby, klass, document);
         this.document = document;
@@ -111,7 +113,9 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod
     public IRubyObject root(ThreadContext context) {
-        return XmlNode.constructNode(context.getRuntime(), document.getDocumentElement());
+        if(this.root == null)
+            this.root = XmlNode.constructNode(context.getRuntime(), document.getDocumentElement());
+        return root;
     }
 
     @JRubyMethod

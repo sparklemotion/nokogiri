@@ -11,6 +11,9 @@ import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Node;
+
+import static nokogiri.NokogiriHelpers.getLocalName;
 
 /**
  *
@@ -29,6 +32,13 @@ public class XmlNamespace extends RubyObject {
         super(ruby, klazz);
         this.prefix = (prefix == null) ? ruby.getNil() : ruby.newString(prefix);
         this.href = (href == null) ? ruby.getNil() : ruby.newString(href);
+    }
+
+    public static XmlNamespace fromNode(Ruby ruby, Node node) {
+        String localName = getLocalName(node.getNodeName());
+        return new XmlNamespace(ruby,
+                    (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"),
+                    localName, node.getNodeValue());
     }
 
     @JRubyMethod

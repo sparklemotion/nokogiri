@@ -39,11 +39,13 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import static nokogiri.NokogiriHelpers.isNamespace;
+
 public class XmlNode extends RubyObject {
     // TODO: Talk to Tom about this.
     // Try not to have node, but its attributes.
     private Node node;
-    private IRubyObject name, content;
+    private IRubyObject name, namespace_definitions, content;
 
     public XmlNode(Ruby ruby, RubyClass cls){
         this(ruby,cls,null);
@@ -89,6 +91,8 @@ public class XmlNode extends RubyObject {
         if (!(xmlNode instanceof XmlNode)) throw ruby.newTypeError(xmlNode, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
         return ((XmlNode)xmlNode).node;
     }
+
+
 
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
@@ -152,6 +156,25 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject namespace(ThreadContext context){
         throw context.getRuntime().newNotImplementedError("not implemented");
+    }
+
+    @JRubyMethod
+    public IRubyObject namespace_definitions(ThreadContext context) {
+        if(this.namespace_definitions == null) {
+            Ruby ruby = context.getRuntime();
+            NamedNodeMap nodes = this.node.getAttributes();
+            RubyArray arr = ruby.newArray();
+
+            for(int i = 0; i < nodes.getLength(); i++) {
+                Node n = nodes.item(i);
+                if(isNamespace(n))
+                    arr.append(XmlNamespace.fromNode(ruby, n));
+            }
+
+            this.namespace_definitions = arr;
+        }
+
+        return this.namespace_definitions;
     }
 
     @JRubyMethod

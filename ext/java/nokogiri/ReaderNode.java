@@ -17,6 +17,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXParseException;
 
+import static nokogiri.NokogiriHelpers.isNamespace;
+
 
 
 abstract class ReaderNode {
@@ -281,12 +283,8 @@ class ElementNode extends ReaderNode {
         this.attrs = ruby.newArray(arr);
         this.namespaces = hash.isEmpty() ? ruby.getNil() : RubyHash.newHash(ruby, hash, ruby.getNil());
     }
-
-    private boolean isNamespace(String qName) {
-        return qName.startsWith("xmlns:");
-    }
-
 }
+
 class EmptyNode extends ReaderNode {
 
     public EmptyNode(Ruby ruby) {
@@ -319,6 +317,7 @@ class ExceptionNode extends EmptyNode {
         return this.exception;
     }
 }
+
 class TextNode extends ReaderNode {
 
     public TextNode(Ruby ruby, String content, int depth) {
