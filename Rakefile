@@ -29,7 +29,7 @@ HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
   ]
 
   p.extra_dev_deps  << "racc"
-  p.extra_dev_deps  << "rex"
+  p.extra_dev_deps  << "rexical"
   p.extra_dev_deps  << "rake-compiler"
 
   p.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
@@ -129,7 +129,7 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   begin
     sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
   rescue
-    abort "need rex, sudo gem install rex"
+    abort "need rexical, sudo gem install rexical"
   end
 end
 
@@ -191,14 +191,14 @@ end
 
 namespace :install do
   desc "Install rex and racc for development"
-  task :deps => %w(rex racc)
+  task :deps => %w(rexical racc)
 
   task :racc do |t|
     sh "sudo gem install racc"
   end
 
-  task :rex do
-    sh "sudo gem install rex"
+  task :rexical do
+    sh "sudo gem install rexical"
   end
 end
 
