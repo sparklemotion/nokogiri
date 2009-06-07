@@ -8,8 +8,8 @@
 
 == DESCRIPTION:
 
-Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。Nokogiri はドキュメント
-をXPath と CSS3 セレクター経由で検索する機能が特徴のひとつ。
+Nokogiri はHTMLとXMLとSAXとXSLTとReaderのパーサーです。とりわけ重要な特徴は、
+ドキュメントをXPathやCSS3セレクター経由で探索する機能を持つことです。
 
 XMLは暴力に似ている - XMLが君の問題を解決しないとしたら、君はXMLを十分に
 使いこなしていない事になる。
