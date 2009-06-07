@@ -119,7 +119,6 @@ public class XmlNode extends RubyObject {
 
         XmlNode node = new XmlNode(context.getRuntime(), (RubyClass)cls, element);
 
-        node_cache.append(node);
         RuntimeHelpers.invoke(context, xmlDoc, "decorate", node);
 
         return node;
@@ -182,7 +181,8 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject namespace(ThreadContext context){
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return new XmlNamespace(context.getRuntime(), this.node.getPrefix(),
+                                this.node.getNamespaceURI());
     }
 
     @JRubyMethod

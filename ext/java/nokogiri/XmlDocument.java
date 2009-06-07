@@ -17,6 +17,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -31,6 +32,8 @@ public class XmlDocument extends XmlNode {
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
         super(ruby, klass, document);
         this.document = document;
+
+        setInstanceVariable("@decorators", ruby.getNil());
     }
 
     public Document getDocument() {
@@ -41,10 +44,15 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
-        /*
-         * this.document = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0");
-         */
+        XmlDocument doc = null;
+        try {
+            doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
+                       DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0").createDocument(null, null, null));
+        } catch (Exception ex) {
+            throw context.getRuntime().newRuntimeError("couldn't create document");
+        }
+
+        return doc;
     }
 
     @JRubyMethod(meta = true)

@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package nokogiri;
 
 import org.jruby.Ruby;
@@ -26,6 +21,11 @@ public class XmlNamespace extends RubyObject {
 
     public XmlNamespace(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
+    }
+
+    public XmlNamespace(Ruby ruby, String prefix, String href) {
+        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"),
+             prefix, href);
     }
 
     public XmlNamespace(Ruby ruby, RubyClass klazz, String prefix, String href) {
