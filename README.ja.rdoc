@@ -12,7 +12,7 @@ Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。Nokogiri は
 をXPath と CSS3 セレクター経由で検索する機能が特徴のひとつ。
 
 XMLは暴力に似ている - XMLが君の問題を解決しないとしたら、君はXMLを十分に
-使いこなしていない。
+使いこなしていない事になる。
 
 == FEATURES:
 
