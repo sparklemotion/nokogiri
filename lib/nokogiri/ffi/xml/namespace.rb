@@ -1,20 +1,21 @@
 module Nokogiri
   module XML
-    class Namespace # :nodoc:
+    class Namespace
+      # :stopdoc:
 
-      attr_accessor :cstruct # :nodoc:
-      attr_accessor :document # :nodoc:
+      attr_accessor :cstruct
+      attr_accessor :document
 
-      def prefix  # :nodoc:
+      def prefix
         cstruct[:prefix].nil? ? nil : cstruct[:prefix] # TODO: encoding?
       end
 
-      def href # :nodoc:
+      def href
         cstruct[:href].nil? ? nil : cstruct[:href] # TODO: encoding?
       end
 
       class << self
-        def wrap(document, node_struct) # :nodoc:
+        def wrap(document, node_struct)
           if node_struct.is_a?(FFI::Pointer)
             # cast native pointers up into a node cstruct
             return nil if node_struct.null?
@@ -27,7 +28,7 @@ module Nokogiri
           ns = Nokogiri::XML::Namespace.allocate
           ns.document = document.ruby_doc
           ns.cstruct = node_struct
-          
+
           ns.cstruct.ruby_node = ns
 
           cache = ns.document.instance_variable_get(:@node_cache)
@@ -37,6 +38,7 @@ module Nokogiri
         end
       end
 
+      # :startdoc:
     end
   end
 end
