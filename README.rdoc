@@ -1,4 +1,4 @@
-﻿= Nokogiri
+= Nokogiri
 
 * http://nokogiri.rubyforge.org/
 * http://github.com/tenderlove/nokogiri/wikis
