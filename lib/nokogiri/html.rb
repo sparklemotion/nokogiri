@@ -8,7 +8,7 @@ module Nokogiri
   class << self
     ###
     # Parse HTML.  Convenience method for Nokogiri::HTML::Document.parse
-    def HTML thing, url = nil, encoding = nil, options = 2145, &block
+    def HTML thing, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block
       Nokogiri::HTML::Document.parse(thing, url, encoding, options, &block)
     end
   end
@@ -17,7 +17,7 @@ module Nokogiri
     class << self
       ###
       # Parse HTML.  Convenience method for Nokogiri::HTML::Document.parse
-      def parse thing, url = nil, encoding = nil, options = 2145, &block
+      def parse thing, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block
         Document.parse(thing, url, encoding, options, &block)
       end
 
