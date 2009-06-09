@@ -59,7 +59,7 @@ module Nokogiri
 
       # Get the xpath for +string+ using +options+
       def xpath_for string, options={}
-        key = string + options[:ns].to_s
+        key = "#{string}#{options[:ns]}#{options[:prefix]}"
         v = self.class[key]
         return v if v
 

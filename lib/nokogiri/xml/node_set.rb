@@ -68,19 +68,51 @@ module Nokogiri
       # For more information see Nokogiri::XML::Node#css and
       # Nokogiri::XML::Node#xpath
       def search *paths
-        ns = paths.last.is_a?(Hash) ? paths.pop : document.root.namespaces
+        ns = paths.last.is_a?(Hash) ? paths.pop :
+          (document.root ? document.root.namespaces : {})
+
         sub_set = NodeSet.new(document)
-        document.decorate(sub_set)
         each do |node|
-          node.search(*(paths + [ns])).each do |sub_node|
-            sub_set << sub_node
+          paths.each do |path|
+            sub_set +=
+              send(path =~ /^(\.\/|\/)/ ? :xpath : :css, *(paths + [ns]))
           end
         end
+        document.decorate(sub_set)
         sub_set
       end
       alias :/ :search
-      alias :xpath :search
-      alias :css :search
+
+      def css *paths
+        ns = paths.last.is_a?(Hash) ? paths.pop :
+          (document.root ? document.root.namespaces : {})
+
+        sub_set = NodeSet.new(document)
+
+        xpaths = paths.map { |rule|
+          [
+            CSS.xpath_for(rule.to_s, :prefix => ".//", :ns => ns),
+            CSS.xpath_for(rule.to_s, :prefix => "self::", :ns => ns)
+          ].join(' | ')
+        }
+        each do |node|
+          sub_set += node.xpath(*(xpaths + [ns]))
+        end
+        document.decorate(sub_set)
+        sub_set
+      end
+
+      def xpath *paths
+        ns = paths.last.is_a?(Hash) ? paths.pop :
+          (document.root ? document.root.namespaces : {})
+
+        sub_set = NodeSet.new(document)
+        each do |node|
+          sub_set += node.xpath(*(paths + [ns]))
+        end
+        document.decorate(sub_set)
+        sub_set
+      end
 
       ###
       # If path is a string, search this document for +path+ returning the
