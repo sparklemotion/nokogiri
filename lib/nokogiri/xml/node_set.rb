@@ -83,6 +83,10 @@ module Nokogiri
       end
       alias :/ :search
 
+      ###
+      # Search this NodeSet for css +paths+
+      #
+      # For more information see Nokogiri::XML::Node#css
       def css *paths
         ns = paths.last.is_a?(Hash) ? paths.pop :
           (document.root ? document.root.namespaces : {})
@@ -102,6 +106,10 @@ module Nokogiri
         sub_set
       end
 
+      ###
+      # Search this NodeSet for XPath +paths+
+      #
+      # For more information see Nokogiri::XML::Node#xpath
       def xpath *paths
         ns = paths.last.is_a?(Hash) ? paths.pop :
           (document.root ? document.root.namespaces : {})
