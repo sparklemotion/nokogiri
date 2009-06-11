@@ -30,6 +30,11 @@ public class XmlXpathContext extends RubyObject {
     }
 
     @JRubyMethod
+    public IRubyObject evaluate(ThreadContext context, IRubyObject expr, IRubyObject handler) {
+        return evaluate(context, expr);
+    }
+
+    @JRubyMethod
     public IRubyObject evaluate(ThreadContext context, IRubyObject expr) {
         String src = expr.convertToString().asJavaString();
         try {
