@@ -157,6 +157,13 @@ module Nokogiri
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns:foo']
       end
 
+      def test_add_namespace_twice
+        node = @xml.at('address')
+        ns = node.add_namespace('foo', 'http://tenderlovemaking.com')
+        ns2 = node.add_namespace('foo', 'http://tenderlovemaking.com')
+        assert_equal ns, ns2
+      end
+
       def test_add_default_ns
         node = @xml.at('address')
         node.add_namespace(nil, 'http://tenderlovemaking.com')

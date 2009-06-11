@@ -66,7 +66,8 @@ module Nokogiri
         DocumentFragment.new(self, tags)
       end
 
-      undef_method :swap, :parent, :namespace
+      undef_method :swap, :parent, :namespace, :default_namespace=
+      undef_method :add_namespace_definition
 
       class << self
         ###

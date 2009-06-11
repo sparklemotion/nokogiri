@@ -2,7 +2,7 @@ module Nokogiri
   module XML
     module SAX
       class Parser
-        
+
         attr_accessor :cstruct # :nodoc:
 
         def parse_memory(data) # :nodoc:
@@ -35,7 +35,7 @@ module Nokogiri
 
         def setup_lambdas # :nodoc:
           @closures = {} # we need to keep references to the closures to avoid GC
-          
+
           [ :startDocument, :endDocument, :startElement, :endElement, :characters,
             :comment, :warning, :error, :cdataBlock, :startElementNs, :endElementNs ].each do |sym|
             @closures[sym] = lambda { |*args| send("__internal__#{sym}", *args) } # "i'm your private dancer", etc.

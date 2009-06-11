@@ -10,6 +10,18 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_document_should_not_have_default_ns
+        doc = Nokogiri::XML::Document.new
+
+        assert_raises NoMethodError do
+          doc.default_namespace = 'http://innernet.com/'
+        end
+
+        assert_raises NoMethodError do
+          doc.add_namespace_definition('foo', 'bar')
+        end
+      end
+
       def test_parse_takes_block
         options = nil
         Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|

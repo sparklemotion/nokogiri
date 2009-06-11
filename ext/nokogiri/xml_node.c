@@ -720,6 +720,14 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
       (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
   );
 
+  if(!ns) {
+    ns = xmlSearchNs(
+        node->doc,
+        node,
+        (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
+    );
+  }
+
   if(Qnil == prefix) xmlSetNs(node, ns);
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
