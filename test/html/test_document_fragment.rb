@@ -92,6 +92,20 @@ module Nokogiri
         assert_equal "<span>foo<br/></span><span>bar</span>", fragment.to_xml
       end
 
+      def test_fragment_script_tag_with_cdata
+        doc = HTML::Document.new
+        fragment = doc.fragment("<script>var foo = 'bar';</script>")
+        assert_equal("<script>var foo = 'bar';</script>",
+          fragment.to_s)
+      end
+
+      def test_fragment_with_comment
+        doc = HTML::Document.new
+        fragment = doc.fragment("<p>hello<!-- your ad here --></p>")
+        assert_equal("<p>hello<!-- your ad here --></p>",
+          fragment.to_s)
+      end
+
     end
   end
 end

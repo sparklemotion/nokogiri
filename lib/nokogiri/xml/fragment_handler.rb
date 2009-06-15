@@ -46,6 +46,14 @@ module Nokogiri
         @stack.last << Nokogiri::XML::Text.new(string, @document)
       end
 
+      def comment string
+        @stack.last << Nokogiri::XML::Comment.new(@document, string)
+      end
+
+      def cdata_block string
+        @stack.last << Nokogiri::XML::CDATA.new(@document, string)
+      end
+
       def end_element name
         return unless @stack.last.name == name
         @stack.pop
