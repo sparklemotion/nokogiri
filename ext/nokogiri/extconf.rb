@@ -1,5 +1,3 @@
-ENV["ARCHFLAGS"] = "-arch #{`uname -p` =~ /powerpc/ ? 'ppc' : 'i386'}"
-
 require 'mkmf'
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
