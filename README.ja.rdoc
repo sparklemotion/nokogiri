@@ -1,9 +1,9 @@
 = Nokogiri (鋸)
 
-* http://nokogiri.rubyforge.org/
+* http://nokogiri.org/
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
-* http://rubyforge.org/mailman/listinfo/nokogiri-talk
+* http://groups.google.com/group/nokogiri-talk
 * http://github.com/tenderlove/nokogiri/issues
 
 == DESCRIPTION:
@@ -32,7 +32,7 @@ XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPath
 
 Nokogiriのメーリングリスト:
 
-  * http://rubyforge.org/mailman/listinfo/nokogiri-talk
+  * http://groups.google.com/group/nokogiri-talk
 
 バグ報告:
 

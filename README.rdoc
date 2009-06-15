@@ -1,9 +1,9 @@
 = Nokogiri
 
-* http://nokogiri.rubyforge.org/
+* http://nokogiri.org/
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
-* http://rubyforge.org/mailman/listinfo/nokogiri-talk
+* http://groups.google.com/group/nokogiri-talk
 * http://github.com/tenderlove/nokogiri/issues
 
 == DESCRIPTION:
@@ -35,7 +35,7 @@ to using correct CSS and XPath.
 
 The Nokogiri mailing list is available here:
 
-  * http://rubyforge.org/mailman/listinfo/nokogiri-talk
+  * http://groups.google.com/group/nokogiri-talk
 
 The bug tracker is available here:
 
