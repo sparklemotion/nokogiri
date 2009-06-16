@@ -10,6 +10,10 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_clone
+        assert @xml.clone
+      end
+
       def test_document_should_not_have_default_ns
         doc = Nokogiri::XML::Document.new
 

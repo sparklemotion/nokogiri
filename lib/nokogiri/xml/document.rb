@@ -54,6 +54,7 @@ module Nokogiri
 
       alias :to_xml :serialize
       alias :inner_html :serialize
+      alias :clone :dup
 
       # Get the hash of namespaces on the root Nokogiri::XML::Node
       def namespaces
