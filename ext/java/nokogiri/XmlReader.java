@@ -138,7 +138,6 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_memory(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
-        //TODO: Do actual work.
         Ruby ruby = context.getRuntime();
         
         // Not nil allowed!
@@ -196,7 +195,7 @@ public class XmlReader extends RubyObject {
 
             this.setInstanceVariable("@errors", errors);
 
-            throw new RaiseException((XmlSyntaxError) peek().toSyntaxError()); //TODO: ask Tom if this is ok.
+            throw new RaiseException((XmlSyntaxError) peek().toSyntaxError());
         } else {
             return this;
         }

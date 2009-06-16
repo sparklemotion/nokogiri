@@ -86,6 +86,9 @@ public class XmlNode extends RubyObject {
     }
 
     protected IRubyObject getFromInternalCache(ThreadContext context, Node node) {
+
+        if(node == null) return context.getRuntime().getNil();
+
         IRubyObject res = this.internalCache.get(node);
 
         if(res == null) {
@@ -214,6 +217,12 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject namespace_definitions(ThreadContext context) {
         return this.getNsDefinitions(context.getRuntime());
+    }
+
+    @JRubyMethod(name="namespaced_key?")
+    public IRubyObject namespaced_key_p(ThreadContext context, IRubyObject elementLName, IRubyObject namespaceUri) {
+        return this.attribute_with_ns(context, elementLName, namespaceUri).isNil() ?
+            context.getRuntime().getFalse() : context.getRuntime().getTrue();
     }
 
     @JRubyMethod
