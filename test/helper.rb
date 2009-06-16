@@ -23,6 +23,7 @@ module Nokogiri
     PO_SCHEMA_FILE  = File.join(ASSETS_DIR, 'po.xsd')
     ADDRESS_SCHEMA_FILE = File.join(ASSETS_DIR, 'address_book.rlx')
     ADDRESS_XML_FILE = File.join(ASSETS_DIR, 'address_book.xml')
+    SNUGGLES_FILE   = File.join(ASSETS_DIR, 'snuggles.xml')
 
     unless RUBY_VERSION >= '1.9'
       undef :default_test
