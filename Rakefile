@@ -187,6 +187,13 @@ unless windows || java || ENV['NOKOGIRI_FFI']
   ['valgrind', 'valgrind_mem', 'valgrind_mem0', 'coverage'].each do |task_name|
     Rake::Task["test:#{task_name}"].prerequisites << :compile
   end
+else
+  [:test, :check_manifest].each do |task_name|
+    if Rake::Task[task_name]
+      Rake::Task[task_name].prerequisites << GENERATED_PARSER
+      Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
+    end
+  end
 end
 
 namespace :install do
