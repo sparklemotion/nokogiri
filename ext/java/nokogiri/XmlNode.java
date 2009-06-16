@@ -3,6 +3,7 @@ package nokogiri;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,10 +43,9 @@ import org.xml.sax.SAXException;
 import static nokogiri.NokogiriHelpers.isNamespace;
 
 public class XmlNode extends RubyObject {
-    // TODO: Talk to Tom about this.
-    // Try not to have node, but its attributes.
     private Node node;
-    private IRubyObject name, namespace_definitions, content;
+    private IRubyObject content, doc, name, namespace_definitions;
+    private Hashtable<Node,IRubyObject> internalCache;
     
     public XmlNode(Ruby ruby, RubyClass cls){
         this(ruby,cls,null);
@@ -54,6 +54,7 @@ public class XmlNode extends RubyObject {
     public XmlNode(Ruby ruby, RubyClass cls, Node node) {
         super(ruby, cls);
         this.node = node;
+        this.internalCache = new Hashtable<Node,IRubyObject>();
         if(node != null) {
             this.name = ruby.newString(node.getNodeName());
             String textContent = node.getTextContent();
@@ -80,6 +81,17 @@ public class XmlNode extends RubyObject {
             default:
                 return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"), node);
         }
+    }
+
+    protected IRubyObject getFromInternalCache(ThreadContext context, Node node) {
+        IRubyObject res = this.internalCache.get(node);
+
+        if(res == null) {
+            res = XmlNode.constructNode(context.getRuntime(), node);
+            this.internalCache.put(node, res);
+        }
+
+        return res;
     }
 
     protected RubyArray getNsDefinitions(Ruby ruby) {
@@ -111,15 +123,17 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
+
         XmlDocument xmlDoc = (XmlDocument)doc;
         Document document = xmlDoc.getDocument();
         Element element = document.createElement(name.convertToString().asJavaString());
-        RubyArray node_cache = (RubyArray) RuntimeHelpers.getInstanceVariable(xmlDoc,
-                                            context.getRuntime(), "@node_cache");
 
         XmlNode node = new XmlNode(context.getRuntime(), (RubyClass)cls, element);
-
+        node.doc = doc;
+        
         RuntimeHelpers.invoke(context, xmlDoc, "decorate", node);
+
+        xmlDoc.cacheNode(element, node);
 
         return node;
     }
@@ -138,6 +152,16 @@ public class XmlNode extends RubyObject {
 
         this.getNsDefinitions(ruby).append(ns);
         return ns;
+    }
+
+    @JRubyMethod
+    public IRubyObject attribute_with_ns(ThreadContext context, IRubyObject name, IRubyObject namespace) {
+        String namej = name.convertToString().asJavaString();
+        String nsj = (namespace.isNil()) ? null : namespace.convertToString().asJavaString();
+
+        Node el = this.node.getAttributes().getNamedItemNS(nsj, namej);
+
+        return this.getFromInternalCache(context, el);
     }
 
     @JRubyMethod

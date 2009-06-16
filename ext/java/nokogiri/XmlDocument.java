@@ -2,6 +2,7 @@ package nokogiri;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,6 +17,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.xml.sax.EntityResolver;
@@ -26,6 +28,7 @@ public class XmlDocument extends XmlNode {
     private Document document;
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
+    private Hashtable<Node, XmlNode> hashNode;
 
     IRubyObject root;
 
@@ -33,14 +36,21 @@ public class XmlDocument extends XmlNode {
         super(ruby, klass, document);
         this.document = document;
 
+        this.hashNode = new Hashtable<Node, XmlNode>();
         setInstanceVariable("@decorators", ruby.getNil());
+    }
+
+    public void cacheNode(Node element, XmlNode node) {
+        this.hashNode.put(element, node);
+    }
+
+    public IRubyObject getCachedNode(Node element) {
+        return this.hashNode.get(element);
     }
 
     public Document getDocument() {
         return document;
     }
-    
-    
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
