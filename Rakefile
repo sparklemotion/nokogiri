@@ -1,11 +1,8 @@
 # -*- ruby -*-
 
 require 'rubygems'
-require 'rake'
+gem 'hoe', '>= 2.1.0'
 require 'hoe'
-
-LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
-$LOAD_PATH << LIB_DIR
 
 windows = RUBY_PLATFORM =~ /(mswin|mingw)/i ? true : false
 java = RUBY_PLATFORM =~ /java/ ? true : false
@@ -13,30 +10,27 @@ java = RUBY_PLATFORM =~ /java/ ? true : false
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 
-require 'nokogiri/version'
-
-HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
-  p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
-  p.developer('Mike Dalessio', 'mike.dalessio@gmail.com')
-  p.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
-  p.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
-  p.extra_rdoc_files  = FileList['*.rdoc']
-  p.clean_globs = [
+HOE = Hoe.spec 'nokogiri' do
+  developer('Aaron Patterson', 'aaronp@rubyforge.org')
+  developer('Mike Dalessio', 'mike.dalessio@gmail.com')
+  self.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
+  self.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
+  self.extra_rdoc_files  = FileList['*.rdoc']
+  self.clean_globs = [
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
     'cross',
   ]
 
-  p.extra_dev_deps  << "racc"
-  p.extra_dev_deps  << "rexical"
-  p.extra_dev_deps  << "rake-compiler"
+  extra_dev_deps  << "racc"
+  extra_dev_deps  << "rexical"
+  extra_dev_deps  << "rake-compiler"
 
-  p.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
+  self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
 
 unless java
-
   gem 'rake-compiler', '>= 0.4.1'
   require "rake/extensiontask"
 
