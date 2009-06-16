@@ -215,6 +215,10 @@ module Nokogiri
 
       def add_namespace_definition(prefix, href) # :nodoc:
         ns = LibXML.xmlNewNs(cstruct, href, prefix)
+        if ns.null?
+          ns = LibXML.xmlSearchNs(cstruct.document, cstruct,
+            prefix.nil? ? nil : prefix.to_s)
+        end
         LibXML.xmlSetNs(cstruct, ns) if prefix.nil?
         Namespace.wrap(cstruct.document, ns)
       end

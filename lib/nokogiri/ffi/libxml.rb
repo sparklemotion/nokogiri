@@ -118,6 +118,7 @@ module Nokogiri
     attach_function :xmlStringGetNodeList, [:pointer, :pointer], :pointer # second arg should be a :string, but we only ship the results of xmlEncodeEntitiesReentrant, so let's optimize.
     attach_function :xmlNewNs, [:pointer, :string, :string], :pointer
     attach_function :xmlNewNsProp, [:pointer, :pointer, :string, :string], :pointer
+    attach_function :xmlSearchNs, [:pointer, :pointer, :string], :pointer
     attach_function :xmlSearchNsByHref, [:pointer, :pointer, :string], :pointer
     attach_function :xmlGetIntSubset, [:pointer], :pointer
     attach_function :xmlBufferCreate, [], :pointer
