@@ -66,6 +66,8 @@ public class XmlNode extends RubyObject {
         if (node == null) return ruby.getNil();
         // this is slow; need a way to cache nokogiri classes/modules somewhere
         switch (node.getNodeType()) {
+            case Node.ATTRIBUTE_NODE:
+                return new XmlAttr(ruby, node);
             case Node.TEXT_NODE:
                 return new XmlText(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Text"), node);
             case Node.COMMENT_NODE:
