@@ -22,7 +22,8 @@ module Nokogiri
       private :validate_document
 
       def self.read_memory(content) # :nodoc:
-        ctx = LibXML.xmlSchemaNewMemParserCtxt(content, content.length)
+        content_copy = FFI::MemoryPointer.from_string(content)
+        ctx = LibXML.xmlSchemaNewMemParserCtxt(content_copy, content.length)
 
         errors = []
 
