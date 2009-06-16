@@ -4,8 +4,8 @@ require 'rubygems'
 gem 'hoe', '>= 2.1.0'
 require 'hoe'
 
-windows = RUBY_PLATFORM =~ /(mswin|mingw)/i ? true : false
-java = RUBY_PLATFORM =~ /java/ ? true : false
+windows = RUBY_PLATFORM =~ /(mswin|mingw)/i
+java    = RUBY_PLATFORM =~ /java/
 
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
@@ -23,9 +23,9 @@ HOE = Hoe.spec 'nokogiri' do
     'cross',
   ]
 
-  extra_dev_deps  << "racc"
-  extra_dev_deps  << "rexical"
-  extra_dev_deps  << "rake-compiler"
+  %w{ racc rexical rake-compiler }.each do |dep|
+    extra_dev_deps << dep
+  end
 
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
