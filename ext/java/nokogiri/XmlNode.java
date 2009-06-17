@@ -106,8 +106,9 @@ public class XmlNode extends RubyObject {
 
             for(int i = 0; i < nodes.getLength(); i++) {
                 Node n = nodes.item(i);
-                if(isNamespace(n))
+                if(isNamespace(n)) {
                     arr.append(XmlNamespace.fromNode(ruby, n));
+                }
             }
 
             this.namespace_definitions = arr;
@@ -425,13 +426,15 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject internal_subset(ThreadContext context) {
-        if(this.node.getOwnerDocument() == null)
+        if(this.node.getOwnerDocument() == null) {
             return context.getRuntime().getNil();
+        }
 
         String dtd = this.node.getOwnerDocument().getDoctype().getInternalSubset();
 
-        if(dtd == null)
+        if(dtd == null) {
             return context.getRuntime().getNil();
+        }
 
         return RubyString.newString(context.getRuntime(), dtd);
     }
@@ -464,8 +467,9 @@ public class XmlNode extends RubyObject {
     public IRubyObject attribute(ThreadContext context, IRubyObject name){
         NamedNodeMap attrs = this.node.getAttributes();
         Node attr = attrs.getNamedItem(name.convertToString().asJavaString());
-        if(attr == null)
+        if(attr == null) {
             return  context.getRuntime().getNil();
+        }
         return constructNode(context.getRuntime(), attr);
     }
 

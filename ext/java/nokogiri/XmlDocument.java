@@ -131,8 +131,9 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod
     public IRubyObject root(ThreadContext context) {
-        if(this.root == null)
+        if(this.root == null) {
             this.root = XmlNode.constructNode(context.getRuntime(), document.getDocumentElement());
+        }
         return root;
     }
 

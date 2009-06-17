@@ -59,10 +59,13 @@ abstract class ReaderNode {
 
     public boolean fits(String uri, String localName, String qName) {
         boolean uriFits = true;
-        if(!node().uri.isNil())
+        
+        if(!node().uri.isNil()) {
             uriFits = node().uri.asJavaString().equals(uri);
-        else
+        } else {
             uriFits = uri.equals(uri);
+        }
+
         return  uriFits &&
                 node().localName.asJavaString().equals(localName) &&
                 node().qName.asJavaString().equals(qName);
@@ -72,8 +75,9 @@ abstract class ReaderNode {
         if(index.isNil()) return index;
         
         long i = index.convertToInteger().getLongValue();
-        if(i > Integer.MAX_VALUE)
+        if(i > Integer.MAX_VALUE) {
             throw node().ruby.newArgumentError("value too long to be an array index");
+        }
 
         if(node().attributeValues == null){
             return node().ruby.getNil();
@@ -85,8 +89,10 @@ abstract class ReaderNode {
     }
 
     public IRubyObject getAttributeByName(IRubyObject name){
-        if(node().attributes == null)
+        if(node().attributes == null) {
             return node().ruby.getNil();
+        }
+
         IRubyObject attrValue = node().attributes.get(name);
         return (attrValue == null) ? node().ruby.getNil() : attrValue;
     }
@@ -96,80 +102,96 @@ abstract class ReaderNode {
     }
 
     public IRubyObject getAttributeCount(){
-        if(node().attributes == null)
+        if(node().attributes == null) {
             return node().ruby.newFixnum(0);
+        }
+
         return node().ruby.newFixnum(node().attributes.size());
     }
 
     public IRubyObject getAttributesNodes() {
-        if(node().attrs == null)
+        if(node().attrs == null) {
             node().attrs = node().ruby.newArray();
+        }
         return node().attrs;
     }
 
     public IRubyObject getDepth() {
-        if(node().depth == null)
+        if(node().depth == null) {
             node().depth = node().ruby.newFixnum(0);
+        }
+
         return node().depth;
     }
 
     public IRubyObject getLang() {
-        if(node().lang == null)
+        if(node().lang == null) {
             node().lang = node().ruby.getNil();
+        }
+
         return node().lang;
     }
 
     public IRubyObject getLocalName() {
-        if(node().localName == null)
+        if(node().localName == null) {
             node().localName = node().ruby.getNil();
+        }
         return node().localName;
     }
 
     public IRubyObject getName() {
-        if(node().qName == null)
+        if(node().qName == null) {
             node().qName = node().ruby.getNil();
+        }
         return node().qName;
     }
 
     public IRubyObject getNamespaces() {
-        if(node().namespaces == null)
+        if(node().namespaces == null) {
             node().namespaces = node().ruby.getNil();
+        }
         return node().namespaces;
     }
 
     public IRubyObject getPrefix() {
-        if(node().prefix == null)
+        if(node().prefix == null) {
             node().prefix = node().ruby.getNil();
+        }
         return node().prefix;
     }
 
     public IRubyObject getQName() {
-        if(node().qName == null)
+        if(node().qName == null) {
             node().qName = node().ruby.getNil();
+        }
         return node().qName;
     }
 
     public IRubyObject getUri() {
-        if(node().uri == null)
+        if(node().uri == null) {
             node().uri = node().ruby.getNil();
+        }
         return node().uri;
     }
 
     public IRubyObject getValue() {
-        if(node().value == null)
+        if(node().value == null) {
             node().value = node().ruby.getNil();
+        }
         return node().value;
     }
 
     public IRubyObject getXmlVersion() {
-        if(node().xmlVersion == null)
+        if(node().xmlVersion == null) {
             node().xmlVersion = node().ruby.newString("1.0");
+        }
         return node().xmlVersion;
     }
 
     public RubyBoolean hasAttributes() {
-        if (node().attributes == null)
+        if (node().attributes == null) {
             return node().ruby.getFalse();
+        }
         return node().attributes.isEmpty() ? node().ruby.getFalse() : node().ruby.getTrue();
     }
 
@@ -186,8 +208,9 @@ abstract class ReaderNode {
 
     protected IRubyObject parsePrefix(String qName) {
         int index = qName.indexOf(':');
-        if(index != -1)
+        if(index != -1) {
             return node().ruby.newString(qName.substring(0, index));
+        }
         return node().ruby.getNil();
     }
 

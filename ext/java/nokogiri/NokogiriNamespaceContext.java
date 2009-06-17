@@ -14,16 +14,18 @@ public class NokogiriNamespaceContext implements NamespaceContext{
     }
 
     public String getNamespaceURI(String prefix){
-        if(prefix == null)
+        if(prefix == null) {
             throw new IllegalArgumentException();
-        else if(prefix.equals(XMLConstants.XML_NS_PREFIX))
+        } else if(prefix.equals(XMLConstants.XML_NS_PREFIX)) {
             return XMLConstants.XML_NS_URI;
-        else if(prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
+        } else if(prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
+        }
 
         String uri = this.register.get(prefix);
-        if(uri != null)
+        if(uri != null) {
             return uri;
+        }
 
         return XMLConstants.NULL_NS_URI;
     }
