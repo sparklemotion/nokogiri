@@ -84,7 +84,7 @@ module Nokogiri
           LibXML.xmlSetStructuredErrorFunc(nil, SyntaxError.error_array_pusher(error_list))
 
           ptr = yield
-          
+
           LibXML.xmlSetStructuredErrorFunc(nil, nil)
 
           if ptr.null?

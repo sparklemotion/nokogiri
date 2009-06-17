@@ -32,6 +32,14 @@ module Nokogiri
       end
 
       ###
+      # Validate this Document against it's DTD.  Returns a list of errors on
+      # the document or +nil+ when there is no DTD.
+      def validate
+        return nil unless internal_subset
+        internal_subset.validate self
+      end
+
+      ###
       # Explore a document with shortcut methods.
       def slop!
         unless decorators(XML::Node).include? Nokogiri::Decorators::Slop

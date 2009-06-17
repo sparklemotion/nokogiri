@@ -1,5 +1,9 @@
 === HEAD
 
+* New Features
+
+  * Nokogiri::XML::DTD#validate will validate your document
+
 * Bugfixes
 
   * Nokogiri::XML::NodeSet#search will search top level nodes. GH #73

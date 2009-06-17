@@ -10,6 +10,15 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_validate
+        assert_equal 44, @xml.validate.length
+      end
+
+      def test_validate_no_internal_subset
+        doc = Nokogiri::XML('<test/>')
+        assert_nil doc.validate
+      end
+
       def test_clone
         assert @xml.clone
       end

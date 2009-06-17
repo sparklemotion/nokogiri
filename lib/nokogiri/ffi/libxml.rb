@@ -127,6 +127,11 @@ module Nokogiri
     attach_function :xmlNewDocProp, [:pointer, :string, :string], :pointer
     attach_function :xmlFreePropList, [:pointer], :void
 
+    # valid.c
+    attach_function :xmlNewValidCtxt, [], :pointer
+    attach_function :xmlValidateDtd, [:pointer, :pointer, :pointer], :int
+    attach_function :xmlFreeValidCtxt, [:pointer], :void
+
     # xmlsave.c
     attach_function :xmlDocDumpMemory, [:pointer, :pointer, :pointer], :void
     attach_function :xmlNodeDump, [:pointer, :pointer, :pointer, :int, :int], :int

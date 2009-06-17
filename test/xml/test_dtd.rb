@@ -1,12 +1,17 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 
 module Nokogiri
-  module HTML
+  module XML
     class TestDTD < Nokogiri::TestCase
       def setup
         super
         @xml = Nokogiri::XML(File.open(XML_FILE))
         assert @dtd = @xml.internal_subset
+      end
+
+      def test_validate
+        list = @xml.internal_subset.validate @xml
+        assert_equal 44, list.length
       end
 
       def test_external_subsets

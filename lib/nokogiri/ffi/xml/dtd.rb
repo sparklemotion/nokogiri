@@ -1,16 +1,30 @@
 module Nokogiri
   module XML
     class DTD < Node
-      
-      def elements # :nodoc:
+      # :stopdoc:
+      def validate document
+        error_list = []
+        ctxt = LibXML.xmlNewValidCtxt
+
+        LibXML.xmlSetStructuredErrorFunc(nil, SyntaxError.error_array_pusher(error_list))
+        LibXML.xmlValidateDtd ctxt, document.cstruct, cstruct
+
+        LibXML.xmlSetStructuredErrorFunc nil, nil
+
+        LibXML.xmlFreeValidCtxt ctxt
+
+        error_list
+      end
+
+      def elements
         internal_attributes :elements
       end
 
-      def entities # :nodoc:
+      def entities
         internal_attributes :entities
       end
 
-      def notations # :nodoc:
+      def notations
         attr_ptr = cstruct[:notations]
         return nil if attr_ptr.null?
 
@@ -24,8 +38,9 @@ module Nokogiri
         ahash
       end
 
-    private
-      def internal_attributes(attr_name) # :nodoc:
+      private
+
+      def internal_attributes attr_name
         attr_ptr = cstruct[attr_name.to_sym]
         return nil if attr_ptr.null?
 
@@ -37,6 +52,7 @@ module Nokogiri
         ahash
       end
 
+      # :startdoc:
     end
   end
 end
