@@ -52,19 +52,19 @@ LIB_DIRS = [
 ]
 
 iconv_dirs = dir_config('iconv', '/opt/local/include', '/opt/local/lib')
-unless [nil, nil] == iconv_dirs
+unless ["", ""] == iconv_dirs
   HEADER_DIRS.unshift iconv_dirs.first
   LIB_DIRS.unshift iconv_dirs[1]
 end
 
 xml2_dirs = dir_config('xml2', '/opt/local/include/libxml2', '/opt/local/lib')
-unless [nil, nil] == xml2_dirs
+unless ["", ""] == xml2_dirs
   HEADER_DIRS.unshift xml2_dirs.first
   LIB_DIRS.unshift xml2_dirs[1]
 end
 
 xslt_dirs = dir_config('xslt', '/opt/local/include/', '/opt/local/lib')
-unless [nil, nil] == xslt_dirs
+unless ["", ""] == xslt_dirs
   HEADER_DIRS.unshift xslt_dirs.first
   LIB_DIRS.unshift xslt_dirs[1]
 end
@@ -81,10 +81,9 @@ def nokogiri_find_header header_file, *paths
         opt = "-I#{dir}".quote
         if try_cpp header, opt
           unless CUSTOM_DASH_I.include? dir
-            $INCFLAGS << " " << opt
+            $INCFLAGS = "#{opt} #{$INCFLAGS}"
             CUSTOM_DASH_I << dir
           end
-          found = dir
           break
         end
       end
