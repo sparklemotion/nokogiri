@@ -15,6 +15,12 @@ module Nokogiri
           assert @parser.document.errors.length > 0
         end
 
+        def test_start_is_called_without_namespace
+          @parser.parse('<foo:f><bar></foo:f>')
+          assert_equal ['f', 'bar'],
+            @parser.document.start_elements.map { |x| x.first }
+        end
+
         def test_parser_sets_encoding
           parser = XML::SAX::Parser.new(Doc.new, 'UTF-8')
           assert_equal 'UTF-8', parser.encoding

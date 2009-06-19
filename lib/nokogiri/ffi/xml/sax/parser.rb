@@ -124,8 +124,7 @@ module Nokogiri
           @document.start_element_ns(localname, attr_hash, prefix, uri, ns_hash)
 
           if @document.respond_to?(:start_element)
-            name = prefix ? "#{prefix}:#{localname}" : localname
-            @document.start_element(name, attr_hash.to_a.flatten)
+            @document.start_element(localname, attr_hash.to_a.flatten)
           end
         end
 
@@ -137,8 +136,7 @@ module Nokogiri
           @document.end_element_ns(localname, prefix, uri)
 
           if @document.respond_to?(:end_element)
-            name = prefix ? "#{prefix}:#{localname}" : localname
-            @document.end_element(name)
+            @document.end_element(localname)
           end
         end
 

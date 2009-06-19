@@ -96,8 +96,8 @@ module Nokogiri
         # +attrs+ is a hash of attributes
         # +prefix+ is the namespace prefix for the element
         # +uri+ is the associated namespace URI
-        # +namespaces+ is a hash of namespace prefix:urls associated with the element
-        def start_element_ns(name, attrs = {}, prefix = nil, uri = nil, namespaces = {})
+        # +ns+ is a hash of namespace prefix:urls associated with the element
+        def start_element_ns name, attrs = {}, prefix = nil, uri = nil, ns = {}
         end
 
         ###
@@ -105,7 +105,7 @@ module Nokogiri
         # +name+ is the element's name
         # +prefix+ is the namespace prefix associated with the element
         # +uri+ is the associated namespace URI
-        def end_element_ns(name, prefix = nil, uri = nil)
+        def end_element_ns name, prefix = nil, uri = nil
         end
 
         ###

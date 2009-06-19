@@ -15,8 +15,8 @@ module XSD # :nodoc:
     #   require 'rubygems'
     #   gem 'soap4r'
     #   require 'nokogiri'
-    #   require 'xsd/xmlparser/nokogiri'
     #   require 'defaultDriver'
+    #   require 'xsd/xmlparser/nokogiri'
     #
     #   obj = AvlPortType.new
     #   obj.getLatestByRoute(obj.getAgencies, 8).each do |event|
@@ -36,10 +36,18 @@ module XSD # :nodoc:
         @parser.parse(string_or_readable)
       end
 
+      def start_element_ns *args
+        p args
+      end
+
       ###
       # Handle the start_element event with +name+ and +attrs+
       def start_element name, attrs = []
-        super(name, Hash[*attrs])
+        super(name, Hash[*attrs.flatten])
+      end
+
+      def end_element name
+        super
       end
 
       ###
@@ -55,7 +63,7 @@ module XSD # :nodoc:
         characters string
       end
 
-      %w{ start_document end_document comment }.each do |name|
+      %w{ start_document start_element_ns end_element_ns end_document comment }.each do |name|
         class_eval %{ def #{name}(*args); end }
       end
       add_factory(self)

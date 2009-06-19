@@ -171,17 +171,8 @@ start_element_ns (
   /* Call start element if it's there' */
   if (rb_respond_to(doc, rb_intern("start_element")))
   {
-    VALUE name;
-    if (prefix)
-    {
-      name = NOKOGIRI_STR_NEW2(prefix, RTEST(enc) ? StringValuePtr(enc) : NULL);
-      rb_funcall(name, rb_intern("<<"), 1, NOKOGIRI_STR_NEW2(":", RTEST(enc) ? StringValuePtr(enc) : NULL));
-      rb_funcall(name, rb_intern("<<"), 1, NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL));
-    }
-    else
-    {
-      name = NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL);
-    }
+    VALUE name =
+      NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL);
     VALUE attrArray = rb_funcall(attrHash, rb_intern("to_a"), 0);
     attrArray = rb_funcall(attrArray, rb_intern("flatten"), 0);
     rb_funcall(doc, rb_intern("start_element"), 2, name, attrArray);
@@ -212,17 +203,8 @@ end_element_ns (
   /* Call end element for old-times sake */
   if (rb_respond_to(doc, rb_intern("end_element")))
   {
-    VALUE name;
-    if (prefix)
-    {
-      name = NOKOGIRI_STR_NEW2(prefix, RTEST(enc) ? StringValuePtr(enc) : NULL);
-      rb_funcall(name, rb_intern("<<"), 1, NOKOGIRI_STR_NEW2(":", RTEST(enc) ? StringValuePtr(enc) : NULL));
-      rb_funcall(name, rb_intern("<<"), 1, NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL));
-    }
-    else
-    {
-      name = NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL);
-    }
+    VALUE name =
+      NOKOGIRI_STR_NEW2(localname, RTEST(enc) ? StringValuePtr(enc) : NULL);
     rb_funcall(doc, rb_intern("end_element"), 1, name);
   }
 
