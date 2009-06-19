@@ -13,15 +13,16 @@ module XSD # :nodoc:
     # Example (using UW ITS Web Services):
     #
     #   require 'rubygems'
-    #   gem 'soap4r'
     #   require 'nokogiri'
+    #   gem 'soap4r'
     #   require 'defaultDriver'
     #   require 'xsd/xmlparser/nokogiri'
-    #
+    #   
     #   obj = AvlPortType.new
-    #   obj.getLatestByRoute(obj.getAgencies, 8).each do |event|
-    #     ...
+    #   obj.getLatestByRoute(obj.getAgencies.item, 8).item.each do |bus|
+    #     p "#{bus.routeID}, #{bus.longitude}, #{bus.latitude}"
     #   end
+    #
     class Nokogiri < XSD::XMLParser::Parser
       ###
       # Create a new XSD parser with +host+ and +opt+
