@@ -142,7 +142,7 @@ namespace :test do
     directories = ENV['MULTIXML2_DIR'] ? [ENV['MULTIXML2_DIR']] : Dir[File.join(MULTI_XML, 'install', '*')]
     directories.sort.reverse.each do |xml2_version|
       next unless xml2_version =~ /libxml2/
-      extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib --with-xslt-dir=#{libxslt}"
+      extopts = "--with-xml2-include=#{xml2_version}/include/libxml2 --with-xml2-lib=#{xml2_version}/lib --with-xslt-dir=#{libxslt} --with-iconv-dir=/usr"
       cmd = "#{$0} clean test EXTOPTS='#{extopts}' LD_LIBRARY_PATH='#{xml2_version}/lib'"
 
       version = File.basename(xml2_version)

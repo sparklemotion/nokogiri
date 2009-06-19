@@ -69,18 +69,43 @@ unless [nil, nil] == xslt_dirs
   LIB_DIRS.unshift xslt_dirs[1]
 end
 
-unless find_header('iconv.h', *HEADER_DIRS)
+CUSTOM_DASH_I = []
+
+def nokogiri_find_header header_file, *paths
+  message = checking_message(header_file, paths)
+  header = cpp_include header_file
+  checking_for message do
+    found = false
+    paths.each do |dir|
+      if File.exists?(File.join(dir, header_file))
+        opt = "-I#{dir}".quote
+        if try_cpp header, opt
+          unless CUSTOM_DASH_I.include? dir
+            $INCFLAGS << " " << opt
+            CUSTOM_DASH_I << dir
+          end
+          found = dir
+          break
+        end
+      end
+    end
+    found ||= try_cpp(header)
+  end
+end
+
+unless nokogiri_find_header('iconv.h', *HEADER_DIRS)
   abort "iconv is missing.  try 'port install iconv' or 'yum install iconv'"
 end
 
-unless find_header('libxml/parser.h', *HEADER_DIRS)
+unless nokogiri_find_header('libxml/parser.h', *HEADER_DIRS)
   abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2-devel'"
 end
 
-unless find_header('libxslt/xslt.h', *HEADER_DIRS)
+unless nokogiri_find_header('libxslt/xslt.h', *HEADER_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
-unless find_header('libexslt/exslt.h', *HEADER_DIRS)
+
+unless nokogiri_find_header('libexslt/exslt.h', *HEADER_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
@@ -96,10 +121,27 @@ unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
-have_func('xmlRelaxNGSetParserStructuredErrors')
-have_func('xmlRelaxNGSetValidStructuredErrors')
-have_func('xmlSchemaSetValidStructuredErrors')
-have_func('xmlSchemaSetParserStructuredErrors')
+def nokogiri_link_command ldflags, opt='', libpath=$LIBPATH
+  old_link_command ldflags, opt, libpath
+end
+
+def with_custom_link
+  alias :old_link_command :link_command
+  alias :link_command :nokogiri_link_command
+  yield
+ensure
+  alias :link_command :old_link_command
+end
+
+with_custom_link do
+  with_cppflags $INCFLAGS do
+    have_func('xmlRelaxNGSetParserStructuredErrors')
+    have_func('xmlRelaxNGSetParserStructuredErrors')
+    have_func('xmlRelaxNGSetValidStructuredErrors')
+    have_func('xmlSchemaSetValidStructuredErrors')
+    have_func('xmlSchemaSetParserStructuredErrors')
+  end
+end
 
 if ENV['CPUPROFILE']
   unless find_library('profiler', 'ProfilerEnable', *LIB_DIRS)
