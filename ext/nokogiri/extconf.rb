@@ -84,6 +84,7 @@ def nokogiri_find_header header_file, *paths
             $INCFLAGS = "#{opt} #{$INCFLAGS}"
             CUSTOM_DASH_I << dir
           end
+          found = dir
           break
         end
       end
