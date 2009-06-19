@@ -166,6 +166,13 @@ void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
   rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
 }
 
+void Nokogiri_error_raise(void * ctx, xmlErrorPtr error)
+{
+  rb_funcall(rb_mKernel, rb_intern("raise"), 1,
+      Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error)
+  );
+}
+
 VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error)
 {
   if(!klass) klass = cNokogiriXmlSyntaxError;

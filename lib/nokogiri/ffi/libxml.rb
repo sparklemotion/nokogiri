@@ -2,7 +2,8 @@
 module Nokogiri
   module LibXML # :nodoc: all
     extend FFI::Library
-    ffi_lib 'xml2', 'xslt', 'exslt'
+    ffi_lib '/opt/local/lib/libxml2.dylib', '/opt/local/lib/libxslt.dylib',
+    '/opt/local/lib/libexslt.dylib'
 
     # globals.c
     attach_function :__xmlParserVersion, [], :pointer
@@ -246,6 +247,7 @@ module Nokogiri
     attach_function :xmlSchemaSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlSchemaParse, [:pointer], :pointer
     attach_function :xmlSchemaFreeParserCtxt, [:pointer], :void
+    attach_function :xmlSchemaNewDocParserCtxt, [:pointer], :pointer
 
     # relaxng.c
     attach_function :xmlRelaxNGNewValidCtxt, [:pointer], :pointer
@@ -256,6 +258,7 @@ module Nokogiri
     attach_function :xmlRelaxNGSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlRelaxNGParse, [:pointer], :pointer
     attach_function :xmlRelaxNGFreeParserCtxt, [:pointer], :void
+    attach_function :xmlRelaxNGNewDocParserCtxt, [:pointer], :pointer
 
     # helpers
     def self.pointer_offset(n)

@@ -18,8 +18,8 @@ module Nokogiri
     # Validate an XML document against a RelaxNG schema.  Loop over the errors
     # that are returned and print them out:
     #
-    #   schema  = Nokogiri::XML::RelaxNG(File.read(ADDRESS_SCHEMA_FILE))
-    #   doc     = Nokogiri::XML(File.read(ADDRESS_XML_FILE))
+    #   schema  = Nokogiri::XML::RelaxNG(File.open(ADDRESS_SCHEMA_FILE))
+    #   doc     = Nokogiri::XML(File.open(ADDRESS_XML_FILE))
     #
     #   schema.validate(doc).each do |error|
     #     puts error.message

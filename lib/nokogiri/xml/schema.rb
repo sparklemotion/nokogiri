@@ -34,11 +34,7 @@ module Nokogiri
       # Create a new Nokogiri::XML::Schema object using a +string_or_io+
       # object.
       def self.new string_or_io
-        if string_or_io.respond_to?(:read)
-          string_or_io = string_or_io.read
-        end
-
-        read_memory(string_or_io)
+        from_document Nokogiri::XML(string_or_io)
       end
 
       ###
