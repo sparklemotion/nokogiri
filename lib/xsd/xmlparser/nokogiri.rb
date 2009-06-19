@@ -37,16 +37,14 @@ module XSD # :nodoc:
         @parser.parse(string_or_readable)
       end
 
-      def start_element_ns *args
-        p args
-      end
-
       ###
       # Handle the start_element event with +name+ and +attrs+
       def start_element name, attrs = []
         super(name, Hash[*attrs.flatten])
       end
 
+      ###
+      # Handle the end_element event with +name+
       def end_element name
         super
       end
