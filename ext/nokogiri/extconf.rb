@@ -1,3 +1,5 @@
+ENV['RC_ARCHS'] = ''
+
 require 'mkmf'
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
