@@ -31,8 +31,8 @@ version 1.4.0 or by August 1st, whichever comes first.
           ###
           # Deal with SAX v1 interface
           name = [prefix, name].compact.join(':')
-          attributes = ns.map { |prefix,uri|
-            [['xmlns', prefix].compact.join(':'), uri]
+          attributes = ns.map { |ns_prefix,ns_uri|
+            [['xmlns', ns_prefix].compact.join(':'), ns_uri]
           } + attrs.map { |attr|
             [[attr.prefix, attr.localname].compact.join(':'), attr.value]
           }.flatten

@@ -1,9 +1,7 @@
 #include <nokogiri.h>
 
 #define STRING_OR_NULL(str) \
-  ({ \
-   RTEST(str) ? StringValuePtr(str) : NULL \
-  })
+   (RTEST(str) ? StringValuePtr(str) : NULL)
 
 #define RBSTR_OR_QNIL(_str, rb_enc) \
   (_str ? NOKOGIRI_STR_NEW2(_str, STRING_OR_NULL(rb_enc)) : Qnil)
