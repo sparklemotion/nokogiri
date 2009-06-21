@@ -28,7 +28,7 @@ module Nokogiri
         xsd = Nokogiri::XML::Schema.from_document doc
 
         doc = Nokogiri::XML(File.open(xml))
-        assert xsd.valid? doc
+        assert xsd.valid?(doc)
       end
 
       def test_parse_with_memory
