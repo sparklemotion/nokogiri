@@ -19,7 +19,7 @@ module XSD # :nodoc:
     #   require 'xsd/xmlparser/nokogiri'
     #   
     #   obj = AvlPortType.new
-    #   obj.getLatestByRoute(obj.getAgencies.item, 8).item.each do |bus|
+    #   obj.getLatestByRoute(obj.getAgencies.first, 8).each do |bus|
     #     p "#{bus.routeID}, #{bus.longitude}, #{bus.latitude}"
     #   end
     #
@@ -62,7 +62,7 @@ module XSD # :nodoc:
         characters string
       end
 
-      %w{ start_document start_element_ns end_element_ns end_document comment }.each do |name|
+      %w{ start_document start_element_namespace end_element_namespace end_document comment }.each do |name|
         class_eval %{ def #{name}(*args); end }
       end
       add_factory(self)

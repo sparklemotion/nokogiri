@@ -43,12 +43,16 @@ module Nokogiri
             <stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0' size='large'></stream:stream>
           eoxml
 
-          assert_equal [[ 'stream',
-                          {'version' => '1.0', 'size' => 'large'},
-                          'stream',
-                          'http://etherx.jabber.org/streams',
-                          {nil => 'jabber:client', 'stream' => 'http://etherx.jabber.org/streams'}]],
-            @parser.document.start_elements_ns
+          assert_equal 1, @parser.document.start_elements_namespace.length
+          el = @parser.document.start_elements_namespace.first
+
+          assert_equal 'stream', el.first
+          assert_equal 2, el[1].length
+          assert_equal [['version', '1.0'], ['size', 'large']],
+            el[1].map { |x| [x.localname, x.value] }
+
+          assert_equal 'stream', el[2]
+          assert_equal 'http://etherx.jabber.org/streams', el[3]
           @parser.finish
         end
 
@@ -58,7 +62,7 @@ module Nokogiri
           eoxml
 
           assert_equal [['stream', 'stream', 'http://etherx.jabber.org/streams']],
-            @parser.document.end_elements_ns
+            @parser.document.end_elements_namespace
           @parser.finish
         end
 

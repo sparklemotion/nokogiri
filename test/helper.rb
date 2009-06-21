@@ -56,10 +56,10 @@ module Nokogiri
   module SAX
     class TestCase < Nokogiri::TestCase
       class Doc < XML::SAX::Document
-        attr_reader :start_elements, :start_elements_ns, :start_document_called
-        attr_reader :end_elements, :end_elements_ns, :end_document_called
-        attr_reader :data, :comments, :cdata_blocks
-        attr_reader :errors, :warnings
+        attr_reader :start_elements, :start_document_called
+        attr_reader :end_elements, :end_document_called
+        attr_reader :data, :comments, :cdata_blocks, :start_elements_namespace
+        attr_reader :errors, :warnings, :end_elements_namespace
 
         def start_document
           @start_document_called = true
@@ -86,8 +86,8 @@ module Nokogiri
           super
         end
 
-        def start_element_ns *args
-          (@start_elements_ns ||= []) << args
+        def start_element_namespace *args
+          (@start_elements_namespace ||= []) << args
           super
         end
 
@@ -96,8 +96,8 @@ module Nokogiri
           super
         end
 
-        def end_element_ns *args
-          (@end_elements_ns ||= []) << args
+        def end_element_namespace *args
+          (@end_elements_namespace ||= []) << args
           super
         end
 
