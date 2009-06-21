@@ -1,4 +1,4 @@
-ENV['RC_ARCHS'] = ''
+ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
 require 'mkmf'
 
