@@ -63,8 +63,8 @@ module Nokogiri
           assert @parser.document.start_elements.length > 0
           elm = @parser.document.start_elements.first
           assert_equal 'root', elm.first
-          assert elm[1].include? ['xmlns:foo', 'http://foo.example.com/']
-          assert elm[1].include? ['xmlns', 'http://example.com/']
+          assert elm[1].include?(['xmlns:foo', 'http://foo.example.com/'])
+          assert elm[1].include?(['xmlns', 'http://example.com/'])
         end
 
         def test_sax_v1_namespace_nodes
@@ -80,10 +80,10 @@ module Nokogiri
           assert_equal 5, @parser.document.start_elements.length
           assert @parser.document.start_elements.map { |se|
             se.first
-          }.include? 'foo:bar'
+          }.include?('foo:bar')
           assert @parser.document.end_elements.map { |se|
             se.first
-          }.include? 'foo:bar'
+          }.include?('foo:bar')
         end
 
         def test_start_is_called_without_namespace
