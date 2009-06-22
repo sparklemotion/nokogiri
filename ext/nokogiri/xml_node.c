@@ -857,7 +857,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
 
   if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc)) {
     document = DOC_RUBY_OBJECT(node->doc);
-    node_cache = rb_iv_get(document, "@node_cache");
+    node_cache = DOC_NODE_CACHE(node->doc);
   }
 
   rb_ary_push(node_cache, rb_node);
