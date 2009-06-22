@@ -43,9 +43,9 @@ import org.xml.sax.SAXException;
 import static nokogiri.NokogiriHelpers.isNamespace;
 
 public class XmlNode extends RubyObject {
-    private Node node;
-    private IRubyObject content, doc, name, namespace_definitions;
-    private Hashtable<Node,IRubyObject> internalCache;
+    protected Node node;
+    protected IRubyObject content, doc, name, namespace_definitions;
+    protected Hashtable<Node,IRubyObject> internalCache;
     
     public XmlNode(Ruby ruby, RubyClass cls){
         this(ruby,cls,null);
@@ -104,6 +104,10 @@ public class XmlNode extends RubyObject {
             RubyArray arr = ruby.newArray();
             NamedNodeMap nodes = this.node.getAttributes();
 
+            if(nodes == null) {
+                return ruby.newEmptyArray();
+            }
+
             for(int i = 0; i < nodes.getLength(); i++) {
                 Node n = nodes.item(i);
                 if(isNamespace(n)) {
@@ -129,6 +133,10 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
+
+        if(!(doc instanceof XmlDocument)) {
+            throw context.getRuntime().newArgumentError("document must be an instance of Nokogiri::XML::Document");
+        }
 
         XmlDocument xmlDoc = (XmlDocument)doc;
         Document document = xmlDoc.getDocument();
@@ -176,8 +184,16 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject children(ThreadContext context){
+    public IRubyObject children(ThreadContext context) {
        return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), this.node.getChildNodes());
+    }
+
+    @JRubyMethod
+    public IRubyObject document(ThreadContext context) {
+        if(this.doc == null) {
+            this.doc = XmlNode.constructNode(context.getRuntime(), this.node.getOwnerDocument());
+        }
+        return this.doc;
     }
 
     @JRubyMethod(meta = true, rest = true)

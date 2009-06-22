@@ -31,6 +31,7 @@ public class NokogiriService implements BasicLibraryService{
         init_xml_comment(ruby, xml, node);
         RubyClass document = init_xml_document(ruby, xml, node);
         init_html_document(ruby, html, document);
+        init_xml_document_fragment(ruby, xml, node);
         init_xml_dtd(ruby, xml, node);
         init_xml_namespace(ruby, xml);
         init_xml_node_set(ruby, xml);
@@ -80,15 +81,20 @@ public class NokogiriService implements BasicLibraryService{
         RubyClass document = xml.defineClassUnder("Document", node, XML_DOCUMENT_ALLOCATOR);
 
         document.defineAnnotatedMethods(XmlDocument.class);
-        //document.undefineMethod("parent");
 
         return document;
     }
 
-    public static void init_xml_dtd(Ruby ruby, RubyModule xml, RubyClass node) {
-        RubyClass xpathContext = xml.defineClassUnder("DTD", node, XML_DTD_ALLOCATOR);
+    public static void init_xml_document_fragment(Ruby ruby, RubyModule xml, RubyClass node) {
+        RubyClass documentFragment = xml.defineClassUnder("DocumentFragment", node, XML_DOCUMENT_FRAGMENT_ALLOCATOR);
 
-        xpathContext.defineAnnotatedMethods(XmlDtd.class);
+        documentFragment.defineAnnotatedMethods(XmlDocumentFragment.class);
+    }
+
+    public static void init_xml_dtd(Ruby ruby, RubyModule xml, RubyClass node) {
+        RubyClass dtd = xml.defineClassUnder("DTD", node, XML_DTD_ALLOCATOR);
+
+        dtd.defineAnnotatedMethods(XmlDtd.class);
     }
 
     public static void init_xml_namespace(Ruby ruby, RubyModule xml) {
@@ -183,6 +189,12 @@ public class NokogiriService implements BasicLibraryService{
     private static ObjectAllocator XML_DOCUMENT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             throw runtime.newNotImplementedError("not implemented");
+        }
+    };
+
+    private static ObjectAllocator XML_DOCUMENT_FRAGMENT_ALLOCATOR = new ObjectAllocator() {
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            return new XmlDocumentFragment(runtime, klazz);
         }
     };
 
