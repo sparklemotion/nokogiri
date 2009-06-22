@@ -91,6 +91,10 @@ namespace :jruby do
       File.delete file
     end
   end
+
+  task :clean_jar do
+    FileList['lib/nokogiri/*.jar'].each{|f| File.delete f }
+  end
 end
 
 namespace :gem do
@@ -149,7 +153,7 @@ task JAVA_EXT do
   end
 end
 
-task :build => [JAVA_EXT, "jruby:clean" ]
+task :build => ["jruby:clean_jar", JAVA_EXT, "jruby:clean"]
 #task :build => [JAVA_EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
 
 libs = %w{

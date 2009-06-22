@@ -3,6 +3,7 @@ package nokogiri;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Hashtable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -280,6 +281,22 @@ public class XmlNode extends RubyObject {
         node.getParentNode().replaceChild(otherNode, node);
 
         return this;
+    }
+
+    @JRubyMethod
+    public IRubyObject native_write_to(ThreadContext context, IRubyObject io, IRubyObject encoding, IRubyObject indentString, IRubyObject options) {
+        StringWriter sw = new StringWriter();
+        try {
+            Transformer t = TransformerFactory.newInstance().newTransformer();
+            t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            t.transform(new DOMSource(this.node), new StreamResult(sw));
+        } catch (TransformerException te) {
+            throw context.getRuntime().newRuntimeError("couldn't transform the node back to string");
+        }
+
+        RuntimeHelpers.invoke(context, io, "write", context.getRuntime().newString(sw.toString()));
+
+        return io;
     }
 
     @JRubyMethod(name = "node_type")
