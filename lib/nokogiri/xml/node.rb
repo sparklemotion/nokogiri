@@ -540,7 +540,7 @@ Please change to Node#to_html(:encoding => #{options})
         end
 
         # FIXME: this is a hack around broken libxml versions
-        return dump_html if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
         options[:save_with] ||= SaveOptions::FORMAT |
                                 SaveOptions::NO_DECLARATION |
