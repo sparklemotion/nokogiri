@@ -43,7 +43,7 @@ unless java
     ext.config_options << ENV['EXTOPTS']
     cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
     ext.cross_compile   = true
-    ext.cross_platform  = 'i386-mswin32'
+    ext.cross_platform  = 'i386-mingw32'
     ext.cross_config_options <<
       "--with-iconv-dir=#{File.join(cross_dir, 'iconv')}"
     ext.cross_config_options <<
@@ -71,12 +71,12 @@ require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
       eoruby
     end
     HOE.spec.extensions = []
-    HOE.spec.platform = 'x86-mswin32'
+    HOE.spec.platform = 'x86-mingw32'
     HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
     HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/*"]
     HOE.spec.files += Dir["ext/nokogiri/*.dll"]
   end
-  CLOBBER.include("lib/nokogiri/nokogiri.rb")
+  CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
   CLOBBER.include("lib/nokogiri/1.{8,9}")
 end
 
