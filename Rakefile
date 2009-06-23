@@ -10,6 +10,9 @@ java    = RUBY_PLATFORM =~ /java/
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 
+# Make sure hoe-debugging is installed
+Hoe.plugin :debugging
+
 HOE = Hoe.spec 'nokogiri' do
   developer('Aaron Patterson', 'aaronp@rubyforge.org')
   developer('Mike Dalessio', 'mike.dalessio@gmail.com')
@@ -178,7 +181,7 @@ unless windows || java || ENV['NOKOGIRI_FFI']
   end
 
   Rake::Task[:test].prerequisites << :compile
-  ['valgrind', 'valgrind_mem', 'valgrind_mem0', 'coverage'].each do |task_name|
+  ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
     Rake::Task["test:#{task_name}"].prerequisites << :compile
   end
 else
