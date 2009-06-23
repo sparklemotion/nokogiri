@@ -1,4 +1,4 @@
-=== HEAD
+=== 1.3.2 / ２００９年６月２２日
 
 * 新しい機能
 
@@ -6,7 +6,22 @@
 
 * バグの修正
 
+  * Nokogiri::XML::NodeSet#search はトップレベルのノードを検索するようになった
+    GH #73
+  * Nokogiri::XML::Documentからメソッドに関係する名前空間を取り除いた
+  * 同じ名前空間を２回目に入れた時に起るセグフォールトを修正した
+  * Snow Leopard で Nokogiri は動くようになった GH #79
+  * メーリングリストはGoogle Groupsの以下のアドレスに移動した
+    http://groups.google.com/group/nokogiri-talk
+  * HTML フラグメントはコメントとCDATAを正確に扱うようになった
+  * Nokogiri::XML::Document#cloneはdupのエイリアスと同様の働きをする
+
 * 廃棄予定
+
+  * Nokogiri::XML::SAX::Document#start_element_nsは廃棄予定なので
+    Nokogiri::XML::SAX::Document#start_element_namespaceを代わりに使用して下さい
+  * Nokogiri::XML::SAX::Document#end_element_nsは廃棄予定なので
+    Nokogiri::XML::SAX::Document#end_element_namespaceを代わりに使用して下さい
 
 === 1.3.1 / ２００９年６月７日
 
