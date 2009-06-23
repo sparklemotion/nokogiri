@@ -40,7 +40,7 @@ module Nokogiri
         ####
         # Create a Nokogiri::XML::DocumentFragment from +tags+
         def parse tags
-          XML::DocumentFragment.new(XML::Document.new, tags)
+          self.new(XML::Document.new, tags)
         end
       end
 

@@ -37,6 +37,12 @@ module Nokogiri
         assert_instance_of klass, fragment
       end
 
+      def test_subclass_parse
+        klass = Class.new(Nokogiri::HTML::DocumentFragment)
+        doc = klass.parse("<div>a</div>")
+        assert_instance_of klass, doc
+      end
+
       def test_html_fragment
         fragment = Nokogiri::HTML.fragment("<div>a</div>")
         assert_equal "<div>a</div>", fragment.to_s
