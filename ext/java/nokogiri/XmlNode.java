@@ -283,8 +283,13 @@ public class XmlNode extends RubyObject {
         return this;
     }
 
-    @JRubyMethod
-    public IRubyObject native_write_to(ThreadContext context, IRubyObject io, IRubyObject encoding, IRubyObject indentString, IRubyObject options) {
+    @JRubyMethod(required=4, visibility=Visibility.PRIVATE)
+    public IRubyObject native_write_to(ThreadContext context, IRubyObject[] args) {//IRubyObject io, IRubyObject encoding, IRubyObject indentString, IRubyObject options) {
+        IRubyObject io = args[0];
+        IRubyObject encoding = args[1];
+        IRubyObject indentString = args[2];
+        IRubyObject options = args[3];
+
         StringWriter sw = new StringWriter();
         try {
             Transformer t = TransformerFactory.newInstance().newTransformer();
