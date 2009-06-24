@@ -600,7 +600,7 @@ Please change to Node#to_xhtml(:encoding => #{options})
         end
 
         # FIXME: this is a hack around broken libxml versions
-        return dump_html if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
         options[:save_with] ||= SaveOptions::FORMAT |
                                 SaveOptions::NO_DECLARATION |
@@ -672,7 +672,7 @@ Please change to Node#write_html_to(io, :encoding => #{options})
         end
 
         # FIXME: this is a hack around broken libxml versions
-        return (io << dump_html) if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
         options[:save_with] ||= SaveOptions::FORMAT |
           SaveOptions::NO_DECLARATION |
@@ -700,7 +700,7 @@ Please change to Node#write_xhtml_to(io, :encoding => #{options})
         end
 
         # FIXME: this is a hack around broken libxml versions
-        return (io << dump_html) if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
         options[:save_with] ||= SaveOptions::FORMAT |
           SaveOptions::NO_DECLARATION |

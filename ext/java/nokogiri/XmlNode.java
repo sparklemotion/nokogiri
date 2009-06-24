@@ -289,7 +289,7 @@ public class XmlNode extends RubyObject {
         IRubyObject encoding = args[1];
         IRubyObject indentString = args[2];
         IRubyObject options = args[3];
-
+        
         StringWriter sw = new StringWriter();
         try {
             Transformer t = TransformerFactory.newInstance().newTransformer();
