@@ -170,6 +170,23 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
+    public IRubyObject attribute_nodes(ThreadContext context) {
+        NamedNodeMap nodeMap = this.node.getAttributes();
+
+        if(nodeMap == null){
+            return context.getRuntime().newEmptyArray();
+        }
+
+        RubyArray attr = context.getRuntime().newArray();
+
+        for(int i = 0; i < nodeMap.getLength(); i++) {
+            attr.append(this.getFromInternalCache(context, nodeMap.item(i)));
+        }
+
+        return attr;
+    }
+
+    @JRubyMethod
     public IRubyObject attribute_with_ns(ThreadContext context, IRubyObject name, IRubyObject namespace) {
         String namej = name.convertToString().asJavaString();
         String nsj = (namespace.isNil()) ? null : namespace.convertToString().asJavaString();
@@ -371,19 +388,6 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject attribute_node(ThreadContext context){
-        Ruby ruby = context.getRuntime();
-        NamedNodeMap attrs = node.getAttributes();
-        RubyArray arr = RubyArray.newArray(ruby,attrs.getLength());
-        Node attr;
-        for(int i = 0; i < attrs.getLength(); i++){
-            attr = attrs.item(i);
-            arr.append(constructNode(ruby,attr));
-        }
-        return arr;
-    }
-
-    @JRubyMethod
     public IRubyObject namespaces(ThreadContext context) {
         Ruby ruby = context.getRuntime();
         RubyHash hash = RubyHash.newHash(ruby);
@@ -458,6 +462,11 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject unlink(ThreadContext context) {
+
+        //TODO: Fix for attribute.
+        if(this.node.getParentNode() == null) {
+            throw context.getRuntime().newRuntimeError("TYPE: "+this.node.getNodeType()+ " PARENT NULL");
+        }
         node.getParentNode().removeChild(node);
         return this;
     }
