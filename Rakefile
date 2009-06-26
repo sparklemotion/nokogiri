@@ -180,9 +180,11 @@ unless windows || java || ENV['NOKOGIRI_FFI']
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
   end
 
-  Rake::Task[:test].prerequisites << :compile
-  ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
-    Rake::Task["test:#{task_name}"].prerequisites << :compile
+  if Rake::Task.task_defined?(:valgrind)
+    Rake::Task[:test].prerequisites << :compile
+    ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
+      Rake::Task["test:#{task_name}"].prerequisites << :compile
+    end
   end
 else
   [:test, :check_manifest].each do |task_name|
