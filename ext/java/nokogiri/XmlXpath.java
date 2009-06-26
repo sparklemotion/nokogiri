@@ -9,6 +9,7 @@ import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -19,7 +20,11 @@ public class XmlXpath extends RubyObject {
     public XmlXpath(Ruby ruby, RubyClass rubyClass, XPathExpression xpath, Node context) {
         super(ruby, rubyClass);
         this.xpath = xpath;
-        this.context = context;
+        if(context instanceof Document) {
+            this.context = context;
+        } else {
+            this.context = context.getParentNode();
+        }
     }
 
     @JRubyMethod(name = "node_set")

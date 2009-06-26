@@ -155,8 +155,11 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject add_child(ThreadContext context, IRubyObject child) {
-        node.appendChild(asXmlNode(context, child).node);
-
+        try{
+            node.appendChild(asXmlNode(context, child).node);
+        } catch (Exception ex) {
+            throw context.getRuntime().newRuntimeError(ex.toString());
+        }
         return child;
     }
 
@@ -209,7 +212,7 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject document(ThreadContext context) {
         if(this.doc == null) {
-            this.doc = XmlNode.constructNode(context.getRuntime(), this.node.getOwnerDocument());
+            this.doc = new XmlDocument(context.getRuntime(), this.node.getOwnerDocument());
         }
         return this.doc;
     }
@@ -457,7 +460,20 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject dup(ThreadContext context) {
-        return constructNode(context.getRuntime(), node);
+        return this.dup_implementation(context, true);
+    }
+
+    @JRubyMethod
+    public IRubyObject dup(ThreadContext context, IRubyObject depth) {
+        boolean deep = depth.convertToInteger().getLongValue() != 0;
+
+        return this.dup_implementation(context, deep);
+    }
+
+    protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
+        Node newNode = node.cloneNode(deep);
+
+        return new XmlNode(context.getRuntime(), this.getType(), newNode);
     }
 
     @JRubyMethod
