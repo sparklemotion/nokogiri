@@ -61,7 +61,9 @@ Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
             return self.read_io(string_or_io, url, encoding, options.to_i)
           end
 
-          return self.new if(string_or_io.length == 0)
+          # read_memory pukes on empty docs
+          return self.new if string_or_io.nil? or string_or_io.empty?
+
           self.read_memory(string_or_io, url, encoding, options.to_i)
         end
       end

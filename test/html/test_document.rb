@@ -115,6 +115,13 @@ module Nokogiri
         assert_instance_of Nokogiri::HTML::Document, parent
       end
 
+      def test_parse_handles_nil_gracefully
+        assert_nothing_raised do
+          @doc = Nokogiri::HTML::Document.parse(nil)
+        end
+        assert_instance_of Nokogiri::HTML::Document, @doc
+      end
+
       def test_parse_empty_document
         doc = Nokogiri::HTML("\n")
         assert_equal 0, doc.css('a').length

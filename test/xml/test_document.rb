@@ -35,6 +35,13 @@ module Nokogiri
         end
       end
 
+      def test_parse_handles_nil_gracefully
+        assert_nothing_raised do
+          @doc = Nokogiri::XML::Document.parse(nil)
+        end
+        assert_instance_of Nokogiri::XML::Document, @doc
+      end
+
       def test_parse_takes_block
         options = nil
         Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|
