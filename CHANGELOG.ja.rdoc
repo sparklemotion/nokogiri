@@ -9,12 +9,12 @@
   * Nokogiri::XML::NodeSet#search はトップレベルのノードを検索するようになった
     GH #73
   * Nokogiri::XML::Documentからメソッドに関係する名前空間を取り除いた
-  * 同じ名前空間を２回目に入れた時に起るセグフォールトを修正した
-  * Snow Leopard で Nokogiri は動くようになった GH #79
-  * メーリングリストはGoogle Groupsの以下のアドレスに移動した
+  * 2回同じ名前空間が追加されたときSEGVする問題を修正した
+  * Snow Leopard で Nokogiri が動くようになった GH #79
+  * メーリングリストはGoogle Groupsの以下のURLに移動した
     http://groups.google.com/group/nokogiri-talk
   * HTML フラグメントはコメントとCDATAを正確に扱うようになった
-  * Nokogiri::XML::Document#cloneはdupのエイリアスと同様の働きをする
+  * Nokogiri::XML::Document#cloneはdupのaliasになった
 
 * 廃棄予定
 
