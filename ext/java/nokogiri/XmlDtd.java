@@ -13,7 +13,7 @@ public class XmlDtd extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject notations(ThreadContext context) {
+    public IRubyObject attributes(ThreadContext context) {
         throw context.getRuntime().newNotImplementedError("not implemented");
     }
 
@@ -23,12 +23,12 @@ public class XmlDtd extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject attributes(ThreadContext context) {
+    public IRubyObject entities(ThreadContext context) {
         throw context.getRuntime().newNotImplementedError("not implemented");
     }
 
     @JRubyMethod
-    public IRubyObject entities(ThreadContext context) {
+    public IRubyObject notations(ThreadContext context) {
         throw context.getRuntime().newNotImplementedError("not implemented");
     }
 }

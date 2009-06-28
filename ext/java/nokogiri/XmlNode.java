@@ -32,10 +32,12 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -546,7 +548,9 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "native_content=", visibility = Visibility.PRIVATE)
     public IRubyObject native_content_set(ThreadContext context, IRubyObject content) {
-        node.setTextContent(content.convertToString().asJavaString());
+        RubyString newContent = content.convertToString();
+        this.content = newContent;
+        this.node.setTextContent(newContent.asJavaString());
         return content;
     }
 
