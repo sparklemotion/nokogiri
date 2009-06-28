@@ -47,6 +47,19 @@ public class XmlNode extends RubyObject {
     protected Node node;
     protected IRubyObject content, doc, name, namespace_definitions;
     protected Hashtable<Node,IRubyObject> internalCache;
+
+    /*
+     * Taken from http://ejohn.org/blog/comparing-document-position/
+     * Used for compareDocumentPosition.
+     * <ironic>Thanks to both java api and w3 doc for its helpful documentation</ironic>
+     */
+
+    protected static int IDENTICAL_ELEMENTS = 0;
+    protected static int IN_DIFFERENT_DOCUMENTS = 1;
+    protected static int SECOND_PRECEDES_FIRST = 2;
+    protected static int FIRST_PRECEDES_SECOND = 4;
+    protected static int SECOND_CONTAINS_FIRST = 8;
+    protected static int FIRST_CONTAINS_SECOND = 16;
     
     public XmlNode(Ruby ruby, RubyClass cls){
         this(ruby,cls,null);
@@ -207,6 +220,30 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
        return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), this.node.getChildNodes());
+    }
+
+    @JRubyMethod
+    public IRubyObject compare(ThreadContext context, IRubyObject otherNode) {
+        if(!(otherNode instanceof XmlNode)) {
+            return context.getRuntime().newFixnum(-2);
+        }
+
+        Node on = ((XmlNode) otherNode).getNode();
+
+        try{
+            int res = this.node.compareDocumentPosition(on);
+            if( (res & FIRST_PRECEDES_SECOND) == FIRST_PRECEDES_SECOND) {
+                return context.getRuntime().newFixnum(-1);
+            } else if ( (res & SECOND_PRECEDES_FIRST) == SECOND_PRECEDES_FIRST) {
+                return context.getRuntime().newFixnum(1);
+            } else if ( (res & IDENTICAL_ELEMENTS) == IDENTICAL_ELEMENTS) {
+                return context.getRuntime().newFixnum(0);
+            }
+
+            return context.getRuntime().newFixnum(-2);
+        } catch (Exception ex) {
+            return context.getRuntime().newFixnum(-2);
+        }
     }
 
     @JRubyMethod
