@@ -61,7 +61,7 @@ module Nokogiri
         schema_ptr = LibXML.xmlRelaxNGParse(ctx)
 
         LibXML.xmlSetStructuredErrorFunc(nil, nil)
-        LibXML.xmlRelaxNGFreeParserCtxt(ctx)
+        LibXML.xmlRelaxNGFreeParserCtxt(ctx) unless Nokogiri.is_2_6_16?
 
         if schema_ptr.null?
           error = LibXML.xmlGetLastError
@@ -71,6 +71,8 @@ module Nokogiri
             raise RuntimeError, "Could not parse document"
           end
         end
+
+        LibXML.xmlRelaxNGFreeParserCtxt(ctx) if Nokogiri.is_2_6_16?
 
         schema = allocate
         schema.cstruct = LibXML::XmlRelaxNG.new schema_ptr
