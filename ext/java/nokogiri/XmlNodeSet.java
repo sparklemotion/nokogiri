@@ -1,5 +1,6 @@
 package nokogiri;
 
+import java.util.List;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -22,6 +23,14 @@ public class XmlNodeSet extends RubyObject {
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){
         super(ruby, rubyClass);
         this.nodes = nodes;
+    }
+
+    public void relink_namespace(ThreadContext context) {
+        List<IRubyObject> n = this.nodes.getList();
+
+        for(IRubyObject node : n) {
+            ((XmlNode) node).relink_namespace(context);
+        }
     }
 
     @JRubyMethod(name="&")

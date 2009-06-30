@@ -13,32 +13,35 @@ public class NokogiriNamespaceContext implements NamespaceContext{
         this.register = new Hashtable<String,String>();
     }
 
-    public String getNamespaceURI(String prefix){
+    public String getNamespaceURI(String prefix) {
+        
+        String uri = this.register.get(prefix);
+        if(uri != null) {
+            return uri;
+        }
+
         if(prefix == null) {
             throw new IllegalArgumentException();
         } else if(prefix.equals(XMLConstants.XML_NS_PREFIX)) {
             return XMLConstants.XML_NS_URI;
         } else if(prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-            return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
-        }
-
-        String uri = this.register.get(prefix);
-        if(uri != null) {
-            return uri;
+            uri = this.register.get(XMLConstants.XMLNS_ATTRIBUTE);
+            return (uri == null) ? XMLConstants.XMLNS_ATTRIBUTE_NS_URI : uri;
         }
 
         return XMLConstants.NULL_NS_URI;
     }
 
     public String getPrefix(String uri){
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     public Iterator getPrefixes(String uri){
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     public void registerNamespace(String prefix, String uri){
+        if(prefix.equals("xmlns")) prefix = "";
         this.register.put(prefix, uri);
     }
 }

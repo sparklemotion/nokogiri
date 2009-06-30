@@ -33,6 +33,7 @@ public class NokogiriService implements BasicLibraryService{
         init_html_document(ruby, html, document);
         init_xml_document_fragment(ruby, xml, node);
         init_xml_dtd(ruby, xml, node);
+        init_xml_element(ruby, xml, node);
         init_xml_namespace(ruby, xml);
         init_xml_node_set(ruby, xml);
         init_xml_reader(ruby, xml);
@@ -95,6 +96,12 @@ public class NokogiriService implements BasicLibraryService{
         RubyClass dtd = xml.defineClassUnder("DTD", node, XML_DTD_ALLOCATOR);
 
         dtd.defineAnnotatedMethods(XmlDtd.class);
+    }
+
+    public static void init_xml_element(Ruby ruby, RubyModule xml, RubyClass node) {
+        RubyClass element = xml.defineClassUnder("Element", node, XML_ELEMENT_ALLOCATOR);
+
+        element.defineAnnotatedMethods(XmlElement.class);
     }
 
     public static void init_xml_namespace(Ruby ruby, RubyModule xml) {
@@ -201,6 +208,12 @@ public class NokogiriService implements BasicLibraryService{
     private static ObjectAllocator XML_DTD_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             throw runtime.newNotImplementedError("not implemented");
+        }
+    };
+
+    private static ObjectAllocator XML_ELEMENT_ALLOCATOR = new ObjectAllocator() {
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            return new XmlElement(runtime, klazz);
         }
     };
 

@@ -20,6 +20,8 @@ public class XmlXpath extends RubyObject {
     public XmlXpath(Ruby ruby, RubyClass rubyClass, XPathExpression xpath, Node context) {
         super(ruby, rubyClass);
         this.xpath = xpath;
+
+        //TODO: Refactor.
         if(context instanceof Document) {
             this.context = context;
         } else {

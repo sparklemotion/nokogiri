@@ -137,6 +137,7 @@ module Nokogiri
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
+          path = path.gsub(/\/xmlns:/,'/:') if Nokogiri.uses_libxml?
           set = ctx.evaluate(path, handler).node_set
           set.document = document
           document.decorate(set)
@@ -184,7 +185,7 @@ module Nokogiri
           (document.root ? document.root.namespaces : {})
 
         rules = rules.map { |rule|
-          CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
+          xpath_rule = CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
         }.flatten.uniq + [ns, handler].compact
 
         xpath(*rules)

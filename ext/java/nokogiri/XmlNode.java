@@ -47,7 +47,7 @@ import static nokogiri.NokogiriHelpers.isNamespace;
 
 public class XmlNode extends RubyObject {
     protected Node node;
-    protected IRubyObject content, doc, name, namespace_definitions;
+    protected IRubyObject content, doc, name, namespace, namespace_definitions;
     protected Hashtable<Node,IRubyObject> internalCache;
 
     /*
@@ -89,7 +89,7 @@ public class XmlNode extends RubyObject {
             case Node.COMMENT_NODE:
                 return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Comment"), node);
             case Node.ELEMENT_NODE:
-                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
+                return new XmlElement(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
             case Node.ENTITY_NODE:
                 return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDeclaration"), node);
             case Node.CDATA_SECTION_NODE:
@@ -147,6 +147,10 @@ public class XmlNode extends RubyObject {
         return ((XmlNode)xmlNode).node;
     }
 
+    protected void relink_namespace(ThreadContext context) {
+        ((XmlNodeSet) this.children(context)).relink_namespace(context);
+    }
+
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
 
@@ -156,7 +160,7 @@ public class XmlNode extends RubyObject {
 
         XmlDocument xmlDoc = (XmlDocument)doc;
         Document document = xmlDoc.getDocument();
-        Element element = document.createElement(name.convertToString().asJavaString());
+        Element element = document.createElementNS(null,name.convertToString().asJavaString());
 
         XmlNode node = new XmlNode(context.getRuntime(), (RubyClass)cls, element);
         node.doc = doc;
@@ -287,8 +291,12 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject namespace(ThreadContext context){
-        return new XmlNamespace(context.getRuntime(), this.node.getPrefix(),
-                                this.node.getNamespaceURI());
+        if(this.namespace == null) {
+            this.namespace = new XmlNamespace(context.getRuntime(), this.node.getPrefix(),
+                                this.node.lookupNamespaceURI(this.node.getPrefix()));
+        }
+
+        return this.namespace;
     }
 
     @JRubyMethod
@@ -334,10 +342,12 @@ public class XmlNode extends RubyObject {
         return constructNode(context.getRuntime(), node.getPreviousSibling());
     }
 
-    @JRubyMethod
+    @JRubyMethod(name="replace_with_node", visibility=Visibility.PROTECTED)
     public IRubyObject replace(ThreadContext context, IRubyObject newNode) {
         Node otherNode = getNodeFromXmlNode(context, newNode);
         node.getParentNode().replaceChild(otherNode, node);
+
+        ((XmlNode) newNode).relink_namespace(context);
 
         return this;
     }
@@ -517,12 +527,15 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject unlink(ThreadContext context) {
-
-        //TODO: Fix for attribute.
-        if(this.node.getParentNode() == null) {
+        if(this.node.getNodeType() == Node.ATTRIBUTE_NODE) {
+            Attr attr = (Attr) this.node;
+            Element parent = attr.getOwnerElement();
+            parent.removeAttributeNode(attr);
+        } else if(this.node.getParentNode() == null) {
             throw context.getRuntime().newRuntimeError("TYPE: "+this.node.getNodeType()+ " PARENT NULL");
+        } else {
+            node.getParentNode().removeChild(node);
         }
-        node.getParentNode().removeChild(node);
         return this;
     }
 
