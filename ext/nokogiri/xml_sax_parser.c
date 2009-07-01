@@ -310,6 +310,8 @@ static VALUE allocate(VALUE klass)
 {
   xmlSAXHandlerPtr handler = calloc(1, sizeof(xmlSAXHandler));
 
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
   handler->startDocument = start_document;
   handler->endDocument = end_document;
   handler->startElement = start_element;
