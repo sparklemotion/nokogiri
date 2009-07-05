@@ -95,7 +95,7 @@ public class XmlNode extends RubyObject {
             case Node.CDATA_SECTION_NODE:
                 return new XmlCdata(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"), node);
             case Node.DOCUMENT_TYPE_NODE:
-                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DTD"), node);
+                return new XmlDtd(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DTD"), node);
             default:
                 return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"), node);
         }
@@ -148,6 +148,17 @@ public class XmlNode extends RubyObject {
     }
 
     protected void relink_namespace(ThreadContext context) {
+        if(this.node.getNodeType() == Node.ELEMENT_NODE) {
+            Element e = (Element) this.node;
+            NamedNodeMap attrs = e.getAttributes();
+
+            for(int i = 0; i < attrs.getLength(); i++) {
+                Attr attr = (Attr) attrs.item(i);
+                if(NokogiriHelpers.isNamespace(attr)){
+                    e.removeAttributeNode(attr);
+                }
+            }
+        }
         ((XmlNodeSet) this.children(context)).relink_namespace(context);
     }
 
@@ -160,7 +171,7 @@ public class XmlNode extends RubyObject {
 
         XmlDocument xmlDoc = (XmlDocument)doc;
         Document document = xmlDoc.getDocument();
-        Element element = document.createElementNS(null,name.convertToString().asJavaString());
+        Element element = document.createElementNS(null, name.convertToString().asJavaString());
 
         XmlNode node = new XmlNode(context.getRuntime(), (RubyClass)cls, element);
         node.doc = doc;
@@ -545,13 +556,7 @@ public class XmlNode extends RubyObject {
             return context.getRuntime().getNil();
         }
 
-        String dtd = this.node.getOwnerDocument().getDoctype().getInternalSubset();
-
-        if(dtd == null) {
-            return context.getRuntime().getNil();
-        }
-
-        return RubyString.newString(context.getRuntime(), dtd);
+        return XmlNode.constructNode(context.getRuntime(), this.node.getOwnerDocument().getDoctype());
     }
 
     @JRubyMethod

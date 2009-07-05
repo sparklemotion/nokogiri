@@ -292,6 +292,7 @@ public class XmlReader extends RubyObject {
             reader.setContentHandler(handler);
             reader.setDTDHandler(handler);
             reader.setErrorHandler(handler);
+            reader.setFeature("http://xml.org/sax/features/xmlns-uris", true);
             reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
             reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             return reader;
