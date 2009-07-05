@@ -13,14 +13,6 @@ import org.w3c.dom.Node;
  */
 public class NokogiriHelpers {
 
-    public static boolean isNamespace(Node node) {
-        return isNamespace(node.getNodeName());
-    }
-
-    public static boolean isNamespace(String string) {
-        return string.equals("xmlns") || string.startsWith("xmlns:");
-    }
-
     public static String getLocalName(String name) {
         int index = name.indexOf(':');
         if(index == -1) {
@@ -28,5 +20,24 @@ public class NokogiriHelpers {
         } else {
             return name.substring(index+1);
         }
+    }
+
+    public static String getNodeName(Node node) {
+        String name = node.getNodeName();
+        if(name.equals("#document")) {
+            return "document";
+        } else if(name.equals("#text")) {
+            return "text";
+        } else {
+            return name;
+        }
+    }
+
+    public static boolean isNamespace(Node node) {
+        return isNamespace(node.getNodeName());
+    }
+
+    public static boolean isNamespace(String string) {
+        return string.equals("xmlns") || string.startsWith("xmlns:");
     }
 }

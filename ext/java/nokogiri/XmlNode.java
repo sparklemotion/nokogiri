@@ -72,7 +72,7 @@ public class XmlNode extends RubyObject {
         this.node = node;
         this.internalCache = new Hashtable<Node,IRubyObject>();
         if(node != null) {
-            this.name = ruby.newString(node.getNodeName());
+            this.name = ruby.newString(NokogiriHelpers.getNodeName(node));
             String textContent = node.getTextContent();
             this.content = (textContent == null) ? ruby.newString() : ruby.newString(node.getTextContent());
         }
