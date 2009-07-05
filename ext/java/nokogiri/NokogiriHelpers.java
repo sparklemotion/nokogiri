@@ -6,6 +6,7 @@
 package nokogiri;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -20,6 +21,20 @@ public class NokogiriHelpers {
         } else {
             return name.substring(index+1);
         }
+    }
+
+    public static String getNodeCompletePath(Node node) {
+        return getNodeCompletePath(node,"");
+    }
+
+    private static String getNodeCompletePath(Node node, String remainder) {
+        String currentPath = "";
+        if(!node.getOwnerDocument().equals(node.getParentNode())) {
+            int pos = 1;
+            boolean uniq = true;
+            //TODO: Finish
+        }
+        return node.getNodeName();
     }
 
     public static String getNodeName(Node node) {

@@ -305,6 +305,9 @@ public class XmlNode extends RubyObject {
         if(this.namespace == null) {
             this.namespace = new XmlNamespace(context.getRuntime(), this.node.getPrefix(),
                                 this.node.lookupNamespaceURI(this.node.getPrefix()));
+            if(((XmlNamespace) this.namespace).isEmpty()) {
+                this.namespace = context.getRuntime().getNil();
+            }
         }
 
         return this.namespace;
@@ -396,7 +399,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject path(ThreadContext context) {
-        return RubyString.newString(context.getRuntime(), node.getNodeName());
+        return RubyString.newString(context.getRuntime(), NokogiriHelpers.getNodeCompletePath(this.node));
     }
 
     @JRubyMethod(name = "key?")
