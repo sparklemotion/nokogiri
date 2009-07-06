@@ -74,7 +74,11 @@ end
 CUSTOM_DASH_I = []
 
 def nokogiri_find_header header_file, *paths
-  message = checking_message(header_file, paths)
+  # mkmf in ruby 1.8.5 does not have the "checking_message" method
+  message = defined?(checking_message) ?
+    checking_message(header_file, paths) :
+    header_file
+
   header = cpp_include header_file
   checking_for message do
     found = false
