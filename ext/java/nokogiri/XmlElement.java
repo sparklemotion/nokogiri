@@ -27,30 +27,4 @@ public class XmlElement extends XmlNode {
     public XmlElement(Ruby runtime, RubyClass klazz, Node element) {
         super(runtime, klazz, element);
     }
-
-    @Override
-    protected void relink_namespace(ThreadContext context) {
-        String qName = this.node.getNodeName();
-        if(this.node.getPrefix() == null) {
-            qName = ":" + qName;
-        }
-        Element newElement = this.node.getOwnerDocument().createElementNS(
-                this.node.lookupNamespaceURI(this.node.getPrefix())
-                , qName);
-
-        NamedNodeMap attrs = this.node.getAttributes();
-        for(int i = 0; i < attrs.getLength(); i++) {
-            newElement.setAttributeNodeNS((Attr) attrs.item(i));
-        }
-
-        NodeList children = this.node.getChildNodes();
-        for(int i = 0; i < children.getLength(); i++) {
-            newElement.appendChild(children.item(i));
-        }
-
-        this.node = newElement;
-        this.node.getOwnerDocument().replaceChild(this.node, newElement);
-
-        super.relink_namespace(context);
-    }
 }

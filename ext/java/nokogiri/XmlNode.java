@@ -150,12 +150,14 @@ public class XmlNode extends RubyObject {
     protected void relink_namespace(ThreadContext context) {
         if(this.node.getNodeType() == Node.ELEMENT_NODE) {
             Element e = (Element) this.node;
-            NamedNodeMap attrs = e.getAttributes();
+            e.getOwnerDocument().renameNode(e, e.lookupNamespaceURI(e.getPrefix()), e.getNodeName());
 
-            for(int i = 0; i < attrs.getLength(); i++) {
-                Attr attr = (Attr) attrs.item(i);
-                if(NokogiriHelpers.isNamespace(attr)){
-                    e.removeAttributeNode(attr);
+            if(e.hasAttributes()) {
+                NamedNodeMap attrs = e.getAttributes();
+
+                for(int i = 0; i < attrs.getLength(); i++) {
+                    Attr attr = (Attr) attrs.item(i);
+                    e.getOwnerDocument().renameNode(attr, attr.lookupNamespaceURI(attr.getPrefix()), attr.getNodeName());
                 }
             }
         }
@@ -185,11 +187,15 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject add_child(ThreadContext context, IRubyObject child) {
+        XmlNode childNode = asXmlNode(context, child);
         try{
-            node.appendChild(asXmlNode(context, child).node);
+            node.appendChild(childNode.node);
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError(ex.toString());
         }
+
+        childNode.relink_namespace(context);
+
         return child;
     }
 
