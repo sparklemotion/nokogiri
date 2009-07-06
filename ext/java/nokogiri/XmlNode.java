@@ -336,7 +336,13 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "node_name=")
     public IRubyObject node_name_set(ThreadContext context, IRubyObject nodeName) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        if(this.node.getNodeType() == Node.ATTRIBUTE_NODE ||
+                this.node.getNodeType() == Node.ELEMENT_NODE) {
+            String newName = nodeName.convertToString().asJavaString();
+            this.node.getOwnerDocument().renameNode(this.node, null, newName);
+            this.name = nodeName;
+        }
+        return nodeName;
     }
 
     @JRubyMethod
