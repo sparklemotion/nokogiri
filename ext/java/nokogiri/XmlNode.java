@@ -164,6 +164,24 @@ public class XmlNode extends RubyObject {
         ((XmlNodeSet) this.children(context)).relink_namespace(context);
     }
 
+    protected void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {
+        String oldPrefix = this.node.getPrefix();
+        String uri = ns.href(context).convertToString().asJavaString();
+        String newPrefix;
+
+        /*
+         * Update if both prefixes are null or equal
+         */
+        boolean update = (oldPrefix == null && ns.prefix(context).isNil()) ||
+                            (oldPrefix != null && !ns.prefix(context).isNil()
+                && oldPrefix.equals(ns.prefix(context).convertToString().asJavaString()));
+
+        if(update) {
+            this.node.getOwnerDocument().renameNode(this.node, uri, this.node.getNodeName());
+            this.namespace = ns;
+        }
+    }
+
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
 
@@ -203,6 +221,8 @@ public class XmlNode extends RubyObject {
     public IRubyObject add_namespace_definition(ThreadContext context, IRubyObject prefix, IRubyObject href) {
         Ruby ruby = context.getRuntime();
         XmlNamespace ns = new XmlNamespace(ruby, prefix, href);
+
+        updateNodeNamespaceIfNecessary(context, ns);
 
         ns.setDocument(this.document(context));
 
