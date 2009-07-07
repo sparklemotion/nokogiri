@@ -77,6 +77,12 @@ module Nokogiri
         fragment = Nokogiri::XML::Document.new.fragment(doc)
         assert_equal "<div>b</div>", fragment.to_s
       end
+
+      def test_xml_fragment_with_leading_whitespace_and_newline
+        doc = "     \n<div>b</div>  "
+        fragment = Nokogiri::XML::Document.new.fragment(doc)
+        assert_equal "<div>b</div>", fragment.to_s
+      end
     end
   end
 end
