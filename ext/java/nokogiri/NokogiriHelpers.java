@@ -55,4 +55,12 @@ public class NokogiriHelpers {
     public static boolean isNamespace(String string) {
         return string.equals("xmlns") || string.startsWith("xmlns:");
     }
+
+    public static String newQName(String newPrefix, Node node) {
+        if(newPrefix == null) {
+            return node.getLocalName();
+        } else {
+            return newPrefix + ":" + node.getLocalName();
+        }
+    }
 }

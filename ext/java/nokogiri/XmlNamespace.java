@@ -56,6 +56,10 @@ public class XmlNamespace extends RubyObject {
         return this.prefix.isNil() && this.href.isNil();
     }
 
+    public void setDocument(IRubyObject doc) {
+        this.setInstanceVariable("@document", doc);
+    }
+
     @JRubyMethod
     public IRubyObject href(ThreadContext context) {
         return this.href;

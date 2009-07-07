@@ -204,6 +204,8 @@ public class XmlNode extends RubyObject {
         Ruby ruby = context.getRuntime();
         XmlNamespace ns = new XmlNamespace(ruby, prefix, href);
 
+        ns.setDocument(this.document(context));
+
         this.getNsDefinitions(ruby).append(ns);
         return ns;
     }
@@ -374,6 +376,19 @@ public class XmlNode extends RubyObject {
         node.getParentNode().replaceChild(otherNode, node);
 
         ((XmlNode) newNode).relink_namespace(context);
+
+        return this;
+    }
+
+    @JRubyMethod(visibility=Visibility.PRIVATE)
+    public IRubyObject set_namespace(ThreadContext context, IRubyObject namespace) {
+        this.namespace = namespace;
+        this.namespace_definitions = null;
+        XmlNamespace ns = (XmlNamespace) namespace;
+        String prefix = ns.prefix(context).convertToString().asJavaString();
+        String href = ns.href(context).convertToString().asJavaString();
+
+        this.node.getOwnerDocument().renameNode(node, href, NokogiriHelpers.newQName(prefix, node));
 
         return this;
     }
