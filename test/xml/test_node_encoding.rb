@@ -14,13 +14,22 @@ module Nokogiri
           assert_equal @html.encoding, node['href'].encoding.name
         end
 
-        def test_to_html_encoding
+        def test_serialize_encoding_html
           @html = Nokogiri::HTML(File.open(NICH_FILE))
           assert_equal @html.encoding.downcase,
-            @html.to_html.encoding.name.downcase
+            @html.serialize.encoding.name.downcase
 
-          @doc = Nokogiri::HTML(@html.to_html)
-          assert_equal @html.to_html, @doc.to_html
+          @doc = Nokogiri::HTML(@html.serialize)
+          assert_equal @html.serialize, @doc.serialize
+        end
+
+        def test_serialize_encoding_xml
+          @xml = Nokogiri::XML(File.open(SHIFT_JIS_XML))
+          assert_equal @xml.encoding.downcase,
+            @xml.serialize.encoding.name.downcase
+
+          @doc = Nokogiri::XML(@xml.serialize)
+          assert_equal @xml.serialize, @doc.serialize
         end
 
         def test_encode_special_chars

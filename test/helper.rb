@@ -20,6 +20,7 @@ module Nokogiri
     EXML_FILE       = File.join(ASSETS_DIR, 'exslt.xml')
     HTML_FILE       = File.join(ASSETS_DIR, 'tlm.html')
     NICH_FILE       = File.join(ASSETS_DIR, '2ch.html')
+    SHIFT_JIS_XML   = File.join(ASSETS_DIR, 'shift_jis.xml')
     PO_XML_FILE     = File.join(ASSETS_DIR, 'po.xml')
     PO_SCHEMA_FILE  = File.join(ASSETS_DIR, 'po.xsd')
     ADDRESS_SCHEMA_FILE = File.join(ASSETS_DIR, 'address_book.rlx')

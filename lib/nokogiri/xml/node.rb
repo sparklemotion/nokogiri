@@ -481,8 +481,8 @@ Node.replace requires a Node argument, and cannot accept a Document.
       end
 
       ###
-      # Serialize Node using +options+.  Save options 
-      # can also be set using a block. See SaveOptions.
+      # Serialize Node using +options+.  Save options can also be set using a
+      # block. See SaveOptions.
       #
       # These two statements are equivalent:
       #
@@ -505,10 +505,8 @@ Node.replace requires a Node argument, and cannot accept a Document.
           outstring.force_encoding(Encoding.find(document.encoding))
         end
         io = StringIO.new(outstring)
-        puts io.external_encoding
         write_to io, options, &block
-        io.rewind
-        io.read
+        io.string
       end
 
       ###
