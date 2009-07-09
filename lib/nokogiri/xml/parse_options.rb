@@ -63,7 +63,7 @@ module Nokogiri
       end
 
       def strict
-        @options |= STRICT
+        @options &= ~RECOVER
         self
       end
 

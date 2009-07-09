@@ -222,6 +222,12 @@ module Nokogiri
         assert_raises(Nokogiri::XML::SyntaxError) {
           Nokogiri::XML('<foo><bar></foo>', nil, nil, 0)
         }
+
+        assert_raises(Nokogiri::XML::SyntaxError) {
+          Nokogiri::XML('<foo><bar></foo>') { |cfg|
+            cfg.strict
+          }
+        }
       end
 
       def test_XML_function
