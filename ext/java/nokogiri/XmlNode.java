@@ -161,6 +161,7 @@ public class XmlNode extends RubyObject {
                 }
             }
         }
+
         ((XmlNodeSet) this.children(context)).relink_namespace(context);
     }
 
@@ -206,13 +207,33 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject add_child(ThreadContext context, IRubyObject child) {
         XmlNode childNode = asXmlNode(context, child);
-        try{
-            node.appendChild(childNode.node);
-        } catch (Exception ex) {
-            throw context.getRuntime().newRuntimeError(ex.toString());
-        }
+        Node appended = childNode.node;
 
-        childNode.relink_namespace(context);
+        if(appended.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE) {
+
+            // Some magic for DocumentFragment
+            Ruby ruby = context.getRuntime();
+            XmlNodeSet children = (XmlNodeSet) childNode.children(context);
+
+            long length = children.length();
+
+            RubyArray childrenArray = children.convertToArray();
+
+            if(length != 0) {
+                for(int i = 0; i < length; i++) {
+                    add_child(context, childrenArray.aref(ruby.newFixnum(i)));
+                }
+            }
+
+        } else {
+            try{
+                node.appendChild(appended);
+            } catch (Exception ex) {
+                throw context.getRuntime().newRuntimeError(ex.toString());
+            }
+
+            childNode.relink_namespace(context);
+        }
 
         return child;
     }

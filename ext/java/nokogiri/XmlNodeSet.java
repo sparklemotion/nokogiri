@@ -25,6 +25,10 @@ public class XmlNodeSet extends RubyObject {
         this.nodes = nodes;
     }
 
+    public long length() {
+        return this.nodes.length().getLongValue();
+    }
+
     public void relink_namespace(ThreadContext context) {
         List<IRubyObject> n = this.nodes.getList();
 
