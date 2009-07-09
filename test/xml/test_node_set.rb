@@ -382,6 +382,16 @@ module Nokogiri
         assert ! employees.include?(no)
       end
 
+      def test_children
+        employees = @xml.search("//employee")
+        count = 0
+        employees.each do |employee|
+          count += employee.children.length
+        end
+        set = employees.children
+        assert_equal count, set.length
+      end
+
     end
   end
 end

@@ -70,6 +70,12 @@ module Nokogiri
         assert_equal "<div>b</div>", fragment.to_s
       end
 
+      def test_html_fragment_with_leading_whitespace_and_newline
+        doc = "     \n<div>b</div>  "
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<div>b</div>", fragment.to_s
+      end
+
       def test_to_s
         doc = "<span>foo<br></span><span>bar</span>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)

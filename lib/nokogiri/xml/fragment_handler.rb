@@ -18,12 +18,9 @@ module Nokogiri
         # this implementation choice was the result of some benchmarks, if
         # you're curious: http://gist.github.com/115936
         #
-        newline_index = original_html.index("\n")
-        @original_html = if newline_index
-                           original_html[0,newline_index]
-                         else
-                           original_html
-                         end
+        @original_html = original_html.lstrip
+        newline_index = @original_html.index("\n")
+        @original_html = @original_html[0,newline_index] if newline_index
       end
 
       def start_element name, attrs = []
