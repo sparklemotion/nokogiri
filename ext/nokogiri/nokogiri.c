@@ -53,6 +53,8 @@ void Init_nokogiri()
                 NOKOGIRI_STR_NEW2(xmlParserVersion, "UTF-8")
               );
 
+  xmlInitParser();
+
   init_xml_document();
   init_html_document();
   init_xml_node();

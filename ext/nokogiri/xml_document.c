@@ -136,7 +136,6 @@ static VALUE read_io( VALUE klass,
   const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
   VALUE error_list      = rb_ary_new();
 
-  xmlInitParser();
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
@@ -187,7 +186,6 @@ static VALUE read_memory( VALUE klass,
   int len               = RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
 
-  xmlInitParser();
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
   xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
