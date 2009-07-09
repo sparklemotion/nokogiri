@@ -37,7 +37,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -145,6 +144,10 @@ public class XmlNode extends RubyObject {
         Ruby ruby = context.getRuntime();
         if (!(xmlNode instanceof XmlNode)) throw ruby.newTypeError(xmlNode, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
         return ((XmlNode)xmlNode).node;
+    }
+
+    protected Node getNodeToCompare() {
+        return this.node;
     }
 
     protected void relink_namespace(ThreadContext context) {
@@ -294,10 +297,16 @@ public class XmlNode extends RubyObject {
             return context.getRuntime().newFixnum(-2);
         }
 
-        Node on = ((XmlNode) otherNode).getNode();
+        Node on = ((XmlNode) otherNode).getNodeToCompare();
+
+        // Do not touch this if, if it's not for a good reason.
+        if(getNodeToCompare().getNodeType() == Node.DOCUMENT_NODE ||
+                on.getNodeType() == Node.DOCUMENT_NODE) {
+            return context.getRuntime().newFixnum(-1);
+        }
 
         try{
-            int res = this.node.compareDocumentPosition(on);
+            int res = getNodeToCompare().compareDocumentPosition(on);
             if( (res & FIRST_PRECEDES_SECOND) == FIRST_PRECEDES_SECOND) {
                 return context.getRuntime().newFixnum(-1);
             } else if ( (res & SECOND_PRECEDES_FIRST) == SECOND_PRECEDES_FIRST) {

@@ -56,6 +56,11 @@ public class XmlDocument extends XmlNode {
         return document;
     }
 
+    @Override
+    protected Node getNodeToCompare() {
+        return this.document;
+    }
+
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         XmlDocument doc = null;
