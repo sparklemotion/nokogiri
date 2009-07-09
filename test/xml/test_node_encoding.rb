@@ -14,6 +14,15 @@ module Nokogiri
           assert_equal @html.encoding, node['href'].encoding.name
         end
 
+        def test_to_html_encoding
+          @html = Nokogiri::HTML(File.open(NICH_FILE))
+          assert_equal @html.encoding.downcase,
+            @html.to_html.encoding.name.downcase
+
+          @doc = Nokogiri::HTML(@html.to_html)
+          assert_equal @html.to_html, @doc.to_html
+        end
+
         def test_encode_special_chars
           foo = @html.css('a').first.encode_special_chars('foo')
           assert_equal @html.encoding, foo.encoding.name

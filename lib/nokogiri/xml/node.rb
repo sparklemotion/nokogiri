@@ -500,7 +500,12 @@ Node.replace requires a Node argument, and cannot accept a Document.
           :save_with  => args[1] || SaveOptions::FORMAT
         }
 
-        io = StringIO.new
+        outstring = ""
+        if document.encoding && outstring.respond_to?(:force_encoding)
+          outstring.force_encoding(Encoding.find(document.encoding))
+        end
+        io = StringIO.new(outstring)
+        puts io.external_encoding
         write_to io, options, &block
         io.rewind
         io.read
