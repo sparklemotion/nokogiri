@@ -1,5 +1,9 @@
 === HEAD
 
+* New Features
+
+  * NodeSet#children returns all children of all nodes
+
 * Bugfixes
 
   * Override libxml-ruby's global error handler
