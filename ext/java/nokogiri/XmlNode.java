@@ -250,9 +250,16 @@ public class XmlNode extends RubyObject {
         String hrefString = href.convertToString().asJavaString();
         XmlNamespace ns = this.nsCache.get(context, this, prefixString, hrefString);
 
-        updateNodeNamespaceIfNecessary(context, ns);
+        if(this.node.getNodeType() == Node.ELEMENT_NODE) {
 
-        this.getNsDefinitions(ruby).append(ns);
+            Element e = (Element) this.node;
+            prefixString = (prefix.isNil()) ? "xmlns" : "xmlns:"+prefixString;
+            e.setAttribute(prefixString, hrefString);
+
+            updateNodeNamespaceIfNecessary(context, ns);
+
+            this.namespace_definitions = null;
+        }
         return ns;
     }
 
