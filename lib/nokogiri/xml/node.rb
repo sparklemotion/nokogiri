@@ -295,7 +295,7 @@ module Nokogiri
       def inner_html= tags
         children.each { |x| x.remove}
 
-        fragment(tags).children.to_a.reverse.each do |node|
+        fragment(tags).children.to_a.each do |node|
           add_child node
         end
         self
