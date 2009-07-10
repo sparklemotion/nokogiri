@@ -61,14 +61,14 @@ public class XmlDocument extends XmlNode {
         return this.document;
     }
 
-    @JRubyMethod(meta = true, rest = true)
+    @JRubyMethod(name="new", meta = true, rest = true, required=0)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         XmlDocument doc = null;
         try {
             doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
-                       DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0").createDocument(null, null, null));
+                       DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0").createDocument(null, "empty", null));
         } catch (Exception ex) {
-            throw context.getRuntime().newRuntimeError("couldn't create document");
+            throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
 
         return doc;
@@ -146,7 +146,7 @@ public class XmlDocument extends XmlNode {
         return root;
     }
 
-    @JRubyMethod
+    @JRubyMethod(name="root=")
     public IRubyObject root_set(ThreadContext context, IRubyObject root) {
         Node node = XmlNode.getNodeFromXmlNode(context, root);
         document.replaceChild(node, document.getDocumentElement());
