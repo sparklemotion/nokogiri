@@ -48,6 +48,7 @@ public class XmlNode extends RubyObject {
     protected Node node;
     protected IRubyObject content, doc, name, namespace, namespace_definitions;
     protected Hashtable<Node,IRubyObject> internalCache;
+    protected NokogiriNamespaceCache nsCache;
 
     /*
      * Taken from http://ejohn.org/blog/comparing-document-position/
@@ -70,6 +71,7 @@ public class XmlNode extends RubyObject {
         super(ruby, cls);
         this.node = node;
         this.internalCache = new Hashtable<Node,IRubyObject>();
+        this.nsCache = new NokogiriNamespaceCache();
         if(node != null) {
             this.name = ruby.newString(NokogiriHelpers.getNodeName(node));
             String textContent = node.getTextContent();
@@ -244,11 +246,11 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject add_namespace_definition(ThreadContext context, IRubyObject prefix, IRubyObject href) {
         Ruby ruby = context.getRuntime();
-        XmlNamespace ns = new XmlNamespace(ruby, prefix, href);
+        String prefixString = prefix.isNil() ? "" : prefix.convertToString().asJavaString();
+        String hrefString = href.convertToString().asJavaString();
+        XmlNamespace ns = this.nsCache.get(context, this, prefixString, hrefString);
 
         updateNodeNamespaceIfNecessary(context, ns);
-
-        ns.setDocument(this.document(context));
 
         this.getNsDefinitions(ruby).append(ns);
         return ns;
