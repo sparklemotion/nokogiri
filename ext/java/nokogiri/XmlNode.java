@@ -37,6 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -77,6 +78,30 @@ public class XmlNode extends RubyObject {
             String textContent = node.getTextContent();
             this.content = (textContent == null) ? ruby.newString() : ruby.newString(node.getTextContent());
         }
+    }
+
+    protected void assimilateXmlNode(ThreadContext context, IRubyObject otherNode) {
+        XmlNode toAssimilate = asXmlNode(context, otherNode);
+
+        this.node = toAssimilate.node;
+        content = toAssimilate.content(context);
+        doc = toAssimilate.document(context);
+        name = toAssimilate.node_name(context);
+        namespace = toAssimilate.namespace(context);
+        namespace_definitions = toAssimilate.namespace_definitions(context);
+    }
+
+    protected void coalesceTextNodes(ThreadContext context, IRubyObject prev, IRubyObject cur) {
+        XmlNode p = asXmlNode(context, prev);
+        XmlNode c = asXmlNode(context, cur);
+
+        Node pNode = p.node;
+        Node cNode = c.node;
+
+        pNode.setNodeValue(pNode.getNodeValue()+cNode.getNodeValue());
+        p.content = null;
+
+        c.assimilateXmlNode(context, p);
     }
 
     protected static IRubyObject constructNode(Ruby ruby, Node node) {
@@ -231,6 +256,23 @@ public class XmlNode extends RubyObject {
             }
 
         } else {
+
+            if(childNode.document(context) != this.document(context)) {
+                this.node.getOwnerDocument().adoptNode(appended);
+                childNode.doc = this.doc;
+            } else if(appended.getParentNode() != null) {
+                childNode.unlink(context);
+            }
+
+            if(appended.getNodeType() == Node.TEXT_NODE) {
+                RubyArray children = ((XmlNodeSet) this.children(context)).convertToArray();
+                if(!children.isEmpty()) {
+                    XmlNode last = (XmlNode) children.last();
+                    this.coalesceTextNodes(context, last, child);
+                    return child;
+                }
+            }
+
             try{
                 node.appendChild(appended);
             } catch (Exception ex) {
@@ -398,6 +440,9 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject node_name(ThreadContext context) {
+        if(this.name == null) {
+            this.name = context.getRuntime().newString(this.node.getNodeName());
+        }
         return this.name;
     }
 
@@ -480,6 +525,11 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject content(ThreadContext context) {
+        if(this.content == null) {
+            String textContent = this.node.getTextContent();
+            this.content = (textContent == null) ? context.getRuntime().newString() :
+                context.getRuntime().newString(textContent);
+        }
         return this.content;
     }
 
