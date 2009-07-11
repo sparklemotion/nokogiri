@@ -91,6 +91,12 @@ public class XmlNode extends RubyObject {
         namespace_definitions = toAssimilate.namespace_definitions(context);
     }
 
+    /**
+     * Coalesce to adjacent TextNodes.
+     * @param context
+     * @param prev Previous node to cur.
+     * @param cur Next node to prev.
+     */
     protected void coalesceTextNodes(ThreadContext context, IRubyObject prev, IRubyObject cur) {
         XmlNode p = asXmlNode(context, prev);
         XmlNode c = asXmlNode(context, cur);
@@ -102,6 +108,32 @@ public class XmlNode extends RubyObject {
         p.content = null;
 
         c.assimilateXmlNode(context, p);
+    }
+
+    /**
+     * Given three nodes such that firstNode is previousSibling of secondNode
+     * and secondNode is previousSibling of third node, this method coalesces
+     * two subsequent TextNodes.
+     * @param context
+     * @param firstNode
+     * @param secondNode
+     * @param thirdNode
+     */
+    protected void coalesceTextNodesInteligently(ThreadContext context, IRubyObject firstNode,
+            IRubyObject secondNode, IRubyObject thirdNode) {
+
+        Node first = (firstNode.isNil()) ? null : asXmlNode(context, firstNode).node;
+        Node second = asXmlNode(context, secondNode).node;
+        Node third = (thirdNode.isNil()) ? null : asXmlNode(context, thirdNode).node;
+
+        if(second.getNodeType() == Node.TEXT_NODE) {
+            if(first != null && first.getNodeType() == Node.TEXT_NODE) {
+                coalesceTextNodes(context, firstNode, secondNode);
+            } else if(third != null && third.getNodeType() == Node.TEXT_NODE) {
+                coalesceTextNodes(context, secondNode, thirdNode);
+            }
+        }
+
     }
 
     protected static IRubyObject constructNode(Ruby ruby, Node node) {
@@ -603,29 +635,33 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject add_previous_sibling(ThreadContext context, IRubyObject node) {
-        if (node instanceof XmlNode) {
-            this.node.getParentNode().insertBefore(((XmlNode)node).node, this.node);
-            RuntimeHelpers.invoke(context , node, "decorate!");
-            return node;
-        } else {
-            throw context.getRuntime().newTypeError(node, (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::Node"));
-        }
+        IRubyObject previousSibling = this.previous_sibling(context);
+        XmlNode otherNode = asXmlNode(context, node);
+
+        this.node.getParentNode().insertBefore(otherNode.node, this.node);
+        RuntimeHelpers.invoke(context , otherNode, "decorate!");
+
+        coalesceTextNodesInteligently(context, previousSibling, otherNode, this);
+
+        return node;
     }
 
     @JRubyMethod
-    public IRubyObject add_next_sibling(ThreadContext context, IRubyObject node) {
-        if (node instanceof XmlNode) {
-            Node next = this.node.getNextSibling();
-            if (next != null) {
-                this.node.getParentNode().insertBefore(((XmlNode)node).node, next);
-            } else {
-                this.node.getParentNode().appendChild(((XmlNode)node).node);
-            }
-            RuntimeHelpers.invoke(context, node, "decorate!");
-            return node;
+    public IRubyObject add_next_sibling(ThreadContext context, IRubyObject appendNode) {
+        IRubyObject nextSibling = this.next_sibling(context);
+
+        XmlNode otherNode = asXmlNode(context, appendNode);
+        Node next = this.node.getNextSibling();
+        if (next != null) {
+            this.node.getParentNode().insertBefore(otherNode.node, next);
         } else {
-            throw context.getRuntime().newTypeError(node, (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::Node"));
+            this.node.getParentNode().appendChild(otherNode.node);
         }
+        RuntimeHelpers.invoke(context, otherNode, "decorate!");
+
+        coalesceTextNodesInteligently(context, this, appendNode, nextSibling);
+
+        return otherNode;
     }
 
     @JRubyMethod
