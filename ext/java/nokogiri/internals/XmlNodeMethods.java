@@ -44,8 +44,12 @@ public class XmlNodeMethods {
 
     public void add_namespace_definitions(ThreadContext context, XmlNode current, XmlNamespace ns, String prefix, String href) {}
 
-    public IRubyObject get_internals(ThreadContext context, XmlNode current, IRubyObject key) {
+    public IRubyObject get(ThreadContext context, XmlNode current, IRubyObject key) {
         return context.getRuntime().getNil();
+    }
+
+    public IRubyObject key_p(ThreadContext context, XmlNode current, IRubyObject k) {
+        return context.getRuntime().getFalse();
     }
 
     public void relink_namespace(ThreadContext context, XmlNode current) {}

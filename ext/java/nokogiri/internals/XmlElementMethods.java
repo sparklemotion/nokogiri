@@ -2,6 +2,7 @@ package nokogiri.internals;
 
 import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
+import org.jruby.Ruby;
 import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -24,7 +25,7 @@ public class XmlElementMethods extends XmlNodeMethods{
     }
 
     @Override
-    public IRubyObject get_internals(ThreadContext context, XmlNode current, IRubyObject key) {
+    public IRubyObject get(ThreadContext context, XmlNode current, IRubyObject key) {
         String keyString = key.convertToString().asJavaString();
         Element element = (Element) current.getNode();
         String value = element.getAttribute(keyString);
@@ -32,6 +33,14 @@ public class XmlElementMethods extends XmlNodeMethods{
             return RubyString.newString(context.getRuntime(), value);
         }
         return context.getRuntime().getNil();
+    }
+
+    @Override
+    public IRubyObject key_p(ThreadContext context, XmlNode current, IRubyObject k) {
+        Ruby ruby = context.getRuntime();
+        String key = k.convertToString().asJavaString();
+        Element element = (Element)current.getNode();
+        return ruby.newBoolean(element.hasAttribute(key));
     }
 
     @Override
