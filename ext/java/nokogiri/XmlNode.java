@@ -207,6 +207,10 @@ public class XmlNode extends RubyObject {
         this.internalNode.setDocument(doc);
     }
 
+    public void setName(IRubyObject name) {
+        this.internalNode.setName(name);
+    }
+
     protected void setNode(Node node) {
         this.internalNode.setNode(node);
     }
@@ -553,12 +557,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "node_name=")
     public IRubyObject node_name_set(ThreadContext context, IRubyObject nodeName) {
-        if(this.node().getNodeType() == Node.ATTRIBUTE_NODE ||
-                this.node().getNodeType() == Node.ELEMENT_NODE) {
-            String newName = nodeName.convertToString().asJavaString();
-            this.node().getOwnerDocument().renameNode(this.node(), null, newName);
-            this.internalNode.setName(nodeName);
-        }
+        this.internalNode.methods().node_name_set(context, this, nodeName);
         return nodeName;
     }
 

@@ -52,11 +52,14 @@ public class XmlNodeMethods {
         return context.getRuntime().getFalse();
     }
 
+    public void node_name_set(ThreadContext context, XmlNode aThis, IRubyObject nodeName) {}
+
     public void relink_namespace(ThreadContext context, XmlNode current) {}
 
     public static XmlNodeMethods getMethodsForNode(Node node) {
         if(node == null) return new XmlNodeMethods();
         switch(node.getNodeType()) {
+            case Node.ATTRIBUTE_NODE: return new XmlAttrMethods();
             case Node.DOCUMENT_FRAGMENT_NODE: return new XmlDocumentFragmentMethods();
             case Node.ELEMENT_NODE: return new XmlElementMethods();
             default: return new XmlNodeMethods();
