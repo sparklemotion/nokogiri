@@ -211,10 +211,9 @@ public class XmlNode extends RubyObject {
         this.internalNode.setNode(node);
     }
 
-    protected void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {
+    public void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {
         String oldPrefix = this.node().getPrefix();
         String uri = ns.href(context).convertToString().asJavaString();
-        String newPrefix;
 
         /*
          * Update if both prefixes are null or equal
@@ -264,16 +263,10 @@ public class XmlNode extends RubyObject {
         String hrefString = href.convertToString().asJavaString();
         XmlNamespace ns = this.nsCache.get(context, this, prefixString, hrefString);
 
-        if(this.node().getNodeType() == Node.ELEMENT_NODE) {
+        this.internalNode.methods().add_namespace_definitions(context, this, ns,
+                (prefix.isNil()) ? "xmlns" : "xmlns:"+prefixString, hrefString);
 
-            Element e = (Element) this.node();
-            prefixString = (prefix.isNil()) ? "xmlns" : "xmlns:"+prefixString;
-            e.setAttribute(prefixString, hrefString);
-
-            updateNodeNamespaceIfNecessary(context, ns);
-
-            this.internalNode.resetNamespaceDefinitions();
-        }
+        this.internalNode.resetNamespaceDefinitions();
         return ns;
     }
 

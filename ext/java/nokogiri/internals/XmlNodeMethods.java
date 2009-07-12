@@ -1,5 +1,6 @@
 package nokogiri.internals;
 
+import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
 import org.jruby.RubyArray;
@@ -40,7 +41,9 @@ public class XmlNodeMethods {
         child.relink_namespace(context);
     }
 
-    public void relink_namespace(ThreadContext context, XmlNode node) {}
+    public void add_namespace_definitions(ThreadContext context, XmlNode current, XmlNamespace ns, String prefix, String href) {}
+
+    public void relink_namespace(ThreadContext context, XmlNode current) {}
 
     public static XmlNodeMethods getMethodsForNode(Node node) {
         if(node == null) return new XmlNodeMethods();
