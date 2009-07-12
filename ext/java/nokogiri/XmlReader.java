@@ -328,7 +328,7 @@ class LangStack {
     }
 
     public void push(int depth, String lang) {
-        this.depth.push(new Integer(depth));
+        this.depth.push(Integer.valueOf(depth));
         this.lang.push(lang);
     }
 
@@ -336,7 +336,7 @@ class LangStack {
         IRubyObject langString = node.getAttributeByName("xml:lang");
 
         if(!langString.isNil()){
-            this.depth.push(new Integer((int) node.getDepth().convertToInteger().getLongValue()));
+            this.depth.push(Integer.valueOf((int) node.getDepth().convertToInteger().getLongValue()));
             this.lang.push(langString.convertToString().asJavaString());
         }
 

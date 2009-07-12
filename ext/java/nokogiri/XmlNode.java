@@ -57,12 +57,12 @@ public class XmlNode extends RubyObject {
      * <ironic>Thanks to both java api and w3 doc for its helpful documentation</ironic>
      */
 
-    protected static int IDENTICAL_ELEMENTS = 0;
-    protected static int IN_DIFFERENT_DOCUMENTS = 1;
-    protected static int SECOND_PRECEDES_FIRST = 2;
-    protected static int FIRST_PRECEDES_SECOND = 4;
-    protected static int SECOND_CONTAINS_FIRST = 8;
-    protected static int FIRST_CONTAINS_SECOND = 16;
+    protected static final int IDENTICAL_ELEMENTS = 0;
+    protected static final int IN_DIFFERENT_DOCUMENTS = 1;
+    protected static final int SECOND_PRECEDES_FIRST = 2;
+    protected static final int FIRST_PRECEDES_SECOND = 4;
+    protected static final int SECOND_CONTAINS_FIRST = 8;
+    protected static final int FIRST_CONTAINS_SECOND = 16;
     
     public XmlNode(Ruby ruby, RubyClass cls){
         this(ruby,cls,null);
@@ -319,7 +319,6 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject add_namespace_definition(ThreadContext context, IRubyObject prefix, IRubyObject href) {
-        Ruby ruby = context.getRuntime();
         String prefixString = prefix.isNil() ? "" : prefix.convertToString().asJavaString();
         String hrefString = href.convertToString().asJavaString();
         XmlNamespace ns = this.nsCache.get(context, this, prefixString, hrefString);
@@ -394,7 +393,7 @@ public class XmlNode extends RubyObject {
                 return context.getRuntime().newFixnum(-1);
             } else if ( (res & SECOND_PRECEDES_FIRST) == SECOND_PRECEDES_FIRST) {
                 return context.getRuntime().newFixnum(1);
-            } else if ( (res & IDENTICAL_ELEMENTS) == IDENTICAL_ELEMENTS) {
+            } else if ( res == IDENTICAL_ELEMENTS) {
                 return context.getRuntime().newFixnum(0);
             }
 

@@ -32,7 +32,6 @@ abstract class ReaderNode {
     // FIXME: Maybe faster to return this instead of standar attributes method
     Map<IRubyObject,IRubyObject> attributes;
     IRubyObject[] attributeValues;
-    private boolean closing;
 
 
     public ReaderNode getClosingNode(){
@@ -62,8 +61,6 @@ abstract class ReaderNode {
         
         if(!node().uri.isNil()) {
             uriFits = node().uri.asJavaString().equals(uri);
-        } else {
-            uriFits = uri.equals(uri);
         }
 
         return  uriFits &&
@@ -274,8 +271,6 @@ class ElementNode extends ReaderNode {
 
         this.attributes = new Hashtable<IRubyObject, IRubyObject>();
         this.attributeValues = new IRubyObject[attrs.getLength()];
-
-        ThreadContext context = this.ruby.getCurrentContext();
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         Document doc = null;
