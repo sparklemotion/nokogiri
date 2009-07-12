@@ -437,15 +437,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(visibility = Visibility.PRIVATE)
     public IRubyObject get(ThreadContext context, IRubyObject attribute) {
-        String key = attribute.convertToString().asJavaString();
-        if (node() instanceof Element) {
-            Element element = (Element)node();
-            String value = element.getAttribute(key);
-            if(!value.equals("")){
-                return RubyString.newString(context.getRuntime(), value);
-            }
-        }
-        return context.getRuntime().getNil();
+        return this.internalNode.methods().get_internals(context, this, attribute);
     }
 
     @JRubyMethod

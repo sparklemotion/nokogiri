@@ -2,7 +2,9 @@ package nokogiri.internals;
 
 import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
+import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -19,6 +21,17 @@ public class XmlElementMethods extends XmlNodeMethods{
         e.setAttribute(prefix, href);
 
         current.updateNodeNamespaceIfNecessary(context, ns);
+    }
+
+    @Override
+    public IRubyObject get_internals(ThreadContext context, XmlNode current, IRubyObject key) {
+        String keyString = key.convertToString().asJavaString();
+        Element element = (Element) current.getNode();
+        String value = element.getAttribute(keyString);
+        if(!value.equals("")){
+            return RubyString.newString(context.getRuntime(), value);
+        }
+        return context.getRuntime().getNil();
     }
 
     @Override

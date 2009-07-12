@@ -5,6 +5,7 @@ import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
 import org.jruby.RubyArray;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 
 /**
@@ -42,6 +43,10 @@ public class XmlNodeMethods {
     }
 
     public void add_namespace_definitions(ThreadContext context, XmlNode current, XmlNamespace ns, String prefix, String href) {}
+
+    public IRubyObject get_internals(ThreadContext context, XmlNode current, IRubyObject key) {
+        return context.getRuntime().getNil();
+    }
 
     public void relink_namespace(ThreadContext context, XmlNode current) {}
 
