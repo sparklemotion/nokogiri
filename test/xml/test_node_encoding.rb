@@ -14,6 +14,11 @@ module Nokogiri
           assert_equal @html.encoding, node['href'].encoding.name
         end
 
+        def test_text_encoding_is_utf_8
+          @html = Nokogiri::HTML(File.open(NICH_FILE))
+          assert_equal 'UTF-8', @html.text.encoding.name
+        end
+
         def test_serialize_encoding_html
           @html = Nokogiri::HTML(File.open(NICH_FILE))
           assert_equal @html.encoding.downcase,
