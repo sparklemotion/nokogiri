@@ -180,9 +180,8 @@ public class XmlNode extends RubyObject {
     }
 
     public static Node getNodeFromXmlNode(ThreadContext context, IRubyObject xmlNode) {
-        Ruby ruby = context.getRuntime();
-        if (!(xmlNode instanceof XmlNode)) throw ruby.newTypeError(xmlNode, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
-        return ((XmlNode)xmlNode).node();
+        
+        return asXmlNode(context, xmlNode).node();
     }
 
     protected Node getNodeToCompare() {
