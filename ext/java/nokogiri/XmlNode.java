@@ -642,15 +642,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject unlink(ThreadContext context) {
-        if(this.node().getNodeType() == Node.ATTRIBUTE_NODE) {
-            Attr attr = (Attr) this.node();
-            Element parent = attr.getOwnerElement();
-            parent.removeAttributeNode(attr);
-        } else if(this.node().getParentNode() == null) {
-            throw context.getRuntime().newRuntimeError("TYPE: "+this.node().getNodeType()+ " PARENT NULL");
-        } else {
-            node().getParentNode().removeChild(node());
-        }
+        this.internalNode.methods().unlink(context, this);
         return this;
     }
 

@@ -60,6 +60,15 @@ public class XmlNodeMethods {
 
     public void relink_namespace(ThreadContext context, XmlNode current) {}
 
+    public void unlink(ThreadContext context, XmlNode current) {
+        Node currentNode = current.getNode();
+        if(currentNode.getParentNode() == null) {
+            throw context.getRuntime().newRuntimeError("TYPE: "+currentNode.getNodeType()+ " PARENT NULL");
+        } else {
+            currentNode.getParentNode().removeChild(currentNode);
+        }
+    }
+
     public static XmlNodeMethods getMethodsForNode(Node node) {
         if(node == null) return new XmlNodeMethods();
         switch(node.getNodeType()) {
