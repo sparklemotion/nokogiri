@@ -87,7 +87,7 @@ end
 
 namespace :jruby do
   task :clean do
-    (FileList['ext/java/nokogiri/*.class'] + FileList['ext/java/*.class']).to_a.each do |file|
+    (FileList['ext/java/nokogiri/internals/*.class'] + FileList['ext/java/nokogiri/*.class'] + FileList['ext/java/*.class']).to_a.each do |file|
       File.delete file
     end
   end
@@ -148,8 +148,8 @@ end
 
 task JAVA_EXT do
   Dir.chdir('ext/java') do
-    sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar nokogiri/*.java"
-    sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class"
+    sh "javac -cp #{JRUBY_HOME}/lib/jruby.jar nokogiri/*.java nokogiri/internals/*.java"
+    sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class nokogiri/internals/*.class"
   end
 end
 

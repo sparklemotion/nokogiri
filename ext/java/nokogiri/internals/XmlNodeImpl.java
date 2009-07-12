@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+package nokogiri.internals;
 
-package nokogiri;
-
+import nokogiri.*;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyString;
@@ -19,11 +15,13 @@ import static nokogiri.NokogiriHelpers.isNamespace;
  *
  * @author sergio
  */
-class XmlNodeImpl {
+public class XmlNodeImpl {
 
     protected IRubyObject content, doc, name, namespace, namespace_definitions;
 
     private Node node;
+
+    private XmlNodeMethods methods;
 
     private static final IRubyObject DEFAULT_CONTENT = null;
     private static final IRubyObject DEFAULT_DOC = null;
@@ -36,6 +34,7 @@ class XmlNodeImpl {
         if(node != null) {
             this.name = ruby.newString(NokogiriHelpers.getNodeName(node));
         }
+        updateMethods();
     }
 
     public RubyString getContent(ThreadContext context) {
@@ -102,6 +101,10 @@ class XmlNodeImpl {
         return (RubyArray) this.namespace_definitions;
     }
 
+    public XmlNodeMethods methods() {
+        return this.methods;
+    }
+
     public void resetContent() {
         this.content = DEFAULT_CONTENT;
     }
@@ -144,5 +147,10 @@ class XmlNodeImpl {
 
     public void setNode(Node node) {
         this.node = node;
+        updateMethods();
+    }
+
+    private void updateMethods() {
+        this.methods = XmlNodeMethods.getMethodsForNode(this.node);
     }
 }
