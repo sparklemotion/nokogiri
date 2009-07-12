@@ -7,7 +7,6 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class XmlAttr extends XmlNode{
@@ -31,6 +30,9 @@ public class XmlAttr extends XmlNode{
 
     @JRubyMethod(name="value=")
     public IRubyObject value_set(ThreadContext context, IRubyObject content){
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        Attr current = (Attr) node();
+        current.setValue(this.encode_special_chars(context, content).convertToString().asJavaString());
+        this.internalNode.setContent(content);
+        return content;
     }
 }
