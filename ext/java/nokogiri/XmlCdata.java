@@ -3,6 +3,8 @@ package nokogiri;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
@@ -14,10 +16,19 @@ public class XmlCdata extends XmlText {
     }
 
     @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject text, IRubyObject doc) {
-        XmlDocument xmlDoc = (XmlDocument)doc;
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject doc, IRubyObject text) {
+        XmlDocument xmlDoc =(XmlDocument) ((XmlNode) doc).document(context);
         Document document = xmlDoc.getDocument();
-        Node node = document.createCDATASection(text.convertToString().asJavaString());
-        return XmlNode.constructNode(context.getRuntime(), node);
+        Node node = document.createCDATASection((text.isNil()) ? null : text.convertToString().asJavaString());
+        XmlNode cdata = (XmlNode) XmlNode.constructNode(context.getRuntime(), node);
+
+        IRubyObject[] args = new IRubyObject[2];
+        args[0] = doc; args[1] = text;
+
+        RuntimeHelpers.invoke(context, cdata, "initialize", args);
+
+        // TODO: if_block_given.
+
+        return cdata;
     }
 }

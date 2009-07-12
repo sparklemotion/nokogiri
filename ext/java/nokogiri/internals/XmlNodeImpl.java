@@ -37,14 +37,14 @@ public class XmlNodeImpl {
         updateMethods();
     }
 
-    public RubyString getContent(ThreadContext context) {
+    public IRubyObject getContent(ThreadContext context) {
         if(this.content == DEFAULT_CONTENT) {
             String textContent = this.node.getTextContent();
-            this.content = (textContent == null) ? context.getRuntime().newString() :
+            this.content = (textContent == null) ? methods().getNullContent(context) :
                 context.getRuntime().newString(textContent);
         }
 
-        return (RubyString) this.content;
+        return this.content;
     }
 
     public XmlDocument getDocument(ThreadContext context) {

@@ -48,6 +48,10 @@ public class XmlNodeMethods {
         return context.getRuntime().getNil();
     }
 
+    public IRubyObject getNullContent(ThreadContext context) {
+        return context.getRuntime().newString();
+    }
+
     public IRubyObject key_p(ThreadContext context, XmlNode current, IRubyObject k) {
         return context.getRuntime().getFalse();
     }
@@ -73,6 +77,7 @@ public class XmlNodeMethods {
         if(node == null) return new XmlNodeMethods();
         switch(node.getNodeType()) {
             case Node.ATTRIBUTE_NODE: return new XmlAttrMethods();
+            case Node.CDATA_SECTION_NODE: return new XmlCdataMethods();
             case Node.DOCUMENT_FRAGMENT_NODE: return new XmlDocumentFragmentMethods();
             case Node.ELEMENT_NODE: return new XmlElementMethods();
             default: return new XmlNodeMethods();

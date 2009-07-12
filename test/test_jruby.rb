@@ -6,6 +6,7 @@ load File.join(XML_DIR, 'test_namespace.rb')
 load File.join(XML_DIR, 'test_node.rb')
 load File.join(XML_DIR, 'test_node_attributes.rb')
 load File.join(XML_DIR, 'test_attr.rb')
+load File.join(XML_DIR, 'test_cdata.rb')
 
 #suite = TestSuite.new "JRuby test"
 #suite << TestReader
