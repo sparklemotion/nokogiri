@@ -47,8 +47,8 @@ public class XmlDocumentFragment extends XmlNode {
         XmlDocument doc = (XmlDocument) argc[0];
 
         XmlDocumentFragment fragment = new XmlDocumentFragment(context.getRuntime());
-
-        fragment.doc = doc;
+        
+        fragment.setDocument(doc);
         fragment.node = doc.getDocument().createDocumentFragment();
 
         //TODO: Get namespace definitions from doc.
