@@ -563,12 +563,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "[]=")
     public IRubyObject op_aset(ThreadContext context, IRubyObject index, IRubyObject val) {
-        String key = index.convertToString().asJavaString();
-        String value = val.convertToString().asJavaString();
-        if (node().getNodeType() == Node.ELEMENT_NODE) {
-            Element element = (Element)node();
-            element.setAttribute(key, value);
-        }
+        this.internalNode.methods().op_aset(context, this, index, val);
         return val;
     }
 

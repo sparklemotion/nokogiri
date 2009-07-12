@@ -51,6 +51,14 @@ public class XmlElementMethods extends XmlNodeMethods{
     }
 
     @Override
+    public void op_aset(ThreadContext context, XmlNode current, IRubyObject index, IRubyObject val) {
+        String key = index.convertToString().asJavaString();
+        String value = val.convertToString().asJavaString();
+        Element element = (Element)current.getNode();
+        element.setAttribute(key, value);
+    }
+
+    @Override
     public void relink_namespace(ThreadContext context, XmlNode node) {
         Element e = (Element) node.getNode();
         e.getOwnerDocument().renameNode(e, e.lookupNamespaceURI(e.getPrefix()), e.getNodeName());

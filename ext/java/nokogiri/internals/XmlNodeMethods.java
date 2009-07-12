@@ -54,6 +54,8 @@ public class XmlNodeMethods {
 
     public void node_name_set(ThreadContext context, XmlNode aThis, IRubyObject nodeName) {}
 
+    public void op_aset(ThreadContext context, XmlNode current, IRubyObject index, IRubyObject val) {}
+
     public void relink_namespace(ThreadContext context, XmlNode current) {}
 
     public static XmlNodeMethods getMethodsForNode(Node node) {
