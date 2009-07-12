@@ -12,6 +12,7 @@ import org.jruby.RubyIO;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
+import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -71,6 +72,8 @@ public class XmlDocument extends XmlNode {
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
+
+        RuntimeHelpers.invoke(context, doc, "initialize", args);
 
         return doc;
     }
