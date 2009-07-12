@@ -59,6 +59,13 @@ public class XmlElementMethods extends XmlNodeMethods{
     }
 
     @Override
+    public void remove_attribute(ThreadContext context, XmlNode current, IRubyObject name) {
+        String key = name.convertToString().asJavaString();
+        Element element = (Element)current.getNode();
+        element.removeAttribute(key);
+    }
+
+    @Override
     public void relink_namespace(ThreadContext context, XmlNode node) {
         Element e = (Element) node.getNode();
         e.getOwnerDocument().renameNode(e, e.lookupNamespaceURI(e.getPrefix()), e.getNodeName());

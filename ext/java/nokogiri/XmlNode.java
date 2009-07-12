@@ -596,11 +596,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject remove_attribute(ThreadContext context, IRubyObject name) {
-        String key = name.convertToString().asJavaString();
-        if (node() instanceof Element) {
-            Element element = (Element)node();
-            element.removeAttribute(key);
-        }
+        this.internalNode.methods().remove_attribute(context, this, name);
         return context.getRuntime().getNil();
     }
 
