@@ -68,6 +68,10 @@ class XmlNodeImpl {
         return this.namespace;
     }
 
+    public Node getNode() {
+        return this.node;
+    }
+
     public RubyString getNodeName(ThreadContext context) {
         if(this.name == DEFAULT_NAME) {
             this.name = context.getRuntime().newString(this.node.getNodeName());
@@ -136,5 +140,9 @@ class XmlNodeImpl {
 
     public void setNamespaceDefinitions(IRubyObject namespace_definitions) {
         this.namespace_definitions = namespace_definitions;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
     }
 }

@@ -38,7 +38,8 @@ public class XmlDocument extends XmlNode {
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
         super(ruby, klass, document.getDocumentElement());
         this.document = document;
-        this.node = document.getDocumentElement();
+
+        this.setNode(document.getDocumentElement());
 
         this.hashNode = new Hashtable<Node, XmlNode>();
         setInstanceVariable("@decorators", ruby.getNil());

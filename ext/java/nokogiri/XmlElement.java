@@ -30,7 +30,7 @@ public class XmlElement extends XmlNode {
     @Override
     @JRubyMethod
     public IRubyObject add_namespace_definition(ThreadContext context, IRubyObject prefix, IRubyObject href) {
-        Element e = (Element) this.node;
+        Element e = (Element) this.node();
 
         String pref = "xmlns";
         
