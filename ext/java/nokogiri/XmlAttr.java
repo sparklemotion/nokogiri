@@ -25,7 +25,14 @@ public class XmlAttr extends XmlNode{
 
     @JRubyMethod(name="new", meta=true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject doc, IRubyObject content){
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        if(!(doc instanceof XmlDocument)) {
+            throw context.getRuntime().newArgumentError("document must be an instance of Nokogiri::XML::Document");
+        }
+
+        XmlDocument xmlDoc = (XmlDocument)doc;
+
+        return new XmlAttr(context.getRuntime(),
+                xmlDoc.getDocument().createAttribute(content.convertToString().asJavaString()));
     }
 
     @JRubyMethod(name="value=")
