@@ -15,15 +15,14 @@ public class XmlCdata extends XmlText {
         super(ruby, rubyClass, node);
     }
 
-    @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject doc, IRubyObject text) {
+    @JRubyMethod(name = "new", meta = true, rest = true, required = 2)
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+
+        IRubyObject doc = args[0], text = args[1];
         XmlDocument xmlDoc =(XmlDocument) ((XmlNode) doc).document(context);
         Document document = xmlDoc.getDocument();
         Node node = document.createCDATASection((text.isNil()) ? null : text.convertToString().asJavaString());
         XmlNode cdata = (XmlNode) XmlNode.constructNode(context.getRuntime(), node);
-
-        IRubyObject[] args = new IRubyObject[2];
-        args[0] = doc; args[1] = text;
 
         RuntimeHelpers.invoke(context, cdata, "initialize", args);
 
