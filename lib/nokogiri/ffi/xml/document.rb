@@ -24,7 +24,8 @@ module Nokogiri
       end
 
       def encoding # :nodoc:
-        cstruct[:encoding].read_string
+        ptr = cstruct[:encoding]
+        ptr.null? ? nil : ptr.read_string
       end
 
       def self.read_io(io, url, encoding, options) # :nodoc:
