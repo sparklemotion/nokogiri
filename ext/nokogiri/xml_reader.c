@@ -169,6 +169,7 @@ static VALUE attribute_nodes(VALUE self)
   if(! DOC_RUBY_OBJECT_TEST(ptr->doc)) {
     VALUE rb_doc = Nokogiri_wrap_xml_document(cNokogiriXmlDocument, ptr->doc);
     RDATA(rb_doc)->dfree = NULL;
+    rb_iv_set(self, "@document", rb_doc); // keep a reference to prevent GC
   }
   VALUE enc = rb_iv_get(self, "@encoding");
 
