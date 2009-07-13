@@ -47,6 +47,7 @@ module Nokogiri
           doc_struct = LibXML::XmlDocumentCast.new(node_struct[:doc])
           doc_struct.alloc_tuple
           doc = Document.wrap(doc_struct)
+          @document = doc # keep a reference to prevent GC
         end
 
         node = Node.wrap(node_struct)
