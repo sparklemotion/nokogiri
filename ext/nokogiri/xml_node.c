@@ -12,7 +12,10 @@ static void debug_node_dealloc(xmlNodePtr x)
 
 static void mark(xmlNodePtr node)
 {
-  rb_gc_mark(DOC_RUBY_OBJECT(node->doc));
+  // it's OK if the document isn't fully realized (as in XML::Reader).
+  // see http://github.com/tenderlove/nokogiri/issues/closed/#issue/95
+  if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc))
+    rb_gc_mark(DOC_RUBY_OBJECT(node->doc));
 }
 
 /* :nodoc: */
@@ -856,12 +859,13 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   node->_private = (void *)rb_node;
 
   if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc)) {
+    // it's OK if the document isn't fully realized (as in XML::Reader).
+    // see http://github.com/tenderlove/nokogiri/issues/closed/#issue/95
     document = DOC_RUBY_OBJECT(node->doc);
     node_cache = DOC_NODE_CACHE(node->doc);
+    rb_ary_push(node_cache, rb_node);
+    rb_funcall(document, rb_intern("decorate"), 1, rb_node);
   }
-
-  rb_ary_push(node_cache, rb_node);
-  rb_funcall(document, rb_intern("decorate"), 1, rb_node);
 
   return rb_node ;
 }

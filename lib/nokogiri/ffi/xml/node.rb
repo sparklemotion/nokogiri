@@ -119,14 +119,7 @@ module Nokogiri
       end
 
       def attribute_nodes # :nodoc:
-        attr = []
-        prop_cstruct = cstruct[:properties]
-        while ! prop_cstruct.null?
-          prop = Node.wrap(prop_cstruct)
-          attr << prop
-          prop_cstruct = prop.cstruct[:next]
-        end
-        attr
+        Node.node_properties cstruct
       end
 
       def namespace # :nodoc:
@@ -223,15 +216,15 @@ module Nokogiri
         Namespace.wrap(cstruct.document, ns)
       end
 
-      def self.new(name, document, *rest) # :nodoc:
+      def self.new(name, doc, *rest) # :nodoc:
         ptr = LibXML.xmlNewNode(nil, name.to_s)
 
         node_cstruct = LibXML::XmlNode.new(ptr)
-        node_cstruct[:doc] = document.cstruct[:doc]
+        node_cstruct[:doc] = doc.cstruct[:doc]
         node_cstruct.keep_reference_from_document!
 
         node = Node.wrap(node_cstruct, self)
-        node.send :initialize, name, document, *rest
+        node.send :initialize, name, doc, *rest
         yield node if block_given?
         node
       end
@@ -257,9 +250,9 @@ module Nokogiri
         raise "wrapping a node without a document" unless node_struct.document
 
         document_struct = node_struct.document
-        document = document_struct.nil? ? nil : document_struct.ruby_doc
+        document_obj = document_struct.nil? ? nil : document_struct.ruby_doc
         if node_struct[:type] == DOCUMENT_NODE || node_struct[:type] == HTML_DOCUMENT_NODE
-          return document
+          return document_obj
         end
 
         ruby_node = node_struct.ruby_node
@@ -288,16 +281,31 @@ module Nokogiri
 
         node.cstruct.ruby_node = node
 
-        cache = document.instance_variable_get(:@node_cache)
-        cache << node
+        if document_obj
+          node.instance_variable_set(:@document, document_obj)
+          cache = document_obj.instance_variable_get(:@node_cache)
+          cache << node
+          document_obj.decorate(node)
+        end
 
-        node.instance_variable_set(:@document, document)
-        document.decorate(node)
         node
       end
 
       def document
         cstruct.document.ruby_doc
+      end
+
+      class << self
+        def node_properties(cstruct) # :nodoc:
+          attr = []
+          prop_cstruct = cstruct[:properties]
+          while ! prop_cstruct.null?
+            prop = Node.wrap(prop_cstruct)
+            attr << prop
+            prop_cstruct = prop.cstruct[:next]
+          end
+          attr
+        end
       end
 
       private

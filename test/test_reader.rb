@@ -313,4 +313,18 @@ class TestReader < Nokogiri::TestCase
     end
     assert called
   end
+
+  def test_large_document_smoke_test
+    #  simply run on a large document to verify that there no GC issues
+    xml = []
+    xml << "<elements>"
+    10000.times { |j| xml << "<element id=\"#{j}\"/>" }
+    xml << "</elements>"
+    xml = xml.join("\n")
+
+    Nokogiri::XML::Reader.from_memory(xml).each do |e|
+      e.attributes
+    end
+  end
+
 end
