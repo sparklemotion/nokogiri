@@ -2,6 +2,7 @@ Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLAT
 $VERBOSE = true
 require 'rubygems'
 require 'test/unit'
+require 'tempfile'
 
 %w(../lib ../ext).each do |path|
   $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), path)))

@@ -9,6 +9,18 @@ module Nokogiri
           @parser = HTML::SAX::Parser.new(Doc.new)
         end
 
+        def test_parse_empty_document
+          # This caused a segfault in libxml 2.6.x
+          assert_nothing_raised { @parser.parse '' }
+        end
+
+        def test_parse_empty_file
+          # Make sure empty files don't break stuff
+          empty_file_name =  File.join(Dir.tmpdir, 'bogus.xml')
+          FileUtils.touch empty_file_name
+          assert_nothing_raised { @parser.parse_file empty_file_name }
+        end
+
         def test_parse_file
           @parser.parse_file(HTML_FILE)
           assert_equal 1110, @parser.document.end_elements.length
