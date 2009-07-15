@@ -1,5 +1,7 @@
 ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
+# :stopdoc:
+
 require 'mkmf'
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
@@ -156,3 +158,4 @@ if ENV['CPUPROFILE']
 end
 
 create_makefile('nokogiri/nokogiri')
+# :startdoc:
