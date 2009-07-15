@@ -9,6 +9,7 @@
   * Override libxml-ruby's global error handler
   * ParseOption#strict fixed
   * Fixed a segfault when sending an empty string to Node#inner_html= GH #88
+  * String encoding is now set to UTF-8 in Ruby 1.9
 
 === 1.3.2 / 2009-06-22
 
