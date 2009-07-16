@@ -10,6 +10,18 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_move_root_to_document_with_no_root
+        sender = Nokogiri::XML('<root>foo</root>')
+        newdoc = Nokogiri::XML::Document.new
+        newdoc.root = sender.root
+      end
+
+      def test_move_root_with_existing_root_gets_gcd
+        doc = Nokogiri::XML('<root>test</root>')
+        doc2 = Nokogiri::XML("<root>#{'x' * 5000000}</root>")
+        doc2.root = doc.root
+      end
+
       def test_validate
         assert_equal 44, @xml.validate.length
       end
