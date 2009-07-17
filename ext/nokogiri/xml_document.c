@@ -1,32 +1,29 @@
 #include <xml_document.h>
 
+static int dealloc_node_i(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
+{
+  switch(node->type) {
+  case XML_ATTRIBUTE_NODE:
+    xmlFreePropList((xmlAttrPtr)node);
+    break;
+  default:
+    if(node->parent == NULL) {
+      xmlAddChild((xmlNodePtr)doc, node);
+    }
+  }
+  return ST_CONTINUE;
+}
+
 static void dealloc(xmlDocPtr doc)
 {
   NOKOGIRI_DEBUG_START(doc);
 
-  nokogiriTuplePtr tuple = doc->_private;
-  xmlNodeSetPtr node_set = tuple->unlinkedNodes;
+  st_table *node_hash = DOC_UNLINKED_NODE_HASH(doc);
 
   xmlDeregisterNodeFunc func = xmlDeregisterNodeDefault(NULL);
 
-  int j ;
-  for(j = 0 ; j < node_set->nodeNr ; j++) {
-    xmlNodePtr node = node_set->nodeTab[j];
-    switch(node->type)
-    {
-      case XML_ATTRIBUTE_NODE:
-        xmlFreePropList((xmlAttrPtr)node);
-        break;
-      default:
-        if(node->parent == NULL) {
-          xmlAddChild((xmlNodePtr)doc, node);
-        }
-    }
-  }
-
-  if (node_set->nodeTab != NULL)
-    xmlFree(node_set->nodeTab);
-  xmlFree(node_set);
+  st_foreach(node_hash, dealloc_node_i, (st_data_t)doc);
+  st_free_table(node_hash);
 
   free(doc->_private);
   doc->_private = NULL;
@@ -313,7 +310,7 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
   rb_funcall(rb_doc, rb_intern("initialize"), 0);
 
   tuple->doc = (void *)rb_doc;
-  tuple->unlinkedNodes = xmlXPathNodeSetCreate(NULL);
+  tuple->unlinkedNodes = st_init_numtable_with_size(128);
   tuple->node_cache = cache;
   doc->_private = tuple ;
 
