@@ -2,7 +2,6 @@ package nokogiri;
 
 import nokogiri.internals.XmlNodeImpl;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Hashtable;
@@ -14,9 +13,9 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
@@ -33,7 +32,6 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -43,7 +41,7 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-
+import static java.lang.Math.max;
 
 public class XmlNode extends RubyObject {
 
@@ -157,6 +155,21 @@ public class XmlNode extends RubyObject {
         }
     }
 
+    protected static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        dbf.setIgnoringElementContentWhitespace(false);
+        
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new EntityResolver() {
+            public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
+                return new InputSource(new ByteArrayInputStream(new byte[0]));
+            }
+        });
+
+        return db;
+    }
+
     protected IRubyObject getFromInternalCache(ThreadContext context, Node node) {
 
         if(node == null) return context.getRuntime().getNil();
@@ -188,6 +201,56 @@ public class XmlNode extends RubyObject {
         return this.getNode();
     }
 
+    protected String indentString(IRubyObject indentStringObject, String xml) {
+        String[] lines = xml.split("\n");
+
+        if(lines.length <= 1) return xml;
+
+        String[] resultLines  = new String[lines.length];
+
+        String curLine;
+        boolean closingTag = false;
+        String indentString = indentStringObject.convertToString().asJavaString();
+        int lengthInd = indentString.length();
+        StringBuffer curInd = new StringBuffer();
+
+        resultLines[0] = lines[0];
+
+        for(int i = 1; i < lines.length; i++) {
+
+            curLine = lines[i].trim();
+
+            if(curLine.isEmpty()) continue;
+
+            if(curLine.startsWith("</")) {
+                closingTag = true;
+                curInd.setLength(max(0,curInd.length() - lengthInd));
+            }
+
+            resultLines[i] = curInd.toString() + curLine;
+            
+            if(!curLine.endsWith("/>") && !closingTag) {
+                curInd.append(indentString);
+            }
+
+            closingTag = false;
+        }
+
+        StringBuffer result = new StringBuffer();
+        for(int i = 0; i < resultLines.length; i++) {
+            result.append(resultLines[i]);
+            result.append("\n");
+        }
+
+        return result.toString();
+    }
+
+    public boolean isComment() { return this.internalNode.methods().isComment(); }
+
+    public boolean isElement() { return this.internalNode.methods().isElement(); }
+
+    public boolean isProcessingInstruction() { return this.internalNode.methods().isProcessingInstruction(); }
+
     /*
      * A more rubyist way to get the internal node.
      */
@@ -196,10 +259,39 @@ public class XmlNode extends RubyObject {
         return this.getNode();
     }
 
+    protected IRubyObject parseRubyString(Ruby ruby, RubyString content) {
+        try {
+            Document document;
+            ByteList byteList = content.getByteList();
+            ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
+            dbf.setIgnoringElementContentWhitespace(false);
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setEntityResolver(new EntityResolver() {
+                public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
+                    return new InputSource(new ByteArrayInputStream(new byte[0]));
+                }
+            });
+            document = db.parse(bais);
+            return constructNode(ruby, document.getFirstChild());
+        } catch (ParserConfigurationException pce) {
+            throw RaiseException.createNativeRaiseException(ruby, pce);
+        } catch (SAXException saxe) {
+            throw RaiseException.createNativeRaiseException(ruby, saxe);
+        } catch (IOException ioe) {
+            throw RaiseException.createNativeRaiseException(ruby, ioe);
+        }
+    }
+
     public void relink_namespace(ThreadContext context) {
         this.internalNode.methods().relink_namespace(context, this);
 
         ((XmlNodeSet) this.children(context)).relink_namespace(context);
+    }
+
+    public void saveContent(ThreadContext context, SaveContext ctx) {
+        this.internalNode.methods().saveContent(context, this, ctx);
     }
 
     public void setDocument(IRubyObject doc) {
@@ -355,7 +447,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "blank?")
     public IRubyObject blank_p(ThreadContext context) {
-        return RubyBoolean.newBoolean(context.getRuntime(), node() instanceof Text && ((Text)node()).isElementContentWhitespace());
+        return this.internalNode.methods().blank_p(context, this);
     }
 
     @JRubyMethod
@@ -496,21 +588,21 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(required=4, visibility=Visibility.PRIVATE)
     public IRubyObject native_write_to(ThreadContext context, IRubyObject[] args) {//IRubyObject io, IRubyObject encoding, IRubyObject indentString, IRubyObject options) {
         IRubyObject io = args[0];
-        // Not used by now.
-//        IRubyObject encoding = args[1];
-//        IRubyObject indentString = args[2];
-//        IRubyObject options = args[3];
+        IRubyObject encoding = args[1];
+        IRubyObject indentString = args[2];
+        IRubyObject options = args[3];
 
-        StringWriter sw = new StringWriter();
-        try {
-            Transformer t = TransformerFactory.newInstance().newTransformer();
-            t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            t.transform(new DOMSource(this.node()), new StreamResult(sw));
-        } catch (TransformerException te) {
-            throw context.getRuntime().newRuntimeError("couldn't transform the node back to string");
-        }
+        String encString = encoding.isNil() ? null : encoding.convertToString().asJavaString();
 
-        RuntimeHelpers.invoke(context, io, "write", context.getRuntime().newString(sw.toString()));
+        int opt = (int) options.convertToInteger().getLongValue();
+
+        SaveContext ctx = new SaveContext(opt,
+                indentString.convertToString().asJavaString(),
+                encString);
+
+        this.saveContent(context, ctx);
+
+        RuntimeHelpers.invoke(context, io, "write", context.getRuntime().newString(ctx.toString()));
 
         return io;
     }
@@ -525,20 +617,13 @@ public class XmlNode extends RubyObject {
         // TODO: duplicating code from Document.read_memory
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
+        
         try {
             Document document;
             RubyString content = args[0].convertToString();
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            db.setEntityResolver(new EntityResolver() {
-                public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
-                    return new InputSource(new ByteArrayInputStream(new byte[0]));
-                }
-            });
-            document = db.parse(bais);
+            document = getDocumentBuilder().parse(bais);
             return constructNode(ruby, document.getFirstChild());
         } catch (ParserConfigurationException pce) {
             throw RaiseException.createNativeRaiseException(ruby, pce);
@@ -568,7 +653,15 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject parent(ThreadContext context) {
-        return constructNode(context.getRuntime(), node().getParentNode());
+        /*
+         * Check if this node is the root node of the document.
+         * If so, parent is the document.
+         */
+        if(node().getOwnerDocument().getDocumentElement() == node()) {
+            return document(context);
+        } else {
+            return constructNode(context.getRuntime(), node().getParentNode());
+        }
     }
 
     @JRubyMethod(name = "parent=")
@@ -623,23 +716,6 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject to_xml(ThreadContext context) {
-        try {
-            Transformer xformer = TransformerFactory.newInstance().newTransformer();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-            xformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            xformer.transform(new DOMSource(node()), new StreamResult(baos));
-            return RubyString.newString(context.getRuntime(), baos.toByteArray());
-        } catch (TransformerFactoryConfigurationError tfce) {
-            throw RaiseException.createNativeRaiseException(context.getRuntime(), tfce);
-        } catch (TransformerConfigurationException tce) {
-            throw RaiseException.createNativeRaiseException(context.getRuntime(), tce);
-        } catch (TransformerException te) {
-            throw RaiseException.createNativeRaiseException(context.getRuntime(), te);
-        }
-    }
-
-    @JRubyMethod
     public IRubyObject unlink(ThreadContext context) {
         this.internalNode.methods().unlink(context, this);
         return this;
@@ -647,6 +723,6 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "node_type")
     public IRubyObject xmlType(ThreadContext context) {
-        return RubyFixnum.newFixnum(context.getRuntime(), node().getNodeType());
+        return this.internalNode.methods().getNokogiriNodeType(context);
     }
 }

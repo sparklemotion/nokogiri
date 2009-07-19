@@ -6,7 +6,12 @@ import java.util.Hashtable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyIO;
 import org.jruby.RubyString;
@@ -26,6 +31,7 @@ import org.xml.sax.SAXException;
 
 public class XmlDocument extends XmlNode {
     private Document document;
+    private IRubyObject encoding;
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
     private Hashtable<Node, XmlNode> hashNode;
@@ -41,6 +47,8 @@ public class XmlDocument extends XmlNode {
         this.document = document;
 
         this.setNode(document.getDocumentElement());
+
+        this.internalNode.makeItADocument();
 
         this.hashNode = new Hashtable<Node, XmlNode>();
         setInstanceVariable("@decorators", ruby.getNil());
@@ -78,6 +86,33 @@ public class XmlDocument extends XmlNode {
         return doc;
     }
 
+    @Override
+    @JRubyMethod
+    public IRubyObject children(ThreadContext context) {
+        Ruby ruby = context.getRuntime();
+        RubyArray nodes = ruby.newArray();
+        nodes.append(this.root(context));
+        return new XmlNodeSet(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+    }
+
+    @JRubyMethod(name="encoding=")
+    public IRubyObject encoding_set(ThreadContext context, IRubyObject encoding) {
+        this.encoding = encoding;
+        return encoding;
+    }
+
+    @JRubyMethod
+    public IRubyObject encoding(ThreadContext context) {
+        if(this.encoding == null) {
+            if(this.document.getXmlEncoding() == null) {
+                this.encoding = context.getRuntime().getNil();
+            } else {
+                this.encoding = context.getRuntime().newString(this.document.getXmlEncoding());
+            }
+        }
+        return this.encoding;
+    }
+
     @JRubyMethod(meta = true)
     public static IRubyObject load_external_subsets_set(ThreadContext context, IRubyObject cls, IRubyObject value) {
         XmlDocument.loadExternalSubset = value.isTrue();
@@ -92,15 +127,7 @@ public class XmlDocument extends XmlNode {
             Document document;
             if (args[0] instanceof RubyIO) {
                 RubyIO io = (RubyIO)args[0];
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                dbf.setNamespaceAware(true);
-                DocumentBuilder db = dbf.newDocumentBuilder();
-                db.setEntityResolver(new EntityResolver() {
-                    public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
-                        return new InputSource(new ByteArrayInputStream(new byte[0]));
-                    }
-                });
-                document = db.parse(io.getInStream());
+                document = getDocumentBuilder().parse(io.getInStream());
                 return new XmlDocument(ruby, (RubyClass)cls, document);
             } else {
                 throw ruby.newTypeError("Only IO supported for Document.read_io currently");
@@ -123,15 +150,7 @@ public class XmlDocument extends XmlNode {
             RubyString content = args[0].convertToString();
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            db.setEntityResolver(new EntityResolver() {
-                public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
-                    return new InputSource(new ByteArrayInputStream(new byte[0]));
-                }
-            });
-            document = db.parse(bais);
+            document = getDocumentBuilder().parse(bais);
             return new XmlDocument(ruby, (RubyClass)cls, document);
         } catch (ParserConfigurationException pce) {
             throw RaiseException.createNativeRaiseException(ruby, pce);

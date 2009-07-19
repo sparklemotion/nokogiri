@@ -14,3 +14,12 @@ load File.join(XML_DIR, 'test_document.rb')
 #suite << TestReader
 #suite << Nokogiri::XML::TestNamespace
 #suite << Nokogiri::XML::TestNodeAttributes
+
+# Failures and errors related to:
+# · XPath
+# · HTML
+# · Things I don't know if I'm going to implement
+#
+# does not count.
+# Que lo sepas.
+puts '2 failure, 6 errors'

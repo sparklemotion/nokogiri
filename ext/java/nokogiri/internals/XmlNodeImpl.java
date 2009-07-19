@@ -101,6 +101,10 @@ public class XmlNodeImpl {
         return (RubyArray) this.namespace_definitions;
     }
 
+    public void makeItADocument() {
+        this.methods = new XmlDocumentMethods();
+    }
+
     public XmlNodeMethods methods() {
         return this.methods;
     }

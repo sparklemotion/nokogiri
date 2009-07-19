@@ -2,13 +2,17 @@ package nokogiri.internals;
 
 import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
+import nokogiri.XmlNodeSet;
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -34,6 +38,12 @@ public class XmlElementMethods extends XmlNodeMethods{
         }
         return context.getRuntime().getNil();
     }
+
+    @Override
+    protected int getNokogiriNodeTypeInternal() { return 1; }
+
+    @Override
+    public boolean isElement() { return true; }
 
     @Override
     public IRubyObject key_p(ThreadContext context, XmlNode current, IRubyObject k) {
@@ -68,6 +78,7 @@ public class XmlElementMethods extends XmlNodeMethods{
     @Override
     public void relink_namespace(ThreadContext context, XmlNode node) {
         Element e = (Element) node.getNode();
+
         e.getOwnerDocument().renameNode(e, e.lookupNamespaceURI(e.getPrefix()), e.getNodeName());
 
         if(e.hasAttributes()) {
@@ -78,5 +89,58 @@ public class XmlElementMethods extends XmlNodeMethods{
                 e.getOwnerDocument().renameNode(attr, attr.lookupNamespaceURI(attr.getPrefix()), attr.getNodeName());
             }
         }
+
+        if(e.hasChildNodes()) {
+            ((XmlNodeSet) node.children(context)).relink_namespace(context);
+        }
+    }
+
+    @Override
+    public void saveContent(ThreadContext context, XmlNode current, SaveContext ctx) {
+        boolean format = ctx.format();
+
+        Element e = (Element) current.getNode();
+
+        if(format) {
+            NodeList tmp = e.getChildNodes();
+            for(int i = 0; i < tmp.getLength(); i++) {
+                Node cur = tmp.item(i);
+                if(cur.getNodeType() == Node.TEXT_NODE ||
+                        cur.getNodeType() == Node.CDATA_SECTION_NODE ||
+                        cur.getNodeType() == Node.ENTITY_REFERENCE_NODE) {
+                    ctx.setFormat(false);
+                    break;
+                }
+            }
+        }
+
+        ctx.append("<");
+        ctx.append(e.getNodeName());
+        this.saveNodeListContent(context, (RubyArray) current.attribute_nodes(context), ctx);
+
+        if(e.getChildNodes() == null && !ctx.noEmpty()) {
+            ctx.append("/>");
+            ctx.setFormat(format);
+            return;
+        }
+
+        ctx.append(">");
+
+//        ctx.append(current.content(context).convertToString().asJavaString());
+
+        XmlNodeSet children = (XmlNodeSet) current.children(context);
+
+        if(ctx.format()) ctx.append("\n");
+        ctx.increaseLevel();
+        this.saveNodeListContent(context, children, ctx);
+        ctx.decreaseLevel();
+
+        if(ctx.format()) ctx.append(ctx.getCurrentIndentString());
+
+        ctx.append("</");
+        ctx.append(e.getNodeName());
+        ctx.append(">");
+
+        ctx.setFormat(format);
     }
 }

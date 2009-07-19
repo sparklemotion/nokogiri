@@ -13,7 +13,7 @@ import org.jruby.runtime.builtin.IRubyObject;
  *
  * @author sergio
  */
-public class XmlCdataMethods extends XmlNodeMethods {
+public class XmlTextMethods extends XmlNodeMethods {
 
     @Override
     public IRubyObject blank_p(ThreadContext context, XmlNode node) {
@@ -21,10 +21,11 @@ public class XmlCdataMethods extends XmlNodeMethods {
     }
 
     @Override
-    protected int getNokogiriNodeTypeInternal() { return 4; }
+    protected int getNokogiriNodeTypeInternal() { return 3; }
 
     @Override
-    public IRubyObject getNullContent(ThreadContext context) {
-        return context.getRuntime().getNil();
+    public void saveContent(ThreadContext context, XmlNode current, SaveContext ctx) {
+        ctx.append(ctx.getCurrentIndentString());
+        ctx.append(current.content(context).convertToString().asJavaString());
     }
 }
