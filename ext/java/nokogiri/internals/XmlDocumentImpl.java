@@ -2,14 +2,20 @@ package nokogiri.internals;
 
 import nokogiri.XmlDocument;
 import nokogiri.XmlNode;
+import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  *
  * @author sergio
  */
-public class XmlDocumentMethods extends XmlNodeMethods{
+public class XmlDocumentImpl extends XmlNodeImpl{
+
+    public XmlDocumentImpl(Ruby ruby, Node node) {
+        super(ruby, node);
+    }
 
     @Override
     protected int getNokogiriNodeTypeInternal() { return 10; }

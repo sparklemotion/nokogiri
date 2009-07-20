@@ -3,22 +3,13 @@ package nokogiri;
 import nokogiri.internals.XmlNodeImpl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Hashtable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
-import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyHash;
@@ -36,7 +27,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.Text;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -70,7 +60,7 @@ public class XmlNode extends RubyObject {
         super(ruby, cls);
         this.internalCache = new Hashtable<Node,IRubyObject>();
         this.nsCache = new NokogiriNamespaceCache();
-        this.internalNode = new XmlNodeImpl(ruby, node);
+        this.internalNode = XmlNodeImpl.getImplForNode(ruby, node);
     }
 
     protected void assimilateXmlNode(ThreadContext context, IRubyObject otherNode) {
@@ -302,8 +292,8 @@ public class XmlNode extends RubyObject {
         this.internalNode.setName(name);
     }
 
-    protected void setNode(Node node) {
-        this.internalNode.setNode(node);
+    protected void setNode(Ruby ruby, Node node) {
+        this.internalNode = XmlNodeImpl.getImplForNode(ruby, node);
     }
 
     public void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {

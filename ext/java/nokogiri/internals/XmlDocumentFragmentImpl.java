@@ -5,17 +5,22 @@ import nokogiri.XmlNodeSet;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.runtime.ThreadContext;
+import org.w3c.dom.Node;
 
 /**
  *
  * @author sergio
  */
-public class XmlDocumentFragmentMethods extends XmlNodeMethods{
+public class XmlDocumentFragmentImpl extends XmlNodeImpl{
+
+    public XmlDocumentFragmentImpl(Ruby ruby, Node node) {
+        super(ruby, node);
+    }
 
     @Override
     public void add_child(ThreadContext context, XmlNode current, XmlNode child) {
         // Some magic for DocumentFragment
-        
+
         Ruby ruby = context.getRuntime();
         XmlNodeSet children = (XmlNodeSet) child.children(context);
 

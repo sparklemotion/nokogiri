@@ -1,13 +1,19 @@
 package nokogiri.internals;
 
 import nokogiri.XmlNode;
+import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
+import org.w3c.dom.Node;
 
 /**
  *
  * @author sergio
  */
-public class XmlCommentMethods extends XmlNodeMethods{
+public class XmlCommentImpl extends XmlNodeImpl {
+
+    public XmlCommentImpl(Ruby ruby, Node node) {
+        super(ruby, node);
+    }
 
     @Override
     protected int getNokogiriNodeTypeInternal() { return 8; }

@@ -1,16 +1,22 @@
 package nokogiri.internals;
 
 import nokogiri.XmlNode;
+import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  *
  * @author sergio
  */
-public class XmlAttrMethods extends XmlNodeMethods{
+public class XmlAttrImpl extends XmlNodeImpl{
+
+    public XmlAttrImpl(Ruby ruby, Node node) {
+        super(ruby, node);
+    }
 
     @Override
     protected int getNokogiriNodeTypeInternal() { return 2; }

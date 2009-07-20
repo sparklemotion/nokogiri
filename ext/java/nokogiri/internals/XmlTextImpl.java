@@ -6,14 +6,20 @@
 package nokogiri.internals;
 
 import nokogiri.XmlNode;
+import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Node;
 
 /**
  *
  * @author sergio
  */
-public class XmlTextMethods extends XmlNodeMethods {
+public class XmlTextImpl extends XmlNodeImpl {
+
+    public XmlTextImpl(Ruby ruby, Node node) {
+        super(ruby, node);
+    }
 
     @Override
     public IRubyObject blank_p(ThreadContext context, XmlNode node) {

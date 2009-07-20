@@ -18,7 +18,11 @@ import org.w3c.dom.NodeList;
  *
  * @author sergio
  */
-public class XmlElementMethods extends XmlNodeMethods{
+public class XmlElementImpl extends XmlNodeImpl {
+
+    public XmlElementImpl(Ruby ruby, Node node) {
+        super(ruby, node);
+    }
 
     @Override
     public void add_namespace_definitions(ThreadContext context, XmlNode current, XmlNamespace ns, String prefix, String href) {
