@@ -210,7 +210,7 @@ public class XmlNode extends RubyObject {
 
             curLine = lines[i].trim();
 
-            if(curLine.isEmpty()) continue;
+            if(curLine.length() == 0) continue;
 
             if(curLine.startsWith("</")) {
                 closingTag = true;
