@@ -16,8 +16,9 @@ public class XmlNodeSet extends RubyObject {
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
         super(ruby, rubyClass);
         this.nodes = RubyArray.newArray(ruby, nodes.getLength());
-        for(int i = 0; i < nodes.getLength(); i++)
+        for(int i = 0; i < nodes.getLength(); i++) {
             this.nodes.append((XmlNode) XmlNode.constructNode(ruby, nodes.item(i)));
+        }
     }
 
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){

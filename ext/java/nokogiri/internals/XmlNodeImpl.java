@@ -185,6 +185,10 @@ public class XmlNodeImpl {
         return context.getRuntime().getFalse();
     }
 
+    public Node cloneNode(ThreadContext context, XmlNode current, boolean deep) {
+        return current.getNode().cloneNode(deep);
+    }
+
     public IRubyObject get(ThreadContext context, XmlNode current, IRubyObject key) {
         return context.getRuntime().getNil();
     }

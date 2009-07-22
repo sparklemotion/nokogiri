@@ -122,7 +122,7 @@ public class XmlNode extends RubyObject {
 
     }
 
-    protected static IRubyObject constructNode(Ruby ruby, Node node) {
+    public static IRubyObject constructNode(Ruby ruby, Node node) {
         if (node == null) return ruby.getNil();
         // this is slow; need a way to cache nokogiri classes/modules somewhere
         switch (node.getNodeType()) {
@@ -145,7 +145,7 @@ public class XmlNode extends RubyObject {
         }
     }
 
-    protected static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
+    public static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         dbf.setIgnoringElementContentWhitespace(false);
@@ -286,6 +286,10 @@ public class XmlNode extends RubyObject {
 
     public void setDocument(IRubyObject doc) {
         this.internalNode.setDocument(doc);
+    }
+
+    public void setInternalNode(XmlNodeImpl impl) {
+        this.internalNode = impl;
     }
 
     public void setName(IRubyObject name) {
@@ -503,7 +507,7 @@ public class XmlNode extends RubyObject {
     }
 
     protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
-        Node newNode = node().cloneNode(deep);
+        Node newNode = this.internalNode.cloneNode(context, this, deep);
 
         return new XmlNode(context.getRuntime(), this.getType(), newNode);
     }

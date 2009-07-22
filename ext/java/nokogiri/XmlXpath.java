@@ -33,7 +33,9 @@ public class XmlXpath extends RubyObject {
     public IRubyObject node_set(ThreadContext context) {
         try {
             NodeList nodes = (NodeList)xpath.evaluate(this.context, XPathConstants.NODESET);
-            return new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+            XmlNodeSet result = new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+            result.relink_namespace(context);
+            return result;
         } catch (XPathExpressionException xpee) {
             throw context.getRuntime().newSyntaxError("Couldn't evaluate expression '" + xpath.toString() + "'");
         }

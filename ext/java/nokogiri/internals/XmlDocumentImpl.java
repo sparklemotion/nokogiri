@@ -4,6 +4,7 @@ import nokogiri.XmlDocument;
 import nokogiri.XmlNode;
 import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -13,6 +14,9 @@ import org.w3c.dom.Node;
  */
 public class XmlDocumentImpl extends XmlNodeImpl{
 
+    protected IRubyObject root;
+    protected IRubyObject encoding;
+
     public XmlDocumentImpl(Ruby ruby, Node node) {
         super(ruby, node);
     }
@@ -20,10 +24,41 @@ public class XmlDocumentImpl extends XmlNodeImpl{
     @Override
     protected int getNokogiriNodeTypeInternal() { return 10; }
 
+    public IRubyObject encoding(ThreadContext context, XmlDocument current) {
+        if(this.encoding == null) {
+            if(current.getDocument().getXmlEncoding() == null) {
+                this.encoding = context.getRuntime().getNil();
+            } else {
+                this.encoding = context.getRuntime().newString(current.getDocument().getXmlEncoding());
+            }
+        }
+
+        return this.encoding;
+    }
+
+    public void encoding_set(ThreadContext context, XmlDocument current, IRubyObject encoding) {
+        this.encoding = encoding;
+    }
+
     @Override
     public void relink_namespace(ThreadContext context, XmlNode current) {
         XmlDocument cur = (XmlDocument) current;
         ((XmlNode) cur.root(context)).relink_namespace(context);
+    }
+
+    public IRubyObject root(ThreadContext context, XmlDocument current) {
+        if(this.root == null) {
+            this.root = XmlNode.constructNode(context.getRuntime(),
+                    current.getDocument().getDocumentElement());
+        }
+        return root;
+    }
+
+    public void root_set(ThreadContext context, XmlDocument current, IRubyObject root) {
+        Document document = current.getDocument();
+        Node node = XmlNode.getNodeFromXmlNode(context, root);
+        document.replaceChild(node, document.getDocumentElement());
+        this.root = root;
     }
 
     @Override

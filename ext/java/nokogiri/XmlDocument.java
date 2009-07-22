@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import javax.xml.parsers.ParserConfigurationException;
 import nokogiri.internals.XmlDocumentImpl;
+import nokogiri.internals.XmlEmptyDocumentImpl;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -24,12 +25,9 @@ import org.xml.sax.SAXException;
 
 public class XmlDocument extends XmlNode {
     private Document document;
-    private IRubyObject encoding;
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
     private Hashtable<Node, XmlNode> hashNode;
-
-    IRubyObject root;
 
     public XmlDocument(Ruby ruby, Document document) {
         this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"), document);
@@ -64,12 +62,22 @@ public class XmlDocument extends XmlNode {
         return this.document;
     }
 
+    protected XmlDocumentImpl internals() {
+        return (XmlDocumentImpl) this.internalNode;
+    }
+
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         XmlDocument doc = null;
         try {
+//            doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
+//                       DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0").createDocument(null, "empty", null));
+
+            Document docNode = getDocumentBuilder().newDocument();
             doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
-                       DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0").createDocument(null, "empty", null));
+                    docNode);
+            doc.internalNode = new XmlEmptyDocumentImpl(context.getRuntime(),
+                    docNode);
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
@@ -90,20 +98,13 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod(name="encoding=")
     public IRubyObject encoding_set(ThreadContext context, IRubyObject encoding) {
-        this.encoding = encoding;
+        internals().encoding_set(context, this, encoding);
         return encoding;
     }
 
     @JRubyMethod
     public IRubyObject encoding(ThreadContext context) {
-        if(this.encoding == null) {
-            if(this.document.getXmlEncoding() == null) {
-                this.encoding = context.getRuntime().getNil();
-            } else {
-                this.encoding = context.getRuntime().newString(this.document.getXmlEncoding());
-            }
-        }
-        return this.encoding;
+        return internals().encoding(context, this);
     }
 
     @JRubyMethod(meta = true)
@@ -156,16 +157,12 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod
     public IRubyObject root(ThreadContext context) {
-        if(this.root == null) {
-            this.root = XmlNode.constructNode(context.getRuntime(), document.getDocumentElement());
-        }
-        return root;
+        return internals().root(context, this);
     }
 
     @JRubyMethod(name="root=")
     public IRubyObject root_set(ThreadContext context, IRubyObject root) {
-        Node node = XmlNode.getNodeFromXmlNode(context, root);
-        document.replaceChild(node, document.getDocumentElement());
+        internals().root_set(context, this, root);
         return root;
     }
 
