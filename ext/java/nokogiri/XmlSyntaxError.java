@@ -18,58 +18,61 @@ public class XmlSyntaxError extends RubyException {
         super(ruby, rubyClass);
     }
 
+    //TODO: Return correct message, domain, etc.
+
     @JRubyMethod
-    public IRubyObject message(ThreadContext context, IRubyObject arg1) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    @Override
+    public IRubyObject message(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject domain(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject domain(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject code(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject code(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject level(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject level(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject file(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject file(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject line(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject line(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject str1(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject str1(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject str2(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject str2(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject str3(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject str3(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject int1(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject int1(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod
-    public IRubyObject column(ThreadContext context, IRubyObject arg) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+    public IRubyObject column(ThreadContext context) {
+        return context.getRuntime().getNil();
     }
 }

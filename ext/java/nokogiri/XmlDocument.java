@@ -147,11 +147,11 @@ public class XmlDocument extends XmlNode {
             document = getDocumentBuilder().parse(bais);
             return new XmlDocument(ruby, (RubyClass)cls, document);
         } catch (ParserConfigurationException pce) {
-            throw RaiseException.createNativeRaiseException(ruby, pce);
+            throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
         } catch (SAXException saxe) {
-            throw RaiseException.createNativeRaiseException(ruby, saxe);
+            throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
         } catch (IOException ioe) {
-            throw RaiseException.createNativeRaiseException(ruby, ioe);
+            throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
         }
     }
 
