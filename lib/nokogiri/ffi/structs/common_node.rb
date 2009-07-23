@@ -18,7 +18,7 @@ module Nokogiri
       def keep_reference_from_document! # equivalent to NOKOGIRI_ROOT_NODE
         doc = self.document
         raise "no document to add reference to" unless doc
-        LibXML.xmlXPathNodeSetAdd(doc.node_set, self)
+        LibXML.xmlXPathNodeSetAdd(doc.unlinked_nodes, self)
       end
     end
   end

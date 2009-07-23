@@ -16,18 +16,18 @@ if defined?(Nokogiri::LibXML)
       assert_equal foo, doc.cstruct.ruby_doc
     end
 
-    def test_node_set
+    def test_unlinked_nodes
       doc = Nokogiri::XML("<root><foo>foo</foo></root>")
-      assert_instance_of Nokogiri::LibXML::XmlNodeSetCast, doc.cstruct.node_set
+      assert_instance_of Nokogiri::LibXML::XmlNodeSetCast, doc.cstruct.unlinked_nodes
     end
 
-    def test_node_set_contains_unlinked_nodes
+    def test_unlinked_nodes_contains_unlinked_nodes
       doc = Nokogiri::XML("<root><foo>foo</foo></root>")
       node = doc.xpath('//foo').first
-      assert_equal 0, doc.cstruct.node_set[:nodeNr]
+      assert_equal 0, doc.cstruct.unlinked_nodes[:nodeNr]
       node.unlink
-      assert_equal 1, doc.cstruct.node_set[:nodeNr]
-      assert_equal node.cstruct.pointer, doc.cstruct.node_set[:nodeTab].get_pointer(0)
+      assert_equal 1, doc.cstruct.unlinked_nodes[:nodeNr]
+      assert_equal node.cstruct.pointer, doc.cstruct.unlinked_nodes[:nodeTab].get_pointer(0)
     end
 
   end

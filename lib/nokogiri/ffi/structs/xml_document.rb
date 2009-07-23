@@ -46,7 +46,7 @@ module Nokogiri
         self[:_private].put_long(0, object.object_id)
       end
 
-      def node_set
+      def unlinked_nodes
         LibXML::XmlNodeSetCast.new(self[:_private].get_pointer(FFI.type_size(:pointer)))
       end
 
