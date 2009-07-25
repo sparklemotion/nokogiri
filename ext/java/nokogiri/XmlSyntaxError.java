@@ -10,6 +10,8 @@ import org.jruby.runtime.builtin.IRubyObject;
 
 public class XmlSyntaxError extends RubyException {
 
+    protected Exception exception;
+
     public XmlSyntaxError(Ruby ruby){
         this(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("SyntaxError"));
     }
@@ -18,12 +20,22 @@ public class XmlSyntaxError extends RubyException {
         super(ruby, rubyClass);
     }
 
+    public XmlSyntaxError(Ruby ruby, Exception ex) {
+        this(ruby);
+        this.exception = ex;
+    }
+
+    public XmlSyntaxError(Ruby ruby, RubyClass rubyClass, Exception ex) {
+        this(ruby, rubyClass);
+        this.exception = ex;
+    }
+
     //TODO: Return correct message, domain, etc.
 
     @JRubyMethod
     @Override
     public IRubyObject message(ThreadContext context) {
-        return context.getRuntime().getNil();
+        return context.getRuntime().newString(this.exception.getMessage());
     }
 
     @JRubyMethod

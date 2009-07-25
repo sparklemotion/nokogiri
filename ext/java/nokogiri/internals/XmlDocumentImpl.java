@@ -22,7 +22,7 @@ public class XmlDocumentImpl extends XmlNodeImpl{
     }
 
     @Override
-    protected int getNokogiriNodeTypeInternal() { return 10; }
+    protected int getNokogiriNodeTypeInternal() { return 9; }
 
     public IRubyObject encoding(ThreadContext context, XmlDocument current) {
         if(this.encoding == null) {

@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import nokogiri.internals.ParseOptions;
 import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -143,21 +144,6 @@ public class XmlNode extends RubyObject {
             default:
                 return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"), node);
         }
-    }
-
-    public static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        dbf.setIgnoringElementContentWhitespace(false);
-        
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        db.setEntityResolver(new EntityResolver() {
-            public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
-                return new InputSource(new ByteArrayInputStream(new byte[0]));
-            }
-        });
-
-        return db;
     }
 
     protected IRubyObject getFromInternalCache(ThreadContext context, Node node) {
@@ -611,13 +597,13 @@ public class XmlNode extends RubyObject {
         // TODO: duplicating code from Document.read_memory
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
-        
+        ParseOptions options = new ParseOptions(args[3]);
         try {
             Document document;
             RubyString content = args[0].convertToString();
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            document = getDocumentBuilder().parse(bais);
+            document = options.getDocumentBuilder().parse(bais);
             return constructNode(ruby, document.getFirstChild());
         } catch (ParserConfigurationException pce) {
             throw RaiseException.createNativeRaiseException(ruby, pce);

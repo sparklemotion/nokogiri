@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 import javax.xml.parsers.ParserConfigurationException;
+import nokogiri.internals.ParseOptions;
 import nokogiri.internals.XmlDocumentImpl;
 import nokogiri.internals.XmlEmptyDocumentImpl;
 import org.jruby.Ruby;
@@ -73,7 +74,7 @@ public class XmlDocument extends XmlNode {
 //            doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
 //                       DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0").createDocument(null, "empty", null));
 
-            Document docNode = getDocumentBuilder().newDocument();
+            Document docNode = (new ParseOptions(0)).getDocumentBuilder().newDocument();
             doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
                     docNode);
             doc.internalNode = new XmlEmptyDocumentImpl(context.getRuntime(),
@@ -117,21 +118,24 @@ public class XmlDocument extends XmlNode {
     public static IRubyObject read_io(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
+        ParseOptions options = new ParseOptions(args[3]);
         try {
             Document document;
             if (args[0] instanceof RubyIO) {
                 RubyIO io = (RubyIO)args[0];
-                document = getDocumentBuilder().parse(io.getInStream());
-                return new XmlDocument(ruby, (RubyClass)cls, document);
+                document = options.getDocumentBuilder().parse(io.getInStream());
+                XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
+                options.addErrorsIfNecessary(context, doc);
+                return doc;
             } else {
                 throw ruby.newTypeError("Only IO supported for Document.read_io currently");
             }
         } catch (ParserConfigurationException pce) {
-            throw RaiseException.createNativeRaiseException(ruby, pce);
+            return options.getDocumentWithErrorsOrRaiseException(context, pce);
         } catch (SAXException saxe) {
-            throw RaiseException.createNativeRaiseException(ruby, saxe);
+            return options.getDocumentWithErrorsOrRaiseException(context, saxe);
         } catch (IOException ioe) {
-            throw RaiseException.createNativeRaiseException(ruby, ioe);
+            return options.getDocumentWithErrorsOrRaiseException(context, ioe);
         }
     }
 
@@ -139,19 +143,22 @@ public class XmlDocument extends XmlNode {
     public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
+        ParseOptions options = new ParseOptions(args[3]);
         try {
             Document document;
             RubyString content = args[0].convertToString();
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            document = getDocumentBuilder().parse(bais);
-            return new XmlDocument(ruby, (RubyClass)cls, document);
+            document = options.getDocumentBuilder().parse(bais);
+            XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
+            options.addErrorsIfNecessary(context, doc);
+            return doc;
         } catch (ParserConfigurationException pce) {
-            throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
+            return options.getDocumentWithErrorsOrRaiseException(context, pce);
         } catch (SAXException saxe) {
-            throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
+            return options.getDocumentWithErrorsOrRaiseException(context, saxe);
         } catch (IOException ioe) {
-            throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
+            return options.getDocumentWithErrorsOrRaiseException(context, ioe);
         }
     }
 
