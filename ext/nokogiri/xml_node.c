@@ -777,9 +777,6 @@ static VALUE dump_html(VALUE self)
   xmlNodePtr node ;
   Data_Get_Struct(self, xmlNode, node);
 
-  if(node->doc->type == XML_DOCUMENT_NODE)
-    return rb_funcall(self, rb_intern("to_xml"), 0);
-
   buf = xmlBufferCreate() ;
   htmlNodeDump(buf, node->doc, node);
   VALUE html = NOKOGIRI_STR_NEW2(buf->content, node->doc->encoding);

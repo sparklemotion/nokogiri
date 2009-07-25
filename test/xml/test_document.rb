@@ -10,6 +10,11 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_empty_node_converted_to_html_is_not_self_closing
+        doc = Nokogiri::XML('<a></a>')
+        assert_equal "<a></a>", doc.inner_html
+      end
+
       def test_move_root_to_document_with_no_root
         sender = Nokogiri::XML('<root>foo</root>')
         newdoc = Nokogiri::XML::Document.new
