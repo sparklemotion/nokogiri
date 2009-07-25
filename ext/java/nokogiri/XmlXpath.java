@@ -7,6 +7,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
@@ -37,7 +38,7 @@ public class XmlXpath extends RubyObject {
             result.relink_namespace(context);
             return result;
         } catch (XPathExpressionException xpee) {
-            throw context.getRuntime().newSyntaxError("Couldn't evaluate expression '" + xpath.toString() + "'");
+            throw new RaiseException(XmlSyntaxError.getXPathSyntaxError(context));
         }
     }
 }

@@ -8,6 +8,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
@@ -41,7 +42,7 @@ public class XmlXpathContext extends RubyObject {
             XPathExpression xpathExpression = xpath.compile(src);
             return new XmlXpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
         } catch (XPathExpressionException xpee) {
-            throw context.getRuntime().newSyntaxError("Couldn't evaluate expression '" + src + "'");
+            throw new RaiseException(XmlSyntaxError.getXPathSyntaxError(context));
         }
     }
 

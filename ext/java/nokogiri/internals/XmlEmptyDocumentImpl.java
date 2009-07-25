@@ -2,6 +2,7 @@ package nokogiri.internals;
 
 import nokogiri.XmlDocument;
 import nokogiri.XmlNode;
+import nokogiri.XmlNodeSet;
 import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -15,6 +16,11 @@ public class XmlEmptyDocumentImpl extends XmlDocumentImpl{
 
     public XmlEmptyDocumentImpl(Ruby ruby, Node node) {
         super(ruby, node);
+    }
+
+    @Override
+    public IRubyObject children(ThreadContext context, XmlNode current) {
+        return XmlNodeSet.newEmptyNodeSet(context);
     }
 
     @Override

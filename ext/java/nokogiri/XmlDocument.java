@@ -95,10 +95,7 @@ public class XmlDocument extends XmlNode {
     @Override
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
-        Ruby ruby = context.getRuntime();
-        RubyArray nodes = ruby.newArray();
-        nodes.append(this.root(context));
-        return new XmlNodeSet(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+        return this.internals().children(context, this);
     }
 
     @JRubyMethod(name="encoding=")

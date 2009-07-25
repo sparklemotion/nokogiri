@@ -26,6 +26,13 @@ public class XmlNodeSet extends RubyObject {
         this.nodes = nodes;
     }
 
+    public static IRubyObject newEmptyNodeSet(ThreadContext context) {
+        Ruby ruby = context.getRuntime();
+        return new XmlNodeSet(ruby,
+                (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"),
+                ruby.newEmptyArray());
+    }
+
     public long length() {
         return this.nodes.length().getLongValue();
     }

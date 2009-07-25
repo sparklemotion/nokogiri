@@ -437,7 +437,8 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
-       return new XmlNodeSet(context.getRuntime(), (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), this.node().getChildNodes());
+       return this.internalNode.children(context, this);
+
     }
 
     @JRubyMethod

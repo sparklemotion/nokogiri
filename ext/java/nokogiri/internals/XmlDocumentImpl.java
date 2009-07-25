@@ -2,7 +2,10 @@ package nokogiri.internals;
 
 import nokogiri.XmlDocument;
 import nokogiri.XmlNode;
+import nokogiri.XmlNodeSet;
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
+import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
@@ -25,6 +28,15 @@ public class XmlDocumentImpl extends XmlNodeImpl{
 
     @Override
     protected int getNokogiriNodeTypeInternal() { return 9; }
+
+    @Override
+    public IRubyObject children(ThreadContext context, XmlNode cur) {
+        XmlDocument current = (XmlDocument) cur;
+        Ruby ruby = context.getRuntime();
+        RubyArray nodes = ruby.newArray();
+        nodes.append(current.root(context));
+        return new XmlNodeSet(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+    }
 
     public IRubyObject encoding(ThreadContext context, XmlDocument current) {
         if(this.encoding == null) {

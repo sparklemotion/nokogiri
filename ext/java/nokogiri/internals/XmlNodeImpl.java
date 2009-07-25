@@ -3,6 +3,7 @@ package nokogiri.internals;
 import nokogiri.*;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -32,6 +33,12 @@ public class XmlNodeImpl {
         if(node != null) {
             this.name = ruby.newString(NokogiriHelpers.getNodeName(node));
         }
+    }
+
+    public IRubyObject children(ThreadContext context, XmlNode current) {
+        return new XmlNodeSet(context.getRuntime(),
+                (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"),
+                current.getNode().getChildNodes());
     }
 
     public IRubyObject getContent(ThreadContext context) {
