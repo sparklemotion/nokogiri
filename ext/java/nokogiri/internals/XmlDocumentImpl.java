@@ -16,9 +16,11 @@ public class XmlDocumentImpl extends XmlNodeImpl{
 
     protected IRubyObject root;
     protected IRubyObject encoding;
+    protected IRubyObject url;
 
     public XmlDocumentImpl(Ruby ruby, Node node) {
         super(ruby, node);
+        this.url = ruby.getNil();
     }
 
     @Override
@@ -98,5 +100,9 @@ public class XmlDocumentImpl extends XmlNodeImpl{
         root.saveContent(context, ctx);
         ctx.append("\n");
     }
+
+    public void url_set(IRubyObject url) { this.url = url; }
+
+    public IRubyObject url() { return this.url; }
 
 }

@@ -67,6 +67,10 @@ public class XmlDocument extends XmlNode {
         return (XmlDocumentImpl) this.internalNode;
     }
 
+    protected void setUrl(IRubyObject url) {
+        this.internals().url_set(url);
+    }
+
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         XmlDocument doc = null;
@@ -125,6 +129,7 @@ public class XmlDocument extends XmlNode {
                 RubyIO io = (RubyIO)args[0];
                 document = options.getDocumentBuilder().parse(io.getInStream());
                 XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
+                doc.setUrl(args[1]);
                 options.addErrorsIfNecessary(context, doc);
                 return doc;
             } else {
@@ -151,6 +156,7 @@ public class XmlDocument extends XmlNode {
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
             document = options.getDocumentBuilder().parse(bais);
             XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
+            doc.setUrl(args[1]);
             options.addErrorsIfNecessary(context, doc);
             return doc;
         } catch (ParserConfigurationException pce) {
@@ -177,5 +183,10 @@ public class XmlDocument extends XmlNode {
     public static IRubyObject substitute_entities_set(ThreadContext context, IRubyObject cls, IRubyObject value) {
         XmlDocument.substituteEntities = value.isTrue();
         return context.getRuntime().getNil();
+    }
+
+    @JRubyMethod
+    public IRubyObject url(ThreadContext context) {
+        return this.internals().url();
     }
 }
