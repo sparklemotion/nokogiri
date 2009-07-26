@@ -1,5 +1,7 @@
-package nokogiri;
+package nokogiri.internals;
 
+import nokogiri.internals.*;
+import nokogiri.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -10,18 +12,17 @@ import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyHash;
 import org.jruby.RubyString;
-import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXParseException;
 
-import static nokogiri.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 
 
-abstract class ReaderNode {
+public abstract class ReaderNode {
 
     Ruby ruby;
     IRubyObject attrs, depth, lang, localName, namespaces, prefix, qName, uri, value, xmlVersion;

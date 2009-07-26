@@ -10,7 +10,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import static nokogiri.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 /**
  *

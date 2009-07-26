@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package nokogiri;
+package nokogiri.internals;
 
+import nokogiri.*;
 import java.util.Hashtable;
 import org.jruby.runtime.ThreadContext;
 

@@ -1,5 +1,6 @@
 package nokogiri;
 
+import nokogiri.internals.NokogiriNamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;

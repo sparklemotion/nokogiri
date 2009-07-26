@@ -8,7 +8,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 
-import static nokogiri.NokogiriHelpers.getLocalName;
+import static nokogiri.internals.NokogiriHelpers.getLocalName;
 
 /**
  *

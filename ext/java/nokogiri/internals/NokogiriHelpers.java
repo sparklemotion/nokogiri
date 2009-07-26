@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package nokogiri;
+package nokogiri.internals;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;

@@ -1,4 +1,4 @@
-package nokogiri;
+package nokogiri.internals;
 
 import java.util.Hashtable;
 import java.util.Iterator;

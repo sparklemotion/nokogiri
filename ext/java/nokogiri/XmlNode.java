@@ -1,5 +1,6 @@
 package nokogiri;
 
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.XmlNodeImpl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.util.Hashtable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.ParseOptions;
 import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;

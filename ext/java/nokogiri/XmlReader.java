@@ -1,5 +1,6 @@
 package nokogiri;
 
+import nokogiri.internals.ReaderNode;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
