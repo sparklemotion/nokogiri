@@ -282,6 +282,7 @@ class ElementNode extends ReaderNode {
         }
 
         for(int i = 0; i < attrs.getLength(); i++){
+            String u = attrs.getURI(i);
             String n = attrs.getQName(i);
             String v = attrs.getValue(i);
             RubyString attrName = ruby.newString(n);
@@ -293,7 +294,7 @@ class ElementNode extends ReaderNode {
             if(isNamespace(attrs.getQName(i))){
                 hash.put(attrName, attrValue);
             } else {
-                Attr attr = doc.createAttribute(n);
+                Attr attr = doc.createAttributeNS(u,n);
                 attr.setValue(v);
                 arr.add(new XmlAttr(ruby, attr));
             }

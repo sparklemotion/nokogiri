@@ -236,13 +236,16 @@ public class NokogiriHelpers {
     }
 
     public static String getNodeName(Node node) {
+        if(node == null) return "";
         String name = node.getNodeName();
+        if(name == null) return "";
         if(name.equals("#document")) {
             return "document";
         } else if(name.equals("#text")) {
             return "text";
         } else {
-            return name;
+            name = node.getLocalName();
+            return (name == null) ? "" : name;
         }
     }
 

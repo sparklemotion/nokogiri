@@ -30,9 +30,6 @@ public class XmlNodeImpl {
 
     public XmlNodeImpl(Ruby ruby, Node node) {
         this.node = node;
-        if(node != null) {
-            this.name = ruby.newString(NokogiriHelpers.getNodeName(node));
-        }
     }
 
     public IRubyObject children(ThreadContext context, XmlNode current) {
@@ -77,7 +74,7 @@ public class XmlNodeImpl {
 
     public RubyString getNodeName(ThreadContext context) {
         if(this.name == DEFAULT_NAME) {
-            this.name = context.getRuntime().newString(this.node.getNodeName());
+            this.name = context.getRuntime().newString(NokogiriHelpers.getNodeName(this.node));
         }
 
         return (RubyString) this.name;
