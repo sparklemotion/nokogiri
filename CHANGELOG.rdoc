@@ -14,6 +14,10 @@
   * Fixed an O(n) penalty on node creation. GH #101
   * Maintaining open tags when parsing XML documents
 
+* Deprecations
+
+  * Hpricot compatibility layer will be removed in 1.4.0
+
 === 1.3.2 / 2009-06-22
 
 * New Features

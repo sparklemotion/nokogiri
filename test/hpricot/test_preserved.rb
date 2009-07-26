@@ -64,10 +64,10 @@ class TestPreserved < Nokogiri::TestCase
   def test_escaping_of_attrs
     # ampersands in URLs
     str = %{<a href="http://google.com/search?q=nokogiri&amp;l=en">Google</a>}
-    link = (doc = Nokogiri.Hpricot(str)).at(:a)
+    link = (doc = Nokogiri(str)).at(:a)
     assert_equal "http://google.com/search?q=nokogiri&l=en", link['href']
     assert_equal "http://google.com/search?q=nokogiri&l=en", link.get_attribute('href')
-    assert_equal "http://google.com/search?q=nokogiri&l=en", link.raw_attributes['href']
+    assert_equal "http://google.com/search?q=nokogiri&l=en", link['href']
     assert_equal str, link.to_html
 
     # alter the url
