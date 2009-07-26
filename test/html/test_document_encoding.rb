@@ -34,7 +34,10 @@ module Nokogiri
 <title xml:lang="ja">#{orig}</title></html>
             eohtml
             text = Nokogiri::HTML.parse(html).at('title').inner_text
-            assert_equal(orig.encode(enc).force_encoding(bin), text.force_encoding(bin))
+            assert_equal(
+              orig.encode(enc).force_encoding(bin),
+              text.encode(enc).force_encoding(bin)
+            )
           end
         end
 
