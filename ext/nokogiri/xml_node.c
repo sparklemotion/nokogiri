@@ -68,7 +68,7 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   {
     xmlNodePtr child = node->children;
     while(NULL != child) {
-      reparent_node_with(Nokogiri_wrap_xml_node(NULL, child), other_obj, func);
+      reparent_node_with(Nokogiri_wrap_xml_node((VALUE)NULL, child), other_obj, func);
       child = child->next;
     }
     return node_obj;
