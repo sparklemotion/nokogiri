@@ -52,30 +52,23 @@ unless java
       "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
   end
 
-  ###
-  # To build the windows fat binary, do:
-  #
-  #   rake fat_binary native gem
-  #
-  # I keep my ruby in multiruby, so my command is like this:
-  #
-  #   RAKE19=~/.multiruby/install/1.9.1-p129/bin/rake \
-  #     rake fat_binary native gem
-  task 'fat_binary' do
-    rake19 = ENV['RAKE19'] || 'rake1.9'
-    system("rake clean cross compile RUBY_CC_VERSION=1.8.6 FAT_DIR=1.8")
-    system("#{rake19} clean cross compile RUBY_CC_VERSION=1.9.1 FAT_DIR=1.9")
+  file 'lib/nokogiri/nokogiri.rb' do
     File.open("lib/#{HOE.name}/#{HOE.name}.rb", 'wb') do |f|
       f.write <<-eoruby
 require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
       eoruby
     end
-    HOE.spec.extensions = []
-    HOE.spec.platform = 'x86-mingw32'
-    HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
-    HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/*"]
-    HOE.spec.files += Dir["ext/nokogiri/*.dll"]
   end
+
+  namespace :cross do
+    task :file_list do
+      HOE.spec.platform = 'x86-mswin32'
+      HOE.spec.extensions = []
+      HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
+      HOE.spec.files += Dir["ext/nokogiri/*.dll"]
+    end
+  end
+
   CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
   CLOBBER.include("lib/nokogiri/1.{8,9}")
 end
@@ -146,6 +139,7 @@ libs.each do |lib|
       system("wget #{url} || curl -O #{url}")
     end
   end
+
   file "tmp/cross/#{lib.split('-').first}" => ["tmp/stash/#{lib}.zip"] do |t|
     puts "unzipping #{lib}.zip"
     FileUtils.mkdir_p('tmp/cross')
@@ -157,8 +151,11 @@ libs.each do |lib|
       sh "touch #{lib.split('-').first}"
     end
   end
+
   if Rake::Task.task_defined?(:cross)
     Rake::Task[:cross].prerequisites << "tmp/cross/#{lib.split('-').first}"
+    Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
+    Rake::Task[:cross].prerequisites << "cross:file_list"
   end
 end
 
