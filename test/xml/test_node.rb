@@ -128,7 +128,7 @@ module Nokogiri
           </Fruit>
         eoxml
         apple = fruits.fragment('<Apple/>')
-        fruits << apple
+        fruits.root << apple
         assert_equal 1, fruits.xpath('//xmlns:Apple').length
       end
 

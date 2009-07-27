@@ -15,6 +15,20 @@ module Nokogiri
         assert_equal "<a></a>", doc.inner_html
       end
 
+      def test_add_child_with_fragment
+        doc = Nokogiri::XML::Document.new
+        fragment = doc.fragment('<hello />')
+        doc.add_child fragment
+        assert_equal '/hello', doc.at('//hello').path
+        assert_equal 'hello', doc.root.name
+      end
+
+      def test_add_child_with_multiple_roots
+        assert_raises(RuntimeError) do
+          @xml << Node.new('foo', @xml)
+        end
+      end
+
       def test_move_root_to_document_with_no_root
         sender = Nokogiri::XML('<root>foo</root>')
         newdoc = Nokogiri::XML::Document.new

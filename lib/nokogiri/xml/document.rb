@@ -77,6 +77,14 @@ module Nokogiri
       undef_method :swap, :parent, :namespace, :default_namespace=
       undef_method :add_namespace_definition
 
+      def add_child child
+        if [1, 11].include? child.type
+          raise "Document already has a root node" if root
+        end
+        super
+      end
+      alias :<< :add_child
+
       class << self
         ###
         # Parse an XML file.  +thing+ may be a String, or any object that

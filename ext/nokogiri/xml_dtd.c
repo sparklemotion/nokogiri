@@ -113,6 +113,8 @@ static VALUE validate(VALUE self, VALUE document)
   return error_list;
 }
 
+VALUE cNokogiriXmlDtd;
+
 void init_xml_dtd()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
@@ -123,6 +125,8 @@ void init_xml_dtd()
    * Nokogiri::XML::DTD wraps DTD nodes in an XML document
    */
   VALUE klass = rb_define_class_under(xml, "DTD", node);
+
+  cNokogiriXmlDtd = klass;
 
   rb_define_method(klass, "notations", notations, 0);
   rb_define_method(klass, "elements", elements, 0);

@@ -63,6 +63,17 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   Data_Get_Struct(node_obj, xmlNode, node);
   Data_Get_Struct(other_obj, xmlNode, other);
 
+  // If a document fragment is added, we need to reparent all of it's children
+  if(node->type == XML_DOCUMENT_FRAG_NODE)
+  {
+    xmlNodePtr child = node->children;
+    while(NULL != child) {
+      reparent_node_with(Nokogiri_wrap_xml_node(NULL, child), other_obj, func);
+      child = child->next;
+    }
+    return node_obj;
+  }
+
   if (node->doc == other->doc) {
     xmlUnlinkNode(node) ;
     if ( node->type == XML_TEXT_NODE
@@ -848,7 +859,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
       klass = cNokogiriXmlCData;
       break;
     case XML_DTD_NODE:
-      klass = rb_const_get(mNokogiriXml, rb_intern("DTD"));
+      klass = cNokogiriXmlDtd;
       break;
     default:
       klass = cNokogiriXmlNode;
