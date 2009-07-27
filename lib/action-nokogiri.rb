@@ -18,6 +18,7 @@ module ActionController
     # Get your response as a Nokogiri::XML::Document using the
     # Nokogiri.HTML parser
     def html(flavor=nil)
+      warn "@response.html is deprecated and will be removed in nokogiri 1.4.0"
       if flavor == :hpricot
         @_nokogiri_html_hpricot ||= Nokogiri::Hpricot(body)
       else
@@ -29,6 +30,7 @@ module ActionController
     # Get your response as a Nokogiri::XML::Document using the
     # Nokogiri.XML parser
     def xml
+      warn "@response.html is deprecated and will be removed in nokogiri 1.4.0"
       @_nokogiri_xml ||= Nokogiri::XML(body)
     end
 
