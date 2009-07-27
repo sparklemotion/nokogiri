@@ -319,7 +319,7 @@ module Nokogiri
 
         # If a document fragment is added, we need to reparent all of it's
         # children
-        if node.type == 11
+        if node.type == DOCUMENT_FRAG_NODE
           node.children.each do |child|
             reparent_node_with(child, other, &block)
           end
