@@ -117,7 +117,7 @@ module Nokogiri
       def test_fragment_creates_elements
         apple = @xml.fragment('<Apple/>')
         apple.children.each do |child|
-          assert_equal 1, child.type
+          assert_equal Nokogiri::XML::Node::ELEMENT_NODE, child.type
           assert_instance_of Nokogiri::XML::Element, child
         end
       end

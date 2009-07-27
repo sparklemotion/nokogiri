@@ -78,7 +78,7 @@ module Nokogiri
       undef_method :add_namespace_definition
 
       def add_child child
-        if [1, 11].include? child.type
+        if [Node::ELEMENT_NODE, Node::DOCUMENT_FRAG_NODE].include? child.type
           raise "Document already has a root node" if root
         end
         super
