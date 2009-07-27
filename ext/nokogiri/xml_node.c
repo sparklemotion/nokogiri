@@ -769,7 +769,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   NOKOGIRI_ROOT_NODE(node);
 
   VALUE rb_node = Nokogiri_wrap_xml_node(
-      klass == cNokogiriXmlNode ? NULL : klass,
+      klass == cNokogiriXmlNode ? (VALUE)NULL : klass,
       node
   );
   rb_funcall2(rb_node, rb_intern("initialize"), argc, argv);
