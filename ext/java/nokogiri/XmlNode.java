@@ -23,6 +23,7 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -323,7 +324,7 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc) {
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc, Block block) {
 
         if(!(doc instanceof XmlDocument)) {
             throw context.getRuntime().newArgumentError("document must be an instance of Nokogiri::XML::Document");
@@ -339,6 +340,8 @@ public class XmlNode extends RubyObject {
         RuntimeHelpers.invoke(context, xmlDoc, "decorate", node);
 
         xmlDoc.cacheNode(element, node);
+
+        if(block.isGiven()) block.call(context, node);
 
         return node;
     }
