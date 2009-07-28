@@ -7,9 +7,11 @@ package nokogiri.internals;
 
 import nokogiri.XmlNode;
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -283,5 +285,13 @@ public class NokogiriHelpers {
         } else {
             return newPrefix + ":" + node.getLocalName();
         }
+    }
+
+    public static RubyArray nodeListToRubyArray(Ruby ruby, NodeList nodes) {
+        RubyArray n = RubyArray.newArray(ruby, nodes.getLength());
+        for(int i = 0; i < nodes.getLength(); i++) {
+            n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)));
+        }
+        return n;
     }
 }

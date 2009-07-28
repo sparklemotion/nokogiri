@@ -16,10 +16,7 @@ public class XmlNodeSet extends RubyObject {
 
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
         super(ruby, rubyClass);
-        this.nodes = RubyArray.newArray(ruby, nodes.getLength());
-        for(int i = 0; i < nodes.getLength(); i++) {
-            this.nodes.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)) );
-        }
+        this.nodes = NokogiriHelpers.nodeListToRubyArray(ruby, nodes);
     }
 
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){
@@ -39,10 +36,10 @@ public class XmlNodeSet extends RubyObject {
     }
 
     public void relink_namespace(ThreadContext context) {
-        List<IRubyObject> n = this.nodes.getList();
+        List n = this.nodes.getList();
 
-        for(IRubyObject node : n) {
-            ((XmlNode) node).relink_namespace(context);
+        for(int i = 0; i < n.size(); i++) {
+            ((XmlNode) n.get(i)).relink_namespace(context);
         }
     }
 

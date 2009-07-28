@@ -24,10 +24,7 @@ public class NokogiriNodeSetCache {
 
     public XmlNodeSet get(ThreadContext context, NodeList nodes) {
         Ruby ruby = context.getRuntime();
-        RubyArray n = RubyArray.newArray(ruby, nodes.getLength());
-        for(int i = 0; i < nodes.getLength(); i++) {
-            n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)));
-        }
+        RubyArray n = NokogiriHelpers.nodeListToRubyArray(ruby, nodes);
 
         return get(context, n);
     }

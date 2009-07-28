@@ -69,10 +69,7 @@ public class XmlNode extends RubyObject {
         if(node != null && node.getNodeType() != Node.DOCUMENT_NODE) {
             Document owner = node.getOwnerDocument();
             XmlDocument ownerXml = NokogiriDocumentCache.getInstance().getXmlDocument(owner);
-            if(ownerXml == null) {
-                System.out.println("No document owner for "+node.toString());
-                return;
-            }
+            if(ownerXml == null) return;
             ownerXml.cacheNode(node, this);
         }
     }
