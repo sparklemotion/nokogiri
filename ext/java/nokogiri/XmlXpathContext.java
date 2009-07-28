@@ -15,10 +15,10 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 
 public class XmlXpathContext extends RubyObject {
-    private Node context;
+    private XmlNode context;
     private XPath xpath;
 
-    public XmlXpathContext(Ruby ruby, RubyClass rubyClass, Node context) {
+    public XmlXpathContext(Ruby ruby, RubyClass rubyClass, XmlNode context) {
         super(ruby, rubyClass);
         this.context = context;
         this.xpath = XPathFactory.newInstance().newXPath();
@@ -28,16 +28,11 @@ public class XmlXpathContext extends RubyObject {
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject node) {
         XmlNode xmlNode = (XmlNode)node;
-        return new XmlXpathContext(context.getRuntime(), (RubyClass)cls, xmlNode.getNode());
+        return new XmlXpathContext(context.getRuntime(), (RubyClass)cls, xmlNode);
     }
 
     @JRubyMethod
     public IRubyObject evaluate(ThreadContext context, IRubyObject expr, IRubyObject handler) {
-        return evaluate(context, expr);
-    }
-
-    @JRubyMethod
-    public IRubyObject evaluate(ThreadContext context, IRubyObject expr) {
         String src = expr.convertToString().asJavaString();
         try {
             XPathExpression xpathExpression = xpath.compile(src);
@@ -45,6 +40,11 @@ public class XmlXpathContext extends RubyObject {
         } catch (XPathExpressionException xpee) {
             throw new RaiseException(XmlSyntaxError.getXPathSyntaxError(context));
         }
+    }
+
+    @JRubyMethod
+    public IRubyObject evaluate(ThreadContext context, IRubyObject expr) {
+        return this.evaluate(context, expr, context.getRuntime().getNil());
     }
 
     @JRubyMethod

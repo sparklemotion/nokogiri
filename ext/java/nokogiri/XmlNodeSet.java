@@ -1,6 +1,7 @@
 package nokogiri;
 
 import java.util.List;
+import nokogiri.internals.NokogiriHelpers;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -17,7 +18,7 @@ public class XmlNodeSet extends RubyObject {
         super(ruby, rubyClass);
         this.nodes = RubyArray.newArray(ruby, nodes.getLength());
         for(int i = 0; i < nodes.getLength(); i++) {
-            this.nodes.append((XmlNode) XmlNode.constructNode(ruby, nodes.item(i)));
+            this.nodes.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)) );
         }
     }
 

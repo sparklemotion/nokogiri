@@ -5,15 +5,35 @@
 
 package nokogiri.internals;
 
+import nokogiri.XmlNode;
+import org.jruby.Ruby;
 import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
  * @author serabe
  */
 public class NokogiriHelpers {
+
+    public static XmlNode getCachedNode(Node node) {
+        NokogiriDocumentCache docCache = NokogiriDocumentCache.getInstance();
+        switch(node.getNodeType()) {
+            case Node.DOCUMENT_NODE:
+                return docCache.getXmlDocument((Document) node);
+            default:
+                return (XmlNode) docCache.getXmlDocument(node.getOwnerDocument()).getCachedNode(node);
+        }
+    }
+
+    public static XmlNode getCachedNodeOrCreate(Ruby ruby, Node node) {
+        XmlNode xmlNode = getCachedNode(node);
+        if(xmlNode == null) {
+            xmlNode = (XmlNode) XmlNode.constructNode(ruby, node);
+        }
+        return xmlNode;
+    }
 
     public static String getLocalName(String name) {
         int index = name.indexOf(':');

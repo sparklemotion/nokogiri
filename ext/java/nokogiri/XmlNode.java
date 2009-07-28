@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import nokogiri.internals.NokogiriDocumentCache;
 import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.ParseOptions;
 import nokogiri.internals.SaveContext;
@@ -30,6 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -64,6 +66,15 @@ public class XmlNode extends RubyObject {
         this.internalCache = new Hashtable<Node,IRubyObject>();
         this.nsCache = new NokogiriNamespaceCache();
         this.internalNode = XmlNodeImpl.getImplForNode(ruby, node);
+        if(node != null && node.getNodeType() != Node.DOCUMENT_NODE) {
+            Document owner = node.getOwnerDocument();
+            XmlDocument ownerXml = NokogiriDocumentCache.getInstance().getXmlDocument(owner);
+            if(ownerXml == null) {
+                System.out.println("No document owner for "+node.toString());
+                return;
+            }
+            ownerXml.cacheNode(node, this);
+        }
     }
 
     protected void assimilateXmlNode(ThreadContext context, IRubyObject otherNode) {
@@ -160,6 +171,14 @@ public class XmlNode extends RubyObject {
         }
 
         return res;
+    }
+    
+    public XmlNodeSet getNodeSetFromCache(ThreadContext context, NodeList nodes) {
+        return this.internalNode.getNodeSetFromCache(context, nodes);
+    }
+
+    public XmlNodeSet getNodeSetFromCache(ThreadContext context, RubyArray nodes) {
+        return this.internalNode.getNodeSetFromCache(context, nodes);
     }
 
     protected RubyArray getNsDefinitions(Ruby ruby) {

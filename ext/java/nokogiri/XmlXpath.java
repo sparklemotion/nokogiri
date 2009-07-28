@@ -17,16 +17,19 @@ import org.w3c.dom.NodeList;
 public class XmlXpath extends RubyObject {
     private XPathExpression xpath;
     private Node context;
+    private XmlNode contextNode;
 
-    public XmlXpath(Ruby ruby, RubyClass rubyClass, XPathExpression xpath, Node context) {
+    public XmlXpath(Ruby ruby, RubyClass rubyClass, XPathExpression xpath, XmlNode context) {
         super(ruby, rubyClass);
         this.xpath = xpath;
 
+        this.contextNode = context;
+
         //TODO: Refactor.
-        if(context instanceof Document) {
-            this.context = context;
+        if(context.getNode() instanceof Document) {
+            this.context = context.getNode();
         } else {
-            this.context = context.getParentNode();
+            this.context = context.getNode().getParentNode();
         }
     }
 
@@ -34,7 +37,8 @@ public class XmlXpath extends RubyObject {
     public IRubyObject node_set(ThreadContext context) {
         try {
             NodeList nodes = (NodeList)xpath.evaluate(this.context, XPathConstants.NODESET);
-            XmlNodeSet result = new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+            XmlNodeSet result = this.contextNode.getNodeSetFromCache(context, nodes);
+            //XmlNodeSet result = new XmlNodeSet(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
             result.relink_namespace(context);
             return result;
         } catch (XPathExpressionException xpee) {

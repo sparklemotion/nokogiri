@@ -4,16 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 import javax.xml.parsers.ParserConfigurationException;
+import nokogiri.internals.NokogiriDocumentCache;
 import nokogiri.internals.ParseOptions;
 import nokogiri.internals.XmlDocumentImpl;
 import nokogiri.internals.XmlEmptyDocumentImpl;
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyIO;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
@@ -21,37 +20,44 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.xml.sax.SAXException;
 
 public class XmlDocument extends XmlNode {
     private Document document;
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
-    private Hashtable<Node, XmlNode> hashNode;
+    private Hashtable<Node, XmlNode> nodeCache;
 
     public XmlDocument(Ruby ruby, Document document) {
         this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"), document);
     }
 
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
-        super(ruby, klass, document.getDocumentElement());
+        super(ruby, klass, document);
         this.document = document;
 
         this.setNode(ruby, document.getDocumentElement());
 
         this.internalNode = new XmlDocumentImpl(ruby, document.getDocumentElement());
 
-        this.hashNode = new Hashtable<Node, XmlNode>();
+        this.nodeCache = new Hashtable<Node, XmlNode>();
         setInstanceVariable("@decorators", ruby.getNil());
+        NokogiriDocumentCache.getInstance().putDocument(document, this);
     }
 
     public void cacheNode(Node element, XmlNode node) {
-        this.hashNode.put(element, node);
+        this.nodeCache.put(element, node);
+    }
+
+    @Override
+    protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
+        Document newDoc = (Document) this.getDocument().cloneNode(deep);
+
+        return new XmlDocument(context.getRuntime(), this.getType(), newDoc);
     }
 
     public IRubyObject getCachedNode(Node element) {
-        return this.hashNode.get(element);
+        return this.nodeCache.get(element);
     }
 
     public Document getDocument() {
@@ -75,8 +81,6 @@ public class XmlDocument extends XmlNode {
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         XmlDocument doc = null;
         try {
-//            doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
-//                       DOMImplementationRegistry.newInstance().getDOMImplementation("XML 1.0").createDocument(null, "empty", null));
 
             Document docNode = (new ParseOptions(0)).getDocumentBuilder().newDocument();
             doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
