@@ -687,6 +687,8 @@ static VALUE native_write_to(
 
   xmlIndentTreeOutput = 1;
 
+  const char * before_indent = xmlTreeIndentString;
+
   xmlTreeIndentString = StringValuePtr(indent_string);
 
   xmlSaveCtxtPtr savectx = xmlSaveToIO(
@@ -699,6 +701,8 @@ static VALUE native_write_to(
 
   xmlSaveTree(savectx, node);
   xmlSaveClose(savectx);
+
+  xmlTreeIndentString = before_indent;
   return io;
 }
 
