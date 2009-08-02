@@ -318,15 +318,25 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc, Block block) {
 
+        Ruby ruby = context.getRuntime();
+
         if(!(doc instanceof XmlDocument)) {
-            throw context.getRuntime().newArgumentError("document must be an instance of Nokogiri::XML::Document");
+            throw ruby.newArgumentError("document must be an instance of Nokogiri::XML::Document");
         }
 
         XmlDocument xmlDoc = (XmlDocument)doc;
         Document document = xmlDoc.getDocument();
         Element element = document.createElementNS(null, name.convertToString().asJavaString());
 
-        XmlNode node = new XmlNode(context.getRuntime(), (RubyClass)cls, element);
+        RubyClass klazz = (RubyClass) cls;
+
+        if(cls.equals(ruby.getClassFromPath("Nokogiri::XML::Node"))) {
+            klazz = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Element");
+        }
+
+        XmlElement node = new XmlElement(ruby,
+                klazz,
+                element);
         node.internalNode.setDocument(doc);
         
         RuntimeHelpers.invoke(context, xmlDoc, "decorate", node);
