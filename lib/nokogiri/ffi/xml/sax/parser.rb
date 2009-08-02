@@ -2,7 +2,7 @@ module Nokogiri
   module XML
     module SAX
       class Parser
-        
+
         attr_accessor :cstruct # :nodoc:
 
         def parse_memory(data) # :nodoc:
@@ -35,7 +35,7 @@ module Nokogiri
 
         def setup_lambdas # :nodoc:
           @closures = {} # we need to keep references to the closures to avoid GC
-          
+
           [ :startDocument, :endDocument, :startElement, :endElement, :characters,
             :comment, :warning, :error, :cdataBlock, :startElementNs, :endElementNs ].each do |sym|
             @closures[sym] = lambda { |*args| send("__internal__#{sym}", *args) } # "i'm your private dancer", etc.
@@ -97,17 +97,21 @@ module Nokogiri
           prefix    = prefix   .null? ? nil : prefix   .read_string
           uri       = uri      .null? ? nil : uri      .read_string
 
-          attr_hash = {}
-          ns_hash   = {}
+          attr_list = []
+          ns_list   = []
 
           if ! attributes.null?
             # Each attribute is an array of [localname, prefix, URI, value, end]
             (0..(nb_attributes-1)*5).step(5) do |j|
               key          = attributes.get_pointer(LibXML.pointer_offset(j)).read_string
+              attr_prefix = attributes.get_pointer(LibXML.pointer_offset(j + 1))
+              attr_prefix = attr_prefix.null? ? nil : attr_prefix.read_string
+              attr_uri = attributes.get_pointer(LibXML.pointer_offset(j + 2))
+              attr_uri = attr_uri.null? ? nil : attr_uri.read_string
               value_length = attributes.get_pointer(LibXML.pointer_offset(j+4)).address \
                            - attributes.get_pointer(LibXML.pointer_offset(j+3)).address
               value        = attributes.get_pointer(LibXML.pointer_offset(j+3)).get_string(0, value_length)
-              attr_hash[key] = value
+              attr_list << Attribute.new(key, attr_prefix, attr_uri, value)
             end
           end
 
@@ -117,16 +121,18 @@ module Nokogiri
               key   = key.null?   ? nil : key.read_string
               value = namespaces.get_pointer(LibXML.pointer_offset(j+1))
               value = value.null? ? nil : value.read_string
-              ns_hash[key] = value
+              ns_list << [key, value]
             end
           end
 
-          @document.start_element_ns(localname, attr_hash, prefix, uri, ns_hash)
-
-          if @document.respond_to?(:start_element)
-            name = prefix ? "#{prefix}:#{localname}" : localname
-            @document.start_element(name, attr_hash.to_a.flatten)
-          end
+          @document.start_element_namespace(
+            localname,
+            attr_list,
+            prefix,
+            uri,
+            ns_list
+          )
+          start_element_namespace(localname, attr_list, prefix, uri, ns_list)
         end
 
         def __internal__endElementNs(_, localname, prefix, uri) # :nodoc:
@@ -134,14 +140,9 @@ module Nokogiri
           prefix    = prefix   .null? ? nil : prefix   .read_string
           uri       = uri      .null? ? nil : uri      .read_string
 
-          @document.end_element_ns(localname, prefix, uri)
-
-          if @document.respond_to?(:end_element)
-            name = prefix ? "#{prefix}:#{localname}" : localname
-            @document.end_element(name)
-          end
+          @document.end_element_namespace(localname, prefix, uri)
+          end_element_namespace(localname, prefix, uri)
         end
-
       end
     end
   end

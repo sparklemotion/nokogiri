@@ -2,10 +2,12 @@
 #define NOKOGIRI_XML_DOCUMENT
 
 #include <nokogiri.h>
+#include "st.h"
 
 struct _nokogiriTuple {
   xmlDocPtr     doc;
-  xmlNodeSetPtr unlinkedNodes;
+  st_table     *unlinkedNodes;
+  VALUE         node_cache;
 };
 typedef struct _nokogiriTuple nokogiriTuple;
 typedef nokogiriTuple * nokogiriTuplePtr;
@@ -15,7 +17,8 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc);
 
 #define DOC_RUBY_OBJECT_TEST(x) ((nokogiriTuplePtr)(x->_private))
 #define DOC_RUBY_OBJECT(x) ((VALUE)((nokogiriTuplePtr)(x->_private))->doc)
-#define DOC_UNLINKED_NODE_SET(x) ((xmlNodeSetPtr)((nokogiriTuplePtr)(x->_private))->unlinkedNodes)
+#define DOC_UNLINKED_NODE_HASH(x) (((nokogiriTuplePtr)(x->_private))->unlinkedNodes)
+#define DOC_NODE_CACHE(x) ((VALUE)((nokogiriTuplePtr)(x->_private))->node_cache)
 
 extern VALUE cNokogiriXmlDocument ;
 #endif

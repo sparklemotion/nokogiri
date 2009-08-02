@@ -10,6 +10,69 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_empty_node_converted_to_html_is_not_self_closing
+        doc = Nokogiri::XML('<a></a>')
+        assert_equal "<a></a>", doc.inner_html
+      end
+
+      def test_add_child_with_fragment
+        doc = Nokogiri::XML::Document.new
+        fragment = doc.fragment('<hello />')
+        doc.add_child fragment
+        assert_equal '/hello', doc.at('//hello').path
+        assert_equal 'hello', doc.root.name
+      end
+
+      def test_add_child_with_multiple_roots
+        assert_raises(RuntimeError) do
+          @xml << Node.new('foo', @xml)
+        end
+      end
+
+      def test_move_root_to_document_with_no_root
+        sender = Nokogiri::XML('<root>foo</root>')
+        newdoc = Nokogiri::XML::Document.new
+        newdoc.root = sender.root
+      end
+
+      def test_move_root_with_existing_root_gets_gcd
+        doc = Nokogiri::XML('<root>test</root>')
+        doc2 = Nokogiri::XML("<root>#{'x' * 5000000}</root>")
+        doc2.root = doc.root
+      end
+
+      def test_validate
+        assert_equal 44, @xml.validate.length
+      end
+
+      def test_validate_no_internal_subset
+        doc = Nokogiri::XML('<test/>')
+        assert_nil doc.validate
+      end
+
+      def test_clone
+        assert @xml.clone
+      end
+
+      def test_document_should_not_have_default_ns
+        doc = Nokogiri::XML::Document.new
+
+        assert_raises NoMethodError do
+          doc.default_namespace = 'http://innernet.com/'
+        end
+
+        assert_raises NoMethodError do
+          doc.add_namespace_definition('foo', 'bar')
+        end
+      end
+
+      def test_parse_handles_nil_gracefully
+        assert_nothing_raised do
+          @doc = Nokogiri::XML::Document.parse(nil)
+        end
+        assert_instance_of Nokogiri::XML::Document, @doc
+      end
+
       def test_parse_takes_block
         options = nil
         Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) do |cfg|
@@ -189,6 +252,12 @@ module Nokogiri
       def test_strict_document_throws_syntax_error
         assert_raises(Nokogiri::XML::SyntaxError) {
           Nokogiri::XML('<foo><bar></foo>', nil, nil, 0)
+        }
+
+        assert_raises(Nokogiri::XML::SyntaxError) {
+          Nokogiri::XML('<foo><bar></foo>') { |cfg|
+            cfg.strict
+          }
         }
       end
 

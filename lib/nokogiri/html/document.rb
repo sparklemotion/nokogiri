@@ -44,9 +44,9 @@ Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
         # +url+ is resource where this document is located.  +encoding+ is the
         # encoding that should be used when processing the document. +options+
         # is a number that sets options in the parser, such as
-        # Nokogiri::XML::PARSE_RECOVER.  See the constants in
-        # Nokogiri::XML.
-        def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
+        # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
+        # Nokogiri::XML::ParseOptions.
+        def parse string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block
 
           options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
           # Give the options to the user
@@ -61,7 +61,9 @@ Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
             return self.read_io(string_or_io, url, encoding, options.to_i)
           end
 
-          return self.new if(string_or_io.length == 0)
+          # read_memory pukes on empty docs
+          return self.new if string_or_io.nil? or string_or_io.empty?
+
           self.read_memory(string_or_io, url, encoding, options.to_i)
         end
       end

@@ -9,10 +9,87 @@ module Nokogiri
           @parser = XML::SAX::Parser.new(Doc.new)
         end
 
+        def test_namespace_declaration_order_is_saved
+          @parser.parse <<-eoxml
+<root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
+  <a foo:bar='hello' />
+</root>
+          eoxml
+          assert_equal 2, @parser.document.start_elements_namespace.length
+          el = @parser.document.start_elements_namespace.first
+          namespaces = el.last
+          assert_equal ['foo', 'http://foo.example.com/'], namespaces.first
+          assert_equal [nil, 'http://example.com/'], namespaces.last
+        end
+
         def test_bad_document_calls_error_handler
           @parser.parse('<foo><bar></foo>')
           assert @parser.document.errors
           assert @parser.document.errors.length > 0
+        end
+
+        def test_namespace_are_super_fun_to_parse
+          @parser.parse <<-eoxml
+<root xmlns:foo='http://foo.example.com/'>
+  <a foo:bar='hello' />
+  <b xmlns:foo='http://bar.example.com/'>
+    <a foo:bar='hello' />
+  </b>
+  <foo:bar>hello world</foo:bar>
+</root>
+          eoxml
+          assert @parser.document.start_elements_namespace.length > 0
+          el = @parser.document.start_elements_namespace[1]
+          assert_equal 'a', el.first
+          assert_equal 1, el[1].length
+
+          attribute = el[1].first
+          assert_equal 'bar', attribute.localname
+          assert_equal 'foo', attribute.prefix
+          assert_equal 'hello', attribute.value
+          assert_equal 'http://foo.example.com/', attribute.uri
+        end
+
+        def test_sax_v1_namespace_attribute_declarations
+          @parser.parse <<-eoxml
+<root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
+  <a foo:bar='hello' />
+  <b xmlns:foo='http://bar.example.com/'>
+    <a foo:bar='hello' />
+  </b>
+  <foo:bar>hello world</foo:bar>
+</root>
+          eoxml
+          assert @parser.document.start_elements.length > 0
+          elm = @parser.document.start_elements.first
+          assert_equal 'root', elm.first
+          assert elm[1].include?(['xmlns:foo', 'http://foo.example.com/'])
+          assert elm[1].include?(['xmlns', 'http://example.com/'])
+        end
+
+        def test_sax_v1_namespace_nodes
+          @parser.parse <<-eoxml
+<root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
+  <a foo:bar='hello' />
+  <b xmlns:foo='http://bar.example.com/'>
+    <a foo:bar='hello' />
+  </b>
+  <foo:bar>hello world</foo:bar>
+</root>
+          eoxml
+          assert_equal 5, @parser.document.start_elements.length
+          assert @parser.document.start_elements.map { |se|
+            se.first
+          }.include?('foo:bar')
+          assert @parser.document.end_elements.map { |se|
+            se.first
+          }.include?('foo:bar')
+        end
+
+        def test_start_is_called_without_namespace
+          @parser.parse('<foo:f><bar></foo:f>')
+          assert_equal ['foo:f', 'bar'],
+            @parser.document.start_elements.map { |x| x.first }
         end
 
         def test_parser_sets_encoding

@@ -36,13 +36,16 @@ public class XmlDocument extends XmlNode {
         super(ruby, klass, document);
         this.document = document;
 
-        this.setNode(ruby, document.getDocumentElement());
+//        if(document == null) {
+//            this.internalNode = new XmlEmptyDocumentImpl(ruby, document);
+//        } else {
 
-        this.internalNode = new XmlDocumentImpl(ruby, document.getDocumentElement());
+            this.internalNode = new XmlDocumentImpl(ruby, document);
+            NokogiriDocumentCache.getInstance().putDocument(document, this);
+//        }
 
         this.nodeCache = new Hashtable<Node, XmlNode>();
         setInstanceVariable("@decorators", ruby.getNil());
-        NokogiriDocumentCache.getInstance().putDocument(document, this);
     }
 
     public void cacheNode(Node element, XmlNode node) {
@@ -100,6 +103,12 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
         return this.internals().children(context, this);
+    }
+
+    @Override
+    @JRubyMethod
+    public IRubyObject document(ThreadContext context) {
+        return this;
     }
 
     @JRubyMethod(name="encoding=")

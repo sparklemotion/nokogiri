@@ -38,13 +38,18 @@ module Nokogiri
       # do not generate XINCLUDE START/END nodes
       NOXINCNODE  = 1 << 15
 
+      # the default options used for parsing XML documents
+      DEFAULT_XML  = RECOVER
+      # the default options used for parsing HTML documents
+      DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET
+
       attr_accessor :options
-      def initialize options = 0
+      def initialize options = STRICT
         @options = options
       end
 
       constants.each do |constant|
-        next if constant == 'STRICT'
+        next if constant.to_sym == :STRICT
         class_eval %{
           def #{constant.downcase}
             @options |= #{constant}
@@ -58,7 +63,7 @@ module Nokogiri
       end
 
       def strict
-        @options |= STRICT
+        @options &= ~RECOVER
         self
       end
 

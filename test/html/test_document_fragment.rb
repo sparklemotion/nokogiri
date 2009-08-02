@@ -37,6 +37,12 @@ module Nokogiri
         assert_instance_of klass, fragment
       end
 
+      def test_subclass_parse
+        klass = Class.new(Nokogiri::HTML::DocumentFragment)
+        doc = klass.parse("<div>a</div>")
+        assert_instance_of klass, doc
+      end
+
       def test_html_fragment
         fragment = Nokogiri::HTML.fragment("<div>a</div>")
         assert_equal "<div>a</div>", fragment.to_s
@@ -60,6 +66,12 @@ module Nokogiri
 
       def test_html_fragment_with_leading_whitespace
         doc = "     <div>b</div>  "
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<div>b</div>", fragment.to_s
+      end
+
+      def test_html_fragment_with_leading_whitespace_and_newline
+        doc = "     \n<div>b</div>  "
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
         assert_equal "<div>b</div>", fragment.to_s
       end
@@ -90,6 +102,20 @@ module Nokogiri
         doc = "<span>foo<br></span><span>bar</span>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
         assert_equal "<span>foo<br/></span><span>bar</span>", fragment.to_xml
+      end
+
+      def test_fragment_script_tag_with_cdata
+        doc = HTML::Document.new
+        fragment = doc.fragment("<script>var foo = 'bar';</script>")
+        assert_equal("<script>var foo = 'bar';</script>",
+          fragment.to_s)
+      end
+
+      def test_fragment_with_comment
+        doc = HTML::Document.new
+        fragment = doc.fragment("<p>hello<!-- your ad here --></p>")
+        assert_equal("<p>hello<!-- your ad here --></p>",
+          fragment.to_s)
       end
 
     end

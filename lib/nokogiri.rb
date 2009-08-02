@@ -54,10 +54,16 @@ module Nokogiri
     # Parse an HTML or XML document.  +string+ contains the document.
     def parse string, url = nil, encoding = nil, options = nil
       doc =
-        if string =~ /^\s*<[^Hh>]*html/i # Probably html
-          Nokogiri::HTML::Document.parse(string, url, encoding, options || 2145)
+        if string.respond_to?(:read) ||
+          string =~ /^\s*<[^Hh>]*html/i # Probably html
+          Nokogiri::HTML(
+            string,
+            url,
+            encoding, options || XML::ParseOptions::DEFAULT_HTML
+          )
         else
-          Nokogiri::XML::Document.parse(string, url, encoding, options || 2159)
+          Nokogiri::XML(string, url, encoding,
+                        options || XML::ParseOptions::DEFAULT_XML)
         end
       yield doc if block_given?
       doc

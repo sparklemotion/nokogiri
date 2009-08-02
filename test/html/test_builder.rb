@@ -47,11 +47,13 @@ module Nokogiri
 
       def test_tag_nesting
         builder = Nokogiri::HTML::Builder.new do
-          span.left ''
-          span.middle {
-            div.icon ''
+          body {
+            span.left ''
+            span.middle {
+              div.icon ''
+            }
+            span.right ''
           }
-          span.right ''
         end
         assert node = builder.doc.css('span.right').first
         assert_equal 'middle', node.previous_sibling['class']

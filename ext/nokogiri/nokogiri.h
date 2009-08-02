@@ -46,7 +46,7 @@ int is_2_6_16(void) ;
   ({ \
     VALUE _string = rb_str_new2((const char *)str); \
     if(NULL != encoding) { \
-      int _enc = rb_enc_find_index(encoding); \
+      int _enc = rb_enc_find_index("UTF-8"); \
       if(_enc == -1) \
         rb_enc_associate_index(_string, rb_enc_find_index("ASCII")); \
       else \
@@ -59,7 +59,7 @@ int is_2_6_16(void) ;
   ({ \
     VALUE _string = rb_str_new((const char *)str, (long)len); \
     if(NULL != encoding) { \
-      int _enc = rb_enc_find_index(encoding); \
+      int _enc = rb_enc_find_index("UTF-8"); \
       if(_enc == -1) \
         rb_enc_associate_index(_string, rb_enc_find_index("ASCII")); \
       else \
@@ -114,8 +114,7 @@ extern VALUE mNokogiriXslt ;
 #define NOKOGIRI_ROOT_NODE(_node) \
   ({ \
     nokogiriTuplePtr tuple = (nokogiriTuplePtr)(_node->doc->_private);       \
-    xmlNodeSetPtr node_set = (xmlNodeSetPtr)(tuple->unlinkedNodes);     \
-    xmlXPathNodeSetAdd(node_set, _node); \
+    st_insert(tuple->unlinkedNodes, (st_data_t)_node, (st_data_t)_node);     \
     _node; \
   })
 

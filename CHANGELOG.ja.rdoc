@@ -1,3 +1,56 @@
+=== 1.3.3 / ２００９年７月２６日
+
+* 新しい機能
+
+  * NodeSet#children 全ての子ノードを返すようになった
+
+* バグの修正
+
+  * libxml-ruby のグローバ ルエラー ハンドラー に優先するようになった
+  * ParseOption#strict を修正
+  * 空文字列を Node#inner_html= に与えた時に生じたSEGVを修正 GH #88
+  * Ruby 1.9 では文字列のエンコーディングをUTF-8になるようにした
+  * ドキュメントの根ノードから違うドキュメントの根ノードに移動した時に生じた
+    SEGVを修正 GH #91
+  * ノードをインスタンス化する時のO(n)のペナルティーを修正 GH #101
+  * XMLのドキュメントをHTMLのドキュメントとして出力出来るようになった
+
+* 廃棄予定
+
+  * Hpricotの互換性レイヤーがNokogiriの1.4.0で除去される予定
+
+=== 1.3.2 / ２００９年６月２２日
+
+* 新しい機能
+
+  * Nokogiri::XML::DTD#validate はドキュメントを検証できるようになった
+
+* バグの修正
+
+  * Nokogiri::XML::NodeSet#search はトップレベルのノードを検索するようになった
+    GH #73
+  * Nokogiri::XML::Documentからメソッドに関係する名前空間を取り除いた
+  * 2回同じ名前空間が追加されたときSEGVする問題を修正した
+  * Snow Leopard で Nokogiri が動くようになった GH #79
+  * メーリングリストはGoogle Groupsの以下のURLに移動した
+    http://groups.google.com/group/nokogiri-talk
+  * HTML フラグメントはコメントとCDATAを正確に扱うようになった
+  * Nokogiri::XML::Document#cloneはdupのaliasになった
+
+* 廃棄予定
+
+  * Nokogiri::XML::SAX::Document#start_element_nsは廃棄予定なので
+    Nokogiri::XML::SAX::Document#start_element_namespaceを代わりに使用して下さい
+  * Nokogiri::XML::SAX::Document#end_element_nsは廃棄予定なので
+    Nokogiri::XML::SAX::Document#end_element_namespaceを代わりに使用して下さい
+
+=== 1.3.1 / ２００９年６月７日
+
+* バグの修正
+
+  * extconf.rb は任意のRelaxNGとSchemaの機能を探すようになった
+  * ドキュメントのノードキャッシュに名前空間のノードが入るようになった
+
 === 1.3.0 / ２００９年５月３０日
 
 * 新しい機能

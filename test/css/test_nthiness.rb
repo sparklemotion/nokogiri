@@ -42,7 +42,7 @@ module Nokogiri
 <p class='not-empty'><b></b></p>
 </html>
 EOF
-        @parser = Nokogiri.Hpricot doc
+        @parser = Nokogiri.HTML doc
       end
 
 
@@ -140,8 +140,7 @@ EOF
 <p id="4">p4 </p>
 <p id="5">p5 </p>
 EOF
-        parser = Nokogiri.Hpricot doc
-        
+        parser = Nokogiri.HTML doc
         assert_equal 2, parser.search("#3 ~ p").size
         assert_equal "p4 p5 ", parser.search("#3 ~ p").inner_text
         assert_equal 0, parser.search("#5 ~ p").size

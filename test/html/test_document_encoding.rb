@@ -24,6 +24,23 @@ module Nokogiri
           assert_equal bad_charset.encoding.name, doc.encoding
         end
 
+        def test_encoding_non_utf8
+          orig = '日本語が上手です'
+          bin = Encoding::ASCII_8BIT
+          [Encoding::Shift_JIS, Encoding::EUC_JP].each do |enc|
+            html = <<-eohtml.encode(enc)
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=#{enc.name}">
+<title xml:lang="ja">#{orig}</title></html>
+            eohtml
+            text = Nokogiri::HTML.parse(html).at('title').inner_text
+            assert_equal(
+              orig.encode(enc).force_encoding(bin),
+              text.encode(enc).force_encoding(bin)
+            )
+          end
+        end
+
         def test_encoding_with_a_bad_name
           bad_charset = <<-eohtml
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

@@ -118,6 +118,7 @@ module Nokogiri
     attach_function :xmlStringGetNodeList, [:pointer, :pointer], :pointer # second arg should be a :string, but we only ship the results of xmlEncodeEntitiesReentrant, so let's optimize.
     attach_function :xmlNewNs, [:pointer, :string, :string], :pointer
     attach_function :xmlNewNsProp, [:pointer, :pointer, :string, :string], :pointer
+    attach_function :xmlSearchNs, [:pointer, :pointer, :string], :pointer
     attach_function :xmlSearchNsByHref, [:pointer, :pointer, :string], :pointer
     attach_function :xmlGetIntSubset, [:pointer], :pointer
     attach_function :xmlBufferCreate, [], :pointer
@@ -125,6 +126,11 @@ module Nokogiri
     attach_function :xmlSplitQName2, [:string, :pointer], :pointer # returns char* that must be freed
     attach_function :xmlNewDocProp, [:pointer, :string, :string], :pointer
     attach_function :xmlFreePropList, [:pointer], :void
+
+    # valid.c
+    attach_function :xmlNewValidCtxt, [], :pointer
+    attach_function :xmlValidateDtd, [:pointer, :pointer, :pointer], :int
+    attach_function :xmlFreeValidCtxt, [:pointer], :void
 
     # xmlsave.c
     attach_function :xmlDocDumpMemory, [:pointer, :pointer, :pointer], :void
@@ -240,6 +246,7 @@ module Nokogiri
     attach_function :xmlSchemaSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlSchemaParse, [:pointer], :pointer
     attach_function :xmlSchemaFreeParserCtxt, [:pointer], :void
+    attach_function :xmlSchemaNewDocParserCtxt, [:pointer], :pointer
 
     # relaxng.c
     attach_function :xmlRelaxNGNewValidCtxt, [:pointer], :pointer
@@ -250,6 +257,7 @@ module Nokogiri
     attach_function :xmlRelaxNGSetParserStructuredErrors, [:pointer, :syntax_error_handler, :pointer], :void unless Nokogiri.is_2_6_16?
     attach_function :xmlRelaxNGParse, [:pointer], :pointer
     attach_function :xmlRelaxNGFreeParserCtxt, [:pointer], :void
+    attach_function :xmlRelaxNGNewDocParserCtxt, [:pointer], :pointer
 
     # helpers
     def self.pointer_offset(n)

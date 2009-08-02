@@ -163,13 +163,6 @@ static VALUE attribute_nodes(VALUE self)
   xmlNodePtr ptr = xmlTextReaderExpand(reader);
   if(ptr == NULL) return Qnil;
 
-  // FIXME I'm not sure if this is correct.....  I don't really like pointing
-  // at this document, but I have to because of the assertions in
-  // the node wrapping code.
-  if(! DOC_RUBY_OBJECT_TEST(ptr->doc)) {
-    VALUE rb_doc = Nokogiri_wrap_xml_document(cNokogiriXmlDocument, ptr->doc);
-    RDATA(rb_doc)->dfree = NULL;
-  }
   VALUE enc = rb_iv_get(self, "@encoding");
 
   if(enc != Qnil && NULL == ptr->doc->encoding) {

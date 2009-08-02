@@ -8,9 +8,19 @@ module Nokogiri
         cstruct[:URL]
       end
 
-      def root=(node) # :nodoc:
-        LibXML.xmlDocSetRootElement(cstruct, node.cstruct)
-        node
+      def root=(new_root) # :nodoc:
+        old_root = nil
+        if new_root.cstruct[:doc] != cstruct[:doc]
+          old_root_ptr = LibXML.xmlDocGetRootElement(cstruct)
+          new_root_ptr = LibXML.xmlDocCopyNode(new_root.cstruct, cstruct, 1)
+          raise RuntimeError "Could not reparent node (xmlDocCopyNode)" if new_root_ptr.null?
+          new_root = Node.wrap(new_root_ptr)
+        end
+        LibXML.xmlDocSetRootElement(cstruct, new_root.cstruct)
+        if old_root_ptr && ! old_root_ptr.null?
+          LibXML::XmlNode.new(old_root_ptr).keep_reference_from_document!
+        end
+        new_root
       end
 
       def root # :nodoc:
@@ -24,7 +34,8 @@ module Nokogiri
       end
 
       def encoding # :nodoc:
-        cstruct[:encoding].read_string
+        ptr = cstruct[:encoding]
+        ptr.null? ? nil : ptr.read_string
       end
 
       def self.read_io(io, url, encoding, options) # :nodoc:
@@ -84,7 +95,7 @@ module Nokogiri
           LibXML.xmlSetStructuredErrorFunc(nil, SyntaxError.error_array_pusher(error_list))
 
           ptr = yield
-          
+
           LibXML.xmlSetStructuredErrorFunc(nil, nil)
 
           if ptr.null?

@@ -47,7 +47,7 @@ module Nokogiri
             end
           end
           sub_set
-        end          
+        end
       end
     end
   end

@@ -145,7 +145,11 @@ static VALUE plus(VALUE self, VALUE rb_other)
   new = xmlXPathNodeSetMerge(NULL, node_set);
   new = xmlXPathNodeSetMerge(new, other);
 
-  return Nokogiri_wrap_xml_node_set(new);
+  VALUE new_set = Nokogiri_wrap_xml_node_set(new);
+
+  rb_iv_set(new_set, "@document", rb_iv_get(self, "@document"));
+
+  return new_set;
 }
 
 /*

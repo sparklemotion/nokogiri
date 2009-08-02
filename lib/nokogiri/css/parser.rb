@@ -43,7 +43,7 @@ module Nokogiri
         def parse selector
           @warned ||= false
           unless @warned
-            $stderr.puts('Nokogiri::CSS::Parser.parse is deprecated, call Nokogiri::CSS.parse()')
+            $stderr.puts('Nokogiri::CSS::Parser.parse is deprecated, call Nokogiri::CSS.parse(), this will be removed August 1st or version 1.4.0 (whichever is first)')
             @warned = true
           end
           new.parse selector
@@ -59,7 +59,7 @@ module Nokogiri
 
       # Get the xpath for +string+ using +options+
       def xpath_for string, options={}
-        key = string + options[:ns].to_s
+        key = "#{string}#{options[:ns]}#{options[:prefix]}"
         v = self.class[key]
         return v if v
 

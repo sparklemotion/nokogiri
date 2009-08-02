@@ -30,6 +30,13 @@ class TestNokogiri < Nokogiri::TestCase
     assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO['libxml']['loaded']
   end
 
+  def test_parse_with_io
+    doc = Nokogiri.parse(
+      StringIO.new("<html><head><title></title><body></body></html>")
+    )
+    assert_instance_of Nokogiri::HTML::Document, doc
+  end
+
   def test_xml?
     doc = Nokogiri.parse(File.read(XML_FILE))
     assert doc.xml?

@@ -157,7 +157,7 @@ public class XmlNodeImpl {
         Node appended = child.getNode();
 
         if(child.document(context) != current.document(context)) {
-            current.getNode().getOwnerDocument().adoptNode(appended);
+            ((XmlDocument) current.document(context)).getDocument().adoptNode(appended);
             child.setDocument(current.document(context));
         } else if(appended.getParentNode() != null) {
             child.unlink(context);

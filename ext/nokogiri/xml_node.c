@@ -12,7 +12,10 @@ static void debug_node_dealloc(xmlNodePtr x)
 
 static void mark(xmlNodePtr node)
 {
-  rb_gc_mark(DOC_RUBY_OBJECT(node->doc));
+  // it's OK if the document isn't fully realized (as in XML::Reader).
+  // see http://github.com/tenderlove/nokogiri/issues/closed/#issue/95
+  if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc))
+    rb_gc_mark(DOC_RUBY_OBJECT(node->doc));
 }
 
 /* :nodoc: */
@@ -59,6 +62,17 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
 
   Data_Get_Struct(node_obj, xmlNode, node);
   Data_Get_Struct(other_obj, xmlNode, other);
+
+  // If a document fragment is added, we need to reparent all of it's children
+  if(node->type == XML_DOCUMENT_FRAG_NODE)
+  {
+    xmlNodePtr child = node->children;
+    while(NULL != child) {
+      reparent_node_with(Nokogiri_wrap_xml_node((VALUE)NULL, child), other_obj, func);
+      child = child->next;
+    }
+    return node_obj;
+  }
 
   if (node->doc == other->doc) {
     xmlUnlinkNode(node) ;
@@ -673,6 +687,8 @@ static VALUE native_write_to(
 
   xmlIndentTreeOutput = 1;
 
+  const char * before_indent = xmlTreeIndentString;
+
   xmlTreeIndentString = StringValuePtr(indent_string);
 
   xmlSaveCtxtPtr savectx = xmlSaveToIO(
@@ -685,6 +701,8 @@ static VALUE native_write_to(
 
   xmlSaveTree(savectx, node);
   xmlSaveClose(savectx);
+
+  xmlTreeIndentString = before_indent;
   return io;
 }
 
@@ -720,6 +738,14 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
       (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
   );
 
+  if(!ns) {
+    ns = xmlSearchNs(
+        node->doc,
+        node,
+        (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
+    );
+  }
+
   if(Qnil == prefix) xmlSetNs(node, ns);
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
@@ -746,7 +772,10 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   node->doc = doc->doc;
   NOKOGIRI_ROOT_NODE(node);
 
-  VALUE rb_node = Nokogiri_wrap_xml_node(klass, node);
+  VALUE rb_node = Nokogiri_wrap_xml_node(
+      klass == cNokogiriXmlNode ? (VALUE)NULL : klass,
+      node
+  );
   rb_funcall2(rb_node, rb_intern("initialize"), argc, argv);
 
   if(rb_block_given_p()) rb_yield(rb_node);
@@ -765,9 +794,6 @@ static VALUE dump_html(VALUE self)
   xmlBufferPtr buf ;
   xmlNodePtr node ;
   Data_Get_Struct(self, xmlNode, node);
-
-  if(node->doc->type == XML_DOCUMENT_NODE)
-    return rb_funcall(self, rb_intern("to_xml"), 0);
 
   buf = xmlBufferCreate() ;
   htmlNodeDump(buf, node->doc, node);
@@ -837,7 +863,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
       klass = cNokogiriXmlCData;
       break;
     case XML_DTD_NODE:
-      klass = rb_const_get(mNokogiriXml, rb_intern("DTD"));
+      klass = cNokogiriXmlDtd;
       break;
     default:
       klass = cNokogiriXmlNode;
@@ -848,12 +874,13 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   node->_private = (void *)rb_node;
 
   if (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc)) {
+    // it's OK if the document isn't fully realized (as in XML::Reader).
+    // see http://github.com/tenderlove/nokogiri/issues/closed/#issue/95
     document = DOC_RUBY_OBJECT(node->doc);
-    node_cache = rb_iv_get(document, "@node_cache");
+    node_cache = DOC_NODE_CACHE(node->doc);
+    rb_ary_push(node_cache, rb_node);
+    rb_funcall(document, rb_intern("decorate"), 1, rb_node);
   }
-
-  rb_ary_push(node_cache, rb_node);
-  rb_funcall(document, rb_intern("decorate"), 1, rb_node);
 
   return rb_node ;
 }

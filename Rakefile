@@ -1,14 +1,11 @@
 # -*- ruby -*-
 
 require 'rubygems'
-require 'rake'
+gem 'hoe', '>= 2.1.0'
 require 'hoe'
 
-LIB_DIR = File.expand_path(File.join(File.dirname(__FILE__), 'lib'))
-$LOAD_PATH << LIB_DIR
-
-windows = RUBY_PLATFORM =~ /(mswin|mingw)/i ? true : false
-java = RUBY_PLATFORM =~ /java/ ? true : false
+windows = RUBY_PLATFORM =~ /(mswin|mingw)/i
+java    = RUBY_PLATFORM =~ /java/
 
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
@@ -18,28 +15,30 @@ JRUBY_HOME = Config::CONFIG['prefix']
 
 require 'nokogiri/version'
 
-HOE = Hoe.new('nokogiri', Nokogiri::VERSION) do |p|
-  p.developer('Aaron Patterson', 'aaronp@rubyforge.org')
-  p.developer('Mike Dalessio', 'mike.dalessio@gmail.com')
-  p.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
-  p.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
-  p.extra_rdoc_files  = FileList['*.rdoc']
-  p.clean_globs = [
+# Make sure hoe-debugging is installed
+Hoe.plugin :debugging
+
+HOE = Hoe.spec 'nokogiri' do
+  developer('Aaron Patterson', 'aaronp@rubyforge.org')
+  developer('Mike Dalessio', 'mike.dalessio@gmail.com')
+  self.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
+  self.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
+  self.extra_rdoc_files  = FileList['*.rdoc']
+  self.clean_globs = [
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
     'cross',
   ]
 
-  p.extra_dev_deps  << "racc"
-  p.extra_dev_deps  << "tenderlove-frex"
-  p.extra_dev_deps  << "rake-compiler"
+  %w{ racc rexical rake-compiler }.each do |dep|
+    self.extra_dev_deps << dep
+  end
 
-  p.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
+  self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
 
 unless java
-
   gem 'rake-compiler', '>= 0.4.1'
   require "rake/extensiontask"
 
@@ -49,7 +48,7 @@ unless java
     ext.config_options << ENV['EXTOPTS']
     cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
     ext.cross_compile   = true
-    ext.cross_platform  = 'i386-mswin32'
+    ext.cross_platform  = 'i386-mingw32'
     ext.cross_config_options <<
       "--with-iconv-dir=#{File.join(cross_dir, 'iconv')}"
     ext.cross_config_options <<
@@ -57,31 +56,26 @@ unless java
     ext.cross_config_options <<
       "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
   end
-  ###
-  # To build the windows fat binary, do:
-  #
-  #   rake fat_binary native gem
-  #
-  # I keep my ruby in multiruby, so my command is like this:
-  #
-  #   RAKE19=~/.multiruby/install/1.9.1-p129/bin/rake \
-  #     rake fat_binary native gem
-  task 'fat_binary' do
-    rake19 = ENV['RAKE19'] || 'rake1.9'
-    system("rake clean cross compile RUBY_CC_VERSION=1.8.6 FAT_DIR=1.8")
-    system("#{rake19} clean cross compile RUBY_CC_VERSION=1.9.1 FAT_DIR=1.9")
+
+  file 'lib/nokogiri/nokogiri.rb' do
     File.open("lib/#{HOE.name}/#{HOE.name}.rb", 'wb') do |f|
       f.write <<-eoruby
 require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
       eoruby
     end
-    HOE.spec.extensions = []
-    HOE.spec.platform = 'x86-mswin32'
-    HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
-    HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/*"]
-    HOE.spec.files += Dir["ext/nokogiri/*.dll"]
   end
-  CLOBBER.include("lib/nokogiri/nokogiri.rb")
+
+  namespace :cross do
+    task :file_list do
+      HOE.spec.platform = 'x86-mingw32'
+      HOE.spec.extensions = []
+      HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
+      HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/#{HOE.name}.so"]
+      HOE.spec.files += Dir["ext/nokogiri/*.dll"]
+    end
+  end
+
+  CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
   CLOBBER.include("lib/nokogiri/1.{8,9}")
 end
 
@@ -132,7 +126,7 @@ file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   begin
     racc = `which racc`.strip
     racc = "#{::Config::CONFIG['bindir']}/racc" if racc.empty?
-    sh "#{racc} -o #{t.name} #{t.prerequisites.first}"
+    sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
   rescue
     abort "need racc, sudo gem install racc"
   end
@@ -140,9 +134,9 @@ end
 
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   begin
-    sh "frex --independent -o #{t.name} #{t.prerequisites.first}"
+    sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
   rescue
-    abort "need frex, sudo gem install tenderlove-frex -s http://gems.github.com"
+    abort "need rexical, sudo gem install rexical"
   end
 end
 
@@ -172,6 +166,7 @@ libs.each do |lib|
       system("wget #{url} || curl -O #{url}")
     end
   end
+
   file "tmp/cross/#{lib.split('-').first}" => ["tmp/stash/#{lib}.zip"] do |t|
     puts "unzipping #{lib}.zip"
     FileUtils.mkdir_p('tmp/cross')
@@ -183,8 +178,11 @@ libs.each do |lib|
       sh "touch #{lib.split('-').first}"
     end
   end
+
   if Rake::Task.task_defined?(:cross)
     Rake::Task[:cross].prerequisites << "tmp/cross/#{lib.split('-').first}"
+    Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
+    Rake::Task[:cross].prerequisites << "cross:file_list"
   end
 end
 
@@ -207,21 +205,30 @@ unless windows || java || ENV['NOKOGIRI_FFI']
   end
 
   Rake::Task[:test].prerequisites << :compile
-  ['valgrind', 'valgrind_mem', 'valgrind_mem0', 'coverage'].each do |task_name|
-    Rake::Task["test:#{task_name}"].prerequisites << :compile
+  if Hoe.plugins.include?(:debugging)
+    ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
+      Rake::Task["test:#{task_name}"].prerequisites << :compile
+    end
+  end
+else
+  [:test, :check_manifest].each do |task_name|
+    if Rake::Task[task_name]
+      Rake::Task[task_name].prerequisites << GENERATED_PARSER
+      Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
+    end
   end
 end
 
 namespace :install do
-  desc "Install frex and racc for development"
-  task :deps => %w(frex racc)
+  desc "Install rex and racc for development"
+  task :deps => %w(rexical racc)
 
   task :racc do |t|
     sh "sudo gem install racc"
   end
 
-  task :frex do
-    sh "sudo gem install tenderlove-frex -s http://gems.github.com"
+  task :rexical do
+    sh "sudo gem install rexical"
   end
 end
 

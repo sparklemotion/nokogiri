@@ -7,6 +7,30 @@ module Nokogiri
         assert @xsd = Nokogiri::XML::Schema(File.read(PO_SCHEMA_FILE))
       end
 
+      def test_schema_from_document
+        doc = Nokogiri::XML(File.open(PO_SCHEMA_FILE))
+        assert doc
+        xsd = Nokogiri::XML::Schema.from_document doc
+        assert_instance_of Nokogiri::XML::Schema, xsd
+      end
+
+      def test_schema_from_document_node
+        doc = Nokogiri::XML(File.open(PO_SCHEMA_FILE))
+        assert doc
+        xsd = Nokogiri::XML::Schema.from_document doc.root
+        assert_instance_of Nokogiri::XML::Schema, xsd
+      end
+
+      def test_schema_validates_with_relative_paths
+        xsd = File.join(ASSETS_DIR, 'foo', 'foo.xsd')
+        xml = File.join(ASSETS_DIR, 'valid_bar.xml')
+        doc = Nokogiri::XML(File.open(xsd))
+        xsd = Nokogiri::XML::Schema.from_document doc
+
+        doc = Nokogiri::XML(File.open(xml))
+        assert xsd.valid?(doc)
+      end
+
       def test_parse_with_memory
         assert_instance_of Nokogiri::XML::Schema, @xsd
         assert_equal 0, @xsd.errors.length

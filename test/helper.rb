@@ -2,6 +2,7 @@ Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLAT
 $VERBOSE = true
 require 'rubygems'
 require 'test/unit'
+require 'tempfile'
 
 %w(../lib ../ext).each do |path|
   $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), path)))
@@ -19,10 +20,13 @@ module Nokogiri
     EXSLT_FILE      = File.join(ASSETS_DIR, 'exslt.xslt')
     EXML_FILE       = File.join(ASSETS_DIR, 'exslt.xml')
     HTML_FILE       = File.join(ASSETS_DIR, 'tlm.html')
+    NICH_FILE       = File.join(ASSETS_DIR, '2ch.html')
+    SHIFT_JIS_XML   = File.join(ASSETS_DIR, 'shift_jis.xml')
     PO_XML_FILE     = File.join(ASSETS_DIR, 'po.xml')
     PO_SCHEMA_FILE  = File.join(ASSETS_DIR, 'po.xsd')
     ADDRESS_SCHEMA_FILE = File.join(ASSETS_DIR, 'address_book.rlx')
     ADDRESS_XML_FILE = File.join(ASSETS_DIR, 'address_book.xml')
+    SNUGGLES_FILE   = File.join(ASSETS_DIR, 'snuggles.xml')
 
     unless RUBY_VERSION >= '1.9'
       undef :default_test
@@ -55,10 +59,10 @@ module Nokogiri
   module SAX
     class TestCase < Nokogiri::TestCase
       class Doc < XML::SAX::Document
-        attr_reader :start_elements, :start_elements_ns, :start_document_called
-        attr_reader :end_elements, :end_elements_ns, :end_document_called
-        attr_reader :data, :comments, :cdata_blocks
-        attr_reader :errors, :warnings
+        attr_reader :start_elements, :start_document_called
+        attr_reader :end_elements, :end_document_called
+        attr_reader :data, :comments, :cdata_blocks, :start_elements_namespace
+        attr_reader :errors, :warnings, :end_elements_namespace
 
         def start_document
           @start_document_called = true
@@ -85,8 +89,8 @@ module Nokogiri
           super
         end
 
-        def start_element_ns *args
-          (@start_elements_ns ||= []) << args
+        def start_element_namespace *args
+          (@start_elements_namespace ||= []) << args
           super
         end
 
@@ -95,8 +99,8 @@ module Nokogiri
           super
         end
 
-        def end_element_ns *args
-          (@end_elements_ns ||= []) << args
+        def end_element_namespace *args
+          (@end_elements_namespace ||= []) << args
           super
         end
 

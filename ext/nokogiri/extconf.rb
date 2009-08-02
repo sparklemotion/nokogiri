@@ -1,4 +1,6 @@
-ENV["ARCHFLAGS"] = "-arch #{`uname -p` =~ /powerpc/ ? 'ppc' : 'i386'}"
+ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
+
+# :stopdoc:
 
 require 'mkmf'
 
@@ -54,35 +56,64 @@ LIB_DIRS = [
 ]
 
 iconv_dirs = dir_config('iconv', '/opt/local/include', '/opt/local/lib')
-unless [nil, nil] == iconv_dirs
+unless ["", ""] == iconv_dirs
   HEADER_DIRS.unshift iconv_dirs.first
   LIB_DIRS.unshift iconv_dirs[1]
 end
 
 xml2_dirs = dir_config('xml2', '/opt/local/include/libxml2', '/opt/local/lib')
-unless [nil, nil] == xml2_dirs
+unless ["", ""] == xml2_dirs
   HEADER_DIRS.unshift xml2_dirs.first
   LIB_DIRS.unshift xml2_dirs[1]
 end
 
 xslt_dirs = dir_config('xslt', '/opt/local/include/', '/opt/local/lib')
-unless [nil, nil] == xslt_dirs
+unless ["", ""] == xslt_dirs
   HEADER_DIRS.unshift xslt_dirs.first
   LIB_DIRS.unshift xslt_dirs[1]
 end
 
-unless find_header('iconv.h', *HEADER_DIRS)
+CUSTOM_DASH_I = []
+
+def nokogiri_find_header header_file, *paths
+  # mkmf in ruby 1.8.5 does not have the "checking_message" method
+  message = defined?(checking_message) ?
+    checking_message(header_file, paths) :
+    header_file
+
+  header = cpp_include header_file
+  checking_for message do
+    found = false
+    paths.each do |dir|
+      if File.exists?(File.join(dir, header_file))
+        opt = "-I#{dir}".quote
+        if try_cpp header, opt
+          unless CUSTOM_DASH_I.include? dir
+            $INCFLAGS = "#{opt} #{$INCFLAGS}"
+            CUSTOM_DASH_I << dir
+          end
+          found = dir
+          break
+        end
+      end
+    end
+    found ||= try_cpp(header)
+  end
+end
+
+unless nokogiri_find_header('iconv.h', *HEADER_DIRS)
   abort "iconv is missing.  try 'port install iconv' or 'yum install iconv'"
 end
 
-unless find_header('libxml/parser.h', *HEADER_DIRS)
+unless nokogiri_find_header('libxml/parser.h', *HEADER_DIRS)
   abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2-devel'"
 end
 
-unless find_header('libxslt/xslt.h', *HEADER_DIRS)
+unless nokogiri_find_header('libxslt/xslt.h', *HEADER_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
-unless find_header('libexslt/exslt.h', *HEADER_DIRS)
+
+unless nokogiri_find_header('libexslt/exslt.h', *HEADER_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
@@ -98,10 +129,27 @@ unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
-have_func('xmlRelaxNGSetParserStructuredErrors')
-have_func('xmlRelaxNGSetValidStructuredErrors')
-have_func('xmlSchemaSetValidStructuredErrors')
-have_func('xmlSchemaSetParserStructuredErrors')
+def nokogiri_link_command ldflags, opt='', libpath=$LIBPATH
+  old_link_command ldflags, opt, libpath
+end
+
+def with_custom_link
+  alias :old_link_command :link_command
+  alias :link_command :nokogiri_link_command
+  yield
+ensure
+  alias :link_command :old_link_command
+end
+
+with_custom_link do
+  with_cppflags $INCFLAGS do
+    have_func('xmlRelaxNGSetParserStructuredErrors')
+    have_func('xmlRelaxNGSetParserStructuredErrors')
+    have_func('xmlRelaxNGSetValidStructuredErrors')
+    have_func('xmlSchemaSetValidStructuredErrors')
+    have_func('xmlSchemaSetParserStructuredErrors')
+  end
+end
 
 if ENV['CPUPROFILE']
   unless find_library('profiler', 'ProfilerEnable', *LIB_DIRS)
@@ -110,3 +158,4 @@ if ENV['CPUPROFILE']
 end
 
 create_makefile('nokogiri/nokogiri')
+# :startdoc:

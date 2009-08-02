@@ -1,14 +1,18 @@
 = Nokogiri
 
-* http://nokogiri.rubyforge.org/
+* http://nokogiri.org/
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
-* http://rubyforge.org/mailman/listinfo/nokogiri-talk
+* http://groups.google.com/group/nokogiri-talk
 * http://github.com/tenderlove/nokogiri/issues
 
 == DESCRIPTION:
 
-Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.
+Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.  Among Nokogiri's
+many features is the ability to search documents via XPath or CSS3 selectors.
+
+XML is like violence - if it doesn’t solve your problems, you are not using
+enough of it.
 
 == FEATURES:
 
@@ -31,7 +35,7 @@ to using correct CSS and XPath.
 
 The Nokogiri mailing list is available here:
 
-  * http://rubyforge.org/mailman/listinfo/nokogiri-talk
+  * http://groups.google.com/group/nokogiri-talk
 
 The bug tracker is available here:
 

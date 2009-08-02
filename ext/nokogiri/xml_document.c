@@ -1,32 +1,29 @@
 #include <xml_document.h>
 
+static int dealloc_node_i(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
+{
+  switch(node->type) {
+  case XML_ATTRIBUTE_NODE:
+    xmlFreePropList((xmlAttrPtr)node);
+    break;
+  default:
+    if(node->parent == NULL) {
+      xmlAddChild((xmlNodePtr)doc, node);
+    }
+  }
+  return ST_CONTINUE;
+}
+
 static void dealloc(xmlDocPtr doc)
 {
   NOKOGIRI_DEBUG_START(doc);
 
-  nokogiriTuplePtr tuple = doc->_private;
-  xmlNodeSetPtr node_set = tuple->unlinkedNodes;
+  st_table *node_hash = DOC_UNLINKED_NODE_HASH(doc);
 
   xmlDeregisterNodeFunc func = xmlDeregisterNodeDefault(NULL);
 
-  int j ;
-  for(j = 0 ; j < node_set->nodeNr ; j++) {
-    xmlNodePtr node = node_set->nodeTab[j];
-    switch(node->type)
-    {
-      case XML_ATTRIBUTE_NODE:
-        xmlFreePropList((xmlAttrPtr)node);
-        break;
-      default:
-        if(node->parent == NULL) {
-          xmlAddChild((xmlNodePtr)doc, node);
-        }
-    }
-  }
-
-  if (node_set->nodeTab != NULL)
-    xmlFree(node_set->nodeTab);
-  xmlFree(node_set);
+  st_foreach(node_hash, dealloc_node_i, (st_data_t)doc);
+  st_free_table(node_hash);
 
   free(doc->_private);
   doc->_private = NULL;
@@ -68,7 +65,19 @@ static VALUE set_root(VALUE self, VALUE root)
   Data_Get_Struct(self, xmlDoc, doc);
   Data_Get_Struct(root, xmlNode, new_root);
 
+  xmlNodePtr old_root = NULL;
+
+  /* If the new root's document is not the same as the current document,
+   * then we need to dup the node in to this document. */
+  if(new_root->doc != doc) {
+    old_root = xmlDocGetRootElement(doc);
+    if (!(new_root = xmlDocCopyNode(new_root, doc, 1))) {
+      rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
+    }
+  }
+
   xmlDocSetRootElement(doc, new_root);
+  if(old_root) NOKOGIRI_ROOT_NODE(old_root);
   return root;
 }
 
@@ -136,7 +145,6 @@ static VALUE read_io( VALUE klass,
   const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
   VALUE error_list      = rb_ary_new();
 
-  xmlInitParser();
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
@@ -187,7 +195,6 @@ static VALUE read_memory( VALUE klass,
   int len               = RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
 
-  xmlInitParser();
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
   xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
@@ -296,12 +303,15 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
       dealloc,
       doc
   );
+
+  VALUE cache = rb_ary_new();
   rb_iv_set(rb_doc, "@decorators", Qnil);
-  rb_iv_set(rb_doc, "@node_cache", rb_ary_new());
+  rb_iv_set(rb_doc, "@node_cache", cache);
   rb_funcall(rb_doc, rb_intern("initialize"), 0);
 
   tuple->doc = (void *)rb_doc;
-  tuple->unlinkedNodes = xmlXPathNodeSetCreate(NULL);
+  tuple->unlinkedNodes = st_init_numtable_with_size(128);
+  tuple->node_cache = cache;
   doc->_private = tuple ;
 
   return rb_doc ;

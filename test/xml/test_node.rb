@@ -114,6 +114,14 @@ module Nokogiri
         end
       end
 
+      def test_fragment_creates_elements
+        apple = @xml.fragment('<Apple/>')
+        apple.children.each do |child|
+          assert_equal Nokogiri::XML::Node::ELEMENT_NODE, child.type
+          assert_instance_of Nokogiri::XML::Element, child
+        end
+      end
+
       def test_node_added_to_root_should_get_namespace
         fruits = Nokogiri::XML(<<-eoxml)
           <Fruit xmlns='http://www.fruits.org'>
@@ -155,6 +163,13 @@ module Nokogiri
         node = @xml.at('address')
         node.add_namespace('foo', 'http://tenderlovemaking.com')
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns:foo']
+      end
+
+      def test_add_namespace_twice
+        node = @xml.at('address')
+        ns = node.add_namespace('foo', 'http://tenderlovemaking.com')
+        ns2 = node.add_namespace('foo', 'http://tenderlovemaking.com')
+        assert_equal ns, ns2
       end
 
       def test_add_default_ns
@@ -357,7 +372,7 @@ module Nokogiri
       def test_new
         assert node = Nokogiri::XML::Node.new('input', @xml)
         assert_equal 1, node.node_type
-        assert_instance_of Nokogiri::XML::Node, node
+        assert_instance_of Nokogiri::XML::Element, node
       end
 
       def test_to_str

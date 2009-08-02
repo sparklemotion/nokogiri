@@ -18,12 +18,9 @@ module Nokogiri
         # this implementation choice was the result of some benchmarks, if
         # you're curious: http://gist.github.com/115936
         #
-        newline_index = original_html.index("\n")
-        @original_html = if newline_index
-                           original_html[0,newline_index]
-                         else
-                           original_html
-                         end
+        @original_html = original_html.lstrip
+        newline_index = @original_html.index("\n")
+        @original_html = @original_html[0,newline_index] if newline_index
       end
 
       def start_element name, attrs = []
@@ -32,7 +29,7 @@ module Nokogiri
         @doc_started = true if @original_html =~ regex
         return unless @doc_started
 
-        node = Node.new(name, @document)
+        node = Element.new(name, @document)
         attrs << "" unless (attrs.length % 2) == 0
         Hash[*attrs].each do |k,v|
           node[k] = v
@@ -44,6 +41,14 @@ module Nokogiri
       def characters string
         @doc_started = true if @original_html.strip =~ %r{^\s*#{Regexp.escape(string.strip)}}
         @stack.last << Nokogiri::XML::Text.new(string, @document)
+      end
+
+      def comment string
+        @stack.last << Nokogiri::XML::Comment.new(@document, string)
+      end
+
+      def cdata_block string
+        @stack.last << Nokogiri::XML::CDATA.new(@document, string)
       end
 
       def end_element name

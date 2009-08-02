@@ -30,6 +30,9 @@ module Nokogiri
       # For more information about SAX parsers, see Nokogiri::XML::SAX.  Also
       # see Nokogiri::XML::SAX::Document for the available events.
       class Parser
+        class Attribute < Struct.new(:localname, :prefix, :uri, :value)
+        end
+
         # Encodinds this parser supports
         ENCODINGS = {
           'NONE'        => 0, # No char encoding detected
@@ -67,6 +70,7 @@ module Nokogiri
         def initialize(doc = Nokogiri::XML::SAX::Document.new, encoding = 'ASCII')
           @encoding = encoding
           @document = doc
+          @warned   = false
         end
 
         ###
@@ -95,6 +99,9 @@ module Nokogiri
           raise Errno::EISDIR if File.directory?(filename)
           native_parse_file filename
         end
+
+        private
+        include Nokogiri::XML::SAX::LegacyHandlers
       end
     end
   end

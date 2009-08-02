@@ -6,6 +6,7 @@ import nokogiri.XmlNodeSet;
 import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
@@ -16,6 +17,12 @@ public class XmlEmptyDocumentImpl extends XmlDocumentImpl{
 
     public XmlEmptyDocumentImpl(Ruby ruby, Node node) {
         super(ruby, node);
+    }
+
+    @Override
+    public void add_child(ThreadContext context, XmlNode current, XmlNode child) {
+        super.add_child(context, current, child);
+        this.changeInternalNode(context, (XmlDocument) current);
     }
 
     @Override
@@ -47,8 +54,16 @@ public class XmlEmptyDocumentImpl extends XmlDocumentImpl{
 
     @Override
     public void root_set(ThreadContext context, XmlDocument current, IRubyObject root) {
-        current.getDocument().appendChild(XmlNode.getNodeFromXmlNode(context, root));
-        current.setInternalNode(XmlNodeImpl.getImplForNode(context.getRuntime(), current.getDocument()));
+        Document document = current.getDocument();
+        Node node = XmlNode.getNodeFromXmlNode(context, root);
+        if(!document.equals(node.getOwnerDocument())) {
+            document.adoptNode(node);
+        }
+        document.appendChild(node);
+        changeInternalNode(context, current);
     }
 
+    protected void changeInternalNode(ThreadContext context, XmlDocument doc) {
+        doc.setInternalNode(XmlNodeImpl.getImplForNode(context.getRuntime(), doc.getDocument()));
+    }
 }

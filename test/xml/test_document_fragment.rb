@@ -37,6 +37,12 @@ module Nokogiri
         assert_instance_of klass, fragment
       end
 
+      def test_subclass_parse
+        klass = Class.new(Nokogiri::XML::DocumentFragment)
+        doc = klass.parse("<div>a</div>")
+        assert_instance_of klass, doc
+      end
+
       def test_xml_fragment
         fragment = Nokogiri::XML.fragment("<div>a</div>")
         assert_equal "<div>a</div>", fragment.to_s
@@ -68,6 +74,12 @@ module Nokogiri
 
       def test_xml_fragment_with_leading_whitespace
         doc = "     <div>b</div>  "
+        fragment = Nokogiri::XML::Document.new.fragment(doc)
+        assert_equal "<div>b</div>", fragment.to_s
+      end
+
+      def test_xml_fragment_with_leading_whitespace_and_newline
+        doc = "     \n<div>b</div>  "
         fragment = Nokogiri::XML::Document.new.fragment(doc)
         assert_equal "<div>b</div>", fragment.to_s
       end

@@ -85,6 +85,36 @@ static VALUE elements(VALUE self)
   return hash;
 }
 
+/*
+ * call-seq:
+ *   validate(document)
+ *
+ * Validate +document+ returning a list of errors
+ */
+static VALUE validate(VALUE self, VALUE document)
+{
+  xmlDocPtr doc;
+  xmlDtdPtr dtd;
+
+  Data_Get_Struct(self, xmlDtd, dtd);
+  Data_Get_Struct(document, xmlDoc, doc);
+  VALUE error_list      = rb_ary_new();
+
+  xmlValidCtxtPtr ctxt = xmlNewValidCtxt();
+
+  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+
+  xmlValidateDtd(ctxt, doc, dtd);
+
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
+  xmlFreeValidCtxt(ctxt);
+
+  return error_list;
+}
+
+VALUE cNokogiriXmlDtd;
+
 void init_xml_dtd()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
@@ -96,7 +126,10 @@ void init_xml_dtd()
    */
   VALUE klass = rb_define_class_under(xml, "DTD", node);
 
+  cNokogiriXmlDtd = klass;
+
   rb_define_method(klass, "notations", notations, 0);
   rb_define_method(klass, "elements", elements, 0);
   rb_define_method(klass, "entities", entities, 0);
+  rb_define_method(klass, "validate", validate, 1);
 }

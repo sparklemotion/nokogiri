@@ -29,8 +29,7 @@ module Nokogiri
         ptr = LibXML.xmlTextReaderExpand(cstruct)
         return nil if ptr.null?
 
-        node = Node.wrap(ptr)
-        Reader.node_namespaces(node)
+        Reader.node_namespaces(ptr)
       end
 
       def attribute_nodes # :nodoc:
@@ -40,17 +39,7 @@ module Nokogiri
         return nil if ptr.null?
         node_struct = LibXML::XmlNode.new(ptr)
 
-        # FIXME I'm not sure if this is correct.....  I don't really like pointing
-        # at this document, but I have to because of the assertions in
-        # the node wrapping code.
-        unless node_struct.document.ruby_doc
-          doc_struct = LibXML::XmlDocumentCast.new(node_struct[:doc])
-          doc_struct.alloc_tuple
-          doc = Document.wrap(doc_struct)
-        end
-
-        node = Node.wrap(node_struct)
-        node.attribute_nodes
+        Node.node_properties node_struct
       end
 
       def attribute_at(index) # :nodoc:
@@ -192,8 +181,8 @@ module Nokogiri
       private
 
       class << self
-        def node_namespaces(node) # :nodoc:
-          cstruct = node.cstruct
+        def node_namespaces(ptr) # :nodoc:
+          cstruct = LibXML::XmlNode.new(ptr)
           ahash = {}
           return ahash unless cstruct[:type] == Node::ELEMENT_NODE
           ns = cstruct[:nsDef]

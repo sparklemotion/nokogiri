@@ -32,6 +32,14 @@ module Nokogiri
       end
 
       ###
+      # Validate this Document against it's DTD.  Returns a list of errors on
+      # the document or +nil+ when there is no DTD.
+      def validate
+        return nil unless internal_subset
+        internal_subset.validate self
+      end
+
+      ###
       # Explore a document with shortcut methods.
       def slop!
         unless decorators(XML::Node).include? Nokogiri::Decorators::Slop
@@ -53,7 +61,7 @@ module Nokogiri
       end
 
       alias :to_xml :serialize
-      alias :inner_html :serialize
+      alias :clone :dup
 
       # Get the hash of namespaces on the root Nokogiri::XML::Node
       def namespaces
@@ -66,7 +74,16 @@ module Nokogiri
         DocumentFragment.new(self, tags)
       end
 
-      undef_method :swap, :parent, :namespace
+      undef_method :swap, :parent, :namespace, :default_namespace=
+      undef_method :add_namespace_definition
+
+      def add_child child
+        if [Node::ELEMENT_NODE, Node::DOCUMENT_FRAG_NODE].include? child.type
+          raise "Document already has a root node" if root
+        end
+        super
+      end
+      alias :<< :add_child
 
       class << self
         ###
@@ -75,9 +92,9 @@ module Nokogiri
         # +url+ is resource where this document is located.  +encoding+ is the
         # encoding that should be used when processing the document. +options+
         # is a number that sets options in the parser, such as
-        # Nokogiri::XML::PARSE_RECOVER.  See the constants in
-        # Nokogiri::XML.
-        def parse string_or_io, url = nil, encoding = nil, options = 2145, &block
+        # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
+        # Nokogiri::XML::ParseOptions.
+        def parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
 
           options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
           # Give the options to the user

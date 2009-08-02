@@ -1,14 +1,18 @@
 = Nokogiri (鋸)
 
-* http://nokogiri.rubyforge.org/
+* http://nokogiri.org/
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
-* http://rubyforge.org/mailman/listinfo/nokogiri-talk
+* http://groups.google.com/group/nokogiri-talk
 * http://github.com/tenderlove/nokogiri/issues
 
 == DESCRIPTION:
 
-Nokogiri はHTMLやXMLやSAXやXSLTやReaderのパーサーです。
+Nokogiri はHTMLとXMLとSAXとXSLTとReaderのパーサーです。とりわけ重要な特徴は、
+ドキュメントをXPathやCSS3セレクター経由で探索する機能を持つことです。
+
+XMLは暴力に似ている - XMLが君の問題を解決しないとしたら、君はXMLを十分に
+使いこなしていない事になる。
 
 == FEATURES:
 
@@ -28,7 +32,7 @@ XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPath
 
 Nokogiriのメーリングリスト:
 
-  * http://rubyforge.org/mailman/listinfo/nokogiri-talk
+  * http://groups.google.com/group/nokogiri-talk
 
 バグ報告:
 

@@ -3,11 +3,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
 
 class TestReader < Nokogiri::TestCase
   def test_from_io_sets_io_as_source
-    io = StringIO.new(<<-eoxml)
-    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
-      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
-    </x>
-    eoxml
+    io = File.open SNUGGLES_FILE
     reader = Nokogiri::XML::Reader.from_io(io)
     assert_equal io, reader.source
   end
@@ -33,11 +29,7 @@ class TestReader < Nokogiri::TestCase
   end
 
   def test_from_io
-    io = StringIO.new(<<-eoxml)
-    <x xmlns:tenderlove='http://tenderlovemaking.com/'>
-      <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
-    </x>
-    eoxml
+    io = File.open SNUGGLES_FILE
     reader = Nokogiri::XML::Reader.from_io(io)
     assert_equal false, reader.default?
     assert_equal [false, false, false, false, false, false, false],
@@ -45,6 +37,14 @@ class TestReader < Nokogiri::TestCase
   end
 
   def test_io
+    io = File.open SNUGGLES_FILE
+    reader = Nokogiri::XML::Reader(io)
+    assert_equal false, reader.default?
+    assert_equal [false, false, false, false, false, false, false],
+      reader.map { |x| x.default? }
+  end
+
+  def test_string_io
     io = StringIO.new(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>
       <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
@@ -313,4 +313,18 @@ class TestReader < Nokogiri::TestCase
     end
     assert called
   end
+
+  def test_large_document_smoke_test
+    #  simply run on a large document to verify that there no GC issues
+    xml = []
+    xml << "<elements>"
+    10000.times { |j| xml << "<element id=\"#{j}\"/>" }
+    xml << "</elements>"
+    xml = xml.join("\n")
+
+    Nokogiri::XML::Reader.from_memory(xml).each do |e|
+      e.attributes
+    end
+  end
+
 end

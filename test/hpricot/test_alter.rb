@@ -6,9 +6,9 @@ class TestAlter < Nokogiri::TestCase
 
   def setup
     super
-    @basic = Hpricot.parse(TestFiles::BASIC)
+    @basic = Nokogiri::HTML.parse(TestFiles::BASIC)
   end
-  
+
   def test_before
     test0 = "<link rel='stylesheet' href='test0.css' />"
     @basic.at("link").before(test0)
@@ -24,18 +24,18 @@ class TestAlter < Nokogiri::TestCase
   def test_wrap
     ohmy = (@basic/"p.ohmy").wrap("<div id='wrapper'></div>")
     assert_equal 'wrapper', ohmy[0].parent['id']
-    assert_equal 'ohmy', Nokogiri.Hpricot(@basic.to_html).at("#wrapper").children[0]['class']
+    assert_equal 'ohmy', Nokogiri(@basic.to_html).at("#wrapper").children[0]['class']
   end
-  
+
   def test_add_class
     first_p = (@basic/"p:first").add_class("testing123")
     assert first_p[0].get_attribute("class").split(" ").include?("testing123")
-    assert((Nokogiri.Hpricot(@basic.to_html)/"p:first")[0]["class"].split(" ").include?("testing123"))
+    assert((Nokogiri(@basic.to_html)/"p:first")[0]["class"].split(" ").include?("testing123"))
     ####
     # Modified.  We do not support OB1 bug.
-    assert !(Nokogiri.Hpricot(@basic.to_html)/"p:gt(1)")[0]["class"].split(" ").include?("testing123")
+    assert !(Nokogiri(@basic.to_html)/"p:gt(1)")[0]["class"].split(" ").include?("testing123")
   end
-  
+
   def test_change_attributes
     all_ps = (@basic/"p").attr("title", "Some Title")
     all_as = (@basic/"a").attr("href", "http://my_new_href.com")
@@ -45,7 +45,7 @@ class TestAlter < Nokogiri::TestCase
     assert_changed(@basic, "a", all_as) {|a| a.attributes["href"].to_s == "http://my_new_href.com"}
     assert_changed(@basic, "link", all_lb) {|a| a.attributes["href"].to_s == "link" }
   end
-  
+
   def test_remove_attr
     all_rl = (@basic/"link").remove_attr("href")
     assert_changed(@basic, "link", all_rl) { |link| link['href'].nil? }
@@ -63,6 +63,6 @@ class TestAlter < Nokogiri::TestCase
 
   def assert_changed original, selector, set, &block
     assert set.all?(&block)
-    assert Nokogiri.Hpricot(original.to_html).search(selector).all?(&block)
+    assert Nokogiri(original.to_html).search(selector).all?(&block)
   end
 end

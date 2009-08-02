@@ -30,7 +30,8 @@ module Nokogiri
         # Parse html stored in +data+ using +encoding+
         def parse_memory data, encoding = 'UTF-8'
           raise ArgumentError unless data
-          native_parse_memory(data, encoding)
+          return unless data.length > 0
+          native_parse_memory data, encoding
         end
 
         ###

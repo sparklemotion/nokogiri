@@ -70,6 +70,9 @@ public class XmlDocumentImpl extends XmlNodeImpl{
     public void root_set(ThreadContext context, XmlDocument current, IRubyObject root) {
         Document document = current.getDocument();
         Node node = XmlNode.getNodeFromXmlNode(context, root);
+        if(!document.equals(node.getOwnerDocument())) {
+            document.adoptNode(node);
+        }
         document.replaceChild(node, document.getDocumentElement());
         this.root = root;
     }

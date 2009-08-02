@@ -24,7 +24,7 @@ module Nokogiri
   class << self
     ###
     # Parse XML.  Convenience method for Nokogiri::XML::Document.parse
-    def XML thing, url = nil, encoding = nil, options = 1, &block
+    def XML thing, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_XML, &block
       Nokogiri::XML::Document.parse(thing, url, encoding, options, &block)
     end
   end
@@ -34,7 +34,7 @@ module Nokogiri
       ###
       # Parse an XML document using the Nokogiri::XML::Reader API.  See
       # Nokogiri::XML::Reader for mor information
-      def Reader string_or_io, url = nil, encoding = nil, options = 0
+      def Reader string_or_io, url = nil, encoding = nil, options = ParseOptions::STRICT
 
         options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
         # Give the options to the user
@@ -48,7 +48,7 @@ module Nokogiri
 
       ###
       # Parse XML.  Convenience method for Nokogiri::XML::Document.parse
-      def parse thing, url = nil, encoding = nil, options = 1, &block
+      def parse thing, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
         Document.parse(thing, url, encoding, options, &block)
       end
 

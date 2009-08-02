@@ -13,15 +13,16 @@ module XSD # :nodoc:
     # Example (using UW ITS Web Services):
     #
     #   require 'rubygems'
-    #   gem 'soap4r'
     #   require 'nokogiri'
-    #   require 'xsd/xmlparser/nokogiri'
+    #   gem 'soap4r'
     #   require 'defaultDriver'
-    #
+    #   require 'xsd/xmlparser/nokogiri'
+    #   
     #   obj = AvlPortType.new
-    #   obj.getLatestByRoute(obj.getAgencies, 8).each do |event|
-    #     ...
+    #   obj.getLatestByRoute(obj.getAgencies.first, 8).each do |bus|
+    #     p "#{bus.routeID}, #{bus.longitude}, #{bus.latitude}"
     #   end
+    #
     class Nokogiri < XSD::XMLParser::Parser
       ###
       # Create a new XSD parser with +host+ and +opt+
@@ -39,7 +40,13 @@ module XSD # :nodoc:
       ###
       # Handle the start_element event with +name+ and +attrs+
       def start_element name, attrs = []
-        super(name, Hash[*attrs])
+        super(name, Hash[*attrs.flatten])
+      end
+
+      ###
+      # Handle the end_element event with +name+
+      def end_element name
+        super
       end
 
       ###
@@ -55,7 +62,7 @@ module XSD # :nodoc:
         characters string
       end
 
-      %w{ start_document end_document comment }.each do |name|
+      %w{ start_document start_element_namespace end_element_namespace end_document comment }.each do |name|
         class_eval %{ def #{name}(*args); end }
       end
       add_factory(self)

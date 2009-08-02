@@ -1,12 +1,12 @@
 module Nokogiri
   # The version of Nokogiri you are using
-  VERSION = '1.3.0'
+  VERSION = '1.3.3'
 
   # More complete version information about libxml
   VERSION_INFO = {}
   VERSION_INFO['warnings']              = []
   VERSION_INFO['nokogiri']              = VERSION
-  if defined?(LIBXML_VERSION) && ! defined?(FFI)
+  if defined?(LIBXML_VERSION)
     VERSION_INFO['libxml']              = {}
     VERSION_INFO['libxml']['binding']   = 'extension'
     VERSION_INFO['libxml']['compiled']  = LIBXML_VERSION

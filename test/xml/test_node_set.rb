@@ -8,6 +8,25 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_search_empty_node_set
+        set = Nokogiri::XML::NodeSet.new(Nokogiri::XML::Document.new)
+        assert_equal 0, set.css('foo').length
+        assert_equal 0, set.xpath('.//foo').length
+        assert_equal 0, set.search('foo').length
+      end
+
+      def test_css_searches_match_self
+        html = Nokogiri::HTML("<html><body><div class='a'></div></body></html>")
+        set = html.xpath("/html/body/div")
+        assert_equal set.first, set.css(".a").first
+      end
+
+      def test_search_with_css_matches_self
+        html = Nokogiri::HTML("<html><body><div class='a'></div></body></html>")
+        set = html.xpath("/html/body/div")
+        assert_equal set.first, set.search(".a").first
+      end
+
       def test_double_equal
         assert node_set_one = @xml.xpath('//employee')
         assert node_set_two = @xml.xpath('//employee')
@@ -361,6 +380,16 @@ module Nokogiri
 
         assert employees.include?(yes)
         assert ! employees.include?(no)
+      end
+
+      def test_children
+        employees = @xml.search("//employee")
+        count = 0
+        employees.each do |employee|
+          count += employee.children.length
+        end
+        set = employees.children
+        assert_equal count, set.length
       end
 
     end

@@ -17,6 +17,19 @@ module Nokogiri
     #   end
     #   puts builder.to_xml
     #
+    # Will output:
+    #
+    #   <?xml version="1.0"?>
+    #   <root>
+    #     <products>
+    #       <widget>
+    #         <id>10</id>
+    #         <name>Awesome widget</name>
+    #       </widget>
+    #     </products>
+    #   </root>
+    #
+    #
     # === Builder scope
     #
     # The builder allows two forms.  When the builder is supplied with a block
@@ -65,7 +78,28 @@ module Nokogiri
     #   puts builder.to_xml
     #
     # The underscore may be used with any tag name, and the last underscore
-    # will just be removed.
+    # will just be removed.  This code will output the following XML:
+    #
+    #   <?xml version="1.0"?>
+    #   <root>
+    #     <objects>
+    #       <object>
+    #         <type>Object</type>
+    #         <class>Object</class>
+    #         <id>48390</id>
+    #       </object>
+    #       <object>
+    #         <type>Object</type>
+    #         <class>Object</class>
+    #         <id>48380</id>
+    #       </object>
+    #       <object>
+    #         <type>Object</type>
+    #         <class>Object</class>
+    #         <id>48370</id>
+    #       </object>
+    #     </objects>
+    #   </root>
     #
     # == Tag Attributes
     #
@@ -101,6 +135,15 @@ module Nokogiri
     #     }
     #   end
     #   puts builder.to_xml
+    #
+    # Which will output:
+    #
+    #   <?xml version="1.0"?>
+    #   <root>
+    #     <objects>
+    #       <object class="classy" id="thing"/>
+    #     </objects>
+    #   </root>
     #
     # All other options are still supported with this syntax, including
     # blocks and extra tag attributes.
