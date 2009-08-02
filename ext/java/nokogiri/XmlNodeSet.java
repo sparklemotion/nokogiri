@@ -7,6 +7,8 @@ import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.NodeList;
@@ -14,14 +16,27 @@ import org.w3c.dom.NodeList;
 public class XmlNodeSet extends RubyObject {
     protected RubyArray nodes;
 
+    public XmlNodeSet(Ruby ruby, NodeList nodes) {
+        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+    }
+
+    public XmlNodeSet(Ruby ruby, RubyArray nodes) {
+        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+    }
+
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
-        super(ruby, rubyClass);
-        this.nodes = NokogiriHelpers.nodeListToRubyArray(ruby, nodes);
+        this(ruby, rubyClass, NokogiriHelpers.nodeListToRubyArray(ruby, nodes));
     }
 
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){
         super(ruby, rubyClass);
         this.nodes = nodes;
+        ThreadContext context = ruby.getCurrentContext();
+        IRubyObject document = ruby.getNil();
+//        if(!nodes.isEmpty()) {
+//            document = ((XmlNode) nodes.first()).document(context);
+//        }
+        this.setInstanceVariable("@document", document);
     }
 
     public static IRubyObject newEmptyNodeSet(ThreadContext context) {
@@ -50,7 +65,7 @@ public class XmlNodeSet extends RubyObject {
 
     @JRubyMethod
     public IRubyObject delete(ThreadContext context, IRubyObject node){
-        return nodes.delete(context, asXmlNode(context, node), null);
+        return nodes.delete(context, asXmlNode(context, node), Block.NULL_BLOCK);
     }
 
     @JRubyMethod
@@ -126,10 +141,11 @@ public class XmlNodeSet extends RubyObject {
     }
 
     private XmlNodeSet asXmlNodeSet(ThreadContext context, IRubyObject possibleNodeSet) {
-        if(!(possibleNodeSet instanceof XmlNodeSet)) {
-            context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");
+//        if(!(possibleNodeSet instanceof XmlNodeSet)) {
+        if(!RuntimeHelpers.invoke(context, possibleNodeSet, "is_a?",
+                context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet")).isTrue()) {
+            throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");
         }
-
         return (XmlNodeSet) possibleNodeSet;
     }
 }

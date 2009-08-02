@@ -3,7 +3,6 @@ package nokogiri.internals;
 import nokogiri.*;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
-import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -11,7 +10,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import org.w3c.dom.NodeList;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 /**
@@ -24,8 +22,6 @@ public class XmlNodeImpl {
 
     private Node node;
 
-    protected NokogiriNodeSetCache nodeSetCache;
-
     private static final IRubyObject DEFAULT_CONTENT = null;
     private static final IRubyObject DEFAULT_DOC = null;
     private static final IRubyObject DEFAULT_NAME = null;
@@ -34,11 +30,10 @@ public class XmlNodeImpl {
 
     public XmlNodeImpl(Ruby ruby, Node node) {
         this.node = node;
-        this.nodeSetCache = new NokogiriNodeSetCache();
     }
 
     public IRubyObject children(ThreadContext context, XmlNode current) {
-        return this.nodeSetCache.get(context, current.getNode().getChildNodes());
+        return new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
     }
 
     public IRubyObject getContent(ThreadContext context) {
@@ -81,14 +76,6 @@ public class XmlNodeImpl {
         }
 
         return (RubyString) this.name;
-    }
-    
-    public XmlNodeSet getNodeSetFromCache(ThreadContext context, NodeList nodes) {
-        return this.nodeSetCache.get(context, nodes);
-    }
-
-    public XmlNodeSet getNodeSetFromCache(ThreadContext context, RubyArray nodes) {
-        return this.nodeSetCache.get(context, nodes);
     }
 
     public RubyArray getNsDefinitions(Ruby ruby) {

@@ -90,7 +90,16 @@ public class XmlElementImpl extends XmlNodeImpl {
 
             for(int i = 0; i < attrs.getLength(); i++) {
                 Attr attr = (Attr) attrs.item(i);
-                e.getOwnerDocument().renameNode(attr, attr.lookupNamespaceURI(attr.getPrefix()), attr.getNodeName());
+                String nsUri = "";
+                String prefix = attr.getPrefix();
+                if("xml".equals(prefix)) {
+                    nsUri = "http://www.w3.org/XML/1998/namespace";
+                } else if("xmlns".equals(prefix) || attr.getNodeName().equals("xmlns")) {
+                    nsUri = "http://www.w3.org/2000/xmlns/";
+                } else {
+                    nsUri = attr.lookupNamespaceURI(prefix);
+                }
+                e.getOwnerDocument().renameNode(attr, nsUri, attr.getNodeName());
             }
         }
 

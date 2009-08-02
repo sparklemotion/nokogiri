@@ -171,14 +171,6 @@ public class XmlNode extends RubyObject {
 
         return res;
     }
-    
-    public XmlNodeSet getNodeSetFromCache(ThreadContext context, NodeList nodes) {
-        return this.internalNode.getNodeSetFromCache(context, nodes);
-    }
-
-    public XmlNodeSet getNodeSetFromCache(ThreadContext context, RubyArray nodes) {
-        return this.internalNode.getNodeSetFromCache(context, nodes);
-    }
 
     protected RubyArray getNsDefinitions(Ruby ruby) {
         return this.internalNode.getNsDefinitions(ruby);
