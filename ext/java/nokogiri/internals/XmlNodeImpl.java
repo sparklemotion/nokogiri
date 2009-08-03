@@ -179,6 +179,8 @@ public class XmlNodeImpl {
         }
 
         child.relink_namespace(context);
+
+        current.post_add_child(context, current, child);
     }
 
     public void add_namespace_definitions(ThreadContext context, XmlNode current, XmlNamespace ns, String prefix, String href) {}
@@ -237,6 +239,8 @@ public class XmlNodeImpl {
     public void node_name_set(ThreadContext context, XmlNode current, IRubyObject nodeName) {}
 
     public void op_aset(ThreadContext context, XmlNode current, IRubyObject index, IRubyObject val) {}
+
+    public void post_add_child(ThreadContext context, XmlNode current, XmlNode child) { }
 
     public void remove_attribute(ThreadContext context, XmlNode current, IRubyObject name) {}
 

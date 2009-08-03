@@ -20,12 +20,6 @@ public class XmlEmptyDocumentImpl extends XmlDocumentImpl{
     }
 
     @Override
-    public void add_child(ThreadContext context, XmlNode current, XmlNode child) {
-        super.add_child(context, current, child);
-        this.changeInternalNode(context, (XmlDocument) current);
-    }
-
-    @Override
     public IRubyObject children(ThreadContext context, XmlNode current) {
         return XmlNodeSet.newEmptyNodeSet(context);
     }
@@ -42,6 +36,11 @@ public class XmlEmptyDocumentImpl extends XmlDocumentImpl{
         }
 
         return this.encoding;
+    }
+
+    @Override
+    public void post_add_child(ThreadContext context, XmlNode current, XmlNode child) {
+        this.changeInternalNode(context, (XmlDocument) current);
     }
 
     @Override

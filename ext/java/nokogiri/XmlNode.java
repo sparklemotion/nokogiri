@@ -272,6 +272,10 @@ public class XmlNode extends RubyObject {
         }
     }
 
+    public void post_add_child(ThreadContext context, XmlNode current, XmlNode child) {
+        this.internalNode.post_add_child(context, current, child);
+    }
+
     public void relink_namespace(ThreadContext context) {
         this.internalNode.methods().relink_namespace(context, this);
 
