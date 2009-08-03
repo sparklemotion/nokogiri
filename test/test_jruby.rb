@@ -23,4 +23,4 @@ load File.join(XML_DIR, 'test_document.rb')
 #
 # does not count.
 # Que lo sepas.
-puts '2 failures, 4 errors'
+puts '3 failures, 9 errors'
