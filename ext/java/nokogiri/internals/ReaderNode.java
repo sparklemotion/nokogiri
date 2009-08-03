@@ -273,14 +273,9 @@ class ElementNode extends ReaderNode {
         this.attributes = new Hashtable<IRubyObject, IRubyObject>();
         this.attributeValues = new IRubyObject[attrs.getLength()];
 
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        Document doc = null;
-        try{
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            doc = db.newDocument();
-        } catch (Exception ex) {
-            throw ruby.newRuntimeError(ex.getMessage());
-        }
+        XmlDocument xmlDoc = (XmlDocument) XmlDocument.rbNew(ruby.getCurrentContext(),
+                ruby.getClassFromPath("Nokogiri::XML::Document"), new IRubyObject[0]);
+        Document doc = xmlDoc.getDocument();
 
         for(int i = 0; i < attrs.getLength(); i++){
             String u = attrs.getURI(i);

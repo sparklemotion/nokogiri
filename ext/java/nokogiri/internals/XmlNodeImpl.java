@@ -33,7 +33,9 @@ public class XmlNodeImpl {
     }
 
     public IRubyObject children(ThreadContext context, XmlNode current) {
-        return new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
+        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
+        result.setDocument(this.getDocument(context));
+        return result;
     }
 
     public IRubyObject getContent(ThreadContext context) {
@@ -48,7 +50,8 @@ public class XmlNodeImpl {
 
     public XmlDocument getDocument(ThreadContext context) {
         if(this.doc == DEFAULT_DOC) {
-            this.doc = new XmlDocument(context.getRuntime(), this.node.getOwnerDocument());
+            this.doc = NokogiriHelpers.getCachedNodeOrCreate(context.getRuntime(),
+                    this.node.getOwnerDocument());
         }
 
         return (XmlDocument) this.doc;

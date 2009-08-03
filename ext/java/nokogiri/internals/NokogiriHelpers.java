@@ -9,7 +9,6 @@ import nokogiri.XmlNode;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -20,19 +19,15 @@ import org.w3c.dom.NodeList;
 public class NokogiriHelpers {
 
     public static XmlNode getCachedNode(Node node) {
-        NokogiriDocumentCache docCache = NokogiriDocumentCache.getInstance();
-        switch(node.getNodeType()) {
-            case Node.DOCUMENT_NODE:
-                return docCache.getXmlDocument((Document) node);
-            default:
-                return (XmlNode) docCache.getXmlDocument(node.getOwnerDocument()).getCachedNode(node);
-        }
+        return (XmlNode) node.getUserData(NokogiriUserDataHandler.CACHED_NODE);
     }
 
     public static XmlNode getCachedNodeOrCreate(Ruby ruby, Node node) {
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {
             xmlNode = (XmlNode) XmlNode.constructNode(ruby, node);
+            node.setUserData(NokogiriUserDataHandler.CACHED_NODE, xmlNode,
+                    new NokogiriUserDataHandler(ruby));
         }
         return xmlNode;
     }

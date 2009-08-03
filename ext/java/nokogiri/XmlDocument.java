@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import javax.xml.parsers.ParserConfigurationException;
 import nokogiri.internals.NokogiriDocumentCache;
+import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.ParseOptions;
 import nokogiri.internals.XmlDocumentImpl;
 import nokogiri.internals.XmlEmptyDocumentImpl;
@@ -41,7 +42,8 @@ public class XmlDocument extends XmlNode {
 //        } else {
 
             this.internalNode = new XmlDocumentImpl(ruby, document);
-            NokogiriDocumentCache.getInstance().putDocument(document, this);
+            document.setUserData(NokogiriUserDataHandler.CACHED_NODE, this,
+                    new NokogiriUserDataHandler(ruby));
 //        }
 
         this.nodeCache = new Hashtable<Node, XmlNode>();

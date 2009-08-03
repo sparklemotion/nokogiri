@@ -34,7 +34,9 @@ public class XmlDocumentImpl extends XmlNodeImpl{
         Ruby ruby = context.getRuntime();
         RubyArray nodes = ruby.newArray();
         nodes.append(current.root(context));
-        return new XmlNodeSet(ruby, nodes);
+        XmlNodeSet result = new XmlNodeSet(ruby, nodes);
+        result.setDocument((XmlDocument) cur);
+        return result;
     }
 
     public IRubyObject encoding(ThreadContext context, XmlDocument current) {

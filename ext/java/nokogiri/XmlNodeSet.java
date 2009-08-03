@@ -15,6 +15,7 @@ import org.w3c.dom.NodeList;
 
 public class XmlNodeSet extends RubyObject {
     protected RubyArray nodes;
+    protected XmlDocument doc;
 
     public XmlNodeSet(Ruby ruby, NodeList nodes) {
         this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
@@ -31,13 +32,9 @@ public class XmlNodeSet extends RubyObject {
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){
         super(ruby, rubyClass);
         this.nodes = nodes;
-        ThreadContext context = ruby.getCurrentContext();
-        IRubyObject document = ruby.getNil();
-//        if(!nodes.isEmpty()) {
-//            document = ((XmlNode) nodes.first()).document(context);
-//        }
-        this.setInstanceVariable("@document", document);
     }
+
+    public XmlDocument getDocument() { return this.doc; }
 
     public static IRubyObject newEmptyNodeSet(ThreadContext context) {
         Ruby ruby = context.getRuntime();
@@ -56,6 +53,11 @@ public class XmlNodeSet extends RubyObject {
         for(int i = 0; i < n.size(); i++) {
             ((XmlNode) n.get(i)).relink_namespace(context);
         }
+    }
+
+    public void setDocument(XmlDocument document) {
+        this.setInstanceVariable("@document", document);
+        this.doc = document;
     }
 
     @JRubyMethod(name="&")
@@ -125,7 +127,9 @@ public class XmlNodeSet extends RubyObject {
     }
 
     private XmlNodeSet newXmlNodeSet(ThreadContext context, RubyArray array) {
-        return new XmlNodeSet(context.getRuntime(), nodeSetClass(context), array);
+        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), nodeSetClass(context), array);
+        result.setDocument(this.getDocument());
+        return result;
     }
 
     private RubyClass nodeSetClass(ThreadContext context) {

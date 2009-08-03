@@ -39,6 +39,7 @@ public class XmlXpath extends RubyObject {
             NodeList nodes = (NodeList)xpath.evaluate(this.context, XPathConstants.NODESET);
             XmlNodeSet result = new XmlNodeSet(context.getRuntime(), nodes);
             result.relink_namespace(context);
+            result.setInstanceVariable("@document", contextNode.document(context));
             return result;
         } catch (XPathExpressionException xpee) {
             throw new RaiseException(XmlSyntaxError.getXPathSyntaxError(context));
