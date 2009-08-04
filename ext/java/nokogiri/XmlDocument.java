@@ -2,9 +2,7 @@ package nokogiri;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Hashtable;
 import javax.xml.parsers.ParserConfigurationException;
-import nokogiri.internals.NokogiriDocumentCache;
 import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.ParseOptions;
 import nokogiri.internals.XmlDocumentImpl;
@@ -27,7 +25,6 @@ public class XmlDocument extends XmlNode {
     private Document document;
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
-    private Hashtable<Node, XmlNode> nodeCache;
 
     public XmlDocument(Ruby ruby, Document document) {
         this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"), document);
@@ -46,12 +43,7 @@ public class XmlDocument extends XmlNode {
                     new NokogiriUserDataHandler(ruby));
 //        }
 
-        this.nodeCache = new Hashtable<Node, XmlNode>();
         setInstanceVariable("@decorators", ruby.getNil());
-    }
-
-    public void cacheNode(Node element, XmlNode node) {
-        this.nodeCache.put(element, node);
     }
 
     @Override
@@ -59,10 +51,6 @@ public class XmlDocument extends XmlNode {
         Document newDoc = (Document) this.getDocument().cloneNode(deep);
 
         return new XmlDocument(context.getRuntime(), this.getType(), newDoc);
-    }
-
-    public IRubyObject getCachedNode(Node element) {
-        return this.nodeCache.get(element);
     }
 
     public Document getDocument() {
@@ -139,7 +127,7 @@ public class XmlDocument extends XmlNode {
             Document document;
             if (args[0] instanceof RubyIO) {
                 RubyIO io = (RubyIO)args[0];
-                document = options.getDocumentBuilder().parse(io.getInStream());
+                document = options.parse(io.getInStream());
                 XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
                 doc.setUrl(args[1]);
                 options.addErrorsIfNecessary(context, doc);

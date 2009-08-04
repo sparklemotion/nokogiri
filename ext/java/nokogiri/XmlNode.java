@@ -339,7 +339,8 @@ public class XmlNode extends RubyObject {
         
         RuntimeHelpers.invoke(context, xmlDoc, "decorate", node);
 
-        xmlDoc.cacheNode(element, node);
+        element.setUserData(NokogiriUserDataHandler.CACHED_NODE,
+                node, new NokogiriUserDataHandler(ruby));
 
         if(block.isGiven()) block.call(context, node);
 

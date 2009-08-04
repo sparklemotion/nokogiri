@@ -2,6 +2,7 @@ package nokogiri.internals;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -12,6 +13,7 @@ import org.jruby.RubyArray;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -124,6 +126,11 @@ public class ParseOptions {
 
     public boolean continuesOnError() {
         return this.recover;
+    }
+
+    public Document parse(InputStream input)
+            throws ParserConfigurationException, SAXException, IOException {
+        return this.getDocumentBuilder().parse(input);
     }
 
     public boolean dtdAttr() { return this.dtdAttr; }

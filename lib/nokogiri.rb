@@ -8,6 +8,10 @@ if ENV['NOKOGIRI_FFI']
   gem 'ffi', '>=0.3.2'
   require 'ffi'
   require 'nokogiri/ffi/libxml'
+elsif defined? RUBY_ENGINE && RUBY_ENGINE == "jruby"
+  require 'nekohtml.jar'
+  require 'xercesImpl.jar'
+  require 'nokogiri/nokogiri'
 else # Both MRI and JRuby!
   require 'nokogiri/nokogiri'
 end
