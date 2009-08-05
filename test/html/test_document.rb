@@ -66,8 +66,12 @@ module Nokogiri
         assert_equal @html.to_s, html.to_s
       end
 
+      ###
+      # Nokogiri::HTML returns an empty Document when given a blank string GH#11
       def test_empty_string_returns_empty_doc
         doc = Nokogiri::HTML('')
+        assert_instance_of Nokogiri::HTML::Document, doc
+        assert_nil doc.root
       end
 
       unless %w[2 6] === LIBXML_VERSION.split('.')[0..1]
