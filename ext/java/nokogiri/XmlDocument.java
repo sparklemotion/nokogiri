@@ -48,9 +48,7 @@ public class XmlDocument extends XmlNode {
 
     @Override
     protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
-        Document newDoc = (Document) this.getDocument().cloneNode(deep);
-
-        return new XmlDocument(context.getRuntime(), this.getType(), newDoc);
+        return ((XmlDocumentImpl) this.internalNode).dup_impl(context, this, deep, this.getType());
     }
 
     public Document getDocument() {

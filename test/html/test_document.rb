@@ -19,40 +19,40 @@ module Nokogiri
         assert options.dtdattr?
       end
 
-#      def test_parse_takes_config_block
-#        options = nil
-#        Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE) do |cfg|
-#          options = cfg
-#          options.nonet.nowarning.dtdattr
-#        end
-#        assert options.nonet?
-#        assert options.nowarning?
-#        assert options.dtdattr?
-#      end
-#
-#      def test_subclass
-#        klass = Class.new(Nokogiri::HTML::Document)
-#        doc = klass.new
-#        assert_instance_of klass, doc
-#      end
-#
-#      def test_subclass_initialize
-#        klass = Class.new(Nokogiri::HTML::Document) do
-#          attr_accessor :initialized_with
-#
-#          def initialize(*args)
-#            @initialized_with = args
-#          end
-#        end
-#        doc = klass.new("uri", "external_id", 1)
-#        assert_equal ["uri", "external_id", 1], doc.initialized_with
-#      end
-#
-#      def test_subclass_dup
-#        klass = Class.new(Nokogiri::HTML::Document)
-#        doc = klass.new.dup
-#        assert_instance_of klass, doc
-#      end
+      def test_parse_takes_config_block
+        options = nil
+        Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE) do |cfg|
+          options = cfg
+          options.nonet.nowarning.dtdattr
+        end
+        assert options.nonet?
+        assert options.nowarning?
+        assert options.dtdattr?
+      end
+
+      def test_subclass
+        klass = Class.new(Nokogiri::HTML::Document)
+        doc = klass.new
+        assert_instance_of klass, doc
+      end
+
+      def test_subclass_initialize
+        klass = Class.new(Nokogiri::HTML::Document) do
+          attr_accessor :initialized_with
+
+          def initialize(*args)
+            @initialized_with = args
+          end
+        end
+        doc = klass.new("uri", "external_id", 1)
+        assert_equal ["uri", "external_id", 1], doc.initialized_with
+      end
+
+      def test_subclass_dup
+        klass = Class.new(Nokogiri::HTML::Document)
+        doc = klass.new.dup
+        assert_instance_of klass, doc
+      end
 #
 #      def test_subclass_parse
 #        klass = Class.new(Nokogiri::HTML::Document)

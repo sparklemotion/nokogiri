@@ -4,6 +4,7 @@ import nokogiri.XmlDocument;
 import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
 import org.jruby.Ruby;
+import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
@@ -27,6 +28,11 @@ public class XmlEmptyDocumentImpl extends XmlDocumentImpl{
     @Override
     public Node cloneNode(ThreadContext context, XmlNode current, boolean deep) {
         return ((XmlDocument) current).getDocument().cloneNode(deep);
+    }
+
+    @Override
+    public XmlNode dup_impl(ThreadContext context, XmlDocument current, boolean deep, RubyClass klazz) {
+        return (XmlNode) XmlDocument.rbNew(context, klazz, new IRubyObject[0]);
     }
 
     @Override

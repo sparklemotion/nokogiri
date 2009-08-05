@@ -5,6 +5,7 @@ import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
@@ -37,6 +38,12 @@ public class XmlDocumentImpl extends XmlNodeImpl{
         XmlNodeSet result = new XmlNodeSet(ruby, nodes);
         result.setDocument((XmlDocument) cur);
         return result;
+    }
+    
+    public XmlNode dup_impl(ThreadContext context, XmlDocument current, boolean deep, RubyClass klazz) {
+        Document newDoc = (Document) current.getDocument().cloneNode(deep);
+
+        return new XmlDocument(context.getRuntime(), klazz, newDoc);
     }
 
     public IRubyObject encoding(ThreadContext context, XmlDocument current) {
