@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 # Modify the PATH on windows so that the external DLLs will get loaded.
+
+require 'rbconfig'
 ENV['PATH'] = [File.expand_path(
   File.join(File.dirname(__FILE__), "..", "ext", "nokogiri")
-), ENV['PATH']].compact.join(';') if RUBY_PLATFORM =~ /(mswin|mingw)/i
+), ENV['PATH']].compact.join(';') if RbConfig::CONFIG['host_os'] =~ /(mswin|mingw)/i
 
 if ENV['NOKOGIRI_FFI'] || RUBY_PLATFORM =~ /java/
   gem 'ffi', '>=0.4.0' unless RUBY_PLATFORM =~ /java/
