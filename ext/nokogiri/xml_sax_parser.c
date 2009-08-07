@@ -55,7 +55,7 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
 
   xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding); 
 
-  xmlParserCtxtPtr sax_ctx = xmlCreateIOParserCtxt(
+  xmlParserCtxtPtr ctxt = xmlCreateIOParserCtxt(
       handler,
       (void *)self,
       (xmlInputReadCallback)io_read_callback,
@@ -63,8 +63,13 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
       (void *)io,
       enc
   );
-  xmlParseDocument(sax_ctx);
-  xmlFreeParserCtxt(sax_ctx);
+
+  xmlParseDocument(ctxt);
+
+  ctxt->sax = NULL;
+  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
+
+  xmlFreeParserCtxt(ctxt);
   return io;
 }
 
@@ -78,6 +83,7 @@ static VALUE native_parse_file(VALUE self, VALUE data)
 {
   xmlSAXHandlerPtr handler;
   Data_Get_Struct(self, xmlSAXHandler, handler);
+
   xmlSAXUserParseFile(  handler,
                         (void *)self,
                         StringValuePtr(data)
