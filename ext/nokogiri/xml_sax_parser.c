@@ -19,11 +19,24 @@ static VALUE parse_memory(VALUE self, VALUE data)
 
   if(Qnil == data) rb_raise(rb_eArgError, "data cannot be nil");
 
-  xmlSAXUserParseMemory(  handler,
-                          (void *)self,
-                          StringValuePtr(data),
-                          RSTRING_LEN(data)
+  xmlParserCtxtPtr ctxt = xmlCreateMemoryParserCtxt(
+      StringValuePtr(data),
+      RSTRING_LEN(data)
   );
+
+  // Free the sax handler since we'll assign our own
+  if(ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+    xmlFree(ctxt->sax);
+
+  ctxt->sax = handler;
+  ctxt->userData = (void *)self;
+
+  xmlParseDocument(ctxt);
+
+  ctxt->sax = NULL;
+  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
+  xmlFreeParserCtxt(ctxt);
+
   return data;
 }
 
