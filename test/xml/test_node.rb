@@ -244,6 +244,20 @@ module Nokogiri
         assert_equal node, @xml.xpath('//address').first
       end
 
+      def test_at_xpath
+        node = @xml.at_xpath('//address')
+        nodes = @xml.xpath('//address')
+        assert_equal 5, nodes.size
+        assert_equal node, nodes.first
+      end
+
+      def test_at_css
+        node = @xml.at_css('address')
+        nodes = @xml.css('address')
+        assert_equal 5, nodes.size
+        assert_equal node, nodes.first
+      end
+
       def test_percent
         node = @xml % ('address')
         assert_equal node, @xml.xpath('//address').first

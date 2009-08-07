@@ -198,6 +198,24 @@ module Nokogiri
       end
       alias :% :at
 
+      ##
+      # Search this node for the first occurrence of XPath +paths+.
+      # Equivalent to <tt>xpath(paths).first</tt>
+      # See Node#xpath for more information.
+      #
+      def at_xpath *paths
+        xpath(*paths).first
+      end
+
+      ##
+      # Search this node for the first occurrence of CSS +rules+.
+      # Equivalent to <tt>css(rules).first</tt>
+      # See Node#css for more information.
+      #
+      def at_css *rules
+        css(*rules).first
+      end
+
       ###
       # Get the attribute value for the attribute +name+
       def [] name

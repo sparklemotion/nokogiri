@@ -1,3 +1,10 @@
+=== HEAD
+
+* New Features
+
+  * Node#at_xpath returns the first element of the NodeSet matching the XPath expression.
+  * Node#at_css returns the first element of the NodeSet matching the CSS selector.
+
 === 1.3.3 / 2009/07/26
 
 * New Features
