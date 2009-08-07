@@ -24,6 +24,8 @@ static VALUE parse_memory(VALUE self, VALUE data)
       RSTRING_LEN(data)
   );
 
+  if(NULL == ctxt) return data;
+
   // Free the sax handler since we'll assign our own
   if(ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
     xmlFree(ctxt->sax);

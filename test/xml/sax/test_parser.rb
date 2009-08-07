@@ -9,6 +9,10 @@ module Nokogiri
           @parser = XML::SAX::Parser.new(Doc.new)
         end
 
+        def test_parse_empty
+          assert_equal '', @parser.parse('')
+        end
+
         def test_namespace_declaration_order_is_saved
           @parser.parse <<-eoxml
 <root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
