@@ -17,6 +17,13 @@ module Nokogiri
         eohtml
       end
 
+      ###
+      # Make sure a document that doesn't declare a meta encoding returns
+      # nil.
+      def test_meta_encoding
+        assert_nil @html.meta_encoding
+      end
+
       def test_description
         assert desc = @html.at('a.bar').description
         assert_equal 'a', desc.name
