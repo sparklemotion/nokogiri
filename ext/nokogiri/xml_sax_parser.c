@@ -66,7 +66,6 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
 
   xmlParseDocument(ctxt);
 
-  ctxt->sax = NULL;
   if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
 
   xmlFreeParserCtxt(ctxt);
