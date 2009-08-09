@@ -116,33 +116,33 @@ module Nokogiri
         assert_instance_of Nokogiri::HTML::Document, parent
       end
 
-#      def test_parse_handles_nil_gracefully
-#        assert_nothing_raised do
-#          @doc = Nokogiri::HTML::Document.parse(nil)
-#        end
-#        assert_instance_of Nokogiri::HTML::Document, @doc
-#      end
-#
-#      def test_parse_empty_document
-#        doc = Nokogiri::HTML("\n")
-#        assert_equal 0, doc.css('a').length
-#        assert_equal 0, doc.xpath('//a').length
-#        assert_equal 0, doc.search('//a').length
-#      end
-#
-#      def test_HTML_function
-#        html = Nokogiri::HTML(File.read(HTML_FILE))
-#        assert html.html?
-#      end
-#
-#      def test_parse_io
-#        assert doc = File.open(HTML_FILE, 'rb') { |f|
-#          Document.read_io(f, nil, 'UTF-8',
-#                           XML::ParseOptions::NOERROR | XML::ParseOptions::NOWARNING
-#                          )
-#        }
-#      end
-#
+      def test_parse_handles_nil_gracefully
+        assert_nothing_raised do
+          @doc = Nokogiri::HTML::Document.parse(nil)
+        end
+        assert_instance_of Nokogiri::HTML::Document, @doc
+      end
+
+      def test_parse_empty_document
+        doc = Nokogiri::HTML("\n")
+        assert_equal 0, doc.css('a').length
+        assert_equal 0, doc.xpath('//a').length
+        assert_equal 0, doc.search('//a').length
+      end
+
+      def test_HTML_function
+        html = Nokogiri::HTML(File.read(HTML_FILE))
+        assert html.html?
+      end
+
+      def test_parse_io
+        assert doc = File.open(HTML_FILE, 'rb') { |f|
+          Document.read_io(f, nil, 'UTF-8',
+                           XML::ParseOptions::NOERROR | XML::ParseOptions::NOWARNING
+                          )
+        }
+      end
+
 #      def test_to_xhtml
 #        assert_match 'XHTML', @html.to_xhtml
 #        assert_match 'XHTML', @html.to_xhtml(:encoding => 'UTF-8')
@@ -187,23 +187,23 @@ module Nokogiri
 #        assert_equal(1, set.length)
 #        assert_equal('inside div tag', set.first.inner_text)
 #      end
-#
-#      def test_multi_css
-#        html = Nokogiri::HTML(<<-eohtml)
-#        <html>
-#          <body>
-#            <div>
-#              <p>p tag</p>
-#              <a>a tag</a>
-#            </div>
-#          </body>
-#        </html>
-#        eohtml
-#        set = html.css('p, a')
-#        assert_equal(2, set.length)
-#        assert_equal ['a tag', 'p tag'].sort, set.map { |x| x.content }.sort
-#      end
-#
+
+      def test_multi_css
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <body>
+            <div>
+              <p>p tag</p>
+              <a>a tag</a>
+            </div>
+          </body>
+        </html>
+        eohtml
+        set = html.css('p, a')
+        assert_equal(2, set.length)
+        assert_equal ['a tag', 'p tag'].sort, set.map { |x| x.content }.sort
+      end
+
 #      def test_inner_text
 #        html = Nokogiri::HTML(<<-eohtml)
 #        <html>
