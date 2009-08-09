@@ -6,6 +6,29 @@
 #define RBSTR_OR_QNIL(_str, rb_enc) \
   (_str ? NOKOGIRI_STR_NEW2(_str, STRING_OR_NULL(rb_enc)) : Qnil)
 
+
+static void Nokogiri_sax_parse_document(
+    VALUE self, 
+    xmlParserCtxtPtr ctxt,
+    xmlSAXHandlerPtr sax )
+{
+  if(NULL == ctxt)
+    rb_raise(rb_eRuntimeError, "Could not create parse context");
+
+  // Free the sax handler since we'll assign our own
+  if(ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+    xmlFree(ctxt->sax);
+
+  ctxt->sax = sax;
+  ctxt->userData = (void *)self;
+
+  xmlParseDocument(ctxt);
+
+  ctxt->sax = NULL;
+  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
+  xmlFreeParserCtxt(ctxt);
+}
+
 /*
  * call-seq:
  *  parse_memory(data)
@@ -24,20 +47,7 @@ static VALUE parse_memory(VALUE self, VALUE data)
       RSTRING_LEN(data)
   );
 
-  if(NULL == ctxt) return data;
-
-  // Free the sax handler since we'll assign our own
-  if(ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-    xmlFree(ctxt->sax);
-
-  ctxt->sax = handler;
-  ctxt->userData = (void *)self;
-
-  xmlParseDocument(ctxt);
-
-  ctxt->sax = NULL;
-  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
-  xmlFreeParserCtxt(ctxt);
+  Nokogiri_sax_parse_document(self, ctxt, handler);
 
   return data;
 }
@@ -64,30 +74,27 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
       enc
   );
 
-  xmlParseDocument(ctxt);
+  Nokogiri_sax_parse_document(self, ctxt, handler);
 
-  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
-
-  xmlFreeParserCtxt(ctxt);
   return io;
 }
 
 /*
  * call-seq:
- *  native_parse_file(data)
+ *  native_parse_file(filename)
  *
- * Parse the document stored in +data+
+ * Parse the document stored in file with +filename+
  */
-static VALUE native_parse_file(VALUE self, VALUE data)
+static VALUE native_parse_file(VALUE self, VALUE filename)
 {
   xmlSAXHandlerPtr handler;
   Data_Get_Struct(self, xmlSAXHandler, handler);
 
-  xmlSAXUserParseFile(  handler,
-                        (void *)self,
-                        StringValuePtr(data)
-  );
-  return data;
+  xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(StringValuePtr(filename));
+
+  Nokogiri_sax_parse_document(self, ctxt, handler);
+
+  return filename;
 }
 
 static void start_document(void * ctx)

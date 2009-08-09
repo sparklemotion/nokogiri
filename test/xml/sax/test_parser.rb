@@ -10,7 +10,9 @@ module Nokogiri
         end
 
         def test_parse_empty
-          assert_equal '', @parser.parse('')
+          assert_raises RuntimeError do
+            @parser.parse('')
+          end
         end
 
         def test_namespace_declaration_order_is_saved
