@@ -3,7 +3,10 @@
 static void deallocate(xmlParserCtxtPtr ctx)
 {
   NOKOGIRI_DEBUG_START(ctx);
-  if(ctx != NULL) xmlFreeParserCtxt(ctx);
+  if(ctx != NULL) {
+    NOKOGIRI_SAX_TUPLE_DESTROY(ctx->userData);
+    xmlFreeParserCtxt(ctx);
+  }
   NOKOGIRI_DEBUG_END(ctx);
 }
 
@@ -57,13 +60,15 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 
   xmlParserCtxtPtr ctx = xmlCreatePushParserCtxt(
       sax,
-      (void *)self,
+      NULL,
       NULL,
       0,
       filename
   );
   if(ctx == NULL)
     rb_raise(rb_eRuntimeError, "Could not create a parser context");
+
+  ctx->userData = NOKOGIRI_SAX_TUPLE_NEW(ctx, self);
 
   ctx->sax2 = 1;
   DATA_PTR(self) = ctx;

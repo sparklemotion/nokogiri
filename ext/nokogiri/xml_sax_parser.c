@@ -1,4 +1,5 @@
 #include <nokogiri.h>
+#include <libxml/parserInternals.h>
 
 #define STRING_OR_NULL(str) \
    (RTEST(str) ? StringValuePtr(str) : NULL)
@@ -20,12 +21,15 @@ static void Nokogiri_sax_parse_document(
     xmlFree(ctxt->sax);
 
   ctxt->sax = sax;
-  ctxt->userData = (void *)self;
+  ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, self);
 
   xmlParseDocument(ctxt);
 
   ctxt->sax = NULL;
   if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
+
+  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
+
   xmlFreeParserCtxt(ctxt);
 }
 
@@ -99,21 +103,21 @@ static VALUE native_parse_file(VALUE self, VALUE filename)
 
 static void start_document(void * ctx)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   rb_funcall(doc, rb_intern("start_document"), 0);
 }
 
 static void end_document(void * ctx)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   rb_funcall(doc, rb_intern("end_document"), 0);
 }
 
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE attributes = rb_ary_new();
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
@@ -138,7 +142,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 
 static void end_element(void * ctx, const xmlChar *name)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   rb_funcall(doc, rb_intern("end_element"), 1,
@@ -193,7 +197,7 @@ start_element_ns (
   int nb_defaulted,
   const xmlChar ** attributes)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
@@ -245,7 +249,7 @@ end_element_ns (
   const xmlChar * prefix,
   const xmlChar * uri)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
@@ -264,7 +268,7 @@ end_element_ns (
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE str = NOKOGIRI_STR_NEW(ch, len, STRING_OR_NULL(enc));
@@ -273,7 +277,7 @@ static void characters_func(void * ctx, const xmlChar * ch, int len)
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE str = NOKOGIRI_STR_NEW2(value, STRING_OR_NULL(enc));
@@ -282,7 +286,7 @@ static void comment_func(void * ctx, const xmlChar * value)
 
 static void warning_func(void * ctx, const char *msg, ...)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   char * message;
@@ -300,7 +304,7 @@ static void warning_func(void * ctx, const char *msg, ...)
 
 static void error_func(void * ctx, const char *msg, ...)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   char * message;
@@ -318,7 +322,7 @@ static void error_func(void * ctx, const char *msg, ...)
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE string =
