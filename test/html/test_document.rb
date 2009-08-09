@@ -65,10 +65,11 @@ module Nokogiri
 ##        html = Nokogiri::HTML::Document.parse(File.read(HTML_FILE))
 ##        assert_equal @html.to_s, html.to_s
 ##      end
-#
-#      def test_empty_string_returns_empty_doc
-#        doc = Nokogiri::HTML('')
-#      end
+
+      def test_empty_string_returns_empty_doc
+        doc = Nokogiri::HTML('')
+        assert_nil doc.root
+      end
 
 #      unless Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 #        # FIXME: this is a hack around broken libxml versions
@@ -87,19 +88,19 @@ module Nokogiri
 #          assert_indent 5, doc
 #        end
 #      end
-#
-#      def test_swap_should_not_exist
-#        assert_raises(NoMethodError) {
-#          @html.swap
-#        }
-#      end
-#
-#      def test_namespace_should_not_exist
-#        assert_raises(NoMethodError) {
-#          @html.namespace
-#        }
-#      end
-#
+
+      def test_swap_should_not_exist
+        assert_raises(NoMethodError) {
+          @html.swap
+        }
+      end
+
+      def test_namespace_should_not_exist
+        assert_raises(NoMethodError) {
+          @html.namespace
+        }
+      end
+
 #      def test_meta_encoding
 #        assert_equal 'UTF-8', @html.meta_encoding
 #      end
@@ -108,13 +109,13 @@ module Nokogiri
 #        @html.meta_encoding = 'EUC-JP'
 #        assert_equal 'EUC-JP', @html.meta_encoding
 #      end
-#
-#      def test_root_node_parent_is_document
-#        parent = @html.root.parent
-#        assert_equal @html, parent
-#        assert_instance_of Nokogiri::HTML::Document, parent
-#      end
-#
+
+      def test_root_node_parent_is_document
+        parent = @html.root.parent
+        assert_equal @html, parent
+        assert_instance_of Nokogiri::HTML::Document, parent
+      end
+
 #      def test_parse_handles_nil_gracefully
 #        assert_nothing_raised do
 #          @doc = Nokogiri::HTML::Document.parse(nil)

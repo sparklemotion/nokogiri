@@ -290,7 +290,7 @@ public class XmlNodeImpl {
             case Node.CDATA_SECTION_NODE: return new XmlCdataImpl(ruby, node);
             case Node.COMMENT_NODE: return new XmlCommentImpl(ruby, node);
             case Node.DOCUMENT_FRAGMENT_NODE: return new XmlDocumentFragmentImpl(ruby, node);
-            case Node.DOCUMENT_NODE: return new XmlDocumentImpl(ruby, ((Document) node).getDocumentElement());
+            case Node.DOCUMENT_NODE: return new XmlDocumentImpl(ruby, ((Document) node));
             case Node.ELEMENT_NODE: return new XmlElementImpl(ruby, node);
             case Node.PROCESSING_INSTRUCTION_NODE: return new XmlProcessingInstructionImpl(ruby, node);
             case Node.TEXT_NODE : return new XmlTextImpl(ruby, node);

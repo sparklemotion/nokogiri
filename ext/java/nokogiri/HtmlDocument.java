@@ -1,6 +1,5 @@
 package nokogiri;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import nokogiri.internals.HtmlDocumentImpl;
@@ -11,13 +10,11 @@ import org.apache.html.dom.HTMLDocumentImpl;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyIO;
-import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.jruby.util.ByteList;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -25,6 +22,7 @@ public class HtmlDocument extends XmlDocument {
 
     public HtmlDocument(Ruby ruby, RubyClass klazz, Document doc) {
         super(ruby, klazz, doc);
+        this.document = doc;
         this.internalNode = new HtmlDocumentImpl(ruby, doc);
     }
 
@@ -50,6 +48,7 @@ public class HtmlDocument extends XmlDocument {
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject read_io(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+        
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
         ParseOptions options = new HtmlParseOptions(args[3]);
@@ -76,15 +75,13 @@ public class HtmlDocument extends XmlDocument {
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+        
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
         ParseOptions options = new HtmlParseOptions(args[3]);
         try {
             Document document;
-            RubyString content = args[0].convertToString();
-            ByteList byteList = content.getByteList();
-            ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            document = options.getDocumentBuilder().parse(bais);
+            document = options.parse(args[0].convertToString().asJavaString());
             HtmlDocument doc = new HtmlDocument(ruby, (RubyClass)cls, document);
             doc.setUrl(args[1]);
             options.addErrorsIfNecessary(context, doc);

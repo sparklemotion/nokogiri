@@ -113,22 +113,37 @@ public class ParseOptions {
 
     public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, Exception ex) {
         if(this.continuesOnError()) {
-            IRubyObject[] args = new IRubyObject[0];
-            XmlDocument doc = (XmlDocument) XmlDocument.rbNew(context,
-                    context.getRuntime().getClassFromPath("Nokogiri::XML::Document"),
-                    args);
+            XmlDocument doc = this.getNewEmptyDocument(context);
             this.addErrorsIfNecessary(context, doc);
+            ((RubyArray) doc.getInstanceVariable("@errors")).append(new XmlSyntaxError(context.getRuntime(), ex));
             return doc;
         } else {
             throw new RaiseException(new XmlSyntaxError(context.getRuntime(), ex));
         }
     }
 
+    protected XmlDocument getNewEmptyDocument(ThreadContext context) {
+        IRubyObject[] args = new IRubyObject[0];
+        return (XmlDocument) XmlDocument.rbNew(context,
+                    context.getRuntime().getClassFromPath("Nokogiri::XML::Document"),
+                    args);
+    }
+
     public boolean continuesOnError() {
         return this.recover;
     }
 
+    public Document parse(InputSource input)
+            throws ParserConfigurationException, SAXException, IOException {
+        return this.getDocumentBuilder().parse(input);
+    }
+
     public Document parse(InputStream input)
+            throws ParserConfigurationException, SAXException, IOException {
+        return this.getDocumentBuilder().parse(input);
+    }
+
+    public Document parse(String input)
             throws ParserConfigurationException, SAXException, IOException {
         return this.getDocumentBuilder().parse(input);
     }

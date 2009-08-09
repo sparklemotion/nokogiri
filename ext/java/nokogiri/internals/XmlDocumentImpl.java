@@ -70,7 +70,7 @@ public class XmlDocumentImpl extends XmlNodeImpl{
 
     public IRubyObject root(ThreadContext context, XmlDocument current) {
         if(this.root == null) {
-            this.root = XmlNode.constructNode(context.getRuntime(),
+            this.root = NokogiriHelpers.getCachedNodeOrCreate(context.getRuntime(),
                     current.getDocument().getDocumentElement());
         }
         return root;

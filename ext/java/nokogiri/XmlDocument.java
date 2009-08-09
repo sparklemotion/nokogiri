@@ -22,7 +22,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 public class XmlDocument extends XmlNode {
-    private Document document;
+    protected Document document;
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
 
@@ -118,6 +118,7 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject read_io(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+        
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
         ParseOptions options = new ParseOptions(args[3]);
@@ -144,6 +145,7 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
+        
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
         ParseOptions options = new ParseOptions(args[3]);
