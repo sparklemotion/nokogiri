@@ -39,7 +39,7 @@ module Nokogiri
     def teardown
       if ENV['NOKOGIRI_GC']
         STDOUT.putc '!'
-        GC.start 
+        GC.start
       end
     end
 
@@ -63,6 +63,12 @@ module Nokogiri
         attr_reader :end_elements, :end_document_called
         attr_reader :data, :comments, :cdata_blocks, :start_elements_namespace
         attr_reader :errors, :warnings, :end_elements_namespace
+        attr_reader :xmldecls
+
+        def xmldecl version, encoding, standalone
+          @xmldecls = [version, encoding, standalone].compact
+          super
+        end
 
         def start_document
           @start_document_called = true

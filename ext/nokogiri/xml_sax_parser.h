@@ -20,6 +20,12 @@ typedef nokogiriSAXTuple * nokogiriSAXTuplePtr;
     _tuple->self; \
   })
 
+#define NOKOGIRI_SAX_CTXT(_ctxt) \
+  ({ \
+    nokogiriSAXTuplePtr _tuple = (nokogiriSAXTuplePtr)(_ctxt); \
+    _tuple->ctxt; \
+  })
+
 #define NOKOGIRI_SAX_TUPLE_NEW(_ctxt, _self) \
   ({ \
     nokogiriSAXTuplePtr _tuple = malloc(sizeof(nokogiriSAXTuple)); \

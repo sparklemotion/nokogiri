@@ -69,6 +69,11 @@ module Nokogiri
       # Nokogiri.  See Nokogiri::XML::SAX, and Nokogiri::HTML::SAX.
       class Document
         ###
+        # Called when an XML declaration is parsed
+        def xmldecl version, encoding, standalone
+        end
+
+        ###
         # Called when document starts parsing
         def start_document
         end

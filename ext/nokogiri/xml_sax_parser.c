@@ -105,6 +105,35 @@ static void start_document(void * ctx)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+
+  xmlParserCtxtPtr ctxt = NOKOGIRI_SAX_CTXT(ctx);
+
+  if(NULL != ctxt && ctxt->html != 1) {
+    if(ctxt->standalone != -1) {  // -1 means there was no declaration
+      VALUE encoding = ctxt->encoding ?
+        NOKOGIRI_STR_NEW2(ctxt->encoding, "UTF-8") :
+        Qnil;
+
+      VALUE version = ctxt->version ?
+        NOKOGIRI_STR_NEW2(ctxt->version, "UTF-8") :
+        Qnil;
+
+      VALUE standalone = Qnil;
+
+      switch(ctxt->standalone)
+      {
+        case 0:
+          standalone = NOKOGIRI_STR_NEW2("no", "UTF-8");
+          break;
+        case 1:
+          standalone = NOKOGIRI_STR_NEW2("yes", "UTF-8");
+          break;
+      }
+
+      rb_funcall(doc, rb_intern("xmldecl"), 3, version, encoding, standalone);
+    }
+  }
+
   rb_funcall(doc, rb_intern("start_document"), 0);
 }
 
