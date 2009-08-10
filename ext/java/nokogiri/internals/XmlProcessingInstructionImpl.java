@@ -38,4 +38,16 @@ public class XmlProcessingInstructionImpl extends XmlNodeImpl{
         ctx.append("?>");
     }
 
+    @Override
+    public void saveContentAsHtml(ThreadContext context, XmlNode current, SaveContext ctx) {
+        ctx.append("<?");
+        ctx.append(current.node_name(context).convertToString().asJavaString());
+        IRubyObject content = current.content(context);
+        if(!content.isNil()) {
+            ctx.append(" ");
+            ctx.append(content.convertToString().asJavaString());
+        }
+        ctx.append(">");
+    }
+
 }

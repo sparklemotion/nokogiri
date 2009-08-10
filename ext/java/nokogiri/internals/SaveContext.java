@@ -50,6 +50,18 @@ public class SaveContext {
         this.buffer.append(sb);
     }
 
+    public void appendQuoted(String s) {
+        this.append("\"");
+        this.append(s);
+        this.append("\"");
+    }
+
+    public void appendQuoted(StringBuffer sb) {
+        this.append("\"");
+        this.append(sb);
+        this.append("\"");
+    }
+
     public boolean asHtml() { return this.asHtml; }
 
     public boolean asXml() { return this.asXml; }

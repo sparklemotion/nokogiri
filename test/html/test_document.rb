@@ -53,41 +53,41 @@ module Nokogiri
         doc = klass.new.dup
         assert_instance_of klass, doc
       end
-#
-#      def test_subclass_parse
-#        klass = Class.new(Nokogiri::HTML::Document)
-#        doc = klass.parse(File.read(HTML_FILE))
-#        assert_equal @html.to_s, doc.to_s
-#        assert_instance_of klass, doc
-#      end
-#
-##      def test_document_parse_method
-##        html = Nokogiri::HTML::Document.parse(File.read(HTML_FILE))
-##        assert_equal @html.to_s, html.to_s
-##      end
+
+      def test_subclass_parse
+        klass = Class.new(Nokogiri::HTML::Document)
+        doc = klass.parse(File.read(HTML_FILE))
+        assert_equal @html.to_s, doc.to_s
+        assert_instance_of klass, doc
+      end
+
+      def test_document_parse_method
+        html = Nokogiri::HTML::Document.parse(File.read(HTML_FILE))
+        assert_equal @html.to_s, html.to_s
+      end
 
       def test_empty_string_returns_empty_doc
         doc = Nokogiri::HTML('')
         assert_nil doc.root
       end
 
-#      unless Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
-#        # FIXME: this is a hack around broken libxml versions
-#        def test_to_xhtml_with_indent
-#          doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
-#          doc = Nokogiri::HTML(doc.to_xhtml(:indent => 2))
-#          assert_indent 2, doc
-#        end
-#
-#        def test_write_to_xhtml_with_indent
-#          io = StringIO.new
-#          doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
-#          doc.write_xhtml_to io, :indent => 5
-#          io.rewind
-#          doc = Nokogiri::HTML(io.read)
-#          assert_indent 5, doc
-#        end
-#      end
+      unless Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        # FIXME: this is a hack around broken libxml versions
+        def test_to_xhtml_with_indent
+          doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
+          doc = Nokogiri::HTML(doc.to_xhtml(:indent => 2))
+          assert_indent 2, doc
+        end
+
+        def test_write_to_xhtml_with_indent
+          io = StringIO.new
+          doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
+          doc.write_xhtml_to io, :indent => 5
+          io.rewind
+          doc = Nokogiri::HTML(io.read)
+          assert_indent 5, doc
+        end
+      end
 
       def test_swap_should_not_exist
         assert_raises(NoMethodError) {
@@ -143,21 +143,21 @@ module Nokogiri
         }
       end
 
-#      def test_to_xhtml
-#        assert_match 'XHTML', @html.to_xhtml
-#        assert_match 'XHTML', @html.to_xhtml(:encoding => 'UTF-8')
-#        assert_match 'UTF-8', @html.to_xhtml(:encoding => 'UTF-8')
-#      end
-#
-#      def test_no_xml_header
-#        html = Nokogiri::HTML(<<-eohtml)
-#        <html>
-#        </html>
-#        eohtml
-#        assert html.to_html.length > 0, 'html length is too short'
-#        assert_no_match(/^<\?xml/, html.to_html)
-#      end
-#
+      def test_to_xhtml
+        assert_match 'XHTML', @html.to_xhtml
+        assert_match 'XHTML', @html.to_xhtml(:encoding => 'UTF-8')
+        assert_match 'UTF-8', @html.to_xhtml(:encoding => 'UTF-8')
+      end
+
+      def test_no_xml_header
+        html = Nokogiri::HTML(<<-eohtml)
+        <html>
+        </html>
+        eohtml
+        assert html.to_html.length > 0, 'html length is too short'
+        assert_no_match(/^<\?xml/, html.to_html)
+      end
+
 #      def test_document_has_error
 #        html = Nokogiri::HTML(<<-eohtml)
 #        <html>
@@ -257,21 +257,21 @@ module Nokogiri
 #          @html.css('div > p').length
 #        assert_equal length, found.length
 #      end
-#
-#      def test_dup_document
-#        assert dup = @html.dup
-#        assert_not_equal dup, @html
-#        assert @html.html?
-#        assert_instance_of Nokogiri::HTML::Document, dup
-#        assert dup.html?, 'duplicate should be html'
-#        assert_equal @html.to_s, dup.to_s
-#      end
-#
-#      def test_dup_document_shallow
-#        assert dup = @html.dup(0)
-#        assert_not_equal dup, @html
-#      end
-#
+
+      def test_dup_document
+        assert dup = @html.dup
+        assert_not_equal dup, @html
+        assert @html.html?
+        assert_instance_of Nokogiri::HTML::Document, dup
+        assert dup.html?, 'duplicate should be html'
+        assert_equal @html.to_s, dup.to_s
+      end
+
+      def test_dup_document_shallow
+        assert dup = @html.dup(0)
+        assert_not_equal dup, @html
+      end
+
 #      def test_dup
 #        found = @html.search('//div/a').first
 #        dup = found.dup
@@ -345,24 +345,24 @@ module Nokogiri
 #        assert_equal 2, list.length
 #        assert_equal %w{ RED RED }, list.map { |x| x.text }
 #      end
-#
-#      def test_parse_can_take_io
-#        html = nil
-#        File.open(HTML_FILE, 'rb') { |f|
-#          html = Nokogiri::HTML(f)
-#        }
-#        assert html.html?
-#      end
-#
-#      def test_html?
-#        assert !@html.xml?
-#        assert @html.html?
-#      end
-#
-#      def test_serialize
-#        assert @html.serialize
-#        assert @html.to_html
-#      end
+
+      def test_parse_can_take_io
+        html = nil
+        File.open(HTML_FILE, 'rb') { |f|
+          html = Nokogiri::HTML(f)
+        }
+        assert html.html?
+      end
+
+      def test_html?
+        assert !@html.xml?
+        assert @html.html?
+      end
+
+      def test_serialize
+        assert @html.serialize
+        assert @html.to_html
+      end
     end
   end
 end

@@ -43,6 +43,10 @@ public class XmlNodeSet extends RubyObject {
                 ruby.newEmptyArray());
     }
 
+    public boolean isEmpty() {
+        return this.nodes.isEmpty();
+    }
+
     public long length() {
         return this.nodes.length().getLongValue();
     }

@@ -146,10 +146,12 @@ public class XmlElementImpl extends XmlNodeImpl {
 
         XmlNodeSet children = (XmlNodeSet) current.children(context);
 
-        if(ctx.format()) ctx.append("\n");
-        ctx.increaseLevel();
-        this.saveNodeListContent(context, children, ctx);
-        ctx.decreaseLevel();
+        if(!children.isEmpty()) {
+            if(ctx.format()) ctx.append("\n");
+            ctx.increaseLevel();
+            this.saveNodeListContent(context, children, ctx);
+            ctx.decreaseLevel();
+        }
 
         if(ctx.format()) ctx.append(ctx.getCurrentIndentString());
 
@@ -158,5 +160,81 @@ public class XmlElementImpl extends XmlNodeImpl {
         ctx.append(">");
 
         ctx.setFormat(format);
+    }
+
+    @Override
+    public void saveContentAsHtml(ThreadContext context, XmlNode current, SaveContext ctx) {
+
+        Element e = (Element) current.getNode();
+
+
+        ctx.append("<");
+        ctx.append(e.getNodeName());
+        this.saveNodeListContentAsHtml(context, (RubyArray) current.attribute_nodes(context), ctx);
+
+        ctx.append(">");
+        
+        Node next = e.getNextSibling();
+        Node parent = e.getParentNode();
+        if(ctx.format() && next != null &&
+                next.getNodeType() != Node.TEXT_NODE &&
+                next.getNodeType() != Node.ENTITY_REFERENCE_NODE &&
+                parent != null &&
+                parent.getNodeName() != null &&
+                parent.getNodeName().charAt(0) != 'p'){
+            ctx.append("\n");
+        }
+
+        if(e.getChildNodes().getLength() == 0) {
+            ctx.append("></");
+            ctx.append(e.getNodeName());
+            ctx.append(">");
+            if(ctx.format() && next != null &&
+                next.getNodeType() != Node.TEXT_NODE &&
+                next.getNodeType() != Node.ENTITY_REFERENCE_NODE &&
+                parent != null &&
+                parent.getNodeName() != null &&
+                parent.getNodeName().charAt(0) != 'p'){
+                ctx.append("\n");
+            }
+            return;
+        }
+
+        ctx.append(">");
+
+        XmlNodeSet children = (XmlNodeSet) current.children(context);
+
+        if(!children.isEmpty()) {
+            if(ctx.format() && next != null &&
+                next.getNodeType() != Node.TEXT_NODE &&
+                next.getNodeType() != Node.ENTITY_REFERENCE_NODE &&
+                parent != null &&
+                parent.getNodeName() != null &&
+                parent.getNodeName().charAt(0) != 'p'){
+                ctx.append("\n");
+            }
+            this.saveNodeListContentAsHtml(context, children, ctx);
+            if(ctx.format() && next != null &&
+                next.getNodeType() != Node.TEXT_NODE &&
+                next.getNodeType() != Node.ENTITY_REFERENCE_NODE &&
+                parent != null &&
+                parent.getNodeName() != null &&
+                parent.getNodeName().charAt(0) != 'p'){
+                ctx.append("\n");
+            }
+        }
+
+        ctx.append("</");
+        ctx.append(e.getNodeName());
+        ctx.append(">");
+
+        if(ctx.format() && next != null &&
+            next.getNodeType() != Node.TEXT_NODE &&
+            next.getNodeType() != Node.ENTITY_REFERENCE_NODE &&
+            parent != null &&
+            parent.getNodeName() != null &&
+            parent.getNodeName().charAt(0) != 'p'){
+            ctx.append("\n");
+        }
     }
 }

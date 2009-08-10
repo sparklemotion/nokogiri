@@ -272,7 +272,27 @@ public class XmlNodeImpl {
         }
     }
 
+    protected void saveNodeListContentAsHtml(ThreadContext context, XmlNodeSet list, SaveContext ctx) {
+        this.saveNodeListContentAsHtml(context, (RubyArray) list.to_a(context), ctx);
+    }
+
+    protected void saveNodeListContentAsHtml(ThreadContext context, RubyArray array, SaveContext ctx) {
+        int length = array.getLength();
+
+        boolean formatIndentation = ctx.format() && ctx.indentString()!=null;
+
+        for(int i = 0; i < length; i++) {
+            XmlNode cur = (XmlNode) array.aref(context.getRuntime().newFixnum(i));
+
+            cur.saveContentAsHtml(context, ctx);
+
+            if(ctx.format()) ctx.append("\n");
+        }
+    }
+
     public void saveContent(ThreadContext context, XmlNode cur, SaveContext ctx) {}
+
+    public void saveContentAsHtml(ThreadContext context, XmlNode cur, SaveContext ctx) {}
 
     public void unlink(ThreadContext context, XmlNode current) {
         Node currentNode = current.getNode();

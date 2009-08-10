@@ -280,6 +280,10 @@ public class XmlNode extends RubyObject {
         this.internalNode.methods().saveContent(context, this, ctx);
     }
 
+    public void saveContentAsHtml(ThreadContext context, SaveContext ctx) {
+        this.internalNode.saveContentAsHtml(context, this, ctx);
+    }
+
     public void setDocument(IRubyObject doc) {
         this.internalNode.setDocument(doc);
     }

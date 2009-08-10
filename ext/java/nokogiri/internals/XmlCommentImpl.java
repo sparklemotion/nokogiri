@@ -27,4 +27,11 @@ public class XmlCommentImpl extends XmlNodeImpl {
         ctx.append(current.content(context).convertToString().asJavaString());
         ctx.append("-->");
     }
+
+    @Override
+    public void saveContentAsHtml(ThreadContext context, XmlNode current, SaveContext ctx) {
+        ctx.append("<!--");
+        ctx.append(current.content(context).convertToString().asJavaString());
+        ctx.append("-->");
+    }
 }
