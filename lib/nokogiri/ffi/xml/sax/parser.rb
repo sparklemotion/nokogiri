@@ -2,24 +2,26 @@ module Nokogiri
   module XML
     module SAX
       class Parser
+        # :stopdoc:
 
         attr_accessor :cstruct # :nodoc:
 
         def parse_memory(data) # :nodoc:
           raise(ArgumentError, 'data cannot be nil') if data.nil?
-          LibXML.xmlSAXUserParseMemory(cstruct, nil, data, data.length)
+
+          parse_document LibXML.xmlCreateMemoryParserCtxt data, data.length
           data
         end
 
         def native_parse_io(io, encoding) # :nodoc:
           sax_ctx = LibXML.xmlCreateIOParserCtxt(cstruct, nil, IoCallbacks.reader(io), nil, nil, encoding)
-          LibXML.xmlParseDocument(sax_ctx)
-          LibXML.xmlFreeParserCtxt(sax_ctx)
+          parse_document sax_ctx
           io
         end
 
-        def native_parse_file(data) # :nodoc:
-          LibXML.xmlSAXUserParseFile(cstruct, nil, data)
+        def native_parse_file filename
+          parse_document LibXML.xmlCreateFileParserCtxt filename
+          filename
         end
 
         def self.new(doc = XML::SAX::Document.new, encoding = 'ASCII') # :nodoc:
@@ -28,10 +30,25 @@ module Nokogiri
           parser.encoding = encoding
           parser.cstruct = LibXML::XmlSaxHandler.allocate
           parser.send(:setup_lambdas)
+          parser.instance_variable_set(:@ctxt, nil)
           parser
         end
 
-      private
+        private
+
+        def parse_document ctxt
+          raise "Could not create parse context" if ctxt.null?
+
+          @ctxt = LibXML::XmlParserContext.new ctxt
+          @ctxt[:sax] = cstruct
+
+          LibXML.xmlParseDocument ctxt
+
+          @ctxt[:sax] = nil
+          LibXML.xmlFreeDoc @ctxt[:myDoc] unless @ctxt[:myDoc].null?
+
+          LibXML.xmlFreeParserCtxt ctxt
+        end
 
         def setup_lambdas # :nodoc:
           @closures = {} # we need to keep references to the closures to avoid GC
@@ -47,6 +64,14 @@ module Nokogiri
         end
 
         def __internal__startDocument(_) # :nodoc:
+          if @ctxt && @ctxt[:html] == 0 && @ctxt[:standalone] != -1
+            standalone = {
+              0 => 'no',
+              1 => 'yes',
+            }[@ctxt[:standalone]]
+
+            @document.xmldecl @ctxt[:version], @ctxt[:encoding], standalone
+          end
           @document.start_document
         end
 
@@ -143,6 +168,8 @@ module Nokogiri
           @document.end_element_namespace(localname, prefix, uri)
           end_element_namespace(localname, prefix, uri)
         end
+
+        # :startdoc:
       end
     end
   end
