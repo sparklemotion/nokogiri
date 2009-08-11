@@ -2,6 +2,7 @@ ROOT_DIR = File.dirname(__FILE__)
 #require File.join(ROOT_DIR, 'helper')
 XML_DIR = File.join(ROOT_DIR,'xml')
 HTML_DIR = File.join(ROOT_DIR, 'html')
+HTML_SAX_DIR = File.join(HTML_DIR, 'sax')
 load File.join(ROOT_DIR, 'test_reader.rb')
 load File.join(XML_DIR, 'test_namespace.rb')
 load File.join(XML_DIR, 'test_node.rb')
@@ -13,6 +14,7 @@ load File.join(XML_DIR, 'test_comment.rb')
 load File.join(XML_DIR, 'test_document.rb')
 load File.join(HTML_DIR, 'test_document.rb')
 load File.join(XML_DIR, 'test_text.rb')
+load File.join(HTML_SAX_DIR, 'test_parser.rb')
 
 #suite = TestSuite.new "JRuby test"
 #suite << TestReader
@@ -26,4 +28,4 @@ load File.join(XML_DIR, 'test_text.rb')
 #
 # does not count.
 # Que lo sepas.
-puts '3 failures, 5 errors'
+puts '2 failures, 5 errors'

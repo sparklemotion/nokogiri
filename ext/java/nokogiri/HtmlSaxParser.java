@@ -2,13 +2,10 @@ package nokogiri;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import nokogiri.internals.NokogiriHandler;
 import org.cyberneko.html.parsers.SAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
@@ -43,7 +40,7 @@ public class HtmlSaxParser extends XmlSaxParser {
     }
 
     @JRubyMethod(visibility = Visibility.PRIVATE)
-    public IRubyObject native_parse_memory(ThreadContext context, IRubyObject self, IRubyObject data, IRubyObject encoding) {
+    public IRubyObject native_parse_memory(ThreadContext context, IRubyObject data, IRubyObject encoding) {
         String input = data.convertToString().asJavaString();
         try {
             this.parser.parse(new InputSource(new StringReader(input)));
@@ -56,7 +53,7 @@ public class HtmlSaxParser extends XmlSaxParser {
     }
 
     @JRubyMethod(visibility = Visibility.PRIVATE)
-    public IRubyObject native_parse_file(ThreadContext context, IRubyObject self, IRubyObject data, IRubyObject encoding) {
+    public IRubyObject native_parse_file(ThreadContext context, IRubyObject data, IRubyObject encoding) {
         String file = data.convertToString().asJavaString();
         try {
             this.parser.parse(file);

@@ -23,7 +23,14 @@ module Nokogiri
 
         def test_parse_file
           @parser.parse_file(HTML_FILE)
-          assert_equal 1110, @parser.document.end_elements.length
+          
+          # Take a look at the comment in test_parse_document to know
+          # a possible reason to this difference.
+          if Nokogiri.uses_libxml?
+            assert_equal 1110, @parser.document.end_elements.length
+          else
+            assert_equal 1119, @parser.document.end_elements.length
+          end
         end
 
         def test_parse_file_nil_argument
@@ -55,8 +62,22 @@ module Nokogiri
             <p>Paragraph 1</p>
             <p>Paragraph 2</p>
           eoxml
-          assert_equal([["html", []], ["body", []], ["p", []], ["p", []]],
-                       @parser.document.start_elements)
+
+          # JRuby version is different because of the internal implementation
+          # JRuby version uses NekoHTML. Currently following features are set:
+          # "http://cyberneko.org/html/properties/names/elems" => "match"
+          # "http://cyberneko.org/html/properties/names/attrs" => "no-change"
+          #
+          # The only thing that I don't know why it happens is "head" in
+          # lowercase. Xerces HTML implementation creates node names in
+          # uppercase by default. That's the reason HTML and BODY are uppercase.
+          if Nokogiri.uses_libxml?
+            assert_equal([["html", []], ["body", []], ["p", []], ["p", []]],
+                         @parser.document.start_elements)
+          else
+            assert_equal([["HTML", []], ["head", []], ["BODY", []], ["p", []], ["p", []]],
+                          @parser.document.start_elements)
+          end
         end
       end
     end

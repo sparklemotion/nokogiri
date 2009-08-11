@@ -177,7 +177,7 @@ public class NokogiriService implements BasicLibraryService{
 
     private static ObjectAllocator HTML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            return new HtmlSaxParser(runtime, klazz);
         }
     };
 
