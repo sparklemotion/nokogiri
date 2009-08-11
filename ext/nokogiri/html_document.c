@@ -156,7 +156,11 @@ static VALUE meta_encoding(VALUE self)
   htmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
 
-  return NOKOGIRI_STR_NEW2(htmlGetMetaEncoding(doc), doc->encoding);
+  const xmlChar * meta = htmlGetMetaEncoding(doc);
+
+  if(NULL == meta) return Qnil;
+
+  return NOKOGIRI_STR_NEW2(meta, doc->encoding);
 }
 
 VALUE cNokogiriHtmlDocument ;

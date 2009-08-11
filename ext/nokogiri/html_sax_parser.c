@@ -14,7 +14,7 @@ static VALUE native_parse_file(VALUE self, VALUE data, VALUE encoding)
   hdoc = htmlSAXParseFile( StringValuePtr(data),
                            (const char *)StringValuePtr(encoding),
                            (htmlSAXHandlerPtr)handler,
-                           (void *)self );
+                           NOKOGIRI_SAX_TUPLE_NEW(NULL, self) );
   xmlFreeDoc(hdoc);
   return data;
 }
@@ -33,7 +33,7 @@ static VALUE native_parse_memory(VALUE self, VALUE data, VALUE encoding)
   hdoc = htmlSAXParseDoc(  (xmlChar *)StringValuePtr(data),
                            (const char *)StringValuePtr(encoding),
                            (htmlSAXHandlerPtr)handler,
-                           (void *)self );
+                           NOKOGIRI_SAX_TUPLE_NEW(NULL, self) );
   xmlFreeDoc(hdoc);
   return data;
 }

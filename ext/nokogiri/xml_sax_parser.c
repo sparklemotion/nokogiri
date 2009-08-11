@@ -1,10 +1,37 @@
 #include <nokogiri.h>
+#include <libxml/parserInternals.h>
 
 #define STRING_OR_NULL(str) \
    (RTEST(str) ? StringValuePtr(str) : NULL)
 
 #define RBSTR_OR_QNIL(_str, rb_enc) \
   (_str ? NOKOGIRI_STR_NEW2(_str, STRING_OR_NULL(rb_enc)) : Qnil)
+
+
+static void Nokogiri_sax_parse_document(
+    VALUE self, 
+    xmlParserCtxtPtr ctxt,
+    xmlSAXHandlerPtr sax )
+{
+  if(NULL == ctxt)
+    rb_raise(rb_eRuntimeError, "Could not create parse context");
+
+  // Free the sax handler since we'll assign our own
+  if(ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+    xmlFree(ctxt->sax);
+
+  ctxt->sax = sax;
+  ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, self);
+
+  xmlParseDocument(ctxt);
+
+  ctxt->sax = NULL;
+  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
+
+  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
+
+  xmlFreeParserCtxt(ctxt);
+}
 
 /*
  * call-seq:
@@ -19,11 +46,13 @@ static VALUE parse_memory(VALUE self, VALUE data)
 
   if(Qnil == data) rb_raise(rb_eArgError, "data cannot be nil");
 
-  xmlSAXUserParseMemory(  handler,
-                          (void *)self,
-                          StringValuePtr(data),
-                          RSTRING_LEN(data)
+  xmlParserCtxtPtr ctxt = xmlCreateMemoryParserCtxt(
+      StringValuePtr(data),
+      RSTRING_LEN(data)
   );
+
+  Nokogiri_sax_parse_document(self, ctxt, handler);
+
   return data;
 }
 
@@ -40,7 +69,7 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
 
   xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding); 
 
-  xmlParserCtxtPtr sax_ctx = xmlCreateIOParserCtxt(
+  xmlParserCtxtPtr ctxt = xmlCreateIOParserCtxt(
       handler,
       (void *)self,
       (xmlInputReadCallback)io_read_callback,
@@ -48,45 +77,76 @@ static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
       (void *)io,
       enc
   );
-  xmlParseDocument(sax_ctx);
-  xmlFreeParserCtxt(sax_ctx);
+
+  Nokogiri_sax_parse_document(self, ctxt, handler);
+
   return io;
 }
 
 /*
  * call-seq:
- *  native_parse_file(data)
+ *  native_parse_file(filename)
  *
- * Parse the document stored in +data+
+ * Parse the document stored in file with +filename+
  */
-static VALUE native_parse_file(VALUE self, VALUE data)
+static VALUE native_parse_file(VALUE self, VALUE filename)
 {
   xmlSAXHandlerPtr handler;
   Data_Get_Struct(self, xmlSAXHandler, handler);
-  xmlSAXUserParseFile(  handler,
-                        (void *)self,
-                        StringValuePtr(data)
-  );
-  return data;
+
+  xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(StringValuePtr(filename));
+
+  Nokogiri_sax_parse_document(self, ctxt, handler);
+
+  return filename;
 }
 
 static void start_document(void * ctx)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+
+  xmlParserCtxtPtr ctxt = NOKOGIRI_SAX_CTXT(ctx);
+
+  if(NULL != ctxt && ctxt->html != 1) {
+    if(ctxt->standalone != -1) {  // -1 means there was no declaration
+      VALUE encoding = ctxt->encoding ?
+        NOKOGIRI_STR_NEW2(ctxt->encoding, "UTF-8") :
+        Qnil;
+
+      VALUE version = ctxt->version ?
+        NOKOGIRI_STR_NEW2(ctxt->version, "UTF-8") :
+        Qnil;
+
+      VALUE standalone = Qnil;
+
+      switch(ctxt->standalone)
+      {
+        case 0:
+          standalone = NOKOGIRI_STR_NEW2("no", "UTF-8");
+          break;
+        case 1:
+          standalone = NOKOGIRI_STR_NEW2("yes", "UTF-8");
+          break;
+      }
+
+      rb_funcall(doc, rb_intern("xmldecl"), 3, version, encoding, standalone);
+    }
+  }
+
   rb_funcall(doc, rb_intern("start_document"), 0);
 }
 
 static void end_document(void * ctx)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   rb_funcall(doc, rb_intern("end_document"), 0);
 }
 
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE attributes = rb_ary_new();
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
@@ -111,7 +171,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 
 static void end_element(void * ctx, const xmlChar *name)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   rb_funcall(doc, rb_intern("end_element"), 1,
@@ -166,7 +226,7 @@ start_element_ns (
   int nb_defaulted,
   const xmlChar ** attributes)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
@@ -218,7 +278,7 @@ end_element_ns (
   const xmlChar * prefix,
   const xmlChar * uri)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
@@ -237,7 +297,7 @@ end_element_ns (
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE str = NOKOGIRI_STR_NEW(ch, len, STRING_OR_NULL(enc));
@@ -246,7 +306,7 @@ static void characters_func(void * ctx, const xmlChar * ch, int len)
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE str = NOKOGIRI_STR_NEW2(value, STRING_OR_NULL(enc));
@@ -255,7 +315,7 @@ static void comment_func(void * ctx, const xmlChar * value)
 
 static void warning_func(void * ctx, const char *msg, ...)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   char * message;
@@ -273,7 +333,7 @@ static void warning_func(void * ctx, const char *msg, ...)
 
 static void error_func(void * ctx, const char *msg, ...)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   char * message;
@@ -291,7 +351,7 @@ static void error_func(void * ctx, const char *msg, ...)
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
-  VALUE self = (VALUE)ctx;
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_funcall(self, rb_intern("document"), 0);
   VALUE string =

@@ -9,6 +9,29 @@ module Nokogiri
           @parser = XML::SAX::Parser.new(Doc.new)
         end
 
+        def test_xml_decl
+          {
+            ''          => nil,
+            '<?xml version="1.0" ?>'                  => ['1.0'],
+            '<?xml version="1.0" encoding="UTF-8" ?>' => ['1.0', 'UTF-8'],
+            '<?xml version="1.0" standalone="yes"?>'  => ['1.0', 'yes'],
+            '<?xml version="1.0" standalone="no"?>'   => ['1.0', 'no'],
+          }.each do |decl,value|
+            parser = XML::SAX::Parser.new(Doc.new)
+
+            xml = "#{decl}\n<root />"
+            parser.parse xml
+            assert parser.document.start_document_called, xml
+            assert_equal value, parser.document.xmldecls, xml
+          end
+        end
+
+        def test_parse_empty
+          assert_raises RuntimeError do
+            @parser.parse('')
+          end
+        end
+
         def test_namespace_declaration_order_is_saved
           @parser.parse <<-eoxml
 <root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>

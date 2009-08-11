@@ -97,6 +97,7 @@ lib/nokogiri/ffi/structs/xml_node.rb
 lib/nokogiri/ffi/structs/xml_node_set.rb
 lib/nokogiri/ffi/structs/xml_notation.rb
 lib/nokogiri/ffi/structs/xml_ns.rb
+lib/nokogiri/ffi/structs/xml_parser_context.rb
 lib/nokogiri/ffi/structs/xml_relax_ng.rb
 lib/nokogiri/ffi/structs/xml_sax_handler.rb
 lib/nokogiri/ffi/structs/xml_sax_push_parser_context.rb

@@ -74,6 +74,8 @@ module Nokogiri
     attach_function :xmlInitParser, [], :void
     attach_function :xmlReadIO, [:io_read_callback, :io_close_callback, :pointer, :string, :string, :int], :pointer
     attach_function :xmlCreateIOParserCtxt, [:pointer, :pointer, :io_read_callback, :io_close_callback, :pointer, :int], :pointer
+    attach_function :xmlCreateMemoryParserCtxt, [:pointer, :int], :pointer
+    attach_function :xmlCreateFileParserCtxt, [:pointer], :pointer
     attach_function :xmlSAXUserParseMemory, [:pointer, :pointer, :string, :int], :int
     attach_function :xmlSAXUserParseFile, [:pointer, :pointer, :string], :int
     attach_function :xmlParseDocument, [:pointer], :int
@@ -292,6 +294,7 @@ require 'nokogiri/xml/syntax_error'
   "structs/html_elem_desc",
   "structs/html_entity_desc",
   "structs/xslt_stylesheet",
+  "structs/xml_parser_context",
   "xml/node",
   "xml/namespace",
   "xml/dtd",
