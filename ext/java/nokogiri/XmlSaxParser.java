@@ -3,6 +3,7 @@ package nokogiri;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import nokogiri.internals.NokogiriHandler;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -32,88 +33,14 @@ public class XmlSaxParser extends RubyObject {
     public XmlSaxParser(final Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
 
-        final Ruby runtime = ruby;
-        handler = new DefaultHandler2() {
-            boolean inCDATA = false;
-
-            @Override
-            public void startDocument() throws SAXException {
-                call("start_document");
-            }
-
-            @Override
-            public void endDocument() throws SAXException {
-                call("end_document");
-            }
-
-            @Override
-            public void startElement(String uri, String localName, String qName, Attributes attr) throws SAXException {
-                RubyArray attrs = RubyArray.newArray(ruby, attr.getLength());
-                for (int i = 0; i < attr.getLength(); i++) {
-                    attrs.append(ruby.newString(attr.getQName(i)));
-                    attrs.append(ruby.newString(attr.getValue(i)));
-                }
-                call("start_element", ruby.newString(qName), attrs);
-            }
-
-            @Override
-            public void endElement(String uri, String localName, String qName) throws SAXException {
-                call("end_element", ruby.newString(qName));
-            }
-
-            @Override
-            public void characters(char[] ch, int start, int length) throws SAXException {
-                String target = inCDATA ? "cdata_block" : "characters";
-                call(target, ruby.newString(new String(ch, start, length)));
-            }
-
-            @Override
-            public void comment(char[] ch, int start, int length) throws SAXException {
-                call("comment", ruby.newString(new String(ch, start, length)));
-            }
-
-            @Override
-            public void startCDATA() throws SAXException {
-                inCDATA = true;
-            }
-
-            @Override
-            public void endCDATA() throws SAXException {
-                inCDATA = false;
-            }
-
-            @Override
-            public void error(SAXParseException saxpe) {
-                call("error", ruby.newString(saxpe.getMessage()));
-            }
-
-            @Override
-            public void warning(SAXParseException saxpe) {
-                call("warning", ruby.newString(saxpe.getMessage()));
-            }
-
-            private void call(String methodName) {
-                ThreadContext context = runtime.getCurrentContext();
-                RuntimeHelpers.invoke(context, document(context), methodName);
-            }
-
-            private void call(String methodName, IRubyObject argument) {
-                ThreadContext context = runtime.getCurrentContext();
-                RuntimeHelpers.invoke(context, document(context), methodName, argument);
-            }
-
-            private void call(String methodName, IRubyObject arg1, IRubyObject arg2) {
-                ThreadContext context = runtime.getCurrentContext();
-                RuntimeHelpers.invoke(context, document(context), methodName, arg1, arg2);
-            }
-        };
+        handler = new NokogiriHandler(ruby, this);
         try {
             reader = XMLReaderFactory.createXMLReader();
             reader.setContentHandler(handler);
             reader.setErrorHandler(handler);
             reader.setProperty("http://xml.org/sax/properties/lexical-handler", handler);
         } catch (SAXException se) {
-            throw RaiseException.createNativeRaiseException(runtime, se);
+            throw RaiseException.createNativeRaiseException(ruby, se);
         }
     }
 
@@ -157,9 +84,5 @@ public class XmlSaxParser extends RubyObject {
         } catch (IOException ioe) {
             throw context.getRuntime().newIOErrorFromException(ioe);
         }
-    }
-
-    private IRubyObject document(ThreadContext context){
-        return RuntimeHelpers.invoke(context, this, "document");
     }
 }

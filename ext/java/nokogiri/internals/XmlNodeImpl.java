@@ -182,7 +182,7 @@ public class XmlNodeImpl {
         }
 
         child.relink_namespace(context);
-
+        
         current.post_add_child(context, current, child);
     }
 

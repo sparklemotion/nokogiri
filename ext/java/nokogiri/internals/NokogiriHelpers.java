@@ -8,6 +8,7 @@ package nokogiri.internals;
 import nokogiri.XmlNode;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -22,7 +23,8 @@ public class NokogiriHelpers {
         return (XmlNode) node.getUserData(NokogiriUserDataHandler.CACHED_NODE);
     }
 
-    public static XmlNode getCachedNodeOrCreate(Ruby ruby, Node node) {
+    public static IRubyObject getCachedNodeOrCreate(Ruby ruby, Node node) {
+        if(node == null) return ruby.getNil();
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {
             xmlNode = (XmlNode) XmlNode.constructNode(ruby, node);
@@ -35,10 +37,15 @@ public class NokogiriHelpers {
     public static String getLocalName(String name) {
         int index = name.indexOf(':');
         if(index == -1) {
-            return null;
+            return name;
         } else {
             return name.substring(index+1);
         }
+    }
+
+    public static String getLocalNameForNamespace(String name) {
+        String localName = getLocalName(name);
+        return ("xmlns".equals(localName)) ? null : localName;
     }
 
     public static String getNodeCompletePath(Node node) {
@@ -253,15 +260,15 @@ public class NokogiriHelpers {
     }
 
     public static String getNodeName(Node node) {
-        if(node == null) return "";
+        if(node == null) { System.out.println("node is null"); return ""; }
         String name = node.getNodeName();
-        if(name == null) return "";
+        if(name == null) { System.out.println("name is null"); return ""; }
         if(name.equals("#document")) {
             return "document";
         } else if(name.equals("#text")) {
             return "text";
         } else {
-            name = node.getLocalName();
+            name = getLocalName(name);
             return (name == null) ? "" : name;
         }
     }

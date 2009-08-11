@@ -31,7 +31,13 @@ public class HtmlDocument extends XmlDocument {
         HtmlDocument doc = null;
         try {
 
-            HTMLDocumentImpl docNode = new HTMLDocumentImpl();
+            /*
+             * A little explanation:
+             * I'm using an XmlDocument instead of a HTMLDocumentImpl in order
+             * not to have capitalized node names.
+             */
+
+            Document docNode = (new ParseOptions(0)).getDocumentBuilder().newDocument();
 
             doc = new HtmlDocument(context.getRuntime(), (RubyClass) cls,
                     docNode);

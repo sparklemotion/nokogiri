@@ -8,7 +8,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 
-import static nokogiri.internals.NokogiriHelpers.getLocalName;
+import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 
 /**
  *
@@ -46,7 +46,8 @@ public class XmlNamespace extends RubyObject {
     }
 
     public static XmlNamespace fromNode(Ruby ruby, Node node) {
-        String localName = getLocalName(node.getNodeName());
+        String localName = getLocalNameForNamespace(node.getNodeName());
+
         return new XmlNamespace(ruby,
                     (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"),
                     localName, node.getNodeValue());

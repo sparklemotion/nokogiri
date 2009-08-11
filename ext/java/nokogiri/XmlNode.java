@@ -328,6 +328,7 @@ public class XmlNode extends RubyObject {
 
         XmlDocument xmlDoc = (XmlDocument)doc;
         Document document = xmlDoc.getDocument();
+
         Element element = document.createElementNS(null, name.convertToString().asJavaString());
 
         RubyClass klazz = (RubyClass) cls;
@@ -672,7 +673,7 @@ public class XmlNode extends RubyObject {
         if(node().getOwnerDocument().getDocumentElement() == node()) {
             return document(context);
         } else {
-            return constructNode(context.getRuntime(), node().getParentNode());
+            return NokogiriHelpers.getCachedNodeOrCreate(context.getRuntime(), node().getParentNode());
         }
     }
 
