@@ -3,9 +3,35 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
 module Nokogiri
   module XML
     class TestXPath < Nokogiri::TestCase
+
+      # ** WHY ALL THOSE _if Nokogiri.uses_libxml?_ **
+      # Hi, my dear readers,
+      #
+      # After reading these tests you may be wondering why all those ugly
+      # if Nokogiri.uses_libxml? sparsed over the whole document. Well, let
+      # me explain it. While using XPath in Java, you need the extension
+      # functions to be in a namespace. This is not required by XPath, afaik,
+      # but it is an usual convention though.
+      #
+      # Furthermore, CSS does not support extension functions but it does in
+      # Nokogiri. Result: you cannot use them in JRuby impl. At least, until
+      # the CSS to XPath parser is patched, and let me say that there are more
+      # important features to add before that happens. I hope you will forgive
+      # me.
+      #
+      # Yours truly,
+      #
+      # The guy whose headaches belong to Nokogiri JRuby impl.
+
+
       def setup
         super
+
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+
+        @ns = @xml.root.namespaces
+
+        @ns["nokogiri"] = "http://www.nokogiri.org/default_ns/ruby/extensions_functions"
 
         @handler = Class.new {
           attr_reader :things
@@ -25,13 +51,18 @@ module Nokogiri
           end
 
           def my_filter set, attribute, value
+            puts "#{set.class}:#{attribute.class}:#{value.class}"
             set.find_all { |x| x[attribute] == value }
           end
         }.new
       end
 
       def test_css_search_uses_custom_selectors_with_arguments
-        set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
+        set = if Nokogiri.uses_libxml?
+                @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
+              else
+                @xml.xpath("//employee/address[nokogiri:my_filter(., \"domestic\", \"Yes\")]", @ns, @handler)
+               end
         assert set.length > 0
         set.each do |node|
           assert_equal 'Yes', node['domestic']
@@ -40,13 +71,21 @@ module Nokogiri
 
       def test_css_search_uses_custom_selectors
         set = @xml.xpath('//employee')
-        css_set = @xml.css('employee:thing()', @handler)
+        css_set = if Nokogiri.uses_libxml?
+                    @xml.css('employee:thing()', @handler)
+                  else
+                    @xml.xpath("//employee[nokogiri:thing(.)]", @ns, @handler)
+                  end
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
       end
 
       def test_pass_self_to_function
-        set = @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
+        set = if Nokogiri.uses_libxml?
+                @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
+              else
+                @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @ns, @handler)
+              end
         assert set.length > 0
         set.each do |node|
           assert_equal 'Yes', node['domestic']
@@ -55,42 +94,66 @@ module Nokogiri
 
       def test_custom_xpath_function_gets_strings
         set = @xml.xpath('//employee')
-        @xml.xpath('//employee[thing("asdf")]', @handler)
+        if Nokogiri.uses_libxml?
+          @xml.xpath('//employee[thing("asdf")]', @handler)
+        else
+          @xml.xpath('//employee[nokogiri:thing("asdf")]', @ns, @handler)
+        end
         assert_equal(set.length, @handler.things.length)
         assert_equal(['asdf'] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_true_booleans
         set = @xml.xpath('//employee')
-        @xml.xpath('//employee[thing(true())]', @handler)
+        if Nokogiri.uses_libxml?
+          @xml.xpath('//employee[thing(true())]', @handler)
+        else
+          @xml.xpath("//employee[nokogiri:thing(true())]", @ns, @handler)
+        end
         assert_equal(set.length, @handler.things.length)
         assert_equal([true] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_false_booleans
         set = @xml.xpath('//employee')
-        @xml.xpath('//employee[thing(false())]', @handler)
+        if Nokogiri.uses_libxml?
+          @xml.xpath('//employee[thing(false())]', @handler)
+        else
+          @xml.xpath("//employee[nokogiri:thing(false())]", @ns, @handler)
+        end
         assert_equal(set.length, @handler.things.length)
         assert_equal([false] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_numbers
         set = @xml.xpath('//employee')
-        @xml.xpath('//employee[thing(10)]', @handler)
+        if Nokogiri.uses_libxml?
+          @xml.xpath('//employee[thing(10)]', @handler)
+        else
+          @xml.xpath('//employee[nokogiri:thing(10)]', @ns, @handler)
+        end
         assert_equal(set.length, @handler.things.length)
         assert_equal([10] * set.length, @handler.things)
       end
 
       def test_custom_xpath_gets_node_sets
         set = @xml.xpath('//employee/name')
-        @xml.xpath('//employee[thing(name)]', @handler)
+        if Nokogiri.uses_libxml?
+          @xml.xpath('//employee[thing(name)]', @handler)
+        else
+          @xml.xpath('//employee[nokogiri:thing(name)]', @ns, @handler)
+        end
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
       end
 
       def test_custom_xpath_gets_node_sets_and_returns_array
         set = @xml.xpath('//employee/name')
-        @xml.xpath('//employee[returns_array(name)]', @handler)
+        if Nokogiri.uses_libxml?
+          @xml.xpath('//employee[returns_array(name)]', @handler)
+        else
+          @xml.xpath('//employee[nokogiri:returns_array(name)]', @ns, @handler)
+        end
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
       end

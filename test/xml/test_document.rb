@@ -159,7 +159,7 @@ module Nokogiri
         # is the correct thing to do.
         exception = RuntimeError
 
-        if Nokogiri::VERSION_INFO['libxml']['platform'] == 'jruby'
+        if !Nokogiri.uses_libxml? || (Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO['libxml']['platform'] == 'jruby')
           exception = Nokogiri::XML::XPath::SyntaxError
         end
 

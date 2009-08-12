@@ -14,6 +14,7 @@ load File.join(XML_DIR, 'test_comment.rb')
 load File.join(XML_DIR, 'test_document.rb')
 load File.join(HTML_DIR, 'test_document.rb')
 load File.join(XML_DIR, 'test_text.rb')
+load File.join(XML_DIR, 'test_xpath.rb')
 load File.join(HTML_SAX_DIR, 'test_parser.rb')
 
 #suite = TestSuite.new "JRuby test"
@@ -28,4 +29,4 @@ load File.join(HTML_SAX_DIR, 'test_parser.rb')
 #
 # does not count.
 # Que lo sepas.
-puts '2 failures, 5 errors'
+puts '0 failures, 3 errors'

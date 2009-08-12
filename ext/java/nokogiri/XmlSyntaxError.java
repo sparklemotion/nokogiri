@@ -36,12 +36,22 @@ public class XmlSyntaxError extends RubyException {
         return new XmlSyntaxError(ruby, klazz);
     }
 
+    public static RubyException getXPathSyntaxError(ThreadContext context, Exception ex) {
+        Ruby ruby = context.getRuntime();
+        RubyClass klazz = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
+        return new XmlSyntaxError(ruby, klazz, ex);
+    }
+
     //TODO: Return correct message, domain, etc.
 
     @JRubyMethod
     @Override
     public IRubyObject message(ThreadContext context) {
-        return context.getRuntime().newString(this.exception.getMessage());
+        if(this.exception != null) {
+            return context.getRuntime().newString(this.exception.toString());
+        } else {
+            return context.getRuntime().newString("no message");
+        }
     }
 
     @JRubyMethod

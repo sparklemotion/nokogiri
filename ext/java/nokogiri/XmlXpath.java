@@ -18,6 +18,7 @@ public class XmlXpath extends RubyObject {
     private XPathExpression xpath;
     private Node context;
     private XmlNode contextNode;
+    private IRubyObject handler;
 
     public XmlXpath(Ruby ruby, RubyClass rubyClass, XPathExpression xpath, XmlNode context) {
         super(ruby, rubyClass);
@@ -25,12 +26,14 @@ public class XmlXpath extends RubyObject {
 
         this.contextNode = context;
 
-        //TODO: Refactor.
-        if(context.getNode() instanceof Document) {
-            this.context = context.getNode();
-        } else {
-            this.context = context.getNode().getParentNode();
-        }
+        this.context = context.getNode();
+
+//        //TODO: Refactor.
+//        if(context.getNode() instanceof Document) {
+//            this.context = context.getNode();
+//        } else {
+//            this.context = context.getNode().getParentNode();
+//        }
     }
 
     @JRubyMethod(name = "node_set")

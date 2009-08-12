@@ -11,6 +11,7 @@ import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XmlNodeSet extends RubyObject {
@@ -62,6 +63,10 @@ public class XmlNodeSet extends RubyObject {
     public void setDocument(XmlDocument document) {
         this.setInstanceVariable("@document", document);
         this.doc = document;
+    }
+
+    public NodeList toNodeList(Ruby ruby) {
+        return new NokogiriNodeList(ruby, this.nodes);
     }
 
     @JRubyMethod(name="&")
@@ -155,5 +160,26 @@ public class XmlNodeSet extends RubyObject {
             throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");
         }
         return (XmlNodeSet) possibleNodeSet;
+    }
+
+    class NokogiriNodeList implements NodeList{
+
+        private final RubyArray nodes;
+        private final Ruby ruby;
+
+        public NokogiriNodeList(Ruby ruby, RubyArray nodes) {
+            this.nodes = nodes;
+            this.ruby = ruby;
+        }
+
+        public Node item(int i) {
+            return XmlNode.getNodeFromXmlNode(ruby.getCurrentContext(),
+                    this.nodes.aref(ruby.newFixnum(i)));
+        }
+
+        public int getLength() {
+            return this.nodes.getLength();
+        }
+
     }
 }

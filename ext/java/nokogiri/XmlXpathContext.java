@@ -5,6 +5,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import nokogiri.internals.NokogiriXPathFunctionResolver;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
@@ -12,7 +13,6 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.w3c.dom.Node;
 
 public class XmlXpathContext extends RubyObject {
     private XmlNode context;
@@ -35,10 +35,13 @@ public class XmlXpathContext extends RubyObject {
     public IRubyObject evaluate(ThreadContext context, IRubyObject expr, IRubyObject handler) {
         String src = expr.convertToString().asJavaString();
         try {
+            if(!handler.isNil()) {
+                xpath.setXPathFunctionResolver(new NokogiriXPathFunctionResolver(handler));
+            }
             XPathExpression xpathExpression = xpath.compile(src);
             return new XmlXpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
         } catch (XPathExpressionException xpee) {
-            throw new RaiseException(XmlSyntaxError.getXPathSyntaxError(context));
+            throw new RaiseException(XmlSyntaxError.getXPathSyntaxError(context, xpee));
         }
     }
 

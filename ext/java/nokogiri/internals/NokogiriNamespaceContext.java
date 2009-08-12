@@ -14,16 +14,17 @@ public class NokogiriNamespaceContext implements NamespaceContext{
     }
 
     public String getNamespaceURI(String prefix) {
-        
+//        System.out.println("Asked for " + prefix);
         String uri = this.register.get(prefix);
         if(uri != null) {
+//            System.out.println("Returned "+uri);
             return uri;
         }
 
+//        System.out.println("Returned another url");
+
         if(prefix == null) {
             throw new IllegalArgumentException();
-        } else if(prefix.equals(XMLConstants.XML_NS_PREFIX)) {
-            return XMLConstants.XML_NS_URI;
         } else if(prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             uri = this.register.get(XMLConstants.XMLNS_ATTRIBUTE);
             return (uri == null) ? XMLConstants.XMLNS_ATTRIBUTE_NS_URI : uri;
@@ -41,7 +42,8 @@ public class NokogiriNamespaceContext implements NamespaceContext{
     }
 
     public void registerNamespace(String prefix, String uri){
-        if(prefix.equals("xmlns")) prefix = "";
+        if("xmlns".equals(prefix)) prefix = "";
+//        System.out.println("Registered prefix "+prefix+" with uri " + uri);
         this.register.put(prefix, uri);
     }
 }
