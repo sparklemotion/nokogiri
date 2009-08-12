@@ -148,7 +148,7 @@ module Nokogiri
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set.at(0)
       end
-      
+
       def test_percent
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set % 0
@@ -300,6 +300,12 @@ module Nokogiri
 
         names += positions
         assert_equal result.length, names.length
+      end
+
+      def test_union
+        names = @xml.search("name")
+
+        assert_equal(names.length, (names | @xml.search("name")).length)
       end
 
       def test_minus_operator

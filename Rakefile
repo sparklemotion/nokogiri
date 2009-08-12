@@ -33,6 +33,30 @@ HOE = Hoe.spec 'nokogiri' do
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
 
+Rake::RDocTask.new('AWESOME') do |rd|
+  rd.main = HOE.readme_file
+  rd.options << '-d' if (`which dot` =~ /\/dot/) unless
+  rd.rdoc_dir = 'doc'
+
+  rd.rdoc_files += HOE.spec.require_paths
+  rd.rdoc_files += HOE.spec.extra_rdoc_files
+
+  title = HOE.spec.rdoc_options.grep(/^(-t|--title)=?$/).first
+
+  if title then
+    rd.options << title
+
+    unless title =~ /=/ then # for ['-t', 'title here']
+      title_index = HOE.spec.rdoc_options.index(title)
+      rd.options << HOE.spec.rdoc_options[title_index + 1]
+    end
+  else
+    title = "#{HOE.name}-#{HOE.version} Documentation"
+    title = "#{HOE.rubyforge_name}'s " + title if HOE.rubyforge_name != HOE.name
+    rd.options << '--title' << title
+  end
+end
+
 unless java
   gem 'rake-compiler', '>= 0.4.1'
   require "rake/extensiontask"

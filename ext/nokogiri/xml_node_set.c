@@ -125,12 +125,12 @@ static VALUE include_eh(VALUE self, VALUE rb_node)
 
 /*
  * call-seq:
- *  +(node_set)
+ *  |(node_set)
  *
- *  Concatenation - returns a new NodeSet built by concatenating the node set
- *  with +node_set+ to produce a third NodeSet
+ * Returns a new set built by merging the set and the elements of the given
+ * set.
  */
-static VALUE plus(VALUE self, VALUE rb_other)
+static VALUE set_union(VALUE self, VALUE rb_other)
 {
   xmlNodeSetPtr node_set;
   xmlNodeSetPtr other;
@@ -379,7 +379,7 @@ void init_xml_node_set(void)
   rb_define_method(klass, "[]", slice, -1);
   rb_define_method(klass, "slice", slice, -1);
   rb_define_method(klass, "push", push, 1);
-  rb_define_method(klass, "+", plus, 1);
+  rb_define_method(klass, "|", set_union, 1);
   rb_define_method(klass, "-", minus, 1);
   rb_define_method(klass, "unlink", unlink_nodeset, 0);
   rb_define_method(klass, "to_a", to_array, 0);
