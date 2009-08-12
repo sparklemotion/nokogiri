@@ -72,6 +72,7 @@ require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
 
   CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
   CLOBBER.include("lib/nokogiri/1.{8,9}")
+  CLOBBER.include("ext/nokogiri/*.dll")
 end
 
 namespace :gem do
@@ -97,6 +98,7 @@ namespace :gem do
         HOE.spec.platform = 'java'
         HOE.spec.files << GENERATED_PARSER
         HOE.spec.files << GENERATED_TOKENIZER
+        HOE.spec.files += Dir["ext/nokogiri/*.dll"]
         HOE.spec.extensions = []
         f.write(HOE.spec.to_ruby)
       end
@@ -131,7 +133,16 @@ libs = %w{
   libxslt-1.1.24.win32
 }
 
+lib_dlls = {
+  'iconv-1.9.2.win32'     => 'iconv.dll',
+  'zlib-1.2.3.win32'      => 'zlib1.dll',
+  'libxml2-2.7.3.win32'   => 'libxml2.dll',
+  'libxslt-1.1.24.win32'  => 'libxslt.dll',
+}
+
 libs.each do |lib|
+  libname = lib.split('-').first
+
   file "tmp/stash/#{lib}.zip" do |t|
     puts "downloading #{lib}"
     FileUtils.mkdir_p('tmp/stash')
@@ -141,23 +152,29 @@ libs.each do |lib|
     end
   end
 
-  file "tmp/cross/#{lib.split('-').first}" => ["tmp/stash/#{lib}.zip"] do |t|
+  file "tmp/cross/#{libname}" => ["tmp/stash/#{lib}.zip"] do |t|
     puts "unzipping #{lib}.zip"
     FileUtils.mkdir_p('tmp/cross')
     Dir.chdir('tmp/cross') do
       sh "unzip ../stash/#{lib}.zip"
       sh "cp #{lib}/bin/* #{lib}/lib" # put DLL in lib, so dirconfig works
-      sh "cp #{lib}/bin/*.dll ../../ext/nokogiri/"
       sh "mv #{lib} #{lib.split('-').first}"
       sh "touch #{lib.split('-').first}"
     end
   end
 
+  file "ext/nokogiri/#{lib_dlls[lib]}" => "tmp/cross/#{libname}" do |t|
+    Dir.chdir('tmp/cross') do
+      sh "cp #{libname}/bin/*.dll ../../ext/nokogiri/"
+    end
+  end
+
   if Rake::Task.task_defined?(:cross)
-    Rake::Task[:cross].prerequisites << "tmp/cross/#{lib.split('-').first}"
+    Rake::Task[:cross].prerequisites << "ext/nokogiri/#{lib_dlls[lib]}"
     Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
     Rake::Task[:cross].prerequisites << "cross:file_list"
   end
+  Rake::Task['gem:jruby:spec'].prerequisites << "ext/nokogiri/#{lib_dlls[lib]}"
 end
 
 require 'tasks/test'
