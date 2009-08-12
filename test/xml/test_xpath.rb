@@ -31,6 +31,7 @@ module Nokogiri
 
         @ns = @xml.root.namespaces
 
+        # TODO: Maybe I should move this to the original code.
         @ns["nokogiri"] = "http://www.nokogiri.org/default_ns/ruby/extensions_functions"
 
         @handler = Class.new {
