@@ -16,6 +16,7 @@ load File.join(HTML_DIR, 'test_document.rb')
 load File.join(XML_DIR, 'test_text.rb')
 load File.join(XML_DIR, 'test_xpath.rb')
 load File.join(XML_DIR, 'test_schema.rb')
+load File.join(XML_DIR, 'test_relax_ng.rb')
 load File.join(HTML_SAX_DIR, 'test_parser.rb')
 
 #suite = TestSuite.new "JRuby test"

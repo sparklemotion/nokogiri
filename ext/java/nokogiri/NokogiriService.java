@@ -39,7 +39,8 @@ public class NokogiriService implements BasicLibraryService{
         init_xml_reader(ruby, xml);
         RubyClass xmlSaxParser = init_xml_sax_parser(ruby, xml);
         init_html_sax_parser(ruby, html, xmlSaxParser);
-        RubyClass schema = init_xml_schema(ruby,xml);
+        RubyClass schema = init_xml_schema(ruby, xml);
+        init_xml_relaxng(ruby, xml, schema);
         init_xml_syntax_error(ruby, xml, nokogiri);
         RubyClass text = init_xml_text(ruby, xml, node);
         init_xml_cdata(ruby, xml, text);
@@ -125,6 +126,12 @@ public class NokogiriService implements BasicLibraryService{
         RubyClass reader = xml.defineClassUnder("Reader", ruby.getObject(), XML_READER_ALLOCATOR);
 
         reader.defineAnnotatedMethods(XmlReader.class);
+    }
+
+    public static void init_xml_relaxng(Ruby ruby, RubyModule xml, RubyClass schema) {
+        RubyClass relaxng = xml.defineClassUnder("RelaxNG", schema, XML_RELAXNG_ALLOCATOR);
+
+        relaxng.defineAnnotatedMethods(XmlRelaxng.class);
     }
 
     public static RubyClass init_xml_sax_parser(Ruby ruby, RubyModule xml) {
@@ -256,6 +263,12 @@ public class NokogiriService implements BasicLibraryService{
             return new XmlReader(runtime, klazz);
         }
 
+    };
+
+    private static ObjectAllocator XML_RELAXNG_ALLOCATOR = new ObjectAllocator() {
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            return new XmlRelaxng(runtime, klazz);
+        }
     };
 
     private static ObjectAllocator XML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {

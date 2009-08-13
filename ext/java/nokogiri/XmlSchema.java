@@ -29,30 +29,44 @@ import org.xml.sax.SAXException;
  */
 public class XmlSchema extends RubyObject {
 
-    protected final String URI = XMLConstants.W3C_XML_SCHEMA_NS_URI;
-
-    protected Schema schema;
-    private final SchemaFactory schemaFactory;
+    protected Source source;
 
     public XmlSchema(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
-        this.schemaFactory = SchemaFactory.newInstance(this.URI);
     }
 
-    private static XmlSchema createSchemaFromSource(ThreadContext context,
-            IRubyObject klazz, Source source) {
-        Ruby ruby = context.getRuntime();
+    private Schema getSchema(ThreadContext context) {
 
-        XmlSchema schema = new XmlSchema(ruby, (RubyClass) klazz);
+        Schema schema = null;
+
+        String uri=XMLConstants.W3C_XML_SCHEMA_NS_URI;
 
         try {
-            schema.schema = schema.schemaFactory.newSchema(source);
+            schema = SchemaFactory.newInstance(uri)
+                    .newSchema(source);
         } catch(SAXException ex) {
-            throw ruby.newRuntimeError("Could not parse document");
+            throw context.getRuntime()
+                    .newRuntimeError("Could not parse document: "+ex.getMessage());
         }
 
-        schema.setInstanceVariable("@errors", ruby.newEmptyArray());
+        return schema;
+    }
 
+    protected static XmlSchema createSchemaWithSource(ThreadContext context,
+            RubyClass klazz, Source source) {
+        Ruby ruby = context.getRuntime();
+        XmlSchema schema = null;
+        if( klazz.ancestors(context)
+                .include_p(context,
+                    ruby.getClassFromPath("Nokogiri::XML::RelaxNG"))
+                .isTrue()) {
+            schema = new XmlRelaxng(ruby, klazz);
+        } else {
+            schema = new XmlSchema(ruby, klazz);
+        }
+        schema.source = source;
+
+        schema.setInstanceVariable("@errors", ruby.newEmptyArray());
         return schema;
     }
 
@@ -68,14 +82,14 @@ public class XmlSchema extends RubyObject {
         }
 
         DOMSource source = new DOMSource(doc.getDocument());
-        
+
         IRubyObject uri = doc.url(context);
         
         if(!uri.isNil()) {
             source.setSystemId(uri.convertToString().asJavaString());
         }
 
-        return createSchemaFromSource(context, klazz, source);
+        return createSchemaWithSource(context, (RubyClass) klazz, source);
     }
 
     @JRubyMethod(meta=true)
@@ -84,7 +98,7 @@ public class XmlSchema extends RubyObject {
         
         String data = content.convertToString().asJavaString();
 
-        return createSchemaFromSource(context, klazz,
+        return createSchemaWithSource(context, (RubyClass) klazz,
                 new StreamSource(new StringReader(data)));
     }
 
@@ -92,11 +106,13 @@ public class XmlSchema extends RubyObject {
     public IRubyObject validate_document(ThreadContext context, IRubyObject document) {
         Ruby ruby = context.getRuntime();
 
+        Schema schema = this.getSchema(context);
+
         Document doc = ((XmlDocument) document).getDocument();
 
-        DOMSource source = new DOMSource(doc);
+        DOMSource docSource = new DOMSource(doc);
 
-        Validator validator = this.schema.newValidator();
+        Validator validator = schema.newValidator();
 
         RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
         ErrorHandler errorHandler = new SchemaErrorHandler(ruby, errors);
@@ -104,7 +120,7 @@ public class XmlSchema extends RubyObject {
         validator.setErrorHandler(errorHandler);
 
         try{
-            validator.validate(source);
+            validator.validate(docSource);
         } catch(SAXException ex) {
             errors.append(new XmlSyntaxError(ruby, ex));
         } catch (IOException ex) {
@@ -113,7 +129,4 @@ public class XmlSchema extends RubyObject {
 
         return errors;
     }
-
-
-
 }

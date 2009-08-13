@@ -11,10 +11,12 @@ if ENV['NOKOGIRI_FFI']
   require 'ffi'
   require 'nokogiri/ffi/libxml'
 elsif defined? RUBY_ENGINE && RUBY_ENGINE == "jruby"
+  require 'isorelax.jar'
+  require 'jing.jar'
   require 'nekohtml.jar'
   require 'xercesImpl.jar'
   require 'nokogiri/nokogiri'
-else # Both MRI and JRuby!
+else
   require 'nokogiri/nokogiri'
 end
 

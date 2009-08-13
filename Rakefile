@@ -143,7 +143,7 @@ end
 task JAVA_EXT do
   Dir.chdir('ext/java') do
     LIB_DIR = '../../lib'
-    CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/xercesImpl.jar"
+    CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
     sh "javac -cp #{CLASSPATH} nokogiri/*.java nokogiri/internals/*.java"
     sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class nokogiri/internals/*.class"
   end
