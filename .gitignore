@@ -1,8 +1,8 @@
 .*.swp
 *.tmproj
 ext/nokogiri/*.class
-**.jar
 lib/nokogiri/nokogiri.so
+lib/nokogiri/nokogiri.jar
 lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb
 cross
