@@ -52,7 +52,6 @@ module Nokogiri
           end
 
           def my_filter set, attribute, value
-            puts "#{set.class}:#{attribute.class}:#{value.class}"
             set.find_all { |x| x[attribute] == value }
           end
         }.new

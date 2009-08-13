@@ -14,7 +14,6 @@ public class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
     private IRubyObject handler;
     
     public NokogiriXPathFunctionResolver(IRubyObject handler) {
-        System.out.println("Created handler");
         this.handler = handler;
     }
 
