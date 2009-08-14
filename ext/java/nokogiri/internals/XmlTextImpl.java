@@ -26,7 +26,9 @@ public class XmlTextImpl extends XmlNodeImpl {
 
     @Override
     public void saveContent(ThreadContext context, XmlNode current, SaveContext ctx) {
-        ctx.append(ctx.getCurrentIndentString());
+        if(ctx.format()) {
+            ctx.append(ctx.getCurrentIndentString());
+        }
         ctx.append(current.content(context).convertToString().asJavaString());
     }
 

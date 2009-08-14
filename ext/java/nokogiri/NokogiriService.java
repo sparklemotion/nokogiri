@@ -181,7 +181,7 @@ public class NokogiriService implements BasicLibraryService{
 
     public static void init_xslt_stylesheet(Ruby ruby, RubyModule nokogiri) {
         RubyModule xslt = nokogiri.defineModuleUnder("XSLT");
-        RubyClass stylesheet = xslt.defineClassUnder("Sylesheet", ruby.getObject(), XSLT_STYLESHEET_ALLOCATOR);
+        RubyClass stylesheet = xslt.defineClassUnder("Stylesheet", ruby.getObject(), XSLT_STYLESHEET_ALLOCATOR);
 
         stylesheet.defineAnnotatedMethods(XsltStylesheet.class);
     }
@@ -309,7 +309,7 @@ public class NokogiriService implements BasicLibraryService{
 
     private static ObjectAllocator XSLT_STYLESHEET_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
+            return new XsltStylesheet(runtime, klazz);
         }
     };
 }

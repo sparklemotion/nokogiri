@@ -151,9 +151,8 @@ public class XmlElementImpl extends XmlNodeImpl {
             ctx.increaseLevel();
             this.saveNodeListContent(context, children, ctx);
             ctx.decreaseLevel();
+            if(ctx.format()) ctx.append(ctx.getCurrentIndentString());
         }
-
-        if(ctx.format()) ctx.append(ctx.getCurrentIndentString());
 
         ctx.append("</");
         ctx.append(e.getNodeName());

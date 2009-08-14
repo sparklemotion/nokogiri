@@ -10,7 +10,11 @@ end
 
 require 'nokogiri'
 
-warn "#{__FILE__}:#{__LINE__}: libxml version info: #{Nokogiri::VERSION_INFO.inspect}"
+if Nokogiri.uses_libxml?
+  warn "#{__FILE__}:#{__LINE__}: libxml version info: #{Nokogiri::VERSION_INFO.inspect}"
+else
+  warn "#{__FILE__}:#{__LINE__}: pure java version"
+end
 
 module Nokogiri
   class TestCase < Test::Unit::TestCase
