@@ -51,7 +51,8 @@ class TestXsltTransforms < Nokogiri::TestCase
       assert doc.xml?
 
       assert result_string = style.apply_to(doc, ['title', '"Booyah"'])
-      assert_equal result_string, style.serialize(result_doc)
+      
+      assert_equal result_string, result_doc.to_s
     end
 
     def test_quote_params

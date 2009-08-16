@@ -285,8 +285,6 @@ public class XmlNodeImpl {
             XmlNode cur = (XmlNode) array.aref(context.getRuntime().newFixnum(i));
 
             cur.saveContentAsHtml(context, ctx);
-
-            if(ctx.format()) ctx.append("\n");
         }
     }
 

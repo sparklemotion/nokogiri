@@ -171,8 +171,8 @@ public class XmlElementImpl extends XmlNodeImpl {
         this.saveNodeListContentAsHtml(context, (RubyArray) current.attribute_nodes(context), ctx);
 
         ctx.append(">");
-        
-        Node next = e.getNextSibling();
+
+        Node next = e.getFirstChild();
         Node parent = e.getParentNode();
         if(ctx.format() && next != null &&
                 next.getNodeType() != Node.TEXT_NODE &&
@@ -184,7 +184,7 @@ public class XmlElementImpl extends XmlNodeImpl {
         }
 
         if(e.getChildNodes().getLength() == 0) {
-            ctx.append("></");
+            ctx.append("</");
             ctx.append(e.getNodeName());
             ctx.append(">");
             if(ctx.format() && next != null &&
@@ -197,8 +197,6 @@ public class XmlElementImpl extends XmlNodeImpl {
             }
             return;
         }
-
-        ctx.append(">");
 
         XmlNodeSet children = (XmlNodeSet) current.children(context);
 

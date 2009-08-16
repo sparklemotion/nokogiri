@@ -72,12 +72,11 @@ module Nokogiri
           (document.root ? document.root.namespaces : {})
 
         sub_set = NodeSet.new(document)
-#        each do |node|
-          paths.each do |path|
-            sub_set +=
-              send(path =~ /^(\.\/|\/)/ ? :xpath : :css, *(paths + [ns]))
-          end
-#        end
+
+        paths.each do |path|
+          sub_set += send(path =~ /^(\.\/|\/)/ ? :xpath : :css, *(paths + [ns]))
+        end
+
         document.decorate(sub_set)
         sub_set
       end
@@ -280,6 +279,7 @@ module Nokogiri
         inject(NodeSet.new(document)) { |set, node| set += node.children }
       end
 
+      alias :+ :|
     end
   end
 end

@@ -618,7 +618,11 @@ public class XmlNode extends RubyObject {
                 indentString.convertToString().asJavaString(),
                 encString);
 
-        this.saveContent(context, ctx);
+        if(ctx.asHtml()){
+            this.saveContentAsHtml(context, ctx);
+        } else {
+            this.saveContent(context, ctx);
+        }
 
         RuntimeHelpers.invoke(context, io, "write", context.getRuntime().newString(ctx.toString()));
 

@@ -77,6 +77,7 @@ public class XsltStylesheet extends RubyObject {
 
     @JRubyMethod
     public IRubyObject serialize(ThreadContext context, IRubyObject doc) {
+        System.out.println("Serialize called in stylesheet");
         return RuntimeHelpers.invoke(context,
                 RuntimeHelpers.invoke(context, doc, "root"),
                 "to_s");

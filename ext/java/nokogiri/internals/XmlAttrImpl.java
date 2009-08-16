@@ -85,7 +85,9 @@ public class XmlAttrImpl extends XmlNodeImpl{
             String value = attr.getValue();
             if(value != null) {
                 ctx.append("=");
+                ctx.append("\"");
                 ctx.append(NokogiriHelpers.encodeJavaString(attr.getValue()));
+                ctx.append("\"");
             } else {
                 ctx.append("=\"\"");
             }
