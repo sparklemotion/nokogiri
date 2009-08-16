@@ -34,6 +34,7 @@ public class NokogiriService implements BasicLibraryService{
         init_xml_document_fragment(ruby, xml, node);
         init_xml_dtd(ruby, xml, node);
         init_xml_element(ruby, xml, node);
+        init_xml_entity_reference(ruby, xml, node);
         init_xml_namespace(ruby, xml);
         init_xml_node_set(ruby, xml);
         init_xml_reader(ruby, xml);
@@ -104,6 +105,12 @@ public class NokogiriService implements BasicLibraryService{
         RubyClass element = xml.defineClassUnder("Element", node, XML_ELEMENT_ALLOCATOR);
 
         element.defineAnnotatedMethods(XmlElement.class);
+    }
+
+    public static void init_xml_entity_reference(Ruby ruby, RubyModule xml, RubyClass node) {
+        RubyClass entref = xml.defineClassUnder("EntityReference", node, XML_ENTITY_REFERENCE_ALLOCATOR);
+
+        entref.defineAnnotatedMethods(XmlEntityReference.class);
     }
 
     public static void init_xml_namespace(Ruby ruby, RubyModule xml) {
@@ -237,6 +244,12 @@ public class NokogiriService implements BasicLibraryService{
     private static ObjectAllocator XML_ELEMENT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             return new XmlElement(runtime, klazz);
+        }
+    };
+
+    private static ObjectAllocator XML_ENTITY_REFERENCE_ALLOCATOR = new ObjectAllocator() {
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            return new XmlEntityReference(runtime, klazz);
         }
     };
 

@@ -312,6 +312,7 @@ public class XmlNodeImpl {
             case Node.DOCUMENT_FRAGMENT_NODE: return new XmlDocumentFragmentImpl(ruby, node);
             case Node.DOCUMENT_NODE: return new XmlDocumentImpl(ruby, ((Document) node));
             case Node.ELEMENT_NODE: return new XmlElementImpl(ruby, node);
+            case Node.ENTITY_REFERENCE_NODE: return new XmlEntityReferenceImpl(ruby, node);
             case Node.PROCESSING_INSTRUCTION_NODE: return new XmlProcessingInstructionImpl(ruby, node);
             case Node.TEXT_NODE : return new XmlTextImpl(ruby, node);
             default: return new XmlNodeImpl(ruby, node);

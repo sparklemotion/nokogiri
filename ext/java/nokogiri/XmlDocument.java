@@ -120,27 +120,35 @@ public class XmlDocument extends XmlNode {
     public static IRubyObject read_io(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         
         Ruby ruby = context.getRuntime();
-        Arity.checkArgumentCount(ruby, args, 4, 4);
-        ParseOptions options = new ParseOptions(args[3]);
-        try {
-            Document document;
-            if (args[0] instanceof RubyIO) {
-                RubyIO io = (RubyIO)args[0];
-                document = options.parse(io.getInStream());
-                XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
-                doc.setUrl(args[1]);
-                options.addErrorsIfNecessary(context, doc);
-                return doc;
-            } else {
-                throw ruby.newTypeError("Only IO supported for Document.read_io currently");
-            }
-        } catch (ParserConfigurationException pce) {
-            return options.getDocumentWithErrorsOrRaiseException(context, pce);
-        } catch (SAXException saxe) {
-            return options.getDocumentWithErrorsOrRaiseException(context, saxe);
-        } catch (IOException ioe) {
-            return options.getDocumentWithErrorsOrRaiseException(context, ioe);
-        }
+        
+        IRubyObject content = RuntimeHelpers.invoke(context, args[0], "read");
+        args[0] = content;
+        
+        return read_memory(context, cls, args);
+
+
+
+//        Arity.checkArgumentCount(ruby, args, 4, 4);
+//        ParseOptions options = new ParseOptions(args[3]);
+//        try {
+//            Document document;
+//            if (args[0] instanceof RubyIO) {
+//                RubyIO io = (RubyIO)args[0];
+//                document = options.parse(io.getInStream());
+//                XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
+//                doc.setUrl(args[1]);
+//                options.addErrorsIfNecessary(context, doc);
+//                return doc;
+//            } else {
+//                throw ruby.newTypeError("Only IO supported for Document.read_io currently");
+//            }
+//        } catch (ParserConfigurationException pce) {
+//            return options.getDocumentWithErrorsOrRaiseException(context, pce);
+//        } catch (SAXException saxe) {
+//            return options.getDocumentWithErrorsOrRaiseException(context, saxe);
+//        } catch (IOException ioe) {
+//            return options.getDocumentWithErrorsOrRaiseException(context, ioe);
+//        }
     }
 
     @JRubyMethod(meta = true, rest = true)

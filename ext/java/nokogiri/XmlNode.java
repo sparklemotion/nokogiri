@@ -28,6 +28,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -151,6 +152,8 @@ public class XmlNode extends RubyObject {
                 return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDeclaration"), node);
             case Node.CDATA_SECTION_NODE:
                 return new XmlCdata(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"), node);
+            case Node.DOCUMENT_NODE:
+                return new XmlDocument(ruby, (Document) node);
             case Node.DOCUMENT_TYPE_NODE:
                 return new XmlDtd(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DTD"), node);
             default:
@@ -219,6 +222,11 @@ public class XmlNode extends RubyObject {
         return result.toString();
     }
 
+    @JRubyMethod
+    public IRubyObject internal_node(ThreadContext context) {
+        return context.getRuntime().newData(this.getType(), this.getNode());
+    }
+
     public boolean isComment() { return this.internalNode.methods().isComment(); }
 
     public boolean isElement() { return this.internalNode.methods().isElement(); }
@@ -229,7 +237,7 @@ public class XmlNode extends RubyObject {
      * A more rubyist way to get the internal node.
      */
 
-    protected Node node() {
+    public Node node() {
         return this.getNode();
     }
 
@@ -396,7 +404,11 @@ public class XmlNode extends RubyObject {
         IRubyObject previousSibling = this.previous_sibling(context);
         XmlNode otherNode = asXmlNode(context, node);
 
-        this.node().getParentNode().insertBefore(otherNode.node(), this.node());
+        try{
+            this.node().getParentNode().insertBefore(otherNode.node(), this.node());
+        } catch (DOMException ex) {
+            throw context.getRuntime().newRuntimeError("This should not happen: "+ex.getMessage());
+        }
         RuntimeHelpers.invoke(context , otherNode, "decorate!");
 
         coalesceTextNodesInteligently(context, previousSibling, otherNode, this);
@@ -409,7 +421,7 @@ public class XmlNode extends RubyObject {
         NamedNodeMap attrs = this.node().getAttributes();
         Node attr = attrs.getNamedItem(name.convertToString().asJavaString());
         if(attr == null) {
-            return  context.getRuntime().getNil();
+            return  context.getRuntime().newString(ERR_INSECURE_SET_INST_VAR);
         }
         return constructNode(context.getRuntime(), attr);
     }
@@ -534,13 +546,8 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject encode_special_chars(ThreadContext context, IRubyObject string) {
         String s = string.convertToString().asJavaString();
-        // From entities.c
-        s = s.replaceAll("&", "&amp;");
-        s = s.replaceAll("<", "&lt;");
-        s = s.replaceAll(">", "&gt;");
-        s = s.replaceAll("\"", "&quot;");
-        s = s.replaceAll("\r", "&#13;");
-        return RubyString.newString(context.getRuntime(), s);
+        return RubyString.newString(context.getRuntime(),
+                NokogiriHelpers.encodeJavaString(s));
     }
 
     @JRubyMethod(visibility = Visibility.PRIVATE)
@@ -708,6 +715,11 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(name="replace_with_node", visibility=Visibility.PROTECTED)
     public IRubyObject replace(ThreadContext context, IRubyObject newNode) {
         Node otherNode = getNodeFromXmlNode(context, newNode);
+
+        if(!otherNode.getOwnerDocument().equals(node().getOwnerDocument())) {
+            node().getOwnerDocument().adoptNode(otherNode);
+        }
+
         node().getParentNode().replaceChild(otherNode, node());
 
         ((XmlNode) newNode).relink_namespace(context);

@@ -34,6 +34,26 @@ public class XmlAttrImpl extends XmlNodeImpl{
         return false;
     }
 
+    private String serializeAttrTextContent(String s) {
+        char[] c = s.toCharArray();
+        StringBuffer buffer = new StringBuffer(c.length);
+
+        for(int i = 0; i < c.length; i++) {
+            switch(c[i]){
+                case '\n': buffer.append("&#10;"); break;
+                case '\r': buffer.append("&#13;"); break;
+                case '\t': buffer.append("&#9;"); break;
+                case '"': buffer.append("&quot;"); break;
+                case '<': buffer.append("&lt;"); break;
+                case '>': buffer.append("&gt;"); break;
+                case '&': buffer.append("&amp;"); break;
+                default: buffer.append(c[i]);
+            }
+        }
+
+        return buffer.toString();
+    }
+
     @Override
     protected int getNokogiriNodeTypeInternal() { return 2; }
 
@@ -50,7 +70,7 @@ public class XmlAttrImpl extends XmlNodeImpl{
         ctx.append(" ");
         ctx.append(attr.getNodeName());
         ctx.append("=\"");
-        ctx.append(attr.getValue());
+        ctx.append(serializeAttrTextContent(attr.getValue()));
         ctx.append("\"");
     }
 
@@ -65,7 +85,7 @@ public class XmlAttrImpl extends XmlNodeImpl{
             String value = attr.getValue();
             if(value != null) {
                 ctx.append("=");
-                ctx.append(attr.getValue());
+                ctx.append(NokogiriHelpers.encodeJavaString(attr.getValue()));
             } else {
                 ctx.append("=\"\"");
             }

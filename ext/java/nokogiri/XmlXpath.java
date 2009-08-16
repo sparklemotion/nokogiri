@@ -10,7 +10,6 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -41,7 +40,7 @@ public class XmlXpath extends RubyObject {
         try {
             NodeList nodes = (NodeList)xpath.evaluate(this.context, XPathConstants.NODESET);
             XmlNodeSet result = new XmlNodeSet(context.getRuntime(), nodes);
-            result.relink_namespace(context);
+//            result.relink_namespace(context);
             result.setInstanceVariable("@document", contextNode.document(context));
             return result;
         } catch (XPathExpressionException xpee) {

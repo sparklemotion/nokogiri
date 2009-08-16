@@ -5,20 +5,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import nokogiri.internals.NokogiriHandler;
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyIO;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.jruby.util.TypeConverter;
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -53,7 +50,7 @@ public class XmlSaxParser extends RubyObject {
             reader.parse(new InputSource(bais));
             return data;
         } catch (SAXException se) {
-            throw RaiseException.createNativeRaiseException(context.getRuntime(), se);
+            throw context.getRuntime().newRuntimeError(se.getMessage());
         } catch (IOException ioe) {
             throw context.getRuntime().newIOErrorFromException(ioe);
         }
@@ -66,7 +63,7 @@ public class XmlSaxParser extends RubyObject {
             reader.parse(new InputSource(new FileInputStream(filename)));
             return data;
         } catch (SAXException se) {
-            throw RaiseException.createNativeRaiseException(context.getRuntime(), se);
+            throw context.getRuntime().newRuntimeError(se.getMessage());
         } catch (IOException ioe) {
             throw context.getRuntime().newIOErrorFromException(ioe);
         }
@@ -80,7 +77,7 @@ public class XmlSaxParser extends RubyObject {
             reader.parse(new InputSource(io.getInStream()));
             return data;
         } catch (SAXException se) {
-            throw RaiseException.createNativeRaiseException(context.getRuntime(), se);
+            throw context.getRuntime().newRuntimeError(se.getMessage());
         } catch (IOException ioe) {
             throw context.getRuntime().newIOErrorFromException(ioe);
         }

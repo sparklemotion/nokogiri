@@ -4,7 +4,7 @@ class TestNokogiri < Nokogiri::TestCase
   def test_versions
     version_match = /\d+\.\d+\.\d+/
     assert_match version_match, Nokogiri::VERSION
-    assert_match version_match, Nokogiri::LIBXML_VERSION
+    assert_match version_match, Nokogiri::LIBXML_VERSION if Nokogiri.uses_libxml?
 
     if defined?(FFI)
       assert_equal 'ffi', Nokogiri::VERSION_INFO['libxml']['binding']
@@ -14,7 +14,7 @@ class TestNokogiri < Nokogiri::TestCase
         assert_equal 'ruby', Nokogiri::VERSION_INFO['libxml']['platform']
       end
       assert Nokogiri.ffi?
-    else
+    elsif Nokogiri.uses_libxml?
       assert_equal 'extension', Nokogiri::VERSION_INFO['libxml']['binding']
 
       assert_match version_match, Nokogiri::VERSION_INFO['libxml']['compiled']

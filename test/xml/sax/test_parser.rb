@@ -257,11 +257,13 @@ module Nokogiri
                        @parser.document.start_elements
         end
 
-        def test_parse_document
-          @parser.parse_memory(<<-eoxml)
-            <p>Paragraph 1</p>
-            <p>Paragraph 2</p>
-          eoxml
+        if Nokogiri.uses_libxml? # JRuby SAXParser only parses well-formed XML documents
+          def test_parse_document
+            @parser.parse_memory(<<-eoxml)
+              <p>Paragraph 1</p>
+              <p>Paragraph 2</p>
+            eoxml
+          end
         end
       end
     end

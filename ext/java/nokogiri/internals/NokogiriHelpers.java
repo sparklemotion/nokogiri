@@ -259,6 +259,16 @@ public class NokogiriHelpers {
                 (n.getPrefix().equals(m.getPrefix()))));
     }
 
+    public static String encodeJavaString(String s) {
+
+        // From entities.c
+        s = s.replaceAll("&", "&amp;");
+        s = s.replaceAll("<", "&lt;");
+        s = s.replaceAll(">", "&gt;");
+//        s = s.replaceAll("\"", "&quot;");
+        return s.replaceAll("\r", "&#13;");
+    }
+
     public static String getNodeName(Node node) {
         if(node == null) { System.out.println("node is null"); return ""; }
         String name = node.getNodeName();

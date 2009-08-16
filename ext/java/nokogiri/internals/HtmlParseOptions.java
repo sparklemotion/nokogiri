@@ -6,14 +6,8 @@ import java.io.StringReader;
 import javax.xml.parsers.ParserConfigurationException;
 import nokogiri.XmlDocument;
 import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.xni.Augmentations;
-import org.apache.xerces.xni.QName;
-import org.apache.xerces.xni.XMLAttributes;
-import org.apache.xerces.xni.XNIException;
-import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.cyberneko.html.HTMLConfiguration;
-import org.cyberneko.html.filters.DefaultFilter;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
@@ -46,8 +40,9 @@ public class HtmlParseOptions extends ParseOptions{
     public Document parse(InputSource input)
             throws ParserConfigurationException, SAXException, IOException {
         XMLParserConfiguration config = new HTMLConfiguration();
-        config.setProperty("http://cyberneko.org/html/properties/names/elems", "match");
-        config.setProperty("http://cyberneko.org/html/properties/names/attrs", "no-change");
+        config.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
+        config.setProperty("http://cyberneko.org/html/properties/names/attrs", "lower");
+
         DOMParser parser = new DOMParser(config);
 //        parser.setProperty("http://cyberneko.org/html/properties/filters",
 //              new XMLDocumentFilter[] { new DefaultFilter() {

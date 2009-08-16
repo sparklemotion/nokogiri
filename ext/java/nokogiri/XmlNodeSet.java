@@ -35,7 +35,9 @@ public class XmlNodeSet extends RubyObject {
         this.nodes = nodes;
     }
 
-    public XmlDocument getDocument() { return this.doc; }
+    public XmlDocument getDocument() {
+        return (XmlDocument) this.getInstanceVariable("@document");
+    }
 
     public static IRubyObject newEmptyNodeSet(ThreadContext context) {
         Ruby ruby = context.getRuntime();
@@ -99,9 +101,9 @@ public class XmlNodeSet extends RubyObject {
         return newXmlNodeSet(context, (RubyArray) nodes.op_diff(asXmlNodeSet(context, nodeSet).nodes));
     }
 
-    @JRubyMethod(name="+")
-    public IRubyObject op_plus(ThreadContext context, IRubyObject nodeSet){
-        return newXmlNodeSet(context, (RubyArray) nodes.op_plus(asXmlNodeSet(context, nodeSet).nodes));
+    @JRubyMethod(name={"|", "+"})
+    public IRubyObject op_or(ThreadContext context, IRubyObject nodeSet){
+        return newXmlNodeSet(context, (RubyArray) nodes.op_or(asXmlNodeSet(context, nodeSet).nodes));
     }
 
     @JRubyMethod
