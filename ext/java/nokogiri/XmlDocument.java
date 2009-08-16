@@ -9,7 +9,6 @@ import nokogiri.internals.XmlDocumentImpl;
 import nokogiri.internals.XmlEmptyDocumentImpl;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyIO;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;

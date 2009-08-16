@@ -4,7 +4,6 @@ import nokogiri.HtmlDocument;
 import nokogiri.XmlDocument;
 import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
-import org.apache.html.dom.HTMLDocumentImpl;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;

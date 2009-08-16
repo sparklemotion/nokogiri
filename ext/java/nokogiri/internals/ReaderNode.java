@@ -1,13 +1,10 @@
 package nokogiri.internals;
 
-import nokogiri.internals.*;
 import nokogiri.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyHash;
