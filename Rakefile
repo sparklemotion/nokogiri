@@ -10,6 +10,7 @@ java    = RUBY_PLATFORM =~ /java/
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 
+EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml xercesImpl}.map{|x| "lib/#{x}.jar"}
 JAVA_EXT = "lib/nokogiri/nokogiri.jar"
 JRUBY_HOME = Config::CONFIG['prefix']
 
@@ -137,7 +138,7 @@ namespace :gem do
     task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'java'
-        HOE.spec.files += [GENERATED_PARSER, GENERATED_TOKENIZER, JAVA_EXT]
+	HOE.spec.files += [GENERATED_PARSER, GENERATED_TOKENIZER, JAVA_EXT] + EXTERNAL_JAVA_LIBRARIES
         HOE.spec.extensions = []
         f.write(HOE.spec.to_ruby)
       end
@@ -225,7 +226,7 @@ libs.each do |lib|
     Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
     Rake::Task[:cross].prerequisites << "cross:file_list"
   end
-  Rake::Task['gem:jruby:spec'].prerequisites << "ext/nokogiri/#{lib_dlls[lib]}"
+
 end
 
 require 'tasks/test'
