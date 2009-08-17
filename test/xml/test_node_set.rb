@@ -26,6 +26,28 @@ module Nokogiri
         assert_equal @xml.xpath('//employee'), custom_employees
       end
 
+      def test_css_with_custom_object
+        set = @xml.xpath('//staff')
+        custom_employees = set.css('*:awesome', Class.new {
+          def awesome ns
+            ns.select { |n| n.name == 'employee' }
+          end
+        }.new)
+
+        assert_equal @xml.xpath('//employee'), custom_employees
+      end
+
+      def test_search_with_custom_object
+        set = @xml.xpath('//staff')
+        custom_employees = set.search('//*[awesome(.)]', Class.new {
+          def awesome ns
+            ns.select { |n| n.name == 'employee' }
+          end
+        }.new)
+
+        assert_equal @xml.xpath('//employee'), custom_employees
+      end
+
       def test_css_searches_match_self
         html = Nokogiri::HTML("<html><body><div class='a'></div></body></html>")
         set = html.xpath("/html/body/div")
