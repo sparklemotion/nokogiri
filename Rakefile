@@ -27,7 +27,7 @@ HOE = Hoe.spec 'nokogiri' do
   ]
 
   %w{ racc rexical rake-compiler }.each do |dep|
-    self.extra_dev_deps << dep
+    self.extra_dev_deps << [dep, '>= 0']
   end
 
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
