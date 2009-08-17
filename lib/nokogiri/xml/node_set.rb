@@ -110,12 +110,15 @@ module Nokogiri
       #
       # For more information see Nokogiri::XML::Node#xpath
       def xpath *paths
-        ns = paths.last.is_a?(Hash) ? paths.pop :
-          (document.root ? document.root.namespaces : {})
+        handler = ![
+          Hash, String, Symbol
+        ].include?(paths.last.class) ? paths.pop : nil
+
+        ns = paths.last.is_a?(Hash) ? paths.pop : nil
 
         sub_set = NodeSet.new(document)
         each do |node|
-          sub_set += node.xpath(*(paths + [ns]))
+          sub_set += node.xpath(*(paths + [ns, handler].compact))
         end
         document.decorate(sub_set)
         sub_set

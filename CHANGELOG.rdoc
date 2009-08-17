@@ -11,6 +11,7 @@
   * returns nil when HTML documents do not declare a meta encoding tag. GH #115
   * Uses RbConfig::CONFIG['host_os'] to adjust ENV['PATH'] GH #113
   * NodeSet#search is more efficient GH #119 (Thanks Serabe!)
+  * NodeSet#xpath handles custom xpath functions
 
 === 1.3.3 / 2009/07/26
 
