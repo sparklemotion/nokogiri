@@ -105,16 +105,52 @@ require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
   CLOBBER.include("ext/nokogiri/*.dll")
 end
 
-namespace :jruby do
-  task :clean do
+namespace :java do
+
+  desc "Removes all generated during compilation .class files."
+  task :clean_classes do
     (FileList['ext/java/nokogiri/internals/*.class'] + FileList['ext/java/nokogiri/*.class'] + FileList['ext/java/*.class']).to_a.each do |file|
       File.delete file
     end
   end
 
+  desc "Removes the generated .jar"
   task :clean_jar do
     FileList['lib/nokogiri/*.jar'].each{|f| File.delete f }
   end
+
+  desc  "Same as java:clean_classes and java:clean_jar"
+  task :clean_all => ["java:clean_classes", "java:clean_jar"]
+  
+  desc "Build a gem targetted for JRuby"
+  task :gem => ['java:spec'] do
+    system "gem build nokogiri.gemspec"
+    FileUtils.mkdir_p "pkg"
+    FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
+  end
+
+  task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER, :build] do
+    File.open("#{HOE.name}.gemspec", 'w') do |f|
+      HOE.spec.platform = 'java'
+      HOE.spec.files += [GENERATED_PARSER, GENERATED_TOKENIZER, JAVA_EXT] + EXTERNAL_JAVA_LIBRARIES
+      HOE.spec.extensions = []
+      f.write(HOE.spec.to_ruby)
+	  end
+  end
+
+  task :spec => ['gem:dev:spec']
+
+  desc "Build external library"
+  task :build_external do
+    Dir.chdir('ext/java') do
+      LIB_DIR = '../../lib'
+      CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
+      sh "javac -cp #{CLASSPATH} nokogiri/*.java nokogiri/internals/*.java"
+      sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class nokogiri/internals/*.class"
+    end
+  end
+
+  task :build => ["java:clean_jar", "java:build_external", "java:clean_classes"]
 end
 
 namespace :gem do
@@ -127,7 +163,7 @@ namespace :gem do
     end
   end
 
-  desc "Build a gem targetted for JRuby"
+  desc "Build a gem targetted for JRuby (FFI version)"
   task :jruby => ['gem:jruby:spec'] do
     system "gem build nokogiri.gemspec"
     FileUtils.mkdir_p "pkg"
@@ -138,12 +174,15 @@ namespace :gem do
     task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'java'
-	HOE.spec.files += [GENERATED_PARSER, GENERATED_TOKENIZER, JAVA_EXT] + EXTERNAL_JAVA_LIBRARIES
+        HOE.spec.files << GENERATED_PARSER
+        HOE.spec.files << GENERATED_TOKENIZER
+        HOE.spec.files += Dir["ext/nokogiri/*.dll"]
         HOE.spec.extensions = []
         f.write(HOE.spec.to_ruby)
       end
     end
   end
+
 
   task :spec => ['gem:dev:spec']
 end
@@ -166,16 +205,6 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   end
 end
 
-task JAVA_EXT do
-  Dir.chdir('ext/java') do
-    LIB_DIR = '../../lib'
-    CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
-    sh "javac -cp #{CLASSPATH} nokogiri/*.java nokogiri/internals/*.java"
-    sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class nokogiri/internals/*.class"
-  end
-end
-
-task :build => ["jruby:clean_jar", JAVA_EXT, "jruby:clean"]
 #task :build => [JAVA_EXT, GENERATED_PARSER, GENERATED_TOKENIZER]
 
 libs = %w{
@@ -226,7 +255,7 @@ libs.each do |lib|
     Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
     Rake::Task[:cross].prerequisites << "cross:file_list"
   end
-
+  Rake::Task['gem:jruby:spec'].prerequisites << "ext/nokogiri/#{lib_dlls[lib]}"
 end
 
 require 'tasks/test'
