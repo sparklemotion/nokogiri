@@ -558,8 +558,9 @@ void init_xml_reader()
   rb_define_method(klass, "attribute", reader_attribute, 1);
   rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "attribute_at", attribute_at, 1);
-  rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "attributes?", attributes_eh, 0);
   rb_define_method(klass, "value?", value_eh, 0);
   rb_define_method(klass, "default?", default_eh, 0);
+
+  rb_define_private_method(klass, "attr_nodes", attribute_nodes, 0);
 }

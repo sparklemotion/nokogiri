@@ -12,6 +12,7 @@
   * Uses RbConfig::CONFIG['host_os'] to adjust ENV['PATH'] GH #113
   * NodeSet#search is more efficient GH #119 (Thanks Serabe!)
   * NodeSet#xpath handles custom xpath functions
+  * Fixing a SEGV when XML::Reader gets attributes for current node
 
 === 1.3.3 / 2009/07/26
 

@@ -55,6 +55,14 @@ module Nokogiri
       end
 
       ###
+      # Get a list of attributes for the current node
+      def attribute_nodes
+        nodes = attr_nodes
+        nodes.each { |v| v.instance_variable_set(:@_r, self) }
+        nodes
+      end
+
+      ###
       # Move the cursor through the document yielding each node to the block
       def each(&block)
         while node = self.read
