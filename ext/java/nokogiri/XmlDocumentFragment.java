@@ -46,7 +46,8 @@ public class XmlDocumentFragment extends XmlNode {
 
         XmlDocument doc = (XmlDocument) argc[0];
 
-        XmlDocumentFragment fragment = new XmlDocumentFragment(context.getRuntime());
+        XmlDocumentFragment fragment = new XmlDocumentFragment(context.getRuntime(),
+                (RubyClass) cls);
         
         fragment.setDocument(doc);
         fragment.setNode(context.getRuntime(), doc.getDocument().createDocumentFragment());
