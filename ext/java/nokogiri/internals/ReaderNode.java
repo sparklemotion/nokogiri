@@ -248,8 +248,14 @@ class ClosingNode extends ReaderNode{
 }
 class ElementNode extends ReaderNode {
 
+    private static XmlDocument xmlDoc = null;
+
     public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth) {
         this.ruby = ruby;
+        if(xmlDoc == null) {
+            xmlDoc = (XmlDocument) XmlDocument.rbNew(ruby.getCurrentContext(),
+                ruby.getClassFromPath("Nokogiri::XML::Document"), new IRubyObject[0]);
+        }
         this.uri = (uri.equals("")) ? ruby.getNil() : toRubyString(uri);
         this.localName = toRubyString(localName);
         this.qName = toRubyString(qName);
@@ -264,27 +270,28 @@ class ElementNode extends ReaderNode {
     }
 
     private void parseAttrs(Attributes attrs) {
-        List<IRubyObject> arr = new ArrayList<IRubyObject>();
+        List<IRubyObject> arr = new ArrayList<IRubyObject>(attrs.getLength());
         Hashtable<IRubyObject,IRubyObject> hash = new Hashtable<IRubyObject,IRubyObject>();
 
         this.attributes = new Hashtable<IRubyObject, IRubyObject>();
         this.attributeValues = new IRubyObject[attrs.getLength()];
-
-        XmlDocument xmlDoc = (XmlDocument) XmlDocument.rbNew(ruby.getCurrentContext(),
-                ruby.getClassFromPath("Nokogiri::XML::Document"), new IRubyObject[0]);
         Document doc = xmlDoc.getDocument();
 
+        RubyString attrName;
+        RubyString attrValue;
+        String u, n, v;
+
         for(int i = 0; i < attrs.getLength(); i++){
-            String u = attrs.getURI(i);
-            String n = attrs.getQName(i);
-            String v = attrs.getValue(i);
-            RubyString attrName = ruby.newString(n);
-            RubyString attrValue = ruby.newString(v);
+            u = attrs.getURI(i);
+            n = attrs.getQName(i);
+            v = attrs.getValue(i);
+            attrName = ruby.newString(n);
+            attrValue = ruby.newString(v);
 
             this.attributeValues[i] = attrValue;
             this.attributes.put(attrName, attrValue);
             
-            if(isNamespace(attrs.getQName(i))){
+            if(isNamespace(n)){
                 hash.put(attrName, attrValue);
             } else {
                 Attr attr = doc.createAttributeNS(u,n);
