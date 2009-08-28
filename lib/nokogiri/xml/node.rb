@@ -406,8 +406,8 @@ module Nokogiri
       end
 
       # Get the inner_html for this node's Node#children
-      def inner_html
-        children.map { |x| x.to_html }.join
+      def inner_html *args
+        children.map { |x| x.to_html(*args) }.join
       end
 
       # Get the path to this node as a CSS expression
@@ -518,9 +518,11 @@ Node.replace requires a Node argument, and cannot accept a Document.
           :save_with  => args[1] || SaveOptions::FORMAT
         }
 
+        encoding = options[:encoding] || document.encoding
+
         outstring = ""
-        if document.encoding && outstring.respond_to?(:force_encoding)
-          outstring.force_encoding(Encoding.find(document.encoding))
+        if encoding && outstring.respond_to?(:force_encoding)
+          outstring.force_encoding(Encoding.find(encoding))
         end
         io = StringIO.new(outstring)
         write_to io, options, &block
