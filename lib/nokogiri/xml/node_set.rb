@@ -102,7 +102,8 @@ module Nokogiri
         sub_set = NodeSet.new(document)
 
         each do |node|
-          search_ns = ns || node.document.root.namespaces
+          doc = node.document
+          search_ns = ns || doc.root ? doc.root.namespaces : {}
 
           xpaths = paths.map { |rule|
             [

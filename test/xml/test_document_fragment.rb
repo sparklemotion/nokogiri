@@ -82,6 +82,15 @@ module Nokogiri
         fragment = Nokogiri::XML::Document.new.fragment(doc)
         assert_equal "<div>b</div>", fragment.to_s
       end
+
+      def test_fragment_children_search
+        fragment = Nokogiri::XML::Document.new.fragment(
+          '<div><p id="content">hi</p></div>'
+        )
+        css     = fragment.children.css('p')
+        xpath   = fragment.children.xpath('.//p')
+        assert_equal css, xpath
+      end
     end
   end
 end
