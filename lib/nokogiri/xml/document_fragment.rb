@@ -18,20 +18,37 @@ module Nokogiri
         '#document-fragment'
       end
 
+      ###
+      # Convert this DocumentFragment to a string
       def to_s
         children.to_s
       end
 
+      ###
+      # Convert this DocumentFragment to html
+      # See Nokogiri::XML::NodeSet#to_html
       def to_html *args
         children.to_html(*args)
       end
 
+      ###
+      # Convert this DocumentFragment to xhtml
+      # See Nokogiri::XML::NodeSet#to_xhtml
       def to_xhtml *args
         children.to_xhtml(*args)
       end
 
+      ###
+      # Convert this DocumentFragment to xml
+      # See Nokogiri::XML::NodeSet#to_xml
       def to_xml *args
         children.to_xml(*args)
+      end
+
+      ###
+      # Search this fragment.  See Nokogiri::XML::Node#css
+      def css *args
+        children.css(*args)
       end
 
       alias :serialize :to_s

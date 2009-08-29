@@ -91,6 +91,15 @@ module Nokogiri
         xpath   = fragment.children.xpath('.//p')
         assert_equal css, xpath
       end
+
+      def test_fragment_search
+        frag = Nokogiri::XML::Document.new.fragment '<p id="content">hi</p>'
+
+        p_tag = frag.css('#content').first
+        assert_equal 'p', p_tag.name
+
+        assert_equal p_tag, frag.xpath('./*[@id = \'content\']').first
+      end
     end
   end
 end
