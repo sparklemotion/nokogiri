@@ -8,6 +8,11 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_fragment
+        fragment = @html.fragment
+        assert_equal 0, fragment.children.length
+      end
+
       def test_document_takes_config_block
         options = nil
         Nokogiri::HTML(File.read(HTML_FILE), HTML_FILE) do |cfg|

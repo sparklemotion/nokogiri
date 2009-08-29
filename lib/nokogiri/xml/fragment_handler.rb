@@ -5,12 +5,8 @@ module Nokogiri
         @doc_started    = false
         @document       = node.document
         @stack          = [node]
-        @klass          = if node.kind_of?(Nokogiri::HTML::DocumentFragment)
-                            Nokogiri::HTML::DocumentFragment
-                          else
-                            Nokogiri::XML::DocumentFragment
-                          end
-        #
+        @html_eh        = node.kind_of? Nokogiri::HTML::DocumentFragment
+
         # the regexes used in start_element() and characters() anchor at
         # start-of-line, but we really only want them to anchor at
         # start-of-doc. so let's only save up to the first newline.
@@ -24,8 +20,9 @@ module Nokogiri
       end
 
       def start_element name, attrs = []
-        regex = (@klass == Nokogiri::HTML::DocumentFragment) ? %r{^\s*<#{Regexp.escape(name)}}i \
-                                                             : %r{^\s*<#{Regexp.escape(name)}}
+        regex = @html_eh ? %r{^\s*<#{Regexp.escape(name)}}i :
+                           %r{^\s*<#{Regexp.escape(name)}}
+
         @doc_started = true if @original_html =~ regex
         return unless @doc_started
 
