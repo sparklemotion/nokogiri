@@ -19,6 +19,8 @@ ext/nokogiri/nokogiri.c
 ext/nokogiri/nokogiri.h
 ext/nokogiri/xml_attr.c
 ext/nokogiri/xml_attr.h
+ext/nokogiri/xml_attribute_decl.c
+ext/nokogiri/xml_attribute_decl.h
 ext/nokogiri/xml_cdata.c
 ext/nokogiri/xml_cdata.h
 ext/nokogiri/xml_comment.c
@@ -142,6 +144,7 @@ lib/nokogiri/version.rb
 lib/nokogiri/version_warning.rb
 lib/nokogiri/xml.rb
 lib/nokogiri/xml/attr.rb
+lib/nokogiri/xml/attribute_decl.rb
 lib/nokogiri/xml/builder.rb
 lib/nokogiri/xml/cdata.rb
 lib/nokogiri/xml/document.rb
@@ -233,6 +236,7 @@ test/xml/node/test_subclass.rb
 test/xml/sax/test_parser.rb
 test/xml/sax/test_push_parser.rb
 test/xml/test_attr.rb
+test/xml/test_attribute_decl.rb
 test/xml/test_builder.rb
 test/xml/test_cdata.rb
 test/xml/test_comment.rb
@@ -241,6 +245,7 @@ test/xml/test_document_encoding.rb
 test/xml/test_document_fragment.rb
 test/xml/test_dtd.rb
 test/xml/test_dtd_encoding.rb
+test/xml/test_element_decl.rb
 test/xml/test_entity_reference.rb
 test/xml/test_namespace.rb
 test/xml/test_node.rb

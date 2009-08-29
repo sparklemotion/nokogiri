@@ -864,6 +864,9 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
     case XML_DTD_NODE:
       klass = cNokogiriXmlDtd;
       break;
+    case XML_ATTRIBUTE_DECL:
+      klass = cNokogiriXmlAttributeDecl;
+      break;
     default:
       klass = cNokogiriXmlNode;
   }

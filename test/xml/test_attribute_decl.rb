@@ -14,11 +14,35 @@ module Nokogiri
       end
 
       def test_class
-        assert_instance_of Nokogiri::XML::AttributeDeclaration, @attr_decl
+        assert_instance_of Nokogiri::XML::AttributeDecl, @attr_decl
       end
 
       def test_attributes
-        assert_equal [], @attr_decl.attributes
+        assert_raise NoMethodError do
+          @attr_decl.attributes
+        end
+      end
+
+      def test_namespace
+        assert_raise NoMethodError do
+          @attr_decl.namespace
+        end
+      end
+
+      def test_namespace_definitions
+        assert_raise NoMethodError do
+          @attr_decl.namespace_definitions
+        end
+      end
+
+      def test_line
+        assert_raise NoMethodError do
+          @attr_decl.line
+        end
+      end
+
+      def test_attribute_type
+        assert_equal 1, @attr_decl.attribute_type
       end
     end
   end

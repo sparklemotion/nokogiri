@@ -92,6 +92,7 @@ int is_2_6_16(void) ;
 #include <xml_node_set.h>
 #include <xml_xpath.h>
 #include <xml_dtd.h>
+#include <xml_attribute_decl.h>
 #include <xml_xpath_context.h>
 #include <xml_sax_parser.h>
 #include <xml_sax_push_parser.h>
