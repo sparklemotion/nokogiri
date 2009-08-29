@@ -7,4 +7,3 @@ void init_xml_attribute_decl();
 
 extern VALUE cNokogiriXmlAttributeDecl;
 #endif
-
