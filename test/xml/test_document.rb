@@ -15,6 +15,11 @@ module Nokogiri
         assert_equal "<a></a>", doc.inner_html
       end
 
+      def test_fragment
+        fragment = @xml.fragment
+        assert_equal 0, fragment.children.length
+      end
+
       def test_add_child_with_fragment
         doc = Nokogiri::XML::Document.new
         fragment = doc.fragment('<hello />')

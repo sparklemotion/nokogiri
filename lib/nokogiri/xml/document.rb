@@ -70,7 +70,9 @@ module Nokogiri
 
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+
-      def fragment tags
+      # Returns an empty fragment if +tags+ is nil.
+      def fragment tags = nil
+        return DocumentFragment.new(self) unless tags
         DocumentFragment.new(self, tags)
       end
 
