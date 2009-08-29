@@ -18,6 +18,13 @@ module Nokogiri
         @attr_decl = @attrs.first
       end
 
+      def test_inspect
+        assert_equal(
+          "#<#{@attr_decl.class.name}:#{sprintf("0x%x", @attr_decl.object_id)} #{@attr_decl.to_s.inspect}>",
+          @attr_decl.inspect
+        )
+      end
+
       def test_type
         assert_equal 16, @attr_decl.type
       end
