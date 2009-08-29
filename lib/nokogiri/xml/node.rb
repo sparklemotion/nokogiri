@@ -663,5 +663,3 @@ Node.replace requires a Node argument, and cannot accept a Document.
     end
   end
 end
-
-class Nokogiri::XML::Element < Nokogiri::XML::Node ; end

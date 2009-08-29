@@ -431,6 +431,14 @@ module Nokogiri
         assert_equal count, set.length
       end
 
+      def test_inspect
+        employees = @xml.search("//employee")
+        inspected = employees.inspect
+
+        assert_equal "[#{employees.map { |x| x.inspect }.join(', ')}]",
+          inspected
+      end
+
     end
   end
 end

@@ -290,9 +290,16 @@ module Nokogiri
       end
 
       ###
-      # Returns a new NodeSet containing all the children of all the nodes in the NodeSet
+      # Returns a new NodeSet containing all the children of all the nodes in
+      # the NodeSet
       def children
         inject(NodeSet.new(document)) { |set, node| set += node.children }
+      end
+
+      ###
+      # Nicely inspect a NodeSet
+      def inspect
+        "[#{map { |c| c.inspect }.join ', '}]"
       end
 
       alias :+ :|
