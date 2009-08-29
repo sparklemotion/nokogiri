@@ -152,6 +152,7 @@ lib/nokogiri/xml/cdata.rb
 lib/nokogiri/xml/document.rb
 lib/nokogiri/xml/document_fragment.rb
 lib/nokogiri/xml/dtd.rb
+lib/nokogiri/xml/element_decl.rb
 lib/nokogiri/xml/entity_declaration.rb
 lib/nokogiri/xml/fragment_handler.rb
 lib/nokogiri/xml/namespace.rb

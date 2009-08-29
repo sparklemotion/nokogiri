@@ -19,6 +19,28 @@ module Nokogiri
         }
       end
 
+      def test_line
+        assert_raise NoMethodError do
+          @elements.first.line
+        end
+      end
+
+      def test_namespace
+        assert_raise NoMethodError do
+          @elements.first.namespace
+        end
+      end
+
+      def test_namespace_definitions
+        assert_raise NoMethodError do
+          @elements.first.namespace_definitions
+        end
+      end
+
+      def test_element_type
+        assert_equal 1, @elements.first.element_type
+      end
+
       def test_type
         assert_equal 15, @elements.first.type
       end
