@@ -5,8 +5,17 @@ module Nokogiri
     class TestAttributeDecl < Nokogiri::TestCase
       def setup
         super
-        @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
-        @attr_decl = @xml.xpath('//gender')[2].child.children[3]
+        @xml = Nokogiri::XML(<<-eoxml)
+<?xml version="1.0"?><?TEST-STYLE PIDATA?>
+<!DOCTYPE staff SYSTEM "staff.dtd" [
+   <!ATTLIST br width CDATA "0">
+   <!ATTLIST a width CDATA >
+   <!ATTLIST payment type (check|cash) "cash">
+]>
+</root>
+        eoxml
+        @attrs = @xml.internal_subset.children
+        @attr_decl = @attrs.first
       end
 
       def test_type
@@ -43,6 +52,16 @@ module Nokogiri
 
       def test_attribute_type
         assert_equal 1, @attr_decl.attribute_type
+      end
+
+      def test_default
+        assert_equal '0', @attr_decl.default
+        assert_nil @attrs[1].default
+      end
+
+      def test_enumeration
+        assert_equal [], @attr_decl.enumeration
+        assert_equal ['check', 'cash'], @attrs[2].enumeration
       end
     end
   end

@@ -13,6 +13,43 @@ static VALUE attribute_type(VALUE self)
   return INT2NUM((int)node->atype);
 }
 
+/*
+ * call-seq:
+ *  default
+ *
+ * The default value
+ */
+static VALUE default_value(VALUE self)
+{
+  xmlAttributePtr node;
+  Data_Get_Struct(self, xmlAttribute, node);
+
+  if(node->defaultValue) return NOKOGIRI_STR_NEW2(node->defaultValue, NULL);
+  return Qnil;
+}
+
+/*
+ * call-seq:
+ *  enumeration
+ *
+ * An enumeration of possible values
+ */
+static VALUE enumeration(VALUE self)
+{
+  xmlAttributePtr node;
+  Data_Get_Struct(self, xmlAttribute, node);
+
+  VALUE list = rb_ary_new();
+  xmlEnumerationPtr enm = node->tree;
+
+  while(enm) {
+    rb_ary_push(list, NOKOGIRI_STR_NEW2(enm->name, NULL));
+    enm = enm->next;
+  }
+
+  return list;
+}
+
 VALUE cNokogiriXmlAttributeDecl;
 
 void init_xml_attribute_decl()
@@ -25,4 +62,6 @@ void init_xml_attribute_decl()
   cNokogiriXmlAttributeDecl = klass;
 
   rb_define_method(klass, "attribute_type", attribute_type, 0);
+  rb_define_method(klass, "default", default_value, 0);
+  rb_define_method(klass, "enumeration", enumeration, 0);
 }
