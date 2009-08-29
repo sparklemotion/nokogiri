@@ -468,12 +468,11 @@ static VALUE attribute_with_ns(VALUE self, VALUE name, VALUE namespace)
 static VALUE attribute_nodes(VALUE self)
 {
     /* this code in the mode of xmlHasProp() */
-    xmlNodePtr node ;
-    VALUE attr ;
+    xmlNodePtr node;
 
-    attr = rb_ary_new() ;
     Data_Get_Struct(self, xmlNode, node);
 
+    VALUE attr = rb_ary_new();
     Nokogiri_xml_node_properties(node, attr);
 
     return attr ;

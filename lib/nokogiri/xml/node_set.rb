@@ -297,7 +297,7 @@ module Nokogiri
       end
 
       ###
-      # Nicely inspect a NodeSet
+      # Return a nicely formated string representation
       def inspect
         "[#{map { |c| c.inspect }.join ', '}]"
       end
