@@ -34,7 +34,6 @@ Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       def fragment tags = nil
-        return DocumentFragment.new(self) unless tags
         DocumentFragment.new(self, tags)
       end
 

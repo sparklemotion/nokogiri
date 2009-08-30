@@ -72,12 +72,7 @@ module Nokogiri
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       # Returns an empty fragment if +tags+ is nil.
       def fragment tags = nil
-        return DocumentFragment.new(self) unless tags
-        df = DocumentFragment.new(self, "<div>#{tags.strip}</div>")
-        div = df.child
-        div.children.each { |child| child.parent = df }
-        div.unlink
-        df
+        DocumentFragment.new(self, tags)
       end
 
       undef_method :swap, :parent, :namespace, :default_namespace=
