@@ -9,6 +9,35 @@ module Nokogiri
         assert @dtd = @xml.internal_subset
       end
 
+      def test_content
+        assert_raise NoMethodError do
+          @dtd.content
+        end
+      end
+
+      def test_attributes
+        flunk
+        @dtd.attributes
+      end
+
+      def test_namespace
+        assert_raise NoMethodError do
+          @dtd.namespace
+        end
+      end
+
+      def test_namespace_definitions
+        assert_raise NoMethodError do
+          @dtd.namespace_definitions
+        end
+      end
+
+      def test_line
+        assert_raise NoMethodError do
+          @dtd.line
+        end
+      end
+
       def test_validate
         list = @xml.internal_subset.validate @xml
         assert_equal 44, list.length
@@ -22,10 +51,6 @@ module Nokogiri
       def test_entities
         assert entities = @dtd.entities
         assert_equal %w[ ent1 ent2 ent3 ent4 ent5 ].sort, entities.keys.sort
-      end
-
-      def test_attributes
-        assert_nil @dtd.attributes
       end
 
       def test_elements

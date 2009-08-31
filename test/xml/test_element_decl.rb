@@ -19,6 +19,14 @@ module Nokogiri
         }
       end
 
+      def test_inspect
+        e = @elements.first
+        assert_equal(
+          "#<#{e.class.name}:#{sprintf("0x%x", e.object_id)} #{e.to_s.inspect}>",
+          e.inspect
+        )
+      end
+
       def test_line
         assert_raise NoMethodError do
           @elements.first.line
