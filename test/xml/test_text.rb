@@ -5,7 +5,7 @@ module Nokogiri
     class TestText < Nokogiri::TestCase
       def test_inspect
         node = Text.new('hello world', Document.new)
-        assert_equal "#<#{node.class.name}:#{sprintf("0x%x",node.object_id)} #{node.text.inspect} >", node.inspect
+        assert_equal "#<#{node.class.name}:#{sprintf("0x%x",node.object_id)} #{node.text.inspect}>", node.inspect
       end
 
       def test_new

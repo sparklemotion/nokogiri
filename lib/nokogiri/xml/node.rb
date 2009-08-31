@@ -660,6 +660,17 @@ Node.replace requires a Node argument, and cannot accept a Document.
         return nil unless document == other.document
         compare other
       end
+
+      def inspect
+        puts self.class
+        attributes = %w{ name namespace attributes children }.reject { |x|
+          attribute = send x.to_sym
+          !attribute || (attribute.respond_to?(:empty?) && attribute.empty?)
+        }.map { |attribute|
+          "#{attribute}=#{send(attribute.to_sym).inspect}"
+        }.join ' '
+        "#<#{self.class.name}:#{sprintf("0x%x", object_id)} #{attributes}>"
+      end
     end
   end
 end
