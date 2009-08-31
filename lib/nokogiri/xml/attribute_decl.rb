@@ -5,6 +5,7 @@ module Nokogiri
     class AttributeDecl < Nokogiri::XML::Node
       undef_method :attribute_nodes
       undef_method :attributes
+      undef_method :content
       undef_method :namespace
       undef_method :namespace_definitions
       undef_method :line

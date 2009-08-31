@@ -33,6 +33,12 @@ module Nokogiri
         assert_instance_of Nokogiri::XML::AttributeDecl, @attr_decl
       end
 
+      def test_content
+        assert_raise NoMethodError do
+          @attr_decl.content
+        end
+      end
+
       def test_attributes
         assert_raise NoMethodError do
           @attr_decl.attributes
