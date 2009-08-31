@@ -17,6 +17,14 @@ module Nokogiri
         @entity_decl = @entities.first
       end
 
+      def test_original_content
+        assert_equal "es", @entity_decl.original_content
+      end
+
+      def test_content
+        assert_equal "es", @entity_decl.content
+      end
+
       def test_type
         assert_equal 17, @entities.first.type
       end
