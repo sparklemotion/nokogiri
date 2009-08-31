@@ -661,6 +661,8 @@ Node.replace requires a Node argument, and cannot accept a Document.
         compare other
       end
 
+      ###
+      # Inspect this node
       def inspect
         attributes = %w{ name namespace attributes children }.reject { |x|
           begin
