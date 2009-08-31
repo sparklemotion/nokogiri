@@ -19,7 +19,7 @@ module Nokogiri
         self
       end
 
-      def +(node_set) # :nodoc:
+      def |(node_set) # :nodoc:
         raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
         new_set_ptr = LibXML::xmlXPathNodeSetMerge(nil, self.cstruct)
         new_set_ptr = LibXML::xmlXPathNodeSetMerge(new_set_ptr, node_set.cstruct)
