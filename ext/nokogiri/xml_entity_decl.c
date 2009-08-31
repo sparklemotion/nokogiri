@@ -10,6 +10,9 @@ static VALUE original_content(VALUE self)
 {
   xmlEntityPtr node;
   Data_Get_Struct(self, xmlEntity, node);
+
+  if(!node->orig) return Qnil;
+
   return NOKOGIRI_STR_NEW2(node->orig, NULL);
 }
 
@@ -23,7 +26,24 @@ static VALUE get_content(VALUE self)
 {
   xmlEntityPtr node;
   Data_Get_Struct(self, xmlEntity, node);
-  return NOKOGIRI_STR_NEW2(node->content, NULL);
+
+  if(!node->content) return Qnil;
+
+  return NOKOGIRI_STR_NEW(node->content, node->length, NULL);
+}
+
+/*
+ * call-seq:
+ *  content
+ *
+ * Get the entity type
+ */
+static VALUE entity_type(VALUE self)
+{
+  xmlEntityPtr node;
+  Data_Get_Struct(self, xmlEntity, node);
+
+  return INT2NUM((int)node->etype);
 }
 
 VALUE cNokogiriXmlEntityDecl;
@@ -39,4 +59,5 @@ void init_xml_entity_decl()
 
   rb_define_method(klass, "original_content", original_content, 0);
   rb_define_method(klass, "content", get_content, 0);
+  rb_define_method(klass, "entity_type", entity_type, 0);
 }

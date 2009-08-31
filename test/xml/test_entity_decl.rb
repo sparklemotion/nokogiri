@@ -9,6 +9,7 @@ module Nokogiri
 <?xml version="1.0"?><?TEST-STYLE PIDATA?>
 <!DOCTYPE staff SYSTEM "staff.dtd" [
    <!ENTITY ent1 "es">
+   <!ENTITY nocontent >
 ]>
 <root />
         eoxml
@@ -17,12 +18,18 @@ module Nokogiri
         @entity_decl = @entities.first
       end
 
+      def test_entity_type
+        assert_equal 1, @entity_decl.entity_type
+      end
+
       def test_original_content
         assert_equal "es", @entity_decl.original_content
+        assert_nil @entities[1].original_content
       end
 
       def test_content
         assert_equal "es", @entity_decl.content
+        assert_nil @entities[1].content
       end
 
       def test_type
