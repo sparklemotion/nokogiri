@@ -46,6 +46,38 @@ static VALUE entity_type(VALUE self)
   return INT2NUM((int)node->etype);
 }
 
+/*
+ * call-seq:
+ *  external_id
+ *
+ * Get the external identifier for PUBLIC
+ */
+static VALUE external_id(VALUE self)
+{
+  xmlEntityPtr node;
+  Data_Get_Struct(self, xmlEntity, node);
+
+  if(!node->ExternalID) return Qnil;
+
+  return NOKOGIRI_STR_NEW2(node->ExternalID, NULL);
+}
+
+/*
+ * call-seq:
+ *  system_id
+ *
+ * Get the URI for a SYSTEM or PUBLIC Entity
+ */
+static VALUE system_id(VALUE self)
+{
+  xmlEntityPtr node;
+  Data_Get_Struct(self, xmlEntity, node);
+
+  if(!node->SystemID) return Qnil;
+
+  return NOKOGIRI_STR_NEW2(node->SystemID, NULL);
+}
+
 VALUE cNokogiriXmlEntityDecl;
 
 void init_xml_entity_decl()
@@ -60,4 +92,6 @@ void init_xml_entity_decl()
   rb_define_method(klass, "original_content", original_content, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "entity_type", entity_type, 0);
+  rb_define_method(klass, "external_id", external_id, 0);
+  rb_define_method(klass, "system_id", system_id, 0);
 }

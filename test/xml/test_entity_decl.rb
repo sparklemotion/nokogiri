@@ -18,6 +18,14 @@ module Nokogiri
         @entity_decl = @entities.first
       end
 
+      def test_external_id
+        assert_nil @entity_decl.external_id
+      end
+
+      def test_system_id
+        assert_nil @entity_decl.system_id
+      end
+
       def test_entity_type
         assert_equal 1, @entity_decl.entity_type
       end
