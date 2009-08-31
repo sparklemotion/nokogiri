@@ -67,6 +67,26 @@ static VALUE notations(VALUE self)
 
 /*
  * call-seq:
+ *   attributes
+ *
+ * Get a hash of the attributes for this DTD.
+ */
+static VALUE attributes(VALUE self)
+{
+  xmlDtdPtr dtd;
+  Data_Get_Struct(self, xmlDtd, dtd);
+
+  if(!dtd->attributes) return Qnil;
+
+  VALUE hash = rb_hash_new();
+
+  xmlHashScan((xmlHashTablePtr)dtd->attributes, element_copier, (void *)hash);
+
+  return hash;
+}
+
+/*
+ * call-seq:
  *   elements
  *
  * Get a hash of the elements for this DTD.
@@ -132,4 +152,5 @@ void init_xml_dtd()
   rb_define_method(klass, "elements", elements, 0);
   rb_define_method(klass, "entities", entities, 0);
   rb_define_method(klass, "validate", validate, 1);
+  rb_define_method(klass, "attributes", attributes, 0);
 }

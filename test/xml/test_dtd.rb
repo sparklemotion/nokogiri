@@ -16,8 +16,8 @@ module Nokogiri
       end
 
       def test_attributes
-        flunk
-        @dtd.attributes
+        assert_equal ['width'], @dtd.attributes.keys
+        assert_equal '0', @dtd.attributes['width'].default
       end
 
       def test_namespace
