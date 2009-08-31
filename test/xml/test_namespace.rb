@@ -11,6 +11,11 @@ module Nokogiri
         eoxml
       end
 
+      def test_inspect
+        ns = @xml.root.namespace
+        assert_equal "#<#{ns.class.name}:#{sprintf("0x%x", ns.object_id)} prefix=#{ns.prefix.inspect} href=#{ns.href.inspect}>", ns.inspect
+      end
+
       def test_namespace_is_in_node_cache
         node = @xml.root.namespace
         assert @xml.instance_variable_get(:@node_cache).include?(node)

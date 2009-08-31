@@ -10,6 +10,28 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_inspect_ns
+        xml = Nokogiri::XML(<<-eoxml) { |c| c.noblanks }
+          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
+            <awesome/>
+          </root>
+        eoxml
+        ins = xml.inspect
+
+        xml.traverse do |node|
+          assert_match node.class.name, ins
+          node.attributes.each do |k,v|
+            assert_match k, ins
+            assert_match v, ins
+          end
+
+          if node.respond_to?(:namespace) && node.namespace
+            assert_match node.namespace.class.name, ins
+            assert_match node.namespace.href, ins
+          end
+        end
+      end
+
       def test_namespace_nodes
         xml = Nokogiri::XML <<-eoxml
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">

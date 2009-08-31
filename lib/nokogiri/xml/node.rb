@@ -662,10 +662,13 @@ Node.replace requires a Node argument, and cannot accept a Document.
       end
 
       def inspect
-        puts self.class
         attributes = %w{ name namespace attributes children }.reject { |x|
-          attribute = send x.to_sym
-          !attribute || (attribute.respond_to?(:empty?) && attribute.empty?)
+          begin
+            attribute = send x.to_sym
+            !attribute || (attribute.respond_to?(:empty?) && attribute.empty?)
+          rescue NoMethodError
+            true
+          end
         }.map { |attribute|
           "#{attribute}=#{send(attribute.to_sym).inspect}"
         }.join ' '

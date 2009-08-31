@@ -8,6 +8,7 @@
     selector.
   * NodeSet#| for unions GH #119 (Thanks Serabe!)
   * NodeSet#inspect makes prettier output
+  * Node#inspect implemented for more rubyish document inspecting
 
 * Bugfixes
 
