@@ -74,6 +74,7 @@ void Init_nokogiri()
   init_xml_dtd();
   init_xml_attribute_decl();
   init_xml_element_decl();
+  init_xml_entity_decl();
   init_xml_namespace();
   init_html_sax_parser();
   init_xslt_stylesheet();

@@ -33,6 +33,8 @@ ext/nokogiri/xml_dtd.c
 ext/nokogiri/xml_dtd.h
 ext/nokogiri/xml_element_decl.c
 ext/nokogiri/xml_element_decl.h
+ext/nokogiri/xml_entity_decl.c
+ext/nokogiri/xml_entity_decl.h
 ext/nokogiri/xml_entity_reference.c
 ext/nokogiri/xml_entity_reference.h
 ext/nokogiri/xml_io.c

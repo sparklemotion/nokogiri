@@ -856,7 +856,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
       klass = cNokogiriXmlProcessingInstruction;
       break;
     case XML_ENTITY_DECL:
-      klass = cNokogiriXmlEntityDeclaration;
+      klass = cNokogiriXmlEntityDecl;
       break;
     case XML_CDATA_SECTION_NODE:
       klass = cNokogiriXmlCData;
@@ -903,7 +903,6 @@ void Nokogiri_xml_node_properties(xmlNodePtr node, VALUE attr_list)
 
 VALUE cNokogiriXmlNode ;
 VALUE cNokogiriXmlElement ;
-VALUE cNokogiriXmlEntityDeclaration ;
 
 void init_xml_node()
 {
@@ -914,8 +913,6 @@ void init_xml_node()
   cNokogiriXmlNode = klass;
 
   cNokogiriXmlElement = rb_define_class_under(xml, "Element", klass);
-  cNokogiriXmlEntityDeclaration =
-    rb_define_class_under(xml, "EntityDeclaration", klass);
 
   rb_define_singleton_method(klass, "new", new, -1);
 
