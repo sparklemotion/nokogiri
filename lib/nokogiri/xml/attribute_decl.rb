@@ -10,7 +10,7 @@ module Nokogiri
       undef_method :line
 
       def inspect
-        "#<#{self.class.name}:#{sprintf("0x%x", self.object_id)} #{self.to_s.inspect}>"
+        "#<#{self.class.name}:#{sprintf("0x%x", object_id)} #{to_s.inspect}>"
       end
     end
   end

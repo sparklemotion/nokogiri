@@ -12,7 +12,7 @@ module Nokogiri
    <!ATTLIST a width CDATA >
    <!ATTLIST payment type (check|cash) "cash">
 ]>
-</root>
+<root />
         eoxml
         @attrs = @xml.internal_subset.children
         @attr_decl = @attrs.first

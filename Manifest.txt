@@ -250,6 +250,7 @@ test/xml/test_document_fragment.rb
 test/xml/test_dtd.rb
 test/xml/test_dtd_encoding.rb
 test/xml/test_element_decl.rb
+test/xml/test_entity_decl.rb
 test/xml/test_entity_reference.rb
 test/xml/test_namespace.rb
 test/xml/test_node.rb
