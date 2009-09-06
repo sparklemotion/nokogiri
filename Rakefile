@@ -21,6 +21,8 @@ HOE = Hoe.spec 'nokogiri' do
   self.extra_rdoc_files  = FileList['*.rdoc']
   self.clean_globs = [
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
+    'lib/nokogiri/nokogiri.rb',
+    'lib/nokogiri/1.{8,9}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
     'cross',
