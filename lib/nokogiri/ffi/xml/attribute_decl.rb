@@ -13,6 +13,14 @@ module Nokogiri
         end
         list
       end
+
+      def attribute_type
+        cstruct[:atype]
+      end
+
+      def default
+        cstruct[:default_value]
+      end
     end
     # :startdoc:
   end
