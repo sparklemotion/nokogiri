@@ -4,11 +4,26 @@ module Nokogiri
   module XML
     class TestNamespace < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML <<-eoxml
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
             <awesome/>
           </root>
         eoxml
+      end
+
+      def test_built_nodes_keep_namespace_decls
+        doc = Document.new
+        e   = Node.new 'element', doc
+        c   = Node.new 'child', doc
+        c.default_namespace = 'woop:de:doo'
+
+        assert c.namespace, 'has a namespace'
+        e.add_child c
+        assert c.namespace, 'has a namespace'
+
+        doc.add_child e
+        assert c.namespace, 'has a namespace'
       end
 
       def test_inspect

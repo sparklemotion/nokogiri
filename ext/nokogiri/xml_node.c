@@ -25,7 +25,7 @@ typedef xmlNodePtr (*node_other_func)(xmlNodePtr, xmlNodePtr);
 static void relink_namespace(xmlNodePtr reparented)
 {
   // Make sure that our reparented node has the correct namespaces
-  if(reparented->doc != (xmlDocPtr)reparented->parent)
+  if(!reparented->ns && reparented->doc != (xmlDocPtr)reparented->parent)
     xmlSetNs(reparented, reparented->parent->ns);
 
   // Search our parents for an existing definition
