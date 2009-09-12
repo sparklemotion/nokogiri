@@ -61,7 +61,7 @@ module Nokogiri
 
         set = NodeSet.new child.document
         set_ptr = LibXML.xmlXPathNodeSetCreate(child.cstruct)
-        
+
         set.cstruct = LibXML::XmlNodeSet.new(set_ptr)
         return set unless child
 
@@ -267,6 +267,7 @@ module Nokogiri
                   when TEXT_NODE then [XML::Text]
                   when ENTITY_REF_NODE then [XML::EntityReference]
                   when ATTRIBUTE_DECL then [XML::AttributeDecl, LibXML::XmlAttribute]
+                  when ELEMENT_DECL then [XML::ElementDecl, LibXML::XmlElement]
                   when COMMENT_NODE then [XML::Comment]
                   when DOCUMENT_FRAG_NODE then [XML::DocumentFragment]
                   when PI_NODE then [XML::ProcessingInstruction]

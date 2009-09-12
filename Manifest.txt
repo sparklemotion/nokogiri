@@ -100,6 +100,7 @@ lib/nokogiri/ffi/structs/xml_attribute.rb
 lib/nokogiri/ffi/structs/xml_buffer.rb
 lib/nokogiri/ffi/structs/xml_document.rb
 lib/nokogiri/ffi/structs/xml_dtd.rb
+lib/nokogiri/ffi/structs/xml_element.rb
 lib/nokogiri/ffi/structs/xml_enumeration.rb
 lib/nokogiri/ffi/structs/xml_node.rb
 lib/nokogiri/ffi/structs/xml_node_set.rb
@@ -123,6 +124,7 @@ lib/nokogiri/ffi/xml/comment.rb
 lib/nokogiri/ffi/xml/document.rb
 lib/nokogiri/ffi/xml/document_fragment.rb
 lib/nokogiri/ffi/xml/dtd.rb
+lib/nokogiri/ffi/xml/element_decl.rb
 lib/nokogiri/ffi/xml/entity_reference.rb
 lib/nokogiri/ffi/xml/namespace.rb
 lib/nokogiri/ffi/xml/node.rb
