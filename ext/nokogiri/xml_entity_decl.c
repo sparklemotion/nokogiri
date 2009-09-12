@@ -85,7 +85,7 @@ void init_xml_entity_decl()
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
   VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-  VALUE klass = rb_define_class_under(xml, "EntityDeclaration", node);
+  VALUE klass = rb_define_class_under(xml, "EntityDecl", node);
 
   cNokogiriXmlEntityDecl = klass;
 

@@ -45,7 +45,7 @@ module Nokogiri
       end
 
       def test_class
-        assert_instance_of Nokogiri::XML::EntityDeclaration, @entities.first
+        assert_instance_of Nokogiri::XML::EntityDecl, @entities.first
       end
 
       def test_attributes

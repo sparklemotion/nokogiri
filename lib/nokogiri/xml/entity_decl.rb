@@ -1,6 +1,6 @@
 module Nokogiri
   module XML
-    class EntityDeclaration < Nokogiri::XML::Node
+    class EntityDecl < Nokogiri::XML::Node
       undef_method :attribute_nodes
       undef_method :attributes
       undef_method :namespace
