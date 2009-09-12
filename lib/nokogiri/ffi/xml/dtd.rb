@@ -1,7 +1,7 @@
+# :stopdoc:
 module Nokogiri
   module XML
     class DTD < Node
-      # :stopdoc:
       def validate document
         error_list = []
         ctxt = LibXML.xmlNewValidCtxt
@@ -22,6 +22,10 @@ module Nokogiri
 
       def entities
         internal_attributes :entities
+      end
+
+      def attributes
+        internal_attributes :attributes
       end
 
       def notations
@@ -51,8 +55,7 @@ module Nokogiri
         LibXML.xmlHashScan(attr_ptr, proc, nil)
         ahash
       end
-
-      # :startdoc:
     end
   end
 end
+# :startdoc:
