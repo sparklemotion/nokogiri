@@ -266,6 +266,7 @@ module Nokogiri
                   when ELEMENT_NODE then [XML::Element]
                   when TEXT_NODE then [XML::Text]
                   when ENTITY_REF_NODE then [XML::EntityReference]
+                  when ATTRIBUTE_DECL then [XML::AttributeDecl, LibXML::XmlAttribute]
                   when COMMENT_NODE then [XML::Comment]
                   when DOCUMENT_FRAG_NODE then [XML::DocumentFragment]
                   when PI_NODE then [XML::ProcessingInstruction]
