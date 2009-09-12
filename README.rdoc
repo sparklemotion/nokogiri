@@ -87,7 +87,7 @@ The IRC channel is #nokogiri on freenode.
 
 == DEVELOPMENT:
 
-Developing Nokogiri requires racc and frex.
+Developing Nokogiri requires racc and rexical.
 
 * rake install:deps
 * rake test
