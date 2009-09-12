@@ -90,7 +90,7 @@ module Nokogiri
 
       # Get the hash of namespaces on the root Nokogiri::XML::Node
       def namespaces
-        root ? root.collect_namespaces : {}
+        root ? root.namespaces : {}
       end
 
       ####

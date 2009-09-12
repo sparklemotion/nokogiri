@@ -775,12 +775,9 @@ EOF
         assert_equal 'http://foo.com/', namespaces['xmlns:a']
         assert namespaces.key?('xmlns:b')
         assert_equal 'http://bar.com/', namespaces['xmlns:b']
-        assert namespaces.key?('xmlns:c')
-        assert_equal 'http://bazz.com/', namespaces['xmlns:c']
 
         assert_equal "hello a", xml.search("//a:div", xml.namespaces).first.inner_text
         assert_equal "hello b", xml.search("//b:div", xml.namespaces).first.inner_text
-        assert_equal "hello c", xml.search("//c:div", xml.namespaces).first.inner_text
       end
 
       def test_namespace
