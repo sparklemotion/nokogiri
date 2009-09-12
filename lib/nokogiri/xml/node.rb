@@ -664,7 +664,7 @@ Node.replace requires a Node argument, and cannot accept a Document.
       ###
       # Inspect this node
       def inspect
-        attributes = %w{ name namespace attributes children }.reject { |x|
+        attributes = inspect_attributes.reject { |x|
           begin
             attribute = send x.to_sym
             !attribute || (attribute.respond_to?(:empty?) && attribute.empty?)
@@ -675,6 +675,11 @@ Node.replace requires a Node argument, and cannot accept a Document.
           "#{attribute}=#{send(attribute.to_sym).inspect}"
         }.join ' '
         "#<#{self.class.name}:#{sprintf("0x%x", object_id)} #{attributes}>"
+      end
+
+      private
+      def inspect_attributes
+        %w{ name namespace attributes children }
       end
     end
   end

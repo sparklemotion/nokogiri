@@ -20,9 +20,11 @@ module Nokogiri
 
         xml.traverse do |node|
           assert_match node.class.name, ins
-          node.attributes.each do |k,v|
-            assert_match k, ins
-            assert_match v, ins
+          if node.respond_to? :attributes
+            node.attributes.each do |k,v|
+              assert_match k, ins
+              assert_match v, ins
+            end
           end
 
           if node.respond_to?(:namespace) && node.namespace

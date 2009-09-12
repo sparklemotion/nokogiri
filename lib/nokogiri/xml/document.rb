@@ -8,6 +8,31 @@ module Nokogiri
     # For searching a Document, see Nokogiri::XML::Node#css and
     # Nokogiri::XML::Node#xpath
     class Document < Node
+      ###
+      # Parse an XML file.  +thing+ may be a String, or any object that
+      # responds to _read_ and _close_ such as an IO, or StringIO.
+      # +url+ is resource where this document is located.  +encoding+ is the
+      # encoding that should be used when processing the document. +options+
+      # is a number that sets options in the parser, such as
+      # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
+      # Nokogiri::XML::ParseOptions.
+      def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
+
+        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
+        # Give the options to the user
+        yield options if block_given?
+
+        if string_or_io.respond_to?(:read)
+          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+          return self.read_io(string_or_io, url, encoding, options.to_i)
+        end
+
+        # read_memory pukes on empty docs
+        return self.new if string_or_io.nil? or string_or_io.empty?
+
+        self.read_memory(string_or_io, url, encoding, options.to_i)
+      end
+
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
       attr_accessor :errors
 
@@ -76,7 +101,8 @@ module Nokogiri
       end
 
       undef_method :swap, :parent, :namespace, :default_namespace=
-      undef_method :add_namespace_definition
+      undef_method :add_namespace_definition, :attributes
+      undef_method :namespace_definitions, :line
 
       def add_child child
         if [Node::ELEMENT_NODE, Node::DOCUMENT_FRAG_NODE].include? child.type
@@ -86,33 +112,10 @@ module Nokogiri
       end
       alias :<< :add_child
 
-      class << self
-        ###
-        # Parse an XML file.  +thing+ may be a String, or any object that
-        # responds to _read_ and _close_ such as an IO, or StringIO.
-        # +url+ is resource where this document is located.  +encoding+ is the
-        # encoding that should be used when processing the document. +options+
-        # is a number that sets options in the parser, such as
-        # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
-        # Nokogiri::XML::ParseOptions.
-        def parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
-
-          options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
-          # Give the options to the user
-          yield options if block_given?
-
-          if string_or_io.respond_to?(:read)
-            url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-            return self.read_io(string_or_io, url, encoding, options.to_i)
-          end
-
-          # read_memory pukes on empty docs
-          return self.new if string_or_io.nil? or string_or_io.empty?
-
-          self.read_memory(string_or_io, url, encoding, options.to_i)
-        end
+      private
+      def inspect_attributes
+        %w{ name children }
       end
-
     end
   end
 end

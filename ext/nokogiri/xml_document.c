@@ -131,6 +131,21 @@ static VALUE encoding(VALUE self)
 
 /*
  * call-seq:
+ *  version
+ *
+ * Get the XML version for this Document
+ */
+static VALUE version(VALUE self)
+{
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  if(!doc->version) return Qnil;
+  return NOKOGIRI_STR_NEW2(doc->version, NULL);
+}
+
+/*
+ * call-seq:
  *  read_io(io, url, encoding, options)
  *
  * Create a new document from an IO object
@@ -287,6 +302,7 @@ void init_xml_document()
   rb_define_method(klass, "root=", set_root, 1);
   rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "encoding=", set_encoding, 1);
+  rb_define_method(klass, "version", version, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
 }

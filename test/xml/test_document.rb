@@ -10,6 +10,34 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_version
+        assert_equal '1.0', @xml.version
+      end
+
+      def test_attributes
+        assert_raise NoMethodError do
+          @xml.attributes
+        end
+      end
+
+      def test_namespace
+        assert_raise NoMethodError do
+          @xml.namespace
+        end
+      end
+
+      def test_namespace_definitions
+        assert_raise NoMethodError do
+          @xml.namespace_definitions
+        end
+      end
+
+      def test_line
+        assert_raise NoMethodError do
+          @xml.line
+        end
+      end
+
       def test_empty_node_converted_to_html_is_not_self_closing
         doc = Nokogiri::XML('<a></a>')
         assert_equal "<a></a>", doc.inner_html
