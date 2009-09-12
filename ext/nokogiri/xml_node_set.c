@@ -238,6 +238,8 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
     if (beg < 0) {
       beg += node_set->nodeNr ;
     }
+    if (len > node_set->nodeNr) len = node_set->nodeNr;
+
     return subseq(self, beg, len);
   }
 

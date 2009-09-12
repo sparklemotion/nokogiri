@@ -367,6 +367,12 @@ module Nokogiri
         assert_nil employees.index(other)
       end
 
+      def test_slice_too_far
+        employees = @xml.search("//employee")
+        assert_equal employees.length, employees[0, employees.length + 1].length
+        assert_equal employees.length, employees[0, employees.length].length
+      end
+
       def test_array_slice_with_start_and_end
         employees = @xml.search("//employee")
         assert_equal [employees[1], employees[2], employees[3]], employees[1,3].to_a

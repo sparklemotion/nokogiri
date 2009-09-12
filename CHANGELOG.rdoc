@@ -19,6 +19,7 @@
   * Fixing a SEGV when XML::Reader gets attributes for current node
   * Node#inner_html takes the same arguments as Node#to_html GH #117
   * DocumentFragment#css delegates to it's child nodes GH #123
+  * NodeSet#[] works with slices larger than NodeSet#length GH #131
 
 === 1.3.3 / 2009/07/26
 
