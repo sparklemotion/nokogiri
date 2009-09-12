@@ -321,5 +321,5 @@ require 'nokogiri/xml/syntax_error'
   "html/sax/parser",
   "xslt/stylesheet",
 ].each do |file|
-  require File.join(File.dirname(__FILE__), file)
+  require "nokogiri/ffi/#{file}"
 end
