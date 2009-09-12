@@ -133,6 +133,38 @@ static VALUE validate(VALUE self, VALUE document)
   return error_list;
 }
 
+/*
+ * call-seq:
+ *   system_id
+ *
+ * Get the System ID for this DTD
+ */
+static VALUE system_id(VALUE self)
+{
+  xmlDtdPtr dtd;
+  Data_Get_Struct(self, xmlDtd, dtd);
+
+  if(!dtd->SystemID) return Qnil;
+
+  return NOKOGIRI_STR_NEW2(dtd->SystemID, NULL);
+}
+
+/*
+ * call-seq:
+ *   external_id
+ *
+ * Get the External ID for this DTD
+ */
+static VALUE external_id(VALUE self)
+{
+  xmlDtdPtr dtd;
+  Data_Get_Struct(self, xmlDtd, dtd);
+
+  if(!dtd->ExternalID) return Qnil;
+
+  return NOKOGIRI_STR_NEW2(dtd->ExternalID, NULL);
+}
+
 VALUE cNokogiriXmlDtd;
 
 void init_xml_dtd()
@@ -153,4 +185,6 @@ void init_xml_dtd()
   rb_define_method(klass, "entities", entities, 0);
   rb_define_method(klass, "validate", validate, 1);
   rb_define_method(klass, "attributes", attributes, 0);
+  rb_define_method(klass, "system_id", system_id, 0);
+  rb_define_method(klass, "external_id", external_id, 0);
 }

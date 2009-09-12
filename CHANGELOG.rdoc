@@ -9,6 +9,8 @@
   * NodeSet#| for unions GH #119 (Thanks Serabe!)
   * NodeSet#inspect makes prettier output
   * Node#inspect implemented for more rubyish document inspecting
+  * Added XML::DTD#external_id
+  * Added XML::DTD#system_id
 
 * Bugfixes
 

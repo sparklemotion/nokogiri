@@ -9,6 +9,16 @@ module Nokogiri
         assert @dtd = @xml.internal_subset
       end
 
+      def test_system_id
+        assert_equal 'staff.dtd', @dtd.system_id
+      end
+
+      def test_external_id
+        xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ><foo />')
+        assert dtd = xml.internal_subset
+        assert_equal 'bar', dtd.external_id
+      end
+
       def test_content
         assert_raise NoMethodError do
           @dtd.content

@@ -16,7 +16,9 @@ module Nokogiri
         :notations,     :pointer,
         :elements,      :pointer,
         :attributes,    :pointer,
-        :entities,      :pointer
+        :entities,      :pointer,
+        :external_id,   :string,
+        :system_id,     :string
         )
 
       include CommonNode

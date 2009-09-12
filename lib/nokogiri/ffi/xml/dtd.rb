@@ -16,6 +16,14 @@ module Nokogiri
         error_list
       end
 
+      def system_id
+        cstruct[:system_id]
+      end
+
+      def external_id
+        cstruct[:external_id]
+      end
+
       def elements
         internal_attributes :elements
       end
