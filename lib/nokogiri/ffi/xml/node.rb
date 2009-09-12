@@ -272,7 +272,7 @@ module Nokogiri
                   when DOCUMENT_FRAG_NODE then [XML::DocumentFragment]
                   when PI_NODE then [XML::ProcessingInstruction]
                   when ATTRIBUTE_NODE then [XML::Attr]
-                  when ENTITY_DECL then [XML::EntityDeclaration]
+                  when ENTITY_DECL then [XML::EntityDecl, LibXML::XmlEntity]
                   when CDATA_SECTION_NODE then [XML::CDATA]
                   when DTD_NODE then [XML::DTD, LibXML::XmlDtd]
                   else [XML::Node]
