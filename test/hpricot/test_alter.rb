@@ -41,16 +41,6 @@ class TestAlter < Nokogiri::TestCase
     assert_changed(@basic, "link", all_rl) { |link| link['href'].nil? }
   end
 
-  def test_remove_class
-    all_c1 = (@basic/"p[@class*='last']").remove_class("last")
-    assert_changed(@basic, "p[@class*='last']", all_c1) { |p| p['class'] == 'final' }
-  end
-
-  def test_remove_all_classes
-    all_c2 = (@basic/"p[@class]").remove_class
-    assert_changed(@basic, "p[@class]", all_c2) { |p| p['class'].nil? }
-  end
-
   def assert_changed original, selector, set, &block
     assert set.all?(&block)
     assert Nokogiri(original.to_html).search(selector).all?(&block)

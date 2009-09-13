@@ -159,13 +159,15 @@ module Nokogiri
 
       ###
       # Remove the class attribute +name+ from all Node objects in the NodeSet.
+      # If +name+ is nil, remove the class attribute from all Nodes in the
+      # NodeSet.
       def remove_class name = nil
         each do |el|
           if name
-            classes = el.get_attribute('class').to_s.split(" ")
-            el['class'] = (classes - [name]).uniq.join(" ")
+            classes = el['class'].split(/\s+/)
+            el['class'] = (classes - [name]).uniq.join " "
           else
-            el.remove_attribute("class")
+            el.delete "class"
           end
         end
         self

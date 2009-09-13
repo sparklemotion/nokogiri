@@ -8,6 +8,22 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_remove_class_single
+        list = @xml.css('employee')
+        list.each { |e| e['class'] = 'foo bar' }
+
+        assert_equal list, list.remove_class('bar')
+        list.each { |e| assert_equal 'foo', e['class'] }
+      end
+
+      def test_remove_class_completely
+        list = @xml.css('employee')
+        list.each { |e| e['class'] = 'foo' }
+
+        assert_equal list, list.remove_class
+        list.each { |e| assert_nil e['class'] }
+      end
+
       def test_attribute_set
         list = @xml.css('employee')
         list.each { |e| assert_nil e['foo'] }
