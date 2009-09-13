@@ -209,16 +209,18 @@ module Nokogiri
       end
 
       ###
-      # Build a tag that is associated with +namespace+
+      # Build a tag that is associated with namespace +ns+
       def [] ns
         @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
         return self if @ns
 
         @parent.ancestors.each do |a|
+          next if a == doc
           @ns = a.namespace_definitions.find { |x| x.prefix == ns.to_s }
           return self if @ns
         end
-        self
+
+        raise ArgumentError, "Namespace #{ns} has not been defined"
       end
 
       ###

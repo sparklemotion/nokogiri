@@ -59,6 +59,16 @@ module Nokogiri
         assert_equal 'bar', b.doc.at('foo|baz', 'foo' => 'bar').namespace.href
       end
 
+      def test_specified_namespace_undeclared
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root do
+            assert_raises(ArgumentError) do
+              xml[:foo]
+            end
+          end
+        }
+      end
+
       def test_set_encoding
         builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
           xml.root do
