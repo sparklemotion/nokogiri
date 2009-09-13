@@ -27,15 +27,6 @@ class TestAlter < Nokogiri::TestCase
     assert_equal 'ohmy', Nokogiri(@basic.to_html).at("#wrapper").children[0]['class']
   end
 
-  def test_add_class
-    first_p = (@basic/"p:first").add_class("testing123")
-    assert first_p[0].get_attribute("class").split(" ").include?("testing123")
-    assert((Nokogiri(@basic.to_html)/"p:first")[0]["class"].split(" ").include?("testing123"))
-    ####
-    # Modified.  We do not support OB1 bug.
-    assert !(Nokogiri(@basic.to_html)/"p:gt(1)")[0]["class"].split(" ").include?("testing123")
-  end
-
   def test_remove_attr
     all_rl = (@basic/"link").remove_attr("href")
     assert_changed(@basic, "link", all_rl) { |link| link['href'].nil? }

@@ -150,9 +150,8 @@ module Nokogiri
       # Append the class attribute +name+ to all Node objects in the NodeSet.
       def add_class name
         each do |el|
-          next unless el.respond_to? :get_attribute
-          classes = el.get_attribute('class').to_s.split(" ")
-          el.set_attribute('class', classes.push(name).uniq.join(" "))
+          classes = el['class'].to_s.split(/\s+/)
+          el['class'] = classes.push(name).uniq.join " "
         end
         self
       end
