@@ -11,6 +11,7 @@
   * Node#inspect implemented for more rubyish document inspecting
   * Added XML::DTD#external_id
   * Added XML::DTD#system_id
+  * Added XML::ElementContent for DTD Element content validity
 
 * Bugfixes
 
