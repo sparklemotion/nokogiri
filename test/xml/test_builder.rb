@@ -30,6 +30,35 @@ module Nokogiri
         assert_equal 'one', b.doc.at('hello', 'xmlns' => 'one').namespace.href
       end
 
+      def test_specify_namespace
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root('xmlns:foo' => 'bar') do
+            xml[:foo].bar
+            xml['foo'].baz
+          end
+        }
+        doc = b.doc
+        assert_equal 'bar', b.doc.at('foo|bar', 'foo' => 'bar').namespace.href
+        assert_equal 'bar', b.doc.at('foo|baz', 'foo' => 'bar').namespace.href
+      end
+
+      def test_specify_namespace_nested
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root('xmlns:foo' => 'bar') do
+            xml.yay do
+              xml[:foo].bar
+
+              xml.yikes do
+                xml['foo'].baz
+              end
+            end
+          end
+        }
+        doc = b.doc
+        assert_equal 'bar', b.doc.at('foo|bar', 'foo' => 'bar').namespace.href
+        assert_equal 'bar', b.doc.at('foo|baz', 'foo' => 'bar').namespace.href
+      end
+
       def test_set_encoding
         builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
           xml.root do

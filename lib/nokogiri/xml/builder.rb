@@ -175,6 +175,7 @@ module Nokogiri
         @parent   = @doc
         @context  = nil
         @arity    = nil
+        @ns       = nil
 
         options.each do |k,v|
           @doc.send(:"#{k}=", v)
@@ -208,6 +209,19 @@ module Nokogiri
       end
 
       ###
+      # Build a tag that is associated with +namespace+
+      def [] ns
+        @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
+        return self if @ns
+
+        @parent.ancestors.each do |a|
+          @ns = a.namespace_definitions.find { |x| x.prefix == ns.to_s }
+          return self if @ns
+        end
+        self
+      end
+
+      ###
       # Convert this Builder object to XML
       def to_xml
         @doc.to_xml
@@ -218,6 +232,12 @@ module Nokogiri
           @context.send(method, *args, &block)
         else
           node = Nokogiri::XML::Node.new(method.to_s.sub(/[_!]$/, ''), @doc) { |n|
+            # Set up the namespace
+            if @ns
+              n.namespace = @ns
+              @ns = nil
+            end
+
             args.each do |arg|
               case arg
               when Hash
@@ -258,7 +278,7 @@ module Nokogiri
       end
 
       class NodeBuilder # :nodoc:
-        def initialize(node, doc_builder)
+        def initialize node, doc_builder
           @node = node
           @doc_builder = doc_builder
         end
