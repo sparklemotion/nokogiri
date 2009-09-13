@@ -4,13 +4,6 @@ require File.join(File.dirname(__FILE__),"load_files")
 class TestParser < Nokogiri::TestCase
   include Nokogiri
 
-  def test_set_attr
-    @basic = Nokogiri.parse(TestFiles::BASIC)
-    @basic.search('//p').set('class', 'para')
-    assert_equal 4, @basic.search('//p').length
-    assert_equal 4, @basic.search('//p').find_all { |x| x['class'] == 'para' }.length
-  end
-
   def test_filter_by_attr
     @boingboing = Nokogiri.parse(TestFiles::BOINGBOING)
 

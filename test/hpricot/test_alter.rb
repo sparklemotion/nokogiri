@@ -36,16 +36,6 @@ class TestAlter < Nokogiri::TestCase
     assert !(Nokogiri(@basic.to_html)/"p:gt(1)")[0]["class"].split(" ").include?("testing123")
   end
 
-  def test_change_attributes
-    all_ps = (@basic/"p").attr("title", "Some Title")
-    all_as = (@basic/"a").attr("href", "http://my_new_href.com")
-    all_lb = (@basic/"link").attr("href") { |e| e.name }
-    GC.start # try to shake out GC bugs with xpath and node sets.
-    assert_changed(@basic, "p", all_ps) {|p| p.attributes["title"].to_s == "Some Title"}
-    assert_changed(@basic, "a", all_as) {|a| a.attributes["href"].to_s == "http://my_new_href.com"}
-    assert_changed(@basic, "link", all_lb) {|a| a.attributes["href"].to_s == "link" }
-  end
-
   def test_remove_attr
     all_rl = (@basic/"link").remove_attr("href")
     assert_changed(@basic, "link", all_rl) { |link| link['href'].nil? }

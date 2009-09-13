@@ -161,10 +161,9 @@ module Nokogiri
       # Remove the class attribute +name+ from all Node objects in the NodeSet.
       def remove_class name = nil
         each do |el|
-          next unless el.respond_to? :get_attribute
           if name
             classes = el.get_attribute('class').to_s.split(" ")
-            el.set_attribute('class', (classes - [name]).uniq.join(" "))
+            el['class'] = (classes - [name]).uniq.join(" ")
           else
             el.remove_attribute("class")
           end
@@ -176,20 +175,18 @@ module Nokogiri
       # Set the attribute +key+ to +value+ or the return value of +blk+
       # on all Node objects in the NodeSet.
       def attr key, value = nil, &blk
-        if value or blk
-          each do |el|
-            el.set_attribute(key, value || blk[el])
-          end
-          return self
+        unless Hash === key || key && (value || blk)
+          return first.attribute key
         end
-        if key.is_a? Hash
-          key.each { |k,v| self.attr(k,v) }
-          return self
-        else
-          return self[0].get_attribute(key)
-        end
+
+        hash = key.is_a?(Hash) ? key : { key => value }
+
+        hash.each { |k,v| each { |el| el[k] = v || blk[el] } }
+
+        self
       end
-      alias_method :set, :attr
+      alias :set :attr
+      alias :attribute :attr
 
       ###
       # Remove the attributed named +name+ from all Node objects in the NodeSet

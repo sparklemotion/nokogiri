@@ -8,6 +8,42 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_attribute_set
+        list = @xml.css('employee')
+        list.each { |e| assert_nil e['foo'] }
+
+        [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
+          list.send(t.first.to_sym, 'foo', t.last)
+          list.each { |e| assert_equal t.last, e['foo'] }
+        end
+      end
+
+      def test_attribute_set_with_block
+        list = @xml.css('employee')
+        list.each { |e| assert_nil e['foo'] }
+
+        [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
+          list.send(t.first.to_sym, 'foo') { |x| t.last }
+          list.each { |e| assert_equal t.last, e['foo'] }
+        end
+      end
+
+      def test_attribute_set_with_hash
+        list = @xml.css('employee')
+        list.each { |e| assert_nil e['foo'] }
+
+        [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
+          list.send(t.first.to_sym, 'foo' => t.last)
+          list.each { |e| assert_equal t.last, e['foo'] }
+        end
+      end
+
+      def test_attribute_no_args
+        list = @xml.css('employee')
+        list.first['foo'] = 'bar'
+        assert_equal list.first.attribute('foo'), list.attribute('foo')
+      end
+
       def test_search_empty_node_set
         set = Nokogiri::XML::NodeSet.new(Nokogiri::XML::Document.new)
         assert_equal 0, set.css('foo').length
