@@ -147,6 +147,53 @@ module Nokogiri
     #
     # All other options are still supported with this syntax, including
     # blocks and extra tag attributes.
+    #
+    # == Namespaces
+    #
+    # Namespaces are added similarly to attributes.  Nokogiri::XML::Builder
+    # assumes that when an attribute starts with "xmlns", it is meant to be
+    # a namespace:
+    #
+    #   builder = Nokogiri::XML::Builder.new { |xml|
+    #     xml.root('xmlns' => 'default', 'xmlns:foo' => 'bar') do
+    #       xml.tenderlove
+    #     end
+    #   }
+    #   puts builder.to_xml
+    #
+    # Will output XML like this:
+    #
+    #   <?xml version="1.0"?>
+    #   <root xmlns:foo="bar" xmlns="default">
+    #     <tenderlove/>
+    #   </root>
+    #
+    # === Referencing declared namespaces
+    #
+    # Tags that reference non-default namespaces (i.e. a tag "foo:bar") can be
+    # built by using the Nokogiri::XML::Builder#[] method.
+    #
+    # For example:
+    #
+    #   builder = Nokogiri::XML::Builder.new do |xml|
+    #     xml.root('xmlns:foo' => 'bar') {
+    #       xml.objects {
+    #         xml['foo'].object.classy.thing!
+    #       }
+    #     }
+    #   end
+    #   puts builder.to_xml
+    #
+    # Will output this XML:
+    #
+    #   <?xml version="1.0"?>
+    #   <root xmlns:foo="bar">
+    #     <objects>
+    #       <foo:object class="classy" id="thing"/>
+    #     </objects>
+    #   </root>
+    #
+    # Note the "foo:object" tag.
     class Builder
       # The current Document object being built
       attr_accessor :doc
@@ -209,7 +256,8 @@ module Nokogiri
       end
 
       ###
-      # Build a tag that is associated with namespace +ns+
+      # Build a tag that is associated with namespace +ns+.  Raises an
+      # ArgumentError if +ns+ has not been defined higher in the tree.
       def [] ns
         @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
         return self if @ns
