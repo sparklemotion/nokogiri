@@ -164,8 +164,12 @@ module Nokogiri
       def remove_class name = nil
         each do |el|
           if name
-            classes = el['class'].split(/\s+/)
-            el['class'] = (classes - [name]).uniq.join " "
+            classes = el['class'].to_s.split(/\s+/)
+            if classes.empty?
+              el.delete 'class'
+            else
+              el['class'] = (classes - [name]).uniq.join " "
+            end
           else
             el.delete "class"
           end

@@ -6,58 +6,62 @@ module Nokogiri
       def setup
         super
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+        @list = @xml.css('employee')
+      end
+
+      def test_remove_class_with_no_class
+        assert_equal @list, @list.remove_class('bar')
+        @list.each { |e| assert_nil e['class'] }
+
+        @list.each { |e| e['class'] = '' }
+        assert_equal @list, @list.remove_class('bar')
+        @list.each { |e| assert_nil e['class'] }
       end
 
       def test_remove_class_single
-        list = @xml.css('employee')
-        list.each { |e| e['class'] = 'foo bar' }
+        @list.each { |e| e['class'] = 'foo bar' }
 
-        assert_equal list, list.remove_class('bar')
-        list.each { |e| assert_equal 'foo', e['class'] }
+        assert_equal @list, @list.remove_class('bar')
+        @list.each { |e| assert_equal 'foo', e['class'] }
       end
 
       def test_remove_class_completely
-        list = @xml.css('employee')
-        list.each { |e| e['class'] = 'foo' }
+        @list.each { |e| e['class'] = 'foo' }
 
-        assert_equal list, list.remove_class
-        list.each { |e| assert_nil e['class'] }
+        assert_equal @list, @list.remove_class
+        @list.each { |e| assert_nil e['class'] }
       end
 
       def test_attribute_set
-        list = @xml.css('employee')
-        list.each { |e| assert_nil e['foo'] }
+        @list.each { |e| assert_nil e['foo'] }
 
         [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
-          list.send(t.first.to_sym, 'foo', t.last)
-          list.each { |e| assert_equal t.last, e['foo'] }
+          @list.send(t.first.to_sym, 'foo', t.last)
+          @list.each { |e| assert_equal t.last, e['foo'] }
         end
       end
 
       def test_attribute_set_with_block
-        list = @xml.css('employee')
-        list.each { |e| assert_nil e['foo'] }
+        @list.each { |e| assert_nil e['foo'] }
 
         [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
-          list.send(t.first.to_sym, 'foo') { |x| t.last }
-          list.each { |e| assert_equal t.last, e['foo'] }
+          @list.send(t.first.to_sym, 'foo') { |x| t.last }
+          @list.each { |e| assert_equal t.last, e['foo'] }
         end
       end
 
       def test_attribute_set_with_hash
-        list = @xml.css('employee')
-        list.each { |e| assert_nil e['foo'] }
+        @list.each { |e| assert_nil e['foo'] }
 
         [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
-          list.send(t.first.to_sym, 'foo' => t.last)
-          list.each { |e| assert_equal t.last, e['foo'] }
+          @list.send(t.first.to_sym, 'foo' => t.last)
+          @list.each { |e| assert_equal t.last, e['foo'] }
         end
       end
 
       def test_attribute_no_args
-        list = @xml.css('employee')
-        list.first['foo'] = 'bar'
-        assert_equal list.first.attribute('foo'), list.attribute('foo')
+        @list.first['foo'] = 'bar'
+        assert_equal @list.first.attribute('foo'), @list.attribute('foo')
       end
 
       def test_search_empty_node_set
