@@ -196,10 +196,7 @@ module Nokogiri
       ###
       # Remove the attributed named +name+ from all Node objects in the NodeSet
       def remove_attr name
-        each do |el|
-          next unless el.respond_to? :remove_attribute
-          el.remove_attribute(name)
-        end
+        each { |el| el.delete name }
         self
       end
 

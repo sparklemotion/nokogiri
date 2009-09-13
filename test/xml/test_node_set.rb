@@ -9,6 +9,12 @@ module Nokogiri
         @list = @xml.css('employee')
       end
 
+      def test_remove_attr
+        @list.each { |x| x['class'] = 'blah' }
+        assert_equal @list, @list.remove_attr('class')
+        @list.each { |x| assert_nil x['class'] }
+      end
+
       def test_add_class
         assert_equal @list, @list.add_class('bar')
         @list.each { |x| assert_equal 'bar', x['class'] }

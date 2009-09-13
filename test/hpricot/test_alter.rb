@@ -27,11 +27,6 @@ class TestAlter < Nokogiri::TestCase
     assert_equal 'ohmy', Nokogiri(@basic.to_html).at("#wrapper").children[0]['class']
   end
 
-  def test_remove_attr
-    all_rl = (@basic/"link").remove_attr("href")
-    assert_changed(@basic, "link", all_rl) { |link| link['href'].nil? }
-  end
-
   def assert_changed original, selector, set, &block
     assert set.all?(&block)
     assert Nokogiri(original.to_html).search(selector).all?(&block)
