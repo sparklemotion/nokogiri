@@ -479,7 +479,8 @@ module Nokogiri
       end
 
       ####
-      #  replace this Node with the +new_node+ in the Document.
+      # +replace+ this Node with the +new_node+ in the Document.  The new node
+      # must be a Nokogiri::XML::Node or a non-empty String
       def replace new_node
         if new_node.is_a?(Document) || !new_node.is_a?(XML::Node)
           raise ArgumentError, <<-EOERR
