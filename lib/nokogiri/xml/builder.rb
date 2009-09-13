@@ -221,7 +221,15 @@ module Nokogiri
             args.each do |arg|
               case arg
               when Hash
-                arg.each { |k,v| n[k.to_s] = v.to_s }
+                arg.each { |k,v|
+                  key = k.to_s
+                  if key =~ /^xmlns(:\w+)?$/
+                    ns_name = key.split(":", 2)[1]
+                    n.add_namespace_definition ns_name, v
+                    next
+                  end
+                  n[k.to_s] = v.to_s
+                }
               else
                 n.content = arg
               end

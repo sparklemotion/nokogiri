@@ -3,6 +3,33 @@ require "helper"
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_root_namespace_default_decl
+        b = Nokogiri::XML::Builder.new { |xml| xml.root(:xmlns => 'one:two') }
+        doc = b.doc
+        assert_equal 'one:two', doc.root.namespace.href
+        assert_equal({ 'xmlns' => 'one:two' }, doc.root.namespaces)
+      end
+
+      def test_root_namespace_multi_decl
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root(:xmlns => 'one:two', 'xmlns:foo' => 'bar') do
+            xml.hello
+          end
+        }
+        doc = b.doc
+        assert_equal 'one:two', doc.root.namespace.href
+        assert_equal({ 'xmlns' => 'one:two', 'xmlns:foo' => 'bar' }, doc.root.namespaces)
+
+        assert_equal 'one:two', doc.at('hello').namespace.href
+      end
+
+      def test_non_root_namespace
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root { xml.hello(:xmlns => 'one') }
+        }
+        assert_equal 'one', b.doc.at('hello', 'xmlns' => 'one').namespace.href
+      end
+
       def test_set_encoding
         builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
           xml.root do

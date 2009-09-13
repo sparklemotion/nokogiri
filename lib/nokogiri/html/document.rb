@@ -1,11 +1,6 @@
 module Nokogiri
   module HTML
     class Document < Nokogiri::XML::Document
-
-      def initialize *args
-        super
-      end
-
       ####
       # Serialize Node using +options+.  Save options can also be set using a
       # block. See SaveOptions.
