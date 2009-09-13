@@ -31,6 +31,8 @@ ext/nokogiri/xml_document_fragment.c
 ext/nokogiri/xml_document_fragment.h
 ext/nokogiri/xml_dtd.c
 ext/nokogiri/xml_dtd.h
+ext/nokogiri/xml_element_content.c
+ext/nokogiri/xml_element_content.h
 ext/nokogiri/xml_element_decl.c
 ext/nokogiri/xml_element_decl.h
 ext/nokogiri/xml_entity_decl.c
@@ -101,6 +103,7 @@ lib/nokogiri/ffi/structs/xml_buffer.rb
 lib/nokogiri/ffi/structs/xml_document.rb
 lib/nokogiri/ffi/structs/xml_dtd.rb
 lib/nokogiri/ffi/structs/xml_element.rb
+lib/nokogiri/ffi/structs/xml_element_content.rb
 lib/nokogiri/ffi/structs/xml_entity.rb
 lib/nokogiri/ffi/structs/xml_enumeration.rb
 lib/nokogiri/ffi/structs/xml_node.rb
@@ -125,6 +128,7 @@ lib/nokogiri/ffi/xml/comment.rb
 lib/nokogiri/ffi/xml/document.rb
 lib/nokogiri/ffi/xml/document_fragment.rb
 lib/nokogiri/ffi/xml/dtd.rb
+lib/nokogiri/ffi/xml/element_content.rb
 lib/nokogiri/ffi/xml/element_decl.rb
 lib/nokogiri/ffi/xml/entity_decl.rb
 lib/nokogiri/ffi/xml/entity_reference.rb
@@ -161,6 +165,7 @@ lib/nokogiri/xml/cdata.rb
 lib/nokogiri/xml/document.rb
 lib/nokogiri/xml/document_fragment.rb
 lib/nokogiri/xml/dtd.rb
+lib/nokogiri/xml/element_content.rb
 lib/nokogiri/xml/element_decl.rb
 lib/nokogiri/xml/entity_decl.rb
 lib/nokogiri/xml/fragment_handler.rb
@@ -258,6 +263,7 @@ test/xml/test_document_encoding.rb
 test/xml/test_document_fragment.rb
 test/xml/test_dtd.rb
 test/xml/test_dtd_encoding.rb
+test/xml/test_element_content.rb
 test/xml/test_element_decl.rb
 test/xml/test_entity_decl.rb
 test/xml/test_entity_reference.rb

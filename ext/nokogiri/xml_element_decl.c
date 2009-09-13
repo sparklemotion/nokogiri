@@ -13,6 +13,41 @@ static VALUE element_type(VALUE self)
   return INT2NUM((int)node->etype);
 }
 
+/*
+ * call-seq:
+ *  content
+ *
+ * The allowed content for this ElementDecl
+ */
+static VALUE content(VALUE self)
+{
+  xmlElementPtr node;
+  Data_Get_Struct(self, xmlElement, node);
+
+  if(!node->content) return Qnil;
+
+  return Nokogiri_wrap_element_content(
+      rb_funcall(self, rb_intern("document"), 0),
+      node->content
+  );
+}
+
+/*
+ * call-seq:
+ *  prefix
+ *
+ * The namespace prefix for this ElementDecl
+ */
+static VALUE prefix(VALUE self)
+{
+  xmlElementPtr node;
+  Data_Get_Struct(self, xmlElement, node);
+
+  if(!node->prefix) return Qnil;
+
+  return NOKOGIRI_STR_NEW2(node->prefix, NULL);
+}
+
 VALUE cNokogiriXmlElementDecl;
 
 void init_xml_element_decl()
@@ -25,4 +60,6 @@ void init_xml_element_decl()
   cNokogiriXmlElementDecl = klass;
 
   rb_define_method(klass, "element_type", element_type, 0);
+  rb_define_method(klass, "content", content, 0);
+  rb_define_method(klass, "prefix", prefix, 0);
 }

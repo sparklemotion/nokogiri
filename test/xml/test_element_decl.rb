@@ -9,6 +9,8 @@ module Nokogiri
 <?xml version="1.0"?><?TEST-STYLE PIDATA?>
 <!DOCTYPE staff SYSTEM "staff.dtd" [
    <!ELEMENT br EMPTY>
+   <!ELEMENT div1 (head, (p | list | note)*, div2*)>
+   <!ELEMENT my:way EMPTY>
    <!ATTLIST br width CDATA "0">
    <!ATTLIST br height CDATA "0">
 ]>
@@ -25,6 +27,11 @@ module Nokogiri
           "#<#{e.class.name}:#{sprintf("0x%x", e.object_id)} #{e.to_s.inspect}>",
           e.inspect
         )
+      end
+
+      def test_prefix
+        assert_nil @elements[1].prefix
+        assert_equal 'my', @elements[2].prefix
       end
 
       def test_line
