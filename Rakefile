@@ -103,7 +103,7 @@ end
 
 namespace :gem do
   namespace :dev do
-    task :spec do
+    task :spec => [ GENERATED_PARSER, GENERATED_TOKENIZER ] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.version = "#{HOE.version}.#{Time.now.strftime("%Y%m%d%H%M%S")}"
         f.write(HOE.spec.to_ruby)
