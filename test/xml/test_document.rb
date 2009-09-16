@@ -10,6 +10,16 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_external_subset
+        assert_nil @xml.external_subset
+        Dir.chdir(ASSETS_DIR) do
+          @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) { |cfg|
+            cfg.dtdload
+          }
+        end
+        assert @xml.external_subset
+      end
+
       def test_version
         assert_equal '1.0', @xml.version
       end

@@ -13,6 +13,7 @@
   * Added XML::DTD#system_id
   * Added XML::ElementContent for DTD Element content validity
   * Better namespace declaration support in Nokogiri::XML::Builder
+  * Added XML::Node#external_subset
 
 * Bugfixes
 

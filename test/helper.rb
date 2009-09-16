@@ -14,7 +14,7 @@ warn "#{__FILE__}:#{__LINE__}: libxml version info: #{Nokogiri::VERSION_INFO.ins
 
 module Nokogiri
   class TestCase < Test::Unit::TestCase
-    ASSETS_DIR      = File.join(File.dirname(__FILE__), 'files')
+    ASSETS_DIR      = File.expand_path File.join(File.dirname(__FILE__), 'files')
     XML_FILE        = File.join(ASSETS_DIR, 'staff.xml')
     XSLT_FILE       = File.join(ASSETS_DIR, 'staff.xslt')
     EXSLT_FILE      = File.join(ASSETS_DIR, 'exslt.xslt')

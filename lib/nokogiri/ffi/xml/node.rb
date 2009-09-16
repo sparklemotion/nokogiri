@@ -25,6 +25,15 @@ module Nokogiri
         Node.wrap(dtd)
       end
 
+      def external_subset
+        return nil if cstruct[:doc].null?
+
+        doc = cstruct.document
+        return nil if doc[:extSubset].null?
+
+        Node.wrap(doc[:extSubset])
+      end
+
       def dup(deep = 1)
         dup_ptr = LibXML.xmlDocCopyNode(cstruct, cstruct.document, deep)
         return nil if dup_ptr.null?
@@ -109,7 +118,7 @@ module Nokogiri
       end
 
       def attribute(name)
-        raise "Node#attribute not implemented yet"
+        attribute_nodes.find { |x| x.name == name }
       end
 
       def attribute_with_ns(name, namespace)

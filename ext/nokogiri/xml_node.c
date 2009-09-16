@@ -166,6 +166,27 @@ static VALUE encode_special_chars(VALUE self, VALUE string)
 
 /*
  * call-seq:
+ *  external_subset
+ *
+ * Get the external subset
+ */
+static VALUE external_subset(VALUE self)
+{
+  xmlNodePtr node;
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlNode, node);
+
+  if(!node->doc) return Qnil;
+
+  doc = node->doc;
+  xmlDtdPtr dtd = doc->extSubset;
+
+  if(!dtd) return Qnil;
+
+  return Nokogiri_wrap_xml_node(Qnil, (xmlNodePtr)dtd);
+}
+/*
+ * call-seq:
  *  internal_subset
  *
  * Get the internal subset
@@ -944,6 +965,7 @@ void init_xml_node()
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "unlink", unlink_node, 0);
   rb_define_method(klass, "internal_subset", internal_subset, 0);
+  rb_define_method(klass, "external_subset", external_subset, 0);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
 

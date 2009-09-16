@@ -11,8 +11,8 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   VALUE uri, external_id, rest, rb_doc;
 
   rb_scan_args(argc, argv, "0*", &rest);
-  uri         = rb_ary_entry(rest, 0);
-  external_id = rb_ary_entry(rest, 1);
+  uri         = rb_ary_entry(rest, (long)0);
+  external_id = rb_ary_entry(rest, (long)1);
 
   htmlDocPtr doc = htmlNewDoc(
       RTEST(uri) ? (const xmlChar *)StringValuePtr(uri) : NULL,
