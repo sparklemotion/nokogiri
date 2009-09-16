@@ -20,6 +20,28 @@ module Nokogiri
         assert @xml.external_subset
       end
 
+      def test_create_external_subset_fails_with_existing_subset
+        assert_nil @xml.external_subset
+        Dir.chdir(ASSETS_DIR) do
+          @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) { |cfg|
+            cfg.dtdload
+          }
+        end
+        assert @xml.external_subset
+
+        assert_raises(RuntimeError) do
+          @xml.create_external_subset('staff', nil, 'staff.dtd')
+        end
+      end
+
+      def test_create_external_subset
+        dtd = @xml.create_external_subset('staff', nil, 'staff.dtd')
+        assert_nil dtd.external_id
+        assert_equal 'staff.dtd', dtd.system_id
+        assert_equal 'staff', dtd.name
+        assert_equal dtd, @xml.external_subset
+      end
+
       def test_version
         assert_equal '1.0', @xml.version
       end
