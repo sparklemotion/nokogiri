@@ -128,6 +128,8 @@ module Nokogiri
     attach_function :xmlSplitQName2, [:string, :pointer], :pointer # returns char* that must be freed
     attach_function :xmlNewDocProp, [:pointer, :string, :string], :pointer
     attach_function :xmlFreePropList, [:pointer], :void
+    attach_function :xmlCreateIntSubset, [:pointer] * 4, :pointer
+    attach_function :xmlNewDtd, [:pointer] * 4, :pointer
 
     # valid.c
     attach_function :xmlNewValidCtxt, [], :pointer

@@ -18,7 +18,6 @@ module Nokogiri
       end
 
       def internal_subset
-        return nil if cstruct[:doc].null?
         doc = cstruct.document
         dtd = LibXML.xmlGetIntSubset(doc)
         return nil if dtd.null?
@@ -26,12 +25,32 @@ module Nokogiri
       end
 
       def external_subset
-        return nil if cstruct[:doc].null?
-
         doc = cstruct.document
         return nil if doc[:extSubset].null?
 
         Node.wrap(doc[:extSubset])
+      end
+
+      def create_internal_subset name, external_id, system_id
+        raise("Document already has an internal subset") if internal_subset
+
+        doc = cstruct.document
+        dtd_ptr = LibXML.xmlCreateIntSubset doc, name, external_id, system_id
+
+        return nil if dtd_ptr.null?
+
+        Node.wrap dtd_ptr
+      end
+
+      def create_external_subset name, external_id, system_id
+        raise("Document already has an external subset") if external_subset
+
+        doc = cstruct.document
+        dtd_ptr = LibXML.xmlNewDtd doc, name, external_id, system_id
+
+        return nil if dtd_ptr.null?
+
+        Node.wrap dtd_ptr
       end
 
       def dup(deep = 1)
