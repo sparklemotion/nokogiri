@@ -49,7 +49,7 @@ static VALUE read_io( VALUE klass,
       (void *)io,
       c_url,
       c_enc,
-      NUM2INT(options)
+      (int)NUM2INT(options)
   );
   xmlSetStructuredErrorFunc(NULL, NULL);
 
@@ -94,7 +94,7 @@ static VALUE read_memory( VALUE klass,
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
-  htmlDocPtr doc = htmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
+  htmlDocPtr doc = htmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if(doc == NULL) {
@@ -126,7 +126,7 @@ static VALUE type(VALUE self)
 {
   htmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
-  return INT2NUM((int)doc->type);
+  return INT2NUM((long)doc->type);
 }
 
 /*

@@ -45,7 +45,7 @@ static VALUE push(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
-  if(! rb_funcall(rb_node, rb_intern("is_a?"), 1, cNokogiriXmlNode))
+  if(!rb_obj_is_kind_of(rb_node, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
@@ -66,7 +66,7 @@ static VALUE delete(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set ;
   xmlNodePtr node ;
 
-  if(! rb_funcall(rb_node, rb_intern("is_a?"), 1, cNokogiriXmlNode))
+  if(!rb_obj_is_kind_of(rb_node, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
   
   Data_Get_Struct(self, xmlNodeSet, node_set);
@@ -92,7 +92,7 @@ static VALUE intersection(VALUE self, VALUE rb_other)
   xmlNodeSetPtr node_set;
   xmlNodeSetPtr other;
 
-  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+  if(!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet))
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
@@ -113,7 +113,7 @@ static VALUE include_eh(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
-  if(! rb_funcall(rb_node, rb_intern("is_a?"), 1, cNokogiriXmlNode))
+  if(!rb_obj_is_kind_of(rb_node, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
@@ -136,7 +136,7 @@ static VALUE set_union(VALUE self, VALUE rb_other)
   xmlNodeSetPtr other;
   xmlNodeSetPtr new;
 
-  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+  if(!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet))
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
@@ -166,7 +166,7 @@ static VALUE minus(VALUE self, VALUE rb_other)
   xmlNodeSetPtr new;
   int j ;
 
-  if(! rb_funcall(rb_other, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet))
+  if(!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet))
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
 
   Data_Get_Struct(self, xmlNodeSet, node_set);

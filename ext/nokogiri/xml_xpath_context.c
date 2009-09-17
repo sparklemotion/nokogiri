@@ -108,7 +108,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
       xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
       break;
     case T_DATA:
-      if(rb_funcall(result, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet)) {
+      if(rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
         Data_Get_Struct(result, xmlNodeSet, xml_node_set);
         // Copy the node set, otherwise it will get GC'd.
         xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
