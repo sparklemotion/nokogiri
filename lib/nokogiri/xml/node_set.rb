@@ -181,7 +181,7 @@ module Nokogiri
       # on all Node objects in the NodeSet.
       def attr key, value = nil, &blk
         unless Hash === key || key && (value || blk)
-          return first.attribute key
+          return first.attribute(key)
         end
 
         hash = key.is_a?(Hash) ? key : { key => value }
