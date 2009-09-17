@@ -166,9 +166,38 @@ static VALUE encode_special_chars(VALUE self, VALUE string)
 
 /*
  * call-seq:
- *  create_external_subset
+ *  create_internal_subset(name, external_id, system_id)
  *
- * Get the external subset
+ * Create an internal subset
+ */
+static VALUE create_internal_subset(VALUE self, VALUE name, VALUE external_id, VALUE system_id)
+{
+  xmlNodePtr node;
+  xmlDocPtr doc;
+  Data_Get_Struct(self, xmlNode, node);
+
+  doc = node->doc;
+
+  if(xmlGetIntSubset(doc))
+    rb_raise(rb_eRuntimeError, "Document already has an internal subset");
+
+  xmlDtdPtr dtd = xmlCreateIntSubset(
+      doc, 
+      Qnil == name ? NULL : (const xmlChar *)StringValuePtr(name),
+      Qnil == external_id ? NULL : (const xmlChar *)StringValuePtr(external_id),
+      Qnil == system_id ? NULL : (const xmlChar *)StringValuePtr(system_id)
+  );
+
+  if(!dtd) return Qnil;
+
+  return Nokogiri_wrap_xml_node(Qnil, (xmlNodePtr)dtd);
+}
+
+/*
+ * call-seq:
+ *  create_external_subset(name, external_id, system_id)
+ *
+ * Create an external subset
  */
 static VALUE create_external_subset(VALUE self, VALUE name, VALUE external_id, VALUE system_id)
 {
@@ -996,6 +1025,7 @@ void init_xml_node()
   rb_define_method(klass, "unlink", unlink_node, 0);
   rb_define_method(klass, "internal_subset", internal_subset, 0);
   rb_define_method(klass, "external_subset", external_subset, 0);
+  rb_define_method(klass, "create_internal_subset", create_internal_subset, 3);
   rb_define_method(klass, "create_external_subset", create_external_subset, 3);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);

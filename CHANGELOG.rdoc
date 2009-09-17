@@ -14,6 +14,8 @@
   * Added XML::ElementContent for DTD Element content validity
   * Better namespace declaration support in Nokogiri::XML::Builder
   * Added XML::Node#external_subset
+  * Added XML::Node#create_external_subset
+  * Added XML::Node#create_internal_subset
 
 * Bugfixes
 

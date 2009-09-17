@@ -10,6 +10,24 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_create_internal_subset_on_existing_subset
+        assert_not_nil @xml.internal_subset
+        assert_raises(RuntimeError) do
+          @xml.create_internal_subset('staff', nil, 'staff.dtd')
+        end
+      end
+
+      def test_create_internal_subset
+        xml = Nokogiri::XML('<root />')
+        assert_nil xml.internal_subset
+
+        xml.create_internal_subset('name', nil, 'staff.dtd')
+        ss = xml.internal_subset
+        assert_equal 'name', ss.name
+        assert_nil ss.external_id
+        assert_equal 'staff.dtd', ss.system_id
+      end
+
       def test_external_subset
         assert_nil @xml.external_subset
         Dir.chdir(ASSETS_DIR) do
