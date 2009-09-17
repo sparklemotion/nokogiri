@@ -169,7 +169,7 @@ static VALUE read_io( VALUE klass,
       (void *)io,
       c_url,
       c_enc,
-      NUM2INT(options)
+      (int)NUM2INT(options)
   );
   xmlSetStructuredErrorFunc(NULL, NULL);
 
@@ -212,7 +212,7 @@ static VALUE read_memory( VALUE klass,
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
-  xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
+  xmlDocPtr doc = xmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if(doc == NULL) {
@@ -246,12 +246,12 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   VALUE level;
 
   if(rb_scan_args(argc, argv, "01", &level) == 0)
-    level = INT2NUM(1);
+    level = INT2NUM((long)1);
 
   xmlDocPtr doc, dup;
   Data_Get_Struct(self, xmlDoc, doc);
 
-  dup = xmlCopyDoc(doc, NUM2INT(level));
+  dup = xmlCopyDoc(doc, (int)NUM2INT(level));
   if(dup == NULL) return Qnil;
 
   dup->type = doc->type;
@@ -269,7 +269,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   VALUE version, rest, rb_doc ;
 
   rb_scan_args(argc, argv, "0*", &rest);
-  version = rb_ary_entry(rest, 0);
+  version = rb_ary_entry(rest, (long)0);
   if (version == Qnil) {
     version = rb_str_new2("1.0");
   }

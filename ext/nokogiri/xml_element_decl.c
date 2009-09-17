@@ -10,7 +10,7 @@ static VALUE element_type(VALUE self)
 {
   xmlElementPtr node;
   Data_Get_Struct(self, xmlElement, node);
-  return INT2NUM((int)node->etype);
+  return INT2NUM((long)node->etype);
 }
 
 /*

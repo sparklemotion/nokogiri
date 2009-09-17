@@ -20,7 +20,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   xmlNodePtr node = xmlNewCDataBlock(
       xml_doc->doc,
       Qnil == content ? NULL : (const xmlChar *)StringValuePtr(content),
-      Qnil == content ? 0 : RSTRING_LEN(content)
+      Qnil == content ? 0 : (int)RSTRING_LEN(content)
   );
 
   NOKOGIRI_ROOT_NODE(node);

@@ -10,7 +10,7 @@ static VALUE attribute_type(VALUE self)
 {
   xmlAttributePtr node;
   Data_Get_Struct(self, xmlAttribute, node);
-  return INT2NUM((int)node->atype);
+  return INT2NUM((long)node->atype);
 }
 
 /*
