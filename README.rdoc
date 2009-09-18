@@ -33,7 +33,8 @@ to using correct CSS and XPath.
 
 == SUPPORT:
 
-The Nokogiri mailing list is available here:
+The Nokogiri {mailing list}[http://groups.google.com/group/nokogiri-talk]
+is available here:
 
   * http://groups.google.com/group/nokogiri-talk
 
