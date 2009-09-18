@@ -84,4 +84,5 @@ void Init_nokogiri()
   init_html_element_description();
   init_xml_schema();
   init_xml_relax_ng();
+  init_nokogiri_io();
 }

@@ -1,6 +1,11 @@
 #include <nokogiri.h>
 #include <libxml/parserInternals.h>
 
+static ID id_start_document, id_end_document, id_start_element, id_end_element;
+static ID id_start_element_namespace, id_end_element_namespace;
+static ID id_comment, id_characters, id_xmldecl, id_error, id_warning;
+static ID id_cdata_block, id_cAttribute;
+
 #define STRING_OR_NULL(str) \
    (RTEST(str) ? StringValuePtr(str) : NULL)
 
@@ -104,7 +109,7 @@ static VALUE native_parse_file(VALUE self, VALUE filename)
 static void start_document(void * ctx)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE doc = rb_iv_get(self, "@document");
 
   xmlParserCtxtPtr ctxt = NOKOGIRI_SAX_CTXT(ctx);
 
@@ -130,41 +135,39 @@ static void start_document(void * ctx)
           break;
       }
 
-      rb_funcall(doc, rb_intern("xmldecl"), 3, version, encoding, standalone);
+      rb_funcall(doc, id_xmldecl, 3, version, encoding, standalone);
     }
   }
 
-  rb_funcall(doc, rb_intern("start_document"), 0);
+  rb_funcall(doc, id_start_document, 0);
 }
 
 static void end_document(void * ctx)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  rb_funcall(doc, rb_intern("end_document"), 0);
+  VALUE doc = rb_iv_get(self, "@document");
+  rb_funcall(doc, id_end_document, 0);
 }
 
 static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE doc = rb_iv_get(self, "@document");
   VALUE attributes = rb_ary_new();
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   const xmlChar * attr;
   int i = 0;
   if(atts) {
     while((attr = atts[i]) != NULL) {
-      rb_funcall(attributes, rb_intern("<<"), 1,
-          NOKOGIRI_STR_NEW2(attr, STRING_OR_NULL(enc))
-      );
+      rb_ary_push(attributes, NOKOGIRI_STR_NEW2(attr, NULL));
       i++;
     }
   }
 
   rb_funcall( doc,
-              rb_intern("start_element"),
+              id_start_element,
               2,
-              NOKOGIRI_STR_NEW2(name, STRING_OR_NULL(enc)),
+              NOKOGIRI_STR_NEW2(name, NULL),
               attributes
   );
 }
@@ -173,10 +176,8 @@ static void end_element(void * ctx, const xmlChar *name)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  rb_funcall(doc, rb_intern("end_element"), 1,
-      NOKOGIRI_STR_NEW2(name, STRING_OR_NULL(enc))
-  );
+  VALUE doc = rb_iv_get(self, "@document");
+  rb_funcall(doc, id_end_element, 1, NOKOGIRI_STR_NEW2(name, NULL));
 }
 
 static VALUE attributes_as_list(
@@ -187,7 +188,7 @@ static VALUE attributes_as_list(
   VALUE list = rb_ary_new2(nb_attributes);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
-  VALUE attr_klass = rb_const_get(cNokogiriXmlSaxParser, rb_intern("Attribute"));
+  VALUE attr_klass = rb_const_get(cNokogiriXmlSaxParser, id_cAttribute);
   if (attributes) {
     /* Each attribute is an array of [localname, prefix, URI, value, end] */
     int i;
@@ -223,7 +224,7 @@ start_element_ns (
   const xmlChar ** attributes)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE doc = rb_iv_get(self, "@document");
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
   VALUE attribute_list = attributes_as_list(self, nb_attributes, attributes);
@@ -244,7 +245,7 @@ start_element_ns (
   }
 
   rb_funcall( doc,
-              rb_intern("start_element_namespace"),
+              id_start_element_namespace,
               5,
               NOKOGIRI_STR_NEW2(localname, STRING_OR_NULL(enc)),
               attribute_list,
@@ -254,7 +255,7 @@ start_element_ns (
   );
 
   rb_funcall( self,
-              rb_intern("start_element_namespace"),
+              id_start_element_namespace,
               5,
               NOKOGIRI_STR_NEW2(localname, STRING_OR_NULL(enc)),
               attribute_list,
@@ -275,16 +276,16 @@ end_element_ns (
   const xmlChar * uri)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE doc = rb_iv_get(self, "@document");
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
-  rb_funcall(doc, rb_intern("end_element_namespace"), 3, 
+  rb_funcall(doc, id_end_element_namespace, 3, 
     NOKOGIRI_STR_NEW2(localname, STRING_OR_NULL(enc)),
     RBSTR_OR_QNIL(prefix, enc),
     RBSTR_OR_QNIL(uri, enc)
   );
 
-  rb_funcall(self, rb_intern("end_element_namespace"), 3, 
+  rb_funcall(self, id_end_element_namespace, 3, 
     NOKOGIRI_STR_NEW2(localname, STRING_OR_NULL(enc)),
     RBSTR_OR_QNIL(prefix, enc),
     RBSTR_OR_QNIL(uri, enc)
@@ -295,24 +296,24 @@ static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE str = NOKOGIRI_STR_NEW(ch, len, STRING_OR_NULL(enc));
-  rb_funcall(doc, rb_intern("characters"), 1, str);
+  VALUE doc = rb_iv_get(self, "@document");
+  VALUE str = NOKOGIRI_STR_NEW(ch, len, NULL);
+  rb_funcall(doc, id_characters, 1, str);
 }
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE str = NOKOGIRI_STR_NEW2(value, STRING_OR_NULL(enc));
-  rb_funcall(doc, rb_intern("comment"), 1, str);
+  VALUE doc = rb_iv_get(self, "@document");
+  VALUE str = NOKOGIRI_STR_NEW2(value, NULL);
+  rb_funcall(doc, id_comment, 1, str);
 }
 
 static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE doc = rb_iv_get(self, "@document");
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   char * message;
 
@@ -321,9 +322,7 @@ static void warning_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, rb_intern("warning"), 1,
-      NOKOGIRI_STR_NEW2(message, STRING_OR_NULL(enc))
-  );
+  rb_funcall(doc, id_warning, 1, NOKOGIRI_STR_NEW2(message, NULL));
   free(message);
 }
 
@@ -331,7 +330,7 @@ static void error_func(void * ctx, const char *msg, ...)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
+  VALUE doc = rb_iv_get(self, "@document");
   char * message;
 
   va_list args;
@@ -339,9 +338,7 @@ static void error_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, rb_intern("error"), 1,
-      NOKOGIRI_STR_NEW2(message, STRING_OR_NULL(enc))
-  );
+  rb_funcall(doc, id_error, 1, NOKOGIRI_STR_NEW2(message, NULL));
   free(message);
 }
 
@@ -349,10 +346,9 @@ static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE doc = rb_funcall(self, rb_intern("document"), 0);
-  VALUE string =
-    NOKOGIRI_STR_NEW(value, len, STRING_OR_NULL(enc));
-  rb_funcall(doc, rb_intern("cdata_block"), 1, string);
+  VALUE doc = rb_iv_get(self, "@document");
+  VALUE string = NOKOGIRI_STR_NEW(value, len, NULL);
+  rb_funcall(doc, id_cdata_block, 1, string);
 }
 
 static void deallocate(xmlSAXHandlerPtr handler)
@@ -398,4 +394,18 @@ void init_xml_sax_parser()
   rb_define_method(klass, "parse_memory", parse_memory, 1);
   rb_define_private_method(klass, "native_parse_file", native_parse_file, 1);
   rb_define_private_method(klass, "native_parse_io", native_parse_io, 2);
+
+  id_start_document = rb_intern("start_document");
+  id_end_document   = rb_intern("end_document");
+  id_start_element  = rb_intern("start_element");
+  id_end_element    = rb_intern("end_element");
+  id_comment        = rb_intern("comment");
+  id_characters     = rb_intern("characters");
+  id_xmldecl        = rb_intern("xmldecl");
+  id_error          = rb_intern("error");
+  id_warning        = rb_intern("warning");
+  id_cdata_block    = rb_intern("cdata_block");
+  id_cAttribute     = rb_intern("Attribute");
+  id_start_element_namespace = rb_intern("start_element_namespace");
+  id_end_element_namespace = rb_intern("end_element_namespace");
 }

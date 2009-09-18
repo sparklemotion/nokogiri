@@ -194,11 +194,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   assert(ctx->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctx->doc));
 
-  rb_funcall( xpath_object,
-              rb_intern("document="),
-              1,
-              DOC_RUBY_OBJECT(ctx->doc)
-   );
+  rb_iv_set(xpath_object, "@document", DOC_RUBY_OBJECT(ctx->doc));
   return xpath_object;
 }
 

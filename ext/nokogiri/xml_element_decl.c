@@ -1,5 +1,7 @@
 #include <xml_element_decl.h>
 
+static ID id_document;
+
 /*
  * call-seq:
  *  element_type
@@ -27,7 +29,7 @@ static VALUE content(VALUE self)
   if(!node->content) return Qnil;
 
   return Nokogiri_wrap_element_content(
-      rb_funcall(self, rb_intern("document"), 0),
+      rb_funcall(self, id_document, 0),
       node->content
   );
 }
@@ -62,4 +64,6 @@ void init_xml_element_decl()
   rb_define_method(klass, "element_type", element_type, 0);
   rb_define_method(klass, "content", content, 0);
   rb_define_method(klass, "prefix", prefix, 0);
+
+  id_document = rb_intern("document");
 }

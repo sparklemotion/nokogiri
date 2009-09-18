@@ -186,7 +186,7 @@ static VALUE read_io( VALUE klass,
   }
 
   VALUE document = Nokogiri_wrap_xml_document(klass, doc);
-  rb_funcall(document, rb_intern("errors="), 1, error_list);
+  rb_iv_set(document, "@errors", error_list);
   return document;
 }
 
@@ -226,7 +226,7 @@ static VALUE read_memory( VALUE klass,
   }
 
   VALUE document = Nokogiri_wrap_xml_document(klass, doc);
-  rb_funcall(document, rb_intern("errors="), 1, error_list);
+  rb_iv_set(document, "@errors", error_list);
   return document;
 }
 

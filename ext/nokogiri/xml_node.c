@@ -1,5 +1,7 @@
 #include <xml_node.h>
 
+static ID decorate, decorate_bang;
+
 #ifdef DEBUG
 static void debug_node_dealloc(xmlNodePtr x)
 {
@@ -110,7 +112,7 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
 
   reparented_obj = Nokogiri_wrap_xml_node(Qnil, reparented);
 
-  rb_funcall(reparented_obj, rb_intern("decorate!"), 0);
+  rb_funcall(reparented_obj, decorate_bang, 0);
 
   return reparented_obj ;
 }
@@ -964,7 +966,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
     document = DOC_RUBY_OBJECT(node->doc);
     node_cache = DOC_NODE_CACHE(node->doc);
     rb_ary_push(node_cache, rb_node);
-    rb_funcall(document, rb_intern("decorate"), 1, rb_node);
+    rb_funcall(document, decorate, 1, rb_node);
   }
 
   return rb_node ;
@@ -1037,4 +1039,7 @@ void init_xml_node()
   rb_define_private_method(klass, "get", get, 1);
   rb_define_private_method(klass, "set_namespace", set_namespace, 1);
   rb_define_private_method(klass, "compare", compare, 1);
+
+  decorate = rb_intern("decorate");
+  decorate_bang = rb_intern("decorate!");
 }

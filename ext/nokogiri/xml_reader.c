@@ -191,7 +191,7 @@ static VALUE attribute_at(VALUE self, VALUE index)
   Data_Get_Struct(self, xmlTextReader, reader);
 
   if(index == Qnil) return Qnil;
-  index = rb_funcall(index, rb_intern("to_i"), 0);
+  index = rb_Integer(index);
 
   xmlChar * value = xmlTextReaderGetAttributeNo(
       reader,
