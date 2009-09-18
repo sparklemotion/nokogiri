@@ -1,6 +1,6 @@
 module Nokogiri
   module XML
-    class Text < Node
+    class Text < CharacterData
 
       def self.new(string, document, *rest) # :nodoc:
         node_ptr = LibXML.xmlNewText(string)

@@ -433,3 +433,4 @@ module Nokogiri
   end
 end
 class Nokogiri::XML::Element < Nokogiri::XML::Node; end
+class Nokogiri::XML::CharacterData < Nokogiri::XML::Node; end
