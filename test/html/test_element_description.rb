@@ -66,7 +66,6 @@ module Nokogiri
       def test_optional_attributes
         attrs = ElementDescription['table'].optional_attributes
         assert attrs
-        assert_equal 22, attrs.length
       end
 
       def test_deprecated_attributes
