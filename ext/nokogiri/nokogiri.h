@@ -45,26 +45,16 @@ int is_2_6_16(void) ;
 #define NOKOGIRI_STR_NEW2(str, encoding) \
   ({ \
     VALUE _string = rb_str_new2((const char *)str); \
-    if(NULL != encoding) { \
-      int _enc = rb_enc_find_index("UTF-8"); \
-      if(_enc == -1) \
-        rb_enc_associate_index(_string, rb_enc_find_index("ASCII")); \
-      else \
-        rb_enc_associate_index(_string, _enc); \
-    } \
+    int _enc = rb_enc_find_index("UTF-8"); \
+    rb_enc_associate_index(_string, _enc); \
     _string; \
   })
 
 #define NOKOGIRI_STR_NEW(str, len, encoding) \
   ({ \
     VALUE _string = rb_str_new((const char *)str, (long)len); \
-    if(NULL != encoding) { \
-      int _enc = rb_enc_find_index("UTF-8"); \
-      if(_enc == -1) \
-        rb_enc_associate_index(_string, rb_enc_find_index("ASCII")); \
-      else \
-        rb_enc_associate_index(_string, _enc); \
-    } \
+    int _enc = rb_enc_find_index("UTF-8"); \
+    rb_enc_associate_index(_string, _enc); \
     _string; \
   })
 
