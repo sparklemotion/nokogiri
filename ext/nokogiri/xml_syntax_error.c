@@ -168,9 +168,7 @@ void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 
 void Nokogiri_error_raise(void * ctx, xmlErrorPtr error)
 {
-  rb_funcall(rb_mKernel, rb_intern("raise"), 1,
-      Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error)
-  );
+  rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
 }
 
 VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error)

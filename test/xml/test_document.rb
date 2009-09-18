@@ -349,6 +349,12 @@ module Nokogiri
             cfg.strict
           }
         }
+
+        assert_raises(Nokogiri::XML::SyntaxError) {
+          Nokogiri::XML(StringIO.new('<foo><bar></foo>')) { |cfg|
+            cfg.strict
+          }
+        }
       end
 
       def test_XML_function

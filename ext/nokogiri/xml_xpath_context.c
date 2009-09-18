@@ -135,9 +135,7 @@ static void xpath_exception_handler(void * ctx, xmlErrorPtr error)
   VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
   VALUE klass = rb_const_get(xpath, rb_intern("SyntaxError"));
 
-  rb_funcall(rb_mKernel, rb_intern("raise"), 1,
-    Nokogiri_wrap_xml_syntax_error(klass, error)
-  );
+  rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
 }
 
 static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
@@ -191,9 +189,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
     VALUE klass = rb_const_get(xpath, rb_intern("SyntaxError"));
 
     xmlErrorPtr error = xmlGetLastError();
-    rb_funcall(rb_mKernel, rb_intern("raise"), 1,
-        Nokogiri_wrap_xml_syntax_error(klass, error)
-    );
+    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
   }
 
   VALUE xpath_object = Nokogiri_wrap_xml_xpath(xpath);
