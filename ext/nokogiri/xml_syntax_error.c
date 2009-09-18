@@ -44,8 +44,7 @@ static VALUE str3(VALUE self)
 {
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
-  if(error->str3)
-    return NOKOGIRI_STR_NEW2(error->str3, "UTF-8");
+  if(error->str3) return NOKOGIRI_STR_NEW2(error->str3);
   return Qnil;
 }
 
@@ -59,8 +58,7 @@ static VALUE str2(VALUE self)
 {
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
-  if(error->str2)
-    return NOKOGIRI_STR_NEW2(error->str2, "UTF-8");
+  if(error->str2) return NOKOGIRI_STR_NEW2(error->str2);
   return Qnil;
 }
 
@@ -74,8 +72,7 @@ static VALUE str1(VALUE self)
 {
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
-  if(error->str1)
-    return NOKOGIRI_STR_NEW2(error->str1, "UTF-8");
+  if(error->str1) return NOKOGIRI_STR_NEW2(error->str1);
   return Qnil;
 }
 
@@ -102,8 +99,7 @@ static VALUE file(VALUE self)
 {
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
-  if(error->file)
-    return NOKOGIRI_STR_NEW2(error->file, "UTF-8");
+  if(error->file) return NOKOGIRI_STR_NEW2(error->file);
 
   return Qnil;
 }
@@ -157,7 +153,7 @@ static VALUE message(VALUE self)
 {
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
-  return NOKOGIRI_STR_NEW2(error->message, "UTF-8");
+  return NOKOGIRI_STR_NEW2(error->message);
 }
 
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)

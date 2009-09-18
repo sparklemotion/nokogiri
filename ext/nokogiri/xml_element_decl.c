@@ -47,7 +47,7 @@ static VALUE prefix(VALUE self)
 
   if(!node->prefix) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(node->prefix, NULL);
+  return NOKOGIRI_STR_NEW2(node->prefix);
 }
 
 VALUE cNokogiriXmlElementDecl;

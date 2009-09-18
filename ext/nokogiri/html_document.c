@@ -156,7 +156,7 @@ static VALUE meta_encoding(VALUE self)
 
   if(NULL == meta) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(meta, doc->encoding);
+  return NOKOGIRI_STR_NEW2(meta);
 }
 
 VALUE cNokogiriHtmlDocument ;

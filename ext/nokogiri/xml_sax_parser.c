@@ -9,8 +9,8 @@ static ID id_cdata_block, id_cAttribute;
 #define STRING_OR_NULL(str) \
    (RTEST(str) ? StringValuePtr(str) : NULL)
 
-#define RBSTR_OR_QNIL(_str, rb_enc) \
-  (_str ? NOKOGIRI_STR_NEW2(_str, STRING_OR_NULL(rb_enc)) : Qnil)
+#define RBSTR_OR_QNIL(_str) \
+  (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
 
 static void Nokogiri_sax_parse_document(
@@ -53,7 +53,7 @@ static VALUE parse_memory(VALUE self, VALUE data)
 
   xmlParserCtxtPtr ctxt = xmlCreateMemoryParserCtxt(
       StringValuePtr(data),
-      RSTRING_LEN(data)
+      (int)RSTRING_LEN(data)
   );
 
   Nokogiri_sax_parse_document(self, ctxt, handler);
@@ -116,11 +116,11 @@ static void start_document(void * ctx)
   if(NULL != ctxt && ctxt->html != 1) {
     if(ctxt->standalone != -1) {  // -1 means there was no declaration
       VALUE encoding = ctxt->encoding ?
-        NOKOGIRI_STR_NEW2(ctxt->encoding, "UTF-8") :
+        NOKOGIRI_STR_NEW2(ctxt->encoding) :
         Qnil;
 
       VALUE version = ctxt->version ?
-        NOKOGIRI_STR_NEW2(ctxt->version, "UTF-8") :
+        NOKOGIRI_STR_NEW2(ctxt->version) :
         Qnil;
 
       VALUE standalone = Qnil;
@@ -128,10 +128,10 @@ static void start_document(void * ctx)
       switch(ctxt->standalone)
       {
         case 0:
-          standalone = NOKOGIRI_STR_NEW2("no", "UTF-8");
+          standalone = NOKOGIRI_STR_NEW2("no");
           break;
         case 1:
-          standalone = NOKOGIRI_STR_NEW2("yes", "UTF-8");
+          standalone = NOKOGIRI_STR_NEW2("yes");
           break;
       }
 
@@ -154,12 +154,11 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
   VALUE attributes = rb_ary_new();
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   const xmlChar * attr;
   int i = 0;
   if(atts) {
     while((attr = atts[i]) != NULL) {
-      rb_ary_push(attributes, NOKOGIRI_STR_NEW2(attr, NULL));
+      rb_ary_push(attributes, NOKOGIRI_STR_NEW2(attr));
       i++;
     }
   }
@@ -167,7 +166,7 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   rb_funcall( doc,
               id_start_element,
               2,
-              NOKOGIRI_STR_NEW2(name, NULL),
+              NOKOGIRI_STR_NEW2(name),
               attributes
   );
 }
@@ -175,9 +174,8 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
 static void end_element(void * ctx, const xmlChar *name)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_iv_get(self, "@document");
-  rb_funcall(doc, id_end_element, 1, NOKOGIRI_STR_NEW2(name, NULL));
+  rb_funcall(doc, id_end_element, 1, NOKOGIRI_STR_NEW2(name));
 }
 
 static VALUE attributes_as_list(
@@ -186,7 +184,6 @@ static VALUE attributes_as_list(
   const xmlChar ** attributes)
 {
   VALUE list = rb_ary_new2(nb_attributes);
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
   VALUE attr_klass = rb_const_get(cNokogiriXmlSaxParser, id_cAttribute);
   if (attributes) {
@@ -194,14 +191,13 @@ static VALUE attributes_as_list(
     int i;
     for (i = 0; i < nb_attributes * 5; i += 5) {
       VALUE argv[4];
-      argv[0] = RBSTR_OR_QNIL(attributes[i + 0], enc); /* localname */
-      argv[1] = RBSTR_OR_QNIL(attributes[i + 1], enc); /* prefix */
-      argv[2] = RBSTR_OR_QNIL(attributes[i + 2], enc); /* URI */
+      argv[0] = RBSTR_OR_QNIL(attributes[i + 0]); /* localname */
+      argv[1] = RBSTR_OR_QNIL(attributes[i + 1]); /* prefix */
+      argv[2] = RBSTR_OR_QNIL(attributes[i + 2]); /* URI */
 
       /* value */
       argv[3] = NOKOGIRI_STR_NEW((const char*)attributes[i+3],
-          (attributes[i+4] - attributes[i+3]),
-          STRING_OR_NULL(enc));
+          (attributes[i+4] - attributes[i+3]));
 
       VALUE attribute = rb_class_new_instance(4, argv, attr_klass);
       rb_ary_push(list, attribute);
@@ -225,7 +221,6 @@ start_element_ns (
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
   VALUE attribute_list = attributes_as_list(self, nb_attributes, attributes);
 
@@ -237,8 +232,8 @@ start_element_ns (
     {
       rb_ary_push(ns_list,
         rb_ary_new3(2,
-          RBSTR_OR_QNIL(namespaces[i + 0], enc),
-          RBSTR_OR_QNIL(namespaces[i + 1], enc)
+          RBSTR_OR_QNIL(namespaces[i + 0]),
+          RBSTR_OR_QNIL(namespaces[i + 1])
         )
       );
     }
@@ -247,20 +242,20 @@ start_element_ns (
   rb_funcall( doc,
               id_start_element_namespace,
               5,
-              NOKOGIRI_STR_NEW2(localname, STRING_OR_NULL(enc)),
+              NOKOGIRI_STR_NEW2(localname),
               attribute_list,
-              RBSTR_OR_QNIL(prefix, enc),
-              RBSTR_OR_QNIL(uri, enc),
+              RBSTR_OR_QNIL(prefix),
+              RBSTR_OR_QNIL(uri),
               ns_list
   );
 
   rb_funcall( self,
               id_start_element_namespace,
               5,
-              NOKOGIRI_STR_NEW2(localname, STRING_OR_NULL(enc)),
+              NOKOGIRI_STR_NEW2(localname),
               attribute_list,
-              RBSTR_OR_QNIL(prefix, enc),
-              RBSTR_OR_QNIL(uri, enc),
+              RBSTR_OR_QNIL(prefix),
+              RBSTR_OR_QNIL(uri),
               ns_list
   );
 }
@@ -277,36 +272,33 @@ end_element_ns (
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
 
   rb_funcall(doc, id_end_element_namespace, 3, 
-    NOKOGIRI_STR_NEW2(localname, STRING_OR_NULL(enc)),
-    RBSTR_OR_QNIL(prefix, enc),
-    RBSTR_OR_QNIL(uri, enc)
+    NOKOGIRI_STR_NEW2(localname),
+    RBSTR_OR_QNIL(prefix),
+    RBSTR_OR_QNIL(uri)
   );
 
   rb_funcall(self, id_end_element_namespace, 3, 
-    NOKOGIRI_STR_NEW2(localname, STRING_OR_NULL(enc)),
-    RBSTR_OR_QNIL(prefix, enc),
-    RBSTR_OR_QNIL(uri, enc)
+    NOKOGIRI_STR_NEW2(localname),
+    RBSTR_OR_QNIL(prefix),
+    RBSTR_OR_QNIL(uri)
   );
 }
 
 static void characters_func(void * ctx, const xmlChar * ch, int len)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_iv_get(self, "@document");
-  VALUE str = NOKOGIRI_STR_NEW(ch, len, NULL);
+  VALUE str = NOKOGIRI_STR_NEW(ch, len);
   rb_funcall(doc, id_characters, 1, str);
 }
 
 static void comment_func(void * ctx, const xmlChar * value)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_iv_get(self, "@document");
-  VALUE str = NOKOGIRI_STR_NEW2(value, NULL);
+  VALUE str = NOKOGIRI_STR_NEW2(value);
   rb_funcall(doc, id_comment, 1, str);
 }
 
@@ -314,7 +306,6 @@ static void warning_func(void * ctx, const char *msg, ...)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   char * message;
 
   va_list args;
@@ -322,14 +313,13 @@ static void warning_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, id_warning, 1, NOKOGIRI_STR_NEW2(message, NULL));
+  rb_funcall(doc, id_warning, 1, NOKOGIRI_STR_NEW2(message));
   free(message);
 }
 
 static void error_func(void * ctx, const char *msg, ...)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_iv_get(self, "@document");
   char * message;
 
@@ -338,16 +328,15 @@ static void error_func(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, id_error, 1, NOKOGIRI_STR_NEW2(message, NULL));
+  rb_funcall(doc, id_error, 1, NOKOGIRI_STR_NEW2(message));
   free(message);
 }
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE doc = rb_iv_get(self, "@document");
-  VALUE string = NOKOGIRI_STR_NEW(value, len, NULL);
+  VALUE string = NOKOGIRI_STR_NEW(value, len);
   rb_funcall(doc, id_cdata_block, 1, string);
 }
 

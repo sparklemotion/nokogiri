@@ -46,7 +46,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     obj = valuePop(ctx);
     switch(obj->type) {
       case XPATH_STRING:
-        argv[i] = NOKOGIRI_STR_NEW2(obj->stringval, ctx->context->doc->encoding);
+        argv[i] = NOKOGIRI_STR_NEW2(obj->stringval);
         break;
       case XPATH_BOOLEAN:
         argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
@@ -58,9 +58,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
         argv[i] = Nokogiri_wrap_xml_node_set(obj->nodesetval);
         break;
       default:
-        argv[i] = NOKOGIRI_STR_NEW2(
-            xmlXPathCastToString(obj), ctx->context->doc->encoding
-        );
+        argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
     }
     xmlXPathFreeNodeSetList(obj);
   } while(i-- > 0);

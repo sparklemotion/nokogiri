@@ -14,7 +14,7 @@ static VALUE get_name(VALUE self)
   Data_Get_Struct(self, xmlElementContent, elem);
 
   if(!elem->name) return Qnil;
-  return NOKOGIRI_STR_NEW2(elem->name, NULL);
+  return NOKOGIRI_STR_NEW2(elem->name);
 }
 
 /*
@@ -90,7 +90,7 @@ static VALUE get_prefix(VALUE self)
 
   if(!elem->prefix) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(elem->prefix, NULL);
+  return NOKOGIRI_STR_NEW2(elem->prefix);
 }
 
 VALUE Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element)

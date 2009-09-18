@@ -18,7 +18,7 @@ static VALUE prefix(VALUE self)
 
   Data_Get_Struct(rb_iv_get(self, "@document"), xmlDoc, doc);
 
-  return NOKOGIRI_STR_NEW2(ns->prefix, doc->encoding);
+  return NOKOGIRI_STR_NEW2(ns->prefix);
 }
 
 /*
@@ -37,7 +37,7 @@ static VALUE href(VALUE self)
 
   Data_Get_Struct(rb_iv_get(self, "@document"), xmlDoc, doc);
 
-  return NOKOGIRI_STR_NEW2(ns->href, doc->encoding);
+  return NOKOGIRI_STR_NEW2(ns->href);
 }
 
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)

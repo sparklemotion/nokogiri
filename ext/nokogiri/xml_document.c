@@ -45,8 +45,7 @@ static VALUE url(VALUE self)
   xmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
 
-  if(doc->URL)
-    return NOKOGIRI_STR_NEW2(doc->URL, doc->encoding);
+  if(doc->URL) return NOKOGIRI_STR_NEW2(doc->URL);
 
   return Qnil;
 }
@@ -126,7 +125,7 @@ static VALUE encoding(VALUE self)
   Data_Get_Struct(self, xmlDoc, doc);
 
   if(!doc->encoding) return Qnil;
-  return NOKOGIRI_STR_NEW2(doc->encoding, doc->encoding);
+  return NOKOGIRI_STR_NEW2(doc->encoding);
 }
 
 /*
@@ -141,7 +140,7 @@ static VALUE version(VALUE self)
   Data_Get_Struct(self, xmlDoc, doc);
 
   if(!doc->version) return Qnil;
-  return NOKOGIRI_STR_NEW2(doc->version, NULL);
+  return NOKOGIRI_STR_NEW2(doc->version);
 }
 
 /*

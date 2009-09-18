@@ -16,8 +16,8 @@ static VALUE get(VALUE self, VALUE key)
 
   VALUE args[3];
   args[0] = INT2NUM((long)desc->value);
-  args[1] = NOKOGIRI_STR_NEW2(desc->name, "UTF-8");
-  args[2] = NOKOGIRI_STR_NEW2(desc->desc, "UTF-8");
+  args[1] = NOKOGIRI_STR_NEW2(desc->name);
+  args[2] = NOKOGIRI_STR_NEW2(desc->desc);
 
   return rb_class_new_instance(3, args, klass);
 }

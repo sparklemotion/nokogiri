@@ -13,7 +13,7 @@ static VALUE original_content(VALUE self)
 
   if(!node->orig) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(node->orig, NULL);
+  return NOKOGIRI_STR_NEW2(node->orig);
 }
 
 /*
@@ -29,7 +29,7 @@ static VALUE get_content(VALUE self)
 
   if(!node->content) return Qnil;
 
-  return NOKOGIRI_STR_NEW(node->content, node->length, NULL);
+  return NOKOGIRI_STR_NEW(node->content, node->length);
 }
 
 /*
@@ -59,7 +59,7 @@ static VALUE external_id(VALUE self)
 
   if(!node->ExternalID) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(node->ExternalID, NULL);
+  return NOKOGIRI_STR_NEW2(node->ExternalID);
 }
 
 /*
@@ -75,7 +75,7 @@ static VALUE system_id(VALUE self)
 
   if(!node->SystemID) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(node->SystemID, NULL);
+  return NOKOGIRI_STR_NEW2(node->SystemID);
 }
 
 VALUE cNokogiriXmlEntityDecl;

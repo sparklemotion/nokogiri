@@ -8,13 +8,13 @@ static void notation_copier(void *payload, void *data, xmlChar *name)
   xmlNotationPtr c_notation = (xmlNotationPtr)payload;
 
   VALUE argv[3];
-  argv[0] = (c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name, 0) : Qnil);
-  argv[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID, 0) : Qnil);
-  argv[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID, 0) : Qnil);
+  argv[0] = (c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name) : Qnil);
+  argv[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID) : Qnil);
+  argv[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID) : Qnil);
 
   VALUE notation = rb_class_new_instance(3, argv, klass);
 
-  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name, "UTF-8"),notation);
+  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name),notation);
 }
 
 static void element_copier(void *_payload, void *data, xmlChar *name)
@@ -24,7 +24,7 @@ static void element_copier(void *_payload, void *data, xmlChar *name)
 
   VALUE element = Nokogiri_wrap_xml_node(Qnil, payload);
 
-  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name, payload->doc->encoding), element);
+  rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name), element);
 }
 
 /*
@@ -148,7 +148,7 @@ static VALUE system_id(VALUE self)
 
   if(!dtd->SystemID) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(dtd->SystemID, NULL);
+  return NOKOGIRI_STR_NEW2(dtd->SystemID);
 }
 
 /*
@@ -164,7 +164,7 @@ static VALUE external_id(VALUE self)
 
   if(!dtd->ExternalID) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(dtd->ExternalID, NULL);
+  return NOKOGIRI_STR_NEW2(dtd->ExternalID);
 }
 
 VALUE cNokogiriXmlDtd;

@@ -46,11 +46,11 @@ void Init_nokogiri()
 
   rb_const_set( mNokogiri,
                 rb_intern("LIBXML_VERSION"),
-                NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION, "UTF-8")
+                NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION)
               );
   rb_const_set( mNokogiri,
                 rb_intern("LIBXML_PARSER_VERSION"),
-                NOKOGIRI_STR_NEW2(xmlParserVersion, "UTF-8")
+                NOKOGIRI_STR_NEW2(xmlParserVersion)
               );
 
   xmlInitParser();

@@ -54,8 +54,8 @@ static void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
     }
 
     rb_hash_aset(attr_hash,
-        NOKOGIRI_STR_NEW2(key, node->doc->encoding),
-        (ns->href ? NOKOGIRI_STR_NEW2(ns->href, node->doc->encoding) : Qnil)
+        NOKOGIRI_STR_NEW2(key),
+        (ns->href ? NOKOGIRI_STR_NEW2(ns->href) : Qnil)
     );
     if (key != buffer) {
       free(key);
@@ -200,8 +200,7 @@ static VALUE attribute_at(VALUE self, VALUE index)
   if(value == NULL) return Qnil;
 
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE rb_value = NOKOGIRI_STR_NEW2(value,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  VALUE rb_value = NOKOGIRI_STR_NEW2(value);
   xmlFree(value);
   return rb_value;
 }
@@ -238,8 +237,7 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   if(value == NULL) return Qnil;
 
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE rb_value = NOKOGIRI_STR_NEW2(value,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  VALUE rb_value = NOKOGIRI_STR_NEW2(value);
   xmlFree(value);
   return rb_value;
 }
@@ -289,7 +287,7 @@ static VALUE xml_version(VALUE self)
   const char * version = (const char *)xmlTextReaderConstXmlVersion(reader);
   if(version == NULL) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(version, "UTF-8");
+  return NOKOGIRI_STR_NEW2(version);
 }
 
 /*
@@ -306,8 +304,7 @@ static VALUE lang(VALUE self)
   if(lang == NULL) return Qnil;
 
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(lang,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(lang);
 }
 
 /*
@@ -324,8 +321,7 @@ static VALUE value(VALUE self)
   if(value == NULL) return Qnil;
 
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(value,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(value);
 }
 
 /*
@@ -342,8 +338,7 @@ static VALUE prefix(VALUE self)
   if(prefix == NULL) return Qnil;
 
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(prefix,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(prefix);
 }
 
 /*
@@ -360,8 +355,7 @@ static VALUE namespace_uri(VALUE self)
   if(uri == NULL) return Qnil;
 
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(uri,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(uri);
 }
 
 /*
@@ -378,8 +372,7 @@ static VALUE local_name(VALUE self)
   if(name == NULL) return Qnil;
 
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(name,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(name);
 }
 
 /*
@@ -396,8 +389,7 @@ static VALUE name(VALUE self)
   if(name == NULL) return Qnil;
 
   VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(name,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(name);
 }
 
 /*

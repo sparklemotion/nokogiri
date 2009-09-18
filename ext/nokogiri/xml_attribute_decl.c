@@ -24,7 +24,7 @@ static VALUE default_value(VALUE self)
   xmlAttributePtr node;
   Data_Get_Struct(self, xmlAttribute, node);
 
-  if(node->defaultValue) return NOKOGIRI_STR_NEW2(node->defaultValue, NULL);
+  if(node->defaultValue) return NOKOGIRI_STR_NEW2(node->defaultValue);
   return Qnil;
 }
 
@@ -43,7 +43,7 @@ static VALUE enumeration(VALUE self)
   xmlEnumerationPtr enm = node->tree;
 
   while(enm) {
-    rb_ary_push(list, NOKOGIRI_STR_NEW2(enm->name, NULL));
+    rb_ary_push(list, NOKOGIRI_STR_NEW2(enm->name));
     enm = enm->next;
   }
 

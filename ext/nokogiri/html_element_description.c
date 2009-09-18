@@ -17,7 +17,7 @@ static VALUE required_attributes(VALUE self)
 
   int i = 0;
   while(description->attrs_req[i]) {
-    rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_req[i], "UTF-8"));
+    rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_req[i]));
     i++;
   }
 
@@ -41,7 +41,7 @@ static VALUE deprecated_attributes(VALUE self)
 
   int i = 0;
   while(description->attrs_depr[i]) {
-    rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_depr[i], "UTF-8"));
+    rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_depr[i]));
     i++;
   }
 
@@ -65,7 +65,7 @@ static VALUE optional_attributes(VALUE self)
 
   int i = 0;
   while(description->attrs_opt[i]) {
-    rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_opt[i], "UTF-8"));
+    rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_opt[i]));
     i++;
   }
 
@@ -83,7 +83,7 @@ static VALUE default_sub_element(VALUE self)
   htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  return NOKOGIRI_STR_NEW2(description->defaultsubelt, "UTF-8");
+  return NOKOGIRI_STR_NEW2(description->defaultsubelt);
 }
 
 /*
@@ -103,7 +103,7 @@ static VALUE sub_elements(VALUE self)
 
   int i = 0;
   while(description->subelts[i]) {
-    rb_ary_push(list, NOKOGIRI_STR_NEW2(description->subelts[i], "UTF-8"));
+    rb_ary_push(list, NOKOGIRI_STR_NEW2(description->subelts[i]));
     i++;
   }
 
@@ -121,7 +121,7 @@ static VALUE description(VALUE self)
   htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  return NOKOGIRI_STR_NEW2(description->desc, "UTF-8");
+  return NOKOGIRI_STR_NEW2(description->desc);
 }
 
 /*
@@ -226,7 +226,7 @@ static VALUE name(VALUE self)
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if(NULL == description->name) return Qnil;
-  return NOKOGIRI_STR_NEW2(description->name, "UTF-8");
+  return NOKOGIRI_STR_NEW2(description->name);
 }
 
 /*
