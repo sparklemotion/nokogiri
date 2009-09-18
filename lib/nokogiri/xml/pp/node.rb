@@ -2,9 +2,7 @@ module Nokogiri
   module XML
     module PP
       module Node
-        ###
-        # Inspect this node
-        def inspect
+        def inspect # :nodoc:
           attributes = inspect_attributes.reject { |x|
             begin
               attribute = send x
@@ -18,7 +16,7 @@ module Nokogiri
           "#<#{self.class.name}:#{sprintf("0x%x", object_id)} #{attributes}>"
         end
 
-        def pretty_print pp
+        def pretty_print pp # :nodoc:
           nice_name = self.class.name.split('::').last
           pp.group(2, "#(#{nice_name}:#{sprintf("0x%x", object_id)} {", '})') do
 
