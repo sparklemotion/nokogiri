@@ -162,6 +162,7 @@ lib/nokogiri/xml/attr.rb
 lib/nokogiri/xml/attribute_decl.rb
 lib/nokogiri/xml/builder.rb
 lib/nokogiri/xml/cdata.rb
+lib/nokogiri/xml/character_data.rb
 lib/nokogiri/xml/document.rb
 lib/nokogiri/xml/document_fragment.rb
 lib/nokogiri/xml/dtd.rb
@@ -185,7 +186,6 @@ lib/nokogiri/xml/sax/parser.rb
 lib/nokogiri/xml/sax/push_parser.rb
 lib/nokogiri/xml/schema.rb
 lib/nokogiri/xml/syntax_error.rb
-lib/nokogiri/xml/text.rb
 lib/nokogiri/xml/xpath.rb
 lib/nokogiri/xml/xpath/syntax_error.rb
 lib/nokogiri/xml/xpath_context.rb
@@ -211,6 +211,7 @@ test/files/po.xsd
 test/files/shift_jis.html
 test/files/shift_jis.xml
 test/files/snuggles.xml
+test/files/staff.dtd
 test/files/staff.xml
 test/files/staff.xslt
 test/files/tlm.html

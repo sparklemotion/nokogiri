@@ -38,11 +38,12 @@ void init_xml_comment()
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
   VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
+  VALUE char_data = rb_define_class_under(xml, "CharacterData", node);
 
   /*
    * Comment represents a comment node in an xml document.
    */
-  VALUE klass = rb_define_class_under(xml, "Comment", node);
+  VALUE klass = rb_define_class_under(xml, "Comment", char_data);
 
 
   cNokogiriXmlComment = klass;

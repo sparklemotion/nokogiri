@@ -39,7 +39,8 @@ void init_xml_cdata()
   VALUE nokogiri = rb_define_module("Nokogiri");
   VALUE xml = rb_define_module_under(nokogiri, "XML");
   VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
-  VALUE text = rb_define_class_under(xml, "Text", node);
+  VALUE char_data = rb_define_class_under(xml, "CharacterData", node);
+  VALUE text = rb_define_class_under(xml, "Text", char_data);
 
   /*
    * CData represents a CData node in an xml document.

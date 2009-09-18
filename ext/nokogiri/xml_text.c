@@ -35,11 +35,12 @@ void init_xml_text()
   VALUE xml = rb_define_module_under(nokogiri, "XML");
   /* */
   VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
+  VALUE char_data = rb_define_class_under(xml, "CharacterData", node);
 
   /*
    * Wraps Text nodes.
    */
-  VALUE klass = rb_define_class_under(xml, "Text", node);
+  VALUE klass = rb_define_class_under(xml, "Text", char_data);
 
   cNokogiriXmlText = klass;
 
