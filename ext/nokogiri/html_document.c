@@ -19,7 +19,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
       RTEST(external_id) ? (const xmlChar *)StringValuePtr(external_id) : NULL
   );
   rb_doc = Nokogiri_wrap_xml_document(klass, doc);
-  rb_funcall2(rb_doc, rb_intern("initialize"), argc, argv);
+  rb_obj_call_init(rb_doc, argc, argv);
   return rb_doc ;
 }
 

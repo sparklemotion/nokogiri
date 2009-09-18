@@ -66,7 +66,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   NOKOGIRI_ROOT_NODE((xmlNodePtr)node);
 
   VALUE rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
-  rb_funcall2(rb_node, rb_intern("initialize"), argc, argv);
+  rb_obj_call_init(rb_node, argc, argv);
 
   if(rb_block_given_p()) rb_yield(rb_node);
 

@@ -479,7 +479,8 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
   }
 
   VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
-  rb_funcall(rb_reader, rb_intern("initialize"), 3, rb_buffer, rb_url, encoding);
+  VALUE args[3] = {rb_buffer, rb_url, encoding};
+  rb_obj_call_init(rb_reader, 3, args);
 
   return rb_reader;
 }
@@ -520,7 +521,8 @@ static VALUE from_io(int argc, VALUE *argv, VALUE klass)
   }
 
   VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
-  rb_funcall(rb_reader, rb_intern("initialize"), 3, rb_io, rb_url, encoding);
+  VALUE args[3] = {rb_io, rb_url, encoding};
+  rb_obj_call_init(rb_reader, 3, args);
 
   return rb_reader;
 }

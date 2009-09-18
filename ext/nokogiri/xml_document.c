@@ -276,7 +276,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   xmlDocPtr doc = xmlNewDoc((xmlChar *)StringValuePtr(version));
   rb_doc = Nokogiri_wrap_xml_document(klass, doc);
-  rb_funcall2(rb_doc, rb_intern("initialize"), argc, argv);
+  rb_obj_call_init(rb_doc, argc, argv);
   return rb_doc ;
 }
 
@@ -323,7 +323,7 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
   VALUE cache = rb_ary_new();
   rb_iv_set(rb_doc, "@decorators", Qnil);
   rb_iv_set(rb_doc, "@node_cache", cache);
-  rb_funcall(rb_doc, rb_intern("initialize"), 0);
+  rb_obj_call_init(rb_doc, 0, NULL);
 
   tuple->doc = (void *)rb_doc;
   tuple->unlinkedNodes = st_init_numtable_with_size(128);
