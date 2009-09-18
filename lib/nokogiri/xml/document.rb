@@ -114,7 +114,7 @@ module Nokogiri
 
       private
       def inspect_attributes
-        %w{ name children }
+        [:name, :children]
       end
     end
   end

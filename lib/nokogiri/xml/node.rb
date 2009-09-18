@@ -34,6 +34,8 @@ module Nokogiri
     #
     # You may search this node's subtree using Node#xpath and Node#css
     class Node
+      include Nokogiri::XML::PP::Node
+
       # Element node type, see Nokogiri::XML::Node#element?
       ELEMENT_NODE =       1
       # Attribute node type
@@ -660,22 +662,6 @@ Node.replace requires a Node argument, and cannot accept a Document.
         return nil unless other.is_a?(Nokogiri::XML::Node)
         return nil unless document == other.document
         compare other
-      end
-
-      ###
-      # Inspect this node
-      def inspect
-        attributes = inspect_attributes.reject { |x|
-          begin
-            attribute = send x
-            !attribute || (attribute.respond_to?(:empty?) && attribute.empty?)
-          rescue NoMethodError
-            true
-          end
-        }.map { |attribute|
-          "#{attribute.to_s.sub(/_\w+/, 's')}=#{send(attribute).inspect}"
-        }.join ' '
-        "#<#{self.class.name}:#{sprintf("0x%x", object_id)} #{attributes}>"
       end
 
       private

@@ -10,6 +10,13 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_pp
+        out = StringIO.new('')
+        assert_nothing_raised do
+          ::PP.pp @xml, out
+        end
+      end
+
       def test_create_internal_subset_on_existing_subset
         assert_not_nil @xml.internal_subset
         assert_raises(RuntimeError) do

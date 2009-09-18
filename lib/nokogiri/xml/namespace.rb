@@ -1,10 +1,12 @@
 module Nokogiri
   module XML
     class Namespace
+      include Nokogiri::XML::PP::Node
       attr_reader :document
 
-      def inspect
-        "#<#{self.class.name}:#{sprintf("0x%x", object_id)} prefix=#{prefix.inspect} href=#{href.inspect}>"
+      private
+      def inspect_attributes
+        [:prefix, :href]
       end
     end
   end
