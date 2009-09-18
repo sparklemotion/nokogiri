@@ -97,15 +97,12 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     case T_NIL:
       break;
     case T_ARRAY:
-      node_set = rb_funcall(
-          cNokogiriXmlNodeSet,
-          rb_intern("new"),
-          2,
-          doc,
-          result
-      );
-      Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
-      xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+      {
+        VALUE args[2] = {doc, result};
+        node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
+        Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
+        xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+      }
       break;
     case T_DATA:
       if(rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {

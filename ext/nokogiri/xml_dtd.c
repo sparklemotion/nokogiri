@@ -7,10 +7,12 @@ static void notation_copier(void *payload, void *data, xmlChar *name)
 
   xmlNotationPtr c_notation = (xmlNotationPtr)payload;
 
-  VALUE notation = rb_funcall(klass, rb_intern("new"), 3,
-      c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name, "UTF-8") : Qnil,
-      c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID, "UTF-8") : Qnil,
-      c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID, "UTF-8") : Qnil);
+  VALUE argv[3];
+  argv[0] = (c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name, 0) : Qnil);
+  argv[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID, 0) : Qnil);
+  argv[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID, 0) : Qnil);
+
+  VALUE notation = rb_class_new_instance(3, argv, klass);
 
   rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name, "UTF-8"),notation);
 }

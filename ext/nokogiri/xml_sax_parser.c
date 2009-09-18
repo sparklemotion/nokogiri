@@ -192,21 +192,17 @@ static VALUE attributes_as_list(
     /* Each attribute is an array of [localname, prefix, URI, value, end] */
     int i;
     for (i = 0; i < nb_attributes * 5; i += 5) {
-      VALUE attribute = rb_funcall(attr_klass, rb_intern("new"), 4,
-        /* localname */
-        RBSTR_OR_QNIL(attributes[i + 0], enc),
+      VALUE argv[4];
+      argv[0] = RBSTR_OR_QNIL(attributes[i + 0], enc); /* localname */
+      argv[1] = RBSTR_OR_QNIL(attributes[i + 1], enc); /* prefix */
+      argv[2] = RBSTR_OR_QNIL(attributes[i + 2], enc); /* URI */
 
-        /* prefix */
-        RBSTR_OR_QNIL(attributes[i + 1], enc),
-
-        /* URI */
-        RBSTR_OR_QNIL(attributes[i + 2], enc),
-
-        /* value */
-        NOKOGIRI_STR_NEW((const char*)attributes[i+3],
+      /* value */
+      argv[3] = NOKOGIRI_STR_NEW((const char*)attributes[i+3],
           (attributes[i+4] - attributes[i+3]),
-          STRING_OR_NULL(enc))
-      );
+          STRING_OR_NULL(enc));
+
+      VALUE attribute = rb_class_new_instance(4, argv, attr_klass);
       rb_ary_push(list, attribute);
     }
   }
