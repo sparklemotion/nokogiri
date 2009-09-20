@@ -62,6 +62,9 @@ module Nokogiri
     attach_function :htmlEntityLookup, [:string], :pointer
     attach_function :htmlSAXParseFile, [:string, :pointer, :pointer, :pointer], :pointer # second arg 'encoding' should be a string, but we assign it as a pointer elsewhere
     attach_function :htmlSAXParseDoc, [:pointer, :pointer, :pointer, :pointer], :pointer # second arg 'encoding' should be a string, but we assign it as a pointer elsewhere
+    attach_function :htmlCreateMemoryParserCtxt, [:pointer, :int], :pointer
+    attach_function :htmlCreateFileParserCtxt, [:pointer, :pointer], :pointer
+    attach_function :htmlParseDocument, [:pointer], :int
 
     # HTMLtree.c
     attach_function :htmlDocDumpMemory, [:pointer, :pointer, :pointer], :void
@@ -324,12 +327,13 @@ require 'nokogiri/xml/syntax_error'
   "xml/syntax_error",
   "xml/reader",
   "xml/entity_reference",
+  "xml/sax/parser_context",
   "xml/sax/parser",
   "xml/sax/push_parser",
   "html/document",
   "html/element_description",
   "html/entity_lookup",
-  "html/sax/parser",
+  "html/sax/parser_context",
   "xslt/stylesheet",
 ].each do |file|
   require "nokogiri/ffi/#{file}"

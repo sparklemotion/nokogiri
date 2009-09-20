@@ -67,7 +67,7 @@ module Nokogiri
         attr_accessor :encoding
 
         # Create a new Parser with +doc+ and +encoding+
-        def initialize(doc = Nokogiri::XML::SAX::Document.new, encoding = 'ASCII')
+        def initialize doc = Nokogiri::XML::SAX::Document.new, encoding = 'UTF-8'
           @encoding = encoding
           @document = doc
           @warned   = false
@@ -88,7 +88,7 @@ module Nokogiri
         # Parse given +io+
         def parse_io io, encoding = 'ASCII'
           @encoding = encoding
-          native_parse_io io, ENCODINGS[@encoding] || ENCODINGS['ASCII']
+          ParserContext.io(io, ENCODINGS[encoding]).parse_with self
         end
 
         ###
@@ -97,7 +97,11 @@ module Nokogiri
           raise ArgumentError unless filename
           raise Errno::ENOENT unless File.exists?(filename)
           raise Errno::EISDIR if File.directory?(filename)
-          native_parse_file filename
+          ParserContext.file(filename).parse_with self
+        end
+
+        def parse_memory data
+          ParserContext.memory(data).parse_with(self)
         end
 
         private

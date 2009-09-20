@@ -13,8 +13,8 @@ ext/nokogiri/html_element_description.c
 ext/nokogiri/html_element_description.h
 ext/nokogiri/html_entity_lookup.c
 ext/nokogiri/html_entity_lookup.h
-ext/nokogiri/html_sax_parser.c
-ext/nokogiri/html_sax_parser.h
+ext/nokogiri/html_sax_parser_context.c
+ext/nokogiri/html_sax_parser_context.h
 ext/nokogiri/nokogiri.c
 ext/nokogiri/nokogiri.h
 ext/nokogiri/xml_attr.c
@@ -55,6 +55,8 @@ ext/nokogiri/xml_relax_ng.c
 ext/nokogiri/xml_relax_ng.h
 ext/nokogiri/xml_sax_parser.c
 ext/nokogiri/xml_sax_parser.h
+ext/nokogiri/xml_sax_parser_context.c
+ext/nokogiri/xml_sax_parser_context.h
 ext/nokogiri/xml_sax_push_parser.c
 ext/nokogiri/xml_sax_push_parser.h
 ext/nokogiri/xml_schema.c
@@ -90,7 +92,7 @@ lib/nokogiri/decorators/slop.rb
 lib/nokogiri/ffi/html/document.rb
 lib/nokogiri/ffi/html/element_description.rb
 lib/nokogiri/ffi/html/entity_lookup.rb
-lib/nokogiri/ffi/html/sax/parser.rb
+lib/nokogiri/ffi/html/sax/parser_context.rb
 lib/nokogiri/ffi/io_callbacks.rb
 lib/nokogiri/ffi/libxml.rb
 lib/nokogiri/ffi/structs/common_node.rb
@@ -139,6 +141,7 @@ lib/nokogiri/ffi/xml/processing_instruction.rb
 lib/nokogiri/ffi/xml/reader.rb
 lib/nokogiri/ffi/xml/relax_ng.rb
 lib/nokogiri/ffi/xml/sax/parser.rb
+lib/nokogiri/ffi/xml/sax/parser_context.rb
 lib/nokogiri/ffi/xml/sax/push_parser.rb
 lib/nokogiri/ffi/xml/schema.rb
 lib/nokogiri/ffi/xml/syntax_error.rb
@@ -154,6 +157,7 @@ lib/nokogiri/html/document_fragment.rb
 lib/nokogiri/html/element_description.rb
 lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
+lib/nokogiri/html/sax/parser_context.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
 lib/nokogiri/version_warning.rb
@@ -186,6 +190,7 @@ lib/nokogiri/xml/sax.rb
 lib/nokogiri/xml/sax/document.rb
 lib/nokogiri/xml/sax/legacy_handlers.rb
 lib/nokogiri/xml/sax/parser.rb
+lib/nokogiri/xml/sax/parser_context.rb
 lib/nokogiri/xml/sax/push_parser.rb
 lib/nokogiri/xml/schema.rb
 lib/nokogiri/xml/syntax_error.rb
@@ -238,6 +243,7 @@ test/hpricot/test_paths.rb
 test/hpricot/test_preserved.rb
 test/hpricot/test_xml.rb
 test/html/sax/test_parser.rb
+test/html/sax/test_parser_context.rb
 test/html/test_builder.rb
 test/html/test_document.rb
 test/html/test_document_encoding.rb
@@ -256,6 +262,7 @@ test/test_xslt_transforms.rb
 test/xml/node/test_save_options.rb
 test/xml/node/test_subclass.rb
 test/xml/sax/test_parser.rb
+test/xml/sax/test_parser_context.rb
 test/xml/sax/test_push_parser.rb
 test/xml/test_attr.rb
 test/xml/test_attribute_decl.rb

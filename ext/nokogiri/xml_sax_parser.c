@@ -1,5 +1,4 @@
-#include <nokogiri.h>
-#include <libxml/parserInternals.h>
+#include <xml_sax_parser.h>
 
 static ID id_start_document, id_end_document, id_start_element, id_end_element;
 static ID id_start_element_namespace, id_end_element_namespace;
@@ -11,100 +10,6 @@ static ID id_cdata_block, id_cAttribute;
 
 #define RBSTR_OR_QNIL(_str) \
   (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
-
-
-static void Nokogiri_sax_parse_document(
-    VALUE self, 
-    xmlParserCtxtPtr ctxt,
-    xmlSAXHandlerPtr sax )
-{
-  if(NULL == ctxt)
-    rb_raise(rb_eRuntimeError, "Could not create parse context");
-
-  // Free the sax handler since we'll assign our own
-  if(ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-    xmlFree(ctxt->sax);
-
-  ctxt->sax = sax;
-  ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, self);
-
-  xmlParseDocument(ctxt);
-
-  ctxt->sax = NULL;
-  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
-
-  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
-
-  xmlFreeParserCtxt(ctxt);
-}
-
-/*
- * call-seq:
- *  parse_memory(data)
- *
- * Parse the document stored in +data+
- */
-static VALUE parse_memory(VALUE self, VALUE data)
-{
-  xmlSAXHandlerPtr handler;
-  Data_Get_Struct(self, xmlSAXHandler, handler);
-
-  if(Qnil == data) rb_raise(rb_eArgError, "data cannot be nil");
-
-  xmlParserCtxtPtr ctxt = xmlCreateMemoryParserCtxt(
-      StringValuePtr(data),
-      (int)RSTRING_LEN(data)
-  );
-
-  Nokogiri_sax_parse_document(self, ctxt, handler);
-
-  return data;
-}
-
-/*
- * call-seq:
- *  native_parse_io(data, encoding)
- *
- * Parse the document accessable via +io+
- */
-static VALUE native_parse_io(VALUE self, VALUE io, VALUE encoding)
-{
-  xmlSAXHandlerPtr handler;
-  Data_Get_Struct(self, xmlSAXHandler, handler);
-
-  xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding); 
-
-  xmlParserCtxtPtr ctxt = xmlCreateIOParserCtxt(
-      handler,
-      (void *)self,
-      (xmlInputReadCallback)io_read_callback,
-      (xmlInputCloseCallback)io_close_callback,
-      (void *)io,
-      enc
-  );
-
-  Nokogiri_sax_parse_document(self, ctxt, handler);
-
-  return io;
-}
-
-/*
- * call-seq:
- *  native_parse_file(filename)
- *
- * Parse the document stored in file with +filename+
- */
-static VALUE native_parse_file(VALUE self, VALUE filename)
-{
-  xmlSAXHandlerPtr handler;
-  Data_Get_Struct(self, xmlSAXHandler, handler);
-
-  xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(StringValuePtr(filename));
-
-  Nokogiri_sax_parse_document(self, ctxt, handler);
-
-  return filename;
-}
 
 static void start_document(void * ctx)
 {
@@ -183,7 +88,7 @@ static VALUE attributes_as_list(
   int nb_attributes,
   const xmlChar ** attributes)
 {
-  VALUE list = rb_ary_new2(nb_attributes);
+  VALUE list = rb_ary_new2((long)nb_attributes);
 
   VALUE attr_klass = rb_const_get(cNokogiriXmlSaxParser, id_cAttribute);
   if (attributes) {
@@ -224,14 +129,14 @@ start_element_ns (
 
   VALUE attribute_list = attributes_as_list(self, nb_attributes, attributes);
 
-  VALUE ns_list = rb_ary_new2(nb_namespaces);
+  VALUE ns_list = rb_ary_new2((long)nb_namespaces);
 
   if (namespaces) {
     int i;
     for (i = 0; i < nb_namespaces * 2; i += 2)
     {
       rb_ary_push(ns_list,
-        rb_ary_new3(2,
+        rb_ary_new3((long)2,
           RBSTR_OR_QNIL(namespaces[i + 0]),
           RBSTR_OR_QNIL(namespaces[i + 1])
         )
@@ -380,9 +285,6 @@ void init_xml_sax_parser()
   cNokogiriXmlSaxParser = klass;
 
   rb_define_alloc_func(klass, allocate);
-  rb_define_method(klass, "parse_memory", parse_memory, 1);
-  rb_define_private_method(klass, "native_parse_file", native_parse_file, 1);
-  rb_define_private_method(klass, "native_parse_io", native_parse_io, 2);
 
   id_start_document = rb_intern("start_document");
   id_end_document   = rb_intern("end_document");

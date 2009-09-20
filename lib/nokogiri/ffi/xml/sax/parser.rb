@@ -4,27 +4,9 @@ module Nokogiri
       class Parser
         # :stopdoc:
 
-        attr_accessor :cstruct # :nodoc:
+        attr_accessor :cstruct
 
-        def parse_memory(data) # :nodoc:
-          raise(ArgumentError, 'data cannot be nil') if data.nil?
-
-          parse_document LibXML.xmlCreateMemoryParserCtxt data, data.length
-          data
-        end
-
-        def native_parse_io(io, encoding) # :nodoc:
-          sax_ctx = LibXML.xmlCreateIOParserCtxt(cstruct, nil, IoCallbacks.reader(io), nil, nil, encoding)
-          parse_document sax_ctx
-          io
-        end
-
-        def native_parse_file filename
-          parse_document LibXML.xmlCreateFileParserCtxt filename
-          filename
-        end
-
-        def self.new(doc = XML::SAX::Document.new, encoding = 'ASCII') # :nodoc:
+        def self.new(doc = XML::SAX::Document.new, encoding = 'UTF-8')
           parser = allocate
           parser.document = doc
           parser.encoding = encoding
@@ -36,21 +18,7 @@ module Nokogiri
 
         private
 
-        def parse_document ctxt
-          raise "Could not create parse context" if ctxt.null?
-
-          @ctxt = LibXML::XmlParserContext.new ctxt
-          @ctxt[:sax] = cstruct
-
-          LibXML.xmlParseDocument ctxt
-
-          @ctxt[:sax] = nil
-          LibXML.xmlFreeDoc @ctxt[:myDoc] unless @ctxt[:myDoc].null?
-
-          LibXML.xmlFreeParserCtxt ctxt
-        end
-
-        def setup_lambdas # :nodoc:
+        def setup_lambdas
           @closures = {} # we need to keep references to the closures to avoid GC
 
           [ :startDocument, :endDocument, :startElement, :endElement, :characters,
@@ -63,7 +31,7 @@ module Nokogiri
           cstruct[:initialized] = Nokogiri::LibXML::XmlSaxHandler::XML_SAX2_MAGIC
         end
 
-        def __internal__startDocument(_) # :nodoc:
+        def __internal__startDocument(_)
           if @ctxt && @ctxt[:html] == 0 && @ctxt[:standalone] != -1
             standalone = {
               0 => 'no',
@@ -75,11 +43,11 @@ module Nokogiri
           @document.start_document
         end
 
-        def __internal__endDocument(_) # :nodoc:
+        def __internal__endDocument(_)
           @document.end_document
         end
 
-        def __internal__startElement(_, name, attributes) # :nodoc:
+        def __internal__startElement(_, name, attributes)
           attrs = []
           unless attributes.null?
             j = 0
@@ -91,33 +59,33 @@ module Nokogiri
           @document.start_element name, attrs
         end
 
-        def __internal__endElement(_, name) # :nodoc:
+        def __internal__endElement(_, name)
           @document.end_element name
         end
 
-        def __internal__characters(_, data, data_length) # :nodoc:
+        def __internal__characters(_, data, data_length)
           @document.characters data.slice(0, data_length)
         end
 
-        def __internal__comment(_, data) # :nodoc:
+        def __internal__comment(_, data)
           @document.comment data
         end
 
-        def __internal__warning(_, msg) # :nodoc:
+        def __internal__warning(_, msg)
           # TODO: vasprintf here
           @document.warning(msg)
         end
 
-        def __internal__error(_, msg) # :nodoc:
+        def __internal__error(_, msg)
           # TODO: vasprintf here
           @document.error(msg)
         end
 
-        def __internal__cdataBlock(_, data, data_length) # :nodoc:
+        def __internal__cdataBlock(_, data, data_length)
           @document.cdata_block data.slice(0, data_length)
         end
 
-        def __internal__startElementNs(_, localname, prefix, uri, nb_namespaces, namespaces, nb_attributes, nb_defaulted, attributes) # :nodoc:
+        def __internal__startElementNs(_, localname, prefix, uri, nb_namespaces, namespaces, nb_attributes, nb_defaulted, attributes)
           localname = localname.null? ? nil : localname.read_string
           prefix    = prefix   .null? ? nil : prefix   .read_string
           uri       = uri      .null? ? nil : uri      .read_string
@@ -160,7 +128,7 @@ module Nokogiri
           start_element_namespace(localname, attr_list, prefix, uri, ns_list)
         end
 
-        def __internal__endElementNs(_, localname, prefix, uri) # :nodoc:
+        def __internal__endElementNs(_, localname, prefix, uri)
           localname = localname.null? ? nil : localname.read_string
           prefix    = prefix   .null? ? nil : prefix   .read_string
           uri       = uri      .null? ? nil : uri      .read_string
