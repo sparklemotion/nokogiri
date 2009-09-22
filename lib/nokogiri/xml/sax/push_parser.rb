@@ -54,9 +54,6 @@ module Nokogiri
         def finish
           write '', true
         end
-
-        private
-        include Nokogiri::XML::SAX::LegacyHandlers
       end
     end
   end
