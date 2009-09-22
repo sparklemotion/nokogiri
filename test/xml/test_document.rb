@@ -407,11 +407,6 @@ module Nokogiri
         }
       end
 
-      def test_new_document_collect_namespaces
-        doc = Nokogiri::XML::Document.new
-        assert_equal({}, doc.collect_namespaces)
-      end
-
       def test_find_with_namespace
         doc = Nokogiri::XML.parse(<<-eoxml)
         <x xmlns:tenderlove='http://tenderlovemaking.com/'>

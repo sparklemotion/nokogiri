@@ -153,16 +153,6 @@ start_element_ns (
               RBSTR_OR_QNIL(uri),
               ns_list
   );
-
-  rb_funcall( self,
-              id_start_element_namespace,
-              5,
-              NOKOGIRI_STR_NEW2(localname),
-              attribute_list,
-              RBSTR_OR_QNIL(prefix),
-              RBSTR_OR_QNIL(uri),
-              ns_list
-  );
 }
 
 /**
@@ -179,12 +169,6 @@ end_element_ns (
   VALUE doc = rb_iv_get(self, "@document");
 
   rb_funcall(doc, id_end_element_namespace, 3, 
-    NOKOGIRI_STR_NEW2(localname),
-    RBSTR_OR_QNIL(prefix),
-    RBSTR_OR_QNIL(uri)
-  );
-
-  rb_funcall(self, id_end_element_namespace, 3, 
     NOKOGIRI_STR_NEW2(localname),
     RBSTR_OR_QNIL(prefix),
     RBSTR_OR_QNIL(uri)

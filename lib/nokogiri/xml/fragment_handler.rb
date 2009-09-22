@@ -5,7 +5,7 @@ module Nokogiri
         @doc_started    = false
         @document       = node.document
         @stack          = [node]
-        @html_eh        = node.kind_of? Nokogiri::HTML::DocumentFragment
+        @html_eh        = node.kind_of? HTML::DocumentFragment
 
         # the regexes used in start_element() and characters() anchor at
         # start-of-line, but we really only want them to anchor at
@@ -37,15 +37,15 @@ module Nokogiri
 
       def characters string
         @doc_started = true if @original_html.strip =~ %r{^\s*#{Regexp.escape(string.strip)}}
-        @stack.last << Nokogiri::XML::Text.new(string, @document)
+        @stack.last << Text.new(string, @document)
       end
 
       def comment string
-        @stack.last << Nokogiri::XML::Comment.new(@document, string)
+        @stack.last << Comment.new(@document, string)
       end
 
       def cdata_block string
-        @stack.last << Nokogiri::XML::CDATA.new(@document, string)
+        @stack.last << CDATA.new(@document, string)
       end
 
       def end_element name

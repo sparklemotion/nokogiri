@@ -419,14 +419,6 @@ module Nokogiri
         }.compact.join(' > ')
       end
 
-      #  recursively get all namespaces from this node and its subtree
-      def collect_namespaces
-        # TODO: print warning message if a prefix refers to more than one URI in the document?
-        ns = {}
-        traverse {|j| ns.merge!(j.namespaces)}
-        ns
-      end
-
       ###
       # Get a list of ancestor Node for this Node.  If +selector+ is given,
       # the ancestors must match +selector+

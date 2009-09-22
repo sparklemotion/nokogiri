@@ -103,9 +103,6 @@ module Nokogiri
         def parse_memory data
           ParserContext.memory(data).parse_with(self)
         end
-
-        private
-        include Nokogiri::XML::SAX::LegacyHandlers
       end
     end
   end
