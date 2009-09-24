@@ -188,7 +188,6 @@ lib/nokogiri/xml/reader.rb
 lib/nokogiri/xml/relax_ng.rb
 lib/nokogiri/xml/sax.rb
 lib/nokogiri/xml/sax/document.rb
-lib/nokogiri/xml/sax/legacy_handlers.rb
 lib/nokogiri/xml/sax/parser.rb
 lib/nokogiri/xml/sax/parser_context.rb
 lib/nokogiri/xml/sax/push_parser.rb
