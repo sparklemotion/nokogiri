@@ -36,15 +36,7 @@ module Nokogiri
           ]
         )
         matches.each do |match|
-          if match.value[1].value[0].value[0] =~ /^nth-child/
-            tag_name = match.value[0].value.first
-            match.value[0].value = ['*']
-            match.value[1] = Node.new(:COMBINATOR, [
-              match.value[1].value[0],
-              Node.new(:FUNCTION, ['self(', tag_name])
-            ])
-          end
-          if match.value[1].value[0].value[0] =~ /^nth-last-child/
+          if match.value[1].value[0].value[0] =~ /^nth-(last-)?child/
             tag_name = match.value[0].value.first
             match.value[0].value = ['*']
             match.value[1] = Node.new(:COMBINATOR, [

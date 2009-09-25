@@ -48,12 +48,6 @@ module Nokogiri
           ']'
       end
 
-      def visit_direct_adjacent_selector node
-        node.value.first.accept(self) +
-          "/following-sibling::*[1]/self::" +
-           node.value.last.accept(self)
-      end
-
       def visit_id node
         node.value.first =~ /^#(.*)$/
         "@id = '#{$1}'"
@@ -122,26 +116,22 @@ module Nokogiri
         "contains(concat(' ', @class, ' '), ' #{node.value.first} ')"
       end
 
-      def visit_combinator node
-        node.value.first.accept(self) + ' and ' +
-        node.value.last.accept(self)
+      {
+        'combinator'                => ' and ',
+        'direct_adjacent_selector'  => "/following-sibling::*[1]/self::",
+        'descendant_selector'       => '//',
+        'child_selector'            => '/',
+      }.each do |k,v|
+        class_eval %{
+          def visit_#{k} node
+            "\#{node.value.first.accept(self)}#{v}\#{node.value.last.accept(self)}"
+          end
+        }
       end
 
       def visit_conditional_selector node
         node.value.first.accept(self) + '[' +
         node.value.last.accept(self) + ']'
-      end
-
-      def visit_descendant_selector node
-        node.value.first.accept(self) +
-        '//' +
-        node.value.last.accept(self)
-      end
-
-      def visit_child_selector node
-        node.value.first.accept(self) +
-        '/' +
-        node.value.last.accept(self)
       end
 
       def visit_element_name node
