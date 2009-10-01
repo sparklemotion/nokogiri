@@ -79,15 +79,18 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   if (node->doc == other->doc) {
     xmlUnlinkNode(node) ;
     if ( node->type == XML_TEXT_NODE
-         && other->type == XML_TEXT_NODE
-         && is_2_6_16() ) {
-      other->content = xmlStrdup(other->content); // we'd rather leak than segfault.
+         && other->type == XML_TEXT_NODE ) {
+      if (is_2_6_16() ) {
+        other->content = xmlStrdup(other->content); // we'd rather leak than segfault.
+      } else {
+        NOKOGIRI_ROOT_NODE(node);
+        node = xmlDocCopyNode(node, other->doc, 1); // obvious memory leak
+      }
     }
 
     if(!(reparented = (*func)(other, node))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (1)");
     }
-
   } else {
     xmlNodePtr duped_node ;
     // recursively copy to the new document
