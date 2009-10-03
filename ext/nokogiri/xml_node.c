@@ -76,16 +76,22 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
     return node_obj;
   }
 
+  if(node->type == XML_TEXT_NODE) {
+    NOKOGIRI_ROOT_NODE(node);
+    node = xmlDocCopyNode(node, other->doc, 1);
+  }
+
   if (node->doc == other->doc) {
     xmlUnlinkNode(node) ;
+
+    // TODO: I really want to remove this.  We shouldn't support 2.6.16 anymore
     if ( node->type == XML_TEXT_NODE
-         && other->type == XML_TEXT_NODE ) {
-      if (is_2_6_16() ) {
-        other->content = xmlStrdup(other->content); // we'd rather leak than segfault.
-      } else {
-        NOKOGIRI_ROOT_NODE(node);
-        node = xmlDocCopyNode(node, other->doc, 1); // obvious memory leak
-      }
+         && other->type == XML_TEXT_NODE
+         && is_2_6_16() ) {
+
+      // we'd rather leak than segfault.
+      other->content = xmlStrdup(other->content);
+
     }
 
     if(!(reparented = (*func)(other, node))) {
