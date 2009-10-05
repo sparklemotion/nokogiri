@@ -277,6 +277,12 @@ module Nokogiri
         @doc.to_xml
       end
 
+      ###
+      # Append the given raw XML +string+ to the document
+      def << string
+        @doc.fragment(string).children.each { |x| insert(x) }
+      end
+
       def method_missing method, *args, &block # :nodoc:
         if @context && @context.respond_to?(method)
           @context.send(method, *args, &block)

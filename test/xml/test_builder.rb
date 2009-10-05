@@ -117,6 +117,26 @@ module Nokogiri
         assert_equal 'hello', builder.doc.at('baz').content
       end
 
+      def test_raw_append
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.root do
+            xml << 'hello'
+          end
+        end
+
+        assert_equal 'hello', builder.doc.at('/root').content
+      end
+
+      def test_raw_append_with_instance_eval
+        builder = Nokogiri::XML::Builder.new do
+          root do
+            self << 'hello'
+          end
+        end
+
+        assert_equal 'hello', builder.doc.at('/root').content
+      end
+
       def test_cdata
         builder = Nokogiri::XML::Builder.new do
           root {
