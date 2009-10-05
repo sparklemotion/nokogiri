@@ -129,26 +129,12 @@ unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
-def nokogiri_link_command ldflags, opt='', libpath=$LIBPATH
-  old_link_command ldflags, opt, libpath
-end
-
-def with_custom_link
-  alias :old_link_command :link_command
-  alias :link_command :nokogiri_link_command
-  yield
-ensure
-  alias :link_command :old_link_command
-end
-
-with_custom_link do
-  with_cppflags $INCFLAGS do
-    have_func('xmlRelaxNGSetParserStructuredErrors')
-    have_func('xmlRelaxNGSetParserStructuredErrors')
-    have_func('xmlRelaxNGSetValidStructuredErrors')
-    have_func('xmlSchemaSetValidStructuredErrors')
-    have_func('xmlSchemaSetParserStructuredErrors')
-  end
+with_cppflags $INCFLAGS do
+  have_func('xmlRelaxNGSetParserStructuredErrors')
+  have_func('xmlRelaxNGSetParserStructuredErrors')
+  have_func('xmlRelaxNGSetValidStructuredErrors')
+  have_func('xmlSchemaSetValidStructuredErrors')
+  have_func('xmlSchemaSetParserStructuredErrors')
 end
 
 if ENV['CPUPROFILE']
