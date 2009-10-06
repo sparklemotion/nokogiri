@@ -356,6 +356,11 @@ module Nokogiri
           return node
         end
 
+        if node.type == TEXT_NODE
+          node.cstruct.keep_reference_from_document!
+          node.cstruct = LibXML::XmlNode.new(LibXML.xmlDocCopyNode(node.cstruct, other.cstruct.document, 1))
+        end
+
         if node.cstruct[:doc] == other.cstruct[:doc]
           LibXML.xmlUnlinkNode(node.cstruct)
           if node.type == TEXT_NODE && other.type == TEXT_NODE && Nokogiri.is_2_6_16?
