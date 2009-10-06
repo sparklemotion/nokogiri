@@ -6,6 +6,15 @@ module Nokogiri
   module XML
     module SAX
       class TestParserContext < Nokogiri::SAX::TestCase
+        def test_replace_entities
+          pc = ParserContext.new StringIO.new('<root />'), 'UTF-8'
+          pc.replace_entities = false
+          assert_equal false, pc.replace_entities
+
+          pc.replace_entities = true
+          assert_equal true, pc.replace_entities
+        end
+
         def test_from_io
           assert_nothing_raised do
             ParserContext.new StringIO.new('fo'), 'UTF-8'

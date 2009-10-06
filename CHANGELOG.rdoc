@@ -17,6 +17,7 @@
   * Added XML::Node#create_external_subset
   * Added XML::Node#create_internal_subset
   * XML Builder can append raw strings (GH #141, patch from dudleyf)
+  * XML::SAX::ParserContext added
 
 * Bugfixes
 

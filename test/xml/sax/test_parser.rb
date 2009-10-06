@@ -11,6 +11,38 @@ module Nokogiri
           @parser = XML::SAX::Parser.new(Doc.new)
         end
 
+        def test_parser_context_yielded_io
+          doc = Doc.new
+          parser = XML::SAX::Parser.new doc
+          xml = "<foo a='&amp;b'/>"
+
+          block_called = false
+          parser.parse(StringIO.new(xml)) { |ctx|
+            block_called = true
+            ctx.replace_entities = true
+          }
+
+          assert block_called
+
+          assert_equal ['a', '&b'], doc.start_elements.first.last
+        end
+
+        def test_parser_context_yielded_in_memory
+          doc = Doc.new
+          parser = XML::SAX::Parser.new doc
+          xml = "<foo a='&amp;b'/>"
+
+          block_called = false
+          parser.parse(xml) { |ctx|
+            block_called = true
+            ctx.replace_entities = true
+          }
+
+          assert block_called
+
+          assert_equal ['a', '&b'], doc.start_elements.first.last
+        end
+
         def test_xml_decl
           {
             ''          => nil,

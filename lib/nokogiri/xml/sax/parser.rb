@@ -76,11 +76,11 @@ module Nokogiri
         ###
         # Parse given +thing+ which may be a string containing xml, or an
         # IO object.
-        def parse thing
+        def parse thing, &block
           if thing.respond_to?(:read) && thing.respond_to?(:close)
-            parse_io(thing)
+            parse_io(thing, &block)
           else
-            parse_memory(thing)
+            parse_memory(thing, &block)
           end
         end
 
@@ -88,7 +88,9 @@ module Nokogiri
         # Parse given +io+
         def parse_io io, encoding = 'ASCII'
           @encoding = encoding
-          ParserContext.io(io, ENCODINGS[encoding]).parse_with self
+          ctx = ParserContext.io(io, ENCODINGS[encoding])
+          yield ctx if block_given?
+          ctx.parse_with self
         end
 
         ###
@@ -97,11 +99,15 @@ module Nokogiri
           raise ArgumentError unless filename
           raise Errno::ENOENT unless File.exists?(filename)
           raise Errno::EISDIR if File.directory?(filename)
-          ParserContext.file(filename).parse_with self
+          ctx = ParserContext.file filename
+          yield ctx if block_given?
+          ctx.parse_with self
         end
 
         def parse_memory data
-          ParserContext.memory(data).parse_with(self)
+          ctx = ParserContext.memory data
+          yield ctx if block_given?
+          ctx.parse_with self
         end
       end
     end
