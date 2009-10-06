@@ -71,7 +71,6 @@ ext/nokogiri/xml_xpath_context.c
 ext/nokogiri/xml_xpath_context.h
 ext/nokogiri/xslt_stylesheet.c
 ext/nokogiri/xslt_stylesheet.h
-lib/action-nokogiri.rb
 lib/nokogiri.rb
 lib/nokogiri/css.rb
 lib/nokogiri/css/generated_parser.rb
