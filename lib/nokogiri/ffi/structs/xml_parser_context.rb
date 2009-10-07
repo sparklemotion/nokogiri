@@ -7,7 +7,7 @@ module Nokogiri
         :userData,          :pointer,
         :myDoc,             :pointer,
         :wellFormed,        :int,
-        :replaceEntitiies,  :int,
+        :replaceEntities,   :int,
         :version,           :string,
         :encoding,          :string,
         :standalone,        :int,
