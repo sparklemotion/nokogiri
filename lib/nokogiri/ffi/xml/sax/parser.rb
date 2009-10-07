@@ -125,7 +125,6 @@ module Nokogiri
             uri,
             ns_list
           )
-          start_element_namespace(localname, attr_list, prefix, uri, ns_list)
         end
 
         def __internal__endElementNs(_, localname, prefix, uri)
@@ -134,7 +133,6 @@ module Nokogiri
           uri       = uri      .null? ? nil : uri      .read_string
 
           @document.end_element_namespace(localname, prefix, uri)
-          end_element_namespace(localname, prefix, uri)
         end
 
         # :startdoc:
