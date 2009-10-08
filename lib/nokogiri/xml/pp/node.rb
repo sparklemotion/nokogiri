@@ -37,8 +37,8 @@ module Nokogiri
               if [:attribute_nodes, :children].include? v.first
                 pp.group(2, "#{v.first.to_s.sub(/_\w+$/, 's')} = [", "]") do
                   pp.breakable
-                  pp.seplist(v.last) do |v|
-                    pp.pp v
+                  pp.seplist(v.last) do |item|
+                    pp.pp item
                   end
                 end
               else
