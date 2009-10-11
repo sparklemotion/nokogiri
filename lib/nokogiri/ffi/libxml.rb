@@ -2,7 +2,12 @@
 module Nokogiri
   module LibXML # :nodoc: all
     extend FFI::Library
-    ffi_lib 'xml2', 'xslt', 'exslt'
+    if RUBY_PLATFORM =~ /java/ && java.lang.System.getProperty('os.name') =~ /windows/i
+      raise(RuntimeError, "Nokogiri requires JRuby 1.4.0RC1 or later on Windows") if JRUBY_VERSION < "1.4.0RC1"
+      ffi_lib 'libxml2', 'libxslt', 'libexslt', 'msvcrt'
+    else
+      ffi_lib 'xml2', 'xslt', 'exslt'
+    end
 
     # globals.c
     attach_function :__xmlParserVersion, [], :pointer
@@ -49,10 +54,6 @@ module Nokogiri
     callback :cdata_block_sax_func, [:pointer, :string, :int], :void
     callback :start_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer, :int, :pointer, :int, :int, :pointer], :void
     callback :end_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer], :void
-
-    # libc
-    attach_function :calloc, [:int, :int], :pointer
-    attach_function :free, [:pointer], :void
 
     # HTMLparser.c
     attach_function :htmlReadMemory, [:string, :int, :string, :string, :int], :pointer
@@ -265,6 +266,10 @@ module Nokogiri
     attach_function :xmlRelaxNGParse, [:pointer], :pointer
     attach_function :xmlRelaxNGFreeParserCtxt, [:pointer], :void
     attach_function :xmlRelaxNGNewDocParserCtxt, [:pointer], :pointer
+
+    # libc
+    attach_function :calloc, [:int, :int], :pointer
+    attach_function :free, [:pointer], :void
 
     # helpers
     def self.pointer_offset(n)
