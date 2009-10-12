@@ -29,6 +29,7 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   const char * chunk  = NULL;
   int last_chunk      = 0;
   int size            = 0;
+  int parse_result;
 
   if(Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
@@ -36,8 +37,13 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   }
   if(Qtrue == _last_chunk) last_chunk = 1;
 
-  if(xmlParseChunk(ctx, chunk, size, last_chunk))
-    rb_raise(rb_eRuntimeError, "Couldn't parse chunk");
+  if((parse_result = xmlParseChunk(ctx, chunk, size, last_chunk)))
+  {
+    char errstr[256];
+    xmlErrorPtr e = xmlCtxtGetLastError(ctx);
+    snprintf(errstr, 255, "%i: %s (level %i)", parse_result, e->message, e->level);
+    rb_raise(rb_eRuntimeError, errstr);
+  }
 
   return self;
 }

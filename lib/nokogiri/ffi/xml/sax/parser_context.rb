@@ -49,6 +49,14 @@ module Nokogiri
           cstruct[:sax] = nil
           LibXML.xmlFreeDoc cstruct[:myDoc] unless cstruct[:myDoc].null?
         end
+
+        def replace_entities=(value)
+          self.cstruct[:replaceEntities] = value ? 1 : 0
+        end
+
+        def replace_entities
+          self.cstruct[:replaceEntities] == 0 ? false : true
+        end
       end
     end
   end
