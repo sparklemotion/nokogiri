@@ -27,16 +27,14 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   Data_Get_Struct(self, xmlParserCtxt, ctx);
 
   const char * chunk  = NULL;
-  int last_chunk      = 0;
   int size            = 0;
 
   if(Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
     size = RSTRING_LEN(_chunk);
   }
-  if(Qtrue == _last_chunk) last_chunk = 1;
 
-  if(xmlParseChunk(ctx, chunk, size, last_chunk)) {
+  if(xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
     xmlErrorPtr e = xmlCtxtGetLastError(ctx);
     Nokogiri_error_raise(NULL, e);
   }
