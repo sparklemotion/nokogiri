@@ -17,6 +17,12 @@ module Nokogiri
         eohtml
       end
 
+      def test_append_with_document
+        assert_raises(ArgumentError) do
+          @html.root << Nokogiri::HTML::Document.new
+        end
+      end
+
       ###
       # Make sure a document that doesn't declare a meta encoding returns
       # nil.

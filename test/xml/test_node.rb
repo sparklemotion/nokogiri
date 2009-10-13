@@ -10,6 +10,12 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_append_with_document
+        assert_raises(ArgumentError) do
+          @xml.root << Nokogiri::XML::Document.new
+        end
+      end
+
       def test_inspect_ns
         xml = Nokogiri::XML(<<-eoxml) { |c| c.noblanks }
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">

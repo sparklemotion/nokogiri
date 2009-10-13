@@ -65,6 +65,9 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   Data_Get_Struct(node_obj, xmlNode, node);
   Data_Get_Struct(other_obj, xmlNode, other);
 
+  if(XML_DOCUMENT_NODE == node->type || XML_HTML_DOCUMENT_NODE == node->type)
+    rb_raise(rb_eArgError, "cannot reparent a document node");
+
   // If a document fragment is added, we need to reparent all of it's children
   if(node->type == XML_DOCUMENT_FRAG_NODE)
   {
