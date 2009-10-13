@@ -13,6 +13,10 @@ module Nokogiri
           assert_raises(SyntaxError) do
             @parser << "<foo /><foo />"
           end
+
+          assert_raises(SyntaxError) do
+            @parser << nil
+          end
         end
 
         def test_end_document_called
