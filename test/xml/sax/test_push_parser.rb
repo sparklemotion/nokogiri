@@ -9,6 +9,12 @@ module Nokogiri
           @parser = XML::SAX::PushParser.new(Doc.new)
         end
 
+        def test_exception
+          assert_raises(SyntaxError) do
+            @parser << "<foo /><foo />"
+          end
+        end
+
         def test_end_document_called
           @parser.<<(<<-eoxml)
             <p id="asdfasdf">
