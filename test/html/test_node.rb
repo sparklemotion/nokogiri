@@ -92,6 +92,11 @@ module Nokogiri
         assert_equal 'some text', @html.at('//body').children[0].content.strip
       end
 
+      def test_before
+        @html.at('//div').before('<a href="awesome">town</a>')
+        assert_equal 'awesome', @html.at('//div').previous['href']
+      end
+
       def test_fragment_handler_does_not_regurge_on_invalid_attributes
         iframe = %Q{<iframe style="width: 0%; height: 0px" src="http://someurl" allowtransparency></iframe>}
         assert_nothing_raised { @html.at('div').before(iframe) }
@@ -139,6 +144,11 @@ module Nokogiri
         assert node = @html.at('//body/div')
         node.after "some text"
         assert_equal 'some text', node.next.text.strip
+      end
+
+      def test_after
+        @html.at('//div').after('<a href="awesome">town</a>')
+        assert_equal 'awesome', @html.at('//div').next['href']
       end
 
       def test_replace

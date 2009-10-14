@@ -234,7 +234,6 @@ test/hpricot/files/utf8.html
 test/hpricot/files/week9.html
 test/hpricot/files/why.xml
 test/hpricot/load_files.rb
-test/hpricot/test_alter.rb
 test/hpricot/test_builder.rb
 test/hpricot/test_parser.rb
 test/hpricot/test_paths.rb
