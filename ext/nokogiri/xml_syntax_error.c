@@ -8,6 +8,13 @@ static void dealloc(xmlErrorPtr ptr)
   NOKOGIRI_DEBUG_END(ptr);
 }
 
+static VALUE allocate(VALUE klass)
+{
+  xmlErrorPtr error = xmlMalloc(sizeof(xmlError));
+  memset(error, 0, sizeof(xmlError));
+  return Data_Wrap_Struct(klass, NULL, dealloc, error);
+}
+
 /*
  * call-seq:
  *  column
@@ -153,7 +160,53 @@ static VALUE message(VALUE self)
 {
   xmlErrorPtr error;
   Data_Get_Struct(self, xmlError, error);
-  return NOKOGIRI_STR_NEW2(error->message);
+  if(error->message) return NOKOGIRI_STR_NEW2(error->message);
+  return Qnil;
+}
+
+/*
+ * call-seq:
+ *  message=
+ *
+ * Set the human readable message.
+ */
+static VALUE set_message(VALUE self, VALUE _message)
+{
+  xmlErrorPtr error;
+  Data_Get_Struct(self, xmlError, error);
+
+  if(error->message) {
+    xmlFree(error->message);
+    error->message = 0;
+  }
+
+  if(RTEST(_message)) {
+    error->message = xmlMalloc(RSTRING_LEN(_message) + 1);
+    memset(error->message, 0, RSTRING_LEN(_message) + 1);
+    memcpy(error->message, StringValuePtr(_message), RSTRING_LEN(_message));
+  }
+
+  return message;
+}
+
+/*
+ * call-seq:
+ *  initialize_copy(old_copy)
+ *
+ * Initialize a copy of the +old_copy+
+ */
+static VALUE initialize_copy(VALUE self, VALUE _old_copy)
+{
+  if(!rb_obj_is_kind_of(_old_copy, cNokogiriXmlSyntaxError))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::SyntaxError");
+
+  xmlErrorPtr error, old_error;
+  Data_Get_Struct(self, xmlError, error);
+  Data_Get_Struct(_old_copy, xmlError, old_error);
+
+  xmlCopyError(old_error, error);
+
+  return message;
 }
 
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
@@ -190,7 +243,11 @@ void init_xml_syntax_error()
   VALUE klass = rb_define_class_under(xml, "SyntaxError", syntax_error_mommy);
   cNokogiriXmlSyntaxError = klass;
 
+  rb_define_alloc_func(klass, allocate);
+
   rb_define_method(klass, "message", message, 0);
+  rb_define_method(klass, "message=", set_message, 1);
+  rb_define_method(klass, "initialize_copy", initialize_copy, 1);
   rb_define_method(klass, "domain", domain, 0);
   rb_define_method(klass, "code", code, 0);
   rb_define_method(klass, "level", level, 0);

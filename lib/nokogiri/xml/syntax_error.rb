@@ -4,6 +4,10 @@ module Nokogiri
     # This class provides information about XML SyntaxErrors.  These
     # exceptions are typically stored on Nokogiri::XML::Document#errors.
     class SyntaxError < ::Nokogiri::SyntaxError
+      def initialize message
+        self.message = message
+      end
+
       ###
       # return true if this is a non error
       def none?

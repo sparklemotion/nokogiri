@@ -31,6 +31,7 @@
   * NodeSet#[] works with slices larger than NodeSet#length GH #131
   * Reparented nodes maintain their namespace. GH #134
   * Fixed SEGV when adding an XML::Document to NodeSet
+  * XML::SyntaxError can be duplicated. GH #148
 
 === 1.3.3 / 2009/07/26
 
