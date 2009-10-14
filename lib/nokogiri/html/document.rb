@@ -1,6 +1,29 @@
 module Nokogiri
   module HTML
     class Document < Nokogiri::XML::Document
+      ###
+      # Get the meta tag encoding for this document.  If there is no meta tag,
+      # then nil is returned
+      def meta_encoding
+        return nil unless meta = css('meta').find { |node|
+          node['http-equiv'] =~ /Content-Type/i
+        }
+
+        /charset\s*=\s*([\w\d-]+)/i.match(meta['content'])[1]
+      end
+
+      ###
+      # Set the meta tag encoding for this document.  If there is no meta 
+      # content tag, nil is returned and the encoding is not set.
+      def meta_encoding= encoding
+        return nil unless meta = css('meta').find { |node|
+          node['http-equiv'] =~ /Content-Type/i
+        }
+
+        meta['content'] = "text/html; charset=%s" % encoding
+        encoding
+      end
+
       ####
       # Serialize Node using +options+.  Save options can also be set using a
       # block. See SaveOptions.

@@ -118,6 +118,14 @@ module Nokogiri
         assert_equal 'EUC-JP', @html.meta_encoding
       end
 
+      def test_meta_encoding_without_head
+        html = Nokogiri::HTML('<html><body>foo</body></html>')
+        assert_nil html.meta_encoding
+
+        html.meta_encoding = 'EUC-JP'
+        assert_nil html.meta_encoding
+      end
+
       def test_root_node_parent_is_document
         parent = @html.root.parent
         assert_equal @html, parent

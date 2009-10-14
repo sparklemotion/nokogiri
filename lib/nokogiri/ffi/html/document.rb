@@ -23,15 +23,6 @@ module Nokogiri
           LibXML.htmlReadMemory(string, string.length, url, encoding, options)
         end
       end
-
-      def meta_encoding=(encoding) # :nodoc:
-        LibXML.htmlSetMetaEncoding(cstruct, encoding)
-        encoding
-      end
-
-      def meta_encoding # :nodoc:
-        LibXML.htmlGetMetaEncoding(cstruct)
-      end
     end
   end
 end
