@@ -154,7 +154,7 @@ static VALUE pointer_id(VALUE self)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
 
-  return INT2NUM((int)(node));
+  return INT2NUM((long)(node));
 }
 
 /*
@@ -292,12 +292,12 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   VALUE level;
 
   if(rb_scan_args(argc, argv, "01", &level) == 0)
-    level = INT2NUM(1);
+    level = INT2NUM((long)1);
 
   xmlNodePtr node, dup;
   Data_Get_Struct(self, xmlNode, node);
 
-  dup = xmlDocCopyNode(node, node->doc, NUM2INT(level));
+  dup = xmlDocCopyNode(node, node->doc, (int)NUM2INT(level));
   if(dup == NULL) return Qnil;
 
   return Nokogiri_wrap_xml_node(rb_obj_class(self), dup);
@@ -627,7 +627,7 @@ static VALUE node_type(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-  return INT2NUM((int)node->type);
+  return INT2NUM((long)node->type);
 }
 
 /*
@@ -789,7 +789,7 @@ static VALUE native_write_to(
       (xmlOutputCloseCallback)io_close_callback,
       (void *)io,
       RTEST(encoding) ? StringValuePtr(encoding) : NULL,
-      NUM2INT(options)
+      (int)NUM2INT(options)
   );
 
   xmlSaveTree(savectx, node);
@@ -907,7 +907,7 @@ static VALUE compare(VALUE self, VALUE _other)
   Data_Get_Struct(self, xmlNode, node);
   Data_Get_Struct(_other, xmlNode, other);
 
-  return INT2NUM(xmlXPathCmpNodes(other, node));
+  return INT2NUM((long)xmlXPathCmpNodes(other, node));
 }
 
 VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
