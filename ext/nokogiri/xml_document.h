@@ -2,7 +2,7 @@
 #define NOKOGIRI_XML_DOCUMENT
 
 #include <nokogiri.h>
-#include "ruby/st.h"
+#include "st.h"
 
 struct _nokogiriTuple {
   xmlDocPtr     doc;
