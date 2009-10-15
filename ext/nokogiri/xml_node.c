@@ -810,7 +810,7 @@ static VALUE line(VALUE self)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
 
-  return INT2NUM(node->line);
+  return INT2NUM(xmlGetLineNo(node));
 }
 
 /*
