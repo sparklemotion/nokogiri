@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <ruby.h>
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #include <libxml/xpath.h>
@@ -14,6 +13,7 @@
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/relaxng.h>
+#include <ruby.h>
 
 #ifdef USE_INCLUDED_VASPRINTF
 int vasprintf (char **strp, const char *fmt, va_list ap);
