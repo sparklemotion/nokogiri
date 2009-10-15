@@ -17,6 +17,14 @@ module Nokogiri
         eohtml
       end
 
+      def test_get_attribute
+        element = @html.at('div')
+        assert_equal 'baz', element.get_attribute('class')
+        assert_equal 'baz', element['class']
+        element['href'] = "javascript:alert(\"AGGA-KA-BOO!\")"
+        assert_match(/%22AGGA-KA-BOO!%22/, element.to_html)
+      end
+
       def test_css_path_round_trip
         doc = Nokogiri::HTML File.read HTML_FILE
         %w{ #header small div[2] div.post body }.each do |css_sel|

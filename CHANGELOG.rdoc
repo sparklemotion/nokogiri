@@ -33,6 +33,10 @@
   * Fixed SEGV when adding an XML::Document to NodeSet
   * XML::SyntaxError can be duplicated. GH #148
 
+* Deprecations
+
+  * Hpricot compatibility layer removed
+
 === 1.3.3 / 2009/07/26
 
 * New Features

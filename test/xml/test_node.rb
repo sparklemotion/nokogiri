@@ -10,6 +10,14 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_element?
+        assert @xml.root.element?, 'is an element'
+      end
+
+      def test_slash_search
+        assert_equal 'EMP0001', (@xml/:staff/:employee/:employeeId).first.text
+      end
+
       def test_append_with_document
         assert_raises(ArgumentError) do
           @xml.root << Nokogiri::XML::Document.new

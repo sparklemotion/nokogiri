@@ -26,8 +26,6 @@ XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPath
 
   * http://gist.github.com/24605
 
-また、NokogiriはHpricot互換の特徴を持ち、CSSやXPathも簡単に取り扱うことが出来ます。
-
 == SUPPORT:
 
 Nokogiriのメーリングリスト:

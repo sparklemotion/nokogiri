@@ -13,6 +13,12 @@ module Nokogiri
         assert_equal('<!--hello world-->', comment.to_s)
       end
 
+      def test_comment?
+        comment = Nokogiri::XML::Comment.new(@xml, 'hello world')
+        assert(comment.comment?)
+        assert(!@xml.root.comment?)
+      end
+
       def test_many_comments
         100.times {
           Nokogiri::XML::Comment.new(@xml, 'hello world')

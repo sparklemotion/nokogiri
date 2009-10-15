@@ -312,6 +312,11 @@ module Nokogiri
         assert_equal('<p>Helloworld!</p>', node.inner_html.gsub(/\s/, ''))
       end
 
+      def test_round_trip
+        doc = Nokogiri::HTML(@html.inner_html)
+        assert_equal @html.root.to_html, doc.root.to_html
+      end
+
       def test_fragment_contains_text_node
         fragment = Nokogiri::HTML.fragment('fooo')
         assert_equal 1, fragment.children.length
