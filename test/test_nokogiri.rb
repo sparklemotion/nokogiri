@@ -69,7 +69,7 @@ class TestNokogiri < Nokogiri::TestCase
     doc = Nokogiri.make { b "bold tag" }
     assert_equal('<b>bold tag</b>', doc.to_html.chomp)
   end
-  
+
   SLOP_HTML = <<-END
   <html>
     <body>
@@ -119,7 +119,7 @@ class TestNokogiri < Nokogiri::TestCase
 
     assert_raise(NoMethodError) { doc.nonexistent }
   end
-  
+
   def test_slop_decorator
     doc = Nokogiri(SLOP_HTML)
     assert !doc.decorators(Nokogiri::XML::Node).include?(Nokogiri::Decorators::Slop)
