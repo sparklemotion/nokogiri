@@ -23,7 +23,6 @@ require 'nokogiri/html'
 require 'nokogiri/decorators/slop'
 require 'nokogiri/css'
 require 'nokogiri/html/builder'
-require 'nokogiri/hpricot'
 
 # Nokogiri parses and searches XML/HTML very quickly, and also has
 # correctly implemented CSS3 selector support as well as XPath support.
