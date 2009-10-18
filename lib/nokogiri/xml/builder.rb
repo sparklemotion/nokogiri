@@ -273,8 +273,8 @@ module Nokogiri
 
       ###
       # Convert this Builder object to XML
-      def to_xml
-        @doc.to_xml
+      def to_xml(*args)
+        @doc.to_xml(*args)
       end
 
       ###
@@ -356,7 +356,7 @@ module Nokogiri
           when /^(.*)=/
             @node[$1] = args.first
           else
-            @node['class'] = 
+            @node['class'] =
               ((@node['class'] || '').split(/\s/) + [method.to_s]).join(' ')
             @node.content = args.first if args.first
           end
