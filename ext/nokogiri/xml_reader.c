@@ -459,10 +459,11 @@ static VALUE inner_xml(VALUE self)
   Data_Get_Struct(self, xmlTextReader, reader);
 
   const char * value = (const char *)xmlTextReaderReadInnerXml(reader);
-  if(value == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(value);
+  if(value == NULL)
+    return Qnil;
+  else
+    return NOKOGIRI_STR_NEW2(value);
 }
 
 /*
@@ -477,10 +478,11 @@ static VALUE outer_xml(VALUE self)
   Data_Get_Struct(self, xmlTextReader, reader);
 
   const char * value = (const char *)xmlTextReaderReadOuterXml(reader);
-  if(value == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(value);
+  if(value == NULL)
+    return Qnil;
+  else
+    return NOKOGIRI_STR_NEW2(value);
 }
 
 /*
