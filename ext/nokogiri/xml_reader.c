@@ -449,6 +449,24 @@ static VALUE read_more(VALUE self)
 
 /*
  * call-seq:
+ *   read_outer_xml
+ *
+ * Read the current node and its contents, including child nodes and markup.
+ */
+static VALUE read_outer_xml(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+
+  const char * value = (const char *)xmlTextReaderReadOuterXml(reader);
+  if(value == NULL) return Qnil;
+
+  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
+  return NOKOGIRI_STR_NEW2(value);
+}
+
+/*
+ * call-seq:
  *   from_memory(string, url = nil, encoding = nil, options = 0)
  *
  * Create a new reader that parses +string+
@@ -550,6 +568,7 @@ void init_xml_reader()
   rb_define_singleton_method(klass, "from_io", from_io, -1);
 
   rb_define_method(klass, "read", read_more, 0);
+  rb_define_method(klass, "read_outer_xml", read_outer_xml, 0);
   rb_define_method(klass, "state", state, 0);
   rb_define_method(klass, "node_type", node_type, 0);
   rb_define_method(klass, "name", name, 0);
