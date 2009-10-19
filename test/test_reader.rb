@@ -260,6 +260,16 @@ class TestReader < Nokogiri::TestCase
       reader.map { |n| n.prefix }
   end
 
+  def test_node_type
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x>
+      <y>hello</y>
+    </x>
+    eoxml
+    assert_equal 0, reader.node_type
+    assert_equal [1, 14, 1, 3, 15, 14, 15], reader.map { |n| n.node_type }
+  end
+
   def test_state
     reader = Nokogiri::XML::Reader.from_memory('<foo>bar</bar>')
     assert reader.state

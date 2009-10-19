@@ -407,6 +407,19 @@ static VALUE state(VALUE self)
 
 /*
  * call-seq:
+ *   node_type
+ *
+ * Get the type of readers current node
+ */
+static VALUE node_type(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+  return INT2NUM(xmlTextReaderNodeType(reader));
+}
+
+/*
+ * call-seq:
  *   read
  *
  * Move the Reader forward through the XML document.
@@ -538,6 +551,7 @@ void init_xml_reader()
 
   rb_define_method(klass, "read", read_more, 0);
   rb_define_method(klass, "state", state, 0);
+  rb_define_method(klass, "node_type", node_type, 0);
   rb_define_method(klass, "name", name, 0);
   rb_define_method(klass, "local_name", local_name, 0);
   rb_define_method(klass, "namespace_uri", namespace_uri, 0);
