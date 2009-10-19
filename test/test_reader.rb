@@ -270,22 +270,22 @@ class TestReader < Nokogiri::TestCase
     assert_equal [1, 14, 1, 3, 15, 14, 15], reader.map { |n| n.node_type }
   end
 
-  def test_read_inner_xml
+  def test_inner_xml
     str = "<x><y>hello</y></x>"
     reader = Nokogiri::XML::Reader.from_memory(str)
 
     reader.read
 
-    assert_equal "<y>hello</y>", reader.read_inner_xml
+    assert_equal "<y>hello</y>", reader.inner_xml
   end
 
-  def test_read_outer_xml
+  def test_outer_xml
     str = "<x><y>hello</y></x>"
     reader = Nokogiri::XML::Reader.from_memory(str)
 
     reader.read
 
-    assert_equal str, reader.read_outer_xml
+    assert_equal str, reader.outer_xml
   end
 
   def test_state

@@ -449,11 +449,11 @@ static VALUE read_more(VALUE self)
 
 /*
  * call-seq:
- *   read_inner_xml
+ *   inner_xml
  *
  * Read the contents of the current node, including child nodes and markup.
  */
-static VALUE read_inner_xml(VALUE self)
+static VALUE inner_xml(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
@@ -467,11 +467,11 @@ static VALUE read_inner_xml(VALUE self)
 
 /*
  * call-seq:
- *   read_outer_xml
+ *   outer_xml
  *
  * Read the current node and its contents, including child nodes and markup.
  */
-static VALUE read_outer_xml(VALUE self)
+static VALUE outer_xml(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
@@ -586,8 +586,8 @@ void init_xml_reader()
   rb_define_singleton_method(klass, "from_io", from_io, -1);
 
   rb_define_method(klass, "read", read_more, 0);
-  rb_define_method(klass, "read_inner_xml", read_inner_xml, 0);
-  rb_define_method(klass, "read_outer_xml", read_outer_xml, 0);
+  rb_define_method(klass, "inner_xml", inner_xml, 0);
+  rb_define_method(klass, "outer_xml", outer_xml, 0);
   rb_define_method(klass, "state", state, 0);
   rb_define_method(klass, "node_type", node_type, 0);
   rb_define_method(klass, "name", name, 0);
