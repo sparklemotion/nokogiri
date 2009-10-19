@@ -407,6 +407,19 @@ static VALUE state(VALUE self)
 
 /*
  * call-seq:
+ *   node_type
+ *
+ * Get the type of readers current node
+ */
+static VALUE node_type(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+  return INT2NUM(xmlTextReaderNodeType(reader));
+}
+
+/*
+ * call-seq:
  *   read
  *
  * Move the Reader forward through the XML document.
@@ -432,6 +445,44 @@ static VALUE read_more(VALUE self)
     rb_raise(rb_eRuntimeError, "Error pulling: %d", ret);
 
   return Qnil;
+}
+
+/*
+ * call-seq:
+ *   inner_xml
+ *
+ * Read the contents of the current node, including child nodes and markup.
+ */
+static VALUE inner_xml(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+
+  const char * value = (const char *)xmlTextReaderReadInnerXml(reader);
+
+  if(value == NULL)
+    return Qnil;
+  else
+    return NOKOGIRI_STR_NEW2(value);
+}
+
+/*
+ * call-seq:
+ *   outer_xml
+ *
+ * Read the current node and its contents, including child nodes and markup.
+ */
+static VALUE outer_xml(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+
+  const char * value = (const char *)xmlTextReaderReadOuterXml(reader);
+
+  if(value == NULL)
+    return Qnil;
+  else
+    return NOKOGIRI_STR_NEW2(value);
 }
 
 /*
@@ -537,7 +588,10 @@ void init_xml_reader()
   rb_define_singleton_method(klass, "from_io", from_io, -1);
 
   rb_define_method(klass, "read", read_more, 0);
+  rb_define_method(klass, "inner_xml", inner_xml, 0);
+  rb_define_method(klass, "outer_xml", outer_xml, 0);
   rb_define_method(klass, "state", state, 0);
+  rb_define_method(klass, "node_type", node_type, 0);
   rb_define_method(klass, "name", name, 0);
   rb_define_method(klass, "local_name", local_name, 0);
   rb_define_method(klass, "namespace_uri", namespace_uri, 0);
