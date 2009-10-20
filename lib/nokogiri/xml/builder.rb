@@ -207,6 +207,24 @@ module Nokogiri
       attr_accessor :arity # :nodoc:
 
       ###
+      # Create a builder with an existing root object.  This is for use when
+      # you have an existing document that you would like to augment with
+      # builder methods.  The builder context created will start with the
+      # given +root+ node.
+      #
+      # For example:
+      #
+      #   doc = Nokogiri::XML(open('somedoc.xml'))
+      #   Nokogiri::XML::Builder.with(doc.at('some_tag')) do |xml|
+      #     # ... Use normal builder methods here ...
+      #     xml.awesome # add the "awesome" tag below "some_tag"
+      #   end
+      #
+      def self.with root, &block
+        builder = self.new({}, root, &block)
+      end
+
+      ###
       # Create a new Builder object.  +options+ are sent to the top level
       # Document that is being built.
       #
@@ -215,11 +233,18 @@ module Nokogiri
       #   Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       #     ...
       #   end
-      def initialize options = {}, &block
-        namespace = self.class.name.split('::')
-        namespace[-1] = 'Document'
-        @doc      = eval(namespace.join('::')).new
-        @parent   = @doc
+      def initialize options = {}, root = nil, &block
+
+        if root
+          @doc    = root.document
+          @parent = root
+        else
+          namespace     = self.class.name.split('::')
+          namespace[-1] = 'Document'
+          @doc          = eval(namespace.join('::')).new
+          @parent       = @doc
+        end
+
         @context  = nil
         @arity    = nil
         @ns       = nil

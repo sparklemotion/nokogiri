@@ -3,6 +3,14 @@ require "helper"
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_with_root
+        doc = Nokogiri::XML File.read XML_FILE
+        Nokogiri::XML::Builder.with(doc.at('employee')) do |xml|
+          xml.foo
+        end
+        assert_equal 1, doc.xpath('//employee/foo').length
+      end
+
       def test_root_namespace_default_decl
         b = Nokogiri::XML::Builder.new { |xml| xml.root(:xmlns => 'one:two') }
         doc = b.doc
