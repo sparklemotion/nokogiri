@@ -227,6 +227,7 @@ module Nokogiri
         each do |j|
           new_parent = Nokogiri.make(html, &blk)
           j.parent.add_child(new_parent)
+          j.add_next_sibling(new_parent)
           new_parent.add_child(j)
         end
         self
