@@ -1,6 +1,6 @@
-
+# :stopdoc:
 module Nokogiri
-  module LibXML # :nodoc: all
+  module LibXML
     extend FFI::Library
     if RUBY_PLATFORM =~ /java/ && java.lang.System.getProperty('os.name') =~ /windows/i
       raise(RuntimeError, "Nokogiri requires JRuby 1.4.0RC1 or later on Windows") if JRUBY_VERSION < "1.4.0RC1"
@@ -33,7 +33,7 @@ else
 end
 
 module Nokogiri
-  module LibXML # :nodoc:
+  module LibXML
     # useful callback signatures
     callback :syntax_error_handler, [:pointer, :pointer], :void
     callback :generic_error_handler, [:pointer, :string], :void
@@ -277,6 +277,8 @@ module Nokogiri
     end
   end
 end
+
+# :startdoc:
 
 require 'nokogiri/syntax_error'
 require 'nokogiri/xml/syntax_error'
