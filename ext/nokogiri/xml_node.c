@@ -197,9 +197,9 @@ static VALUE create_internal_subset(VALUE self, VALUE name, VALUE external_id, V
 
   xmlDtdPtr dtd = xmlCreateIntSubset(
       doc, 
-      Qnil == name ? NULL : (const xmlChar *)StringValuePtr(name),
-      Qnil == external_id ? NULL : (const xmlChar *)StringValuePtr(external_id),
-      Qnil == system_id ? NULL : (const xmlChar *)StringValuePtr(system_id)
+      NIL_P(name)        ? NULL : (const xmlChar *)StringValuePtr(name),
+      NIL_P(external_id) ? NULL : (const xmlChar *)StringValuePtr(external_id),
+      NIL_P(system_id)   ? NULL : (const xmlChar *)StringValuePtr(system_id)
   );
 
   if(!dtd) return Qnil;
@@ -226,9 +226,9 @@ static VALUE create_external_subset(VALUE self, VALUE name, VALUE external_id, V
 
   xmlDtdPtr dtd = xmlNewDtd(
       doc, 
-      Qnil == name ? NULL : (const xmlChar *)StringValuePtr(name),
-      Qnil == external_id ? NULL : (const xmlChar *)StringValuePtr(external_id),
-      Qnil == system_id ? NULL : (const xmlChar *)StringValuePtr(system_id)
+      NIL_P(name)        ? NULL : (const xmlChar *)StringValuePtr(name),
+      NIL_P(external_id) ? NULL : (const xmlChar *)StringValuePtr(external_id),
+      NIL_P(system_id)   ? NULL : (const xmlChar *)StringValuePtr(system_id)
   );
 
   if(!dtd) return Qnil;
@@ -452,7 +452,7 @@ static VALUE namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
   if(xmlHasNsProp(node, (xmlChar *)StringValuePtr(attribute),
-        Qnil == namespace ? NULL : (xmlChar *)StringValuePtr(namespace)))
+        NIL_P(namespace) ? NULL : (xmlChar *)StringValuePtr(namespace)))
     return Qtrue;
   return Qfalse;
 }
@@ -487,11 +487,11 @@ static VALUE get(VALUE self, VALUE attribute)
   VALUE rval ;
   Data_Get_Struct(self, xmlNode, node);
 
-  if(attribute == Qnil) return Qnil;
+  if(NIL_P(attribute)) return Qnil;
 
   propstr = xmlGetProp(node, (xmlChar *)StringValuePtr(attribute));
 
-  if(NULL == propstr) return Qnil;
+  if(!propstr) return Qnil;
 
   rval = NOKOGIRI_STR_NEW2(propstr);
 
@@ -547,7 +547,7 @@ static VALUE attribute_with_ns(VALUE self, VALUE name, VALUE namespace)
   xmlAttrPtr prop;
   Data_Get_Struct(self, xmlNode, node);
   prop = xmlHasNsProp(node, (xmlChar *)StringValuePtr(name),
-      Qnil == namespace ? NULL : (xmlChar *)StringValuePtr(namespace));
+      NIL_P(namespace) ? NULL : (xmlChar *)StringValuePtr(namespace));
 
   if(! prop) return Qnil;
   return Nokogiri_wrap_xml_node(Qnil, (xmlNodePtr)prop);
@@ -828,18 +828,18 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
   xmlNsPtr ns = xmlNewNs(
       node,
       (const xmlChar *)StringValuePtr(href),
-      (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
+      (const xmlChar *)(NIL_P(prefix) ? NULL : StringValuePtr(prefix))
   );
 
   if(!ns) {
     ns = xmlSearchNs(
         node->doc,
         node,
-        (const xmlChar *)(prefix == Qnil ? NULL : StringValuePtr(prefix))
+        (const xmlChar *)(NIL_P(prefix) ? NULL : StringValuePtr(prefix))
     );
   }
 
-  if(Qnil == prefix) xmlSetNs(node, ns);
+  if(NIL_P(prefix)) xmlSetNs(node, ns);
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }

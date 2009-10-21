@@ -94,7 +94,7 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     int param_len, j ;
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
-    if (paramobj == Qnil) { paramobj = rb_ary_new2(0) ; }
+    if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0) ; }
 
     Data_Get_Struct(xmldoc, xmlDoc, xml);
     Data_Get_Struct(self, xsltStylesheet, ss);

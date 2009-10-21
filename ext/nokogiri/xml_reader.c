@@ -163,17 +163,6 @@ static VALUE attribute_nodes(VALUE self)
   xmlNodePtr ptr = xmlTextReaderExpand(reader);
   if(ptr == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
-
-  if(enc != Qnil && NULL == ptr->doc->encoding) {
-    ptr->doc->encoding = calloc((size_t)RSTRING_LEN(enc), sizeof(char));
-    strncpy(
-      (char *)ptr->doc->encoding,
-      StringValuePtr(enc),
-      (size_t)RSTRING_LEN(enc)
-    );
-  }
-
   Nokogiri_xml_node_properties(ptr, attr);
 
   return attr ;
@@ -190,7 +179,7 @@ static VALUE attribute_at(VALUE self, VALUE index)
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
 
-  if(index == Qnil) return Qnil;
+  if(NIL_P(index)) return Qnil;
   index = rb_Integer(index);
 
   xmlChar * value = xmlTextReaderGetAttributeNo(
@@ -199,7 +188,6 @@ static VALUE attribute_at(VALUE self, VALUE index)
   );
   if(value == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE rb_value = NOKOGIRI_STR_NEW2(value);
   xmlFree(value);
   return rb_value;
@@ -217,7 +205,7 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   xmlChar *value ;
   Data_Get_Struct(self, xmlTextReader, reader);
 
-  if(name == Qnil) return Qnil;
+  if(NIL_P(name)) return Qnil;
   name = StringValue(name) ;
 
   value = xmlTextReaderGetAttribute(reader, (xmlChar*)StringValuePtr(name));
@@ -236,7 +224,6 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   }
   if(value == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   VALUE rb_value = NOKOGIRI_STR_NEW2(value);
   xmlFree(value);
   return rb_value;
@@ -255,7 +242,7 @@ static VALUE attribute_count(VALUE self)
   int count = xmlTextReaderAttributeCount(reader);
   if(count == -1) return Qnil;
 
-  return INT2NUM(count);
+  return INT2NUM((long)count);
 }
 
 /*
@@ -271,7 +258,7 @@ static VALUE depth(VALUE self)
   int depth = xmlTextReaderDepth(reader);
   if(depth == -1) return Qnil;
 
-  return INT2NUM(depth);
+  return INT2NUM((long)depth);
 }
 
 /*
@@ -303,7 +290,6 @@ static VALUE lang(VALUE self)
   const char * lang = (const char *)xmlTextReaderConstXmlLang(reader);
   if(lang == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(lang);
 }
 
@@ -320,7 +306,6 @@ static VALUE value(VALUE self)
   const char * value = (const char *)xmlTextReaderConstValue(reader);
   if(value == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(value);
 }
 
@@ -337,7 +322,6 @@ static VALUE prefix(VALUE self)
   const char * prefix = (const char *)xmlTextReaderConstPrefix(reader);
   if(prefix == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(prefix);
 }
 
@@ -354,7 +338,6 @@ static VALUE namespace_uri(VALUE self)
   const char * uri = (const char *)xmlTextReaderConstNamespaceUri(reader);
   if(uri == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(uri);
 }
 
@@ -371,7 +354,6 @@ static VALUE local_name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstLocalName(reader);
   if(name == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(name);
 }
 
@@ -388,7 +370,6 @@ static VALUE name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstName(reader);
   if(name == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
   return NOKOGIRI_STR_NEW2(name);
 }
 
@@ -402,7 +383,7 @@ static VALUE state(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
-  return INT2NUM(xmlTextReaderReadState(reader));
+  return INT2NUM((long)xmlTextReaderReadState(reader));
 }
 
 /*
@@ -415,7 +396,7 @@ static VALUE node_type(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
-  return INT2NUM(xmlTextReaderNodeType(reader));
+  return INT2NUM((long)xmlTextReaderNodeType(reader));
 }
 
 /*

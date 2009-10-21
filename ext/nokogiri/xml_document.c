@@ -155,8 +155,8 @@ static VALUE read_io( VALUE klass,
                       VALUE encoding,
                       VALUE options )
 {
-  const char * c_url    = (url == Qnil) ? NULL : StringValuePtr(url);
-  const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
+  const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
+  const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
   VALUE error_list      = rb_ary_new();
 
   xmlResetLastError();
@@ -202,8 +202,8 @@ static VALUE read_memory( VALUE klass,
                           VALUE options )
 {
   const char * c_buffer = StringValuePtr(string);
-  const char * c_url    = (url == Qnil) ? NULL : StringValuePtr(url);
-  const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
+  const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
+  const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
   int len               = RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
 
@@ -265,7 +265,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "0*", &rest);
   version = rb_ary_entry(rest, (long)0);
-  if (version == Qnil) {
+  if (NIL_P(Qnil)) {
     version = rb_str_new2("1.0");
   }
 

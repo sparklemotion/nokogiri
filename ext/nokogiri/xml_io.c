@@ -6,7 +6,7 @@ int io_read_callback(void * ctx, char * buffer, int len) {
   VALUE io = (VALUE)ctx;
   VALUE string = rb_funcall(io, id_read, 1, INT2NUM(len));
 
-  if(Qnil == string) return 0;
+  if(NIL_P(string)) return 0;
 
   memcpy(buffer, StringValuePtr(string), (unsigned int)RSTRING_LEN(string));
 
