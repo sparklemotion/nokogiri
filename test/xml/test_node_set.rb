@@ -390,6 +390,14 @@ module Nokogiri
         assert_equal 'employee', @xml.search("//wrapper").first.children[0].name
       end
 
+      def test_wrap_preserves_document_structure
+        assert_equal "employeeId",
+                     @xml.at_xpath("//employee").children.detect{|j| ! j.text? }.name
+        @xml.xpath("//employeeId[text()='EMP0001']").wrap("<wrapper/>")
+        assert_equal "wrapper",
+                     @xml.at_xpath("//employee").children.detect{|j| ! j.text? }.name
+      end
+
       def test_plus_operator
         names = @xml.search("name")
         positions = @xml.search("position")
