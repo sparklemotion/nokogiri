@@ -218,6 +218,8 @@ module Nokogiri
     attach_function :xmlTextReaderGetAttributeNo, [:pointer, :int], :pointer # returns char* that must be freed
     attach_function :xmlTextReaderLookupNamespace, [:pointer, :string], :pointer # returns char* that must be freed
     attach_function :xmlTextReaderRead, [:pointer], :int
+    attach_function :xmlTextReaderReadInnerXml, [:pointer], :pointer
+    attach_function :xmlTextReaderReadOuterXml, [:pointer], :pointer
     attach_function :xmlTextReaderAttributeCount, [:pointer], :int
     attach_function :xmlTextReaderCurrentNode, [:pointer], :pointer
     attach_function :xmlTextReaderExpand, [:pointer], :pointer

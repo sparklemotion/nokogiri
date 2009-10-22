@@ -151,6 +151,22 @@ module Nokogiri
         nil
       end
 
+      def inner_xml
+        string_ptr = LibXML.xmlTextReaderReadInnerXml(cstruct)
+        return nil if string_ptr.null?
+        string = string_ptr.read_string
+        LibXML.xmlFree(string_ptr)
+        string
+      end
+
+      def outer_xml
+        string_ptr = LibXML.xmlTextReaderReadOuterXml(cstruct)
+        return nil if string_ptr.null?
+        string = string_ptr.read_string
+        LibXML.xmlFree(string_ptr)
+        string
+      end
+
       def self.from_memory(buffer, url=nil, encoding=nil, options=0)
         raise(ArgumentError, "string cannot be nil") if buffer.nil?
 
