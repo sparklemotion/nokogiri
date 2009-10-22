@@ -89,4 +89,3 @@ module Nokogiri
 
 end
 # :startdoc:
-

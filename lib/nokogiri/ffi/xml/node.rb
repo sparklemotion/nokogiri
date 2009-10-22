@@ -346,6 +346,7 @@ module Nokogiri
 
       def self.reparent_node_with(node, other, &block)
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(Nokogiri::XML::Node)
+        raise(ArgumentError, "cannot reparent a document node") if node.node_type == DOCUMENT_NODE || node.node_type == HTML_DOCUMENT_NODE
 
         # If a document fragment is added, we need to reparent all of it's
         # children
