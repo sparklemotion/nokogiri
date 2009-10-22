@@ -208,6 +208,7 @@ module Nokogiri
     attach_function :xmlResetLastError, [], :void
     attach_function :xmlCopyError, [:pointer, :pointer], :int
     attach_function :xmlGetLastError, [], :pointer
+    attach_function :xmlCtxtGetLastError, [:pointer], :pointer
 
     # hash.c
     attach_function :xmlHashScan, [:pointer, :hash_copier_callback, :pointer], :void

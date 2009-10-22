@@ -14,10 +14,11 @@ module Nokogiri
             size = chunk.length
           end
 
-          last_chunk = last_chunk ? 1 : 0
-
-          rcode = LibXML.xmlParseChunk(cstruct, chunk, size, last_chunk)
-          raise RuntimeError, "Couldn't parse chunk" if 0 != rcode
+          rcode = LibXML.xmlParseChunk(cstruct, chunk, size, last_chunk ? 1 : 0)
+          if rcode != 0
+            error = LibXML.xmlCtxtGetLastError(cstruct)
+            raise Nokogiri::XML::SyntaxError.wrap(error)
+          end
 
           self
         end
