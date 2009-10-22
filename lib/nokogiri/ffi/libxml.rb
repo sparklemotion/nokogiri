@@ -236,6 +236,7 @@ module Nokogiri
     attach_function :xmlTextReaderHasValue, [:pointer], :int
     attach_function :xmlFreeTextReader, [:pointer], :void
     attach_function :xmlReaderForIO, [:io_read_callback, :io_close_callback, :pointer, :string, :string, :int], :pointer
+    attach_function :xmlTextReaderNodeType, [:pointer], :int
 
     # xslt.c
     attach_function :xsltParseStylesheetDoc, [:pointer], :pointer
