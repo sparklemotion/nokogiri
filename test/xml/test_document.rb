@@ -547,6 +547,31 @@ module Nokogiri
         assert_equal(node, doc.root)
       end
 
+      def test_remove_namespaces
+        doc = Nokogiri::XML <<-EOX
+          <root xmlns:a="http://a.flavorjon.es/" xmlns:b="http://b.flavorjon.es/">
+            <a:foo>hello from a</a:foo>
+            <b:foo>hello from b</b:foo>
+            <container xmlns:c="http://c.flavorjon.es/">
+              <c:foo>hello from c</c:foo>
+            </container>
+          </root>
+        EOX
+
+        # assert on setup
+        assert_equal 0, doc.xpath("//foo").length
+        assert_equal 1, doc.xpath("//a:foo").length
+        assert_equal 1, doc.xpath("//a:foo").length
+        assert_equal 1, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
+
+        doc.remove_namespaces!
+
+        assert_equal 3, doc.xpath("//foo").length
+        assert_equal 0, doc.xpath("//a:foo").length
+        assert_equal 0, doc.xpath("//a:foo").length
+        assert_equal 0, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
+      end
+
       def util_decorate(document, x)
         document.decorators(XML::Node) << x
         document.decorators(XML::NodeSet) << x

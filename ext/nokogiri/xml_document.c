@@ -34,6 +34,16 @@ static void dealloc(xmlDocPtr doc)
   NOKOGIRI_DEBUG_END(doc);
 }
 
+static void recursively_remove_namespaces_from_node(xmlNodePtr node)
+{
+  xmlNodePtr child ;
+
+  xmlSetNs(node, NULL);
+
+  for (child = node->children ; child ; child = child->next)
+    recursively_remove_namespaces_from_node(child);
+}
+
 /*
  * call-seq:
  *  url
@@ -275,6 +285,52 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   return rb_doc ;
 }
 
+/*
+ *  call-seq:
+ *    remove_namespaces!
+ *
+ *  Remove all namespaces from all nodes in the document.
+ *
+ *  This could be useful for developers who either don't understand namespaces
+ *  or don't care about them.
+ *
+ *  The following example shows a use case, and you can decide for yourself
+ *  whether this is a good thing or not:
+ *
+ *    doc = Nokogiri::XML <<-EOXML
+ *       <root>
+ *         <car xmlns:part="http://general-motors.com/">
+ *           <part:tire>Michelin Model XGV</part:tire>
+ *         </car>
+ *         <bicycle xmlns:part="http://schwinn.com/">
+ *           <part:tire>I'm a bicycle tire!</part:tire>
+ *         </bicycle>
+ *       </root>
+ *       EOXML
+ *    
+ *    doc.xpath("//tire").to_s # => ""
+ *    doc.xpath("//part:tire", "part" => "http://general-motors.com/").to_s # => "<part:tire>Michelin Model XGV</part:tire>"
+ *    doc.xpath("//part:tire", "part" => "http://schwinn.com/").to_s # => "<part:tire>I'm a bicycle tire!</part:tire>"
+ *    
+ *    doc.remove_namespaces!
+ *    
+ *    doc.xpath("//tire").to_s # => "<tire>Michelin Model XGV</tire><tire>I'm a bicycle tire!</tire>"
+ *    doc.xpath("//part:tire", "part" => "http://general-motors.com/").to_s # => ""
+ *    doc.xpath("//part:tire", "part" => "http://schwinn.com/").to_s # => ""
+ *
+ *  For more information on why this probably is *not* a good thing in general,
+ *  please direct your browser to
+ *  http://tenderlovemaking.com/2009/04/23/namespaces-in-xml/
+ */
+VALUE remove_namespaces_bang(VALUE self)
+{
+  xmlDocPtr doc ;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  recursively_remove_namespaces_from_node(doc);
+}
+
+
 VALUE cNokogiriXmlDocument ;
 void init_xml_document()
 {
@@ -300,6 +356,7 @@ void init_xml_document()
   rb_define_method(klass, "version", version, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
+  rb_define_method(klass, "remove_namespaces!", remove_namespaces_bang, 0);
 }
 
 
