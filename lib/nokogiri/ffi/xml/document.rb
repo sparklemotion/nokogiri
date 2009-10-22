@@ -66,6 +66,10 @@ module Nokogiri
         self.class.wrap(dup_ptr)
       end
 
+      def remove_namespaces!
+        self.class.recursively_remove_namespaces_from_node(root)
+      end
+
       class << self
         def new(*args)
           version = args.first || "1.0"
@@ -115,6 +119,13 @@ module Nokogiri
           document = wrap(ptr)
           document.errors = error_list
           return document
+        end
+
+        def recursively_remove_namespaces_from_node(node)
+          node.cstruct[:ns] = nil
+          node.children.each do |child|
+            recursively_remove_namespaces_from_node(child)
+          end
         end
       end
 
