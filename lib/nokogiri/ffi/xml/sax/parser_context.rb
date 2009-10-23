@@ -4,6 +4,7 @@ module Nokogiri
     module SAX
       class ParserContext
         attr_accessor :cstruct
+        attr_accessor :reader_callback
 
         def self.memory data
           raise(ArgumentError, 'data cannot be nil') if data.nil?
@@ -17,16 +18,18 @@ module Nokogiri
         end
 
         def self.io io, encoding
+          reader_callback = IoCallbacks.reader(io) # keep a reference to prevent it from being GC'd
           sax_ctx = LibXML.xmlCreateIOParserCtxt(
             nil,
             nil,
-            IoCallbacks.reader(io),
+            reader_callback,
             nil,
             nil,
             encoding
           )
           pc = allocate
           pc.cstruct = LibXML::XmlParserContext.new sax_ctx
+          pc.reader_callback = reader_callback
           pc
         end
 
