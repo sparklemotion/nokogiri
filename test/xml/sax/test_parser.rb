@@ -171,11 +171,15 @@ module Nokogiri
           assert_equal doc.errors.length, @parser.document.errors.length
         end
 
-        def test_parse
+        def test_parse_with_memory_argument
+          @parser.parse(File.read(XML_FILE))
+          assert(@parser.document.cdata_blocks.length > 0)
+        end
+
+        def test_parse_with_io_argument
           File.open(XML_FILE, 'rb') { |f|
             @parser.parse(f)
           }
-          @parser.parse(File.read(XML_FILE))
           assert(@parser.document.cdata_blocks.length > 0)
         end
 
