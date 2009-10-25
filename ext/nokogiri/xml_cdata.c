@@ -4,7 +4,7 @@
  * call-seq:
  *  new(document, content)
  *
- * Create a new CData element on the +document+ with +content+
+ * Create a new CDATA element on the +document+ with +content+
  */
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {

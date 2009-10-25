@@ -269,8 +269,7 @@ module Nokogiri
       ###
       # Create a Text Node with content of +string+
       def text string
-        node = Nokogiri::XML::Text.new(string.to_s, @doc)
-        insert(node)
+        insert @doc.create_text_node string
       end
 
       ###
@@ -312,7 +311,7 @@ module Nokogiri
         if @context && @context.respond_to?(method)
           @context.send(method, *args, &block)
         else
-          node = Nokogiri::XML::Node.new(method.to_s.sub(/[_!]$/, ''), @doc) { |n|
+          node = @doc.create_element(method.to_s.sub(/[_!]$/, '')) { |n|
             # Set up the namespace
             if @ns
               n.namespace = @ns

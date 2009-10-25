@@ -10,6 +10,20 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_create_text_node
+        txt = @xml.create_text_node 'foo'
+        assert_instance_of Nokogiri::XML::Text, txt
+        assert_equal 'foo', txt.text
+        assert_equal @xml, txt.document
+      end
+
+      def test_create_element
+        elm = @xml.create_element('foo')
+        assert_instance_of Nokogiri::XML::Element, elm
+        assert_equal 'foo', elm.name
+        assert_equal @xml, elm.document
+      end
+
       def test_pp
         out = StringIO.new('')
         assert_nothing_raised do

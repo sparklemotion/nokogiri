@@ -24,13 +24,13 @@ module Nokogiri
 
         if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          return self.read_io(string_or_io, url, encoding, options.to_i)
+          return read_io(string_or_io, url, encoding, options.to_i)
         end
 
         # read_memory pukes on empty docs
-        return self.new if string_or_io.nil? or string_or_io.empty?
+        return new if string_or_io.nil? or string_or_io.empty?
 
-        self.read_memory(string_or_io, url, encoding, options.to_i)
+        read_memory(string_or_io, url, encoding, options.to_i)
       end
 
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
@@ -38,6 +38,16 @@ module Nokogiri
 
       def initialize *args
         @decorators = nil
+      end
+
+      # Create an element with +name+
+      def create_element name, &block
+        Nokogiri::XML::Element.new(name, self, &block)
+      end
+
+      # Create a text node with +text+
+      def create_text_node text, &block
+        Nokogiri::XML::Text.new(text.to_s, self, &block)
       end
 
       # The name of this document.  Always returns "document"
