@@ -26,7 +26,7 @@ module Nokogiri
       end
 
       def test_css_path_round_trip
-        doc = Nokogiri::HTML File.read HTML_FILE
+        doc = Nokogiri::HTML(File.read(HTML_FILE))
         %w{ #header small div[2] div.post body }.each do |css_sel|
           ele = doc.at css_sel
           assert_equal ele, doc.at(ele.css_path), ele.css_path
@@ -34,7 +34,7 @@ module Nokogiri
       end
 
       def test_path_round_trip
-        doc = Nokogiri::HTML File.read HTML_FILE
+        doc = Nokogiri::HTML(File.read(HTML_FILE))
         %w{ #header small div[2] div.post body }.each do |css_sel|
           ele = doc.at css_sel
           assert_equal ele, doc.at(ele.path), ele.path
