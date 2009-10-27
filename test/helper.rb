@@ -2,6 +2,7 @@
 $VERBOSE = true
 require 'rubygems'
 require 'test/unit'
+require 'fileutils'
 require 'tempfile'
 require 'pp'
 

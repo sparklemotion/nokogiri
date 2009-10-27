@@ -355,7 +355,7 @@ module Nokogiri
         assert node = doc.at('//xmlns:first')
         child = Nokogiri::XML::Node.new('second', doc)
 
-        ns = doc.root.namespace_definitions.detect { |ns| ns.prefix == "foo" }
+        ns = doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
         child.namespace = ns
 
         node.add_child(child)

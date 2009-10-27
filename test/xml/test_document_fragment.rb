@@ -117,7 +117,7 @@ module Nokogiri
             <foo:existing></foo:existing>
           </root>
         EOX
-        ns = doc.root.namespace_definitions.detect { |ns| ns.prefix == "bar" }
+        ns = doc.root.namespace_definitions.detect { |x| x.prefix == "bar" }
 
         frag = doc.fragment "<bar:newnode></bar:newnode>"
         assert frag.children.first.namespace
