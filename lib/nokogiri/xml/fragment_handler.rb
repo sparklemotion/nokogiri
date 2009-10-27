@@ -1,6 +1,8 @@
 module Nokogiri
   module XML
     class FragmentHandler < Nokogiri::XML::SAX::Document # :nodoc:
+      QNAME_REGEX = /(.*):(.*)/
+
       def initialize node, original_html
         @doc_started    = false
         @document       = node.document
@@ -26,11 +28,21 @@ module Nokogiri
         @doc_started = true if @original_html =~ regex
         return unless @doc_started
 
+        if match = name.match(QNAME_REGEX)
+          prefix, name = match[1], match[2]
+          ns = @document.root.namespace_definitions.detect { |ns| ns.prefix == prefix }
+        else
+          ns = nil
+        end
+
         node = Element.new(name, @document)
         attrs << "" unless (attrs.length % 2) == 0
         Hash[*attrs].each do |k,v|
           node[k] = v
         end
+
+        node.namespace = ns if ns
+
         @stack.last << node
         @stack << node
       end

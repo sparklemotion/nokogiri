@@ -345,6 +345,23 @@ module Nokogiri
         assert doc.at('//xmlns:second')
       end
 
+      def test_add_child_should_not_inherit_namespace_if_it_has_one
+        doc = Nokogiri::XML(<<-eoxml)
+          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="http://flavorjon.es/">
+            <first>
+            </first>
+          </root>
+        eoxml
+        assert node = doc.at('//xmlns:first')
+        child = Nokogiri::XML::Node.new('second', doc)
+
+        ns = doc.root.namespace_definitions.detect { |ns| ns.prefix == "foo" }
+        child.namespace = ns
+
+        node.add_child(child)
+        assert doc.at('//foo:second', "foo" => "http://flavorjon.es/")
+      end
+
       def test_write_to
         io = StringIO.new
         @xml.write_to io

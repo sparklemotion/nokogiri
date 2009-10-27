@@ -100,6 +100,39 @@ module Nokogiri
 
         assert_equal p_tag, frag.xpath('./*[@id = \'content\']').first
       end
+
+      def test_fragment_without_a_namespace_does_not_get_a_namespace
+        doc = Nokogiri::XML <<-EOX
+          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="http://flavorjon.es/" xmlns:bar="http://google.com/">
+            <foo:existing></foo:existing>
+          </root>
+        EOX
+        frag = doc.fragment "<newnode></newnode>"
+        assert_nil frag.namespace
+      end
+
+      def test_fragment_namespace_resolves_against_document_root
+        doc = Nokogiri::XML <<-EOX
+          <root xmlns:foo="http://flavorjon.es/" xmlns:bar="http://google.com/">
+            <foo:existing></foo:existing>
+          </root>
+        EOX
+        ns = doc.root.namespace_definitions.detect { |ns| ns.prefix == "bar" }
+
+        frag = doc.fragment "<bar:newnode></bar:newnode>"
+        assert frag.children.first.namespace
+        assert_equal ns, frag.children.first.namespace
+      end
+
+      def test_fragment_invalid_namespace_is_silently_ignored
+        doc = Nokogiri::XML <<-EOX
+          <root xmlns:foo="http://flavorjon.es/" xmlns:bar="http://google.com/">
+            <foo:existing></foo:existing>
+          </root>
+        EOX
+        frag = doc.fragment "<baz:newnode></baz:newnode>"
+        assert_nil frag.children.first.namespace
+      end
     end
   end
 end

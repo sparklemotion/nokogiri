@@ -17,8 +17,6 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   Data_Get_Struct(document, xmlDoc, xml_doc);
 
   xmlNodePtr node = xmlNewDocFragment(xml_doc->doc);
-  if(node->doc->children)
-    node->ns = node->doc->children->ns;
 
   NOKOGIRI_ROOT_NODE(node);
 
