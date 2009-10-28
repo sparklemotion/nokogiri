@@ -9,11 +9,6 @@ module Nokogiri
 
         node = Node.wrap(node_cstruct, self)
 
-        if node.document.child && node.document.child.node_type == ELEMENT_NODE
-          # TODO: node_type check should be ported into master, because of e.g. DTD nodes
-          node.cstruct[:ns] = node.document.children.first.cstruct[:ns] 
-        end
-
         node.send :initialize, document, *rest
         yield node if block_given?
 
