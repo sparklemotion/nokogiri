@@ -5,7 +5,7 @@ module Nokogiri
       def self.new(string, document, *rest) # :nodoc:
         node_ptr = LibXML.xmlNewText(string)
         node_cstruct = LibXML::XmlNode.new(node_ptr)
-        node_cstruct[:doc] = document.cstruct
+        node_cstruct[:doc] = document.cstruct[:doc]
 
         node = Node.wrap(node_cstruct, self)
         node.send :initialize, string, document, *rest
