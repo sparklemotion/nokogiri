@@ -26,6 +26,9 @@ typedef xmlNodePtr (*node_other_func)(xmlNodePtr, xmlNodePtr);
 /* :nodoc: */
 static void relink_namespace(xmlNodePtr reparented)
 {
+  // Avoid segv when relinking against unlinked nodes.
+  if(!reparented->parent) return;
+
   // Make sure that our reparented node has the correct namespaces
   if(!reparented->ns && reparented->doc != (xmlDocPtr)reparented->parent)
     xmlSetNs(reparented, reparented->parent->ns);

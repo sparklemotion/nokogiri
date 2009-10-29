@@ -88,6 +88,19 @@ module Nokogiri
         assert node.matches?('//a')
       end
 
+      def test_unlink_then_swap
+        node = @html.at('a')
+        node.unlink
+
+        another_node = @html.at('div')
+        assert another_node, 'should have a node'
+
+        # This used to segv
+        assert_nothing_raised do
+          node.add_previous_sibling another_node
+        end
+      end
+
       def test_swap
         @html.at('div').swap('<a href="foo">bar</a>')
         a_tag = @html.css('a').first
