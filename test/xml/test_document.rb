@@ -10,6 +10,17 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_subclass_initialize_modify # testing a segv
+        Class.new(Nokogiri::XML::Document) {
+          def initialize
+            super
+            body_node = Nokogiri::XML::Node.new "body", self
+            body_node.content = "stuff"
+            self.root = body_node
+          end
+        }.new
+      end
+
       def test_create_text_node
         txt = @xml.create_text_node 'foo'
         assert_instance_of Nokogiri::XML::Text, txt

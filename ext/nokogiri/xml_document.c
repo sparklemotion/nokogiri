@@ -375,12 +375,13 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
   VALUE cache = rb_ary_new();
   rb_iv_set(rb_doc, "@decorators", Qnil);
   rb_iv_set(rb_doc, "@node_cache", cache);
-  rb_obj_call_init(rb_doc, 0, NULL);
 
   tuple->doc = (void *)rb_doc;
   tuple->unlinkedNodes = st_init_numtable_with_size(128);
   tuple->node_cache = cache;
   doc->_private = tuple ;
+
+  rb_obj_call_init(rb_doc, 0, NULL);
 
   return rb_doc ;
 }
