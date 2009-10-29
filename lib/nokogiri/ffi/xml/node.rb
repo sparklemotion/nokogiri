@@ -394,6 +394,8 @@ module Nokogiri
       end
 
       def self.relink_namespace(reparented_struct)
+        return if reparented_struct[:parent].null?
+
         # Make sure that our reparented node has the correct namespaces
         if reparented_struct[:ns].null? && reparented_struct[:doc] != reparented_struct[:parent]
           LibXML.xmlSetNs(reparented_struct, LibXML::XmlNode.new(reparented_struct[:parent])[:ns])
