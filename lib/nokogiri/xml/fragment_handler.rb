@@ -30,7 +30,9 @@ module Nokogiri
 
         if match = name.match(QNAME_REGEX)
           prefix, name = match[1], match[2]
-          ns = @document.root.namespace_definitions.detect { |ns| ns.prefix == prefix }
+          ns = @document.root.namespace_definitions.detect { |x|
+            x.prefix == prefix
+          }
         else
           ns = nil
         end
