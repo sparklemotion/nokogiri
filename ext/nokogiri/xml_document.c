@@ -328,6 +328,7 @@ VALUE remove_namespaces_bang(VALUE self)
   Data_Get_Struct(self, xmlDoc, doc);
 
   recursively_remove_namespaces_from_node(doc);
+  return self;
 }
 
 
