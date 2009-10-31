@@ -19,6 +19,12 @@ module Nokogiri
           ctx = LibXML.htmlCreateMemoryParserCtxt data, data.length
           pc = allocate
           pc.cstruct = LibXML::XmlParserContext.new ctx
+          if encoding
+            enc = LibXML.xmlParseCharEncoding(encoding)
+            if enc != LibXML::XML_CHAR_ENCODING_ERROR
+              LibXML.xmlSwitchEncoding(ctx, enc)
+            end
+          end
           pc
         end
 

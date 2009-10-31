@@ -34,6 +34,8 @@ end
 
 module Nokogiri
   module LibXML
+    XML_CHAR_ENCODING_ERROR = -1
+
     # useful callback signatures
     callback :syntax_error_handler, [:pointer, :pointer], :void
     callback :generic_error_handler, [:pointer, :string], :void
@@ -274,6 +276,9 @@ module Nokogiri
     # libc
     attach_function :calloc, [:int, :int], :pointer
     attach_function :free, [:pointer], :void
+
+    attach_function :xmlParseCharEncoding, [:string], :int
+    attach_function :xmlSwitchEncoding, [:pointer, :int], :void
 
     # helpers
     def self.pointer_offset(n)
