@@ -1,24 +1,24 @@
 === 1.4.0 ２００９年１０月３０日
 
-* お誕生日です！
+* 今日はノコギリの満一歳のお誕生日です
 
 * 新しい機能
-  * Node#at_xpath はXPathの表現に合うNodeSetの最初の要素に返す
-  * Node#at_css はCSSのセレクターに合うNodeSetの最初の要素に返す
-  * NodeSet#| 合併させる為のもの GH #119 (Serabe ありがとう！)
-  * NodeSet#inspect inspectは出力をきれいにするようになった
-  * Node#inspect インスペクト後、普通のrubyで出力されるようになった
+  * Node#at_xpath はXPathの表現に適したNodeSetの一番最初の要素に返す
+  * Node#at_css はCSSのセレクターに合うNodeSetの一番最初の要素に返す
+  * NodeSet#| は合併させる機能を果たす　GH #119 (Serabe ありがとう！)
+  * NodeSet#inspect inspectは出力をきれいにさせる
+  * Node#inspect インスペクト後、普通のrubyで出力施行する
   * XML::DTD#external_id を追加
   * XML::DTD#system_id を追加
-  * XML::ElementContent DTD要素のコンテンツを有効にするようになった
-  * Nokogiri::XML::Builder内でのnamespace宣言用のサポートを改良
+  * XML::ElementContent はDTD要素のコンテンツを有効化させる
+  * Nokogiri::XML::Builder内での名前空間宣言用のサポートを改良
   * XML::Node#external_subsetを追加
   * XML::Node#create_external_subsetを追加
   * XML::Node#create_internal_subsetを追加
-  * XML Builderは生成されていないstringsを付加出来るようになった
+  * XML Builderは生成されていないstringsを付加出来る様になった
     (GH #141, patch from dudleyf)
   * XML::SAX::ParserContext を追加
-  * XML::Document#remove_namespaces! は名前空間を使いこなせない人たち用
+  * XML::Document#remove_namespaces! は名前空間を使いこなせない人たち用の措置
 
 * バグの修正
 
@@ -29,16 +29,17 @@
   * NodeSet#searchが更に効率的になった　GH #119 (Serabe!に感謝します)
   * NodeSet#xpathがcustom xpath機能を取り扱える様になった
   * XML::Reader が現時点のノード用に属性を取得する際に、
-    SEGVを修正する出来る様になった
+    SEGVを修正するようになった
   * Node#inner_html がNode#to_html と同じ独立変数を受け入れるようになった
     GH #117
-  * DocumentFragment#css は子ノードに委任が出来る様になった GH #123
-  * NodeSet#[]がNodeSet#lengthより大きい断片でも機能できる様になった　 GH #131
-  * 新たな親ノードの名前空間の維持　GH #134
-  * XML::Document をNodeSetに追加時のSEGVを修正
-  * XML::SyntaxError が重複できるようになった
+  * DocumentFragment#css は子ノードへ委任をするようになった GH #123
+  * NodeSet#[]がNodeSet#lengthより大きいスライスでも機能できるようになった
+    GH #131
+  * 新たな親ノードの名前空間の維持出来るようになった　GH #134
+  * XML::Document をNodeSetに追加の際にSEGVが修正されるようになった
+  * XML::SyntaxError が重複可
 
-* Deprecations
+* 廃棄予定
 
   * Hpricot用の互換性レイヤーを削除
 
