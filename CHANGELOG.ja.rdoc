@@ -1,5 +1,7 @@
 === 1.4.0 ２００９年１０月３０日
 
+* お誕生日です！
+
 * 新しい機能
   * Node#at_xpath はXPathの表現に合うNodeSetの最初の要素に返す
   * Node#at_css はCSSのセレクターに合うNodeSetの最初の要素に返す

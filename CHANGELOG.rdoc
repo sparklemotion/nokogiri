@@ -1,5 +1,7 @@
 === 1.4.0 / 2009/10/30
 
+* Happy Birthday!
+
 * New Features
 
   * Node#at_xpath returns the first element of the NodeSet matching the XPath
