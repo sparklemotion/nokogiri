@@ -25,9 +25,6 @@ static VALUE parse_memory(VALUE klass, VALUE data, VALUE encoding)
   );
 
   if(RTEST(encoding)) {
-    ctxt->input->encoding =
-      xmlStrdup((const xmlChar *)StringValuePtr(encoding));
-
     xmlCharEncoding enc = xmlParseCharEncoding(StringValuePtr(encoding));
     if(enc != XML_CHAR_ENCODING_ERROR) {
       xmlSwitchEncoding(ctxt, enc);
