@@ -8,6 +8,14 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
+      def test_fun_encoding
+        string = %Q(<body>こんにちは</body>)
+        html = Nokogiri::HTML::DocumentFragment.parse(
+          string
+        ).to_html(:encoding => 'UTF-8')
+        assert_equal string, html
+      end
+
       def test_new
         fragment = Nokogiri::HTML::DocumentFragment.new(@html)
       end

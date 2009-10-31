@@ -24,6 +24,20 @@ static VALUE parse_memory(VALUE klass, VALUE data, VALUE encoding)
       (int)RSTRING_LEN(data)
   );
 
+  if(RTEST(encoding)) {
+    ctxt->input->encoding =
+      xmlStrdup((const xmlChar *)StringValuePtr(encoding));
+
+    xmlCharEncoding enc = xmlParseCharEncoding(StringValuePtr(encoding));
+    if(enc != XML_CHAR_ENCODING_ERROR) {
+      xmlSwitchEncoding(ctxt, enc);
+      if(ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
+        rb_raise(rb_eRuntimeError, "Unsupported encoding %s",
+            StringValuePtr(encoding));
+      }
+    }
+  }
+
   return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
 }
 
