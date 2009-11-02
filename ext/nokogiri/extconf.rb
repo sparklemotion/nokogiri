@@ -13,6 +13,8 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
 end
 
 $CFLAGS << " #{ENV["CFLAGS"]}"
+$LIBS << " #{ENV["LIBS"]}"
+
 if Config::CONFIG['target_os'] == 'mingw32'
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
 elsif Config::CONFIG['target_os'] == 'solaris2'
