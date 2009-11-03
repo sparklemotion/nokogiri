@@ -269,7 +269,7 @@ module Nokogiri
       ###
       # Create a Text Node with content of +string+
       def text string
-        insert @doc.create_text_node string
+        insert @doc.create_text_node(string)
       end
 
       ###
