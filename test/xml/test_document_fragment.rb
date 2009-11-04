@@ -27,6 +27,12 @@ module Nokogiri
         assert_instance_of Nokogiri::XML::DocumentFragment, fragment
       end
 
+      def test_static_method_with_namespaces
+        # follows different path in FragmentHandler#start_element which blew up after 597195ff
+        fragment = Nokogiri::XML::DocumentFragment.parse("<o:div>a</o:div>")
+        assert_instance_of Nokogiri::XML::DocumentFragment, fragment
+      end
+
       def test_many_fragments
         100.times { Nokogiri::XML::DocumentFragment.new(@xml) }
       end
