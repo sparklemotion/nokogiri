@@ -30,6 +30,10 @@ class TestNokogiri < Nokogiri::TestCase
     assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO['libxml']['loaded']
   end
 
+  def test_libxml_iconv
+    assert Nokogiri.const_defined?(:LIBXML_ICONV_ENABLED)
+  end
+
   def test_parse_with_io
     doc = Nokogiri.parse(
       StringIO.new("<html><head><title></title><body></body></html>")

@@ -53,6 +53,12 @@ void Init_nokogiri()
                 NOKOGIRI_STR_NEW2(xmlParserVersion)
               );
 
+#ifdef LIBXML_ICONV_ENABLED
+  rb_const_set(mNokogiri, rb_intern("LIBXML_ICONV_ENABLED"), Qtrue);
+#else
+  rb_const_set(mNokogiri, rb_intern("LIBXML_ICONV_ENABLED"), Qfalse);
+#endif
+
   xmlInitParser();
 
   init_xml_document();

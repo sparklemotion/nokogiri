@@ -1,3 +1,9 @@
+=== HEAD
+
+* New Features
+
+  * Added Nokogiri::LIBXML_ICONV_ENABLED
+
 === 1.4.0 / 2009/10/30
 
 * Happy Birthday!
