@@ -99,6 +99,7 @@ int is_2_6_16(void) ;
 #include <xml_relax_ng.h>
 #include <html_element_description.h>
 #include <xml_namespace.h>
+#include <xml_encoding_handler.h>
 
 extern VALUE mNokogiri ;
 extern VALUE mNokogiriXml ;

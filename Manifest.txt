@@ -6,6 +6,7 @@ README.ja.rdoc
 README.rdoc
 Rakefile
 bin/nokogiri
+deps.rip
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
 ext/nokogiri/html_document.h
@@ -35,6 +36,8 @@ ext/nokogiri/xml_element_content.c
 ext/nokogiri/xml_element_content.h
 ext/nokogiri/xml_element_decl.c
 ext/nokogiri/xml_element_decl.h
+ext/nokogiri/xml_encoding_handler.c
+ext/nokogiri/xml_encoding_handler.h
 ext/nokogiri/xml_entity_decl.c
 ext/nokogiri/xml_entity_decl.h
 ext/nokogiri/xml_entity_reference.c
@@ -229,6 +232,7 @@ test/html/test_node.rb
 test/html/test_node_encoding.rb
 test/test_convert_xpath.rb
 test/test_css_cache.rb
+test/test_encoding_handler.rb
 test/test_gc.rb
 test/test_memory_leak.rb
 test/test_nokogiri.rb
