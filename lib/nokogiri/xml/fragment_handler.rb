@@ -28,13 +28,15 @@ module Nokogiri
         @doc_started = true if @original_html =~ regex
         return unless @doc_started
 
-        if @document.root and match = name.match(QNAME_REGEX)
-          prefix, name = match[1], match[2]
-          ns = @document.root.namespace_definitions.detect { |x|
-            x.prefix == prefix
-          }
-        else
-          ns = nil
+        ns = nil
+        if @document.root
+          match = name.match(QNAME_REGEX)
+          if match
+            prefix, name = match[1], match[2]
+            ns = @document.root.namespace_definitions.detect { |x|
+              x.prefix == prefix
+            }
+          end
         end
 
         node = Element.new(name, @document)
