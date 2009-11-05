@@ -78,6 +78,14 @@ module Nokogiri
         assert_equal 'div', list.first.name
       end
 
+      def test_matches_inside_fragment
+        fragment = DocumentFragment.new @html
+        fragment << XML::Node.new('a', @html)
+
+        a = fragment.children.last
+        assert a.matches?('a'), 'a should match'
+      end
+
       def test_css_matches?
         assert node = @html.at('a.bar')
         assert node.matches?('a.bar')

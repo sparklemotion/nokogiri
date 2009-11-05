@@ -9,6 +9,19 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
+      def test_ancestors_search
+        html = %q{
+          <div>
+            <ul>
+              <li>foo</li>
+            </ul>
+          </div>
+        }
+        fragment = Nokogiri::HTML.fragment html
+        li = fragment.at('li')
+        assert li.matches?('li')
+      end
+
       def test_fun_encoding
         string = %Q(<body>こんにちは</body>)
         html = Nokogiri::HTML::DocumentFragment.parse(

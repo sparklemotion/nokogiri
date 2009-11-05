@@ -279,7 +279,7 @@ module Nokogiri
       ###
       # Returns true if this Node matches +selector+
       def matches? selector
-        document.search(selector).include?(self)
+        ancestors.last.search(selector).include?(self)
       end
 
       ####
@@ -435,8 +435,10 @@ module Nokogiri
 
         return NodeSet.new(document, parents) unless selector
 
+        root = parents.last
+
         NodeSet.new(document, parents.find_all { |parent|
-          parent.matches?(selector)
+          root.search(selector).include?(parent)
         })
       end
 
