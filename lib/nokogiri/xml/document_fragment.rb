@@ -51,7 +51,11 @@ module Nokogiri
       ###
       # Search this fragment.  See Nokogiri::XML::Node#css
       def css *args
-        children.css(*args)
+        if children.any?
+          children.css(*args)
+        else
+          NodeSet.new(document)
+        end
       end
 
       alias :serialize :to_s

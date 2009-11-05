@@ -39,6 +39,16 @@ module Nokogiri
         assert_equal @html, fragment.document
       end
 
+      def test_empty_fragment_should_be_searchable_by_css
+        fragment = Nokogiri::HTML.fragment("")
+        assert_equal 0, fragment.css("a").size
+      end
+
+      def test_empty_fragment_should_be_searchable
+        fragment = Nokogiri::HTML.fragment("")
+        assert_equal 0, fragment.search("//a").size
+      end
+
       def test_name
         fragment = Nokogiri::HTML::DocumentFragment.new(@html)
         assert_equal '#document-fragment', fragment.name
