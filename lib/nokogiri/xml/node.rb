@@ -192,6 +192,11 @@ module Nokogiri
         xpath(*rules)
       end
 
+      def >> rule
+        ns = document.root.namespaces
+        xpath CSS.xpath_for(rule, :prefix => "./", :ns => ns).first
+      end
+
       ###
       # Search for the first occurrence of +path+.
       # Returns nil if nothing is found, otherwise a Node.
@@ -229,6 +234,7 @@ module Nokogiri
       alias :previous       :previous_sibling
       alias :remove         :unlink
       alias :get_attribute  :[]
+      alias :attr           :[]
       alias :set_attribute  :[]=
       alias :text           :content
       alias :inner_text     :content

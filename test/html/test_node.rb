@@ -17,6 +17,11 @@ module Nokogiri
         eohtml
       end
 
+      def test_attr
+        node = @html.at('div.baz')
+        assert_equal node['class'], node.attr('class')
+      end
+
       def test_get_attribute
         element = @html.at('div')
         assert_equal 'baz', element.get_attribute('class')
