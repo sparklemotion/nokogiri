@@ -192,9 +192,11 @@ module Nokogiri
         xpath(*rules)
       end
 
-      def >> rule
+      ###
+      # Search this node's immidiate children using CSS selector +selector+
+      def > selector
         ns = document.root.namespaces
-        xpath CSS.xpath_for(rule, :prefix => "./", :ns => ns).first
+        xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
       end
 
       ###

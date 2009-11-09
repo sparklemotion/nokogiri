@@ -10,6 +10,13 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_gt_string_arg
+        node = @xml.at('employee')
+        nodes = (node > 'name')
+        assert_equal 1, nodes.length
+        assert_equal node, nodes.first.parent
+      end
+
       def test_next_element
         node = @xml.at('name')
         next_element = node.next_element
