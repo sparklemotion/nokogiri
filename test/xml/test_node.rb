@@ -10,6 +10,17 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_next_element
+        node = @xml.at('name')
+        next_element = node.next_element
+        assert next_element.element?
+        assert_equal 'position', next_element.name
+      end
+
+      def test_next_element_nil
+        assert_nil @xml.root.next_element
+      end
+
       def test_element?
         assert @xml.root.element?, 'is an element'
       end

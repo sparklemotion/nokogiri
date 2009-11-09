@@ -4,6 +4,7 @@
 
   * Added Nokogiri::LIBXML_ICONV_ENABLED
   * Alias Node#[] to Node#attr
+  * XML::Node#next_element added
 
 * Bugfixes
 
