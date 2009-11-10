@@ -1,7 +1,7 @@
 #include <xml_encoding_handler.h>
 
 /*
- * call-seq: Nokogiri::EncodingHandler#[](name)
+ * call-seq: Nokogiri::EncodingHandler.[](name)
  *
  * Get the encoding handler for +name+
  */
@@ -14,6 +14,18 @@ static VALUE get(VALUE klass, VALUE key)
     return Data_Wrap_Struct(klass, NULL, NULL, handler);
 
   return Qnil;
+}
+
+/*
+ * call-seq: Nokogiri::EncodingHandler.delete(name)
+ *
+ * Delete the encoding alias named +name+
+ */
+static VALUE delete(VALUE klass, VALUE name)
+{
+  if(xmlDelEncodingAlias(StringValuePtr(name))) return Qnil;
+
+  return Qtrue;
 }
 
 /*
@@ -60,6 +72,7 @@ void init_xml_encoding_handler()
   VALUE klass = rb_define_class_under(nokogiri, "EncodingHandler", rb_cObject);
 
   rb_define_singleton_method(klass, "[]", get, 1);
+  rb_define_singleton_method(klass, "delete", delete, 1);
   rb_define_singleton_method(klass, "alias", alias, 2);
   rb_define_singleton_method(klass, "clear_aliases!", clear_aliases, 0);
   rb_define_method(klass, "name", name, 0);

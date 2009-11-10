@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 require "helper"
 
 class TestEncodingHandler < Nokogiri::TestCase
@@ -27,5 +29,18 @@ class TestEncodingHandler < Nokogiri::TestCase
 
     Nokogiri::EncodingHandler.clear_aliases!
     assert_nil Nokogiri::EncodingHandler['UTF-9']
+  end
+
+  def test_delete
+    assert_nil Nokogiri::EncodingHandler['UTF-9']
+    Nokogiri::EncodingHandler.alias('UTF-8', 'UTF-9')
+    assert_not_nil Nokogiri::EncodingHandler['UTF-9']
+
+    Nokogiri::EncodingHandler.delete 'UTF-9'
+    assert_nil Nokogiri::EncodingHandler['UTF-9']
+  end
+
+  def test_delete_non_existent
+    assert_nil Nokogiri::EncodingHandler.delete('UTF-9')
   end
 end
