@@ -217,8 +217,8 @@ module Nokogiri
 
       ###
       # Get the inner html of all contained Node objects
-      def inner_html
-        collect{|j| j.inner_html}.join('')
+      def inner_html *args
+        collect{|j| j.inner_html(*args) }.join('')
       end
 
       ###
