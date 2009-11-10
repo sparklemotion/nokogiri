@@ -44,14 +44,30 @@ class TestXsltTransforms < Nokogiri::TestCase
 
       assert style = Nokogiri::XSLT.parse(File.read(XSLT_FILE))
       assert result_doc = style.transform(doc)
-      assert doc.xml?
+      assert result_doc.html?
+      assert_equal "", result_doc.at_css("h1").content
 
       assert style = Nokogiri::XSLT.parse(File.read(XSLT_FILE))
       assert result_doc = style.transform(doc, ['title', '"Booyah"'])
-      assert doc.xml?
+      assert result_doc.html?
+      assert_equal "Booyah", result_doc.at_css("h1").content
 
       assert result_string = style.apply_to(doc, ['title', '"Booyah"'])
       assert_equal result_string, style.serialize(result_doc)
+    end
+
+    def test_transform_with_quote_params
+      doc = Nokogiri::XML.parse(File.read(XML_FILE))
+
+      assert style = Nokogiri::XSLT.parse(File.read(XSLT_FILE))
+      assert result_doc = style.transform(doc, Nokogiri::XSLT.quote_params(['title', 'Booyah']))
+      assert result_doc.html?
+      assert_equal "Booyah", result_doc.at_css("h1").content
+
+      assert style = Nokogiri::XSLT.parse(File.read(XSLT_FILE))
+      assert result_doc = style.transform(doc, Nokogiri::XSLT.quote_params({'title' => 'Booyah'}))
+      assert result_doc.html?
+      assert_equal "Booyah", result_doc.at_css("h1").content
     end
 
     def test_quote_params
