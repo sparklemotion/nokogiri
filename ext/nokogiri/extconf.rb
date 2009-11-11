@@ -4,6 +4,8 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
 require 'mkmf'
 
+RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
+
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 LIBDIR = Config::CONFIG['libdir']
 INCLUDEDIR = Config::CONFIG['includedir']

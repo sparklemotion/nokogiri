@@ -186,7 +186,7 @@ static VALUE set_message(VALUE self, VALUE _message)
     memcpy(error->message, StringValuePtr(_message), RSTRING_LEN(_message));
   }
 
-  return message;
+  return _message;
 }
 
 /*
@@ -206,7 +206,7 @@ static VALUE initialize_copy(VALUE self, VALUE _old_copy)
 
   xmlCopyError(old_error, error);
 
-  return message;
+  return self;
 }
 
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)

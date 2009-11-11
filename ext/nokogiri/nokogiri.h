@@ -112,7 +112,6 @@ extern VALUE mNokogiriXslt ;
   ({ \
     nokogiriTuplePtr tuple = (nokogiriTuplePtr)(_node->doc->_private);       \
     st_insert(tuple->unlinkedNodes, (st_data_t)_node, (st_data_t)_node);     \
-    _node; \
   })
 
 #ifdef DEBUG

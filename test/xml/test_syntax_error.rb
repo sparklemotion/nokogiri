@@ -22,6 +22,11 @@ module Nokogiri
         assert_not_equal error.object_id, dup.object_id
         assert_not_equal error.message.object_id, dup.message.object_id
       end
+
+      def test_message=
+        error = Nokogiri::XML::SyntaxError.new 'hello'
+        assert_equal('foo', error.message = 'foo')
+      end
     end
   end
 end
