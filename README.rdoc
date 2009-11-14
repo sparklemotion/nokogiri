@@ -82,6 +82,13 @@ The IRC channel is #nokogiri on freenode.
 
 * sudo gem install nokogiri
 
+
+=== Binary packages
+
+Binary packages are available for:
+
+  * SuSE[http://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/]
+
 == DEVELOPMENT:
 
 Developing Nokogiri requires racc and rexical.
