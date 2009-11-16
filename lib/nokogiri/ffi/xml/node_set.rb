@@ -78,18 +78,25 @@ module Nokogiri
       end
 
       def to_a # :nodoc:
-        cstruct.nodeTab.collect { |node| Node.wrap(node) }
+        cstruct.nodeTab.collect do |node|
+          node_cstruct = LibXML::XmlNode.new(node)
+          if node_cstruct[:type] == XML::Node::NAMESPACE_DECL
+            Namespace.wrap(document.cstruct, node)
+          else
+            Node.wrap(node_cstruct)
+          end
+        end
       end
 
       def unlink # :nodoc:
-        # TODO: is this simpler implementation viable:
-        #  cstruct.nodeTab.collect {|node| Node.wrap(node)}.each(&:unlink)
-        # ?
         nodetab = cstruct.nodeTab
         cstruct[:nodeNr].times do |j|
-          node = Node.wrap(nodetab[j])
-          node.unlink
-          nodetab[j] = node.cstruct.pointer
+          node_cstruct = LibXML::XmlNode.new(nodetab[j])
+          if node_cstruct[:type] != XML::Node::NAMESPACE_DECL
+            node = Node.wrap(node_cstruct)
+            node.unlink
+            nodetab[j] = node.cstruct.pointer
+          end
         end
         cstruct.nodeTab = nodetab
         self
@@ -114,7 +121,13 @@ module Nokogiri
       def index_at(number) # :nodoc:
         return nil if (number >= cstruct[:nodeNr] || number.abs > cstruct[:nodeNr])
         number = number + cstruct[:nodeNr] if number < 0
-        Node.wrap(cstruct.nodeAt(number))
+        node_ptr = cstruct.nodeAt(number)
+        node_cstruct = LibXML::XmlNode.new(node_ptr)
+        if node_cstruct[:type] == XML::Node::NAMESPACE_DECL
+          Namespace.wrap(document.cstruct, node_ptr)
+        else
+          Node.wrap(node_cstruct)
+        end
       end
 
       def subseq(beg, len) # :nodoc:
