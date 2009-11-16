@@ -11,6 +11,7 @@
 
   * XML fragments with namespaces do not raise an exception (regression in 1.4.0)
   * Node#matches? works in nodes contained by a DocumentFragment. GH #158
+  * Document should not define add_namespace() method. GH #169
 
 === 1.4.0 / 2009/10/30
 

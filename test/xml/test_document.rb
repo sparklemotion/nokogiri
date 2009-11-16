@@ -96,6 +96,12 @@ module Nokogiri
         assert_equal '1.0', @xml.version
       end
 
+      def test_add_namespace
+        assert_raise NoMethodError do
+          @xml.add_namespace('foo', 'bar')
+        end
+      end
+
       def test_attributes
         assert_raise NoMethodError do
           @xml.attributes

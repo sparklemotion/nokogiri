@@ -112,7 +112,7 @@ module Nokogiri
 
       undef_method :swap, :parent, :namespace, :default_namespace=
       undef_method :add_namespace_definition, :attributes
-      undef_method :namespace_definitions, :line
+      undef_method :namespace_definitions, :line, :add_namespace
 
       def add_child child
         if [Node::ELEMENT_NODE, Node::DOCUMENT_FRAG_NODE].include? child.type
