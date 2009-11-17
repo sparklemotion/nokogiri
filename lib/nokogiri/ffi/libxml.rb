@@ -57,6 +57,12 @@ module Nokogiri
     callback :start_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer, :int, :pointer, :int, :int, :pointer], :void
     callback :end_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer], :void
 
+    # encoding.c
+    attach_function :xmlFindCharEncodingHandler, [:string], :pointer
+    attach_function :xmlDelEncodingAlias, [:string], :int
+    attach_function :xmlAddEncodingAlias, [:string, :string], :int
+    attach_function :xmlCleanupEncodingAliases, [], :void
+
     # HTMLparser.c
     attach_function :htmlReadMemory, [:string, :int, :string, :string, :int], :pointer
     attach_function :htmlReadIO, [:io_read_callback, :io_close_callback, :pointer, :string, :string, :int], :pointer
@@ -293,8 +299,10 @@ require 'nokogiri/syntax_error'
 require 'nokogiri/xml/syntax_error'
 
 [ "io_callbacks",
+  "encoding_handler",
   "structs/common_node",
   "structs/xml_alloc",
+  "structs/xml_char_encoding_handler",
   "structs/xml_document",
   "structs/xml_node",
   "structs/xml_dtd",
