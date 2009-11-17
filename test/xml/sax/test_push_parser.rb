@@ -101,6 +101,10 @@ module Nokogiri
           assert_equal [' This is a comment '], @parser.document.comments
         end
 
+        def test_default_options
+          assert_equal 0, @parser.options
+        end
+
         def test_recover
           @parser.options |= XML::ParseOptions::RECOVER
           @parser.<<(<<-eoxml)

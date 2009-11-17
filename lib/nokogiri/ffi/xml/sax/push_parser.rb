@@ -5,6 +5,17 @@ module Nokogiri
 
         attr_accessor :cstruct # :nodoc:
 
+        def options
+          cstruct[:options]
+        end
+
+        def options=(user_options)
+          if LibXML.xmlCtxtUseOptions(cstruct, user_options) != 0
+            raise RuntimeError, "Cannot set XML parser context options"
+          end
+          nil
+        end
+
         private
 
         def native_write(chunk, last_chunk) # :nodoc:
@@ -14,10 +25,11 @@ module Nokogiri
             size = chunk.length
           end
 
-          rcode = LibXML.xmlParseChunk(cstruct, chunk, size, last_chunk ? 1 : 0)
-          if rcode != 0
-            error = LibXML.xmlCtxtGetLastError(cstruct)
-            raise Nokogiri::XML::SyntaxError.wrap(error)
+          if LibXML.xmlParseChunk(cstruct, chunk, size, last_chunk ? 1 : 0) != 0
+            if (cstruct[:options] & XML::ParseOptions::RECOVER) == 0
+              error = LibXML.xmlCtxtGetLastError(cstruct)
+              raise Nokogiri::XML::SyntaxError.wrap(error)
+            end
           end
 
           self

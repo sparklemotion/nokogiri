@@ -94,6 +94,7 @@ module Nokogiri
     attach_function :xmlFreeParserCtxt, [:pointer], :void
     attach_function :xmlCreatePushParserCtxt, [:pointer, :pointer, :string, :int, :string], :pointer
     attach_function :xmlParseChunk, [:pointer, :string, :int, :int], :int
+    attach_function :xmlCtxtUseOptions, [:pointer, :int], :int
 
     # tree.c
     attach_function :xmlNewDoc, [:string], :pointer
