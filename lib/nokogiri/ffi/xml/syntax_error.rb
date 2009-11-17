@@ -7,7 +7,7 @@ module Nokogiri
 
       def initialize(message)
         self.cstruct = LibXML::XmlSyntaxError.new(LibXML::XmlSyntaxError.allocate())
-        self.cstruct[:message] = FFI::MemoryPointer.from_string(message)
+        self.cstruct[:message] = LibXML.xmlStrdup(message)
       end
 
       def domain
@@ -31,7 +31,14 @@ module Nokogiri
         unless cstruct[:message].null?
           LibXML.xmlFree(cstruct[:message])
         end
-        cstruct[:message] = string
+        cstruct[:message] = LibXML.xmlStrdup(string)
+        string
+      end
+
+      def initialize_copy(other)
+        raise ArgumentError, "node must be a Nokogiri::XML::SyntaxError" unless other.is_a?(Nokogiri::XML::SyntaxError)
+        LibXML.xmlCopyError(other.cstruct, cstruct)
+        self
       end
 
       def level
