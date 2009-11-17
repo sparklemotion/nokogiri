@@ -18,6 +18,8 @@ module Nokogiri
 
   LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
   LIBXML_VERSION = LIBXML_PARSER_VERSION.scan(/^(.*)(..)(..)$/).first.collect{|j|j.to_i}.join(".")
+
+  LIBXML_ICONV_ENABLED = true # sigh.
 end
 
 require 'nokogiri/version'
