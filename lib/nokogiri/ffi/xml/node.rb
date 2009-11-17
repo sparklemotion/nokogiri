@@ -90,8 +90,14 @@ module Nokogiri
       end
 
       def replace_with_node(new_node)
-        LibXML.xmlReplaceNode(cstruct, new_node.cstruct)
-        Node.send(:relink_namespace, new_node.cstruct)
+        Node.reparent_node_with(new_node, self) do |new_node_cstruct, self_cstruct|
+          retval = LibXML.xmlReplaceNode(self_cstruct, new_node_cstruct)
+          if retval == self_cstruct.pointer
+            new_node_cstruct # for reparent_node_with semantics
+          else
+            retval
+          end
+        end
         self
       end
 
@@ -390,7 +396,7 @@ module Nokogiri
           node.cstruct.keep_reference_from_document!
         end
 
-        reparented_struct = LibXML::XmlNode.new(reparented_struct)
+        reparented_struct = LibXML::XmlNode.new(reparented_struct) if reparented_struct.is_a?(FFI::Pointer)
 
         # the child was a text node that was coalesced. we need to have the object
         # point at SOMETHING, or we'll totally bomb out.

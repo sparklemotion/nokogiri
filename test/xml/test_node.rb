@@ -757,6 +757,17 @@ module Nokogiri
         assert_raises(ArgumentError){ old_node.replace new_node }
       end
 
+      def test_replace_with_node_from_different_docs
+        xml1 = "<test> <caption>Original caption</caption> </test>"
+        xml2 = "<test> <caption>Replacement caption</caption> </test>"
+        doc1 = Nokogiri::XML(xml1)
+        doc2 = Nokogiri::XML(xml2)
+        caption1 = doc1.xpath("//caption")[0]
+        caption2 = doc2.xpath("//caption")[0]
+        caption1.replace(caption2) # this segfaulted under 1.4.0 and earlier
+        assert_equal "Replacement caption", doc1.css("caption").inner_text
+      end
+
       def test_node_equality
         doc1 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         doc2 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)

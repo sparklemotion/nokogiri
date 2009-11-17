@@ -57,6 +57,17 @@ static void relink_namespace(xmlNodePtr reparented)
 }
 
 /* :nodoc: */
+static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr old, xmlNodePtr cur)
+{
+  xmlNodePtr retval ;
+  retval = xmlReplaceNode(old, cur) ;
+  if (retval == old) {
+    return cur ; // return semantics for reparent_node_with
+  }
+  return retval ;
+}
+
+/* :nodoc: */
 static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func func)
 {
   VALUE reparented_obj ;
@@ -393,14 +404,7 @@ static VALUE next_element(VALUE self)
 /* :nodoc: */
 static VALUE replace(VALUE self, VALUE _new_node)
 {
-  xmlNodePtr node, new_node;
-  Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(_new_node, xmlNode, new_node);
-
-  xmlReplaceNode(node, new_node);
-
-  // Appropriately link in namespaces
-  relink_namespace(new_node);
+  reparent_node_with(_new_node, self, xmlReplaceNodeWrapper) ;
   return self ;
 }
 
