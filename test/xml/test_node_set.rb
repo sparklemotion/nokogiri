@@ -557,6 +557,21 @@ module Nokogiri
 
         node_set.unlink
       end
+
+      def test_reverse
+        xml = Nokogiri::XML "<root><a />b<c />d<e /></root>"
+        children = xml.root.children
+        assert_instance_of Nokogiri::XML::NodeSet, children
+
+        reversed = children.reverse
+        assert_equal reversed[0], children[4]
+        assert_equal reversed[1], children[3]
+        assert_equal reversed[2], children[2]
+        assert_equal reversed[3], children[1]
+        assert_equal reversed[4], children[0]
+
+        assert_equal children, children.reverse.reverse
+      end
     end
   end
 end

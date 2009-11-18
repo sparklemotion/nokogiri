@@ -6,6 +6,7 @@
   * Alias Node#[] to Node#attr
   * XML::Node#next_element added
   * XML::Node#> added for searching a nodes immediate children
+  * XML::NodeSet#reverse added
 
 * Bugfixes
 
