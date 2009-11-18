@@ -7,6 +7,8 @@
   * XML::Node#next_element added
   * XML::Node#> added for searching a nodes immediate children
   * XML::NodeSet#reverse added
+  * Added fragment support to Node#add_child, Node#add_next_sibling,
+    Node#add_previous_sibling, and Node#replace.
 
 * Bugfixes
 

@@ -89,7 +89,7 @@ module Nokogiri
         return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
       end
 
-      def replace_with_node(new_node)
+      def replace_node new_node
         Node.reparent_node_with(new_node, self) do |new_node_cstruct, self_cstruct|
           retval = LibXML.xmlReplaceNode(self_cstruct, new_node_cstruct)
           if retval == self_cstruct.pointer
@@ -202,7 +202,7 @@ module Nokogiri
         content
       end
 
-      def add_child(child)
+      def add_child_node child
         Node.reparent_node_with(child, self) do |child_cstruct, my_cstruct|
           LibXML.xmlAddChild(my_cstruct, child_cstruct)
         end
@@ -228,13 +228,13 @@ module Nokogiri
         val
       end
 
-      def add_next_sibling(next_sibling)
+      def add_next_sibling_node next_sibling
         Node.reparent_node_with(next_sibling, self) do |sibling_cstruct, my_cstruct|
           LibXML.xmlAddNextSibling(my_cstruct, sibling_cstruct)
         end
       end
 
-      def add_previous_sibling(prev_sibling)
+      def add_previous_sibling_node prev_sibling
         Node.reparent_node_with(prev_sibling, self) do |sibling_cstruct, my_cstruct|
           LibXML.xmlAddPrevSibling(my_cstruct, sibling_cstruct)
         end
