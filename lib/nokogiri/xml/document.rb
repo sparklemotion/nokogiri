@@ -115,10 +115,13 @@ module Nokogiri
       undef_method :namespace_definitions, :line, :add_namespace
 
       def add_child child
-        if [Node::ELEMENT_NODE, Node::DOCUMENT_FRAG_NODE].include? child.type
-          raise "Document already has a root node" if root
+        raise "Document already has a root node" if root
+        if child.type == Node::DOCUMENT_FRAG_NODE
+          raise "Document cannot have multiple root nodes" if child.children.size > 1
+          super(child.children.first)
+        else
+          super
         end
-        super
       end
       alias :<< :add_child
 

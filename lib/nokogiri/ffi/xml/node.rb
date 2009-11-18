@@ -366,15 +366,6 @@ module Nokogiri
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(Nokogiri::XML::Node)
         raise(ArgumentError, "cannot reparent a document node") if node.node_type == DOCUMENT_NODE || node.node_type == HTML_DOCUMENT_NODE
 
-        # If a document fragment is added, we need to reparent all of it's
-        # children
-        if node.type == DOCUMENT_FRAG_NODE
-          node.children.each do |child|
-            reparent_node_with(child, other, &block)
-          end
-          return node
-        end
-
         if node.type == TEXT_NODE
           node.cstruct.keep_reference_from_document!
           node.cstruct = LibXML::XmlNode.new(LibXML.xmlDocCopyNode(node.cstruct, other.cstruct.document, 1))

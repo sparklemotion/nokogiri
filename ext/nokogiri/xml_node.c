@@ -82,17 +82,6 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
   if(XML_DOCUMENT_NODE == node->type || XML_HTML_DOCUMENT_NODE == node->type)
     rb_raise(rb_eArgError, "cannot reparent a document node");
 
-  // If a document fragment is added, we need to reparent all of it's children
-  if(node->type == XML_DOCUMENT_FRAG_NODE)
-  {
-    xmlNodePtr child = node->children;
-    while(NULL != child) {
-      reparent_node_with(Nokogiri_wrap_xml_node((VALUE)NULL, child), other_obj, func);
-      child = child->next;
-    }
-    return node_obj;
-  }
-
   if(node->type == XML_TEXT_NODE) {
     NOKOGIRI_ROOT_NODE(node);
     node = xmlDocCopyNode(node, other->doc, 1);
