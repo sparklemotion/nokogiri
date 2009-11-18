@@ -6,65 +6,84 @@ module Nokogiri
 
       def setup
         super
-        @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+        @xml = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third node</a3></root>"
       end
 
-      def test_add_child
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-        text_node = Nokogiri::XML::Text.new('hello', xml)
+      def test_add_child_should_insert_at_end_of_children
+        text_node = Nokogiri::XML::Text.new('hello', @xml)
         assert_equal Nokogiri::XML::Node::TEXT_NODE, text_node.type
-        xml.root.add_child text_node
-        assert_match 'hello', xml.to_s
+
+        @xml.root.add_child text_node
+
+        assert_equal @xml.root.children.last.content, 'hello'
+      end
+
+      def test_add_child_fragment_should_insert_fragment_roots_at_end_of_children
+        node = @xml.root.children[1]
+        fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
+        fc1 = fragment.children[0]
+        fc2 = fragment.children[1]
+
+        node.add_child fragment
+
+        assert_equal 3, node.children.length
+        assert_equal fc1, node.children[1]
+        assert_equal fc2, node.children[2]
       end
 
       def test_chevron_works_as_add_child
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-        text_node = Nokogiri::XML::Text.new('hello', xml)
-        xml.root << text_node
-        assert_match 'hello', xml.to_s
+        text_node = Nokogiri::XML::Text.new('hello', @xml)
+        assert_equal Nokogiri::XML::Node::TEXT_NODE, text_node.type
+
+        @xml.root << text_node
+
+        assert_equal @xml.root.children.last.content, 'hello'
       end
 
-      def test_add_child_in_same_document
-        child = @xml.css('employee').first
+      def test_add_child_already_in_the_document_should_move_the_node
+        third_node = @xml.root.children.last
+        first_node = @xml.root.children.first
 
-        assert previous_last_child = child.children.last
-        assert new_child = child.children.first
+        @xml.root.add_child(first_node)
 
-        last = child.children.last
-
-        child.add_child(new_child)
-        assert_equal new_child, child.children.last
-        assert_equal last, child.children.last
+        assert_equal 2, @xml.root.children.index(first_node)
+        assert_equal 1, @xml.root.children.index(third_node)
       end
 
-      def test_add_child_from_other_document
+      def test_add_child_from_other_document_should_remove_from_old_document
         d1 = Nokogiri::XML("<root><item>1</item><item>2</item></root>")
         d2 = Nokogiri::XML("<root><item>3</item><item>4</item></root>")
 
-        d2.at('root').search('item').each do |i|
-          d1.at('root').add_child i
+        d2.at('root').search('item').each do |item|
+          d1.at('root').add_child item
         end
 
         assert_equal 0, d2.search('item').size
         assert_equal 4, d1.search('item').size
       end
 
-      def test_add_child_path_following_sequential_text_nodes
-        xml = Nokogiri::XML('<root>text</root>')
-        xml.root.add_child(Nokogiri::XML::Text.new('text', xml))
-        item = xml.root.add_child(Nokogiri::XML::Element.new('item', xml))
-        assert_equal '/root/item', item.path
+      def test_add_child_text_node_should_merge_with_adjacent_text_nodes
+        node = @xml.root.children.first
+        old_child = node.children.first
+        new_child = Nokogiri::XML::Text.new('text', @xml)
+
+        node.add_child new_child
+
+        assert_equal "First nodetext", node.children.first.content
+        assert_equal "First nodetext", new_child.content
+        assert_equal "First nodetext", old_child.content
       end
 
-      def test_add_namespace_add_child
+      def test_add_child_node_following_sequential_text_nodes_should_have_right_path
+        node = @xml.root.children.first
+        node.add_child(Nokogiri::XML::Text.new('text', @xml))
+
+        item = node.add_child(Nokogiri::XML::Element.new('item', @xml))
+
+        assert_equal '/root/a1/item', item.path
+      end
+
+      def test_add_child_node_with_namespace_should_keep_namespace
         doc   = Nokogiri::XML::Document.new
         item  = Nokogiri::XML::Element.new('item', doc)
         doc.root = item
@@ -76,7 +95,7 @@ module Nokogiri
         assert_equal 'http://tenderlovemaking.com', entry.namespaces['xmlns:tlm']
       end
 
-      def test_add_child_should_inherit_namespace
+      def test_add_child_node_should_inherit_namespace
         doc = Nokogiri::XML(<<-eoxml)
           <root xmlns="http://tenderlovemaking.com/">
             <first>
@@ -89,7 +108,7 @@ module Nokogiri
         assert doc.at('//xmlns:second')
       end
 
-      def test_add_child_should_not_inherit_namespace_if_it_has_one
+      def test_add_child_node_should_not_inherit_namespace_if_it_has_one
         doc = Nokogiri::XML(<<-eoxml)
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="http://flavorjon.es/">
             <first>
@@ -106,22 +125,27 @@ module Nokogiri
         assert doc.at('//foo:second', "foo" => "http://flavorjon.es/")
       end
 
-      def test_replace
-        set = @xml.search('//employee')
-        assert 5, set.length
-        assert 0, @xml.search('//form').length
+      def test_replace_node_should_remove_previous_node_and_insert_new_node
+        second_node = @xml.root.children[1]
 
-        first = set[0]
-        second = set[1]
+        new_node = Nokogiri::XML::Node.new('foo', @xml)
+        second_node.replace(new_node)
 
-        node = Nokogiri::XML::Node.new('form', @xml)
-        first.replace(node)
+        assert_equal @xml.root.children[1], new_node
+        assert_nil second_node.parent
+      end
 
-        assert set = @xml.search('//employee')
-        assert_equal 4, set.length
-        assert 1, @xml.search('//form').length
+      def test_replace_fragment_should_replace_node_with_fragment_roots
+        node = @xml.root.children[1]
+        fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
+        fc1 = fragment.children[0]
+        fc2 = fragment.children[1]
 
-        assert_equal set[0].to_xml, second.to_xml
+        node.replace fragment
+
+        assert_equal 4, @xml.root.children.length
+        assert_equal fc1, @xml.root.children[1]
+        assert_equal fc2, @xml.root.children[2]
       end
 
       def test_replace_with_default_namespaces
@@ -141,7 +165,7 @@ module Nokogiri
 
       def test_illegal_replace_of_node_with_doc
         new_node = Nokogiri::XML.parse('<foo>bar</foo>')
-        old_node = @xml.at('//employee')
+        old_node = @xml.at_css('a1')
         assert_raises(ArgumentError){ old_node.replace new_node }
       end
 
@@ -156,54 +180,72 @@ module Nokogiri
         assert_equal "Replacement caption", doc1.css("caption").inner_text
       end
 
-      def test_add_next_sibling_merge
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
+      def test_add_next_sibling_should_insert_after
+        node = @xml.root.children[1]
+        new_node = Nokogiri::XML::Node.new('foo', @xml)
 
-        assert a_tag = xml.css('a').first
-
-        left_space = a_tag.previous
-        right_space = a_tag.next
-        assert left_space.text?
-        assert right_space.text?
-
-        right_space.add_next_sibling(left_space)
-        assert_equal left_space, right_space
+        node.add_next_sibling(new_node)
+        assert_equal 1, @xml.root.children.index(node)
+        assert_equal 2, @xml.root.children.index(new_node)
       end
 
-      def test_add_previous_sibling
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-        b_node = Nokogiri::XML::Node.new('a', xml)
-        assert_equal Nokogiri::XML::Node::ELEMENT_NODE, b_node.type
-        b_node.content = 'first'
-        a_node = xml.xpath('//a').first
-        a_node.add_previous_sibling(b_node)
-        assert_equal('first', xml.xpath('//a').first.text)
+      def test_add_next_sibling_fragment_should_insert_fragment_roots_after
+        node = @xml.root.children[1]
+        fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
+        fc1 = fragment.children[0]
+        fc2 = fragment.children[1]
+
+        node.add_next_sibling fragment
+
+        assert_equal 5, @xml.root.children.length
+        assert_equal fc1, @xml.root.children[2]
+        assert_equal fc2, @xml.root.children[3]
       end
 
-      def test_add_previous_sibling_merge
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
+      def test_add_next_sibling_text_node_should_merge_with_adjacent_text_nodes
+        node = @xml.root.children.first
+        text = node.children.first
+        new_text = Nokogiri::XML::Text.new('text', @xml)
 
-        assert a_tag = xml.css('a').first
+        text.add_next_sibling new_text
 
-        left_space = a_tag.previous
-        right_space = a_tag.next
-        assert left_space.text?
-        assert right_space.text?
+        assert_equal "First nodetext", node.children.first.content
+        assert_equal "First nodetext", text.content
+        assert_equal "First nodetext", new_text.content
+      end
 
-        left_space.add_previous_sibling(right_space)
-        assert_equal left_space, right_space
+      def test_add_previous_sibling_should_insert_before
+        node = @xml.root.children[1]
+        new_node = Nokogiri::XML::Node.new('foo', @xml)
+
+        node.add_previous_sibling(new_node)
+        assert_equal 1, @xml.root.children.index(new_node)
+        assert_equal 2, @xml.root.children.index(node)
+      end
+
+      def test_add_previous_sibling_fragment_should_insert_fragment_roots_before
+        node = @xml.root.children[1]
+        fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
+        fc1 = fragment.children[0]
+        fc2 = fragment.children[1]
+
+        node.add_previous_sibling fragment
+
+        assert_equal 5, @xml.root.children.length
+        assert_equal fc1, @xml.root.children[1]
+        assert_equal fc2, @xml.root.children[2]
+      end
+
+      def test_add_previous_sibling_text_node_should_merge_with_adjacent_text_nodes
+        node = @xml.root.children.first
+        text = node.children.first
+        new_text = Nokogiri::XML::Text.new('text', @xml)
+
+        text.add_previous_sibling new_text
+
+        assert_equal "textFirst node", node.children.first.content
+        assert_equal "textFirst node", text.content
+        assert_equal "textFirst node", new_text.content
       end
 
       def test_unlink_then_reparent
