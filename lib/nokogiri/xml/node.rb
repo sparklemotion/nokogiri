@@ -290,8 +290,9 @@ module Nokogiri
       alias :clone          :dup
 
       ####
-      # Returns a hash containing the node's attributes.  The key is the
-      # attribute name, the value is the string value of the attribute.
+      # Returns a hash containing the node's attributes.  The key is
+      # the attribute name, the value is a Nokogiri::XML::Attr
+      # representing the attribute.
       def attributes
         Hash[*(attribute_nodes.map { |node|
           [node.node_name, node]
