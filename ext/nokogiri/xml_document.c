@@ -260,7 +260,7 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   if(dup == NULL) return Qnil;
 
   dup->type = doc->type;
-  return Nokogiri_wrap_xml_document(RBASIC(self)->klass, dup);
+  return Nokogiri_wrap_xml_document(rb_obj_class(self), dup);
 }
 
 /*
