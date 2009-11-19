@@ -275,9 +275,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "0*", &rest);
   version = rb_ary_entry(rest, (long)0);
-  if (NIL_P(Qnil)) {
-    version = rb_str_new2("1.0");
-  }
+  if (NIL_P(version)) version = rb_str_new2("1.0");
 
   xmlDocPtr doc = xmlNewDoc((xmlChar *)StringValuePtr(version));
   rb_doc = Nokogiri_wrap_xml_document(klass, doc);
