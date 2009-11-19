@@ -57,6 +57,17 @@ static void relink_namespace(xmlNodePtr reparented)
 }
 
 /* :nodoc: */
+static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr old, xmlNodePtr cur)
+{
+  xmlNodePtr retval ;
+  retval = xmlReplaceNode(old, cur) ;
+  if (retval == old) {
+    return cur ; // return semantics for reparent_node_with
+  }
+  return retval ;
+}
+
+/* :nodoc: */
 static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func func)
 {
   VALUE reparented_obj ;
@@ -70,17 +81,6 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
 
   if(XML_DOCUMENT_NODE == node->type || XML_HTML_DOCUMENT_NODE == node->type)
     rb_raise(rb_eArgError, "cannot reparent a document node");
-
-  // If a document fragment is added, we need to reparent all of it's children
-  if(node->type == XML_DOCUMENT_FRAG_NODE)
-  {
-    xmlNodePtr child = node->children;
-    while(NULL != child) {
-      reparent_node_with(Nokogiri_wrap_xml_node((VALUE)NULL, child), other_obj, func);
-      child = child->next;
-    }
-    return node_obj;
-  }
 
   if(node->type == XML_TEXT_NODE) {
     NOKOGIRI_ROOT_NODE(node);
@@ -393,14 +393,7 @@ static VALUE next_element(VALUE self)
 /* :nodoc: */
 static VALUE replace(VALUE self, VALUE _new_node)
 {
-  xmlNodePtr node, new_node;
-  Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(_new_node, xmlNode, new_node);
-
-  xmlReplaceNode(node, new_node);
-
-  // Appropriately link in namespaces
-  relink_namespace(new_node);
+  reparent_node_with(_new_node, self, xmlReplaceNodeWrapper) ;
   return self ;
 }
 
@@ -687,12 +680,7 @@ static VALUE get_content(VALUE self)
   return Qnil;
 }
 
-/*
- * call-seq:
- *  add_child(node)
- *
- * Add +node+ as a child of this node. Returns the new child node.
- */
+/* :nodoc: */
 static VALUE add_child(VALUE self, VALUE child)
 {
   return reparent_node_with(child, self, xmlAddChild);
@@ -762,23 +750,13 @@ static VALUE path(VALUE self)
   return rval ;
 }
 
-/*
- *  call-seq:
- *    add_next_sibling(node)
- *
- *  Insert +node+ after this node (as a sibling).
- */
+/* :nodoc: */
 static VALUE add_next_sibling(VALUE self, VALUE rb_node)
 {
   return reparent_node_with(rb_node, self, xmlAddNextSibling) ;
 }
 
-/*
- * call-seq:
- *  add_previous_sibling(node)
- *
- * Insert +node+ before this node (as a sibling).
- */
+/* :nodoc: */
 static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
 {
   return reparent_node_with(rb_node, self, xmlAddPrevSibling) ;
@@ -1037,7 +1015,6 @@ void init_xml_node()
   rb_define_method(klass, "node_name", get_name, 0);
   rb_define_method(klass, "document", document, 0);
   rb_define_method(klass, "node_name=", set_name, 1);
-  rb_define_method(klass, "add_child", add_child, 1);
   rb_define_method(klass, "parent", get_parent, 0);
   rb_define_method(klass, "child", child, 0);
   rb_define_method(klass, "children", children, 0);
@@ -1056,8 +1033,6 @@ void init_xml_node()
   rb_define_method(klass, "attribute_with_ns", attribute_with_ns, 2);
   rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespace_definitions", namespace_definitions, 0);
-  rb_define_method(klass, "add_previous_sibling", add_previous_sibling, 1);
-  rb_define_method(klass, "add_next_sibling", add_next_sibling, 1);
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "unlink", unlink_node, 0);
@@ -1068,14 +1043,17 @@ void init_xml_node()
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
 
+  rb_define_private_method(klass, "add_child_node", add_child, 1);
+  rb_define_private_method(klass, "add_previous_sibling_node", add_previous_sibling, 1);
+  rb_define_private_method(klass, "add_next_sibling_node", add_next_sibling, 1);
+  rb_define_private_method(klass, "replace_node", replace, 1);
   rb_define_private_method(klass, "dump_html", dump_html, 0);
   rb_define_private_method(klass, "native_write_to", native_write_to, 4);
-  rb_define_private_method(klass, "replace_with_node", replace, 1);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
   rb_define_private_method(klass, "set_namespace", set_namespace, 1);
   rb_define_private_method(klass, "compare", compare, 1);
 
-  decorate = rb_intern("decorate");
+  decorate      = rb_intern("decorate");
   decorate_bang = rb_intern("decorate!");
 }

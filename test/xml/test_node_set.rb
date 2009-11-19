@@ -526,6 +526,52 @@ module Nokogiri
           inspected
       end
 
+      def test_should_not_splode_when_accessing_namespace_declarations_in_a_node_set
+        xml = Nokogiri::XML "<foo></foo>"
+        node_set = xml.xpath("//namespace::*")
+        assert_equal 1, node_set.size
+        node = node_set.first
+        node.to_s # segfaults in 1.4.0 and earlier
+
+        # if we haven't segfaulted, let's make sure we handled it correctly
+        assert_instance_of Nokogiri::XML::Namespace, node
+      end
+
+      def test_should_not_splode_when_arrayifying_node_set_containing_namespace_declarations
+        xml = Nokogiri::XML "<foo></foo>"
+        node_set = xml.xpath("//namespace::*")
+        assert_equal 1, node_set.size
+
+        node_array = node_set.to_a
+        node = node_array.first
+        node.to_s # segfaults in 1.4.0 and earlier
+
+        # if we haven't segfaulted, let's make sure we handled it correctly
+        assert_instance_of Nokogiri::XML::Namespace, node
+      end
+
+      def test_should_not_splode_when_unlinking_node_set_containing_namespace_declarations
+        xml = Nokogiri::XML "<foo></foo>"
+        node_set = xml.xpath("//namespace::*")
+        assert_equal 1, node_set.size
+
+        node_set.unlink
+      end
+
+      def test_reverse
+        xml = Nokogiri::XML "<root><a />b<c />d<e /></root>"
+        children = xml.root.children
+        assert_instance_of Nokogiri::XML::NodeSet, children
+
+        reversed = children.reverse
+        assert_equal reversed[0], children[4]
+        assert_equal reversed[1], children[3]
+        assert_equal reversed[2], children[2]
+        assert_equal reversed[3], children[1]
+        assert_equal reversed[4], children[0]
+
+        assert_equal children, children.reverse.reverse
+      end
     end
   end
 end

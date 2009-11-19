@@ -136,12 +136,20 @@ module Nokogiri
         assert_equal 0, fragment.children.length
       end
 
-      def test_add_child_with_fragment
+      def test_add_child_fragment_with_single_node
         doc = Nokogiri::XML::Document.new
         fragment = doc.fragment('<hello />')
         doc.add_child fragment
         assert_equal '/hello', doc.at('//hello').path
         assert_equal 'hello', doc.root.name
+      end
+
+      def test_add_child_fragment_with_multiple_nodes
+        doc = Nokogiri::XML::Document.new
+        fragment = doc.fragment('<hello /><goodbye />')
+        assert_raises(RuntimeError) do
+          doc.add_child fragment
+        end
       end
 
       def test_add_child_with_multiple_roots

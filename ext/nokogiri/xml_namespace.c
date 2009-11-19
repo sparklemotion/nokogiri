@@ -61,6 +61,14 @@ VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
   return ns;
 }
 
+VALUE Nokogiri_wrap_xml_namespace2(VALUE document, xmlNsPtr node)
+{
+  xmlDocPtr doc;
+  Data_Get_Struct(document, xmlDoc, doc) ;
+  return Nokogiri_wrap_xml_namespace(doc, node);
+}
+
+
 void init_xml_namespace()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");

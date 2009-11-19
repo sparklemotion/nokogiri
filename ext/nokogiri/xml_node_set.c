@@ -189,6 +189,8 @@ static VALUE index_at(VALUE self, long offset)
   if(offset >= node_set->nodeNr || abs(offset) > node_set->nodeNr) return Qnil;
   if(offset < 0) offset = offset + node_set->nodeNr;
 
+  if (XML_NAMESPACE_DECL == node_set->nodeTab[offset]->type)
+    return Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(node_set->nodeTab[offset]));
   return Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[offset]);
 }
 
@@ -280,15 +282,19 @@ static VALUE to_array(VALUE self, VALUE rb_node)
   VALUE *elts = calloc((size_t)set->nodeNr, sizeof(VALUE *));
   int i;
   for(i = 0; i < set->nodeNr; i++) {
-    xmlNodePtr node = set->nodeTab[i];
-
-    if(node->_private) {
-      if(node->type == XML_DOCUMENT_NODE || node->type == XML_HTML_DOCUMENT_NODE)
-        elts[i] = DOC_RUBY_OBJECT(node->doc);
-      else
-        elts[i] = (VALUE)node->_private;
+    if (XML_NAMESPACE_DECL == set->nodeTab[i]->type) {
+      elts[i] = Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(set->nodeTab[i]));
     } else {
-      elts[i] = Nokogiri_wrap_xml_node(Qnil, node);
+      xmlNodePtr node = set->nodeTab[i];
+
+      if(node->_private) {
+        if(node->type == XML_DOCUMENT_NODE || node->type == XML_HTML_DOCUMENT_NODE)
+          elts[i] = DOC_RUBY_OBJECT(node->doc);
+        else
+          elts[i] = (VALUE)node->_private;
+      } else {
+        elts[i] = Nokogiri_wrap_xml_node(Qnil, node);
+      }
     }
   }
 
@@ -313,12 +319,14 @@ static VALUE unlink_nodeset(VALUE self)
   Data_Get_Struct(self, xmlNodeSet, node_set);
   nodeNr = node_set->nodeNr ;
   for (j = 0 ; j < nodeNr ; j++) {
-    VALUE node ;
-    xmlNodePtr node_ptr;
-    node = Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[j]);
-    rb_funcall(node, rb_intern("unlink"), 0); /* modifies the C struct out from under the object */
-    Data_Get_Struct(node, xmlNode, node_ptr);
-    node_set->nodeTab[j] = node_ptr ;
+    if (XML_NAMESPACE_DECL != node_set->nodeTab[j]->type) {
+      VALUE node ;
+      xmlNodePtr node_ptr;
+      node = Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[j]);
+      rb_funcall(node, rb_intern("unlink"), 0); /* modifies the C struct out from under the object */
+      Data_Get_Struct(node, xmlNode, node_ptr);
+      node_set->nodeTab[j] = node_ptr ;
+    }
   }
   return self ;
 }

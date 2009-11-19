@@ -296,6 +296,17 @@ module Nokogiri
       end
 
       ###
+      # Returns a new NodeSet containing all the nodes in the NodeSet
+      # in reverse order
+      def reverse
+        node_set = NodeSet.new(document)
+        (length - 1).downto(0) do |x|
+          node_set.push self[x]
+        end
+        node_set
+      end
+
+      ###
       # Return a nicely formated string representation
       def inspect
         "[#{map { |c| c.inspect }.join ', '}]"

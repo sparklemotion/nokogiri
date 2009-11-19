@@ -6,12 +6,17 @@
   * Alias Node#[] to Node#attr
   * XML::Node#next_element added
   * XML::Node#> added for searching a nodes immediate children
+  * XML::NodeSet#reverse added
+  * Added fragment support to Node#add_child, Node#add_next_sibling,
+    Node#add_previous_sibling, and Node#replace.
 
 * Bugfixes
 
   * XML fragments with namespaces do not raise an exception (regression in 1.4.0)
   * Node#matches? works in nodes contained by a DocumentFragment. GH #158
   * Document should not define add_namespace() method. GH #169
+  * XPath queries returning namespace declarations do not segfault.
+  * Node#replace works with nodes from different documents. GH #162
 
 === 1.4.0 / 2009/10/30
 
