@@ -60,7 +60,7 @@ module Nokogiri
         if attr_ptr.null?
           # this section is an attempt to workaround older versions of libxml that
           # don't handle namespaces properly in all attribute-and-friends functions
-          prefix_ptr = FFI::MemoryPointer.new :pointer
+          prefix_ptr = FFI::Buffer.new :pointer
           localname = LibXML.xmlSplitQName2(name, prefix_ptr)
           prefix = prefix_ptr.get_pointer(0)
           if ! localname.null?
