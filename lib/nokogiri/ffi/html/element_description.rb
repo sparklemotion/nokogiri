@@ -68,16 +68,12 @@ module Nokogiri
       private
 
       def get_string_array_from(sym) # :nodoc:
-        list = []
-        return list if cstruct[sym].null?
-
-        j = 0
-        while (ptr = cstruct[sym].get_pointer(j * FFI.type_size(:pointer))) && ! ptr.null?
-          list << ptr.read_string
-          j += 1
+        ptr = cstruct[sym]
+        unless ptr.null?
+          ptr.get_array_of_string(0)
+        else
+          []
         end
-
-        list
       end
 
     end
