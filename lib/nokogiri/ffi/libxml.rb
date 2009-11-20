@@ -144,7 +144,7 @@ module Nokogiri
     attach_function :xmlGetIntSubset, [:pointer], :pointer
     attach_function :xmlBufferCreate, [], :pointer
     attach_function :xmlBufferFree, [:pointer], :void
-    attach_function :xmlSplitQName2, [:string, :pointer], :pointer # returns char* that must be freed
+    attach_function :xmlSplitQName2, [:string, :buffer_out], :pointer # returns char* that must be freed
     attach_function :xmlNewDocProp, [:pointer, :string, :string], :pointer
     attach_function :xmlFreePropList, [:pointer], :void
     attach_function :xmlCreateIntSubset, [:pointer] * 4, :pointer
@@ -258,7 +258,7 @@ module Nokogiri
     attach_function :xsltParseStylesheetDoc, [:pointer], :pointer
     attach_function :xsltFreeStylesheet, [:pointer], :void
     attach_function :xsltApplyStylesheet, [:pointer, :pointer, :pointer], :pointer
-    attach_function :xsltSaveResultToString, [:pointer, :pointer, :pointer, :pointer], :int
+    attach_function :xsltSaveResultToString, [:buffer_out, :buffer_out, :pointer, :pointer], :int
     attach_function :xsltSetGenericErrorFunc, [:pointer, :generic_error_handler], :void
 
     # exslt.c
