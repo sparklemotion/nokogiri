@@ -6,7 +6,7 @@ class TestNokogiri < Nokogiri::TestCase
     assert_match version_match, Nokogiri::VERSION
     assert_match version_match, Nokogiri::LIBXML_VERSION
 
-    unless defined?(Nokogiri::LIBXML_VERSION)
+    if defined?(FFI)
       assert_equal 'ffi', Nokogiri::VERSION_INFO['libxml']['binding']
       if RUBY_PLATFORM =~ /java/
         assert_equal 'jruby', Nokogiri::VERSION_INFO['libxml']['platform']
