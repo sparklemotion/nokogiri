@@ -41,12 +41,11 @@ module Nokogiri
         return nil if attr_ptr.null?
 
         ahash = {}
-        proc = lambda do |payload, data, name|
+        LibXML.xmlHashScan(attr_ptr, nil) do |payload, data, name|
           notation_cstruct = LibXML::XmlNotation.new(payload)
           ahash[name] = Notation.new(notation_cstruct[:name], notation_cstruct[:PublicID],
                                      notation_cstruct[:SystemID])
         end
-        LibXML.xmlHashScan(attr_ptr, proc, nil)
         ahash
       end
 
@@ -57,10 +56,9 @@ module Nokogiri
         return nil if attr_ptr.null?
 
         ahash = {}
-        proc = lambda do |payload, data, name|
+        LibXML.xmlHashScan(attr_ptr, nil) do |payload, data, name|
           ahash[name] = Node.wrap(payload)
         end
-        LibXML.xmlHashScan(attr_ptr, proc, nil)
         ahash
       end
     end
