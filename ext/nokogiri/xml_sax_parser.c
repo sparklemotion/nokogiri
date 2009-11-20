@@ -8,9 +8,6 @@ static ID id_cdata_block, id_cAttribute;
 #define STRING_OR_NULL(str) \
    (RTEST(str) ? StringValuePtr(str) : NULL)
 
-#define RBSTR_OR_QNIL(_str) \
-  (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
-
 static void start_document(void * ctx)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
