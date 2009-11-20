@@ -294,8 +294,9 @@ module Nokogiri
     attach_function :xmlSwitchEncoding, [:pointer, :int], :void
 
     # helpers
+    POINTER_SIZE = FFI.type_size(:pointer)
     def self.pointer_offset(n)
-      n * FFI.type_size(:pointer) # byte offset of nth pointer in an array of pointers
+      n * POINTER_SIZE # byte offset of nth pointer in an array of pointers
     end
   end
 end
