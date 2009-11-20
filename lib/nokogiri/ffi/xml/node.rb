@@ -144,7 +144,7 @@ module Nokogiri
       def namespaced_key?(attribute, namespace)
         prop = LibXML.xmlHasNsProp(cstruct, attribute.to_s,
           namespace.nil? ? nil : namespace.to_s)
-        prop.null? ? false : true
+        !prop.null?
       end
 
       def []=(property, value)
