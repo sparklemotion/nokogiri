@@ -218,6 +218,7 @@ module Nokogiri
       end
 
       def test_to_html_does_not_contain_entities
+        return unless defined?(NKF) # NKF is not implemented on Rubinius as of 2009-11-23
         html = NKF.nkf("-e --msdos", <<-EOH)
         <html><body>
         <p> test paragraph
