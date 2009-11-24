@@ -17,15 +17,32 @@ module Nokogiri
         assert_equal node, nodes.first.parent
       end
 
-      def test_next_element
-        node = @xml.at('name')
+      def test_next_element_when_next_sibling_is_element_should_return_next_sibling
+        doc = Nokogiri::XML "<root><foo /><quux /></root>"
+        node         = doc.at_css("foo")
         next_element = node.next_element
         assert next_element.element?
-        assert_equal 'position', next_element.name
+        assert_equal doc.at_css("quux"), next_element
       end
 
-      def test_next_element_nil
-        assert_nil @xml.root.next_element
+      def test_next_element_when_there_is_no_next_sibling_should_return_nil
+        doc = Nokogiri::XML "<root><foo /><quux /></root>"
+        assert_nil doc.at_css("quux").next_element
+      end
+
+      def test_next_element_when_next_sibling_is_not_an_element_should_return_closest_next_element_sibling
+        doc = Nokogiri::XML "<root><foo />bar<quux /></root>"
+        node         = doc.at_css("foo")
+        next_element = node.next_element
+        assert next_element.element?
+        assert_equal doc.at_css("quux"), next_element
+      end
+
+      def test_next_element_when_next_sibling_is_not_an_element_and_no_following_element_should_return_nil
+        doc = Nokogiri::XML "<root><foo />bar</root>"
+        node         = doc.at_css("foo")
+        next_element = node.next_element
+        assert_nil next_element
       end
 
       def test_element?

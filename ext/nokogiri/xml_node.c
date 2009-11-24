@@ -387,7 +387,7 @@ static VALUE next_element(VALUE self)
   while(sibling && sibling->type != XML_ELEMENT_NODE)
     sibling = sibling->next;
 
-  return Nokogiri_wrap_xml_node(Qnil, sibling) ;
+  return sibling ? Nokogiri_wrap_xml_node(Qnil, sibling) : Qnil ;
 }
 
 /* :nodoc: */
