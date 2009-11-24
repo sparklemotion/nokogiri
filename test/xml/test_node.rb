@@ -45,6 +45,34 @@ module Nokogiri
         assert_nil next_element
       end
 
+      def test_previous_element_when_previous_sibling_is_element_should_return_previous_sibling
+        doc = Nokogiri::XML "<root><foo /><quux /></root>"
+        node             = doc.at_css("quux")
+        previous_element = node.previous_element
+        assert previous_element.element?
+        assert_equal doc.at_css("foo"), previous_element
+      end
+
+      def test_previous_element_when_there_is_no_previous_sibling_should_return_nil
+        doc = Nokogiri::XML "<root><foo /><quux /></root>"
+        assert_nil doc.at_css("foo").previous_element
+      end
+
+      def test_previous_element_when_previous_sibling_is_not_an_element_should_return_closest_previous_element_sibling
+        doc = Nokogiri::XML "<root><foo />bar<quux /></root>"
+        node             = doc.at_css("quux")
+        previous_element = node.previous_element
+        assert previous_element.element?
+        assert_equal doc.at_css("foo"), previous_element
+      end
+
+      def test_previous_element_when_previous_sibling_is_not_an_element_and_no_following_element_should_return_nil
+        doc = Nokogiri::XML "<root>foo<bar /></root>"
+        node             = doc.at_css("bar")
+        previous_element = node.previous_element
+        assert_nil previous_element
+      end
+
       def test_element?
         assert @xml.root.element?, 'is an element'
       end

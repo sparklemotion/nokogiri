@@ -390,6 +390,26 @@ static VALUE next_element(VALUE self)
   return sibling ? Nokogiri_wrap_xml_node(Qnil, sibling) : Qnil ;
 }
 
+/*
+ * call-seq:
+ *  previous_element
+ *
+ * Returns the previous Nokogiri::XML::Element type sibling node.
+ */
+static VALUE previous_element(VALUE self)
+{
+  xmlNodePtr node, sibling;
+  Data_Get_Struct(self, xmlNode, node);
+
+  sibling = node->prev;
+  if(!sibling) return Qnil;
+
+  while(sibling && sibling->type != XML_ELEMENT_NODE)
+    sibling = sibling->prev;
+
+  return sibling ? Nokogiri_wrap_xml_node(Qnil, sibling) : Qnil ;
+}
+
 /* :nodoc: */
 static VALUE replace(VALUE self, VALUE _new_node)
 {
@@ -1021,6 +1041,7 @@ void init_xml_node()
   rb_define_method(klass, "next_sibling", next_sibling, 0);
   rb_define_method(klass, "previous_sibling", previous_sibling, 0);
   rb_define_method(klass, "next_element", next_element, 0);
+  rb_define_method(klass, "previous_element", previous_element, 0);
   rb_define_method(klass, "node_type", node_type, 0);
   rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "path", path, 0);

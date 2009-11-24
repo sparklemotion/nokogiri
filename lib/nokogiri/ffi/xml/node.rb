@@ -89,6 +89,18 @@ module Nokogiri
         return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
       end
 
+      def previous_element
+        sibling_ptr = cstruct[:prev]
+
+        while ! sibling_ptr.null?
+          sibling_cstruct = LibXML::XmlNode.new(sibling_ptr)
+          break if sibling_cstruct[:type] == ELEMENT_NODE
+          sibling_ptr = sibling_cstruct[:prev]
+        end
+
+        return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
+      end
+
       def replace_node new_node
         Node.reparent_node_with(new_node, self) do |new_node_cstruct, self_cstruct|
           retval = LibXML.xmlReplaceNode(self_cstruct, new_node_cstruct)
