@@ -1,14 +1,9 @@
 #Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
 $VERBOSE = true
-require 'rubygems'
 require 'test/unit'
 require 'fileutils'
 require 'tempfile'
 require 'pp'
-
-%w(../lib ../ext).each do |path|
-  $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), path)))
-end
 
 require 'nokogiri'
 
