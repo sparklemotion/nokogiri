@@ -96,6 +96,8 @@ static VALUE parse_with(VALUE self, VALUE sax_handler)
   if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
 
   NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
+
+  return Qnil ;
 }
 
 /*

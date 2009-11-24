@@ -50,6 +50,13 @@ module Nokogiri
             ctx.parse_with parser
           end
         end
+
+        def test_parse_with_returns_nil
+          xml = "<root />"
+          ctx = ParserContext.new xml
+          parser = Parser.new Doc.new
+          assert_nil ctx.parse_with parser
+        end
       end
     end
   end
