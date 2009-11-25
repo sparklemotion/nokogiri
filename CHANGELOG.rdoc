@@ -9,6 +9,8 @@
   * XML::NodeSet#reverse added
   * Added fragment support to Node#add_child, Node#add_next_sibling,
     Node#add_previous_sibling, and Node#replace.
+  * XML::Node#previous_element implemented
+  * Rubinius support
   * Ths CSS selector engine now supports :has()
 
 * Bugfixes
@@ -20,6 +22,8 @@
   * Node#replace works with nodes from different documents. GH #162
   * Adding XML::Document#collect_namespaces
   * Fixed bugs in the SOAP4R adapter
+  * Fixed bug in XML::Node#next_element for certain edge cases
+  * Fixed load path issue with JRuby under Windows. GH #160.
 
 === 1.4.0 / 2009/10/30
 
