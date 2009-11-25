@@ -238,6 +238,7 @@ test/test_encoding_handler.rb
 test/test_memory_leak.rb
 test/test_nokogiri.rb
 test/test_reader.rb
+test/test_soap4r_sax.rb
 test/test_xslt_transforms.rb
 test/xml/node/test_save_options.rb
 test/xml/node/test_subclass.rb

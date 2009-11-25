@@ -18,6 +18,7 @@
   * XPath queries returning namespace declarations do not segfault.
   * Node#replace works with nodes from different documents. GH #162
   * Adding XML::Document#collect_namespaces
+  * Fixed bugs in the SOAP4R adapter
 
 === 1.4.0 / 2009/10/30
 
