@@ -10,6 +10,18 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_collect_namespaces
+        doc = Nokogiri::XML(<<-eoxml)
+        <xml>
+          <foo xmlns='hello'>
+            <bar xmlns:foo='world' />
+          </foo>
+        </xml>
+        eoxml
+        assert_equal({"xmlns"=>"hello", "xmlns:foo"=>"world"},
+          doc.collect_namespaces)
+      end
+
       def test_subclass_initialize_modify # testing a segv
         Class.new(Nokogiri::XML::Document) {
           def initialize

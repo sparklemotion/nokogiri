@@ -17,6 +17,7 @@
   * Document should not define add_namespace() method. GH #169
   * XPath queries returning namespace declarations do not segfault.
   * Node#replace works with nodes from different documents. GH #162
+  * Adding XML::Document#collect_namespaces
 
 === 1.4.0 / 2009/10/30
 

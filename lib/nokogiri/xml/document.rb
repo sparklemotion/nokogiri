@@ -60,6 +60,34 @@ module Nokogiri
         self
       end
 
+      ###
+      # Recursively get all namespaces from this node and its subtree and
+      # return them as a hash.
+      #
+      # For example, given this document:
+      #
+      #   <root xmlns:foo="bar">
+      #     <bar xmlns:hello="world" />
+      #   </root>
+      #
+      # This method will return:
+      #
+      #   { 'xmlns:foo' => 'bar', 'xmlns:hello' => 'world' }
+      #
+      # WARNING: this method will clobber duplicate names in the keys.
+      # For example, given this document:
+      #
+      #   <root xmlns:foo="bar">
+      #     <bar xmlns:foo="baz" />
+      #   </root>
+      #
+      # The hash returned will look like this: { 'xmlns:foo' => 'bar' }
+      def collect_namespaces
+        ns = {}
+        traverse { |j| ns.merge!(j.namespaces) }
+        ns
+      end
+
       # Get the list of decorators given +key+
       def decorators key
         @decorators ||= Hash.new
