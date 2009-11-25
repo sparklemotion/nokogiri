@@ -8,7 +8,7 @@ module Nokogiri
       libs = ["libxml2.dll", "libxslt.dll", "libexslt.dll"].collect do |lib|
         File.join(dll_dir, lib).tr("/","\\") # see http://jira.codehaus.org/browse/JRUBY-2763
       end + ["msvcrt"]
-      ffi_lib *libs
+      ffi_lib(*libs)
     else
       ffi_lib 'xml2', 'xslt', 'exslt'
     end
