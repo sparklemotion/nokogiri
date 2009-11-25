@@ -48,14 +48,7 @@ module Nokogiri
         end
 
         def __internal__startElement(_, name, attributes)
-          attrs = []
-          unless attributes.null?
-            j = 0
-            while ! (value = attributes.get_pointer(LibXML.pointer_offset(j))).null?
-              attrs << value.read_string
-              j += 1
-            end
-          end
+          attrs = attributes.null? ? [] : attributes.get_array_of_string(0)
           @document.start_element name, attrs
         end
 
