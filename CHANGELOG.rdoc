@@ -9,6 +9,7 @@
   * XML::NodeSet#reverse added
   * Added fragment support to Node#add_child, Node#add_next_sibling,
     Node#add_previous_sibling, and Node#replace.
+  * Ths CSS selector engine now supports :has()
 
 * Bugfixes
 

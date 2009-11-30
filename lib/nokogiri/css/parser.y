@@ -2,7 +2,7 @@ class Nokogiri::CSS::GeneratedParser
 
 token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS GREATER S STRING IDENT
 token COMMA NUMBER PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH TILDE NOT_EQUAL
-token SLASH DOUBLESLASH NOT EQUAL RPAREN LSQUARE RSQUARE
+token SLASH DOUBLESLASH NOT EQUAL RPAREN LSQUARE RSQUARE HAS
 
 rule
   selector
@@ -110,6 +110,9 @@ rule
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
     | NOT expr RPAREN {
+        result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
+      }
+    | HAS selector RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
     ;

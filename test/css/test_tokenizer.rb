@@ -10,6 +10,13 @@ module Nokogiri
         @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
+      def test_has
+        @scanner.scan("a:has(b)")
+        assert_tokens(
+          [[:IDENT, "a"], [":", ":"], [:HAS, "has("], [:IDENT, "b"], [:RPAREN, ")"]],
+          @scanner)
+      end
+
       def test_unicode
         @scanner.scan("a日本語")
         assert_tokens([[:IDENT, 'a日本語']], @scanner)

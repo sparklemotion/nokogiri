@@ -54,6 +54,11 @@ module Nokogiri
         )
       end
 
+      def test_has
+        assert_xpath  "//a[b]", @parser.parse("a:has(b)")
+        assert_xpath  "//a[b/c]", @parser.parse("a:has(b > c)")
+      end
+
       def test_dashmatch
         assert_xpath  "//a[@class = 'bar' or starts-with(@class, concat('bar', '-'))]",
                       @parser.parse("a[@class|='bar']")

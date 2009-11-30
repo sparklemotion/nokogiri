@@ -31,6 +31,8 @@ module Nokogiri
           "last() = 1"
         when /^comment\(/
           "comment()"
+        when /^has\(/
+          node.value[1].accept(self)
         else
           args = ['.'] + node.value[1..-1]
           "#{node.value.first}#{args.join(', ')})"
