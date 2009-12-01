@@ -5,6 +5,11 @@ begin
 rescue LoadError
 end
 
+Autotest.add_hook :initialize do |at|
+  at.add_exception /bundle$/
+  at.add_exception /\.git/
+end
+
 Autotest.add_hook :run_command do |at|
   at.unit_diff = 'cat'
   if ENV['ONENINE']
@@ -19,9 +24,3 @@ Autotest.add_hook :ran_command do |at|
     f.write(at.results.join)
   }
 end
-
-class Autotest
-  def ruby
-    'ruby1.9'
-  end
-end if ENV['ONENINE']

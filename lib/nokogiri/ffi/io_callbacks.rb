@@ -1,6 +1,7 @@
+# :stopdoc:
 module Nokogiri
-  module IoCallbacks # :nodoc:
-    
+  module IoCallbacks
+
     class << self
 
       def plain_old_reader(io)
@@ -38,3 +39,4 @@ module Nokogiri
 
   end
 end
+# :startdoc:

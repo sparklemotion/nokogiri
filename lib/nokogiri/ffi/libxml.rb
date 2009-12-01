@@ -1,8 +1,17 @@
-
+# :stopdoc:
 module Nokogiri
-  module LibXML # :nodoc: all
+  module LibXML
     extend FFI::Library
-    ffi_lib 'xml2', 'xslt', 'exslt'
+    if RUBY_PLATFORM =~ /java/ && java.lang.System.getProperty('os.name') =~ /windows/i
+      raise(RuntimeError, "Nokogiri requires JRuby 1.4.0 or later on Windows") if JRUBY_VERSION < "1.4.0"
+      dll_dir = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "ext", "nokogiri"))
+      libs = ["libxml2.dll", "libxslt.dll", "libexslt.dll"].collect do |lib|
+        File.join(dll_dir, lib).tr("/","\\") # see http://jira.codehaus.org/browse/JRUBY-2763
+      end + ["msvcrt"]
+      ffi_lib(*libs)
+    else
+      ffi_lib 'xml2', 'xslt', 'exslt'
+    end
 
     # globals.c
     attach_function :__xmlParserVersion, [], :pointer
@@ -13,6 +22,8 @@ module Nokogiri
 
   LIBXML_PARSER_VERSION = LibXML.__xmlParserVersion().read_pointer.read_string
   LIBXML_VERSION = LIBXML_PARSER_VERSION.scan(/^(.*)(..)(..)$/).first.collect{|j|j.to_i}.join(".")
+
+  LIBXML_ICONV_ENABLED = true # sigh.
 end
 
 require 'nokogiri/version'
@@ -28,7 +39,9 @@ else
 end
 
 module Nokogiri
-  module LibXML # :nodoc:
+  module LibXML
+    XML_CHAR_ENCODING_ERROR = -1
+
     # useful callback signatures
     callback :syntax_error_handler, [:pointer, :pointer], :void
     callback :generic_error_handler, [:pointer, :string], :void
@@ -50,9 +63,11 @@ module Nokogiri
     callback :start_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer, :int, :pointer, :int, :int, :pointer], :void
     callback :end_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer], :void
 
-    # libc
-    attach_function :calloc, [:int, :int], :pointer
-    attach_function :free, [:pointer], :void
+    # encoding.c
+    attach_function :xmlFindCharEncodingHandler, [:string], :pointer
+    attach_function :xmlDelEncodingAlias, [:string], :int
+    attach_function :xmlAddEncodingAlias, [:string, :string], :int
+    attach_function :xmlCleanupEncodingAliases, [], :void
 
     # HTMLparser.c
     attach_function :htmlReadMemory, [:string, :int, :string, :string, :int], :pointer
@@ -62,6 +77,9 @@ module Nokogiri
     attach_function :htmlEntityLookup, [:string], :pointer
     attach_function :htmlSAXParseFile, [:string, :pointer, :pointer, :pointer], :pointer # second arg 'encoding' should be a string, but we assign it as a pointer elsewhere
     attach_function :htmlSAXParseDoc, [:pointer, :pointer, :pointer, :pointer], :pointer # second arg 'encoding' should be a string, but we assign it as a pointer elsewhere
+    attach_function :htmlCreateMemoryParserCtxt, [:pointer, :int], :pointer
+    attach_function :htmlCreateFileParserCtxt, [:pointer, :pointer], :pointer
+    attach_function :htmlParseDocument, [:pointer], :int
 
     # HTMLtree.c
     attach_function :htmlDocDumpMemory, [:pointer, :pointer, :pointer], :void
@@ -82,6 +100,7 @@ module Nokogiri
     attach_function :xmlFreeParserCtxt, [:pointer], :void
     attach_function :xmlCreatePushParserCtxt, [:pointer, :pointer, :string, :int, :string], :pointer
     attach_function :xmlParseChunk, [:pointer, :string, :int, :int], :int
+    attach_function :xmlCtxtUseOptions, [:pointer, :int], :int
 
     # tree.c
     attach_function :xmlNewDoc, [:string], :pointer
@@ -125,9 +144,11 @@ module Nokogiri
     attach_function :xmlGetIntSubset, [:pointer], :pointer
     attach_function :xmlBufferCreate, [], :pointer
     attach_function :xmlBufferFree, [:pointer], :void
-    attach_function :xmlSplitQName2, [:string, :pointer], :pointer # returns char* that must be freed
+    attach_function :xmlSplitQName2, [:string, :buffer_out], :pointer # returns char* that must be freed
     attach_function :xmlNewDocProp, [:pointer, :string, :string], :pointer
     attach_function :xmlFreePropList, [:pointer], :void
+    attach_function :xmlCreateIntSubset, [:pointer] * 4, :pointer
+    attach_function :xmlNewDtd, [:pointer] * 4, :pointer
 
     # valid.c
     attach_function :xmlNewValidCtxt, [], :pointer
@@ -202,6 +223,7 @@ module Nokogiri
     attach_function :xmlResetLastError, [], :void
     attach_function :xmlCopyError, [:pointer, :pointer], :int
     attach_function :xmlGetLastError, [], :pointer
+    attach_function :xmlCtxtGetLastError, [:pointer], :pointer
 
     # hash.c
     attach_function :xmlHashScan, [:pointer, :hash_copier_callback, :pointer], :void
@@ -212,6 +234,8 @@ module Nokogiri
     attach_function :xmlTextReaderGetAttributeNo, [:pointer, :int], :pointer # returns char* that must be freed
     attach_function :xmlTextReaderLookupNamespace, [:pointer, :string], :pointer # returns char* that must be freed
     attach_function :xmlTextReaderRead, [:pointer], :int
+    attach_function :xmlTextReaderReadInnerXml, [:pointer], :pointer
+    attach_function :xmlTextReaderReadOuterXml, [:pointer], :pointer
     attach_function :xmlTextReaderAttributeCount, [:pointer], :int
     attach_function :xmlTextReaderCurrentNode, [:pointer], :pointer
     attach_function :xmlTextReaderExpand, [:pointer], :pointer
@@ -228,12 +252,13 @@ module Nokogiri
     attach_function :xmlTextReaderHasValue, [:pointer], :int
     attach_function :xmlFreeTextReader, [:pointer], :void
     attach_function :xmlReaderForIO, [:io_read_callback, :io_close_callback, :pointer, :string, :string, :int], :pointer
+    attach_function :xmlTextReaderNodeType, [:pointer], :int
 
     # xslt.c
     attach_function :xsltParseStylesheetDoc, [:pointer], :pointer
     attach_function :xsltFreeStylesheet, [:pointer], :void
     attach_function :xsltApplyStylesheet, [:pointer, :pointer, :pointer], :pointer
-    attach_function :xsltSaveResultToString, [:pointer, :pointer, :pointer, :pointer], :int
+    attach_function :xsltSaveResultToString, [:buffer_out, :buffer_out, :pointer, :pointer], :int
     attach_function :xsltSetGenericErrorFunc, [:pointer, :generic_error_handler], :void
 
     # exslt.c
@@ -261,19 +286,31 @@ module Nokogiri
     attach_function :xmlRelaxNGFreeParserCtxt, [:pointer], :void
     attach_function :xmlRelaxNGNewDocParserCtxt, [:pointer], :pointer
 
+    # libc
+    attach_function :calloc, [:int, :int], :pointer
+    attach_function :free, [:pointer], :void
+
+    attach_function :xmlParseCharEncoding, [:string], :int
+    attach_function :xmlSwitchEncoding, [:pointer, :int], :void
+
     # helpers
+    POINTER_SIZE = FFI.type_size(:pointer)
     def self.pointer_offset(n)
-      n * FFI.type_size(:pointer) # byte offset of nth pointer in an array of pointers
+      n * POINTER_SIZE # byte offset of nth pointer in an array of pointers
     end
   end
 end
+
+# :startdoc:
 
 require 'nokogiri/syntax_error'
 require 'nokogiri/xml/syntax_error'
 
 [ "io_callbacks",
+  "encoding_handler",
   "structs/common_node",
   "structs/xml_alloc",
+  "structs/xml_char_encoding_handler",
   "structs/xml_document",
   "structs/xml_node",
   "structs/xml_dtd",
@@ -291,14 +328,23 @@ require 'nokogiri/xml/syntax_error'
   "structs/xml_text_reader",
   "structs/xml_sax_handler",
   "structs/xml_sax_push_parser_context",
+  "structs/xml_enumeration",
   "structs/html_elem_desc",
   "structs/html_entity_desc",
   "structs/xslt_stylesheet",
   "structs/xml_parser_context",
+  "structs/xml_attribute",
+  "structs/xml_element",
+  "structs/xml_entity",
+  "structs/xml_element_content",
   "xml/node",
   "xml/namespace",
   "xml/dtd",
   "xml/attr",
+  "xml/attribute_decl",
+  "xml/element_decl",
+  "xml/element_content",
+  "xml/entity_decl",
   "xml/document",
   "xml/document_fragment",
   "xml/schema",
@@ -313,13 +359,14 @@ require 'nokogiri/xml/syntax_error'
   "xml/syntax_error",
   "xml/reader",
   "xml/entity_reference",
+  "xml/sax/parser_context",
   "xml/sax/parser",
   "xml/sax/push_parser",
   "html/document",
   "html/element_description",
   "html/entity_lookup",
-  "html/sax/parser",
+  "html/sax/parser_context",
   "xslt/stylesheet",
 ].each do |file|
-  require File.join(File.dirname(__FILE__), file)
+  require "nokogiri/ffi/#{file}"
 end

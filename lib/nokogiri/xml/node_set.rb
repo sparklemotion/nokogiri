@@ -68,13 +68,19 @@ module Nokogiri
       # For more information see Nokogiri::XML::Node#css and
       # Nokogiri::XML::Node#xpath
       def search *paths
-        ns = paths.last.is_a?(Hash) ? paths.pop :
-          (document.root ? document.root.namespaces : {})
+        handler = ![
+          Hash, String, Symbol
+        ].include?(paths.last.class) ? paths.pop : nil
+
+        ns = paths.last.is_a?(Hash) ? paths.pop : nil
 
         sub_set = NodeSet.new(document)
 
         paths.each do |path|
-          sub_set += send(path =~ /^(\.\/|\/)/ ? :xpath : :css, *(paths + [ns]))
+          sub_set += send(
+            path =~ /^(\.\/|\/)/ ? :xpath : :css,
+            *(paths + [ns, handler]).compact
+          )
         end
 
         document.decorate(sub_set)
@@ -87,19 +93,26 @@ module Nokogiri
       #
       # For more information see Nokogiri::XML::Node#css
       def css *paths
-        ns = paths.last.is_a?(Hash) ? paths.pop :
-          (document.root ? document.root.namespaces : {})
+        handler = ![
+          Hash, String, Symbol
+        ].include?(paths.last.class) ? paths.pop : nil
+
+        ns = paths.last.is_a?(Hash) ? paths.pop : nil
 
         sub_set = NodeSet.new(document)
 
-        xpaths = paths.map { |rule|
-          [
-            CSS.xpath_for(rule.to_s, :prefix => ".//", :ns => ns),
-            CSS.xpath_for(rule.to_s, :prefix => "self::", :ns => ns)
-          ].join(' | ')
-        }
         each do |node|
-          sub_set += node.xpath(*(xpaths + [ns]))
+          doc = node.document
+          search_ns = ns || doc.root ? doc.root.namespaces : {}
+
+          xpaths = paths.map { |rule|
+            [
+              CSS.xpath_for(rule.to_s, :prefix => ".//", :ns => search_ns),
+              CSS.xpath_for(rule.to_s, :prefix => "self::", :ns => search_ns)
+            ].join(' | ')
+          }
+
+          sub_set += node.xpath(*(xpaths + [search_ns, handler].compact))
         end
         document.decorate(sub_set)
         sub_set
@@ -110,12 +123,15 @@ module Nokogiri
       #
       # For more information see Nokogiri::XML::Node#xpath
       def xpath *paths
-        ns = paths.last.is_a?(Hash) ? paths.pop :
-          (document.root ? document.root.namespaces : {})
+        handler = ![
+          Hash, String, Symbol
+        ].include?(paths.last.class) ? paths.pop : nil
+
+        ns = paths.last.is_a?(Hash) ? paths.pop : nil
 
         sub_set = NodeSet.new(document)
         each do |node|
-          sub_set += node.xpath(*(paths + [ns]))
+          sub_set += node.xpath(*(paths + [ns, handler].compact))
         end
         document.decorate(sub_set)
         sub_set
@@ -134,23 +150,27 @@ module Nokogiri
       # Append the class attribute +name+ to all Node objects in the NodeSet.
       def add_class name
         each do |el|
-          next unless el.respond_to? :get_attribute
-          classes = el.get_attribute('class').to_s.split(" ")
-          el.set_attribute('class', classes.push(name).uniq.join(" "))
+          classes = el['class'].to_s.split(/\s+/)
+          el['class'] = classes.push(name).uniq.join " "
         end
         self
       end
 
       ###
       # Remove the class attribute +name+ from all Node objects in the NodeSet.
+      # If +name+ is nil, remove the class attribute from all Nodes in the
+      # NodeSet.
       def remove_class name = nil
         each do |el|
-          next unless el.respond_to? :get_attribute
           if name
-            classes = el.get_attribute('class').to_s.split(" ")
-            el.set_attribute('class', (classes - [name]).uniq.join(" "))
+            classes = el['class'].to_s.split(/\s+/)
+            if classes.empty?
+              el.delete 'class'
+            else
+              el['class'] = (classes - [name]).uniq.join " "
+            end
           else
-            el.remove_attribute("class")
+            el.delete "class"
           end
         end
         self
@@ -160,28 +180,23 @@ module Nokogiri
       # Set the attribute +key+ to +value+ or the return value of +blk+
       # on all Node objects in the NodeSet.
       def attr key, value = nil, &blk
-        if value or blk
-          each do |el|
-            el.set_attribute(key, value || blk[el])
-          end
-          return self
+        unless Hash === key || key && (value || blk)
+          return first.attribute(key)
         end
-        if key.is_a? Hash
-          key.each { |k,v| self.attr(k,v) }
-          return self
-        else
-          return self[0].get_attribute(key)
-        end
+
+        hash = key.is_a?(Hash) ? key : { key => value }
+
+        hash.each { |k,v| each { |el| el[k] = v || blk[el] } }
+
+        self
       end
-      alias_method :set, :attr
+      alias :set :attr
+      alias :attribute :attr
 
       ###
       # Remove the attributed named +name+ from all Node objects in the NodeSet
       def remove_attr name
-        each do |el|
-          next unless el.respond_to? :remove_attribute
-          el.remove_attribute(name)
-        end
+        each { |el| el.delete name }
         self
       end
 
@@ -202,8 +217,8 @@ module Nokogiri
 
       ###
       # Get the inner html of all contained Node objects
-      def inner_html
-        collect{|j| j.inner_html}.join('')
+      def inner_html *args
+        collect{|j| j.inner_html(*args) }.join('')
       end
 
       ###
@@ -211,7 +226,7 @@ module Nokogiri
       def wrap(html, &blk)
         each do |j|
           new_parent = Nokogiri.make(html, &blk)
-          j.parent.add_child(new_parent)
+          j.add_next_sibling(new_parent)
           new_parent.add_child(j)
         end
         self
@@ -274,9 +289,27 @@ module Nokogiri
       end
 
       ###
-      # Returns a new NodeSet containing all the children of all the nodes in the NodeSet
+      # Returns a new NodeSet containing all the children of all the nodes in
+      # the NodeSet
       def children
         inject(NodeSet.new(document)) { |set, node| set += node.children }
+      end
+
+      ###
+      # Returns a new NodeSet containing all the nodes in the NodeSet
+      # in reverse order
+      def reverse
+        node_set = NodeSet.new(document)
+        (length - 1).downto(0) do |x|
+          node_set.push self[x]
+        end
+        node_set
+      end
+
+      ###
+      # Return a nicely formated string representation
+      def inspect
+        "[#{map { |c| c.inspect }.join ', '}]"
       end
 
       alias :+ :|

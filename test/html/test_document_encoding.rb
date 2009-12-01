@@ -1,10 +1,24 @@
 # -*- coding: utf-8 -*-
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module HTML
     if RUBY_VERSION =~ /^1\.9/
       class TestDocumentEncoding < Nokogiri::TestCase
+        def test_encoding
+          doc = Nokogiri::HTML File.open(SHIFT_JIS_HTML, 'rb')
+
+          hello = "こんにちは"
+
+          assert_match doc.encoding, doc.to_html
+          assert_match hello.encode('Shift_JIS'), doc.to_html
+          assert_equal 'Shift_JIS', doc.to_html.encoding.name
+
+          assert_match hello, doc.to_html(:encoding => 'UTF-8')
+          assert_match 'UTF-8', doc.to_html(:encoding => 'UTF-8')
+          assert_match 'UTF-8', doc.to_html(:encoding => 'UTF-8').encoding.name
+        end
+
         def test_default_to_encoding_from_string
           bad_charset = <<-eohtml
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

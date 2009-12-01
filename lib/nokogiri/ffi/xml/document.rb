@@ -1,14 +1,15 @@
+# :stopdoc:
 module Nokogiri
   module XML
     class Document < Node
 
-      attr_accessor :cstruct # :nodoc:
+      attr_accessor :cstruct
 
-      def url # :nodoc:
+      def url
         cstruct[:URL]
       end
 
-      def root=(new_root) # :nodoc:
+      def root= new_root
         old_root = nil
         if new_root.cstruct[:doc] != cstruct[:doc]
           old_root_ptr = LibXML.xmlDocGetRootElement(cstruct)
@@ -23,34 +24,38 @@ module Nokogiri
         new_root
       end
 
-      def root # :nodoc:
+      def root
         ptr = LibXML.xmlDocGetRootElement(cstruct)
         ptr.null? ? nil : Node.wrap(LibXML::XmlNode.new(ptr))
       end
 
-      def encoding=(encoding) # :nodoc:
+      def encoding= encoding
         # TODO: if :encoding is already set, then it's probably getting leaked.
         cstruct[:encoding] = LibXML.xmlStrdup(encoding)
       end
 
-      def encoding # :nodoc:
+      def encoding
         ptr = cstruct[:encoding]
         ptr.null? ? nil : ptr.read_string
       end
 
-      def self.read_io(io, url, encoding, options) # :nodoc:
+      def version
+        cstruct[:version]
+      end
+
+      def self.read_io io, url, encoding, options
         wrap_with_error_handling do
           LibXML.xmlReadIO(IoCallbacks.reader(io), nil, nil, url, encoding, options)
         end
       end
 
-      def self.read_memory(string, url, encoding, options) # :nodoc:
+      def self.read_memory(string, url, encoding, options)
         wrap_with_error_handling do
           LibXML.xmlReadMemory(string, string.length, url, encoding, options)
         end
       end
 
-      def dup(deep = 1) # :nodoc:
+      def dup deep = 1
         dup_ptr = LibXML.xmlCopyDoc(cstruct, deep)
         return nil if dup_ptr.null?
 
@@ -61,15 +66,19 @@ module Nokogiri
         self.class.wrap(dup_ptr)
       end
 
+      def remove_namespaces!
+        self.class.recursively_remove_namespaces_from_node(root)
+      end
+
       class << self
-        def new(*args) # :nodoc:
+        def new(*args)
           version = args.first || "1.0"
           doc = wrap(LibXML.xmlNewDoc(version))
           doc.send :initialize, *args
           doc
         end
 
-        def wrap(doc_struct) # :nodoc: #
+        def wrap doc_struct
           if doc_struct.is_a?(FFI::Pointer)
             # cast native pointers up into a doc cstruct
             return nil if doc_struct.null?
@@ -88,7 +97,7 @@ module Nokogiri
       private
 
       class << self
-        def wrap_with_error_handling(&block) # :nodoc:
+        def wrap_with_error_handling(&block)
           error_list = []
           LibXML.xmlInitParser()
           LibXML.xmlResetLastError()
@@ -111,8 +120,16 @@ module Nokogiri
           document.errors = error_list
           return document
         end
+
+        def recursively_remove_namespaces_from_node(node)
+          node.cstruct[:ns] = nil
+          node.children.each do |child|
+            recursively_remove_namespaces_from_node(child)
+          end
+        end
       end
 
     end
   end
 end
+# :startdoc:

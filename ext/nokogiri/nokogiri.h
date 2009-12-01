@@ -3,8 +3,8 @@
 
 #include <stdlib.h>
 #include <assert.h>
-#include <ruby.h>
 #include <libxml/parser.h>
+#include <libxml/parserInternals.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 #include <libxml/xmlreader.h>
@@ -13,6 +13,7 @@
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/relaxng.h>
+#include <ruby.h>
 
 #ifdef USE_INCLUDED_VASPRINTF
 int vasprintf (char **strp, const char *fmt, va_list ap);
@@ -42,40 +43,33 @@ int is_2_6_16(void) ;
 
 #include <ruby/encoding.h>
 
-#define NOKOGIRI_STR_NEW2(str, encoding) \
+#define NOKOGIRI_STR_NEW2(str) \
   ({ \
     VALUE _string = rb_str_new2((const char *)str); \
-    if(NULL != encoding) { \
-      int _enc = rb_enc_find_index("UTF-8"); \
-      if(_enc == -1) \
-        rb_enc_associate_index(_string, rb_enc_find_index("ASCII")); \
-      else \
-        rb_enc_associate_index(_string, _enc); \
-    } \
+    int _enc = rb_enc_find_index("UTF-8"); \
+    rb_enc_associate_index(_string, _enc); \
     _string; \
   })
 
-#define NOKOGIRI_STR_NEW(str, len, encoding) \
+#define NOKOGIRI_STR_NEW(str, len) \
   ({ \
     VALUE _string = rb_str_new((const char *)str, (long)len); \
-    if(NULL != encoding) { \
-      int _enc = rb_enc_find_index("UTF-8"); \
-      if(_enc == -1) \
-        rb_enc_associate_index(_string, rb_enc_find_index("ASCII")); \
-      else \
-        rb_enc_associate_index(_string, _enc); \
-    } \
+    int _enc = rb_enc_find_index("UTF-8"); \
+    rb_enc_associate_index(_string, _enc); \
     _string; \
   })
 
 #else
 
-#define NOKOGIRI_STR_NEW2(str, doc) \
+#define NOKOGIRI_STR_NEW2(str) \
   rb_str_new2((const char *)str)
 
-#define NOKOGIRI_STR_NEW(str, len, doc) \
+#define NOKOGIRI_STR_NEW(str, len) \
   rb_str_new((const char *)str, (long)len)
 #endif
+
+#define RBSTR_OR_QNIL(_str) \
+  (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
 #include <xml_io.h>
 #include <xml_document.h>
@@ -92,17 +86,23 @@ int is_2_6_16(void) ;
 #include <xml_node_set.h>
 #include <xml_xpath.h>
 #include <xml_dtd.h>
+#include <xml_attribute_decl.h>
+#include <xml_element_decl.h>
+#include <xml_entity_decl.h>
 #include <xml_xpath_context.h>
+#include <xml_element_content.h>
+#include <xml_sax_parser_context.h>
 #include <xml_sax_parser.h>
 #include <xml_sax_push_parser.h>
 #include <xml_reader.h>
-#include <html_sax_parser.h>
+#include <html_sax_parser_context.h>
 #include <xslt_stylesheet.h>
 #include <xml_syntax_error.h>
 #include <xml_schema.h>
 #include <xml_relax_ng.h>
 #include <html_element_description.h>
 #include <xml_namespace.h>
+#include <xml_encoding_handler.h>
 
 extern VALUE mNokogiri ;
 extern VALUE mNokogiriXml ;
@@ -115,7 +115,6 @@ extern VALUE mNokogiriXslt ;
   ({ \
     nokogiriTuplePtr tuple = (nokogiriTuplePtr)(_node->doc->_private);       \
     st_insert(tuple->unlinkedNodes, (st_data_t)_node, (st_data_t)_node);     \
-    _node; \
   })
 
 #ifdef DEBUG

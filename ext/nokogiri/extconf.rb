@@ -4,6 +4,8 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
 require 'mkmf'
 
+RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
+
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 LIBDIR = Config::CONFIG['libdir']
 INCLUDEDIR = Config::CONFIG['includedir']
@@ -13,6 +15,8 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
 end
 
 $CFLAGS << " #{ENV["CFLAGS"]}"
+$LIBS << " #{ENV["LIBS"]}"
+
 if Config::CONFIG['target_os'] == 'mingw32'
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
 elsif Config::CONFIG['target_os'] == 'solaris2'
@@ -129,27 +133,11 @@ unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
   abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
 end
 
-def nokogiri_link_command ldflags, opt='', libpath=$LIBPATH
-  old_link_command ldflags, opt, libpath
-end
-
-def with_custom_link
-  alias :old_link_command :link_command
-  alias :link_command :nokogiri_link_command
-  yield
-ensure
-  alias :link_command :old_link_command
-end
-
-with_custom_link do
-  with_cppflags $INCFLAGS do
-    have_func('xmlRelaxNGSetParserStructuredErrors')
-    have_func('xmlRelaxNGSetParserStructuredErrors')
-    have_func('xmlRelaxNGSetValidStructuredErrors')
-    have_func('xmlSchemaSetValidStructuredErrors')
-    have_func('xmlSchemaSetParserStructuredErrors')
-  end
-end
+have_func('xmlRelaxNGSetParserStructuredErrors')
+have_func('xmlRelaxNGSetParserStructuredErrors')
+have_func('xmlRelaxNGSetValidStructuredErrors')
+have_func('xmlSchemaSetValidStructuredErrors')
+have_func('xmlSchemaSetParserStructuredErrors')
 
 if ENV['CPUPROFILE']
   unless find_library('profiler', 'ProfilerEnable', *LIB_DIRS)

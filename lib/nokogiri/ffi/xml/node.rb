@@ -18,11 +18,39 @@ module Nokogiri
       end
 
       def internal_subset
-        return nil if cstruct[:doc].null?
         doc = cstruct.document
         dtd = LibXML.xmlGetIntSubset(doc)
         return nil if dtd.null?
         Node.wrap(dtd)
+      end
+
+      def external_subset
+        doc = cstruct.document
+        return nil if doc[:extSubset].null?
+
+        Node.wrap(doc[:extSubset])
+      end
+
+      def create_internal_subset name, external_id, system_id
+        raise("Document already has an internal subset") if internal_subset
+
+        doc = cstruct.document
+        dtd_ptr = LibXML.xmlCreateIntSubset doc, name, external_id, system_id
+
+        return nil if dtd_ptr.null?
+
+        Node.wrap dtd_ptr
+      end
+
+      def create_external_subset name, external_id, system_id
+        raise("Document already has an external subset") if external_subset
+
+        doc = cstruct.document
+        dtd_ptr = LibXML.xmlNewDtd doc, name, external_id, system_id
+
+        return nil if dtd_ptr.null?
+
+        Node.wrap dtd_ptr
       end
 
       def dup(deep = 1)
@@ -49,9 +77,39 @@ module Nokogiri
         cstruct_node_from :prev
       end
 
-      def replace_with_node(new_node)
-        LibXML.xmlReplaceNode(cstruct, new_node.cstruct)
-        Node.send(:relink_namespace, new_node.cstruct)
+      def next_element
+        sibling_ptr = cstruct[:next]
+
+        while ! sibling_ptr.null?
+          sibling_cstruct = LibXML::XmlNode.new(sibling_ptr)
+          break if sibling_cstruct[:type] == ELEMENT_NODE
+          sibling_ptr = sibling_cstruct[:next]
+        end
+
+        return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
+      end
+
+      def previous_element
+        sibling_ptr = cstruct[:prev]
+
+        while ! sibling_ptr.null?
+          sibling_cstruct = LibXML::XmlNode.new(sibling_ptr)
+          break if sibling_cstruct[:type] == ELEMENT_NODE
+          sibling_ptr = sibling_cstruct[:prev]
+        end
+
+        return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
+      end
+
+      def replace_node new_node
+        Node.reparent_node_with(new_node, self) do |new_node_cstruct, self_cstruct|
+          retval = LibXML.xmlReplaceNode(self_cstruct, new_node_cstruct)
+          if retval == self_cstruct.pointer
+            new_node_cstruct # for reparent_node_with semantics
+          else
+            retval
+          end
+        end
         self
       end
 
@@ -61,7 +119,7 @@ module Nokogiri
 
         set = NodeSet.new child.document
         set_ptr = LibXML.xmlXPathNodeSetCreate(child.cstruct)
-        
+
         set.cstruct = LibXML::XmlNodeSet.new(set_ptr)
         return set unless child
 
@@ -86,7 +144,7 @@ module Nokogiri
       def namespaced_key?(attribute, namespace)
         prop = LibXML.xmlHasNsProp(cstruct, attribute.to_s,
           namespace.nil? ? nil : namespace.to_s)
-        prop.null? ? false : true
+        !prop.null?
       end
 
       def []=(property, value)
@@ -109,7 +167,7 @@ module Nokogiri
       end
 
       def attribute(name)
-        raise "Node#attribute not implemented yet"
+        attribute_nodes.find { |x| x.name == name }
       end
 
       def attribute_with_ns(name, namespace)
@@ -156,7 +214,7 @@ module Nokogiri
         content
       end
 
-      def add_child(child)
+      def add_child_node child
         Node.reparent_node_with(child, self) do |child_cstruct, my_cstruct|
           LibXML.xmlAddChild(my_cstruct, child_cstruct)
         end
@@ -182,13 +240,13 @@ module Nokogiri
         val
       end
 
-      def add_next_sibling(next_sibling)
+      def add_next_sibling_node next_sibling
         Node.reparent_node_with(next_sibling, self) do |sibling_cstruct, my_cstruct|
           LibXML.xmlAddNextSibling(my_cstruct, sibling_cstruct)
         end
       end
 
-      def add_previous_sibling(prev_sibling)
+      def add_previous_sibling_node prev_sibling
         Node.reparent_node_with(prev_sibling, self) do |sibling_cstruct, my_cstruct|
           LibXML.xmlAddPrevSibling(my_cstruct, sibling_cstruct)
         end
@@ -266,11 +324,13 @@ module Nokogiri
                   when ELEMENT_NODE then [XML::Element]
                   when TEXT_NODE then [XML::Text]
                   when ENTITY_REF_NODE then [XML::EntityReference]
+                  when ATTRIBUTE_DECL then [XML::AttributeDecl, LibXML::XmlAttribute]
+                  when ELEMENT_DECL then [XML::ElementDecl, LibXML::XmlElement]
                   when COMMENT_NODE then [XML::Comment]
                   when DOCUMENT_FRAG_NODE then [XML::DocumentFragment]
                   when PI_NODE then [XML::ProcessingInstruction]
                   when ATTRIBUTE_NODE then [XML::Attr]
-                  when ENTITY_DECL then [XML::EntityDeclaration]
+                  when ENTITY_DECL then [XML::EntityDecl, LibXML::XmlEntity]
                   when CDATA_SECTION_NODE then [XML::CDATA]
                   when DTD_NODE then [XML::DTD, LibXML::XmlDtd]
                   else [XML::Node]
@@ -316,14 +376,11 @@ module Nokogiri
 
       def self.reparent_node_with(node, other, &block)
         raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(Nokogiri::XML::Node)
+        raise(ArgumentError, "cannot reparent a document node") if node.node_type == DOCUMENT_NODE || node.node_type == HTML_DOCUMENT_NODE
 
-        # If a document fragment is added, we need to reparent all of it's
-        # children
-        if node.type == DOCUMENT_FRAG_NODE
-          node.children.each do |child|
-            reparent_node_with(child, other, &block)
-          end
-          return node
+        if node.type == TEXT_NODE
+          node.cstruct.keep_reference_from_document!
+          node.cstruct = LibXML::XmlNode.new(LibXML.xmlDocCopyNode(node.cstruct, other.cstruct.document, 1))
         end
 
         if node.cstruct[:doc] == other.cstruct[:doc]
@@ -342,7 +399,7 @@ module Nokogiri
           node.cstruct.keep_reference_from_document!
         end
 
-        reparented_struct = LibXML::XmlNode.new(reparented_struct)
+        reparented_struct = LibXML::XmlNode.new(reparented_struct) if reparented_struct.is_a?(FFI::Pointer)
 
         # the child was a text node that was coalesced. we need to have the object
         # point at SOMETHING, or we'll totally bomb out.
@@ -358,8 +415,10 @@ module Nokogiri
       end
 
       def self.relink_namespace(reparented_struct)
+        return if reparented_struct[:parent].null?
+
         # Make sure that our reparented node has the correct namespaces
-        if reparented_struct[:doc] != reparented_struct[:parent]
+        if reparented_struct[:ns].null? && reparented_struct[:doc] != reparented_struct[:parent]
           LibXML.xmlSetNs(reparented_struct, LibXML::XmlNode.new(reparented_struct[:parent])[:ns])
         end
 
@@ -402,3 +461,5 @@ module Nokogiri
     end
   end
 end
+class Nokogiri::XML::Element < Nokogiri::XML::Node; end
+class Nokogiri::XML::CharacterData < Nokogiri::XML::Node; end

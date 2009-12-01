@@ -1,6 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
-
-require 'rubygems'
+require "helper"
 
 class TestConvertXPath < Nokogiri::TestCase
 

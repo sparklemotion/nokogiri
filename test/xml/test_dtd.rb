@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module XML
@@ -7,6 +7,45 @@ module Nokogiri
         super
         @xml = Nokogiri::XML(File.open(XML_FILE))
         assert @dtd = @xml.internal_subset
+      end
+
+      def test_system_id
+        assert_equal 'staff.dtd', @dtd.system_id
+      end
+
+      def test_external_id
+        xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ><foo />')
+        assert dtd = xml.internal_subset
+        assert_equal 'bar', dtd.external_id
+      end
+
+      def test_content
+        assert_raise NoMethodError do
+          @dtd.content
+        end
+      end
+
+      def test_attributes
+        assert_equal ['width'], @dtd.attributes.keys
+        assert_equal '0', @dtd.attributes['width'].default
+      end
+
+      def test_namespace
+        assert_raise NoMethodError do
+          @dtd.namespace
+        end
+      end
+
+      def test_namespace_definitions
+        assert_raise NoMethodError do
+          @dtd.namespace_definitions
+        end
+      end
+
+      def test_line
+        assert_raise NoMethodError do
+          @dtd.line
+        end
       end
 
       def test_validate
@@ -22,10 +61,6 @@ module Nokogiri
       def test_entities
         assert entities = @dtd.entities
         assert_equal %w[ ent1 ent2 ent3 ent4 ent5 ].sort, entities.keys.sort
-      end
-
-      def test_attributes
-        assert_nil @dtd.attributes
       end
 
       def test_elements

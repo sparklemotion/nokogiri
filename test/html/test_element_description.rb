@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module HTML
@@ -66,7 +66,6 @@ module Nokogiri
       def test_optional_attributes
         attrs = ElementDescription['table'].optional_attributes
         assert attrs
-        assert_equal 22, attrs.length
       end
 
       def test_deprecated_attributes

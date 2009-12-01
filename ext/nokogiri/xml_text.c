@@ -18,10 +18,10 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   Data_Get_Struct(document, xmlDoc, doc);
 
   xmlNodePtr node = xmlNewText((xmlChar *)StringValuePtr(string));
-  node->doc = doc;
+  node->doc = doc->doc;
 
   VALUE rb_node = Nokogiri_wrap_xml_node(klass, node) ;
-  rb_funcall2(rb_node, rb_intern("initialize"), argc, argv);
+  rb_obj_call_init(rb_node, argc, argv);
 
   if(rb_block_given_p()) rb_yield(rb_node);
 
@@ -35,11 +35,12 @@ void init_xml_text()
   VALUE xml = rb_define_module_under(nokogiri, "XML");
   /* */
   VALUE node = rb_define_class_under(xml, "Node", rb_cObject);
+  VALUE char_data = rb_define_class_under(xml, "CharacterData", node);
 
   /*
    * Wraps Text nodes.
    */
-  VALUE klass = rb_define_class_under(xml, "Text", node);
+  VALUE klass = rb_define_class_under(xml, "Text", char_data);
 
   cNokogiriXmlText = klass;
 

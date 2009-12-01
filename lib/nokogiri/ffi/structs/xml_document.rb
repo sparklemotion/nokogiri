@@ -47,12 +47,12 @@ module Nokogiri
       end
 
       def unlinked_nodes
-        LibXML::XmlNodeSetCast.new(self[:_private].get_pointer(FFI.type_size(:pointer)))
+        LibXML::XmlNodeSetCast.new(self[:_private].get_pointer(LibXML.pointer_offset(1)))
       end
 
       def alloc_tuple
-        self[:_private] = LibXML.calloc(FFI.type_size(:pointer), 2)
-        self[:_private].put_pointer(FFI.type_size(:pointer), LibXML.xmlXPathNodeSetCreate(nil))
+        self[:_private] = LibXML.calloc(LibXML::POINTER_SIZE, 2)
+        self[:_private].put_pointer(LibXML.pointer_offset(1), LibXML.xmlXPathNodeSetCreate(nil))
       end
     end
 

@@ -28,7 +28,7 @@ static VALUE node_set(VALUE self)
   if (xpath->nodesetval)
     node_set = Nokogiri_wrap_xml_node_set(xpath->nodesetval);
 
-  if(Qnil == node_set)
+  if(NIL_P(node_set))
     node_set = Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL));
 
   rb_funcall(node_set, rb_intern("document="), 1, rb_iv_get(self, "@document"));

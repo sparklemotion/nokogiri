@@ -1,11 +1,11 @@
 module Nokogiri
   module XML
     class DTD < Nokogiri::XML::Node
-      ###
-      # Return attributes for DTD.  Always returns +nil+
-      def attributes
-        nil
-      end
+      undef_method :attribute_nodes
+      undef_method :content
+      undef_method :namespace
+      undef_method :namespace_definitions
+      undef_method :line if method_defined?(:line)
     end
   end
 end

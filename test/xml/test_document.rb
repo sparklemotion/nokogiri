@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 require 'uri'
 
@@ -10,17 +10,158 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_collect_namespaces
+        doc = Nokogiri::XML(<<-eoxml)
+        <xml>
+          <foo xmlns='hello'>
+            <bar xmlns:foo='world' />
+          </foo>
+        </xml>
+        eoxml
+        assert_equal({"xmlns"=>"hello", "xmlns:foo"=>"world"},
+          doc.collect_namespaces)
+      end
+
+      def test_subclass_initialize_modify # testing a segv
+        Class.new(Nokogiri::XML::Document) {
+          def initialize
+            super
+            body_node = Nokogiri::XML::Node.new "body", self
+            body_node.content = "stuff"
+            self.root = body_node
+          end
+        }.new
+      end
+
+      def test_create_text_node
+        txt = @xml.create_text_node 'foo'
+        assert_instance_of Nokogiri::XML::Text, txt
+        assert_equal 'foo', txt.text
+        assert_equal @xml, txt.document
+      end
+
+      def test_create_element
+        elm = @xml.create_element('foo')
+        assert_instance_of Nokogiri::XML::Element, elm
+        assert_equal 'foo', elm.name
+        assert_equal @xml, elm.document
+      end
+
+      def test_pp
+        out = StringIO.new('')
+        assert_nothing_raised do
+          ::PP.pp @xml, out
+        end
+      end
+
+      def test_create_internal_subset_on_existing_subset
+        assert_not_nil @xml.internal_subset
+        assert_raises(RuntimeError) do
+          @xml.create_internal_subset('staff', nil, 'staff.dtd')
+        end
+      end
+
+      def test_create_internal_subset
+        xml = Nokogiri::XML('<root />')
+        assert_nil xml.internal_subset
+
+        xml.create_internal_subset('name', nil, 'staff.dtd')
+        ss = xml.internal_subset
+        assert_equal 'name', ss.name
+        assert_nil ss.external_id
+        assert_equal 'staff.dtd', ss.system_id
+      end
+
+      def test_external_subset
+        assert_nil @xml.external_subset
+        Dir.chdir(ASSETS_DIR) do
+          @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) { |cfg|
+            cfg.dtdload
+          }
+        end
+        assert @xml.external_subset
+      end
+
+      def test_create_external_subset_fails_with_existing_subset
+        assert_nil @xml.external_subset
+        Dir.chdir(ASSETS_DIR) do
+          @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) { |cfg|
+            cfg.dtdload
+          }
+        end
+        assert @xml.external_subset
+
+        assert_raises(RuntimeError) do
+          @xml.create_external_subset('staff', nil, 'staff.dtd')
+        end
+      end
+
+      def test_create_external_subset
+        dtd = @xml.create_external_subset('staff', nil, 'staff.dtd')
+        assert_nil dtd.external_id
+        assert_equal 'staff.dtd', dtd.system_id
+        assert_equal 'staff', dtd.name
+        assert_equal dtd, @xml.external_subset
+      end
+
+      def test_version
+        assert_equal '1.0', @xml.version
+      end
+
+      def test_add_namespace
+        assert_raise NoMethodError do
+          @xml.add_namespace('foo', 'bar')
+        end
+      end
+
+      def test_attributes
+        assert_raise NoMethodError do
+          @xml.attributes
+        end
+      end
+
+      def test_namespace
+        assert_raise NoMethodError do
+          @xml.namespace
+        end
+      end
+
+      def test_namespace_definitions
+        assert_raise NoMethodError do
+          @xml.namespace_definitions
+        end
+      end
+
+      def test_line
+        assert_raise NoMethodError do
+          @xml.line
+        end
+      end
+
       def test_empty_node_converted_to_html_is_not_self_closing
         doc = Nokogiri::XML('<a></a>')
         assert_equal "<a></a>", doc.inner_html
       end
 
-      def test_add_child_with_fragment
+      def test_fragment
+        fragment = @xml.fragment
+        assert_equal 0, fragment.children.length
+      end
+
+      def test_add_child_fragment_with_single_node
         doc = Nokogiri::XML::Document.new
         fragment = doc.fragment('<hello />')
         doc.add_child fragment
         assert_equal '/hello', doc.at('//hello').path
         assert_equal 'hello', doc.root.name
+      end
+
+      def test_add_child_fragment_with_multiple_nodes
+        doc = Nokogiri::XML::Document.new
+        fragment = doc.fragment('<hello /><goodbye />')
+        assert_raises(RuntimeError) do
+          doc.add_child fragment
+        end
       end
 
       def test_add_child_with_multiple_roots
@@ -259,6 +400,12 @@ module Nokogiri
             cfg.strict
           }
         }
+
+        assert_raises(Nokogiri::XML::SyntaxError) {
+          Nokogiri::XML(StringIO.new('<foo><bar></foo>')) { |cfg|
+            cfg.strict
+          }
+        }
       end
 
       def test_XML_function
@@ -309,11 +456,6 @@ module Nokogiri
         assert_raises(XML::XPath::SyntaxError) {
           @xml.xpath('\\')
         }
-      end
-
-      def test_new_document_collect_namespaces
-        doc = Nokogiri::XML::Document.new
-        assert_equal({}, doc.collect_namespaces)
       end
 
       def test_find_with_namespace
@@ -454,6 +596,31 @@ module Nokogiri
         assert_equal('hello world', node.content)
         doc.root = node
         assert_equal(node, doc.root)
+      end
+
+      def test_remove_namespaces
+        doc = Nokogiri::XML <<-EOX
+          <root xmlns:a="http://a.flavorjon.es/" xmlns:b="http://b.flavorjon.es/">
+            <a:foo>hello from a</a:foo>
+            <b:foo>hello from b</b:foo>
+            <container xmlns:c="http://c.flavorjon.es/">
+              <c:foo>hello from c</c:foo>
+            </container>
+          </root>
+        EOX
+
+        # assert on setup
+        assert_equal 0, doc.xpath("//foo").length
+        assert_equal 1, doc.xpath("//a:foo").length
+        assert_equal 1, doc.xpath("//a:foo").length
+        assert_equal 1, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
+
+        doc.remove_namespaces!
+
+        assert_equal 3, doc.xpath("//foo").length
+        assert_equal 0, doc.xpath("//a:foo").length
+        assert_equal 0, doc.xpath("//a:foo").length
+        assert_equal 0, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
       end
 
       def util_decorate(document, x)

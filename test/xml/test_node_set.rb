@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module XML
@@ -6,6 +6,79 @@ module Nokogiri
       def setup
         super
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+        @list = @xml.css('employee')
+      end
+
+      def test_remove_attr
+        @list.each { |x| x['class'] = 'blah' }
+        assert_equal @list, @list.remove_attr('class')
+        @list.each { |x| assert_nil x['class'] }
+      end
+
+      def test_add_class
+        assert_equal @list, @list.add_class('bar')
+        @list.each { |x| assert_equal 'bar', x['class'] }
+
+        @list.add_class('bar')
+        @list.each { |x| assert_equal 'bar', x['class'] }
+
+        @list.add_class('baz')
+        @list.each { |x| assert_equal 'bar baz', x['class'] }
+      end
+
+      def test_remove_class_with_no_class
+        assert_equal @list, @list.remove_class('bar')
+        @list.each { |e| assert_nil e['class'] }
+
+        @list.each { |e| e['class'] = '' }
+        assert_equal @list, @list.remove_class('bar')
+        @list.each { |e| assert_nil e['class'] }
+      end
+
+      def test_remove_class_single
+        @list.each { |e| e['class'] = 'foo bar' }
+
+        assert_equal @list, @list.remove_class('bar')
+        @list.each { |e| assert_equal 'foo', e['class'] }
+      end
+
+      def test_remove_class_completely
+        @list.each { |e| e['class'] = 'foo' }
+
+        assert_equal @list, @list.remove_class
+        @list.each { |e| assert_nil e['class'] }
+      end
+
+      def test_attribute_set
+        @list.each { |e| assert_nil e['foo'] }
+
+        [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
+          @list.send(t.first.to_sym, 'foo', t.last)
+          @list.each { |e| assert_equal t.last, e['foo'] }
+        end
+      end
+
+      def test_attribute_set_with_block
+        @list.each { |e| assert_nil e['foo'] }
+
+        [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
+          @list.send(t.first.to_sym, 'foo') { |x| t.last }
+          @list.each { |e| assert_equal t.last, e['foo'] }
+        end
+      end
+
+      def test_attribute_set_with_hash
+        @list.each { |e| assert_nil e['foo'] }
+
+        [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
+          @list.send(t.first.to_sym, 'foo' => t.last)
+          @list.each { |e| assert_equal t.last, e['foo'] }
+        end
+      end
+
+      def test_attribute_no_args
+        @list.first['foo'] = 'bar'
+        assert_equal @list.first.attribute('foo'), @list.attribute('foo')
       end
 
       def test_search_empty_node_set
@@ -13,6 +86,39 @@ module Nokogiri
         assert_equal 0, set.css('foo').length
         assert_equal 0, set.xpath('.//foo').length
         assert_equal 0, set.search('foo').length
+      end
+
+      def test_xpath_with_custom_object
+        set = @xml.xpath('//staff')
+        custom_employees = set.xpath('//*[awesome(.)]', Class.new {
+          def awesome ns
+            ns.select { |n| n.name == 'employee' }
+          end
+        }.new)
+
+        assert_equal @xml.xpath('//employee'), custom_employees
+      end
+
+      def test_css_with_custom_object
+        set = @xml.xpath('//staff')
+        custom_employees = set.css('*:awesome', Class.new {
+          def awesome ns
+            ns.select { |n| n.name == 'employee' }
+          end
+        }.new)
+
+        assert_equal @xml.xpath('//employee'), custom_employees
+      end
+
+      def test_search_with_custom_object
+        set = @xml.xpath('//staff')
+        custom_employees = set.search('//*[awesome(.)]', Class.new {
+          def awesome ns
+            ns.select { |n| n.name == 'employee' }
+          end
+        }.new)
+
+        assert_equal @xml.xpath('//employee'), custom_employees
       end
 
       def test_css_searches_match_self
@@ -284,6 +390,14 @@ module Nokogiri
         assert_equal 'employee', @xml.search("//wrapper").first.children[0].name
       end
 
+      def test_wrap_preserves_document_structure
+        assert_equal "employeeId",
+                     @xml.at_xpath("//employee").children.detect{|j| ! j.text? }.name
+        @xml.xpath("//employeeId[text()='EMP0001']").wrap("<wrapper/>")
+        assert_equal "wrapper",
+                     @xml.at_xpath("//employee").children.detect{|j| ! j.text? }.name
+      end
+
       def test_plus_operator
         names = @xml.search("name")
         positions = @xml.search("position")
@@ -332,6 +446,12 @@ module Nokogiri
 
         assert_equal 3, employees.index(employees[3])
         assert_nil employees.index(other)
+      end
+
+      def test_slice_too_far
+        employees = @xml.search("//employee")
+        assert_equal employees.length, employees[0, employees.length + 1].length
+        assert_equal employees.length, employees[0, employees.length].length
       end
 
       def test_array_slice_with_start_and_end
@@ -398,6 +518,60 @@ module Nokogiri
         assert_equal count, set.length
       end
 
+      def test_inspect
+        employees = @xml.search("//employee")
+        inspected = employees.inspect
+
+        assert_equal "[#{employees.map { |x| x.inspect }.join(', ')}]",
+          inspected
+      end
+
+      def test_should_not_splode_when_accessing_namespace_declarations_in_a_node_set
+        xml = Nokogiri::XML "<foo></foo>"
+        node_set = xml.xpath("//namespace::*")
+        assert_equal 1, node_set.size
+        node = node_set.first
+        node.to_s # segfaults in 1.4.0 and earlier
+
+        # if we haven't segfaulted, let's make sure we handled it correctly
+        assert_instance_of Nokogiri::XML::Namespace, node
+      end
+
+      def test_should_not_splode_when_arrayifying_node_set_containing_namespace_declarations
+        xml = Nokogiri::XML "<foo></foo>"
+        node_set = xml.xpath("//namespace::*")
+        assert_equal 1, node_set.size
+
+        node_array = node_set.to_a
+        node = node_array.first
+        node.to_s # segfaults in 1.4.0 and earlier
+
+        # if we haven't segfaulted, let's make sure we handled it correctly
+        assert_instance_of Nokogiri::XML::Namespace, node
+      end
+
+      def test_should_not_splode_when_unlinking_node_set_containing_namespace_declarations
+        xml = Nokogiri::XML "<foo></foo>"
+        node_set = xml.xpath("//namespace::*")
+        assert_equal 1, node_set.size
+
+        node_set.unlink
+      end
+
+      def test_reverse
+        xml = Nokogiri::XML "<root><a />b<c />d<e /></root>"
+        children = xml.root.children
+        assert_instance_of Nokogiri::XML::NodeSet, children
+
+        reversed = children.reverse
+        assert_equal reversed[0], children[4]
+        assert_equal reversed[1], children[3]
+        assert_equal reversed[2], children[2]
+        assert_equal reversed[3], children[1]
+        assert_equal reversed[4], children[0]
+
+        assert_equal children, children.reverse.reverse
+      end
     end
   end
 end

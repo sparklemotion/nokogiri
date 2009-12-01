@@ -46,7 +46,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     obj = valuePop(ctx);
     switch(obj->type) {
       case XPATH_STRING:
-        argv[i] = NOKOGIRI_STR_NEW2(obj->stringval, ctx->context->doc->encoding);
+        argv[i] = NOKOGIRI_STR_NEW2(obj->stringval);
         break;
       case XPATH_BOOLEAN:
         argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
@@ -58,9 +58,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
         argv[i] = Nokogiri_wrap_xml_node_set(obj->nodesetval);
         break;
       default:
-        argv[i] = NOKOGIRI_STR_NEW2(
-            xmlXPathCastToString(obj), ctx->context->doc->encoding
-        );
+        argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
     }
     xmlXPathFreeNodeSetList(obj);
   } while(i-- > 0);
@@ -97,18 +95,15 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     case T_NIL:
       break;
     case T_ARRAY:
-      node_set = rb_funcall(
-          cNokogiriXmlNodeSet,
-          rb_intern("new"),
-          2,
-          doc,
-          result
-      );
-      Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
-      xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+      {
+        VALUE args[2] = {doc, result};
+        node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
+        Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
+        xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
+      }
       break;
     case T_DATA:
-      if(rb_funcall(result, rb_intern("is_a?"), 1, cNokogiriXmlNodeSet)) {
+      if(rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
         Data_Get_Struct(result, xmlNodeSet, xml_node_set);
         // Copy the node set, otherwise it will get GC'd.
         xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
@@ -135,9 +130,7 @@ static void xpath_exception_handler(void * ctx, xmlErrorPtr error)
   VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
   VALUE klass = rb_const_get(xpath, rb_intern("SyntaxError"));
 
-  rb_funcall(rb_mKernel, rb_intern("raise"), 1,
-    Nokogiri_wrap_xml_syntax_error(klass, error)
-  );
+  rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
 }
 
 static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
@@ -191,9 +184,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
     VALUE klass = rb_const_get(xpath, rb_intern("SyntaxError"));
 
     xmlErrorPtr error = xmlGetLastError();
-    rb_funcall(rb_mKernel, rb_intern("raise"), 1,
-        Nokogiri_wrap_xml_syntax_error(klass, error)
-    );
+    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
   }
 
   VALUE xpath_object = Nokogiri_wrap_xml_xpath(xpath);
@@ -201,11 +192,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   assert(ctx->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctx->doc));
 
-  rb_funcall( xpath_object,
-              rb_intern("document="),
-              1,
-              DOC_RUBY_OBJECT(ctx->doc)
-   );
+  rb_iv_set(xpath_object, "@document", DOC_RUBY_OBJECT(ctx->doc));
   return xpath_object;
 }
 

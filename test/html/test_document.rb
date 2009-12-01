@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module HTML
@@ -6,6 +6,11 @@ module Nokogiri
       def setup
         super
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
+      end
+
+      def test_fragment
+        fragment = @html.fragment
+        assert_equal 0, fragment.children.length
       end
 
       def test_document_takes_config_block
@@ -112,6 +117,14 @@ module Nokogiri
 #        @html.meta_encoding = 'EUC-JP'
 #        assert_equal 'EUC-JP', @html.meta_encoding
 #      end
+
+      def test_meta_encoding_without_head
+        html = Nokogiri::HTML('<html><body>foo</body></html>')
+        assert_nil html.meta_encoding
+
+        html.meta_encoding = 'EUC-JP'
+        assert_nil html.meta_encoding
+      end
 
       def test_root_node_parent_is_document
         parent = @html.root.parent

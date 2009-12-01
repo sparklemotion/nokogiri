@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module XML
@@ -11,6 +11,12 @@ module Nokogiri
       def test_new
         comment = Nokogiri::XML::Comment.new(@xml, 'hello world')
         assert_equal('<!--hello world-->', comment.to_s)
+      end
+
+      def test_comment?
+        comment = Nokogiri::XML::Comment.new(@xml, 'hello world')
+        assert(comment.comment?)
+        assert(!@xml.root.comment?)
       end
 
       def test_many_comments

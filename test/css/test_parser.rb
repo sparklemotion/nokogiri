@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module CSS
@@ -52,6 +52,11 @@ module Nokogiri
             ]
           ], asts.first.to_a
         )
+      end
+
+      def test_has
+        assert_xpath  "//a[b]", @parser.parse("a:has(b)")
+        assert_xpath  "//a[b/c]", @parser.parse("a:has(b > c)")
       end
 
       def test_dashmatch

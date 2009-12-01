@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
+require "helper"
 
 class TestNokogiri < Nokogiri::TestCase
   def test_versions
@@ -6,7 +6,7 @@ class TestNokogiri < Nokogiri::TestCase
     assert_match version_match, Nokogiri::VERSION
     assert_match version_match, Nokogiri::LIBXML_VERSION if Nokogiri.uses_libxml?
 
-    if defined?(FFI)
+    if defined?(FFI) && defined?(Nokogiri::LibXML)
       assert_equal 'ffi', Nokogiri::VERSION_INFO['libxml']['binding']
       if RUBY_PLATFORM =~ /java/
         assert_equal 'jruby', Nokogiri::VERSION_INFO['libxml']['platform']
@@ -28,6 +28,10 @@ class TestNokogiri < Nokogiri::TestCase
     minor = $2.to_i
     bug   = $3.to_i
     assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO['libxml']['loaded']
+  end
+
+  def test_libxml_iconv
+    assert Nokogiri.const_defined?(:LIBXML_ICONV_ENABLED)
   end
 
   def test_parse_with_io
@@ -69,7 +73,7 @@ class TestNokogiri < Nokogiri::TestCase
     doc = Nokogiri.make { b "bold tag" }
     assert_equal('<b>bold tag</b>', doc.to_html.chomp)
   end
-  
+
   SLOP_HTML = <<-END
   <html>
     <body>
@@ -119,7 +123,7 @@ class TestNokogiri < Nokogiri::TestCase
 
     assert_raise(NoMethodError) { doc.nonexistent }
   end
-  
+
   def test_slop_decorator
     doc = Nokogiri(SLOP_HTML)
     assert !doc.decorators(Nokogiri::XML::Node).include?(Nokogiri::Decorators::Slop)

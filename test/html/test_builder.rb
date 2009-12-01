@@ -1,8 +1,14 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module HTML
     class TestBuilder < Nokogiri::TestCase
+      def test_top_level_function_builds
+        foo = nil
+        Nokogiri() { |xml| foo = xml }
+        assert_instance_of Nokogiri::HTML::Builder, foo
+      end
+
       def test_builder_with_explicit_tags
         html_doc = Nokogiri::HTML::Builder.new {
           div.slide(:class => 'another_class') {
@@ -119,7 +125,7 @@ module Nokogiri
         assert_equal('<html><body><b>bold tag</b></body></html>',
                      builder.doc.root.to_html.chomp.gsub(/>\s*</, '><'))
       end
-      
+
       def test_instance_eval_with_delegation_to_block_context
         class << self
           def foo

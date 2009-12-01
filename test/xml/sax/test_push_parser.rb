@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', "helper"))
+require "helper"
 
 module Nokogiri
   module XML
@@ -7,6 +7,16 @@ module Nokogiri
         def setup
           super
           @parser = XML::SAX::PushParser.new(Doc.new)
+        end
+
+        def test_exception
+          assert_raises(SyntaxError) do
+            @parser << "<foo /><foo />"
+          end
+
+          assert_raises(SyntaxError) do
+            @parser << nil
+          end
         end
 
         def test_end_document_called
@@ -89,6 +99,35 @@ module Nokogiri
           eoxml
           @parser.finish
           assert_equal [' This is a comment '], @parser.document.comments
+        end
+
+        def test_default_options
+          assert_equal 0, @parser.options
+        end
+
+        def test_recover
+          @parser.options |= XML::ParseOptions::RECOVER
+          @parser.<<(<<-eoxml)
+            <p>
+              Foo
+              <bar>
+              Bar
+            </p>
+          eoxml
+          @parser.finish
+          assert(@parser.document.errors.size >= 1)
+          assert_equal [["p", []], ["bar", []]], @parser.document.start_elements
+          assert_equal "FooBar", @parser.document.data.to_s.gsub(/\s/, '')
+        end
+
+        def test_broken_encoding
+          @parser.options |= XML::ParseOptions::RECOVER
+          # This is ISO_8859-1:
+          @parser.<< "<?xml version='1.0' encoding='UTF-8'?><r>Gau\337</r>"
+          @parser.finish
+          assert(@parser.document.errors.size >= 1)
+          assert_equal "Gau\337", @parser.document.data.to_s
+          assert_equal [["r"]], @parser.document.end_elements
         end
       end
     end

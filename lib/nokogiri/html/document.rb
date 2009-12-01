@@ -1,39 +1,54 @@
 module Nokogiri
   module HTML
     class Document < Nokogiri::XML::Document
+      ###
+      # Get the meta tag encoding for this document.  If there is no meta tag,
+      # then nil is returned
+      def meta_encoding
+        return nil unless meta = css('meta').find { |node|
+          node['http-equiv'] =~ /Content-Type/i
+        }
 
-      def initialize *args
+        /charset\s*=\s*([\w\d-]+)/i.match(meta['content'])[1]
+      end
+
+      ###
+      # Set the meta tag encoding for this document.  If there is no meta 
+      # content tag, nil is returned and the encoding is not set.
+      def meta_encoding= encoding
+        return nil unless meta = css('meta').find { |node|
+          node['http-equiv'] =~ /Content-Type/i
+        }
+
+        meta['content'] = "text/html; charset=%s" % encoding
+        encoding
+      end
+
+      ####
+      # Serialize Node using +options+.  Save options can also be set using a
+      # block. See SaveOptions.
+      #
+      # These two statements are equivalent:
+      #
+      #  node.serialize(:encoding => 'UTF-8', :save_with => FORMAT | AS_XML)
+      #
+      # or
+      #
+      #   node.serialize(:encoding => 'UTF-8') do |config|
+      #     config.format.as_xml
+      #   end
+      #
+      def serialize options = {}, &block
+        options[:save_with] ||= XML::Node::SaveOptions::FORMAT |
+            XML::Node::SaveOptions::AS_HTML |
+            XML::Node::SaveOptions::NO_DECLARATION |
+            XML::Node::SaveOptions::NO_EMPTY_TAGS
         super
       end
 
       ####
-      # Serialize this Document with +encoding+ using +options+
-      def serialize *args
-        if args.first && !args.first.is_a?(Hash)
-          $stderr.puts(<<-eowarn)
-#{self.class}#serialize(encoding, save_opts) is deprecated and will be removed in
-Nokogiri version 1.4.0 *or* after June 1 2009.
-You called serialize from here:
-
-  #{caller.join("\n")}
-
-Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
-          eowarn
-        end
-
-        options = args.first.is_a?(Hash) ? args.shift : {
-          :encoding   => args[0],
-          :save_with  => args[1] || XML::Node::SaveOptions::FORMAT |
-            XML::Node::SaveOptions::AS_HTML |
-            XML::Node::SaveOptions::NO_DECLARATION |
-            XML::Node::SaveOptions::NO_EMPTY_TAGS
-        }
-        super(options)
-      end
-
-      ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+
-      def fragment tags
+      def fragment tags = nil
         DocumentFragment.new(self, tags)
       end
 
@@ -58,13 +73,13 @@ Please change to #{self.class}#serialize(:encoding => enc, :save_with => opts)
 
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-            return self.read_io(string_or_io, url, encoding, options.to_i)
+            return read_io(string_or_io, url, encoding, options.to_i)
           end
 
           # read_memory pukes on empty docs
-          return self.new if string_or_io.nil? or string_or_io.empty?
+          return new if string_or_io.nil? or string_or_io.empty?
 
-          self.read_memory(string_or_io, url, encoding, options.to_i)
+          read_memory(string_or_io, url, encoding, options.to_i)
         end
       end
 

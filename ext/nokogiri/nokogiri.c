@@ -46,12 +46,18 @@ void Init_nokogiri()
 
   rb_const_set( mNokogiri,
                 rb_intern("LIBXML_VERSION"),
-                NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION, "UTF-8")
+                NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION)
               );
   rb_const_set( mNokogiri,
                 rb_intern("LIBXML_PARSER_VERSION"),
-                NOKOGIRI_STR_NEW2(xmlParserVersion, "UTF-8")
+                NOKOGIRI_STR_NEW2(xmlParserVersion)
               );
+
+#ifdef LIBXML_ICONV_ENABLED
+  rb_const_set(mNokogiri, rb_intern("LIBXML_ICONV_ENABLED"), Qtrue);
+#else
+  rb_const_set(mNokogiri, rb_intern("LIBXML_ICONV_ENABLED"), Qfalse);
+#endif
 
   xmlInitParser();
 
@@ -68,16 +74,23 @@ void Init_nokogiri()
   init_xml_node_set();
   init_xml_xpath_context();
   init_xml_xpath();
+  init_xml_sax_parser_context();
   init_xml_sax_parser();
   init_xml_sax_push_parser();
   init_xml_reader();
   init_xml_dtd();
+  init_xml_element_content();
+  init_xml_attribute_decl();
+  init_xml_element_decl();
+  init_xml_entity_decl();
   init_xml_namespace();
-  init_html_sax_parser();
+  init_html_sax_parser_context();
   init_xslt_stylesheet();
   init_xml_syntax_error();
   init_html_entity_lookup();
   init_html_element_description();
   init_xml_schema();
   init_xml_relax_ng();
+  init_nokogiri_io();
+  init_xml_encoding_handler();
 }

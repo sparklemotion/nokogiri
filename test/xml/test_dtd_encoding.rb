@@ -1,4 +1,6 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+# -*- coding: utf-8 -*-
+
+require "helper"
 
 module Nokogiri
   module XML

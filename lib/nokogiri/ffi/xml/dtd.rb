@@ -1,7 +1,7 @@
+# :stopdoc:
 module Nokogiri
   module XML
     class DTD < Node
-      # :stopdoc:
       def validate document
         error_list = []
         ctxt = LibXML.xmlNewValidCtxt
@@ -16,6 +16,14 @@ module Nokogiri
         error_list
       end
 
+      def system_id
+        cstruct[:system_id]
+      end
+
+      def external_id
+        cstruct[:external_id]
+      end
+
       def elements
         internal_attributes :elements
       end
@@ -24,17 +32,20 @@ module Nokogiri
         internal_attributes :entities
       end
 
+      def attributes
+        internal_attributes :attributes
+      end
+
       def notations
         attr_ptr = cstruct[:notations]
         return nil if attr_ptr.null?
 
         ahash = {}
-        proc = lambda do |payload, data, name|
+        LibXML.xmlHashScan(attr_ptr, nil) do |payload, data, name|
           notation_cstruct = LibXML::XmlNotation.new(payload)
           ahash[name] = Notation.new(notation_cstruct[:name], notation_cstruct[:PublicID],
                                      notation_cstruct[:SystemID])
         end
-        LibXML.xmlHashScan(attr_ptr, proc, nil)
         ahash
       end
 
@@ -45,14 +56,12 @@ module Nokogiri
         return nil if attr_ptr.null?
 
         ahash = {}
-        proc = lambda do |payload, data, name|
+        LibXML.xmlHashScan(attr_ptr, nil) do |payload, data, name|
           ahash[name] = Node.wrap(payload)
         end
-        LibXML.xmlHashScan(attr_ptr, proc, nil)
         ahash
       end
-
-      # :startdoc:
     end
   end
 end
+# :startdoc:

@@ -1,9 +1,10 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module XML
     class TestNamespace < Nokogiri::TestCase
       def setup
+        super
         @xml = Nokogiri::XML <<-eoxml
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
             <awesome/>
@@ -16,6 +17,25 @@ module Nokogiri
           node = @xml.root.namespace
           assert @xml.instance_variable_get(:@node_cache).include?(node)
         end
+      end
+
+      def test_built_nodes_keep_namespace_decls
+        doc = Document.new
+        e   = Node.new 'element', doc
+        c   = Node.new 'child', doc
+        c.default_namespace = 'woop:de:doo'
+
+        assert c.namespace, 'has a namespace'
+        e.add_child c
+        assert c.namespace, 'has a namespace'
+
+        doc.add_child e
+        assert c.namespace, 'has a namespace'
+      end
+
+      def test_inspect
+        ns = @xml.root.namespace
+        assert_equal "#<#{ns.class.name}:#{sprintf("0x%x", ns.object_id)} href=#{ns.href.inspect}>", ns.inspect
       end
 
       def test_namespace_node_prefix

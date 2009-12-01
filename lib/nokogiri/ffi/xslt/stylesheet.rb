@@ -22,19 +22,22 @@ module Nokogiri
       end
 
       def serialize(document) # :nodoc:
-        buf_ptr = FFI::MemoryPointer.new :pointer
-        buf_len = FFI::MemoryPointer.new :int
+        buf_ptr = FFI::Buffer.new :pointer
+        buf_len = FFI::Buffer.new :int
         LibXML.xsltSaveResultToString(buf_ptr, buf_len, document.cstruct, cstruct)
-        buf = Nokogiri::LibXML::XmlAlloc.new(buf_ptr.read_pointer)
-        buf.pointer.read_string(buf_len.read_int)
+        buf = Nokogiri::LibXML::XmlAlloc.new(buf_ptr.get_pointer(0))
+        buf.pointer.read_string(buf_len.get_int(0))
       end
 
       def transform(document, params=[]) # :nodoc:
-        param_arr = FFI::MemoryPointer.new(:pointer, params.length + 1)
-        params.each_with_index do |param, j|
-          param_arr[j].put_pointer(0, FFI::MemoryPointer.from_string(param.to_s))
-        end
-        param_arr[params.length].put_pointer(0,nil)
+        param_arr = FFI::MemoryPointer.new(:pointer, params.length + 1, false)
+
+        # Keep the MemoryPointer instances alive until after the call
+        ptrs = params.map { |param | FFI::MemoryPointer.from_string(param.to_s) }
+        param_arr.put_array_of_pointer(0, ptrs)
+        
+        # Terminate the list with a NULL pointer
+        param_arr.put_pointer(LibXML.pointer_offset(params.length), nil)
 
         ptr = LibXML.xsltApplyStylesheet(cstruct, document.cstruct, param_arr)
         raise(RuntimeError, "could not perform xslt transform on document") if ptr.null?

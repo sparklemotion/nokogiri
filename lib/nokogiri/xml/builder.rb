@@ -147,6 +147,53 @@ module Nokogiri
     #
     # All other options are still supported with this syntax, including
     # blocks and extra tag attributes.
+    #
+    # == Namespaces
+    #
+    # Namespaces are added similarly to attributes.  Nokogiri::XML::Builder
+    # assumes that when an attribute starts with "xmlns", it is meant to be
+    # a namespace:
+    #
+    #   builder = Nokogiri::XML::Builder.new { |xml|
+    #     xml.root('xmlns' => 'default', 'xmlns:foo' => 'bar') do
+    #       xml.tenderlove
+    #     end
+    #   }
+    #   puts builder.to_xml
+    #
+    # Will output XML like this:
+    #
+    #   <?xml version="1.0"?>
+    #   <root xmlns:foo="bar" xmlns="default">
+    #     <tenderlove/>
+    #   </root>
+    #
+    # === Referencing declared namespaces
+    #
+    # Tags that reference non-default namespaces (i.e. a tag "foo:bar") can be
+    # built by using the Nokogiri::XML::Builder#[] method.
+    #
+    # For example:
+    #
+    #   builder = Nokogiri::XML::Builder.new do |xml|
+    #     xml.root('xmlns:foo' => 'bar') {
+    #       xml.objects {
+    #         xml['foo'].object.classy.thing!
+    #       }
+    #     }
+    #   end
+    #   puts builder.to_xml
+    #
+    # Will output this XML:
+    #
+    #   <?xml version="1.0"?>
+    #   <root xmlns:foo="bar">
+    #     <objects>
+    #       <foo:object class="classy" id="thing"/>
+    #     </objects>
+    #   </root>
+    #
+    # Note the "foo:object" tag.
     class Builder
       # The current Document object being built
       attr_accessor :doc
@@ -160,6 +207,24 @@ module Nokogiri
       attr_accessor :arity # :nodoc:
 
       ###
+      # Create a builder with an existing root object.  This is for use when
+      # you have an existing document that you would like to augment with
+      # builder methods.  The builder context created will start with the
+      # given +root+ node.
+      #
+      # For example:
+      #
+      #   doc = Nokogiri::XML(open('somedoc.xml'))
+      #   Nokogiri::XML::Builder.with(doc.at('some_tag')) do |xml|
+      #     # ... Use normal builder methods here ...
+      #     xml.awesome # add the "awesome" tag below "some_tag"
+      #   end
+      #
+      def self.with root, &block
+        builder = self.new({}, root, &block)
+      end
+
+      ###
       # Create a new Builder object.  +options+ are sent to the top level
       # Document that is being built.
       #
@@ -168,13 +233,21 @@ module Nokogiri
       #   Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       #     ...
       #   end
-      def initialize options = {}, &block
-        namespace = self.class.name.split('::')
-        namespace[-1] = 'Document'
-        @doc      = eval(namespace.join('::')).new
-        @parent   = @doc
+      def initialize options = {}, root = nil, &block
+
+        if root
+          @doc    = root.document
+          @parent = root
+        else
+          namespace     = self.class.name.split('::')
+          namespace[-1] = 'Document'
+          @doc          = eval(namespace.join('::')).new
+          @parent       = @doc
+        end
+
         @context  = nil
         @arity    = nil
+        @ns       = nil
 
         options.each do |k,v|
           @doc.send(:"#{k}=", v)
@@ -196,8 +269,7 @@ module Nokogiri
       ###
       # Create a Text Node with content of +string+
       def text string
-        node = Nokogiri::XML::Text.new(string.to_s, @doc)
-        insert(node)
+        insert @doc.create_text_node(string)
       end
 
       ###
@@ -208,20 +280,56 @@ module Nokogiri
       end
 
       ###
+      # Build a tag that is associated with namespace +ns+.  Raises an
+      # ArgumentError if +ns+ has not been defined higher in the tree.
+      def [] ns
+        @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
+        return self if @ns
+
+        @parent.ancestors.each do |a|
+          next if a == doc
+          @ns = a.namespace_definitions.find { |x| x.prefix == ns.to_s }
+          return self if @ns
+        end
+
+        raise ArgumentError, "Namespace #{ns} has not been defined"
+      end
+
+      ###
       # Convert this Builder object to XML
-      def to_xml
-        @doc.to_xml
+      def to_xml(*args)
+        @doc.to_xml(*args)
+      end
+
+      ###
+      # Append the given raw XML +string+ to the document
+      def << string
+        @doc.fragment(string).children.each { |x| insert(x) }
       end
 
       def method_missing method, *args, &block # :nodoc:
         if @context && @context.respond_to?(method)
           @context.send(method, *args, &block)
         else
-          node = Nokogiri::XML::Node.new(method.to_s.sub(/[_!]$/, ''), @doc) { |n|
+          node = @doc.create_element(method.to_s.sub(/[_!]$/, '')) { |n|
+            # Set up the namespace
+            if @ns
+              n.namespace = @ns
+              @ns = nil
+            end
+
             args.each do |arg|
               case arg
               when Hash
-                arg.each { |k,v| n[k.to_s] = v.to_s }
+                arg.each { |k,v|
+                  key = k.to_s
+                  if key =~ /^xmlns(:\w+)?$/
+                    ns_name = key.split(":", 2)[1]
+                    n.add_namespace_definition ns_name, v
+                    next
+                  end
+                  n[k.to_s] = v.to_s
+                }
               else
                 n.content = arg
               end
@@ -250,7 +358,7 @@ module Nokogiri
       end
 
       class NodeBuilder # :nodoc:
-        def initialize(node, doc_builder)
+        def initialize node, doc_builder
           @node = node
           @doc_builder = doc_builder
         end
@@ -272,7 +380,7 @@ module Nokogiri
           when /^(.*)=/
             @node[$1] = args.first
           else
-            @node['class'] = 
+            @node['class'] =
               ((@node['class'] || '').split(/\s/) + [method.to_s]).join(' ')
             @node.content = args.first if args.first
           end

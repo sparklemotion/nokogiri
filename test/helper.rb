@@ -1,12 +1,9 @@
-Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
+#Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
 $VERBOSE = true
-require 'rubygems'
 require 'test/unit'
+require 'fileutils'
 require 'tempfile'
-
-%w(../lib ../ext).each do |path|
-  $LOAD_PATH.unshift(File.expand_path(File.join(File.dirname(__FILE__), path)))
-end
+require 'pp'
 
 require 'nokogiri'
 
@@ -18,7 +15,7 @@ end
 
 module Nokogiri
   class TestCase < Test::Unit::TestCase
-    ASSETS_DIR      = File.join(File.dirname(__FILE__), 'files')
+    ASSETS_DIR      = File.expand_path File.join(File.dirname(__FILE__), 'files')
     XML_FILE        = File.join(ASSETS_DIR, 'staff.xml')
     XSLT_FILE       = File.join(ASSETS_DIR, 'staff.xslt')
     EXSLT_FILE      = File.join(ASSETS_DIR, 'exslt.xslt')
@@ -26,6 +23,7 @@ module Nokogiri
     HTML_FILE       = File.join(ASSETS_DIR, 'tlm.html')
     NICH_FILE       = File.join(ASSETS_DIR, '2ch.html')
     SHIFT_JIS_XML   = File.join(ASSETS_DIR, 'shift_jis.xml')
+    SHIFT_JIS_HTML  = File.join(ASSETS_DIR, 'shift_jis.html')
     PO_XML_FILE     = File.join(ASSETS_DIR, 'po.xml')
     PO_SCHEMA_FILE  = File.join(ASSETS_DIR, 'po.xsd')
     ADDRESS_SCHEMA_FILE = File.join(ASSETS_DIR, 'address_book.rlx')

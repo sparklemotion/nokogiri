@@ -5,7 +5,7 @@ module Nokogiri
       layout(
         :domain,  :int,
         :code,    :int,
-        :message, :string,
+        :message, :pointer,
         :level,   :int,
         :file,    :string,
         :line,    :int,

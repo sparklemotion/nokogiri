@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 require 'nkf'
 
@@ -15,6 +15,41 @@ module Nokogiri
           </body>
         </html>
         eohtml
+      end
+
+      def test_attr
+        node = @html.at('div.baz')
+        assert_equal node['class'], node.attr('class')
+      end
+
+      def test_get_attribute
+        element = @html.at('div')
+        assert_equal 'baz', element.get_attribute('class')
+        assert_equal 'baz', element['class']
+        element['href'] = "javascript:alert(\"AGGA-KA-BOO!\")"
+        assert_match(/%22AGGA-KA-BOO!%22/, element.to_html)
+      end
+
+      def test_css_path_round_trip
+        doc = Nokogiri::HTML(File.read(HTML_FILE))
+        %w{ #header small div[2] div.post body }.each do |css_sel|
+          ele = doc.at css_sel
+          assert_equal ele, doc.at(ele.css_path), ele.css_path
+        end
+      end
+
+      def test_path_round_trip
+        doc = Nokogiri::HTML(File.read(HTML_FILE))
+        %w{ #header small div[2] div.post body }.each do |css_sel|
+          ele = doc.at css_sel
+          assert_equal ele, doc.at(ele.path), ele.path
+        end
+      end
+
+      def test_append_with_document
+        assert_raises(ArgumentError) do
+          @html.root << Nokogiri::HTML::Document.new
+        end
       end
 
       ###
@@ -48,6 +83,14 @@ module Nokogiri
         assert_equal 'div', list.first.name
       end
 
+      def test_matches_inside_fragment
+        fragment = DocumentFragment.new @html
+        fragment << XML::Node.new('a', @html)
+
+        a = fragment.children.last
+        assert a.matches?('a'), 'a should match'
+      end
+
       def test_css_matches?
         assert node = @html.at('a.bar')
         assert node.matches?('a.bar')
@@ -56,6 +99,19 @@ module Nokogiri
       def test_xpath_matches?
         assert node = @html.at('//a')
         assert node.matches?('//a')
+      end
+
+      def test_unlink_then_swap
+        node = @html.at('a')
+        node.unlink
+
+        another_node = @html.at('div')
+        assert another_node, 'should have a node'
+
+        # This used to segv
+        assert_nothing_raised do
+          node.add_previous_sibling another_node
+        end
       end
 
       def test_swap
@@ -84,6 +140,11 @@ module Nokogiri
         assert node = @html.at('//body').children.first
         node.before "some text"
         assert_equal 'some text', @html.at('//body').children[0].content.strip
+      end
+
+      def test_before
+        @html.at('//div').before('<a href="awesome">town</a>')
+        assert_equal 'awesome', @html.at('//div').previous['href']
       end
 
       def test_fragment_handler_does_not_regurge_on_invalid_attributes
@@ -135,6 +196,11 @@ module Nokogiri
         assert_equal 'some text', node.next.text.strip
       end
 
+      def test_after
+        @html.at('//div').after('<a href="awesome">town</a>')
+        assert_equal 'awesome', @html.at('//div').next['href']
+      end
+
       def test_replace
         doc = Nokogiri::HTML(<<-eohtml)
           <html>
@@ -152,6 +218,7 @@ module Nokogiri
       end
 
       def test_to_html_does_not_contain_entities
+        return unless defined?(NKF) # NKF is not implemented on Rubinius as of 2009-11-23
         html = NKF.nkf("-e --msdos", <<-EOH)
         <html><body>
         <p> test paragraph

@@ -1,6 +1,6 @@
 = Nokogiri
 
-* http://nokogiri.org/
+* http://nokogiri.org
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
 * http://groups.google.com/group/nokogiri-talk
@@ -19,7 +19,6 @@ enough of it.
 * XPath support for document searching
 * CSS3 selector support for document searching
 * XML/HTML builder
-* Drop in replacement for Hpricot (though not bug for bug)
 
 Nokogiri parses and searches XML/HTML very quickly, and also has
 correctly implemented CSS3 selector support as well as XPath support.
@@ -28,12 +27,10 @@ Here is a speed test:
 
   * http://gist.github.com/24605
 
-Nokogiri also features an Hpricot compatibility layer to help ease the change
-to using correct CSS and XPath.
-
 == SUPPORT:
 
-The Nokogiri mailing list is available here:
+The Nokogiri {mailing list}[http://groups.google.com/group/nokogiri-talk]
+is available here:
 
   * http://groups.google.com/group/nokogiri-talk
 
@@ -85,9 +82,16 @@ The IRC channel is #nokogiri on freenode.
 
 * sudo gem install nokogiri
 
+
+=== Binary packages
+
+Binary packages are available for:
+
+  * SuSE[http://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/]
+
 == DEVELOPMENT:
 
-Developing Nokogiri requires racc and frex.
+Developing Nokogiri requires racc and rexical.
 
 * rake install:deps
 * rake test

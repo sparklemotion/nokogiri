@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module CSS
@@ -8,6 +8,13 @@ module Nokogiri
       def setup
         super
         @scanner = Nokogiri::CSS::Tokenizer.new
+      end
+
+      def test_has
+        @scanner.scan("a:has(b)")
+        assert_tokens(
+          [[:IDENT, "a"], [":", ":"], [:HAS, "has("], [:IDENT, "b"], [:RPAREN, ")"]],
+          @scanner)
       end
 
       def test_unicode

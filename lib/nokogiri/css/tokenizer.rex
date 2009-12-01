@@ -22,7 +22,8 @@ rule
 
 # [:state]  pattern  [actions]
 
-            {ident}\(\s*     { [:FUNCTION, text] }
+            \has\({w}        { [:HAS, text] }
+            {ident}\({w}     { [:FUNCTION, text] }
             {ident}          { [:IDENT, text] }
             \#{name}         { [:HASH, text] }
             {w}~={w}         { [:INCLUDES, text] }

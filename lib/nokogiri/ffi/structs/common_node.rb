@@ -11,7 +11,7 @@ module Nokogiri
         self[:_private] != 0 ? ObjectSpace._id2ref(self[:_private]) : nil
       end
 
-      def ruby_node=(object)
+      def ruby_node= object
         self[:_private] = object.object_id
       end
 

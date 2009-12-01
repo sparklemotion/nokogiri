@@ -1,4 +1,5 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+# -*- coding: utf-8 -*-
+require "helper"
 
 module Nokogiri
   module HTML
@@ -8,6 +9,27 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
+      def test_ancestors_search
+        html = %q{
+          <div>
+            <ul>
+              <li>foo</li>
+            </ul>
+          </div>
+        }
+        fragment = Nokogiri::HTML.fragment html
+        li = fragment.at('li')
+        assert li.matches?('li')
+      end
+
+      def test_fun_encoding
+        string = %Q(<body>こんにちは</body>)
+        html = Nokogiri::HTML::DocumentFragment.parse(
+          string
+        ).to_html(:encoding => 'UTF-8')
+        assert_equal string, html
+      end
+
       def test_new
         fragment = Nokogiri::HTML::DocumentFragment.new(@html)
       end
@@ -15,6 +37,16 @@ module Nokogiri
       def test_fragment_should_have_document
         fragment = Nokogiri::HTML::DocumentFragment.new(@html)
         assert_equal @html, fragment.document
+      end
+
+      def test_empty_fragment_should_be_searchable_by_css
+        fragment = Nokogiri::HTML.fragment("")
+        assert_equal 0, fragment.css("a").size
+      end
+
+      def test_empty_fragment_should_be_searchable
+        fragment = Nokogiri::HTML.fragment("")
+        assert_equal 0, fragment.search("//a").size
       end
 
       def test_name

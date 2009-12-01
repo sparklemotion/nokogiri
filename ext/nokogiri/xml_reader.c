@@ -54,8 +54,8 @@ static void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
     }
 
     rb_hash_aset(attr_hash,
-        NOKOGIRI_STR_NEW2(key, node->doc->encoding),
-        (ns->href ? NOKOGIRI_STR_NEW2(ns->href, node->doc->encoding) : Qnil)
+        NOKOGIRI_STR_NEW2(key),
+        (ns->href ? NOKOGIRI_STR_NEW2(ns->href) : Qnil)
     );
     if (key != buffer) {
       free(key);
@@ -163,17 +163,6 @@ static VALUE attribute_nodes(VALUE self)
   xmlNodePtr ptr = xmlTextReaderExpand(reader);
   if(ptr == NULL) return Qnil;
 
-  VALUE enc = rb_iv_get(self, "@encoding");
-
-  if(enc != Qnil && NULL == ptr->doc->encoding) {
-    ptr->doc->encoding = calloc((size_t)RSTRING_LEN(enc), sizeof(char));
-    strncpy(
-      (char *)ptr->doc->encoding,
-      StringValuePtr(enc),
-      (size_t)RSTRING_LEN(enc)
-    );
-  }
-
   Nokogiri_xml_node_properties(ptr, attr);
 
   return attr ;
@@ -190,8 +179,8 @@ static VALUE attribute_at(VALUE self, VALUE index)
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
 
-  if(index == Qnil) return Qnil;
-  index = rb_funcall(index, rb_intern("to_i"), 0);
+  if(NIL_P(index)) return Qnil;
+  index = rb_Integer(index);
 
   xmlChar * value = xmlTextReaderGetAttributeNo(
       reader,
@@ -199,9 +188,7 @@ static VALUE attribute_at(VALUE self, VALUE index)
   );
   if(value == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE rb_value = NOKOGIRI_STR_NEW2(value,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  VALUE rb_value = NOKOGIRI_STR_NEW2(value);
   xmlFree(value);
   return rb_value;
 }
@@ -218,7 +205,7 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   xmlChar *value ;
   Data_Get_Struct(self, xmlTextReader, reader);
 
-  if(name == Qnil) return Qnil;
+  if(NIL_P(name)) return Qnil;
   name = StringValue(name) ;
 
   value = xmlTextReaderGetAttribute(reader, (xmlChar*)StringValuePtr(name));
@@ -237,9 +224,7 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   }
   if(value == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  VALUE rb_value = NOKOGIRI_STR_NEW2(value,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  VALUE rb_value = NOKOGIRI_STR_NEW2(value);
   xmlFree(value);
   return rb_value;
 }
@@ -257,7 +242,7 @@ static VALUE attribute_count(VALUE self)
   int count = xmlTextReaderAttributeCount(reader);
   if(count == -1) return Qnil;
 
-  return INT2NUM(count);
+  return INT2NUM((long)count);
 }
 
 /*
@@ -273,7 +258,7 @@ static VALUE depth(VALUE self)
   int depth = xmlTextReaderDepth(reader);
   if(depth == -1) return Qnil;
 
-  return INT2NUM(depth);
+  return INT2NUM((long)depth);
 }
 
 /*
@@ -289,7 +274,7 @@ static VALUE xml_version(VALUE self)
   const char * version = (const char *)xmlTextReaderConstXmlVersion(reader);
   if(version == NULL) return Qnil;
 
-  return NOKOGIRI_STR_NEW2(version, "UTF-8");
+  return NOKOGIRI_STR_NEW2(version);
 }
 
 /*
@@ -305,9 +290,7 @@ static VALUE lang(VALUE self)
   const char * lang = (const char *)xmlTextReaderConstXmlLang(reader);
   if(lang == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(lang,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(lang);
 }
 
 /*
@@ -323,9 +306,7 @@ static VALUE value(VALUE self)
   const char * value = (const char *)xmlTextReaderConstValue(reader);
   if(value == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(value,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(value);
 }
 
 /*
@@ -341,9 +322,7 @@ static VALUE prefix(VALUE self)
   const char * prefix = (const char *)xmlTextReaderConstPrefix(reader);
   if(prefix == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(prefix,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(prefix);
 }
 
 /*
@@ -359,9 +338,7 @@ static VALUE namespace_uri(VALUE self)
   const char * uri = (const char *)xmlTextReaderConstNamespaceUri(reader);
   if(uri == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(uri,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(uri);
 }
 
 /*
@@ -377,9 +354,7 @@ static VALUE local_name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstLocalName(reader);
   if(name == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(name,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(name);
 }
 
 /*
@@ -395,9 +370,7 @@ static VALUE name(VALUE self)
   const char * name = (const char *)xmlTextReaderConstName(reader);
   if(name == NULL) return Qnil;
 
-  VALUE MAYBE_UNUSED(enc) = rb_iv_get(self, "@encoding");
-  return NOKOGIRI_STR_NEW2(name,
-      RTEST(enc) ? StringValuePtr(enc) : NULL);
+  return NOKOGIRI_STR_NEW2(name);
 }
 
 /*
@@ -410,7 +383,20 @@ static VALUE state(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
-  return INT2NUM(xmlTextReaderReadState(reader));
+  return INT2NUM((long)xmlTextReaderReadState(reader));
+}
+
+/*
+ * call-seq:
+ *   node_type
+ *
+ * Get the type of readers current node
+ */
+static VALUE node_type(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+  return INT2NUM((long)xmlTextReaderNodeType(reader));
 }
 
 /*
@@ -435,13 +421,49 @@ static VALUE read_more(VALUE self)
 
   xmlErrorPtr error = xmlGetLastError();
   if(error)
-    rb_funcall(rb_mKernel, rb_intern("raise"), 1,
-        Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error)
-    );
+    rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
   else
     rb_raise(rb_eRuntimeError, "Error pulling: %d", ret);
 
   return Qnil;
+}
+
+/*
+ * call-seq:
+ *   inner_xml
+ *
+ * Read the contents of the current node, including child nodes and markup.
+ */
+static VALUE inner_xml(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+
+  const char * value = (const char *)xmlTextReaderReadInnerXml(reader);
+
+  if(value == NULL)
+    return Qnil;
+  else
+    return NOKOGIRI_STR_NEW2(value);
+}
+
+/*
+ * call-seq:
+ *   outer_xml
+ *
+ * Read the current node and its contents, including child nodes and markup.
+ */
+static VALUE outer_xml(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+
+  const char * value = (const char *)xmlTextReaderReadOuterXml(reader);
+
+  if(value == NULL)
+    return Qnil;
+  else
+    return NOKOGIRI_STR_NEW2(value);
 }
 
 /*
@@ -479,7 +501,8 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
   }
 
   VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
-  rb_funcall(rb_reader, rb_intern("initialize"), 3, rb_buffer, rb_url, encoding);
+  VALUE args[3] = {rb_buffer, rb_url, encoding};
+  rb_obj_call_init(rb_reader, 3, args);
 
   return rb_reader;
 }
@@ -520,7 +543,8 @@ static VALUE from_io(int argc, VALUE *argv, VALUE klass)
   }
 
   VALUE rb_reader = Data_Wrap_Struct(klass, NULL, dealloc, reader);
-  rb_funcall(rb_reader, rb_intern("initialize"), 3, rb_io, rb_url, encoding);
+  VALUE args[3] = {rb_io, rb_url, encoding};
+  rb_obj_call_init(rb_reader, 3, args);
 
   return rb_reader;
 }
@@ -545,7 +569,10 @@ void init_xml_reader()
   rb_define_singleton_method(klass, "from_io", from_io, -1);
 
   rb_define_method(klass, "read", read_more, 0);
+  rb_define_method(klass, "inner_xml", inner_xml, 0);
+  rb_define_method(klass, "outer_xml", outer_xml, 0);
   rb_define_method(klass, "state", state, 0);
+  rb_define_method(klass, "node_type", node_type, 0);
   rb_define_method(klass, "name", name, 0);
   rb_define_method(klass, "local_name", local_name, 0);
   rb_define_method(klass, "namespace_uri", namespace_uri, 0);
@@ -558,8 +585,9 @@ void init_xml_reader()
   rb_define_method(klass, "attribute", reader_attribute, 1);
   rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "attribute_at", attribute_at, 1);
-  rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "attributes?", attributes_eh, 0);
   rb_define_method(klass, "value?", value_eh, 0);
   rb_define_method(klass, "default?", default_eh, 0);
+
+  rb_define_private_method(klass, "attr_nodes", attribute_nodes, 0);
 }

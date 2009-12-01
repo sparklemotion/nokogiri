@@ -67,7 +67,7 @@ module Nokogiri
         attr_accessor :encoding
 
         # Create a new Parser with +doc+ and +encoding+
-        def initialize(doc = Nokogiri::XML::SAX::Document.new, encoding = 'ASCII')
+        def initialize doc = Nokogiri::XML::SAX::Document.new, encoding = 'UTF-8'
           @encoding = encoding
           @document = doc
           @warned   = false
@@ -76,11 +76,11 @@ module Nokogiri
         ###
         # Parse given +thing+ which may be a string containing xml, or an
         # IO object.
-        def parse thing
+        def parse thing, &block
           if thing.respond_to?(:read) && thing.respond_to?(:close)
-            parse_io(thing)
+            parse_io(thing, &block)
           else
-            parse_memory(thing)
+            parse_memory(thing, &block)
           end
         end
 
@@ -88,7 +88,9 @@ module Nokogiri
         # Parse given +io+
         def parse_io io, encoding = 'ASCII'
           @encoding = encoding
-          native_parse_io io, ENCODINGS[@encoding] || ENCODINGS['ASCII']
+          ctx = ParserContext.io(io, ENCODINGS[encoding])
+          yield ctx if block_given?
+          ctx.parse_with self
         end
 
         ###
@@ -97,11 +99,16 @@ module Nokogiri
           raise ArgumentError unless filename
           raise Errno::ENOENT unless File.exists?(filename)
           raise Errno::EISDIR if File.directory?(filename)
-          native_parse_file filename
+          ctx = ParserContext.file filename
+          yield ctx if block_given?
+          ctx.parse_with self
         end
 
-        private
-        include Nokogiri::XML::SAX::LegacyHandlers
+        def parse_memory data
+          ctx = ParserContext.memory data
+          yield ctx if block_given?
+          ctx.parse_with self
+        end
       end
     end
   end

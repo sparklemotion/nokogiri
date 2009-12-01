@@ -11,15 +11,15 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   VALUE uri, external_id, rest, rb_doc;
 
   rb_scan_args(argc, argv, "0*", &rest);
-  uri         = rb_ary_entry(rest, 0);
-  external_id = rb_ary_entry(rest, 1);
+  uri         = rb_ary_entry(rest, (long)0);
+  external_id = rb_ary_entry(rest, (long)1);
 
   htmlDocPtr doc = htmlNewDoc(
       RTEST(uri) ? (const xmlChar *)StringValuePtr(uri) : NULL,
       RTEST(external_id) ? (const xmlChar *)StringValuePtr(external_id) : NULL
   );
   rb_doc = Nokogiri_wrap_xml_document(klass, doc);
-  rb_funcall2(rb_doc, rb_intern("initialize"), argc, argv);
+  rb_obj_call_init(rb_doc, argc, argv);
   return rb_doc ;
 }
 
@@ -36,8 +36,8 @@ static VALUE read_io( VALUE klass,
                       VALUE encoding,
                       VALUE options )
 {
-  const char * c_url    = (url == Qnil) ? NULL : StringValuePtr(url);
-  const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
+  const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
+  const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
   VALUE error_list      = rb_ary_new();
 
   xmlResetLastError();
@@ -49,7 +49,7 @@ static VALUE read_io( VALUE klass,
       (void *)io,
       c_url,
       c_enc,
-      NUM2INT(options)
+      (int)NUM2INT(options)
   );
   xmlSetStructuredErrorFunc(NULL, NULL);
 
@@ -58,9 +58,7 @@ static VALUE read_io( VALUE klass,
 
     xmlErrorPtr error = xmlGetLastError();
     if(error)
-      rb_funcall(rb_mKernel, rb_intern("raise"), 1,
-          Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error)
-      );
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
     else
       rb_raise(rb_eRuntimeError, "Could not parse document");
 
@@ -68,7 +66,7 @@ static VALUE read_io( VALUE klass,
   }
 
   VALUE document = Nokogiri_wrap_xml_document(klass, doc);
-  rb_funcall(document, rb_intern("errors="), 1, error_list);
+  rb_iv_set(document, "@errors", error_list);
   return document;
 }
 
@@ -86,15 +84,15 @@ static VALUE read_memory( VALUE klass,
                           VALUE options )
 {
   const char * c_buffer = StringValuePtr(string);
-  const char * c_url    = (url == Qnil) ? NULL : StringValuePtr(url);
-  const char * c_enc    = (encoding == Qnil) ? NULL : StringValuePtr(encoding);
+  const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
+  const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
   int len               = RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
-  htmlDocPtr doc = htmlReadMemory(c_buffer, len, c_url, c_enc, NUM2INT(options));
+  htmlDocPtr doc = htmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if(doc == NULL) {
@@ -102,9 +100,7 @@ static VALUE read_memory( VALUE klass,
 
     xmlErrorPtr error = xmlGetLastError();
     if(error)
-      rb_funcall(rb_mKernel, rb_intern("raise"), 1,
-          Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error)
-      );
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
     else
       rb_raise(rb_eRuntimeError, "Could not parse document");
 
@@ -112,7 +108,7 @@ static VALUE read_memory( VALUE klass,
   }
 
   VALUE document = Nokogiri_wrap_xml_document(klass, doc);
-  rb_funcall(document, rb_intern("errors="), 1, error_list);
+  rb_iv_set(document, "@errors", error_list);
   return document;
 }
 
@@ -126,41 +122,7 @@ static VALUE type(VALUE self)
 {
   htmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
-  return INT2NUM((int)doc->type);
-}
-
-/*
- * call-seq:
- *  meta_encoding=
- *
- * Set the meta tag encoding for this document.
- */
-static VALUE set_meta_encoding(VALUE self, VALUE encoding)
-{
-  htmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
-
-  htmlSetMetaEncoding(doc, (const xmlChar *)StringValuePtr(encoding));
-
-  return encoding;
-}
-
-/*
- * call-seq:
- *  meta_encoding
- *
- * Get the meta tag encoding for this document.
- */
-static VALUE meta_encoding(VALUE self)
-{
-  htmlDocPtr doc;
-  Data_Get_Struct(self, xmlDoc, doc);
-
-  const xmlChar * meta = htmlGetMetaEncoding(doc);
-
-  if(NULL == meta) return Qnil;
-
-  return NOKOGIRI_STR_NEW2(meta, doc->encoding);
+  return INT2NUM((long)doc->type);
 }
 
 VALUE cNokogiriHtmlDocument ;
@@ -180,6 +142,4 @@ void init_html_document()
   rb_define_singleton_method(klass, "new", new, -1);
 
   rb_define_method(klass, "type", type, 0);
-  rb_define_method(klass, "meta_encoding", meta_encoding, 0);
-  rb_define_method(klass, "meta_encoding=", set_meta_encoding, 1);
 }

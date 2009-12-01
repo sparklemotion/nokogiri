@@ -27,17 +27,19 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   Data_Get_Struct(self, xmlParserCtxt, ctx);
 
   const char * chunk  = NULL;
-  int last_chunk      = 0;
   int size            = 0;
 
   if(Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
     size = RSTRING_LEN(_chunk);
   }
-  if(Qtrue == _last_chunk) last_chunk = 1;
 
-  if(xmlParseChunk(ctx, chunk, size, last_chunk))
-    rb_raise(rb_eRuntimeError, "Couldn't parse chunk");
+  if(xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
+    if (!(ctx->options & XML_PARSE_RECOVER)) {
+      xmlErrorPtr e = xmlCtxtGetLastError(ctx);
+      Nokogiri_error_raise(NULL, e);
+    }
+  }
 
   return self;
 }
@@ -75,6 +77,25 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
   return self;
 }
 
+static VALUE get_options(VALUE self)
+{
+  xmlParserCtxtPtr ctx;
+  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  return INT2NUM(ctx->options);
+}
+
+static VALUE set_options(VALUE self, VALUE options)
+{
+  xmlParserCtxtPtr ctx;
+  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  if (xmlCtxtUseOptions(ctx, (int)NUM2INT(options)) != 0)
+    rb_raise(rb_eRuntimeError, "Cannot set XML parser context options");
+
+  return Qnil;
+}
+
 VALUE cNokogiriXmlSaxPushParser ;
 void init_xml_sax_push_parser()
 {
@@ -88,4 +109,6 @@ void init_xml_sax_push_parser()
   rb_define_alloc_func(klass, allocate);
   rb_define_private_method(klass, "initialize_native", initialize_native, 2);
   rb_define_private_method(klass, "native_write", native_write, 2);
+  rb_define_method(klass, "options", get_options, 0);
+  rb_define_method(klass, "options=", set_options, 1);
 }

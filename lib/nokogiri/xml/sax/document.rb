@@ -102,7 +102,16 @@ module Nokogiri
         # +prefix+ is the namespace prefix for the element
         # +uri+ is the associated namespace URI
         # +ns+ is a hash of namespace prefix:urls associated with the element
-        def start_element_namespace name, attrs = {}, prefix = nil, uri = nil, ns = {}
+        def start_element_namespace name, attrs = [], prefix = nil, uri = nil, ns = []
+          ###
+          # Deal with SAX v1 interface
+          name = [prefix, name].compact.join(':')
+          attributes = ns.map { |ns_prefix,ns_uri|
+            [['xmlns', ns_prefix].compact.join(':'), ns_uri]
+          } + attrs.map { |attr|
+            [[attr.prefix, attr.localname].compact.join(':'), attr.value]
+          }.flatten
+          start_element name, attributes
         end
 
         ###
@@ -111,6 +120,9 @@ module Nokogiri
         # +prefix+ is the namespace prefix associated with the element
         # +uri+ is the associated namespace URI
         def end_element_namespace name, prefix = nil, uri = nil
+          ###
+          # Deal with SAX v1 interface
+          end_element [prefix, name].compact.join(':')
         end
 
         ###

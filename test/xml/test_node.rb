@@ -1,4 +1,4 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 require 'stringio'
 
@@ -8,6 +8,107 @@ module Nokogiri
       def setup
         super
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+      end
+
+      def test_gt_string_arg
+        node = @xml.at('employee')
+        nodes = (node > 'name')
+        assert_equal 1, nodes.length
+        assert_equal node, nodes.first.parent
+      end
+
+      def test_next_element_when_next_sibling_is_element_should_return_next_sibling
+        doc = Nokogiri::XML "<root><foo /><quux /></root>"
+        node         = doc.at_css("foo")
+        next_element = node.next_element
+        assert next_element.element?
+        assert_equal doc.at_css("quux"), next_element
+      end
+
+      def test_next_element_when_there_is_no_next_sibling_should_return_nil
+        doc = Nokogiri::XML "<root><foo /><quux /></root>"
+        assert_nil doc.at_css("quux").next_element
+      end
+
+      def test_next_element_when_next_sibling_is_not_an_element_should_return_closest_next_element_sibling
+        doc = Nokogiri::XML "<root><foo />bar<quux /></root>"
+        node         = doc.at_css("foo")
+        next_element = node.next_element
+        assert next_element.element?
+        assert_equal doc.at_css("quux"), next_element
+      end
+
+      def test_next_element_when_next_sibling_is_not_an_element_and_no_following_element_should_return_nil
+        doc = Nokogiri::XML "<root><foo />bar</root>"
+        node         = doc.at_css("foo")
+        next_element = node.next_element
+        assert_nil next_element
+      end
+
+      def test_previous_element_when_previous_sibling_is_element_should_return_previous_sibling
+        doc = Nokogiri::XML "<root><foo /><quux /></root>"
+        node             = doc.at_css("quux")
+        previous_element = node.previous_element
+        assert previous_element.element?
+        assert_equal doc.at_css("foo"), previous_element
+      end
+
+      def test_previous_element_when_there_is_no_previous_sibling_should_return_nil
+        doc = Nokogiri::XML "<root><foo /><quux /></root>"
+        assert_nil doc.at_css("foo").previous_element
+      end
+
+      def test_previous_element_when_previous_sibling_is_not_an_element_should_return_closest_previous_element_sibling
+        doc = Nokogiri::XML "<root><foo />bar<quux /></root>"
+        node             = doc.at_css("quux")
+        previous_element = node.previous_element
+        assert previous_element.element?
+        assert_equal doc.at_css("foo"), previous_element
+      end
+
+      def test_previous_element_when_previous_sibling_is_not_an_element_and_no_following_element_should_return_nil
+        doc = Nokogiri::XML "<root>foo<bar /></root>"
+        node             = doc.at_css("bar")
+        previous_element = node.previous_element
+        assert_nil previous_element
+      end
+
+      def test_element?
+        assert @xml.root.element?, 'is an element'
+      end
+
+      def test_slash_search
+        assert_equal 'EMP0001', (@xml/:staff/:employee/:employeeId).first.text
+      end
+
+      def test_append_with_document
+        assert_raises(ArgumentError) do
+          @xml.root << Nokogiri::XML::Document.new
+        end
+      end
+
+      def test_inspect_ns
+        xml = Nokogiri::XML(<<-eoxml) { |c| c.noblanks }
+          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
+            <awesome/>
+          </root>
+        eoxml
+        ins = xml.inspect
+
+        xml.traverse do |node|
+          assert_match node.class.name, ins
+          if node.respond_to? :attributes
+            node.attributes.each do |k,v|
+              assert_match k, ins
+              assert_match v, ins
+            end
+          end
+
+          if node.respond_to?(:namespace) && node.namespace
+            assert_match node.namespace.class.name, ins
+            assert_match node.namespace.href, ins
+          end
+        end
       end
 
       def test_namespace_nodes
@@ -53,18 +154,6 @@ module Nokogiri
 
       def test_description
         assert_nil @xml.at('employee').description
-      end
-
-      def test_add_namespace_add_child
-        doc   = Nokogiri::XML::Document.new
-        item  = Nokogiri::XML::Element.new('item', doc)
-        doc.root = item
-
-        entry = Nokogiri::XML::Element.new('entry', doc)
-        entry.add_namespace('tlm', 'http://tenderlovemaking.com')
-        assert_equal 'http://tenderlovemaking.com', entry.namespaces['xmlns:tlm']
-        item.add_child(entry)
-        assert_equal 'http://tenderlovemaking.com', entry.namespaces['xmlns:tlm']
       end
 
       def test_spaceship
@@ -130,13 +219,6 @@ module Nokogiri
         apple = fruits.fragment('<Apple/>')
         fruits.root << apple
         assert_equal 1, fruits.xpath('//xmlns:Apple').length
-      end
-
-      def test_add_child_path_following_sequential_text_nodes
-        xml = Nokogiri::XML('<root>text</root>')
-        xml.root.add_child(Nokogiri::XML::Text.new('text', xml))
-        item = xml.root.add_child(Nokogiri::XML::Element.new('item', xml))
-        assert_equal '/root/item', item.path
       end
 
       def test_new_node_can_have_ancestors
@@ -279,34 +361,6 @@ module Nokogiri
         assert visitor.visited
       end
 
-      def test_replace_with_default_namespaces
-        fruits = Nokogiri::XML(<<-eoxml)
-          <fruit xmlns="http://fruits.org">
-            <apple />
-          </fruit>
-        eoxml
-
-        apple = fruits.css('apple').first
-
-        orange = Nokogiri::XML::Node.new('orange', fruits)
-        apple.replace(orange)
-
-        assert_equal orange, fruits.css('orange').first
-      end
-
-      def test_add_child_should_inherit_namespace
-        doc = Nokogiri::XML(<<-eoxml)
-          <root xmlns="http://tenderlovemaking.com/">
-            <first>
-            </first>
-          </root>
-        eoxml
-        assert node = doc.at('//xmlns:first')
-        child = Nokogiri::XML::Node.new('second', doc)
-        node.add_child(child)
-        assert doc.at('//xmlns:second')
-      end
-
       def test_write_to
         io = StringIO.new
         @xml.write_to io
@@ -423,108 +477,10 @@ module Nokogiri
         assert_nil address['domestic']
       end
 
-      def test_add_child_in_same_document
-        child = @xml.css('employee').first
-
-        assert previous_last_child = child.children.last
-        assert new_child = child.children.first
-
-        last = child.children.last
-
-        child.add_child(new_child)
-        assert_equal new_child, child.children.last
-        assert_equal last, child.children.last
-      end
-
-      def test_add_child_from_other_document
-        d1 = Nokogiri::XML("<root><item>1</item><item>2</item></root>")
-        d2 = Nokogiri::XML("<root><item>3</item><item>4</item></root>")
-
-        d2.at('root').search('item').each do |i|
-          d1.at('root').add_child i
-        end
-
-        assert_equal 0, d2.search('item').size
-        assert_equal 4, d1.search('item').size
-      end
-
-      def test_add_child
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-        text_node = Nokogiri::XML::Text.new('hello', xml)
-        assert_equal Nokogiri::XML::Node::TEXT_NODE, text_node.type
-        xml.root.add_child text_node
-        assert_match 'hello', xml.to_s
-      end
-
-      def test_chevron_works_as_add_child
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-        text_node = Nokogiri::XML::Text.new('hello', xml)
-        xml.root << text_node
-        assert_match 'hello', xml.to_s
-      end
-
       def test_set_content_with_symbol
         node = @xml.at('//name')
         node.content = :foo
         assert_equal 'foo', node.content
-      end
-
-      def test_add_previous_sibling
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-        b_node = Nokogiri::XML::Node.new('a', xml)
-        assert_equal Nokogiri::XML::Node::ELEMENT_NODE, b_node.type
-        b_node.content = 'first'
-        a_node = xml.xpath('//a').first
-        a_node.add_previous_sibling(b_node)
-        assert_equal('first', xml.xpath('//a').first.text)
-      end
-
-      def test_add_previous_sibling_merge
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-
-        assert a_tag = xml.css('a').first
-
-        left_space = a_tag.previous
-        right_space = a_tag.next
-        assert left_space.text?
-        assert right_space.text?
-
-        left_space.add_previous_sibling(right_space)
-        assert_equal left_space, right_space
-      end
-
-      def test_add_next_sibling_merge
-        xml = Nokogiri::XML(<<-eoxml)
-        <root>
-          <a>Hello world</a>
-        </root>
-        eoxml
-
-        assert a_tag = xml.css('a').first
-
-        left_space = a_tag.previous
-        right_space = a_tag.next
-        assert left_space.text?
-        assert right_space.text?
-
-        right_space.add_next_sibling(left_space)
-        assert_equal left_space, right_space
       end
 
       def test_find_by_css_with_tilde_eql
@@ -660,30 +616,6 @@ module Nokogiri
         assert_equal " ", children[3]
       end
 
-      def test_replace
-        set = @xml.search('//employee')
-        assert 5, set.length
-        assert 0, @xml.search('//form').length
-
-        first = set[0]
-        second = set[1]
-
-        node = Nokogiri::XML::Node.new('form', @xml)
-        first.replace(node)
-
-        assert set = @xml.search('//employee')
-        assert_equal 4, set.length
-        assert 1, @xml.search('//form').length
-
-        assert_equal set[0].to_xml, second.to_xml
-      end
-
-      def test_illegal_replace_of_node_with_doc
-        new_node = Nokogiri::XML.parse('<foo>bar</foo>')
-        old_node = @xml.at('//employee')
-        assert_raises(ArgumentError){ old_node.replace new_node }
-      end
-
       def test_node_equality
         doc1 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         doc2 = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
@@ -751,12 +683,9 @@ EOF
         assert_equal 'http://foo.com/', namespaces['xmlns:a']
         assert namespaces.key?('xmlns:b')
         assert_equal 'http://bar.com/', namespaces['xmlns:b']
-        assert namespaces.key?('xmlns:c')
-        assert_equal 'http://bazz.com/', namespaces['xmlns:c']
 
         assert_equal "hello a", xml.search("//a:div", xml.namespaces).first.inner_text
         assert_equal "hello b", xml.search("//b:div", xml.namespaces).first.inner_text
-        assert_equal "hello c", xml.search("//c:div", xml.namespaces).first.inner_text
       end
 
       def test_namespace
@@ -804,34 +733,6 @@ EOF
         set = xml.search("//a")
         node = set.first
         assert_equal 2, node.line
-      end
-
-      def test_unlink_then_reparent
-        # see http://github.com/tenderlove/nokogiri/issues#issue/22
-        10.times do
-          STDOUT.putc "."
-          STDOUT.flush
-          begin
-            doc = Nokogiri::XML <<-EOHTML
-              <root>
-                <a>
-                  <b/>
-                  <c/>
-                </a>
-              </root>
-            EOHTML
-
-            root = doc.at("root")
-            a = root.at("a")
-            b = a.at("b")
-            c = a.at("c")
-            a.add_next_sibling(b.unlink)
-            c.unlink
-          end
-
-          GC.start
-        end
-
       end
 
     end

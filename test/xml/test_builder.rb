@@ -1,8 +1,82 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', "helper"))
+require "helper"
 
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_with_root
+        doc = Nokogiri::XML(File.read(XML_FILE))
+        Nokogiri::XML::Builder.with(doc.at('employee')) do |xml|
+          xml.foo
+        end
+        assert_equal 1, doc.xpath('//employee/foo').length
+      end
+
+      def test_root_namespace_default_decl
+        b = Nokogiri::XML::Builder.new { |xml| xml.root(:xmlns => 'one:two') }
+        doc = b.doc
+        assert_equal 'one:two', doc.root.namespace.href
+        assert_equal({ 'xmlns' => 'one:two' }, doc.root.namespaces)
+      end
+
+      def test_root_namespace_multi_decl
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root(:xmlns => 'one:two', 'xmlns:foo' => 'bar') do
+            xml.hello
+          end
+        }
+        doc = b.doc
+        assert_equal 'one:two', doc.root.namespace.href
+        assert_equal({ 'xmlns' => 'one:two', 'xmlns:foo' => 'bar' }, doc.root.namespaces)
+
+        assert_equal 'one:two', doc.at('hello').namespace.href
+      end
+
+      def test_non_root_namespace
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root { xml.hello(:xmlns => 'one') }
+        }
+        assert_equal 'one', b.doc.at('hello', 'xmlns' => 'one').namespace.href
+      end
+
+      def test_specify_namespace
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root('xmlns:foo' => 'bar') do
+            xml[:foo].bar
+            xml['foo'].baz
+          end
+        }
+        doc = b.doc
+        assert_equal 'bar', b.doc.at('foo|bar', 'foo' => 'bar').namespace.href
+        assert_equal 'bar', b.doc.at('foo|baz', 'foo' => 'bar').namespace.href
+      end
+
+      def test_specify_namespace_nested
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root('xmlns:foo' => 'bar') do
+            xml.yay do
+              xml[:foo].bar
+
+              xml.yikes do
+                xml['foo'].baz
+              end
+            end
+          end
+        }
+        doc = b.doc
+        assert_equal 'bar', b.doc.at('foo|bar', 'foo' => 'bar').namespace.href
+        assert_equal 'bar', b.doc.at('foo|baz', 'foo' => 'bar').namespace.href
+      end
+
+      def test_specified_namespace_undeclared
+        b = Nokogiri::XML::Builder.new { |xml|
+          xml.root do
+            assert_raises(ArgumentError) do
+              xml[:foo]
+            end
+          end
+        }
+      end
+
       def test_set_encoding
         builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
           xml.root do
@@ -49,6 +123,26 @@ module Nokogiri
         assert_equal 'hello world', builder.doc.at('//root/foo').content
         assert_equal 'hello', builder.doc.at('//root/bar').content
         assert_equal 'hello', builder.doc.at('baz').content
+      end
+
+      def test_raw_append
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.root do
+            xml << 'hello'
+          end
+        end
+
+        assert_equal 'hello', builder.doc.at('/root').content
+      end
+
+      def test_raw_append_with_instance_eval
+        builder = Nokogiri::XML::Builder.new do
+          root do
+            self << 'hello'
+          end
+        end
+
+        assert_equal 'hello', builder.doc.at('/root').content
       end
 
       def test_cdata

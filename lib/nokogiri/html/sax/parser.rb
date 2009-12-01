@@ -31,7 +31,7 @@ module Nokogiri
         def parse_memory data, encoding = 'UTF-8'
           raise ArgumentError unless data
           return unless data.length > 0
-          native_parse_memory data, encoding
+          ParserContext.memory(data, encoding).parse_with self
         end
 
         ###
@@ -40,7 +40,7 @@ module Nokogiri
           raise ArgumentError unless filename
           raise Errno::ENOENT unless File.exists?(filename)
           raise Errno::EISDIR if File.directory?(filename)
-          native_parse_file filename, encoding
+          ParserContext.file(filename, encoding).parse_with self
         end
       end
     end

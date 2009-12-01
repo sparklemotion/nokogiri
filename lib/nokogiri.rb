@@ -6,8 +6,7 @@ ENV['PATH'] = [File.expand_path(
   File.join(File.dirname(__FILE__), "..", "ext", "nokogiri")
 ), ENV['PATH']].compact.join(';') if RbConfig::CONFIG['host_os'] =~ /(mswin|mingw)/i
 
-if ENV['NOKOGIRI_FFI'] 
-  gem 'ffi', '>=0.3.2'
+if ENV['NOKOGIRI_FFI']
   require 'ffi'
   require 'nokogiri/ffi/libxml'
 elsif defined? RUBY_ENGINE && RUBY_ENGINE == "jruby"
@@ -26,10 +25,9 @@ require 'nokogiri/syntax_error'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'
 require 'nokogiri/html'
-require 'nokogiri/decorators'
+require 'nokogiri/decorators/slop'
 require 'nokogiri/css'
 require 'nokogiri/html/builder'
-require 'nokogiri/hpricot'
 
 # Nokogiri parses and searches XML/HTML very quickly, and also has
 # correctly implemented CSS3 selector support as well as XPath support.

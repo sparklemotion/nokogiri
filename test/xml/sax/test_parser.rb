@@ -1,4 +1,6 @@
-require File.expand_path(File.join(File.dirname(__FILE__), '..', '..', "helper"))
+# -*- coding: utf-8 -*-
+
+require "helper"
 
 module Nokogiri
   module XML
@@ -7,6 +9,38 @@ module Nokogiri
         def setup
           super
           @parser = XML::SAX::Parser.new(Doc.new)
+        end
+
+        def test_parser_context_yielded_io
+          doc = Doc.new
+          parser = XML::SAX::Parser.new doc
+          xml = "<foo a='&amp;b'/>"
+
+          block_called = false
+          parser.parse(StringIO.new(xml)) { |ctx|
+            block_called = true
+            ctx.replace_entities = true
+          }
+
+          assert block_called
+
+          assert_equal ['a', '&b'], doc.start_elements.first.last
+        end
+
+        def test_parser_context_yielded_in_memory
+          doc = Doc.new
+          parser = XML::SAX::Parser.new doc
+          xml = "<foo a='&amp;b'/>"
+
+          block_called = false
+          parser.parse(xml) { |ctx|
+            block_called = true
+            ctx.replace_entities = true
+          }
+
+          assert block_called
+
+          assert_equal ['a', '&b'], doc.start_elements.first.last
         end
 
         def test_xml_decl
@@ -137,11 +171,15 @@ module Nokogiri
           assert_equal doc.errors.length, @parser.document.errors.length
         end
 
-        def test_parse
+        def test_parse_with_memory_argument
+          @parser.parse(File.read(XML_FILE))
+          assert(@parser.document.cdata_blocks.length > 0)
+        end
+
+        def test_parse_with_io_argument
           File.open(XML_FILE, 'rb') { |f|
             @parser.parse(f)
           }
-          @parser.parse(File.read(XML_FILE))
           assert(@parser.document.cdata_blocks.length > 0)
         end
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require File.expand_path(File.join(File.dirname(__FILE__), "helper"))
+require "helper"
 
 class TestReader < Nokogiri::TestCase
   def test_from_io_sets_io_as_source
@@ -258,6 +258,34 @@ class TestReader < Nokogiri::TestCase
     assert_nil reader.prefix
     assert_equal [nil, nil, "edi", nil, "edi", nil, nil],
       reader.map { |n| n.prefix }
+  end
+
+  def test_node_type
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x>
+      <y>hello</y>
+    </x>
+    eoxml
+    assert_equal 0, reader.node_type
+    assert_equal [1, 14, 1, 3, 15, 14, 15], reader.map { |n| n.node_type }
+  end
+
+  def test_inner_xml
+    str = "<x><y>hello</y></x>"
+    reader = Nokogiri::XML::Reader.from_memory(str)
+
+    reader.read
+
+    assert_equal "<y>hello</y>", reader.inner_xml
+  end
+
+  def test_outer_xml
+    str = "<x><y>hello</y></x>"
+    reader = Nokogiri::XML::Reader.from_memory(str)
+
+    reader.read
+
+    assert_equal str, reader.outer_xml
   end
 
   def test_state

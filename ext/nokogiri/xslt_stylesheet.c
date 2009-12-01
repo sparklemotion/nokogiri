@@ -64,7 +64,7 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
     Data_Get_Struct(xmlobj, xmlDoc, xml);
     Data_Get_Struct(self, xsltStylesheet, ss);
     xsltSaveResultToString(&doc_ptr, &doc_len, xml, ss);
-    rval = NOKOGIRI_STR_NEW(doc_ptr, doc_len, xml->encoding);
+    rval = NOKOGIRI_STR_NEW(doc_ptr, doc_len);
     xmlFree(doc_ptr);
     return rval ;
 }
@@ -94,12 +94,12 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     int param_len, j ;
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
-    if (paramobj == Qnil) { paramobj = rb_ary_new2(0) ; }
+    if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0) ; }
 
     Data_Get_Struct(xmldoc, xmlDoc, xml);
     Data_Get_Struct(self, xsltStylesheet, ss);
 
-    param_len = NUM2INT(rb_funcall(paramobj, rb_intern("length"), 0));
+    param_len = RARRAY_LEN(paramobj);
     params = calloc((size_t)param_len+1, sizeof(char*));
     for (j = 0 ; j < param_len ; j++) {
       VALUE entry = rb_ary_entry(paramobj, j);

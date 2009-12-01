@@ -62,9 +62,28 @@ module XSD # :nodoc:
         characters string
       end
 
-      %w{ start_document start_element_namespace end_element_namespace end_document comment }.each do |name|
+      def start_element_namespace name, attrs = [], prefix = nil, uri = nil, ns = []
+        ###
+        # Deal with SAX v1 interface
+        name = [prefix, name].compact.join(':')
+        attributes = ns.map { |ns_prefix,ns_uri|
+          [['xmlns', ns_prefix].compact.join(':'), ns_uri]
+        } + attrs.map { |attr|
+          [[attr.prefix, attr.localname].compact.join(':'), attr.value]
+        }.flatten
+        start_element name, attributes
+      end
+
+      def end_element_namespace name, prefix = nil, uri = nil
+        ###
+        # Deal with SAX v1 interface
+        end_element [prefix, name].compact.join(':')
+      end
+
+      %w{ xmldecl start_document end_document comment }.each do |name|
         class_eval %{ def #{name}(*args); end }
       end
+
       add_factory(self)
     end
   end

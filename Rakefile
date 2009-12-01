@@ -27,40 +27,34 @@ HOE = Hoe.spec 'nokogiri' do
   self.extra_rdoc_files  = FileList['*.rdoc']
   self.clean_globs = [
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
+    'lib/nokogiri/nokogiri.rb',
+    'lib/nokogiri/1.{8,9}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
     'cross',
   ]
 
   %w{ racc rexical rake-compiler }.each do |dep|
-    self.extra_dev_deps << dep
+    self.extra_dev_deps << [dep, '>= 0']
   end
 
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
 
-Rake::RDocTask.new('AWESOME') do |rd|
-  rd.main = HOE.readme_file
-  rd.options << '-d' if (`which dot` =~ /\/dot/) unless
-  rd.rdoc_dir = 'doc'
+task :ws_docs do
+  title = "#{HOE.name}-#{HOE.version} Documentation"
 
-  rd.rdoc_files += HOE.spec.require_paths
-  rd.rdoc_files += HOE.spec.extra_rdoc_files
+  options = []
+  options << "--main=#{HOE.readme_file}"
+  options << '--format=activerecord'
+  options << '--threads=1'
+  options << "--title=#{title.inspect}"
 
-  title = HOE.spec.rdoc_options.grep(/^(-t|--title)=?$/).first
-
-  if title then
-    rd.options << title
-
-    unless title =~ /=/ then # for ['-t', 'title here']
-      title_index = HOE.spec.rdoc_options.index(title)
-      rd.options << HOE.spec.rdoc_options[title_index + 1]
-    end
-  else
-    title = "#{HOE.name}-#{HOE.version} Documentation"
-    title = "#{HOE.rubyforge_name}'s " + title if HOE.rubyforge_name != HOE.name
-    rd.options << '--title' << title
-  end
+  options += HOE.spec.require_paths
+  options += HOE.spec.extra_rdoc_files
+  require 'rdoc/rdoc'
+  ENV['RAILS_ROOT'] ||= File.expand_path(File.join('..', 'nokogiri_ws'))
+  RDoc::RDoc.new.document options
 end
 
 unless java
@@ -155,7 +149,7 @@ end
 
 namespace :gem do
   namespace :dev do
-    task :spec do
+    task :spec => [ GENERATED_PARSER, GENERATED_TOKENIZER ] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.version = "#{HOE.version}.#{Time.now.strftime("%Y%m%d%H%M%S")}"
         f.write(HOE.spec.to_ruby)
@@ -302,6 +296,10 @@ namespace :install do
   task :rexical do
     sh "sudo gem install rexical"
   end
+end
+
+namespace :rip do
+  task :install => [GENERATED_TOKENIZER, GENERATED_PARSER]
 end
 
 # vim: syntax=Ruby
