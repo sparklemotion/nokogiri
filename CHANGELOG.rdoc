@@ -24,6 +24,7 @@
   * Fixed bugs in the SOAP4R adapter
   * Fixed bug in XML::Node#next_element for certain edge cases
   * Fixed load path issue with JRuby under Windows. GH #160.
+  * XSLT#apply_to will honor the "output method". Thanks richardlehane!
 
 === 1.4.0 / 2009/10/30
 
