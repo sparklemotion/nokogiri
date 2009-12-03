@@ -8,17 +8,7 @@ module Nokogiri
         @document       = node.document
         @stack          = [node]
         @html_eh        = node.kind_of? HTML::DocumentFragment
-
-        # the regexes used in start_element() and characters() anchor at
-        # start-of-line, but we really only want them to anchor at
-        # start-of-doc. so let's only save up to the first newline.
-        #
-        # this implementation choice was the result of some benchmarks, if
-        # you're curious: http://gist.github.com/115936
-        #
-        @original_html = original_html.lstrip
-        newline_index = @original_html.index("\n")
-        @original_html = @original_html[0,newline_index] if newline_index
+        @original_html  = prepare_for_regex(original_html)
       end
 
       def start_element name, attrs = []
@@ -52,7 +42,9 @@ module Nokogiri
       end
 
       def characters string
-        @doc_started = true if @original_html.strip =~ %r{^\s*#{Regexp.escape(string.strip)}}
+        if ! @doc_started && @original_html =~ %r{#{Regexp.escape(prepare_for_regex(string))}}
+          @doc_started = true
+        end
         @stack.last << Text.new(string, @document)
       end
 
@@ -67,6 +59,24 @@ module Nokogiri
       def end_element name
         return unless @stack.last.name == name
         @stack.pop
+      end
+
+      private
+
+      #
+      # the regexes used in start_element() and characters() anchor at
+      # start-of-line, but we really only want them to anchor at
+      # start-of-doc. so let's only save up to the first newline.
+      #
+      # this implementation choice was the result of some benchmarks, if
+      # you're curious: http://gist.github.com/115936
+      #
+      def prepare_for_regex(string)
+        string = string.lstrip
+        newline_index = string.index("\n")
+        string = string[0,newline_index] if newline_index
+        string.strip!
+        string
       end
     end
   end
