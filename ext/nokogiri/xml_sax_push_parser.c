@@ -55,7 +55,7 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
   xmlSAXHandlerPtr sax;
 
   Data_Get_Struct(_xml_sax, xmlSAXHandler, sax);
-  
+
   const char * filename = NULL;
 
   if(_filename != Qnil) filename = StringValuePtr(_filename);
