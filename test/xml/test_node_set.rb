@@ -9,6 +9,11 @@ module Nokogiri
         @list = @xml.css('employee')
       end
 
+      def test_filter
+        list = @xml.css('address').filter('*[domestic="Yes"]')
+        assert_equal(%w{ Yes } * 4, list.map { |n| n['domestic'] })
+      end
+
       def test_remove_attr
         @list.each { |x| x['class'] = 'blah' }
         assert_equal @list, @list.remove_attr('class')

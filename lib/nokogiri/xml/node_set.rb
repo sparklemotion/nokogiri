@@ -147,6 +147,12 @@ module Nokogiri
       alias :% :at
 
       ###
+      # Filter this list for nodes that match +expr+
+      def filter expr
+        find_all { |node| node.matches?(expr) }
+      end
+
+      ###
       # Append the class attribute +name+ to all Node objects in the NodeSet.
       def add_class name
         each do |el|
