@@ -26,6 +26,7 @@
   * Fixed bug in XML::Node#next_element for certain edge cases
   * Fixed load path issue with JRuby under Windows. GH #160.
   * XSLT#apply_to will honor the "output method". Thanks richardlehane!
+  * Fragments containing leading text nodes with newlines now parse properly. GH #178.
 
 === 1.4.0 / 2009/10/30
 
