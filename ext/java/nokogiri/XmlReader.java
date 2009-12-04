@@ -100,6 +100,11 @@ public class XmlReader extends RubyObject {
         return peek().getAttributesNodes();
     }
 
+    @JRubyMethod
+    public IRubyObject attr_nodes(ThreadContext context) {
+        return peek().getAttributesNodes();
+    }
+
     @JRubyMethod(name = "attributes?")
     public IRubyObject attributes_p(ThreadContext context) {
         return peek().hasAttributes();
@@ -152,6 +157,11 @@ public class XmlReader extends RubyObject {
         r.parseRubyString(context, args[0].convertToString());
 
         return r;
+    }
+
+    @JRubyMethod
+    public IRubyObject inner_xml(ThreadContext context) {
+        return peek().getValue();
     }
 
     @JRubyMethod
