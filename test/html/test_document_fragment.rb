@@ -121,8 +121,7 @@ module Nokogiri
       def test_html_fragment_with_leading_entity
         failed = "&quot;test<br/>test&quot;"
         fragment = Nokogiri::HTML::DocumentFragment.parse(failed)
-        p fragment.to_s
-        assert ! fragment.css("br").empty?
+        assert_equal '"test<br>test"', fragment.to_html
       end
 
       def test_to_s
