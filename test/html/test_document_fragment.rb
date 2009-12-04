@@ -118,6 +118,13 @@ module Nokogiri
         assert_equal "First line\nSecond line<br>Broken line", fragment.to_s
       end
 
+      def test_html_fragment_with_leading_entity
+        failed = "&quot;test<br/>test&quot;"
+        fragment = Nokogiri::HTML::DocumentFragment.parse(failed)
+        p fragment.to_s
+        assert ! fragment.css("br").empty?
+      end
+
       def test_to_s
         doc = "<span>foo<br></span><span>bar</span>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
