@@ -44,9 +44,7 @@ module Nokogiri
       end
 
       def characters string
-        if ! @doc_started && @original_html =~ %r{#{Regexp.escape(prepare_for_regex(string))}}
-          @doc_started = true
-        end
+        @doc_started = true
         @stack.last << Text.new(string, @document)
       end
 
