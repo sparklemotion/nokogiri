@@ -8,14 +8,16 @@ module Nokogiri
         @document       = node.document
         @stack          = [node]
         @html_eh        = node.kind_of? HTML::DocumentFragment
-        @original_html  = prepare_for_regex(original_html)
+        @original_html  = prepare_for_regex(original_html.strip)
       end
 
       def start_element name, attrs = []
         regex = @html_eh ? %r{^\s*<#{Regexp.escape(name)}}i :
                            %r{^\s*<#{Regexp.escape(name)}}
 
-        @doc_started = true if @original_html =~ regex
+        if ! @doc_started && @original_html =~ regex
+          @doc_started = true
+        end
         return unless @doc_started
 
         ns = nil
@@ -72,11 +74,7 @@ module Nokogiri
       # you're curious: http://gist.github.com/115936
       #
       def prepare_for_regex(string)
-        string = string.lstrip
-        newline_index = string.index("\n")
-        string = string[0,newline_index] if newline_index
-        string.strip!
-        string
+        (newline_index = string.index("\n")) ? string.slice(0,newline_index) : string
       end
     end
   end
