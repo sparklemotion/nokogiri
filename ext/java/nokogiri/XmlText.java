@@ -14,10 +14,12 @@ public class XmlText extends XmlNode {
     }
 
     @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject text, IRubyObject doc) {
-        XmlDocument xmlDoc = (XmlDocument)doc;
-        Document document = xmlDoc.getDocument();
-        Node node = document.createTextNode(text.convertToString().asJavaString());
-        return XmlNode.constructNode(context.getRuntime(), node);
-    }
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject text, IRubyObject xNode) { 
+        XmlNode xmlNode = (XmlNode)xNode; 
+        XmlDocument xmlDoc = (XmlDocument)xmlNode.document(context); 
+        Document document = xmlDoc.getDocument(); 
+        Node node = document.createTextNode(text.convertToString().asJavaString()); 
+        return XmlNode.constructNode(context.getRuntime(), node); 
+    } 
+
 }
