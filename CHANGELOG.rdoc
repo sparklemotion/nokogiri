@@ -13,7 +13,6 @@
   * Rubinius support
   * Ths CSS selector engine now supports :has()
   * XML::NodeSet#filter() was added
-  * XML::Node#add_child accepts an optional +position+ argument. GH #181
 
 * Bugfixes
 

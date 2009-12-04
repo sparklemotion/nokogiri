@@ -236,33 +236,14 @@ module Nokogiri
       # Add +node+ as a child of this Node.
       # The new node must be a Nokogiri::XML::Node or a non-empty String.
       # Returns the new child node.
-      #
-      # By default, the new child is appended to +children+ as the new "last child".
-      #
-      # The optional integer argument +position+ specifies the position of the new child:
-      # * If +position+ is zero or positive, the new child will be inserted
-      #   into that position (zero-based).
-      # * If +position+ is negative, the position will be counted from the end (similar to Array#[]).
-      def add_child(node, position=-1)
+      def add_child(node)
         Node.verify_nodeishness(node)
-
-        index = if position < 0
-                  [0, children.length + position + 1].max
-                else
-                  [position, children.length].min
-                end
-
-        if index == -1 || index == children.length
-          if node.type == DOCUMENT_FRAG_NODE
-            node.children.each do |child|
-              add_child_node child
-            end
-          else
-            add_child_node node
+        if node.type == DOCUMENT_FRAG_NODE
+          node.children.each do |child|
+            add_child_node child
           end
         else
-          sibling = children[index]
-          sibling.add_previous_sibling node
+          add_child_node node
         end
       end
 

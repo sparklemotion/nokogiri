@@ -10,51 +10,25 @@ module Nokogiri
       end
 
       def test_add_child_should_insert_at_end_of_children
-        node = Nokogiri::XML::Node.new('x', @xml)
-        @xml.root.add_child node
-        assert_equal ["a1", "a2", "a3", "x"], @xml.root.children.collect {|n| n.name}
+        text_node = Nokogiri::XML::Text.new('hello', @xml)
+        assert_equal Nokogiri::XML::Node::TEXT_NODE, text_node.type
+
+        @xml.root.add_child text_node
+
+        assert_equal @xml.root.children.last.content, 'hello'
       end
 
       def test_add_child_fragment_should_insert_fragment_roots_at_end_of_children
+        node = @xml.root.children[1]
         fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
-        @xml.root.add_child fragment
-        assert_equal ["a1", "a2", "a3", "b1", "b2"], @xml.root.children.collect {|n| n.name}
-      end
+        fc1 = fragment.children[0]
+        fc2 = fragment.children[1]
 
-      def test_add_child_with_integer_should_insert_as_nth_child
-        node = Nokogiri::XML::Node.new('x', @xml)
-        @xml.root.add_child node, 2
-        assert_equal ["a1", "a2", "x", "a3"], @xml.root.children.collect{|n| n.name}
-      end
+        node.add_child fragment
 
-      def test_add_child_fragment_with_integer_should_insert_fragment_roots_at_nth_position
-        fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
-        @xml.root.add_child fragment, 2
-        assert_equal ["a1", "a2", "b1", "b2", "a3"], @xml.root.children.collect{|n| n.name}
-      end
-
-      def test_add_child_with_integer_larger_than_children_length_should_insert_at_end_of_children
-        node = Nokogiri::XML::Node.new('x', @xml)
-        @xml.root.add_child node, @xml.root.children.length + 5
-        assert_equal ["a1", "a2", "a3", "x"], @xml.root.children.collect{|n| n.name}
-      end
-
-      def test_add_child_with_neg_integer_should_insert_as_length_minus_nth_child
-        node = Nokogiri::XML::Node.new('x', @xml)
-        @xml.root.add_child node, -2
-        assert_equal ["a1", "a2", "x", "a3"], @xml.root.children.collect{|n| n.name}
-      end
-
-      def test_add_child_fragment_with_neg_integer_should_insert_fragment_roots_at_length_minus_nth_position
-        fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
-        @xml.root.add_child fragment, 2
-        assert_equal ["a1", "a2", "b1", "b2", "a3"], @xml.root.children.collect{|n| n.name}
-      end
-
-      def test_add_child_with_neg_integer_larger_than_children_length_should_insert_at_front_of_children
-        node = Nokogiri::XML::Node.new('x', @xml)
-        @xml.root.add_child node, -(@xml.root.children.length + 5)
-        assert_equal ["x", "a1", "a2", "a3"], @xml.root.children.collect{|n| n.name}
+        assert_equal 3, node.children.length
+        assert_equal fc1, node.children[1]
+        assert_equal fc2, node.children[2]
       end
 
       def test_chevron_works_as_add_child
