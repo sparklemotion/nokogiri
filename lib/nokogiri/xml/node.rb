@@ -275,6 +275,8 @@ module Nokogiri
 
       alias :next           :next_sibling
       alias :previous       :previous_sibling
+      alias :next=          :add_next_sibling
+      alias :previous=      :add_previous_sibling
       alias :remove         :unlink
       alias :get_attribute  :[]
       alias :attr           :[]

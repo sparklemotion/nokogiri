@@ -10,25 +10,15 @@ module Nokogiri
       end
 
       def test_add_child_should_insert_at_end_of_children
-        text_node = Nokogiri::XML::Text.new('hello', @xml)
-        assert_equal Nokogiri::XML::Node::TEXT_NODE, text_node.type
-
-        @xml.root.add_child text_node
-
-        assert_equal @xml.root.children.last.content, 'hello'
+        node = Nokogiri::XML::Node.new('x', @xml)
+        @xml.root.add_child node
+        assert_equal ["a1", "a2", "a3", "x"], @xml.root.children.collect {|n| n.name}
       end
 
       def test_add_child_fragment_should_insert_fragment_roots_at_end_of_children
-        node = @xml.root.children[1]
         fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
-        fc1 = fragment.children[0]
-        fc2 = fragment.children[1]
-
-        node.add_child fragment
-
-        assert_equal 3, node.children.length
-        assert_equal fc1, node.children[1]
-        assert_equal fc2, node.children[2]
+        @xml.root.add_child fragment
+        assert_equal ["a1", "a2", "a3", "b1", "b2"], @xml.root.children.collect {|n| n.name}
       end
 
       def test_chevron_works_as_add_child
@@ -181,25 +171,21 @@ module Nokogiri
       end
 
       def test_add_next_sibling_should_insert_after
-        node = @xml.root.children[1]
-        new_node = Nokogiri::XML::Node.new('foo', @xml)
+        node = Nokogiri::XML::Node.new('x', @xml)
+        @xml.root.children[1].add_next_sibling node
+        assert_equal ["a1", "a2", "x", "a3"], @xml.root.children.collect {|n| n.name}
+      end
 
-        node.add_next_sibling(new_node)
-        assert_equal 1, @xml.root.children.index(node)
-        assert_equal 2, @xml.root.children.index(new_node)
+      def test_next_equals_should_insert_after
+        node = Nokogiri::XML::Node.new('x', @xml)
+        @xml.root.children[1].next = node
+        assert_equal ["a1", "a2", "x", "a3"], @xml.root.children.collect {|n| n.name}
       end
 
       def test_add_next_sibling_fragment_should_insert_fragment_roots_after
-        node = @xml.root.children[1]
         fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
-        fc1 = fragment.children[0]
-        fc2 = fragment.children[1]
-
-        node.add_next_sibling fragment
-
-        assert_equal 5, @xml.root.children.length
-        assert_equal fc1, @xml.root.children[2]
-        assert_equal fc2, @xml.root.children[3]
+        @xml.root.children[1].add_next_sibling fragment
+        assert_equal ["a1", "a2", "b1", "b2", "a3"], @xml.root.children.collect {|n| n.name}
       end
 
       def test_add_next_sibling_text_node_should_merge_with_adjacent_text_nodes
@@ -215,25 +201,21 @@ module Nokogiri
       end
 
       def test_add_previous_sibling_should_insert_before
-        node = @xml.root.children[1]
-        new_node = Nokogiri::XML::Node.new('foo', @xml)
+        node = Nokogiri::XML::Node.new('x', @xml)
+        @xml.root.children[1].add_previous_sibling node
+        assert_equal ["a1", "x", "a2", "a3"], @xml.root.children.collect {|n| n.name}
+      end
 
-        node.add_previous_sibling(new_node)
-        assert_equal 1, @xml.root.children.index(new_node)
-        assert_equal 2, @xml.root.children.index(node)
+      def test_previous_equals_should_insert_before
+        node = Nokogiri::XML::Node.new('x', @xml)
+        @xml.root.children[1].previous = node
+        assert_equal ["a1", "x", "a2", "a3"], @xml.root.children.collect {|n| n.name}
       end
 
       def test_add_previous_sibling_fragment_should_insert_fragment_roots_before
-        node = @xml.root.children[1]
         fragment = Nokogiri::XML.fragment("<b1>foo</b1><b2>bar</b2>")
-        fc1 = fragment.children[0]
-        fc2 = fragment.children[1]
-
-        node.add_previous_sibling fragment
-
-        assert_equal 5, @xml.root.children.length
-        assert_equal fc1, @xml.root.children[1]
-        assert_equal fc2, @xml.root.children[2]
+        @xml.root.children[1].add_previous_sibling fragment
+        assert_equal ["a1", "b1", "b2", "a2", "a3"], @xml.root.children.collect {|n| n.name}
       end
 
       def test_add_previous_sibling_text_node_should_merge_with_adjacent_text_nodes
