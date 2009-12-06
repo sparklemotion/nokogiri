@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 require "helper"
 
 module Nokogiri
@@ -117,7 +119,9 @@ module Nokogiri
           @parser.finish
           assert(@parser.document.errors.size >= 1)
           assert_equal [["p", []], ["bar", []]], @parser.document.start_elements
-          assert_equal "FooBar", @parser.document.data.to_s.gsub(/\s/, '')
+          assert_equal "FooBar", @parser.document.data.map { |x|
+            x.gsub(/\s/, '')
+          }.join
         end
 
         def test_broken_encoding
@@ -126,7 +130,7 @@ module Nokogiri
           @parser.<< "<?xml version='1.0' encoding='UTF-8'?><r>Gau\337</r>"
           @parser.finish
           assert(@parser.document.errors.size >= 1)
-          assert_equal "Gau\337", @parser.document.data.to_s
+          assert_equal "Gau\337", @parser.document.data.join
           assert_equal [["r"]], @parser.document.end_elements
         end
       end
