@@ -34,7 +34,8 @@ is available here:
 
   * http://groups.google.com/group/nokogiri-talk
 
-The bug tracker is available here:
+The {bug tracker}[http://github.com/tenderlove/nokogiri/issues]
+is available here:
 
   * http://github.com/tenderlove/nokogiri/issues
 
