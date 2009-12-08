@@ -194,6 +194,19 @@ module Nokogiri
         list
       end
 
+      def namespace_scopes
+        ns_list = LibXML.xmlGetNsList(self.cstruct[:doc], self.cstruct)
+        return [] if ns_list.null?
+
+        list = []
+        until (ns_ptr = ns_list.get_pointer(LibXML.pointer_offset(list.length))).null?
+          list << Namespace.wrap(cstruct.document, ns_ptr)
+        end
+
+        LibXML.xmlFree(ns_list)
+        list
+      end
+
       def node_type
         cstruct[:type]
       end

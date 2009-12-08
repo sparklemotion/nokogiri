@@ -703,22 +703,39 @@ module Nokogiri
         xml = Nokogiri::XML.parse(<<-EOF)
         <x xmlns='http://quux.com/' xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
           <y xmlns:c='http://bazz.com/'>
-            <a:div>hello a</a:div>
-            <b:div>hello b</b:div>
-            <c:div>hello c</c:div>
-          </y>  
+            <z>hello</z>
+            <a xmlns:c='http://newc.com/' />
+          </y>
         </x>
         EOF
 
         namespaces = xml.namespaces # Document#namespace
-        assert_equal({"xmlns" => "http://quux.com/",
+        assert_equal({"xmlns"   => "http://quux.com/",
                       "xmlns:a" => "http://foo.com/",
                       "xmlns:b" => "http://bar.com/"}, namespaces)
 
         namespaces = xml.root.namespaces
-        assert_equal({"xmlns" => "http://quux.com/",
+        assert_equal({"xmlns"   => "http://quux.com/",
                       "xmlns:a" => "http://foo.com/",
                       "xmlns:b" => "http://bar.com/"}, namespaces)
+
+        namespaces = xml.at_xpath("//xmlns:y").namespaces
+        assert_equal({"xmlns"   => "http://quux.com/",
+                      "xmlns:a" => "http://foo.com/",
+                      "xmlns:b" => "http://bar.com/",
+                      "xmlns:c" => "http://bazz.com/"}, namespaces)
+
+        namespaces = xml.at_xpath("//xmlns:z").namespaces
+        assert_equal({"xmlns"   => "http://quux.com/",
+                      "xmlns:a" => "http://foo.com/",
+                      "xmlns:b" => "http://bar.com/",
+                      "xmlns:c" => "http://bazz.com/"}, namespaces)
+
+        namespaces = xml.at_xpath("//xmlns:a").namespaces
+        assert_equal({"xmlns"   => "http://quux.com/",
+                      "xmlns:a" => "http://foo.com/",
+                      "xmlns:b" => "http://bar.com/",
+                      "xmlns:c" => "http://newc.com/"}, namespaces)
       end
 
       def test_namespace

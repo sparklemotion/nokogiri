@@ -414,7 +414,7 @@ module Nokogiri
       ###
       # Get a hash containing the Namespace definitions for this Node
       def namespaces
-        Hash[*namespace_definitions.map { |nd|
+        Hash[*namespace_scopes.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
           if RUBY_VERSION >= '1.9' && document.encoding
             begin
