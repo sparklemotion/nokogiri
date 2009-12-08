@@ -43,6 +43,12 @@ module Nokogiri
         assert(error_count < @xml.errors.length, 'errors have increased')
       end
 
+      def test_subclass_dup
+        subclass = Class.new(Nokogiri::XML::Node)
+        node = subclass.new('foo', @xml).dup
+        assert_instance_of subclass, node
+      end
+
       def test_gt_string_arg
         node = @xml.at('employee')
         nodes = (node > 'name')
@@ -144,32 +150,24 @@ module Nokogiri
         end
       end
 
-      def test_namespace_nodes
+      def test_namespace_definitions_when_some_exist
         xml = Nokogiri::XML <<-eoxml
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
             <awesome/>
           </root>
         eoxml
-        awesome = xml.root
-        namespaces = awesome.namespace_definitions
-        assert_equal 2, namespaces.length
+        namespace_definitions = xml.root.namespace_definitions
+        assert_equal 2, namespace_definitions.length
       end
 
-      def test_no_definitions
+      def test_namespace_definitions_when_no_exist
         xml = Nokogiri::XML <<-eoxml
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">
             <awesome/>
           </root>
         eoxml
-        awesome = xml.at('//xmlns:awesome')
-        namespaces = awesome.namespace_definitions
-        assert_equal 0, namespaces.length
-      end
-
-      def test_subclass_dup
-        subclass = Class.new(Nokogiri::XML::Node)
-        node = subclass.new('foo', @xml).dup
-        assert_instance_of subclass, node
+        namespace_definitions = xml.at_xpath('//xmlns:awesome').namespace_definitions
+        assert_equal 0, namespace_definitions.length
       end
 
       def test_namespace_goes_to_children
@@ -669,16 +667,16 @@ module Nokogiri
         assert_equal address1_1, address1_2 # two references to the exact same node
       end
 
-      def test_namespace_as_hash
+      def test_namespace_search_with_xpath_and_hash
         xml = Nokogiri::XML.parse(<<-eoxml)
-<root>
- <car xmlns:part="http://general-motors.com/">
-  <part:tire>Michelin Model XGV</part:tire>
- </car>
- <bicycle xmlns:part="http://schwinn.com/">
-  <part:tire>I'm a bicycle tire!</part:tire>
- </bicycle>
-</root>
+        <root>
+          <car xmlns:part="http://general-motors.com/">
+            <part:tire>Michelin Model XGV</part:tire>
+          </car>
+          <bicycle xmlns:part="http://schwinn.com/">
+            <part:tire>I'm a bicycle tire!</part:tire>
+          </bicycle>
+        </root>
         eoxml
 
         tires = xml.xpath('//bike:tire', {'bike' => 'http://schwinn.com/'})
@@ -687,58 +685,53 @@ module Nokogiri
 
       def test_namespace_search_with_css
         xml = Nokogiri::XML.parse(<<-eoxml)
-<root>
- <car xmlns:part="http://general-motors.com/">
-  <part:tire>Michelin Model XGV</part:tire>
- </car>
- <bicycle xmlns:part="http://schwinn.com/">
-  <part:tire>I'm a bicycle tire!</part:tire>
- </bicycle>
-</root>
+        <root>
+          <car xmlns:part="http://general-motors.com/">
+            <part:tire>Michelin Model XGV</part:tire>
+          </car>
+          <bicycle xmlns:part="http://schwinn.com/">
+            <part:tire>I'm a bicycle tire!</part:tire>
+          </bicycle>
+        </root>
         eoxml
 
         tires = xml.css('bike|tire', 'bike' => 'http://schwinn.com/')
         assert_equal 1, tires.length
       end
 
-      def test_namespaces
+      def test_namespaces_should_include_all_namespace_definitions
         xml = Nokogiri::XML.parse(<<-EOF)
-<x xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
-  <y xmlns:c='http://bazz.com/'>
-    <a:div>hello a</a:div>
-    <b:div>hello b</b:div>
-    <c:div>hello c</c:div>
-  </y>  
-</x>
-EOF
-        assert namespaces = xml.root.namespaces
-        assert namespaces.key?('xmlns:a')
-        assert_equal 'http://foo.com/', namespaces['xmlns:a']
-        assert namespaces.key?('xmlns:b')
-        assert_equal 'http://bar.com/', namespaces['xmlns:b']
-        assert ! namespaces.key?('xmlns:c')
+        <x xmlns='http://quux.com/' xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
+          <y xmlns:c='http://bazz.com/'>
+            <a:div>hello a</a:div>
+            <b:div>hello b</b:div>
+            <c:div>hello c</c:div>
+          </y>  
+        </x>
+        EOF
 
-        assert namespaces = xml.namespaces
-        assert namespaces.key?('xmlns:a')
-        assert_equal 'http://foo.com/', namespaces['xmlns:a']
-        assert namespaces.key?('xmlns:b')
-        assert_equal 'http://bar.com/', namespaces['xmlns:b']
+        namespaces = xml.namespaces # Document#namespace
+        assert_equal({"xmlns" => "http://quux.com/",
+                      "xmlns:a" => "http://foo.com/",
+                      "xmlns:b" => "http://bar.com/"}, namespaces)
 
-        assert_equal "hello a", xml.search("//a:div", xml.namespaces).first.inner_text
-        assert_equal "hello b", xml.search("//b:div", xml.namespaces).first.inner_text
+        namespaces = xml.root.namespaces
+        assert_equal({"xmlns" => "http://quux.com/",
+                      "xmlns:a" => "http://foo.com/",
+                      "xmlns:b" => "http://bar.com/"}, namespaces)
       end
 
       def test_namespace
         xml = Nokogiri::XML.parse(<<-EOF)
-<x xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
-  <y xmlns:c='http://bazz.com/'>
-    <a:div>hello a</a:div>
-    <b:div>hello b</b:div>
-    <c:div>hello c</c:div>
-    <div>hello moon</div>
-  </y>  
-</x>
-EOF
+        <x xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
+          <y xmlns:c='http://bazz.com/'>
+            <a:div>hello a</a:div>
+            <b:div>hello b</b:div>
+            <c:div>hello c</c:div>
+            <div>hello moon</div>
+          </y>  
+        </x>
+        EOF
         set = xml.search("//y/*")
         assert_equal "a", set[0].namespace.prefix
         assert_equal "b", set[1].namespace.prefix
@@ -749,7 +742,7 @@ EOF
       def test_namespace_without_an_href_on_html_node
         # because microsoft word's HTML formatting does this. ick.
         xml = Nokogiri::HTML.parse <<-EOF
-<div><o:p>foo</o:p></div>
+          <div><o:p>foo</o:p></div>
         EOF
 
         assert_not_nil(node = xml.at('p'))
