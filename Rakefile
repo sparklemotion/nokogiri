@@ -147,8 +147,8 @@ end
 libs = %w{
   iconv-1.9.2.win32
   zlib-1.2.3.win32
-  libxml2-2.7.3.win32
-  libxslt-1.1.24.win32
+  libxml2-2.7.6.win32
+  libxslt-1.1.26.win32
 }
 
 lib_dlls = {
