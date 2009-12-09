@@ -154,8 +154,8 @@ libs = %w{
 lib_dlls = {
   'iconv-1.9.2.win32'     => 'iconv.dll',
   'zlib-1.2.3.win32'      => 'zlib1.dll',
-  'libxml2-2.7.3.win32'   => 'libxml2.dll',
-  'libxslt-1.1.24.win32'  => 'libxslt.dll',
+  'libxml2-2.7.6.win32'   => 'libxml2.dll',
+  'libxslt-1.1.26.win32'  => 'libxslt.dll',
 }
 
 libs.each do |lib|
