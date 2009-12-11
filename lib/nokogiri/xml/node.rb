@@ -275,7 +275,12 @@ module Nokogiri
 
       alias :next           :next_sibling
       alias :previous       :previous_sibling
+
+      # :stopdoc:
+      # HACK: This is to work around an RDoc bug
       alias :next=          :add_next_sibling
+      # :startdoc:
+
       alias :previous=      :add_previous_sibling
       alias :remove         :unlink
       alias :get_attribute  :[]
