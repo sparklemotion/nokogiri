@@ -31,6 +31,13 @@ module Nokogiri
         assert_equal 'hello', list.first.name
       end
 
+      def test_parse_error_list
+        error_count = @xml.errors.length
+        list = @xml.root.parse('<hello>')
+        assert_equal 0, list.length
+        assert(error_count < @xml.errors.length, 'errors have increased')
+      end
+
       def test_gt_string_arg
         node = @xml.at('employee')
         nodes = (node > 'name')
