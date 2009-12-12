@@ -383,6 +383,18 @@ module Nokogiri
         document.fragment(tags)
       end
 
+      ###
+      # Parse +string+ as a document fragment.  Returns a XML::NodeSet
+      # containing the nodes parsed from +string+.
+      def parse string, options = ParseOptions::DEFAULT_XML
+        if Fixnum === options
+          options = Nokogiri::XML::ParseOptions.new(options)
+        end
+        # Give the options to the user
+        yield options if block_given?
+        in_context(string, options.to_i)
+      end
+
       ####
       # Set the Node content to +string+.  The content gets XML escaped.
       def content= string

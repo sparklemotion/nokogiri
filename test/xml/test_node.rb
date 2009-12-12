@@ -10,6 +10,21 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_parse
+        list = @xml.root.parse('fooooooo <hello />')
+        assert_equal 2, list.length
+      end
+
+      def test_parse_with_block
+        called = false
+        list = @xml.root.parse('<hello />') { |cfg|
+          called = true
+          assert_instance_of Nokogiri::XML::ParseOptions, cfg
+        }
+        assert called, 'config block called'
+        assert_equal 1, list.length
+      end
+
       def test_gt_string_arg
         node = @xml.at('employee')
         nodes = (node > 'name')
