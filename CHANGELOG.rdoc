@@ -1,3 +1,10 @@
+=== HEAD
+
+* New Features
+
+  * XML::Node#parse will parse XML or HTML fragments with respect to the
+    context node.
+
 === 1.4.1 / 2009/12/10
 
 * New Features
