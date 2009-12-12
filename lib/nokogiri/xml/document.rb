@@ -37,6 +37,7 @@ module Nokogiri
       attr_accessor :errors
 
       def initialize *args
+        @errors     = []
         @decorators = nil
       end
 

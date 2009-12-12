@@ -397,6 +397,8 @@ module Nokogiri
         contents = string_or_io.respond_to?(:read) ?
           string_or_io.read :
           string_or_io
+
+        return Nokogiri::XML::NodeSet.new(document) if contents.empty?
         in_context(contents, options.to_i)
       end
 
