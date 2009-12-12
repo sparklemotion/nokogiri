@@ -25,6 +25,12 @@ module Nokogiri
         assert_equal 1, list.length
       end
 
+      def test_parse_with_io
+        list = @xml.root.parse(StringIO.new('<hello />'))
+        assert_equal 1, list.length
+        assert_equal 'hello', list.first.name
+      end
+
       def test_gt_string_arg
         node = @xml.at('employee')
         nodes = (node > 'name')

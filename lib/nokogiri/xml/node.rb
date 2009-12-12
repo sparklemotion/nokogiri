@@ -384,15 +384,19 @@ module Nokogiri
       end
 
       ###
-      # Parse +string+ as a document fragment.  Returns a XML::NodeSet
-      # containing the nodes parsed from +string+.
-      def parse string, options = ParseOptions::DEFAULT_XML
+      # Parse +string_or_io+ as a document fragment.  Returns a XML::NodeSet
+      # containing the nodes parsed from +string_or_io+.
+      def parse string_or_io, options = ParseOptions::DEFAULT_XML
         if Fixnum === options
           options = Nokogiri::XML::ParseOptions.new(options)
         end
         # Give the options to the user
         yield options if block_given?
-        in_context(string, options.to_i)
+
+        contents = string_or_io.respond_to?(:read) ?
+          string_or_io.read :
+          string_or_io
+        in_context(contents, options.to_i)
       end
 
       ####
