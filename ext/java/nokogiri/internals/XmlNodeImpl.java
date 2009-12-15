@@ -1,16 +1,16 @@
 package nokogiri.internals;
 
 import nokogiri.*;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.Text;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 /**
  *
@@ -175,15 +175,27 @@ public class XmlNodeImpl {
             }
         }
 
-        try{
-            current.getNode().appendChild(appended);
-        } catch (Exception ex) {
-            throw context.getRuntime().newRuntimeError(ex.toString());
+        Node currentNode = current.getNode();
+        if(appended.getNodeType() == Node.TEXT_NODE && currentNode instanceof Document) {
+            Node newNode = ((Document) currentNode).createElement("xml");
+            newNode.appendChild(appended);
+            appendChild(context, currentNode, newNode);
+        } else {
+            appendChild(context, currentNode, appended);
         }
 
         child.relink_namespace(context);
         
         current.post_add_child(context, current, child);
+    }
+
+    private void appendChild(ThreadContext context, Node parent, Node child)
+    {
+        try {
+            parent.appendChild(child);
+        } catch (Exception ex) {
+            throw context.getRuntime().newRuntimeError(ex.toString());
+        }
     }
 
     public void add_namespace_definitions(ThreadContext context, XmlNode current, XmlNamespace ns, String prefix, String href) {}

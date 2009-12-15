@@ -367,6 +367,11 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
+    public IRubyObject add_child_node(ThreadContext context, IRubyObject child) {
+        return add_child(context, child);
+    }
+
+    @JRubyMethod
     public IRubyObject add_namespace_definition(ThreadContext context, IRubyObject prefix, IRubyObject href) {
         String prefixString = prefix.isNil() ? "" : prefix.convertToString().asJavaString();
         String hrefString = href.convertToString().asJavaString();

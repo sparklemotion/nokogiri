@@ -44,6 +44,7 @@ public class HtmlParseOptions extends ParseOptions{
         config.setProperty("http://cyberneko.org/html/properties/names/attrs", "lower");
 
         DOMParser parser = new DOMParser(config);
+        parser.setFeature("http://xml.org/sax/features/namespaces", false);
 //        parser.setProperty("http://cyberneko.org/html/properties/filters",
 //              new XMLDocumentFilter[] { new DefaultFilter() {
 //                  @Override

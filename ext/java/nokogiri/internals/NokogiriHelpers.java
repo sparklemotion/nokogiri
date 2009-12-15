@@ -253,10 +253,14 @@ public class NokogiriHelpers {
     }
 
     protected static boolean compareTwoNodes(Node m, Node n) {
-        return (m.getLocalName().equals(n.getLocalName()) &&
-                (((m.getPrefix() == null) && (n.getPrefix() == null)) ||
-                (m.getPrefix() != null) && (n.getPrefix() != null) &&
-                (n.getPrefix().equals(m.getPrefix()))));
+        return nodesAreEqual(m.getLocalName(), n.getLocalName()) &&
+               nodesAreEqual(m.getPrefix(), n.getPrefix());
+    }
+
+    private static boolean nodesAreEqual(Object a, Object b) {
+      return (((a == null) && (a == null)) ||
+                (a != null) && (b != null) &&
+                (b.equals(a)));
     }
 
     public static String encodeJavaString(String s) {
