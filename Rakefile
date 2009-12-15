@@ -14,7 +14,7 @@ EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml xercesImpl}.map{|x| "lib/#{x
 JAVA_EXT = "lib/nokogiri/nokogiri.jar"
 JRUBY_HOME = Config::CONFIG['prefix']
 
-require 'nokogiri/version'
+#require 'nokogiri/version'
 
 # Make sure hoe-debugging is installed
 Hoe.plugin :debugging
