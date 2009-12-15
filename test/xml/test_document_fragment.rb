@@ -139,6 +139,27 @@ module Nokogiri
         frag = doc.fragment "<baz:newnode></baz:newnode>"
         assert_nil frag.children.first.namespace
       end
+
+      def test_decorator_is_applied
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+        fragment = Nokogiri::XML::DocumentFragment.new(@xml, "<div>a</div><div>b</div>")
+
+        assert node_set = fragment.css('div')
+        assert node_set.respond_to?(:awesome!)
+        node_set.each do |node|
+          assert node.respond_to?(:awesome!), node.class
+        end
+      end
+
+      def util_decorate(document, x)
+        document.decorators(XML::Node) << x
+        document.decorators(XML::NodeSet) << x
+        document.decorate!
+      end
     end
   end
 end
