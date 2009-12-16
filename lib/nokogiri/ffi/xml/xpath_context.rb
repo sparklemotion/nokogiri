@@ -43,7 +43,7 @@ module Nokogiri
 
         xpath = XML::XPath.new
         xpath.cstruct = LibXML::XmlXpathObject.new(xpath_ptr)
-        xpath.document = cstruct[:doc]
+        xpath.document = cstruct.document.ruby_doc
         xpath
       end
 
@@ -66,8 +66,8 @@ module Nokogiri
       def ruby_funcall(name, xpath_handler) # :nodoc:
         lambda do |ctx, nargs|
           parser_context = LibXML::XmlXpathParserContext.new(ctx)
-          context = parser_context.context
-          doc = context.doc.ruby_doc
+          context_cstruct = parser_context.context
+          doc = context_cstruct.document.ruby_doc
 
           params = []
 
