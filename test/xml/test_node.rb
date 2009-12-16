@@ -766,6 +766,25 @@ EOF
         assert_equal 2, node.line
       end
 
+      def test_xpath_results_have_document_and_are_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set = @xml.xpath("//employee")
+        assert_equal @xml, node_set.document
+        assert node_set.respond_to?(:awesome!)
+      end
+
+      def test_css_results_have_document_and_are_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set = @xml.css("employee")
+        assert_equal @xml, node_set.document
+        assert node_set.respond_to?(:awesome!)
+      end
     end
   end
 end

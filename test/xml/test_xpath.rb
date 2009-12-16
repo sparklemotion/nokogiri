@@ -27,6 +27,10 @@ module Nokogiri
           def my_filter set, attribute, value
             set.find_all { |x| x[attribute] == value }
           end
+
+          def saves_node_set node_set
+            @things = node_set
+          end
         }.new
       end
 
@@ -93,6 +97,17 @@ module Nokogiri
         @xml.xpath('//employee[returns_array(name)]', @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
+      end
+
+      def test_custom_xpath_handler_is_passed_a_decorated_node_set
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        set = @xml.xpath('//employee/name')
+        @xml.xpath('//employee[saves_node_set(name)]', @handler)
+        assert_equal @xml, @handler.things.document
+        assert @handler.things.respond_to?(:awesome!)
       end
 
       def test_code_that_invokes_OP_RESET_inside_libxml2

@@ -26,12 +26,10 @@ static VALUE node_set(VALUE self)
   VALUE node_set = Qnil;
 
   if (xpath->nodesetval)
-    node_set = Nokogiri_wrap_xml_node_set(xpath->nodesetval);
+    node_set = Nokogiri_wrap_xml_node_set(xpath->nodesetval, rb_iv_get(self, "@document"));
 
   if(NIL_P(node_set))
-    node_set = Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL));
-
-  rb_funcall(node_set, rb_intern("document="), 1, rb_iv_get(self, "@document"));
+    node_set = Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL), rb_iv_get(self, "@document"));
 
   return node_set;
 }

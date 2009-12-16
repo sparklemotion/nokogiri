@@ -153,12 +153,7 @@ module Nokogiri
         node_set.each do |node|
           assert node.respond_to?(:awesome!), node.class
         end
-      end
-
-      def util_decorate(document, x)
-        document.decorators(XML::Node) << x
-        document.decorators(XML::NodeSet) << x
-        document.decorate!
+        assert fragment.children.respond_to?(:awesome!), fragment.children.class
       end
     end
   end

@@ -13,6 +13,7 @@ module Nokogiri
       # Create a NodeSet with +document+ defaulting to +list+
       def initialize document, list = []
         @document = document
+        document.decorate(self)
         list.each { |x| self << x }
         yield self if block_given?
       end

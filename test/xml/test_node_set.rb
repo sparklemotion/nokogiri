@@ -577,6 +577,64 @@ module Nokogiri
 
         assert_equal children, children.reverse.reverse
       end
+
+      def test_node_set_dup_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set = @xml.css("address")
+        new_set  = node_set.dup
+        assert_equal node_set.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_node_set_union_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set1 = @xml.css("address")
+        node_set2 = @xml.css("address")
+        new_set  = node_set1 | node_set2
+        assert_equal node_set1.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_node_set_intersection_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set1 = @xml.css("address")
+        node_set2 = @xml.css("address")
+        new_set  = node_set1 & node_set2
+        assert_equal node_set1.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_node_set_difference_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set1 = @xml.css("address")
+        node_set2 = @xml.css("address")
+        new_set  = node_set1 - node_set2
+        assert_equal node_set1.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_node_set_slice_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set = @xml.css("address")
+        new_set  = node_set[0..-1]
+        assert_equal node_set.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
     end
   end
 end

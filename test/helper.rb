@@ -52,6 +52,12 @@ module Nokogiri
         assert_equal(0, len % amount, message)
       end
     end
+
+    def util_decorate(document, decorator_module)
+      document.decorators(XML::Node) << decorator_module
+      document.decorators(XML::NodeSet) << decorator_module
+      document.decorate!
+    end
   end
 
   module SAX

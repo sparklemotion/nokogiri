@@ -55,7 +55,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
         argv[i] = rb_float_new(obj->floatval);
         break;
       case XPATH_NODESET:
-        argv[i] = Nokogiri_wrap_xml_node_set(obj->nodesetval);
+        argv[i] = Nokogiri_wrap_xml_node_set(obj->nodesetval, doc);
         break;
       default:
         argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));

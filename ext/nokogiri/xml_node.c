@@ -431,7 +431,9 @@ static VALUE children(VALUE self)
   xmlNodePtr child = node->children;
   xmlNodeSetPtr set = xmlXPathNodeSetCreate(child);
 
-  if(!child) return Nokogiri_wrap_xml_node_set(set);
+  VALUE document = DOC_RUBY_OBJECT(node->doc);
+
+  if(!child) return Nokogiri_wrap_xml_node_set(set, document);
 
   child = child->next;
   while(NULL != child) {
@@ -439,8 +441,7 @@ static VALUE children(VALUE self)
     child = child->next;
   }
 
-  VALUE node_set = Nokogiri_wrap_xml_node_set(set);
-  rb_iv_set(node_set, "@document", DOC_RUBY_OBJECT(node->doc));
+  VALUE node_set = Nokogiri_wrap_xml_node_set(set, document);
 
   return node_set;
 }
@@ -961,7 +962,7 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
     list = list->next;
   }
 
-  return Nokogiri_wrap_xml_node_set(set);
+  return Nokogiri_wrap_xml_node_set(set, Qnil); // TODO: write a test to make me pass document
 }
 
 VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)

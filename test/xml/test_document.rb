@@ -540,38 +540,6 @@ module Nokogiri
         assert dup.xml?, 'duplicate should be xml'
       end
 
-      def test_subset_is_decorated
-        x = Module.new do
-          def awesome!
-          end
-        end
-        util_decorate(@xml, x)
-
-        assert @xml.respond_to?(:awesome!)
-        assert node_set = @xml.search('//staff')
-        assert node_set.respond_to?(:awesome!)
-        assert subset = node_set.search('.//employee')
-        assert subset.respond_to?(:awesome!)
-        assert sub_subset = node_set.search('.//name')
-        assert sub_subset.respond_to?(:awesome!)
-      end
-
-      def test_decorator_is_applied
-        x = Module.new do
-          def awesome!
-          end
-        end
-        util_decorate(@xml, x)
-
-        assert @xml.respond_to?(:awesome!)
-        assert node_set = @xml.search('//employee')
-        assert node_set.respond_to?(:awesome!)
-        node_set.each do |node|
-          assert node.respond_to?(:awesome!), node.class
-        end
-        assert @xml.root.respond_to?(:awesome!)
-      end
-
       def test_new
         doc = nil
         assert_nothing_raised {
@@ -623,10 +591,37 @@ module Nokogiri
         assert_equal 0, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
       end
 
-      def util_decorate(document, x)
-        document.decorators(XML::Node) << x
-        document.decorators(XML::NodeSet) << x
-        document.decorate!
+      def test_subset_is_decorated
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+
+        assert @xml.respond_to?(:awesome!)
+        assert node_set = @xml.search('//staff')
+        assert node_set.respond_to?(:awesome!)
+        assert subset = node_set.search('.//employee')
+        assert subset.respond_to?(:awesome!)
+        assert sub_subset = node_set.search('.//name')
+        assert sub_subset.respond_to?(:awesome!)
+      end
+
+      def test_decorator_is_applied
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+
+        assert @xml.respond_to?(:awesome!)
+        assert node_set = @xml.search('//employee')
+        assert node_set.respond_to?(:awesome!)
+        node_set.each do |node|
+          assert node.respond_to?(:awesome!), node.class
+        end
+        assert @xml.root.respond_to?(:awesome!)
+        assert @xml.children.respond_to?(:awesome!)
       end
     end
   end

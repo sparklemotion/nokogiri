@@ -139,15 +139,11 @@ module Nokogiri
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
-          set = ctx.evaluate(path, handler).node_set
-          set.document = document
-          document.decorate(set)
-          set
+          ctx.evaluate(path, handler).node_set
         }
         return sets.first if sets.length == 1
 
         NodeSet.new(document) do |combined|
-          document.decorate(combined)
           sets.each do |set|
             set.each do |node|
               combined << node
