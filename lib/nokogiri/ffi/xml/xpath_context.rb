@@ -67,7 +67,7 @@ module Nokogiri
         lambda do |ctx, nargs|
           parser_context = LibXML::XmlXpathParserContext.new(ctx)
           context_cstruct = parser_context.context
-          doc = context_cstruct.document.ruby_doc
+          document = context_cstruct.document.ruby_doc
 
           params = []
 
@@ -81,10 +81,7 @@ module Nokogiri
             when LibXML::XmlXpathObject::XPATH_NUMBER
               params.unshift obj[:floatval]
             when LibXML::XmlXpathObject::XPATH_NODESET
-              ns_ptr = LibXML::XmlNodeSet.new(obj[:nodesetval])
-              set = NodeSet.allocate
-              set.cstruct = ns_ptr
-              params.unshift set
+              params.unshift NodeSet.wrap(obj[:nodesetval], document)
             else
               char_ptr = params.unshift LibXML.xmlXPathCastToString(obj)
               string = char_ptr.read_string
@@ -110,7 +107,7 @@ module Nokogiri
           when NilClass.to_s
             ;
           when Array.to_s
-            node_set = XML::NodeSet.new(doc, result)
+            node_set = XML::NodeSet.new(document, result)
             LibXML.xmlXPathReturnNodeSet(
               ctx,
               LibXML.xmlXPathNodeSetMerge(nil, node_set.cstruct)

@@ -117,10 +117,7 @@ module Nokogiri
         return NodeSet.new(nil) if cstruct[:children].null?
         child = Node.wrap(cstruct[:children])
 
-        set = NodeSet.new child.document
-        set_ptr = LibXML.xmlXPathNodeSetCreate(child.cstruct)
-
-        set.cstruct = LibXML::XmlNodeSet.new(set_ptr)
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(child.cstruct), self.document)
         return set unless child
 
         child_ptr = child.cstruct[:next]

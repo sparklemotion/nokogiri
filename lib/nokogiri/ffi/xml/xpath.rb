@@ -8,10 +8,7 @@ module Nokogiri
         ptr = cstruct[:nodesetval] if cstruct[:nodesetval]
         ptr = LibXML.xmlXPathNodeSetCreate(nil) if ptr.null?
 
-        set = XML::NodeSet.new(@document)
-        set.cstruct = LibXML::XmlNodeSet.new(ptr)
-        set.document = @document
-        set
+        NodeSet.wrap(ptr, @document)
       end
 
     end

@@ -6,7 +6,7 @@ module Nokogiri
 
       def dup # :nodoc:
         dup = LibXML.xmlXPathNodeSetMerge(nil, self.cstruct)
-        NodeSet.wrap(dup)
+        NodeSet.wrap(dup, self.document)
       end
 
       def length # :nodoc:
@@ -24,9 +24,7 @@ module Nokogiri
         new_set_ptr = LibXML::xmlXPathNodeSetMerge(nil, self.cstruct)
         new_set_ptr = LibXML::xmlXPathNodeSetMerge(new_set_ptr, node_set.cstruct)
 
-        new_set = NodeSet.wrap(new_set_ptr)
-        new_set.document = document
-        new_set
+        NodeSet.wrap(new_set_ptr, self.document)
       end
 
       def -(node_set) # :nodoc:
@@ -37,7 +35,7 @@ module Nokogiri
         node_set.cstruct[:nodeNr].times do |j|
           LibXML.xmlXPathNodeSetDel(new_set_ptr, other_nodetab[j])
         end        
-        NodeSet.wrap(new_set_ptr)
+        NodeSet.wrap(new_set_ptr, self.document)
       end
 
       def delete(node) # :nodoc:
@@ -69,7 +67,7 @@ module Nokogiri
       def &(node_set) # :nodoc:
         raise(ArgumentError, "node_set must be a Nokogiri::XML::NodeSet") unless node_set.is_a?(XML::NodeSet)
         new_set_ptr = LibXML.xmlXPathIntersection(cstruct, node_set.cstruct)
-        NodeSet.wrap(new_set_ptr)
+        NodeSet.wrap(new_set_ptr, self.document)
       end
 
       def include?(node) # :nodoc:
@@ -103,20 +101,24 @@ module Nokogiri
       end
 
       def self.new document, list = [] # :nodoc:
-        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil))
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil), document)
         set.document = document
         list.each { |x| set << x }
         yield set if block_given?
         set
       end
 
-      private
-
-      def self.wrap(ptr) # :nodoc:
+      def self.wrap(ptr, document) # :nodoc:
         set = allocate
         set.cstruct = LibXML::XmlNodeSet.new(ptr)
+        if document
+          set.document = document
+          document.decorate(set)
+        end
         set
       end
+
+      private
 
       def index_at(number) # :nodoc:
         return nil if (number >= cstruct[:nodeNr] || number.abs > cstruct[:nodeNr])
@@ -134,7 +136,7 @@ module Nokogiri
         return nil if beg > cstruct[:nodeNr]
         return nil if beg < 0 || len < 0
 
-        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil))
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil), self.document)
         beg.upto(beg+len-1) do |j|
           LibXML.xmlXPathNodeSetAdd(set.cstruct, cstruct.nodeAt(j));
         end
