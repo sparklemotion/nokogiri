@@ -285,6 +285,7 @@ module Nokogiri
     attach_function :xmlRelaxNGParse, [:pointer], :pointer
     attach_function :xmlRelaxNGFreeParserCtxt, [:pointer], :void
     attach_function :xmlRelaxNGNewDocParserCtxt, [:pointer], :pointer
+    attach_function :xmlRelaxNGFree, [:pointer], :void
 
     # libc
     attach_function :calloc, [:int, :int], :pointer
