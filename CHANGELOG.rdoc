@@ -5,6 +5,10 @@
   * XML::Node#parse will parse XML or HTML fragments with respect to the
     context node.
 
+* Bugfixes
+
+  * XML::NodeSet is now always decorated (if the document has decorators). GH #198
+
 === 1.4.1 / 2009/12/10
 
 * New Features
