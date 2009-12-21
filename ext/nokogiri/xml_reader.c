@@ -297,7 +297,7 @@ static VALUE lang(VALUE self)
  * call-seq:
  *   value
  *
- * Get the text value of the node if present
+ * Get the text value of the node if present. Returns a utf-8 encoded string.
  */
 static VALUE value(VALUE self)
 {
@@ -361,7 +361,7 @@ static VALUE local_name(VALUE self)
  * call-seq:
  *   name
  *
- * Get the name of the node
+ * Get the name of the node. Returns a utf-8 encoded string.
  */
 static VALUE name(VALUE self)
 {
@@ -433,6 +433,7 @@ static VALUE read_more(VALUE self)
  *   inner_xml
  *
  * Read the contents of the current node, including child nodes and markup.
+ * Returns a utf-8 encoded string.
  */
 static VALUE inner_xml(VALUE self)
 {
@@ -452,6 +453,7 @@ static VALUE inner_xml(VALUE self)
  *   outer_xml
  *
  * Read the current node and its contents, including child nodes and markup.
+ * Returns a utf-8 encoded string.
  */
 static VALUE outer_xml(VALUE self)
 {
