@@ -59,8 +59,8 @@ public class NokogiriService implements BasicLibraryService{
     public static void init_html_sax_parser(Ruby ruby, RubyModule html, RubyClass xmlSaxParser) {
         RubyModule htmlSax = html.defineModuleUnder("SAX");
         // Nokogiri::HTML::SAX::Parser is defined by nokogiri/html/sax/parser.rb
-        RubyClass saxParser = htmlSax.defineClassUnder("Parser", xmlSaxParser, HTML_SAXPARSER_ALLOCATOR);
-        saxParser.defineAnnotatedMethods(HtmlSaxParser.class);
+        RubyClass saxParser = htmlSax.defineClassUnder("ParserContext", xmlSaxParser, HTML_SAXPARSER_ALLOCATOR);
+        saxParser.defineAnnotatedMethods(HtmlSaxParserContext.class);
     }
 
     public static void init_xml_attr(Ruby ruby, RubyModule xml, RubyClass node){
@@ -144,8 +144,8 @@ public class NokogiriService implements BasicLibraryService{
     public static RubyClass init_xml_sax_parser(Ruby ruby, RubyModule xml) {
         RubyModule xmlSax = xml.defineModuleUnder("SAX");
         // Nokogiri::XML::SAX::Parser is defined by nokogiri/xml/sax/parser.rb
-        RubyClass saxParser = xmlSax.defineClassUnder("Parser", ruby.getObject(), XML_SAXPARSER_ALLOCATOR);
-        saxParser.defineAnnotatedMethods(XmlSaxParser.class);
+        RubyClass saxParser = xmlSax.defineClassUnder("ParserContext", ruby.getObject(), XML_SAXPARSER_ALLOCATOR);
+        saxParser.defineAnnotatedMethods(XmlSaxParserContext.class);
 
         return saxParser;
     }
@@ -201,7 +201,7 @@ public class NokogiriService implements BasicLibraryService{
 
     private static ObjectAllocator HTML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new HtmlSaxParser(runtime, klazz);
+            return new HtmlSaxParserContext(runtime, klazz);
         }
     };
 
@@ -286,7 +286,7 @@ public class NokogiriService implements BasicLibraryService{
 
     private static ObjectAllocator XML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlSaxParser(runtime, klazz);
+            return new XmlSaxParserContext(runtime, klazz);
         }
     };
 

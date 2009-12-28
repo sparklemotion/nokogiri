@@ -1,4 +1,6 @@
 ROOT_DIR = File.dirname(__FILE__)
+$LOAD_PATH << ROOT_DIR
+$LOAD_PATH << File.join(ROOT_DIR, '..', 'lib')
 #require File.join(ROOT_DIR, 'helper')
 XML_DIR = File.join(ROOT_DIR,'xml')
 HTML_DIR = File.join(ROOT_DIR, 'html')
@@ -33,4 +35,4 @@ load File.join(HTML_SAX_DIR, 'test_parser.rb')
 #
 # does not count.
 # Que lo sepas.
-puts '0 failures, 3 errors'
+puts '15 failures, 32 errors'

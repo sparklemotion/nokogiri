@@ -22,11 +22,11 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class XmlSaxParser extends RubyObject {
+public class XmlSaxParserContext extends RubyObject {
     private DefaultHandler2 handler;
     private XMLReader reader;
 
-    public XmlSaxParser(final Ruby ruby, RubyClass rubyClass) {
+    public XmlSaxParserContext(final Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
 
         handler = new NokogiriHandler(ruby, this);
