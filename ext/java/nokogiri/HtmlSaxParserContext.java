@@ -58,7 +58,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
 		    ctx.source = new InputSource(new FileInputStream(file));
 	    } catch (FileNotFoundException ex) {}
 
-        return data;
+        return ctx;
     }
 
 	@JRubyMethod()

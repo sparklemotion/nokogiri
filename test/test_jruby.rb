@@ -1,3 +1,5 @@
+FAILURES = 14
+ERRORS = 27
 ROOT_DIR = File.dirname(__FILE__)
 $LOAD_PATH << ROOT_DIR
 $LOAD_PATH << File.join(ROOT_DIR, '..', 'lib')
@@ -35,4 +37,4 @@ load File.join(HTML_SAX_DIR, 'test_parser.rb')
 #
 # does not count.
 # Que lo sepas.
-puts '15 failures, 32 errors'
+puts '#{FAILURES} failures, #{ERRORS} errors'

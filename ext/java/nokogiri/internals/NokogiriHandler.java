@@ -97,6 +97,6 @@ public class NokogiriHandler extends DefaultHandler2{
     }
 
     private IRubyObject document(ThreadContext context){
-        return RuntimeHelpers.invoke(context, this.object, "document");
+		return RuntimeHelpers.invoke(context, this.object, "document");
     }
 }
