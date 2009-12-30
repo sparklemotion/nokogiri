@@ -199,7 +199,7 @@ static VALUE create_internal_subset(VALUE self, VALUE name, VALUE external_id, V
     rb_raise(rb_eRuntimeError, "Document already has an internal subset");
 
   xmlDtdPtr dtd = xmlCreateIntSubset(
-      doc, 
+      doc,
       NIL_P(name)        ? NULL : (const xmlChar *)StringValuePtr(name),
       NIL_P(external_id) ? NULL : (const xmlChar *)StringValuePtr(external_id),
       NIL_P(system_id)   ? NULL : (const xmlChar *)StringValuePtr(system_id)
@@ -228,7 +228,7 @@ static VALUE create_external_subset(VALUE self, VALUE name, VALUE external_id, V
     rb_raise(rb_eRuntimeError, "Document already has an external subset");
 
   xmlDtdPtr dtd = xmlNewDtd(
-      doc, 
+      doc,
       NIL_P(name)        ? NULL : (const xmlChar *)StringValuePtr(name),
       NIL_P(external_id) ? NULL : (const xmlChar *)StringValuePtr(external_id),
       NIL_P(system_id)   ? NULL : (const xmlChar *)StringValuePtr(system_id)
@@ -655,6 +655,32 @@ static VALUE namespace_definitions(VALUE self)
 }
 
 /*
+ *  call-seq:
+ *    namespace_scopes()
+ *
+ *  returns a list of Namespace nodes in scope for _self_. this is all
+ *  namespaces defined in the node, or in any ancestor node.
+ */
+static VALUE namespace_scopes(VALUE self)
+{
+  xmlNodePtr node ;
+  Data_Get_Struct(self, xmlNode, node);
+
+  VALUE list = rb_ary_new();
+  xmlNsPtr *ns_list = xmlGetNsList(node->doc, node);
+  int j ;
+
+  if(!ns_list) return list;
+
+  for (j = 0 ; ns_list[j] != NULL ; ++j) {
+    rb_ary_push(list, Nokogiri_wrap_xml_namespace(node->doc, ns_list[j]));
+  }
+
+  xmlFree(ns_list);
+  return list;
+}
+
+/*
  * call-seq:
  *  node_type
  *
@@ -773,7 +799,7 @@ static VALUE path(VALUE self)
   xmlNodePtr node;
   xmlChar *path ;
   Data_Get_Struct(self, xmlNode, node);
-  
+
   path = xmlGetNodePath(node);
   VALUE rval = NOKOGIRI_STR_NEW2(path);
   xmlFree(path);
@@ -1097,6 +1123,7 @@ void init_xml_node()
   rb_define_method(klass, "attribute_with_ns", attribute_with_ns, 2);
   rb_define_method(klass, "namespace", namespace, 0);
   rb_define_method(klass, "namespace_definitions", namespace_definitions, 0);
+  rb_define_method(klass, "namespace_scopes", namespace_scopes, 0);
   rb_define_method(klass, "encode_special_chars", encode_special_chars, 1);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "unlink", unlink_node, 0);

@@ -4,11 +4,16 @@
 
   * XML::Node#parse will parse XML or HTML fragments with respect to the
     context node.
+  * XML::Node#namespaces returns all namespaces defined in the node and all
+    ancestor nodes
+   (previously did not return ancestors' namespace definitions).
   * Added Enumerable to XML::Node
 
 * Bugfixes
 
   * XML::NodeSet is now always decorated (if the document has decorators). GH #198
+  * XML::NodeSet#slice gracefully handles offset+length larger than the set length. GH #200
+  * XML::Node#content= safely unlinks previous content. GH #203
 
 === 1.4.1 / 2009/12/10
 

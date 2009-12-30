@@ -149,6 +149,7 @@ module Nokogiri
     attach_function :xmlFreePropList, [:pointer], :void
     attach_function :xmlCreateIntSubset, [:pointer] * 4, :pointer
     attach_function :xmlNewDtd, [:pointer] * 4, :pointer
+    attach_function :xmlGetNsList, [:pointer, :pointer], :pointer
 
     # valid.c
     attach_function :xmlNewValidCtxt, [], :pointer

@@ -459,6 +459,15 @@ module Nokogiri
         assert_equal employees.length, employees[0, employees.length].length
       end
 
+      def test_slice_waaaaaay_off_the_end
+        xml = Nokogiri::XML::Builder.new {
+          root { 100.times { div } }
+        }.doc
+        nodes = xml.css "div"
+        assert_equal 1, nodes.slice(99,  100_000).length
+        assert_equal 0, nodes.slice(100, 100_000).length
+      end
+
       def test_array_slice_with_start_and_end
         employees = @xml.search("//employee")
         assert_equal [employees[1], employees[2], employees[3]], employees[1,3].to_a

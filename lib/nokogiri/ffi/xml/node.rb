@@ -194,11 +194,32 @@ module Nokogiri
         list
       end
 
+      def namespace_scopes
+        ns_list = LibXML.xmlGetNsList(self.cstruct[:doc], self.cstruct)
+        return [] if ns_list.null?
+
+        list = []
+        until (ns_ptr = ns_list.get_pointer(LibXML.pointer_offset(list.length))).null?
+          list << Namespace.wrap(cstruct.document, ns_ptr)
+        end
+
+        LibXML.xmlFree(ns_list)
+        list
+      end
+
       def node_type
         cstruct[:type]
       end
 
       def native_content=(content)
+        child_ptr = cstruct[:children]
+        while ! child_ptr.null?
+          child    = Node.wrap(child_ptr)
+          next_ptr = child.cstruct[:next]
+          LibXML.xmlUnlinkNode(child.cstruct)
+          cstruct.keep_reference_from_document!
+          child_ptr = next_ptr
+        end
         LibXML.xmlNodeSetContent(cstruct, content)
         content
       end
@@ -436,7 +457,7 @@ module Nokogiri
         # their namespaces are reparented as well.
         child_ptr = reparented_struct[:children]
         while ! child_ptr.null?
-          child_struct = LibXML::XmlNode.new(child_ptr) 
+          child_struct = LibXML::XmlNode.new(child_ptr)
           relink_namespace child_struct
           child_ptr = child_struct[:next]
         end
