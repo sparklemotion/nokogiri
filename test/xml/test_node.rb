@@ -642,6 +642,13 @@ module Nokogiri
         assert_equal('hello world!', node.content)
       end
 
+      def test_set_content_should_unlink_existing_content
+        node     = @xml.at_css("employee")
+        children = node.children
+        node.content = "hello"
+        children.each { |child| assert_nil child.parent }
+      end
+
       def test_whitespace_nodes
         doc = Nokogiri::XML.parse("<root><b>Foo</b>\n<i>Bar</i> <p>Bazz</p></root>")
         children = doc.at('//root').children.collect{|j| j.to_s}

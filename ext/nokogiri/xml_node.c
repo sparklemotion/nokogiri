@@ -675,8 +675,17 @@ static VALUE node_type(VALUE self)
  */
 static VALUE set_content(VALUE self, VALUE content)
 {
-  xmlNodePtr node;
+  xmlNodePtr node, child, next ;
   Data_Get_Struct(self, xmlNode, node);
+
+  child = node->children;
+  while (NULL != child) {
+    next = child->next ;
+    xmlUnlinkNode(child) ;
+    NOKOGIRI_ROOT_NODE(child) ;
+    child = next ;
+  }
+
   xmlNodeSetContent(node, (xmlChar *)StringValuePtr(content));
   return content;
 }
