@@ -701,10 +701,10 @@ module Nokogiri
 
       def test_namespaces_should_include_all_namespace_definitions
         xml = Nokogiri::XML.parse(<<-EOF)
-        <x xmlns='http://quux.com/' xmlns:a='http://foo.com/' xmlns:b='http://bar.com/'>
-          <y xmlns:c='http://bazz.com/'>
+        <x xmlns="http://quux.com/" xmlns:a="http://foo.com/" xmlns:b="http://bar.com/">
+          <y xmlns:c="http://bazz.com/">
             <z>hello</z>
-            <a xmlns:c='http://newc.com/' />
+            <a xmlns:c="http://newc.com/" />
           </y>
         </x>
         EOF
