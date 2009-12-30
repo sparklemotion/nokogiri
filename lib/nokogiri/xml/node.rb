@@ -35,6 +35,7 @@ module Nokogiri
     # You may search this node's subtree using Node#xpath and Node#css
     class Node
       include Nokogiri::XML::PP::Node
+      include Enumerable
 
       # Element node type, see Nokogiri::XML::Node#element?
       ELEMENT_NODE =       1
@@ -261,7 +262,7 @@ module Nokogiri
       def add_next_sibling(node)
         Node.verify_nodeishness(node)
         if node.type == DOCUMENT_FRAG_NODE
-          node.children.reverse.each do |child|
+          node.children.reverse_each do |child|
             add_next_sibling_node child
           end
         else
@@ -349,7 +350,7 @@ module Nokogiri
       # Create nodes from +data+ and insert them after this node
       # (as a sibling).
       def after data
-        fragment(data).children.to_a.reverse.each do |node|
+        fragment(data).children.to_a.reverse_each do |node|
           add_next_sibling node
         end
         self

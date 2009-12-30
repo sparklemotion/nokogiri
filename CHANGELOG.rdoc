@@ -4,6 +4,7 @@
 
   * XML::Node#parse will parse XML or HTML fragments with respect to the
     context node.
+  * Added Enumerable to XML::Node
 
 * Bugfixes
 
