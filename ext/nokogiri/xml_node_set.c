@@ -203,6 +203,10 @@ static VALUE subseq(VALUE self, long beg, long len)
   if (beg > node_set->nodeNr) return Qnil ;
   if (beg < 0 || len < 0) return Qnil ;
 
+  if ((beg + len) > node_set->nodeNr) {
+    len = node_set->nodeNr - beg ;
+  }
+
   new_set = xmlXPathNodeSetCreate(NULL);
   for (j = beg ; j < beg+len ; ++j) {
     xmlXPathNodeSetAdd(new_set, node_set->nodeTab[j]);
@@ -238,8 +242,6 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
     if (beg < 0) {
       beg += node_set->nodeNr ;
     }
-    if (len > node_set->nodeNr) len = node_set->nodeNr;
-
     return subseq(self, beg, len);
   }
 
