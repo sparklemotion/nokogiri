@@ -135,6 +135,7 @@ module Nokogiri
       def subseq(beg, len) # :nodoc:
         return nil if beg > cstruct[:nodeNr]
         return nil if beg < 0 || len < 0
+        len = cstruct[:nodeNr] - beg if beg + len > cstruct[:nodeNr]
 
         set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil), self.document)
         beg.upto(beg+len-1) do |j|
