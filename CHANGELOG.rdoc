@@ -6,7 +6,7 @@
     context node.
   * XML::Node#namespaces returns all namespaces defined in the node and all
     ancestor nodes
-   (previously did not return ancestors' namespace definitions).
+    (previously did not return ancestors' namespace definitions).
   * Added Enumerable to XML::Node
 
 * Bugfixes
