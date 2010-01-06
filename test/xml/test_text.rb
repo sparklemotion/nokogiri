@@ -25,6 +25,14 @@ module Nokogiri
         node = Nokogiri::XML::Element.new('foo', doc)
         text = Text.new('hello world', node)
       end
+
+      def test_content=
+        node = Text.new('foo', Document.new)
+        assert_equal('foo', node.content)
+        node.content = '& <foo> &amp;'
+        assert_equal('& <foo> &amp;', node.content)
+        assert_equal('&amp; &lt;foo&gt; &amp;amp;', node.to_xml)
+      end
     end
   end
 end

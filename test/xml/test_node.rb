@@ -638,6 +638,10 @@ module Nokogiri
 
         node.content = 'hello world!'
         assert_equal('hello world!', node.content)
+
+        node.content = '& <foo> &amp;'
+        assert_equal('& <foo> &amp;', node.content)
+        assert_equal('<form>&amp; &lt;foo&gt; &amp;amp;</form>', node.to_xml)
       end
 
       def test_set_content_should_unlink_existing_content
