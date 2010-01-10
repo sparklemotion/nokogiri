@@ -10,6 +10,20 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_namespace_type_error
+        assert_raises(TypeError) do
+          @xml.root.namespace = Object.new
+        end
+      end
+
+      def test_remove_namespace
+        @xml = Nokogiri::XML('<r xmlns="v"><s /></r>')
+        tag = @xml.at('s')
+        assert tag.namespace
+        tag.namespace = nil
+        assert_nil tag.namespace
+      end
+
       def test_parse
         list = @xml.root.parse('fooooooo <hello />')
         assert_equal 2, list.length

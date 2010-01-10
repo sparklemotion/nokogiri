@@ -525,12 +525,15 @@ module Nokogiri
       ###
       # Set the namespace for this node to +ns+
       def namespace= ns
+        return set_namespace(ns) unless ns
+
+        unless Nokogiri::XML::Namespace === ns
+          raise TypeError, "#{ns.class} can't be coerced into Nokogiri::XML::Namespace"
+        end
         if ns.document != document
           raise ArgumentError, 'namespace must be declared on the same document'
         end
-        unless ns.is_a? Nokogiri::XML::Namespace
-          raise TypeError, "#{ns.class} can't be coerced into Nokogiri::XML::Namespace"
-        end
+
         set_namespace ns
       end
 

@@ -545,10 +545,12 @@ static VALUE get(VALUE self, VALUE attribute)
 static VALUE set_namespace(VALUE self, VALUE namespace)
 {
   xmlNodePtr node;
-  xmlNsPtr ns;
+  xmlNsPtr ns = NULL;
 
   Data_Get_Struct(self, xmlNode, node);
-  Data_Get_Struct(namespace, xmlNs, ns);
+
+  if(!NIL_P(namespace))
+    Data_Get_Struct(namespace, xmlNs, ns);
 
   xmlSetNs(node, ns);
 
