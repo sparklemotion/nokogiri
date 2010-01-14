@@ -20,17 +20,14 @@ public class SchemaErrorHandler implements ErrorHandler{
         this.errors = array;
     }
 
-    @Override
     public void warning(SAXParseException ex) throws SAXException {
         this.errors.append(new XmlSyntaxError(ruby, ex));
     }
 
-    @Override
     public void error(SAXParseException ex) throws SAXException {
         this.errors.append(new XmlSyntaxError(ruby, ex));
     }
 
-    @Override
     public void fatalError(SAXParseException ex) throws SAXException {
         throw ex;
     }
