@@ -68,8 +68,6 @@ ext/nokogiri/xml_syntax_error.c
 ext/nokogiri/xml_syntax_error.h
 ext/nokogiri/xml_text.c
 ext/nokogiri/xml_text.h
-ext/nokogiri/xml_xpath.c
-ext/nokogiri/xml_xpath.h
 ext/nokogiri/xml_xpath_context.c
 ext/nokogiri/xml_xpath_context.h
 ext/nokogiri/xslt_stylesheet.c

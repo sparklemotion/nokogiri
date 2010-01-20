@@ -84,7 +84,6 @@ int is_2_6_16(void) ;
 #include <xml_document_fragment.h>
 #include <xml_comment.h>
 #include <xml_node_set.h>
-#include <xml_xpath.h>
 #include <xml_dtd.h>
 #include <xml_attribute_decl.h>
 #include <xml_element_decl.h>

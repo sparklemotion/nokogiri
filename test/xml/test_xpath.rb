@@ -34,6 +34,18 @@ module Nokogiri
         }.new
       end
 
+      def test_boolean
+        assert_equal false, @xml.xpath('1 = 2')
+      end
+
+      def test_number
+        assert_equal 2, @xml.xpath('1 + 1')
+      end
+
+      def test_string
+        assert_equal 'foo', @xml.xpath('concat("fo", "o")')
+      end
+
       def test_css_search_uses_custom_selectors_with_arguments
         set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
         assert set.length > 0

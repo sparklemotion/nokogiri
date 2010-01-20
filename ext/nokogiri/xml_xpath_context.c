@@ -187,13 +187,31 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
     rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
   }
 
-  VALUE xpath_object = Nokogiri_wrap_xml_xpath(xpath);
+  VALUE thing = Qnil;
 
   assert(ctx->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctx->doc));
 
-  rb_iv_set(xpath_object, "@document", DOC_RUBY_OBJECT(ctx->doc));
-  return xpath_object;
+  switch(xpath->type) {
+    case XPATH_STRING:
+      thing = NOKOGIRI_STR_NEW2(xpath->stringval);
+      break;
+    case XPATH_NODESET:
+      thing = Nokogiri_wrap_xml_node_set(xpath->nodesetval,
+        DOC_RUBY_OBJECT(ctx->doc));
+      break;
+    case XPATH_NUMBER:
+      thing = rb_float_new(xpath->floatval);
+      break;
+    case XPATH_BOOLEAN:
+      thing = xpath->boolval == 1 ? Qtrue : Qfalse;
+      break;
+    default:
+      thing = Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL),
+        DOC_RUBY_OBJECT(ctx->doc));
+  }
+
+  return thing;
 }
 
 /*

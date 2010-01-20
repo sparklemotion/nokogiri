@@ -140,7 +140,7 @@ module Nokogiri
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
-          ctx.evaluate(path, handler).node_set
+          ctx.evaluate(path, handler)
         }
         return sets.first if sets.length == 1
 

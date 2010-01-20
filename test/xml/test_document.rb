@@ -467,21 +467,21 @@ module Nokogiri
 
         ctx = Nokogiri::XML::XPathContext.new(doc)
         ctx.register_ns 'tenderlove', 'http://tenderlovemaking.com/'
-        set = ctx.evaluate('//tenderlove:foo').node_set
+        set = ctx.evaluate('//tenderlove:foo')
         assert_equal 1, set.length
         assert_equal 'foo', set.first.name
 
         # It looks like only the URI is important:
         ctx = Nokogiri::XML::XPathContext.new(doc)
         ctx.register_ns 'america', 'http://tenderlovemaking.com/'
-        set = ctx.evaluate('//america:foo').node_set
+        set = ctx.evaluate('//america:foo')
         assert_equal 1, set.length
         assert_equal 'foo', set.first.name
 
         # Its so important that a missing slash will cause it to return nothing
         ctx = Nokogiri::XML::XPathContext.new(doc)
         ctx.register_ns 'america', 'http://tenderlovemaking.com'
-        set = ctx.evaluate('//america:foo').node_set
+        set = ctx.evaluate('//america:foo')
         assert_equal 0, set.length
       end
 
