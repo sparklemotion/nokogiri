@@ -2,6 +2,7 @@
 #define NOKOGIRI_NATIVE
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
