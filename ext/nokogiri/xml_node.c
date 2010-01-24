@@ -437,7 +437,7 @@ static VALUE children(VALUE self)
 
   child = child->next;
   while(NULL != child) {
-    xmlXPathNodeSetAdd(set, child);
+    xmlXPathNodeSetAddUnique(set, child);
     child = child->next;
   }
 
