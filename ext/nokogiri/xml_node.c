@@ -969,6 +969,7 @@ static VALUE compare(VALUE self, VALUE _other)
   return INT2NUM((long)xmlXPathCmpNodes(other, node));
 }
 
+// TODO: DOCUMENT ME
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
   xmlNodePtr node;
@@ -993,7 +994,7 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
   xmlNodeSetPtr set = xmlXPathNodeSetCreate(NULL);
 
   while(list) {
-    xmlXPathNodeSetAdd(set, list);
+    xmlXPathNodeSetAdd(set, list); // TODO: can we use Unique variation here?
     // FIXME!!!  Is this thing leaking memory?
     //NOKOGIRI_ROOT_NODE(list);
     list = list->next;

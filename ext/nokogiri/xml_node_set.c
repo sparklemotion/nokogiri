@@ -209,7 +209,7 @@ static VALUE subseq(VALUE self, long beg, long len)
 
   new_set = xmlXPathNodeSetCreate(NULL);
   for (j = beg ; j < beg+len ; ++j) {
-    xmlXPathNodeSetAdd(new_set, node_set->nodeTab[j]);
+    xmlXPathNodeSetAddUnique(new_set, node_set->nodeTab[j]);
   }
   return Nokogiri_wrap_xml_node_set(new_set, rb_iv_get(self, "@document"));
 }

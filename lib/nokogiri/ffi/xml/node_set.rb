@@ -139,7 +139,7 @@ module Nokogiri
 
         set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil), self.document)
         beg.upto(beg+len-1) do |j|
-          LibXML.xmlXPathNodeSetAdd(set.cstruct, cstruct.nodeAt(j));
+          LibXML.xmlXPathNodeSetAddUnique(set.cstruct, cstruct.nodeAt(j));
         end
         set
       end

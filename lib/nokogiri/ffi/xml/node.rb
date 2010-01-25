@@ -123,7 +123,7 @@ module Nokogiri
         child_ptr = child.cstruct[:next]
         while ! child_ptr.null?
           child = Node.wrap(child_ptr)
-          LibXML.xmlXPathNodeSetAdd(set.cstruct, child.cstruct)
+          LibXML.xmlXPathNodeSetAddUnique(set.cstruct, child.cstruct)
           child_ptr = child.cstruct[:next]
         end
 
