@@ -176,6 +176,7 @@ module Nokogiri
     attach_function :xmlXPathCmpNodes, [:pointer, :pointer], :int
     attach_function :xmlXPathNodeSetContains, [:pointer, :pointer], :int
     attach_function :xmlXPathNodeSetAdd, [:pointer, :pointer], :void
+    attach_function :xmlXPathNodeSetAddUnique, [:pointer, :pointer], :void
     attach_function :xmlXPathNodeSetRemove, [:pointer, :int], :void
     attach_function :xmlXPathNodeSetCreate, [:pointer], :pointer
     attach_function :xmlXPathNodeSetDel, [:pointer, :pointer], :void
