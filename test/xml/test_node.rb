@@ -24,6 +24,11 @@ module Nokogiri
         assert_nil tag.namespace
       end
 
+      def test_parse_needs_doc
+        list = @xml.root.parse('fooooooo <hello />')
+        assert_equal 1, list.css('hello').length
+      end
+
       def test_parse
         list = @xml.root.parse('fooooooo <hello />')
         assert_equal 2, list.length

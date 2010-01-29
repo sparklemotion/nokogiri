@@ -994,13 +994,13 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
   xmlNodeSetPtr set = xmlXPathNodeSetCreate(NULL);
 
   while(list) {
-    xmlXPathNodeSetAdd(set, list); // TODO: can we use Unique variation here?
+    xmlXPathNodeSetAddUnique(set, list);
     // FIXME!!!  Is this thing leaking memory?
     //NOKOGIRI_ROOT_NODE(list);
     list = list->next;
   }
 
-  return Nokogiri_wrap_xml_node_set(set, Qnil); // TODO: write a test to make me pass document
+  return Nokogiri_wrap_xml_node_set(set, doc);
 }
 
 VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
