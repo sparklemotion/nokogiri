@@ -982,12 +982,23 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 
   xmlSetStructuredErrorFunc((void *)err, Nokogiri_error_array_pusher);
 
+  /* Twiddle global variable because of a bug in libxml2.
+   * http://git.gnome.org/browse/libxml2/commit/?id=e20fb5a72c83cbfc8e4a8aa3943c6be8febadab7
+   */
+#ifndef HTML_PARSE_NOIMPLIED
+  htmlHandleOmittedElem(0);
+#endif
+
   xmlParserErrors x = xmlParseInNodeContext(
       node,
       StringValuePtr(_str),
       RSTRING_LEN(_str),
       NUM2INT(_options),
       &list);
+
+#ifndef HTML_PARSE_NOIMPLIED
+  htmlHandleOmittedElem(1);
+#endif
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 

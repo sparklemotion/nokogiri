@@ -9,6 +9,10 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
+      def test_parse_in_context
+        assert_equal('<br>', @html.root.parse('<br />').to_s)
+      end
+
       def test_ancestors_search
         html = %q{
           <div>
