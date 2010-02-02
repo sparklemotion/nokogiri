@@ -4,7 +4,7 @@ module Nokogiri
       def initialize document, tags=nil
         return self unless tags
 
-        if self.kind_of?(Nokogiri::HTML::DocumentFragment)
+        if document.html?
           HTML::SAX::Parser.new(FragmentHandler.new(self, tags)).parse(tags)
         else
           wrapped = "<div>#{tags.strip}</div>"
