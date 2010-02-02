@@ -2,16 +2,16 @@ module Nokogiri
   module XML
     class DocumentFragment < Nokogiri::XML::Node
       def initialize document, tags=nil
-        if tags
-          if self.kind_of?(Nokogiri::HTML::DocumentFragment)
-            HTML::SAX::Parser.new(FragmentHandler.new(self, tags)).parse(tags)
-          else
-            wrapped = "<div>#{tags.strip}</div>"
-            XML::SAX::Parser.new(FragmentHandler.new(self, wrapped)).parse(wrapped)
-            div = self.child
-            div.children.each { |child| child.parent = self }
-            div.unlink
-          end
+        return self unless tags
+
+        if self.kind_of?(Nokogiri::HTML::DocumentFragment)
+          HTML::SAX::Parser.new(FragmentHandler.new(self, tags)).parse(tags)
+        else
+          wrapped = "<div>#{tags.strip}</div>"
+          XML::SAX::Parser.new(FragmentHandler.new(self, wrapped)).parse(wrapped)
+          div = self.child
+          div.children.each { |child| child.parent = self }
+          div.unlink
         end
       end
 
