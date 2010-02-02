@@ -10,6 +10,11 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_root_set_to_nil
+        @xml.root = nil
+        assert_equal nil, @xml.root
+      end
+
       def test_parse_should_not_exist
         assert_raises(NoMethodError) do
           @xml.parse("foo")

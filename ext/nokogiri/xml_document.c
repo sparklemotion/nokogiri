@@ -72,9 +72,22 @@ static VALUE set_root(VALUE self, VALUE root)
   xmlNodePtr new_root;
 
   Data_Get_Struct(self, xmlDoc, doc);
-  Data_Get_Struct(root, xmlNode, new_root);
 
   xmlNodePtr old_root = NULL;
+
+  if(NIL_P(root)) {
+    old_root = xmlDocGetRootElement(doc);
+
+    if(old_root) {
+      xmlUnlinkNode(old_root);
+      NOKOGIRI_ROOT_NODE(old_root);
+    }
+
+    return root;
+  }
+
+  Data_Get_Struct(root, xmlNode, new_root);
+
 
   /* If the new root's document is not the same as the current document,
    * then we need to dup the node in to this document. */
