@@ -9,6 +9,14 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
+      def test_no_contextual_parsing_on_unlinked_nodes
+        node = @html.css('body').first
+        node.unlink
+        assert_raises(RuntimeError) do
+          node.parse('<br />')
+        end
+      end
+
       def test_parse_in_context
         assert_equal('<br>', @html.root.parse('<br />').to_s)
       end

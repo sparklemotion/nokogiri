@@ -975,6 +975,9 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
 
+  if(!node->parent)
+    rb_raise(rb_eRuntimeError, "no contextual parsing on unlinked nodes");
+
   xmlNodePtr list;
 
   VALUE doc = DOC_RUBY_OBJECT(node->doc);
