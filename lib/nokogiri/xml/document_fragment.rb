@@ -7,11 +7,18 @@ module Nokogiri
         if document.html?
           HTML::SAX::Parser.new(FragmentHandler.new(self, tags)).parse(tags)
         else
-          wrapped = "<div>#{tags.strip}</div>"
-          XML::SAX::Parser.new(FragmentHandler.new(self, wrapped)).parse(wrapped)
-          div = self.child
-          div.children.each { |child| child.parent = self }
-          div.unlink
+          has_root = document.root
+          ctx      = document.root
+
+          unless has_root
+            ctx = document.root = Nokogiri::XML::Element.new('div', document)
+          end
+
+          ctx.parse(tags.strip).each do |tag|
+            tag.parent = self
+          end
+
+          document.root = nil unless has_root
         end
       end
 
