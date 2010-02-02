@@ -142,6 +142,7 @@ module Nokogiri
       undef_method :swap, :parent, :namespace, :default_namespace=
       undef_method :add_namespace_definition, :attributes
       undef_method :namespace_definitions, :line, :add_namespace
+      undef_method :parse, :in_context
 
       def add_child child
         raise "Document already has a root node" if root
