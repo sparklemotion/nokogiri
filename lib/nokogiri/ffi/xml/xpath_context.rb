@@ -44,7 +44,19 @@ module Nokogiri
         xpath = XML::XPath.new
         xpath.cstruct = LibXML::XmlXpathObject.new(xpath_ptr)
         xpath.document = cstruct.document.ruby_doc
-        xpath
+
+        case xpath.cstruct[:type]
+        when LibXML::XmlXpathObject::XPATH_NODESET
+          NodeSet.wrap(xpath.cstruct[:nodesetval], xpath.document)
+        when LibXML::XmlXpathObject::XPATH_STRING
+          xpath.cstruct[:stringval]
+        when LibXML::XmlXpathObject::XPATH_NUMBER
+          xpath.cstruct[:floatval]
+        when LibXML::XmlXpathObject::XPATH_BOOLEAN
+          0 != xpath.cstruct[:boolval]
+        else
+          NodeSet.new(xpath.document)
+        end
       end
 
       def self.new(node) # :nodoc:
