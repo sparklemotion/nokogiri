@@ -278,6 +278,7 @@ module Nokogiri
     attach_function :xmlSchemaParse, [:pointer], :pointer
     attach_function :xmlSchemaFreeParserCtxt, [:pointer], :void
     attach_function :xmlSchemaNewDocParserCtxt, [:pointer], :pointer
+    attach_function :xmlSchemaValidateFile, [:pointer, :string, :int], :int
 
     # relaxng.c
     attach_function :xmlRelaxNGNewValidCtxt, [:pointer], :pointer

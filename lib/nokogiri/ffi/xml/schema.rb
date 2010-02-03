@@ -22,6 +22,23 @@ module Nokogiri
       end
       private :validate_document
 
+      def validate_file filename
+        errors = []
+
+        ctx = LibXML.xmlSchemaNewValidCtxt(cstruct)
+        raise RuntimeError.new("Could not create a validation context") if ctx.null?
+
+        LibXML.xmlSchemaSetValidStructuredErrors(ctx,
+          SyntaxError.error_array_pusher(errors), nil) unless Nokogiri.is_2_6_16?
+
+        LibXML.xmlSchemaValidateFile(ctx, filename, 0)
+
+        LibXML.xmlSchemaFreeValidCtxt(ctx)
+
+        errors
+      end
+      private :validate_document
+
       def self.read_memory content
         content_copy = FFI::MemoryPointer.from_string(content)
         ctx = LibXML.xmlSchemaNewMemParserCtxt(content_copy, content.length)

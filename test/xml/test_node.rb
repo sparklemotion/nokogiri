@@ -59,7 +59,7 @@ module Nokogiri
         error_count = @xml.errors.length
         list = @xml.root.parse('<hello>')
         assert_equal 0, list.length
-        assert(error_count < @xml.errors.length, 'errors have increased')
+        assert(error_count < @xml.errors.length, "errors should have increased")
       end
 
       def test_subclass_dup
