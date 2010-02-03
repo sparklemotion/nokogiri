@@ -159,7 +159,7 @@ module Nokogiri
       end
 
       def set_namespace(namespace)
-        LibXML.xmlSetNs(cstruct, namespace.cstruct)
+        LibXML.xmlSetNs(cstruct, namespace ? namespace.cstruct : nil)
         self
       end
 
@@ -375,6 +375,29 @@ module Nokogiri
 
       def document
         cstruct.document.ruby_doc
+      end
+
+      def in_context(string, options)
+        raise RuntimeError, "no contextual parsing on unlinked nodes" if parent.nil?
+
+        @errors = []
+        LibXML.xmlSetStructuredErrorFunc(nil, SyntaxError.error_array_pusher(@errors))
+        LibXML.htmlHandleOmittedElem(0)
+
+        list_memory = FFI::MemoryPointer.new :pointer
+        LibXML.xmlParseInNodeContext(cstruct, string, string.length, options, list_memory)
+
+        LibXML.htmlHandleOmittedElem(1)
+        LibXML.xmlSetStructuredErrorFunc(nil, nil)
+
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil), document)
+        list_ptr = list_memory.get_pointer(0)
+        while ! list_ptr.null?
+          list = Node.wrap(list_ptr)
+          LibXML.xmlXPathNodeSetAddUnique(set.cstruct, list.cstruct)
+          list_ptr = list.cstruct[:next]
+        end
+        set
       end
 
       class << self

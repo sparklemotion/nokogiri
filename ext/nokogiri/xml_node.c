@@ -969,6 +969,7 @@ static VALUE compare(VALUE self, VALUE _other)
   return INT2NUM((long)xmlXPathCmpNodes(other, node));
 }
 
+
 // TODO: DOCUMENT ME
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
@@ -1009,13 +1010,12 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 
   while(list) {
     xmlXPathNodeSetAddUnique(set, list);
-    // FIXME!!!  Is this thing leaking memory?
-    //NOKOGIRI_ROOT_NODE(list);
     list = list->next;
   }
 
   return Nokogiri_wrap_xml_node_set(set, doc);
 }
+
 
 VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
 {

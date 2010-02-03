@@ -80,6 +80,7 @@ module Nokogiri
     attach_function :htmlCreateMemoryParserCtxt, [:pointer, :int], :pointer
     attach_function :htmlCreateFileParserCtxt, [:pointer, :pointer], :pointer
     attach_function :htmlParseDocument, [:pointer], :int
+    attach_function :htmlHandleOmittedElem, [:int], :int
 
     # HTMLtree.c
     attach_function :htmlDocDumpMemory, [:pointer, :pointer, :pointer], :void
@@ -101,6 +102,7 @@ module Nokogiri
     attach_function :xmlCreatePushParserCtxt, [:pointer, :pointer, :string, :int, :string], :pointer
     attach_function :xmlParseChunk, [:pointer, :string, :int, :int], :int
     attach_function :xmlCtxtUseOptions, [:pointer, :int], :int
+    attach_function :xmlParseInNodeContext, [:pointer, :string, :int, :int, :pointer], :pointer
 
     # tree.c
     attach_function :xmlNewDoc, [:string], :pointer

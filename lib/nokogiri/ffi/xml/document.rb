@@ -11,6 +11,17 @@ module Nokogiri
 
       def root= new_root
         old_root = nil
+
+        if new_root.nil?
+          old_root_ptr = LibXML.xmlDocGetRootElement(cstruct)
+          if (! old_root_ptr.null?)
+            old_root = Node.wrap(old_root_ptr)
+            LibXML.xmlUnlinkNode(old_root.cstruct)
+            old_root.cstruct.keep_reference_from_document!
+          end
+          return new_root
+        end
+
         if new_root.cstruct[:doc] != cstruct[:doc]
           old_root_ptr = LibXML.xmlDocGetRootElement(cstruct)
           new_root_ptr = LibXML.xmlDocCopyNode(new_root.cstruct, cstruct, 1)
