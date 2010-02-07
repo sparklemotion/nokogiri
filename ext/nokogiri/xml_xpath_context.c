@@ -125,6 +125,7 @@ static xmlXPathFunction lookup( void *ctx,
   return NULL;
 }
 
+NORETURN(static void xpath_exception_handler(void * ctx, xmlErrorPtr error));
 static void xpath_exception_handler(void * ctx, xmlErrorPtr error)
 {
   VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
@@ -133,6 +134,7 @@ static void xpath_exception_handler(void * ctx, xmlErrorPtr error)
   rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
 }
 
+NORETURN(static void xpath_generic_exception_handler(void * ctx, const char *msg, ...));
 static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
 {
   char * message;

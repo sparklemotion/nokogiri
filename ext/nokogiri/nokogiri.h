@@ -39,6 +39,14 @@ int is_2_6_16(void) ;
 # endif
 #endif
 
+#ifndef NORETURN
+# if defined(__GNUC__)
+#  define NORETURN(name) __attribute__((noreturn)) name
+# else
+#  define NORETURN(name) name
+# endif
+#endif
+
 #ifdef HAVE_RUBY_ENCODING_H
 
 #include <ruby/encoding.h>

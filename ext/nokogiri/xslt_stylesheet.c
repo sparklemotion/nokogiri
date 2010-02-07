@@ -12,6 +12,7 @@ static void dealloc(xsltStylesheetPtr doc)
     NOKOGIRI_DEBUG_END(doc);
 }
 
+NORETURN(static void xslt_generic_error_handler(void * ctx, const char *msg, ...));
 static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
 {
   char * message;
