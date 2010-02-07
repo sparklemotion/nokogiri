@@ -70,6 +70,20 @@ encoding="iso-8859-1" indent="yes"/>
       assert_no_match(/<td>/, xslt.apply_to(@doc, ['title', 'foo']))
     end
 
+    def test_transform_arg_error
+      assert style = Nokogiri::XSLT(File.read(XSLT_FILE))
+      assert_raises(TypeError) do
+        style.transform(@doc, :foo)
+      end
+    end
+
+    def test_transform_with_hash
+      assert style = Nokogiri::XSLT(File.read(XSLT_FILE))
+      result = style.transform(@doc, {'title' => '"Booyah"'})
+      assert result.html?
+      assert_equal "Booyah", result.at_css("h1").content
+    end
+
     def test_transform2
       assert style = Nokogiri::XSLT(File.open(XSLT_FILE))
       assert result_doc = style.transform(@doc)
