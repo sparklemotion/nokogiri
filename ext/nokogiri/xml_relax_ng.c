@@ -55,7 +55,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
 {
   xmlRelaxNGParserCtxtPtr ctx = xmlRelaxNGNewMemParserCtxt(
       (const char *)StringValuePtr(content),
-      RSTRING_LEN(content)
+      (int)RSTRING_LEN(content)
   );
 
   VALUE errors = rb_ary_new();

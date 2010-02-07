@@ -91,7 +91,7 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     xmlDocPtr result ;
     xsltStylesheetPtr ss ;
     const char** params ;
-    int param_len, j ;
+    long param_len, j ;
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
     if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0) ; }

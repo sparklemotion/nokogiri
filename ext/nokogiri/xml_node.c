@@ -996,8 +996,8 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
   xmlParseInNodeContext(
       node,
       StringValuePtr(_str),
-      RSTRING_LEN(_str),
-      NUM2INT(_options),
+      (int)RSTRING_LEN(_str),
+      (int)NUM2INT(_options),
       &list);
 
 #ifndef HTML_PARSE_NOIMPLIED

@@ -184,7 +184,7 @@ static VALUE index_at(VALUE self, long offset)
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  if(offset >= node_set->nodeNr || abs(offset) > node_set->nodeNr) return Qnil;
+  if(offset >= node_set->nodeNr || abs((int)offset) > node_set->nodeNr) return Qnil;
   if(offset < 0) offset = offset + node_set->nodeNr;
 
   if (XML_NAMESPACE_DECL == node_set->nodeTab[offset]->type)
@@ -194,7 +194,7 @@ static VALUE index_at(VALUE self, long offset)
 
 static VALUE subseq(VALUE self, long beg, long len)
 {
-  int j;
+  long j;
   xmlNodeSetPtr node_set;
   xmlNodeSetPtr new_set ;
 

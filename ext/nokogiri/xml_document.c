@@ -227,7 +227,7 @@ static VALUE read_memory( VALUE klass,
   const char * c_buffer = StringValuePtr(string);
   const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
   const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
-  int len               = RSTRING_LEN(string);
+  int len               = (int)RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
 
   xmlResetLastError();

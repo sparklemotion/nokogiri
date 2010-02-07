@@ -184,7 +184,7 @@ static VALUE attribute_at(VALUE self, VALUE index)
 
   xmlChar * value = xmlTextReaderGetAttributeNo(
       reader,
-      NUM2INT(index)
+      (int)NUM2INT(index)
   );
   if(value == NULL) return Qnil;
 
@@ -487,11 +487,11 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
   if (!RTEST(rb_buffer)) rb_raise(rb_eArgError, "string cannot be nil");
   if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
   if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
-  if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
+  if (RTEST(rb_options)) c_options = (int)NUM2INT(rb_options);
 
   xmlTextReaderPtr reader = xmlReaderForMemory(
       StringValuePtr(rb_buffer),
-      RSTRING_LEN(rb_buffer),
+      (int)RSTRING_LEN(rb_buffer),
       c_url,
       c_encoding,
       c_options
@@ -528,7 +528,7 @@ static VALUE from_io(int argc, VALUE *argv, VALUE klass)
   if (!RTEST(rb_io)) rb_raise(rb_eArgError, "io cannot be nil");
   if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
   if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
-  if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
+  if (RTEST(rb_options)) c_options = (int)NUM2INT(rb_options);
 
   xmlTextReaderPtr reader = xmlReaderForIO(
       (xmlInputReadCallback)io_read_callback,

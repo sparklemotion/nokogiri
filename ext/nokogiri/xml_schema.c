@@ -94,7 +94,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
 
   xmlSchemaParserCtxtPtr ctx = xmlSchemaNewMemParserCtxt(
       (const char *)StringValuePtr(content),
-      RSTRING_LEN(content)
+      (int)RSTRING_LEN(content)
   );
 
   VALUE errors = rb_ary_new();

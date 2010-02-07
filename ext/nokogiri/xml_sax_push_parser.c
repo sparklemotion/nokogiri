@@ -31,7 +31,7 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 
   if(Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
-    size = RSTRING_LEN(_chunk);
+    size = (int)RSTRING_LEN(_chunk);
   }
 
   if(xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
