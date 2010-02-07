@@ -5,7 +5,18 @@ module Nokogiri
         return self unless tags
 
         if document.html?
-          HTML::SAX::Parser.new(FragmentHandler.new(self, tags)).parse(tags)
+          has_root = document.root
+          ctx      = document.root
+
+          unless has_root
+            ctx = document.root = Nokogiri::XML::Element.new('div', document)
+          end
+
+          ctx.parse("<div>#{tags.strip}</div>").first.children.each do |tag|
+            tag.parent = self
+          end
+
+          document.root = nil unless has_root
         else
           has_root = document.root
 

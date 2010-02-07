@@ -103,9 +103,9 @@ module Nokogiri
       end
 
       def test_html_fragment_case_insensitivity
-        doc = "<crazyDiv>b</crazyDiv>"
+        doc = "<Div>b</Div>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "<crazydiv>b</crazydiv>", fragment.to_s
+        assert_equal "<div>b</div>", fragment.to_s
       end
 
       def test_html_fragment_with_leading_whitespace

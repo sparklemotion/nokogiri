@@ -232,7 +232,7 @@ module Nokogiri
       # Wrap this NodeSet with +html+ or the results of the builder in +blk+
       def wrap(html, &blk)
         each do |j|
-          new_parent = Nokogiri.make(html, &blk)
+          new_parent = document.root.parse(html).first
           j.add_next_sibling(new_parent)
           new_parent.add_child(j)
         end
