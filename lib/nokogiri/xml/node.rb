@@ -375,9 +375,11 @@ module Nokogiri
         self
       end
 
-      def fragment tags # :nodoc:
-        # TODO: deprecate?
-        document.fragment(tags)
+      ###
+      # Create a DocumentFragment containing +tags+ that is relative to _this_
+      # context node.
+      def fragment tags
+        Nokogiri::XML::DocumentFragment.new(document, tags, self)
       end
 
       ###

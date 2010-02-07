@@ -8,6 +8,26 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_fragment_is_relative
+        doc      = Nokogiri::XML('<root><a xmlns="blah" /></root>')
+        ctx      = doc.root.child
+        fragment = Nokogiri::XML::DocumentFragment.new(doc, '<hello />', ctx)
+        hello    = fragment.child
+
+        assert_equal 'hello', hello.name
+        assert_equal doc.root.child.namespace, hello.namespace
+      end
+
+      def test_node_fragment_is_relative
+        doc      = Nokogiri::XML('<root><a xmlns="blah" /></root>')
+        ctx      = doc.root.child
+        fragment = doc.root.child.fragment('<hello />')
+        hello    = fragment.child
+
+        assert_equal 'hello', hello.name
+        assert_equal doc.root.child.namespace, hello.namespace
+      end
+
       def test_new
         fragment = Nokogiri::XML::DocumentFragment.new(@xml)
       end

@@ -1,16 +1,15 @@
 module Nokogiri
   module XML
     class DocumentFragment < Nokogiri::XML::Node
-      def initialize document, tags=nil
+      def initialize document, tags = nil, ctx = document.root
         return self unless tags
 
         if document.html?
           HTML::SAX::Parser.new(FragmentHandler.new(self, tags)).parse(tags)
         else
           has_root = document.root
-          ctx      = document.root
 
-          unless has_root
+          unless ctx
             ctx = document.root = Nokogiri::XML::Element.new('div', document)
           end
 
