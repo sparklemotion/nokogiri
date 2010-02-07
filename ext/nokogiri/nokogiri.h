@@ -1,6 +1,16 @@
 #ifndef NOKOGIRI_NATIVE
 #define NOKOGIRI_NATIVE
 
+#ifdef USE_INCLUDED_VASPRINTF
+int vasprintf (char **strp, const char *fmt, va_list ap);
+#else
+
+#define _GNU_SOURCE
+#  include <stdio.h>
+#undef _GNU_SOURCE
+
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -16,18 +26,6 @@
 #include <libxml/HTMLtree.h>
 #include <libxml/relaxng.h>
 #include <ruby.h>
-
-#ifdef USE_INCLUDED_VASPRINTF
-int vasprintf (char **strp, const char *fmt, va_list ap);
-#else
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
-#  include <stdio.h>
-
-#endif
 
 int is_2_6_16(void) ;
 
