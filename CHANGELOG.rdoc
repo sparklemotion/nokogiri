@@ -10,6 +10,7 @@
   * Added Enumerable to XML::Node
   * Nokogiri::XML::Schema#validate now uses xmlSchemaValidateFile if a
     filename is passed, which is faster and more memory-efficient. GH #219
+  * XML::Document#create_entity will create new EntityDecl objects. GH #174
 
 * Bugfixes
 

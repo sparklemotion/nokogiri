@@ -5,6 +5,7 @@
 #include <string.h>
 #include <assert.h>
 #include <libxml/parser.h>
+#include <libxml/entities.h>
 #include <libxml/parserInternals.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>

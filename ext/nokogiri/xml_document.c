@@ -342,6 +342,52 @@ VALUE remove_namespaces_bang(VALUE self)
   return self;
 }
 
+/* call-seq: doc.create_entity(name, type, external_id, system_id, content)
+ *
+ * Create a new entity named +name+.
+ *
+ * +type+ is an integer representing the type of entity to be created, and it
+ * defaults to Nokogiri::XML::EntityDecl::INTERNAL_GENERAL.  See
+ * the constants on Nokogiri::XML::EntityDecl for more information.
+ *
+ * +external_id+, +system_id+, and +content+ set the External ID, System ID,
+ * and content respectively.  All of these parameters are optional.
+ */
+static VALUE create_entity(int argc, VALUE *argv, VALUE self)
+{
+  VALUE name;
+  VALUE type;
+  VALUE external_id;
+  VALUE system_id;
+  VALUE content;
+
+  xmlDocPtr doc ;
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  rb_scan_args(argc, argv, "14", &name, &type, &external_id, &system_id,
+      &content);
+
+  xmlResetLastError();
+  xmlEntityPtr ptr = xmlAddDocEntity(
+      doc,
+      (xmlChar *)NIL_P(name) ? NULL : StringValuePtr(name),
+      (int)NIL_P(type) ? XML_INTERNAL_GENERAL_ENTITY : NUM2INT(type),
+      (xmlChar *)NIL_P(external_id) ? NULL : StringValuePtr(external_id),
+      (xmlChar *)NIL_P(system_id)   ? NULL : StringValuePtr(system_id),
+      (xmlChar *)NIL_P(content)     ? NULL : StringValuePtr(content));
+
+  if(NULL == ptr) {
+    xmlErrorPtr error = xmlGetLastError();
+    if(error)
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+    else
+      rb_raise(rb_eRuntimeError, "Could not create entity");
+
+    return Qnil;
+  }
+
+  return Nokogiri_wrap_xml_node(cNokogiriXmlEntityDecl, ptr);
+}
 
 VALUE cNokogiriXmlDocument ;
 void init_xml_document()
@@ -368,6 +414,7 @@ void init_xml_document()
   rb_define_method(klass, "version", version, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
+  rb_define_method(klass, "create_entity", create_entity, -1);
   rb_define_method(klass, "remove_namespaces!", remove_namespaces_bang, 0);
 }
 
