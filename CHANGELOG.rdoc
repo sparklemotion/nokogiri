@@ -14,8 +14,10 @@
 
 * Bugfixes
 
-  * XML::NodeSet is now always decorated (if the document has decorators). GH #198
-  * XML::NodeSet#slice gracefully handles offset+length larger than the set length. GH #200
+  * XML::NodeSet is now always decorated (if the document has decorators).
+    GH #198
+  * XML::NodeSet#slice gracefully handles offset+length larger than the set
+    length. GH #200
   * XML::Node#content= safely unlinks previous content. GH #203
   * XML::Node#namespace= takes nil as a parameter
   * XML::Node#xpath returns things other than NodeSet objects. GH #208

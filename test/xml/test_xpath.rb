@@ -34,6 +34,11 @@ module Nokogiri
         }.new
       end
 
+      def test_unknown_attribute
+        assert_equal 0, @xml.xpath('//employee[@id="asdfasdf"]/@fooo').length
+        assert_nil @xml.xpath('//employee[@id="asdfasdf"]/@fooo')[0]
+      end
+
       def test_boolean
         assert_equal false, @xml.xpath('1 = 2')
       end
