@@ -993,7 +993,7 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
   htmlHandleOmittedElem(0);
 #endif
 
-  xmlParserErrors x = xmlParseInNodeContext(
+  xmlParseInNodeContext(
       node,
       StringValuePtr(_str),
       RSTRING_LEN(_str),
