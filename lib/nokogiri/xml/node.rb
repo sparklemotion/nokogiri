@@ -231,7 +231,7 @@ module Nokogiri
 
       ###
       # Add +node+ as a child of this Node.
-      # The new node must be a Nokogiri::XML::Node or a non-empty String.
+      # The new node must be a Nokogiri::XML::Node.
       # Returns the new child node.
       def add_child(node)
         Node.verify_nodeishness(node)
