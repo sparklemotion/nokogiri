@@ -27,6 +27,12 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxml/relaxng.h>
 #include <ruby.h>
 
+#ifdef HAVE_RUBY_ENCODING_H
+#include <ruby/st.h>
+#else
+#include <st.h>
+#endif
+
 int is_2_6_16(void) ;
 
 #ifndef UNUSED
