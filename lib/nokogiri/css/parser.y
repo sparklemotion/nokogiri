@@ -222,7 +222,9 @@ rule
       }
     ;
   negation_arg
-    : hcap_1toN
+    : element_name
+    | element_name hcap_1toN
+    | hcap_1toN
     ;
 end
 

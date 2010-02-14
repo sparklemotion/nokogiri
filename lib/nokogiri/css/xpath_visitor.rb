@@ -40,7 +40,12 @@ module Nokogiri
       end
 
       def visit_not node
-        'not(' + node.value.first.accept(self) + ')'
+        child = node.value.first
+        if :ELEMENT_NAME == child.type
+          "not(self::#{child.accept(self)})"
+        else
+          "not(#{child.accept(self)})"
+        end
       end
 
       def visit_preceding_selector node
@@ -100,8 +105,8 @@ module Nokogiri
           return self.send(msg, node) if self.respond_to?(msg)
 
           case node.value.first
-          when "first" then "position() = 1"
-          when "last" then "position() = last()"
+          when "first", "first-child" then "position() = 1"
+          when "last", "last-child" then "position() = last()"
           when "first-of-type" then "position() = 1"
           when "last-of-type" then "position() = last()"
           when "only-of-type" then "last() = 1"

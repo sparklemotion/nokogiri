@@ -8,6 +8,15 @@ module Nokogiri
         @parser = Nokogiri::CSS::Parser.new
       end
 
+      def test_not_simple_selector
+        assert_xpath('//ol/*[not(self::li)]', @parser.parse('ol > *:not(li)'))
+      end
+
+      def test_not_last_child
+        assert_xpath('//ol/*[not(position() = last())]',
+          @parser.parse('ol > *:not(:last-child)'))
+      end
+
       def test_function_calls_allow_at_params
         assert_xpath("//a[foo(., @href)]", @parser.parse('a:foo(@href)'))
         assert_xpath("//a[foo(., @a, b)]", @parser.parse('a:foo(@a, b)'))
