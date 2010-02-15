@@ -218,137 +218,141 @@ public abstract class ReaderNode {
     }
 
     public IRubyObject toSyntaxError() { return node().ruby.getNil(); }
-}
 
+    public static class ClosingNode extends ReaderNode {
 
+        ReaderNode node;
 
-class ClosingNode extends ReaderNode{
-    
-    ReaderNode node;
-    
-    public ClosingNode(Ruby ruby, ReaderNode node){
-        this.ruby = ruby;
-        this.node = node;
-    }
-
-    @Override
-    public IRubyObject getAttributeCount(){
-        return ruby.newFixnum(0);
-    }
-
-    @Override
-    public RubyBoolean hasValue() {
-        return node().hasValue();
-    }
-
-    @Override
-    protected ReaderNode node() {
-        return this.node;
-    }
-}
-class ElementNode extends ReaderNode {
-
-    private static XmlDocument xmlDoc = null;
-
-    public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth) {
-        this.ruby = ruby;
-        if(xmlDoc == null) {
-            xmlDoc = (XmlDocument) XmlDocument.rbNew(ruby.getCurrentContext(),
-                ruby.getClassFromPath("Nokogiri::XML::Document"), new IRubyObject[0]);
+        public ClosingNode(Ruby ruby, ReaderNode node) {
+            this.ruby = ruby;
+            this.node = node;
         }
-        this.uri = (uri.equals("")) ? ruby.getNil() : toRubyString(uri);
-        this.localName = toRubyString(localName);
-        this.qName = toRubyString(qName);
-        this.prefix = parsePrefix(qName);
-        this.depth = ruby.newFixnum(depth);
-        parseAttrs(attrs); // I don't know what to do with you yet, my friend.
+
+        @Override
+        public IRubyObject getAttributeCount() {
+            return ruby.newFixnum(0);
+        }
+
+        @Override
+        public RubyBoolean hasValue() {
+            return node().hasValue();
+        }
+
+        @Override
+        public ReaderNode node() {
+            return this.node;
+        }
     }
 
-    @Override
-    public RubyBoolean hasValue() {
-        return ruby.getFalse();
-    }
+    public static class ElementNode extends ReaderNode {
 
-    private void parseAttrs(Attributes attrs) {
-        List<IRubyObject> arr = new ArrayList<IRubyObject>(attrs.getLength());
-        Hashtable<IRubyObject,IRubyObject> hash = new Hashtable<IRubyObject,IRubyObject>();
+        private static XmlDocument xmlDoc = null;
 
-        this.attributes = new Hashtable<IRubyObject, IRubyObject>();
-        this.attributeValues = new IRubyObject[attrs.getLength()];
-        Document doc = xmlDoc.getDocument();
-
-        RubyString attrName;
-        RubyString attrValue;
-        String u, n, v;
-
-        for(int i = 0; i < attrs.getLength(); i++){
-            u = attrs.getURI(i);
-            n = attrs.getQName(i);
-            v = attrs.getValue(i);
-            attrName = ruby.newString(n);
-            attrValue = ruby.newString(v);
-
-            this.attributeValues[i] = attrValue;
-            this.attributes.put(attrName, attrValue);
-            
-            if(isNamespace(n)){
-                hash.put(attrName, attrValue);
-            } else {
-                Attr attr = doc.createAttributeNS(u,n);
-                attr.setValue(v);
-                arr.add(new XmlAttr(ruby, attr));
+        public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth) {
+            this.ruby = ruby;
+            if (xmlDoc == null) {
+                xmlDoc = (XmlDocument) XmlDocument.rbNew(ruby.getCurrentContext(),
+                        ruby.getClassFromPath("Nokogiri::XML::Document"), new IRubyObject[0]);
             }
+            this.uri = (uri.equals("")) ? ruby.getNil() : toRubyString(uri);
+            this.localName = toRubyString(localName);
+            this.qName = toRubyString(qName);
+            this.prefix = parsePrefix(qName);
+            this.depth = ruby.newFixnum(depth);
+            parseAttrs(attrs); // I don't know what to do with you yet, my
+                               // friend.
         }
-        this.attrs = ruby.newArray(arr);
-        this.namespaces = hash.isEmpty() ? ruby.getNil() : RubyHash.newHash(ruby, hash, ruby.getNil());
-    }
-}
 
-class EmptyNode extends ReaderNode {
+        @Override
+        public RubyBoolean hasValue() {
+            return ruby.getFalse();
+        }
 
-    public EmptyNode(Ruby ruby) {
-        this.ruby = ruby;
-    }
+        private void parseAttrs(Attributes attrs) {
+            List<IRubyObject> arr = new ArrayList<IRubyObject>(attrs.getLength());
+            Hashtable<IRubyObject, IRubyObject> hash = new Hashtable<IRubyObject, IRubyObject>();
 
-    @Override
-    public IRubyObject getXmlVersion() { return this.ruby.getNil(); }
+            this.attributes = new Hashtable<IRubyObject, IRubyObject>();
+            this.attributeValues = new IRubyObject[attrs.getLength()];
+            Document doc = xmlDoc.getDocument();
 
-    @Override
-    public RubyBoolean hasValue() {
-        return ruby.getFalse();
-    }
-}
+            RubyString attrName;
+            RubyString attrValue;
+            String u, n, v;
 
-class ExceptionNode extends EmptyNode {
-    private final XmlSyntaxError exception;
+            for (int i = 0; i < attrs.getLength(); i++) {
+                u = attrs.getURI(i);
+                n = attrs.getQName(i);
+                v = attrs.getValue(i);
+                attrName = ruby.newString(n);
+                attrValue = ruby.newString(v);
 
-    // Still don't know what to do with ex.
-    public ExceptionNode(Ruby ruby, SAXParseException ex) {
-        super(ruby);
-        this.exception = new XmlSyntaxError(ruby);
-    }
-    
-    @Override
-    public boolean isError() { return true; }
+                this.attributeValues[i] = attrValue;
+                this.attributes.put(attrName, attrValue);
 
-    @Override
-    public IRubyObject toSyntaxError(){
-        return this.exception;
-    }
-}
-
-class TextNode extends ReaderNode {
-
-    public TextNode(Ruby ruby, String content, int depth) {
-        this.ruby = ruby;
-        this.value = toRubyString(content);
-        this.localName = toRubyString("#text");
-        this.qName = toRubyString("#text");
-        this.depth = ruby.newFixnum(depth);
+                if (isNamespace(n)) {
+                    hash.put(attrName, attrValue);
+                } else {
+                    Attr attr = doc.createAttributeNS(u, n);
+                    attr.setValue(v);
+                    arr.add(new XmlAttr(ruby, attr));
+                }
+            }
+            this.attrs = ruby.newArray(arr);
+            this.namespaces = hash.isEmpty() ? ruby.getNil() : RubyHash.newHash(ruby, hash, ruby.getNil());
+        }
     }
 
-    @Override
-    public RubyBoolean hasValue() {
-        return ruby.getTrue();
+    public static class EmptyNode extends ReaderNode {
+
+        public EmptyNode(Ruby ruby) {
+            this.ruby = ruby;
+        }
+
+        @Override
+        public IRubyObject getXmlVersion() {
+            return this.ruby.getNil();
+        }
+
+        @Override
+        public RubyBoolean hasValue() {
+            return ruby.getFalse();
+        }
+    }
+
+    public static class ExceptionNode extends EmptyNode {
+        private final XmlSyntaxError exception;
+
+        // Still don't know what to do with ex.
+        public ExceptionNode(Ruby ruby, SAXParseException ex) {
+            super(ruby);
+            this.exception = new XmlSyntaxError(ruby);
+        }
+
+        @Override
+        public boolean isError() {
+            return true;
+        }
+
+        @Override
+        public IRubyObject toSyntaxError() {
+            return this.exception;
+        }
+    }
+
+    public static class TextNode extends ReaderNode {
+
+        public TextNode(Ruby ruby, String content, int depth) {
+            this.ruby = ruby;
+            this.value = toRubyString(content);
+            this.localName = toRubyString("#text");
+            this.qName = toRubyString("#text");
+            this.depth = ruby.newFixnum(depth);
+        }
+
+        @Override
+        public RubyBoolean hasValue() {
+            return ruby.getTrue();
+        }
     }
 }

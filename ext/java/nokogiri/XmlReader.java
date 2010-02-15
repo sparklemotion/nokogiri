@@ -1,6 +1,11 @@
 package nokogiri;
 
 import nokogiri.internals.ReaderNode;
+import nokogiri.internals.ReaderNode.ClosingNode;
+import nokogiri.internals.ReaderNode.ElementNode;
+import nokogiri.internals.ReaderNode.EmptyNode;
+import nokogiri.internals.ReaderNode.TextNode;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -9,11 +14,13 @@ import java.util.Stack;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
@@ -72,7 +79,9 @@ public class XmlReader extends RubyObject {
         }
     }
 
-    private ReaderNode peek() { return this.nodeQueue.peek(); }
+    private ReaderNode peek() { 
+    	return this.nodeQueue.peek(); 
+    }
 
     private void setSource(IRubyObject source){
         this.setInstanceVariable("@source", source);
@@ -161,7 +170,49 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject inner_xml(ThreadContext context) {
-        return peek().getValue();
+        ReaderNode[] nodes = nodeQueue.toArray(new ReaderNode[0]);
+        Long outer_depth = ((RubyFixnum) nodes[0].getDepth()).getLongValue();
+        RubyString inner = RubyString.newEmptyString(context.getRuntime());
+        for (int i = 1; i < nodes.length; i++) {
+            ReaderNode node = nodes[i];
+            Long current_depth = ((RubyFixnum) node.getDepth()).getLongValue();
+            if (current_depth <= outer_depth) continue;
+            if (node instanceof ElementNode) {
+                if ((i + 1) < nodes.length && nodes[i + 1] instanceof ClosingNode && node == ((ClosingNode)nodes[i + 1]).node()) {
+                    inner.concat(getEmptyTag(node.getQName()));
+                    i++;
+                } else {
+                    inner.concat(getStartTag(node.getQName()));
+                }
+            } else if (node instanceof TextNode) {
+                inner.concat(node.getValue());
+            } else if (node instanceof ClosingNode) {
+                inner.concat(getEndTag(node.getQName()));
+            } else if (node instanceof EmptyNode) {
+                inner.concat(getEmptyTag(node.getQName()));
+            }
+        }
+        return inner;
+    }
+    
+    private final RubyString leftAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), "<");
+    private final RubyString leftEndAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), "</");
+    private final RubyString rightAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), ">");
+    private final RubyString rightEndAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), "/>");
+    
+    private RubyString getStartTag(IRubyObject qname) {
+        RubyString start_tag = RubyString.newEmptyString(getRuntime());
+    	return start_tag.concat(leftAngleBracket).concat(qname).concat(rightAngleBracket);
+    }
+    
+    private RubyString getEndTag(IRubyObject qname) {
+        RubyString end_tag = RubyString.newEmptyString(getRuntime());
+    	return end_tag.concat(leftEndAngleBracket).concat(qname).concat(rightAngleBracket);
+    }
+    
+    private RubyString getEmptyTag(IRubyObject qname) {
+        RubyString empty_tag = RubyString.newEmptyString(getRuntime());
+    	return empty_tag.concat(leftAngleBracket).concat(qname).concat(rightEndAngleBracket);
     }
 
     @JRubyMethod
