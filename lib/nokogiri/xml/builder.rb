@@ -375,14 +375,15 @@ module Nokogiri
       def insert(node, &block)
         node.parent = @parent
         if block_given?
-          @parent = node
+          old_parent = @parent
+          @parent    = node
           @arity ||= block.arity
           if @arity <= 0
             instance_eval(&block)
           else
             block.call(self)
           end
-          @parent = node.parent
+          @parent = old_parent
         end
         NodeBuilder.new(node, self)
       end

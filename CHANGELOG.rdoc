@@ -23,6 +23,8 @@
   * XML::Node#xpath returns things other than NodeSet objects. GH #208
   * XSLT::StyleSheet#transform accepts hashes for parameters. GH #223
   * Psuedo selectors inside not() work. GH #205
+  * XML::Builder doesn't break when nodes are unlinked.
+    Thanks to vihai! GH #228
 
 === 1.4.1 / 2009/12/10
 

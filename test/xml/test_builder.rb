@@ -3,6 +3,17 @@ require "helper"
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_builder_with_unlink
+        assert_nothing_raised do
+          Nokogiri::XML::Builder.new do |xml|
+            xml.foo do
+              xml.bar { xml.parent.unlink }
+              xml.bar2
+            end
+          end
+        end
+      end
+
       def test_with_root
         doc = Nokogiri::XML(File.read(XML_FILE))
         Nokogiri::XML::Builder.with(doc.at('employee')) do |xml|
