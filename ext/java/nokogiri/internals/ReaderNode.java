@@ -22,7 +22,7 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 public abstract class ReaderNode {
 
     Ruby ruby;
-    IRubyObject attrs, depth, lang, localName, namespaces, prefix, qName, uri, value, xmlVersion;
+    IRubyObject attrs, depth, lang, localName, namespaces, prefix, qName, uri, value, xmlVersion, nodeType;
     /*
      * Difference between attrs and attributes is that attributes map includes
      * namespaces.
@@ -218,6 +218,24 @@ public abstract class ReaderNode {
     }
 
     public IRubyObject toSyntaxError() { return node().ruby.getNil(); }
+    
+    public IRubyObject getNodeType() { return nodeType; }
+    
+    public static enum NodeType {
+        ELEMENT_NODE(1),
+        TEXT_NODE(3),
+        DTD_NODE(14),
+        ELEMENT_DECL(15);
+        
+        private final int value;
+        NodeType(int value) {
+            this.value = value;
+        }
+        
+        public int getValue() {
+            return value;
+        }
+    }
 
     public static class ClosingNode extends ReaderNode {
 
@@ -226,6 +244,7 @@ public abstract class ReaderNode {
         public ClosingNode(Ruby ruby, ReaderNode node) {
             this.ruby = ruby;
             this.node = node;
+            nodeType = ruby.newFixnum(NodeType.ELEMENT_DECL.getValue());
         }
 
         @Override
@@ -261,6 +280,7 @@ public abstract class ReaderNode {
             this.depth = ruby.newFixnum(depth);
             parseAttrs(attrs); // I don't know what to do with you yet, my
                                // friend.
+            nodeType = ruby.newFixnum(NodeType.ELEMENT_NODE.getValue());
         }
 
         @Override
@@ -348,6 +368,11 @@ public abstract class ReaderNode {
             this.localName = toRubyString("#text");
             this.qName = toRubyString("#text");
             this.depth = ruby.newFixnum(depth);
+            if (content.contains("\n")) {
+                nodeType = ruby.newFixnum(NodeType.DTD_NODE.getValue());
+            } else {
+                nodeType = ruby.newFixnum(NodeType.TEXT_NODE.getValue());
+            }
         }
 
         @Override

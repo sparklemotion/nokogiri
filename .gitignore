@@ -14,3 +14,11 @@ tmp
 *.gemspec
 pkg
 TAGS
+.classpath
+.project
+.settings
+ext/java/Canna
+build
+test/test_jruby_header.rb
+test/test_jruby_footer.rb
+test/*_mini.rb

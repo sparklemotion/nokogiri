@@ -168,31 +168,49 @@ public class XmlReader extends RubyObject {
         return r;
     }
 
+    private final RubyFixnum zero = (RubyFixnum) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), 0);
+    
+    @JRubyMethod
+    public IRubyObject node_type(ThreadContext context) {
+        IRubyObject node_type = nodeQueue.peek().getNodeType();
+        return node_type == null ? zero : node_type;
+    }
+
     @JRubyMethod
     public IRubyObject inner_xml(ThreadContext context) {
+        Long outer_depth = ((RubyFixnum) nodeQueue.peek().getDepth()).getLongValue();
+        return getXmlString(context, outer_depth);
+    }
+    
+    @JRubyMethod
+    public IRubyObject outer_xml(ThreadContext context) {
+        Long outer_depth = ((RubyFixnum) nodeQueue.peek().getDepth()).getLongValue();
+        return getXmlString(context, outer_depth - 1);
+    }
+    
+    private IRubyObject getXmlString(ThreadContext context, Long outer_depth) {
         ReaderNode[] nodes = nodeQueue.toArray(new ReaderNode[0]);
-        Long outer_depth = ((RubyFixnum) nodes[0].getDepth()).getLongValue();
-        RubyString inner = RubyString.newEmptyString(context.getRuntime());
-        for (int i = 1; i < nodes.length; i++) {
+        RubyString xmlString = RubyString.newEmptyString(context.getRuntime());
+        for (int i = 0; i < nodes.length; i++) {
             ReaderNode node = nodes[i];
             Long current_depth = ((RubyFixnum) node.getDepth()).getLongValue();
             if (current_depth <= outer_depth) continue;
             if (node instanceof ElementNode) {
                 if ((i + 1) < nodes.length && nodes[i + 1] instanceof ClosingNode && node == ((ClosingNode)nodes[i + 1]).node()) {
-                    inner.concat(getEmptyTag(node.getQName()));
+                    xmlString.concat(getEmptyTag(node.getQName()));
                     i++;
                 } else {
-                    inner.concat(getStartTag(node.getQName()));
+                    xmlString.concat(getStartTag(node.getQName()));
                 }
             } else if (node instanceof TextNode) {
-                inner.concat(node.getValue());
+                xmlString.concat(node.getValue());
             } else if (node instanceof ClosingNode) {
-                inner.concat(getEndTag(node.getQName()));
+                xmlString.concat(getEndTag(node.getQName()));
             } else if (node instanceof EmptyNode) {
-                inner.concat(getEmptyTag(node.getQName()));
+                xmlString.concat(getEmptyTag(node.getQName()));
             }
         }
-        return inner;
+        return xmlString;
     }
     
     private final RubyString leftAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), "<");
