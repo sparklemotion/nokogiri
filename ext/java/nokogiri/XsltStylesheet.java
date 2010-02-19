@@ -101,9 +101,15 @@ public class XsltStylesheet extends RubyObject {
         } catch(TransformerException ex) {
             throw ruby.newRuntimeError("Could not transform the document.");
         }
-
-        return new XmlDocument(ruby,
-                (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"),
-                (Document) result.getNode());
+        
+        if ("html".equals(result.getNode().getFirstChild().getNodeName())) {
+            return new HtmlDocument(ruby,
+                    (RubyClass) ruby.getClassFromPath("Nokogiri::HTML::Document"),
+                    (Document) result.getNode());
+        } else {
+            return new XmlDocument(ruby,
+                    (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"),
+                    (Document) result.getNode());
+        }
     }
 }
