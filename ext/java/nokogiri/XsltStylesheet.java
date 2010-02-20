@@ -1,5 +1,9 @@
 package nokogiri;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -37,9 +41,12 @@ public class XsltStylesheet extends RubyObject {
             transf.setParameter(name, unparseValue(value));
         }
     }
+    
+    private Pattern p = Pattern.compile("'.{1,}'");
 
     private String unparseValue(String orig) {
-        if(orig.startsWith("\"") && orig.endsWith("\"")) {
+        Matcher m = p.matcher(orig);
+        if ((orig.startsWith("\"") && orig.endsWith("\"")) || m.matches()) {
             orig = orig.substring(1, orig.length()-1);
         }
 
