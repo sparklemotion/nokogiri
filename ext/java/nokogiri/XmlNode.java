@@ -32,6 +32,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -756,5 +758,29 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(name = "node_type")
     public IRubyObject xmlType(ThreadContext context) {
         return this.internalNode.methods().getNokogiriNodeType(context);
+    }
+    
+    @JRubyMethod
+    public IRubyObject line(ThreadContext context) {
+        Node root = internalNode.getDocument(context).getDocument();
+        int[] counter = new int[1];
+        count(root, counter);
+        return RubyFixnum.newFixnum(context.getRuntime(), counter[0]+1);
+    }
+    
+    private boolean count(Node node, int[] counter) {
+        if (node == this.getNode()) {
+            return true;
+        }
+        NodeList list = node.getChildNodes();
+        for (int i=0; i<list.getLength(); i++) {
+            Node n = list.item(i);
+            if (n instanceof Text
+                    && ((Text)n).getData().contains("\n")) {
+                counter[0] += 1;
+            }
+            if (count(n, counter)) return true;
+        }
+        return false;
     }
 }
