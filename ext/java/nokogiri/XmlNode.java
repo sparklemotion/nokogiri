@@ -16,6 +16,7 @@ import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyHash;
+import org.jruby.RubyNil;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
@@ -783,4 +784,18 @@ public class XmlNode extends RubyObject {
         }
         return false;
     }
+    
+    @JRubyMethod
+    public IRubyObject next_element(ThreadContext context) {
+        Node node = this.getNode().getNextSibling();
+        if (node == null) return context.getRuntime().getNil();
+        Ruby ruby = context.getRuntime();
+        if (node instanceof Element) {
+            return new XmlElement(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
+        }
+        Node deeper = node.getNextSibling();
+        if (deeper == null) return context.getRuntime().getNil();
+        return new XmlElement(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), deeper);
+    }
+
 }
