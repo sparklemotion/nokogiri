@@ -788,14 +788,26 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject next_element(ThreadContext context) {
         Node node = this.getNode().getNextSibling();
-        if (node == null) return context.getRuntime().getNil();
         Ruby ruby = context.getRuntime();
+        if (node == null) return ruby.getNil();
         if (node instanceof Element) {
             return new XmlElement(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
         }
         Node deeper = node.getNextSibling();
-        if (deeper == null) return context.getRuntime().getNil();
+        if (deeper == null) return ruby.getNil();
         return new XmlElement(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), deeper);
     }
 
+    @JRubyMethod
+    public IRubyObject previous_element(ThreadContext context) {
+        Node node = this.getNode().getPreviousSibling();
+        Ruby ruby = context.getRuntime();
+        if (node == null) return ruby.getNil();
+        if (node instanceof Element) {
+            return new XmlElement(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
+        }
+        Node shallower = node.getPreviousSibling();
+        if (shallower == null) return ruby.getNil();
+        return new XmlElement(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), shallower);
+    }
 }
