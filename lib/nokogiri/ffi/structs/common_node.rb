@@ -1,18 +1,27 @@
 module Nokogiri
   module LibXML # :nodoc:
     module CommonNode # :nodoc:
-
       def document
         p = self[:doc]
         p.null? ? nil : LibXML::XmlDocumentCast.new(p)
       end
 
+      if I_WANT_TO_USE_ID2REF
+        def ruby_node_pointer
+          self[:_private]
+        end
+
+        def ruby_node_pointer=(value)
+          self[:_private] = value
+        end
+      end
+
       def ruby_node
-        self[:_private] != 0 ? ObjectSpace._id2ref(self[:_private]) : nil
+        LibXML.get_object(self)
       end
 
       def ruby_node= object
-        self[:_private] = object.object_id
+        LibXML.set_object(self, object)
       end
 
       def keep_reference_from_document! # equivalent to NOKOGIRI_ROOT_NODE
