@@ -95,6 +95,9 @@ module Nokogiri
   <foo:bar>hello world</foo:bar>
 </root>
           eoxml
+
+          pp @parser.document.inspect
+
           assert @parser.document.start_elements_namespace.length > 0
           el = @parser.document.start_elements_namespace[1]
           assert_equal 'a', el.first

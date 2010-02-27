@@ -10,6 +10,7 @@ import org.jruby.RubyIO;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
+import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -17,6 +18,7 @@ import org.jruby.util.ByteList;
 import org.jruby.util.TypeConverter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -96,7 +98,21 @@ public class XmlSaxParserContext extends RubyObject {
 		}
 
 		try{
-			this.reader.parse(this.source);
+            try {
+                this.reader.parse(this.source);
+            } catch(SAXParseException spe) {
+                // A bad document (<foo><bar></foo>) should call the error handler instead of raising a
+                // SAX exception.
+                String message = spe.getMessage();
+                System.out.println("message: " + message);
+                handler.error(spe);
+
+                // However, an EMPTY document should raise a RuntimeError.  This is a bit kludgy, but
+                //  AFAIK SAX doesn't distinguish between empty and bad whereas Nokogiri does.
+                if ("Premature end of file.".matches(message)) {
+                    throw context.getRuntime().newRuntimeError("couldn't parse document: "+ message);
+                }
+            }
 		} catch(SAXException se) {
 			throw RaiseException.createNativeRaiseException(ruby, se);
 		} catch(IOException ioe) {

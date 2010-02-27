@@ -77,6 +77,12 @@ public class NokogiriHandler extends DefaultHandler2{
     }
 
     @Override
+    public void fatalError(SAXParseException saxpe) throws SAXException
+    {
+        call("error", ruby.newString(saxpe.getMessage()));
+    }
+
+    @Override
     public void warning(SAXParseException saxpe) {
         call("warning", ruby.newString(saxpe.getMessage()));
     }
