@@ -16,6 +16,19 @@ module Nokogiri
           nil
         end
 
+        protected
+
+        # Move this out of private block because it's used in Nokogiri::XML::SAX::PushParser
+        def initialize_native(sax, filename) # :nodoc:
+          filename = filename.to_s unless filename.nil?
+          ctx_ptr = LibXML.xmlCreatePushParserCtxt(
+            sax.cstruct, nil, nil, 0, filename
+            )
+          raise(RuntimeError, "Could not create a parser context") if ctx_ptr.null?
+          self.cstruct = LibXML::XmlSaxPushParserContext.new(ctx_ptr) ;
+          self
+        end
+
         private
 
         def native_write(chunk, last_chunk) # :nodoc:
@@ -35,16 +48,7 @@ module Nokogiri
           self
         end
 
-        def initialize_native(sax, filename) # :nodoc:
-          filename = filename.to_s unless filename.nil?
-          ctx_ptr = LibXML.xmlCreatePushParserCtxt(
-            sax.cstruct, nil, nil, 0, filename
-            )
-          raise(RuntimeError, "Could not create a parser context") if ctx_ptr.null?
-          self.cstruct = LibXML::XmlSaxPushParserContext.new(ctx_ptr) ;
-          self
-        end
-
+        
       end
     end
   end
