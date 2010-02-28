@@ -3,6 +3,18 @@ require "helper"
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_builder_namespace
+        doc = Nokogiri::XML::Builder.new { |xml|
+          xml.a("xmlns:a" => "x") do
+            xml.b("xmlns:a" => "x", "xmlns:b" => "y")
+          end
+        }.doc
+
+        b = doc.at('b')
+        assert b
+        assert_equal({"xmlns:a"=>"x", "xmlns:b"=>"y"}, b.namespaces)
+      end
+
       def test_builder_with_unlink
         assert_nothing_raised do
           Nokogiri::XML::Builder.new do |xml|
