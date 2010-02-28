@@ -25,9 +25,9 @@ static VALUE parse_memory(VALUE klass, VALUE data, VALUE encoding)
   );
 
   if(RTEST(encoding)) {
-    xmlCharEncoding enc = xmlParseCharEncoding(StringValuePtr(encoding));
-    if(enc != XML_CHAR_ENCODING_ERROR) {
-      xmlSwitchEncoding(ctxt, enc);
+    xmlCharEncodingHandlerPtr enc = xmlFindCharEncodingHandler(StringValuePtr(encoding));
+    if(enc != NULL) {
+      xmlSwitchToEncoding(ctxt, enc);
       if(ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
         rb_raise(rb_eRuntimeError, "Unsupported encoding %s",
             StringValuePtr(encoding));

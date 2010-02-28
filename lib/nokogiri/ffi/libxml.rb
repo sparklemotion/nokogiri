@@ -297,7 +297,7 @@ module Nokogiri
     attach_function :free, [:pointer], :void
 
     attach_function :xmlParseCharEncoding, [:string], :int
-    attach_function :xmlSwitchEncoding, [:pointer, :int], :void
+    attach_function :xmlSwitchToEncoding, [:pointer, :pointer], :void
 
     # helpers
     POINTER_SIZE = FFI.type_size(:pointer)

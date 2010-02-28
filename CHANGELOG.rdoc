@@ -25,6 +25,7 @@
   * Psuedo selectors inside not() work. GH #205
   * XML::Builder doesn't break when nodes are unlinked.
     Thanks to vihai! GH #228
+  * Encoding can be forced on the SAX parser. Thanks Eugene Pimenov! GH #204
 
 === 1.4.1 / 2009/12/10
 

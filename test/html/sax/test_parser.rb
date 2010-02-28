@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "helper"
 
 module Nokogiri
@@ -48,6 +49,15 @@ module Nokogiri
           assert_raise ArgumentError do
             @parser.parse_memory(nil)
           end
+        end
+
+        def test_parse_force_encoding
+          @parser.parse_memory(<<-HTML, 'UTF-8')
+          <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+          Информация
+          HTML
+          assert_equal("Информация",
+                       @parser.document.data.join.strip)
         end
 
         def test_parse_document
