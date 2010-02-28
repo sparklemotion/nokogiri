@@ -103,15 +103,16 @@ public class XmlSaxParserContext extends RubyObject {
             } catch(SAXParseException spe) {
                 // A bad document (<foo><bar></foo>) should call the error handler instead of raising a
                 // SAX exception.
-                String message = spe.getMessage();
-                System.out.println("message: " + message);
-                handler.error(spe);
 
                 // However, an EMPTY document should raise a RuntimeError.  This is a bit kludgy, but
-                //  AFAIK SAX doesn't distinguish between empty and bad whereas Nokogiri does.
+                // AFAIK SAX doesn't distinguish between empty and bad whereas Nokogiri does.
+                String message = spe.getMessage();
                 if ("Premature end of file.".matches(message)) {
                     throw context.getRuntime().newRuntimeError("couldn't parse document: "+ message);
+                } else {
+                    handler.error(spe);
                 }
+
             }
 		} catch(SAXException se) {
 			throw RaiseException.createNativeRaiseException(ruby, se);
@@ -121,4 +122,20 @@ public class XmlSaxParserContext extends RubyObject {
 
 		return this;
 	}
+
+    /**
+     * Can take a boolean assignment.
+     *
+     * @param context
+     * @param klazz
+     * @param data
+     * @return
+     */
+    @JRubyMethod(name = "replace_entities=")
+    public IRubyObject set_replace_entities(ThreadContext context, IRubyObject value) {
+        System.out.println("replace entities called with " + value.toString());
+                        
+        return this;
+    }
+
 }
