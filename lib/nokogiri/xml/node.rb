@@ -633,8 +633,6 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def to_xml options = {}
-        encoding = nil
-
         options[:save_with] ||= SaveOptions::FORMAT | SaveOptions::AS_XML
 
         serialize(options)
