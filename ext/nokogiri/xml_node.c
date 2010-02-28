@@ -101,7 +101,7 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
     }
 
     if(!(reparented = (*func)(other, node))) {
-      rb_raise(rb_eRuntimeError, "Could not reparent node (1)");
+      rb_raise(rb_eRuntimeError, "Could not reparent node (%s:%d)", __FILE__, __LINE__);
     }
   } else {
     xmlNodePtr duped_node ;
@@ -110,7 +110,7 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
     if(!(reparented = (*func)(other, duped_node))) {
-      rb_raise(rb_eRuntimeError, "Could not reparent node (2)");
+      rb_raise(rb_eRuntimeError, "Could not reparent node (%s:%d)", __FILE__, __LINE__);
     }
     xmlUnlinkNode(node);
     NOKOGIRI_ROOT_NODE(node);
@@ -331,9 +331,7 @@ static VALUE blank_eh(VALUE self)
 {
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
-  if(1 == xmlIsBlankNode(node))
-    return Qtrue;
-  return Qfalse;
+  return (1 == xmlIsBlankNode(node)) ? Qtrue : Qfalse ;
 }
 
 /*
