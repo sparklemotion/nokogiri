@@ -190,7 +190,7 @@ module Nokogiri
       end
 
       ###
-      # Search this node's immidiate children using CSS selector +selector+
+      # Search this node's immediate children using CSS selector +selector+
       def > selector
         ns = document.root.namespaces
         xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
