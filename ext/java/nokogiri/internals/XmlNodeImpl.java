@@ -37,6 +37,12 @@ public class XmlNodeImpl {
         result.setDocument(this.getDocument(context));
         return result;
     }
+    
+    public IRubyObject selfAndChildren(ThreadContext context, XmlNode current) {
+        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
+        result.setDocument(this.getDocument(context));
+        return result;        
+    }
 
     public IRubyObject getContent(ThreadContext context) {
         if(this.content == DEFAULT_CONTENT) {
