@@ -14,7 +14,7 @@ module Nokogiri
         bad_xpath = '//foo['
 
         begin
-          @xml.xpath('//foo[')
+          @xml.xpath(bad_xpath)
         rescue Nokogiri::XML::XPath::SyntaxError => e
           assert_match(bad_xpath, e.to_s)
         end
