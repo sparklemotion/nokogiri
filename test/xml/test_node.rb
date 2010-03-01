@@ -10,6 +10,16 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_bad_xpath
+        bad_xpath = '//foo['
+
+        begin
+          @xml.xpath('//foo[')
+        rescue Nokogiri::XML::XPath::SyntaxError => e
+          assert_match(bad_xpath, e.to_s)
+        end
+      end
+
       def test_namespace_type_error
         assert_raises(TypeError) do
           @xml.root.namespace = Object.new

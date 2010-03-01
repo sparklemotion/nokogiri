@@ -21,7 +21,7 @@ static void deallocate(xmlParserCtxtPtr ctxt)
  */
 static VALUE parse_io(VALUE klass, VALUE io, VALUE encoding)
 {
-  xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding); 
+  xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding);
 
   xmlParserCtxtPtr ctxt = xmlCreateIOParserCtxt(
       NULL,
