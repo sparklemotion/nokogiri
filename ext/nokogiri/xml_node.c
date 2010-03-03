@@ -35,27 +35,27 @@ static void relink_namespace(xmlNodePtr reparented)
 
   // Search our parents for an existing definition
   if(reparented->nsDef) {
-    xmlNsPtr head = reparented->nsDef;
+    xmlNsPtr curr = reparented->nsDef;
     xmlNsPtr prev = NULL;
 
-    while(head) {
+    while(curr) {
       xmlNsPtr ns = xmlSearchNsByHref(
           reparented->doc,
           reparented->parent,
-          head->href
+          curr->href
       );
       /* If we find the namespace is already declared, remove it from this
        * definition list. */
-      if(ns && ns != head) {
+      if(ns && ns != curr) {
         if (prev) {
-          prev->next = head->next;
+          prev->next = curr->next;
         } else {
-          reparented->nsDef = head->next;
+          reparented->nsDef = curr->next;
         }
       } else {
-        prev = head;
+        prev = curr;
       }
-      head = head->next;
+      curr = curr->next;
     }
   }
 
