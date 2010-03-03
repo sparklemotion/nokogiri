@@ -130,6 +130,12 @@ extern VALUE mNokogiriXslt ;
     st_insert(tuple->unlinkedNodes, (st_data_t)_node, (st_data_t)_node);     \
   })
 
+#define NOKOGIRI_ROOT_NSDEF(_nsDef, _doc)     \
+  ({ \
+    nokogiriTuplePtr tuple = (nokogiriTuplePtr)(_doc->_private);       \
+    st_insert(tuple->unlinkedNodes, (st_data_t)_nsDef, (st_data_t)_nsDef);     \
+  })
+
 #ifdef DEBUG
 
 #define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);

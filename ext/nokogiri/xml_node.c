@@ -52,6 +52,7 @@ static void relink_namespace(xmlNodePtr reparented)
         } else {
           reparented->nsDef = curr->next;
         }
+        NOKOGIRI_ROOT_NSDEF(curr, reparented->doc);
       } else {
         prev = curr;
       }

@@ -6,6 +6,9 @@ static int dealloc_node_i(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
   case XML_ATTRIBUTE_NODE:
     xmlFreePropList((xmlAttrPtr)node);
     break;
+  case XML_NAMESPACE_DECL:
+    xmlFree(node);
+    break;
   default:
     if(node->parent == NULL) {
       xmlAddChild((xmlNodePtr)doc, node);
@@ -17,10 +20,9 @@ static int dealloc_node_i(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
 static void dealloc(xmlDocPtr doc)
 {
   NOKOGIRI_DEBUG_START(doc);
-
-  st_table *node_hash = DOC_UNLINKED_NODE_HASH(doc);
-
   xmlDeregisterNodeFunc func = xmlDeregisterNodeDefault(NULL);
+
+  st_table *node_hash  = DOC_UNLINKED_NODE_HASH(doc);
 
   st_foreach(node_hash, dealloc_node_i, (st_data_t)doc);
   st_free_table(node_hash);
@@ -30,7 +32,6 @@ static void dealloc(xmlDocPtr doc)
   xmlFreeDoc(doc);
 
   xmlDeregisterNodeDefault(func);
-
   NOKOGIRI_DEBUG_END(doc);
 }
 
