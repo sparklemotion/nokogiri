@@ -13,6 +13,20 @@ module Nokogiri
         b = doc.at('b')
         assert b
         assert_equal({"xmlns:a"=>"x", "xmlns:b"=>"y"}, b.namespaces)
+        assert_equal({"xmlns:b"=>"y"}, namespaces_defined_on(b))
+      end
+
+      def test_builder_namespace_part_deux
+        doc = Nokogiri::XML::Builder.new { |xml|
+          xml.a("xmlns:b" => "y") do
+            xml.b("xmlns:a" => "x", "xmlns:b" => "y", "xmlns:c" => "z")
+          end
+        }.doc
+
+        b = doc.at('b')
+        assert b
+        assert_equal({"xmlns:a"=>"x", "xmlns:b"=>"y", "xmlns:c"=>"z"}, b.namespaces)
+        assert_equal({"xmlns:a"=>"x", "xmlns:c"=>"z"}, namespaces_defined_on(b))
       end
 
       def test_builder_with_unlink
@@ -184,6 +198,12 @@ module Nokogiri
           cdata string
         }
         assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>", builder.to_xml.gsub(/\n/, ''))
+      end
+
+    private
+
+      def namespaces_defined_on(node)
+        Hash[node.namespace_definitions.collect{|n| ["xmlns:" + n.prefix, n.href]}]
       end
     end
   end

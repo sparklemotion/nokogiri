@@ -42,15 +42,16 @@ static void relink_namespace(xmlNodePtr reparented)
       xmlNsPtr ns = xmlSearchNsByHref(
           reparented->doc,
           reparented->parent,
-          reparented->nsDef->href
+          head->href
       );
       /* If we find the namespace is already declared, remove it from this
        * definition list. */
       if(ns && ns != head) {
-        if(prev) prev->next = head->next;
-
-        /* If we're removing the head node, relink nsDef. */
-        if(head == reparented->nsDef) reparented->nsDef = head->next;
+        if (prev) {
+          prev->next = head->next;
+        } else {
+          reparented->nsDef = head->next;
+        }
       } else {
         prev = head;
       }
