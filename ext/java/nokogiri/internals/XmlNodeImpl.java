@@ -1,14 +1,18 @@
 package nokogiri.internals;
 
-import nokogiri.*;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import nokogiri.XmlDocument;
+import nokogiri.XmlDtd;
+import nokogiri.XmlNamespace;
+import nokogiri.XmlNode;
+import nokogiri.XmlNodeSet;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
-import org.w3c.dom.Text;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -33,15 +37,15 @@ public class XmlNodeImpl {
     }
 
     public IRubyObject children(ThreadContext context, XmlNode current) {
-        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
+        XmlNodeSet result;
+        if (current instanceof XmlDtd) {
+            NamedNodeMap map = ((XmlDtd)current).getEntities();
+            result = new XmlNodeSet(context.getRuntime(), NokogiriHelpers.namedNodeMapToRubyArray(context.getRuntime(), map));
+        } else {
+            result = new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
+        }
         result.setDocument(this.getDocument(context));
         return result;
-    }
-    
-    public IRubyObject selfAndChildren(ThreadContext context, XmlNode current) {
-        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
-        result.setDocument(this.getDocument(context));
-        return result;        
     }
 
     public IRubyObject getContent(ThreadContext context) {

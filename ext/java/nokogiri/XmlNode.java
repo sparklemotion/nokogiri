@@ -1,22 +1,26 @@
 package nokogiri;
 
-import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.XmlNodeImpl;
+import static java.lang.Math.max;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.ParseOptions;
 import nokogiri.internals.SaveContext;
+import nokogiri.internals.XmlNodeImpl;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyHash;
-import org.jruby.RubyNil;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
@@ -38,8 +42,6 @@ import org.w3c.dom.Text;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import static java.lang.Math.max;
 
 public class XmlNode extends RubyObject {
 
@@ -444,7 +446,9 @@ public class XmlNode extends RubyObject {
         RubyArray attr = ruby.newArray();
 
         for(int i = 0; i < nodeMap.getLength(); i++) {
-            attr.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodeMap.item(i)));
+            if (!NokogiriHelpers.isNamespace(nodeMap.item(i))) {
+                attr.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodeMap.item(i)));
+            }
         }
 
         return attr;
@@ -563,11 +567,20 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject internal_subset(ThreadContext context) {
+        System.out.println(node().getNodeName() + ", " + node().getNodeValue() + ", " + node().getNodeType());
+        if (node().getNodeType() == Node.DOCUMENT_NODE) {
+            Document doc = (Document)node();
+            org.w3c.dom.DocumentType docType = doc.getDoctype();
+            return XmlNode.constructNode(context.getRuntime(), doc.getDoctype());
+        } else {
+            return context.getRuntime().getNil();
+        }
+        /*
         if(this.node().getOwnerDocument() == null) {
             return context.getRuntime().getNil();
         }
-
         return XmlNode.constructNode(context.getRuntime(), this.node().getOwnerDocument().getDoctype());
+        */
     }
 
     @JRubyMethod(name = "key?")

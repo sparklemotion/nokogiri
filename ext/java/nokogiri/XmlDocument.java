@@ -2,6 +2,8 @@ package nokogiri;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.ParseOptions;
@@ -161,7 +163,7 @@ public class XmlDocument extends XmlNode {
             RubyString content = args[0].convertToString();
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            document = options.getDocumentBuilder().parse(bais);
+            document = options.parse(bais);
             XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
             doc.setUrl(args[1]);
             options.addErrorsIfNecessary(context, doc);

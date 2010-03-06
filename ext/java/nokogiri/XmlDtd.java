@@ -5,6 +5,8 @@ import org.jruby.RubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 public class XmlDtd extends XmlNode {
@@ -14,6 +16,10 @@ public class XmlDtd extends XmlNode {
 
     public XmlDtd(Ruby ruby, RubyClass rubyClass, Node node) {
         super(ruby, rubyClass, node);
+    }
+    
+    public NamedNodeMap getEntities() {
+        return ((DocumentType)getNode()).getEntities();
     }
 
     @Override

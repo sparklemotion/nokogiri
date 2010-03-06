@@ -132,7 +132,8 @@ public class XmlElementImpl extends XmlNodeImpl {
 
         ctx.append("<");
         ctx.append(e.getNodeName());
-        this.saveNodeListContent(context, (RubyArray) current.attribute_nodes(context), ctx);
+        RubyArray attr_list = NokogiriHelpers.namedNodeMapToRubyArray(context.getRuntime(), current.getNode().getAttributes());
+        this.saveNodeListContent(context, attr_list, ctx);
 
         if(e.getChildNodes() == null && !ctx.noEmpty()) {
             ctx.append("/>");
