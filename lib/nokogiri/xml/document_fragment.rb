@@ -4,32 +4,22 @@ module Nokogiri
       def initialize document, tags = nil, ctx = document.root
         return self unless tags
 
+        has_root = document.root
+        unless ctx
+          ctx = document.root = Nokogiri::XML::Element.new('div', document)
+        end
+
         if document.html?
-          has_root = document.root
-          ctx      = document.root
-
-          unless has_root
-            ctx = document.root = Nokogiri::XML::Element.new('div', document)
-          end
-
           ctx.parse("<div>#{tags.strip}</div>").first.children.each do |tag|
             tag.parent = self
           end
-
-          document.root = nil unless has_root
         else
-          has_root = document.root
-
-          unless ctx
-            ctx = document.root = Nokogiri::XML::Element.new('div', document)
-          end
-
           ctx.parse(tags.strip).each do |tag|
             tag.parent = self
           end
-
-          document.root = nil unless has_root
         end
+
+        document.root = nil unless has_root
       end
 
       ###
