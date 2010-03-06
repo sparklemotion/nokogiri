@@ -1,7 +1,6 @@
 require 'nokogiri/xml/pp'
 require 'nokogiri/xml/parse_options'
 require 'nokogiri/xml/sax'
-require 'nokogiri/xml/fragment_handler'
 require 'nokogiri/xml/node'
 require 'nokogiri/xml/attribute_decl'
 require 'nokogiri/xml/element_decl'

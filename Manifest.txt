@@ -169,7 +169,6 @@ lib/nokogiri/xml/dtd.rb
 lib/nokogiri/xml/element_content.rb
 lib/nokogiri/xml/element_decl.rb
 lib/nokogiri/xml/entity_decl.rb
-lib/nokogiri/xml/fragment_handler.rb
 lib/nokogiri/xml/namespace.rb
 lib/nokogiri/xml/node.rb
 lib/nokogiri/xml/node/save_options.rb
