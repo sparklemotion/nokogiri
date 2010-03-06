@@ -1,5 +1,11 @@
 === HEAD
 
+* Bugfixes
+
+  * XML::DocumentFragment uses XML::Node#parse to determine children.
+
+=== 1.4.2 (TBA)
+
 * New Features
 
   * XML::Node#parse will parse XML or HTML fragments with respect to the
