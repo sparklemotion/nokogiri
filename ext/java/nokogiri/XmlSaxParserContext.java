@@ -3,11 +3,10 @@ package nokogiri;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.StringReader;
+
 import nokogiri.internals.NokogiriHandler;
-import org.jruby.Ruby;
-import org.jruby.RubyClass;
-import org.jruby.RubyIO;
-import org.jruby.RubyObject;
+import org.jruby.*;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
@@ -70,10 +69,20 @@ public class XmlSaxParserContext extends RubyObject {
     public static IRubyObject native_parse_io(ThreadContext context, IRubyObject klazz, IRubyObject data, IRubyObject enc) {
         Ruby ruby = context.getRuntime();
 		int encoding = (int)enc.convertToInteger().getLongValue();
-		RubyIO io = (RubyIO)TypeConverter.convertToType(data, ruby.getIO(), "to_io");
-		XmlSaxParserContext ctx = new XmlSaxParserContext(ruby, (RubyClass) klazz);
 
-		ctx.source = new InputSource(io.getInStream());
+        // The FFI version has some special logic to account for the case where we get a StringIO
+        // object:
+
+        boolean isStringIO = invoke(context, data, "is_a?", ruby.getClassFromPath("StringIO")).isTrue();
+		XmlSaxParserContext ctx = new XmlSaxParserContext(ruby, (RubyClass) klazz);
+        if (isStringIO) {
+            IRubyObject ioString = invoke(context, data, "string");
+            ctx.source = new InputSource(new StringReader(ioString.asJavaString()));
+        } else {
+            RubyIO io = (RubyIO) TypeConverter.convertToType(data, ruby.getIO(), "to_io");
+            ctx.source = new InputSource(io.getInStream());
+        }
+
 		return ctx;
     }
 
@@ -123,14 +132,6 @@ public class XmlSaxParserContext extends RubyObject {
 		return this;
 	}
 
-    /**
-     * Can take a boolean assignment.
-     *
-     * @param context
-     * @param klazz
-     * @param data
-     * @return
-     */
     @JRubyMethod(name = "replace_entities=")
     public IRubyObject set_replace_entities(ThreadContext context, IRubyObject value) {
         System.out.println("replace entities called with " + value.toString());
