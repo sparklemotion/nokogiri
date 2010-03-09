@@ -3,6 +3,12 @@ package nokogiri.internals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -96,7 +102,7 @@ public class ParseOptions {
     public DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
-        dbf.setIgnoringElementContentWhitespace(false);
+        dbf.setIgnoringElementContentWhitespace(noBlanks);
         dbf.setValidating(!this.continuesOnError());
 
         DocumentBuilder db = dbf.newDocumentBuilder();
@@ -135,12 +141,36 @@ public class ParseOptions {
 
     public Document parse(InputSource input)
             throws ParserConfigurationException, SAXException, IOException {
-        return this.getDocumentBuilder().parse(input);
+        if (noBlanks) {
+            Reader reader = input.getCharacterStream();
+            return parseWhenNoBlanks(reader);
+        } else {
+            return this.getDocumentBuilder().parse(input);
+        }
+    }
+    
+    private Document parseWhenNoBlanks(Reader reader)
+            throws IOException, SAXException, ParserConfigurationException {
+        StringBuffer content = new StringBuffer();
+        char[] cbuf = new char[2048];
+        int length;
+        while ((length = reader.read(cbuf)) != -1) {
+            content.append(cbuf, 0, length);
+        }
+        String content_noblanks = 
+            (new String(content)).replaceAll("(>\\n)", ">").replaceAll("\\s{1,}<", "<").replaceAll(">\\s{1,}", ">");
+        StringReader sr = new StringReader((new String(content_noblanks)));
+        return getDocumentBuilder().parse(new InputSource(sr));
     }
 
     public Document parse(InputStream input)
             throws ParserConfigurationException, SAXException, IOException {
-        return this.getDocumentBuilder().parse(input);
+        if (noBlanks) {
+            InputStreamReader reader = new InputStreamReader(input);
+            return parseWhenNoBlanks(reader);
+        } else {
+            return this.getDocumentBuilder().parse(input);
+        }
     }
 
     public Document parse(String input)
