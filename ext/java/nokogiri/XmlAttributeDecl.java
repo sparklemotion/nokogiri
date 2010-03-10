@@ -31,7 +31,6 @@ public class XmlAttributeDecl extends XmlNode {
         return parent;
     }
 
-    // FIX ME: this ruby method isn't recognized.
     @JRubyMethod(name="default")
     public IRubyObject op_default(ThreadContext context) {
         return ((XmlAttributeDeclImpl)internalNode).getDefault(context);

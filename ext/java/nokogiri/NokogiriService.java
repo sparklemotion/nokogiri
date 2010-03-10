@@ -48,6 +48,7 @@ public class NokogiriService implements BasicLibraryService{
         init_xml_xpath(ruby, xml);
         init_xml_xpath_context(ruby, xml);
         init_xslt_stylesheet(ruby, nokogiri);
+        init_xml_attribute_decl(ruby, node);
     }
 
     public static void init_html_document(Ruby ruby, RubyModule html, RubyClass document) {
@@ -127,6 +128,10 @@ public class NokogiriService implements BasicLibraryService{
         RubyModule nodeSet = xml.defineClassUnder("NodeSet", ruby.getObject(), XML_NODESET_ALLOCATOR);
 
         nodeSet.defineAnnotatedMethods(XmlNodeSet.class);
+    }
+    
+    public static void init_xml_attribute_decl(Ruby ruby, RubyClass node) {
+        node.defineAnnotatedMethods(XmlAttributeDecl.class);
     }
 
     public static void init_xml_reader(Ruby ruby, RubyModule xml) {
