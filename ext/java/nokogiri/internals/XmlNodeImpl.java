@@ -2,7 +2,6 @@ package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import nokogiri.XmlDocument;
-import nokogiri.XmlDtd;
 import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
@@ -37,13 +36,7 @@ public class XmlNodeImpl {
     }
 
     public IRubyObject children(ThreadContext context, XmlNode current) {
-        XmlNodeSet result;
-        if (current instanceof XmlDtd) {
-            NamedNodeMap map = ((XmlDtd)current).getEntities();
-            result = new XmlNodeSet(context.getRuntime(), NokogiriHelpers.namedNodeMapToRubyArray(context.getRuntime(), map));
-        } else {
-            result = new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
-        }
+        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), current.getNode().getChildNodes());
         result.setDocument(this.getDocument(context));
         return result;
     }
@@ -334,6 +327,7 @@ public class XmlNodeImpl {
             case Node.ELEMENT_NODE: return new XmlElementImpl(ruby, node);
             case Node.ENTITY_REFERENCE_NODE: return new XmlEntityReferenceImpl(ruby, node);
             case Node.PROCESSING_INSTRUCTION_NODE: return new XmlProcessingInstructionImpl(ruby, node);
+            case Node.DOCUMENT_TYPE_NODE: return new XmlDocumentTypeImpl(ruby, node);
             case Node.TEXT_NODE : return new XmlTextImpl(ruby, node);
             default: return new XmlNodeImpl(ruby, node);
         }

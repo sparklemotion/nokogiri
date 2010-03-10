@@ -152,7 +152,7 @@ public class XmlNode extends RubyObject {
             case Node.ELEMENT_NODE:
                 return new XmlElement(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"), node);
             case Node.ENTITY_NODE:
-                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDeclaration"), node);
+                return new XmlNode(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDecl"), node);
             case Node.CDATA_SECTION_NODE:
                 return new XmlCdata(ruby, (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"), node);
             case Node.DOCUMENT_NODE:
@@ -567,7 +567,6 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject internal_subset(ThreadContext context) {
-        System.out.println(node().getNodeName() + ", " + node().getNodeValue() + ", " + node().getNodeType());
         if (node().getNodeType() == Node.DOCUMENT_NODE) {
             Document doc = (Document)node();
             org.w3c.dom.DocumentType docType = doc.getDoctype();

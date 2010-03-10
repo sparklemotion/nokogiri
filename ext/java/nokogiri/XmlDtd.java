@@ -1,12 +1,12 @@
 package nokogiri;
 
+import nokogiri.internals.XmlDocumentTypeImpl;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 public class XmlDtd extends XmlNode {
@@ -17,29 +17,35 @@ public class XmlDtd extends XmlNode {
     public XmlDtd(Ruby ruby, RubyClass rubyClass, Node node) {
         super(ruby, rubyClass, node);
     }
-    
-    public NamedNodeMap getEntities() {
-        return ((DocumentType)getNode()).getEntities();
-    }
 
     @Override
     @JRubyMethod
     public IRubyObject attributes(ThreadContext context) {
-        return context.getRuntime().getNil();
+        return ((XmlDocumentTypeImpl)internalNode).getAttributes(context);
     }
 
     @JRubyMethod
     public IRubyObject elements(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return ((XmlDocumentTypeImpl)internalNode).getElements(context);
     }
 
     @JRubyMethod
     public IRubyObject entities(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return ((XmlDocumentTypeImpl)internalNode).getEntities(context);
     }
 
     @JRubyMethod
     public IRubyObject notations(ThreadContext context) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        return ((XmlDocumentTypeImpl)internalNode).getNotations(context);
+    }
+    
+    @JRubyMethod
+    public IRubyObject system_id(ThreadContext context) {
+         return ((XmlDocumentTypeImpl)internalNode).getSystemId(context);
+    }
+    
+    @JRubyMethod
+    public IRubyObject external_id(ThreadContext context) {
+         return ((XmlDocumentTypeImpl)internalNode).getPublicId(context);
     }
 }
