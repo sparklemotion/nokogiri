@@ -2,7 +2,7 @@
 module Nokogiri
   module LibXML
     extend FFI::Library
-    if RUBY_PLATFORM =~ /java/ && java.lang.System.getProperty('os.name') =~ /windows/i
+    if RUBY_PLATFORM =~ /java/ && RbConfig::CONFIG['host_os'] =~ /(mswin|mingw)/i
       raise(RuntimeError, "Nokogiri requires JRuby 1.4.0 or later on Windows") if JRUBY_VERSION < "1.4.0"
       dll_dir = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "ext", "nokogiri"))
       libs = ["libxml2.dll", "libxslt.dll", "libexslt.dll"].collect do |lib|
