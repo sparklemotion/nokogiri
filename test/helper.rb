@@ -37,7 +37,12 @@ module Nokogiri
     def teardown
       if ENV['NOKOGIRI_GC']
         STDOUT.putc '!'
-        GC.start
+        if RUBY_PLATFORM =~ /java/
+          require 'java'
+          java.lang.System.gc
+        else
+          GC.start
+        end
       end
     end
 
