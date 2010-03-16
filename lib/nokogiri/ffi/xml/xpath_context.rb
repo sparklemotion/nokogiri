@@ -47,7 +47,11 @@ module Nokogiri
 
         case xpath.cstruct[:type]
         when LibXML::XmlXpathObject::XPATH_NODESET
-          NodeSet.wrap(xpath.cstruct[:nodesetval], xpath.document)
+          if xpath.cstruct[:nodesetval].null?
+            NodeSet.new(xpath.document)
+          else
+            NodeSet.wrap(xpath.cstruct[:nodesetval], xpath.document)
+          end
         when LibXML::XmlXpathObject::XPATH_STRING
           xpath.cstruct[:stringval]
         when LibXML::XmlXpathObject::XPATH_NUMBER
