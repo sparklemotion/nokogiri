@@ -465,12 +465,30 @@ module Nokogiri
 
         # Search our parents for an existing definition
         if ! reparented_struct[:nsDef].null?
-          ns = LibXML.xmlSearchNsByHref(
-            reparented_struct[:doc],
-            reparented_struct[:parent],
-            LibXML::XmlNs.new(reparented_struct[:nsDef])[:href]
-            )
-          reparented_struct[:nsDef] = nil unless ns.null?
+          curr = reparented_struct[:nsDef]
+          prev = nil
+
+          while (! curr.null?)
+            curr_ns = LibXML::XmlNs.new(curr)
+            ns = LibXML.xmlSearchNsByHref(
+              reparented_struct[:doc],
+              reparented_struct[:parent],
+              curr_ns[:href]
+              )
+            # If we find the namespace is already declared, remove it from this
+            # definition list.
+            if (! ns.null? && ns != curr)
+              if prev
+                prev[:next] = curr_ns[:next]
+              else
+                reparented_struct[:nsDef] = curr_ns[:next]
+              end
+              curr_ns.keep_reference_from!(reparented_struct.document)
+            else
+              prev = curr_ns
+            end
+            curr = curr_ns[:next]
+          end
         end
 
         # Only walk all children if there actually is a namespace we need to reparent.

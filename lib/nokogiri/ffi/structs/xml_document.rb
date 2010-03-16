@@ -78,6 +78,8 @@ module Nokogiri
             case node_cstruct[:type]
             when Nokogiri::XML::Node::ATTRIBUTE_NODE
               LibXML.xmlFreePropList(node_cstruct)
+            when Nokogiri::XML::Node::NAMESPACE_DECL
+              LibXML.xmlFree(node_cstruct)
             else
               LibXML.xmlAddChild(doc, node_cstruct) if node_cstruct[:parent].null?
             end
