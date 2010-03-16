@@ -1,8 +1,4 @@
 # :stopdoc:
-require 'weakref'
-
-I_WANT_TO_USE_ID2REF = true
-
 module Nokogiri
   module LibXML
     extend FFI::Library
@@ -308,39 +304,6 @@ module Nokogiri
     def self.pointer_offset(n)
       n * POINTER_SIZE # byte offset of nth pointer in an array of pointers
     end
-
-    POINTER2OBJ = {}
-    if I_WANT_TO_USE_ID2REF
-      def self.get_object(cstruct)
-        ptr = cstruct.ruby_node_pointer
-        ptr != 0 ? ObjectSpace._id2ref(ptr) : nil
-      end
-
-      def self.set_object(cstruct, object)
-        cstruct.ruby_node_pointer = object.object_id
-      end
-    else
-      def self.get_object(cstruct)
-        object = POINTER2OBJ[cstruct.pointer.address]
-        if object && object.weakref_alive?
-          object.__getobj__
-        else
-          POINTER2OBJ.delete(cstruct.pointer.address)
-          nil
-        end
-      end
-
-      def self.set_object(cstruct, object)
-        POINTER2OBJ[cstruct.pointer.address] = WeakRef.new(object)
-        scrub_pointer_table if rand * 100 > 99
-      end
-
-      def self.scrub_pointer_table
-        POINTER2OBJ.keys.each do |key|
-          POINTER2OBJ.delete(key) unless POINTER2OBJ[key].weakref_alive?
-        end
-      end
-    end
   end
 end
 
@@ -351,6 +314,7 @@ require 'nokogiri/xml/syntax_error'
 
 [ "io_callbacks",
   "encoding_handler",
+  "weak_bucket",
   "structs/common_node",
   "structs/xml_alloc",
   "structs/xml_char_encoding_handler",

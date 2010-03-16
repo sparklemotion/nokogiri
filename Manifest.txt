@@ -120,6 +120,7 @@ lib/nokogiri/ffi/structs/xml_xpath_context.rb
 lib/nokogiri/ffi/structs/xml_xpath_object.rb
 lib/nokogiri/ffi/structs/xml_xpath_parser_context.rb
 lib/nokogiri/ffi/structs/xslt_stylesheet.rb
+lib/nokogiri/ffi/weak_bucket.rb
 lib/nokogiri/ffi/xml/attr.rb
 lib/nokogiri/ffi/xml/attribute_decl.rb
 lib/nokogiri/ffi/xml/cdata.rb

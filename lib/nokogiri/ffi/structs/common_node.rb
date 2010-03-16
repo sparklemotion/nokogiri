@@ -6,22 +6,20 @@ module Nokogiri
         p.null? ? nil : LibXML::XmlDocumentCast.new(p)
       end
 
-      if I_WANT_TO_USE_ID2REF
-        def ruby_node_pointer
-          self[:_private]
-        end
+      def ruby_node_pointer
+        self[:_private]
+      end
 
-        def ruby_node_pointer=(value)
-          self[:_private] = value
-        end
+      def ruby_node_pointer=(value)
+        self[:_private] = value
       end
 
       def ruby_node
-        LibXML.get_object(self)
+        Nokogiri::WeakBucket.get_object(self)
       end
 
       def ruby_node= object
-        LibXML.set_object(self, object)
+        Nokogiri::WeakBucket.set_object(self, object)
       end
 
       def keep_reference_from_document! # equivalent to NOKOGIRI_ROOT_NODE
