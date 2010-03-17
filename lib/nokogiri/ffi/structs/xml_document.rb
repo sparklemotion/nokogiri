@@ -36,14 +36,22 @@ module Nokogiri
         p.null? ? nil : LibXML::XmlDocumentCast.new(p)
       end
 
-      def ruby_doc
+      def ruby_node_pointer
         ptr = self[:_private]
-        return nil if ptr.null?
-        ObjectSpace._id2ref(ptr.get_long(0))
+        ptr.null? ? nil : ptr.get_long(0)
+      end
+
+      def ruby_node_pointer=(value)
+        self[:_private].put_long(0, value)
+      end
+
+      def ruby_doc
+        return nil if ruby_node_pointer.nil?
+        ObjectSpace._id2ref(ruby_node_pointer)
       end
 
       def ruby_doc=(object)
-        self[:_private].put_long(0, object.object_id)
+        self.ruby_node_pointer = object.object_id
       end
 
       def unlinked_nodes
