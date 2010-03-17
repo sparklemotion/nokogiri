@@ -37,8 +37,8 @@ module Nokogiri
       end
 
       def ruby_node_pointer
-        ptr = self[:_private]
-        ptr.null? ? nil : ptr.get_long(0)
+        tuple = self[:_private]
+        tuple.null? ? 0 : tuple.get_long(0)
       end
 
       def ruby_node_pointer=(value)
@@ -46,12 +46,11 @@ module Nokogiri
       end
 
       def ruby_doc
-        return nil if ruby_node_pointer.nil?
-        ObjectSpace._id2ref(ruby_node_pointer)
+        Nokogiri::WeakBucket.get_object(self)
       end
 
       def ruby_doc=(object)
-        self.ruby_node_pointer = object.object_id
+        Nokogiri::WeakBucket.set_object(self, object)
       end
 
       def unlinked_nodes
