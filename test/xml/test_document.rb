@@ -5,6 +5,12 @@ require 'uri'
 module Nokogiri
   module XML
     class TestDocument < Nokogiri::TestCase
+      URI = if URI.const_defined?(:DEFAULT_PARSER)
+              ::URI::DEFAULT_PARSER
+            else
+              ::URI
+            end
+
       def setup
         super
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)

@@ -9,7 +9,7 @@ module Nokogiri
           node['http-equiv'] =~ /Content-Type/i
         }
 
-        /charset\s*=\s*([\w\d-]+)/i.match(meta['content'])[1]
+        /charset\s*=\s*([\w-]+)/i.match(meta['content'])[1]
       end
 
       ###
