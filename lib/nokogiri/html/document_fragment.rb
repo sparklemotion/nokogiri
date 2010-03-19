@@ -6,7 +6,9 @@ module Nokogiri
         ####
         # Create a Nokogiri::XML::DocumentFragment from +tags+
         def parse tags
-          self.new(HTML::Document.new, tags)
+          doc = HTML::Document.new
+          doc.encoding = 'UTF-8'
+          self.new(doc, tags)
         end
       end
 

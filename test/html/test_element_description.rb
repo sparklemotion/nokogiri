@@ -56,7 +56,11 @@ module Nokogiri
 
       def test_subelements
         sub_elements = ElementDescription['body'].sub_elements
-        assert_equal 61, sub_elements.length
+        if Nokogiri::LIBXML_VERSION == '2.7.7'
+          assert_equal 65, sub_elements.length
+        else
+          assert_equal 61, sub_elements.length
+        end
       end
 
       def test_default_sub_element

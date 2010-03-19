@@ -442,10 +442,13 @@ static VALUE inner_xml(VALUE self)
 
   const char * value = (const char *)xmlTextReaderReadInnerXml(reader);
 
-  if(value == NULL)
-    return Qnil;
-  else
-    return NOKOGIRI_STR_NEW2(value);
+  VALUE str = Qnil;
+  if(value) {
+    str = NOKOGIRI_STR_NEW2(value);
+    xmlFree(value);
+  }
+
+  return str;
 }
 
 /*
@@ -521,7 +524,7 @@ static VALUE from_io(int argc, VALUE *argv, VALUE klass)
 
   const char * c_url      = NULL;
   const char * c_encoding = NULL;
-  int c_options           = 0; 
+  int c_options           = 0;
 
   rb_scan_args(argc, argv, "13", &rb_io, &rb_url, &encoding, &rb_options);
 
