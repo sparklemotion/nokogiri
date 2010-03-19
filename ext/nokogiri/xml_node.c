@@ -92,6 +92,8 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
 
   if(!rb_obj_is_kind_of(node_obj, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
+  if(rb_obj_is_kind_of(node_obj, cNokogiriXmlDocument))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
 
   Data_Get_Struct(node_obj, xmlNode, node);
   Data_Get_Struct(other_obj, xmlNode, other);
