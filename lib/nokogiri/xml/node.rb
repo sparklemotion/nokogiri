@@ -233,7 +233,7 @@ module Nokogiri
       # Add +node+ as a child of this Node.
       # The new node must be a Nokogiri::XML::Node.
       # Returns the new child node.
-      def add_child(node)
+      def add_child node
         Node.verify_nodeishness(node)
         if node.type == DOCUMENT_FRAG_NODE
           node.children.each do |child|
@@ -246,7 +246,7 @@ module Nokogiri
 
       ###
       # Insert +node+ before this Node (as a sibling).
-      def add_previous_sibling(node)
+      def add_previous_sibling node
         Node.verify_nodeishness(node)
         if node.type == DOCUMENT_FRAG_NODE
           node.children.each do |child|
@@ -259,7 +259,7 @@ module Nokogiri
 
       ###
       # Insert +node+ after this Node (as a sibling).
-      def add_next_sibling(node)
+      def add_next_sibling node
         Node.verify_nodeishness(node)
         if node.type == DOCUMENT_FRAG_NODE
           node.children.reverse_each do |child|
