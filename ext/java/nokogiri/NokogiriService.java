@@ -172,7 +172,8 @@ public class NokogiriService implements BasicLibraryService{
     }
 
     public static RubyClass init_xml_text(Ruby ruby, RubyModule xml, RubyClass node) {
-        RubyClass text = xml.defineClassUnder("Text", node, XML_TEXT_ALLOCATOR);
+        RubyClass character_data = xml.defineClassUnder("CharacterData", node, XML_TEXT_ALLOCATOR);
+        RubyClass text = xml.defineClassUnder("Text", character_data, XML_TEXT_ALLOCATOR);
 
         text.defineAnnotatedMethods(XmlText.class);
 
