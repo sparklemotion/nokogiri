@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
  *
  * @author sergio
  */
-public class XmlDocumentFragmentImpl extends XmlNodeImpl{
+public class XmlDocumentFragmentImpl extends XmlNodeImpl {
 
     public XmlDocumentFragmentImpl(Ruby ruby, Node node) {
         super(ruby, node);
@@ -34,6 +34,10 @@ public class XmlDocumentFragmentImpl extends XmlNodeImpl{
                 current.add_child(context, item);
             }
         }
+    }
+ 
+    public void use_super_add_child(ThreadContext context, XmlNode current, XmlNode child) {
+        super.add_child(context, current, child);
     }
 
     @Override

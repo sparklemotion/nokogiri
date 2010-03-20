@@ -14,6 +14,7 @@ import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.ParseOptions;
 import nokogiri.internals.SaveContext;
+import nokogiri.internals.XmlDocumentFragmentImpl;
 import nokogiri.internals.XmlNodeImpl;
 
 import org.jruby.Ruby;
@@ -373,7 +374,12 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject add_child_node(ThreadContext context, IRubyObject child) {
-        return add_child(context, child);
+        XmlNode childNode = asXmlNode(context, child);
+        if (this instanceof XmlDocumentFragment) {
+            ((XmlDocumentFragmentImpl)internalNode).use_super_add_child(context, this, childNode);
+        }
+        internalNode.methods().add_child(context, this, childNode);
+        return this;
     }
 
     @JRubyMethod
@@ -405,6 +411,12 @@ public class XmlNode extends RubyObject {
         coalesceTextNodesInteligently(context, this, appendNode, nextSibling);
 
         return otherNode;
+    }
+    
+    @JRubyMethod
+    public IRubyObject add_next_sibling_node(ThreadContext context, IRubyObject appendNode) {
+        internalNode.add_next_sibling(context, (XmlNode)appendNode, (XmlNode)this);
+        return this;
     }
 
     @JRubyMethod
@@ -569,7 +581,6 @@ public class XmlNode extends RubyObject {
     public IRubyObject internal_subset(ThreadContext context) {
         if (node().getNodeType() == Node.DOCUMENT_NODE) {
             Document doc = (Document)node();
-            org.w3c.dom.DocumentType docType = doc.getDoctype();
             return XmlNode.constructNode(context.getRuntime(), doc.getDoctype());
         } else {
             return context.getRuntime().getNil();

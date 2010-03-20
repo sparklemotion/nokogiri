@@ -191,13 +191,58 @@ public class XmlNodeImpl {
         
         current.post_add_child(context, current, child);
     }
-
-    private void appendChild(ThreadContext context, Node parent, Node child)
-    {
+    
+    
+    private void appendChild(ThreadContext context, Node parent, Node child) {
         try {
             parent.appendChild(child);
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError(ex.toString());
+        }
+    }
+    
+    public void add_next_sibling(ThreadContext context, XmlNode new_node, XmlNode ref_node) {
+        Node newNode = new_node.getNode();
+
+        if(new_node.document(context) != ref_node.document(context)) {
+            ((XmlDocument) ref_node.document(context)).getDocument().adoptNode(newNode);
+            new_node.setDocument(ref_node.document(context));
+        } else if(newNode.getParentNode() != null) {
+            new_node.unlink(context);
+        }
+
+        if(newNode.getNodeType() == Node.TEXT_NODE) {
+            XmlNode.coalesceTextNodes(context, ref_node, new_node);
+            return;
+        }
+
+        try {
+            Node refNode = ref_node.getNode();
+            if (newNode.getNodeType() == Node.TEXT_NODE && refNode instanceof Document) {
+                Node tmpNode = ((Document) refNode).createElement("xml");
+                appendNextSibling(newNode, tmpNode);
+            } else {
+                appendNextSibling(newNode, refNode);
+            }
+        } catch (Exception e) {
+            throw context.getRuntime().newRuntimeError(e.toString());
+        }
+
+        new_node.relink_namespace(context);
+    }
+    
+    private void appendNextSibling(Node newNode, Node refNode) {
+        Node next = refNode.getNextSibling();
+        if (next == null || next.getNodeType() == Node.TEXT_NODE) {
+            Node parent = refNode.getParentNode();
+            if(parent == null) {
+                refNode.appendChild(newNode);
+            } else {
+                parent.appendChild(newNode);
+            }
+            return;
+        } else {
+            refNode.insertBefore(newNode, next);
         }
     }
 
