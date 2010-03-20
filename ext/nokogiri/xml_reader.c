@@ -440,11 +440,11 @@ static VALUE inner_xml(VALUE self)
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
 
-  const char * value = (const char *)xmlTextReaderReadInnerXml(reader);
+  xmlChar* value = xmlTextReaderReadInnerXml(reader);
 
   VALUE str = Qnil;
   if(value) {
-    str = NOKOGIRI_STR_NEW2(value);
+    str = NOKOGIRI_STR_NEW2((char*)value);
     xmlFree(value);
   }
 
@@ -460,15 +460,17 @@ static VALUE inner_xml(VALUE self)
  */
 static VALUE outer_xml(VALUE self)
 {
-  xmlTextReaderPtr reader;
-  Data_Get_Struct(self, xmlTextReader, reader);
+	xmlTextReaderPtr reader;
+	Data_Get_Struct(self, xmlTextReader, reader);
 
-  const char * value = (const char *)xmlTextReaderReadOuterXml(reader);
-
-  if(value == NULL)
-    return Qnil;
-  else
-    return NOKOGIRI_STR_NEW2(value);
+	xmlChar* value = xmlTextReaderReadOuterXml(reader);
+	
+	VALUE str = Qnil;
+	if(value) {
+		str = NOKOGIRI_STR_NEW2((char*)value);
+		xmlFree(value);
+	}
+	return str;
 }
 
 /*
