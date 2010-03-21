@@ -233,7 +233,7 @@ public class XmlNodeImpl {
     
     private void appendNextSibling(Node newNode, Node refNode) {
         Node next = refNode.getNextSibling();
-        if (next == null || next.getNodeType() == Node.TEXT_NODE) {
+        if (next == null) {
             Node parent = refNode.getParentNode();
             if(parent == null) {
                 refNode.appendChild(newNode);
@@ -242,7 +242,10 @@ public class XmlNodeImpl {
             }
             return;
         } else {
-            refNode.insertBefore(newNode, next);
+            Node parent = refNode.getParentNode();
+            if (parent != null) {
+                parent.insertBefore(newNode, next);
+            }
         }
     }
 
