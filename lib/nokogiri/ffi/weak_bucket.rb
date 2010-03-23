@@ -15,7 +15,7 @@ module Nokogiri
       attr_accessor :bucket
 
       def initialize
-        @bucket = WeakRef::IdHash.new
+        @bucket = Weakling::IdHash.new
       end
 
       def WeakBucket.get_object(cstruct)
