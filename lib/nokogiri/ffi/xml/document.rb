@@ -81,6 +81,22 @@ module Nokogiri
         self.class.recursively_remove_namespaces_from_node(root)
       end
 
+      def create_entity(name, entity_type=Nokogiri::XML::EntityDecl::INTERNAL_GENERAL,
+                        external_id=nil, system_id=nil, content=nil)
+        LibXML.xmlResetLastError()
+        ptr = LibXML.xmlAddDocEntity(cstruct, name, entity_type, external_id, system_id, content)
+        if ptr.null?
+          error = LibXML.xmlGetLastError()
+          if error
+            raise SyntaxError.wrap(error)
+          else
+            raise RuntimeError, "Could not create entity"
+          end
+        end
+
+        Node.wrap(LibXML::XmlEntity.new(ptr))
+      end
+
       class << self
         def new(*args)
           version = args.first || "1.0"

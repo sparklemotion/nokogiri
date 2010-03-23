@@ -168,6 +168,7 @@ module Nokogiri
 
     # entities.c
     attach_function :xmlEncodeSpecialChars, [:pointer, :string], :pointer # returns char* that must be freed
+    attach_function :xmlAddDocEntity, [:pointer, :string, :int, :string, :string, :string], :pointer
 
     # xpath.c
     attach_function :xmlXPathInit, [], :void
