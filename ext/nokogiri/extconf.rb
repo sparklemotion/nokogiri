@@ -105,33 +105,17 @@ def nokogiri_find_header header_file, *paths
   end
 end
 
-unless nokogiri_find_header('iconv.h', *HEADER_DIRS)
-  abort "iconv is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies."
+def abort_lib_not_found(lib)
+  abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
 end
 
-unless nokogiri_find_header('libxml/parser.h', *HEADER_DIRS)
-  abort "libxml2 is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies."
-end
-
-unless nokogiri_find_header('libxslt/xslt.h', *HEADER_DIRS)
-  abort "libxslt is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies."
-end
-
-unless nokogiri_find_header('libexslt/exslt.h', *HEADER_DIRS)
-  abort "libexslt is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies."
-end
-
-unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
-  abort "libxml2 is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies."
-end
-
-unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
-  abort "libxslt is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies."
-end
-
-unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
-  abort "libexslt is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies."
-end
+abort_lib_not_found "iconv"    unless nokogiri_find_header('iconv.hadsf', *HEADER_DIRS)
+abort_lib_not_found "libxml2"  unless nokogiri_find_header('libxml/parser.h', *HEADER_DIRS)
+abort_lib_not_found "libxslt"  unless nokogiri_find_header('libxslt/xslt.h', *HEADER_DIRS)
+abort_lib_not_found "libexslt" unless nokogiri_find_header('libexslt/exslt.h', *HEADER_DIRS)
+abort_lib_not_found "libxml2"  unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
+abort_lib_not_found "libxslt"  unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
+abort_lib_not_found "libexslt" unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
 
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')
