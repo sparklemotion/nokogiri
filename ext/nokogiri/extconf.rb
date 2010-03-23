@@ -109,7 +109,7 @@ def abort_lib_not_found(lib)
   abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
 end
 
-abort_lib_not_found "iconv"    unless nokogiri_find_header('iconv.hadsf', *HEADER_DIRS)
+abort_lib_not_found "iconv"    unless nokogiri_find_header('iconv.h', *HEADER_DIRS)
 abort_lib_not_found "libxml2"  unless nokogiri_find_header('libxml/parser.h', *HEADER_DIRS)
 abort_lib_not_found "libxslt"  unless nokogiri_find_header('libxslt/xslt.h', *HEADER_DIRS)
 abort_lib_not_found "libexslt" unless nokogiri_find_header('libexslt/exslt.h', *HEADER_DIRS)
