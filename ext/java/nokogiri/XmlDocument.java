@@ -3,7 +3,6 @@ package nokogiri;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.ParseOptions;
@@ -13,6 +12,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
@@ -198,4 +198,12 @@ public class XmlDocument extends XmlNode {
     public IRubyObject url(ThreadContext context) {
         return this.internals().url();
     }
+    
+    @JRubyMethod
+    public IRubyObject version(ThreadContext context) {
+        String version = document.getXmlVersion();
+        if (version == null) return context.getRuntime().getNil();
+        return JavaUtil.convertJavaToRuby(context.getRuntime(), version);
+    }
+
 }
