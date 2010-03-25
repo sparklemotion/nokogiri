@@ -5,7 +5,7 @@ import nokogiri.XmlNode;
 import org.apache.xerces.dom.DeferredEntityImpl;
 import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
- import org.w3c.dom.Node;
+import org.w3c.dom.Node;
 
 /**
  * Implementation for ENTITY declaration of DTD
@@ -13,6 +13,7 @@ import org.jruby.runtime.ThreadContext;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class XmlEntityDeclImpl extends XmlNodeImpl {
+    private String declaration = null;
 
     public XmlEntityDeclImpl(Ruby ruby, Node node) {
         super(ruby, node);
@@ -23,26 +24,15 @@ public class XmlEntityDeclImpl extends XmlNodeImpl {
 
     @Override
     public void saveContent(ThreadContext context, XmlNode current, SaveContext ctx) {
-        DeferredEntityImpl entity = (DeferredEntityImpl)current.getNode();
-        ctx.append("<!ENTITY ");
-        ctx.append(entity.getNodeName());
-        ctx.append(" ");
-        if (entity.getPublicId() != null) {
-            ctx.append("PUBLIC ");
-            ctx.append(entity.getPublicId());
-        } else if (entity.getSystemId() != null) {
-            ctx.append("SYSTEM ");
-            ctx.append(entity.getSystemId());
-        }
-        if (entity.getTextContent() != null) {
-            ctx.append("\"" + entity.getTextContent() + "\"");
-        }
-        ctx.append(">");
+        ctx.append(declaration);
     }
 
     @Override
     public void saveContentAsHtml(ThreadContext context, XmlNode current, SaveContext ctx) {
         saveContent(context, current, ctx);
     }
-
+    
+    public void setDeclaration(String declaration) {
+        this.declaration = declaration;
+    }
 }

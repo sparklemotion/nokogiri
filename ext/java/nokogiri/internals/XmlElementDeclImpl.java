@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class XmlElementDeclImpl extends XmlNodeImpl {
+    private String declaration = null;
 
     public XmlElementDeclImpl(Ruby ruby, Node node) {
         super(ruby, node);
@@ -23,19 +24,15 @@ public class XmlElementDeclImpl extends XmlNodeImpl {
 
     @Override
     public void saveContent(ThreadContext context, XmlNode current, SaveContext ctx) {
-        DeferredElementDefinitionImpl element = (DeferredElementDefinitionImpl)current.getNode();
-        ctx.append("<!ELEMENT ");
-        ctx.append(element.getNodeName());
-        ctx.append(" ");
-        if (element.getTextContent() != null) {
-            ctx.append("\"" + element.getTextContent() + "\"");
-        }
-        ctx.append(">");
+        ctx.append(declaration);
     }
 
     @Override
     public void saveContentAsHtml(ThreadContext context, XmlNode current, SaveContext ctx) {
         saveContent(context, current, ctx);
     }
-
+    
+    public void setDeclaration(String declaration) {
+        this.declaration = declaration;
+    }
 }

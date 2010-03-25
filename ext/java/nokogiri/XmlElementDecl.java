@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
  * 
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class XmlElementDecl extends XmlNode {
+public class XmlElementDecl extends XmlNode implements XmlDtdDeclaration {
 
     public XmlElementDecl(Ruby runtime, RubyClass klazz) {
         super(runtime, klazz);
@@ -20,5 +20,9 @@ public class XmlElementDecl extends XmlNode {
     public XmlElementDecl(Ruby runtime, RubyClass klazz, Node entity) {
         super(runtime, klazz, entity);
         internalNode = new XmlElementDeclImpl(runtime, entity);
+    }
+    
+    public void setDeclaration(String declaration) {
+        ((XmlElementDeclImpl)internalNode).setDeclaration(declaration);
     }
 }

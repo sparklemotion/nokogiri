@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import nokogiri.XmlAttributeDecl;
+import nokogiri.XmlDtdDeclaration;
 import nokogiri.XmlElementDecl;
 import nokogiri.XmlEntityDecl;
 import nokogiri.XmlNode;
@@ -31,13 +32,16 @@ import org.w3c.dom.Node;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class XmlDocumentTypeImpl extends XmlNodeImpl {
+    private Node doctype = null;
     private RubyHash entities = null;
     private RubyHash elements = null;
     private RubyHash attributes = null;
     private RubyHash notations = null;
+    private XmlNodeSet nodeSet = null;
 
     public XmlDocumentTypeImpl(Ruby ruby, Node node) {
         super(ruby, node);
+        init(ruby.getCurrentContext(), node);
     }
     
     public IRubyObject getSystemId(ThreadContext context) {
@@ -49,46 +53,40 @@ public class XmlDocumentTypeImpl extends XmlNodeImpl {
     }
 
     public IRubyObject getEntities(ThreadContext context) {
-        if (entities == null) {
-            initEntities(context);
-        }
         return entities;
     }
     
     public IRubyObject getElements(ThreadContext context) {
-        if (elements == null) {
-            initElements(context);
-        }
         return elements;
     }
     
     public IRubyObject getAttributes(ThreadContext context) {
-        if (attributes == null) {
-            initElements(context);
-        }
         return attributes;
     }
     
     public IRubyObject getNotations(ThreadContext context) {
-        if (notations == null) {
-            initNotations(context);
-        }
         return notations;
     }
     
     public IRubyObject children(ThreadContext context, XmlNode current) {
-        XmlNodeSet nodeSet = getXmlNodeSet(context, current);
-        nodeSet.setDocument(this.getDocument(context));
-        return nodeSet;
+        return getXmlNodeSet(context, current);
     }
 
     private XmlNodeSet getXmlNodeSet(ThreadContext context, XmlNode current) {
-        initEntities(context);
-        initElements(context);
-        //initNotations(context); // NOTATION is not XmlNode
-        XmlNodeSet nodeSet = (XmlNodeSet) XmlNodeSet.newEmptyNodeSet(context);
-        parseInternalSubsetString(context, nodeSet, ((org.w3c.dom.DocumentType)current.node()).getInternalSubset());
+        if (doctype != current.getNode()) {
+            doctype = current.getNode();
+            init(context, current.getNode());
+        }
         return nodeSet;
+    }
+    
+    private void init(ThreadContext context, Node current) {
+        initEntities(context, current);
+        initElements(context, current);
+        initNotations(context, current); // NOTATION is not XmlNode
+        nodeSet = (XmlNodeSet) XmlNodeSet.newEmptyNodeSet(context);
+        nodeSet.setDocument(this.getDocument(context));
+        parseInternalSubsetString(context, nodeSet, ((org.w3c.dom.DocumentType)current).getInternalSubset());
     }
     
     private static Pattern p = Pattern.compile("<!(ATTLIST|ELEMENT|ENTITY)(\\s)(.*)");
@@ -109,7 +107,11 @@ public class XmlDocumentTypeImpl extends XmlNodeImpl {
                     } else {
                         IRubyObject name = getName(context, startWiths[i].substring(2, startWiths[i].length()), decl.substring(startWiths[i].length() + 1, decl.length() - 1));
                         IRubyObject[] args = {name};
+                        IRubyObject irobj = namedNodeMaps[i].fetch(context, args, Block.NULL_BLOCK);
                         nodeSet.push(context, namedNodeMaps[i].fetch(context, args, Block.NULL_BLOCK));
+                        if (irobj instanceof XmlDtdDeclaration) {
+                            ((XmlDtdDeclaration)irobj).setDeclaration(decl);
+                        }
                     }
                 }
             }
@@ -125,10 +127,10 @@ public class XmlDocumentTypeImpl extends XmlNodeImpl {
         return RubyString.newUnicodeString(context.getRuntime(), name);
     }
     
-    private void initEntities(ThreadContext context) {
+    private void initEntities(ThreadContext context, Node current) {
         if (entities != null) return;
         entities = RubyHash.newHash(context.getRuntime());
-        NamedNodeMap nodes = ((DeferredDocumentTypeImpl) getNode()).getEntities();
+        NamedNodeMap nodes = ((DeferredDocumentTypeImpl)current).getEntities();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             IRubyObject key = JavaUtil.convertJavaToRuby(context.getRuntime(), node.getNodeName());
@@ -137,11 +139,11 @@ public class XmlDocumentTypeImpl extends XmlNodeImpl {
         }
     }
     
-    private void initElements(ThreadContext context) {
+    private void initElements(ThreadContext context, Node current) {
         if (elements != null) return;
         elements = RubyHash.newHash(context.getRuntime());
         attributes = RubyHash.newHash(context.getRuntime());
-        NamedNodeMap elementMap = ((DeferredDocumentTypeImpl)getNode()).getElements();
+        NamedNodeMap elementMap = ((DeferredDocumentTypeImpl)current).getElements();
         for (int i=0; i<elementMap.getLength(); i++) {
             Node element_node = elementMap.item(i);
             IRubyObject element_key = JavaUtil.convertJavaToRuby(context.getRuntime(), element_node.getNodeName());
@@ -157,10 +159,10 @@ public class XmlDocumentTypeImpl extends XmlNodeImpl {
         }
     }
     
-    private void initNotations(ThreadContext context) {
+    private void initNotations(ThreadContext context, Node current) {
         if (notations != null) return;
         notations = RubyHash.newHash(context.getRuntime());
-        NamedNodeMap nodes = ((DeferredDocumentTypeImpl)getNode()).getNotations();
+        NamedNodeMap nodes = ((DeferredDocumentTypeImpl)current).getNotations();
         for (int i=0; i<nodes.getLength(); i++) {
             Node node = nodes.item(i);
             IRubyObject key = JavaUtil.convertJavaToRuby(context.getRuntime(), node.getNodeName());

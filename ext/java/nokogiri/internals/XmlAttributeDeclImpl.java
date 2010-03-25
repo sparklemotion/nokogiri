@@ -16,6 +16,7 @@ import org.w3c.dom.Node;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class XmlAttributeDeclImpl extends XmlNodeImpl {
+    private String declaration = null;
 
     public XmlAttributeDeclImpl(Ruby ruby, Node node) {
         super(ruby, node);
@@ -30,17 +31,7 @@ public class XmlAttributeDeclImpl extends XmlNodeImpl {
 
     @Override
     public void saveContent(ThreadContext context, XmlNode current, SaveContext ctx) {
-        ctx.append("<!ATTLIST ");
-        ctx.append(((XmlAttributeDecl)current).getParent().getNodeName());
-        ctx.append(" ");
-        ctx.append(current.node_name(context).convertToString().asJavaString());
-        ctx.append(" ");
-        //ctx.append(((DeferredAttrNSImpl)current.getNode()).getSchemaTypeInfo().getTypeName());
-        IRubyObject content = current.content(context);
-        if(!content.isNil()) {
-            ctx.append(content.convertToString().asJavaString());
-        }
-        ctx.append(">");
+        ctx.append(declaration);
     }
 
     @Override
@@ -48,4 +39,7 @@ public class XmlAttributeDeclImpl extends XmlNodeImpl {
         saveContent(context, current,ctx);
     }
 
+    public void setDeclaration(String declaration) {
+        this.declaration = declaration;
+    }
 }

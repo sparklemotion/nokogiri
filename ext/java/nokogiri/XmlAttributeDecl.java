@@ -1,7 +1,6 @@
 package nokogiri;
 
 import nokogiri.internals.XmlAttributeDeclImpl;
-
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyMethod;
@@ -14,7 +13,7 @@ import org.w3c.dom.Node;
  * 
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class XmlAttributeDecl extends XmlNode {
+public class XmlAttributeDecl extends XmlNode implements XmlDtdDeclaration {
     private Node parent;
 
     public XmlAttributeDecl(Ruby runtime, RubyClass klazz) {
@@ -34,5 +33,9 @@ public class XmlAttributeDecl extends XmlNode {
     @JRubyMethod(name="default")
     public IRubyObject op_default(ThreadContext context) {
         return ((XmlAttributeDeclImpl)internalNode).getDefault(context);
+    }
+    
+    public void setDeclaration(String declaration) {
+        ((XmlAttributeDeclImpl)internalNode).setDeclaration(declaration);
     }
 }
