@@ -398,13 +398,10 @@ static VALUE next_element(VALUE self)
   xmlNodePtr node, sibling;
   Data_Get_Struct(self, xmlNode, node);
 
-  sibling = node->next;
+  sibling = xmlNextElementSibling(node);
   if(!sibling) return Qnil;
 
-  while(sibling && sibling->type != XML_ELEMENT_NODE)
-    sibling = sibling->next;
-
-  return sibling ? Nokogiri_wrap_xml_node(Qnil, sibling) : Qnil ;
+  return Nokogiri_wrap_xml_node(Qnil, sibling);
 }
 
 /*
@@ -418,13 +415,10 @@ static VALUE previous_element(VALUE self)
   xmlNodePtr node, sibling;
   Data_Get_Struct(self, xmlNode, node);
 
-  sibling = node->prev;
+  sibling = xmlPreviousElementSibling(node);
   if(!sibling) return Qnil;
 
-  while(sibling && sibling->type != XML_ELEMENT_NODE)
-    sibling = sibling->prev;
-
-  return sibling ? Nokogiri_wrap_xml_node(Qnil, sibling) : Qnil ;
+  return Nokogiri_wrap_xml_node(Qnil, sibling);
 }
 
 /* :nodoc: */
@@ -465,6 +459,40 @@ static VALUE children(VALUE self)
 
 /*
  * call-seq:
+ *  element_children
+ *
+ * Get the list of children for this node as a NodeSet.  All nodes will be
+ * element nodes.
+ *
+ * Example:
+ *
+ *   @doc.root.element_children.all? { |x| x.element? } # => true
+ */
+static VALUE element_children(VALUE self)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+
+  xmlNodePtr child = xmlFirstElementChild(node);
+  xmlNodeSetPtr set = xmlXPathNodeSetCreate(child);
+
+  VALUE document = DOC_RUBY_OBJECT(node->doc);
+
+  if(!child) return Nokogiri_wrap_xml_node_set(set, document);
+
+  child = xmlNextElementSibling(child);
+  while(NULL != child) {
+    xmlXPathNodeSetAddUnique(set, child);
+    child = xmlNextElementSibling(child);
+  }
+
+  VALUE node_set = Nokogiri_wrap_xml_node_set(set, document);
+
+  return node_set;
+}
+
+/*
+ * call-seq:
  *  child
  *
  * Returns the child node
@@ -475,6 +503,48 @@ static VALUE child(VALUE self)
   Data_Get_Struct(self, xmlNode, node);
 
   child = node->children;
+  if(!child) return Qnil;
+
+  return Nokogiri_wrap_xml_node(Qnil, child);
+}
+
+/*
+ * call-seq:
+ *  first_element_child
+ *
+ * Returns the first child node of this node that is an element.
+ *
+ * Example:
+ *
+ *   @doc.root.first_element_child.element? # => true
+ */
+static VALUE first_element_child(VALUE self)
+{
+  xmlNodePtr node, child;
+  Data_Get_Struct(self, xmlNode, node);
+
+  child = xmlFirstElementChild(node);
+  if(!child) return Qnil;
+
+  return Nokogiri_wrap_xml_node(Qnil, child);
+}
+
+/*
+ * call-seq:
+ *  last_element_child
+ *
+ * Returns the last child node of this node that is an element.
+ *
+ * Example:
+ *
+ *   @doc.root.last_element_child.element? # => true
+ */
+static VALUE last_element_child(VALUE self)
+{
+  xmlNodePtr node, child;
+  Data_Get_Struct(self, xmlNode, node);
+
+  child = xmlLastElementChild(node);
   if(!child) return Qnil;
 
   return Nokogiri_wrap_xml_node(Qnil, child);
@@ -1140,7 +1210,10 @@ void init_xml_node()
   rb_define_method(klass, "node_name=", set_name, 1);
   rb_define_method(klass, "parent", get_parent, 0);
   rb_define_method(klass, "child", child, 0);
+  rb_define_method(klass, "first_element_child", first_element_child, 0);
+  rb_define_method(klass, "last_element_child", last_element_child, 0);
   rb_define_method(klass, "children", children, 0);
+  rb_define_method(klass, "element_children", element_children, 0);
   rb_define_method(klass, "next_sibling", next_sibling, 0);
   rb_define_method(klass, "previous_sibling", previous_sibling, 0);
   rb_define_method(klass, "next_element", next_element, 0);

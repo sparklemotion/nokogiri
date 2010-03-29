@@ -13,6 +13,12 @@
   * XML::Document#create_entity will create new EntityDecl objects. GH #174
   * JRuby FFI implementation no longer uses ObjectSpace._id2ref,
     instead using Charles Nutter's rocking Weakling gem.
+  * Nokogiri::XML::Node#first_element_child fetch the first child node that is
+    an ELEMENT node.
+  * Nokogiri::XML::Node#last_element_child fetch the last child node that is
+    an ELEMENT node.
+  * Nokogiri::XML::Node#elements fetch all children nodes that are ELEMENT
+    nodes.
 
 * Bugfixes
 

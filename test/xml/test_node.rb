@@ -10,6 +10,23 @@ module Nokogiri
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_first_element_child
+        node = @xml.root.first_element_child
+        assert_equal 'employee', node.name
+        assert node.element?, 'node is an element'
+      end
+
+      def test_element_children
+        nodes = @xml.root.element_children
+        assert_equal @xml.root.first_element_child, nodes.first
+        assert nodes.all? { |node| node.element? }, 'all nodes are elements'
+      end
+
+      def test_last_element_child
+        nodes = @xml.root.element_children
+        assert_equal nodes.last, @xml.root.element_children.last
+      end
+
       def test_bad_xpath
         bad_xpath = '//foo['
 

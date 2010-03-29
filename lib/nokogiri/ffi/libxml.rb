@@ -113,6 +113,10 @@ module Nokogiri
     attach_function :xmlFreeDoc, [:pointer], :void
     attach_function :xmlSetTreeDoc, [:pointer, :pointer], :void
     attach_function :xmlNewReference, [:pointer, :string], :pointer
+    attach_function :xmlFirstElementChild, [:pointer], :pointer
+    attach_function :xmlLastElementChild, [:pointer], :pointer
+    attach_function :xmlNextElementSibling, [:pointer], :pointer
+    attach_function :xmlPreviousElementSibling, [:pointer], :pointer
     attach_function :xmlNewNode, [:pointer, :string], :pointer
     attach_function :xmlCopyNode, [:pointer, :int], :pointer
     attach_function :xmlDocCopyNode, [:pointer, :pointer, :int], :pointer

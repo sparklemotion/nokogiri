@@ -78,27 +78,13 @@ module Nokogiri
       end
 
       def next_element
-        sibling_ptr = cstruct[:next]
-
-        while ! sibling_ptr.null?
-          sibling_cstruct = LibXML::XmlNode.new(sibling_ptr)
-          break if sibling_cstruct[:type] == ELEMENT_NODE
-          sibling_ptr = sibling_cstruct[:next]
-        end
-
-        return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
+        sibling_ptr = LibXML.xmlNextElementSibling cstruct
+        sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
       end
 
       def previous_element
-        sibling_ptr = cstruct[:prev]
-
-        while ! sibling_ptr.null?
-          sibling_cstruct = LibXML::XmlNode.new(sibling_ptr)
-          break if sibling_cstruct[:type] == ELEMENT_NODE
-          sibling_ptr = sibling_cstruct[:prev]
-        end
-
-        return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
+        sibling_ptr = LibXML.xmlPreviousElementSibling cstruct
+        sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
       end
 
       def replace_node new_node
@@ -130,8 +116,36 @@ module Nokogiri
         return set
       end
 
+      def element_children
+        child = LibXML.xmlFirstElementChild(cstruct)
+        return NodeSet.new(nil) if child.null?
+        child = Node.wrap(child)
+
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(child.cstruct), self.document)
+        return set unless child
+
+        next_sibling = LibXML.xmlNextElementSibling(child.cstruct)
+        while ! next_sibling.null?
+          child = Node.wrap(next_sibling)
+          LibXML.xmlXPathNodeSetAddUnique(set.cstruct, child.cstruct)
+          next_sibling = LibXML.xmlNextElementSibling(child.cstruct)
+        end
+
+        return set
+      end
+
       def child
         (val = cstruct[:children]).null? ? nil : Node.wrap(val)
+      end
+
+      def first_element_child
+        element_child = LibXML.xmlFirstElementChild(cstruct)
+        element_child.null? ? nil : Node.wrap(element_child)
+      end
+
+      def last_element_child
+        element_child = LibXML.xmlLastElementChild(cstruct)
+        element_child.null? ? nil : Node.wrap(element_child)
       end
 
       def key?(attribute)
