@@ -320,7 +320,7 @@ module Nokogiri
       # Iterate over each attribute name and value pair for this Node.
       def each &block
         attribute_nodes.each { |node|
-          block.call(node.node_name, node.value)
+          block.call([node.node_name, node.value])
         }
       end
 
