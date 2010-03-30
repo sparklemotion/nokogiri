@@ -415,10 +415,16 @@ static VALUE previous_element(VALUE self)
   xmlNodePtr node, sibling;
   Data_Get_Struct(self, xmlNode, node);
 
-  sibling = xmlPreviousElementSibling(node);
+  /*
+   *  note that we don't use xmlPreviousElementSibling here because it's buggy pre-2.7.7.
+   */
+  sibling = node->prev;
   if(!sibling) return Qnil;
 
-  return Nokogiri_wrap_xml_node(Qnil, sibling);
+  while(sibling && sibling->type != XML_ELEMENT_NODE)
+    sibling = sibling->prev;
+
+  return sibling ? Nokogiri_wrap_xml_node(Qnil, sibling) : Qnil ;
 }
 
 /* :nodoc: */
