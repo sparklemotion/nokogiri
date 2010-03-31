@@ -7,6 +7,48 @@ module Nokogiri
       def setup
         super
         @xml = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third node</a3></root>"
+        @html = Nokogiri::HTML(<<-eohtml)
+        <html>
+          <head></head>
+          <body>
+            <div class='baz'><a href="foo" class="bar">first</a></div>
+          </body>
+        </html>
+        eohtml
+      end
+
+      def test_before_will_prepend_text_nodes
+        assert node = @html.at('//body').children.first
+        node.before "some text"
+        assert_equal 'some text', @html.at('//body').children[0].content.strip
+      end
+
+      def test_before
+        @html.at('//div').before('<a href="awesome">town</a>')
+        assert_equal 'awesome', @html.at('//div').previous['href']
+      end
+
+      def test_after_will_append_text_nodes
+        assert node = @html.at('//body/div')
+        node.after "some text"
+        assert_equal 'some text', node.next.text.strip
+      end
+
+      def test_after
+        @html.at('//div').after('<a href="awesome">town</a>')
+        assert_equal 'awesome', @html.at('//div').next['href']
+      end
+
+      def test_inner_html=
+        assert div = @html.at('//div')
+        div.inner_html = '1<span>2</span>3'
+        assert_equal '1',    div.children[0].to_s
+        assert_equal 'span', div.children[1].name
+        assert_equal '2',    div.children[1].inner_text
+        assert_equal '3',    div.children[2].to_s
+
+        div.inner_html = 'testing'
+        assert_equal 'testing', div.content
       end
 
       def test_add_child_should_insert_at_end_of_children
