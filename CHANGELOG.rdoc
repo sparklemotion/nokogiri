@@ -37,6 +37,12 @@
   * XML::DocumentFragment uses XML::Node#parse to determine children.
   * Fixed a memory leak in xml reader. Thanks sdor! GH #244
 
+* Notes
+
+  * The Windows gems now bundle DLLs for libxml 2.7.6 and libxslt
+    1.1.26. Prior to this release, libxml 2.7.3 and libxslt 1.1.24
+    were bundled.
+
 === 1.4.1 / 2009/12/10
 
 * New Features
