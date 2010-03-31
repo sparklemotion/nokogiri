@@ -83,8 +83,18 @@ module Nokogiri
       end
 
       def previous_element
-        sibling_ptr = LibXML.xmlPreviousElementSibling cstruct
-        sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
+        #
+        #  note that we don't use xmlPreviousElementSibling here because it's buggy pre-2.7.7.
+        #
+        sibling_ptr = cstruct[:prev]
+
+        while ! sibling_ptr.null?
+          sibling_cstruct = LibXML::XmlNode.new(sibling_ptr)
+          break if sibling_cstruct[:type] == ELEMENT_NODE
+          sibling_ptr = sibling_cstruct[:prev]
+        end
+
+        return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
       end
 
       def replace_node new_node
