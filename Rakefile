@@ -31,7 +31,6 @@ HOE = Hoe.spec 'nokogiri' do
   %w{ racc rexical rake-compiler }.each do |dep|
     self.extra_dev_deps << [dep, '>= 0']
   end
-  self.extra_deps << ['weakling', '>= 0.0.3'] if java
 
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
@@ -119,6 +118,7 @@ namespace :gem do
         HOE.spec.files << GENERATED_TOKENIZER
         HOE.spec.files += Dir["ext/nokogiri/*.dll"]
         HOE.spec.extensions = []
+        HOE.spec.add_dependency 'weakling', '>= 0.0.3'
         f.write(HOE.spec.to_ruby)
       end
     end
