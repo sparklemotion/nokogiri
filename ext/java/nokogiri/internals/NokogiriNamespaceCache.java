@@ -29,6 +29,7 @@ public class NokogiriNamespaceCache {
             this.cache.put(prefix, secondCache);
         }
 
+        if (href == null) return null;
         XmlNamespace ns = secondCache.get(href);
 
         if( ns == null) {

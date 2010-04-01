@@ -5,7 +5,9 @@
 
 package nokogiri;
 
+import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
@@ -57,6 +59,35 @@ public class XmlDocumentFragment extends XmlNode {
         RuntimeHelpers.invoke(context, fragment, "initialize", argc);
 
         return fragment;
+    }
+
+    //@Override
+    public void add_child(ThreadContext context, XmlNode child) {
+        // Some magic for DocumentFragment
+
+        Ruby ruby = context.getRuntime();
+        XmlNodeSet children = (XmlNodeSet) child.children(context);
+
+        long length = children.length();
+
+        RubyArray childrenArray = children.convertToArray();
+
+        if(length != 0) {
+            for(int i = 0; i < length; i++) {
+                XmlNode item = (XmlNode) ((XmlNode) childrenArray.aref(ruby.newFixnum(i))).dup(context);
+                add_child(context, item);
+            }
+        }
+    }
+
+    @Override
+    public void relink_namespace(ThreadContext context) {
+        ((XmlNodeSet) children(context)).relink_namespace(context);
+    }
+
+    @Override
+    public void saveContent(ThreadContext context, SaveContext ctx) {
+        saveNodeListContent(context, (XmlNodeSet) children(context), ctx);
     }
 
 }

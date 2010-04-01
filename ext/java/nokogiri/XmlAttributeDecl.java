@@ -1,41 +1,100 @@
 package nokogiri;
 
-import nokogiri.internals.XmlAttributeDeclImpl;
+import java.util.ArrayList;
+
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * ATTLIST declaration of DTD
- * 
- * @author Yoko Harada <yokolet@gmail.com>
+ * DTD attribute declaration.
+ *
+ * @author Patrick Mahoney <pat@polycrystal.org>
  */
-public class XmlAttributeDecl extends XmlNode implements XmlDtdDeclaration {
-    private Node parent;
+public class XmlAttributeDecl extends XmlNode {
 
-    public XmlAttributeDecl(Ruby runtime, RubyClass klazz) {
-        super(runtime, klazz);
+    public static RubyClass getRubyClass(Ruby ruby) {
+        return (RubyClass)ruby.getClassFromPath("Nokogiri::XML::AttributeDecl");
     }
 
-    public XmlAttributeDecl(Ruby runtime, RubyClass klazz, Node attribute, Node parent) {
-        super(runtime, klazz, attribute);
-        this.parent = parent;
-        internalNode = new XmlAttributeDeclImpl(runtime, attribute);
+    public XmlAttributeDecl(Ruby ruby, RubyClass klass) {
+        super(ruby, klass);
+        throw ruby.newRuntimeError("node required");
     }
-    
-    public Node getParent() {
-        return parent;
+
+    /**
+     * Initialize based on an attributeDecl node from a NekoDTD parsed
+     * DTD.
+     *
+     * Internally, XmlAttributeDecl combines these into a single node.
+     */
+    public XmlAttributeDecl(Ruby ruby, RubyClass klass, Node attrDeclNode) {
+        super(ruby, klass, attrDeclNode);
+    }
+
+    public static IRubyObject create(ThreadContext context, Node attrDeclNode) {
+        XmlAttributeDecl self =
+            new XmlAttributeDecl(context.getRuntime(),
+                                 getRubyClass(context.getRuntime()),
+                                 attrDeclNode);
+        return self;
+    }
+
+    @Override
+    @JRubyMethod
+    public IRubyObject node_name(ThreadContext context) {
+        return attribute_name(context);
+    }
+
+    @Override
+    @JRubyMethod(name = "node_name=")
+    public IRubyObject node_name_set(ThreadContext context, IRubyObject name) {
+        throw context.getRuntime()
+            .newRuntimeError("cannot change name of DTD decl");
+    }
+
+    public IRubyObject element_name(ThreadContext context) {
+        return getAttribute(context, "ename");
+    }
+
+    public IRubyObject attribute_name(ThreadContext context) {
+        return getAttribute(context, "aname");
+    }
+
+    @JRubyMethod
+    public IRubyObject attribute_type(ThreadContext context) {
+        return getAttribute(context, "atype");
     }
 
     @JRubyMethod(name="default")
-    public IRubyObject op_default(ThreadContext context) {
-        return ((XmlAttributeDeclImpl)internalNode).getDefault(context);
+    public IRubyObject default_value(ThreadContext context) {
+        return getAttribute(context, "default");
     }
-    
-    public void setDeclaration(String declaration) {
-        ((XmlAttributeDeclImpl)internalNode).setDeclaration(declaration);
+
+    /**
+     * FIXME: will enumerations all be of the simple (val1|val2|val3)
+     * type string?
+     */
+    @JRubyMethod
+    public IRubyObject enumeration(ThreadContext context) {
+        RubyArray enumVals = RubyArray.newArray(context.getRuntime());
+        String atype = ((Element)node).getAttribute("atype");
+
+        if (atype != null && !atype.isEmpty() && atype.charAt(0) == '(') {
+            // removed enclosing parens
+            String valueStr = atype.substring(1, atype.length() - 1);
+            String[] values = valueStr.split("\\|");
+            for (int i = 0; i < values.length; i++) {
+                enumVals.append(context.getRuntime().newString(values[i]));
+            }
+        }
+
+        return enumVals;
     }
+
 }

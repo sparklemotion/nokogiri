@@ -83,7 +83,8 @@ module Nokogiri
       def test_html_fragment_has_outer_text
         doc = "a<div>b</div>c"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        if Nokogiri::VERSION_INFO['libxml']['loaded'] <= "2.6.16"
+        if Nokogiri.uses_libxml? &&
+            Nokogiri::VERSION_INFO['libxml']['loaded'] <= "2.6.16"
           assert_equal "a<div>b</div><p>c</p>", fragment.to_s
         else
           assert_equal "a<div>b</div>c", fragment.to_s

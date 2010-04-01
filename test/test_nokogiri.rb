@@ -22,16 +22,18 @@ class TestNokogiri < Nokogiri::TestCase
       assert ! Nokogiri.ffi?
     end
 
-    assert_match version_match, Nokogiri::VERSION_INFO['libxml']['loaded']
-    Nokogiri::LIBXML_PARSER_VERSION =~ /(\d)(\d{2})(\d{2})/
-    major = $1.to_i
-    minor = $2.to_i
-    bug   = $3.to_i
-    assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO['libxml']['loaded']
+    if Nokogiri.uses_libxml?
+      assert_match version_match, Nokogiri::VERSION_INFO['libxml']['loaded']
+      Nokogiri::LIBXML_PARSER_VERSION =~ /(\d)(\d{2})(\d{2})/
+      major = $1.to_i
+      minor = $2.to_i
+      bug   = $3.to_i
+      assert_equal "#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO['libxml']['loaded']
+    end
   end
 
   def test_libxml_iconv
-    assert Nokogiri.const_defined?(:LIBXML_ICONV_ENABLED)
+    assert Nokogiri.const_defined?(:LIBXML_ICONV_ENABLED) if Nokogiri.uses_libxml?
   end
 
   def test_parse_with_io

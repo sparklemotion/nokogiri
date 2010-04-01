@@ -13,6 +13,7 @@ elsif defined? RUBY_ENGINE && RUBY_ENGINE == "jruby"
   require 'isorelax.jar'
   require 'jing.jar'
   require 'nekohtml.jar'
+  require 'nekodtd.jar'
   require 'xercesImpl.jar'
   require 'nokogiri/nokogiri'
 else

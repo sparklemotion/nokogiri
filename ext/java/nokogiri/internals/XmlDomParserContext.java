@@ -3,32 +3,36 @@ package nokogiri.internals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import nokogiri.XmlDocument;
 import nokogiri.XmlSyntaxError;
+import org.apache.xerces.parsers.DOMParser;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyClass;
+import org.jruby.RubyIO;
+import org.jruby.RubyString;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.TypeConverter;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+
 /**
  *
  * @author sergio
  */
-public class ParseOptions {
+public class XmlDomParserContext extends ParserContext {
+    protected static final String FEATURE_LOAD_EXTERNAL_DTD =
+        "http://apache.org/xml/features/nonvalidating/load-external-dtd";
 
     public static final long STRICT = 0;
     public static final long RECOVER = 1;
@@ -48,17 +52,21 @@ public class ParseOptions {
     public static final long NOCDATA = 16384;
     public static final long NOXINCNODE = 32768;
 
+    protected DOMParser parser;
+
     protected boolean strict, recover, noEnt, dtdLoad, dtdAttr, dtdValid,
             noError, noWarning, pedantic, noBlanks, sax1, xInclude, noNet,
             noDict, nsClean, noCdata, noXIncNode;
 
     protected NokogiriErrorHandler errorHandler;
 
-    public ParseOptions(IRubyObject options) {
-        this(options.convertToInteger().getLongValue());
+    public XmlDomParserContext(Ruby runtime, IRubyObject options) {
+        this(runtime, options.convertToInteger().getLongValue());
     }
 
-    public ParseOptions(long options) {
+    public XmlDomParserContext(Ruby runtime, long options) {
+        super(runtime);
+
         if(options == STRICT) {
             this.strict = true;
             this.recover = this.noEnt = this.dtdLoad = this.dtdAttr =
@@ -91,30 +99,60 @@ public class ParseOptions {
         } else {
             this.errorHandler = new NokogiriStrictErrorHandler();
         }
+
+        initParser();
+    }
+
+    protected void initParser() {
+        parser = new XmlDomParser();
+
+        parser.setErrorHandler(this.errorHandler);
+
+        // If we turn off loading of external DTDs complete, we don't
+        // getthe publicID.  Instead of turning off completely, we use
+        // an entity resolver that returns empty documents.
+        if (dtdLoad()) {
+            setFeature(FEATURE_LOAD_EXTERNAL_DTD, true);
+        } else {
+            parser.setEntityResolver(new EntityResolver() {
+                    public InputSource resolveEntity(String arg0, String arg1)
+                        throws SAXException, IOException {
+                        ByteArrayInputStream empty =
+                            new ByteArrayInputStream(new byte[0]);
+                        return new InputSource(empty);
+                    }
+                });
+        }
+    }
+
+    /**
+     * Convenience method that catches and ignores SAXException
+     * (unrecognized and unsupported exceptions).
+     */
+    protected void setFeature(String feature, boolean value) {
+        try {
+            parser.setFeature(feature, value);
+        } catch (SAXException e) {
+            // ignore
+        }
+    }
+
+    /**
+     * Convenience method that catches and ignores SAXException
+     * (unrecognized and unsupported exceptions).
+     */
+    protected void setProperty(String property, Object value) {
+        try {
+            parser.setProperty(property, value);
+        } catch (SAXException e) {
+            // ignore
+        }
     }
 
     public void addErrorsIfNecessary(ThreadContext context, XmlDocument doc) {
         Ruby ruby = context.getRuntime();
         RubyArray errors = ruby.newArray(this.errorHandler.getErrorsReadyForRuby(context));
         doc.setInstanceVariable("@errors", errors);
-    }
-
-    public DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        dbf.setIgnoringElementContentWhitespace(noBlanks);
-        dbf.setValidating(!this.continuesOnError());
-
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        db.setEntityResolver(new EntityResolver() {
-            public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
-                return new InputSource(new ByteArrayInputStream(new byte[0]));
-            }
-        });
-
-        db.setErrorHandler(this.errorHandler);
-
-        return db;
     }
 
     public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, Exception ex) {
@@ -139,47 +177,44 @@ public class ParseOptions {
         return this.recover;
     }
 
-    public Document parse(InputSource input)
-            throws ParserConfigurationException, SAXException, IOException {
-        if (noBlanks) {
-            Reader reader = input.getCharacterStream();
-            return parseWhenNoBlanks(reader);
-        } else {
-            return this.getDocumentBuilder().parse(input);
-        }
-    }
-    
-    private Document parseWhenNoBlanks(Reader reader)
-            throws IOException, SAXException, ParserConfigurationException {
-        StringBuffer content = new StringBuffer();
-        char[] cbuf = new char[2048];
-        int length;
-        while ((length = reader.read(cbuf)) != -1) {
-            content.append(cbuf, 0, length);
-        }
-        String content_noblanks = 
-            (new String(content)).replaceAll("(>\\n)", ">").replaceAll("\\s{1,}<", "<").replaceAll(">\\s{1,}", ">");
-        StringReader sr = new StringReader((new String(content_noblanks)));
-        return getDocumentBuilder().parse(new InputSource(sr));
+    /**
+     * This method is broken out so that HtmlDomParserContext can
+     * override it.
+     */
+    protected XmlDocument wrapDocument(ThreadContext context,
+                                       RubyClass klass,
+                                       Document doc) {
+        return new XmlDocument(context.getRuntime(), klass, doc);
     }
 
-    public Document parse(InputStream input)
-            throws ParserConfigurationException, SAXException, IOException {
-        if (noBlanks) {
-            InputStreamReader reader = new InputStreamReader(input);
-            return parseWhenNoBlanks(reader);
-        } else {
-            return this.getDocumentBuilder().parse(input);
+    /**
+     * Must call setInputSource() before this method.
+     */
+    public XmlDocument parse(ThreadContext context,
+                             IRubyObject klass,
+                             IRubyObject url) {
+        Ruby ruby = context.getRuntime();
+
+        try {
+            Document doc = do_parse();
+            XmlDocument xmlDoc = wrapDocument(context, (RubyClass)klass, doc);
+            xmlDoc.setUrl(url);
+            addErrorsIfNecessary(context, xmlDoc);
+            return xmlDoc;
+        } catch (SAXException e) {
+            return getDocumentWithErrorsOrRaiseException(context, e);
+        } catch (IOException e) {
+            return getDocumentWithErrorsOrRaiseException(context, e);
         }
     }
 
-    public Document parse(String input)
-            throws ParserConfigurationException, SAXException, IOException {
-        return this.getDocumentBuilder().parse(input);
+    protected Document do_parse() throws SAXException, IOException {
+        parser.parse(getInputSource());
+        return parser.getDocument();
     }
 
     public boolean dtdAttr() { return this.dtdAttr; }
-    
+
     public boolean dtdLoad() { return this.dtdLoad; }
 
     public boolean dtdValid() { return this.dtdValid; }

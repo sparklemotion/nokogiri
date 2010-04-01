@@ -5,12 +5,16 @@
 
 package nokogiri.internals;
 
+import java.nio.charset.Charset;
+import java.nio.ByteBuffer;
+
 import nokogiri.XmlNode;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyString;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -35,18 +39,94 @@ public class NokogiriHelpers {
         return xmlNode;
     }
 
-    public static String getLocalName(String name) {
-        int index = name.indexOf(':');
-        if(index == -1) {
-            return name;
-        } else {
-            return name.substring(index+1);
-        }
+    public static IRubyObject stringOrNil(Ruby ruby, String s) {
+        if (s == null)
+            return ruby.getNil();
+
+        return ruby.newString(s);
+    }
+
+    /**
+     * Convert <code>s</code> to a RubyString, or if s is null or
+     * empty return RubyNil.
+     */
+    public static IRubyObject nonEmptyStringOrNil(Ruby ruby, String s) {
+        if (s == null || s.isEmpty())
+            return ruby.getNil();
+
+        return ruby.newString(s);
+    }
+
+    /**
+     * Return the prefix of a qualified name like "prefix:local".
+     * Returns null if there is no prefix.
+     */
+    public static String getPrefix(String qName) {
+        if (qName == null) return null;
+
+        int pos = qName.indexOf(':');
+        if (pos > 0)
+            return qName.substring(0, pos);
+        else
+            return null;
+    }
+
+    /**
+     * Return the local part of a qualified name like "prefix:local".
+     * Returns <code>qName</code> if there is no prefix.
+     */
+    public static String getLocalPart(String qName) {
+        if (qName == null) return null;
+
+        int pos = qName.indexOf(':');
+        if (pos > 0)
+            return qName.substring(pos + 1);
+        else
+            return qName;
     }
 
     public static String getLocalNameForNamespace(String name) {
-        String localName = getLocalName(name);
+        String localName = getLocalPart(name);
         return ("xmlns".equals(localName)) ? null : localName;
+    }
+
+    protected static Charset utf8 = null;
+    protected static Charset getCharsetUTF8() {
+        if (utf8 == null) {
+            utf8 = Charset.forName("UTF-8");
+        }
+
+        return utf8;
+    }
+
+    /**
+     * Converts a RubyString in to a Java String.  Assumes the
+     * RubyString is encoded as UTF-8.  This is generally the case for
+     * RubyStrings created with getRuntime().newString("java string").
+     * It also seems to be the case for strings created within Ruby
+     * where $KCODE has not been set.
+     *
+     * Note that RubyString#toString() decodes the string data as
+     * ISO-8859-1 (See org.jruby.util.ByteList.java).  This is not
+     * what you want if you have any multibyte characters in your
+     * UTF-8 string.
+     *
+     * FIXME: This really needs to be more robust in terms of
+     * detecting the encoding and properly converting to a Java
+     * String.  It's unfortunate that RubyString#toString() doesn't do
+     * this for us.
+     */
+    public static String rubyStringToString(IRubyObject str) {
+        return rubyStringToString(str.convertToString());
+    }
+
+    public static String rubyStringToString(RubyString str) {
+        ByteList byteList = str.getByteList();
+        byte[] data = byteList.unsafeBytes();
+        int offset = byteList.begin();
+        int len = byteList.length();
+        ByteBuffer buf = ByteBuffer.wrap(data, offset, len);
+        return getCharsetUTF8().decode(buf).toString();
     }
 
     public static String getNodeCompletePath(Node node) {
@@ -58,7 +138,8 @@ public class NokogiriHelpers {
         String sep;
         String name;
 
-        int occur = 0, generic;
+        int occur = 0;
+        boolean generic;
 
         cur = node;
 
@@ -66,7 +147,7 @@ public class NokogiriHelpers {
             name = "";
             sep = "?";
             occur = 0;
-            generic = 0;
+            generic = false;
 
             if(cur.getNodeType() == Node.DOCUMENT_NODE) {
                 if(buffer.startsWith("/")) break;
@@ -74,15 +155,16 @@ public class NokogiriHelpers {
                 sep = "/";
                 next = null;
             } else if(cur.getNodeType() == Node.ELEMENT_NODE) {
-                generic = 0;
+                generic = false;
                 sep = "/";
 
                 name = cur.getLocalName();
+                if (name == null) name = cur.getNodeName();
                 if(cur.getNamespaceURI() != null) {
                     if(cur.getPrefix() != null) {
                         name = cur.getPrefix() + ":" + name;
                     } else {
-                        generic = 1;
+                        generic = true;
                         name = "*";
                     }
                 }
@@ -97,7 +179,7 @@ public class NokogiriHelpers {
 
                 while(tmp != null) {
                     if((tmp.getNodeType() == Node.ELEMENT_NODE) &&
-                        (generic != 0 || compareTwoNodes(tmp,cur))) {
+                       (generic || fullNamesMatch(tmp, cur))) {
                         occur++;
                     }
                     tmp = tmp.getPreviousSibling();
@@ -108,7 +190,7 @@ public class NokogiriHelpers {
 
                     while(tmp != null && occur == 0) {
                         if((tmp.getNodeType() == Node.ELEMENT_NODE) &&
-                            (generic != 0 || compareTwoNodes(tmp,cur))) {
+                            (generic || fullNamesMatch(tmp,cur))) {
                             occur++;
                         }
                         tmp = tmp.getNextSibling();
@@ -258,6 +340,24 @@ public class NokogiriHelpers {
                nodesAreEqual(m.getPrefix(), n.getPrefix());
     }
 
+    protected static boolean fullNamesMatch(Node a, Node b) {
+        return a.getNodeName().equals(b.getNodeName());
+        //return getFullName(a).equals(getFullName(b));
+    }
+
+    protected static String getFullName(Node n) {
+        String lname = n.getLocalName();
+        String prefix = n.getPrefix();
+        if (lname != null) {
+            if (prefix != null)
+                return prefix + ":" + lname;
+            else
+                return lname;
+        } else {
+            return n.getNodeName();
+        }
+    }
+
     private static boolean nodesAreEqual(Object a, Object b) {
       return (((a == null) && (a == null)) ||
                 (a != null) && (b != null) &&
@@ -283,17 +383,24 @@ public class NokogiriHelpers {
         } else if(name.equals("#text")) {
             return "text";
         } else {
-            name = getLocalName(name);
+            name = getLocalPart(name);
             return (name == null) ? "" : name;
         }
     }
 
+    public static final String XMLNS_URI =
+        "http://www.w3.org/2000/xmlns/";
     public static boolean isNamespace(Node node) {
-        return isNamespace(node.getNodeName());
+        return (XMLNS_URI.equals(node.getNamespaceURI()) ||
+                isNamespace(node.getNodeName()));
     }
 
-    public static boolean isNamespace(String string) {
-        return string.equals("xmlns") || string.startsWith("xmlns:");
+    public static boolean isNamespace(String nodeName) {
+        return (nodeName.equals("xmlns") || nodeName.startsWith("xmlns:"));
+    }
+
+    public static boolean isNonDefaultNamespace(Node node) {
+        return (isNamespace(node) && ! "xmlns".equals(node.getNodeName()));
     }
 
     public static String newQName(String newPrefix, Node node) {
@@ -308,14 +415,6 @@ public class NokogiriHelpers {
         RubyArray n = RubyArray.newArray(ruby, nodes.getLength());
         for(int i = 0; i < nodes.getLength(); i++) {
             n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)));
-        }
-        return n;
-    }
-    
-    public static RubyArray namedNodeMapToRubyArray(Ruby ruby, NamedNodeMap map) {
-        RubyArray n = RubyArray.newArray(ruby, map.getLength());
-        for(int i = 0; i < map.getLength(); i++) {
-            n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, map.item(i)));
         }
         return n;
     }

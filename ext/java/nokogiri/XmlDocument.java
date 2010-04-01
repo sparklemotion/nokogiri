@@ -2,30 +2,37 @@ package nokogiri;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import nokogiri.internals.NokogiriUserDataHandler;
-import nokogiri.internals.ParseOptions;
-import nokogiri.internals.XmlDocumentImpl;
-import nokogiri.internals.XmlEmptyDocumentImpl;
+import nokogiri.internals.XmlDomParserContext;
+import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.jruby.util.ByteList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
+
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 public class XmlDocument extends XmlNode {
-    protected Document document;
+    /* UserData keys for storing extra info in the document node. */
+    public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
+    protected final static String DTD_INTERNAL_SUBSET = "DTD_INTERNAL_SUBSET";
+    protected final static String DTD_EXTERNAL_SUBSET = "DTD_EXTERNAL_SUBSET";
+
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
+
+    /** cache variables */
+    protected IRubyObject encoding = null;
+    protected IRubyObject url = null;
 
     public XmlDocument(Ruby ruby, Document document) {
         this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"), document);
@@ -33,52 +40,54 @@ public class XmlDocument extends XmlNode {
 
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
         super(ruby, klass, document);
-        this.document = document;
 
 //        if(document == null) {
 //            this.internalNode = new XmlEmptyDocumentImpl(ruby, document);
 //        } else {
 
-            this.internalNode = new XmlDocumentImpl(ruby, document);
-            document.setUserData(NokogiriUserDataHandler.CACHED_NODE, this,
-                    new NokogiriUserDataHandler(ruby));
 //        }
 
         setInstanceVariable("@decorators", ruby.getNil());
     }
 
-    @Override
-    protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
-        return ((XmlDocumentImpl) this.internalNode).dup_impl(context, this, deep, this.getType());
-    }
+//     @Override
+//     protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
+//         return ((XmlDocumentImpl) this.internalNode).dup_impl(context, this, deep, this.getType());
+//     }
 
     public Document getDocument() {
-        return document;
+        return (Document) node;
     }
 
-    @Override
-    protected Node getNodeToCompare() {
-        return this.document;
+    public void setUrl(IRubyObject url) {
+        this.url = url;
     }
 
-    protected XmlDocumentImpl internals() {
-        return (XmlDocumentImpl) this.internalNode;
+    protected IRubyObject getUrl() {
+        return this.url;
     }
 
-    protected void setUrl(IRubyObject url) {
-        this.internals().url_set(url);
+    @JRubyMethod
+    public IRubyObject url(ThreadContext context) {
+        return getUrl();
+    }
+
+    protected static Document createNewDocument() {
+        try {
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                .newDocument();
+        } catch (ParserConfigurationException e) {
+            return null;        // this will end is disaster...
+        }
     }
 
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         XmlDocument doc = null;
         try {
-
-            Document docNode = (new ParseOptions(0)).getDocumentBuilder().newDocument();
+            Document docNode = createNewDocument();
             doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
-                    docNode);
-            doc.internalNode = new XmlEmptyDocumentImpl(context.getRuntime(),
-                    docNode);
+                                  docNode);
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
@@ -90,25 +99,27 @@ public class XmlDocument extends XmlNode {
 
     @Override
     @JRubyMethod
-    public IRubyObject children(ThreadContext context) {
-        return this.internals().children(context, this);
-    }
-
-    @Override
-    @JRubyMethod
     public IRubyObject document(ThreadContext context) {
         return this;
     }
 
     @JRubyMethod(name="encoding=")
     public IRubyObject encoding_set(ThreadContext context, IRubyObject encoding) {
-        internals().encoding_set(context, this, encoding);
-        return encoding;
+        this.encoding = encoding;
+        return this;
     }
 
     @JRubyMethod
     public IRubyObject encoding(ThreadContext context) {
-        return internals().encoding(context, this);
+        if (this.encoding == null) {
+            if (getDocument().getXmlEncoding() == null) {
+                this.encoding = context.getRuntime().getNil();
+            } else {
+                this.encoding = context.getRuntime().newString(getDocument().getXmlEncoding());
+            }
+        }
+
+        return this.encoding;
     }
 
     @JRubyMethod(meta = true)
@@ -117,75 +128,83 @@ public class XmlDocument extends XmlNode {
         return context.getRuntime().getNil();
     }
 
-    @JRubyMethod(meta = true, rest = true)
-    public static IRubyObject read_io(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
-        
+    /**
+     * TODO: handle encoding?
+     *
+     * @param args[0] a Ruby IO or StringIO
+     * @param args[1] url or nil
+     * @param args[2] encoding
+     * @param args[3] bitset of parser options
+     */
+    public static IRubyObject newFromData(ThreadContext context,
+                                          IRubyObject klass,
+                                          IRubyObject[] args) {
         Ruby ruby = context.getRuntime();
-        
-        IRubyObject content = RuntimeHelpers.invoke(context, args[0], "read");
-        args[0] = content;
-        
-        return read_memory(context, cls, args);
-
-
-
-//        Arity.checkArgumentCount(ruby, args, 4, 4);
-//        ParseOptions options = new ParseOptions(args[3]);
-//        try {
-//            Document document;
-//            if (args[0] instanceof RubyIO) {
-//                RubyIO io = (RubyIO)args[0];
-//                document = options.parse(io.getInStream());
-//                XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
-//                doc.setUrl(args[1]);
-//                options.addErrorsIfNecessary(context, doc);
-//                return doc;
-//            } else {
-//                throw ruby.newTypeError("Only IO supported for Document.read_io currently");
-//            }
-//        } catch (ParserConfigurationException pce) {
-//            return options.getDocumentWithErrorsOrRaiseException(context, pce);
-//        } catch (SAXException saxe) {
-//            return options.getDocumentWithErrorsOrRaiseException(context, saxe);
-//        } catch (IOException ioe) {
-//            return options.getDocumentWithErrorsOrRaiseException(context, ioe);
-//        }
+        Arity.checkArgumentCount(ruby, args, 4, 4);
+        XmlDomParserContext ctx =
+            new XmlDomParserContext(ruby, args[3]);
+        ctx.setInputSource(context, args[0]);
+        return ctx.parse(context, klass, args[1]);
     }
 
     @JRubyMethod(meta = true, rest = true)
-    public static IRubyObject read_memory(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
-        
-        Ruby ruby = context.getRuntime();
-        Arity.checkArgumentCount(ruby, args, 4, 4);
-        ParseOptions options = new ParseOptions(args[3]);
-        try {
-            Document document;
-            RubyString content = args[0].convertToString();
-            ByteList byteList = content.getByteList();
-            ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            document = options.parse(bais);
-            XmlDocument doc = new XmlDocument(ruby, (RubyClass)cls, document);
-            doc.setUrl(args[1]);
-            options.addErrorsIfNecessary(context, doc);
-            return doc;
-        } catch (ParserConfigurationException pce) {
-            return options.getDocumentWithErrorsOrRaiseException(context, pce);
-        } catch (SAXException saxe) {
-            return options.getDocumentWithErrorsOrRaiseException(context, saxe);
-        } catch (IOException ioe) {
-            return options.getDocumentWithErrorsOrRaiseException(context, ioe);
-        }
+    public static IRubyObject read_io(ThreadContext context,
+                                      IRubyObject klass,
+                                      IRubyObject[] args) {
+        return newFromData(context, klass, args);
+    }
+
+    @JRubyMethod(meta = true, rest = true)
+    public static IRubyObject read_memory(ThreadContext context,
+                                          IRubyObject klass,
+                                          IRubyObject[] args) {
+        return newFromData(context, klass, args);
+    }
+
+    /** not a JRubyMethod */
+    public static IRubyObject read_memory(ThreadContext context,
+                                          IRubyObject[] args) {
+        return read_memory(context,
+                           context.getRuntime()
+                           .getClassFromPath("Nokogiri::XML::Document"),
+                           args);
     }
 
     @JRubyMethod
     public IRubyObject root(ThreadContext context) {
-        return internals().root(context, this);
+        Node rootNode = getDocument().getDocumentElement();
+        if (rootNode == null)
+            return context.getRuntime().getNil();
+        else
+            return XmlNode.fromNodeOrCreate(context, rootNode);
     }
 
     @JRubyMethod(name="root=")
-    public IRubyObject root_set(ThreadContext context, IRubyObject root) {
-        internals().root_set(context, this, root);
-        return root;
+    public IRubyObject root_set(ThreadContext context, IRubyObject newRoot_) {
+        XmlNode newRoot = asXmlNode(context, newRoot_);
+
+        IRubyObject root = root(context);
+        if (root.isNil()) {
+            Node newRootNode;
+            if (getDocument() == newRoot.getOwnerDocument()) {
+                newRootNode = newRoot.getNode();
+            } else {
+                // must copy otherwise newRoot may exist in two places
+                // with different owner document.
+                newRootNode = getDocument().importNode(newRoot.getNode(), true);
+            }
+            add_child_node(context, fromNodeOrCreate(context, newRootNode));
+        } else {
+            Node rootNode = asXmlNode(context, root).node;
+            fromNode(context, rootNode).replace_node(context, newRoot);
+        }
+
+        return newRoot;
+    }
+
+    @JRubyMethod
+    public IRubyObject version(ThreadContext context) {
+        return stringOrNil(context.getRuntime(), getDocument().getXmlVersion());
     }
 
     @JRubyMethod(meta = true)
@@ -194,16 +213,75 @@ public class XmlDocument extends XmlNode {
         return context.getRuntime().getNil();
     }
 
-    @JRubyMethod
-    public IRubyObject url(ThreadContext context) {
-        return this.internals().url();
-    }
-    
-    @JRubyMethod
-    public IRubyObject version(ThreadContext context) {
-        String version = document.getXmlVersion();
-        if (version == null) return context.getRuntime().getNil();
-        return JavaUtil.convertJavaToRuby(context.getRuntime(), version);
+    public IRubyObject getInternalSubset(ThreadContext context) {
+        IRubyObject dtd =
+            (IRubyObject) node.getUserData(DTD_INTERNAL_SUBSET);
+
+        if (dtd == null) {
+            if (getDocument().getDoctype() == null)
+                dtd = context.getRuntime().getNil();
+            else
+                dtd = XmlDtd.newFromInternalSubset(context.getRuntime(),
+                                                   getDocument());
+
+            node.setUserData(DTD_INTERNAL_SUBSET, dtd, null);
+        }
+
+        return dtd;
     }
 
+    public IRubyObject getExternalSubset(ThreadContext context) {
+        IRubyObject dtd = (IRubyObject)
+            node.getUserData(DTD_EXTERNAL_SUBSET);
+
+        if (dtd == null) {
+            if (getDocument().getDoctype() == null)
+                dtd = context.getRuntime().getNil();
+            else
+                dtd = XmlDtd.newFromExternalSubset(context.getRuntime(),
+                                                   getDocument());
+
+            node.setUserData(DTD_EXTERNAL_SUBSET, dtd, null);
+        }
+
+        return dtd;
+    }
+
+    @Override
+    public void saveContent(ThreadContext context, SaveContext ctx) {
+        if(!ctx.noDecl()) {
+            ctx.append("<?xml version=\"");
+            ctx.append(getDocument().getXmlVersion());
+            ctx.append("\"");
+//            if(!cur.encoding(context).isNil()) {
+//                ctx.append(" encoding=");
+//                ctx.append(cur.encoding(context).asJavaString());
+//            }
+
+            String encoding = ctx.getEncoding();
+
+            if(encoding == null &&
+                    !encoding(context).isNil()) {
+                encoding = encoding(context).convertToString().asJavaString();
+            }
+
+            if(encoding != null) {
+                ctx.append(" encoding=\"");
+                ctx.append(encoding);
+                ctx.append("\"");
+            }
+
+            //ctx.append(" standalone=\"");
+            //ctx.append(getDocument().getXmlStandalone() ? "yes" : "no");
+            ctx.append("?>\n");
+        }
+
+        IRubyObject maybeRoot = root(context);
+        if (maybeRoot.isNil())
+            throw context.getRuntime().newRuntimeError("no root document");
+
+        XmlNode root = (XmlNode) maybeRoot;
+        root.saveContent(context, ctx);
+        ctx.append("\n");
+    }
 }

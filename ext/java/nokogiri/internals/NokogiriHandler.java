@@ -1,8 +1,10 @@
 package nokogiri.internals;
 
 import nokogiri.XmlAttr;
+import nokogiri.internals.XmlDeclHandler;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
@@ -14,22 +16,31 @@ import org.xml.sax.ext.DefaultHandler2;
 
 import java.util.logging.Logger;
 
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.getPrefix;
+import static nokogiri.internals.NokogiriHelpers.getLocalPart;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
 /**
  *
  * @author sergio
  */
-public class NokogiriHandler extends DefaultHandler2 {
+public class NokogiriHandler extends DefaultHandler2
+    implements XmlDeclHandler {
 
     private static Logger LOGGER = Logger.getLogger(NokogiriHandler.class.getName());
 
     boolean inCDATA = false;
 
     private Ruby ruby;
+    private RubyClass attrClass;
     private IRubyObject object;
     private boolean namespaceDefined = false;
 
     public NokogiriHandler(Ruby ruby, IRubyObject object) {
         this.ruby = ruby;
+        this.attrClass = (RubyClass) ruby.getClassFromPath(
+            "Nokogiri::XML::SAX::Parser::Attribute");
         this.object = object;
     }
 
@@ -38,69 +49,81 @@ public class NokogiriHandler extends DefaultHandler2 {
         call("start_document");
     }
 
+    public void xmlDecl(String version, String encoding, String standalone) {
+        call("xmldecl", stringOrNil(ruby, version),
+             stringOrNil(ruby, encoding),
+             stringOrNil(ruby, standalone));
+    }
+
     @Override
     public void endDocument() throws SAXException {
         call("end_document");
     }
 
-    /**
-     * @return true if an XML namespace has been defined in the document, false otherwise.
+    /*
+     * This has to call either "start_element" or
+     * "start_element_namespace" depending on whether there are any
+     * namespace attributes.
+     *
+     * Attributes that define namespaces are passed in a separate
+     * array of of <code>[:prefix, :uri]</code> arrays and are not
+     * passed with the other attributes.
      */
-    private boolean isNamespaceDefined() {
-        // Determining the namespace is important because we only want
-        // start_element_namespace to be called if we have an 'xmlns' somewhere in the
-        // document, even if the attribute or element is defined with foo:bar.
-        return namespaceDefined;
-    }
+    @Override
+    public void startElement(String uri, String localName, String qName,
+                             Attributes attrs) throws SAXException {
+        // for attributes other than namespace attrs
+        RubyArray rubyAttr = RubyArray.newArray(ruby);
+        // for namespace defining attributes
+        RubyArray rubyNSAttr = RubyArray.newArray(ruby);
 
-    private void inspectElementForNamespace(String qName, Attributes attrs) {
-        LOGGER.fine("inspectElementForNamespace: qName = " + qName + ", attrs = " + attrs.toString());
-        if (qName.equals("xmlns") || qName.startsWith("xmlns:")) {
-           namespaceDefined = true;   
-        }
+        ThreadContext context = ruby.getCurrentContext();
 
         for (int i = 0; i < attrs.getLength(); i++) {
-            if (attrs.getQName(i).startsWith("xmlns")) {
-                namespaceDefined = true;
-                break;
+            String u = attrs.getURI(i);
+            String qn = attrs.getQName(i);
+            String ln = attrs.getLocalName(i);
+            String val = attrs.getValue(i);
+            String pre;
+
+            pre = getPrefix(qn);
+            if (ln == null || ln.equals("")) ln = getLocalPart(qn);
+
+            if (isNamespace(qn)) {
+                RubyArray ns = RubyArray.newArray(ruby, 2);
+                if (ln.equals("xmlns")) ln = null;
+                ns.add(stringOrNil(ruby, ln));
+                ns.add(ruby.newString(val));
+                rubyNSAttr.add(ns);
+            } else {
+                IRubyObject[] args = new IRubyObject[4];
+                args[0] = stringOrNil(ruby, ln);
+                args[1] = stringOrNil(ruby, pre);
+                args[2] = stringOrNil(ruby, u);
+                args[3] = stringOrNil(ruby, val);
+
+                IRubyObject attr =
+                    RuntimeHelpers.invoke(context, attrClass, "new", args);
+                rubyAttr.add(attr);
             }
         }
+
+        if (localName == null || localName.equals(""))
+            localName = getLocalPart(qName);
+        call("start_element_namespace",
+             stringOrNil(ruby, localName),
+             rubyAttr,
+             stringOrNil(ruby, getPrefix(qName)),
+             stringOrNil(ruby, uri),
+             rubyNSAttr);
     }
 
-    /*
-     * This has to call either "start_element" or "start_element_namespace" depending on whether there
-     *  are any namespace attributes.
-     */
-    @Override
-    public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
-        int attributeLength = attrs.getLength();
-        RubyArray rubyAttributes = RubyArray.newArray(ruby, attributeLength);
-
-        inspectElementForNamespace(qName, attrs);
-
-        if (attributeLength > 0) {
-            // We expect attr to have "attr.prefix"
-            // We expect attr to have "attr.localname"
-            // We expect attr to have "attr.uri"
-            for (int i = 0; i < attributeLength; i++) {
-                String u = attrs.getURI(i);
-                String q = attrs.getQName(i);
-                String n = attrs.getLocalName(i);
-                String v = attrs.getValue(i);
-                //System.out.println("qName = " + q + ", localName = " + n + ", uri = " + u + "other uri = " + uri);
-                XmlSaxAttribute attr = new XmlSaxAttribute(ruby, u, q, n, v);
-                rubyAttributes.add(attr);
-            }
-
-            call("start_element_namespace", ruby.newString(qName), rubyAttributes);
-        } else {
-            call("start_element", ruby.newString(qName), rubyAttributes);
-        }
-    }
-    
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        call("end_element", ruby.newString(qName));
+        call("end_element_namespace",
+             stringOrNil(ruby, localName),
+             stringOrNil(ruby, getPrefix(qName)),
+             stringOrNil(ruby, uri));
     }
 
     @Override
@@ -155,56 +178,31 @@ public class NokogiriHandler extends DefaultHandler2 {
         RuntimeHelpers.invoke(context, document(context), methodName, arg1, arg2);
     }
 
+    private void call(String methodName, IRubyObject arg1, IRubyObject arg2,
+                      IRubyObject arg3) {
+        ThreadContext context = ruby.getCurrentContext();
+        RuntimeHelpers.invoke(context, document(context), methodName,
+                              arg1, arg2, arg3);
+    }
+
+    private void call(String methodName,
+                      IRubyObject arg0,
+                      IRubyObject arg1,
+                      IRubyObject arg2,
+                      IRubyObject arg3,
+                      IRubyObject arg4) {
+        IRubyObject[] args = new IRubyObject[5];
+        args[0] = arg0;
+        args[1] = arg1;
+        args[2] = arg2;
+        args[3] = arg3;
+        args[4] = arg4;
+        ThreadContext context = ruby.getCurrentContext();
+        RuntimeHelpers.invoke(context, document(context), methodName, args);
+    }
+
     private IRubyObject document(ThreadContext context){
-		return RuntimeHelpers.invoke(context, this.object, "document");
+        return RuntimeHelpers.invoke(context, this.object, "document");
     }
 
-    /*
-     * This is a "temporary" class to fix the test in test_parser.rb which expect attributes
-     * to have attr.prefix and attr.localname defined.
-     *
-     * TODO: Review to see if this class can be eliminated or refactored.
-     */
-    public static final class XmlSaxAttribute {
-        private Ruby ruby;
-        private String uri;
-        private String qName;
-        private String localName;
-        private String value;
-        
-        public XmlSaxAttribute(Ruby ruby, String uri, String qName, String localName, String value) {
-            this.ruby = ruby;
-            this.uri = uri;
-            this.qName = qName;
-            this.localName = localName;
-            this.value = value;
-        }
-
-        public RubyString getQName() {
-            return ruby.newString(this.qName);
-        }
-
-        public RubyString getPrefix() {
-            int pos = this.qName.indexOf(':');
-            String prefix;
-            if (pos > 0) {
-                prefix = this.qName.substring(0, pos);
-            } else {
-                prefix = this.qName;
-            }
-            return ruby.newString(prefix);
-        }
-
-        public RubyString getLocalname() {
-            return ruby.newString(this.localName);
-        }
-
-        public RubyString getValue() {
-            return ruby.newString(this.value);
-        }
-
-        public RubyString getUri() {
-            return ruby.newString(this.uri);
-        }
-    }
 }

@@ -44,15 +44,15 @@ public class XmlSyntaxError extends RubyException {
 
     //TODO: Return correct message, domain, etc.
 
-    @JRubyMethod
-    @Override
-    public IRubyObject message(ThreadContext context) {
-        if(this.exception != null) {
-            return context.getRuntime().newString(this.exception.toString());
-        } else {
-            return context.getRuntime().newString("no message");
-        }
-    }
+//     @JRubyMethod
+//     @Override
+//     public IRubyObject message(ThreadContext context) {
+//         if(this.exception != null) {
+//             return context.getRuntime().newString(this.exception.toString());
+//         } else {
+//             return context.getRuntime().newString("no message");
+//         }
+//     }
 
     @JRubyMethod
     public IRubyObject domain(ThreadContext context) {

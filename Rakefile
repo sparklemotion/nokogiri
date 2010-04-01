@@ -10,7 +10,7 @@ java    = RUBY_PLATFORM =~ /java/
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 
-EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml xercesImpl}.map{|x| "lib/#{x}.jar"}
+EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml nekodtd xercesImpl}.map{|x| "lib/#{x}.jar"}
 JAVA_EXT = "lib/nokogiri/nokogiri.jar"
 JRUBY_HOME = Config::CONFIG['prefix']
 
@@ -138,7 +138,7 @@ namespace :java do
   task :build_external do
     Dir.chdir('ext/java') do
       LIB_DIR = '../../lib'
-      CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
+      CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/nekodtd.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
       sh "javac -g -cp #{CLASSPATH} nokogiri/*.java nokogiri/internals/*.java"
       sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class nokogiri/internals/*.class"
     end

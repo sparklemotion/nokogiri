@@ -48,9 +48,9 @@ public class XmlNamespace extends RubyObject {
     public static XmlNamespace fromNode(Ruby ruby, Node node) {
         String localName = getLocalNameForNamespace(node.getNodeName());
 
-        return new XmlNamespace(ruby,
-                    (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"),
-                    localName, node.getNodeValue());
+        RubyClass klass = (RubyClass)
+            ruby.getClassFromPath("Nokogiri::XML::Namespace");
+        return new XmlNamespace(ruby, klass, localName, node.getNodeValue());
     }
 
     public boolean isEmpty() {

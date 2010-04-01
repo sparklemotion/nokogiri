@@ -4,6 +4,7 @@ require 'nokogiri/html/document_fragment'
 require 'nokogiri/html/sax/parser_context'
 require 'nokogiri/html/sax/parser'
 require 'nokogiri/html/element_description'
+require 'nokogiri/html/element_description_defaults'
 
 module Nokogiri
   class << self

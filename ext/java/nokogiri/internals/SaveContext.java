@@ -1,5 +1,9 @@
 package nokogiri.internals;
 
+import java.lang.Character;
+import org.jruby.Ruby;
+import org.jruby.RubyString;
+
 /**
  *
  * @author sergio
@@ -46,6 +50,10 @@ public class SaveContext {
         this.buffer.append(s);
     }
 
+    public void append(char c) {
+        buffer.append(c);
+    }
+
     public void append(StringBuffer sb) {
         this.buffer.append(sb);
     }
@@ -60,6 +68,113 @@ public class SaveContext {
         this.append("\"");
         this.append(sb);
         this.append("\"");
+    }
+
+    public void emptyTag(String name) {
+        emptyTagStart(name);
+        emptyTagEnd(name);
+    }
+
+    public void emptyTagStart(String name) {
+        openTagInlineStart(name);
+    }
+
+    public void emptyTagEnd(String name) {
+        if (asHtml) {
+            if (noEmpty()) {
+                append(">");
+            } else {
+                openTagInlineEnd();
+                closeTagInline(name);
+            }
+        } else if (xhtml) {
+            append(" />");
+        } else {
+            append("/>");
+        }
+    }
+
+    public void openTag(String name) {
+        openTagStart(name);
+        openTagEnd();
+    }
+
+    public void openTagStart(String name) {
+        maybeBreak();
+        indent();
+        append("<");
+        append(name);
+    }
+
+    public void openTagEnd() {
+        append(">");
+        maybeBreak();
+        increaseLevel();
+    }
+
+    public void closeTag(String name) {
+        decreaseLevel();
+        maybeBreak();
+        indent();
+        append("</");
+        append(name);
+        append(">");
+        maybeBreak();
+    }
+
+    public void openTagInline(String name) {
+        openTagInlineStart(name);
+        openTagInlineEnd();
+    }
+
+    public void openTagInlineStart(String name) {
+        maybeIndent();
+        append("<");
+        append(name);
+    }
+
+    public void openTagInlineEnd() {
+        append(">");
+    }
+
+    public void closeTagInline(String name) {
+        append("</");
+        append(name);
+        append(">");
+    }
+
+    public void maybeBreak() {
+        if (format && !endsInNewline()) append('\n');
+    }
+
+    public void maybeSpace() {
+        if (format && !endsInWhitespace()) append(' ');
+    }
+
+    /**
+     * Indent if this is the start of a fresh line.
+     */
+    public void maybeIndent() {
+        if (format && endsInNewline()) indent();
+    }
+
+    public void indent() {
+        if (format) append(getCurrentIndentString());
+    }
+
+    public boolean endsInWhitespace() {
+        return (Character.isWhitespace(lastChar()));
+    }
+
+    public boolean endsInNewline() {
+        return (lastChar() == '\n');
+    }
+
+    public char lastChar() {
+        if (buffer.length() == 0) return '\n'; // logically, the char
+                                               // *before* a text file
+                                               // is a newline
+        return buffer.charAt(buffer.length() - 1);
     }
 
     public boolean asHtml() { return this.asHtml; }
@@ -102,6 +217,10 @@ public class SaveContext {
 
     @Override
     public String toString() { return this.buffer.toString(); }
+
+    public RubyString toRubyString(Ruby runtime) {
+        return new RubyString(runtime, runtime.getString(), buffer);
+    }
 
     public boolean Xhtml() { return this.xhtml; }
 }
