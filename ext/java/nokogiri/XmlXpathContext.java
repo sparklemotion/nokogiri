@@ -1,5 +1,7 @@
 package nokogiri;
 
+import java.util.Set;
+
 import nokogiri.internals.NokogiriNamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -36,6 +38,12 @@ public class XmlXpathContext extends RubyObject {
         String src = expr.convertToString().asJavaString();
         try {
             if(!handler.isNil()) {
+            	if (!isContainsPrefix(src)) {
+                    Set<String> methodNames = handler.getMetaClass().getMethods().keySet();
+                    for (String name : methodNames) {
+                        src = src.replaceAll(name, NokogiriNamespaceContext.NOKOGIRI_PREFIX+":"+name);
+                    }
+                }
                 xpath.setXPathFunctionResolver(new NokogiriXPathFunctionResolver(handler));
             }
             XPathExpression xpathExpression = xpath.compile(src);
@@ -44,6 +52,17 @@ public class XmlXpathContext extends RubyObject {
             throw new RaiseException(XmlSyntaxError.getXPathSyntaxError(context, xpee));
         }
     }
+    
+    private boolean isContainsPrefix(String str) {
+        Set<String> prefixes = ((NokogiriNamespaceContext)xpath.getNamespaceContext()).getAllPrefixes();
+        for (String prefix : prefixes) {
+            if (str.contains(prefix + ":")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @JRubyMethod
     public IRubyObject evaluate(ThreadContext context, IRubyObject expr) {
