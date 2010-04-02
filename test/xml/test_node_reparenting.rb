@@ -17,6 +17,54 @@ module Nokogiri
           eohtml
         end
 
+        # TODO: slightly different behavior for inserters versus replacers
+        # { :inserters => [:before, :after, :add_child],
+        #   :replacers => [:replace, :inner_html=] }
+        [:before, :after, :replace, :inner_html=, :add_child].each do |method|
+          describe "##{method}" do
+            [:current, :another].each do |which|
+              describe "passed a Node in the #{which} document" do
+                it "unlinks the Node from its previous position"
+                it "inserts the Node in the proper position"
+              end
+            end
+            describe "passed a Node with a Namespace" do
+              it "keeps the Namespace"
+            end
+            describe "given a parent Node with a default and a non-default Namespace" do
+              describe "passed an Node without a namespace" do
+                it "inserts an Node that inherits the default Namespace"
+              end
+              describe "passed a Node with a Namespace that matches the parent's non-default Namespace" do
+                it "inserts a Node that inherits the matching parent Namespace"
+              end
+            end
+            describe "passed a Text node" do
+              it "merges the Text node with adjacent Text nodes"
+            end
+            describe "passed a markup string" do
+              it "inserts the fragment roots in the proper position"
+            end
+            describe "passed a fragment" do
+              it "inserts the fragment roots in the proper position"
+            end
+            describe "passed a document" do
+              it "raises an exception"
+            end
+          end
+        end
+
+        [ [:<<, :add_child],
+          [:add_next_sibling, :after],
+          [:add_previous_sibling, :before],
+          [:next=, :after],
+          [:previous=, :before]
+        ].each do |method, aliased|
+          describe "##{method}" do
+            it "is an alias for #{aliased}"
+          end
+        end
+
         describe "#before" do
           it "prepends text nodes" do
             assert node = @html.at('//body').children.first
