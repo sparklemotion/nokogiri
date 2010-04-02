@@ -10,7 +10,7 @@ require 'nokogiri'
 warn "#{__FILE__}:#{__LINE__}: libxml version info: #{Nokogiri::VERSION_INFO.inspect}"
 
 module Nokogiri
-  class TestCase < MiniTest::Unit::TestCase
+  class TestCase < MiniTest::Spec
     ASSETS_DIR      = File.expand_path File.join(File.dirname(__FILE__), 'files')
     XML_FILE        = File.join(ASSETS_DIR, 'staff.xml')
     XSLT_FILE       = File.join(ASSETS_DIR, 'staff.xslt')
