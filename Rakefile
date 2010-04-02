@@ -34,6 +34,8 @@ HOE = Hoe.spec 'nokogiri' do
   self.extra_dev_deps << ["minitest", ">= 1.6.0"]
 
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
+
+  self.testlib = :minitest
 end
 
 task :ws_docs do
