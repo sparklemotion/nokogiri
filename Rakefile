@@ -31,6 +31,7 @@ HOE = Hoe.spec 'nokogiri' do
   %w{ racc rexical rake-compiler }.each do |dep|
     self.extra_dev_deps << [dep, '>= 0']
   end
+  self.extra_dev_deps << ["minitest", ">= 1.6.0"]
 
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 end
