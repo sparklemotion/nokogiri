@@ -5,16 +5,18 @@
 
 package nokogiri.internals;
 
-import java.nio.charset.Charset;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import nokogiri.XmlNode;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyString;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -415,6 +417,14 @@ public class NokogiriHelpers {
         RubyArray n = RubyArray.newArray(ruby, nodes.getLength());
         for(int i = 0; i < nodes.getLength(); i++) {
             n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)));
+        }
+        return n;
+    }
+    
+    public static RubyArray namedNodeMapToRubyArray(Ruby ruby, NamedNodeMap map) {
+        RubyArray n = RubyArray.newArray(ruby, map.getLength());
+        for(int i = 0; i < map.getLength(); i++) {
+            n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, map.item(i)));
         }
         return n;
     }

@@ -1,11 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.namedNodeMapToRubyArray;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import nokogiri.internals.SaveContext;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -16,9 +14,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 /**
  *
@@ -146,9 +141,9 @@ public class XmlElement extends XmlNode {
         } else {
             ctx.openTagStart(node.getNodeName());
         }
-
-        saveNodeListContent(context, (RubyArray) attribute_nodes(context),
-                            ctx);
+        
+        RubyArray attr_list = namedNodeMapToRubyArray(context.getRuntime(), node.getAttributes());
+        saveNodeListContent(context, attr_list, ctx);
 
         if (empty) {
             ctx.emptyTagEnd(node.getNodeName());
