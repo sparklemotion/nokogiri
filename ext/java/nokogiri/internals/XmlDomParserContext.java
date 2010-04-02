@@ -2,29 +2,23 @@ package nokogiri.internals;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import java.io.Reader;
+import java.io.StringReader;
+
 import nokogiri.XmlDocument;
 import nokogiri.XmlSyntaxError;
+
 import org.apache.xerces.parsers.DOMParser;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
-import org.jruby.RubyIO;
-import org.jruby.RubyString;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.jruby.util.TypeConverter;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 /**
  *
@@ -33,6 +27,8 @@ import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 public class XmlDomParserContext extends ParserContext {
     protected static final String FEATURE_LOAD_EXTERNAL_DTD =
         "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+    protected static final String FEATURE_INCLUDE_IGNORABLE_WHITESPACE =
+        "http://apache.org/xml/features/dom/include-ignorable-whitespace";
 
     public static final long STRICT = 0;
     public static final long RECOVER = 1;
@@ -108,6 +104,9 @@ public class XmlDomParserContext extends ParserContext {
 
         parser.setErrorHandler(this.errorHandler);
 
+        if (noBlanks()) {
+            setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
+        }
         // If we turn off loading of external DTDs complete, we don't
         // getthe publicID.  Instead of turning off completely, we use
         // an entity resolver that returns empty documents.
@@ -209,9 +208,27 @@ public class XmlDomParserContext extends ParserContext {
     }
 
     protected Document do_parse() throws SAXException, IOException {
-        parser.parse(getInputSource());
+    	if (noBlanks()) {
+    		parseWhenNoBlanks(getInputSource());
+    	} else {
+    		parser.parse(getInputSource());
+    	}
         return parser.getDocument();
     }
+    
+    private void parseWhenNoBlanks(InputSource input) throws IOException, SAXException {
+        Reader reader = input.getCharacterStream();
+        StringBuffer content = new StringBuffer();
+        char[] cbuf = new char[2048];
+        int length;
+        while ((length = reader.read(cbuf)) != -1) {
+            content.append(cbuf, 0, length);
+        }
+        String content_noblanks = (new String(content)).replaceAll("(>\\n)", ">").replaceAll("\\s{1,}<", "<").replaceAll(">\\s{1,}", ">");
+        StringReader sr = new StringReader((new String(content_noblanks)));
+        parser.parse(new InputSource(sr));
+    }
+
 
     public boolean dtdAttr() { return this.dtdAttr; }
 

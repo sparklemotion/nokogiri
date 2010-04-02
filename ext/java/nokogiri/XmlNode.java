@@ -563,7 +563,9 @@ public class XmlNode extends RubyObject {
         RubyArray attr = ruby.newArray();
 
         for(int i = 0; i < nodeMap.getLength(); i++) {
-            attr.append(fromNodeOrCreate(context, nodeMap.item(i)));
+            if (!NokogiriHelpers.isNamespace(nodeMap.item(i))) {
+                attr.append(fromNodeOrCreate(context, nodeMap.item(i)));
+            }
         }
 
         return attr;
