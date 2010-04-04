@@ -400,7 +400,7 @@ public class XmlNode extends RubyObject {
     }
 
     public void relink_namespace(ThreadContext context) {
-        ((XmlNodeSet) this.children(context)).relink_namespace(context);
+        //this should delegate to subclasses' implementation
     }
 
     public void saveContent(ThreadContext context, SaveContext ctx) {
@@ -1121,7 +1121,7 @@ public class XmlNode extends RubyObject {
             coalesceTextNodes(context, other);
         }
 
-        //other.relink_namespace(context);
+        relink_namespace(context);
         // post_add_child(context, this, other);
 
         return this;
