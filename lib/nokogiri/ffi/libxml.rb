@@ -257,6 +257,7 @@ module Nokogiri
     attach_function :xmlTextReaderConstPrefix, [:pointer], :pointer # returns a const char* that is deallocated with the reader
     attach_function :xmlTextReaderConstValue, [:pointer], :pointer # returns a const char* that is deallocated on the next read()
     attach_function :xmlTextReaderConstXmlVersion, [:pointer], :pointer # returns a const char* that is deallocated with the reader
+    attach_function :xmlTextReaderConstBaseUri, [:pointer], :pointer # returns a const char* that is deallocated with the reader
     attach_function :xmlTextReaderReadState, [:pointer], :int
     attach_function :xmlTextReaderHasValue, [:pointer], :int
     attach_function :xmlFreeTextReader, [:pointer], :void

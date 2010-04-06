@@ -332,6 +332,34 @@ class TestReader < Nokogiri::TestCase
                  reader.map { |n| n.name })
   end
 
+  def test_base_uri
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+      <x xml:base="http://base.example.org/base/">
+        <link href="link"/>
+        <other xml:base="http://other.example.org/"/>
+        <relative xml:base="relative">
+          <link href="stuff" />
+        </relative>
+      </x>
+    eoxml
+
+    assert_nil reader.base_uri
+    assert_equal(["http://base.example.org/base/",
+                  "http://base.example.org/base/",
+                  "http://base.example.org/base/",
+                  "http://base.example.org/base/",
+                  "http://other.example.org/",
+                  "http://base.example.org/base/",
+                  "http://base.example.org/base/relative",
+                  "http://base.example.org/base/relative",
+                  "http://base.example.org/base/relative",
+                  "http://base.example.org/base/relative",
+                  "http://base.example.org/base/relative",
+                  "http://base.example.org/base/",
+                  "http://base.example.org/base/"],
+                  reader.map {|n| n.base_uri })
+  end
+
   def test_read_from_memory
     called = false
     reader = Nokogiri::XML::Reader.from_memory('<foo>bar</foo>')
