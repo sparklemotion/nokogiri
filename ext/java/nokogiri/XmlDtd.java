@@ -1,5 +1,7 @@
 package nokogiri;
 
+import nokogiri.internals.SaveContext;
+
 import org.apache.xerces.xni.QName;
 import org.cyberneko.dtd.DTDConfiguration;
 import org.jruby.Ruby;
@@ -391,6 +393,15 @@ public class XmlDtd extends XmlNode {
             }
 
             node = node.getNextSibling();
+        }
+    }
+    
+    public void saveContent(ThreadContext context, SaveContext ctx) {
+        ctx.append("<!DOCTYPE " + name + " ");
+        if (pubId != null) {
+            ctx.append("PUBLIC \"" + pubId + "\" \"" + sysId + "\">");
+        } else if (sysId != null) {
+            ctx.append("SYSTEM " + sysId);
         }
     }
 
