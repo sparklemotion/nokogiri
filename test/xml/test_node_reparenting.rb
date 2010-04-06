@@ -17,10 +17,8 @@ module Nokogiri
           eohtml
         end
 
-        # TODO: slightly different behavior for inserters versus replacers
-        # { :inserters => [:before, :after, :add_child],
-        #   :replacers => [:replace, :inner_html=] }
-        [:before, :after, :replace, :inner_html=, :add_child].each do |method|
+        [ :add_child, :add_previous_sibling, :add_next_sibling,
+          :inner_html=, :replace ].each do |method|
           describe "##{method}" do
             [:current, :another].each do |which|
               describe "passed a Node in the #{which} document" do
@@ -54,11 +52,13 @@ module Nokogiri
           end
         end
 
-        [ [:<<, :add_child],
-          [:add_next_sibling, :after],
-          [:add_previous_sibling, :before],
-          [:next=, :after],
-          [:previous=, :before]
+        [ [:<<,         :add_child],
+          [:after,      :add_next_sibling],
+          [:next=,      :add_next_sibling],
+          [:before,     :add_previous_sibling],
+          [:previous=,  :add_previous_sibling],
+          [:content=,   :inner_html=],
+          [:swap,       :replace]
         ].each do |method, aliased|
           describe "##{method}" do
             it "is an alias for #{aliased}"
