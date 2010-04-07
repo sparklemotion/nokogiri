@@ -94,7 +94,6 @@ void init_xml_entity_decl()
   rb_define_method(klass, "entity_type", entity_type, 0);
   rb_define_method(klass, "external_id", external_id, 0);
   rb_define_method(klass, "system_id", system_id, 0);
-  rb_define_method(klass, "system_id", system_id, 0);
 
   rb_const_set(cNokogiriXmlEntityDecl, rb_intern("INTERNAL_GENERAL"),
       INT2NUM(XML_INTERNAL_GENERAL_ENTITY));
