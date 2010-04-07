@@ -375,6 +375,22 @@ static VALUE name(VALUE self)
 
 /*
  * call-seq:
+ * base_uri
+ *
+ * Get the xml:base of the node
+ */
+static VALUE base_uri(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+  const char * base_uri = (const char *)xmlTextReaderBaseUri(reader);
+  if (base_uri == NULL) return Qnil;
+
+  return NOKOGIRI_STR_NEW2(base_uri);
+}
+
+/*
+ * call-seq:
  *   state
  *
  * Get the state of the reader
@@ -595,6 +611,7 @@ void init_xml_reader()
   rb_define_method(klass, "attributes?", attributes_eh, 0);
   rb_define_method(klass, "value?", value_eh, 0);
   rb_define_method(klass, "default?", default_eh, 0);
+  rb_define_method(klass, "base_uri", base_uri, 0);
 
   rb_define_private_method(klass, "attr_nodes", attribute_nodes, 0);
 }
