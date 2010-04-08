@@ -1,35 +1,39 @@
 package nokogiri;
 
-import nokogiri.internals.NokogiriHelpers;
+import static java.lang.Math.max;
+import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.NokogiriUserDataHandler;
-import nokogiri.internals.XmlDomParserContext;
 import nokogiri.internals.SaveContext;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
-import org.jruby.RubyHash;
-import org.jruby.RubyNil;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
-import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -38,14 +42,6 @@ import org.w3c.dom.Text;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import static java.lang.Math.max;
-import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
-import static nokogiri.internals.NokogiriHelpers.isNonDefaultNamespace;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 public class XmlNode extends RubyObject {
 
@@ -502,14 +498,20 @@ public class XmlNode extends RubyObject {
         boolean formatIndentation = ctx.format() && ctx.indentString()!=null;
 
         for(int i = 0; i < length; i++) {
-            XmlNode cur = (XmlNode) array.get(i);
+            Object item = array.get(i);
+            if (item instanceof XmlNode) {
+              XmlNode cur = (XmlNode) item;
 
             // if(formatIndentation &&
             //         (cur.isElement() || cur.isComment() || cur.isProcessingInstruction())) {
             //     ctx.append(ctx.getCurrentIndentString());
             // }
 
-            cur.saveContent(context, ctx);
+              cur.saveContent(context, ctx);
+            } else if (item instanceof XmlNamespace) {
+                XmlNamespace cur = (XmlNamespace)item;
+                cur.saveContent(context, ctx);
+            }
 
             // if(ctx.format()) ctx.append("\n");
         }

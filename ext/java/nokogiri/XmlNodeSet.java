@@ -1,7 +1,9 @@
 package nokogiri;
 
 import java.util.List;
+
 import nokogiri.internals.NokogiriHelpers;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -55,10 +57,12 @@ public class XmlNodeSet extends RubyObject {
     }
 
     public void relink_namespace(ThreadContext context) {
-        List n = this.nodes.getList();
+        List<?> n = this.nodes.getList();
 
-        for(int i = 0; i < n.size(); i++) {
-            ((XmlNode) n.get(i)).relink_namespace(context);
+        for (int i = 0; i < n.size(); i++) {
+            if (n.get(i) instanceof XmlNode) {
+                ((XmlNode) n.get(i)).relink_namespace(context);
+            }
         }
     }
 
@@ -131,8 +135,10 @@ public class XmlNodeSet extends RubyObject {
     public IRubyObject unlink(ThreadContext context){
         IRubyObject[] arr = this.nodes.toJavaArrayUnsafe();
         long length = arr.length;
-        for(int i = 0; i < length; i++) {
-            ((XmlNode) arr[i] ).unlink(context);
+        for (int i = 0; i < length; i++) {
+            if (arr[i] instanceof XmlNode) {
+                ((XmlNode) arr[i] ).unlink(context);
+            }
         }
         return this;
     }

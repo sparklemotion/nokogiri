@@ -1,6 +1,7 @@
 package nokogiri.internals;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,8 @@ public class NokogiriNamespaceContext implements NamespaceContext {
     public NokogiriNamespaceContext() {
         this.register = new Hashtable<String,String>();
         register.put(NOKOGIRI_PREFIX, NOKOGIRI_URI);
+        register.put("xml", "http://www.w3.org/XML/1998/namespace");
+        register.put("xhtml", "http://www.w3.org/1999/xhtml");
     }
 
     public String getNamespaceURI(String prefix) {
@@ -41,8 +44,13 @@ public class NokogiriNamespaceContext implements NamespaceContext {
     public String getPrefix(String uri) {
     	if (uri == null) {
             throw new IllegalArgumentException("uri is null");
-        } else if (uri.equals(NOKOGIRI_URI)) {
-            return NOKOGIRI_PREFIX;
+        } else {
+            Set<Entry<String, String>> entries = register.entrySet();
+            for (Entry<String, String> entry : entries) {
+                if (uri.equals(entry.getValue())) {
+                    return entry.getKey();
+                }
+            }
         }
         return null;
     }

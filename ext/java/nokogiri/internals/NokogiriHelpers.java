@@ -8,6 +8,7 @@ package nokogiri.internals;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
 
 import org.jruby.Ruby;
@@ -32,6 +33,10 @@ public class NokogiriHelpers {
 
     public static IRubyObject getCachedNodeOrCreate(Ruby ruby, Node node) {
         if(node == null) return ruby.getNil();
+        if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
+            XmlNamespace xmlNamespace = new XmlNamespace(ruby, node.getPrefix(), node.getNodeValue());
+            return xmlNamespace;
+        }
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {
             xmlNode = (XmlNode) XmlNode.constructNode(ruby, node);

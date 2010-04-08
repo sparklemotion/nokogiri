@@ -1,5 +1,8 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
+import nokogiri.internals.SaveContext;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
@@ -7,8 +10,6 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
-
-import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 
 /**
  *
@@ -69,5 +70,9 @@ public class XmlNamespace extends RubyObject {
     @JRubyMethod
     public IRubyObject prefix(ThreadContext context) {
         return this.prefix;
+    }
+    
+    public void saveContent(ThreadContext context, SaveContext ctx) {
+        ctx.append(prefix + "=\"" + href + "\"");
     }
 }
