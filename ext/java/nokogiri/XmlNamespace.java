@@ -73,6 +73,6 @@ public class XmlNamespace extends RubyObject {
     }
     
     public void saveContent(ThreadContext context, SaveContext ctx) {
-        ctx.append(prefix + "=\"" + href + "\"");
+        ctx.append(" " + prefix + "=\"" + href + "\"");
     }
 }
