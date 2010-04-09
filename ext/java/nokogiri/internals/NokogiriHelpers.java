@@ -34,7 +34,7 @@ public class NokogiriHelpers {
     public static IRubyObject getCachedNodeOrCreate(Ruby ruby, Node node) {
         if(node == null) return ruby.getNil();
         if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
-            XmlNamespace xmlNamespace = new XmlNamespace(ruby, node.getPrefix(), node.getNodeValue());
+            XmlNamespace xmlNamespace = new XmlNamespace(ruby, node.getNodeName(), node.getNodeValue());
             return xmlNamespace;
         }
         XmlNode xmlNode = getCachedNode(node);

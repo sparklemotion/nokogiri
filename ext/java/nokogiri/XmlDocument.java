@@ -1,16 +1,16 @@
 package nokogiri;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import nokogiri.internals.NokogiriUserDataHandler;
-import nokogiri.internals.XmlDomParserContext;
 import nokogiri.internals.SaveContext;
+import nokogiri.internals.XmlDomParserContext;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyString;
+import org.jruby.RubyFixnum;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
@@ -18,8 +18,6 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 public class XmlDocument extends XmlNode {
     /* UserData keys for storing extra info in the document node. */
@@ -168,6 +166,26 @@ public class XmlDocument extends XmlNode {
                            context.getRuntime()
                            .getClassFromPath("Nokogiri::XML::Document"),
                            args);
+    }
+    
+    @JRubyMethod(name="remove_namespaces!")
+    public IRubyObject remove_namespaces(ThreadContext context) {
+        removeNamespceRecursively(context, this);
+        return this;
+    }
+    
+    private void removeNamespceRecursively(ThreadContext context, XmlNode xmlNode) {
+        Node node = xmlNode.getNode();
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            node.setPrefix(null);
+            node.getOwnerDocument().renameNode(node, null, node.getLocalName());
+            xmlNode.removeNamespace(context);
+        }
+        XmlNodeSet nodeSet = (XmlNodeSet) xmlNode.children(context);
+        for (long i=0; i < nodeSet.length(); i++) {
+            XmlNode childNode = (XmlNode)nodeSet.slice(context, RubyFixnum.newFixnum(context.getRuntime(), i));
+            removeNamespceRecursively(context, childNode);
+        }
     }
 
     @JRubyMethod

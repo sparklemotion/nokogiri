@@ -430,6 +430,10 @@ public class XmlNode extends RubyObject {
             this.namespace = ns;
         }
     }
+    
+    public void removeNamespace(ThreadContext context) {
+        this.namespace = context.getRuntime().getNil();
+    }
 
     public RubyString getNodeName(ThreadContext context) {
         String str = null;
