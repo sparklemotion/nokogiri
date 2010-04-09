@@ -12,7 +12,7 @@ module Nokogiri
    <!ELEMENT div1 (head, (p | list | note)*, div2*)>
    <!ELEMENT div2 (tender:love)>
 ]>
-</root>
+<root/>
         eoxml
         @elements = @xml.internal_subset.children.find_all { |x|
           x.type == 15

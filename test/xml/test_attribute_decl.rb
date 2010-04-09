@@ -9,7 +9,7 @@ module Nokogiri
 <?xml version="1.0"?><?TEST-STYLE PIDATA?>
 <!DOCTYPE staff SYSTEM "staff.dtd" [
    <!ATTLIST br width CDATA "0">
-   <!ATTLIST a width CDATA >
+   <!ATTLIST a width CDATA "0">
    <!ATTLIST payment type (check|cash) "cash">
 ]>
 <root />
