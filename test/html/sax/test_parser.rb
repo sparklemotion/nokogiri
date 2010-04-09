@@ -64,19 +64,17 @@ module Nokogiri
           eoxml
 
           # JRuby version is different because of the internal implementation
-          # JRuby version uses NekoHTML. Currently following features are set:
-          # "http://cyberneko.org/html/properties/names/elems" => "match"
-          # "http://cyberneko.org/html/properties/names/attrs" => "no-change"
+          # JRuby version uses NekoHTML which inserts empty "head" elements.
           #
-          # The only thing that I don't know why it happens is "head" in
-          # lowercase. Xerces HTML implementation creates node names in
-          # uppercase by default. That's the reason HTML and BODY are uppercase.
+          # Currently following features are set:
+          # "http://cyberneko.org/html/properties/names/elems" => "lower"
+          # "http://cyberneko.org/html/properties/names/attrs" => "lower"
           if Nokogiri.uses_libxml?
             assert_equal([["html", []], ["body", []], ["p", []], ["p", []]],
                          @parser.document.start_elements)
           else
-            assert_equal([["HTML", []], ["head", []], ["BODY", []], ["p", []], ["p", []]],
-                          @parser.document.start_elements)
+            assert_equal([["html", []], ["head", []], ["body", []], ["p", []], ["p", []]],
+                         @parser.document.start_elements)
           end
         end
       end
