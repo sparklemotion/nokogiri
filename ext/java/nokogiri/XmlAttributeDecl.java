@@ -85,7 +85,7 @@ public class XmlAttributeDecl extends XmlNode {
         RubyArray enumVals = RubyArray.newArray(context.getRuntime());
         String atype = ((Element)node).getAttribute("atype");
 
-        if (atype != null && !atype.isEmpty() && atype.charAt(0) == '(') {
+        if (atype != null && atype.length() != 0 && atype.charAt(0) == '(') {
             // removed enclosing parens
             String valueStr = atype.substring(1, atype.length() - 1);
             String[] values = valueStr.split("\\|");

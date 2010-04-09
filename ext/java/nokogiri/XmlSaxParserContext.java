@@ -297,7 +297,7 @@ public class XmlSaxParserContext extends ParserContext {
             return false;
 
         String content = rubyStringToString(node.content(context));
-        return content.trim().isEmpty();
+        return content.trim().length() == 0;
     }
 
 }

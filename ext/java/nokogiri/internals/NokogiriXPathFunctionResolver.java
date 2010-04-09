@@ -17,7 +17,6 @@ public class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
         this.handler = handler;
     }
 
-    @Override
     public XPathFunction resolveFunction(QName name, int arity) {
         return new NokogiriXPathFunction(this.handler, name.getLocalPart(), arity);
     }

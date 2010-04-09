@@ -58,7 +58,7 @@ public class NokogiriHelpers {
      * empty return RubyNil.
      */
     public static IRubyObject nonEmptyStringOrNil(Ruby ruby, String s) {
-        if (s == null || s.isEmpty())
+        if (s == null || s.length() == 0)
             return ruby.getNil();
 
         return ruby.newString(s);

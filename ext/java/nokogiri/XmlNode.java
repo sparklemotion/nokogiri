@@ -384,7 +384,7 @@ public class XmlNode extends RubyObject {
         if (!(node instanceof Element)) return null;
 
         String value = ((Element)node).getAttribute(key);
-        return value.isEmpty() ? null : value;
+        return value.length() == 0 ? null : value;
     }
 
 
