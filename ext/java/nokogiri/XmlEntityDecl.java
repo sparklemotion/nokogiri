@@ -77,4 +77,9 @@ public class XmlEntityDecl extends XmlNode {
     public IRubyObject external_id(ThreadContext context) {
         return getAttribute(context, "pubid");
     }
+
+    @JRubyMethod
+    public IRubyObject entity_type(ThreadContext context) {
+        return context.getRuntime().newFixnum(node.getNodeType());
+    }
 }

@@ -112,7 +112,8 @@ public class XmlElementDecl extends XmlNode {
         attrDecls.append(decl);
     }
 
-//     @JRubyMethod
-//     public element_type(ThreadContext context) {
-//     }
+    @JRubyMethod
+    public IRubyObject element_type(ThreadContext context) {
+        return context.getRuntime().newFixnum(node.getNodeType());
+    }
 }
