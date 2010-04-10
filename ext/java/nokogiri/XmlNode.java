@@ -592,6 +592,8 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "blank?")
     public IRubyObject blank_p(ThreadContext context) {
+        String data = node.getTextContent();
+        if ("".equals(data.trim())) return context.getRuntime().getTrue();
         return context.getRuntime().getFalse();
     }
 
