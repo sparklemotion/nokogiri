@@ -56,7 +56,11 @@ module Nokogiri
 
       def test_subelements
         sub_elements = ElementDescription['body'].sub_elements
-        assert_equal 61, sub_elements.length
+        if Nokogiri.uses_libxml?
+          assert_equal 61, sub_elements.length
+        else
+          assert sub_elements.length > 0
+        end
       end
 
       def test_default_sub_element
