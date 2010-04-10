@@ -14,7 +14,11 @@ module Nokogiri
       end
 
       def test_external_id
-        xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ><foo />')
+        if Nokogiri.uses_libxml?
+          xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar"><foo />')
+        else
+          xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ""><foo />')
+        end
         assert dtd = xml.internal_subset
         assert_equal 'bar', dtd.external_id
       end
