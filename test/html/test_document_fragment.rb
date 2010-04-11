@@ -124,7 +124,8 @@ module Nokogiri
       def test_to_xhtml
         doc = "<span>foo<br></span><span>bar</span>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        if Nokogiri::VERSION_INFO['libxml']['loaded'] >= "2.7.0"
+        if !Nokogiri.uses_libxml? ||
+            Nokogiri::VERSION_INFO['libxml']['loaded'] >= "2.7.0"
           assert_equal "<span>foo<br /></span><span>bar</span>", fragment.to_xhtml
         else
           assert_equal "<span>foo<br></span><span>bar</span>", fragment.to_xhtml
