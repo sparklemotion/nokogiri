@@ -43,6 +43,8 @@ public class XmlSaxParserContext extends ParserContext {
         "http://xml.org/sax/features/namespaces";
     protected static final String FEATURE_NAMESPACE_PREFIXES =
         "http://xml.org/sax/features/namespace-prefixes";
+    protected static final String FEATURE_LOAD_EXTERNAL_DTD =
+        "http://apache.org/xml/features/nonvalidating/load-external-dtd";
 
     protected AbstractSAXParser parser;
 
@@ -58,6 +60,7 @@ public class XmlSaxParserContext extends ParserContext {
     protected AbstractSAXParser createParser() throws SAXException {
         XmlSaxParser parser = new XmlSaxParser();
         parser.setFeature(FEATURE_NAMESPACE_PREFIXES, true);
+        parser.setFeature(FEATURE_LOAD_EXTERNAL_DTD, false);
         return parser;
     }
 
