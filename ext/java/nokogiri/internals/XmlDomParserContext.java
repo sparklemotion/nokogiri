@@ -2,14 +2,8 @@ package nokogiri.internals;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import nokogiri.XmlDocument;
 import nokogiri.XmlSyntaxError;
@@ -22,6 +16,8 @@ import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -214,79 +210,29 @@ public class XmlDomParserContext extends ParserContext {
     }
 
     protected Document do_parse() throws SAXException, IOException {
-        if (noBlanks() || getPublicId(getInputSource()) != null) {
-            String adjustedContent = tweakPublicId(asString(getInputSource()));
-            if (noBlanks()) {
-                adjustedContent = adjustedContent.replaceAll("(>\\n)", ">")
-                        .replaceAll("\\s{1,}<", "<")
-                        .replaceAll(">\\s{1,}", ">");
+        parser.parse(getInputSource());
+        if (noBlanks()) {
+            List<Node> emptyNodes = new ArrayList<Node>();
+            findEmptyTexts(parser.getDocument(), emptyNodes);
+            if (emptyNodes.size() > 0) {
+                for (Node node : emptyNodes) {
+                    node.getParentNode().removeChild(node);
+                }
             }
-            StringReader sr = new StringReader((new String(adjustedContent)));
-            parser.parse(new InputSource(sr));
-        } else {
-            parser.parse(getInputSource());
         }
         return parser.getDocument();
     }
     
-    private String asString(InputSource input) throws IOException {
-        Reader reader = input.getCharacterStream();
-        /*
-         * when this block is used, XmlSchema.from_document raises ClassCastException since
-         * the given document is null.
-        InputStream istream = input.getByteStream();
-        if (reader == null) {
-            if (istream != null) {
-                reader = new InputStreamReader(istream);
+    private void findEmptyTexts(Node node, List<Node> emptyNodes) {
+        if (node.getNodeType() == Node.TEXT_NODE && "".equals(node.getTextContent().trim())) {
+            emptyNodes.add(node);
+        } else {
+            NodeList children = node.getChildNodes();
+            for (int i=0; i < children.getLength(); i++) {
+                findEmptyTexts(children.item(i), emptyNodes);
             }
-        }*/
-        if (reader == null) return "";
-        StringBuffer content = new StringBuffer();
-        char[] cbuf = new char[2048];
-        int length;
-        while ((length = reader.read(cbuf)) != -1) {
-            content.append(cbuf, 0, length);
         }
-        //if (istream != null) istream.reset();
-        reader.reset();
-        return new String(content);
     }
-
-    private static Pattern doctype = Pattern.compile("<!DOCTYPE(.)+PUBLIC(()|[^>]*)>");
-    private static Pattern publicId = Pattern.compile("\"(-|/|\\d|:|-|_|\\.|[a-zA-Z]|,|\\s)+\"");
-
-    private String getPublicId(InputSource input) throws IOException {
-        Matcher mm = doctype.matcher(asString(input));
-        while(mm.find()) {
-            return mm.group();
-        }
-        return null;
-    }
- 
-    private String tweakPublicId(String str) {
-        String newStr = tweak(str);
-        return newStr == null ? str : str.replace(str, tweak(str));
-    }
-
-    private String tweak(String str) {
-        List<String> list = getIds(str);
-        if (list.size() == 2) {
-            return null;
-        } else if (list.size() == 1) {
-            return str.replace(list.get(0), list.get(0) + " \"\"");
-        }
-        return null;
-    }
-    
-    private List<String> getIds(String str) {
-        List<String> list = new ArrayList<String>();
-        Matcher mm = publicId.matcher(str);
-        while(mm.find()) {
-            list.add(mm.group());
-        }
-        return list;
-    }
-
 
     public boolean dtdAttr() { return this.dtdAttr; }
 
