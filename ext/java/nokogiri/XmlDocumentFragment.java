@@ -52,7 +52,7 @@ public class XmlDocumentFragment extends XmlNode {
                 (RubyClass) cls);
         
         fragment.setDocument(doc);
-        fragment.setNode(context.getRuntime(), doc.getDocument().createDocumentFragment());
+        fragment.setNode(doc.getDocument().createDocumentFragment());
 
         //TODO: Get namespace definitions from doc.
 

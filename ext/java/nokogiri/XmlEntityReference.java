@@ -26,22 +26,17 @@ public class XmlEntityReference extends XmlNode{
         super(ruby, klass, node);
     }
 
-    @JRubyMethod(name="new", meta=true)
-    public static IRubyObject rbNew(ThreadContext context,
-                                    IRubyObject klass,
-                                    IRubyObject doc,
-                                    IRubyObject name) {
+    protected void init(ThreadContext context, IRubyObject[] args) {
+        if (args.length < 2) {
+            throw getRuntime().newArgumentError(args.length, 2);
+        }
+
+        IRubyObject doc = args[0];
+        IRubyObject name = args[1];
+
         Document document = ((XmlNode) doc).getOwnerDocument();
         Node node = document.createEntityReference(rubyStringToString(name));
-        XmlEntityReference self = new XmlEntityReference(context.getRuntime(),
-                                                         (RubyClass) klass,
-                                                         node);
-
-        RuntimeHelpers.invoke(context, self, "initialize", doc, name);
-
-        // TODO: if_block_given.
-
-        return self;
+        setNode(node);
     }
 
 }

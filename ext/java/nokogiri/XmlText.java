@@ -19,14 +19,24 @@ public class XmlText extends XmlNode {
         super(ruby, rubyClass, node);
     }
 
-    @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject text, IRubyObject xNode) {
+    public XmlText(Ruby runtime, RubyClass klass) {
+        super(runtime, klass);
+    }
+
+    protected void init(ThreadContext context, IRubyObject[] args) {
+        if (args.length < 2) {
+            throw getRuntime().newArgumentError(args.length, 2);
+        }
+
+        IRubyObject text = args[0];
+        IRubyObject xNode = args[1];
+
         XmlNode xmlNode = asXmlNode(context, xNode);
         XmlDocument xmlDoc = (XmlDocument)xmlNode.document(context);
         Document document = xmlDoc.getDocument();
         String content = rubyStringToString(encode_special_chars(context, text));
         Node node = document.createTextNode(content);
-        return new XmlText(context.getRuntime(), (RubyClass) cls, node);
+        setNode(node);
     }
 
 

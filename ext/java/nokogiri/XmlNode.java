@@ -225,17 +225,25 @@ public class XmlNode extends RubyObject {
         }
     }
 
-    public XmlNode(Ruby ruby, RubyClass cls){
+    /**
+     * This is the allocator for XmlNode class.  It should only be
+     * called from Ruby code.
+     */
+    public XmlNode(Ruby ruby, RubyClass cls) {
         this(ruby, cls, null);
     }
 
+    /**
+     * This is a constructor to create an XmlNode from an already
+     * existing node.  It may be called by Java code.
+     */
     public XmlNode(Ruby ruby, RubyClass cls, Node node) {
         super(ruby, cls);
         this.nsCache = new NokogiriNamespaceCache();
         this.node = node;
 
         if (node != null) {
-            resetCache(ruby);
+            resetCache();
 
             if (node.getNodeType() != Node.DOCUMENT_NODE) {
                 XmlNode owner = (XmlNode) this.document(ruby.getCurrentContext());
@@ -248,9 +256,101 @@ public class XmlNode extends RubyObject {
         }
     }
 
-    public void resetCache(Ruby ruby) {
+    /**
+     * Allocate a new object, perform initialization, call that
+     * object's initialize method, and call any block passing the
+     * object as the only argument.  If <code>cls</code> is
+     * Nokogiri::XML::Node, creates a new Nokogiri::XML::Element
+     * instead.
+     *
+     * This static method seems to be inherited, strangely enough.
+     * E.g. creating a new XmlAttr from Ruby code calls this method if
+     * XmlAttr does not define its own 'new' method.
+     *
+     * Since there is some Java bookkeeping that always needs to
+     * happen, we don't define the 'initialize' method in Java because
+     * we'd have to count on subclasses calling 'super'.
+     *
+     * The main consequence of this is that every subclass needs to
+     * define its own 'new' method.
+     *
+     * As a convenience, this method does the following:
+     *
+     * <ul>
+     *
+     * <li>allocates a new object using the allocator assigned to
+     * <code>cls</code></li>
+     *
+     * <li>calls the Java method init(); subclasses can override this,
+     * otherwise they should implement a specific 'new' method</li>
+     *
+     * <li>invokes the Ruby initializer</li>
+     *
+     * <li>if a block is given, calls the block with the new node as
+     * the argument</li>
+     *
+     * </ul>
+     *
+     * -pmahoney
+     */
+    @JRubyMethod(name = "new", meta = true, rest = true)
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls,
+                                    IRubyObject[] args, Block block) {
+        Ruby ruby = context.getRuntime();
+        RubyClass klazz = (RubyClass) cls;
+
+        if (cls.equals(ruby.getClassFromPath("Nokogiri::XML::Node"))) {
+            klazz = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Element");
+        }
+
+        XmlNode node = (XmlNode) klazz.allocate();
+        node.init(context, args);
+        node.callInit(args, block);
+        if (node.node == null) System.out.println("NODE IS NULL");
+        if (block.isGiven()) block.call(context, node);
+        return node;
+    }
+
+    /**
+     * Initialize the object from Ruby arguments.  Should be
+     * overridden by subclasses.  Should check for a minimum number of
+     * args but not for an exact number.  Any extra args will then be
+     * passed to 'initialize'.  The way 'new' and this 'init' function
+     * interact means that subclasses cannot arbitrarily change the
+     * require aruments by defining an 'initialize' method.  This is
+     * how the C libxml wrapper works also.
+     *
+     * As written it performs initialization for a new Element with
+     * the given <code>name</code> within the document
+     * <code>doc</code>.  So XmlElement need not override this.  This
+     * implementation cannot be moved to XmlElement however, because
+     * subclassing XmlNode must result in something that behaves much
+     * like XmlElement.
+     */
+    protected void init(ThreadContext context, IRubyObject[] args) {
+        if (args.length < 2)
+            throw context.getRuntime().newArgumentError(args.length, 2);
+
+        IRubyObject name = args[0];
+        IRubyObject doc = args[1];
+
+        Document document = asXmlNode(context, doc).getOwnerDocument();
+        if (document == null) {
+            throw getRuntime().newArgumentError("node must have owner document");
+        }
+        XmlDocument xmlDoc =
+            (XmlDocument) getCachedNodeOrCreate(getRuntime(), document);
+
+        Element element =
+            document.createElementNS(null, rubyStringToString(name));
+        setNode(element);
+        setDocument(xmlDoc);
+        RuntimeHelpers.invoke(context, xmlDoc, "decorate", this);
+    }
+
+    public void resetCache() {
         node.setUserData(NokogiriUserDataHandler.CACHED_NODE, this,
-                         new NokogiriUserDataHandler(ruby));
+                         new NokogiriUserDataHandler(getRuntime()));
     }
 
 
@@ -410,8 +510,9 @@ public class XmlNode extends RubyObject {
         this.doc = doc;
     }
 
-    protected void setNode(Ruby ruby, Node node) {
+    protected void setNode(Node node) {
         this.node = node;
+        resetCache();
     }
 
     public void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {
@@ -455,41 +556,6 @@ public class XmlNode extends RubyObject {
         }
 
         return (RubyString) this.name;
-    }
-
-    @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject name, IRubyObject doc, Block block) {
-
-        Ruby ruby = context.getRuntime();
-
-        Document document = asXmlNode(context, doc).getOwnerDocument();
-        if (document == null) {
-            throw ruby.newArgumentError("node must have owner document");
-        }
-        XmlDocument xmlDoc =
-            (XmlDocument) getCachedNodeOrCreate(ruby, document);
-
-        Element element = document.createElementNS(null, name.convertToString().asJavaString());
-
-        RubyClass klazz = (RubyClass) cls;
-
-        if(cls.equals(ruby.getClassFromPath("Nokogiri::XML::Node"))) {
-            klazz = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Element");
-        }
-
-        XmlElement node = new XmlElement(ruby,
-                                         klazz,
-                                         element);
-        node.setDocument(xmlDoc);
-
-        RuntimeHelpers.invoke(context, xmlDoc, "decorate", node);
-
-        element.setUserData(NokogiriUserDataHandler.CACHED_NODE,
-                            node, new NokogiriUserDataHandler(ruby));
-
-        if(block.isGiven()) block.call(context, node);
-
-        return node;
     }
 
     protected void saveNodeListContent(ThreadContext context, XmlNodeSet list, SaveContext ctx) {
@@ -679,6 +745,7 @@ public class XmlNode extends RubyObject {
         } catch (CloneNotSupportedException e) {
             throw context.getRuntime().newRuntimeError(e.toString());
         }
+        if (node == null) throw getRuntime().newRuntimeError("FFFFFFFFFUUUUUUU");
         Node newNode = node.cloneNode(deep);
         clone.node = newNode;
         return clone;
@@ -992,7 +1059,6 @@ public class XmlNode extends RubyObject {
      */
     @JRubyMethod
     public IRubyObject node_type(ThreadContext context) {
-
         String type;
         switch (node.getNodeType()) {
         case Node.ELEMENT_NODE:

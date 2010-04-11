@@ -41,7 +41,7 @@ public class NokogiriUserDataHandler implements UserDataHandler {
 
     private void nodeAdopted(String key, Object data, Node src, Node dst) {
         if(CACHED_NODE.equals(key)) {
-            ((XmlNode) data).resetCache(ruby);
+            ((XmlNode) data).resetCache();
         }
     }
 
@@ -67,7 +67,7 @@ public class NokogiriUserDataHandler implements UserDataHandler {
 
     private void nodeRenamed(String key, Object data, Node src, Node dst) {
         if(CACHED_NODE.equals(key)) {
-            ((XmlNode) data).resetCache(ruby);
+            ((XmlNode) data).resetCache();
         }
     }
 

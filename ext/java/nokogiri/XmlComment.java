@@ -1,5 +1,7 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+
 import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -14,12 +16,22 @@ public class XmlComment extends XmlNode {
         super(ruby, rubyClass, node);
     }
 
-    @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject doc, IRubyObject text) {
-        XmlDocument xmlDoc = (XmlDocument)doc;
+    public XmlComment(Ruby runtime, RubyClass klass) {
+        super(runtime, klass);
+    }
+
+    @Override
+    protected void init(ThreadContext context, IRubyObject[] args) {
+        if (args.length < 2)
+            throw getRuntime().newArgumentError(args.length, 2);
+
+        IRubyObject doc = args[0];
+        IRubyObject text = args[1];
+
+        XmlDocument xmlDoc = (XmlDocument) doc;
         Document document = xmlDoc.getDocument();
-        Node node = document.createComment(text.convertToString().asJavaString());
-        return new XmlComment(context.getRuntime(), (RubyClass) cls, node);
+        Node node = document.createComment(rubyStringToString(text));
+        setNode(node);
     }
 
     @Override

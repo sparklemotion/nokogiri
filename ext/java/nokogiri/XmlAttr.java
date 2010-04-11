@@ -5,7 +5,9 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyModule;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
@@ -33,19 +35,25 @@ public class XmlAttr extends XmlNode{
         super(ruby, rubyClass, attr);
     }
 
-    @JRubyMethod(name="new", meta=true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject doc, IRubyObject content){
+    @Override
+    protected void init(ThreadContext context, IRubyObject[] args) {
+        if (args.length < 2) {
+            throw getRuntime().newArgumentError(args.length, 2);
+        }
+
+        IRubyObject doc = args[0];
+        IRubyObject content = args[1];
+
         if(!(doc instanceof XmlDocument)) {
-            throw context.getRuntime().newArgumentError("document must be an instance of Nokogiri::XML::Document");
+            final String msg =
+                "document must be an instance of Nokogiri::XML::Document";
+            throw getRuntime().newArgumentError(msg);
         }
 
         XmlDocument xmlDoc = (XmlDocument)doc;
         String str = rubyStringToString(content);
         Node attr = xmlDoc.getDocument().createAttribute(str);
-
-        return new XmlAttr(context.getRuntime(),
-                           (RubyClass) cls,
-                           attr);
+        setNode(attr);
     }
 
     public boolean isHtmlBooleanAttr() {

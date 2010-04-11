@@ -319,7 +319,7 @@ public class NokogiriService implements BasicLibraryService{
 
     private static ObjectAllocator XML_COMMENT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            return new XmlComment(runtime, klazz);
         }
     };
 
@@ -440,7 +440,7 @@ public class NokogiriService implements BasicLibraryService{
 
     private static ObjectAllocator XML_TEXT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            return new XmlText(runtime, klazz);
         }
     };
 
