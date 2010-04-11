@@ -1,7 +1,6 @@
 package nokogiri.internals;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
 
@@ -89,7 +88,7 @@ public class ParserContext extends RubyObject {
         String filename = rubyStringToString(file);
 
         try{
-            source = new InputSource(new FileInputStream(filename));
+            source = new InputSource(filename);
         } catch (Exception e) {
             throw RaiseException
                 .createNativeRaiseException(context.getRuntime(), e);
