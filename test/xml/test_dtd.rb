@@ -53,8 +53,14 @@ module Nokogiri
       end
 
       def test_validate
-        list = @xml.internal_subset.validate @xml
-        assert_equal 44, list.length
+        if Nokogiri.uses_libxml?
+          list = @xml.internal_subset.validate @xml
+          assert_equal 44, list.length
+        else
+          xml = Nokogiri::XML(File.open(XML_FILE)) {|cfg| cfg.dtdvalid}
+          list = xml.internal_subset.validate xml
+          assert_equal 37, list.length
+        end
       end
 
       def test_external_subsets

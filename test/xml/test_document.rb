@@ -183,7 +183,12 @@ module Nokogiri
       end
 
       def test_validate
-        assert_equal 44, @xml.validate.length
+        if Nokogiri.uses_libxml?
+          assert_equal 44, @xml.validate.length
+        else
+          xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) {|cfg| cfg.dtdvalid}
+          assert_equal 37, xml.validate.length
+        end
       end
 
       def test_validate_no_internal_subset

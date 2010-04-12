@@ -1,5 +1,8 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 import nokogiri.internals.SaveContext;
 
 import org.apache.xerces.xni.QName;
@@ -10,17 +13,11 @@ import org.jruby.RubyClass;
 import org.jruby.RubyHash;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
-import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 public class XmlDtd extends XmlNode {
     protected RubyArray allDecls = null;
@@ -244,6 +241,15 @@ public class XmlDtd extends XmlNode {
     @JRubyMethod
     public IRubyObject external_id(ThreadContext context) {
         return pubId;
+    }
+    
+    @JRubyMethod
+    public IRubyObject validate(ThreadContext context, IRubyObject doc) {
+        RubyArray errors = RubyArray.newArray(context.getRuntime());
+        if (doc instanceof XmlDocument) {
+          errors = (RubyArray) ((XmlDocument)doc).getInstanceVariable("@errors");
+        }
+        return errors;
     }
 
     public static boolean nameEquals(Node node, QName name) {

@@ -31,6 +31,7 @@ public class XmlDomParserContext extends ParserContext {
         "http://apache.org/xml/features/nonvalidating/load-external-dtd";
     protected static final String FEATURE_INCLUDE_IGNORABLE_WHITESPACE =
         "http://apache.org/xml/features/dom/include-ignorable-whitespace";
+    protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
 
     public static final long STRICT = 0;
     public static final long RECOVER = 1;
@@ -108,6 +109,10 @@ public class XmlDomParserContext extends ParserContext {
 
         if (noBlanks()) {
             setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
+        }
+        
+        if (dtdValid()) {
+            setFeature(FEATURE_VALIDATION, true);
         }
         // If we turn off loading of external DTDs complete, we don't
         // getthe publicID.  Instead of turning off completely, we use
