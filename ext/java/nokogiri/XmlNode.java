@@ -1266,6 +1266,7 @@ public class XmlNode extends RubyObject {
 
         try {
             parentNode.replaceChild(otherNode, thisNode);
+            otherNode.getOwnerDocument().renameNode(otherNode, thisNode.getNamespaceURI(), otherNode.getNodeName());
         } catch (Exception e) {
             String prefix = "could not replace child: ";
             throw context.getRuntime().newRuntimeError(prefix + e.toString());
