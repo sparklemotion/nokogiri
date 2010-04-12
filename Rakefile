@@ -37,6 +37,7 @@ HOE = Hoe.spec 'nokogiri' do
 
   self.testlib = :minitest
 end
+Hoe.add_include_dirs '.'
 
 task :ws_docs do
   title = "#{HOE.name}-#{HOE.version} Documentation"
