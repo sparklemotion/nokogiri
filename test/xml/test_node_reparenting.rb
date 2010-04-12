@@ -4,7 +4,131 @@ module Nokogiri
   module XML
     class TestNodeReparenting < Nokogiri::TestCase
 
-      describe "node reparenting methods" do
+      describe "standard node reparenting behavior" do
+        # describe "namespace handling during reparenting" do
+        #   describe "given a Node" do
+        #     describe "with a Namespace" do
+        #       it "keeps the Namespace"
+        #     end
+        #     describe "given a parent Node with a default and a non-default Namespace" do
+        #       describe "passed an Node without a namespace" do
+        #         it "inserts an Node that inherits the default Namespace"
+        #       end
+        #       describe "passed a Node with a Namespace that matches the parent's non-default Namespace" do
+        #         it "inserts a Node that inherits the matching parent Namespace"
+        #       end
+        #     end
+        #   end
+        #   describe "given a markup string" do
+        #     describe "parsed relative to the document" do
+        #       describe "with a Namespace" do
+        #         it "keeps the Namespace"
+        #       end
+        #       describe "given a parent Node with a default and a non-default Namespace" do
+        #         describe "passed an Node without a namespace" do
+        #           it "inserts an Node that inherits the default Namespace"
+        #         end
+        #         describe "passed a Node with a Namespace that matches the parent's non-default Namespace" do
+        #           it "inserts a Node that inherits the matching parent Namespace"
+        #         end
+        #       end
+        #     end
+        #     describe "parsed relative to a specific node" do
+        #       describe "with a Namespace" do
+        #         it "keeps the Namespace"
+        #       end
+        #       describe "given a parent Node with a default and a non-default Namespace" do
+        #         describe "passed an Node without a namespace" do
+        #           it "inserts an Node that inherits the default Namespace"
+        #         end
+        #         describe "passed a Node with a Namespace that matches the parent's non-default Namespace" do
+        #           it "inserts a Node that inherits the matching parent Namespace"
+        #         end
+        #       end
+        #     end
+        #   end
+        # end
+
+        # TODO: test return values.
+        { [:add_child, :<<]                            => {:target => "/root/a1",        :children_tags => %w[text b1 b2]},
+          [:replace, :swap]                            => {:target => "/root/a1/node()", :children_tags => %w[b1 b2]},
+          [:inner_html=]                               => {:target => "/root/a1",        :children_tags => %w[b1 b2]},
+          [:add_previous_sibling, :before, :previous=] => {:target => "/root/a1/text()", :children_tags => %w[b1 b2 text]},
+          [:add_next_sibling, :after, :next=]          => {:target => "/root/a1/text()", :children_tags => %w[text b1 b2]}
+        }.each do |methods, params|
+
+          before do
+            @doc  = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third <bx />node</a3></root>"
+            @doc2 = @doc.dup
+            @fragment_string = "<b1>foo</b1><b2>bar</b2>"
+            @fragment        = Nokogiri::XML::DocumentFragment.parse @fragment_string
+          end
+
+          methods.each do |method|
+            describe "##{method}" do
+              describe "passed a Node" do
+                [:current, :another].each do |which|
+                  describe "passed a Node in the #{which} document" do
+                    before do
+                      @other_doc = which == :current ? @doc : @doc2
+                      @other_node = @other_doc.at_xpath("/root/a2")
+                    end
+
+                    it "unlinks the Node from its previous position" do
+                      @doc.at_xpath(params[:target]).send(method, @other_node)
+                      @other_doc.at_xpath("/root/a2").must_be_nil
+                    end
+
+                    it "inserts the Node in the proper position" do
+                      @doc.at_xpath(params[:target]).send(method, @other_node)
+                      @doc.at_xpath("/root/a1/a2").wont_be_nil
+                    end
+                  end
+                end
+              end
+              describe "passed a markup string" do
+                it "inserts the fragment roots in the proper position" do
+                  @doc.at_xpath(params[:target]).send(method, @fragment_string)
+                  @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
+                end
+              end
+              describe "passed a fragment" do
+                it "inserts the fragment roots in the proper position" do
+                  @doc.at_xpath(params[:target]).send(method, @fragment)
+                  @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
+                end
+              end
+              describe "passed a document" do
+                it "raises an exception" do
+                  proc { @doc.at_xpath("/root/a1").send(method, @doc2) }.must_raise(ArgumentError)
+                end
+              end
+              describe "passed a non-Node" do
+                it "raises an exception" do
+                  proc { @doc.at_xpath("/root/a1").send(method, 42) }.must_raise(ArgumentError)
+                end
+              end
+            end
+
+            describe "text node merging" do
+              describe "#add_child" do
+                it "merges the Text node with adjacent Text nodes" do
+                  @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new('hello', @doc)
+                  @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
+                end
+              end
+              describe "#replace" do
+                it "merges the Text node with adjacent Text nodes" do
+                  @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
+                  @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
+                end
+              end
+            end
+          end
+        end
+      end
+
+      describe "ad hoc node reparenting behavior" do
         before do
           @xml = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third node</a3></root>"
           @html = Nokogiri::HTML(<<-eohtml)
@@ -15,54 +139,6 @@ module Nokogiri
               </body>
             </html>
           eohtml
-        end
-
-        [ :add_child, :add_previous_sibling, :add_next_sibling,
-          :inner_html=, :replace ].each do |method|
-          describe "##{method}" do
-            [:current, :another].each do |which|
-              describe "passed a Node in the #{which} document" do
-                it "unlinks the Node from its previous position"
-                it "inserts the Node in the proper position"
-              end
-            end
-            describe "passed a Node with a Namespace" do
-              it "keeps the Namespace"
-            end
-            describe "given a parent Node with a default and a non-default Namespace" do
-              describe "passed an Node without a namespace" do
-                it "inserts an Node that inherits the default Namespace"
-              end
-              describe "passed a Node with a Namespace that matches the parent's non-default Namespace" do
-                it "inserts a Node that inherits the matching parent Namespace"
-              end
-            end
-            describe "passed a Text node" do
-              it "merges the Text node with adjacent Text nodes"
-            end
-            describe "passed a markup string" do
-              it "inserts the fragment roots in the proper position"
-            end
-            describe "passed a fragment" do
-              it "inserts the fragment roots in the proper position"
-            end
-            describe "passed a document" do
-              it "raises an exception"
-            end
-          end
-        end
-
-        [ [:<<,         :add_child],
-          [:after,      :add_next_sibling],
-          [:next=,      :add_next_sibling],
-          [:before,     :add_previous_sibling],
-          [:previous=,  :add_previous_sibling],
-          [:content=,   :inner_html=],
-          [:swap,       :replace]
-        ].each do |method, aliased|
-          describe "##{method}" do
-            it "is an alias for #{aliased}"
-          end
         end
 
         describe "#before" do
