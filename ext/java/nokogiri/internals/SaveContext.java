@@ -2,7 +2,11 @@ package nokogiri.internals;
 
 import java.lang.Character;
 import org.jruby.Ruby;
+import org.jruby.RubyClass;
 import org.jruby.RubyString;
+import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 
 /**
  *
@@ -10,6 +14,8 @@ import org.jruby.RubyString;
  */
 public class SaveContext {
 
+    private final ThreadContext context;
+    private final RubyClass elementDescription;
     private StringBuffer buffer;
     private int options;
     private int level=0;
@@ -31,7 +37,12 @@ public class SaveContext {
     public static final int AS_XML = 32;
     public static final int AS_HTML = 64;
 
-    public SaveContext(int options, String indentString, String encoding) {
+    public SaveContext(ThreadContext context, int options, String indentString,
+                       String encoding) {
+        this.context = context;
+        this.elementDescription =
+            (RubyClass) context.getRuntime().getClassFromPath(
+                "Nokogiri::HTML::ElementDescription");
         this.options = options;
         this.encoding = encoding;
         this.indentString = indentString;
@@ -81,7 +92,7 @@ public class SaveContext {
 
     public void emptyTagEnd(String name) {
         if (asHtml) {
-            if (noEmpty()) {
+            if (isEmpty(name) && noEmpty()) {
                 append(">");
             } else {
                 openTagInlineEnd();
@@ -223,4 +234,16 @@ public class SaveContext {
     }
 
     public boolean Xhtml() { return this.xhtml; }
+
+    /**
+     * Looks up the HTML ElementDescription and tests if it is an
+     * empty element.
+     */
+    protected boolean isEmpty(String name) {
+        IRubyObject desc =
+            RuntimeHelpers.invoke(context,
+                                  elementDescription, "[]",
+                                  context.getRuntime().newString(name));
+        return RuntimeHelpers.invoke(context, desc, "empty?").isTrue();
+    }
 }

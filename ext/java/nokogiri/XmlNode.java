@@ -948,7 +948,7 @@ public class XmlNode extends RubyObject {
 
         int opt = (int) options.convertToInteger().getLongValue();
 
-        SaveContext ctx = new SaveContext(opt,
+        SaveContext ctx = new SaveContext(context, opt,
                 indentString.convertToString().asJavaString(),
                 encString);
 
