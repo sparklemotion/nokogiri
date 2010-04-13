@@ -50,12 +50,23 @@ module Nokogiri
         # end
 
         # TODO: test return values.
-        { [:add_child, :<<]                            => {:target => "/root/a1",        :children_tags => %w[text b1 b2]},
-          [:replace, :swap]                            => {:target => "/root/a1/node()", :children_tags => %w[b1 b2]},
-          [:inner_html=]                               => {:target => "/root/a1",        :children_tags => %w[b1 b2]},
-          [:add_previous_sibling, :before, :previous=] => {:target => "/root/a1/text()", :children_tags => %w[b1 b2 text]},
-          [:add_next_sibling, :after, :next=]          => {:target => "/root/a1/text()", :children_tags => %w[text b1 b2]}
-        }.each do |methods, params|
+        {
+          :add_child            => {:target => "/root/a1",        :returns => :reparented, :children_tags => %w[text b1 b2]},
+          :<<                   => {:target => "/root/a1",        :returns => :reparented, :children_tags => %w[text b1 b2]},
+
+          :replace              => {:target => "/root/a1/node()", :returns => :reparented, :children_tags => %w[b1 b2]},
+          :swap                 => {:target => "/root/a1/node()", :returns => :self,       :children_tags => %w[b1 b2]},
+
+          :inner_html=          => {:target => "/root/a1",        :returns => :self,       :children_tags => %w[b1 b2]},
+
+          :add_previous_sibling => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[b1 b2 text]},
+          :previous=            => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[b1 b2 text]},
+          :before               => {:target => "/root/a1/text()", :returns => :self,       :children_tags => %w[b1 b2 text]},
+
+          :add_next_sibling     => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[text b1 b2]},
+          :next=                => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[text b1 b2]},
+          :after                => {:target => "/root/a1/text()", :returns => :self,       :children_tags => %w[text b1 b2]}
+        }.each do |method, params|
 
           before do
             @doc  = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third <bx />node</a3></root>"
@@ -64,64 +75,71 @@ module Nokogiri
             @fragment        = Nokogiri::XML::DocumentFragment.parse @fragment_string
           end
 
-          methods.each do |method|
-            describe "##{method}" do
-              describe "passed a Node" do
-                [:current, :another].each do |which|
-                  describe "passed a Node in the #{which} document" do
-                    before do
-                      @other_doc = which == :current ? @doc : @doc2
-                      @other_node = @other_doc.at_xpath("/root/a2")
-                    end
+          describe "##{method}" do
+            describe "passed a Node" do
+              [:current, :another].each do |which|
+                describe "passed a Node in the #{which} document" do
+                  before do
+                    @other_doc = which == :current ? @doc : @doc2
+                    @other_node = @other_doc.at_xpath("/root/a2")
+                  end
 
-                    it "unlinks the Node from its previous position" do
-                      @doc.at_xpath(params[:target]).send(method, @other_node)
-                      @other_doc.at_xpath("/root/a2").must_be_nil
-                    end
+                  it "unlinks the Node from its previous position" do
+                    @doc.at_xpath(params[:target]).send(method, @other_node)
+                    @other_doc.at_xpath("/root/a2").must_be_nil
+                  end
 
-                    it "inserts the Node in the proper position" do
-                      @doc.at_xpath(params[:target]).send(method, @other_node)
-                      @doc.at_xpath("/root/a1/a2").wont_be_nil
+                  it "inserts the Node in the proper position" do
+                    @doc.at_xpath(params[:target]).send(method, @other_node)
+                    @doc.at_xpath("/root/a1/a2").wont_be_nil
+                  end
+
+                  it "returns the expected value" do
+                    if params[:returns] == :self
+                      sendee = @doc.at_xpath(params[:target])
+                      sendee.send(method, @other_node).must_equal sendee
+                    else
+                      @doc.at_xpath(params[:target]).send(method, @other_node).must_equal @other_node
                     end
                   end
                 end
               end
-              describe "passed a markup string" do
-                it "inserts the fragment roots in the proper position" do
-                  @doc.at_xpath(params[:target]).send(method, @fragment_string)
-                  @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
-                end
-              end
-              describe "passed a fragment" do
-                it "inserts the fragment roots in the proper position" do
-                  @doc.at_xpath(params[:target]).send(method, @fragment)
-                  @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
-                end
-              end
-              describe "passed a document" do
-                it "raises an exception" do
-                  proc { @doc.at_xpath("/root/a1").send(method, @doc2) }.must_raise(ArgumentError)
-                end
-              end
-              describe "passed a non-Node" do
-                it "raises an exception" do
-                  proc { @doc.at_xpath("/root/a1").send(method, 42) }.must_raise(ArgumentError)
-                end
+            end
+            describe "passed a markup string" do
+              it "inserts the fragment roots in the proper position" do
+                @doc.at_xpath(params[:target]).send(method, @fragment_string)
+                @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
               end
             end
-
-            describe "text node merging" do
-              describe "#add_child" do
-                it "merges the Text node with adjacent Text nodes" do
-                  @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new('hello', @doc)
-                  @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
-                end
+            describe "passed a fragment" do
+              it "inserts the fragment roots in the proper position" do
+                @doc.at_xpath(params[:target]).send(method, @fragment)
+                @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
               end
-              describe "#replace" do
-                it "merges the Text node with adjacent Text nodes" do
-                  @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
-                  @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
-                end
+            end
+            describe "passed a document" do
+              it "raises an exception" do
+                proc { @doc.at_xpath("/root/a1").send(method, @doc2) }.must_raise(ArgumentError)
+              end
+            end
+            describe "passed a non-Node" do
+              it "raises an exception" do
+                proc { @doc.at_xpath("/root/a1").send(method, 42) }.must_raise(ArgumentError)
+              end
+            end
+          end
+
+          describe "text node merging" do
+            describe "#add_child" do
+              it "merges the Text node with adjacent Text nodes" do
+                @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new('hello', @doc)
+                @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
+              end
+            end
+            describe "#replace" do
+              it "merges the Text node with adjacent Text nodes" do
+                @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
+                @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
               end
             end
           end
