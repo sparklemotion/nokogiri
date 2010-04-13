@@ -19,6 +19,11 @@
     an ELEMENT node.
   * Nokogiri::XML::Node#elements fetch all children nodes that are ELEMENT
     nodes.
+  * Nokogiri::XML::Node#add_child, #add_previous_sibling, #before,
+    #add_next_sibling, #after, #inner_html, #swap and #replace all now
+    accept a Node, DocumentFragment, or a string containing
+    markup.
+  * Node#fragment? indicates whether a node is a DocumentFragment.
 
 * Bugfixes
 
@@ -36,6 +41,8 @@
   * Encoding can be forced on the SAX parser. Thanks Eugene Pimenov! GH #204
   * XML::DocumentFragment uses XML::Node#parse to determine children.
   * Fixed a memory leak in xml reader. Thanks sdor! GH #244
+  * Node#replace returns the new child node as claimed in the
+    RDoc. Previously returned +self+.
 
 * Notes
 
