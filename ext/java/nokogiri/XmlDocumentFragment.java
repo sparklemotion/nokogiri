@@ -5,14 +5,30 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
+import static nokogiri.internals.NokogiriHelpers.getLocalPart;
+import static nokogiri.internals.NokogiriHelpers.getPrefix;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import nokogiri.internals.SaveContext;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Attr;
+import org.w3c.dom.NamedNodeMap;
 
 /**
  *
@@ -47,10 +63,13 @@ public class XmlDocumentFragment extends XmlNode {
         }
 
         XmlDocument doc = (XmlDocument) argc[0];
-
-        XmlDocumentFragment fragment = new XmlDocumentFragment(context.getRuntime(),
-                (RubyClass) cls);
         
+        // To ignore invalid namespace, this text processing was added.
+        if (argc.length > 1 && argc[1] instanceof RubyString) {
+            argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), ignoreNamespaceIfNeeded(doc, (String)argc[1].toJava(String.class)));
+        }
+        
+        XmlDocumentFragment fragment = new XmlDocumentFragment(context.getRuntime(), (RubyClass) cls);      
         fragment.setDocument(doc);
         fragment.setNode(doc.getDocument().createDocumentFragment());
 
@@ -59,6 +78,40 @@ public class XmlDocumentFragment extends XmlNode {
         RuntimeHelpers.invoke(context, fragment, "initialize", argc);
 
         return fragment;
+    }
+    
+    private static Pattern pattern = Pattern.compile("[a-zA-Z]+:[a-zA-Z]+");
+    
+    private static String ignoreNamespaceIfNeeded(XmlDocument doc, String tags) {
+        if (doc.getDocument() == null) return tags;
+        if (doc.getDocument().getDocumentElement() == null) return tags;
+        Matcher matcher = pattern.matcher(tags);
+        Map<String, String> rewriteTable = new HashMap<String, String>();
+        while(matcher.find()) {
+            String qName = matcher.group();
+            NamedNodeMap nodeMap = doc.getDocument().getDocumentElement().getAttributes();
+            if (!isNamespaceDefined(qName, nodeMap)) {
+                rewriteTable.put(qName, getLocalPart(qName));
+            }
+        }
+        Set<String> keys = rewriteTable.keySet();
+        for (String key : keys) {
+            tags = tags.replace(key, rewriteTable.get(key));
+        }
+        return tags;
+    }
+    
+    private static boolean isNamespaceDefined(String qName, NamedNodeMap nodeMap) {
+        for (int i=0; i < nodeMap.getLength(); i++) {
+            Attr attr = (Attr)nodeMap.item(i);
+            if (isNamespace(attr.getNodeName())) {
+                String localPart = getLocalNameForNamespace(attr.getNodeName());
+                if (getPrefix(qName).equals(localPart)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     //@Override

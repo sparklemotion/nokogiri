@@ -1,11 +1,15 @@
 package nokogiri.internals;
 
-import nokogiri.XmlAttr;
-import nokogiri.internals.XmlDeclHandler;
+import static nokogiri.internals.NokogiriHelpers.getLocalPart;
+import static nokogiri.internals.NokogiriHelpers.getPrefix;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
+import java.util.logging.Logger;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
-import org.jruby.RubyString;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -13,13 +17,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.ext.DefaultHandler2;
-
-import java.util.logging.Logger;
-
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
-import static nokogiri.internals.NokogiriHelpers.getPrefix;
-import static nokogiri.internals.NokogiriHelpers.getLocalPart;
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 /**
  *
