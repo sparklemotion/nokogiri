@@ -77,10 +77,23 @@ static void relink_namespace(xmlNodePtr reparented)
 static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr old, xmlNodePtr cur)
 {
   xmlNodePtr retval ;
+
   retval = xmlReplaceNode(old, cur) ;
+
   if (retval == old) {
-    return cur ; // return semantics for reparent_node_with
+    retval = cur ; // return semantics for reparent_node_with
   }
+
+  /* work around libxml2 issue: https://bugzilla.gnome.org/show_bug.cgi?id=615612 */
+  if (retval->type == XML_TEXT_NODE) {
+    if (retval->prev && retval->prev->type == XML_TEXT_NODE) {
+      retval = xmlTextMerge(retval->prev, retval);
+    }
+    if (retval->next && retval->next->type == XML_TEXT_NODE) {
+      retval = xmlTextMerge(retval, retval->next);
+    }
+  }
+
   return retval ;
 }
 

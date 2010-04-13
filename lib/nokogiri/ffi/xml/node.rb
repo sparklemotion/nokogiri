@@ -98,13 +98,19 @@ module Nokogiri
       end
 
       def replace_node new_node
-        Node.reparent_node_with(new_node, self) do |new_node_cstruct, self_cstruct|
-          retval = LibXML.xmlReplaceNode(self_cstruct, new_node_cstruct)
-          if retval == self_cstruct.pointer
-            new_node_cstruct # for reparent_node_with semantics
-          else
-            retval
+        Node.reparent_node_with(new_node, self) do |cur_struct, old_struct|
+          retval = LibXML.xmlReplaceNode(old_struct, cur_struct)
+          retval = cur_struct                  if retval == old_struct.pointer # for reparent_node_with semantics
+          retval = LibXML::XmlNode.new(retval) if retval.is_a?(FFI::Pointer)
+          if retval[:type] == TEXT_NODE
+            if retval[:prev] && LibXML::XmlNode.new(retval[:prev])[:type] == TEXT_NODE
+              retval = LibXML::XmlNode.new(LibXML.xmlTextMerge(retval[:prev], retval))
+            end
+            if retval[:next] && LibXML::XmlNode.new(retval[:next])[:type] == TEXT_NODE
+              retval = LibXML::XmlNode.new(LibXML.xmlTextMerge(retval, retval[:next]))
+            end
           end
+          retval
         end
       end
 
