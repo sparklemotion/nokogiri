@@ -198,6 +198,7 @@ module Nokogiri
 
       ###
       # Search for the first occurrence of +path+.
+      #
       # Returns nil if nothing is found, otherwise a Node.
       def at path, ns = document.root ? document.root.namespaces : {}
         search(path, ns).first
@@ -230,44 +231,128 @@ module Nokogiri
       end
 
       ###
-      # Add +node+ as a child of this Node.
-      # The new node must be a Nokogiri::XML::Node.
+      # Add +node_or_tags+ as a child of this Node.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
       # Returns the new child node.
-      def add_child node
-        Node.verify_nodeishness(node)
-        if node.type == DOCUMENT_FRAG_NODE
-          node.children.each do |child|
+      def add_child node_or_tags
+        node_or_tags = coerce(node_or_tags)
+        if node_or_tags.fragment?
+          node_or_tags.children.each do |child|
             add_child_node child
           end
         else
-          add_child_node node
+          add_child_node node_or_tags
         end
       end
 
       ###
-      # Insert +node+ before this Node (as a sibling).
-      def add_previous_sibling node
-        Node.verify_nodeishness(node)
-        if node.type == DOCUMENT_FRAG_NODE
-          node.children.each do |child|
+      # Insert +node_or_tags+ before this Node (as a sibling).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns the new sibling node.
+      #
+      # Also see related method +before+.
+      def add_previous_sibling node_or_tags
+        node_or_tags = coerce(node_or_tags)
+        if node_or_tags.fragment?
+          node_or_tags.children.each do |child|
             add_previous_sibling_node child
           end
         else
-          add_previous_sibling_node node
+          add_previous_sibling_node node_or_tags
         end
       end
 
       ###
-      # Insert +node+ after this Node (as a sibling).
-      def add_next_sibling node
-        Node.verify_nodeishness(node)
-        if node.type == DOCUMENT_FRAG_NODE
-          node.children.reverse_each do |child|
+      # Insert +node_or_tags+ after this Node (as a sibling).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns the new sibling node.
+      #
+      # Also see related method +after+.
+      def add_next_sibling node_or_tags
+        node_or_tags = coerce(node_or_tags)
+        if node_or_tags.fragment?
+          node_or_tags.children.reverse_each do |child|
             add_next_sibling_node child
           end
         else
-          add_next_sibling_node node
+          add_next_sibling_node node_or_tags
         end
+      end
+
+      ####
+      # Insert +node_or_tags+ before this node (as a sibling).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns self, to support chaining of calls.
+      #
+      # Also see related method +add_previous_sibling+.
+      def before node_or_tags
+        add_previous_sibling node_or_tags
+        self
+      end
+
+      ####
+      # Insert +node_or_tags+ after this node (as a sibling).
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns self, to support chaining of calls.
+      #
+      # Also see related method +add_next_sibling+.
+      def after node_or_tags
+        add_next_sibling node_or_tags
+        self
+      end
+
+      ####
+      # Set the inner_html for this Node to +node_or_tags+
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns self.
+      def inner_html= node_or_tags
+        node_or_tags = coerce(node_or_tags)
+        children.unlink
+        if node_or_tags.fragment?
+          node_or_tags.children.to_a.each do |node|
+            add_child node
+          end
+        else
+          add_child node_or_tags
+        end
+        self
+      end
+
+      ####
+      # Replace this Node with +node_or_tags+.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns the new child node.
+      #
+      # Also see related method +swap+.
+      def replace node_or_tags
+        node_or_tags = coerce(node_or_tags)
+        if node_or_tags.fragment?
+          node_or_tags.children.each do |child|
+            add_previous_sibling child
+          end
+          unlink
+        else
+          replace_node node_or_tags
+        end
+      end
+
+      ####
+      # Swap this Node for +node_or_tags+
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns self, to support chaining of calls.
+      #
+      # Also see related method +replace+.
+      def swap node_or_tags
+        replace node_or_tags
+        self
       end
 
       alias :next           :next_sibling
@@ -337,45 +422,6 @@ module Nokogiri
         ancestors.last.search(selector).include?(self)
       end
 
-      ####
-      # Create nodes from +data+ and insert them before this node
-      # (as a sibling).
-      def before data
-        fragment(data).children.each do |node|
-          add_previous_sibling node
-        end
-        self
-      end
-
-      ####
-      # Create nodes from +data+ and insert them after this node
-      # (as a sibling).
-      def after data
-        fragment(data).children.to_a.reverse_each do |node|
-          add_next_sibling node
-        end
-        self
-      end
-
-      ####
-      # Swap this Node for new nodes made from +data+
-      def swap data
-        before(data)
-        remove
-        self
-      end
-
-      ####
-      # Set the inner_html for this Node to +tags+
-      def inner_html= tags
-        children.each { |x| x.remove}
-
-        fragment(tags).children.to_a.each do |node|
-          add_child node
-        end
-        self
-      end
-
       ###
       # Create a DocumentFragment containing +tags+ that is relative to _this_
       # context node.
@@ -403,7 +449,7 @@ module Nokogiri
       end
 
       ####
-      # Set the Node content to +string+.  The content gets XML escaped.
+      # Set the Node's content to a Text node containing +string+. The string gets XML escaped, not interpreted as markup.
       def content= string
         self.native_content = encode_special_chars(string.to_s)
       end
@@ -453,6 +499,11 @@ module Nokogiri
       # Returns true if this is a Text node
       def text?
         type == TEXT_NODE
+      end
+
+      # Returns true if this is a DocumentFragment
+      def fragment?
+        type == DOCUMENT_FRAG_NODE
       end
 
       ###
@@ -551,22 +602,6 @@ module Nokogiri
       # Accept a visitor.  This method calls "visit" on +visitor+ with self.
       def accept visitor
         visitor.visit(self)
-      end
-
-      ####
-      # +replace+ this Node with the +node+ in the Document.
-      # The new node must be a Nokogiri::XML::Node or a non-empty String.
-      # Returns the new child node.
-      def replace node
-        Node.verify_nodeishness(node)
-        if node.type == DOCUMENT_FRAG_NODE
-          node.children.each do |child|
-            add_previous_sibling child
-          end
-          unlink
-        else
-          replace_node node
-        end
       end
 
       ###
@@ -739,13 +774,17 @@ module Nokogiri
       end
 
       private
-      def self.verify_nodeishness(node)
-        if node.is_a?(Document) || !node.is_a?(XML::Node)
+      def coerce(data)
+        return fragment(data) if data.is_a?(String)
+
+        if data.is_a?(Document) || !data.is_a?(XML::Node)
           raise ArgumentError, <<-EOERR
-Node.replace requires a Node argument, and cannot accept a Document.
+Requires a Node argument, and cannot accept a Document.
 (You probably want to select a node from the Document with at() or search(), or create a new Node via Node.new().)
           EOERR
         end
+
+        data
       end
 
       def inspect_attributes
