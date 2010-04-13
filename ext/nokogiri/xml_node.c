@@ -430,8 +430,7 @@ static VALUE previous_element(VALUE self)
 /* :nodoc: */
 static VALUE replace(VALUE self, VALUE _new_node)
 {
-  reparent_node_with(_new_node, self, xmlReplaceNodeWrapper) ;
-  return self ;
+  return reparent_node_with(_new_node, self, xmlReplaceNodeWrapper) ;
 }
 
 /*

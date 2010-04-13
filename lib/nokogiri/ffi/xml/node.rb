@@ -106,7 +106,6 @@ module Nokogiri
             retval
           end
         end
-        self
       end
 
       def children
