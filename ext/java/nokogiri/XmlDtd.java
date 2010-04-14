@@ -88,6 +88,20 @@ public class XmlDtd extends XmlNode {
         }
     }
 
+    public static XmlDtd newEmpty(Ruby ruby,
+                                  Document doc,
+                                  IRubyObject name,
+                                  IRubyObject external_id,
+                                  IRubyObject system_id) {
+        Element placeHolder = doc.createElement("dtd_placeholder");
+        XmlDtd dtd = new XmlDtd(ruby, placeHolder);
+        dtd.name = name;
+        dtd.pubId = external_id;
+        dtd.sysId = system_id;
+        return dtd;
+    }
+
+
     /**
      * Create an unparented element that contains DTD declarations
      * parsed from the internal subset attached as user data to

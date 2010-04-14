@@ -842,7 +842,16 @@ public class XmlNode extends RubyObject {
                 .newRuntimeError("Document already has external subset");
         }
 
-        throw context.getRuntime().newNotImplementedError("not implemented");
+        Document document = getOwnerDocument();
+        if(document == null) {
+            return context.getRuntime().getNil();
+        }
+
+        XmlDocument xdoc =
+            (XmlDocument) getCachedNodeOrCreate(context.getRuntime(), document);
+        IRubyObject xdtd = xdoc.createExternalSubset(context, name,
+                                                     external_id, system_id);
+        return xdtd;
     }
 
     /**
