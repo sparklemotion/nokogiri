@@ -153,6 +153,7 @@ lib/nokogiri/html/builder.rb
 lib/nokogiri/html/document.rb
 lib/nokogiri/html/document_fragment.rb
 lib/nokogiri/html/element_description.rb
+lib/nokogiri/html/element_description_defaults.rb
 lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/html/sax/parser_context.rb
