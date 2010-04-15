@@ -67,6 +67,7 @@ public class XmlDocumentFragment extends XmlNode {
         // To ignore invalid namespace, this text processing was added.
         if (argc.length > 1 && argc[1] instanceof RubyString) {
             argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), ignoreNamespaceIfNeeded(doc, (String)argc[1].toJava(String.class)));
+            argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), addNamespaceDeclIfNeeded(doc, (String)argc[1].toJava(String.class)));
         }
         
         XmlDocumentFragment fragment = new XmlDocumentFragment(context.getRuntime(), (RubyClass) cls);      
@@ -79,13 +80,14 @@ public class XmlDocumentFragment extends XmlNode {
 
         return fragment;
     }
-    
-    private static Pattern pattern = Pattern.compile("[a-zA-Z]+:[a-zA-Z]+");
+
+    private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
+    private static Pattern starttag_pattern = Pattern.compile("<[^</>]+>");
     
     private static String ignoreNamespaceIfNeeded(XmlDocument doc, String tags) {
         if (doc.getDocument() == null) return tags;
         if (doc.getDocument().getDocumentElement() == null) return tags;
-        Matcher matcher = pattern.matcher(tags);
+        Matcher matcher = qname_pattern.matcher(tags);
         Map<String, String> rewriteTable = new HashMap<String, String>();
         while(matcher.find()) {
             String qName = matcher.group();
@@ -102,6 +104,7 @@ public class XmlDocumentFragment extends XmlNode {
     }
     
     private static boolean isNamespaceDefined(String qName, NamedNodeMap nodeMap) {
+        if (isNamespace(qName.intern())) return true;
         for (int i=0; i < nodeMap.getLength(); i++) {
             Attr attr = (Attr)nodeMap.item(i);
             if (isNamespace(attr.getNodeName())) {
@@ -112,6 +115,43 @@ public class XmlDocumentFragment extends XmlNode {
             }
         }
         return false;
+    }
+    
+    private static String addNamespaceDeclIfNeeded(XmlDocument doc, String tags) {
+        if (doc.getDocument() == null) return tags;
+        if (doc.getDocument().getDocumentElement() == null) return tags;
+        Matcher matcher = starttag_pattern.matcher(tags);
+        Map<String, String> rewriteTable = new HashMap<String, String>();
+        while(matcher.find()) {
+            String start_tag = matcher.group();
+            Matcher matcher2 = qname_pattern.matcher(start_tag);
+            while(matcher2.find()) {
+                String qName = matcher2.group();
+                NamedNodeMap nodeMap = doc.getDocument().getDocumentElement().getAttributes();
+                if (isNamespaceDefined(qName, nodeMap)) {
+                    String namespaceDecl = getNamespceDecl(getPrefix(qName), nodeMap);
+                    if (namespaceDecl != null) {
+                        rewriteTable.put("<"+qName+">", "<"+qName + " " + namespaceDecl+">");
+                    }
+                }
+            }
+        }
+        Set<String> keys = rewriteTable.keySet();
+        for (String key : keys) {
+            tags = tags.replace(key, rewriteTable.get(key));
+        }
+        
+        return tags;
+    }
+    
+    private static String getNamespceDecl(String prefix, NamedNodeMap nodeMap) {
+        for (int i=0; i < nodeMap.getLength(); i++) {
+            Attr attr = (Attr)nodeMap.item(i);
+            if (prefix.equals(attr.getLocalName())) {
+                return attr.getName() + "=\"" + attr.getValue() + "\"";
+            }
+        }
+        return null;
     }
 
     //@Override

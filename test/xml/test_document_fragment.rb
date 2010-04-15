@@ -127,7 +127,12 @@ module Nokogiri
 
         frag = doc.fragment "<bar:newnode></bar:newnode>"
         assert frag.children.first.namespace
-        assert_equal ns, frag.children.first.namespace
+        if Nokogiri.uses_libxml?
+            assert_equal ns, frag.children.first.namespace
+        else
+            assert_equal ns.href, frag.children.first.namespace.href
+            assert_equal ns.prefix, frag.children.first.namespace.prefix
+        end
       end
 
       def test_fragment_invalid_namespace_is_silently_ignored

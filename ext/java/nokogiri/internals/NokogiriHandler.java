@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyObject;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -75,7 +76,8 @@ public class NokogiriHandler extends DefaultHandler2
         RubyArray rubyNSAttr = RubyArray.newArray(ruby);
 
         ThreadContext context = ruby.getCurrentContext();
-
+        boolean fromFragmentHandler = isFromFragmentHandler();
+        
         for (int i = 0; i < attrs.getLength(); i++) {
             String u = attrs.getURI(i);
             String qn = attrs.getQName(i);
@@ -86,7 +88,10 @@ public class NokogiriHandler extends DefaultHandler2
             pre = getPrefix(qn);
             if (ln == null || ln.equals("")) ln = getLocalPart(qn);
 
-            if (isNamespace(qn)) {
+            if (isNamespace(qn) && !fromFragmentHandler) {
+                // I haven't figured the reason out yet, but, in somewhere,
+                // namespace is converted to array in array in array and cause
+                // TypeError at line 45 in fragment_handler.rb
                 RubyArray ns = RubyArray.newArray(ruby, 2);
                 if (ln.equals("xmlns")) ln = null;
                 ns.add(stringOrNil(ruby, ln));
@@ -113,6 +118,20 @@ public class NokogiriHandler extends DefaultHandler2
              stringOrNil(ruby, getPrefix(qName)),
              stringOrNil(ruby, uri),
              rubyNSAttr);
+    }
+    
+    private boolean isFromFragmentHandler() {
+        if (object != null && object instanceof RubyObject) {
+            RubyObject rubyObj = (RubyObject)object;
+            IRubyObject document = rubyObj.getInstanceVariable("@document");
+            if (document != null) {
+                String name = document.getMetaClass().getName();
+                if ("Nokogiri::XML::FragmentHandler".equals(name)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
