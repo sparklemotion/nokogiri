@@ -253,12 +253,8 @@ public class XmlDocument extends XmlNode {
             node.getUserData(DTD_EXTERNAL_SUBSET);
 
         if (dtd == null) {
-            if (getDocument().getDoctype() == null)
-                dtd = context.getRuntime().getNil();
-            else
-                dtd = XmlDtd.newFromExternalSubset(context.getRuntime(),
-                                                   getDocument());
-
+            dtd = XmlDtd.newFromExternalSubset(context.getRuntime(),
+                                               getDocument());
             setExternalSubset(dtd);
         }
 

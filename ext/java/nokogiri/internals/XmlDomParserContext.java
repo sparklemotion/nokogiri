@@ -18,9 +18,10 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXException;
+import org.xml.sax.ext.EntityResolver2;
 
 /**
  *
@@ -99,10 +100,10 @@ public class XmlDomParserContext extends ParserContext {
             this.errorHandler = new NokogiriStrictErrorHandler();
         }
 
-        initParser();
+        initParser(runtime);
     }
 
-    protected void initParser() {
+    protected void initParser(Ruby runtime) {
         parser = new XmlDomParser();
 
         parser.setErrorHandler(this.errorHandler);
@@ -110,7 +111,7 @@ public class XmlDomParserContext extends ParserContext {
         if (noBlanks()) {
             setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
         }
-        
+
         if (dtdValid()) {
             setFeature(FEATURE_VALIDATION, true);
         }
@@ -119,6 +120,7 @@ public class XmlDomParserContext extends ParserContext {
         // an entity resolver that returns empty documents.
         if (dtdLoad()) {
             setFeature(FEATURE_LOAD_EXTERNAL_DTD, true);
+            parser.setEntityResolver(new ChdirEntityResolver(runtime));
         } else {
             parser.setEntityResolver(new EntityResolver() {
                     public InputSource resolveEntity(String arg0, String arg1)

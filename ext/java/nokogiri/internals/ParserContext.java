@@ -1,7 +1,10 @@
 package nokogiri.internals;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.StringReader;
 
 import org.jruby.Ruby;
@@ -14,6 +17,8 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.TypeConverter;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.ext.EntityResolver2;
 
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
@@ -26,6 +31,32 @@ import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
  */
 public class ParserContext extends RubyObject {
     protected InputSource source = null;
+
+    /**
+     * Create a file base input source taking into account the current
+     * directory of <code>runtime</code>.
+     */
+    public static InputSource resolveEntity(Ruby runtime,
+                                            String publicId,
+                                            String baseURI,
+                                            String systemId)
+        throws IOException {
+        String path;
+
+        if ((new File(systemId)).isAbsolute()) {
+            path = systemId;
+        } else if (baseURI != null) {
+            path = (new File(baseURI, systemId)).getAbsolutePath();
+        } else {
+            String rubyDir = runtime.getCurrentDirectory();
+            path = (new File(rubyDir, systemId)).getAbsolutePath();
+        }
+
+        InputSource s = new InputSource(new FileInputStream(path));
+        s.setSystemId(systemId);
+        s.setPublicId(publicId);
+        return s;
+    }
 
     public ParserContext(Ruby runtime) {
         // default to class 'Object' because this class isn't exposed to Ruby
@@ -88,7 +119,8 @@ public class ParserContext extends RubyObject {
         String filename = rubyStringToString(file);
 
         try{
-            source = new InputSource(filename);
+            source = resolveEntity(context.getRuntime(),
+                                   null, null, filename);
         } catch (Exception e) {
             throw RaiseException
                 .createNativeRaiseException(context.getRuntime(), e);
@@ -101,6 +133,44 @@ public class ParserContext extends RubyObject {
      */
     public void setInputSource(InputStream stream) {
         source = new InputSource(stream);
+    }
+
+    /**
+     * An entity resolver aware of the fact that the Ruby runtime can
+     * change directory but the JVM cannot.  Thus any file based
+     * entity resolution that uses relative paths must be translated
+     * to be relative to the current directory of the Ruby runtime.
+     */
+    public static class ChdirEntityResolver implements EntityResolver2 {
+        protected Ruby runtime;
+
+        public ChdirEntityResolver(Ruby runtime) {
+            super();
+            this.runtime = runtime;
+        }
+
+        @Override
+        public InputSource getExternalSubset(String name, String baseURI)
+            throws SAXException, IOException {
+            return null;
+        }
+
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId)
+            throws SAXException, IOException {
+            return resolveEntity(null, publicId, null, systemId);
+        }
+
+        @Override
+        public InputSource resolveEntity(String name,
+                                         String publicId,
+                                         String baseURI,
+                                         String systemId)
+            throws SAXException, IOException {
+            return ParserContext
+                .resolveEntity(runtime, publicId, baseURI, systemId);
+        }
+
     }
 
 }

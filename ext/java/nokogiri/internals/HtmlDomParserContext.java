@@ -41,7 +41,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     }
 
     @Override
-    protected void initParser() {
+    protected void initParser(Ruby runtime) {
         XMLParserConfiguration config = new HTMLConfiguration();
         config.setProperty("http://cyberneko.org/html/properties/names/elems",
                            "lower");
