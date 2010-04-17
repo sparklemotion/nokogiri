@@ -145,8 +145,12 @@ module Nokogiri
         end
 
         def test_start_is_called_without_namespace
-          @parser.parse('<foo:f><bar></foo:f>')
-          assert_equal ['foo:f', 'bar'],
+          @parser.parse(<<-eoxml)
+<root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
+<foo:f><bar></foo:f>
+</root>
+          eoxml
+          assert_equal ['root', 'foo:f', 'bar'],
             @parser.document.start_elements.map { |x| x.first }
         end
 
