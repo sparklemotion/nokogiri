@@ -1,5 +1,7 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
@@ -7,13 +9,19 @@ import org.jruby.RubyModule;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.xml.sax.SAXParseException;
 
 public class XmlSyntaxError extends RubyException {
 
     protected Exception exception;
 
+    public static RubyClass getRubyClass(Ruby ruby) {
+        return ((RubyModule) ruby.getModule("Nokogiri")
+                .getConstant("XML")).getClass("SyntaxError");
+    }
+
     public XmlSyntaxError(Ruby ruby){
-        this(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("SyntaxError"));
+        this(ruby, getRubyClass(ruby));
     }
 
     public XmlSyntaxError(Ruby ruby, RubyClass rubyClass) {
@@ -28,6 +36,30 @@ public class XmlSyntaxError extends RubyException {
     public XmlSyntaxError(Ruby ruby, RubyClass rubyClass, Exception ex) {
         this(ruby, rubyClass);
         this.exception = ex;
+    }
+
+    public static XmlSyntaxError createWarning(Ruby ruby,
+                                               SAXParseException e) {
+        return new XmlSyntaxError(ruby, e, 1);
+    }
+
+    public static XmlSyntaxError createError(Ruby ruby,
+                                             SAXParseException e) {
+        return new XmlSyntaxError(ruby, e, 2);
+    }
+
+    public static XmlSyntaxError createFatalError(Ruby ruby,
+                                                  SAXParseException e) {
+        return new XmlSyntaxError(ruby, e, 3);
+    }
+
+    public XmlSyntaxError(Ruby ruby, SAXParseException e, int level) {
+        super(ruby, getRubyClass(ruby), e.getMessage());
+        this.exception = e;
+        setInstanceVariable("@level", ruby.newFixnum(level));
+        setInstanceVariable("@line", ruby.newFixnum(e.getLineNumber()));
+        setInstanceVariable("@column", ruby.newFixnum(e.getColumnNumber()));
+        setInstanceVariable("@file", stringOrNil(ruby, e.getSystemId()));
     }
 
     public static RubyException getXPathSyntaxError(ThreadContext context) {
@@ -54,53 +86,4 @@ public class XmlSyntaxError extends RubyException {
 //         }
 //     }
 
-    @JRubyMethod
-    public IRubyObject domain(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject code(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject level(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject file(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject line(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject str1(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject str2(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject str3(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject int1(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod
-    public IRubyObject column(ThreadContext context) {
-        return context.getRuntime().getNil();
-    }
 }
