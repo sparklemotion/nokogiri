@@ -131,7 +131,8 @@ public class ParserContext extends RubyObject {
     }
 
     /**
-     * Wrap Nokogiri parser options in a utility class.
+     * Wrap Nokogiri parser options in a utility class.  This is
+     * read-only.
      */
     public static class Options {
         protected static final long STRICT = 0;
@@ -175,7 +176,7 @@ public class ParserContext extends RubyObject {
         }
 
         public Options(long options) {
-            strict = (options == STRICT);
+            strict = ((options & RECOVER) == STRICT);
             recover = test(options, RECOVER);
             noEnt = test(options, NOENT);
             dtdLoad = test(options, DTDLOAD);
