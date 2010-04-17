@@ -15,6 +15,7 @@ import org.jruby.RubyString;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
 import org.jruby.util.TypeConverter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -100,15 +101,9 @@ public class ParserContext extends RubyObject {
                     "must be kind_of String or respond to :to_io or :string");
             }
 
-            // I don't know why ByteArrayInputStream doesn't
-            // work... It's a similar problem to that
-            // rubyStringToString is supposed to solve (treating Ruby
-            // string data as UTF-8).  But StringReader seems to work,
-            // so going with it. -- Patrick
-
-            //byte[] bytes = rubyStringToString(str).getBytes();
-            //source = new InputSource(new ByteArrayInputStream(bytes));
-            source = new InputSource(new StringReader(rubyStringToString(str)));
+            ByteList bytes = str.getByteList();
+            source = new InputSource(new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length()));
+            source.setEncoding("UTF-8");
         }
     }
 

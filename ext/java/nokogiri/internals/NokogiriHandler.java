@@ -1,5 +1,6 @@
 package nokogiri.internals;
 
+import java.util.Arrays;
 import static nokogiri.internals.NokogiriHelpers.getLocalPart;
 import static nokogiri.internals.NokogiriHelpers.getPrefix;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
