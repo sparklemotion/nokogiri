@@ -34,30 +34,8 @@ public class XmlDomParserContext extends ParserContext {
         "http://apache.org/xml/features/dom/include-ignorable-whitespace";
     protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
 
-    public static final long STRICT = 0;
-    public static final long RECOVER = 1;
-    public static final long NOENT = 2;
-    public static final long DTDLOAD = 4;
-    public static final long DTDATTR = 8;
-    public static final long DTDVALID = 16;
-    public static final long NOERROR = 32;
-    public static final long NOWARNING = 64;
-    public static final long PEDANTIC = 128;
-    public static final long NOBLANKS = 256;
-    public static final long SAX1 = 512;
-    public static final long XINCLUDE = 1024;
-    public static final long NONET = 2048;
-    public static final long NODICT = 4096;
-    public static final long NSCLEAN = 8192;
-    public static final long NOCDATA = 16384;
-    public static final long NOXINCNODE = 32768;
-
+    protected ParserContext.Options options;
     protected DOMParser parser;
-
-    protected boolean strict, recover, noEnt, dtdLoad, dtdAttr, dtdValid,
-            noError, noWarning, pedantic, noBlanks, sax1, xInclude, noNet,
-            noDict, nsClean, noCdata, noXIncNode;
-
     protected NokogiriErrorHandler errorHandler;
 
     public XmlDomParserContext(Ruby runtime, IRubyObject options) {
@@ -67,32 +45,7 @@ public class XmlDomParserContext extends ParserContext {
     public XmlDomParserContext(Ruby runtime, long options) {
         super(runtime);
 
-        if(options == STRICT) {
-            this.strict = true;
-            this.recover = this.noEnt = this.dtdLoad = this.dtdAttr =
-                    this.dtdValid = this.noError = this.noWarning =
-                    this.pedantic = this.noBlanks = this.sax1 = this.xInclude =
-                    this.noNet = this.noDict = this.nsClean = this.noCdata =
-                    this.noXIncNode = false;
-        } else {
-            this.strict = false;
-            this.recover = (options & RECOVER) == RECOVER;
-            this.noEnt = (options & NOENT) == NOENT;
-            this.dtdLoad = (options & DTDLOAD) == DTDLOAD;
-            this.dtdAttr = (options & DTDATTR) == DTDATTR;
-            this.dtdValid = (options & DTDVALID) == DTDVALID;
-            this.noError = (options & NOERROR) == NOERROR;
-            this.noWarning = (options & NOWARNING) == NOWARNING;
-            this.pedantic = (options & PEDANTIC) == PEDANTIC;
-            this.noBlanks = (options & NOBLANKS) == NOBLANKS;
-            this.sax1 = (options & SAX1) == SAX1;
-            this.xInclude = (options & XINCLUDE) == XINCLUDE;
-            this.noNet = (options & NONET) == NONET;
-            this.noDict = (options & NODICT) == NODICT;
-            this.nsClean = (options & NSCLEAN) == NSCLEAN;
-            this.noCdata = (options & NOCDATA) == NOCDATA;
-            this.noXIncNode = (options & NOXINCNODE) == NOXINCNODE;
-        }
+        this.options = new ParserContext.Options(options);
 
         if(this.continuesOnError()){
             this.errorHandler = new NokogiriNonStrictErrorHandler();
@@ -108,17 +61,17 @@ public class XmlDomParserContext extends ParserContext {
 
         parser.setErrorHandler(this.errorHandler);
 
-        if (noBlanks()) {
+        if (options.noBlanks) {
             setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
         }
 
-        if (dtdValid()) {
+        if (options.dtdValid) {
             setFeature(FEATURE_VALIDATION, true);
         }
         // If we turn off loading of external DTDs complete, we don't
         // getthe publicID.  Instead of turning off completely, we use
         // an entity resolver that returns empty documents.
-        if (dtdLoad()) {
+        if (options.dtdLoad) {
             setFeature(FEATURE_LOAD_EXTERNAL_DTD, true);
             parser.setEntityResolver(new ChdirEntityResolver(runtime));
         } else {
@@ -182,7 +135,7 @@ public class XmlDomParserContext extends ParserContext {
     }
 
     public boolean continuesOnError() {
-        return this.recover;
+        return options.recover;
     }
 
     /**
@@ -218,7 +171,7 @@ public class XmlDomParserContext extends ParserContext {
 
     protected Document do_parse() throws SAXException, IOException {
         parser.parse(getInputSource());
-        if (noBlanks()) {
+        if (options.noBlanks) {
             List<Node> emptyNodes = new ArrayList<Node>();
             findEmptyTexts(parser.getDocument(), emptyNodes);
             if (emptyNodes.size() > 0) {
@@ -240,37 +193,4 @@ public class XmlDomParserContext extends ParserContext {
             }
         }
     }
-
-    public boolean dtdAttr() { return this.dtdAttr; }
-
-    public boolean dtdLoad() { return this.dtdLoad; }
-
-    public boolean dtdValid() { return this.dtdValid; }
-
-    public boolean noBlanks() { return this.noBlanks; }
-
-    public boolean noCdata() { return this.noCdata; }
-
-    public boolean noDict() { return this.noDict; }
-
-    public boolean noEnt() { return this.noEnt; }
-
-    public boolean noError() { return this.noError; }
-
-    public boolean noNet() { return this.noNet; }
-
-    public boolean noWarning() { return this.noWarning; }
-
-    public boolean nsClean() { return this.nsClean; }
-
-    public boolean pedantic() { return this.pedantic; }
-
-    public boolean recover() { return this.recover; }
-
-    public boolean sax1() { return this.sax1; }
-
-    public boolean strict() { return this.strict; }
-
-    public boolean xInclude() { return this.xInclude; }
-
 }

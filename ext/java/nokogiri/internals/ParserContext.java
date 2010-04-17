@@ -131,6 +131,71 @@ public class ParserContext extends RubyObject {
     }
 
     /**
+     * Wrap Nokogiri parser options in a utility class.
+     */
+    public static class Options {
+        protected static final long STRICT = 0;
+        protected static final long RECOVER = 1;
+        protected static final long NOENT = 2;
+        protected static final long DTDLOAD = 4;
+        protected static final long DTDATTR = 8;
+        protected static final long DTDVALID = 16;
+        protected static final long NOERROR = 32;
+        protected static final long NOWARNING = 64;
+        protected static final long PEDANTIC = 128;
+        protected static final long NOBLANKS = 256;
+        protected static final long SAX1 = 512;
+        protected static final long XINCLUDE = 1024;
+        protected static final long NONET = 2048;
+        protected static final long NODICT = 4096;
+        protected static final long NSCLEAN = 8192;
+        protected static final long NOCDATA = 16384;
+        protected static final long NOXINCNODE = 32768;
+
+        public boolean strict;
+        public boolean recover;
+        public boolean noEnt;
+        public boolean dtdLoad;
+        public boolean dtdAttr;
+        public boolean dtdValid;
+        public boolean noError;
+        public boolean noWarning;
+        public boolean pedantic;
+        public boolean noBlanks;
+        public boolean sax1;
+        public boolean xInclude;
+        public boolean noNet;
+        public boolean noDict;
+        public boolean nsClean;
+        public boolean noCdata;
+        public boolean noXIncNode;
+
+        protected static boolean test(long options, long mask) {
+            return ((options & mask) == mask);
+        }
+
+        public Options(long options) {
+            strict = (options == STRICT);
+            recover = test(options, RECOVER);
+            noEnt = test(options, NOENT);
+            dtdLoad = test(options, DTDLOAD);
+            dtdAttr = test(options, DTDATTR);
+            dtdValid = test(options, DTDVALID);
+            noError = test(options, NOERROR);
+            noWarning = test(options, NOWARNING);
+            pedantic = test(options, PEDANTIC);
+            noBlanks = test(options, NOBLANKS);
+            sax1 = test(options, SAX1);
+            xInclude = test(options, XINCLUDE);
+            noNet = test(options, NONET);
+            noDict = test(options, NODICT);
+            nsClean = test(options, NSCLEAN);
+            noCdata = test(options, NOCDATA);
+            noXIncNode = test(options, NOXINCNODE);
+        }
+    }
+
+    /**
      * An entity resolver aware of the fact that the Ruby runtime can
      * change directory but the JVM cannot.  Thus any file based
      * entity resolution that uses relative paths must be translated
