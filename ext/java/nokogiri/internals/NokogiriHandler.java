@@ -1,6 +1,7 @@
 package nokogiri.internals;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import static nokogiri.internals.NokogiriHelpers.getLocalPart;
 import static nokogiri.internals.NokogiriHelpers.getPrefix;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
@@ -8,6 +9,7 @@ import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.util.logging.Logger;
 
+import nokogiri.XmlSyntaxError;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -35,6 +37,15 @@ public class NokogiriHandler extends DefaultHandler2
     private RubyClass attrClass;
     private IRubyObject object;
     private boolean namespaceDefined = false;
+
+    /**
+     * Stores parse errors with the most-recent error last.
+     *
+     * TODO: should these be stored in the document 'errors' array?
+     * Currently only string messages are stored there.
+     */
+    private LinkedList<XmlSyntaxError> errors =
+        new LinkedList<XmlSyntaxError>();
 
     public NokogiriHandler(Ruby ruby, IRubyObject object) {
         this.ruby = ruby;
@@ -166,18 +177,32 @@ public class NokogiriHandler extends DefaultHandler2
 
     @Override
     public void error(SAXParseException saxpe) {
+        addError(XmlSyntaxError.createError(ruby, saxpe));
         call("error", ruby.newString(saxpe.getMessage()));
     }
 
     @Override
     public void fatalError(SAXParseException saxpe) throws SAXException
     {
+        addError(XmlSyntaxError.createFatalError(ruby, saxpe));
         call("error", ruby.newString(saxpe.getMessage()));
     }
 
     @Override
     public void warning(SAXParseException saxpe) {
         call("warning", ruby.newString(saxpe.getMessage()));
+    }
+
+    protected synchronized void addError(XmlSyntaxError e) {
+        errors.add(e);
+    }
+
+    public synchronized int getErrorCount() {
+        return errors.size();
+    }
+
+    public synchronized IRubyObject getLastError() {
+        return errors.getLast();
     }
 
     private void call(String methodName) {

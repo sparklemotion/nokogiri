@@ -6,9 +6,11 @@ import java.nio.channels.ClosedChannelException;
 import java.lang.InterruptedException;
 import java.lang.Runnable;
 import java.lang.Thread;
+import nokogiri.internals.ParserContext;
 import nokogiri.internals.PushInputStream;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyException;
 import org.jruby.RubyIO;
 import org.jruby.RubyKernel;
 import org.jruby.RubyModule;
@@ -24,9 +26,11 @@ import org.xml.sax.InputSource;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 public class XmlSaxPushParser extends RubyObject {
-    IRubyObject options;
+    ParserContext.Options options;
+    IRubyObject optionsRuby;
     PushInputStream stream;
     Thread reader;
+    Runner runner;
 
     public XmlSaxPushParser(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -36,27 +40,35 @@ public class XmlSaxPushParser extends RubyObject {
     public IRubyObject initialize_native(final ThreadContext context,
                                          IRubyObject _saxParser,
                                          IRubyObject fileName) {
-        options = invoke(context, context.getRuntime()
-                         .getClassFromPath("Nokogiri::XML::ParseOptions"),
-                         "new");
+        optionsRuby = invoke(context, context.getRuntime()
+                             .getClassFromPath("Nokogiri::XML::ParseOptions"),
+                             "new");
+        options = new ParserContext.Options(0);
         stream = new PushInputStream();
 
-        Runner runner = new Runner(context, this, stream);
-
+        runner = new Runner(context, this, stream);
         reader = new Thread(runner);
         reader.start();
 
         return this;
     }
 
+    /**
+     * Returns an integer.
+     */
     @JRubyMethod(name="options")
     public IRubyObject getOptions(ThreadContext context) {
-        return invoke(context, options, "options");
+        return invoke(context, optionsRuby, "options");
     }
 
+    /**
+     * <code>val</code> is an integer.
+     */
     @JRubyMethod(name="options=")
     public IRubyObject setOptions(ThreadContext context, IRubyObject val) {
-        invoke(context, options, "options=", val);
+        invoke(context, optionsRuby, "options=", val);
+        options =
+            new ParserContext.Options(val.convertToInteger().getLongValue());
         return getOptions(context);
     }
 
@@ -69,6 +81,8 @@ public class XmlSaxPushParser extends RubyObject {
         } else {
             throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
         }
+
+        int errorCount0 = runner.getErrorCount();
 
         try {
             stream.writeAndWaitForRead(data);
@@ -94,6 +108,11 @@ public class XmlSaxPushParser extends RubyObject {
                 }
             }
         }
+
+        if (!options.recover && runner.getErrorCount() > errorCount0) {
+            throw new RaiseException(runner.getLastError(), true);
+        }
+
         return this;
     }
 
@@ -116,6 +135,16 @@ public class XmlSaxPushParser extends RubyObject {
 
         public void run() {
             parser.parse_with(context, handler);
+        }
+
+        public int getErrorCount() {
+            // check for null because thread may nto have started yet
+            if (parser.getNokogiriHandler() == null) return 0;
+            else return parser.getNokogiriHandler().getErrorCount();
+        }
+
+        public RubyException getLastError() {
+            return (RubyException) parser.getNokogiriHandler().getLastError();
         }
     }
 }

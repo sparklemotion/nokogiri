@@ -48,6 +48,8 @@ public class XmlSaxParserContext extends ParserContext {
 
     protected AbstractSAXParser parser;
 
+    protected NokogiriHandler handler = null;
+
     public XmlSaxParserContext(final Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
         try {
@@ -140,6 +142,10 @@ public class XmlSaxParserContext extends ParserContext {
         parser.setErrorHandler(handler);
     }
 
+    public NokogiriHandler getNokogiriHandler() {
+        return handler;
+    }
+
     /**
      * Perform any initialization prior to parsing with the handler
      * <code>handlerRuby</code>. Convenience hook for subclasses.
@@ -171,7 +177,7 @@ public class XmlSaxParserContext extends ParserContext {
             throw ruby.newArgumentError(msg);
         }
 
-        NokogiriHandler handler = new NokogiriHandler(ruby, handlerRuby);
+        handler = new NokogiriHandler(ruby, handlerRuby);
         preParse(context, handlerRuby, handler);
 
         setContentHandler(handler);
