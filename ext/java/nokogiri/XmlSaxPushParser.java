@@ -10,8 +10,10 @@ import nokogiri.internals.PushInputStream;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyIO;
+import org.jruby.RubyKernel;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
@@ -61,7 +63,12 @@ public class XmlSaxPushParser extends RubyObject {
     @JRubyMethod
     public IRubyObject native_write(ThreadContext context, IRubyObject chunk,
                                     IRubyObject isLast) {
-        byte[] data = chunk.toString().getBytes();
+        byte[] data = null;
+        if (chunk instanceof RubyString || chunk.respondsTo("to_str")) {
+            data = chunk.convertToString().getBytes();
+        } else {
+            throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
+        }
 
         try {
             stream.writeAndWaitForRead(data);
