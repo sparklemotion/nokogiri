@@ -242,10 +242,29 @@ public class XmlDocument extends XmlNode {
                 dtd = XmlDtd.newFromInternalSubset(context.getRuntime(),
                                                    getDocument());
 
-            node.setUserData(DTD_INTERNAL_SUBSET, dtd, null);
+            setInternalSubset(dtd);
         }
 
         return dtd;
+    }
+
+    /**
+     * Assumes XmlNode#internal_subset() has returned nil. (i.e. there
+     * is not already an internal subset).
+     */
+    public IRubyObject createInternalSubset(ThreadContext context,
+                                            IRubyObject name,
+                                            IRubyObject external_id,
+                                            IRubyObject system_id) {
+        XmlDtd dtd = XmlDtd.newEmpty(context.getRuntime(),
+                                     this.getDocument(),
+                                     name, external_id, system_id);
+        setInternalSubset(dtd);
+        return dtd;
+    }
+
+    protected void setInternalSubset(IRubyObject data) {
+        node.setUserData(DTD_INTERNAL_SUBSET, data, null);
     }
 
     public IRubyObject getExternalSubset(ThreadContext context) {
