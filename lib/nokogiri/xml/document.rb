@@ -37,6 +37,7 @@ module Nokogiri
       attr_accessor :errors
 
       def initialize *args
+        @errors     = []
         @decorators = nil
       end
 
@@ -140,8 +141,8 @@ module Nokogiri
 
       undef_method :swap, :parent, :namespace, :default_namespace=
       undef_method :add_namespace_definition, :attributes
-      undef_method :namespace_definitions, :add_namespace
-      undef_method :line if method_defined?(:line)
+      undef_method :namespace_definitions, :line, :add_namespace
+      undef_method :parse, :in_context
 
       def add_child child
         raise "Document already has a root node" if root

@@ -184,7 +184,7 @@ static VALUE attribute_at(VALUE self, VALUE index)
 
   xmlChar * value = xmlTextReaderGetAttributeNo(
       reader,
-      NUM2INT(index)
+      (int)NUM2INT(index)
   );
   if(value == NULL) return Qnil;
 
@@ -297,7 +297,7 @@ static VALUE lang(VALUE self)
  * call-seq:
  *   value
  *
- * Get the text value of the node if present
+ * Get the text value of the node if present. Returns a utf-8 encoded string.
  */
 static VALUE value(VALUE self)
 {
@@ -361,7 +361,7 @@ static VALUE local_name(VALUE self)
  * call-seq:
  *   name
  *
- * Get the name of the node
+ * Get the name of the node. Returns a utf-8 encoded string.
  */
 static VALUE name(VALUE self)
 {
@@ -371,6 +371,22 @@ static VALUE name(VALUE self)
   if(name == NULL) return Qnil;
 
   return NOKOGIRI_STR_NEW2(name);
+}
+
+/*
+ * call-seq:
+ * base_uri
+ *
+ * Get the xml:base of the node
+ */
+static VALUE base_uri(VALUE self)
+{
+  xmlTextReaderPtr reader;
+  Data_Get_Struct(self, xmlTextReader, reader);
+  const char * base_uri = (const char *)xmlTextReaderBaseUri(reader);
+  if (base_uri == NULL) return Qnil;
+
+  return NOKOGIRI_STR_NEW2(base_uri);
 }
 
 /*
@@ -433,18 +449,22 @@ static VALUE read_more(VALUE self)
  *   inner_xml
  *
  * Read the contents of the current node, including child nodes and markup.
+ * Returns a utf-8 encoded string.
  */
 static VALUE inner_xml(VALUE self)
 {
   xmlTextReaderPtr reader;
   Data_Get_Struct(self, xmlTextReader, reader);
 
-  const char * value = (const char *)xmlTextReaderReadInnerXml(reader);
+  xmlChar* value = xmlTextReaderReadInnerXml(reader);
 
-  if(value == NULL)
-    return Qnil;
-  else
-    return NOKOGIRI_STR_NEW2(value);
+  VALUE str = Qnil;
+  if(value) {
+    str = NOKOGIRI_STR_NEW2((char*)value);
+    xmlFree(value);
+  }
+
+  return str;
 }
 
 /*
@@ -452,18 +472,21 @@ static VALUE inner_xml(VALUE self)
  *   outer_xml
  *
  * Read the current node and its contents, including child nodes and markup.
+ * Returns a utf-8 encoded string.
  */
 static VALUE outer_xml(VALUE self)
 {
-  xmlTextReaderPtr reader;
-  Data_Get_Struct(self, xmlTextReader, reader);
+	xmlTextReaderPtr reader;
+	Data_Get_Struct(self, xmlTextReader, reader);
 
-  const char * value = (const char *)xmlTextReaderReadOuterXml(reader);
-
-  if(value == NULL)
-    return Qnil;
-  else
-    return NOKOGIRI_STR_NEW2(value);
+	xmlChar* value = xmlTextReaderReadOuterXml(reader);
+	
+	VALUE str = Qnil;
+	if(value) {
+		str = NOKOGIRI_STR_NEW2((char*)value);
+		xmlFree(value);
+	}
+	return str;
 }
 
 /*
@@ -485,11 +508,11 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
   if (!RTEST(rb_buffer)) rb_raise(rb_eArgError, "string cannot be nil");
   if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
   if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
-  if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
+  if (RTEST(rb_options)) c_options = (int)NUM2INT(rb_options);
 
   xmlTextReaderPtr reader = xmlReaderForMemory(
       StringValuePtr(rb_buffer),
-      RSTRING_LEN(rb_buffer),
+      (int)RSTRING_LEN(rb_buffer),
       c_url,
       c_encoding,
       c_options
@@ -519,14 +542,14 @@ static VALUE from_io(int argc, VALUE *argv, VALUE klass)
 
   const char * c_url      = NULL;
   const char * c_encoding = NULL;
-  int c_options           = 0; 
+  int c_options           = 0;
 
   rb_scan_args(argc, argv, "13", &rb_io, &rb_url, &encoding, &rb_options);
 
   if (!RTEST(rb_io)) rb_raise(rb_eArgError, "io cannot be nil");
   if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
   if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
-  if (RTEST(rb_options)) c_options = NUM2INT(rb_options);
+  if (RTEST(rb_options)) c_options = (int)NUM2INT(rb_options);
 
   xmlTextReaderPtr reader = xmlReaderForIO(
       (xmlInputReadCallback)io_read_callback,
@@ -588,6 +611,7 @@ void init_xml_reader()
   rb_define_method(klass, "attributes?", attributes_eh, 0);
   rb_define_method(klass, "value?", value_eh, 0);
   rb_define_method(klass, "default?", default_eh, 0);
+  rb_define_method(klass, "base_uri", base_uri, 0);
 
   rb_define_private_method(klass, "attr_nodes", attribute_nodes, 0);
 }

@@ -1,3 +1,39 @@
+=== 1.4.1 ２００９年１２月１０日
+
+* 新しい機能
+  * Nokogiri::LIBXML_ICONV_ENABLED を追加
+  * Node#attr は Node#[] のエイリアス定義に変更
+  * XML::Node#next_element を追加
+  * 直接の子ノードを検索するための Node#> を追加
+  * XML::NodeSet#reverse を追加
+  * 以下のfragment supportを追加
+　  Node#add_child
+　  Node#add_next_sibling
+    Node#add_previous_sibling
+ 　 Node#replace
+  * XML::Node#previous_element を追加
+  * nokogiriがRubinius でサポートされるようになった
+  * CSS selector の :has() が使用可能になった
+  * XML::NodeSet#filter() を追加
+  * XML::Node.next= は add_next_sibling の alias へ変更
+  * XML::Node.previous= は add_previous_sibling の alias へ変更
+
+* バグの修正
+  * XMLのフラグメントに名前空間が存在する場合のみ、DocumentFragmentを作る際に、
+    例外が投げられなくなった
+  * DocumentFragment内で子ノードが存在する場合、
+    Node#matches?が機能するようになった　GH #158
+  * Documentは add_namespace()を限定すべきではないので削除GH #169
+  * XPath クエリは名前空間の宣言を変換するがsegvではない。
+  * Node#replace は他のドキュメントのノードが使えるようになった
+  * XML::Document#collect_namespaces を追加
+  * SOAP4R のアダプター内のバグ修正
+  * XML::Node#next_element 内のバグ修正
+  * WindowsでのJRuby の LOAD_PATH を修正 GH #160
+  * XSLT#apply_toは "output method"の値を使用する（richardlehaneに感謝）
+  * 新しい文字列の先頭にくるテキストノードを含んだフレグメントが 正確に
+    解析出来るようになった　GH #178
+
 === 1.4.0 ２００９年１０月３０日
 
 * 今日はノコギリの満一歳のお誕生日です

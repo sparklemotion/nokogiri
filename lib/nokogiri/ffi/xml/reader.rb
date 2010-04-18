@@ -127,6 +127,11 @@ module Nokogiri
         val.null? ? nil : val.read_string
       end
 
+      def base_uri
+        val = LibXML.xmlTextReaderConstBaseUri(cstruct)
+        val.null? ? nil : val.read_string
+      end
+
       def state
         LibXML.xmlTextReaderReadState(cstruct)
       end

@@ -31,7 +31,7 @@ module Nokogiri
         ###
         # Create a new PushParser with +doc+ as the SAX Document, providing
         # an optional +file_name+ and +encoding+
-        def initialize(doc = XML::SAX::Document.new, file_name = nil, encoding = 'ASCII')
+        def initialize(doc = XML::SAX::Document.new, file_name = nil, encoding = 'UTF-8')
           @document = doc
           @encoding = encoding
           @sax_parser = XML::SAX::Parser.new(doc)
@@ -42,7 +42,7 @@ module Nokogiri
 
         ###
         # Write a +chunk+ of XML to the PushParser.  Any callback methods
-        # that can be called will be called immidiately.
+        # that can be called will be called immediately.
         def write chunk, last_chunk = false
           native_write(chunk, last_chunk)
         end

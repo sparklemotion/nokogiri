@@ -194,6 +194,36 @@ module Nokogiri
     #   </root>
     #
     # Note the "foo:object" tag.
+    #
+    # == Document Types
+    #
+    # To create a document type (DTD), access use the Builder#doc method to get
+    # the current context document.  Then call Node#create_internal_subset to
+    # create the DTD node.
+    #
+    # For example, this Ruby:
+    #
+    #   builder = Nokogiri::XML::Builder.new do |xml|
+    #     xml.doc.create_internal_subset(
+    #       'html',
+    #       "-//W3C//DTD HTML 4.01 Transitional//EN",
+    #       "http://www.w3.org/TR/html4/loose.dtd"
+    #     )
+    #     xml.root do
+    #       xml.foo
+    #     end
+    #   end
+    #   
+    #   puts builder.to_xml
+    #
+    # Will output this xml:
+    #
+    #   <?xml version="1.0"?>
+    #   <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+    #   <root>
+    #     <foo/>
+    #   </root>
+    #
     class Builder
       # The current Document object being built
       attr_accessor :doc
@@ -345,14 +375,15 @@ module Nokogiri
       def insert(node, &block)
         node.parent = @parent
         if block_given?
-          @parent = node
+          old_parent = @parent
+          @parent    = node
           @arity ||= block.arity
           if @arity <= 0
             instance_eval(&block)
           else
             block.call(self)
           end
-          @parent = node.parent
+          @parent = old_parent
         end
         NodeBuilder.new(node, self)
       end

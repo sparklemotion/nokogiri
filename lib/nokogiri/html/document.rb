@@ -9,7 +9,7 @@ module Nokogiri
           node['http-equiv'] =~ /Content-Type/i
         }
 
-        /charset\s*=\s*([\w\d-]+)/i.match(meta['content'])[1]
+        /charset\s*=\s*([\w-]+)/i.match(meta['content'])[1]
       end
 
       ###
@@ -68,7 +68,9 @@ module Nokogiri
           yield options if block_given?
 
           if string_or_io.respond_to?(:encoding)
-            encoding ||= string_or_io.encoding.name
+            unless string_or_io.encoding.name == "ASCII-8BIT"
+              encoding ||= string_or_io.encoding.name
+            end
           end
 
           if string_or_io.respond_to?(:read)

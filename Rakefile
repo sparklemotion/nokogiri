@@ -37,9 +37,13 @@ HOE = Hoe.spec 'nokogiri' do
   %w{ racc rexical rake-compiler }.each do |dep|
     self.extra_dev_deps << [dep, '>= 0']
   end
+  self.extra_dev_deps << ["minitest", ">= 1.6.0"]
 
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
+
+  self.testlib = :minitest
 end
+Hoe.add_include_dirs '.'
 
 task :ws_docs do
   title = "#{HOE.name}-#{HOE.version} Documentation"
@@ -172,6 +176,7 @@ namespace :gem do
         HOE.spec.files << GENERATED_TOKENIZER
         HOE.spec.files += Dir["ext/nokogiri/*.dll"]
         HOE.spec.extensions = []
+        HOE.spec.add_dependency 'weakling', '>= 0.0.3'
         f.write(HOE.spec.to_ruby)
       end
     end
@@ -204,15 +209,15 @@ end
 libs = %w{
   iconv-1.9.2.win32
   zlib-1.2.3.win32
-  libxml2-2.7.3.win32
-  libxslt-1.1.24.win32
+  libxml2-2.7.6.win32
+  libxslt-1.1.26.win32
 }
 
 lib_dlls = {
   'iconv-1.9.2.win32'     => 'iconv.dll',
   'zlib-1.2.3.win32'      => 'zlib1.dll',
-  'libxml2-2.7.3.win32'   => 'libxml2.dll',
-  'libxslt-1.1.24.win32'  => 'libxslt.dll',
+  'libxml2-2.7.6.win32'   => 'libxml2.dll',
+  'libxslt-1.1.26.win32'  => 'libxslt.dll',
 }
 
 libs.each do |lib|

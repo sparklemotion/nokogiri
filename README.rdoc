@@ -34,7 +34,8 @@ is available here:
 
   * http://groups.google.com/group/nokogiri-talk
 
-The bug tracker is available here:
+The {bug tracker}[http://github.com/tenderlove/nokogiri/issues]
+is available here:
 
   * http://github.com/tenderlove/nokogiri/issues
 
@@ -44,11 +45,11 @@ The IRC channel is #nokogiri on freenode.
 
   require 'nokogiri'
   require 'open-uri'
-  
+
   # Get a Nokogiri::HTML:Document for the page we’re interested in...
 
   doc = Nokogiri::HTML(open('http://www.google.com/search?q=tenderlove'))
-  
+
   # Do funky things with it using Nokogiri::XML::Node methods...
 
   ####
@@ -56,13 +57,13 @@ The IRC channel is #nokogiri on freenode.
   doc.css('h3.r a.l').each do |link|
     puts link.content
   end
-  
+
   ####
   # Search for nodes by xpath
   doc.xpath('//h3/a[@class="l"]').each do |link|
     puts link.content
   end
-  
+
   ####
   # Or mix and match.
   doc.search('h3.r a.l', '//h3/a[@class="l"]').each do |link|
@@ -78,16 +79,22 @@ The IRC channel is #nokogiri on freenode.
 * libxslt
 * libxslt-dev
 
+== ENCODING:
+
+Strings are always stored as UTF-8 internally.  Methods that return text values
+will always return UTF-8 encoded strings.  Methods that return XML (like to_xml,
+to_html and inner_html) will return a string encoded like the source document.
+
 == INSTALL:
 
 * sudo gem install nokogiri
-
 
 === Binary packages
 
 Binary packages are available for:
 
-  * SuSE[http://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/]
+* SuSE[http://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/]
+* Fedora[https://admin.fedoraproject.org/pkgdb/packages/name/rubygem-nokogiri]
 
 == DEVELOPMENT:
 
@@ -100,7 +107,7 @@ Developing Nokogiri requires racc and rexical.
 
 (The MIT License)
 
-Copyright (c) 2008 - 2009:
+Copyright (c) 2008 - 2010:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]

@@ -12,6 +12,7 @@ static void dealloc(xsltStylesheetPtr doc)
     NOKOGIRI_DEBUG_END(doc);
 }
 
+NORETURN(static void xslt_generic_error_handler(void * ctx, const char *msg, ...));
 static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
 {
   char * message;
@@ -91,10 +92,18 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     xmlDocPtr result ;
     xsltStylesheetPtr ss ;
     const char** params ;
-    int param_len, j ;
+    long param_len, j ;
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
     if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0) ; }
+
+    /* handle hashes as arguments. */
+    if(T_HASH == TYPE(paramobj)) {
+      paramobj = rb_funcall(paramobj, rb_intern("to_a"), 0);
+      paramobj = rb_funcall(paramobj, rb_intern("flatten"), 0);
+    }
+
+    Check_Type(paramobj, T_ARRAY);
 
     Data_Get_Struct(xmldoc, xmlDoc, xml);
     Data_Get_Struct(self, xsltStylesheet, ss);
@@ -124,7 +133,7 @@ void init_xslt_stylesheet()
   VALUE klass = rb_define_class_under(xslt, "Stylesheet", rb_cObject);
 
   cNokogiriXsltStylesheet = klass;
-    
+
   rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
   rb_define_method(klass, "serialize", serialize, 1);
   rb_define_method(klass, "transform", transform, -1);

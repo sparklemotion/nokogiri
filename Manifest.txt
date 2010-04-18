@@ -68,8 +68,6 @@ ext/nokogiri/xml_syntax_error.c
 ext/nokogiri/xml_syntax_error.h
 ext/nokogiri/xml_text.c
 ext/nokogiri/xml_text.h
-ext/nokogiri/xml_xpath.c
-ext/nokogiri/xml_xpath.h
 ext/nokogiri/xml_xpath_context.c
 ext/nokogiri/xml_xpath_context.h
 ext/nokogiri/xslt_stylesheet.c
@@ -122,6 +120,7 @@ lib/nokogiri/ffi/structs/xml_xpath_context.rb
 lib/nokogiri/ffi/structs/xml_xpath_object.rb
 lib/nokogiri/ffi/structs/xml_xpath_parser_context.rb
 lib/nokogiri/ffi/structs/xslt_stylesheet.rb
+lib/nokogiri/ffi/weak_bucket.rb
 lib/nokogiri/ffi/xml/attr.rb
 lib/nokogiri/ffi/xml/attribute_decl.rb
 lib/nokogiri/ffi/xml/cdata.rb
@@ -172,7 +171,6 @@ lib/nokogiri/xml/dtd.rb
 lib/nokogiri/xml/element_content.rb
 lib/nokogiri/xml/element_decl.rb
 lib/nokogiri/xml/entity_decl.rb
-lib/nokogiri/xml/fragment_handler.rb
 lib/nokogiri/xml/namespace.rb
 lib/nokogiri/xml/node.rb
 lib/nokogiri/xml/node/save_options.rb
@@ -192,6 +190,7 @@ lib/nokogiri/xml/sax/parser_context.rb
 lib/nokogiri/xml/sax/push_parser.rb
 lib/nokogiri/xml/schema.rb
 lib/nokogiri/xml/syntax_error.rb
+lib/nokogiri/xml/text.rb
 lib/nokogiri/xml/xpath.rb
 lib/nokogiri/xml/xpath/syntax_error.rb
 lib/nokogiri/xml/xpath_context.rb

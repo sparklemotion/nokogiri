@@ -47,6 +47,44 @@ static VALUE validate_document(VALUE self, VALUE document)
 
 /*
  * call-seq:
+ *  validate_file(filename)
+ *
+ * Validate a file against this Schema.
+ */
+static VALUE validate_file(VALUE self, VALUE rb_filename)
+{
+  xmlSchemaPtr schema;
+  const char *filename ;
+
+  Data_Get_Struct(self, xmlSchema, schema);
+  filename = (const char*)StringValuePtr(rb_filename) ;
+
+  VALUE errors = rb_ary_new();
+
+  xmlSchemaValidCtxtPtr valid_ctxt = xmlSchemaNewValidCtxt(schema);
+
+  if(NULL == valid_ctxt) {
+    // we have a problem
+    rb_raise(rb_eRuntimeError, "Could not create a validation context");
+  }
+
+#ifdef HAVE_XMLSCHEMASETVALIDSTRUCTUREDERRORS
+  xmlSchemaSetValidStructuredErrors(
+    valid_ctxt,
+    Nokogiri_error_array_pusher,
+    (void *)errors
+  );
+#endif
+
+  xmlSchemaValidateFile(valid_ctxt, filename, 0);
+
+  xmlSchemaFreeValidCtxt(valid_ctxt);
+
+  return errors;
+}
+
+/*
+ * call-seq:
  *  read_memory(string)
  *
  * Create a new Schema from the contents of +string+
@@ -56,7 +94,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
 
   xmlSchemaParserCtxtPtr ctx = xmlSchemaNewMemParserCtxt(
       (const char *)StringValuePtr(content),
-      RSTRING_LEN(content)
+      (int)RSTRING_LEN(content)
   );
 
   VALUE errors = rb_ary_new();
@@ -152,5 +190,7 @@ void init_xml_schema()
 
   rb_define_singleton_method(klass, "read_memory", read_memory, 1);
   rb_define_singleton_method(klass, "from_document", from_document, 1);
+
   rb_define_private_method(klass, "validate_document", validate_document, 1);
+  rb_define_private_method(klass, "validate_file",     validate_file, 1);
 }

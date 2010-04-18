@@ -13,6 +13,7 @@ module Nokogiri
       # Create a NodeSet with +document+ defaulting to +list+
       def initialize document, list = []
         @document = document
+        document.decorate(self)
         list.each { |x| self << x }
         yield self if block_given?
       end
@@ -147,6 +148,12 @@ module Nokogiri
       alias :% :at
 
       ###
+      # Filter this list for nodes that match +expr+
+      def filter expr
+        find_all { |node| node.matches?(expr) }
+      end
+
+      ###
       # Append the class attribute +name+ to all Node objects in the NodeSet.
       def add_class name
         each do |el|
@@ -225,7 +232,7 @@ module Nokogiri
       # Wrap this NodeSet with +html+ or the results of the builder in +blk+
       def wrap(html, &blk)
         each do |j|
-          new_parent = Nokogiri.make(html, &blk)
+          new_parent = document.root.parse(html).first
           j.add_next_sibling(new_parent)
           new_parent.add_child(j)
         end

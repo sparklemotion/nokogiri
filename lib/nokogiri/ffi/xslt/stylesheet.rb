@@ -30,6 +30,9 @@ module Nokogiri
       end
 
       def transform(document, params=[]) # :nodoc:
+        params = params.to_a.flatten if params.is_a?(Hash)
+        raise(TypeError) unless params.is_a?(Array)
+
         param_arr = FFI::MemoryPointer.new(:pointer, params.length + 1, false)
 
         # Keep the MemoryPointer instances alive until after the call

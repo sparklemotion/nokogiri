@@ -28,11 +28,12 @@ XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPath
 
 == SUPPORT:
 
-Nokogiriのメーリングリスト:
+日本語でNokogiriの
+{メーリングリスト}[http://groups.google.com/group/nokogiri-list]
 
-  * http://groups.google.com/group/nokogiri-talk
+  * http://groups.google.com/group/nokogiri-list
 
-バグ報告:
+{バグ報告}[http://github.com/tenderlove/nokogiri/issues]
 
   * http://github.com/tenderlove/nokogiri/issues
 
@@ -80,7 +81,7 @@ IRCのチャンネルはfreenodeの #nokogiri です。
 
 (The MIT License)
 
-Copyright (c) 2008 - 2009:
+Copyright (c) 2008 - 2010:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]

@@ -20,9 +20,9 @@ module Nokogiri
           pc = allocate
           pc.cstruct = LibXML::XmlParserContext.new ctx
           if encoding
-            enc = LibXML.xmlParseCharEncoding(encoding)
-            if enc != LibXML::XML_CHAR_ENCODING_ERROR
-              LibXML.xmlSwitchEncoding(ctx, enc)
+            enc = LibXML.xmlFindCharEncodingHandler(encoding)
+            if !enc.null?
+              LibXML.xmlSwitchToEncoding(ctx, enc)
             end
           end
           pc

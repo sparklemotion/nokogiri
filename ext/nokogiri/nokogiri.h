@@ -1,9 +1,21 @@
 #ifndef NOKOGIRI_NATIVE
 #define NOKOGIRI_NATIVE
 
+#ifdef USE_INCLUDED_VASPRINTF
+int vasprintf (char **strp, const char *fmt, va_list ap);
+#else
+
+#define _GNU_SOURCE
+#  include <stdio.h>
+#undef _GNU_SOURCE
+
+#endif
+
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <libxml/parser.h>
+#include <libxml/entities.h>
 #include <libxml/parserInternals.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
@@ -15,16 +27,10 @@
 #include <libxml/relaxng.h>
 #include <ruby.h>
 
-#ifdef USE_INCLUDED_VASPRINTF
-int vasprintf (char **strp, const char *fmt, va_list ap);
+#ifdef HAVE_RUBY_ENCODING_H
+#include <ruby/st.h>
 #else
-
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
-#  include <stdio.h>
-
+#include <st.h>
 #endif
 
 int is_2_6_16(void) ;
@@ -36,6 +42,14 @@ int is_2_6_16(void) ;
 # else
 #  define MAYBE_UNUSED(name) name
 #  define UNUSED(name) name
+# endif
+#endif
+
+#ifndef NORETURN
+# if defined(__GNUC__)
+#  define NORETURN(name) __attribute__((noreturn)) name
+# else
+#  define NORETURN(name) name
 # endif
 #endif
 
@@ -84,7 +98,6 @@ int is_2_6_16(void) ;
 #include <xml_document_fragment.h>
 #include <xml_comment.h>
 #include <xml_node_set.h>
-#include <xml_xpath.h>
 #include <xml_dtd.h>
 #include <xml_attribute_decl.h>
 #include <xml_element_decl.h>
@@ -115,6 +128,12 @@ extern VALUE mNokogiriXslt ;
   ({ \
     nokogiriTuplePtr tuple = (nokogiriTuplePtr)(_node->doc->_private);       \
     st_insert(tuple->unlinkedNodes, (st_data_t)_node, (st_data_t)_node);     \
+  })
+
+#define NOKOGIRI_ROOT_NSDEF(_nsDef, _doc)     \
+  ({ \
+    nokogiriTuplePtr tuple = (nokogiriTuplePtr)(_doc->_private);       \
+    st_insert(tuple->unlinkedNodes, (st_data_t)_nsDef, (st_data_t)_nsDef);     \
   })
 
 #ifdef DEBUG

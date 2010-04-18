@@ -11,6 +11,17 @@ module Nokogiri
 
       def root= new_root
         old_root = nil
+
+        if new_root.nil?
+          old_root_ptr = LibXML.xmlDocGetRootElement(cstruct)
+          if (! old_root_ptr.null?)
+            old_root = Node.wrap(old_root_ptr)
+            LibXML.xmlUnlinkNode(old_root.cstruct)
+            old_root.cstruct.keep_reference_from_document!
+          end
+          return new_root
+        end
+
         if new_root.cstruct[:doc] != cstruct[:doc]
           old_root_ptr = LibXML.xmlDocGetRootElement(cstruct)
           new_root_ptr = LibXML.xmlDocCopyNode(new_root.cstruct, cstruct, 1)
@@ -68,6 +79,22 @@ module Nokogiri
 
       def remove_namespaces!
         self.class.recursively_remove_namespaces_from_node(root)
+      end
+
+      def create_entity(name, entity_type=Nokogiri::XML::EntityDecl::INTERNAL_GENERAL,
+                        external_id=nil, system_id=nil, content=nil)
+        LibXML.xmlResetLastError()
+        ptr = LibXML.xmlAddDocEntity(cstruct, name, entity_type, external_id, system_id, content)
+        if ptr.null?
+          error = LibXML.xmlGetLastError()
+          if error
+            raise SyntaxError.wrap(error)
+          else
+            raise RuntimeError, "Could not create entity"
+          end
+        end
+
+        Node.wrap(LibXML::XmlEntity.new(ptr))
       end
 
       class << self

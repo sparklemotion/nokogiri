@@ -1,11 +1,15 @@
 module Nokogiri
   # The version of Nokogiri you are using
-  VERSION = '1.4.0'
+  VERSION = '1.4.1'
 
   # More complete version information about libxml
   VERSION_INFO = {}
   VERSION_INFO['warnings']              = []
-  VERSION_INFO['nokogiri']              = VERSION
+  VERSION_INFO['nokogiri']              = Nokogiri::VERSION
+  VERSION_INFO['ruby']                  = {}
+  VERSION_INFO['ruby']['version']       = ::RUBY_VERSION
+  VERSION_INFO['ruby']['platform']      = ::RUBY_PLATFORM
+  VERSION_INFO['ruby']['jruby']         = ::JRUBY_VERSION if RUBY_PLATFORM == "java"
   if defined?(LIBXML_VERSION)
     VERSION_INFO['libxml']              = {}
     VERSION_INFO['libxml']['binding']   = 'extension'

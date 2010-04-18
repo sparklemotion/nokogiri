@@ -43,11 +43,7 @@ module Nokogiri
       # Nokogiri::XML::SyntaxError objects found while validating the
       # +thing+ is returned.
       def validate thing
-        return validate_document(thing) if thing.is_a?(Nokogiri::XML::Document)
-
-        # FIXME libxml2 has an api for validating files.  We should switch
-        # to that because it will probably save memory.
-        validate_document(Nokogiri::XML(File.read(thing)))
+        thing.is_a?(Nokogiri::XML::Document) ? validate_document(thing) : validate_file(thing)
       end
 
       ###

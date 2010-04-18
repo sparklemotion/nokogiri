@@ -1,4 +1,56 @@
-=== HEAD
+=== 1.4.2 (TBA)
+
+* New Features
+
+  * XML::Node#parse will parse XML or HTML fragments with respect to the
+    context node.
+  * XML::Node#namespaces returns all namespaces defined in the node and all
+    ancestor nodes
+    (previously did not return ancestors' namespace definitions).
+  * Added Enumerable to XML::Node
+  * Nokogiri::XML::Schema#validate now uses xmlSchemaValidateFile if a
+    filename is passed, which is faster and more memory-efficient. GH #219
+  * XML::Document#create_entity will create new EntityDecl objects. GH #174
+  * JRuby FFI implementation no longer uses ObjectSpace._id2ref,
+    instead using Charles Nutter's rocking Weakling gem.
+  * Nokogiri::XML::Node#first_element_child fetch the first child node that is
+    an ELEMENT node.
+  * Nokogiri::XML::Node#last_element_child fetch the last child node that is
+    an ELEMENT node.
+  * Nokogiri::XML::Node#elements fetch all children nodes that are ELEMENT
+    nodes.
+  * Nokogiri::XML::Node#add_child, #add_previous_sibling, #before,
+    #add_next_sibling, #after, #inner_html, #swap and #replace all now
+    accept a Node, DocumentFragment, or a string containing
+    markup.
+  * Node#fragment? indicates whether a node is a DocumentFragment.
+
+* Bugfixes
+
+  * XML::NodeSet is now always decorated (if the document has decorators).
+    GH #198
+  * XML::NodeSet#slice gracefully handles offset+length larger than the set
+    length. GH #200
+  * XML::Node#content= safely unlinks previous content. GH #203
+  * XML::Node#namespace= takes nil as a parameter
+  * XML::Node#xpath returns things other than NodeSet objects. GH #208
+  * XSLT::StyleSheet#transform accepts hashes for parameters. GH #223
+  * Psuedo selectors inside not() work. GH #205
+  * XML::Builder doesn't break when nodes are unlinked.
+    Thanks to vihai! GH #228
+  * Encoding can be forced on the SAX parser. Thanks Eugene Pimenov! GH #204
+  * XML::DocumentFragment uses XML::Node#parse to determine children.
+  * Fixed a memory leak in xml reader. Thanks sdor! GH #244
+  * Node#replace returns the new child node as claimed in the
+    RDoc. Previously returned +self+.
+
+* Notes
+
+  * The Windows gems now bundle DLLs for libxml 2.7.6 and libxslt
+    1.1.26. Prior to this release, libxml 2.7.3 and libxslt 1.1.24
+    were bundled.
+
+=== 1.4.1 / 2009/12/10
 
 * New Features
 
@@ -12,6 +64,8 @@
   * XML::Node#previous_element implemented
   * Rubinius support
   * Ths CSS selector engine now supports :has()
+  * XML::NodeSet#filter() was added
+  * XML::Node.next= and .previous= are aliases for add_next_sibling and add_previous_sibling. GH #183
 
 * Bugfixes
 
@@ -24,6 +78,8 @@
   * Fixed bugs in the SOAP4R adapter
   * Fixed bug in XML::Node#next_element for certain edge cases
   * Fixed load path issue with JRuby under Windows. GH #160.
+  * XSLT#apply_to will honor the "output method". Thanks richardlehane!
+  * Fragments containing leading text nodes with newlines now parse properly. GH #178.
 
 === 1.4.0 / 2009/10/30
 

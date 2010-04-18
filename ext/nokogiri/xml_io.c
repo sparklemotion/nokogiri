@@ -10,7 +10,7 @@ int io_read_callback(void * ctx, char * buffer, int len) {
 
   memcpy(buffer, StringValuePtr(string), (unsigned int)RSTRING_LEN(string));
 
-  return RSTRING_LEN(string);
+  return (int)RSTRING_LEN(string);
 }
 
 int io_write_callback(void * ctx, char * buffer, int len) {

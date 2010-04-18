@@ -1,6 +1,8 @@
 #include <xml_node_set.h>
 #include <libxml/xpathInternals.h>
 
+static ID decorate ;
+
 /*
  * call-seq:
  *  dup
@@ -14,7 +16,7 @@ static VALUE duplicate(VALUE self)
 
   xmlNodeSetPtr dupl = xmlXPathNodeSetMerge(NULL, node_set);
 
-  return Nokogiri_wrap_xml_node_set(dupl);
+  return Nokogiri_wrap_xml_node_set(dupl, rb_iv_get(self, "@document"));
 }
 
 /*
@@ -98,7 +100,7 @@ static VALUE intersection(VALUE self, VALUE rb_other)
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_other, xmlNodeSet, other);
 
-  return Nokogiri_wrap_xml_node_set(xmlXPathIntersection(node_set, other));
+  return Nokogiri_wrap_xml_node_set(xmlXPathIntersection(node_set, other), rb_iv_get(self, "@document"));
 }
 
 
@@ -145,11 +147,7 @@ static VALUE set_union(VALUE self, VALUE rb_other)
   new = xmlXPathNodeSetMerge(NULL, node_set);
   new = xmlXPathNodeSetMerge(new, other);
 
-  VALUE new_set = Nokogiri_wrap_xml_node_set(new);
-
-  rb_iv_set(new_set, "@document", rb_iv_get(self, "@document"));
-
-  return new_set;
+  return Nokogiri_wrap_xml_node_set(new, rb_iv_get(self, "@document"));
 }
 
 /*
@@ -177,7 +175,7 @@ static VALUE minus(VALUE self, VALUE rb_other)
     xmlXPathNodeSetDel(new, other->nodeTab[j]);
   }
 
-  return Nokogiri_wrap_xml_node_set(new);
+  return Nokogiri_wrap_xml_node_set(new, rb_iv_get(self, "@document"));
 }
 
 
@@ -186,7 +184,7 @@ static VALUE index_at(VALUE self, long offset)
   xmlNodeSetPtr node_set;
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  if(offset >= node_set->nodeNr || abs(offset) > node_set->nodeNr) return Qnil;
+  if(offset >= node_set->nodeNr || abs((int)offset) > node_set->nodeNr) return Qnil;
   if(offset < 0) offset = offset + node_set->nodeNr;
 
   if (XML_NAMESPACE_DECL == node_set->nodeTab[offset]->type)
@@ -196,7 +194,7 @@ static VALUE index_at(VALUE self, long offset)
 
 static VALUE subseq(VALUE self, long beg, long len)
 {
-  int j;
+  long j;
   xmlNodeSetPtr node_set;
   xmlNodeSetPtr new_set ;
 
@@ -205,11 +203,15 @@ static VALUE subseq(VALUE self, long beg, long len)
   if (beg > node_set->nodeNr) return Qnil ;
   if (beg < 0 || len < 0) return Qnil ;
 
+  if ((beg + len) > node_set->nodeNr) {
+    len = node_set->nodeNr - beg ;
+  }
+
   new_set = xmlXPathNodeSetCreate(NULL);
   for (j = beg ; j < beg+len ; ++j) {
-    xmlXPathNodeSetAdd(new_set, node_set->nodeTab[j]);
+    xmlXPathNodeSetAddUnique(new_set, node_set->nodeTab[j]);
   }
-  return Nokogiri_wrap_xml_node_set(new_set);
+  return Nokogiri_wrap_xml_node_set(new_set, rb_iv_get(self, "@document"));
 }
 
 /*
@@ -240,8 +242,6 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
     if (beg < 0) {
       beg += node_set->nodeNr ;
     }
-    if (len > node_set->nodeNr) len = node_set->nodeNr;
-
     return subseq(self, beg, len);
   }
 
@@ -373,12 +373,18 @@ static void deallocate(xmlNodeSetPtr node_set)
 
 static VALUE allocate(VALUE klass)
 {
-  return Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL));
+  return Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL), Qnil);
 }
 
-VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set)
+VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
 {
-  return Data_Wrap_Struct(cNokogiriXmlNodeSet, 0, deallocate, node_set);
+  VALUE new_set ;
+  new_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, 0, deallocate, node_set);
+  if (document != Qnil) {
+    rb_iv_set(new_set, "@document", document);
+    rb_funcall(document, decorate, 1, new_set);
+  }
+  return new_set ;
 }
 
 VALUE cNokogiriXmlNodeSet ;
@@ -402,4 +408,6 @@ void init_xml_node_set(void)
   rb_define_method(klass, "delete", delete, 1);
   rb_define_method(klass, "&", intersection, 1);
   rb_define_method(klass, "include?", include_eh, 1);
+
+  decorate      = rb_intern("decorate");
 }

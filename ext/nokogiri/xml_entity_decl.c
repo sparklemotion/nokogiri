@@ -1,4 +1,4 @@
-#include <xml_entity_decl.h> 
+#include <xml_entity_decl.h>
 
 /*
  * call-seq:
@@ -34,7 +34,7 @@ static VALUE get_content(VALUE self)
 
 /*
  * call-seq:
- *  content
+ *  entity_type
  *
  * Get the entity type
  */
@@ -94,4 +94,17 @@ void init_xml_entity_decl()
   rb_define_method(klass, "entity_type", entity_type, 0);
   rb_define_method(klass, "external_id", external_id, 0);
   rb_define_method(klass, "system_id", system_id, 0);
+
+  rb_const_set(cNokogiriXmlEntityDecl, rb_intern("INTERNAL_GENERAL"),
+      INT2NUM(XML_INTERNAL_GENERAL_ENTITY));
+  rb_const_set(cNokogiriXmlEntityDecl, rb_intern("EXTERNAL_GENERAL_PARSED"),
+      INT2NUM(XML_EXTERNAL_GENERAL_PARSED_ENTITY));
+  rb_const_set(cNokogiriXmlEntityDecl, rb_intern("EXTERNAL_GENERAL_UNPARSED"),
+      INT2NUM(XML_EXTERNAL_GENERAL_UNPARSED_ENTITY));
+  rb_const_set(cNokogiriXmlEntityDecl, rb_intern("INTERNAL_PARAMETER"),
+      INT2NUM(XML_INTERNAL_PARAMETER_ENTITY));
+  rb_const_set(cNokogiriXmlEntityDecl, rb_intern("EXTERNAL_PARAMETER"),
+      INT2NUM(XML_EXTERNAL_PARAMETER_ENTITY));
+  rb_const_set(cNokogiriXmlEntityDecl, rb_intern("INTERNAL_PREDEFINED"),
+      INT2NUM(XML_INTERNAL_PREDEFINED_ENTITY));
 }

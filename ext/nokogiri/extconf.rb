@@ -19,7 +19,7 @@ $LIBS << " #{ENV["LIBS"]}"
 
 if Config::CONFIG['target_os'] == 'mingw32'
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
-elsif Config::CONFIG['target_os'] == 'solaris2'
+elsif Config::CONFIG['target_os'] =~ /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
 else
   $CFLAGS << " -g -DXP_UNIX"
@@ -105,33 +105,17 @@ def nokogiri_find_header header_file, *paths
   end
 end
 
-unless nokogiri_find_header('iconv.h', *HEADER_DIRS)
-  abort "iconv is missing.  try 'port install iconv' or 'yum install iconv'"
+def abort_lib_not_found(lib)
+  abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
 end
 
-unless nokogiri_find_header('libxml/parser.h', *HEADER_DIRS)
-  abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2-devel'"
-end
-
-unless nokogiri_find_header('libxslt/xslt.h', *HEADER_DIRS)
-  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
-end
-
-unless nokogiri_find_header('libexslt/exslt.h', *HEADER_DIRS)
-  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
-end
-
-unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
-  abort "libxml2 is missing.  try 'port install libxml2' or 'yum install libxml2'"
-end
-
-unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
-  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
-end
-
-unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
-  abort "libxslt is missing.  try 'port install libxslt' or 'yum install libxslt-devel'"
-end
+abort_lib_not_found "iconv"    unless nokogiri_find_header('iconv.h', *HEADER_DIRS)
+abort_lib_not_found "libxml2"  unless nokogiri_find_header('libxml/parser.h', *HEADER_DIRS)
+abort_lib_not_found "libxslt"  unless nokogiri_find_header('libxslt/xslt.h', *HEADER_DIRS)
+abort_lib_not_found "libexslt" unless nokogiri_find_header('libexslt/exslt.h', *HEADER_DIRS)
+abort_lib_not_found "libxml2"  unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
+abort_lib_not_found "libxslt"  unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
+abort_lib_not_found "libexslt" unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
 
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')

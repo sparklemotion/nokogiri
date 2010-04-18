@@ -17,6 +17,10 @@ module Nokogiri
         eohtml
       end
 
+      def test_to_a
+        assert_equal [['class', 'bar'], ['href', 'foo']],@html.at('a').to_a.sort
+      end
+
       def test_attr
         node = @html.at('div.baz')
         assert_equal node['class'], node.attr('class')
@@ -135,35 +139,9 @@ module Nokogiri
         assert_equal 'foo&bar&baz', node['href']
       end
 
-
-      def test_before_will_prepend_text_nodes
-        assert node = @html.at('//body').children.first
-        node.before "some text"
-        assert_equal 'some text', @html.at('//body').children[0].content.strip
-      end
-
-      def test_before
-        @html.at('//div').before('<a href="awesome">town</a>')
-        assert_equal 'awesome', @html.at('//div').previous['href']
-      end
-
       def test_fragment_handler_does_not_regurge_on_invalid_attributes
         iframe = %Q{<iframe style="width: 0%; height: 0px" src="http://someurl" allowtransparency></iframe>}
-        assert_nothing_raised { @html.at('div').before(iframe) }
-        assert_nothing_raised { @html.at('div').after(iframe) }
-        assert_nothing_raised { @html.at('div').inner_html=(iframe) }
-      end
-
-      def test_inner_html=
-        assert div = @html.at('//div')
-        div.inner_html = '1<span>2</span>3'
-        assert_equal '1',    div.children[0].to_s
-        assert_equal 'span', div.children[1].name
-        assert_equal '2',    div.children[1].inner_text
-        assert_equal '3',    div.children[2].to_s
-
-        div.inner_html = 'testing'
-        assert_equal 'testing', div.content
+        assert_nothing_raised { @html.at('div').fragment(iframe) }
       end
 
       def test_fragment
@@ -188,17 +166,6 @@ module Nokogiri
         assert_equal "<div>foo</div>", fragment.inner_html
         assert_equal "<div>foo</div>", fragment.to_html
         assert_equal "<div>foo</div>", fragment.to_s
-      end
-
-      def test_after_will_append_text_nodes
-        assert node = @html.at('//body/div')
-        node.after "some text"
-        assert_equal 'some text', node.next.text.strip
-      end
-
-      def test_after
-        @html.at('//div').after('<a href="awesome">town</a>')
-        assert_equal 'awesome', @html.at('//div').next['href']
       end
 
       def test_replace

@@ -1,6 +1,6 @@
 #Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
 $VERBOSE = true
-require 'test/unit'
+require 'minitest/autorun'
 require 'fileutils'
 require 'tempfile'
 require 'pp'
@@ -15,9 +15,8 @@ end
 
 
 module Nokogiri
-  class TestCase < Test::Unit::TestCase
-
-    ASSETS_DIR      = File.expand_path(File.join(File.dirname(__FILE__), 'files'))
+  class TestCase < MiniTest::Spec
+    ASSETS_DIR      = File.expand_path File.join(File.dirname(__FILE__), 'files')
     XML_FILE        = File.join(ASSETS_DIR, 'staff.xml')
     XSLT_FILE       = File.join(ASSETS_DIR, 'staff.xslt')
     EXSLT_FILE      = File.join(ASSETS_DIR, 'exslt.xslt')
@@ -32,10 +31,6 @@ module Nokogiri
     ADDRESS_XML_FILE = File.join(ASSETS_DIR, 'address_book.xml')
     SNUGGLES_FILE   = File.join(ASSETS_DIR, 'snuggles.xml')
 
-    unless RUBY_VERSION >= '1.9'
-      undef :default_test
-    end
-
     def setup
       warn "#{name}" if ENV['TESTOPTS'] == '-v'
     end
@@ -43,7 +38,12 @@ module Nokogiri
     def teardown
       if ENV['NOKOGIRI_GC']
         STDOUT.putc '!'
-        GC.start
+        if RUBY_PLATFORM =~ /java/
+          require 'java'
+          java.lang.System.gc
+        else
+          GC.start
+        end
       end
     end
 
@@ -57,6 +57,47 @@ module Nokogiri
         len = node.content.gsub(/[\r\n]/, '').length
         assert_equal(0, len % amount, message)
       end
+    end
+
+    def util_decorate(document, decorator_module)
+      document.decorators(XML::Node) << decorator_module
+      document.decorators(XML::NodeSet) << decorator_module
+      document.decorate!
+    end
+
+    #
+    #  Test::Unit backwards compatibility section
+    #
+    alias :assert_no_match      :refute_match
+    alias :assert_not_nil       :refute_nil
+    alias :assert_raise         :assert_raises
+    alias :assert_not_equal     :refute_equal
+
+    def assert_nothing_raised(*args)
+      self._assertions += 1
+      if Module === args.last
+        msg = nil
+      else
+        msg = args.pop
+      end
+      begin
+        line = __LINE__; yield
+      rescue Exception => e
+        bt = e.backtrace
+        as = e.instance_of?(MiniTest::Assertion)
+        if as
+          ans = /\A#{Regexp.quote(__FILE__)}:#{line}:in /o
+          bt.reject! {|ln| ans =~ ln}
+        end
+        if ((args.empty? && !as) ||
+            args.any? {|a| a.instance_of?(Module) ? e.is_a?(a) : e.class == a })
+          msg = message(msg) { "Exception raised:\n<#{mu_pp(e)}>" }
+          raise MiniTest::Assertion, msg.call, bt
+        else
+          raise
+        end
+      end
+      nil
     end
   end
 

@@ -33,6 +33,18 @@ module Nokogiri
           node = CDATA.new(@xml, "asdfasdf")
         }
       end
+
+      def test_content=
+        node = CDATA.new(@xml, 'foo')
+        assert_equal('foo', node.content)
+
+        node.content = '& <foo> &amp;'
+        assert_equal('& <foo> &amp;', node.content)
+        assert_equal('<![CDATA[& <foo> &amp;]]>', node.to_xml)
+
+        node.content = 'foo ]]> bar'
+        assert_equal('foo ]]> bar', node.content)
+      end
     end
   end
 end

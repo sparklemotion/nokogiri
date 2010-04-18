@@ -36,14 +36,21 @@ module Nokogiri
         p.null? ? nil : LibXML::XmlDocumentCast.new(p)
       end
 
+      def ruby_node_pointer
+        tuple = self[:_private]
+        tuple.null? ? 0 : tuple.get_long(0)
+      end
+
+      def ruby_node_pointer=(value)
+        self[:_private].put_long(0, value)
+      end
+
       def ruby_doc
-        ptr = self[:_private]
-        return nil if ptr.null?
-        ObjectSpace._id2ref(ptr.get_long(0))
+        Nokogiri::WeakBucket.get_object(self)
       end
 
       def ruby_doc=(object)
-        self[:_private].put_long(0, object.object_id)
+        Nokogiri::WeakBucket.set_object(self, object)
       end
 
       def unlinked_nodes
@@ -78,6 +85,8 @@ module Nokogiri
             case node_cstruct[:type]
             when Nokogiri::XML::Node::ATTRIBUTE_NODE
               LibXML.xmlFreePropList(node_cstruct)
+            when Nokogiri::XML::Node::NAMESPACE_DECL
+              LibXML.xmlFree(node_cstruct)
             else
               LibXML.xmlAddChild(doc, node_cstruct) if node_cstruct[:parent].null?
             end

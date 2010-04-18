@@ -5,9 +5,26 @@ require 'uri'
 module Nokogiri
   module XML
     class TestDocument < Nokogiri::TestCase
+      URI = if URI.const_defined?(:DEFAULT_PARSER)
+              ::URI::DEFAULT_PARSER
+            else
+              ::URI
+            end
+
       def setup
         super
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
+      end
+
+      def test_root_set_to_nil
+        @xml.root = nil
+        assert_equal nil, @xml.root
+      end
+
+      def test_parse_should_not_exist
+        assert_raises(NoMethodError) do
+          @xml.parse("foo")
+        end
       end
 
       def test_collect_namespaces
@@ -472,21 +489,21 @@ module Nokogiri
 
         ctx = Nokogiri::XML::XPathContext.new(doc)
         ctx.register_ns 'tenderlove', 'http://tenderlovemaking.com/'
-        set = ctx.evaluate('//tenderlove:foo').node_set
+        set = ctx.evaluate('//tenderlove:foo')
         assert_equal 1, set.length
         assert_equal 'foo', set.first.name
 
         # It looks like only the URI is important:
         ctx = Nokogiri::XML::XPathContext.new(doc)
         ctx.register_ns 'america', 'http://tenderlovemaking.com/'
-        set = ctx.evaluate('//america:foo').node_set
+        set = ctx.evaluate('//america:foo')
         assert_equal 1, set.length
         assert_equal 'foo', set.first.name
 
         # Its so important that a missing slash will cause it to return nothing
         ctx = Nokogiri::XML::XPathContext.new(doc)
         ctx.register_ns 'america', 'http://tenderlovemaking.com'
-        set = ctx.evaluate('//america:foo').node_set
+        set = ctx.evaluate('//america:foo')
         assert_equal 0, set.length
       end
 
@@ -545,38 +562,6 @@ module Nokogiri
         assert dup.xml?, 'duplicate should be xml'
       end
 
-      def test_subset_is_decorated
-        x = Module.new do
-          def awesome!
-          end
-        end
-        util_decorate(@xml, x)
-
-        assert @xml.respond_to?(:awesome!)
-        assert node_set = @xml.search('//staff')
-        assert node_set.respond_to?(:awesome!)
-        assert subset = node_set.search('.//employee')
-        assert subset.respond_to?(:awesome!)
-        assert sub_subset = node_set.search('.//name')
-        assert sub_subset.respond_to?(:awesome!)
-      end
-
-      def test_decorator_is_applied
-        x = Module.new do
-          def awesome!
-          end
-        end
-        util_decorate(@xml, x)
-
-        assert @xml.respond_to?(:awesome!)
-        assert node_set = @xml.search('//employee')
-        assert node_set.respond_to?(:awesome!)
-        node_set.each do |node|
-          assert node.respond_to?(:awesome!), node.class
-        end
-        assert @xml.root.respond_to?(:awesome!)
-      end
-
       def test_new
         doc = nil
         assert_nothing_raised {
@@ -628,10 +613,37 @@ module Nokogiri
         assert_equal 0, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
       end
 
-      def util_decorate(document, x)
-        document.decorators(XML::Node) << x
-        document.decorators(XML::NodeSet) << x
-        document.decorate!
+      def test_subset_is_decorated
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+
+        assert @xml.respond_to?(:awesome!)
+        assert node_set = @xml.search('//staff')
+        assert node_set.respond_to?(:awesome!)
+        assert subset = node_set.search('.//employee')
+        assert subset.respond_to?(:awesome!)
+        assert sub_subset = node_set.search('.//name')
+        assert sub_subset.respond_to?(:awesome!)
+      end
+
+      def test_decorator_is_applied
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+
+        assert @xml.respond_to?(:awesome!)
+        assert node_set = @xml.search('//employee')
+        assert node_set.respond_to?(:awesome!)
+        node_set.each do |node|
+          assert node.respond_to?(:awesome!), node.class
+        end
+        assert @xml.root.respond_to?(:awesome!)
+        assert @xml.children.respond_to?(:awesome!)
       end
     end
   end

@@ -16,8 +16,9 @@ module Nokogiri
         LibXML::XmlNode.new(self[:node])
       end
 
-      def doc
-        LibXML::XmlDocumentCast.new(self[:doc])
+      def document
+        p = self[:doc]
+        p.null? ? nil : LibXML::XmlDocumentCast.new(p)
       end
     end
 

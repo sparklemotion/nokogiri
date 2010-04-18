@@ -9,6 +9,18 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
+      def test_no_contextual_parsing_on_unlinked_nodes
+        node = @html.css('body').first
+        node.unlink
+        assert_raises(RuntimeError) do
+          node.parse('<br />')
+        end
+      end
+
+      def test_parse_in_context
+        assert_equal('<br>', @html.root.parse('<br />').to_s)
+      end
+
       def test_ancestors_search
         html = %q{
           <div>
@@ -92,9 +104,9 @@ module Nokogiri
       end
 
       def test_html_fragment_case_insensitivity
-        doc = "<crazyDiv>b</crazyDiv>"
+        doc = "<Div>b</Div>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "<crazydiv>b</crazydiv>", fragment.to_s
+        assert_equal "<div>b</div>", fragment.to_s
       end
 
       def test_html_fragment_with_leading_whitespace
@@ -107,6 +119,22 @@ module Nokogiri
         doc = "     \n<div>b</div>  "
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
         assert_equal "<div>b</div>", fragment.to_s
+      end
+
+      def test_html_fragment_with_leading_text_and_newline
+        fragment = HTML::Document.new.fragment("First line\nSecond line<br>Broken line")
+        assert_equal fragment.to_s, "First line\nSecond line<br>Broken line"
+      end
+
+      def test_html_fragment_with_leading_whitespace_and_text_and_newline
+        fragment = HTML::Document.new.fragment("  First line\nSecond line<br>Broken line")
+        assert_equal "First line\nSecond line<br>Broken line", fragment.to_s
+      end
+
+      def test_html_fragment_with_leading_entity
+        failed = "&quot;test<br/>test&quot;"
+        fragment = Nokogiri::HTML::DocumentFragment.parse(failed)
+        assert_equal '"test<br>test"', fragment.to_html
       end
 
       def test_to_s
@@ -151,7 +179,6 @@ module Nokogiri
         assert_equal("<p>hello<!-- your ad here --></p>",
           fragment.to_s)
       end
-
     end
   end
 end

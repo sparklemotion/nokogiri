@@ -38,6 +38,10 @@ module Nokogiri
       def fatal?
         level == 3
       end
+
+      def to_s
+        super.chomp
+      end
     end
   end
 end

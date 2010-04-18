@@ -8,6 +8,14 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_exceptions_remove_newlines
+        errors = @html.errors
+        assert errors.length > 0, 'has errors'
+        errors.each do |error|
+          assert_equal(error.to_s.chomp, error.to_s)
+        end
+      end
+
       def test_fragment
         fragment = @html.fragment
         assert_equal 0, fragment.children.length

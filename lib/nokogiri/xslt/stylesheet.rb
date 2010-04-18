@@ -18,7 +18,7 @@ module Nokogiri
       # +params+ is an array of strings used as XSLT parameters.
       # returns serialized document
       def apply_to document, params = []
-        transform(document, params).to_s
+        serialize(transform(document, params))
       end
     end
   end

@@ -31,7 +31,7 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 
   if(Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
-    size = RSTRING_LEN(_chunk);
+    size = (int)RSTRING_LEN(_chunk);
   }
 
   if(xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
@@ -55,7 +55,7 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
   xmlSAXHandlerPtr sax;
 
   Data_Get_Struct(_xml_sax, xmlSAXHandler, sax);
-  
+
   const char * filename = NULL;
 
   if(_filename != Qnil) filename = StringValuePtr(_filename);

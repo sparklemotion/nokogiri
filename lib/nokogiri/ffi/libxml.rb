@@ -2,7 +2,7 @@
 module Nokogiri
   module LibXML
     extend FFI::Library
-    if RUBY_PLATFORM =~ /java/ && java.lang.System.getProperty('os.name') =~ /windows/i
+    if RUBY_PLATFORM =~ /java/ && RbConfig::CONFIG['host_os'] =~ /(mswin|mingw)/i
       raise(RuntimeError, "Nokogiri requires JRuby 1.4.0 or later on Windows") if JRUBY_VERSION < "1.4.0"
       dll_dir = File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "..", "ext", "nokogiri"))
       libs = ["libxml2.dll", "libxslt.dll", "libexslt.dll"].collect do |lib|
@@ -80,6 +80,7 @@ module Nokogiri
     attach_function :htmlCreateMemoryParserCtxt, [:pointer, :int], :pointer
     attach_function :htmlCreateFileParserCtxt, [:pointer, :pointer], :pointer
     attach_function :htmlParseDocument, [:pointer], :int
+    attach_function :htmlHandleOmittedElem, [:int], :int
 
     # HTMLtree.c
     attach_function :htmlDocDumpMemory, [:pointer, :pointer, :pointer], :void
@@ -101,6 +102,7 @@ module Nokogiri
     attach_function :xmlCreatePushParserCtxt, [:pointer, :pointer, :string, :int, :string], :pointer
     attach_function :xmlParseChunk, [:pointer, :string, :int, :int], :int
     attach_function :xmlCtxtUseOptions, [:pointer, :int], :int
+    attach_function :xmlParseInNodeContext, [:pointer, :string, :int, :int, :pointer], :pointer
 
     # tree.c
     attach_function :xmlNewDoc, [:string], :pointer
@@ -111,6 +113,10 @@ module Nokogiri
     attach_function :xmlFreeDoc, [:pointer], :void
     attach_function :xmlSetTreeDoc, [:pointer, :pointer], :void
     attach_function :xmlNewReference, [:pointer, :string], :pointer
+    attach_function :xmlFirstElementChild, [:pointer], :pointer
+    attach_function :xmlLastElementChild, [:pointer], :pointer
+    attach_function :xmlNextElementSibling, [:pointer], :pointer
+    attach_function :xmlPreviousElementSibling, [:pointer], :pointer
     attach_function :xmlNewNode, [:pointer, :string], :pointer
     attach_function :xmlCopyNode, [:pointer, :int], :pointer
     attach_function :xmlDocCopyNode, [:pointer, :pointer, :int], :pointer
@@ -149,6 +155,8 @@ module Nokogiri
     attach_function :xmlFreePropList, [:pointer], :void
     attach_function :xmlCreateIntSubset, [:pointer] * 4, :pointer
     attach_function :xmlNewDtd, [:pointer] * 4, :pointer
+    attach_function :xmlGetNsList, [:pointer, :pointer], :pointer
+    attach_function :xmlTextMerge, [:pointer, :pointer], :pointer
 
     # valid.c
     attach_function :xmlNewValidCtxt, [], :pointer
@@ -165,6 +173,7 @@ module Nokogiri
 
     # entities.c
     attach_function :xmlEncodeSpecialChars, [:pointer, :string], :pointer # returns char* that must be freed
+    attach_function :xmlAddDocEntity, [:pointer, :string, :int, :string, :string, :string], :pointer
 
     # xpath.c
     attach_function :xmlXPathInit, [], :void
@@ -175,6 +184,7 @@ module Nokogiri
     attach_function :xmlXPathCmpNodes, [:pointer, :pointer], :int
     attach_function :xmlXPathNodeSetContains, [:pointer, :pointer], :int
     attach_function :xmlXPathNodeSetAdd, [:pointer, :pointer], :void
+    attach_function :xmlXPathNodeSetAddUnique, [:pointer, :pointer], :void
     attach_function :xmlXPathNodeSetRemove, [:pointer, :int], :void
     attach_function :xmlXPathNodeSetCreate, [:pointer], :pointer
     attach_function :xmlXPathNodeSetDel, [:pointer, :pointer], :void
@@ -248,6 +258,7 @@ module Nokogiri
     attach_function :xmlTextReaderConstPrefix, [:pointer], :pointer # returns a const char* that is deallocated with the reader
     attach_function :xmlTextReaderConstValue, [:pointer], :pointer # returns a const char* that is deallocated on the next read()
     attach_function :xmlTextReaderConstXmlVersion, [:pointer], :pointer # returns a const char* that is deallocated with the reader
+    attach_function :xmlTextReaderConstBaseUri, [:pointer], :pointer # returns a const char* that is deallocated with the reader
     attach_function :xmlTextReaderReadState, [:pointer], :int
     attach_function :xmlTextReaderHasValue, [:pointer], :int
     attach_function :xmlFreeTextReader, [:pointer], :void
@@ -274,6 +285,7 @@ module Nokogiri
     attach_function :xmlSchemaParse, [:pointer], :pointer
     attach_function :xmlSchemaFreeParserCtxt, [:pointer], :void
     attach_function :xmlSchemaNewDocParserCtxt, [:pointer], :pointer
+    attach_function :xmlSchemaValidateFile, [:pointer, :string, :int], :int
 
     # relaxng.c
     attach_function :xmlRelaxNGNewValidCtxt, [:pointer], :pointer
@@ -285,13 +297,14 @@ module Nokogiri
     attach_function :xmlRelaxNGParse, [:pointer], :pointer
     attach_function :xmlRelaxNGFreeParserCtxt, [:pointer], :void
     attach_function :xmlRelaxNGNewDocParserCtxt, [:pointer], :pointer
+    attach_function :xmlRelaxNGFree, [:pointer], :void
 
     # libc
     attach_function :calloc, [:int, :int], :pointer
     attach_function :free, [:pointer], :void
 
     attach_function :xmlParseCharEncoding, [:string], :int
-    attach_function :xmlSwitchEncoding, [:pointer, :int], :void
+    attach_function :xmlSwitchToEncoding, [:pointer, :pointer], :void
 
     # helpers
     POINTER_SIZE = FFI.type_size(:pointer)
@@ -308,6 +321,7 @@ require 'nokogiri/xml/syntax_error'
 
 [ "io_callbacks",
   "encoding_handler",
+  "weak_bucket",
   "structs/common_node",
   "structs/xml_alloc",
   "structs/xml_char_encoding_handler",

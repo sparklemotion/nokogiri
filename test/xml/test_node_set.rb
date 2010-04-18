@@ -9,6 +9,11 @@ module Nokogiri
         @list = @xml.css('employee')
       end
 
+      def test_filter
+        list = @xml.css('address').filter('*[domestic="Yes"]')
+        assert_equal(%w{ Yes } * 4, list.map { |n| n['domestic'] })
+      end
+
       def test_remove_attr
         @list.each { |x| x['class'] = 'blah' }
         assert_equal @list, @list.remove_attr('class')
@@ -454,6 +459,15 @@ module Nokogiri
         assert_equal employees.length, employees[0, employees.length].length
       end
 
+      def test_slice_waaaaaay_off_the_end
+        xml = Nokogiri::XML::Builder.new {
+          root { 100.times { div } }
+        }.doc
+        nodes = xml.css "div"
+        assert_equal 1, nodes.slice(99,  100_000).length
+        assert_equal 0, nodes.slice(100, 100_000).length
+      end
+
       def test_array_slice_with_start_and_end
         employees = @xml.search("//employee")
         assert_equal [employees[1], employees[2], employees[3]], employees[1,3].to_a
@@ -571,6 +585,64 @@ module Nokogiri
         assert_equal reversed[4], children[0]
 
         assert_equal children, children.reverse.reverse
+      end
+
+      def test_node_set_dup_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set = @xml.css("address")
+        new_set  = node_set.dup
+        assert_equal node_set.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_node_set_union_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set1 = @xml.css("address")
+        node_set2 = @xml.css("address")
+        new_set  = node_set1 | node_set2
+        assert_equal node_set1.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_node_set_intersection_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set1 = @xml.css("address")
+        node_set2 = @xml.css("address")
+        new_set  = node_set1 & node_set2
+        assert_equal node_set1.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_node_set_difference_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set1 = @xml.css("address")
+        node_set2 = @xml.css("address")
+        new_set  = node_set1 - node_set2
+        assert_equal node_set1.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_node_set_slice_result_has_document_and_is_decorated
+        x = Module.new do
+          def awesome! ; end
+        end
+        util_decorate(@xml, x)
+        node_set = @xml.css("address")
+        new_set  = node_set[0..-1]
+        assert_equal node_set.document, new_set.document
+        assert new_set.respond_to?(:awesome!)
       end
     end
   end

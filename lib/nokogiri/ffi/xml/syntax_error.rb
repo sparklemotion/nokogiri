@@ -20,7 +20,7 @@ module Nokogiri
 
       def message
         val = cstruct[:message]
-        val.null? ? nil : val.read_string
+        val.null? ? nil : val.read_string.chomp
       end
       undef_method :inspect
       alias_method :inspect, :message
@@ -54,15 +54,15 @@ module Nokogiri
       end
 
       def str1
-        cstruct[:str1].null? ? nil : cstruct[:str1]
+        cstruct[:str1]
       end
 
       def str2
-        cstruct[:str].null? ? nil : cstruct[:str]
+        cstruct[:str]
       end
 
       def str3
-        cstruct[:str3].null? ? nil : cstruct[:str3]
+        cstruct[:str3]
       end
 
       def int1

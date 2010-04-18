@@ -78,18 +78,14 @@ module Nokogiri
       end
 
       def next_element
-        sibling_ptr = cstruct[:next]
-
-        while ! sibling_ptr.null?
-          sibling_cstruct = LibXML::XmlNode.new(sibling_ptr)
-          break if sibling_cstruct[:type] == ELEMENT_NODE
-          sibling_ptr = sibling_cstruct[:next]
-        end
-
-        return sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
+        sibling_ptr = LibXML.xmlNextElementSibling cstruct
+        sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
       end
 
       def previous_element
+        #
+        #  note that we don't use xmlPreviousElementSibling here because it's buggy pre-2.7.7.
+        #
         sibling_ptr = cstruct[:prev]
 
         while ! sibling_ptr.null?
@@ -102,32 +98,52 @@ module Nokogiri
       end
 
       def replace_node new_node
-        Node.reparent_node_with(new_node, self) do |new_node_cstruct, self_cstruct|
-          retval = LibXML.xmlReplaceNode(self_cstruct, new_node_cstruct)
-          if retval == self_cstruct.pointer
-            new_node_cstruct # for reparent_node_with semantics
-          else
-            retval
+        Node.reparent_node_with(new_node, self) do |cur_struct, old_struct|
+          retval = LibXML.xmlReplaceNode(old_struct, cur_struct)
+          retval = cur_struct                  if retval == old_struct.pointer # for reparent_node_with semantics
+          retval = LibXML::XmlNode.new(retval) if retval.is_a?(FFI::Pointer)
+          if retval[:type] == TEXT_NODE
+            if retval[:prev] && LibXML::XmlNode.new(retval[:prev])[:type] == TEXT_NODE
+              retval = LibXML::XmlNode.new(LibXML.xmlTextMerge(retval[:prev], retval))
+            end
+            if retval[:next] && LibXML::XmlNode.new(retval[:next])[:type] == TEXT_NODE
+              retval = LibXML::XmlNode.new(LibXML.xmlTextMerge(retval, retval[:next]))
+            end
           end
+          retval
         end
-        self
       end
 
       def children
         return NodeSet.new(nil) if cstruct[:children].null?
         child = Node.wrap(cstruct[:children])
 
-        set = NodeSet.new child.document
-        set_ptr = LibXML.xmlXPathNodeSetCreate(child.cstruct)
-
-        set.cstruct = LibXML::XmlNodeSet.new(set_ptr)
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(child.cstruct), self.document)
         return set unless child
 
         child_ptr = child.cstruct[:next]
         while ! child_ptr.null?
           child = Node.wrap(child_ptr)
-          LibXML.xmlXPathNodeSetAdd(set.cstruct, child.cstruct)
+          LibXML.xmlXPathNodeSetAddUnique(set.cstruct, child.cstruct)
           child_ptr = child.cstruct[:next]
+        end
+
+        return set
+      end
+
+      def element_children
+        child = LibXML.xmlFirstElementChild(cstruct)
+        return NodeSet.new(nil) if child.null?
+        child = Node.wrap(child)
+
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(child.cstruct), self.document)
+        return set unless child
+
+        next_sibling = LibXML.xmlNextElementSibling(child.cstruct)
+        while ! next_sibling.null?
+          child = Node.wrap(next_sibling)
+          LibXML.xmlXPathNodeSetAddUnique(set.cstruct, child.cstruct)
+          next_sibling = LibXML.xmlNextElementSibling(child.cstruct)
         end
 
         return set
@@ -135,6 +151,16 @@ module Nokogiri
 
       def child
         (val = cstruct[:children]).null? ? nil : Node.wrap(val)
+      end
+
+      def first_element_child
+        element_child = LibXML.xmlFirstElementChild(cstruct)
+        element_child.null? ? nil : Node.wrap(element_child)
+      end
+
+      def last_element_child
+        element_child = LibXML.xmlLastElementChild(cstruct)
+        element_child.null? ? nil : Node.wrap(element_child)
       end
 
       def key?(attribute)
@@ -162,7 +188,7 @@ module Nokogiri
       end
 
       def set_namespace(namespace)
-        LibXML.xmlSetNs(cstruct, namespace.cstruct)
+        LibXML.xmlSetNs(cstruct, namespace ? namespace.cstruct : nil)
         self
       end
 
@@ -197,11 +223,32 @@ module Nokogiri
         list
       end
 
+      def namespace_scopes
+        ns_list = LibXML.xmlGetNsList(self.cstruct[:doc], self.cstruct)
+        return [] if ns_list.null?
+
+        list = []
+        until (ns_ptr = ns_list.get_pointer(LibXML.pointer_offset(list.length))).null?
+          list << Namespace.wrap(cstruct.document, ns_ptr)
+        end
+
+        LibXML.xmlFree(ns_list)
+        list
+      end
+
       def node_type
         cstruct[:type]
       end
 
       def native_content=(content)
+        child_ptr = cstruct[:children]
+        while ! child_ptr.null?
+          child    = Node.wrap(child_ptr)
+          next_ptr = child.cstruct[:next]
+          LibXML.xmlUnlinkNode(child.cstruct)
+          cstruct.keep_reference_from_document!
+          child_ptr = next_ptr
+        end
         LibXML.xmlNodeSetContent(cstruct, content)
         content
       end
@@ -359,6 +406,29 @@ module Nokogiri
         cstruct.document.ruby_doc
       end
 
+      def in_context(string, options)
+        raise RuntimeError, "no contextual parsing on unlinked nodes" if parent.nil?
+
+        @errors = []
+        LibXML.xmlSetStructuredErrorFunc(nil, SyntaxError.error_array_pusher(@errors))
+        LibXML.htmlHandleOmittedElem(0)
+
+        list_memory = FFI::MemoryPointer.new :pointer
+        LibXML.xmlParseInNodeContext(cstruct, string, string.length, options, list_memory)
+
+        LibXML.htmlHandleOmittedElem(1)
+        LibXML.xmlSetStructuredErrorFunc(nil, nil)
+
+        set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(nil), document)
+        list_ptr = list_memory.get_pointer(0)
+        while ! list_ptr.null?
+          list = Node.wrap(list_ptr)
+          LibXML.xmlXPathNodeSetAddUnique(set.cstruct, list.cstruct)
+          list_ptr = list.cstruct[:next]
+        end
+        set
+      end
+
       class << self
         def node_properties(cstruct)
           attr = []
@@ -424,12 +494,30 @@ module Nokogiri
 
         # Search our parents for an existing definition
         if ! reparented_struct[:nsDef].null?
-          ns = LibXML.xmlSearchNsByHref(
-            reparented_struct[:doc],
-            reparented_struct[:parent],
-            LibXML::XmlNs.new(reparented_struct[:nsDef])[:href]
-            )
-          reparented_struct[:nsDef] = nil unless ns.null?
+          curr = reparented_struct[:nsDef]
+          prev = nil
+
+          while (! curr.null?)
+            curr_ns = LibXML::XmlNs.new(curr)
+            ns = LibXML.xmlSearchNsByHref(
+              reparented_struct[:doc],
+              reparented_struct[:parent],
+              curr_ns[:href]
+              )
+            # If we find the namespace is already declared, remove it from this
+            # definition list.
+            if (! ns.null? && ns != curr)
+              if prev
+                prev[:next] = curr_ns[:next]
+              else
+                reparented_struct[:nsDef] = curr_ns[:next]
+              end
+              curr_ns.keep_reference_from!(reparented_struct.document)
+            else
+              prev = curr_ns
+            end
+            curr = curr_ns[:next]
+          end
         end
 
         # Only walk all children if there actually is a namespace we need to reparent.
@@ -439,7 +527,7 @@ module Nokogiri
         # their namespaces are reparented as well.
         child_ptr = reparented_struct[:children]
         while ! child_ptr.null?
-          child_struct = LibXML::XmlNode.new(child_ptr) 
+          child_struct = LibXML::XmlNode.new(child_ptr)
           relink_namespace child_struct
           child_ptr = child_struct[:next]
         end

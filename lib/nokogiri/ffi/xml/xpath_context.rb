@@ -43,8 +43,24 @@ module Nokogiri
 
         xpath = XML::XPath.new
         xpath.cstruct = LibXML::XmlXpathObject.new(xpath_ptr)
-        xpath.document = cstruct[:doc]
-        xpath
+        xpath.document = cstruct.document.ruby_doc
+
+        case xpath.cstruct[:type]
+        when LibXML::XmlXpathObject::XPATH_NODESET
+          if xpath.cstruct[:nodesetval].null?
+            NodeSet.new(xpath.document)
+          else
+            NodeSet.wrap(xpath.cstruct[:nodesetval], xpath.document)
+          end
+        when LibXML::XmlXpathObject::XPATH_STRING
+          xpath.cstruct[:stringval]
+        when LibXML::XmlXpathObject::XPATH_NUMBER
+          xpath.cstruct[:floatval]
+        when LibXML::XmlXpathObject::XPATH_BOOLEAN
+          0 != xpath.cstruct[:boolval]
+        else
+          NodeSet.new(xpath.document)
+        end
       end
 
       def self.new(node) # :nodoc:
@@ -66,8 +82,8 @@ module Nokogiri
       def ruby_funcall(name, xpath_handler) # :nodoc:
         lambda do |ctx, nargs|
           parser_context = LibXML::XmlXpathParserContext.new(ctx)
-          context = parser_context.context
-          doc = context.doc.ruby_doc
+          context_cstruct = parser_context.context
+          document = context_cstruct.document.ruby_doc
 
           params = []
 
@@ -81,10 +97,7 @@ module Nokogiri
             when LibXML::XmlXpathObject::XPATH_NUMBER
               params.unshift obj[:floatval]
             when LibXML::XmlXpathObject::XPATH_NODESET
-              ns_ptr = LibXML::XmlNodeSet.new(obj[:nodesetval])
-              set = NodeSet.allocate
-              set.cstruct = ns_ptr
-              params.unshift set
+              params.unshift NodeSet.wrap(obj[:nodesetval], document)
             else
               char_ptr = params.unshift LibXML.xmlXPathCastToString(obj)
               string = char_ptr.read_string
@@ -110,7 +123,7 @@ module Nokogiri
           when NilClass.to_s
             ;
           when Array.to_s
-            node_set = XML::NodeSet.new(doc, result)
+            node_set = XML::NodeSet.new(document, result)
             LibXML.xmlXPathReturnNodeSet(
               ctx,
               LibXML.xmlXPathNodeSetMerge(nil, node_set.cstruct)

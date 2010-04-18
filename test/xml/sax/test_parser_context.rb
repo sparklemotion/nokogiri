@@ -55,7 +55,7 @@ module Nokogiri
           xml = "<root />"
           ctx = ParserContext.new xml
           parser = Parser.new Doc.new
-          assert_nil ctx.parse_with parser
+          assert_nil ctx.parse_with(parser)
         end
       end
     end
