@@ -41,9 +41,26 @@ module Nokogiri
         @decorators = nil
       end
 
-      # Create an element with +name+
-      def create_element name, &block
-        Nokogiri::XML::Element.new(name, self, &block)
+      # Create an element with +name+, and possibly setting the attributes.
+      def create_element name, *args, &block
+        elm = Nokogiri::XML::Element.new(name, self, &block)
+        args.each do |arg|
+          case arg
+          when Hash
+            arg.each { |k,v|
+              key = k.to_s
+              if key =~ /^xmlns(:\w+)?$/
+                ns_name = key.split(":", 2)[1]
+                elm.add_namespace_definition ns_name, v
+                next
+              end
+              elm[k.to_s] = v.to_s
+            }
+          else
+            elm.content = arg
+          end
+        end
+        elm
       end
 
       # Create a text node with +text+
