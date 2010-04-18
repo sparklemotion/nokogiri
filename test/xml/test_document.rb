@@ -64,6 +64,23 @@ module Nokogiri
         assert_equal @xml, elm.document
       end
 
+      def test_create_element_with_attributes
+        elm = @xml.create_element('foo',:a => "1")
+        assert_instance_of Nokogiri::XML::Element, elm
+        assert_instance_of Nokogiri::XML::Attr, elm.attributes["a"]
+        assert_equal "1", elm["a"]
+      end
+
+      def test_create_element_with_namespace
+        elm = @xml.create_element('foo',:'xmlns:foo' => 'http://tenderlovemaking.com')
+        assert_equal 'http://tenderlovemaking.com', elm.namespaces['xmlns:foo']
+      end
+
+      def test_create_element_with_content
+        elm = @xml.create_element('foo',"needs more xml/violence")
+        assert_equal "needs more xml/violence", elm.content
+      end
+
       def test_pp
         out = StringIO.new('')
         assert_nothing_raised do

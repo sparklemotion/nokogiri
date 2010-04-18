@@ -341,28 +341,11 @@ module Nokogiri
         if @context && @context.respond_to?(method)
           @context.send(method, *args, &block)
         else
-          node = @doc.create_element(method.to_s.sub(/[_!]$/, '')) { |n|
+          node = @doc.create_element(method.to_s.sub(/[_!]$/, ''),*args) { |n|
             # Set up the namespace
             if @ns
               n.namespace = @ns
               @ns = nil
-            end
-
-            args.each do |arg|
-              case arg
-              when Hash
-                arg.each { |k,v|
-                  key = k.to_s
-                  if key =~ /^xmlns(:\w+)?$/
-                    ns_name = key.split(":", 2)[1]
-                    n.add_namespace_definition ns_name, v
-                    next
-                  end
-                  n[k.to_s] = v.to_s
-                }
-              else
-                n.content = arg
-              end
             end
           }
           insert(node, &block)
