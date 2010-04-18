@@ -677,6 +677,11 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
+    public IRubyObject element_children(ThreadContext context) {
+        throw getRuntime().newNotImplementedError("not implemented");
+    }
+
+    @JRubyMethod
     public IRubyObject compare(ThreadContext context, IRubyObject other) {
         if(!(other instanceof XmlNode)) {
             return context.getRuntime().newFixnum(-2);
