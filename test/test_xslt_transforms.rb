@@ -2,15 +2,11 @@ require "helper"
 
 class TestXsltTransforms < Nokogiri::TestCase
 
-<<<<<<< HEAD:test/test_xslt_transforms.rb
-  unless Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO['libxml']['loaded'] < '2.6.16'
-=======
   def setup
     @doc = Nokogiri::XML(File.open(XML_FILE))
   end
 
-  if Nokogiri::VERSION_INFO['libxml']['loaded'] > '2.6.16'
->>>>>>> master:test/test_xslt_transforms.rb
+  if Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO['libxml']['loaded'] > '2.6.16'
 
     def test_class_methods
       style = Nokogiri::XSLT(File.read(XSLT_FILE))
@@ -99,14 +95,8 @@ encoding="iso-8859-1" indent="yes"/>
       assert result_doc.html?
       assert_equal "Booyah", result_doc.at_css("h1").content
 
-<<<<<<< HEAD:test/test_xslt_transforms.rb
-      assert result_string = style.apply_to(doc, ['title', '"Booyah"'])
-      
-      assert_equal result_string, result_doc.to_s
-=======
       assert result_string = style.apply_to(@doc, ['title', '"Booyah"'])
       assert_equal result_string, style.serialize(result_doc)
->>>>>>> master:test/test_xslt_transforms.rb
     end
 
     def test_transform_with_quote_params
@@ -169,7 +159,7 @@ encoding="iso-8859-1" indent="yes"/>
             Nokogiri::XSLT.quote_params(params.to_a.flatten)))
         check_params result_doc, params
       end
-    end
+     end
 
     def test_xslt_parse_error
       xslt_str = <<-EOX
