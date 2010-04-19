@@ -81,6 +81,12 @@ module Nokogiri
         assert_equal "needs more xml/violence", elm.content
       end
 
+      def test_create_cdata
+        cdata = @xml.create_cdata("abc")
+        assert_instance_of Nokogiri::XML::CDATA, cdata
+        assert_equal "abc", cdata.content
+      end
+
       def test_pp
         out = StringIO.new('')
         assert_nothing_raised do
