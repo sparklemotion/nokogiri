@@ -930,6 +930,11 @@ public class XmlNode extends RubyObject {
         return (RubyArray) this.namespace_definitions;
     }
 
+    @JRubyMethod
+    public IRubyObject namespace_scopes(ThreadContext context) {
+        throw getRuntime().newNotImplementedError("not implemented");
+    }
+
     @JRubyMethod(name="namespaced_key?")
     public IRubyObject namespaced_key_p(ThreadContext context, IRubyObject elementLName, IRubyObject namespaceUri) {
         return this.attribute_with_ns(context, elementLName, namespaceUri).isNil() ?
