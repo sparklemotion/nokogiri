@@ -305,8 +305,7 @@ module Nokogiri
       ###
       # Create a CDATA Node with content of +string+
       def cdata string
-        node = Nokogiri::XML::CDATA.new(@doc, string.to_s)
-        insert(node)
+        insert(doc.create_cdata(string))
       end
 
       ###

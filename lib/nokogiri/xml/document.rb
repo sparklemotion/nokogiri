@@ -68,6 +68,10 @@ module Nokogiri
         Nokogiri::XML::Text.new(text.to_s, self, &block)
       end
 
+      def create_cdata(string)
+        Nokogiri::XML::CDATA.new(self, string.to_s)
+      end
+
       # The name of this document.  Always returns "document"
       def name
         'document'
