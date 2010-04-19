@@ -4,17 +4,20 @@ import java.util.Set;
 
 import nokogiri.internals.NokogiriNamespaceContext;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import nokogiri.internals.NokogiriXPathFunctionResolver;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyException;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.NodeList;
 
 public class XmlXpathContext extends RubyObject {
     private XmlNode context;
@@ -47,12 +50,31 @@ public class XmlXpathContext extends RubyObject {
                 xpath.setXPathFunctionResolver(new NokogiriXPathFunctionResolver(handler));
             }
             XPathExpression xpathExpression = xpath.compile(src);
-            return new XmlXpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
+            return node_set(context, xpathExpression);
+            //return new XmlXpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
         } catch (XPathExpressionException xpee) {
-            throw new RaiseException(XmlSyntaxError.getXPathSyntaxError(context, xpee));
+            RubyException e =
+                XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
+            throw new RaiseException(e);
         }
     }
-    
+
+    protected IRubyObject node_set(ThreadContext rbctx, XPathExpression xpath) {
+        try {
+            NodeList nodes = (NodeList) xpath.evaluate(context.getNode(),
+                                                       XPathConstants.NODESET);
+            XmlNodeSet result = new XmlNodeSet(getRuntime(), nodes);
+//            result.relink_namespace(context);
+            result.setInstanceVariable("@document",
+                                       context.document(rbctx));
+            return result;
+        } catch (XPathExpressionException xpee) {
+            RubyException e =
+                XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
+            throw new RaiseException(e);
+        }
+    }
+
     private boolean isContainsPrefix(String str) {
         Set<String> prefixes = ((NokogiriNamespaceContext)xpath.getNamespaceContext()).getAllPrefixes();
         for (String prefix : prefixes) {

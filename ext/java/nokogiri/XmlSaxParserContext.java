@@ -219,7 +219,7 @@ public class XmlSaxParserContext extends ParserContext {
 
         postParse(context, handlerRuby, handler);
 
-        maybeTrimLeadingAndTrailingWhitespace(context, handlerRuby);
+        //maybeTrimLeadingAndTrailingWhitespace(context, handlerRuby);
 
         return ruby.getNil();
     }

@@ -62,17 +62,18 @@ public class XmlSyntaxError extends RubyException {
         setInstanceVariable("@file", stringOrNil(ruby, e.getSystemId()));
     }
 
-    public static RubyException getXPathSyntaxError(ThreadContext context) {
-        Ruby ruby = context.getRuntime();
-        RubyClass klazz = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
-        return new XmlSyntaxError(ruby, klazz);
+    public static RubyException createXPathSyntaxError(Ruby runtime,
+                                                       Exception e) {
+        RubyClass klazz = (RubyClass)
+            runtime.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
+        return new XmlSyntaxError(runtime, klazz, e);
     }
 
-    public static RubyException getXPathSyntaxError(ThreadContext context, Exception ex) {
-        Ruby ruby = context.getRuntime();
-        RubyClass klazz = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
-        return new XmlSyntaxError(ruby, klazz, ex);
-    }
+    // public static RubyException getXPathSyntaxError(ThreadContext context, Exception ex) {
+    //     Ruby ruby = context.getRuntime();
+    //     RubyClass klazz = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
+    //     return new XmlSyntaxError(ruby, klazz, ex);
+    // }
 
     //TODO: Return correct message, domain, etc.
 

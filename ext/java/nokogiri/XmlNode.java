@@ -1070,6 +1070,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject set_namespace(ThreadContext context, IRubyObject namespace) {
+        if (namespace.isNil()) return this;
         //setNamespace(namespace);
         XmlNamespace ns = (XmlNamespace) namespace;
         String prefix = ns.prefix(context).convertToString().asJavaString();

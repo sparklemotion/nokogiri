@@ -55,7 +55,6 @@ public class NokogiriService implements BasicLibraryService{
         init_xml_syntax_error(ruby, xml, nokogiri);
         RubyClass text = init_xml_text(ruby, xml, char_data, node);
         init_xml_cdata(ruby, xml, text);
-        init_xml_xpath(ruby, xml);
         init_xml_xpath_context(ruby, xml);
         init_xslt_stylesheet(ruby, nokogiri);
     }
@@ -254,12 +253,6 @@ public class NokogiriService implements BasicLibraryService{
         return text;
     }
 
-    public static void init_xml_xpath(Ruby ruby, RubyModule xml) {
-        RubyClass xpathContext = xml.defineClassUnder("XPath", ruby.getObject(), XML_XPATH_ALLOCATOR);
-
-        xpathContext.defineAnnotatedMethods(XmlXpath.class);
-    }
-
     public static void init_xml_xpath_context(Ruby ruby, RubyModule xml) {
         RubyClass xpathContext = xml.defineClassUnder("XPathContext", ruby.getObject(), XML_XPATHCONTEXT_ALLOCATOR);
 
@@ -441,12 +434,6 @@ public class NokogiriService implements BasicLibraryService{
     private static ObjectAllocator XML_TEXT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             return new XmlText(runtime, klazz);
-        }
-    };
-
-    private static ObjectAllocator XML_XPATH_ALLOCATOR = new ObjectAllocator() {
-        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw new UnsupportedOperationException("Not supported yet.");
         }
     };
 
