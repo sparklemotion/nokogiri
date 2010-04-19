@@ -930,9 +930,24 @@ public class XmlNode extends RubyObject {
         return (RubyArray) this.namespace_definitions;
     }
 
+    /**
+     * Return an array of XmlNamespace nodes defined on this node and
+     * on any ancestor node.
+     */
     @JRubyMethod
     public IRubyObject namespace_scopes(ThreadContext context) {
-        throw getRuntime().newNotImplementedError("not implemented");
+        RubyArray parentNamespaces;
+        RubyArray namespaces = (RubyArray) namespace_definitions(context);
+
+        IRubyObject parent = parent(context);
+        if (!parent.isNil()) {
+            parentNamespaces = (RubyArray)
+                ((XmlNode) parent).namespace_scopes(context);
+        } else {
+            parentNamespaces = getRuntime().newEmptyArray();
+        }
+
+        return parentNamespaces.op_plus(namespaces);
     }
 
     @JRubyMethod(name="namespaced_key?")
@@ -1030,7 +1045,8 @@ public class XmlNode extends RubyObject {
          * Check if this node is the root node of the document.
          * If so, parent is the document.
          */
-        if(node.getOwnerDocument().getDocumentElement() == node) {
+        if (node.getOwnerDocument() != null &&
+            node.getOwnerDocument().getDocumentElement() == node) {
             return document(context);
         } else {
             return fromNodeOrCreate(context, node.getParentNode());
