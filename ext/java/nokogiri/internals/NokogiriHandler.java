@@ -88,7 +88,7 @@ public class NokogiriHandler extends DefaultHandler2
         RubyArray rubyNSAttr = RubyArray.newArray(ruby);
 
         ThreadContext context = ruby.getCurrentContext();
-        boolean fromFragmentHandler = isFromFragmentHandler();
+        boolean fromFragmentHandler = false; // isFromFragmentHandler();
         
         for (int i = 0; i < attrs.getLength(); i++) {
             String u = attrs.getURI(i);

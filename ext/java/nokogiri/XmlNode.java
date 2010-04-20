@@ -14,15 +14,18 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import nokogiri.internals.HtmlDomParserContext;
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.SaveContext;
+import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
@@ -723,14 +726,20 @@ public class XmlNode extends RubyObject {
     public IRubyObject in_context(ThreadContext context,
                                   IRubyObject str,
                                   IRubyObject options) {
-        IRubyObject classXmlDoc =
-            getRuntime().getClassFromPath("Nokogiri::XML::Document");
+        RubyModule klass;
+        XmlDomParserContext ctx;
 
-        IRubyObject[] args =
-            new IRubyObject[] { str, getRuntime().getNil(), null, options };
-        XmlDocument doc = (XmlDocument)
-            XmlDocument.newFromData(context, classXmlDoc, args);
-        return doc.root(context);
+        if (document(context) instanceof HtmlDocument) {
+            klass = getRuntime().getClassFromPath("Nokogiri::HTML::Document");
+            ctx = new HtmlDomParserContext(getRuntime(), options);
+            ((HtmlDomParserContext)ctx).enableDocumentFragment();
+        } else {
+            klass = getRuntime().getClassFromPath("Nokogiri::XML::Document");
+            ctx = new XmlDomParserContext(getRuntime(), options);
+        }
+
+        ctx.setInputSource(context, str);
+        return ctx.parse(context, klass, getRuntime().getNil()).root(context);
     }
 
     @JRubyMethod

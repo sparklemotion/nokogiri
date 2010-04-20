@@ -31,6 +31,8 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 public class HtmlDomParserContext extends XmlDomParserContext {
     protected static final String PROPERTY_FILTERS =
         "http://cyberneko.org/html/properties/filters";
+    protected static final String FEATURE_DOCUMENT_FRAGMENT =
+        "http://cyberneko.org/html/features/balance-tags/document-fragment";
 
     public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         super(runtime, options);
@@ -54,6 +56,14 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         parser = new DOMParser(config);
         setFeature("http://xml.org/sax/features/namespaces", false);
         setProperty(PROPERTY_FILTERS, filters);
+    }
+
+    /**
+     * Enable NekoHTML feature for balancing tags in a document
+     * fragment.
+     */
+    public void enableDocumentFragment() {
+        setFeature(FEATURE_DOCUMENT_FRAGMENT, true);
     }
 
     @Override

@@ -100,19 +100,19 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
     protected void preParse(ThreadContext context,
                              IRubyObject handlerRuby,
                              NokogiriHandler handler) {
-        final String path = "Nokogiri::XML::FragmentHandler";
-        final String docFrag =
-            "http://cyberneko.org/html/features/balance-tags/document-fragment";
-        RubyObjectAdapter adapter = JavaEmbedUtils.newObjectAdapter();
-        IRubyObject doc = adapter.getInstanceVariable(handlerRuby, "@document");
-        RubyModule mod =
-            context.getRuntime().getClassFromPath(path);
-        try {
-            if (doc != null && !doc.isNil() && adapter.isKindOf(doc, mod))
-                parser.setFeature(docFrag, true);
-        } catch (Exception e) {
-            // ignore
-        }
+        // final String path = "Nokogiri::XML::FragmentHandler";
+        // final String docFrag =
+        //     "http://cyberneko.org/html/features/balance-tags/document-fragment";
+        // RubyObjectAdapter adapter = JavaEmbedUtils.newObjectAdapter();
+        // IRubyObject doc = adapter.getInstanceVariable(handlerRuby, "@document");
+        // RubyModule mod =
+        //     context.getRuntime().getClassFromPath(path);
+        // try {
+        //     if (doc != null && !doc.isNil() && adapter.isKindOf(doc, mod))
+        //         parser.setFeature(docFrag, true);
+        // } catch (Exception e) {
+        //     // ignore
+        // }
     }
 
 }
