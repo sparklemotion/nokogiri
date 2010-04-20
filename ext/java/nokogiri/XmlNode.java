@@ -711,6 +711,28 @@ public class XmlNode extends RubyObject {
         }
     }
 
+    /**
+     * TODO: this is a stub implementation.  It's not clear what
+     * 'in_context' is supposed to do.  Also should take
+     * <code>options</code> into account.
+     *
+     * This should really return a NodeSet because it's parsing
+     * document fragments.
+     */
+    @JRubyMethod(visibility=Visibility.PRIVATE)
+    public IRubyObject in_context(ThreadContext context,
+                                  IRubyObject str,
+                                  IRubyObject options) {
+        IRubyObject classXmlDoc =
+            getRuntime().getClassFromPath("Nokogiri::XML::Document");
+
+        IRubyObject[] args =
+            new IRubyObject[] { str, getRuntime().getNil(), null, options };
+        XmlDocument doc = (XmlDocument)
+            XmlDocument.newFromData(context, classXmlDoc, args);
+        return doc.root(context);
+    }
+
     @JRubyMethod
     public IRubyObject content(ThreadContext context) {
         if(this.content == null) {
