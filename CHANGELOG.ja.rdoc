@@ -1,3 +1,48 @@
+=== 1.4.2
+
+* 新しい機能
+
+  * XML::Node#parse　定義されたコンテキストノードで、XML 又はHTMLのフレグメント
+    を解析する
+  * XML::Node#namespacesが子ノードとその祖先ノード内で定義された全ての名前空間
+    を返すようになった（以前は祖先ノードの名前空間は返されなかった）
+  * XML::Node内にEnumerableを追加
+  * Nokogiri::XML::Schema#validate　与えられたファイル名が引き渡された時、
+    Nokogiri::XML::Schema#validateはxmlSchemaValidateFileを使用する
+   （時間短縮化とメモリーの能率化の理由を基にファイル名での引き渡しメソッドを
+    採用） GH #219
+  * XML::Document#create_entnty は新規のEntityDecl のオブジェクトを生成する
+    GH #174
+  * JRuby FFI implementationでは、従来まで使用されたObjectSpace._id2refの代わり
+    にCharles Nutterのrocking   Weakling gemを使用に変更
+  * Nokogiri::XML::Node#first_element_child は一番最初のELEMENT子ノードを返す
+  * Nokogiri::XML::Node#last_element_child は最後のELEMENT子ノードを返す
+  * Nokogiri::XML::Node#elements は全てのELEMENT子ノードを返す
+
+* バグの修正
+
+  * ドキュメント内にデコレータがある場合、XML::NodeSet は常にデコレータされる GH #198
+  * XML::NodeSet#slice がノードセットよりも長いoffset+lengthを問題なく処理する
+    GH #200
+  * XML::Node#content=はノードとその直前に記述されている内容を支障なく切り離す
+    GH  #203
+  * XML::Node#namespace= はnilを一つのパラメーターと扱って取得する
+  * XML::Node#xpath はNodeSetのオブジェクト以外のオブジェクトを返す　GH #208
+  * XSLT::StyleSheet#transformはパラメーターのハッシュを受け入れる　GH #223
+  * CSSのnot()の疑似セレクタの修正　 GH #205
+  * XML::Builder  はノード達が切り離されても破壊しない（vihaiの協力に感謝）
+    GH #228
+  * SAX parser経由でエンコードを強制することが出来る　 Eugene Pimenovに感謝!
+    GH #204
+  * XML::DocumentFragment はML::Node#parse を使用して子供を限定する
+  * XML Reader内のメモリリークを修正　 sdorさん、ありがとう! GH#244
+
+* ノート
+
+  * 今日４月１８日現在、Windows gems は libxml 2.7.6 とlibxslt
+    1.1.26にDLLsを正規装備しています。このリリース以前にも既にDLLsはlibxml
+    2.7.3 と libxslt 1.1.24に正規装備されています。
+
 === 1.4.1 ２００９年１２月１０日
 
 * 新しい機能
