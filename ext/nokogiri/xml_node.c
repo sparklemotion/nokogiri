@@ -116,6 +116,7 @@ static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func
 
   if(node->type == XML_TEXT_NODE) {
     NOKOGIRI_ROOT_NODE(node);
+    xmlUnlinkNode(node);
     node = xmlDocCopyNode(node, other->doc, 1);
   }
 
