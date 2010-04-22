@@ -1,6 +1,6 @@
 module Nokogiri
   module XML
-    ####
+    ##
     # Nokogiri::XML::Document is the main entry point for dealing with
     # XML documents.  The Document is created by parsing an XML document.
     # See Nokogiri.XML()
@@ -8,7 +8,7 @@ module Nokogiri
     # For searching a Document, see Nokogiri::XML::Node#css and
     # Nokogiri::XML::Node#xpath
     class Document < Node
-      ###
+      ##
       # Parse an XML file.  +thing+ may be a String, or any object that
       # responds to _read_ and _close_ such as an IO, or StringIO.
       # +url+ is resource where this document is located.  +encoding+ is the
@@ -41,7 +41,15 @@ module Nokogiri
         @decorators = nil
       end
 
-      # Create an element with +name+, and possibly setting the attributes.
+      ##
+      # Create an element with +name+, and optionally setting the content and attributes.
+      #
+      #   doc.create_element "div" # <div></div>
+      #   doc.create_element "div", :class => "container" # <div class='container'></div>
+      #   doc.create_element "div", "contents" # <div>contents</div>
+      #   doc.create_element "div", "contents", :class => "container" # <div class='container'>contents</div>
+      #   doc.create_element "div" { |node| node['class'] = "container" } # <div class='container'></div>
+      #
       def create_element name, *args, &block
         elm = Nokogiri::XML::Element.new(name, self, &block)
         args.each do |arg|
@@ -68,7 +76,8 @@ module Nokogiri
         Nokogiri::XML::Text.new(text.to_s, self, &block)
       end
 
-      def create_cdata(string)
+      # Create a CDATA element containing +text+
+      def create_cdata text
         Nokogiri::XML::CDATA.new(self, string.to_s)
       end
 
@@ -82,7 +91,7 @@ module Nokogiri
         self
       end
 
-      ###
+      ##
       # Recursively get all namespaces from this node and its subtree and
       # return them as a hash.
       #
@@ -116,7 +125,7 @@ module Nokogiri
         @decorators[key] ||= []
       end
 
-      ###
+      ##
       # Validate this Document against it's DTD.  Returns a list of errors on
       # the document or +nil+ when there is no DTD.
       def validate
@@ -124,7 +133,7 @@ module Nokogiri
         internal_subset.validate self
       end
 
-      ###
+      ##
       # Explore a document with shortcut methods.
       def slop!
         unless decorators(XML::Node).include? Nokogiri::Decorators::Slop
@@ -135,7 +144,7 @@ module Nokogiri
         self
       end
 
-      ###
+      ##
       # Apply any decorators to +node+
       def decorate node
         return unless @decorators
@@ -153,7 +162,7 @@ module Nokogiri
         root ? root.namespaces : {}
       end
 
-      ####
+      ##
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       # Returns an empty fragment if +tags+ is nil.
       def fragment tags = nil
