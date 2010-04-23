@@ -32,6 +32,6 @@ module Nokogiri
   end
 
   def self.is_2_6_16? # :nodoc:
-    Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
+    Nokogiri::VERSION_INFO['ruby']['platform'] !~ /java/ && Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
   end
 end
