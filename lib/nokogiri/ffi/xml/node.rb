@@ -98,9 +98,9 @@ module Nokogiri
       end
 
       def replace_node new_node
-        Node.reparent_node_with(new_node, self) do |cur_struct, old_struct|
-          retval = LibXML.xmlReplaceNode(old_struct, cur_struct)
-          retval = cur_struct                  if retval == old_struct.pointer # for reparent_node_with semantics
+        Node.reparent_node_with(self, new_node) do |pivot_struct, reparentee_struct|
+          retval = LibXML.xmlReplaceNode(pivot_struct, reparentee_struct)
+          retval = reparentee_struct if retval == pivot_struct.pointer # for reparent_node_with semantics
           retval = LibXML::XmlNode.new(retval) if retval.is_a?(FFI::Pointer)
           if retval[:type] == TEXT_NODE
             if retval[:prev] && LibXML::XmlNode.new(retval[:prev])[:type] == TEXT_NODE
@@ -262,8 +262,8 @@ module Nokogiri
       end
 
       def add_child_node child
-        Node.reparent_node_with(child, self) do |child_cstruct, my_cstruct|
-          LibXML.xmlAddChild(my_cstruct, child_cstruct)
+        Node.reparent_node_with(self, child) do |pivot_struct, reparentee_struct|
+          LibXML.xmlAddChild(pivot_struct, reparentee_struct)
         end
       end
 
@@ -288,14 +288,14 @@ module Nokogiri
       end
 
       def add_next_sibling_node next_sibling
-        Node.reparent_node_with(next_sibling, self) do |sibling_cstruct, my_cstruct|
-          LibXML.xmlAddNextSibling(my_cstruct, sibling_cstruct)
+        Node.reparent_node_with(self, next_sibling) do |pivot_struct, reparentee_struct|
+          LibXML.xmlAddNextSibling(pivot_struct, reparentee_struct)
         end
       end
 
       def add_previous_sibling_node prev_sibling
-        Node.reparent_node_with(prev_sibling, self) do |sibling_cstruct, my_cstruct|
-          LibXML.xmlAddPrevSibling(my_cstruct, sibling_cstruct)
+        Node.reparent_node_with(self, prev_sibling) do |pivot_struct, reparentee_struct|
+          LibXML.xmlAddPrevSibling(pivot_struct, reparentee_struct)
         end
       end
 
@@ -444,38 +444,31 @@ module Nokogiri
 
       private
 
-      def self.reparent_node_with(node, other, &block)
-        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(Nokogiri::XML::Node)
-        raise(ArgumentError, "cannot reparent a document node") if node.node_type == DOCUMENT_NODE || node.node_type == HTML_DOCUMENT_NODE
+      def self.reparent_node_with(pivot, reparentee, &block)
+        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless reparentee.is_a?(Nokogiri::XML::Node)
+        raise(ArgumentError, "cannot reparent a document node") if reparentee.node_type == DOCUMENT_NODE || reparentee.node_type == HTML_DOCUMENT_NODE
 
-        if node.type == TEXT_NODE
-          node.cstruct.keep_reference_from_document!
-          node.cstruct = LibXML::XmlNode.new(LibXML.xmlDocCopyNode(node.cstruct, other.cstruct.document, 1))
+        pivot_struct = pivot.cstruct
+        reparentee_struct = reparentee.cstruct
+
+        LibXML.xmlUnlinkNode(reparentee_struct)
+
+        if reparentee_struct[:doc] != pivot_struct[:doc] || reparentee_struct[:type] == TEXT_NODE
+          reparentee_struct.keep_reference_from_document!
+          reparentee_struct = LibXML.xmlDocCopyNode(reparentee_struct, pivot_struct.document, 1)
+          raise(RuntimeError, "Could not reparent node (xmlDocCopyNode)") unless reparentee_struct
+          reparentee_struct = LibXML::XmlNode.new(reparentee_struct)
         end
 
-        if node.cstruct[:doc] == other.cstruct[:doc]
-          LibXML.xmlUnlinkNode(node.cstruct)
-          if node.type == TEXT_NODE && other.type == TEXT_NODE && Nokogiri.is_2_6_16?
-            other.cstruct.pointer.put_pointer(other.cstruct.offset_of(:content), LibXML.xmlStrdup(other.cstruct[:content]))
-          end
-          reparented_struct = block.call(node.cstruct, other.cstruct)
-          raise(RuntimeError, "Could not reparent node (1)") unless reparented_struct
-        else
-          duped_node = LibXML.xmlDocCopyNode(node.cstruct, other.cstruct.document, 1)
-          raise(RuntimeError, "Could not reparent node (xmlDocCopyNode)") unless duped_node
-          reparented_struct = block.call(duped_node, other.cstruct)
-          raise(RuntimeError, "Could not reparent node (2)") unless reparented_struct
-          LibXML.xmlUnlinkNode(node.cstruct)
-          node.cstruct.keep_reference_from_document!
+        if reparentee_struct[:type] == TEXT_NODE && pivot_struct[:type] == TEXT_NODE && Nokogiri.is_2_6_16?
+          pivot_struct.pointer.put_pointer(pivot_struct.offset_of(:content), LibXML.xmlStrdup(pivot_struct[:content]))
         end
+
+        reparented_struct = block.call(pivot_struct, reparentee_struct)
+        raise(RuntimeError, "Could not reparent node") unless reparented_struct
 
         reparented_struct = LibXML::XmlNode.new(reparented_struct) if reparented_struct.is_a?(FFI::Pointer)
-
-        # the child was a text node that was coalesced. we need to have the object
-        # point at SOMETHING, or we'll totally bomb out.
-        if reparented_struct != node.cstruct
-          node.cstruct = reparented_struct
-        end
+        reparentee.cstruct = reparented_struct
 
         relink_namespace reparented_struct
 
