@@ -31,6 +31,10 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 public class HtmlDomParserContext extends XmlDomParserContext {
     protected static final String PROPERTY_FILTERS =
         "http://cyberneko.org/html/properties/filters";
+    protected static final String PROPERTY_ELEM_NAMES =
+        "http://cyberneko.org/html/properties/names/elems";
+    protected static final String PROPERTY_ATTRS_NAMES =
+        "http://cyberneko.org/html/properties/names/attrs";
     protected static final String FEATURE_DOCUMENT_FRAGMENT =
         "http://cyberneko.org/html/features/balance-tags/document-fragment";
 
@@ -45,10 +49,8 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     @Override
     protected void initParser(Ruby runtime) {
         XMLParserConfiguration config = new HTMLConfiguration();
-        config.setProperty("http://cyberneko.org/html/properties/names/elems",
-                           "lower");
-        config.setProperty("http://cyberneko.org/html/properties/names/attrs",
-                           "lower");
+        config.setProperty(PROPERTY_ELEM_NAMES, "lower");
+        config.setProperty(PROPERTY_ATTRS_NAMES, "lower");
 
         XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
         XMLDocumentFilter[] filters = { removeNSAttrsFilter };
