@@ -1,25 +1,31 @@
 module Nokogiri
   module XML
     class DocumentFragment < Nokogiri::XML::Node
-      def initialize document, tags = nil, ctx = document.root
+      ##
+      #  Create a new DocumentFragment from +tags+.
+      #
+      #  If +ctx+ is present, it is used as a context node for the
+      #  subtree created, e.g., namespaces will be resolved relative
+      #  to +ctx+.
+      def initialize document, tags = nil, ctx = nil
         return self unless tags
 
-        has_root = document.root
-        unless ctx
-          ctx = document.root = Nokogiri::XML::Element.new('div', document)
-        end
-
-        if document.html?
-          ctx.parse("<div>#{tags.strip}</div>").first.children.each do |tag|
-            tag.parent = self
-          end
-        else
-          ctx.parse(tags.strip).each do |tag|
-            tag.parent = self
-          end
-        end
-
-        document.root = nil unless has_root
+        children = if ctx
+                     if document.html?
+                       ctx.parse("<div>#{tags.strip}</div>").first.children
+                     else
+                       ctx.parse(tags.strip)
+                     end
+                   else
+                     if document.html?
+                       Nokogiri::HTML::Document.parse("<html><body>#{tags.strip}</body></html>") \
+                                               .xpath("/html/body/node()")
+                     else
+                       Nokogiri::XML::Document.parse("<root>#{tags.strip}</root>") \
+                                              .xpath("/root/node()")
+                     end
+                   end
+        children.each { |child| child.parent = self }
       end
 
       ###
