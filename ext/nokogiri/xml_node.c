@@ -114,48 +114,48 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
   if(XML_DOCUMENT_NODE == reparentee->type || XML_HTML_DOCUMENT_NODE == reparentee->type)
     rb_raise(rb_eArgError, "cannot reparent a document node");
 
-  if(reparentee->type == XML_TEXT_NODE) {
+  xmlUnlinkNode(reparentee);
+
+  if (reparentee->doc != pivot->doc || reparentee->type == XML_TEXT_NODE) {
+    /*
+     *  if the reparentee is a text node, there's a very good chance it will be
+     *  merged with an adjacent text node after being reparented, and in that case
+     *  libxml will free the underlying C struct.
+     *
+     *  since we clearly have a ruby object which references the underlying
+     *  memory, we can't let the C struct get freed. let's pickle the original
+     *  reparentee by rooting it; and then we'll reparent a duplicate of the
+     *  node that we don't care about preserving.
+     *
+     *  alternatively, if the reparentee is from a different document than the
+     *  pivot node, libxml2 is going to get confused about which document's
+     *  "dictionary" the node's strings belong to (this is an otherwise
+     *  uninteresting libxml2 implementation detail). as a result, we cannot
+     *  reparent the actual reparentee, so we reparent a duplicate.
+     */
     NOKOGIRI_ROOT_NODE(reparentee);
-    xmlUnlinkNode(reparentee);
-    reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1);
-  }
-
-  if (reparentee->doc == pivot->doc) {
-    xmlUnlinkNode(reparentee) ;
-
-    // TODO: I really want to remove this.  We shouldn't support 2.6.16 anymore
-    if ( reparentee->type == XML_TEXT_NODE
-         && pivot->type == XML_TEXT_NODE
-         && is_2_6_16() ) {
-
-      // we'd rather leak than segfault.
-      pivot->content = xmlStrdup(pivot->content);
-
-    }
-
-    if(!(reparented = (*prf)(pivot, reparentee))) {
-      rb_raise(rb_eRuntimeError, "Could not reparent node (%s:%d)", __FILE__, __LINE__);
-    }
-  } else {
-    xmlNodePtr duped_reparentee ;
-    // recursively copy to the new document
-    if (!(duped_reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
+    if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
-    if(!(reparented = (*prf)(pivot, duped_reparentee))) {
-      rb_raise(rb_eRuntimeError, "Could not reparent node (%s:%d)", __FILE__, __LINE__);
-    }
-    xmlUnlinkNode(reparentee);
-    NOKOGIRI_ROOT_NODE(reparentee);
   }
 
-  // the child was a text node that was coalesced. we need to have the object
-  // point at SOMETHING, or we'll totally bomb out.
-  if (reparented != reparentee) {
-    DATA_PTR(reparentee_obj) = reparented ;
+  // TODO: I really want to remove this.  We shouldn't support 2.6.16 anymore
+  if ( reparentee->type == XML_TEXT_NODE && pivot->type == XML_TEXT_NODE && is_2_6_16() ) {
+    // work around a string-handling bug in libxml 2.6.16. we'd rather leak than segfault.
+    pivot->content = xmlStrdup(pivot->content);
   }
 
-  // Appropriately link in namespaces
+  if(!(reparented = (*prf)(pivot, reparentee))) {
+    rb_raise(rb_eRuntimeError, "Could not reparent node");
+  }
+
+  /*
+   *  make sure the ruby object is pointed at the just-reparented node, which
+   *  might be a duplicate (see above) or might be the result of merging
+   *  adjacent text nodes.
+   */
+  DATA_PTR(reparentee_obj) = reparented ;
+
   relink_namespace(reparented);
 
   reparented_obj = Nokogiri_wrap_xml_node(Qnil, reparented);
