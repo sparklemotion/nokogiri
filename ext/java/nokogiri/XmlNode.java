@@ -718,9 +718,6 @@ public class XmlNode extends RubyObject {
      * TODO: this is a stub implementation.  It's not clear what
      * 'in_context' is supposed to do.  Also should take
      * <code>options</code> into account.
-     *
-     * This should really return a NodeSet because it's parsing
-     * document fragments.
      */
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject in_context(ThreadContext context,
@@ -739,7 +736,10 @@ public class XmlNode extends RubyObject {
         }
 
         ctx.setInputSource(context, str);
-        return ctx.parse(context, klass, getRuntime().getNil()).root(context);
+        XmlDocument doc = ctx.parse(context, klass, getRuntime().getNil());
+            XmlNodeSet nodes = new XmlNodeSet(getRuntime(),
+                                              doc.getNode().getChildNodes());
+        return nodes;
     }
 
     @JRubyMethod
