@@ -68,18 +68,6 @@ module Nokogiri
         assert_equal 'a', desc.name
       end
 
-      def test_add_next_sibling_with_empty_nodeset
-        assert_raises(ArgumentError) {
-          @html.at('a').add_next_sibling(@html.at('head').children)
-        }
-      end
-
-      def test_add_next_sibling_with_non_empty_nodeset
-        assert_raises(ArgumentError) {
-          @html.at('head').add_next_sibling(@html.at('div').children)
-        }
-      end
-
       def test_ancestors_with_selector
         assert node = @html.at('a.bar').child
         assert list = node.ancestors('.baz')
@@ -166,22 +154,6 @@ module Nokogiri
         assert_equal "<div>foo</div>", fragment.inner_html
         assert_equal "<div>foo</div>", fragment.to_html
         assert_equal "<div>foo</div>", fragment.to_s
-      end
-
-      def test_replace
-        doc = Nokogiri::HTML(<<-eohtml)
-          <html>
-            <head></head>
-            <body>
-              <center><img src='logo.gif' /></center>
-            </body>
-          </html>
-        eohtml
-        center = doc.at("//center")
-        img = center.search("//img")
-        assert_raises ArgumentError do
-          center.replace img
-        end
       end
 
       def test_to_html_does_not_contain_entities

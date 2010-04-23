@@ -21,7 +21,7 @@
     nodes.
   * Nokogiri::XML::Node#add_child, #add_previous_sibling, #before,
     #add_next_sibling, #after, #inner_html, #swap and #replace all now
-    accept a Node, DocumentFragment, or a string containing
+    accept a Node, DocumentFragment, NodeSet, or a string containing
     markup.
   * Node#fragment? indicates whether a node is a DocumentFragment.
 
