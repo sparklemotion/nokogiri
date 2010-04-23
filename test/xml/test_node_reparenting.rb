@@ -72,6 +72,7 @@ module Nokogiri
             @doc2 = @doc.dup
             @fragment_string = "<b1>foo</b1><b2>bar</b2>"
             @fragment        = Nokogiri::XML::DocumentFragment.parse @fragment_string
+            @node_set        = Nokogiri::XML("<root><b1>foo</b1><b2>bar</b2></root>").xpath("/root/node()")
           end
 
           describe "##{method}" do
@@ -124,6 +125,12 @@ module Nokogiri
             describe "passed a non-Node" do
               it "raises an exception" do
                 proc { @doc.at_xpath("/root/a1").send(method, 42) }.must_raise(ArgumentError)
+              end
+            end
+            describe "passed a NodeSet" do
+              it "inserts each member of the NodeSet in the proper order" do
+                @doc.at_xpath(params[:target]).send(method, @node_set)
+                @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
               end
             end
           end
