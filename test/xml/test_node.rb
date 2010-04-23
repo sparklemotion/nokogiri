@@ -82,6 +82,14 @@ module Nokogiri
         assert_equal 0, list.length
       end
 
+      # descriptive, not prescriptive.
+      def test_parse_invalid_html_markup_results_in_empty_nodeset
+        doc = Nokogiri::HTML("<html></html>")
+        nodeset = doc.root.parse "<div><div>a</div><snippet>b</snippet></div>"
+        assert_equal 1, doc.errors.length # "Tag snippet invalid"
+        assert_equal 0, nodeset.length
+      end
+
       def test_parse_error_list
         error_count = @xml.errors.length
         list = @xml.root.parse('<hello>')

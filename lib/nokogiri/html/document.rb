@@ -49,7 +49,7 @@ module Nokogiri
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       def fragment tags = nil
-        DocumentFragment.new(self, tags)
+        DocumentFragment.new(self, tags, self.root)
       end
 
       class << self
