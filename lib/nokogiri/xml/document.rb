@@ -78,7 +78,7 @@ module Nokogiri
 
       # Create a CDATA element containing +text+
       def create_cdata text
-        Nokogiri::XML::CDATA.new(self, string.to_s)
+        Nokogiri::XML::CDATA.new(self, text.to_s)
       end
 
       # The name of this document.  Always returns "document"
