@@ -166,7 +166,7 @@ module Nokogiri
       # Create a Nokogiri::XML::DocumentFragment from +tags+
       # Returns an empty fragment if +tags+ is nil.
       def fragment tags = nil
-        DocumentFragment.new(self, tags)
+        DocumentFragment.new(self, tags, self.root)
       end
 
       undef_method :swap, :parent, :namespace, :default_namespace=
