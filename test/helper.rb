@@ -26,10 +26,6 @@ module Nokogiri
     ADDRESS_XML_FILE = File.join(ASSETS_DIR, 'address_book.xml')
     SNUGGLES_FILE   = File.join(ASSETS_DIR, 'snuggles.xml')
 
-    def setup
-      warn "#{name}" if ENV['TESTOPTS'] == '-v'
-    end
-
     def teardown
       if ENV['NOKOGIRI_GC']
         STDOUT.putc '!'
