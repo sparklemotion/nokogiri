@@ -232,15 +232,13 @@ module Nokogiri
 
       ###
       # Add +node_or_tags+ as a child of this Node.
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
       # Returns the new child node.
       def add_child node_or_tags
         node_or_tags = coerce(node_or_tags)
-        if node_or_tags.fragment?
-          node_or_tags.children.each do |child|
-            add_child_node child
-          end
+        if node_or_tags.is_a?(XML::NodeSet)
+          node_or_tags.each { |n| add_child_node n }
         else
           add_child_node node_or_tags
         end
@@ -248,17 +246,15 @@ module Nokogiri
 
       ###
       # Insert +node_or_tags+ before this Node (as a sibling).
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
       # Returns the new sibling node.
       #
       # Also see related method +before+.
       def add_previous_sibling node_or_tags
         node_or_tags = coerce(node_or_tags)
-        if node_or_tags.fragment?
-          node_or_tags.children.each do |child|
-            add_previous_sibling_node child
-          end
+        if node_or_tags.is_a?(XML::NodeSet)
+          node_or_tags.each { |n| add_previous_sibling_node n }
         else
           add_previous_sibling_node node_or_tags
         end
@@ -266,17 +262,15 @@ module Nokogiri
 
       ###
       # Insert +node_or_tags+ after this Node (as a sibling).
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
       # Returns the new sibling node.
       #
       # Also see related method +after+.
       def add_next_sibling node_or_tags
         node_or_tags = coerce(node_or_tags)
-        if node_or_tags.fragment?
-          node_or_tags.children.reverse_each do |child|
-            add_next_sibling_node child
-          end
+        if node_or_tags.is_a?(XML::NodeSet)
+          node_or_tags.reverse_each { |n| add_next_sibling_node n }
         else
           add_next_sibling_node node_or_tags
         end
@@ -284,7 +278,7 @@ module Nokogiri
 
       ####
       # Insert +node_or_tags+ before this node (as a sibling).
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
       # Returns self, to support chaining of calls.
       #
@@ -314,10 +308,8 @@ module Nokogiri
       def inner_html= node_or_tags
         node_or_tags = coerce(node_or_tags)
         children.unlink
-        if node_or_tags.fragment?
-          node_or_tags.children.to_a.each do |node|
-            add_child node
-          end
+        if node_or_tags.is_a?(XML::NodeSet)
+          node_or_tags.each { |n| add_child_node n }
         else
           add_child node_or_tags
         end
@@ -326,17 +318,15 @@ module Nokogiri
 
       ####
       # Replace this Node with +node_or_tags+.
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
       # Returns the new child node.
       #
       # Also see related method +swap+.
       def replace node_or_tags
         node_or_tags = coerce(node_or_tags)
-        if node_or_tags.fragment?
-          node_or_tags.children.each do |child|
-            add_previous_sibling child
-          end
+        if node_or_tags.is_a?(XML::NodeSet)
+          node_or_tags.each { |n| add_previous_sibling n }
           unlink
         else
           replace_node node_or_tags
@@ -345,7 +335,7 @@ module Nokogiri
 
       ####
       # Swap this Node for +node_or_tags+
-      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
       # Returns self, to support chaining of calls.
       #
@@ -774,12 +764,15 @@ module Nokogiri
       end
 
       private
-      def coerce(data)
-        return fragment(data) if data.is_a?(String)
+
+      def coerce(data) # :nodoc:
+        return data                    if data.is_a?(XML::NodeSet)
+        return data.children           if data.is_a?(XML::DocumentFragment)
+        return fragment(data).children if data.is_a?(String)
 
         if data.is_a?(Document) || !data.is_a?(XML::Node)
           raise ArgumentError, <<-EOERR
-Requires a Node argument, and cannot accept a Document.
+Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
 (You probably want to select a node from the Document with at() or search(), or create a new Node via Node.new().)
           EOERR
         end
