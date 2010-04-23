@@ -371,11 +371,12 @@ static VALUE create_entity(int argc, VALUE *argv, VALUE self)
   xmlResetLastError();
   xmlEntityPtr ptr = xmlAddDocEntity(
       doc,
-      (xmlChar *)NIL_P(name) ? NULL : StringValuePtr(name),
-      (int)NIL_P(type) ? XML_INTERNAL_GENERAL_ENTITY : NUM2INT(type),
-      (xmlChar *)NIL_P(external_id) ? NULL : StringValuePtr(external_id),
-      (xmlChar *)NIL_P(system_id)   ? NULL : StringValuePtr(system_id),
-      (xmlChar *)NIL_P(content)     ? NULL : StringValuePtr(content));
+      (xmlChar *)(NIL_P(name)        ? NULL                        : StringValuePtr(name)),
+      (int)      (NIL_P(type)        ? XML_INTERNAL_GENERAL_ENTITY : NUM2INT(type)),
+      (xmlChar *)(NIL_P(external_id) ? NULL                        : StringValuePtr(external_id)),
+      (xmlChar *)(NIL_P(system_id)   ? NULL                        : StringValuePtr(system_id)),
+      (xmlChar *)(NIL_P(content)     ? NULL                        : StringValuePtr(content))
+    );
 
   if(NULL == ptr) {
     xmlErrorPtr error = xmlGetLastError();
@@ -387,7 +388,7 @@ static VALUE create_entity(int argc, VALUE *argv, VALUE self)
     return Qnil;
   }
 
-  return Nokogiri_wrap_xml_node(cNokogiriXmlEntityDecl, ptr);
+  return Nokogiri_wrap_xml_node(cNokogiriXmlEntityDecl, (xmlNodePtr)ptr);
 }
 
 VALUE cNokogiriXmlDocument ;
