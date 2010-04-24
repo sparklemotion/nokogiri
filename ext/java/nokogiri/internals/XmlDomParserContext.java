@@ -54,12 +54,12 @@ public class XmlDomParserContext extends ParserContext {
         }
 
         initParser(runtime);
+
+        parser.setErrorHandler(this.errorHandler);
     }
 
     protected void initParser(Ruby runtime) {
         parser = new XmlDomParser();
-
-        parser.setErrorHandler(this.errorHandler);
 
         if (options.noBlanks) {
             setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);

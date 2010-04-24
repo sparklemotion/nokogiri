@@ -37,6 +37,8 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         "http://cyberneko.org/html/properties/names/attrs";
     protected static final String FEATURE_DOCUMENT_FRAGMENT =
         "http://cyberneko.org/html/features/balance-tags/document-fragment";
+    protected static final String FEATURE_REPORT_ERRORS =
+        "http://cyberneko.org/html/features/report-errors";
 
     public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         super(runtime, options);
@@ -49,13 +51,15 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     @Override
     protected void initParser(Ruby runtime) {
         XMLParserConfiguration config = new HTMLConfiguration();
-        config.setProperty(PROPERTY_ELEM_NAMES, "lower");
-        config.setProperty(PROPERTY_ATTRS_NAMES, "lower");
-
         XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
         XMLDocumentFilter[] filters = { removeNSAttrsFilter };
 
+        config.setErrorHandler(this.errorHandler);
         parser = new DOMParser(config);
+
+        setProperty(PROPERTY_ELEM_NAMES, "lower");
+        setProperty(PROPERTY_ATTRS_NAMES, "lower");
+        setFeature(FEATURE_REPORT_ERRORS, true);
         setFeature("http://xml.org/sax/features/namespaces", false);
         setProperty(PROPERTY_FILTERS, filters);
     }

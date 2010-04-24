@@ -190,6 +190,7 @@ public class NokogiriHandler extends DefaultHandler2
 
     @Override
     public void warning(SAXParseException saxpe) {
+        //System.out.println("warning: " + saxpe);
         call("warning", ruby.newString(saxpe.getMessage()));
     }
 
