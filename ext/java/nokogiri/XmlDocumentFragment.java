@@ -53,7 +53,7 @@ public class XmlDocumentFragment extends XmlNode {
 //        return rbNew(context, cls, argc);
 //    }
 
-    @JRubyMethod(name="new", meta = true, required=1, optional=1)
+    @JRubyMethod(name="new", meta = true, required=1, optional=2)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] argc) {
         
         if(argc.length < 1) {
