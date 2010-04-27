@@ -5,12 +5,14 @@ import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.SaveContext;
 import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.RubyNil;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
@@ -199,6 +201,11 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod(name="root=")
     public IRubyObject root_set(ThreadContext context, IRubyObject newRoot_) {
+        // in case of document fragment, temporary root node should be deleted.
+        if (newRoot_ instanceof RubyNil) {
+            getDocument().getDocumentElement().setUserData(NokogiriUserDataHandler.VALID_ROOT_NODE , false, null);
+            return newRoot_;
+        }
         XmlNode newRoot = asXmlNode(context, newRoot_);
 
         IRubyObject root = root(context);

@@ -17,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import nokogiri.internals.HtmlDomParserContext;
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
+import nokogiri.internals.NokogiriNamespaceContext;
 import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.SaveContext;
 import nokogiri.internals.XmlDomParserContext;
@@ -1279,6 +1280,11 @@ public class XmlNode extends RubyObject {
 
     protected void adoptAsChild(ThreadContext context, Node parent,
                                 Node otherNode) {
+        if (hasTemporaryRoot(parent, otherNode)) {
+            adoptRealChildrenAsChild(context, parent, otherNode);
+            return;
+        }
+        
         /*
          * This is a bit of a hack.  C-Nokogiri allows adding a bare
          * text node as the root element.  Java (and XML spec?) does
@@ -1293,6 +1299,27 @@ public class XmlNode extends RubyObject {
 
         parent.appendChild(otherNode);
     }
+    
+    private boolean hasTemporaryRoot(Node parent, Node child) {
+        if (parent.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE
+                && child.getNodeName().equals(NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG)) {
+            return true;
+        }
+        return false;
+    }
+    
+    private void adoptRealChildrenAsChild(ThreadContext context, Node parent, Node otherNode) {
+        NodeList children = otherNode.getChildNodes();
+        int length = children.getLength();
+        Node[] nodes = new Node[length];
+        for (int i=0; i < length; i++) {
+            nodes[i] = children.item(i).cloneNode(true);
+        }
+        for (int i=0; i < length; i++) {
+            parent.appendChild(nodes[i]);
+        }
+    }
+
 
 
     protected void adoptAsPrevSibling(ThreadContext context,

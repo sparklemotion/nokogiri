@@ -12,6 +12,7 @@ import org.w3c.dom.UserDataHandler;
 public class NokogiriUserDataHandler implements UserDataHandler {
 
     public static final String CACHED_NODE = "NOKOGIRI_CACHED_NODE";
+    public static final String VALID_ROOT_NODE = "NOKOGIRI_VALIDE_ROOT_NODE";
 
     protected Ruby ruby;
 
