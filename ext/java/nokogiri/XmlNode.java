@@ -1275,7 +1275,7 @@ public class XmlNode extends RubyObject {
         relink_namespace(context);
         // post_add_child(context, this, other);
 
-        return this;
+        return other;
     }
 
     protected void adoptAsChild(ThreadContext context, Node parent,
