@@ -1,6 +1,11 @@
 #ifndef NOKOGIRI_NATIVE
 #define NOKOGIRI_NATIVE
 
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <stdarg.h>
+
 #ifdef USE_INCLUDED_VASPRINTF
 int vasprintf (char **strp, const char *fmt, va_list ap);
 #else
@@ -11,9 +16,6 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 #include <libxml/parser.h>
 #include <libxml/entities.h>
 #include <libxml/parserInternals.h>
