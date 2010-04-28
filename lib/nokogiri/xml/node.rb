@@ -417,7 +417,8 @@ module Nokogiri
       # Create a DocumentFragment containing +tags+ that is relative to _this_
       # context node.
       def fragment tags
-        Nokogiri::XML::DocumentFragment.new(document, tags, self)
+        type = document.html? ? Nokogiri::HTML : Nokogiri::XML
+        type::DocumentFragment.new(document, tags, self)
       end
 
       ###
