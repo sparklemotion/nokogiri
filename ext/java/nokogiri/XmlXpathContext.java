@@ -1,18 +1,25 @@
 package nokogiri;
 
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import nokogiri.internals.NokogiriNamespaceContext;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
+import nokogiri.internals.NokogiriNamespaceContext;
 import nokogiri.internals.NokogiriXPathFunctionResolver;
+
 import org.jruby.Ruby;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
+import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
@@ -60,19 +67,40 @@ public class XmlXpathContext extends RubyObject {
     }
 
     protected IRubyObject node_set(ThreadContext rbctx, XPathExpression xpath) {
-        try {
-            NodeList nodes = (NodeList) xpath.evaluate(context.getNode(),
-                                                       XPathConstants.NODESET);
-            XmlNodeSet result = new XmlNodeSet(getRuntime(), nodes);
+        XmlNodeSet result = null;
+        try {  
+            result = tryGetNodeSet(xpath);
 //            result.relink_namespace(context);
-            result.setInstanceVariable("@document",
-                                       context.document(rbctx));
+            result.setInstanceVariable("@document", context.document(rbctx));
             return result;
         } catch (XPathExpressionException xpee) {
-            RubyException e =
-                XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
-            throw new RaiseException(e);
+            try {
+                return tryGetOpaqueValue(xpath);
+            } catch (XPathExpressionException xpee_opaque) {
+                 RubyException e = XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee_opaque);
+                 throw new RaiseException(e);
+            }
         }
+    }
+    
+    private XmlNodeSet tryGetNodeSet(XPathExpression xpath) throws XPathExpressionException {
+        NodeList nodes = (NodeList)xpath.evaluate(context.getNode(), XPathConstants.NODESET);
+        return new XmlNodeSet(getRuntime(), nodes);       
+    }
+    
+    private static Pattern number_pattern = Pattern.compile("\\d.*");
+    private static Pattern boolean_pattern = Pattern.compile("true|false");
+    
+    private IRubyObject tryGetOpaqueValue(XPathExpression xpath) throws XPathExpressionException {
+        String string = (String)xpath.evaluate(context.getNode(), XPathConstants.STRING);
+        if (doesMatch(number_pattern, string)) return RubyNumeric.dbl2num(getRuntime(), Double.parseDouble(string));
+        if (doesMatch(boolean_pattern, string)) return RubyBoolean.newBoolean(getRuntime(), Boolean.parseBoolean(string));
+        return RubyString.newString(getRuntime(), string);
+    }
+    
+    private boolean doesMatch(Pattern pattern, String string) {
+        Matcher m = pattern.matcher(string);
+        return m.matches();
     }
 
     private boolean isContainsPrefix(String str) {
