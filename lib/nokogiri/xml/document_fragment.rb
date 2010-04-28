@@ -11,19 +11,10 @@ module Nokogiri
         return self unless tags
 
         children = if ctx
-                     if document.html?
-                       ctx.parse("<div>#{tags.strip}</div>").first.children
-                     else
-                       ctx.parse(tags.strip)
-                     end
+                     ctx.parse(tags.strip)
                    else
-                     if document.html?
-                       Nokogiri::HTML::Document.parse("<html><body>#{tags.strip}</body></html>") \
-                                               .xpath("/html/body/node()")
-                     else
-                       Nokogiri::XML::Document.parse("<root>#{tags.strip}</root>") \
-                                              .xpath("/root/node()")
-                     end
+                     XML::Document.parse("<root>#{tags.strip}</root>") \
+                       .xpath("/root/node()")
                    end
         children.each { |child| child.parent = self }
       end
