@@ -1,9 +1,3 @@
-def run_with_env(cmd)
-  cmd = "LD_LIBRARY_PATH='#{ENV['LD_LIBRARY_PATH']}' #{cmd}"
-  puts "=> #{cmd}"
-  system cmd
-end
-
 namespace :test do
   desc "run test suite with aggressive GC"
   task :gc => :build do

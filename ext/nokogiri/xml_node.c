@@ -21,7 +21,7 @@ static void mark(xmlNodePtr node)
 }
 
 /* :nodoc: */
-typedef xmlNodePtr (*node_other_func)(xmlNodePtr, xmlNodePtr);
+typedef xmlNodePtr (*pivot_reparentee_func)(xmlNodePtr, xmlNodePtr);
 
 /* :nodoc: */
 static void relink_namespace(xmlNodePtr reparented)
@@ -74,14 +74,14 @@ static void relink_namespace(xmlNodePtr reparented)
 }
 
 /* :nodoc: */
-static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr old, xmlNodePtr cur)
+static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr pivot, xmlNodePtr new_node)
 {
   xmlNodePtr retval ;
 
-  retval = xmlReplaceNode(old, cur) ;
+  retval = xmlReplaceNode(pivot, new_node) ;
 
-  if (retval == old) {
-    retval = cur ; // return semantics for reparent_node_with
+  if (retval == pivot) {
+    retval = new_node ; // return semantics for reparent_node_with
   }
 
   /* work around libxml2 issue: https://bugzilla.gnome.org/show_bug.cgi?id=615612 */
@@ -98,64 +98,64 @@ static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr old, xmlNodePtr cur)
 }
 
 /* :nodoc: */
-static VALUE reparent_node_with(VALUE node_obj, VALUE other_obj, node_other_func func)
+static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func prf)
 {
   VALUE reparented_obj ;
-  xmlNodePtr node, other, reparented ;
+  xmlNodePtr reparentee, pivot, reparented ;
 
-  if(!rb_obj_is_kind_of(node_obj, cNokogiriXmlNode))
+  if(!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
-  if(rb_obj_is_kind_of(node_obj, cNokogiriXmlDocument))
+  if(rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlDocument))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
 
-  Data_Get_Struct(node_obj, xmlNode, node);
-  Data_Get_Struct(other_obj, xmlNode, other);
+  Data_Get_Struct(reparentee_obj, xmlNode, reparentee);
+  Data_Get_Struct(pivot_obj, xmlNode, pivot);
 
-  if(XML_DOCUMENT_NODE == node->type || XML_HTML_DOCUMENT_NODE == node->type)
+  if(XML_DOCUMENT_NODE == reparentee->type || XML_HTML_DOCUMENT_NODE == reparentee->type)
     rb_raise(rb_eArgError, "cannot reparent a document node");
 
-  if(node->type == XML_TEXT_NODE) {
-    NOKOGIRI_ROOT_NODE(node);
-    xmlUnlinkNode(node);
-    node = xmlDocCopyNode(node, other->doc, 1);
-  }
+  xmlUnlinkNode(reparentee);
 
-  if (node->doc == other->doc) {
-    xmlUnlinkNode(node) ;
-
-    // TODO: I really want to remove this.  We shouldn't support 2.6.16 anymore
-    if ( node->type == XML_TEXT_NODE
-         && other->type == XML_TEXT_NODE
-         && is_2_6_16() ) {
-
-      // we'd rather leak than segfault.
-      other->content = xmlStrdup(other->content);
-
-    }
-
-    if(!(reparented = (*func)(other, node))) {
-      rb_raise(rb_eRuntimeError, "Could not reparent node (%s:%d)", __FILE__, __LINE__);
-    }
-  } else {
-    xmlNodePtr duped_node ;
-    // recursively copy to the new document
-    if (!(duped_node = xmlDocCopyNode(node, other->doc, 1))) {
+  if (reparentee->doc != pivot->doc || reparentee->type == XML_TEXT_NODE) {
+    /*
+     *  if the reparentee is a text node, there's a very good chance it will be
+     *  merged with an adjacent text node after being reparented, and in that case
+     *  libxml will free the underlying C struct.
+     *
+     *  since we clearly have a ruby object which references the underlying
+     *  memory, we can't let the C struct get freed. let's pickle the original
+     *  reparentee by rooting it; and then we'll reparent a duplicate of the
+     *  node that we don't care about preserving.
+     *
+     *  alternatively, if the reparentee is from a different document than the
+     *  pivot node, libxml2 is going to get confused about which document's
+     *  "dictionary" the node's strings belong to (this is an otherwise
+     *  uninteresting libxml2 implementation detail). as a result, we cannot
+     *  reparent the actual reparentee, so we reparent a duplicate.
+     */
+    NOKOGIRI_ROOT_NODE(reparentee);
+    if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
-    if(!(reparented = (*func)(other, duped_node))) {
-      rb_raise(rb_eRuntimeError, "Could not reparent node (%s:%d)", __FILE__, __LINE__);
-    }
-    xmlUnlinkNode(node);
-    NOKOGIRI_ROOT_NODE(node);
   }
 
-  // the child was a text node that was coalesced. we need to have the object
-  // point at SOMETHING, or we'll totally bomb out.
-  if (reparented != node) {
-    DATA_PTR(node_obj) = reparented ;
+  // TODO: I really want to remove this.  We shouldn't support 2.6.16 anymore
+  if ( reparentee->type == XML_TEXT_NODE && pivot->type == XML_TEXT_NODE && is_2_6_16() ) {
+    // work around a string-handling bug in libxml 2.6.16. we'd rather leak than segfault.
+    pivot->content = xmlStrdup(pivot->content);
   }
 
-  // Appropriately link in namespaces
+  if(!(reparented = (*prf)(pivot, reparentee))) {
+    rb_raise(rb_eRuntimeError, "Could not reparent node");
+  }
+
+  /*
+   *  make sure the ruby object is pointed at the just-reparented node, which
+   *  might be a duplicate (see above) or might be the result of merging
+   *  adjacent text nodes.
+   */
+  DATA_PTR(reparentee_obj) = reparented ;
+
   relink_namespace(reparented);
 
   reparented_obj = Nokogiri_wrap_xml_node(Qnil, reparented);
@@ -442,9 +442,9 @@ static VALUE previous_element(VALUE self)
 }
 
 /* :nodoc: */
-static VALUE replace(VALUE self, VALUE _new_node)
+static VALUE replace(VALUE self, VALUE new_node)
 {
-  return reparent_node_with(_new_node, self, xmlReplaceNodeWrapper) ;
+  return reparent_node_with(self, new_node, xmlReplaceNodeWrapper) ;
 }
 
 /*
@@ -845,9 +845,9 @@ static VALUE get_content(VALUE self)
 }
 
 /* :nodoc: */
-static VALUE add_child(VALUE self, VALUE child)
+static VALUE add_child(VALUE self, VALUE new_child)
 {
-  return reparent_node_with(child, self, xmlAddChild);
+  return reparent_node_with(self, new_child, xmlAddChild);
 }
 
 /*
@@ -915,15 +915,15 @@ static VALUE path(VALUE self)
 }
 
 /* :nodoc: */
-static VALUE add_next_sibling(VALUE self, VALUE rb_node)
+static VALUE add_next_sibling(VALUE self, VALUE new_sibling)
 {
-  return reparent_node_with(rb_node, self, xmlAddNextSibling) ;
+  return reparent_node_with(self, new_sibling, xmlAddNextSibling) ;
 }
 
 /* :nodoc: */
-static VALUE add_previous_sibling(VALUE self, VALUE rb_node)
+static VALUE add_previous_sibling(VALUE self, VALUE new_sibling)
 {
-  return reparent_node_with(rb_node, self, xmlAddPrevSibling) ;
+  return reparent_node_with(self, new_sibling, xmlAddPrevSibling) ;
 }
 
 /*
