@@ -36,7 +36,7 @@ module Nokogiri
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
       attr_accessor :errors
 
-      def initialize *args
+      def initialize *args # :nodoc:
         @errors     = []
         @decorators = nil
       end

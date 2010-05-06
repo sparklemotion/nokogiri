@@ -80,7 +80,7 @@ module Nokogiri
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
-      def initialize name, document
+      def initialize name, document # :nodoc:
         # ... Ya.  This is empty on purpose.
       end
 
