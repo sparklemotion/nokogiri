@@ -376,8 +376,10 @@ module Nokogiri
 
       ####
       # Returns a hash containing the node's attributes.  The key is
-      # the attribute name, the value is a Nokogiri::XML::Attr
+      # the attribute name without any namespace, the value is a Nokogiri::XML::Attr
       # representing the attribute.
+      # If you need to distinguish attributes with the same name, with different namespaces
+      # use #attribute_nodes instead.
       def attributes
         Hash[*(attribute_nodes.map { |node|
           [node.node_name, node]
