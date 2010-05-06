@@ -24,7 +24,7 @@ HOE = Hoe.spec 'nokogiri' do
   developer('Mike Dalessio', 'mike.dalessio@gmail.com')
   self.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
   self.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
-  self.extra_rdoc_files  = FileList['*.rdoc']
+  self.extra_rdoc_files  = FileList['*.rdoc','ext/nokogiri/*.c']
   self.clean_globs = [
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
     'lib/nokogiri/nokogiri.rb',
