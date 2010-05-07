@@ -746,7 +746,12 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject content(ThreadContext context) {
         if(this.content == null) {
-            String textContent = this.node.getTextContent();
+            String textContent;
+            if (this instanceof XmlDocument) {
+                textContent = this.node.getChildNodes().item(0).getTextContent();
+            } else {
+                textContent = this.node.getTextContent();
+            }
             content = stringOrNil(context.getRuntime(), textContent);
         }
 
