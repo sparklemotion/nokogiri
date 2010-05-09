@@ -1,234 +1,200 @@
 package nokogiri.internals;
 
-import nokogiri.*;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.isXmlBase;
+import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+
+import nokogiri.XmlAttr;
+import nokogiri.XmlDocument;
+import nokogiri.XmlSyntaxError;
+
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyHash;
-import org.jruby.RubyString;
+import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXParseException;
-
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
-
-
 
 public abstract class ReaderNode {
 
     Ruby ruby;
-    IRubyObject attrs, depth, lang, localName, namespaces, prefix, qName, uri, value, xmlVersion, nodeType;
-    /*
-     * Difference between attrs and attributes is that attributes map includes
-     * namespaces.
-     */
-    // FIXME: Maybe faster to return this instead of standar attributes method
-    Map<IRubyObject,IRubyObject> attributes;
-    IRubyObject[] attributeValues;
-
-
-    public ReaderNode getClosingNode(){
-        return new ClosingNode(this.ruby, this);
-    }
-
-    // Construct an Element Node. Maybe, if this go further, I should make subclasses.
-    public static ReaderNode createElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth) {
-        return new ElementNode(ruby, uri, localName, qName, attrs, depth);
-    }
-
-    public static ReaderNode createEmptyNode(Ruby ruby) {
-        return new EmptyNode(ruby);
-    }
-
-    public static ReaderNode createExceptionNode(Ruby ruby, SAXParseException ex) {
-        return new ExceptionNode(ruby, ex);
-    }
-
-    // Construct a Text Node.
-    public static ReaderNode createTextNode(Ruby ruby, String content, int depth) {
-        return new TextNode(ruby, content, depth);
-    }
-
-    public boolean fits(String uri, String localName, String qName) {
-        boolean uriFits = true;
-        
-        if(!node().uri.isNil()) {
-            uriFits = node().uri.asJavaString().equals(uri);
-        }
-
-        return  uriFits &&
-                node().localName.asJavaString().equals(localName) &&
-                node().qName.asJavaString().equals(qName);
-    }
+    public ReaderAttributeList attributeList;
+    public Map<String, String> namespaces;
+    public int depth, nodeType;
+    public String lang, localName, xmlBase, prefix, name, uri, value, xmlVersion = "1.0";
+    public boolean hasChildren = false;
+    public abstract String getString();
 
     public IRubyObject getAttributeByIndex(IRubyObject index){
         if(index.isNil()) return index;
         
         long i = index.convertToInteger().getLongValue();
         if(i > Integer.MAX_VALUE) {
-            throw node().ruby.newArgumentError("value too long to be an array index");
+            throw ruby.newArgumentError("value too long to be an array index");
         }
 
-        if(node().attributeValues == null){
-            return node().ruby.getNil();
-        } else if (i<0 || node().attributeValues.length<=i){
-            return node().ruby.getNil();
-        } else {
-            return node().attributeValues[(int) i];
-        }
+        if (attributeList == null) return ruby.getNil();
+        if (i<0 || attributeList.length <= i) return ruby.getNil();
+        return stringOrBlank(ruby, attributeList.values.get(((Long)i).intValue()));
     }
 
     public IRubyObject getAttributeByName(IRubyObject name){
-        if(node().attributes == null) {
-            return node().ruby.getNil();
-        }
-
-        IRubyObject attrValue = node().attributes.get(name);
-        return (attrValue == null) ? node().ruby.getNil() : attrValue;
+        if(attributeList == null) return ruby.getNil();
+        String value = attributeList.getByName((String)name.toJava(String.class));
+        return stringOrNil(ruby, value);
     }
-
-    public IRubyObject getAttributeByName(String name) {
-        return this.getAttributeByName(node().ruby.newString(name));
+    
+    public IRubyObject getAttributeByName(String name){
+        if(attributeList == null) return ruby.getNil();
+        String value = attributeList.getByName(name);
+        return stringOrNil(ruby, value);
     }
 
     public IRubyObject getAttributeCount(){
-        if(node().attributes == null) {
-            return node().ruby.newFixnum(0);
-        }
-
-        return node().ruby.newFixnum(node().attributes.size());
+        if(attributeList == null) return ruby.newFixnum(0);
+        return ruby.newFixnum(attributeList.length);
     }
 
     public IRubyObject getAttributesNodes() {
-        if(node().attrs == null) {
-            node().attrs = node().ruby.newArray();
+        RubyArray array = RubyArray.newArray(ruby);
+        if (attributeList != null && attributeList.length > 0) {
+            // XmlDocument is used to create XmlAttr type of attribute nodes. Since the attribute nodes
+            // should have name and to_s methods, using XmlAttr would be convenient.
+            XmlDocument xmlDoc = 
+                (XmlDocument)XmlDocument.rbNew(ruby.getCurrentContext(), ruby.getClassFromPath("Nokogiri::XML::Document"), new IRubyObject[0]);        
+            for (int i=0; i<attributeList.length; i++) {
+                if (!isNamespace(attributeList.names.get(i))) {
+                    Attr attr = xmlDoc.getDocument().createAttributeNS(attributeList.namespaces.get(i), attributeList.names.get(i));
+                    attr.setValue(attributeList.values.get(i));
+                    array.append(new XmlAttr(ruby, attr));
+                }
+            }
         }
-        return node().attrs;
+        return array;
+    }
+    
+    public IRubyObject getAttributes(ThreadContext context) {
+        if(attributeList == null) return context.getRuntime().getNil();
+        RubyHash hash = RubyHash.newHash(context.getRuntime());
+        for (int i=0; i<attributeList.length; i++) {
+            IRubyObject k = stringOrBlank(context.getRuntime(), attributeList.names.get(i));
+            IRubyObject v = stringOrBlank(context.getRuntime(), attributeList.values.get(i));
+            if (context.getRuntime().is1_9()) hash.op_aset19(context, k, v);
+            else hash.op_aset(context, k, v);
+        }
+        return hash;
     }
 
     public IRubyObject getDepth() {
-        if(node().depth == null) {
-            node().depth = node().ruby.newFixnum(0);
-        }
-
-        return node().depth;
+        return ruby.newFixnum(depth);
     }
 
     public IRubyObject getLang() {
-        if(node().lang == null) {
-            node().lang = node().ruby.getNil();
-        }
-
-        return node().lang;
+        return stringOrNil(ruby, lang);
     }
 
     public IRubyObject getLocalName() {
-        if(node().localName == null) {
-            node().localName = node().ruby.getNil();
-        }
-        return node().localName;
+        return stringOrNil(ruby, localName);
     }
 
     public IRubyObject getName() {
-        if(node().qName == null) {
-            node().qName = node().ruby.getNil();
-        }
-        return node().qName;
+        return stringOrNil(ruby, name);
     }
 
-    public IRubyObject getNamespaces() {
-        if(node().namespaces == null) {
-            node().namespaces = node().ruby.getNil();
+    public IRubyObject getNamespaces(ThreadContext context) {
+        if(namespaces == null) return ruby.getNil();
+        RubyHash hash = RubyHash.newHash(ruby);
+        Set<String> keys = namespaces.keySet();
+        for (String key : keys) {
+            String stringValue = namespaces.get(key);
+            IRubyObject k = stringOrBlank(context.getRuntime(), key);
+            IRubyObject v = stringOrBlank(context.getRuntime(), stringValue);
+            if (context.getRuntime().is1_9()) hash.op_aset19(context, k, v);
+            else hash.op_aset(context, k, v);
         }
-        return node().namespaces;
+        return hash;
+    }
+    
+    public IRubyObject getXmlBase() {
+        return stringOrNil(ruby, xmlBase);
     }
 
     public IRubyObject getPrefix() {
-        if(node().prefix == null) {
-            node().prefix = node().ruby.getNil();
-        }
-        return node().prefix;
-    }
-
-    public IRubyObject getQName() {
-        if(node().qName == null) {
-            node().qName = node().ruby.getNil();
-        }
-        return node().qName;
+        return stringOrNil(ruby, prefix);
     }
 
     public IRubyObject getUri() {
-        if(node().uri == null) {
-            node().uri = node().ruby.getNil();
-        }
-        return node().uri;
+        return stringOrNil(ruby, uri);
     }
 
     public IRubyObject getValue() {
-        if(node().value == null) {
-            node().value = node().ruby.getNil();
-        }
-        return node().value;
+        return stringOrNil(ruby, value);
     }
 
     public IRubyObject getXmlVersion() {
-        if(node().xmlVersion == null) {
-            node().xmlVersion = node().ruby.newString("1.0");
-        }
-        return node().xmlVersion;
+        return ruby.newString(xmlVersion);
     }
 
     public RubyBoolean hasAttributes() {
-        if (node().attributes == null) {
-            return node().ruby.getFalse();
-        }
-        return node().attributes.isEmpty() ? node().ruby.getFalse() : node().ruby.getTrue();
+        if (attributeList == null || attributeList.length == 0) return ruby.getFalse();
+        return ruby.getTrue();
     }
 
     public abstract RubyBoolean hasValue();
 
     public RubyBoolean isDefault(){
         // TODO Implement.
-        return node().ruby.getFalse();
+        return ruby.getFalse();
     }
 
     public boolean isError() { return false; }
 
-    protected ReaderNode node() { return this; }
-
-    protected IRubyObject parsePrefix(String qName) {
+    protected void parsePrefix(String qName) {
         int index = qName.indexOf(':');
-        if(index != -1) {
-            return node().ruby.newString(qName.substring(0, index));
-        }
-        return node().ruby.getNil();
+        if(index != -1) prefix = qName.substring(0, index);
     }
 
     public void setLang(String lang) {
-        node().lang = (lang == null) ? node().ruby.getNil() : node().ruby.newString(lang);
+        lang = (lang != null) ? lang : null;
     }
 
-    protected IRubyObject toRubyString(String string) {
-        return (string == null) ? node().ruby.newString() : node().ruby.newString(string);
-    }
+    public IRubyObject toSyntaxError() { return ruby.getNil(); }
+    
+    public IRubyObject getNodeType() { return ruby.newFixnum(nodeType); }
 
-    public IRubyObject toSyntaxError() { return node().ruby.getNil(); }
-    
-    public IRubyObject getNodeType() { return nodeType; }
-    
-    public static enum NodeType {
-        ELEMENT_NODE(1),
-        TEXT_NODE(3),
-        DTD_NODE(14),
-        ELEMENT_DECL(15);
+    public static enum ReaderNodeType {
+        NODE(0),
+        ELEMENT(1),
+        ATTRIBUTE(2),
+        TEXT(3),
+        CDATA(4),
+        ENTITY_REFERENCE(5),
+        ENTITY(6),
+        PROCESSING_INSTRUCTION(7),
+        COMMENT(8),
+        DOCUMENT(9),
+        DOCUMENT_TYPE(10),
+        DOCUMENTFRAGMENT(11),
+        NOTATION(12),
+        WHITESPACE(13),
+        SIGNIFICANT_WHITESPACE(14),
+        END_ELEMENT(15),
+        END_ENTITY(16),
+        XML_DECLARATION(17);
         
         private final int value;
-        NodeType(int value) {
+        ReaderNodeType(int value) {
             this.value = value;
         }
         
@@ -239,12 +205,16 @@ public abstract class ReaderNode {
 
     public static class ClosingNode extends ReaderNode {
 
-        ReaderNode node;
-
-        public ClosingNode(Ruby ruby, ReaderNode node) {
+        public ClosingNode(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
-            this.node = node;
-            nodeType = ruby.newFixnum(NodeType.ELEMENT_DECL.getValue());
+            nodeType = ReaderNodeType.END_ELEMENT.getValue();
+            this.uri = "".equals(uri) ? null : uri;
+            this.localName = localName.trim().length() > 0 ? localName : qName;
+            this.name = qName;
+            parsePrefix(qName);
+            this.depth = depth;
+            if (!langStack.isEmpty()) this.lang = langStack.peek();
+            if (!xmlBaseStack.isEmpty()) this.xmlBase = xmlBaseStack.peek();
         }
 
         @Override
@@ -254,33 +224,30 @@ public abstract class ReaderNode {
 
         @Override
         public RubyBoolean hasValue() {
-            return node().hasValue();
+            return ruby.getFalse();
         }
 
         @Override
-        public ReaderNode node() {
-            return this.node;
+        public String getString() {
+            StringBuffer sb = new StringBuffer();
+            sb.append("</").append(name).append(">");
+            return new String(sb);
         }
     }
-
+    
     public static class ElementNode extends ReaderNode {
-
-        private static XmlDocument xmlDoc = null;
-
-        public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth) {
+        private List<String> attributeStrings = new ArrayList<String>();
+        
+        public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
-            if (xmlDoc == null) {
-                xmlDoc = (XmlDocument) XmlDocument.rbNew(ruby.getCurrentContext(),
-                        ruby.getClassFromPath("Nokogiri::XML::Document"), new IRubyObject[0]);
-            }
-            this.uri = (uri.equals("")) ? ruby.getNil() : toRubyString(uri);
-            this.localName = toRubyString(localName);
-            this.qName = toRubyString(qName);
-            this.prefix = parsePrefix(qName);
-            this.depth = ruby.newFixnum(depth);
-            parseAttrs(attrs); // I don't know what to do with you yet, my
-                               // friend.
-            nodeType = ruby.newFixnum(NodeType.ELEMENT_NODE.getValue());
+            this.nodeType = ReaderNodeType.ELEMENT.getValue();
+            this.uri = "".equals(uri) ? null : uri;
+            this.localName = localName.trim().length() > 0 ? localName : qName;
+            this.name = qName;
+            parsePrefix(qName);
+            this.depth = depth;
+            hasChildren = true;
+            parseAttributes(attrs, langStack, xmlBaseStack);
         }
 
         @Override
@@ -288,38 +255,108 @@ public abstract class ReaderNode {
             return ruby.getFalse();
         }
 
-        private void parseAttrs(Attributes attrs) {
-            List<IRubyObject> arr = new ArrayList<IRubyObject>(attrs.getLength());
-            Hashtable<IRubyObject, IRubyObject> hash = new Hashtable<IRubyObject, IRubyObject>();
-
-            this.attributes = new Hashtable<IRubyObject, IRubyObject>();
-            this.attributeValues = new IRubyObject[attrs.getLength()];
-            Document doc = xmlDoc.getDocument();
-
-            RubyString attrName;
-            RubyString attrValue;
+        private void parseAttributes(Attributes attrs, Stack<String> langStack, Stack<String> xmlBaseStack) {
+            if (attrs.getLength() > 0) attributeList = new ReaderAttributeList();
             String u, n, v;
-
             for (int i = 0; i < attrs.getLength(); i++) {
                 u = attrs.getURI(i);
                 n = attrs.getQName(i);
                 v = attrs.getValue(i);
-                attrName = ruby.newString(n);
-                attrValue = ruby.newString(v);
-
-                this.attributeValues[i] = attrValue;
-                this.attributes.put(attrName, attrValue);
-
                 if (isNamespace(n)) {
-                    hash.put(attrName, attrValue);
+                    if (namespaces == null) namespaces = new HashMap<String, String>();
+                    namespaces.put(n, v);
                 } else {
-                    Attr attr = doc.createAttributeNS(u, n);
-                    attr.setValue(v);
-                    arr.add(new XmlAttr(ruby, attr));
+                    if (lang == null) lang = resolveLang(n, v, langStack);
+                    if (xmlBase == null) xmlBase = resolveXmlBase(n, v, xmlBaseStack);
+                }
+                attributeList.add(u, n, v);
+                attributeStrings.add(n + "=\"" + v + "\"");
+            }
+        }
+        
+        private String resolveLang(String n, String v, Stack<String> langStack) {
+            if ("xml:lang".equals(n)) {
+                return v;
+            } else if (!langStack.isEmpty()) {
+                return langStack.peek();
+            } else {
+                return null;
+            }
+        }
+        
+        private String resolveXmlBase(String n, String v, Stack<String> xmlBaseStack) {
+            if (isXmlBase(n)) {
+                return getXmlBaseUri(n, v, xmlBaseStack);
+            } else if (!xmlBaseStack.isEmpty()) {
+                return xmlBaseStack.peek();
+            } else {
+                return null;
+            }
+        }
+        
+        private String getXmlBaseUri(String n, String v, Stack<String> xmlBaseStack) {
+            if ("xml:base".equals(n)) {
+                if (v.startsWith("http://")) {
+                    return v;
+                } else if (v.startsWith("/") && v.endsWith("/")) {
+                    String sub = v.substring(1, v.length() - 2);
+                    String base = xmlBaseStack.peek();
+                    if (base.endsWith("/")) {
+                        base = base.substring(0, base.length() - 1);
+                    }
+                    int pos = base.lastIndexOf("/");
+                    return base.substring(0, pos).concat(sub);
+                } else {
+                    String base = xmlBaseStack.peek();
+                    if (base.endsWith("/")) return base.concat(v);
+                    else return base.concat("/").concat(v);
+                }
+            } else if ("xlink:href".equals(n)) {
+                String base = xmlBaseStack.peek();
+                if (base.endsWith("/")) return base.concat(v);
+                else return base.concat("/").concat(v);
+            }
+            return null;
+        }
+
+        @Override
+        public String getString() {
+            StringBuffer sb = new StringBuffer();
+            sb.append("<").append(name);
+            if (attributeList != null) {
+                for (int i=0; i<attributeList.length; i++) {
+                    sb.append(" ").append(attributeStrings.get(i));
                 }
             }
-            this.attrs = ruby.newArray(arr);
-            this.namespaces = hash.isEmpty() ? ruby.getNil() : RubyHash.newHash(ruby, hash, ruby.getNil());
+            if (hasChildren) sb.append(">");
+            else sb.append("/>");
+            return new String(sb);
+        }
+    }
+    
+    public static class ReaderAttributeList {
+        List<String> namespaces  = new ArrayList<String>();
+        List<String> names  = new ArrayList<String>();
+        List<String> values = new ArrayList<String>();
+        int length = 0;
+        
+        void add(String namespace, String name, String value) {
+            namespace = namespace != null ? namespace : "";
+            namespaces.add(namespace);
+            name = name != null ? name : "";
+            names.add(name);
+            value = value != null ? value : "";
+            values.add(value);
+            length++;
+        }
+        
+        String getByName(String name) {
+            for (int i=0; i<names.size(); i++) {
+                if (name.equals(names.get(i))) {
+                    return values.get(i);
+                }
+            }
+            return null;
         }
     }
 
@@ -327,6 +364,7 @@ public abstract class ReaderNode {
 
         public EmptyNode(Ruby ruby) {
             this.ruby = ruby;
+            this.nodeType = ReaderNodeType.NODE.getValue();
         }
 
         @Override
@@ -337,6 +375,11 @@ public abstract class ReaderNode {
         @Override
         public RubyBoolean hasValue() {
             return ruby.getFalse();
+        }
+
+        @Override
+        public String getString() {
+            return null;
         }
     }
 
@@ -362,22 +405,26 @@ public abstract class ReaderNode {
 
     public static class TextNode extends ReaderNode {
 
-        public TextNode(Ruby ruby, String content, int depth) {
+        public TextNode(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
-            this.value = toRubyString(content);
-            this.localName = toRubyString("#text");
-            this.qName = toRubyString("#text");
-            this.depth = ruby.newFixnum(depth);
-            if (content.contains("\n")) {
-                nodeType = ruby.newFixnum(NodeType.DTD_NODE.getValue());
-            } else {
-                nodeType = ruby.newFixnum(NodeType.TEXT_NODE.getValue());
-            }
+            this.value = content;
+            this.localName = "#text";
+            this.name = "#text";
+            this.depth = depth;
+            if (content.trim().length() > 0) nodeType = ReaderNodeType.TEXT.getValue();
+            else nodeType = ReaderNodeType.SIGNIFICANT_WHITESPACE.getValue();
+            if (!langStack.isEmpty()) this.lang = langStack.peek();
+            if (!xmlBaseStack.isEmpty()) this.xmlBase = xmlBaseStack.peek();
         }
 
         @Override
         public RubyBoolean hasValue() {
             return ruby.getTrue();
+        }
+
+        @Override
+        public String getString() {
+            return value;
         }
     }
 }

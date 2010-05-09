@@ -1,16 +1,16 @@
 package nokogiri;
 
-import nokogiri.internals.ReaderNode;
-import nokogiri.internals.ReaderNode.ClosingNode;
-import nokogiri.internals.ReaderNode.ElementNode;
-import nokogiri.internals.ReaderNode.EmptyNode;
-import nokogiri.internals.ReaderNode.TextNode;
+import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Stack;
+
+import nokogiri.internals.ReaderNode;
+import nokogiri.internals.ReaderNode.ElementNode;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -20,7 +20,6 @@ import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
@@ -43,13 +42,12 @@ public class XmlReader extends RubyObject {
     private static final int XML_TEXTREADER_MODE_CLOSED = 4;
     private static final int XML_TEXTREADER_MODE_READING = 5;
 
-    final Queue<ReaderNode> nodeQueue;
+    final LinkedList<ReaderNode> nodeQueue = new LinkedList<ReaderNode>();
     private int state;
     
     public XmlReader(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
-        this.nodeQueue = new LinkedList<ReaderNode>();
-        this.nodeQueue.add(ReaderNode.createEmptyNode(ruby));
+        nodeQueue.add(new ReaderNode.EmptyNode(ruby));
     }
 
     private static IRubyObject[] getArgs(IRubyObject[] args) {
@@ -71,16 +69,12 @@ public class XmlReader extends RubyObject {
             this.setState(XML_TEXTREADER_MODE_CLOSED);
         } catch (SAXParseException spe) {
             this.setState(XML_TEXTREADER_MODE_ERROR);
-            this.nodeQueue.add(ReaderNode.createExceptionNode(ruby, spe));
+            this.nodeQueue.add(new ReaderNode.ExceptionNode(ruby, spe));
         } catch (IOException ioe) {
             throw RaiseException.createNativeRaiseException(ruby, ioe);
         } catch (SAXException saxe) {
             throw RaiseException.createNativeRaiseException(ruby, saxe);
         }
-    }
-
-    private ReaderNode peek() { 
-    	return this.nodeQueue.peek(); 
     }
 
     private void setSource(IRubyObject source){
@@ -91,42 +85,47 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject attribute(ThreadContext context, IRubyObject name) {
-        return peek().getAttributeByName(name);
+        return nodeQueue.peek().getAttributeByName(name);
     }
 
     @JRubyMethod
     public IRubyObject attribute_at(ThreadContext context, IRubyObject index) {
-        return peek().getAttributeByIndex(index);
+        return nodeQueue.peek().getAttributeByIndex(index);
     }
 
     @JRubyMethod
     public IRubyObject attribute_count(ThreadContext context) {
-        return peek().getAttributeCount();
+        return nodeQueue.peek().getAttributeCount();
     }
 
     @JRubyMethod
     public IRubyObject attribute_nodes(ThreadContext context) {
-        return peek().getAttributesNodes();
+        return nodeQueue.peek().getAttributesNodes();
     }
 
     @JRubyMethod
     public IRubyObject attr_nodes(ThreadContext context) {
-        return peek().getAttributesNodes();
+        return nodeQueue.peek().getAttributesNodes();
     }
 
     @JRubyMethod(name = "attributes?")
     public IRubyObject attributes_p(ThreadContext context) {
-        return peek().hasAttributes();
+        return nodeQueue.peek().hasAttributes();
+    }
+    
+    @JRubyMethod
+    public IRubyObject base_uri(ThreadContext context) {
+        return nodeQueue.peek().getXmlBase();
     }
 
     @JRubyMethod(name="default?")
     public IRubyObject default_p(ThreadContext context){
-        return peek().isDefault();
+        return nodeQueue.peek().isDefault();
     }
 
     @JRubyMethod
     public IRubyObject depth(ThreadContext context) {
-        return peek().getDepth();
+        return nodeQueue.peek().getDepth();
     }
 
     @JRubyMethod(meta = true, rest = true)
@@ -168,113 +167,85 @@ public class XmlReader extends RubyObject {
         return r;
     }
 
-    private final RubyFixnum zero = (RubyFixnum) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), 0);
-    
     @JRubyMethod
     public IRubyObject node_type(ThreadContext context) {
         IRubyObject node_type = nodeQueue.peek().getNodeType();
-        return node_type == null ? zero : node_type;
+        return node_type == null ? RubyFixnum.zero(context.getRuntime()) : node_type;
     }
 
     @JRubyMethod
     public IRubyObject inner_xml(ThreadContext context) {
-        Long outer_depth = ((RubyFixnum) nodeQueue.peek().getDepth()).getLongValue();
-        return getXmlString(context, outer_depth);
+        return stringOrBlank(context.getRuntime(), getInnerXml(nodeQueue, nodeQueue.peek()));
+    }
+    
+    private String getInnerXml(LinkedList<ReaderNode> nodeQueue, ReaderNode current) {
+        if (current.depth < 0) return null;
+        if (!current.hasChildren) return null;
+        StringBuffer sb = new StringBuffer();
+        int currentDepth = (Integer)current.depth;
+        for (ReaderNode node : nodeQueue) {
+            if (((Integer)node.depth) > currentDepth) sb.append(node.getString());
+        }
+        return new String(sb);
     }
     
     @JRubyMethod
     public IRubyObject outer_xml(ThreadContext context) {
-        Long outer_depth = ((RubyFixnum) nodeQueue.peek().getDepth()).getLongValue();
-        return getXmlString(context, outer_depth - 1);
+        return stringOrBlank(context.getRuntime(), getOuterXml(nodeQueue, nodeQueue.peek()));
     }
     
-    private IRubyObject getXmlString(ThreadContext context, Long outer_depth) {
-        ReaderNode[] nodes = nodeQueue.toArray(new ReaderNode[0]);
-        RubyString xmlString = RubyString.newEmptyString(context.getRuntime());
-        for (int i = 0; i < nodes.length; i++) {
-            ReaderNode node = nodes[i];
-            Long current_depth = ((RubyFixnum) node.getDepth()).getLongValue();
-            if (current_depth <= outer_depth) continue;
-            if (node instanceof ElementNode) {
-                if ((i + 1) < nodes.length && nodes[i + 1] instanceof ClosingNode && node == ((ClosingNode)nodes[i + 1]).node()) {
-                    xmlString.concat(getEmptyTag(node.getQName()));
-                    i++;
-                } else {
-                    xmlString.concat(getStartTag(node.getQName()));
-                }
-            } else if (node instanceof TextNode) {
-                xmlString.concat(node.getValue());
-            } else if (node instanceof ClosingNode) {
-                xmlString.concat(getEndTag(node.getQName()));
-            } else if (node instanceof EmptyNode) {
-                xmlString.concat(getEmptyTag(node.getQName()));
-            }
+    private String getOuterXml(LinkedList<ReaderNode> nodeQueue, ReaderNode current) {
+        if (current.depth < 0) return null;
+        StringBuffer sb = new StringBuffer();
+        int initialDepth = (Integer)current.depth - 1;
+        for (ReaderNode node : nodeQueue) {
+            if (((Integer)node.depth) > initialDepth) sb.append(node.getString());
         }
-        return xmlString;
-    }
-    
-    private final RubyString leftAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), "<");
-    private final RubyString leftEndAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), "</");
-    private final RubyString rightAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), ">");
-    private final RubyString rightEndAngleBracket = (RubyString) JavaUtil.convertJavaToUsableRubyObject(getRuntime(), "/>");
-    
-    private RubyString getStartTag(IRubyObject qname) {
-        RubyString start_tag = RubyString.newEmptyString(getRuntime());
-    	return start_tag.concat(leftAngleBracket).concat(qname).concat(rightAngleBracket);
-    }
-    
-    private RubyString getEndTag(IRubyObject qname) {
-        RubyString end_tag = RubyString.newEmptyString(getRuntime());
-    	return end_tag.concat(leftEndAngleBracket).concat(qname).concat(rightAngleBracket);
-    }
-    
-    private RubyString getEmptyTag(IRubyObject qname) {
-        RubyString empty_tag = RubyString.newEmptyString(getRuntime());
-    	return empty_tag.concat(leftAngleBracket).concat(qname).concat(rightEndAngleBracket);
+        return new String(sb);
     }
 
     @JRubyMethod
     public IRubyObject lang(ThreadContext context) {
-        return peek().getLang();
+        return nodeQueue.peek().getLang();
     }
 
     @JRubyMethod
     public IRubyObject local_name(ThreadContext context) {
-        return peek().getLocalName();
+        return nodeQueue.peek().getLocalName();
     }
 
     @JRubyMethod
     public IRubyObject name(ThreadContext context) {
-        return peek().getName();
+        return nodeQueue.peek().getName();
     }
 
     @JRubyMethod
     public IRubyObject namespace_uri(ThreadContext context) {
-        return peek().getUri();
+        return nodeQueue.peek().getUri();
     }
 
     @JRubyMethod
     public IRubyObject namespaces(ThreadContext context) {
-        return peek().getNamespaces();
+        return nodeQueue.peek().getNamespaces(context);
     }
 
     @JRubyMethod
     public IRubyObject prefix(ThreadContext context) {
-        return peek().getPrefix();
+        return nodeQueue.peek().getPrefix();
     }
 
     @JRubyMethod
     public IRubyObject read(ThreadContext context) {
         this.nodeQueue.poll();
-        if(peek() == null) {
+        if(nodeQueue.peek() == null) {
             return context.getRuntime().getNil();
-        } else if(peek().isError()) {
+        } else if(nodeQueue.peek().isError()) {
             RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
-            errors.append(peek().toSyntaxError());
+            errors.append(nodeQueue.peek().toSyntaxError());
 
             this.setInstanceVariable("@errors", errors);
 
-            throw new RaiseException((XmlSyntaxError) peek().toSyntaxError());
+            throw new RaiseException((XmlSyntaxError) nodeQueue.peek().toSyntaxError());
         } else {
             return this;
         }
@@ -287,82 +258,92 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod
     public IRubyObject value(ThreadContext context) {
-        return peek().getValue();
+        return nodeQueue.peek().getValue();
     }
 
     @JRubyMethod(name = "value?")
     public IRubyObject value_p(ThreadContext context) {
-        return peek().hasValue();
+        return nodeQueue.peek().hasValue();
     }
 
     @JRubyMethod
     public IRubyObject xml_version(ThreadContext context) {
-        // TODO: Implement it.
-        return peek().getXmlVersion();
+        return nodeQueue.peek().getXmlVersion();
     }
 
     protected XMLReader createReader(final Ruby ruby) {
         DefaultHandler2 handler = new DefaultHandler2() {
 
-            Stack<ReaderNode> nodeStack;
-            LangStack langStack;
+            Stack<String> langStack = new Stack<String>();
             int depth;
-
-            private void add(ReaderNode node) {
-                this.langStack.setLangToNode(node);
-                nodeQueue.add(node);
-            }
-
-            private void addToBoth(ReaderNode node) {
-                add(node);
-                nodeStack.push(node);
-            }
+            Stack<String> xmlBaseStack = new Stack<String>();
 
             @Override
             public void characters(char[] chars, int start, int length) {
-                add( ReaderNode.createTextNode(ruby, new String(chars, start, length), depth));
-
+                ReaderNode.TextNode node = new ReaderNode.TextNode(ruby, new String(chars, start, length), depth, langStack, xmlBaseStack);
+                nodeQueue.add(node);
             }
 
             @Override
             public void endElement(String uri, String localName, String qName) {
-                depth--;
-                if (nodeStack.peek().fits(uri, localName, qName)) {
-                    ReaderNode node = nodeStack.pop().getClosingNode();
-                    this.langStack.updateStack(node);
-                    nodeQueue.add(node);
+                depth--;     
+                ReaderNode previous = nodeQueue.getLast();
+                if (previous instanceof ElementNode && qName.equals(previous.name)) {
+                    previous.hasChildren = false;
                 } else {
+                    ReaderNode node = new ReaderNode.ClosingNode(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
+                    ReaderNode startElementNode = searchStartElement(qName, depth);
+                    if (startElementNode != null) {
+                        node.attributeList = startElementNode.attributeList;
+                        node.namespaces = startElementNode.namespaces;
+                    }
+                    nodeQueue.add(node);
                 }
+                if (!langStack.isEmpty()) langStack.pop();
+                if (!xmlBaseStack.isEmpty()) xmlBaseStack.pop();
+            }
+            
+            private ReaderNode searchStartElement(String qName, int depth) {
+                ReaderNode readerNode;
+                Iterator<ReaderNode> iter = nodeQueue.descendingIterator();
+                while (iter.hasNext()) {
+                    readerNode = iter.next();
+                    if ((readerNode instanceof ElementNode) && qName.equals(readerNode.name) && depth == readerNode.depth) {
+                        return readerNode;
+                    }
+                }
+                return null;
             }
 
             @Override
             public void error(SAXParseException ex) throws SAXParseException {
-                add(ReaderNode.createExceptionNode(ruby, ex));
+                nodeQueue.add(new ReaderNode.ExceptionNode(ruby, ex));
                 throw ex;
             }
 
             @Override
             public void fatalError(SAXParseException ex) throws SAXParseException {
-                add(ReaderNode.createExceptionNode(ruby, ex));
+                nodeQueue.add(new ReaderNode.ExceptionNode(ruby, ex));
                 throw ex;
             }
 
             @Override
             public void startDocument() {
-                langStack = new LangStack();
-                nodeStack = new Stack<ReaderNode>();
                 depth = 0;
             }
 
             @Override
             public void startElement(String uri, String localName, String qName, Attributes attrs) {
-                addToBoth( ReaderNode.createElementNode(ruby, uri, localName, qName, attrs, depth));
+                ReaderNode readerNode = new ReaderNode.ElementNode(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
+                nodeQueue.add(readerNode);
                 depth++;
+                if (readerNode.lang != null) langStack.push(readerNode.lang);
+                if (readerNode.xmlBase != null) xmlBaseStack.push(readerNode.xmlBase);
             }
 
             @Override
             public void warning(SAXParseException ex) throws SAXParseException {
-                add(ReaderNode.createExceptionNode(ruby, ex));
+                nodeQueue.add(new ReaderNode.ExceptionNode(ruby, ex));
                 throw ex;
             }
         };
@@ -377,54 +358,6 @@ public class XmlReader extends RubyObject {
             return reader;
         } catch (SAXException saxe) {
             throw RaiseException.createNativeRaiseException(ruby, saxe);
-        }
-    }
-
-
-}
-
-class LangStack {
-
-    Stack<Integer> depth;
-    Stack<String> lang;
-
-    public LangStack(){
-        this.depth = new Stack<Integer>();
-        this.lang = new Stack<String>();
-    }
-
-    private int currentDepth() {
-        return (this.depth.empty()) ? 0 : this.depth.peek().intValue();
-    }
-
-    private String currentLang() {
-        return (this.lang.empty()) ? null : this.lang.peek();
-    }
-
-    private void pop() {
-        if(!this.depth.empty()) this.depth.pop();
-        if(!this.lang.empty()) this.lang.pop();
-    }
-
-    public void push(int depth, String lang) {
-        this.depth.push(Integer.valueOf(depth));
-        this.lang.push(lang);
-    }
-
-    public void setLangToNode(ReaderNode node) {
-        IRubyObject langString = node.getAttributeByName("xml:lang");
-
-        if(!langString.isNil()){
-            this.depth.push(Integer.valueOf((int) node.getDepth().convertToInteger().getLongValue()));
-            this.lang.push(langString.convertToString().asJavaString());
-        }
-
-        node.setLang(currentLang());
-    }
-
-    public void updateStack(ReaderNode node) {
-        if(node.getDepth().convertToInteger().getLongValue() == currentDepth()) {
-            pop();
         }
     }
 }

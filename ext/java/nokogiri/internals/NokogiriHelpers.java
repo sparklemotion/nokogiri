@@ -52,6 +52,11 @@ public class NokogiriHelpers {
 
         return ruby.newString(s);
     }
+    
+    public static IRubyObject stringOrBlank(Ruby ruby, String s) {
+        if (s == null) return ruby.newString();
+        return ruby.newString(s);
+    }
 
     /**
      * Convert <code>s</code> to a RubyString, or if s is null or
@@ -408,6 +413,10 @@ public class NokogiriHelpers {
 
     public static boolean isNonDefaultNamespace(Node node) {
         return (isNamespace(node) && ! "xmlns".equals(node.getNodeName()));
+    }
+
+    public static boolean isXmlBase(String attrName) {
+        return "xml:base".equals(attrName) || "xlink:href".equals(attrName);
     }
 
     public static String newQName(String newPrefix, Node node) {
