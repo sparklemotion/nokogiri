@@ -63,15 +63,16 @@ unless java
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
 
     ext.config_options << ENV['EXTOPTS']
-    cross_dir = File.join(File.dirname(__FILE__), 'tmp', 'cross')
+    cross_dir = File.join(ENV['HOME'], '.cross')
     ext.cross_compile   = true
     ext.cross_platform  = 'i386-mingw32'
     ext.cross_config_options <<
-      "--with-iconv-dir=#{File.join(cross_dir, 'iconv')}"
+      "--with-xml2-include=#{File.join(cross_dir, 'include', 'libxml2')}"
     ext.cross_config_options <<
-      "--with-xml2-dir=#{File.join(cross_dir, 'libxml2')}"
-    ext.cross_config_options <<
-      "--with-xslt-dir=#{File.join(cross_dir, 'libxslt')}"
+      "--with-xml2-lib=#{File.join(cross_dir, 'lib')}"
+    ext.cross_config_options << "--with-iconv-dir=#{cross_dir}"
+    ext.cross_config_options << "--with-xslt-dir=#{cross_dir}"
+    ext.cross_config_options << "--with-zlib-dir=#{cross_dir}"
   end
 
   file 'lib/nokogiri/nokogiri.rb' do
@@ -95,6 +96,12 @@ require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
   CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
   CLOBBER.include("lib/nokogiri/1.{8,9}")
   CLOBBER.include("ext/nokogiri/*.dll")
+
+  if Rake::Task.task_defined?(:cross)
+    #Rake::Task[:cross].prerequisites << "ext/nokogiri/#{lib_dlls[lib]}"
+    Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
+    Rake::Task[:cross].prerequisites << "cross:file_list"
+  end
 end
 
 namespace :gem do
@@ -147,57 +154,6 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   rescue
     abort "need rexical, sudo gem install rexical"
   end
-end
-
-libs = %w{
-  iconv-1.9.2.win32
-  zlib-1.2.3.win32
-  libxml2-2.7.6.win32
-  libxslt-1.1.26.win32
-}
-
-lib_dlls = {
-  'iconv-1.9.2.win32'     => 'iconv.dll',
-  'zlib-1.2.3.win32'      => 'zlib1.dll',
-  'libxml2-2.7.6.win32'   => 'libxml2.dll',
-  'libxslt-1.1.26.win32'  => 'libxslt.dll',
-}
-
-libs.each do |lib|
-  libname = lib.split('-').first
-
-  file "tmp/stash/#{lib}.zip" do |t|
-    puts "downloading #{lib}"
-    FileUtils.mkdir_p('tmp/stash')
-    Dir.chdir('tmp/stash') do
-      url = "ftp://ftp.xmlsoft.org/libxml2/win32/#{lib}.zip"
-      system("wget #{url} || curl -O #{url}")
-    end
-  end
-
-  file "tmp/cross/#{libname}" => ["tmp/stash/#{lib}.zip"] do |t|
-    puts "unzipping #{lib}.zip"
-    FileUtils.mkdir_p('tmp/cross')
-    Dir.chdir('tmp/cross') do
-      sh "unzip ../stash/#{lib}.zip"
-      sh "cp #{lib}/bin/* #{lib}/lib" # put DLL in lib, so dirconfig works
-      sh "mv #{lib} #{lib.split('-').first}"
-      sh "touch #{lib.split('-').first}"
-    end
-  end
-
-  file "ext/nokogiri/#{lib_dlls[lib]}" => "tmp/cross/#{libname}" do |t|
-    Dir.chdir('tmp/cross') do
-      sh "cp #{libname}/bin/*.dll ../../ext/nokogiri/"
-    end
-  end
-
-  if Rake::Task.task_defined?(:cross)
-    Rake::Task[:cross].prerequisites << "ext/nokogiri/#{lib_dlls[lib]}"
-    Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
-    Rake::Task[:cross].prerequisites << "cross:file_list"
-  end
-  Rake::Task['gem:jruby:spec'].prerequisites << "ext/nokogiri/#{lib_dlls[lib]}"
 end
 
 require 'tasks/test'
