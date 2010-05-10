@@ -89,7 +89,7 @@ public class XmlDocumentFragment extends XmlNode {
 
     private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
     private static Pattern starttag_pattern = Pattern.compile("<[^</>]+>");
-    private static Pattern wellformed_pattern = Pattern.compile("<(.*)>(.*)</\\1>|<[^</>]+/>");
+    private static Pattern wellformed_pattern = Pattern.compile("<(.*)>(()|[^>]*)</\\1>|<[^</>]+/>");
     
     private static String addRootTagIfNeeded(ThreadContext context, XmlDocument doc, String tags) {
         IRubyObject isHtml = RuntimeHelpers.invoke(context, doc, "html?");
