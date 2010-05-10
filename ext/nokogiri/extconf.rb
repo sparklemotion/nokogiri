@@ -30,15 +30,12 @@ $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noretu
 HEADER_DIRS = [
   # First search /opt/local for macports
   '/opt/local/include',
-  '/opt/local/include/libxml2',
 
   # Then search /usr/local for people that installed from source
   '/usr/local/include',
-  '/usr/local/include/libxml2',
 
   # Check the ruby install locations
   INCLUDEDIR,
-  File.join(INCLUDEDIR, "libxml2"),
 
   # Finally fall back to /usr
   '/usr/include',
@@ -59,63 +56,27 @@ LIB_DIRS = [
   '/usr/lib',
 ]
 
-iconv_dirs = dir_config('iconv', '/opt/local/include', '/opt/local/lib')
-unless ["", ""] == iconv_dirs
-  HEADER_DIRS.unshift iconv_dirs.first
-  LIB_DIRS.unshift iconv_dirs[1]
-end
+dir_config('zlib', HEADER_DIRS, LIB_DIRS)
+dir_config('iconv', HEADER_DIRS, LIB_DIRS)
+dir_config('xml2', [
+           '/opt/local/include/libxml2',
+           '/usr/local/include/libxml2',
+           File.join(INCLUDEDIR, "libxml2")] + HEADER_DIRS, LIB_DIRS)
+dir_config('xslt', HEADER_DIRS, LIB_DIRS)
 
-xml2_dirs = dir_config('xml2', '/opt/local/include/libxml2', '/opt/local/lib')
-unless ["", ""] == xml2_dirs
-  HEADER_DIRS.unshift xml2_dirs.first
-  LIB_DIRS.unshift xml2_dirs[1]
-end
-
-xslt_dirs = dir_config('xslt', '/opt/local/include/', '/opt/local/lib')
-unless ["", ""] == xslt_dirs
-  HEADER_DIRS.unshift xslt_dirs.first
-  LIB_DIRS.unshift xslt_dirs[1]
-end
-
-CUSTOM_DASH_I = []
-
-def nokogiri_find_header header_file, *paths
-  # mkmf in ruby 1.8.5 does not have the "checking_message" method
-  message = defined?(checking_message) ?
-    checking_message(header_file, paths) :
-    header_file
-
-  header = cpp_include header_file
-  checking_for message do
-    found = false
-    paths.each do |dir|
-      if File.exists?(File.join(dir, header_file))
-        opt = "-I#{dir}".quote
-        if try_cpp header, opt
-          unless CUSTOM_DASH_I.include? dir
-            $INCFLAGS = "#{opt} #{$INCFLAGS}"
-            CUSTOM_DASH_I << dir
-          end
-          found = dir
-          break
-        end
-      end
-    end
-    found ||= try_cpp(header)
-  end
-end
-
-def abort_lib_not_found(lib)
+def asplode(lib)
   abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
 end
 
-abort_lib_not_found "iconv"    unless nokogiri_find_header('iconv.h', *HEADER_DIRS)
-abort_lib_not_found "libxml2"  unless nokogiri_find_header('libxml/parser.h', *HEADER_DIRS)
-abort_lib_not_found "libxslt"  unless nokogiri_find_header('libxslt/xslt.h', *HEADER_DIRS)
-abort_lib_not_found "libexslt" unless nokogiri_find_header('libexslt/exslt.h', *HEADER_DIRS)
-abort_lib_not_found "libxml2"  unless find_library('xml2', 'xmlParseDoc', *LIB_DIRS)
-abort_lib_not_found "libxslt"  unless find_library('xslt', 'xsltParseStylesheetDoc', *LIB_DIRS)
-abort_lib_not_found "libexslt" unless find_library('exslt', 'exsltFuncRegister', *LIB_DIRS)
+asplode "iconv"    unless find_header('iconv.h')
+asplode "libxml2"  unless find_header('libxml/parser.h')
+asplode "libxslt"  unless find_header('libxslt/xslt.h')
+asplode "libexslt" unless find_header('libexslt/exslt.h')
+asplode "libiconv" unless find_library('iconv', 'libiconv_open')
+asplode "zlib"     unless find_library('z', 'gzopen')
+asplode "libxml2"  unless find_library('xml2', 'xmlParseDoc')
+asplode "libxslt"  unless find_library('xslt', 'xsltParseStylesheetDoc')
+asplode "libexslt" unless find_library('exslt', 'exsltFuncRegister')
 
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')
