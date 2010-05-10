@@ -1301,7 +1301,7 @@ public class XmlNode extends RubyObject {
             e.appendChild(otherNode);
             otherNode = e;
         }
-
+        addNamespaceURIIfNeeded(otherNode);
         parent.appendChild(otherNode);
     }
     
@@ -1321,11 +1321,21 @@ public class XmlNode extends RubyObject {
             nodes[i] = children.item(i).cloneNode(true);
         }
         for (int i=0; i < length; i++) {
-            parent.appendChild(nodes[i]);
+            Node child = nodes[i];
+            addNamespaceURIIfNeeded(child);
+            parent.appendChild(child);
         }
     }
 
-
+    private void addNamespaceURIIfNeeded(Node child) {
+        if (this instanceof XmlDocumentFragment && ((XmlDocumentFragment)this).getFragmentContext() != null) {
+            XmlElement fragmentContext = ((XmlDocumentFragment)this).getFragmentContext();
+            String namespace_uri = fragmentContext.getNode().getNamespaceURI();
+            if (namespace_uri != null && namespace_uri.length() > 0) {
+                this.getNode().getOwnerDocument().renameNode(child, namespace_uri, child.getNodeName());
+            }
+        }
+    }
 
     protected void adoptAsPrevSibling(ThreadContext context,
                                       Node parent,

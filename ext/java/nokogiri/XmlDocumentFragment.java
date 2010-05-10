@@ -37,6 +37,7 @@ import org.w3c.dom.NamedNodeMap;
  * @author sergio
  */
 public class XmlDocumentFragment extends XmlNode {
+    private XmlElement fragmentContext = null;
 
     public XmlDocumentFragment(Ruby ruby) {
         this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::DocumentFragment"));
@@ -78,15 +79,17 @@ public class XmlDocumentFragment extends XmlNode {
         fragment.setNode(doc.getDocument().createDocumentFragment());
 
         //TODO: Get namespace definitions from doc.
-
+        if (argc.length == 3 && argc[2] != null && argc[2] instanceof XmlElement) {
+            fragment.fragmentContext = (XmlElement)argc[2];
+        }
         RuntimeHelpers.invoke(context, fragment, "initialize", argc);
-
+        
         return fragment;
     }
 
     private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
     private static Pattern starttag_pattern = Pattern.compile("<[^</>]+>");
-    private static Pattern wellformed_pattern = Pattern.compile("<(.*)>(.*)</\\1>");
+    private static Pattern wellformed_pattern = Pattern.compile("<(.*)>(.*)</\\1>|<[^</>]+/>");
     
     private static String addRootTagIfNeeded(ThreadContext context, XmlDocument doc, String tags) {
         IRubyObject isHtml = RuntimeHelpers.invoke(context, doc, "html?");
@@ -168,6 +171,10 @@ public class XmlDocumentFragment extends XmlNode {
             }
         }
         return null;
+    }
+    
+    public XmlElement getFragmentContext() {
+        return fragmentContext;
     }
 
     //@Override
