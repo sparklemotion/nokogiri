@@ -29,7 +29,11 @@ module Nokogiri
         hello    = fragment.child
 
         assert_equal 'hello', hello.name
-        assert_equal doc.root.child.namespace, hello.namespace
+        if Nokogiri.uses_libxml?
+           assert_equal doc.root.child.namespace, hello.namespace
+        else
+           assert_equal doc.root.child.namespace.href, hello.namespace.href
+        end
       end
 
       def test_new
