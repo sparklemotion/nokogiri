@@ -1320,10 +1320,18 @@ public class XmlNode extends RubyObject {
         for (int i=0; i < length; i++) {
             nodes[i] = children.item(i).cloneNode(true);
         }
+        //cut out leading and trailing whitespaces
+        if (nodes[0].getNodeType() == Node.TEXT_NODE && nodes[0].getTextContent().trim().length() == 0) {
+            nodes[0] = null;
+        }
+        if (nodes[nodes.length-1].getNodeType() == Node.TEXT_NODE && nodes[nodes.length-1].getTextContent().trim().length() == 0) {
+            nodes[nodes.length-1] = null;
+        }
+        
         for (int i=0; i < length; i++) {
             Node child = nodes[i];
             addNamespaceURIIfNeeded(child);
-            parent.appendChild(child);
+            if (child != null) parent.appendChild(child);
         }
     }
 
