@@ -25,6 +25,10 @@ else
   $CFLAGS << " -g -DXP_UNIX"
 end
 
+if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
+  $CFLAGS << " -DIN_LIBXML"
+end
+
 $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
 HEADER_DIRS = [
