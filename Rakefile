@@ -9,6 +9,7 @@ java    = RUBY_PLATFORM =~ /java/
 
 GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
+CROSS_DIR           = File.join(File.dirname(__FILE__), 'tmp', 'cross')
 
 EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml nekodtd xercesImpl}.map{|x| "lib/#{x}.jar"}
 JAVA_EXT = "lib/nokogiri/nokogiri.jar"
@@ -69,16 +70,15 @@ unless java
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
 
     ext.config_options << ENV['EXTOPTS']
-    cross_dir = File.join(ENV['HOME'], '.cross')
     ext.cross_compile   = true
     ext.cross_platform  = 'i386-mingw32'
     ext.cross_config_options <<
-      "--with-xml2-include=#{File.join(cross_dir, 'include', 'libxml2')}"
+      "--with-xml2-include=#{File.join(CROSS_DIR, 'include', 'libxml2')}"
     ext.cross_config_options <<
-      "--with-xml2-lib=#{File.join(cross_dir, 'lib')}"
-    ext.cross_config_options << "--with-iconv-dir=#{cross_dir}"
-    ext.cross_config_options << "--with-xslt-dir=#{cross_dir}"
-    ext.cross_config_options << "--with-zlib-dir=#{cross_dir}"
+      "--with-xml2-lib=#{File.join(CROSS_DIR, 'lib')}"
+    ext.cross_config_options << "--with-iconv-dir=#{CROSS_DIR}"
+    ext.cross_config_options << "--with-xslt-dir=#{CROSS_DIR}"
+    ext.cross_config_options << "--with-zlib-dir=#{CROSS_DIR}"
   end
 
   file 'lib/nokogiri/nokogiri.rb' do
@@ -104,7 +104,7 @@ require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
   CLOBBER.include("ext/nokogiri/*.dll")
 
   if Rake::Task.task_defined?(:cross)
-    #Rake::Task[:cross].prerequisites << "ext/nokogiri/#{lib_dlls[lib]}"
+    Rake::Task[:cross].prerequisites << "cross:libxslt"
     Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
     Rake::Task[:cross].prerequisites << "cross:file_list"
   end
@@ -212,6 +212,7 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
 end
 
 require 'tasks/test'
+require 'tasks/cross_compile'
 
 desc "set environment variables to build and/or test with debug options"
 task :debug do
