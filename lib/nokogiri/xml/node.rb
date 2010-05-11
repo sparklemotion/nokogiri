@@ -271,7 +271,11 @@ module Nokogiri
       def add_next_sibling node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.reverse_each { |n| add_next_sibling_node n }
+          if '1.8.6' == RUBY_VERSION
+            node_or_tags.reverse.each { |n| add_next_sibling_node n }
+          else
+            node_or_tags.reverse_each { |n| add_next_sibling_node n }
+          end
         else
           add_next_sibling_node node_or_tags
         end

@@ -203,7 +203,7 @@ module Nokogiri
     private
 
       def namespaces_defined_on(node)
-        Hash[node.namespace_definitions.collect{|n| ["xmlns:" + n.prefix, n.href]}]
+        Hash[*node.namespace_definitions.collect{|n| ["xmlns:" + n.prefix, n.href]}.flatten]
       end
     end
   end
