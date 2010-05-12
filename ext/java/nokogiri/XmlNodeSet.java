@@ -35,6 +35,17 @@ public class XmlNodeSet extends RubyObject {
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){
         super(ruby, rubyClass);
         this.nodes = nodes;
+        
+        IRubyObject first = nodes.first();
+        if (first instanceof XmlNode) {
+            XmlNode n = (XmlNode)first;
+            XmlNode owner = (XmlNode) n.document(ruby.getCurrentContext());
+
+            if (owner != null && owner instanceof XmlDocument) {
+                RuntimeHelpers.invoke(ruby.getCurrentContext(),
+                                  owner, "decorate", this);
+            }
+        }
     }
 
     public XmlDocument getDocument() {

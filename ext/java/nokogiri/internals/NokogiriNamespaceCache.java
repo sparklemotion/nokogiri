@@ -1,12 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package nokogiri.internals;
 
-import nokogiri.*;
 import java.util.Hashtable;
+
+import nokogiri.XmlNamespace;
+import nokogiri.XmlNode;
+
 import org.jruby.runtime.ThreadContext;
 
 /**

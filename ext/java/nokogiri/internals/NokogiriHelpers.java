@@ -435,6 +435,14 @@ public class NokogiriHelpers {
         return n;
     }
     
+    public static RubyArray nodeArrayToRubyArray(Ruby ruby, Node[] nodes) {
+        RubyArray n = RubyArray.newArray(ruby, nodes.length);
+        for(int i = 0; i < nodes.length; i++) {
+            n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]));
+        }
+        return n;
+    }
+    
     public static RubyArray namedNodeMapToRubyArray(Ruby ruby, NamedNodeMap map) {
         RubyArray n = RubyArray.newArray(ruby, map.getLength());
         for(int i = 0; i < map.getLength(); i++) {

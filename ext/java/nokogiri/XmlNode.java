@@ -3,12 +3,15 @@ package nokogiri;
 import static java.lang.Math.max;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
 import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -1239,6 +1242,7 @@ public class XmlNode extends RubyObject {
     protected IRubyObject adoptAs(ThreadContext context, AdoptScheme scheme,
                                   IRubyObject other_) {
         XmlNode other = asXmlNode(context, other_);
+        IRubyObject nodeOrTags = other;
         Node thisNode = this.getNode();
         Node otherNode = other.getNode();
 
@@ -1257,7 +1261,12 @@ public class XmlNode extends RubyObject {
 
             switch (scheme) {
             case CHILD:
-                adoptAsChild(context, thisNode, otherNode);
+                Node[] children = adoptAsChild(context, thisNode, otherNode);
+                if (children.length == 1 && otherNode == children[0]) {
+                    break;
+                } else {
+                    nodeOrTags = nodeArrayToRubyArray(context.getRuntime(), children);
+                }
                 break;
             case PREV_SIBLING:
                 adoptAsPrevSibling(context, parent, thisNode, otherNode);
@@ -1280,14 +1289,13 @@ public class XmlNode extends RubyObject {
         relink_namespace(context);
         // post_add_child(context, this, other);
 
-        return other;
+        return nodeOrTags;
     }
 
-    protected void adoptAsChild(ThreadContext context, Node parent,
+    protected Node[] adoptAsChild(ThreadContext context, Node parent,
                                 Node otherNode) {
         if (hasTemporaryRoot(parent, otherNode)) {
-            adoptRealChildrenAsChild(context, parent, otherNode);
-            return;
+            return adoptRealChildrenAsChild(context, parent, otherNode);
         }
         
         /*
@@ -1303,6 +1311,9 @@ public class XmlNode extends RubyObject {
         }
         addNamespaceURIIfNeeded(otherNode);
         parent.appendChild(otherNode);
+        Node[] nodes = new Node[1];
+        nodes[0] = otherNode;
+        return nodes;
     }
     
     private boolean hasTemporaryRoot(Node parent, Node child) {
@@ -1313,26 +1324,30 @@ public class XmlNode extends RubyObject {
         return false;
     }
     
-    private void adoptRealChildrenAsChild(ThreadContext context, Node parent, Node otherNode) {
+    private Node[] adoptRealChildrenAsChild(ThreadContext context, Node parent, Node otherNode) {
         NodeList children = otherNode.getChildNodes();
         int length = children.getLength();
-        Node[] nodes = new Node[length];
+        List<Node> nodes = new ArrayList<Node>();
         for (int i=0; i < length; i++) {
-            nodes[i] = children.item(i).cloneNode(true);
+            nodes.add(children.item(i).cloneNode(true));
         }
         //cut out leading and trailing whitespaces
-        if (nodes[0].getNodeType() == Node.TEXT_NODE && nodes[0].getTextContent().trim().length() == 0) {
-            nodes[0] = null;
+        if (nodes.get(0).getNodeType() == Node.TEXT_NODE && nodes.get(0).getTextContent().trim().length() == 0) {
+            nodes.remove(0);
         }
-        if (nodes[nodes.length-1].getNodeType() == Node.TEXT_NODE && nodes[nodes.length-1].getTextContent().trim().length() == 0) {
-            nodes[nodes.length-1] = null;
+        int lastIndex = nodes.size() - 1;
+        if (nodes.get(lastIndex).getNodeType() == Node.TEXT_NODE && nodes.get(lastIndex).getTextContent().trim().length() == 0) {
+            nodes.remove(lastIndex);
         }
         
-        for (int i=0; i < length; i++) {
-            Node child = nodes[i];
+        Node[] nodeArray = new Node[nodes.size()];
+        for (int i=0; i < nodeArray.length; i++) {
+            Node child = nodes.get(i);
             addNamespaceURIIfNeeded(child);
-            if (child != null) parent.appendChild(child);
+            parent.appendChild(child);
+            nodeArray[i] = child;
         }
+        return nodeArray;
     }
 
     private void addNamespaceURIIfNeeded(Node child) {
