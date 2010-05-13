@@ -115,4 +115,11 @@ namespace :cross do
   task :zlib    => 'tmp/cross/bin/zlib1.dll'
   task :libxml2 => ['cross:zlib', 'cross:iconv', 'tmp/cross/bin/xml2-config']
   task :libxslt => ['cross:libxml2', 'tmp/cross/bin/xslt-config']
+
+  task :file_list do
+    HOE.spec.extensions = []
+    HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
+    HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/#{HOE.name}.so"]
+    HOE.spec.files += Dir["ext/nokogiri/*.dll"]
+  end
 end
