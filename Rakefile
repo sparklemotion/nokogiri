@@ -80,24 +80,6 @@ unless java
     ext.cross_config_options << "--with-xslt-dir=#{CROSS_DIR}"
     ext.cross_config_options << "--with-zlib-dir=#{CROSS_DIR}"
   end
-
-  file 'lib/nokogiri/nokogiri.rb' do
-    File.open("lib/#{HOE.name}/#{HOE.name}.rb", 'wb') do |f|
-      f.write <<-eoruby
-require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
-      eoruby
-    end
-  end
-
-  CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
-  CLOBBER.include("lib/nokogiri/1.{8,9}")
-  CLOBBER.include("ext/nokogiri/*.dll")
-
-  if Rake::Task.task_defined?(:cross)
-    Rake::Task[:cross].prerequisites << "cross:libxslt"
-    Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
-    Rake::Task[:cross].prerequisites << "cross:file_list"
-  end
 end
 
 namespace :java do
