@@ -46,7 +46,6 @@ public class XmlDocument extends XmlNode {
 //        } else {
 
 //        }
-
         setInstanceVariable("@decorators", ruby.getNil());
     }
 
@@ -193,6 +192,12 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod
     public IRubyObject root(ThreadContext context) {
         Node rootNode = getDocument().getDocumentElement();
+        try {
+            Boolean isValid = (Boolean)rootNode.getUserData(NokogiriUserDataHandler.VALID_ROOT_NODE);
+            if (!isValid) return context.getRuntime().getNil();
+        } catch (NullPointerException e) {
+            // does nothing since nil wasn't set to the root node before.
+        }
         if (rootNode == null)
             return context.getRuntime().getNil();
         else
@@ -202,8 +207,12 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod(name="root=")
     public IRubyObject root_set(ThreadContext context, IRubyObject newRoot_) {
         // in case of document fragment, temporary root node should be deleted.
+        
+        // Java can't have a root whose value is null. Instead of setting null,
+        // the method sets user data so that other methods are able to know the root
+        // should be nil.
         if (newRoot_ instanceof RubyNil) {
-            getDocument().getDocumentElement().setUserData(NokogiriUserDataHandler.VALID_ROOT_NODE , false, null);
+            getDocument().getDocumentElement().setUserData(NokogiriUserDataHandler.VALID_ROOT_NODE, false, null);
             return newRoot_;
         }
         XmlNode newRoot = asXmlNode(context, newRoot_);
