@@ -89,16 +89,6 @@ require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
     end
   end
 
-  namespace :cross do
-    task :file_list do
-      HOE.spec.platform = 'x86-mingw32'
-      HOE.spec.extensions = []
-      HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
-      HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/#{HOE.name}.so"]
-      HOE.spec.files += Dir["ext/nokogiri/*.dll"]
-    end
-  end
-
   CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
   CLOBBER.include("lib/nokogiri/1.{8,9}")
   CLOBBER.include("ext/nokogiri/*.dll")
