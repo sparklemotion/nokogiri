@@ -110,16 +110,39 @@ file 'tmp/cross/bin/xslt-config' => 'tmp/cross/download/libxslt-1.1.26' do |t|
 end
 ### End build libxslt ###
 
+file 'lib/nokogiri/nokogiri.rb' => 'cross:libxslt' do
+  File.open("lib/#{HOE.name}/#{HOE.name}.rb", 'wb') do |f|
+    f.write <<-eoruby
+require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
+    eoruby
+  end
+end
+
 namespace :cross do
   task :iconv   => 'tmp/cross/bin/iconv.exe'
   task :zlib    => 'tmp/cross/bin/zlib1.dll'
   task :libxml2 => ['cross:zlib', 'cross:iconv', 'tmp/cross/bin/xml2-config']
   task :libxslt => ['cross:libxml2', 'tmp/cross/bin/xslt-config']
 
-  task :file_list do
+  task :copy_dlls do
+    Dir['tmp/cross/bin/*.dll'].each do |file|
+      cp file, "ext/nokogiri"
+    end
+  end
+
+  task :file_list => 'cross:copy_dlls' do
     HOE.spec.extensions = []
     HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
     HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/#{HOE.name}.so"]
     HOE.spec.files += Dir["ext/nokogiri/*.dll"]
   end
+end
+
+CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
+CLOBBER.include("lib/nokogiri/1.{8,9}")
+CLOBBER.include("ext/nokogiri/*.dll")
+
+if Rake::Task.task_defined?(:cross)
+  Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
+  Rake::Task[:cross].prerequisites << "cross:file_list"
 end
