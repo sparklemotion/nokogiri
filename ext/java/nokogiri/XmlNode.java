@@ -685,7 +685,21 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject element_children(ThreadContext context) {
-        throw getRuntime().newNotImplementedError("not implemented");
+        List<Node> elementNodes = new ArrayList<Node>();
+        addElements(this.getNode(), elementNodes);
+        if (elementNodes.size() == 0) return XmlNodeSet.newEmptyNodeSet(context);
+        RubyArray array = NokogiriHelpers.nodeArrayToRubyArray(context.getRuntime(), elementNodes.toArray(new Node[0]));
+        return new XmlNodeSet(context.getRuntime(), array);
+    }
+    
+    private void addElements(Node node, List<Node> nodes) {
+        NodeList children = node.getChildNodes();
+        if (children.getLength() == 0) return;
+        for (int i=0; i< children.getLength(); i++) {
+            Node child = children.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) nodes.add(child);
+            addElements(child, nodes);
+        }
     }
 
     @JRubyMethod
