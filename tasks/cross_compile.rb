@@ -19,7 +19,8 @@ file 'tmp/cross/download/zlib-1.2.5' do |t|
 
       # FIXME: need to make the cross compiler dynamic
       f.puts mk.sub(/^PREFIX\s*=\s*$/, 'PREFIX = i386-mingw32-').
-        sub(/^SHARED_MODE=0$/, 'SHARED_MODE=1')
+        sub(/^SHARED_MODE=0$/, 'SHARED_MODE=1').
+        sub(/^IMPLIB\s*=.*$/, 'IMPLIB=libz.dll.a')
     end
   end
 end
@@ -78,7 +79,7 @@ end
 
 file 'tmp/cross/bin/xml2-config' => 'tmp/cross/download/libxml2-2.7.7' do |t|
   Dir.chdir t.prerequisites.first do
-    sh 'make'
+    sh 'make LDFLAGS="-avoid-version"'
     sh 'make install'
   end
 end
@@ -104,7 +105,7 @@ end
 
 file 'tmp/cross/bin/xslt-config' => 'tmp/cross/download/libxslt-1.1.26' do |t|
   Dir.chdir t.prerequisites.first do
-    sh 'make'
+    sh 'make LDFLAGS="-avoid-version"'
     sh 'make install'
   end
 end
