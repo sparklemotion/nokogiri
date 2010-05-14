@@ -37,8 +37,24 @@ public class XmlNodeSet extends RubyObject {
         this.nodes = nodes;
         
         IRubyObject first = nodes.first();
-        if (first instanceof XmlNode) {
-            XmlNode n = (XmlNode)first;
+        initializeDecorator(ruby, first);
+    }
+    
+    public XmlNodeSet(Ruby ruby, XmlNodeSet reference){
+        super(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"));
+        this.nodes = null;
+        
+        IRubyObject first = reference.nodes.first();
+        initializeDecorator(ruby, first);
+    }
+    
+    void setNodes(RubyArray nodes) {
+        this.nodes = nodes;
+    }
+    
+    private void initializeDecorator(Ruby ruby, IRubyObject refNode) {
+        if (refNode instanceof XmlNode) {
+            XmlNode n = (XmlNode)refNode;
             XmlNode owner = (XmlNode) n.document(ruby.getCurrentContext());
 
             if (owner != null && owner instanceof XmlDocument) {
@@ -113,7 +129,9 @@ public class XmlNodeSet extends RubyObject {
 
     @JRubyMethod(name="-")
     public IRubyObject op_diff(ThreadContext context, IRubyObject nodeSet){
-        return newXmlNodeSet(context, (RubyArray) nodes.op_diff(asXmlNodeSet(context, nodeSet).nodes));
+        XmlNodeSet xmlNodeSet = newXmlNodeSet(context, this);
+        xmlNodeSet.setNodes((RubyArray) nodes.op_diff(asXmlNodeSet(context, nodeSet).nodes));
+        return xmlNodeSet;
     }
 
     @JRubyMethod(name={"|", "+"})
@@ -128,13 +146,30 @@ public class XmlNodeSet extends RubyObject {
     }
 
     @JRubyMethod(name={"[]", "slice"})
-    public IRubyObject slice(ThreadContext context, IRubyObject index){
-        return nodes.aref(index);
+    public IRubyObject slice(ThreadContext context, IRubyObject indexOrRange){
+        IRubyObject result;
+        if (context.getRuntime().is1_9()) {
+            result = nodes.aref19(indexOrRange);
+        } else {
+            result = nodes.aref(indexOrRange);
+        }
+        if (result instanceof RubyArray) {
+            return newXmlNodeSet(context, (RubyArray)result);
+        } else {
+            return result;
+        }
     }
 
     @JRubyMethod(name={"[]", "slice"})
     public IRubyObject slice(ThreadContext context, IRubyObject start, IRubyObject length){
-        return nodes.aref(start, length);
+        IRubyObject result;
+        if (context.getRuntime().is1_9()) {
+            result = nodes.aref19(start, length);
+        } else {
+            result = nodes.aref(start, length);
+        }
+        if (result instanceof RubyArray) return newXmlNodeSet(context, (RubyArray)result);
+        else return context.getRuntime().getNil();
     }
 
     @JRubyMethod
@@ -156,6 +191,12 @@ public class XmlNodeSet extends RubyObject {
 
     private XmlNodeSet newXmlNodeSet(ThreadContext context, RubyArray array) {
         XmlNodeSet result = new XmlNodeSet(context.getRuntime(), nodeSetClass(context), array);
+        result.setDocument(this.getDocument());
+        return result;
+    }
+    
+    private XmlNodeSet newXmlNodeSet(ThreadContext context, XmlNodeSet reference) {
+        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), reference);
         result.setDocument(this.getDocument());
         return result;
     }
