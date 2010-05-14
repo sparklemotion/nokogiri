@@ -682,23 +682,44 @@ public class XmlNode extends RubyObject {
         result.setDocument((XmlDocument) fromNode(context, this.getOwnerDocument()));
         return result;
     }
+    
+    @JRubyMethod
+    public IRubyObject first_element_child(ThreadContext context) {
+        List<Node> elementNodes = new ArrayList<Node>();
+        addElements(this.getNode(), elementNodes, true);
+        if (elementNodes.size() == 0) return context.getRuntime().getNil();
+        return fromNodeOrCreate(context, elementNodes.get(0));
+    }
 
+    @JRubyMethod
+    public IRubyObject last_element_child(ThreadContext context) {
+        List<Node> elementNodes = new ArrayList<Node>();
+        addElements(this.getNode(), elementNodes, false);
+        if (elementNodes.size() == 0) return context.getRuntime().getNil();
+        return fromNodeOrCreate(context, elementNodes.get(elementNodes.size()-1));
+    }
+    
     @JRubyMethod
     public IRubyObject element_children(ThreadContext context) {
         List<Node> elementNodes = new ArrayList<Node>();
-        addElements(this.getNode(), elementNodes);
+        addElements(this.getNode(), elementNodes, false);
         if (elementNodes.size() == 0) return XmlNodeSet.newEmptyNodeSet(context);
         RubyArray array = NokogiriHelpers.nodeArrayToRubyArray(context.getRuntime(), elementNodes.toArray(new Node[0]));
-        return new XmlNodeSet(context.getRuntime(), array);
+        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), array);
+        result.setDocument((XmlDocument) fromNode(context, this.getOwnerDocument()));
+        return result;
     }
     
-    private void addElements(Node node, List<Node> nodes) {
-        NodeList children = node.getChildNodes();
+    private void addElements(Node n, List<Node> nodes, boolean isFirstOnly) {
+        NodeList children = n.getChildNodes();
         if (children.getLength() == 0) return;
         for (int i=0; i< children.getLength(); i++) {
             Node child = children.item(i);
-            if (child.getNodeType() == Node.ELEMENT_NODE) nodes.add(child);
-            addElements(child, nodes);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                nodes.add(child);
+                if (isFirstOnly) return;
+            }
+            addElements(child, nodes, isFirstOnly);
         }
     }
 
