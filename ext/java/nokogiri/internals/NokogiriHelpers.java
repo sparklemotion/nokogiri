@@ -385,6 +385,13 @@ public class NokogiriHelpers {
 //        s = s.replaceAll("\"", "&quot;");
         return s.replaceAll("\r", "&#13;");
     }
+    
+    public static boolean isXmlEscaped(String s) {
+        if (s == null) return true;
+        if (s.contains("<") || s.contains(">") || s.contains("\r")) return false;
+        if (s.contains("&") && !s.contains("&amp;")) return false;
+        return true;
+    }
 
     public static String getNodeName(Node node) {
         if(node == null) { System.out.println("node is null"); return ""; }

@@ -1,18 +1,15 @@
 package nokogiri;
 
-import java.lang.RuntimeException;
-import nokogiri.internals.NokogiriHelpers;
+import static nokogiri.internals.NokogiriHelpers.isXmlEscaped;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import nokogiri.internals.SaveContext;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyString;
-import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 public class XmlText extends XmlNode {
     public XmlText(Ruby ruby, RubyClass rubyClass, Node node) {
@@ -34,7 +31,9 @@ public class XmlText extends XmlNode {
         XmlNode xmlNode = asXmlNode(context, xNode);
         XmlDocument xmlDoc = (XmlDocument)xmlNode.document(context);
         Document document = xmlDoc.getDocument();
-        String content = rubyStringToString(encode_special_chars(context, text));
+        // text node content should not be encoded when it is created by Text node.
+        // while content should be encoded when it is created by Element node.
+        String content = rubyStringToString(text);
         Node node = document.createTextNode(content);
         setNode(node);
     }
@@ -42,6 +41,10 @@ public class XmlText extends XmlNode {
 
     @Override
     public void saveContent(ThreadContext context, SaveContext ctx) {
-        ctx.append(rubyStringToString(content(context)));
+        if (isXmlEscaped(getNode().getTextContent())) {
+            ctx.append(rubyStringToString(content(context)));
+        } else {             
+            ctx.append(rubyStringToString(encode_special_chars(context, content(context))));
+        }
     }
 }
