@@ -1,12 +1,11 @@
 package nokogiri;
 
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -15,6 +14,13 @@ import org.w3c.dom.Node;
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
 public class XmlEntityDecl extends XmlNode {
+    public static final int INTERNAL_GENERAL = 1;
+    public static final int EXTERNAL_GENERAL_PARSED = 2;
+    public static final int EXTERNAL_GENERAL_UNPARSED  = 3;
+    public static final int INTERNAL_PARAMETER = 4;
+    public static final int EXTERNAL_PARAMETER = 5;
+    public static final int INTERNAL_PREDEFINED = 6;
+    
 
     public static RubyClass getRubyClass(Ruby ruby) {
         return (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDecl");
@@ -31,6 +37,12 @@ public class XmlEntityDecl extends XmlNode {
      */
     public XmlEntityDecl(Ruby ruby, RubyClass klass, Node entDeclNode) {
         super(ruby, klass, entDeclNode);
+        if (!klass.isConstantDefined("INTERNAL_GENERAL")) klass.defineConstant("INTERNAL_GENERAL", RubyFixnum.newFixnum(ruby, INTERNAL_GENERAL));
+        if (!klass.isConstantDefined("EXTERNAL_GENERAL_PARSED")) klass.defineConstant("EXTERNAL_GENERAL_PARSED", RubyFixnum.newFixnum(ruby, EXTERNAL_GENERAL_PARSED));
+        if (!klass.isConstantDefined("EXTERNAL_GENERAL_UNPARSED")) klass.defineConstant("EXTERNAL_GENERAL_UNPARSED", RubyFixnum.newFixnum(ruby, EXTERNAL_GENERAL_UNPARSED));
+        if (!klass.isConstantDefined("INTERNAL_PARAMETER")) klass.defineConstant("INTERNAL_PARAMETER", RubyFixnum.newFixnum(ruby, INTERNAL_PARAMETER));
+        if (!klass.isConstantDefined("EXTERNAL_PARAMETER")) klass.defineConstant("EXTERNAL_PARAMETER", RubyFixnum.newFixnum(ruby, EXTERNAL_PARAMETER));
+        if (!klass.isConstantDefined("INTERNAL_PREDEFINED")) klass.defineConstant("INTERNAL_PREDEFINED", RubyFixnum.newFixnum(ruby, INTERNAL_PREDEFINED));
     }
 
     public static IRubyObject create(ThreadContext context, Node entDeclNode) {
