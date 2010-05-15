@@ -3,6 +3,7 @@ package nokogiri;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -183,18 +184,24 @@ public class NokogiriService implements BasicLibraryService{
 
     public static void init_xml_element_decl(Ruby ruby, RubyModule xml,
                                              RubyClass node) {
-        RubyClass attrDecl = xml.defineClassUnder("ElementDecl", node,
+        RubyClass elementDecl = xml.defineClassUnder("ElementDecl", node,
                                                   XML_ELEMENT_DECL_ALLOCATOR);
 
-        attrDecl.defineAnnotatedMethods(XmlElementDecl.class);
+        elementDecl.defineAnnotatedMethods(XmlElementDecl.class);
     }
 
     public static void init_xml_entity_decl(Ruby ruby, RubyModule xml,
                                              RubyClass node) {
-        RubyClass attrDecl = xml.defineClassUnder("EntityDecl", node,
+        RubyClass entityDecl = xml.defineClassUnder("EntityDecl", node,
                                                   XML_ENTITY_DECL_ALLOCATOR);
 
-        attrDecl.defineAnnotatedMethods(XmlEntityDecl.class);
+        entityDecl.defineAnnotatedMethods(XmlEntityDecl.class);
+        entityDecl.defineConstant("INTERNAL_GENERAL", RubyFixnum.newFixnum(ruby, XmlEntityDecl.INTERNAL_GENERAL));
+        entityDecl.defineConstant("EXTERNAL_GENERAL_PARSED", RubyFixnum.newFixnum(ruby, XmlEntityDecl.EXTERNAL_GENERAL_PARSED));
+        entityDecl.defineConstant("EXTERNAL_GENERAL_UNPARSED", RubyFixnum.newFixnum(ruby, XmlEntityDecl.EXTERNAL_GENERAL_UNPARSED));
+        entityDecl.defineConstant("INTERNAL_PARAMETER", RubyFixnum.newFixnum(ruby, XmlEntityDecl.INTERNAL_PARAMETER));
+        entityDecl.defineConstant("EXTERNAL_PARAMETER", RubyFixnum.newFixnum(ruby, XmlEntityDecl.EXTERNAL_PARAMETER));
+        entityDecl.defineConstant("INTERNAL_PREDEFINED", RubyFixnum.newFixnum(ruby, XmlEntityDecl.INTERNAL_PREDEFINED));
     }
 
     public static void init_xml_element_content(Ruby ruby, RubyModule xml) {

@@ -95,6 +95,17 @@ public class XmlDocument extends XmlNode {
 
         return doc;
     }
+    
+    @JRubyMethod(required=1, optional=4)
+    public IRubyObject create_entity(ThreadContext context, IRubyObject[] argv) {
+        // FIXME: Entity node should be create by some right way.
+        // this impl passes tests, but entity doesn't exists in DTD, which
+        // would cause validation failure.
+        if (argv.length == 0) throw context.getRuntime().newRuntimeError("Could not create entity");
+        String tagName = (String) argv[0].toJava(String.class);
+        Node n = this.getOwnerDocument().createElement(tagName);
+        return XmlEntityDecl.create(context, n, argv);
+    }
 
     @Override
     @JRubyMethod
