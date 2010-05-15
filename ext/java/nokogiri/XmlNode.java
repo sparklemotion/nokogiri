@@ -1283,7 +1283,15 @@ public class XmlNode extends RubyObject {
 
          try {
             Document doc = thisNode.getOwnerDocument();
-
+            if (doc == null && thisNode instanceof Document) {
+                Element e = ((Document)thisNode).getDocumentElement();
+                if (e != null && "div".equals(e.getNodeName())) {
+                // when empty document is create, <div/> element exists as a document element.
+                    doc = ((Document)thisNode).getDocumentElement().getOwnerDocument();
+                    scheme = AdoptScheme.REPLACEMENT;
+                    thisNode = ((Document)thisNode).getDocumentElement();
+                }
+            }
             if (doc != null && doc != otherNode.getOwnerDocument()) {
                 Node ret = doc.adoptNode(otherNode);
                 if (ret == null) {
