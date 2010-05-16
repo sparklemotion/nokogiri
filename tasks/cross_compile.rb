@@ -1,5 +1,6 @@
-# FIXME: I *think* we can get this value from rake-compiler
-HOST = 'i386-mingw32'
+require 'rake/extensioncompiler'
+HOST = Rake::ExtensionCompiler.mingw_host
+TARGET = 'i386-pc-mingw32'
 
 ZLIB    = 'zlib-1.2.5'
 ICONV   = 'libiconv-1.13.1'
@@ -26,14 +27,14 @@ file "tmp/cross/download/#{ZLIB}" do |t|
       f.puts "INCLUDE_PATH = #{CROSS_DIR}/include"
 
       # FIXME: need to make the cross compiler dynamic
-      f.puts mk.sub(/^PREFIX\s*=\s*$/, "PREFIX = #{HOST}-").
-        sub(/^SHARED_MODE=0$/, 'SHARED_MODE=1').
-        sub(/^IMPLIB\s*=.*$/, 'IMPLIB=libz.dll.a')
+      f.puts mk.sub(/^PREFIX\s*=\s*$/, "PREFIX = #{HOST}-") #.
+        #sub(/^SHARED_MODE=0$/, 'SHARED_MODE=1').
+        #sub(/^IMPLIB\s*=.*$/, 'IMPLIB=libz.dll.a')
     end
   end
 end
 
-file 'tmp/cross/bin/zlib1.dll' => "tmp/cross/download/#{ZLIB}" do |t|
+file 'tmp/cross/lib/libz.a' => "tmp/cross/download/#{ZLIB}" do |t|
   Dir.chdir t.prerequisites.first do
     sh 'make -f win32/Makefile.gcc'
     sh 'make -f win32/Makefile.gcc install'
@@ -55,7 +56,7 @@ file "tmp/cross/download/#{ICONV}" do |t|
 
   Dir.chdir t.name do
     # FIXME: need to make the host dynamic
-    sh "./configure --enable-shared --enable-static --host=#{HOST} --prefix=#{CROSS_DIR} CPPFLAGS='-mno-cygwin -Wall' CFLAGS='-mno-cygwin -O2 -g' CXXFLAGS='-mno-cygwin -O2 -g' LDFLAGS=-mno-cygwin"
+    sh "./configure --disable-shared --enable-static --host=#{HOST} --target=#{TARGET} --prefix=#{CROSS_DIR} CPPFLAGS='-mno-cygwin -Wall' CFLAGS='-mno-cygwin -O2 -g' CXXFLAGS='-mno-cygwin -O2 -g' LDFLAGS=-mno-cygwin"
   end
 end
 
@@ -81,7 +82,7 @@ file "tmp/cross/download/#{LIBXML}" do |t|
 
   Dir.chdir t.name do
     # FIXME: need to make the host dynamic
-    sh "CFLAGS='-DIN_LIBXML' ./configure --host=#{HOST} --enable-static --enable-shared --prefix=#{CROSS_DIR} --with-zlib=#{CROSS_DIR} --with-iconv=#{CROSS_DIR} --without-python --without-readline"
+    sh "CFLAGS='-DIN_LIBXML' ./configure --host=#{HOST} --target=#{TARGET} --enable-static --disable-shared --prefix=#{CROSS_DIR} --with-zlib=#{CROSS_DIR} --with-iconv=#{CROSS_DIR} --without-python --without-readline"
   end
 end
 
@@ -107,7 +108,7 @@ file "tmp/cross/download/#{LIBXSLT}" do |t|
 
   Dir.chdir t.name do
     # FIXME: need to make the host dynamic
-    sh "CFLAGS='-DIN_LIBXML' ./configure --host=#{HOST} --enable-static --enable-shared --prefix=#{CROSS_DIR} --with-libxml-prefix=#{CROSS_DIR} --without-python"
+    sh "CFLAGS='-DIN_LIBXML' ./configure --host=#{HOST} --target=#{TARGET} --enable-static --disable-shared --prefix=#{CROSS_DIR} --with-libxml-prefix=#{CROSS_DIR} --without-python"
   end
 end
 
@@ -129,7 +130,7 @@ end
 
 namespace :cross do
   task :iconv   => 'tmp/cross/bin/iconv.exe'
-  task :zlib    => 'tmp/cross/bin/zlib1.dll'
+  task :zlib    => 'tmp/cross/lib/libz.a'
   task :libxml2 => ['cross:zlib', 'cross:iconv', 'tmp/cross/bin/xml2-config']
   task :libxslt => ['cross:libxml2', 'tmp/cross/bin/xslt-config']
 
