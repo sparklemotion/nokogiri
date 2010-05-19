@@ -1,11 +1,13 @@
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -20,9 +22,6 @@ import org.jruby.util.TypeConverter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.EntityResolver2;
-
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 /**
  * Base class for the various parser contexts.  Handles converting
@@ -103,7 +102,6 @@ public class ParserContext extends RubyObject {
 
             ByteList bytes = str.getByteList();
             source = new InputSource(new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length()));
-            source.setEncoding("UTF-8");
         }
     }
 
