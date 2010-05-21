@@ -24,10 +24,11 @@ static VALUE allocate(VALUE klass)
 static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 {
   xmlParserCtxtPtr ctx;
-  Data_Get_Struct(self, xmlParserCtxt, ctx);
-
   const char * chunk  = NULL;
   int size            = 0;
+
+
+  Data_Get_Struct(self, xmlParserCtxt, ctx);
 
   if(Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
@@ -53,14 +54,14 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 {
   xmlSAXHandlerPtr sax;
+  const char * filename = NULL;
+  xmlParserCtxtPtr ctx;
 
   Data_Get_Struct(_xml_sax, xmlSAXHandler, sax);
 
-  const char * filename = NULL;
-
   if(_filename != Qnil) filename = StringValuePtr(_filename);
 
-  xmlParserCtxtPtr ctx = xmlCreatePushParserCtxt(
+  ctx = xmlCreatePushParserCtxt(
       sax,
       NULL,
       NULL,

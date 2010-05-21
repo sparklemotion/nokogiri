@@ -8,7 +8,7 @@
 static void dealloc(xsltStylesheetPtr doc)
 {
     NOKOGIRI_DEBUG_START(doc);
-    xsltFreeStylesheet(doc); // commented out for now.
+    xsltFreeStylesheet(doc); /* commented out for now. */
     NOKOGIRI_DEBUG_END(doc);
 }
 

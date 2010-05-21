@@ -17,16 +17,18 @@ static VALUE validate_document(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlRelaxNGPtr schema;
+  VALUE errors;
+  xmlRelaxNGValidCtxtPtr valid_ctxt;
 
   Data_Get_Struct(self, xmlRelaxNG, schema);
   Data_Get_Struct(document, xmlDoc, doc);
 
-  VALUE errors = rb_ary_new();
+  errors = rb_ary_new();
 
-  xmlRelaxNGValidCtxtPtr valid_ctxt = xmlRelaxNGNewValidCtxt(schema);
+  valid_ctxt = xmlRelaxNGNewValidCtxt(schema);
 
   if(NULL == valid_ctxt) {
-    // we have a problem
+    /* we have a problem */
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
 
@@ -57,8 +59,10 @@ static VALUE read_memory(VALUE klass, VALUE content)
       (const char *)StringValuePtr(content),
       (int)RSTRING_LEN(content)
   );
-
+  xmlRelaxNGPtr schema;
   VALUE errors = rb_ary_new();
+  VALUE rb_schema;
+
   xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
 
 #ifdef HAVE_XMLRELAXNGSETPARSERSTRUCTUREDERRORS
@@ -69,7 +73,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
   );
 #endif
 
-  xmlRelaxNGPtr schema = xmlRelaxNGParse(ctx);
+  schema = xmlRelaxNGParse(ctx);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlRelaxNGFreeParserCtxt(ctx);
@@ -84,7 +88,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
     return Qnil;
   }
 
-  VALUE rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
+  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
   rb_iv_set(rb_schema, "@errors", errors);
 
   return rb_schema;
@@ -99,14 +103,19 @@ static VALUE read_memory(VALUE klass, VALUE content)
 static VALUE from_document(VALUE klass, VALUE document)
 {
   xmlDocPtr doc;
+  xmlRelaxNGParserCtxtPtr ctx;
+  xmlRelaxNGPtr schema;
+  VALUE errors;
+  VALUE rb_schema;
+
   Data_Get_Struct(document, xmlDoc, doc);
 
-  // In case someone passes us a node. ugh.
+  /* In case someone passes us a node. ugh. */
   doc = doc->doc;
 
-  xmlRelaxNGParserCtxtPtr ctx = xmlRelaxNGNewDocParserCtxt(doc);
+  ctx = xmlRelaxNGNewDocParserCtxt(doc);
 
-  VALUE errors = rb_ary_new();
+  errors = rb_ary_new();
   xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
 
 #ifdef HAVE_XMLRELAXNGSETPARSERSTRUCTUREDERRORS
@@ -117,7 +126,7 @@ static VALUE from_document(VALUE klass, VALUE document)
   );
 #endif
 
-  xmlRelaxNGPtr schema = xmlRelaxNGParse(ctx);
+  schema = xmlRelaxNGParse(ctx);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   if (! is_2_6_16()) {
@@ -138,7 +147,7 @@ static VALUE from_document(VALUE klass, VALUE document)
     xmlRelaxNGFreeParserCtxt(ctx);
   }
 
-  VALUE rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
+  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
   rb_iv_set(rb_schema, "@errors", errors);
 
   return rb_schema;

@@ -9,12 +9,13 @@
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
   VALUE uri, external_id, rest, rb_doc;
+  htmlDocPtr doc;
 
   rb_scan_args(argc, argv, "0*", &rest);
   uri         = rb_ary_entry(rest, (long)0);
   external_id = rb_ary_entry(rest, (long)1);
 
-  htmlDocPtr doc = htmlNewDoc(
+  doc = htmlNewDoc(
       RTEST(uri) ? (const xmlChar *)StringValuePtr(uri) : NULL,
       RTEST(external_id) ? (const xmlChar *)StringValuePtr(external_id) : NULL
   );
@@ -39,11 +40,13 @@ static VALUE read_io( VALUE klass,
   const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
   const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
   VALUE error_list      = rb_ary_new();
+  VALUE document;
+  htmlDocPtr doc;
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
-  htmlDocPtr doc = htmlReadIO(
+  doc = htmlReadIO(
       io_read_callback,
       io_close_callback,
       (void *)io,
@@ -54,9 +57,11 @@ static VALUE read_io( VALUE klass,
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if(doc == NULL) {
+    xmlErrorPtr error;
+
     xmlFreeDoc(doc);
 
-    xmlErrorPtr error = xmlGetLastError();
+    error = xmlGetLastError();
     if(error)
       rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
     else
@@ -65,7 +70,7 @@ static VALUE read_io( VALUE klass,
     return Qnil;
   }
 
-  VALUE document = Nokogiri_wrap_xml_document(klass, doc);
+  document = Nokogiri_wrap_xml_document(klass, doc);
   rb_iv_set(document, "@errors", error_list);
   return document;
 }
@@ -88,17 +93,21 @@ static VALUE read_memory( VALUE klass,
   const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
   int len               = (int)RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
+  VALUE document;
+  htmlDocPtr doc;
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
-  htmlDocPtr doc = htmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
+  doc = htmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if(doc == NULL) {
+    xmlErrorPtr error;
+
     xmlFreeDoc(doc);
 
-    xmlErrorPtr error = xmlGetLastError();
+    error = xmlGetLastError();
     if(error)
       rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
     else
@@ -107,7 +116,7 @@ static VALUE read_memory( VALUE klass,
     return Qnil;
   }
 
-  VALUE document = Nokogiri_wrap_xml_document(klass, doc);
+  document = Nokogiri_wrap_xml_document(klass, doc);
   rb_iv_set(document, "@errors", error_list);
   return document;
 }

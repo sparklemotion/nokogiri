@@ -6,13 +6,13 @@ static void notation_copier(void *payload, void *data, xmlChar *name)
   VALUE klass = rb_const_get(mNokogiriXml, rb_intern("Notation"));
 
   xmlNotationPtr c_notation = (xmlNotationPtr)payload;
-
+  VALUE notation;
   VALUE argv[3];
   argv[0] = (c_notation->name ? NOKOGIRI_STR_NEW2(c_notation->name) : Qnil);
   argv[1] = (c_notation->PublicID ? NOKOGIRI_STR_NEW2(c_notation->PublicID) : Qnil);
   argv[2] = (c_notation->SystemID ? NOKOGIRI_STR_NEW2(c_notation->SystemID) : Qnil);
 
-  VALUE notation = rb_class_new_instance(3, argv, klass);
+  notation = rb_class_new_instance(3, argv, klass);
 
   rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name),notation);
 }
@@ -36,11 +36,13 @@ static void element_copier(void *_payload, void *data, xmlChar *name)
 static VALUE entities(VALUE self)
 {
   xmlDtdPtr dtd;
+  VALUE hash;
+
   Data_Get_Struct(self, xmlDtd, dtd);
 
   if(!dtd->entities) return Qnil;
 
-  VALUE hash = rb_hash_new();
+  hash = rb_hash_new();
 
   xmlHashScan((xmlHashTablePtr)dtd->entities, element_copier, (void *)hash);
 
@@ -56,11 +58,13 @@ static VALUE entities(VALUE self)
 static VALUE notations(VALUE self)
 {
   xmlDtdPtr dtd;
+  VALUE hash;
+
   Data_Get_Struct(self, xmlDtd, dtd);
 
   if(!dtd->notations) return Qnil;
 
-  VALUE hash = rb_hash_new();
+  hash = rb_hash_new();
 
   xmlHashScan((xmlHashTablePtr)dtd->notations, notation_copier, (void *)hash);
 
@@ -76,11 +80,13 @@ static VALUE notations(VALUE self)
 static VALUE attributes(VALUE self)
 {
   xmlDtdPtr dtd;
+  VALUE hash;
+
   Data_Get_Struct(self, xmlDtd, dtd);
 
   if(!dtd->attributes) return Qnil;
 
-  VALUE hash = rb_hash_new();
+  hash = rb_hash_new();
 
   xmlHashScan((xmlHashTablePtr)dtd->attributes, element_copier, (void *)hash);
 
@@ -96,11 +102,13 @@ static VALUE attributes(VALUE self)
 static VALUE elements(VALUE self)
 {
   xmlDtdPtr dtd;
+  VALUE hash;
+
   Data_Get_Struct(self, xmlDtd, dtd);
 
   if(!dtd->elements) return Qnil;
 
-  VALUE hash = rb_hash_new();
+  hash = rb_hash_new();
 
   xmlHashScan((xmlHashTablePtr)dtd->elements, element_copier, (void *)hash);
 
@@ -117,12 +125,14 @@ static VALUE validate(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlDtdPtr dtd;
+  xmlValidCtxtPtr ctxt;
+  VALUE error_list;
 
   Data_Get_Struct(self, xmlDtd, dtd);
   Data_Get_Struct(document, xmlDoc, doc);
-  VALUE error_list      = rb_ary_new();
+  error_list = rb_ary_new();
 
-  xmlValidCtxtPtr ctxt = xmlNewValidCtxt();
+  ctxt = xmlNewValidCtxt();
 
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 

@@ -10,11 +10,11 @@ static VALUE get(VALUE self, VALUE key)
 {
   const htmlEntityDesc * desc =
     htmlEntityLookup((const xmlChar *)StringValuePtr(key));
+  VALUE klass, args[3];
 
   if(NULL == desc) return Qnil;
-  VALUE klass = rb_const_get(mNokogiriHtml, rb_intern("EntityDescription"));
+  klass = rb_const_get(mNokogiriHtml, rb_intern("EntityDescription"));
 
-  VALUE args[3];
   args[0] = INT2NUM((long)desc->value);
   args[1] = NOKOGIRI_STR_NEW2(desc->name);
   args[2] = NOKOGIRI_STR_NEW2(desc->desc);

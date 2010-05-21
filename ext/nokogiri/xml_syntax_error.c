@@ -13,11 +13,13 @@ void Nokogiri_error_raise(void * ctx, xmlErrorPtr error)
 
 VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error)
 {
+  VALUE msg, e;
+
   if(!klass) klass = cNokogiriXmlSyntaxError;
 
-  VALUE msg = (error && error->message) ? NOKOGIRI_STR_NEW2(error->message) : Qnil;
+  msg = (error && error->message) ? NOKOGIRI_STR_NEW2(error->message) : Qnil;
 
-  VALUE e = rb_class_new_instance(
+  e = rb_class_new_instance(
       1,
       &msg,
       klass
