@@ -1,5 +1,7 @@
 #include <xml_xpath_context.h>
 
+int vasprintf (char **strp, const char *fmt, va_list ap);
+
 static void deallocate(xmlXPathContextPtr ctx)
 {
   NOKOGIRI_DEBUG_START(ctx);

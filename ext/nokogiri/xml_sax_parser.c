@@ -1,5 +1,7 @@
 #include <xml_sax_parser.h>
 
+int vasprintf (char **strp, const char *fmt, va_list ap);
+
 static ID id_start_document, id_end_document, id_start_element, id_end_element;
 static ID id_start_element_namespace, id_end_element_namespace;
 static ID id_comment, id_characters, id_xmldecl, id_error, id_warning;
