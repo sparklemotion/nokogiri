@@ -5,6 +5,8 @@
 #include <libxslt/transform.h>
 #include <libexslt/exslt.h>
 
+int vasprintf (char **strp, const char *fmt, va_list ap);
+
 static void dealloc(xsltStylesheetPtr doc)
 {
     NOKOGIRI_DEBUG_START(doc);
