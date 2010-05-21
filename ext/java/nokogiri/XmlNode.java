@@ -10,8 +10,10 @@ import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -774,10 +776,33 @@ public class XmlNode extends RubyObject {
             ctx = new XmlDomParserContext(getRuntime(), options);
         }
 
-        ctx.setInputSource(context, str);
+        String input = addTemporaryRootTagIfNecessary(context, (String)str.toJava(String.class));
+        InputStream istream = new ByteArrayInputStream(input.getBytes());
+        ctx.setInputSource(istream);
         XmlDocument doc = ctx.parse(context, klass, getRuntime().getNil());
-            XmlNodeSet nodes = new XmlNodeSet(getRuntime(),
-                                              doc.getNode().getChildNodes());
+        NodeList childNodes = removeTemporaryRootIfNecessary(doc.getNode().getChildNodes());
+        XmlNodeSet nodes = new XmlNodeSet(getRuntime(), childNodes);
+        nodes.setInstanceVariable("@document", doc);
+        return nodes;
+    }
+    
+    private String addTemporaryRootTagIfNecessary(ThreadContext context, String tags) {
+        Matcher matcher = XmlDocumentFragment.wellformed_pattern.matcher(tags);
+        while(matcher.find()) {
+            if (matcher.start() == 0 && matcher.end() == tags.length()) return tags;
+            break;
+        }
+        tags = "<"+ NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG + ">" + tags + "</" + NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG + ">";
+        return tags;
+    }
+    
+    private NodeList removeTemporaryRootIfNecessary(NodeList nodes) {
+        if (nodes != null && nodes.getLength() > 0) {
+            Node n = nodes.item(0);
+            if (n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName().equals(NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG)) {
+                return n.getChildNodes();
+            }
+        }
         return nodes;
     }
 
