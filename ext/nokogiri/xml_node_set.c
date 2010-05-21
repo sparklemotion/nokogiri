@@ -12,9 +12,11 @@ static ID decorate ;
 static VALUE duplicate(VALUE self)
 {
   xmlNodeSetPtr node_set;
+  xmlNodeSetPtr dupl;
+
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  xmlNodeSetPtr dupl = xmlXPathNodeSetMerge(NULL, node_set);
+  dupl = xmlXPathNodeSetMerge(NULL, node_set);
 
   return Nokogiri_wrap_xml_node_set(dupl, rb_iv_get(self, "@document"));
 }
@@ -277,10 +279,13 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
 static VALUE to_array(VALUE self, VALUE rb_node)
 {
   xmlNodeSetPtr set;
+  VALUE *elts;
+  VALUE list;
+  int i;
+
   Data_Get_Struct(self, xmlNodeSet, set);
 
-  VALUE *elts = calloc((size_t)set->nodeNr, sizeof(VALUE *));
-  int i;
+  elts = calloc((size_t)set->nodeNr, sizeof(VALUE *));
   for(i = 0; i < set->nodeNr; i++) {
     if (XML_NAMESPACE_DECL == set->nodeTab[i]->type) {
       elts[i] = Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(set->nodeTab[i]));
@@ -298,9 +303,9 @@ static VALUE to_array(VALUE self, VALUE rb_node)
     }
   }
 
-  VALUE list = rb_ary_new4((long)set->nodeNr, elts);
+  list = rb_ary_new4((long)set->nodeNr, elts);
 
-  //free(elts);
+  /*free(elts); */
 
   return list;
 }

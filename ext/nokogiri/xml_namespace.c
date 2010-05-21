@@ -42,16 +42,18 @@ static VALUE href(VALUE self)
 
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 {
+  VALUE ns, document, node_cache;
+
   assert(doc->_private);
 
   if(node->_private)
     return (VALUE)node->_private;
 
-  VALUE ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
+  ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
 
-  VALUE document = DOC_RUBY_OBJECT(doc);
+  document = DOC_RUBY_OBJECT(doc);
 
-  VALUE node_cache = rb_iv_get(document, "@node_cache");
+  node_cache = rb_iv_get(document, "@node_cache");
   rb_ary_push(node_cache, ns);
 
   rb_iv_set(ns, "@document", DOC_RUBY_OBJECT(doc));

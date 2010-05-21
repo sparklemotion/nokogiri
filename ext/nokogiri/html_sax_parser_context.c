@@ -15,11 +15,13 @@ static void deallocate(xmlParserCtxtPtr ctxt)
 
 static VALUE parse_memory(VALUE klass, VALUE data, VALUE encoding)
 {
+  htmlParserCtxtPtr ctxt;
+
   if(NIL_P(data)) rb_raise(rb_eArgError, "data cannot be nil");
   if(!(int)RSTRING_LEN(data))
     rb_raise(rb_eRuntimeError, "data cannot be empty");
 
-  htmlParserCtxtPtr ctxt = htmlCreateMemoryParserCtxt(
+  ctxt = htmlCreateMemoryParserCtxt(
       StringValuePtr(data),
       (int)RSTRING_LEN(data)
   );
@@ -49,16 +51,16 @@ static VALUE parse_file(VALUE klass, VALUE filename, VALUE encoding)
 
 static VALUE parse_with(VALUE self, VALUE sax_handler)
 {
+  htmlParserCtxtPtr ctxt;
+  htmlSAXHandlerPtr sax;
+
   if(!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser))
     rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
 
-  htmlParserCtxtPtr ctxt;
   Data_Get_Struct(self, htmlParserCtxt, ctxt);
-
-  htmlSAXHandlerPtr sax;
   Data_Get_Struct(sax_handler, htmlSAXHandler, sax);
 
-  // Free the sax handler since we'll assign our own
+  /* Free the sax handler since we'll assign our own */
   if(ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
     xmlFree(ctxt->sax);
 

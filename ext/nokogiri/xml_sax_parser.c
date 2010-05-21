@@ -16,7 +16,7 @@ static void start_document(void * ctx)
   xmlParserCtxtPtr ctxt = NOKOGIRI_SAX_CTXT(ctx);
 
   if(NULL != ctxt && ctxt->html != 1) {
-    if(ctxt->standalone != -1) {  // -1 means there was no declaration
+    if(ctxt->standalone != -1) {  /* -1 means there was no declaration */
       VALUE encoding = ctxt->encoding ?
         NOKOGIRI_STR_NEW2(ctxt->encoding) :
         Qnil;
@@ -92,7 +92,8 @@ static VALUE attributes_as_list(
     /* Each attribute is an array of [localname, prefix, URI, value, end] */
     int i;
     for (i = 0; i < nb_attributes * 5; i += 5) {
-      VALUE argv[4];
+      VALUE argv[4], attribute;
+
       argv[0] = RBSTR_OR_QNIL(attributes[i + 0]); /* localname */
       argv[1] = RBSTR_OR_QNIL(attributes[i + 1]); /* prefix */
       argv[2] = RBSTR_OR_QNIL(attributes[i + 2]); /* URI */
@@ -101,7 +102,7 @@ static VALUE attributes_as_list(
       argv[3] = NOKOGIRI_STR_NEW((const char*)attributes[i+3],
           (attributes[i+4] - attributes[i+3]));
 
-      VALUE attribute = rb_class_new_instance(4, argv, attr_klass);
+      attribute = rb_class_new_instance(4, argv, attr_klass);
       rb_ary_push(list, attribute);
     }
   }

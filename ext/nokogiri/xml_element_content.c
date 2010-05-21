@@ -97,8 +97,8 @@ VALUE Nokogiri_wrap_element_content(VALUE doc, xmlElementContentPtr element)
 {
   VALUE elem = Data_Wrap_Struct(cNokogiriXmlElementContent, 0, 0, element);
 
-  // Setting the document is necessary so that this does not get GC'd until
-  // the document is GC'd
+  /* Setting the document is necessary so that this does not get GC'd until */
+  /* the document is GC'd */
   rb_iv_set(elem, "@document", doc);
 
   return elem;

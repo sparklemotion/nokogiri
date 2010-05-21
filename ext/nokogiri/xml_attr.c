@@ -19,21 +19,21 @@ static VALUE set_value(VALUE self, VALUE content)
     xmlChar *buffer;
     xmlNode *tmp;
 
-    // Encode our content
+    /* Encode our content */
     buffer = xmlEncodeEntitiesReentrant(attr->doc, (unsigned char *)StringValuePtr(content));
 
     attr->children = xmlStringGetNodeList(attr->doc, buffer);
     attr->last = NULL;
     tmp = attr->children;
 
-    // Loop through the children
+    /* Loop through the children */
     for(tmp = attr->children; tmp; tmp = tmp->next) {
       tmp->parent = (xmlNode *)attr;
       tmp->doc = attr->doc;
       if(tmp->next == NULL) attr->last = tmp;
     }
 
-    // Free up memory
+    /* Free up memory */
     xmlFree(buffer);
   }
 
@@ -52,12 +52,14 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   VALUE document;
   VALUE name;
   VALUE rest;
+  xmlAttrPtr node;
+  VALUE rb_node;
 
   rb_scan_args(argc, argv, "2*", &document, &name, &rest);
 
   Data_Get_Struct(document, xmlDoc, xml_doc);
 
-  xmlAttrPtr node = xmlNewDocProp(
+  node = xmlNewDocProp(
       xml_doc,
       (const xmlChar *)StringValuePtr(name),
       NULL
@@ -65,7 +67,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   NOKOGIRI_ROOT_NODE((xmlNodePtr)node);
 
-  VALUE rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
+  rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
   rb_obj_call_init(rb_node, argc, argv);
 
   if(rb_block_given_p()) rb_yield(rb_node);

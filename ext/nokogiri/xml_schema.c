@@ -17,16 +17,18 @@ static VALUE validate_document(VALUE self, VALUE document)
 {
   xmlDocPtr doc;
   xmlSchemaPtr schema;
+  xmlSchemaValidCtxtPtr valid_ctxt;
+  VALUE errors;
 
   Data_Get_Struct(self, xmlSchema, schema);
   Data_Get_Struct(document, xmlDoc, doc);
 
-  VALUE errors = rb_ary_new();
+  errors = rb_ary_new();
 
-  xmlSchemaValidCtxtPtr valid_ctxt = xmlSchemaNewValidCtxt(schema);
+  valid_ctxt = xmlSchemaNewValidCtxt(schema);
 
   if(NULL == valid_ctxt) {
-    // we have a problem
+    /* we have a problem */
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
 
@@ -54,17 +56,19 @@ static VALUE validate_document(VALUE self, VALUE document)
 static VALUE validate_file(VALUE self, VALUE rb_filename)
 {
   xmlSchemaPtr schema;
+  xmlSchemaValidCtxtPtr valid_ctxt;
   const char *filename ;
+  VALUE errors;
 
   Data_Get_Struct(self, xmlSchema, schema);
   filename = (const char*)StringValuePtr(rb_filename) ;
 
-  VALUE errors = rb_ary_new();
+  errors = rb_ary_new();
 
-  xmlSchemaValidCtxtPtr valid_ctxt = xmlSchemaNewValidCtxt(schema);
+  valid_ctxt = xmlSchemaNewValidCtxt(schema);
 
   if(NULL == valid_ctxt) {
-    // we have a problem
+    /* we have a problem */
     rb_raise(rb_eRuntimeError, "Could not create a validation context");
   }
 
@@ -91,12 +95,12 @@ static VALUE validate_file(VALUE self, VALUE rb_filename)
  */
 static VALUE read_memory(VALUE klass, VALUE content)
 {
-
+  xmlSchemaPtr schema;
   xmlSchemaParserCtxtPtr ctx = xmlSchemaNewMemParserCtxt(
       (const char *)StringValuePtr(content),
       (int)RSTRING_LEN(content)
   );
-
+  VALUE rb_schema;
   VALUE errors = rb_ary_new();
   xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
 
@@ -108,7 +112,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
   );
 #endif
 
-  xmlSchemaPtr schema = xmlSchemaParse(ctx);
+   schema = xmlSchemaParse(ctx);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSchemaFreeParserCtxt(ctx);
@@ -123,7 +127,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
     return Qnil;
   }
 
-  VALUE rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
+  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
   rb_iv_set(rb_schema, "@errors", errors);
 
   return rb_schema;
@@ -138,14 +142,19 @@ static VALUE read_memory(VALUE klass, VALUE content)
 static VALUE from_document(VALUE klass, VALUE document)
 {
   xmlDocPtr doc;
+  xmlSchemaParserCtxtPtr ctx;
+  xmlSchemaPtr schema;
+  VALUE errors;
+  VALUE rb_schema;
+
   Data_Get_Struct(document, xmlDoc, doc);
 
-  // In case someone passes us a node. ugh.
+  /* In case someone passes us a node. ugh. */
   doc = doc->doc;
 
-  xmlSchemaParserCtxtPtr ctx = xmlSchemaNewDocParserCtxt(doc);
+  ctx = xmlSchemaNewDocParserCtxt(doc);
 
-  VALUE errors = rb_ary_new();
+  errors = rb_ary_new();
   xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
 
 #ifdef HAVE_XMLSCHEMASETPARSERSTRUCTUREDERRORS
@@ -156,7 +165,7 @@ static VALUE from_document(VALUE klass, VALUE document)
   );
 #endif
 
-  xmlSchemaPtr schema = xmlSchemaParse(ctx);
+  schema = xmlSchemaParse(ctx);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSchemaFreeParserCtxt(ctx);
@@ -171,7 +180,7 @@ static VALUE from_document(VALUE klass, VALUE document)
     return Qnil;
   }
 
-  VALUE rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
+  rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);
   rb_iv_set(rb_schema, "@errors", errors);
 
   return rb_schema;

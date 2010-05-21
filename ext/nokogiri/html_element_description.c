@@ -9,16 +9,17 @@
 static VALUE required_attributes(VALUE self)
 {
   htmlElemDesc * description;
+  VALUE list;
+  int i;
+
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  VALUE list = rb_ary_new();
+  list = rb_ary_new();
 
   if(NULL == description->attrs_req) return list;
 
-  int i = 0;
-  while(description->attrs_req[i]) {
+  for(i = 0; description->attrs_depr[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_req[i]));
-    i++;
   }
 
   return list;
@@ -33,16 +34,17 @@ static VALUE required_attributes(VALUE self)
 static VALUE deprecated_attributes(VALUE self)
 {
   htmlElemDesc * description;
+  VALUE list;
+  int i;
+
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  VALUE list = rb_ary_new();
+  list = rb_ary_new();
 
   if(NULL == description->attrs_depr) return list;
 
-  int i = 0;
-  while(description->attrs_depr[i]) {
+  for(i = 0; description->attrs_depr[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_depr[i]));
-    i++;
   }
 
   return list;
@@ -57,16 +59,17 @@ static VALUE deprecated_attributes(VALUE self)
 static VALUE optional_attributes(VALUE self)
 {
   htmlElemDesc * description;
+  VALUE list;
+  int i;
+
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  VALUE list = rb_ary_new();
+  list = rb_ary_new();
 
   if(NULL == description->attrs_opt) return list;
 
-  int i = 0;
-  while(description->attrs_opt[i]) {
+  for(i = 0; description->attrs_opt[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->attrs_opt[i]));
-    i++;
   }
 
   return list;
@@ -95,16 +98,17 @@ static VALUE default_sub_element(VALUE self)
 static VALUE sub_elements(VALUE self)
 {
   htmlElemDesc * description;
+  VALUE list;
+  int i;
+
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  VALUE list = rb_ary_new();
+  list = rb_ary_new();
 
   if(NULL == description->subelts) return list;
 
-  int i = 0;
-  while(description->subelts[i]) {
+  for(i = 0; description->subelts[i]; i++) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(description->subelts[i]));
-    i++;
   }
 
   return list;

@@ -37,10 +37,13 @@ static VALUE default_value(VALUE self)
 static VALUE enumeration(VALUE self)
 {
   xmlAttributePtr node;
+  xmlEnumerationPtr enm;
+  VALUE list;
+
   Data_Get_Struct(self, xmlAttribute, node);
 
-  VALUE list = rb_ary_new();
-  xmlEnumerationPtr enm = node->tree;
+  list = rb_ary_new();
+  enm = node->tree;
 
   while(enm) {
     rb_ary_push(list, NOKOGIRI_STR_NEW2(enm->name));

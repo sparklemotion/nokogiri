@@ -9,15 +9,17 @@
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
   xmlDocPtr xml_doc;
+  xmlNodePtr node;
   VALUE doc;
   VALUE content;
   VALUE rest;
+  VALUE rb_node;
 
   rb_scan_args(argc, argv, "2*", &doc, &content, &rest);
 
   Data_Get_Struct(doc, xmlDoc, xml_doc);
 
-  xmlNodePtr node = xmlNewCDataBlock(
+  node = xmlNewCDataBlock(
       xml_doc->doc,
       NIL_P(content) ? NULL : (const xmlChar *)StringValuePtr(content),
       NIL_P(content) ? 0 : (int)RSTRING_LEN(content)
@@ -25,7 +27,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   NOKOGIRI_ROOT_NODE(node);
 
-  VALUE rb_node = Nokogiri_wrap_xml_node(klass, node);
+  rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
   if(rb_block_given_p()) rb_yield(rb_node);

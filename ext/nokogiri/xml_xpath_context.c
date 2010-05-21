@@ -28,7 +28,13 @@ static VALUE register_ns(VALUE self, VALUE prefix, VALUE uri)
 static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
 {
   VALUE xpath_handler = Qnil;
+  VALUE result;
+  VALUE *argv;
+  VALUE doc;
+  VALUE node_set = Qnil;
+  xmlNodeSetPtr xml_node_set = NULL;
   xmlXPathObjectPtr obj;
+  int i;
 
   assert(ctx);
   assert(ctx->context);
@@ -38,10 +44,10 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
 
   xpath_handler = (VALUE)(ctx->context->userData);
 
-  VALUE * argv = (VALUE *)calloc((unsigned int)nargs, sizeof(VALUE));
-  VALUE doc = DOC_RUBY_OBJECT(ctx->context->doc);
+  argv = (VALUE *)calloc((unsigned int)nargs, sizeof(VALUE));
+  doc = DOC_RUBY_OBJECT(ctx->context->doc);
 
-  int i = nargs - 1;
+  i = nargs - 1;
   do {
     obj = valuePop(ctx);
     switch(obj->type) {
@@ -63,16 +69,13 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     xmlXPathFreeNodeSetList(obj);
   } while(i-- > 0);
 
-  VALUE result = rb_funcall2(
+  result = rb_funcall2(
       xpath_handler,
       rb_intern((const char *)ctx->context->function),
       nargs,
       argv
   );
   free(argv);
-
-  VALUE node_set = Qnil;
-  xmlNodeSetPtr xml_node_set = NULL;
 
   switch(TYPE(result)) {
     case T_FLOAT:
@@ -96,7 +99,9 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
       break;
     case T_ARRAY:
       {
-        VALUE args[2] = {doc, result};
+        VALUE args[2];
+	args[0] = doc;
+	args[1] = result;
         node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
         Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
         xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
@@ -105,7 +110,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     case T_DATA:
       if(rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
         Data_Get_Struct(result, xmlNodeSet, xml_node_set);
-        // Copy the node set, otherwise it will get GC'd.
+        /* Copy the node set, otherwise it will get GC'd. */
         xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
         break;
       }
@@ -156,16 +161,20 @@ static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
 static VALUE evaluate(int argc, VALUE *argv, VALUE self)
 {
   VALUE search_path, xpath_handler;
+  VALUE thing = Qnil;
   xmlXPathContextPtr ctx;
+  xmlXPathObjectPtr xpath;
+  xmlChar *query;
+
   Data_Get_Struct(self, xmlXPathContext, ctx);
 
   if(rb_scan_args(argc, argv, "11", &search_path, &xpath_handler) == 1)
     xpath_handler = Qnil;
 
-  xmlChar* query = (xmlChar *)StringValuePtr(search_path);
+  query = (xmlChar *)StringValuePtr(search_path);
 
   if(Qnil != xpath_handler) {
-    // FIXME: not sure if this is the correct place to shove private data.
+    /* FIXME: not sure if this is the correct place to shove private data. */
     ctx->userData = (void *)xpath_handler;
     xmlXPathRegisterFuncLookup(ctx, lookup, (void *)xpath_handler);
   }
@@ -173,11 +182,11 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   xmlResetLastError();
   xmlSetStructuredErrorFunc(NULL, xpath_exception_handler);
 
-  // For some reason, xmlXPathEvalExpression will blow up with a generic error
-  // when there is a non existent function.
+  /* For some reason, xmlXPathEvalExpression will blow up with a generic error */
+  /* when there is a non existent function. */
   xmlSetGenericErrorFunc(NULL, xpath_generic_exception_handler);
 
-  xmlXPathObjectPtr xpath = xmlXPathEvalExpression(query, ctx);
+  xpath = xmlXPathEvalExpression(query, ctx);
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
 
@@ -188,8 +197,6 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
     xmlErrorPtr error = xmlGetLastError();
     rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
   }
-
-  VALUE thing = Qnil;
 
   assert(ctx->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctx->doc));
@@ -229,15 +236,18 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
  */
 static VALUE new(VALUE klass, VALUE nodeobj)
 {
+  xmlNodePtr node;
+  xmlXPathContextPtr ctx;
+  VALUE self;
+
   xmlXPathInit();
 
-  xmlNodePtr node ;
   Data_Get_Struct(nodeobj, xmlNode, node);
 
-  xmlXPathContextPtr ctx = xmlXPathNewContext(node->doc);
+  ctx = xmlXPathNewContext(node->doc);
   ctx->node = node;
-  VALUE self = Data_Wrap_Struct(klass, 0, deallocate, ctx);
-  //rb_iv_set(self, "@xpath_handler", Qnil);
+  self = Data_Wrap_Struct(klass, 0, deallocate, ctx);
+  /*rb_iv_set(self, "@xpath_handler", Qnil); */
   return self;
 }
 
