@@ -60,28 +60,18 @@ int is_2_6_16(void) ;
 #include <ruby/encoding.h>
 
 #define NOKOGIRI_STR_NEW2(str) \
-  ({ \
-    VALUE _string = rb_str_new2((const char *)str); \
-    int _enc = rb_enc_find_index("UTF-8"); \
-    rb_enc_associate_index(_string, _enc); \
-    _string; \
-  })
+  NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
 
 #define NOKOGIRI_STR_NEW(str, len) \
-  ({ \
-    VALUE _string = rb_str_new((const char *)str, (long)len); \
-    int _enc = rb_enc_find_index("UTF-8"); \
-    rb_enc_associate_index(_string, _enc); \
-    _string; \
-  })
+  rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
 
 #else
 
 #define NOKOGIRI_STR_NEW2(str) \
-  rb_str_new2((const char *)str)
+  rb_str_new2((const char *)(str))
 
 #define NOKOGIRI_STR_NEW(str, len) \
-  rb_str_new((const char *)str, (long)len)
+  rb_str_new((const char *)(str), (long)(len))
 #endif
 
 #define RBSTR_OR_QNIL(_str) \
