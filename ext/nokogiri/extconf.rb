@@ -99,6 +99,7 @@ pkg_config('libxslt') if RUBY_PLATFORM =~ /mingw/
 asplode "libxml2"  unless find_header('libxml/parser.h')
 asplode "libxslt"  unless find_header('libxslt/xslt.h')
 asplode "libexslt" unless find_header('libexslt/exslt.h')
+asplode "libiconv" unless have_library('iconv', 'iconv_open', 'iconv.h')
 asplode "libxml2"  unless find_library("#{lib_prefix}xml2", 'xmlParseDoc')
 asplode "libxslt"  unless find_library("#{lib_prefix}xslt", 'xsltParseStylesheetDoc')
 asplode "libexslt" unless find_library("#{lib_prefix}exslt", 'exsltFuncRegister')
