@@ -18,19 +18,13 @@ module Nokogiri
         @entity_decl = @entities.first
       end
 
-      def test_constants # for libffi implementation. *sigh* sorry Mike. :-(
+      def test_constants
         assert_equal 1, EntityDecl::INTERNAL_GENERAL
         assert_equal 2, EntityDecl::EXTERNAL_GENERAL_PARSED
         assert_equal 3, EntityDecl::EXTERNAL_GENERAL_UNPARSED
         assert_equal 4, EntityDecl::INTERNAL_PARAMETER
         assert_equal 5, EntityDecl::EXTERNAL_PARAMETER
         assert_equal 6, EntityDecl::INTERNAL_PREDEFINED
-
-        # While I'm here, another problem with libffi comes to mind.  If someone
-        # upgrades their version of any particular C library, and the constants
-        # change values, the client using Ruby code is fucked.  That sucks.
-        # Basically anything to do with the preprocessor fucks someone using
-        # libffi.  :-(
       end
 
       def test_create_typed_entity
