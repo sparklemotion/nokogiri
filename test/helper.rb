@@ -7,12 +7,7 @@ require 'pp'
 
 require 'nokogiri'
 
-if Nokogiri.uses_libxml?
-  warn "#{__FILE__}:#{__LINE__}: libxml version info: #{Nokogiri::VERSION_INFO.inspect}"
-else
-  warn "#{__FILE__}:#{__LINE__}: pure java version"
-end
-
+warn "#{__FILE__}:#{__LINE__}: version info: #{Nokogiri::VERSION_INFO.inspect}"
 
 module Nokogiri
   class TestCase < MiniTest::Spec
