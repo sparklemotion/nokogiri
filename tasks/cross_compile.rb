@@ -147,9 +147,11 @@ namespace :cross do
   end
 end
 
-CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
-CLOBBER.include("lib/nokogiri/1.{8,9}")
-CLOBBER.include("ext/nokogiri/*.dll")
+unless RUBY_PLATFORM =~ /java/
+  CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
+  CLOBBER.include("lib/nokogiri/1.{8,9}")
+  CLOBBER.include("ext/nokogiri/*.dll")
+end
 
 if Rake::Task.task_defined?(:cross)
   Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
