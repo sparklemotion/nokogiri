@@ -15,8 +15,6 @@ EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml nekodtd xercesImpl}.map{|x| 
 JAVA_EXT = "lib/nokogiri/nokogiri.jar"
 JRUBY_HOME = Config::CONFIG['prefix']
 
-#require 'nokogiri/version'
-
 # Make sure hoe-debugging is installed
 Hoe.plugin :debugging
 
@@ -83,7 +81,6 @@ unless java
 end
 
 namespace :java do
-
   desc "Removes all generated during compilation .class files."
   task :clean_classes do
     (FileList['ext/java/nokogiri/internals/*.class'] + FileList['ext/java/nokogiri/*.class'] + FileList['ext/java/*.class']).to_a.each do |file|
@@ -162,7 +159,7 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
 end
 
 require 'tasks/test'
-require 'tasks/cross_compile'
+require 'tasks/cross_compile' unless RUBY_PLATFORM =~ /java/
 
 desc "set environment variables to build and/or test with debug options"
 task :debug do
