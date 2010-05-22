@@ -73,11 +73,7 @@ module Nokogiri
 
       def test_default
         assert_equal '0', @attr_decl.default
-        if Nokogiri.uses_libxml?
-          assert_nil @attrs[1].default
-        else
-          assert_equal '0', @attrs[1].default
-        end
+        assert_equal '0', @attrs[1].default
       end
 
       def test_enumeration

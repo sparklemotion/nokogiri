@@ -69,12 +69,20 @@ module Nokogiri
 
       def test_original_content
         assert_equal "es", @entity_decl.original_content
-        assert_nil @entities[1].original_content
+        if Nokogiri.jruby?
+          assert_nil @entities[1].original_content
+        else
+          assert_equal "", @entities[1].original_content
+        end
       end
 
       def test_content
         assert_equal "es", @entity_decl.content
-        assert_nil @entities[1].content
+        if Nokogiri.jruby?
+          assert_nil @entities[1].content
+        else
+          assert_equal "", @entities[1].content
+        end
       end
 
       def test_type
