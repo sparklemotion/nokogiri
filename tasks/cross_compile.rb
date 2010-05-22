@@ -1,6 +1,3 @@
-# FIXME: I *think* we can get this value from rake-compiler
-HOST = 'i386-mingw32'
-
 require 'rake/extensioncompiler'
 HOST = Rake::ExtensionCompiler.mingw_host
 TARGET = 'i386-pc-mingw32'
