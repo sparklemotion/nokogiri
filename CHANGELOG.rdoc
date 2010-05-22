@@ -1,3 +1,15 @@
+== 1.5.0 beta1 / 2010/05/22
+
+* Notes
+
+  * JRuby support is provided by a new pure-java backend.
+
+* Deprecations
+
+  * Ruby 1.8.6 is deprecated. Nokogiri will install, but official support is ended.
+  * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
+  * FFI support is removed.
+
 === 1.4.2 / 2010/05/22
 
 * New Features
