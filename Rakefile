@@ -97,22 +97,20 @@ namespace :java do
   task :clean_all => ["java:clean_classes", "java:clean_jar"]
   
   desc "Build a gem targetted for JRuby"
-  task :gem => ['java:spec'] do
+  task :gem => ['java:spec', GENERATED_PARSER, GENERATED_TOKENIZER, :build] do
     system "gem build nokogiri.gemspec"
     FileUtils.mkdir_p "pkg"
     FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
   end
 
-  task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER, :build] do
+  task :spec do
     File.open("#{HOE.name}.gemspec", 'w') do |f|
       HOE.spec.platform = 'java'
       HOE.spec.files += [GENERATED_PARSER, GENERATED_TOKENIZER, JAVA_EXT] + EXTERNAL_JAVA_LIBRARIES
       HOE.spec.extensions = []
       f.write(HOE.spec.to_ruby)
-	  end
+    end
   end
-
-  task :spec => ['gem:dev:spec']
 
   desc "Build external library"
   task :build_external do
