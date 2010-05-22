@@ -4,25 +4,17 @@ class TestNokogiri < Nokogiri::TestCase
   def test_versions
     version_match = /\d+\.\d+\.\d+/
     assert_match version_match, Nokogiri::VERSION
-    assert_match version_match, Nokogiri::LIBXML_VERSION if Nokogiri.uses_libxml?
 
-    if defined?(FFI) && defined?(Nokogiri::LibXML)
-      assert_equal 'ffi', Nokogiri::VERSION_INFO['libxml']['binding']
-      if RUBY_PLATFORM =~ /java/
-        assert_equal 'jruby', Nokogiri::VERSION_INFO['libxml']['platform']
-      else
-        assert_equal 'ruby', Nokogiri::VERSION_INFO['libxml']['platform']
-      end
-      assert Nokogiri.ffi?
-    elsif Nokogiri.uses_libxml?
+    assert_equal Nokogiri::VERSION_INFO['ruby']['version'], ::RUBY_VERSION
+    assert_equal Nokogiri::VERSION_INFO['ruby']['platform'], ::RUBY_PLATFORM
+
+    if Nokogiri.uses_libxml?
+      assert_match version_match, Nokogiri::LIBXML_VERSION
       assert_equal 'extension', Nokogiri::VERSION_INFO['libxml']['binding']
 
       assert_match version_match, Nokogiri::VERSION_INFO['libxml']['compiled']
       assert_equal Nokogiri::LIBXML_VERSION, Nokogiri::VERSION_INFO['libxml']['compiled']
-      assert ! Nokogiri.ffi?
-    end
 
-    if Nokogiri.uses_libxml?
       assert_match version_match, Nokogiri::VERSION_INFO['libxml']['loaded']
       Nokogiri::LIBXML_PARSER_VERSION =~ /(\d)(\d{2})(\d{2})/
       major = $1.to_i

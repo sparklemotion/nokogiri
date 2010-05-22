@@ -340,7 +340,7 @@ module Nokogiri
       end
 
       def test_non_existant_function
-        # WTF.  I don't know why this is different between MRI and ffi.
+        # WTF.  I don't know why this is different between MRI and Jruby
         # They should be the same...  Either way, raising an exception
         # is the correct thing to do.
         exception = RuntimeError

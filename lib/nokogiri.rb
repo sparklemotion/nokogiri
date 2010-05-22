@@ -6,10 +6,7 @@ ENV['PATH'] = [File.expand_path(
   File.join(File.dirname(__FILE__), "..", "ext", "nokogiri")
 ), ENV['PATH']].compact.join(';') if RbConfig::CONFIG['host_os'] =~ /(mswin|mingw)/i
 
-if ENV['NOKOGIRI_FFI']
-  require 'ffi'
-  require 'nokogiri/ffi/libxml'
-elsif defined? RUBY_ENGINE && RUBY_ENGINE == "jruby"
+if defined? RUBY_ENGINE && RUBY_ENGINE == "jruby"
   require 'isorelax.jar'
   require 'jing.jar'
   require 'nekohtml.jar'

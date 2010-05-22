@@ -9,6 +9,7 @@ module Nokogiri
   VERSION_INFO['ruby']                  = {}
   VERSION_INFO['ruby']['version']       = ::RUBY_VERSION
   VERSION_INFO['ruby']['platform']      = ::RUBY_PLATFORM
+  
   VERSION_INFO['ruby']['jruby']         = ::JRUBY_VERSION if RUBY_PLATFORM == "java"
   if defined?(LIBXML_VERSION)
     VERSION_INFO['libxml']              = {}
@@ -25,10 +26,6 @@ module Nokogiri
 
   def self.uses_libxml? # :nodoc:
     !Nokogiri::VERSION_INFO['libxml'].nil?
-  end
-
-  def self.ffi? # :nodoc:
-    uses_libxml? && Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
   end
 
   def self.is_2_6_16? # :nodoc:

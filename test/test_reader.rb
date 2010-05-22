@@ -71,12 +71,7 @@ class TestReader < Nokogiri::TestCase
     </x>
     eoxml
     reader = Nokogiri::XML::Reader(xml)
-    if Nokogiri.ffi?
-      assert_not_nil reader.source
-      assert reader.source.is_a?(FFI::MemoryPointer)
-    else
-      assert_equal xml, reader.source
-    end
+    assert_equal xml, reader.source
   end
 
   def test_default?
