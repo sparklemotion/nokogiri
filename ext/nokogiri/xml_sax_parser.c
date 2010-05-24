@@ -238,7 +238,7 @@ static void deallocate(xmlSAXHandlerPtr handler)
 
 static VALUE allocate(VALUE klass)
 {
-  xmlSAXHandlerPtr handler = calloc(1, sizeof(xmlSAXHandler));
+  xmlSAXHandlerPtr handler = calloc((size_t)1, sizeof(xmlSAXHandler));
 
   xmlSetStructuredErrorFunc(NULL, NULL);
 
