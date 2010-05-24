@@ -97,7 +97,7 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     long param_len, j ;
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
-    if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0) ; }
+    if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0L) ; }
 
     /* handle hashes as arguments. */
     if(T_HASH == TYPE(paramobj)) {
@@ -124,7 +124,7 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
 
     if (!result) rb_raise(rb_eRuntimeError, "could not perform xslt transform on document");
 
-    return Nokogiri_wrap_xml_document(0, result) ;
+    return Nokogiri_wrap_xml_document((VALUE)0, result) ;
 }
 
 VALUE cNokogiriXsltStylesheet ;

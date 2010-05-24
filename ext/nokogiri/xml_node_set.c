@@ -257,7 +257,7 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
   }
   
   /* if arg is Range */
-  switch (rb_range_beg_len(arg, &beg, &len, node_set->nodeNr, 0)) {
+  switch (rb_range_beg_len(arg, &beg, &len, (long)node_set->nodeNr, 0)) {
   case Qfalse:
     break;
   case Qnil:
