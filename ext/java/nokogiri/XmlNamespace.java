@@ -6,6 +6,7 @@ import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -15,6 +16,7 @@ import org.w3c.dom.Node;
  *
  * @author serabe
  */
+@JRubyClass(name="Nokogiri::XML::Namespace")
 public class XmlNamespace extends RubyObject {
 
     private IRubyObject prefix;

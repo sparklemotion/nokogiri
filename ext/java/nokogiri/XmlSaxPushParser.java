@@ -1,30 +1,26 @@
 package nokogiri;
 
-import java.io.InputStream;
+import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.ClosedChannelException;
-import java.lang.InterruptedException;
-import java.lang.Runnable;
-import java.lang.Thread;
+
 import nokogiri.internals.ParserContext;
 import nokogiri.internals.PushInputStream;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
-import org.jruby.RubyIO;
-import org.jruby.RubyKernel;
-import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.xml.sax.InputSource;
 
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
-
+@JRubyClass(name="Nokogiri::XML::SAX::PushParser")
 public class XmlSaxPushParser extends RubyObject {
     ParserContext.Options options;
     IRubyObject optionsRuby;

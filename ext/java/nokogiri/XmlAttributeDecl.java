@@ -1,10 +1,9 @@
 package nokogiri;
 
-import java.util.ArrayList;
-
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -16,6 +15,7 @@ import org.w3c.dom.Node;
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
+@JRubyClass(name="Nokogiri::XML::AttributeDecl", parent="Nokogiri::XML::Node")
 public class XmlAttributeDecl extends XmlNode {
 
     public static RubyClass getRubyClass(Ruby ruby) {

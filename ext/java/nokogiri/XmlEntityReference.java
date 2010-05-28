@@ -1,21 +1,21 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.anno.JRubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 /**
  *
  * @author sergio
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
+@JRubyClass(name="Nokogiri::XML::EntityReference", parent="Nokogiri::XML::Node")
 public class XmlEntityReference extends XmlNode{
 
     public XmlEntityReference(Ruby ruby, RubyClass klazz) {

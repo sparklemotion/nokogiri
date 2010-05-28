@@ -18,6 +18,7 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
@@ -33,6 +34,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+@JRubyClass(name="Nokogiri::XML::Reader")
 public class XmlReader extends RubyObject {
 
     private static final int XML_TEXTREADER_MODE_INITIAL = 0;

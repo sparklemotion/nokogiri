@@ -5,13 +5,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
 import nokogiri.internals.SchemaErrorHandler;
+
 import org.iso_relax.verifier.Schema;
 import org.iso_relax.verifier.Verifier;
 import org.iso_relax.verifier.VerifierConfigurationException;
@@ -19,6 +22,7 @@ import org.iso_relax.verifier.VerifierFactory;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
@@ -31,6 +35,7 @@ import org.xml.sax.SAXException;
  *
  * @author sergio
  */
+@JRubyClass(name="Nokogiri::XML::RelaxNG", parent="Nokogiri::XML::Schema")
 public class XmlRelaxng extends XmlSchema{
 
     public XmlRelaxng(Ruby ruby, RubyClass klazz) {

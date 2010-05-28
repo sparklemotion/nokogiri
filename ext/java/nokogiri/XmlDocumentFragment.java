@@ -24,6 +24,7 @@ import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyString;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
@@ -36,6 +37,7 @@ import org.w3c.dom.NamedNodeMap;
  *
  * @author sergio
  */
+@JRubyClass(name="Nokogiri::XML::DocumentFragment", parent="Nokogiri::XML::Node")
 public class XmlDocumentFragment extends XmlNode {
     private XmlElement fragmentContext = null;
 

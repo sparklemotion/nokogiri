@@ -1,16 +1,17 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-
 import nokogiri.internals.SaveContext;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.anno.JRubyMethod;
+import org.jruby.anno.JRubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+@JRubyClass(name="Nokogiri::XML::Comment", parent="Nokogiri::XML::CharacterData")
 public class XmlComment extends XmlNode {
     public XmlComment(Ruby ruby, RubyClass rubyClass, Node node) {
         super(ruby, rubyClass, node);

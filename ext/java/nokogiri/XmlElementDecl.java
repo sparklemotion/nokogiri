@@ -1,24 +1,23 @@
 package nokogiri;
 
-import java.util.ArrayList;
+import static nokogiri.internals.NokogiriHelpers.getLocalPart;
+import static nokogiri.internals.NokogiriHelpers.getPrefix;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
-import static nokogiri.internals.NokogiriHelpers.getPrefix;
-import static nokogiri.internals.NokogiriHelpers.getLocalPart;
 
 /**
  * DTD element declaration.
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
+@JRubyClass(name="Nokogiri::XML::ElementDecl", parent="Nokogiri::XML::Node")
 public class XmlElementDecl extends XmlNode {
     RubyArray attrDecls;
 

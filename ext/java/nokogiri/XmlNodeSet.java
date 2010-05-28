@@ -8,6 +8,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
@@ -16,6 +17,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+@JRubyClass(name="Nokogiri::XML::NodeSet")
 public class XmlNodeSet extends RubyObject {
     protected RubyArray nodes;
     protected XmlDocument doc;

@@ -6,11 +6,10 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
 import org.jruby.RubyModule;
-import org.jruby.anno.JRubyMethod;
-import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.anno.JRubyClass;
 import org.xml.sax.SAXParseException;
 
+@JRubyClass(name="Nokogiri::XML::SyntaxError", parent="Nokogiri::SyntaxError")
 public class XmlSyntaxError extends RubyException {
 
     protected Exception exception;

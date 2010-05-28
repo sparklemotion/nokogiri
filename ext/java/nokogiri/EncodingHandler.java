@@ -3,14 +3,12 @@ package nokogiri;
 import java.util.HashMap;
 
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * Stub class to satisfy unit tests.  I'm not sure where this class is
@@ -20,6 +18,7 @@ import org.w3c.dom.Node;
  *
  * @author Patrick Mahoney <pat@polycrstal.org>
  */
+@JRubyClass(name="Nokogiri::EncodingHandler")
 public class EncodingHandler extends RubyObject {
     protected static HashMap<String,String> map = new HashMap<String,String>();
     static {

@@ -1,43 +1,39 @@
 package nokogiri;
 
-import java.io.InputStream;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+
 import java.io.IOException;
+import java.io.InputStream;
 
 import nokogiri.internals.NokogiriHandler;
 import nokogiri.internals.ParserContext;
 import nokogiri.internals.XmlSaxParser;
+
 import org.apache.xerces.parsers.AbstractSAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyIO;
 import org.jruby.RubyModule;
-import org.jruby.RubyObject;
 import org.jruby.RubyObjectAdapter;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.JavaEmbedUtils;
-import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.jruby.util.ByteList;
-import org.jruby.util.TypeConverter;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
-
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 /**
  * Base class for the SAX parsers.
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
+@JRubyClass(name="Nokogiri::XML::SAX::ParserContext")
 public class XmlSaxParserContext extends ParserContext {
     protected static final String FEATURE_NAMESPACES =
         "http://xml.org/sax/features/namespaces";

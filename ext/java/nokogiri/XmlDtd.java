@@ -11,6 +11,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyHash;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -19,6 +20,7 @@ import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+@JRubyClass(name="Nokogiri::XML::DTD", parent="Nokogiri::XML::Node")
 public class XmlDtd extends XmlNode {
     protected RubyArray allDecls = null;
 

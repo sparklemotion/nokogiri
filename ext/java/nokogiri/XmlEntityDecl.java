@@ -4,6 +4,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyNil;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -14,6 +15,7 @@ import org.w3c.dom.Node;
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
+@JRubyClass(name="Nokogiri::XML::EntityDecl", parent="Nokogiri::XML::Node")
 public class XmlEntityDecl extends XmlNode {
     public static final int INTERNAL_GENERAL = 1;
     public static final int EXTERNAL_GENERAL_PARSED = 2;

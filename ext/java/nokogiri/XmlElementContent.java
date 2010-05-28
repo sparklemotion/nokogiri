@@ -1,19 +1,19 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getLocalPart;
+import static nokogiri.internals.NokogiriHelpers.getPrefix;
+import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
+
 import org.cyberneko.dtd.DTDConfiguration;
 import org.jruby.Ruby;
-import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
-import static nokogiri.internals.NokogiriHelpers.getPrefix;
-import static nokogiri.internals.NokogiriHelpers.getLocalPart;
-import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
 
 /**
  * DTD element content model. This converts the nice tree of content
@@ -22,6 +22,7 @@ import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
+@JRubyClass(name="Nokogiri::XML::ElementContent")
 public class XmlElementContent extends RubyObject {
     protected String element_name = null;
 

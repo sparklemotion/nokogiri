@@ -5,6 +5,7 @@ import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
@@ -13,6 +14,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 
+@JRubyClass(name="Nokogiri::HTML::Document", parent="Nokogiri::XML::Document")
 public class HtmlDocument extends XmlDocument {
 
     public HtmlDocument(Ruby ruby, RubyClass klazz) {

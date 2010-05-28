@@ -2,6 +2,7 @@ package nokogiri;
 
 import java.io.IOException;
 import java.io.StringReader;
+
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
@@ -9,11 +10,14 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+
 import nokogiri.internals.SchemaErrorHandler;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
@@ -27,6 +31,7 @@ import org.xml.sax.SAXException;
  *
  * @author sergio
  */
+@JRubyClass(name="Nokogiri::XML::Schema")
 public class XmlSchema extends RubyObject {
 
     protected Source source;

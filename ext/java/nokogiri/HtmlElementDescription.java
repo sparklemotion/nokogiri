@@ -1,26 +1,24 @@
 package nokogiri;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.cyberneko.html.HTMLElements;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.cyberneko.html.HTMLElements;
-import org.cyberneko.html.HTMLElements.Element;
-
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Collections;
-
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 /**
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
+@JRubyClass(name="Nokogiri::HTML::ElementDescription")
 public class HtmlElementDescription extends RubyObject {
 
     /**
