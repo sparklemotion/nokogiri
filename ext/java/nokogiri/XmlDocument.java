@@ -34,6 +34,10 @@ public class XmlDocument extends XmlNode {
     protected IRubyObject encoding = null;
     protected IRubyObject url = null;
 
+    public XmlDocument(Ruby ruby, RubyClass klazz) {
+        super(ruby, klazz);
+    }
+    
     public XmlDocument(Ruby ruby, Document document) {
         this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"), document);
     }
