@@ -316,7 +316,7 @@ module Nokogiri
         if node_or_tags.is_a?(XML::NodeSet)
           node_or_tags.each { |n| add_child_node n }
         else
-          add_child node_or_tags
+          add_child_node node_or_tags
         end
         self
       end
