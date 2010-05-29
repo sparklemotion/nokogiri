@@ -437,11 +437,6 @@ public class XmlNode extends RubyObject {
         return result.toString();
     }
 
-    @JRubyMethod
-    public IRubyObject internal_node(ThreadContext context) {
-        return context.getRuntime().newData(this.getType(), this.getNode());
-    }
-
     public boolean isComment() { return false; }
 
     public boolean isElement() { return false; }
