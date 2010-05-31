@@ -1,10 +1,13 @@
 package nokogiri.internals;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+import nokogiri.XmlDocument;
 import nokogiri.XmlNamespace;
-import nokogiri.XmlNode;
 
+import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
 
 /**
@@ -13,31 +16,69 @@ import org.jruby.runtime.ThreadContext;
  */
 public class NokogiriNamespaceCache {
 
-    Hashtable<String, Hashtable<String,XmlNamespace>> cache;
+    private Map<Long, XmlNamespace> cache;
+    private XmlNamespace defaultNamespace = null;
 
     public NokogiriNamespaceCache() {
-        this.cache = new Hashtable<String, Hashtable<String,XmlNamespace>>();
+        this.cache = new HashMap<Long, XmlNamespace>();
+    }
+    
+    private Long hashCode(String prefix, String href) {
+        long prefix_hash = prefix.hashCode();
+        long href_hash = href.hashCode();
+        return prefix_hash << 31 | href_hash;
     }
 
-    public XmlNamespace get(ThreadContext context, XmlNode node, String prefix, String href) {
-        Hashtable<String,XmlNamespace> secondCache = this.cache.get(prefix);
-
-        if(secondCache == null) {
-            secondCache = new Hashtable<String,XmlNamespace>();
-            this.cache.put(prefix, secondCache);
+    public XmlNamespace get(ThreadContext context, String prefix, String href) {
+        // prefix is not supposed to be null.
+        // In case of a default namespace, an empty string should be given to prefix argument.
+        if (prefix == null || href == null) return null;
+        Long hash = hashCode(prefix, href);
+        if (cache.containsKey(hash)) {
+            return cache.get(hash);
+        } else {
+            return null;
         }
-
-        if (href == null) return null;
-        XmlNamespace ns = secondCache.get(href);
-
-        if( ns == null) {
+    }
+    
+    public XmlNamespace getDefault() {
+        return defaultNamespace;
+    }
+    
+    public XmlNamespace get(String prefix) {
+        if (prefix == null) return defaultNamespace;
+        long h = prefix.hashCode();
+        Long hash = h << 31;
+        Long mask = 0xFF00L;
+        Set<Long> keys = cache.keySet();
+        for (Long key : keys) {
+            if ((key & mask) == hash) {
+                return cache.get(key);
+            }
+        }
+        return null;
+    }
+    
+    public XmlNamespace put(Ruby ruby, String prefix, String href, XmlDocument document) {
+        if (prefix == null || href == null) return null;
+        Long hash = hashCode(prefix, href);
+        if (cache.containsKey(hash)) {
+            return cache.get(hash);
+        } else {
             String actualPrefix = (prefix.equals("")) ? null : prefix;
-            ns = new XmlNamespace(context.getRuntime(), actualPrefix, href);
-            ns.setDocument(node.document(context));
-            secondCache.put(href, ns);
+            XmlNamespace namespace = new XmlNamespace(ruby, actualPrefix, href);
+            namespace.setDocument(document);
+            cache.put(hash, namespace);
+            if ("".equals(prefix)) defaultNamespace = namespace;
+            return namespace;
         }
-
-        return ns;
     }
 
+    public void remove(String prefix, String href) {
+        if (prefix == null || href == null) return;
+        Long hash = hashCode(prefix, href);
+        if (cache.containsKey(hash)) {
+            cache.remove(hash);
+        }
+    }
 }

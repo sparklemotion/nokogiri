@@ -175,7 +175,7 @@ public class XmlDocumentFragment extends XmlNode {
         }
         return null;
     }
-    
+
     public XmlElement getFragmentContext() {
         return fragmentContext;
     }

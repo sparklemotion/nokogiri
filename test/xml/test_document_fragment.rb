@@ -15,11 +15,7 @@ module Nokogiri
         hello    = fragment.child
 
         assert_equal 'hello', hello.name
-        if Nokogiri.uses_libxml?
-          assert_equal doc.root.child.namespace, hello.namespace
-        else
-          assert_equal doc.root.child.namespace.href, hello.namespace.href
-        end
+        assert_equal doc.root.child.namespace, hello.namespace
       end
 
       def test_node_fragment_is_relative
@@ -29,11 +25,7 @@ module Nokogiri
         hello    = fragment.child
 
         assert_equal 'hello', hello.name
-        if Nokogiri.uses_libxml?
-           assert_equal doc.root.child.namespace, hello.namespace
-        else
-           assert_equal doc.root.child.namespace.href, hello.namespace.href
-        end
+        assert_equal doc.root.child.namespace, hello.namespace
       end
 
       def test_new

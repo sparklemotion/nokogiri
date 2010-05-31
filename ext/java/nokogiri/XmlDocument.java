@@ -1,10 +1,13 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.SaveContext;
 import nokogiri.internals.XmlDomParserContext;
@@ -19,11 +22,16 @@ import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 @JRubyClass(name="Nokogiri::XML::Document", parent="Nokogiri::XML::Node")
 public class XmlDocument extends XmlNode {
+    private NokogiriNamespaceCache nsCache;
+    
     /* UserData keys for storing extra info in the document node. */
     public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
     protected final static String DTD_INTERNAL_SUBSET = "DTD_INTERNAL_SUBSET";
@@ -38,6 +46,7 @@ public class XmlDocument extends XmlNode {
 
     public XmlDocument(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
+        nsCache = new NokogiriNamespaceCache();
     }
     
     public XmlDocument(Ruby ruby, Document document) {
@@ -46,6 +55,8 @@ public class XmlDocument extends XmlNode {
 
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
         super(ruby, klass, document);
+        nsCache = new NokogiriNamespaceCache();
+        createAndCacheNamespaces(ruby, document.getDocumentElement());
 
 //        if(document == null) {
 //            this.internalNode = new XmlEmptyDocumentImpl(ruby, document);
@@ -55,10 +66,67 @@ public class XmlDocument extends XmlNode {
         setInstanceVariable("@decorators", ruby.getNil());
     }
 
+    private void createAndCacheNamespaces(Ruby ruby, Node node) {
+        if (node == null) return;
+        if (node.hasAttributes()) {
+            NamedNodeMap nodeMap = node.getAttributes();
+            for (int i=0; i<nodeMap.getLength(); i++) {
+                Node n = nodeMap.item(i);
+                if (n instanceof Attr) {
+                    Attr attr = (Attr)n;
+                    if (isNamespace(attr.getName())) {
+                        String prefix = getLocalNameForNamespace(attr.getName());
+                        prefix = prefix != null ? prefix : "";
+                        nsCache.put(ruby, prefix, attr.getValue(), this);
+                    }
+                }
+            }
+        }
+        NodeList children = node.getChildNodes();
+        for (int i=0; i<children.getLength(); i++) {
+            createAndCacheNamespaces(ruby, children.item(i));
+        }
+    }
+    
+    // When a document is created from fragment with a context (reference) document,
+    // namespace should be resolved based on the context document.
+    public XmlDocument(Ruby ruby, RubyClass klass, Document document, XmlDocument contextDoc) {
+        super(ruby, klass, document);
+        nsCache = contextDoc.getNamespaceCache();
+        XmlNamespace default_ns = nsCache.getDefault();
+        String default_href = (String)(default_ns.href(ruby.getCurrentContext())).toJava(String.class);
+        resolveNamespaceIfNecessary(ruby.getCurrentContext(), document.getDocumentElement(), default_href);
+    }
+    
+    private void resolveNamespaceIfNecessary(ThreadContext context, Node node, String default_href) {
+        if (node == null) return;
+        String nodePrefix = node.getPrefix();
+        if (nodePrefix == null) { // default namespace
+            node.getOwnerDocument().renameNode(node, default_href, node.getNodeName());
+        } else {
+            XmlNamespace xmlNamespace = nsCache.get(nodePrefix);
+            String href = (String)xmlNamespace.href(context).toJava(String.class);
+            node.getOwnerDocument().renameNode(node, href, node.getNodeName());
+        }
+        resolveNamespaceIfNecessary(context, node.getNextSibling(), default_href);
+        NodeList children = node.getChildNodes();
+        for (int i=0; i<children.getLength(); i++) {
+            resolveNamespaceIfNecessary(context, children.item(i), default_href);
+        }   
+    }
+
 //     @Override
 //     protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
 //         return ((XmlDocumentImpl) this.internalNode).dup_impl(context, this, deep, this.getType());
 //     }
+
+    public NokogiriNamespaceCache getNamespaceCache() {
+        return nsCache;
+    }
+    
+    public void setNamespaceCache(NokogiriNamespaceCache nsCache) {
+        this.nsCache = nsCache;
+    }
 
     public Document getDocument() {
         return (Document) node;

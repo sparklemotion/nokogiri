@@ -58,7 +58,6 @@ public class XmlNode extends RubyObject {
 
     /** The underlying Node object. */
     protected Node node;
-    protected NokogiriNamespaceCache nsCache;
 
     /* Cached objects */
     protected IRubyObject content = null;
@@ -250,7 +249,6 @@ public class XmlNode extends RubyObject {
      */
     public XmlNode(Ruby ruby, RubyClass cls, Node node) {
         super(ruby, cls);
-        this.nsCache = new NokogiriNamespaceCache();
         this.node = node;
 
         if (node != null) {
@@ -610,10 +608,8 @@ public class XmlNode extends RubyObject {
                                                 IRubyObject href) {
         String prefixString = prefix.isNil() ? "" : rubyStringToString(prefix);
         String hrefString = rubyStringToString(href);
-        XmlNamespace ns = this.nsCache.get(context, this, prefixString, hrefString);
-
-        if (node instanceof Element) {
-        }
+        XmlDocument xmlDocument = (XmlDocument) doc;
+        XmlNamespace ns = xmlDocument.getNamespaceCache().put(context.getRuntime(), prefixString, hrefString, xmlDocument);
 
         namespace_definitions = null; // clear cache
         return ns;
@@ -678,7 +674,8 @@ public class XmlNode extends RubyObject {
     public IRubyObject children(ThreadContext context) {
         XmlNodeSet result = new XmlNodeSet(context.getRuntime(),
                                            node.getChildNodes());
-        result.setDocument((XmlDocument) fromNode(context, this.getOwnerDocument()));
+        XmlDocument xmlDocument = (XmlDocument) fromNode(context, this.getOwnerDocument());
+        result.setDocument(xmlDocument);
         return result;
     }
     
@@ -976,19 +973,12 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject namespace(ThreadContext context){
-        if(namespace == null) {
+        XmlDocument xmlDocument = (XmlDocument) doc;
+        NokogiriNamespaceCache nsCache = xmlDocument.getNamespaceCache();
+        if (namespace == null) {
             String prefix = node.getPrefix();
-            namespace = nsCache.get(context, this,
-                                    prefix == null ? "" : prefix,
-                                    node.lookupNamespaceURI(prefix));
-            if (namespace == null) {
-                namespace =
-                    new XmlNamespace(context.getRuntime(),
-                                     node.getPrefix(),
-                                     node.lookupNamespaceURI(node.getPrefix()));
-            }
-
-            if(((XmlNamespace) namespace).isEmpty()) {
+            namespace = nsCache.get(context, prefix == null ? "" : prefix, node.getNamespaceURI());
+            if (namespace == null || ((XmlNamespace) namespace).isEmpty()) {
                 namespace = context.getRuntime().getNil();
             }
         }
@@ -1167,17 +1157,23 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject set_namespace(ThreadContext context, IRubyObject namespace) {
-        if (namespace.isNil()) return this;
-        //setNamespace(namespace);
-        XmlNamespace ns = (XmlNamespace) namespace;
-        String prefix = ns.prefix(context).convertToString().asJavaString();
-        String href = ns.href(context).convertToString().asJavaString();
+        if (namespace.isNil()) {
+            if (doc != null) {
+                Node n = getNode();
+                String prefix = n.getPrefix();
+                String href = n.getNamespaceURI();
+                ((XmlDocument)doc).getNamespaceCache().remove(prefix == null ? "" : prefix, href);
+                n.getOwnerDocument().renameNode(n, null, n.getNodeName());
+            }
+        } else {
+            XmlNamespace ns = (XmlNamespace) namespace;
+            String prefix = ns.prefix(context).convertToString().asJavaString();
+            String href = ns.href(context).convertToString().asJavaString();
 
-        // Assigning node = ...renameNode() or not seems to make no
-        // difference.  Why not? -pmahoney
-        node = node.getOwnerDocument()
-            .renameNode(node, href, NokogiriHelpers.newQName(prefix, node));
-
+            // Assigning node = ...renameNode() or not seems to make no
+            // difference.  Why not? -pmahoney
+            node = node.getOwnerDocument().renameNode(node, href, NokogiriHelpers.newQName(prefix, node));
+        }
         this.namespace = null;       // clear cache
 
         return this;
@@ -1299,6 +1295,14 @@ public class XmlNode extends RubyObject {
     protected IRubyObject adoptAs(ThreadContext context, AdoptScheme scheme,
                                   IRubyObject other_) {
         XmlNode other = asXmlNode(context, other_);
+        // this.doc might be null since this node can be empty node.
+        if (this.doc != null) {
+            if (other.doc == null) {
+                other.doc = this.doc;
+            } else {
+              ((XmlDocument)other.doc).setNamespaceCache(((XmlDocument)this.doc).getNamespaceCache());
+            }
+        }
         IRubyObject nodeOrTags = other;
         Node thisNode = this.getNode();
         Node otherNode = other.getNode();

@@ -27,8 +27,7 @@ public class XmlNamespace extends RubyObject {
     }
 
     public XmlNamespace(Ruby ruby, String prefix, String href) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"),
-             prefix, href);
+        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"), prefix, href);
     }
 
     public XmlNamespace(Ruby ruby, RubyClass klazz, String prefix, String href) {
@@ -38,8 +37,7 @@ public class XmlNamespace extends RubyObject {
     }
 
     public XmlNamespace(Ruby ruby, IRubyObject prefix, IRubyObject href) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"),
-             prefix, href);
+        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"), prefix, href);
     }
 
     public XmlNamespace(Ruby ruby, RubyClass klazz, IRubyObject prefix, IRubyObject href) {
