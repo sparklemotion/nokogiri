@@ -129,7 +129,7 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
 end
 
 require 'tasks/test'
-require 'tasks/cross_compile'
+require 'tasks/cross_compile' unless RUBY_PLATFORM =~ /java/
 
 desc "set environment variables to build and/or test with debug options"
 task :debug do
