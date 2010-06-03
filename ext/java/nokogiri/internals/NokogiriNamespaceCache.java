@@ -1,26 +1,31 @@
 package nokogiri.internals;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import nokogiri.XmlDocument;
 import nokogiri.XmlNamespace;
 
 import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
+import org.w3c.dom.Node;
 
 /**
  *
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriNamespaceCache {
 
-    private Map<Long, XmlNamespace> cache;
+    private List<Long> keys;  // order matters.
+    private Map<Integer, CacheEntry> cache;  // pair of the index of a given key and entry
     private XmlNamespace defaultNamespace = null;
 
     public NokogiriNamespaceCache() {
-        this.cache = new HashMap<Long, XmlNamespace>();
+        keys = new ArrayList<Long>();
+        cache = new HashMap<Integer, CacheEntry>();
     }
     
     private Long hashCode(String prefix, String href) {
@@ -30,15 +35,13 @@ public class NokogiriNamespaceCache {
     }
 
     public XmlNamespace get(ThreadContext context, String prefix, String href) {
-        // prefix is not supposed to be null.
+        // prefix should not be null.
         // In case of a default namespace, an empty string should be given to prefix argument.
         if (prefix == null || href == null) return null;
         Long hash = hashCode(prefix, href);
-        if (cache.containsKey(hash)) {
-            return cache.get(hash);
-        } else {
-            return null;
-        }
+        Integer index = keys.indexOf(hash);
+        if (index != -1) return cache.get(index).namespace;
+        return null;
     }
     
     public XmlNamespace getDefault() {
@@ -50,25 +53,41 @@ public class NokogiriNamespaceCache {
         long h = prefix.hashCode();
         Long hash = h << 31;
         Long mask = 0xFF00L;
-        Set<Long> keys = cache.keySet();
-        for (Long key : keys) {
-            if ((key & mask) == hash) {
-                return cache.get(key);
+        for (int i=0; i < keys.size(); i++) {
+            if ((keys.get(i) & mask) == hash) {
+                return cache.get(i).namespace;
             }
         }
         return null;
     }
     
-    public XmlNamespace put(Ruby ruby, String prefix, String href, XmlDocument document) {
+    public List<XmlNamespace> get(Node node) {
+        List<XmlNamespace> namespaces = new ArrayList<XmlNamespace>();
+        for (int i=0; i < keys.size(); i++) {
+            CacheEntry entry = cache.get(i);
+            if (entry.node == node) {
+                namespaces.add(entry.namespace);
+            }
+        }
+        return namespaces;
+    }
+    
+    public XmlNamespace put(Ruby ruby, String prefix, String href, Node node, XmlDocument document) {
+        // prefix should not be null.
+        // In case of a default namespace, an empty string should be given to prefix argument.
         if (prefix == null || href == null) return null;
         Long hash = hashCode(prefix, href);
-        if (cache.containsKey(hash)) {
-            return cache.get(hash);
+        Integer index;
+        if ((index = keys.indexOf(hash)) != -1) {
+            return cache.get(index).namespace;
         } else {
+            keys.add(hash);
+            index = keys.size() - 1;
             String actualPrefix = (prefix.equals("")) ? null : prefix;
             XmlNamespace namespace = new XmlNamespace(ruby, actualPrefix, href);
             namespace.setDocument(document);
-            cache.put(hash, namespace);
+            CacheEntry entry = new CacheEntry(namespace, node);
+            cache.put(index, entry);
             if ("".equals(prefix)) defaultNamespace = namespace;
             return namespace;
         }
@@ -77,8 +96,20 @@ public class NokogiriNamespaceCache {
     public void remove(String prefix, String href) {
         if (prefix == null || href == null) return;
         Long hash = hashCode(prefix, href);
-        if (cache.containsKey(hash)) {
-            cache.remove(hash);
+        Integer index = keys.indexOf(hash);
+        if (index != -1) {
+            cache.remove(index);
+        }
+        keys.remove(index);
+    }
+    
+    private class CacheEntry {
+        private XmlNamespace namespace;
+        private Node node;
+        
+        CacheEntry(XmlNamespace namespace, Node node) {
+            this.namespace = namespace;
+            this.node = node;
         }
     }
 }

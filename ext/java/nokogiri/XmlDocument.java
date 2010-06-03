@@ -77,7 +77,7 @@ public class XmlDocument extends XmlNode {
                     if (isNamespace(attr.getName())) {
                         String prefix = getLocalNameForNamespace(attr.getName());
                         prefix = prefix != null ? prefix : "";
-                        nsCache.put(ruby, prefix, attr.getValue(), this);
+                        nsCache.put(ruby, prefix, attr.getValue(), node, this);
                     }
                 }
             }

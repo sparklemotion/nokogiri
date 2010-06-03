@@ -2,7 +2,6 @@ package nokogiri;
 
 import static java.lang.Math.max;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
 import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
@@ -609,7 +608,7 @@ public class XmlNode extends RubyObject {
         String prefixString = prefix.isNil() ? "" : rubyStringToString(prefix);
         String hrefString = rubyStringToString(href);
         XmlDocument xmlDocument = (XmlDocument) doc;
-        XmlNamespace ns = xmlDocument.getNamespaceCache().put(context.getRuntime(), prefixString, hrefString, xmlDocument);
+        XmlNamespace ns = xmlDocument.getNamespaceCache().put(context.getRuntime(), prefixString, hrefString, node, xmlDocument);
 
         namespace_definitions = null; // clear cache
         return ns;
@@ -992,26 +991,17 @@ public class XmlNode extends RubyObject {
      */
     @JRubyMethod
     public IRubyObject namespace_definitions(ThreadContext context) {
-        if (this.namespace_definitions == null) {
+        if (namespace_definitions == null) {
             Ruby ruby = context.getRuntime();
-            RubyArray arr = ruby.newArray();
-            NamedNodeMap nodes = node.getAttributes();
-
-            if(nodes == null) {
-                return ruby.newEmptyArray();
+            namespace_definitions = ruby.newArray();
+            if (doc == null) return namespace_definitions;
+            List<XmlNamespace> namespaces = ((XmlDocument)doc).getNamespaceCache().get(node);
+            for (XmlNamespace namespace : namespaces) {
+                ((RubyArray)namespace_definitions).append(namespace);
             }
+      
 
-            IRubyObject document = document(context);
-            for(int i = 0; i < nodes.getLength(); i++) {
-                Node n = nodes.item(i);
-                if(isNamespace(n)) {
-                    XmlNamespace ns = XmlNamespace.fromNode(ruby, n);
-                    ns.setDocument(document);
-                    arr.append(ns);
-                }
-            }
-
-            this.namespace_definitions = arr;
+            //this.namespace_definitions = arr;
         }
 
         return (RubyArray) this.namespace_definitions;
