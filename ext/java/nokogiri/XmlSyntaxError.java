@@ -15,8 +15,7 @@ public class XmlSyntaxError extends RubyException {
     protected Exception exception;
 
     public static RubyClass getRubyClass(Ruby ruby) {
-        return ((RubyModule) ruby.getModule("Nokogiri")
-                .getConstant("XML")).getClass("SyntaxError");
+        return ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("SyntaxError");
     }
 
     public XmlSyntaxError(Ruby ruby){
@@ -33,22 +32,19 @@ public class XmlSyntaxError extends RubyException {
     }
 
     public XmlSyntaxError(Ruby ruby, RubyClass rubyClass, Exception ex) {
-        this(ruby, rubyClass);
+        super(ruby, rubyClass, ex.getMessage());
         this.exception = ex;
     }
 
-    public static XmlSyntaxError createWarning(Ruby ruby,
-                                               SAXParseException e) {
+    public static XmlSyntaxError createWarning(Ruby ruby, SAXParseException e) {
         return new XmlSyntaxError(ruby, e, 1);
     }
 
-    public static XmlSyntaxError createError(Ruby ruby,
-                                             SAXParseException e) {
+    public static XmlSyntaxError createError(Ruby ruby, SAXParseException e) {
         return new XmlSyntaxError(ruby, e, 2);
     }
 
-    public static XmlSyntaxError createFatalError(Ruby ruby,
-                                                  SAXParseException e) {
+    public static XmlSyntaxError createFatalError(Ruby ruby, SAXParseException e) {
         return new XmlSyntaxError(ruby, e, 3);
     }
 
@@ -61,8 +57,7 @@ public class XmlSyntaxError extends RubyException {
         setInstanceVariable("@file", stringOrNil(ruby, e.getSystemId()));
     }
 
-    public static RubyException createXPathSyntaxError(Ruby runtime,
-                                                       Exception e) {
+    public static RubyException createXPathSyntaxError(Ruby runtime, Exception e) {
         RubyClass klazz = (RubyClass)
             runtime.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
         return new XmlSyntaxError(runtime, klazz, e);

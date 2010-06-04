@@ -62,6 +62,7 @@ public class XmlXpathContext extends RubyObject {
             return node_set(context, xpathExpression);
             //return new XmlXpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
         } catch (XPathExpressionException xpee) {
+            xpee = new XPathExpressionException(src);
             RubyException e =
                 XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
             throw new RaiseException(e);
