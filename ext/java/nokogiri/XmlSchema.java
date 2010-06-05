@@ -12,10 +12,12 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import nokogiri.internals.SchemaErrorHandler;
+import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
@@ -47,24 +49,18 @@ public class XmlSchema extends RubyObject {
         String uri=XMLConstants.W3C_XML_SCHEMA_NS_URI;
 
         try {
-            schema = SchemaFactory.newInstance(uri)
-                    .newSchema(source);
+            schema = SchemaFactory.newInstance(uri).newSchema(source);
         } catch(SAXException ex) {
-            throw context.getRuntime()
-                    .newRuntimeError("Could not parse document: "+ex.getMessage());
+            throw context.getRuntime().newRuntimeError("Could not parse document: "+ex.getMessage());
         }
-
         return schema;
     }
 
-    protected static XmlSchema createSchemaWithSource(ThreadContext context,
-            RubyClass klazz, Source source) {
+    protected static XmlSchema createSchemaWithSource(ThreadContext context, RubyClass klazz, Source source) {
         Ruby ruby = context.getRuntime();
         XmlSchema schema = null;
-        if( klazz.ancestors(context)
-                .include_p(context,
-                    ruby.getClassFromPath("Nokogiri::XML::RelaxNG"))
-                .isTrue()) {
+        if( klazz.ancestors(context).include_p(context,
+                ruby.getClassFromPath("Nokogiri::XML::RelaxNG")).isTrue()) {
             schema = new XmlRelaxng(ruby, klazz);
         } else {
             schema = new XmlSchema(ruby, klazz);
@@ -76,8 +72,7 @@ public class XmlSchema extends RubyObject {
     }
 
     @JRubyMethod(meta=true)
-    public static IRubyObject from_document(ThreadContext context,
-            IRubyObject klazz, IRubyObject document) {
+    public static IRubyObject from_document(ThreadContext context, IRubyObject klazz, IRubyObject document) {
         XmlDocument doc = ((XmlDocument) ((XmlNode) document).document(context));
 
         RubyArray errors = (RubyArray) doc.getInstanceVariable("@errors");
@@ -98,8 +93,7 @@ public class XmlSchema extends RubyObject {
     }
 
     @JRubyMethod(meta=true)
-    public static IRubyObject read_memory(ThreadContext context,
-            IRubyObject klazz, IRubyObject content) {
+    public static IRubyObject read_memory(ThreadContext context, IRubyObject klazz, IRubyObject content) {
         
         String data = content.convertToString().asJavaString();
 
@@ -109,27 +103,36 @@ public class XmlSchema extends RubyObject {
 
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject validate_document(ThreadContext context, IRubyObject document) {
+        return validate_document_or_file(context, (XmlDocument)document);
+    }
+    
+    @JRubyMethod(visibility=Visibility.PRIVATE)
+    public IRubyObject validate_file(ThreadContext context, IRubyObject file) {
         Ruby ruby = context.getRuntime();
 
-        Schema schema = this.getSchema(context);
-
-        Document doc = ((XmlDocument) document).getDocument();
+        XmlDomParserContext ctx = new XmlDomParserContext(ruby, RubyFixnum.newFixnum(context.getRuntime(), 1L));
+        ctx.setInputSource(context, file);
+        XmlDocument xmlDocument = ctx.parse(context, context.getRuntime().getClassFromPath("Nokogiri::XML::Document"), context.getRuntime().getNil());
+        return validate_document_or_file(context, xmlDocument);
+    }
+    
+    private IRubyObject validate_document_or_file(ThreadContext context, XmlDocument xmlDocument) {
+        Document doc = xmlDocument.getDocument();
 
         DOMSource docSource = new DOMSource(doc);
-
-        Validator validator = schema.newValidator();
+        Validator validator = getSchema(context).newValidator();
 
         RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
-        ErrorHandler errorHandler = new SchemaErrorHandler(ruby, errors);
+        ErrorHandler errorHandler = new SchemaErrorHandler(context.getRuntime(), errors);
 
         validator.setErrorHandler(errorHandler);
 
-        try{
+        try {
             validator.validate(docSource);
         } catch(SAXException ex) {
-            errors.append(new XmlSyntaxError(ruby, ex));
+            errors.append(new XmlSyntaxError(context.getRuntime(), ex));
         } catch (IOException ex) {
-            throw ruby.newIOError(ex.getMessage());
+            throw context.getRuntime().newIOError(ex.getMessage());
         }
 
         return errors;
