@@ -157,7 +157,11 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
 end
 
 require 'tasks/test'
-require 'tasks/cross_compile' unless RUBY_PLATFORM =~ /java/
+begin
+  require 'tasks/cross_compile' unless RUBY_PLATFORM =~ /java/
+rescue RuntimeError => e
+  warn "WARNING: Could not perform some cross-compiling: #{e}"
+end
 
 desc "set environment variables to build and/or test with debug options"
 task :debug do
