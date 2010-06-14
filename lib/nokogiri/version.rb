@@ -9,7 +9,7 @@ module Nokogiri
   VERSION_INFO['ruby']                  = {}
   VERSION_INFO['ruby']['version']       = ::RUBY_VERSION
   VERSION_INFO['ruby']['platform']      = ::RUBY_PLATFORM
-  
+
   VERSION_INFO['ruby']['jruby']         = ::JRUBY_VERSION if RUBY_PLATFORM == "java"
   if defined?(LIBXML_VERSION)
     VERSION_INFO['libxml']              = {}
@@ -30,9 +30,5 @@ module Nokogiri
 
   def self.jruby?
     !Nokogiri::VERSION_INFO['ruby']['jruby'].nil?
-  end
-
-  def self.is_2_6_16? # :nodoc:
-    Nokogiri::VERSION_INFO['ruby']['platform'] !~ /java/ && Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
   end
 end

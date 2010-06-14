@@ -129,9 +129,6 @@ static VALUE from_document(VALUE klass, VALUE document)
   schema = xmlRelaxNGParse(ctx);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
-  if (! is_2_6_16()) {
-    xmlRelaxNGFreeParserCtxt(ctx);
-  }
 
   if(NULL == schema) {
     xmlErrorPtr error = xmlGetLastError();
@@ -141,10 +138,6 @@ static VALUE from_document(VALUE klass, VALUE document)
       rb_raise(rb_eRuntimeError, "Could not parse document");
 
     return Qnil;
-  }
-
-  if (is_2_6_16()) {
-    xmlRelaxNGFreeParserCtxt(ctx);
   }
 
   rb_schema = Data_Wrap_Struct(klass, 0, dealloc, schema);

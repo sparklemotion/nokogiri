@@ -141,12 +141,6 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
     }
   }
 
-  /* TODO: I really want to remove this.  We shouldn't support 2.6.16 anymore */
-  if ( reparentee->type == XML_TEXT_NODE && pivot->type == XML_TEXT_NODE && is_2_6_16() ) {
-    /* work around a string-handling bug in libxml 2.6.16. we'd rather leak than segfault. */
-    pivot->content = xmlStrdup(pivot->content);
-  }
-
   if(!(reparented = (*prf)(pivot, reparentee))) {
     rb_raise(rb_eRuntimeError, "Could not reparent node");
   }

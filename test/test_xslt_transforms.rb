@@ -6,8 +6,7 @@ class TestXsltTransforms < Nokogiri::TestCase
     @doc = Nokogiri::XML(File.open(XML_FILE))
   end
 
-  if Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO['libxml']['loaded'] > '2.6.16'
-
+  if Nokogiri.uses_libxml?
     def test_class_methods
       style = Nokogiri::XSLT(File.read(XSLT_FILE))
 

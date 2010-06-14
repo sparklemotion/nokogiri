@@ -35,8 +35,6 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <st.h>
 #endif
 
-int is_2_6_16(void) ;
-
 #ifndef UNUSED
 # if defined(__GNUC__)
 #  define MAYBE_UNUSED(name) name __attribute__((unused))
