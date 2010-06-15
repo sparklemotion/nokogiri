@@ -14,7 +14,7 @@ module Nokogiri
       end
 
       def push(node) # :nodoc:
-        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
+        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node) || node.is_a?(XML::Namespace)
         LibXML.xmlXPathNodeSetAdd(cstruct, node.cstruct)
         self
       end
@@ -39,7 +39,7 @@ module Nokogiri
       end
 
       def delete(node) # :nodoc:
-        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
+        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node) || node.is_a?(XML::Namespace)
         if LibXML.xmlXPathNodeSetContains(cstruct, node.cstruct) != 0
           LibXML.xmlXPathNodeSetDel(cstruct, node.cstruct)
           return node
@@ -71,7 +71,7 @@ module Nokogiri
       end
 
       def include?(node) # :nodoc:
-        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node)
+        raise(ArgumentError, "node must be a Nokogiri::XML::Node") unless node.is_a?(XML::Node) || node.is_a?(XML::Namespace)
         (LibXML.xmlXPathNodeSetContains(cstruct, node.cstruct) != 0) ? true : false
       end
 

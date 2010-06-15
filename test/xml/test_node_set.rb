@@ -3,6 +3,27 @@ require "helper"
 module Nokogiri
   module XML
     class TestNodeSet < Nokogiri::TestCase
+      class TestNodeSetNamespaces < Nokogiri::TestCase
+        def setup
+          super
+          @xml = Nokogiri.XML('<foo xmlns:n0="http://example.com" />')
+          @list = @xml.xpath('//namespace::*')
+        end
+
+        def test_include?
+          assert @list.include?(@list.first), 'list should have item'
+        end
+
+        def test_push
+          @list.push @list.first
+        end
+
+        def test_delete
+          @list.push @list.first
+          @list.delete @list.first
+        end
+      end
+
       def setup
         super
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
