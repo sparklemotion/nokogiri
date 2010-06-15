@@ -28,6 +28,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxml/HTMLtree.h>
 #include <libxml/relaxng.h>
 #include <libxslt/extensions.h>
+#include <libxml/c14n.h>
 #include <ruby.h>
 
 #ifdef HAVE_RUBY_ENCODING_H

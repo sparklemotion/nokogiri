@@ -421,6 +421,60 @@ static VALUE create_entity(int argc, VALUE *argv, VALUE self)
   return Nokogiri_wrap_xml_node(cNokogiriXmlEntityDecl, (xmlNodePtr)ptr);
 }
 
+static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
+{
+  VALUE block;
+  VALUE node;
+  VALUE parent;
+  VALUE ret;
+
+  block  = (VALUE)ctx;
+  node   = Nokogiri_wrap_xml_node(Qnil, _node);
+  parent = _parent ? Nokogiri_wrap_xml_node(Qnil, _parent) : Qnil;
+
+  ret = rb_funcall(block, rb_intern("call"), 2, node, parent);
+
+  if(Qfalse == ret || Qnil == ret) return 0;
+
+  return 1;
+}
+
+/* call-seq: doc.canonicalize
+ *
+ * Canonicalize a document and return the results.
+ */
+static VALUE canonicalize(VALUE self)
+{
+  xmlDocPtr doc;
+  xmlOutputBufferPtr buf;
+  xmlC14NIsVisibleCallback cb = NULL;
+  void * ctx = NULL;
+
+  VALUE rb_cStringIO;
+  VALUE io;
+
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  rb_cStringIO = rb_const_get_at(rb_cObject, rb_intern("StringIO"));
+  io           = rb_class_new_instance(0, 0, rb_cStringIO);
+  buf          = xmlAllocOutputBuffer(NULL);
+
+  buf->writecallback = (xmlOutputWriteCallback)io_write_callback;
+  buf->closecallback = (xmlOutputCloseCallback)io_close_callback;
+  buf->context       = (void *)io;
+
+  if(rb_block_given_p()) {
+    cb = block_caller;
+    ctx = (void *)rb_block_proc();
+  }
+
+  xmlC14NExecute(doc, cb, ctx, XML_C14N_1_0, NULL, 0, buf);
+
+  xmlOutputBufferClose(buf);
+
+  return rb_funcall(io, rb_intern("string"), 0);
+}
+
 VALUE cNokogiriXmlDocument ;
 void init_xml_document()
 {
@@ -444,6 +498,7 @@ void init_xml_document()
   rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "encoding=", set_encoding, 1);
   rb_define_method(klass, "version", version, 0);
+  rb_define_method(klass, "canonicalize", canonicalize, 0);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
   rb_define_method(klass, "create_entity", create_entity, -1);
