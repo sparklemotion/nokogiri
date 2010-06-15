@@ -616,7 +616,11 @@ module Nokogiri
           </root>
         EOX
 
+        namespaces = doc.root.namespaces
+
         # assert on setup
+        assert_equal 2, doc.root.namespaces.length
+        assert_equal 3, doc.at_xpath("//container").namespaces.length
         assert_equal 0, doc.xpath("//foo").length
         assert_equal 1, doc.xpath("//a:foo").length
         assert_equal 1, doc.xpath("//a:foo").length
@@ -624,9 +628,11 @@ module Nokogiri
 
         doc.remove_namespaces!
 
+        assert_equal 0, doc.root.namespaces.length
+        assert_equal 0, doc.at_xpath("//container").namespaces.length
         assert_equal 3, doc.xpath("//foo").length
-        assert_equal 0, doc.xpath("//a:foo").length
-        assert_equal 0, doc.xpath("//a:foo").length
+        assert_equal 0, doc.xpath("//a:foo", namespaces).length
+        assert_equal 0, doc.xpath("//a:foo", namespaces).length
         assert_equal 0, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
       end
 
