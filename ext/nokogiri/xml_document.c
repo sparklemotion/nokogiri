@@ -439,9 +439,14 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
   return 1;
 }
 
-/* call-seq: doc.canonicalize
+/* call-seq:
+ *  doc.canonicalize
+ *  doc.canonicalize { |node, parent| ... }
  *
- * Canonicalize a document and return the results.
+ * Canonicalize a document and return the results.  Takes an optional block
+ * that takes two parameters the +node+ and that node's +parent+.  The block
+ * must return a non-nil, non-false value if the +node+ passed in should be
+ * included in the canonicalized document.
  */
 static VALUE canonicalize(VALUE self)
 {
