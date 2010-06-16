@@ -126,7 +126,9 @@ module Nokogiri
         end
 
         ###
-        # Characters read between a tag
+        # Characters read between a tag.  This method might be called multiple
+        # times given one contiguous string of characters.
+        #
         # +string+ contains the character data
         def characters string
         end
