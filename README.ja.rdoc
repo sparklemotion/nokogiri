@@ -3,7 +3,7 @@
 * http://nokogiri.org/
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
-* http://groups.google.com/group/nokogiri-talk
+* http://groups.google.com/group/nokogiri-list
 * http://github.com/tenderlove/nokogiri/issues
 
 == DESCRIPTION:
