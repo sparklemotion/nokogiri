@@ -110,8 +110,8 @@ public class XmlNodeSet extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject delete(ThreadContext context, IRubyObject node){
-        return nodes.delete(context, asXmlNode(context, node), Block.NULL_BLOCK);
+    public IRubyObject delete(ThreadContext context, IRubyObject node_or_namespace){
+        return nodes.delete(context, asXmlNodeOrNamespace(context, node_or_namespace), Block.NULL_BLOCK);
     }
 
     @JRubyMethod
@@ -120,8 +120,8 @@ public class XmlNodeSet extends RubyObject {
     }
 
     @JRubyMethod(name = "include?")
-    public IRubyObject include_p(ThreadContext context, IRubyObject node){
-        return nodes.include_p(context, asXmlNode(context, node));
+    public IRubyObject include_p(ThreadContext context, IRubyObject node_or_namespace){
+        return nodes.include_p(context, asXmlNodeOrNamespace(context, node_or_namespace));
     }
 
     @JRubyMethod
@@ -142,8 +142,8 @@ public class XmlNodeSet extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject push(ThreadContext context, IRubyObject node) {
-        nodes.append(asXmlNode(context, node));
+    public IRubyObject push(ThreadContext context, IRubyObject node_or_namespace) {
+        nodes.append(asXmlNodeOrNamespace(context, node_or_namespace));
         return this;
     }
 
@@ -213,6 +213,14 @@ public class XmlNodeSet extends RubyObject {
         }
 
         return (XmlNode) possibleNode;
+    }
+    
+    private IRubyObject asXmlNodeOrNamespace(ThreadContext context, IRubyObject possibleNode) {
+        if (possibleNode instanceof XmlNode || possibleNode instanceof XmlNamespace) {
+            return possibleNode;
+        } else {
+            throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+        }
     }
 
     private XmlNodeSet asXmlNodeSet(ThreadContext context, IRubyObject possibleNodeSet) {
