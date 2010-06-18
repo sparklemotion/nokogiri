@@ -16,6 +16,10 @@ module Nokogiri
         assert_raises(CSS::SyntaxError) { @parser.parse("a[x=]") }
       end
 
+      def test_function_and_pseudo
+        assert_xpath '//child::text()[position() = 99]', @parser.parse('text():nth-of-type(99)')
+      end
+
       def test_find_by_type
         ast = @parser.parse("a:nth-child(2)").first
         matches = ast.find_by_type(
