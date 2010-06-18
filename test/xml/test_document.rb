@@ -21,12 +21,6 @@ module Nokogiri
         assert_equal nil, @xml.root
       end
 
-      def test_parse_should_not_exist
-        assert_raises(NoMethodError) do
-          @xml.parse("foo")
-        end
-      end
-
       def test_collect_namespaces
         doc = Nokogiri::XML(<<-eoxml)
         <xml>

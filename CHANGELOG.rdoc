@@ -3,6 +3,7 @@
 * Bugfixes
 
   * XML::NodeSet#{include?,delete,push} accept an XML::Namespace
+  * XML::Document#parse added for parsing in the context of a document
 
 === 1.4.2 / 2010/05/22
 
