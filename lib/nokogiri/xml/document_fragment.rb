@@ -72,6 +72,13 @@ module Nokogiri
         end
       end
 
+      private
+
+      def coerce data
+        return super unless String === data
+
+        document.fragment(data).children
+      end
     end
   end
 end

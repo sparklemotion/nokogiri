@@ -1122,12 +1122,10 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
   xmlNodePtr node;
   xmlNodePtr list;
   xmlNodeSetPtr set;
+  xmlParserErrors error;
   VALUE doc, err;
 
   Data_Get_Struct(self, xmlNode, node);
-
-  if(!node->parent)
-    rb_raise(rb_eRuntimeError, "no contextual parsing on unlinked nodes");
 
   doc = DOC_RUBY_OBJECT(node->doc);
   err = rb_iv_get(doc, "@errors");
@@ -1141,7 +1139,7 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
   htmlHandleOmittedElem(0);
 #endif
 
-  xmlParseInNodeContext(
+  error = xmlParseInNodeContext(
       node,
       StringValuePtr(_str),
       (int)RSTRING_LEN(_str),
@@ -1153,6 +1151,20 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 #endif
 
   xmlSetStructuredErrorFunc(NULL, NULL);
+
+  /* FIXME: This probably needs to handle more constants... */
+  switch(error) {
+    case XML_ERR_OK:
+      break;
+
+    case XML_ERR_INTERNAL_ERROR:
+    case XML_ERR_NO_MEMORY:
+      rb_raise(rb_eRuntimeError, "error parsing fragment (%d)", error);
+      break;
+
+    default:
+      break;
+  }
 
   set = xmlXPathNodeSetCreate(NULL);
 
