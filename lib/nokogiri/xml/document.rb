@@ -7,7 +7,7 @@ module Nokogiri
     #
     # For searching a Document, see Nokogiri::XML::Node#css and
     # Nokogiri::XML::Node#xpath
-    class Document < Node
+    class Document < Nokogiri::XML::Node
       ##
       # Parse an XML file.  +thing+ may be a String, or any object that
       # responds to _read_ and _close_ such as an IO, or StringIO.
@@ -172,7 +172,6 @@ module Nokogiri
       undef_method :swap, :parent, :namespace, :default_namespace=
       undef_method :add_namespace_definition, :attributes
       undef_method :namespace_definitions, :line, :add_namespace
-      undef_method :parse, :in_context
 
       def add_child child
         raise "Document already has a root node" if root

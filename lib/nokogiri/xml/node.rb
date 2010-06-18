@@ -771,7 +771,7 @@ module Nokogiri
 
       private
 
-      def coerce(data) # :nodoc:
+      def coerce data # :nodoc:
         return data                    if data.is_a?(XML::NodeSet)
         return data.children           if data.is_a?(XML::DocumentFragment)
         return fragment(data).children if data.is_a?(String)

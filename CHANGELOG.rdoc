@@ -15,6 +15,8 @@
 * Bugfixes
 
   * XML::NodeSet#{include?,delete,push} accept an XML::Namespace
+  * XML::Document#parse added for parsing in the context of a document
+  * XML::DocumentFragment#inner_html= works with contextual parsing! #298, #281
 
 === 1.4.2 / 2010/05/22
 

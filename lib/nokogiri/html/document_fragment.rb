@@ -6,7 +6,7 @@ module Nokogiri
       def self.parse tags
         doc = HTML::Document.new
         doc.encoding = 'UTF-8'
-        self.new(doc, tags)
+        new(doc, tags)
       end
 
       def initialize document, tags = nil, ctx = nil
