@@ -130,7 +130,7 @@ end
 
 require 'tasks/test'
 begin
-  require 'tasks/cross_compile'
+  require 'tasks/cross_compile' unless java
 rescue RuntimeError => e
   warn "WARNING: Could not perform some cross-compiling: #{e}"
 end
