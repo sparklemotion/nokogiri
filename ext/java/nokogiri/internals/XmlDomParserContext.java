@@ -18,10 +18,9 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.ext.EntityResolver2;
 
 /**
  *
@@ -45,21 +44,23 @@ public class XmlDomParserContext extends ParserContext {
     public XmlDomParserContext(Ruby runtime, long options) {
         super(runtime);
 
-        this.options = new ParserContext.Options(options);
+        this.options = new ParserContext.Options(options);     
 
-        if(this.continuesOnError()){
-            this.errorHandler = new NokogiriNonStrictErrorHandler();
-        } else {
-            this.errorHandler = new NokogiriStrictErrorHandler();
-        }
-
+        initErrorHandler();
         initParser(runtime);
-
-        parser.setErrorHandler(this.errorHandler);
+    }
+    
+    protected void initErrorHandler() {
+        if (continuesOnError()) {
+            errorHandler = new NokogiriNonStrictErrorHandler();
+        } else {
+            errorHandler = new NokogiriStrictErrorHandler();
+        }
     }
 
     protected void initParser(Ruby runtime) {
         parser = new XmlDomParser();
+        parser.setErrorHandler(errorHandler);
 
         if (options.noBlanks) {
             setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
@@ -154,8 +155,6 @@ public class XmlDomParserContext extends ParserContext {
     public XmlDocument parse(ThreadContext context,
                              IRubyObject klass,
                              IRubyObject url) {
-        Ruby ruby = context.getRuntime();
-
         try {
             Document doc = do_parse();
             XmlDocument xmlDoc = wrapDocument(context, (RubyClass)klass, doc);

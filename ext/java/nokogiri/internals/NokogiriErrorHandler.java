@@ -2,7 +2,9 @@ package nokogiri.internals;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import nokogiri.XmlSyntaxError;
+
 import org.apache.xerces.xni.parser.XMLErrorHandler;
 import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
@@ -22,7 +24,7 @@ public abstract class NokogiriErrorHandler
         this.errors = new ArrayList<Exception>();
     }
 
-    protected void addError(Exception e) {
+    void addError(Exception e) {
         errors.add(e);
     }
 

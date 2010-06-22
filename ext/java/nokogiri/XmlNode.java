@@ -759,24 +759,68 @@ public class XmlNode extends RubyObject {
                                   IRubyObject options) {
         RubyModule klass;
         XmlDomParserContext ctx;
-
-        if (document(context) instanceof HtmlDocument) {
+        InputStream istream;
+        XmlDocument document;
+        
+        IRubyObject d = document(context);
+        if (d != null && d instanceof XmlDocument) {
+            document = (XmlDocument)d;
+        } else {
+            return context.getRuntime().getNil();
+        }
+        
+        if (document instanceof HtmlDocument) {
             klass = getRuntime().getClassFromPath("Nokogiri::HTML::Document");
             ctx = new HtmlDomParserContext(getRuntime(), options);
             ((HtmlDomParserContext)ctx).enableDocumentFragment();
+            istream = new ByteArrayInputStream(((String)str.toJava(String.class)).getBytes());
         } else {
             klass = getRuntime().getClassFromPath("Nokogiri::XML::Document");
             ctx = new XmlDomParserContext(getRuntime(), options);
+            String input = addTemporaryRootTagIfNecessary(context, (String)str.toJava(String.class));
+            istream = new ByteArrayInputStream(input.getBytes());
         }
 
-        String input = addTemporaryRootTagIfNecessary(context, (String)str.toJava(String.class));
-        InputStream istream = new ByteArrayInputStream(input.getBytes());
         ctx.setInputSource(istream);
         XmlDocument doc = ctx.parse(context, klass, getRuntime().getNil());
+        
+        if (isErrorIncreated(document, doc)) {
+            saveErrorsOfCreatedDocument(document, doc);
+            return new XmlNodeSet(getRuntime(), RubyArray.newArray(context.getRuntime()));
+        }
         NodeList childNodes = removeTemporaryRootIfNecessary(doc.getNode().getChildNodes());
         XmlNodeSet nodes = new XmlNodeSet(getRuntime(), childNodes);
         nodes.setInstanceVariable("@document", doc);
         return nodes;
+    }
+    
+    private int getErrorNumbers(XmlDocument document) {
+        IRubyObject obj = document.getInstanceVariable("@errors");
+        if (obj != null && obj instanceof RubyArray) {
+            return ((RubyArray)obj).getLength();
+        }
+        return 0;
+    }
+    
+    private boolean isErrorIncreated(XmlDocument base, XmlDocument created) {
+        int baseDocumentErrors = getErrorNumbers(base);
+        int createdDocumentErrors = getErrorNumbers(created);
+        return createdDocumentErrors > baseDocumentErrors;
+    }
+    
+    private void saveErrorsOfCreatedDocument(XmlDocument base, XmlDocument created) {
+        RubyArray newErrors = (RubyArray)created.getInstanceVariable("@errors");
+        RubyArray existingErrors = null;
+        IRubyObject obj = base.getInstanceVariable("@errors");
+        if (obj != null && obj instanceof RubyArray) {
+            existingErrors = (RubyArray)obj;
+        } else {
+            existingErrors = RubyArray.newArray(base.getRuntime());
+        }
+        for (int i=0; i<newErrors.getLength(); i++) {
+            existingErrors.add(newErrors.get(i));
+        }
+        base.setInstanceVariable("@errors", existingErrors);
     }
     
     private String addTemporaryRootTagIfNecessary(ThreadContext context, String tags) {

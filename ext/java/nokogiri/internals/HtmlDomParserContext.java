@@ -1,10 +1,9 @@
 package nokogiri.internals;
 
-import java.io.IOException;
-import java.io.InputStream;
-import javax.xml.parsers.ParserConfigurationException;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import nokogiri.HtmlDocument;
 import nokogiri.XmlDocument;
+
 import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;
@@ -19,10 +18,6 @@ import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 /**
  *
@@ -47,12 +42,23 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     public HtmlDomParserContext(Ruby runtime, long options) {
         super(runtime, options);
     }
+    
+    @Override
+    protected void initErrorHandler() {
+        if (continuesOnError()) {
+            errorHandler = new NokogiriNonStrictErrorHandler4NekoHtml();
+        } else {
+            errorHandler = new NokogiriStrictErrorHandler();
+        }
+    }
 
     @Override
     protected void initParser(Ruby runtime) {
         XMLParserConfiguration config = new HTMLConfiguration();
         XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
-        XMLDocumentFilter[] filters = { removeNSAttrsFilter };
+        XMLDocumentFilter elementValidityCheckFilter = new ElementValidityCheckFilter(errorHandler);
+        //XMLDocumentFilter[] filters = { removeNSAttrsFilter};
+        XMLDocumentFilter[] filters = { removeNSAttrsFilter,  elementValidityCheckFilter};
 
         config.setErrorHandler(this.errorHandler);
         parser = new DOMParser(config);
@@ -107,6 +113,63 @@ public class HtmlDomParserContext extends XmlDomParserContext {
 
             element.uri = null;
             super.startElement(element, attrs, augs);
+        }
+    }
+    
+    public static class ElementValidityCheckFilter extends DefaultFilter {
+        private NokogiriErrorHandler errorHandler;
+        
+        private ElementValidityCheckFilter(NokogiriErrorHandler errorHandler) {
+            this.errorHandler = errorHandler;
+        }
+        
+        // element names from xhtml1-strict.dtd
+        private static String[][] element_names = {
+                {"a", "abbr", "acronym", "address", "area"},
+                {"b", "base", "bdo", "big", "blockquote", "body", "br", "button"},
+                {"caption", "cite", "code", "col", "colgroup"},
+                {"dd", "del", "dfn", "div", "dl", "dt"},
+                {"em"},
+                {"fieldset", "form"},
+                {}, // g
+                {"h1", "h2", "h3", "h4", "h5", "h6", "head", "hr", "html"},
+                {"i", "img", "input", "ins"},
+                {}, // j
+                {"kbd"},
+                {"label", "legend", "li", "link"},
+                {"map", "meta"},
+                {"noscript"},
+                {"object", "ol", "optgroup", "option"},
+                {"p", "param", "pre"},
+                {"q"},
+                {}, // r
+                {"samp", "script", "select", "small", "span", "strong", "style", "sub", "sup"},
+                {"table", "tbody", "td", "textarea", "tfoot", "th", "thead", "title", "tr", "tt"},
+                {"ul"},
+                {"var"},
+                {}, // w
+                {}, // x
+                {}, // y
+                {}  // z
+        };
+        
+        private boolean isValid(String testee) {
+            char[] c = testee.toCharArray();
+            int index = new Integer(c[0]) - 97;
+            for (int i=0; i<element_names[index].length; i++) {
+                if (testee.equals(element_names[index][i])) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        @Override
+        public void startElement(QName name, XMLAttributes attrs, Augmentations augs) throws XNIException {
+            if (!isValid(name.rawname)) {
+                errorHandler.addError(new Exception("Tag " + name.rawname + " invalid"));
+            }
+            super.startElement(name, attrs, augs);
         }
     }
 }
