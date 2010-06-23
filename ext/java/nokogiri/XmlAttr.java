@@ -104,7 +104,7 @@ public class XmlAttr extends XmlNode{
         Attr attr = (Attr) node;
 
         ctx.maybeSpace();
-        ctx.append(rubyStringToString(getNodeName(context)));
+        ctx.append(attr.getName());
 
         if (!ctx.asHtml() || !isHtmlBooleanAttr()) {
             ctx.append("=");

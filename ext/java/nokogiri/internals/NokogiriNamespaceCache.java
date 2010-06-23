@@ -38,7 +38,7 @@ public class NokogiriNamespaceCache {
         return prefix_hash << 31 | href_hash;
     }
 
-    public XmlNamespace get(ThreadContext context, String prefix, String href) {
+    public XmlNamespace get(String prefix, String href) {
         // prefix should not be null.
         // In case of a default namespace, an empty string should be given to prefix argument.
         if (prefix == null || href == null) return null;

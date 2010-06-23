@@ -1020,7 +1020,7 @@ public class XmlNode extends RubyObject {
         NokogiriNamespaceCache nsCache = xmlDocument.getNamespaceCache();
         if (namespace == null) {
             String prefix = node.getPrefix();
-            namespace = nsCache.get(context, prefix == null ? "" : prefix, node.getNamespaceURI());
+            namespace = nsCache.get(prefix == null ? "" : prefix, node.getNamespaceURI());
             if (namespace == null || ((XmlNamespace) namespace).isEmpty()) {
                 namespace = context.getRuntime().getNil();
             }
@@ -1291,7 +1291,7 @@ public class XmlNode extends RubyObject {
         return false;
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"next", "next_element"})
     public IRubyObject next_element(ThreadContext context) {
         Node nextNode = node.getNextSibling();
         Ruby ruby = context.getRuntime();
