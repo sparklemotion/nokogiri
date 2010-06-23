@@ -12,6 +12,10 @@
 
 === 1.4.3 / UNRELEASED
 
+* New Features
+
+  * XML::Reader#empty_element? returns true for empty elements. #262
+
 * Bugfixes
 
   * XML::NodeSet#{include?,delete,push} accept an XML::Namespace

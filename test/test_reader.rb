@@ -8,6 +8,32 @@ class TestReader < Nokogiri::TestCase
     assert_equal io, reader.source
   end
 
+  def test_empty_element?
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+<xml><city>Paris</city><state/></xml>
+    eoxml
+
+    results = reader.map do |node|
+      if node.node_type == Nokogiri::XML::Node::ELEMENT_NODE
+        node.empty_element?
+      end
+    end
+    assert_equal [false, false, nil, nil, true, nil], results
+  end
+
+  def test_self_closing?
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+<xml><city>Paris</city><state/></xml>
+    eoxml
+
+    results = reader.map do |node|
+      if node.node_type == Nokogiri::XML::Node::ELEMENT_NODE
+        node.self_closing?
+      end
+    end
+    assert_equal [false, false, nil, nil, true, nil], results
+  end
+
   def test_reader_takes_block
     options = nil
     Nokogiri::XML::Reader(File.read(XML_FILE), XML_FILE) do |cfg|
