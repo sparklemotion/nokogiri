@@ -523,7 +523,7 @@ static VALUE outer_xml(VALUE self)
   Data_Get_Struct(self, xmlTextReader, reader);
 
   value = xmlTextReaderReadOuterXml(reader);
-	
+
   if(value) {
     str = NOKOGIRI_STR_NEW2((char*)value);
     xmlFree(value);
@@ -620,6 +620,24 @@ static VALUE from_io(int argc, VALUE *argv, VALUE klass)
   return rb_reader;
 }
 
+/*
+ * call-seq:
+ *   reader.empty_element? # => true or false
+ *
+ * Returns true if the current node is empty, otherwise false.
+ */
+static VALUE empty_element_p(VALUE self)
+{
+  xmlTextReaderPtr reader;
+
+  Data_Get_Struct(self, xmlTextReader, reader);
+
+  if(xmlTextReaderIsEmptyElement(reader))
+    return Qtrue;
+
+  return Qfalse;
+}
+
 VALUE cNokogiriXmlReader;
 
 void init_xml_reader()
@@ -656,6 +674,7 @@ void init_xml_reader()
   rb_define_method(klass, "attribute", reader_attribute, 1);
   rb_define_method(klass, "namespaces", namespaces, 0);
   rb_define_method(klass, "attribute_at", attribute_at, 1);
+  rb_define_method(klass, "empty_element?", empty_element_p, 0);
   rb_define_method(klass, "attributes?", attributes_eh, 0);
   rb_define_method(klass, "value?", value_eh, 0);
   rb_define_method(klass, "default?", default_eh, 0);
