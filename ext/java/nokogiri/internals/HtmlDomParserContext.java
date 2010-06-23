@@ -47,6 +47,8 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     protected void initErrorHandler() {
         if (continuesOnError()) {
             errorHandler = new NokogiriNonStrictErrorHandler4NekoHtml();
+        } else if (options.noError) {
+            errorHandler = new NokogiriNonStrictErrorHandler4NekoHtml(options.noError);
         } else {
             errorHandler = new NokogiriStrictErrorHandler();
         }

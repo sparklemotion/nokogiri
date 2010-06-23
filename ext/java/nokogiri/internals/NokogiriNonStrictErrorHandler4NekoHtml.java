@@ -17,13 +17,22 @@ import org.xml.sax.SAXParseException;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriNonStrictErrorHandler4NekoHtml extends NokogiriErrorHandler {
+    private boolean noerror;
+    
+    public NokogiriNonStrictErrorHandler4NekoHtml() {
+        this.noerror = false;
+    }
+    
+    public NokogiriNonStrictErrorHandler4NekoHtml(boolean noerror) {
+        this.noerror = noerror;
+    }
 
     public void warning(SAXParseException ex) throws SAXException {
         //noop. NekoHtml adds too many warnings.
     }
 
     public void error(SAXParseException ex) throws SAXException {
-        this.errors.add(ex);
+        if (!noerror) this.errors.add(ex);
     }
 
     public void fatalError(SAXParseException ex) throws SAXException {
@@ -31,7 +40,7 @@ public class NokogiriNonStrictErrorHandler4NekoHtml extends NokogiriErrorHandler
     }
 
     public void error(String domain, String key, XMLParseException e) {
-        addError(e);
+        if (!noerror) addError(e);
     }
 
     public void fatalError(String domain, String key, XMLParseException e) {
