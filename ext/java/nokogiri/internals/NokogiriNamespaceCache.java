@@ -1,5 +1,7 @@
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +12,8 @@ import nokogiri.XmlNamespace;
 
 import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
+import org.w3c.dom.Attr;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
@@ -101,6 +105,23 @@ public class NokogiriNamespaceCache {
             cache.remove(index);
         }
         keys.remove(index);
+    }
+    
+    public void clear() {
+        // removes namespace declarations from node
+        for (int i=0; i < keys.size(); i++) {
+            CacheEntry entry = cache.get(i);
+            NamedNodeMap attributes = entry.node.getAttributes();
+            for (int j=0; j<attributes.getLength(); j++) {
+                String name = ((Attr)attributes.item(j)).getName();
+                if (isNamespace(name)) {
+                    attributes.removeNamedItem(name);
+                }
+            }
+        }
+        keys.clear();
+        cache.clear();
+        defaultNamespace = null;
     }
     
     private class CacheEntry {

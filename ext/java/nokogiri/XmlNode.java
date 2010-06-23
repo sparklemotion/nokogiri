@@ -1035,17 +1035,16 @@ public class XmlNode extends RubyObject {
      */
     @JRubyMethod
     public IRubyObject namespace_definitions(ThreadContext context) {
-        if (namespace_definitions == null) {
-            Ruby ruby = context.getRuntime();
-            namespace_definitions = ruby.newArray();
-            if (doc == null) return namespace_definitions;
-            List<XmlNamespace> namespaces = ((XmlDocument)doc).getNamespaceCache().get(node);
-            for (XmlNamespace namespace : namespaces) {
-                ((RubyArray)namespace_definitions).append(namespace);
-            }
-      
-
-            //this.namespace_definitions = arr;
+        // don't use namespace_definitions cache anymore since
+        // namespaces might be deleted. Reflecting the result of 
+        // namesapce removals is complicated, so the cache might not be
+        // updated.
+        Ruby ruby = context.getRuntime();
+        namespace_definitions = ruby.newArray();
+        if (doc == null) return namespace_definitions;
+        List<XmlNamespace> namespaces = ((XmlDocument)doc).getNamespaceCache().get(node);
+        for (XmlNamespace namespace : namespaces) {
+            ((RubyArray)namespace_definitions).append(namespace);
         }
 
         return (RubyArray) this.namespace_definitions;

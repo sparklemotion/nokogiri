@@ -257,6 +257,7 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod(name="remove_namespaces!")
     public IRubyObject remove_namespaces(ThreadContext context) {
         removeNamespceRecursively(context, this);
+        nsCache.clear();
         return this;
     }
     
