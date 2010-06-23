@@ -128,26 +128,26 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         // element names from xhtml1-strict.dtd
         private static String[][] element_names = {
                 {"a", "abbr", "acronym", "address", "area"},
-                {"b", "base", "bdo", "big", "blockquote", "body", "br", "button"},
+                {"b", "base", "basefont", "bdo", "big", "blockquote", "body", "br", "button"},
                 {"caption", "cite", "code", "col", "colgroup"},
                 {"dd", "del", "dfn", "div", "dl", "dt"},
                 {"em"},
-                {"fieldset", "form"},
+                {"fieldset", "font", "form", "frame", "frameset"},
                 {}, // g
                 {"h1", "h2", "h3", "h4", "h5", "h6", "head", "hr", "html"},
-                {"i", "img", "input", "ins"},
+                {"i", "iframe", "img", "input", "ins"},
                 {}, // j
                 {"kbd"},
                 {"label", "legend", "li", "link"},
                 {"map", "meta"},
-                {"noscript"},
+                {"noframes", "noscript"},
                 {"object", "ol", "optgroup", "option"},
                 {"p", "param", "pre"},
                 {"q"},
                 {}, // r
-                {"samp", "script", "select", "small", "span", "strong", "style", "sub", "sup"},
+                {"s", "samp", "script", "select", "small", "span", "strike", "strong", "style", "sub", "sup"},
                 {"table", "tbody", "td", "textarea", "tfoot", "th", "thead", "title", "tr", "tt"},
-                {"ul"},
+                {"u", "ul"},
                 {"var"},
                 {}, // w
                 {}, // x
