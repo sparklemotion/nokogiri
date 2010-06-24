@@ -134,19 +134,19 @@ module Nokogiri
               end
             end
           end
+        end
 
-          describe "text node merging" do
-            describe "#add_child" do
-              it "merges the Text node with adjacent Text nodes" do
-                @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new('hello', @doc)
-                @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
-              end
+        describe "text node merging" do
+          describe "#add_child" do
+            it "merges the Text node with adjacent Text nodes" do
+              @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new('hello', @doc)
+              @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
             end
-            describe "#replace" do
-              it "merges the Text node with adjacent Text nodes" do
-                @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
-                @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
-              end
+          end
+          describe "#replace" do
+            it "merges the Text node with adjacent Text nodes" do
+              @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
+              @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
             end
           end
         end
