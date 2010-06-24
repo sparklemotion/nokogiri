@@ -3,6 +3,7 @@
 * New Features
 
   * XML::Reader#empty_element? returns true for empty elements. #262
+  * Node#remove_namespaces! now removes namespace *declarations* as well. #294
 
 * Bugfixes
 
@@ -10,7 +11,6 @@
   * XML::Document#parse added for parsing in the context of a document
   * XML::DocumentFragment#inner_html= works with contextual parsing! #298, #281
   * lib/nokogiri/css/parser.y Combined CSS functions + pseudo selectors fixed
-  * Node#remove_namespaces! now removes namespace *declarations* as well. #294
 
 === 1.4.2 / 2010/05/22
 

@@ -153,6 +153,10 @@ module Nokogiri
           node.children.each do |child|
             recursively_remove_namespaces_from_node(child)
           end
+          unless node.cstruct[:nsDef].nil?
+            LibXML.xmlFreeNsList(node.cstruct[:nsDef])
+            node.cstruct[:nsDef] = nil
+          end
         end
       end
 
