@@ -134,19 +134,19 @@ module Nokogiri
               end
             end
           end
+        end
 
-          describe "text node merging" do
-            describe "#add_child" do
-              it "merges the Text node with adjacent Text nodes" do
-                @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new('hello', @doc)
-                @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
-              end
+        describe "text node merging" do
+          describe "#add_child" do
+            it "merges the Text node with adjacent Text nodes" do
+              @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new('hello', @doc)
+              @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
             end
-            describe "#replace" do
-              it "merges the Text node with adjacent Text nodes" do
-                @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
-                @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
-              end
+          end
+          describe "#replace" do
+            it "merges the Text node with adjacent Text nodes" do
+              @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
+              @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
             end
           end
         end
@@ -272,6 +272,21 @@ module Nokogiri
           end
         end
 
+        describe "replace-merging text nodes" do
+          [
+            ['<root>a<br/></root>',  'afoo'],
+            ['<root>a<br/>b</root>', 'afoob'],
+            ['<root><br/>b</root>',  'foob']
+          ].each do |xml, result|
+            it "doesn't blow up on #{xml}" do
+              doc = Nokogiri::XML.parse(xml)
+              saved_nodes = doc.root.children
+              doc.at_xpath("/root/br").replace(Nokogiri::XML::Text.new('foo', doc))
+              saved_nodes.each { |child| child.inspect } # try to cause a crash
+              assert_equal result, doc.at_xpath("/root/text()").inner_text
+            end
+          end
+        end
       end
     end
   end
