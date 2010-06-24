@@ -176,6 +176,10 @@ module Nokogiri
         LibXML.xmlTextReaderNodeType(cstruct)
       end
 
+      def empty_element?
+        LibXML.xmlTextReaderIsEmptyElement(cstruct) != 0
+      end
+
       def self.from_memory(buffer, url=nil, encoding=nil, options=0)
         raise(ArgumentError, "string cannot be nil") if buffer.nil?
 
