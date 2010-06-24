@@ -227,6 +227,8 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
         DOC_RUBY_OBJECT(ctx->doc));
   }
 
+  xmlXPathFreeNodeSetList(xpath);
+
   return thing;
 }
 
