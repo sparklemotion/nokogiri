@@ -272,6 +272,21 @@ module Nokogiri
           end
         end
 
+        describe "replace-merging text nodes" do
+          [
+            ['<root>a<br/></root>',  'afoo'],
+            ['<root>a<br/>b</root>', 'afoob'],
+            ['<root><br/>b</root>',  'foob']
+          ].each do |xml, result|
+            it "doesn't blow up on #{xml}" do
+              doc = Nokogiri::XML.parse(xml)
+              saved_nodes = doc.root.children
+              doc.at_xpath("/root/br").replace(Nokogiri::XML::Text.new('foo', doc))
+              saved_nodes.each { |child| child.inspect } # try to cause a crash
+              assert_equal result, doc.at_xpath("/root/text()").inner_text
+            end
+          end
+        end
       end
     end
   end

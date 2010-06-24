@@ -103,10 +103,10 @@ module Nokogiri
           retval = reparentee_struct if retval == pivot_struct.pointer # for reparent_node_with semantics
           retval = LibXML::XmlNode.new(retval) if retval.is_a?(FFI::Pointer)
           if retval[:type] == TEXT_NODE
-            if retval[:prev] && LibXML::XmlNode.new(retval[:prev])[:type] == TEXT_NODE
+            if !retval[:prev].null? && LibXML::XmlNode.new(retval[:prev])[:type] == TEXT_NODE
               retval = LibXML::XmlNode.new(LibXML.xmlTextMerge(retval[:prev], retval))
             end
-            if retval[:next] && LibXML::XmlNode.new(retval[:next])[:type] == TEXT_NODE
+            if !retval[:next].null? && LibXML::XmlNode.new(retval[:next])[:type] == TEXT_NODE
               retval = LibXML::XmlNode.new(LibXML.xmlTextMerge(retval, retval[:next]))
             end
           end
@@ -458,6 +458,16 @@ module Nokogiri
           reparentee_struct = LibXML.xmlDocCopyNode(reparentee_struct, pivot_struct.document, 1)
           raise(RuntimeError, "Could not reparent node (xmlDocCopyNode)") unless reparentee_struct
           reparentee_struct = LibXML::XmlNode.new(reparentee_struct)
+        end
+
+        if reparentee_struct[:type] == TEXT_NODE && !pivot_struct[:next].null?
+          next_text = Node.wrap(pivot_struct[:next])
+          if next_text.cstruct[:type] == TEXT_NODE
+            new_next_text = LibXML.xmlDocCopyNode(next_text.cstruct, pivot_struct[:doc], 1)
+            LibXML.xmlUnlinkNode(next_text.cstruct)
+            next_text.cstruct.keep_reference_from_document!
+            LibXML.xmlAddNextSibling(pivot_struct, new_next_text);
+          end
         end
 
         if reparentee_struct[:type] == TEXT_NODE && pivot_struct[:type] == TEXT_NODE && Nokogiri.is_2_6_16?

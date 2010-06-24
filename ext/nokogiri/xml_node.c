@@ -103,7 +103,7 @@ static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr pivot, xmlNodePtr new_node)
 static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func prf)
 {
   VALUE reparented_obj ;
-  xmlNodePtr reparentee, pivot, reparented ;
+  xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text ;
 
   if(!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
@@ -139,6 +139,34 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
     if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
+  }
+
+  if (reparentee->type == XML_TEXT_NODE && pivot->next && pivot->next->type == XML_TEXT_NODE) {
+    /*
+     *  libxml merges text nodes in a right-to-left fashion, meaning that if
+     *  there are two text nodes who would be adjacent, the right (or following,
+     *  or next) node will be merged into the left (or preceding, or previous)
+     *  node.
+     *
+     *  and by "merged" I mean the string contents will be concatenated onto the
+     *  left node's contents, and then the node will be freed.
+     *
+     *  which means that if we have a ruby object wrapped around the right node,
+     *  its memory would be freed out from under it.
+     *
+     *  so, we detect this edge case and unlink-and-root the text node before it gets
+     *  merged. then we dup the node and insert that duplicate back into the
+     *  document where the real node was.
+     *
+     *  yes, this is totally lame.
+     */
+    next_text     = pivot->next ;
+    new_next_text = xmlDocCopyNode(next_text, pivot->doc, 1) ;
+
+    xmlUnlinkNode(next_text);
+    NOKOGIRI_ROOT_NODE(next_text);
+
+    xmlAddNextSibling(pivot, new_next_text);
   }
 
   /* TODO: I really want to remove this.  We shouldn't support 2.6.16 anymore */
