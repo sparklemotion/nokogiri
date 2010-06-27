@@ -124,7 +124,7 @@ public class XmlNodeSet extends RubyObject {
         return nodes.include_p(context, asXmlNodeOrNamespace(context, node_or_namespace));
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"length", "size"})
     public IRubyObject length(ThreadContext context) {
         return nodes.length();
     }
@@ -141,7 +141,7 @@ public class XmlNodeSet extends RubyObject {
         return newXmlNodeSet(context, (RubyArray) nodes.op_or(asXmlNodeSet(context, nodeSet).nodes));
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"push", "<<"})
     public IRubyObject push(ThreadContext context, IRubyObject node_or_namespace) {
         nodes.append(asXmlNodeOrNamespace(context, node_or_namespace));
         return this;
@@ -174,12 +174,12 @@ public class XmlNodeSet extends RubyObject {
         else return context.getRuntime().getNil();
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"to_a", "to_ary"})
     public IRubyObject to_a(ThreadContext context){
        return nodes;
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"unlink", "remove"})
     public IRubyObject unlink(ThreadContext context){
         IRubyObject[] arr = this.nodes.toJavaArrayUnsafe();
         long length = arr.length;

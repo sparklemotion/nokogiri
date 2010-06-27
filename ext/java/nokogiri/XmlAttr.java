@@ -91,7 +91,7 @@ public class XmlAttr extends XmlNode{
         return buffer.toString();
     }
 
-    @JRubyMethod(name="value=")
+    @JRubyMethod(name = {"value=", "content="})
         public IRubyObject value_set(ThreadContext context, IRubyObject content){
         Attr attr = (Attr) node;
         attr.setValue(this.encode_special_chars(context, content).convertToString().asJavaString());

@@ -601,7 +601,7 @@ public class XmlNode extends RubyObject {
      * node, add an attribute of the form
      * <code>xmlns:prefix="uri"</code>.
      */
-    @JRubyMethod
+    @JRubyMethod(name = {"add_namespace_definition", "add_namespace"})
     public IRubyObject add_namespace_definition(ThreadContext context,
                                                 IRubyObject prefix,
                                                 IRubyObject href) {
@@ -694,7 +694,7 @@ public class XmlNode extends RubyObject {
         return fromNodeOrCreate(context, elementNodes.get(elementNodes.size()-1));
     }
     
-    @JRubyMethod
+    @JRubyMethod(name = {"element_children", "elements"})
     public IRubyObject element_children(ThreadContext context) {
         List<Node> elementNodes = new ArrayList<Node>();
         addElements(this.getNode(), elementNodes, false);
@@ -843,7 +843,7 @@ public class XmlNode extends RubyObject {
         return nodes;
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"content", "text", "inner_text"})
     public IRubyObject content(ThreadContext context) {
         if(this.content == null) {
             String textContent;
@@ -1009,7 +1009,7 @@ public class XmlNode extends RubyObject {
      * Test if this node has an attribute named <code>rbkey</code>.
      * Overridden in XmlElement.
      */
-    @JRubyMethod(name = "key?")
+    @JRubyMethod(name = {"key?", "has_attribute?"})
     public IRubyObject key_p(ThreadContext context, IRubyObject rbkey) {
         return context.getRuntime().getNil();
     }
@@ -1123,12 +1123,12 @@ public class XmlNode extends RubyObject {
         return io;
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"next_sibling", "next"})
     public IRubyObject next_sibling(ThreadContext context) {
         return fromNodeOrCreate(context, node.getNextSibling());
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"previous_sibling", "previous"})
     public IRubyObject previous_sibling(ThreadContext context) {
         return fromNodeOrCreate(context, node.getPreviousSibling());
     }
@@ -1141,12 +1141,12 @@ public class XmlNode extends RubyObject {
         return doc.root(context);
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"node_name", "name"})
     public IRubyObject node_name(ThreadContext context) {
         return getNodeName(context);
     }
 
-    @JRubyMethod(name = "node_name=")
+    @JRubyMethod(name = {"node_name=", "name="})
     public IRubyObject node_name_set(ThreadContext context, IRubyObject nodeName) {
         String newName = nodeName.convertToString().asJavaString();
         getOwnerDocument().renameNode(node, null, newName);
@@ -1154,7 +1154,7 @@ public class XmlNode extends RubyObject {
         return this;
     }
 
-    @JRubyMethod(name = "[]=")
+    @JRubyMethod(name = {"[]=", "set_attribute"})
     public IRubyObject op_aset(ThreadContext context, IRubyObject index, IRubyObject val) {
         return val;
     }
@@ -1183,7 +1183,7 @@ public class XmlNode extends RubyObject {
         return RubyFixnum.newFixnum(context.getRuntime(), this.node.hashCode());
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"remove_attribute", "delete"})
     public IRubyObject remove_attribute(ThreadContext context, IRubyObject name) {
         return this;
     }
@@ -1212,7 +1212,7 @@ public class XmlNode extends RubyObject {
         return this;
     }
 
-    @JRubyMethod
+    @JRubyMethod(name = {"unlink", "remove"})
     public IRubyObject unlink(ThreadContext context) {
         if(node.getParentNode() == null) {
             throw context.getRuntime().newRuntimeError("TYPE: " + node.getNodeType()+ " PARENT NULL");
@@ -1228,7 +1228,7 @@ public class XmlNode extends RubyObject {
      * convert Java Xml nodes to the appropriate constant defined in
      * xml/node.rb.
      */
-    @JRubyMethod
+    @JRubyMethod(name = {"node_type", "type"})
     public IRubyObject node_type(ThreadContext context) {
         String type;
         switch (node.getNodeType()) {
@@ -1528,7 +1528,7 @@ public class XmlNode extends RubyObject {
     /**
      * Add <code>other</code> as a sibling before <code>this</code>.
      */
-    @JRubyMethod
+    @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject add_previous_sibling_node(ThreadContext context,
                                                  IRubyObject other) {
         return adoptAs(context, AdoptScheme.PREV_SIBLING, other);
@@ -1537,7 +1537,7 @@ public class XmlNode extends RubyObject {
     /**
      * Add <code>other</code> as a sibling after <code>this</code>.
      */
-    @JRubyMethod
+    @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject add_next_sibling_node(ThreadContext context,
                                              IRubyObject other) {
         return adoptAs(context, AdoptScheme.NEXT_SIBLING, other);
