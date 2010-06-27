@@ -4,8 +4,7 @@ import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.Stack;
 
 import nokogiri.internals.ReaderNode;
@@ -13,6 +12,7 @@ import nokogiri.internals.ReaderNode.ElementNode;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
@@ -44,7 +44,7 @@ public class XmlReader extends RubyObject {
     private static final int XML_TEXTREADER_MODE_CLOSED = 4;
     private static final int XML_TEXTREADER_MODE_READING = 5;
 
-    final LinkedList<ReaderNode> nodeQueue = new LinkedList<ReaderNode>();
+    final ArrayDeque<ReaderNode> nodeQueue = new ArrayDeque<ReaderNode>();
     private int state;
     
     public XmlReader(Ruby ruby, RubyClass rubyClass) {
@@ -129,6 +129,14 @@ public class XmlReader extends RubyObject {
     public IRubyObject depth(ThreadContext context) {
         return nodeQueue.peek().getDepth();
     }
+    
+    @JRubyMethod(name = {"empty_element?", "self_closing?"})
+    public IRubyObject empty_element_p(ThreadContext context) {
+        ReaderNode readerNode = nodeQueue.peek();
+        if (readerNode == null) return context.getRuntime().getNil();
+        if (!(readerNode instanceof ElementNode)) context.getRuntime().getFalse();
+        return RubyBoolean.newBoolean(context.getRuntime(), !readerNode.hasChildren);
+    }
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_io(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
@@ -180,7 +188,7 @@ public class XmlReader extends RubyObject {
         return stringOrBlank(context.getRuntime(), getInnerXml(nodeQueue, nodeQueue.peek()));
     }
     
-    private String getInnerXml(LinkedList<ReaderNode> nodeQueue, ReaderNode current) {
+    private String getInnerXml(ArrayDeque<ReaderNode> nodeQueue, ReaderNode current) {
         if (current.depth < 0) return null;
         if (!current.hasChildren) return null;
         StringBuffer sb = new StringBuffer();
@@ -196,7 +204,7 @@ public class XmlReader extends RubyObject {
         return stringOrBlank(context.getRuntime(), getOuterXml(nodeQueue, nodeQueue.peek()));
     }
     
-    private String getOuterXml(LinkedList<ReaderNode> nodeQueue, ReaderNode current) {
+    private String getOuterXml(ArrayDeque<ReaderNode> nodeQueue, ReaderNode current) {
         if (current.depth < 0) return null;
         StringBuffer sb = new StringBuffer();
         int initialDepth = (Integer)current.depth - 1;
@@ -276,25 +284,33 @@ public class XmlReader extends RubyObject {
     protected XMLReader createReader(final Ruby ruby) {
         DefaultHandler2 handler = new DefaultHandler2() {
 
-            Stack<String> langStack = new Stack<String>();
+            Stack<String> langStack;
             int depth;
-            Stack<String> xmlBaseStack = new Stack<String>();
+            Stack<String> xmlBaseStack;
+            Stack<ReaderNode.ElementNode> elementStack;
 
             @Override
             public void characters(char[] chars, int start, int length) {
                 ReaderNode.TextNode node = new ReaderNode.TextNode(ruby, new String(chars, start, length), depth, langStack, xmlBaseStack);
                 nodeQueue.add(node);
             }
+            
+            @Override
+            public void endDocument() throws SAXException {
+                langStack = null;
+                xmlBaseStack = null;
+                elementStack = null;
+            }
 
             @Override
             public void endElement(String uri, String localName, String qName) {
                 depth--;     
                 ReaderNode previous = nodeQueue.getLast();
-                if (previous instanceof ElementNode && qName.equals(previous.name)) {
+                ElementNode startElementNode = elementStack.pop();
+                if (previous instanceof ReaderNode.ElementNode && qName.equals(previous.name)) {
                     previous.hasChildren = false;
                 } else {
                     ReaderNode node = new ReaderNode.ClosingNode(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
-                    ReaderNode startElementNode = searchStartElement(qName, depth);
                     if (startElementNode != null) {
                         node.attributeList = startElementNode.attributeList;
                         node.namespaces = startElementNode.namespaces;
@@ -303,18 +319,6 @@ public class XmlReader extends RubyObject {
                 }
                 if (!langStack.isEmpty()) langStack.pop();
                 if (!xmlBaseStack.isEmpty()) xmlBaseStack.pop();
-            }
-            
-            private ReaderNode searchStartElement(String qName, int depth) {
-                ReaderNode readerNode;
-                Iterator<ReaderNode> iter = nodeQueue.descendingIterator();
-                while (iter.hasNext()) {
-                    readerNode = iter.next();
-                    if ((readerNode instanceof ElementNode) && qName.equals(readerNode.name) && depth == readerNode.depth) {
-                        return readerNode;
-                    }
-                }
-                return null;
             }
 
             @Override
@@ -332,6 +336,9 @@ public class XmlReader extends RubyObject {
             @Override
             public void startDocument() {
                 depth = 0;
+                langStack = new Stack<String>();
+                xmlBaseStack = new Stack<String>();
+                elementStack = new Stack<ReaderNode.ElementNode>();
             }
 
             @Override
@@ -341,6 +348,7 @@ public class XmlReader extends RubyObject {
                 depth++;
                 if (readerNode.lang != null) langStack.push(readerNode.lang);
                 if (readerNode.xmlBase != null) xmlBaseStack.push(readerNode.xmlBase);
+                elementStack.push((ReaderNode.ElementNode)readerNode);
             }
 
             @Override
