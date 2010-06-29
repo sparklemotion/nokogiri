@@ -64,7 +64,7 @@ namespace :test do
       end
 
       Dir.chdir File.join(MULTI_XML, 'build', filename) do
-        system "./configure --prefix=#{install_dir}"
+        system "./configure --without-http --prefix=#{install_dir}"
         system "make && make install"
       end
     end
