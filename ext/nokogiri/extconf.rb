@@ -84,6 +84,7 @@ asplode "libxml2"  unless find_library('xml2', 'xmlParseDoc')
 asplode "libxslt"  unless find_library('xslt', 'xsltParseStylesheetDoc')
 asplode "libexslt" unless find_library('exslt', 'exsltFuncRegister')
 
+have_func 'xmlFirstElementChild'
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetValidStructuredErrors')
