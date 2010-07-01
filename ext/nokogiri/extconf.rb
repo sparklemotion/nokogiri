@@ -90,6 +90,7 @@ unless have_func('xmlHasFeature')
 Please visit http://nokogiri.org/tutorials/installing_nokogiri.html for more help!"
 end
 
+have_func 'xmlFirstElementChild'
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetValidStructuredErrors')
