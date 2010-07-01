@@ -77,6 +77,8 @@ int is_2_6_16(void) ;
 #define RBSTR_OR_QNIL(_str) \
   (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
+#include <xml_libxml2_hacks.h>
+
 #include <xml_io.h>
 #include <xml_document.h>
 #include <html_entity_lookup.h>
