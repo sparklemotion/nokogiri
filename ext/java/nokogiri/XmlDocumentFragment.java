@@ -193,7 +193,7 @@ public class XmlDocumentFragment extends XmlNode {
 
         if(length != 0) {
             for(int i = 0; i < length; i++) {
-                XmlNode item = (XmlNode) ((XmlNode) childrenArray.aref(ruby.newFixnum(i))).dup(context);
+                XmlNode item = (XmlNode) ((XmlNode) childrenArray.aref(ruby.newFixnum(i))).dup_implementation(context, true);
                 add_child(context, item);
             }
         }

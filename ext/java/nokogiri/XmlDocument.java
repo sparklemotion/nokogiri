@@ -7,8 +7,8 @@ import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
-import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.SaveContext;
 import nokogiri.internals.XmlDomParserContext;
 
@@ -57,12 +57,6 @@ public class XmlDocument extends XmlNode {
         super(ruby, klass, document);
         nsCache = new NokogiriNamespaceCache();
         createAndCacheNamespaces(ruby, document.getDocumentElement());
-
-//        if(document == null) {
-//            this.internalNode = new XmlEmptyDocumentImpl(ruby, document);
-//        } else {
-
-//        }
         setInstanceVariable("@decorators", ruby.getNil());
     }
 
@@ -279,7 +273,7 @@ public class XmlDocument extends XmlNode {
     public IRubyObject root(ThreadContext context) {
         Node rootNode = getDocument().getDocumentElement();
         try {
-            Boolean isValid = (Boolean)rootNode.getUserData(NokogiriUserDataHandler.VALID_ROOT_NODE);
+            Boolean isValid = (Boolean)rootNode.getUserData(NokogiriHelpers.VALID_ROOT_NODE);
             if (!isValid) return context.getRuntime().getNil();
         } catch (NullPointerException e) {
             // does nothing since nil wasn't set to the root node before.
@@ -298,7 +292,7 @@ public class XmlDocument extends XmlNode {
         // the method sets user data so that other methods are able to know the root
         // should be nil.
         if (newRoot_ instanceof RubyNil) {
-            getDocument().getDocumentElement().setUserData(NokogiriUserDataHandler.VALID_ROOT_NODE, false, null);
+            getDocument().getDocumentElement().setUserData(NokogiriHelpers.VALID_ROOT_NODE, false, null);
             return newRoot_;
         }
         XmlNode newRoot = asXmlNode(context, newRoot_);
@@ -316,7 +310,7 @@ public class XmlDocument extends XmlNode {
             add_child_node(context, fromNodeOrCreate(context, newRootNode));
         } else {
             Node rootNode = asXmlNode(context, root).node;
-            fromNode(context, rootNode).replace_node(context, newRoot);
+            ((XmlNode)fromNodeOrCreate(context, rootNode)).replace_node(context, newRoot);
         }
 
         return newRoot;

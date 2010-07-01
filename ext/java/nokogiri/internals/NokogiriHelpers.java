@@ -26,9 +26,11 @@ import org.w3c.dom.NodeList;
  * @author serabe
  */
 public class NokogiriHelpers {
+    public static final String CACHED_NODE = "NOKOGIRI_CACHED_NODE";
+    public static final String VALID_ROOT_NODE = "NOKOGIRI_VALIDE_ROOT_NODE";
 
     public static XmlNode getCachedNode(Node node) {
-        return (XmlNode) node.getUserData(NokogiriUserDataHandler.CACHED_NODE);
+        return (XmlNode) node.getUserData(CACHED_NODE);
     }
 
     public static IRubyObject getCachedNodeOrCreate(Ruby ruby, Node node) {
@@ -40,8 +42,7 @@ public class NokogiriHelpers {
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {
             xmlNode = (XmlNode) XmlNode.constructNode(ruby, node);
-            node.setUserData(NokogiriUserDataHandler.CACHED_NODE, xmlNode,
-                    new NokogiriUserDataHandler(ruby));
+            node.setUserData(CACHED_NODE, xmlNode, null);
         }
         return xmlNode;
     }
