@@ -1049,26 +1049,32 @@ static VALUE line(VALUE self)
  */
 static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 {
-  xmlNodePtr node;
+  xmlNodePtr node, namespacee;
   xmlNsPtr ns;
 
   Data_Get_Struct(self, xmlNode, node);
+  namespacee = node ;
 
-  ns = xmlNewNs(
+  ns = xmlSearchNs(
+      node->doc,
       node,
-      (const xmlChar *)StringValuePtr(href),
       (const xmlChar *)(NIL_P(prefix) ? NULL : StringValuePtr(prefix))
   );
 
   if(!ns) {
-    ns = xmlSearchNs(
-        node->doc,
-        node,
+    if (node->type != XML_ELEMENT_NODE) {
+      namespacee = node->parent;
+    }
+    ns = xmlNewNs(
+        namespacee,
+        (const xmlChar *)StringValuePtr(href),
         (const xmlChar *)(NIL_P(prefix) ? NULL : StringValuePtr(prefix))
     );
   }
 
-  if(NIL_P(prefix)) xmlSetNs(node, ns);
+  if (!ns) return Qnil ;
+
+  if(NIL_P(prefix) || node != namespacee) xmlSetNs(node, ns);
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }
