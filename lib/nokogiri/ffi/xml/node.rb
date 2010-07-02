@@ -313,12 +313,14 @@ module Nokogiri
       end
 
       def add_namespace_definition(prefix, href)
-        ns = LibXML.xmlNewNs(cstruct, href, prefix)
+        ns = LibXML.xmlSearchNs(cstruct.document, cstruct, prefix.nil? ? nil : prefix.to_s)
+        namespacee = self
         if ns.null?
-          ns = LibXML.xmlSearchNs(cstruct.document, cstruct,
-            prefix.nil? ? nil : prefix.to_s)
+          namespacee = parent if type != ELEMENT_NODE
+          ns = LibXML.xmlNewNs(namespacee.cstruct, href, prefix)
         end
-        LibXML.xmlSetNs(cstruct, ns) if prefix.nil?
+        return nil if ns.null?
+        LibXML.xmlSetNs(cstruct, ns) if (prefix.nil? || self != namespacee)
         Namespace.wrap(cstruct.document, ns)
       end
 
