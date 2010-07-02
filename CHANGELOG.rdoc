@@ -12,6 +12,8 @@
   * XML::DocumentFragment#inner_html= works with contextual parsing! #298, #281
   * lib/nokogiri/css/parser.y Combined CSS functions + pseudo selectors fixed
   * Reparenting text nodes is safe, even when the operation frees adjacent merged nodes. #283
+  * Fixed libxml2 versionitis issue with xmlFirstElementChild et al. #303
+  * XML::Attr#add_namespace now works as expected. #252
 
 === 1.4.2 / 2010/05/22
 
