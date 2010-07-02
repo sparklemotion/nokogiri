@@ -1,6 +1,7 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getLocalPart;
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.getPrefix;
 import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
 
@@ -64,11 +65,6 @@ public class XmlElementContent extends RubyObject {
         }
     }
 
-    public static RubyClass getRubyClass(Ruby ruby) {
-        return (RubyClass) ruby
-            .getClassFromPath("Nokogiri::XML::ElementContent");
-    }
-
     public XmlElementContent(Ruby runtime, RubyClass klass,
                              XmlDocument document, Node node) {
         this(runtime, klass, document, new NodeIter(node));
@@ -101,7 +97,7 @@ public class XmlElementContent extends RubyObject {
     }
 
     public XmlElementContent(Ruby runtime, XmlDocument document, Node node) {
-        this(runtime, getRubyClass(runtime), document, node);
+        this(runtime, getNokogiriClass(runtime, "Nokogiri::XML::ElementContent"), document, node);
     }
 
     public XmlElementContent(Ruby runtime, RubyClass klass,

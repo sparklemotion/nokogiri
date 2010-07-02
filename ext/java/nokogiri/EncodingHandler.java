@@ -1,5 +1,7 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import java.util.HashMap;
 
 import org.jruby.Ruby;
@@ -48,7 +50,7 @@ public class EncodingHandler extends RubyObject {
 
         return new EncodingHandler(
             ruby,
-            (RubyClass)ruby.getClassFromPath("Nokogiri::EncodingHandler"),
+            getNokogiriClass(ruby, "Nokogiri::EncodingHandler"),
             value);
     }
 

@@ -1,5 +1,6 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.IOException;
@@ -36,8 +37,8 @@ public class XmlSaxPushParser extends RubyObject {
     public IRubyObject initialize_native(final ThreadContext context,
                                          IRubyObject _saxParser,
                                          IRubyObject fileName) {
-        optionsRuby = invoke(context, context.getRuntime()
-                             .getClassFromPath("Nokogiri::XML::ParseOptions"),
+        optionsRuby = invoke(context,
+                             context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions"),
                              "new");
         options = new ParserContext.Options(0);
         stream = new PushInputStream();
@@ -120,8 +121,7 @@ public class XmlSaxPushParser extends RubyObject {
         public Runner(ThreadContext context,
                       IRubyObject handler,
                       InputStream stream) {
-            RubyClass klazz = (RubyClass) context.getRuntime()
-                .getClassFromPath("Nokogiri::XML::SAX::ParserContext");
+            RubyClass klazz = getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SAX::ParserContext");
 
             this.context = context;
             this.handler = handler;

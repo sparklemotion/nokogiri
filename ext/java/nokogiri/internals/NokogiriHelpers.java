@@ -1,22 +1,28 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package nokogiri.internals;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import nokogiri.NokogiriService;
+import nokogiri.XmlAttr;
+import nokogiri.XmlCdata;
+import nokogiri.XmlComment;
+import nokogiri.XmlDocument;
+import nokogiri.XmlElement;
 import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
+import nokogiri.XmlText;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyClass;
+import org.jruby.RubyHash;
 import org.jruby.RubyString;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -33,18 +39,63 @@ public class NokogiriHelpers {
         return (XmlNode) node.getUserData(CACHED_NODE);
     }
 
+    /**
+     * Get the XmlNode associated with the underlying
+     * <code>node</code>. Creates a new XmlNode (or appropriate subclass)
+     * or XmlNamespace wrapping <code>node</code> if there is no cached
+     * value.
+     */
     public static IRubyObject getCachedNodeOrCreate(Ruby ruby, Node node) {
         if(node == null) return ruby.getNil();
         if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
-            XmlNamespace xmlNamespace = new XmlNamespace(ruby, node.getNodeName(), node.getNodeValue());
-            return xmlNamespace;
+            XmlDocument xmlDocument = (XmlDocument)node.getOwnerDocument().getUserData(CACHED_NODE);
+            XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(node.getNodeName(), node.getNodeName());
+            if (xmlNamespace == null) {
+                String prefix = getLocalNameForNamespace(((Attr)node).getName());
+                prefix = prefix != null ? prefix : "";
+                return xmlDocument.getNamespaceCache().put(ruby, prefix, ((Attr)node).getValue(), node, xmlDocument);
+            }
         }
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {
-            xmlNode = (XmlNode) XmlNode.constructNode(ruby, node);
+            xmlNode = (XmlNode)constructNode(ruby, node);
             node.setUserData(CACHED_NODE, xmlNode, null);
         }
         return xmlNode;
+    }
+    
+    /**
+     * Construct a new XmlNode wrapping <code>node</code>.  The proper
+     * subclass of XmlNode is chosen based on the type of
+     * <code>node</code>.
+     */
+    public static IRubyObject constructNode(Ruby ruby, Node node) {
+        if (node == null) return ruby.getNil();
+        // this is slow; need a way to cache nokogiri classes/modules somewhere
+        switch (node.getNodeType()) {
+            case Node.ATTRIBUTE_NODE:
+                return new XmlAttr(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Attr"), node);
+            case Node.TEXT_NODE:
+                return new XmlText(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Text"), node);
+            case Node.COMMENT_NODE:
+                return new XmlComment(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Comment"), node);
+            case Node.ELEMENT_NODE:
+                return new XmlElement(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Element"), node);
+            case Node.ENTITY_NODE:
+                return new XmlNode(ruby, getNokogiriClass(ruby, "Nokogiri::XML::EntityDecl"), node);
+            case Node.CDATA_SECTION_NODE:
+                return new XmlCdata(ruby, getNokogiriClass(ruby, "Nokogiri::XML::CDATA"), node);
+            case Node.DOCUMENT_NODE:
+                return new XmlDocument(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Document"), (Document) node);
+            default:
+                return new XmlNode(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Node"), node);
+        }
+    }
+    
+    public static RubyClass getNokogiriClass(Ruby ruby, String name) {
+        RubyHash classCache = (RubyHash) ruby.getGlobalVariables().get(NokogiriService.nokogiriClassCacheGvarName);
+        IRubyObject rubyName = JavaUtil.convertJavaToUsableRubyObject(ruby, name);
+        return (RubyClass)classCache.fastARef(rubyName);
     }
 
     public static IRubyObject stringOrNil(Ruby ruby, String s) {

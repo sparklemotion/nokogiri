@@ -1,8 +1,9 @@
 package nokogiri;
 
-import java.util.List;
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static nokogiri.internals.NokogiriHelpers.nodeListToRubyArray;
 
-import nokogiri.internals.NokogiriHelpers;
+import java.util.List;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -23,15 +24,15 @@ public class XmlNodeSet extends RubyObject {
     protected XmlDocument doc;
 
     public XmlNodeSet(Ruby ruby, NodeList nodes) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::NodeSet"), nodes);
     }
 
     public XmlNodeSet(Ruby ruby, RubyArray nodes) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"), nodes);
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::NodeSet"), nodes);
     }
 
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
-        this(ruby, rubyClass, NokogiriHelpers.nodeListToRubyArray(ruby, nodes));
+        this(ruby, rubyClass, nodeListToRubyArray(ruby, nodes));
     }
 
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){
@@ -43,7 +44,7 @@ public class XmlNodeSet extends RubyObject {
     }
     
     public XmlNodeSet(Ruby ruby, XmlNodeSet reference){
-        super(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"));
+        super(ruby, getNokogiriClass(ruby, "Nokogiri::XML::NodeSet"));
         this.nodes = null;
         
         IRubyObject first = reference.nodes.first();
@@ -73,7 +74,7 @@ public class XmlNodeSet extends RubyObject {
     public static IRubyObject newEmptyNodeSet(ThreadContext context) {
         Ruby ruby = context.getRuntime();
         return new XmlNodeSet(ruby,
-                (RubyClass) ruby.getClassFromPath("Nokogiri::XML::NodeSet"),
+                getNokogiriClass(ruby, "Nokogiri::XML::NodeSet"),
                 ruby.newEmptyArray());
     }
 
@@ -192,7 +193,7 @@ public class XmlNodeSet extends RubyObject {
     }
 
     private XmlNodeSet newXmlNodeSet(ThreadContext context, RubyArray array) {
-        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), nodeSetClass(context), array);
+        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"), array);
         result.setDocument(this.getDocument());
         return result;
     }
@@ -201,10 +202,6 @@ public class XmlNodeSet extends RubyObject {
         XmlNodeSet result = new XmlNodeSet(context.getRuntime(), reference);
         result.setDocument(this.getDocument());
         return result;
-    }
-
-    private RubyClass nodeSetClass(ThreadContext context) {
-        return (RubyClass) context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet");
     }
 
     private XmlNode asXmlNode(ThreadContext context, IRubyObject possibleNode) {
@@ -226,7 +223,7 @@ public class XmlNodeSet extends RubyObject {
     private XmlNodeSet asXmlNodeSet(ThreadContext context, IRubyObject possibleNodeSet) {
 //        if(!(possibleNodeSet instanceof XmlNodeSet)) {
         if(!RuntimeHelpers.invoke(context, possibleNodeSet, "is_a?",
-                context.getRuntime().getClassFromPath("Nokogiri::XML::NodeSet")).isTrue()) {
+                getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet")).isTrue()) {
             throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");
         }
         return (XmlNodeSet) possibleNodeSet;

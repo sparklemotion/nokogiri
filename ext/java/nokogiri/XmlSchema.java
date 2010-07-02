@@ -1,5 +1,7 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -60,7 +62,7 @@ public class XmlSchema extends RubyObject {
         Ruby ruby = context.getRuntime();
         XmlSchema schema = null;
         if( klazz.ancestors(context).include_p(context,
-                ruby.getClassFromPath("Nokogiri::XML::RelaxNG")).isTrue()) {
+                getNokogiriClass(ruby, "Nokogiri::XML::RelaxNG")).isTrue()) {
             schema = new XmlRelaxng(ruby, klazz);
         } else {
             schema = new XmlSchema(ruby, klazz);
@@ -110,9 +112,9 @@ public class XmlSchema extends RubyObject {
     public IRubyObject validate_file(ThreadContext context, IRubyObject file) {
         Ruby ruby = context.getRuntime();
 
-        XmlDomParserContext ctx = new XmlDomParserContext(ruby, RubyFixnum.newFixnum(context.getRuntime(), 1L));
+        XmlDomParserContext ctx = new XmlDomParserContext(ruby, RubyFixnum.newFixnum(ruby, 1L));
         ctx.setInputSource(context, file);
-        XmlDocument xmlDocument = ctx.parse(context, context.getRuntime().getClassFromPath("Nokogiri::XML::Document"), context.getRuntime().getNil());
+        XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(ruby, "Nokogiri::XML::Document"), ruby.getNil());
         return validate_document_or_file(context, xmlDocument);
     }
     

@@ -1,7 +1,9 @@
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -50,7 +52,7 @@ public class XmlDocument extends XmlNode {
     }
     
     public XmlDocument(Ruby ruby, Document document) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"), document);
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Document"), document);
     }
 
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
@@ -243,8 +245,7 @@ public class XmlDocument extends XmlNode {
     public static IRubyObject read_memory(ThreadContext context,
                                           IRubyObject[] args) {
         return read_memory(context,
-                           context.getRuntime()
-                           .getClassFromPath("Nokogiri::XML::Document"),
+                           getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"),
                            args);
     }
     
@@ -281,7 +282,7 @@ public class XmlDocument extends XmlNode {
         if (rootNode == null)
             return context.getRuntime().getNil();
         else
-            return XmlNode.fromNodeOrCreate(context, rootNode);
+            return getCachedNodeOrCreate(context.getRuntime(), rootNode);
     }
 
     @JRubyMethod(name="root=")
@@ -307,10 +308,10 @@ public class XmlDocument extends XmlNode {
                 // with different owner document.
                 newRootNode = getDocument().importNode(newRoot.getNode(), true);
             }
-            add_child_node(context, fromNodeOrCreate(context, newRootNode));
+            add_child_node(context, getCachedNodeOrCreate(context.getRuntime(), newRootNode));
         } else {
             Node rootNode = asXmlNode(context, root).node;
-            ((XmlNode)fromNodeOrCreate(context, rootNode)).replace_node(context, newRoot);
+            ((XmlNode)getCachedNodeOrCreate(context.getRuntime(), rootNode)).replace_node(context, newRoot);
         }
 
         return newRoot;

@@ -1,5 +1,7 @@
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -131,7 +133,7 @@ public class XmlDomParserContext extends ParserContext {
     protected XmlDocument getNewEmptyDocument(ThreadContext context) {
         IRubyObject[] args = new IRubyObject[0];
         return (XmlDocument) XmlDocument.rbNew(context,
-                    context.getRuntime().getClassFromPath("Nokogiri::XML::Document"),
+                    getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"),
                     args);
     }
 

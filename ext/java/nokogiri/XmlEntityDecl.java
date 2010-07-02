@@ -1,5 +1,7 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
@@ -29,10 +31,6 @@ public class XmlEntityDecl extends XmlNode {
     private IRubyObject external_id;
     private IRubyObject system_id;
     private IRubyObject content;
-
-    public static RubyClass getRubyClass(Ruby ruby) {
-        return (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDecl");
-    }
 
     public XmlEntityDecl(Ruby ruby, RubyClass klass) {
         super(ruby, klass);
@@ -65,7 +63,7 @@ public class XmlEntityDecl extends XmlNode {
     public static IRubyObject create(ThreadContext context, Node entDeclNode) {
         XmlEntityDecl self =
             new XmlEntityDecl(context.getRuntime(),
-                              getRubyClass(context.getRuntime()),
+                              getNokogiriClass(context.getRuntime(), "Nokogiri::XML::EntityDecl"),
                               entDeclNode);
         return self;
     }
@@ -74,7 +72,7 @@ public class XmlEntityDecl extends XmlNode {
     public static IRubyObject create(ThreadContext context, Node entDeclNode, IRubyObject[] argv) {
         XmlEntityDecl self =
             new XmlEntityDecl(context.getRuntime(),
-                              getRubyClass(context.getRuntime()),
+                              getNokogiriClass(context.getRuntime(), "Nokogiri::XML::EntityDecl"),
                               entDeclNode, argv);
         return self;
     }

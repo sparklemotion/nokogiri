@@ -1,6 +1,7 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
@@ -27,7 +28,7 @@ public class XmlNamespace extends RubyObject {
     }
 
     public XmlNamespace(Ruby ruby, String prefix, String href) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"), prefix, href);
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"), prefix, href);
     }
 
     public XmlNamespace(Ruby ruby, RubyClass klazz, String prefix, String href) {
@@ -37,7 +38,7 @@ public class XmlNamespace extends RubyObject {
     }
 
     public XmlNamespace(Ruby ruby, IRubyObject prefix, IRubyObject href) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Namespace"), prefix, href);
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"), prefix, href);
     }
 
     public XmlNamespace(Ruby ruby, RubyClass klazz, IRubyObject prefix, IRubyObject href) {
@@ -49,9 +50,7 @@ public class XmlNamespace extends RubyObject {
     public static XmlNamespace fromNode(Ruby ruby, Node node) {
         String localName = getLocalNameForNamespace(node.getNodeName());
 
-        RubyClass klass = (RubyClass)
-            ruby.getClassFromPath("Nokogiri::XML::Namespace");
-        return new XmlNamespace(ruby, klass, localName, node.getNodeValue());
+        return new XmlNamespace(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"), localName, node.getNodeValue());
     }
 
     public boolean isEmpty() {

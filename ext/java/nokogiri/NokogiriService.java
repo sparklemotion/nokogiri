@@ -4,6 +4,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.RubyHash;
 import org.jruby.RubyModule;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -13,11 +14,41 @@ import org.jruby.runtime.load.BasicLibraryService;
  *
  * @author headius
  */
-public class NokogiriService implements BasicLibraryService{
+public class NokogiriService implements BasicLibraryService {
+    public static final String nokogiriClassCacheGvarName = "$NOKOGIRI_CLASS_CACHE";
 
     public boolean basicLoad(Ruby ruby) {
         init(ruby);
+        createNokogiriClassCahce(ruby);
         return true;
+    }
+    
+    private void createNokogiriClassCahce(Ruby ruby) {
+        RubyHash nokogiriClassCache = RubyHash.newHash(ruby);
+        nokogiriClassCache.put("Nokogiri::EncodingHandler", (RubyClass)ruby.getClassFromPath("Nokogiri::EncodingHandler"));
+        nokogiriClassCache.put("Nokogiri::XML::Attr", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Attr"));
+        nokogiriClassCache.put("Nokogiri::XML::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Document"));
+        nokogiriClassCache.put("Nokogiri::XML::DocumentFragment", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DocumentFragment"));
+        nokogiriClassCache.put("Nokogiri::XML::DTD", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DTD"));
+        nokogiriClassCache.put("Nokogiri::XML::Text", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Text"));
+        nokogiriClassCache.put("Nokogiri::XML::Comment", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Comment"));
+        nokogiriClassCache.put("Nokogiri::XML::Element", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Element"));
+        nokogiriClassCache.put("Nokogiri::XML::ElementContent", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ElementContent"));
+        nokogiriClassCache.put("Nokogiri::XML::ElementDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ElementDecl"));
+        nokogiriClassCache.put("Nokogiri::XML::EntityDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDecl"));
+        nokogiriClassCache.put("Nokogiri::XML::CDATA", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"));
+        nokogiriClassCache.put("Nokogiri::XML::Node", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
+        nokogiriClassCache.put("Nokogiri::XML::NodeSet", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::NodeSet"));
+        nokogiriClassCache.put("Nokogiri::XML::Namespace", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Namespace"));
+        nokogiriClassCache.put("Nokogiri::XML::RelaxNG", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::RelaxNG"));
+        nokogiriClassCache.put("Nokogiri::HTML::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::Document"));
+        nokogiriClassCache.put("Nokogiri::HTML::ElementDescription", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::ElementDescription"));
+        nokogiriClassCache.put("Nokogiri::XML::AttributeDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::AttributeDecl"));
+        nokogiriClassCache.put("Nokogiri::XML::SAX::ParserContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::ParserContext"));
+        
+        //nokogiriClassCache.put("Nokogiri::XML::SAX::Parser::Attribute", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute"));
+        //nokogiriClassCache.put("Nokogiri::HTML::EntityDescription", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::EntityDescription"));
+        ruby.getGlobalVariables().set(nokogiriClassCacheGvarName, nokogiriClassCache);
     }
 
     private void init(Ruby ruby) {

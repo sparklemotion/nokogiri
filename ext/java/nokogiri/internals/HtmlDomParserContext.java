@@ -1,5 +1,6 @@
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import nokogiri.HtmlDocument;
 import nokogiri.XmlDocument;
@@ -84,7 +85,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     protected XmlDocument getNewEmptyDocument(ThreadContext context) {
         IRubyObject[] args = new IRubyObject[0];
         return (XmlDocument) XmlDocument.rbNew(context,
-                    context.getRuntime().getClassFromPath("Nokogiri::XML::Document"),
+                    getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"),
                     args);
     }
 

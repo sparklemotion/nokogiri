@@ -1,5 +1,7 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,11 +115,11 @@ public class XsltStylesheet extends RubyObject {
         
         if ("html".equals(result.getNode().getFirstChild().getNodeName())) {
             return new HtmlDocument(ruby,
-                    (RubyClass) ruby.getClassFromPath("Nokogiri::HTML::Document"),
+                    getNokogiriClass(ruby, "Nokogiri::HTML::Document"),
                     (Document) result.getNode());
         } else {
             return new XmlDocument(ruby,
-                    (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"),
+                    getNokogiriClass(ruby, "Nokogiri::XML::Document"),
                     (Document) result.getNode());
         }
     }
