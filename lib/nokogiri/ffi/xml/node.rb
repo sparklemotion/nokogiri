@@ -78,8 +78,7 @@ module Nokogiri
       end
 
       def next_element
-        sibling_ptr = LibXML.xmlNextElementSibling cstruct
-        sibling_ptr.null? ? nil : Node.wrap(sibling_ptr)
+        LibXML.xmlNextElementSiblingHack self
       end
 
       def previous_element
@@ -132,18 +131,17 @@ module Nokogiri
       end
 
       def element_children
-        child = LibXML.xmlFirstElementChild(cstruct)
-        return NodeSet.new(nil) if child.null?
-        child = Node.wrap(child)
+        child = LibXML.xmlFirstElementChildHack(self)
+        return NodeSet.new(nil) if child.nil?
 
         set = NodeSet.wrap(LibXML.xmlXPathNodeSetCreate(child.cstruct), self.document)
         return set unless child
 
-        next_sibling = LibXML.xmlNextElementSibling(child.cstruct)
-        while ! next_sibling.null?
-          child = Node.wrap(next_sibling)
+        next_sibling = LibXML.xmlNextElementSiblingHack(child)
+        while ! next_sibling.nil?
+          child = next_sibling
           LibXML.xmlXPathNodeSetAddUnique(set.cstruct, child.cstruct)
-          next_sibling = LibXML.xmlNextElementSibling(child.cstruct)
+          next_sibling = LibXML.xmlNextElementSiblingHack(child)
         end
 
         return set
@@ -154,13 +152,11 @@ module Nokogiri
       end
 
       def first_element_child
-        element_child = LibXML.xmlFirstElementChild(cstruct)
-        element_child.null? ? nil : Node.wrap(element_child)
+        LibXML.xmlFirstElementChildHack(self)
       end
 
       def last_element_child
-        element_child = LibXML.xmlLastElementChild(cstruct)
-        element_child.null? ? nil : Node.wrap(element_child)
+        LibXML.xmlLastElementChildHack(self)
       end
 
       def key?(attribute)

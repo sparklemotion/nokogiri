@@ -113,10 +113,9 @@ module Nokogiri
     attach_function :xmlFreeDoc, [:pointer], :void
     attach_function :xmlSetTreeDoc, [:pointer, :pointer], :void
     attach_function :xmlNewReference, [:pointer, :string], :pointer
-    attach_function :xmlFirstElementChild, [:pointer], :pointer
-    attach_function :xmlLastElementChild, [:pointer], :pointer
-    attach_function :xmlNextElementSibling, [:pointer], :pointer
-    attach_function :xmlPreviousElementSibling, [:pointer], :pointer
+    #    attach_function :xmlFirstElementChild, [:pointer], :pointer
+    #    attach_function :xmlLastElementChild, [:pointer], :pointer
+    #    attach_function :xmlNextElementSibling, [:pointer], :pointer
     attach_function :xmlNewNode, [:pointer, :string], :pointer
     attach_function :xmlCopyNode, [:pointer, :int], :pointer
     attach_function :xmlDocCopyNode, [:pointer, :pointer, :int], :pointer
@@ -312,6 +311,30 @@ module Nokogiri
     POINTER_SIZE = FFI.type_size(:pointer)
     def self.pointer_offset(n)
       n * POINTER_SIZE # byte offset of nth pointer in an array of pointers
+    end
+
+    # ZOMG hacks. see GH#303
+    class << self
+      def xmlFirstElementChildHack(parent)
+        return nil if parent.nil?
+        return nil unless [Nokogiri::XML::Node::ELEMENT_NODE, Nokogiri::XML::Node::ENTITY_NODE, Nokogiri::XML::Node::DOCUMENT_NODE, Nokogiri::XML::Node::HTML_DOCUMENT_NODE].include?(parent.type)
+        parent.children.find { |child| child.element? }
+      end
+
+      def xmlLastElementChildHack(parent)
+        return nil if parent.nil?
+        return nil unless [Nokogiri::XML::Node::ELEMENT_NODE, Nokogiri::XML::Node::ENTITY_NODE, Nokogiri::XML::Node::DOCUMENT_NODE, Nokogiri::XML::Node::HTML_DOCUMENT_NODE].include?(parent.type)
+        parent.children.reverse.find { |child| child.element? }
+      end
+
+      def xmlNextElementSiblingHack(sibling)
+        return nil if sibling.nil?
+        return nil unless [Nokogiri::XML::Node::ELEMENT_NODE, Nokogiri::XML::Node::ENTITY_NODE, Nokogiri::XML::Node::DOCUMENT_NODE, Nokogiri::XML::Node::HTML_DOCUMENT_NODE].include?(sibling.type)
+        while (sibling = sibling.next_sibling)
+          return sibling if sibling.element?
+        end
+        nil
+      end
     end
   end
 end
