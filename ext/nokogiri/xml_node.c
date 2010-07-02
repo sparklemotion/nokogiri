@@ -1363,4 +1363,3 @@ void init_xml_node()
   decorate      = rb_intern("decorate");
   decorate_bang = rb_intern("decorate!");
 }
-r
