@@ -261,7 +261,6 @@ public class XmlDocument extends XmlNode {
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             node.setPrefix(null);
             node.getOwnerDocument().renameNode(node, null, node.getLocalName());
-            xmlNode.removeNamespace(context);
         }
         XmlNodeSet nodeSet = (XmlNodeSet) xmlNode.children(context);
         for (long i=0; i < nodeSet.length(); i++) {

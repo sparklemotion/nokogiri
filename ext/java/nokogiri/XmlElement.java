@@ -32,7 +32,7 @@ public class XmlElement extends XmlNode {
     }
 
     @Override
-    @JRubyMethod
+    @JRubyMethod(name = {"add_namespace_definition", "add_namespace"})
     public IRubyObject add_namespace_definition(ThreadContext context,
                                                 IRubyObject prefix,
                                                 IRubyObject href) {

@@ -35,6 +35,7 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -52,8 +53,6 @@ public class XmlNode extends RubyObject {
     protected IRubyObject content = null;
     protected IRubyObject doc = null;
     protected IRubyObject name = null;
-    protected IRubyObject namespace = null;
-    protected IRubyObject namespace_definitions = null;
 
     /*
      * Taken from http://ejohn.org/blog/comparing-document-position/
@@ -385,10 +384,6 @@ public class XmlNode extends RubyObject {
     public void post_add_child(ThreadContext context, XmlNode current, XmlNode child) {
     }
 
-    public void setNamespaceDefinitions(IRubyObject namespace_definitions) {
-        this.namespace_definitions = namespace_definitions;
-    }
-
     public void relink_namespace(ThreadContext context) {
         //this should delegate to subclasses' implementation
     }
@@ -422,12 +417,7 @@ public class XmlNode extends RubyObject {
 
         if(update) {
             this.node.getOwnerDocument().renameNode(this.node, uri, this.node.getNodeName());
-            this.namespace = ns;
         }
-    }
-    
-    public void removeNamespace(ThreadContext context) {
-        this.namespace = context.getRuntime().getNil();
     }
 
     public RubyString getNodeName(ThreadContext context) {
@@ -493,9 +483,15 @@ public class XmlNode extends RubyObject {
         String prefixString = prefix.isNil() ? "" : rubyStringToString(prefix);
         String hrefString = rubyStringToString(href);
         XmlDocument xmlDocument = (XmlDocument) doc;
-        XmlNamespace ns = xmlDocument.getNamespaceCache().put(context.getRuntime(), prefixString, hrefString, node, xmlDocument);
+        Node namespaceOwner;
+        if (node.getNodeType() == Node.ELEMENT_NODE) namespaceOwner = node;
+        else if (node.getNodeType() == Node.ATTRIBUTE_NODE) namespaceOwner = ((Attr)node).getOwnerElement();
+        else namespaceOwner = node.getParentNode();
+        XmlNamespace ns = xmlDocument.getNamespaceCache().put(context.getRuntime(), prefixString, hrefString, namespaceOwner, xmlDocument);
+        if (node != namespaceOwner) {
+            node.getOwnerDocument().renameNode(node, hrefString, prefixString + node.getLocalName());
+        }
 
-        namespace_definitions = null; // clear cache
         return ns;
     }
 
@@ -902,12 +898,10 @@ public class XmlNode extends RubyObject {
     public IRubyObject namespace(ThreadContext context){
         XmlDocument xmlDocument = (XmlDocument) doc;
         NokogiriNamespaceCache nsCache = xmlDocument.getNamespaceCache();
-        if (namespace == null) {
-            String prefix = node.getPrefix();
-            namespace = nsCache.get(prefix == null ? "" : prefix, node.getNamespaceURI());
-            if (namespace == null || ((XmlNamespace) namespace).isEmpty()) {
-                namespace = context.getRuntime().getNil();
-            }
+        String prefix = node.getPrefix();
+        XmlNamespace namespace = nsCache.get(prefix == null ? "" : prefix, node.getNamespaceURI());
+        if (namespace == null || ((XmlNamespace) namespace).isEmpty()) {
+            return context.getRuntime().getNil();
         }
 
         return namespace;
@@ -924,14 +918,14 @@ public class XmlNode extends RubyObject {
         // namesapce removals is complicated, so the cache might not be
         // updated.
         Ruby ruby = context.getRuntime();
-        namespace_definitions = ruby.newArray();
+        RubyArray namespace_definitions = ruby.newArray();
         if (doc == null) return namespace_definitions;
         List<XmlNamespace> namespaces = ((XmlDocument)doc).getNamespaceCache().get(node);
         for (XmlNamespace namespace : namespaces) {
             ((RubyArray)namespace_definitions).append(namespace);
         }
 
-        return (RubyArray) this.namespace_definitions;
+        return (RubyArray) namespace_definitions;
     }
 
     /**
@@ -1091,7 +1085,6 @@ public class XmlNode extends RubyObject {
             // difference.  Why not? -pmahoney
             node = node.getOwnerDocument().renameNode(node, href, NokogiriHelpers.newQName(prefix, node));
         }
-        this.namespace = null;       // clear cache
 
         return this;
     }
