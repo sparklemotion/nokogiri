@@ -69,16 +69,16 @@ public class XmlXpathContext extends RubyObject {
         }
     }
 
-    protected IRubyObject node_set(ThreadContext rbctx, XPathExpression xpath) {
+    protected IRubyObject node_set(ThreadContext rbctx, XPathExpression xpathExpression) {
         XmlNodeSet result = null;
         try {  
-            result = tryGetNodeSet(xpath);
+            result = tryGetNodeSet(xpathExpression);
 //            result.relink_namespace(context);
-            result.setInstanceVariable("@document", context.document(rbctx));
+            result.setDocument(context.document(rbctx));
             return result;
         } catch (XPathExpressionException xpee) {
             try {
-                return tryGetOpaqueValue(xpath);
+                return tryGetOpaqueValue(xpathExpression);
             } catch (XPathExpressionException xpee_opaque) {
                  RubyException e = XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee_opaque);
                  throw new RaiseException(e);
@@ -86,16 +86,16 @@ public class XmlXpathContext extends RubyObject {
         }
     }
     
-    private XmlNodeSet tryGetNodeSet(XPathExpression xpath) throws XPathExpressionException {
-        NodeList nodes = (NodeList)xpath.evaluate(context.getNode(), XPathConstants.NODESET);
+    private XmlNodeSet tryGetNodeSet(XPathExpression xpathExpression) throws XPathExpressionException {
+        NodeList nodes = (NodeList)xpathExpression.evaluate(context.node, XPathConstants.NODESET);
         return new XmlNodeSet(getRuntime(), nodes);       
     }
     
     private static Pattern number_pattern = Pattern.compile("\\d.*");
     private static Pattern boolean_pattern = Pattern.compile("true|false");
     
-    private IRubyObject tryGetOpaqueValue(XPathExpression xpath) throws XPathExpressionException {
-        String string = (String)xpath.evaluate(context.getNode(), XPathConstants.STRING);
+    private IRubyObject tryGetOpaqueValue(XPathExpression xpathExpression) throws XPathExpressionException {
+        String string = (String)xpathExpression.evaluate(context.node, XPathConstants.STRING);
         if (doesMatch(number_pattern, string)) return RubyNumeric.dbl2num(getRuntime(), Double.parseDouble(string));
         if (doesMatch(boolean_pattern, string)) return RubyBoolean.newBoolean(getRuntime(), Boolean.parseBoolean(string));
         return RubyString.newString(getRuntime(), string);

@@ -321,8 +321,8 @@ public class XmlDtd extends XmlNode {
         children = runtime.getNil();
 
         // recursively extract decls
-        if (getNode() == null) return; // leave all the decl hash's empty
-        extractDecls(context, getNode().getFirstChild());
+        if (node == null) return; // leave all the decl hash's empty
+        extractDecls(context, node.getFirstChild());
 
         // convert allDecls to a NodeSet
         children =

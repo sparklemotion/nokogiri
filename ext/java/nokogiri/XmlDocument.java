@@ -257,7 +257,7 @@ public class XmlDocument extends XmlNode {
     }
     
     private void removeNamespceRecursively(ThreadContext context, XmlNode xmlNode) {
-        Node node = xmlNode.getNode();
+        Node node = xmlNode.node;
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             node.setPrefix(null);
             node.getOwnerDocument().renameNode(node, null, node.getLocalName());
@@ -301,11 +301,11 @@ public class XmlDocument extends XmlNode {
         if (root.isNil()) {
             Node newRootNode;
             if (getDocument() == newRoot.getOwnerDocument()) {
-                newRootNode = newRoot.getNode();
+                newRootNode = newRoot.node;
             } else {
                 // must copy otherwise newRoot may exist in two places
                 // with different owner document.
-                newRootNode = getDocument().importNode(newRoot.getNode(), true);
+                newRootNode = getDocument().importNode(newRoot.node, true);
             }
             add_child_node(context, getCachedNodeOrCreate(context.getRuntime(), newRootNode));
         } else {
