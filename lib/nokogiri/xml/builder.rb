@@ -251,7 +251,7 @@ module Nokogiri
       #   end
       #
       def self.with root, &block
-        builder = self.new({}, root, &block)
+        new({}, root, &block)
       end
 
       ###

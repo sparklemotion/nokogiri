@@ -50,7 +50,7 @@ module Nokogiri
       end
 
       def test_new
-        fragment = Nokogiri::HTML::DocumentFragment.new(@html)
+        assert Nokogiri::HTML::DocumentFragment.new(@html)
       end
 
       def test_fragment_should_have_document

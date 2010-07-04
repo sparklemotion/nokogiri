@@ -158,7 +158,7 @@ encoding="iso-8859-1" indent="yes"/>
             Nokogiri::XSLT.quote_params(params.to_a.flatten)))
         check_params result_doc, params
       end
-     end
+    end
 
     def test_xslt_parse_error
       xslt_str = <<-EOX

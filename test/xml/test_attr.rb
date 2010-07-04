@@ -4,10 +4,12 @@ module Nokogiri
   module XML
     class TestAttr < Nokogiri::TestCase
       def test_new
-        100.times {
-          doc = Nokogiri::XML::Document.new
-          attribute = Nokogiri::XML::Attr.new(doc, 'foo')
-        }
+        assert_nothing_raised do
+          100.times {
+            doc = Nokogiri::XML::Document.new
+            Nokogiri::XML::Attr.new(doc, 'foo')
+          }
+        end
       end
 
       def test_content=

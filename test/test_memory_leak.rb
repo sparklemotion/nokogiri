@@ -6,8 +6,8 @@ class TestMemoryLeak < Nokogiri::TestCase
       content = File.open("#{File.dirname(__FILE__)}/files/dont_hurt_em_why.xml").read
       ndoc = Nokogiri::XML(content)
       2.times do
-        info = ndoc.search('status text').first.inner_text
-        url = ndoc.search('user name').first.inner_text
+        ndoc.search('status text').first.inner_text
+        ndoc.search('user name').first.inner_text
         GC.start
       end
     end

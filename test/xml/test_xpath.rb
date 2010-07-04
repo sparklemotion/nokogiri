@@ -92,11 +92,13 @@ module Nokogiri
 
       def test_css_search_uses_custom_selectors
         set = @xml.xpath('//employee')
-        css_set = if Nokogiri.uses_libxml?
-                    @xml.css('employee:thing()', @handler)
-                  else
-                    @xml.xpath("//employee[nokogiri:thing(.)]", @ns, @handler)
-                  end
+        assert_nothing_raised do
+          if Nokogiri.uses_libxml?
+            @xml.css('employee:thing()', @handler)
+          else
+            @xml.xpath("//employee[nokogiri:thing(.)]", @ns, @handler)
+          end
+        end
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
       end
@@ -184,7 +186,9 @@ module Nokogiri
           def awesome! ; end
         end
         util_decorate(@xml, x)
-        set = @xml.xpath('//employee/name')
+
+        assert @xml.xpath('//employee/name')
+
         @xml.xpath('//employee[saves_node_set(name)]', @handler)
         assert_equal @xml, @handler.things.document
         assert @handler.things.respond_to?(:awesome!)
@@ -194,7 +198,7 @@ module Nokogiri
         doc = "<html><body id='foo'><foo>hi</foo></body></html>"
         xpath = 'id("foo")//foo'
         nokogiri = Nokogiri::HTML.parse(doc)
-        tree = nokogiri.xpath(xpath)
+        assert nokogiri.xpath(xpath)
       end
     end
   end
