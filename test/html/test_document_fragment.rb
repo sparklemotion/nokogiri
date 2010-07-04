@@ -9,6 +9,14 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
+      if RUBY_VERSION >= '1.9'
+        def test_inspect_encoding
+          fragment = "<div>こんにちは！</div>".encode('EUC-JP')
+          f = Nokogiri::HTML::DocumentFragment.parse fragment
+          assert_equal "こんにちは！", f.content
+        end
+      end
+
       def test_parse_in_context
         assert_equal('<br>', @html.root.parse('<br />').to_s)
       end
