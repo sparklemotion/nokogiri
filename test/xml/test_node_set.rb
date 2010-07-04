@@ -431,7 +431,7 @@ module Nokogiri
         names_len = names.length
         positions_len = positions.length
 
-        assert_raises(ArgumentError) { result = names + positions.first }
+        assert_raises(ArgumentError) { names + positions.first }
 
         result = names + positions
         assert_equal names_len,                         names.length
@@ -455,7 +455,7 @@ module Nokogiri
         employees_len = employees.length
         females_len = females.length
 
-        assert_raises(ArgumentError) { result = employees - females.first }
+        assert_raises(ArgumentError) { employees - females.first }
 
         result = employees - females
         assert_equal employees_len,                     employees.length

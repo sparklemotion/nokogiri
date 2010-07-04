@@ -83,7 +83,7 @@ class TestReader < Nokogiri::TestCase
   end
 
   def test_in_memory
-    reader = Nokogiri::XML::Reader(<<-eoxml)
+    assert Nokogiri::XML::Reader(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>
       <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     </x>
@@ -134,13 +134,9 @@ class TestReader < Nokogiri::TestCase
       <foo>
     </x>
     eoxml
-    error_happened = false
-    begin
+    assert_raises(Nokogiri::XML::SyntaxError) do
       reader.each { |node| }
-    rescue Nokogiri::XML::SyntaxError => ex
-      error_happened = true
     end
-    assert error_happened
     assert 1, reader.errors.length
   end
 

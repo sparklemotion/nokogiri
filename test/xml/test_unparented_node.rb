@@ -129,7 +129,7 @@ module Nokogiri
       def test_add_child_in_same_document
         child = @node.css('employee').first
 
-        assert previous_last_child = child.children.last
+        assert child.children.last
         assert new_child = child.children.first
 
         last = child.children.last

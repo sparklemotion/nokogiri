@@ -83,8 +83,8 @@ module Nokogiri
           end
         }
         doc = b.doc
-        assert_equal 'bar', b.doc.at('foo|bar', 'foo' => 'bar').namespace.href
-        assert_equal 'bar', b.doc.at('foo|baz', 'foo' => 'bar').namespace.href
+        assert_equal 'bar', doc.at('foo|bar', 'foo' => 'bar').namespace.href
+        assert_equal 'bar', doc.at('foo|baz', 'foo' => 'bar').namespace.href
       end
 
       def test_specify_namespace_nested
@@ -100,12 +100,12 @@ module Nokogiri
           end
         }
         doc = b.doc
-        assert_equal 'bar', b.doc.at('foo|bar', 'foo' => 'bar').namespace.href
-        assert_equal 'bar', b.doc.at('foo|baz', 'foo' => 'bar').namespace.href
+        assert_equal 'bar', doc.at('foo|bar', 'foo' => 'bar').namespace.href
+        assert_equal 'bar', doc.at('foo|baz', 'foo' => 'bar').namespace.href
       end
 
       def test_specified_namespace_undeclared
-        b = Nokogiri::XML::Builder.new { |xml|
+        Nokogiri::XML::Builder.new { |xml|
           xml.root do
             assert_raises(ArgumentError) do
               xml[:foo]

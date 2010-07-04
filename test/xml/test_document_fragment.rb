@@ -20,7 +20,7 @@ module Nokogiri
 
       def test_node_fragment_is_relative
         doc      = Nokogiri::XML('<root><a xmlns="blah" /></root>')
-        ctx      = doc.root.child
+        assert doc.root.child
         fragment = doc.root.child.fragment('<hello />')
         hello    = fragment.child
 
@@ -29,7 +29,7 @@ module Nokogiri
       end
 
       def test_new
-        fragment = Nokogiri::XML::DocumentFragment.new(@xml)
+        assert Nokogiri::XML::DocumentFragment.new(@xml)
       end
 
       def test_fragment_should_have_document

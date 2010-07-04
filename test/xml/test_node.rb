@@ -385,7 +385,7 @@ module Nokogiri
       def test_add_namespace_does_not_associate_node
         node = @xml.at('address')
         assert_nil node.namespace
-        definition = node.add_namespace_definition 'foo', 'http://tlm.com/'
+        assert node.add_namespace_definition 'foo', 'http://tlm.com/'
         assert_nil node.namespace
       end
 
