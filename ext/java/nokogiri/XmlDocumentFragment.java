@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getLocalPart;
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.getPrefix;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
@@ -42,7 +38,7 @@ public class XmlDocumentFragment extends XmlNode {
     private XmlElement fragmentContext = null;
 
     public XmlDocumentFragment(Ruby ruby) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::DocumentFragment"));
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::DocumentFragment"));
     }
 
     public XmlDocumentFragment(Ruby ruby, RubyClass klazz) {
@@ -193,7 +189,7 @@ public class XmlDocumentFragment extends XmlNode {
 
         if(length != 0) {
             for(int i = 0; i < length; i++) {
-                XmlNode item = (XmlNode) ((XmlNode) childrenArray.aref(ruby.newFixnum(i))).dup(context);
+                XmlNode item = (XmlNode) ((XmlNode) childrenArray.aref(ruby.newFixnum(i))).dup_implementation(context, true);
                 add_child(context, item);
             }
         }

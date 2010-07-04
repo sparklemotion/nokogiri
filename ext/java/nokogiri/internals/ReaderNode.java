@@ -1,5 +1,6 @@
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.isXmlBase;
 import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
@@ -72,7 +73,7 @@ public abstract class ReaderNode {
             // XmlDocument is used to create XmlAttr type of attribute nodes. Since the attribute nodes
             // should have name and to_s methods, using XmlAttr would be convenient.
             XmlDocument xmlDoc = 
-                (XmlDocument)XmlDocument.rbNew(ruby.getCurrentContext(), ruby.getClassFromPath("Nokogiri::XML::Document"), new IRubyObject[0]);        
+                (XmlDocument)XmlDocument.rbNew(ruby.getCurrentContext(), getNokogiriClass(ruby, "Nokogiri::XML::Document"), new IRubyObject[0]);        
             for (int i=0; i<attributeList.length; i++) {
                 if (!isNamespace(attributeList.names.get(i))) {
                     Attr attr = xmlDoc.getDocument().createAttributeNS(attributeList.namespaces.get(i), attributeList.names.get(i));

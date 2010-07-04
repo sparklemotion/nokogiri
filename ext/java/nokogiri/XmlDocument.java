@@ -1,14 +1,16 @@
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
-import nokogiri.internals.NokogiriUserDataHandler;
 import nokogiri.internals.SaveContext;
 import nokogiri.internals.XmlDomParserContext;
 
@@ -50,19 +52,13 @@ public class XmlDocument extends XmlNode {
     }
     
     public XmlDocument(Ruby ruby, Document document) {
-        this(ruby, (RubyClass) ruby.getClassFromPath("Nokogiri::XML::Document"), document);
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Document"), document);
     }
 
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
         super(ruby, klass, document);
         nsCache = new NokogiriNamespaceCache();
         createAndCacheNamespaces(ruby, document.getDocumentElement());
-
-//        if(document == null) {
-//            this.internalNode = new XmlEmptyDocumentImpl(ruby, document);
-//        } else {
-
-//        }
         setInstanceVariable("@decorators", ruby.getNil());
     }
 
@@ -249,8 +245,7 @@ public class XmlDocument extends XmlNode {
     public static IRubyObject read_memory(ThreadContext context,
                                           IRubyObject[] args) {
         return read_memory(context,
-                           context.getRuntime()
-                           .getClassFromPath("Nokogiri::XML::Document"),
+                           getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"),
                            args);
     }
     
@@ -262,11 +257,10 @@ public class XmlDocument extends XmlNode {
     }
     
     private void removeNamespceRecursively(ThreadContext context, XmlNode xmlNode) {
-        Node node = xmlNode.getNode();
+        Node node = xmlNode.node;
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             node.setPrefix(null);
             node.getOwnerDocument().renameNode(node, null, node.getLocalName());
-            xmlNode.removeNamespace(context);
         }
         XmlNodeSet nodeSet = (XmlNodeSet) xmlNode.children(context);
         for (long i=0; i < nodeSet.length(); i++) {
@@ -279,7 +273,7 @@ public class XmlDocument extends XmlNode {
     public IRubyObject root(ThreadContext context) {
         Node rootNode = getDocument().getDocumentElement();
         try {
-            Boolean isValid = (Boolean)rootNode.getUserData(NokogiriUserDataHandler.VALID_ROOT_NODE);
+            Boolean isValid = (Boolean)rootNode.getUserData(NokogiriHelpers.VALID_ROOT_NODE);
             if (!isValid) return context.getRuntime().getNil();
         } catch (NullPointerException e) {
             // does nothing since nil wasn't set to the root node before.
@@ -287,7 +281,7 @@ public class XmlDocument extends XmlNode {
         if (rootNode == null)
             return context.getRuntime().getNil();
         else
-            return XmlNode.fromNodeOrCreate(context, rootNode);
+            return getCachedNodeOrCreate(context.getRuntime(), rootNode);
     }
 
     @JRubyMethod(name="root=")
@@ -298,7 +292,7 @@ public class XmlDocument extends XmlNode {
         // the method sets user data so that other methods are able to know the root
         // should be nil.
         if (newRoot_ instanceof RubyNil) {
-            getDocument().getDocumentElement().setUserData(NokogiriUserDataHandler.VALID_ROOT_NODE, false, null);
+            getDocument().getDocumentElement().setUserData(NokogiriHelpers.VALID_ROOT_NODE, false, null);
             return newRoot_;
         }
         XmlNode newRoot = asXmlNode(context, newRoot_);
@@ -307,16 +301,16 @@ public class XmlDocument extends XmlNode {
         if (root.isNil()) {
             Node newRootNode;
             if (getDocument() == newRoot.getOwnerDocument()) {
-                newRootNode = newRoot.getNode();
+                newRootNode = newRoot.node;
             } else {
                 // must copy otherwise newRoot may exist in two places
                 // with different owner document.
-                newRootNode = getDocument().importNode(newRoot.getNode(), true);
+                newRootNode = getDocument().importNode(newRoot.node, true);
             }
-            add_child_node(context, fromNodeOrCreate(context, newRootNode));
+            add_child_node(context, getCachedNodeOrCreate(context.getRuntime(), newRootNode));
         } else {
             Node rootNode = asXmlNode(context, root).node;
-            fromNode(context, rootNode).replace_node(context, newRoot);
+            ((XmlNode)getCachedNodeOrCreate(context.getRuntime(), rootNode)).replace_node(context, newRoot);
         }
 
         return newRoot;

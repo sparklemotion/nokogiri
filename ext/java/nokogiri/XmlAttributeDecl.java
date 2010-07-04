@@ -1,5 +1,7 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -17,10 +19,6 @@ import org.w3c.dom.Node;
  */
 @JRubyClass(name="Nokogiri::XML::AttributeDecl", parent="Nokogiri::XML::Node")
 public class XmlAttributeDecl extends XmlNode {
-
-    public static RubyClass getRubyClass(Ruby ruby) {
-        return (RubyClass)ruby.getClassFromPath("Nokogiri::XML::AttributeDecl");
-    }
 
     public XmlAttributeDecl(Ruby ruby, RubyClass klass) {
         super(ruby, klass);
@@ -40,7 +38,7 @@ public class XmlAttributeDecl extends XmlNode {
     public static IRubyObject create(ThreadContext context, Node attrDeclNode) {
         XmlAttributeDecl self =
             new XmlAttributeDecl(context.getRuntime(),
-                                 getRubyClass(context.getRuntime()),
+                                 getNokogiriClass(context.getRuntime(), "Nokogiri::XML::AttributeDecl"),
                                  attrDeclNode);
         return self;
     }

@@ -43,7 +43,7 @@ public class XmlText extends XmlNode {
 
     @Override
     public void saveContent(ThreadContext context, SaveContext ctx) {
-        if (isXmlEscaped(getNode().getTextContent())) {
+        if (isXmlEscaped(node.getTextContent())) {
             ctx.append(rubyStringToString(content(context)));
         } else {             
             ctx.append(rubyStringToString(encode_special_chars(context, content(context))));

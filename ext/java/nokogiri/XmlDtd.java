@@ -1,8 +1,10 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContext;
 
 import org.apache.xerces.xni.QName;
@@ -53,20 +55,16 @@ public class XmlDtd extends XmlNode {
     /** system ID */
     protected IRubyObject sysId;
 
-    public static RubyClass getClass(Ruby ruby) {
-        return (RubyClass)ruby.getClassFromPath("Nokogiri::XML::DTD");
-    }
-
     public XmlDtd(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
 
     public XmlDtd(Ruby ruby) {
-        this(ruby, getClass(ruby), null);
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::DTD"), null);
     }
 
     public XmlDtd(Ruby ruby, Node dtd) {
-        this(ruby, getClass(ruby), dtd);
+        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::DTD"), dtd);
     }
 
     public XmlDtd(Ruby ruby, RubyClass rubyClass, Node dtd) {
@@ -323,14 +321,13 @@ public class XmlDtd extends XmlNode {
         children = runtime.getNil();
 
         // recursively extract decls
-        if (getNode() == null) return; // leave all the decl hash's empty
-        extractDecls(context, getNode().getFirstChild());
+        if (node == null) return; // leave all the decl hash's empty
+        extractDecls(context, node.getFirstChild());
 
         // convert allDecls to a NodeSet
         children =
-            new XmlNodeSet(context.getRuntime(),
-                           (RubyClass)
-                           runtime.getClassFromPath("Nokogiri::XML::NodeSet"),
+            new XmlNodeSet(runtime,
+                           getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"),
                            allDecls);
 
         // add attribute decls as attributes to the matching element decl
@@ -395,7 +392,7 @@ public class XmlDtd extends XmlNode {
                 allDecls.append(decl);
             } else if (isNotationDecl(node)) {
                 XmlNode tmp = (XmlNode)
-                    XmlNode.constructNode(context.getRuntime(), node);
+                    NokogiriHelpers.constructNode(context.getRuntime(), node);
                 IRubyObject decl = invoke(context, notationClass, "new",
                                           tmp.getAttribute(context, "name"),
                                           tmp.getAttribute(context, "pubid"),

@@ -1,5 +1,6 @@
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import nokogiri.internals.SaveContext;
 
@@ -24,7 +25,7 @@ public class XmlAttr extends XmlNode{
     };
 
     public XmlAttr(Ruby ruby, Node attr){
-        super(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Attr"), attr);
+        super(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Attr"), attr);
     }
 
     public XmlAttr(Ruby ruby, RubyClass rubyClass) {
@@ -94,7 +95,7 @@ public class XmlAttr extends XmlNode{
     @JRubyMethod(name = {"value=", "content="})
         public IRubyObject value_set(ThreadContext context, IRubyObject content){
         Attr attr = (Attr) node;
-        attr.setValue(this.encode_special_chars(context, content).convertToString().asJavaString());
+        attr.setValue(XmlNode.encode_special_chars(context, content).convertToString().asJavaString());
         setContent(content);
         return content;
     }

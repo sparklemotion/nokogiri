@@ -1,15 +1,19 @@
 package nokogiri.internals;
 
 import java.util.List;
+
 import javax.xml.xpath.XPathFunction;
 import javax.xml.xpath.XPathFunctionException;
+
 import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyFloat;
 import org.jruby.RubyString;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -20,7 +24,7 @@ import org.w3c.dom.NodeList;
  *
  * @author sergio
  */
-public class NokogiriXPathFunction implements XPathFunction{
+public class NokogiriXPathFunction implements XPathFunction {
     private final IRubyObject handler;
     private final String name;
     private final int arity;
@@ -54,30 +58,25 @@ public class NokogiriXPathFunction implements XPathFunction{
     }
 
     private IRubyObject fromObjectToRuby(Object o) {
+        // argument object type is one of NodeList, String, Boolean, or Double.
         Ruby ruby = this.handler.getRuntime();
-        ThreadContext context = ruby.getCurrentContext();
-        if(o instanceof String) {
-            return ruby.newString((String) o);
-        } else if (o instanceof Double) {
-            return ruby.newFloat(((Double) o).doubleValue());
-        } else if (o instanceof Boolean) {
-            return ruby.newBoolean(((Boolean) o).booleanValue());
-        } else if (o instanceof NodeList) {
+        if (o instanceof NodeList) {
             return new XmlNodeSet(ruby, (NodeList) o);
-        } else /*if (o instanceof Node)*/ {
-            return NokogiriHelpers.getCachedNodeOrCreate(ruby, (Node) o);
+        //} else if (o instanceof Node) {
+        //    return NokogiriHelpers.getCachedNodeOrCreate(ruby, (Node) o);
+        } else {
+            return JavaUtil.convertJavaToUsableRubyObject(ruby, o);
         }
     }
 
     private Object fromRubyToObject(IRubyObject o) {
         Ruby ruby = this.handler.getRuntime();
-        ThreadContext context = ruby.getCurrentContext();
         if(o instanceof RubyString) {
-            return o.convertToString().asJavaString();
+            return o.toJava(String.class);
         } else if (o instanceof RubyFloat) {
-            return Double.valueOf(o.convertToFloat().getDoubleValue());
+            return o.toJava(Double.class);
         } else if (o instanceof RubyBoolean) {
-            return Boolean.valueOf(o.isTrue());
+            return o.toJava(Boolean.class);
         } else if (o instanceof XmlNodeSet) {
             return ((XmlNodeSet) o).toNodeList(ruby);
         } else if (o instanceof RubyArray) {

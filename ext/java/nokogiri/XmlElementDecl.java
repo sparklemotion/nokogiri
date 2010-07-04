@@ -1,6 +1,7 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getLocalPart;
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.getPrefix;
 
 import org.jruby.Ruby;
@@ -23,10 +24,6 @@ public class XmlElementDecl extends XmlNode {
 
     IRubyObject contentModel;
 
-    public static RubyClass getRubyClass(Ruby ruby) {
-        return (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ElementDecl");
-    }
-
     public XmlElementDecl(Ruby ruby, RubyClass klass) {
         super(ruby, klass);
         throw ruby.newRuntimeError("node required");
@@ -45,7 +42,7 @@ public class XmlElementDecl extends XmlNode {
     public static IRubyObject create(ThreadContext context, Node elemDeclNode) {
         XmlElementDecl self =
             new XmlElementDecl(context.getRuntime(),
-                               getRubyClass(context.getRuntime()),
+                               getNokogiriClass(context.getRuntime(), "Nokogiri::XML::ElementDecl"),
                                elemDeclNode);
         return self;
     }
