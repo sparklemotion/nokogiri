@@ -26,6 +26,7 @@
   * Reparenting text nodes is safe, even when the operation frees adjacent merged nodes. #283
   * Fixed libxml2 versionitis issue with xmlFirstElementChild et al. #303
   * XML::Attr#add_namespace now works as expected. #252
+  * HTML::DocumentFragment uses the string's encoding. #305
 
 === 1.4.2 / 2010/05/22
 
