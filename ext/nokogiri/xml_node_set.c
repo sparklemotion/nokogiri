@@ -3,6 +3,22 @@
 
 static ID decorate ;
 
+static VALUE wrap_xml_namespace(VALUE doc, xmlNsPtr _ns)
+{
+  VALUE ns;
+
+  if(_ns->_private)
+    return (VALUE)_ns->_private;
+
+  ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, xmlXPathNodeSetFreeNs, _ns);
+
+  rb_iv_set(ns, "@document", doc);
+
+  _ns->_private = (void *)ns;
+
+  return ns;
+}
+
 /*
  * call-seq:
  *  dup
@@ -190,7 +206,11 @@ static VALUE index_at(VALUE self, long offset)
   if(offset < 0) offset = offset + node_set->nodeNr;
 
   if (XML_NAMESPACE_DECL == node_set->nodeTab[offset]->type)
-    return Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(node_set->nodeTab[offset]));
+    return wrap_xml_namespace(
+        rb_iv_get(self, "@document"),
+        (xmlNsPtr)(node_set->nodeTab[offset])
+    );
+
   return Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[offset]);
 }
 
@@ -288,7 +308,7 @@ static VALUE to_array(VALUE self, VALUE rb_node)
   elts = calloc((size_t)set->nodeNr, sizeof(VALUE *));
   for(i = 0; i < set->nodeNr; i++) {
     if (XML_NAMESPACE_DECL == set->nodeTab[i]->type) {
-      elts[i] = Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(set->nodeTab[i]));
+      elts[i] = wrap_xml_namespace(rb_iv_get(self, "@document"), (xmlNsPtr)(set->nodeTab[i]));
     } else {
       xmlNodePtr node = set->nodeTab[i];
 
@@ -336,9 +356,36 @@ static VALUE unlink_nodeset(VALUE self)
   return self ;
 }
 
+static void mark(xmlNodeSetPtr node_set)
+{
+  int i;
+  xmlNodePtr node;
+  xmlNsPtr ns;
+  xmlDocPtr doc;
+
+  if (node_set->nodeTab != NULL) {
+    /* Free namespaces since libxml2 dups them when added to a NodeSet. */
+    for(i = 0; i < node_set->nodeNr; i++) {
+      switch(node_set->nodeTab[i]->type) {
+        case XML_DOCUMENT_NODE:
+        case XML_HTML_DOCUMENT_NODE:
+          break;
+        case XML_NAMESPACE_DECL:
+          ns = (xmlNsPtr)node_set->nodeTab[i];
+          if(ns->_private) rb_gc_mark((VALUE)ns->_private);
+          break;
+        default:
+          node = (xmlNodePtr)node_set->nodeTab[i];
+          if(node->_private) rb_gc_mark((VALUE)node->_private);
+      }
+    }
+  }
+}
 
 static void deallocate(xmlNodeSetPtr node_set)
 {
+  int i;
+
   /*
    *  xmlXPathFreeNodeSet() contains an implicit assumption that it is being
    *  called before any of its pointed-to nodes have been free()d. this
@@ -353,13 +400,12 @@ static void deallocate(xmlNodeSetPtr node_set)
    *  as a result, xmlXPathFreeNodeSet() will perform unsafe memory operations,
    *  and calling it would be evil.
    *
-   *  on the bright side, though, Nokogiri's API currently does not cause
-   *  namespace nodes to be included in node sets, ever.
+   *  NodeSets in libxml2 will duplicate xmlNsPtr objects.
    *
    *  armed with that fact, we examined xmlXPathFreeNodeSet() and related libxml
    *  code and determined that, within the Nokogiri abstraction, we will not
-   *  leak memory if we simply free the node set's memory directly. that's only
-   *  quasi-evil!
+   *  leak memory if we simply free the node set's memory and any duplicated
+   *  xmlNsPtrs directly. that's only quasi-evil!
    *
    *  there's probably a lesson in here somewhere about intermingling, within a
    *  single array, structs with different memory-ownership semantics. or more
@@ -370,8 +416,17 @@ static void deallocate(xmlNodeSetPtr node_set)
    *  "In Valgrind We Trust." seriously.
    */
   NOKOGIRI_DEBUG_START(node_set) ;
-  if (node_set->nodeTab != NULL)
+  if (node_set->nodeTab != NULL) {
+
+    /* Free namespaces since libxml2 dups them when added to a NodeSet. */
+    for(i = 0; i < node_set->nodeNr; i++) {
+      if (XML_NAMESPACE_DECL == node_set->nodeTab[i]->type) {
+        xmlNsPtr ns = (xmlNsPtr)node_set->nodeTab[i];
+        if(!ns->_private) xmlXPathNodeSetFreeNs(ns);
+      }
+    }
     xmlFree(node_set->nodeTab);
+  }
   xmlFree(node_set);
   NOKOGIRI_DEBUG_END(node_set) ;
 }
@@ -384,7 +439,7 @@ static VALUE allocate(VALUE klass)
 VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
 {
   VALUE new_set ;
-  new_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, 0, deallocate, node_set);
+  new_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, mark, deallocate, node_set);
   if (document != Qnil) {
     rb_iv_set(new_set, "@document", document);
     rb_funcall(document, decorate, 1, new_set);
