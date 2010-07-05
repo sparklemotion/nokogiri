@@ -473,7 +473,7 @@ static VALUE canonicalize(VALUE self)
     ctx = (void *)rb_block_proc();
   }
 
-  xmlC14NExecute(doc, cb, ctx, XML_C14N_1_0, NULL, 0, buf);
+  xmlC14NExecute(doc, cb, ctx, 0, NULL, 0, buf);
 
   xmlOutputBufferClose(buf);
 
