@@ -24,8 +24,8 @@ module Nokogiri
 
       ####
       # Parse a fragment from +string+ in to a NodeSet.
-      def fragment string
-        HTML::DocumentFragment.parse(string)
+      def fragment string, encoding = 'UTF-8'
+        HTML::DocumentFragment.parse string, encoding
       end
     end
 
