@@ -508,4 +508,12 @@ public class NokogiriHelpers {
         }
         return n;
     }
+    
+    public static String guessEncoding(Ruby ruby) {
+        String name = null;
+        if (ruby.is1_9()) name = ruby.getEncoding().toString();
+        if (name == null) name = System.getProperty("file.encoding");
+        if (name == null) name = "UTF-8";
+        return name;
+    }
 }

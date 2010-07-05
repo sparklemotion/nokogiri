@@ -20,6 +20,7 @@ import org.w3c.dom.NodeList;
 
 @JRubyClass(name="Nokogiri::XML::NodeSet")
 public class XmlNodeSet extends RubyObject {
+    private NodeList nodeList = null;
     private RubyArray nodes;
     private IRubyObject doc;
 
@@ -33,6 +34,7 @@ public class XmlNodeSet extends RubyObject {
 
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, NodeList nodes) {
         this(ruby, rubyClass, nodeListToRubyArray(ruby, nodes));
+        nodeList = nodes;
     }
 
     public XmlNodeSet(Ruby ruby, RubyClass rubyClass, RubyArray nodes){
@@ -53,6 +55,7 @@ public class XmlNodeSet extends RubyObject {
     
     void setNodes(RubyArray nodes) {
         this.nodes = nodes;
+        nodeList = null;
     }
     
     private void initialize(Ruby ruby, IRubyObject refNode) {
@@ -74,15 +77,16 @@ public class XmlNodeSet extends RubyObject {
     }
 
     public boolean isEmpty() {
-        return this.nodes.isEmpty();
+        return nodes.isEmpty();
     }
 
     public long length() {
-        return this.nodes.length().getLongValue();
+        return nodes.length().getLongValue();
     }
 
     public void relink_namespace(ThreadContext context) {
-        List<?> n = this.nodes.getList();
+        nodeList = null;
+        List<?> n = nodes.getList();
 
         for (int i = 0; i < n.size(); i++) {
             if (n.get(i) instanceof XmlNode) {
@@ -97,16 +101,19 @@ public class XmlNodeSet extends RubyObject {
     }
 
     public NodeList toNodeList(Ruby ruby) {
+        if (nodeList != null) return nodeList;
         return new NokogiriNodeList(ruby, this.nodes);
     }
 
     @JRubyMethod(name="&")
     public IRubyObject and(ThreadContext context, IRubyObject nodeSet){
+        nodeList = null;
         return newXmlNodeSet(context, (RubyArray) nodes.op_and(asXmlNodeSet(context, nodeSet).nodes));
     }
 
     @JRubyMethod
     public IRubyObject delete(ThreadContext context, IRubyObject node_or_namespace){
+        nodeList = null;
         return nodes.delete(context, asXmlNodeOrNamespace(context, node_or_namespace), Block.NULL_BLOCK);
     }
 
@@ -127,6 +134,7 @@ public class XmlNodeSet extends RubyObject {
 
     @JRubyMethod(name="-")
     public IRubyObject op_diff(ThreadContext context, IRubyObject nodeSet){
+        nodeList = null;
         XmlNodeSet xmlNodeSet = newXmlNodeSet(context, this);
         xmlNodeSet.setNodes((RubyArray) nodes.op_diff(asXmlNodeSet(context, nodeSet).nodes));
         return xmlNodeSet;
@@ -134,11 +142,13 @@ public class XmlNodeSet extends RubyObject {
 
     @JRubyMethod(name={"|", "+"})
     public IRubyObject op_or(ThreadContext context, IRubyObject nodeSet){
+        nodeList = null;
         return newXmlNodeSet(context, (RubyArray) nodes.op_or(asXmlNodeSet(context, nodeSet).nodes));
     }
 
     @JRubyMethod(name = {"push", "<<"})
     public IRubyObject push(ThreadContext context, IRubyObject node_or_namespace) {
+        nodeList = null;
         nodes.append(asXmlNodeOrNamespace(context, node_or_namespace));
         return this;
     }
@@ -177,6 +187,7 @@ public class XmlNodeSet extends RubyObject {
 
     @JRubyMethod(name = {"unlink", "remove"})
     public IRubyObject unlink(ThreadContext context){
+        nodeList = null;
         IRubyObject[] arr = this.nodes.toJavaArrayUnsafe();
         long length = arr.length;
         for (int i = 0; i < length; i++) {

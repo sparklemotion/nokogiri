@@ -39,9 +39,13 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         super(runtime, options);
     }
+    
+    public HtmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
+        super(runtime, encoding, options);
+    }
 
-    public HtmlDomParserContext(Ruby runtime, long options) {
-        super(runtime, options);
+    public HtmlDomParserContext(Ruby runtime, String encoding, long options) {
+        super(runtime, encoding, options);
     }
     
     @Override
@@ -66,6 +70,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         config.setErrorHandler(this.errorHandler);
         parser = new DOMParser(config);
 
+        setProperty("http://cyberneko.org/html/properties/default-encoding", encoding);
         setProperty(PROPERTY_ELEM_NAMES, "lower");
         setProperty(PROPERTY_ATTRS_NAMES, "lower");
         setFeature(FEATURE_REPORT_ERRORS, true);

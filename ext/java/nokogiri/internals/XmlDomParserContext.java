@@ -38,15 +38,21 @@ public class XmlDomParserContext extends ParserContext {
     protected ParserContext.Options options;
     protected DOMParser parser;
     protected NokogiriErrorHandler errorHandler;
+    protected String encoding;
 
     public XmlDomParserContext(Ruby runtime, IRubyObject options) {
-        this(runtime, options.convertToInteger().getLongValue());
+        this(runtime, NokogiriHelpers.guessEncoding(runtime), options.convertToInteger().getLongValue());
+    }
+    
+    public XmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
+        this(runtime, (String)encoding.toJava(String.class), options.convertToInteger().getLongValue());
     }
 
-    public XmlDomParserContext(Ruby runtime, long options) {
+    public XmlDomParserContext(Ruby runtime, String encoding, long options) {
         super(runtime);
 
-        this.options = new ParserContext.Options(options);     
+        this.options = new ParserContext.Options(options);
+        this.encoding = encoding == null ? NokogiriHelpers.guessEncoding(runtime) : encoding;
 
         initErrorHandler();
         initParser(runtime);

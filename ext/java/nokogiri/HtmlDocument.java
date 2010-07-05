@@ -49,11 +49,18 @@ public class HtmlDocument extends XmlDocument {
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
         HtmlDomParserContext ctx =
-            new HtmlDomParserContext(ruby, args[3]);
+            new HtmlDomParserContext(ruby, args[2], args[3]);
         ctx.setInputSource(context, args[0]);
         return ctx.parse(context, klass, args[1]);
     }
 
+    /*
+     * call-seq:
+     *  read_io(io, url, encoding, options)
+     *
+     * Read the HTML document from +io+ with given +url+, +encoding+,
+     * and +options+.  See Nokogiri::HTML.parse
+     */
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject read_io(ThreadContext context,
                                       IRubyObject cls,
@@ -61,6 +68,13 @@ public class HtmlDocument extends XmlDocument {
         return do_parse(context, cls, args);
     }
 
+    /*
+     * call-seq:
+     *  read_memory(string, url, encoding, options)
+     *
+     * Read the HTML document contained in +string+ with given +url+, +encoding+,
+     * and +options+.  See Nokogiri::HTML.parse
+     */
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject read_memory(ThreadContext context,
                                           IRubyObject cls,

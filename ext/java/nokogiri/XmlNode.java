@@ -170,11 +170,10 @@ public class XmlNode extends RubyObject {
             resetCache();
 
             if (node.getNodeType() != Node.DOCUMENT_NODE) {
-                XmlNode owner = (XmlNode) this.document(ruby.getCurrentContext());
+                IRubyObject owner = document(ruby.getCurrentContext());
 
-                if (owner != null && owner instanceof XmlDocument) {
-                    RuntimeHelpers.invoke(ruby.getCurrentContext(),
-                                          owner, "decorate", this);
+                if (owner != null) {
+                    RuntimeHelpers.invoke(ruby.getCurrentContext(), owner, "decorate", this);
                 }
             }
         }
@@ -552,7 +551,6 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
         XmlNodeSet result = new XmlNodeSet(context.getRuntime(), node.getChildNodes());
-        result.setDocument(doc);
         return result;
     }
     
@@ -579,7 +577,6 @@ public class XmlNode extends RubyObject {
         if (elementNodes.size() == 0) return XmlNodeSet.newEmptyNodeSet(context);
         RubyArray array = NokogiriHelpers.nodeArrayToRubyArray(context.getRuntime(), elementNodes.toArray(new Node[0]));
         XmlNodeSet result = new XmlNodeSet(context.getRuntime(), array);
-        result.setDocument(doc);
         return result;
     }
     
@@ -658,11 +655,13 @@ public class XmlNode extends RubyObject {
             ctx = new HtmlDomParserContext(context.getRuntime(), options);
             ((HtmlDomParserContext)ctx).enableDocumentFragment();
             istream = new ByteArrayInputStream(((String)str.toJava(String.class)).getBytes());
-        } else {
+        } else if (document instanceof XmlDocument) {
             klass = getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document");
             ctx = new XmlDomParserContext(context.getRuntime(), options);
             String input = addTemporaryRootTagIfNecessary(context, (String)str.toJava(String.class));
             istream = new ByteArrayInputStream(input.getBytes());
+        } else {
+            return context.getRuntime().getNil();
         }
 
         ctx.setInputSource(istream);
@@ -674,7 +673,6 @@ public class XmlNode extends RubyObject {
         }
         NodeList childNodes = removeTemporaryRootIfNecessary(doc.node.getChildNodes());
         XmlNodeSet nodes = new XmlNodeSet(getRuntime(), childNodes);
-        nodes.setInstanceVariable("@document", doc);
         return nodes;
     }
     

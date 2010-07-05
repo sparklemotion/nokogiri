@@ -10,6 +10,7 @@ import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
@@ -54,6 +55,7 @@ public class XmlElement extends XmlNode {
     public boolean isElement() { return true; }
 
     @Override
+    @JRubyMethod(visibility = Visibility.PRIVATE)
     public IRubyObject get(ThreadContext context, IRubyObject rbkey) {
         String key = rubyStringToString(rbkey);
         Element element = (Element) node;
