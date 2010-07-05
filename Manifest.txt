@@ -44,6 +44,8 @@ ext/nokogiri/xml_entity_reference.c
 ext/nokogiri/xml_entity_reference.h
 ext/nokogiri/xml_io.c
 ext/nokogiri/xml_io.h
+ext/nokogiri/xml_libxml2_hacks.c
+ext/nokogiri/xml_libxml2_hacks.h
 ext/nokogiri/xml_namespace.c
 ext/nokogiri/xml_namespace.h
 ext/nokogiri/xml_node.c
@@ -157,7 +159,6 @@ lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/html/sax/parser_context.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
-lib/nokogiri/version_warning.rb
 lib/nokogiri/xml.rb
 lib/nokogiri/xml/attr.rb
 lib/nokogiri/xml/attribute_decl.rb
