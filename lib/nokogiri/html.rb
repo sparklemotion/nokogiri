@@ -25,7 +25,7 @@ module Nokogiri
 
       ####
       # Parse a fragment from +string+ in to a NodeSet.
-      def fragment string, encoding = 'UTF-8'
+      def fragment string, encoding = nil
         HTML::DocumentFragment.parse string, encoding
       end
     end
