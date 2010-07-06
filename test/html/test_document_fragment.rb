@@ -15,6 +15,13 @@ module Nokogiri
           f = Nokogiri::HTML::DocumentFragment.parse fragment
           assert_equal "こんにちは！", f.content
         end
+
+        def test_html_parse_encoding
+          fragment = "<div>こんにちは！</div>".encode 'EUC-JP'
+          f = Nokogiri::HTML.fragment fragment
+          assert_equal 'EUC-JP', f.document.encoding
+          assert_equal "こんにちは！", f.content
+        end
       end
 
       def test_parse_encoding
