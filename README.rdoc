@@ -112,7 +112,7 @@ explicitly setting the encoding to EUC-JP on the parser:
 Binary packages are available for:
 
 * SuSE[http://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/]
-* Fedora[https://admin.fedoraproject.org/pkgdb/packages/name/rubygem-nokogiri]
+* Fedora[http://s390.koji.fedoraproject.org/koji/packageinfo?packageID=6756]
 
 == DEVELOPMENT:
 

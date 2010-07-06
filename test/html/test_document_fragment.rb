@@ -17,6 +17,20 @@ module Nokogiri
         end
       end
 
+      def test_parse_encoding
+        fragment = "<div>hello world</div>"
+        f = Nokogiri::HTML::DocumentFragment.parse fragment, 'ISO-8859-1'
+        assert_equal 'ISO-8859-1', f.document.encoding
+        assert_equal "hello world", f.content
+      end
+
+      def test_html_parse_with_encoding
+        fragment = "<div>hello world</div>"
+        f = Nokogiri::HTML.fragment fragment, 'ISO-8859-1'
+        assert_equal 'ISO-8859-1', f.document.encoding
+        assert_equal "hello world", f.content
+      end
+
       def test_parse_in_context
         assert_equal('<br>', @html.root.parse('<br />').to_s)
       end
