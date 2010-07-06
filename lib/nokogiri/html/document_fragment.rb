@@ -3,14 +3,11 @@ module Nokogiri
     class DocumentFragment < Nokogiri::XML::DocumentFragment
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+, using +encoding+
-      def self.parse tags, encoding = 'UTF-8'
+      def self.parse tags, encoding = nil
         doc = HTML::Document.new
 
-        if tags.respond_to?(:encoding)
-          doc.encoding = tags.encoding.name
-        else
-          doc.encoding = encoding
-        end
+        encoding ||= tags.respond_to?(:encoding) ? tags.encoding.name : 'UTF-8'
+        doc.encoding = encoding
 
         new(doc, tags)
       end
