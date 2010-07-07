@@ -57,7 +57,8 @@ public class XmlElement extends XmlNode {
     @Override
     @JRubyMethod(visibility = Visibility.PRIVATE)
     public IRubyObject get(ThreadContext context, IRubyObject rbkey) {
-        String key = rubyStringToString(rbkey);
+        if (rbkey == null || rbkey.isNil()) context.getRuntime().getNil();
+        String key = (String)rbkey.toJava(String.class);
         Element element = (Element) node;
         String value = element.getAttribute(key);
         if(!value.equals("")){

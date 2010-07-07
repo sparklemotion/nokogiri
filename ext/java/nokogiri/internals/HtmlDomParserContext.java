@@ -44,10 +44,6 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         super(runtime, encoding, options);
     }
 
-    public HtmlDomParserContext(Ruby runtime, String encoding, long options) {
-        super(runtime, encoding, options);
-    }
-    
     @Override
     protected void initErrorHandler() {
         if (continuesOnError()) {
@@ -70,7 +66,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         config.setErrorHandler(this.errorHandler);
         parser = new DOMParser(config);
 
-        setProperty("http://cyberneko.org/html/properties/default-encoding", encoding);
+        setProperty("http://cyberneko.org/html/properties/default-encoding", java_encoding);
         setProperty(PROPERTY_ELEM_NAMES, "lower");
         setProperty(PROPERTY_ATTRS_NAMES, "lower");
         setFeature(FEATURE_REPORT_ERRORS, true);
@@ -98,7 +94,9 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     protected XmlDocument wrapDocument(ThreadContext context,
                                        RubyClass klass,
                                        Document doc) {
-        return new HtmlDocument(context.getRuntime(), klass, doc);
+        HtmlDocument htmlDocument = new HtmlDocument(context.getRuntime(), klass, doc);
+        htmlDocument.setEncoding(ruby_encoding);
+        return htmlDocument;
     }
 
     /**

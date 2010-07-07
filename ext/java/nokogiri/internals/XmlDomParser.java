@@ -1,22 +1,13 @@
 package nokogiri.internals;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import nokogiri.XmlDocument;
+
 import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.parsers.StandardParserConfiguration;
-import org.apache.xerces.xni.Augmentations;
-import org.apache.xerces.xni.QName;
-import org.apache.xerces.xni.XMLAttributes;
-import org.apache.xerces.xni.XNIException;
-import org.apache.xerces.xni.XMLLocator;
-import org.apache.xerces.xni.XMLResourceIdentifier;
-import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.cyberneko.dtd.DTDConfiguration;
 import org.w3c.dom.Document;
-import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 

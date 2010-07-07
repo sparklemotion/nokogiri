@@ -73,14 +73,14 @@ public class NokogiriHelpers {
         if (node == null) return ruby.getNil();
         // this is slow; need a way to cache nokogiri classes/modules somewhere
         switch (node.getNodeType()) {
+            case Node.ELEMENT_NODE:
+                return new XmlElement(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Element"), node);
             case Node.ATTRIBUTE_NODE:
                 return new XmlAttr(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Attr"), node);
             case Node.TEXT_NODE:
                 return new XmlText(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Text"), node);
             case Node.COMMENT_NODE:
                 return new XmlComment(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Comment"), node);
-            case Node.ELEMENT_NODE:
-                return new XmlElement(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Element"), node);
             case Node.ENTITY_NODE:
                 return new XmlNode(ruby, getNokogiriClass(ruby, "Nokogiri::XML::EntityDecl"), node);
             case Node.CDATA_SECTION_NODE:

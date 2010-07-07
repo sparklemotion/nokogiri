@@ -71,8 +71,8 @@ public class XmlDocumentFragment extends XmlNode {
             argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), ignoreNamespaceIfNeeded(doc, (String)argc[1].toJava(String.class)));
             argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), addNamespaceDeclIfNeeded(doc, (String)argc[1].toJava(String.class)));
         }
-        
-        XmlDocumentFragment fragment = new XmlDocumentFragment(context.getRuntime(), (RubyClass) cls);      
+
+        XmlDocumentFragment fragment = (XmlDocumentFragment) ((RubyClass)cls).allocate();
         fragment.setDocument(doc);
         fragment.setNode(doc.getDocument().createDocumentFragment());
 
@@ -81,7 +81,6 @@ public class XmlDocumentFragment extends XmlNode {
             fragment.fragmentContext = (XmlElement)argc[2];
         }
         RuntimeHelpers.invoke(context, fragment, "initialize", argc);
-        
         return fragment;
     }
 

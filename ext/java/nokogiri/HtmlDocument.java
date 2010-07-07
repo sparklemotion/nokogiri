@@ -31,8 +31,7 @@ public class HtmlDocument extends XmlDocument {
         HtmlDocument doc = null;
         try {
             Document docNode = createNewDocument();
-            doc = new HtmlDocument(context.getRuntime(), (RubyClass) cls,
-                                   docNode);
+            doc = new HtmlDocument(context.getRuntime(), (RubyClass) cls, docNode);
         } catch (Exception ex) {
             throw context.getRuntime()
                 .newRuntimeError("couldn't create document: "+ex.toString());

@@ -30,6 +30,7 @@ import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
@@ -170,10 +171,10 @@ public class XmlNode extends RubyObject {
             resetCache();
 
             if (node.getNodeType() != Node.DOCUMENT_NODE) {
-                IRubyObject owner = document(ruby.getCurrentContext());
+                doc = document(ruby.getCurrentContext());
 
-                if (owner != null) {
-                    RuntimeHelpers.invoke(ruby.getCurrentContext(), owner, "decorate", this);
+                if (doc != null) {
+                    RuntimeHelpers.invoke(ruby.getCurrentContext(), doc, "decorate", this);
                 }
             }
         }
@@ -312,7 +313,7 @@ public class XmlNode extends RubyObject {
 
         String curLine;
         boolean closingTag = false;
-        String indentString = indentStringObject.convertToString().asJavaString();
+        String indentString = (String)indentStringObject.toJava(String.class);
         int lengthInd = indentString.length();
         StringBuffer curInd = new StringBuffer();
 
@@ -372,7 +373,7 @@ public class XmlNode extends RubyObject {
     }
 
     protected String getAttribute(String key) {
-        if (!(node instanceof Element)) return null;
+        if (node.getNodeType() != Node.ELEMENT_NODE) return null;
 
         String value = ((Element)node).getAttribute(key);
         return value.length() == 0 ? null : value;
@@ -404,40 +405,31 @@ public class XmlNode extends RubyObject {
 
     public void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {
         String oldPrefix = this.node.getPrefix();
-        String uri = ns.href(context).convertToString().asJavaString();
+        String uri = (String)ns.href(context).toJava(String.class);
 
         /*
          * Update if both prefixes are null or equal
          */
         boolean update = (oldPrefix == null && ns.prefix(context).isNil()) ||
                             (oldPrefix != null && !ns.prefix(context).isNil()
-                && oldPrefix.equals(ns.prefix(context).convertToString().asJavaString()));
+                && oldPrefix.equals((String)ns.prefix(context).toJava(String.class)));
 
         if(update) {
             this.node.getOwnerDocument().renameNode(this.node, uri, this.node.getNodeName());
         }
     }
 
-    public RubyString getNodeName(ThreadContext context) {
+    protected IRubyObject getNodeName(ThreadContext context) {
+        if (name != null) return name;
         String str = null;
 
         if (this.name == null && node != null) {
             str = node.getNodeName();
-            if (str == null) { str = ""; }
-
-            if(str.equals("#document")) {
-                str = "document";
-            } else if(str.equals("#text")) {
-                str = "text";
-            } else {
-                str = NokogiriHelpers.getLocalPart(str);
-            }
-
-            if (str == null) str = "";
-            this.name = context.getRuntime().newString(str);
+            str = NokogiriHelpers.getLocalPart(str);
         }
-
-        return (RubyString) this.name;
+        if (str == null) str = "";
+        name = JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), str);
+        return name;
     }
 
     protected void saveNodeListContent(ThreadContext context, XmlNodeSet list, SaveContext ctx) {
@@ -496,7 +488,7 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(name = {"attribute", "attr"})
     public IRubyObject attribute(ThreadContext context, IRubyObject name){
         NamedNodeMap attrs = this.node.getAttributes();
-        Node attr = attrs.getNamedItem(name.convertToString().asJavaString());
+        Node attr = attrs.getNamedItem((String)name.toJava(String.class));
         if(attr == null) {
             return  context.getRuntime().newString(ERR_INSECURE_SET_INST_VAR);
         }
@@ -525,8 +517,8 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject attribute_with_ns(ThreadContext context, IRubyObject name, IRubyObject namespace) {
-        String namej = name.convertToString().asJavaString();
-        String nsj = (namespace.isNil()) ? null : namespace.convertToString().asJavaString();
+        String namej = (String)name.toJava(String.class);
+        String nsj = (namespace.isNil()) ? null : (String)namespace.toJava(String.class);
 
         Node el = this.node.getAttributes().getNamedItemNS(nsj, namej);
 
@@ -727,7 +719,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
     public IRubyObject content(ThreadContext context) {
-        if(this.content == null) {
+        if (content == null || content.isNil()) {
             String textContent;
             if (this instanceof XmlDocument) {
                 textContent = this.node.getChildNodes().item(0).getTextContent();
@@ -755,7 +747,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject dup(ThreadContext context, IRubyObject depth) {
-        boolean deep = depth.convertToInteger().getLongValue() != 0;
+        boolean deep = (Integer)depth.toJava(Integer.class) != 0;
 
         return this.dup_implementation(context, deep);
     }
@@ -790,12 +782,12 @@ public class XmlNode extends RubyObject {
     }
 
     /**
-     * Get the attribute at the given key, <code>rbkey</code>.
+     * Get the attribute at the given key, <code>key</code>.
      * Assumes that this node has attributes (i.e. that key? returned
      * true). Overridden in XmlElement.
      */
     @JRubyMethod(visibility = Visibility.PRIVATE)
-    public IRubyObject get(ThreadContext context, IRubyObject rbkey) {
+    public IRubyObject get(ThreadContext context, IRubyObject key) {
         return context.getRuntime().getNil();
     }
 
@@ -953,10 +945,10 @@ public class XmlNode extends RubyObject {
 
     protected void setContent(IRubyObject content) {
         this.content = content;
-        this.node.setTextContent(rubyStringToString(content));
+        this.node.setTextContent((String)content.toJava(String.class));
     }
 
-    protected void setContent(String content) {
+    private void setContent(String content) {
         node.setTextContent(content);
         this.content = null;    // clear cache
     }
@@ -982,18 +974,15 @@ public class XmlNode extends RubyObject {
         IRubyObject indentString = args[2];
         IRubyObject options = args[3];
 
-        String encString = encoding.isNil() ? null : encoding.convertToString().asJavaString();
+        String encString = encoding.isNil() ? null : (String)encoding.toJava(String.class);
 
-        int opt = (int) options.convertToInteger().getLongValue();
-
-        SaveContext ctx = new SaveContext(context, opt,
-                indentString.convertToString().asJavaString(),
+        SaveContext ctx = new SaveContext(context, (Integer)options.toJava(Integer.class),
+                (String)indentString.toJava(String.class),
                 encString);
 
         saveContent(context, ctx);
 
-        RuntimeHelpers.invoke(context, io, "write",
-                              ctx.toRubyString(context.getRuntime()));
+        RuntimeHelpers.invoke(context, io, "write", ctx.toRubyString(context.getRuntime()));
 
         return io;
     }
@@ -1023,7 +1012,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"node_name=", "name="})
     public IRubyObject node_name_set(ThreadContext context, IRubyObject nodeName) {
-        String newName = nodeName.convertToString().asJavaString();
+        String newName = (String)nodeName.toJava(String.class);
         getOwnerDocument().renameNode(node, null, newName);
         setName(nodeName);
         return this;
@@ -1075,8 +1064,8 @@ public class XmlNode extends RubyObject {
             }
         } else {
             XmlNamespace ns = (XmlNamespace) namespace;
-            String prefix = ns.prefix(context).convertToString().asJavaString();
-            String href = ns.href(context).convertToString().asJavaString();
+            String prefix = (String)ns.prefix(context).toJava(String.class);
+            String href = (String)ns.href(context).toJava(String.class);
 
             // Assigning node = ...renameNode() or not seems to make no
             // difference.  Why not? -pmahoney

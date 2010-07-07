@@ -38,22 +38,18 @@ public class XmlDomParserContext extends ParserContext {
     protected ParserContext.Options options;
     protected DOMParser parser;
     protected NokogiriErrorHandler errorHandler;
-    protected String encoding;
+    protected String java_encoding;
+    protected IRubyObject ruby_encoding;
 
     public XmlDomParserContext(Ruby runtime, IRubyObject options) {
-        this(runtime, NokogiriHelpers.guessEncoding(runtime), options.convertToInteger().getLongValue());
+        this(runtime, runtime.getNil(), options);
     }
     
     public XmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
-        this(runtime, (String)encoding.toJava(String.class), options.convertToInteger().getLongValue());
-    }
-
-    public XmlDomParserContext(Ruby runtime, String encoding, long options) {
         super(runtime);
-
-        this.options = new ParserContext.Options(options);
-        this.encoding = encoding == null ? NokogiriHelpers.guessEncoding(runtime) : encoding;
-
+        this.options = new ParserContext.Options((Long)options.toJava(Long.class));
+        this.java_encoding = encoding.isNil() ? NokogiriHelpers.guessEncoding(runtime) : (String)encoding.toJava(String.class);
+        ruby_encoding = encoding;
         initErrorHandler();
         initParser(runtime);
     }
@@ -154,7 +150,9 @@ public class XmlDomParserContext extends ParserContext {
     protected XmlDocument wrapDocument(ThreadContext context,
                                        RubyClass klass,
                                        Document doc) {
-        return new XmlDocument(context.getRuntime(), klass, doc);
+        XmlDocument xmlDocument = new XmlDocument(context.getRuntime(), klass, doc);
+        xmlDocument.setEncoding(ruby_encoding);
+        return xmlDocument;
     }
 
     /**

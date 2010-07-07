@@ -20,6 +20,7 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyNil;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
@@ -61,6 +62,10 @@ public class XmlDocument extends XmlNode {
         createAndCacheNamespaces(ruby, document.getDocumentElement());
         setInstanceVariable("@decorators", ruby.getNil());
     }
+    
+    public void setEncoding(IRubyObject encoding) {
+        this.encoding = encoding;
+    }
 
     private void createAndCacheNamespaces(Ruby ruby, Node node) {
         if (node == null) return;
@@ -70,10 +75,14 @@ public class XmlDocument extends XmlNode {
                 Node n = nodeMap.item(i);
                 if (n instanceof Attr) {
                     Attr attr = (Attr)n;
-                    if (isNamespace(attr.getName())) {
-                        String prefix = getLocalNameForNamespace(attr.getName());
+                    String attrName = attr.getName();
+                    // not sure, but need to get value always before document is referred.
+                    // or lose attribute value
+                    String attrValue = attr.getValue();
+                    if (isNamespace(attrName)) {
+                        String prefix = getLocalNameForNamespace(attrName);
                         prefix = prefix != null ? prefix : "";
-                        nsCache.put(ruby, prefix, attr.getValue(), node, this);
+                        nsCache.put(ruby, prefix, attrValue, node, this);
                     }
                 }
             }
@@ -111,11 +120,6 @@ public class XmlDocument extends XmlNode {
         }   
     }
 
-//     @Override
-//     protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
-//         return ((XmlDocumentImpl) this.internalNode).dup_impl(context, this, deep, this.getType());
-//     }
-
     public NokogiriNamespaceCache getNamespaceCache() {
         return nsCache;
     }
@@ -126,6 +130,11 @@ public class XmlDocument extends XmlNode {
 
     public Document getDocument() {
         return (Document) node;
+    }
+    
+    @Override
+    protected IRubyObject getNodeName(ThreadContext context) {
+        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), "document");
     }
 
     public void setUrl(IRubyObject url) {
@@ -143,20 +152,24 @@ public class XmlDocument extends XmlNode {
 
     protected static Document createNewDocument() {
         try {
-            return DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                .newDocument();
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         } catch (ParserConfigurationException e) {
             return null;        // this will end is disaster...
         }
     }
 
+    /*
+     * call-seq:
+     *  new(version = default)
+     *
+     * Create a new document with +version+ (defaults to "1.0")
+     */
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         XmlDocument doc = null;
         try {
             Document docNode = createNewDocument();
-            doc = new XmlDocument(context.getRuntime(), (RubyClass) cls,
-                                  docNode);
+            doc = new XmlDocument(context.getRuntime(), (RubyClass) cls, docNode);
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
@@ -222,7 +235,7 @@ public class XmlDocument extends XmlNode {
         Ruby ruby = context.getRuntime();
         Arity.checkArgumentCount(ruby, args, 4, 4);
         XmlDomParserContext ctx =
-            new XmlDomParserContext(ruby, args[3]);
+            new XmlDomParserContext(ruby, args[2], args[3]);
         ctx.setInputSource(context, args[0]);
         return ctx.parse(context, klass, args[1]);
     }

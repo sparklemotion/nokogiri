@@ -2,13 +2,15 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyModule;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
@@ -92,12 +94,30 @@ public class XmlAttr extends XmlNode{
         return buffer.toString();
     }
 
+    @Override
+    @JRubyMethod(name = {"content", "value", "to_s"})
+    public IRubyObject content(ThreadContext context) {
+        if (content != null && !content.isNil()) return content;
+        if (node == null) return context.getRuntime().getNil();
+        String attrValue = ((Attr)node).getValue();
+        if (attrValue == null) return context.getRuntime().getNil();
+        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), attrValue);
+    }
+    
     @JRubyMethod(name = {"value=", "content="})
-        public IRubyObject value_set(ThreadContext context, IRubyObject content){
+    public IRubyObject value_set(ThreadContext context, IRubyObject content){
         Attr attr = (Attr) node;
-        attr.setValue(XmlNode.encode_special_chars(context, content).convertToString().asJavaString());
+        attr.setValue((String)XmlNode.encode_special_chars(context, content).toJava(String.class));
         setContent(content);
         return content;
+    }
+
+    @Override
+    protected IRubyObject getNodeName(ThreadContext context) {
+        if (name != null) return name;
+        String attrName = ((Attr)node).getName();
+        attrName = NokogiriHelpers.getLocalPart(attrName);
+        return attrName == null ? context.getRuntime().getNil() : RubyString.newString(context.getRuntime(), attrName);
     }
 
     @Override

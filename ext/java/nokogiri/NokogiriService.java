@@ -1,5 +1,8 @@
 package nokogiri;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -45,9 +48,7 @@ public class NokogiriService implements BasicLibraryService {
         nokogiriClassCache.put("Nokogiri::HTML::ElementDescription", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::ElementDescription"));
         nokogiriClassCache.put("Nokogiri::XML::AttributeDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::AttributeDecl"));
         nokogiriClassCache.put("Nokogiri::XML::SAX::ParserContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::ParserContext"));
-        
-        //nokogiriClassCache.put("Nokogiri::XML::SAX::Parser::Attribute", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute"));
-        //nokogiriClassCache.put("Nokogiri::HTML::EntityDescription", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::EntityDescription"));
+
         ruby.getGlobalVariables().set(nokogiriClassCacheGvarName, nokogiriClassCache);
     }
 
@@ -224,7 +225,7 @@ public class NokogiriService implements BasicLibraryService {
 
     private static ObjectAllocator XML_CDATA_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            return new XmlCdata(runtime, klazz);
         }
     };
 
