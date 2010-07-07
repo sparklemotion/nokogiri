@@ -60,11 +60,19 @@ public class XmlDocument extends XmlNode {
         super(ruby, klass, document);
         nsCache = new NokogiriNamespaceCache();
         createAndCacheNamespaces(ruby, document.getDocumentElement());
+        stabilizeTextContent(document);
         setInstanceVariable("@decorators", ruby.getNil());
     }
     
     public void setEncoding(IRubyObject encoding) {
         this.encoding = encoding;
+    }
+    
+    // not sure, but like attribute values, text value will be lost
+    // unless it is referred once before this document is used.
+    // this seems to happen only when the fragment is parsed from Node#in_context.
+    private void stabilizeTextContent(Document document) {
+        if (document.getDocumentElement() != null) document.getDocumentElement().getTextContent();
     }
 
     private void createAndCacheNamespaces(Ruby ruby, Node node) {
