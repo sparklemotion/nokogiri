@@ -31,17 +31,17 @@ end
 
 if Config::CONFIG['target_os'] =~ /mswin32/
   lib_prefix = 'lib'
-  
+
   # There's no default include/lib dir on Windows. Let's just add the Ruby ones
   # and resort on the search path specified by INCLUDE and LIB environment
   # variables
   HEADER_DIRS = [INCLUDEDIR]
   LIB_DIRS = [LIBDIR]
   XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
-  
+
 else
   lib_prefix = ''
-  
+
   $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
   HEADER_DIRS = [
