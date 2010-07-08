@@ -63,10 +63,36 @@ public class XmlText extends XmlNode {
 
     @Override
     public void saveContent(ThreadContext context, SaveContext ctx) {
-        if (isXmlEscaped(node.getTextContent())) {
-            ctx.append(rubyStringToString(content(context)));
-        } else {             
-            ctx.append(rubyStringToString(encode_special_chars(context, content(context))));
+        String textContent = node.getTextContent();
+        
+        if (!isXmlEscaped(textContent)) {        
+            textContent = NokogiriHelpers.encodeJavaString(textContent);
         }
+        if (getEncoding(context, ctx) == null) {
+            textContent = encodeStringToHtmlEntity(textContent);
+        }
+        ctx.append(textContent);
+    }
+    
+    private String getEncoding(ThreadContext context, SaveContext ctx) {
+        String encoding  = ctx.getEncoding();
+        if (encoding != null) return encoding;
+        XmlDocument xmlDocument = (XmlDocument)document(context);
+        IRubyObject ruby_encoding = xmlDocument.encoding(context);
+        if (!ruby_encoding.isNil()) {
+            encoding = (String)ruby_encoding.toJava(String.class);
+        }
+        return encoding;
+    }
+    
+    private String encodeStringToHtmlEntity(String text) {
+        int last = 126; // = U+007E. No need to encode under U+007E.
+        StringBuffer sb = new StringBuffer();
+        for (int i=0; i<text.length(); i++) {
+            int codePoint = text.codePointAt(i);
+            if (codePoint > last) sb.append("&#x" + Integer.toHexString(codePoint) + ";");
+            else sb.append(text.charAt(i));
+        }
+        return new String(sb);
     }
 }

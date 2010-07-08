@@ -767,7 +767,7 @@ public class XmlNode extends RubyObject {
 
     public static IRubyObject encode_special_chars(ThreadContext context,
                                                    IRubyObject string) {
-        String s = rubyStringToString(string);
+        String s = (String)string.toJava(String.class);
         String enc = NokogiriHelpers.encodeJavaString(s);
         return context.getRuntime().newString(enc);
     }

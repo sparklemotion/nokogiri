@@ -16,6 +16,7 @@ import nokogiri.XmlText;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyEncoding;
 import org.jruby.RubyHash;
 import org.jruby.RubyString;
 import org.jruby.javasupport.JavaUtil;
@@ -511,7 +512,6 @@ public class NokogiriHelpers {
     
     public static String guessEncoding(Ruby ruby) {
         String name = null;
-        if (ruby.is1_9()) name = ruby.getEncoding().toString();
         if (name == null) name = System.getProperty("file.encoding");
         if (name == null) name = "UTF-8";
         return name;
