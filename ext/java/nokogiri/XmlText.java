@@ -1,7 +1,7 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.isXmlEscaped;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContext;
 
@@ -14,7 +14,6 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.Text;
 
 @JRubyClass(name="Nokogiri::XML::Text", parent="Nokogiri::XML::CharacterData")
 public class XmlText extends XmlNode {
@@ -53,12 +52,11 @@ public class XmlText extends XmlNode {
     @Override
     @JRubyMethod(name = {"content", "text", "inner_text"})
     public IRubyObject content(ThreadContext context) {
-        if (content != null) return content;
-        String text = null;
-        if (node != null) {
-            text = ((Text)node).getWholeText();
+        if (content == null || content.isNil()) {
+            return stringOrNil(context.getRuntime(), node.getTextContent());
+        } else {
+            return content;
         }
-        return NokogiriHelpers.stringOrNil(context.getRuntime(), text);
     }
 
     @Override

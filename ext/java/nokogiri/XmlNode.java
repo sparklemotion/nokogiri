@@ -719,17 +719,17 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
     public IRubyObject content(ThreadContext context) {
-        if (content == null || content.isNil()) {
-            String textContent;
-            if (this instanceof XmlDocument) {
-                textContent = this.node.getChildNodes().item(0).getTextContent();
-            } else {
-                textContent = this.node.getTextContent();
-            }
-            content = stringOrNil(context.getRuntime(), textContent);
+        if (content != null && content.isNil()) return content;
+        String textContent;
+        if (content != null) textContent = (String)content.toJava(String.class);
+        else if (this instanceof XmlDocument) {
+            textContent = this.node.getChildNodes().item(0).getTextContent();
+        } else {
+            textContent = this.node.getTextContent();
         }
-
-        return this.content;
+        String decodedText = null;
+        if (textContent != null) decodedText = NokogiriHelpers.decodeJavaString(textContent);
+        return stringOrNil(context.getRuntime(), decodedText);
     }
 
     @JRubyMethod

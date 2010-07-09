@@ -103,7 +103,7 @@ public class NokogiriHelpers {
         if (s == null)
             return ruby.getNil();
 
-        return ruby.newString(s);
+        return JavaUtil.convertJavaToUsableRubyObject(ruby, s);
     }
     
     public static IRubyObject stringOrBlank(Ruby ruby, String s) {
@@ -437,6 +437,13 @@ public class NokogiriHelpers {
         s = s.replaceAll(">", "&gt;");
 //        s = s.replaceAll("\"", "&quot;");
         return s.replaceAll("\r", "&#13;");
+    }
+    
+    public static String decodeJavaString(String s) {
+        s = s.replaceAll("&amp;", "&");
+        s = s.replaceAll("&lt;", "<");
+        s = s.replaceAll("&gt;", ">");
+        return s.replaceAll("&#13;", "\r");
     }
     
     public static boolean isXmlEscaped(String s) {
