@@ -29,6 +29,10 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
   $CFLAGS << " -DIN_LIBXML"
 end
 
+if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
+  $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
+end
+
 if Config::CONFIG['target_os'] =~ /mswin32/
   lib_prefix = 'lib'
 
@@ -41,8 +45,6 @@ if Config::CONFIG['target_os'] =~ /mswin32/
 
 else
   lib_prefix = ''
-
-  $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 
   HEADER_DIRS = [
     # First search /opt/local for macports
