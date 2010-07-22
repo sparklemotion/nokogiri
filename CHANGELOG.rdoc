@@ -16,6 +16,8 @@
 
   * XML::Reader#empty_element? returns true for empty elements. #262
   * Node#remove_namespaces! now removes namespace *declarations* as well. #294
+  * NodeSet#at_xpath, NodeSet#at_css and NodeSet#> do what the corresponding
+    methods of Node do.
 
 * Bugfixes
 
