@@ -188,13 +188,19 @@ module Nokogiri
       end
 
       def test_preceding_selector
-        assert_xpath  "//F[preceding-sibling::E]",
+        assert_xpath  "//E/following-sibling::F",
                       @parser.parse("E ~ F")
+
+        assert_xpath  "//E/following-sibling::F//G",
+                      @parser.parse("E ~ F G")
       end
 
       def test_direct_preceding_selector
         assert_xpath  "//E/following-sibling::*[1]/self::F",
                       @parser.parse("E + F")
+
+        assert_xpath  "//E/following-sibling::*[1]/self::F//G",
+                      @parser.parse("E + F G")
       end
 
       def test_attribute

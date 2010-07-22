@@ -15,6 +15,9 @@
   * Fixed libxml2 versionitis issue with xmlFirstElementChild et al. #303
   * XML::Attr#add_namespace now works as expected. #252
   * HTML::DocumentFragment uses the string's encoding. #305
+  * Fix the CSS3 selector translation rule for the general sibling combinator
+    (a.k.a. preceding selector) that incorrectly converted "E + F G" to
+    "//F//G[preceding-sibling::E]".
 
 === 1.4.2 / 2010/05/22
 

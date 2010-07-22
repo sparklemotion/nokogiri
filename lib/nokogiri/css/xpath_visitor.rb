@@ -48,13 +48,6 @@ module Nokogiri
         end
       end
 
-      def visit_preceding_selector node
-        node.value.last.accept(self) +
-          '[preceding-sibling::' +
-          node.value.first.accept(self) +
-          ']'
-      end
-
       def visit_id node
         node.value.first =~ /^#(.*)$/
         "@id = '#{$1}'"
@@ -126,6 +119,7 @@ module Nokogiri
       {
         'combinator'                => ' and ',
         'direct_adjacent_selector'  => "/following-sibling::*[1]/self::",
+        'preceding_selector'        => "/following-sibling::",
         'descendant_selector'       => '//',
         'child_selector'            => '/',
       }.each do |k,v|
