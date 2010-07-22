@@ -276,9 +276,24 @@ module Nokogiri
         assert_match '<a>', html
       end
 
+      def test_gt_string_arg
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.xpath('./employeeId'), (node_set > 'employeeId')
+      end
+
       def test_at
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set.at(0)
+      end
+
+      def test_at_xpath
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first.first_element_child, node_set.at_xpath('./employeeId')
+      end
+
+      def test_at_css
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first.first_element_child, node_set.at_css('employeeId')
       end
 
       def test_percent
