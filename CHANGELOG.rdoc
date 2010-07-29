@@ -1,4 +1,4 @@
-=== 1.4.3 / UNRELEASED
+=== 1.4.3 / 2010/07/28
 
 * New Features
 
