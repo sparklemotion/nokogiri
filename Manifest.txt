@@ -7,6 +7,7 @@ README.rdoc
 Rakefile
 bin/nokogiri
 deps.rip
+ext/nokogiri/depend
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
 ext/nokogiri/html_document.h
@@ -159,6 +160,7 @@ lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/html/sax/parser_context.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
+lib/nokogiri/version_warning.rb
 lib/nokogiri/xml.rb
 lib/nokogiri/xml/attr.rb
 lib/nokogiri/xml/attribute_decl.rb
