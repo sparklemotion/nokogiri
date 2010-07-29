@@ -1,3 +1,23 @@
+=== 1.4.3 unreleased
+
+* 新しい機能
+
+  * XML::Reader#empty_element?  - 子の無いエレメントにtrueを返す　 #262
+  * Node#remove_namespaces! - 1.4.2では 名前空間のみを取り除いていたが、
+    1.4.3 では名前空間及び、名前空間宣言も取り除く　#294
+
+* バグの修正
+
+  * XML::NodeSet#{include?,delete,push} はXML::Namespaceを受入れる
+  * XML::Document#parse - 1.4.3より文書内の文脈を解析する機能を追加
+  * XML::DocumentFragment#inner_html= 文脈解析を共に実行する　#298, #281
+  * lib/nokogiri/css/parser.y  はCSSと疑似選別の両方を機能
+  * 演算によって近隣に存在する併合型ノードへの遊離問題の有無に関わらず、一切の
+    弊害なしにテキストノードの繰り返しが実行可能　 #283
+  * xmlFirstElementChild et al.による libxml2バージョンでの不適合性を修正 #303
+  * XML::Attr#add_namespace　（！）文字通りの機能実現!　 #252
+  * HTML::DocumentFragment が文字列に存在するエンコードを使用　#305
+
 === 1.4.2 ２０１０年５月２２日
 
 * 新機能
