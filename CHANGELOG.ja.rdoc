@@ -5,6 +5,7 @@
   * XML::Reader#empty_element?  - 子の無いエレメントにtrueを返す　 #262
   * Node#remove_namespaces! - 1.4.2では 名前空間のみを取り除いていたが、
     1.4.3 では名前空間及び、名前空間宣言も取り除く　#294
+  * NodeSet#{at_xpath,at_css,>} はNodeの同名メソッドと同様の動作
 
 * バグの修正
 
@@ -17,6 +18,8 @@
   * xmlFirstElementChild et al.による libxml2バージョンでの不適合性を修正 #303
   * XML::Attr#add_namespace　（！）文字通りの機能実現!　 #252
   * HTML::DocumentFragment が文字列に存在するエンコードを使用　#305
+  * CSS3の間接セレクタ"E ~ F G"がXPathの"//F//G[preceding-sibling::E]"へと
+    誤変換されてしまうのを修正
 
 === 1.4.2 ２０１０年５月２２日
 
@@ -38,6 +41,10 @@
   * Nokogiri::XML::Node#first_element_child は一番最初のELEMENT子ノードを返す
   * Nokogiri::XML::Node#last_element_child は最後のELEMENT子ノードを返す
   * Nokogiri::XML::Node#elements は全てのELEMENT子ノードを返す
+  * Nokogiri::XML::Node#add_child, #add_previous_sibling, #before,
+    #add_next_sibling, #after, #inner_html, #swap, #replaceはNode,
+    DocumentFragment, NodeSetおよびマークアップ文字列を受け付ける
+  * Node#fragment? はノードがDocumentFragmentかどうかを示す
 
 * バグの修正
 
@@ -56,6 +63,7 @@
     GH #204
   * XML::DocumentFragment はML::Node#parse を使用して子を限定する
   * XML Reader内のメモリリーク修正　 sdorさん、ありがとう! GH#244
+  * Node#replaceはRDocの通り新しい子ノードを返す（selfを返していた）
 
 * ノート
 
