@@ -7,11 +7,18 @@ ENV['PATH'] = [File.expand_path(
 ), ENV['PATH']].compact.join(';') if RbConfig::CONFIG['host_os'] =~ /(mswin|mingw)/i
 
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-  require 'isorelax.jar'
-  require 'jing.jar'
-  require 'nekohtml.jar'
-  require 'nekodtd.jar'
-  require 'xercesImpl.jar'
+  # If JRuby::Rack::VERSION is defined, Nokogiri is in a servlet. 
+  # If AppEngine::ApiProxy is defined, Nokogiri is on Google App Egnine.
+  # These two cases don't need to require jar archives because those
+  # should be in WEB-INF/lib and already set in the classpath by
+  # a servlet container.
+  unless defined?(JRuby::Rack::VERSION) || defined?(AppEngine::ApiProxy)
+    require 'isorelax.jar'
+    require 'jing.jar'
+    require 'nekohtml.jar'
+    require 'nekodtd.jar'
+    require 'xercesImpl.jar'
+  end
   require 'nokogiri/nokogiri'
 else
   require 'nokogiri/nokogiri'
