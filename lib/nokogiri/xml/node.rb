@@ -443,7 +443,16 @@ module Nokogiri
           string_or_io
 
         return Nokogiri::XML::NodeSet.new(document) if contents.empty?
-        in_context(contents, options.to_i)
+
+        ##
+        # This is a horrible hack, but I don't care. See #313 for background.
+        error_count = document.errors.length
+        node_set = in_context(contents, options.to_i)
+        if node_set.empty? and document.errors.length > error_count and options.recover?
+          fragment = Nokogiri::HTML::DocumentFragment.parse contents
+          node_set = fragment.children
+        end
+        node_set
       end
 
       ####
