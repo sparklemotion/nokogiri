@@ -82,6 +82,15 @@ module Nokogiri
         assert_equal 0, list.length
       end
 
+      def test_parse_config_option
+        node = @xml.root
+        options = nil
+        node.parse("<item></item>") do |config|
+          options = config
+        end
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_XML, options.to_i
+      end
+
       # descriptive, not prescriptive.
       def test_parse_invalid_html_markup_results_in_empty_nodeset
         doc = Nokogiri::HTML("<html></html>")
