@@ -16,7 +16,7 @@ module Nokogiri
         return self unless tags
 
         children = if ctx
-                     ctx.parse("<div>#{tags.strip}</div>").first.children
+                     ctx.parse("<div>#{tags}</div>").first.children
                    else
                      ###
                      # This is a horrible hack, but I don't care
@@ -27,7 +27,7 @@ module Nokogiri
                      end
 
                      HTML::Document.parse(
-                       "<html><body>#{tags.strip}</body></html>",
+                       "<html><body>#{tags}</body></html>",
                        nil,
                        document.encoding
                      ).xpath(path)

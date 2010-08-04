@@ -74,6 +74,16 @@ module Nokogiri
         assert Nokogiri::HTML::DocumentFragment.new(@html)
       end
 
+      def test_body_fragment_should_contain_body
+        fragment = Nokogiri::HTML::DocumentFragment.parse("  <body><div>foo</div></body>")
+        assert_match /^<body>/, fragment.to_s
+      end
+
+      def test_nonbody_fragment_should_not_contain_body
+        fragment = Nokogiri::HTML::DocumentFragment.parse("<div>foo</div>")
+        assert_match /^<div>/, fragment.to_s
+      end
+
       def test_fragment_should_have_document
         fragment = Nokogiri::HTML::DocumentFragment.new(@html)
         assert_equal @html, fragment.document
@@ -139,13 +149,13 @@ module Nokogiri
       def test_html_fragment_with_leading_whitespace
         doc = "     <div>b</div>  "
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "<div>b</div>", fragment.to_s
+        assert_equal "     <div>b</div>  ", fragment.to_s
       end
 
       def test_html_fragment_with_leading_whitespace_and_newline
         doc = "     \n<div>b</div>  "
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "<div>b</div>", fragment.to_s
+        assert_equal "     \n<div>b</div>  ", fragment.to_s
       end
 
       def test_html_fragment_with_leading_text_and_newline
@@ -155,7 +165,7 @@ module Nokogiri
 
       def test_html_fragment_with_leading_whitespace_and_text_and_newline
         fragment = HTML::Document.new.fragment("  First line\nSecond line<br>Broken line")
-        assert_equal "First line\nSecond line<br>Broken line", fragment.to_s
+        assert_equal "  First line\nSecond line<br>Broken line", fragment.to_s
       end
 
       def test_html_fragment_with_leading_entity

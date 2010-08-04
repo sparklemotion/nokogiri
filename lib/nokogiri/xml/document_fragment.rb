@@ -11,9 +11,9 @@ module Nokogiri
         return self unless tags
 
         children = if ctx
-                     ctx.parse(tags.strip)
+                     ctx.parse(tags)
                    else
-                     XML::Document.parse("<root>#{tags.strip}</root>") \
+                     XML::Document.parse("<root>#{tags}</root>") \
                        .xpath("/root/node()")
                    end
         children.each { |child| child.parent = self }
