@@ -153,18 +153,6 @@ module Nokogiri
       end
 
       describe "ad hoc node reparenting behavior" do
-        before do
-          @xml = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third node</a3></root>"
-          @html = Nokogiri::HTML(<<-eohtml)
-            <html>
-              <head></head>
-              <body>
-                <div class='baz'><a href="foo" class="bar">first</a></div>
-              </body>
-            </html>
-          eohtml
-        end
-
         describe "#add_child" do
           describe "given a new node with a namespace" do
             it "keeps the namespace" do

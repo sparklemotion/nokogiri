@@ -100,13 +100,13 @@ module Nokogiri
       def test_xml_fragment_with_leading_whitespace
         doc = "     <div>b</div>  "
         fragment = Nokogiri::XML::Document.new.fragment(doc)
-        assert_equal "<div>b</div>", fragment.to_s
+        assert_equal "     <div>b</div>  ", fragment.to_s
       end
 
       def test_xml_fragment_with_leading_whitespace_and_newline
         doc = "     \n<div>b</div>  "
         fragment = Nokogiri::XML::Document.new.fragment(doc)
-        assert_equal "<div>b</div>", fragment.to_s
+        assert_equal "     \n<div>b</div>  ", fragment.to_s
       end
 
       def test_fragment_children_search
