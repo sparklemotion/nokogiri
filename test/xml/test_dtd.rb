@@ -25,9 +25,24 @@ module Nokogiri
         end
       end
 
+      def test_empty_attributes
+        dtd = Nokogiri::HTML("<html></html>").internal_subset
+        assert_equal Hash.new, dtd.attributes
+      end
+
       def test_attributes
         assert_equal ['width'], @dtd.attributes.keys
         assert_equal '0', @dtd.attributes['width'].default
+      end
+
+      def test_keys
+        assert_equal ['width'], @dtd.keys
+      end
+
+      def test_each
+        hash = {}
+        @dtd.each { |key, value| hash[key] = value }
+        assert_equal @dtd.attributes, hash
       end
 
       def test_namespace
