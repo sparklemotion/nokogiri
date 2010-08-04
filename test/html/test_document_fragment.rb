@@ -215,6 +215,11 @@ module Nokogiri
         assert_equal("<p>hello<!-- your ad here --></p>",
           fragment.to_s)
       end
+
+      def test_malformed_fragment_is_corrected
+        fragment = HTML::DocumentFragment.parse("<div </div>")
+        assert_equal "<div></div>", fragment.to_s
+      end
     end
   end
 end
