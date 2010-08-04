@@ -53,9 +53,9 @@ module Nokogiri
 
       def internal_attributes attr_name
         attr_ptr = cstruct[attr_name.to_sym]
-        return nil if attr_ptr.null?
-
         ahash = {}
+        return ahash if attr_ptr.null?
+
         LibXML.xmlHashScan(attr_ptr, nil) do |payload, data, name|
           ahash[name] = Node.wrap(payload)
         end
