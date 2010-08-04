@@ -10,6 +10,13 @@
   * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
   * FFI support is removed.
 
+=== 1.4.4 / Unreleased
+
+* Bugfixes
+
+  * XML::DTD#attributes returns an empty hash instead of nil when there are no attributes.
+  * XML::DTD#{keys,each} now work as expected. #324
+
 === 1.4.3 / 2010/07/28
 
 * New Features

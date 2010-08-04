@@ -84,9 +84,9 @@ static VALUE attributes(VALUE self)
 
   Data_Get_Struct(self, xmlDtd, dtd);
 
-  if(!dtd->attributes) return Qnil;
-
   hash = rb_hash_new();
+
+  if(!dtd->attributes) return hash;
 
   xmlHashScan((xmlHashTablePtr)dtd->attributes, element_copier, (void *)hash);
 
