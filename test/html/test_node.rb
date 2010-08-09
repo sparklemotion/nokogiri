@@ -127,6 +127,15 @@ module Nokogiri
         assert_equal 'foo&bar&baz', node['href']
       end
 
+      def test_parse_config_option
+        node = @html.at('div')
+        options = nil
+        node.parse("<div></div>") do |config|
+          options = config
+        end
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_HTML, options.to_i
+      end
+
       def test_fragment_handler_does_not_regurge_on_invalid_attributes
         iframe = %Q{<iframe style="width: 0%; height: 0px" src="http://someurl" allowtransparency></iframe>}
         assert_nothing_raised { @html.at('div').fragment(iframe) }
