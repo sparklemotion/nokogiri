@@ -76,12 +76,12 @@ module Nokogiri
 
       def test_body_fragment_should_contain_body
         fragment = Nokogiri::HTML::DocumentFragment.parse("  <body><div>foo</div></body>")
-        assert_match /^<body>/, fragment.to_s
+        assert_match(/^<body>/, fragment.to_s)
       end
 
       def test_nonbody_fragment_should_not_contain_body
         fragment = Nokogiri::HTML::DocumentFragment.parse("<div>foo</div>")
-        assert_match /^<div>/, fragment.to_s
+        assert_match(/^<div>/, fragment.to_s)
       end
 
       def test_fragment_should_have_document
