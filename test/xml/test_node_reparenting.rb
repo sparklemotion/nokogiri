@@ -96,11 +96,12 @@ module Nokogiri
                   end
 
                   it "returns the expected value" do
+                    sendee = @doc.at_xpath(params[:target])
+                    result = sendee.send(method, @other_node)
                     if params[:returns_self]
-                      sendee = @doc.at_xpath(params[:target])
-                      sendee.send(method, @other_node).must_equal sendee
+                      result.must_equal sendee
                     else
-                      @doc.at_xpath(params[:target]).send(method, @other_node).must_equal @other_node
+                      result.must_equal @other_node
                     end
                   end
                 end
@@ -110,6 +111,17 @@ module Nokogiri
               it "inserts the fragment roots in the proper position" do
                 @doc.at_xpath(params[:target]).send(method, @fragment_string)
                 @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
+              end
+
+              it "returns the expected value" do
+                sendee = @doc.at_xpath(params[:target])
+                result = sendee.send(method, @fragment_string)
+                if params[:returns_self]
+                  result.must_equal sendee
+                else
+                  result.must_be_kind_of Nokogiri::XML::NodeSet
+                  result.to_html.must_equal @fragment_string
+                end
               end
             end
             describe "passed a fragment" do
