@@ -305,11 +305,21 @@ module Nokogiri
       end
 
       ####
-      # Set the inner_html for this Node to +node_or_tags+
+      # Set the inner html for this Node to +node_or_tags+
       # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
       #
       # Returns self.
       def inner_html= node_or_tags
+        self.children = node_or_tags
+        self
+      end
+
+      ####
+      # Set the inner html for this Node +node_or_tags+
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns the new child node(s).
+      def children= node_or_tags
         node_or_tags = coerce(node_or_tags)
         children.unlink
         if node_or_tags.is_a?(XML::NodeSet)
@@ -317,7 +327,6 @@ module Nokogiri
         else
           add_child node_or_tags
         end
-        self
       end
 
       ####

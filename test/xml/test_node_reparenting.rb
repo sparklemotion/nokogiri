@@ -56,6 +56,7 @@ module Nokogiri
           :replace              => {:target => "/root/a1/node()", :returns => :reparented, :children_tags => %w[b1 b2]},
           :swap                 => {:target => "/root/a1/node()", :returns => :self,       :children_tags => %w[b1 b2]},
 
+          :children=            => {:target => "/root/a1",        :returns => :reparented, :children_tags => %w[b1 b2]},
           :inner_html=          => {:target => "/root/a1",        :returns => :self,       :children_tags => %w[b1 b2]},
 
           :add_previous_sibling => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[b1 b2 text]},
