@@ -12,12 +12,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 
 import nokogiri.internals.HtmlDomParserContext;
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
-import nokogiri.internals.NokogiriNamespaceContext;
 import nokogiri.internals.SaveContext;
 import nokogiri.internals.XmlDomParserContext;
 
@@ -156,7 +154,7 @@ public class XmlNode extends RubyObject {
      * called from Ruby code.
      */
     public XmlNode(Ruby ruby, RubyClass cls) {
-        this(ruby, cls, null);
+        super(ruby, cls);
     }
 
     /**
@@ -178,9 +176,20 @@ public class XmlNode extends RubyObject {
                 }
             }
         }
+        
     }
     
-    private void resetCache() {
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    
+    protected void resetCache() {
         node.setUserData(NokogiriHelpers.CACHED_NODE, this, null);
     }
 
@@ -231,12 +240,12 @@ public class XmlNode extends RubyObject {
             klazz = getNokogiriClass(ruby, "Nokogiri::XML::Element");
         }
 
-        XmlNode node = (XmlNode) klazz.allocate();
-        node.init(context, args);
-        node.callInit(args, block);
-        if (node.node == null) System.out.println("NODE IS NULL");
-        if (block.isGiven()) block.call(context, node);
-        return node;
+        XmlNode xmlNode = (XmlNode) klazz.allocate();
+        xmlNode.init(context, args);
+        xmlNode.callInit(args, block);
+        if (xmlNode.node == null) context.getRuntime().newRuntimeError("NODE IS NULL");
+        if (block.isGiven()) block.call(context, xmlNode);
+        return xmlNode;
     }
 
     /**
@@ -266,14 +275,10 @@ public class XmlNode extends RubyObject {
         if (document == null) {
             throw getRuntime().newArgumentError("node must have owner document");
         }
-        XmlDocument xmlDoc =
-            (XmlDocument) getCachedNodeOrCreate(getRuntime(), document);
 
         Element element =
             document.createElementNS(null, rubyStringToString(name));
-        setNode(element);
-        setDocument(xmlDoc);
-        RuntimeHelpers.invoke(context, xmlDoc, "decorate", this);
+        setNode(context, element);
     }
 
     /**
@@ -394,13 +399,23 @@ public class XmlNode extends RubyObject {
         this.name = name;
     }
 
-    public void setDocument(IRubyObject doc) {
+    public void setDocument(ThreadContext context, IRubyObject doc) {
         this.doc = doc;
+        setInstanceVariable("@document", doc);
+        if (doc != null) {
+            RuntimeHelpers.invoke(context, doc, "decorate", this);
+        }
     }
 
-    protected void setNode(Node node) {
+    public void setNode(ThreadContext context, Node node) {
         this.node = node;
-        resetCache();
+        
+        if (node != null) {
+            resetCache();
+            if (node.getNodeType() != Node.DOCUMENT_NODE) {
+                doc = document(context);
+            }
+        }
     }
 
     public void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {
@@ -650,7 +665,7 @@ public class XmlNode extends RubyObject {
         } else if (document instanceof XmlDocument) {
             klass = getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document");
             ctx = new XmlDomParserContext(context.getRuntime(), options);
-            String input = addTemporaryRootTagIfNecessary(context, (String)str.toJava(String.class));
+            String input = (String)str.toJava(String.class);
             istream = new ByteArrayInputStream(input.getBytes());
         } else {
             return context.getRuntime().getNil();
@@ -663,8 +678,8 @@ public class XmlNode extends RubyObject {
             saveErrorsOfCreatedDocument(document, doc);
             return new XmlNodeSet(getRuntime(), RubyArray.newArray(context.getRuntime()));
         }
-        NodeList childNodes = removeTemporaryRootIfNecessary(doc.node.getChildNodes());
-        XmlNodeSet nodes = new XmlNodeSet(getRuntime(), childNodes);
+        //NodeList childNodes = doc.node.getChildNodes();
+        XmlNodeSet nodes = new XmlNodeSet(getRuntime(), doc.node.getChildNodes());
         return nodes;
     }
     
@@ -695,26 +710,6 @@ public class XmlNode extends RubyObject {
             existingErrors.add(newErrors.get(i));
         }
         base.setInstanceVariable("@errors", existingErrors);
-    }
-    
-    private String addTemporaryRootTagIfNecessary(ThreadContext context, String tags) {
-        Matcher matcher = XmlDocumentFragment.wellformed_pattern.matcher(tags);
-        while(matcher.find()) {
-            if (matcher.start() == 0 && matcher.end() == tags.length()) return tags;
-            break;
-        }
-        tags = "<"+ NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG + ">" + tags + "</" + NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG + ">";
-        return tags;
-    }
-    
-    private NodeList removeTemporaryRootIfNecessary(NodeList nodes) {
-        if (nodes != null && nodes.getLength() > 0) {
-            Node n = nodes.item(0);
-            if (n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName().equals(NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG)) {
-                return n.getChildNodes();
-            }
-        }
-        return nodes;
     }
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
@@ -759,7 +754,7 @@ public class XmlNode extends RubyObject {
         } catch (CloneNotSupportedException e) {
             throw context.getRuntime().newRuntimeError(e.toString());
         }
-        if (node == null) throw getRuntime().newRuntimeError("FFFFFFFFFUUUUUUU");
+        if (node == null) throw context.getRuntime().newRuntimeError("FFFFFFFFFUUUUUUU");
         Node newNode = node.cloneNode(deep);
         clone.node = newNode;
         return clone;
@@ -1191,7 +1186,7 @@ public class XmlNode extends RubyObject {
         XmlNode other = asXmlNode(context, other_);
         // this.doc might be null since this node can be empty node.
         if (this.doc != null) {
-            other.doc = this.doc;
+            other.setDocument(context, this.doc);
         }
         IRubyObject nodeOrTags = other;
         Node thisNode = node;
@@ -1243,10 +1238,6 @@ public class XmlNode extends RubyObject {
 
     protected Node[] adoptAsChild(ThreadContext context, Node parent,
                                 Node otherNode) {
-        if (hasTemporaryRoot(parent, otherNode)) {
-            return adoptRealChildrenAsChild(context, parent, otherNode);
-        }
-        
         /*
          * This is a bit of a hack.  C-Nokogiri allows adding a bare
          * text node as the root element.  Java (and XML spec?) does
@@ -1263,40 +1254,6 @@ public class XmlNode extends RubyObject {
         Node[] nodes = new Node[1];
         nodes[0] = otherNode;
         return nodes;
-    }
-    
-    private boolean hasTemporaryRoot(Node parent, Node child) {
-        if (parent.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE
-                && child.getNodeName().equals(NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG)) {
-            return true;
-        }
-        return false;
-    }
-    
-    private Node[] adoptRealChildrenAsChild(ThreadContext context, Node parent, Node otherNode) {
-        NodeList children = otherNode.getChildNodes();
-        int length = children.getLength();
-        List<Node> nodes = new ArrayList<Node>();
-        for (int i=0; i < length; i++) {
-            nodes.add(children.item(i).cloneNode(true));
-        }
-        //cut out leading and trailing whitespaces
-        if (nodes.get(0).getNodeType() == Node.TEXT_NODE && nodes.get(0).getTextContent().trim().length() == 0) {
-            nodes.remove(0);
-        }
-        int lastIndex = nodes.size() - 1;
-        if (nodes.get(lastIndex).getNodeType() == Node.TEXT_NODE && nodes.get(lastIndex).getTextContent().trim().length() == 0) {
-            nodes.remove(lastIndex);
-        }
-        
-        Node[] nodeArray = new Node[nodes.size()];
-        for (int i=0; i < nodeArray.length; i++) {
-            Node child = nodes.get(i);
-            addNamespaceURIIfNeeded(child);
-            parent.appendChild(child);
-            nodeArray[i] = child;
-        }
-        return nodeArray;
     }
 
     private void addNamespaceURIIfNeeded(Node child) {

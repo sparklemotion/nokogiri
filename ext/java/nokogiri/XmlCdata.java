@@ -32,7 +32,7 @@ public class XmlCdata extends XmlText {
         doc = xmlDoc;
         Document document = xmlDoc.getDocument();
         Node node = document.createCDATASection((content.isNil()) ? null : (String)content.toJava(String.class));
-        setNode(node);
+        setNode(context, node);
     }
 
     @Override

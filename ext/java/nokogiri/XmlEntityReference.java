@@ -36,7 +36,7 @@ public class XmlEntityReference extends XmlNode{
 
         Document document = ((XmlNode) doc).getOwnerDocument();
         Node node = document.createEntityReference(rubyStringToString(name));
-        setNode(node);
+        setNode(context, node);
     }
 
 }

@@ -16,7 +16,6 @@ import nokogiri.XmlText;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
-import org.jruby.RubyEncoding;
 import org.jruby.RubyHash;
 import org.jruby.RubyString;
 import org.jruby.javasupport.JavaUtil;
@@ -50,10 +49,11 @@ public class NokogiriHelpers {
         if(node == null) return ruby.getNil();
         if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
             XmlDocument xmlDocument = (XmlDocument)node.getOwnerDocument().getUserData(CACHED_NODE);
-            XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(node.getNodeName(), node.getNodeName());
+            String prefix = getLocalNameForNamespace(((Attr)node).getName());
+            prefix = prefix != null ? prefix : "";
+            String href = ((Attr)node).getValue();
+            XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
             if (xmlNamespace == null) {
-                String prefix = getLocalNameForNamespace(((Attr)node).getName());
-                prefix = prefix != null ? prefix : "";
                 return xmlDocument.getNamespaceCache().put(ruby, prefix, ((Attr)node).getValue(), node, xmlDocument);
             }
         }
@@ -75,21 +75,33 @@ public class NokogiriHelpers {
         // this is slow; need a way to cache nokogiri classes/modules somewhere
         switch (node.getNodeType()) {
             case Node.ELEMENT_NODE:
-                return new XmlElement(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Element"), node);
+                XmlElement xmlElement = (XmlElement) getNokogiriClass(ruby, "Nokogiri::XML::Element").allocate();
+                xmlElement.setNode(ruby.getCurrentContext(), node);
+                return xmlElement;
             case Node.ATTRIBUTE_NODE:
-                return new XmlAttr(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Attr"), node);
+                XmlAttr xmlAttr = (XmlAttr) getNokogiriClass(ruby, "Nokogiri::XML::Attr").allocate();
+                xmlAttr.setNode(ruby.getCurrentContext(), node);
+                return xmlAttr;
             case Node.TEXT_NODE:
-                return new XmlText(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Text"), node);
+                XmlText xmlText = (XmlText) getNokogiriClass(ruby, "Nokogiri::XML::Text").allocate();
+                xmlText.setNode(ruby.getCurrentContext(), node);
+                return xmlText;
             case Node.COMMENT_NODE:
-                return new XmlComment(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Comment"), node);
+                XmlComment xmlComment = (XmlComment) getNokogiriClass(ruby, "Nokogiri::XML::Comment").allocate();
+                xmlComment.setNode(ruby.getCurrentContext(), node);
+                return xmlComment;
             case Node.ENTITY_NODE:
                 return new XmlNode(ruby, getNokogiriClass(ruby, "Nokogiri::XML::EntityDecl"), node);
             case Node.CDATA_SECTION_NODE:
-                return new XmlCdata(ruby, getNokogiriClass(ruby, "Nokogiri::XML::CDATA"), node);
+                XmlCdata xmlCdata = (XmlCdata) getNokogiriClass(ruby, "Nokogiri::XML::CDATA").allocate();
+                xmlCdata.setNode(ruby.getCurrentContext(), node);
+                return xmlCdata;
             case Node.DOCUMENT_NODE:
                 return new XmlDocument(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Document"), (Document) node);
             default:
-                return new XmlNode(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Node"), node);
+                XmlNode xmlNode = (XmlNode) getNokogiriClass(ruby, "Nokogiri::XML::Node").allocate();
+                xmlNode.setNode(ruby.getCurrentContext(), node);
+                return xmlNode;
         }
     }
     

@@ -41,7 +41,7 @@ public class XmlText extends XmlNode {
         // text node content should not be encoded when it is created by Text node.
         // while content should be encoded when it is created by Element node.
         Node node = document.createTextNode((String)content.toJava(String.class));
-        setNode(node);
+        setNode(context, node);
     }
     
     @Override

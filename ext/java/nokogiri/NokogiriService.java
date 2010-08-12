@@ -1,8 +1,5 @@
 package nokogiri;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -218,20 +215,44 @@ public class NokogiriService implements BasicLibraryService {
         };
 
     private static ObjectAllocator XML_ATTR_ALLOCATOR = new ObjectAllocator() {
-        public IRubyObject allocate(Ruby runtime, RubyClass klazz){
-            return new XmlAttr(runtime, klazz);
+        private XmlAttr xmlAttr = null;
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            if (xmlAttr == null) xmlAttr = new XmlAttr(runtime, klazz);
+            try {
+                XmlAttr clone = (XmlAttr) xmlAttr.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlAttr(runtime, klazz);
+            }
         }
     };
 
     private static ObjectAllocator XML_CDATA_ALLOCATOR = new ObjectAllocator() {
+        private XmlCdata xmlCdata = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlCdata(runtime, klazz);
+            if (xmlCdata == null) xmlCdata = new XmlCdata(runtime, klazz);
+            try {
+                XmlCdata clone = (XmlCdata) xmlCdata.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlCdata(runtime, klazz);
+            }
         }
     };
 
     private static ObjectAllocator XML_COMMENT_ALLOCATOR = new ObjectAllocator() {
+        private XmlComment xmlComment = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlComment(runtime, klazz);
+            if (xmlComment == null) xmlComment = new XmlComment(runtime, klazz);
+            try {
+                XmlComment clone = (XmlComment) xmlComment.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlComment(runtime, klazz);
+            }
         }
     };
 
@@ -261,8 +282,16 @@ public class NokogiriService implements BasicLibraryService {
     };
 
     private static ObjectAllocator XML_ELEMENT_ALLOCATOR = new ObjectAllocator() {
+        private XmlElement xmlElement = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlElement(runtime, klazz);
+            if (xmlElement == null) xmlElement = new XmlElement(runtime, klazz);
+            try {
+                XmlElement clone = (XmlElement)xmlElement.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlElement(runtime, klazz);
+            }
         }
     };
 
@@ -279,8 +308,16 @@ public class NokogiriService implements BasicLibraryService {
     };
 
     private static ObjectAllocator XML_NODE_ALLOCATOR = new ObjectAllocator() {
+        private XmlNode xmlNode = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlNode(runtime, klazz);
+            if (xmlNode == null) xmlNode = new XmlNode(runtime, klazz);
+            try {
+                XmlNode clone  = (XmlNode) xmlNode.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlNode(runtime, klazz);
+            }
         }
     };
 

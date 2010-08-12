@@ -12,12 +12,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nokogiri.internals.NokogiriNamespaceContext;
 import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
-import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
@@ -67,14 +65,13 @@ public class XmlDocumentFragment extends XmlNode {
         
         // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
         if (argc.length > 1 && argc[1] instanceof RubyString) {
-            argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), addRootTagIfNeeded(context, doc, (String)argc[1].toJava(String.class)));
             argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), ignoreNamespaceIfNeeded(doc, (String)argc[1].toJava(String.class)));
             argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), addNamespaceDeclIfNeeded(doc, (String)argc[1].toJava(String.class)));
         }
 
         XmlDocumentFragment fragment = (XmlDocumentFragment) ((RubyClass)cls).allocate();
-        fragment.setDocument(doc);
-        fragment.setNode(doc.getDocument().createDocumentFragment());
+        fragment.setDocument(context, doc);
+        fragment.setNode(context, doc.getDocument().createDocumentFragment());
 
         //TODO: Get namespace definitions from doc.
         if (argc.length == 3 && argc[2] != null && argc[2] instanceof XmlElement) {
@@ -86,20 +83,6 @@ public class XmlDocumentFragment extends XmlNode {
 
     private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
     private static Pattern starttag_pattern = Pattern.compile("<[^</>]+>");
-    // welformed_pattern is also used in XmlNode#in_context() method.
-    public static Pattern wellformed_pattern = Pattern.compile("<(.*)>(()|[^>]*)</\\1>|<[^</>]+/>");
-    
-    private static String addRootTagIfNeeded(ThreadContext context, XmlDocument doc, String tags) {
-        IRubyObject isHtml = RuntimeHelpers.invoke(context, doc, "html?");
-        if (isHtml instanceof RubyBoolean && ((RubyBoolean)isHtml).isTrue()) return tags;
-        Matcher matcher = wellformed_pattern.matcher(tags);
-        while(matcher.find()) {
-            if (matcher.start() == 0 && matcher.end() == tags.length()) return tags;
-            break;
-        }
-        tags = "<"+ NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG + ">" + tags + "</" + NokogiriNamespaceContext.NOKOGIRI_TEMPORARY_ROOT_TAG + ">";
-        return tags;
-    }
     
     private static String ignoreNamespaceIfNeeded(XmlDocument doc, String tags) {
         if (doc.getDocument() == null) return tags;

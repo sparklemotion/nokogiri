@@ -9,6 +9,7 @@ import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -30,6 +31,21 @@ public class XmlElement extends XmlNode {
 
     public XmlElement(Ruby runtime, RubyClass klazz, Node element) {
         super(runtime, klazz, element);
+    }
+    
+    @Override
+    public void setNode(ThreadContext context, Node node) {
+        this.node = node;
+        if (node != null) {
+            resetCache();
+            if (node.getNodeType() != Node.DOCUMENT_NODE) {
+                doc = document(context);
+                setInstanceVariable("@document", doc);
+                if (doc != null) {
+                    RuntimeHelpers.invoke(context, doc, "decorate", this);
+                }
+            }
+        }
     }
 
     @Override
