@@ -50,22 +50,22 @@ module Nokogiri
         # end
 
         {
-          :add_child            => {:target => "/root/a1",        :returns => :reparented, :children_tags => %w[text b1 b2]},
-          :<<                   => {:target => "/root/a1",        :returns => :reparented, :children_tags => %w[text b1 b2]},
+          :add_child            => {:target => "/root/a1",        :returns_self => false, :children_tags => %w[text b1 b2]},
+          :<<                   => {:target => "/root/a1",        :returns_self => false, :children_tags => %w[text b1 b2]},
 
-          :replace              => {:target => "/root/a1/node()", :returns => :reparented, :children_tags => %w[b1 b2]},
-          :swap                 => {:target => "/root/a1/node()", :returns => :self,       :children_tags => %w[b1 b2]},
+          :replace              => {:target => "/root/a1/node()", :returns_self => false, :children_tags => %w[b1 b2]},
+          :swap                 => {:target => "/root/a1/node()", :returns_self => true,  :children_tags => %w[b1 b2]},
 
-          :children=            => {:target => "/root/a1",        :returns => :reparented, :children_tags => %w[b1 b2]},
-          :inner_html=          => {:target => "/root/a1",        :returns => :self,       :children_tags => %w[b1 b2]},
+          :children=            => {:target => "/root/a1",        :returns_self => false, :children_tags => %w[b1 b2]},
+          :inner_html=          => {:target => "/root/a1",        :returns_self => true,  :children_tags => %w[b1 b2]},
 
-          :add_previous_sibling => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[b1 b2 text]},
-          :previous=            => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[b1 b2 text]},
-          :before               => {:target => "/root/a1/text()", :returns => :self,       :children_tags => %w[b1 b2 text]},
+          :add_previous_sibling => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[b1 b2 text]},
+          :previous=            => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[b1 b2 text]},
+          :before               => {:target => "/root/a1/text()", :returns_self => true,  :children_tags => %w[b1 b2 text]},
 
-          :add_next_sibling     => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[text b1 b2]},
-          :next=                => {:target => "/root/a1/text()", :returns => :reparented, :children_tags => %w[text b1 b2]},
-          :after                => {:target => "/root/a1/text()", :returns => :self,       :children_tags => %w[text b1 b2]}
+          :add_next_sibling     => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[text b1 b2]},
+          :next=                => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[text b1 b2]},
+          :after                => {:target => "/root/a1/text()", :returns_self => true,  :children_tags => %w[text b1 b2]}
         }.each do |method, params|
 
           before do
@@ -96,11 +96,12 @@ module Nokogiri
                   end
 
                   it "returns the expected value" do
-                    if params[:returns] == :self
-                      sendee = @doc.at_xpath(params[:target])
-                      sendee.send(method, @other_node).must_equal sendee
+                    sendee = @doc.at_xpath(params[:target])
+                    result = sendee.send(method, @other_node)
+                    if params[:returns_self]
+                      result.must_equal sendee
                     else
-                      @doc.at_xpath(params[:target]).send(method, @other_node).must_equal @other_node
+                      result.must_equal @other_node
                     end
                   end
                 end
@@ -110,6 +111,17 @@ module Nokogiri
               it "inserts the fragment roots in the proper position" do
                 @doc.at_xpath(params[:target]).send(method, @fragment_string)
                 @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
+              end
+
+              it "returns the expected value" do
+                sendee = @doc.at_xpath(params[:target])
+                result = sendee.send(method, @fragment_string)
+                if params[:returns_self]
+                  result.must_equal sendee
+                else
+                  result.must_be_kind_of Nokogiri::XML::NodeSet
+                  result.to_html.must_equal @fragment_string
+                end
               end
             end
             describe "passed a fragment" do

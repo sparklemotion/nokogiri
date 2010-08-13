@@ -21,6 +21,7 @@
   * XML::DTD#attributes returns an empty hash instead of nil when there are no attributes.
   * XML::DTD#{keys,each} now work as expected. #324
   * {XML,HTML}::DocumentFragment.{new,parse} no longer strip leading and trailing whitespace. #319
+  * XML::Node#{add_child,add_previous_sibling,add_next_sibling,replace} return a NodeSet when passed a string.
 
 === 1.4.3 / 2010/07/28
 
