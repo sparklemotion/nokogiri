@@ -11,7 +11,9 @@ module Nokogiri
           'child::text()'
         when /^self\(/
           "self::#{node.value[1]}"
-        when /^(eq|nth|nth-of-type|nth-child)\(/
+        when /^eq\(/
+          "position() = " + node.value[1]
+        when /^(nth|nth-of-type|nth-child)\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
             an_plus_b(node.value[1])
           else
