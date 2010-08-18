@@ -27,6 +27,28 @@ static VALUE register_ns(VALUE self, VALUE prefix, VALUE uri)
   return self;
 }
 
+/*
+ * call-seq:
+ *  register_variable(name, value)
+ *
+ * Register the variable +name+ with +value+.
+ */
+static VALUE register_variable(VALUE self, VALUE name, VALUE value)
+{
+   xmlXPathContextPtr ctx;
+   xmlXPathObjectPtr xmlValue;
+   Data_Get_Struct(self, xmlXPathContext, ctx);
+
+   xmlValue = xmlXPathNewCString(StringValuePtr(value));
+
+   xmlXPathRegisterVariable( ctx,
+      (const xmlChar *)StringValuePtr(name),
+      xmlValue
+   );
+
+   return self;
+}
+
 static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
 {
   VALUE xpath_handler = Qnil;
@@ -274,5 +296,6 @@ void init_xml_xpath_context(void)
 
   rb_define_singleton_method(klass, "new", new, 1);
   rb_define_method(klass, "evaluate", evaluate, -1);
+  rb_define_method(klass, "register_variable", register_variable, 2);
   rb_define_method(klass, "register_ns", register_ns, 2);
 }
