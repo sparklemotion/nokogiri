@@ -12,6 +12,6 @@ public class NokogiriXPathVariableResolver
         return variables.get(variableName);
     }
     public void registerVariable(String name,String value){
-        variables.put(QName.valueOf(name),value);
+        variables.put(new QName(name),value);
     }
 }
