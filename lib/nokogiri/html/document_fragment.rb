@@ -27,7 +27,7 @@ module Nokogiri
                      end
 
                      HTML::Document.parse(
-                       "<html><body>#{tags}</body></html>",
+                       "<html><body>#{tags}",
                        nil,
                        document.encoding
                      ).xpath(path)
