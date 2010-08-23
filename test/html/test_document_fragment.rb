@@ -149,13 +149,13 @@ module Nokogiri
       def test_html_fragment_with_leading_whitespace
         doc = "     <div>b</div>  "
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "     <div>b</div>  ", fragment.to_s
+        assert_match %r%     <div>b</div> *%, fragment.to_s
       end
 
       def test_html_fragment_with_leading_whitespace_and_newline
         doc = "     \n<div>b</div>  "
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "     \n<div>b</div>  ", fragment.to_s
+        assert_match %r%     \n<div>b</div> *%, fragment.to_s
       end
 
       def test_html_fragment_with_leading_text_and_newline
@@ -219,6 +219,12 @@ module Nokogiri
       def test_malformed_fragment_is_corrected
         fragment = HTML::DocumentFragment.parse("<div </div>")
         assert_equal "<div></div>", fragment.to_s
+      end
+
+      def test_unclosed_script_tag
+        # see GH#315
+        fragment = HTML::DocumentFragment.parse("foo <script>bar")
+        assert_equal "foo <script>bar</script>", fragment.to_html
       end
     end
   end
