@@ -224,7 +224,34 @@ module Nokogiri
           end
         end
 
+        describe "#add_previous_sibling" do
+          it "should not merge text nodes during the operation" do
+            xml = Nokogiri::XML %Q(<root>text node</root>)
+            replacee = xml.root.children.first
+            replacee.add_previous_sibling "foo <p></p> bar"
+            assert_equal "foo <p></p> bartext node", xml.root.children.to_html
+          end
+        end
+
+        describe "#add_next_sibling" do
+          it "should not merge text nodes during the operation" do
+            xml = Nokogiri::XML %Q(<root>text node</root>)
+            replacee = xml.root.children.first
+            replacee.add_next_sibling "foo <p></p> bar"
+            assert_equal "text nodefoo <p></p> bar", xml.root.children.to_html
+          end
+        end
+
         describe "#replace" do
+          describe "a text node with a text node" do
+            it "should not merge text nodes during the operation" do
+              xml = Nokogiri::XML %Q(<root>text node</root>)
+              replacee = xml.root.children.first
+              replacee.replace "new text node"
+              assert_equal "new text node", xml.root.children.first.content
+            end
+          end
+
           describe "when a document has a default namespace" do
             before do
               @fruits = Nokogiri::XML(<<-eoxml)
