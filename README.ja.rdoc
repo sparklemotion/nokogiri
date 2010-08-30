@@ -22,10 +22,6 @@ XMLは暴力に似ている - XMLが君の問題を解決しないとしたら�
 
 XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPathをサポートしています。
 
-スピードテスト：
-
-  * http://gist.github.com/24605
-
 == SUPPORT:
 
 日本語でNokogiriの
