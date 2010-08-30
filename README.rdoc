@@ -23,10 +23,6 @@ enough of it.
 Nokogiri parses and searches XML/HTML very quickly, and also has
 correctly implemented CSS3 selector support as well as XPath support.
 
-Here is a speed test:
-
-  * http://gist.github.com/24605
-
 == SUPPORT:
 
 The Nokogiri {mailing list}[http://groups.google.com/group/nokogiri-talk]
