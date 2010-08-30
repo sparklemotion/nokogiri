@@ -256,7 +256,14 @@ module Nokogiri
       def add_previous_sibling node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_previous_sibling_node n }
+          if text?
+            pivot = Nokogiri::XML::Node.new 'dummy', document
+            add_previous_sibling_node pivot
+          else
+            pivot = self
+          end
+          node_or_tags.each { |n| pivot.send :add_previous_sibling_node, n }
+          pivot.unlink if text?
         else
           add_previous_sibling_node node_or_tags
         end
@@ -273,11 +280,14 @@ module Nokogiri
       def add_next_sibling node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          if '1.8.6' == RUBY_VERSION
-            node_or_tags.reverse.each { |n| add_next_sibling_node n }
+          if text?
+            pivot = Nokogiri::XML::Node.new 'dummy', document
+            add_next_sibling_node pivot
           else
-            node_or_tags.reverse_each { |n| add_next_sibling_node n }
+            pivot = self
           end
+          node_or_tags.reverse.each { |n| pivot.send :add_next_sibling_node, n }
+          pivot.unlink if text?
         else
           add_next_sibling_node node_or_tags
         end
@@ -348,8 +358,15 @@ module Nokogiri
       def replace node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_previous_sibling n }
-          unlink
+          if text?
+            replacee = Nokogiri::XML::Node.new 'dummy', document
+            add_previous_sibling_node replacee
+            unlink
+          else
+            replacee = self
+          end
+          node_or_tags.each { |n| replacee.add_previous_sibling n }
+          replacee.unlink
         else
           replace_node node_or_tags
         end
