@@ -162,6 +162,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         private boolean isValid(String testee) {
             char[] c = testee.toCharArray();
             int index = new Integer(c[0]) - 97;
+            if (index > 25) return false;
             for (int i=0; i<element_names[index].length; i++) {
                 if (testee.equals(element_names[index][i])) {
                     return true;
