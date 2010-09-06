@@ -156,7 +156,7 @@ static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
 
 /*
  * call-seq:
- *  evaluate(search_path)
+ *  evaluate(search_path, handler = nil)
  *
  * Evaluate the +search_path+ returning an XML::XPath object.
  */

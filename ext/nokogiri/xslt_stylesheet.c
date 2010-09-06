@@ -5,6 +5,8 @@
 #include <libxslt/transform.h>
 #include <libexslt/exslt.h>
 
+VALUE xslt;
+
 int vasprintf (char **strp, const char *fmt, va_list ap);
 
 static void dealloc(xsltStylesheetPtr doc)
@@ -127,16 +129,120 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     return Nokogiri_wrap_xml_document(0, result) ;
 }
 
+static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
+{
+    const xmlChar * function;
+    const xmlChar * functionURI;
+    int i, count;
+
+    xmlNodeSetPtr xml_node_set;
+    xsltTransformContextPtr transform;
+    xmlXPathObjectPtr xpath;
+    VALUE obj, node_set;
+    VALUE *args;
+
+    transform = xsltXPathGetTransformContext(ctxt);
+
+    function = ctxt->context->function;
+    functionURI = ctxt->context->functionURI;
+    obj = (VALUE)xsltGetExtData(transform, functionURI);
+
+    count = ctxt->valueNr;
+    args = calloc(count, sizeof(VALUE *));
+
+    for(i = 0; i < count; i++) {
+	VALUE thing;
+
+	xpath = valuePop(ctxt);
+	switch(xpath->type) {
+	    case XPATH_STRING:
+		thing = NOKOGIRI_STR_NEW2(xpath->stringval);
+		break;
+	    case XPATH_NODESET:
+		if(NULL == xpath->nodesetval) {
+		    thing = Nokogiri_wrap_xml_node_set(
+			    xmlXPathNodeSetCreate(NULL),
+			    DOC_RUBY_OBJECT(ctxt->context->doc));
+		} else {
+		    thing = Nokogiri_wrap_xml_node_set(xpath->nodesetval,
+			    DOC_RUBY_OBJECT(ctxt->context->doc));
+		}
+		break;
+	    default:
+		rb_raise(rb_eRuntimeError, "do not handle type: %d", xpath->type);
+	}
+	args[i] = thing;
+    }
+    VALUE result = rb_funcall3(obj, rb_intern(function), count, args);
+    switch(TYPE(result)) {
+	case T_FLOAT:
+	case T_BIGNUM:
+	case T_FIXNUM:
+	    xmlXPathReturnNumber(ctxt, NUM2DBL(result));
+	    break;
+	case T_STRING:
+	    xmlXPathReturnString(
+		    ctxt,
+		    (xmlChar *)xmlStrdup(StringValuePtr(result))
+		    );
+	    break;
+	case T_TRUE:
+	    xmlXPathReturnTrue(ctxt);
+	    break;
+	case T_FALSE:
+	    xmlXPathReturnFalse(ctxt);
+	    break;
+	case T_NIL:
+	    break;
+	default:
+	    rb_raise(rb_eRuntimeError, "Invalid return type");
+    }
+}
+
+static void * initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
+{
+    VALUE modules = rb_iv_get(xslt, "@modules");
+    VALUE obj = rb_hash_aref(modules, rb_str_new2(uri));
+    VALUE args = { Qfalse };
+    VALUE methods = rb_funcall(obj, rb_intern("instance_methods"), 1, args);
+    int i;
+
+    for(i = 0; i < RARRAY_LEN(methods); i++) {
+	xsltRegisterExtFunction(ctxt,
+		StringValuePtr(RARRAY_PTR(methods)[i]), uri, method_caller);
+    }
+
+    return (void *)rb_class_new_instance(0, NULL, obj);
+}
+
+static void shutdownFunc(xsltTransformContextPtr ctxt,
+	const xmlChar *uri, void *data)
+{
+}
+
+static VALUE registr(VALUE self, VALUE uri, VALUE obj)
+{
+    VALUE modules = rb_iv_get(self, "@modules");
+    if(NIL_P(modules)) rb_raise(rb_eRuntimeError, "wtf! @modules isn't set");
+
+    rb_hash_aset(modules, uri, obj);
+    xsltRegisterExtModule(StringValuePtr(uri), initFunc, shutdownFunc);
+    return self;
+}
+
 VALUE cNokogiriXsltStylesheet ;
 void init_xslt_stylesheet()
 {
   VALUE nokogiri = rb_define_module("Nokogiri");
-  VALUE xslt = rb_define_module_under(nokogiri, "XSLT");
+  xslt = rb_define_module_under(nokogiri, "XSLT");
   VALUE klass = rb_define_class_under(xslt, "Stylesheet", rb_cObject);
+
+  rb_iv_set(xslt, "@modules", rb_hash_new());
 
   cNokogiriXsltStylesheet = klass;
 
   rb_define_singleton_method(klass, "parse_stylesheet_doc", parse_stylesheet_doc, 1);
+  rb_define_singleton_method(xslt, "register", registr, 2);
   rb_define_method(klass, "serialize", serialize, 1);
   rb_define_method(klass, "transform", transform, -1);
 }
