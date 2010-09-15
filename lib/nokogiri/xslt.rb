@@ -9,8 +9,8 @@ module Nokogiri
     #
     #   xslt = Nokogiri::XSLT(File.read(ARGV[0]))
     #
-    def XSLT stylesheet
-      XSLT.parse(stylesheet)
+    def XSLT stylesheet, modules = {}
+      XSLT.parse(stylesheet, modules)
     end
   end
 
@@ -20,11 +20,15 @@ module Nokogiri
   module XSLT
     class << self
       ###
-      # Parse the stylesheet in +string+
-      def parse string
+      # Parse the stylesheet in +string+, register any +modules+
+      def parse string, modules = {}
+        modules.each do |url, klass|
+          XSLT.register url, klass
+	end
+
         Stylesheet.parse_stylesheet_doc(XML.parse(string))
       end
-      
+
       ###
       # Quote parameters in +params+ for stylesheet safety
       def quote_params params

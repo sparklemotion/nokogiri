@@ -42,7 +42,7 @@ module Nokogiri
       end
 
       ###
-      # Returns the index of the first node in self that is == to +node+. Returns nil if no match is found. 
+      # Returns the index of the first node in self that is == to +node+. Returns nil if no match is found.
       def index(node)
         each_with_index { |member, j| return j if member == node }
         nil

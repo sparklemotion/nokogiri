@@ -47,6 +47,10 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
   xpath_handler = (VALUE)(ctx->context->userData);
 
   argv = (VALUE *)calloc((unsigned int)nargs, sizeof(VALUE));
+  for (i = 0 ; i < nargs ; ++i) {
+    rb_gc_register_address(&argv[i]);
+  }
+
   doc = DOC_RUBY_OBJECT(ctx->context->doc);
 
   i = nargs - 1;
@@ -77,6 +81,10 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
       nargs,
       argv
   );
+
+  for (i = 0 ; i < nargs ; ++i) {
+    rb_gc_unregister_address(&argv[i]);
+  }
   free(argv);
 
   switch(TYPE(result)) {
@@ -156,7 +164,7 @@ static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
 
 /*
  * call-seq:
- *  evaluate(search_path)
+ *  evaluate(search_path, handler = nil)
  *
  * Evaluate the +search_path+ returning an XML::XPath object.
  */
