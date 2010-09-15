@@ -13,6 +13,7 @@
   * XML::Node#{add_child,add_previous_sibling,add_next_sibling,replace} return a NodeSet when passed a string.
   * Unclosed tags parsed more robustly in fragments. #315
   * XML::Node#{replace,add_previous_sibling,add_next_sibling} edge cases fixed related to libxml's text node merging. #308
+  * Fixed a segfault when GC occurs during xpath handler argument marshalling. #345
 
 === 1.4.3 / 2010/07/28
 
