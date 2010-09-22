@@ -133,12 +133,12 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 {
     const xmlChar * function;
     const xmlChar * functionURI;
-    int i, count;
+    int i;
+    size_t count;
 
-    xmlNodeSetPtr xml_node_set;
     xsltTransformContextPtr transform;
     xmlXPathObjectPtr xpath;
-    VALUE obj, node_set;
+    VALUE obj;
     VALUE *args;
 
     transform = xsltXPathGetTransformContext(ctxt);
@@ -147,7 +147,7 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
     functionURI = ctxt->context->functionURI;
     obj = (VALUE)xsltGetExtData(transform, functionURI);
 
-    count = ctxt->valueNr;
+    count = (size_t)ctxt->valueNr;
     args = calloc(count, sizeof(VALUE *));
 
     for(i = 0; i < count; i++) {
@@ -173,7 +173,7 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 	}
 	args[i] = thing;
     }
-    VALUE result = rb_funcall3(obj, rb_intern(function), count, args);
+    VALUE result = rb_funcall3(obj, rb_intern((const char *)function), (int)count, args);
     switch(TYPE(result)) {
 	case T_FLOAT:
 	case T_BIGNUM:
@@ -183,7 +183,7 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 	case T_STRING:
 	    xmlXPathReturnString(
 		    ctxt,
-		    (xmlChar *)xmlStrdup(StringValuePtr(result))
+		    xmlStrdup((xmlChar *)StringValuePtr(result))
 		    );
 	    break;
 	case T_TRUE:
@@ -202,14 +202,14 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 static void * initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
 {
     VALUE modules = rb_iv_get(xslt, "@modules");
-    VALUE obj = rb_hash_aref(modules, rb_str_new2(uri));
+    VALUE obj = rb_hash_aref(modules, rb_str_new2((const char *)uri));
     VALUE args = { Qfalse };
     VALUE methods = rb_funcall(obj, rb_intern("instance_methods"), 1, args);
     int i;
 
     for(i = 0; i < RARRAY_LEN(methods); i++) {
 	xsltRegisterExtFunction(ctxt,
-		StringValuePtr(RARRAY_PTR(methods)[i]), uri, method_caller);
+          (unsigned char *)StringValuePtr(RARRAY_PTR(methods)[i]), uri, method_caller);
     }
 
     return (void *)rb_class_new_instance(0, NULL, obj);
@@ -226,7 +226,7 @@ static VALUE registr(VALUE self, VALUE uri, VALUE obj)
     if(NIL_P(modules)) rb_raise(rb_eRuntimeError, "wtf! @modules isn't set");
 
     rb_hash_aset(modules, uri, obj);
-    xsltRegisterExtModule(StringValuePtr(uri), initFunc, shutdownFunc);
+    xsltRegisterExtModule((unsigned char *)StringValuePtr(uri), initFunc, shutdownFunc);
     return self;
 }
 
