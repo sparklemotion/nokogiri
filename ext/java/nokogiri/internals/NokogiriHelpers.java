@@ -506,11 +506,15 @@ public class NokogiriHelpers {
     }
 
     public static RubyArray nodeListToRubyArray(Ruby ruby, NodeList nodes) {
-        RubyArray n = RubyArray.newArray(ruby, nodes.getLength());
+        RubyArray array = RubyArray.newArray(ruby, nodes.getLength());
+        return nodeListToRubyArray(ruby, nodes, array);
+    }
+    
+    public static RubyArray nodeListToRubyArray(Ruby ruby, NodeList nodes, RubyArray array) {
         for(int i = 0; i < nodes.getLength(); i++) {
-            n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)));
+            array.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)));
         }
-        return n;
+        return array;
     }
     
     public static RubyArray nodeArrayToRubyArray(Ruby ruby, Node[] nodes) {

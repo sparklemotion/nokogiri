@@ -651,35 +651,48 @@ public class XmlNode extends RubyObject {
         XmlDocument document;
         
         IRubyObject d = document(context);
+        Ruby runtime = context.getRuntime();
         if (d != null && d instanceof XmlDocument) {
             document = (XmlDocument)d;
         } else {
-            return context.getRuntime().getNil();
+            return runtime.getNil();
         }
         
         if (document instanceof HtmlDocument) {
-            klass = getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::Document");
-            ctx = new HtmlDomParserContext(context.getRuntime(), options);
+            klass = getNokogiriClass(runtime, "Nokogiri::HTML::Document");
+            ctx = new HtmlDomParserContext(runtime, options);
             ((HtmlDomParserContext)ctx).enableDocumentFragment();
             istream = new ByteArrayInputStream(((String)str.toJava(String.class)).getBytes());
         } else if (document instanceof XmlDocument) {
-            klass = getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document");
-            ctx = new XmlDomParserContext(context.getRuntime(), options);
+            klass = getNokogiriClass(runtime, "Nokogiri::XML::Document");
+            ctx = new XmlDomParserContext(runtime, options);
             String input = (String)str.toJava(String.class);
             istream = new ByteArrayInputStream(input.getBytes());
         } else {
-            return context.getRuntime().getNil();
+            return runtime.getNil();
         }
 
         ctx.setInputSource(istream);
-        XmlDocument doc = ctx.parse(context, klass, getRuntime().getNil());
+        XmlDocument doc = ctx.parse(context, klass, runtime.getNil());
         
         if (isErrorIncreated(document, doc)) {
             saveErrorsOfCreatedDocument(document, doc);
-            return new XmlNodeSet(getRuntime(), RubyArray.newArray(context.getRuntime()));
+            return new XmlNodeSet(getRuntime(), RubyArray.newArray(runtime));
         }
-        //NodeList childNodes = doc.node.getChildNodes();
-        XmlNodeSet nodes = new XmlNodeSet(getRuntime(), doc.node.getChildNodes());
+        
+        // The first child might be document type node (dtd declaration).
+        // XmlNodeSet to be return should not have dtd decl in its list.
+        Node first;
+        if (doc.node.getFirstChild().getNodeType() == Node.DOCUMENT_TYPE_NODE) {
+            first = doc.node.getFirstChild().getNextSibling();
+        } else {
+            first = doc.node.getFirstChild();
+        }
+        RubyArray nodeArray = RubyArray.newArray(runtime);
+        nodeArray.add(NokogiriHelpers.getCachedNodeOrCreate(runtime, first));
+        
+        NokogiriHelpers.nodeListToRubyArray(runtime, first.getChildNodes(), nodeArray);
+        XmlNodeSet nodes = new XmlNodeSet(getRuntime(), nodeArray);
         return nodes;
     }
     

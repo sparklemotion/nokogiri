@@ -4,6 +4,7 @@ ext/java/nokogiri/*.class
 ext/java/nokogiri/*/*.class
 lib/nokogiri/nokogiri.so
 lib/nokogiri/nokogiri.jar
+lib/nokogiri/nokogiri.bundle
 lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb
 cross

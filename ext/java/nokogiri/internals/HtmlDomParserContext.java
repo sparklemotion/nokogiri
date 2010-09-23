@@ -72,6 +72,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         setFeature(FEATURE_REPORT_ERRORS, true);
         setFeature("http://xml.org/sax/features/namespaces", false);
         setProperty(PROPERTY_FILTERS, filters);
+        setFeature("http://cyberneko.org/html/features/insert-doctype", true);
     }
 
     /**
