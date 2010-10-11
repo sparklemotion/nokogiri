@@ -174,6 +174,13 @@ module Nokogiri
       #     end
       #   }.new)
       #
+      # Note that the CSS query string is case-sensitive with regards
+      # to your document type. That is, if you're looking for "H1" in
+      # an HTML document, you'll never find anything, since HTML tags
+      # will match only lowercase CSS queries. However, "H1" might be
+      # found in an XML document, where tags names are case-sensitive
+      # (e.g., "H1" is distinct from "h1").
+      #
       def css *rules
         # Pop off our custom function handler if it exists
         handler = ![
