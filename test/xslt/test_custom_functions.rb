@@ -24,8 +24,8 @@ module Nokogiri
 EOXML
       end
 
-if Nokogiri.uses_libxml?
       def test_function
+        if Nokogiri.uses_libxml? skip("Pure Java version doesn't support this feature."); end
         foo = Class.new do
           def capitalize nodes
             nodes.first.content.upcase
@@ -59,6 +59,7 @@ EOXSL
       end
 
       def test_function_XSLT
+        if Nokogiri.uses_libxml? skip("Pure Java version doesn't support this feature."); end
         foo = Class.new do
           def america nodes
             nodes.first.content.upcase
@@ -88,7 +89,6 @@ EOXSL
         result = xsl.transform @xml
         assert_equal 'FOO', result.css('title').first.text
       end
-end
     end
   end
 end
