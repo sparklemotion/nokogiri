@@ -25,7 +25,7 @@ EOXML
       end
 
       def test_function
-        if !Nokogiri.uses_libxml? skip("Pure Java version doesn't support this feature."); end
+        skip("Pure Java version doesn't support this feature.") if !Nokogiri.uses_libxml?
         foo = Class.new do
           def capitalize nodes
             nodes.first.content.upcase
@@ -59,7 +59,7 @@ EOXSL
       end
 
       def test_function_XSLT
-        if !Nokogiri.uses_libxml? skip("Pure Java version doesn't support this feature."); end
+        skip("Pure Java version doesn't support this feature.") if !Nokogiri.uses_libxml?
         foo = Class.new do
           def america nodes
             nodes.first.content.upcase
