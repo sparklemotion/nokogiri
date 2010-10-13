@@ -2,6 +2,8 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,8 +28,13 @@ import org.w3c.dom.Document;
 
 @JRubyClass(name="Nokogiri::XSLT::Stylesheet")
 public class XsltStylesheet extends RubyObject {
-
+    private static Map<String, Object> registry = new HashMap<String, Object>();
+    private static TransformerFactory factory = null;
     private Templates sheet;
+
+    public static Map<String, Object> getRegistry() {
+        return registry;
+    }
 
     public XsltStylesheet(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -77,8 +84,10 @@ public class XsltStylesheet extends RubyObject {
         Document doc = ((XmlDocument) xmlDoc.dup_implementation(context, true)).getDocument();
 
         XsltStylesheet xslt = new XsltStylesheet(ruby, (RubyClass) cls);
+
         try {
-            xslt.sheet = TransformerFactory.newInstance().newTemplates(new DOMSource(doc));
+            if (factory == null) factory = TransformerFactory.newInstance();
+            xslt.sheet = factory.newTemplates(new DOMSource(doc));
         } catch (TransformerConfigurationException ex) {
             ruby.newRuntimeError("could not parse xslt stylesheet");
         }
@@ -88,7 +97,6 @@ public class XsltStylesheet extends RubyObject {
 
     @JRubyMethod
     public IRubyObject serialize(ThreadContext context, IRubyObject doc) {
-        System.out.println("Serialize called in stylesheet");
         return RuntimeHelpers.invoke(context,
                 RuntimeHelpers.invoke(context, doc, "root"),
                 "to_s");
@@ -122,5 +130,16 @@ public class XsltStylesheet extends RubyObject {
                     getNokogiriClass(ruby, "Nokogiri::XML::Document"),
                     (Document) result.getNode());
         }
+    }
+    
+    @JRubyMethod(name = {"registr", "register"}, meta = true)
+    public static IRubyObject register(ThreadContext context, IRubyObject cls, IRubyObject uri, IRubyObject receiver) {
+        throw context.getRuntime().newNotImplementedError("Nokogiri::XSLT.register method is not implemented");
+        /* When API conflict is solved, this method should be below:
+        // ThreadContext is used while executing xslt extension function
+        registry.put("context", context);
+        registry.put("receiver", receiver);
+        return context.getRuntime().getNil();
+        */
     }
 }

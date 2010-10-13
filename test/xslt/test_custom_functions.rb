@@ -24,6 +24,7 @@ module Nokogiri
 EOXML
       end
 
+if Nokogiri.uses_libxml?
       def test_function
         foo = Class.new do
           def capitalize nodes
@@ -87,6 +88,7 @@ EOXSL
         result = xsl.transform @xml
         assert_equal 'FOO', result.css('title').first.text
       end
+end
     end
   end
 end

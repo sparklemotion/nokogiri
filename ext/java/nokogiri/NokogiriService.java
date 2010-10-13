@@ -180,6 +180,7 @@ public class NokogiriService implements BasicLibraryService {
     private void createXsltModule(Ruby ruby, RubyModule xsltModule) {
         RubyClass stylesheet = xsltModule.defineClassUnder("Stylesheet", ruby.getObject(), XSLT_STYLESHEET_ALLOCATOR);
         stylesheet.defineAnnotatedMethods(XsltStylesheet.class);
+        xsltModule.defineAnnotatedMethod(XsltStylesheet.class, "register");
     }
 
     private static ObjectAllocator ENCODING_HANDLER_ALLOCATOR = new ObjectAllocator() {
