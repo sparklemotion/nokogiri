@@ -55,10 +55,10 @@ public class XmlDomParserContext extends ParserContext {
     }
     
     protected void initErrorHandler() {
-        if (continuesOnError()) {
-            errorHandler = new NokogiriNonStrictErrorHandler();
+        if (options.recover) {
+            errorHandler = new NokogiriNonStrictErrorHandler(options.noError, options.noWarning);
         } else {
-            errorHandler = new NokogiriStrictErrorHandler();
+            errorHandler = new NokogiriStrictErrorHandler(options.noError, options.noWarning);
         }
     }
 
@@ -117,12 +117,12 @@ public class XmlDomParserContext extends ParserContext {
 
     public void addErrorsIfNecessary(ThreadContext context, XmlDocument doc) {
         Ruby ruby = context.getRuntime();
-        RubyArray errors = ruby.newArray(this.errorHandler.getErrorsReadyForRuby(context));
+        RubyArray errors = ruby.newArray(errorHandler.getErrorsReadyForRuby(context));
         doc.setInstanceVariable("@errors", errors);
     }
 
     public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, Exception ex) {
-        if(this.continuesOnError()) {
+        if (options.recover) {
             XmlDocument doc = this.getNewEmptyDocument(context);
             this.addErrorsIfNecessary(context, doc);
             ((RubyArray) doc.getInstanceVariable("@errors")).append(new XmlSyntaxError(context.getRuntime(), ex));
@@ -137,10 +137,6 @@ public class XmlDomParserContext extends ParserContext {
         return (XmlDocument) XmlDocument.rbNew(context,
                     getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"),
                     args);
-    }
-
-    public boolean continuesOnError() {
-        return options.recover;
     }
 
     /**

@@ -25,15 +25,15 @@ import org.w3c.dom.Document;
  * @author sergio
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
-    protected static final String PROPERTY_FILTERS =
+    private static final String PROPERTY_FILTERS =
         "http://cyberneko.org/html/properties/filters";
-    protected static final String PROPERTY_ELEM_NAMES =
+    private static final String PROPERTY_ELEM_NAMES =
         "http://cyberneko.org/html/properties/names/elems";
-    protected static final String PROPERTY_ATTRS_NAMES =
+    private static final String PROPERTY_ATTRS_NAMES =
         "http://cyberneko.org/html/properties/names/attrs";
-    protected static final String FEATURE_DOCUMENT_FRAGMENT =
+    private static final String FEATURE_DOCUMENT_FRAGMENT =
         "http://cyberneko.org/html/features/balance-tags/document-fragment";
-    protected static final String FEATURE_REPORT_ERRORS =
+    private static final String FEATURE_REPORT_ERRORS =
         "http://cyberneko.org/html/features/report-errors";
 
     public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
@@ -46,12 +46,10 @@ public class HtmlDomParserContext extends XmlDomParserContext {
 
     @Override
     protected void initErrorHandler() {
-        if (continuesOnError()) {
-            errorHandler = new NokogiriNonStrictErrorHandler4NekoHtml();
-        } else if (options.noError) {
-            errorHandler = new NokogiriNonStrictErrorHandler4NekoHtml(options.noError);
+        if (options.strict) {
+            errorHandler = new NokogiriStrictErrorHandler(options.noError, options.noWarning);
         } else {
-            errorHandler = new NokogiriStrictErrorHandler();
+            errorHandler = new NokogiriNonStrictErrorHandler4NekoHtml(options.noError, options.noWarning);
         }
     }
 
@@ -76,8 +74,9 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     }
 
     /**
-     * Enable NekoHTML feature for balancing tags in a document
-     * fragment.
+     * Enable NekoHTML feature for balancing tags in a document fragment.
+     * 
+     * This method is used in XmlNode#in_context method.
      */
     public void enableDocumentFragment() {
         setFeature(FEATURE_DOCUMENT_FRAGMENT, true);
@@ -175,7 +174,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         @Override
         public void startElement(QName name, XMLAttributes attrs, Augmentations augs) throws XNIException {
             if (!isValid(name.rawname)) {
-                errorHandler.addError(new Exception("Tag " + name.rawname + " invalid"));
+                errorHandler.getErrors().add(new Exception("Tag " + name.rawname + " invalid"));
             }
             super.startElement(name, attrs, augs);
         }

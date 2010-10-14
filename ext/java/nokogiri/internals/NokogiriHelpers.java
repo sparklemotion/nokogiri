@@ -28,7 +28,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- *
+ * A class for various utility methods.
+ * 
  * @author serabe
  */
 public class NokogiriHelpers {
@@ -112,9 +113,7 @@ public class NokogiriHelpers {
     }
 
     public static IRubyObject stringOrNil(Ruby ruby, String s) {
-        if (s == null)
-            return ruby.getNil();
-
+        if (s == null) return ruby.getNil();
         return JavaUtil.convertJavaToUsableRubyObject(ruby, s);
     }
     
@@ -128,9 +127,7 @@ public class NokogiriHelpers {
      * empty return RubyNil.
      */
     public static IRubyObject nonEmptyStringOrNil(Ruby ruby, String s) {
-        if (s == null || s.length() == 0)
-            return ruby.getNil();
-
+        if (s == null || s.length() == 0) return ruby.getNil();
         return ruby.newString(s);
     }
 
@@ -167,12 +164,10 @@ public class NokogiriHelpers {
         return ("xmlns".equals(localName)) ? null : localName;
     }
 
-    protected static Charset utf8 = null;
-    protected static Charset getCharsetUTF8() {
-        if (utf8 == null) {
-            utf8 = Charset.forName("UTF-8");
-        }
-
+    private static Charset utf8 = null;
+    
+    private static Charset getCharsetUTF8() {
+        if (utf8 == null) utf8 = Charset.forName("UTF-8");
         return utf8;
     }
 
@@ -419,7 +414,6 @@ public class NokogiriHelpers {
 
     protected static boolean fullNamesMatch(Node a, Node b) {
         return a.getNodeName().equals(b.getNodeName());
-        //return getFullName(a).equals(getFullName(b));
     }
 
     protected static String getFullName(Node n) {
