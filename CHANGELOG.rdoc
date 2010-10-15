@@ -4,6 +4,7 @@
 
   * XML::Node#children= sets the node's inner html (much like #inner_html=), but returns the reparent node(s).
   * XSLT supports function extensions. #336
+  * XPath bind parameter substitution. #329
 
 * Bugfixes
 
