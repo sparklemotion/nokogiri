@@ -8,7 +8,7 @@ module Nokogiri
       # look for node with +name+.  See Nokogiri.Slop
       def method_missing name, *args, &block
         if args.empty?
-          list = xpath("./#{name}")
+          list = xpath("./#{name.to_s.sub(/^_/, '')}")
         elsif args.first.is_a? Hash
           hash = args.first
           if hash[:css]

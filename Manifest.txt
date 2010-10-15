@@ -59,6 +59,7 @@ ext/java/nokogiri/internals/XmlDeclHandler.java
 ext/java/nokogiri/internals/XmlDomParser.java
 ext/java/nokogiri/internals/XmlDomParserContext.java
 ext/java/nokogiri/internals/XmlSaxParser.java
+ext/java/nokogiri/internals/XsltExtensionFunction.java
 ext/nokogiri/depend
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
@@ -69,11 +70,6 @@ ext/nokogiri/html_entity_lookup.c
 ext/nokogiri/html_entity_lookup.h
 ext/nokogiri/html_sax_parser_context.c
 ext/nokogiri/html_sax_parser_context.h
-ext/nokogiri/libcharset-1.dll
-ext/nokogiri/libexslt.dll
-ext/nokogiri/libiconv-2.dll
-ext/nokogiri/libxml2.dll
-ext/nokogiri/libxslt.dll
 ext/nokogiri/nokogiri.c
 ext/nokogiri/nokogiri.h
 ext/nokogiri/xml_attr.c
@@ -132,7 +128,6 @@ ext/nokogiri/xml_xpath_context.c
 ext/nokogiri/xml_xpath_context.h
 ext/nokogiri/xslt_stylesheet.c
 ext/nokogiri/xslt_stylesheet.h
-ext/nokogiri/zlib1.dll
 lib/isorelax.jar
 lib/jing.jar
 lib/nekodtd.jar
@@ -199,14 +194,13 @@ lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
-spec/helper.rb
-spec/xml/reader_spec.rb
 tasks/cross_compile.rb
 tasks/test.rb
 test/css/test_nthiness.rb
 test/css/test_parser.rb
 test/css/test_tokenizer.rb
 test/css/test_xpath_visitor.rb
+test/decorators/test_slop.rb
 test/files/2ch.html
 test/files/address_book.rlx
 test/files/address_book.xml
@@ -278,3 +272,4 @@ test/xml/test_syntax_error.rb
 test/xml/test_text.rb
 test/xml/test_unparented_node.rb
 test/xml/test_xpath.rb
+test/xslt/test_custom_functions.rb
