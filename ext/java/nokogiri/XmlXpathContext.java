@@ -12,6 +12,7 @@ import javax.xml.xpath.XPathFactory;
 
 import nokogiri.internals.NokogiriNamespaceContext;
 import nokogiri.internals.NokogiriXPathFunctionResolver;
+import nokogiri.internals.NokogiriXPathVariableResolver;
 
 import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
@@ -37,6 +38,7 @@ public class XmlXpathContext extends RubyObject {
         this.context = context;
         this.xpath = XPathFactory.newInstance().newXPath();
         this.xpath.setNamespaceContext(new NokogiriNamespaceContext());
+        this.xpath.setXPathVariableResolver(new NokogiriXPathVariableResolver());
     }
 
     @JRubyMethod(name = "new", meta = true)
@@ -125,6 +127,13 @@ public class XmlXpathContext extends RubyObject {
     @JRubyMethod
     public IRubyObject register_ns(ThreadContext context, IRubyObject prefix, IRubyObject uri) {
         ((NokogiriNamespaceContext) this.xpath.getNamespaceContext()).registerNamespace(prefix.convertToString().asJavaString(), uri.convertToString().asJavaString());
+        return this;
+    }
+
+    @JRubyMethod
+    public IRubyObject register_variable(ThreadContext context, IRubyObject name, IRubyObject value) {
+        ((NokogiriXPathVariableResolver) this.xpath.getXPathVariableResolver()).
+            registerVariable(name.convertToString().asJavaString(), value.convertToString().asJavaString());
         return this;
     }
 }
