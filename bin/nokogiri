@@ -7,7 +7,7 @@ require 'rubygems'
 require 'nokogiri'
 
 parse_class = Nokogiri
-encoding = "binary"
+encoding = nil
 
 opts = OptionParser.new do |opts|
   opts.banner = "Nokogiri: an HTML, XML, SAX, and Reader parser"
