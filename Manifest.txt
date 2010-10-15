@@ -205,6 +205,7 @@ test/css/test_nthiness.rb
 test/css/test_parser.rb
 test/css/test_tokenizer.rb
 test/css/test_xpath_visitor.rb
+test/decorators/test_slop.rb
 test/ffi/test_document.rb
 test/files/2ch.html
 test/files/address_book.rlx
@@ -277,3 +278,4 @@ test/xml/test_syntax_error.rb
 test/xml/test_text.rb
 test/xml/test_unparented_node.rb
 test/xml/test_xpath.rb
+test/xslt/test_custom_functions.rb
