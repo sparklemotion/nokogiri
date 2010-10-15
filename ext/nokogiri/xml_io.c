@@ -8,14 +8,14 @@ int io_read_callback(void * ctx, char * buffer, int len) {
 
   if(NIL_P(string)) return 0;
 
-  memcpy(buffer, StringValuePtr(string), (unsigned int)RSTRING_LEN(string));
+  memcpy(buffer, StringValuePtr(string), (size_t)RSTRING_LEN(string));
 
   return (int)RSTRING_LEN(string);
 }
 
 int io_write_callback(void * ctx, char * buffer, int len) {
   VALUE io = (VALUE)ctx;
-  VALUE string = rb_str_new(buffer, len);
+  VALUE string = rb_str_new(buffer, (long)len);
 
   rb_funcall(io, id_write, 1, string);
   return len;

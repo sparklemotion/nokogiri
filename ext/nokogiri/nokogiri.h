@@ -133,6 +133,8 @@ extern VALUE mNokogiriXslt ;
 #define NOKOGIRI_DEBUG_START(p)
 #define NOKOGIRI_DEBUG_END(p)
 
+#endif
+
 #ifndef RSTRING_PTR
 #define RSTRING_PTR(s) (RSTRING(s)->ptr)
 #endif
@@ -149,6 +151,10 @@ extern VALUE mNokogiriXslt ;
 #define RARRAY_LEN(a) RARRAY(a)->len
 #endif
 
+#ifndef __builtin_expect
+# if defined(__GNUC__)
+#  define __builtin_expect(expr, c) __builtin_expect((long)(expr), (long)(c))
+# endif
 #endif
 
 #endif
