@@ -127,20 +127,19 @@ module Nokogiri
       #   }.new)
       #
       def xpath *paths
-        # Pop off our custom function handler if it exists
-        handler = ![
-          Hash, String, Symbol
-        ].include?(paths.last.class) ? paths.pop : nil
-
-        ns = paths.last.is_a?(Hash) ? paths.pop :
-          (document.root ? document.root.namespaces : {})
-
         return NodeSet.new(document) unless document
+
+        paths, handler, ns, binds = extract_params(paths)
 
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
           path = path.gsub(/\/xmlns:/,'/:') unless Nokogiri.uses_libxml?
+
+          binds.each do |key,value|
+            ctx.register_variable key.to_s, value
+          end if binds
+
           ctx.evaluate(path, handler)
         }
         return sets.first if sets.length == 1
@@ -182,17 +181,11 @@ module Nokogiri
       # (e.g., "H1" is distinct from "h1").
       #
       def css *rules
-        # Pop off our custom function handler if it exists
-        handler = ![
-          Hash, String, Symbol
-        ].include?(rules.last.class) ? rules.pop : nil
-
-        ns = rules.last.is_a?(Hash) ? rules.pop :
-          (document.root ? document.root.namespaces : {})
+        rules, handler, ns, binds = extract_params(rules)
 
         rules = rules.map { |rule|
           xpath_rule = CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
-        }.flatten.uniq + [ns, handler].compact
+        }.flatten.uniq + [ns, handler, binds].compact
 
         xpath(*rules)
       end
@@ -824,6 +817,24 @@ module Nokogiri
       end
 
       private
+
+      def extract_params params # :nodoc:
+        # Pop off our custom function handler if it exists
+        handler = params.find { |param|
+          ![Hash, String, Symbol].include?(param.class)
+        }
+
+        params -= [handler] if handler
+
+        hashes = []
+        hashes << params.pop while Hash === params.last || params.last.nil?
+
+        ns, binds = hashes.reverse
+
+        ns ||= document.root ? document.root.namespaces : {}
+
+        [params, handler, ns, binds]
+      end
 
       def coerce data # :nodoc:
         return data                    if data.is_a?(XML::NodeSet)

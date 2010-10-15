@@ -61,6 +61,10 @@ module Nokogiri
         }.new
       end
 
+      def test_variable_binding
+        assert_equal 4, @xml.xpath('//address[@domestic=$value]', nil, :value => 'Yes').length
+      end
+
       def test_unknown_attribute
         assert_equal 0, @xml.xpath('//employee[@id="asdfasdf"]/@fooo').length
         assert_nil @xml.xpath('//employee[@id="asdfasdf"]/@fooo')[0]
