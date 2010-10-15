@@ -459,7 +459,7 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
   rb_iv_set(rb_doc, "@node_cache", cache);
 
   tuple->doc = (void *)rb_doc;
-  tuple->unlinkedNodes = st_init_numtable_with_size((st_index_t)128);
+  tuple->unlinkedNodes = st_init_numtable_with_size(128);
   tuple->node_cache = cache;
   doc->_private = tuple ;
 
