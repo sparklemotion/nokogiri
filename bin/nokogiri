@@ -7,6 +7,7 @@ require 'rubygems'
 require 'nokogiri'
 
 parse_class = Nokogiri
+encoding = "binary"
 
 opts = OptionParser.new do |opts|
   opts.banner = "Nokogiri: an HTML, XML, SAX, and Reader parser"
@@ -20,6 +21,10 @@ opts = OptionParser.new do |opts|
 
   opts.on("--type [TYPE]", [:xml, :html]) do |v|
     parse_class = {:xml => Nokogiri::XML, :html => Nokogiri::HTML}[v]
+  end
+
+  opts.on("-E", "--encoding encoding", "Read as encoding (default #{encoding})") do |v|
+    encoding = v
   end
 
   opts.on_tail("-?", "--help", "Show this message") do
@@ -42,7 +47,7 @@ if uri.to_s.strip.empty?
   exit 1
 end
 
-@doc = parse_class.parse(open(uri).read)
+@doc = parse_class.parse(open(uri).read, nil, encoding)
 
 puts "Your document is stored in @doc..."
 IRB.start
