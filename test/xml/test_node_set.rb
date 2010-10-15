@@ -3,6 +3,27 @@ require "helper"
 module Nokogiri
   module XML
     class TestNodeSet < Nokogiri::TestCase
+      class TestNodeSetNamespaces < Nokogiri::TestCase
+        def setup
+          super
+          @xml = Nokogiri.XML('<foo xmlns:n0="http://example.com" />')
+          @list = @xml.xpath('//namespace::*')
+        end
+
+        def test_include?
+          assert @list.include?(@list.first), 'list should have item'
+        end
+
+        def test_push
+          @list.push @list.first
+        end
+
+        def test_delete
+          @list.push @list.first
+          @list.delete @list.first
+        end
+      end
+
       def setup
         super
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
@@ -255,9 +276,24 @@ module Nokogiri
         assert_match '<a>', html
       end
 
+      def test_gt_string_arg
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.xpath('./employeeId'), (node_set > 'employeeId')
+      end
+
       def test_at
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set.at(0)
+      end
+
+      def test_at_xpath
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first.first_element_child, node_set.at_xpath('./employeeId')
+      end
+
+      def test_at_css
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first.first_element_child, node_set.at_css('employeeId')
       end
 
       def test_percent
@@ -410,7 +446,7 @@ module Nokogiri
         names_len = names.length
         positions_len = positions.length
 
-        assert_raises(ArgumentError) { result = names + positions.first }
+        assert_raises(ArgumentError) { names + positions.first }
 
         result = names + positions
         assert_equal names_len,                         names.length
@@ -434,7 +470,7 @@ module Nokogiri
         employees_len = employees.length
         females_len = females.length
 
-        assert_raises(ArgumentError) { result = employees - females.first }
+        assert_raises(ArgumentError) { employees - females.first }
 
         result = employees - females
         assert_equal employees_len,                     employees.length

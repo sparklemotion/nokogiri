@@ -42,7 +42,7 @@ module Nokogiri
       end
 
       ###
-      # Returns the index of the first node in self that is == to +node+. Returns nil if no match is found. 
+      # Returns the index of the first node in self that is == to +node+. Returns nil if no match is found.
       def index(node)
         each_with_index { |member, j| return j if member == node }
         nil
@@ -139,6 +139,13 @@ module Nokogiri
       end
 
       ###
+      # Search this NodeSet's nodes' immediate children using CSS selector +selector+
+      def > selector
+        ns = document.root.namespaces
+        xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
+      end
+
+      ###
       # If path is a string, search this document for +path+ returning the
       # first Node.  Otherwise, index in to the array with +path+.
       def at path, ns = document.root ? document.root.namespaces : {}
@@ -146,6 +153,24 @@ module Nokogiri
         search(path, ns).first
       end
       alias :% :at
+
+      ##
+      # Search this NodeSet for the first occurrence of XPath +paths+.
+      # Equivalent to <tt>xpath(paths).first</tt>
+      # See NodeSet#xpath for more information.
+      #
+      def at_xpath *paths
+        xpath(*paths).first
+      end
+
+      ##
+      # Search this NodeSet for the first occurrence of CSS +rules+.
+      # Equivalent to <tt>css(rules).first</tt>
+      # See NodeSet#css for more information.
+      #
+      def at_css *rules
+        css(*rules).first
+      end
 
       ###
       # Filter this list for nodes that match +expr+

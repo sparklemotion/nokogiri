@@ -3,6 +3,13 @@ require "helper"
 module Nokogiri
   module XML
     class TestText < Nokogiri::TestCase
+      def test_css_path
+        doc  = Nokogiri.XML "<root> foo <a>something</a> bar bazz </root>"
+        node = doc.root.children[2]
+        assert_instance_of Nokogiri::XML::Text, node
+        assert_equal node, doc.at_css(node.css_path)
+      end
+
       def test_inspect
         node = Text.new('hello world', Document.new)
         assert_equal "#<#{node.class.name}:#{sprintf("0x%x",node.object_id)} #{node.text.inspect}>", node.inspect
@@ -19,11 +26,13 @@ module Nokogiri
         100.times { Text.new('hello world', Document.new) }
       end
 
-      # No assertion because this was a segv
       def test_new_without_document
         doc = Document.new
         node = Nokogiri::XML::Element.new('foo', doc)
-        text = Text.new('hello world', node)
+
+        assert_nothing_raised do
+          Text.new('hello world', node)
+        end
       end
 
       def test_content=

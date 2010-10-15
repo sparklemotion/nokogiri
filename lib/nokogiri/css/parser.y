@@ -39,6 +39,9 @@ rule
         result = Node.new(:CONDITIONAL_SELECTOR, val)
       }
     | function
+    | function pseudo {
+        result = Node.new(:CONDITIONAL_SELECTOR, val)
+      }
     | function attrib {
         result = Node.new(:CONDITIONAL_SELECTOR, val)
       }

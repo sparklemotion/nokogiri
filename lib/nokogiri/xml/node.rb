@@ -140,6 +140,7 @@ module Nokogiri
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
+          path = path.gsub(/\/xmlns:/,'/:') unless Nokogiri.uses_libxml?
           ctx.evaluate(path, handler)
         }
         return sets.first if sets.length == 1
@@ -173,6 +174,13 @@ module Nokogiri
       #     end
       #   }.new)
       #
+      # Note that the CSS query string is case-sensitive with regards
+      # to your document type. That is, if you're looking for "H1" in
+      # an HTML document, you'll never find anything, since HTML tags
+      # will match only lowercase CSS queries. However, "H1" might be
+      # found in an XML document, where tags names are case-sensitive
+      # (e.g., "H1" is distinct from "h1").
+      #
       def css *rules
         # Pop off our custom function handler if it exists
         handler = ![
@@ -183,7 +191,7 @@ module Nokogiri
           (document.root ? document.root.namespaces : {})
 
         rules = rules.map { |rule|
-          CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
+          xpath_rule = CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
         }.flatten.uniq + [ns, handler].compact
 
         xpath(*rules)
@@ -234,7 +242,7 @@ module Nokogiri
       # Add +node_or_tags+ as a child of this Node.
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the new child node.
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       def add_child node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
@@ -242,42 +250,55 @@ module Nokogiri
         else
           add_child_node node_or_tags
         end
+        node_or_tags
       end
 
       ###
       # Insert +node_or_tags+ before this Node (as a sibling).
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the new sibling node.
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +before+.
       def add_previous_sibling node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_previous_sibling_node n }
+          if text?
+            pivot = Nokogiri::XML::Node.new 'dummy', document
+            add_previous_sibling_node pivot
+          else
+            pivot = self
+          end
+          node_or_tags.each { |n| pivot.send :add_previous_sibling_node, n }
+          pivot.unlink if text?
         else
           add_previous_sibling_node node_or_tags
         end
+        node_or_tags
       end
 
       ###
       # Insert +node_or_tags+ after this Node (as a sibling).
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the new sibling node.
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +after+.
       def add_next_sibling node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          if '1.8.6' == RUBY_VERSION
-            node_or_tags.reverse.each { |n| add_next_sibling_node n }
+          if text?
+            pivot = Nokogiri::XML::Node.new 'dummy', document
+            add_next_sibling_node pivot
           else
-            node_or_tags.reverse_each { |n| add_next_sibling_node n }
+            pivot = self
           end
+          node_or_tags.reverse.each { |n| pivot.send :add_next_sibling_node, n }
+          pivot.unlink if text?
         else
           add_next_sibling_node node_or_tags
         end
+        node_or_tags
       end
 
       ####
@@ -305,36 +326,58 @@ module Nokogiri
       end
 
       ####
-      # Set the inner_html for this Node to +node_or_tags+
+      # Set the inner html for this Node to +node_or_tags+
       # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
       #
       # Returns self.
+      #
+      # Also see related method +children=+
       def inner_html= node_or_tags
+        self.children = node_or_tags
+        self
+      end
+
+      ####
+      # Set the inner html for this Node +node_or_tags+
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a Nokogiri::XML::DocumentFragment, or a string containing markup.
+      #
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      #
+      # Also see related method +inner_html=+
+      def children= node_or_tags
         node_or_tags = coerce(node_or_tags)
         children.unlink
         if node_or_tags.is_a?(XML::NodeSet)
           node_or_tags.each { |n| add_child_node n }
         else
-          add_child node_or_tags
+          add_child_node node_or_tags
         end
-        self
+        node_or_tags
       end
 
       ####
       # Replace this Node with +node_or_tags+.
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
-      # Returns the new child node.
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +swap+.
       def replace node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
-          node_or_tags.each { |n| add_previous_sibling n }
-          unlink
+          if text?
+            replacee = Nokogiri::XML::Node.new 'dummy', document
+            add_previous_sibling_node replacee
+            unlink
+          else
+            replacee = self
+          end
+          node_or_tags.each { |n| replacee.add_previous_sibling n }
+          replacee.unlink
         else
           replace_node node_or_tags
         end
+        node_or_tags
       end
 
       ####
@@ -375,8 +418,10 @@ module Nokogiri
 
       ####
       # Returns a hash containing the node's attributes.  The key is
-      # the attribute name, the value is a Nokogiri::XML::Attr
+      # the attribute name without any namespace, the value is a Nokogiri::XML::Attr
       # representing the attribute.
+      # If you need to distinguish attributes with the same name, with different namespaces
+      # use #attribute_nodes instead.
       def attributes
         Hash[*(attribute_nodes.map { |node|
           [node.node_name, node]
@@ -428,7 +473,8 @@ module Nokogiri
       # Parse +string_or_io+ as a document fragment within the context of
       # *this* node.  Returns a XML::NodeSet containing the nodes parsed from
       # +string_or_io+.
-      def parse string_or_io, options = ParseOptions::DEFAULT_XML
+      def parse string_or_io, options = nil
+        options ||= (document.html? ? ParseOptions::DEFAULT_HTML : ParseOptions::DEFAULT_XML)
         if Fixnum === options
           options = Nokogiri::XML::ParseOptions.new(options)
         end
@@ -440,7 +486,16 @@ module Nokogiri
           string_or_io
 
         return Nokogiri::XML::NodeSet.new(document) if contents.empty?
-        in_context(contents, options.to_i)
+
+        ##
+        # This is a horrible hack, but I don't care. See #313 for background.
+        error_count = document.errors.length
+        node_set = in_context(contents, options.to_i)
+        if node_set.empty? and document.errors.length > error_count and options.recover?
+          fragment = Nokogiri::HTML::DocumentFragment.parse contents
+          node_set = fragment.children
+        end
+        node_set
       end
 
       ####
@@ -647,7 +702,7 @@ module Nokogiri
       # use Node#to_xhtml instead.
       def to_html options = {}
         # FIXME: this is a hack around broken libxml versions
-        return dump_html if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
         options[:save_with] ||= SaveOptions::FORMAT |
                                 SaveOptions::NO_DECLARATION |
@@ -677,7 +732,7 @@ module Nokogiri
       # See Node#write_to for a list of +options+
       def to_xhtml options = {}
         # FIXME: this is a hack around broken libxml versions
-        return dump_html if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
         options[:save_with] ||= SaveOptions::FORMAT |
                                 SaveOptions::NO_DECLARATION |
@@ -724,7 +779,7 @@ module Nokogiri
       # See Node#write_to for a list of +options+
       def write_html_to io, options = {}
         # FIXME: this is a hack around broken libxml versions
-        return (io << dump_html) if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
         options[:save_with] ||= SaveOptions::FORMAT |
           SaveOptions::NO_DECLARATION |
@@ -739,7 +794,7 @@ module Nokogiri
       # See Node#write_to for a list of +options+
       def write_xhtml_to io, options = {}
         # FIXME: this is a hack around broken libxml versions
-        return (io << dump_html) if %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
         options[:save_with] ||= SaveOptions::FORMAT |
           SaveOptions::NO_DECLARATION |
@@ -770,7 +825,7 @@ module Nokogiri
 
       private
 
-      def coerce(data) # :nodoc:
+      def coerce data # :nodoc:
         return data                    if data.is_a?(XML::NodeSet)
         return data.children           if data.is_a?(XML::DocumentFragment)
         return fragment(data).children if data.is_a?(String)

@@ -82,18 +82,47 @@ module Nokogiri
         assert_equal 0, list.length
       end
 
+      def test_parse_config_option
+        node = @xml.root
+        options = nil
+        node.parse("<item></item>") do |config|
+          options = config
+        end
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_XML, options.to_i
+      end
+
       # descriptive, not prescriptive.
       def test_parse_invalid_html_markup_results_in_empty_nodeset
         doc = Nokogiri::HTML("<html></html>")
         nodeset = doc.root.parse "<div><div>a</div><snippet>b</snippet></div>"
         assert_equal 1, doc.errors.length # "Tag snippet invalid"
+        assert_equal 1, nodeset.length
+      end
+
+      def test_node_context_parsing_of_malformed_html_fragment_with_recover_is_corrected
+        doc = HTML.parse "<html><body><div></div></body></html>"
+        context_node = doc.at_css "div"
+        nodeset = context_node.parse("<div </div>") do |options|
+          options.recover
+        end
+        assert_equal "<div></div>", nodeset.to_s
+        assert_equal 1, doc.errors.length
+        assert_equal 1, nodeset.length
+      end
+
+      def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
+        doc = HTML.parse "<html><body><div></div></body></html>"
+        context_node = doc.at_css "div"
+        nodeset = context_node.parse("<div </div>") do |options|
+          options.strict
+        end
+        assert_equal 1, doc.errors.length
         assert_equal 0, nodeset.length
       end
 
       def test_parse_error_list
         error_count = @xml.errors.length
         list = @xml.root.parse('<hello>')
-        assert_equal 0, list.length
         assert(error_count < @xml.errors.length, "errors should have increased")
       end
 
@@ -385,7 +414,7 @@ module Nokogiri
       def test_add_namespace_does_not_associate_node
         node = @xml.at('address')
         assert_nil node.namespace
-        definition = node.add_namespace_definition 'foo', 'http://tlm.com/'
+        assert node.add_namespace_definition 'foo', 'http://tlm.com/'
         assert_nil node.namespace
       end
 
@@ -814,17 +843,19 @@ module Nokogiri
         assert_equal nil, set[3].namespace
       end
 
-      def test_namespace_without_an_href_on_html_node
-        # because microsoft word's HTML formatting does this. ick.
-        xml = Nokogiri::HTML.parse <<-EOF
-          <div><o:p>foo</o:p></div>
-        EOF
+      if Nokogiri.uses_libxml?
+        def test_namespace_without_an_href_on_html_node
+          # because microsoft word's HTML formatting does this. ick.
+          xml = Nokogiri::HTML.parse <<-EOF
+            <div><o:p>foo</o:p></div>
+          EOF
 
-        assert_not_nil(node = xml.at('p'))
+          assert_not_nil(node = xml.at('p'))
 
-        assert_equal 1, node.namespaces.keys.size
-        assert       node.namespaces.has_key?('xmlns:o')
-        assert_equal nil, node.namespaces['xmlns:o']
+          assert_equal 1, node.namespaces.keys.size
+          assert       node.namespaces.has_key?('xmlns:o')
+          assert_equal nil, node.namespaces['xmlns:o']
+        end
       end
 
       def test_line

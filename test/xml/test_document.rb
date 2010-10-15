@@ -21,12 +21,6 @@ module Nokogiri
         assert_equal nil, @xml.root
       end
 
-      def test_parse_should_not_exist
-        assert_raises(NoMethodError) do
-          @xml.parse("foo")
-        end
-      end
-
       def test_collect_namespaces
         doc = Nokogiri::XML(<<-eoxml)
         <xml>
@@ -223,7 +217,12 @@ module Nokogiri
       end
 
       def test_validate
-        assert_equal 44, @xml.validate.length
+        if Nokogiri.uses_libxml?
+          assert_equal 44, @xml.validate.length
+        else
+          xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) {|cfg| cfg.dtdvalid}
+          assert_equal 37, xml.validate.length
+        end
       end
 
       def test_validate_no_internal_subset
@@ -335,12 +334,12 @@ module Nokogiri
       end
 
       def test_non_existant_function
-        # WTF.  I don't know why this is different between MRI and ffi.
+        # WTF.  I don't know why this is different between MRI and Jruby
         # They should be the same...  Either way, raising an exception
         # is the correct thing to do.
         exception = RuntimeError
 
-        if Nokogiri::VERSION_INFO['libxml']['platform'] == 'jruby'
+        if !Nokogiri.uses_libxml? || (Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO['libxml']['platform'] == 'jruby')
           exception = Nokogiri::XML::XPath::SyntaxError
         end
 
@@ -412,7 +411,7 @@ module Nokogiri
       end
 
       # wtf...  osx's libxml sucks.
-      unless Nokogiri::LIBXML_VERSION =~ /^2\.6\./
+      unless !Nokogiri.uses_libxml? || Nokogiri::LIBXML_VERSION =~ /^2\.6\./
         def test_encoding
           xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE, 'UTF-8')
           assert_equal 'UTF-8', xml.encoding
@@ -617,7 +616,11 @@ module Nokogiri
           </root>
         EOX
 
+        namespaces = doc.root.namespaces
+
         # assert on setup
+        assert_equal 2, doc.root.namespaces.length
+        assert_equal 3, doc.at_xpath("//container").namespaces.length
         assert_equal 0, doc.xpath("//foo").length
         assert_equal 1, doc.xpath("//a:foo").length
         assert_equal 1, doc.xpath("//a:foo").length
@@ -625,9 +628,11 @@ module Nokogiri
 
         doc.remove_namespaces!
 
+        assert_equal 0, doc.root.namespaces.length
+        assert_equal 0, doc.at_xpath("//container").namespaces.length
         assert_equal 3, doc.xpath("//foo").length
-        assert_equal 0, doc.xpath("//a:foo").length
-        assert_equal 0, doc.xpath("//a:foo").length
+        assert_equal 0, doc.xpath("//a:foo", namespaces).length
+        assert_equal 0, doc.xpath("//a:foo", namespaces).length
         assert_equal 0, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
       end
 

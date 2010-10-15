@@ -1,8 +1,31 @@
-=== 1.4.2 ２０１０年５月２２日
+=== 1.4.3 ２０１０年７月２８日
 
 * 新しい機能
 
-  * XML::Node#parse　定義されたコンテキストノードで、XML 又はHTMLのフレグメント
+  * XML::Reader#empty_element?  - 子の無いエレメントにtrueを返す　 #262
+  * Node#remove_namespaces! - 1.4.2では 名前空間のみを取り除いていたが、
+    1.4.3 では名前空間及び、名前空間宣言も取り除く　#294
+  * NodeSet#{at_xpath,at_css,>} はNodeの同名メソッドと同様の動作
+
+* バグの修正
+
+  * XML::NodeSet#{include?,delete,push} はXML::Namespaceを受入れる
+  * XML::Document#parse - 1.4.3より文書内の文脈を解析する機能を追加
+  * XML::DocumentFragment#inner_html= 文脈解析を共に実行する　#298, #281
+  * lib/nokogiri/css/parser.y  はCSSと疑似選別の両方を機能
+  * 演算によって近隣に存在する併合型ノードへの遊離問題の有無に関わらず、一切の
+    弊害なしにテキストノードの繰り返しが実行可能　 #283
+  * xmlFirstElementChild et al.による libxml2バージョンでの不適合性を修正 #303
+  * XML::Attr#add_namespace　（！）文字通りの機能実現!　 #252
+  * HTML::DocumentFragment が文字列に存在するエンコードを使用　#305
+  * CSS3の間接セレクタ"E ~ F G"がXPathの"//F//G[preceding-sibling::E]"へと
+    誤変換されてしまうのを修正
+
+=== 1.4.2 ２０１０年５月２２日
+
+* 新機能
+
+  * XML::Node#parse　定義されたコンテキストノードでXML 又はHTMLのフレグメント
     を解析する
   * XML::Node#namespacesが子ノードとその祖先ノード内で定義された全ての名前空間
     を返すようになった（以前は祖先ノードの名前空間は返されなかった）
@@ -18,6 +41,10 @@
   * Nokogiri::XML::Node#first_element_child は一番最初のELEMENT子ノードを返す
   * Nokogiri::XML::Node#last_element_child は最後のELEMENT子ノードを返す
   * Nokogiri::XML::Node#elements は全てのELEMENT子ノードを返す
+  * Nokogiri::XML::Node#add_child, #add_previous_sibling, #before,
+    #add_next_sibling, #after, #inner_html, #swap, #replaceはNode,
+    DocumentFragment, NodeSetおよびマークアップ文字列を受け付ける
+  * Node#fragment? はノードがDocumentFragmentかどうかを示す
 
 * バグの修正
 
@@ -30,18 +57,19 @@
   * XML::Node#xpath はNodeSetのオブジェクト以外のオブジェクトを返す　GH #208
   * XSLT::StyleSheet#transformはパラメーターのハッシュを受け入れる　GH #223
   * CSSのnot()の疑似セレクタの修正　 GH #205
-  * XML::Builder  はノード達が切り離されても破壊しない（vihaiの協力に感謝）
+  * XML::Builder  はノードらが切り離されても破壊しない（vihaiの協力に感謝）
     GH #228
   * SAX parser経由でエンコードを強制することが出来る　 Eugene Pimenovに感謝!
     GH #204
-  * XML::DocumentFragment はML::Node#parse を使用して子供を限定する
-  * XML Reader内のメモリリークを修正　 sdorさん、ありがとう! GH#244
+  * XML::DocumentFragment はML::Node#parse を使用して子を限定する
+  * XML Reader内のメモリリーク修正　 sdorさん、ありがとう! GH#244
+  * Node#replaceはRDocの通り新しい子ノードを返す（selfを返していた）
 
 * ノート
 
-  * 今日４月１８日現在、Windows gems は libxml 2.7.6 とlibxslt
-    1.1.26にDLLsを正規装備しています。このリリース以前にも既にDLLsはlibxml
-    2.7.3 と libxslt 1.1.24に正規装備されています。
+  * 今日４月１８日現在、Windows gems は libxml 2.7.7 とlibxslt
+    1.1.26にDLLsを標準装備しています。このリリース以前にも既にDLLsはlibxml
+    2.7.3 と libxslt 1.1.24に標準装備済み。
 
 === 1.4.1 ２００９年１２月１０日
 

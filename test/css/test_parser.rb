@@ -16,6 +16,10 @@ module Nokogiri
         assert_raises(CSS::SyntaxError) { @parser.parse("a[x=]") }
       end
 
+      def test_function_and_pseudo
+        assert_xpath '//child::text()[position() = 99]', @parser.parse('text():nth-of-type(99)')
+      end
+
       def test_find_by_type
         ast = @parser.parse("a:nth-child(2)").first
         matches = ast.find_by_type(
@@ -181,16 +185,32 @@ module Nokogiri
         assert_xpath '//a[(position() <= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(-n+3)')
         assert_xpath '//a[(position() >= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(1n+3)')
         assert_xpath '//a[(position() >= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(n+3)')
+
+        assert_xpath '//a[((last()-position()+1) mod 2) = 0]', @parser.parse('a:nth-last-of-type(2n)')
+        assert_xpath '//a[((last()-position()+1) >= 1) and ((((last()-position()+1)-1) mod 2) = 0)]', @parser.parse('a:nth-last-of-type(2n+1)')
+        assert_xpath '//a[((last()-position()+1) mod 2) = 0]', @parser.parse('a:nth-last-of-type(even)')
+        assert_xpath '//a[((last()-position()+1) >= 1) and ((((last()-position()+1)-1) mod 2) = 0)]', @parser.parse('a:nth-last-of-type(odd)')
+        assert_xpath '//a[((last()-position()+1) >= 3) and ((((last()-position()+1)-3) mod 4) = 0)]', @parser.parse('a:nth-last-of-type(4n+3)')
+        assert_xpath '//a[((last()-position()+1) <= 3) and ((((last()-position()+1)-3) mod 1) = 0)]', @parser.parse('a:nth-last-of-type(-1n+3)')
+        assert_xpath '//a[((last()-position()+1) <= 3) and ((((last()-position()+1)-3) mod 1) = 0)]', @parser.parse('a:nth-last-of-type(-n+3)')
+        assert_xpath '//a[((last()-position()+1) >= 3) and ((((last()-position()+1)-3) mod 1) = 0)]', @parser.parse('a:nth-last-of-type(1n+3)')
+        assert_xpath '//a[((last()-position()+1) >= 3) and ((((last()-position()+1)-3) mod 1) = 0)]', @parser.parse('a:nth-last-of-type(n+3)')
       end
 
       def test_preceding_selector
-        assert_xpath  "//F[preceding-sibling::E]",
+        assert_xpath  "//E/following-sibling::F",
                       @parser.parse("E ~ F")
+
+        assert_xpath  "//E/following-sibling::F//G",
+                      @parser.parse("E ~ F G")
       end
 
       def test_direct_preceding_selector
         assert_xpath  "//E/following-sibling::*[1]/self::F",
                       @parser.parse("E + F")
+
+        assert_xpath  "//E/following-sibling::*[1]/self::F//G",
+                      @parser.parse("E + F G")
       end
 
       def test_attribute

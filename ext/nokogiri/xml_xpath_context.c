@@ -77,6 +77,10 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
       nargs,
       argv
   );
+
+  for (i = 0 ; i < nargs ; ++i) {
+    rb_gc_unregister_address(&argv[i]);
+  }
   free(argv);
 
   switch(TYPE(result)) {
@@ -156,7 +160,7 @@ static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
 
 /*
  * call-seq:
- *  evaluate(search_path)
+ *  evaluate(search_path, handler = nil)
  *
  * Evaluate the +search_path+ returning an XML::XPath object.
  */
@@ -226,6 +230,8 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
       thing = Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL),
         DOC_RUBY_OBJECT(ctx->doc));
   }
+
+  xmlXPathFreeNodeSetList(xpath);
 
   return thing;
 }

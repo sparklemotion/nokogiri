@@ -27,6 +27,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/relaxng.h>
+#include <libxslt/extensions.h>
 #include <ruby.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
@@ -34,8 +35,6 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #else
 #include <st.h>
 #endif
-
-int is_2_6_16(void) ;
 
 #ifndef UNUSED
 # if defined(__GNUC__)
@@ -76,6 +75,8 @@ int is_2_6_16(void) ;
 
 #define RBSTR_OR_QNIL(_str) \
   (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
+
+#include <xml_libxml2_hacks.h>
 
 #include <xml_io.h>
 #include <xml_document.h>

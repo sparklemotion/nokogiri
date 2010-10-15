@@ -8,6 +8,32 @@ class TestReader < Nokogiri::TestCase
     assert_equal io, reader.source
   end
 
+  def test_empty_element?
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+<xml><city>Paris</city><state/></xml>
+    eoxml
+
+    results = reader.map do |node|
+      if node.node_type == Nokogiri::XML::Node::ELEMENT_NODE
+        node.empty_element?
+      end
+    end
+    assert_equal [false, false, nil, nil, true, nil], results
+  end
+
+  def test_self_closing?
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+<xml><city>Paris</city><state/></xml>
+    eoxml
+
+    results = reader.map do |node|
+      if node.node_type == Nokogiri::XML::Node::ELEMENT_NODE
+        node.self_closing?
+      end
+    end
+    assert_equal [false, false, nil, nil, true, nil], results
+  end
+
   def test_reader_takes_block
     options = nil
     Nokogiri::XML::Reader(File.read(XML_FILE), XML_FILE) do |cfg|
@@ -57,7 +83,7 @@ class TestReader < Nokogiri::TestCase
   end
 
   def test_in_memory
-    reader = Nokogiri::XML::Reader(<<-eoxml)
+    assert Nokogiri::XML::Reader(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>
       <tenderlove:foo awesome='true'>snuggles!</tenderlove:foo>
     </x>
@@ -71,12 +97,7 @@ class TestReader < Nokogiri::TestCase
     </x>
     eoxml
     reader = Nokogiri::XML::Reader(xml)
-    if Nokogiri.ffi?
-      assert_not_nil reader.source
-      assert reader.source.is_a?(FFI::MemoryPointer)
-    else
-      assert_equal xml, reader.source
-    end
+    assert_equal xml, reader.source
   end
 
   def test_default?
@@ -108,13 +129,9 @@ class TestReader < Nokogiri::TestCase
       <foo>
     </x>
     eoxml
-    error_happened = false
-    begin
+    assert_raises(Nokogiri::XML::SyntaxError) do
       reader.each { |node| }
-    rescue Nokogiri::XML::SyntaxError => ex
-      error_happened = true
     end
-    assert error_happened
     assert 1, reader.errors.length
   end
 

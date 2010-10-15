@@ -12,6 +12,13 @@ module Nokogiri
         eoxml
       end
 
+      if Nokogiri.uses_libxml?
+        def test_namespace_is_in_node_cache
+          node = @xml.root.namespace
+          assert @xml.instance_variable_get(:@node_cache).include?(node)
+        end
+      end
+
       def test_built_nodes_keep_namespace_decls
         doc = Document.new
         e   = Node.new 'element', doc
@@ -29,11 +36,6 @@ module Nokogiri
       def test_inspect
         ns = @xml.root.namespace
         assert_equal "#<#{ns.class.name}:#{sprintf("0x%x", ns.object_id)} href=#{ns.href.inspect}>", ns.inspect
-      end
-
-      def test_namespace_is_in_node_cache
-        node = @xml.root.namespace
-        assert @xml.instance_variable_get(:@node_cache).include?(node)
       end
 
       def test_namespace_node_prefix

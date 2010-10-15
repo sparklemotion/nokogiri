@@ -9,16 +9,44 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
-      def test_no_contextual_parsing_on_unlinked_nodes
-        node = @html.css('body').first
-        node.unlink
-        assert_raises(RuntimeError) do
-          node.parse('<br />')
+      if RUBY_VERSION >= '1.9'
+        def test_inspect_encoding
+          fragment = "<div>こんにちは！</div>".encode('EUC-JP')
+          f = Nokogiri::HTML::DocumentFragment.parse fragment
+          assert_equal "こんにちは！", f.content
         end
+
+        def test_html_parse_encoding
+          fragment = "<div>こんにちは！</div>".encode 'EUC-JP'
+          f = Nokogiri::HTML.fragment fragment
+          assert_equal 'EUC-JP', f.document.encoding
+          assert_equal "こんにちは！", f.content
+        end
+      end
+
+      def test_parse_encoding
+        fragment = "<div>hello world</div>"
+        f = Nokogiri::HTML::DocumentFragment.parse fragment, 'ISO-8859-1'
+        assert_equal 'ISO-8859-1', f.document.encoding
+        assert_equal "hello world", f.content
+      end
+
+      def test_html_parse_with_encoding
+        fragment = "<div>hello world</div>"
+        f = Nokogiri::HTML.fragment fragment, 'ISO-8859-1'
+        assert_equal 'ISO-8859-1', f.document.encoding
+        assert_equal "hello world", f.content
       end
 
       def test_parse_in_context
         assert_equal('<br>', @html.root.parse('<br />').to_s)
+      end
+
+      def test_inner_html=
+        fragment = Nokogiri::HTML.fragment '<hr />'
+
+        fragment.inner_html = "hello"
+        assert_equal 'hello', fragment.inner_html
       end
 
       def test_ancestors_search
@@ -43,7 +71,17 @@ module Nokogiri
       end
 
       def test_new
-        fragment = Nokogiri::HTML::DocumentFragment.new(@html)
+        assert Nokogiri::HTML::DocumentFragment.new(@html)
+      end
+
+      def test_body_fragment_should_contain_body
+        fragment = Nokogiri::HTML::DocumentFragment.parse("  <body><div>foo</div></body>")
+        assert_match(/^<body>/, fragment.to_s)
+      end
+
+      def test_nonbody_fragment_should_not_contain_body
+        fragment = Nokogiri::HTML::DocumentFragment.parse("<div>foo</div>")
+        assert_match(/^<div>/, fragment.to_s)
       end
 
       def test_fragment_should_have_document
@@ -95,7 +133,8 @@ module Nokogiri
       def test_html_fragment_has_outer_text
         doc = "a<div>b</div>c"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        if Nokogiri::VERSION_INFO['libxml']['loaded'] <= "2.6.16"
+        if Nokogiri.uses_libxml? &&
+            Nokogiri::VERSION_INFO['libxml']['loaded'] <= "2.6.16"
           assert_equal "a<div>b</div><p>c</p>", fragment.to_s
         else
           assert_equal "a<div>b</div>c", fragment.to_s
@@ -111,13 +150,13 @@ module Nokogiri
       def test_html_fragment_with_leading_whitespace
         doc = "     <div>b</div>  "
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "<div>b</div>", fragment.to_s
+        assert_match %r%     <div>b</div> *%, fragment.to_s
       end
 
       def test_html_fragment_with_leading_whitespace_and_newline
         doc = "     \n<div>b</div>  "
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        assert_equal "<div>b</div>", fragment.to_s
+        assert_match %r%     \n<div>b</div> *%, fragment.to_s
       end
 
       def test_html_fragment_with_leading_text_and_newline
@@ -127,7 +166,7 @@ module Nokogiri
 
       def test_html_fragment_with_leading_whitespace_and_text_and_newline
         fragment = HTML::Document.new.fragment("  First line\nSecond line<br>Broken line")
-        assert_equal "First line\nSecond line<br>Broken line", fragment.to_s
+        assert_equal "  First line\nSecond line<br>Broken line", fragment.to_s
       end
 
       def test_html_fragment_with_leading_entity
@@ -151,7 +190,8 @@ module Nokogiri
       def test_to_xhtml
         doc = "<span>foo<br></span><span>bar</span>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        if Nokogiri::VERSION_INFO['libxml']['loaded'] >= "2.7.0"
+        if !Nokogiri.uses_libxml? ||
+            Nokogiri::VERSION_INFO['libxml']['loaded'] >= "2.7.0"
           assert_equal "<span>foo<br /></span><span>bar</span>", fragment.to_xhtml
         else
           assert_equal "<span>foo<br></span><span>bar</span>", fragment.to_xhtml
@@ -176,6 +216,17 @@ module Nokogiri
         fragment = doc.fragment("<p>hello<!-- your ad here --></p>")
         assert_equal("<p>hello<!-- your ad here --></p>",
           fragment.to_s)
+      end
+
+      def test_malformed_fragment_is_corrected
+        fragment = HTML::DocumentFragment.parse("<div </div>")
+        assert_equal "<div></div>", fragment.to_s
+      end
+
+      def test_unclosed_script_tag
+        # see GH#315
+        fragment = HTML::DocumentFragment.parse("foo <script>bar")
+        assert_equal "foo <script>bar</script>", fragment.to_html
       end
     end
   end

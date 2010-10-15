@@ -95,6 +95,7 @@ module Nokogiri
   <foo:bar>hello world</foo:bar>
 </root>
           eoxml
+
           assert @parser.document.start_elements_namespace.length > 0
           el = @parser.document.start_elements_namespace[1]
           assert_equal 'a', el.first
@@ -144,8 +145,12 @@ module Nokogiri
         end
 
         def test_start_is_called_without_namespace
-          @parser.parse('<foo:f><bar></foo:f>')
-          assert_equal ['foo:f', 'bar'],
+          @parser.parse(<<-eoxml)
+<root xmlns:foo='http://foo.example.com/' xmlns='http://example.com/'>
+<foo:f><bar></foo:f>
+</root>
+          eoxml
+          assert_equal ['root', 'foo:f', 'bar'],
             @parser.document.start_elements.map { |x| x.first }
         end
 
@@ -295,11 +300,13 @@ module Nokogiri
                        @parser.document.start_elements
         end
 
-        def test_parse_document
-          @parser.parse_memory(<<-eoxml)
-            <p>Paragraph 1</p>
-            <p>Paragraph 2</p>
-          eoxml
+        if Nokogiri.uses_libxml? # JRuby SAXParser only parses well-formed XML documents
+          def test_parse_document
+            @parser.parse_memory(<<-eoxml)
+              <p>Paragraph 1</p>
+              <p>Paragraph 2</p>
+            eoxml
+          end
         end
       end
     end

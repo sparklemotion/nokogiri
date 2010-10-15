@@ -11,6 +11,10 @@ GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
 CROSS_DIR           = File.join(File.dirname(__FILE__), 'tmp', 'cross')
 
+EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml nekodtd xercesImpl}.map{|x| "lib/#{x}.jar"}
+JAVA_EXT = "lib/nokogiri/nokogiri.jar"
+JRUBY_HOME = Config::CONFIG['prefix']
+
 # Make sure hoe-debugging is installed
 Hoe.plugin :debugging
 
@@ -76,6 +80,51 @@ unless java
   end
 end
 
+namespace :java do
+  desc "Removes all generated during compilation .class files."
+  task :clean_classes do
+    (FileList['ext/java/nokogiri/internals/*.class'] + FileList['ext/java/nokogiri/*.class'] + FileList['ext/java/*.class']).to_a.each do |file|
+      File.delete file
+    end
+  end
+
+  desc "Removes the generated .jar"
+  task :clean_jar do
+    FileList['lib/nokogiri/*.jar'].each{|f| File.delete f }
+  end
+
+  desc  "Same as java:clean_classes and java:clean_jar"
+  task :clean_all => ["java:clean_classes", "java:clean_jar"]
+  
+  desc "Build a gem targetted for JRuby"
+  task :gem => ['java:spec', GENERATED_PARSER, GENERATED_TOKENIZER, :build] do
+    system "gem build nokogiri.gemspec"
+    FileUtils.mkdir_p "pkg"
+    FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
+  end
+
+  task :spec do
+    File.open("#{HOE.name}.gemspec", 'w') do |f|
+      HOE.spec.platform = 'java'
+      HOE.spec.files += [GENERATED_PARSER, GENERATED_TOKENIZER, JAVA_EXT] + EXTERNAL_JAVA_LIBRARIES
+      HOE.spec.extensions = []
+      f.write(HOE.spec.to_ruby)
+    end
+  end
+
+  desc "Build external library"
+  task :build_external do
+    Dir.chdir('ext/java') do
+      LIB_DIR = '../../lib'
+      CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/nekodtd.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
+      sh "javac -g -cp #{CLASSPATH} nokogiri/*.java nokogiri/internals/*.java"
+      sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class nokogiri/internals/*.class"
+    end
+  end
+
+  task :build => ["java:clean_jar", "java:build_external", "java:clean_classes"]
+end
+
 namespace :gem do
   namespace :dev do
     task :spec => [ GENERATED_PARSER, GENERATED_TOKENIZER ] do
@@ -86,33 +135,12 @@ namespace :gem do
     end
   end
 
-  desc "Build a gem targetted for JRuby"
-  task :jruby => ['gem:jruby:spec'] do
-    system "gem build nokogiri.gemspec"
-    FileUtils.mkdir_p "pkg"
-    FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
-  end
-
-  namespace :jruby do
-    task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER] do
-      File.open("#{HOE.name}.gemspec", 'w') do |f|
-        HOE.spec.platform = 'java'
-        HOE.spec.files << GENERATED_PARSER
-        HOE.spec.files << GENERATED_TOKENIZER
-        HOE.spec.files += Dir["ext/nokogiri/*.dll"]
-        HOE.spec.extensions = []
-        HOE.spec.add_dependency 'weakling', '>= 0.0.3'
-        f.write(HOE.spec.to_ruby)
-      end
-    end
-  end
-
   task :spec => ['gem:dev:spec']
 end
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   begin
-    racc = `which racc`.strip
+    racc = Config::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
     racc = "#{::Config::CONFIG['bindir']}/racc" if racc.empty?
     sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
   rescue
@@ -129,7 +157,11 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
 end
 
 require 'tasks/test'
-require 'tasks/cross_compile'
+begin
+  require 'tasks/cross_compile' unless java
+rescue RuntimeError => e
+  warn "WARNING: Could not perform some cross-compiling: #{e}"
+end
 
 desc "set environment variables to build and/or test with debug options"
 task :debug do
@@ -141,7 +173,7 @@ end
 # required_ruby_version
 
 # Only do this on unix, since we can't build on windows
-unless windows || java || ENV['NOKOGIRI_FFI']
+unless windows || java
   [:compile, :check_manifest].each do |task_name|
     Rake::Task[task_name].prerequisites << GENERATED_PARSER
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER

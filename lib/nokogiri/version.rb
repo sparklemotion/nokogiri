@@ -1,6 +1,6 @@
 module Nokogiri
   # The version of Nokogiri you are using
-  VERSION = '1.4.2'
+  VERSION = '1.5.0.beta.2'
 
   # More complete version information about libxml
   VERSION_INFO = {}
@@ -9,6 +9,8 @@ module Nokogiri
   VERSION_INFO['ruby']                  = {}
   VERSION_INFO['ruby']['version']       = ::RUBY_VERSION
   VERSION_INFO['ruby']['platform']      = ::RUBY_PLATFORM
+  VERSION_INFO['ruby']['engine']        = defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'mri'
+
   VERSION_INFO['ruby']['jruby']         = ::JRUBY_VERSION if RUBY_PLATFORM == "java"
   if defined?(LIBXML_VERSION)
     VERSION_INFO['libxml']              = {}
@@ -27,11 +29,7 @@ module Nokogiri
     !Nokogiri::VERSION_INFO['libxml'].nil?
   end
 
-  def self.ffi? # :nodoc:
-    uses_libxml? && Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
-  end
-
-  def self.is_2_6_16? # :nodoc:
-    Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
+  def self.jruby?
+    !Nokogiri::VERSION_INFO['ruby']['jruby'].nil?
   end
 end

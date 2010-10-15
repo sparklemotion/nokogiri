@@ -6,7 +6,7 @@ module Nokogiri
     # an XML::Document with a Stylesheet:
     #
     #   doc   = Nokogiri::XML(File.read('some_file.xml'))
-    #   xslt  = Nokogir::XSLT(File.read('some_transformer.xslt'))
+    #   xslt  = Nokogiri::XSLT(File.read('some_transformer.xslt'))
     #
     #   puts xslt.transform(doc)
     #

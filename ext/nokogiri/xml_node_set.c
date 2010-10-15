@@ -49,8 +49,8 @@ static VALUE push(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
-  if(!rb_obj_is_kind_of(rb_node, cNokogiriXmlNode))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
+  if(!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
@@ -70,9 +70,9 @@ static VALUE delete(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set ;
   xmlNodePtr node ;
 
-  if(!rb_obj_is_kind_of(rb_node, cNokogiriXmlNode))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
-  
+  if(!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
 
@@ -117,8 +117,8 @@ static VALUE include_eh(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
-  if(!rb_obj_is_kind_of(rb_node, cNokogiriXmlNode))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
+  if(!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);

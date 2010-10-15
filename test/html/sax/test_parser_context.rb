@@ -8,13 +8,13 @@ module Nokogiri
       class TestParserContext < Nokogiri::SAX::TestCase
         def test_from_io
           assert_nothing_raised do
-            ctx = ParserContext.new StringIO.new('fo'), 'UTF-8'
+            ParserContext.new StringIO.new('fo'), 'UTF-8'
           end
         end
 
         def test_from_string
           assert_nothing_raised do
-            ctx = ParserContext.new 'blah blah'
+            ParserContext.new 'blah blah'
           end
         end
 

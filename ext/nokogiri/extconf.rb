@@ -17,7 +17,7 @@ end
 $CFLAGS << " #{ENV["CFLAGS"]}"
 $LIBS << " #{ENV["LIBS"]}"
 
-if Config::CONFIG['target_os'] == 'mingw32'
+if Config::CONFIG['target_os'] == 'mingw32' || Config::CONFIG['target_os'] =~ /mswin32/
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
 elsif Config::CONFIG['target_os'] =~ /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
@@ -29,59 +29,83 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
   $CFLAGS << " -DIN_LIBXML"
 end
 
-$CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
+if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
+  $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
+end
 
-HEADER_DIRS = [
-  # First search /opt/local for macports
-  '/opt/local/include',
+if Config::CONFIG['target_os'] =~ /mswin32/
+  lib_prefix = 'lib'
 
-  # Then search /usr/local for people that installed from source
-  '/usr/local/include',
+  # There's no default include/lib dir on Windows. Let's just add the Ruby ones
+  # and resort on the search path specified by INCLUDE and LIB environment
+  # variables
+  HEADER_DIRS = [INCLUDEDIR]
+  LIB_DIRS = [LIBDIR]
+  XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
 
-  # Check the ruby install locations
-  INCLUDEDIR,
+else
+  lib_prefix = ''
 
-  # Finally fall back to /usr
-  '/usr/include',
-  '/usr/include/libxml2',
-]
+  HEADER_DIRS = [
+    # First search /opt/local for macports
+    '/opt/local/include',
 
-LIB_DIRS = [
-  # First search /opt/local for macports
-  '/opt/local/lib',
+    # Then search /usr/local for people that installed from source
+    '/usr/local/include',
 
-  # Then search /usr/local for people that installed from source
-  '/usr/local/lib',
+    # Check the ruby install locations
+    INCLUDEDIR,
 
-  # Check the ruby install locations
-  LIBDIR,
+    # Finally fall back to /usr
+    '/usr/include',
+    '/usr/include/libxml2',
+  ]
 
-  # Finally fall back to /usr
-  '/usr/lib',
-]
+  LIB_DIRS = [
+    # First search /opt/local for macports
+    '/opt/local/lib',
+
+    # Then search /usr/local for people that installed from source
+    '/usr/local/lib',
+
+    # Check the ruby install locations
+    LIBDIR,
+
+    # Finally fall back to /usr
+    '/usr/lib',
+  ]
+
+  XML2_HEADER_DIRS = [
+    '/opt/local/include/libxml2',
+    '/usr/local/include/libxml2',
+    File.join(INCLUDEDIR, "libxml2")
+  ] + HEADER_DIRS
+end
 
 dir_config('zlib', HEADER_DIRS, LIB_DIRS)
 dir_config('iconv', HEADER_DIRS, LIB_DIRS)
-dir_config('xml2', [
-           '/opt/local/include/libxml2',
-           '/usr/local/include/libxml2',
-           File.join(INCLUDEDIR, "libxml2")] + HEADER_DIRS, LIB_DIRS)
+dir_config('xml2', XML2_HEADER_DIRS, LIB_DIRS)
 dir_config('xslt', HEADER_DIRS, LIB_DIRS)
 
 def asplode(lib)
   abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
 end
 
-asplode "iconv"    unless find_header('iconv.h')
+# Use this with cross compiling
+# PKG_CONFIG_PATH=/Users/apatterson/git/nokogiri/tmp/cross/lib/pkgconfig/ \
+#   rake cross compile RUBY_CC_VERSION=1.9.1
+pkg_config('libxslt') if RUBY_PLATFORM =~ /mingw/
+
 asplode "libxml2"  unless find_header('libxml/parser.h')
 asplode "libxslt"  unless find_header('libxslt/xslt.h')
 asplode "libexslt" unless find_header('libexslt/exslt.h')
-asplode "libiconv" unless have_library('iconv', 'iconv_open', 'iconv.h')
-asplode "zlib"     unless find_library('z', 'gzopen')
-asplode "libxml2"  unless find_library('xml2', 'xmlParseDoc')
-asplode "libxslt"  unless find_library('xslt', 'xsltParseStylesheetDoc')
-asplode "libexslt" unless find_library('exslt', 'exsltFuncRegister')
+asplode "libiconv" unless have_library('#{lib_prefix}iconv', 'iconv_open', 'iconv.h')
+asplode "zlib"     unless find_library('#{lib_prefix}z', 'gzopen')
+asplode "libxml2"  unless find_library("#{lib_prefix}xml2", 'xmlParseDoc')
+asplode "libxslt"  unless find_library("#{lib_prefix}xslt", 'xsltParseStylesheetDoc')
+asplode "libexslt" unless find_library("#{lib_prefix}exslt", 'exsltFuncRegister')
 
+have_func 'xmlFirstElementChild'
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetValidStructuredErrors')

@@ -14,7 +14,7 @@ module Nokogiri
    <!ATTLIST br width CDATA "0">
    <!ATTLIST br height CDATA "0">
 ]>
-</root>
+<root/>
         eoxml
         @elements = @xml.internal_subset.children.find_all { |x|
           x.type == 15

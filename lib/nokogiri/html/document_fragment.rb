@@ -2,18 +2,21 @@ module Nokogiri
   module HTML
     class DocumentFragment < Nokogiri::XML::DocumentFragment
       ####
-      # Create a Nokogiri::XML::DocumentFragment from +tags+
-      def self.parse tags
+      # Create a Nokogiri::XML::DocumentFragment from +tags+, using +encoding+
+      def self.parse tags, encoding = nil
         doc = HTML::Document.new
-        doc.encoding = 'UTF-8'
-        self.new(doc, tags)
+
+        encoding ||= tags.respond_to?(:encoding) ? tags.encoding.name : 'UTF-8'
+        doc.encoding = encoding
+
+        new(doc, tags)
       end
 
       def initialize document, tags = nil, ctx = nil
         return self unless tags
 
         children = if ctx
-                     ctx.parse("<div>#{tags.strip}</div>").first.children
+                     ctx.parse("<div>#{tags}</div>").first.children
                    else
                      ###
                      # This is a horrible hack, but I don't care
@@ -24,7 +27,7 @@ module Nokogiri
                      end
 
                      HTML::Document.parse(
-                       "<html><body>#{tags.strip}</body></html>",
+                       "<html><body>#{tags}",
                        nil,
                        document.encoding
                      ).xpath(path)

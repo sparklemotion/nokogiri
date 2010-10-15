@@ -24,7 +24,14 @@ module Nokogiri
 
         def test_parse_file
           @parser.parse_file(HTML_FILE)
-          assert_equal 1110, @parser.document.end_elements.length
+          
+          # Take a look at the comment in test_parse_document to know
+          # a possible reason to this difference.
+          if Nokogiri.uses_libxml?
+            assert_equal 1110, @parser.document.end_elements.length
+          else
+            assert_equal 1119, @parser.document.end_elements.length
+          end
         end
 
         def test_parse_file_nil_argument
@@ -65,8 +72,20 @@ module Nokogiri
             <p>Paragraph 1</p>
             <p>Paragraph 2</p>
           eoxml
-          assert_equal([["html", []], ["body", []], ["p", []], ["p", []]],
-                       @parser.document.start_elements)
+
+          # JRuby version is different because of the internal implementation
+          # JRuby version uses NekoHTML which inserts empty "head" elements.
+          #
+          # Currently following features are set:
+          # "http://cyberneko.org/html/properties/names/elems" => "lower"
+          # "http://cyberneko.org/html/properties/names/attrs" => "lower"
+          if Nokogiri.uses_libxml?
+            assert_equal([["html", []], ["body", []], ["p", []], ["p", []]],
+                         @parser.document.start_elements)
+          else
+            assert_equal([["html", []], ["head", []], ["body", []], ["p", []], ["p", []]],
+                         @parser.document.start_elements)
+          end
         end
       end
     end

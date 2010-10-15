@@ -1,6 +1,10 @@
 .*.swp
 *.tmproj
+ext/java/nokogiri/*.class
+ext/java/nokogiri/*/*.class
 lib/nokogiri/nokogiri.so
+lib/nokogiri/nokogiri.jar
+lib/nokogiri/nokogiri.bundle
 lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb
 cross
@@ -9,4 +13,15 @@ tags
 stash
 .rake_tasks
 tmp
+*.gemspec
+pkg
 TAGS
+.classpath
+.project
+.settings
+ext/java/Canna
+build
+test/test_jruby_header.rb
+test/test_jruby_footer.rb
+test/*_mini.rb
+test/*/*_mini.rb

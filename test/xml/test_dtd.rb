@@ -14,7 +14,11 @@ module Nokogiri
       end
 
       def test_external_id
-        xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ><foo />')
+        if Nokogiri.uses_libxml?
+          xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar"><foo />')
+        else
+          xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ""><foo />')
+        end
         assert dtd = xml.internal_subset
         assert_equal 'bar', dtd.external_id
       end
@@ -25,9 +29,24 @@ module Nokogiri
         end
       end
 
+      def test_empty_attributes
+        dtd = Nokogiri::HTML("<html></html>").internal_subset
+        assert_equal Hash.new, dtd.attributes
+      end
+
       def test_attributes
         assert_equal ['width'], @dtd.attributes.keys
         assert_equal '0', @dtd.attributes['width'].default
+      end
+
+      def test_keys
+        assert_equal ['width'], @dtd.keys
+      end
+
+      def test_each
+        hash = {}
+        @dtd.each { |key, value| hash[key] = value }
+        assert_equal @dtd.attributes, hash
       end
 
       def test_namespace
@@ -49,8 +68,14 @@ module Nokogiri
       end
 
       def test_validate
-        list = @xml.internal_subset.validate @xml
-        assert_equal 44, list.length
+        if Nokogiri.uses_libxml?
+          list = @xml.internal_subset.validate @xml
+          assert_equal 44, list.length
+        else
+          xml = Nokogiri::XML(File.open(XML_FILE)) {|cfg| cfg.dtdvalid}
+          list = xml.internal_subset.validate xml
+          assert_equal 37, list.length
+        end
       end
 
       def test_external_subsets

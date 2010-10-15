@@ -11,18 +11,24 @@ module Nokogiri
           'child::text()'
         when /^self\(/
           "self::#{node.value[1]}"
-        when /^(eq|nth|nth-of-type|nth-child)\(/
+        when /^eq\(/
+          "position() = #{node.value[1]}"
+        when /^(nth|nth-of-type|nth-child)\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
             an_plus_b(node.value[1])
           else
-            "position() = " + node.value[1]
+            "position() = #{node.value[1]}"
+          end
+        when /^(nth-last-child|nth-last-of-type)\(/
+          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
+            an_plus_b(node.value[1], :last => true)
+          else
+            "position() = last() - #{node.value[1]}"
           end
         when /^(first|first-of-type)\(/
           "position() = 1"
         when /^(last|last-of-type)\(/
           "position() = last()"
-        when /^(nth-last-child|nth-last-of-type)\(/
-          "position() = last() - #{node.value[1]}"
         when /^contains\(/
           "contains(., #{node.value[1]})"
         when /^gt\(/
@@ -46,13 +52,6 @@ module Nokogiri
         else
           "not(#{child.accept(self)})"
         end
-      end
-
-      def visit_preceding_selector node
-        node.value.last.accept(self) +
-          '[preceding-sibling::' +
-          node.value.first.accept(self) +
-          ']'
       end
 
       def visit_id node
@@ -126,6 +125,7 @@ module Nokogiri
       {
         'combinator'                => ' and ',
         'direct_adjacent_selector'  => "/following-sibling::*[1]/self::",
+        'preceding_selector'        => "/following-sibling::",
         'descendant_selector'       => '//',
         'child_selector'            => '/',
       }.each do |k,v|
@@ -150,17 +150,18 @@ module Nokogiri
       end
 
     private
-      def an_plus_b node
+      def an_plus_b node, options={}
         raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
 
         a = node.value[0].to_i
         b = node.value[3].to_i
+        position = options[:last] ? "(last()-position()+1)" : "position()"
 
         if (b == 0)
-          return "(position() mod #{a}) = 0"
+          return "(#{position} mod #{a}) = 0"
         else
           compare = (a < 0) ? "<=" : ">="
-          return "(position() #{compare} #{b}) and (((position()-#{b}) mod #{a.abs}) = 0)"
+          return "(#{position} #{compare} #{b}) and (((#{position}-#{b}) mod #{a.abs}) = 0)"
         end
       end
 

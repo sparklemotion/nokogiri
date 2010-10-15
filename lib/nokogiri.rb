@@ -6,9 +6,20 @@ ENV['PATH'] = [File.expand_path(
   File.join(File.dirname(__FILE__), "..", "ext", "nokogiri")
 ), ENV['PATH']].compact.join(';') if RbConfig::CONFIG['host_os'] =~ /(mswin|mingw)/i
 
-if ENV['NOKOGIRI_FFI'] || RUBY_PLATFORM =~ /java/
-  require 'ffi'
-  require 'nokogiri/ffi/libxml'
+if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+  # If JRuby::Rack::VERSION is defined, Nokogiri is in a servlet. 
+  # If AppEngine::ApiProxy is defined, Nokogiri is on Google App Egnine.
+  # These two cases don't need to require jar archives because those
+  # should be in WEB-INF/lib and already set in the classpath by
+  # a servlet container.
+  unless defined?(JRuby::Rack::VERSION) || defined?(AppEngine::ApiProxy)
+    require 'isorelax.jar'
+    require 'jing.jar'
+    require 'nekohtml.jar'
+    require 'nekodtd.jar'
+    require 'xercesImpl.jar'
+  end
+  require 'nokogiri/nokogiri'
 else
   require 'nokogiri/nokogiri'
 end
@@ -31,7 +42,6 @@ Thanks,
 eowarn
 
 require 'nokogiri/version'
-require 'nokogiri/version_warning'
 require 'nokogiri/syntax_error'
 require 'nokogiri/xml'
 require 'nokogiri/xslt'

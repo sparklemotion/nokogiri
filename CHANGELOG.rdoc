@@ -1,3 +1,55 @@
+== 1.5.0 beta1 / 2010/05/22
+
+* Notes
+
+  * JRuby support is provided by a new pure-java backend.
+
+* Deprecations
+
+  * Ruby 1.8.6 is deprecated. Nokogiri will install, but official support is ended.
+  * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
+  * FFI support is removed.
+
+=== 1.4.4 / Unreleased
+
+* New Features
+
+  * XML::Node#children= sets the node's inner html (much like #inner_html=), but returns the reparent node(s).
+  * XSLT supports function extensions. #336
+
+* Bugfixes
+
+  * XML::DTD#attributes returns an empty hash instead of nil when there are no attributes.
+  * XML::DTD#{keys,each} now work as expected. #324
+  * {XML,HTML}::DocumentFragment.{new,parse} no longer strip leading and trailing whitespace. #319
+  * XML::Node#{add_child,add_previous_sibling,add_next_sibling,replace} return a NodeSet when passed a string.
+  * Unclosed tags parsed more robustly in fragments. #315
+  * XML::Node#{replace,add_previous_sibling,add_next_sibling} edge cases fixed related to libxml's text node merging. #308
+  * Fixed a segfault when GC occurs during xpath handler argument marshalling. #345
+
+=== 1.4.3 / 2010/07/28
+
+* New Features
+
+  * XML::Reader#empty_element? returns true for empty elements. #262
+  * Node#remove_namespaces! now removes namespace *declarations* as well. #294
+  * NodeSet#at_xpath, NodeSet#at_css and NodeSet#> do what the corresponding
+    methods of Node do.
+
+* Bugfixes
+
+  * XML::NodeSet#{include?,delete,push} accept an XML::Namespace
+  * XML::Document#parse added for parsing in the context of a document
+  * XML::DocumentFragment#inner_html= works with contextual parsing! #298, #281
+  * lib/nokogiri/css/parser.y Combined CSS functions + pseudo selectors fixed
+  * Reparenting text nodes is safe, even when the operation frees adjacent merged nodes. #283
+  * Fixed libxml2 versionitis issue with xmlFirstElementChild et al. #303
+  * XML::Attr#add_namespace now works as expected. #252
+  * HTML::DocumentFragment uses the string's encoding. #305
+  * Fix the CSS3 selector translation rule for the general sibling combinator
+    (a.k.a. preceding selector) that incorrectly converted "E ~ F G" to
+    "//F//G[preceding-sibling::E]".
+
 === 1.4.2 / 2010/05/22
 
 * New Features

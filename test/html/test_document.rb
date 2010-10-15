@@ -87,7 +87,7 @@ module Nokogiri
         assert_nil doc.root
       end
 
-      unless %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+      unless Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
         # FIXME: this is a hack around broken libxml versions
         def test_to_xhtml_with_indent
           doc = Nokogiri::HTML('<html><body><a>foo</a></body></html>')
@@ -160,7 +160,7 @@ module Nokogiri
       end
 
       def test_parse_io
-        assert doc = File.open(HTML_FILE, 'rb') { |f|
+        assert File.open(HTML_FILE, 'rb') { |f|
           Document.read_io(f, nil, 'UTF-8',
                            XML::ParseOptions::NOERROR | XML::ParseOptions::NOWARNING
                           )
@@ -261,7 +261,7 @@ module Nokogiri
       end
 
       def test_find_with_function
-        found = @html.css("div:awesome() h1", Class.new {
+        assert @html.css("div:awesome() h1", Class.new {
           def awesome divs
             [divs.first]
           end

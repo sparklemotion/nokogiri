@@ -3,7 +3,7 @@
 * http://nokogiri.org/
 * http://github.com/tenderlove/nokogiri/wikis
 * http://github.com/tenderlove/nokogiri/tree/master
-* http://groups.google.com/group/nokogiri-talk
+* http://groups.google.com/group/nokogiri-list
 * http://github.com/tenderlove/nokogiri/issues
 
 == DESCRIPTION:
@@ -21,10 +21,6 @@ XMLは暴力に似ている - XMLが君の問題を解決しないとしたら�
 * XML/HTMLのビルダー
 
 XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPathをサポートしています。
-
-スピードテスト：
-
-  * http://gist.github.com/24605
 
 == SUPPORT:
 
