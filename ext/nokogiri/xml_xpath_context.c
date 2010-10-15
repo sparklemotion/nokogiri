@@ -47,6 +47,10 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
   xpath_handler = (VALUE)(ctx->context->userData);
 
   argv = (VALUE *)calloc((size_t)nargs, sizeof(VALUE));
+  for (i = 0 ; i < nargs ; ++i) {
+    rb_gc_register_address(&argv[i]);
+  }
+
   doc = DOC_RUBY_OBJECT(ctx->context->doc);
 
   i = nargs - 1;

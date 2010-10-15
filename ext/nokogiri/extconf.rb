@@ -105,6 +105,11 @@ asplode "libxml2"  unless find_library("#{lib_prefix}xml2", 'xmlParseDoc')
 asplode "libxslt"  unless find_library("#{lib_prefix}xslt", 'xsltParseStylesheetDoc')
 asplode "libexslt" unless find_library("#{lib_prefix}exslt", 'exsltFuncRegister')
 
+unless have_func('xmlHasFeature')
+  abort "-----\nThe function 'xmlHasFeature' is missing from your installation of libxml2.  Likely this means that your installed version of libxml2 is old enough that nokogiri will not work well.  To get around this problem, please upgrade your installation of libxml2.
+Please visit http://nokogiri.org/tutorials/installing_nokogiri.html for more help!"
+end
+
 have_func 'xmlFirstElementChild'
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')
