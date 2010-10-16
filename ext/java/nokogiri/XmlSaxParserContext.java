@@ -77,9 +77,11 @@ public class XmlSaxParserContext extends ParserContext {
     protected AbstractSAXParser parser;
 
     protected NokogiriHandler handler = null;
+    private IRubyObject replaceEntities;
 
     public XmlSaxParserContext(final Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
+        replaceEntities = ruby.getTrue();
         try {
             parser = createParser();
         } catch (SAXException se) {
@@ -262,18 +264,15 @@ public class XmlSaxParserContext extends ParserContext {
     @JRubyMethod(name = "replace_entities=")
     public IRubyObject set_replace_entities(ThreadContext context,
                                             IRubyObject value) {
-        if (!value.isTrue()) {
-            throw context.getRuntime()
-                .newRuntimeError("Not replacing entities is unsupported");
-        }
+        if (!value.isTrue()) replaceEntities = context.getRuntime().getFalse();
+        else replaceEntities = context.getRuntime().getTrue();
 
         return this;
     }
 
     @JRubyMethod(name="replace_entities")
-    public IRubyObject get_replace_entities(ThreadContext context,
-                                            IRubyObject value) {
-        return context.getRuntime().getTrue();
+    public IRubyObject get_replace_entities(ThreadContext context) {
+        return replaceEntities;
     }
 
 
