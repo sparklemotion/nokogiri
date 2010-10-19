@@ -277,8 +277,11 @@ public class NokogiriHandler extends DefaultHandler2
         RuntimeHelpers.invoke(context, document(context), methodName, args);
     }
 
-    private IRubyObject document(ThreadContext context){
-        return RuntimeHelpers.invoke(context, this.object, "document");
+    private IRubyObject document(ThreadContext context) {
+        if (object instanceof RubyObject) {
+            return ((RubyObject)object).fastGetInstanceVariable("@document");
+        }
+        return context.getRuntime().getNil();
     }
 
 }
