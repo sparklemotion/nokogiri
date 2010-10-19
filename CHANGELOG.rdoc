@@ -16,6 +16,7 @@
 
   * XML::Node#children= sets the node's inner html (much like #inner_html=), but returns the reparent node(s).
   * XSLT supports function extensions. #336
+  * XPath bind parameter substitution. #329
 
 * Bugfixes
 
@@ -27,6 +28,7 @@
   * XML::Node#{replace,add_previous_sibling,add_next_sibling} edge cases fixed related to libxml's text node merging. #308
   * Fixed a segfault when GC occurs during xpath handler argument marshalling. #345
   * Added hack to Slop decorator to work with previously defined methods. #330
+  * Fix a memory leak when duplicating child nodes. #353
 
 === 1.4.3 / 2010/07/28
 

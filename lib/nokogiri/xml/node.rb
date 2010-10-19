@@ -184,7 +184,7 @@ module Nokogiri
         rules, handler, ns, binds = extract_params(rules)
 
         rules = rules.map { |rule|
-          xpath_rule = CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
+          CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
         }.flatten.uniq + [ns, handler, binds].compact
 
         xpath(*rules)
