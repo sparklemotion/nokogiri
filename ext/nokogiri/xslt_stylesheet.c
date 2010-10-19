@@ -207,8 +207,9 @@ static void * initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
     int i;
 
     for(i = 0; i < RARRAY_LEN(methods); i++) {
+	VALUE method_name = rb_obj_as_string(RARRAY_PTR(methods)[i]);
 	xsltRegisterExtFunction(ctxt,
-          (unsigned char *)StringValuePtr(RARRAY_PTR(methods)[i]), uri, method_caller);
+          (unsigned char *)StringValuePtr(method_name), uri, method_caller);
     }
 
     return (void *)rb_class_new_instance(0, NULL, obj);
