@@ -377,6 +377,8 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   dup = xmlDocCopyNode(node, node->doc, (int)NUM2INT(level));
   if(dup == NULL) return Qnil;
 
+  NOKOGIRI_ROOT_NODE(dup);
+
   return Nokogiri_wrap_xml_node(rb_obj_class(self), dup);
 }
 
