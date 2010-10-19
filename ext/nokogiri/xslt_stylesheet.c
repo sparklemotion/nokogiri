@@ -26,7 +26,7 @@ static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_raise(rb_eRuntimeError, message);
+  rb_exc_raise(rb_exc_new2(rb_eRuntimeError, message));
 }
 
 /*
