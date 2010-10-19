@@ -122,7 +122,7 @@ module Nokogiri
 
       def test_parse_error_list
         error_count = @xml.errors.length
-        list = @xml.root.parse('<hello>')
+        @xml.root.parse('<hello>')
         assert(error_count < @xml.errors.length, "errors should have increased")
       end
 
