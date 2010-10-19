@@ -133,8 +133,7 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 {
     const xmlChar * function;
     const xmlChar * functionURI;
-    int i;
-    size_t count;
+    size_t i, count;
 
     xsltTransformContextPtr transform;
     xmlXPathObjectPtr xpath;
