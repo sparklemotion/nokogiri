@@ -30,12 +30,14 @@ int is_2_6_16(void)
 
 void Init_nokogiri()
 {
+#ifndef __MACRUBY__
   xmlMemSetup(
       (xmlFreeFunc)ruby_xfree,
       (xmlMallocFunc)ruby_xmalloc,
       (xmlReallocFunc)ruby_xrealloc,
       strdup
   );
+#endif
 
   mNokogiri         = rb_define_module("Nokogiri");
   mNokogiriXml      = rb_define_module_under(mNokogiri, "XML");
