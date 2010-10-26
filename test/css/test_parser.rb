@@ -142,30 +142,31 @@ module Nokogiri
 
       def test_nonstandard_nth_selectors
         ## These are non standard CSS
-        assert_xpath '//a[position() = 99]', @parser.parse('a:eq(99)')
-        assert_xpath '//a[position() = 1]', @parser.parse('a:first') # no parens
-        assert_xpath '//a[position() = last()]', @parser.parse('a:last') # no parens
-        assert_xpath '//a[position() = 99]', @parser.parse('a:nth(99)')
-        assert_xpath '//a[position() = 1]', @parser.parse('a:first()')
-        assert_xpath '//a[position() = last()]', @parser.parse('a:last()')
-        assert_xpath '//a[node()]', @parser.parse('a:parent')
+        assert_xpath '//a[position() = 1]',             @parser.parse('a:first()')
+        assert_xpath '//a[position() = 1]',             @parser.parse('a:first') # no parens
+        assert_xpath '//a[position() = 99]',            @parser.parse('a:eq(99)')
+        assert_xpath '//a[position() = 99]',            @parser.parse('a:nth(99)')
+        assert_xpath '//a[position() = last()]',        @parser.parse('a:last()')
+        assert_xpath '//a[position() = last()]',        @parser.parse('a:last') # no parens
+        assert_xpath '//a[node()]',                     @parser.parse('a:parent')
       end
 
       def test_standard_nth_selectors
-        assert_xpath '//a[position() = 99]', @parser.parse('a:nth-of-type(99)')
-        assert_xpath '//a[position() = 1]', @parser.parse('a:first-of-type()')
-        assert_xpath '//a[position() = last()]', @parser.parse('a:last-of-type()')
-        assert_xpath '//a[position() = 1]', @parser.parse('a:first-of-type') # no parens
-        assert_xpath '//a[position() = last()]', @parser.parse('a:last-of-type') # no parens
-        assert_xpath '//a[position() = last() - 99]', @parser.parse('a:nth-last-of-type(99)')
-        assert_xpath '//a[position() = last() - 99]', @parser.parse('a:nth-last-of-type(99)')
+        assert_xpath '//a[position() = 1]',             @parser.parse('a:first-of-type()')
+        assert_xpath '//a[position() = 1]',             @parser.parse('a:first-of-type') # no parens
+        assert_xpath '//a[position() = 99]',            @parser.parse('a:nth-of-type(99)')
+        assert_xpath '//a[position() = last()]',        @parser.parse('a:last-of-type()')
+        assert_xpath '//a[position() = last()]',        @parser.parse('a:last-of-type') # no parens
+        assert_xpath '//a[position() = last()]',        @parser.parse('a:nth-last-of-type(1)')
+        assert_xpath '//a[position() = last() - 98]',   @parser.parse('a:nth-last-of-type(99)')
       end
 
       def test_nth_child_selectors
-        assert_xpath '//*[position() = 1 and self::a]', @parser.parse('a:first-child')
-        assert_xpath '//*[position() = last() and self::a]', @parser.parse('a:last-child')
-        assert_xpath '//*[position() = 99 and self::a]', @parser.parse('a:nth-child(99)')
-        assert_xpath '//*[position() = last() - 99 and self::a]', @parser.parse('a:nth-last-child(99)')
+        assert_xpath '//*[position() = 1 and self::a]',           @parser.parse('a:first-child')
+        assert_xpath '//*[position() = 99 and self::a]',          @parser.parse('a:nth-child(99)')
+        assert_xpath '//*[position() = last() and self::a]',      @parser.parse('a:last-child')
+        assert_xpath '//*[position() = last() and self::a]',      @parser.parse('a:nth-last-child(1)')
+        assert_xpath '//*[position() = last() - 98 and self::a]', @parser.parse('a:nth-last-child(99)')
       end
 
       def test_miscellaneous_selectors
