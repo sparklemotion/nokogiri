@@ -109,16 +109,28 @@ module Nokogiri
       alias :/ :search
 
       ###
+      # call-seq: xpath *paths, [namespace-bindings, variable-bindings, custom-handler-class]
+      #
       # Search this node for XPath +paths+. +paths+ must be one or more XPath
-      # queries.  A hash of namespaces may be appended.  For example:
+      # queries.
       #
       #   node.xpath('.//title')
-      #   node.xpath('.//foo:name', { 'foo' => 'http://example.org/' })
+      #
+      # A hash of namespace bindings may be appended. For example:
+      #
+      #   node.xpath('.//foo:name', {'foo' => 'http://example.org/'})
       #   node.xpath('.//xmlns:name', node.root.namespaces)
       #
-      # Custom XPath functions may also be defined.  To define custom functions
-      # create a class and implement the # function you want to define.
-      # For example:
+      # A hash of variable bindings may also be appended to the namespace bindings. For example:
+      #
+      #   node.xpath('.//address[@domestic=$value]', nil, {:value => 'Yes'})
+      #
+      # Custom XPath functions may also be defined.  To define custom
+      # functions create a class and implement the function you want
+      # to define.  The first argument to the method will be the
+      # current matching NodeSet.  Any other arguments are ones that
+      # you pass in.  Note that this class may appear anywhere in the
+      # argument list.  For example:
       #
       #   node.xpath('.//title[regex(., "\w+")]', Class.new {
       #     def regex node_set, regex
@@ -153,18 +165,24 @@ module Nokogiri
       end
 
       ###
+      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
+      #
       # Search this node for CSS +rules+. +rules+ must be one or more CSS
-      # selectors.  For example:
+      # selectors. For example:
       #
       #   node.css('title')
       #   node.css('body h1.bold')
       #   node.css('div + p.green', 'div#one')
       #
-      # Custom CSS pseudo classes may also be defined.  To define custom pseudo
-      # classes, create a class and implement the custom pseudo class you
-      # want defined.  The first argument to the method will be the current
-      # matching NodeSet.  Any other arguments are ones that you pass in.
-      # For example:
+      # A hash of namespace bindings may be appended. For example:
+      #
+      #   node.css('bike|tire', {'bike' => 'http://schwinn.com/'})
+      #
+      # Custom CSS pseudo classes may also be defined.  To define
+      # custom pseudo classes, create a class and implement the custom
+      # pseudo class you want defined.  The first argument to the
+      # method will be the current matching NodeSet.  Any other
+      # arguments are ones that you pass in.  For example:
       #
       #   node.css('title:regex("\w+")', Class.new {
       #     def regex node_set, regex
