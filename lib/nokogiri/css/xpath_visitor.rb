@@ -23,7 +23,8 @@ module Nokogiri
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
             an_plus_b(node.value[1], :last => true)
           else
-            "position() = last() - #{node.value[1]}"
+            index = node.value[1].to_i - 1
+            index == 0 ? "position() = last()" : "position() = last() - #{index}"
           end
         when /^(first|first-of-type)\(/
           "position() = 1"
