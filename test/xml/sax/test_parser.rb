@@ -295,6 +295,14 @@ module Nokogiri
                        @parser.document.start_elements
         end
 
+        def test_start_element_attrs_include_namespaces
+          @parser.parse_memory(<<-eoxml)
+            <p xmlns:foo='http://foo.example.com/'>Paragraph 1</p>
+          eoxml
+          assert_equal [["p", [['xmlns:foo', 'http://foo.example.com/']]]],
+                       @parser.document.start_elements
+        end
+
         def test_parse_document
           @parser.parse_memory(<<-eoxml)
             <p>Paragraph 1</p>

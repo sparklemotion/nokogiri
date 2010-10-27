@@ -50,6 +50,23 @@ module Nokogiri
           @parser.finish
         end
 
+        def test_start_element_with_namespaces
+          @parser.<<(<<-eoxml)
+            <p xmlns:foo="http://foo.example.com/">
+          eoxml
+
+          assert_equal [["p", [["xmlns:foo", "http://foo.example.com/"]]]],
+            @parser.document.start_elements
+
+          @parser.<<(<<-eoxml)
+              <!-- This is a comment -->
+              Paragraph 1
+            </p>
+          eoxml
+          assert_equal [' This is a comment '], @parser.document.comments
+          @parser.finish
+        end
+
         def test_start_element_ns
           @parser.<<(<<-eoxml)
             <stream:stream xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0' size='large'></stream:stream>
