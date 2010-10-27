@@ -523,7 +523,10 @@ module Nokogiri
       end
 
       ###
-      # Get a hash containing the Namespace definitions for this Node
+      # Returns a Hash of {prefix => value} for all namespaces on this
+      # node and its ancestors.
+      #
+      # This method returns the same namespaces as #namespace_scopes.
       def namespaces
         Hash[*namespace_scopes.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
