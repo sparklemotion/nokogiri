@@ -38,7 +38,24 @@ module Nokogiri
             <p id="asdfasdf">
           eoxml
 
-          assert_equal [["p", ["id", "asdfasdf"]]],
+          assert_equal [["p", [["id", "asdfasdf"]]]],
+            @parser.document.start_elements
+
+          @parser.<<(<<-eoxml)
+              <!-- This is a comment -->
+              Paragraph 1
+            </p>
+          eoxml
+          assert_equal [' This is a comment '], @parser.document.comments
+          @parser.finish
+        end
+
+        def test_start_element_with_namespaces
+          @parser.<<(<<-eoxml)
+            <p xmlns:foo="http://foo.example.com/">
+          eoxml
+
+          assert_equal [["p", [["xmlns:foo", "http://foo.example.com/"]]]],
             @parser.document.start_elements
 
           @parser.<<(<<-eoxml)
