@@ -24,7 +24,7 @@ module Nokogiri
 
           assert block_called
 
-          assert_equal ['a', '&b'], doc.start_elements.first.last
+          assert_equal [['foo', [['a', '&b']]]], doc.start_elements
         end
 
         def test_parser_context_yielded_in_memory
@@ -40,7 +40,7 @@ module Nokogiri
 
           assert block_called
 
-          assert_equal ['a', '&b'], doc.start_elements.first.last
+          assert_equal [['foo', [['a', '&b']]]], doc.start_elements
         end
 
         def test_xml_decl
@@ -291,7 +291,7 @@ module Nokogiri
           @parser.parse_memory(<<-eoxml)
             <p id="asdfasdf">Paragraph 1</p>
           eoxml
-          assert_equal [["p", ["id", "asdfasdf"]]],
+          assert_equal [["p", [["id", "asdfasdf"]]]],
                        @parser.document.start_elements
         end
 

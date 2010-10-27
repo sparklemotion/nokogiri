@@ -38,7 +38,7 @@ module Nokogiri
             <p id="asdfasdf">
           eoxml
 
-          assert_equal [["p", ["id", "asdfasdf"]]],
+          assert_equal [["p", [["id", "asdfasdf"]]]],
             @parser.document.start_elements
 
           @parser.<<(<<-eoxml)

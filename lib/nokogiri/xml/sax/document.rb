@@ -85,7 +85,9 @@ module Nokogiri
 
         ###
         # Called at the beginning of an element
-        # +name+ is the name of the tag with +attrs+ as attributes
+        # * +name+ is the name of the tag
+        # * +attrs+ are an assoc list of namespaces and attributes, e.g.:
+        #     [ ["xmlns:foo", "http://sample.net"], ["size", "large"] ]
         def start_element name, attrs = []
         end
 
@@ -110,7 +112,7 @@ module Nokogiri
             [['xmlns', ns_prefix].compact.join(':'), ns_uri]
           } + attrs.map { |attr|
             [[attr.prefix, attr.localname].compact.join(':'), attr.value]
-          }.flatten
+          }
           start_element name, attributes
         end
 

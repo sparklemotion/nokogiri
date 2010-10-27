@@ -18,6 +18,7 @@
   * Added hack to Slop decorator to work with previously defined methods. #330
   * Fix a memory leak when duplicating child nodes. #353
   * Fixed off-by-one bug with nth-last-{child,of-type} CSS selectors when NOT using an+b notation. #354
+  * Fixed passing of non-namespace attributes to SAX::Document#start_element. #356
 
 === 1.4.3 / 2010/07/28
 
