@@ -526,6 +526,15 @@ module Nokogiri
       # node and its ancestors.
       #
       # This method returns the same namespaces as #namespace_scopes.
+      #
+      # Returns namespaces in scope for self -- those defined on self
+      # element directly or any ancestor node -- as a Hash of
+      # attribute-name/value pairs. Note that the keys in this hash
+      # XML attributes that would be used to define this namespace,
+      # such as "xmlns:prefix", not just the prefix. Default namespace
+      # set on self will be included with key "xmlns". However,
+      # default namespaces set on ancestor will NOT be, even if self
+      # has no explicit default namespace.
       def namespaces
         Hash[*namespace_scopes.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
@@ -633,14 +642,22 @@ module Nokogiri
       end
 
       ###
-      # Set the default namespace for this node to +url+
+      # Adds a default namespace supplied as a string +url+ href, to self.
+      # The consequence is as an xmlns attribute with supplied argument were
+      # present in parsed XML.  A default namespace set with this method will
+      # now show up in #attributes, but when this node is serialized to XML an
+      # "xmlns" attribute will appear. See also #namespace and #namespace=
       def default_namespace= url
         add_namespace_definition(nil, url)
       end
       alias :add_namespace :add_namespace_definition
 
       ###
-      # Set the namespace for this node to +ns+
+      # Set the default namespace on this node (as would be defined with an
+      # "xmlns=" attribute in XML source), as a Namespace object +ns+. Note that
+      # a Namespace added this way will NOT be serialized as an xmlns attribute
+      # for this node. You probably want #default_namespace= instead, or perhaps
+      # #add_namespace_definition with a nil prefix argument. 
       def namespace= ns
         return set_namespace(ns) unless ns
 
