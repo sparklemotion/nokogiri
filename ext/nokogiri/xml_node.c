@@ -1044,7 +1044,12 @@ static VALUE line(VALUE self)
  * call-seq:
  *  add_namespace_definition(prefix, href)
  *
- * Adds a namespace definition with +prefix+ using +href+ value. The result is as if parsed XML for this node had included an attribute 'xmlns:prefix=value'.  A default namespace for this node ("xmlns=") can be added by passing 'nil' for prefix. Note that non-default namespaces added with this method will not currently show up in #attributes or be included as an xmlns attribute when this node is serialized to XML. Default namespaces will be included when node is serialized to XML as an "xmlns=" attribute.  
+ * Adds a namespace definition with +prefix+ using +href+ value. The result is
+ * as if parsed XML for this node had included an attribute
+ * 'xmlns:prefix=value'.  A default namespace for this node ("xmlns=") can be
+ * added by passing 'nil' for prefix. Namespaces added this way will not 
+ * show up in #attributes, but they will be included as an xmlns attribute
+ * when the node is serialized to XML.   
  */
 static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 {
