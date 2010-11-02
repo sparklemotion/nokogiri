@@ -794,7 +794,7 @@ static VALUE namespace(VALUE self)
  *  call-seq:
  *    namespace_definitions()
  *
- *  returns namespaces defined on self element directly, as an array of Namespace objects. Includes both a default namespace (as in"xmlns="), and prefixed namespaces (as in "xmlns:prefix="). 
+ *  returns namespaces defined on self element directly, as an array of Namespace objects. Includes both a default namespace (as in"xmlns="), and prefixed namespaces (as in "xmlns:prefix=").
  */
 static VALUE namespace_definitions(VALUE self)
 {
@@ -1053,9 +1053,9 @@ static VALUE line(VALUE self)
  * Adds a namespace definition with +prefix+ using +href+ value. The result is
  * as if parsed XML for this node had included an attribute
  * 'xmlns:prefix=value'.  A default namespace for this node ("xmlns=") can be
- * added by passing 'nil' for prefix. Namespaces added this way will not 
+ * added by passing 'nil' for prefix. Namespaces added this way will not
  * show up in #attributes, but they will be included as an xmlns attribute
- * when the node is serialized to XML.   
+ * when the node is serialized to XML.
  */
 static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 {

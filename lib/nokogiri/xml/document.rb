@@ -115,11 +115,11 @@ module Nokogiri
       # The hash returned will look like this: { 'xmlns:foo' => 'bar' }
       #
       # Non-prefixed default namespaces (as in "xmlns=") are not included
-      # in the hash. 
-      # 
+      # in the hash.
+      #
       # Note this is a very expensive operation in current implementation, as it
       # traverses the entire graph, and also has to bring each node accross the
-      # libxml bridge into a ruby object. 
+      # libxml bridge into a ruby object.
       def collect_namespaces
         ns = {}
         traverse { |j| ns.merge!(j.namespaces) }
