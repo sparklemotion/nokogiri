@@ -770,7 +770,8 @@ static VALUE attribute_nodes(VALUE self)
  *  call-seq:
  *    namespace()
  *
- *  returns the Nokogiri::XML::Namespace for the node, if one exists.
+ *  returns the default namespace set on this node (as with an "xmlns="
+ *  attribute), as a Namespace object.
  */
 static VALUE namespace(VALUE self)
 {
@@ -787,7 +788,7 @@ static VALUE namespace(VALUE self)
  *  call-seq:
  *    namespace_definitions()
  *
- *  returns a list of Namespace nodes defined on _self_
+ *  returns namespaces defined on self element directly, as an array of Namespace objects. Includes both a default namespace (as in"xmlns="), and prefixed namespaces (as in "xmlns:prefix=").
  */
 static VALUE namespace_definitions(VALUE self)
 {
@@ -816,8 +817,10 @@ static VALUE namespace_definitions(VALUE self)
  *  call-seq:
  *    namespace_scopes()
  *
- *  returns a list of Namespace nodes in scope for _self_. this is all
- *  namespaces defined in the node, or in any ancestor node.
+ * returns namespaces in scope for self -- those defined on self element
+ * directly or any ancestor node -- as an array of Namespace objects.  Default
+ * namespaces ("xmlns=" style) for self are included in this array; Default
+ * namespaces for  ancestors, however, are not. See also #namespaces
  */
 static VALUE namespace_scopes(VALUE self)
 {
@@ -1041,7 +1044,12 @@ static VALUE line(VALUE self)
  * call-seq:
  *  add_namespace_definition(prefix, href)
  *
- * Adds a namespace definition with +prefix+ using +href+
+ * Adds a namespace definition with +prefix+ using +href+ value. The result is
+ * as if parsed XML for this node had included an attribute
+ * 'xmlns:prefix=value'.  A default namespace for this node ("xmlns=") can be
+ * added by passing 'nil' for prefix. Namespaces added this way will not
+ * show up in #attributes, but they will be included as an xmlns attribute
+ * when the node is serialized to XML.
  */
 static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 {
