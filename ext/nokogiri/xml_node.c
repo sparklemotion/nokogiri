@@ -245,7 +245,13 @@ static VALUE encode_special_chars(VALUE self, VALUE string)
  * call-seq:
  *  create_internal_subset(name, external_id, system_id)
  *
- * Create an internal subset
+ * Create the internal subset of a document.
+ *
+ *   doc.create_internal_subset("chapter", "-//OASIS//DTD DocBook XML//EN", "chapter.dtd")
+ *   # => <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML//EN" "chapter.dtd">
+ *
+ *   doc.create_internal_subset("chapter", nil, "chapter.dtd")
+ *   # => <!DOCTYPE chapter SYSTEM "chapter.dtd">
  */
 static VALUE create_internal_subset(VALUE self, VALUE name, VALUE external_id, VALUE system_id)
 {
