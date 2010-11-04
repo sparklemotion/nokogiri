@@ -175,6 +175,18 @@ module Nokogiri
         end
         assert fragment.children.respond_to?(:awesome!), fragment.children.class
       end
+
+      def test_for_libxml_in_context_fragment_parsing_bug_workaround
+        10.times do
+          begin
+            fragment = Nokogiri::XML.fragment("<div></div>")
+            parent = fragment.children.first
+            child = parent.parse("<h1></h1>").first
+            parent.add_child child
+          end
+          GC.start
+        end
+      end
     end
   end
 end
