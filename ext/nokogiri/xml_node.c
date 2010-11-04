@@ -1165,6 +1165,7 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
   xmlNodePtr node;
   xmlNodePtr list;
+  xmlNodePtr child_iter;
   xmlNodeSetPtr set;
   xmlParserErrors error;
   VALUE doc, err;
@@ -1189,6 +1190,14 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
       (int)RSTRING_LEN(_str),
       (int)NUM2INT(_options),
       &list);
+
+  /* make sure parent/child pointers are coherent so an unlink will work properly (#331) */
+  child_iter = node->doc->children ;
+  while (child_iter) {
+    if (child_iter->parent != (xmlNodePtr)node->doc)
+      child_iter->parent = (xmlNodePtr)node->doc ;
+    child_iter = child_iter->next ;
+  }
 
 #ifndef HTML_PARSE_NOIMPLIED
   htmlHandleOmittedElem(1);
