@@ -431,6 +431,19 @@ module Nokogiri
         assert_equal 'employee', @xml.search("//wrapper").first.children[0].name
       end
 
+      def test_wrap_a_fragment
+        frag = Nokogiri::XML::DocumentFragment.parse <<-EOXML
+          <employees>
+            <employee>hello</employee>
+            <employee>goodbye</employee>
+          </employees>
+        EOXML
+        employees = frag.xpath ".//employee"
+        employees.wrap("<wrapper/>")
+        assert_equal 'wrapper', employees[0].parent.name
+        assert_equal 'employee', frag.at(".//wrapper").children.first.name
+      end
+
       def test_wrap_preserves_document_structure
         assert_equal "employeeId",
                      @xml.at_xpath("//employee").children.detect{|j| ! j.text? }.name
