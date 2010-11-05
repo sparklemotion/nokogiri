@@ -141,7 +141,21 @@ module Nokogiri
       end
 
       ##
-      # Explore a document with shortcut methods.
+      # Explore a document with shortcut methods. See Nokogiri::Slop for details.
+      #
+      # Note that any nodes that have been instantiated before #slop!
+      # is called will not be decorated with sloppy behavior. So, if you're in
+      # irb, the preferred idiom is:
+      #
+      #   irb> doc = Nokogiri::Slop my_markup
+      #
+      # and not
+      #
+      #   irb> doc = Nokogiri::HTML my_markup
+      #   ... followed by irb's implicit inspect (and therefore instantiation of every node) ...
+      #   irb> doc.slop!
+      #   ... which does absolutely nothing.
+      #
       def slop!
         unless decorators(XML::Node).include? Nokogiri::Decorators::Slop
           decorators(XML::Node) << Nokogiri::Decorators::Slop
