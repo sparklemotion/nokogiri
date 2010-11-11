@@ -13,7 +13,7 @@ module Nokogiri
       end
 
       ###
-      # Set the meta tag encoding for this document.  If there is no meta 
+      # Set the meta tag encoding for this document.  If there is no meta
       # content tag, nil is returned and the encoding is not set.
       def meta_encoding= encoding
         return nil unless meta = css('meta').find { |node|
@@ -38,7 +38,7 @@ module Nokogiri
       #     config.format.as_xml
       #   end
       #
-      def serialize options = {}, &block
+      def serialize options = {}
         options[:save_with] ||= XML::Node::SaveOptions::FORMAT |
             XML::Node::SaveOptions::AS_HTML |
             XML::Node::SaveOptions::NO_DECLARATION |
@@ -61,7 +61,7 @@ module Nokogiri
         # is a number that sets options in the parser, such as
         # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
         # Nokogiri::XML::ParseOptions.
-        def parse string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML, &block
+        def parse string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML
 
           options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
           # Give the options to the user
