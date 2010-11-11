@@ -288,10 +288,10 @@ module Nokogiri
                   </root>
                 EOHTML
 
-                root = doc.at("root")
-                a = root.at("a")
-                b = a.at("b")
-                c = a.at("c")
+                assert root = doc.at("root")
+                assert a = root.at("a")
+                assert b = a.at("b")
+                assert c = a.at("c")
                 a.add_next_sibling(b.unlink)
                 c.unlink
               end
