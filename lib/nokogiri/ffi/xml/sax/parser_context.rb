@@ -40,6 +40,18 @@ module Nokogiri
           pc
         end
 
+        def line
+          return nil if cstruct[:input].null?
+          input = LibXML::XmlParserInput.new cstruct[:input]
+          input[:line]
+        end
+
+        def column
+          return nil if cstruct[:input].null?
+          input = LibXML::XmlParserInput.new cstruct[:input]
+          input[:col]
+        end
+
         def parse_with sax_handler, type = :xml
           raise ArgumentError unless XML::SAX::Parser === sax_handler
           sax = sax_handler.cstruct

@@ -11,7 +11,8 @@ module Nokogiri
         :version,           :string,
         :encoding,          :string,
         :standalone,        :int,
-        :html,              :int
+        :html,              :int,
+        :input,             :pointer
       )
     end
   end

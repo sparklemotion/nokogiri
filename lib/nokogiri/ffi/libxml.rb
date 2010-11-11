@@ -376,6 +376,7 @@ require 'nokogiri/xml/syntax_error'
   "structs/xml_element",
   "structs/xml_entity",
   "structs/xml_element_content",
+  "structs/xml_parser_input",
   "xml/node",
   "xml/namespace",
   "xml/dtd",

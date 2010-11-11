@@ -140,6 +140,44 @@ static VALUE get_replace_entities(VALUE self)
     return Qtrue;
 }
 
+/*
+ * call-seq: line
+ *
+ * Get the current line the parser context is processing.
+ */
+static VALUE line(VALUE self)
+{
+  xmlParserCtxtPtr ctxt;
+  xmlParserInputPtr io;
+
+  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+
+  io = ctxt->input;
+  if(io)
+    return INT2NUM(io->line);
+
+  return Qnil;
+}
+
+/*
+ * call-seq: column
+ *
+ * Get the current column the parser context is processing.
+ */
+static VALUE column(VALUE self)
+{
+  xmlParserCtxtPtr ctxt;
+  xmlParserInputPtr io;
+
+  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+
+  io = ctxt->input;
+  if(io)
+    return INT2NUM(io->col);
+
+  return Qnil;
+}
+
 void init_xml_sax_parser_context()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
@@ -156,4 +194,6 @@ void init_xml_sax_parser_context()
   rb_define_method(klass, "parse_with", parse_with, 1);
   rb_define_method(klass, "replace_entities=", set_replace_entities, 1);
   rb_define_method(klass, "replace_entities", get_replace_entities, 0);
+  rb_define_method(klass, "line", line, 0);
+  rb_define_method(klass, "column", column, 0);
 }
