@@ -18,6 +18,7 @@
   * XSLT supports function extensions. #336
   * XPath bind parameter substitution. #329
   * XML::Reader node type constants. #369
+  * SAX Parser context provides line and column information
 
 * Bugfixes
 
