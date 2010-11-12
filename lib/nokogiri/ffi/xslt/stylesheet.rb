@@ -1,5 +1,26 @@
 module Nokogiri
   module XSLT
+    @modules = {}
+
+    @method_caller = lambda do |context, nargs|
+      # TODO
+    end
+
+    @init_func = lambda do |context, uri|
+      klass = @modules[uri]
+      klass.instance_methods(false).each do |method_name|
+	LibXML.xsltRegisterExtFunction(context, method_name, uri, @method_caller)
+      end
+      klass.new
+    end
+
+    @shutdown_func = lambda do |context, uri, data|
+    end
+
+    def self.register(uri, klass) # :nodoc:
+      raise NotImplementedError.new("sorry, you should implement me.")
+    end
+
     class Stylesheet
 
       attr_accessor :cstruct # :nodoc:
@@ -47,7 +68,6 @@ module Nokogiri
 
         XML::Document.wrap(ptr)
       end
-
     end
   end
 end

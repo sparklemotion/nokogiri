@@ -62,6 +62,9 @@ module Nokogiri
     callback :cdata_block_sax_func, [:pointer, :string, :int], :void
     callback :start_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer, :int, :pointer, :int, :int, :pointer], :void
     callback :end_element_ns_sax2_func, [:pointer, :pointer, :pointer, :pointer], :void
+    callback :xslt_function_init, [:pointer, :string], :pointer
+    callback :xslt_function_shutdown, [:pointer, :string, :pointer], :void
+    callback :xslt_function_caller, [:pointer, :int], :void
 
     # encoding.c
     attach_function :xmlFindCharEncodingHandler, [:string], :pointer
@@ -274,6 +277,9 @@ module Nokogiri
     attach_function :xsltApplyStylesheet, [:pointer, :pointer, :pointer], :pointer
     attach_function :xsltSaveResultToString, [:buffer_out, :buffer_out, :pointer, :pointer], :int
     attach_function :xsltSetGenericErrorFunc, [:pointer, :generic_error_handler], :void
+    attach_function :xsltRegisterExtModule, [:string, :xslt_function_init, :xslt_function_shutdown], :int
+    attach_function :xsltRegisterExtFunction, [:pointer, :string, :string, :xslt_function_caller], :int
+    attach_function :xsltXPathGetTransformContext, [:pointer], :pointer
 
     # exslt.c
     attach_function :exsltRegisterAll, [], :void

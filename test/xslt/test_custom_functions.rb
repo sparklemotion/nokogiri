@@ -25,6 +25,7 @@ EOXML
       end
 
       def test_function
+        skip("xslt custom functions not implemented under FFI") if Nokogiri.ffi?
         foo = Class.new do
           def capitalize nodes
             nodes.first.content.upcase
@@ -58,6 +59,7 @@ EOXSL
       end
 
       def test_function_XSLT
+        skip("xslt custom functions not implemented under FFI") if Nokogiri.ffi?
         foo = Class.new do
           def america nodes
             nodes.first.content.upcase
