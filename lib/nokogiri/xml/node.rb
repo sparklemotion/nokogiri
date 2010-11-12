@@ -95,13 +95,17 @@ module Nokogiri
       # optional hash of namespaces may be appended.
       # See Node#xpath and Node#css.
       def search *paths
+        # TODO use         paths, handler, ns, binds = extract_params(paths)
         ns = paths.last.is_a?(Hash) ? paths.pop :
           (document.root ? document.root.namespaces : {})
+
+        prefix = "#{implied_xpath_context}/"
+
         xpath(*(paths.map { |path|
           path = path.to_s
           path =~ /^(\.\/|\/)/ ? path : CSS.xpath_for(
             path,
-            :prefix => ".//",
+            :prefix => prefix,
             :ns     => ns
           )
         }.flatten.uniq) + [ns])
@@ -201,8 +205,10 @@ module Nokogiri
       def css *rules
         rules, handler, ns, binds = extract_params(rules)
 
+        prefix = "#{implied_xpath_context}/"
+
         rules = rules.map { |rule|
-          CSS.xpath_for(rule, :prefix => ".//", :ns => ns)
+          CSS.xpath_for(rule, :prefix => prefix, :ns => ns)
         }.flatten.uniq + [ns, handler, binds].compact
 
         xpath(*rules)
@@ -887,6 +893,10 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
         end
 
         data
+      end
+
+      def implied_xpath_context
+        "./"
       end
 
       def inspect_attributes

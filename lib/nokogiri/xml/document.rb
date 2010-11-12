@@ -206,6 +206,10 @@ module Nokogiri
       alias :<< :add_child
 
       private
+      def implied_xpath_context
+        "/"
+      end
+
       def inspect_attributes
         [:name, :children]
       end
