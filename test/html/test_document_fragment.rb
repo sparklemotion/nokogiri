@@ -226,6 +226,27 @@ module Nokogiri
         fragment = HTML::DocumentFragment.parse("foo <script>bar")
         assert_equal "foo <script>bar</script>", fragment.to_html
       end
+
+
+      def test_error_propagation_on_fragment_parse
+        frag = Nokogiri::HTML::DocumentFragment.parse "<hello>oh, hello there.</hello>"
+        assert ! frag.errors.grep(/Tag hello invalid/).empty?, "errors should be copied to the fragment"
+      end
+
+      def test_error_propagation_on_fragment_parse_in_node_context
+        doc = Nokogiri::HTML::Document.parse "<html><body><div></div></body></html>"
+        context_node = doc.at_css "div"
+        frag = Nokogiri::HTML::DocumentFragment.new doc, "<hello>oh, hello there.</hello>", context_node
+        assert ! frag.errors.grep(/Tag hello invalid/).empty?, "errors from in_context parse should be on the context node's document"
+      end
+
+      def test_error_propagation_on_fragment_parse_in_node_context_should_not_include_preexisting_errors
+        doc = Nokogiri::HTML::Document.parse "<html><body><div></div><jimmy></jimmy></body></html>"
+        context_node = doc.at_css "div"
+        frag = Nokogiri::HTML::DocumentFragment.new doc, "<hello>oh, hello there.</hello>", context_node
+        assert ! frag.errors.grep(/Tag hello invalid/).empty?, "errors from in_context parse should be on the context node's document"
+        assert frag.errors.grep(/jimmy/).empty?, "errors from in_context parse should not include pre-existing document errors"
+      end
     end
   end
 end
