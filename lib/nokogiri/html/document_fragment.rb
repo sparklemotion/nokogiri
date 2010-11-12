@@ -19,7 +19,8 @@ module Nokogiri
 
         if ctx
           preexisting_errors = document.errors.dup
-          ctx.parse("<div>#{tags}</div>").first.children.each { |child| child.parent = self }
+          node_set = ctx.parse("<div>#{tags}</div>")
+          node_set.first.children.each { |child| child.parent = self } unless node_set.empty?
           self.errors = document.errors - preexisting_errors
         else
           # This is a horrible hack, but I don't care
