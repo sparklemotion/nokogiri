@@ -405,14 +405,18 @@ module Nokogiri
       end
 
       def in_context(string, options)
-        raise RuntimeError, "no contextual parsing on unlinked nodes" if parent.nil?
-
         errors = []
         LibXML.xmlSetStructuredErrorFunc(nil, SyntaxError.error_array_pusher(errors))
         LibXML.htmlHandleOmittedElem(0)
 
         list_memory = FFI::MemoryPointer.new :pointer
         LibXML.xmlParseInNodeContext(cstruct, string, string.length, options, list_memory)
+
+        self.document.children.each do |child|
+          if child.cstruct[:parent] != cstruct[:doc]
+            child.cstruct[:parent] = cstruct[:doc]
+          end
+        end
 
         LibXML.htmlHandleOmittedElem(1)
         LibXML.xmlSetStructuredErrorFunc(nil, nil)
