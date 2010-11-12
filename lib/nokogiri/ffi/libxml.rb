@@ -200,6 +200,8 @@ module Nokogiri
     attach_function :xmlXPathWrapString, [:pointer], :pointer # should take a :string, but we optimize
     attach_function :xmlXPathNewBoolean, [:int], :pointer
     attach_function :xmlXPathNewFloat, [:double], :pointer
+    attach_function :xmlXPathNewCString, [:string], :pointer
+    attach_function :xmlXPathRegisterVariable, [:pointer, :string, :pointer], :int
 
     class << self
       # these functions are implemented as C macros

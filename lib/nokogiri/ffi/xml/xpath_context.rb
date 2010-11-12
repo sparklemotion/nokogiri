@@ -8,6 +8,11 @@ module Nokogiri
         LibXML.xmlXPathRegisterNs(cstruct, prefix, uri)
       end
 
+      def register_variable(name, value) # :nodoc:
+        xml_value = LibXML.xmlXPathNewCString(value);
+        LibXML.xmlXPathRegisterVariable(cstruct, name, xml_value);
+      end
+
       def evaluate(search_path, xpath_handler=nil) # :nodoc:
         lookup = nil # to keep lambda in scope long enough to avoid a possible GC tragedy
         query = search_path.to_s
