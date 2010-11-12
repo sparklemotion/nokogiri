@@ -220,6 +220,12 @@ static void shutdownFunc(xsltTransformContextPtr ctxt,
 {
 }
 
+/*
+ *  call-seq:
+ *    register(uri, custom_handler_class)
+ *
+ *  Register a class that implements custom XLST transformation functions.
+ */
 static VALUE registr(VALUE self, VALUE uri, VALUE obj)
 {
     VALUE modules = rb_iv_get(self, "@modules");
