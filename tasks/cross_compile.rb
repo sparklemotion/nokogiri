@@ -108,7 +108,7 @@ file "tmp/cross/download/#{LIBXSLT}" do |t|
 
   Dir.chdir t.name do
     # FIXME: need to make the host dynamic
-    sh "CFLAGS='-DIN_LIBXML' ./configure --host=#{HOST} --target=#{TARGET} --enable-static --disable-shared --prefix=#{CROSS_DIR} --with-libxml-prefix=#{CROSS_DIR} --without-python"
+    sh "CFLAGS='-DIN_LIBXML' ./configure --host=#{HOST} --target=#{TARGET} --enable-static --disable-shared --prefix=#{CROSS_DIR} --with-libxml-prefix=#{CROSS_DIR} --without-python --without-crypto"
   end
 end
 
