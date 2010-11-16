@@ -66,6 +66,7 @@ unless java
     ext.config_options << ENV['EXTOPTS']
     ext.cross_compile   = true
     ext.cross_platform  = 'i386-mingw32'
+    # ext.cross_platform  = 'i386-mswin32'
     ext.cross_config_options <<
       "--with-xml2-include=#{File.join(CROSS_DIR, 'include', 'libxml2')}"
     ext.cross_config_options <<
