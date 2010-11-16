@@ -17,6 +17,7 @@ JRUBY_HOME = Config::CONFIG['prefix']
 
 # Make sure hoe-debugging is installed
 Hoe.plugin :debugging
+Hoe.plugin :git
 
 HOE = Hoe.spec 'nokogiri' do
   developer('Aaron Patterson', 'aaronp@rubyforge.org')
