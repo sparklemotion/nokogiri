@@ -13,6 +13,7 @@ CROSS_DIR           = File.join(File.dirname(__FILE__), 'tmp', 'cross')
 
 # Make sure hoe-debugging is installed
 Hoe.plugin :debugging
+Hoe.plugin :git
 
 HOE = Hoe.spec 'nokogiri' do
   developer('Aaron Patterson', 'aaronp@rubyforge.org')
