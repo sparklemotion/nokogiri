@@ -1,3 +1,29 @@
+=== 1.4.4 ２０１０年１１月１５日
+
+* 新機能
+
+  * XML::Node#children=ノード内のhtml  reparented node(s)を返す事によって親の変更ができる。
+  * XSLT はfunction extensionsをサポート。#336
+  * XPath はパラメーター置換を結合する. #329
+  * XML::Reader node typeを一定化させる. #369
+  * SAX Parser context は行とコラムの両方の情報を提供する
+
+* バグの修正
+
+  * XML::DTD#attributes は属性が存在しない際、nilの代わりに空のハッシュを返す
+  * XML::DTD#{keys,each} は文字通りに機能するようになった #324
+  * {XML,HTML}::DocumentFragment.{new,parse} 行送りと末尾の空白を除去しなくなった #319
+  * XML::Node#{add_child,add_previous_sibling,add_next_sibling,replace} は文字列を見送る際にNodeSetを返す
+  * 不確定タグはフレグメント内で要、不要に関係なく解析される　#315
+  * XML::Node#{replace,add_previous_sibling,add_next_sibling}　libxmlのtext node merging に関わるedge caseを修正する #308
+  * xpath handler argument が整列している最中に起こるGCでのsegfaultを修正　#345
+  * Slop decoratorが既に確定された定義と共に正常に機能させるための便宜上の処置 #330
+  * 子ノードが複製される際に起こるメモリ漏れの修正  #353
+  * an+b記号の無使用時に発生するoff-by-oneバグとnth-last-{child,of-type} CSSセレクターの修正 #354
+  * 非名前空間属性がSAX::Document#start_elementへパスできるように修正　#356
+  * libxml2 in-contextの解析バグの処置　 #362
+  * フレグメント内のノードの中にあるNodeSet#wrapの修正　#331
+
 === 1.4.3 ２０１０年７月２８日
 
 * 新しい機能
