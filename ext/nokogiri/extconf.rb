@@ -91,9 +91,6 @@ def asplode(lib)
   abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
 end
 
-# Use this with cross compiling
-# PKG_CONFIG_PATH=/Users/apatterson/git/nokogiri/tmp/cross/lib/pkgconfig/ \
-#   rake cross compile RUBY_CC_VERSION=1.9.1
 pkg_config('libxslt') if RUBY_PLATFORM =~ /mingw/
 
 asplode "libxml2"  unless find_header('libxml/parser.h')

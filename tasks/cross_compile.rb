@@ -6,6 +6,7 @@ ZLIB    = 'zlib-1.2.5'
 ICONV   = 'libiconv-1.13.1'
 LIBXML  = 'libxml2-2.7.7'
 LIBXSLT = 'libxslt-1.1.26'
+RAKE_COMPILER_PKGCONFIG = File.expand_path(File.join(Dir.pwd, "tmp/cross/lib/pkgconfig/"))
 
 ### Build zlib ###
 file "tmp/cross/download/#{ZLIB}" do |t|
@@ -120,7 +121,7 @@ file 'tmp/cross/bin/xslt-config' => "tmp/cross/download/#{LIBXSLT}" do |t|
 end
 ### End build libxslt ###
 
-file 'lib/nokogiri/nokogiri.rb' => 'cross:libxslt' do
+file 'lib/nokogiri/nokogiri.rb' => 'cross:check' do
   File.open("lib/#{HOE.name}/#{HOE.name}.rb", 'wb') do |f|
     f.write <<-eoruby
 require "#{HOE.name}/\#{RUBY_VERSION.sub(/\\.\\d+$/, '')}/#{HOE.name}"
@@ -133,6 +134,12 @@ namespace :cross do
   task :zlib    => 'tmp/cross/lib/libz.a'
   task :libxml2 => ['cross:zlib', 'cross:iconv', 'tmp/cross/bin/xml2-config']
   task :libxslt => ['cross:libxml2', 'tmp/cross/bin/xslt-config']
+
+  task :check => ["cross:libxslt"] do
+    unless File.directory?(RAKE_COMPILER_PKGCONFIG)
+      raise RuntimeError.new("looks like rake-compiler changed where pkgconfig info is kept. (#{RAKE_COMPILER_PKGCONFIG})")
+    end
+  end
 
   task :copy_dlls do
     Dir['tmp/cross/bin/*.dll'].each do |file|
@@ -155,4 +162,19 @@ CLOBBER.include("ext/nokogiri/*.dll")
 if Rake::Task.task_defined?(:cross)
   Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
   Rake::Task[:cross].prerequisites << "cross:file_list"
+end
+
+desc "build a windows gem without all the ceremony."
+task "gem:windows" do
+  # check that rake-compiler config contains the right patchlevels of 1.8.6 and 1.9.1
+  rake_compiler_config = YAML.load_file("#{ENV['HOME']}/.rake-compiler/config.yml")
+  ["1.8.6-p383", "1.9.1-p243"].each do |version|
+    majmin, patchlevel = version.split("-")
+    rbconfig = "rbconfig-#{majmin}"
+    unless rake_compiler_config.key?(rbconfig) && rake_compiler_config[rbconfig] =~ /-#{patchlevel}/
+      raise "rake-compiler '#{rbconfig}' not #{patchlevel}. try running 'rake-compiler cross-ruby VERSION=#{version}'"
+    end
+  end
+
+  system("env PKG_CONFIG_PATH=#{RAKE_COMPILER_PKGCONFIG} RUBY_CC_VERSION=1.8.6:1.9.1 rake cross native gem") || raise("build failed!")
 end
