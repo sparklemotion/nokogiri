@@ -166,8 +166,9 @@ end
 
 desc "build a windows gem without all the ceremony."
 task "gem:windows" do
-  # check that rake-compiler config contains the right patchlevels of 1.8.6 and 1.9.1
   rake_compiler_config = YAML.load_file("#{ENV['HOME']}/.rake-compiler/config.yml")
+
+  # check that rake-compiler config contains the right patchlevels of 1.8.6 and 1.9.1. see #279.
   ["1.8.6-p383", "1.9.1-p243"].each do |version|
     majmin, patchlevel = version.split("-")
     rbconfig = "rbconfig-#{majmin}"
@@ -175,6 +176,10 @@ task "gem:windows" do
       raise "rake-compiler '#{rbconfig}' not #{patchlevel}. try running 'rake-compiler cross-ruby VERSION=#{version}'"
     end
   end
+
+  # verify that --export-all is in the 1.9.1 rbconfig. see #279,#374,#375.
+  rbconfig_191 = rake_compiler_config["rbconfig-1.9.1"]
+  raise "rbconfig #{rbconfig_191} needs --export-all in its DLDFLAGS value" if File.read(rbconfig_191).grep(/CONFIG\["DLDFLAGS"\].*--export-all/).empty?
 
   system("env PKG_CONFIG_PATH=#{RAKE_COMPILER_PKGCONFIG} RUBY_CC_VERSION=1.8.6:1.9.1 rake cross native gem") || raise("build failed!")
 end
