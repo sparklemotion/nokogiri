@@ -677,7 +677,7 @@ public class XmlNode extends RubyObject {
      * 'in_context' is supposed to do.  Also should take
      * <code>options</code> into account.
      */
-    @JRubyMethod(visibility=Visibility.PRIVATE)
+    @JRubyMethod(required = 2, visibility = Visibility.PRIVATE)
     public IRubyObject in_context(ThreadContext context,
                                   IRubyObject str,
                                   IRubyObject options) {

@@ -379,11 +379,6 @@ public class XmlDocument extends XmlNode {
         return stringOrNil(context.getRuntime(), getDocument().getXmlVersion());
     }
 
-    @JRubyMethod
-    public IRubyObject in_context(ThreadContext context) {
-        throw getRuntime().newNotImplementedError("not implemented");
-    }
-
     @JRubyMethod(meta = true)
     public static IRubyObject substitute_entities_set(ThreadContext context, IRubyObject cls, IRubyObject value) {
         XmlDocument.substituteEntities = value.isTrue();
