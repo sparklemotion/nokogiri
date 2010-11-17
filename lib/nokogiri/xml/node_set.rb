@@ -104,7 +104,7 @@ module Nokogiri
 
         each do |node|
           doc = node.document
-          search_ns = ns || doc.root ? doc.root.namespaces : {}
+          search_ns = ns || (doc.root ? doc.root.namespaces : {})
 
           xpaths = paths.map { |rule|
             [
