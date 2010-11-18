@@ -39,6 +39,9 @@ import org.jruby.RubyClass;
 import org.jruby.RubyException;
 import org.jruby.RubyModule;
 import org.jruby.anno.JRubyClass;
+import org.jruby.anno.JRubyMethod;
+import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.SAXParseException;
 
 /**
@@ -99,4 +102,13 @@ public class XmlSyntaxError extends RubyException {
         return new XmlSyntaxError(runtime, klazz, e);
     }
 
+    @Override
+    @JRubyMethod(name = "to_s")
+    public IRubyObject to_s(ThreadContext context) {
+        if (exception != null && exception.getMessage() != null)
+            return context.getRuntime().newString(exception.getMessage());
+        else
+            return super.to_s(context);
+            
+    }
 }
