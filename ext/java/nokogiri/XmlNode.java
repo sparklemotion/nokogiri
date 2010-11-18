@@ -53,6 +53,7 @@ import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
@@ -711,8 +712,13 @@ public class XmlNode extends RubyObject {
         ctx.setInputSource(istream);
         XmlDocument doc = ctx.parse(context, klass, runtime.getNil());
         
-        if (isErrorIncreated(document, doc)) {
-            saveErrorsOfCreatedDocument(document, doc);
+        RubyArray documentErrors = getErrorArray(document);
+        RubyArray docErrors = getErrorArray(doc);
+        if (isErrorIncreated(documentErrors, docErrors)) {
+            for (int i = 0; i < docErrors.getLength(); i++) {
+                documentErrors.add(docErrors.get(i));
+            }
+            document.setInstanceVariable("@errors", documentErrors);
             return new XmlNodeSet(getRuntime(), RubyArray.newArray(runtime));
         }
         
@@ -732,33 +738,17 @@ public class XmlNode extends RubyObject {
         return nodes;
     }
     
-    private int getErrorNumbers(XmlDocument document) {
+    private RubyArray getErrorArray(XmlDocument document) {
         IRubyObject obj = document.getInstanceVariable("@errors");
         if (obj != null && obj instanceof RubyArray) {
-            return ((RubyArray)obj).getLength();
+            return (RubyArray)obj;
         }
-        return 0;
+        return RubyArray.newArray(document.getRuntime());
     }
-    
-    private boolean isErrorIncreated(XmlDocument base, XmlDocument created) {
-        int baseDocumentErrors = getErrorNumbers(base);
-        int createdDocumentErrors = getErrorNumbers(created);
-        return createdDocumentErrors > baseDocumentErrors;
-    }
-    
-    private void saveErrorsOfCreatedDocument(XmlDocument base, XmlDocument created) {
-        RubyArray newErrors = (RubyArray)created.getInstanceVariable("@errors");
-        RubyArray existingErrors = null;
-        IRubyObject obj = base.getInstanceVariable("@errors");
-        if (obj != null && obj instanceof RubyArray) {
-            existingErrors = (RubyArray)obj;
-        } else {
-            existingErrors = RubyArray.newArray(base.getRuntime());
-        }
-        for (int i=0; i<newErrors.getLength(); i++) {
-            existingErrors.add(newErrors.get(i));
-        }
-        base.setInstanceVariable("@errors", existingErrors);
+
+    private boolean isErrorIncreated(RubyArray baseErrors, RubyArray createdErrors) {
+        RubyBoolean result = baseErrors.compare(baseErrors.getRuntime().getCurrentContext(), "eql?", createdErrors, null);
+        return result.isFalse();
     }
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
