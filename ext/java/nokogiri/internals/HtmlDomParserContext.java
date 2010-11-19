@@ -58,16 +58,6 @@ import org.w3c.dom.Document;
  * @author sergio
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
-    private static final String PROPERTY_FILTERS =
-        "http://cyberneko.org/html/properties/filters";
-    private static final String PROPERTY_ELEM_NAMES =
-        "http://cyberneko.org/html/properties/names/elems";
-    private static final String PROPERTY_ATTRS_NAMES =
-        "http://cyberneko.org/html/properties/names/attrs";
-    private static final String FEATURE_DOCUMENT_FRAGMENT =
-        "http://cyberneko.org/html/features/balance-tags/document-fragment";
-    private static final String FEATURE_REPORT_ERRORS =
-        "http://cyberneko.org/html/features/report-errors";
 
     public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         super(runtime, options);
@@ -91,18 +81,18 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         XMLParserConfiguration config = new HTMLConfiguration();
         XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
         XMLDocumentFilter elementValidityCheckFilter = new ElementValidityCheckFilter(errorHandler);
-        //XMLDocumentFilter[] filters = { removeNSAttrsFilter};
         XMLDocumentFilter[] filters = { removeNSAttrsFilter,  elementValidityCheckFilter};
 
         config.setErrorHandler(this.errorHandler);
         parser = new DOMParser(config);
 
+        // see http://nekohtml.sourceforge.net/settings.html for details
         setProperty("http://cyberneko.org/html/properties/default-encoding", java_encoding);
-        setProperty(PROPERTY_ELEM_NAMES, "lower");
-        setProperty(PROPERTY_ATTRS_NAMES, "lower");
-        setFeature(FEATURE_REPORT_ERRORS, true);
+        setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
+        setProperty("http://cyberneko.org/html/properties/names/attrs", "lower");
+        setFeature("http://cyberneko.org/html/features/report-errors", true);
         setFeature("http://xml.org/sax/features/namespaces", false);
-        setProperty(PROPERTY_FILTERS, filters);
+        setProperty("http://cyberneko.org/html/properties/filters", filters);
         setFeature("http://cyberneko.org/html/features/insert-doctype", true);
     }
 
@@ -112,14 +102,14 @@ public class HtmlDomParserContext extends XmlDomParserContext {
      * This method is used in XmlNode#in_context method.
      */
     public void enableDocumentFragment() {
-        setFeature(FEATURE_DOCUMENT_FRAGMENT, true);
+        setFeature("http://cyberneko.org/html/features/balance-tags/document-fragment", true);
     }
 
     @Override
     protected XmlDocument getNewEmptyDocument(ThreadContext context) {
         IRubyObject[] args = new IRubyObject[0];
         return (XmlDocument) XmlDocument.rbNew(context,
-                    getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"),
+                    getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::Document"),
                     args);
     }
 
