@@ -139,6 +139,7 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
     xmlXPathObjectPtr xpath;
     VALUE obj;
     VALUE *args;
+    VALUE result;
 
     transform = xsltXPathGetTransformContext(ctxt);
 
@@ -172,7 +173,7 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 	}
 	args[i] = thing;
     }
-    VALUE result = rb_funcall3(obj, rb_intern((const char *)function), (int)count, args);
+    result = rb_funcall3(obj, rb_intern((const char *)function), (int)count, args);
     switch(TYPE(result)) {
 	case T_FLOAT:
 	case T_BIGNUM:
@@ -239,9 +240,12 @@ static VALUE registr(VALUE self, VALUE uri, VALUE obj)
 VALUE cNokogiriXsltStylesheet ;
 void init_xslt_stylesheet()
 {
-  VALUE nokogiri = rb_define_module("Nokogiri");
+  VALUE nokogiri;
+  VALUE klass;
+
+  nokogiri = rb_define_module("Nokogiri");
   xslt = rb_define_module_under(nokogiri, "XSLT");
-  VALUE klass = rb_define_class_under(xslt, "Stylesheet", rb_cObject);
+  klass = rb_define_class_under(xslt, "Stylesheet", rb_cObject);
 
   rb_iv_set(xslt, "@modules", rb_hash_new());
 
