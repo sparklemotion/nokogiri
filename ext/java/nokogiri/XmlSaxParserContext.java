@@ -45,6 +45,7 @@ import nokogiri.internals.XmlSaxParser;
 import org.apache.xerces.parsers.AbstractSAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
 import org.jruby.RubyObjectAdapter;
 import org.jruby.anno.JRubyClass;
@@ -336,4 +337,17 @@ public class XmlSaxParserContext extends ParserContext {
         return content.trim().length() == 0;
     }
 
+    @JRubyMethod(name="column")
+    public IRubyObject column(ThreadContext context) {
+        Integer number = handler.getColumn();
+        if (number == null) return context.getRuntime().getNil();
+        else return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
+    }
+
+    @JRubyMethod(name="line")
+    public IRubyObject line(ThreadContext context) {
+        Integer number = handler.getLine();
+        if (number == null) return context.getRuntime().getNil();
+        else return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
+    }
 }

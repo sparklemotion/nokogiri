@@ -37,8 +37,8 @@ import static nokogiri.internals.NokogiriHelpers.getPrefix;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
+import java.util.ArrayDeque;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
 import nokogiri.XmlSyntaxError;
 
@@ -50,6 +50,7 @@ import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.ext.DefaultHandler2;
@@ -59,17 +60,13 @@ import org.xml.sax.ext.DefaultHandler2;
  * 
  * @author sergio
  */
-public class NokogiriHandler extends DefaultHandler2
-    implements XmlDeclHandler {
-
-    private static Logger LOGGER = Logger.getLogger(NokogiriHandler.class.getName());
+public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     boolean inCDATA = false;
 
     private Ruby ruby;
     private RubyClass attrClass;
     private IRubyObject object;
-    private boolean namespaceDefined = false;
 
     /**
      * Stores parse errors with the most-recent error last.
@@ -77,14 +74,22 @@ public class NokogiriHandler extends DefaultHandler2
      * TODO: should these be stored in the document 'errors' array?
      * Currently only string messages are stored there.
      */
-    private LinkedList<XmlSyntaxError> errors =
-        new LinkedList<XmlSyntaxError>();
+    private LinkedList<XmlSyntaxError> errors = new LinkedList<XmlSyntaxError>();
+    
+    private Locator locator;
+    private ArrayDeque<Integer> lines;
+    private ArrayDeque<Integer> columns;
 
     public NokogiriHandler(Ruby ruby, IRubyObject object) {
         this.ruby = ruby;
-        this.attrClass = (RubyClass) ruby.getClassFromPath(
-            "Nokogiri::XML::SAX::Parser::Attribute");
+        this.attrClass = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
         this.object = object;
+        lines = new ArrayDeque<Integer>();
+        columns = new ArrayDeque<Integer>();
+    }
+    
+    public void setDocumentLocator(Locator locator) {
+        this.locator = locator;
     }
 
     @Override
@@ -113,8 +118,7 @@ public class NokogiriHandler extends DefaultHandler2
      * passed with the other attributes.
      */
     @Override
-    public void startElement(String uri, String localName, String qName,
-                             Attributes attrs) throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
         // for attributes other than namespace attrs
         RubyArray rubyAttr = RubyArray.newArray(ruby);
         // for namespace defining attributes
@@ -122,6 +126,9 @@ public class NokogiriHandler extends DefaultHandler2
 
         ThreadContext context = ruby.getCurrentContext();
         boolean fromFragmentHandler = false; // isFromFragmentHandler();
+        
+        lines.add(locator.getLineNumber());
+        columns.add(locator.getColumnNumber() - 1); // libxml counts from 0 while java does from 1
         
         for (int i = 0; i < attrs.getLength(); i++) {
             String u = attrs.getURI(i);
@@ -149,20 +156,26 @@ public class NokogiriHandler extends DefaultHandler2
                 args[2] = stringOrNil(ruby, u);
                 args[3] = stringOrNil(ruby, val);
 
-                IRubyObject attr =
-                    RuntimeHelpers.invoke(context, attrClass, "new", args);
+                IRubyObject attr = RuntimeHelpers.invoke(context, attrClass, "new", args);
                 rubyAttr.add(attr);
             }
         }
 
-        if (localName == null || localName.equals(""))
-            localName = getLocalPart(qName);
+        if (localName == null || localName.equals("")) localName = getLocalPart(qName);
         call("start_element_namespace",
              stringOrNil(ruby, localName),
              rubyAttr,
              stringOrNil(ruby, getPrefix(qName)),
              stringOrNil(ruby, uri),
              rubyNSAttr);
+    }
+    
+    public Integer getLine() {
+        return lines.pop();
+    }
+    
+    public Integer getColumn() {
+        return columns.pop();
     }
     
     private boolean isFromFragmentHandler() {
