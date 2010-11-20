@@ -192,7 +192,7 @@ public class SaveContext {
     }
 
     public void maybeSpace() {
-        if (format && !endsInWhitespace()) append(' ');
+        if (!endsInWhitespace()) append(' ');
     }
 
     /**
