@@ -100,6 +100,7 @@ namespace :java do
   
   desc "Build a gem targetted for JRuby"
   task :gem => ['java:spec', GENERATED_PARSER, GENERATED_TOKENIZER, :build] do
+    raise "ERROR: please run this task under jruby" unless java
     system "gem build nokogiri.gemspec"
     FileUtils.mkdir_p "pkg"
     FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
