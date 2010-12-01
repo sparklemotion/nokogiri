@@ -1,5 +1,6 @@
 .*.swp
 *.tmproj
+ext/nokogiri/*.dll
 lib/nokogiri/nokogiri.so
 lib/nokogiri/css/generated_parser.rb
 lib/nokogiri/css/generated_tokenizer.rb

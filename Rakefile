@@ -22,6 +22,7 @@ HOE = Hoe.spec 'nokogiri' do
   self.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
   self.extra_rdoc_files  = FileList['*.rdoc','ext/nokogiri/*.c']
   self.clean_globs = [
+    "ext/nokogiri/*.dll",
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
     'lib/nokogiri/nokogiri.rb',
     'lib/nokogiri/1.{8,9}',
@@ -90,13 +91,14 @@ namespace :gem do
 
   desc "Build a gem targetted for JRuby"
   task :jruby => ['gem:jruby:spec'] do
+    raise "ERROR: please run this task under jruby" unless java
     system "gem build nokogiri.gemspec"
     FileUtils.mkdir_p "pkg"
     FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
   end
 
   namespace :jruby do
-    task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER] do
+    task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER, :"gem:jruby:dlls"] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'java'
         HOE.spec.files << GENERATED_PARSER
@@ -105,6 +107,32 @@ namespace :gem do
         HOE.spec.extensions = []
         HOE.spec.add_dependency 'weakling', '>= 0.0.3'
         f.write(HOE.spec.to_ruby)
+      end
+    end
+
+    task :dlls do
+      def run cmd
+        puts(cmd) || system(cmd) || raise("command failed")
+      end
+
+      dlldir = "tmp/dlls"
+      FileUtils.mkdir_p dlldir
+      Dir.chdir dlldir do
+        unless File.exists? "nokogiri-1.4.3.1-java.gem"
+          run "wget http://rubygems.org/downloads/nokogiri-1.4.3.1-java.gem"
+        end
+        unless File.exists? "data.tar.gz"
+          run "tar -xf nokogiri-1.4.3.1-java.gem"
+        end
+        FileUtils.rm_rf "unpack"
+        FileUtils.mkdir "unpack"
+        Dir.chdir "unpack" do
+          run "tar -zxf ../data.tar.gz"
+        end
+      end
+
+      Dir["#{dlldir}/unpack/ext/nokogiri/*.dll"].each do |file|
+        cp file, "ext/nokogiri"
       end
     end
   end
