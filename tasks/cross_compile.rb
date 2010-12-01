@@ -141,23 +141,15 @@ namespace :cross do
     end
   end
 
-  task :copy_dlls do
-    Dir['tmp/cross/bin/*.dll'].each do |file|
-      cp file, "ext/nokogiri"
-    end
-  end
-
-  task :file_list => 'cross:copy_dlls' do
+  task :file_list do
     HOE.spec.extensions = []
     HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
     HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/#{HOE.name}.so"]
-    HOE.spec.files += Dir["ext/nokogiri/*.dll"]
   end
 end
 
 CLOBBER.include("lib/nokogiri/nokogiri.{so,dylib,rb,bundle}")
 CLOBBER.include("lib/nokogiri/1.{8,9}")
-CLOBBER.include("ext/nokogiri/*.dll")
 
 if Rake::Task.task_defined?(:cross)
   Rake::Task[:cross].prerequisites << "lib/nokogiri/nokogiri.rb"
