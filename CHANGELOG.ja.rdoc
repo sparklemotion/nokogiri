@@ -1,3 +1,32 @@
+== 1.5.0 beta3 / 2010/12/02
+
+* Notes
+
+  * JRuby performance tuning
+  * See changelog from 1.4.4
+
+* Bugfixes
+
+  * Node#inner_text no longer returns nil. (JRuby) #264
+
+== 1.5.0 beta2 / 2010/07/30
+
+* Notes
+
+  * See changelog from 1.4.3
+
+== 1.5.0 beta1 / 2010/05/22
+
+* Notes
+
+  * JRuby support is provided by a new pure-java backend.
+
+* Deprecations
+
+  * Ruby 1.8.6 is deprecated. Nokogiri will install, but official support is ended.
+  * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
+  * FFI support is removed.
+
 === 1.4.4 ２０１０年１１月１５日
 
 * 新機能
