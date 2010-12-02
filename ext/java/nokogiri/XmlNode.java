@@ -631,7 +631,6 @@ public class XmlNode extends RubyObject {
                 nodes.add(child);
                 if (isFirstOnly) return;
             }
-            addElements(child, nodes, isFirstOnly);
         }
     }
 
