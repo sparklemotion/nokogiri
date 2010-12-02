@@ -32,6 +32,8 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -61,7 +63,6 @@ import org.xml.sax.SAXException;
 
 @JRubyClass(name="Nokogiri::HTML::SAX::ParserContext", parent="Nokogiri::XML::SAX::ParserContext")
 public class HtmlSaxParserContext extends XmlSaxParserContext {
-    private SAXParser parser;
 
     public HtmlSaxParserContext(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -92,7 +93,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
             new HtmlSaxParserContext(context.getRuntime(), (RubyClass) klazz);
         String javaEncoding = findEncoding(context, encoding);
         if (javaEncoding != null) {
-            String input = applyEncoding((String) data.toJava(String.class), javaEncoding);
+            String input = applyEncoding(rubyStringToString(data), javaEncoding);
             ByteArrayInputStream istream = new ByteArrayInputStream(input.getBytes());
             ctx.setInputSource(istream);
             ctx.getInputSource().setEncoding(javaEncoding);
@@ -152,7 +153,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
     private static String findEncoding(ThreadContext context, IRubyObject encoding) {
         String rubyEncoding = null;
         if (encoding instanceof RubyString) {
-            rubyEncoding = (String)encoding.toJava(String.class);
+            rubyEncoding = rubyStringToString(encoding);
         } else if (encoding instanceof RubyFixnum) {
             int value = (Integer)encoding.toJava(Integer.class);
             rubyEncoding = findName(value);

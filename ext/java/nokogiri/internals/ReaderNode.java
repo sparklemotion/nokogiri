@@ -35,6 +35,7 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.isXmlBase;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
@@ -56,6 +57,7 @@ import org.jruby.RubyHash;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXParseException;
 
@@ -74,6 +76,7 @@ public abstract class ReaderNode {
     public String lang, localName, xmlBase, prefix, name, uri, value, xmlVersion = "1.0";
     public boolean hasChildren = false;
     public abstract String getString();
+    private Document document = null;
 
     public IRubyObject getAttributeByIndex(IRubyObject index){
         if(index.isNil()) return index;
@@ -90,7 +93,7 @@ public abstract class ReaderNode {
 
     public IRubyObject getAttributeByName(IRubyObject name){
         if(attributeList == null) return ruby.getNil();
-        String value = attributeList.getByName((String)name.toJava(String.class));
+        String value = attributeList.getByName(rubyStringToString(name));
         return stringOrNil(ruby, value);
     }
     
@@ -108,15 +111,16 @@ public abstract class ReaderNode {
     public IRubyObject getAttributesNodes() {
         RubyArray array = RubyArray.newArray(ruby);
         if (attributeList != null && attributeList.length > 0) {
-            // XmlDocument is used to create XmlAttr type of attribute nodes. Since the attribute nodes
-            // should have name and to_s methods, using XmlAttr would be convenient.
-            XmlDocument xmlDoc = 
-                (XmlDocument)XmlDocument.rbNew(ruby.getCurrentContext(), getNokogiriClass(ruby, "Nokogiri::XML::Document"), new IRubyObject[0]);        
+            if (document == null) {
+                document = ((XmlDocument) getNokogiriClass(ruby, "Nokogiri::XML::Document").allocate()).getDocument();
+            }
             for (int i=0; i<attributeList.length; i++) {
                 if (!isNamespace(attributeList.names.get(i))) {
-                    Attr attr = xmlDoc.getDocument().createAttributeNS(attributeList.namespaces.get(i), attributeList.names.get(i));
+                    Attr attr = document.createAttributeNS(attributeList.namespaces.get(i), attributeList.names.get(i));
                     attr.setValue(attributeList.values.get(i));
-                    array.append(new XmlAttr(ruby, attr));
+                    XmlAttr xmlAttr = (XmlAttr) getNokogiriClass(ruby, "Nokogiri::XML::Attr").allocate();
+                    xmlAttr.setNode(ruby.getCurrentContext(), attr);
+                    array.append(xmlAttr);
                 }
             }
         }
@@ -372,7 +376,7 @@ public abstract class ReaderNode {
             return new String(sb);
         }
     }
-    
+
     public static class ReaderAttributeList {
         List<String> namespaces  = new ArrayList<String>();
         List<String> names  = new ArrayList<String>();

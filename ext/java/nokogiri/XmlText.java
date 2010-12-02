@@ -33,6 +33,7 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.isXmlEscaped;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContext;
@@ -53,8 +54,9 @@ import org.w3c.dom.Node;
  */
 @JRubyClass(name="Nokogiri::XML::Text", parent="Nokogiri::XML::CharacterData")
 public class XmlText extends XmlNode {
-    public XmlText(Ruby ruby, RubyClass rubyClass, Node node) {
-        super(ruby, rubyClass, node);
+
+    public XmlText(Ruby runtime, RubyClass rubyClass, Node node) {
+        super(runtime, rubyClass, node);
     }
 
     public XmlText(Ruby runtime, RubyClass klass) {
@@ -76,13 +78,14 @@ public class XmlText extends XmlNode {
         Document document = xmlDoc.getDocument();
         // text node content should not be encoded when it is created by Text node.
         // while content should be encoded when it is created by Element node.
-        Node node = document.createTextNode((String)content.toJava(String.class));
+        Node node = document.createTextNode(rubyStringToString(content));
         setNode(context, node);
     }
     
     @Override
     protected IRubyObject getNodeName(ThreadContext context) {
-        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), "text");
+        if (name == null) name = context.getRuntime().newString("text");
+        return name;
     }
     
     @Override
@@ -114,7 +117,7 @@ public class XmlText extends XmlNode {
         XmlDocument xmlDocument = (XmlDocument)document(context);
         IRubyObject ruby_encoding = xmlDocument.encoding(context);
         if (!ruby_encoding.isNil()) {
-            encoding = (String)ruby_encoding.toJava(String.class);
+            encoding = rubyStringToString(ruby_encoding);
         }
         return encoding;
     }

@@ -39,6 +39,7 @@ import nokogiri.internals.SaveContext;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
@@ -66,8 +67,8 @@ public class XmlNamespace extends RubyObject {
 
     public XmlNamespace(Ruby ruby, RubyClass klazz, String prefix, String href) {
         super(ruby, klazz);
-        this.prefix = (prefix == null) ? ruby.getNil() : ruby.newString(prefix);
-        this.href = (href == null) ? ruby.getNil() : ruby.newString(href);
+        this.prefix = (prefix == null) ? ruby.getNil() : RubyString.newString(ruby, prefix);
+        this.href = (href == null) ? ruby.getNil() : RubyString.newString(ruby, href);
     }
 
     public XmlNamespace(Ruby ruby, IRubyObject prefix, IRubyObject href) {
@@ -79,11 +80,27 @@ public class XmlNamespace extends RubyObject {
         this.prefix = prefix;
         this.href = href;
     }
+    
+    public void setDefinition(Ruby runtime, String prefix, String href) {
+        this.prefix = (prefix == null) ? runtime.getNil() : RubyString.newString(runtime, prefix);
+        this.href = (href == null) ? runtime.getNil() : RubyString.newString(runtime, href);
+    }
+    
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     public static XmlNamespace fromNode(Ruby ruby, Node node) {
         String localName = getLocalNameForNamespace(node.getNodeName());
-
-        return new XmlNamespace(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"), localName, node.getNodeValue());
+        XmlNamespace namespace = (XmlNamespace) getNokogiriClass(ruby, "Nokogiri::XML::Namespace").allocate();
+        namespace.setDefinition(ruby, localName, node.getNodeValue());
+        return namespace;
     }
 
     public boolean isEmpty() {

@@ -32,6 +32,8 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+
 import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
@@ -68,7 +70,7 @@ public class XmlCdata extends XmlText {
         XmlDocument xmlDoc =(XmlDocument) ((XmlNode) doc).document(context);
         doc = xmlDoc;
         Document document = xmlDoc.getDocument();
-        Node node = document.createCDATASection((content.isNil()) ? null : (String)content.toJava(String.class));
+        Node node = document.createCDATASection((content.isNil()) ? null : rubyStringToString(content));
         setNode(context, node);
     }
 

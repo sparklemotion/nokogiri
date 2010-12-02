@@ -32,6 +32,7 @@
 
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 import java.util.ArrayList;
@@ -43,7 +44,6 @@ import nokogiri.XmlDocument;
 import nokogiri.XmlNamespace;
 
 import org.jruby.Ruby;
-import org.jruby.runtime.ThreadContext;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -121,7 +121,8 @@ public class NokogiriNamespaceCache {
             keys.add(hash);
             index = keys.size() - 1;
             String actualPrefix = (prefix.equals("")) ? null : prefix;
-            XmlNamespace namespace = new XmlNamespace(ruby, actualPrefix, href);
+            XmlNamespace namespace = (XmlNamespace) getNokogiriClass(ruby, "Nokogiri::XML::Namespace").allocate();
+            namespace.setDefinition(ruby, actualPrefix, href);
             namespace.setDocument(document);
             CacheEntry entry = new CacheEntry(namespace, node);
             cache.put(index, entry);

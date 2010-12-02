@@ -224,8 +224,16 @@ public class NokogiriService implements BasicLibraryService {
     };
 
     private static ObjectAllocator HTML_DOCUMENT_ALLOCATOR = new ObjectAllocator() {
+        private HtmlDocument htmlDocument = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new HtmlDocument(runtime, klazz);
+            if (htmlDocument == null) htmlDocument = new HtmlDocument(runtime, klazz);
+            try {
+                HtmlDocument clone = (HtmlDocument) htmlDocument.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new HtmlDocument(runtime, klazz);
+            }
         }
     };
 
@@ -299,8 +307,16 @@ public class NokogiriService implements BasicLibraryService {
     };
 
     private static ObjectAllocator XML_DOCUMENT_ALLOCATOR = new ObjectAllocator() {
+        private XmlDocument xmlDocument = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            if (xmlDocument == null) xmlDocument = new XmlDocument(runtime, klazz);
+            try {
+                XmlDocument clone = (XmlDocument) xmlDocument.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlDocument(runtime, klazz);
+            }
         }
     };
 
@@ -337,8 +353,16 @@ public class NokogiriService implements BasicLibraryService {
     };
 
     private static ObjectAllocator XML_NAMESPACE_ALLOCATOR = new ObjectAllocator() {
+        private XmlNamespace xmlNamespace = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlNamespace(runtime, klazz);
+            if (xmlNamespace == null) xmlNamespace = new XmlNamespace(runtime, klazz);
+            try {
+                XmlNamespace clone = (XmlNamespace) xmlNamespace.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlNamespace(runtime, klazz);
+            }
         }
     };
 

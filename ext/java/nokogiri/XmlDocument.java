@@ -36,6 +36,7 @@ import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -52,7 +53,6 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyNil;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
@@ -85,7 +85,7 @@ public class XmlDocument extends XmlNode {
     protected IRubyObject url = null;
 
     public XmlDocument(Ruby ruby, RubyClass klazz) {
-        super(ruby, klazz);
+        super(ruby, klazz, createNewDocument());
         nsCache = new NokogiriNamespaceCache();
     }
     
@@ -101,6 +101,18 @@ public class XmlDocument extends XmlNode {
         setInstanceVariable("@decorators", ruby.getNil());
     }
     
+    @Override
+    public void setNode(ThreadContext context, Node node) {
+        super.setNode(context, node);
+        Ruby runtime = context.getRuntime();
+        if (node != null) {
+            Document document = (Document)node;
+            stabilizeTextContent(document);
+            createAndCacheNamespaces(runtime, document.getDocumentElement());
+        }
+        setInstanceVariable("@decorators", runtime.getNil());
+    }
+
     public void setEncoding(IRubyObject encoding) {
         this.encoding = encoding;
     }
@@ -144,7 +156,7 @@ public class XmlDocument extends XmlNode {
         super(ruby, klass, document);
         nsCache = contextDoc.getNamespaceCache();
         XmlNamespace default_ns = nsCache.getDefault();
-        String default_href = (String)(default_ns.href(ruby.getCurrentContext())).toJava(String.class);
+        String default_href = rubyStringToString(default_ns.href(ruby.getCurrentContext()));
         resolveNamespaceIfNecessary(ruby.getCurrentContext(), document.getDocumentElement(), default_href);
     }
     
@@ -155,7 +167,7 @@ public class XmlDocument extends XmlNode {
             node.getOwnerDocument().renameNode(node, default_href, node.getNodeName());
         } else {
             XmlNamespace xmlNamespace = nsCache.get(nodePrefix);
-            String href = (String)xmlNamespace.href(context).toJava(String.class);
+            String href = rubyStringToString(xmlNamespace.href(context));
             node.getOwnerDocument().renameNode(node, href, node.getNodeName());
         }
         resolveNamespaceIfNecessary(context, node.getNextSibling(), default_href);
@@ -179,7 +191,8 @@ public class XmlDocument extends XmlNode {
     
     @Override
     protected IRubyObject getNodeName(ThreadContext context) {
-        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), "document");
+        if (name == null) name = context.getRuntime().newString("document");
+        return name;
     }
 
     public void setUrl(IRubyObject url) {
@@ -230,7 +243,7 @@ public class XmlDocument extends XmlNode {
         // this impl passes tests, but entity doesn't exists in DTD, which
         // would cause validation failure.
         if (argv.length == 0) throw context.getRuntime().newRuntimeError("Could not create entity");
-        String tagName = (String) argv[0].toJava(String.class);
+        String tagName = rubyStringToString(argv[0]);
         Node n = this.getOwnerDocument().createElement(tagName);
         return XmlEntityDecl.create(context, n, argv);
     }

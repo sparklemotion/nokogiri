@@ -32,6 +32,7 @@
 
 package nokogiri.internals;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -48,13 +49,12 @@ import nokogiri.XmlText;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyEncoding;
 import org.jruby.RubyHash;
 import org.jruby.RubyString;
-import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -130,7 +130,9 @@ public class NokogiriHelpers {
                 xmlCdata.setNode(ruby.getCurrentContext(), node);
                 return xmlCdata;
             case Node.DOCUMENT_NODE:
-                return new XmlDocument(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Document"), (Document) node);
+                XmlDocument xmlDocument = (XmlDocument) getNokogiriClass(ruby, "Nokogiri::XML::Document").allocate();
+                xmlDocument.setNode(ruby.getCurrentContext(), node);
+                return xmlDocument;
             default:
                 XmlNode xmlNode = (XmlNode) getNokogiriClass(ruby, "Nokogiri::XML::Node").allocate();
                 xmlNode.setNode(ruby.getCurrentContext(), node);
@@ -140,27 +142,27 @@ public class NokogiriHelpers {
     
     public static RubyClass getNokogiriClass(Ruby ruby, String name) {
         RubyHash classCache = (RubyHash) ruby.getGlobalVariables().get(NokogiriService.nokogiriClassCacheGvarName);
-        IRubyObject rubyName = JavaUtil.convertJavaToUsableRubyObject(ruby, name);
+        IRubyObject rubyName = RubyString.newString(ruby, name);
         return (RubyClass)classCache.fastARef(rubyName);
     }
 
-    public static IRubyObject stringOrNil(Ruby ruby, String s) {
-        if (s == null) return ruby.getNil();
-        return JavaUtil.convertJavaToUsableRubyObject(ruby, s);
+    public static IRubyObject stringOrNil(Ruby runtime, String s) {
+        if (s == null) return runtime.getNil();
+        return RubyString.newString(runtime, s);
     }
     
-    public static IRubyObject stringOrBlank(Ruby ruby, String s) {
-        if (s == null) return ruby.newString();
-        return ruby.newString(s);
+    public static IRubyObject stringOrBlank(Ruby runtime, String s) {
+        if (s == null) return runtime.newString();
+        return RubyString.newString(runtime, s);
     }
 
     /**
      * Convert <code>s</code> to a RubyString, or if s is null or
      * empty return RubyNil.
      */
-    public static IRubyObject nonEmptyStringOrNil(Ruby ruby, String s) {
-        if (s == null || s.length() == 0) return ruby.getNil();
-        return ruby.newString(s);
+    public static IRubyObject nonEmptyStringOrNil(Ruby runtime, String s) {
+        if (s == null || s.length() == 0) return runtime.getNil();
+        return RubyString.newString(runtime, s);
     }
 
     /**
@@ -221,7 +223,20 @@ public class NokogiriHelpers {
      * this for us.
      */
     public static String rubyStringToString(IRubyObject str) {
-        return rubyStringToString(str.convertToString());
+        //return rubyStringToString(str.convertToString());
+        return toJavaString(str.convertToString());
+    }
+    
+    private static String toJavaString(RubyString str) {
+        ByteList value = str.getByteList();
+        try {
+            if (str.getRuntime().is1_9()) {
+                return new String(value.getUnsafeBytes(), value.begin(), value.length(), str.getEncoding().toString());
+            }
+            return RubyEncoding.decodeUTF8(value.getUnsafeBytes(), value.begin(), value.length());
+        } catch (UnsupportedEncodingException uee) {
+            return str.toString();
+        }
     }
 
     public static String rubyStringToString(RubyString str) {

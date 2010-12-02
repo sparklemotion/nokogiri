@@ -42,7 +42,6 @@ import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
@@ -138,13 +137,13 @@ public class XmlAttr extends XmlNode{
         if (node == null) return context.getRuntime().getNil();
         String attrValue = ((Attr)node).getValue();
         if (attrValue == null) return context.getRuntime().getNil();
-        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), attrValue);
+        return RubyString.newString(context.getRuntime(), attrValue);
     }
     
     @JRubyMethod(name = {"value=", "content="})
     public IRubyObject value_set(ThreadContext context, IRubyObject content){
         Attr attr = (Attr) node;
-        attr.setValue((String)XmlNode.encode_special_chars(context, content).toJava(String.class));
+        attr.setValue(rubyStringToString(XmlNode.encode_special_chars(context, content)));
         setContent(content);
         return content;
     }

@@ -37,6 +37,7 @@ import static nokogiri.internals.NokogiriHelpers.getLocalPart;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.getPrefix;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +53,6 @@ import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -91,8 +91,8 @@ public class XmlDocumentFragment extends XmlNode {
         
         // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
         if (argc.length > 1 && argc[1] instanceof RubyString) {
-            argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), ignoreNamespaceIfNeeded(doc, (String)argc[1].toJava(String.class)));
-            argc[1] = JavaUtil.convertJavaToRuby(context.getRuntime(), addNamespaceDeclIfNeeded(doc, (String)argc[1].toJava(String.class)));
+            argc[1] = RubyString.newString(context.getRuntime(), ignoreNamespaceIfNeeded(doc, rubyStringToString(argc[1])));
+            argc[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(argc[1])));
         }
 
         XmlDocumentFragment fragment = (XmlDocumentFragment) ((RubyClass)cls).allocate();

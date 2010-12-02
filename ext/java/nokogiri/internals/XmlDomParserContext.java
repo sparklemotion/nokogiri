@@ -33,6 +33,7 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -83,7 +84,7 @@ public class XmlDomParserContext extends ParserContext {
     public XmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
         super(runtime);
         this.options = new ParserContext.Options((Long)options.toJava(Long.class));
-        this.java_encoding = encoding.isNil() ? NokogiriHelpers.guessEncoding(runtime) : (String)encoding.toJava(String.class);
+        this.java_encoding = encoding.isNil() ? NokogiriHelpers.guessEncoding(runtime) : rubyStringToString(encoding);
         ruby_encoding = encoding;
         initErrorHandler();
         initParser(runtime);
