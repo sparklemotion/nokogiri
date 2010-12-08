@@ -497,7 +497,9 @@ module Nokogiri
         end
         io.rewind
         assert called
-        assert_equal @xml.serialize(nil, conf.options), io.read
+        string = io.read
+        assert_equal @xml.serialize(nil, conf.options), string
+        assert_equal @xml.serialize(nil, conf), string
       end
 
       %w{ xml html xhtml }.each do |type|
@@ -519,6 +521,7 @@ module Nokogiri
         end
         assert called
         assert_equal @xml.serialize(nil, conf.options), string
+        assert_equal @xml.serialize(nil, conf), string
       end
 
       def test_hold_refence_to_subnode

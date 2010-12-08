@@ -24,6 +24,7 @@ module Nokogiri
 
         # Create a new SaveOptions object with +options+
         def initialize options = 0; @options = options; end
+
         constants.each do |constant|
           class_eval %{
             def #{constant.downcase}
@@ -36,6 +37,8 @@ module Nokogiri
             end
           }
         end
+
+        alias :to_i :options
       end
     end
   end
