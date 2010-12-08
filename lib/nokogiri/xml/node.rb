@@ -804,7 +804,7 @@ module Nokogiri
         indent_times  = options[:indent] || 2
 
 
-        config = SaveOptions.new(save_options)
+        config = SaveOptions.new(save_options.to_i)
         yield config if block_given?
 
         native_write_to(io, encoding, indent_text * indent_times, config.options)

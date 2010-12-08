@@ -27,6 +27,12 @@
   * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
   * FFI support is removed.
 
+=== 1.4.5 / unrelease
+
+* Bugfixes
+
+  * Node#serialize-and-friends now accepts a SaveOption object as the, erm, save object.
+
 === 1.4.4 / 2010-11-15
 
 * New Features
