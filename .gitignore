@@ -2,8 +2,8 @@
 *.tmproj
 ext/nokogiri/*.dll
 lib/nokogiri/nokogiri.so
-lib/nokogiri/css/generated_parser.rb
-lib/nokogiri/css/generated_tokenizer.rb
+lib/nokogiri/css/parser.rb
+lib/nokogiri/css/tokenizer.rb
 cross
 tags
 *.rbc

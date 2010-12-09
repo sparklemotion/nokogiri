@@ -4,7 +4,7 @@ require "helper"
 
 module Nokogiri
   module CSS
-    class GeneratedTokenizer
+    class Tokenizer
       alias :scan :scan_setup
     end
   end
@@ -15,7 +15,7 @@ module Nokogiri
     class TestTokenizer < Nokogiri::TestCase
       def setup
         super
-        @scanner = Nokogiri::CSS::GeneratedTokenizer.new
+        @scanner = Nokogiri::CSS::Tokenizer.new
       end
 
       def test_has

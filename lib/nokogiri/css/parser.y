@@ -1,4 +1,4 @@
-class Nokogiri::CSS::GeneratedParser
+class Nokogiri::CSS::Parser
 
 token FUNCTION INCLUDES DASHMATCH LBRACE HASH PLUS GREATER S STRING IDENT
 token COMMA NUMBER PREFIXMATCH SUFFIXMATCH SUBSTRINGMATCH TILDE NOT_EQUAL
@@ -232,4 +232,6 @@ rule
 end
 
 ---- header
+
+require 'nokogiri/css/parser_extras'
 
