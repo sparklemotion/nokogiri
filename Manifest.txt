@@ -83,7 +83,6 @@ lib/nokogiri/css/node.rb
 lib/nokogiri/css/parser.rb
 lib/nokogiri/css/parser.y
 lib/nokogiri/css/syntax_error.rb
-lib/nokogiri/css/tokenizer.rb
 lib/nokogiri/css/tokenizer.rex
 lib/nokogiri/css/xpath_visitor.rb
 lib/nokogiri/decorators/slop.rb
