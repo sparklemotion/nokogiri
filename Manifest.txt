@@ -134,11 +134,10 @@ lib/nekodtd.jar
 lib/nekohtml.jar
 lib/nokogiri.rb
 lib/nokogiri/css.rb
-lib/nokogiri/css/generated_parser.rb
-lib/nokogiri/css/generated_tokenizer.rb
 lib/nokogiri/css/node.rb
 lib/nokogiri/css/parser.rb
 lib/nokogiri/css/parser.y
+lib/nokogiri/css/parser_extras.rb
 lib/nokogiri/css/syntax_error.rb
 lib/nokogiri/css/tokenizer.rb
 lib/nokogiri/css/tokenizer.rex

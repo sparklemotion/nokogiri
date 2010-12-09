@@ -32,6 +32,7 @@
 * Bugfixes
 
   * Node#serialize-and-friends now accepts a SaveOption object as the, erm, save object.
+  * Nokogiri::CSS::Parser has-a Nokogiri::CSS::Tokenizer
 
 === 1.4.4 / 2010-11-15
 

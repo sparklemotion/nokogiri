@@ -1,6 +1,6 @@
 module Nokogiri
 module CSS
-class GeneratedTokenizer < GeneratedParser
+class Tokenizer
 
 macro
   nl        \n|\r\n|\r|\f

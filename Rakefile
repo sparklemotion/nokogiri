@@ -7,8 +7,8 @@ require 'hoe'
 windows = RUBY_PLATFORM =~ /(mswin|mingw)/i
 java    = RUBY_PLATFORM =~ /java/
 
-GENERATED_PARSER    = "lib/nokogiri/css/generated_parser.rb"
-GENERATED_TOKENIZER = "lib/nokogiri/css/generated_tokenizer.rb"
+GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
+GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
 CROSS_DIR           = File.join(File.dirname(__FILE__), 'tmp', 'cross')
 
 EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml nekodtd xercesImpl}.map{|x| "lib/#{x}.jar"}

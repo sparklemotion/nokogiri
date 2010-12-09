@@ -4,6 +4,14 @@ require "helper"
 
 module Nokogiri
   module CSS
+    class Tokenizer
+      alias :scan :scan_setup
+    end
+  end
+end
+
+module Nokogiri
+  module CSS
     class TestTokenizer < Nokogiri::TestCase
       def setup
         super
