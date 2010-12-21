@@ -5,27 +5,27 @@ else
   require 'weakling'
   Nokogiri::VERSION_INFO['refs'] = "weakling"
 end
-require 'singleton'
 
 module Nokogiri
   class WeakBucket
-    include Singleton
-
     if Nokogiri::VERSION_INFO['refs'] == "weakling"
-      attr_accessor :bucket
-
-      def initialize
-        @bucket = Weakling::IdHash.new
-      end
+      @@bucket = Weakling::IdHash.new
+      @@semaphore = Mutex.new
 
       def WeakBucket.get_object(cstruct)
-        instance.bucket[cstruct.ruby_node_pointer]
+        @@semaphore.synchronize do
+          @@bucket[cstruct.ruby_node_pointer]
+        end
       end
 
       def WeakBucket.set_object(cstruct, object)
-        cstruct.ruby_node_pointer = instance.bucket.add(object)
+        @@semaphore.synchronize do
+          cstruct.ruby_node_pointer = @@bucket.add(object)
+        end
       end
+
     else
+
       def WeakBucket.get_object(cstruct)
         ptr = cstruct.ruby_node_pointer
         ptr != 0 ? ObjectSpace._id2ref(ptr) : nil
