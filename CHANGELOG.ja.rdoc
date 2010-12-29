@@ -27,6 +27,17 @@
   * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
   * FFI support is removed.
 
+=== 1.4.5 / 未リリース
+
+* バグの修正
+
+  * Node#serialize とその仲間達はSaveOptionオブジェクトを受け入れる
+  * Nokogiri::CSS::Parser has-a Nokogiri::CSS::Tokenizer
+  * [JRUBY+FFIのみ] 「弱い参照」はスレッドセーフになった. #355
+  * HTML::SAX::Parserから呼ばれるstart_element()コールバックのattributes引数はHTML::XML::Parserによるエミュレートコールバックと同じく連想配列になった.  rel. #356
+  * HTML::SAX::Parserのparse*()メソッドはXML::SAX::Parser同様に渡されたブロックをコールバックするようになった.
+  * HTMLパーサーのエンコーディング判定を拡張・改善した. (XML宣言のencodingを認識、非ASCII文字出現後のmetaタグも文字化けを生じずに反映)
+
 === 1.4.4 ２０１０年１１月１５日
 
 * 新機能
