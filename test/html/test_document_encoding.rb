@@ -73,5 +73,51 @@ module Nokogiri
         end
       end
     end
+
+    class TestDocumentEncodingDetection < Nokogiri::TestCase
+      if IO.respond_to?(:binread)
+        def binread(file)
+          IO.binread(file)
+        end
+      else
+        def binread(file)
+          IO.read(file)
+        end
+      end
+
+      def binopen(file)
+        File.open(file, 'rb')
+      end
+
+      def _test_document_xhtml_enc
+        [ENCODING_XHTML_FILE, ENCODING_HTML_FILE].each { |file|
+          doc_from_string_enc = Nokogiri::HTML(binread(file), nil, 'Shift_JIS')
+          ary_from_string_enc = doc_from_string_enc.xpath('//p/text()').map { |text| text.text }
+
+          doc_from_string = Nokogiri::HTML(binread(file))
+          ary_from_string = doc_from_string.xpath('//p/text()').map { |text| text.text }
+
+          doc_from_file_enc = Nokogiri::HTML(binopen(file), nil, 'Shift_JIS')
+          ary_from_file_enc = doc_from_file_enc.xpath('//p/text()').map { |text| text.text }
+
+          doc_from_file = Nokogiri::HTML(binopen(file))
+          ary_from_file = doc_from_file.xpath('//p/text()').map { |text| text.text }
+
+          title = 'たこ焼き仮面'
+
+          assert_equal(title, doc_from_string_enc.at('//title/text()').text)
+          assert_equal(title, doc_from_string.at('//title/text()').text)
+          assert_equal(title, doc_from_file_enc.at('//title/text()').text)
+          assert_equal(title, doc_from_file.at('//title/text()').text)
+
+          evil = (0..72).map { |i| '超' * i + '悪い事を構想中。' }
+
+          assert_equal(evil, ary_from_string_enc)
+          assert_equal(evil, ary_from_string)
+          assert_equal(evil, ary_from_file_enc)
+          assert_equal(evil, ary_from_file)
+        }
+      end
+    end
   end
 end

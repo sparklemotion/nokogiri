@@ -75,16 +75,105 @@ module Nokogiri
 
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+            if !encoding
+              # Try to get encoding from XML declaration, which
+              # libxml2's HTML parser ignores
+              string_or_io = EncodingReader.new(string_or_io)
+              begin
+                return read_io(string_or_io, url, encoding, options.to_i)
+              rescue EncodingFoundException => e
+                encoding = e.encoding
+              end
+            end
             return read_io(string_or_io, url, encoding, options.to_i)
           end
 
           # read_memory pukes on empty docs
           return new if string_or_io.nil? or string_or_io.empty?
 
+          if !encoding
+            encoding = EncodingReader.detect_encoding(string_or_io)
+          end
+
           read_memory(string_or_io, url, encoding, options.to_i)
         end
       end
 
+      class EncodingFoundException < Exception # :nodoc:
+        attr_reader :encoding
+
+        def initialize(encoding)
+          @encoding = encoding
+          super("encoding found: %s" % encoding)
+        end
+      end
+
+      class EncodingReader # :nodoc:
+        class SAXHandler < Nokogiri::XML::SAX::Document # :nodoc:
+          attr_reader :encoding
+
+          def found(encoding)
+            @encoding = encoding
+            throw :found
+          end
+
+          def start_element(name, attrs = [])
+            name == 'meta' or return
+            attr = Hash[attrs]
+            http_equiv = attr['http-equiv'] and
+              http_equiv.match(/\AContent-Type\z/i) and
+              content = attr['content'] and
+              m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
+              found m[1]
+          end
+        end
+
+        def self.detect_encoding(chunk)
+          m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
+            return Nokogiri.XML(m[1]).encoding
+
+          handler = SAXHandler.new
+          parser = Nokogiri::HTML::SAX::Parser.new(handler)
+          catch(:found) {
+            parser.parse(chunk)
+          }
+          handler.encoding
+        rescue => e
+          nil
+        end
+
+        def initialize(io)
+          @io = io
+          @firstchunk = nil
+        end
+
+        def read(len)
+          # no support for a call without len
+
+          if !@firstchunk
+            @firstchunk = @io.read(len) or return nil
+
+            # This implementation expects and assumes that the first
+            # call from htmlReadIO() is made with a length long enough
+            # (~1KB) to achieve further encoding detection that
+            # libxml2 does not do.
+            if encoding = EncodingReader.detect_encoding(@firstchunk)
+              raise EncodingFoundException, encoding
+            end
+            return @firstchunk
+          end
+
+          ret = @firstchunk.slice!(0, len)
+          if (len -= ret.length) > 0
+            rest = @io.read(len) and ret << rest
+          end
+          if ret.empty?
+            nil
+          else
+            ret
+          end
+        end
+      end
     end
   end
 end
