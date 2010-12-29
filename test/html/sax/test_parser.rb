@@ -76,7 +76,9 @@ module Nokogiri
     <title>hello</title>
   </head>
 <body>
-  <img src="face.jpg" title="daddy &amp; me"></body>
+  <img src="face.jpg" title="daddy &amp; me">
+  <hr noshade size="2">
+</body>
 </html>
           eohtml
 
@@ -96,6 +98,10 @@ module Nokogiri
             ['img', [
                 ['src', 'face.jpg'],
                 ['title', 'daddy & me']
+              ]],
+            ['hr', [
+                ['noshade', nil],
+                ['size', '2']
               ]]
           ], @parser.document.start_elements
         end
