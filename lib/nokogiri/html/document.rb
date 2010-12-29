@@ -76,12 +76,16 @@ module Nokogiri
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
             if !encoding
-              # Try to get encoding from XML declaration, which
-              # libxml2's HTML parser ignores
+              # Perform further encoding detection that libxml2 does
+              # not do.
               string_or_io = EncodingReader.new(string_or_io)
               begin
                 return read_io(string_or_io, url, encoding, options.to_i)
               rescue EncodingFoundException => e
+                # A retry is required because libxml2 has a problem in
+                # that it cannot switch encoding well in the middle of
+                # parsing, especially if it has already seen a
+                # non-ASCII character when it finds an encoding hint.
                 encoding = e.encoding
               end
             end
@@ -160,6 +164,8 @@ module Nokogiri
             if encoding = EncodingReader.detect_encoding(@firstchunk)
               raise EncodingFoundException, encoding
             end
+
+            # This chunk is stored for the next read in retry.
             return @firstchunk
           end
 

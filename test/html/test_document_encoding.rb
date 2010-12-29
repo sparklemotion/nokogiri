@@ -89,7 +89,7 @@ module Nokogiri
         File.open(file, 'rb')
       end
 
-      def _test_document_xhtml_enc
+      def test_document_xhtml_enc
         [ENCODING_XHTML_FILE, ENCODING_HTML_FILE].each { |file|
           doc_from_string_enc = Nokogiri::HTML(binread(file), nil, 'Shift_JIS')
           ary_from_string_enc = doc_from_string_enc.xpath('//p/text()').map { |text| text.text }
