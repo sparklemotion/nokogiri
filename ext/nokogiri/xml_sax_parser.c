@@ -62,8 +62,9 @@ static void start_element(void * ctx, const xmlChar *name, const xmlChar **atts)
   int i = 0;
   if(atts) {
     while((attr = atts[i]) != NULL) {
-      rb_ary_push(attributes, NOKOGIRI_STR_NEW2(attr));
-      i++;
+      const xmlChar * val = atts[i+1];
+      rb_ary_push(attributes, rb_ary_new3(2, NOKOGIRI_STR_NEW2(attr), NOKOGIRI_STR_NEW2(val)));
+      i+=2;
     }
   }
 

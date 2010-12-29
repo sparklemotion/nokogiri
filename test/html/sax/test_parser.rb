@@ -87,6 +87,37 @@ module Nokogiri
                          @parser.document.start_elements)
           end
         end
+
+        def test_parser_attributes
+          html = <<-eohtml
+<html>
+  <head>
+    <title>hello</title>
+  </head>
+<body>
+  <img src="face.jpg" title="daddy &amp; me"></body>
+</html>
+          eohtml
+
+          block_called = false
+          @parser.parse(html) { |ctx|
+            block_called = true
+            ctx.replace_entities = true
+          }
+
+          assert block_called
+
+          assert_equal [
+            ['html', []],
+            ['head', []],
+            ['title', []],
+            ['body', []],
+            ['img', [
+                ['src', 'face.jpg'],
+                ['title', 'daddy & me']
+              ]]
+          ], @parser.document.start_elements
+        end
       end
     end
   end

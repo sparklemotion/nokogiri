@@ -316,6 +316,22 @@ module Nokogiri
             eoxml
           end
         end
+
+        def test_parser_attributes
+          xml = <<-eoxml
+<?xml version="1.0" ?><root><foo a="&amp;b" c="&gt;d" /></root>
+          eoxml
+
+          block_called = false
+          @parser.parse(xml) { |ctx|
+            block_called = true
+            ctx.replace_entities = true
+          }
+
+          assert block_called
+
+          assert_equal [['root', []], ['foo', [['a', '&b'], ['c', '>d']]]], @parser.document.start_elements
+        end
       end
     end
   end
