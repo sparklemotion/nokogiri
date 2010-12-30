@@ -121,14 +121,31 @@ module Nokogiri
             throw :found
           end
 
+          def not_found(encoding)
+            found nil
+          end
+
           def start_element(name, attrs = [])
-            name == 'meta' or return
-            attr = Hash[attrs]
-            http_equiv = attr['http-equiv'] and
-              http_equiv.match(/\AContent-Type\z/i) and
-              content = attr['content'] and
-              m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
-              found m[1]
+            case name
+            when 'head'
+              @head = true
+            when 'body'
+              not_found
+            when 'meta'
+              @head or return
+              attr = Hash[attrs]
+              http_equiv = attr['http-equiv'] and
+                http_equiv.match(/\AContent-Type\z/i) and
+                content = attr['content'] and
+                m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
+                found m[1]
+            end
+          end
+
+          def end_element(name)
+            if name == 'head'
+              not_found
+            end
           end
         end
 
