@@ -3,25 +3,44 @@ module Nokogiri
     class Document < Nokogiri::XML::Document
       ###
       # Get the meta tag encoding for this document.  If there is no meta tag,
-      # then nil is returned
+      # then nil is returned.
       def meta_encoding
-        return nil unless meta = css('meta').find { |node|
-          node['http-equiv'] =~ /Content-Type/i
-        }
-
-        /charset\s*=\s*([\w-]+)/i.match(meta['content'])[1]
+        meta = meta_content_type and
+          /charset\s*=\s*([\w-]+)/i.match(meta['content'])[1]
       end
 
       ###
       # Set the meta tag encoding for this document.  If there is no meta
-      # content tag, nil is returned and the encoding is not set.
+      # content tag, the encoding is not set.
       def meta_encoding= encoding
-        return nil unless meta = css('meta').find { |node|
-          node['http-equiv'] =~ /Content-Type/i
-        }
+        meta = meta_content_type and
+          meta['content'] = "text/html; charset=%s" % encoding
+      end
 
-        meta['content'] = "text/html; charset=%s" % encoding
-        encoding
+      def meta_content_type
+        css('meta').find { |node|
+          node['http-equiv'] =~ /\AContent-Type\z/i
+        }
+      end
+      private :meta_content_type
+
+      ###
+      # Get the title string of this document.  Return nil if there is
+      # no title tag.
+      def title
+        title = at('head title') and title.inner_text
+      end
+
+      ###
+      # Set the title string of this document.  If there is no head
+      # element, the title is not set.
+      def title=(text)
+        unless title = at('head title')
+          head = at('head') or return nil
+          title = Nokogiri::XML::Node.new('title', self)
+          head << title
+        end
+        title.children = XML::Text.new(text, self)
       end
 
       ####

@@ -29,6 +29,10 @@
 
 === 1.4.5 / unrelease
 
+* New Features
+
+  * Nokogiri::HTML::Document#title accessor gets and sets the document title.
+
 * Bugfixes
 
   * Node#serialize-and-friends now accepts a SaveOption object as the, erm, save object.
