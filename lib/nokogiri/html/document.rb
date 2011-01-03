@@ -5,24 +5,24 @@ module Nokogiri
       # Get the meta tag encoding for this document.  If there is no meta tag,
       # then nil is returned.
       def meta_encoding
-        return nil unless meta = css('meta').find { |node|
-          node['http-equiv'] =~ /Content-Type/i
-        }
-
-        /charset\s*=\s*([\w-]+)/i.match(meta['content'])[1]
+        meta = meta_content_type and
+          /charset\s*=\s*([\w-]+)/i.match(meta['content'])[1]
       end
 
       ###
       # Set the meta tag encoding for this document.  If there is no meta
       # content tag, the encoding is not set.
       def meta_encoding= encoding
-        return nil unless meta = css('meta').find { |node|
-          node['http-equiv'] =~ /Content-Type/i
-        }
-
-        meta['content'] = "text/html; charset=%s" % encoding
-        encoding
+        meta = meta_content_type and
+          meta['content'] = "text/html; charset=%s" % encoding
       end
+
+      def meta_content_type
+        css('meta').find { |node|
+          node['http-equiv'] =~ /\AContent-Type\z/i
+        }
+      end
+      private :meta_content_type
 
       ####
       # Serialize Node using +options+.  Save options can also be set using a

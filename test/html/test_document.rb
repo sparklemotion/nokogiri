@@ -119,6 +119,18 @@ module Nokogiri
 
       def test_meta_encoding
         assert_equal 'UTF-8', @html.meta_encoding
+
+        html = Nokogiri::HTML(<<-eohtml)
+<html>
+  <head>
+    <meta http-equiv="X-Content-Type" content="text/html; charset=Shift_JIS">
+  </head>
+  <body>
+    foo
+  </body>
+</html>
+        eohtml
+        assert_nil html.meta_encoding
       end
 
       def test_meta_encoding=
