@@ -24,6 +24,25 @@ module Nokogiri
       end
       private :meta_content_type
 
+      ###
+      # Get the title string of this document.  Return nil if there is
+      # no title tag.
+      def title
+        title = at('head title') and title.inner_text
+      end
+
+      ###
+      # Set the title string of this document.  If there is no head
+      # element, the title is not set.
+      def title=(text)
+        unless title = at('head title')
+          head = at('head') or return nil
+          title = Nokogiri::XML::Node.new('title', self)
+          head << title
+        end
+        title.children = XML::Text.new(text, self)
+      end
+
       ####
       # Serialize Node using +options+.  Save options can also be set using a
       # block. See SaveOptions.

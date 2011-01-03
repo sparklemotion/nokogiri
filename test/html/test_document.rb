@@ -138,6 +138,49 @@ module Nokogiri
         assert_equal 'EUC-JP', @html.meta_encoding
       end
 
+      def test_title
+        assert_equal 'Tender Lovemaking  ', @html.title
+        doc = Nokogiri::HTML('<html><body>foo</body></html>')
+        assert_nil doc.title
+      end
+
+      def test_title=()
+        doc = Nokogiri::HTML(<<eohtml)
+<html>
+  <head>
+    <title>old</title>
+  </head>
+  <body>
+    foo
+  </body>
+</html>
+eohtml
+        doc.title = 'new'
+        assert_equal 'new', doc.title
+
+        doc = Nokogiri::HTML(<<eohtml)
+<html>
+  <head>
+  </head>
+  <body>
+    foo
+  </body>
+</html>
+eohtml
+        doc.title = 'new'
+        assert_equal 'new', doc.title
+
+        doc = Nokogiri::HTML(<<eohtml)
+<html>
+  <body>
+    foo
+  </body>
+</html>
+eohtml
+        doc.title = 'new'
+        assert_nil doc.title
+      end
+
       def test_meta_encoding_without_head
         html = Nokogiri::HTML('<html><body>foo</body></html>')
         assert_nil html.meta_encoding

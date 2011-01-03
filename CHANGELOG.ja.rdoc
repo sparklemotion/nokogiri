@@ -1,5 +1,9 @@
 === 1.4.5 / 未リリース
 
+* 新機能
+
+  * Nokogiri::HTML::Document#title アクセサメソッドでHTML文書のタイトルを読み書きできる
+
 * バグの修正
 
   * Node#serialize とその仲間達はSaveOptionオブジェクトを受け入れる
