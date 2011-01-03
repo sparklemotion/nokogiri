@@ -3,7 +3,7 @@ module Nokogiri
     class Document < Nokogiri::XML::Document
       ###
       # Get the meta tag encoding for this document.  If there is no meta tag,
-      # then nil is returned
+      # then nil is returned.
       def meta_encoding
         return nil unless meta = css('meta').find { |node|
           node['http-equiv'] =~ /Content-Type/i
@@ -14,7 +14,7 @@ module Nokogiri
 
       ###
       # Set the meta tag encoding for this document.  If there is no meta
-      # content tag, nil is returned and the encoding is not set.
+      # content tag, the encoding is not set.
       def meta_encoding= encoding
         return nil unless meta = css('meta').find { |node|
           node['http-equiv'] =~ /Content-Type/i
