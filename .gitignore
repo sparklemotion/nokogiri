@@ -1,5 +1,6 @@
 .*.swp
 *.tmproj
+*~
 ext/java/nokogiri/*.class
 ext/java/nokogiri/*/*.class
 ext/nokogiri/*.dll
