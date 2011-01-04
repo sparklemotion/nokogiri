@@ -152,9 +152,9 @@ public class XsltStylesheet extends RubyObject {
             }
             transf.transform(docSource, result);
         } catch(TransformerConfigurationException ex) {
-            throw ruby.newRuntimeError("Could not transform the document.");
+            throw ruby.newRuntimeError(ex.getMessage());
         } catch(TransformerException ex) {
-            throw ruby.newRuntimeError("Could not transform the document.");
+            throw ruby.newRuntimeError(ex.getMessage());
         }
         
         if ("html".equals(result.getNode().getFirstChild().getNodeName())) {
