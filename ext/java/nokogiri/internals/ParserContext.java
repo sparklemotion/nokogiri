@@ -46,6 +46,7 @@ import org.jruby.RubyClass;
 import org.jruby.RubyIO;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
+import org.jruby.RubyStringIO;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -110,7 +111,7 @@ public class ParserContext extends RubyObject {
     public void setInputSource(ThreadContext context,
                                IRubyObject data) {
         Ruby ruby = context.getRuntime();
-
+        RubyString stringData = null;
         if (invoke(context, data, "respond_to?",
                    ruby.newSymbol("to_io").to_sym()).isTrue()) {
             /* IO or other object that responds to :to_io */
@@ -119,20 +120,30 @@ public class ParserContext extends RubyObject {
                                                      ruby.getIO(),
                                                      "to_io");
             source = new InputSource(io.getInStream());
+        } else if (((RubyObject)data).getInstanceVariable("@io") != null) {
+            // in case of EncodingReader is used
+            // since EncodingReader won't respond to :to_io
+            RubyObject dataObject = (RubyObject) ((RubyObject)data).getInstanceVariable("@io");
+            if (dataObject instanceof RubyIO) {
+                RubyIO io = (RubyIO)dataObject;
+                source = new InputSource(io.getInStream());
+            } else if (dataObject instanceof RubyStringIO) {
+                stringData = (RubyString)((RubyStringIO)dataObject).string();
+            }
         } else {
-            RubyString str;
             if (invoke(context, data, "respond_to?",
                           ruby.newSymbol("string").to_sym()).isTrue()) {
                 /* StringIO or other object that responds to :string */
-                str = invoke(context, data, "string").convertToString();
+                stringData = invoke(context, data, "string").convertToString();
             } else if (data instanceof RubyString) {
-                str = (RubyString) data;
+                stringData = (RubyString) data;
             } else {
                 throw ruby.newArgumentError(
                     "must be kind_of String or respond to :to_io or :string");
             }
-
-            ByteList bytes = str.getByteList();
+        }
+        if (stringData != null) {
+            ByteList bytes = stringData.getByteList();
             source = new InputSource(new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length()));
         }
     }
