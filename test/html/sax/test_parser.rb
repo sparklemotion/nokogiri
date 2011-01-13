@@ -90,6 +90,14 @@ module Nokogiri
 
           assert block_called
 
+          noshade_value = if Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO['libxml']['loaded'] < '2.7.7'
+                            ['noshade', 'noshade']
+                          elsif Nokogiri.jruby?
+                            ['noshade', '']
+                          else
+                            ['noshade', nil]
+                          end
+
           assert_equal [
             ['html', []],
             ['head', []],
@@ -100,7 +108,7 @@ module Nokogiri
                 ['title', 'daddy & me']
               ]],
             ['hr', [
-                ['noshade', nil],
+                noshade_value,
                 ['size', '2']
               ]]
           ], @parser.document.start_elements

@@ -32,6 +32,10 @@ module Nokogiri
     uses_libxml? && Nokogiri::VERSION_INFO['libxml']['binding'] == 'ffi'
   end
 
+  def self.jruby?
+    false # for 1.5 compatibility
+  end
+
   def self.is_2_6_16? # :nodoc:
     Nokogiri::VERSION_INFO['libxml']['loaded'] <= '2.6.16'
   end
