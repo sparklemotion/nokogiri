@@ -611,7 +611,7 @@ module Nokogiri
             <a:foo>hello from a</a:foo>
             <b:foo>hello from b</b:foo>
             <container xmlns:c="http://c.flavorjon.es/">
-              <c:foo>hello from c</c:foo>
+              <c:foo c:attr='attr-value'>hello from c</c:foo>
             </container>
           </root>
         EOX
@@ -625,6 +625,7 @@ module Nokogiri
         assert_equal 1, doc.xpath("//a:foo").length
         assert_equal 1, doc.xpath("//a:foo").length
         assert_equal 1, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
+        assert_match %r{foo c:attr}, doc.to_xml
 
         doc.remove_namespaces!
 
@@ -634,6 +635,7 @@ module Nokogiri
         assert_equal 0, doc.xpath("//a:foo", namespaces).length
         assert_equal 0, doc.xpath("//a:foo", namespaces).length
         assert_equal 0, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
+        assert_match %r{foo attr}, doc.to_xml
       end
 
       def test_subset_is_decorated
