@@ -41,6 +41,7 @@ static void dealloc(xmlDocPtr doc)
 static void recursively_remove_namespaces_from_node(xmlNodePtr node)
 {
   xmlNodePtr child ;
+  xmlAttrPtr property ;
 
   xmlSetNs(node, NULL);
 
@@ -50,6 +51,14 @@ static void recursively_remove_namespaces_from_node(xmlNodePtr node)
   if (node->nsDef) {
     xmlFreeNsList(node->nsDef);
     node->nsDef = NULL;
+  }
+
+  if (node->properties != NULL) {
+    property = node->properties ;
+    while (property != NULL) {
+      if (property->ns) property->ns = NULL ;
+      property = property->next ;
+    }
   }
 }
 
