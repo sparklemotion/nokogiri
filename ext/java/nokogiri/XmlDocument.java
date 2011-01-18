@@ -332,6 +332,12 @@ public class XmlDocument extends XmlNode {
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             node.setPrefix(null);
             node.getOwnerDocument().renameNode(node, null, node.getLocalName());
+            NamedNodeMap attrs = node.getAttributes();
+            for (int i=0; i<attrs.getLength(); i++) {
+                Node attr = attrs.item(i);
+                attr.setPrefix(null);
+                attr.getOwnerDocument().renameNode(attr, null, attr.getLocalName());
+            }
         }
         XmlNodeSet nodeSet = (XmlNodeSet) xmlNode.children(context);
         for (long i=0; i < nodeSet.length(); i++) {

@@ -36,7 +36,7 @@ import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +62,7 @@ public class NokogiriNamespaceCache {
 
     public NokogiriNamespaceCache() {
         keys = new ArrayList<Long>();
-        cache = new HashMap<Integer, CacheEntry>();
+        cache = new LinkedHashMap<Integer, CacheEntry>();
     }
     
     private Long hashCode(String prefix, String href) {
