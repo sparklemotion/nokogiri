@@ -720,6 +720,7 @@ module Nokogiri
         }
 
         encoding = options[:encoding] || document.encoding
+        options[:encoding] = encoding
 
         outstring = ""
         if encoding && outstring.respond_to?(:force_encoding)
@@ -802,7 +803,6 @@ module Nokogiri
         save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
         indent_text   = options[:indent_text] || ' '
         indent_times  = options[:indent] || 2
-
 
         config = SaveOptions.new(save_options.to_i)
         yield config if block_given?

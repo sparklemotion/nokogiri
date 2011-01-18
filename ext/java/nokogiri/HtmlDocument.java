@@ -117,12 +117,6 @@ public class HtmlDocument extends XmlDocument {
         return do_parse(context, cls, args);
     }
 
-
-    @JRubyMethod
-    public static IRubyObject serialize(ThreadContext context, IRubyObject htmlDoc) {
-        throw context.getRuntime().newNotImplementedError("not implemented");
-    }
-
     @Override
     public void saveContent(ThreadContext context, SaveContext ctx) {
         Document doc = getDocument();
