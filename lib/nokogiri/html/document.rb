@@ -172,6 +172,11 @@ module Nokogiri
           m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
             return Nokogiri.XML(m[1]).encoding
 
+          if Nokogiri.jruby?
+            m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
+              return m[4]
+          end
+
           handler = SAXHandler.new
           parser = Nokogiri::HTML::SAX::Parser.new(handler)
           catch(:found) {
