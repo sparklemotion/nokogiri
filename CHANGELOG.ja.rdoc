@@ -41,6 +41,8 @@
   * HTML::SAX::Parserから呼ばれるstart_element()コールバックのattributes引数はHTML::XML::Parserによるエミュレートコールバックと同じく連想配列になった.  rel. #356
   * HTML::SAX::Parserのparse*()メソッドはXML::SAX::Parser同様に渡されたブロックをコールバックするようになった.
   * HTMLパーサーのエンコーディング判定を拡張・改善した. (XML宣言のencodingを認識、非ASCII文字出現後のmetaタグも文字化けを生じずに反映)
+  * Add further encoding detection to HTML parser that libxml2 does not do.
+  * Document#remove_namespaces! now handles attributes with namespaces. #396
 
 === 1.4.4 ２０１０年１１月１５日
 

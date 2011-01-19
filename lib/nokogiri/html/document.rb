@@ -18,7 +18,7 @@ module Nokogiri
       end
 
       def meta_content_type
-        css('meta').find { |node|
+        css('meta[@http-equiv]').find { |node|
           node['http-equiv'] =~ /\AContent-Type\z/i
         }
       end
@@ -28,14 +28,14 @@ module Nokogiri
       # Get the title string of this document.  Return nil if there is
       # no title tag.
       def title
-        title = at('head title') and title.inner_text
+        title = at('title') and title.inner_text
       end
 
       ###
       # Set the title string of this document.  If there is no head
       # element, the title is not set.
       def title=(text)
-        unless title = at('head title')
+        unless title = at('title')
           head = at('head') or return nil
           title = Nokogiri::XML::Node.new('title', self)
           head << title
