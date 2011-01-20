@@ -11,7 +11,8 @@ module Nokogiri
         :parent,        :pointer,
         :next,          :pointer,
         :prev,          :pointer,
-        :doc,           :pointer
+        :doc,           :pointer,
+        :ns,            :pointer
         )
 
     end

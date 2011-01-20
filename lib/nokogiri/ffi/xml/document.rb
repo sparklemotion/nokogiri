@@ -157,6 +157,14 @@ module Nokogiri
             LibXML.xmlFreeNsList(node.cstruct[:nsDef])
             node.cstruct[:nsDef] = nil
           end
+          unless node.cstruct[:properties].nil?
+            prop_ptr = node.cstruct[:properties]
+            while ! prop_ptr.null?
+              prop_cstruct = LibXML::XmlAttr.new(node.cstruct[:properties])
+              prop_cstruct[:ns] = nil unless prop_cstruct[:ns].nil?
+              prop_ptr = prop_cstruct[:next]
+            end
+          end
         end
       end
 
