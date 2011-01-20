@@ -49,6 +49,7 @@ module Nokogiri
 
         def __internal__startElement(_, name, attributes)
           attrs = attributes.null? ? [] : attributes.get_array_of_string(0)
+          attrs = attrs.each_slice(2).to_a
           @document.start_element name, attrs
         end
 
