@@ -71,16 +71,6 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         super(ruby, rubyClass);
     }
     
-    /**
-     * Create and return a copy of this object.
-     *
-     * @return a clone of this object
-     */
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
     @Override
     protected AbstractSAXParser createParser() throws SAXException {
         SAXParser parser = new SAXParser();
@@ -103,6 +93,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                                            IRubyObject data,
                                            IRubyObject encoding) {
         HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
+        ctx.initialize(context.getRuntime());
         String javaEncoding = findEncoding(context, encoding);
         if (javaEncoding != null) {
             String input = applyEncoding(rubyStringToString(data), javaEncoding);
@@ -208,6 +199,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                                          IRubyObject data,
                                          IRubyObject encoding) {
         HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
+        ctx.initialize(context.getRuntime());
         ctx.setInputSourceFile(context, data);
         String javaEncoding = findEncoding(context, encoding);
         if (javaEncoding != null) {
@@ -222,6 +214,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                                        IRubyObject data,
                                        IRubyObject encoding) {
         HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
+        ctx.initialize(context.getRuntime());
         ctx.setInputSource(context, data);
         String javaEncoding = findEncoding(context, encoding);
         if (javaEncoding != null) {
@@ -239,6 +232,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                                            IRubyObject klazz,
                                            InputStream stream) {
         HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
+        ctx.initialize(context.getRuntime());
         ctx.setInputSource(stream);
         return ctx;
     }

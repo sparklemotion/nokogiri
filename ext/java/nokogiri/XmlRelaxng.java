@@ -80,7 +80,7 @@ public class XmlRelaxng extends XmlSchema {
     
     static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source) {
         Ruby runtime = context.getRuntime();
-        XmlRelaxng xmlRelaxng = (XmlRelaxng) NokogiriService.XML_RELAXNG_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::RelaxNG"));
+        XmlRelaxng xmlRelaxng = (XmlRelaxng) NokogiriService.XML_RELAXNG_ALLOCATOR.allocate(runtime, klazz);
         xmlRelaxng.setInstanceVariable("@errors", runtime.newEmptyArray());
         
         try {

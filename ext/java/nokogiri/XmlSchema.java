@@ -104,7 +104,7 @@ public class XmlSchema extends RubyObject {
 
     static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source) {
         Ruby runtime = context.getRuntime();
-        XmlSchema xmlSchema = (XmlSchema) NokogiriService.XML_SCHEMA_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Schema"));
+        XmlSchema xmlSchema = (XmlSchema) NokogiriService.XML_SCHEMA_ALLOCATOR.allocate(runtime, klazz);
         xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
         
         try {

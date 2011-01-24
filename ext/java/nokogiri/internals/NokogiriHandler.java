@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -59,6 +59,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * A handler for SAX parsing.
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
@@ -82,9 +83,9 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     private static String htmlParserName = "Nokogiri::HTML::SAX::Parser";
     private boolean needEmptyAttrCheck = false;
 
-    public NokogiriHandler(Ruby ruby, IRubyObject object) {
-        this.ruby = ruby;
-        this.attrClass = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
+    public NokogiriHandler(Ruby runtime, IRubyObject object) {
+        this.ruby = runtime;
+        this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
         this.object = object;
         lines = new ArrayDeque<Integer>();
         columns = new ArrayDeque<Integer>();

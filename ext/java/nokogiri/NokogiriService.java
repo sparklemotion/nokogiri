@@ -32,7 +32,9 @@
 
 package nokogiri;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -53,7 +55,7 @@ import org.jruby.runtime.load.BasicLibraryService;
  */
 public class NokogiriService implements BasicLibraryService {
     public static final String nokogiriClassCacheGvarName = "$NOKOGIRI_CLASS_CACHE";
-    public static HashMap<String, RubyClass> nokogiriClassCache;
+    public static Map<String, RubyClass> nokogiriClassCache;
 
     public boolean basicLoad(Ruby ruby) {
         init(ruby);
@@ -62,7 +64,7 @@ public class NokogiriService implements BasicLibraryService {
     }
     
     private static void createNokogiriClassCahce(Ruby ruby) {
-        nokogiriClassCache = new HashMap<String, RubyClass>();
+        nokogiriClassCache = Collections.synchronizedMap(new HashMap<String, RubyClass>());
         nokogiriClassCache.put("Nokogiri::EncodingHandler", (RubyClass)ruby.getClassFromPath("Nokogiri::EncodingHandler"));
         nokogiriClassCache.put("Nokogiri::HTML::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::Document"));
         nokogiriClassCache.put("Nokogiri::HTML::ElementDescription", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::ElementDescription"));
@@ -205,7 +207,7 @@ public class NokogiriService implements BasicLibraryService {
     }
     
     private void createSaxModule(Ruby ruby, RubyModule xmlSaxModule, RubyModule htmlSaxModule) {
-        RubyClass xmlSaxParserContext = xmlSaxModule.defineClassUnder("ParserContext", ruby.getObject(), XML_SAXPARSER_ALLOCATOR);
+        RubyClass xmlSaxParserContext = xmlSaxModule.defineClassUnder("ParserContext", ruby.getObject(), XML_SAXPARSER_CONTEXT_ALLOCATOR);
         xmlSaxParserContext.defineAnnotatedMethods(XmlSaxParserContext.class);
         
         RubyClass xmlSaxPushParser = xmlSaxModule.defineClassUnder("PushParser", ruby.getObject(), XML_SAXPUSHPARSER_ALLOCATOR);
@@ -458,9 +460,17 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_SAXPARSER_ALLOCATOR = new ObjectAllocator() {
+    public static final ObjectAllocator XML_SAXPARSER_CONTEXT_ALLOCATOR = new ObjectAllocator() {
+        private XmlSaxParserContext xmlSaxParserContext = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlSaxParserContext(runtime, klazz);
+            if (xmlSaxParserContext == null) xmlSaxParserContext = new XmlSaxParserContext(runtime, klazz);
+            try {
+                XmlSaxParserContext clone = (XmlSaxParserContext) xmlSaxParserContext.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlSaxParserContext(runtime, klazz);
+            }
         }
     };
 
