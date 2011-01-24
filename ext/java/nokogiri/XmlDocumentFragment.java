@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -63,6 +63,7 @@ import org.w3c.dom.NamedNodeMap;
  * Class for Nokogiri::XML::DocumentFragment
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::DocumentFragment", parent="Nokogiri::XML::Node")
 public class XmlDocumentFragment extends XmlNode {
@@ -95,7 +96,7 @@ public class XmlDocumentFragment extends XmlNode {
             argc[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(argc[1])));
         }
 
-        XmlDocumentFragment fragment = (XmlDocumentFragment) ((RubyClass)cls).allocate();
+        XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)cls);
         fragment.setDocument(context, doc);
         fragment.setNode(context, doc.getDocument().createDocumentFragment());
 

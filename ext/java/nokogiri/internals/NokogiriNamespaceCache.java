@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
 import nokogiri.XmlNamespace;
 
@@ -121,7 +122,7 @@ public class NokogiriNamespaceCache {
             keys.add(hash);
             index = keys.size() - 1;
             String actualPrefix = (prefix.equals("")) ? null : prefix;
-            XmlNamespace namespace = (XmlNamespace) getNokogiriClass(ruby, "Nokogiri::XML::Namespace").allocate();
+            XmlNamespace namespace = (XmlNamespace) NokogiriService.XML_NAMESPACE_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"));
             namespace.setDefinition(ruby, actualPrefix, href);
             namespace.setDocument(document);
             CacheEntry entry = new CacheEntry(namespace, node);

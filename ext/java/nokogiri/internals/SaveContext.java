@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -32,6 +32,8 @@
 
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import java.lang.Character;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -44,6 +46,8 @@ import org.jruby.runtime.builtin.IRubyObject;
  * A class for serializing a document.
  * 
  * @author sergio
+ * @author Patrick Mahoney <pat@polycrystal.org>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class SaveContext {
 
@@ -73,9 +77,7 @@ public class SaveContext {
     public SaveContext(ThreadContext context, int options, String indentString,
                        String encoding) {
         this.context = context;
-        this.elementDescription =
-            (RubyClass) context.getRuntime().getClassFromPath(
-                "Nokogiri::HTML::ElementDescription");
+        this.elementDescription = (RubyClass)getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::ElementDescription");
         this.options = options;
         this.encoding = encoding;
         this.indentString = indentString;

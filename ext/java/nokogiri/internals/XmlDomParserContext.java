@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
 import nokogiri.XmlSyntaxError;
 
@@ -63,6 +64,7 @@ import org.xml.sax.SAXException;
  * we delay creating objects for performance.
  *  
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class XmlDomParserContext extends ParserContext {
     protected static final String FEATURE_LOAD_EXTERNAL_DTD =
@@ -161,18 +163,20 @@ public class XmlDomParserContext extends ParserContext {
         if (options.recover) {
             XmlDocument doc = this.getNewEmptyDocument(context);
             this.addErrorsIfNecessary(context, doc);
-            ((RubyArray) doc.getInstanceVariable("@errors")).append(new XmlSyntaxError(context.getRuntime(), ex));
+            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            xmlSyntaxError.setException(ex);
+            ((RubyArray) doc.getInstanceVariable("@errors")).append(xmlSyntaxError);
             return doc;
         } else {
-            throw new RaiseException(new XmlSyntaxError(context.getRuntime(), ex));
+            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            xmlSyntaxError.setException(ex);
+            throw new RaiseException(xmlSyntaxError);
         }
     }
 
     protected XmlDocument getNewEmptyDocument(ThreadContext context) {
         IRubyObject[] args = new IRubyObject[0];
-        return (XmlDocument) XmlDocument.rbNew(context,
-                    getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"),
-                    args);
+        return (XmlDocument) XmlDocument.rbNew(context, getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"), args);
     }
 
     /**
@@ -180,9 +184,10 @@ public class XmlDomParserContext extends ParserContext {
      * override it.
      */
     protected XmlDocument wrapDocument(ThreadContext context,
-                                       RubyClass klass,
+                                       RubyClass klazz,
                                        Document doc) {
-        XmlDocument xmlDocument = new XmlDocument(context.getRuntime(), klass, doc);
+        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
+        xmlDocument.setNode(context, doc);
         xmlDocument.setEncoding(ruby_encoding);
         return xmlDocument;
     }

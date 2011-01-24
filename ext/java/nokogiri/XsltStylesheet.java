@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -61,6 +61,8 @@ import org.w3c.dom.Document;
 /**
  * Class for Nokogiri::XSLT::Stylesheet
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XSLT::Stylesheet")
 public class XsltStylesheet extends RubyObject {
@@ -140,7 +142,7 @@ public class XsltStylesheet extends RubyObject {
 
     @JRubyMethod(rest = true, required=1, optional=2)
     public IRubyObject transform(ThreadContext context, IRubyObject[] args) {
-        Ruby ruby = context.getRuntime();
+        Ruby runtime = context.getRuntime();
 
         DOMSource docSource = new DOMSource(((XmlDocument) args[0]).getDocument());
         DOMResult result = new DOMResult();
@@ -152,19 +154,19 @@ public class XsltStylesheet extends RubyObject {
             }
             transf.transform(docSource, result);
         } catch(TransformerConfigurationException ex) {
-            throw ruby.newRuntimeError("Could not transform the document.");
+            throw runtime.newRuntimeError("Could not transform the document.");
         } catch(TransformerException ex) {
-            throw ruby.newRuntimeError("Could not transform the document.");
+            throw runtime.newRuntimeError("Could not transform the document.");
         }
         
         if ("html".equals(result.getNode().getFirstChild().getNodeName())) {
-            return new HtmlDocument(ruby,
-                    getNokogiriClass(ruby, "Nokogiri::HTML::Document"),
-                    (Document) result.getNode());
+            HtmlDocument htmlDocument = (HtmlDocument) getNokogiriClass(runtime, "Nokogiri::HTML::Document").allocate();
+            htmlDocument.setNode(context, (Document) result.getNode());
+            return htmlDocument;
         } else {
-            return new XmlDocument(ruby,
-                    getNokogiriClass(ruby, "Nokogiri::XML::Document"),
-                    (Document) result.getNode());
+            XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
+            xmlDocument.setNode(context, (Document) result.getNode());
+            return xmlDocument;
         }
     }
     

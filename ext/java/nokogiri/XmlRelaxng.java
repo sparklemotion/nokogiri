@@ -32,6 +32,8 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,9 +79,9 @@ public class XmlRelaxng extends XmlSchema {
     }
     
     static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source) {
-        Ruby ruby = context.getRuntime();
-        XmlRelaxng xmlRelaxng = new XmlRelaxng(ruby, klazz);
-        xmlRelaxng.setInstanceVariable("@errors", ruby.newEmptyArray());
+        Ruby runtime = context.getRuntime();
+        XmlRelaxng xmlRelaxng = (XmlRelaxng) NokogiriService.XML_RELAXNG_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::RelaxNG"));
+        xmlRelaxng.setInstanceVariable("@errors", runtime.newEmptyArray());
         
         try {
             Schema schema = xmlRelaxng.getSchema(source, context);

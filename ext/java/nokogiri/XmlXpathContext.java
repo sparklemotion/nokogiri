@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -31,6 +31,8 @@
  */
 
 package nokogiri;
+
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -63,6 +65,8 @@ import org.w3c.dom.NodeList;
 /**
  * Class for Nokogiri::XML::XpathContext
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject {
@@ -98,7 +102,6 @@ public class XmlXpathContext extends RubyObject {
             }
             XPathExpression xpathExpression = xpath.compile(src);
             return node_set(context, xpathExpression);
-            //return new XmlXpath(context.getRuntime(), (RubyClass)context.getRuntime().getClassFromPath("Nokogiri::XML::XPath"), xpathExpression, this.context);
         } catch (XPathExpressionException xpee) {
             xpee = new XPathExpressionException(src);
             RubyException e =
@@ -111,7 +114,6 @@ public class XmlXpathContext extends RubyObject {
         XmlNodeSet result = null;
         try {  
             result = tryGetNodeSet(xpathExpression);
-//            result.relink_namespace(context);
             result.setDocument(context.document(rbctx));
             return result;
         } catch (XPathExpressionException xpee) {
@@ -126,7 +128,9 @@ public class XmlXpathContext extends RubyObject {
     
     private XmlNodeSet tryGetNodeSet(XPathExpression xpathExpression) throws XPathExpressionException {
         NodeList nodes = (NodeList)xpathExpression.evaluate(context.node, XPathConstants.NODESET);
-        return new XmlNodeSet(getRuntime(), nodes);       
+        XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
+        xmlNodeSet.setNodeList(nodes);
+        return xmlNodeSet;    
     }
     
     private static Pattern number_pattern = Pattern.compile("\\d.*");

@@ -80,6 +80,16 @@ public class XmlSchema extends RubyObject {
     public XmlSchema(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
     }
+    
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     private Schema getSchema(Source source, String currentDir) throws SAXException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -93,9 +103,9 @@ public class XmlSchema extends RubyObject {
     }
 
     static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source) {
-        Ruby ruby = context.getRuntime();
-        XmlSchema xmlSchema = new XmlSchema(ruby, klazz);
-        xmlSchema.setInstanceVariable("@errors", ruby.newEmptyArray());
+        Ruby runtime = context.getRuntime();
+        XmlSchema xmlSchema = (XmlSchema) NokogiriService.XML_SCHEMA_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Schema"));
+        xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
         
         try {
             Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory());
@@ -171,7 +181,9 @@ public class XmlSchema extends RubyObject {
         try {
             validate(xmlDocument.getDocument());
         } catch(SAXException ex) {
-            errors.append(new XmlSyntaxError(context.getRuntime(), ex));
+            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            xmlSyntaxError.setException(ex);
+            errors.append(xmlSyntaxError);
         } catch (IOException ex) {
             throw context.getRuntime().newIOError(ex.getMessage());
         }

@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -32,6 +32,7 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import nokogiri.internals.HtmlDomParserContext;
 import nokogiri.internals.SaveContext;
 
@@ -49,6 +50,8 @@ import org.w3c.dom.DocumentType;
 /**
  * Class for Nokogiri::HTML::Document.
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::HTML::Document", parent="Nokogiri::XML::Document")
 public class HtmlDocument extends XmlDocument {
@@ -62,20 +65,20 @@ public class HtmlDocument extends XmlDocument {
     }
 
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls,
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz,
                                     IRubyObject[] args) {
-        HtmlDocument doc = null;
+        HtmlDocument htmlDocument = null;
         try {
             Document docNode = createNewDocument();
-            doc = new HtmlDocument(context.getRuntime(), (RubyClass) cls, docNode);
+            htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+            htmlDocument.setNode(context, docNode);
         } catch (Exception ex) {
-            throw context.getRuntime()
-                .newRuntimeError("couldn't create document: "+ex.toString());
+            throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
 
-        RuntimeHelpers.invoke(context, doc, "initialize", args);
+        RuntimeHelpers.invoke(context, htmlDocument, "initialize", args);
 
-        return doc;
+        return htmlDocument;
     }
 
     public static IRubyObject do_parse(ThreadContext context,
