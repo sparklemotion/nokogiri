@@ -32,9 +32,9 @@ HOE = Hoe.spec 'nokogiri' do
   ]
 
   %w{ racc rexical rake-compiler }.each do |dep|
-    self.extra_dev_deps << [dep, '>= 0']
+    extra_dev_deps << [dep, '>= 0']
   end
-  self.extra_dev_deps << ["minitest", ">= 1.6.0"]
+  extra_dev_deps << ["minitest", ">= 1.6.0"]
 
   self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
 
@@ -182,6 +182,7 @@ unless windows || java || ENV['NOKOGIRI_FFI']
   end
 
   Rake::Task[:test].prerequisites << :compile
+  Rake::Task[:test].prerequisites << :check_extra_deps
   if Hoe.plugins.include?(:debugging)
     ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
       Rake::Task["test:#{task_name}"].prerequisites << :compile
@@ -193,19 +194,6 @@ else
       Rake::Task[task_name].prerequisites << GENERATED_PARSER
       Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
     end
-  end
-end
-
-namespace :install do
-  desc "Install rex and racc for development"
-  task :deps => %w(rexical racc)
-
-  task :racc do |t|
-    sh "sudo gem install racc"
-  end
-
-  task :rexical do
-    sh "sudo gem install rexical"
   end
 end
 
