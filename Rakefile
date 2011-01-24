@@ -141,21 +141,13 @@ namespace :gem do
 end
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
-  begin
-    racc = Config::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
-    racc = "#{::Config::CONFIG['bindir']}/racc" if racc.empty?
-    sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
-  rescue
-    abort "need racc, sudo gem install racc"
-  end
+  racc = Config::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
+  racc = "#{::Config::CONFIG['bindir']}/racc" if racc.empty?
+  sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
 end
 
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
-  begin
-    sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
-  rescue
-    abort "need rexical, sudo gem install rexical"
-  end
+  sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
 end
 
 require 'tasks/test'
