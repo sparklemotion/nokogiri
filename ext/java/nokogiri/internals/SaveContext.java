@@ -34,13 +34,16 @@ package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
-import java.lang.Character;
+import java.nio.charset.Charset;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyEncoding;
 import org.jruby.RubyString;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
 
 /**
  * A class for serializing a document.
@@ -74,8 +77,7 @@ public class SaveContext {
     public static final int AS_XML = 32;
     public static final int AS_HTML = 64;
 
-    public SaveContext(ThreadContext context, int options, String indentString,
-                       String encoding) {
+    public SaveContext(ThreadContext context, int options, String indentString, String encoding) {
         this.context = context;
         this.elementDescription = (RubyClass)getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::ElementDescription");
         this.options = options;
@@ -90,8 +92,7 @@ public class SaveContext {
         asXml = (options & AS_XML) == AS_XML;
         asHtml = (options & AS_HTML) == AS_HTML;
     }
-
-
+    
     public void append(String s) {
         this.buffer.append(s);
     }
@@ -265,7 +266,10 @@ public class SaveContext {
     public String toString() { return this.buffer.toString(); }
 
     public RubyString toRubyString(Ruby runtime) {
-        return new RubyString(runtime, runtime.getString(), buffer);
+        ByteList bytes;
+        if (encoding == null) bytes = new ByteList(buffer.toString().getBytes());
+        else bytes = new ByteList(RubyEncoding.encode(buffer.toString(), Charset.forName(encoding)), false);
+        return RubyString.newString(runtime, bytes);
     }
 
     public boolean Xhtml() { return this.xhtml; }

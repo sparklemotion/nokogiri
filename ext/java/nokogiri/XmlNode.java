@@ -430,8 +430,7 @@ public class XmlNode extends RubyObject {
         //this should delegate to subclasses' implementation
     }
 
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-    }
+    public void saveContent(ThreadContext context, SaveContext ctx) {}
 
     public void setName(IRubyObject name) {
         this.name = name;
