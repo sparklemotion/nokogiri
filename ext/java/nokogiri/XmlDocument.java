@@ -78,6 +78,11 @@ public class XmlDocument extends XmlNode {
     public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
     protected final static String DTD_INTERNAL_SUBSET = "DTD_INTERNAL_SUBSET";
     protected final static String DTD_EXTERNAL_SUBSET = "DTD_EXTERNAL_SUBSET";
+    
+    /* DocumentBuilderFactory implementation class name. This needs to set a classloader into it.
+     * Setting an appropriate classloader resolves issue 380.
+     */
+    private static final String DOCUMENTBUILDERFACTORY_IMPLE_NAME = "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl";
 
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
@@ -212,7 +217,8 @@ public class XmlDocument extends XmlNode {
 
     protected static Document createNewDocument() {
         try {
-            return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(DOCUMENTBUILDERFACTORY_IMPLE_NAME, NokogiriService.class.getClassLoader());
+            return factory.newDocumentBuilder().newDocument();
         } catch (ParserConfigurationException e) {
             return null;        // this will end is disaster...
         }
