@@ -12,7 +12,7 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   # These two cases don't need to require jar archives because those
   # should be in WEB-INF/lib and already set in the classpath by
   # a servlet container.
-  unless defined?(JRuby::Rack::VERSION) || defined?(AppEngine::ApiProxy)
+  unless defined?(AppEngine::ApiProxy)
     require 'isorelax.jar'
     require 'jing.jar'
     require 'nekohtml.jar'
