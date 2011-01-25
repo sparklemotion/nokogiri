@@ -54,7 +54,6 @@ import nokogiri.XmlSyntaxError;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
-import org.jruby.RubyClass;
 import org.jruby.RubyHash;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;

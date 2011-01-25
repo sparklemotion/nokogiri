@@ -42,7 +42,6 @@ import nokogiri.XmlSyntaxError;
 
 import org.apache.xerces.xni.parser.XMLErrorHandler;
 import org.jruby.Ruby;
-import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.ErrorHandler;

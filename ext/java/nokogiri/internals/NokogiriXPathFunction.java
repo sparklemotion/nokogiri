@@ -46,7 +46,6 @@ import nokogiri.XmlNodeSet;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
-import org.jruby.RubyClass;
 import org.jruby.RubyFloat;
 import org.jruby.RubyString;
 import org.jruby.javasupport.JavaUtil;

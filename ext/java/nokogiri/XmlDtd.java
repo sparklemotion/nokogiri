@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -56,7 +56,10 @@ import org.w3c.dom.Node;
 
 /**
  * Class for Nokogiri::XML::DTD
- *
+ * 
+ * @author sergio
+ * @author Patrick Mahoney <pat@polycrystal.org>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 
 @JRubyClass(name="Nokogiri::XML::DTD", parent="Nokogiri::XML::Node")

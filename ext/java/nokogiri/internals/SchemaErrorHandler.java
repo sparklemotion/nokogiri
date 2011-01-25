@@ -35,9 +35,9 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import nokogiri.NokogiriService;
 import nokogiri.XmlSyntaxError;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
-import org.jruby.RubyClass;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;

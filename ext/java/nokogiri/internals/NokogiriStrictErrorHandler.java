@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -41,6 +41,7 @@ import org.xml.sax.SAXParseException;
  * when NOERROR or/both NOWARNING is/are true.
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriStrictErrorHandler extends NokogiriErrorHandler {
     public NokogiriStrictErrorHandler(boolean noerror, boolean nowarning) {

@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -40,6 +40,7 @@ import org.xml.sax.SAXParseException;
  * Error Handler for XML document when recover is true (default).
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler{
     public NokogiriNonStrictErrorHandler(boolean noerror, boolean nowarning) {
