@@ -86,13 +86,13 @@ namespace :java do
   desc "Removes all generated during compilation .class files."
   task :clean_classes do
     (FileList['ext/java/nokogiri/internals/*.class'] + FileList['ext/java/nokogiri/*.class'] + FileList['ext/java/*.class']).to_a.each do |file|
-      File.delete file
+      rm file
     end
   end
 
   desc "Removes the generated .jar"
   task :clean_jar do
-    FileList['lib/nokogiri/*.jar'].each{|f| File.delete f }
+    FileList['lib/nokogiri/*.jar'].each{|f| rm f }
   end
 
   desc  "Same as java:clean_classes and java:clean_jar"
