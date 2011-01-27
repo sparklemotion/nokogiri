@@ -168,7 +168,7 @@ end
 # required_ruby_version
 
 # Only do this on unix, since we can't build on windows
-unless windows || java
+unless windows
   [:compile, :check_manifest].each do |task_name|
     Rake::Task[task_name].prerequisites << GENERATED_PARSER
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
@@ -179,13 +179,6 @@ unless windows || java
   if Hoe.plugins.include?(:debugging)
     ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
       Rake::Task["test:#{task_name}"].prerequisites << :compile
-    end
-  end
-else
-  [:test, :check_manifest].each do |task_name|
-    if Rake::Task[task_name]
-      Rake::Task[task_name].prerequisites << GENERATED_PARSER
-      Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
     end
   end
 end
