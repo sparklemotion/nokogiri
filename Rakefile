@@ -97,7 +97,7 @@ namespace :java do
 
   desc  "Same as java:clean_classes and java:clean_jar"
   task :clean_all => ["java:clean_classes", "java:clean_jar"]
-  
+
   desc "Build a gem targetted for JRuby"
   task :gem => ['java:spec', GENERATED_PARSER, GENERATED_TOKENIZER, :build] do
     raise "ERROR: please run this task under jruby" unless java
@@ -127,6 +127,8 @@ namespace :java do
 
   task :build => ["java:clean_jar", "java:build_external", "java:clean_classes"]
 end
+
+task :compile => 'java:build' if java
 
 namespace :gem do
   namespace :dev do
@@ -175,7 +177,7 @@ unless windows
   end
 
   Rake::Task[:test].prerequisites << :compile
-  Rake::Task[:test].prerequisites << :check_extra_deps
+  Rake::Task[:test].prerequisites << :check_extra_deps unless java
   if Hoe.plugins.include?(:debugging)
     ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
       Rake::Task["test:#{task_name}"].prerequisites << :compile
