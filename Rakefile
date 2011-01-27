@@ -76,10 +76,10 @@ if java
     ext.ext_dir = 'ext/java'
     ext.classpath = CLASSPATH
   end
-  path = "pkg/#{HOE.spec.full_name}"
-  directory path do
-    puts "fuck"
-    exit!
+  path = "pkg/#{HOE.spec.name}-#{HOE.spec.version}"
+  task path => :compile do
+    cp 'lib/nokogiri/nokogiri.jar', File.join(path, 'lib')
+    HOE.spec.files += ['lib/nokogiri/nokogiri.jar']
   end
 else
   require "rake/extensiontask"
