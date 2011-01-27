@@ -112,10 +112,34 @@ Binary packages are available for:
 
 == DEVELOPMENT:
 
-Developing Nokogiri requires racc and rexical.
+=== Developing on C Ruby (MRI)
 
-* rake install:deps
-* rake test
+Developing Nokogiri requires racc and rexical to generate the parser and
+tokenizer.  To start development, make sure you have `libxml2` and `libxslt`
+installed.
+
+Then install hoe and rake-compiler:
+
+    $ gem install hoe rake-compiler
+
+Then run rake:
+
+    $ rake
+
+=== Developing on JRuby
+
+Currently, development with JRuby depends on C Ruby being installed.  With
+normal C Ruby, install racc and rexical:
+
+    $ gem install racc rexical
+
+Make sure hoe and rake compiler are installed with JRuby:
+
+    $ jgem install hoe rake-compiler
+
+Then run rake:
+
+    $ jruby -S rake
 
 == LICENSE:
 
