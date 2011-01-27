@@ -12,12 +12,14 @@ GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
 CROSS_DIR           = File.join(File.dirname(__FILE__), 'tmp', 'cross')
 
 EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml nekodtd xercesImpl}.map{|x| "lib/#{x}.jar"}
-JAVA_EXT = "lib/nokogiri/nokogiri.jar"
 JRUBY_HOME = Config::CONFIG['prefix']
+LIB_DIR = File.expand_path('lib')
+CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/nekodtd.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
 
 # Make sure hoe-debugging is installed
 Hoe.plugin :debugging
 Hoe.plugin :git
+
 
 HOE = Hoe.spec 'nokogiri' do
   developer('Aaron Patterson', 'aaronp@rubyforge.org')
@@ -39,10 +41,15 @@ HOE = Hoe.spec 'nokogiri' do
   end
   extra_dev_deps << ["minitest", ">= 1.6.0"]
 
-  self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
+  if java
+    self.spec_extras = { :platform => 'java' }
+  else
+    self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
+  end
 
   self.testlib = :minitest
 end
+
 Hoe.add_include_dirs '.'
 
 task :ws_docs do
@@ -61,11 +68,22 @@ task :ws_docs do
   RDoc::RDoc.new.document options
 end
 
-unless java
-  gem 'rake-compiler', '>= 0.4.1'
-  require "rake/extensiontask"
 
-  RET = Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
+gem 'rake-compiler', '>= 0.4.1'
+if java
+  require "rake/javaextensiontask"
+  Rake::JavaExtensionTask.new("nokogiri", HOE.spec) do |ext|
+    ext.ext_dir = 'ext/java'
+    ext.classpath = CLASSPATH
+  end
+  path = "pkg/#{HOE.spec.full_name}"
+  directory path do
+    puts "fuck"
+    exit!
+  end
+else
+  require "rake/extensiontask"
+  Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
 
     ext.config_options << ENV['EXTOPTS']
@@ -73,9 +91,9 @@ unless java
     ext.cross_platform  = 'i386-mingw32'
     # ext.cross_platform  = 'i386-mswin32'
     ext.cross_config_options <<
-      "--with-xml2-include=#{File.join(CROSS_DIR, 'include', 'libxml2')}"
+    "--with-xml2-include=#{File.join(CROSS_DIR, 'include', 'libxml2')}"
     ext.cross_config_options <<
-      "--with-xml2-lib=#{File.join(CROSS_DIR, 'lib')}"
+    "--with-xml2-lib=#{File.join(CROSS_DIR, 'lib')}"
     ext.cross_config_options << "--with-iconv-dir=#{CROSS_DIR}"
     ext.cross_config_options << "--with-xslt-dir=#{CROSS_DIR}"
     ext.cross_config_options << "--with-zlib-dir=#{CROSS_DIR}"
@@ -83,52 +101,12 @@ unless java
 end
 
 namespace :java do
-  desc "Removes all generated during compilation .class files."
-  task :clean_classes do
-    (FileList['ext/java/nokogiri/internals/*.class'] + FileList['ext/java/nokogiri/*.class'] + FileList['ext/java/*.class']).to_a.each do |file|
-      rm file
-    end
-  end
-
-  desc "Removes the generated .jar"
-  task :clean_jar do
-    FileList['lib/nokogiri/*.jar'].each{|f| rm f }
-  end
-
-  desc  "Same as java:clean_classes and java:clean_jar"
-  task :clean_all => ["java:clean_classes", "java:clean_jar"]
-
-  desc "Build a gem targetted for JRuby"
-  task :gem => ['java:spec', GENERATED_PARSER, GENERATED_TOKENIZER, :build] do
-    raise "ERROR: please run this task under jruby" unless java
-    system "gem build nokogiri.gemspec"
-    FileUtils.mkdir_p "pkg"
-    FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
-  end
-
   task :spec do
     File.open("#{HOE.name}.gemspec", 'w') do |f|
-      HOE.spec.platform = 'java'
-      HOE.spec.files += [GENERATED_PARSER, GENERATED_TOKENIZER, JAVA_EXT] + EXTERNAL_JAVA_LIBRARIES
-      HOE.spec.extensions = []
       f.write(HOE.spec.to_ruby)
     end
   end
-
-  desc "Build external library"
-  task :build_external do
-    Dir.chdir('ext/java') do
-      LIB_DIR = '../../lib'
-      CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/nekodtd.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
-      sh "javac -g -cp #{CLASSPATH} nokogiri/*.java nokogiri/internals/*.java"
-      sh "jar cf ../../#{JAVA_EXT} nokogiri/*.class nokogiri/internals/*.class"
-    end
-  end
-
-  task :build => ["java:clean_jar", "java:build_external", "java:clean_classes"]
 end
-
-task :compile => 'java:build' if java
 
 namespace :gem do
   namespace :dev do
@@ -174,6 +152,9 @@ unless windows
   [:compile, :check_manifest].each do |task_name|
     Rake::Task[task_name].prerequisites << GENERATED_PARSER
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
+    if java
+      Rake::Task[task_name].prerequisites.concat EXTERNAL_JAVA_LIBRARIES
+    end
   end
 
   Rake::Task[:test].prerequisites << :compile
