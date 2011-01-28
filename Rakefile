@@ -19,7 +19,7 @@ CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/neko
 # Make sure hoe-debugging is installed
 Hoe.plugin :debugging
 Hoe.plugin :git
-
+Hoe.plugin :gemspec
 
 HOE = Hoe.spec 'nokogiri' do
   developer('Aaron Patterson', 'aaronp@rubyforge.org')
@@ -68,7 +68,6 @@ task :ws_docs do
   RDoc::RDoc.new.document options
 end
 
-
 gem 'rake-compiler', '>= 0.4.1'
 if java
   require "rake/javaextensiontask"
@@ -100,26 +99,7 @@ else
   end
 end
 
-namespace :java do
-  task :spec do
-    File.open("#{HOE.name}.gemspec", 'w') do |f|
-      f.write(HOE.spec.to_ruby)
-    end
-  end
-end
-
-namespace :gem do
-  namespace :dev do
-    task :spec => [ GENERATED_PARSER, GENERATED_TOKENIZER ] do
-      File.open("#{HOE.name}.gemspec", 'w') do |f|
-        HOE.spec.version = "#{HOE.version}.#{Time.now.strftime("%Y%m%d%H%M%S")}"
-        f.write(HOE.spec.to_ruby)
-      end
-    end
-  end
-
-  task :spec => ['gem:dev:spec']
-end
+task 'gem:spec' => [ GENERATED_PARSER, GENERATED_TOKENIZER ]
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   racc = Config::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
