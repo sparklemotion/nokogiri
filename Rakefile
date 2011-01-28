@@ -11,11 +11,6 @@ GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
 CROSS_DIR           = File.join(File.dirname(__FILE__), 'tmp', 'cross')
 
-EXTERNAL_JAVA_LIBRARIES = %w{isorelax jing nekohtml nekodtd xercesImpl}.map{|x| "lib/#{x}.jar"}
-JRUBY_HOME = Config::CONFIG['prefix']
-LIB_DIR = File.expand_path('lib')
-CLASSPATH = "#{JRUBY_HOME}/lib/jruby.jar:#{LIB_DIR}/nekohtml.jar:#{LIB_DIR}/nekodtd.jar:#{LIB_DIR}/xercesImpl.jar:#{LIB_DIR}/isorelax.jar:#{LIB_DIR}/jing.jar"
-
 # Make sure hoe-debugging is installed
 Hoe.plugin :debugging
 Hoe.plugin :git
@@ -72,8 +67,9 @@ gem 'rake-compiler', '>= 0.4.1'
 if java
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new("nokogiri", HOE.spec) do |ext|
+    jruby_home = RbConfig::CONFIG['prefix']
     ext.ext_dir = 'ext/java'
-    ext.classpath = CLASSPATH
+    ext.classpath = (["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar'].map { |x| File.expand_path x }).join ':'
   end
   path = "pkg/#{HOE.spec.name}-#{HOE.spec.version}"
   task path => :compile do
@@ -132,9 +128,6 @@ unless windows
   [:compile, :check_manifest].each do |task_name|
     Rake::Task[task_name].prerequisites << GENERATED_PARSER
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
-    if java
-      Rake::Task[task_name].prerequisites.concat EXTERNAL_JAVA_LIBRARIES
-    end
   end
 
   Rake::Task[:test].prerequisites << :compile
