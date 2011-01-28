@@ -81,7 +81,7 @@ module Nokogiri
     VersionInfo.instance.libxml2?
   end
 
-  def self.jruby?
+  def self.jruby? # :nodoc:
     VersionInfo.instance.jruby?
   end
 end
