@@ -56,6 +56,16 @@ module Nokogiri
       hash_info
     end
 
+    def to_markdown
+      begin
+        require 'psych'
+      rescue LoadError
+      end
+      require 'yaml'
+      "# Nokogiri (#{Nokogiri::VERSION})\n" +
+      YAML.dump(to_hash).each_line.map { |line| "    #{line}" }.join
+    end
+
     # FIXME: maybe switch to singleton?
     @@instance = new
     @@instance.warnings.each do |warning|
