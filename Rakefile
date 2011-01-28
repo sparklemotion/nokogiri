@@ -98,8 +98,8 @@ end
 task 'gem:spec' => [ GENERATED_PARSER, GENERATED_TOKENIZER ]
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
-  racc = Config::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
-  racc = "#{::Config::CONFIG['bindir']}/racc" if racc.empty?
+  racc = RbConfig::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
+  racc = "#{::RbConfig::CONFIG['bindir']}/racc" if racc.empty?
   sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
 end
 
