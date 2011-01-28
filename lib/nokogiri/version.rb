@@ -2,34 +2,76 @@ module Nokogiri
   # The version of Nokogiri you are using
   VERSION = '1.5.0.beta.4'
 
-  # More complete version information about libxml
-  VERSION_INFO = {}
-  VERSION_INFO['warnings']              = []
-  VERSION_INFO['nokogiri']              = Nokogiri::VERSION
-  VERSION_INFO['ruby']                  = {}
-  VERSION_INFO['ruby']['version']       = ::RUBY_VERSION
-  VERSION_INFO['ruby']['platform']      = ::RUBY_PLATFORM
-  VERSION_INFO['ruby']['engine']        = defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'mri'
+  class VersionInfo # :nodoc:
+    def jruby?
+      ::JRUBY_VERSION if RUBY_PLATFORM == "java"
+    end
 
-  VERSION_INFO['ruby']['jruby']         = ::JRUBY_VERSION if RUBY_PLATFORM == "java"
-  if defined?(LIBXML_VERSION)
-    VERSION_INFO['libxml']              = {}
-    VERSION_INFO['libxml']['binding']   = 'extension'
-    VERSION_INFO['libxml']['compiled']  = LIBXML_VERSION
-    VERSION_INFO['libxml']['loaded']    = LIBXML_PARSER_VERSION.scan(/^(.*)(..)(..)$/).first.collect{|j|j.to_i}.join(".")
+    def engine
+      defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'mri'
+    end
 
-    if VERSION_INFO['libxml']['compiled'] != VERSION_INFO['libxml']['loaded']
-      warning = "Nokogiri was built against LibXML version #{VERSION_INFO['libxml']['compiled']}, but has dynamically loaded #{VERSION_INFO['libxml']['loaded']}"
-      VERSION_INFO['warnings'] << warning
+    def loaded_parser_version
+      LIBXML_PARSER_VERSION.scan(/^(.*)(..)(..)$/).first.collect{ |j|
+        j.to_i
+      }.join(".")
+    end
+
+    def compiled_parser_version
+      LIBXML_VERSION
+    end
+
+    def libxml2?
+      defined?(LIBXML_VERSION)
+    end
+
+    def warnings
+      return [] unless libxml2?
+
+      if compiled_parser_version != loaded_parser_version
+        ["Nokogiri was built against LibXML version #{compiled_parser_version}, but has dynamically loaded #{loaded_parser_version}"]
+      else
+        []
+      end
+    end
+
+    def to_hash
+      hash_info = {}
+      hash_info['warnings']              = []
+      hash_info['nokogiri']              = Nokogiri::VERSION
+      hash_info['ruby']                  = {}
+      hash_info['ruby']['version']       = ::RUBY_VERSION
+      hash_info['ruby']['platform']      = ::RUBY_PLATFORM
+      hash_info['ruby']['engine']        = engine
+      hash_info['ruby']['jruby']         = jruby? if jruby?
+
+      if libxml2?
+        hash_info['libxml']              = {}
+        hash_info['libxml']['binding']   = 'extension'
+        hash_info['libxml']['compiled']  = compiled_parser_version
+        hash_info['libxml']['loaded']    = loaded_parser_version
+        hash_info['warnings']            = warnings
+      end
+
+      hash_info
+    end
+
+    # FIXME: maybe switch to singleton?
+    @@instance = new
+    @@instance.warnings.each do |warning|
       warn "WARNING: #{warning}"
     end
+    def self.instance; @@instance; end
   end
 
+  # More complete version information about libxml
+  VERSION_INFO = VersionInfo.instance.to_hash
+
   def self.uses_libxml? # :nodoc:
-    !Nokogiri::VERSION_INFO['libxml'].nil?
+    VersionInfo.instance.libxml2?
   end
 
   def self.jruby?
-    !Nokogiri::VERSION_INFO['ruby']['jruby'].nil?
+    VersionInfo.instance.jruby?
   end
 end
