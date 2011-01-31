@@ -38,6 +38,8 @@ HOE = Hoe.spec 'nokogiri' do
 
   if java
     self.spec_extras = { :platform => 'java' }
+    self.need_tar = false # these will be built broken
+    self.need_zip = false
   else
     self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
   end
@@ -72,9 +74,14 @@ if java
     ext.lib_dir = 'lib/nokogiri'
     ext.classpath = (["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar'].map { |x| File.expand_path x }).join ':'
   end
-  path = "pkg/#{HOE.spec.name}-#{HOE.spec.version}"
-  task path => :compile do
-    cp 'lib/nokogiri/nokogiri.jar', File.join(path, 'lib')
+
+  gem_build_path = File.join 'pkg', HOE.spec.full_name
+  # references to tgz_build_path are to work around a rake bug
+  tgz_build_path = File.join 'pkg', "#{HOE.spec.name}-#{HOE.spec.version}"
+
+  task gem_build_path => [:compile, tgz_build_path] do
+    cp_r tgz_build_path, gem_build_path, :verbose => true
+    cp 'lib/nokogiri/nokogiri.jar', File.join(gem_build_path, 'lib', 'nokogiri'), :verbose => true
     HOE.spec.files += ['lib/nokogiri/nokogiri.jar']
   end
 else
