@@ -72,7 +72,8 @@ if java
     jruby_home = RbConfig::CONFIG['prefix']
     ext.ext_dir = 'ext/java'
     ext.lib_dir = 'lib/nokogiri'
-    ext.classpath = (["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar'].map { |x| File.expand_path x }).join ':'
+    jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
+    ext.classpath = jars.map { |x| File.expand_path x }.join ':'
   end
 
   gem_build_path = File.join 'pkg', HOE.spec.full_name
@@ -81,7 +82,9 @@ if java
 
   task gem_build_path => [:compile, tgz_build_path] do
     cp_r tgz_build_path, gem_build_path, :verbose => true
-    cp 'lib/nokogiri/nokogiri.jar', File.join(gem_build_path, 'lib', 'nokogiri'), :verbose => true
+    cp 'lib/nokogiri/nokogiri.jar',
+       File.join(gem_build_path, 'lib', 'nokogiri'),
+       :verbose => true
     HOE.spec.files += ['lib/nokogiri/nokogiri.jar']
   end
 else
