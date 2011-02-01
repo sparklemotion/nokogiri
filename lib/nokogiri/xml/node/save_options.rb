@@ -8,6 +8,7 @@ module Nokogiri
       #   Nokogiri::XML::Builder.new { |xml|
       #   xml.foo {
       #     xml.bar {
+      #       xml.baz 'quux'
       #     }
       #   }.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
       #
