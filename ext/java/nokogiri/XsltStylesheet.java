@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -46,6 +47,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+
+import nokogiri.internals.NokogiriXsltErrorListener;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -147,16 +150,27 @@ public class XsltStylesheet extends RubyObject {
         DOMSource docSource = new DOMSource(((XmlDocument) args[0]).getDocument());
         DOMResult result = new DOMResult();
 
+        NokogiriXsltErrorListener elistener = new NokogiriXsltErrorListener();
         try{
             Transformer transf = this.sheet.newTransformer();
+            transf.setErrorListener(elistener);
             if(args.length > 1) {
                 addParametersToTransformer(context, transf, args[1]);
             }
             transf.transform(docSource, result);
         } catch(TransformerConfigurationException ex) {
-            throw runtime.newRuntimeError("Could not transform the document.");
+            // processes later
         } catch(TransformerException ex) {
-            throw runtime.newRuntimeError("Could not transform the document.");
+            // processes later
+        }
+
+        switch (elistener.getErrorType()) {
+            case ERROR:
+            case FATAL:
+                throw runtime.newRuntimeError(elistener.getErrorMessage());
+            case WARNING:
+            default:
+                // no-op
         }
         
         if ("html".equals(result.getNode().getFirstChild().getNodeName())) {

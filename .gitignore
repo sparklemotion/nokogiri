@@ -9,6 +9,8 @@ lib/nokogiri/nokogiri.jar
 lib/nokogiri/nokogiri.bundle
 lib/nokogiri/css/parser.rb
 lib/nokogiri/css/tokenizer.rb
+lib/nokogiri/css/generated_parser.rb
+lib/nokogiri/css/generated_tokenizer.rb
 cross
 tags
 *.rbc
