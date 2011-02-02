@@ -120,7 +120,7 @@ installed.
 
 Then install hoe and rake-compiler:
 
-    $ gem install hoe rake-compiler
+    $ gem install hoe rake-compiler racc rexical minitest
 
 Then run rake:
 
