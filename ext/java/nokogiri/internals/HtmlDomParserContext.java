@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -35,6 +35,7 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import nokogiri.HtmlDocument;
+import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
 
 import org.apache.xerces.parsers.DOMParser;
@@ -56,6 +57,7 @@ import org.w3c.dom.Document;
  * Parser for HtmlDocument. This class actually parses HtmlDocument using NekoHtml.
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
 
@@ -108,16 +110,15 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     @Override
     protected XmlDocument getNewEmptyDocument(ThreadContext context) {
         IRubyObject[] args = new IRubyObject[0];
-        return (XmlDocument) XmlDocument.rbNew(context,
-                    getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::Document"),
-                    args);
+        return (XmlDocument) XmlDocument.rbNew(context, getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::Document"), args);
     }
 
     @Override
     protected XmlDocument wrapDocument(ThreadContext context,
-                                       RubyClass klass,
-                                       Document doc) {
-        HtmlDocument htmlDocument = new HtmlDocument(context.getRuntime(), klass, doc);
+                                       RubyClass klazz,
+                                       Document document) {
+        HtmlDocument htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
+        htmlDocument.setNode(context, document);
         htmlDocument.setEncoding(ruby_encoding);
         return htmlDocument;
     }

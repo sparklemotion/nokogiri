@@ -33,8 +33,7 @@ opts = OptionParser.new do |opts|
   end
 
   opts.on_tail("-v", "--version", "Show version") do
-    require 'yaml'
-    puts Nokogiri::VERSION_INFO.to_yaml
+    puts Nokogiri::VersionInfo.instance.to_markdown
     exit
   end
 end

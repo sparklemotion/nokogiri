@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -32,11 +32,14 @@
 
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import java.util.List;
 
 import javax.xml.xpath.XPathFunction;
 import javax.xml.xpath.XPathFunctionException;
 
+import nokogiri.NokogiriService;
 import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
 
@@ -55,6 +58,7 @@ import org.w3c.dom.NodeList;
  * Xpath function handler.
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriXPathFunction implements XPathFunction {
     private final IRubyObject handler;
@@ -91,18 +95,18 @@ public class NokogiriXPathFunction implements XPathFunction {
 
     private IRubyObject fromObjectToRuby(Object o) {
         // argument object type is one of NodeList, String, Boolean, or Double.
-        Ruby ruby = this.handler.getRuntime();
+        Ruby runtime = this.handler.getRuntime();
         if (o instanceof NodeList) {
-            return new XmlNodeSet(ruby, (NodeList) o);
-        //} else if (o instanceof Node) {
-        //    return NokogiriHelpers.getCachedNodeOrCreate(ruby, (Node) o);
+            XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
+            xmlNodeSet.setNodeList((NodeList) o);
+            return xmlNodeSet;
         } else {
-            return JavaUtil.convertJavaToUsableRubyObject(ruby, o);
+            return JavaUtil.convertJavaToUsableRubyObject(runtime, o);
         }
     }
 
     private Object fromRubyToObject(IRubyObject o) {
-        Ruby ruby = this.handler.getRuntime();
+        Ruby runtime = this.handler.getRuntime();
         if(o instanceof RubyString) {
             return o.toJava(String.class);
         } else if (o instanceof RubyFloat) {
@@ -110,9 +114,11 @@ public class NokogiriXPathFunction implements XPathFunction {
         } else if (o instanceof RubyBoolean) {
             return o.toJava(Boolean.class);
         } else if (o instanceof XmlNodeSet) {
-            return ((XmlNodeSet) o).toNodeList(ruby);
+            return ((XmlNodeSet) o).toNodeList(runtime);
         } else if (o instanceof RubyArray) {
-            return (new XmlNodeSet(ruby, (RubyArray) o)).toNodeList(ruby);
+            XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
+            xmlNodeSet.setInitialNodes((RubyArray)o);
+            return xmlNodeSet.toNodeList(runtime);
         } else /*if (o instanceof XmlNode)*/ {
             return ((XmlNode) o).getNode();
         }

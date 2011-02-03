@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -53,12 +53,28 @@ import org.w3c.dom.NodeList;
 /**
  * Class for Nokogiri::XML::NodeSet
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::NodeSet")
 public class XmlNodeSet extends RubyObject {
-    private NodeList nodeList = null;
+    private NodeList nodeList;
     private RubyArray nodes;
     private IRubyObject doc;
+    
+    public XmlNodeSet(Ruby ruby, RubyClass klazz) {
+        super(ruby, klazz);
+    }
+
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     public XmlNodeSet(Ruby ruby, NodeList nodes) {
         this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::NodeSet"), nodes);
@@ -94,6 +110,17 @@ public class XmlNodeSet extends RubyObject {
         nodeList = null;
     }
     
+    public void setInitialNodes(RubyArray nodes) {
+        this.nodes = nodes;
+        IRubyObject first = nodes.first();
+        initialize(getRuntime(), first);
+    }
+    
+    public void setNodeList(NodeList nodeList) {
+        setInitialNodes(nodeListToRubyArray(getRuntime(), nodeList));
+        this.nodeList = nodeList;
+    }
+    
     private void initialize(Ruby ruby, IRubyObject refNode) {
         if (refNode instanceof XmlNode) {
             XmlNode n = (XmlNode)refNode;
@@ -106,17 +133,11 @@ public class XmlNodeSet extends RubyObject {
     }
 
     public static IRubyObject newEmptyNodeSet(ThreadContext context) {
-        Ruby ruby = context.getRuntime();
-        return new XmlNodeSet(ruby,
-                getNokogiriClass(ruby, "Nokogiri::XML::NodeSet"),
-                ruby.newEmptyArray());
-    }
-
-    public boolean isEmpty() {
-        return nodes.isEmpty();
+        return (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
     }
 
     public long length() {
+        if (nodes == null) return 0L;
         return nodes.length().getLongValue();
     }
 
@@ -165,6 +186,7 @@ public class XmlNodeSet extends RubyObject {
 
     @JRubyMethod(name = {"length", "size"})
     public IRubyObject length(ThreadContext context) {
+        if (nodes == null) setInitialNodes(RubyArray.newEmptyArray(context.getRuntime()));
         return nodes.length();
     }
 
@@ -179,12 +201,14 @@ public class XmlNodeSet extends RubyObject {
     @JRubyMethod(name={"|", "+"})
     public IRubyObject op_or(ThreadContext context, IRubyObject nodeSet){
         nodeList = null;
+        if (nodes == null) setInitialNodes(RubyArray.newEmptyArray(context.getRuntime()));
         return newXmlNodeSet(context, (RubyArray) nodes.op_or(asXmlNodeSet(context, nodeSet).nodes));
     }
 
     @JRubyMethod(name = {"push", "<<"})
     public IRubyObject push(ThreadContext context, IRubyObject node_or_namespace) {
         nodeList = null;
+        if (nodes == null) setInitialNodes(RubyArray.newEmptyArray(context.getRuntime()));
         nodes.append(asXmlNodeOrNamespace(context, node_or_namespace));
         return this;
     }
@@ -235,8 +259,9 @@ public class XmlNodeSet extends RubyObject {
     }
 
     private XmlNodeSet newXmlNodeSet(ThreadContext context, RubyArray array) {
-        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"), array);
-        return result;
+        XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
+        xmlNodeSet.setInitialNodes(array);
+        return xmlNodeSet;
     }
     
     private XmlNodeSet newXmlNodeSet(ThreadContext context, XmlNodeSet reference) {
@@ -258,7 +283,9 @@ public class XmlNodeSet extends RubyObject {
                 getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet")).isTrue()) {
             throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");
         }
-        return (XmlNodeSet) possibleNodeSet;
+        XmlNodeSet xmlNodeSet = (XmlNodeSet)possibleNodeSet;
+        if (xmlNodeSet.nodes == null) xmlNodeSet.setInitialNodes(RubyArray.newEmptyArray(context.getRuntime()));
+        return xmlNodeSet;
     }
 
     class NokogiriNodeList implements NodeList{

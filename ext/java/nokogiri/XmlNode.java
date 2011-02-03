@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -77,6 +77,9 @@ import org.w3c.dom.Text;
 /**
  * Class for Nokogiri::XML::Node
  *
+ * @author sergio
+ * @author Patrick Mahoney <pat@polycrystal.org>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::Node")
 public class XmlNode extends RubyObject {
@@ -427,8 +430,7 @@ public class XmlNode extends RubyObject {
         //this should delegate to subclasses' implementation
     }
 
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-    }
+    public void saveContent(ThreadContext context, SaveContext ctx) {}
 
     public void setName(IRubyObject name) {
         this.name = name;
@@ -592,8 +594,9 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
-        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), node.getChildNodes());
-        return result;
+        XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
+        xmlNodeSet.setNodeList(node.getChildNodes());
+        return xmlNodeSet;
     }
     
     @JRubyMethod
@@ -618,8 +621,9 @@ public class XmlNode extends RubyObject {
         addElements(node, elementNodes, false);
         if (elementNodes.size() == 0) return XmlNodeSet.newEmptyNodeSet(context);
         RubyArray array = NokogiriHelpers.nodeArrayToRubyArray(context.getRuntime(), elementNodes.toArray(new Node[0]));
-        XmlNodeSet result = new XmlNodeSet(context.getRuntime(), array);
-        return result;
+        XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
+        xmlNodeSet.setInitialNodes(array);
+        return xmlNodeSet;
     }
     
     private void addElements(Node n, List<Node> nodes, boolean isFirstOnly) {
@@ -716,7 +720,9 @@ public class XmlNode extends RubyObject {
                 documentErrors.add(docErrors.get(i));
             }
             document.setInstanceVariable("@errors", documentErrors);
-            return new XmlNodeSet(getRuntime(), RubyArray.newArray(runtime));
+            XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
+            xmlNodeSet.setInitialNodes(RubyArray.newArray(runtime));
+            return xmlNodeSet;
         }
         
         // The first child might be document type node (dtd declaration).
@@ -731,8 +737,9 @@ public class XmlNode extends RubyObject {
         nodeArray.add(NokogiriHelpers.getCachedNodeOrCreate(runtime, first));
         
         NokogiriHelpers.nodeListToRubyArray(runtime, first.getChildNodes(), nodeArray);
-        XmlNodeSet nodes = new XmlNodeSet(getRuntime(), nodeArray);
-        return nodes;
+        XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
+        xmlNodeSet.setInitialNodes(nodeArray);
+        return xmlNodeSet;
     }
     
     private RubyArray getErrorArray(XmlDocument document) {

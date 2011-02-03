@@ -38,9 +38,12 @@
   * Node#serialize-and-friends now accepts a SaveOption object as the, erm, save object.
   * Nokogiri::CSS::Parser has-a Nokogiri::CSS::Tokenizer
   * [JRUBY+FFI only] Weak references are now threadsafe. #355
-  * Make direct start_element() callback (currently used for HTML::SAX::Parser) pass attributes in assoc array, just as emulated start_element() callback does.  rel. #356
+  * Make direct start_element() callback (currently used for
+    HTML::SAX::Parser) pass attributes in assoc array, just as
+    emulated start_element() callback does.  rel. #356
   * HTML::SAX::Parser should call back a block given to parse*() if any, just as XML::SAX::Parser does.
   * Add further encoding detection to HTML parser that libxml2 does not do.
+  * Document#remove_namespaces! now handles attributes with namespaces. #396
 
 === 1.4.4 / 2010-11-15
 

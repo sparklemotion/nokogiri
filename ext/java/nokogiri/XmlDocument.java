@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -66,6 +66,8 @@ import org.w3c.dom.NodeList;
 /**
  * Class for Nokogiri::XML::Document
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 
 @JRubyClass(name="Nokogiri::XML::Document", parent="Nokogiri::XML::Node")
@@ -76,6 +78,11 @@ public class XmlDocument extends XmlNode {
     public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
     protected final static String DTD_INTERNAL_SUBSET = "DTD_INTERNAL_SUBSET";
     protected final static String DTD_EXTERNAL_SUBSET = "DTD_EXTERNAL_SUBSET";
+    
+    /* DocumentBuilderFactory implementation class name. This needs to set a classloader into it.
+     * Setting an appropriate classloader resolves issue 380.
+     */
+    private static final String DOCUMENTBUILDERFACTORY_IMPLE_NAME = "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl";
 
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
@@ -86,7 +93,6 @@ public class XmlDocument extends XmlNode {
 
     public XmlDocument(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz, createNewDocument());
-        nsCache = new NokogiriNamespaceCache();
     }
     
     public XmlDocument(Ruby ruby, Document document) {
@@ -104,6 +110,7 @@ public class XmlDocument extends XmlNode {
     @Override
     public void setNode(ThreadContext context, Node node) {
         super.setNode(context, node);
+        if (nsCache == null) nsCache = new NokogiriNamespaceCache();
         Ruby runtime = context.getRuntime();
         if (node != null) {
             Document document = (Document)node;
@@ -210,7 +217,8 @@ public class XmlDocument extends XmlNode {
 
     protected static Document createNewDocument() {
         try {
-            return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(DOCUMENTBUILDERFACTORY_IMPLE_NAME, NokogiriService.class.getClassLoader());
+            return factory.newDocumentBuilder().newDocument();
         } catch (ParserConfigurationException e) {
             return null;        // this will end is disaster...
         }
@@ -223,18 +231,25 @@ public class XmlDocument extends XmlNode {
      * Create a new document with +version+ (defaults to "1.0")
      */
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
-        XmlDocument doc = null;
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
+        XmlDocument xmlDocument = null;
         try {
             Document docNode = createNewDocument();
-            doc = new XmlDocument(context.getRuntime(), (RubyClass) cls, docNode);
+            if ("Nokogiri::HTML::Document".equals(((RubyClass)klazz).getName())) {
+                xmlDocument = (XmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+                xmlDocument.setNode(context, docNode);
+            } else {
+                // XML::Document and sublass
+                xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+                xmlDocument.setNode(context, docNode);
+            }
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
 
-        RuntimeHelpers.invoke(context, doc, "initialize", args);
+        RuntimeHelpers.invoke(context, xmlDocument, "initialize", args);
 
-        return doc;
+        return xmlDocument;
     }
     
     @JRubyMethod(required=1, optional=4)
@@ -332,6 +347,12 @@ public class XmlDocument extends XmlNode {
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             node.setPrefix(null);
             node.getOwnerDocument().renameNode(node, null, node.getLocalName());
+            NamedNodeMap attrs = node.getAttributes();
+            for (int i=0; i<attrs.getLength(); i++) {
+                Node attr = attrs.item(i);
+                attr.setPrefix(null);
+                attr.getOwnerDocument().renameNode(attr, null, attr.getLocalName());
+            }
         }
         XmlNodeSet nodeSet = (XmlNodeSet) xmlNode.children(context);
         for (long i=0; i < nodeSet.length(); i++) {

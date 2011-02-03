@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -38,6 +38,7 @@ import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
@@ -51,6 +52,8 @@ import org.w3c.dom.Node;
 /**
  * Class for Nokogiri::XML::Attr
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 
 @JRubyClass(name="Nokogiri::XML::Attr", parent="Nokogiri::XML::Node")
@@ -106,7 +109,7 @@ public class XmlAttr extends XmlNode{
     }
 
 
-    private String serializeAttrTextContent(String s) {
+    private String serializeAttrTextContent(String s, boolean htmlDoc) {
         if (s == null) return "";
 
         char[] c = s.toCharArray();
@@ -117,9 +120,9 @@ public class XmlAttr extends XmlNode{
             case '\n': buffer.append("&#10;"); break;
             case '\r': buffer.append("&#13;"); break;
             case '\t': buffer.append("&#9;"); break;
-          //case '"': buffer.append("&quot;"); break;
-          // TODO: is replacing '"' with '%22' always correct?
-            case '"': buffer.append("%22"); break;
+            case '"': if (htmlDoc) buffer.append("%22"); 
+                else buffer.append("&quot;");
+                break;
             case '<': buffer.append("&lt;"); break;
             case '>': buffer.append("&gt;"); break;
             case '&': buffer.append("&amp;"); break;
@@ -158,6 +161,7 @@ public class XmlAttr extends XmlNode{
 
     @Override
     public void saveContent(ThreadContext context, SaveContext ctx) {
+        boolean docType = isHtml(context);
         Attr attr = (Attr) node;
 
         ctx.maybeSpace();
@@ -166,9 +170,13 @@ public class XmlAttr extends XmlNode{
         if (!ctx.asHtml() || !isHtmlBooleanAttr()) {
             ctx.append("=");
             ctx.append("\"");
-            ctx.append(serializeAttrTextContent(attr.getValue()));
+            ctx.append(serializeAttrTextContent(attr.getValue(), docType));
             ctx.append("\"");
         }
+    }
+    
+    private boolean isHtml(ThreadContext context) {
+        return document(context).getMetaClass().isKindOfModule(getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::Document"));
     }
 
     @Override

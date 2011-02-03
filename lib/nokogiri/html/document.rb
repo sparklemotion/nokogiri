@@ -18,7 +18,7 @@ module Nokogiri
       end
 
       def meta_content_type
-        css('meta').find { |node|
+        css('meta[@http-equiv]').find { |node|
           node['http-equiv'] =~ /\AContent-Type\z/i
         }
       end
@@ -28,14 +28,14 @@ module Nokogiri
       # Get the title string of this document.  Return nil if there is
       # no title tag.
       def title
-        title = at('head title') and title.inner_text
+        title = at('title') and title.inner_text
       end
 
       ###
       # Set the title string of this document.  If there is no head
       # element, the title is not set.
       def title=(text)
-        unless title = at('head title')
+        unless title = at('title')
           head = at('head') or return nil
           title = Nokogiri::XML::Node.new('title', self)
           head << title
@@ -146,12 +146,9 @@ module Nokogiri
 
           def start_element(name, attrs = [])
             case name
-            when 'head'
-              @head = true
-            when 'body'
+            when /\A(?:div|h1|img|p|br)\z/
               not_found
             when 'meta'
-              @head or return
               attr = Hash[attrs]
               http_equiv = attr['http-equiv'] and
                 http_equiv.match(/\AContent-Type\z/i) and
@@ -160,17 +157,16 @@ module Nokogiri
                 found m[1]
             end
           end
-
-          def end_element(name)
-            if name == 'head'
-              not_found
-            end
-          end
         end
 
         def self.detect_encoding(chunk)
           m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
             return Nokogiri.XML(m[1]).encoding
+
+          if Nokogiri.jruby?
+            m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
+              return m[4]
+          end
 
           handler = SAXHandler.new
           parser = Nokogiri::HTML::SAX::Parser.new(handler)

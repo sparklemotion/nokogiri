@@ -6,7 +6,7 @@ module Nokogiri
       class SaveOptions
         # Format serialized xml
         FORMAT          = 1
-        # Do not include delcarations
+        # Do not include declarations
         NO_DECLARATION  = 2
         # Do not include empty tags
         NO_EMPTY_TAGS   = 4

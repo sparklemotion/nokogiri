@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -48,6 +48,8 @@ import org.w3c.dom.Node;
 /**
  * Class for Nokogiri::XML::CDATA
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 
 @JRubyClass(name="Nokogiri::XML::CDATA", parent="Nokogiri::XML::Text")

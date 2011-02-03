@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -50,6 +50,7 @@ import org.w3c.dom.Node;
  * Class for Nokogiri::XML::Namespace
  * 
  * @author serabe
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::Namespace")
 public class XmlNamespace extends RubyObject {
@@ -98,7 +99,7 @@ public class XmlNamespace extends RubyObject {
 
     public static XmlNamespace fromNode(Ruby ruby, Node node) {
         String localName = getLocalNameForNamespace(node.getNodeName());
-        XmlNamespace namespace = (XmlNamespace) getNokogiriClass(ruby, "Nokogiri::XML::Namespace").allocate();
+        XmlNamespace namespace = (XmlNamespace) NokogiriService.XML_NAMESPACE_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"));
         namespace.setDefinition(ruby, localName, node.getNodeValue());
         return namespace;
     }

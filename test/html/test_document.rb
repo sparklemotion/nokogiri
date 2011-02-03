@@ -178,7 +178,11 @@ eohtml
 </html>
 eohtml
         doc.title = 'new'
-        assert_nil doc.title
+        if Nokogiri.uses_libxml?
+          assert_nil doc.title
+        else
+          assert_equal 'new', doc.title
+        end
       end
 
       def test_meta_encoding_without_head

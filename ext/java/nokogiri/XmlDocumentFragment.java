@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -63,6 +63,7 @@ import org.w3c.dom.NamedNodeMap;
  * Class for Nokogiri::XML::DocumentFragment
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::DocumentFragment", parent="Nokogiri::XML::Node")
 public class XmlDocumentFragment extends XmlNode {
@@ -77,33 +78,33 @@ public class XmlDocumentFragment extends XmlNode {
     }
 
     @JRubyMethod(name="new", meta = true, required=1, optional=2)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] argc) {
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
         
-        if(argc.length < 1) {
-            throw context.getRuntime().newArgumentError(argc.length, 1);
+        if(args.length < 1) {
+            throw context.getRuntime().newArgumentError(args.length, 1);
         }
 
-        if(!(argc[0] instanceof XmlDocument)){
+        if(!(args[0] instanceof XmlDocument)){
             throw context.getRuntime().newArgumentError("first parameter must be a Nokogiri::XML::Document instance");
         }
 
-        XmlDocument doc = (XmlDocument) argc[0];
+        XmlDocument doc = (XmlDocument) args[0];
         
         // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
-        if (argc.length > 1 && argc[1] instanceof RubyString) {
-            argc[1] = RubyString.newString(context.getRuntime(), ignoreNamespaceIfNeeded(doc, rubyStringToString(argc[1])));
-            argc[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(argc[1])));
+        if (args.length > 1 && args[1] instanceof RubyString) {
+            args[1] = RubyString.newString(context.getRuntime(), ignoreNamespaceIfNeeded(doc, rubyStringToString(args[1])));
+            args[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(args[1])));
         }
 
-        XmlDocumentFragment fragment = (XmlDocumentFragment) ((RubyClass)cls).allocate();
+        XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)cls);
         fragment.setDocument(context, doc);
         fragment.setNode(context, doc.getDocument().createDocumentFragment());
 
         //TODO: Get namespace definitions from doc.
-        if (argc.length == 3 && argc[2] != null && argc[2] instanceof XmlElement) {
-            fragment.fragmentContext = (XmlElement)argc[2];
+        if (args.length == 3 && args[2] != null && args[2] instanceof XmlElement) {
+            fragment.fragmentContext = (XmlElement)args[2];
         }
-        RuntimeHelpers.invoke(context, fragment, "initialize", argc);
+        RuntimeHelpers.invoke(context, fragment, "initialize", args);
         return fragment;
     }
 

@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -59,6 +59,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * A handler for SAX parsing.
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
@@ -79,13 +80,17 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     private Locator locator;
     private ArrayDeque<Integer> lines;
     private ArrayDeque<Integer> columns;
+    private static String htmlParserName = "Nokogiri::HTML::SAX::Parser";
+    private boolean needEmptyAttrCheck = false;
 
-    public NokogiriHandler(Ruby ruby, IRubyObject object) {
-        this.ruby = ruby;
-        this.attrClass = (RubyClass) ruby.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
+    public NokogiriHandler(Ruby runtime, IRubyObject object) {
+        this.ruby = runtime;
+        this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
         this.object = object;
         lines = new ArrayDeque<Integer>();
         columns = new ArrayDeque<Integer>();
+        String objectName = object.getMetaClass().getName();
+        if (htmlParserName.equals(objectName)) needEmptyAttrCheck = true;
     }
     
     public void setDocumentLocator(Locator locator) {
@@ -150,11 +155,22 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
                 ns.add(ruby.newString(val));
                 rubyNSAttr.add(ns);
             } else {
-                IRubyObject[] args = new IRubyObject[4];
-                args[0] = stringOrNil(ruby, ln);
-                args[1] = stringOrNil(ruby, pre);
-                args[2] = stringOrNil(ruby, u);
-                args[3] = stringOrNil(ruby, val);
+                IRubyObject[] args = null;
+                if (needEmptyAttrCheck) {
+                    if (isEmptyAttr(ln)) {
+                        args = new IRubyObject[3];
+                        args[0] = stringOrNil(ruby, ln);
+                        args[1] = stringOrNil(ruby, pre);
+                        args[2] = stringOrNil(ruby, u);
+                    }
+                } 
+                if (args == null) {
+                    args = new IRubyObject[4];
+                    args[0] = stringOrNil(ruby, ln);
+                    args[1] = stringOrNil(ruby, pre);
+                    args[2] = stringOrNil(ruby, u);
+                    args[3] = stringOrNil(ruby, val);
+                }
 
                 IRubyObject attr = RuntimeHelpers.invoke(context, attrClass, "new", args);
                 rubyAttr.add(attr);
@@ -168,6 +184,17 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
              stringOrNil(ruby, getPrefix(qName)),
              stringOrNil(ruby, uri),
              rubyNSAttr);
+    }
+    
+    private static String[] emptyAttrs =
+        {"checked", "compact", "declare", "defer", "disabled", "ismap", "multiple", 
+         "noresize", "nohref", "noshade", "nowrap", "readonly", "selected"};
+    
+    private boolean isEmptyAttr(String name) {
+        for (String emptyAttr : emptyAttrs) {
+            if (emptyAttr.equals(name)) return true;
+        }
+        return false;
     }
     
     public Integer getLine() {

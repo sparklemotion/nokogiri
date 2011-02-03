@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -65,6 +65,7 @@ import org.xml.sax.SAXParseException;
  * Base class for the SAX parsers.
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::SAX::ParserContext")
 public class XmlSaxParserContext extends ParserContext {
@@ -82,12 +83,25 @@ public class XmlSaxParserContext extends ParserContext {
 
     public XmlSaxParserContext(final Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
-        replaceEntities = ruby.getTrue();
+    }
+        
+    protected void initialize(Ruby runtime) {
+        replaceEntities = runtime.getTrue();
         try {
             parser = createParser();
         } catch (SAXException se) {
-            throw RaiseException.createNativeRaiseException(ruby, se);
+            throw RaiseException.createNativeRaiseException(runtime, se);
         }
+    }
+
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     protected AbstractSAXParser createParser() throws SAXException {
@@ -105,8 +119,8 @@ public class XmlSaxParserContext extends ParserContext {
     public static IRubyObject parse_memory(ThreadContext context,
                                            IRubyObject klazz,
                                            IRubyObject data) {
-        XmlSaxParserContext ctx = new XmlSaxParserContext(context.getRuntime(),
-                                                          (RubyClass) klazz);
+        XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+        ctx.initialize(context.getRuntime());
         ctx.setInputSource(context, data);
         return ctx;
     }
@@ -119,8 +133,8 @@ public class XmlSaxParserContext extends ParserContext {
     public static IRubyObject parse_file(ThreadContext context,
                                          IRubyObject klazz,
                                          IRubyObject data) {
-        XmlSaxParserContext ctx = new XmlSaxParserContext(context.getRuntime(),
-                                                          (RubyClass) klazz);
+        XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+        ctx.initialize(context.getRuntime());
         ctx.setInputSourceFile(context, data);
         return ctx;
     }
@@ -137,8 +151,8 @@ public class XmlSaxParserContext extends ParserContext {
                                        IRubyObject data,
                                        IRubyObject enc) {
         //int encoding = (int)enc.convertToInteger().getLongValue();
-        XmlSaxParserContext ctx = new XmlSaxParserContext(context.getRuntime(),
-                                                          (RubyClass) klazz);
+        XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+        ctx.initialize(context.getRuntime());
         ctx.setInputSource(context, data);
         return ctx;
     }
@@ -151,8 +165,8 @@ public class XmlSaxParserContext extends ParserContext {
     public static IRubyObject parse_stream(ThreadContext context,
                                            IRubyObject klazz,
                                            InputStream stream) {
-        XmlSaxParserContext ctx =
-            new XmlSaxParserContext(context.getRuntime(), (RubyClass)klazz);
+        XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+        ctx.initialize(context.getRuntime());
         ctx.setInputSource(stream);
         return ctx;
     }

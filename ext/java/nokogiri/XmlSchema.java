@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -35,6 +35,8 @@ package nokogiri;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 
 import javax.xml.XMLConstants;
@@ -60,6 +62,8 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 
@@ -67,52 +71,63 @@ import org.xml.sax.SAXException;
  * Class for Nokogiri::XML::Schema
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::Schema")
 public class XmlSchema extends RubyObject {
-
-    protected Source source;
+    private Validator validator;
 
     public XmlSchema(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
     }
+    
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
-    private Schema getSchema(ThreadContext context) {
+    private Schema getSchema(Source source, String currentDir) throws SAXException {
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        SchemaResourceResolver resourceResolver = new SchemaResourceResolver(currentDir, null);
+        schemaFactory.setResourceResolver(resourceResolver); 
+        return schemaFactory.newSchema(source);
+    }
+    
+    private void setValidator(Validator validator) {
+        this.validator = validator;
+    }
 
-        Schema schema = null;
-
-        String uri=XMLConstants.W3C_XML_SCHEMA_NS_URI;
-
+    static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source) {
+        Ruby runtime = context.getRuntime();
+        XmlSchema xmlSchema = (XmlSchema) NokogiriService.XML_SCHEMA_ALLOCATOR.allocate(runtime, klazz);
+        xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
+        
         try {
-            schema = SchemaFactory.newInstance(uri).newSchema(source);
-        } catch(SAXException ex) {
-            throw context.getRuntime().newRuntimeError("Could not parse document: "+ex.getMessage());
+            Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory());
+            xmlSchema.setValidator(schema.newValidator());
+            return xmlSchema;
+        } catch (SAXException ex) {
+            throw context.getRuntime().newRuntimeError("Could not parse document: " + ex.getMessage());
         }
-        return schema;
     }
 
-    protected static XmlSchema createSchemaWithSource(ThreadContext context, RubyClass klazz, Source source) {
-        Ruby ruby = context.getRuntime();
-        XmlSchema schema = null;
-        if( klazz.ancestors(context).include_p(context,
-                getNokogiriClass(ruby, "Nokogiri::XML::RelaxNG")).isTrue()) {
-            schema = new XmlRelaxng(ruby, klazz);
-        } else {
-            schema = new XmlSchema(ruby, klazz);
-        }
-        schema.source = source;
-
-        schema.setInstanceVariable("@errors", ruby.newEmptyArray());
-        return schema;
-    }
-
+    /*
+     * call-seq:
+     *  from_document(doc)
+     *
+     * Create a new Schema from the Nokogiri::XML::Document +doc+
+     */
     @JRubyMethod(meta=true)
     public static IRubyObject from_document(ThreadContext context, IRubyObject klazz, IRubyObject document) {
         XmlDocument doc = ((XmlDocument) ((XmlNode) document).document(context));
 
         RubyArray errors = (RubyArray) doc.getInstanceVariable("@errors");
-
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             throw new RaiseException((XmlSyntaxError) errors.first());
         }
 
@@ -120,20 +135,27 @@ public class XmlSchema extends RubyObject {
 
         IRubyObject uri = doc.url(context);
         
-        if(!uri.isNil()) {
+        if (!uri.isNil()) {
             source.setSystemId(uri.convertToString().asJavaString());
         }
-
-        return createSchemaWithSource(context, (RubyClass) klazz, source);
+        
+        return getSchema(context, (RubyClass)klazz, source);
+    }
+    
+    private static IRubyObject getSchema(ThreadContext context, RubyClass klazz, Source source) {
+        String moduleName = klazz.getName();
+        if ("Nokogiri::XML::Schema".equals(moduleName)) {
+            return XmlSchema.createSchemaInstance(context, klazz, source);
+        } else if ("Nokogiri::XML::RelaxNG".equals(moduleName)) {
+            return XmlRelaxng.createSchemaInstance(context, klazz, source);
+        }
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod(meta=true)
     public static IRubyObject read_memory(ThreadContext context, IRubyObject klazz, IRubyObject content) {
-        
         String data = content.convertToString().asJavaString();
-
-        return createSchemaWithSource(context, (RubyClass) klazz,
-                new StreamSource(new StringReader(data)));
+        return getSchema(context, (RubyClass) klazz, new StreamSource(new StringReader(data)));
     }
 
     @JRubyMethod(visibility=Visibility.PRIVATE)
@@ -151,25 +173,147 @@ public class XmlSchema extends RubyObject {
         return validate_document_or_file(context, xmlDocument);
     }
     
-    private IRubyObject validate_document_or_file(ThreadContext context, XmlDocument xmlDocument) {
-        Document doc = xmlDocument.getDocument();
-
-        DOMSource docSource = new DOMSource(doc);
-        Validator validator = getSchema(context).newValidator();
-
+    IRubyObject validate_document_or_file(ThreadContext context, XmlDocument xmlDocument) {
         RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
         ErrorHandler errorHandler = new SchemaErrorHandler(context.getRuntime(), errors);
-
-        validator.setErrorHandler(errorHandler);
+        setErrorHandler(errorHandler);
 
         try {
-            validator.validate(docSource);
+            validate(xmlDocument.getDocument());
         } catch(SAXException ex) {
-            errors.append(new XmlSyntaxError(context.getRuntime(), ex));
+            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            xmlSyntaxError.setException(ex);
+            errors.append(xmlSyntaxError);
         } catch (IOException ex) {
             throw context.getRuntime().newIOError(ex.getMessage());
         }
 
         return errors;
+    }
+    
+    protected void setErrorHandler(ErrorHandler errorHandler) {
+        validator.setErrorHandler(errorHandler);
+    }
+    
+    protected void validate(Document document) throws SAXException, IOException {
+        DOMSource docSource = new DOMSource(document);
+        validator.validate(docSource);
+    }
+    
+    private class SchemaResourceResolver implements LSResourceResolver {
+        SchemaLSInput lsInput = new SchemaLSInput();
+        String defaultURI;
+        
+        SchemaResourceResolver(String currentDir, Object input) {
+            defaultURI = currentDir + "/nokogiri_default_fake.xsd";
+            if (input == null) return;
+            if (input instanceof String) {
+                lsInput.setStringData((String)input);
+            } else if (input instanceof Reader) {
+                lsInput.setCharacterStream((Reader)input);
+            } else if (input instanceof InputStream) {
+                lsInput.setByteStream((InputStream)input);
+            }
+        }
+
+        @Override
+        public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
+            lsInput.setPublicId(publicId);
+            lsInput.setSystemId(systemId);
+            lsInput.setBaseURI(baseURI != null ? baseURI : defaultURI);
+            return lsInput;
+        }
+    }
+    
+    private class SchemaLSInput implements LSInput {
+        protected String fPublicId;
+        protected String fSystemId;
+        protected String fBaseSystemId;
+        protected InputStream fByteStream;
+        protected Reader fCharStream;
+        protected String fData;
+        protected String fEncoding;
+        protected boolean fCertifiedText = false;
+        
+        @Override
+        public String getBaseURI() {
+            return fBaseSystemId;
+        }
+
+        @Override
+        public InputStream getByteStream() {
+            return fByteStream;
+        }
+
+        @Override
+        public boolean getCertifiedText() {
+            return fCertifiedText;
+        }
+
+        @Override
+        public Reader getCharacterStream() {
+            return fCharStream;
+        }
+
+        @Override
+        public String getEncoding() {
+            return fEncoding;
+        }
+
+        @Override
+        public String getPublicId() {
+            return fPublicId;
+        }
+
+        @Override
+        public String getStringData() {
+            return fData;
+        }
+
+        @Override
+        public String getSystemId() {
+            return fSystemId;
+        }
+
+        @Override
+        public void setBaseURI(String baseURI) {
+            fBaseSystemId = baseURI;
+        }
+
+        @Override
+        public void setByteStream(InputStream byteStream) {
+            fByteStream = byteStream;   
+        }
+
+        @Override
+        public void setCertifiedText(boolean certified) {
+            fCertifiedText = certified;
+        }
+
+        @Override
+        public void setCharacterStream(Reader charStream) {
+            fCharStream = charStream;
+        }
+
+        @Override
+        public void setEncoding(String encoding) {
+            fEncoding = encoding;
+        }
+
+        @Override
+        public void setPublicId(String pubId) {
+            fPublicId = pubId;
+        }
+
+        @Override
+        public void setStringData(String stringData) {
+            fData = stringData;
+        }
+
+        @Override
+        public void setSystemId(String sysId) {
+            fSystemId = sysId;
+        }
+        
     }
 }

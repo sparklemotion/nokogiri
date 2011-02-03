@@ -1,4 +1,5 @@
 .autotest
+.gemtest
 CHANGELOG.ja.rdoc
 CHANGELOG.rdoc
 Manifest.txt
@@ -50,6 +51,8 @@ ext/java/nokogiri/internals/NokogiriNonStrictErrorHandler4NekoHtml.java
 ext/java/nokogiri/internals/NokogiriStrictErrorHandler.java
 ext/java/nokogiri/internals/NokogiriXPathFunction.java
 ext/java/nokogiri/internals/NokogiriXPathFunctionResolver.java
+ext/java/nokogiri/internals/NokogiriXPathVariableResolver.java
+ext/java/nokogiri/internals/NokogiriXsltErrorListener.java
 ext/java/nokogiri/internals/ParserContext.java
 ext/java/nokogiri/internals/PushInputStream.java
 ext/java/nokogiri/internals/ReaderNode.java
@@ -193,6 +196,7 @@ lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
+nokogiri.gemspec
 tasks/cross_compile.rb
 tasks/test.rb
 test/css/test_nthiness.rb
@@ -205,6 +209,8 @@ test/files/address_book.rlx
 test/files/address_book.xml
 test/files/bar/bar.xsd
 test/files/dont_hurt_em_why.xml
+test/files/encoding.html
+test/files/encoding.xhtml
 test/files/exslt.xml
 test/files/exslt.xslt
 test/files/foo/foo.xsd
@@ -272,3 +278,4 @@ test/xml/test_text.rb
 test/xml/test_unparented_node.rb
 test/xml/test_xpath.rb
 test/xslt/test_custom_functions.rb
+test/xslt/test_exception_handling.rb

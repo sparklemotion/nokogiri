@@ -30,50 +30,57 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nokogiri;
+package nokogiri.internals;
 
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
-
-import org.cyberneko.html.HTMLEntities;
-import org.jruby.Ruby;
-import org.jruby.RubyClass;
-import org.jruby.RubyObject;
-import org.jruby.anno.JRubyClass;
-import org.jruby.anno.JRubyMethod;
-import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.builtin.IRubyObject;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.TransformerException;
 
 /**
- * Class for Nokogiri::HTML::EntityLookup.
+ * Error Listener for XSLT transformer
  * 
- * @author Patrick Mahoney <pat@polycrystal.org>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
-@JRubyClass(name="Nokogiri::HTML::EntityLookup")
-public class HtmlEntityLookup extends RubyObject {
-
-    public HtmlEntityLookup(Ruby runtime, RubyClass rubyClass) {
-        super(runtime, rubyClass);
+public class NokogiriXsltErrorListener implements ErrorListener {
+    public enum ErrorType {
+        WARNING,
+        ERROR,
+        FATAL
     }
 
-    /**
-     * Looks up an HTML entity <code>key</code>.
-     *
-     * The description is a bit lacking.
-     */
-    @JRubyMethod()
-    public IRubyObject get(ThreadContext context, IRubyObject key) {
-        Ruby ruby = context.getRuntime();
-        String name = key.toString();
-        int val = HTMLEntities.get(name);
-        if (val == -1) return ruby.getNil();
+    private ErrorType type;
+    private String errorMessage;
+    private Exception exception;
 
-        IRubyObject edClass =
-            ruby.getClassFromPath("Nokogiri::HTML::EntityDescription");
-        IRubyObject edObj = invoke(context, edClass, "new",
-                                   ruby.newFixnum(val), ruby.newString(name),
-                                   ruby.newString(name + " entity"));
+    public void warning(TransformerException ex) throws TransformerException {
+        type = ErrorType.WARNING;
+        setError(ex);
+    }
 
-        return edObj;
+    public void error(TransformerException ex) throws TransformerException {
+       type = ErrorType.ERROR;
+       setError(ex);
+    }
+
+    public void fatalError(TransformerException ex) throws TransformerException {
+        type = ErrorType.FATAL;
+        setError(ex);
+    }
+    
+    private void setError(TransformerException ex) {
+        errorMessage = ex.getMessage();
+        exception = ex;
+    }
+    
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+    
+    public ErrorType getErrorType() {
+        return type;
+    }
+    
+    public Exception getException() {
+        return exception;
     }
 
 }

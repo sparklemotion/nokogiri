@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -56,6 +56,8 @@ import org.jruby.runtime.builtin.IRubyObject;
 /**
  * Class for Nokogiri::XML::SAX::PushParser
  *
+ * @author Patrick Mahoney <pat@polycrystal.org>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::SAX::PushParser")
 public class XmlSaxPushParser extends RubyObject {
@@ -112,7 +114,8 @@ public class XmlSaxPushParser extends RubyObject {
         if (chunk instanceof RubyString || chunk.respondsTo("to_str")) {
             data = chunk.convertToString().getBytes();
         } else {
-            throw new RaiseException(new XmlSyntaxError(context.getRuntime()));
+            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            throw new RaiseException(xmlSyntaxError);
         }
 
         int errorCount0 = runner.getErrorCount();
@@ -161,8 +164,7 @@ public class XmlSaxPushParser extends RubyObject {
 
             this.context = context;
             this.handler = handler;
-            this.parser = (XmlSaxParserContext)
-                XmlSaxParserContext.parse_stream(context, klazz, stream);
+            this.parser = (XmlSaxParserContext) XmlSaxParserContext.parse_stream(context, klazz, stream);
         }
 
         public void run() {

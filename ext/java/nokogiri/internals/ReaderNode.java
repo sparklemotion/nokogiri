@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import nokogiri.NokogiriService;
 import nokogiri.XmlAttr;
 import nokogiri.XmlDocument;
 import nokogiri.XmlSyntaxError;
@@ -112,13 +113,13 @@ public abstract class ReaderNode {
         RubyArray array = RubyArray.newArray(ruby);
         if (attributeList != null && attributeList.length > 0) {
             if (document == null) {
-                document = ((XmlDocument) getNokogiriClass(ruby, "Nokogiri::XML::Document").allocate()).getDocument();
+                document = ((XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Document"))).getDocument();
             }
             for (int i=0; i<attributeList.length; i++) {
                 if (!isNamespace(attributeList.names.get(i))) {
                     Attr attr = document.createAttributeNS(attributeList.namespaces.get(i), attributeList.names.get(i));
                     attr.setValue(attributeList.values.get(i));
-                    XmlAttr xmlAttr = (XmlAttr) getNokogiriClass(ruby, "Nokogiri::XML::Attr").allocate();
+                    XmlAttr xmlAttr = (XmlAttr) NokogiriService.XML_ATTR_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Attr"));
                     xmlAttr.setNode(ruby.getCurrentContext(), attr);
                     array.append(xmlAttr);
                 }
@@ -430,9 +431,9 @@ public abstract class ReaderNode {
         private final XmlSyntaxError exception;
 
         // Still don't know what to do with ex.
-        public ExceptionNode(Ruby ruby, SAXParseException ex) {
-            super(ruby);
-            this.exception = new XmlSyntaxError(ruby);
+        public ExceptionNode(Ruby runtime, SAXParseException ex) {
+            super(runtime);
+            exception = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(ruby, "Nokogiri::XML::SyntaxError"));
         }
 
         @Override

@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -54,6 +54,7 @@ import org.w3c.dom.Node;
  * Class for Nokogiri::XML::Element
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gamil.com>
  */
 @JRubyClass(name="Nokogiri::XML::Element", parent="Nokogiri::XML::Node")
 public class XmlElement extends XmlNode {

@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -69,6 +69,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
 /**
  * Class for Nokogiri:XML::Reader
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::Reader")
 public class XmlReader extends RubyObject {

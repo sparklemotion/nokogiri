@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -46,6 +47,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+
+import nokogiri.internals.NokogiriXsltErrorListener;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -61,6 +64,8 @@ import org.w3c.dom.Document;
 /**
  * Class for Nokogiri::XSLT::Stylesheet
  *
+ * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XSLT::Stylesheet")
 public class XsltStylesheet extends RubyObject {
@@ -140,31 +145,42 @@ public class XsltStylesheet extends RubyObject {
 
     @JRubyMethod(rest = true, required=1, optional=2)
     public IRubyObject transform(ThreadContext context, IRubyObject[] args) {
-        Ruby ruby = context.getRuntime();
+        Ruby runtime = context.getRuntime();
 
         DOMSource docSource = new DOMSource(((XmlDocument) args[0]).getDocument());
         DOMResult result = new DOMResult();
 
+        NokogiriXsltErrorListener elistener = new NokogiriXsltErrorListener();
         try{
             Transformer transf = this.sheet.newTransformer();
+            transf.setErrorListener(elistener);
             if(args.length > 1) {
                 addParametersToTransformer(context, transf, args[1]);
             }
             transf.transform(docSource, result);
         } catch(TransformerConfigurationException ex) {
-            throw ruby.newRuntimeError(ex.getMessage());
+            // processes later
         } catch(TransformerException ex) {
-            throw ruby.newRuntimeError(ex.getMessage());
+            // processes later
+        }
+
+        switch (elistener.getErrorType()) {
+            case ERROR:
+            case FATAL:
+                throw runtime.newRuntimeError(elistener.getErrorMessage());
+            case WARNING:
+            default:
+                // no-op
         }
         
         if ("html".equals(result.getNode().getFirstChild().getNodeName())) {
-            return new HtmlDocument(ruby,
-                    getNokogiriClass(ruby, "Nokogiri::HTML::Document"),
-                    (Document) result.getNode());
+            HtmlDocument htmlDocument = (HtmlDocument) getNokogiriClass(runtime, "Nokogiri::HTML::Document").allocate();
+            htmlDocument.setNode(context, (Document) result.getNode());
+            return htmlDocument;
         } else {
-            return new XmlDocument(ruby,
-                    getNokogiriClass(ruby, "Nokogiri::XML::Document"),
-                    (Document) result.getNode());
+            XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
+            xmlDocument.setNode(context, (Document) result.getNode());
+            return xmlDocument;
         }
     }
     

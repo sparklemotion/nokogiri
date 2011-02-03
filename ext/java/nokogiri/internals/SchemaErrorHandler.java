@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -32,7 +32,10 @@
 
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import nokogiri.NokogiriService;
 import nokogiri.XmlSyntaxError;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.xml.sax.ErrorHandler;
@@ -43,22 +46,27 @@ import org.xml.sax.SAXParseException;
  * Error handler for Relax and W3C XML Schema.
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class SchemaErrorHandler implements ErrorHandler{
     private RubyArray errors;
-    private Ruby ruby;
+    private Ruby runtime;
 
     public SchemaErrorHandler(Ruby ruby, RubyArray array) {
-        this.ruby = ruby;
+        this.runtime = ruby;
         this.errors = array;
     }
 
     public void warning(SAXParseException ex) throws SAXException {
-        this.errors.append(new XmlSyntaxError(ruby, ex));
+        XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+        xmlSyntaxError.setException(ex);
+        this.errors.append(xmlSyntaxError);
     }
 
     public void error(SAXParseException ex) throws SAXException {
-        this.errors.append(new XmlSyntaxError(ruby, ex));
+        XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+        xmlSyntaxError.setException(ex);
+        this.errors.append(xmlSyntaxError);
     }
 
     public void fatalError(SAXParseException ex) throws SAXException {

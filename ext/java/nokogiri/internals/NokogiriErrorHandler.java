@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2010:
+ * Copyright (c) 2008 - 2011:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -32,9 +32,12 @@
 
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import nokogiri.NokogiriService;
 import nokogiri.XmlSyntaxError;
 
 import org.apache.xerces.xni.parser.XMLErrorHandler;
@@ -50,6 +53,7 @@ import org.xml.sax.ErrorHandler;
  * uses this type of the error handler.
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public abstract class NokogiriErrorHandler implements ErrorHandler, XMLErrorHandler {
     protected List<Exception> errors;
@@ -64,11 +68,13 @@ public abstract class NokogiriErrorHandler implements ErrorHandler, XMLErrorHand
 
     public List<Exception> getErrors() { return errors; }
 
-    public List<IRubyObject> getErrorsReadyForRuby(ThreadContext context){
-        Ruby ruby = context.getRuntime();
+    public List<IRubyObject> getErrorsReadyForRuby(ThreadContext context) {
+        Ruby runtime = context.getRuntime();
         List<IRubyObject> res = new ArrayList<IRubyObject>();
-        for(int i = 0; i < errors.size(); i++) {
-            res.add(new XmlSyntaxError(ruby, errors.get(i)));
+        for (int i = 0; i < errors.size(); i++) {
+            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+            xmlSyntaxError.setException(errors.get(i));
+            res.add(xmlSyntaxError);
         }
         return res;
     }

@@ -27,8 +27,8 @@ EOXSL
         begin
           xsl.transform xml
           fail('It should not get here')
-        rescue
-          assert_match /HIERARCHY_REQUEST_ERR/, $!.message, 'The exception message does not contain the expected information'
+        rescue RuntimeError => e
+          assert_match(/HIERARCHY_REQUEST_ERR/, e.to_s, 'The exception message does not contain the expected information')
         end
       end
 
