@@ -13,6 +13,26 @@ class TestMemoryLeak < Nokogiri::TestCase
         GC.start
       end
     end
+    
+    class BadIO
+      def read(*args)
+        raise 'hell'
+      end
+      
+      def write(*args)
+        raise 'chickens'
+      end
+    end
+  
+    def test_for_mem_leak_on_io_callbacks
+      io = File.open SNUGGLES_FILE
+      reader = Nokogiri::XML.parse(io)
+
+      (10**10).times do
+        Nokogiri::XML.parse(BadIO.new) rescue nil
+        doc.write BadIO.new rescue nil
+      end
+    end
 
     def test_for_memory_leak
       begin
