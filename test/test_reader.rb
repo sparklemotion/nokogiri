@@ -82,6 +82,16 @@ class TestReader < Nokogiri::TestCase
       reader.map { |x| x.default? }
   end
 
+  class ReallyBadIO
+    def read(size)
+      'a' * size * 4
+    end
+  end
+
+  def test_io_that_supplies_a_big_string
+    Nokogiri::XML.parse ReallyBadIO.new
+  end
+
   def test_in_memory
     assert Nokogiri::XML::Reader(<<-eoxml)
     <x xmlns:tenderlove='http://tenderlovemaking.com/'>

@@ -12,6 +12,7 @@ VALUE read_failed(void) {
 
 int io_read_callback(void * ctx, char * buffer, int len) {
   VALUE string, args[2];
+  size_t str_len, safe_len;
 
   args[0] = (VALUE)ctx;
   args[1] = INT2NUM(len);
@@ -20,9 +21,12 @@ int io_read_callback(void * ctx, char * buffer, int len) {
 
   if(NIL_P(string)) return 0;
 
-  memcpy(buffer, StringValuePtr(string), (size_t)RSTRING_LEN(string));
+  str_len = (size_t)RSTRING_LEN(string);
+  safe_len = str_len > (size_t)len ? (size_t)len : str_len;
 
-  return (int)RSTRING_LEN(string);
+  memcpy(buffer, StringValuePtr(string), safe_len);
+
+  return (int)safe_len;
 }
 
 VALUE write_check(VALUE *args) {
