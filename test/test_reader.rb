@@ -81,6 +81,17 @@ class TestReader < Nokogiri::TestCase
     assert_equal [false, false, false, false, false, false, false],
       reader.map { |x| x.default? }
   end
+  
+  class ReallyBadIO
+    def read(size)
+      'a' * size ** 10
+    end
+  end
+
+  def test_io_that_reads_too_much
+    io = ReallyBadIO.new
+    Nokogiri::XML::Reader(io)
+  end
 
   def test_in_memory
     assert Nokogiri::XML::Reader(<<-eoxml)
