@@ -718,7 +718,7 @@ module Nokogiri
         assert_equal '&amp;', foo
       end
 
-      def test_content
+      def test_content_equals
         node = Nokogiri::XML::Node.new('form', @xml)
         assert_equal('', node.content)
 
@@ -728,6 +728,10 @@ module Nokogiri
         node.content = '& <foo> &amp;'
         assert_equal('& <foo> &amp;', node.content)
         assert_equal('<form>&amp; &lt;foo&gt; &amp;amp;</form>', node.to_xml)
+
+        node.content = "1234 <-> 1234"
+        assert_equal "1234 <-> 1234", node.content
+        assert_equal "<form>1234 &lt;-&gt; 1234</form>", node.to_xml
       end
 
       def test_set_content_should_unlink_existing_content
