@@ -271,6 +271,16 @@ module Nokogiri
       end
 
       ###
+      # Add +node_or_tags+ as a child of this Node.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
+      #
+      # Returns self.
+      def << node_or_tags
+        add_child(node_or_tags)
+        self
+      end
+
+      ###
       # Insert +node_or_tags+ before this Node (as a sibling).
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
@@ -425,7 +435,6 @@ module Nokogiri
       alias :text           :content
       alias :inner_text     :content
       alias :has_attribute? :key?
-      alias :<<             :add_child
       alias :name           :node_name
       alias :name=          :node_name=
       alias :type           :node_type

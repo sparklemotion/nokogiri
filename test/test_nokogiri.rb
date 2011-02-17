@@ -129,4 +129,14 @@ class TestNokogiri < Nokogiri::TestCase
     assert_equal 1, doc.decorators(Nokogiri::XML::Node).select { |d| d == Nokogiri::Decorators::Slop }.size
   end
 
+  def test_element_appends
+    doc = Nokogiri::XML::Document.new
+    root = Nokogiri::XML::Node.new("root", doc)
+    node1 = Nokogiri::XML::Node.new("one", doc)
+    node2 = Nokogiri::XML::Node.new("two", doc)
+    doc << root
+    root << node1 << node2
+    assert_equal 2, root.children.size
+  end
+
 end
