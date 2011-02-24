@@ -699,6 +699,15 @@ module Nokogiri
         assert_equal('/staff/employee[1]', node.path)
       end
 
+      def test_parent_xpath
+        assert set = @xml.search('//employee')
+        assert node = set.first
+        assert parent_set = node.search('..')
+        assert parent_node = parent_set.first
+        assert_equal '/staff', parent_node.path
+        assert_equal node.parent, parent_node
+      end
+
       def test_search_by_symbol
         assert set = @xml.search(:employee)
         assert 5, set.length
