@@ -37,6 +37,8 @@ module Nokogiri
       NOCDATA     = 1 << 14
       # do not generate XINCLUDE START/END nodes
       NOXINCNODE  = 1 << 15
+      # relax any hardcoded limit from the parser
+      HUGE        = 1 << 19
 
       # the default options used for parsing XML documents
       DEFAULT_XML  = RECOVER
