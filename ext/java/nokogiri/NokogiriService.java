@@ -347,9 +347,17 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_DTD_ALLOCATOR = new ObjectAllocator() {
+    public static final ObjectAllocator XML_DTD_ALLOCATOR = new ObjectAllocator() {
+        private XmlDtd xmlDtd = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlDtd(runtime, klazz);
+            if (xmlDtd == null) xmlDtd = new XmlDtd(runtime, klazz);
+            try {
+                XmlDtd clone = (XmlDtd)xmlDtd.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlDtd(runtime, klazz);
+            }
         }
     };
 

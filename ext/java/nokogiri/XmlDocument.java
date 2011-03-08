@@ -76,8 +76,8 @@ public class XmlDocument extends XmlNode {
     
     /* UserData keys for storing extra info in the document node. */
     public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
-    protected final static String DTD_INTERNAL_SUBSET = "DTD_INTERNAL_SUBSET";
-    protected final static String DTD_EXTERNAL_SUBSET = "DTD_EXTERNAL_SUBSET";
+    public final static String DTD_INTERNAL_SUBSET = "DTD_INTERNAL_SUBSET";
+    public final static String DTD_EXTERNAL_SUBSET = "DTD_EXTERNAL_SUBSET";
     
     /* DocumentBuilderFactory implementation class name. This needs to set a classloader into it.
      * Setting an appropriate classloader resolves issue 380.
@@ -420,16 +420,11 @@ public class XmlDocument extends XmlNode {
     }
 
     public IRubyObject getInternalSubset(ThreadContext context) {
-        IRubyObject dtd =
-            (IRubyObject) node.getUserData(DTD_INTERNAL_SUBSET);
+        IRubyObject dtd = (IRubyObject) node.getUserData(DTD_INTERNAL_SUBSET);
 
         if (dtd == null) {
-            if (getDocument().getDoctype() == null)
-                dtd = context.getRuntime().getNil();
-            else
-                dtd = XmlDtd.newFromInternalSubset(context.getRuntime(),
-                                                   getDocument());
-
+            if (getDocument().getDoctype() == null) dtd = context.getRuntime().getNil();
+            else dtd = XmlDtd.newFromInternalSubset(context.getRuntime(), getDocument());
             setInternalSubset(dtd);
         }
 
@@ -456,15 +451,9 @@ public class XmlDocument extends XmlNode {
     }
 
     public IRubyObject getExternalSubset(ThreadContext context) {
-        IRubyObject dtd = (IRubyObject)
-            node.getUserData(DTD_EXTERNAL_SUBSET);
+        IRubyObject dtd = (IRubyObject) node.getUserData(DTD_EXTERNAL_SUBSET);
 
-        if (dtd == null) {
-            dtd = XmlDtd.newFromExternalSubset(context.getRuntime(),
-                                               getDocument());
-            setExternalSubset(dtd);
-        }
-
+        if (dtd == null) return context.getRuntime().getNil();
         return dtd;
     }
 
@@ -516,6 +505,15 @@ public class XmlDocument extends XmlNode {
             //ctx.append(" standalone=\"");
             //ctx.append(getDocument().getXmlStandalone() ? "yes" : "no");
             ctx.append("?>\n");
+        }
+
+        IRubyObject subset = getExternalSubset(context);;
+        if (subset != null && !subset.isNil()) {
+            ((XmlDtd)subset).saveContent(context, ctx);
+        } 
+        subset = getInternalSubset(context);
+        if (subset != null && !subset.isNil()) {
+            ((XmlDtd)subset).saveContent(context, ctx);
         }
 
         IRubyObject maybeRoot = root(context);
