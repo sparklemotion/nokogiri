@@ -57,7 +57,6 @@ public class SaveContext {
     private final ThreadContext context;
     private final RubyClass elementDescription;
     private StringBuffer buffer;
-    private int options;
     private int level=0;
     private String encoding, indentString;
     private boolean format, noDecl, noEmpty, noXhtml, xhtml, asXml, asHtml;
@@ -80,7 +79,6 @@ public class SaveContext {
     public SaveContext(ThreadContext context, int options, String indentString, String encoding) {
         this.context = context;
         this.elementDescription = (RubyClass)getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::ElementDescription");
-        this.options = options;
         this.encoding = encoding;
         this.indentString = indentString;
         this.buffer = new StringBuffer();
@@ -117,18 +115,13 @@ public class SaveContext {
         this.append("\"");
     }
 
-    public void emptyTag(String name) {
-        emptyTagStart(name);
-        emptyTagEnd(name);
-    }
-
     public void emptyTagStart(String name) {
         openTagInlineStart(name);
     }
 
     public void emptyTagEnd(String name) {
         if (asHtml) {
-            if (isEmpty(name) && noEmpty()) {
+            if (isEmpty(name) && noEmpty) {
                 append(">");
             } else {
                 openTagInlineEnd();
@@ -139,11 +132,6 @@ public class SaveContext {
         } else {
             append("/>");
         }
-    }
-
-    public void openTag(String name) {
-        openTagStart(name);
-        openTagEnd();
     }
 
     public void openTagStart(String name) {
@@ -206,7 +194,9 @@ public class SaveContext {
     }
 
     public void indent() {
-        if (format) append(getCurrentIndentString());
+        // format option doesn't work, so changed to see indentString is given or not
+        String spaces = getCurrentIndentString();
+        if (spaces != null) append(spaces);
     }
 
     public boolean endsInWhitespace() {
@@ -232,14 +222,13 @@ public class SaveContext {
         if(this.level > 0) this.level--;
     }
 
-    public String encoding() { return this.encoding; }
-
     public boolean format() { return this.format; }
 
     public String getCurrentIndentString() {
+        if (indentString == null || indentString.length() == 0) return null;
         StringBuffer res = new StringBuffer();
         for(int i = 0; i < this.level; i++) {
-            res.append(this.indentString());
+            res.append(indentString);
         }
         return res.toString();
     }
@@ -250,17 +239,7 @@ public class SaveContext {
         if(this.level >= 0) this.level++;
     }
 
-    public String indentString() { return this.indentString; }
-
     public boolean noDecl() { return this.noDecl; }
-
-    public boolean noEmpty() { return this.noEmpty; }
-
-    public boolean noXhtml() { return this.noXhtml; }
-
-    public void setFormat(boolean format) { this.format = format; }
-
-    public void setLevel(int level) { this.level = level; }
 
     @Override
     public String toString() { return this.buffer.toString(); }
@@ -271,8 +250,6 @@ public class SaveContext {
         else bytes = new ByteList(RubyEncoding.encode(buffer.toString(), Charset.forName(encoding)), false);
         return RubyString.newString(runtime, bytes);
     }
-
-    public boolean Xhtml() { return this.xhtml; }
 
     /**
      * Looks up the HTML ElementDescription and tests if it is an

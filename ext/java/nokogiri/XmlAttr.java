@@ -38,7 +38,6 @@ import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
-import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;

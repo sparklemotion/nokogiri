@@ -716,7 +716,7 @@ module Nokogiri
       def serialize *args, &block
         options = args.first.is_a?(Hash) ? args.shift : {
           :encoding   => args[0],
-          :save_with  => args[1] || SaveOptions::FORMAT
+          :save_with  => args[1]
         }
 
         encoding = options[:encoding] || document.encoding
@@ -791,7 +791,11 @@ module Nokogiri
       def write_to io, *options
         options       = options.first.is_a?(Hash) ? options.shift : {}
         encoding      = options[:encoding] || options[0]
-        save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
+        if Nokogiri.jruby?
+          save_options  = options[:save_with] || options[1]
+        else
+          save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
+        end
         indent_text   = options[:indent_text] || ' '
         indent_times  = options[:indent] || 2
 

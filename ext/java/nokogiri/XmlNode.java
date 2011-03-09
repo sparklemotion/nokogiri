@@ -491,25 +491,15 @@ public class XmlNode extends RubyObject {
     protected void saveNodeListContent(ThreadContext context, RubyArray array, SaveContext ctx) {
         int length = array.getLength();
 
-        boolean formatIndentation = ctx.format() && ctx.indentString()!=null;
-
         for(int i = 0; i < length; i++) {
             Object item = array.get(i);
             if (item instanceof XmlNode) {
               XmlNode cur = (XmlNode) item;
-
-            // if(formatIndentation &&
-            //         (cur.isElement() || cur.isComment() || cur.isProcessingInstruction())) {
-            //     ctx.append(ctx.getCurrentIndentString());
-            // }
-
               cur.saveContent(context, ctx);
             } else if (item instanceof XmlNamespace) {
                 XmlNamespace cur = (XmlNamespace)item;
                 cur.saveContent(context, ctx);
             }
-
-            // if(ctx.format()) ctx.append("\n");
         }
     }
 
