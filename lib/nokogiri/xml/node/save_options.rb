@@ -19,6 +19,13 @@ module Nokogiri
         # Save as HTML
         AS_HTML         = 64
 
+        # the default for XML documents
+        DEFAULT_XML  = FORMAT | AS_XML
+        # the default for HTML document
+        DEFAULT_HTML = FORMAT | NO_DECLARATION | NO_EMPTY_TAGS | AS_HTML
+        # the default for XHTML document
+        DEFAULT_XHTML = FORMAT | NO_DECLARATION | NO_EMPTY_TAGS | AS_XHTML
+
         # Integer representation of the SaveOptions
         attr_reader :options
 

@@ -58,10 +58,7 @@ module Nokogiri
       #   end
       #
       def serialize options = {}
-        options[:save_with] ||= XML::Node::SaveOptions::FORMAT |
-            XML::Node::SaveOptions::AS_HTML |
-            XML::Node::SaveOptions::NO_DECLARATION |
-            XML::Node::SaveOptions::NO_EMPTY_TAGS
+        options[:save_with] ||= XML::Node::SaveOptions::DEFAULT_HTML
         super
       end
 
