@@ -742,11 +742,7 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::FORMAT |
-                                SaveOptions::NO_DECLARATION |
-                                SaveOptions::NO_EMPTY_TAGS |
-                                SaveOptions::AS_HTML
-
+        options[:save_with] ||= SaveOptions::DEFAULT_HTML
         serialize(options)
       end
 
@@ -757,8 +753,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def to_xml options = {}
-        options[:save_with] ||= SaveOptions::FORMAT | SaveOptions::AS_XML
-
+        options[:save_with] ||= SaveOptions::DEFAULT_XML
         serialize(options)
       end
 
@@ -772,11 +767,7 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::FORMAT |
-                                SaveOptions::NO_DECLARATION |
-                                SaveOptions::NO_EMPTY_TAGS |
-                                SaveOptions::AS_XHTML
-
+        options[:save_with] ||= SaveOptions::DEFAULT_XHTML
         serialize(options)
       end
 
@@ -818,10 +809,7 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::FORMAT |
-          SaveOptions::NO_DECLARATION |
-          SaveOptions::NO_EMPTY_TAGS |
-          SaveOptions::AS_HTML
+        options[:save_with] ||= SaveOptions::DEFAULT_HTML
         write_to io, options
       end
 
@@ -833,10 +821,7 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::FORMAT |
-          SaveOptions::NO_DECLARATION |
-          SaveOptions::NO_EMPTY_TAGS |
-          SaveOptions::AS_XHTML
+        options[:save_with] ||= SaveOptions::DEFAULT_XHTML
         write_to io, options
       end
 
@@ -847,7 +832,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of options
       def write_xml_to io, options = {}
-        options[:save_with] ||= SaveOptions::FORMAT | SaveOptions::AS_XML
+        options[:save_with] ||= SaveOptions::DEFAULT_XML
         write_to io, options
       end
 
