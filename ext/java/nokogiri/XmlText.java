@@ -32,10 +32,10 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.isXmlEscaped;
+import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
+import static nokogiri.internals.NokogiriHelpers.isNotXmlEscaped;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
-import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
@@ -103,8 +103,8 @@ public class XmlText extends XmlNode {
     public void saveContent(ThreadContext context, SaveContext ctx) {
         String textContent = node.getTextContent();
         
-        if (!isXmlEscaped(textContent)) {        
-            textContent = NokogiriHelpers.encodeJavaString(textContent);
+        if (isNotXmlEscaped(textContent)) {
+            textContent = encodeJavaString(textContent);
         }
         if (getEncoding(context, ctx) == null) {
             textContent = encodeStringToHtmlEntity(textContent);

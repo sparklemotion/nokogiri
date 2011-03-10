@@ -35,6 +35,8 @@ package nokogiri.internals;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import nokogiri.NokogiriService;
 import nokogiri.XmlAttr;
@@ -481,28 +483,44 @@ public class NokogiriHelpers {
                 (b.equals(a)));
     }
 
+    private static Pattern encoded_pattern = Pattern.compile("&amp;|&gt;|&lt;|&#13;");
+    private static Pattern decoded_pattern = Pattern.compile("&|>|<|\r");
+    private static String[] encoded = {"&amp;", "&gt;", "&lt;", "&#13;"};
+    private static String[] decoded = {"&", ">", "<", "\r"};
+    
+    private static String convert(Pattern ptn, String input, String[] oldChars, String[] newChars)  {
+        Matcher matcher = ptn.matcher(input);
+        boolean result = matcher.find();
+        StringBuffer sb = new StringBuffer();
+        while(result) {
+            String matched = matcher.group();
+            String replacement = "";
+            for (int i=0; i<oldChars.length; i++) {
+                if (matched.contains(oldChars[i])) {
+                    replacement = matched.replace(oldChars[i], newChars[i]);
+                    break;
+                }
+            }
+            matcher.appendReplacement(sb, replacement);
+            result = matcher.find();
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+    
     public static String encodeJavaString(String s) {
-
-        // From entities.c
-        s = s.replaceAll("&", "&amp;");
-        s = s.replaceAll("<", "&lt;");
-        s = s.replaceAll(">", "&gt;");
-//        s = s.replaceAll("\"", "&quot;");
-        return s.replaceAll("\r", "&#13;");
+        return convert(decoded_pattern, s, decoded, encoded);
     }
     
     public static String decodeJavaString(String s) {
-        s = s.replaceAll("&amp;", "&");
-        s = s.replaceAll("&lt;", "<");
-        s = s.replaceAll("&gt;", ">");
-        return s.replaceAll("&#13;", "\r");
+        return convert(encoded_pattern, s, encoded, decoded);
     }
-    
-    public static boolean isXmlEscaped(String s) {
-        if (s == null) return true;
-        if (s.contains("<") || s.contains(">") || s.contains("\r")) return false;
-        if (s.contains("&") && !s.contains("&amp;")) return false;
-        return true;
+
+    private static Pattern not_escaped_pattern = Pattern.compile("\\&(?!(amp;|gt;|lt;))|<|>");
+    public static boolean isNotXmlEscaped(String s) {
+        if (s == null) return false;
+        Matcher matcher = not_escaped_pattern.matcher(s);
+        return (matcher.find());
     }
 
     public static String getNodeName(Node node) {
