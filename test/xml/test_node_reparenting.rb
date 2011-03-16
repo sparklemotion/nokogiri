@@ -51,7 +51,7 @@ module Nokogiri
 
         {
           :add_child            => {:target => "/root/a1",        :returns_self => false, :children_tags => %w[text b1 b2]},
-          :<<                   => {:target => "/root/a1",        :returns_self => false, :children_tags => %w[text b1 b2]},
+          :<<                   => {:target => "/root/a1",        :returns_self => true, :children_tags => %w[text b1 b2]},
 
           :replace              => {:target => "/root/a1/node()", :returns_self => false, :children_tags => %w[b1 b2]},
           :swap                 => {:target => "/root/a1/node()", :returns_self => true,  :children_tags => %w[b1 b2]},
@@ -166,6 +166,21 @@ module Nokogiri
       end
 
       describe "ad hoc node reparenting behavior" do
+        describe "#<<" do
+          it "allows chaining" do
+            doc   = Nokogiri::XML::Document.new
+            root  = Nokogiri::XML::Element.new('root', doc)
+            doc.root = root
+
+            child1 = Nokogiri::XML::Element.new('child1', doc)
+            child2 = Nokogiri::XML::Element.new('child2', doc)
+
+            doc.root << child1 << child2
+
+            assert_equal [child1, child2], doc.root.children.to_a
+          end
+        end
+
         describe "#add_child" do
           describe "given a new node with a namespace" do
             it "keeps the namespace" do

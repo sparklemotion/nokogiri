@@ -260,6 +260,8 @@ module Nokogiri
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
       # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      #
+      # Also see related method +<<+.
       def add_child node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
@@ -270,6 +272,17 @@ module Nokogiri
         node_or_tags
       end
 
+      ###
+      # Add +node_or_tags+ as a child of this Node.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
+      #
+      # Returns self, to support chaining of calls (e.g., root << child1 << child2)
+      #
+      # Also see related method +add_child+.
+      def << node_or_tags
+        add_child node_or_tags
+        self
+      end
       ###
       # Insert +node_or_tags+ before this Node (as a sibling).
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
@@ -425,7 +438,6 @@ module Nokogiri
       alias :text           :content
       alias :inner_text     :content
       alias :has_attribute? :key?
-      alias :<<             :add_child
       alias :name           :node_name
       alias :name=          :node_name=
       alias :type           :node_type
