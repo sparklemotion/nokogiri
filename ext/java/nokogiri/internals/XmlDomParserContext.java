@@ -198,10 +198,7 @@ public class XmlDomParserContext extends ParserContext {
             doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, xmlDtd, null);
         }
         
-        if (doc.getDoctype() != null) {
-            XmlDtd xmlDtd = XmlDtd.newFromInternalSubset(context.getRuntime(), doc);
-            doc.setUserData(XmlDocument.DTD_INTERNAL_SUBSET, xmlDtd, null);
-        }
+        DocumentType dtd = doc.getDoctype();
 
         return xmlDocument;
     }

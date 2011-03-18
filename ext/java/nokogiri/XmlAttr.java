@@ -97,7 +97,7 @@ public class XmlAttr extends XmlNode{
         setNode(context, attr);
     }
 
-    public boolean isHtmlBooleanAttr() {
+    private boolean isHtmlBooleanAttr() {
         String name = node.getNodeName().toLowerCase();
 
         for(String s : HTML_BOOLEAN_ATTRS) {

@@ -168,7 +168,7 @@ public class XmlSchema extends RubyObject {
         Ruby ruby = context.getRuntime();
 
         XmlDomParserContext ctx = new XmlDomParserContext(ruby, RubyFixnum.newFixnum(ruby, 1L));
-        ctx.setInputSource(context, file);
+        ctx.setInputSource(context, file, context.getRuntime().getNil());
         XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(ruby, "Nokogiri::XML::Document"), ruby.getNil());
         return validate_document_or_file(context, xmlDocument);
     }

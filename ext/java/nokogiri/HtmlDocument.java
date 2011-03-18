@@ -88,7 +88,7 @@ public class HtmlDocument extends XmlDocument {
         Arity.checkArgumentCount(ruby, args, 4, 4);
         HtmlDomParserContext ctx =
             new HtmlDomParserContext(ruby, args[2], args[3]);
-        ctx.setInputSource(context, args[0]);
+        ctx.setInputSource(context, args[0], args[1]);
         return ctx.parse(context, klass, args[1]);
     }
 

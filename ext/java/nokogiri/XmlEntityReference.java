@@ -34,6 +34,8 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
+import nokogiri.internals.SaveContext;
+
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
@@ -49,7 +51,7 @@ import org.w3c.dom.Node;
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
 @JRubyClass(name="Nokogiri::XML::EntityReference", parent="Nokogiri::XML::Node")
-public class XmlEntityReference extends XmlNode{
+public class XmlEntityReference extends XmlNode {
 
     public XmlEntityReference(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
@@ -70,6 +72,11 @@ public class XmlEntityReference extends XmlNode{
         Document document = ((XmlNode) doc).getOwnerDocument();
         Node node = document.createEntityReference(rubyStringToString(name));
         setNode(context, node);
+    }
+    
+    @Override
+    public void saveContent(ThreadContext context, SaveContext ctx) {
+        String name = node.getNodeName();
     }
 
 }

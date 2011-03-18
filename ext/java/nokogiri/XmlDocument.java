@@ -309,7 +309,7 @@ public class XmlDocument extends XmlNode {
         Arity.checkArgumentCount(ruby, args, 4, 4);
         XmlDomParserContext ctx =
             new XmlDomParserContext(ruby, args[2], args[3]);
-        ctx.setInputSource(context, args[0]);
+        ctx.setInputSource(context, args[0], args[1]);
         return ctx.parse(context, klass, args[1]);
     }
 
@@ -484,13 +484,8 @@ public class XmlDocument extends XmlNode {
             ctx.append("<?xml version=\"");
             ctx.append(getDocument().getXmlVersion());
             ctx.append("\"");
-//            if(!cur.encoding(context).isNil()) {
-//                ctx.append(" encoding=");
-//                ctx.append(cur.encoding(context).asJavaString());
-//            }
-
+            
             String encoding = ctx.getEncoding();
-
             if(encoding == null &&
                     !encoding(context).isNil()) {
                 encoding = encoding(context).convertToString().asJavaString();
@@ -501,19 +496,18 @@ public class XmlDocument extends XmlNode {
                 ctx.append(encoding);
                 ctx.append("\"");
             }
-
-            //ctx.append(" standalone=\"");
-            //ctx.append(getDocument().getXmlStandalone() ? "yes" : "no");
             ctx.append("?>\n");
         }
 
-        IRubyObject subset = getExternalSubset(context);;
+        IRubyObject subset = getExternalSubset(context);
         if (subset != null && !subset.isNil()) {
             ((XmlDtd)subset).saveContent(context, ctx);
-        } 
-        subset = getInternalSubset(context);
-        if (subset != null && !subset.isNil()) {
-            ((XmlDtd)subset).saveContent(context, ctx);
+        }
+        if (subset == null || subset.isNil()) {
+            subset = getInternalSubset(context);
+            if (subset != null && !subset.isNil()) {
+                ((XmlDtd)subset).saveContent(context, ctx);
+            }
         }
 
         IRubyObject maybeRoot = root(context);
