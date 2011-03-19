@@ -1157,6 +1157,32 @@ static VALUE compare(VALUE self, VALUE _other)
 }
 
 
+/*
+ * call-seq:
+ *   process_xincludes(options)
+ *
+ * Loads and substitutes all xinclude elements below the node. The
+ * parser context will be initialized with +options+.
+ */
+static VALUE process_xincludes(VALUE self, VALUE options)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+
+  if(xmlXIncludeProcessTreeFlags(node, (int)NUM2INT(options)) < 0) {
+    xmlErrorPtr error;
+
+    error = xmlGetLastError();
+    if(error)
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+    else
+      rb_raise(rb_eRuntimeError, "Could not perform xinclude substitution");
+  }
+
+  return self;
+}
+
+
 /* TODO: DOCUMENT ME */
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
@@ -1368,6 +1394,7 @@ void init_xml_node()
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
 
+  rb_define_private_method(klass, "process_xincludes", process_xincludes, 1);
   rb_define_private_method(klass, "in_context", in_context, 2);
   rb_define_private_method(klass, "add_child_node", add_child, 1);
   rb_define_private_method(klass, "add_previous_sibling_node", add_previous_sibling, 1);
