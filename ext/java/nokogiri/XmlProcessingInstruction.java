@@ -55,13 +55,17 @@ import org.w3c.dom.ProcessingInstruction;
 @JRubyClass(name="Nokogiri::XML::ProcessingInstruction", parent="Nokogiri::XML::Node")
 public class XmlProcessingInstruction extends XmlNode {
 
-    public XmlProcessingInstruction(Ruby ruby, RubyClass klass, Node node) {
-        super(ruby, klass, node);
+    public XmlProcessingInstruction(Ruby ruby, RubyClass klazz) {
+        super(ruby, klazz);
+    }
+    
+    public XmlProcessingInstruction(Ruby ruby, RubyClass klazz, Node node) {
+        super(ruby, klazz, node);
     }
 
     @JRubyMethod(name="new", meta=true, rest=true, required=3)
     public static IRubyObject rbNew(ThreadContext context,
-                                    IRubyObject klass,
+                                    IRubyObject klazz,
                                     IRubyObject[] args) {
 
         IRubyObject doc = args[0];
@@ -74,7 +78,7 @@ public class XmlProcessingInstruction extends XmlNode {
                                                  rubyStringToString(data));
         XmlProcessingInstruction self =
             new XmlProcessingInstruction(context.getRuntime(),
-                                         (RubyClass) klass,
+                                         (RubyClass) klazz,
                                          node);
 
         RuntimeHelpers.invoke(context, self, "initialize", args);

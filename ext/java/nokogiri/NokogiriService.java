@@ -78,6 +78,7 @@ public class NokogiriService implements BasicLibraryService {
         nokogiriClassCache.put("Nokogiri::XML::ElementDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ElementDecl"));
         nokogiriClassCache.put("Nokogiri::XML::EntityDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDecl"));
         nokogiriClassCache.put("Nokogiri::XML::EntityReference", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityReference"));
+        nokogiriClassCache.put("Nokogiri::XML::ProcessingInstruction", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ProcessingInstruction"));
         nokogiriClassCache.put("Nokogiri::XML::CDATA", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"));
         nokogiriClassCache.put("Nokogiri::XML::Node", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
         nokogiriClassCache.put("Nokogiri::XML::NodeSet", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::NodeSet"));
@@ -314,13 +315,6 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_PROCESSING_INSTRUCTION_ALLOCATOR =
-        new ObjectAllocator() {
-        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
-        }
-    };
-
     public static final ObjectAllocator XML_DOCUMENT_ALLOCATOR = new ObjectAllocator() {
         private XmlDocument xmlDocument = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
@@ -376,6 +370,20 @@ public class NokogiriService implements BasicLibraryService {
             }
         }
     };
+    
+    public static ObjectAllocator XML_ELEMENT_DECL_ALLOCATOR = new ObjectAllocator() {
+        private XmlElementDecl xmlElementDecl = null;
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            if (xmlElementDecl == null) xmlElementDecl = new XmlElementDecl(runtime, klazz);
+            try {
+                XmlElementDecl clone = (XmlElementDecl)xmlElementDecl.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlElementDecl(runtime, klazz);
+            }
+        }
+    };
 
     public static ObjectAllocator XML_ENTITY_REFERENCE_ALLOCATOR = new ObjectAllocator() {
         private XmlEntityReference xmlEntityRef = null;
@@ -390,7 +398,7 @@ public class NokogiriService implements BasicLibraryService {
             }
         }
     };
-
+    
     public static final ObjectAllocator XML_NAMESPACE_ALLOCATOR = new ObjectAllocator() {
         private XmlNamespace xmlNamespace = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
@@ -432,6 +440,20 @@ public class NokogiriService implements BasicLibraryService {
             }
         }
     };
+    
+    public static ObjectAllocator XML_PROCESSING_INSTRUCTION_ALLOCATOR = new ObjectAllocator() {
+        private XmlProcessingInstruction xmlProcessingInstruction = null;
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            if (xmlProcessingInstruction == null) xmlProcessingInstruction = new XmlProcessingInstruction(runtime, klazz);
+            try {
+                XmlProcessingInstruction clone = (XmlProcessingInstruction)xmlProcessingInstruction.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlProcessingInstruction(runtime, klazz);
+            }
+        }
+    };
 
     private static ObjectAllocator XML_READER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
@@ -442,12 +464,6 @@ public class NokogiriService implements BasicLibraryService {
     private static ObjectAllocator XML_ATTRIBUTE_DECL_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             return new XmlAttributeDecl(runtime, klazz);
-        }
-    };
-
-    private static ObjectAllocator XML_ELEMENT_DECL_ALLOCATOR = new ObjectAllocator() {
-        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlElementDecl(runtime, klazz);
         }
     };
 

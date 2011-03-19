@@ -295,7 +295,7 @@ public class SaveContextVisitor {
 
             if (encoding != null) {
                 buffer.append(" encoding=\"");
-                buffer.append(encoding);
+                buffer.append(encoding.toUpperCase());
                 buffer.append("\"");
             }
             buffer.append("?>\n");
@@ -312,6 +312,9 @@ public class SaveContextVisitor {
         String pubId = docType.getPublicId();
         String sysId = docType.getSystemId();
         String internalSubset = docType.getInternalSubset();
+        if (docType.getPreviousSibling() != null) {
+            buffer.append("\n");
+        }
         buffer.append("<!DOCTYPE " + name + " ");
         if (pubId != null) {
             buffer.append("PUBLIC \"" + pubId + "\"");
@@ -482,10 +485,11 @@ public class SaveContextVisitor {
     public boolean enter(ProcessingInstruction pi) {
         buffer.append("<?");
         buffer.append(pi.getTarget());
-        if (asHtml) buffer.append(" ");
+        buffer.append(" ");
         buffer.append(pi.getData());
         if (asHtml) buffer.append(">");
         else buffer.append("?>");
+        buffer.append("\n");
         return true;
     }
     

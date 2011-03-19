@@ -48,6 +48,7 @@ import nokogiri.XmlElement;
 import nokogiri.XmlEntityReference;
 import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
+import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
 
 import org.jruby.Ruby;
@@ -134,6 +135,10 @@ public class NokogiriHelpers {
                 XmlEntityReference xmlEntityRef = (XmlEntityReference) NokogiriService.XML_ENTITY_REFERENCE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::EntityReference"));
                 xmlEntityRef.setNode(runtime.getCurrentContext(), node);
                 return xmlEntityRef;
+            case Node.PROCESSING_INSTRUCTION_NODE:
+                XmlProcessingInstruction xmlProcessingInstruction = (XmlProcessingInstruction) NokogiriService.XML_PROCESSING_INSTRUCTION_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::ProcessingInstruction"));
+                xmlProcessingInstruction.setNode(runtime.getCurrentContext(), node);
+                return xmlProcessingInstruction;
             case Node.CDATA_SECTION_NODE:
                 XmlCdata xmlCdata = (XmlCdata) NokogiriService.XML_CDATA_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::CDATA"));
                 xmlCdata.setNode(runtime.getCurrentContext(), node);

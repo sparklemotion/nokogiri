@@ -59,7 +59,6 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -481,17 +480,27 @@ public class XmlDocument extends XmlNode {
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
         Document document = getDocument();
         visitor.enter(document);
-        DocumentType docType = document.getDoctype();
-        if (docType != null) {
-            XmlDtd xmlDtd = (XmlDtd) getCachedNodeOrCreate(context.getRuntime(), docType);
-            xmlDtd.accept(context, visitor);
+        NodeList children = document.getChildNodes();
+        for (int i=0; i<children.getLength(); i++) {
+            Node child = children.item(i);
+            short type = child.getNodeType();
+            if (type == Node.COMMENT_NODE) {
+                XmlComment xmlComment = (XmlComment) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlComment.accept(context, visitor);
+            } else if (type == Node.DOCUMENT_TYPE_NODE) {
+                XmlDtd xmlDtd = (XmlDtd) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlDtd.accept(context, visitor);
+            } else if (type == Node.PROCESSING_INSTRUCTION_NODE) {
+                XmlProcessingInstruction xmlProcessingInstruction = (XmlProcessingInstruction) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlProcessingInstruction.accept(context, visitor);
+            } else if (type == Node.TEXT_NODE) {
+                XmlText xmlText = (XmlText) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlText.accept(context, visitor);
+            } else if (type == Node.ELEMENT_NODE) {
+                XmlElement xmlElement = (XmlElement) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlElement.accept(context, visitor);
+            }
         }
-        Node documentElement = document.getDocumentElement();
-        if (documentElement == null) {
-            throw context.getRuntime().newRuntimeError("no root document");
-        }
-        XmlElement root = (XmlElement) getCachedNodeOrCreate(context.getRuntime(), documentElement);
-        root.accept(context, visitor);
         visitor.leave(document);
     }
 }
