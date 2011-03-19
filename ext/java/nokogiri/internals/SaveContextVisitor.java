@@ -411,11 +411,12 @@ public class SaveContextVisitor {
     
     private boolean needBreakInClosing(Element element) {
         if (!format) return false;
-        if (fragment) return false;
+        if (fragment && htmlDoc) return false;
         if (element.getNextSibling() != null && element.getNextSibling().getNodeType() == Node.ELEMENT_NODE) return true;
+        if (!htmlDoc && element.getParentNode() != null && element == element.getParentNode().getLastChild()) return true;
         return false;
     }
-    
+
     public boolean enter(Entity entity) {
         String name = entity.getNodeName();
         String pubId = entity.getPublicId();
