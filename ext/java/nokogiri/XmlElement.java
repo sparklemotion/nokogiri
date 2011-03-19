@@ -32,9 +32,8 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.namedNodeMapToRubyArray;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -174,49 +173,24 @@ public class XmlElement extends XmlNode {
             ((XmlNodeSet) children(context)).relink_namespace(context);
         }
     }
-
-    /**
-     * TODO: previous code handled elements with parent 'p' differently?.
-     */
+    
     @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        Node firstChild = node.getFirstChild();
-        boolean empty = (firstChild == null);
-        short type = -1;
-        if (!empty) type = firstChild.getNodeType();
-        boolean inline = (!empty &&
-                          (type == Node.TEXT_NODE ||
-                           type == Node.CDATA_SECTION_NODE ||
-                           type == Node.ENTITY_REFERENCE_NODE));
-
-        if (empty) {
-            ctx.emptyTagStart(node.getNodeName());
-        } else if (inline) {
-            ctx.openTagInlineStart(node.getNodeName());
-        } else {
-            ctx.openTagStart(node.getNodeName());
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        visitor.enter((Element)node);
+        XmlNodeSet xmlNodeSet = (XmlNodeSet) children(context);
+        if (xmlNodeSet.length() > 0) {
+            RubyArray array = (RubyArray) xmlNodeSet.to_a(context);
+            for(int i = 0; i < array.getLength(); i++) {
+                Object item = array.get(i);
+                if (item instanceof XmlNode) {
+                  XmlNode cur = (XmlNode) item;
+                  cur.accept(context, visitor);
+                } else if (item instanceof XmlNamespace) {
+                    XmlNamespace cur = (XmlNamespace)item;
+                    cur.accept(context, visitor);
+                }
+            }
         }
-        
-        RubyArray attr_list = namedNodeMapToRubyArray(context.getRuntime(), node.getAttributes());
-        saveNodeListContent(context, attr_list, ctx);
-
-        if (empty) {
-            ctx.emptyTagEnd(node.getNodeName());
-            return;
-        } else if (inline) {
-            ctx.openTagInlineEnd();
-        } else {
-            ctx.openTagEnd();
-        }
-
-        saveNodeListContent(context, (XmlNodeSet) children(context), ctx);
-
-        if (inline) {
-            ctx.closeTagInline(node.getNodeName());
-        } else {
-            ctx.closeTag(node.getNodeName());
-        }
-
+        visitor.leave((Element)node);
     }
-
 }

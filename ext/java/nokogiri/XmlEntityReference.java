@@ -32,9 +32,10 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -42,6 +43,7 @@ import org.jruby.anno.JRubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.EntityReference;
 import org.w3c.dom.Node;
 
 /**
@@ -49,6 +51,7 @@ import org.w3c.dom.Node;
  * 
  * @author sergio
  * @author Patrick Mahoney <pat@polycrystal.org>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::EntityReference", parent="Nokogiri::XML::Node")
 public class XmlEntityReference extends XmlNode {
@@ -75,8 +78,20 @@ public class XmlEntityReference extends XmlNode {
     }
     
     @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        String name = node.getNodeName();
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        visitor.enter((EntityReference)node);
+        Node child = node.getFirstChild();
+        while (child != null) {
+            IRubyObject nokoNode = getCachedNodeOrCreate(context.getRuntime(), child);
+            if (nokoNode instanceof XmlNode) {
+                XmlNode cur = (XmlNode) nokoNode;
+                cur.accept(context, visitor);
+            } else if (nokoNode instanceof XmlNamespace) {
+                XmlNamespace cur = (XmlNamespace) nokoNode;
+                cur.accept(context, visitor);
+            }
+            child = child.getNextSibling();
+        }
+        visitor.leave((EntityReference)node);
     }
-
 }

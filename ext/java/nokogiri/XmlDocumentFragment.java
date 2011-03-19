@@ -45,8 +45,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nokogiri.internals.SaveContext;
-
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -208,10 +206,4 @@ public class XmlDocumentFragment extends XmlNode {
     public void relink_namespace(ThreadContext context) {
         ((XmlNodeSet) children(context)).relink_namespace(context);
     }
-
-    @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        saveNodeListContent(context, (XmlNodeSet) children(context), ctx);
-    }
-
 }

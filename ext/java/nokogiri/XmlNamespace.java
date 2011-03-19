@@ -34,7 +34,7 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -122,7 +122,9 @@ public class XmlNamespace extends RubyObject {
         return this.prefix;
     }
     
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        ctx.append(" " + prefix + "=\"" + href + "\"");
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        String string = " " + prefix + "=\"" + href + "\"";
+        visitor.enter(string);
+        visitor.leave(string);
     }
 }

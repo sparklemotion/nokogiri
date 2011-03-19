@@ -32,9 +32,7 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import nokogiri.internals.HtmlDomParserContext;
-import nokogiri.internals.SaveContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -45,7 +43,6 @@ import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
 
 /**
  * Class for Nokogiri::HTML::Document.
@@ -118,32 +115,5 @@ public class HtmlDocument extends XmlDocument {
                                           IRubyObject cls,
                                           IRubyObject[] args) {
         return do_parse(context, cls, args);
-    }
-
-    @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        Document doc = getDocument();
-        DocumentType dtd = doc.getDoctype();
-
-        if(dtd != null) {
-            ctx.append("<!DOCTYPE ");
-            ctx.append(dtd.getName());
-            if(dtd.getPublicId() != null) {
-                ctx.append(" PUBLIC ");
-                ctx.appendQuoted(dtd.getPublicId());
-                if(dtd.getSystemId() != null) {
-                    ctx.append(" ");
-                    ctx.appendQuoted(dtd.getSystemId());
-                }
-            } else if(dtd.getSystemId() != null) {
-                ctx.append(" SYSTEM ");
-                ctx.appendQuoted(dtd.getSystemId());
-            }
-            ctx.append(">\n");
-        }
-
-        this.saveNodeListContent(context,
-                (XmlNodeSet) this.children(context), ctx);
-        ctx.append("\n");
     }
 }

@@ -35,7 +35,7 @@ package nokogiri;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -159,19 +159,9 @@ public class XmlAttr extends XmlNode{
     }
 
     @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        boolean docType = isHtml(context);
-        Attr attr = (Attr) node;
-
-        ctx.maybeSpace();
-        ctx.append(attr.getName());
-
-        if (!ctx.asHtml() || !isHtmlBooleanAttr()) {
-            ctx.append("=");
-            ctx.append("\"");
-            ctx.append(serializeAttrTextContent(attr.getValue(), docType));
-            ctx.append("\"");
-        }
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        visitor.enter((Attr)node);
+        visitor.leave((Attr)node);
     }
     
     private boolean isHtml(ThreadContext context) {

@@ -77,6 +77,7 @@ public class NokogiriService implements BasicLibraryService {
         nokogiriClassCache.put("Nokogiri::XML::ElementContent", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ElementContent"));
         nokogiriClassCache.put("Nokogiri::XML::ElementDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ElementDecl"));
         nokogiriClassCache.put("Nokogiri::XML::EntityDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDecl"));
+        nokogiriClassCache.put("Nokogiri::XML::EntityReference", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityReference"));
         nokogiriClassCache.put("Nokogiri::XML::CDATA", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"));
         nokogiriClassCache.put("Nokogiri::XML::Node", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
         nokogiriClassCache.put("Nokogiri::XML::NodeSet", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::NodeSet"));
@@ -154,6 +155,7 @@ public class NokogiriService implements BasicLibraryService {
         
         RubyClass entityDecl = xmlModule.defineClassUnder("EntityDecl", node, XML_ENTITY_DECL_ALLOCATOR);
         entityDecl.defineAnnotatedMethods(XmlEntityDecl.class);
+        
         entityDecl.defineConstant("INTERNAL_GENERAL", RubyFixnum.newFixnum(ruby, XmlEntityDecl.INTERNAL_GENERAL));
         entityDecl.defineConstant("EXTERNAL_GENERAL_PARSED", RubyFixnum.newFixnum(ruby, XmlEntityDecl.EXTERNAL_GENERAL_PARSED));
         entityDecl.defineConstant("EXTERNAL_GENERAL_UNPARSED", RubyFixnum.newFixnum(ruby, XmlEntityDecl.EXTERNAL_GENERAL_UNPARSED));
@@ -375,9 +377,17 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_ENTITY_REFERENCE_ALLOCATOR = new ObjectAllocator() {
+    public static ObjectAllocator XML_ENTITY_REFERENCE_ALLOCATOR = new ObjectAllocator() {
+        private XmlEntityReference xmlEntityRef = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlEntityReference(runtime, klazz);
+            if (xmlEntityRef == null) xmlEntityRef = new XmlEntityReference(runtime, klazz);
+            try {
+                XmlEntityReference clone = (XmlEntityReference)xmlEntityRef.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlEntityReference(runtime, klazz);
+            }
         }
     };
 

@@ -35,6 +35,9 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
 import static nokogiri.internals.NokogiriHelpers.isNotXmlEscaped;
 
+import java.util.Stack;
+
+import org.cyberneko.html.HTMLElements;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Comment;
@@ -60,8 +63,9 @@ public class SaveContextVisitor {
 
     private StringBuffer buffer;
     private int level = 0;
+    private Stack<String> indentation;
     private String encoding, indentString;
-    private boolean format, noDecl, noEmpty, noXhtml, xhtml, asXml, asHtml, htmlDoc;
+    private boolean format, noDecl, noEmpty, noXhtml, xhtml, asXml, asHtml, htmlDoc, fragment, indent;
 
     /*
      * U can't touch this.
@@ -78,11 +82,22 @@ public class SaveContextVisitor {
     public static final int AS_XML = 32;
     public static final int AS_HTML = 64;
 
-    public SaveContextVisitor(int options, String indentString, String encoding) {
+    public SaveContextVisitor(int options, String indentString, String encoding, boolean htmlDoc, boolean fragment) {
         buffer = new StringBuffer();
         this.encoding = encoding;
         this.indentString = indentString;
+        if (indentString != null && indentString.length() > 0) {
+            // indent is explicitly given
+            indent = true;
+        } else {
+            // indent is not explicitly given
+            indent = false;
+        }
+        indentation = new Stack<String>(); indentation.push("");
+        this.htmlDoc = htmlDoc;
+        this.fragment = fragment;
         format = (options & FORMAT) == FORMAT;
+        if ((format || indent) && indentString.length() == 0) this.indentString = "  "; // default, two spaces
         noDecl = (options & NO_DECL) == NO_DECL;
         noEmpty = (options & NO_EMPTY) == NO_EMPTY;
         noXhtml = (options & NO_XHTML) == NO_XHTML;
@@ -93,7 +108,7 @@ public class SaveContextVisitor {
     
     @Override
     public String toString() {
-        return new String(buffer);
+        return (new String(buffer));
     }
     
     public void setHtmlDoc(boolean htmlDoc) {
@@ -245,7 +260,7 @@ public class SaveContextVisitor {
 
         return buffer.toString();
     }
-    
+
     public void leave(Attr attr) {
         // no-op
     }
@@ -318,8 +333,13 @@ public class SaveContextVisitor {
     }
 
     public boolean enter(Element element) {
+        String current = indentation.peek();
+        buffer.append(current);
+        if (needIndent(element)) {
+            indentation.push(current + indentString);
+        }
         String name = element.getTagName();
-        buffer.append("<").append(name);
+        buffer.append("<" + name);
         NamedNodeMap attrs = element.getAttributes();
         for (int i=0; i<attrs.getLength(); i++) {
             Attr attr = (Attr) attrs.item(i);
@@ -331,16 +351,66 @@ public class SaveContextVisitor {
         }
         if (element.hasChildNodes()) {
             buffer.append(">");
+            if (needIndent(element)) buffer.append("\n");
+            return true;
+        }
+        // no child
+        if (asHtml) {
+            buffer.append(">");
+        } else if (xhtml) {
+            buffer.append(" />");
         } else {
             buffer.append("/>");
+        }
+        if (needBreakInOpening(element)) {
+            buffer.append("\n");
         }
         return true;
     }
     
+    private boolean needIndent(Element element) {
+        if (!(format || indent)) return false;
+        if (element.getFirstChild() == null) return false;
+        return (element.getFirstChild().getNodeType() == Node.ELEMENT_NODE);
+    }
+    
+    private boolean needBreakInOpening(Element element) {
+        if (!format) return false;
+        if (element.getNextSibling() == null && element.hasChildNodes()) return true;
+        return false;
+    }
+    
+    private boolean isEmpty(String name) {
+        HTMLElements.Element element = HTMLElements.getElement(name);
+        return element.isEmpty();
+    }
+    
     public void leave(Element element) {
-        if (!element.hasChildNodes()) return;
         String name = element.getTagName();
-        buffer.append("</" + name + ">");
+        if (element.hasChildNodes()) {
+            if (needIndent(element)) {
+                indentation.pop();
+                buffer.append(indentation.peek());
+            }
+            buffer.append("</" + name + ">");
+            if (needBreakInClosing(element)) {
+                buffer.append("\n");
+            }
+            return;
+        }
+        // no child, but HTML might need a closing tag.
+        if (asHtml) {
+            if (!isEmpty(name) && noEmpty) {
+                buffer.append("</" + name + ">");
+            }
+        }
+    }
+    
+    private boolean needBreakInClosing(Element element) {
+        if (!format) return false;
+        if (fragment) return false;
+        if (element.getNextSibling() != null && element.getNextSibling().getNodeType() == Node.ELEMENT_NODE) return true;
+        return false;
     }
     
     public boolean enter(Entity entity) {
@@ -424,7 +494,7 @@ public class SaveContextVisitor {
     }
 
     public boolean enter(Text text) {
-        String textContent = text.getData();
+        String textContent = text.getTextContent();
         if (isNotXmlEscaped(textContent)) {
             textContent = encodeJavaString(textContent);
         }
@@ -473,11 +543,6 @@ public class SaveContextVisitor {
         } else {
             buffer.append("/>");
         }
-    }
-    
-    private boolean isEmpty(String name) {
-        // this should go somewhere else
-        return false;
     }
 
     public void openTagStart(String name) {

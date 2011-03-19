@@ -805,11 +805,12 @@ module Nokogiri
         encoding      = options[:encoding] || options[0]
         if Nokogiri.jruby?
           save_options  = options[:save_with] || options[1]
+          indent_times  = options[:indent] || 0
         else
           save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
+          indent_times  = options[:indent] || 2
         end
         indent_text   = options[:indent_text] || ' '
-        indent_times  = options[:indent] || 2
 
         config = SaveOptions.new(save_options.to_i)
         yield config if block_given?

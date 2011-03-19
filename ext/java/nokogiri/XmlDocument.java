@@ -44,7 +44,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
@@ -59,6 +59,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -476,46 +477,21 @@ public class XmlDocument extends XmlNode {
         node.setUserData(DTD_EXTERNAL_SUBSET, data, null);
     }
 
-    //public IRubyObject createE
-
     @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        if(!ctx.noDecl()) {
-            ctx.append("<?xml version=\"");
-            ctx.append(getDocument().getXmlVersion());
-            ctx.append("\"");
-            
-            String encoding = ctx.getEncoding();
-            if(encoding == null &&
-                    !encoding(context).isNil()) {
-                encoding = encoding(context).convertToString().asJavaString();
-            }
-
-            if(encoding != null) {
-                ctx.append(" encoding=\"");
-                ctx.append(encoding);
-                ctx.append("\"");
-            }
-            ctx.append("?>\n");
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        Document document = getDocument();
+        visitor.enter(document);
+        DocumentType docType = document.getDoctype();
+        if (docType != null) {
+            XmlDtd xmlDtd = (XmlDtd) getCachedNodeOrCreate(context.getRuntime(), docType);
+            xmlDtd.accept(context, visitor);
         }
-
-        IRubyObject subset = getExternalSubset(context);
-        if (subset != null && !subset.isNil()) {
-            ((XmlDtd)subset).saveContent(context, ctx);
-        }
-        if (subset == null || subset.isNil()) {
-            subset = getInternalSubset(context);
-            if (subset != null && !subset.isNil()) {
-                ((XmlDtd)subset).saveContent(context, ctx);
-            }
-        }
-
-        IRubyObject maybeRoot = root(context);
-        if (maybeRoot.isNil())
+        Node documentElement = document.getDocumentElement();
+        if (documentElement == null) {
             throw context.getRuntime().newRuntimeError("no root document");
-
-        XmlNode root = (XmlNode) maybeRoot;
-        root.saveContent(context, ctx);
-        ctx.append("\n");
+        }
+        XmlElement root = (XmlElement) getCachedNodeOrCreate(context.getRuntime(), documentElement);
+        root.accept(context, visitor);
+        visitor.leave(document);
     }
 }

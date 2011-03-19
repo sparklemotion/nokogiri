@@ -37,7 +37,7 @@ import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.apache.xerces.xni.QName;
 import org.cyberneko.dtd.DTDConfiguration;
@@ -461,14 +461,12 @@ public class XmlDtd extends XmlNode {
         }
     }
     
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        ctx.append("<!DOCTYPE " + name + " ");
-        // either one of pubId or sysId exists in a single XmlDtd
-        if (pubId != null && !pubId.isNil()) {
-            ctx.append("PUBLIC \"" + pubId + "\">\n");
-        } else if (sysId != null && !sysId.isNil()) {
-            ctx.append("SYSTEM \"" + sysId + "\">\n");
-        }
+    @Override
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        // since we use nekoDTD to parse dtd, node might be ElementImpl type
+        // An external subset doesn't need to show up, so this method just see docType.
+        DocumentType docType = node.getOwnerDocument().getDoctype();
+        visitor.enter(docType);
+        visitor.leave(docType);
     }
-
 }

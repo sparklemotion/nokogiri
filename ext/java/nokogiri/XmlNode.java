@@ -48,7 +48,7 @@ import java.util.List;
 import nokogiri.internals.HtmlDomParserContext;
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
@@ -430,7 +430,7 @@ public class XmlNode extends RubyObject {
         //this should delegate to subclasses' implementation
     }
 
-    public void saveContent(ThreadContext context, SaveContext ctx) {}
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {}
 
     public void setName(IRubyObject name) {
         this.name = name;
@@ -482,25 +482,6 @@ public class XmlNode extends RubyObject {
         if (str == null) str = "";
         name = context.getRuntime().newString(str);
         return name;
-    }
-
-    protected void saveNodeListContent(ThreadContext context, XmlNodeSet list, SaveContext ctx) {
-        saveNodeListContent(context, (RubyArray) list.to_a(context), ctx);
-    }
-
-    protected void saveNodeListContent(ThreadContext context, RubyArray array, SaveContext ctx) {
-        int length = array.getLength();
-
-        for(int i = 0; i < length; i++) {
-            Object item = array.get(i);
-            if (item instanceof XmlNode) {
-              XmlNode cur = (XmlNode) item;
-              cur.saveContent(context, ctx);
-            } else if (item instanceof XmlNamespace) {
-                XmlNamespace cur = (XmlNamespace)item;
-                cur.saveContent(context, ctx);
-            }
-        }
     }
 
     /**
@@ -872,7 +853,7 @@ public class XmlNode extends RubyObject {
     public IRubyObject external_subset(ThreadContext context) {
         Document document = getOwnerDocument();
 
-        if(document == null) {
+        if (document == null) {
             return context.getRuntime().getNil();
         }
 
@@ -1004,15 +985,24 @@ public class XmlNode extends RubyObject {
 
         String encString = encoding.isNil() ? null : rubyStringToString(encoding);
 
-        SaveContext ctx = new SaveContext(context, (Integer)options.toJava(Integer.class),
-                rubyStringToString(indentString),
-                encString);
-
-        saveContent(context, ctx);
-
-        RuntimeHelpers.invoke(context, io, "write", ctx.toRubyString(context.getRuntime()));
+        SaveContextVisitor visitor = 
+            new SaveContextVisitor((Integer)options.toJava(Integer.class), rubyStringToString(indentString), encString,
+                    isHtmlDoc(context), isFragment());
+        accept(context, visitor);
+        IRubyObject rubyString = stringOrNil(context.getRuntime(), visitor.toString());
+        RuntimeHelpers.invoke(context, io, "write", rubyString);
 
         return io;
+    }
+    
+    private boolean isHtmlDoc(ThreadContext context) {
+        return document(context).getMetaClass().isKindOfModule(getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::Document"));
+    }
+    
+    private boolean isFragment() {
+        if (node.getParentNode() != null && node.getParentNode().getNodeType() == Node.DOCUMENT_FRAGMENT_NODE) return true;
+        if (node.getOwnerDocument() == null || node.getOwnerDocument().getDocumentElement() == null) return true;
+        return false;
     }
 
     @JRubyMethod(name = {"next_sibling", "next"})
