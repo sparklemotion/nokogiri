@@ -73,9 +73,23 @@ public class ParserContext extends RubyObject {
     public static InputSource resolveEntity(Ruby runtime, String publicId, String baseURI, String systemId)
         throws IOException {
         InputSource s = new InputSource();
-        s.setSystemId(systemId);
+        s.setSystemId(adjustPathIfNecessary(runtime.getCurrentDirectory(), systemId));
         s.setPublicId(publicId);
         return s;
+    }
+    
+    private static String adjustPathIfNecessary(String currentDir, String systemId) {
+        if (systemId == null) return systemId;
+        File file = new File(systemId);
+        if (file.isAbsolute()) return systemId;
+        String baseDir = file.getParent();
+        if (baseDir == null) {
+            // xml and dtd are in a same directory
+            return systemId;
+        }
+        // dtd file is referenced by "./name.dtd" xml and dtd are the same directory
+        if (".".equals(baseDir)) return file.getName();
+        return currentDir + "/" + baseDir + "/" + file.getName();
     }
 
     public ParserContext(Ruby runtime) {
