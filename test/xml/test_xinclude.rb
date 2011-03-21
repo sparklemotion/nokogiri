@@ -59,6 +59,21 @@ module Nokogiri
         end
       end
 
+      def test_include_nonexistent_throws_exception
+        # break inclusion deliberately
+        @xml.at_xpath('//xi:include')['href'] = "nonexistent.xml"
+
+        exception_raised = false
+        begin
+          @xml.do_xinclude { |opts| opts.nowarning }
+        rescue Exception => e
+          assert_equal Nokogiri::XML::SyntaxError, e.class
+          exception_raised = true
+        end
+
+        assert exception_raised
+      end
+
     end
   end
 end
