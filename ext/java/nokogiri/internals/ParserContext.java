@@ -73,23 +73,31 @@ public class ParserContext extends RubyObject {
     public static InputSource resolveEntity(Ruby runtime, String publicId, String baseURI, String systemId)
         throws IOException {
         InputSource s = new InputSource();
-        s.setSystemId(adjustPathIfNecessary(runtime.getCurrentDirectory(), systemId));
+        s.setSystemId(adjustPathIfNecessary(runtime.getCurrentDirectory(), runtime.getInstanceConfig().getScriptFileName(), baseURI, systemId));
         s.setPublicId(publicId);
         return s;
     }
     
-    private static String adjustPathIfNecessary(String currentDir, String systemId) {
+    private static String adjustPathIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
         if (systemId == null) return systemId;
         File file = new File(systemId);
         if (file.isAbsolute()) return systemId;
-        String baseDir = file.getParent();
-        if (baseDir == null) {
-            // xml and dtd are in a same directory
-            return systemId;
-        }
-        // dtd file is referenced by "./name.dtd" xml and dtd are the same directory
-        if (".".equals(baseDir)) return file.getName();
-        return currentDir + "/" + baseDir + "/" + file.getName();
+        String path = resolveSystemId(baseURI, systemId);;
+        if (path != null) return path;
+        path = resolveSystemId(currentDir, systemId);
+        if (path != null) return path;
+        return resolveSystemId(scriptFileName, systemId);
+    }
+    
+    private static String resolveSystemId(String baseName, String systemId) {
+        if (baseName == null || baseName.length() < 1) return null;
+        String parentName = null;
+        File base = new File(baseName);
+        if (base.isDirectory()) parentName = baseName;
+        else parentName = base.getParent();
+        File dtdFile = new File(parentName + "/" + systemId);
+        if (dtdFile.exists()) return dtdFile.getPath();
+        return null;
     }
 
     public ParserContext(Ruby runtime) {
@@ -166,11 +174,9 @@ public class ParserContext extends RubyObject {
         String filename = rubyStringToString(file);
 
         try{
-            source = resolveEntity(context.getRuntime(),
-                                   null, null, filename);
+            source = resolveEntity(context.getRuntime(), null, null, filename);
         } catch (Exception e) {
-            throw RaiseException
-                .createNativeRaiseException(context.getRuntime(), e);
+            throw RaiseException.createNativeRaiseException(context.getRuntime(), e);
         }
 
     }
@@ -280,8 +286,7 @@ public class ParserContext extends RubyObject {
                                          String baseURI,
                                          String systemId)
             throws SAXException, IOException {
-            return ParserContext
-                .resolveEntity(runtime, publicId, baseURI, systemId);
+            return ParserContext.resolveEntity(runtime, publicId, baseURI, systemId);
         }
 
     }
