@@ -33,6 +33,7 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import static nokogiri.internals.NokogiriHelpers.adjustSystemIdIfNecessary;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.ByteArrayInputStream;
@@ -72,36 +73,13 @@ public class ParserContext extends RubyObject {
     public static InputSource resolveEntity(Ruby runtime, String publicId, String baseURI, String systemId)
         throws IOException {
         InputSource s = new InputSource();
-        String adjusted = adjustPathIfNecessary(runtime.getCurrentDirectory(), runtime.getInstanceConfig().getScriptFileName(), baseURI, systemId);
+        String adjusted = adjustSystemIdIfNecessary(runtime.getCurrentDirectory(), runtime.getInstanceConfig().getScriptFileName(), baseURI, systemId);
         if (adjusted == null && publicId == null) {
             throw runtime.newRuntimeError("SystemId \"" + systemId + "\" is not correct.");
         }
         s.setSystemId(adjusted);
         s.setPublicId(publicId);
         return s;
-    }
-    
-    private static String adjustPathIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
-        if (systemId == null) return systemId;
-        File file = new File(systemId);
-        if (file.isAbsolute()) return systemId;
-        String path = resolveSystemId(baseURI, systemId);
-        if (path != null) return path;
-        path = resolveSystemId(currentDir, systemId);
-        if (path != null) return path;
-        return resolveSystemId(scriptFileName, systemId);
-    }
-    
-    private static String resolveSystemId(String baseName, String systemId) {
-        if (baseName == null || baseName.length() < 1) return null;
-        String parentName = null;
-        File base = new File(baseName);
-        if (base.isDirectory()) parentName = baseName;
-        else parentName = base.getParent();
-        if (parentName.toLowerCase().startsWith("file:")) parentName = parentName.substring("file:".length());
-        File dtdFile = new File(parentName + "/" + systemId);
-        if (dtdFile.exists()) return dtdFile.getPath();
-        return null;
     }
 
     public ParserContext(Ruby runtime) {

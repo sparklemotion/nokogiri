@@ -32,6 +32,7 @@
 
 package nokogiri.internals;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -611,5 +612,28 @@ public class NokogiriHelpers {
         if (name == null) name = System.getProperty("file.encoding");
         if (name == null) name = "UTF-8";
         return name;
+    }
+    
+    public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
+        if (systemId == null) return systemId;
+        File file = new File(systemId);
+        if (file.isAbsolute()) return systemId;
+        String path = resolveSystemId(baseURI, systemId);
+        if (path != null) return path;
+        path = resolveSystemId(currentDir, systemId);
+        if (path != null) return path;
+        return resolveSystemId(scriptFileName, systemId);
+    }
+    
+    private static String resolveSystemId(String baseName, String systemId) {
+        if (baseName == null || baseName.length() < 1) return null;
+        String parentName = null;
+        File base = new File(baseName);
+        if (base.isDirectory()) parentName = baseName;
+        else parentName = base.getParent();
+        if (parentName.toLowerCase().startsWith("file:")) parentName = parentName.substring("file:".length());
+        File dtdFile = new File(parentName + "/" + systemId);
+        if (dtdFile.exists()) return dtdFile.getPath();
+        return null;
     }
 }
