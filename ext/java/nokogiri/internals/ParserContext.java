@@ -37,7 +37,6 @@ import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -73,7 +72,11 @@ public class ParserContext extends RubyObject {
     public static InputSource resolveEntity(Ruby runtime, String publicId, String baseURI, String systemId)
         throws IOException {
         InputSource s = new InputSource();
-        s.setSystemId(adjustPathIfNecessary(runtime.getCurrentDirectory(), runtime.getInstanceConfig().getScriptFileName(), baseURI, systemId));
+        String adjusted = adjustPathIfNecessary(runtime.getCurrentDirectory(), runtime.getInstanceConfig().getScriptFileName(), baseURI, systemId);
+        if (adjusted == null && publicId == null) {
+            throw runtime.newRuntimeError("SystemId \"" + systemId + "\" is not correct.");
+        }
+        s.setSystemId(adjusted);
         s.setPublicId(publicId);
         return s;
     }
@@ -82,7 +85,7 @@ public class ParserContext extends RubyObject {
         if (systemId == null) return systemId;
         File file = new File(systemId);
         if (file.isAbsolute()) return systemId;
-        String path = resolveSystemId(baseURI, systemId);;
+        String path = resolveSystemId(baseURI, systemId);
         if (path != null) return path;
         path = resolveSystemId(currentDir, systemId);
         if (path != null) return path;
@@ -95,6 +98,7 @@ public class ParserContext extends RubyObject {
         File base = new File(baseName);
         if (base.isDirectory()) parentName = baseName;
         else parentName = base.getParent();
+        if (parentName.toLowerCase().startsWith("file:")) parentName = parentName.substring("file:".length());
         File dtdFile = new File(parentName + "/" + systemId);
         if (dtdFile.exists()) return dtdFile.getPath();
         return null;
