@@ -32,8 +32,11 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.CACHED_NODE;
+import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
@@ -44,6 +47,8 @@ import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
@@ -54,37 +59,94 @@ import org.w3c.dom.Node;
  */
 @JRubyClass(name="Nokogiri::XML::Namespace")
 public class XmlNamespace extends RubyObject {
-
+    private Attr attr;
     private IRubyObject prefix;
     private IRubyObject href;
+    private String prefixString;
+    private String hrefString;
 
     public XmlNamespace(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
     }
-
-    public XmlNamespace(Ruby ruby, String prefix, String href) {
-        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"), prefix, href);
-    }
-
-    public XmlNamespace(Ruby ruby, RubyClass klazz, String prefix, String href) {
-        super(ruby, klazz);
-        this.prefix = (prefix == null) ? ruby.getNil() : RubyString.newString(ruby, prefix);
-        this.href = (href == null) ? ruby.getNil() : RubyString.newString(ruby, href);
-    }
-
-    public XmlNamespace(Ruby ruby, IRubyObject prefix, IRubyObject href) {
-        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"), prefix, href);
-    }
-
-    public XmlNamespace(Ruby ruby, RubyClass klazz, IRubyObject prefix, IRubyObject href) {
-        super(ruby, klazz);
-        this.prefix = prefix;
-        this.href = href;
+    
+    public Node getNode() {
+        return attr;
     }
     
-    public void setDefinition(Ruby runtime, String prefix, String href) {
-        this.prefix = (prefix == null) ? runtime.getNil() : RubyString.newString(runtime, prefix);
-        this.href = (href == null) ? runtime.getNil() : RubyString.newString(runtime, href);
+    public String getPrefix() {
+        return prefixString;
+    }
+    
+    public String getHref() {
+        return hrefString;
+    }
+
+    public void init(Attr attr, IRubyObject prefix, IRubyObject href, IRubyObject xmlDocument) {
+        init(attr, prefix, href, (String) prefix.toJava(String.class), (String) href.toJava(String.class), xmlDocument);
+    }
+    
+    public void init(Attr attr, IRubyObject prefix, IRubyObject href, String prefixString, String hrefString, IRubyObject xmlDocument) {
+        this.attr = attr;
+        this.prefix = prefix;
+        this.href = href;
+        this.prefixString = prefixString;
+        this.hrefString = hrefString;
+        this.attr.setUserData(CACHED_NODE, this, null);
+        setInstanceVariable("@document", xmlDocument);
+    }
+    
+    public static XmlNamespace createFromAttr(Ruby runtime, Attr attr) {
+        String prefixValue = getLocalNameForNamespace(attr.getName());
+        IRubyObject prefix_value;
+        if (prefixValue == null) {
+            prefix_value = runtime.getNil();
+            prefixValue = "";
+        } else {
+            prefix_value = RubyString.newString(runtime, prefixValue);
+        }
+        String hrefValue = attr.getValue();
+        IRubyObject href_value = RubyString.newString(runtime, hrefValue);
+        // check namespace cache
+        XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, attr.getOwnerDocument());
+        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
+        if (xmlNamespace != null) return xmlNamespace;
+        
+        // creating XmlNamespace instance
+        XmlNamespace namespace =
+            (XmlNamespace) NokogiriService.XML_NAMESPACE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Namespace")); 
+        namespace.init(attr, prefix_value, href_value, prefixValue, hrefValue, xmlDocument);
+        
+        // updateing namespace cache
+        xmlDocument.getNamespaceCache().put(namespace, attr.getOwnerElement());
+        return namespace;
+    }
+    
+    public static XmlNamespace createFromPrefixAndHref(Node owner, IRubyObject prefix, IRubyObject href) {
+        String prefixValue = prefix.isNil() ? "" : (String) prefix.toJava(String.class);
+        String hrefValue = (String) href.toJava(String.class);
+        Ruby runtime = prefix.getRuntime();
+        Document document = owner.getOwnerDocument();
+        // check namespace cache
+        XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, document);
+        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
+        if (xmlNamespace != null) return xmlNamespace;
+
+        // creating XmlNamespace instance
+        XmlNamespace namespace =
+            (XmlNamespace) NokogiriService.XML_NAMESPACE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Namespace"));
+        String attrName = "xmlns";
+        if (!"".equals(prefixValue)) {
+            attrName = attrName + ":" + prefixValue;
+        }
+        Attr attrNode = document.createAttribute(attrName);
+        attrNode.setNodeValue(hrefValue);
+
+        // initialize XmlNamespace object
+        namespace.init(attrNode, prefix, href, prefixValue, hrefValue, xmlDocument);
+        
+        // updating namespace cache
+        xmlDocument.getNamespaceCache().put(namespace, owner);
+        return namespace;
     }
     
     /**
@@ -97,34 +159,26 @@ public class XmlNamespace extends RubyObject {
         return super.clone();
     }
 
-    public static XmlNamespace fromNode(Ruby ruby, Node node) {
-        String localName = getLocalNameForNamespace(node.getNodeName());
-        XmlNamespace namespace = (XmlNamespace) NokogiriService.XML_NAMESPACE_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"));
-        namespace.setDefinition(ruby, localName, node.getNodeValue());
-        return namespace;
-    }
-
     public boolean isEmpty() {
-        return this.prefix.isNil() && this.href.isNil();
-    }
-
-    public void setDocument(IRubyObject doc) {
-        this.setInstanceVariable("@document", doc);
+        return prefix.isNil() && href.isNil();
     }
 
     @JRubyMethod
     public IRubyObject href(ThreadContext context) {
-        return this.href;
+        return href;
     }
 
     @JRubyMethod
     public IRubyObject prefix(ThreadContext context) {
-        return this.prefix;
+        return prefix;
     }
     
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
         String string = " " + prefix + "=\"" + href + "\"";
         visitor.enter(string);
         visitor.leave(string);
+        // is below better?
+        //visitor.enter(attr);
+        //visitor.leave(attr);
     }
 }

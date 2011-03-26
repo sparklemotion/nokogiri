@@ -93,9 +93,8 @@ public class NokogiriHelpers {
             prefix = prefix != null ? prefix : "";
             String href = ((Attr)node).getValue();
             XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
-            if (xmlNamespace == null) {
-                return xmlDocument.getNamespaceCache().put(ruby, prefix, ((Attr)node).getValue(), node, xmlDocument);
-            }
+            if (xmlNamespace != null) return xmlNamespace;
+            else return XmlNamespace.createFromAttr(ruby, (Attr)node);
         }
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {

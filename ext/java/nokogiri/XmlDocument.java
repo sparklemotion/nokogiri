@@ -142,11 +142,10 @@ public class XmlDocument extends XmlNode {
                     String attrName = attr.getName();
                     // not sure, but need to get value always before document is referred.
                     // or lose attribute value
-                    String attrValue = attr.getValue();
+                    String attrValue = attr.getValue(); // don't delete this line
                     if (isNamespace(attrName)) {
-                        String prefix = getLocalNameForNamespace(attrName);
-                        prefix = prefix != null ? prefix : "";
-                        nsCache.put(ruby, prefix, attrValue, node, this);
+                        // create and cache
+                        XmlNamespace.createFromAttr(ruby, attr);
                     }
                 }
             }

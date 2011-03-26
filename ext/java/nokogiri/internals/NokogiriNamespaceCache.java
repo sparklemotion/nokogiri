@@ -103,32 +103,28 @@ public class NokogiriNamespaceCache {
         List<XmlNamespace> namespaces = new ArrayList<XmlNamespace>();
         for (int i=0; i < keys.size(); i++) {
             CacheEntry entry = cache.get(i);
-            if (entry.node == node) {
+            if (entry.ownerNode == node) {
                 namespaces.add(entry.namespace);
             }
         }
         return namespaces;
     }
-    
-    public XmlNamespace put(Ruby ruby, String prefix, String href, Node node, XmlDocument document) {
+
+    public void put(XmlNamespace namespace, Node ownerNode) {
         // prefix should not be null.
         // In case of a default namespace, an empty string should be given to prefix argument.
-        if (prefix == null || href == null) return null;
-        Long hash = hashCode(prefix, href);
+        String prefixString = namespace.getPrefix();
+        String hrefString = namespace.getHref();
+        Long hash = hashCode(prefixString, hrefString);
         Integer index;
         if ((index = keys.indexOf(hash)) != -1) {
-            return cache.get(index).namespace;
+            return;
         } else {
             keys.add(hash);
             index = keys.size() - 1;
-            String actualPrefix = (prefix.equals("")) ? null : prefix;
-            XmlNamespace namespace = (XmlNamespace) NokogiriService.XML_NAMESPACE_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Namespace"));
-            namespace.setDefinition(ruby, actualPrefix, href);
-            namespace.setDocument(document);
-            CacheEntry entry = new CacheEntry(namespace, node);
+            CacheEntry entry = new CacheEntry(namespace, ownerNode);
             cache.put(index, entry);
-            if ("".equals(prefix)) defaultNamespace = namespace;
-            return namespace;
+            if ("".equals(prefixString)) defaultNamespace = namespace;
         }
     }
 
@@ -146,7 +142,7 @@ public class NokogiriNamespaceCache {
         // removes namespace declarations from node
         for (int i=0; i < keys.size(); i++) {
             CacheEntry entry = cache.get(i);
-            NamedNodeMap attributes = entry.node.getAttributes();
+            NamedNodeMap attributes = entry.ownerNode.getAttributes();
             for (int j=0; j<attributes.getLength(); j++) {
                 String name = ((Attr)attributes.item(j)).getName();
                 if (isNamespace(name)) {
@@ -161,11 +157,11 @@ public class NokogiriNamespaceCache {
     
     private class CacheEntry {
         private XmlNamespace namespace;
-        private Node node;
+        private Node ownerNode;
         
-        CacheEntry(XmlNamespace namespace, Node node) {
+        CacheEntry(XmlNamespace namespace, Node ownerNode) {
             this.namespace = namespace;
-            this.node = node;
+            this.ownerNode = ownerNode;
         }
     }
 }

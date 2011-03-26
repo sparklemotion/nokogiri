@@ -93,8 +93,7 @@ public class XmlElement extends XmlNode {
             prefix.isNil() ? "xmlns" : "xmlns:" + rubyStringToString(prefix);
         element.setAttributeNS(uri, qName, rubyStringToString(href));
 
-        XmlNamespace ns = (XmlNamespace)
-            super.add_namespace_definition(context, prefix, href);
+        XmlNamespace ns = (XmlNamespace) super.add_namespace_definition(context, prefix, href);
         updateNodeNamespaceIfNecessary(context, ns);
 
         return ns;

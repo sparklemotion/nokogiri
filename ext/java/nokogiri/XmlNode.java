@@ -493,16 +493,13 @@ public class XmlNode extends RubyObject {
     public IRubyObject add_namespace_definition(ThreadContext context,
                                                 IRubyObject prefix,
                                                 IRubyObject href) {
-        String prefixString = prefix.isNil() ? "" : rubyStringToString(prefix);
-        String hrefString = rubyStringToString(href);
-        XmlDocument xmlDocument = (XmlDocument) doc;
         Node namespaceOwner;
         if (node.getNodeType() == Node.ELEMENT_NODE) namespaceOwner = node;
         else if (node.getNodeType() == Node.ATTRIBUTE_NODE) namespaceOwner = ((Attr)node).getOwnerElement();
         else namespaceOwner = node.getParentNode();
-        XmlNamespace ns = xmlDocument.getNamespaceCache().put(context.getRuntime(), prefixString, hrefString, namespaceOwner, xmlDocument);
+        XmlNamespace ns = XmlNamespace.createFromPrefixAndHref(namespaceOwner, prefix, href);
         if (node != namespaceOwner) {
-            node.getOwnerDocument().renameNode(node, hrefString, prefixString + node.getLocalName());
+            node.getOwnerDocument().renameNode(node, ns.getHref(), ns.getPrefix() + node.getLocalName());
         }
 
         return ns;
