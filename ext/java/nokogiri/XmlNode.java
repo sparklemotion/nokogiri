@@ -589,8 +589,7 @@ public class XmlNode extends RubyObject {
         addElements(node, elementNodes, false);
         if (elementNodes.size() == 0) return XmlNodeSet.newEmptyNodeSet(context);
         RubyArray array = NokogiriHelpers.nodeArrayToRubyArray(context.getRuntime(), elementNodes.toArray(new Node[0]));
-        XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
-        xmlNodeSet.setInitialNodes(array);
+        XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, array);
         return xmlNodeSet;
     }
     
@@ -688,8 +687,7 @@ public class XmlNode extends RubyObject {
                 documentErrors.add(docErrors.get(i));
             }
             document.setInstanceVariable("@errors", documentErrors);
-            XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
-            xmlNodeSet.setInitialNodes(RubyArray.newArray(runtime));
+            XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, RubyArray.newArray(runtime));
             return xmlNodeSet;
         }
         
@@ -705,8 +703,7 @@ public class XmlNode extends RubyObject {
         nodeArray.add(NokogiriHelpers.getCachedNodeOrCreate(runtime, first));
         
         NokogiriHelpers.nodeListToRubyArray(runtime, first.getChildNodes(), nodeArray);
-        XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
-        xmlNodeSet.setInitialNodes(nodeArray);
+        XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, nodeArray);
         return xmlNodeSet;
     }
     

@@ -371,10 +371,7 @@ public class XmlDtd extends XmlNode {
         extractDecls(context, node.getFirstChild());
 
         // convert allDecls to a NodeSet
-        children =
-            new XmlNodeSet(runtime,
-                           getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"),
-                           allDecls);
+        children = XmlNodeSet.newXmlNodeSet(context, allDecls);
 
         // add attribute decls as attributes to the matching element decl
         RubyArray keys = attributes.keys();

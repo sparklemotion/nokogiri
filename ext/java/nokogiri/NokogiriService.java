@@ -437,7 +437,9 @@ public class NokogiriService implements BasicLibraryService {
                 clone.setMetaClass(klazz);
                 return clone;
             } catch (CloneNotSupportedException e) {
-                return new XmlNodeSet(runtime, klazz, RubyArray.newEmptyArray(runtime));
+                xmlNodeSet = new XmlNodeSet(runtime, klazz);
+                xmlNodeSet.setNodes(RubyArray.newEmptyArray(runtime));
+                return xmlNodeSet;
             }
         }
     };

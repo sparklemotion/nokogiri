@@ -130,11 +130,10 @@ public class NokogiriXPathFunction implements XPathFunction {
         } else if (o instanceof RubyBoolean) {
             return o.toJava(Boolean.class);
         } else if (o instanceof XmlNodeSet) {
-            return ((XmlNodeSet) o).toNodeList(runtime);
+            return (NodeList)o;
         } else if (o instanceof RubyArray) {
-            XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
-            xmlNodeSet.setInitialNodes((RubyArray)o);
-            return xmlNodeSet.toNodeList(runtime);
+            XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(runtime.getCurrentContext(), (RubyArray)o);
+            return (NodeList)xmlNodeSet;
         } else /*if (o instanceof XmlNode)*/ {
             return ((XmlNode) o).getNode();
         }
