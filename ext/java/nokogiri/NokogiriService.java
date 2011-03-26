@@ -86,6 +86,7 @@ public class NokogiriService implements BasicLibraryService {
         nokogiriClassCache.put("Nokogiri::XML::SyntaxError", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SyntaxError"));
         nokogiriClassCache.put("Nokogiri::XML::RelaxNG", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::RelaxNG"));
         nokogiriClassCache.put("Nokogiri::XML::Schema", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Schema"));
+        nokogiriClassCache.put("Nokogiri::XML::XPathContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::XPathContext"));
         nokogiriClassCache.put("Nokogiri::XML::AttributeDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::AttributeDecl"));
         nokogiriClassCache.put("Nokogiri::XML::SAX::ParserContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::ParserContext"));
     }
@@ -555,9 +556,17 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = new ObjectAllocator() {
+    public static ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = new ObjectAllocator() {
+        private XmlXpathContext xmlXpathContext = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            if (xmlXpathContext == null) xmlXpathContext = new XmlXpathContext(runtime, klazz);
+            try {
+                XmlXpathContext clone  = (XmlXpathContext) xmlXpathContext.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlXpathContext(runtime, klazz);
+            }
         }
     };
 

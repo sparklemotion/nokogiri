@@ -61,15 +61,31 @@ import org.w3c.dom.NodeList;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriXPathFunction implements XPathFunction {
-    private final IRubyObject handler;
-    private final String name;
-    private final int arity;
+    private static NokogiriXPathFunction xpathFunction;
+    private IRubyObject handler;
+    private String name;
+    private int arity;
+    
+    public static NokogiriXPathFunction create(IRubyObject handler, String name, int arity) {
+        if (xpathFunction == null) xpathFunction = new NokogiriXPathFunction();
+        try {
+            NokogiriXPathFunction clone = (NokogiriXPathFunction) xpathFunction.clone();
+            clone.init(handler, name, arity);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            NokogiriXPathFunction freshXpathFunction = new NokogiriXPathFunction();
+            freshXpathFunction.init(handler, name, arity);
+            return freshXpathFunction;
+        }
+    }
 
-    public NokogiriXPathFunction(IRubyObject handler, String name, int arity) {
+    private void init(IRubyObject handler, String name, int arity) {
         this.handler = handler;
         this.name = name;
         this.arity = arity;
     }
+
+    private NokogiriXPathFunction() {}
 
     public Object evaluate(List args) throws XPathFunctionException {
         if(args.size() != this.arity) {

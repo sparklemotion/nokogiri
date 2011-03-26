@@ -71,25 +71,39 @@ import org.w3c.dom.NodeList;
 @JRubyClass(name="Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject {
     private XmlNode context;
-    private XPath xpath;
-
-    public XmlXpathContext(Ruby ruby, RubyClass rubyClass, XmlNode context) {
+    private static final XPath xpath = XPathFactory.newInstance().newXPath();;
+    
+    public XmlXpathContext(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
-        this.context = context;
-        this.xpath = XPathFactory.newInstance().newXPath();
-        this.xpath.setNamespaceContext(new NokogiriNamespaceContext());
-        this.xpath.setXPathVariableResolver(new NokogiriXPathVariableResolver());
+    }
+    
+    public void setNode(XmlNode node) {
+        context = node;
+        xpath.setNamespaceContext(NokogiriNamespaceContext.create());
+        xpath.setXPathVariableResolver(NokogiriXPathVariableResolver.create());
+    }
+    
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject node) {
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node) {
         XmlNode xmlNode = (XmlNode)node;
-        return new XmlXpathContext(context.getRuntime(), (RubyClass)cls, xmlNode);
+        XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
+        xmlXpathContext.setNode(xmlNode);
+        return xmlXpathContext;
     }
 
     @JRubyMethod
     public IRubyObject evaluate(ThreadContext context, IRubyObject expr, IRubyObject handler) {
-        String src = expr.convertToString().asJavaString();
+        String src = (String) expr.toJava(String.class);
         try {
             if(!handler.isNil()) {
             	if (!isContainsPrefix(src)) {
@@ -98,14 +112,13 @@ public class XmlXpathContext extends RubyObject {
                         src = src.replaceAll(name, NokogiriNamespaceContext.NOKOGIRI_PREFIX+":"+name);
                     }
                 }
-                xpath.setXPathFunctionResolver(new NokogiriXPathFunctionResolver(handler));
+                xpath.setXPathFunctionResolver(NokogiriXPathFunctionResolver.create(handler));
             }
             XPathExpression xpathExpression = xpath.compile(src);
             return node_set(context, xpathExpression);
         } catch (XPathExpressionException xpee) {
             xpee = new XPathExpressionException(src);
-            RubyException e =
-                XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
+            RubyException e = XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
             throw new RaiseException(e);
         }
     }
@@ -127,20 +140,28 @@ public class XmlXpathContext extends RubyObject {
     }
     
     private XmlNodeSet tryGetNodeSet(XPathExpression xpathExpression) throws XPathExpressionException {
-        NodeList nodes = (NodeList)xpathExpression.evaluate(context.node, XPathConstants.NODESET);
+        NodeList nodeList = (NodeList)xpathExpression.evaluate(context.node, XPathConstants.NODESET);
         XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
-        xmlNodeSet.setNodeList(nodes);
+        xmlNodeSet.setNodeList(nodeList);
         return xmlNodeSet;    
     }
-    
-    private static Pattern number_pattern = Pattern.compile("\\d.*");
+
     private static Pattern boolean_pattern = Pattern.compile("true|false");
     
     private IRubyObject tryGetOpaqueValue(XPathExpression xpathExpression) throws XPathExpressionException {
         String string = (String)xpathExpression.evaluate(context.node, XPathConstants.STRING);
-        if (doesMatch(number_pattern, string)) return RubyNumeric.dbl2num(getRuntime(), Double.parseDouble(string));
-        if (doesMatch(boolean_pattern, string)) return RubyBoolean.newBoolean(getRuntime(), Boolean.parseBoolean(string));
+        Double value = null;
+        if ((value = getDoubleValue(string)) != null) return RubyNumeric.dbl2num(getRuntime(), value);
+        if (doesMatch(boolean_pattern, string.toLowerCase())) return RubyBoolean.newBoolean(getRuntime(), Boolean.parseBoolean(string));
         return RubyString.newString(getRuntime(), string);
+    }
+    
+    private Double getDoubleValue(String value) {
+        try {
+            return Double.valueOf(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
     
     private boolean doesMatch(Pattern pattern, String string) {
@@ -166,14 +187,14 @@ public class XmlXpathContext extends RubyObject {
 
     @JRubyMethod
     public IRubyObject register_ns(ThreadContext context, IRubyObject prefix, IRubyObject uri) {
-        ((NokogiriNamespaceContext) this.xpath.getNamespaceContext()).registerNamespace(prefix.convertToString().asJavaString(), uri.convertToString().asJavaString());
+        ((NokogiriNamespaceContext) xpath.getNamespaceContext()).registerNamespace((String)prefix.toJava(String.class), (String)uri.toJava(String.class));
         return this;
     }
 
     @JRubyMethod
     public IRubyObject register_variable(ThreadContext context, IRubyObject name, IRubyObject value) {
-        ((NokogiriXPathVariableResolver) this.xpath.getXPathVariableResolver()).
-            registerVariable(name.convertToString().asJavaString(), value.convertToString().asJavaString());
+        ((NokogiriXPathVariableResolver) xpath.getXPathVariableResolver()).
+            registerVariable((String)name.toJava(String.class), (String)value.toJava(String.class));
         return this;
     }
 }

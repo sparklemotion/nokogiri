@@ -39,12 +39,25 @@ import javax.xml.xpath.XPathVariableResolver;
  * XPath variable support
  * 
  * @author Ken Bloom <kbloom@gmail.com>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
-public class NokogiriXPathVariableResolver
-    implements XPathVariableResolver{
+public class NokogiriXPathVariableResolver implements XPathVariableResolver {
+    private static NokogiriXPathVariableResolver resolver;
+    private HashMap<QName,String> variables = new HashMap<QName,String>();
 
-    private HashMap<QName,String> variables=new HashMap<QName,String>();
-
+    public static NokogiriXPathVariableResolver create() {
+        if (resolver == null) resolver = new NokogiriXPathVariableResolver();
+        try {
+            NokogiriXPathVariableResolver clone = (NokogiriXPathVariableResolver) resolver.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            NokogiriXPathVariableResolver freshResolver = new NokogiriXPathVariableResolver();
+            return freshResolver;
+        }
+    }
+    
+    private NokogiriXPathVariableResolver() {}
+    
     public Object resolveVariable(QName variableName){
         return variables.get(variableName);
     }

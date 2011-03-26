@@ -50,13 +50,25 @@ import javax.xml.namespace.NamespaceContext;
  */
 
 public class NokogiriNamespaceContext implements NamespaceContext {
+    private static NokogiriNamespaceContext namespaceContext;
 	public static final String NOKOGIRI_PREFIX = "nokogiri";
     public static final String NOKOGIRI_URI = "http://www.nokogiri.org/default_ns/ruby/extensions_functions";
     public static final String NOKOGIRI_TEMPORARY_ROOT_TAG = "nokogiri-temporary-root-tag";
     
     private Hashtable<String,String> register;
 
-    public NokogiriNamespaceContext() {
+    public static NokogiriNamespaceContext create() {
+        if (namespaceContext == null) namespaceContext = new NokogiriNamespaceContext();
+        try {
+            NokogiriNamespaceContext clone = (NokogiriNamespaceContext) namespaceContext.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            NokogiriNamespaceContext freshContext = new NokogiriNamespaceContext();
+            return freshContext;
+        }
+    }
+    
+    private NokogiriNamespaceContext() {
         this.register = new Hashtable<String,String>();
         register.put(NOKOGIRI_PREFIX, NOKOGIRI_URI);
         register.put("xml", "http://www.w3.org/XML/1998/namespace");

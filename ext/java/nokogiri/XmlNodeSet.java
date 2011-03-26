@@ -186,8 +186,9 @@ public class XmlNodeSet extends RubyObject {
 
     @JRubyMethod(name = {"length", "size"})
     public IRubyObject length(ThreadContext context) {
-        if (nodes == null) setInitialNodes(RubyArray.newEmptyArray(context.getRuntime()));
-        return nodes.length();
+        if (nodes != null) return nodes.length();
+        if (nodeList == null) return context.getRuntime().newFixnum(0);
+        return context.getRuntime().newFixnum(nodeList.getLength());
     }
 
     @JRubyMethod(name="-")
