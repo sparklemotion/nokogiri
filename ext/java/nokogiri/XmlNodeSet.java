@@ -58,7 +58,7 @@ import org.w3c.dom.NodeList;
  */
 @JRubyClass(name="Nokogiri::XML::NodeSet")
 public class XmlNodeSet extends RubyObject implements NodeList {
-    private List<Node> nodeArray;
+    private List<?> list;
     private RubyArray nodes;
     private IRubyObject doc;
     
@@ -78,11 +78,11 @@ public class XmlNodeSet extends RubyObject implements NodeList {
 
     void setNodes(RubyArray array) {
         this.nodes = array;
-        
+
         IRubyObject first = array.first();
         initialize(array.getRuntime(), first);
     }
-    
+
     private void setReference(XmlNodeSet reference) {
         this.nodes = null;
         IRubyObject first = reference.nodes.first();
@@ -121,11 +121,6 @@ public class XmlNodeSet extends RubyObject implements NodeList {
                 ((XmlNode) n.get(i)).relink_namespace(context);
             }
         }
-    }
-
-    public void setDocument(IRubyObject document) {
-        setInstanceVariable("@document", document);
-        this.doc = document;
     }
 
     @JRubyMethod(name="&")
@@ -223,7 +218,7 @@ public class XmlNodeSet extends RubyObject implements NodeList {
         xmlNodeSet.setNodes(array);
         return xmlNodeSet;
     }
-    
+
     private XmlNodeSet newXmlNodeSet(ThreadContext context, XmlNodeSet reference) {
         XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
         xmlNodeSet.setReference(reference);

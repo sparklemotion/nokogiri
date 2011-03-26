@@ -127,7 +127,6 @@ public class XmlXpathContext extends RubyObject {
         XmlNodeSet result = null;
         try {  
             result = tryGetNodeSet(xpathExpression);
-            result.setDocument(context.document(rbctx));
             return result;
         } catch (XPathExpressionException xpee) {
             try {
