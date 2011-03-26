@@ -88,9 +88,20 @@ class TestReader < Nokogiri::TestCase
     end
   end
 
+  class ReallyBadIO4Java
+    def read(size=1)
+      'a' * size ** 10
+    end
+  end
+
   def test_io_that_reads_too_much
-    io = ReallyBadIO.new
-    Nokogiri::XML::Reader(io)
+    if Nokogiri.jruby?
+      io = ReallyBadIO4Java.new
+      Nokogiri::XML::Reader(io)
+    else
+      io = ReallyBadIO.new
+      Nokogiri::XML::Reader(io)
+    end
   end
 
   def test_in_memory
