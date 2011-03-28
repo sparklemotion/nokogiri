@@ -78,7 +78,11 @@ public abstract class ReaderNode {
     public boolean hasChildren = false;
     public abstract String getString();
     private Document document = null;
-
+    
+    private static ElementNode elementNode = null;
+    private static ClosingNode closingNode = null;
+    private static TextNode textNode = null;
+    
     public IRubyObject getAttributeByIndex(IRubyObject index){
         if(index.isNil()) return index;
         
@@ -246,10 +250,28 @@ public abstract class ReaderNode {
             return value;
         }
     }
+    
+    public static ClosingNode createClosingNode(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+        if (closingNode == null) closingNode = new ClosingNode();
+        ClosingNode clone;
+        try {
+            clone = (ClosingNode) closingNode.clone();
+        } catch (CloneNotSupportedException e) {
+            clone = new ClosingNode();
+        }
+        clone.init(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
+        return clone;
+    }
 
     public static class ClosingNode extends ReaderNode {
+        
+        public ClosingNode() {}
 
         public ClosingNode(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+            init(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
+        }
+        
+        public void init(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
             nodeType = ReaderNodeType.END_ELEMENT.getValue();
             this.uri = "".equals(uri) ? null : uri;
@@ -279,10 +301,28 @@ public abstract class ReaderNode {
         }
     }
     
+    public static ElementNode createElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+        if (elementNode == null) elementNode = new ElementNode();
+        ElementNode clone;
+        try {
+            clone = (ElementNode) elementNode.clone();
+        } catch (CloneNotSupportedException e) {
+            clone = new ElementNode();
+        }
+        clone.init(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
+        return clone;
+    }
+    
     public static class ElementNode extends ReaderNode {
         private List<String> attributeStrings = new ArrayList<String>();
         
+        public ElementNode() {}
+        
         public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+            init(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
+        }
+        
+        public void init(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
             this.nodeType = ReaderNodeType.ELEMENT.getValue();
             this.uri = "".equals(uri) ? null : uri;
@@ -446,10 +486,27 @@ public abstract class ReaderNode {
             return this.exception;
         }
     }
+    
+    public static TextNode createTextNode(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+        if (textNode == null) textNode = new TextNode();
+        TextNode clone;
+        try {
+            clone = (TextNode) textNode.clone();
+        } catch (CloneNotSupportedException e) {
+            clone = new TextNode();
+        }
+        clone.init(ruby, content, depth, langStack, xmlBaseStack);
+        return clone;
+    }
 
     public static class TextNode extends ReaderNode {
+        public TextNode() {}
 
         public TextNode(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+            init(ruby, content, depth, langStack, xmlBaseStack);
+        }
+        
+        public void init(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
             this.value = content;
             this.localName = "#text";

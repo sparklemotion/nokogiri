@@ -36,7 +36,6 @@ import static nokogiri.internals.NokogiriHelpers.CACHED_NODE;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;

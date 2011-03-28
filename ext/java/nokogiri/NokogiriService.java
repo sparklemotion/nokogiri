@@ -84,6 +84,7 @@ public class NokogiriService implements BasicLibraryService {
         nokogiriClassCache.put("Nokogiri::XML::NodeSet", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::NodeSet"));
         nokogiriClassCache.put("Nokogiri::XML::Namespace", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Namespace"));
         nokogiriClassCache.put("Nokogiri::XML::SyntaxError", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SyntaxError"));
+        nokogiriClassCache.put("Nokogiri::XML::Reader", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Reader"));
         nokogiriClassCache.put("Nokogiri::XML::RelaxNG", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::RelaxNG"));
         nokogiriClassCache.put("Nokogiri::XML::Schema", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Schema"));
         nokogiriClassCache.put("Nokogiri::XML::XPathContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::XPathContext"));
@@ -458,9 +459,18 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_READER_ALLOCATOR = new ObjectAllocator() {
+    public static ObjectAllocator XML_READER_ALLOCATOR = new ObjectAllocator() {
+        private XmlReader xmlReader = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlReader(runtime, klazz);
+            if (xmlReader == null) xmlReader = new XmlReader(runtime, klazz);
+            try {
+                XmlReader clone  = (XmlReader) xmlReader.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                xmlReader = new XmlReader(runtime, klazz);
+                return xmlReader;
+            }
         }
     };
 
