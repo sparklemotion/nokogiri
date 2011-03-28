@@ -65,7 +65,7 @@ public class SaveContextVisitor {
     private int level = 0;
     private Stack<String> indentation;
     private String encoding, indentString;
-    private boolean format, noDecl, noEmpty, noXhtml, xhtml, asXml, asHtml, htmlDoc, fragment, indent;
+    private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, htmlDoc, fragment, indent;
 
     /*
      * U can't touch this.
@@ -78,7 +78,7 @@ public class SaveContextVisitor {
     public static final int NO_DECL = 2;
     public static final int NO_EMPTY = 4;
     public static final int NO_XHTML = 8;
-    public static final int XHTML = 16;
+    public static final int AS_XHTML = 16;
     public static final int AS_XML = 32;
     public static final int AS_HTML = 64;
 
@@ -101,9 +101,10 @@ public class SaveContextVisitor {
         noDecl = (options & NO_DECL) == NO_DECL;
         noEmpty = (options & NO_EMPTY) == NO_EMPTY;
         noXhtml = (options & NO_XHTML) == NO_XHTML;
-        xhtml = (options & XHTML) == XHTML;
+        asXhtml = (options & AS_XHTML) == AS_XHTML;
         asXml = (options & AS_XML) == AS_XML;
         asHtml = (options & AS_HTML) == AS_HTML;
+        if (!asXml && !asHtml && !asXhtml) asXml = true;
     }
     
     @Override
@@ -359,9 +360,11 @@ public class SaveContextVisitor {
         }
         // no child
         if (asHtml) {
-            buffer.append(">");
-        } else if (xhtml) {
+            buffer.append(">");   
+        } else if (asXhtml) {
             buffer.append(" />");
+        } else if (asXml && noEmpty) {
+            buffer.append(">");
         } else {
             buffer.append("/>");
         }
@@ -402,7 +405,7 @@ public class SaveContextVisitor {
             return;
         }
         // no child, but HTML might need a closing tag.
-        if (asHtml) {
+        if (asHtml || noEmpty) {
             if (!isEmpty(name) && noEmpty) {
                 buffer.append("</" + name + ">");
             }
