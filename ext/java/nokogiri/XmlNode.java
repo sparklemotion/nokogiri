@@ -68,6 +68,7 @@ import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -994,8 +995,8 @@ public class XmlNode extends RubyObject {
     }
     
     private boolean isFragment() {
-        if (node.getParentNode() != null && node.getParentNode().getNodeType() == Node.DOCUMENT_FRAGMENT_NODE) return true;
-        if (node.getOwnerDocument() == null || node.getOwnerDocument().getDocumentElement() == null) return true;
+        if (node instanceof DocumentFragment) return true;
+        if (node.getParentNode() != null && node.getParentNode() instanceof DocumentFragment) return true;
         return false;
     }
 

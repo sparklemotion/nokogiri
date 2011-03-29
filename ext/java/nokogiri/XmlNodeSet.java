@@ -198,8 +198,8 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     }
 
     @JRubyMethod(name = {"to_a", "to_ary"})
-    public IRubyObject to_a(ThreadContext context){
-       return nodes;
+    public IRubyObject to_a(ThreadContext context) {
+        return nodes;
     }
 
     @JRubyMethod(name = {"unlink", "remove"})

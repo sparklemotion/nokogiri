@@ -57,6 +57,7 @@ import org.w3c.dom.Document;
  * Parser for HtmlDocument. This class actually parses HtmlDocument using NekoHtml.
  * 
  * @author sergio
+ * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
@@ -92,9 +93,9 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         setProperty("http://cyberneko.org/html/properties/default-encoding", java_encoding);
         setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
         setProperty("http://cyberneko.org/html/properties/names/attrs", "lower");
+        setProperty("http://cyberneko.org/html/properties/filters", filters);
         setFeature("http://cyberneko.org/html/features/report-errors", true);
         setFeature("http://xml.org/sax/features/namespaces", false);
-        setProperty("http://cyberneko.org/html/properties/filters", filters);
         setFeature("http://cyberneko.org/html/features/insert-doctype", true);
     }
 
@@ -125,9 +126,6 @@ public class HtmlDomParserContext extends XmlDomParserContext {
 
     /**
      * Filter to strip out attributes that pertain to XML namespaces.
-     *
-     * @author sergio
-     * @author Patrick Mahoney <pat@polycrystal.org>
      */
     public static class RemoveNSAttrsFilter extends DefaultFilter {
         @Override

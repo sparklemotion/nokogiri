@@ -754,7 +754,8 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::DEFAULT_HTML
+        options[:save_with] |= SaveOptions::DEFAULT_HTML if options[:save_with]
+        options[:save_with] = SaveOptions::DEFAULT_HTML unless options[:save_with]
         serialize(options)
       end
 
@@ -765,7 +766,8 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def to_xml options = {}
-        options[:save_with] ||= SaveOptions::DEFAULT_XML
+        options[:save_with] |= SaveOptions::DEFAULT_XML if options[:save_with]
+        options[:save_with] = SaveOptions::DEFAULT_XML unless options[:save_with]
         serialize(options)
       end
 
@@ -779,7 +781,8 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::DEFAULT_XHTML
+        options[:save_with] |= SaveOptions::DEFAULT_XHTML if options[:save_with]
+        options[:save_with] = SaveOptions::DEFAULT_XHTML unless options[:save_with]
         serialize(options)
       end
 
