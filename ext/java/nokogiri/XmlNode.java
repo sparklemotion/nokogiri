@@ -738,8 +738,12 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject document(ThreadContext context) {
-        if(doc == null) {
+        if (doc == null) {
+            doc = (XmlDocument) node.getOwnerDocument().getUserData(NokogiriHelpers.CACHED_NODE);
+        }
+        if (doc == null) {
             doc = getCachedNodeOrCreate(context.getRuntime(), node.getOwnerDocument());
+            node.getOwnerDocument().setUserData(NokogiriHelpers.CACHED_NODE, doc, null);
         }
         return doc;
     }

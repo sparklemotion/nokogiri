@@ -46,7 +46,6 @@ import nokogiri.XmlDtd;
 import nokogiri.XmlSyntaxError;
 
 import org.apache.xerces.parsers.DOMParser;
-import org.apache.xerces.xni.XMLDTDHandler;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -54,7 +53,6 @@ import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
@@ -197,9 +195,6 @@ public class XmlDomParserContext extends ParserContext {
             XmlDtd xmlDtd = (XmlDtd) XmlDtd.newFromExternalSubset(context.getRuntime(), doc);
             doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, xmlDtd, null);
         }
-        
-        DocumentType dtd = doc.getDoctype();
-
         return xmlDocument;
     }
 
