@@ -20,6 +20,8 @@ module Nokogiri
         AS_HTML         = 64
 
         if Nokogiri.jruby?
+          # Save builder created document
+          AS_BUILDER    = 128
           # the default for XML documents
           DEFAULT_XML  = AS_XML # https://github.com/tenderlove/nokogiri/issues/#issue/415
           # the default for HTML document

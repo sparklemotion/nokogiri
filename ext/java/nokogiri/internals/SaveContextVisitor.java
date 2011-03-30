@@ -64,7 +64,7 @@ public class SaveContextVisitor {
     private StringBuffer buffer;
     private Stack<String> indentation;
     private String encoding, indentString;
-    private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, htmlDoc, fragment;
+    private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, asBuilder, htmlDoc, fragment;
 
     /*
      * U can't touch this.
@@ -80,6 +80,7 @@ public class SaveContextVisitor {
     public static final int AS_XHTML = 16;
     public static final int AS_XML = 32;
     public static final int AS_HTML = 64;
+    public static final int AS_BUILDER = 128;
 
     public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment) {
         buffer = new StringBuffer();
@@ -88,16 +89,19 @@ public class SaveContextVisitor {
         this.htmlDoc = htmlDoc;
         this.fragment = fragment;
         format = (options & FORMAT) == FORMAT;
-        if ((format && indent == null) || (format && indent.length() == 0)) indent = "  "; // default, two spaces
-        if ((!format && indent != null) && indent.length() > 0) format = true;
-        indentString = indent;
+        
         noDecl = (options & NO_DECL) == NO_DECL;
         noEmpty = (options & NO_EMPTY) == NO_EMPTY;
         noXhtml = (options & NO_XHTML) == NO_XHTML;
         asXhtml = (options & AS_XHTML) == AS_XHTML;
         asXml = (options & AS_XML) == AS_XML;
         asHtml = (options & AS_HTML) == AS_HTML;
-        if (!asXml && !asHtml && !asXhtml) asXml = true;
+        asBuilder = (options & AS_BUILDER) == AS_BUILDER;
+        if ((format && indent == null) || (format && indent.length() == 0)) indent = "  "; // default, two spaces
+        if ((!format && indent != null) && indent.length() > 0) format = true;
+        if ((asBuilder && indent == null) || (asBuilder && indent.length() == 0)) indent = "  "; // default, two spaces
+        indentString = indent;
+        if (!asXml && !asHtml && !asXhtml && !asBuilder) asXml = true;
     }
     
     @Override
@@ -348,7 +352,7 @@ public class SaveContextVisitor {
         }
         if (element.hasChildNodes()) {
             buffer.append(">");
-            if (needIndent()) buffer.append("\n");
+            if (needBreakInOpening(element)) buffer.append("\n");
             return true;
         }
         // no child
@@ -368,14 +372,16 @@ public class SaveContextVisitor {
     }
     
     private boolean needIndent() {
-        if (fragment) return false;
-        if (format) return true;
+        if (fragment) return false;  // a given option might be fragment and format. fragment matters
+        if (format || asBuilder) return true;
         return false;
     }
     
     private boolean needBreakInOpening(Element element) {
-        if (!format) return false;
-        if (element.getNextSibling() == null && element.hasChildNodes()) return true;
+        if (fragment) return false;
+        if (format) return true;
+        if (asBuilder && element.getFirstChild() != null && element.getFirstChild().getNodeType() == Node.ELEMENT_NODE) return true;
+        if (format && element.getNextSibling() == null && element.hasChildNodes()) return true;
         return false;
     }
     
@@ -387,9 +393,11 @@ public class SaveContextVisitor {
     public void leave(Element element) {
         String name = element.getTagName();
         if (element.hasChildNodes()) {
-            if (needIndent()) {
+            if (needIndentInClosing(element)) {
                 indentation.pop();
                 buffer.append(indentation.peek());
+            } else if (asBuilder) {
+                indentation.pop();
             }
             buffer.append("</" + name + ">");
             if (needBreakInClosing()) {
@@ -409,9 +417,16 @@ public class SaveContextVisitor {
         }
     }
     
+    private boolean needIndentInClosing(Element element) {
+        if (fragment) return false;  // a given option might be fragment and format. fragment matters
+        if (format) return true;
+        if (asBuilder && element.getFirstChild() != null && element.getFirstChild().getNodeType() == Node.ELEMENT_NODE) return true;
+        return false;
+    }
+    
     private boolean needBreakInClosing() {
         if (fragment) return false;
-        if (format) return true;
+        if (format || asBuilder) return true;
         return false;
     }
 
@@ -499,8 +514,8 @@ public class SaveContextVisitor {
     private static char lineSeparator = '\n'; // System.getProperty("line.separator"); ?
     public boolean enter(Text text) {
         String textContent = text.getNodeValue();
-        if (needIndent() && "".equals(textContent.trim())) return true;
-        if (needIndent()) {
+        if (needIndentText() && "".equals(textContent.trim())) return true;
+        if (needIndentText()) {
             String current = indentation.peek();
             buffer.append(current);
             indentation.push(current + indentString);
@@ -516,9 +531,15 @@ public class SaveContextVisitor {
         return true;
     }
     
+    private boolean needIndentText() {
+        if (fragment) return false;
+        if (format) return true;
+        return false;
+    }
+    
     public void leave(Text text) {
         String textContent = text.getNodeValue();
-        if (needIndent() && !"".equals(textContent.trim())) {
+        if (needIndentText() && !"".equals(textContent.trim())) {
             indentation.pop();
             if (textContent.charAt(textContent.length()-1) != lineSeparator) {
                 buffer.append("\n");
