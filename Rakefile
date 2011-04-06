@@ -41,7 +41,10 @@ HOE = Hoe.spec 'nokogiri' do
     self.need_tar = false # these will be built broken
     self.need_zip = false
   else
-    self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
+    self.spec_extras = {
+      :extensions => ["ext/nokogiri/extconf.rb"],
+      :required_ruby_version => '>= 1.8.7'
+    }
   end
 
   self.testlib = :minitest
