@@ -67,13 +67,13 @@ module Nokogiri
       doc =
         if string.respond_to?(:read) ||
           string =~ /^\s*<[^Hh>]*html/i # Probably html
-          Nokogiri::HTML(
+          Nokogiri.HTML(
             string,
             url,
             encoding, options || XML::ParseOptions::DEFAULT_HTML
           )
         else
-          Nokogiri::XML(string, url, encoding,
+          Nokogiri.XML(string, url, encoding,
                         options || XML::ParseOptions::DEFAULT_XML)
         end
       yield doc if block_given?
