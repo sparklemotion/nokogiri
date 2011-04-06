@@ -22,11 +22,9 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
     require 'nekodtd.jar'
     require 'xercesImpl.jar'
   end
-  require 'nokogiri/nokogiri'
-else
-  require 'nokogiri/nokogiri'
 end
 
+require 'nokogiri/nokogiri'
 require 'nokogiri/version'
 require 'nokogiri/syntax_error'
 require 'nokogiri/xml'
