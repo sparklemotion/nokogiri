@@ -125,16 +125,19 @@ public class XmlNodeSet extends RubyObject implements NodeList {
 
     @JRubyMethod(name="&")
     public IRubyObject and(ThreadContext context, IRubyObject nodeSet){
+        if (nodes == null) setNodes(RubyArray.newEmptyArray(context.getRuntime()));
         return newXmlNodeSet(context, (RubyArray) nodes.op_and(asXmlNodeSet(context, nodeSet).nodes));
     }
 
     @JRubyMethod
     public IRubyObject delete(ThreadContext context, IRubyObject node_or_namespace){
+        if (nodes == null) return context.getRuntime().getNil();
         return nodes.delete(context, asXmlNodeOrNamespace(context, node_or_namespace), Block.NULL_BLOCK);
     }
 
     @JRubyMethod
     public IRubyObject dup(ThreadContext context){
+        if (nodes == null) setNodes(RubyArray.newEmptyArray(context.getRuntime()));
         return newXmlNodeSet(context, nodes.aryDup());
     }
 
@@ -153,6 +156,7 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     @JRubyMethod(name="-")
     public IRubyObject op_diff(ThreadContext context, IRubyObject nodeSet){
         XmlNodeSet xmlNodeSet = newXmlNodeSet(context, this);
+        if (nodes == null) setNodes(RubyArray.newEmptyArray(context.getRuntime()));
         xmlNodeSet.setNodes((RubyArray) nodes.op_diff(asXmlNodeSet(context, nodeSet).nodes));
         return xmlNodeSet;
     }
@@ -173,6 +177,7 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     @JRubyMethod(name={"[]", "slice"})
     public IRubyObject slice(ThreadContext context, IRubyObject indexOrRange){
         IRubyObject result;
+        if (nodes == null) return context.getRuntime().getNil();
         if (context.getRuntime().is1_9()) {
             result = nodes.aref19(indexOrRange);
         } else {
@@ -188,6 +193,7 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     @JRubyMethod(name={"[]", "slice"})
     public IRubyObject slice(ThreadContext context, IRubyObject start, IRubyObject length){
         IRubyObject result;
+        if (nodes == null) return context.getRuntime().getNil();
         if (context.getRuntime().is1_9()) {
             result = nodes.aref19(start, length);
         } else {
@@ -204,6 +210,7 @@ public class XmlNodeSet extends RubyObject implements NodeList {
 
     @JRubyMethod(name = {"unlink", "remove"})
     public IRubyObject unlink(ThreadContext context){
+        if (nodes == null) setNodes(RubyArray.newEmptyArray(context.getRuntime()));
         IRubyObject[] arr = this.nodes.toJavaArrayUnsafe();
         long length = arr.length;
         for (int i = 0; i < length; i++) {
@@ -246,10 +253,12 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     }
     
     public int getLength() {
+        if (nodes == null) return 0 ;
         return nodes.size();
     }
     
     public Node item(int index) {
+        if (nodes == null) return null ;
         Object n = nodes.get(index);
         if (n instanceof XmlNode) return ((XmlNode)n).node;
         if (n instanceof XmlNamespace) return ((XmlNamespace)n).getNode();
