@@ -80,11 +80,8 @@ if java
   end
 
   gem_build_path = File.join 'pkg', HOE.spec.full_name
-  # references to tgz_build_path are to work around a rake bug
-  tgz_build_path = File.join 'pkg', "#{HOE.spec.name}-#{HOE.spec.version}"
 
-  task gem_build_path => [:compile, tgz_build_path] do
-    cp_r tgz_build_path, gem_build_path, :verbose => true
+  task gem_build_path => [:compile] do
     cp 'lib/nokogiri/nokogiri.jar',
        File.join(gem_build_path, 'lib', 'nokogiri'),
        :verbose => true
