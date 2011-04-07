@@ -1,6 +1,11 @@
 require "helper"
 
 class TestNokogiri < Nokogiri::TestCase
+  def test_html_in_xml_attribute
+    assert !Nokogiri.parse('<?xml version="1.0">
+<root attr="html" />').html?
+  end
+
   def test_versions
     version_match = /\d+\.\d+\.\d+/
     assert_match version_match, Nokogiri::VERSION

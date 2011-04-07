@@ -66,7 +66,7 @@ module Nokogiri
     def parse string, url = nil, encoding = nil, options = nil
       doc =
         if string.respond_to?(:read) ||
-          string =~ /^\s*<[^Hh>]*html/i # Probably html
+          string.index(/^[^<]*\<(!doctype\s)?html(>|\s)/i) == 0 # Probably html
           Nokogiri.HTML(
             string,
             url,
