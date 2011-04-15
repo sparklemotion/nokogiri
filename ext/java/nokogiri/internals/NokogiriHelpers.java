@@ -627,6 +627,7 @@ public class NokogiriHelpers {
     private static String resolveSystemId(String baseName, String systemId) {
         if (baseName == null || baseName.length() < 1) return null;
         String parentName = null;
+        baseName = baseName.replaceAll("%20", " ");
         File base = new File(baseName);
         if (base.isDirectory()) parentName = baseName;
         else parentName = base.getParent();
