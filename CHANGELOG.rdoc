@@ -59,6 +59,7 @@
   * Add further encoding detection to HTML parser that libxml2 does not do.
   * Document#remove_namespaces! now handles attributes with namespaces. #396
   * XSLT::Stylesheet#transform no longer segfaults when handed a non-XML::Document. #452
+  * XML::Reader no longer segfaults when under GC pressure. #439
 
 === 1.4.4 / 2010-11-15
 
