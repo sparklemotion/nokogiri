@@ -1242,11 +1242,9 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
 
   if(NULL != node->_private) return (VALUE)node->_private;
 
-  if(RTEST(klass))
-    rb_node = Data_Wrap_Struct(klass, mark, debug_node_dealloc, node) ;
-
-  else switch(node->type)
-  {
+  if(!RTEST(klass)) {
+    switch(node->type)
+    {
     case XML_ELEMENT_NODE:
       klass = cNokogiriXmlElement;
       break;
@@ -1285,6 +1283,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
       break;
     default:
       klass = cNokogiriXmlNode;
+    }
   }
 
   /* It's OK if the node doesn't have a fully-realized document (as in XML::Reader). */
