@@ -75,11 +75,14 @@ public class XmlSaxParserContext extends ParserContext {
         "http://xml.org/sax/features/namespace-prefixes";
     protected static final String FEATURE_LOAD_EXTERNAL_DTD =
         "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+    protected static final String FEATURE_CONTINUE_AFTER_FATAL_ERROR =
+        "http://apache.org/xml/features/continue-after-fatal-error";
 
     protected AbstractSAXParser parser;
 
     protected NokogiriHandler handler = null;
     private IRubyObject replaceEntities;
+    private IRubyObject recovery;
 
     public XmlSaxParserContext(final Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -87,6 +90,7 @@ public class XmlSaxParserContext extends ParserContext {
         
     protected void initialize(Ruby runtime) {
         replaceEntities = runtime.getTrue();
+        recovery = runtime.getFalse();
         try {
             parser = createParser();
         } catch (SAXException se) {
@@ -199,6 +203,13 @@ public class XmlSaxParserContext extends ParserContext {
                             IRubyObject handlerRuby,
                             NokogiriHandler handler) {
         ((XmlSaxParser) parser).setXmlDeclHandler(handler);
+        if(recovery.isTrue()) {
+          try {
+            ((XmlSaxParser) parser).setFeature(FEATURE_CONTINUE_AFTER_FATAL_ERROR, true);
+          } catch(Exception e) {
+            throw RaiseException.createNativeRaiseException(context.getRuntime(), e);
+          }
+        }
     }
 
     protected void postParse(ThreadContext context,
@@ -289,6 +300,28 @@ public class XmlSaxParserContext extends ParserContext {
     public IRubyObject get_replace_entities(ThreadContext context) {
         return replaceEntities;
     }
+
+    /**
+     * Can take a boolean assignment.
+     *
+     * @param context
+     * @param value
+     * @return
+     */
+    @JRubyMethod(name = "recovery=")
+    public IRubyObject set_recovery(ThreadContext context,
+                                            IRubyObject value) {
+        if (!value.isTrue()) recovery = context.getRuntime().getFalse();
+        else recovery = context.getRuntime().getTrue();
+
+        return this;
+    }
+
+    @JRubyMethod(name="recovery")
+    public IRubyObject get_recovery(ThreadContext context) {
+        return recovery;
+    }
+
 
 
     /**
