@@ -104,6 +104,8 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
     if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0L) ; }
+    if (!rb_obj_is_kind_of(xmldoc, cNokogiriXmlDocument))
+      rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::Document");
 
     /* handle hashes as arguments. */
     if(T_HASH == TYPE(paramobj)) {

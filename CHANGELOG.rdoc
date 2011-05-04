@@ -56,6 +56,7 @@
   * HTML::SAX::Parser should call back a block given to parse*() if any, just as XML::SAX::Parser does.
   * Add further encoding detection to HTML parser that libxml2 does not do.
   * Document#remove_namespaces! now handles attributes with namespaces. #396
+  * XSLT::Stylesheet#transform no longer segfaults when handed a non-XML::Document. #452
 
 === 1.4.4 / 2010-11-15
 

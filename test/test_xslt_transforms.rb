@@ -1,7 +1,6 @@
 require "helper"
 
 class TestXsltTransforms < Nokogiri::TestCase
-
   def setup
     @doc = Nokogiri::XML(File.open(XML_FILE))
   end
@@ -179,11 +178,16 @@ encoding="iso-8859-1" indent="yes"/>
       assert_raises(RuntimeError) { Nokogiri::XSLT.parse(xslt_str) }
     end
 
+    def test_passing_a_non_document_to_transform
+      xsl = Nokogiri::XSLT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"></xsl:stylesheet>')
+      assert_raises(ArgumentError) { xsl.transform("<div></div>") }
+      assert_raises(ArgumentError) { xsl.transform(Nokogiri::HTML("").css("body")) }
+    end
+
     def check_params result_doc, params
       result_doc.xpath('/root/params/*').each do  |p|
         assert_equal p.content, params[p.name.intern]
       end
     end
-
   end
 end
