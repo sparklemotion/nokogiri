@@ -3,6 +3,14 @@ require "helper"
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_attribute_sensitivity
+        xml = Nokogiri::XML::Builder.new { |xml|
+          xml.tag "hello", "abcDef" => "world"
+        }.to_xml
+        doc = Nokogiri.XML xml
+        assert_equal 'world', doc.root['abcDef']
+      end
+
       def test_builder_escape
         xml = Nokogiri::XML::Builder.new { |xml|
           xml.condition "value < 1", :attr => "value < 1"
