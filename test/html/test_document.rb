@@ -8,6 +8,12 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
 
+      def test_nil_css
+        # Behavior is undefined but shouldn't break
+        assert @html.css(nil)
+        assert @html.xpath(nil)
+      end
+
       def test_exceptions_remove_newlines
         errors = @html.errors
         assert errors.length > 0, 'has errors'

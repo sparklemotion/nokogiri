@@ -876,7 +876,10 @@ module Nokogiri
         params -= [handler] if handler
 
         hashes = []
-        hashes << params.pop while Hash === params.last || params.last.nil?
+        while Hash === params.last || params.last.nil?
+          hashes << params.pop
+          break if params.empty?
+        end
 
         ns, binds = hashes.reverse
 
