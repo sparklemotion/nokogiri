@@ -101,10 +101,10 @@ module Nokogiri
       end
 
       ###
-      # Move the cursor through the document yielding each node to the block
-      def each(&block)
-        while node = self.read
-          block.call(node)
+      # Move the cursor through the document yielding the cursor to the block
+      def each
+        while cursor = self.read
+          yield cursor
         end
       end
     end
