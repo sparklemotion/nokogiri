@@ -211,7 +211,7 @@ public class SaveContextVisitor {
     }
     
     public boolean enter(Attr attr) {
-        String name = attr.getName().toLowerCase();
+        String name = attr.getName();
         buffer.append(name);
         if (!asHtml || !isHtmlBooleanAttr(name)) {
             buffer.append("=");
