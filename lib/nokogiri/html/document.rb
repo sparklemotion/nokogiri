@@ -171,7 +171,7 @@ module Nokogiri
             parser.parse(chunk)
           }
           handler.encoding
-        rescue => e
+        rescue
           nil
         end
 
