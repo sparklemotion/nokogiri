@@ -43,7 +43,13 @@ module Nokogiri
       # Nokogiri::XML::SyntaxError objects found while validating the
       # +thing+ is returned.
       def validate thing
-        thing.is_a?(Nokogiri::XML::Document) ? validate_document(thing) : validate_file(thing)
+        if thing.is_a?(Nokogiri::XML::Document) 
+          validate_document(thing) 
+        elsif File.file?(thing)
+          validate_file(thing)
+        else
+          raise ArgumentError, "Must provide Nokogiri::Xml::Document or the name of an existing file"
+        end
       end
 
       ###
