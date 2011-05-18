@@ -44,6 +44,8 @@
 * New Features
 
   * Nokogiri::HTML::Document#title accessor gets and sets the document title.
+  * extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+  * Raise an exception if a string is passed to Nokogiri::XML::Schema#validate. #406
 
 * Bugfixes
 
