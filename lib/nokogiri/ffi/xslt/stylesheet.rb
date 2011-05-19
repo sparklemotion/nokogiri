@@ -51,6 +51,10 @@ module Nokogiri
       end
 
       def transform(document, params=[]) # :nodoc:
+        unless document.kind_of? Nokogiri::XML::Document
+          raise ArgumentError, "argument must be a Nokogiri::XML::Document"
+        end
+
         params = params.to_a.flatten if params.is_a?(Hash)
         raise(TypeError) unless params.is_a?(Array)
 
