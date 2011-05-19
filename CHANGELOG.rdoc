@@ -1,4 +1,8 @@
-== 1.5.0 / unreleased
+== 1.5.0 / 2011-05-19
+
+* Notes
+
+  * See changelog from 1.4.5
 
 * Features
 
@@ -39,7 +43,7 @@
   * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
   * FFI support is removed.
 
-=== 1.4.5 / unrelease
+=== 1.4.5 / 2011-05-19
 
 * New Features
 
