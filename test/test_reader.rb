@@ -88,9 +88,11 @@ class TestReader < Nokogiri::TestCase
     end
   end
 
-  def test_io_that_reads_too_much
-    io = ReallyBadIO.new
-    Nokogiri::XML::Reader(io)
+  unless Nokogiri.ffi?
+    def test_io_that_reads_too_much
+      io = ReallyBadIO.new
+      Nokogiri::XML::Reader(io)
+    end
   end
 
   def test_in_memory
