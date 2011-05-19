@@ -24,7 +24,7 @@ module Nokogiri
       end
 
       def nodeTab
-        self[:nodeTab].read_array_of_pointer(self[:nodeNr])
+        self[:nodeTab].null? ? [] : self[:nodeTab].read_array_of_pointer(self[:nodeNr])
       end
 
       def nodeTab=(array)
