@@ -1,4 +1,4 @@
-=== 1.4.5 / unrelease
+=== 1.4.5 / 2011-05-19
 
 * New Features
 
