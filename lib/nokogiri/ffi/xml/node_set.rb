@@ -87,6 +87,7 @@ module Nokogiri
       end
 
       def unlink # :nodoc:
+        return if cstruct[:nodeNr] == 0
         nodetab = cstruct.nodeTab
         cstruct[:nodeNr].times do |j|
           node_cstruct = LibXML::XmlNode.new(nodetab[j])
