@@ -205,6 +205,22 @@ module Nokogiri
       end
       alias :<< :add_child
 
+      ##
+      # +JRuby+
+      # Wraps Java's org.w3c.dom.document and returns Nokogiri::XML::Document
+      def self.wrap document
+        raise "JRuby only method" unless Nokogiri.jruby?
+        return wrapJavaDocument(document)
+      end
+
+      ##
+      # +JRuby+
+      # Returns Java's org.w3c.dom.document of this Document.
+      def to_java
+        raise "JRuby only method" unless Nokogiri.jruby?
+        return toJavaDocument()
+      end
+
       private
       def implied_xpath_context
         "/"

@@ -53,6 +53,7 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyNil;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
@@ -501,5 +502,18 @@ public class XmlDocument extends XmlNode {
             }
         }
         visitor.leave(document);
+    }
+    
+    @JRubyMethod(meta=true)
+    public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klazz, IRubyObject arg) {
+        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"));
+        Document document = (Document)arg.toJava(Document.class);
+        xmlDocument.setNode(context, document);
+        return xmlDocument;
+    }
+    
+    @JRubyMethod
+    public IRubyObject toJavaDocument(ThreadContext context) {
+        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), (org.w3c.dom.Document)node);
     }
 }
