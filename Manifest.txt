@@ -7,7 +7,6 @@ README.ja.rdoc
 README.rdoc
 Rakefile
 bin/nokogiri
-deps.rip
 ext/java/nokogiri/EncodingHandler.java
 ext/java/nokogiri/HtmlDocument.java
 ext/java/nokogiri/HtmlElementDescription.java

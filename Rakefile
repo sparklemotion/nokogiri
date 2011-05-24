@@ -150,8 +150,4 @@ unless windows
   end
 end
 
-namespace :rip do
-  task :install => [GENERATED_TOKENIZER, GENERATED_PARSER]
-end
-
 # vim: syntax=Ruby
