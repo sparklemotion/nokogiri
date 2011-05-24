@@ -11,16 +11,17 @@ GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
 CROSS_DIR           = File.join(File.dirname(__FILE__), 'tmp', 'cross')
 
-# Make sure hoe-debugging is installed
 Hoe.plugin :debugging
 Hoe.plugin :git
 Hoe.plugin :gemspec
 
 HOE = Hoe.spec 'nokogiri' do
-  developer('Aaron Patterson', 'aaronp@rubyforge.org')
-  developer('Mike Dalessio', 'mike.dalessio@gmail.com')
-  self.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
-  self.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
+  developer 'Aaron Patterson', 'aaronp@rubyforge.org'
+  developer 'Mike Dalessio',   'mike.dalessio@gmail.com'
+  developer 'Yoko Harada',     'yokolet@gmail.com'
+
+  self.readme_file       = ['README',    ENV['HLANG'], 'rdoc'].compact.join('.')
+  self.history_file      = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
   self.extra_rdoc_files  = FileList['*.rdoc','ext/nokogiri/*.c']
   self.clean_globs = [
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
@@ -31,9 +32,9 @@ HOE = Hoe.spec 'nokogiri' do
     'cross',
   ]
 
-  %w{ racc rexical rake-compiler }.each do |dep|
-    extra_dev_deps << [dep, '>= 0']
-  end
+  extra_dev_deps << ["racc", '>= 0']
+  extra_dev_deps << ["rexical", '>= 0']
+  extra_dev_deps << ["rake-compiler", '>= 0']
   extra_dev_deps << ["minitest", ">= 1.6.0"]
 
   if java
@@ -52,6 +53,7 @@ end
 
 Hoe.add_include_dirs '.'
 
+desc "generate docs for nokogiri.org"
 task :ws_docs do
   title = "#{HOE.name}-#{HOE.version} Documentation"
 
@@ -82,9 +84,7 @@ if java
   gem_build_path = File.join 'pkg', HOE.spec.full_name
 
   task gem_build_path => [:compile] do
-    cp 'lib/nokogiri/nokogiri.jar',
-       File.join(gem_build_path, 'lib', 'nokogiri'),
-       :verbose => true
+    cp 'lib/nokogiri/nokogiri.jar', File.join(gem_build_path, 'lib', 'nokogiri')
     HOE.spec.files += ['lib/nokogiri/nokogiri.jar']
   end
 else
@@ -106,8 +106,6 @@ else
   end
 end
 
-task 'gem:spec' => 'generate'
-
 desc "Generate css/parser.y and css/tokenizer.rex"
 task 'generate' => [ GENERATED_PARSER, GENERATED_TOKENIZER ]
 
@@ -120,6 +118,8 @@ end
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
 end
+
+task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
 
 require 'tasks/test'
 begin
@@ -134,8 +134,6 @@ task :debug do
   ENV['CFLAGS'] ||= ""
   ENV['CFLAGS'] += " -DDEBUG"
 end
-
-# required_ruby_version
 
 # Only do this on unix, since we can't build on windows
 unless windows
