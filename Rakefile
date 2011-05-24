@@ -106,7 +106,10 @@ else
   end
 end
 
-task 'gem:spec' => [ GENERATED_PARSER, GENERATED_TOKENIZER ]
+task 'gem:spec' => 'generate'
+
+desc "Generate css/parser.y and css/tokenizer.rex"
+task 'generate' => [ GENERATED_PARSER, GENERATED_TOKENIZER ]
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   racc = RbConfig::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
