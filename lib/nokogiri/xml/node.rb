@@ -1,5 +1,6 @@
 require 'stringio'
 require 'nokogiri/xml/node/save_options'
+require 'nokogiri/xml/xpath_functions'
 
 module Nokogiri
   module XML
@@ -145,7 +146,11 @@ module Nokogiri
       def xpath *paths
         return NodeSet.new(document) unless document
 
+        default_handler = paths.include?(nil) ? nil : XPathFunctions.handler
         paths, handler, ns, binds = extract_params(paths)
+        if handler.nil? and caller.find { |m| m =~ /:in `xpath'/ }.nil?
+          handler = default_handler
+        end
 
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
