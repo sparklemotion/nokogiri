@@ -291,9 +291,6 @@ module Nokogiri
           it "not blow up" do
             # see http://github.com/tenderlove/nokogiri/issues#issue/22
             10.times do
-              io = MiniTest::Unit.output
-              io.print '.'
-              io.flush
               begin
                 doc = Nokogiri::XML <<-EOHTML
                   <root>
