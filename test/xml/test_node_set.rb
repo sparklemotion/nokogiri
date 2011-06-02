@@ -30,6 +30,10 @@ module Nokogiri
         @list = @xml.css('employee')
       end
 
+      def test_break_works
+        assert_equal 7, @xml.root.elements.each { |x| break 7 }
+      end
+
       def test_filter
         list = @xml.css('address').filter('*[domestic="Yes"]')
         assert_equal(%w{ Yes } * 4, list.map { |n| n['domestic'] })
