@@ -27,7 +27,6 @@ file "tmp/cross/download/#{ZLIB}" do |t|
       f.puts "LIBRARY_PATH = #{CROSS_DIR}/lib"
       f.puts "INCLUDE_PATH = #{CROSS_DIR}/include"
 
-      # FIXME: need to make the cross compiler dynamic
       f.puts mk.sub(/^PREFIX\s*=\s*$/, "PREFIX = #{HOST}-") #.
         #sub(/^SHARED_MODE=0$/, 'SHARED_MODE=1').
         #sub(/^IMPLIB\s*=.*$/, 'IMPLIB=libz.dll.a')
@@ -56,7 +55,6 @@ file "tmp/cross/download/#{ICONV}" do |t|
   end
 
   Dir.chdir t.name do
-    # FIXME: need to make the host dynamic
     sh "./configure --disable-shared --enable-static --host=#{HOST} --target=#{TARGET} --prefix=#{CROSS_DIR} CPPFLAGS='-mno-cygwin -Wall' CFLAGS='-mno-cygwin -O2 -g' CXXFLAGS='-mno-cygwin -O2 -g' LDFLAGS=-mno-cygwin"
   end
 end
@@ -82,7 +80,6 @@ file "tmp/cross/download/#{LIBXML}" do |t|
   end
 
   Dir.chdir t.name do
-    # FIXME: need to make the host dynamic
     sh "CFLAGS='-DIN_LIBXML' ./configure --host=#{HOST} --target=#{TARGET} --enable-static --disable-shared --prefix=#{CROSS_DIR} --with-zlib=#{CROSS_DIR} --with-iconv=#{CROSS_DIR} --without-python --without-readline"
   end
 end
@@ -108,7 +105,6 @@ file "tmp/cross/download/#{LIBXSLT}" do |t|
   end
 
   Dir.chdir t.name do
-    # FIXME: need to make the host dynamic
     sh "CFLAGS='-DIN_LIBXML' ./configure --host=#{HOST} --target=#{TARGET} --enable-static --disable-shared --prefix=#{CROSS_DIR} --with-libxml-prefix=#{CROSS_DIR} --without-python --without-crypto"
   end
 end
