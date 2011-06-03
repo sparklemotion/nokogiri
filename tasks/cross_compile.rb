@@ -165,7 +165,7 @@ task "gem:windows" do
     majmin, patchlevel = version.split("-")
     rbconfig = "rbconfig-#{majmin}"
     unless rake_compiler_config.key?(rbconfig) && rake_compiler_config[rbconfig] =~ /-#{patchlevel}/
-      raise "rake-compiler '#{rbconfig}' not #{patchlevel}. try running 'rake-compiler cross-ruby VERSION=#{version}'"
+      raise "rake-compiler '#{rbconfig}' not #{patchlevel}. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{version}'"
     end
   end
 
