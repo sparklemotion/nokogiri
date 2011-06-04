@@ -6,7 +6,6 @@ README.ja.rdoc
 README.rdoc
 Rakefile
 bin/nokogiri
-deps.rip
 ext/nokogiri/depend
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
