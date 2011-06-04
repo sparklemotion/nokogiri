@@ -29,7 +29,7 @@ HOE = Hoe.spec 'nokogiri' do
     'lib/nokogiri/1.{8,9}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
-    'cross',
+    CROSS_DIR
   ]
 
   extra_dev_deps << ["racc", '>= 0']
