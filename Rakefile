@@ -28,7 +28,7 @@ HOE = Hoe.spec 'nokogiri' do
     'lib/nokogiri/1.{8,9}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER,
-    'cross',
+    CROSS_DIR
   ]
 
   %w{ racc rexical rake-compiler }.each do |dep|
