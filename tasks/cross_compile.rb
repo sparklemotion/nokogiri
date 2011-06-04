@@ -139,8 +139,8 @@ namespace :cross do
 
   task :file_list do
     HOE.spec.extensions = []
-    HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]
-    HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/#{HOE.name}.so"]
+    HOE.spec.files += Dir["lib/#{HOE.name}/#{HOE.name}.rb"]        .collect { |p| File.expand_path(p) }
+    HOE.spec.files += Dir["lib/#{HOE.name}/1.{8,9}/#{HOE.name}.so"].collect { |p| File.expand_path(p) }
   end
 end
 
