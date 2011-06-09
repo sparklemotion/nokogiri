@@ -486,6 +486,11 @@ module Nokogiri
         assert_equal 'Yes', @xml.css('address').first[:domestic]
       end
 
+      def test_non_existent_attribute_should_return_nil
+        node = @xml.root.first_element_child
+        assert_nil node.attribute('type')
+      end
+
       def test_write_to_with_block
         called = false
         io = StringIO.new

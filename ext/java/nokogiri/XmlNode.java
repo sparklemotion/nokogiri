@@ -511,7 +511,7 @@ public class XmlNode extends RubyObject {
         NamedNodeMap attrs = this.node.getAttributes();
         Node attr = attrs.getNamedItem(rubyStringToString(name));
         if(attr == null) {
-            return  context.getRuntime().newString(ERR_INSECURE_SET_INST_VAR);
+            return  context.getRuntime().getNil();
         }
         return getCachedNodeOrCreate(context.getRuntime(), attr);
     }
