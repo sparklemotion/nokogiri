@@ -1,4 +1,5 @@
 .autotest
+.gemtest
 CHANGELOG.ja.rdoc
 CHANGELOG.rdoc
 Manifest.txt
@@ -211,6 +212,8 @@ test/files/address_book.rlx
 test/files/address_book.xml
 test/files/bar/bar.xsd
 test/files/dont_hurt_em_why.xml
+test/files/encoding.html
+test/files/encoding.xhtml
 test/files/exslt.xml
 test/files/exslt.xslt
 test/files/foo/foo.xsd
