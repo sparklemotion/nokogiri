@@ -195,6 +195,7 @@ lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
+nokogiri_help_responses.md
 tasks/cross_compile.rb
 tasks/test.rb
 test/css/test_nthiness.rb
