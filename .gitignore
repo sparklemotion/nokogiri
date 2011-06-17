@@ -3,13 +3,13 @@
 *.tmproj
 *~
 .*.swp
+.bundle
 .classpath
 .project
 .rake_tasks
 .settings
+Gemfile*
 TAGS
-build
-cross
 ext/java/Canna
 ext/java/nokogiri/*.class
 ext/java/nokogiri/*/*.class
