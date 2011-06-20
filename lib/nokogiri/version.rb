@@ -9,7 +9,7 @@ module Nokogiri
   VERSION_INFO['ruby']                  = {}
   VERSION_INFO['ruby']['version']       = ::RUBY_VERSION
   VERSION_INFO['ruby']['platform']      = ::RUBY_PLATFORM
-  VERSION_INFO['ruby']['description']   = ::RUBY_DESCRIPTION
+  VERSION_INFO['ruby']['description']   = ::RUBY_DESCRIPTION if defined? ::RUBY_DESCRIPTION
   VERSION_INFO['ruby']['engine']        = defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'mri'
   VERSION_INFO['ruby']['jruby']         = ::JRUBY_VERSION if RUBY_PLATFORM == "java"
   if defined?(LIBXML_VERSION)

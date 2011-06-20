@@ -87,9 +87,9 @@ module Nokogiri
       ###
       # Get a list of attributes for the current node.
       def attributes
-        Hash[attribute_nodes.map { |node|
+        Hash[*attribute_nodes.map { |node|
           [node.name, node.to_s]
-        }].merge(namespaces || {})
+        }.flatten].merge(namespaces || {})
       end
 
       ###

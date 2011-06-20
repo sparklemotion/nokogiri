@@ -246,7 +246,7 @@ module Nokogiri
         context_node = doc.at_css "div"
         frag = Nokogiri::HTML::DocumentFragment.new doc, "<hello>oh, hello there.</hello>", context_node
         assert frag.errors.any?{|err| err.to_s =~ /Tag hello invalid/}, "errors should be on the context node's document"
-        assert frag.errors.none?{|err| err.to_s =~ /jimmy/}, "errors should not include pre-existing document errors"
+        assert ! frag.errors.any?{|err| err.to_s =~ /jimmy/}, "errors should not include pre-existing document errors"
       end
     end
   end
