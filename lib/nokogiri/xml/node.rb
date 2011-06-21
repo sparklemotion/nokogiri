@@ -323,7 +323,7 @@ module Nokogiri
           else
             pivot = self
           end
-          node_or_tags.reverse.each { |n| pivot.send :add_next_sibling_node, n }
+          node_or_tags.reverse_each { |n| pivot.send :add_next_sibling_node, n }
           pivot.unlink if text?
         else
           add_next_sibling_node node_or_tags
