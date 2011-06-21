@@ -11,15 +11,13 @@ Hoe.add_include_dirs '.' # for ruby 1.9.2
 
 GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
-CROSS_DIR           =  File.join(File.dirname(__FILE__), 'tmp', 'cross')
+CROSS_DIR           =  File.join(File.dirname(__FILE__), 'ports')
 
 def java?
   !! (RUBY_PLATFORM =~ /java/)
 end
 
-def windows?
-  !! (RUBY_PLATFORM =~ /(mswin|mingw)/i)
-end
+require 'tasks/nokogiri.org'
 
 HOE = Hoe.spec 'nokogiri' do
   developer 'Aaron Patterson', 'aaronp@rubyforge.org'
@@ -34,11 +32,11 @@ HOE = Hoe.spec 'nokogiri' do
   self.clean_globs += [
     'nokogiri.gemspec',
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
+    'lib/nokogiri/nokogiri.{so,dylib,rb,bundle}',
     'lib/nokogiri/nokogiri.rb',
     'lib/nokogiri/1.{8,9}',
     GENERATED_PARSER,
-    GENERATED_TOKENIZER,
-    CROSS_DIR
+    GENERATED_TOKENIZER
   ]
 
   self.extra_dev_deps += [
@@ -46,6 +44,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["rexical",         ">= 1.0.5"],
     ["rake-compiler",   ">= 0.7.9"],
     ["minitest",        "~> 2.2.2"],
+    ["mini_portile",    ">= 0.2.2"],
     ["hoe-debugging",   ">= 0"],
     ["hoe-git",         ">= 0"],
     ["hoe-gemspec",     ">= 0"],
@@ -54,8 +53,6 @@ HOE = Hoe.spec 'nokogiri' do
 
   if java?
     self.spec_extras = { :platform => 'java' }
-    self.need_tar = false # these will be built broken
-    self.need_zip = false
   else
     self.spec_extras = {
       :extensions => ["ext/nokogiri/extconf.rb"],
@@ -66,8 +63,10 @@ HOE = Hoe.spec 'nokogiri' do
   self.testlib = :minitest
 end
 
+# ----------------------------------------
 
 if java?
+  # TODO: clean this section up.
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new("nokogiri", HOE.spec) do |ext|
     jruby_home = RbConfig::CONFIG['prefix']
@@ -84,21 +83,22 @@ if java?
     HOE.spec.files += ['lib/nokogiri/nokogiri.jar']
   end
 else
+  require 'tasks/cross_compile'
   require "rake/extensiontask"
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
-
     ext.config_options << ENV['EXTOPTS']
     ext.cross_compile  = true
-    ext.cross_platform = ["x86-mingw32", "x86-mswin32-60"]
-    ext.cross_config_options << "--with-xml2-include=#{File.join(CROSS_DIR, 'include', 'libxml2')}"
-    ext.cross_config_options << "--with-xml2-lib=#{File.join(CROSS_DIR, 'lib')}"
-    ext.cross_config_options << "--with-iconv-dir=#{CROSS_DIR}"
-    ext.cross_config_options << "--with-xslt-dir=#{CROSS_DIR}"
+    ext.cross_platform = ["x86-mswin32-60", "x86-mingw32"]
+    ext.cross_config_options << "--with-xml2-include=#{File.join($recipes[:libxml2].path, 'include', 'libxml2')}"
+    ext.cross_config_options << "--with-xml2-lib=#{File.join($recipes[:libxml2].path, 'lib')}"
+    ext.cross_config_options << "--with-iconv-dir=#{$recipes[:libiconv].path}"
+    ext.cross_config_options << "--with-xslt-dir=#{$recipes[:libxslt].path}"
     ext.cross_config_options << "--with-zlib-dir=#{CROSS_DIR}"
   end
 end
 
+# ----------------------------------------
 
 desc "Generate css/parser.rb and css/tokenizer.rex"
 task 'generate' => [GENERATED_PARSER, GENERATED_TOKENIZER]
@@ -114,12 +114,12 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
 end
 
-
-begin
-  require 'tasks/cross_compile'
-rescue RuntimeError => e
-  warn "WARNING: Could not perform some cross-compiling: #{e}"
+[:compile, :check_manifest].each do |task_name|
+  Rake::Task[task_name].prerequisites << GENERATED_PARSER
+  Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
 end
+
+# ----------------------------------------
 
 desc "set environment variables to build and/or test with debug options"
 task :debug do
@@ -129,21 +129,36 @@ task :debug do
 end
 
 require 'tasks/test'
-unless windows?
-  [:compile, :check_manifest].each do |task_name|
-    Rake::Task[task_name].prerequisites << GENERATED_PARSER
-    Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
-  end
 
-  Rake::Task[:test].prerequisites << :compile
-  Rake::Task[:test].prerequisites << :check_extra_deps unless java?
-  if Hoe.plugins.include?(:debugging)
-    ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
-      Rake::Task["test:#{task_name}"].prerequisites << :compile
-    end
+Rake::Task[:test].prerequisites << :compile
+Rake::Task[:test].prerequisites << :check_extra_deps unless java?
+if Hoe.plugins.include?(:debugging)
+  ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
+    Rake::Task["test:#{task_name}"].prerequisites << :compile
   end
 end
 
-require 'tasks/nokogiri.org'
+# ----------------------------------------
+
+desc "build a windows gem without all the ceremony."
+task "gem:windows" do
+  rake_compiler_config = YAML.load_file("#{ENV['HOME']}/.rake-compiler/config.yml")
+
+  # check that rake-compiler config contains the right patchlevels of 1.8.6 and 1.9.1. see #279.
+  ["1.8.6-p383", "1.9.1-p243"].each do |version|
+    majmin, patchlevel = version.split("-")
+    rbconfig = "rbconfig-#{majmin}"
+    unless rake_compiler_config.key?(rbconfig) && rake_compiler_config[rbconfig] =~ /-#{patchlevel}/
+      raise "rake-compiler '#{rbconfig}' not #{patchlevel}. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{version}'"
+    end
+  end
+
+  # verify that --export-all is in the 1.9.1 rbconfig. see #279,#374,#375.
+  rbconfig_191 = rake_compiler_config["rbconfig-1.9.1"]
+  raise "rbconfig #{rbconfig_191} needs --export-all in its DLDFLAGS value" if File.read(rbconfig_191).grep(/CONFIG\["DLDFLAGS"\].*--export-all/).empty?
+
+  pkg_config_path = [:libxslt, :libxml2].collect { |pkg| File.join($recipes[pkg].path, "lib/pkgconfig") }.join(":")
+  sh("env PKG_CONFIG_PATH=#{pkg_config_path} RUBY_CC_VERSION=1.8.6:1.9.1 rake cross native gem") || raise("build failed!")
+end
 
 # vim: syntax=Ruby
