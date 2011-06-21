@@ -32,6 +32,7 @@ HOE = Hoe.spec 'nokogiri' do
   self.extra_rdoc_files = FileList['*.rdoc','ext/nokogiri/*.c']
 
   self.clean_globs += [
+    'nokogiri.gemspec',
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
     'lib/nokogiri/nokogiri.rb',
     'lib/nokogiri/1.{8,9}',
@@ -99,7 +100,7 @@ else
 end
 
 
-desc "Generate css/parser.y and css/tokenizer.rex"
+desc "Generate css/parser.rb and css/tokenizer.rex"
 task 'generate' => [GENERATED_PARSER, GENERATED_TOKENIZER]
 task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
 
