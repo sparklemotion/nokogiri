@@ -188,9 +188,6 @@ module Nokogiri
             if encoding = EncodingReader.detect_encoding(@firstchunk)
               raise EncodingFoundException, encoding
             end
-
-            # This chunk is stored for the next read in retry.
-            return @firstchunk
           end
 
           ret = @firstchunk.slice!(0, len)
