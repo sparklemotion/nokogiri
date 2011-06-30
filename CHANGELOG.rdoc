@@ -1,3 +1,11 @@
+=== 1.4.7 / ????-??-??
+
+* Bugfixes
+
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding.
+
 === 1.4.6 / 2011-06-19
 
 * Notes

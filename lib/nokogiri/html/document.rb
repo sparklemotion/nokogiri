@@ -92,7 +92,7 @@ module Nokogiri
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
             if !encoding
-              # Perform further encoding detection that libxml2 does
+              # Perform advanced encoding detection that libxml2 does
               # not do.
               string_or_io = EncodingReader.new(string_or_io)
               begin
@@ -181,11 +181,11 @@ module Nokogiri
           if !@firstchunk
             @firstchunk = @io.read(len) or return nil
 
-            # This implementation expects and assumes that the first
-            # call from htmlReadIO() is made with a length long enough
-            # (~1KB) to achieve further encoding detection that
-            # libxml2 does not do.
+            # This implementation expects that the first call from
+            # htmlReadIO() is made with a length long enough (~1KB) to
+            # achieve advanced encoding detection.
             if encoding = EncodingReader.detect_encoding(@firstchunk)
+              # The first chunk is stored for the next read in retry.
               raise EncodingFoundException, encoding
             end
           end
