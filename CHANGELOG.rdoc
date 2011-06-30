@@ -13,6 +13,9 @@
   * default output of XML on JRuby is no longer formatted due to
     inconsistent whitespace handling. #415
   * (JRuby) making empty NodeSets with null `nodes` member safe to operate on. #443
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding.
 
 == 1.5.0 beta3 / 2010/12/02
 
