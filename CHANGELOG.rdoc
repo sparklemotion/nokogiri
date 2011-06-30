@@ -16,6 +16,7 @@
   * Fix a bug in advanced encoding detection that leads to partially
     duplicated document when parsing an HTML file with unknown
     encoding.
+  * Add support for <meta charset="...">.
 
 == 1.5.0 beta3 / 2010/12/02
 

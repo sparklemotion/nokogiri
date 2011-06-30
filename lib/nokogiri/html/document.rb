@@ -147,6 +147,8 @@ module Nokogiri
               not_found
             when 'meta'
               attr = Hash[attrs]
+              charset = attr['charset'] and
+                found charset
               http_equiv = attr['http-equiv'] and
                 http_equiv.match(/\AContent-Type\z/i) and
                 content = attr['content'] and

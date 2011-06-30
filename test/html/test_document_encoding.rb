@@ -96,6 +96,12 @@ module Nokogiri
         assert_equal from_string.to_s.size, from_stream.to_s.size
       end
 
+      def test_document_html_charset
+        html = Nokogiri::HTML(binopen(METACHARSET_FILE))
+        assert_equal 'iso-2022-jp', html.encoding
+        assert_equal 'たこ焼き仮面', html.title
+      end
+
       def test_document_xhtml_enc
         [ENCODING_XHTML_FILE, ENCODING_HTML_FILE].each { |file|
           doc_from_string_enc = Nokogiri::HTML(binread(file), nil, 'Shift_JIS')

@@ -23,6 +23,7 @@ module Nokogiri
     ENCODING_XHTML_FILE = File.join(ASSETS_DIR, 'encoding.xhtml')
     ENCODING_HTML_FILE  = File.join(ASSETS_DIR, 'encoding.html')
     NOENCODING_FILE  = File.join(ASSETS_DIR, 'noencoding.html')
+    METACHARSET_FILE  = File.join(ASSETS_DIR, 'metacharset.html')
     PO_XML_FILE     = File.join(ASSETS_DIR, 'po.xml')
     PO_SCHEMA_FILE  = File.join(ASSETS_DIR, 'po.xsd')
     ADDRESS_SCHEMA_FILE = File.join(ASSETS_DIR, 'address_book.rlx')
