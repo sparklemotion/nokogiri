@@ -85,6 +85,9 @@ if java?
 else
   require 'tasks/cross_compile'
   require "rake/extensiontask"
+
+  HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
+
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
@@ -141,7 +144,7 @@ end
 # ----------------------------------------
 
 desc "build a windows gem without all the ceremony."
-task "gem:windows" do
+task "gem:windows" => "gem" do
   rake_compiler_config = YAML.load_file("#{ENV['HOME']}/.rake-compiler/config.yml")
 
   # check that rake-compiler config contains the right patchlevels of 1.8.6 and 1.9.1. see #279.
