@@ -63,6 +63,8 @@ import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
+import org.jruby.runtime.Constants;
+import org.jruby.runtime.MethodIndex;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -683,7 +685,7 @@ public class XmlNode extends RubyObject {
         
         RubyArray documentErrors = getErrorArray(document);
         RubyArray docErrors = getErrorArray(doc);
-        if (isErrorIncreated(documentErrors, docErrors)) {
+        if (isErrorIncreased(documentErrors, docErrors)) {
             for (int i = 0; i < docErrors.getLength(); i++) {
                 documentErrors.add(docErrors.get(i));
             }
@@ -716,9 +718,10 @@ public class XmlNode extends RubyObject {
         return RubyArray.newArray(document.getRuntime());
     }
 
-    private boolean isErrorIncreated(RubyArray baseErrors, RubyArray createdErrors) {
-        RubyBoolean result = baseErrors.compare(baseErrors.getRuntime().getCurrentContext(), "eql?", createdErrors, null);
-        return result.isFalse();
+    private boolean isErrorIncreased(RubyArray baseErrors, RubyArray createdErrors) {
+        RubyFixnum length = ((RubyArray)createdErrors.op_diff(baseErrors)).length();
+        int diff_in_length = (Integer)length.toJava(Integer.class);
+        return diff_in_length > 0;
     }
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
