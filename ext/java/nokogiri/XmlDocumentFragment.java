@@ -92,8 +92,10 @@ public class XmlDocumentFragment extends XmlNode {
         // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
         if (args.length > 1 && args[1] instanceof RubyString) {
             args[1] = trim(context, doc, (RubyString)args[1]);
-            args[1] = RubyString.newString(context.getRuntime(), ignoreNamespaceIfNeeded(doc, rubyStringToString(args[1])));
-            args[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(args[1])));
+            if (XmlDocumentFragment.isTag((RubyString)args[1])) {
+                args[1] = RubyString.newString(context.getRuntime(), ignoreNamespaceIfNeeded(doc, rubyStringToString(args[1])));
+                args[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(args[1])));
+            }
         }
 
         XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)cls);
@@ -120,6 +122,12 @@ public class XmlDocumentFragment extends XmlNode {
         return result.isNil() ? str : result;
     }
 
+    private static boolean isTag(RubyString ruby_string) {
+        String str = rubyStringToString(ruby_string);
+        if (str.startsWith("<") && str.endsWith(">")) return true;
+        return false;
+    }
+    
     private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
     private static Pattern starttag_pattern = Pattern.compile("<[^</>]+>");
     
