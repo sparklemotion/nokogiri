@@ -704,8 +704,7 @@ public class XmlNode extends RubyObject {
         }
         RubyArray nodeArray = RubyArray.newArray(runtime);
         nodeArray.add(NokogiriHelpers.getCachedNodeOrCreate(runtime, first));
-        
-        NokogiriHelpers.nodeListToRubyArray(runtime, first.getChildNodes(), nodeArray);
+
         XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, nodeArray);
         return xmlNodeSet;
     }
