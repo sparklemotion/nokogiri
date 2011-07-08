@@ -293,7 +293,7 @@ public class SaveContextVisitor {
 
             if (encoding != null) {
                 buffer.append(" encoding=\"");
-                buffer.append(encoding.toUpperCase());
+                buffer.append(encoding);
                 buffer.append("\"");
             }
             buffer.append("?>\n");
