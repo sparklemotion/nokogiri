@@ -553,8 +553,13 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "blank?")
     public IRubyObject blank_p(ThreadContext context) {
-        String data = node.getTextContent();
-        if ("".equals(data.trim())) return context.getRuntime().getTrue();
+        // according to libxml doc, 
+        // a node is blank if if it is a Text or CDATA node consisting of whitespace only
+        if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) {
+            String data = node.getTextContent();
+            if (data == null) return context.getRuntime().getTrue();
+            if ("".equals(data.trim())) return context.getRuntime().getTrue();
+        }
         return context.getRuntime().getFalse();
     }
 

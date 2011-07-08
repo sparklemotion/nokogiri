@@ -912,6 +912,11 @@ module Nokogiri
         assert_equal @xml, node_set.document
         assert node_set.respond_to?(:awesome!)
       end
+
+      def test_blank
+        doc = Nokogiri::XML('')
+        assert_equal false, doc.blank?
+      end
     end
   end
 end
