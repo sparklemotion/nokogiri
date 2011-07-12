@@ -19,6 +19,22 @@ module Nokogiri
         # Save as HTML
         AS_HTML         = 64
 
+        if Nokogiri.jruby?
+          # Save builder created document
+          AS_BUILDER    = 128
+          # the default for XML documents
+          DEFAULT_XML  = AS_XML # https://github.com/tenderlove/nokogiri/issues/#issue/415
+          # the default for HTML document
+          DEFAULT_HTML = NO_DECLARATION | NO_EMPTY_TAGS | AS_HTML
+        else
+          # the default for XML documents
+          DEFAULT_XML  = FORMAT | AS_XML
+          # the default for HTML document
+          DEFAULT_HTML = FORMAT | NO_DECLARATION | NO_EMPTY_TAGS | AS_HTML
+        end
+        # the default for XHTML document
+        DEFAULT_XHTML = FORMAT | NO_DECLARATION | NO_EMPTY_TAGS | AS_XHTML
+
         # Integer representation of the SaveOptions
         attr_reader :options
 

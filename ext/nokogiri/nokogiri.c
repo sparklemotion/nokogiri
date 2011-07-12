@@ -23,6 +23,29 @@ int vasprintf (char **strp, const char *fmt, va_list ap)
 }
 #endif
 
+#ifdef USING_SYSTEM_ALLOCATOR_LIBRARY /* Ruby Enterprise Edition with tcmalloc */
+void vasprintf_free (void *p)
+{
+  system_free(p);
+}
+#else
+void vasprintf_free (void *p)
+{
+  free(p);
+}
+#endif
+
+#ifndef __MACRUBY__
+/* Allocate strdupped strings with the same memory allocator Ruby uses. */
+static char *ruby_strdup(const char *s)
+{
+  size_t len = strlen(s);
+  char *result = ruby_xmalloc((ssize_t) (len + 1));
+  memcpy(result, s, len + 1);
+  return result;
+}
+#endif
+
 void Init_nokogiri()
 {
 #ifndef __MACRUBY__
@@ -30,7 +53,7 @@ void Init_nokogiri()
       (xmlFreeFunc)ruby_xfree,
       (xmlMallocFunc)ruby_xmalloc,
       (xmlReallocFunc)ruby_xrealloc,
-      strdup
+      ruby_strdup
   );
 #endif
 

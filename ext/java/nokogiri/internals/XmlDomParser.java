@@ -71,7 +71,6 @@ public class XmlDomParser extends DOMParser {
         if (doc == null)
             throw new RuntimeException("null document");
 
-        doc.setUserData(XmlDocument.DTD_RAW_DOCUMENT, dtd.getDocument(),
-                        null);
+        doc.setUserData(XmlDocument.DTD_RAW_DOCUMENT, dtd.getDocument(), null);
     }
 }

@@ -103,7 +103,7 @@ module Nokogiri
 
         xpath(*(paths.map { |path|
           path = path.to_s
-          path =~ /^(\.\/|\/)/ ? path : CSS.xpath_for(
+          path =~ /^(\.\/|\/|\.\.)/ ? path : CSS.xpath_for(
             path,
             :prefix => prefix,
             :ns     => ns
@@ -260,6 +260,8 @@ module Nokogiri
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
       # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      #
+      # Also see related method +<<+.
       def add_child node_or_tags
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
@@ -270,6 +272,17 @@ module Nokogiri
         node_or_tags
       end
 
+      ###
+      # Add +node_or_tags+ as a child of this Node.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
+      #
+      # Returns self, to support chaining of calls (e.g., root << child1 << child2)
+      #
+      # Also see related method +add_child+.
+      def << node_or_tags
+        add_child node_or_tags
+        self
+      end
       ###
       # Insert +node_or_tags+ before this Node (as a sibling).
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
@@ -310,7 +323,7 @@ module Nokogiri
           else
             pivot = self
           end
-          node_or_tags.reverse.each { |n| pivot.send :add_next_sibling_node, n }
+          node_or_tags.reverse_each { |n| pivot.send :add_next_sibling_node, n }
           pivot.unlink if text?
         else
           add_next_sibling_node node_or_tags
@@ -425,7 +438,6 @@ module Nokogiri
       alias :text           :content
       alias :inner_text     :content
       alias :has_attribute? :key?
-      alias :<<             :add_child
       alias :name           :node_name
       alias :name=          :node_name=
       alias :type           :node_type
@@ -716,7 +728,7 @@ module Nokogiri
       def serialize *args, &block
         options = args.first.is_a?(Hash) ? args.shift : {
           :encoding   => args[0],
-          :save_with  => args[1] || SaveOptions::FORMAT
+          :save_with  => args[1]
         }
 
         encoding = options[:encoding] || document.encoding
@@ -742,11 +754,8 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::FORMAT |
-                                SaveOptions::NO_DECLARATION |
-                                SaveOptions::NO_EMPTY_TAGS |
-                                SaveOptions::AS_HTML
-
+        options[:save_with] |= SaveOptions::DEFAULT_HTML if options[:save_with]
+        options[:save_with] = SaveOptions::DEFAULT_HTML unless options[:save_with]
         serialize(options)
       end
 
@@ -757,8 +766,8 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def to_xml options = {}
-        options[:save_with] ||= SaveOptions::FORMAT | SaveOptions::AS_XML
-
+        options[:save_with] |= SaveOptions::DEFAULT_XML if options[:save_with]
+        options[:save_with] = SaveOptions::DEFAULT_XML unless options[:save_with]
         serialize(options)
       end
 
@@ -772,11 +781,8 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::FORMAT |
-                                SaveOptions::NO_DECLARATION |
-                                SaveOptions::NO_EMPTY_TAGS |
-                                SaveOptions::AS_XHTML
-
+        options[:save_with] |= SaveOptions::DEFAULT_XHTML if options[:save_with]
+        options[:save_with] = SaveOptions::DEFAULT_XHTML unless options[:save_with]
         serialize(options)
       end
 
@@ -800,9 +806,14 @@ module Nokogiri
       def write_to io, *options
         options       = options.first.is_a?(Hash) ? options.shift : {}
         encoding      = options[:encoding] || options[0]
-        save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
+        if Nokogiri.jruby?
+          save_options  = options[:save_with] || options[1]
+          indent_times  = options[:indent] || 0
+        else
+          save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
+          indent_times  = options[:indent] || 2
+        end
         indent_text   = options[:indent_text] || ' '
-        indent_times  = options[:indent] || 2
 
         config = SaveOptions.new(save_options.to_i)
         yield config if block_given?
@@ -818,10 +829,7 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::FORMAT |
-          SaveOptions::NO_DECLARATION |
-          SaveOptions::NO_EMPTY_TAGS |
-          SaveOptions::AS_HTML
+        options[:save_with] ||= SaveOptions::DEFAULT_HTML
         write_to io, options
       end
 
@@ -833,10 +841,7 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] ||= SaveOptions::FORMAT |
-          SaveOptions::NO_DECLARATION |
-          SaveOptions::NO_EMPTY_TAGS |
-          SaveOptions::AS_XHTML
+        options[:save_with] ||= SaveOptions::DEFAULT_XHTML
         write_to io, options
       end
 
@@ -847,7 +852,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of options
       def write_xml_to io, options = {}
-        options[:save_with] ||= SaveOptions::FORMAT | SaveOptions::AS_XML
+        options[:save_with] ||= SaveOptions::DEFAULT_XML
         write_to io, options
       end
 
@@ -871,7 +876,10 @@ module Nokogiri
         params -= [handler] if handler
 
         hashes = []
-        hashes << params.pop while Hash === params.last || params.last.nil?
+        while Hash === params.last || params.last.nil?
+          hashes << params.pop
+          break if params.empty?
+        end
 
         ns, binds = hashes.reverse
 

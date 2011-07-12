@@ -33,11 +33,11 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import static nokogiri.internals.NokogiriHelpers.adjustSystemIdIfNecessary;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -61,6 +61,7 @@ import org.xml.sax.ext.EntityResolver2;
  * Ruby objects to InputSource objects.
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class ParserContext extends RubyObject {
     protected InputSource source = null;
@@ -69,24 +70,14 @@ public class ParserContext extends RubyObject {
      * Create a file base input source taking into account the current
      * directory of <code>runtime</code>.
      */
-    public static InputSource resolveEntity(Ruby runtime,
-                                            String publicId,
-                                            String baseURI,
-                                            String systemId)
+    public static InputSource resolveEntity(Ruby runtime, String publicId, String baseURI, String systemId)
         throws IOException {
-        String path;
-
-        if ((new File(systemId)).isAbsolute()) {
-            path = systemId;
-        } else if (baseURI != null) {
-            path = (new File(baseURI, systemId)).getAbsolutePath();
-        } else {
-            String rubyDir = runtime.getCurrentDirectory();
-            path = (new File(rubyDir, systemId)).getAbsolutePath();
+        InputSource s = new InputSource();
+        String adjusted = adjustSystemIdIfNecessary(runtime.getCurrentDirectory(), runtime.getInstanceConfig().getScriptFileName(), baseURI, systemId);
+        if (adjusted == null && publicId == null) {
+            throw runtime.newRuntimeError("SystemId \"" + systemId + "\" is not correct.");
         }
-
-        InputSource s = new InputSource(new FileInputStream(path));
-        s.setSystemId(systemId);
+        s.setSystemId(adjusted);
         s.setPublicId(publicId);
         return s;
     }
@@ -105,12 +96,17 @@ public class ParserContext extends RubyObject {
     }
 
     /**
-     * Set the InputSource from <code>data</code> which may be an IO
-     * object, a String, or a StringIO.
+     * Set the InputSource from <code>url</code> or <code>data</code>,
+     * which may be an IO object, a String, or a StringIO.
      */
-    public void setInputSource(ThreadContext context,
-                               IRubyObject data) {
+    public void setInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
         Ruby ruby = context.getRuntime();
+        String path = (String) url.toJava(String.class);
+        if (isAbsolutePath(path)) {
+            source = new InputSource();
+            source.setSystemId(path);
+            return;
+        }
         RubyString stringData = null;
         if (invoke(context, data, "respond_to?",
                    ruby.newSymbol("to_io").to_sym()).isTrue()) {
@@ -147,6 +143,11 @@ public class ParserContext extends RubyObject {
             source = new InputSource(new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length()));
         }
     }
+    
+    private boolean isAbsolutePath(String url) {
+        if (url == null) return false;
+        return (new File(url)).isAbsolute();
+    }
 
     /**
      * Set the InputSource to read from <code>file</code>, a String filename.
@@ -155,11 +156,9 @@ public class ParserContext extends RubyObject {
         String filename = rubyStringToString(file);
 
         try{
-            source = resolveEntity(context.getRuntime(),
-                                   null, null, filename);
+            source = resolveEntity(context.getRuntime(), null, null, filename);
         } catch (Exception e) {
-            throw RaiseException
-                .createNativeRaiseException(context.getRuntime(), e);
+            throw RaiseException.createNativeRaiseException(context.getRuntime(), e);
         }
 
     }
@@ -269,8 +268,7 @@ public class ParserContext extends RubyObject {
                                          String baseURI,
                                          String systemId)
             throws SAXException, IOException {
-            return ParserContext
-                .resolveEntity(runtime, publicId, baseURI, systemId);
+            return ParserContext.resolveEntity(runtime, publicId, baseURI, systemId);
         }
 
     }

@@ -1,6 +1,6 @@
 module Nokogiri
   # The version of Nokogiri you are using
-  VERSION = '1.5.0.beta.4'
+  VERSION = '1.5.0'
 
   class VersionInfo # :nodoc:
     def jruby?
@@ -42,6 +42,7 @@ module Nokogiri
       hash_info['ruby']                  = {}
       hash_info['ruby']['version']       = ::RUBY_VERSION
       hash_info['ruby']['platform']      = ::RUBY_PLATFORM
+      hash_info['ruby']['description']   = ::RUBY_DESCRIPTION
       hash_info['ruby']['engine']        = engine
       hash_info['ruby']['jruby']         = jruby? if jruby?
 

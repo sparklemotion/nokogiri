@@ -74,6 +74,11 @@ module Nokogiri
         assert_equal 2, errors.length
       end
 
+      def test_validate_non_document
+        string = File.read(PO_XML_FILE)
+        assert_raise(ArgumentError) {@xsd.validate(string)}
+      end
+
       def test_valid?
         valid_doc = Nokogiri::XML(File.read(PO_XML_FILE))
 

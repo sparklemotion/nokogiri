@@ -32,6 +32,7 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
 
 import java.io.ByteArrayInputStream;
@@ -47,14 +48,12 @@ import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
-import org.jruby.RubyModule;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
-import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -82,20 +81,26 @@ public class XmlReader extends RubyObject {
     private static final int XML_TEXTREADER_MODE_CLOSED = 4;
     private static final int XML_TEXTREADER_MODE_READING = 5;
 
-    final ArrayDeque<ReaderNode> nodeQueue = new ArrayDeque<ReaderNode>();
+    ArrayDeque<ReaderNode> nodeQueue;
     private int state;
     
-    public XmlReader(Ruby ruby, RubyClass rubyClass) {
-        super(ruby, rubyClass);
-        nodeQueue.add(new ReaderNode.EmptyNode(ruby));
+    public XmlReader(Ruby runtime, RubyClass klazz) {
+        super(runtime, klazz);
     }
-
-    private static IRubyObject[] getArgs(IRubyObject[] args) {
-        int size = Math.min(args.length, 3);
-        IRubyObject[] newArgs = new IRubyObject[size];
-        for(int i = 0; i < size; i++)
-            newArgs[i] = args[i];
-        return newArgs;
+    
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    
+    public void init(Ruby runtime) {
+        nodeQueue = new ArrayDeque<ReaderNode>();
+        nodeQueue.add(new ReaderNode.EmptyNode(runtime));
     }
 
     private void parseRubyString(ThreadContext context, RubyString content){
@@ -115,10 +120,6 @@ public class XmlReader extends RubyObject {
         } catch (SAXException saxe) {
             throw RaiseException.createNativeRaiseException(ruby, saxe);
         }
-    }
-
-    private void setSource(IRubyObject source){
-        this.setInstanceVariable("@source", source);
     }
 
     private void setState(int state) { this.state = state; }
@@ -178,41 +179,37 @@ public class XmlReader extends RubyObject {
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_io(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
-
         // Only to pass the  source test.
-        Ruby ruby = context.getRuntime();
-
+        Ruby runtime = context.getRuntime();
         // Not nil allowed!
-        if(args[0].isNil()) throw ruby.newArgumentError("io cannot be nil");
+        if(args[0].isNil()) throw runtime.newArgumentError("io cannot be nil");
 
-        XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
+        XmlReader reader = (XmlReader) NokogiriService.XML_READER_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Reader"));
+        reader.init(runtime);
+        reader.setInstanceVariable("@source", args[0]);
+        reader.setInstanceVariable("@errors", runtime.newArray());
+        if (args.length > 2) reader.setInstanceVariable("@encoding", args[2]);
 
-        r.callInit(getArgs(args), Block.NULL_BLOCK);
-
-        r.setSource(args[0]);
-        
         RubyString content = RuntimeHelpers.invoke(context, args[0], "read").convertToString();
-
-        r.parseRubyString(context, content);
-        return r;
+        reader.parseRubyString(context, content);
+        return reader;
     }
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_memory(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
-        Ruby ruby = context.getRuntime();
-        
+        // args[0]: string, args[1]: url, args[2]: encoding, args[3]: options 
+        Ruby runtime = context.getRuntime();
         // Not nil allowed!
-        if(args[0].isNil()) throw ruby.newArgumentError("string cannot be nil");
+        if(args[0].isNil()) throw runtime.newArgumentError("string cannot be nil");
 
-        XmlReader r = new XmlReader(ruby, ((RubyModule) ruby.getModule("Nokogiri").getConstant("XML")).getClass("Reader"));
+        XmlReader reader = (XmlReader) NokogiriService.XML_READER_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Reader"));
+        reader.init(runtime);
+        reader.setInstanceVariable("@source", args[0]);
+        reader.setInstanceVariable("@errors", runtime.newArray());
+        if (args.length > 2) reader.setInstanceVariable("@encoding", args[2]);
 
-        r.callInit(getArgs(args), Block.NULL_BLOCK);
-
-        r.setSource(args[0]);
-
-        r.parseRubyString(context, args[0].convertToString());
-
-        return r;
+        reader.parseRubyString(context, args[0].convertToString());
+        return reader;
     }
 
     @JRubyMethod
@@ -329,7 +326,7 @@ public class XmlReader extends RubyObject {
 
             @Override
             public void characters(char[] chars, int start, int length) {
-                ReaderNode.TextNode node = new ReaderNode.TextNode(ruby, new String(chars, start, length), depth, langStack, xmlBaseStack);
+                ReaderNode.TextNode node = ReaderNode.createTextNode(ruby, new String(chars, start, length), depth, langStack, xmlBaseStack);
                 nodeQueue.add(node);
             }
             
@@ -348,7 +345,7 @@ public class XmlReader extends RubyObject {
                 if (previous instanceof ReaderNode.ElementNode && qName.equals(previous.name)) {
                     previous.hasChildren = false;
                 } else {
-                    ReaderNode node = new ReaderNode.ClosingNode(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
+                    ReaderNode node = ReaderNode.createClosingNode(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
                     if (startElementNode != null) {
                         node.attributeList = startElementNode.attributeList;
                         node.namespaces = startElementNode.namespaces;
@@ -381,7 +378,7 @@ public class XmlReader extends RubyObject {
 
             @Override
             public void startElement(String uri, String localName, String qName, Attributes attrs) {
-                ReaderNode readerNode = new ReaderNode.ElementNode(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
+                ReaderNode readerNode = ReaderNode.createElementNode(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
                 nodeQueue.add(readerNode);
                 depth++;
                 if (readerNode.lang != null) langStack.push(readerNode.lang);

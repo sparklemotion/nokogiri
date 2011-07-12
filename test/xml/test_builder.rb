@@ -3,6 +3,23 @@ require "helper"
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_attribute_sensitivity
+        xml = Nokogiri::XML::Builder.new { |x|
+          x.tag "hello", "abcDef" => "world"
+        }.to_xml
+        doc = Nokogiri.XML xml
+        assert_equal 'world', doc.root['abcDef']
+      end
+
+      def test_builder_escape
+        xml = Nokogiri::XML::Builder.new { |x|
+          x.condition "value < 1", :attr => "value < 1"
+        }.to_xml
+        doc = Nokogiri.XML xml
+        assert_equal 'value < 1', doc.root['attr']
+        assert_equal 'value < 1', doc.root.content
+      end
+
       def test_builder_namespace
         doc = Nokogiri::XML::Builder.new { |xml|
           xml.a("xmlns:a" => "x") do
@@ -180,6 +197,17 @@ module Nokogiri
         end
 
         assert_equal 'hello', builder.doc.at('/root').content
+      end
+
+      def test_raw_xml_append
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.root do
+            xml << '<aaa><bbb/><ccc/></aaa>'
+          end
+        end
+
+        assert_equal ["aaa"],       builder.doc.at_css("root").children.collect(&:name)
+        assert_equal ["bbb","ccc"], builder.doc.at_css("aaa").children.collect(&:name)
       end
 
       def test_cdata

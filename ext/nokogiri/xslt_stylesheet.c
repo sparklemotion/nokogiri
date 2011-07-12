@@ -8,6 +8,7 @@
 VALUE xslt;
 
 int vasprintf (char **strp, const char *fmt, va_list ap);
+void vasprintf_free (void *p);
 
 static void dealloc(xsltStylesheetPtr doc)
 {
@@ -20,13 +21,16 @@ NORETURN(static void xslt_generic_error_handler(void * ctx, const char *msg, ...
 static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
 {
   char * message;
+  VALUE exception;
 
   va_list args;
   va_start(args, msg);
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_exc_raise(rb_exc_new2(rb_eRuntimeError, message));
+  exception = rb_exc_new2(rb_eRuntimeError, message);
+  vasprintf_free(message);
+  rb_exc_raise(exception);
 }
 
 /*
@@ -100,6 +104,8 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
     if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0L) ; }
+    if (!rb_obj_is_kind_of(xmldoc, cNokogiriXmlDocument))
+      rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::Document");
 
     /* handle hashes as arguments. */
     if(T_HASH == TYPE(paramobj)) {

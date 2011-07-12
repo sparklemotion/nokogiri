@@ -1,3 +1,23 @@
+== 1.5.0 / 2011-07-01
+
+* Notes
+
+  * See changelog from 1.4.7
+
+* Features
+
+  * extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+
+* Bugfixes
+
+  * default output of XML on JRuby is no longer formatted due to
+    inconsistent whitespace handling. #415
+  * (JRuby) making empty NodeSets with null `nodes` member safe to operate on. #443
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding.
+  * Add support for <meta charset="...">.
+
 == 1.5.0 beta3 / 2010/12/02
 
 * Notes
@@ -27,11 +47,28 @@
   * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
   * FFI support is removed.
 
-=== 1.4.5 / unrelease
+=== 1.4.7 / 2011-07-01
+
+* Bugfixes
+
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding. Thanks, Timothy Elliott (@ender672)! #478
+
+=== 1.4.6 / 2011-06-19
+
+* Notes
+
+  * This version is functionally identical to 1.4.5.
+  * Ruby 1.8.6 support has been restored.
+
+=== 1.4.5 / 2011-05-19
 
 * New Features
 
   * Nokogiri::HTML::Document#title accessor gets and sets the document title.
+  * extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+  * Raise an exception if a string is passed to Nokogiri::XML::Schema#validate. #406
 
 * Bugfixes
 
@@ -44,6 +81,8 @@
   * HTML::SAX::Parser should call back a block given to parse*() if any, just as XML::SAX::Parser does.
   * Add further encoding detection to HTML parser that libxml2 does not do.
   * Document#remove_namespaces! now handles attributes with namespaces. #396
+  * XSLT::Stylesheet#transform no longer segfaults when handed a non-XML::Document. #452
+  * XML::Reader no longer segfaults when under GC pressure. #439
 
 === 1.4.4 / 2010-11-15
 

@@ -61,15 +61,31 @@ import org.w3c.dom.NodeList;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriXPathFunction implements XPathFunction {
-    private final IRubyObject handler;
-    private final String name;
-    private final int arity;
+    private static NokogiriXPathFunction xpathFunction;
+    private IRubyObject handler;
+    private String name;
+    private int arity;
+    
+    public static NokogiriXPathFunction create(IRubyObject handler, String name, int arity) {
+        if (xpathFunction == null) xpathFunction = new NokogiriXPathFunction();
+        try {
+            NokogiriXPathFunction clone = (NokogiriXPathFunction) xpathFunction.clone();
+            clone.init(handler, name, arity);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            NokogiriXPathFunction freshXpathFunction = new NokogiriXPathFunction();
+            freshXpathFunction.init(handler, name, arity);
+            return freshXpathFunction;
+        }
+    }
 
-    public NokogiriXPathFunction(IRubyObject handler, String name, int arity) {
+    private void init(IRubyObject handler, String name, int arity) {
         this.handler = handler;
         this.name = name;
         this.arity = arity;
     }
+
+    private NokogiriXPathFunction() {}
 
     public Object evaluate(List args) throws XPathFunctionException {
         if(args.size() != this.arity) {
@@ -114,11 +130,10 @@ public class NokogiriXPathFunction implements XPathFunction {
         } else if (o instanceof RubyBoolean) {
             return o.toJava(Boolean.class);
         } else if (o instanceof XmlNodeSet) {
-            return ((XmlNodeSet) o).toNodeList(runtime);
+            return (NodeList)o;
         } else if (o instanceof RubyArray) {
-            XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
-            xmlNodeSet.setInitialNodes((RubyArray)o);
-            return xmlNodeSet.toNodeList(runtime);
+            XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(runtime.getCurrentContext(), (RubyArray)o);
+            return (NodeList)xmlNodeSet;
         } else /*if (o instanceof XmlNode)*/ {
             return ((XmlNode) o).getNode();
         }

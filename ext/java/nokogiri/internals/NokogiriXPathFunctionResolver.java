@@ -35,22 +35,39 @@ package nokogiri.internals;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPathFunction;
 import javax.xml.xpath.XPathFunctionResolver;
+
 import org.jruby.runtime.builtin.IRubyObject;
 
 /**
  * Xpath function resolver class, which is used in XmlXpathContext. 
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
-
+    private static NokogiriXPathFunctionResolver resolver;
     private IRubyObject handler;
     
-    public NokogiriXPathFunctionResolver(IRubyObject handler) {
+    public static NokogiriXPathFunctionResolver create(IRubyObject handler) {
+        if (resolver == null) resolver = new NokogiriXPathFunctionResolver();
+        try {
+            NokogiriXPathFunctionResolver clone = (NokogiriXPathFunctionResolver) resolver.clone();
+            clone.setHandler(handler);
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            NokogiriXPathFunctionResolver freshResolver = new NokogiriXPathFunctionResolver();
+            freshResolver.setHandler(handler);
+            return freshResolver;
+        }
+    }
+    
+    private NokogiriXPathFunctionResolver() {}
+    
+    private void setHandler(IRubyObject handler) {
         this.handler = handler;
     }
 
     public XPathFunction resolveFunction(QName name, int arity) {
-        return new NokogiriXPathFunction(this.handler, name.getLocalPart(), arity);
+        return NokogiriXPathFunction.create(handler, name.getLocalPart(), arity);
     }
 }

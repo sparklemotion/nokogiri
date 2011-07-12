@@ -77,13 +77,17 @@ public class NokogiriService implements BasicLibraryService {
         nokogiriClassCache.put("Nokogiri::XML::ElementContent", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ElementContent"));
         nokogiriClassCache.put("Nokogiri::XML::ElementDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ElementDecl"));
         nokogiriClassCache.put("Nokogiri::XML::EntityDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityDecl"));
+        nokogiriClassCache.put("Nokogiri::XML::EntityReference", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::EntityReference"));
+        nokogiriClassCache.put("Nokogiri::XML::ProcessingInstruction", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::ProcessingInstruction"));
         nokogiriClassCache.put("Nokogiri::XML::CDATA", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::CDATA"));
         nokogiriClassCache.put("Nokogiri::XML::Node", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Node"));
         nokogiriClassCache.put("Nokogiri::XML::NodeSet", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::NodeSet"));
         nokogiriClassCache.put("Nokogiri::XML::Namespace", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Namespace"));
         nokogiriClassCache.put("Nokogiri::XML::SyntaxError", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SyntaxError"));
+        nokogiriClassCache.put("Nokogiri::XML::Reader", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Reader"));
         nokogiriClassCache.put("Nokogiri::XML::RelaxNG", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::RelaxNG"));
         nokogiriClassCache.put("Nokogiri::XML::Schema", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::Schema"));
+        nokogiriClassCache.put("Nokogiri::XML::XPathContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::XPathContext"));
         nokogiriClassCache.put("Nokogiri::XML::AttributeDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::AttributeDecl"));
         nokogiriClassCache.put("Nokogiri::XML::SAX::ParserContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::ParserContext"));
     }
@@ -154,6 +158,7 @@ public class NokogiriService implements BasicLibraryService {
         
         RubyClass entityDecl = xmlModule.defineClassUnder("EntityDecl", node, XML_ENTITY_DECL_ALLOCATOR);
         entityDecl.defineAnnotatedMethods(XmlEntityDecl.class);
+        
         entityDecl.defineConstant("INTERNAL_GENERAL", RubyFixnum.newFixnum(ruby, XmlEntityDecl.INTERNAL_GENERAL));
         entityDecl.defineConstant("EXTERNAL_GENERAL_PARSED", RubyFixnum.newFixnum(ruby, XmlEntityDecl.EXTERNAL_GENERAL_PARSED));
         entityDecl.defineConstant("EXTERNAL_GENERAL_UNPARSED", RubyFixnum.newFixnum(ruby, XmlEntityDecl.EXTERNAL_GENERAL_UNPARSED));
@@ -312,13 +317,6 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_PROCESSING_INSTRUCTION_ALLOCATOR =
-        new ObjectAllocator() {
-        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
-        }
-    };
-
     public static final ObjectAllocator XML_DOCUMENT_ALLOCATOR = new ObjectAllocator() {
         private XmlDocument xmlDocument = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
@@ -347,9 +345,17 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_DTD_ALLOCATOR = new ObjectAllocator() {
+    public static final ObjectAllocator XML_DTD_ALLOCATOR = new ObjectAllocator() {
+        private XmlDtd xmlDtd = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlDtd(runtime, klazz);
+            if (xmlDtd == null) xmlDtd = new XmlDtd(runtime, klazz);
+            try {
+                XmlDtd clone = (XmlDtd)xmlDtd.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlDtd(runtime, klazz);
+            }
         }
     };
 
@@ -366,13 +372,35 @@ public class NokogiriService implements BasicLibraryService {
             }
         }
     };
-
-    private static ObjectAllocator XML_ENTITY_REFERENCE_ALLOCATOR = new ObjectAllocator() {
+    
+    public static ObjectAllocator XML_ELEMENT_DECL_ALLOCATOR = new ObjectAllocator() {
+        private XmlElementDecl xmlElementDecl = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlEntityReference(runtime, klazz);
+            if (xmlElementDecl == null) xmlElementDecl = new XmlElementDecl(runtime, klazz);
+            try {
+                XmlElementDecl clone = (XmlElementDecl)xmlElementDecl.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlElementDecl(runtime, klazz);
+            }
         }
     };
 
+    public static ObjectAllocator XML_ENTITY_REFERENCE_ALLOCATOR = new ObjectAllocator() {
+        private XmlEntityReference xmlEntityRef = null;
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            if (xmlEntityRef == null) xmlEntityRef = new XmlEntityReference(runtime, klazz);
+            try {
+                XmlEntityReference clone = (XmlEntityReference)xmlEntityRef.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlEntityReference(runtime, klazz);
+            }
+        }
+    };
+    
     public static final ObjectAllocator XML_NAMESPACE_ALLOCATOR = new ObjectAllocator() {
         private XmlNamespace xmlNamespace = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
@@ -410,26 +438,45 @@ public class NokogiriService implements BasicLibraryService {
                 clone.setMetaClass(klazz);
                 return clone;
             } catch (CloneNotSupportedException e) {
-                return new XmlNodeSet(runtime, klazz, RubyArray.newEmptyArray(runtime));
+                xmlNodeSet = new XmlNodeSet(runtime, klazz);
+                xmlNodeSet.setNodes(RubyArray.newEmptyArray(runtime));
+                return xmlNodeSet;
+            }
+        }
+    };
+    
+    public static ObjectAllocator XML_PROCESSING_INSTRUCTION_ALLOCATOR = new ObjectAllocator() {
+        private XmlProcessingInstruction xmlProcessingInstruction = null;
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            if (xmlProcessingInstruction == null) xmlProcessingInstruction = new XmlProcessingInstruction(runtime, klazz);
+            try {
+                XmlProcessingInstruction clone = (XmlProcessingInstruction)xmlProcessingInstruction.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlProcessingInstruction(runtime, klazz);
             }
         }
     };
 
-    private static ObjectAllocator XML_READER_ALLOCATOR = new ObjectAllocator() {
+    public static ObjectAllocator XML_READER_ALLOCATOR = new ObjectAllocator() {
+        private XmlReader xmlReader = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlReader(runtime, klazz);
+            if (xmlReader == null) xmlReader = new XmlReader(runtime, klazz);
+            try {
+                XmlReader clone  = (XmlReader) xmlReader.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                xmlReader = new XmlReader(runtime, klazz);
+                return xmlReader;
+            }
         }
     };
 
     private static ObjectAllocator XML_ATTRIBUTE_DECL_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             return new XmlAttributeDecl(runtime, klazz);
-        }
-    };
-
-    private static ObjectAllocator XML_ELEMENT_DECL_ALLOCATOR = new ObjectAllocator() {
-        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XmlElementDecl(runtime, klazz);
         }
     };
 
@@ -521,9 +568,17 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = new ObjectAllocator() {
+    public static ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = new ObjectAllocator() {
+        private XmlXpathContext xmlXpathContext = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            throw runtime.newNotImplementedError("not implemented");
+            if (xmlXpathContext == null) xmlXpathContext = new XmlXpathContext(runtime, klazz);
+            try {
+                XmlXpathContext clone  = (XmlXpathContext) xmlXpathContext.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlXpathContext(runtime, klazz);
+            }
         }
     };
 

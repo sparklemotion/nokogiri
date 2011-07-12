@@ -1,6 +1,7 @@
 #include <xml_sax_parser.h>
 
 int vasprintf (char **strp, const char *fmt, va_list ap);
+void vasprintf_free (void *p);
 
 static ID id_start_document, id_end_document, id_start_element, id_end_element;
 static ID id_start_element_namespace, id_end_element_namespace;
@@ -198,14 +199,16 @@ static void warning_func(void * ctx, const char *msg, ...)
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
   char * message;
+  VALUE ruby_message;
 
   va_list args;
   va_start(args, msg);
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, id_warning, 1, NOKOGIRI_STR_NEW2(message));
-  free(message);
+  ruby_message = NOKOGIRI_STR_NEW2(message);
+  vasprintf_free(message);
+  rb_funcall(doc, id_warning, 1, ruby_message);
 }
 
 static void error_func(void * ctx, const char *msg, ...)
@@ -213,14 +216,16 @@ static void error_func(void * ctx, const char *msg, ...)
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
   char * message;
+  VALUE ruby_message;
 
   va_list args;
   va_start(args, msg);
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_funcall(doc, id_error, 1, NOKOGIRI_STR_NEW2(message));
-  free(message);
+  ruby_message = NOKOGIRI_STR_NEW2(message);
+  vasprintf_free(message);
+  rb_funcall(doc, id_error, 1, ruby_message);
 }
 
 static void cdata_block(void * ctx, const xmlChar * value, int len)

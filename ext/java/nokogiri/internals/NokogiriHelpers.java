@@ -32,18 +32,24 @@
 
 package nokogiri.internals;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import nokogiri.NokogiriService;
 import nokogiri.XmlAttr;
 import nokogiri.XmlCdata;
 import nokogiri.XmlComment;
 import nokogiri.XmlDocument;
+import nokogiri.XmlDtd;
 import nokogiri.XmlElement;
+import nokogiri.XmlEntityReference;
 import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
+import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
 
 import org.jruby.Ruby;
@@ -87,9 +93,8 @@ public class NokogiriHelpers {
             prefix = prefix != null ? prefix : "";
             String href = ((Attr)node).getValue();
             XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
-            if (xmlNamespace == null) {
-                return xmlDocument.getNamespaceCache().put(ruby, prefix, ((Attr)node).getValue(), node, xmlDocument);
-            }
+            if (xmlNamespace != null) return xmlNamespace;
+            else return XmlNamespace.createFromAttr(ruby, (Attr)node);
         }
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {
@@ -126,6 +131,14 @@ public class NokogiriHelpers {
                 return xmlComment;
             case Node.ENTITY_NODE:
                 return new XmlNode(runtime, getNokogiriClass(runtime, "Nokogiri::XML::EntityDecl"), node);
+            case Node.ENTITY_REFERENCE_NODE:
+                XmlEntityReference xmlEntityRef = (XmlEntityReference) NokogiriService.XML_ENTITY_REFERENCE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::EntityReference"));
+                xmlEntityRef.setNode(runtime.getCurrentContext(), node);
+                return xmlEntityRef;
+            case Node.PROCESSING_INSTRUCTION_NODE:
+                XmlProcessingInstruction xmlProcessingInstruction = (XmlProcessingInstruction) NokogiriService.XML_PROCESSING_INSTRUCTION_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::ProcessingInstruction"));
+                xmlProcessingInstruction.setNode(runtime.getCurrentContext(), node);
+                return xmlProcessingInstruction;
             case Node.CDATA_SECTION_NODE:
                 XmlCdata xmlCdata = (XmlCdata) NokogiriService.XML_CDATA_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::CDATA"));
                 xmlCdata.setNode(runtime.getCurrentContext(), node);
@@ -134,6 +147,10 @@ public class NokogiriHelpers {
                 XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
                 xmlDocument.setNode(runtime.getCurrentContext(), node);
                 return xmlDocument;
+            case Node.DOCUMENT_TYPE_NODE:
+                XmlDtd xmlDtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
+                xmlDtd.setNode(runtime, node);
+                return xmlDtd;
             default:
                 XmlNode xmlNode = (XmlNode) NokogiriService.XML_NODE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Node"));
                 xmlNode.setNode(runtime.getCurrentContext(), node);
@@ -481,28 +498,44 @@ public class NokogiriHelpers {
                 (b.equals(a)));
     }
 
+    private static Pattern encoded_pattern = Pattern.compile("&amp;|&gt;|&lt;|&#13;");
+    private static Pattern decoded_pattern = Pattern.compile("&|>|<|\r");
+    private static String[] encoded = {"&amp;", "&gt;", "&lt;", "&#13;"};
+    private static String[] decoded = {"&", ">", "<", "\r"};
+    
+    private static String convert(Pattern ptn, String input, String[] oldChars, String[] newChars)  {
+        Matcher matcher = ptn.matcher(input);
+        boolean result = matcher.find();
+        StringBuffer sb = new StringBuffer();
+        while(result) {
+            String matched = matcher.group();
+            String replacement = "";
+            for (int i=0; i<oldChars.length; i++) {
+                if (matched.contains(oldChars[i])) {
+                    replacement = matched.replace(oldChars[i], newChars[i]);
+                    break;
+                }
+            }
+            matcher.appendReplacement(sb, replacement);
+            result = matcher.find();
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
+    }
+    
     public static String encodeJavaString(String s) {
-
-        // From entities.c
-        s = s.replaceAll("&", "&amp;");
-        s = s.replaceAll("<", "&lt;");
-        s = s.replaceAll(">", "&gt;");
-//        s = s.replaceAll("\"", "&quot;");
-        return s.replaceAll("\r", "&#13;");
+        return convert(decoded_pattern, s, decoded, encoded);
     }
     
     public static String decodeJavaString(String s) {
-        s = s.replaceAll("&amp;", "&");
-        s = s.replaceAll("&lt;", "<");
-        s = s.replaceAll("&gt;", ">");
-        return s.replaceAll("&#13;", "\r");
+        return convert(encoded_pattern, s, encoded, decoded);
     }
-    
-    public static boolean isXmlEscaped(String s) {
-        if (s == null) return true;
-        if (s.contains("<") || s.contains(">") || s.contains("\r")) return false;
-        if (s.contains("&") && !s.contains("&amp;")) return false;
-        return true;
+
+    private static Pattern not_escaped_pattern = Pattern.compile("\\&(?!(amp;|gt;|lt;))|<|>");
+    public static boolean isNotXmlEscaped(String s) {
+        if (s == null) return false;
+        Matcher matcher = not_escaped_pattern.matcher(s);
+        return (matcher.find());
     }
 
     public static String getNodeName(Node node) {
@@ -578,5 +611,29 @@ public class NokogiriHelpers {
         if (name == null) name = System.getProperty("file.encoding");
         if (name == null) name = "UTF-8";
         return name;
+    }
+    
+    public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
+        if (systemId == null) return systemId;
+        File file = new File(systemId);
+        if (file.isAbsolute()) return systemId;
+        String path = resolveSystemId(baseURI, systemId);
+        if (path != null) return path;
+        path = resolveSystemId(currentDir, systemId);
+        if (path != null) return path;
+        return resolveSystemId(scriptFileName, systemId);
+    }
+    
+    private static String resolveSystemId(String baseName, String systemId) {
+        if (baseName == null || baseName.length() < 1) return null;
+        String parentName = null;
+        baseName = baseName.replaceAll("%20", " ");
+        File base = new File(baseName);
+        if (base.isDirectory()) parentName = baseName;
+        else parentName = base.getParent();
+        if (parentName.toLowerCase().startsWith("file:")) parentName = parentName.substring("file:".length());
+        File dtdFile = new File(parentName + "/" + systemId);
+        if (dtdFile.exists()) return dtdFile.getPath();
+        return null;
     }
 }

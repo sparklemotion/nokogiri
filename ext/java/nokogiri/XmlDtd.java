@@ -37,7 +37,7 @@ import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.apache.xerces.xni.QName;
 import org.cyberneko.dtd.DTDConfiguration;
@@ -98,43 +98,40 @@ public class XmlDtd extends XmlNode {
     public XmlDtd(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
+    
+    public void setNode(Ruby runtime, Node dtd) {
+        this.node = dtd;
+        notationClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::Notation");
 
-    public XmlDtd(Ruby ruby) {
-        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::DTD"), null);
-    }
-
-    public XmlDtd(Ruby ruby, Node dtd) {
-        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::DTD"), dtd);
-    }
-
-    public XmlDtd(Ruby ruby, RubyClass rubyClass, Node dtd) {
-        super(ruby, rubyClass, dtd);
-        notationClass = (RubyClass)
-            ruby.getClassFromPath("Nokogiri::XML::Notation");
-
-        name = pubId = sysId = ruby.getNil();
+        name = pubId = sysId = runtime.getNil();
         if (dtd == null) return;
 
         // This is the dtd declaration stored in the document; it
         // contains the DTD name (root element) and public and system
-        // ids.  The actual declarations are in the NekoDTD 'dtd'
+        // ids. The actual declarations are in the NekoDTD 'dtd'
         // variable. I don't know of a way to consolidate the two.
 
         DocumentType otherDtd = dtd.getOwnerDocument().getDoctype();
         if (otherDtd != null) {
-            name = stringOrNil(ruby, otherDtd.getNodeName());
-            pubId = nonEmptyStringOrNil(ruby, otherDtd.getPublicId());
-            sysId = nonEmptyStringOrNil(ruby, otherDtd.getSystemId());
+            name = stringOrNil(runtime, otherDtd.getNodeName());
+            pubId = nonEmptyStringOrNil(runtime, otherDtd.getPublicId());
+            sysId = nonEmptyStringOrNil(runtime, otherDtd.getSystemId());
         }
     }
 
-    public static XmlDtd newEmpty(Ruby ruby,
+    public XmlDtd(Ruby ruby, RubyClass rubyClass, Node dtd) {
+        super(ruby, rubyClass, dtd);
+        setNode(ruby, dtd);
+    }
+
+    public static XmlDtd newEmpty(Ruby runtime,
                                   Document doc,
                                   IRubyObject name,
                                   IRubyObject external_id,
                                   IRubyObject system_id) {
         Element placeHolder = doc.createElement("dtd_placeholder");
-        XmlDtd dtd = new XmlDtd(ruby, placeHolder);
+        XmlDtd dtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
+        dtd.setNode(runtime, placeHolder);
         dtd.name = name;
         dtd.pubId = external_id;
         dtd.sysId = system_id;
@@ -155,38 +152,47 @@ public class XmlDtd extends XmlNode {
      * Document provided by NekoDTD.
      *
      */
-    public static XmlDtd newFromInternalSubset(Ruby ruby, Document doc) {
+    public static XmlDtd newFromInternalSubset(Ruby runtime, Document doc) {
         Object dtdTree_ = doc.getUserData(XmlDocument.DTD_RAW_DOCUMENT);
-        if (dtdTree_ == null)
-            return new XmlDtd(ruby);
+        if (dtdTree_ == null) {
+            XmlDtd xmlDtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
+            xmlDtd.setNode(runtime, null);
+            return xmlDtd;
+        }
 
         Node dtdTree = (Node) dtdTree_;
         Node dtd = getInternalSubset(dtdTree);
         if (dtd == null) {
-            return new XmlDtd(ruby);
+            XmlDtd xmlDtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
+            xmlDtd.setNode(runtime, null);
+            return xmlDtd;
         } else {
             // Import the node into doc so it has the correct owner document.
             dtd = doc.importNode(dtd, true);
-            return new XmlDtd(ruby, dtd);
+            XmlDtd xmlDtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
+            xmlDtd.setNode(runtime, dtd);
+            return xmlDtd;
         }
     }
 
-    public static IRubyObject newFromExternalSubset(Ruby ruby, Document doc) {
+    public static IRubyObject newFromExternalSubset(Ruby runtime, Document doc) {
         Object dtdTree_ = doc.getUserData(XmlDocument.DTD_RAW_DOCUMENT);
         if (dtdTree_ == null) {
-            return ruby.getNil();
+            return runtime.getNil();
         }
 
         Node dtdTree = (Node) dtdTree_;
         Node dtd = getExternalSubset(dtdTree);
         if (dtd == null) {
-            return ruby.getNil();
+            return runtime.getNil();
         } else if (!dtd.hasChildNodes()) {
-            return ruby.getNil();
+            return runtime.getNil();
         } else {
             // Import the node into doc so it has the correct owner document.
             dtd = doc.importNode(dtd, true);
-            return new XmlDtd(ruby, dtd);
+            XmlDtd xmlDtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
+            xmlDtd.setNode(runtime, dtd);
+            return xmlDtd;
         }
     }
 
@@ -365,10 +371,7 @@ public class XmlDtd extends XmlNode {
         extractDecls(context, node.getFirstChild());
 
         // convert allDecls to a NodeSet
-        children =
-            new XmlNodeSet(runtime,
-                           getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"),
-                           allDecls);
+        children = XmlNodeSet.newXmlNodeSet(context, allDecls);
 
         // add attribute decls as attributes to the matching element decl
         RubyArray keys = attributes.keys();
@@ -455,13 +458,12 @@ public class XmlDtd extends XmlNode {
         }
     }
     
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        ctx.append("<!DOCTYPE " + name + " ");
-        if (pubId != null) {
-            ctx.append("PUBLIC \"" + pubId + "\" \"" + sysId + "\">");
-        } else if (sysId != null) {
-            ctx.append("SYSTEM " + sysId);
-        }
+    @Override
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        // since we use nekoDTD to parse dtd, node might be ElementImpl type
+        // An external subset doesn't need to show up, so this method just see docType.
+        DocumentType docType = node.getOwnerDocument().getDoctype();
+        visitor.enter(docType);
+        visitor.leave(docType);
     }
-
 }

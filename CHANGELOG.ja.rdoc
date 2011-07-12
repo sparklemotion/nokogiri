@@ -1,3 +1,24 @@
+== 1.5.0 / 2011年7月1日
+
+* Notes
+
+  * See changelog from 1.4.7
+
+* Features
+
+  * extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+
+* Bugfixes
+
+  * default output of XML on JRuby is no longer formatted due to
+    inconsistent whitespace handling. #415
+  * (JRuby) making empty NodeSets with null `nodes` member safe to operate on. #443
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding.
+  * Add support for <meta charset="...">.
+
+
 == 1.5.0 beta3 ２０１０年１２月２日
 
 * 註
@@ -26,6 +47,19 @@
   * Ruby 1.8.6は非推奨となった. インストールできるかもしれないが、正式なサポートは終了.
   * LibXML 2.6.16および古いバージョンは非推奨. インストールできない.
   * FFIサポートは削除された.
+
+=== 1.4.7 / 2011年7月1日
+
+* バグの修正
+
+  * エンコーディング宣言のないHTMLファイルで部分的に重複したドキュメントが生成される問題を修正した. #478
+
+=== 1.4.6 / 2011年6月19日
+
+* ノート
+
+  * このバージョンは、1.4.5と機能的に同じです
+  * Rubyの1.8.6のサポートが復元されている
 
 === 1.4.5 / 未リリース
 

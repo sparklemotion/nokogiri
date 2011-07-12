@@ -9,7 +9,7 @@ module Nokogiri
     # Nokogiri::XML::Node#xpath
     class Document < Nokogiri::XML::Node
       ##
-      # Parse an XML file.  +thing+ may be a String, or any object that
+      # Parse an XML file.  +string_or_io+ may be a String, or any object that
       # responds to _read_ and _close_ such as an IO, or StringIO.
       # +url+ is resource where this document is located.  +encoding+ is the
       # encoding that should be used when processing the document. +options+
@@ -204,6 +204,22 @@ module Nokogiri
         end
       end
       alias :<< :add_child
+
+      ##
+      # +JRuby+
+      # Wraps Java's org.w3c.dom.document and returns Nokogiri::XML::Document
+      def self.wrap document
+        raise "JRuby only method" unless Nokogiri.jruby?
+        return wrapJavaDocument(document)
+      end
+
+      ##
+      # +JRuby+
+      # Returns Java's org.w3c.dom.document of this Document.
+      def to_java
+        raise "JRuby only method" unless Nokogiri.jruby?
+        return toJavaDocument()
+      end
 
       private
       def implied_xpath_context

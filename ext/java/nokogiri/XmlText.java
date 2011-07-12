@@ -32,11 +32,10 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.isXmlEscaped;
+import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
-import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -46,6 +45,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 
 /**
  * Class for Nokogiri::XML::Text
@@ -98,39 +98,22 @@ public class XmlText extends XmlNode {
             return content;
         }
     }
-
+    
     @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        String textContent = node.getTextContent();
-        
-        if (!isXmlEscaped(textContent)) {        
-            textContent = NokogiriHelpers.encodeJavaString(textContent);
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        visitor.enter((Text)node);
+        Node child = node.getFirstChild();
+        while (child != null) {
+            IRubyObject nokoNode = getCachedNodeOrCreate(context.getRuntime(), child);
+            if (nokoNode instanceof XmlNode) {
+                XmlNode cur = (XmlNode) nokoNode;
+                cur.accept(context, visitor);
+            } else if (nokoNode instanceof XmlNamespace) {
+                XmlNamespace cur = (XmlNamespace) nokoNode;
+                cur.accept(context, visitor);
+            }
+            child = child.getNextSibling();
         }
-        if (getEncoding(context, ctx) == null) {
-            textContent = encodeStringToHtmlEntity(textContent);
-        }
-        ctx.append(textContent);
-    }
-    
-    private String getEncoding(ThreadContext context, SaveContext ctx) {
-        String encoding  = ctx.getEncoding();
-        if (encoding != null) return encoding;
-        XmlDocument xmlDocument = (XmlDocument)document(context);
-        IRubyObject ruby_encoding = xmlDocument.encoding(context);
-        if (!ruby_encoding.isNil()) {
-            encoding = rubyStringToString(ruby_encoding);
-        }
-        return encoding;
-    }
-    
-    private String encodeStringToHtmlEntity(String text) {
-        int last = 126; // = U+007E. No need to encode under U+007E.
-        StringBuffer sb = new StringBuffer();
-        for (int i=0; i<text.length(); i++) {
-            int codePoint = text.codePointAt(i);
-            if (codePoint > last) sb.append("&#x" + Integer.toHexString(codePoint) + ";");
-            else sb.append(text.charAt(i));
-        }
-        return new String(sb);
+        visitor.leave((Text)node);
     }
 }

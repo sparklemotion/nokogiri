@@ -45,8 +45,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nokogiri.internals.SaveContext;
-
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -57,6 +55,7 @@ import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 
 /**
@@ -92,8 +91,11 @@ public class XmlDocumentFragment extends XmlNode {
         
         // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
         if (args.length > 1 && args[1] instanceof RubyString) {
-            args[1] = RubyString.newString(context.getRuntime(), ignoreNamespaceIfNeeded(doc, rubyStringToString(args[1])));
-            args[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(args[1])));
+            args[1] = trim(context, doc, (RubyString)args[1]);
+            if (XmlDocumentFragment.isTag((RubyString)args[1])) {
+                args[1] = RubyString.newString(context.getRuntime(), ignoreNamespaceIfNeeded(doc, rubyStringToString(args[1])));
+                args[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(args[1])));
+            }
         }
 
         XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)cls);
@@ -107,7 +109,25 @@ public class XmlDocumentFragment extends XmlNode {
         RuntimeHelpers.invoke(context, fragment, "initialize", args);
         return fragment;
     }
+    
+    private static IRubyObject trim(ThreadContext context, XmlDocument xmlDocument, RubyString str) {
+        // checks whether schema is given. if exists, allows whitespace processing to a parser
+        Document document = (Document)xmlDocument.node;
+        if (document.getDoctype() != null) return str;
+        // strips trailing \n off forcefully
+        // not to return new object in case of no chomp needed, chomp! is used here.
+        IRubyObject result;
+        if (context.getRuntime().is1_9()) result = str.chomp_bang19(context);
+        else result = str.chomp_bang(context);
+        return result.isNil() ? str : result;
+    }
 
+    private static boolean isTag(RubyString ruby_string) {
+        String str = rubyStringToString(ruby_string);
+        if (str.startsWith("<") && str.endsWith(">")) return true;
+        return false;
+    }
+    
     private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
     private static Pattern starttag_pattern = Pattern.compile("<[^</>]+>");
     
@@ -208,10 +228,4 @@ public class XmlDocumentFragment extends XmlNode {
     public void relink_namespace(ThreadContext context) {
         ((XmlNodeSet) children(context)).relink_namespace(context);
     }
-
-    @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        saveNodeListContent(context, (XmlNodeSet) children(context), ctx);
-    }
-
 }

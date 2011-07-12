@@ -22,28 +22,9 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
     require 'nekodtd.jar'
     require 'xercesImpl.jar'
   end
-  require 'nokogiri/nokogiri'
-else
-  require 'nokogiri/nokogiri'
 end
 
-warn(<<-eowarn) if '1.8.6' == RUBY_VERSION && $VERBOSE
-!!! DEPRECATION WARNING !!!
-Hey Champ!  I see you're using Ruby 1.8.6!  While I applaud you for sticking to
-your guns and using The One True Ruby, I have to let you know that we're going
-to stop supporting 1.8.6.  I know, it's sad.  But, we just don't have time to
-support every version of Ruby out there.  Whether we like it or not, time moves
-forward and so does our software.
-
-On August 1, 2010, we will no longer support Ruby 1.8.6.  If nokogiri happens to
-work on 1.8.6 after that date, then great!  We will hownever, no longer test,
-use, or endorse 1.8.6 as a supported platform.
-
-Thanks,
-
-  Team Nokogiri
-eowarn
-
+require 'nokogiri/nokogiri'
 require 'nokogiri/version'
 require 'nokogiri/syntax_error'
 require 'nokogiri/xml'
@@ -86,13 +67,13 @@ module Nokogiri
       doc =
         if string.respond_to?(:read) ||
           string =~ /^\s*<[^Hh>]*html/i # Probably html
-          Nokogiri::HTML(
+          Nokogiri.HTML(
             string,
             url,
             encoding, options || XML::ParseOptions::DEFAULT_HTML
           )
         else
-          Nokogiri::XML(string, url, encoding,
+          Nokogiri.XML(string, url, encoding,
                         options || XML::ParseOptions::DEFAULT_XML)
         end
       yield doc if block_given?

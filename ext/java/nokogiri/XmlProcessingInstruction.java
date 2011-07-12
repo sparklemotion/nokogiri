@@ -33,7 +33,7 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -44,22 +44,28 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.ProcessingInstruction;
 
 /**
  * Class for Nokogiri::XML::ProcessingInstruction
  * 
  * @author sergio
+ * @author Yoko Harada <yokolet@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::ProcessingInstruction", parent="Nokogiri::XML::Node")
 public class XmlProcessingInstruction extends XmlNode {
 
-    public XmlProcessingInstruction(Ruby ruby, RubyClass klass, Node node) {
-        super(ruby, klass, node);
+    public XmlProcessingInstruction(Ruby ruby, RubyClass klazz) {
+        super(ruby, klazz);
+    }
+    
+    public XmlProcessingInstruction(Ruby ruby, RubyClass klazz, Node node) {
+        super(ruby, klazz, node);
     }
 
     @JRubyMethod(name="new", meta=true, rest=true, required=3)
     public static IRubyObject rbNew(ThreadContext context,
-                                    IRubyObject klass,
+                                    IRubyObject klazz,
                                     IRubyObject[] args) {
 
         IRubyObject doc = args[0];
@@ -72,7 +78,7 @@ public class XmlProcessingInstruction extends XmlNode {
                                                  rubyStringToString(data));
         XmlProcessingInstruction self =
             new XmlProcessingInstruction(context.getRuntime(),
-                                         (RubyClass) klass,
+                                         (RubyClass) klazz,
                                          node);
 
         RuntimeHelpers.invoke(context, self, "initialize", args);
@@ -84,20 +90,10 @@ public class XmlProcessingInstruction extends XmlNode {
 
     @Override
     public boolean isProcessingInstruction() { return true; }
-
+    
     @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        ctx.append("<?");
-        ctx.append(node_name(context).convertToString().asJavaString());
-        IRubyObject content = content(context);
-        if(!content.isNil()) {
-            if (ctx.asHtml()) ctx.append(" ");
-            ctx.append(content.convertToString().asJavaString());
-        }
-        if (ctx.asHtml())
-            ctx.append(">");
-        else
-            ctx.append("?>");
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        visitor.enter((ProcessingInstruction)node);
+        visitor.leave((ProcessingInstruction)node);
     }
-
 }

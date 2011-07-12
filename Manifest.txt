@@ -7,7 +7,6 @@ README.ja.rdoc
 README.rdoc
 Rakefile
 bin/nokogiri
-deps.rip
 ext/java/nokogiri/EncodingHandler.java
 ext/java/nokogiri/HtmlDocument.java
 ext/java/nokogiri/HtmlElementDescription.java
@@ -56,7 +55,7 @@ ext/java/nokogiri/internals/NokogiriXsltErrorListener.java
 ext/java/nokogiri/internals/ParserContext.java
 ext/java/nokogiri/internals/PushInputStream.java
 ext/java/nokogiri/internals/ReaderNode.java
-ext/java/nokogiri/internals/SaveContext.java
+ext/java/nokogiri/internals/SaveContextVisitor.java
 ext/java/nokogiri/internals/SchemaErrorHandler.java
 ext/java/nokogiri/internals/XmlDeclHandler.java
 ext/java/nokogiri/internals/XmlDomParser.java
@@ -196,8 +195,9 @@ lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
-nokogiri.gemspec
+nokogiri_help_responses.md
 tasks/cross_compile.rb
+tasks/nokogiri.org.rb
 tasks/test.rb
 test/css/test_nthiness.rb
 test/css/test_parser.rb
@@ -214,6 +214,8 @@ test/files/encoding.xhtml
 test/files/exslt.xml
 test/files/exslt.xslt
 test/files/foo/foo.xsd
+test/files/metacharset.html
+test/files/noencoding.html
 test/files/po.xml
 test/files/po.xsd
 test/files/shift_jis.html

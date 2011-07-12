@@ -42,6 +42,7 @@ import java.util.List;
 
 import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
+import nokogiri.XmlDtd;
 import nokogiri.XmlSyntaxError;
 
 import org.apache.xerces.parsers.DOMParser;
@@ -189,6 +190,11 @@ public class XmlDomParserContext extends ParserContext {
         XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
         xmlDocument.setNode(context, doc);
         xmlDocument.setEncoding(ruby_encoding);
+
+        if (options.dtdLoad) {
+            XmlDtd xmlDtd = (XmlDtd) XmlDtd.newFromExternalSubset(context.getRuntime(), doc);
+            doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, xmlDtd, null);
+        }
         return xmlDocument;
     }
 

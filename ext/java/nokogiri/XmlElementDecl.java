@@ -54,12 +54,16 @@ import org.w3c.dom.Node;
 @JRubyClass(name="Nokogiri::XML::ElementDecl", parent="Nokogiri::XML::Node")
 public class XmlElementDecl extends XmlNode {
     RubyArray attrDecls;
-
     IRubyObject contentModel;
-
-    public XmlElementDecl(Ruby ruby, RubyClass klass) {
-        super(ruby, klass);
-        throw ruby.newRuntimeError("node required");
+    
+    public XmlElementDecl(Ruby ruby, RubyClass klazz) {
+        super(ruby, klazz);
+    }
+    
+    public void setNode(ThreadContext context, Node node) {
+        super.setNode(context, node);
+        attrDecls = RubyArray.newArray(context.getRuntime());
+        contentModel = context.getRuntime().getNil();
     }
 
     /**

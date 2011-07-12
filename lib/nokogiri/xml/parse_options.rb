@@ -37,6 +37,14 @@ module Nokogiri
       NOCDATA     = 1 << 14
       # do not generate XINCLUDE START/END nodes
       NOXINCNODE  = 1 << 15
+      # compact small text nodes; no modification of the tree allowed afterwards (will possibly crash if you try to modify the tree)
+      COMPACT     = 1 << 16
+      # parse using XML-1.0 before update 5
+      OLD10       = 1 << 17
+      # do not fixup XINCLUDE xml:base uris
+      NOBASEFIX   = 1 << 18
+      # relax any hardcoded limit from the parser
+      HUGE        = 1 << 19
 
       # the default options used for parsing XML documents
       DEFAULT_XML  = RECOVER

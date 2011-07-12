@@ -486,6 +486,11 @@ module Nokogiri
         assert_equal 'Yes', @xml.css('address').first[:domestic]
       end
 
+      def test_non_existent_attribute_should_return_nil
+        node = @xml.root.first_element_child
+        assert_nil node.attribute('type')
+      end
+
       def test_write_to_with_block
         called = false
         io = StringIO.new
@@ -699,6 +704,15 @@ module Nokogiri
         assert_equal('/staff/employee[1]', node.path)
       end
 
+      def test_parent_xpath
+        assert set = @xml.search('//employee')
+        assert node = set.first
+        assert parent_set = node.search('..')
+        assert parent_node = parent_set.first
+        assert_equal '/staff', parent_node.path
+        assert_equal node.parent, parent_node
+      end
+
       def test_search_by_symbol
         assert set = @xml.search(:employee)
         assert 5, set.length
@@ -718,7 +732,7 @@ module Nokogiri
         assert_equal '&amp;', foo
       end
 
-      def test_content
+      def test_content_equals
         node = Nokogiri::XML::Node.new('form', @xml)
         assert_equal('', node.content)
 
@@ -728,6 +742,10 @@ module Nokogiri
         node.content = '& <foo> &amp;'
         assert_equal('& <foo> &amp;', node.content)
         assert_equal('<form>&amp; &lt;foo&gt; &amp;amp;</form>', node.to_xml)
+
+        node.content = "1234 <-> 1234"
+        assert_equal "1234 <-> 1234", node.content
+        assert_equal "<form>1234 &lt;-&gt; 1234</form>", node.to_xml
       end
 
       def test_set_content_should_unlink_existing_content
@@ -893,6 +911,11 @@ module Nokogiri
         node_set = @xml.css("employee")
         assert_equal @xml, node_set.document
         assert node_set.respond_to?(:awesome!)
+      end
+
+      def test_blank
+        doc = Nokogiri::XML('')
+        assert_equal false, doc.blank?
       end
     end
   end

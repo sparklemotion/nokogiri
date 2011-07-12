@@ -121,7 +121,7 @@ public class XmlSaxParserContext extends ParserContext {
                                            IRubyObject data) {
         XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
         ctx.initialize(context.getRuntime());
-        ctx.setInputSource(context, data);
+        ctx.setInputSource(context, data, context.getRuntime().getNil());
         return ctx;
     }
 
@@ -153,7 +153,7 @@ public class XmlSaxParserContext extends ParserContext {
         //int encoding = (int)enc.convertToInteger().getLongValue();
         XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
         ctx.initialize(context.getRuntime());
-        ctx.setInputSource(context, data);
+        ctx.setInputSource(context, data, context.getRuntime().getNil());
         return ctx;
     }
 

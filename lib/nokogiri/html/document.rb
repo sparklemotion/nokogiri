@@ -58,10 +58,7 @@ module Nokogiri
       #   end
       #
       def serialize options = {}
-        options[:save_with] ||= XML::Node::SaveOptions::FORMAT |
-            XML::Node::SaveOptions::AS_HTML |
-            XML::Node::SaveOptions::NO_DECLARATION |
-            XML::Node::SaveOptions::NO_EMPTY_TAGS
+        options[:save_with] ||= XML::Node::SaveOptions::DEFAULT_HTML
         super
       end
 
@@ -73,7 +70,7 @@ module Nokogiri
 
       class << self
         ###
-        # Parse HTML.  +thing+ may be a String, or any object that
+        # Parse HTML.  +string_or_io+ may be a String, or any object that
         # responds to _read_ and _close_ such as an IO, or StringIO.
         # +url+ is resource where this document is located.  +encoding+ is the
         # encoding that should be used when processing the document. +options+
@@ -95,7 +92,7 @@ module Nokogiri
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
             if !encoding
-              # Perform further encoding detection that libxml2 does
+              # Perform advanced encoding detection that libxml2 does
               # not do.
               string_or_io = EncodingReader.new(string_or_io)
               begin
@@ -150,6 +147,8 @@ module Nokogiri
               not_found
             when 'meta'
               attr = Hash[attrs]
+              charset = attr['charset'] and
+                found charset
               http_equiv = attr['http-equiv'] and
                 http_equiv.match(/\AContent-Type\z/i) and
                 content = attr['content'] and
@@ -174,7 +173,7 @@ module Nokogiri
             parser.parse(chunk)
           }
           handler.encoding
-        rescue => e
+        rescue
           nil
         end
 
@@ -189,16 +188,13 @@ module Nokogiri
           if !@firstchunk
             @firstchunk = @io.read(len) or return nil
 
-            # This implementation expects and assumes that the first
-            # call from htmlReadIO() is made with a length long enough
-            # (~1KB) to achieve further encoding detection that
-            # libxml2 does not do.
+            # This implementation expects that the first call from
+            # htmlReadIO() is made with a length long enough (~1KB) to
+            # achieve advanced encoding detection.
             if encoding = EncodingReader.detect_encoding(@firstchunk)
+              # The first chunk is stored for the next read in retry.
               raise EncodingFoundException, encoding
             end
-
-            # This chunk is stored for the next read in retry.
-            return @firstchunk
           end
 
           ret = @firstchunk.slice!(0, len)

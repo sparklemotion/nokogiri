@@ -33,6 +33,7 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static nokogiri.internals.NokogiriHelpers.adjustSystemIdIfNecessary;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,9 +92,9 @@ public class XmlSchema extends RubyObject {
         return super.clone();
     }
 
-    private Schema getSchema(Source source, String currentDir) throws SAXException {
+    private Schema getSchema(Source source, String currentDir, String scriptFileName) throws SAXException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        SchemaResourceResolver resourceResolver = new SchemaResourceResolver(currentDir, null);
+        SchemaResourceResolver resourceResolver = new SchemaResourceResolver(currentDir, scriptFileName, null);
         schemaFactory.setResourceResolver(resourceResolver); 
         return schemaFactory.newSchema(source);
     }
@@ -108,7 +109,7 @@ public class XmlSchema extends RubyObject {
         xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
         
         try {
-            Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory());
+            Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory(), context.getRuntime().getInstanceConfig().getScriptFileName());
             xmlSchema.setValidator(schema.newValidator());
             return xmlSchema;
         } catch (SAXException ex) {
@@ -168,7 +169,7 @@ public class XmlSchema extends RubyObject {
         Ruby ruby = context.getRuntime();
 
         XmlDomParserContext ctx = new XmlDomParserContext(ruby, RubyFixnum.newFixnum(ruby, 1L));
-        ctx.setInputSource(context, file);
+        ctx.setInputSource(context, file, context.getRuntime().getNil());
         XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(ruby, "Nokogiri::XML::Document"), ruby.getNil());
         return validate_document_or_file(context, xmlDocument);
     }
@@ -202,10 +203,13 @@ public class XmlSchema extends RubyObject {
     
     private class SchemaResourceResolver implements LSResourceResolver {
         SchemaLSInput lsInput = new SchemaLSInput();
-        String defaultURI;
+        String currentDir;
+        String scriptFileName;
+        //String defaultURI;
         
-        SchemaResourceResolver(String currentDir, Object input) {
-            defaultURI = currentDir + "/nokogiri_default_fake.xsd";
+        SchemaResourceResolver(String currentDir, String scriptFileName, Object input) {
+            this.currentDir = currentDir;
+            this.scriptFileName = scriptFileName;
             if (input == null) return;
             if (input instanceof String) {
                 lsInput.setStringData((String)input);
@@ -218,9 +222,10 @@ public class XmlSchema extends RubyObject {
 
         @Override
         public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
+            String adjusted = adjustSystemIdIfNecessary(currentDir, scriptFileName, baseURI, systemId);
             lsInput.setPublicId(publicId);
-            lsInput.setSystemId(systemId);
-            lsInput.setBaseURI(baseURI != null ? baseURI : defaultURI);
+            lsInput.setSystemId(adjusted);
+            lsInput.setBaseURI(baseURI);
             return lsInput;
         }
     }

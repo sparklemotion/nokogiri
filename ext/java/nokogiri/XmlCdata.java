@@ -34,7 +34,7 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -77,15 +77,8 @@ public class XmlCdata extends XmlText {
     }
 
     @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        CDATASection cdata = (CDATASection) node;
-
-        if(cdata.getData().length() == 0) {
-            ctx.append("<![CDATA[]]>");
-        } else {
-            ctx.append("<![CDATA[");
-            ctx.append(cdata.getData());
-            ctx.append("]]>");
-        }
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        visitor.enter((CDATASection)node);
+        visitor.leave((CDATASection)node);
     }
 }

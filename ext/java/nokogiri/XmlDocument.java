@@ -44,7 +44,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
-import nokogiri.internals.SaveContext;
+import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
@@ -53,6 +53,7 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyNil;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
@@ -76,8 +77,8 @@ public class XmlDocument extends XmlNode {
     
     /* UserData keys for storing extra info in the document node. */
     public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
-    protected final static String DTD_INTERNAL_SUBSET = "DTD_INTERNAL_SUBSET";
-    protected final static String DTD_EXTERNAL_SUBSET = "DTD_EXTERNAL_SUBSET";
+    public final static String DTD_INTERNAL_SUBSET = "DTD_INTERNAL_SUBSET";
+    public final static String DTD_EXTERNAL_SUBSET = "DTD_EXTERNAL_SUBSET";
     
     /* DocumentBuilderFactory implementation class name. This needs to set a classloader into it.
      * Setting an appropriate classloader resolves issue 380.
@@ -142,11 +143,10 @@ public class XmlDocument extends XmlNode {
                     String attrName = attr.getName();
                     // not sure, but need to get value always before document is referred.
                     // or lose attribute value
-                    String attrValue = attr.getValue();
+                    String attrValue = attr.getValue(); // don't delete this line
                     if (isNamespace(attrName)) {
-                        String prefix = getLocalNameForNamespace(attrName);
-                        prefix = prefix != null ? prefix : "";
-                        nsCache.put(ruby, prefix, attrValue, node, this);
+                        // create and cache
+                        XmlNamespace.createFromAttr(ruby, attr);
                     }
                 }
             }
@@ -309,7 +309,7 @@ public class XmlDocument extends XmlNode {
         Arity.checkArgumentCount(ruby, args, 4, 4);
         XmlDomParserContext ctx =
             new XmlDomParserContext(ruby, args[2], args[3]);
-        ctx.setInputSource(context, args[0]);
+        ctx.setInputSource(context, args[0], args[1]);
         return ctx.parse(context, klass, args[1]);
     }
 
@@ -420,16 +420,11 @@ public class XmlDocument extends XmlNode {
     }
 
     public IRubyObject getInternalSubset(ThreadContext context) {
-        IRubyObject dtd =
-            (IRubyObject) node.getUserData(DTD_INTERNAL_SUBSET);
+        IRubyObject dtd = (IRubyObject) node.getUserData(DTD_INTERNAL_SUBSET);
 
         if (dtd == null) {
-            if (getDocument().getDoctype() == null)
-                dtd = context.getRuntime().getNil();
-            else
-                dtd = XmlDtd.newFromInternalSubset(context.getRuntime(),
-                                                   getDocument());
-
+            if (getDocument().getDoctype() == null) dtd = context.getRuntime().getNil();
+            else dtd = XmlDtd.newFromInternalSubset(context.getRuntime(), getDocument());
             setInternalSubset(dtd);
         }
 
@@ -456,15 +451,9 @@ public class XmlDocument extends XmlNode {
     }
 
     public IRubyObject getExternalSubset(ThreadContext context) {
-        IRubyObject dtd = (IRubyObject)
-            node.getUserData(DTD_EXTERNAL_SUBSET);
+        IRubyObject dtd = (IRubyObject) node.getUserData(DTD_EXTERNAL_SUBSET);
 
-        if (dtd == null) {
-            dtd = XmlDtd.newFromExternalSubset(context.getRuntime(),
-                                               getDocument());
-            setExternalSubset(dtd);
-        }
-
+        if (dtd == null) return context.getRuntime().getNil();
         return dtd;
     }
 
@@ -487,43 +476,44 @@ public class XmlDocument extends XmlNode {
         node.setUserData(DTD_EXTERNAL_SUBSET, data, null);
     }
 
-    //public IRubyObject createE
-
     @Override
-    public void saveContent(ThreadContext context, SaveContext ctx) {
-        if(!ctx.noDecl()) {
-            ctx.append("<?xml version=\"");
-            ctx.append(getDocument().getXmlVersion());
-            ctx.append("\"");
-//            if(!cur.encoding(context).isNil()) {
-//                ctx.append(" encoding=");
-//                ctx.append(cur.encoding(context).asJavaString());
-//            }
-
-            String encoding = ctx.getEncoding();
-
-            if(encoding == null &&
-                    !encoding(context).isNil()) {
-                encoding = encoding(context).convertToString().asJavaString();
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        Document document = getDocument();
+        visitor.enter(document);
+        NodeList children = document.getChildNodes();
+        for (int i=0; i<children.getLength(); i++) {
+            Node child = children.item(i);
+            short type = child.getNodeType();
+            if (type == Node.COMMENT_NODE) {
+                XmlComment xmlComment = (XmlComment) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlComment.accept(context, visitor);
+            } else if (type == Node.DOCUMENT_TYPE_NODE) {
+                XmlDtd xmlDtd = (XmlDtd) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlDtd.accept(context, visitor);
+            } else if (type == Node.PROCESSING_INSTRUCTION_NODE) {
+                XmlProcessingInstruction xmlProcessingInstruction = (XmlProcessingInstruction) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlProcessingInstruction.accept(context, visitor);
+            } else if (type == Node.TEXT_NODE) {
+                XmlText xmlText = (XmlText) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlText.accept(context, visitor);
+            } else if (type == Node.ELEMENT_NODE) {
+                XmlElement xmlElement = (XmlElement) getCachedNodeOrCreate(context.getRuntime(), child);
+                xmlElement.accept(context, visitor);
             }
-
-            if(encoding != null) {
-                ctx.append(" encoding=\"");
-                ctx.append(encoding);
-                ctx.append("\"");
-            }
-
-            //ctx.append(" standalone=\"");
-            //ctx.append(getDocument().getXmlStandalone() ? "yes" : "no");
-            ctx.append("?>\n");
         }
-
-        IRubyObject maybeRoot = root(context);
-        if (maybeRoot.isNil())
-            throw context.getRuntime().newRuntimeError("no root document");
-
-        XmlNode root = (XmlNode) maybeRoot;
-        root.saveContent(context, ctx);
-        ctx.append("\n");
+        visitor.leave(document);
+    }
+    
+    @JRubyMethod(meta=true)
+    public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klazz, IRubyObject arg) {
+        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"));
+        Document document = (Document)arg.toJava(Document.class);
+        xmlDocument.setNode(context, document);
+        return xmlDocument;
+    }
+    
+    @JRubyMethod
+    public IRubyObject toJavaDocument(ThreadContext context) {
+        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), (org.w3c.dom.Document)node);
     }
 }

@@ -30,6 +30,10 @@ module Nokogiri
         @list = @xml.css('employee')
       end
 
+      def test_break_works
+        assert_equal 7, @xml.root.elements.each { |x| break 7 }
+      end
+
       def test_filter
         list = @xml.css('address').filter('*[domestic="Yes"]')
         assert_equal(%w{ Yes } * 4, list.map { |n| n['domestic'] })
@@ -234,6 +238,11 @@ module Nokogiri
         end
       end
 
+      def test_dup_on_empty_set
+        empty_set = Nokogiri::XML::NodeSet.new @xml, []
+        assert_equal 0, empty_set.dup.length # this shouldn't raise null pointer exception
+      end
+
       def test_xmlns_is_automatically_registered
         doc = Nokogiri::XML(<<-eoxml)
           <root xmlns="http://tenderlovemaking.com/">
@@ -356,6 +365,12 @@ module Nokogiri
         result = employees.delete(phb)
         assert_nil result
         assert length, employees.length
+      end
+
+      def test_delete_on_empty_set
+        empty_set = Nokogiri::XML::NodeSet.new @xml, []
+        employee  = @xml.at_xpath("//employee")
+        assert_equal nil, empty_set.delete(employee)
       end
 
       def test_unlink
@@ -518,6 +533,13 @@ module Nokogiri
         assert_equal employees.length, employees[0, employees.length].length
       end
 
+      def test_slice_on_empty_node_set
+        empty_set = Nokogiri::XML::NodeSet.new @xml, []
+        assert_equal nil, empty_set[99]
+        assert_equal nil, empty_set[99..101]
+        assert_equal nil, empty_set[99,2]
+      end
+
       def test_slice_waaaaaay_off_the_end
         xml = Nokogiri::XML::Builder.new {
           root { 100.times { div } }
@@ -572,6 +594,12 @@ module Nokogiri
         assert_equal [employees[2]], (first_set & second_set).to_a
       end
 
+      def test_intersection_on_empty_set
+        empty_set = Nokogiri::XML::NodeSet.new @xml
+        employees = @xml.search("//employee")
+        assert_equal 0, (empty_set & employees).length
+      end
+
       def test_include?
         employees = @xml.search("//employee")
         yes = employees.first
@@ -579,6 +607,12 @@ module Nokogiri
 
         assert employees.include?(yes)
         assert ! employees.include?(no)
+      end
+
+      def test_include_on_empty_node_set
+        empty_set = Nokogiri::XML::NodeSet.new @xml, []
+        employee  = @xml.at_xpath("//employee")
+        assert ! empty_set.include?(employee)
       end
 
       def test_children
