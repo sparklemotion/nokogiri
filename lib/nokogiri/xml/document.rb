@@ -71,14 +71,19 @@ module Nokogiri
         elm
       end
 
-      # Create a text node with +text+
-      def create_text_node text, &block
-        Nokogiri::XML::Text.new(text.to_s, self, &block)
+      # Create a Text Node with +string+
+      def create_text_node string, &block
+        Nokogiri::XML::Text.new string.to_s, self, &block
       end
 
-      # Create a CDATA element containing +text+
-      def create_cdata text
-        Nokogiri::XML::CDATA.new(self, text.to_s)
+      # Create a CDATA Node containing +string+
+      def create_cdata string, &block
+        Nokogiri::XML::CDATA.new self, string.to_s, &block
+      end
+
+      # Create a Comment Node containing +string+
+      def create_comment string, &block
+        Nokogiri::XML::Comment.new self, string.to_s, &block
       end
 
       # The name of this document.  Always returns "document"
