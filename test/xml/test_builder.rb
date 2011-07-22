@@ -220,6 +220,15 @@ module Nokogiri
           builder.to_xml.gsub(/\n/, ""))
       end
 
+      def test_comment
+        builder = Nokogiri::XML::Builder.new do
+          root {
+            comment "this is a comment"
+          }
+        end
+        assert builder.doc.root.children.first.comment?
+      end
+
       def test_builder_no_block
         string = "hello world"
         builder = Nokogiri::XML::Builder.new

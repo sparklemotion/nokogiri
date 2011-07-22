@@ -104,6 +104,19 @@ module Nokogiri
         end
       end
 
+      def test_create_comment
+        comment = @xml.create_comment("abc")
+        assert_instance_of Nokogiri::XML::Comment, comment
+        assert_equal "abc", comment.content
+      end
+
+      def test_create_comment_with_block
+        @xml.create_comment("abc") do |comment|
+          assert_instance_of Nokogiri::XML::Comment, comment
+          assert_equal "abc", comment.content
+        end
+      end
+
       def test_pp
         out = StringIO.new('')
         assert_nothing_raised do

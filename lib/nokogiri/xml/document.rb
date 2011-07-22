@@ -81,6 +81,11 @@ module Nokogiri
         Nokogiri::XML::CDATA.new self, string.to_s, &block
       end
 
+      # Create a Comment Node containing +string+
+      def create_comment string, &block
+        Nokogiri::XML::Comment.new self, string.to_s, &block
+      end
+
       # The name of this document.  Always returns "document"
       def name
         'document'

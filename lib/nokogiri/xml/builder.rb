@@ -309,6 +309,12 @@ module Nokogiri
       end
 
       ###
+      # Create a Comment Node with content of +string+
+      def comment string
+        insert doc.create_comment(string)
+      end
+
+      ###
       # Build a tag that is associated with namespace +ns+.  Raises an
       # ArgumentError if +ns+ has not been defined higher in the tree.
       def [] ns
