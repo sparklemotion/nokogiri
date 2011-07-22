@@ -305,7 +305,7 @@ module Nokogiri
       ###
       # Create a CDATA Node with content of +string+
       def cdata string
-        insert(doc.create_cdata(string))
+        insert doc.create_cdata(string)
       end
 
       ###

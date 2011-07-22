@@ -51,11 +51,27 @@ module Nokogiri
         assert_equal @xml, txt.document
       end
 
+      def test_create_text_node_with_block
+        @xml.create_text_node 'foo' do |txt|
+          assert_instance_of Nokogiri::XML::Text, txt
+          assert_equal 'foo', txt.text
+          assert_equal @xml, txt.document
+        end
+      end
+
       def test_create_element
         elm = @xml.create_element('foo')
         assert_instance_of Nokogiri::XML::Element, elm
         assert_equal 'foo', elm.name
         assert_equal @xml, elm.document
+      end
+
+      def test_create_element_with_block
+        @xml.create_element('foo') do |elm|
+          assert_instance_of Nokogiri::XML::Element, elm
+          assert_equal 'foo', elm.name
+          assert_equal @xml, elm.document
+        end
       end
 
       def test_create_element_with_attributes
@@ -79,6 +95,13 @@ module Nokogiri
         cdata = @xml.create_cdata("abc")
         assert_instance_of Nokogiri::XML::CDATA, cdata
         assert_equal "abc", cdata.content
+      end
+
+      def test_create_cdata_with_block
+        @xml.create_cdata("abc") do |cdata|
+          assert_instance_of Nokogiri::XML::CDATA, cdata
+          assert_equal "abc", cdata.content
+        end
       end
 
       def test_pp

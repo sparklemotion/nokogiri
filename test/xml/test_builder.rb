@@ -216,7 +216,8 @@ module Nokogiri
             cdata "hello world"
           }
         end
-        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>", builder.to_xml.gsub(/\n/, ''))
+        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
+          builder.to_xml.gsub(/\n/, ""))
       end
 
       def test_builder_no_block
@@ -225,7 +226,8 @@ module Nokogiri
         builder.root {
           cdata string
         }
-        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>", builder.to_xml.gsub(/\n/, ''))
+        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
+          builder.to_xml.gsub(/\n/, ''))
       end
 
     private
