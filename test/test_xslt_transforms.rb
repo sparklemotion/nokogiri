@@ -175,7 +175,10 @@ encoding="iso-8859-1" indent="yes"/>
   </xsl:template>
 </xsl:stylesheet>}
       EOX
+      old_verbose = $VERBOSE
+      $VERBOSE = false
       assert_raises(RuntimeError) { Nokogiri::XSLT.parse(xslt_str) }
+      $VERBOSE = old_verbose
     end
 
     def test_passing_a_non_document_to_transform
