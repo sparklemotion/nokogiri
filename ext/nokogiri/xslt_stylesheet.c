@@ -26,7 +26,7 @@ static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_warning("%s", message);
+  rb_str_cat2((VALUE)ctx, message);
 
   vasprintf_free(message);
 }
@@ -40,11 +40,13 @@ static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
 static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
 {
     xmlDocPtr xml, xml_cpy;
+    VALUE errstr, exception;
     xsltStylesheetPtr ss ;
     Data_Get_Struct(xmldocobj, xmlDoc, xml);
     exsltRegisterAll();
 
-    xsltSetGenericErrorFunc(NULL, xslt_generic_error_handler);
+    errstr = rb_str_new(0, 0);
+    xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
 
     xml_cpy = xmlCopyDoc(xml, 1); /* 1 => recursive */
     ss = xsltParseStylesheetDoc(xml_cpy);
@@ -53,7 +55,8 @@ static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
 
     if (!ss) {
 	xmlFreeDoc(xml_cpy);
-	rb_raise(rb_eRuntimeError, "Unable to Parse the XSLT Document.");
+	exception = rb_exc_new3(rb_eRuntimeError, errstr);
+	rb_exc_raise(exception);
     }
 
     return Data_Wrap_Struct(klass, NULL, dealloc, ss);
