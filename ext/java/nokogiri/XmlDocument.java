@@ -349,9 +349,13 @@ public class XmlDocument extends XmlNode {
             node.getOwnerDocument().renameNode(node, null, node.getLocalName());
             NamedNodeMap attrs = node.getAttributes();
             for (int i=0; i<attrs.getLength(); i++) {
-                Node attr = attrs.item(i);
-                attr.setPrefix(null);
-                attr.getOwnerDocument().renameNode(attr, null, attr.getLocalName());
+                Attr attr = (Attr) attrs.item(i);
+                if (isNamespace(attr.getNodeName())) {
+                    ((org.w3c.dom.Element)node).removeAttributeNode(attr);
+                } else {
+                    attr.setPrefix(null);
+                    attr.getOwnerDocument().renameNode(attr, null, attr.getLocalName());
+                }
             }
         }
         XmlNodeSet nodeSet = (XmlNodeSet) xmlNode.children(context);

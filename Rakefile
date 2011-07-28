@@ -83,7 +83,12 @@ if java?
     HOE.spec.files += ['lib/nokogiri/nokogiri.jar']
   end
 else
-  require 'tasks/cross_compile'
+  mingw_available = true
+  begin
+    require 'tasks/cross_compile'
+  rescue
+    mingw_available = false
+  end
   require "rake/extensiontask"
 
   HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
@@ -91,13 +96,15 @@ else
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
-    ext.cross_compile  = true
-    ext.cross_platform = ["x86-mswin32-60", "x86-mingw32"]
-    ext.cross_config_options << "--with-xml2-include=#{File.join($recipes[:libxml2].path, 'include', 'libxml2')}"
-    ext.cross_config_options << "--with-xml2-lib=#{File.join($recipes[:libxml2].path, 'lib')}"
-    ext.cross_config_options << "--with-iconv-dir=#{$recipes[:libiconv].path}"
-    ext.cross_config_options << "--with-xslt-dir=#{$recipes[:libxslt].path}"
-    ext.cross_config_options << "--with-zlib-dir=#{CROSS_DIR}"
+    if mingw_available
+      ext.cross_compile  = true
+      ext.cross_platform = ["x86-mswin32-60", "x86-mingw32"]
+      ext.cross_config_options << "--with-xml2-include=#{File.join($recipes[:libxml2].path, 'include', 'libxml2')}"
+      ext.cross_config_options << "--with-xml2-lib=#{File.join($recipes[:libxml2].path, 'lib')}"
+      ext.cross_config_options << "--with-iconv-dir=#{$recipes[:libiconv].path}"
+      ext.cross_config_options << "--with-xslt-dir=#{$recipes[:libxslt].path}"
+      ext.cross_config_options << "--with-zlib-dir=#{CROSS_DIR}"
+    end
   end
 end
 
@@ -110,6 +117,7 @@ task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   racc = RbConfig::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
   racc = "#{::RbConfig::CONFIG['bindir']}/racc" if racc.empty?
+  racc = "#{ENV['GEM_HOME']}/bin/racc" if racc.empty? && ENV['GEM_HOME']
   sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
 end
 
