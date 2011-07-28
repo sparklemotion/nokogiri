@@ -11,7 +11,12 @@ module Nokogiri
         return self unless tags
 
         children = if ctx
-                     ctx.parse(tags)
+                     # Fix for issue#490
+                     if Nokogiri.jruby?
+                       ctx.parse("<root>#{tags}</root>").xpath("/root/node()")
+                     else
+                       ctx.parse(tags)
+                     end
                    else
                      XML::Document.parse("<root>#{tags}</root>") \
                        .xpath("/root/node()")
