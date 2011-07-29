@@ -68,6 +68,15 @@ class TestMemoryLeak < Nokogiri::TestCase
         ctx.evaluate("//namespace::*")
       end
     end
+
+    def test_leak_on_node_replace
+      loop do
+        doc = Nokogiri.XML("<root><foo /></root>")
+        n = Nokogiri::XML::CDATA.new(doc, "bar")
+        pivot = doc.root.children[0]
+        pivot.replace(n)
+      end
+    end
   end # if NOKOGIRI_GC
 
   private

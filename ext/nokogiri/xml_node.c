@@ -484,7 +484,13 @@ static VALUE previous_element(VALUE self)
 /* :nodoc: */
 static VALUE replace(VALUE self, VALUE new_node)
 {
-  return reparent_node_with(self, new_node, xmlReplaceNodeWrapper) ;
+    VALUE reparent = reparent_node_with(self, new_node, xmlReplaceNodeWrapper);
+
+    xmlNodePtr pivot;
+    Data_Get_Struct(self, xmlNode, pivot);
+    NOKOGIRI_ROOT_NODE(pivot);
+
+    return reparent;
 }
 
 /*
