@@ -251,4 +251,29 @@ encoding="iso-8859-1" indent="yes"/>
       assert_equal p.content, params[p.name.intern]
     end
   end
+
+  def test_non_html_xslt_transform
+    xml = Nokogiri.XML(<<-EOXML)
+    <a>
+      <b>
+      <c>123</c>
+        </b>
+      </a>
+    EOXML
+
+    xsl = Nokogiri.XSLT(<<-EOXSL)
+      <xsl:stylesheet version="1.0"
+                      xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+        <xsl:output encoding="UTF-8" indent="yes" method="xml" />
+
+        <xsl:template match="/">
+          <xsl:value-of select="/a" />
+        </xsl:template>
+      </xsl:stylesheet>
+    EOXSL
+
+    result = xsl.transform xml
+    assert !result.html?
+  end
 end
