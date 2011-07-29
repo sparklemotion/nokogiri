@@ -170,6 +170,8 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
     rb_raise(rb_eRuntimeError, "Could not reparent node");
   }
 
+  NOKOGIRI_ROOT_NODE(pivot);
+
   /*
    *  make sure the ruby object is pointed at the just-reparented node, which
    *  might be a duplicate (see above) or might be the result of merging
