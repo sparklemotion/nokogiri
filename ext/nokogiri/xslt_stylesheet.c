@@ -178,8 +178,10 @@ static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 		rb_raise(rb_eRuntimeError, "do not handle type: %d", xpath->type);
 	}
 	args[i] = thing;
+	xmlFree(xpath);
     }
     result = rb_funcall3(obj, rb_intern((const char *)function), (int)count, args);
+    free(args);
     switch(TYPE(result)) {
 	case T_FLOAT:
 	case T_BIGNUM:
