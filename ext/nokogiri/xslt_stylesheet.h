@@ -6,4 +6,9 @@
 void init_xslt_stylesheet();
 
 extern VALUE cNokogiriXsltStylesheet ;
+
+typedef struct _nokogiriXsltStylesheetTuple {
+  xsltStylesheetPtr ss;
+  VALUE func_instances;
+} nokogiriXsltStylesheetTuple;
 #endif
