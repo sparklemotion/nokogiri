@@ -1,0 +1,33 @@
+= C/C++ mode style for Nokogiri
+
+Nokogiri C code follows the same style as MRI Ruby. Nokogiri currently does not
+follow this style everywhere. The goal is for _new_ commits to be in this
+style.
+
+Please don't propose commits that only change whitespace. However, if your
+commit touches a function or section that is not using MRI Ruby conventions,
+feel free to update whitespace in the surrounding code.
+
+= WHITESPACE:
+
+indent level: 4
+indent type: tab-8 and space-4 (Emacs default style)
+Line Breaks: LF
+
+= FUNCTION DECLARATION:
+
+ANSI C style:
+
+    type
+    name(args)
+    {
+        declarations
+    
+        code
+    }
+
+= SOURCES:
+
+* http://redmine.ruby-lang.org/projects/ruby/wiki/DeveloperHowto#coding-style
+* http://www.jetcafe.org/jim/c-style.html
+
