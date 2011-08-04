@@ -92,16 +92,21 @@ module Nokogiri
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
             if !encoding
-              # Perform advanced encoding detection that libxml2 does
-              # not do.
+              # Libxml2's parser has poor support for encoding
+              # detection.  First, it does not recognize the HTML5
+              # style meta charset declaration.  Secondly, even if it
+              # successfully detects an encoding hint, it does not
+              # re-decode or re-parse the preceding part which may be
+              # garbled.
+              #
+              # EncodingReader aims to perform advanced encoding
+              # detection beyond what Libxml2 does, and to emulate
+              # rewinding of a stream and make Libxml2 redo parsing
+              # from the start when an encoding hint is found.
               string_or_io = EncodingReader.new(string_or_io)
               begin
                 return read_io(string_or_io, url, encoding, options.to_i)
               rescue EncodingFoundException => e
-                # A retry is required because libxml2 has a problem in
-                # that it cannot switch encoding well in the middle of
-                # parsing, especially if it has already seen a
-                # non-ASCII character when it finds an encoding hint.
                 encoding = e.encoding
               end
             end
