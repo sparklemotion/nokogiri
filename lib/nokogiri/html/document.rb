@@ -135,11 +135,8 @@ module Nokogiri
 
       class EncodingReader # :nodoc:
         class SAXHandler < Nokogiri::XML::SAX::Document # :nodoc:
-          attr_reader :encoding
-
           def found(encoding)
-            @encoding = encoding
-            throw :found
+            throw :found, encoding
           end
 
           def not_found(encoding)
@@ -172,12 +169,11 @@ module Nokogiri
               return m[4]
           end
 
-          handler = SAXHandler.new
-          parser = Nokogiri::HTML::SAX::Parser.new(handler)
+          parser = Nokogiri::HTML::SAX::Parser.new(SAXHandler.new)
           catch(:found) {
             parser.parse(chunk)
+            nil
           }
-          handler.encoding
         rescue
           nil
         end
