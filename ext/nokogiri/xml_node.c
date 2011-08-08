@@ -1232,7 +1232,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   VALUE document = Qnil ;
   VALUE node_cache = Qnil ;
   VALUE rb_node = Qnil ;
-  int node_has_a_document = 0 ;
+  nokogiriTuplePtr node_has_a_document;
   void (*mark_method)(xmlNodePtr) = NULL ;
 
   assert(node);
@@ -1240,7 +1240,13 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   if(node->type == XML_DOCUMENT_NODE || node->type == XML_HTML_DOCUMENT_NODE)
       return DOC_RUBY_OBJECT(node->doc);
 
-  if(NULL != node->_private) return (VALUE)node->_private;
+  /* It's OK if the node doesn't have a fully-realized document (as in XML::Reader). */
+  /* see https://github.com/tenderlove/nokogiri/issues/95 */
+  /* and https://github.com/tenderlove/nokogiri/issues/439 */
+  node_has_a_document = DOC_RUBY_OBJECT_TEST(node->doc);
+
+  if(node->_private && node_has_a_document)
+    return (VALUE)node->_private;
 
   if(!RTEST(klass)) {
     switch(node->type)
@@ -1286,10 +1292,6 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
     }
   }
 
-  /* It's OK if the node doesn't have a fully-realized document (as in XML::Reader). */
-  /* see https://github.com/tenderlove/nokogiri/issues/95 */
-  /* and https://github.com/tenderlove/nokogiri/issues/439 */
-  node_has_a_document = (DOC_RUBY_OBJECT_TEST(node->doc) && DOC_RUBY_OBJECT(node->doc)) ? 1 : 0 ;
   mark_method = node_has_a_document ? mark : NULL ;
 
   rb_node = Data_Wrap_Struct(klass, mark_method, debug_node_dealloc, node) ;
