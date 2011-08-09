@@ -117,7 +117,7 @@ task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   racc = RbConfig::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
   racc = "#{::RbConfig::CONFIG['bindir']}/racc" if racc.empty?
-  racc = "#{ENV['GEM_HOME']}/bin/racc" if racc.empty? && ENV['GEM_HOME']
+  racc = %x{command -v racc}.strip if racc.empty?
   sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
 end
 
