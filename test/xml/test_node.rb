@@ -874,7 +874,7 @@ module Nokogiri
             <b:div>hello b</b:div>
             <c:div>hello c</c:div>
             <div>hello moon</div>
-          </y>  
+          </y>
         </x>
         EOF
         set = xml.search("//y/*")
@@ -936,6 +936,15 @@ module Nokogiri
       def test_blank
         doc = Nokogiri::XML('')
         assert_equal false, doc.blank?
+      end
+
+      def test_to_xml_allows_to_serialize_with_as_xml_save_option
+        xml = Nokogiri::XML("<root><ul><li>Hello world</li></ul></root>")
+        set = xml.search("//ul")
+        node = set.first
+
+        assert_no_match("<ul>\n  <li>", xml.to_xml(:save_with => XML::Node::SaveOptions::AS_XML))
+        assert_no_match("<ul>\n  <li>", node.to_xml(:save_with => XML::Node::SaveOptions::AS_XML))
       end
     end
   end
