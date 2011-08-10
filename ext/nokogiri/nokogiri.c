@@ -36,14 +36,7 @@ void vasprintf_free (void *p)
 #endif
 
 #ifndef __MACRUBY__
-/* Allocate strdupped strings with the same memory allocator Ruby uses. */
-static char *ruby_strdup(const char *s)
-{
-  size_t len = strlen(s);
-  char *result = ruby_xmalloc((ssize_t) (len + 1));
-  memcpy(result, s, len + 1);
-  return result;
-}
+#include "util.h"
 #endif
 
 void Init_nokogiri()
