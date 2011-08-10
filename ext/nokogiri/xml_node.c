@@ -1166,10 +1166,17 @@ static VALUE compare(VALUE self, VALUE _other)
  */
 static VALUE process_xincludes(VALUE self, VALUE options)
 {
+  int rcode ;
   xmlNodePtr node;
+  VALUE error_list = rb_ary_new();
+
   Data_Get_Struct(self, xmlNode, node);
 
-  if(xmlXIncludeProcessTreeFlags(node, (int)NUM2INT(options)) < 0) {
+  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+  rcode = xmlXIncludeProcessTreeFlags(node, (int)NUM2INT(options));
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
+  if (rcode < 0) {
     xmlErrorPtr error;
 
     error = xmlGetLastError();

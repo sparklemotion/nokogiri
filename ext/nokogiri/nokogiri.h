@@ -27,6 +27,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/relaxng.h>
+#include <libxml/xinclude.h>
 #include <libxslt/extensions.h>
 #include <ruby.h>
 
