@@ -29,6 +29,7 @@ module Nokogiri
     ADDRESS_SCHEMA_FILE = File.join(ASSETS_DIR, 'address_book.rlx')
     ADDRESS_XML_FILE = File.join(ASSETS_DIR, 'address_book.xml')
     SNUGGLES_FILE   = File.join(ASSETS_DIR, 'snuggles.xml')
+    XML_XINCLUDE_FILE = File.join(ASSETS_DIR, 'xinclude.xml')
 
     def teardown
       if ENV['NOKOGIRI_GC']
