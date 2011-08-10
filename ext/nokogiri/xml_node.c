@@ -658,8 +658,27 @@ static VALUE namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
  */
 static VALUE set(VALUE self, VALUE property, VALUE value)
 {
-  xmlNodePtr node;
+  xmlNodePtr node, cur;
+  xmlAttrPtr prop;
   Data_Get_Struct(self, xmlNode, node);
+
+  /* If a matching attribute node already exists, then xmlSetProp will destroy
+   * the existing node's children. However, if Nokogiri has a node object
+   * pointing to one of those children, we are left with a broken reference.
+   *
+   * We can avoid this by unlinking these nodes first.
+   */
+  if (node->type != XML_ELEMENT_NODE)
+    return(Qnil);
+  prop = xmlHasProp(node, (xmlChar *)StringValuePtr(property));
+  if (prop && prop->children) {
+    for (cur = prop->children; cur; cur = cur->next) {
+      if (cur->_private) {
+        NOKOGIRI_ROOT_NODE(cur);
+        xmlUnlinkNode(cur);
+      }
+    }
+  }
 
   xmlSetProp(node, (xmlChar *)StringValuePtr(property),
       (xmlChar *)StringValuePtr(value));
