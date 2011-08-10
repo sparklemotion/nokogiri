@@ -26,7 +26,7 @@ class TestMemoryLeak < Nokogiri::TestCase
       io = File.open SNUGGLES_FILE
       Nokogiri::XML.parse(io)
 
-      (10**10).times do
+      loop do
         Nokogiri::XML.parse(BadIO.new) rescue nil
         doc.write BadIO.new rescue nil
       end
@@ -58,6 +58,14 @@ class TestMemoryLeak < Nokogiri::TestCase
         assert((count_end - count_start) <= 2, "memory leak detected")
       rescue LoadError
         puts "\ndike is not installed, skipping memory leak test"
+      end
+    end
+
+    def test_node_set_namespace_mem_leak
+      xml = Nokogiri::XML "<foo></foo>"
+      ctx = Nokogiri::XML::XPathContext.new(xml)
+      loop do
+        ctx.evaluate("//namespace::*")
       end
     end
   end # if NOKOGIRI_GC
