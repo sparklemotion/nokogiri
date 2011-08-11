@@ -30,7 +30,8 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
 end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
-  $CFLAGS << " -O3 -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
+  $CFLAGS << " -O3" unless $CFLAGS[/-O\d/]
+  $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 end
 
 if RbConfig::CONFIG['target_os'] =~ /mswin32/
