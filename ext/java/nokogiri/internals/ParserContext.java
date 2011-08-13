@@ -43,6 +43,7 @@ import java.io.InputStream;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.RubyIO;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
@@ -65,6 +66,7 @@ import org.xml.sax.ext.EntityResolver2;
  */
 public class ParserContext extends RubyObject {
     protected InputSource source = null;
+    protected IRubyObject detected_encoding = null;
 
     /**
      * Create a file base input source taking into account the current
@@ -102,8 +104,18 @@ public class ParserContext extends RubyObject {
     public void setInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
         Ruby ruby = context.getRuntime();
         String path = (String) url.toJava(String.class);
+        if (data.getType().respondsTo("detect_encoding")) {
+            // data is EnocodingReader
+            try {
+                data.callMethod(context, "read", RubyFixnum.newFixnum(context.getRuntime(), 1024));
+            } catch (RaiseException e) {
+                detected_encoding = e.getException().getInstanceVariable("@encoding");
+            }
+        }
+
         if (isAbsolutePath(path)) {
             source = new InputSource();
+            if (detected_encoding != null) source.setEncoding((String) detected_encoding.toJava(String.class));
             source.setSystemId(path);
             return;
         }
