@@ -159,9 +159,9 @@ public class XsltStylesheet extends RubyObject {
             }
             transf.transform(docSource, result);
         } catch(TransformerConfigurationException ex) {
-            // processes later
+            throw runtime.newRuntimeError(ex.getMessage());
         } catch(TransformerException ex) {
-            // processes later
+            throw runtime.newRuntimeError(ex.getMessage());
         }
 
         switch (elistener.getErrorType()) {

@@ -42,14 +42,15 @@ import javax.xml.transform.TransformerException;
  */
 public class NokogiriXsltErrorListener implements ErrorListener {
     public enum ErrorType {
+        SUCCESS,
         WARNING,
         ERROR,
         FATAL
     }
 
-    private ErrorType type;
-    private String errorMessage;
-    private Exception exception;
+    private ErrorType type = ErrorType.SUCCESS;
+    private String errorMessage = null;
+    private Exception exception = null;
 
     public void warning(TransformerException ex) throws TransformerException {
         type = ErrorType.WARNING;
