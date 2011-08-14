@@ -80,6 +80,16 @@ public class XsltStylesheet extends RubyObject {
     public XsltStylesheet(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
+    
+    /**
+     * Create and return a copy of this object.
+     *
+     * @return a clone of this object
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
     private void addParametersToTransformer(ThreadContext context, Transformer transf, IRubyObject parameters) {
         Ruby ruby = context.getRuntime();
@@ -106,12 +116,12 @@ public class XsltStylesheet extends RubyObject {
     }
 
     @JRubyMethod(meta = true)
-    public static IRubyObject parse_stylesheet_doc(ThreadContext context, IRubyObject cls, IRubyObject document) {
+    public static IRubyObject parse_stylesheet_doc(ThreadContext context, IRubyObject klazz, IRubyObject document) {
         
-        Ruby ruby = context.getRuntime();
+        Ruby runtime = context.getRuntime();
 
         if(!(document instanceof XmlDocument)) {
-            throw ruby.newArgumentError("doc must be a Nokogiri::XML::Document instance");
+            throw runtime.newArgumentError("doc must be a Nokogiri::XML::Document instance");
         }
 
         XmlDocument xmlDoc = (XmlDocument) document;
@@ -119,18 +129,19 @@ public class XsltStylesheet extends RubyObject {
         RubyArray errors = (RubyArray) xmlDoc.getInstanceVariable("@errors");
 
         if(!errors.isEmpty()) {
-            throw ruby.newRuntimeError(errors.first().asJavaString());
+            throw runtime.newRuntimeError(errors.first().asJavaString());
         }
         
         Document doc = ((XmlDocument) xmlDoc.dup_implementation(context, true)).getDocument();
 
-        XsltStylesheet xslt = new XsltStylesheet(ruby, (RubyClass) cls);
+        XsltStylesheet xslt =
+            (XsltStylesheet) NokogiriService.XSLT_STYLESHEET_ALLOCATOR.allocate(runtime, (RubyClass)klazz);
 
         try {
             if (factory == null) factory = TransformerFactory.newInstance();
             xslt.sheet = factory.newTemplates(new DOMSource(doc));
         } catch (TransformerConfigurationException ex) {
-            ruby.newRuntimeError("could not parse xslt stylesheet");
+            runtime.newRuntimeError("could not parse xslt stylesheet");
         }
 
         return xslt;
