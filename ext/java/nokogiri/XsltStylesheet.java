@@ -158,6 +158,8 @@ public class XsltStylesheet extends RubyObject {
     public IRubyObject transform(ThreadContext context, IRubyObject[] args) {
         Ruby runtime = context.getRuntime();
 
+        argumentTypeCheck(runtime, args[0]);
+
         DOMSource docSource = new DOMSource(((XmlDocument) args[0]).getDocument());
         DOMResult result = new DOMResult();
 
@@ -192,6 +194,14 @@ public class XsltStylesheet extends RubyObject {
             XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
             xmlDocument.setNode(context, (Document) result.getNode());
             return xmlDocument;
+        }
+    }
+    
+    private void argumentTypeCheck(Ruby runtime, IRubyObject arg) {
+        if (arg instanceof XmlDocument) {
+            return;
+        } else {
+            throw runtime.newArgumentError("argument must be a Nokogiri::XML::Document");
         }
     }
     
