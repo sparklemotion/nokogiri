@@ -135,8 +135,13 @@ module Nokogiri
 
       class EncodingReader # :nodoc:
         class SAXHandler < Nokogiri::XML::SAX::Document # :nodoc:
+          def initialize(jumptag)
+            @jumptag = jumptag
+            super()
+          end
+
           def found(encoding)
-            throw :found, encoding
+            throw @jumptag, encoding
           end
 
           def not_found(encoding)
@@ -169,9 +174,8 @@ module Nokogiri
               return m[4]
           end
 
-          parser = Nokogiri::HTML::SAX::Parser.new(SAXHandler.new)
-          catch(:found) {
-            parser.parse(chunk)
+          catch(*if RUBY_VERSION < '1.9' then :encoding_found end) { |tag|
+            Nokogiri::HTML::SAX::Parser.new(SAXHandler.new(tag)).parse(chunk)
             nil
           }
         rescue
