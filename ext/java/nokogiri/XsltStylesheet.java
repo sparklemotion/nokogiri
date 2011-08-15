@@ -36,6 +36,7 @@ import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +54,7 @@ import nokogiri.internals.NokogiriXsltErrorListener;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyHash;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
@@ -92,15 +94,31 @@ public class XsltStylesheet extends RubyObject {
     }
 
     private void addParametersToTransformer(ThreadContext context, Transformer transf, IRubyObject parameters) {
-        Ruby ruby = context.getRuntime();
-        RubyArray params = parameters.convertToArray();
+        Ruby runtime = context.getRuntime();
+
+        if (parameters instanceof RubyHash) {
+            setHashParameters(transf, (RubyHash)parameters);
+        } else if (parameters instanceof RubyArray) {
+            setArrayParameters(transf, runtime, (RubyArray)parameters);
+        }
+    }
+    
+    private void setHashParameters(Transformer transformer, RubyHash hash) {
+        Set<String> keys = hash.keySet();
+        for (String key : keys) {
+            String value = (String)hash.get(key);
+            transformer.setParameter(key, unparseValue(value));
+        }
+    }
+    
+    private void setArrayParameters(Transformer transformer, Ruby runtime, RubyArray params) {
         int limit = params.getLength();
         if(limit % 2 == 1) limit--;
 
         for(int i = 0; i < limit; i+=2) {
-            String name = params.aref(ruby.newFixnum(i)).asJavaString();
-            String value = params.aref(ruby.newFixnum(i+1)).asJavaString();
-            transf.setParameter(name, unparseValue(value));
+            String name = params.aref(runtime.newFixnum(i)).asJavaString();
+            String value = params.aref(runtime.newFixnum(i+1)).asJavaString();
+            transformer.setParameter(name, unparseValue(value));
         }
     }
     
