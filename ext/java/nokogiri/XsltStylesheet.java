@@ -100,6 +100,8 @@ public class XsltStylesheet extends RubyObject {
             setHashParameters(transf, (RubyHash)parameters);
         } else if (parameters instanceof RubyArray) {
             setArrayParameters(transf, runtime, (RubyArray)parameters);
+        } else {
+            throw runtime.newTypeError("parameters should be given either Array or Hash");
         }
     }
     
