@@ -42,6 +42,7 @@ static VALUE read_io( VALUE klass,
   VALUE error_list      = rb_ary_new();
   VALUE document;
   htmlDocPtr doc;
+  ID id_encoding_found;
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
@@ -55,6 +56,18 @@ static VALUE read_io( VALUE klass,
       (int)NUM2INT(options)
   );
   xmlSetStructuredErrorFunc(NULL, NULL);
+
+  /*
+   * If EncodingFound has occurred in EncodingReader, make sure to do
+   * a cleanup and propagate the error.
+   */
+  if (rb_respond_to(io, id_encoding_found = rb_intern("encoding_found"))) {
+    VALUE encoding_found = rb_funcall(io, id_encoding_found, 0);
+    if (!NIL_P(encoding_found)) {
+      xmlFreeDoc(doc);
+      rb_exc_raise(encoding_found);
+    }
+  }
 
   if(doc == NULL) {
     xmlErrorPtr error;

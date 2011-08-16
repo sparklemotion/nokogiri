@@ -106,8 +106,8 @@ module Nokogiri
               string_or_io = EncodingReader.new(string_or_io)
               begin
                 return read_io(string_or_io, url, encoding, options.to_i)
-              rescue EncodingFoundException => e
-                encoding = e.encoding
+              rescue EncodingFound => e
+                encoding = e.found_encoding
               end
             end
             return read_io(string_or_io, url, encoding, options.to_i)
@@ -116,19 +116,17 @@ module Nokogiri
           # read_memory pukes on empty docs
           return new if string_or_io.nil? or string_or_io.empty?
 
-          if !encoding
-            encoding = EncodingReader.detect_encoding(string_or_io)
-          end
+          encoding ||= EncodingReader.detect_encoding(string_or_io)
 
           read_memory(string_or_io, url, encoding, options.to_i)
         end
       end
 
-      class EncodingFoundException < Exception # :nodoc:
-        attr_reader :encoding
+      class EncodingFound < StandardError # :nodoc:
+        attr_reader :found_encoding
 
         def initialize(encoding)
-          @encoding = encoding
+          @found_encoding = encoding
           super("encoding found: %s" % encoding)
         end
       end
@@ -185,7 +183,13 @@ module Nokogiri
         def initialize(io)
           @io = io
           @firstchunk = nil
+          @encoding_found = nil
         end
+
+        # This method is used by the C extension so that
+        # Nokogiri::HTML::Document#read_io() does not leak memory when
+        # EncodingFound is raised.
+        attr_reader :encoding_found
 
         def read(len)
           # no support for a call without len
@@ -198,9 +202,10 @@ module Nokogiri
             # achieve advanced encoding detection.
             if encoding = EncodingReader.detect_encoding(@firstchunk)
               # The first chunk is stored for the next read in retry.
-              raise EncodingFoundException, encoding
+              raise @encoding_found = EncodingFound.new(encoding)
             end
           end
+          @encoding_found = nil
 
           ret = @firstchunk.slice!(0, len)
           if (len -= ret.length) > 0
