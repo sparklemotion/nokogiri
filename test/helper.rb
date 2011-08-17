@@ -20,6 +20,7 @@ module Nokogiri
     NICH_FILE       = File.join(ASSETS_DIR, '2ch.html')
     SHIFT_JIS_XML   = File.join(ASSETS_DIR, 'shift_jis.xml')
     SHIFT_JIS_HTML  = File.join(ASSETS_DIR, 'shift_jis.html')
+    SHIFT_JIS_NODECL_HTML = File.join(ASSETS_DIR, 'shift_jis_nodecl.html')
     ENCODING_XHTML_FILE = File.join(ASSETS_DIR, 'encoding.xhtml')
     ENCODING_HTML_FILE  = File.join(ASSETS_DIR, 'encoding.html')
     NOENCODING_FILE  = File.join(ASSETS_DIR, 'noencoding.html')

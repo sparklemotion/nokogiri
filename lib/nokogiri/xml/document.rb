@@ -40,6 +40,10 @@ module Nokogiri
         def get_source_encoding(source)
           if source.respond_to?(:encoding)
             source.encoding
+          elsif source.respond_to?(:internal_encoding)
+            source.internal_encoding ||
+              source.external_encoding ||
+              Encoding.default_internal
           end
         end
         private :get_source_encoding

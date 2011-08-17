@@ -19,6 +19,13 @@ module Nokogiri
           assert_match 'UTF-8', doc.to_html(:encoding => 'UTF-8').encoding.name
         end
 
+        def test_document_html_io_encoding_19
+          f = open(SHIFT_JIS_NODECL_HTML, 'r:Shift_JIS')
+          html = Nokogiri::HTML(f)
+          assert_equal 'Shift_JIS', html.encoding
+          assert_equal 'こんにちは！', html.title
+        end
+
         def test_default_to_encoding_from_string
           bad_charset = <<-eohtml
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -100,6 +107,13 @@ module Nokogiri
         html = Nokogiri::HTML(binopen(METACHARSET_FILE))
         assert_equal 'iso-2022-jp', html.encoding
         assert_equal 'たこ焼き仮面', html.title
+      end
+
+      def test_document_html_io_encoding
+        f = open(SHIFT_JIS_NODECL_HTML, 'r')
+        html = Nokogiri::HTML(f, nil, 'Shift_JIS')
+        assert_equal 'Shift_JIS', html.encoding.to_s
+        assert_equal 'こんにちは！', html.title
       end
 
       def test_document_xhtml_enc
