@@ -8,32 +8,35 @@ module Nokogiri
     # For searching a Document, see Nokogiri::XML::Node#css and
     # Nokogiri::XML::Node#xpath
     class Document < Nokogiri::XML::Node
-      ##
-      # Parse an XML file.  +string_or_io+ may be a String, or any object that
-      # responds to _read_ and _close_ such as an IO, or StringIO.
-      # +url+ is resource where this document is located.  +encoding+ is the
-      # encoding that should be used when processing the document. +options+
-      # is a number that sets options in the parser, such as
-      # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
-      # Nokogiri::XML::ParseOptions.
-      def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
-        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
-        # Give the options to the user
-        yield options if block_given?
+      class << self
+        ##
+        # Parse an XML file.  +string_or_io+ may be a String, or any object that
+        # responds to _read_ and _close_ such as an IO, or StringIO.
+        # +url+ is resource where this document is located.  +encoding+ is the
+        # encoding that should be used when processing the document. +options+
+        # is a number that sets options in the parser, such as
+        # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
+        # Nokogiri::XML::ParseOptions.
+        def parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
+          options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
+          # Give the options to the user
+          yield options if block_given?
 
-        doc = if string_or_io.respond_to?(:read)
-          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          read_io(string_or_io, url, encoding, options.to_i)
-        else
-          # read_memory pukes on empty docs
-          return new if string_or_io.nil? or string_or_io.empty?
-          read_memory(string_or_io, url, encoding, options.to_i)
+          doc = if string_or_io.respond_to?(:read)
+                  url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+                  read_io(string_or_io, url, encoding, options.to_i)
+                else
+                  # read_memory pukes on empty docs
+                  return new if string_or_io.nil? or string_or_io.empty?
+                  read_memory(string_or_io, url, encoding, options.to_i)
+                end
+
+          # do xinclude processing
+          doc.do_xinclude(options) if options.xinclude?
+
+          return doc
         end
 
-        # do xinclude processing
-        doc.do_xinclude(options) if options.xinclude?
-
-        return doc
       end
 
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
