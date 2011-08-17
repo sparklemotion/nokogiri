@@ -24,6 +24,11 @@ module Nokogiri
           html = Nokogiri::HTML(f)
           assert_equal 'Shift_JIS', html.encoding
           assert_equal 'こんにちは！', html.title
+
+          f = open(SHIFT_JIS_NODECL_HTML, 'r:Shift_JIS:UTF-8')
+          html = Nokogiri::HTML(f)
+          assert_equal 'UTF-8', html.encoding
+          assert_equal 'こんにちは！', html.title
         end
 
         def test_default_to_encoding_from_string
