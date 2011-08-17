@@ -37,6 +37,12 @@ module Nokogiri
           return doc
         end
 
+        def get_source_encoding(source)
+          if source.respond_to?(:encoding)
+            source.encoding
+          end
+        end
+        private :get_source_encoding
       end
 
       # A list of Nokogiri::XML::SyntaxError found when parsing a document

@@ -83,11 +83,9 @@ module Nokogiri
           # Give the options to the user
           yield options if block_given?
 
-          if string_or_io.respond_to?(:encoding)
-            unless string_or_io.encoding.name == "ASCII-8BIT"
-              encoding ||= string_or_io.encoding.name
-            end
-          end
+          encoding ||= (enc = get_source_encoding(string_or_io)) && enc.name
+
+          encoding = nil if encoding == 'ASCII-8BIT'
 
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
