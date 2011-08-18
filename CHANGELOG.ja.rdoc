@@ -1,22 +1,21 @@
 == 1.5.0 / 2011年7月1日
 
-* Notes
+* 註
 
-  * See changelog from 1.4.7
+  * 1.4.7からの変更点を参照
 
-* Features
+* 新機能
 
-  * extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+  * 各文書形式用のデフォルトのNode::SaveOptionsの組合せを定数化.
+    (Node::SaveOptions::DEFAULT_{X,H,XH}TML)
 
-* Bugfixes
+* バグの修正
 
-  * default output of XML on JRuby is no longer formatted due to
-    inconsistent whitespace handling. #415
-  * (JRuby) making empty NodeSets with null `nodes` member safe to operate on. #443
-  * Fix a bug in advanced encoding detection that leads to partially
-    duplicated document when parsing an HTML file with unknown
-    encoding.
-  * Add support for <meta charset="...">.
+  * JRuby版ではホワイトスペースの扱いに難があるため、XML出力（to_xml）において
+    自動整形をデフォルトでは行わないように変更. #415
+  * JRuby版でNodeのないNodeSetでNullPointerExceptionが発生するのを修正. #443
+  * エンコーディング宣言のないHTMLファイルで部分的に重複したドキュメントが生成される問題を修正した. #478
+  * <meta charset="..."> を認識するようになった.
 
 
 == 1.5.0 beta3 ２０１０年１２月２日
