@@ -142,7 +142,7 @@ module Nokogiri
             throw @jumptag, encoding
           end
 
-          def not_found(encoding)
+          def not_found
             found nil
           end
 
