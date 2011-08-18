@@ -1,3 +1,14 @@
+== 1.5.1 / 未リリース
+
+* 新機能
+
+  * XML::Builder#comment allows creation of comment nodes.
+
+* バグの修正
+
+  * エンコーディング自動認識において発生しうるメモリリークを修正.
+    @ender672に感謝！
+
 == 1.5.0 / 2011年7月1日
 
 * 註
