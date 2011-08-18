@@ -176,7 +176,8 @@ module Nokogiri
             Nokogiri::HTML::SAX::Parser.new(SAXHandler.new(tag)).parse(chunk)
             nil
           }
-        rescue
+        rescue Nokogiri::SyntaxError, RuntimeError
+          # Ignore parser errors that nokogiri may raise
           nil
         end
 
