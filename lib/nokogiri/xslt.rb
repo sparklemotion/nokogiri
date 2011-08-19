@@ -26,7 +26,11 @@ module Nokogiri
           XSLT.register url, klass
 	end
 
-        Stylesheet.parse_stylesheet_doc(XML.parse(string))
+        if Nokogiri.jruby?
+          Stylesheet.parse_stylesheet_doc(XML.parse(string), string)
+        else
+          Stylesheet.parse_stylesheet_doc(XML.parse(string))
+        end
       end
 
       ###
