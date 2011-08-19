@@ -332,7 +332,12 @@ public class XsltStylesheet extends RubyObject {
         } else {
             args[3] = parse_options.getConstant("DEFAULT_XML");
             RubyClass xmlDocumentClass = getNokogiriClass(runtime, "Nokogiri::XML::Document");            
-            return RuntimeHelpers.invoke(context, xmlDocumentClass, "parse", args);
+            XmlDocument xmlDocument = (XmlDocument) RuntimeHelpers.invoke(context, xmlDocumentClass, "parse", args);
+            if (((Document)xmlDocument.getNode()).getDocumentElement() == null) {
+                RubyArray errors = (RubyArray) xmlDocument.getInstanceVariable("@errors");
+                RuntimeHelpers.invoke(context, errors, "<<", args[0]);
+            }
+            return xmlDocument;
         }
     }
     
