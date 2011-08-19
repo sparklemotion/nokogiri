@@ -36,7 +36,37 @@ class TestXsltTransforms < Nokogiri::TestCase
   end
 
   def test_transform_with_output_style
-    xslt = Nokogiri::XSLT(<<-eoxslt)
+    xslt = ""
+    if Nokogiri.jruby?
+      xslt = Nokogiri::XSLT(<<-eoxslt)
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<xsl:stylesheet version="1.0"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method="text" version="1.0"
+encoding="iso-8859-1" indent="yes"/>
+
+<xsl:param name="title"/>
+
+<xsl:template match="/">
+  <html>
+  <body>
+    <xsl:for-each select="staff/employee">
+    <tr>
+      <td><xsl:value-of select="employeeId"/></td>
+      <td><xsl:value-of select="name"/></td>
+      <td><xsl:value-of select="position"/></td>
+      <td><xsl:value-of select="salary"/></td>
+    </tr>
+    </xsl:for-each>
+  </body>
+  </html>
+</xsl:template>
+
+</xsl:stylesheet>
+      eoxslt
+    else
+      xslt = Nokogiri::XSLT(<<-eoxslt)
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <xsl:stylesheet version="1.0"
@@ -63,7 +93,8 @@ encoding="iso-8859-1" indent="yes"/>
 </xsl:template>
 
 </xsl:stylesheet>
-    eoxslt
+      eoxslt
+    end
     assert_no_match(/<td>/, xslt.apply_to(@doc, ['title', 'foo']))
   end
 
