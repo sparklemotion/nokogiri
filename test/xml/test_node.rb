@@ -592,6 +592,19 @@ module Nokogiri
         assert_nil address['domestic']
       end
 
+      def test_attribute_setter_accepts_non_string
+        address = @xml.xpath("/staff/employee/address").first
+        assert_equal "Yes", address[:domestic]
+        address[:domestic] = "Altered Yes"
+        assert_equal "Altered Yes", address[:domestic]
+      end
+
+      def test_attribute_accessor_accepts_non_string
+        address = @xml.xpath("/staff/employee/address").first
+        assert_equal "Yes", address["domestic"]
+        assert_equal "Yes", address[:domestic]
+      end
+
       def test_delete
         address = @xml.xpath('/staff/employee/address').first
         assert_equal 'Yes', address['domestic']
