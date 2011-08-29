@@ -160,19 +160,29 @@ public class XmlDomParserContext extends ParserContext {
         doc.setInstanceVariable("@errors", errors);
     }
 
-    public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, Exception ex) {
+    public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, RubyClass klazz, Exception ex) {
         if (options.recover) {
-            XmlDocument doc = this.getNewEmptyDocument(context);
-            this.addErrorsIfNecessary(context, doc);
+            XmlDocument xmlDocument = getInterruptedOrNewXmlDocument(context, klazz);
+            this.addErrorsIfNecessary(context, xmlDocument);
             XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
             xmlSyntaxError.setException(ex);
-            ((RubyArray) doc.getInstanceVariable("@errors")).append(xmlSyntaxError);
-            return doc;
+            ((RubyArray) xmlDocument.getInstanceVariable("@errors")).append(xmlSyntaxError);
+            return xmlDocument;
         } else {
             XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
             xmlSyntaxError.setException(ex);
             throw new RaiseException(xmlSyntaxError);
         }
+    }
+    
+    private XmlDocument getInterruptedOrNewXmlDocument(ThreadContext context, RubyClass klazz) {
+        Document document = parser.getDocument();
+        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
+        if (document != null) {
+            xmlDocument.setNode(context, document);
+        }
+        xmlDocument.setEncoding(ruby_encoding);
+        return xmlDocument;
     }
 
     protected XmlDocument getNewEmptyDocument(ThreadContext context) {
@@ -202,18 +212,18 @@ public class XmlDomParserContext extends ParserContext {
      * Must call setInputSource() before this method.
      */
     public XmlDocument parse(ThreadContext context,
-                             IRubyObject klass,
+                             IRubyObject klazz,
                              IRubyObject url) {
         try {
             Document doc = do_parse();
-            XmlDocument xmlDoc = wrapDocument(context, (RubyClass)klass, doc);
+            XmlDocument xmlDoc = wrapDocument(context, (RubyClass)klazz, doc);
             xmlDoc.setUrl(url);
             addErrorsIfNecessary(context, xmlDoc);
             return xmlDoc;
         } catch (SAXException e) {
-            return getDocumentWithErrorsOrRaiseException(context, e);
+            return getDocumentWithErrorsOrRaiseException(context, (RubyClass)klazz, e);
         } catch (IOException e) {
-            return getDocumentWithErrorsOrRaiseException(context, e);
+            return getDocumentWithErrorsOrRaiseException(context, (RubyClass)klazz, e);
         }
     }
 
