@@ -164,6 +164,9 @@ module Nokogiri
         end
 
         def self.detect_encoding(chunk)
+          if Nokogiri.jruby? && EncodingReader.is_jruby_without_fix?
+            return EncodingReader.detect_encoding_for_jruby_without_fix(chunk)
+          end
           m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
             return Nokogiri.XML(m[1]).encoding
 
@@ -174,6 +177,26 @@ module Nokogiri
 
           catch(*if RUBY_VERSION < '1.9' then :encoding_found end) { |tag|
             Nokogiri::HTML::SAX::Parser.new(SAXHandler.new(tag)).parse(chunk)
+            nil
+          }
+        rescue Nokogiri::SyntaxError, RuntimeError
+          # Ignore parser errors that nokogiri may raise
+          nil
+        end
+
+        def self.is_jruby_without_fix?
+          JRUBY_VERSION.split('.').join.to_i < 165
+        end
+
+        def self.detect_encoding_for_jruby_without_fix(chunk)
+          m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
+            return Nokogiri.XML(m[1]).encoding
+
+          m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
+            return m[4]
+
+          catch(:encoding_found) {
+            Nokogiri::HTML::SAX::Parser.new(SAXHandler.new(:encoding_found.to_s)).parse(chunk)
             nil
           }
         rescue Nokogiri::SyntaxError, RuntimeError
