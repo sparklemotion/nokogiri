@@ -109,13 +109,15 @@ public class ParserContext extends RubyObject {
             try {
                 data.callMethod(context, "read", RubyFixnum.newFixnum(context.getRuntime(), 1024));
             } catch (RaiseException e) {
-                detected_encoding = e.getException().getInstanceVariable("@encoding");
+                detected_encoding = e.getException().getInstanceVariable("@found_encoding");
             }
         }
 
         if (isAbsolutePath(path)) {
             source = new InputSource();
-            if (detected_encoding != null) source.setEncoding((String) detected_encoding.toJava(String.class));
+            if (detected_encoding != null) {
+                source.setEncoding((String) detected_encoding.toJava(String.class));
+            }
             source.setSystemId(path);
             return;
         }
