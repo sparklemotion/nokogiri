@@ -452,9 +452,9 @@ module Nokogiri
       # If you need to distinguish attributes with the same name, with different namespaces
       # use #attribute_nodes instead.
       def attributes
-        Hash[*(attribute_nodes.map { |node|
+        Hash[attribute_nodes.map { |node|
           [node.node_name, node]
-        }.flatten)]
+        }]
       end
 
       ###
