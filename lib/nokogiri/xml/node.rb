@@ -555,7 +555,7 @@ module Nokogiri
       # default namespaces set on ancestor will NOT be, even if self
       # has no explicit default namespace.
       def namespaces
-        Hash[*namespace_scopes.map { |nd|
+        Hash[namespace_scopes.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
           if RUBY_VERSION >= '1.9' && document.encoding
             begin
@@ -564,7 +564,7 @@ module Nokogiri
             end
           end
           [key, nd.href]
-        }.flatten]
+        }]
       end
 
       # Returns true if this is a Comment
