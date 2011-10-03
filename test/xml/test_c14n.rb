@@ -32,7 +32,7 @@ module Nokogiri
         doc = Nokogiri.XML xml
 
         list = []
-        c14n = doc.canonicalize do |node, parent|
+        doc.canonicalize do |node, parent|
           list << [node, parent]
           true
         end
