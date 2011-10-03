@@ -80,6 +80,13 @@ else
     '/usr/local/include/libxml2',
     File.join(INCLUDEDIR, "libxml2")
   ] + HEADER_DIRS
+
+  # If the user has homebrew installed, use the libxml2 inside homebrew
+  brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
+  unless brew_prefix.empty?
+    LIB_DIRS.unshift File.join(brew_prefix, 'lib')
+    XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+  end
 end
 
 dir_config('zlib', HEADER_DIRS, LIB_DIRS)

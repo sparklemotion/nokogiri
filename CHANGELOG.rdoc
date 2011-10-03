@@ -9,6 +9,8 @@
   * Fix a memory leak in encoding detection.  Thanks for pointing this
     out, @ender672!
 
+  * extconf searches homebrew paths if homebrew is installed.
+
 == 1.5.0 / 2011-07-01
 
 * Notes
