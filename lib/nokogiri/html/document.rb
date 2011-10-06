@@ -19,7 +19,9 @@ module Nokogiri
 
       def meta_content_type
         css('meta[@http-equiv]').find { |node|
-          node['http-equiv'] =~ /\AContent-Type\z/i
+          node['http-equiv'] =~ /\AContent-Type\z/i and
+            !node['content'].nil? and
+            !node['content'].empty?
         }
       end
       private :meta_content_type

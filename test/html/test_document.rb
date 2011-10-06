@@ -199,6 +199,32 @@ eohtml
         assert_nil html.meta_encoding
       end
 
+      def test_meta_encoding_with_empty_content_type
+        html = Nokogiri::HTML(<<-eohtml)
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="">
+  </head>
+  <body>
+    foo
+  </body>
+</html>
+        eohtml
+        assert_nil html.meta_encoding
+
+        html = Nokogiri::HTML(<<-eohtml)
+<html>
+  <head>
+    <meta http-equiv="Content-Type">
+  </head>
+  <body>
+    foo
+  </body>
+</html>
+        eohtml
+        assert_nil html.meta_encoding
+      end
+
       def test_root_node_parent_is_document
         parent = @html.root.parent
         assert_equal @html, parent
