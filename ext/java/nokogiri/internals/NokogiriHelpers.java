@@ -39,6 +39,7 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import nokogiri.HtmlDocument;
 import nokogiri.NokogiriService;
 import nokogiri.XmlAttr;
 import nokogiri.XmlCdata;
@@ -89,12 +90,14 @@ public class NokogiriHelpers {
         if(node == null) return ruby.getNil();
         if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
             XmlDocument xmlDocument = (XmlDocument)node.getOwnerDocument().getUserData(CACHED_NODE);
+            if (!(xmlDocument instanceof HtmlDocument)) {
             String prefix = getLocalNameForNamespace(((Attr)node).getName());
             prefix = prefix != null ? prefix : "";
             String href = ((Attr)node).getValue();
             XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
             if (xmlNamespace != null) return xmlNamespace;
             else return XmlNamespace.createFromAttr(ruby, (Attr)node);
+            }
         }
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {
@@ -145,7 +148,7 @@ public class NokogiriHelpers {
                 return xmlCdata;
             case Node.DOCUMENT_NODE:
                 XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
-                xmlDocument.setNode(runtime.getCurrentContext(), node);
+                xmlDocument.setDocumentNode(runtime.getCurrentContext(), node);
                 return xmlDocument;
             case Node.DOCUMENT_TYPE_NODE:
                 XmlDtd xmlDtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));

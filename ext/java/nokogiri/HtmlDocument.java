@@ -33,7 +33,6 @@
 package nokogiri;
 
 import nokogiri.internals.HtmlDomParserContext;
-
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
@@ -42,7 +41,11 @@ import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Class for Nokogiri::HTML::Document.
@@ -68,7 +71,7 @@ public class HtmlDocument extends XmlDocument {
         try {
             Document docNode = createNewDocument();
             htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
-            htmlDocument.setNode(context, docNode);
+            htmlDocument.setDocumentNode(context, docNode);
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
@@ -87,6 +90,38 @@ public class HtmlDocument extends XmlDocument {
             new HtmlDomParserContext(ruby, args[2], args[3]);
         ctx.setInputSource(context, args[0], args[1]);
         return ctx.parse(context, klass, args[1]);
+    }
+    
+    public void setDocumentNode(ThreadContext context, Node node) {
+        super.setNode(context, node);
+        Ruby runtime = context.getRuntime();
+        if (node != null) {
+            Document document = (Document)node;
+            document.normalize();
+            stabilzeAttrValue(document.getDocumentElement());
+        }
+        setInstanceVariable("@decorators", runtime.getNil());
+    }
+    
+    private void stabilzeAttrValue(Node node) {
+        if (node == null) return;
+        if (node.hasAttributes()) {
+            NamedNodeMap nodeMap = node.getAttributes();
+            for (int i=0; i<nodeMap.getLength(); i++) {
+                Node n = nodeMap.item(i);
+                if (n instanceof Attr) {
+                    Attr attr = (Attr)n;
+                    String attrName = attr.getName();
+                    // not sure, but need to get value always before document is referred.
+                    // or lose attribute value
+                    String attrValue = attr.getValue(); // don't delete this line
+                }
+            }
+        }
+        NodeList children = node.getChildNodes();
+        for (int i=0; i<children.getLength(); i++) {
+            stabilzeAttrValue(children.item(i));
+        }
     }
 
     /*

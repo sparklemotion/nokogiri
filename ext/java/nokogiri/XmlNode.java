@@ -53,7 +53,6 @@ import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
-import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
@@ -63,8 +62,6 @@ import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
-import org.jruby.runtime.Constants;
-import org.jruby.runtime.MethodIndex;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -530,7 +527,7 @@ public class XmlNode extends RubyObject {
         RubyArray attr = ruby.newArray();
 
         for(int i = 0; i < nodeMap.getLength(); i++) {
-            if (!NokogiriHelpers.isNamespace(nodeMap.item(i))) {
+            if ((doc instanceof HtmlDocument) || !NokogiriHelpers.isNamespace(nodeMap.item(i))) {
                 attr.append(getCachedNodeOrCreate(context.getRuntime(), nodeMap.item(i)));
             }
         }
@@ -899,7 +896,8 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject namespace(ThreadContext context){
+    public IRubyObject namespace(ThreadContext context) {
+        if (doc instanceof HtmlDocument) return context.getRuntime().getNil();
         XmlDocument xmlDocument = (XmlDocument) doc;
         NokogiriNamespaceCache nsCache = xmlDocument.getNamespaceCache();
         String prefix = node.getPrefix();
@@ -924,6 +922,7 @@ public class XmlNode extends RubyObject {
         Ruby ruby = context.getRuntime();
         RubyArray namespace_definitions = ruby.newArray();
         if (doc == null) return namespace_definitions;
+        if (doc instanceof HtmlDocument) return namespace_definitions;
         List<XmlNamespace> namespaces = ((XmlDocument)doc).getNamespaceCache().get(node);
         for (XmlNamespace namespace : namespaces) {
             ((RubyArray)namespace_definitions).append(namespace);

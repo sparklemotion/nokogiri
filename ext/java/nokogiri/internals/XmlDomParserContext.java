@@ -179,7 +179,7 @@ public class XmlDomParserContext extends ParserContext {
         Document document = parser.getDocument();
         XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
         if (document != null) {
-            xmlDocument.setNode(context, document);
+            xmlDocument.setDocumentNode(context, document);
         }
         xmlDocument.setEncoding(ruby_encoding);
         return xmlDocument;
@@ -198,7 +198,7 @@ public class XmlDomParserContext extends ParserContext {
                                        RubyClass klazz,
                                        Document doc) {
         XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
-        xmlDocument.setNode(context, doc);
+        xmlDocument.setDocumentNode(context, doc);
         xmlDocument.setEncoding(ruby_encoding);
 
         if (options.dtdLoad) {

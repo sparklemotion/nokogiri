@@ -33,7 +33,6 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
-import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
@@ -108,8 +107,7 @@ public class XmlDocument extends XmlNode {
         setInstanceVariable("@decorators", ruby.getNil());
     }
     
-    @Override
-    public void setNode(ThreadContext context, Node node) {
+    public void setDocumentNode(ThreadContext context, Node node) {
         super.setNode(context, node);
         if (nsCache == null) nsCache = new NokogiriNamespaceCache();
         Ruby runtime = context.getRuntime();
@@ -128,7 +126,7 @@ public class XmlDocument extends XmlNode {
     // not sure, but like attribute values, text value will be lost
     // unless it is referred once before this document is used.
     // this seems to happen only when the fragment is parsed from Node#in_context.
-    private void stabilizeTextContent(Document document) {
+    protected void stabilizeTextContent(Document document) {
         if (document.getDocumentElement() != null) document.getDocumentElement().getTextContent();
     }
 
@@ -237,11 +235,11 @@ public class XmlDocument extends XmlNode {
             Document docNode = createNewDocument();
             if ("Nokogiri::HTML::Document".equals(((RubyClass)klazz).getName())) {
                 xmlDocument = (XmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
-                xmlDocument.setNode(context, docNode);
+                xmlDocument.setDocumentNode(context, docNode);
             } else {
                 // XML::Document and sublass
                 xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
-                xmlDocument.setNode(context, docNode);
+                xmlDocument.setDocumentNode(context, docNode);
             }
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
@@ -512,7 +510,7 @@ public class XmlDocument extends XmlNode {
     public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klazz, IRubyObject arg) {
         XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"));
         Document document = (Document)arg.toJava(Document.class);
-        xmlDocument.setNode(context, document);
+        xmlDocument.setDocumentNode(context, document);
         return xmlDocument;
     }
     

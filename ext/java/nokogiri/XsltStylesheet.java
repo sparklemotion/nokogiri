@@ -39,8 +39,6 @@ import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,8 +46,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.Result;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -292,11 +288,11 @@ public class XsltStylesheet extends RubyObject {
     private IRubyObject createDocumentFromDomResult(ThreadContext context, Ruby runtime, DOMResult domResult) {
         if ("html".equals(domResult.getNode().getFirstChild().getNodeName())) {
             HtmlDocument htmlDocument = (HtmlDocument) getNokogiriClass(runtime, "Nokogiri::HTML::Document").allocate();
-            htmlDocument.setNode(context, (Document) domResult.getNode());
+            htmlDocument.setDocumentNode(context, (Document) domResult.getNode());
             return htmlDocument;
         } else {
             XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
-            xmlDocument.setNode(context, (Document) domResult.getNode());
+            xmlDocument.setDocumentNode(context, (Document) domResult.getNode());
             return xmlDocument;
         }
     }
