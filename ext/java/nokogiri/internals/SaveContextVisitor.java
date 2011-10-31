@@ -356,10 +356,8 @@ public class SaveContextVisitor {
             return true;
         }
         // no child
-        if (asHtml) {
+        if (asHtml || asXhtml) {
             buffer.append(">");   
-        } else if (asXhtml) {
-            buffer.append(" />");
         } else if (asXml && noEmpty) {
             buffer.append(">");
         } else {
