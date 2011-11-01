@@ -209,6 +209,13 @@ module Nokogiri
         end
       end
 
+      def test_append_with_attr
+        r = Nokogiri.XML('<r a="1" />').root
+        assert_raises(ArgumentError) do
+          r << r.at_xpath('@a')
+        end
+      end
+
       def test_inspect_ns
         xml = Nokogiri::XML(<<-eoxml) { |c| c.noblanks }
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="bar">

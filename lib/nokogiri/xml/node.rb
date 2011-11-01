@@ -907,7 +907,7 @@ module Nokogiri
         return data.children           if data.is_a?(XML::DocumentFragment)
         return fragment(data).children if data.is_a?(String)
 
-        if data.is_a?(Document) || !data.is_a?(XML::Node)
+        if data.is_a?(Document) || data.is_a?(XML::Attr) || !data.is_a?(XML::Node)
           raise ArgumentError, <<-EOERR
 Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
 (You probably want to select a node from the Document with at() or search(), or create a new Node via Node.new().)

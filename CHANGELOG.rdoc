@@ -11,6 +11,9 @@
 
   * extconf searches homebrew paths if homebrew is installed.
 
+  * XML::Attr nodes are not allowed to be added as node children, so an
+    exception is raised. #558
+
 == 1.5.0 / 2011-07-01
 
 * Notes
