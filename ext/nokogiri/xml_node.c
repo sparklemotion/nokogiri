@@ -660,6 +660,7 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 {
   xmlNodePtr node, cur;
   xmlAttrPtr prop;
+  xmlChar *propertyString;
   Data_Get_Struct(self, xmlNode, node);
 
   /* If a matching attribute node already exists, then xmlSetProp will destroy
@@ -670,7 +671,14 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
    */
   if (node->type != XML_ELEMENT_NODE)
     return(Qnil);
-  prop = xmlHasProp(node, (xmlChar *)StringValuePtr(property));
+
+  if (TYPE(property) == T_SYMBOL)
+    propertyString = (xmlChar *)rb_id2name(rb_to_id(property));
+  else
+    propertyString = (xmlChar *)StringValuePtr(property);
+  
+  prop = xmlHasProp(node, propertyString);
+
   if (prop && prop->children) {
     for (cur = prop->children; cur; cur = cur->next) {
       if (cur->_private) {
@@ -680,8 +688,7 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
     }
   }
 
-  xmlSetProp(node, (xmlChar *)StringValuePtr(property),
-      (xmlChar *)StringValuePtr(value));
+  xmlSetProp(node, propertyString, (xmlChar *)StringValuePtr(value));
 
   return value;
 }
