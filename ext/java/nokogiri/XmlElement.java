@@ -123,17 +123,6 @@ public class XmlElement extends XmlNode {
     }
 
     @Override
-    public IRubyObject op_aset(ThreadContext context,
-                               IRubyObject rbkey,
-                               IRubyObject rbval) {
-        String key = rubyStringToString(rbkey);
-        String val = rubyStringToString(rbval);
-        Element element = (Element) node;
-        element.setAttribute(key, val);
-        return this;
-    }
-
-    @Override
     public IRubyObject remove_attribute(ThreadContext context, IRubyObject name) {
         String key = name.convertToString().asJavaString();
         Element element = (Element) node;

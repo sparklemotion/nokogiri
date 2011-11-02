@@ -430,7 +430,25 @@ public class XmlNode extends RubyObject {
         //this should delegate to subclasses' implementation
     }
 
-    public void accept(ThreadContext context, SaveContextVisitor visitor) {}
+    // Users might extend XmlNode. This method works for such a case.
+    public void accept(ThreadContext context, SaveContextVisitor visitor) {
+        visitor.enter(node);
+        XmlNodeSet xmlNodeSet = (XmlNodeSet) children(context);
+        if (xmlNodeSet.length() > 0) {
+            RubyArray array = (RubyArray) xmlNodeSet.to_a(context);
+            for(int i = 0; i < array.getLength(); i++) {
+                Object item = array.get(i);
+                if (item instanceof XmlNode) {
+                  XmlNode cur = (XmlNode) item;
+                  cur.accept(context, visitor);
+                } else if (item instanceof XmlNamespace) {
+                    XmlNamespace cur = (XmlNamespace)item;
+                    cur.accept(context, visitor);
+                }
+            }
+        }
+        visitor.leave(node);
+    }
 
     public void setName(IRubyObject name) {
         this.name = name;
@@ -1042,8 +1060,16 @@ public class XmlNode extends RubyObject {
     }
 
     @JRubyMethod(name = {"[]=", "set_attribute"})
-    public IRubyObject op_aset(ThreadContext context, IRubyObject index, IRubyObject val) {
-        return val;
+    public IRubyObject op_aset(ThreadContext context, IRubyObject rbkey, IRubyObject rbval) {
+        if (node instanceof Element) {
+            String key = rubyStringToString(rbkey);
+            String val = rubyStringToString(rbval);
+            Element element = (Element) node;
+            element.setAttribute(key, val);
+            return this;
+        } else {
+            return rbval;
+        }
     }
 
     @JRubyMethod
