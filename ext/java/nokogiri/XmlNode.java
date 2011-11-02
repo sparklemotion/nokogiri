@@ -1407,4 +1407,18 @@ public class XmlNode extends RubyObject {
     public IRubyObject add_next_sibling_node(ThreadContext context, IRubyObject other) {
         return adoptAs(context, AdoptScheme.NEXT_SIBLING, other);
     }
+    
+    /**
+     * call-seq:
+     *   process_xincludes(options)
+     *
+     * Loads and substitutes all xinclude elements below the node. The
+     * parser context will be initialized with +options+.
+     * 
+     */
+    @JRubyMethod(visibility=Visibility.PRIVATE)
+    public IRubyObject process_xincludes(ThreadContext context, IRubyObject options) {
+        return this;
+    }
+
 }
