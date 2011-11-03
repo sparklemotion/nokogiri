@@ -815,10 +815,19 @@ public class XmlNode extends RubyObject {
     /**
      * Get the attribute at the given key, <code>key</code>.
      * Assumes that this node has attributes (i.e. that key? returned
-     * true). Overridden in XmlElement.
+     * true).
      */
     @JRubyMethod(visibility = Visibility.PRIVATE)
-    public IRubyObject get(ThreadContext context, IRubyObject key) {
+    public IRubyObject get(ThreadContext context, IRubyObject rbkey) {
+        if (node instanceof Element) {
+            if (rbkey == null || rbkey.isNil()) context.getRuntime().getNil();
+            String key = rubyStringToString(rbkey);
+            Element element = (Element) node;
+            String value = element.getAttribute(key);
+            if(!value.equals("")){
+                return context.getRuntime().newString(value);
+            }
+        }
         return context.getRuntime().getNil();
     }
 
@@ -911,7 +920,13 @@ public class XmlNode extends RubyObject {
      */
     @JRubyMethod(name = {"key?", "has_attribute?"})
     public IRubyObject key_p(ThreadContext context, IRubyObject rbkey) {
-        return context.getRuntime().getNil();
+        if (node instanceof Element) {
+            String key = rubyStringToString(rbkey);
+            Element element = (Element) node;
+            return context.getRuntime().newBoolean(element.hasAttribute(key));
+        } else {
+            return context.getRuntime().getNil();
+        }
     }
 
     @JRubyMethod
