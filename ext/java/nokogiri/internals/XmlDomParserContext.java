@@ -34,7 +34,6 @@ package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,6 +72,7 @@ public class XmlDomParserContext extends ParserContext {
     protected static final String FEATURE_INCLUDE_IGNORABLE_WHITESPACE =
         "http://apache.org/xml/features/dom/include-ignorable-whitespace";
     protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
+    private static final String XINCLUDE_FEATURE_ID = "http://apache.org/xml/features/xinclude";
 
     protected ParserContext.Options options;
     protected DOMParser parser;
@@ -102,7 +102,12 @@ public class XmlDomParserContext extends ParserContext {
     }
 
     protected void initParser(Ruby runtime) {
-        parser = new XmlDomParser();
+        if (options.xInclude) {
+            System.setProperty("org.apache.xerces.xni.parser.XMLParserConfiguration",
+                    "org.apache.xerces.parsers.XIncludeParserConfiguration");
+        }
+        
+        parser = new XmlDomParser(options);
         parser.setErrorHandler(errorHandler);
 
         if (options.noBlanks) {
@@ -214,9 +219,10 @@ public class XmlDomParserContext extends ParserContext {
     public XmlDocument parse(ThreadContext context,
                              IRubyObject klazz,
                              IRubyObject url) {
+        XmlDocument xmlDoc;
         try {
             Document doc = do_parse();
-            XmlDocument xmlDoc = wrapDocument(context, (RubyClass)klazz, doc);
+            xmlDoc = wrapDocument(context, (RubyClass)klazz, doc);
             xmlDoc.setUrl(url);
             addErrorsIfNecessary(context, xmlDoc);
             return xmlDoc;

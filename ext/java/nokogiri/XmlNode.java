@@ -60,6 +60,7 @@ import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
@@ -1418,6 +1419,14 @@ public class XmlNode extends RubyObject {
      */
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject process_xincludes(ThreadContext context, IRubyObject options) {
+        XmlDocument xmlDocument = (XmlDocument)document(context);
+        RubyArray errors = (RubyArray)xmlDocument.getInstanceVariable("@errors");
+        while(errors.getLength() > 0) {
+            XmlSyntaxError error = (XmlSyntaxError)errors.shift(context);
+            if (error.toString().contains("Include operation failed")) {
+                throw new RaiseException(error);
+            }
+        }
         return this;
     }
 

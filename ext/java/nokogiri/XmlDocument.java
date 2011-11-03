@@ -213,7 +213,7 @@ public class XmlDocument extends XmlNode {
         return getUrl();
     }
 
-    protected static Document createNewDocument() {
+    public static Document createNewDocument() {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(DOCUMENTBUILDERFACTORY_IMPLE_NAME, NokogiriService.class.getClassLoader());
             return factory.newDocumentBuilder().newDocument();
