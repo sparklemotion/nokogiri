@@ -879,6 +879,14 @@ module Nokogiri
         process_xincludes(options.to_i)
       end
 
+      def canonicalize(mode=XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
+        c14n_root = self
+        document.canonicalize(mode, inclusive_namespaces, with_comments) do |node, parent|
+          tn = node.is_a?(XML::Node) ? node : parent
+          tn == c14n_root || tn.ancestors.include?(c14n_root)
+        end
+      end
+
       private
 
       def extract_params params # :nodoc:
