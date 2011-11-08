@@ -295,20 +295,10 @@ static VALUE to_array(VALUE self, VALUE rb_node)
 
   elts = calloc((size_t)set->nodeNr, sizeof(VALUE *));
   for(i = 0; i < set->nodeNr; i++) {
-    if (XML_NAMESPACE_DECL == set->nodeTab[i]->type) {
+    if (XML_NAMESPACE_DECL == set->nodeTab[i]->type)
       elts[i] = Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(set->nodeTab[i]));
-    } else {
-      xmlNodePtr node = set->nodeTab[i];
-
-      if(node->_private) {
-        if(node->type == XML_DOCUMENT_NODE || node->type == XML_HTML_DOCUMENT_NODE)
-          elts[i] = DOC_RUBY_OBJECT(node->doc);
-        else
-          elts[i] = (VALUE)node->_private;
-      } else {
-        elts[i] = Nokogiri_wrap_xml_node(Qnil, node);
-      }
-    }
+    else
+      elts[i] = Nokogiri_wrap_xml_node(Qnil, set->nodeTab[i]);
   }
 
   list = rb_ary_new4((long)set->nodeNr, elts);
