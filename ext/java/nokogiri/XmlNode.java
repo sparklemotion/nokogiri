@@ -1075,8 +1075,8 @@ public class XmlNode extends RubyObject {
         return this;
     }
 
-    @JRubyMethod(name = {"[]=", "set_attribute"})
-    public IRubyObject op_aset(ThreadContext context, IRubyObject rbkey, IRubyObject rbval) {
+    @JRubyMethod(visibility = Visibility.PRIVATE)
+    public IRubyObject set(ThreadContext context, IRubyObject rbkey, IRubyObject rbval) {
         if (node instanceof Element) {
             String key = rubyStringToString(rbkey);
             String val = rubyStringToString(rbval);
