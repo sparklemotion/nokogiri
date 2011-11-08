@@ -25,6 +25,10 @@ correctly implemented CSS3 selector support as well as XPath support.
 
 == SUPPORT:
 
+Before filing a bug report, please read our {submission guidelines}[http://nokogiri.org/tutorials/getting_help.html] at:
+
+  * http://nokogiri.org/tutorials/getting_help.html
+
 The Nokogiri {mailing list}[http://groups.google.com/group/nokogiri-talk]
 is available here:
 
