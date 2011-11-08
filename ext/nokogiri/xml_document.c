@@ -53,7 +53,7 @@ static void recursively_remove_namespaces_from_node(xmlNodePtr node)
     node->nsDef = NULL;
   }
 
-  if (node->properties != NULL) {
+  if (node->type == XML_ELEMENT_NODE && node->properties != NULL) {
     property = node->properties ;
     while (property != NULL) {
       if (property->ns) property->ns = NULL ;
