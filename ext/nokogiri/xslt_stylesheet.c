@@ -17,20 +17,18 @@ static void dealloc(xsltStylesheetPtr doc)
     NOKOGIRI_DEBUG_END(doc);
 }
 
-NORETURN(static void xslt_generic_error_handler(void * ctx, const char *msg, ...));
 static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
 {
   char * message;
-  VALUE exception;
 
   va_list args;
   va_start(args, msg);
   vasprintf(&message, msg, args);
   va_end(args);
 
-  exception = rb_exc_new2(rb_eRuntimeError, message);
+  rb_str_cat2((VALUE)ctx, message);
+
   vasprintf_free(message);
-  rb_exc_raise(exception);
 }
 
 /*
@@ -41,16 +39,25 @@ static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
  */
 static VALUE parse_stylesheet_doc(VALUE klass, VALUE xmldocobj)
 {
-    xmlDocPtr xml ;
+    xmlDocPtr xml, xml_cpy;
+    VALUE errstr, exception;
     xsltStylesheetPtr ss ;
     Data_Get_Struct(xmldocobj, xmlDoc, xml);
     exsltRegisterAll();
 
-    xsltSetGenericErrorFunc(NULL, xslt_generic_error_handler);
+    errstr = rb_str_new(0, 0);
+    xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
 
-    ss = xsltParseStylesheetDoc(xmlCopyDoc(xml, 1)); /* 1 => recursive */
+    xml_cpy = xmlCopyDoc(xml, 1); /* 1 => recursive */
+    ss = xsltParseStylesheetDoc(xml_cpy);
 
     xsltSetGenericErrorFunc(NULL, NULL);
+
+    if (!ss) {
+	xmlFreeDoc(xml_cpy);
+	exception = rb_exc_new3(rb_eRuntimeError, errstr);
+	rb_exc_raise(exception);
+    }
 
     return Data_Wrap_Struct(klass, NULL, dealloc, ss);
 }
