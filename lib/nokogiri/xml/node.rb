@@ -291,6 +291,8 @@ module Nokogiri
       #
       # Also see related method +before+.
       def add_previous_sibling node_or_tags
+        raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document)
+
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
           if text?
@@ -315,6 +317,8 @@ module Nokogiri
       #
       # Also see related method +after+.
       def add_next_sibling node_or_tags
+        raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document)
+        
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
           if text?
