@@ -59,6 +59,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
   xmlNodeSetPtr xml_node_set = NULL;
   xmlXPathObjectPtr obj;
   int i;
+  nokogiriNodeSetTuple *node_set_tuple;
 
   assert(ctx);
   assert(ctx->context);
@@ -135,13 +136,15 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
 	args[0] = doc;
 	args[1] = result;
         node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
-        Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
+        Data_Get_Struct(node_set, nokogiriNodeSetTuple, node_set_tuple);
+	xml_node_set = node_set_tuple->node_set;
         xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
       }
       break;
     case T_DATA:
       if(rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
-        Data_Get_Struct(result, xmlNodeSet, xml_node_set);
+        Data_Get_Struct(result, nokogiriNodeSetTuple, node_set_tuple);
+	xml_node_set = node_set_tuple->node_set;
         /* Copy the node set, otherwise it will get GC'd. */
         xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
         break;
