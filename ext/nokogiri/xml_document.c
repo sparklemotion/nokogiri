@@ -428,9 +428,14 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
   VALUE parent;
   VALUE ret;
 
-  block  = (VALUE)ctx;
-  node   = Nokogiri_wrap_xml_node(Qnil, _node);
+  if(_node->type == XML_NAMESPACE_DECL){
+    node = Nokogiri_wrap_xml_namespace(_parent->doc, (xmlNsPtr) _node);
+  }
+  else{
+    node   = Nokogiri_wrap_xml_node(Qnil, _node);
+  }
   parent = _parent ? Nokogiri_wrap_xml_node(Qnil, _parent) : Qnil;
+  block  = (VALUE)ctx;
 
   ret = rb_funcall(block, rb_intern("call"), 2, node, parent);
 
@@ -441,12 +446,13 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
 
 /* call-seq:
  *  doc.canonicalize
- *  doc.canonicalize { |node, parent| ... }
+ *  doc.canonicalize { |obj, parent| ... }
  *
  * Canonicalize a document and return the results.  Takes an optional block
- * that takes two parameters the +node+ and that node's +parent+.  The block
- * must return a non-nil, non-false value if the +node+ passed in should be
- * included in the canonicalized document.
+ * that takes two parameters: the +obj+ and that node's +parent+.  
+ * The  +obj+ will be either a Nokogiri::XML::Node, or a Nokogiri::XML::Namespace
+ * The block must return a non-nil, non-false value if the +obj+ passed in 
+ * should be included in the canonicalized document.
  */
 static VALUE canonicalize(VALUE self)
 {
