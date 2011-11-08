@@ -256,6 +256,12 @@ module Nokogiri
       end
 
       ###
+      # Set the attribute value for the attribute +name+ to +value+
+      def []= name, value
+        set name.to_s, value
+      end
+
+      ###
       # Add +node_or_tags+ as a child of this Node.
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #

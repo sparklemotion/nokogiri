@@ -1430,6 +1430,7 @@ void init_xml_node()
   rb_define_private_method(klass, "native_write_to", native_write_to, 4);
   rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
+  rb_define_private_method(klass, "set", set, 2);
   rb_define_private_method(klass, "set_namespace", set_namespace, 1);
   rb_define_private_method(klass, "compare", compare, 1);
 
