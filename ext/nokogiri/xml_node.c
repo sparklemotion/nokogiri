@@ -1403,7 +1403,6 @@ void init_xml_node()
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "namespaced_key?", namespaced_key_eh, 2);
   rb_define_method(klass, "blank?", blank_eh, 0);
-  rb_define_method(klass, "[]=", set, 2);
   rb_define_method(klass, "attribute_nodes", attribute_nodes, 0);
   rb_define_method(klass, "attribute", attr, 1);
   rb_define_method(klass, "attribute_with_ns", attribute_with_ns, 2);
