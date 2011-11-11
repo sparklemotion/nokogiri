@@ -1114,6 +1114,11 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"remove_attribute", "delete"})
     public IRubyObject remove_attribute(ThreadContext context, IRubyObject name) {
+        if (node instanceof Element) {
+            String key = name.convertToString().asJavaString();
+            Element element = (Element) node;
+            element.removeAttribute(key);
+        }
         return this;
     }
 

@@ -102,14 +102,6 @@ public class XmlElement extends XmlNode {
     public boolean isElement() { return true; }
 
     @Override
-    public IRubyObject remove_attribute(ThreadContext context, IRubyObject name) {
-        String key = name.convertToString().asJavaString();
-        Element element = (Element) node;
-        element.removeAttribute(key);
-        return this;
-    }
-
-    @Override
     public void relink_namespace(ThreadContext context) {
         Element e = (Element) node;
 
