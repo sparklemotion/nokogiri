@@ -40,15 +40,16 @@ HOE = Hoe.spec 'nokogiri' do
   ]
 
   self.extra_dev_deps += [
-    ["racc",            ">= 1.4.6"],
-    ["rexical",         ">= 1.0.5"],
-    ["rake-compiler",   ">= 0.7.9"],
-    ["minitest",        "~> 2.2.2"],
+    ["hoe-bundler",     ">= 1.1"],
+    ["hoe-debugging",   ">= 1.0.2"],
+    ["hoe-gemspec",     ">= 1.0"],
+    ["hoe-git",         ">= 1.4"],
     ["mini_portile",    ">= 0.2.2"],
-    ["hoe-debugging",   ">= 0"],
-    ["hoe-git",         ">= 0"],
-    ["hoe-gemspec",     ">= 0"],
-    ["hoe-bundler",     ">= 0"]
+    ["minitest",        "~> 2.2.2"],
+    ["racc",            ">= 1.4.6"],
+    ["rake-compiler",   ">= 0.7.9"],
+    ["rdoc",            ">= 3.11"],
+    ["rexical",         ">= 1.0.5"],
   ]
 
   if java?
