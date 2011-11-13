@@ -48,7 +48,10 @@ static void recursively_remove_namespaces_from_node(xmlNodePtr node)
   for (child = node->children ; child ; child = child->next)
     recursively_remove_namespaces_from_node(child);
 
-  if (node->nsDef) {
+  if (((node->type == XML_ELEMENT_NODE) ||
+       (node->type == XML_XINCLUDE_START) ||
+       (node->type == XML_XINCLUDE_END)) &&
+      node->nsDef) {
     xmlFreeNsList(node->nsDef);
     node->nsDef = NULL;
   }
