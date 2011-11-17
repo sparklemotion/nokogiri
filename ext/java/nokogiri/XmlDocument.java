@@ -38,6 +38,8 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
+import java.util.List;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -50,11 +52,13 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyNil;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
@@ -517,5 +521,23 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod
     public IRubyObject toJavaDocument(ThreadContext context) {
         return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), (org.w3c.dom.Document)node);
+    }
+    
+    @JRubyMethod(optional=3)
+    public IRubyObject canonicalize(ThreadContext context, IRubyObject[] args, Block block) {
+        // 38 = NO_DECL | NO_EMPTY | AS_XML
+        SaveContextVisitor visitor = new SaveContextVisitor(38, null, "UTF-8", false, false, true);
+        accept(context, visitor);
+        Ruby runtime = context.getRuntime();
+        IRubyObject result = runtime.getTrue();
+        if (block.isGiven()) {
+            List<Node> list = visitor.getC14nNodeList();
+            for (Node n : list) {
+                IRubyObject currentNode = getCachedNodeOrCreate(runtime, n);
+                IRubyObject parentNode = getCachedNodeOrCreate(runtime, n.getParentNode());
+                result = block.call(context, currentNode, parentNode);
+            }
+        }
+        return result.isTrue() ? stringOrNil(runtime, visitor.toString()) : RubyString.newEmptyString(runtime);
     }
 }

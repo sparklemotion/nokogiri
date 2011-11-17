@@ -58,6 +58,7 @@ import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyEncoding;
 import org.jruby.RubyString;
+import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
@@ -571,6 +572,38 @@ public class NokogiriHelpers {
 
     public static boolean isXmlBase(String attrName) {
         return "xml:base".equals(attrName) || "xlink:href".equals(attrName);
+    }
+    
+    public static boolean isWhitespaceText(ThreadContext context, IRubyObject obj) {
+        if (obj == null || obj.isNil()) return false;
+
+        XmlNode node = (XmlNode) obj;
+        if (!(node instanceof XmlText))
+            return false;
+
+        String content = rubyStringToString(node.content(context));
+        return content.trim().length() == 0;
+    }
+    
+    public static boolean isWhitespaceText(String s) {
+        return s.trim().length() == 0;
+    }
+    
+    public static String canonicalizeWhitespce(String s) {
+        StringBuilder sb = new StringBuilder();
+        char[] chars = s.toCharArray();
+        boolean newline_added = false;
+        for (int i=0; i<chars.length; i++) {
+            if (chars[i] == '\n') {
+                if (!newline_added) {
+                    sb.append(chars[i]);
+                    newline_added = true;
+                }
+            } else {
+                sb.append(chars[i]);
+            }
+        }
+        return sb.toString();
     }
 
     public static String newQName(String newPrefix, Node node) {

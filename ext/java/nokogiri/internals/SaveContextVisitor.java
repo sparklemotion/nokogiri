@@ -32,9 +32,16 @@
 
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.canonicalizeWhitespce;
 import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.isNotXmlEscaped;
+import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Stack;
 
 import org.cyberneko.html.HTMLElements;
@@ -65,7 +72,8 @@ public class SaveContextVisitor {
     private Stack<String> indentation;
     private String encoding, indentString;
     private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, asBuilder, htmlDoc, fragment;
-
+    private boolean canonical;
+    private List<Node> c14nNodeList;
     /*
      * U can't touch this.
      * http://www.youtube.com/watch?v=WJ2ZFVx6A4Q
@@ -82,12 +90,14 @@ public class SaveContextVisitor {
     public static final int AS_HTML = 64;
     public static final int AS_BUILDER = 128;
 
-    public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment) {
+    public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment, boolean canonical) {
         buffer = new StringBuffer();
         this.encoding = encoding;
         indentation = new Stack<String>(); indentation.push("");
         this.htmlDoc = htmlDoc;
         this.fragment = fragment;
+        this.canonical = canonical;
+        c14nNodeList = new ArrayList<Node>();
         format = (options & FORMAT) == FORMAT;
         
         noDecl = (options & NO_DECL) == NO_DECL;
@@ -115,6 +125,10 @@ public class SaveContextVisitor {
     
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+    
+    public List<Node> getC14nNodeList() {
+        return c14nNodeList;
     }
     
     public boolean enter(Node node) {
@@ -275,6 +289,10 @@ public class SaveContextVisitor {
     }
 
     public boolean enter(Comment comment) {
+        if (canonical) {
+            c14nNodeList.add(comment);
+            return true;
+        }
         buffer.append("<!--");
         buffer.append(comment.getData());
         buffer.append("-->");
@@ -306,6 +324,10 @@ public class SaveContextVisitor {
     }
     
     public boolean enter(DocumentType docType) {
+        if (canonical) {
+            c14nNodeList.add(docType);
+            return true;
+        }
         String name = docType.getName();
         String pubId = docType.getPublicId();
         String sysId = docType.getSystemId();
@@ -334,6 +356,12 @@ public class SaveContextVisitor {
     }
 
     public boolean enter(Element element) {
+        if (canonical) {
+            c14nNodeList.add(element);
+            if (element == element.getOwnerDocument().getDocumentElement()) {
+                c14nNodeList.add(element.getOwnerDocument());
+            }
+        }
         String current = indentation.peek();
         buffer.append(current);
         if (needIndent()) {
@@ -342,12 +370,23 @@ public class SaveContextVisitor {
         String name = element.getTagName();
         buffer.append("<" + name);
         NamedNodeMap attrs = element.getAttributes();
-        for (int i=0; i<attrs.getLength(); i++) {
-            Attr attr = (Attr) attrs.item(i);
-            if (attr.getSpecified()) {
-                buffer.append(" ");
-                enter(attr);
-                leave(attr);
+        if (canonical) {
+            Attr[] sorted = canonicalizeAttrOrder(attrs);
+            for (Attr attr : sorted) {
+                if (attr.getSpecified()) {
+                    buffer.append(" ");
+                    enter(attr);
+                    leave(attr);
+                }
+            }
+        } else {
+            for (int i = 0; i < attrs.getLength(); i++) {
+                Attr attr = (Attr) attrs.item(i);
+                if (attr.getSpecified()) {
+                    buffer.append(" ");
+                    enter(attr);
+                    leave(attr);
+                }
             }
         }
         if (element.hasChildNodes()) {
@@ -386,6 +425,39 @@ public class SaveContextVisitor {
     private boolean isEmpty(String name) {
         HTMLElements.Element element = HTMLElements.getElement(name);
         return element.isEmpty();
+    }
+    
+    private Attr[] canonicalizeAttrOrder(NamedNodeMap attrs) {
+        if (attrs == null || attrs.getLength() == 0) return new Attr[0];
+        List<Attr> namespaces = new ArrayList<Attr>();
+        List<Attr> attributes = new ArrayList<Attr>();
+        for (int i=0; i<attrs.getLength(); i++) {
+            Attr attr = (Attr)attrs.item(i);
+            if (isNamespace(attr.getNodeName())) namespaces.add(attr);
+            else attributes.add(attr);
+        }
+        Attr[] namespaceArray = getSortedArray(namespaces);
+        Attr[] attributeArray = getSortedArray(attributes);
+        Attr[] allAttrs = new Attr[namespaceArray.length + attributeArray.length];
+        for (int i=0; i<allAttrs.length; i++) {
+            if (i < namespaceArray.length) {
+                allAttrs[i] = namespaceArray[i];
+            } else {
+                allAttrs[i] = attributeArray[i-namespaceArray.length];
+            }
+        }
+        return allAttrs;
+    }
+    
+    private Attr[] getSortedArray(List<Attr> attrList) {
+        Attr[] attrArray = attrList.toArray(new Attr[0]);
+        Arrays.sort(attrArray, new Comparator<Attr>() {
+            @Override
+            public int compare(Attr attr0, Attr attr1) {
+                return attr0.getNodeName().compareTo(attr1.getNodeName());
+            }
+        });
+        return attrArray;
     }
     
     public void leave(Element element) {
@@ -502,6 +574,7 @@ public class SaveContextVisitor {
         if (asHtml) buffer.append(">");
         else buffer.append("?>");
         buffer.append("\n");
+        if (canonical) c14nNodeList.add(pi);
         return true;
     }
     
@@ -512,6 +585,13 @@ public class SaveContextVisitor {
     private static char lineSeparator = '\n'; // System.getProperty("line.separator"); ?
     public boolean enter(Text text) {
         String textContent = text.getNodeValue();
+        if (canonical) {
+            c14nNodeList.add(text);
+            if (isWhitespaceText(textContent)) {
+                buffer.append(canonicalizeWhitespce(textContent));
+                return true;
+            }
+        }
         if (needIndentText() && "".equals(textContent.trim())) return true;
         if (needIndentText()) {
             String current = indentation.peek();

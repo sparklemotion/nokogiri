@@ -1026,7 +1026,7 @@ public class XmlNode extends RubyObject {
 
         SaveContextVisitor visitor = 
             new SaveContextVisitor((Integer)options.toJava(Integer.class), rubyStringToString(indentString), encString,
-                    isHtmlDoc(context), isFragment());
+                    isHtmlDoc(context), isFragment(), false);
         accept(context, visitor);
         IRubyObject rubyString = stringOrNil(context.getRuntime(), visitor.toString());
         RuntimeHelpers.invoke(context, io, "write", rubyString);
