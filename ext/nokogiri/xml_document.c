@@ -431,9 +431,14 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
   VALUE parent;
   VALUE ret;
 
-  block  = (VALUE)ctx;
-  node   = Nokogiri_wrap_xml_node(Qnil, _node);
+  if(_node->type == XML_NAMESPACE_DECL){
+    node = Nokogiri_wrap_xml_namespace(_parent->doc, (xmlNsPtr) _node);
+  }
+  else{
+    node   = Nokogiri_wrap_xml_node(Qnil, _node);
+  }
   parent = _parent ? Nokogiri_wrap_xml_node(Qnil, _parent) : Qnil;
+  block  = (VALUE)ctx;
 
   ret = rb_funcall(block, rb_intern("call"), 2, node, parent);
 
@@ -443,16 +448,25 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
 }
 
 /* call-seq:
- *  doc.canonicalize
- *  doc.canonicalize { |node, parent| ... }
+ *  doc.canonicalize(mode=XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
+ *  doc.canonicalize { |obj, parent| ... }
  *
  * Canonicalize a document and return the results.  Takes an optional block
- * that takes two parameters the +node+ and that node's +parent+.  The block
- * must return a non-nil, non-false value if the +node+ passed in should be
- * included in the canonicalized document.
+ * that takes two parameters: the +obj+ and that node's +parent+.  
+ * The  +obj+ will be either a Nokogiri::XML::Node, or a Nokogiri::XML::Namespace
+ * The block must return a non-nil, non-false value if the +obj+ passed in 
+ * should be included in the canonicalized document.
  */
-static VALUE canonicalize(VALUE self)
+static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
 {
+  VALUE mode;
+  VALUE incl_ns;
+  VALUE with_comments;
+  xmlChar **ns;
+  long ns_len, i;
+
+  rb_scan_args(argc, argv, "03", &mode, &incl_ns, &with_comments);
+
   xmlDocPtr doc;
   xmlOutputBufferPtr buf;
   xmlC14NIsVisibleCallback cb = NULL;
@@ -476,7 +490,25 @@ static VALUE canonicalize(VALUE self)
     ctx = (void *)rb_block_proc();
   }
 
-  xmlC14NExecute(doc, cb, ctx, 0, NULL, 0, buf);
+  if(NIL_P(incl_ns)){
+    ns = NULL;
+  }
+  else{
+    ns_len = RARRAY_LEN(incl_ns);
+    ns = calloc((size_t)ns_len+1, sizeof(xmlChar *));
+    for (i = 0 ; i < ns_len ; i++) {
+      VALUE entry = rb_ary_entry(incl_ns, i);
+      const char * ptr = StringValuePtr(entry);
+      ns[i] = (xmlChar*) ptr;
+    }
+  }
+
+
+  xmlC14NExecute(doc, cb, ctx, 
+    (int)      (NIL_P(mode)        ? 0 : NUM2INT(mode)), 
+    ns,
+    (int)      (NIL_P(with_comments)        ? 0 : 1),
+    buf);
 
   xmlOutputBufferClose(buf);
 
@@ -506,7 +538,7 @@ void init_xml_document()
   rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "encoding=", set_encoding, 1);
   rb_define_method(klass, "version", version, 0);
-  rb_define_method(klass, "canonicalize", canonicalize, 0);
+  rb_define_method(klass, "canonicalize", canonicalize, -1);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
   rb_define_method(klass, "create_entity", create_entity, -1);
