@@ -776,8 +776,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def to_xml options = {}
-        options[:save_with] |= SaveOptions::DEFAULT_XML if options[:save_with]
-        options[:save_with] = SaveOptions::DEFAULT_XML unless options[:save_with]
+        options[:save_with] ||= SaveOptions::DEFAULT_XML
         serialize(options)
       end
 
