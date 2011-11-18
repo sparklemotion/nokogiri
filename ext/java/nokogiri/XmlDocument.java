@@ -523,10 +523,27 @@ public class XmlDocument extends XmlNode {
         return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), (org.w3c.dom.Document)node);
     }
     
+    /* call-seq:
+     *  doc.canonicalize(mode=XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
+     *  doc.canonicalize { |obj, parent| ... }
+     *
+     * Canonicalize a document and return the results.  Takes an optional block
+     * that takes two parameters: the +obj+ and that node's +parent+.  
+     * The  +obj+ will be either a Nokogiri::XML::Node, or a Nokogiri::XML::Namespace
+     * The block must return a non-nil, non-false value if the +obj+ passed in 
+     * should be included in the canonicalized document.
+     */
     @JRubyMethod(optional=3)
     public IRubyObject canonicalize(ThreadContext context, IRubyObject[] args, Block block) {
+        int canonicalOpts = 1;
+        int mode = 0;
+        // todo: args[1] inclusive_namespace thing
+        if (args.length == 3) {
+            mode = (Integer)(args[0].isNil() ? 0 : args[0].toJava(Integer.class));
+            canonicalOpts = args[2].isTrue() ? (canonicalOpts | 4) : canonicalOpts;
+        }
         // 38 = NO_DECL | NO_EMPTY | AS_XML
-        SaveContextVisitor visitor = new SaveContextVisitor(38, null, "UTF-8", false, false, true);
+        SaveContextVisitor visitor = new SaveContextVisitor(38, null, "UTF-8", false, false, canonicalOpts);
         accept(context, visitor);
         Ruby runtime = context.getRuntime();
         IRubyObject result = runtime.getTrue();

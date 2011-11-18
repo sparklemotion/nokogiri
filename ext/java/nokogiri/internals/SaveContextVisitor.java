@@ -72,7 +72,7 @@ public class SaveContextVisitor {
     private Stack<String> indentation;
     private String encoding, indentString;
     private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, asBuilder, htmlDoc, fragment;
-    private boolean canonical;
+    private boolean canonical, incl_ns, with_comments;
     private List<Node> c14nNodeList;
     /*
      * U can't touch this.
@@ -89,14 +89,17 @@ public class SaveContextVisitor {
     public static final int AS_XML = 32;
     public static final int AS_HTML = 64;
     public static final int AS_BUILDER = 128;
+    
+    public static final int CANONICAL = 1;
+    public static final int INCL_NS = 2;
+    public static final int WITH_COMMENTS = 4;
 
-    public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment, boolean canonical) {
+    public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment, int canonicalOpts) {
         buffer = new StringBuffer();
         this.encoding = encoding;
         indentation = new Stack<String>(); indentation.push("");
         this.htmlDoc = htmlDoc;
         this.fragment = fragment;
-        this.canonical = canonical;
         c14nNodeList = new ArrayList<Node>();
         format = (options & FORMAT) == FORMAT;
         
@@ -107,6 +110,11 @@ public class SaveContextVisitor {
         asXml = (options & AS_XML) == AS_XML;
         asHtml = (options & AS_HTML) == AS_HTML;
         asBuilder = (options & AS_BUILDER) == AS_BUILDER;
+        
+        canonical = (canonicalOpts & CANONICAL) == CANONICAL;
+        incl_ns = (canonicalOpts & INCL_NS) == INCL_NS;
+        with_comments = (canonicalOpts & WITH_COMMENTS) == WITH_COMMENTS;
+        
         if ((format && indent == null) || (format && indent.length() == 0)) indent = "  "; // default, two spaces
         if ((!format && indent != null) && indent.length() > 0) format = true;
         if ((asBuilder && indent == null) || (asBuilder && indent.length() == 0)) indent = "  "; // default, two spaces
@@ -291,7 +299,7 @@ public class SaveContextVisitor {
     public boolean enter(Comment comment) {
         if (canonical) {
             c14nNodeList.add(comment);
-            return true;
+            if (!with_comments) return true;
         }
         buffer.append("<!--");
         buffer.append(comment.getData());
