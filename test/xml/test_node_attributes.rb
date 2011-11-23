@@ -31,6 +31,7 @@ module Nokogiri
       end
 
       def test_set_attribute_frees_nodes # testing a segv
+        skip("JRuby doesn't do GC.") if Nokogiri.jruby?
         document = Nokogiri::XML.parse("<foo></foo>")
 
         node = document.root
