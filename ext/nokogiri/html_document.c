@@ -1,5 +1,7 @@
 #include <html_document.h>
 
+static ID id_encoding_found;
+
 /*
  * call-seq:
  *  new
@@ -42,7 +44,6 @@ static VALUE read_io( VALUE klass,
   VALUE error_list      = rb_ary_new();
   VALUE document;
   htmlDocPtr doc;
-  ID id_encoding_found;
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
@@ -61,7 +62,7 @@ static VALUE read_io( VALUE klass,
    * If EncodingFound has occurred in EncodingReader, make sure to do
    * a cleanup and propagate the error.
    */
-  if (rb_respond_to(io, id_encoding_found = rb_intern("encoding_found"))) {
+  if (rb_respond_to(io, id_encoding_found)) {
     VALUE encoding_found = rb_funcall(io, id_encoding_found, 0);
     if (!NIL_P(encoding_found)) {
       xmlFreeDoc(doc);
@@ -164,4 +165,6 @@ void init_html_document()
   rb_define_singleton_method(klass, "new", new, -1);
 
   rb_define_method(klass, "type", type, 0);
+
+  id_encoding_found = rb_intern("encoding_found");
 }
