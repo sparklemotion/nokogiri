@@ -77,6 +77,28 @@ class TestMemoryLeak < Nokogiri::TestCase
         pivot.replace(n)
       end
     end
+
+    def test_sax_parser_context
+      str = <<EOF
+<!DOCTYPE HTML>
+<html>
+  <body>
+    <br />
+  </body>
+</html>
+EOF
+      io = StringIO.new(str)
+
+      loop do
+        Nokogiri::XML::SAX::ParserContext.new(str)
+        Nokogiri::XML::SAX::ParserContext.new(io)
+        io.rewind
+
+        Nokogiri::HTML::SAX::ParserContext.new(str)
+        Nokogiri::HTML::SAX::ParserContext.new(io)
+        io.rewind
+      end
+    end
   end # if NOKOGIRI_GC
 
   private

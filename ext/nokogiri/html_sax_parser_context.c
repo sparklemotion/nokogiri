@@ -13,31 +13,35 @@ static void deallocate(xmlParserCtxtPtr ctxt)
   NOKOGIRI_DEBUG_END(handler);
 }
 
-static VALUE parse_memory(VALUE klass, VALUE data, VALUE encoding)
+static VALUE
+parse_memory(VALUE klass, VALUE data, VALUE encoding)
 {
-  htmlParserCtxtPtr ctxt;
+    htmlParserCtxtPtr ctxt;
 
-  if(NIL_P(data)) rb_raise(rb_eArgError, "data cannot be nil");
-  if(!(int)RSTRING_LEN(data))
-    rb_raise(rb_eRuntimeError, "data cannot be empty");
+    if (NIL_P(data))
+	rb_raise(rb_eArgError, "data cannot be nil");
+    if (!(int)RSTRING_LEN(data))
+	rb_raise(rb_eRuntimeError, "data cannot be empty");
 
-  ctxt = htmlCreateMemoryParserCtxt(
-      StringValuePtr(data),
-      (int)RSTRING_LEN(data)
-  );
-
-  if(RTEST(encoding)) {
-    xmlCharEncodingHandlerPtr enc = xmlFindCharEncodingHandler(StringValuePtr(encoding));
-    if(enc != NULL) {
-      xmlSwitchToEncoding(ctxt, enc);
-      if(ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
-        rb_raise(rb_eRuntimeError, "Unsupported encoding %s",
-            StringValuePtr(encoding));
-      }
+    ctxt = htmlCreateMemoryParserCtxt(StringValuePtr(data),
+				      (int)RSTRING_LEN(data));
+    if (ctxt->sax) {
+	xmlFree(ctxt->sax);
+	ctxt->sax = NULL;
     }
-  }
 
-  return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
+    if (RTEST(encoding)) {
+	xmlCharEncodingHandlerPtr enc = xmlFindCharEncodingHandler(StringValuePtr(encoding));
+	if (enc != NULL) {
+	    xmlSwitchToEncoding(ctxt, enc);
+	    if (ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
+		rb_raise(rb_eRuntimeError, "Unsupported encoding %s",
+			 StringValuePtr(encoding));
+	    }
+	}
+    }
+
+    return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
 }
 
 static VALUE parse_file(VALUE klass, VALUE filename, VALUE encoding)
