@@ -1,6 +1,18 @@
 require "helper"
 
 class TestMemoryLeak < Nokogiri::TestCase
+  def setup
+    super
+    @str = <<EOF
+<!DOCTYPE HTML>
+<html>
+  <body>
+    <br />
+  </body>
+</html>
+EOF
+  end
+
   if ENV['NOKOGIRI_GC'] # turning these off by default for now
     def test_dont_hurt_em_why
       content = File.open("#{File.dirname(__FILE__)}/files/dont_hurt_em_why.xml").read
@@ -79,24 +91,37 @@ class TestMemoryLeak < Nokogiri::TestCase
     end
 
     def test_sax_parser_context
-      str = <<EOF
-<!DOCTYPE HTML>
-<html>
-  <body>
-    <br />
-  </body>
-</html>
-EOF
-      io = StringIO.new(str)
+      io = StringIO.new(@str)
 
       loop do
-        Nokogiri::XML::SAX::ParserContext.new(str)
+        Nokogiri::XML::SAX::ParserContext.new(@str)
         Nokogiri::XML::SAX::ParserContext.new(io)
         io.rewind
 
-        Nokogiri::HTML::SAX::ParserContext.new(str)
+        Nokogiri::HTML::SAX::ParserContext.new(@str)
         Nokogiri::HTML::SAX::ParserContext.new(io)
         io.rewind
+      end
+    end
+
+    class JumpingSaxHandler < Nokogiri::XML::SAX::Document
+      def initialize(jumptag)
+        @jumptag = jumptag
+        super()
+      end
+
+      def start_element(name, attrs = [])
+        throw @jumptag
+      end
+    end
+
+    def test_jumping_sax_handler
+      doc = JumpingSaxHandler.new(:foo)
+
+      loop do
+        catch(:foo) do
+          Nokogiri::HTML::SAX::Parser.new(doc).parse(@str)
+        end
       end
     end
   end # if NOKOGIRI_GC

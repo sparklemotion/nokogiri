@@ -75,37 +75,54 @@ parse_memory(VALUE klass, VALUE data)
     return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
 }
 
+static VALUE
+parse_doc(VALUE ctxt_val)
+{
+    xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctxt_val;
+    xmlParseDocument(ctxt);
+    return Qnil;
+}
+
+static VALUE
+parse_doc_finalize(VALUE ctxt_val)
+{
+    xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctxt_val;
+
+    if (NULL != ctxt->myDoc)
+	xmlFreeDoc(ctxt->myDoc);
+
+    NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
+    return Qnil;
+}
+
 /*
  * call-seq:
  *  parse_with(sax_handler)
  *
  * Use +sax_handler+ and parse the current document
  */
-static VALUE parse_with(VALUE self, VALUE sax_handler)
+static VALUE
+parse_with(VALUE self, VALUE sax_handler)
 {
-  xmlParserCtxtPtr ctxt;
-  xmlSAXHandlerPtr sax;
+    xmlParserCtxtPtr ctxt;
+    xmlSAXHandlerPtr sax;
 
-  if(!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser))
-    rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
+    if (!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser))
+	rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
 
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
-  Data_Get_Struct(sax_handler, xmlSAXHandler, sax);
+    Data_Get_Struct(self, xmlParserCtxt, ctxt);
+    Data_Get_Struct(sax_handler, xmlSAXHandler, sax);
 
-  /* Free the sax handler since we'll assign our own */
-  if(ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-    xmlFree(ctxt->sax);
+    /* Free the sax handler since we'll assign our own */
+    if (ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+	xmlFree(ctxt->sax);
 
-  ctxt->sax = sax;
-  ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
+    ctxt->sax = sax;
+    ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
 
-  xmlParseDocument(ctxt);
+    rb_ensure(parse_doc, (VALUE)ctxt, parse_doc_finalize, (VALUE)ctxt);
 
-  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
-
-  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
-
-  return Qnil ;
+    return Qnil;
 }
 
 /*
