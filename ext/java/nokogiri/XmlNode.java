@@ -520,6 +520,8 @@ public class XmlNode extends RubyObject {
         if (node != namespaceOwner) {
             node.getOwnerDocument().renameNode(node, ns.getHref(), ns.getPrefix() + node.getLocalName());
         }
+        
+        updateNodeNamespaceIfNecessary(context, ns);
 
         return ns;
     }
