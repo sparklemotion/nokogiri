@@ -39,10 +39,17 @@ module Nokogiri
           list << [node, parent]
           true
         end
-        assert_equal(
-          ['a', 'document', 'document', nil, 'b', 'a', 'a', 'document'],
-          list.flatten.map { |x| x ? x.name : x }
-        )
+        if Nokogiri.jruby?
+          assert_equal(
+            ['a', 'document', 'document', nil, 'b', 'a'],
+            list.flatten.map { |x| x ? x.name : x }
+          )
+        else
+          assert_equal(
+            ['a', 'document', 'document', nil, 'b', 'a', 'a', 'document'],
+            list.flatten.map { |x| x ? x.name : x }
+          )
+        end
       end
 
       def test_exclude_block_true
