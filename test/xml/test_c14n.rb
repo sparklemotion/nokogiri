@@ -92,7 +92,7 @@ module Nokogiri
         assert_equal '<b><c></c></b>', c14n
       end
 
-      def test_c14_modes
+      def test_c14n_modes
         # http://www.w3.org/TR/xml-exc-c14n/#sec-Enveloping
         
         doc1 = Nokogiri.XML <<-eoxml
