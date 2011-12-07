@@ -542,9 +542,10 @@ public class XmlDocument extends XmlNode {
             mode = (Integer)(args[0].isNil() ? 0 : args[0].toJava(Integer.class));
             canonicalOpts = args[2].isTrue() ? (canonicalOpts | 4) : canonicalOpts;
         }
+        
         // 38 = NO_DECL | NO_EMPTY | AS_XML
         SaveContextVisitor visitor = new SaveContextVisitor(38, null, "UTF-8", false, false, canonicalOpts);
-        accept(context, visitor);
+        getStartingNode(block).accept(context, visitor);
         Ruby runtime = context.getRuntime();
         IRubyObject result = runtime.getTrue();
         if (block.isGiven()) {
@@ -556,5 +557,14 @@ public class XmlDocument extends XmlNode {
             }
         }
         return result.isTrue() ? stringOrNil(runtime, visitor.toString()) : RubyString.newEmptyString(runtime);
+    }
+    
+    private XmlNode getStartingNode(Block block) {
+        if (block.isGiven()) {
+            if (block.getBinding().getSelf() instanceof XmlNode) {
+                return (XmlNode)block.getBinding().getSelf();
+            }
+        }
+        return this;
     }
 }
