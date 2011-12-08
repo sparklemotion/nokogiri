@@ -540,12 +540,14 @@ public class XmlDocument extends XmlNode {
         // todo: args[1] inclusive_namespace thing
         if (args.length == 3) {
             mode = (Integer)(args[0].isNil() ? 0 : args[0].toJava(Integer.class));
+            if (mode == 1) canonicalOpts = canonicalOpts | 16; // exclusive
             canonicalOpts = args[2].isTrue() ? (canonicalOpts | 4) : canonicalOpts;
         }
-        
+        XmlNode startingNode = getStartingNode(block);
+        if (startingNode != this) canonicalOpts = canonicalOpts | 8; // subsets
         // 38 = NO_DECL | NO_EMPTY | AS_XML
         SaveContextVisitor visitor = new SaveContextVisitor(38, null, "UTF-8", false, false, canonicalOpts);
-        getStartingNode(block).accept(context, visitor);
+        startingNode.accept(context, visitor);
         Ruby runtime = context.getRuntime();
         IRubyObject result = runtime.getTrue();
         if (block.isGiven()) {

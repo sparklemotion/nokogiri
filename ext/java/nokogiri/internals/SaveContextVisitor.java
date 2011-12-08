@@ -38,9 +38,12 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.isNotXmlEscaped;
 import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -72,8 +75,10 @@ public class SaveContextVisitor {
     private Stack<String> indentation;
     private String encoding, indentString;
     private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, asBuilder, htmlDoc, fragment;
-    private boolean canonical, incl_ns, with_comments;
+    private boolean canonical, incl_ns, with_comments, subsets, exclusive;
     private List<Node> c14nNodeList;
+    private Deque<Attr[]> c14nNamespaceStack;
+    private Deque<Attr[]> c14nAttrStack;
     /*
      * U can't touch this.
      * http://www.youtube.com/watch?v=WJ2ZFVx6A4Q
@@ -93,6 +98,8 @@ public class SaveContextVisitor {
     public static final int CANONICAL = 1;
     public static final int INCL_NS = 2;
     public static final int WITH_COMMENTS = 4;
+    public static final int SUBSETS = 8;
+    public static final int EXCLUSIVE = 16;
 
     public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment, int canonicalOpts) {
         buffer = new StringBuffer();
@@ -101,6 +108,8 @@ public class SaveContextVisitor {
         this.htmlDoc = htmlDoc;
         this.fragment = fragment;
         c14nNodeList = new ArrayList<Node>();
+        c14nNamespaceStack = new ArrayDeque<Attr[]>();
+        c14nAttrStack = new ArrayDeque<Attr[]>();
         format = (options & FORMAT) == FORMAT;
         
         noDecl = (options & NO_DECL) == NO_DECL;
@@ -114,6 +123,8 @@ public class SaveContextVisitor {
         canonical = (canonicalOpts & CANONICAL) == CANONICAL;
         incl_ns = (canonicalOpts & INCL_NS) == INCL_NS;
         with_comments = (canonicalOpts & WITH_COMMENTS) == WITH_COMMENTS;
+        subsets = (canonicalOpts & SUBSETS) == SUBSETS;
+        exclusive = (canonicalOpts & EXCLUSIVE) == EXCLUSIVE;
         
         if ((format && indent == null) || (format && indent.length() == 0)) indent = "  "; // default, two spaces
         if ((!format && indent != null) && indent.length() > 0) format = true;
@@ -377,24 +388,12 @@ public class SaveContextVisitor {
         }
         String name = element.getTagName();
         buffer.append("<" + name);
-        NamedNodeMap attrs = element.getAttributes();
-        if (canonical) {
-            Attr[] sorted = canonicalizeAttrOrder(attrs);
-            for (Attr attr : sorted) {
-                if (attr.getSpecified()) {
-                    buffer.append(" ");
-                    enter(attr);
-                    leave(attr);
-                }
-            }
-        } else {
-            for (int i = 0; i < attrs.getLength(); i++) {
-                Attr attr = (Attr) attrs.item(i);
-                if (attr.getSpecified()) {
-                    buffer.append(" ");
-                    enter(attr);
-                    leave(attr);
-                }
+        Attr[] attrs = getAttrsAndNamespaces(element);        
+        for (Attr attr : attrs) {
+            if (attr.getSpecified()) {
+                buffer.append(" ");
+                enter(attr);
+                leave(attr);
             }
         }
         if (element.hasChildNodes()) {
@@ -435,26 +434,109 @@ public class SaveContextVisitor {
         return element.isEmpty();
     }
     
-    private Attr[] canonicalizeAttrOrder(NamedNodeMap attrs) {
-        if (attrs == null || attrs.getLength() == 0) return new Attr[0];
-        List<Attr> namespaces = new ArrayList<Attr>();
-        List<Attr> attributes = new ArrayList<Attr>();
-        for (int i=0; i<attrs.getLength(); i++) {
+    private Attr[] getAttrsAndNamespaces(Element element) {
+        NamedNodeMap attrs = element.getAttributes();
+        if (!canonical) {
+            if (attrs == null || attrs.getLength() == 0) return new Attr[0];
+            Attr[] attrsAndNamespaces = new Attr[attrs.getLength()];
+            for (int i=0; i<attrs.getLength(); i++) {
+                attrsAndNamespaces[i] = (Attr) attrs.item(i);
+            }
+            return attrsAndNamespaces;
+        } else {
+            List<Attr> namespaces = new ArrayList<Attr>();
+            List<Attr> attributes = new ArrayList<Attr>();
+            if (subsets) {
+                getAttrsOfAncestors(element.getParentNode(), namespaces, attributes);
+                Attr[] namespaceOfAncestors = getSortedArray(namespaces);
+                Attr[] attributeOfAncestors = getSortedArray(attributes);
+                c14nNamespaceStack.push(namespaceOfAncestors);
+                c14nAttrStack.push(attributeOfAncestors);
+                subsets = false; // namespace propagation should be done only once on top level node.
+            }
+            
+            getNamespacesAndAttrs(element, namespaces, attributes);
+
+            Attr[] namespaceArray = getSortedArray(namespaces);
+            Attr[] attributeArray = getSortedArray(attributes);
+            Attr[] allAttrs = new Attr[namespaceArray.length + attributeArray.length];
+            for (int i=0; i<allAttrs.length; i++) {
+                if (i < namespaceArray.length) {
+                    allAttrs[i] = namespaceArray[i];
+                } else {
+                    allAttrs[i] = attributeArray[i-namespaceArray.length];
+                }
+            }
+            c14nNamespaceStack.push(namespaceArray);
+            c14nAttrStack.push(attributeArray);
+            return allAttrs;
+        }
+        
+    }
+    
+    private void getAttrsOfAncestors(Node parent, List<Attr> namespaces, List<Attr> attributes) {
+        if (parent == null) return;
+        NamedNodeMap attrs = parent.getAttributes();
+        if (attrs == null || attrs.getLength() == 0) return;
+        for (int i=0; i < attrs.getLength(); i++) {
             Attr attr = (Attr)attrs.item(i);
             if (isNamespace(attr.getNodeName())) namespaces.add(attr);
             else attributes.add(attr);
         }
-        Attr[] namespaceArray = getSortedArray(namespaces);
-        Attr[] attributeArray = getSortedArray(attributes);
-        Attr[] allAttrs = new Attr[namespaceArray.length + attributeArray.length];
-        for (int i=0; i<allAttrs.length; i++) {
-            if (i < namespaceArray.length) {
-                allAttrs[i] = namespaceArray[i];
+        getAttrsOfAncestors(parent.getParentNode(), namespaces, attributes);
+    }
+    
+    private void getNamespacesAndAttrs(Node current, List<Attr> namespaces, List<Attr> attributes) {
+        NamedNodeMap attrs = current.getAttributes();
+        for (int i=0; i<attrs.getLength(); i++) {
+            Attr attr = (Attr)attrs.item(i);
+            if (isNamespace(attr.getNodeName())) {
+                getNamespacesWithPropagated(namespaces, attr);
             } else {
-                allAttrs[i] = attributeArray[i-namespaceArray.length];
+                getAttributesWithPropagated(attributes, attr);
             }
         }
-        return allAttrs;
+    }
+
+    private void getNamespacesWithPropagated(List<Attr> namespaces, Attr attr) {
+        boolean newNamespace = true;
+        Iterator<Attr[]> iter = c14nNamespaceStack.iterator();
+        while (iter.hasNext()) {
+            Attr[] parentNamespaces = iter.next();
+            for (int n=0; n < parentNamespaces.length; n++) {
+                if (parentNamespaces[n].getNodeName().equals(attr.getNodeName())) {
+                   if (parentNamespaces[n].getNodeValue().equals(attr.getNodeValue())) {
+                       // exactly the same namespace should not be added
+                       newNamespace = false;
+                   } else {                            
+                       // in case of namespace url change, propagated namespace will be override
+                       namespaces.remove(parentNamespaces[n]);
+                   }
+                }
+            }
+            if (newNamespace && !namespaces.contains(attr)) namespaces.add(attr);
+        }
+    }
+    
+    private void getAttributesWithPropagated(List<Attr> attributes, Attr attr) {
+        boolean newAttribute = true;
+        Iterator<Attr[]> iter = c14nAttrStack.iterator();
+        while (iter.hasNext()) {
+            Attr[] parentAttr = iter.next();
+            for (int n=0; n < parentAttr.length; n++) {
+                if (!parentAttr[n].getNodeName().startsWith("xml:")) continue;
+                if (parentAttr[n].getNodeName().equals(attr.getNodeName())) {
+                   if (parentAttr[n].getNodeValue().equals(attr.getNodeValue())) {
+                       // exactly the same attribute should not be added
+                       newAttribute = false;
+                   } else {                            
+                       // in case of attribute value change, propagated attribute will be override
+                       attributes.remove(parentAttr[n]);
+                   }
+                }
+            }
+            if (newAttribute) attributes.add(attr);
+        }
     }
     
     private Attr[] getSortedArray(List<Attr> attrList) {
@@ -469,6 +551,10 @@ public class SaveContextVisitor {
     }
     
     public void leave(Element element) {
+        if (canonical) {
+            c14nNamespaceStack.poll();
+            c14nAttrStack.poll();
+        }
         String name = element.getTagName();
         if (element.hasChildNodes()) {
             if (needIndentInClosing(element)) {
