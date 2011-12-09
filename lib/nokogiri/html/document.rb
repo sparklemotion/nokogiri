@@ -135,33 +135,23 @@ module Nokogiri
 
       class EncodingReader # :nodoc:
         class SAXHandler < Nokogiri::XML::SAX::Document # :nodoc:
-          def initialize(jumptag)
-            @jumptag = jumptag
+          attr_reader :encoding
+          
+          def initialize
+            @encoding = nil
             super()
           end
-
-          def found(encoding)
-            throw @jumptag, encoding
-          end
-
-          def not_found
-            found nil
-          end
-
+    
           def start_element(name, attrs = [])
-            case name
-            when /\A(?:div|h1|img|p|br)\z/
-              not_found
-            when 'meta'
-              attr = Hash[attrs]
-              charset = attr['charset'] and
-                found charset
-              http_equiv = attr['http-equiv'] and
-                http_equiv.match(/\AContent-Type\z/i) and
-                content = attr['content'] and
-                m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
-                found m[1]
-            end
+            return unless name == 'meta'
+            attr = Hash[attrs]
+            charset = attr['charset'] and
+              @encoding = charset
+            http_equiv = attr['http-equiv'] and
+              http_equiv.match(/\AContent-Type\z/i) and
+              content = attr['content'] and
+              m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
+              @encoding = m[1]
           end
         end
 
@@ -176,14 +166,10 @@ module Nokogiri
             m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
               return m[4]
           end
-
-          catch(*if RUBY_VERSION < '1.9' then :encoding_found end) { |tag|
-            Nokogiri::HTML::SAX::Parser.new(SAXHandler.new(tag)).parse(chunk)
-            nil
-          }
-        rescue Nokogiri::SyntaxError, RuntimeError
-          # Ignore parser errors that nokogiri may raise
-          nil
+          handler = SAXHandler.new
+          parser = Nokogiri::HTML::SAX::PushParser.new(handler)
+          parser << chunk rescue Nokogiri::SyntaxError
+          handler.encoding
         end
 
         def self.is_jruby_without_fix?

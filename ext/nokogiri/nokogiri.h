@@ -104,6 +104,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <xml_sax_push_parser.h>
 #include <xml_reader.h>
 #include <html_sax_parser_context.h>
+#include <html_sax_push_parser.h>
 #include <xslt_stylesheet.h>
 #include <xml_syntax_error.h>
 #include <xml_schema.h>

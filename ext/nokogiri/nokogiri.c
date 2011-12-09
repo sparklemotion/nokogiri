@@ -97,6 +97,7 @@ void Init_nokogiri()
   init_xml_entity_decl();
   init_xml_namespace();
   init_html_sax_parser_context();
+  init_html_sax_push_parser();
   init_xslt_stylesheet();
   init_xml_syntax_error();
   init_html_entity_lookup();
