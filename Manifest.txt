@@ -72,6 +72,8 @@ ext/nokogiri/html_entity_lookup.c
 ext/nokogiri/html_entity_lookup.h
 ext/nokogiri/html_sax_parser_context.c
 ext/nokogiri/html_sax_parser_context.h
+ext/nokogiri/html_sax_push_parser.c
+ext/nokogiri/html_sax_push_parser.h
 ext/nokogiri/nokogiri.c
 ext/nokogiri/nokogiri.h
 ext/nokogiri/xml_attr.c
