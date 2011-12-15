@@ -62,23 +62,32 @@ static VALUE push(VALUE self, VALUE rb_node)
  *  Delete +node+ from the Nodeset, if it is a member. Returns the deleted node
  *  if found, otherwise returns nil.
  */
-static VALUE delete(VALUE self, VALUE rb_node)
+static VALUE
+delete(VALUE self, VALUE rb_node)
 {
-  nokogiriNodeSetTuple *tuple;
-  xmlNodePtr node ;
+    nokogiriNodeSetTuple *tuple;
+    xmlNodePtr node;
+    xmlNodeSetPtr cur;
+    int i;
 
-  if(!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+    if (!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
+	rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  Data_Get_Struct(rb_node, xmlNode, node);
+    Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
+    Data_Get_Struct(rb_node, xmlNode, node);
+    cur = tuple->node_set;
 
-  if (xmlXPathNodeSetContains(tuple->node_set, node)) {
-    xmlXPathNodeSetDel(tuple->node_set, node);
-    return rb_node ;
-  }
+    if (xmlXPathNodeSetContains(cur, node)) {
+	for (i = 0; i < cur->nodeNr; i++)
+	    if (cur->nodeTab[i] == node) break;
 
-  return Qnil ;
+	cur->nodeNr--;
+	for (;i < cur->nodeNr;i++)
+	    cur->nodeTab[i] = cur->nodeTab[i + 1];
+	cur->nodeTab[cur->nodeNr] = NULL;
+	return rb_node;
+    }
+    return Qnil ;
 }
 
 

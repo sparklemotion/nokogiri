@@ -22,6 +22,12 @@ module Nokogiri
           @list.push @list.first
           @list.delete @list.first
         end
+        
+        def test_reference_after_delete
+          first = @list.first
+          @list.delete(first)
+          assert_equal 'http://www.w3.org/XML/1998/namespace', first.href
+        end        
       end
 
       def setup
