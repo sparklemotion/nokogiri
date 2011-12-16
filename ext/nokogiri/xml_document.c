@@ -155,6 +155,9 @@ static VALUE set_encoding(VALUE self, VALUE encoding)
   xmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
 
+  if (doc->encoding)
+      free((char *) doc->encoding); // this may produce a gcc cast warning
+
   doc->encoding = xmlStrdup((xmlChar *)StringValuePtr(encoding));
 
   return encoding;
