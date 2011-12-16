@@ -154,6 +154,19 @@ module Nokogiri
               @encoding = m[1]
           end
         end
+        
+        class JumpSAXHandler < SAXHandler
+          def initialize(jumptag)
+            @jumptag = jumptag
+            super()
+          end
+
+          def start_element(name, attrs = [])
+            super
+            throw @jumptag, @encoding if @encoding
+            throw @jumptag, nil if name =~ /\A(?:div|h1|img|p|br)\z/
+          end
+        end
 
         def self.detect_encoding(chunk)
           if Nokogiri.jruby? && EncodingReader.is_jruby_without_fix?
@@ -165,11 +178,16 @@ module Nokogiri
           if Nokogiri.jruby?
             m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
               return m[4]
+            catch(:encoding_found) {
+              Nokogiri::HTML::SAX::Parser.new(JumpSAXHandler.new(:encoding_found.to_s)).parse(chunk)
+              nil
+            }
+          else
+            handler = SAXHandler.new
+            parser = Nokogiri::HTML::SAX::PushParser.new(handler)
+            parser << chunk rescue Nokogiri::SyntaxError
+            handler.encoding
           end
-          handler = SAXHandler.new
-          parser = Nokogiri::HTML::SAX::PushParser.new(handler)
-          parser << chunk rescue Nokogiri::SyntaxError
-          handler.encoding
         end
 
         def self.is_jruby_without_fix?
@@ -184,7 +202,7 @@ module Nokogiri
             return m[4]
 
           catch(:encoding_found) {
-            Nokogiri::HTML::SAX::Parser.new(SAXHandler.new(:encoding_found.to_s)).parse(chunk)
+            Nokogiri::HTML::SAX::Parser.new(JumpSAXHandler.new(:encoding_found.to_s)).parse(chunk)
             nil
           }
         rescue Nokogiri::SyntaxError, RuntimeError
