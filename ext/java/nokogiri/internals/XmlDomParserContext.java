@@ -73,6 +73,7 @@ public class XmlDomParserContext extends ParserContext {
         "http://apache.org/xml/features/dom/include-ignorable-whitespace";
     protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
     private static final String XINCLUDE_FEATURE_ID = "http://apache.org/xml/features/xinclude";
+    private static final String SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
 
     protected ParserContext.Options options;
     protected DOMParser parser;
@@ -110,6 +111,9 @@ public class XmlDomParserContext extends ParserContext {
         parser = new XmlDomParser(options);
         parser.setErrorHandler(errorHandler);
 
+        // Fix for Issue#586.  This limits entity expansion up to 100000 and nodes up to 3000.
+        setProperty(SECURITY_MANAGER, new org.apache.xerces.util.SecurityManager());        
+        
         if (options.noBlanks) {
             setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
         }
