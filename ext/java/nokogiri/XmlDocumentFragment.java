@@ -133,13 +133,16 @@ public class XmlDocumentFragment extends XmlNode {
     
     private static String ignoreNamespaceIfNeeded(XmlDocument doc, String tags) {
         if (doc.getDocument() == null) return tags;
-        if (doc.getDocument().getDocumentElement() == null) return tags;
         Matcher matcher = qname_pattern.matcher(tags);
         Map<String, String> rewriteTable = new HashMap<String, String>();
         while(matcher.find()) {
             String qName = matcher.group();
-            NamedNodeMap nodeMap = doc.getDocument().getDocumentElement().getAttributes();
-            if (!isNamespaceDefined(qName, nodeMap)) {
+            if (doc.getDocument().getDocumentElement() != null) {
+                NamedNodeMap nodeMap = doc.getDocument().getDocumentElement().getAttributes();
+                if (!isNamespaceDefined(qName, nodeMap)) {
+                    rewriteTable.put(qName, getLocalPart(qName));
+                }
+            } else {
                 rewriteTable.put(qName, getLocalPart(qName));
             }
         }
