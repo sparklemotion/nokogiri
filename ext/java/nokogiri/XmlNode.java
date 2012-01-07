@@ -42,6 +42,13 @@ import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1016,8 +1023,7 @@ public class XmlNode extends RubyObject {
      *              IRubyObject options}
      */
     @JRubyMethod(required=4, visibility=Visibility.PRIVATE)
-    public IRubyObject native_write_to(ThreadContext context,
-                                       IRubyObject[] args) {
+    public IRubyObject native_write_to(ThreadContext context, IRubyObject[] args) {
 
         IRubyObject io = args[0];
         IRubyObject encoding = args[1];
@@ -1027,10 +1033,20 @@ public class XmlNode extends RubyObject {
         String encString = encoding.isNil() ? null : rubyStringToString(encoding);
 
         SaveContextVisitor visitor = 
-            new SaveContextVisitor((Integer)options.toJava(Integer.class), rubyStringToString(indentString), encString,
-                    isHtmlDoc(context), isFragment(), 0);
+            new SaveContextVisitor((Integer) options.toJava(Integer.class), rubyStringToString(indentString), encString, isHtmlDoc(context), isFragment(), 0);
         accept(context, visitor);
-        IRubyObject rubyString = stringOrNil(context.getRuntime(), visitor.toString());
+
+        IRubyObject rubyString = null;
+        if (NokogiriHelpers.isUTF8(encString)) {
+            rubyString = stringOrNil(context.getRuntime(), visitor.toString());
+        } else {
+            try {
+                byte[] bytes = NokogiriHelpers.convertEncoding(Charset.forName(encString), visitor.toString());
+                rubyString = stringOrNil(context.getRuntime(), bytes);
+            } catch (CharacterCodingException e) {
+                throw context.getRuntime().newRuntimeError(e.getMessage());
+            }
+        }
         RuntimeHelpers.invoke(context, io, "write", rubyString);
 
         return io;

@@ -35,7 +35,12 @@ package nokogiri.internals;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -169,6 +174,11 @@ public class NokogiriHelpers {
     public static IRubyObject stringOrNil(Ruby runtime, String s) {
         if (s == null) return runtime.getNil();
         return RubyString.newString(runtime, s);
+    }
+    
+    public static IRubyObject stringOrNil(Ruby runtime, byte[] bytes) {
+        if (bytes == null) return runtime.getNil();
+        return RubyString.newString(runtime, bytes);
     }
     
     public static IRubyObject stringOrBlank(Ruby runtime, String s) {
@@ -672,4 +682,26 @@ public class NokogiriHelpers {
         if (dtdFile.exists()) return dtdFile.getPath();
         return null;
     }
+    
+    public static boolean isUTF8(String encoding) {
+        int ret = Charset.forName(encoding).compareTo(Charset.forName("UTF-8"));
+        return ret == 0;
+    }
+    
+    public static byte[] convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
+        Charset input = Charset.forName("UTF-8");
+        CharsetDecoder decoder = input.newDecoder();
+        CharsetEncoder encoder = output_charset.newEncoder();
+        decoder.reset();
+        encoder.reset();
+        ByteBuffer bbuf = ByteBuffer.wrap(input_string.getBytes());
+        CharBuffer cbuf = decoder.decode(bbuf);
+        bbuf.clear();
+        encoder.encode(cbuf, bbuf, true);
+        int length = bbuf.position();
+        byte[] bytes = new byte[length];
+        System.arraycopy(bbuf.array(), 0, bytes, 0, length);
+        return bytes;
+    }
+    
 }
