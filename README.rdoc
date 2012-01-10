@@ -132,8 +132,8 @@ Then run rake:
 
 === Developing on JRuby
 
-Currently, development with JRuby depends on C Ruby being installed.  With
-normal C Ruby, install racc and rexical:
+Currently, development with JRuby depends on CRuby being installed.  With
+CRuby, install racc and rexical:
 
     $ gem install racc rexical
 
@@ -149,7 +149,7 @@ Then run rake:
 
 (The MIT License)
 
-Copyright (c) 2008 - 2010:
+Copyright (c) 2008 - 2012:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]
