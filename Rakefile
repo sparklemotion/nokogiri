@@ -41,7 +41,7 @@ HOE = Hoe.spec 'nokogiri' do
 
   self.extra_dev_deps += [
     ["hoe-bundler",     ">= 1.1"],
-    ["hoe-debugging",   ">= 1.0.2"],
+    ["hoe-debugging",   "= 1.0.1"],
     ["hoe-gemspec",     ">= 1.0"],
     ["hoe-git",         ">= 1.4"],
     ["mini_portile",    ">= 0.2.2"],
