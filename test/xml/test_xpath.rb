@@ -58,6 +58,10 @@ module Nokogiri
           def saves_node_set node_set
             @things = node_set
           end
+
+          def value
+            123.456
+          end
         }.new
       end
 
@@ -231,6 +235,15 @@ module Nokogiri
         xpath = xpath.join(',')
 
         assert_equal doc.xpath("//tool[@name='hammer']"), doc.xpath(xpath, tool_inspector)
+      end
+
+      def test_custom_xpath_without_arguments
+        if Nokogiri.uses_libxml?
+          value = @xml.xpath('value()', @handler)
+        else
+          value = @xml.xpath('nokogiri:value()', @ns, @handler)
+        end
+        assert_equal 123.456, value
       end
     end
   end
