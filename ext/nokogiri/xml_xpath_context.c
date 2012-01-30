@@ -76,27 +76,29 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
 
   doc = DOC_RUBY_OBJECT(ctx->context->doc);
 
-  i = nargs - 1;
-  do {
-    obj = valuePop(ctx);
-    switch(obj->type) {
-      case XPATH_STRING:
-        argv[i] = NOKOGIRI_STR_NEW2(obj->stringval);
-        break;
-      case XPATH_BOOLEAN:
-        argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
-        break;
-      case XPATH_NUMBER:
-        argv[i] = rb_float_new(obj->floatval);
-        break;
-      case XPATH_NODESET:
-        argv[i] = Nokogiri_wrap_xml_node_set(obj->nodesetval, doc);
-        break;
-      default:
-        argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
-    }
-    xmlXPathFreeNodeSetList(obj);
-  } while(i-- > 0);
+  if (nargs > 0) {
+    i = nargs - 1;
+    do {
+      obj = valuePop(ctx);
+      switch(obj->type) {
+        case XPATH_STRING:
+          argv[i] = NOKOGIRI_STR_NEW2(obj->stringval);
+          break;
+        case XPATH_BOOLEAN:
+          argv[i] = obj->boolval == 1 ? Qtrue : Qfalse;
+          break;
+        case XPATH_NUMBER:
+          argv[i] = rb_float_new(obj->floatval);
+          break;
+        case XPATH_NODESET:
+          argv[i] = Nokogiri_wrap_xml_node_set(obj->nodesetval, doc);
+          break;
+        default:
+          argv[i] = NOKOGIRI_STR_NEW2(xmlXPathCastToString(obj));
+      }
+      xmlXPathFreeNodeSetList(obj);
+    } while(i-- > 0);
+  }
 
   result = rb_funcall2(
       xpath_handler,
