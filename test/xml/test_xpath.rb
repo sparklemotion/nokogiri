@@ -138,7 +138,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           result = @xml.xpath('thing("asdf")', @handler)
         else
-          result = @xml.xpath('thing("asdf")', @ns, @handler)
+          result = @xml.xpath('nokogiri:thing("asdf")', @ns, @handler)
         end
         assert_equal 'asdf', result
       end
