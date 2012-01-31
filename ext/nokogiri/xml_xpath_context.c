@@ -241,6 +241,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   switch(xpath->type) {
     case XPATH_STRING:
       thing = NOKOGIRI_STR_NEW2(xpath->stringval);
+      xmlFree(xpath->stringval);
       break;
     case XPATH_NODESET:
       if(NULL == xpath->nodesetval) {
