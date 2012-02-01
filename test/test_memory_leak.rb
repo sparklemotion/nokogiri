@@ -133,6 +133,13 @@ EOF
         node.parse('<bar></bar>')
       end
     end
+
+    def test_leak_on_xpath_string_function
+      doc = Nokogiri::XML(@str)
+      loop do
+        doc.xpath('name(//node())')
+      end
+    end
   end # if NOKOGIRI_GC
 
   private

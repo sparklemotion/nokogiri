@@ -121,7 +121,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     case T_STRING:
       xmlXPathReturnString(
           ctx,
-          (xmlChar *)xmlXPathWrapCString(StringValuePtr(result))
+          xmlCharStrdup(StringValuePtr(result))
       );
       break;
     case T_TRUE:
@@ -241,6 +241,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   switch(xpath->type) {
     case XPATH_STRING:
       thing = NOKOGIRI_STR_NEW2(xpath->stringval);
+      xmlFree(xpath->stringval);
       break;
     case XPATH_NODESET:
       if(NULL == xpath->nodesetval) {

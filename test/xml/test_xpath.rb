@@ -134,6 +134,15 @@ module Nokogiri
         assert_equal(['asdf'] * set.length, @handler.things)
       end
 
+      def test_custom_xpath_function_returns_string
+        if Nokogiri.uses_libxml?
+          result = @xml.xpath('thing("asdf")', @handler)
+        else
+          result = @xml.xpath('nokogiri:thing("asdf")', @ns, @handler)
+        end
+        assert_equal 'asdf', result
+      end
+
       def test_custom_xpath_gets_true_booleans
         set = @xml.xpath('//employee')
         if Nokogiri.uses_libxml?
