@@ -40,7 +40,8 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -276,6 +277,15 @@ public class NokogiriHelpers {
         int len = byteList.length();
         ByteBuffer buf = ByteBuffer.wrap(data, offset, len);
         return getCharsetUTF8().decode(buf).toString();
+    }
+    
+    public static List<String> rubyStringArrayToJavaList(RubyArray ary) {
+        List<String> list = new ArrayList<String>();
+        for (int i=0; i < ary.getLength(); i++) {
+            Object obj = ary.get(i);
+            if (obj != null) list.add(obj.toString());
+        }
+        return list;
     }
 
     public static String getNodeCompletePath(Node node) {

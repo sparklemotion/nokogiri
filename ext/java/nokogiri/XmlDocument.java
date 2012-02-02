@@ -49,6 +49,7 @@ import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyNil;
@@ -535,18 +536,21 @@ public class XmlDocument extends XmlNode {
      */
     @JRubyMethod(optional=3)
     public IRubyObject canonicalize(ThreadContext context, IRubyObject[] args, Block block) {
+        XmlNode startingNode = getStartingNode(block);
         int canonicalOpts = 1;
         int mode = 0;
-        // todo: args[1] inclusive_namespace thing
         if (args.length == 3) {
             mode = (Integer)(args[0].isNil() ? 0 : args[0].toJava(Integer.class));
             if (mode == 1) canonicalOpts = canonicalOpts | 16; // exclusive
+            // inclusive prefix list for exclusive c14n
             canonicalOpts = args[2].isTrue() ? (canonicalOpts | 4) : canonicalOpts;
         }
-        XmlNode startingNode = getStartingNode(block);
         if (startingNode != this) canonicalOpts = canonicalOpts | 8; // subsets
         // 38 = NO_DECL | NO_EMPTY | AS_XML
         SaveContextVisitor visitor = new SaveContextVisitor(38, null, "UTF-8", false, false, canonicalOpts);
+        if (args.length == 3 && !args[1].isNil()) {
+            visitor.setC14nExclusiveInclusivePrefixes((List<String>)NokogiriHelpers.rubyStringArrayToJavaList((RubyArray)args[1]));
+        }
         startingNode.accept(context, visitor);
         Ruby runtime = context.getRuntime();
         IRubyObject result = runtime.getTrue();

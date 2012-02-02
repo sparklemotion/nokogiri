@@ -79,6 +79,7 @@ public class SaveContextVisitor {
     private List<Node> c14nNodeList;
     private Deque<Attr[]> c14nNamespaceStack;
     private Deque<Attr[]> c14nAttrStack;
+    private List<String> c14nExclusiveInclusivePrefixes = null;
     /*
      * U can't touch this.
      * http://www.youtube.com/watch?v=WJ2ZFVx6A4Q
@@ -124,7 +125,6 @@ public class SaveContextVisitor {
         incl_ns = (canonicalOpts & INCL_NS) == INCL_NS;
         with_comments = (canonicalOpts & WITH_COMMENTS) == WITH_COMMENTS;
         subsets = (canonicalOpts & SUBSETS) == SUBSETS;
-        exclusive = (canonicalOpts & EXCLUSIVE) == EXCLUSIVE;
         
         if ((format && indent == null) || (format && indent.length() == 0)) indent = "  "; // default, two spaces
         if ((!format && indent != null) && indent.length() > 0) format = true;
@@ -149,6 +149,10 @@ public class SaveContextVisitor {
     public List<Node> getC14nNodeList() {
         return c14nNodeList;
     }
+    
+   public void setC14nExclusiveInclusivePrefixes(List<String> prefixes) {
+       c14nExclusiveInclusivePrefixes = prefixes;
+   }
     
     public boolean enter(Node node) {
         if (node instanceof Document) {
@@ -495,6 +499,9 @@ public class SaveContextVisitor {
             } else {
                 getAttributesWithPropagated(attributes, attr);
             }
+            if (exclusive) {
+                verifyXmlSpace(attributes, attrs);
+            }
         }
     }
 
@@ -536,6 +543,18 @@ public class SaveContextVisitor {
                 }
             }
             if (newAttribute) attributes.add(attr);
+        }
+    }
+    
+    private void verifyXmlSpace(List<Attr> attributes, NamedNodeMap attrs) {
+        Attr attr = (Attr) attrs.getNamedItem("xml:space");
+        if (attr == null) {
+            for (int i=0; i < attributes.size(); i++) {
+                if (attributes.get(i).getNodeName().equals("xml:space")) {
+                    attributes.remove(i);
+                    break;
+                }
+            }
         }
     }
     
