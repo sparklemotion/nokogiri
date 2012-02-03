@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -1002,7 +1002,11 @@ public class XmlNode extends RubyObject {
 
     protected void setContent(IRubyObject content) {
         this.content = content;
-        this.node.setTextContent(rubyStringToString(content));
+        String javaContent = rubyStringToString(content);
+        node.setTextContent(javaContent);
+        if (javaContent.length() == 0) return;
+        if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) return;
+        node.getFirstChild().setUserData(NokogiriHelpers.ENCODED_STRING, true, null);
     }
 
     private void setContent(String content) {

@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -35,7 +35,6 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.canonicalizeWhitespce;
 import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
-import static nokogiri.internals.NokogiriHelpers.isNotXmlEscaped;
 import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 
 import java.util.ArrayDeque;
@@ -712,9 +711,10 @@ public class SaveContextVisitor {
             indentation.push(current + indentString);
             if (textContent.charAt(0) == lineSeparator) textContent = textContent.substring(1);    
         }
-        if (isNotXmlEscaped(textContent)) {
+        if (text.getUserData(NokogiriHelpers.ENCODED_STRING) == null || !((Boolean)text.getUserData(NokogiriHelpers.ENCODED_STRING))) {
             textContent = encodeJavaString(textContent);
         }
+
         if (getEncoding(text) == null) {
             textContent = encodeStringToHtmlEntity(textContent);
         }

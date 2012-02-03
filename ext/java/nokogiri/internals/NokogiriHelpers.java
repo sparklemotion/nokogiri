@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -82,6 +82,7 @@ import org.w3c.dom.NodeList;
 public class NokogiriHelpers {
     public static final String CACHED_NODE = "NOKOGIRI_CACHED_NODE";
     public static final String VALID_ROOT_NODE = "NOKOGIRI_VALIDE_ROOT_NODE";
+    public static final String ENCODED_STRING = "NOKOGIRI_ENCODED_STRING";
 
     public static XmlNode getCachedNode(Node node) {
         return (XmlNode) node.getUserData(CACHED_NODE);
@@ -553,13 +554,6 @@ public class NokogiriHelpers {
     
     public static String decodeJavaString(String s) {
         return convert(encoded_pattern, s, encoded, decoded);
-    }
-
-    private static Pattern not_escaped_pattern = Pattern.compile("\\&(?!(amp;|gt;|lt;))|<|>");
-    public static boolean isNotXmlEscaped(String s) {
-        if (s == null) return false;
-        Matcher matcher = not_escaped_pattern.matcher(s);
-        return (matcher.find());
     }
 
     public static String getNodeName(Node node) {
