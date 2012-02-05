@@ -3,7 +3,6 @@ rvm:
   - 1.9.2
   - 1.9.3
   - rbx
-  - rbx-2.0
   - ree
   - jruby
   - rbx-18mode
