@@ -1,3 +1,4 @@
+gem 'rake-compiler'
 require 'rake/extensioncompiler'
 HOST = Rake::ExtensionCompiler.mingw_host
 
