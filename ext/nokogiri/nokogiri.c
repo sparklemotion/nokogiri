@@ -35,8 +35,12 @@ void vasprintf_free (void *p)
 }
 #endif
 
+#ifdef HAVE_RUBY_UTIL_H
+#include "ruby/util.h"
+#else
 #ifndef __MACRUBY__
 #include "util.h"
+#endif
 #endif
 
 void Init_nokogiri()
