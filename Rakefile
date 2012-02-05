@@ -7,7 +7,6 @@ Hoe.plugin :debugging
 Hoe.plugin :git
 Hoe.plugin :gemspec
 Hoe.plugin :bundler
-Hoe.plugin :isolate
 Hoe.add_include_dirs '.' # for ruby 1.9.2
 
 GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
