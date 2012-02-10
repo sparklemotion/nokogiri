@@ -10,7 +10,9 @@ module Nokogiri
         prefix = implied_xpath_context
 
         if args.empty?
-          list = xpath("#{prefix}#{name.to_s.sub(/^_/, '')}")
+          s_name = name =~ /\?$/ ? name.to_s.chop! : name.to_s
+          list = xpath("#{prefix}#{s_name.sub(/^_/, '')}")
+          return !list.empty? if name.to_s != s_name 
         elsif args.first.is_a? Hash
           hash = args.first
           if hash[:css]
@@ -29,6 +31,11 @@ module Nokogiri
 
         super if list.empty?
         list.length == 1 ? list.first : list
+      end
+      ###
+      # look for node with +name+
+      def respond_to?(name)
+        super || self.send(name.to_s << '?')
       end
     end
   end
