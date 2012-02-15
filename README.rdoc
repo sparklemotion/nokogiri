@@ -1,4 +1,4 @@
-= Nokogiri
+= Nokogiri {<img src="https://secure.travis-ci.org/tenderlove/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/tenderlove/nokogiri]
 
 * http://nokogiri.org
 * http://github.com/tenderlove/nokogiri/wikis
