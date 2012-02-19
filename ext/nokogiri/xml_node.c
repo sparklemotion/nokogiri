@@ -1218,81 +1218,81 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 /* TODO: DOCUMENT ME */
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
-  xmlNodePtr node, list, child_iter, tmp;
-  xmlNodeSetPtr set;
-  xmlParserErrors error;
-  VALUE doc, err;
-  int doc_is_empty;
+    xmlNodePtr node, list, child_iter, tmp;
+    xmlNodeSetPtr set;
+    xmlParserErrors error;
+    VALUE doc, err;
+    int doc_is_empty;
 
-  Data_Get_Struct(self, xmlNode, node);
+    Data_Get_Struct(self, xmlNode, node);
 
-  doc = DOC_RUBY_OBJECT(node->doc);
-  err = rb_iv_get(doc, "@errors");
-  doc_is_empty = (node->doc->children == NULL) ? 1 : 0;
+    doc = DOC_RUBY_OBJECT(node->doc);
+    err = rb_iv_get(doc, "@errors");
+    doc_is_empty = (node->doc->children == NULL) ? 1 : 0;
 
-  xmlSetStructuredErrorFunc((void *)err, Nokogiri_error_array_pusher);
+    xmlSetStructuredErrorFunc((void *)err, Nokogiri_error_array_pusher);
 
-  /* Twiddle global variable because of a bug in libxml2.
-   * http://git.gnome.org/browse/libxml2/commit/?id=e20fb5a72c83cbfc8e4a8aa3943c6be8febadab7
-   */
+    /* Twiddle global variable because of a bug in libxml2.
+     * http://git.gnome.org/browse/libxml2/commit/?id=e20fb5a72c83cbfc8e4a8aa3943c6be8febadab7
+     */
 #ifndef HTML_PARSE_NOIMPLIED
-  htmlHandleOmittedElem(0);
+    htmlHandleOmittedElem(0);
 #endif
 
-  error = xmlParseInNodeContext(node, StringValuePtr(_str),
-                                (int)RSTRING_LEN(_str),
-                                (int)NUM2INT(_options), &list);
+    error = xmlParseInNodeContext(node, StringValuePtr(_str),
+				  (int)RSTRING_LEN(_str),
+				  (int)NUM2INT(_options), &list);
 
-  /* Workaround for a libxml2 bug where a parsing error may leave a broken
-   * node reference in node->doc->children.
-   * This workaround is limited to when a parse error occurs, the document
-   * went from having no children to having children, and the context node is
-   * part of a document fragment.
-   * https://bugzilla.gnome.org/show_bug.cgi?id=668155
-   */
-  if (error != XML_ERR_OK && doc_is_empty && node->doc->children != NULL) {
-    tmp = node;
-    while (tmp->parent)
-      tmp = tmp->parent;
+    /* Workaround for a libxml2 bug where a parsing error may leave a broken
+     * node reference in node->doc->children.
+     * This workaround is limited to when a parse error occurs, the document
+     * went from having no children to having children, and the context node is
+     * part of a document fragment.
+     * https://bugzilla.gnome.org/show_bug.cgi?id=668155
+     */
+    if (error != XML_ERR_OK && doc_is_empty && node->doc->children != NULL) {
+        tmp = node;
+        while (tmp->parent)
+            tmp = tmp->parent;
+	
+        if (tmp->type == XML_DOCUMENT_FRAG_NODE)
+            node->doc->children = NULL;
+    }
 
-    if (tmp->type == XML_DOCUMENT_FRAG_NODE)
-      node->doc->children = NULL;
-  }
-
-  /* make sure parent/child pointers are coherent so an unlink will work
-   * properly (#331)
-   */
-  child_iter = node->doc->children ;
-  while (child_iter) {
-    if (child_iter->parent != (xmlNodePtr)node->doc)
-      child_iter->parent = (xmlNodePtr)node->doc;
-    child_iter = child_iter->next;
-  }
+    /* make sure parent/child pointers are coherent so an unlink will work
+     * properly (#331)
+     */
+    child_iter = node->doc->children ;
+    while (child_iter) {
+	if (child_iter->parent != (xmlNodePtr)node->doc)
+	    child_iter->parent = (xmlNodePtr)node->doc;
+	child_iter = child_iter->next;
+    }
 
 #ifndef HTML_PARSE_NOIMPLIED
-  htmlHandleOmittedElem(1);
+    htmlHandleOmittedElem(1);
 #endif
 
-  xmlSetStructuredErrorFunc(NULL, NULL);
+    xmlSetStructuredErrorFunc(NULL, NULL);
 
-  /* FIXME: This probably needs to handle more constants... */
-  switch (error) {
-  case XML_ERR_INTERNAL_ERROR:
-  case XML_ERR_NO_MEMORY:
-    rb_raise(rb_eRuntimeError, "error parsing fragment (%d)", error);
-    break;
-  default:
-    break;
-  }
+    /* FIXME: This probably needs to handle more constants... */
+    switch (error) {
+      case XML_ERR_INTERNAL_ERROR:
+      case XML_ERR_NO_MEMORY:
+	rb_raise(rb_eRuntimeError, "error parsing fragment (%d)", error);
+	break;
+      default:
+	break;
+    }
 
-  set = xmlXPathNodeSetCreate(NULL);
+    set = xmlXPathNodeSetCreate(NULL);
 
-  while (list) {
-    xmlXPathNodeSetAddUnique(set, list);
-    list = list->next;
-  }
+    while (list) {
+      xmlXPathNodeSetAddUnique(set, list);
+      list = list->next;
+    }
 
-  return Nokogiri_wrap_xml_node_set(set, doc);
+    return Nokogiri_wrap_xml_node_set(set, doc);
 }
 
 
