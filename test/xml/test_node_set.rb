@@ -640,14 +640,16 @@ module Nokogiri
       end
 
       def test_should_not_splode_when_accessing_namespace_declarations_in_a_node_set
-        xml = Nokogiri::XML "<foo></foo>"
-        node_set = xml.xpath("//namespace::*")
-        assert_equal 1, node_set.size
-        node = node_set.first
-        node.to_s # segfaults in 1.4.0 and earlier
+        2.times do
+          xml = Nokogiri::XML "<foo></foo>"
+          node_set = xml.xpath("//namespace::*")
+          assert_equal 1, node_set.size
+          node = node_set.first
+          node.to_s # segfaults in 1.4.0 and earlier
 
-        # if we haven't segfaulted, let's make sure we handled it correctly
-        assert_instance_of Nokogiri::XML::Namespace, node
+          # if we haven't segfaulted, let's make sure we handled it correctly
+          assert_instance_of Nokogiri::XML::Namespace, node
+        end
       end
 
       def test_should_not_splode_when_arrayifying_node_set_containing_namespace_declarations
