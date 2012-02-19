@@ -1243,6 +1243,22 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 				  (int)RSTRING_LEN(_str),
 				  (int)NUM2INT(_options), &list);
 
+    /* Workaround for a libxml2 bug where a parsing error may leave a broken
+     * node reference in node->doc->children.
+     * This workaround is limited to when a parse error occurs, the document
+     * went from having no children to having children, and the context node is
+     * part of a document fragment.
+     * https://bugzilla.gnome.org/show_bug.cgi?id=668155
+     */
+    if (error != XML_ERR_OK && doc_is_empty && node->doc->children != NULL) {
+        tmp = node;
+        while (tmp->parent)
+            tmp = tmp->parent;
+	
+        if (tmp->type == XML_DOCUMENT_FRAG_NODE)
+            node->doc->children = NULL;
+    }
+
     /* make sure parent/child pointers are coherent so an unlink will work
      * properly (#331)
      */
@@ -1258,22 +1274,6 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 #endif
 
     xmlSetStructuredErrorFunc(NULL, NULL);
-
-    /* Workaround for a libxml2 bug where a parsing error may leave a broken
-     * node reference in node->doc->children.
-     * This workaround is limited to when a parse error occurs, the document
-     * went from having no children to having children, and the context node is
-     * part of a document fragment.
-     * https://bugzilla.gnome.org/show_bug.cgi?id=668155
-     */
-    if (error != XML_ERR_OK && doc_is_empty && node->doc->children != NULL) {
-	tmp = node;
-	while (tmp->parent)
-	    tmp = tmp->parent;
-	
-	if (tmp->type == XML_DOCUMENT_FRAG_NODE)
-	    node->doc->children = NULL;
-    }
 
     /* FIXME: This probably needs to handle more constants... */
     switch (error) {
