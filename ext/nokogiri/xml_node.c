@@ -1218,7 +1218,7 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 /* TODO: DOCUMENT ME */
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
-    xmlNodePtr node, list, child_iter, tmp;
+    xmlNodePtr node, list, tmp, node_children, doc_children;
     xmlNodeSetPtr set;
     xmlParserErrors error;
     VALUE doc, err;
@@ -1229,6 +1229,8 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
     doc = DOC_RUBY_OBJECT(node->doc);
     err = rb_iv_get(doc, "@errors");
     doc_is_empty = (node->doc->children == NULL) ? 1 : 0;
+    node_children = node->children;
+    doc_children  = node->doc->children;
 
     xmlSetStructuredErrorFunc((void *)err, Nokogiri_error_array_pusher);
 
@@ -1239,18 +1241,23 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
     htmlHandleOmittedElem(0);
 #endif
 
+    /* This function adds a fake node to the child of +node+.  If the parser
+     * does not exit cleanly with XML_ERR_OK, the list is freed.  This can
+     * leave the child pointers in a bad state if they were originally empty.
+     *
+     * http://git.gnome.org/browse/libxml2/tree/parser.c#n13177
+     * */
     error = xmlParseInNodeContext(node, StringValuePtr(_str),
 				  (int)RSTRING_LEN(_str),
 				  (int)NUM2INT(_options), &list);
 
-    /* make sure parent/child pointers are coherent so an unlink will work
-     * properly (#331)
-     */
-    child_iter = node->doc->children ;
-    while (child_iter) {
-	if (child_iter->parent != (xmlNodePtr)node->doc)
-	    child_iter->parent = (xmlNodePtr)node->doc;
-	child_iter = child_iter->next;
+    /* xmlParseInNodeContext should not mutate the original document or node,
+     * so reassigning these pointers should be OK.  The reason we're reassigning
+     * is because if there were errors, it's possible for the child pointers
+     * to be manipulated. */
+    if (error != XML_ERR_OK) {
+	node->doc->children = doc_children;
+	node->children = node_children;
     }
 
 #ifndef HTML_PARSE_NOIMPLIED
@@ -1455,3 +1462,5 @@ void init_xml_node()
   decorate      = rb_intern("decorate");
   decorate_bang = rb_intern("decorate!");
 }
+
+/* vim: set noet sw=4 sts=4 */
