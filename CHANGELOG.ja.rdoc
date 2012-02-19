@@ -2,12 +2,17 @@
 
 * 新機能
 
-  * XML::Builder#comment allows creation of comment nodes.
+  * XML::Builder#comment はコメントノードを作れるようになった.
 
 * バグの修正
 
   * エンコーディング自動認識において発生しうるメモリリークを修正.
     @ender672に感謝！
+
+  * homebrew はインストールしたら、extconf は homebrew のパスを読む。
+
+  * XML::Attr nodes are not allowed to be added as node children, so an
+    exception is raised. #558
 
 == 1.5.0 / 2011年7月1日
 
