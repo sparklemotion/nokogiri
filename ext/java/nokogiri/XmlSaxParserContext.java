@@ -248,7 +248,7 @@ public class XmlSaxParserContext extends ParserContext {
                 // doesn't distinguish between empty and bad whereas
                 // Nokogiri does.
                 String message = spe.getMessage();
-                if ("Premature end of file.".matches(message)) {
+                if ("Premature end of file.".matches(message) && stringDataSize < 1) {
                     throw ruby.newRuntimeError(
                         "couldn't parse document: " + message);
                 } else {

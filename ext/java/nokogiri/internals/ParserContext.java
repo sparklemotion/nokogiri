@@ -67,6 +67,7 @@ import org.xml.sax.ext.EntityResolver2;
 public class ParserContext extends RubyObject {
     protected InputSource source = null;
     protected IRubyObject detected_encoding = null;
+    protected int stringDataSize = -1;
 
     /**
      * Create a file base input source taking into account the current
@@ -154,6 +155,7 @@ public class ParserContext extends RubyObject {
         }
         if (stringData != null) {
             ByteList bytes = stringData.getByteList();
+            stringDataSize = bytes.length() - bytes.begin();
             source = new InputSource(new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length()));
         }
     }
