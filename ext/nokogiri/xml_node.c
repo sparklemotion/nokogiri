@@ -1288,9 +1288,8 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
     set = xmlXPathNodeSetCreate(NULL);
 
     while (list) {
-	NOKOGIRI_ROOT_NODE(list);
-	xmlXPathNodeSetAddUnique(set, list);
-	list = list->next;
+      xmlXPathNodeSetAddUnique(set, list);
+      list = list->next;
     }
 
     return Nokogiri_wrap_xml_node_set(set, doc);
