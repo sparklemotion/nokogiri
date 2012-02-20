@@ -21,6 +21,11 @@
   * Document#add_child now accepts a Node, NodeSet, DocumentFragment,
     or String. #546.
 
+  * Document#create_element now recognizes namespaces containing
+    non-word characters (like "SOAP-ENV"). This is mostly relevant to
+    users of Builder, which calls Document#create_element for nearly
+    everything. #531.
+
 == 1.5.0 / 2011年7月1日
 
 * 註

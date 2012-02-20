@@ -86,6 +86,11 @@ module Nokogiri
         assert_equal 'http://tenderlovemaking.com', elm.namespaces['xmlns:foo']
       end
 
+      def test_create_element_with_hyphenated_namespace
+        elm = @xml.create_element('foo',:'xmlns:SOAP-ENC' => 'http://tenderlovemaking.com')
+        assert_equal 'http://tenderlovemaking.com', elm.namespaces['xmlns:SOAP-ENC']
+      end
+
       def test_create_element_with_content
         elm = @xml.create_element('foo',"needs more xml/violence")
         assert_equal "needs more xml/violence", elm.content

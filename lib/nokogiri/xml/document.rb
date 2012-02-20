@@ -8,6 +8,12 @@ module Nokogiri
     # For searching a Document, see Nokogiri::XML::Node#css and
     # Nokogiri::XML::Node#xpath
     class Document < Nokogiri::XML::Node
+      # I'm ignoring unicode characters here.
+      # See http://www.w3.org/TR/REC-xml-names/#ns-decl for more details.
+      NCNAME_START_CHAR = "A-Za-z_"
+      NCNAME_CHAR       = NCNAME_START_CHAR + "\\-.0-9"
+      NCNAME_RE         = /^xmlns(:[#{NCNAME_START_CHAR}][#{NCNAME_CHAR}]*)?$/
+
       ##
       # Parse an XML file.  +string_or_io+ may be a String, or any object that
       # responds to _read_ and _close_ such as an IO, or StringIO.
@@ -60,7 +66,7 @@ module Nokogiri
           when Hash
             arg.each { |k,v|
               key = k.to_s
-              if key =~ /^xmlns(:\w+)?$/
+              if key =~ NCNAME_RE
                 ns_name = key.split(":", 2)[1]
                 elm.add_namespace_definition ns_name, v
                 next
