@@ -834,6 +834,46 @@ module Nokogiri
         assert_equal 1, tires.length
       end
 
+      def test_namespaced_attribute_search_with_xpath
+        # from #593
+        xmlContent = <<-EOXML
+          <?xml version="1.0"?>
+          <ns1:el1 xmlns:ns1="http://blabla.com" >
+            <ns1:el2 ns1:att="123">with namespace</ns1:el2 >
+            <ns1:el2 att="noNameSpace">no namespace</ns1:el2 >
+          </ns1:el1>
+        EOXML
+        xml_doc = Nokogiri::XML(xmlContent)
+
+        no_ns = xml_doc.xpath("//*[@att]")
+        assert_equal no_ns.length, 1
+        assert_equal no_ns.first.content, "no namespace"
+
+        with_ns = xml_doc.xpath("//*[@ns1:att]")
+        assert_equal with_ns.length, 1
+        assert_equal with_ns.first.content, "with namespace"
+      end
+
+      def test_namespaced_attribute_search_with_css
+        # from #593
+        xmlContent = <<-EOXML
+          <?xml version="1.0"?>
+          <ns1:el1 xmlns:ns1="http://blabla.com" >
+            <ns1:el2 ns1:att="123">with namespace</ns1:el2 >
+            <ns1:el2 att="noNameSpace">no namespace</ns1:el2 >
+          </ns1:el1>
+        EOXML
+        xml_doc = Nokogiri::XML(xmlContent)
+
+        no_ns = xml_doc.css('*[att]')
+        assert_equal no_ns.length, 1
+        assert_equal no_ns.first.content, "no namespace"
+
+        with_ns = xml_doc.css('*[ns1|att]')
+        assert_equal with_ns.length, 1
+        assert_equal with_ns.first.content, "with namespace"
+      end
+
       def test_namespaces_should_include_all_namespace_definitions
         xml = Nokogiri::XML.parse(<<-EOF)
         <x xmlns="http://quux.com/" xmlns:a="http://foo.com/" xmlns:b="http://bar.com/">

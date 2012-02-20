@@ -3,6 +3,7 @@
 * 新機能
 
   * XML::Builder#comment はコメントノードを作れるようになった.
+  * CSS searches now support namespaced attributes. #593
 
 * バグの修正
 

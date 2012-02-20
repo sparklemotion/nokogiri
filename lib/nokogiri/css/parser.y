@@ -69,6 +69,10 @@ rule
     : '.' IDENT { result = Node.new(:CLASS_CONDITION, [val[1]]) }
     ;
   element_name
+    : namespaced_ident
+    | '*' { result = Node.new(:ELEMENT_NAME, val) }
+    ;
+  namespaced_ident
     : namespace '|' IDENT {
         result = Node.new(:ELEMENT_NAME,
           [[val.first, val.last].compact.join(':')]
@@ -78,16 +82,15 @@ rule
         name = @namespaces.key?('xmlns') ? "xmlns:#{val.first}" : val.first
         result = Node.new(:ELEMENT_NAME, [name])
       }
-    | '*' { result = Node.new(:ELEMENT_NAME, val) }
     ;
   namespace
     : IDENT { result = val[0] }
     |
     ;
   attrib
-    : LSQUARE IDENT attrib_val_0or1 RSQUARE {
+    : LSQUARE namespaced_ident attrib_val_0or1 RSQUARE {
         result = Node.new(:ATTRIBUTE_CONDITION,
-          [Node.new(:ELEMENT_NAME, [val[1]])] + (val[2] || [])
+          [val[1]] + (val[2] || [])
         )
       }
     | LSQUARE function attrib_val_0or1 RSQUARE {
