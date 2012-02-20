@@ -273,7 +273,7 @@ module Nokogiri
           end
 
           describe "with a text node after" do
-            it "should defensively dup the 'after' text node and not touch the 'before' text node" do
+            it "should not defensively dup the 'after' text node" do
               xml = Nokogiri::XML %Q(<root>before<p></p>after</root>)
               pivot  = xml.at_css("p")
               before = xml.root.children.first
@@ -284,7 +284,7 @@ module Nokogiri
               assert !before.parent.nil?, "unrelated node should not be affected"
 
               assert_equal "after", after.content
-              assert_nil  after.parent
+              assert !after.parent.nil?
             end
           end
         end
