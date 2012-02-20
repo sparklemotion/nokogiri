@@ -18,6 +18,9 @@
   * No longer defensively "pickle" adjacent text nodes on
     Node#add_next_sibling and Node#add_previous_sibling calls. #595.
 
+  * Document#add_child now accepts a Node, NodeSet, DocumentFragment,
+    or String. #546.
+
 == 1.5.0 / 2011年7月1日
 
 * 註
