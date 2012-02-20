@@ -15,6 +15,9 @@
   * XML::Attr nodes are not allowed to be added as node children, so an
     exception is raised. #558
 
+  * No longer defensively "pickle" adjacent text nodes on
+    Node#add_next_sibling and Node#add_previous_sibling calls. #595.
+
 == 1.5.0 / 2011年7月1日
 
 * 註
