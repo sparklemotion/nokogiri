@@ -52,6 +52,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
+import org.jruby.RubyFloat;
 import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
@@ -150,7 +151,9 @@ public class XmlXpathContext extends RubyObject {
     private IRubyObject tryGetOpaqueValue(XPathExpression xpathExpression) throws XPathExpressionException {
         String string = (String)xpathExpression.evaluate(context.node, XPathConstants.STRING);
         Double value = null;
-        if ((value = getDoubleValue(string)) != null) return RubyNumeric.dbl2num(getRuntime(), value);
+        if ((value = getDoubleValue(string)) != null) {
+            return new RubyFloat(getRuntime(), value);
+        }
         if (doesMatch(boolean_pattern, string.toLowerCase())) return RubyBoolean.newBoolean(getRuntime(), Boolean.parseBoolean(string));
         return RubyString.newString(getRuntime(), string);
     }
