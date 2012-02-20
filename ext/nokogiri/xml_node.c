@@ -138,7 +138,7 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
     }
   }
 
-  if (reparentee->type == XML_TEXT_NODE && pivot->next && pivot->next->type == XML_TEXT_NODE) {
+  if (prf != xmlAddPrevSibling && reparentee->type == XML_TEXT_NODE && pivot->next && pivot->next->type == XML_TEXT_NODE) {
     /*
      *  libxml merges text nodes in a right-to-left fashion, meaning that if
      *  there are two text nodes who would be adjacent, the right (or following,
