@@ -202,11 +202,12 @@ module Nokogiri
       undef_method :add_namespace_definition, :attributes
       undef_method :namespace_definitions, :line, :add_namespace
 
-      def add_child child
+      def add_child node_or_tags
         raise "Document already has a root node" if root
-        if child.type == Node::DOCUMENT_FRAG_NODE
-          raise "Document cannot have multiple root nodes" if child.children.size > 1
-          super(child.children.first)
+        node_or_tags = coerce(node_or_tags)
+        if node_or_tags.is_a?(XML::NodeSet)
+          raise "Document cannot have multiple root nodes" if node_or_tags.size > 1
+          super(node_or_tags.first)
         else
           super
         end

@@ -240,6 +240,13 @@ module Nokogiri
         end
       end
 
+      def test_add_child_with_string
+        doc = Nokogiri::XML::Document.new
+        doc.add_child "<div>quack!</div>"
+        assert_equal 1, doc.root.children.length
+        assert_equal "quack!", doc.root.children.first.content
+      end
+
       def test_move_root_to_document_with_no_root
         sender = Nokogiri::XML('<root>foo</root>')
         newdoc = Nokogiri::XML::Document.new
