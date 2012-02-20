@@ -1218,7 +1218,7 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 /* TODO: DOCUMENT ME */
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
-    xmlNodePtr node, list, tmp, node_children, doc_children;
+    xmlNodePtr node, list, child_iter, tmp, node_children, doc_children;
     xmlNodeSetPtr set;
     xmlParserErrors error;
     VALUE doc, err;
@@ -1258,6 +1258,16 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
     if (error != XML_ERR_OK) {
 	node->doc->children = doc_children;
 	node->children = node_children;
+    }
+
+    /* make sure parent/child pointers are coherent so an unlink will work
+     * properly (#331)
+     */
+    child_iter = node->doc->children ;
+    while (child_iter) {
+	if (child_iter->parent != (xmlNodePtr)node->doc)
+	    child_iter->parent = (xmlNodePtr)node->doc;
+	child_iter = child_iter->next;
     }
 
 #ifndef HTML_PARSE_NOIMPLIED
@@ -1463,4 +1473,4 @@ void init_xml_node()
   decorate_bang = rb_intern("decorate!");
 }
 
-/* vim: set noet sw=4 sts=4 */
+/* vim: set noet sw=4 sws=4 */
