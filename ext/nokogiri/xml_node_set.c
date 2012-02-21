@@ -345,9 +345,13 @@ static VALUE unlink_nodeset(VALUE self)
   return self ;
 }
 
-static int dealloc_namespace(xmlNsPtr node)
+static int dealloc_namespace(xmlNsPtr ns)
 {
-  xmlXPathNodeSetFreeNs(node);
+  if (ns->href)
+    xmlFree((xmlChar *)ns->href);
+  if (ns->prefix)
+    xmlFree((xmlChar *)ns->prefix);
+  xmlFree(ns);
   return ST_CONTINUE;
 }
 
@@ -412,6 +416,7 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
   VALUE new_set ;
   int i;
   xmlNodePtr cur;
+  xmlNsPtr ns;
   nokogiriNodeSetTuple *tuple;
 
   new_set = Data_Make_Struct(cNokogiriXmlNodeSet, nokogiriNodeSetTuple, 0,
@@ -428,8 +433,11 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
   if (node_set->nodeTab) {
     for (i = 0; i < node_set->nodeNr; i++) {
       cur = node_set->nodeTab[i];
-      if (cur && cur->type == XML_NAMESPACE_DECL)
-        st_insert(tuple->namespaces, (st_data_t)cur, (st_data_t)0);
+      if (cur && cur->type == XML_NAMESPACE_DECL) {
+        ns = (xmlNsPtr)cur;
+        if (ns->next && ns->next->type != XML_NAMESPACE_DECL)
+          st_insert(tuple->namespaces, (st_data_t)cur, (st_data_t)0);
+      }
     }
   }
 
