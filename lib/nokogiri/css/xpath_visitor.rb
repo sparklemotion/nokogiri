@@ -132,7 +132,7 @@ module Nokogiri
       }.each do |k,v|
         class_eval %{
           def visit_#{k} node
-            "\#{node.value.first.accept(self)}#{v}\#{node.value.last.accept(self)}"
+            "\#{node.value.first.accept(self) if node.value.first}#{v}\#{node.value.last.accept(self)}"
           end
         }
       end
