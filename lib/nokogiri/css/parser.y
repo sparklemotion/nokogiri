@@ -9,6 +9,7 @@ rule
     : selector COMMA simple_selector_1toN {
         result = [val.first, val.last].flatten
       }
+    | prefixless_combinator_selector { result = val.flatten }
     | simple_selector_1toN { result = val.flatten }
     ;
   combinator
@@ -57,6 +58,11 @@ rule
         result = Node.new(:CONDITIONAL_SELECTOR,
           [Node.new(:ELEMENT_NAME, ['*']), val.first]
         )
+      }
+    ;
+  prefixless_combinator_selector
+    : combinator simple_selector_1toN {
+        result = Node.new(val.first, [nil, val.last])
       }
     ;
   simple_selector_1toN
