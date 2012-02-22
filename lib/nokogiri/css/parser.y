@@ -15,7 +15,7 @@ rule
   combinator
     : PLUS { result = :DIRECT_ADJACENT_SELECTOR }
     | GREATER { result = :CHILD_SELECTOR }
-    | TILDE { result = :PRECEDING_SELECTOR }
+    | TILDE { result = :FOLLOWING_SELECTOR }
     | S { result = :DESCENDANT_SELECTOR }
     | DOUBLESLASH { result = :DESCENDANT_SELECTOR }
     | SLASH { result = :CHILD_SELECTOR }

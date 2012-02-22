@@ -126,7 +126,7 @@ module Nokogiri
       {
         'combinator'                => ' and ',
         'direct_adjacent_selector'  => "/following-sibling::*[1]/self::",
-        'preceding_selector'        => "/following-sibling::",
+        'following_selector'        => "/following-sibling::",
         'descendant_selector'       => '//',
         'child_selector'            => '/',
       }.each do |k,v|
