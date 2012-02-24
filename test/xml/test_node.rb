@@ -837,12 +837,12 @@ module Nokogiri
       def test_namespaced_attribute_search_with_xpath
         # from #593
         xmlContent = <<-EOXML
-          <?xml version="1.0"?>
-          <ns1:el1 xmlns:ns1="http://blabla.com" >
-            <ns1:el2 ns1:att="123">with namespace</ns1:el2 >
-            <ns1:el2 att="noNameSpace">no namespace</ns1:el2 >
-          </ns1:el1>
-        EOXML
+<?xml version="1.0"?>
+<ns1:el1 xmlns:ns1="http://blabla.com" >
+  <ns1:el2 ns1:att="123">with namespace</ns1:el2 >
+  <ns1:el2 att="noNameSpace">no namespace</ns1:el2 >
+</ns1:el1>
+EOXML
         xml_doc = Nokogiri::XML(xmlContent)
 
         no_ns = xml_doc.xpath("//*[@att]")
@@ -857,12 +857,12 @@ module Nokogiri
       def test_namespaced_attribute_search_with_css
         # from #593
         xmlContent = <<-EOXML
-          <?xml version="1.0"?>
-          <ns1:el1 xmlns:ns1="http://blabla.com" >
-            <ns1:el2 ns1:att="123">with namespace</ns1:el2 >
-            <ns1:el2 att="noNameSpace">no namespace</ns1:el2 >
-          </ns1:el1>
-        EOXML
+<?xml version="1.0"?>
+<ns1:el1 xmlns:ns1="http://blabla.com" >
+  <ns1:el2 ns1:att="123">with namespace</ns1:el2 >
+  <ns1:el2 att="noNameSpace">no namespace</ns1:el2 >
+</ns1:el1>
+EOXML
         xml_doc = Nokogiri::XML(xmlContent)
 
         no_ns = xml_doc.css('*[att]')
