@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -36,6 +36,7 @@ import static nokogiri.internals.NokogiriHelpers.CACHED_NODE;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
@@ -78,6 +79,12 @@ public class XmlNamespace extends RubyObject {
     
     public String getHref() {
         return hrefString;
+    }
+    
+    void deleteHref() {
+        hrefString = "http://www.w3.org/XML/1998/namespace";
+        href = NokogiriHelpers.stringOrNil(getRuntime(), hrefString);
+        attr.getOwnerElement().removeAttributeNode(attr);
     }
 
     public void init(Attr attr, IRubyObject prefix, IRubyObject href, IRubyObject xmlDocument) {
