@@ -1372,10 +1372,12 @@ public class XmlNode extends RubyObject {
              * otherNode parentless also. */
             if (otherNode.getParentNode() != null)
                 otherNode.getParentNode().removeChild(otherNode);
-
             return;
         }
-
+        if (thisNode.getPreviousSibling() != null &&
+            thisNode.getPreviousSibling().getNodeType() == Node.TEXT_NODE &&
+            otherNode.getNodeType() == Node.TEXT_NODE) return;
+        
         parent.insertBefore(otherNode, thisNode);
     }
 
