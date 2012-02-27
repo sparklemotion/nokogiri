@@ -40,6 +40,7 @@ namespace :test do
       }
       Dir.chdir File.join(MULTI_XML, 'versions') do
         require 'net/ftp'
+        puts "Contacting xmlsoft.org ..."
         ftp = Net::FTP.new('xmlsoft.org')
         ftp.login('anonymous', 'anonymous')
         ftp.chdir('libxml2')
