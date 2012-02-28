@@ -45,7 +45,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["mini_portile",    ">= 0.2.2"],
     ["minitest",        "~> 2.2.2"],
     ["racc",            ">= 1.4.6"],
-    ["rake-compiler",   ">= 0.7.9"],
+    ["rake-compiler",   "=  0.8.0"],
     ["rexical",         ">= 1.0.5"],
   ]
 
