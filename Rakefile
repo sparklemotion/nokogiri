@@ -31,9 +31,7 @@ HOE = Hoe.spec 'nokogiri' do
 
   self.clean_globs += [
     'nokogiri.gemspec',
-    'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
-    'lib/nokogiri/nokogiri.{so,dylib,rb,bundle}',
-    'lib/nokogiri/nokogiri.rb',
+    'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
     'lib/nokogiri/1.{8,9}',
     GENERATED_PARSER,
     GENERATED_TOKENIZER
