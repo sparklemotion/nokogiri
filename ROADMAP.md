@@ -22,9 +22,10 @@
 * https://github.com/tenderlove/nokogiri/issues/451
   chained :not pseudoselectors
 
-* https://github.com/tenderlove/nokogiri/issues/621,
-  https://github.com/tenderlove/nokogiri/issues/342
-  more jQuery selector support
+* better jQuery selector support:
+  * https://github.com/tenderlove/nokogiri/issues/621
+  * https://github.com/tenderlove/nokogiri/issues/342
+  * https://github.com/tenderlove/nokogiri/issues/628
 
 * https://github.com/tenderlove/nokogiri/issues/394
   nth-of-type is wrong, and possibly other selectors as well
