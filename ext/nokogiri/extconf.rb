@@ -17,7 +17,7 @@ end
 $CFLAGS << " #{ENV["CFLAGS"]}"
 $LIBS << " #{ENV["LIBS"]}"
 
-if RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin32/
+if RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
 elsif RbConfig::CONFIG['target_os'] =~ /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
@@ -34,7 +34,7 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 end
 
-if RbConfig::CONFIG['target_os'] =~ /mswin32/
+if RbConfig::CONFIG['target_os'] =~ /mswin/
   lib_prefix = 'lib'
 
   # There's no default include/lib dir on Windows. Let's just add the Ruby ones
