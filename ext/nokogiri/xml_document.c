@@ -468,8 +468,6 @@ static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
   xmlChar **ns;
   long ns_len, i;
 
-  rb_scan_args(argc, argv, "03", &mode, &incl_ns, &with_comments);
-
   xmlDocPtr doc;
   xmlOutputBufferPtr buf;
   xmlC14NIsVisibleCallback cb = NULL;
@@ -477,6 +475,8 @@ static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
 
   VALUE rb_cStringIO;
   VALUE io;
+
+  rb_scan_args(argc, argv, "03", &mode, &incl_ns, &with_comments);
 
   Data_Get_Struct(self, xmlDoc, doc);
 
