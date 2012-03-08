@@ -4,6 +4,8 @@
 
   * XML::Builder#comment はコメントノードを作れるようになった.
   * CSS searches now support namespaced attributes. #593
+  * Java integration 機能が追加された. このバージョンから, 
+    XML::Document.wrap と XML::Document#to_java メソッドが利用可能。
 
 * バグの修正
 
@@ -12,11 +14,19 @@
 
   * homebrew はインストールしたら、extconf は homebrew のパスを読む。
 
+  * Inconsistent behavior of Nokogiri 1.5.0 Java #620
+
+  * Inheriting from Nokogiri::XML::Node on JRuby (1.6.4/5) fails #560
+
   * XML::Attr nodes are not allowed to be added as node children, so an
     exception is raised. #558
 
   * No longer defensively "pickle" adjacent text nodes on
     Node#add_next_sibling and Node#add_previous_sibling calls. #595.
+
+  * Java version inconsistency: it returns nil for empty attributes #589
+
+  * to_xhtml incorrectly generates <p /></p> when tag is empty #557
 
   * Document#add_child now accepts a Node, NodeSet, DocumentFragment,
     or String. #546.
@@ -25,6 +35,24 @@
     non-word characters (like "SOAP-ENV"). This is mostly relevant to
     users of Builder, which calls Document#create_element for nearly
     everything. #531.
+
+  * File encoding broken in 1.5.0 / jruby / windows #529
+
+  * Java version does not return namespace defs as attrs for ::HTML #542
+
+  * Bad file descriptor with Nokogiri 1.5.0 #495
+  
+  * remove_namespace! doesn't work in pure java version #492
+
+  * The Nokogiri Java native build throws a null pointer exception when
+    ActiveSupport's .blank? method is called directly on a parsed object.
+    #489
+
+  * 1.5.0 Not using correct character encoding #488
+  
+  * Raw XML string in XML Builder broken on JRuby #486
+  
+  * Nokogiri 1.5.0 XML generation broken on JRuby #484
 
 == 1.5.0 / 2011年7月1日
 
