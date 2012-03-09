@@ -1,4 +1,4 @@
-== 1.5.1 / unreleased
+== 1.5.1 / 2012-03-09
 
 * Features
 
@@ -6,53 +6,42 @@
   * CSS searches now support namespaced attributes. #593
   * Java integration feature is added. Now, XML::Document.wrap
     and XML::Document#to_java methods are available.
+  * RelaxNG validator support in the `nokogiri` cli utility. #591 (thanks, Dan Radez!)
 
 * Bugfixes
 
-  * Fix a memory leak in encoding detection.  Thanks for pointing this
-    out, @ender672!
-
+  * Fix many memory leaks and segfault opportunities. Thanks, Tim Elliott!
   * extconf searches homebrew paths if homebrew is installed.
-
   * Inconsistent behavior of Nokogiri 1.5.0 Java #620
-
   * Inheriting from Nokogiri::XML::Node on JRuby (1.6.4/5) fails #560
-
   * XML::Attr nodes are not allowed to be added as node children, so an
     exception is raised. #558
-
   * No longer defensively "pickle" adjacent text nodes on
     Node#add_next_sibling and Node#add_previous_sibling calls. #595.
-
   * Java version inconsistency: it returns nil for empty attributes #589
-
   * to_xhtml incorrectly generates <p /></p> when tag is empty #557
-
   * Document#add_child now accepts a Node, NodeSet, DocumentFragment,
     or String. #546.
-
   * Document#create_element now recognizes namespaces containing
     non-word characters (like "SOAP-ENV"). This is mostly relevant to
     users of Builder, which calls Document#create_element for nearly
     everything. #531.
-
   * File encoding broken in 1.5.0 / jruby / windows #529
-
   * Java version does not return namespace defs as attrs for ::HTML #542
-
   * Bad file descriptor with Nokogiri 1.5.0 #495
-  
   * remove_namespace! doesn't work in pure java version #492
-
-  * The Nokogiri Java native build throws a null pointer exception when
-    ActiveSupport's .blank? method is called directly on a parsed object.
-    #489
-
+  * The Nokogiri Java native build throws a null pointer exception
+    when ActiveSupport's .blank? method is called directly on a parsed
+    object. #489
   * 1.5.0 Not using correct character encoding #488
-  
   * Raw XML string in XML Builder broken on JRuby #486
-  
   * Nokogiri 1.5.0 XML generation broken on JRuby #484    
+  * Do not allow multiple root nodes. #550
+  * Fixes for custom XPath functions. #605, #606 (thanks, Juan Wajnerman!)
+  * Node#to_xml does not override :save_with if it is provided. #505
+  * Node#set is a private method [JRuby]. #564 (thanks, Nick Sieger!)
+  * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
+
 
 == 1.5.0 / 2011-07-01
 
