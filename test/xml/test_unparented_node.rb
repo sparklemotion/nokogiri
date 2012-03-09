@@ -248,6 +248,14 @@ module Nokogiri
         end
       end
 
+      def test_add_pi_as_previous_sibling_to_root_is_ok
+        doc = Nokogiri::XML "<root>foo</root>"
+        pi = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo.xsl"})
+        doc.root.add_previous_sibling pi
+        expected_doc = %Q{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<root>foo</root>\n}
+        assert_equal expected_doc, doc.to_xml
+      end
+
       def test_find_by_css_with_tilde_eql
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
