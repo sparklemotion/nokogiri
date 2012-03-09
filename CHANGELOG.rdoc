@@ -1,3 +1,7 @@
+== 1.5.2 / 2012-03-09
+
+Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, #632.
+
 == 1.5.1 / 2012-03-09
 
 * Features
