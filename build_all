@@ -27,7 +27,7 @@ function rvm_use {
 set -o errexit
 
 # initialize
-rvm_use 1.9.3
+rvm_use 1.8.7
 rm -rf tmp pkg
 bundle exec rake clean clobber
 
@@ -36,7 +36,7 @@ rm -rf gems
 mkdir -p gems
 
 # MRI
-rvm_use 1.9.3
+rvm_use 1.8.7
 bundle exec rake gem
 cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 
