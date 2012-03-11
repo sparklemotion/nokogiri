@@ -6,6 +6,10 @@ module Nokogiri
       def setup
         super
         @parser = Nokogiri::CSS::Parser.new
+        @parser_with_ns = Nokogiri::CSS::Parser.new({
+          "xmlns" => "http://default.example.com/",
+          "hoge" => "http://hoge.example.com/",
+        })
       end
 
       def test_extra_single_quote
@@ -290,6 +294,13 @@ module Nokogiri
         ###
         # TODO: should we make this work?
         # assert_xpath ['//x/y', '//y/z'], @parser.parse('x > y | y > z')
+      end
+
+      def test_attributes_with_namespace
+        ## Default namespace is not applied to attributes.
+        ## So this must be @class, not @xmlns:class.
+        assert_xpath "//xmlns:a[@class = 'bar']", @parser_with_ns.parse("a[class='bar']")
+        assert_xpath "//xmlns:a[@hoge:class = 'bar']", @parser_with_ns.parse("a[hoge|class='bar']")
       end
 
       def assert_xpath expecteds, asts
