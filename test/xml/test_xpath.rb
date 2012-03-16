@@ -254,6 +254,17 @@ module Nokogiri
         end
         assert_equal 123.456, value
       end
+
+      def test_custom_xpath_with_bullshit_arguments
+        xml = %q{<foo> </foo>}
+        doc = Nokogiri::XML.parse(xml)
+        foo = doc.xpath('//foo[bool_function(bar/baz)]', Class.new {
+            def bool_function(value)
+              true
+            end
+          }.new)
+        assert_equal foo, doc.xpath("//foo")
+      end
     end
   end
 end

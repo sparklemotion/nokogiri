@@ -427,7 +427,7 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
     rb_funcall(document, decorate, 1, new_set);
   }
 
-  if (node_set->nodeTab) {
+  if (node_set && node_set->nodeTab) {
     for (i = 0; i < node_set->nodeNr; i++) {
       cur = node_set->nodeTab[i];
       if (cur && cur->type == XML_NAMESPACE_DECL) {
