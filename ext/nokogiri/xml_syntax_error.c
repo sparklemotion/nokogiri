@@ -1,5 +1,23 @@
 #include <xml_syntax_error.h>
 
+static xmlStructuredErrorFunc saved_func;
+static void *saved_context;
+
+void Nokogiri_install_error_catcher(VALUE list)
+{
+  saved_func = xmlStructuredError;
+  saved_context = xmlStructuredErrorContext;
+  xmlSetStructuredErrorFunc((void *)list, Nokogiri_error_array_pusher);
+  return;
+}
+
+void Nokogiri_remove_error_catcher()
+{
+  xmlSetStructuredErrorFunc(saved_context, saved_func);
+  saved_func = NULL;
+  saved_context = NULL;
+}
+
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 {
   VALUE list = (VALUE)ctx;
