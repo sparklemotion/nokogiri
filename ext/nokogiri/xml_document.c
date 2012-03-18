@@ -212,7 +212,7 @@ static VALUE read_io( VALUE klass,
   xmlDocPtr doc;
 
   xmlResetLastError();
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(error_list);
 
   doc = xmlReadIO(
       (xmlInputReadCallback)io_read_callback,
@@ -222,7 +222,7 @@ static VALUE read_io( VALUE klass,
       c_enc,
       (int)NUM2INT(options)
   );
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher();
 
   if(doc == NULL) {
     xmlErrorPtr error;
@@ -264,9 +264,9 @@ static VALUE read_memory( VALUE klass,
   xmlDocPtr doc;
 
   xmlResetLastError();
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(error_list);
   doc = xmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher();
 
   if(doc == NULL) {
     xmlErrorPtr error;

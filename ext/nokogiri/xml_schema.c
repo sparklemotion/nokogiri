@@ -102,7 +102,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
   );
   VALUE rb_schema;
   VALUE errors = rb_ary_new();
-  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(errors);
 
 #ifdef HAVE_XMLSCHEMASETPARSERSTRUCTUREDERRORS
   xmlSchemaSetParserStructuredErrors(
@@ -114,7 +114,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
 
    schema = xmlSchemaParse(ctx);
 
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher();
   xmlSchemaFreeParserCtxt(ctx);
 
   if(NULL == schema) {
@@ -155,7 +155,7 @@ static VALUE from_document(VALUE klass, VALUE document)
   ctx = xmlSchemaNewDocParserCtxt(doc);
 
   errors = rb_ary_new();
-  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(errors);
 
 #ifdef HAVE_XMLSCHEMASETPARSERSTRUCTUREDERRORS
   xmlSchemaSetParserStructuredErrors(
@@ -167,7 +167,7 @@ static VALUE from_document(VALUE klass, VALUE document)
 
   schema = xmlSchemaParse(ctx);
 
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher();
   xmlSchemaFreeParserCtxt(ctx);
 
   if(NULL == schema) {
