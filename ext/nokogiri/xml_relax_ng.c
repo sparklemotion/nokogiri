@@ -63,7 +63,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
   VALUE errors = rb_ary_new();
   VALUE rb_schema;
 
-  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(errors);
 
 #ifdef HAVE_XMLRELAXNGSETPARSERSTRUCTUREDERRORS
   xmlRelaxNGSetParserStructuredErrors(
@@ -75,7 +75,7 @@ static VALUE read_memory(VALUE klass, VALUE content)
 
   schema = xmlRelaxNGParse(ctx);
 
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher();
   xmlRelaxNGFreeParserCtxt(ctx);
 
   if(NULL == schema) {
@@ -116,7 +116,7 @@ static VALUE from_document(VALUE klass, VALUE document)
   ctx = xmlRelaxNGNewDocParserCtxt(doc);
 
   errors = rb_ary_new();
-  xmlSetStructuredErrorFunc((void *)errors, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(errors);
 
 #ifdef HAVE_XMLRELAXNGSETPARSERSTRUCTUREDERRORS
   xmlRelaxNGSetParserStructuredErrors(
@@ -128,7 +128,7 @@ static VALUE from_document(VALUE klass, VALUE document)
 
   schema = xmlRelaxNGParse(ctx);
 
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher();
 
   if(NULL == schema) {
     xmlErrorPtr error = xmlGetLastError();

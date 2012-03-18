@@ -46,7 +46,7 @@ static VALUE read_io( VALUE klass,
   htmlDocPtr doc;
 
   xmlResetLastError();
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(error_list);
 
   doc = htmlReadIO(
       io_read_callback,
@@ -56,7 +56,7 @@ static VALUE read_io( VALUE klass,
       c_enc,
       (int)NUM2INT(options)
   );
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher(error_list);
 
   /*
    * If EncodingFound has occurred in EncodingReader, make sure to do
@@ -111,10 +111,10 @@ static VALUE read_memory( VALUE klass,
   htmlDocPtr doc;
 
   xmlResetLastError();
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(error_list);
 
   doc = htmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher();
 
   if(doc == NULL) {
     xmlErrorPtr error;

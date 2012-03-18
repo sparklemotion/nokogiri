@@ -1198,9 +1198,9 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 
   Data_Get_Struct(self, xmlNode, node);
 
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
+  Nokogiri_install_error_catcher(error_list);
   rcode = xmlXIncludeProcessTreeFlags(node, (int)NUM2INT(options));
-  xmlSetStructuredErrorFunc(NULL, NULL);
+  Nokogiri_remove_error_catcher();
 
   if (rcode < 0) {
     xmlErrorPtr error;
@@ -1233,7 +1233,7 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
     node_children = node->children;
     doc_children  = node->doc->children;
 
-    xmlSetStructuredErrorFunc((void *)err, Nokogiri_error_array_pusher);
+    Nokogiri_install_error_catcher(err);
 
     /* Twiddle global variable because of a bug in libxml2.
      * http://git.gnome.org/browse/libxml2/commit/?id=e20fb5a72c83cbfc8e4a8aa3943c6be8febadab7
@@ -1275,7 +1275,7 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
     htmlHandleOmittedElem(1);
 #endif
 
-    xmlSetStructuredErrorFunc(NULL, NULL);
+    Nokogiri_remove_error_catcher();
 
     /* Workaround for a libxml2 bug where a parsing error may leave a broken
      * node reference in node->doc->children.
