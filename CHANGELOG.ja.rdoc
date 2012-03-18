@@ -1,3 +1,19 @@
+== 1.5.3 / unreleased
+
+* Bugfixes
+
+  * Custom xpath functions with empty nodeset arguments cause a segfault. #634.
+
+* Features
+
+  * [C/libxml2] Save and restore libxml2 error handlers. Previously,
+    Nokogiri clobbered libxml-ruby's error handlers. #635 (thanks, Tom Hughes!)
+
+== 1.5.2 / 2012-03-09
+
+Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, #632.
+
+
 == 1.5.1 / 2012年3月9日
 
 * 新機能
