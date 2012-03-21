@@ -247,7 +247,7 @@ static VALUE allocate(VALUE klass)
 {
   xmlSAXHandlerPtr handler = calloc((size_t)1, sizeof(xmlSAXHandler));
 
-  Nokogiri_remove_error_catcher();
+  xmlSetStructuredErrorFunc(NULL, NULL);
 
   handler->startDocument = start_document;
   handler->endDocument = end_document;

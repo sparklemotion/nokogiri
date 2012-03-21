@@ -202,10 +202,6 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   xmlXPathContextPtr ctx;
   xmlXPathObjectPtr xpath;
   xmlChar *query;
-  xmlStructuredErrorFunc structured_func;
-  void *structured_context;
-  xmlGenericErrorFunc generic_func;
-  void *generic_context;
 
   Data_Get_Struct(self, xmlXPathContext, ctx);
 
@@ -221,19 +217,15 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   }
 
   xmlResetLastError();
-  structured_func = xmlStructuredError;
-  structured_context = xmlStructuredErrorContext;
   xmlSetStructuredErrorFunc(NULL, xpath_exception_handler);
 
   /* For some reason, xmlXPathEvalExpression will blow up with a generic error */
   /* when there is a non existent function. */
-  generic_func = xmlGenericError;
-  generic_context = xmlGenericErrorContext;
   xmlSetGenericErrorFunc(NULL, xpath_generic_exception_handler);
 
   xpath = xmlXPathEvalExpression(query, ctx);
-  xmlSetStructuredErrorFunc(structured_context, structured_func);
-  xmlSetGenericErrorFunc(generic_context, generic_func);
+  xmlSetStructuredErrorFunc(NULL, NULL);
+  xmlSetGenericErrorFunc(NULL, NULL);
 
   if(xpath == NULL) {
     VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));

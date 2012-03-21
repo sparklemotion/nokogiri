@@ -465,9 +465,9 @@ static VALUE read_more(VALUE self)
 
   error_list = rb_funcall(self, rb_intern("errors"), 0);
 
-  Nokogiri_install_error_catcher(error_list);
+  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
   ret = xmlTextReaderRead(reader);
-  Nokogiri_remove_error_catcher();
+  xmlSetStructuredErrorFunc(NULL, NULL);
 
   if(ret == 1) return self;
   if(ret == 0) return Qnil;

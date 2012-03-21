@@ -134,11 +134,11 @@ static VALUE validate(VALUE self, VALUE document)
 
   ctxt = xmlNewValidCtxt();
 
-  Nokogiri_install_error_catcher(error_list);
+  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
 
   xmlValidateDtd(ctxt, doc, dtd);
 
-  Nokogiri_remove_error_catcher();
+  xmlSetStructuredErrorFunc(NULL, NULL);
 
   xmlFreeValidCtxt(ctxt);
 
