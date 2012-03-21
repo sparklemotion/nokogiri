@@ -3,6 +3,10 @@
 * Bugfixes
 
   * Custom xpath functions with empty nodeset arguments cause a segfault. #634.
+  * Nokogiri::XML::Node#css now works for XML documents with default
+    namespaces when the rule contains attribute selector without
+    namespace.
+
 
 * Features
 
