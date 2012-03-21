@@ -2,11 +2,16 @@
 .gemtest
 CHANGELOG.ja.rdoc
 CHANGELOG.rdoc
+C_CODING_STYLE.rdoc
 Manifest.txt
 README.ja.rdoc
 README.rdoc
+ROADMAP.md
 Rakefile
+STANDARD_RESPONSES.md
+Y_U_NO_GEMSPEC.md
 bin/nokogiri
+build_all
 ext/java/nokogiri/EncodingHandler.java
 ext/java/nokogiri/HtmlDocument.java
 ext/java/nokogiri/HtmlElementDescription.java
@@ -198,7 +203,6 @@ lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
-nokogiri_help_responses.md
 tasks/cross_compile.rb
 tasks/nokogiri.org.rb
 tasks/test.rb
@@ -228,7 +232,9 @@ test/files/staff.dtd
 test/files/staff.xml
 test/files/staff.xslt
 test/files/tlm.html
+test/files/to_be_xincluded.xml
 test/files/valid_bar.xml
+test/files/xinclude.xml
 test/helper.rb
 test/html/sax/test_parser.rb
 test/html/sax/test_parser_context.rb
@@ -256,6 +262,7 @@ test/xml/sax/test_push_parser.rb
 test/xml/test_attr.rb
 test/xml/test_attribute_decl.rb
 test/xml/test_builder.rb
+test/xml/test_c14n.rb
 test/xml/test_cdata.rb
 test/xml/test_comment.rb
 test/xml/test_document.rb
@@ -271,9 +278,9 @@ test/xml/test_namespace.rb
 test/xml/test_node.rb
 test/xml/test_node_attributes.rb
 test/xml/test_node_encoding.rb
+test/xml/test_node_inheritance.rb
 test/xml/test_node_reparenting.rb
 test/xml/test_node_set.rb
-test/xml/test_node_inheritance.rb
 test/xml/test_parse_options.rb
 test/xml/test_processing_instruction.rb
 test/xml/test_reader_encoding.rb
@@ -282,6 +289,8 @@ test/xml/test_schema.rb
 test/xml/test_syntax_error.rb
 test/xml/test_text.rb
 test/xml/test_unparented_node.rb
+test/xml/test_xinclude.rb
 test/xml/test_xpath.rb
 test/xslt/test_custom_functions.rb
 test/xslt/test_exception_handling.rb
+test_all
