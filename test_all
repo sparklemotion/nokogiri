@@ -56,7 +56,7 @@ done
 
 for ruby in $RUBIES ; do
     rvm_use ${ruby}
-    echo "** nokogiri prerelease: ${ruby}" | tee -a $TEST_LOG
+    echo -e "**\n** testing nokogiri on ${ruby}\n**" | tee -a $TEST_LOG
     clean
     compile
     echo "** running tests ..."
@@ -74,7 +74,7 @@ done
 for ruby in $RUBIES ; do
     if [[ ! $ruby =~ "jruby" ]] ; then
         rvm_use ${ruby}
-        echo "** nokogiri prerelease: ${ruby}" | tee -a $VALGRIND_LOG
+        echo -e "**\n** nokogiri prerelease: ${ruby}\n**" | tee -a $VALGRIND_LOG
         clean
         compile
         echo "** running valgrind on tests ..."
