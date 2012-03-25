@@ -68,33 +68,6 @@ module Nokogiri
     alias :assert_not_nil       :refute_nil
     alias :assert_raise         :assert_raises
     alias :assert_not_equal     :refute_equal
-
-    def assert_nothing_raised(*args)
-      self._assertions += 1
-      if Module === args.last
-        msg = nil
-      else
-        msg = args.pop
-      end
-      begin
-        line = __LINE__; yield
-      rescue Exception => e
-        bt = e.backtrace
-        as = e.instance_of?(MiniTest::Assertion)
-        if as
-          ans = /\A#{Regexp.quote(__FILE__)}:#{line}:in /o
-          bt.reject! {|ln| ans =~ ln}
-        end
-        if ((args.empty? && !as) ||
-            args.any? {|a| a.instance_of?(Module) ? e.is_a?(a) : e.class == a })
-          msg = message(msg) { "Exception raised:\n<#{mu_pp(e)}>" }
-          raise MiniTest::Assertion, msg.call, bt
-        else
-          raise
-        end
-      end
-      nil
-    end
   end
 
   module SAX

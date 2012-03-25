@@ -13,6 +13,7 @@ module Nokogiri
 
         def test_from_string
           ctx = ParserContext.new 'blah blah'
+          assert ctx
         end
 
         def test_parse_with

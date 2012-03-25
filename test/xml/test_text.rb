@@ -30,9 +30,7 @@ module Nokogiri
         doc = Document.new
         node = Nokogiri::XML::Element.new('foo', doc)
 
-        assert_nothing_raised do
-          Text.new('hello world', node)
-        end
+        assert Text.new('hello world', node)
       end
 
       def test_content=

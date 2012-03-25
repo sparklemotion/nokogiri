@@ -100,12 +100,10 @@ module Nokogiri
 
       def test_css_search_uses_custom_selectors
         set = @xml.xpath('//employee')
-        assert_nothing_raised do
-          if Nokogiri.uses_libxml?
-            @xml.css('employee:thing()', @handler)
-          else
-            @xml.xpath("//employee[nokogiri:thing(.)]", @ns, @handler)
-          end
+        if Nokogiri.uses_libxml?
+          @xml.css('employee:thing()', @handler)
+        else
+          @xml.xpath("//employee[nokogiri:thing(.)]", @ns, @handler)
         end
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)

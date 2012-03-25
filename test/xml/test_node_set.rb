@@ -168,7 +168,7 @@ module Nokogiri
         set = html.xpath("/html/body/div")
         assert_equal set.first, set.search(".a").first
       end
-      
+
       def test_css_search_with_namespace
         fragment = Nokogiri::XML.fragment(<<-eoxml)
           <html xmlns="http://www.w3.org/1999/xhtml">
@@ -176,7 +176,7 @@ module Nokogiri
           <body></body>
           </html>
         eoxml
-        assert_nothing_raised{ fragment.children.search( 'body', { 'xmlns' => 'http://www.w3.org/1999/xhtml' }) }
+        assert fragment.children.search( 'body', { 'xmlns' => 'http://www.w3.org/1999/xhtml' })
       end
 
       def test_double_equal

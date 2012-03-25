@@ -124,9 +124,8 @@ module Nokogiri
 
       def test_pp
         out = StringIO.new('')
-        assert_nothing_raised do
-          ::PP.pp @xml, out
-        end
+        ::PP.pp @xml, out
+        assert_operator out.string.length, :>, 0
       end
 
       def test_create_internal_subset_on_existing_subset
@@ -295,9 +294,7 @@ module Nokogiri
       end
 
       def test_parse_handles_nil_gracefully
-        assert_nothing_raised do
-          @doc = Nokogiri::XML::Document.parse(nil)
-        end
+        @doc = Nokogiri::XML::Document.parse(nil)
         assert_instance_of Nokogiri::XML::Document, @doc
       end
 
@@ -633,9 +630,7 @@ module Nokogiri
 
       def test_new
         doc = nil
-        assert_nothing_raised {
-          doc = Nokogiri::XML::Document.new
-        }
+        doc = Nokogiri::XML::Document.new
         assert doc
         assert doc.xml?
         assert_nil doc.root
@@ -643,9 +638,7 @@ module Nokogiri
 
       def test_set_root
         doc = nil
-        assert_nothing_raised {
-          doc = Nokogiri::XML::Document.new
-        }
+        doc = Nokogiri::XML::Document.new
         assert doc
         assert doc.xml?
         assert_nil doc.root

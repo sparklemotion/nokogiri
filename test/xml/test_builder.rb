@@ -47,14 +47,13 @@ module Nokogiri
       end
 
       def test_builder_with_unlink
-        assert_nothing_raised do
-          Nokogiri::XML::Builder.new do |xml|
-            xml.foo do
-              xml.bar { xml.parent.unlink }
-              xml.bar2
-            end
+        b = Nokogiri::XML::Builder.new do |xml|
+          xml.foo do
+            xml.bar { xml.parent.unlink }
+            xml.bar2
           end
         end
+        assert b
       end
 
       def test_with_root
