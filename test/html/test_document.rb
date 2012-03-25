@@ -232,9 +232,7 @@ eohtml
       end
 
       def test_parse_handles_nil_gracefully
-        assert_nothing_raised do
-          @doc = Nokogiri::HTML::Document.parse(nil)
-        end
+        @doc = Nokogiri::HTML::Document.parse(nil)
         assert_instance_of Nokogiri::HTML::Document, @doc
       end
 
