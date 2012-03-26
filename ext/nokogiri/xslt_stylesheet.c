@@ -168,74 +168,17 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
 
 static void method_caller(xmlXPathParserContextPtr ctxt, int nargs)
 {
-    const xmlChar * function;
-    const xmlChar * functionURI;
-    size_t i, count;
-
+    VALUE handler;
+    const char *function_name;
     xsltTransformContextPtr transform;
-    xmlXPathObjectPtr xpath;
-    VALUE obj;
-    VALUE *args;
-    VALUE result;
+    const xmlChar *functionURI;
 
     transform = xsltXPathGetTransformContext(ctxt);
-
-    function = ctxt->context->function;
     functionURI = ctxt->context->functionURI;
-    obj = (VALUE)xsltGetExtData(transform, functionURI);
+    handler = (VALUE)xsltGetExtData(transform, functionURI);
+    function_name = (const char*)(ctxt->context->function);
 
-    count = (size_t)ctxt->valueNr;
-    args = calloc(count, sizeof(VALUE *));
-
-    for(i = 0; i < count; i++) {
-	VALUE thing;
-
-	xpath = valuePop(ctxt);
-	switch(xpath->type) {
-	    case XPATH_STRING:
-		thing = NOKOGIRI_STR_NEW2(xpath->stringval);
-		break;
-	    case XPATH_NODESET:
-		if(NULL == xpath->nodesetval) {
-		    thing = Nokogiri_wrap_xml_node_set(
-			    xmlXPathNodeSetCreate(NULL),
-			    DOC_RUBY_OBJECT(ctxt->context->doc));
-		} else {
-		    thing = Nokogiri_wrap_xml_node_set(xpath->nodesetval,
-			    DOC_RUBY_OBJECT(ctxt->context->doc));
-		}
-		break;
-	    default:
-		rb_raise(rb_eRuntimeError, "do not handle type: %d", xpath->type);
-	}
-	args[i] = thing;
-	xmlFree(xpath);
-    }
-    result = rb_funcall3(obj, rb_intern((const char *)function), (int)count, args);
-    free(args);
-    switch(TYPE(result)) {
-	case T_FLOAT:
-	case T_BIGNUM:
-	case T_FIXNUM:
-	    xmlXPathReturnNumber(ctxt, NUM2DBL(result));
-	    break;
-	case T_STRING:
-	    xmlXPathReturnString(
-		    ctxt,
-		    xmlStrdup((xmlChar *)StringValuePtr(result))
-		    );
-	    break;
-	case T_TRUE:
-	    xmlXPathReturnTrue(ctxt);
-	    break;
-	case T_FALSE:
-	    xmlXPathReturnFalse(ctxt);
-	    break;
-	case T_NIL:
-	    break;
-	default:
-	    rb_raise(rb_eRuntimeError, "Invalid return type");
-    }
+    Nokogiri_marshal_xpath_funcall_and_return_values(ctxt, nargs, handler, (const char*)function_name);
 }
 
 static void * initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
