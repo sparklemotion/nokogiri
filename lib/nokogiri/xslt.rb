@@ -15,7 +15,7 @@ module Nokogiri
   end
 
   ###
-  # See Nokogiri::XSLT::Stylesheet for creating and maniuplating
+  # See Nokogiri::XSLT::Stylesheet for creating and manipulating
   # Stylesheet object.
   module XSLT
     class << self
