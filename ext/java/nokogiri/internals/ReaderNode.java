@@ -61,6 +61,7 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXParseException;
+import javax.xml.stream.XMLStreamException;
 
 /**
  * Abstract class of Node for XmlReader.
@@ -472,6 +473,10 @@ public abstract class ReaderNode {
 
         // Still don't know what to do with ex.
         public ExceptionNode(Ruby runtime, SAXParseException ex) {
+            super(runtime);
+            exception = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(ruby, "Nokogiri::XML::SyntaxError"));
+        }
+        public ExceptionNode(Ruby runtime, XMLStreamException ex) {
             super(runtime);
             exception = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(ruby, "Nokogiri::XML::SyntaxError"));
         }
