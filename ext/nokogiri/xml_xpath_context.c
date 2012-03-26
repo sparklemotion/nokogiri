@@ -49,25 +49,18 @@ static VALUE register_variable(VALUE self, VALUE name, VALUE value)
    return self;
 }
 
-static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
+void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr ctx, int nargs, VALUE handler, const char* function_name)
 {
-  VALUE xpath_handler = Qnil;
-  VALUE result;
+  int i;
+  VALUE result, doc;
   VALUE *argv;
-  VALUE doc;
   VALUE node_set = Qnil;
   xmlNodeSetPtr xml_node_set = NULL;
   xmlXPathObjectPtr obj;
-  int i;
   nokogiriNodeSetTuple *node_set_tuple;
 
-  assert(ctx);
-  assert(ctx->context);
-  assert(ctx->context->userData);
   assert(ctx->context->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctx->context->doc));
-
-  xpath_handler = (VALUE)(ctx->context->userData);
 
   argv = (VALUE *)calloc((size_t)nargs, sizeof(VALUE));
   for (i = 0 ; i < nargs ; ++i) {
@@ -100,12 +93,7 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     } while(i-- > 0);
   }
 
-  result = rb_funcall2(
-      xpath_handler,
-      rb_intern((const char *)ctx->context->function),
-      nargs,
-      argv
-  );
+  result = rb_funcall2(handler, rb_intern((const char*)function_name), nargs, argv);
 
   for (i = 0 ; i < nargs ; ++i) {
     rb_gc_unregister_address(&argv[i]);
@@ -154,6 +142,22 @@ static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
     default:
       rb_raise(rb_eRuntimeError, "Invalid return type");
   }
+}
+
+static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
+{
+  VALUE handler = Qnil;
+  const char *function = NULL ;
+
+  assert(ctx);
+  assert(ctx->context);
+  assert(ctx->context->userData);
+  assert(ctx->context->function);
+
+  handler = (VALUE)(ctx->context->userData);
+  function = (const char*)(ctx->context->function);
+
+  Nokogiri_marshal_xpath_funcall_and_return_values(ctx, nargs, handler, function);
 }
 
 static xmlXPathFunction lookup( void *ctx,
