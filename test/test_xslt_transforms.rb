@@ -158,7 +158,9 @@ encoding="iso-8859-1" indent="yes"/>
     assert_equal  result_array, result_hash
   end
 
-  if Nokogiri.uses_libxml? # By now, cannot get it working on JRuby.
+  if Nokogiri.uses_libxml?
+    # By now, cannot get it working on JRuby, see:
+    #   http://yokolet.blogspot.com/2010/10/pure-java-nokogiri-xslt-extension.html
     def test_exslt
       assert doc = Nokogiri::XML.parse(File.read(EXML_FILE))
       assert doc.xml?
