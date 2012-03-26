@@ -6,6 +6,8 @@
   * Nokogiri::XML::Node#css now works for XML documents with default
     namespaces when the rule contains attribute selector without
     namespace.
+  * Fixed marshalling bugs around how arguments are passed to (and
+    returned from) XSLT custom xpath functions. #640.
 
 
 == 1.5.2 / 2012-03-09
