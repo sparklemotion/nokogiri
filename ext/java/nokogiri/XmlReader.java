@@ -229,7 +229,10 @@ public class XmlReader extends RubyObject {
         StringBuffer sb = new StringBuffer();
         int currentDepth = (Integer)current.depth;
         for (ReaderNode node : nodeQueue) {
-            if (((Integer)node.depth) > currentDepth) sb.append(node.getString());
+            if (((Integer)node.depth) > currentDepth) {
+                sb.append(node.getString());
+                break;
+            }
         }
         return new String(sb);
     }
@@ -244,7 +247,10 @@ public class XmlReader extends RubyObject {
         StringBuffer sb = new StringBuffer();
         int initialDepth = (Integer)current.depth - 1;
         for (ReaderNode node : nodeQueue) {
-            if (((Integer)node.depth) > initialDepth) sb.append(node.getString());
+            if (((Integer)node.depth) > initialDepth) {
+                sb.append(node.getString());
+                break;
+            }
         }
         return new String(sb);
     }
