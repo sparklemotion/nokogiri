@@ -8,7 +8,7 @@
     namespace.
   * Fixed marshalling bugs around how arguments are passed to (and
     returned from) XSLT custom xpath functions. #640.
-
+  * Nokogiri::XML::Reader#outer_xml is broken in JRuby #617
 
 == 1.5.2 / 2012-03-09
 
