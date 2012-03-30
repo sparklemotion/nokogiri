@@ -228,11 +228,15 @@ public class XmlReader extends RubyObject {
         if (!current.hasChildren) return null;
         StringBuffer sb = new StringBuffer();
         int currentDepth = (Integer)current.depth;
+        int inner = 0;
         for (ReaderNode node : nodeQueue) {
+            if (((Integer)node.depth) == currentDepth && node.getName().equals(current.getName())) {
+                inner++;
+            }
             if (((Integer)node.depth) > currentDepth) {
                 sb.append(node.getString());
-                break;
             }
+            if (inner == 2) break;
         }
         return new String(sb);
     }
@@ -245,12 +249,17 @@ public class XmlReader extends RubyObject {
     private String getOuterXml(ArrayDeque<ReaderNode> nodeQueue, ReaderNode current) {
         if (current.depth < 0) return null;
         StringBuffer sb = new StringBuffer();
-        int initialDepth = (Integer)current.depth - 1;
+        int initialDepth = (Integer)current.depth;
+        int inner = 0;
         for (ReaderNode node : nodeQueue) {
-            if (((Integer)node.depth) > initialDepth) {
+            if (((Integer)node.depth) >= initialDepth) {
+                if (((Integer)node.depth) == initialDepth && node.getName().equals(current.getName())) {
+                    inner++;
+                }
+
                 sb.append(node.getString());
-                break;
             }
+            if (inner == 2) break;
         }
         return new String(sb);
     }
