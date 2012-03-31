@@ -36,6 +36,7 @@ import static nokogiri.internals.NokogiriHelpers.CACHED_NODE;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContextVisitor;
 
@@ -149,6 +150,30 @@ public class XmlNamespace extends RubyObject {
 
         // initialize XmlNamespace object
         namespace.init(attrNode, prefix, href, prefixValue, hrefValue, xmlDocument);
+        
+        // updating namespace cache
+        xmlDocument.getNamespaceCache().put(namespace, owner);
+        return namespace;
+    }
+    
+    // owner should be an Attr node
+    public static XmlNamespace createDefaultNamespace(Ruby runtime, Node owner) {
+        String prefixValue = owner.getPrefix();
+        String hrefValue = owner.getNamespaceURI();
+        Document document = owner.getOwnerDocument();
+        // check namespace cache
+        XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, document);
+        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
+        if (xmlNamespace != null) return xmlNamespace;
+
+        // creating XmlNamespace instance
+        XmlNamespace namespace =
+            (XmlNamespace) NokogiriService.XML_NAMESPACE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Namespace"));
+
+        IRubyObject prefix = stringOrNil(runtime, prefixValue);
+        IRubyObject href = stringOrNil(runtime, hrefValue);
+        // initialize XmlNamespace object
+        namespace.init((Attr)owner, prefix, href, prefixValue, hrefValue, xmlDocument);
         
         // updating namespace cache
         xmlDocument.getNamespaceCache().put(namespace, owner);

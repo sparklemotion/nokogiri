@@ -479,6 +479,10 @@ public class XmlNode extends RubyObject {
                 doc = document(context);
             }
         }
+
+        if (this instanceof XmlAttr) {
+            ((XmlAttr)this).setNamespaceIfNecessary(context.getRuntime());
+        }
     }
 
     public void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {

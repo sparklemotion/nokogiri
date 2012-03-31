@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -95,6 +95,16 @@ public class XmlAttr extends XmlNode{
         String str = rubyStringToString(content);
         Node attr = xmlDoc.getDocument().createAttribute(str);
         setNode(context, attr);
+    }
+    
+    
+    // this method is called from XmlNode.setNode()
+    // if the node is attribute, and its name has prefix "xml"
+    // the default namespace should be registered for this attribute
+    void setNamespaceIfNecessary(Ruby runtime) {
+        if ("xml".equals(node.getPrefix())) {
+           XmlNamespace.createDefaultNamespace(runtime, node); 
+        }
     }
 
     private boolean isHtmlBooleanAttr() {
