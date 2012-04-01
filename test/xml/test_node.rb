@@ -993,6 +993,27 @@ EOXML
         assert_no_match("<ul>\n  <li>", xml.to_xml(:save_with => XML::Node::SaveOptions::AS_XML))
         assert_no_match("<ul>\n  <li>", node.to_xml(:save_with => XML::Node::SaveOptions::AS_XML))
       end
+
+      # issue 647
+      def test_default_namespace_should_be_created
+        subject = Nokogiri::XML.parse('<foo xml:bar="http://bar.com"/>').root
+        ns = subject.attributes['bar'].namespace
+        assert_not_nil ns
+        assert_equal ns.class, Nokogiri::XML::Namespace
+        assert_equal 'xml', ns.prefix
+        assert_equal "http://www.w3.org/XML/1998/namespace", ns.href
+      end
+
+      # issue 648
+      def test_namespace_without_prefix_should_be_set
+        node = Nokogiri::XML.parse('<foo xmlns="http://bar.com"/>').root
+        subject = Nokogiri::XML::Node.new 'foo', node.document
+        subject.namespace = node.namespace
+        ns = subject.namespace
+        assert_equal ns.class, Nokogiri::XML::Namespace
+        assert_nil ns.prefix
+        assert_equal ns.href, "http://bar.com"
+      end
     end
   end
 end

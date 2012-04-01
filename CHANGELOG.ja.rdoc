@@ -9,6 +9,8 @@
   * Fixed marshalling bugs around how arguments are passed to (and
     returned from) XSLT custom xpath functions. #640.
   * Nokogiri::XML::Reader#outer_xml がJRubyで正しく動作しない #617
+  * Nokogiri::XML::Attribute が JRuby 上で　nil namespace を返す　#647
+  * Nokogiri::XML::Node#namespace= メソッドが JRuby　上で prefix　が無い namespace を設定できない #648
 
 
 == 1.5.2 / 2012-03-09
