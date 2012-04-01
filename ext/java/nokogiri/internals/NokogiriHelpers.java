@@ -255,6 +255,7 @@ public class NokogiriHelpers {
      * this for us.
      */
     public static String rubyStringToString(IRubyObject str) {
+        if (str.isNil()) return null;
         //return rubyStringToString(str.convertToString());
         return toJavaString(str.convertToString());
     }
