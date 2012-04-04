@@ -1346,7 +1346,7 @@ public class XmlNode extends RubyObject {
          */
         if (parent.getNodeType() == Node.DOCUMENT_NODE &&
             otherNode.getNodeType() == Node.TEXT_NODE) {
-            Element e = ((Document)parent).createElement("text");
+            Element e = ((Document)parent).createElement("nokogiri_text_wrapper");
             e.appendChild(otherNode);
             otherNode = e;
         }
