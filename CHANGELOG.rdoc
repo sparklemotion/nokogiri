@@ -561,7 +561,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
 * Bugfixes
 
-  * Changed memory mangement from weak refs to document refs
+  * Changed memory management from weak refs to document refs
   * Plugged some memory leaks
   * Builder blocks can call methods from surrounding contexts
 
