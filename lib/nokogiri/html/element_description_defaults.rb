@@ -3,7 +3,7 @@ module Nokogiri
     class ElementDescription
 
       # Methods are defined protected by method_defined? because at
-      # this point the C-library or Java library is alraedy loaded,
+      # this point the C-library or Java library is already loaded,
       # and we don't want to clobber any methods that have been
       # defined there.
 
