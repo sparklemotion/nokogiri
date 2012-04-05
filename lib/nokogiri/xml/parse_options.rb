@@ -25,11 +25,11 @@ module Nokogiri
       NOBLANKS    = 1 << 8
       # use the SAX1 interface internally
       SAX1        = 1 << 9
-      # Implement XInclude substitition
+      # Implement XInclude substitution
       XINCLUDE    = 1 << 10
       # Forbid network access
       NONET       = 1 << 11
-      # Do not reuse the context dictionnary
+      # Do not reuse the context dictionary
       NODICT      = 1 << 12
       # remove redundant namespaces declarations
       NSCLEAN     = 1 << 13

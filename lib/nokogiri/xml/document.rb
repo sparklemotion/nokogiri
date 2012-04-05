@@ -132,7 +132,7 @@ module Nokogiri
       # in the hash.
       #
       # Note this is a very expensive operation in current implementation, as it
-      # traverses the entire graph, and also has to bring each node accross the
+      # traverses the entire graph, and also has to bring each node across the
       # libxml bridge into a ruby object.
       def collect_namespaces
         ns = {}
