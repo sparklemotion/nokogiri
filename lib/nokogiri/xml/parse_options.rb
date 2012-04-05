@@ -29,7 +29,7 @@ module Nokogiri
       XINCLUDE    = 1 << 10
       # Forbid network access
       NONET       = 1 << 11
-      # Do not reuse the context dictionnary
+      # Do not reuse the context dictionary
       NODICT      = 1 << 12
       # remove redundant namespaces declarations
       NSCLEAN     = 1 << 13
