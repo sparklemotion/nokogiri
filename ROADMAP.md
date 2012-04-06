@@ -26,6 +26,7 @@
   * https://github.com/tenderlove/nokogiri/issues/621
   * https://github.com/tenderlove/nokogiri/issues/342
   * https://github.com/tenderlove/nokogiri/issues/628
+  * https://github.com/tenderlove/nokogiri/issues/652
 
 * https://github.com/tenderlove/nokogiri/issues/394
   nth-of-type is wrong, and possibly other selectors as well
