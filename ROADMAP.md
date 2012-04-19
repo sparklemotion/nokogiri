@@ -53,6 +53,13 @@
 * https://github.com/tenderlove/nokogiri/pull/464
 
 
+## Better Syntax around Node#xpath and NodeSet#xpath
+
+* look at those methods, and use of Node#extract_params in Node#{css,search}
+  * we should standardize on a hash of options for these and other calls
+* what should NodeSet#xpath return?
+  * https://github.com/tenderlove/nokogiri/issues/656
+
 ## Encoding
 
 We have a lot of issues open around encoding. Is this really an issue?
