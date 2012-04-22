@@ -22,6 +22,7 @@ module Nokogiri
     METACHARSET_FILE    = File.join(ASSETS_DIR, 'metacharset.html')
     NICH_FILE           = File.join(ASSETS_DIR, '2ch.html')
     NOENCODING_FILE     = File.join(ASSETS_DIR, 'noencoding.html')
+    NOENCODING_UTF8_FILE= File.join(ASSETS_DIR, 'noencoding_utf8.html')
     PO_SCHEMA_FILE      = File.join(ASSETS_DIR, 'po.xsd')
     PO_XML_FILE         = File.join(ASSETS_DIR, 'po.xml')
     SHIFT_JIS_HTML      = File.join(ASSETS_DIR, 'shift_jis.html')
