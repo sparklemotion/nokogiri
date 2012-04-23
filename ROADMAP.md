@@ -66,6 +66,9 @@ We have a lot of issues open around encoding. Is this really an issue?
 Somebody who knows something about encoding, and cares, should point
 this one.
 
+* Extract EncodingReader as a real object that can be injected
+  https://groups.google.com/forum/#!msg/nokogiri-talk/arJeAtMqvkg/tGihB-iBRSAJ
+
 
 ## Reader
 
