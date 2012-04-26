@@ -1,5 +1,9 @@
 == 1.5.3 / unreleased
 
+* Features
+
+  * Support for "prefixless" CSS selectors ~, > and + like jQuery supports. #621, #623. (Thanks, David Lee!)
+
 * Bugfixes
 
   * Custom xpath functions with empty nodeset arguments cause a segfault. #634.
