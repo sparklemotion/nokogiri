@@ -33,8 +33,8 @@ Thank you so much!
 
 Hello!
 
-Thanks for asking this question! Your request for help will not go
-unanswered!
+Thanks for asking this question! Your request for assistance using
+Nokogiri will not go unanswered!
 
 However, Nokogiri's Github Issues is reserved for reporting bugs or
 submitting patches. If you ask your question on the mailing list, Team
