@@ -12,6 +12,8 @@
   * Nokogiri::XML::Attribute on JRuby returns a nil namespace #647
   * Nokogiri::XML::Node#namespace= cannot set a namespace without a prefix on JRuby #648
   * JRuby 1.9 mode causes dead lock while running rake #571
+  * HTML::Document#meta_encoding does not raise exception on docs with malformed content-type. #655
+
 
 == 1.5.2 / 2012-03-09
 
