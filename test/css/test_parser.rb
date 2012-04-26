@@ -218,19 +218,31 @@ module Nokogiri
                       @parser.parse("E + F G")
       end
 
+      def test_child_selector
+        assert_xpath("//a//b/i", @parser.parse('a b>i'))
+        assert_xpath("//a//b/i", @parser.parse('a b > i'))
+        assert_xpath("//a/b/i", @parser.parse('a > b > i'))
+      end
+
       def test_prefixless_child_selector
         assert_xpath("./a", @parser.parse('>a'))
+        assert_xpath("./a", @parser.parse('> a'))
         assert_xpath("./a//b/i", @parser.parse('>a b>i'))
+        assert_xpath("./a/b/i", @parser.parse('> a > b > i'))
       end
 
       def test_prefixless_preceding_sibling_selector
         assert_xpath("./following-sibling::a", @parser.parse('~a'))
+        assert_xpath("./following-sibling::a", @parser.parse('~ a'))
         assert_xpath("./following-sibling::a//b/following-sibling::i", @parser.parse('~a b~i'))
+        assert_xpath("./following-sibling::a//b/following-sibling::i", @parser.parse('~ a b ~ i'))
       end
 
       def test_prefixless_direct_adjacent_selector
         assert_xpath("./following-sibling::*[1]/self::a", @parser.parse('+a'))
+        assert_xpath("./following-sibling::*[1]/self::a", @parser.parse('+ a'))
         assert_xpath("./following-sibling::*[1]/self::a/following-sibling::*[1]/self::b", @parser.parse('+a+b'))
+        assert_xpath("./following-sibling::*[1]/self::a/following-sibling::*[1]/self::b", @parser.parse('+ a + b'))
       end
 
       def test_attribute
