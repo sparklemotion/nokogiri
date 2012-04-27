@@ -4,6 +4,8 @@
 
   * Support for "prefixless" CSS selectors ~, > and + like jQuery
     supports. #621, #623. (Thanks, David Lee!)
+  * Attempting to improve installation on homebrew 0.9 (with regards
+    to iconv). Isn't package management convenient?
 
 * Bugfixes
 
