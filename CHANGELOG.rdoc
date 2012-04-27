@@ -23,6 +23,8 @@
   * JRuby 1.9 mode causes dead lock while running rake #571
   * HTML::Document#meta_encoding does not raise exception on docs with
     malformed content-type. #655
+  * Fixing segfault related to unsupported encodings in in-context
+    parsing on 1.8.7. #643
 
 
 == 1.5.2 / 2012-03-09
