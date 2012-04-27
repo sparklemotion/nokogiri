@@ -1219,7 +1219,7 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 /* TODO: DOCUMENT ME */
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
-    xmlNodePtr node, list, child_iter, tmp, node_children, doc_children;
+    xmlNodePtr node, list = 0, child_iter, tmp, node_children, doc_children;
     xmlNodeSetPtr set;
     xmlParserErrors error;
     VALUE doc, err;
