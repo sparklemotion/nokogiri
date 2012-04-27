@@ -1219,7 +1219,7 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 /* TODO: DOCUMENT ME */
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
-    xmlNodePtr node, list, child_iter, tmp, node_children, doc_children;
+    xmlNodePtr node, list = 0, child_iter, node_children, doc_children;
     xmlNodeSetPtr set;
     xmlParserErrors error;
     VALUE doc, err;
@@ -1257,8 +1257,8 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
      * is because if there were errors, it's possible for the child pointers
      * to be manipulated. */
     if (error != XML_ERR_OK) {
-	node->doc->children = doc_children;
-	node->children = node_children;
+      node->doc->children = doc_children;
+      node->children = node_children;
     }
 
     /* make sure parent/child pointers are coherent so an unlink will work
@@ -1266,9 +1266,9 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
      */
     child_iter = node->doc->children ;
     while (child_iter) {
-	if (child_iter->parent != (xmlNodePtr)node->doc)
-	    child_iter->parent = (xmlNodePtr)node->doc;
-	child_iter = child_iter->next;
+      if (child_iter->parent != (xmlNodePtr)node->doc)
+        child_iter->parent = (xmlNodePtr)node->doc;
+      child_iter = child_iter->next;
     }
 
 #ifndef HTML_PARSE_NOIMPLIED
@@ -1285,12 +1285,12 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
      * https://bugzilla.gnome.org/show_bug.cgi?id=668155
      */
     if (error != XML_ERR_OK && doc_is_empty && node->doc->children != NULL) {
-	tmp = node;
-	while (tmp->parent)
-	    tmp = tmp->parent;
+      child_iter = node;
+      while (child_iter->parent)
+        child_iter = child_iter->parent;
 	
-	if (tmp->type == XML_DOCUMENT_FRAG_NODE)
-	    node->doc->children = NULL;
+      if (child_iter->type == XML_DOCUMENT_FRAG_NODE)
+        node->doc->children = NULL;
     }
 
     /* FIXME: This probably needs to handle more constants... */
