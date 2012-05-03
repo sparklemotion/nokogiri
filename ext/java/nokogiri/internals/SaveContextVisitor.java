@@ -45,6 +45,8 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.cyberneko.html.HTMLElements;
 import org.w3c.dom.Attr;
@@ -252,10 +254,25 @@ public class SaveContextVisitor {
         if (!asHtml || !isHtmlBooleanAttr(name)) {
             buffer.append("=");
             buffer.append("\"");
-            buffer.append(serializeAttrTextContent(attr.getValue(), htmlDoc));
+            String value = replaceCharsetIfNecessary(attr);
+            buffer.append(serializeAttrTextContent(value, htmlDoc));
             buffer.append("\"");
         }
         return true;
+    }
+    
+    private static Pattern p = 
+        Pattern.compile("charset(()|\\s+)=(()|\\s+)(\\w|\\_|\\.|\\-)+", Pattern.CASE_INSENSITIVE);
+    
+    private String replaceCharsetIfNecessary(Attr attr) {
+        String value = attr.getValue();
+        if (encoding == null) return value;   // unable to replace in any case
+        if (!"content".equals(attr.getName().toLowerCase())) return value;  // must be content attr
+        if (!"meta".equals(attr.getOwnerElement().getNodeName().toLowerCase())) return value;        
+        Matcher m = p.matcher(value);
+        if (!m.find()) return value;
+        if (value.contains(encoding)) return value;  // no need to replace
+        return value.replace(m.group(), "charset=" + encoding);
     }
     
     public static final String[] HTML_BOOLEAN_ATTRS = {

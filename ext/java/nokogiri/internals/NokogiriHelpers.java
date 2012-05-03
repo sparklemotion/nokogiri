@@ -42,6 +42,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -657,11 +659,27 @@ public class NokogiriHelpers {
         return n;
     }
     
-    public static String guessEncoding(Ruby ruby) {
+    public static String getValidEncoding(Ruby runtime, IRubyObject encoding) {
+        if (encoding.isNil()) {
+            return guessEncoding();
+        } else {
+            return ignoreInvalidEncoding(runtime, encoding);
+        }
+    }
+    
+    private static String guessEncoding() {
         String name = null;
         if (name == null) name = System.getProperty("file.encoding");
         if (name == null) name = "UTF-8";
         return name;
+    }
+    
+    private static Set<String> charsetNames = ((SortedMap<String, Charset>)Charset.availableCharsets()).keySet();
+    
+    private static String ignoreInvalidEncoding(Ruby runtime, IRubyObject encoding) {
+        String givenEncoding = rubyStringToString(encoding);
+        if (charsetNames.contains(givenEncoding)) return givenEncoding;
+        else return guessEncoding();
     }
     
     public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
