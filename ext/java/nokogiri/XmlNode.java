@@ -42,13 +42,8 @@ import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -767,6 +762,7 @@ public class XmlNode extends RubyObject {
         } else {
             textContent = this.node.getTextContent();
         }
+        textContent = NokogiriHelpers.convertEncodingByNKFIfNecessary(context.getRuntime(), (XmlDocument)document(context), textContent);
         String decodedText = null;
         if (textContent != null) decodedText = NokogiriHelpers.decodeJavaString(textContent);
         return stringOrNil(context.getRuntime(), decodedText);

@@ -128,6 +128,10 @@ public class XmlDocument extends XmlNode {
         this.encoding = encoding;
     }
     
+    public IRubyObject getEncoding() {
+        return encoding;
+    }
+    
     // not sure, but like attribute values, text value will be lost
     // unless it is referred once before this document is used.
     // this seems to happen only when the fragment is parsed from Node#in_context.

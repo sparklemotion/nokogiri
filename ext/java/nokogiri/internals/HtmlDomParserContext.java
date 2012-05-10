@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -135,6 +135,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
             }
         }
         htmlDocument.setEncoding(ruby_encoding);
+        htmlDocument.setParsedEncoding(java_encoding);
         return htmlDocument;
     }
     

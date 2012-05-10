@@ -34,6 +34,8 @@ package nokogiri.internals;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -728,4 +730,71 @@ public class NokogiriHelpers {
         return bytes;
     }
     
+    public static String convertEncodingByNKFIfNecessary(Ruby runtime, XmlDocument doc, String thing) {
+        if (!(doc instanceof HtmlDocument)) return thing;
+        String parsed_encoding = ((HtmlDocument)doc).getPraedEncoding();
+        if (parsed_encoding == null) return thing;
+        String ruby_encoding = rubyStringToString(doc.getEncoding());
+        if (ruby_encoding == null) return thing;
+        if (Charset.forName(parsed_encoding).compareTo(Charset.forName(ruby_encoding)) == 0) {
+            return thing;
+        } else {
+            return NokogiriHelpers.nkf(runtime, ruby_encoding, thing);
+        }
+        
+    }
+
+    // This method is used from HTML documents. HTML meta tag with encoding specification
+    // might appear after non-ascii characters are used. For example, a title tag before
+    // a meta tag. In such a case, Xerces encodes characters in UTF-8 without seeing meta tag.
+    // Nokogiri uses NKF library to convert characters correct encoding. This means the method
+    // works only for JIS/Shift_JIS/EUC-JP.
+    public static String nkf(Ruby runtime, String ruby_encoding, String thing) {
+        StringBuffer sb = new StringBuffer("-");
+        Charset that = Charset.forName(ruby_encoding);
+        if (NokogiriHelpers.shift_jis.compareTo(that) == 0) {
+            sb.append("S");
+        } else if (NokogiriHelpers.jis.compareTo(that) == 0) {
+            sb.append("J");
+        } else if (NokogiriHelpers.euc_jp.compareTo(that) == 0) {
+            sb.append("E");
+        } else {
+            // should not come here. should be treated before this method.
+            sb.append("W");
+        }
+        sb.append("w");
+        Class nkfClass = null;
+        try {
+            // JRuby 1.7 and later
+            nkfClass = runtime.getClassLoader().loadClass("org.jruby.ext.nkf.RubyNKF");
+        } catch (ClassNotFoundException e1) {
+            try {
+                // Before JRuby 1.7
+                nkfClass = runtime.getClassLoader().loadClass("org.jruby.RubyNKF");  
+            } catch (ClassNotFoundException e2) {
+                return thing;
+            }
+        }
+        Method nkf_method;
+        try {
+            nkf_method = nkfClass.getMethod("nkf", ThreadContext.class, IRubyObject.class, IRubyObject.class, IRubyObject.class);
+            RubyString r_str = 
+                (RubyString)nkf_method.invoke(null, runtime.getCurrentContext(), null, runtime.newString(new String(sb)), runtime.newString(thing));
+            return NokogiriHelpers.rubyStringToString(r_str);
+        } catch (SecurityException e) {
+            return thing;
+        } catch (NoSuchMethodException e) {
+            return thing;
+        } catch (IllegalArgumentException e) {
+            return thing;
+        } catch (IllegalAccessException e) {
+            return thing;
+        } catch (InvocationTargetException e) {
+            return thing;
+        }
+    }
+    
+    private static Charset shift_jis = Charset.forName("Shift_JIS");
+    private static Charset jis = Charset.forName("ISO-2022-JP");
+    private static Charset euc_jp = Charset.forName("EUC-JP");
 }

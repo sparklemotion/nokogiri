@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -55,6 +55,7 @@ import org.w3c.dom.NodeList;
  */
 @JRubyClass(name="Nokogiri::HTML::Document", parent="Nokogiri::XML::Document")
 public class HtmlDocument extends XmlDocument {
+    private String parsed_encoding = null;
 
     public HtmlDocument(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
@@ -122,6 +123,14 @@ public class HtmlDocument extends XmlDocument {
         for (int i=0; i<children.getLength(); i++) {
             stabilzeAttrValue(children.item(i));
         }
+    }
+    
+    public void setParsedEncoding(String encoding) {
+        parsed_encoding = encoding;
+    }
+    
+    public String getPraedEncoding() {
+        return parsed_encoding;
     }
 
     /*
