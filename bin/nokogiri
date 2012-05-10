@@ -53,7 +53,9 @@ end
 @doc = parse_class.parse(open(uri).read, nil, encoding)
 
 if @rng
-  puts @rng.validate(@doc)
+  @rng.validate(@doc).each do |error|
+    puts error.message
+  end
 else
   puts "Your document is stored in @doc..."
   IRB.start
