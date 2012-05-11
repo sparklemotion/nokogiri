@@ -18,7 +18,9 @@ module Nokogiri
         end
 
         def test_dotted_version
-          assert_equal 'UTF-8', Nokogiri::LIBXML_VERSION.encoding.name
+          if Nokogiri.uses_libxml?
+            assert_equal 'UTF-8', Nokogiri::LIBXML_VERSION.encoding.name
+          end
         end
       end
     end
