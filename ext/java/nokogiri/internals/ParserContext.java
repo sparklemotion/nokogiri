@@ -40,6 +40,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -159,9 +162,27 @@ public class ParserContext extends RubyObject {
             }
         }
         if (stringData != null) {
+            String encName = null;
+            if (stringData.encoding(context) != null) {
+                encName = stringData.encoding(context).toString();
+            }
+            Charset charset = null;
+            if (encName != null) {
+                try {
+                    charset = Charset.forName(encName);
+                } catch (UnsupportedCharsetException e) {
+                    // do nothing;
+                }
+            }
             ByteList bytes = stringData.getByteList();
-            stringDataSize = bytes.length() - bytes.begin();
-            source = new InputSource(new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length()));
+            if (charset != null) {
+                StringReader reader = new StringReader(new String(bytes.unsafeBytes(), bytes.begin(), bytes.length(), charset));
+                source = new InputSource(reader);
+                source.setEncoding(charset.name());
+            } else {
+                stringDataSize = bytes.length() - bytes.begin();
+                source = new InputSource(new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length()));
+            }
         }
     }
     
