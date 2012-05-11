@@ -91,7 +91,7 @@ encoded like the source document.
 Some documents declare one particular encoding, but use a different
 one. So, which encoding should the parser choose?
 
-Remember that data is just a stream of bytes. Only us humans add
+Remember that data is just a stream of bytes. Only we humans add
 meaning to that stream. Any particular set of bytes could be valid
 characters in multiple encodings, so detecting encoding with 100%
 accuracy is not possible. libxml2 does its best, but it can't be right
