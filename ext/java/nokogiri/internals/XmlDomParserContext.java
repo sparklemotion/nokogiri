@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -33,7 +33,6 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
