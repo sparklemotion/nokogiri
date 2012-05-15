@@ -43,6 +43,26 @@ void vasprintf_free (void *p)
 #endif
 #endif
 
+void nokogiri_root_node(xmlNodePtr node)
+{
+  xmlDocPtr doc;
+  nokogiriTuplePtr tuple;
+
+  doc = node->doc;
+  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
+  tuple = (nokogiriTuplePtr)doc->_private;
+  st_insert(tuple->unlinkedNodes, (st_data_t)node, (st_data_t)node);
+}
+
+void nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
+{
+  nokogiriTuplePtr tuple;
+
+  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
+  tuple = (nokogiriTuplePtr)doc->_private;
+  st_insert(tuple->unlinkedNodes, (st_data_t)ns, (st_data_t)ns);
+}
+
 void Init_nokogiri()
 {
 #ifndef __MACRUBY__
