@@ -3,6 +3,12 @@ require "helper"
 module Nokogiri
   module XML
     class TestText < Nokogiri::TestCase
+      def test_ary
+        doc  = Nokogiri.XML "<root> foo <a>something</a> bar bazz </root>"
+        node = doc.root.children[2]
+        assert_equal [node.text], Array(node)
+      end
+
       def test_css_path
         doc  = Nokogiri.XML "<root> foo <a>something</a> bar bazz </root>"
         node = doc.root.children[2]

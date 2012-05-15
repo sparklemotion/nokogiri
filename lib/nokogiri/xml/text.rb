@@ -4,6 +4,10 @@ module Nokogiri
       def content=(string)
         self.native_content = string.to_s
       end
+
+      def to_ary
+        [self.text]
+      end
     end
   end
 end
