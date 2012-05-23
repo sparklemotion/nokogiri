@@ -72,10 +72,11 @@ import org.w3c.dom.NodeList;
 @JRubyClass(name="Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject {
     private XmlNode context;
-    private static final XPath xpath = XPathFactory.newInstance().newXPath();;
+    private XPath xpath;
     
     public XmlXpathContext(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
+        xpath = XPathFactory.newInstance().newXPath();
     }
     
     public void setNode(XmlNode node) {
