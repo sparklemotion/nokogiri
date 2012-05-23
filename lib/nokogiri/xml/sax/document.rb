@@ -33,7 +33,7 @@ module Nokogiri
     #   parser = Nokogiri::XML::SAX::Parser.new(MyDocument.new)
     #
     #   # Feed the parser some XML
-    #   parser.parse(File.read(ARGV[0], 'rb'))
+    #   parser.parse(File.open(ARGV[0]))
     #
     # Now my document handler will be called when each node starts, and when
     # then document ends.  To see what kinds of events are available, take

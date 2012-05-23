@@ -25,7 +25,7 @@ module Nokogiri
       #   parser = Nokogiri::XML::SAX::Parser.new(MyDoc.new)
       #
       #   # Send some XML to the parser
-      #   parser.parse(File.read(ARGV[0]))
+      #   parser.parse(File.open(ARGV[0]))
       #
       # For more information about SAX parsers, see Nokogiri::XML::SAX.  Also
       # see Nokogiri::XML::SAX::Document for the available events.
