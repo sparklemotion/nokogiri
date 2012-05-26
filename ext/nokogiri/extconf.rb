@@ -99,7 +99,8 @@ def asplode(lib)
   abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
 end
 
-pkg_config('libxslt') if RUBY_PLATFORM =~ /mingw/
+pkg_config('libxslt')
+pkg_config('libxml-2.0')
 
 asplode "libxml2"  unless find_header('libxml/parser.h')
 asplode "libxslt"  unless find_header('libxslt/xslt.h')
