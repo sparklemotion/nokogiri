@@ -75,6 +75,7 @@ public class XmlXpathContext extends RubyObject {
     
     public XmlXpathContext(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
+        xpath = XPathFactory.newInstance().newXPath();
     }
     
     public void setNode(XmlNode node) {
