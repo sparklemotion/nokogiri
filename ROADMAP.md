@@ -14,6 +14,15 @@
 * see fairy wing throwdown - SAX parsing is wicked slow.
 
 
+## Node should not be Enumerable; and should have a better attributes API
+
+* https://github.com/tenderlove/nokogiri/issues/679
+  Mixing in Enumerable has some unintended consequences; plus we want to improve the attributes API
+
+* (closed) https://github.com/tenderlove/nokogiri/issues/666
+  Some ideas for a better attributes API?
+
+
 ## improve CSS query parsing
 
 * https://github.com/tenderlove/nokogiri/issues/528
@@ -27,6 +36,7 @@
   * https://github.com/tenderlove/nokogiri/issues/342
   * https://github.com/tenderlove/nokogiri/issues/628
   * https://github.com/tenderlove/nokogiri/issues/652
+  * https://github.com/tenderlove/nokogiri/issues/688
 
 * https://github.com/tenderlove/nokogiri/issues/394
   nth-of-type is wrong, and possibly other selectors as well
