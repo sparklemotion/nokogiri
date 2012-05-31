@@ -103,7 +103,7 @@ module Nokogiri
 
         xpath(*(paths.map { |path|
           path = path.to_s
-          path =~ /^(\.\/|\/|\.\.)/ ? path : CSS.xpath_for(
+          path =~ /^(\.\/|\/|\.\.|\.$)/ ? path : CSS.xpath_for(
             path,
             :prefix => prefix,
             :ns     => ns
