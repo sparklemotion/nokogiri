@@ -454,6 +454,11 @@ module Nokogiri
         assert_equal node, @xml.xpath('//address').first
       end
 
+      def test_at_self
+        node = @xml.at('address')
+        assert_equal node, node.at('.')
+      end
+
       def test_at_xpath
         node = @xml.at_xpath('//address')
         nodes = @xml.xpath('//address')
@@ -738,6 +743,11 @@ module Nokogiri
         assert parent_node = parent_set.first
         assert_equal '/staff', parent_node.path
         assert_equal node.parent, parent_node
+      end
+
+      def test_search_self
+        node = @xml.at('//employee')
+        assert_equal node.search('.').to_a, [node]
       end
 
       def test_search_by_symbol

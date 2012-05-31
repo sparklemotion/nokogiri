@@ -79,7 +79,7 @@ module Nokogiri
 
         paths.each do |path|
           sub_set += send(
-            path =~ /^(\.\/|\/)/ ? :xpath : :css,
+            path =~ /^(\.\/|\/|\.\.|\.$)/ ? :xpath : :css,
             *(paths + [ns, handler]).compact
           )
         end
