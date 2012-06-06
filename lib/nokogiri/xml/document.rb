@@ -3,10 +3,11 @@ module Nokogiri
     ##
     # Nokogiri::XML::Document is the main entry point for dealing with
     # XML documents.  The Document is created by parsing an XML document.
-    # See Nokogiri.XML()
+    # See Nokogiri::XML::Document.parse() for more information on parsing.
     #
     # For searching a Document, see Nokogiri::XML::Node#css and
     # Nokogiri::XML::Node#xpath
+    #
     class Document < Nokogiri::XML::Node
       # I'm ignoring unicode characters here.
       # See http://www.w3.org/TR/REC-xml-names/#ns-decl for more details.
@@ -15,13 +16,30 @@ module Nokogiri
       NCNAME_RE         = /^xmlns(:[#{NCNAME_START_CHAR}][#{NCNAME_CHAR}]*)?$/
 
       ##
-      # Parse an XML file.  +string_or_io+ may be a String, or any object that
-      # responds to _read_ and _close_ such as an IO, or StringIO.
-      # +url+ is resource where this document is located.  +encoding+ is the
-      # encoding that should be used when processing the document. +options+
-      # is a number that sets options in the parser, such as
-      # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
-      # Nokogiri::XML::ParseOptions.
+      # Parse an XML file.
+      #
+      # +string_or_io+ may be a String, or any object that responds to
+      # _read_ and _close_ such as an IO, or StringIO.
+      #
+      # +url+ (optional) is the URI where this document is located.
+      #
+      # +encoding+ (optional) is the encoding that should be used when processing
+      # the document.
+      #
+      # +options+ (optional) is a configuration object that sets options during
+      # parsing, such as Nokogiri::XML::ParseOptions::RECOVER. See the
+      # Nokogiri::XML::ParseOptions for more information.
+      #
+      # +block+ (optional) is passed a configuration object on which
+      # parse options may be set.
+      #
+      # When parsing untrusted documents, it's recommended that the
+      # +nonet+ option be used, as shown in this example code:
+      #
+      #   Nokogiri::XML::Document.parse(xml_string) { |config| config.nonet }
+      #
+      # Nokogiri.XML() is a convenience method which will call this method.
+      #
       def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
         options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
         # Give the options to the user
