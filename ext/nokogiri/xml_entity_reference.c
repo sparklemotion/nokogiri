@@ -24,7 +24,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
       (const xmlChar *)StringValuePtr(name)
   );
 
-  NOKOGIRI_ROOT_NODE(node);
+  nokogiri_root_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);

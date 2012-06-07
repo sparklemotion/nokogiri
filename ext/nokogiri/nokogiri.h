@@ -120,11 +120,8 @@ extern VALUE mNokogiriHtml ;
 extern VALUE mNokogiriHtmlSax ;
 extern VALUE mNokogiriXslt ;
 
-#define NOKOGIRI_ROOT_NODE(_node) \
-  st_insert(((nokogiriTuplePtr)(_node)->doc->_private)->unlinkedNodes, (st_data_t)(_node), (st_data_t)(_node))
-
-#define NOKOGIRI_ROOT_NSDEF(_nsDef, _doc)     \
-  st_insert(((nokogiriTuplePtr)(_doc)->_private)->unlinkedNodes, (st_data_t)(_nsDef), (st_data_t)(_nsDef))
+void nokogiri_root_node(xmlNodePtr);
+void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
 
 #ifdef DEBUG
 

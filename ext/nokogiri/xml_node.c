@@ -51,7 +51,7 @@ static void relink_namespace(xmlNodePtr reparented)
         } else {
           reparented->nsDef = curr->next;
         }
-        NOKOGIRI_ROOT_NSDEF(curr, reparented->doc);
+        nokogiri_root_nsdef(curr, reparented->doc);
       } else {
         prev = curr;
       }
@@ -132,7 +132,7 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
      *  uninteresting libxml2 implementation detail). as a result, we cannot
      *  reparent the actual reparentee, so we reparent a duplicate.
      */
-    NOKOGIRI_ROOT_NODE(reparentee);
+    nokogiri_root_node(reparentee);
     if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
@@ -162,7 +162,7 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
     new_next_text = xmlDocCopyNode(next_text, pivot->doc, 1) ;
 
     xmlUnlinkNode(next_text);
-    NOKOGIRI_ROOT_NODE(next_text);
+    nokogiri_root_node(next_text);
 
     xmlAddNextSibling(pivot, new_next_text);
   }
@@ -375,7 +375,7 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
   dup = xmlDocCopyNode(node, node->doc, (int)NUM2INT(level));
   if(dup == NULL) return Qnil;
 
-  NOKOGIRI_ROOT_NODE(dup);
+  nokogiri_root_node(dup);
 
   return Nokogiri_wrap_xml_node(rb_obj_class(self), dup);
 }
@@ -391,7 +391,7 @@ static VALUE unlink_node(VALUE self)
   xmlNodePtr node;
   Data_Get_Struct(self, xmlNode, node);
   xmlUnlinkNode(node);
-  NOKOGIRI_ROOT_NODE(node);
+  nokogiri_root_node(node);
   return self;
 }
 
@@ -489,7 +489,7 @@ static VALUE replace(VALUE self, VALUE new_node)
 
     xmlNodePtr pivot;
     Data_Get_Struct(self, xmlNode, pivot);
-    NOKOGIRI_ROOT_NODE(pivot);
+    nokogiri_root_node(pivot);
 
     return reparent;
 }
@@ -681,7 +681,7 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
   if (prop && prop->children) {
     for (cur = prop->children; cur; cur = cur->next) {
       if (cur->_private) {
-        NOKOGIRI_ROOT_NODE(cur);
+        nokogiri_root_node(cur);
         xmlUnlinkNode(cur);
       }
     }
@@ -901,7 +901,7 @@ static VALUE set_content(VALUE self, VALUE content)
   while (NULL != child) {
     next = child->next ;
     xmlUnlinkNode(child) ;
-    NOKOGIRI_ROOT_NODE(child) ;
+    nokogiri_root_node(child);
     child = next ;
   }
 
@@ -1133,7 +1133,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewNode(NULL, (xmlChar *)StringValuePtr(name));
   node->doc = doc->doc;
-  NOKOGIRI_ROOT_NODE(node);
+  nokogiri_root_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(
       klass == cNokogiriXmlNode ? (VALUE)NULL : klass,
@@ -1320,6 +1320,7 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   VALUE node_cache = Qnil ;
   VALUE rb_node = Qnil ;
   nokogiriTuplePtr node_has_a_document;
+  xmlDocPtr doc;
   void (*mark_method)(xmlNodePtr) = NULL ;
 
   assert(node);
@@ -1330,7 +1331,9 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   /* It's OK if the node doesn't have a fully-realized document (as in XML::Reader). */
   /* see https://github.com/tenderlove/nokogiri/issues/95 */
   /* and https://github.com/tenderlove/nokogiri/issues/439 */
-  node_has_a_document = DOC_RUBY_OBJECT_TEST(node->doc);
+  doc = node->doc;
+  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
+  node_has_a_document = DOC_RUBY_OBJECT_TEST(doc);
 
   if(node->_private && node_has_a_document)
     return (VALUE)node->_private;
@@ -1385,8 +1388,8 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
   node->_private = (void *)rb_node;
 
   if (node_has_a_document) {
-    document = DOC_RUBY_OBJECT(node->doc);
-    node_cache = DOC_NODE_CACHE(node->doc);
+    document = DOC_RUBY_OBJECT(doc);
+    node_cache = DOC_NODE_CACHE(doc);
     rb_ary_push(node_cache, rb_node);
     rb_funcall(document, decorate, 1, rb_node);
   }
