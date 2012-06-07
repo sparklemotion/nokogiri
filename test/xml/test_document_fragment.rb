@@ -176,6 +176,11 @@ module Nokogiri
         assert fragment.children.respond_to?(:awesome!), fragment.children.class
       end
 
+      def test_add_node_to_doc_fragment_segfault
+        frag = Nokogiri::XML::DocumentFragment.new(@xml, '<p>hello world</p>')
+        Nokogiri::XML::Comment.new(frag,'moo')
+      end
+
       if Nokogiri.uses_libxml?
         def test_for_libxml_in_context_fragment_parsing_bug_workaround
           10.times do

@@ -102,7 +102,7 @@ static VALUE set_root(VALUE self, VALUE root)
 
     if(old_root) {
       xmlUnlinkNode(old_root);
-      NOKOGIRI_ROOT_NODE(old_root);
+      nokogiri_root_node(old_root);
     }
 
     return root;
@@ -121,7 +121,7 @@ static VALUE set_root(VALUE self, VALUE root)
   }
 
   xmlDocSetRootElement(doc, new_root);
-  if(old_root) NOKOGIRI_ROOT_NODE(old_root);
+  if(old_root) nokogiri_root_node(old_root);
   return root;
 }
 
