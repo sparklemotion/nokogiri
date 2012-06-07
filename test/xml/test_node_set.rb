@@ -146,6 +146,11 @@ module Nokogiri
         assert_equal @xml.xpath('//employee'), custom_employees
       end
 
+      def test_search_self
+        set = @xml.xpath('//staff')
+        assert_equal set.to_a, set.search('.').to_a
+      end
+
       def test_search_with_custom_object
         set = @xml.xpath('//staff')
         custom_employees = set.search('//*[awesome(.)]', Class.new {
