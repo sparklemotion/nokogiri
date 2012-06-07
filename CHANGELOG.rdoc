@@ -3,6 +3,7 @@
 * Features
 
   * The "nokogiri" script now has more verbose output when passed the `--rng` option. (Thanks, Dan Radez!)
+  * Build support on hardened Debian systems that use `-Werror=format-security`. #680.
 
 * Bugfixes
 
