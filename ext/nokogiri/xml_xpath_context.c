@@ -190,7 +190,7 @@ static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
   vasprintf(&message, msg, args);
   va_end(args);
 
-  rb_raise(rb_eRuntimeError, message);
+  rb_raise(rb_eRuntimeError, "%s", message);
 }
 
 /*
