@@ -35,6 +35,18 @@ module Nokogiri
         assert_equal 1 << 1, options.options
       end
 
+      def test_unsetting
+        options = Nokogiri::XML::ParseOptions.new Nokogiri::XML::ParseOptions::DEFAULT_HTML
+        assert options.nonet?
+        assert options.recover?
+        options.nononet.norecover
+        assert ! options.nonet?
+        assert ! options.recover?
+        options.nonet.recover
+        assert options.nonet?
+        assert options.recover?
+      end
+
       def test_chaining
         options = Nokogiri::XML::ParseOptions.new.recover.noent
         assert options.recover?

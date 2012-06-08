@@ -64,6 +64,11 @@ module Nokogiri
             self
           end
 
+          def no#{constant.downcase}
+            @options &= ~#{constant}
+            self
+          end
+
           def #{constant.downcase}?
             #{constant} & @options == #{constant}
           end
