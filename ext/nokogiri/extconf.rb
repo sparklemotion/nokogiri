@@ -103,10 +103,18 @@ pkg_config('libxslt')
 pkg_config('libxml-2.0')
 pkg_config('libiconv')
 
+def have_iconv?
+  %w{ iconv_open libiconv_open }.any? do |method|
+    have_func(method, 'iconv.h') or
+      have_library('iconv', method, 'iconv.h') or
+      find_library('iconv', method, 'iconv.h')
+  end
+end
+
 asplode "libxml2"  unless find_header('libxml/parser.h')
 asplode "libxslt"  unless find_header('libxslt/xslt.h')
 asplode "libexslt" unless find_header('libexslt/exslt.h')
-asplode "libiconv" unless have_func('iconv_open', 'iconv.h') or have_library('iconv', 'iconv_open', 'iconv.h') or find_library('iconv', 'iconv_open', 'iconv.h')
+asplode "libiconv" unless have_iconv?
 asplode "libxml2"  unless find_library("#{lib_prefix}xml2", 'xmlParseDoc')
 asplode "libxslt"  unless find_library("#{lib_prefix}xslt", 'xsltParseStylesheetDoc')
 asplode "libexslt" unless find_library("#{lib_prefix}exslt", 'exsltFuncRegister')
