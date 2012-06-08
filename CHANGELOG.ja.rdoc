@@ -5,6 +5,7 @@
   * The "nokogiri" script now has more verbose output when passed the `--rng` option. #675 (Thanks, Dan Radez!)
   * Build support on hardened Debian systems that use `-Werror=format-security`. #680.
   * Better build support for systems with pkg-config. #584
+  * Better build support for systems with multiple iconv installations.
 
 * Bugfixes
 
