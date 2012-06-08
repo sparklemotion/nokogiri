@@ -47,7 +47,7 @@ module Nokogiri
       HUGE        = 1 << 19
 
       # the default options used for parsing XML documents
-      DEFAULT_XML  = RECOVER
+      DEFAULT_XML  = RECOVER | NONET
       # the default options used for parsing HTML documents
       DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET
 
