@@ -47,7 +47,7 @@ module Nokogiri
       HUGE        = 1 << 19
 
       # the default options used for parsing XML documents
-      DEFAULT_XML  = RECOVER
+      DEFAULT_XML  = RECOVER | NONET
       # the default options used for parsing HTML documents
       DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET
 
@@ -61,6 +61,11 @@ module Nokogiri
         class_eval %{
           def #{constant.downcase}
             @options |= #{constant}
+            self
+          end
+
+          def no#{constant.downcase}
+            @options &= ~#{constant}
             self
           end
 

@@ -10,6 +10,9 @@
 
   * Segmentation fault when creating a comment node for a DocumentFragment. #677, #678.
   * Treat '.' as xpath in at() and search(). #690
+  * [MRI] [Security] Default parse options for XML documents were
+    changed to not make network connections during document parsing,
+    to avoid XXE vulnerability. #693
 
 
 == 1.5.3 / 2012-06-01
