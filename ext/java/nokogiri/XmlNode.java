@@ -167,27 +167,32 @@ public class XmlNode extends RubyObject {
      * @param anchorNode
      */
     protected static void coalesceTextNodes(ThreadContext context,
-                                            IRubyObject anchorNode) {
+                                            IRubyObject anchorNode,
+                                            AdoptScheme scheme) {
         XmlNode xa = asXmlNode(context, anchorNode);
 
         XmlNode xp = asXmlNodeOrNull(context, xa.previous_sibling(context));
         XmlNode xn = asXmlNodeOrNull(context, xa.next_sibling(context));
-        
+
         Node p = xp == null ? null : xp.node;
         Node a = xa.node;
         Node n = xn == null ? null : xn.node;
-        
+
         Node parent = a.getParentNode();
 
-        if (p != null && p.getNodeType() == Node.TEXT_NODE) {
-            xa.setContent(p.getNodeValue() + a.getNodeValue());
-            parent.removeChild(p);
-            xp.assimilateXmlNode(context, xa);
-        }
-        if (n != null && n.getNodeType() == Node.TEXT_NODE) {
+        boolean shouldMergeP = scheme == AdoptScheme.NEXT_SIBLING || scheme == AdoptScheme.CHILD || scheme == AdoptScheme.REPLACEMENT;
+        boolean shouldMergeN = scheme == AdoptScheme.PREV_SIBLING || scheme == AdoptScheme.REPLACEMENT;
+
+        // apply the merge right to left
+        if (shouldMergeN && n != null && n.getNodeType() == Node.TEXT_NODE) {
             xa.setContent(a.getNodeValue() + n.getNodeValue());
             parent.removeChild(n);
             xn.assimilateXmlNode(context, xa);
+        }
+        if (shouldMergeP && p != null && p.getNodeType() == Node.TEXT_NODE) {
+            xp.setContent(p.getNodeValue() + a.getNodeValue());
+            parent.removeChild(a);
+            xa.assimilateXmlNode(context, xp);
         }
     }
 
@@ -1324,7 +1329,7 @@ public class XmlNode extends RubyObject {
          }
 
         if (otherNode.getNodeType() == Node.TEXT_NODE) {
-            coalesceTextNodes(context, other);
+            coalesceTextNodes(context, other, scheme);
         }
 
         relink_namespace(context);
@@ -1374,10 +1379,7 @@ public class XmlNode extends RubyObject {
                 otherNode.getParentNode().removeChild(otherNode);
             return;
         }
-        if (thisNode.getPreviousSibling() != null &&
-            thisNode.getPreviousSibling().getNodeType() == Node.TEXT_NODE &&
-            otherNode.getNodeType() == Node.TEXT_NODE) return;
-        
+
         parent.insertBefore(otherNode, thisNode);
     }
 
