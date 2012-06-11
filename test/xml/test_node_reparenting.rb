@@ -156,6 +156,7 @@ module Nokogiri
               @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
             end
           end
+
           describe "#replace" do
             it "merges the Text node with adjacent Text nodes" do
               @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
@@ -245,6 +246,13 @@ module Nokogiri
             replacee = xml.root.children.first
             replacee.add_previous_sibling "foo <p></p> bar"
             assert_equal "foo <p></p> bartext node", xml.root.children.to_html
+          end
+
+          it 'should remove the child node after the operation' do
+            fragment = Nokogiri::HTML::DocumentFragment.parse("a<a>b</a>")
+            node = fragment.children.last
+            node.add_previous_sibling node.children
+            assert_empty node.children, "should have no childrens"
           end
 
           describe "with a text node before" do
