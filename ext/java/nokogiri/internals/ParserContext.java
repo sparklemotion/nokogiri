@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
@@ -117,18 +118,25 @@ public class ParserContext extends RubyObject {
             }
         }
 
-        if (isAbsolutePath(path)) {
-            returnWithSystemId(path);
-            return;
-        }
         // Dir.chdir might be called at some point before this.
-        String currentDir = context.getRuntime().getCurrentDirectory();
-        if (path != null && currentDir != null && currentDir.length() != 0) {
+        if (path != null) {
+          try {
+            URI uri = URI.create(path);
+            returnWithSystemId(uri.toURL().toString());
+            return;
+          } catch (Exception ex) {
+            // fallback to the old behavior
+            if (isAbsolutePath(path)) {
+                returnWithSystemId(path);
+                return;
+            }
+            String currentDir = context.getRuntime().getCurrentDirectory();
             String absPath = currentDir + "/" + path;
             if (isAbsolutePath(absPath)) {
                 returnWithSystemId(absPath);
                 return;
             }
+          }
         }
         RubyString stringData = null;
         if (invoke(context, data, "respond_to?",
