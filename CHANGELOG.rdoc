@@ -1,4 +1,11 @@
-== 1.5.4 / unreleased
+== 1.5.5 / unreleased
+
+* Features
+
+* Bugfixes
+
+
+== 1.5.4 / 2012-06-12
 
 * Features
 
@@ -22,6 +29,9 @@
     Nokogiri::XML::Document.parse(xml) { |config| config.nononet }
     
     Insert your own joke about double-negatives here.
+
+  * Regression in JRuby Nokogiri add_previous_sibling (1.5.0 -> 1.5.1) #691
+  * JRuby unable to create HTML doc if URL arg provided #674
 
 
 == 1.5.3 / 2012-06-01

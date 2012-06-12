@@ -1,42 +1,48 @@
-== 1.5.4 / unreleased
+== 1.5.5 / unreleased
 
 * Features
-
-  * The "nokogiri" script now has more verbose output when passed the `--rng` option. #675 (Thanks, Dan Radez!)
-  * Build support on hardened Debian systems that use `-Werror=format-security`. #680.
-  * Better build support for systems with pkg-config. #584
-  * Better build support for systems with multiple iconv installations.
 
 * Bugfixes
 
-  * Segmentation fault when creating a comment node for a DocumentFragment. #677, #678.
-  * Treat '.' as xpath in at() and search(). #690
 
-  * [MRI, Security] Default parse options for XML documents were
-    changed to not make network connections during document parsing,
-    to avoid XXE vulnerability. #693
-
-    To re-enable this behavior, the configuration method `nononet` may
-    be called, like this:
-
-    Nokogiri::XML::Document.parse(xml) { |config| config.nononet }
-    
-    Insert your own joke about double-negatives here.
-
-
-== 1.5.3 / 2012-06-01
+== 1.5.4 / ２０１２年６月１２日
 
 * Features
 
-  * Support for "prefixless" CSS selectors ~, > and + like jQuery
-    supports. #621, #623. (Thanks, David Lee!)
+  * "nokogiri" コマンドに `--rng` オプションが与えられと、より詳しい説明を表示するようになった。 #675 (ありがとう, Dan Radez!)
+  * `-Werror=format-security`　CFLAGを使っている hardened な Debian 系 Linux でのビルドをサポート #680.
+  * pkg-config ありのシステム上でのよりよいビルドをサポート。 #584
+  * 複数の iconv がイストールされているシステムでのよりよいビルドをサポート。
+
+* Bugfixes
+
+  * DocumentFragment をベースにしてコメントノードを作ったときに Segmentation fault する。 #677, #678.
+  * at() と search() メソッドで '.' をxpathとして扱う。 #690
+
+  * [MRI, Security] XML パース時のディフォルトのオプションを nonet に変更。これにより、ディフォルトでは
+    ドキュメントパース時にネットワーク接続を行わないようにし、XXE 脆弱性に対応した。#693
+
+    パース時にネットワークに接続して外部のドキュメントを見にいかせたい場合には、以下のように `nonoet` オプションを設定する:
+
+    Nokogiri::XML::Document.parse(xml) { |config| config.nononet }
+    
+    ここに、自分ならではの二重否定のジョークをうめこむとなおよし。
+
+  * JRuby Nokogiri の add_previous_sibling が以前は動いていたのに今は動かない(1.5.0 -> 1.5.1)。 #691
+  * JRuby バーションは URL が引数にあたえられると HTML ドキュメントを作れない。 #674
+
+
+== 1.5.3 / ２０１２年６月１日
+
+* Features
+
+  * jQuery のような "prefixless" CSS セレクタ, ~ や >, + をサポート。#621, #623. (ありがとう, David Lee!)
   * Attempting to improve installation on homebrew 0.9 (with regards
     to iconv). Isn't package management convenient?
 
 * Bugfixes
 
-  * Custom xpath functions with empty nodeset arguments cause a
-    segfault. #634.
+  * カスタム xpath 関数が空の nodeset を引数に含む場合、segfault を起こす。 #634.
   * Nokogiri::XML::Node#css now works for XML documents with default
     namespaces when the rule contains attribute selector without
     namespace.
