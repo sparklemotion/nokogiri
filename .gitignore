@@ -19,10 +19,6 @@ ext/nokogiri/*.dll
 gems
 lib/nokogiri/1.8
 lib/nokogiri/1.9
-lib/nokogiri/css/generated_parser.rb
-lib/nokogiri/css/generated_tokenizer.rb
-lib/nokogiri/css/parser.rb
-lib/nokogiri/css/tokenizer.rb
 lib/nokogiri/nokogiri.bundle
 lib/nokogiri/nokogiri.jar
 lib/nokogiri/nokogiri.rb

@@ -34,8 +34,8 @@ HOE = Hoe.spec 'nokogiri' do
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
     'lib/nokogiri/1.{8,9}',
-    GENERATED_PARSER,
-    GENERATED_TOKENIZER
+    # GENERATED_PARSER,
+    # GENERATED_TOKENIZER
   ]
 
   self.extra_dev_deps += [
