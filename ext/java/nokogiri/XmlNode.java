@@ -763,7 +763,12 @@ public class XmlNode extends RubyObject {
         String textContent;
         if (content != null) textContent = rubyStringToString(content);
         else if (this instanceof XmlDocument) {
-            textContent = ((Document)this.node).getDocumentElement().getTextContent().trim();
+            Node node = ((Document)this.node).getDocumentElement();
+            if (node == null) {
+                textContent = "";
+            } else {
+                textContent = ((Document)this.node).getDocumentElement().getTextContent().trim();
+            }
         } else {
             textContent = this.node.getTextContent();
         }

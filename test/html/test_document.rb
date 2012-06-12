@@ -517,6 +517,12 @@ eohtml
         assert @html.serialize
         assert @html.to_html
       end
+
+      def test_empty_document
+        # empty document should return "" #699
+        assert_equal "", Nokogiri::HTML.parse(nil).text
+        assert_equal "", Nokogiri::HTML.parse("").text
+      end
     end
   end
 end
