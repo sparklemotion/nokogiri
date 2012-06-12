@@ -7,6 +7,7 @@
   * Regression in JRuby Nokogiri add_previous_sibling (1.5.0 -> 1.5.1) #691 (Thanks, John Shahid!)
   * JRuby unable to create HTML doc if URL arg provided #674 (Thanks, John Shahid!)
   * JRuby raises NullPointerException when given HTML document is nil or empty string. #699
+  * JRuby 1.9 error, uncaught throw 'encoding_found', has been fixed. #673
 
 
 == 1.5.4 / 2012-06-12

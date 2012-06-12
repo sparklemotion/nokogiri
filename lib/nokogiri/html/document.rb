@@ -180,7 +180,7 @@ module Nokogiri
             m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
               return m[4]
             catch(:encoding_found) {
-              Nokogiri::HTML::SAX::Parser.new(JumpSAXHandler.new(:encoding_found.to_s)).parse(chunk)
+              Nokogiri::HTML::SAX::Parser.new(JumpSAXHandler.new(:encoding_found)).parse(chunk)
               nil
             }
           else
