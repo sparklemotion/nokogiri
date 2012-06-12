@@ -4,6 +4,9 @@
 
 * Bugfixes
 
+  * JRuby Nokogiri の add_previous_sibling が以前は動いていたのに今は動かない(1.5.0 -> 1.5.1)。 #691 (ありがとう, John Shahid!)
+  * JRuby バーションは URL が引数にあたえられると HTML ドキュメントを作れない。 #674 (ありがとう, John Shahid!)
+
 
 == 1.5.4 / ２０１２年６月１２日
 
@@ -27,9 +30,6 @@
     Nokogiri::XML::Document.parse(xml) { |config| config.nononet }
     
     ここに、自分ならではの二重否定のジョークをうめこむとなおよし。
-
-  * JRuby Nokogiri の add_previous_sibling が以前は動いていたのに今は動かない(1.5.0 -> 1.5.1)。 #691
-  * JRuby バーションは URL が引数にあたえられると HTML ドキュメントを作れない。 #674
 
 
 == 1.5.3 / ２０１２年６月１日
