@@ -9,12 +9,13 @@ rule
     : selector COMMA simple_selector_1toN {
         result = [val.first, val.last].flatten
       }
+    | prefixless_combinator_selector { result = val.flatten }
     | simple_selector_1toN { result = val.flatten }
     ;
   combinator
     : PLUS { result = :DIRECT_ADJACENT_SELECTOR }
     | GREATER { result = :CHILD_SELECTOR }
-    | TILDE { result = :PRECEDING_SELECTOR }
+    | TILDE { result = :FOLLOWING_SELECTOR }
     | S { result = :DESCENDANT_SELECTOR }
     | DOUBLESLASH { result = :DESCENDANT_SELECTOR }
     | SLASH { result = :CHILD_SELECTOR }
@@ -59,6 +60,11 @@ rule
         )
       }
     ;
+  prefixless_combinator_selector
+    : combinator simple_selector_1toN {
+        result = Node.new(val.first, [nil, val.last])
+      }
+    ;
   simple_selector_1toN
     : simple_selector combinator simple_selector_1toN {
         result = Node.new(val[1], [val.first, val.last])
@@ -69,6 +75,10 @@ rule
     : '.' IDENT { result = Node.new(:CLASS_CONDITION, [val[1]]) }
     ;
   element_name
+    : namespaced_ident
+    | '*' { result = Node.new(:ELEMENT_NAME, val) }
+    ;
+  namespaced_ident
     : namespace '|' IDENT {
         result = Node.new(:ELEMENT_NAME,
           [[val.first, val.last].compact.join(':')]
@@ -78,16 +88,15 @@ rule
         name = @namespaces.key?('xmlns') ? "xmlns:#{val.first}" : val.first
         result = Node.new(:ELEMENT_NAME, [name])
       }
-    | '*' { result = Node.new(:ELEMENT_NAME, val) }
     ;
   namespace
     : IDENT { result = val[0] }
     |
     ;
   attrib
-    : LSQUARE IDENT attrib_val_0or1 RSQUARE {
+    : LSQUARE attrib_name attrib_val_0or1 RSQUARE {
         result = Node.new(:ATTRIBUTE_CONDITION,
-          [Node.new(:ELEMENT_NAME, [val[1]])] + (val[2] || [])
+          [val[1]] + (val[2] || [])
         )
       }
     | LSQUARE function attrib_val_0or1 RSQUARE {
@@ -100,6 +109,18 @@ rule
         result = Node.new(:PSEUDO_CLASS,
           [Node.new(:FUNCTION, ['nth-child(', val[1]])]
         )
+      }
+    ;
+  attrib_name
+    : namespace '|' IDENT {
+        result = Node.new(:ELEMENT_NAME,
+          [[val.first, val.last].compact.join(':')]
+        )
+      }
+    | IDENT {
+        # Default namespace is not applied to attributes.
+        # So we don't add prefix "xmlns:" as in namespaced_ident.
+        result = Node.new(:ELEMENT_NAME, [val.first])
       }
     ;
   function

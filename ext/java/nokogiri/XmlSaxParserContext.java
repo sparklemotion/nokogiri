@@ -32,7 +32,7 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.IOException;
@@ -259,7 +259,7 @@ public class XmlSaxParserContext extends ParserContext {
                 // doesn't distinguish between empty and bad whereas
                 // Nokogiri does.
                 String message = spe.getMessage();
-                if ("Premature end of file.".matches(message)) {
+                if ("Premature end of file.".matches(message) && stringDataSize < 1) {
                     throw ruby.newRuntimeError(
                         "couldn't parse document: " + message);
                 } else {
@@ -371,17 +371,6 @@ public class XmlSaxParserContext extends ParserContext {
 
         // While we have a document, normalize it.
         ((XmlNode) doc).normalize();
-    }
-
-    protected boolean isWhitespaceText(ThreadContext context, IRubyObject obj) {
-        if (obj == null || obj.isNil()) return false;
-
-        XmlNode node = (XmlNode) obj;
-        if (!(node instanceof XmlText))
-            return false;
-
-        String content = rubyStringToString(node.content(context));
-        return content.trim().length() == 0;
     }
 
     @JRubyMethod(name="column")

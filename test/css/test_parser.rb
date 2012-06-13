@@ -6,6 +6,10 @@ module Nokogiri
       def setup
         super
         @parser = Nokogiri::CSS::Parser.new
+        @parser_with_ns = Nokogiri::CSS::Parser.new({
+          "xmlns" => "http://default.example.com/",
+          "hoge" => "http://hoge.example.com/",
+        })
       end
 
       def test_extra_single_quote
@@ -214,6 +218,33 @@ module Nokogiri
                       @parser.parse("E + F G")
       end
 
+      def test_child_selector
+        assert_xpath("//a//b/i", @parser.parse('a b>i'))
+        assert_xpath("//a//b/i", @parser.parse('a b > i'))
+        assert_xpath("//a/b/i", @parser.parse('a > b > i'))
+      end
+
+      def test_prefixless_child_selector
+        assert_xpath("./a", @parser.parse('>a'))
+        assert_xpath("./a", @parser.parse('> a'))
+        assert_xpath("./a//b/i", @parser.parse('>a b>i'))
+        assert_xpath("./a/b/i", @parser.parse('> a > b > i'))
+      end
+
+      def test_prefixless_preceding_sibling_selector
+        assert_xpath("./following-sibling::a", @parser.parse('~a'))
+        assert_xpath("./following-sibling::a", @parser.parse('~ a'))
+        assert_xpath("./following-sibling::a//b/following-sibling::i", @parser.parse('~a b~i'))
+        assert_xpath("./following-sibling::a//b/following-sibling::i", @parser.parse('~ a b ~ i'))
+      end
+
+      def test_prefixless_direct_adjacent_selector
+        assert_xpath("./following-sibling::*[1]/self::a", @parser.parse('+a'))
+        assert_xpath("./following-sibling::*[1]/self::a", @parser.parse('+ a'))
+        assert_xpath("./following-sibling::*[1]/self::a/following-sibling::*[1]/self::b", @parser.parse('+a+b'))
+        assert_xpath("./following-sibling::*[1]/self::a/following-sibling::*[1]/self::b", @parser.parse('+ a + b'))
+      end
+
       def test_attribute
         assert_xpath  "//h1[@a = 'Tender Lovemaking']",
                       @parser.parse("h1[a='Tender Lovemaking']")
@@ -290,6 +321,13 @@ module Nokogiri
         ###
         # TODO: should we make this work?
         # assert_xpath ['//x/y', '//y/z'], @parser.parse('x > y | y > z')
+      end
+
+      def test_attributes_with_namespace
+        ## Default namespace is not applied to attributes.
+        ## So this must be @class, not @xmlns:class.
+        assert_xpath "//xmlns:a[@class = 'bar']", @parser_with_ns.parse("a[class='bar']")
+        assert_xpath "//xmlns:a[@hoge:class = 'bar']", @parser_with_ns.parse("a[hoge|class='bar']")
       end
 
       def assert_xpath expecteds, asts

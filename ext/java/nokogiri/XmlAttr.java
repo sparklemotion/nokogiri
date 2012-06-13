@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -96,6 +96,16 @@ public class XmlAttr extends XmlNode{
         Node attr = xmlDoc.getDocument().createAttribute(str);
         setNode(context, attr);
     }
+    
+    
+    // this method is called from XmlNode.setNode()
+    // if the node is attribute, and its name has prefix "xml"
+    // the default namespace should be registered for this attribute
+    void setNamespaceIfNecessary(Ruby runtime) {
+        if ("xml".equals(node.getPrefix())) {
+           XmlNamespace.createDefaultNamespace(runtime, node); 
+        }
+    }
 
     private boolean isHtmlBooleanAttr() {
         String name = node.getNodeName().toLowerCase();
@@ -154,7 +164,7 @@ public class XmlAttr extends XmlNode{
     protected IRubyObject getNodeName(ThreadContext context) {
         if (name != null) return name;
         String attrName = ((Attr)node).getName();
-        attrName = NokogiriHelpers.getLocalPart(attrName);
+        if (!(doc instanceof HtmlDocument)) attrName = NokogiriHelpers.getLocalPart(attrName);
         return attrName == null ? context.getRuntime().getNil() : RubyString.newString(context.getRuntime(), attrName);
     }
 

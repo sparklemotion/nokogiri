@@ -12,19 +12,21 @@ module Nokogiri
 
         def test_parse_empty_document
           # This caused a segfault in libxml 2.6.x
-          assert_nothing_raised { @parser.parse '' }
+          assert_nil @parser.parse ''
         end
 
         def test_parse_empty_file
           # Make sure empty files don't break stuff
           empty_file_name =  File.join(Dir.tmpdir, 'bogus.xml')
           FileUtils.touch empty_file_name
-          assert_nothing_raised { @parser.parse_file empty_file_name }
+          # assert_nothing_raised do
+            @parser.parse_file empty_file_name
+          # end
         end
 
         def test_parse_file
           @parser.parse_file(HTML_FILE)
-          
+
           # Take a look at the comment in test_parse_document to know
           # a possible reason to this difference.
           if Nokogiri.uses_libxml?

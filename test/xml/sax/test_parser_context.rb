@@ -75,15 +75,12 @@ world
         end
 
         def test_from_io
-          assert_nothing_raised do
-            ParserContext.new StringIO.new('fo'), 'UTF-8'
-          end
+          ctx = ParserContext.new StringIO.new('fo'), 'UTF-8'
+          assert ctx
         end
 
         def test_from_string
-          assert_nothing_raised do
-            ParserContext.new 'blah blah'
-          end
+          assert ParserContext.new 'blah blah'
         end
 
         def test_parse_with
@@ -94,20 +91,16 @@ world
         end
 
         def test_parse_with_sax_parser
-          assert_nothing_raised do
-            xml = "<root />"
-            ctx = ParserContext.new xml
-            parser = Parser.new Doc.new
-            ctx.parse_with parser
-          end
+          xml = "<root />"
+          ctx = ParserContext.new xml
+          parser = Parser.new Doc.new
+          assert_nil ctx.parse_with parser
         end
 
         def test_from_file
-          assert_nothing_raised do
-            ctx = ParserContext.file XML_FILE
-            parser = Parser.new Doc.new
-            ctx.parse_with parser
-          end
+          ctx = ParserContext.file XML_FILE
+          parser = Parser.new Doc.new
+          assert_nil ctx.parse_with parser
         end
 
         def test_parse_with_returns_nil

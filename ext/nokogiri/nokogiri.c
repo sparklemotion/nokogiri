@@ -35,16 +35,33 @@ void vasprintf_free (void *p)
 }
 #endif
 
+#ifdef HAVE_RUBY_UTIL_H
+#include "ruby/util.h"
+#else
 #ifndef __MACRUBY__
-/* Allocate strdupped strings with the same memory allocator Ruby uses. */
-static char *ruby_strdup(const char *s)
-{
-  size_t len = strlen(s);
-  char *result = ruby_xmalloc((ssize_t) (len + 1));
-  memcpy(result, s, len + 1);
-  return result;
-}
+#include "util.h"
 #endif
+#endif
+
+void nokogiri_root_node(xmlNodePtr node)
+{
+  xmlDocPtr doc;
+  nokogiriTuplePtr tuple;
+
+  doc = node->doc;
+  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
+  tuple = (nokogiriTuplePtr)doc->_private;
+  st_insert(tuple->unlinkedNodes, (st_data_t)node, (st_data_t)node);
+}
+
+void nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
+{
+  nokogiriTuplePtr tuple;
+
+  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
+  tuple = (nokogiriTuplePtr)doc->_private;
+  st_insert(tuple->unlinkedNodes, (st_data_t)ns, (st_data_t)ns);
+}
 
 void Init_nokogiri()
 {
@@ -104,6 +121,7 @@ void Init_nokogiri()
   init_xml_entity_decl();
   init_xml_namespace();
   init_html_sax_parser_context();
+  init_html_sax_push_parser();
   init_xslt_stylesheet();
   init_xml_syntax_error();
   init_html_entity_lookup();

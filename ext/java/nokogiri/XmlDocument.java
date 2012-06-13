@@ -33,11 +33,12 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
-import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -48,13 +49,17 @@ import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
 
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyNil;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
@@ -107,8 +112,7 @@ public class XmlDocument extends XmlNode {
         setInstanceVariable("@decorators", ruby.getNil());
     }
     
-    @Override
-    public void setNode(ThreadContext context, Node node) {
+    public void setDocumentNode(ThreadContext context, Node node) {
         super.setNode(context, node);
         if (nsCache == null) nsCache = new NokogiriNamespaceCache();
         Ruby runtime = context.getRuntime();
@@ -124,10 +128,14 @@ public class XmlDocument extends XmlNode {
         this.encoding = encoding;
     }
     
+    public IRubyObject getEncoding() {
+        return encoding;
+    }
+    
     // not sure, but like attribute values, text value will be lost
     // unless it is referred once before this document is used.
     // this seems to happen only when the fragment is parsed from Node#in_context.
-    private void stabilizeTextContent(Document document) {
+    protected void stabilizeTextContent(Document document) {
         if (document.getDocumentElement() != null) document.getDocumentElement().getTextContent();
     }
 
@@ -214,7 +222,7 @@ public class XmlDocument extends XmlNode {
         return getUrl();
     }
 
-    protected static Document createNewDocument() {
+    public static Document createNewDocument() {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(DOCUMENTBUILDERFACTORY_IMPLE_NAME, NokogiriService.class.getClassLoader());
             return factory.newDocumentBuilder().newDocument();
@@ -236,11 +244,11 @@ public class XmlDocument extends XmlNode {
             Document docNode = createNewDocument();
             if ("Nokogiri::HTML::Document".equals(((RubyClass)klazz).getName())) {
                 xmlDocument = (XmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
-                xmlDocument.setNode(context, docNode);
+                xmlDocument.setDocumentNode(context, docNode);
             } else {
                 // XML::Document and sublass
                 xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
-                xmlDocument.setNode(context, docNode);
+                xmlDocument.setDocumentNode(context, docNode);
             }
         } catch (Exception ex) {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
@@ -348,9 +356,13 @@ public class XmlDocument extends XmlNode {
             node.getOwnerDocument().renameNode(node, null, node.getLocalName());
             NamedNodeMap attrs = node.getAttributes();
             for (int i=0; i<attrs.getLength(); i++) {
-                Node attr = attrs.item(i);
-                attr.setPrefix(null);
-                attr.getOwnerDocument().renameNode(attr, null, attr.getLocalName());
+                Attr attr = (Attr) attrs.item(i);
+                if (isNamespace(attr.getNodeName())) {
+                    ((org.w3c.dom.Element)node).removeAttributeNode(attr);
+                } else {
+                    attr.setPrefix(null);
+                    attr.getOwnerDocument().renameNode(attr, null, attr.getLocalName());
+                }
             }
         }
         XmlNodeSet nodeSet = (XmlNodeSet) xmlNode.children(context);
@@ -501,5 +513,68 @@ public class XmlDocument extends XmlNode {
             }
         }
         visitor.leave(document);
+    }
+    
+    @JRubyMethod(meta=true)
+    public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klazz, IRubyObject arg) {
+        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"));
+        Document document = (Document)arg.toJava(Document.class);
+        xmlDocument.setDocumentNode(context, document);
+        return xmlDocument;
+    }
+    
+    @JRubyMethod
+    public IRubyObject toJavaDocument(ThreadContext context) {
+        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), (org.w3c.dom.Document)node);
+    }
+    
+    /* call-seq:
+     *  doc.canonicalize(mode=XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
+     *  doc.canonicalize { |obj, parent| ... }
+     *
+     * Canonicalize a document and return the results.  Takes an optional block
+     * that takes two parameters: the +obj+ and that node's +parent+.  
+     * The  +obj+ will be either a Nokogiri::XML::Node, or a Nokogiri::XML::Namespace
+     * The block must return a non-nil, non-false value if the +obj+ passed in 
+     * should be included in the canonicalized document.
+     */
+    @JRubyMethod(optional=3)
+    public IRubyObject canonicalize(ThreadContext context, IRubyObject[] args, Block block) {
+        XmlNode startingNode = getStartingNode(block);
+        int canonicalOpts = 1;
+        int mode = 0;
+        if (args.length == 3) {
+            mode = (Integer)(args[0].isNil() ? 0 : args[0].toJava(Integer.class));
+            if (mode == 1) canonicalOpts = canonicalOpts | 16; // exclusive
+            // inclusive prefix list for exclusive c14n
+            canonicalOpts = args[2].isTrue() ? (canonicalOpts | 4) : canonicalOpts;
+        }
+        if (startingNode != this) canonicalOpts = canonicalOpts | 8; // subsets
+        // 38 = NO_DECL | NO_EMPTY | AS_XML
+        SaveContextVisitor visitor = new SaveContextVisitor(38, null, "UTF-8", false, false, canonicalOpts);
+        if (args.length == 3 && !args[1].isNil()) {
+            visitor.setC14nExclusiveInclusivePrefixes((List<String>)NokogiriHelpers.rubyStringArrayToJavaList((RubyArray)args[1]));
+        }
+        startingNode.accept(context, visitor);
+        Ruby runtime = context.getRuntime();
+        IRubyObject result = runtime.getTrue();
+        if (block.isGiven()) {
+            List<Node> list = visitor.getC14nNodeList();
+            for (Node n : list) {
+                IRubyObject currentNode = getCachedNodeOrCreate(runtime, n);
+                IRubyObject parentNode = getCachedNodeOrCreate(runtime, n.getParentNode());
+                result = block.call(context, currentNode, parentNode);
+            }
+        }
+        return result.isTrue() ? stringOrNil(runtime, visitor.toString()) : RubyString.newEmptyString(runtime);
+    }
+    
+    private XmlNode getStartingNode(Block block) {
+        if (block.isGiven()) {
+            if (block.getBinding().getSelf() instanceof XmlNode) {
+                return (XmlNode)block.getBinding().getSelf();
+            }
+        }
+        return this;
     }
 }

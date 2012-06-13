@@ -25,7 +25,7 @@ int io_read_callback(void * ctx, char * buffer, int len) {
   safe_len = str_len > (size_t)len ? (size_t)len : str_len;
   memcpy(buffer, StringValuePtr(string), safe_len);
 
-  return safe_len;
+  return (int)safe_len;
 }
 
 VALUE write_check(VALUE *args) {

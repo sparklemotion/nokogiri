@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -35,6 +35,7 @@ package nokogiri;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
+import org.jruby.CompatVersion;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
@@ -108,12 +109,23 @@ public class XmlSyntaxError extends RubyException {
         return new XmlSyntaxError(runtime, klazz, e);
     }
 
-    @Override
-    @JRubyMethod(name = "to_s")
+    //@Override
+    //"to_s" method was branched in 1.8 and 1.9 since JRuby 1.6.6
+    // to support older version of JRuby, the annotation is commented out
+    @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_8)
     public IRubyObject to_s(ThreadContext context) {
         if (exception != null && exception.getMessage() != null)
             return context.getRuntime().newString(exception.getMessage());
         else
             return super.to_s(context);  
     }
+    
+    //@Override
+    //"to_s" method was branched in 1.8 and 1.9 since JRuby 1.6.6
+    // to support older version of JRuby, the annotation is commented out
+    @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_9)
+    public IRubyObject to_s19(ThreadContext context) {
+        return this.to_s(context);
+    }
+    
 }

@@ -126,13 +126,13 @@ module Nokogiri
       {
         'combinator'                => ' and ',
         'direct_adjacent_selector'  => "/following-sibling::*[1]/self::",
-        'preceding_selector'        => "/following-sibling::",
+        'following_selector'        => "/following-sibling::",
         'descendant_selector'       => '//',
         'child_selector'            => '/',
       }.each do |k,v|
         class_eval %{
           def visit_#{k} node
-            "\#{node.value.first.accept(self)}#{v}\#{node.value.last.accept(self)}"
+            "\#{node.value.first.accept(self) if node.value.first}#{v}\#{node.value.last.accept(self)}"
           end
         }
       end

@@ -27,6 +27,10 @@ opts = OptionParser.new do |opts|
     encoding = v
   end
 
+  opts.on("--rng <uri|path>", "Validate using this rng file.") do |v|
+    @rng = open(v) {|f| Nokogiri::XML::RelaxNG(f)}
+  end
+
   opts.on_tail("-?", "--help", "Show this message") do
     puts opts
     exit
@@ -48,6 +52,12 @@ end
 
 @doc = parse_class.parse(open(uri).read, nil, encoding)
 
-puts "Your document is stored in @doc..."
-IRB.start
+if @rng
+  @rng.validate(@doc).each do |error|
+    puts error.message
+  end
+else
+  puts "Your document is stored in @doc..."
+  IRB.start
+end
 

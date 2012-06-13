@@ -19,20 +19,22 @@ static void deallocate(xmlParserCtxtPtr ctxt)
  *
  * Parse +io+ object with +encoding+
  */
-static VALUE parse_io(VALUE klass, VALUE io, VALUE encoding)
+static VALUE
+parse_io(VALUE klass, VALUE io, VALUE encoding)
 {
-  xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding);
+    xmlParserCtxtPtr ctxt;
+    xmlCharEncoding enc = (xmlCharEncoding)NUM2INT(encoding);
 
-  xmlParserCtxtPtr ctxt = xmlCreateIOParserCtxt(
-      NULL,
-      NULL,
-      (xmlInputReadCallback)io_read_callback,
-      (xmlInputCloseCallback)io_close_callback,
-      (void *)io,
-      enc
-  );
+    ctxt = xmlCreateIOParserCtxt(NULL, NULL,
+				 (xmlInputReadCallback)io_read_callback,
+				 (xmlInputCloseCallback)io_close_callback,
+				 (void *)io, enc);
+    if (ctxt->sax) {
+	xmlFree(ctxt->sax);
+	ctxt->sax = NULL;
+    }
 
-  return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
+    return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
 }
 
 /*
@@ -53,20 +55,44 @@ static VALUE parse_file(VALUE klass, VALUE filename)
  *
  * Parse the XML stored in memory in +data+
  */
-static VALUE parse_memory(VALUE klass, VALUE data)
+static VALUE
+parse_memory(VALUE klass, VALUE data)
 {
-  xmlParserCtxtPtr ctxt;
+    xmlParserCtxtPtr ctxt;
 
-  if(NIL_P(data)) rb_raise(rb_eArgError, "data cannot be nil");
-  if(!(int)RSTRING_LEN(data))
-    rb_raise(rb_eRuntimeError, "data cannot be empty");
+    if (NIL_P(data))
+	rb_raise(rb_eArgError, "data cannot be nil");
+    if (!(int)RSTRING_LEN(data))
+	rb_raise(rb_eRuntimeError, "data cannot be empty");
 
-  ctxt = xmlCreateMemoryParserCtxt(
-      StringValuePtr(data),
-      (int)RSTRING_LEN(data)
-  );
+    ctxt = xmlCreateMemoryParserCtxt(StringValuePtr(data),
+				     (int)RSTRING_LEN(data));
+    if (ctxt->sax) {
+	xmlFree(ctxt->sax);
+	ctxt->sax = NULL;
+    }
 
-  return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
+    return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
+}
+
+static VALUE
+parse_doc(VALUE ctxt_val)
+{
+    xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctxt_val;
+    xmlParseDocument(ctxt);
+    return Qnil;
+}
+
+static VALUE
+parse_doc_finalize(VALUE ctxt_val)
+{
+    xmlParserCtxtPtr ctxt = (xmlParserCtxtPtr)ctxt_val;
+
+    if (NULL != ctxt->myDoc)
+	xmlFreeDoc(ctxt->myDoc);
+
+    NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
+    return Qnil;
 }
 
 /*
@@ -75,31 +101,28 @@ static VALUE parse_memory(VALUE klass, VALUE data)
  *
  * Use +sax_handler+ and parse the current document
  */
-static VALUE parse_with(VALUE self, VALUE sax_handler)
+static VALUE
+parse_with(VALUE self, VALUE sax_handler)
 {
-  xmlParserCtxtPtr ctxt;
-  xmlSAXHandlerPtr sax;
+    xmlParserCtxtPtr ctxt;
+    xmlSAXHandlerPtr sax;
 
-  if(!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser))
-    rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
+    if (!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser))
+	rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
 
-  Data_Get_Struct(self, xmlParserCtxt, ctxt);
-  Data_Get_Struct(sax_handler, xmlSAXHandler, sax);
+    Data_Get_Struct(self, xmlParserCtxt, ctxt);
+    Data_Get_Struct(sax_handler, xmlSAXHandler, sax);
 
-  /* Free the sax handler since we'll assign our own */
-  if(ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-    xmlFree(ctxt->sax);
+    /* Free the sax handler since we'll assign our own */
+    if (ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+	xmlFree(ctxt->sax);
 
-  ctxt->sax = sax;
-  ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
+    ctxt->sax = sax;
+    ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
 
-  xmlParseDocument(ctxt);
+    rb_ensure(parse_doc, (VALUE)ctxt, parse_doc_finalize, (VALUE)ctxt);
 
-  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
-
-  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
-
-  return Qnil ;
+    return Qnil;
 }
 
 /*

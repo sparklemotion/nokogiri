@@ -3,6 +3,23 @@ require "helper"
 module Nokogiri
   module XML
     class TestBuilder < Nokogiri::TestCase
+      def test_attribute_sensitivity
+        xml = Nokogiri::XML::Builder.new { |x|
+          x.tag "hello", "abcDef" => "world"
+        }.to_xml
+        doc = Nokogiri.XML xml
+        assert_equal 'world', doc.root['abcDef']
+      end
+
+      def test_builder_escape
+        xml = Nokogiri::XML::Builder.new { |x|
+          x.condition "value < 1", :attr => "value < 1"
+        }.to_xml
+        doc = Nokogiri.XML xml
+        assert_equal 'value < 1', doc.root['attr']
+        assert_equal 'value < 1', doc.root.content
+      end
+
       def test_builder_namespace
         doc = Nokogiri::XML::Builder.new { |xml|
           xml.a("xmlns:a" => "x") do
@@ -30,14 +47,13 @@ module Nokogiri
       end
 
       def test_builder_with_unlink
-        assert_nothing_raised do
-          Nokogiri::XML::Builder.new do |xml|
-            xml.foo do
-              xml.bar { xml.parent.unlink }
-              xml.bar2
-            end
+        b = Nokogiri::XML::Builder.new do |xml|
+          xml.foo do
+            xml.bar { xml.parent.unlink }
+            xml.bar2
           end
         end
+        assert b
       end
 
       def test_with_root
@@ -182,13 +198,34 @@ module Nokogiri
         assert_equal 'hello', builder.doc.at('/root').content
       end
 
+      def test_raw_xml_append
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.root do
+            xml << '<aaa><bbb/><ccc/></aaa>'
+          end
+        end
+
+        assert_equal ["aaa"],       builder.doc.at_css("root").children.collect(&:name)
+        assert_equal ["bbb","ccc"], builder.doc.at_css("aaa").children.collect(&:name)
+      end
+
       def test_cdata
         builder = Nokogiri::XML::Builder.new do
           root {
             cdata "hello world"
           }
         end
-        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>", builder.to_xml.gsub(/\n/, ''))
+        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
+          builder.to_xml.gsub(/\n/, ""))
+      end
+
+      def test_comment
+        builder = Nokogiri::XML::Builder.new do
+          root {
+            comment "this is a comment"
+          }
+        end
+        assert builder.doc.root.children.first.comment?
       end
 
       def test_builder_no_block
@@ -197,7 +234,8 @@ module Nokogiri
         builder.root {
           cdata string
         }
-        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>", builder.to_xml.gsub(/\n/, ''))
+        assert_equal("<?xml version=\"1.0\"?><root><![CDATA[hello world]]></root>",
+          builder.to_xml.gsub(/\n/, ''))
       end
 
     private

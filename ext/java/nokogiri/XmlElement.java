@@ -42,7 +42,6 @@ import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
@@ -101,45 +100,6 @@ public class XmlElement extends XmlNode {
 
     @Override
     public boolean isElement() { return true; }
-
-    @Override
-    @JRubyMethod(visibility = Visibility.PRIVATE)
-    public IRubyObject get(ThreadContext context, IRubyObject rbkey) {
-        if (rbkey == null || rbkey.isNil()) context.getRuntime().getNil();
-        String key = rubyStringToString(rbkey);
-        Element element = (Element) node;
-        String value = element.getAttribute(key);
-        if(!value.equals("")){
-            return context.getRuntime().newString(value);
-        }
-        return context.getRuntime().getNil();
-    }
-
-    @Override
-    public IRubyObject key_p(ThreadContext context, IRubyObject rbkey) {
-        String key = rubyStringToString(rbkey);
-        Element element = (Element) node;
-        return context.getRuntime().newBoolean(element.hasAttribute(key));
-    }
-
-    @Override
-    public IRubyObject op_aset(ThreadContext context,
-                               IRubyObject rbkey,
-                               IRubyObject rbval) {
-        String key = rubyStringToString(rbkey);
-        String val = rubyStringToString(rbval);
-        Element element = (Element) node;
-        element.setAttribute(key, val);
-        return this;
-    }
-
-    @Override
-    public IRubyObject remove_attribute(ThreadContext context, IRubyObject name) {
-        String key = name.convertToString().asJavaString();
-        Element element = (Element) node;
-        element.removeAttribute(key);
-        return this;
-    }
 
     @Override
     public void relink_namespace(ThreadContext context) {

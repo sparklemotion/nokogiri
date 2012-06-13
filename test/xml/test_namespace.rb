@@ -65,6 +65,11 @@ module Nokogiri
         ns = @xml.root.add_namespace_definition('baz', 'bar')
         assert_equal 'baz', ns.prefix
       end
+
+      def test_remove_entity_namespace
+        s = %q{<?xml version='1.0'?><!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "XMLSchema.dtd" [<!ENTITY % p ''>]>}
+        Nokogiri::XML(s).remove_namespaces!
+      end
     end
   end
 end

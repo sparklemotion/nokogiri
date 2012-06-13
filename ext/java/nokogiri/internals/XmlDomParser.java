@@ -35,8 +35,14 @@ package nokogiri.internals;
 import java.io.IOException;
 
 import nokogiri.XmlDocument;
+import nokogiri.internals.ParserContext.Options;
 
 import org.apache.xerces.parsers.DOMParser;
+import org.apache.xerces.parsers.XIncludeParserConfiguration;
+import org.apache.xerces.xni.XMLResourceIdentifier;
+import org.apache.xerces.xni.XNIException;
+import org.apache.xerces.xni.parser.XMLEntityResolver;
+import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.cyberneko.dtd.DTDConfiguration;
 import org.w3c.dom.Document;
@@ -51,14 +57,21 @@ import org.xml.sax.SAXException;
  */
 public class XmlDomParser extends DOMParser {
     DOMParser dtd;
+    ParserContext.Options options;
 
-    public XmlDomParser() {
+    public XmlDomParser(ParserContext.Options options) {
         super();
+        this.options = options;
 
         DTDConfiguration dtdConfig = new DTDConfiguration();
         dtd = new DOMParser(dtdConfig);
 
-        XMLParserConfiguration config = getXMLParserConfiguration();
+        XMLParserConfiguration config;
+        if (options.xInclude) {
+            config = new XIncludeParserConfiguration();
+        } else {
+            config = getXMLParserConfiguration();
+        }
         config.setDTDHandler(dtdConfig);
         config.setDTDContentModelHandler(dtdConfig);
     }
@@ -66,11 +79,29 @@ public class XmlDomParser extends DOMParser {
     @Override
     public void parse(InputSource source) throws SAXException, IOException {
         dtd.reset();
+        if (options.xInclude) {
+            super.setEntityResolver(new NokogiriXInlcudeEntityResolver(source));
+        }
         super.parse(source);
         Document doc = getDocument();
         if (doc == null)
             throw new RuntimeException("null document");
 
         doc.setUserData(XmlDocument.DTD_RAW_DOCUMENT, dtd.getDocument(), null);
+    }
+    
+    private class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
+        InputSource source;
+        private NokogiriXInlcudeEntityResolver(InputSource source) {
+            this.source = source;
+        }
+
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId)
+                throws SAXException, IOException {
+            if (systemId != null) source.setSystemId(systemId);
+            if (publicId != null) source.setPublicId(publicId);
+            return source;
+        }
     }
 }

@@ -3,34 +3,61 @@ module Nokogiri
     ##
     # Nokogiri::XML::Document is the main entry point for dealing with
     # XML documents.  The Document is created by parsing an XML document.
-    # See Nokogiri.XML()
+    # See Nokogiri::XML::Document.parse() for more information on parsing.
     #
     # For searching a Document, see Nokogiri::XML::Node#css and
     # Nokogiri::XML::Node#xpath
+    #
     class Document < Nokogiri::XML::Node
-      ##
-      # Parse an XML file.  +thing+ may be a String, or any object that
-      # responds to _read_ and _close_ such as an IO, or StringIO.
-      # +url+ is resource where this document is located.  +encoding+ is the
-      # encoding that should be used when processing the document. +options+
-      # is a number that sets options in the parser, such as
-      # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
-      # Nokogiri::XML::ParseOptions.
-      def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
+      # I'm ignoring unicode characters here.
+      # See http://www.w3.org/TR/REC-xml-names/#ns-decl for more details.
+      NCNAME_START_CHAR = "A-Za-z_"
+      NCNAME_CHAR       = NCNAME_START_CHAR + "\\-.0-9"
+      NCNAME_RE         = /^xmlns(:[#{NCNAME_START_CHAR}][#{NCNAME_CHAR}]*)?$/
 
+      ##
+      # Parse an XML file.
+      #
+      # +string_or_io+ may be a String, or any object that responds to
+      # _read_ and _close_ such as an IO, or StringIO.
+      #
+      # +url+ (optional) is the URI where this document is located.
+      #
+      # +encoding+ (optional) is the encoding that should be used when processing
+      # the document.
+      #
+      # +options+ (optional) is a configuration object that sets options during
+      # parsing, such as Nokogiri::XML::ParseOptions::RECOVER. See the
+      # Nokogiri::XML::ParseOptions for more information.
+      #
+      # +block+ (optional) is passed a configuration object on which
+      # parse options may be set.
+      #
+      # When parsing untrusted documents, it's recommended that the
+      # +nonet+ option be used, as shown in this example code:
+      #
+      #   Nokogiri::XML::Document.parse(xml_string) { |config| config.nonet }
+      #
+      # Nokogiri.XML() is a convenience method which will call this method.
+      #
+      def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
         options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
         # Give the options to the user
         yield options if block_given?
 
-        if string_or_io.respond_to?(:read)
+        doc = if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          return read_io(string_or_io, url, encoding, options.to_i)
+          read_io(string_or_io, url, encoding, options.to_i)
+        else
+          # read_memory pukes on empty docs
+          return new if string_or_io.nil? or string_or_io.empty?
+          read_memory(string_or_io, url, encoding, options.to_i)
         end
 
-        # read_memory pukes on empty docs
-        return new if string_or_io.nil? or string_or_io.empty?
+        # do xinclude processing
+        doc.do_xinclude(options) if options.xinclude?
 
-        read_memory(string_or_io, url, encoding, options.to_i)
+        return doc
       end
 
       # A list of Nokogiri::XML::SyntaxError found when parsing a document
@@ -57,7 +84,7 @@ module Nokogiri
           when Hash
             arg.each { |k,v|
               key = k.to_s
-              if key =~ /^xmlns(:\w+)?$/
+              if key =~ NCNAME_RE
                 ns_name = key.split(":", 2)[1]
                 elm.add_namespace_definition ns_name, v
                 next
@@ -71,14 +98,19 @@ module Nokogiri
         elm
       end
 
-      # Create a text node with +text+
-      def create_text_node text, &block
-        Nokogiri::XML::Text.new(text.to_s, self, &block)
+      # Create a Text Node with +string+
+      def create_text_node string, &block
+        Nokogiri::XML::Text.new string.to_s, self, &block
       end
 
-      # Create a CDATA element containing +text+
-      def create_cdata text
-        Nokogiri::XML::CDATA.new(self, text.to_s)
+      # Create a CDATA Node containing +string+
+      def create_cdata string, &block
+        Nokogiri::XML::CDATA.new self, string.to_s, &block
+      end
+
+      # Create a Comment Node containing +string+
+      def create_comment string, &block
+        Nokogiri::XML::Comment.new self, string.to_s, &block
       end
 
       # The name of this document.  Always returns "document"
@@ -118,7 +150,7 @@ module Nokogiri
       # in the hash.
       #
       # Note this is a very expensive operation in current implementation, as it
-      # traverses the entire graph, and also has to bring each node accross the
+      # traverses the entire graph, and also has to bring each node across the
       # libxml bridge into a ruby object.
       def collect_namespaces
         ns = {}
@@ -194,16 +226,33 @@ module Nokogiri
       undef_method :add_namespace_definition, :attributes
       undef_method :namespace_definitions, :line, :add_namespace
 
-      def add_child child
+      def add_child node_or_tags
         raise "Document already has a root node" if root
-        if child.type == Node::DOCUMENT_FRAG_NODE
-          raise "Document cannot have multiple root nodes" if child.children.size > 1
-          super(child.children.first)
+        node_or_tags = coerce(node_or_tags)
+        if node_or_tags.is_a?(XML::NodeSet)
+          raise "Document cannot have multiple root nodes" if node_or_tags.size > 1
+          super(node_or_tags.first)
         else
           super
         end
       end
       alias :<< :add_child
+
+      ##
+      # +JRuby+
+      # Wraps Java's org.w3c.dom.document and returns Nokogiri::XML::Document
+      def self.wrap document
+        raise "JRuby only method" unless Nokogiri.jruby?
+        return wrapJavaDocument(document)
+      end
+
+      ##
+      # +JRuby+
+      # Returns Java's org.w3c.dom.document of this Document.
+      def to_java
+        raise "JRuby only method" unless Nokogiri.jruby?
+        return toJavaDocument()
+      end
 
       private
       def implied_xpath_context

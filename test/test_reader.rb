@@ -422,4 +422,67 @@ class TestReader < Nokogiri::TestCase
     end
   end
 
+  def test_correct_outer_xml_inclusion
+    xml = Nokogiri::XML::Reader.from_io(StringIO.new(<<-eoxml))
+      <root-element>
+        <children>
+          <child n="1">
+            <field>child-1</field>
+          </child>
+          <child n="2">
+            <field>child-2</field>
+          </child>
+          <child n="3">
+            <field>child-3</field>
+          </child>
+        </children>
+      </root-element>
+    eoxml
+
+    nodelengths = []
+    has_child2 = []
+
+    xml.each do |node|
+      if node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT and node.name == "child"
+        nodelengths << node.outer_xml.length
+        has_child2 << !!(node.outer_xml =~ /child-2/)
+      end
+    end
+
+    assert_equal(nodelengths[0], nodelengths[1])
+    assert(has_child2[1])
+    assert(!has_child2[0])
+  end
+
+  def test_correct_inner_xml_inclusion
+    xml = Nokogiri::XML::Reader.from_io(StringIO.new(<<-eoxml))
+      <root-element>
+        <children>
+          <child n="1">
+            <field>child-1</field>
+          </child>
+          <child n="2">
+            <field>child-2</field>
+          </child>
+          <child n="3">
+            <field>child-3</field>
+          </child>
+        </children>
+      </root-element>
+    eoxml
+
+    nodelengths = []
+    has_child2 = []
+
+    xml.each do |node|
+      if node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT and node.name == "child"
+        nodelengths << node.inner_xml.length
+        has_child2 << !!(node.inner_xml =~ /child-2/)
+      end
+    end
+
+    assert_equal(nodelengths[0], nodelengths[1])
+    assert(has_child2[1])
+    assert(!has_child2[0])
+  end
 end

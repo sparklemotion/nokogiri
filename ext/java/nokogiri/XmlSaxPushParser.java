@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -37,10 +37,15 @@ import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.ClosedChannelException;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.Pipe;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import nokogiri.internals.ParserContext;
-import nokogiri.internals.PushInputStream;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -63,9 +68,12 @@ import org.jruby.runtime.builtin.IRubyObject;
 public class XmlSaxPushParser extends RubyObject {
     ParserContext.Options options;
     IRubyObject optionsRuby;
-    PushInputStream stream;
-    Thread reader;
-    Runner runner;
+    IRubyObject saxParser;
+    OutputStream ostream = null;
+    InputStream istream = null;
+    ParserTask parserTask = null;
+    FutureTask<XmlSaxParserContext> futureTask = null;
+    ExecutorService executor = null;
 
     public XmlSaxPushParser(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -73,18 +81,12 @@ public class XmlSaxPushParser extends RubyObject {
 
     @JRubyMethod
     public IRubyObject initialize_native(final ThreadContext context,
-                                         IRubyObject _saxParser,
+                                         IRubyObject saxParser,
                                          IRubyObject fileName) {
-        optionsRuby = invoke(context,
-                             context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions"),
-                             "new");
+        optionsRuby
+            = invoke(context, context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions"), "new");
         options = new ParserContext.Options(0);
-        stream = new PushInputStream();
-
-        runner = new Runner(context, this, stream);
-        reader = new Thread(runner);
-        reader.start();
-
+        this.saxParser = saxParser;
         return this;
     }
 
@@ -110,74 +112,103 @@ public class XmlSaxPushParser extends RubyObject {
     @JRubyMethod
     public IRubyObject native_write(ThreadContext context, IRubyObject chunk,
                                     IRubyObject isLast) {
+        try {
+            initialize_task(context);
+        } catch (IOException e) {
+            throw context.getRuntime().newRuntimeError(e.getMessage());
+        }
         byte[] data = null;
         if (chunk instanceof RubyString || chunk.respondsTo("to_str")) {
             data = chunk.convertToString().getBytes();
-        } else {
-            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+        } else { 
+            try {
+                terminateTask();
+            } catch (IOException e) {
+                throw context.getRuntime().newRuntimeError(e.getMessage());
+            }
+            XmlSyntaxError xmlSyntaxError = 
+                (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
             throw new RaiseException(xmlSyntaxError);
         }
 
-        int errorCount0 = runner.getErrorCount();
-
+        int errorCount0 = parserTask.getErrorCount();;
+        
         try {
-            stream.writeAndWaitForRead(data);
-        } catch (ClosedChannelException e) {
-            // ignore
+            if (isLast.isTrue()) {
+                IRubyObject document = invoke(context, this, "document");
+                invoke(context, document, "end_document");
+                terminateTask();
+            } else {
+                ostream.write(data);
+                Thread.currentThread().sleep(10);   // gives a reader a chance to work
+            }
         } catch (IOException e) {
-            throw context.getRuntime().newRuntimeError(e.toString());
+            throw context.getRuntime().newRuntimeError(e.getMessage());
+        } catch (InterruptedException e) {
+            throw context.getRuntime().newRuntimeError(e.getMessage());
         }
 
-        if (isLast.isTrue()) {
+        if (!options.recover && parserTask.getErrorCount() > errorCount0) {
             try {
-                stream.close();
+                terminateTask();
             } catch (IOException e) {
-                // ignore
+                throw context.getRuntime().newRuntimeError(e.getMessage());
             }
-
-            for (;;) {
-                try {
-                    reader.join();
-                    break;
-                } catch (InterruptedException e) {
-                    // continue loop
-                }
-            }
-        }
-
-        if (!options.recover && runner.getErrorCount() > errorCount0) {
-            throw new RaiseException(runner.getLastError(), true);
+            throw new RaiseException(parserTask.getLastError(), true);
         }
 
         return this;
     }
+    
+    private void initialize_task(ThreadContext context) throws IOException {
+        if (futureTask == null || ostream == null || istream == null) {
+            Pipe pipe = Pipe.open();
+            Pipe.SinkChannel sink = pipe.sink();
+            ostream = Channels.newOutputStream(sink);
+            Pipe.SourceChannel source = pipe.source();
+            istream = Channels.newInputStream(source);
 
-    protected static class Runner implements Runnable {
-        protected ThreadContext context;
-        protected IRubyObject handler;
-        protected XmlSaxParserContext parser;
-
-        public Runner(ThreadContext context,
-                      IRubyObject handler,
-                      InputStream stream) {
+            parserTask = new ParserTask(context, saxParser);
+            futureTask = new FutureTask<XmlSaxParserContext>(parserTask);
+            executor = Executors.newSingleThreadExecutor();
+            executor.submit(futureTask);
+        }
+    }
+    
+    private synchronized void terminateTask() throws IOException {
+        futureTask.cancel(true);
+        executor.shutdown();
+        ostream.close();
+        istream.close();
+        ostream = null;
+        istream = null;
+    }
+    
+    private class ParserTask implements Callable<XmlSaxParserContext> {
+        private ThreadContext context;
+        private IRubyObject handler;
+        private XmlSaxParserContext parser;
+        
+        private ParserTask(ThreadContext context, IRubyObject handler) {
             RubyClass klazz = getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SAX::ParserContext");
-
             this.context = context;
             this.handler = handler;
-            this.parser = (XmlSaxParserContext) XmlSaxParserContext.parse_stream(context, klazz, stream);
+            this.parser = (XmlSaxParserContext) XmlSaxParserContext.parse_stream(context, klazz, istream);
         }
 
-        public void run() {
+        @Override
+        public XmlSaxParserContext call() throws Exception {
             parser.parse_with(context, handler);
+            return parser;
         }
-
-        public int getErrorCount() {
-            // check for null because thread may nto have started yet
+        
+        private synchronized int getErrorCount() {
+            // check for null because thread may not have started yet
             if (parser.getNokogiriHandler() == null) return 0;
             else return parser.getNokogiriHandler().getErrorCount();
         }
-
-        public RubyException getLastError() {
+        
+        private synchronized RubyException getLastError() {
             return (RubyException) parser.getNokogiriHandler().getLastError();
         }
     }

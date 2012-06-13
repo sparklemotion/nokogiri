@@ -48,12 +48,15 @@ static void recursively_remove_namespaces_from_node(xmlNodePtr node)
   for (child = node->children ; child ; child = child->next)
     recursively_remove_namespaces_from_node(child);
 
-  if (node->nsDef) {
+  if (((node->type == XML_ELEMENT_NODE) ||
+       (node->type == XML_XINCLUDE_START) ||
+       (node->type == XML_XINCLUDE_END)) &&
+      node->nsDef) {
     xmlFreeNsList(node->nsDef);
     node->nsDef = NULL;
   }
 
-  if (node->properties != NULL) {
+  if (node->type == XML_ELEMENT_NODE && node->properties != NULL) {
     property = node->properties ;
     while (property != NULL) {
       if (property->ns) property->ns = NULL ;
@@ -99,7 +102,7 @@ static VALUE set_root(VALUE self, VALUE root)
 
     if(old_root) {
       xmlUnlinkNode(old_root);
-      NOKOGIRI_ROOT_NODE(old_root);
+      nokogiri_root_node(old_root);
     }
 
     return root;
@@ -118,7 +121,7 @@ static VALUE set_root(VALUE self, VALUE root)
   }
 
   xmlDocSetRootElement(doc, new_root);
-  if(old_root) NOKOGIRI_ROOT_NODE(old_root);
+  if(old_root) nokogiri_root_node(old_root);
   return root;
 }
 
@@ -151,6 +154,9 @@ static VALUE set_encoding(VALUE self, VALUE encoding)
 {
   xmlDocPtr doc;
   Data_Get_Struct(self, xmlDoc, doc);
+
+  if (doc->encoding)
+      free((char *) doc->encoding); // this may produce a gcc cast warning
 
   doc->encoding = xmlStrdup((xmlChar *)StringValuePtr(encoding));
 
@@ -421,6 +427,97 @@ static VALUE create_entity(int argc, VALUE *argv, VALUE self)
   return Nokogiri_wrap_xml_node(cNokogiriXmlEntityDecl, (xmlNodePtr)ptr);
 }
 
+static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
+{
+  VALUE block;
+  VALUE node;
+  VALUE parent;
+  VALUE ret;
+
+  if(_node->type == XML_NAMESPACE_DECL){
+    node = Nokogiri_wrap_xml_namespace(_parent->doc, (xmlNsPtr) _node);
+  }
+  else{
+    node   = Nokogiri_wrap_xml_node(Qnil, _node);
+  }
+  parent = _parent ? Nokogiri_wrap_xml_node(Qnil, _parent) : Qnil;
+  block  = (VALUE)ctx;
+
+  ret = rb_funcall(block, rb_intern("call"), 2, node, parent);
+
+  if(Qfalse == ret || Qnil == ret) return 0;
+
+  return 1;
+}
+
+/* call-seq:
+ *  doc.canonicalize(mode=XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
+ *  doc.canonicalize { |obj, parent| ... }
+ *
+ * Canonicalize a document and return the results.  Takes an optional block
+ * that takes two parameters: the +obj+ and that node's +parent+.  
+ * The  +obj+ will be either a Nokogiri::XML::Node, or a Nokogiri::XML::Namespace
+ * The block must return a non-nil, non-false value if the +obj+ passed in 
+ * should be included in the canonicalized document.
+ */
+static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
+{
+  VALUE mode;
+  VALUE incl_ns;
+  VALUE with_comments;
+  xmlChar **ns;
+  long ns_len, i;
+
+  xmlDocPtr doc;
+  xmlOutputBufferPtr buf;
+  xmlC14NIsVisibleCallback cb = NULL;
+  void * ctx = NULL;
+
+  VALUE rb_cStringIO;
+  VALUE io;
+
+  rb_scan_args(argc, argv, "03", &mode, &incl_ns, &with_comments);
+
+  Data_Get_Struct(self, xmlDoc, doc);
+
+  rb_cStringIO = rb_const_get_at(rb_cObject, rb_intern("StringIO"));
+  io           = rb_class_new_instance(0, 0, rb_cStringIO);
+  buf          = xmlAllocOutputBuffer(NULL);
+
+  buf->writecallback = (xmlOutputWriteCallback)io_write_callback;
+  buf->closecallback = (xmlOutputCloseCallback)io_close_callback;
+  buf->context       = (void *)io;
+
+  if(rb_block_given_p()) {
+    cb = block_caller;
+    ctx = (void *)rb_block_proc();
+  }
+
+  if(NIL_P(incl_ns)){
+    ns = NULL;
+  }
+  else{
+    ns_len = RARRAY_LEN(incl_ns);
+    ns = calloc((size_t)ns_len+1, sizeof(xmlChar *));
+    for (i = 0 ; i < ns_len ; i++) {
+      VALUE entry = rb_ary_entry(incl_ns, i);
+      const char * ptr = StringValuePtr(entry);
+      ns[i] = (xmlChar*) ptr;
+    }
+  }
+
+
+  xmlC14NExecute(doc, cb, ctx, 
+    (int)      (NIL_P(mode)        ? 0 : NUM2INT(mode)), 
+    ns,
+    (int)      (NIL_P(with_comments)        ? 0 : 1),
+    buf);
+
+  xmlOutputBufferClose(buf);
+
+  return rb_funcall(io, rb_intern("string"), 0);
+}
+
 VALUE cNokogiriXmlDocument ;
 void init_xml_document()
 {
@@ -444,6 +541,7 @@ void init_xml_document()
   rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "encoding=", set_encoding, 1);
   rb_define_method(klass, "version", version, 0);
+  rb_define_method(klass, "canonicalize", canonicalize, -1);
   rb_define_method(klass, "dup", duplicate_node, -1);
   rb_define_method(klass, "url", url, 0);
   rb_define_method(klass, "create_entity", create_entity, -1);
@@ -467,7 +565,7 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
   rb_iv_set(rb_doc, "@decorators", Qnil);
   rb_iv_set(rb_doc, "@node_cache", cache);
 
-  tuple->doc = (void *)rb_doc;
+  tuple->doc = rb_doc;
   tuple->unlinkedNodes = st_init_numtable_with_size(128);
   tuple->node_cache = cache;
   doc->_private = tuple ;

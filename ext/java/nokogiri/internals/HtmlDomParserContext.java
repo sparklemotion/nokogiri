@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -34,6 +34,7 @@ package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import nokogiri.HtmlDocument;
 import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
@@ -52,6 +53,8 @@ import org.jruby.RubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
 
 /**
  * Parser for HtmlDocument. This class actually parses HtmlDocument using NekoHtml.
@@ -84,7 +87,8 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         XMLParserConfiguration config = new HTMLConfiguration();
         XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
         XMLDocumentFilter elementValidityCheckFilter = new ElementValidityCheckFilter(errorHandler);
-        XMLDocumentFilter[] filters = { removeNSAttrsFilter,  elementValidityCheckFilter};
+        //XMLDocumentFilter[] filters = { removeNSAttrsFilter,  elementValidityCheckFilter};
+        XMLDocumentFilter[] filters = { elementValidityCheckFilter};
 
         config.setErrorHandler(this.errorHandler);
         parser = new DOMParser(config);
@@ -119,9 +123,44 @@ public class HtmlDomParserContext extends XmlDomParserContext {
                                        RubyClass klazz,
                                        Document document) {
         HtmlDocument htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
-        htmlDocument.setNode(context, document);
+        htmlDocument.setDocumentNode(context, document);
+        if (ruby_encoding.isNil()) {
+            // ruby_encoding might have detected by HtmlDocument::EncodingReader
+            if (detected_encoding != null && !detected_encoding.isNil()) {
+                ruby_encoding = detected_encoding;
+            } else {
+                // no encoding given & no encoding detected, then try to get it
+                String charset = tryGetCharsetFromHtml5MetaTag(document);
+                ruby_encoding = stringOrNil(context.getRuntime(), charset);
+            }
+        }
         htmlDocument.setEncoding(ruby_encoding);
+        htmlDocument.setParsedEncoding(java_encoding);
         return htmlDocument;
+    }
+    
+    // NekoHtml doesn't understand HTML5 meta tag format. This fails to detect charset
+    // from an HTML5 style meta tag. Luckily, the meta tag and charset exists in DOM tree
+    // so, this method attempts to find the charset.
+    private String tryGetCharsetFromHtml5MetaTag(Document document) {
+        if (!"html".equalsIgnoreCase(document.getDocumentElement().getNodeName())) return null;
+        NodeList list = document.getDocumentElement().getChildNodes();
+        for (int i = 0; i < list.getLength(); i++) {
+            if ("head".equalsIgnoreCase(list.item(i).getNodeName())) {
+                NodeList headers = list.item(i).getChildNodes();
+                for (int j = 0; j < headers.getLength(); j++) {
+                    if ("meta".equalsIgnoreCase(headers.item(j).getNodeName())) {
+                        NamedNodeMap nodeMap = headers.item(j).getAttributes();
+                        for (int k = 0; k < nodeMap.getLength(); k++) {
+                            if ("charset".equalsIgnoreCase(nodeMap.item(k).getNodeName())) {
+                                return nodeMap.item(k).getNodeValue();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**

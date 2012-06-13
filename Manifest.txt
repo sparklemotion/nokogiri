@@ -2,12 +2,16 @@
 .gemtest
 CHANGELOG.ja.rdoc
 CHANGELOG.rdoc
+C_CODING_STYLE.rdoc
 Manifest.txt
 README.ja.rdoc
 README.rdoc
+ROADMAP.md
 Rakefile
+STANDARD_RESPONSES.md
+Y_U_NO_GEMSPEC.md
 bin/nokogiri
-deps.rip
+build_all
 ext/java/nokogiri/EncodingHandler.java
 ext/java/nokogiri/HtmlDocument.java
 ext/java/nokogiri/HtmlElementDescription.java
@@ -54,7 +58,6 @@ ext/java/nokogiri/internals/NokogiriXPathFunctionResolver.java
 ext/java/nokogiri/internals/NokogiriXPathVariableResolver.java
 ext/java/nokogiri/internals/NokogiriXsltErrorListener.java
 ext/java/nokogiri/internals/ParserContext.java
-ext/java/nokogiri/internals/PushInputStream.java
 ext/java/nokogiri/internals/ReaderNode.java
 ext/java/nokogiri/internals/SaveContextVisitor.java
 ext/java/nokogiri/internals/SchemaErrorHandler.java
@@ -73,6 +76,8 @@ ext/nokogiri/html_entity_lookup.c
 ext/nokogiri/html_entity_lookup.h
 ext/nokogiri/html_sax_parser_context.c
 ext/nokogiri/html_sax_parser_context.h
+ext/nokogiri/html_sax_push_parser.c
+ext/nokogiri/html_sax_push_parser.h
 ext/nokogiri/nokogiri.c
 ext/nokogiri/nokogiri.h
 ext/nokogiri/xml_attr.c
@@ -155,6 +160,7 @@ lib/nokogiri/html/element_description_defaults.rb
 lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/html/sax/parser_context.rb
+lib/nokogiri/html/sax/push_parser.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
 lib/nokogiri/xml.rb
@@ -196,8 +202,8 @@ lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
-nokogiri.gemspec
 tasks/cross_compile.rb
+tasks/nokogiri.org.rb
 tasks/test.rb
 test/css/test_nthiness.rb
 test/css/test_parser.rb
@@ -214,6 +220,8 @@ test/files/encoding.xhtml
 test/files/exslt.xml
 test/files/exslt.xslt
 test/files/foo/foo.xsd
+test/files/metacharset.html
+test/files/noencoding.html
 test/files/po.xml
 test/files/po.xsd
 test/files/shift_jis.html
@@ -223,7 +231,9 @@ test/files/staff.dtd
 test/files/staff.xml
 test/files/staff.xslt
 test/files/tlm.html
+test/files/to_be_xincluded.xml
 test/files/valid_bar.xml
+test/files/xinclude.xml
 test/helper.rb
 test/html/sax/test_parser.rb
 test/html/sax/test_parser_context.rb
@@ -251,6 +261,7 @@ test/xml/sax/test_push_parser.rb
 test/xml/test_attr.rb
 test/xml/test_attribute_decl.rb
 test/xml/test_builder.rb
+test/xml/test_c14n.rb
 test/xml/test_cdata.rb
 test/xml/test_comment.rb
 test/xml/test_document.rb
@@ -266,6 +277,7 @@ test/xml/test_namespace.rb
 test/xml/test_node.rb
 test/xml/test_node_attributes.rb
 test/xml/test_node_encoding.rb
+test/xml/test_node_inheritance.rb
 test/xml/test_node_reparenting.rb
 test/xml/test_node_set.rb
 test/xml/test_parse_options.rb
@@ -276,6 +288,8 @@ test/xml/test_schema.rb
 test/xml/test_syntax_error.rb
 test/xml/test_text.rb
 test/xml/test_unparented_node.rb
+test/xml/test_xinclude.rb
 test/xml/test_xpath.rb
 test/xslt/test_custom_functions.rb
 test/xslt/test_exception_handling.rb
+test_all

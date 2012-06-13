@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -132,6 +132,9 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     @JRubyMethod
     public IRubyObject delete(ThreadContext context, IRubyObject node_or_namespace){
         if (nodes == null) return context.getRuntime().getNil();
+        if (node_or_namespace instanceof XmlNamespace) {
+            ((XmlNamespace)node_or_namespace).deleteHref();
+        }
         return nodes.delete(context, asXmlNodeOrNamespace(context, node_or_namespace), Block.NULL_BLOCK);
     }
 

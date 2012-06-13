@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -52,7 +52,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
-import org.jruby.RubyNumeric;
+import org.jruby.RubyFloat;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
@@ -71,7 +71,7 @@ import org.w3c.dom.NodeList;
 @JRubyClass(name="Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject {
     private XmlNode context;
-    private static final XPath xpath = XPathFactory.newInstance().newXPath();;
+    private XPath xpath;
     
     public XmlXpathContext(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -97,6 +97,7 @@ public class XmlXpathContext extends RubyObject {
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node) {
         XmlNode xmlNode = (XmlNode)node;
         XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
+        xmlXpathContext.xpath = XPathFactory.newInstance().newXPath();
         xmlXpathContext.setNode(xmlNode);
         return xmlXpathContext;
     }
@@ -150,7 +151,9 @@ public class XmlXpathContext extends RubyObject {
     private IRubyObject tryGetOpaqueValue(XPathExpression xpathExpression) throws XPathExpressionException {
         String string = (String)xpathExpression.evaluate(context.node, XPathConstants.STRING);
         Double value = null;
-        if ((value = getDoubleValue(string)) != null) return RubyNumeric.dbl2num(getRuntime(), value);
+        if ((value = getDoubleValue(string)) != null) {
+            return new RubyFloat(getRuntime(), value);
+        }
         if (doesMatch(boolean_pattern, string.toLowerCase())) return RubyBoolean.newBoolean(getRuntime(), Boolean.parseBoolean(string));
         return RubyString.newString(getRuntime(), string);
     }

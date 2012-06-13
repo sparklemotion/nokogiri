@@ -25,11 +25,11 @@ module Nokogiri
       NOBLANKS    = 1 << 8
       # use the SAX1 interface internally
       SAX1        = 1 << 9
-      # Implement XInclude substitition
+      # Implement XInclude substitution
       XINCLUDE    = 1 << 10
-      # Forbid network access
+      # Forbid network access. Recommended for dealing with untrusted documents.
       NONET       = 1 << 11
-      # Do not reuse the context dictionnary
+      # Do not reuse the context dictionary
       NODICT      = 1 << 12
       # remove redundant namespaces declarations
       NSCLEAN     = 1 << 13
@@ -47,7 +47,7 @@ module Nokogiri
       HUGE        = 1 << 19
 
       # the default options used for parsing XML documents
-      DEFAULT_XML  = RECOVER
+      DEFAULT_XML  = RECOVER | NONET
       # the default options used for parsing HTML documents
       DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET
 
@@ -61,6 +61,11 @@ module Nokogiri
         class_eval %{
           def #{constant.downcase}
             @options |= #{constant}
+            self
+          end
+
+          def no#{constant.downcase}
+            @options &= ~#{constant}
             self
           end
 

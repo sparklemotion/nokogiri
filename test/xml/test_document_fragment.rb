@@ -176,15 +176,39 @@ module Nokogiri
         assert fragment.children.respond_to?(:awesome!), fragment.children.class
       end
 
-      def test_for_libxml_in_context_fragment_parsing_bug_workaround
-        10.times do
-          begin
-            fragment = Nokogiri::XML.fragment("<div></div>")
-            parent = fragment.children.first
-            child = parent.parse("<h1></h1>").first
-            parent.add_child child
+      def test_add_node_to_doc_fragment_segfault
+        frag = Nokogiri::XML::DocumentFragment.new(@xml, '<p>hello world</p>')
+        Nokogiri::XML::Comment.new(frag,'moo')
+      end
+
+      if Nokogiri.uses_libxml?
+        def test_for_libxml_in_context_fragment_parsing_bug_workaround
+          10.times do
+            begin
+              fragment = Nokogiri::XML.fragment("<div></div>")
+              parent = fragment.children.first
+              child = parent.parse("<h1></h1>").first
+              parent.add_child child
+            end
+            GC.start
           end
-          GC.start
+        end
+
+        def test_for_libxml_in_context_memory_badness_when_encountering_encoding_errors
+          # see issue #643 for background
+          # this test exists solely to raise an error during valgrind test runs.
+          html = <<-EOHTML
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=shizzle" />
+  </head>
+  <body>
+    <div>Foo</div>
+  </body>
+</html>
+EOHTML
+          doc = Nokogiri::HTML html
+          doc.at_css("div").replace("Bar")
         end
       end
     end

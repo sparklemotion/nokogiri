@@ -1,6 +1,10 @@
 require 'nokogiri/css/node'
 require 'nokogiri/css/xpath_visitor'
+x = $-w
+$-w = false
 require 'nokogiri/css/parser'
+$-w = x
+
 require 'nokogiri/css/tokenizer'
 require 'nokogiri/css/syntax_error'
 

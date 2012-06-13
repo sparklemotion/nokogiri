@@ -1,4 +1,4 @@
-= Nokogiri
+= Nokogiri {<img src="https://secure.travis-ci.org/tenderlove/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/tenderlove/nokogiri]
 
 * http://nokogiri.org
 * http://github.com/tenderlove/nokogiri/wikis
@@ -25,6 +25,10 @@ correctly implemented CSS3 selector support as well as XPath support.
 
 == SUPPORT:
 
+Before filing a bug report, please read our {submission guidelines}[http://nokogiri.org/tutorials/getting_help.html] at:
+
+  * http://nokogiri.org/tutorials/getting_help.html
+
 The Nokogiri {mailing list}[http://groups.google.com/group/nokogiri-talk]
 is available here:
 
@@ -50,19 +54,19 @@ The IRC channel is #nokogiri on freenode.
 
   ####
   # Search for nodes by css
-  doc.css('h3.r a.l').each do |link|
+  doc.css('h3.r a').each do |link|
     puts link.content
   end
 
   ####
   # Search for nodes by xpath
-  doc.xpath('//h3/a[@class="l"]').each do |link|
+  doc.xpath('//h3/a').each do |link|
     puts link.content
   end
 
   ####
   # Or mix and match.
-  doc.search('h3.r a.l', '//h3/a[@class="l"]').each do |link|
+  doc.search('h3.r a.l', '//h3/a').each do |link|
     puts link.content
   end
 
@@ -87,7 +91,7 @@ encoded like the source document.
 Some documents declare one particular encoding, but use a different
 one. So, which encoding should the parser choose?
 
-Remember that data is just a stream of bytes. Only us humans add
+Remember that data is just a stream of bytes. Only we humans add
 meaning to that stream. Any particular set of bytes could be valid
 characters in multiple encodings, so detecting encoding with 100%
 accuracy is not possible. libxml2 does its best, but it can't be right
@@ -128,8 +132,8 @@ Then run rake:
 
 === Developing on JRuby
 
-Currently, development with JRuby depends on C Ruby being installed.  With
-normal C Ruby, install racc and rexical:
+Currently, development with JRuby depends on CRuby being installed.  With
+CRuby, install racc and rexical:
 
     $ gem install racc rexical
 
@@ -145,7 +149,7 @@ Then run rake:
 
 (The MIT License)
 
-Copyright (c) 2008 - 2010:
+Copyright (c) 2008 - 2012:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]

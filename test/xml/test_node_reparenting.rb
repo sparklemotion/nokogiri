@@ -246,6 +246,22 @@ module Nokogiri
             replacee.add_previous_sibling "foo <p></p> bar"
             assert_equal "foo <p></p> bartext node", xml.root.children.to_html
           end
+
+          describe "with a text node before" do
+            it "should not defensively dup the 'before' text node" do
+              xml = Nokogiri::XML %Q(<root>before<p></p>after</root>)
+              pivot  = xml.at_css("p")
+              before = xml.root.children.first
+              after  = xml.root.children.last
+              pivot.add_previous_sibling("x")
+
+              assert_equal "after", after.content
+              assert !after.parent.nil?, "unrelated node should not be affected"
+
+              assert_equal "before", before.content
+              assert !before.parent.nil?, "no need to reparent"
+            end
+          end
         end
 
         describe "#add_next_sibling" do
@@ -254,6 +270,22 @@ module Nokogiri
             replacee = xml.root.children.first
             replacee.add_next_sibling "foo <p></p> bar"
             assert_equal "text nodefoo <p></p> bar", xml.root.children.to_html
+          end
+
+          describe "with a text node after" do
+            it "should not defensively dup the 'after' text node" do
+              xml = Nokogiri::XML %Q(<root>before<p></p>after</root>)
+              pivot  = xml.at_css("p")
+              before = xml.root.children.first
+              after  = xml.root.children.last
+              pivot.add_next_sibling("x")
+
+              assert_equal "before", before.content
+              assert !before.parent.nil?, "unrelated node should not be affected"
+
+              assert_equal "after", after.content
+              assert !after.parent.nil?
+            end
           end
         end
 
@@ -291,9 +323,6 @@ module Nokogiri
           it "not blow up" do
             # see http://github.com/tenderlove/nokogiri/issues#issue/22
             10.times do
-              io = MiniTest::Unit.output
-              io.print '.'
-              io.flush
               begin
                 doc = Nokogiri::XML <<-EOHTML
                   <root>

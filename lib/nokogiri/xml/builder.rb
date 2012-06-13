@@ -305,7 +305,13 @@ module Nokogiri
       ###
       # Create a CDATA Node with content of +string+
       def cdata string
-        insert(doc.create_cdata(string))
+        insert doc.create_cdata(string)
+      end
+
+      ###
+      # Create a Comment Node with content of +string+
+      def comment string
+        insert doc.create_comment(string)
       end
 
       ###

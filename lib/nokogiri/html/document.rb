@@ -6,7 +6,8 @@ module Nokogiri
       # then nil is returned.
       def meta_encoding
         meta = meta_content_type and
-          /charset\s*=\s*([\w-]+)/i.match(meta['content'])[1]
+          match = /charset\s*=\s*([\w-]+)/i.match(meta['content']) and
+          match[1]
       end
 
       ###
@@ -19,7 +20,9 @@ module Nokogiri
 
       def meta_content_type
         css('meta[@http-equiv]').find { |node|
-          node['http-equiv'] =~ /\AContent-Type\z/i
+          node['http-equiv'] =~ /\AContent-Type\z/i and
+            !node['content'].nil? and
+            !node['content'].empty?
         }
       end
       private :meta_content_type
@@ -70,7 +73,7 @@ module Nokogiri
 
       class << self
         ###
-        # Parse HTML.  +thing+ may be a String, or any object that
+        # Parse HTML.  +string_or_io+ may be a String, or any object that
         # responds to _read_ and _close_ such as an IO, or StringIO.
         # +url+ is resource where this document is located.  +encoding+ is the
         # encoding that should be used when processing the document. +options+
@@ -92,17 +95,22 @@ module Nokogiri
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
             if !encoding
-              # Perform further encoding detection that libxml2 does
-              # not do.
+              # Libxml2's parser has poor support for encoding
+              # detection.  First, it does not recognize the HTML5
+              # style meta charset declaration.  Secondly, even if it
+              # successfully detects an encoding hint, it does not
+              # re-decode or re-parse the preceding part which may be
+              # garbled.
+              #
+              # EncodingReader aims to perform advanced encoding
+              # detection beyond what Libxml2 does, and to emulate
+              # rewinding of a stream and make Libxml2 redo parsing
+              # from the start when an encoding hint is found.
               string_or_io = EncodingReader.new(string_or_io)
               begin
                 return read_io(string_or_io, url, encoding, options.to_i)
-              rescue EncodingFoundException => e
-                # A retry is required because libxml2 has a problem in
-                # that it cannot switch encoding well in the middle of
-                # parsing, especially if it has already seen a
-                # non-ASCII character when it finds an encoding hint.
-                encoding = e.encoding
+              rescue EncodingFound => e
+                encoding = e.found_encoding
               end
             end
             return read_io(string_or_io, url, encoding, options.to_i)
@@ -111,19 +119,17 @@ module Nokogiri
           # read_memory pukes on empty docs
           return new if string_or_io.nil? or string_or_io.empty?
 
-          if !encoding
-            encoding = EncodingReader.detect_encoding(string_or_io)
-          end
+          encoding ||= EncodingReader.detect_encoding(string_or_io)
 
           read_memory(string_or_io, url, encoding, options.to_i)
         end
       end
 
-      class EncodingFoundException < Exception # :nodoc:
-        attr_reader :encoding
+      class EncodingFound < StandardError # :nodoc:
+        attr_reader :found_encoding
 
         def initialize(encoding)
-          @encoding = encoding
+          @found_encoding = encoding
           super("encoding found: %s" % encoding)
         end
       end
@@ -131,54 +137,90 @@ module Nokogiri
       class EncodingReader # :nodoc:
         class SAXHandler < Nokogiri::XML::SAX::Document # :nodoc:
           attr_reader :encoding
-
-          def found(encoding)
-            @encoding = encoding
-            throw :found
+          
+          def initialize
+            @encoding = nil
+            super()
           end
-
-          def not_found(encoding)
-            found nil
+    
+          def start_element(name, attrs = [])
+            return unless name == 'meta'
+            attr = Hash[attrs]
+            charset = attr['charset'] and
+              @encoding = charset
+            http_equiv = attr['http-equiv'] and
+              http_equiv.match(/\AContent-Type\z/i) and
+              content = attr['content'] and
+              m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
+              @encoding = m[1]
+          end
+        end
+        
+        class JumpSAXHandler < SAXHandler
+          def initialize(jumptag)
+            @jumptag = jumptag
+            super()
           end
 
           def start_element(name, attrs = [])
-            case name
-            when /\A(?:div|h1|img|p|br)\z/
-              not_found
-            when 'meta'
-              attr = Hash[attrs]
-              http_equiv = attr['http-equiv'] and
-                http_equiv.match(/\AContent-Type\z/i) and
-                content = attr['content'] and
-                m = content.match(/;\s*charset\s*=\s*([\w-]+)/) and
-                found m[1]
-            end
+            super
+            throw @jumptag, @encoding if @encoding
+            throw @jumptag, nil if name =~ /\A(?:div|h1|img|p|br)\z/
           end
         end
 
         def self.detect_encoding(chunk)
+          if Nokogiri.jruby? && EncodingReader.is_jruby_without_fix?
+            return EncodingReader.detect_encoding_for_jruby_without_fix(chunk)
+          end
           m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
             return Nokogiri.XML(m[1]).encoding
 
           if Nokogiri.jruby?
             m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
               return m[4]
+            catch(:encoding_found) {
+              Nokogiri::HTML::SAX::Parser.new(JumpSAXHandler.new(:encoding_found.to_s)).parse(chunk)
+              nil
+            }
+          else
+            handler = SAXHandler.new
+            parser = Nokogiri::HTML::SAX::PushParser.new(handler)
+            parser << chunk rescue Nokogiri::SyntaxError
+            handler.encoding
           end
+        end
 
-          handler = SAXHandler.new
-          parser = Nokogiri::HTML::SAX::Parser.new(handler)
-          catch(:found) {
-            parser.parse(chunk)
+        def self.is_jruby_without_fix?
+          JRUBY_VERSION.split('.').join.to_i < 165
+        end
+
+        def self.detect_encoding_for_jruby_without_fix(chunk)
+          m = chunk.match(/\A(<\?xml[ \t\r\n]+[^>]*>)/) and
+            return Nokogiri.XML(m[1]).encoding
+
+          m = chunk.match(/(<meta\s)(.*)(charset\s*=\s*([\w-]+))(.*)/i) and
+            return m[4]
+
+          catch(:encoding_found) {
+            Nokogiri::HTML::SAX::Parser.new(JumpSAXHandler.new(:encoding_found.to_s)).parse(chunk)
+            nil
           }
-          handler.encoding
-        rescue => e
+        rescue Nokogiri::SyntaxError, RuntimeError
+          # Ignore parser errors that nokogiri may raise
           nil
         end
 
         def initialize(io)
           @io = io
           @firstchunk = nil
+          @encoding_found = nil
         end
+
+        # This method is used by the C extension so that
+        # Nokogiri::HTML::Document#read_io() does not leak memory when
+        # EncodingFound is raised.
+        attr_reader :encoding_found
 
         def read(len)
           # no support for a call without len
@@ -186,17 +228,15 @@ module Nokogiri
           if !@firstchunk
             @firstchunk = @io.read(len) or return nil
 
-            # This implementation expects and assumes that the first
-            # call from htmlReadIO() is made with a length long enough
-            # (~1KB) to achieve further encoding detection that
-            # libxml2 does not do.
+            # This implementation expects that the first call from
+            # htmlReadIO() is made with a length long enough (~1KB) to
+            # achieve advanced encoding detection.
             if encoding = EncodingReader.detect_encoding(@firstchunk)
-              raise EncodingFoundException, encoding
+              # The first chunk is stored for the next read in retry.
+              raise @encoding_found = EncodingFound.new(encoding)
             end
-
-            # This chunk is stored for the next read in retry.
-            return @firstchunk
           end
+          @encoding_found = nil
 
           ret = @firstchunk.slice!(0, len)
           if (len -= ret.length) > 0

@@ -22,12 +22,22 @@ module Nokogiri
           @list.push @list.first
           @list.delete @list.first
         end
+        
+        def test_reference_after_delete
+          first = @list.first
+          @list.delete(first)
+          assert_equal 'http://www.w3.org/XML/1998/namespace', first.href
+        end        
       end
 
       def setup
         super
         @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
         @list = @xml.css('employee')
+      end
+
+      def test_break_works
+        assert_equal 7, @xml.root.elements.each { |x| break 7 }
       end
 
       def test_filter
@@ -136,6 +146,11 @@ module Nokogiri
         assert_equal @xml.xpath('//employee'), custom_employees
       end
 
+      def test_search_self
+        set = @xml.xpath('//staff')
+        assert_equal set.to_a, set.search('.').to_a
+      end
+
       def test_search_with_custom_object
         set = @xml.xpath('//staff')
         custom_employees = set.search('//*[awesome(.)]', Class.new {
@@ -158,7 +173,7 @@ module Nokogiri
         set = html.xpath("/html/body/div")
         assert_equal set.first, set.search(".a").first
       end
-      
+
       def test_css_search_with_namespace
         fragment = Nokogiri::XML.fragment(<<-eoxml)
           <html xmlns="http://www.w3.org/1999/xhtml">
@@ -166,7 +181,7 @@ module Nokogiri
           <body></body>
           </html>
         eoxml
-        assert_nothing_raised{ fragment.children.search( 'body', { 'xmlns' => 'http://www.w3.org/1999/xhtml' }) }
+        assert fragment.children.search( 'body', { 'xmlns' => 'http://www.w3.org/1999/xhtml' })
       end
 
       def test_double_equal
@@ -630,14 +645,16 @@ module Nokogiri
       end
 
       def test_should_not_splode_when_accessing_namespace_declarations_in_a_node_set
-        xml = Nokogiri::XML "<foo></foo>"
-        node_set = xml.xpath("//namespace::*")
-        assert_equal 1, node_set.size
-        node = node_set.first
-        node.to_s # segfaults in 1.4.0 and earlier
+        2.times do
+          xml = Nokogiri::XML "<foo></foo>"
+          node_set = xml.xpath("//namespace::*")
+          assert_equal 1, node_set.size
+          node = node_set.first
+          node.to_s # segfaults in 1.4.0 and earlier
 
-        # if we haven't segfaulted, let's make sure we handled it correctly
-        assert_instance_of Nokogiri::XML::Namespace, node
+          # if we haven't segfaulted, let's make sure we handled it correctly
+          assert_instance_of Nokogiri::XML::Namespace, node
+        end
       end
 
       def test_should_not_splode_when_arrayifying_node_set_containing_namespace_declarations

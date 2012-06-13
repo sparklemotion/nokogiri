@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -32,10 +32,21 @@
 
 package nokogiri.internals;
 
+import static nokogiri.internals.NokogiriHelpers.canonicalizeWhitespce;
 import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
-import static nokogiri.internals.NokogiriHelpers.isNotXmlEscaped;
+import static nokogiri.internals.NokogiriHelpers.isNamespace;
+import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.cyberneko.html.HTMLElements;
 import org.w3c.dom.Attr;
@@ -65,7 +76,11 @@ public class SaveContextVisitor {
     private Stack<String> indentation;
     private String encoding, indentString;
     private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, asBuilder, htmlDoc, fragment;
-
+    private boolean canonical, incl_ns, with_comments, subsets, exclusive;
+    private List<Node> c14nNodeList;
+    private Deque<Attr[]> c14nNamespaceStack;
+    private Deque<Attr[]> c14nAttrStack;
+    private List<String> c14nExclusiveInclusivePrefixes = null;
     /*
      * U can't touch this.
      * http://www.youtube.com/watch?v=WJ2ZFVx6A4Q
@@ -81,13 +96,22 @@ public class SaveContextVisitor {
     public static final int AS_XML = 32;
     public static final int AS_HTML = 64;
     public static final int AS_BUILDER = 128;
+    
+    public static final int CANONICAL = 1;
+    public static final int INCL_NS = 2;
+    public static final int WITH_COMMENTS = 4;
+    public static final int SUBSETS = 8;
+    public static final int EXCLUSIVE = 16;
 
-    public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment) {
+    public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment, int canonicalOpts) {
         buffer = new StringBuffer();
         this.encoding = encoding;
         indentation = new Stack<String>(); indentation.push("");
         this.htmlDoc = htmlDoc;
         this.fragment = fragment;
+        c14nNodeList = new ArrayList<Node>();
+        c14nNamespaceStack = new ArrayDeque<Attr[]>();
+        c14nAttrStack = new ArrayDeque<Attr[]>();
         format = (options & FORMAT) == FORMAT;
         
         noDecl = (options & NO_DECL) == NO_DECL;
@@ -97,6 +121,12 @@ public class SaveContextVisitor {
         asXml = (options & AS_XML) == AS_XML;
         asHtml = (options & AS_HTML) == AS_HTML;
         asBuilder = (options & AS_BUILDER) == AS_BUILDER;
+        
+        canonical = (canonicalOpts & CANONICAL) == CANONICAL;
+        incl_ns = (canonicalOpts & INCL_NS) == INCL_NS;
+        with_comments = (canonicalOpts & WITH_COMMENTS) == WITH_COMMENTS;
+        subsets = (canonicalOpts & SUBSETS) == SUBSETS;
+        
         if ((format && indent == null) || (format && indent.length() == 0)) indent = "  "; // default, two spaces
         if ((!format && indent != null) && indent.length() > 0) format = true;
         if ((asBuilder && indent == null) || (asBuilder && indent.length() == 0)) indent = "  "; // default, two spaces
@@ -116,6 +146,14 @@ public class SaveContextVisitor {
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
+    
+    public List<Node> getC14nNodeList() {
+        return c14nNodeList;
+    }
+    
+   public void setC14nExclusiveInclusivePrefixes(List<String> prefixes) {
+       c14nExclusiveInclusivePrefixes = prefixes;
+   }
     
     public boolean enter(Node node) {
         if (node instanceof Document) {
@@ -211,15 +249,30 @@ public class SaveContextVisitor {
     }
     
     public boolean enter(Attr attr) {
-        String name = attr.getName().toLowerCase();
+        String name = attr.getName();
         buffer.append(name);
         if (!asHtml || !isHtmlBooleanAttr(name)) {
             buffer.append("=");
             buffer.append("\"");
-            buffer.append(serializeAttrTextContent(attr.getValue(), htmlDoc));
+            String value = replaceCharsetIfNecessary(attr);
+            buffer.append(serializeAttrTextContent(value, htmlDoc));
             buffer.append("\"");
         }
         return true;
+    }
+    
+    private static Pattern p = 
+        Pattern.compile("charset(()|\\s+)=(()|\\s+)(\\w|\\_|\\.|\\-)+", Pattern.CASE_INSENSITIVE);
+    
+    private String replaceCharsetIfNecessary(Attr attr) {
+        String value = attr.getValue();
+        if (encoding == null) return value;   // unable to replace in any case
+        if (!"content".equals(attr.getName().toLowerCase())) return value;  // must be content attr
+        if (!"meta".equals(attr.getOwnerElement().getNodeName().toLowerCase())) return value;        
+        Matcher m = p.matcher(value);
+        if (!m.find()) return value;
+        if (value.contains(encoding)) return value;  // no need to replace
+        return value.replace(m.group(), "charset=" + encoding);
     }
     
     public static final String[] HTML_BOOLEAN_ATTRS = {
@@ -275,6 +328,10 @@ public class SaveContextVisitor {
     }
 
     public boolean enter(Comment comment) {
+        if (canonical) {
+            c14nNodeList.add(comment);
+            if (!with_comments) return true;
+        }
         buffer.append("<!--");
         buffer.append(comment.getData());
         buffer.append("-->");
@@ -293,7 +350,7 @@ public class SaveContextVisitor {
 
             if (encoding != null) {
                 buffer.append(" encoding=\"");
-                buffer.append(encoding.toUpperCase());
+                buffer.append(encoding);
                 buffer.append("\"");
             }
             buffer.append("?>\n");
@@ -306,6 +363,10 @@ public class SaveContextVisitor {
     }
     
     public boolean enter(DocumentType docType) {
+        if (canonical) {
+            c14nNodeList.add(docType);
+            return true;
+        }
         String name = docType.getName();
         String pubId = docType.getPublicId();
         String sysId = docType.getSystemId();
@@ -334,6 +395,12 @@ public class SaveContextVisitor {
     }
 
     public boolean enter(Element element) {
+        if (canonical) {
+            c14nNodeList.add(element);
+            if (element == element.getOwnerDocument().getDocumentElement()) {
+                c14nNodeList.add(element.getOwnerDocument());
+            }
+        }
         String current = indentation.peek();
         buffer.append(current);
         if (needIndent()) {
@@ -341,9 +408,8 @@ public class SaveContextVisitor {
         }
         String name = element.getTagName();
         buffer.append("<" + name);
-        NamedNodeMap attrs = element.getAttributes();
-        for (int i=0; i<attrs.getLength(); i++) {
-            Attr attr = (Attr) attrs.item(i);
+        Attr[] attrs = getAttrsAndNamespaces(element);        
+        for (Attr attr : attrs) {
             if (attr.getSpecified()) {
                 buffer.append(" ");
                 enter(attr);
@@ -356,10 +422,8 @@ public class SaveContextVisitor {
             return true;
         }
         // no child
-        if (asHtml) {
+        if (asHtml || asXhtml) {
             buffer.append(">");   
-        } else if (asXhtml) {
-            buffer.append(" />");
         } else if (asXml && noEmpty) {
             buffer.append(">");
         } else {
@@ -390,7 +454,142 @@ public class SaveContextVisitor {
         return element.isEmpty();
     }
     
+    private Attr[] getAttrsAndNamespaces(Element element) {
+        NamedNodeMap attrs = element.getAttributes();
+        if (!canonical) {
+            if (attrs == null || attrs.getLength() == 0) return new Attr[0];
+            Attr[] attrsAndNamespaces = new Attr[attrs.getLength()];
+            for (int i=0; i<attrs.getLength(); i++) {
+                attrsAndNamespaces[i] = (Attr) attrs.item(i);
+            }
+            return attrsAndNamespaces;
+        } else {
+            List<Attr> namespaces = new ArrayList<Attr>();
+            List<Attr> attributes = new ArrayList<Attr>();
+            if (subsets) {
+                getAttrsOfAncestors(element.getParentNode(), namespaces, attributes);
+                Attr[] namespaceOfAncestors = getSortedArray(namespaces);
+                Attr[] attributeOfAncestors = getSortedArray(attributes);
+                c14nNamespaceStack.push(namespaceOfAncestors);
+                c14nAttrStack.push(attributeOfAncestors);
+                subsets = false; // namespace propagation should be done only once on top level node.
+            }
+            
+            getNamespacesAndAttrs(element, namespaces, attributes);
+
+            Attr[] namespaceArray = getSortedArray(namespaces);
+            Attr[] attributeArray = getSortedArray(attributes);
+            Attr[] allAttrs = new Attr[namespaceArray.length + attributeArray.length];
+            for (int i=0; i<allAttrs.length; i++) {
+                if (i < namespaceArray.length) {
+                    allAttrs[i] = namespaceArray[i];
+                } else {
+                    allAttrs[i] = attributeArray[i-namespaceArray.length];
+                }
+            }
+            c14nNamespaceStack.push(namespaceArray);
+            c14nAttrStack.push(attributeArray);
+            return allAttrs;
+        }
+        
+    }
+    
+    private void getAttrsOfAncestors(Node parent, List<Attr> namespaces, List<Attr> attributes) {
+        if (parent == null) return;
+        NamedNodeMap attrs = parent.getAttributes();
+        if (attrs == null || attrs.getLength() == 0) return;
+        for (int i=0; i < attrs.getLength(); i++) {
+            Attr attr = (Attr)attrs.item(i);
+            if (isNamespace(attr.getNodeName())) namespaces.add(attr);
+            else attributes.add(attr);
+        }
+        getAttrsOfAncestors(parent.getParentNode(), namespaces, attributes);
+    }
+    
+    private void getNamespacesAndAttrs(Node current, List<Attr> namespaces, List<Attr> attributes) {
+        NamedNodeMap attrs = current.getAttributes();
+        for (int i=0; i<attrs.getLength(); i++) {
+            Attr attr = (Attr)attrs.item(i);
+            if (isNamespace(attr.getNodeName())) {
+                getNamespacesWithPropagated(namespaces, attr);
+            } else {
+                getAttributesWithPropagated(attributes, attr);
+            }
+            if (exclusive) {
+                verifyXmlSpace(attributes, attrs);
+            }
+        }
+    }
+
+    private void getNamespacesWithPropagated(List<Attr> namespaces, Attr attr) {
+        boolean newNamespace = true;
+        Iterator<Attr[]> iter = c14nNamespaceStack.iterator();
+        while (iter.hasNext()) {
+            Attr[] parentNamespaces = iter.next();
+            for (int n=0; n < parentNamespaces.length; n++) {
+                if (parentNamespaces[n].getNodeName().equals(attr.getNodeName())) {
+                   if (parentNamespaces[n].getNodeValue().equals(attr.getNodeValue())) {
+                       // exactly the same namespace should not be added
+                       newNamespace = false;
+                   } else {                            
+                       // in case of namespace url change, propagated namespace will be override
+                       namespaces.remove(parentNamespaces[n]);
+                   }
+                }
+            }
+            if (newNamespace && !namespaces.contains(attr)) namespaces.add(attr);
+        }
+    }
+    
+    private void getAttributesWithPropagated(List<Attr> attributes, Attr attr) {
+        boolean newAttribute = true;
+        Iterator<Attr[]> iter = c14nAttrStack.iterator();
+        while (iter.hasNext()) {
+            Attr[] parentAttr = iter.next();
+            for (int n=0; n < parentAttr.length; n++) {
+                if (!parentAttr[n].getNodeName().startsWith("xml:")) continue;
+                if (parentAttr[n].getNodeName().equals(attr.getNodeName())) {
+                   if (parentAttr[n].getNodeValue().equals(attr.getNodeValue())) {
+                       // exactly the same attribute should not be added
+                       newAttribute = false;
+                   } else {                            
+                       // in case of attribute value change, propagated attribute will be override
+                       attributes.remove(parentAttr[n]);
+                   }
+                }
+            }
+            if (newAttribute) attributes.add(attr);
+        }
+    }
+    
+    private void verifyXmlSpace(List<Attr> attributes, NamedNodeMap attrs) {
+        Attr attr = (Attr) attrs.getNamedItem("xml:space");
+        if (attr == null) {
+            for (int i=0; i < attributes.size(); i++) {
+                if (attributes.get(i).getNodeName().equals("xml:space")) {
+                    attributes.remove(i);
+                    break;
+                }
+            }
+        }
+    }
+    
+    private Attr[] getSortedArray(List<Attr> attrList) {
+        Attr[] attrArray = attrList.toArray(new Attr[0]);
+        Arrays.sort(attrArray, new Comparator<Attr>() {
+            @Override
+            public int compare(Attr attr0, Attr attr1) {
+                return attr0.getNodeName().compareTo(attr1.getNodeName());
+            }
+        });
+        return attrArray;
+    }
+    
     public void leave(Element element) {
+        if (canonical) {
+            c14nNamespaceStack.poll();
+            c14nAttrStack.poll();
+        }
         String name = element.getTagName();
         if (element.hasChildNodes()) {
             if (needIndentInClosing(element)) {
@@ -504,6 +703,7 @@ public class SaveContextVisitor {
         if (asHtml) buffer.append(">");
         else buffer.append("?>");
         buffer.append("\n");
+        if (canonical) c14nNodeList.add(pi);
         return true;
     }
     
@@ -514,6 +714,13 @@ public class SaveContextVisitor {
     private static char lineSeparator = '\n'; // System.getProperty("line.separator"); ?
     public boolean enter(Text text) {
         String textContent = text.getNodeValue();
+        if (canonical) {
+            c14nNodeList.add(text);
+            if (isWhitespaceText(textContent)) {
+                buffer.append(canonicalizeWhitespce(textContent));
+                return true;
+            }
+        }
         if (needIndentText() && "".equals(textContent.trim())) return true;
         if (needIndentText()) {
             String current = indentation.peek();
@@ -521,9 +728,10 @@ public class SaveContextVisitor {
             indentation.push(current + indentString);
             if (textContent.charAt(0) == lineSeparator) textContent = textContent.substring(1);    
         }
-        if (isNotXmlEscaped(textContent)) {
+        if (text.getUserData(NokogiriHelpers.ENCODED_STRING) == null || !((Boolean)text.getUserData(NokogiriHelpers.ENCODED_STRING))) {
             textContent = encodeJavaString(textContent);
         }
+
         if (getEncoding(text) == null) {
             textContent = encodeStringToHtmlEntity(textContent);
         }

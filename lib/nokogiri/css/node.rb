@@ -1,6 +1,8 @@
 module Nokogiri
   module CSS
     class Node
+      ALLOW_COMBINATOR_ON_SELF = [:DIRECT_ADJACENT_SELECTOR, :FOLLOWING_SELECTOR, :CHILD_SELECTOR]
+
       # Get the type of this node
       attr_accessor :type
       # Get the value of this node
@@ -21,6 +23,7 @@ module Nokogiri
       # Convert this CSS node to xpath with +prefix+ using +visitor+
       def to_xpath prefix = '//', visitor = XPathVisitor.new
         self.preprocess!
+        prefix = '.' if ALLOW_COMBINATOR_ON_SELF.include?(type) && value.first.nil?
         prefix + visitor.accept(self)
       end
 

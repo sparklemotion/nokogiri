@@ -582,9 +582,17 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XSLT_STYLESHEET_ALLOCATOR = new ObjectAllocator() {
+    public static ObjectAllocator XSLT_STYLESHEET_ALLOCATOR = new ObjectAllocator() {
+        private XsltStylesheet xsltStylesheet = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            return new XsltStylesheet(runtime, klazz);
+            if (xsltStylesheet == null) xsltStylesheet = new XsltStylesheet(runtime, klazz);
+            try {
+                XsltStylesheet clone  = (XsltStylesheet) xsltStylesheet.clone();
+                clone.setMetaClass(klazz);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return new XmlText(runtime, klazz);
+            }
         }
     };
 }

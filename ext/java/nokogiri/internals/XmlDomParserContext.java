@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -33,8 +33,6 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,6 +71,8 @@ public class XmlDomParserContext extends ParserContext {
     protected static final String FEATURE_INCLUDE_IGNORABLE_WHITESPACE =
         "http://apache.org/xml/features/dom/include-ignorable-whitespace";
     protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
+    private static final String XINCLUDE_FEATURE_ID = "http://apache.org/xml/features/xinclude";
+    private static final String SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
 
     protected ParserContext.Options options;
     protected DOMParser parser;
@@ -87,7 +87,7 @@ public class XmlDomParserContext extends ParserContext {
     public XmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
         super(runtime);
         this.options = new ParserContext.Options((Long)options.toJava(Long.class));
-        this.java_encoding = encoding.isNil() ? NokogiriHelpers.guessEncoding(runtime) : rubyStringToString(encoding);
+        java_encoding = NokogiriHelpers.getValidEncoding(runtime, encoding);
         ruby_encoding = encoding;
         initErrorHandler();
         initParser(runtime);
@@ -102,9 +102,17 @@ public class XmlDomParserContext extends ParserContext {
     }
 
     protected void initParser(Ruby runtime) {
-        parser = new XmlDomParser();
+        if (options.xInclude) {
+            System.setProperty("org.apache.xerces.xni.parser.XMLParserConfiguration",
+                    "org.apache.xerces.parsers.XIncludeParserConfiguration");
+        }
+        
+        parser = new XmlDomParser(options);
         parser.setErrorHandler(errorHandler);
 
+        // Fix for Issue#586.  This limits entity expansion up to 100000 and nodes up to 3000.
+        setProperty(SECURITY_MANAGER, new org.apache.xerces.util.SecurityManager());        
+        
         if (options.noBlanks) {
             setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
         }
@@ -160,19 +168,29 @@ public class XmlDomParserContext extends ParserContext {
         doc.setInstanceVariable("@errors", errors);
     }
 
-    public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, Exception ex) {
+    public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, RubyClass klazz, Exception ex) {
         if (options.recover) {
-            XmlDocument doc = this.getNewEmptyDocument(context);
-            this.addErrorsIfNecessary(context, doc);
+            XmlDocument xmlDocument = getInterruptedOrNewXmlDocument(context, klazz);
+            this.addErrorsIfNecessary(context, xmlDocument);
             XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
             xmlSyntaxError.setException(ex);
-            ((RubyArray) doc.getInstanceVariable("@errors")).append(xmlSyntaxError);
-            return doc;
+            ((RubyArray) xmlDocument.getInstanceVariable("@errors")).append(xmlSyntaxError);
+            return xmlDocument;
         } else {
             XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
             xmlSyntaxError.setException(ex);
             throw new RaiseException(xmlSyntaxError);
         }
+    }
+    
+    private XmlDocument getInterruptedOrNewXmlDocument(ThreadContext context, RubyClass klazz) {
+        Document document = parser.getDocument();
+        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
+        if (document != null) {
+            xmlDocument.setDocumentNode(context, document);
+        }
+        xmlDocument.setEncoding(ruby_encoding);
+        return xmlDocument;
     }
 
     protected XmlDocument getNewEmptyDocument(ThreadContext context) {
@@ -188,7 +206,7 @@ public class XmlDomParserContext extends ParserContext {
                                        RubyClass klazz,
                                        Document doc) {
         XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
-        xmlDocument.setNode(context, doc);
+        xmlDocument.setDocumentNode(context, doc);
         xmlDocument.setEncoding(ruby_encoding);
 
         if (options.dtdLoad) {
@@ -202,18 +220,19 @@ public class XmlDomParserContext extends ParserContext {
      * Must call setInputSource() before this method.
      */
     public XmlDocument parse(ThreadContext context,
-                             IRubyObject klass,
+                             IRubyObject klazz,
                              IRubyObject url) {
+        XmlDocument xmlDoc;
         try {
             Document doc = do_parse();
-            XmlDocument xmlDoc = wrapDocument(context, (RubyClass)klass, doc);
+            xmlDoc = wrapDocument(context, (RubyClass)klazz, doc);
             xmlDoc.setUrl(url);
             addErrorsIfNecessary(context, xmlDoc);
             return xmlDoc;
         } catch (SAXException e) {
-            return getDocumentWithErrorsOrRaiseException(context, e);
+            return getDocumentWithErrorsOrRaiseException(context, (RubyClass)klazz, e);
         } catch (IOException e) {
-            return getDocumentWithErrorsOrRaiseException(context, e);
+            return getDocumentWithErrorsOrRaiseException(context, (RubyClass)klazz, e);
         }
     }
 

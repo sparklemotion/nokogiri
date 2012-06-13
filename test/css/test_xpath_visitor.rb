@@ -28,6 +28,12 @@ module Nokogiri
         assert_xpath("//a", @parser.parse('|a'))
       end
 
+      def test_namespaced_attribute_conversion
+        assert_xpath("//a[@flavorjones:href]", @parser.parse('a[flavorjones|href]'))
+        assert_xpath("//a[@href]", @parser.parse('a[|href]'))
+        assert_xpath("//*[@flavorjones:href]", @parser.parse('*[flavorjones|href]'))
+      end
+
       def test_unknown_psuedo_classes_get_pushed_down
         assert_xpath("//a[aaron(.)]", @parser.parse('a:aaron'))
       end

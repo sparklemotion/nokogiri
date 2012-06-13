@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -69,10 +69,19 @@ public class XmlComment extends XmlNode {
         IRubyObject doc = args[0];
         IRubyObject text = args[1];
 
-        XmlDocument xmlDoc = (XmlDocument) doc;
-        Document document = xmlDoc.getDocument();
-        Node node = document.createComment(rubyStringToString(text));
-        setNode(context, node);
+        XmlDocument xmlDoc = null;
+        if (doc instanceof XmlDocument) {
+            xmlDoc = (XmlDocument) doc;
+            
+        } else if (doc instanceof XmlNode) {
+            XmlNode xmlNode = (XmlNode) doc;
+            xmlDoc = (XmlDocument)xmlNode.document(context);
+        }
+        if (xmlDoc != null) {
+            Document document = xmlDoc.getDocument();
+            Node node = document.createComment(rubyStringToString(text));
+            setNode(context, node);
+        }
     }
 
     @Override

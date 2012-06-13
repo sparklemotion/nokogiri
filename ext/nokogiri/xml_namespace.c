@@ -11,12 +11,9 @@ VALUE cNokogiriXmlNamespace ;
 static VALUE prefix(VALUE self)
 {
   xmlNsPtr ns;
-  xmlDocPtr doc;
 
   Data_Get_Struct(self, xmlNs, ns);
   if(!ns->prefix) return Qnil;
-
-  Data_Get_Struct(rb_iv_get(self, "@document"), xmlDoc, doc);
 
   return NOKOGIRI_STR_NEW2(ns->prefix);
 }
@@ -30,12 +27,9 @@ static VALUE prefix(VALUE self)
 static VALUE href(VALUE self)
 {
   xmlNsPtr ns;
-  xmlDocPtr doc;
 
   Data_Get_Struct(self, xmlNs, ns);
   if(!ns->href) return Qnil;
-
-  Data_Get_Struct(rb_iv_get(self, "@document"), xmlDoc, doc);
 
   return NOKOGIRI_STR_NEW2(ns->href);
 }

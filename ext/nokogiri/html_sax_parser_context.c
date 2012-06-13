@@ -13,31 +13,35 @@ static void deallocate(xmlParserCtxtPtr ctxt)
   NOKOGIRI_DEBUG_END(handler);
 }
 
-static VALUE parse_memory(VALUE klass, VALUE data, VALUE encoding)
+static VALUE
+parse_memory(VALUE klass, VALUE data, VALUE encoding)
 {
-  htmlParserCtxtPtr ctxt;
+    htmlParserCtxtPtr ctxt;
 
-  if(NIL_P(data)) rb_raise(rb_eArgError, "data cannot be nil");
-  if(!(int)RSTRING_LEN(data))
-    rb_raise(rb_eRuntimeError, "data cannot be empty");
+    if (NIL_P(data))
+	rb_raise(rb_eArgError, "data cannot be nil");
+    if (!(int)RSTRING_LEN(data))
+	rb_raise(rb_eRuntimeError, "data cannot be empty");
 
-  ctxt = htmlCreateMemoryParserCtxt(
-      StringValuePtr(data),
-      (int)RSTRING_LEN(data)
-  );
-
-  if(RTEST(encoding)) {
-    xmlCharEncodingHandlerPtr enc = xmlFindCharEncodingHandler(StringValuePtr(encoding));
-    if(enc != NULL) {
-      xmlSwitchToEncoding(ctxt, enc);
-      if(ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
-        rb_raise(rb_eRuntimeError, "Unsupported encoding %s",
-            StringValuePtr(encoding));
-      }
+    ctxt = htmlCreateMemoryParserCtxt(StringValuePtr(data),
+				      (int)RSTRING_LEN(data));
+    if (ctxt->sax) {
+	xmlFree(ctxt->sax);
+	ctxt->sax = NULL;
     }
-  }
 
-  return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
+    if (RTEST(encoding)) {
+	xmlCharEncodingHandlerPtr enc = xmlFindCharEncodingHandler(StringValuePtr(encoding));
+	if (enc != NULL) {
+	    xmlSwitchToEncoding(ctxt, enc);
+	    if (ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
+		rb_raise(rb_eRuntimeError, "Unsupported encoding %s",
+			 StringValuePtr(encoding));
+	    }
+	}
+    }
+
+    return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
 }
 
 static VALUE parse_file(VALUE klass, VALUE filename, VALUE encoding)
@@ -49,30 +53,48 @@ static VALUE parse_file(VALUE klass, VALUE filename, VALUE encoding)
   return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
 }
 
-static VALUE parse_with(VALUE self, VALUE sax_handler)
+static VALUE
+parse_doc(VALUE ctxt_val)
 {
-  htmlParserCtxtPtr ctxt;
-  htmlSAXHandlerPtr sax;
+    htmlParserCtxtPtr ctxt = (htmlParserCtxtPtr)ctxt_val;
+    htmlParseDocument(ctxt);
+    return Qnil;
+}
 
-  if(!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser))
-    rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
+static VALUE
+parse_doc_finalize(VALUE ctxt_val)
+{
+    htmlParserCtxtPtr ctxt = (htmlParserCtxtPtr)ctxt_val;
 
-  Data_Get_Struct(self, htmlParserCtxt, ctxt);
-  Data_Get_Struct(sax_handler, htmlSAXHandler, sax);
+    if (ctxt->myDoc)
+	xmlFreeDoc(ctxt->myDoc);
 
-  /* Free the sax handler since we'll assign our own */
-  if(ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
-    xmlFree(ctxt->sax);
+    NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
+    return Qnil;
+}
 
-  ctxt->sax = sax;
-  ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
+static VALUE
+parse_with(VALUE self, VALUE sax_handler)
+{
+    htmlParserCtxtPtr ctxt;
+    htmlSAXHandlerPtr sax;
 
-  htmlParseDocument(ctxt);
+    if (!rb_obj_is_kind_of(sax_handler, cNokogiriXmlSaxParser))
+	rb_raise(rb_eArgError, "argument must be a Nokogiri::XML::SAX::Parser");
 
-  if(NULL != ctxt->myDoc) xmlFreeDoc(ctxt->myDoc);
+    Data_Get_Struct(self, htmlParserCtxt, ctxt);
+    Data_Get_Struct(sax_handler, htmlSAXHandler, sax);
 
-  NOKOGIRI_SAX_TUPLE_DESTROY(ctxt->userData);
-  return self;
+    /* Free the sax handler since we'll assign our own */
+    if (ctxt->sax && ctxt->sax != (xmlSAXHandlerPtr)&xmlDefaultSAXHandler)
+	xmlFree(ctxt->sax);
+
+    ctxt->sax = sax;
+    ctxt->userData = (void *)NOKOGIRI_SAX_TUPLE_NEW(ctxt, sax_handler);
+
+    rb_ensure(parse_doc, (VALUE)ctxt, parse_doc_finalize, (VALUE)ctxt);
+
+    return self;
 }
 
 void init_html_sax_parser_context()

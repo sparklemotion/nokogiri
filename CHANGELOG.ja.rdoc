@@ -1,3 +1,129 @@
+== 1.5.4 / unreleased
+
+* Features
+
+  * The "nokogiri" script now has more verbose output when passed the `--rng` option. #675 (Thanks, Dan Radez!)
+  * Build support on hardened Debian systems that use `-Werror=format-security`. #680.
+  * Better build support for systems with pkg-config. #584
+  * Better build support for systems with multiple iconv installations.
+
+* Bugfixes
+
+  * Segmentation fault when creating a comment node for a DocumentFragment. #677, #678.
+  * Treat '.' as xpath in at() and search(). #690
+
+  * [MRI, Security] Default parse options for XML documents were
+    changed to not make network connections during document parsing,
+    to avoid XXE vulnerability. #693
+
+    To re-enable this behavior, the configuration method `nononet` may
+    be called, like this:
+
+    Nokogiri::XML::Document.parse(xml) { |config| config.nononet }
+    
+    Insert your own joke about double-negatives here.
+
+
+== 1.5.3 / 2012-06-01
+
+* Features
+
+  * Support for "prefixless" CSS selectors ~, > and + like jQuery
+    supports. #621, #623. (Thanks, David Lee!)
+  * Attempting to improve installation on homebrew 0.9 (with regards
+    to iconv). Isn't package management convenient?
+
+* Bugfixes
+
+  * Custom xpath functions with empty nodeset arguments cause a
+    segfault. #634.
+  * Nokogiri::XML::Node#css now works for XML documents with default
+    namespaces when the rule contains attribute selector without
+    namespace.
+  * Fixed marshalling bugs around how arguments are passed to (and
+    returned from) XSLT custom xpath functions. #640.
+  * Nokogiri::XML::Reader#outer_xml がJRubyで正しく動作しない #617
+  * Nokogiri::XML::Attribute が JRuby 上で　nil namespace を返す　#647
+  * Nokogiri::XML::Node#namespace= メソッドが JRuby　上で prefix
+  　が無い namespace を設定できない #648
+  * [JRuby] 1.9 モードで rake を実行するとデッドロックを引き起こす #571
+  * HTML::Document#meta_encoding does not raise exception on docs with
+    malformed content-type. #655
+  * Fixing segfault related to unsupported encodings in in-context
+    parsing on 1.8.7. #643
+  * [JRuby] Concurrency issue in XPath parsing. #682
+
+
+== 1.5.2 / 2012-03-09
+
+Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, #632.
+
+
+== 1.5.1 / 2012年3月9日
+
+* 新機能
+
+  * XML::Builder#comment はコメントノードを作れるようになった.
+  * CSS searches now support namespaced attributes. #593
+  * Java integration 機能が追加された. このバージョンから, 
+    XML::Document.wrap と XML::Document#to_java メソッドが利用可能。
+  * RelaxNG validator support in the `nokogiri` cli utility. #591 (thanks, Dan Radez!)
+
+* バグの修正
+
+  * エンコーディング自動認識において発生しうるメモリリークを修正.
+    Tim Elliottに感謝！
+  * homebrew はインストールしたら、extconf は homebrew のパスを読む。
+  * Inconsistent behavior of Nokogiri 1.5.0 Java #620
+  * Inheriting from Nokogiri::XML::Node on JRuby (1.6.4/5) fails #560
+  * XML::Attr nodes are not allowed to be added as node children, so an
+    exception is raised. #558
+  * No longer defensively "pickle" adjacent text nodes on
+    Node#add_next_sibling and Node#add_previous_sibling calls. #595.
+  * Java version inconsistency: it returns nil for empty attributes #589
+  * to_xhtml incorrectly generates <p /></p> when tag is empty #557
+  * Document#add_child now accepts a Node, NodeSet, DocumentFragment,
+    or String. #546.
+  * Document#create_element now recognizes namespaces containing
+    non-word characters (like "SOAP-ENV"). This is mostly relevant to
+    users of Builder, which calls Document#create_element for nearly
+    everything. #531.
+  * File encoding broken in 1.5.0 / jruby / windows #529
+  * Java version does not return namespace defs as attrs for ::HTML #542
+  * Bad file descriptor with Nokogiri 1.5.0 #495
+  * remove_namespace! doesn't work in pure java version #492
+  * The Nokogiri Java native build throws a null pointer exception when
+    ActiveSupport's .blank? method is called directly on a parsed object.
+    #489
+  * 1.5.0 Not using correct character encoding #488
+  * Raw XML string in XML Builder broken on JRuby #486
+  * Nokogiri 1.5.0 XML generation broken on JRuby #484
+  * Do not allow multiple root nodes. #550
+  * Fixes for custom XPath functions. #605, #606 (thanks, Juan Wajnerman!)
+  * Node#to_xml does not override :save_with if it is provided. #505
+  * Node#set is a private method [JRuby]. #564 (thanks, Nick Sieger!)
+  * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
+
+== 1.5.0 / 2011年7月1日
+
+* 註
+
+  * 1.4.7からの変更点を参照
+
+* 新機能
+
+  * 各文書形式用のデフォルトのNode::SaveOptionsの組合せを定数化.
+    (Node::SaveOptions::DEFAULT_{X,H,XH}TML)
+
+* バグの修正
+
+  * JRuby版ではホワイトスペースの扱いに難があるため、XML出力（to_xml）において
+    自動整形をデフォルトでは行わないように変更. #415
+  * JRuby版でNodeのないNodeSetでNullPointerExceptionが発生するのを修正. #443
+  * エンコーディング宣言のないHTMLファイルで部分的に重複したドキュメントが生成される問題を修正した. #478
+  * <meta charset="..."> を認識するようになった.
+
+
 == 1.5.0 beta3 ２０１０年１２月２日
 
 * 註
@@ -26,6 +152,19 @@
   * Ruby 1.8.6は非推奨となった. インストールできるかもしれないが、正式なサポートは終了.
   * LibXML 2.6.16および古いバージョンは非推奨. インストールできない.
   * FFIサポートは削除された.
+
+=== 1.4.7 / 2011年7月1日
+
+* バグの修正
+
+  * エンコーディング宣言のないHTMLファイルで部分的に重複したドキュメントが生成される問題を修正した. #478
+
+=== 1.4.6 / 2011年6月19日
+
+* ノート
+
+  * このバージョンは、1.4.5と機能的に同じです
+  * Rubyの1.8.6のサポートが復元されている
 
 === 1.4.5 / 未リリース
 

@@ -29,9 +29,7 @@ module Nokogiri
       end
 
       def test_lots_of_new_cdata
-        assert_nothing_raised do
-          100.times { CDATA.new(@xml, "asdfasdf") }
-        end
+        assert 100.times { CDATA.new(@xml, "asdfasdf") }
       end
 
       def test_content=

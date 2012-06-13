@@ -58,6 +58,41 @@ EOXSL
         assert_equal 'FOO', result.css('title').first.text
       end
 
+
+      def test_function_arguments
+        skip("Pure Java version doesn't support this feature.") if !Nokogiri.uses_libxml?
+        foo = Class.new do
+          include MiniTest::Assertions
+
+          def multiarg *args
+            assert_equal ["abc", "xyz"], args
+            args.first
+          end
+
+          def numericarg arg
+            assert_equal 42, arg
+            arg
+          end
+        end
+
+        xsl = Nokogiri.XSLT(<<-EOXSL, "http://e.org/functions" => foo)
+<?xml version="1.0"?>
+<xsl:stylesheet version="1.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:f="http://e.org/functions"
+  extension-element-prefixes="f">
+
+  <xsl:template match="text()">
+    <xsl:copy-of select="f:multiarg('abc', 'xyz')"/>
+    <xsl:copy-of select="f:numericarg(42)"/>
+  </xsl:template>
+</xsl:stylesheet>
+EOXSL
+
+        xsl.transform @xml
+      end
+
+
       def test_function_XSLT
         skip("Pure Java version doesn't support this feature.") if !Nokogiri.uses_libxml?
         foo = Class.new do

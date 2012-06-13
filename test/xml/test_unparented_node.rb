@@ -223,6 +223,38 @@ module Nokogiri
         right_space.add_next_sibling(left_space)
         assert_equal left_space, right_space
       end
+      
+      def test_add_next_sibling_to_root_raises_exception
+        xml = Nokogiri::XML(<<-eoxml)
+        <root />
+        eoxml
+        
+        node = Nokogiri::XML::Node.new 'child', xml
+
+        assert_raise(ArgumentError) do
+          xml.root.add_next_sibling(node)
+        end
+      end
+
+      def test_add_previous_sibling_to_root_raises_exception
+        xml = Nokogiri::XML(<<-eoxml)
+        <root />
+        eoxml
+        
+        node = Nokogiri::XML::Node.new 'child', xml
+
+        assert_raise(ArgumentError) do
+          xml.root.add_previous_sibling(node)
+        end
+      end
+
+      def test_add_pi_as_previous_sibling_to_root_is_ok
+        doc = Nokogiri::XML "<root>foo</root>"
+        pi = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo.xsl"})
+        doc.root.add_previous_sibling pi
+        expected_doc = %Q{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<root>foo</root>}
+        assert_includes doc.to_xml, expected_doc
+      end
 
       def test_find_by_css_with_tilde_eql
         xml = Nokogiri::XML.parse(<<-eoxml)

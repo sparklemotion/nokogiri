@@ -1,4 +1,114 @@
-== 1.5.0 / unreleased
+== 1.5.4 / unreleased
+
+* Features
+
+  * The "nokogiri" script now has more verbose output when passed the `--rng` option. #675 (Thanks, Dan Radez!)
+  * Build support on hardened Debian systems that use `-Werror=format-security`. #680.
+  * Better build support for systems with pkg-config. #584
+  * Better build support for systems with multiple iconv installations.
+
+* Bugfixes
+
+  * Segmentation fault when creating a comment node for a DocumentFragment. #677, #678.
+  * Treat '.' as xpath in at() and search(). #690
+
+  * [MRI, Security] Default parse options for XML documents were
+    changed to not make network connections during document parsing,
+    to avoid XXE vulnerability. #693
+
+    To re-enable this behavior, the configuration method `nononet` may
+    be called, like this:
+
+    Nokogiri::XML::Document.parse(xml) { |config| config.nononet }
+    
+    Insert your own joke about double-negatives here.
+
+
+== 1.5.3 / 2012-06-01
+
+* Features
+
+  * Support for "prefixless" CSS selectors ~, > and + like jQuery
+    supports. #621, #623. (Thanks, David Lee!)
+  * Attempting to improve installation on homebrew 0.9 (with regards
+    to iconv). Isn't package management convenient?
+
+* Bugfixes
+
+  * Custom xpath functions with empty nodeset arguments cause a
+    segfault. #634.
+  * Nokogiri::XML::Node#css now works for XML documents with default
+    namespaces when the rule contains attribute selector without
+    namespace.
+  * Fixed marshalling bugs around how arguments are passed to (and
+    returned from) XSLT custom xpath functions. #640.
+  * Nokogiri::XML::Reader#outer_xml is broken in JRuby #617
+  * Nokogiri::XML::Attribute on JRuby returns a nil namespace #647
+  * Nokogiri::XML::Node#namespace= cannot set a namespace without a
+    prefix on JRuby #648
+  * [JRuby] 1.9 mode causes dead lock while running rake #571
+  * HTML::Document#meta_encoding does not raise exception on docs with
+    malformed content-type. #655
+  * Fixing segfault related to unsupported encodings in in-context
+    parsing on 1.8.7. #643
+  * [JRuby] Concurrency issue in XPath parsing. #682
+
+
+== 1.5.2 / 2012-03-09
+
+Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, #632.
+
+
+== 1.5.1 / 2012-03-09
+
+* Features
+
+  * XML::Builder#comment allows creation of comment nodes.
+  * CSS searches now support namespaced attributes. #593
+  * Java integration feature is added. Now, XML::Document.wrap
+    and XML::Document#to_java methods are available.
+  * RelaxNG validator support in the `nokogiri` cli utility. #591 (thanks, Dan Radez!)
+
+* Bugfixes
+
+  * Fix many memory leaks and segfault opportunities. Thanks, Tim Elliott!
+  * extconf searches homebrew paths if homebrew is installed.
+  * Inconsistent behavior of Nokogiri 1.5.0 Java #620
+  * Inheriting from Nokogiri::XML::Node on JRuby (1.6.4/5) fails #560
+  * XML::Attr nodes are not allowed to be added as node children, so an
+    exception is raised. #558
+  * No longer defensively "pickle" adjacent text nodes on
+    Node#add_next_sibling and Node#add_previous_sibling calls. #595.
+  * Java version inconsistency: it returns nil for empty attributes #589
+  * to_xhtml incorrectly generates <p /></p> when tag is empty #557
+  * Document#add_child now accepts a Node, NodeSet, DocumentFragment,
+    or String. #546.
+  * Document#create_element now recognizes namespaces containing
+    non-word characters (like "SOAP-ENV"). This is mostly relevant to
+    users of Builder, which calls Document#create_element for nearly
+    everything. #531.
+  * File encoding broken in 1.5.0 / jruby / windows #529
+  * Java version does not return namespace defs as attrs for ::HTML #542
+  * Bad file descriptor with Nokogiri 1.5.0 #495
+  * remove_namespace! doesn't work in pure java version #492
+  * The Nokogiri Java native build throws a null pointer exception
+    when ActiveSupport's .blank? method is called directly on a parsed
+    object. #489
+  * 1.5.0 Not using correct character encoding #488
+  * Raw XML string in XML Builder broken on JRuby #486
+  * Nokogiri 1.5.0 XML generation broken on JRuby #484    
+  * Do not allow multiple root nodes. #550
+  * Fixes for custom XPath functions. #605, #606 (thanks, Juan Wajnerman!)
+  * Node#to_xml does not override :save_with if it is provided. #505
+  * Node#set is a private method [JRuby]. #564 (thanks, Nick Sieger!)
+  * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
+
+
+== 1.5.0 / 2011-07-01
+
+* Notes
+
+  * See changelog from 1.4.7
 
 * Features
 
@@ -9,6 +119,10 @@
   * default output of XML on JRuby is no longer formatted due to
     inconsistent whitespace handling. #415
   * (JRuby) making empty NodeSets with null `nodes` member safe to operate on. #443
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding.
+  * Add support for <meta charset="...">.
 
 == 1.5.0 beta3 / 2010/12/02
 
@@ -39,11 +153,28 @@
   * LibXML 2.6.16 and earlier are deprecated. Nokogiri will refuse to install.
   * FFI support is removed.
 
-=== 1.4.5 / unrelease
+=== 1.4.7 / 2011-07-01
+
+* Bugfixes
+
+  * Fix a bug in advanced encoding detection that leads to partially
+    duplicated document when parsing an HTML file with unknown
+    encoding. Thanks, Timothy Elliott (@ender672)! #478
+
+=== 1.4.6 / 2011-06-19
+
+* Notes
+
+  * This version is functionally identical to 1.4.5.
+  * Ruby 1.8.6 support has been restored.
+
+=== 1.4.5 / 2011-05-19
 
 * New Features
 
   * Nokogiri::HTML::Document#title accessor gets and sets the document title.
+  * extracted sets of Node::SaveOptions into Node::SaveOptions::DEFAULT_{X,H,XH}TML (refactor)
+  * Raise an exception if a string is passed to Nokogiri::XML::Schema#validate. #406
 
 * Bugfixes
 
@@ -56,6 +187,8 @@
   * HTML::SAX::Parser should call back a block given to parse*() if any, just as XML::SAX::Parser does.
   * Add further encoding detection to HTML parser that libxml2 does not do.
   * Document#remove_namespaces! now handles attributes with namespaces. #396
+  * XSLT::Stylesheet#transform no longer segfaults when handed a non-XML::Document. #452
+  * XML::Reader no longer segfaults when under GC pressure. #439
 
 === 1.4.4 / 2010-11-15
 
@@ -350,7 +483,7 @@
   * Nokogiri::HTML.fragment will properly handle text only nodes (LH #43)
   * Nokogiri::XML::Node#before will prepend text nodes (LH #44)
   * Nokogiri::XML::Node#after will append text nodes
-  * Nokogiri::XML::Node#search automatically registers root namepsaces (LH #42)
+  * Nokogiri::XML::Node#search automatically registers root namespaces (LH #42)
   * Nokogiri::XML::NodeSet#search automatically registers namespaces
   * Nokogiri::HTML::NamedCharacters delegates to libxml2
   * Nokogiri::XML::Node#[] can take a symbol (LH #48)
@@ -470,7 +603,7 @@
 
 * Bugfixes
 
-  * Changed memory mangement from weak refs to document refs
+  * Changed memory management from weak refs to document refs
   * Plugged some memory leaks
   * Builder blocks can call methods from surrounding contexts
 

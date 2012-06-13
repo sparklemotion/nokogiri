@@ -1,0 +1,58 @@
+#! /usr/bin/env bash
+#
+#  script to build gems for all relevant platforms:
+#  - MRI et al (standard gem)
+#  - windows (x86-mingw32 and x86-msin32-60)
+#  - jruby
+#
+#  prerequisite is the mingw32 packages.
+#  on ubuntu, `sudo apt-get install mingw32`
+#  for others, read up at https://github.com/luislavena/rake-compiler
+#
+
+# Load RVM into a shell session *as a function*
+if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
+    source "$HOME/.rvm/scripts/rvm"
+elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
+    source "/usr/local/rvm/scripts/rvm"
+else
+    echo "ERROR: An RVM installation was not found.\n"
+fi
+
+function rvm_use {
+    current_ruby=$1
+    rvm use "${1}@nokogiri" --create
+}
+
+set -o errexit
+
+# initialize
+rvm_use 1.8.7
+rm -rf tmp pkg
+bundle exec rake clean clobber
+
+# holding pen
+rm -rf gems
+mkdir -p gems
+
+# MRI
+rvm_use 1.8.7
+bundle exec rake gem
+cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
+
+# windows
+rvm_use 1.8.7
+bundle exec rake-compiler cross-ruby VERSION=1.8.7-p330
+bundle exec rake-compiler cross-ruby VERSION=1.9.2-p136
+bundle exec rake cross
+rake gem:windows # don't use bundler here. it blows up. *shrug*
+cp -v pkg/nokogiri*x86-{mingw32,mswin32}*.gem gems
+
+# jruby
+rvm_use jruby-1.6.5
+bundle exec rake clean clobber
+rvm_use 1.8.7
+bundle exec rake generate
+rvm_use jruby-1.6.5
+bundle exec rake gem
+cp -v pkg/nokogiri*java.gem gems

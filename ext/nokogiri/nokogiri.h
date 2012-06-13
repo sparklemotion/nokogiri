@@ -27,7 +27,9 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxml/HTMLparser.h>
 #include <libxml/HTMLtree.h>
 #include <libxml/relaxng.h>
+#include <libxml/xinclude.h>
 #include <libxslt/extensions.h>
+#include <libxml/c14n.h>
 #include <ruby.h>
 
 #ifdef HAVE_RUBY_ENCODING_H
@@ -102,6 +104,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <xml_sax_push_parser.h>
 #include <xml_reader.h>
 #include <html_sax_parser_context.h>
+#include <html_sax_push_parser.h>
 #include <xslt_stylesheet.h>
 #include <xml_syntax_error.h>
 #include <xml_schema.h>
@@ -117,11 +120,8 @@ extern VALUE mNokogiriHtml ;
 extern VALUE mNokogiriHtmlSax ;
 extern VALUE mNokogiriXslt ;
 
-#define NOKOGIRI_ROOT_NODE(_node) \
-  st_insert(((nokogiriTuplePtr)(_node)->doc->_private)->unlinkedNodes, (st_data_t)(_node), (st_data_t)(_node))
-
-#define NOKOGIRI_ROOT_NSDEF(_nsDef, _doc)     \
-  st_insert(((nokogiriTuplePtr)(_doc)->_private)->unlinkedNodes, (st_data_t)(_nsDef), (st_data_t)(_nsDef))
+void nokogiri_root_node(xmlNodePtr);
+void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
 
 #ifdef DEBUG
 

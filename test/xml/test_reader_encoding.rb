@@ -120,6 +120,22 @@ module Nokogiri
             assert_equal @reader.encoding, name.encoding.name
           end
         end
+
+        def test_value_lookup_segfault
+          skip("JRuby doesn't do GC.") if Nokogiri.jruby?
+          old_stress = GC.stress
+
+          begin
+            GC.stress = true
+
+            while node = @reader.read
+              nodes = node.send(:attr_nodes)
+              nodes.first.name if nodes.first
+            end
+          ensure
+            GC.stress = old_stress
+          end
+        end
       end
     end
   end
