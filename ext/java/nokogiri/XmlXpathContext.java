@@ -94,16 +94,16 @@ public class XmlXpathContext extends RubyObject {
     }
 
     @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node) {
+    public static IRubyObject rbNew(ThreadContext thread_context, IRubyObject klazz, IRubyObject node) {
         XmlNode xmlNode = (XmlNode)node;
-        XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
+        XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(thread_context.getRuntime(), (RubyClass)klazz);
         xmlXpathContext.xpath = XPathFactory.newInstance().newXPath();
         xmlXpathContext.setNode(xmlNode);
         return xmlXpathContext;
     }
 
     @JRubyMethod
-    public IRubyObject evaluate(ThreadContext context, IRubyObject expr, IRubyObject handler) {
+    public IRubyObject evaluate(ThreadContext thread_context, IRubyObject expr, IRubyObject handler) {
         String src = (String) expr.toJava(String.class);
         try {
             if(!handler.isNil()) {
@@ -116,7 +116,7 @@ public class XmlXpathContext extends RubyObject {
                 xpath.setXPathFunctionResolver(NokogiriXPathFunctionResolver.create(handler));
             }
             XPathExpression xpathExpression = xpath.compile(src);
-            return node_set(context, xpathExpression);
+            return node_set(thread_context, xpathExpression);
         } catch (XPathExpressionException xpee) {
             xpee = new XPathExpressionException(src);
             RubyException e = XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
@@ -124,10 +124,10 @@ public class XmlXpathContext extends RubyObject {
         }
     }
 
-    protected IRubyObject node_set(ThreadContext rbctx, XPathExpression xpathExpression) {
+    protected IRubyObject node_set(ThreadContext thread_context, XPathExpression xpathExpression) {
         XmlNodeSet result = null;
         try {  
-            result = tryGetNodeSet(xpathExpression);
+            result = tryGetNodeSet(thread_context, xpathExpression);
             return result;
         } catch (XPathExpressionException xpee) {
             try {
@@ -139,10 +139,11 @@ public class XmlXpathContext extends RubyObject {
         }
     }
     
-    private XmlNodeSet tryGetNodeSet(XPathExpression xpathExpression) throws XPathExpressionException {
+    private XmlNodeSet tryGetNodeSet(ThreadContext thread_context, XPathExpression xpathExpression) throws XPathExpressionException {
         NodeList nodeList = (NodeList)xpathExpression.evaluate(context.node, XPathConstants.NODESET);
         XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
         xmlNodeSet.setNodeList(nodeList);
+        xmlNodeSet.initialize(thread_context.getRuntime(), context);
         return xmlNodeSet;    
     }
 

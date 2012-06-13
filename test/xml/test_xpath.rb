@@ -263,6 +263,19 @@ module Nokogiri
           }.new)
         assert_equal foo, doc.xpath("//foo")
       end
+
+      def test_node_set_should_be_decorated
+        # "called decorate on nill" exception in JRuby issue#514
+        process_output= <<END
+<test>
+ <track type="Image">
+ <Format>LZ77</Format>
+</test>
+END
+        doc = Nokogiri::XML.parse(process_output)
+        node = doc.xpath(%{//track[@type='Video']})
+        assert_equal "[]", node.xpath("Format").inspect
+      end
     end
   end
 end

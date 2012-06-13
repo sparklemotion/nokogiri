@@ -10,6 +10,7 @@
   * JRuby 1.9 モードでエラー, uncaught throw 'encoding_found', が発生する。 #673
   * JRuby で US-ASCII にエンコードされた文字列が正しくないエンコードを返してくる。 #583
   * 512 文字以上が与えられたときに XmlSaxPushParser が IndexOutOfBoundsException を投げる。#567, #615
+  * Xpath を評価した結果、空の NodeSet が帰ってくる場合に、NodeSet が持っている Document の decorate に失敗して例外が投げられる。#514
 
 
 == 1.5.4 / ２０１２年６月１２日
