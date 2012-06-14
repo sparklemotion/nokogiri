@@ -150,7 +150,7 @@ module Nokogiri
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
-          path = path.gsub(/\/xmlns:/,'/:') unless Nokogiri.uses_libxml?
+          path = path.gsub(/xmlns:/, ' :') unless Nokogiri.uses_libxml?
 
           binds.each do |key,value|
             ctx.register_variable key.to_s, value

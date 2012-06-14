@@ -276,6 +276,20 @@ END
         node = doc.xpath(%{//track[@type='Video']})
         assert_equal "[]", node.xpath("Format").inspect
       end
+
+      def test_very_specific_xml_xpath_making_problems_in_jruby
+        # manually merges pull request #681
+        xml_string = %q{<?xml version="1.0" encoding="UTF-8"?>
+        <ONIXMessage xmlns:elibri="http://elibri.com.pl/ns/extensions" release="3.0" xmlns="http://www.editeur.org/onix/3.0/reference">
+          <Product>
+            <RecordReference>a</RecordReference>
+          </Product>
+        </ONIXMessage>}
+        
+        xml_doc = Nokogiri::XML(xml_string)
+        onix = xml_doc.children.first
+        assert_equal 'a', onix.at_xpath('xmlns:Product').at_xpath('xmlns:RecordReference').text
+      end
     end
   end
 end
