@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -78,24 +78,6 @@ public class XmlElement extends XmlNode {
                 }
             }
         }
-    }
-
-    @Override
-    @JRubyMethod(name = {"add_namespace_definition", "add_namespace"})
-    public IRubyObject add_namespace_definition(ThreadContext context,
-                                                IRubyObject prefix,
-                                                IRubyObject href) {
-        Element element = (Element) node;
-
-        final String uri = "http://www.w3.org/2000/xmlns/";
-        String qName =
-            prefix.isNil() ? "xmlns" : "xmlns:" + rubyStringToString(prefix);
-        element.setAttributeNS(uri, qName, rubyStringToString(href));
-
-        XmlNamespace ns = (XmlNamespace) super.add_namespace_definition(context, prefix, href);
-        updateNodeNamespaceIfNecessary(context, ns);
-
-        return ns;
     }
 
     @Override

@@ -11,6 +11,8 @@
   * Invalid encoding returned in JRuby with US-ASCII. #583
   * XmlSaxPushParser raises IndexOutOfBoundsException when over 512 characters are given. #567, #615
   * When xpath evaluation returns empty NodeSet, decorating NodeSet's base document raises exception. #514
+  * JRuby raises exception when xpath with namespace is specified. pull request #681 (Thanks, Piotr Szmielew)
+  * JRuby renders nodes without their namespace when subclassing Node. #695
 
 
 == 1.5.4 / 2012-06-12

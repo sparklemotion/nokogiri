@@ -524,7 +524,15 @@ public class XmlNode extends RubyObject {
                                                 IRubyObject prefix,
                                                 IRubyObject href) {
         Node namespaceOwner;
-        if (node.getNodeType() == Node.ELEMENT_NODE) namespaceOwner = node;
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            namespaceOwner = node;
+            Element element = (Element) node;
+
+            final String uri = "http://www.w3.org/2000/xmlns/";
+            String qName =
+                prefix.isNil() ? "xmlns" : "xmlns:" + rubyStringToString(prefix);
+            element.setAttributeNS(uri, qName, rubyStringToString(href));
+        }
         else if (node.getNodeType() == Node.ATTRIBUTE_NODE) namespaceOwner = ((Attr)node).getOwnerElement();
         else namespaceOwner = node.getParentNode();
         XmlNamespace ns = XmlNamespace.createFromPrefixAndHref(namespaceOwner, prefix, href);

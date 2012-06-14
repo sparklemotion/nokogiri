@@ -11,6 +11,8 @@
   * JRuby で US-ASCII にエンコードされた文字列が正しくないエンコードを返してくる。 #583
   * 512 文字以上が与えられたときに XmlSaxPushParser が IndexOutOfBoundsException を投げる。#567, #615
   * Xpath を評価した結果、空の NodeSet が帰ってくる場合に、NodeSet が持っている Document の decorate に失敗して例外が投げられる。#514
+  * JRuby で xpath を namespace 付きで指定した場合に、エラーが発生する。pull request #681 (ありがとう, Piotr Szmielew) 
+  * JRuby で Nokogiri::XML::Node を継承したクラスを定義すると、namespace が表示されない。 #695
 
 
 == 1.5.4 / ２０１２年６月１２日

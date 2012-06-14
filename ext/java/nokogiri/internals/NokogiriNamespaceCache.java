@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -32,7 +32,6 @@
 
 package nokogiri.internals;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 import java.util.ArrayList;
@@ -40,11 +39,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import nokogiri.NokogiriService;
-import nokogiri.XmlDocument;
 import nokogiri.XmlNamespace;
 
-import org.jruby.Ruby;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
