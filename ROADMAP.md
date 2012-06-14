@@ -2,10 +2,10 @@
 
 ## overhaul serialize/pretty printing API
 
-* https://github.com/tenderlove/nokogiri/issues/530
+* https://github.com/sparklemotion/nokogiri/issues/530
   XHTML formatting can't be turned off
 
-* https://github.com/tenderlove/nokogiri/issues/415
+* https://github.com/sparklemotion/nokogiri/issues/415
   XML formatting should be no formatting
 
 
@@ -16,35 +16,35 @@
 
 ## Node should not be Enumerable; and should have a better attributes API
 
-* https://github.com/tenderlove/nokogiri/issues/679
+* https://github.com/sparklemotion/nokogiri/issues/679
   Mixing in Enumerable has some unintended consequences; plus we want to improve the attributes API
 
-* (closed) https://github.com/tenderlove/nokogiri/issues/666
+* (closed) https://github.com/sparklemotion/nokogiri/issues/666
   Some ideas for a better attributes API?
 
 
 ## improve CSS query parsing
 
-* https://github.com/tenderlove/nokogiri/issues/528
+* https://github.com/sparklemotion/nokogiri/issues/528
   support `:not()` with a nontrivial argument, like `:not(div p.c)`
 
-* https://github.com/tenderlove/nokogiri/issues/451
+* https://github.com/sparklemotion/nokogiri/issues/451
   chained :not pseudoselectors
 
 * better jQuery selector support:
-  * https://github.com/tenderlove/nokogiri/issues/621
-  * https://github.com/tenderlove/nokogiri/issues/342
-  * https://github.com/tenderlove/nokogiri/issues/628
-  * https://github.com/tenderlove/nokogiri/issues/652
-  * https://github.com/tenderlove/nokogiri/issues/688
+  * https://github.com/sparklemotion/nokogiri/issues/621
+  * https://github.com/sparklemotion/nokogiri/issues/342
+  * https://github.com/sparklemotion/nokogiri/issues/628
+  * https://github.com/sparklemotion/nokogiri/issues/652
+  * https://github.com/sparklemotion/nokogiri/issues/688
 
-* https://github.com/tenderlove/nokogiri/issues/394
+* https://github.com/sparklemotion/nokogiri/issues/394
   nth-of-type is wrong, and possibly other selectors as well
 
-* https://github.com/tenderlove/nokogiri/issues/309
+* https://github.com/sparklemotion/nokogiri/issues/309
   incorrect query being executed
 
-* https://github.com/tenderlove/nokogiri/issues/350
+* https://github.com/sparklemotion/nokogiri/issues/350
   :has is wrong?
 
 
@@ -52,15 +52,15 @@
 
 * there are a few tickets about searches not working properly if you
   use or do not use the context node as part of the search.
-  - https://github.com/tenderlove/nokogiri/issues/213
-  - https://github.com/tenderlove/nokogiri/issues/370
-  - https://github.com/tenderlove/nokogiri/issues/454
-  - https://github.com/tenderlove/nokogiri/issues/572
+  - https://github.com/sparklemotion/nokogiri/issues/213
+  - https://github.com/sparklemotion/nokogiri/issues/370
+  - https://github.com/sparklemotion/nokogiri/issues/454
+  - https://github.com/sparklemotion/nokogiri/issues/572
 
 
 ## Better Syntax for custom XPath function handler
 
-* https://github.com/tenderlove/nokogiri/pull/464
+* https://github.com/sparklemotion/nokogiri/pull/464
 
 
 ## Better Syntax around Node#xpath and NodeSet#xpath
@@ -68,7 +68,7 @@
 * look at those methods, and use of Node#extract_params in Node#{css,search}
   * we should standardize on a hash of options for these and other calls
 * what should NodeSet#xpath return?
-  * https://github.com/tenderlove/nokogiri/issues/656
+  * https://github.com/sparklemotion/nokogiri/issues/656
 
 ## Encoding
 

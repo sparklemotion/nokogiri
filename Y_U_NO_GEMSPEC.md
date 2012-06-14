@@ -16,9 +16,9 @@ OHAI! Thank you for asking this question!
 Team Nokogiri gets asked this pretty frequently. Just a sample from
 the historical record:
 
-* [Issue #274](https://github.com/tenderlove/nokogiri/issues/274)
-* [Issue #371](https://github.com/tenderlove/nokogiri/issues/371)
-* [A commit removing nokogiri.gemspec](https://github.com/tenderlove/nokogiri/commit/7f17a643a05ca381d65131515b54d4a3a61ca2e1#commitcomment-667477)
+* [Issue #274](https://github.com/sparklemotion/nokogiri/issues/274)
+* [Issue #371](https://github.com/sparklemotion/nokogiri/issues/371)
+* [A commit removing nokogiri.gemspec](https://github.com/sparklemotion/nokogiri/commit/7f17a643a05ca381d65131515b54d4a3a61ca2e1#commitcomment-667477)
 * [A nokogiri-talk thread](http://groups.google.com/group/nokogiri-talk/browse_thread/thread/4706b002e492d23f)
 * [Another nokogiri-talk thread](http://groups.google.com/group/nokogiri-talk/browse_thread/thread/0b201bb80ea3eea0)
 
