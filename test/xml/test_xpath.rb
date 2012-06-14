@@ -217,7 +217,7 @@ module Nokogiri
       end
 
       def test_custom_xpath_handler_with_args_under_gc_pressure
-        # see http://github.com/tenderlove/nokogiri/issues/#issue/345
+        # see http://github.com/sparklemotion/nokogiri/issues/#issue/345
         tool_inspector = Class.new do
           def name_equals(nodeset, name, *args)
             nodeset.all? do |node|

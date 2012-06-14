@@ -1329,8 +1329,8 @@ VALUE Nokogiri_wrap_xml_node(VALUE klass, xmlNodePtr node)
       return DOC_RUBY_OBJECT(node->doc);
 
   /* It's OK if the node doesn't have a fully-realized document (as in XML::Reader). */
-  /* see https://github.com/tenderlove/nokogiri/issues/95 */
-  /* and https://github.com/tenderlove/nokogiri/issues/439 */
+  /* see https://github.com/sparklemotion/nokogiri/issues/95 */
+  /* and https://github.com/sparklemotion/nokogiri/issues/439 */
   doc = node->doc;
   if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
   node_has_a_document = DOC_RUBY_OBJECT_TEST(doc);

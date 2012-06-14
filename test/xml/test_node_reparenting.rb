@@ -329,7 +329,7 @@ module Nokogiri
 
         describe "unlinking a node and then reparenting it" do
           it "not blow up" do
-            # see http://github.com/tenderlove/nokogiri/issues#issue/22
+            # see http://github.com/sparklemotion/nokogiri/issues#issue/22
             10.times do
               begin
                 doc = Nokogiri::XML <<-EOHTML

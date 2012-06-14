@@ -23,7 +23,7 @@ module Nokogiri
           # Save builder created document
           AS_BUILDER    = 128
           # the default for XML documents
-          DEFAULT_XML  = AS_XML # https://github.com/tenderlove/nokogiri/issues/#issue/415
+          DEFAULT_XML  = AS_XML # https://github.com/sparklemotion/nokogiri/issues/#issue/415
           # the default for HTML document
           DEFAULT_HTML = NO_DECLARATION | NO_EMPTY_TAGS | AS_HTML
         else

@@ -1,10 +1,10 @@
 = Nokogiri (鋸)
 
 * http://nokogiri.org/
-* http://github.com/tenderlove/nokogiri/wikis
-* http://github.com/tenderlove/nokogiri/tree/master
+* http://github.com/sparklemotion/nokogiri/wikis
+* http://github.com/sparklemotion/nokogiri/tree/master
 * http://groups.google.com/group/nokogiri-list
-* http://github.com/tenderlove/nokogiri/issues
+* http://github.com/sparklemotion/nokogiri/issues
 
 == DESCRIPTION:
 
@@ -29,9 +29,9 @@ XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPath
 
   * http://groups.google.com/group/nokogiri-list
 
-{バグ報告}[http://github.com/tenderlove/nokogiri/issues]
+{バグ報告}[http://github.com/sparklemotion/nokogiri/issues]
 
-  * http://github.com/tenderlove/nokogiri/issues
+  * http://github.com/sparklemotion/nokogiri/issues
 
 IRCのチャンネルはfreenodeの #nokogiri です。
 

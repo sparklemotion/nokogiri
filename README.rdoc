@@ -1,10 +1,10 @@
 = Nokogiri {<img src="https://secure.travis-ci.org/tenderlove/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/tenderlove/nokogiri]
 
 * http://nokogiri.org
-* http://github.com/tenderlove/nokogiri/wikis
-* http://github.com/tenderlove/nokogiri/tree/master
+* http://github.com/sparklemotion/nokogiri/wikis
+* http://github.com/sparklemotion/nokogiri/tree/master
 * http://groups.google.com/group/nokogiri-talk
-* http://github.com/tenderlove/nokogiri/issues
+* http://github.com/sparklemotion/nokogiri/issues
 
 == DESCRIPTION:
 
@@ -34,10 +34,10 @@ is available here:
 
   * http://groups.google.com/group/nokogiri-talk
 
-The {bug tracker}[http://github.com/tenderlove/nokogiri/issues]
+The {bug tracker}[http://github.com/sparklemotion/nokogiri/issues]
 is available here:
 
-  * http://github.com/tenderlove/nokogiri/issues
+  * http://github.com/sparklemotion/nokogiri/issues
 
 The IRC channel is #nokogiri on freenode.
 
