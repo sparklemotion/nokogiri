@@ -187,7 +187,7 @@ public class XsltStylesheet extends RubyObject {
         Ruby runtime = context.getRuntime();
         RubyArray errors_of_xmlDoc = (RubyArray) xmlDoc.getInstanceVariable("@errors");
         if (!errors_of_xmlDoc.isEmpty()) {
-            throw runtime.newRuntimeError(errors_of_xmlDoc.first().asJavaString());
+            throw runtime.newRuntimeError(errors_of_xmlDoc.first().asString().asJavaString());
         }
     }
 
