@@ -35,16 +35,15 @@ package nokogiri;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.Pipe;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import nokogiri.internals.NokogiriBlockingQueueInputStream;
 import nokogiri.internals.ParserContext;
 
 import org.jruby.Ruby;
@@ -69,8 +68,7 @@ public class XmlSaxPushParser extends RubyObject {
     ParserContext.Options options;
     IRubyObject optionsRuby;
     IRubyObject saxParser;
-    OutputStream ostream = null;
-    InputStream istream = null;
+    NokogiriBlockingQueueInputStream stream;
     ParserTask parserTask = null;
     FutureTask<XmlSaxParserContext> futureTask = null;
     ExecutorService executor = null;
@@ -120,53 +118,40 @@ public class XmlSaxPushParser extends RubyObject {
         byte[] data = null;
         if (chunk instanceof RubyString || chunk.respondsTo("to_str")) {
             data = chunk.convertToString().getBytes();
-        } else { 
-            try {
-                terminateTask();
-            } catch (IOException e) {
-                throw context.getRuntime().newRuntimeError(e.getMessage());
-            }
-            XmlSyntaxError xmlSyntaxError = 
+        } else {
+            terminateTask(context);
+            XmlSyntaxError xmlSyntaxError =
                 (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
             throw new RaiseException(xmlSyntaxError);
         }
 
         int errorCount0 = parserTask.getErrorCount();;
-        
-        try {
-            if (isLast.isTrue()) {
-                IRubyObject document = invoke(context, this, "document");
-                invoke(context, document, "end_document");
-                terminateTask();
-            } else {
-                ostream.write(data);
-                Thread.currentThread().sleep(10);   // gives a reader a chance to work
+
+
+        if (isLast.isTrue()) {
+            IRubyObject document = invoke(context, this, "document");
+            invoke(context, document, "end_document");
+            terminateTask(context);
+        } else {
+            Future<Void> task = stream.addChunk(new ByteArrayInputStream(data));
+            try {
+              task.get();
+            } catch (Exception e) {
+              throw context.getRuntime().newRuntimeError(e.getMessage());
             }
-        } catch (IOException e) {
-            throw context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (InterruptedException e) {
-            throw context.getRuntime().newRuntimeError(e.getMessage());
         }
 
         if (!options.recover && parserTask.getErrorCount() > errorCount0) {
-            try {
-                terminateTask();
-            } catch (IOException e) {
-                throw context.getRuntime().newRuntimeError(e.getMessage());
-            }
+            terminateTask(context);
             throw new RaiseException(parserTask.getLastError(), true);
         }
 
         return this;
     }
-    
+
     private void initialize_task(ThreadContext context) throws IOException {
-        if (futureTask == null || ostream == null || istream == null) {
-            Pipe pipe = Pipe.open();
-            Pipe.SinkChannel sink = pipe.sink();
-            ostream = Channels.newOutputStream(sink);
-            Pipe.SourceChannel source = pipe.source();
-            istream = Channels.newInputStream(source);
+        if (futureTask == null || stream == null) {
+            stream = new NokogiriBlockingQueueInputStream();
 
             parserTask = new ParserTask(context, saxParser);
             futureTask = new FutureTask<XmlSaxParserContext>(parserTask);
@@ -174,26 +159,29 @@ public class XmlSaxPushParser extends RubyObject {
             executor.submit(futureTask);
         }
     }
-    
-    private synchronized void terminateTask() throws IOException {
-        futureTask.cancel(true);
-        executor.shutdown();
-        ostream.close();
-        istream.close();
-        ostream = null;
-        istream = null;
+
+    private synchronized void terminateTask(ThreadContext context) {
+        try {
+          Future<Void> task = stream.addChunk(NokogiriBlockingQueueInputStream.END);
+          task.get();
+          stream = null;
+          futureTask.cancel(true);
+          executor.shutdown();
+        } catch (Exception e) {
+            throw context.getRuntime().newRuntimeError(e.getMessage());
+        }
     }
-    
+
     private class ParserTask implements Callable<XmlSaxParserContext> {
-        private ThreadContext context;
-        private IRubyObject handler;
-        private XmlSaxParserContext parser;
-        
+        private final ThreadContext context;
+        private final IRubyObject handler;
+        private final XmlSaxParserContext parser;
+
         private ParserTask(ThreadContext context, IRubyObject handler) {
             RubyClass klazz = getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SAX::ParserContext");
             this.context = context;
             this.handler = handler;
-            this.parser = (XmlSaxParserContext) XmlSaxParserContext.parse_stream(context, klazz, istream);
+            this.parser = (XmlSaxParserContext) XmlSaxParserContext.parse_stream(context, klazz, stream);
         }
 
         @Override
