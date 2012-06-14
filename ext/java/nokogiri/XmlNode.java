@@ -323,7 +323,15 @@ public class XmlNode extends RubyObject {
             throw getRuntime().newArgumentError("node must have owner document");
         }
 
-        Element element = document.createElementNS(null, rubyStringToString(name));
+        Element element = null;
+        String node_name = rubyStringToString(name);
+        try {
+          element = document.createElementNS(null, node_name);
+        } catch (org.w3c.dom.DOMException e) {
+            // issue#683 NAMESPACE_ERR is thrown from RDF::RDFXML::Writer.new
+            // retry without namespace
+            element = document.createElement(node_name);
+        }
         setNode(context, element);
     }
 
