@@ -268,7 +268,7 @@ module Nokogiri
           assert_equal 44, @xml.validate.length
         else
           xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE) {|cfg| cfg.dtdvalid}
-          assert_equal 37, xml.validate.length
+          assert_equal 40, xml.validate.length
         end
       end
 

@@ -14,12 +14,8 @@ module Nokogiri
       end
 
       def test_external_id
-        if Nokogiri.uses_libxml?
-          xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar"><foo />')
-        else
-          xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ""><foo />')
-        end
-        assert dtd = xml.internal_subset
+        xml = Nokogiri::XML('<!DOCTYPE foo PUBLIC "bar" ""><foo />')
+        assert dtd = xml.internal_subset, 'no internal subset'
         assert_equal 'bar', dtd.external_id
       end
 
@@ -74,7 +70,7 @@ module Nokogiri
         else
           xml = Nokogiri::XML(File.open(XML_FILE)) {|cfg| cfg.dtdvalid}
           list = xml.internal_subset.validate xml
-          assert_equal 37, list.length
+          assert_equal 40, list.length
         end
       end
 
