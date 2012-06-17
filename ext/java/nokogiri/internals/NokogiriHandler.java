@@ -92,7 +92,13 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         String objectName = object.getMetaClass().getName();
         if (htmlParserName.equals(objectName)) needEmptyAttrCheck = true;
     }
-    
+
+    @Override
+    public void skippedEntity(String skippedEntity) {
+        call("error", ruby.newString("Entity '" + skippedEntity + "' not defined\n"));
+    }
+
+    @Override
     public void setDocumentLocator(Locator locator) {
         this.locator = locator;
     }
