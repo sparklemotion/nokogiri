@@ -59,7 +59,6 @@ import org.jruby.util.ByteList;
 import org.jruby.util.TypeConverter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.ext.EntityResolver2;
 
 /**
  * Base class for the various parser contexts.  Handles converting
@@ -72,22 +71,6 @@ public class ParserContext extends RubyObject {
     protected InputSource source = null;
     protected IRubyObject detected_encoding = null;
     protected int stringDataSize = -1;
-
-    /**
-     * Create a file base input source taking into account the current
-     * directory of <code>runtime</code>.
-     */
-    public static InputSource resolveEntity(Ruby runtime, String publicId, String baseURI, String systemId)
-        throws IOException {
-        InputSource s = new InputSource();
-        String adjusted = adjustSystemIdIfNecessary(runtime.getCurrentDirectory(), runtime.getInstanceConfig().getScriptFileName(), baseURI, systemId);
-        if (adjusted == null && publicId == null) {
-            throw runtime.newRuntimeError("SystemId \"" + systemId + "\" is not correct.");
-        }
-        s.setSystemId(adjusted);
-        s.setPublicId(publicId);
-        return s;
-    }
 
     public ParserContext(Ruby runtime) {
         // default to class 'Object' because this class isn't exposed to Ruby
@@ -107,37 +90,14 @@ public class ParserContext extends RubyObject {
      * which may be an IO object, a String, or a StringIO.
      */
     public void setInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
-        Ruby ruby = context.getRuntime();
-        String path = (String) url.toJava(String.class);
-        if (data.getType().respondsTo("detect_encoding")) {
-            // data is EnocodingReader
-            try {
-                data.callMethod(context, "read", RubyFixnum.newFixnum(context.getRuntime(), 1024));
-            } catch (RaiseException e) {
-                detected_encoding = e.getException().getInstanceVariable("@found_encoding");
-            }
-        }
+        source = new InputSource();
 
-        // Dir.chdir might be called at some point before this.
-        if (path != null) {
-          try {
-            URI uri = URI.create(path);
-            returnWithSystemId(uri.toURL().toString());
-            return;
-          } catch (Exception ex) {
-            // fallback to the old behavior
-            if (isAbsolutePath(path)) {
-                returnWithSystemId(path);
-                return;
-            }
-            String currentDir = context.getRuntime().getCurrentDirectory();
-            String absPath = currentDir + "/" + path;
-            if (isAbsolutePath(absPath)) {
-                returnWithSystemId(absPath);
-                return;
-            }
-          }
-        }
+        Ruby ruby = context.getRuntime();
+
+        // setEncoding(context, data);
+
+        setUrl(context, url);
+
         RubyString stringData = null;
         if (invoke(context, data, "respond_to?",
                    ruby.newSymbol("to_io").to_sym()).isTrue()) {
@@ -146,14 +106,14 @@ public class ParserContext extends RubyObject {
                 (RubyIO) TypeConverter.convertToType(data,
                                                      ruby.getIO(),
                                                      "to_io");
-            source = new InputSource(io.getInStream());
+            source.setByteStream(io.getInStream());
         } else if (((RubyObject)data).getInstanceVariable("@io") != null) {
             // in case of EncodingReader is used
             // since EncodingReader won't respond to :to_io
             RubyObject dataObject = (RubyObject) ((RubyObject)data).getInstanceVariable("@io");
             if (dataObject instanceof RubyIO) {
                 RubyIO io = (RubyIO)dataObject;
-                source = new InputSource(io.getInStream());
+                source.setByteStream(io.getInStream());
             } else if (dataObject instanceof RubyStringIO) {
                 stringData = (RubyString)((RubyStringIO)dataObject).string();
             }
@@ -185,41 +145,63 @@ public class ParserContext extends RubyObject {
             ByteList bytes = stringData.getByteList();
             if (charset != null) {
                 StringReader reader = new StringReader(new String(bytes.unsafeBytes(), bytes.begin(), bytes.length(), charset));
-                source = new InputSource(reader);
+                source.setCharacterStream(reader);
                 source.setEncoding(charset.name());
             } else {
                 stringDataSize = bytes.length() - bytes.begin();
-                source = new InputSource(new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length()));
+                ByteArrayInputStream stream = new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length());
+                source.setByteStream(stream);
             }
         }
     }
-    
-    private boolean isAbsolutePath(String url) {
-        if (url == null) return false;
-        return (new File(url)).isAbsolute();
+
+    private void setUrl(ThreadContext context, IRubyObject url) {
+        String path = rubyStringToString(url);
+        // Dir.chdir might be called at some point before this.
+        if (path != null) {
+          try {
+            URI uri = URI.create(path);
+            source.setSystemId(uri.toURL().toString());
+          } catch (Exception ex) {
+            // fallback to the old behavior
+            File file = new File(path);
+            if (file.isAbsolute()) {
+              source.setSystemId(path);
+            } else {
+              String pwd = context.getRuntime().getCurrentDirectory();
+              String absolutePath;
+              try {
+                absolutePath = new File(pwd, path).getCanonicalPath();
+              } catch (IOException e) {
+                absolutePath = new File(pwd, path).getAbsolutePath();
+              }
+              source.setSystemId(absolutePath);
+            }
+          }
+        }
     }
-    
-    private void returnWithSystemId(String url) {
-        source = new InputSource();
+
+    private void setEncoding(ThreadContext context, IRubyObject data) {
+        if (data.getType().respondsTo("detect_encoding")) {
+            // data is EnocodingReader
+            try {
+                data.callMethod(context, "read", RubyFixnum.newFixnum(context.getRuntime(), 1024));
+            } catch (RaiseException e) {
+                detected_encoding = e.getException().getInstanceVariable("@found_encoding");
+            }
+        }
+
         if (detected_encoding != null) {
             source.setEncoding((String) detected_encoding.toJava(String.class));
         }
-        source.setSystemId(url);
-        return;
     }
 
     /**
      * Set the InputSource to read from <code>file</code>, a String filename.
      */
     public void setInputSourceFile(ThreadContext context, IRubyObject file) {
-        String filename = rubyStringToString(file);
-
-        try{
-            source = resolveEntity(context.getRuntime(), null, null, filename);
-        } catch (Exception e) {
-            throw RaiseException.createNativeRaiseException(context.getRuntime(), e);
-        }
-
+        source = new InputSource();
+        setUrl(context, file);
     }
 
     /**
@@ -295,41 +277,19 @@ public class ParserContext extends RubyObject {
         }
     }
 
-    /**
-     * An entity resolver aware of the fact that the Ruby runtime can
-     * change directory but the JVM cannot.  Thus any file based
-     * entity resolution that uses relative paths must be translated
-     * to be relative to the current directory of the Ruby runtime.
-     */
-    public static class ChdirEntityResolver implements EntityResolver2 {
-        protected Ruby runtime;
-
-        public ChdirEntityResolver(Ruby runtime) {
-            super();
-            this.runtime = runtime;
-        }
-
-        @Override
-        public InputSource getExternalSubset(String name, String baseURI)
-            throws SAXException, IOException {
-            return null;
+    public static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
+        InputSource source;
+        public NokogiriXInlcudeEntityResolver(InputSource source) {
+            this.source = source;
         }
 
         @Override
         public InputSource resolveEntity(String publicId, String systemId)
-            throws SAXException, IOException {
-            return resolveEntity(null, publicId, null, systemId);
+                throws SAXException, IOException {
+            if (systemId != null) source.setSystemId(systemId);
+            if (publicId != null) source.setPublicId(publicId);
+            return source;
         }
-
-        @Override
-        public InputSource resolveEntity(String name,
-                                         String publicId,
-                                         String baseURI,
-                                         String systemId)
-            throws SAXException, IOException {
-            return ParserContext.resolveEntity(runtime, publicId, baseURI, systemId);
-        }
-
     }
 
 }
