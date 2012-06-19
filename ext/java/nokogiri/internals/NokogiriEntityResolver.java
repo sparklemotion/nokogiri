@@ -68,6 +68,11 @@ public class NokogiriEntityResolver implements EntityResolver2 {
       return options.dtdLoad || options.dtdValid;
     }
 
+    private void addError(String errorMessage) {
+      if (handler != null)
+        handler.errors.add(new Exception(errorMessage));
+    }
+
     /**
      * Create a file base input source taking into account the current
      * directory of <code>runtime</code>.
@@ -76,13 +81,15 @@ public class NokogiriEntityResolver implements EntityResolver2 {
     protected InputSource resolveEntity(Ruby runtime, String name, String publicId, String baseURI, String systemId)
         throws IOException, SAXException {
         InputSource s = new InputSource();
-        if (name == "[dtd]" && !shouldLoadDtd()) {
+        if (name.equals("[dtd]") && !shouldLoadDtd()) {
+          return emptyInputSource(s);
+        } else if (!name.equals("[dtd]") && !options.noEnt) {
           return emptyInputSource(s);
         }
         String adjustedSystemId;
         URI uri = URI.create(systemId);
         if (options.noNet && uri.getHost() != null) {
-          handler.errors.add(new Exception("Attempt to load network entity " + systemId));
+          addError("Attempt to load network entity " + systemId);
           return emptyInputSource(s);
         }
         // if this is a url or absolute file name then use it
@@ -93,7 +100,7 @@ public class NokogiriEntityResolver implements EntityResolver2 {
         } else if (baseURI != null) {
           URI baseuri = URI.create(baseURI);
           if (options.noNet && baseuri.getHost() != null) {
-            handler.errors.add(new Exception("Attempt to load network entity " + systemId));
+            addError("Attempt to load network entity " + systemId);
             return emptyInputSource(s);
           }
           if (baseuri.getHost() == null) {

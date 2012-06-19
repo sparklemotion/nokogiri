@@ -32,7 +32,6 @@
 
 package nokogiri.internals;
 
-import static nokogiri.internals.NokogiriHelpers.adjustSystemIdIfNecessary;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
@@ -96,7 +95,7 @@ public class ParserContext extends RubyObject {
 
         // setEncoding(context, data);
 
-        setUrl(context, url);
+        ParserContext.setUrl(context, source, url);
 
         RubyString stringData = null;
         if (invoke(context, data, "respond_to?",
@@ -155,7 +154,7 @@ public class ParserContext extends RubyObject {
         }
     }
 
-    private void setUrl(ThreadContext context, IRubyObject url) {
+    public static void setUrl(ThreadContext context, InputSource source, IRubyObject url) {
         String path = rubyStringToString(url);
         // Dir.chdir might be called at some point before this.
         if (path != null) {
@@ -201,7 +200,7 @@ public class ParserContext extends RubyObject {
      */
     public void setInputSourceFile(ThreadContext context, IRubyObject file) {
         source = new InputSource();
-        setUrl(context, file);
+        ParserContext.setUrl(context, source, file);
     }
 
     /**

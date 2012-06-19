@@ -40,6 +40,9 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Stack;
 
+import nokogiri.internals.NokogiriEntityResolver;
+import nokogiri.internals.ParserContext;
+import nokogiri.internals.ParserContext.Options;
 import nokogiri.internals.ReaderNode;
 import nokogiri.internals.ReaderNode.ElementNode;
 
@@ -54,6 +57,7 @@ import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.lexer.yacc.SyntaxException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -97,20 +101,22 @@ public class XmlReader extends RubyObject {
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-    
+
     public void init(Ruby runtime) {
         nodeQueue = new ArrayDeque<ReaderNode>();
         nodeQueue.add(new ReaderNode.EmptyNode(runtime));
     }
 
-    private void parseRubyString(ThreadContext context, RubyString content){
+    private void parseRubyString(ThreadContext context, RubyString content, IRubyObject url, Options options){
         Ruby ruby = context.getRuntime();
         try {
             this.setState(XML_TEXTREADER_MODE_READING);
-            XMLReader reader = this.createReader(ruby);
+            XMLReader reader = this.createReader(ruby, options);
             ByteList byteList = content.getByteList();
             ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
-            reader.parse(new InputSource(bais));
+            InputSource inputSource = new InputSource(bais);
+            ParserContext.setUrl(context, inputSource, url);
+            reader.parse(inputSource);
             this.setState(XML_TEXTREADER_MODE_CLOSED);
         } catch (SAXParseException spe) {
             this.setState(XML_TEXTREADER_MODE_ERROR);
@@ -188,16 +194,26 @@ public class XmlReader extends RubyObject {
         reader.init(runtime);
         reader.setInstanceVariable("@source", args[0]);
         reader.setInstanceVariable("@errors", runtime.newArray());
+        IRubyObject url = context.nil;
+        if (args.length > 1) url = args[1];
         if (args.length > 2) reader.setInstanceVariable("@encoding", args[2]);
 
         RubyString content = RuntimeHelpers.invoke(context, args[0], "read").convertToString();
-        reader.parseRubyString(context, content);
+
+        Options options;
+        if (args.length > 3) {
+          options = new ParserContext.Options((Long)args[3].toJava(Long.class));
+        } else {
+          // use the default options RECOVER | NONET
+          options = new ParserContext.Options(2048 | 1);
+        }
+        reader.parseRubyString(context, content, url, options);
         return reader;
     }
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject from_memory(ThreadContext context, IRubyObject cls, IRubyObject args[]) {
-        // args[0]: string, args[1]: url, args[2]: encoding, args[3]: options 
+        // args[0]: string, args[1]: url, args[2]: encoding, args[3]: options
         Ruby runtime = context.getRuntime();
         // Not nil allowed!
         if(args[0].isNil()) throw runtime.newArgumentError("string cannot be nil");
@@ -206,9 +222,19 @@ public class XmlReader extends RubyObject {
         reader.init(runtime);
         reader.setInstanceVariable("@source", args[0]);
         reader.setInstanceVariable("@errors", runtime.newArray());
+        IRubyObject url = context.nil;
+        if (args.length > 1) url = args[1];
         if (args.length > 2) reader.setInstanceVariable("@encoding", args[2]);
 
-        reader.parseRubyString(context, args[0].convertToString());
+        Options options;
+        if (args.length > 3) {
+          options = new ParserContext.Options((Long)args[3].toJava(Long.class));
+        } else {
+          System.out.println("Setting options to default values");
+          // use the default options RECOVER | NONET
+          options = new ParserContext.Options(2048 | 1);
+        }
+        reader.parseRubyString(context, args[0].convertToString(), url, options);
         return reader;
     }
 
@@ -227,13 +253,13 @@ public class XmlReader extends RubyObject {
         if (current.depth < 0) return null;
         if (!current.hasChildren) return null;
         StringBuffer sb = new StringBuffer();
-        int currentDepth = (Integer)current.depth;
+        int currentDepth = current.depth;
         int inner = 0;
         for (ReaderNode node : nodeQueue) {
-            if (((Integer)node.depth) == currentDepth && node.getName().equals(current.getName())) {
+            if (node.depth == currentDepth && node.getName().equals(current.getName())) {
                 inner++;
             }
-            if (((Integer)node.depth) > currentDepth) {
+            if (node.depth > currentDepth) {
                 sb.append(node.getString());
             }
             if (inner == 2) break;
@@ -249,11 +275,11 @@ public class XmlReader extends RubyObject {
     private String getOuterXml(ArrayDeque<ReaderNode> nodeQueue, ReaderNode current) {
         if (current.depth < 0) return null;
         StringBuffer sb = new StringBuffer();
-        int initialDepth = (Integer)current.depth;
+        int initialDepth = current.depth;
         int inner = 0;
         for (ReaderNode node : nodeQueue) {
-            if (((Integer)node.depth) >= initialDepth) {
-                if (((Integer)node.depth) == initialDepth && node.getName().equals(current.getName())) {
+            if (node.depth >= initialDepth) {
+                if (node.depth == initialDepth && node.getName().equals(current.getName())) {
                     inner++;
                 }
 
@@ -331,7 +357,7 @@ public class XmlReader extends RubyObject {
         return nodeQueue.peek().getXmlVersion();
     }
 
-    protected XMLReader createReader(final Ruby ruby) {
+    protected XMLReader createReader(final Ruby ruby, Options options) {
         DefaultHandler2 handler = new DefaultHandler2() {
 
             Stack<String> langStack;
@@ -402,6 +428,13 @@ public class XmlReader extends RubyObject {
             }
 
             @Override
+            public void skippedEntity(String name) {
+              XmlSyntaxError error = XmlSyntaxError.createNokogiriXmlSyntaxError(ruby);
+              error.setException(new Exception("Unknown entity " + name));
+              throw new RaiseException(error);
+            }
+
+            @Override
             public void warning(SAXParseException ex) throws SAXParseException {
                 nodeQueue.add(new ReaderNode.ExceptionNode(ruby, ex));
                 throw ex;
@@ -412,9 +445,10 @@ public class XmlReader extends RubyObject {
             reader.setContentHandler(handler);
             reader.setDTDHandler(handler);
             reader.setErrorHandler(handler);
+            reader.setEntityResolver(new NokogiriEntityResolver(ruby, null, options));
             reader.setFeature("http://xml.org/sax/features/xmlns-uris", true);
             reader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
-            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", options.dtdLoad || options.dtdValid);
             return reader;
         } catch (SAXException saxe) {
             throw RaiseException.createNativeRaiseException(ruby, saxe);
