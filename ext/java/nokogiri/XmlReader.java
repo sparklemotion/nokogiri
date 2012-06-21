@@ -230,7 +230,6 @@ public class XmlReader extends RubyObject {
         if (args.length > 3) {
           options = new ParserContext.Options((Long)args[3].toJava(Long.class));
         } else {
-          System.out.println("Setting options to default values");
           // use the default options RECOVER | NONET
           options = new ParserContext.Options(2048 | 1);
         }
