@@ -93,9 +93,12 @@ public class ParserContext extends RubyObject {
 
         Ruby ruby = context.getRuntime();
 
-        // setEncoding(context, data);
-
         ParserContext.setUrl(context, source, url);
+
+        // if setEncoding returned true, then the stream is set
+        // to the EncodingReaderInputStream
+        if (setEncoding(context, data))
+          return;
 
         RubyString stringData = null;
         if (invoke(context, data, "respond_to?",
@@ -106,16 +109,6 @@ public class ParserContext extends RubyObject {
                                                      ruby.getIO(),
                                                      "to_io");
             source.setByteStream(io.getInStream());
-        } else if (((RubyObject)data).getInstanceVariable("@io") != null) {
-            // in case of EncodingReader is used
-            // since EncodingReader won't respond to :to_io
-            RubyObject dataObject = (RubyObject) ((RubyObject)data).getInstanceVariable("@io");
-            if (dataObject instanceof RubyIO) {
-                RubyIO io = (RubyIO)dataObject;
-                source.setByteStream(io.getInStream());
-            } else if (dataObject instanceof RubyStringIO) {
-                stringData = (RubyString)((RubyStringIO)dataObject).string();
-            }
         } else {
             if (invoke(context, data, "respond_to?",
                           ruby.newSymbol("string").to_sym()).isTrue()) {
@@ -180,19 +173,20 @@ public class ParserContext extends RubyObject {
         }
     }
 
-    private void setEncoding(ThreadContext context, IRubyObject data) {
+    private boolean setEncoding(ThreadContext context, IRubyObject data) {
         if (data.getType().respondsTo("detect_encoding")) {
+            // in case of EncodingReader is used
+            // since EncodingReader won't respond to :to_io
+            NokogiriEncodingReaderWrapper reader = new NokogiriEncodingReaderWrapper(context, (RubyObject) data);
+            source.setByteStream(reader);
             // data is EnocodingReader
-            try {
-                data.callMethod(context, "read", RubyFixnum.newFixnum(context.getRuntime(), 1024));
-            } catch (RaiseException e) {
-                detected_encoding = e.getException().getInstanceVariable("@found_encoding");
+            if(reader.detectEncoding()) {
+              detected_encoding = reader.getEncoding();
+              source.setEncoding(detected_encoding.asJavaString());
             }
+            return true;
         }
-
-        if (detected_encoding != null) {
-            source.setEncoding((String) detected_encoding.toJava(String.class));
-        }
+        return false;
     }
 
     /**
