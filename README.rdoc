@@ -1,4 +1,4 @@
-= Nokogiri {<img src="https://secure.travis-ci.org/tenderlove/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/tenderlove/nokogiri]
+= Nokogiri {<img src="https://secure.travis-ci.org/sparklemotion/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/sparklemotion/nokogiri]
 
 * http://nokogiri.org
 * http://github.com/sparklemotion/nokogiri/wikis
@@ -48,7 +48,7 @@ The IRC channel is #nokogiri on freenode.
 
   # Get a Nokogiri::HTML:Document for the page we’re interested in...
 
-  doc = Nokogiri::HTML(open('http://www.google.com/search?q=tenderlove'))
+  doc = Nokogiri::HTML(open('http://www.google.com/search?q=sparklemotion'))
 
   # Do funky things with it using Nokogiri::XML::Node methods...
 
@@ -151,7 +151,7 @@ Then run rake:
 
 Copyright (c) 2008 - 2012:
 
-* {Aaron Patterson}[http://tenderlovemaking.com]
+* {Aaron Patterson}[http://sparklemotionmaking.com]
 * {Mike Dalessio}[http://mike.daless.io]
 * {Charles Nutter}[http://blog.headius.com]
 * {Sergio Arbeo}[http://www.serabe.com]
