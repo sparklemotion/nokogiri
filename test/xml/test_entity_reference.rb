@@ -36,14 +36,14 @@ module Nokogiri
         def base.test_absolute_path method_name, &block
           define_method "#{method_name}_with_absolute_path" do
             self.path = "#{File.expand_path PATH}/"
-            instance_eval &block
+            instance_eval(&block)
           end
         end
 
         def base.test_relative_path method_name, &block
           define_method method_name do
             self.path = PATH
-            instance_eval &block
+            instance_eval(&block)
           end
         end
       end
@@ -173,7 +173,7 @@ module Nokogiri
         assert_equal ["Entity 'bar' not defined"], @parser.document.errors.map(&:to_s).map(&:strip)
       end
 
-      test_relative_and_absolute_path :test_sax_entity_reference do
+      test_relative_and_absolute_path :test_more_sax_entity_reference do
         # Make sure that we don't include entity references unless NOENT is set to true
         html = %Q[<?xml version="1.0" encoding="UTF-8" ?>
                   <!DOCTYPE document SYSTEM "http://foo.bar.com/">
