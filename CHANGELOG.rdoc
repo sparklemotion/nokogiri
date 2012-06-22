@@ -14,6 +14,7 @@
   * JRuby raises exception when xpath with namespace is specified. pull request #681 (Thanks, Piotr Szmielew)
   * JRuby renders nodes without their namespace when subclassing Node. #695
   * JRuby raises NAMESPACE_ERR (org.w3c.dom.DOMException) while instantiating RDF::RDFXML::Writer. #683
+  * JRuby is not able to use namespaces in xpath. #493
 
 
 == 1.5.4 / 2012-06-12

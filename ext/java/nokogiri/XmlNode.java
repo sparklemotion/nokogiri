@@ -463,7 +463,7 @@ public class XmlNode extends RubyObject {
                     } else if ("xmlns".equals(prefix) || nodeName.equals("xmlns")) {
                         nsUri = "http://www.w3.org/2000/xmlns/";
                     } else {
-                        nsUri = attr.lookupNamespaceURI(nodeName);
+                        nsUri = attr.getNamespaceURI();
                     }
                     e.getOwnerDocument().renameNode(attr, nsUri, nodeName);
                 }
