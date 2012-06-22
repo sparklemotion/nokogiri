@@ -68,8 +68,12 @@ import org.xml.sax.SAXException;
 public class XmlDomParserContext extends ParserContext {
     protected static final String FEATURE_LOAD_EXTERNAL_DTD =
         "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+    protected static final String FEATURE_LOAD_DTD_GRAMMAR =
+        "http://apache.org/xml/features/nonvalidating/load-dtd-grammar";
     protected static final String FEATURE_INCLUDE_IGNORABLE_WHITESPACE =
         "http://apache.org/xml/features/dom/include-ignorable-whitespace";
+    protected static final String FEATURE_NOT_EXPAND_ENTITY =
+        "http://apache.org/xml/features/dom/create-entity-ref-nodes";
     protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
     private static final String XINCLUDE_FEATURE_ID = "http://apache.org/xml/features/xinclude";
     private static final String SECURITY_MANAGER = "http://apache.org/xml/properties/security-manager";
@@ -120,22 +124,18 @@ public class XmlDomParserContext extends ParserContext {
         if (options.dtdValid) {
             setFeature(FEATURE_VALIDATION, true);
         }
+
+        if (!options.noEnt) {
+          setFeature(FEATURE_NOT_EXPAND_ENTITY, true);
+      }
         // If we turn off loading of external DTDs complete, we don't
         // getthe publicID.  Instead of turning off completely, we use
         // an entity resolver that returns empty documents.
         if (options.dtdLoad) {
             setFeature(FEATURE_LOAD_EXTERNAL_DTD, true);
-            parser.setEntityResolver(new ChdirEntityResolver(runtime));
-        } else {
-            parser.setEntityResolver(new EntityResolver() {
-                    public InputSource resolveEntity(String arg0, String arg1)
-                        throws SAXException, IOException {
-                        ByteArrayInputStream empty =
-                            new ByteArrayInputStream(new byte[0]);
-                        return new InputSource(empty);
-                    }
-                });
+            setFeature(FEATURE_LOAD_DTD_GRAMMAR, true);
         }
+        parser.setEntityResolver(new NokogiriEntityResolver(runtime, errorHandler, options));
     }
 
     /**
@@ -210,8 +210,11 @@ public class XmlDomParserContext extends ParserContext {
         xmlDocument.setEncoding(ruby_encoding);
 
         if (options.dtdLoad) {
-            XmlDtd xmlDtd = (XmlDtd) XmlDtd.newFromExternalSubset(context.getRuntime(), doc);
-            doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, xmlDtd, null);
+            IRubyObject xmlDtdOrNil = XmlDtd.newFromExternalSubset(context.getRuntime(), doc);
+            if (!xmlDtdOrNil.isNil()) {
+                XmlDtd xmlDtd = (XmlDtd) xmlDtdOrNil;
+                doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, xmlDtd, null);
+            }
         }
         return xmlDocument;
     }

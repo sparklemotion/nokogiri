@@ -89,11 +89,11 @@ module Nokogiri
         require 'open-uri'
         begin
           html = open('http://google.com').read
-          doc = Nokogiri::HTML html ,"/foo/", nil
-          refute_empty doc.to_s, "Document should not be empty"
         rescue
           skip("This test needs the internet. Skips if no internet available.")
         end
+        doc = Nokogiri::HTML html ,"http:/foobar.foobar/"
+        refute_empty doc.to_s, "Document should not be empty"
       end
 
       ###

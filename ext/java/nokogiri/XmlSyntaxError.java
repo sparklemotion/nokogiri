@@ -75,23 +75,27 @@ public class XmlSyntaxError extends RubyException {
     }
 
     public static XmlSyntaxError createWarning(Ruby runtime, SAXParseException e) {
-        XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+        XmlSyntaxError xmlSyntaxError = createNokogiriXmlSyntaxError(runtime);
         xmlSyntaxError.setException(runtime, e, 1);
         return xmlSyntaxError;
     }
 
     public static XmlSyntaxError createError(Ruby runtime, SAXParseException e) {
-        XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+        XmlSyntaxError xmlSyntaxError = createNokogiriXmlSyntaxError(runtime);
         xmlSyntaxError.setException(runtime, e, 2);
         return xmlSyntaxError;
     }
 
     public static XmlSyntaxError createFatalError(Ruby runtime, SAXParseException e) {
-        XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+        XmlSyntaxError xmlSyntaxError = createNokogiriXmlSyntaxError(runtime);
         xmlSyntaxError.setException(runtime, e, 3);
         return xmlSyntaxError;
     }
-    
+
+    public static XmlSyntaxError createNokogiriXmlSyntaxError(Ruby runtime) {
+      return (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+    }
+
     public void setException(Exception exception) {
         this.exception = exception;
     }
@@ -112,6 +116,7 @@ public class XmlSyntaxError extends RubyException {
     //@Override
     //"to_s" method was branched in 1.8 and 1.9 since JRuby 1.6.6
     // to support older version of JRuby, the annotation is commented out
+    @Override
     @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_8)
     public IRubyObject to_s(ThreadContext context) {
         if (exception != null && exception.getMessage() != null)

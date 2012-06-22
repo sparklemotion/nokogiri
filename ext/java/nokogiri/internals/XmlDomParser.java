@@ -35,18 +35,16 @@ package nokogiri.internals;
 import java.io.IOException;
 
 import nokogiri.XmlDocument;
-import nokogiri.internals.ParserContext.Options;
 
 import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.parsers.XIncludeParserConfiguration;
-import org.apache.xerces.xni.XMLResourceIdentifier;
-import org.apache.xerces.xni.XNIException;
-import org.apache.xerces.xni.parser.XMLEntityResolver;
-import org.apache.xerces.xni.parser.XMLInputSource;
 import org.apache.xerces.xni.parser.XMLParserConfiguration;
 import org.cyberneko.dtd.DTDConfiguration;
 import org.w3c.dom.Document;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 /**
@@ -80,7 +78,7 @@ public class XmlDomParser extends DOMParser {
     public void parse(InputSource source) throws SAXException, IOException {
         dtd.reset();
         if (options.xInclude) {
-            super.setEntityResolver(new NokogiriXInlcudeEntityResolver(source));
+            setEntityResolver(new NokogiriXInlcudeEntityResolver(source));
         }
         super.parse(source);
         Document doc = getDocument();
