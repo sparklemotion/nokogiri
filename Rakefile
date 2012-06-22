@@ -149,9 +149,18 @@ task :java_debug do
   ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if java? && ENV['JAVA_DEBUG']
 end
 
+if java?
+  task :test_18 => :test
+  task :test_19 do
+    ENV['JRUBY_OPTS'] = "--1.9"
+    Rake::Task["test"].invoke
+  end
+end
+
 Rake::Task[:test].prerequisites << :compile
 Rake::Task[:test].prerequisites << :java_debug
 Rake::Task[:test].prerequisites << :check_extra_deps unless java?
+
 if Hoe.plugins.include?(:debugging)
   ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
     Rake::Task["test:#{task_name}"].prerequisites << :compile
