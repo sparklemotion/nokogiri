@@ -6,6 +6,8 @@ package nokogiri.internals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -26,8 +28,9 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
   protected Task                           currentTask;
   protected ByteArrayInputStream           currentStream;
   protected int                            position;
+  protected boolean                        closed = false;
 
-  public static final ByteArrayInputStream END = new ByteArrayInputStream(new byte[0]);
+  public static final ByteArrayInputStream END    = new ByteArrayInputStream(new byte[0]);
 
   private static class Task extends FutureTask<Void> {
     private final ByteArrayInputStream stream;
@@ -69,6 +72,22 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
   }
 
   /**
+   * This method shouldn't be called unless the parser has finished parsing or
+   * threw an exception while doing so, otherwise, there'll be the protential
+   * that the read method will block indefinitely.
+   */
+  @Override
+  public synchronized void close() {
+    closed = true;
+    List<Task> tasks = new LinkedList<Task>();
+    queue.drainTo(tasks);
+    tasks.add(currentTask);
+    for (Task task : tasks) {
+      task.set(null);
+    }
+  }
+
+  /**
    * Add @param stream to the end of the queue of data that will be returned by
    * {@link #read()} and its variants. The method will @return a future whose
    * {@link Future#get()} will block until the data in @param stream is read.
@@ -79,7 +98,9 @@ public class NokogiriBlockingQueueInputStream extends InputStream {
    *
    * @return
    */
-  public Future<Void> addChunk(ByteArrayInputStream stream) {
+  public synchronized Future<Void> addChunk(ByteArrayInputStream stream) throws ClosedStreamException {
+    if (closed)
+      throw new ClosedStreamException("Cannot add a chunk to a closed stream");
     Task task = new Task(stream);
     queue.add(task);
     return task;

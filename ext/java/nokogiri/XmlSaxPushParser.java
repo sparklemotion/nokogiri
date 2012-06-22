@@ -43,6 +43,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import nokogiri.internals.ClosedStreamException;
 import nokogiri.internals.NokogiriBlockingQueueInputStream;
 import nokogiri.internals.ParserContext;
 
@@ -133,12 +134,15 @@ public class XmlSaxPushParser extends RubyObject {
             invoke(context, document, "end_document");
             terminateTask(context);
         } else {
-            Future<Void> task = stream.addChunk(new ByteArrayInputStream(data));
             try {
+              Future<Void> task = stream.addChunk(new ByteArrayInputStream(data));
               task.get();
+            } catch (ClosedStreamException ex) {
+              // this means the stream is closed, ignore this exception
             } catch (Exception e) {
               throw context.getRuntime().newRuntimeError(e.getMessage());
             }
+
         }
 
         if (!options.recover && parserTask.getErrorCount() > errorCount0) {
@@ -164,12 +168,16 @@ public class XmlSaxPushParser extends RubyObject {
         try {
           Future<Void> task = stream.addChunk(NokogiriBlockingQueueInputStream.END);
           task.get();
-          stream = null;
-          futureTask.cancel(true);
-          executor.shutdown();
+        } catch (ClosedStreamException ex) {
+          // ignore this exception, it means the stream was closed
         } catch (Exception e) {
             throw context.getRuntime().newRuntimeError(e.getMessage());
         }
+        futureTask.cancel(true);
+        executor.shutdown();
+        executor = null;
+        stream = null;
+        futureTask = null;
     }
 
     private class ParserTask implements Callable<XmlSaxParserContext> {
@@ -186,16 +194,22 @@ public class XmlSaxPushParser extends RubyObject {
 
         @Override
         public XmlSaxParserContext call() throws Exception {
+          try {
             parser.parse_with(context, handler);
-            return parser;
+          } finally {
+            // we have to close the stream before exiting, otherwise someone
+            // can add a chunk and block on task.get() forever.
+            stream.close();
+          }
+          return parser;
         }
-        
+
         private synchronized int getErrorCount() {
             // check for null because thread may not have started yet
             if (parser.getNokogiriHandler() == null) return 0;
             else return parser.getNokogiriHandler().getErrorCount();
         }
-        
+
         private synchronized RubyException getLastError() {
             return (RubyException) parser.getNokogiriHandler().getLastError();
         }
