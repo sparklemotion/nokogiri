@@ -151,7 +151,7 @@ Then run rake:
 
 Copyright (c) 2008 - 2012:
 
-* {Aaron Patterson}[http://sparklemotionmaking.com]
+* {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]
 * {Charles Nutter}[http://blog.headius.com]
 * {Sergio Arbeo}[http://www.serabe.com]
