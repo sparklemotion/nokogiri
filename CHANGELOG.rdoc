@@ -2,6 +2,8 @@
 
 * Features
 
+  * Much-improved support for JRuby in 1.9 mode! Yay!
+
 * Bugfixes
 
   * Regression in JRuby Nokogiri add_previous_sibling (1.5.0 -> 1.5.1) #691 (Thanks, John Shahid!)
