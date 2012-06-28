@@ -465,6 +465,9 @@ public class XmlNode extends RubyObject {
                     } else {
                         nsUri = attr.getNamespaceURI();
                     }
+                    if (!(nsUri == null || "".equals(nsUri))) {
+                        XmlNamespace.createFromAttr(context.getRuntime(), attr);
+                    }
                     e.getOwnerDocument().renameNode(attr, nsUri, nodeName);
                 }
             }
