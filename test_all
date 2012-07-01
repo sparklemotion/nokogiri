@@ -48,7 +48,7 @@ function compile {
 for ruby in $RUBIES ; do
     rvm_use ${ruby}
     if gem list bundler | fgrep -v 1.1.rc 2>&1 > /dev/null ; then
-        gem install bundler --pre
+        gem install bundler
     fi
     bundle install --quiet --local || bundle install
     clean
