@@ -10,6 +10,8 @@
 #  for others, read up at https://github.com/luislavena/rake-compiler
 #
 
+HOST=
+
 # Load RVM into a shell session *as a function*
 if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
     source "$HOME/.rvm/scripts/rvm"
