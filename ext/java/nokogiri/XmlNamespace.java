@@ -115,6 +115,7 @@ public class XmlNamespace extends RubyObject {
         IRubyObject href_value = RubyString.newString(runtime, hrefValue);
         // check namespace cache
         XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, attr.getOwnerDocument());
+        xmlDocument.initializeNamespaceCacheIfNecessary();
         XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
         if (xmlNamespace != null) return xmlNamespace;
         
@@ -135,6 +136,7 @@ public class XmlNamespace extends RubyObject {
         Document document = owner.getOwnerDocument();
         // check namespace cache
         XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, document);
+        xmlDocument.initializeNamespaceCacheIfNecessary();
         XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
         if (xmlNamespace != null) return xmlNamespace;
 

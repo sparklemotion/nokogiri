@@ -234,6 +234,9 @@ test/files/tlm.html
 test/files/to_be_xincluded.xml
 test/files/valid_bar.xml
 test/files/xinclude.xml
+test/files/test_document_url/bar.xml
+test/files/test_document_url/document.dtd
+test/files/test_document_url/document.xml
 test/helper.rb
 test/html/sax/test_parser.rb
 test/html/sax/test_parser_context.rb

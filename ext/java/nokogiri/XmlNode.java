@@ -409,7 +409,10 @@ public class XmlNode extends RubyObject {
 
     public boolean isComment() { return false; }
 
-    public boolean isElement() { return false; }
+    public boolean isElement() {
+        if (node instanceof Element) return true; // in case of subclassing
+        else return false;
+    }
 
     public boolean isProcessingInstruction() { return false; }
 
@@ -443,7 +446,36 @@ public class XmlNode extends RubyObject {
     }
 
     public void relink_namespace(ThreadContext context) {
-        //this should delegate to subclasses' implementation
+        if (node instanceof Element) {
+            Element e = (Element) node;
+            e.getOwnerDocument().renameNode(e, e.lookupNamespaceURI(e.getPrefix()), e.getNodeName());
+
+            if (e.hasAttributes()) {
+                NamedNodeMap attrs = e.getAttributes();
+
+                for (int i = 0; i < attrs.getLength(); i++) {
+                    Attr attr = (Attr) attrs.item(i);
+                    String nsUri = "";
+                    String prefix = attr.getPrefix();
+                    String nodeName = attr.getNodeName();
+                    if ("xml".equals(prefix)) {
+                        nsUri = "http://www.w3.org/XML/1998/namespace";
+                    } else if ("xmlns".equals(prefix) || nodeName.equals("xmlns")) {
+                        nsUri = "http://www.w3.org/2000/xmlns/";
+                    } else {
+                        nsUri = attr.getNamespaceURI();
+                    }
+                    if (!(nsUri == null || "".equals(nsUri))) {
+                        XmlNamespace.createFromAttr(context.getRuntime(), attr);
+                    }
+                    e.getOwnerDocument().renameNode(attr, nsUri, nodeName);
+                }
+            }
+
+            if (e.hasChildNodes()) {
+                ((XmlNodeSet) children(context)).relink_namespace(context);
+            }
+        }
     }
 
     // Users might extend XmlNode. This method works for such a case.

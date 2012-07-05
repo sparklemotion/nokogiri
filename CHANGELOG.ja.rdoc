@@ -2,6 +2,8 @@
 
 * Features
 
+  * Much-improved support for JRuby in 1.9 mode! Yay!
+
 * Bugfixes
 
   * JRuby Nokogiri の add_previous_sibling が以前は動いていたのに今は動かない(1.5.0 -> 1.5.1)。 #691 (ありがとう, John Shahid!)
@@ -14,6 +16,7 @@
   * JRuby で xpath を namespace 付きで指定した場合に、エラーが発生する。pull request #681 (ありがとう, Piotr Szmielew) 
   * JRuby で Nokogiri::XML::Node を継承したクラスを定義すると、namespace が表示されない。 #695
   * JRuby で RDF::RDFXML::Writer をインスタンス化しようとすると NAMESPACE_ERR (org.w3c.dom.DOMException) が発生する. #683
+  * JRuby で xpath に namespaces を指定すると例外が発生する. #493
 
 
 == 1.5.4 / ２０１２年６月１２日

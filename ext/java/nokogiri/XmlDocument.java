@@ -106,7 +106,7 @@ public class XmlDocument extends XmlNode {
 
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
         super(ruby, klass, document);
-        nsCache = new NokogiriNamespaceCache();
+        initializeNamespaceCacheIfNecessary();
         createAndCacheNamespaces(ruby, document.getDocumentElement());
         stabilizeTextContent(document);
         setInstanceVariable("@decorators", ruby.getNil());
@@ -114,7 +114,7 @@ public class XmlDocument extends XmlNode {
     
     public void setDocumentNode(ThreadContext context, Node node) {
         super.setNode(context, node);
-        if (nsCache == null) nsCache = new NokogiriNamespaceCache();
+        initializeNamespaceCacheIfNecessary();
         Ruby runtime = context.getRuntime();
         if (node != null) {
             Document document = (Document)node;
@@ -193,6 +193,10 @@ public class XmlDocument extends XmlNode {
 
     public NokogiriNamespaceCache getNamespaceCache() {
         return nsCache;
+    }
+    
+    public void initializeNamespaceCacheIfNecessary() {
+        if (nsCache == null) nsCache = new NokogiriNamespaceCache();
     }
     
     public void setNamespaceCache(NokogiriNamespaceCache nsCache) {

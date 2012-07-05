@@ -582,7 +582,7 @@ public class NokogiriHelpers {
     }
 
     public static boolean isNamespace(String nodeName) {
-        return (nodeName.equals("xmlns") || nodeName.startsWith("xmlns:"));
+        return (nodeName.startsWith("xmlns"));
     }
 
     public static boolean isNonDefaultNamespace(Node node) {
