@@ -130,7 +130,13 @@ public class XmlDocumentFragment extends XmlNode {
     
     private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
     private static Pattern starttag_pattern = Pattern.compile("<[^</>]+>");
-    
+
+    /**
+     * Remove the namespace from @param tag and/or the attributes in @param tag if
+     * the namespace is the default in the current context as defined by @param doc.
+     *
+     * @return the normalized tag.
+     */
     private static String ignoreNamespaceIfNeeded(XmlDocument doc, String tags) {
         if (doc.getDocument() == null) return tags;
         Map<String, String> rewriteTable = new HashMap<String, String>();
