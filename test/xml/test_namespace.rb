@@ -70,6 +70,26 @@ module Nokogiri
         s = %q{<?xml version='1.0'?><!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "XMLSchema.dtd" [<!ENTITY % p ''>]>}
         Nokogiri::XML(s).remove_namespaces!
       end
+
+      def test_maintain_element_namespaces
+        doc = Document.new
+        subject = Nokogiri::XML::Node.new 'foo', doc
+        subject << '<foobar xmlns="barfoo"/>'
+        child = subject.children.first
+        assert_equal 'foobar', child.name
+        assert_equal 'barfoo', child.namespace.href
+        assert_empty child.attributes
+      end
+
+      def test_maintain_element_namespaces_in_urn
+        doc = Document.new
+        subject = Nokogiri::XML::Node.new 'foo', doc
+        subject << '<foobar xmlns="urn:xmpp:foospec:barfoo"/>'
+        child = subject.children.first
+        assert_equal 'foobar', child.name
+        assert_equal 'urn:xmpp:foospec:barfoo', child.namespace.href
+        assert_empty child.attributes
+      end
     end
   end
 end
