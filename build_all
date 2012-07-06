@@ -30,6 +30,7 @@ set -o errexit
 
 # initialize
 rvm_use 1.8.7
+bundle install --quiet --local || bundle install
 rm -rf tmp pkg
 bundle exec rake clean clobber
 
