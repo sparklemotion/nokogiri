@@ -130,21 +130,35 @@ public class XmlDocumentFragment extends XmlNode {
     
     private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
     private static Pattern starttag_pattern = Pattern.compile("<[^</>]+>");
-    
+
+    /**
+     * Remove the namespace from @param tag and/or the attributes in @param tag if
+     * the namespace is the default in the current context as defined by @param doc.
+     *
+     * @return the normalized tag.
+     */
     private static String ignoreNamespaceIfNeeded(XmlDocument doc, String tags) {
         if (doc.getDocument() == null) return tags;
-        Matcher matcher = qname_pattern.matcher(tags);
         Map<String, String> rewriteTable = new HashMap<String, String>();
-        while(matcher.find()) {
+        // we have to make sure that we don't replace strings in double quotes, e.g.
+        // 'urn:xmpp:foospec:barfoo' in '<foobar xmlns="urn:xmpp:foospec:barfoo"/>'
+        // has to remain the same
+        String[] parts = tags.split("\"");
+        for (int partidx = 0; partidx < parts.length; partidx++) {
+          if (partidx % 2 == 1)
+            continue;
+          Matcher matcher = qname_pattern.matcher(parts[partidx]);
+          while(matcher.find()) {
             String qName = matcher.group();
             if (doc.getDocument().getDocumentElement() != null) {
-                NamedNodeMap nodeMap = doc.getDocument().getDocumentElement().getAttributes();
-                if (!isNamespaceDefined(qName, nodeMap)) {
-                    rewriteTable.put(qName, getLocalPart(qName));
-                }
-            } else {
+              NamedNodeMap nodeMap = doc.getDocument().getDocumentElement().getAttributes();
+              if (!isNamespaceDefined(qName, nodeMap)) {
                 rewriteTable.put(qName, getLocalPart(qName));
+              }
+            } else {
+              rewriteTable.put(qName, getLocalPart(qName));
             }
+          }
         }
         Set<String> keys = rewriteTable.keySet();
         for (String key : keys) {
