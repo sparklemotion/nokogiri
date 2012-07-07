@@ -16,6 +16,15 @@ module Nokogiri
           node.attribute_with_ns('foo', 'http://tenderlovemaking.com/').value
       end
 
+      def test_prefixed_attributes
+        doc = Nokogiri::XML "<root xml:lang='en-GB' />"
+
+        node = doc.root
+
+        assert_equal 'en-GB', node[:'xml:lang']
+        assert_equal nil, node[:lang]
+      end
+
       def test_namespace_key?
         doc = Nokogiri::XML <<-eoxml
           <root xmlns:tlm='http://tenderlovemaking.com/'>
