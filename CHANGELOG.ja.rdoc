@@ -1,4 +1,13 @@
-== 1.5.5 / unreleased
+== 1.5.6 / unreleased
+
+* Features
+
+* Bugfixes
+
+  * JRuby で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外がはっせいする。 #719
+
+
+== 1.5.5 / ２０１２年６月２４日
 
 * Features
 

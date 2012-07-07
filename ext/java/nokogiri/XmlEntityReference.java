@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2012:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -34,7 +34,6 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-
 import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
@@ -43,7 +42,6 @@ import org.jruby.anno.JRubyClass;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
-import org.w3c.dom.EntityReference;
 import org.w3c.dom.Node;
 
 /**
@@ -72,14 +70,21 @@ public class XmlEntityReference extends XmlNode {
         IRubyObject doc = args[0];
         IRubyObject name = args[1];
 
-        Document document = ((XmlNode) doc).getOwnerDocument();
-        Node node = document.createEntityReference(rubyStringToString(name));
-        setNode(context, node);
+        Document owner = ((XmlNode) doc).getOwnerDocument();
+        Node node = new NokogiriEntityReference(owner, rubyStringToString(name));
+        super.setNode(context, node);
+    }
+    
+    public void setNode(ThreadContext context, Node entityRef) {
+        Document owner = entityRef.getOwnerDocument();
+        String name = entityRef.getNodeName();
+        Node node = new NokogiriEntityReference(owner, name);
+        super.setNode(context, node);
     }
     
     @Override
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
-        visitor.enter((EntityReference)node);
+        visitor.enterEntityReference((NokogiriEntityReference)node);
         Node child = node.getFirstChild();
         while (child != null) {
             IRubyObject nokoNode = getCachedNodeOrCreate(context.getRuntime(), child);
@@ -92,6 +97,25 @@ public class XmlEntityReference extends XmlNode {
             }
             child = child.getNextSibling();
         }
-        visitor.leave((EntityReference)node);
+        visitor.leaveEntityReference((NokogiriEntityReference)node);
+    }
+    
+    public class NokogiriEntityReference extends org.apache.xerces.dom.TextImpl {
+        // Nokogiri's EntityReference should quack like a org.w3c.dom.Text node.
+        // EntityReference node should not raise exception for names such as #xa.
+        // This is reported bug in issue#719.
+        // Also, EntityReference node should not bother xpath.
+        // For this purpose, Node type should be Node.TEXT_NODE.
+        public NokogiriEntityReference(Document owner, String name) {
+            super((org.apache.xerces.dom.DocumentImpl)owner, name);
+        }
+        
+        public short getNodeType() {
+            return Node.TEXT_NODE;
+        }
+
+        public String getNodeName() {
+            return getNodeValue();
+        }        
     }
 }

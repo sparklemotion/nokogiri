@@ -658,12 +658,13 @@ public class SaveContextVisitor {
         // no-op
     }
 
-    public boolean enter(EntityReference entityRef) {
-        // no-op?
+    public boolean enterEntityReference(Text entityRef) {
+        String name = entityRef.getNodeName();
+        buffer.append("&" + name + ";");
         return true;
     }
     
-    public void leave(EntityReference entityRef) {
+    public void leaveEntityReference(Text entityRef) {
         // no-op
     }
     

@@ -1,4 +1,12 @@
-== 1.5.5 / unreleased
+== 1.5.6 / unreleased
+
+* Features
+
+* Bugfixes
+
+  * JRuby raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
+
+== 1.5.5 / 2012-06-24
 
 * Features
 
