@@ -288,7 +288,7 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod
     public IRubyObject encoding(ThreadContext context) {
-        if (this.encoding == null) {
+        if (this.encoding == null || this.encoding.isNil()) {
             if (getDocument().getXmlEncoding() == null) {
                 this.encoding = context.getRuntime().getNil();
             } else {
