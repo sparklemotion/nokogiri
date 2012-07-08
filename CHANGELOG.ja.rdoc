@@ -27,6 +27,7 @@
   * JRuby で Nokogiri::XML::Node を継承したクラスを定義すると、namespace が表示されない。 #695
   * JRuby で RDF::RDFXML::Writer をインスタンス化しようとすると NAMESPACE_ERR (org.w3c.dom.DOMException) が発生する. #683
   * JRuby で xpath に namespaces を指定すると例外が発生する. #493
+  * JRuby の Entity 解決は C version の Nokogiri と同じ結果にならないといけない。#704, #647, #703
 
 
 == 1.5.4 / ２０１２年６月１２日
