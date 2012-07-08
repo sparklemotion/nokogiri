@@ -296,7 +296,7 @@ public class XmlDocument extends XmlNode {
             }
         }
 
-        return this.encoding;
+        return this.encoding.isNil() ? this.encoding : this.encoding.asString().encode(context, context.getRuntime().newString("UTF-8"));
     }
 
     @JRubyMethod(meta = true)
