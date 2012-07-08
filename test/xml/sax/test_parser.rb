@@ -308,6 +308,14 @@ module Nokogiri
                        @parser.document.start_elements
         end
 
+        def test_processing_instruction
+          @parser.parse_memory(<<-eoxml)
+            <?xml-stylesheet href="a.xsl" type="text/xsl"?>
+          eoxml
+          assert_equal [['xml-stylesheet', 'href="a.xsl" type="text/xsl"']],
+                       @parser.document.processing_instructions
+        end
+
         if Nokogiri.uses_libxml? # JRuby SAXParser only parses well-formed XML documents
           def test_parse_document
             @parser.parse_memory(<<-eoxml)
