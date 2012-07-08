@@ -9,6 +9,10 @@
 #  on ubuntu, `sudo apt-get install mingw32`
 #  for others, read up at https://github.com/luislavena/rake-compiler
 #
+#  on ubuntus 11 and later, you may have issues with building
+#  rake-compiler's rubies against openssl v2. Just comment the lines
+#  out from ossl_ssl.c and you'll be fine.
+#
 
 HOST=
 
