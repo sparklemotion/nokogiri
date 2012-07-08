@@ -48,7 +48,7 @@ rvm_use 1.8.7
 bundle exec rake-compiler cross-ruby VERSION=1.8.7-p330
 bundle exec rake-compiler cross-ruby VERSION=1.9.2-p136
 bundle exec rake cross
-rake gem:windows # don't use bundler here. it blows up. *shrug*
+bundle exec rake gem:windows
 cp -v pkg/nokogiri*x86-{mingw32,mswin32}*.gem gems
 
 # jruby
