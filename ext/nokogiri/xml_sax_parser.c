@@ -7,6 +7,7 @@ static ID id_start_document, id_end_document, id_start_element, id_end_element;
 static ID id_start_element_namespace, id_end_element_namespace;
 static ID id_comment, id_characters, id_xmldecl, id_error, id_warning;
 static ID id_cdata_block, id_cAttribute;
+static ID id_processing_instruction;
 
 #define STRING_OR_NULL(str) \
    (RTEST(str) ? StringValuePtr(str) : NULL)
@@ -236,6 +237,19 @@ static void cdata_block(void * ctx, const xmlChar * value, int len)
   rb_funcall(doc, id_cdata_block, 1, string);
 }
 
+static void processing_instruction(void * ctx, const xmlChar * name, const xmlChar * content)
+{
+  VALUE self = NOKOGIRI_SAX_SELF(ctx);
+  VALUE doc = rb_iv_get(self, "@document");
+
+  rb_funcall( doc,
+              id_processing_instruction,
+              2,
+              NOKOGIRI_STR_NEW2(name),
+              NOKOGIRI_STR_NEW2(content)
+  );
+}
+
 static void deallocate(xmlSAXHandlerPtr handler)
 {
   NOKOGIRI_DEBUG_START(handler);
@@ -260,6 +274,7 @@ static VALUE allocate(VALUE klass)
   handler->warning = warning_func;
   handler->error = error_func;
   handler->cdataBlock = cdata_block;
+  handler->processingInstruction = processing_instruction;
   handler->initialized = XML_SAX2_MAGIC;
 
   return Data_Wrap_Struct(klass, NULL, deallocate, handler);
@@ -290,4 +305,5 @@ void init_xml_sax_parser()
   id_cAttribute     = rb_intern("Attribute");
   id_start_element_namespace = rb_intern("start_element_namespace");
   id_end_element_namespace = rb_intern("end_element_namespace");
+  id_processing_instruction = rb_intern("processing_instruction");
 }
