@@ -1024,6 +1024,15 @@ EOXML
         assert_nil ns.prefix
         assert_equal ns.href, "http://bar.com"
       end
+
+      # issue 695
+      def test_namespace_in_rendered_xml
+        document = Nokogiri::XML::Document.new
+        subject = Nokogiri::XML::Node.new 'foo', document
+        ns = subject.add_namespace nil, 'bar'
+        subject.namespace = ns
+        assert_match subject.to_xml, /xmlns="bar"/
+      end
     end
   end
 end
