@@ -13,6 +13,16 @@
 #  rake-compiler's rubies against openssl v2. Just comment the lines
 #  out from ossl_ssl.c and you'll be fine.
 #
+#  you may have issues with Pathname conversion to String in bundler. Add this to the offending bundler file:
+#
+#     class Pathname
+#       def to_str
+#         to_s
+#       end
+#     end
+#
+#  you may also have to remove some of the symbol checks in extconf.rb ... crazy.
+#
 
 HOST=
 
