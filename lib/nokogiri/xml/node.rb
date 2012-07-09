@@ -251,8 +251,18 @@ module Nokogiri
       ###
       # Get the attribute value for the attribute +name+
       def [] name
-        return nil unless key?(name.to_s)
-        get(name.to_s)
+        attr_name = name.to_s
+
+        if attr_name.include?(':')
+          match = attr_name.match(/([\w\d:]*):([\w\d]*)$/)
+          prefix, attribute = match[1], match[2]
+          namespace = namespace_with_prefix prefix
+
+          attribute_with_ns(attribute, namespace.href).value
+        else
+          return unless key?(attr_name)
+          get attr_name
+        end
       end
 
       ###
