@@ -25,6 +25,18 @@ module Nokogiri
         assert_equal nil, node[:lang]
       end
 
+      def test_set_prefixed_attributes
+        doc = Nokogiri::XML "<root />"
+
+        node = doc.root
+
+        node['xml:lang'] = 'en-GB'
+
+        assert_equal 'en-GB', node[:'xml:lang']
+        assert_equal nil, node[:lang]
+        assert_equal 'http://www.w3.org/XML/1998/namespace', node.attributes['lang'].namespace.href
+      end
+
       def test_namespace_key?
         doc = Nokogiri::XML <<-eoxml
           <root xmlns:tlm='http://tenderlovemaking.com/'>
