@@ -703,12 +703,32 @@ static VALUE get(VALUE self, VALUE attribute)
 {
   xmlNodePtr node;
   xmlChar* propstr ;
+  xmlNsPtr ns;
   VALUE rval ;
+  VALUE match;
+  VALUE prefix;
+  VALUE attribute_name;
+
   Data_Get_Struct(self, xmlNode, node);
 
   if(NIL_P(attribute)) return Qnil;
 
-  propstr = xmlGetNoNsProp(node, (xmlChar *)StringValuePtr(attribute));
+  match = rb_funcall(attribute, rb_intern("match"), 1,
+    rb_reg_new_str(rb_str_new2("([\\w]*):([\\w]*)$"), 0)
+  );
+
+  if(RTEST(match)) {
+    prefix = rb_funcall(match, rb_intern("[]"), 1, INT2NUM(1));
+    attribute_name = rb_funcall(match, rb_intern("[]"), 1, INT2NUM(2));
+
+    ns = xmlSearchNs(node->doc, node, (const xmlChar *)(StringValuePtr(prefix)));
+    if(!ns) return Qnil;
+
+    propstr = xmlGetNsProp(node, (xmlChar *)StringValuePtr(attribute_name), ns->href);
+  } else {
+    if(!key_eh(self, attribute)) return Qnil;
+    propstr = xmlGetNoNsProp(node, (xmlChar *)StringValuePtr(attribute));
+  }
 
   if(!propstr) return Qnil;
 
