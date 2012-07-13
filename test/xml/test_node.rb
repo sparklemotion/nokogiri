@@ -724,6 +724,14 @@ module Nokogiri
         assert_equal('bar', node['foo'])
       end
 
+      def test_set_property_non_string
+        assert node = @xml.search('//address').first
+        node['foo'] = 1
+        assert_equal('1', node['foo'])
+        node['foo'] = false
+        assert_equal('false', node['foo'])
+      end
+
       def test_attributes
         assert node = @xml.search('//address').first
         assert_nil(node['asdfasdfasdf'])
