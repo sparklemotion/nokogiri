@@ -1033,6 +1033,14 @@ EOXML
         subject.namespace = ns
         assert_match subject.to_xml, /xmlns="bar"/
       end
+
+      def test_text_node_colon
+        document = Nokogiri::XML::Document.new
+        root = Nokogiri::XML::Node.new 'foo', document
+        document.root = root
+        root << "<a>hello:with_colon</a>"
+        assert_match document.to_xml, /hello:with_colon/
+      end
     end
   end
 end
