@@ -1031,7 +1031,7 @@ EOXML
         subject = Nokogiri::XML::Node.new 'foo', document
         ns = subject.add_namespace nil, 'bar'
         subject.namespace = ns
-        assert_match subject.to_xml, /xmlns="bar"/
+        assert_match(/xmlns="bar"/, subject.to_xml)
       end
 
       def test_text_node_colon
@@ -1039,7 +1039,7 @@ EOXML
         root = Nokogiri::XML::Node.new 'foo', document
         document.root = root
         root << "<a>hello:with_colon</a>"
-        assert_match document.to_xml, /hello:with_colon/
+        assert_match(/hello:with_colon/, document.to_xml)
       end
     end
   end
