@@ -109,6 +109,10 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
     return rval ;
 }
 
+static void swallow_superfluous_xml_errors(void * userdata, xmlerrorptr error, ...)
+{
+}
+
 /*
  *  call-seq:
  *    transform(document, params = [])
@@ -124,7 +128,6 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
  *    puts xslt.transform(doc, ['key', 'value'])
  *
  */
-
 static VALUE transform(int argc, VALUE* argv, VALUE self)
 {
     VALUE xmldoc, paramobj, errstr, exception ;
@@ -162,11 +165,13 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
 
     errstr = rb_str_new(0, 0);
     xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
+    xmlSetGenericErrorFunc(NULL, (xmlGenericErrorFunc)&swallow_superfluous_xml_errors);
 
     result = xsltApplyStylesheet(wrapper->ss, xml, params);
     free(params);
 
     xsltSetGenericErrorFunc(NULL, NULL);
+    xmlSetGenericErrorFunc(NULL, NULL);
 
     parse_error_occurred = (Qfalse == rb_funcall(errstr, rb_intern("empty?"), 0));
 
