@@ -210,6 +210,20 @@ encoding="iso-8859-1" indent="yes"/>
     assert_raises(RuntimeError) { Nokogiri::XSLT.parse(xslt_str) }
   end
 
+  def test_xslt_transform_error
+    xslt_str = <<-EOX
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
+  <xsl:template match="/">
+    <xsl:value-of select="$foo" />
+  </xsl:template>
+</xsl:stylesheet>
+    EOX
+
+    xslt = Nokogiri::XSLT(xslt_str)
+    doc = Nokogiri::XML("<root />")
+    assert_raises(RuntimeError) { xslt.transform(doc) }
+  end
+
   def test_passing_a_non_document_to_transform
     xsl = Nokogiri::XSLT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"></xsl:stylesheet>')
     assert_raises(ArgumentError) { xsl.transform("<div></div>") }
