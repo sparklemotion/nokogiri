@@ -219,9 +219,11 @@ encoding="iso-8859-1" indent="yes"/>
 </xsl:stylesheet>
     EOX
 
-    xslt = Nokogiri::XSLT(xslt_str)
-    doc = Nokogiri::XML("<root />")
-    assert_raises(RuntimeError) { xslt.transform(doc) }
+    assert_raises(RuntimeError) do
+      xslt = Nokogiri::XSLT(xslt_str)
+      doc = Nokogiri::XML("<root />")
+      xslt.transform(doc)
+    end
   end
 
   def test_passing_a_non_document_to_transform
