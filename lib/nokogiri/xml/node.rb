@@ -799,11 +799,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def write_html_to io, options = {}
-        # FIXME: this is a hack around broken libxml versions
-        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
-
-        options[:save_with] ||= SaveOptions::DEFAULT_HTML
-        write_to io, options
+        write_format_to SaveOptions::DEFAULT_HTML, io, options
       end
 
       ###
@@ -811,11 +807,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def write_xhtml_to io, options = {}
-        # FIXME: this is a hack around broken libxml versions
-        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
-
-        options[:save_with] ||= SaveOptions::DEFAULT_XHTML
-        write_to io, options
+        write_format_to SaveOptions::DEFAULT_XHTML, io, options
       end
 
       ###
@@ -889,6 +881,14 @@ module Nokogiri
         options[:save_with] |= save_option if options[:save_with]
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
+      end
+
+      def write_format_to save_option, io, options
+        # FIXME: this is a hack around broken libxml versions
+        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+
+        options[:save_with] ||= save_option
+        write_to io, options
       end
 
       def extract_params params # :nodoc:
