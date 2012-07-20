@@ -69,6 +69,9 @@
   * we should standardize on a hash of options for these and other calls
 * what should NodeSet#xpath return?
   * https://github.com/sparklemotion/nokogiri/issues/656
+* also, clean up or unify the implementations of #xpath-and-friends in Node and NodeSet
+  * implementations are very similar, but no shared code :(
+  * decorate nodes in a consistent manner
 
 ## Encoding
 
