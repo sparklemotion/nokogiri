@@ -299,20 +299,7 @@ module Nokogiri
       def add_previous_sibling node_or_tags
         raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document) && !node_or_tags.is_a?(XML::ProcessingInstruction)
 
-        node_or_tags = coerce(node_or_tags)
-        if node_or_tags.is_a?(XML::NodeSet)
-          if text?
-            pivot = Nokogiri::XML::Node.new 'dummy', document
-            add_previous_sibling_node pivot
-          else
-            pivot = self
-          end
-          node_or_tags.each { |n| pivot.send :add_previous_sibling_node, n }
-          pivot.unlink if text?
-        else
-          add_previous_sibling_node node_or_tags
-        end
-        node_or_tags
+        add_sibling :previous, node_or_tags
       end
 
       ###
@@ -325,20 +312,7 @@ module Nokogiri
       def add_next_sibling node_or_tags
         raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document)
         
-        node_or_tags = coerce(node_or_tags)
-        if node_or_tags.is_a?(XML::NodeSet)
-          if text?
-            pivot = Nokogiri::XML::Node.new 'dummy', document
-            add_next_sibling_node pivot
-          else
-            pivot = self
-          end
-          node_or_tags.reverse_each { |n| pivot.send :add_next_sibling_node, n }
-          pivot.unlink if text?
-        else
-          add_next_sibling_node node_or_tags
-        end
-        node_or_tags
+        add_sibling :next, node_or_tags
       end
 
       ####
@@ -887,6 +861,26 @@ module Nokogiri
       end
 
       private
+
+      def add_sibling next_or_previous, node_or_tags
+        impl = (next_or_previous == :next) ? :add_next_sibling_node : :add_previous_sibling_node
+        iter = (next_or_previous == :next) ? :reverse_each          : :each
+
+        node_or_tags = coerce node_or_tags
+        if node_or_tags.is_a?(XML::NodeSet)
+          if text?
+            pivot = Nokogiri::XML::Node.new 'dummy', document
+            send impl, pivot
+          else
+            pivot = self
+          end
+          node_or_tags.send(iter) { |n| pivot.send impl, n }
+          pivot.unlink if text?
+        else
+          send impl, node_or_tags
+        end
+        node_or_tags
+      end
 
       def to_format save_option, options
         # FIXME: this is a hack around broken libxml versions
