@@ -761,12 +761,7 @@ module Nokogiri
       # See Node#write_to for a list of +options+.  For formatted output,
       # use Node#to_xhtml instead.
       def to_html options = {}
-        # FIXME: this is a hack around broken libxml versions
-        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
-
-        options[:save_with] |= SaveOptions::DEFAULT_HTML if options[:save_with]
-        options[:save_with] = SaveOptions::DEFAULT_HTML unless options[:save_with]
-        serialize(options)
+        to_format SaveOptions::DEFAULT_HTML, options
       end
 
       ###
@@ -787,12 +782,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+
       def to_xhtml options = {}
-        # FIXME: this is a hack around broken libxml versions
-        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
-
-        options[:save_with] |= SaveOptions::DEFAULT_XHTML if options[:save_with]
-        options[:save_with] = SaveOptions::DEFAULT_XHTML unless options[:save_with]
-        serialize(options)
+        to_format SaveOptions::DEFAULT_XHTML, options
       end
 
       ###
@@ -897,6 +887,15 @@ module Nokogiri
       end
 
       private
+
+      def to_format save_option, options
+        # FIXME: this is a hack around broken libxml versions
+        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+
+        options[:save_with] |= save_option if options[:save_with]
+        options[:save_with] = save_option unless options[:save_with]
+        serialize(options)
+      end
 
       def extract_params params # :nodoc:
         # Pop off our custom function handler if it exists
