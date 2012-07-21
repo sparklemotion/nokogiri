@@ -1,4 +1,4 @@
-= Nokogiri (鋸)
+= Nokogiri (鋸) {<img src="https://secure.travis-ci.org/sparklemotion/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/sparklemotion/nokogiri] {<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/sparklemotion/nokogiri]
 
 * http://nokogiri.org/
 * http://github.com/sparklemotion/nokogiri/wikis
