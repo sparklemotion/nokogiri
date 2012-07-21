@@ -144,10 +144,7 @@ namespace :cross do
   end
 end
 
-HOE.clean_globs += [
-  "#{CROSS_DIR}/*.installed",
-  "#{CROSS_DIR}/#{HOST}",
-  "tmp/#{HOST}",
-]
+require 'rake/clean'
+CLOBBER.include("#{CROSS_DIR}/*.installed", "#{CROSS_DIR}/#{HOST}", "tmp/#{HOST}")
 
 task :cross => ["cross:libxslt", "lib/nokogiri/nokogiri.rb", "cross:file_list"]

@@ -448,6 +448,7 @@ public class XmlNode extends RubyObject {
     public void relink_namespace(ThreadContext context) {
         if (node instanceof Element) {
             Element e = (Element) node;
+            e.getOwnerDocument().setStrictErrorChecking(false);
             e.getOwnerDocument().renameNode(e, e.lookupNamespaceURI(e.getPrefix()), e.getNodeName());
 
             if (e.hasAttributes()) {

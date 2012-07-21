@@ -1,4 +1,14 @@
-== 1.5.5 / unreleased
+== 1.5.6 / unreleased
+
+* Features
+
+* Bugfixes
+
+  * JRuby raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
+  * JRuby doesn't coerce namespaces out of strings on a direct subclass of Node. #715
+
+
+== 1.5.5 / 2012-06-24
 
 * Features
 
@@ -17,6 +27,7 @@
   * JRuby renders nodes without their namespace when subclassing Node. #695
   * JRuby raises NAMESPACE_ERR (org.w3c.dom.DOMException) while instantiating RDF::RDFXML::Writer. #683
   * JRuby is not able to use namespaces in xpath. #493
+  * JRuby's Entity resolving should be consistent with C-Nokogiri #704, #647, #703
 
 
 == 1.5.4 / 2012-06-12

@@ -1024,6 +1024,23 @@ EOXML
         assert_nil ns.prefix
         assert_equal ns.href, "http://bar.com"
       end
+
+      # issue 695
+      def test_namespace_in_rendered_xml
+        document = Nokogiri::XML::Document.new
+        subject = Nokogiri::XML::Node.new 'foo', document
+        ns = subject.add_namespace nil, 'bar'
+        subject.namespace = ns
+        assert_match(/xmlns="bar"/, subject.to_xml)
+      end
+
+      def test_text_node_colon
+        document = Nokogiri::XML::Document.new
+        root = Nokogiri::XML::Node.new 'foo', document
+        document.root = root
+        root << "<a>hello:with_colon</a>"
+        assert_match(/hello:with_colon/, document.to_xml)
+      end
     end
   end
 end

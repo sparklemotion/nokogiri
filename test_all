@@ -6,7 +6,7 @@
 #  requires `rvm` to be installed. sorry about that, multiruby dudes.
 #
 
-RUBIES="ruby-1.9.3-p0 jruby-1.6.5.1 jruby-1.6.7.2 ree-1.8.7-2011.12 ruby-1.9.2-p290 ruby-1.8.7-p357"
+RUBIES="ruby-1.9.3-p194 jruby-1.6.5.1 jruby-1.6.7.2 ree-1.8.7-2011.12 ruby-1.9.2-p290 ruby-1.8.7-p357"
 TEST_LOG=test.log
 VALGRIND_LOG=valgrind.log
 
@@ -48,7 +48,7 @@ function compile {
 for ruby in $RUBIES ; do
     rvm_use ${ruby}
     if gem list bundler | fgrep -v 1.1.rc 2>&1 > /dev/null ; then
-        gem install bundler --pre
+        gem install bundler
     fi
     bundle install --quiet --local || bundle install
     clean

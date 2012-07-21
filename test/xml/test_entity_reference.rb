@@ -16,6 +16,18 @@ module Nokogiri
       def test_many_references
         100.times { EntityReference.new(@xml, 'foo') }
       end
+
+      def test_newline_node
+        # issue 719
+        xml = <<EOF
+<?xml version="1.0" ?>
+<item></item>
+EOF
+        doc = Nokogiri::XML xml
+        lf_node = Nokogiri::XML::EntityReference.new(doc, "#xa")
+        doc.xpath('/item').first.add_child(lf_node)
+        assert_equal "#xa", doc.xpath('./item').first.child.name
+      end
     end
 
     module Common

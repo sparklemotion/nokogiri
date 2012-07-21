@@ -171,6 +171,7 @@ end
 
 desc "build a windows gem without all the ceremony."
 task "gem:windows" => "gem" do
+  # TODO: 1.8.7-p358, 1.9.3-p194
   cross_rubies = ["1.8.7-p330", "1.9.2-p136"]
   ruby_cc_version = cross_rubies.collect { |_| _.split("-").first }.join(":") # e.g., "1.8.7:1.9.2"
   rake_compiler_config_path = "#{ENV['HOME']}/.rake-compiler/config.yml"
