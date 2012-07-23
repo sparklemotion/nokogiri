@@ -368,7 +368,7 @@ eohtml
         node = html.xpath('//div').first
         assert_equal('Hello world!', node.inner_text.strip)
       end
-      
+
       def test_doc_type
         html = Nokogiri::HTML(<<-eohtml)
         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
