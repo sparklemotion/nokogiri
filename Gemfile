@@ -13,8 +13,8 @@ gem "mini_portile", ">=0.2.2", :group => [:development, :test]
 gem "minitest", "~>2.2.2", :group => [:development, :test]
 gem "rake", ">=0.9", :group => [:development, :test]
 gem "rake-compiler", "=0.8.0", :group => [:development, :test]
-gem "racc", ">=1.4.6", :group => [:development, :test]
-gem "rexical", ">=1.0.5", :group => [:development, :test]
+gem "racc", ">=1.4.6", :group => [:development, :test], :platform => :ruby
+gem "rexical", ">=1.0.5", :group => [:development, :test], :platform => :ruby
 gem "rdoc", "~>3.10", :group => [:development, :test]
 gem "hoe", "~>2.16", :group => [:development, :test]
 
