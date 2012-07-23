@@ -64,6 +64,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -438,8 +439,20 @@ public class XmlDocument extends XmlNode {
         IRubyObject dtd = (IRubyObject) node.getUserData(DTD_INTERNAL_SUBSET);
 
         if (dtd == null) {
-            if (getDocument().getDoctype() == null) dtd = context.getRuntime().getNil();
-            else dtd = XmlDtd.newFromInternalSubset(context.getRuntime(), getDocument());
+            Document document = getDocument();
+            if (document.getUserData(XmlDocument.DTD_RAW_DOCUMENT) != null) {
+                dtd = XmlDtd.newFromInternalSubset(context.getRuntime(), document);
+            } else if (document.getDoctype() != null) {
+                DocumentType docType = document.getDoctype();
+                dtd = XmlDtd.newEmpty(context.getRuntime(),
+                                      document,
+                                      context.getRuntime().newString(docType.getName()),
+                                      context.getRuntime().newString(docType.getPublicId()),
+                                      context.getRuntime().newString(docType.getSystemId()));
+            } else {
+                dtd = context.getRuntime().getNil();
+            }
+
             setInternalSubset(dtd);
         }
 

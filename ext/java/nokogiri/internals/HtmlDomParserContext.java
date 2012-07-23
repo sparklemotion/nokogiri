@@ -91,7 +91,8 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         XMLDocumentFilter[] filters = { elementValidityCheckFilter};
 
         config.setErrorHandler(this.errorHandler);
-        parser = new DOMParser(config);
+
+        parser = new NokogiriDomParser(config);
 
         // see http://nekohtml.sourceforge.net/settings.html for details
         setProperty("http://cyberneko.org/html/properties/default-encoding", java_encoding);
@@ -100,7 +101,6 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         setProperty("http://cyberneko.org/html/properties/filters", filters);
         setFeature("http://cyberneko.org/html/features/report-errors", true);
         setFeature("http://xml.org/sax/features/namespaces", false);
-        setFeature("http://cyberneko.org/html/features/insert-doctype", true);
     }
 
     /**

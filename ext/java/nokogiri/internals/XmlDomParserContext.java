@@ -111,7 +111,7 @@ public class XmlDomParserContext extends ParserContext {
                     "org.apache.xerces.parsers.XIncludeParserConfiguration");
         }
         
-        parser = new XmlDomParser(options);
+        parser = new NokogiriDomParser(options);
         parser.setErrorHandler(errorHandler);
 
         // Fix for Issue#586.  This limits entity expansion up to 100000 and nodes up to 3000.
