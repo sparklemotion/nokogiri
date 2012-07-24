@@ -46,14 +46,10 @@ HOE = Hoe.spec 'nokogiri' do
     ["mini_portile",    ">= 0.2.2"],
     ["minitest",        "~> 2.2.2"],
     ["rake",            ">= 0.9"],
-    ["rake-compiler",   "=  0.8.0"]
+    ["rake-compiler",   "=  0.8.0"],
+    ["racc",            ">= 1.4.6"],
+    ["rexical",         ">= 1.0.5"]
   ]
-  if ! java?
-    self.extra_dev_deps += [
-      ["racc",            ">= 1.4.6"],
-      ["rexical",         ">= 1.0.5"]
-    ]
-  end
 
   if java?
     self.spec_extras = { :platform => 'java' }
