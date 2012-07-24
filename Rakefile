@@ -118,6 +118,20 @@ desc "Generate css/parser.rb and css/tokenizer.rex"
 task 'generate' => [GENERATED_PARSER, GENERATED_TOKENIZER]
 task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
 
+# This is a big hack to make sure that the racc and rexical
+# dependencies in the Gemfile are constrainted to ruby platforms
+# (i.e. MRI and Rubinius). There's no way to do that through hoe,
+# and any solution will require changing hoe and hoe-bundler.
+old_gemfile_task = Rake::Task['bundler:gemfile']
+task 'bundler:gemfile' do
+  old_gemfile_task.invoke
+
+  lines = File.open('Gemfile', 'r') { |f| f.readlines }.map do |line|
+    line =~ /racc|rexical/ ? "#{line.strip}, :platform => :ruby" : line
+  end
+  File.open('Gemfile', 'w') { |f| lines.each { |line| f.puts line } }
+end
+
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   racc = RbConfig::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
   racc = "#{::RbConfig::CONFIG['bindir']}/racc" if racc.empty?
