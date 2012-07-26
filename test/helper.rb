@@ -30,6 +30,7 @@ module Nokogiri
     XML_FILE            = File.join(ASSETS_DIR, 'staff.xml')
     XML_XINCLUDE_FILE   = File.join(ASSETS_DIR, 'xinclude.xml')
     XSLT_FILE           = File.join(ASSETS_DIR, 'staff.xslt')
+    ROO_XML_FILE        = File.join(ASSETS_DIR, 'roo_styles.xml')
 
     def teardown
       if ENV['NOKOGIRI_GC']
