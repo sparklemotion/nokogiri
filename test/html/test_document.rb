@@ -383,6 +383,14 @@ eohtml
         assert_equal "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd", html.internal_subset.system_id
         assert_equal "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">", html.to_s[0,97]
       end
+      
+      def test_content_size
+        html = Nokogiri::HTML('<div>
+</div>')
+        assert_equal 1, html.content.size
+        assert_equal 1, html.content.split("").size
+        assert_equal "\n", html.content
+      end
 
       def test_find_by_xpath
         found = @html.xpath('//div/a')
