@@ -551,7 +551,7 @@ public class XmlNode extends RubyObject {
             str = NokogiriHelpers.getLocalPart(str);
         }
         if (str == null) str = "";
-        name = context.getRuntime().newString(str);
+        name = NokogiriHelpers.stringOrBlank(context.getRuntime(), str);
         return name;
     }
 

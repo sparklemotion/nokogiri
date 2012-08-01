@@ -63,6 +63,7 @@ import nokogiri.XmlNode;
 import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
 
+import org.jcodings.specific.UTF8Encoding;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -179,7 +180,7 @@ public class NokogiriHelpers {
 
     public static IRubyObject stringOrNil(Ruby runtime, String s) {
         if (s == null) return runtime.getNil();
-        return RubyString.newString(runtime, s);
+        return convertJavaStringToRuby(runtime, s);
     }
     
     public static IRubyObject stringOrNil(Ruby runtime, byte[] bytes) {
@@ -189,7 +190,16 @@ public class NokogiriHelpers {
     
     public static IRubyObject stringOrBlank(Ruby runtime, String s) {
         if (s == null) return runtime.newString();
-        return RubyString.newString(runtime, s);
+        return convertJavaStringToRuby(runtime, s);
+    }
+    
+    private static IRubyObject convertJavaStringToRuby(Ruby runtime, String str) {
+        if (runtime.is1_9()) {
+            ByteList bytes = new ByteList(str.getBytes(RubyEncoding.UTF8), UTF8Encoding.INSTANCE);
+            return RubyString.newString(runtime, bytes);
+        } else {
+            return RubyString.newString(runtime, str);
+        }
     }
 
     /**
