@@ -19,6 +19,14 @@ module Nokogiri
           assert_match 'UTF-8', doc.to_html(:encoding => 'UTF-8').encoding.name
         end
 
+        def test_namespace_encoding
+          doc = Nokogiri::XML File.open(ROO_XML_FILE, 'rb')
+
+          # assert_nothing_raised do
+            doc.xpath("//xmlns:numFmt")
+          # end
+        end
+
         def test_default_to_encoding_from_string
           bad_charset = <<-eohtml
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
