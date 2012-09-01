@@ -68,6 +68,7 @@ module Nokogiri
 
         # Create a new Parser with +doc+ and +encoding+
         def initialize doc = Nokogiri::XML::SAX::Document.new, encoding = 'UTF-8'
+          check_encoding(encoding)
           @encoding = encoding
           @document = doc
           @warned   = false
@@ -87,6 +88,7 @@ module Nokogiri
         ###
         # Parse given +io+
         def parse_io io, encoding = 'ASCII'
+          check_encoding(encoding)
           @encoding = encoding
           ctx = ParserContext.io(io, ENCODINGS[encoding])
           yield ctx if block_given?
@@ -108,6 +110,11 @@ module Nokogiri
           ctx = ParserContext.memory data
           yield ctx if block_given?
           ctx.parse_with self
+        end
+
+        private
+        def check_encoding(encoding)
+          raise ArgumentError.new("'#{encoding}' is not a valid encoding") unless ENCODINGS[encoding]
         end
       end
     end
