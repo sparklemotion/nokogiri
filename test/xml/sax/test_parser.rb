@@ -250,6 +250,11 @@ module Nokogiri
           assert_raises(ArgumentError) { @parser.parse_memory(nil) }
         end
 
+        def test_bad_encoding_args
+          assert_raises(ArgumentError) { XML::SAX::Parser.new(Doc.new, 'not an encoding') }
+          assert_raises(ArgumentError) { @parser.parse_io(StringIO.new('<root/>'), 'not an encoding')}
+        end
+
         def test_ctag
           @parser.parse_memory(<<-eoxml)
             <p id="asdfasdf">
