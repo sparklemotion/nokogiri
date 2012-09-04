@@ -189,7 +189,36 @@ encoding="iso-8859-1" indent="yes"/>
           Nokogiri::XSLT.quote_params(params.to_a.flatten)))
       check_params result_doc, params
     end
+
+    def test_xslt_paramaters
+      xslt_str = <<-EOX
+  <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
+    <xsl:template match="/">
+      <xsl:value-of select="$foo" />
+    </xsl:template>
+  </xsl:stylesheet>
+      EOX
+
+      xslt = Nokogiri::XSLT(xslt_str)
+      doc = Nokogiri::XML("<root />")
+      assert_match %r{bar}, xslt.transform(doc, Nokogiri::XSLT.quote_params('foo' => 'bar')).to_s
+    end
+
+    def test_xslt_transform_error
+      xslt_str = <<-EOX
+  <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
+    <xsl:template match="/">
+      <xsl:value-of select="$foo" />
+    </xsl:template>
+  </xsl:stylesheet>
+      EOX
+
+      xslt = Nokogiri::XSLT(xslt_str)
+      doc = Nokogiri::XML("<root />")
+      assert_raises(RuntimeError) { xslt.transform(doc) }
+    end
   end
+
 
   def test_xslt_parse_error
     xslt_str = <<-EOX
@@ -209,6 +238,7 @@ encoding="iso-8859-1" indent="yes"/>
     EOX
     assert_raises(RuntimeError) { Nokogiri::XSLT.parse(xslt_str) }
   end
+
 
   def test_passing_a_non_document_to_transform
     xsl = Nokogiri::XSLT('<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"></xsl:stylesheet>')

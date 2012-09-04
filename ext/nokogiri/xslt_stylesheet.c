@@ -109,6 +109,10 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
     return rval ;
 }
 
+static void swallow_superfluous_xml_errors(void * userdata, xmlErrorPtr error, ...)
+{
+}
+
 /*
  *  call-seq:
  *    transform(document, params = [])
@@ -126,12 +130,13 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
  */
 static VALUE transform(int argc, VALUE* argv, VALUE self)
 {
-    VALUE xmldoc, paramobj ;
+    VALUE xmldoc, paramobj, errstr, exception ;
     xmlDocPtr xml ;
     xmlDocPtr result ;
     nokogiriXsltStylesheetTuple *wrapper;
     const char** params ;
     long param_len, j ;
+    int parse_error_occurred ;
 
     rb_scan_args(argc, argv, "11", &xmldoc, &paramobj);
     if (NIL_P(paramobj)) { paramobj = rb_ary_new2(0L) ; }
@@ -158,10 +163,22 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     }
     params[param_len] = 0 ;
 
+    errstr = rb_str_new(0, 0);
+    xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
+    xmlSetGenericErrorFunc(NULL, (xmlGenericErrorFunc)&swallow_superfluous_xml_errors);
+
     result = xsltApplyStylesheet(wrapper->ss, xml, params);
     free(params);
 
-    if (!result) rb_raise(rb_eRuntimeError, "could not perform xslt transform on document");
+    xsltSetGenericErrorFunc(NULL, NULL);
+    xmlSetGenericErrorFunc(NULL, NULL);
+
+    parse_error_occurred = (Qfalse == rb_funcall(errstr, rb_intern("empty?"), 0));
+
+    if (parse_error_occurred) {
+      exception = rb_exc_new3(rb_eRuntimeError, errstr);
+      rb_exc_raise(exception);
+    }
 
     return Nokogiri_wrap_xml_document((VALUE)0, result) ;
 }
