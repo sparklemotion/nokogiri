@@ -70,11 +70,11 @@ bundle exec rake gem
 cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 
 # jruby
-rvm_use jruby-1.6.5
+rvm_use jruby
 bundle install --quiet --local || bundle install
 bundle exec rake clean clobber
 rvm_use 1.8.7
 bundle exec rake generate
-rvm_use jruby-1.6.5
+rvm_use jruby
 bundle exec rake gem
 cp -v pkg/nokogiri*java.gem gems
