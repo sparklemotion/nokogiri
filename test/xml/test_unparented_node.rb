@@ -403,6 +403,15 @@ module Nokogiri
         assert_equal set[0].to_xml, second.to_xml
       end
 
+      def test_replace_on_unparented_node
+        foo = Node.new('foo', @node.document)
+        if Nokogiri.jruby? # JRuby Nokogiri doesn't raise an exception
+          @node.replace(foo)
+        else
+          assert_raises(RuntimeError){ @node.replace(foo) }
+        end
+      end
+
       def test_illegal_replace_of_node_with_doc
         new_node = Nokogiri::XML.parse('<foo>bar</foo>')
         old_node = @node.at('.//employee')

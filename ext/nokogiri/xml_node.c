@@ -84,7 +84,7 @@ static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr pivot, xmlNodePtr new_node)
   }
 
   /* work around libxml2 issue: https://bugzilla.gnome.org/show_bug.cgi?id=615612 */
-  if (retval->type == XML_TEXT_NODE) {
+  if (retval && retval->type == XML_TEXT_NODE) {
     if (retval->prev && retval->prev->type == XML_TEXT_NODE) {
       retval = xmlTextMerge(retval->prev, retval);
     }
