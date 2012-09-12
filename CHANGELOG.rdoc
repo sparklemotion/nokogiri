@@ -9,6 +9,7 @@
   * Nokogiri now detects XSLT transform errors. #731 (Thanks, Justin Fitzsimmons!)
   * Raise an ArgumentError if an invalid encoding is passed to the SAX parser. #756 (Thanks, Bradley Schaefer!)
   * JRuby Node#content now renders newlines properly. #737 (Thanks, Piotr Szmielew!)
+  * JRuby Unknown namespace are ignore when the recover option is used. #748
 
 
 == 1.5.5 / 2012-06-24
