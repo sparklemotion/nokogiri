@@ -2,7 +2,7 @@
 #
 #  script to build gems for all relevant platforms:
 #  - MRI et al (standard gem)
-#  - windows (x86-mingw32 and x86-msin32-60)
+#  - windows (x86-mingw32 and x86-mswin32-60)
 #  - jruby
 #
 #  prerequisite is the mingw32 packages.
