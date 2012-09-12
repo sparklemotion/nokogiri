@@ -32,3 +32,4 @@ test/*_mini.rb
 test/test_jruby_footer.rb
 test/test_jruby_header.rb
 tmp
+bogus.xml
