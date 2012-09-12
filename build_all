@@ -2,26 +2,32 @@
 #
 #  script to build gems for all relevant platforms:
 #  - MRI et al (standard gem)
-#  - windows (x86-mingw32 and x86-msin32-60)
+#  - windows (x86-mingw32 and x86-mswin32-60)
 #  - jruby
 #
-#  prerequisite is the mingw32 packages.
-#  on ubuntu, `sudo apt-get install mingw32`
-#  for others, read up at https://github.com/luislavena/rake-compiler
+#  here's what I recommend for building all the gems:
 #
-#  on ubuntus 11 and later, you may have issues with building
-#  rake-compiler's rubies against openssl v2. Just comment the lines
-#  out from ossl_ssl.c and you'll be fine.
+#   1. set up a vagrant VM guest running ubuntu lucid 32-bit.
+#   2. install rvm, and install 1.8.7, 1.9.3 and jruby.
+#   3. `sudo apt-get install mingw32`
 #
-#  you may have issues with Pathname conversion to String in bundler. Add this to the offending bundler file:
+#  as you build, you may run into these problems:
 #
-#     class Pathname
-#       def to_str
-#         to_s
-#       end
-#     end
+#  - on ubuntus 11 and later, you may have issues with building
+#    rake-compiler's rubies against openssl v2. Just comment the lines
+#    out from ossl_ssl.c and you'll be fine.
 #
-#  you may also have to remove some of the symbol checks in extconf.rb ... crazy.
+#  - you may have issues with Pathname conversion to String in
+#    bundler. Add this to the offending bundler file:
+#
+#      class Pathname
+#        def to_str
+#          to_s
+#        end
+#      end
+#
+#  - you may also have to hack rubygems.rb to eliminate a reference to
+#    RUBY_ENGINE
 #
 
 HOST=
@@ -53,11 +59,18 @@ rm -rf gems
 mkdir -p gems
 
 # windows
+platform=$(uname -i)
+if [[ $platform =~ "64" ]] ; then
+    echo ""
+    echo "ERROR: You need to build the windows gem on a 32-bit machine!"
+    echo ""
+    exit 1
+fi
 rvm_use 1.8.7
-if [[ ! -a /home/mike/.rake-compiler/ruby/ruby-1.8.7-p330/lib/ruby/1.8.7/x86_64-linux/rbconfig.rb ]] ; then
+if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.8.7-p330/lib/ruby/1.8.7/x86_64-linux/rbconfig.rb ]] ; then
     bundle exec rake-compiler cross-ruby VERSION=1.8.7-p330
 fi
-if [[ ! -a /home/mike/.rake-compiler/ruby/ruby-1.9.2-p136/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
+if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.9.2-p136/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
     bundle exec rake-compiler cross-ruby VERSION=1.9.2-p136
 fi
 bundle exec rake cross
@@ -70,11 +83,11 @@ bundle exec rake gem
 cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 
 # jruby
-rvm_use jruby-1.6.5
+rvm_use jruby
 bundle install --quiet --local || bundle install
 bundle exec rake clean clobber
 rvm_use 1.8.7
 bundle exec rake generate
-rvm_use jruby-1.6.5
+rvm_use jruby
 bundle exec rake gem
 cp -v pkg/nokogiri*java.gem gems
