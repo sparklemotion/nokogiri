@@ -21,6 +21,17 @@ module Nokogiri
         assert_equal nil, @xml.root
       end
 
+      def test_ignore_unknown_namespace
+        doc = Nokogiri::XML(<<-eoxml)
+        <xml>
+          <unknown:foo xmlns='hello' />
+          <bar />
+        </xml>
+        eoxml
+        refute doc.xpath('//foo').first.namespace # assert that the namespace is nil
+        refute_empty doc.xpath('//bar'), "bar wasn't found in the document" # bar should be part of the doc
+      end
+
       def test_collect_namespaces
         doc = Nokogiri::XML(<<-eoxml)
         <xml>

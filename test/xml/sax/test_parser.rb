@@ -173,7 +173,12 @@ module Nokogiri
             end
           end
 
-          assert_equal doc.errors.length, @parser.document.errors.length
+          # when using JRuby Nokogiri, more errors will be generated as the DOM
+          # parser continue to parse an ill formed document, while the sax parser
+          # will stop at the first error
+          unless Nokogiri.jruby?
+            assert_equal doc.errors.length, @parser.document.errors.length
+          end
         end
 
         def test_parse_with_memory_argument

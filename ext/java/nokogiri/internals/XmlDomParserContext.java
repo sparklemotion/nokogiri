@@ -72,6 +72,8 @@ public class XmlDomParserContext extends ParserContext {
         "http://apache.org/xml/features/nonvalidating/load-dtd-grammar";
     protected static final String FEATURE_INCLUDE_IGNORABLE_WHITESPACE =
         "http://apache.org/xml/features/dom/include-ignorable-whitespace";
+    protected static final String CONTINUE_AFTER_FATAL_ERROR =
+        "http://apache.org/xml/features/continue-after-fatal-error";
     protected static final String FEATURE_NOT_EXPAND_ENTITY =
         "http://apache.org/xml/features/dom/create-entity-ref-nodes";
     protected static final String FEATURE_VALIDATION = "http://xml.org/sax/features/validation";
@@ -110,15 +112,19 @@ public class XmlDomParserContext extends ParserContext {
             System.setProperty("org.apache.xerces.xni.parser.XMLParserConfiguration",
                     "org.apache.xerces.parsers.XIncludeParserConfiguration");
         }
-        
+
         parser = new NokogiriDomParser(options);
         parser.setErrorHandler(errorHandler);
 
         // Fix for Issue#586.  This limits entity expansion up to 100000 and nodes up to 3000.
-        setProperty(SECURITY_MANAGER, new org.apache.xerces.util.SecurityManager());        
-        
+        setProperty(SECURITY_MANAGER, new org.apache.xerces.util.SecurityManager());
+
         if (options.noBlanks) {
             setFeature(FEATURE_INCLUDE_IGNORABLE_WHITESPACE, false);
+        }
+
+        if (options.recover) {
+            setFeature(CONTINUE_AFTER_FATAL_ERROR, true);
         }
 
         if (options.dtdValid) {
