@@ -149,13 +149,15 @@ module Nokogiri
       # Non-prefixed default namespaces (as in "xmlns=") are not included
       # in the hash.
       #
-      # Note this is a very expensive operation in current implementation, as it
-      # traverses the entire graph, and also has to bring each node across the
-      # libxml bridge into a ruby object.
+      # Note that this method does an xpath lookup for nodes with
+      # namespaces, and as a result the order may be dependent on the
+      # implementation of the underlying XML library.
+      #
       def collect_namespaces
-        ns = {}
-        traverse { |j| ns.merge!(j.namespaces) }
-        ns
+        xpath("//namespace::*").inject({}) do |hash, ns|
+          hash[["xmlns",ns.prefix].compact.join(":")] = ns.href if ns.prefix != "xml"
+          hash
+        end
       end
 
       # Get the list of decorators given +key+
