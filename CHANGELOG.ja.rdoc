@@ -2,6 +2,8 @@
 
 * Features
 
+  * Improved performance of XML::Document#collect_namespaces. #761 (Thanks, Juergen Mangler!)
+
 * Bugfixes
 
   * JRuby で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外がはっせいする。 #719
