@@ -98,7 +98,6 @@ public class XmlNamespace extends RubyObject {
         this.href = href;
         this.prefixString = prefixString;
         this.hrefString = hrefString;
-        this.attr.setUserData(CACHED_NODE, this, null);
         setInstanceVariable("@document", xmlDocument);
     }
     
