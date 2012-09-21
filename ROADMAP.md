@@ -19,8 +19,9 @@
 * https://github.com/sparklemotion/nokogiri/issues/679
   Mixing in Enumerable has some unintended consequences; plus we want to improve the attributes API
 
-* (closed) https://github.com/sparklemotion/nokogiri/issues/666
-  Some ideas for a better attributes API?
+* Some ideas for a better attributes API?
+  * (closed) https://github.com/sparklemotion/nokogiri/issues/666
+  * https://github.com/sparklemotion/nokogiri/issues/765
 
 
 ## improve CSS query parsing
