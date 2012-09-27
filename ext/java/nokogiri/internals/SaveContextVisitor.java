@@ -76,7 +76,7 @@ public class SaveContextVisitor {
     private Stack<String> indentation;
     private String encoding, indentString;
     private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, asBuilder, htmlDoc, fragment;
-    private boolean canonical, incl_ns, with_comments, subsets, exclusive/*, text_seen*/;
+    private boolean canonical, incl_ns, with_comments, subsets, exclusive;
     private List<Node> c14nNodeList;
     private Deque<Attr[]> c14nNamespaceStack;
     private Deque<Attr[]> c14nAttrStack;
@@ -730,9 +730,6 @@ public class SaveContextVisitor {
             }
         }
 
-        // rewindSpacesBeforeText();
-        // muteSpacesAfterText();
-
         if (text.getUserData(NokogiriHelpers.ENCODED_STRING) == null || !((Boolean)text.getUserData(NokogiriHelpers.ENCODED_STRING))) {
             textContent = encodeJavaString(textContent);
         }
@@ -743,24 +740,6 @@ public class SaveContextVisitor {
         buffer.append(textContent);
         return true;
     }
-
-    /*
-    private void rewindSpacesBeforeText() {
-        if (buffer.length() > 0) {
-            while (Character.isWhitespace(buffer.charAt(buffer.length()-1))) {
-                buffer.deleteCharAt(buffer.length()-1);
-            }
-        }
-    }
-
-    private void muteSpacesAfterText() {
-        text_seen = true;
-    }
-
-    private void unmuteSpaces() {
-        text_seen = false;
-    }
-    */
 
     private String getEncoding(Text text) {
         if (encoding != null) return encoding;
