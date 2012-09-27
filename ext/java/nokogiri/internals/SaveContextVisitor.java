@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -65,7 +65,7 @@ import org.w3c.dom.Text;
 
 /**
  * A class for serializing a document.
- * 
+ *
  * @author sergio
  * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
@@ -76,7 +76,7 @@ public class SaveContextVisitor {
     private Stack<String> indentation;
     private String encoding, indentString;
     private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, asBuilder, htmlDoc, fragment;
-    private boolean canonical, incl_ns, with_comments, subsets, exclusive;
+    private boolean canonical, incl_ns, with_comments, subsets, exclusive/*, text_seen*/;
     private List<Node> c14nNodeList;
     private Deque<Attr[]> c14nNamespaceStack;
     private Deque<Attr[]> c14nAttrStack;
@@ -96,7 +96,7 @@ public class SaveContextVisitor {
     public static final int AS_XML = 32;
     public static final int AS_HTML = 64;
     public static final int AS_BUILDER = 128;
-    
+
     public static final int CANONICAL = 1;
     public static final int INCL_NS = 2;
     public static final int WITH_COMMENTS = 4;
@@ -113,7 +113,7 @@ public class SaveContextVisitor {
         c14nNamespaceStack = new ArrayDeque<Attr[]>();
         c14nAttrStack = new ArrayDeque<Attr[]>();
         format = (options & FORMAT) == FORMAT;
-        
+
         noDecl = (options & NO_DECL) == NO_DECL;
         noEmpty = (options & NO_EMPTY) == NO_EMPTY;
         noXhtml = (options & NO_XHTML) == NO_XHTML;
@@ -121,40 +121,40 @@ public class SaveContextVisitor {
         asXml = (options & AS_XML) == AS_XML;
         asHtml = (options & AS_HTML) == AS_HTML;
         asBuilder = (options & AS_BUILDER) == AS_BUILDER;
-        
+
         canonical = (canonicalOpts & CANONICAL) == CANONICAL;
         incl_ns = (canonicalOpts & INCL_NS) == INCL_NS;
         with_comments = (canonicalOpts & WITH_COMMENTS) == WITH_COMMENTS;
         subsets = (canonicalOpts & SUBSETS) == SUBSETS;
-        
+
         if ((format && indent == null) || (format && indent.length() == 0)) indent = "  "; // default, two spaces
         if ((!format && indent != null) && indent.length() > 0) format = true;
         if ((asBuilder && indent == null) || (asBuilder && indent.length() == 0)) indent = "  "; // default, two spaces
         indentString = indent;
         if (!asXml && !asHtml && !asXhtml && !asBuilder) asXml = true;
     }
-    
+
     @Override
     public String toString() {
         return (new String(buffer));
     }
-    
+
     public void setHtmlDoc(boolean htmlDoc) {
         this.htmlDoc = htmlDoc;
     }
-    
+
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
-    
+
     public List<Node> getC14nNodeList() {
         return c14nNodeList;
     }
-    
+
    public void setC14nExclusiveInclusivePrefixes(List<String> prefixes) {
        c14nExclusiveInclusivePrefixes = prefixes;
    }
-    
+
     public boolean enter(Node node) {
         if (node instanceof Document) {
             return enter((Document)node);
@@ -191,7 +191,7 @@ public class SaveContextVisitor {
         }
         return false;
     }
-    
+
     public void leave(Node node) {
         if (node instanceof Document) {
             leave((Document)node);
@@ -206,7 +206,6 @@ public class SaveContextVisitor {
             return;
         }
         if (node instanceof Text) {
-            leave((Text)node);
             return;
         }
         if (node instanceof CDATASection) {
@@ -238,16 +237,16 @@ public class SaveContextVisitor {
             return;
         }
     }
-    
+
     public boolean enter(String string) {
         buffer.append(string);
         return true;
     }
-    
+
     public void leave(String string) {
         // no-op
     }
-    
+
     public boolean enter(Attr attr) {
         String name = attr.getName();
         buffer.append(name);
@@ -260,34 +259,34 @@ public class SaveContextVisitor {
         }
         return true;
     }
-    
-    private static Pattern p = 
+
+    private static Pattern p =
         Pattern.compile("charset(()|\\s+)=(()|\\s+)(\\w|\\_|\\.|\\-)+", Pattern.CASE_INSENSITIVE);
-    
+
     private String replaceCharsetIfNecessary(Attr attr) {
         String value = attr.getValue();
         if (encoding == null) return value;   // unable to replace in any case
         if (!"content".equals(attr.getName().toLowerCase())) return value;  // must be content attr
-        if (!"meta".equals(attr.getOwnerElement().getNodeName().toLowerCase())) return value;        
+        if (!"meta".equals(attr.getOwnerElement().getNodeName().toLowerCase())) return value;
         Matcher m = p.matcher(value);
         if (!m.find()) return value;
         if (value.contains(encoding)) return value;  // no need to replace
         return value.replace(m.group(), "charset=" + encoding);
     }
-    
+
     public static final String[] HTML_BOOLEAN_ATTRS = {
         "checked", "compact", "declare", "defer", "disabled", "ismap",
         "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
         "selected"
     };
-    
+
     private boolean isHtmlBooleanAttr(String name) {
         for (String s : HTML_BOOLEAN_ATTRS) {
             if (s.equals(name)) return true;
         }
         return false;
     }
-    
+
     private String serializeAttrTextContent(String s, boolean htmlDoc) {
         if (s == null) return "";
 
@@ -299,7 +298,7 @@ public class SaveContextVisitor {
             case '\n': buffer.append("&#10;"); break;
             case '\r': buffer.append("&#13;"); break;
             case '\t': buffer.append("&#9;"); break;
-            case '"': if (htmlDoc) buffer.append("%22"); 
+            case '"': if (htmlDoc) buffer.append("%22");
                 else buffer.append("&quot;");
                 break;
             case '<': buffer.append("&lt;"); break;
@@ -315,14 +314,14 @@ public class SaveContextVisitor {
     public void leave(Attr attr) {
         // no-op
     }
-    
+
     public boolean enter(CDATASection cdata) {
         buffer.append("<![CDATA[");
         buffer.append(cdata.getData());
         buffer.append("]]>");
         return true;
     }
-    
+
     public void leave(CDATASection cdata) {
         // no-op
     }
@@ -337,11 +336,11 @@ public class SaveContextVisitor {
         buffer.append("-->");
         return true;
     }
-    
+
     public void leave(Comment comment) {
         // no-op
     }
-    
+
     public boolean enter(Document document) {
         if (!noDecl) {
             buffer.append("<?xml version=\"");
@@ -357,11 +356,11 @@ public class SaveContextVisitor {
         }
         return true;
     }
-    
+
     public void leave(Document document) {
         // no-op
     }
-    
+
     public boolean enter(DocumentType docType) {
         if (canonical) {
             c14nNodeList.add(docType);
@@ -389,7 +388,7 @@ public class SaveContextVisitor {
         buffer.append(">\n");
         return true;
     }
-    
+
     public void leave(DocumentType docType) {
         // no-op
     }
@@ -403,12 +402,12 @@ public class SaveContextVisitor {
         }
         String current = indentation.peek();
         buffer.append(current);
-        if (needIndent()) {
+        if (needIndent(element)) {
             indentation.push(current + indentString);
         }
         String name = element.getTagName();
         buffer.append("<" + name);
-        Attr[] attrs = getAttrsAndNamespaces(element);        
+        Attr[] attrs = getAttrsAndNamespaces(element);
         for (Attr attr : attrs) {
             if (attr.getSpecified()) {
                 buffer.append(" ");
@@ -423,7 +422,7 @@ public class SaveContextVisitor {
         }
         // no child
         if (asHtml || asXhtml) {
-            buffer.append(">");   
+            buffer.append(">");
         } else if (asXml && noEmpty) {
             buffer.append(">");
         } else {
@@ -434,26 +433,28 @@ public class SaveContextVisitor {
         }
         return true;
     }
-    
-    private boolean needIndent() {
+
+    private boolean needIndent(Element element) {
+        if (containsText(element)) return false;
         if (fragment) return false;  // a given option might be fragment and format. fragment matters
         if (format || asBuilder) return true;
         return false;
     }
-    
+
     private boolean needBreakInOpening(Element element) {
+        if (containsText(element)) return false;
         if (fragment) return false;
         if (format) return true;
         if (asBuilder && element.getFirstChild() != null && element.getFirstChild().getNodeType() == Node.ELEMENT_NODE) return true;
         if (format && element.getNextSibling() == null && element.hasChildNodes()) return true;
         return false;
     }
-    
+
     private boolean isEmpty(String name) {
         HTMLElements.Element element = HTMLElements.getElement(name);
         return element.isEmpty();
     }
-    
+
     private Attr[] getAttrsAndNamespaces(Element element) {
         NamedNodeMap attrs = element.getAttributes();
         if (!canonical) {
@@ -474,7 +475,7 @@ public class SaveContextVisitor {
                 c14nAttrStack.push(attributeOfAncestors);
                 subsets = false; // namespace propagation should be done only once on top level node.
             }
-            
+
             getNamespacesAndAttrs(element, namespaces, attributes);
 
             Attr[] namespaceArray = getSortedArray(namespaces);
@@ -491,9 +492,9 @@ public class SaveContextVisitor {
             c14nAttrStack.push(attributeArray);
             return allAttrs;
         }
-        
+
     }
-    
+
     private void getAttrsOfAncestors(Node parent, List<Attr> namespaces, List<Attr> attributes) {
         if (parent == null) return;
         NamedNodeMap attrs = parent.getAttributes();
@@ -505,7 +506,7 @@ public class SaveContextVisitor {
         }
         getAttrsOfAncestors(parent.getParentNode(), namespaces, attributes);
     }
-    
+
     private void getNamespacesAndAttrs(Node current, List<Attr> namespaces, List<Attr> attributes) {
         NamedNodeMap attrs = current.getAttributes();
         for (int i=0; i<attrs.getLength(); i++) {
@@ -531,7 +532,7 @@ public class SaveContextVisitor {
                    if (parentNamespaces[n].getNodeValue().equals(attr.getNodeValue())) {
                        // exactly the same namespace should not be added
                        newNamespace = false;
-                   } else {                            
+                   } else {
                        // in case of namespace url change, propagated namespace will be override
                        namespaces.remove(parentNamespaces[n]);
                    }
@@ -540,7 +541,7 @@ public class SaveContextVisitor {
             if (newNamespace && !namespaces.contains(attr)) namespaces.add(attr);
         }
     }
-    
+
     private void getAttributesWithPropagated(List<Attr> attributes, Attr attr) {
         boolean newAttribute = true;
         Iterator<Attr[]> iter = c14nAttrStack.iterator();
@@ -552,7 +553,7 @@ public class SaveContextVisitor {
                    if (parentAttr[n].getNodeValue().equals(attr.getNodeValue())) {
                        // exactly the same attribute should not be added
                        newAttribute = false;
-                   } else {                            
+                   } else {
                        // in case of attribute value change, propagated attribute will be override
                        attributes.remove(parentAttr[n]);
                    }
@@ -561,7 +562,7 @@ public class SaveContextVisitor {
             if (newAttribute) attributes.add(attr);
         }
     }
-    
+
     private void verifyXmlSpace(List<Attr> attributes, NamedNodeMap attrs) {
         Attr attr = (Attr) attrs.getNamedItem("xml:space");
         if (attr == null) {
@@ -573,7 +574,7 @@ public class SaveContextVisitor {
             }
         }
     }
-    
+
     private Attr[] getSortedArray(List<Attr> attrList) {
         Attr[] attrArray = attrList.toArray(new Attr[0]);
         Arrays.sort(attrArray, new Comparator<Attr>() {
@@ -584,7 +585,7 @@ public class SaveContextVisitor {
         });
         return attrArray;
     }
-    
+
     public void leave(Element element) {
         if (canonical) {
             c14nNamespaceStack.poll();
@@ -596,10 +597,10 @@ public class SaveContextVisitor {
                 indentation.pop();
                 buffer.append(indentation.peek());
             } else if (asBuilder) {
-                indentation.pop();
+                if (!containsText(element)) indentation.pop();
             }
             buffer.append("</" + name + ">");
-            if (needBreakInClosing()) {
+            if (needBreakInClosing(element)) {
                 buffer.append("\n");
             }
             return;
@@ -610,23 +611,29 @@ public class SaveContextVisitor {
                 buffer.append("</" + name + ">");
             }
         }
-        if (needBreakInClosing()) {
-            indentation.pop();
+        if (needBreakInClosing(element)) {
+            if (!containsText(element)) indentation.pop();
             buffer.append("\n");
         }
     }
-    
+
     private boolean needIndentInClosing(Element element) {
+        if (containsText(element)) return false;
+
         if (fragment) return false;  // a given option might be fragment and format. fragment matters
         if (format) return true;
         if (asBuilder && element.getFirstChild() != null && element.getFirstChild().getNodeType() == Node.ELEMENT_NODE) return true;
         return false;
     }
-    
-    private boolean needBreakInClosing() {
+
+    private boolean needBreakInClosing(Element element) {
         if (fragment) return false;
         if (format || asBuilder) return true;
         return false;
+    }
+
+    private boolean containsText(Element element) {
+        return (element.getFirstChild() != null && element.getFirstChild().getNodeType() == Node.TEXT_NODE);
     }
 
     public boolean enter(Entity entity) {
@@ -653,7 +660,7 @@ public class SaveContextVisitor {
         buffer.append(">");
         return true;
     }
-    
+
     public void leave(Entity entity) {
         // no-op
     }
@@ -663,11 +670,11 @@ public class SaveContextVisitor {
         buffer.append("&" + name + ";");
         return true;
     }
-    
+
     public void leaveEntityReference(Text entityRef) {
         // no-op
     }
-    
+
     public boolean enter(Notation notation) {
         String name = notation.getNodeName();
         String pubId = notation.getPublicId();
@@ -691,7 +698,7 @@ public class SaveContextVisitor {
         buffer.append(">");
         return true;
     }
-    
+
     public void leave(Notation notation) {
         // no-op
     }
@@ -707,7 +714,7 @@ public class SaveContextVisitor {
         if (canonical) c14nNodeList.add(pi);
         return true;
     }
-    
+
     public void leave(ProcessingInstruction pi) {
         // no-op
     }
@@ -722,13 +729,10 @@ public class SaveContextVisitor {
                 return true;
             }
         }
-        if (needIndentText() && "".equals(textContent.trim())) return true;
-        if (needIndentText()) {
-            String current = indentation.peek();
-            buffer.append(current);
-            indentation.push(current + indentString);
-            if (textContent.charAt(0) == lineSeparator) textContent = textContent.substring(1);    
-        }
+
+        // rewindSpacesBeforeText();
+        // muteSpacesAfterText();
+
         if (text.getUserData(NokogiriHelpers.ENCODED_STRING) == null || !((Boolean)text.getUserData(NokogiriHelpers.ENCODED_STRING))) {
             textContent = encodeJavaString(textContent);
         }
@@ -739,29 +743,31 @@ public class SaveContextVisitor {
         buffer.append(textContent);
         return true;
     }
-    
-    private boolean needIndentText() {
-        if (fragment) return false;
-        if (format) return true;
-        return false;
-    }
-    
-    public void leave(Text text) {
-        String textContent = text.getNodeValue();
-        if (needIndentText() && !"".equals(textContent.trim())) {
-            indentation.pop();
-            if (textContent.charAt(textContent.length()-1) != lineSeparator) {
-                buffer.append("\n");
+
+    /*
+    private void rewindSpacesBeforeText() {
+        if (buffer.length() > 0) {
+            while (Character.isWhitespace(buffer.charAt(buffer.length()-1))) {
+                buffer.deleteCharAt(buffer.length()-1);
             }
         }
     }
-    
+
+    private void muteSpacesAfterText() {
+        text_seen = true;
+    }
+
+    private void unmuteSpaces() {
+        text_seen = false;
+    }
+    */
+
     private String getEncoding(Text text) {
         if (encoding != null) return encoding;
         encoding = text.getOwnerDocument().getInputEncoding();
         return encoding;
     }
-    
+
     private String encodeStringToHtmlEntity(String text) {
         int last = 126; // = U+007E. No need to encode under U+007E.
         StringBuffer sb = new StringBuffer();
