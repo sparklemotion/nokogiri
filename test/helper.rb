@@ -78,6 +78,7 @@ module Nokogiri
         attr_reader :data, :comments, :cdata_blocks, :start_elements_namespace
         attr_reader :errors, :warnings, :end_elements_namespace
         attr_reader :xmldecls
+        attr_reader :processing_instructions
 
         def xmldecl version, encoding, standalone
           @xmldecls = [version, encoding, standalone].compact
@@ -140,6 +141,11 @@ module Nokogiri
           @cdata_blocks ||= []
           @cdata_blocks += [string]
           super
+        end
+
+        def processing_instruction name, content
+          @processing_instructions ||= []
+          @processing_instructions << [name, content]
         end
       end
     end
