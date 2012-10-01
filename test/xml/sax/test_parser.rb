@@ -43,6 +43,15 @@ module Nokogiri
           assert_equal [['foo', [['a', '&b']]]], doc.start_elements
         end
 
+        def test_parser_respects_encoding_ivar
+          doc = Doc.new
+          parser = XML::SAX::Parser.new doc, 'SHIFT-JIS'
+          File.open(SHIFT_JIS_XML) do |io|
+            parser.parse(io)
+            assert_equal(['This is a Shift_JIS File', 'こんにちは'], @parser.document.data)
+          end
+        end
+
         def test_xml_decl
           {
             ''          => nil,
