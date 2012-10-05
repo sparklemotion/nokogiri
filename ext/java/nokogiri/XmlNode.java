@@ -1075,7 +1075,7 @@ public class XmlNode extends RubyObject {
         this.content = null;    // clear cache
     }
 
-    @JRubyMethod(name = "native_content=", visibility = Visibility.PRIVATE)
+    @JRubyMethod(name = "native_content=")
     public IRubyObject native_content_set(ThreadContext context, IRubyObject content) {
         setContent(content);
         return content;
