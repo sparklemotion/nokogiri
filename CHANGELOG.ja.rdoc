@@ -15,7 +15,7 @@
   * JRuby Node#content now renders newlines properly. #737 (Thanks, Piotr Szmielew!)
   * JRuby Unknown namespace are ignore when the recover option is used. #748
   * JRuby XPath queries for namespaces should not throw exceptions when called twice in a row. #764
-
+  * [jruby] More consistent (with libxml2) whitespace formatting when emitting XML (#771)
 
 
 == 1.5.5 / ２０１２年６月２４日
