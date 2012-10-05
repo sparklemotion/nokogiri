@@ -62,12 +62,10 @@ import org.xml.sax.ext.DefaultHandler2;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
-
-    boolean inCDATA = false;
-
-    private Ruby ruby;
-    private RubyClass attrClass;
-    private IRubyObject object;
+    private StringBuffer buffer;
+    private final Ruby ruby;
+    private final RubyClass attrClass;
+    private final IRubyObject object;
 
     /**
      * Stores parse errors with the most-recent error last.
@@ -235,8 +233,11 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-        String target = inCDATA ? "cdata_block" : "characters";
-        call(target, ruby.newString(new String(ch, start, length)));
+        if (buffer != null) {
+          buffer.append(new String(ch, start, length));
+        } else {
+          call("characters", ruby.newString(new String(ch, start, length)));
+        }
     }
 
     @Override
@@ -246,12 +247,13 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void startCDATA() throws SAXException {
-        inCDATA = true;
+        buffer = new StringBuffer();
     }
 
     @Override
     public void endCDATA() throws SAXException {
-        inCDATA = false;
+        call("cdata_block", ruby.newString(buffer.toString()));
+        buffer = null;
     }
 
     @Override

@@ -55,6 +55,10 @@ import org.w3c.dom.NodeList;
  */
 @JRubyClass(name="Nokogiri::HTML::Document", parent="Nokogiri::XML::Document")
 public class HtmlDocument extends XmlDocument {
+    private static final String DEFAULT_CONTENT_TYPE = "html";
+    private static final String DEFAULT_PUBLIC_ID = "-//W3C//DTD HTML 4.01//EN";
+    private static final String DEFAULT_SYTEM_ID = "http://www.w3.org/TR/html4/strict.dtd";
+
     private String parsed_encoding = null;
 
     public HtmlDocument(Ruby ruby, RubyClass klazz) {
@@ -80,6 +84,28 @@ public class HtmlDocument extends XmlDocument {
         RuntimeHelpers.invoke(context, htmlDocument, "initialize", args);
 
         return htmlDocument;
+    }
+
+    public IRubyObject getInternalSubset(ThreadContext context) {
+        IRubyObject internalSubset = super.getInternalSubset(context);
+
+        // html documents are expected to have a default internal subset
+        // the default values are the same ones used when the following
+        // feature is turned on
+        // "http://cyberneko.org/html/features/insert-doctype"
+        // the reason we don't turn it on, is because it overrides the document's
+        // declared doctype declaration.
+
+        if (internalSubset.isNil()) {
+            internalSubset = XmlDtd.newEmpty(context.getRuntime(),
+                                             getDocument(),
+                                             context.getRuntime().newString(DEFAULT_CONTENT_TYPE),
+                                             context.getRuntime().newString(DEFAULT_PUBLIC_ID),
+                                             context.getRuntime().newString(DEFAULT_SYTEM_ID));
+            setInternalSubset(internalSubset);
+        }
+
+        return internalSubset;
     }
 
     public static IRubyObject do_parse(ThreadContext context,

@@ -637,6 +637,13 @@ module Nokogiri
         assert_equal 'foo', node.content
       end
 
+      def test_set_native_content_is_unescaped
+        comment = Nokogiri.XML('<r><!-- foo --></r>').at('//comment()')
+
+        comment.native_content = " < " # content= will escape this string
+        assert_equal "<!-- < -->", comment.to_xml
+      end
+
       def test_find_by_css_with_tilde_eql
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
@@ -1031,7 +1038,29 @@ EOXML
         subject = Nokogiri::XML::Node.new 'foo', document
         ns = subject.add_namespace nil, 'bar'
         subject.namespace = ns
-        assert_match subject.to_xml, /xmlns="bar"/
+        assert_match(/xmlns="bar"/, subject.to_xml)
+      end
+
+      # issue 771
+      def test_format_noblank
+        content = <<eoxml
+<foo>
+  <bar>hello</bar>
+</foo>
+eoxml
+        subject = Nokogiri::XML(content) do |conf|
+          conf.default_xml.noblanks
+        end
+
+        assert_match %r{<bar>hello</bar>}, subject.to_xml(:indent => 2)
+      end
+
+      def test_text_node_colon
+        document = Nokogiri::XML::Document.new
+        root = Nokogiri::XML::Node.new 'foo', document
+        document.root = root
+        root << "<a>hello:with_colon</a>"
+        assert_match(/hello:with_colon/, document.to_xml)
       end
     end
   end

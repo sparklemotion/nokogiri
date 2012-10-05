@@ -163,7 +163,7 @@ public class XsltStylesheet extends RubyObject {
         try {
             xslt.init(args[1], doc);
         } catch (TransformerConfigurationException ex) {
-            runtime.newRuntimeError("could not parse xslt stylesheet");
+            throw runtime.newRuntimeError("could not parse xslt stylesheet");
         }
 
         return xslt;
@@ -172,6 +172,8 @@ public class XsltStylesheet extends RubyObject {
     private void init(IRubyObject stylesheet, Document document) throws TransformerConfigurationException {
         this.stylesheet = stylesheet;  // either RubyString or RubyFile
         if (factory == null) factory = TransformerFactory.newInstance();
+        NokogiriXsltErrorListener elistener = new NokogiriXsltErrorListener();
+        factory.setErrorListener(elistener);
         sheet = factory.newTemplates(new DOMSource(document));
     }
     
@@ -187,7 +189,7 @@ public class XsltStylesheet extends RubyObject {
         Ruby runtime = context.getRuntime();
         RubyArray errors_of_xmlDoc = (RubyArray) xmlDoc.getInstanceVariable("@errors");
         if (!errors_of_xmlDoc.isEmpty()) {
-            throw runtime.newRuntimeError(errors_of_xmlDoc.first().asJavaString());
+            throw runtime.newRuntimeError(errors_of_xmlDoc.first().asString().asJavaString());
         }
     }
 

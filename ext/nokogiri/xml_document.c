@@ -156,7 +156,7 @@ static VALUE set_encoding(VALUE self, VALUE encoding)
   Data_Get_Struct(self, xmlDoc, doc);
 
   if (doc->encoding)
-      free((char *) doc->encoding); // this may produce a gcc cast warning
+      free((char *) doc->encoding); /* this may produce a gcc cast warning */
 
   doc->encoding = xmlStrdup((xmlChar *)StringValuePtr(encoding));
 
@@ -367,7 +367,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
  *
  *  For more information on why this probably is *not* a good thing in general,
  *  please direct your browser to
- *  http://tenderlovemaking.com/2009/04/23/namespaces-in-xml/
+ *  http://tenderlovemaking.com/2009/04/23/namespaces-in-xml.html
  */
 VALUE remove_namespaces_bang(VALUE self)
 {

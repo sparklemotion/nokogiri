@@ -1,4 +1,25 @@
-== 1.5.5 / unreleased
+== 1.5.6 / unreleased
+
+* Features
+
+  * Improved performance of XML::Document#collect_namespaces. #761 (Thanks, Juergen Mangler!)
+  * New callback SAX::Document#processing_instruction (Thanks, Kitaiti Makoto!)
+  * Node#native_content= allows setting unescaped node contant. #768
+
+
+* Bugfixes
+
+  * JRuby raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
+  * JRuby doesn't coerce namespaces out of strings on a direct subclass of Node. #715
+  * Nokogiri now detects XSLT transform errors. #731 (Thanks, Justin Fitzsimmons!)
+  * Raise an ArgumentError if an invalid encoding is passed to the SAX parser. #756 (Thanks, Bradley Schaefer!)
+  * JRuby Node#content now renders newlines properly. #737 (Thanks, Piotr Szmielew!)
+  * JRuby Unknown namespace are ignore when the recover option is used. #748
+  * JRuby XPath queries for namespaces should not throw exceptions when called twice in a row. #764
+  * [jruby] More consistent (with libxml2) whitespace formatting when emitting XML (#771)
+
+
+== 1.5.5 / 2012-06-24
 
 * Features
 
@@ -17,6 +38,7 @@
   * JRuby renders nodes without their namespace when subclassing Node. #695
   * JRuby raises NAMESPACE_ERR (org.w3c.dom.DOMException) while instantiating RDF::RDFXML::Writer. #683
   * JRuby is not able to use namespaces in xpath. #493
+  * JRuby's Entity resolving should be consistent with C-Nokogiri #704, #647, #703
 
 
 == 1.5.4 / 2012-06-12

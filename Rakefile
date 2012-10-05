@@ -46,14 +46,10 @@ HOE = Hoe.spec 'nokogiri' do
     ["mini_portile",    ">= 0.2.2"],
     ["minitest",        "~> 2.2.2"],
     ["rake",            ">= 0.9"],
-    ["rake-compiler",   "=  0.8.0"]
+    ["rake-compiler",   "=  0.8.0"],
+    ["racc",            ">= 1.4.6"],
+    ["rexical",         ">= 1.0.5"]
   ]
-  if ! java?
-    self.extra_dev_deps += [
-      ["racc",            ">= 1.4.6"],
-      ["rexical",         ">= 1.0.5"]
-    ]
-  end
 
   if java?
     self.spec_extras = { :platform => 'java' }
@@ -118,6 +114,20 @@ desc "Generate css/parser.rb and css/tokenizer.rex"
 task 'generate' => [GENERATED_PARSER, GENERATED_TOKENIZER]
 task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
 
+# This is a big hack to make sure that the racc and rexical
+# dependencies in the Gemfile are constrainted to ruby platforms
+# (i.e. MRI and Rubinius). There's no way to do that through hoe,
+# and any solution will require changing hoe and hoe-bundler.
+old_gemfile_task = Rake::Task['bundler:gemfile']
+task 'bundler:gemfile' do
+  old_gemfile_task.invoke
+
+  lines = File.open('Gemfile', 'r') { |f| f.readlines }.map do |line|
+    line =~ /racc|rexical/ ? "#{line.strip}, :platform => :ruby" : line
+  end
+  File.open('Gemfile', 'w') { |f| lines.each { |line| f.puts line } }
+end
+
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
   racc = RbConfig::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
   racc = "#{::RbConfig::CONFIG['bindir']}/racc" if racc.empty?
@@ -149,9 +159,18 @@ task :java_debug do
   ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if java? && ENV['JAVA_DEBUG']
 end
 
+if java?
+  task :test_18 => :test
+  task :test_19 do
+    ENV['JRUBY_OPTS'] = "--1.9"
+    Rake::Task["test"].invoke
+  end
+end
+
 Rake::Task[:test].prerequisites << :compile
 Rake::Task[:test].prerequisites << :java_debug
 Rake::Task[:test].prerequisites << :check_extra_deps unless java?
+
 if Hoe.plugins.include?(:debugging)
   ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
     Rake::Task["test:#{task_name}"].prerequisites << :compile
@@ -162,6 +181,7 @@ end
 
 desc "build a windows gem without all the ceremony."
 task "gem:windows" => "gem" do
+  # TODO: 1.8.7-p358, 1.9.3-p194
   cross_rubies = ["1.8.7-p330", "1.9.2-p136"]
   ruby_cc_version = cross_rubies.collect { |_| _.split("-").first }.join(":") # e.g., "1.8.7:1.9.2"
   rake_compiler_config_path = "#{ENV['HOME']}/.rake-compiler/config.yml"

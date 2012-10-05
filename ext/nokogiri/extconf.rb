@@ -27,6 +27,7 @@ end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
   $CFLAGS << " -DIN_LIBXML"
+  $LIBS << " -lz" # TODO why is this necessary?
 end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/

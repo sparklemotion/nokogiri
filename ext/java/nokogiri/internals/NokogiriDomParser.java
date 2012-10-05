@@ -53,23 +53,34 @@ import org.xml.sax.SAXException;
  *
  * @author Patrick Mahoney <pat@polycrystal.org>
  */
-public class XmlDomParser extends DOMParser {
-    DOMParser dtd;
-    ParserContext.Options options;
+public class NokogiriDomParser extends DOMParser {
+    protected DOMParser dtd;
+    protected boolean xInclude;
+    protected XMLParserConfiguration config;
 
-    public XmlDomParser(ParserContext.Options options) {
-        super();
-        this.options = options;
+    public NokogiriDomParser(XMLParserConfiguration config) {
+        super(config);
+        this.config = config;
+        initialize();
+    }
+
+    public NokogiriDomParser(ParserContext.Options options) {
+        xInclude = options.xInclude;
+        initialize();
+    }
+
+    protected void initialize() {
+        if (config == null) {
+            if (xInclude) {
+                config = new XIncludeParserConfiguration();
+            } else {
+                config = getXMLParserConfiguration();
+            }
+        }
 
         DTDConfiguration dtdConfig = new DTDConfiguration();
         dtd = new DOMParser(dtdConfig);
 
-        XMLParserConfiguration config;
-        if (options.xInclude) {
-            config = new XIncludeParserConfiguration();
-        } else {
-            config = getXMLParserConfiguration();
-        }
         config.setDTDHandler(dtdConfig);
         config.setDTDContentModelHandler(dtdConfig);
     }
@@ -77,7 +88,7 @@ public class XmlDomParser extends DOMParser {
     @Override
     public void parse(InputSource source) throws SAXException, IOException {
         dtd.reset();
-        if (options.xInclude) {
+        if (xInclude) {
             setEntityResolver(new NokogiriXInlcudeEntityResolver(source));
         }
         super.parse(source);
@@ -87,7 +98,7 @@ public class XmlDomParser extends DOMParser {
 
         doc.setUserData(XmlDocument.DTD_RAW_DOCUMENT, dtd.getDocument(), null);
     }
-    
+
     private class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
         InputSource source;
         private NokogiriXInlcudeEntityResolver(InputSource source) {

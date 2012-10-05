@@ -84,7 +84,7 @@ static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr pivot, xmlNodePtr new_node)
   }
 
   /* work around libxml2 issue: https://bugzilla.gnome.org/show_bug.cgi?id=615612 */
-  if (retval->type == XML_TEXT_NODE) {
+  if (retval && retval->type == XML_TEXT_NODE) {
     if (retval->prev && retval->prev->type == XML_TEXT_NODE) {
       retval = xmlTextMerge(retval->prev, retval);
     }
@@ -912,7 +912,7 @@ static VALUE node_type(VALUE self)
  *
  * Set the content for this Node
  */
-static VALUE set_content(VALUE self, VALUE content)
+static VALUE native_content(VALUE self, VALUE content)
 {
   xmlNodePtr node, child, next ;
   Data_Get_Struct(self, xmlNode, node);
@@ -1496,6 +1496,7 @@ void init_xml_node()
   rb_define_method(klass, "create_external_subset", create_external_subset, 3);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
+  rb_define_method(klass, "native_content=", native_content, 1);
 
   rb_define_private_method(klass, "process_xincludes", process_xincludes, 1);
   rb_define_private_method(klass, "in_context", in_context, 2);
@@ -1505,7 +1506,6 @@ void init_xml_node()
   rb_define_private_method(klass, "replace_node", replace, 1);
   rb_define_private_method(klass, "dump_html", dump_html, 0);
   rb_define_private_method(klass, "native_write_to", native_write_to, 4);
-  rb_define_private_method(klass, "native_content=", set_content, 1);
   rb_define_private_method(klass, "get", get, 1);
   rb_define_private_method(klass, "set", set, 2);
   rb_define_private_method(klass, "set_namespace", set_namespace, 1);

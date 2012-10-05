@@ -173,7 +173,12 @@ module Nokogiri
             end
           end
 
-          assert_equal doc.errors.length, @parser.document.errors.length
+          # when using JRuby Nokogiri, more errors will be generated as the DOM
+          # parser continue to parse an ill formed document, while the sax parser
+          # will stop at the first error
+          unless Nokogiri.jruby?
+            assert_equal doc.errors.length, @parser.document.errors.length
+          end
         end
 
         def test_parse_with_memory_argument
@@ -250,6 +255,11 @@ module Nokogiri
           assert_raises(ArgumentError) { @parser.parse_memory(nil) }
         end
 
+        def test_bad_encoding_args
+          assert_raises(ArgumentError) { XML::SAX::Parser.new(Doc.new, 'not an encoding') }
+          assert_raises(ArgumentError) { @parser.parse_io(StringIO.new('<root/>'), 'not an encoding')}
+        end
+
         def test_ctag
           @parser.parse_memory(<<-eoxml)
             <p id="asdfasdf">
@@ -306,6 +316,14 @@ module Nokogiri
           eoxml
           assert_equal [["p", [['xmlns:foo', 'http://foo.example.com/']]]],
                        @parser.document.start_elements
+        end
+
+        def test_processing_instruction
+          @parser.parse_memory(<<-eoxml)
+            <?xml-stylesheet href="a.xsl" type="text/xsl"?>
+          eoxml
+          assert_equal [['xml-stylesheet', 'href="a.xsl" type="text/xsl"']],
+                       @parser.document.processing_instructions
         end
 
         if Nokogiri.uses_libxml? # JRuby SAXParser only parses well-formed XML documents

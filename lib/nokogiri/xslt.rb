@@ -24,7 +24,7 @@ module Nokogiri
       def parse string, modules = {}
         modules.each do |url, klass|
           XSLT.register url, klass
-	end
+        end
 
         if Nokogiri.jruby?
           Stylesheet.parse_stylesheet_doc(XML.parse(string), string)

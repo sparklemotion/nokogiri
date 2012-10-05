@@ -158,6 +158,13 @@ module Nokogiri
         # +string+ contains the cdata content
         def cdata_block string
         end
+
+        ###
+        # Called when processing instructions are found
+        # +name+ is the target of the instruction
+        # +content+ is the value of the instruction
+        def processing_instruction name, content
+        end
       end
     end
   end

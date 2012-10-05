@@ -19,8 +19,9 @@
 * https://github.com/sparklemotion/nokogiri/issues/679
   Mixing in Enumerable has some unintended consequences; plus we want to improve the attributes API
 
-* (closed) https://github.com/sparklemotion/nokogiri/issues/666
-  Some ideas for a better attributes API?
+* Some ideas for a better attributes API?
+  * (closed) https://github.com/sparklemotion/nokogiri/issues/666
+  * https://github.com/sparklemotion/nokogiri/issues/765
 
 
 ## improve CSS query parsing
@@ -69,6 +70,9 @@
   * we should standardize on a hash of options for these and other calls
 * what should NodeSet#xpath return?
   * https://github.com/sparklemotion/nokogiri/issues/656
+* also, clean up or unify the implementations of #xpath-and-friends in Node and NodeSet
+  * implementations are very similar, but no shared code :(
+  * decorate nodes in a consistent manner
 
 ## Encoding
 
