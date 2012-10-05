@@ -258,7 +258,7 @@ module Nokogiri
       ###
       # Set the attribute value for the attribute +name+ to +value+
       def []= name, value
-        set name.to_s, value
+        set name.to_s, value.to_s
       end
 
       ###

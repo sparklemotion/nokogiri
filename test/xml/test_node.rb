@@ -724,6 +724,14 @@ module Nokogiri
         assert_equal('bar', node['foo'])
       end
 
+      def test_set_property_non_string
+        assert node = @xml.search('//address').first
+        node['foo'] = 1
+        assert_equal('1', node['foo'])
+        node['foo'] = false
+        assert_equal('false', node['foo'])
+      end
+
       def test_attributes
         assert node = @xml.search('//address').first
         assert_nil(node['asdfasdfasdf'])
@@ -832,6 +840,22 @@ module Nokogiri
         eoxml
 
         tires = xml.xpath('//bike:tire', {'bike' => 'http://schwinn.com/'})
+        assert_equal 1, tires.length
+      end
+
+      def test_namespace_search_with_xpath_and_hash_with_symbol_keys
+        xml = Nokogiri::XML.parse(<<-eoxml)
+        <root>
+          <car xmlns:part="http://general-motors.com/">
+            <part:tire>Michelin Model XGV</part:tire>
+          </car>
+          <bicycle xmlns:part="http://schwinn.com/">
+            <part:tire>I'm a bicycle tire!</part:tire>
+          </bicycle>
+        </root>
+        eoxml
+
+        tires = xml.xpath('//bike:tire', :bike => 'http://schwinn.com/')
         assert_equal 1, tires.length
       end
 
