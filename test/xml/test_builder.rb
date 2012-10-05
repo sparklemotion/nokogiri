@@ -209,6 +209,22 @@ module Nokogiri
         assert_equal ["bbb","ccc"], builder.doc.at_css("aaa").children.collect(&:name)
       end
 
+      def test_raw_xml_append_with_namespaces
+        doc = Nokogiri::XML::Builder.new do |xml|
+          xml.root("xmlns:foo" => "x") do
+            xml << '<Element foo:bar="bazz"/>'
+          end
+        end.doc
+
+        el = doc.at 'Element'
+        assert_not_nil el
+
+        attr = el.attributes["bar"]
+        assert_not_nil attr
+        assert_not_nil attr.namespace
+        assert_equal "foo", attr.namespace.prefix
+      end
+
       def test_cdata
         builder = Nokogiri::XML::Builder.new do
           root {
