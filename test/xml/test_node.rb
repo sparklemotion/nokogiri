@@ -1034,6 +1034,20 @@ EOXML
         assert_match(/xmlns="bar"/, subject.to_xml)
       end
 
+      # issue 771
+      def test_format_noblank
+        content = <<eoxml
+<foo>
+  <bar>hello</bar>
+</foo>
+eoxml
+        subject = Nokogiri::XML(content) do |conf|
+          conf.default_xml.noblanks
+        end
+
+        assert_match %r{<bar>hello</bar>}, subject.to_xml(:indent => 2)
+      end
+
       def test_text_node_colon
         document = Nokogiri::XML::Document.new
         root = Nokogiri::XML::Node.new 'foo', document
