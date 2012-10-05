@@ -5,6 +5,8 @@
   * Improved performance of XML::Document#collect_namespaces. #761 (Thanks, Juergen Mangler!)
   * New callback SAX::Document#processing_instruction (Thanks, Kitaiti Makoto!)
   * Node#native_content= allows setting unescaped node contant. #768
+  * XPath lookup with namespaces supports symbol keys. #729 (Thanks, Ben Langfeld.)
+  * XML::Node#[]= stringifies values. #729 (Thanks, Ben Langfeld.)
 
 
 * Bugfixes
