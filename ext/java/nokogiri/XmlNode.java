@@ -1065,7 +1065,9 @@ public class XmlNode extends RubyObject {
         node.setTextContent(javaContent);
         if (javaContent.length() == 0) return;
         if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) return;
-        node.getFirstChild().setUserData(NokogiriHelpers.ENCODED_STRING, true, null);
+        if (node.getFirstChild() != null) {
+            node.getFirstChild().setUserData(NokogiriHelpers.ENCODED_STRING, true, null);
+        }
     }
 
     private void setContent(String content) {
