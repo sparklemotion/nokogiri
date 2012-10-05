@@ -4,6 +4,7 @@
 
   * Improved performance of XML::Document#collect_namespaces. #761 (Thanks, Juergen Mangler!)
   * New callback SAX::Document#processing_instruction (Thanks, Kitaiti Makoto!)
+  * Node#native_content= allows setting unescaped node contant. #768
 
 
 * Bugfixes

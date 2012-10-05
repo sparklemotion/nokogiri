@@ -637,6 +637,13 @@ module Nokogiri
         assert_equal 'foo', node.content
       end
 
+      def test_set_native_content_is_unescaped
+        comment = Nokogiri.XML('<r><!-- foo --></r>').at('//comment()')
+
+        comment.native_content = " < " # content= will escape this string
+        assert_equal "<!-- < -->", comment.to_xml
+      end
+
       def test_find_by_css_with_tilde_eql
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
