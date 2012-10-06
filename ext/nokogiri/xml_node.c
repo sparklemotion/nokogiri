@@ -703,12 +703,32 @@ static VALUE get(VALUE self, VALUE attribute)
 {
   xmlNodePtr node;
   xmlChar* propstr ;
+  xmlNsPtr ns;
   VALUE rval ;
+  VALUE match;
+  VALUE prefix;
+  VALUE attribute_name;
+
   Data_Get_Struct(self, xmlNode, node);
 
   if(NIL_P(attribute)) return Qnil;
 
-  propstr = xmlGetProp(node, (xmlChar *)StringValuePtr(attribute));
+  match = rb_funcall(attribute, rb_intern("match"), 1,
+    rb_reg_new_str(rb_str_new2("([\\w]*):([\\w]*)$"), 0)
+  );
+
+  if(RTEST(match)) {
+    prefix = rb_funcall(match, rb_intern("[]"), 1, INT2NUM(1));
+    attribute_name = rb_funcall(match, rb_intern("[]"), 1, INT2NUM(2));
+
+    ns = xmlSearchNs(node->doc, node, (const xmlChar *)(StringValuePtr(prefix)));
+    if(!ns) return Qnil;
+
+    propstr = xmlGetNsProp(node, (xmlChar *)StringValuePtr(attribute_name), ns->href);
+  } else {
+    if(!key_eh(self, attribute)) return Qnil;
+    propstr = xmlGetNoNsProp(node, (xmlChar *)StringValuePtr(attribute));
+  }
 
   if(!propstr) return Qnil;
 
@@ -1067,6 +1087,24 @@ static VALUE line(VALUE self)
   Data_Get_Struct(self, xmlNode, node);
 
   return INT2NUM(xmlGetLineNo(node));
+}
+
+static VALUE namespace_with_prefix(VALUE self, VALUE prefix)
+{
+  xmlNodePtr node;
+  xmlNsPtr ns;
+
+  Data_Get_Struct(self, xmlNode, node);
+
+  ns = xmlSearchNs(
+    node->doc,
+    node,
+    (const xmlChar *)(NIL_P(prefix) ? NULL : StringValuePtr(prefix))
+  );
+
+  if (!ns) return Qnil;
+
+  return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }
 
 /*
@@ -1472,6 +1510,7 @@ void init_xml_node()
   rb_define_private_method(klass, "set", set, 2);
   rb_define_private_method(klass, "set_namespace", set_namespace, 1);
   rb_define_private_method(klass, "compare", compare, 1);
+  rb_define_private_method(klass, "namespace_with_prefix", namespace_with_prefix, 1);
 
   decorate      = rb_intern("decorate");
   decorate_bang = rb_intern("decorate!");
