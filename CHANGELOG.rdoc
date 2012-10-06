@@ -7,6 +7,8 @@
   * Node#native_content= allows setting unescaped node contant. #768
   * XPath lookup with namespaces supports symbol keys. #729 (Thanks, Ben Langfeld.)
   * XML::Node#[]= stringifies values. #729 (Thanks, Ben Langfeld.)
+  * bin/nokogiri will process a document from $stdin
+  * bin/nokogiri -e will execute a program from the command line
 
 
 * Bugfixes
