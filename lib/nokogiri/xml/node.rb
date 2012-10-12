@@ -251,7 +251,6 @@ module Nokogiri
       ###
       # Get the attribute value for the attribute +name+
       def [] name
-        return nil unless key?(name.to_s)
         get(name.to_s)
       end
 
