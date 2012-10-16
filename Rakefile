@@ -118,9 +118,9 @@ task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
 # dependencies in the Gemfile are constrainted to ruby platforms
 # (i.e. MRI and Rubinius). There's no way to do that through hoe,
 # and any solution will require changing hoe and hoe-bundler.
-old_gemfile_task = Rake::Task['bundler:gemfile']
+old_gemfile_task = Rake::Task['bundler:gemfile'] rescue nil
 task 'bundler:gemfile' do
-  old_gemfile_task.invoke
+  old_gemfile_task.invoke if old_gemfile_task
 
   lines = File.open('Gemfile', 'r') { |f| f.readlines }.map do |line|
     line =~ /racc|rexical/ ? "#{line.strip}, :platform => :ruby" : line

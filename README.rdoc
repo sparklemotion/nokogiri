@@ -122,13 +122,10 @@ Developing Nokogiri requires racc and rexical to generate the parser and
 tokenizer.  To start development, make sure you have `libxml2` and `libxslt`
 installed.
 
-Then install hoe and rake-compiler:
+Then install core gems and bootstrap:
 
-    $ gem install hoe rake-compiler racc rexical minitest
-
-Then run rake:
-
-    $ rake
+    $ gem install hoe rake-compiler mini_portile
+    $ rake newb
 
 === Developing on JRuby
 
