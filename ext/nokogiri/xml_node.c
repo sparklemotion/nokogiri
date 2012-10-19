@@ -702,20 +702,19 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 static VALUE get(VALUE self, VALUE attribute)
 {
   xmlNodePtr node;
-  xmlChar* propstr ;
-  VALUE rval ;
+  xmlChar* value ;
+  VALUE rvalue ;
+
+  if (NIL_P(attribute)) return Qnil;
+
   Data_Get_Struct(self, xmlNode, node);
+  value = xmlGetProp(node, (xmlChar *)StringValuePtr(attribute));
+  if (!value) return Qnil;
 
-  if(NIL_P(attribute)) return Qnil;
+  rvalue = NOKOGIRI_STR_NEW2(value);
+  xmlFree(value);
 
-  propstr = xmlGetProp(node, (xmlChar *)StringValuePtr(attribute));
-
-  if(!propstr) return Qnil;
-
-  rval = NOKOGIRI_STR_NEW2(propstr);
-
-  xmlFree(propstr);
-  return rval ;
+  return rvalue ;
 }
 
 /*
