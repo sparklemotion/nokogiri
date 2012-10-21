@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import nokogiri.internals.HtmlDomParserContext;
@@ -1002,7 +1003,7 @@ public class XmlNode extends RubyObject {
         NokogiriNamespaceCache nsCache = xmlDocument.getNamespaceCache();
         String prefix = node.getPrefix();
         XmlNamespace namespace = nsCache.get(prefix == null ? "" : prefix, node.getNamespaceURI());
-        if (namespace == null || ((XmlNamespace) namespace).isEmpty()) {
+        if (namespace == null || namespace.isEmpty()) {
             return context.getRuntime().getNil();
         }
 
@@ -1025,10 +1026,10 @@ public class XmlNode extends RubyObject {
         if (doc instanceof HtmlDocument) return namespace_definitions;
         List<XmlNamespace> namespaces = ((XmlDocument)doc).getNamespaceCache().get(node);
         for (XmlNamespace namespace : namespaces) {
-            ((RubyArray)namespace_definitions).append(namespace);
+            namespace_definitions.append(namespace);
         }
 
-        return (RubyArray) namespace_definitions;
+        return namespace_definitions;
     }
 
     /**
@@ -1162,11 +1163,40 @@ public class XmlNode extends RubyObject {
             String key = rubyStringToString(rbkey);
             String val = rubyStringToString(rbval);
             Element element = (Element) node;
-            element.setAttribute(key, val);
+
+            int colonIndex = key.indexOf(":");
+            if (colonIndex > 0) {
+              String prefix = key.substring(0, colonIndex);
+              String uri = null;
+              if (prefix.equals("xml")) {
+                uri = "http://www.w3.org/XML/1998/namespace";
+              } else {
+                uri = findNamespaceHref(context, prefix);
+              }
+              element.setAttributeNS(uri, key, val);
+            } else {
+              element.setAttribute(key, val);
+            }
             return this;
         } else {
             return rbval;
         }
+    }
+
+    private String findNamespaceHref(ThreadContext context, String prefix) {
+      XmlNode currentNode = this;
+      while(currentNode != document(context)) {
+        RubyArray namespaces = (RubyArray) currentNode.namespace_scopes(context);
+        Iterator iterator = namespaces.iterator();
+        while(iterator.hasNext()) {
+          XmlNamespace namespace = (XmlNamespace) iterator.next();
+          if (namespace.getPrefix().equals(prefix)) {
+            return namespace.getHref();
+          }
+        }
+        currentNode = (XmlNode) currentNode.parent(context);
+      }
+      return null;
     }
 
     @JRubyMethod

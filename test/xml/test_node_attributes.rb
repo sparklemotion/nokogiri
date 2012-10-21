@@ -27,16 +27,22 @@ module Nokogiri
       end
 
       def test_set_prefixed_attributes
-        doc = Nokogiri::XML "<root />"
+        doc = Nokogiri::XML %Q{<root xmlns:foo="x"/>}
 
         node = doc.root
 
         node['xml:lang'] = 'en-GB'
+        node['foo:bar']  = 'bazz'
 
         assert_equal 'en-GB', node['xml:lang']
         assert_equal 'en-GB', node.attributes['lang'].value
         assert_equal nil, node['lang']
         assert_equal 'http://www.w3.org/XML/1998/namespace', node.attributes['lang'].namespace.href
+
+        assert_equal 'bazz', node['foo:bar']
+        assert_equal 'bazz', node.attributes['bar'].value
+        assert_equal nil, node['bar']
+        assert_equal 'x', node.attributes['bar'].namespace.href
       end
 
       def test_namespace_key?
