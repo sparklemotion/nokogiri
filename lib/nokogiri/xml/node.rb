@@ -376,17 +376,22 @@ module Nokogiri
       #
       # Also see related method +swap+.
       def replace node_or_tags
+        # We cannot replace a text node directly, otherwise libxml will return
+        # an internal error at parser.c:13031, I don't know exactly why
+        # libxml is trying to find a parent node that is an element or document
+        # so I can't tell if this is bug in libxml or not. issue #775.
+        if text?
+          replacee = Nokogiri::XML::Node.new 'dummy', document
+          add_previous_sibling_node replacee
+          unlink
+          return replacee.replace node_or_tags
+        end
+
         node_or_tags = coerce(node_or_tags)
+
         if node_or_tags.is_a?(XML::NodeSet)
-          if text?
-            replacee = Nokogiri::XML::Node.new 'dummy', document
-            add_previous_sibling_node replacee
-            unlink
-          else
-            replacee = self
-          end
-          node_or_tags.each { |n| replacee.add_previous_sibling n }
-          replacee.unlink
+          node_or_tags.each { |n| add_previous_sibling n }
+          unlink
         else
           replace_node node_or_tags
         end

@@ -8,6 +8,13 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_replace_text_node
+        html = "foo"
+        doc = Nokogiri::XML::DocumentFragment.parse(html)
+        doc.children[0].replace "bar"
+        assert_equal 'bar', doc.children[0].content
+      end
+
       def test_fragment_is_relative
         doc      = Nokogiri::XML('<root><a xmlns="blah" /></root>')
         ctx      = doc.root.child
