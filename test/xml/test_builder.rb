@@ -211,13 +211,16 @@ module Nokogiri
 
       def test_raw_xml_append_with_namespaces
         doc = Nokogiri::XML::Builder.new do |xml|
-          xml.root("xmlns:foo" => "x") do
+          xml.root("xmlns:foo" => "x", "xmlns" => "y") do
             xml << '<Element foo:bar="bazz"/>'
           end
         end.doc
 
         el = doc.at 'Element'
         assert_not_nil el
+
+        assert_equal 'y', el.namespace.href
+        assert_nil el.namespace.prefix
 
         attr = el.attributes["bar"]
         assert_not_nil attr
