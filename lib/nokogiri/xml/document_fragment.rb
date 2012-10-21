@@ -13,6 +13,7 @@ module Nokogiri
         children = if ctx
                      # Fix for issue#490
                      if Nokogiri.jruby?
+                       # fix for issue #770
                        ctx.parse("<root #{namespace_declarations(ctx)}>#{tags}</root>").children
                      else
                        ctx.parse(tags)
@@ -93,6 +94,7 @@ module Nokogiri
 
       private
 
+      # fix for issue 770
       def namespace_declarations ctx
         ctx.namespace_scopes.map do |namespace|
           prefix = namespace.prefix.nil? ? "" : ":#{namespace.prefix}"
