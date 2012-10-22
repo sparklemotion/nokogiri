@@ -705,7 +705,7 @@ static VALUE get(VALUE self, VALUE rattribute)
   xmlChar* value = 0;
   VALUE rvalue ;
   char* attribute = 0;
-  char* colon = 0;
+  char *colon = 0, *attr_name = 0, *prefix = 0;
   xmlNsPtr ns;
 
   if (NIL_P(rattribute)) return Qnil;
@@ -716,9 +716,11 @@ static VALUE get(VALUE self, VALUE rattribute)
   colon = strchr(attribute, ':');
   if (colon) {
     (*colon) = 0 ; /* create two null-terminated strings of the prefix and attribute name */
-    ns = xmlSearchNs(node->doc, node, (const xmlChar *)(attribute)); /* here attribute points to the prefix */
+    prefix = attribute ;
+    attr_name = colon + 1 ;
+    ns = xmlSearchNs(node->doc, node, (const xmlChar *)(prefix));
     if (ns) {
-      value = xmlGetNsProp(node, (xmlChar*)(colon+1), ns->href); /* here colon+1 points to the attribute name */
+      value = xmlGetNsProp(node, (xmlChar*)(attr_name), ns->href);
     }
   } else {
     value = xmlGetNoNsProp(node, (xmlChar*)attribute);
