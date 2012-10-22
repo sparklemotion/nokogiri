@@ -699,16 +699,32 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
  *
  * Get the value for +attribute+
  */
-static VALUE get(VALUE self, VALUE attribute)
+static VALUE get(VALUE self, VALUE rattribute)
 {
   xmlNodePtr node;
-  xmlChar* value ;
+  xmlChar* value = 0;
   VALUE rvalue ;
+  char* attribute = 0;
+  char* colon = 0;
+  xmlNsPtr ns;
 
-  if (NIL_P(attribute)) return Qnil;
+  if (NIL_P(rattribute)) return Qnil;
 
   Data_Get_Struct(self, xmlNode, node);
-  value = xmlGetProp(node, (xmlChar *)StringValuePtr(attribute));
+  attribute = strdup(StringValuePtr(rattribute));
+
+  colon = strchr(attribute, ':');
+  if (colon) {
+    (*colon) = 0 ; /* create two null-terminated strings of the prefix and attribute name */
+    ns = xmlSearchNs(node->doc, node, (const xmlChar *)(attribute)); /* here attribute points to the prefix */
+    if (ns) {
+      value = xmlGetNsProp(node, (xmlChar*)(colon+1), ns->href); /* here colon+1 points to the attribute name */
+    }
+  } else {
+    value = xmlGetNoNsProp(node, (xmlChar*)attribute);
+  }
+
+  free(attribute);
   if (!value) return Qnil;
 
   rvalue = NOKOGIRI_STR_NEW2(value);
@@ -1287,7 +1303,7 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
       child_iter = node;
       while (child_iter->parent)
         child_iter = child_iter->parent;
-	
+
       if (child_iter->type == XML_DOCUMENT_FRAG_NODE)
         node->doc->children = NULL;
     }
