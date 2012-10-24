@@ -321,6 +321,7 @@ module Nokogiri
         def test_processing_instruction
           @parser.parse_memory(<<-eoxml)
             <?xml-stylesheet href="a.xsl" type="text/xsl"?>
+            <?xml version="1.0"?>
           eoxml
           assert_equal [['xml-stylesheet', 'href="a.xsl" type="text/xsl"']],
                        @parser.document.processing_instructions
