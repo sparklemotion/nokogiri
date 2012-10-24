@@ -118,6 +118,11 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         call("end_document");
     }
 
+    @Override
+    public void processingInstruction(String target, String data) {
+      call("processing_instruction", ruby.newString(target), ruby.newString(data));
+    }
+
     /*
      * This has to call either "start_element" or
      * "start_element_namespace" depending on whether there are any
