@@ -73,11 +73,11 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
      * TODO: should these be stored in the document 'errors' array?
      * Currently only string messages are stored there.
      */
-    private LinkedList<XmlSyntaxError> errors = new LinkedList<XmlSyntaxError>();
-    
+    private final LinkedList<XmlSyntaxError> errors = new LinkedList<XmlSyntaxError>();
+
     private Locator locator;
-    private ArrayDeque<Integer> lines;
-    private ArrayDeque<Integer> columns;
+    private final ArrayDeque<Integer> lines;
+    private final ArrayDeque<Integer> columns;
     private static String htmlParserName = "Nokogiri::HTML::SAX::Parser";
     private boolean needEmptyAttrCheck = false;
 
@@ -106,6 +106,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         call("start_document");
     }
 
+    @Override
     public void xmlDecl(String version, String encoding, String standalone) {
         call("xmldecl", stringOrNil(ruby, version),
              stringOrNil(ruby, encoding),
