@@ -535,6 +535,7 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod(meta=true)
     public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klazz, IRubyObject arg) {
         XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"));
+        RuntimeHelpers.invoke(context, xmlDocument, "initialize");
         Document document = (Document)arg.toJava(Document.class);
         xmlDocument.setDocumentNode(context, document);
         return xmlDocument;

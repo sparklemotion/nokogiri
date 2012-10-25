@@ -727,26 +727,37 @@ module Nokogiri
         assert @xml.children.respond_to?(:awesome!)
       end
 
-      def test_java_integration
-        if Nokogiri.jruby?
+      if Nokogiri.jruby?
+        def wrap_java_document
           require 'java'
           factory = javax.xml.parsers.DocumentBuilderFactory.newInstance
           builder = factory.newDocumentBuilder
           document = builder.newDocument
           root = document.createElement("foo")
           document.appendChild(root)
-          noko_doc = Nokogiri::XML::Document.wrap(document)
-          assert_equal 'foo', noko_doc.root.name
+          Nokogiri::XML::Document.wrap(document)
+        end
+      end
 
-          noko_doc = Nokogiri::XML(<<eoxml)
+      def test_java_integration
+        skip("Ruby doesn't have the wrap method") unless Nokogiri.jruby?
+        noko_doc = wrap_java_document
+        assert_equal 'foo', noko_doc.root.name
+
+        noko_doc = Nokogiri::XML(<<eoxml)
 <foo xmlns='hello'>
   <bar xmlns:foo='world' />
 </foo>
 eoxml
-          dom = noko_doc.to_java
-          assert dom.kind_of? org.w3c.dom.Document
-          assert_equal 'foo', dom.getDocumentElement().getTagName()
-        end
+        dom = noko_doc.to_java
+        assert dom.kind_of? org.w3c.dom.Document
+        assert_equal 'foo', dom.getDocumentElement().getTagName()
+      end
+
+      def test_add_child
+        skip("Ruby doesn't have the wrap method") unless Nokogiri.jruby?
+        doc = wrap_java_document
+        doc.root.add_child "<bar />"
       end
     end
   end

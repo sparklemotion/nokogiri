@@ -22,6 +22,7 @@
   * JRuby XPath queries for namespaces should not throw exceptions when called twice in a row. #764
   * [jruby] More consistent (with libxml2) whitespace formatting when emitting XML (#771)
   * JRuby namespaced attributes broken when appending raw xml to builder. #770
+  * JRuby Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. #781
 
 
 == 1.5.5 / 2012-06-24
