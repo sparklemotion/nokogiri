@@ -759,6 +759,12 @@ eoxml
         doc = wrap_java_document
         doc.root.add_child "<bar />"
       end
+
+      def test_can_be_closed
+        f = File.open XML_FILE
+        Nokogiri::XML f
+        f.close
+      end
     end
   end
 end

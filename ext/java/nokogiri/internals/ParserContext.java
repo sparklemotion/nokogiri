@@ -108,7 +108,8 @@ public class ParserContext extends RubyObject {
                 (RubyIO) TypeConverter.convertToType(data,
                                                      ruby.getIO(),
                                                      "to_io");
-            source.setByteStream(io.getInStream());
+            // use unclosedable input stream to fix #495
+            source.setByteStream(new UncloseableInputStream(io.getInStream()));
         } else {
             if (invoke(context, data, "respond_to?",
                           ruby.newSymbol("string").to_sym()).isTrue()) {
