@@ -713,6 +713,7 @@ public class NokogiriHelpers {
         File base = new File(baseName);
         if (base.isDirectory()) parentName = baseName;
         else parentName = base.getParent();
+        if (parentName == null) return null;
         if (parentName.toLowerCase().startsWith("file:")) parentName = parentName.substring("file:".length());
         File dtdFile = new File(parentName + "/" + systemId);
         if (dtdFile.exists()) return dtdFile.getPath();
