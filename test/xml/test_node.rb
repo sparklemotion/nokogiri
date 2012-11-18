@@ -811,6 +811,12 @@ module Nokogiri
         children.each { |child| assert_nil child.parent }
       end
 
+      def test_append_content_escaping
+        node = Nokogiri::XML::Node.new('form', @xml)
+        node << "I <3 nachos"
+        assert_equal "I <3 nachos", node.content
+      end
+
       def test_whitespace_nodes
         doc = Nokogiri::XML.parse("<root><b>Foo</b>\n<i>Bar</i> <p>Bazz</p></root>")
         children = doc.at('//root').children.collect{|j| j.to_s}
