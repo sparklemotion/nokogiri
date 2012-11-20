@@ -804,6 +804,19 @@ module Nokogiri
         assert_equal '12345678', node.content
       end
 
+      def test_content_after_appending_text
+        doc = Nokogiri::XML '<foo />'
+        node = doc.children.first
+        node.content = 'bar'
+        node << 'baz'
+        assert_equal 'barbaz', node.content
+      end
+
+      def test_content_depth_first
+        node = Nokogiri::XML '<foo>first<baz>second</baz>third</foo>'
+        assert_equal 'firstsecondthird', node.content
+      end
+
       def test_set_content_should_unlink_existing_content
         node     = @xml.at_css("employee")
         children = node.children
