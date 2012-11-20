@@ -72,14 +72,26 @@ import org.w3c.dom.Text;
  */
 public class SaveContextVisitor {
 
-    private StringBuffer buffer;
-    private Stack<String> indentation;
-    private String encoding, indentString;
-    private boolean format, noDecl, noEmpty, noXhtml, asXhtml, asXml, asHtml, asBuilder, htmlDoc, fragment;
-    private boolean canonical, incl_ns, with_comments, subsets, exclusive;
-    private List<Node> c14nNodeList;
-    private Deque<Attr[]> c14nNamespaceStack;
-    private Deque<Attr[]> c14nAttrStack;
+    private final StringBuffer buffer;
+    private final Stack<String> indentation;
+    private String encoding;
+    private final String indentString;
+    private boolean format;
+    private final boolean noDecl;
+    private final boolean noEmpty;
+    private final boolean noXhtml;
+    private final boolean asXhtml;
+    private boolean asXml;
+    private final boolean asHtml;
+    private final boolean asBuilder;
+    private boolean htmlDoc;
+    private final boolean fragment;
+    private final boolean canonical, incl_ns, with_comments;
+    private boolean subsets;
+    private boolean exclusive;
+    private final List<Node> c14nNodeList;
+    private final Deque<Attr[]> c14nNamespaceStack;
+    private final Deque<Attr[]> c14nAttrStack;
     private List<String> c14nExclusiveInclusivePrefixes = null;
     /*
      * U can't touch this.
@@ -181,7 +193,7 @@ public class SaveContextVisitor {
             return enter((Entity)node);
         }
         if (node instanceof EntityReference) {
-            return enter((EntityReference)node);
+            return enter(node);
         }
         if (node instanceof Notation) {
             return enter((Notation)node);
@@ -225,7 +237,7 @@ public class SaveContextVisitor {
             return;
         }
         if (node instanceof EntityReference) {
-            leave((EntityReference)node);
+            leave(node);
             return;
         }
         if (node instanceof Notation) {
@@ -730,7 +742,7 @@ public class SaveContextVisitor {
             }
         }
 
-        if (text.getUserData(NokogiriHelpers.ENCODED_STRING) == null || !((Boolean)text.getUserData(NokogiriHelpers.ENCODED_STRING))) {
+        if (NokogiriHelpers.shouldEncode(text)) {
             textContent = encodeJavaString(textContent);
         }
 

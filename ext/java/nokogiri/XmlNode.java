@@ -809,23 +809,46 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
     public IRubyObject content(ThreadContext context) {
-        if (content != null && content.isNil()) return content;
+        if (!node.hasChildNodes() && node.getNodeValue() == null &&
+            (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE))
+          return context.nil;
         String textContent;
-        if (content != null) textContent = rubyStringToString(content);
-        else if (this instanceof XmlDocument) {
+        if (this instanceof XmlDocument) {
             Node node = ((Document)this.node).getDocumentElement();
             if (node == null) {
                 textContent = "";
             } else {
-                textContent = ((Document)this.node).getDocumentElement().getTextContent();
+                Node documentElement = ((Document)this.node).getDocumentElement();
+                StringBuffer buffer = new StringBuffer();
+                getTextContentRecursively(context, buffer, documentElement);
+                textContent = buffer.toString();
             }
         } else {
-            textContent = this.node.getTextContent();
+            StringBuffer buffer = new StringBuffer();
+            getTextContentRecursively(context, buffer, node);
+            textContent = buffer.toString();
         }
-        textContent = NokogiriHelpers.convertEncodingByNKFIfNecessary(context.getRuntime(), (XmlDocument)document(context), textContent);
-        String decodedText = null;
-        if (textContent != null) decodedText = NokogiriHelpers.decodeJavaString(textContent);
-        return stringOrNil(context.getRuntime(), decodedText);
+        NokogiriHelpers.convertEncodingByNKFIfNecessary(context.getRuntime(), (XmlDocument)document(context), textContent);
+        return stringOrNil(context.getRuntime(), textContent);
+    }
+
+    private void getTextContentRecursively(ThreadContext context, StringBuffer buffer, Node currentNode) {
+      String textContent = currentNode.getNodeValue();
+      if (textContent != null && NokogiriHelpers.shouldDecode(currentNode))
+        textContent = NokogiriHelpers.decodeJavaString(textContent);
+      if (textContent != null)
+        buffer.append(textContent);
+      NodeList children = currentNode.getChildNodes();
+      for (int i = 0; i < children.getLength(); i++) {
+        Node child = children.item(i);
+        if (hasTextContent(child))
+          getTextContentRecursively(context, buffer, child);
+      }
+    }
+
+    private boolean hasTextContent(Node child) {
+      return child.getNodeType() != Node.COMMENT_NODE &&
+          child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
     }
 
     @JRubyMethod
@@ -1059,7 +1082,6 @@ public class XmlNode extends RubyObject {
     }
 
     protected void setContent(IRubyObject content) {
-        this.content = content;
         String javaContent = rubyStringToString(content);
         node.setTextContent(javaContent);
         if (javaContent.length() == 0) return;
