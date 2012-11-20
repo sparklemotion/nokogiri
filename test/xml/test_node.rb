@@ -798,6 +798,23 @@ module Nokogiri
         node.content = "1234 <-> 1234"
         assert_equal "1234 <-> 1234", node.content
         assert_equal "<form>1234 &lt;-&gt; 1234</form>", node.to_xml
+
+        node.content = '1234'
+        node.add_child '<foo>5678</foo>'
+        assert_equal '12345678', node.content
+      end
+
+      def test_content_after_appending_text
+        doc = Nokogiri::XML '<foo />'
+        node = doc.children.first
+        node.content = 'bar'
+        node << 'baz'
+        assert_equal 'barbaz', node.content
+      end
+
+      def test_content_depth_first
+        node = Nokogiri::XML '<foo>first<baz>second</baz>third</foo>'
+        assert_equal 'firstsecondthird', node.content
       end
 
       def test_set_content_should_unlink_existing_content

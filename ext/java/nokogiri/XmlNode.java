@@ -807,25 +807,9 @@ public class XmlNode extends RubyObject {
         return diff_in_length > 0;
     }
 
-    @JRubyMethod(name = {"content", "text", "inner_text"})
+    @JRubyMethod(name = {"content", "text", "inner_text", "to_str"})
     public IRubyObject content(ThreadContext context) {
-        if (content != null && content.isNil()) return content;
-        String textContent;
-        if (content != null) textContent = rubyStringToString(content);
-        else if (this instanceof XmlDocument) {
-            Node node = ((Document)this.node).getDocumentElement();
-            if (node == null) {
-                textContent = "";
-            } else {
-                textContent = ((Document)this.node).getDocumentElement().getTextContent();
-            }
-        } else {
-            textContent = this.node.getTextContent();
-        }
-        textContent = NokogiriHelpers.convertEncodingByNKFIfNecessary(context.getRuntime(), (XmlDocument)document(context), textContent);
-        String decodedText = null;
-        if (textContent != null) decodedText = NokogiriHelpers.decodeJavaString(textContent);
-        return stringOrNil(context.getRuntime(), decodedText);
+      return context.runtime.newString();
     }
 
     @JRubyMethod
@@ -1059,7 +1043,6 @@ public class XmlNode extends RubyObject {
     }
 
     protected void setContent(IRubyObject content) {
-        this.content = content;
         String javaContent = rubyStringToString(content);
         node.setTextContent(javaContent);
         if (javaContent.length() == 0) return;

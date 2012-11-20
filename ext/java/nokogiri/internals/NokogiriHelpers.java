@@ -45,7 +45,6 @@ import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -685,13 +684,22 @@ public class NokogiriHelpers {
         if (name == null) name = "UTF-8";
         return name;
     }
-    
-    private static Set<String> charsetNames = ((SortedMap<String, Charset>)Charset.availableCharsets()).keySet();
-    
+
+    private static Set<String> charsetNames = Charset.availableCharsets().keySet();
+
     private static String ignoreInvalidEncoding(Ruby runtime, IRubyObject encoding) {
         String givenEncoding = rubyStringToString(encoding);
         if (charsetNames.contains(givenEncoding)) return givenEncoding;
         else return guessEncoding();
+    }
+    
+    public static IRubyObject nodeToString(ThreadContext context, Node node, XmlDocument doc) {
+      String textContent = node.getNodeValue();
+      if (textContent != null && shouldDecode(node))
+        textContent = decodeJavaString(textContent);
+      if (textContent != null)
+      convertEncodingByNKFIfNecessary(context.getRuntime(), doc, textContent);
+      return stringOrNil(context.getRuntime(), textContent);
     }
     
     public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
@@ -807,4 +815,13 @@ public class NokogiriHelpers {
     private static Charset shift_jis = Charset.forName("Shift_JIS");
     private static Charset jis = Charset.forName("ISO-2022-JP");
     private static Charset euc_jp = Charset.forName("EUC-JP");
+
+    public static boolean shouldEncode(Node text) {
+      return text.getUserData(NokogiriHelpers.ENCODED_STRING) == null ||
+          !((Boolean)text.getUserData(NokogiriHelpers.ENCODED_STRING));
+    }
+
+    public static boolean shouldDecode(Node text) {
+      return !shouldEncode(text);
+    }
 }
