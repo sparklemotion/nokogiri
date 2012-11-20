@@ -798,6 +798,10 @@ module Nokogiri
         node.content = "1234 <-> 1234"
         assert_equal "1234 <-> 1234", node.content
         assert_equal "<form>1234 &lt;-&gt; 1234</form>", node.to_xml
+
+        node.content = '1234'
+        node.add_child '<foo>5678</foo>'
+        assert_equal '12345678', node.content
       end
 
       def test_set_content_should_unlink_existing_content
@@ -805,6 +809,12 @@ module Nokogiri
         children = node.children
         node.content = "hello"
         children.each { |child| assert_nil child.parent }
+      end
+
+      def test_append_content_escaping
+        node = Nokogiri::XML::Node.new('form', @xml)
+        node << "I <3 nachos"
+        assert_equal "I <3 nachos", node.content
       end
 
       def test_whitespace_nodes
