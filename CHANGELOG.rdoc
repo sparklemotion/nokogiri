@@ -23,6 +23,7 @@
   * [jruby] More consistent (with libxml2) whitespace formatting when emitting XML (#771)
   * JRuby namespaced attributes broken when appending raw xml to builder. #770
   * JRuby Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. #781
+  * JRuby Fix Nokogiri::XML::Node#content inconsistency between Java and C. #794
 
 
 == 1.5.5 / 2012-06-24
