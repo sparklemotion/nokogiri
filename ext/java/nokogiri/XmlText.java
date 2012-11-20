@@ -34,11 +34,13 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
+import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
@@ -79,6 +81,12 @@ public class XmlText extends XmlNode {
         // while content should be encoded when it is created by Element node.
         Node node = document.createTextNode(rubyStringToString(content));
         setNode(context, node);
+    }
+    
+    @Override
+    @JRubyMethod(name = {"content", "text", "inner_text", "to_str"})
+    public IRubyObject content(ThreadContext context) {
+      return NokogiriHelpers.nodeToString(context, node, (XmlDocument) document(context));
     }
     
     @Override

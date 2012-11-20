@@ -169,6 +169,15 @@ module Nokogiri
         end
       end
 
+      if Nokogiri.jruby?
+        def content
+          nodes = xpath('.//text()')
+          nodes.map(&:content).join
+        end
+      end
+      alias :text           :content
+      alias :inner_text     :content
+      alias :to_str         :content
       ###
       # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
       #
@@ -423,13 +432,10 @@ module Nokogiri
       alias :get_attribute  :[]
       alias :attr           :[]
       alias :set_attribute  :[]=
-      alias :text           :content
-      alias :inner_text     :content
       alias :has_attribute? :key?
       alias :name           :node_name
       alias :name=          :node_name=
       alias :type           :node_type
-      alias :to_str         :text
       alias :clone          :dup
       alias :elements       :element_children
 

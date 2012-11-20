@@ -693,6 +693,15 @@ public class NokogiriHelpers {
         else return guessEncoding();
     }
     
+    public static IRubyObject nodeToString(ThreadContext context, Node node, XmlDocument doc) {
+      String textContent = node.getNodeValue();
+      if (textContent != null && shouldDecode(node))
+        textContent = decodeJavaString(textContent);
+      if (textContent != null)
+      convertEncodingByNKFIfNecessary(context.getRuntime(), doc, textContent);
+      return stringOrNil(context.getRuntime(), textContent);
+    }
+    
     public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
         if (systemId == null) return systemId;
         File file = new File(systemId);

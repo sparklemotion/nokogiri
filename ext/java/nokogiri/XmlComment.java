@@ -33,11 +33,13 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
+import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Comment;
@@ -82,6 +84,12 @@ public class XmlComment extends XmlNode {
             Node node = document.createComment(rubyStringToString(text));
             setNode(context, node);
         }
+    }
+    
+    @Override
+    @JRubyMethod(name = {"content", "to_str", "text", "inner_text"})
+    public IRubyObject content(ThreadContext context) {
+      return NokogiriHelpers.nodeToString(context, node, (XmlDocument) document(context));
     }
 
     @Override
