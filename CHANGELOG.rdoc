@@ -13,6 +13,7 @@
 
 * Bugfixes
 
+  * [JRuby] Fixed the bug Nokogiri::XML::Node#content inconsistency between Java and C. #794, #797
   * [JRuby] raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
   * [JRuby] doesn't coerce namespaces out of strings on a direct subclass of Node. #715
   * Nokogiri now detects XSLT transform errors. #731 (Thanks, Justin Fitzsimmons!)
