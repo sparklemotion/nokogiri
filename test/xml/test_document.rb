@@ -16,6 +16,11 @@ module Nokogiri
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
       end
 
+      def test_document_with_initial_space
+        doc = Nokogiri::XML(" <?xml version='1.0' encoding='utf-8' ?><first \>")
+        assert_equal 2, doc.children.size
+      end
+
       def test_root_set_to_nil
         @xml.root = nil
         assert_equal nil, @xml.root
