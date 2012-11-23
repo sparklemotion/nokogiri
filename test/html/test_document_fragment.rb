@@ -24,6 +24,11 @@ module Nokogiri
         end
       end
 
+      def test_colons_are_not_removed
+        doc = Nokogiri::HTML::DocumentFragment.parse("<span>3:30pm</span>")
+        assert_match /3:30/, doc.to_s
+      end
+
       def test_parse_encoding
         fragment = "<div>hello world</div>"
         f = Nokogiri::HTML::DocumentFragment.parse fragment, 'ISO-8859-1'
