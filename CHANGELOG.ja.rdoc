@@ -2,17 +2,18 @@
 
 * Features
 
-  * Improved performance of XML::Document#collect_namespaces. #761 (Thanks, Juergen Mangler!)
-  * New callback SAX::Document#processing_instruction (Thanks, Kitaiti Makoto!)
-  * Node#native_content= allows setting unescaped node contant. #768
-  * XPath lookup with namespaces supports symbol keys. #729 (Thanks, Ben Langfeld.)
-  * XML::Node#[]= stringifies values. #729 (Thanks, Ben Langfeld.)
-  * bin/nokogiri will process a document from $stdin
-  * bin/nokogiri -e will execute a program from the command line
+  * XML::Document#collect_namespaces　メソッドのパフォーマンスを改善した。 #761 (ありがとう、Juergen Mangler!)
+  * SAX::Document#processing_instructionに新しいcallbackが追加 (ありがとう、Kitaiti Makoto!)
+  * Node#native_content= メソッドでエスケープされていない文字列をセットできるようにした。 #768
+  * 名前空間を付けて xpath 式を書く場合に、シンボルキーを使えるようにした。#729 (ありがとう、Ben Langfeld.)
+  * XML::Node#[]= メソッド内で受け取った引数を文字列に変換するようにした。#729 (ありがとう、Ben Langfeld.)
+  * bin/nokogiri コマンドが $stdin からドキュメントを読んで処理できるようにした。
+  * bin/nokogiri -e を指定することでコマンドラインプログラムを実行できるようにした。
 
 
 * Bugfixes
 
+  * [JRuby] Nokogiri::XML::Node#content のJRubyの振る舞いがCRubyと同じではない。#794, #797
   * [JRuby] で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外がはっせいする。 #719
   * [JRuby] では Nodeのサブクラスのnamespaceを正しく文字列に変換しない。 #715
   * Nokogiri now detects XSLT transform errors. #731 (Thanks, Justin Fitzsimmons!)
