@@ -34,13 +34,11 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
-import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
@@ -88,17 +86,7 @@ public class XmlText extends XmlNode {
         if (name == null) name = context.getRuntime().newString("text");
         return name;
     }
-    
-    @Override
-    @JRubyMethod(name = {"content", "text", "inner_text"})
-    public IRubyObject content(ThreadContext context) {
-        if (content == null || content.isNil()) {
-            return stringOrNil(context.getRuntime(), node.getTextContent());
-        } else {
-            return content;
-        }
-    }
-    
+
     @Override
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
         visitor.enter((Text)node);
@@ -114,6 +102,6 @@ public class XmlText extends XmlNode {
             }
             child = child.getNextSibling();
         }
-        visitor.leave((Text)node);
+        visitor.leave(node);
     }
 }
