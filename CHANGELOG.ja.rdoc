@@ -12,19 +12,20 @@
 
 
 * Bugfixes
-
+  * [JRuby] XML宣言の前にスペースがあると、ドキュメントのパーズに失敗する。(#748の修正でこれもなおっている) #790
   * [JRuby] Nokogiri::XML::Node#content のJRubyの振る舞いがCRubyと同じではない。#794, #797
   * [JRuby] で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外がはっせいする。 #719
   * [JRuby] では Nodeのサブクラスのnamespaceを正しく文字列に変換しない。 #715
-  * Nokogiri now detects XSLT transform errors. #731 (Thanks, Justin Fitzsimmons!)
-  * Raise an ArgumentError if an invalid encoding is passed to the SAX parser. #756 (Thanks, Bradley Schaefer!)
-  * [JRuby] Node#content now renders newlines properly. #737 (Thanks, Piotr Szmielew!)
-  * [JRuby] Unknown namespace are ignore when the recover option is used. #748
-  * [JRuby] XPath queries for namespaces should not throw exceptions when called twice in a row. #764
-  * [JRuby] More consistent (with libxml2) whitespace formatting when emitting XML. #771
-  * [JRuby] namespaced attributes broken when appending raw xml to builder. #770
-  * [JRuby] Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. #781
-  * [JRuby] Fixed "bad file descriptor" bug when closing open file descriptors. #495
+  * Nokogiri はこのバージョンからXSLT変換のエラーを検出するようになった。#731 (ありがとう、Justin Fitzsimmons!)
+  * SAXパーザに不正なエンコーディングに渡された場合はArgumentErrorを投げるようにした。#756 (ありがとう、Bradley Schaefer!)
+  * [JRuby] Node#contentがこのバージョンから改行コードを正しく表示するようになった。#737 (ありがとう、Piotr Szmielew!)
+  * [JRuby] recover optionが指定されている場合は宣言の無いネームスペースを無視するようにした。#748
+  * [JRuby] ネームスペースを検出するXPathが続けて実行されても例外を投げてはいけない。#764
+  * [JRuby] XMLを表示(出力)する際のホワイトスペースの扱いをlibxml2バージョンとさらに同様になるようにした。#771
+  * [JRuby] ネームスペース付きの属性を含むXMLドキュメントを文字列でbuilderに追加しようとすると失敗する。#770
+  * [JRuby] Nokogiri::XML::Document#wrapを使って生成したドキュメントに << でノードを追加しようとすると
+     undefined method `length' for nil:NilClassのエラーが発生する #781
+  * [JRuby] 開いているファイルのデスクリプタを閉じようとすると、"bad file descriptor" が発生する。#495
 
 
 == 1.5.5 / ２０１２年６月２４日

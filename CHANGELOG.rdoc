@@ -12,7 +12,7 @@
 
 
 * Bugfixes
-
+  * [JRuby] space prior to xml preamble causes nokogiri to fail parsing. (fixed along with #748) #790
   * [JRuby] Fixed the bug Nokogiri::XML::Node#content inconsistency between Java and C. #794, #797
   * [JRuby] raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
   * [JRuby] doesn't coerce namespaces out of strings on a direct subclass of Node. #715
