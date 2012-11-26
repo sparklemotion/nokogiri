@@ -13,6 +13,10 @@
 #
 #  as you build, you may run into these problems:
 #
+#  - if you're using Virtualbox shared directories, you'll get a mingw
+#    "Protocol error" at linktime. Boo! Either use NFS or a
+#    locally-checked-out repository.
+#
 #  - on ubuntus 11 and later, you may have issues with building
 #    rake-compiler's rubies against openssl v2. Just comment the lines
 #    out from ossl_ssl.c and you'll be fine.
