@@ -5,6 +5,10 @@
 #
 #  requires `rvm` to be installed. sorry about that, multiruby dudes.
 #
+#  it's worth periodically using hoe-debugger's ability to generate
+#  valgrind suppression files to remove spurious valgrind messages
+#  (e.g., 1.9.3's glob_helper). ["rake test:valgrind:suppression"]
+#
 
 RUBIES="ruby-1.9.3-p194 jruby-1.6.5.1 jruby-1.6.7.2 ree-1.8.7-2011.12 ruby-1.9.2-p320 ruby-1.8.7-p370"
 TEST_LOG=test.log
