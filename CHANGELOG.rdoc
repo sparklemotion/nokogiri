@@ -24,6 +24,7 @@
   * Nokogiri::XML::DTD#html_dtd? and #html5_dtd? are added.
   * Nokogiri::XML::Node#prepend_child is added. #664
   * Nokogiri::XML::SAX::ParserContext#recovery is added. #453
+  * Fix documentation for XML::Node#namespace. #803 #802 (Thanks, Hoylen Sue)
 
 * Bugfixes
 

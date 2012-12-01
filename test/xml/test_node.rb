@@ -1006,16 +1006,28 @@ EOXML
           <y xmlns:c='http://bazz.com/'>
             <a:div>hello a</a:div>
             <b:div>hello b</b:div>
-            <c:div>hello c</c:div>
-            <div>hello moon</div>
+            <c:div x="1" b:y="2">hello c</c:div>
+            <div x="1" xmlns="http://ns.example.com/d"/>
+            <div x="1">hello moon</div>
           </y>
         </x>
         EOF
         set = xml.search("//y/*")
         assert_equal "a", set[0].namespace.prefix
+        assert_equal 'http://foo.com/', set[0].namespace.href
         assert_equal "b", set[1].namespace.prefix
+        assert_equal 'http://bar.com/', set[1].namespace.href
         assert_equal "c", set[2].namespace.prefix
-        assert_equal nil, set[3].namespace
+        assert_equal 'http://bazz.com/', set[2].namespace.href
+        assert_equal nil, set[3].namespace.prefix # default namespace
+        assert_equal 'http://ns.example.com/d', set[3].namespace.href
+        assert_equal nil, set[4].namespace # no namespace
+
+        assert_equal 'b', set[2].attributes['y'].namespace.prefix
+        assert_equal 'http://bar.com/', set[2].attributes['y'].namespace.href
+        assert_equal nil, set[2].attributes['x'].namespace
+        assert_equal nil, set[3].attributes['x'].namespace
+        assert_equal nil, set[4].attributes['x'].namespace
       end
 
       if Nokogiri.uses_libxml?

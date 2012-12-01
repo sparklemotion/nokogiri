@@ -850,8 +850,8 @@ static VALUE attribute_nodes(VALUE self)
  *  call-seq:
  *    namespace()
  *
- *  returns the default namespace set on this node (as with an "xmlns="
- *  attribute), as a Namespace object.
+ *  returns the namespace of the element or attribute node as a Namespace
+ *  object, or nil if there is no namespace for the element or attribute.
  */
 static VALUE namespace(VALUE self)
 {
