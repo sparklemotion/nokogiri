@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 require "helper"
 
 module Nokogiri
@@ -9,6 +11,12 @@ module Nokogiri
         }.to_xml
         doc = Nokogiri.XML xml
         assert_equal 'world', doc.root['abcDef']
+      end
+
+      def test_builder_with_utf8_text
+        text = "test ﺵ "
+        doc = Nokogiri::XML::Builder.new(encoding: "UTF-8") { |xml| xml.test text }.doc
+        assert_equal text, doc.content
       end
 
       def test_builder_escape
