@@ -380,7 +380,7 @@ module Nokogiri
       ###
       # Insert +node+ as a child of the current Node
       def insert(node, &block)
-        node.parent = @parent
+        node = @parent.add_child(node)
         if block_given?
           old_parent = @parent
           @parent    = node

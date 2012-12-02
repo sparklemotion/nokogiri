@@ -34,6 +34,7 @@
   * Nokogiri.parse() does not mistake a non-HTML document like a RSS
     document as HTML document. #932 (Thanks, Yamagishi Kazutoshi!)
   * XSD validation crashes in Java version. #373
+  * (JRuby) Document already has a root node error while using Builder. #646
 
 
 === 1.6.0 / 2013-06-08

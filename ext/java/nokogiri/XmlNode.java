@@ -88,6 +88,7 @@ import org.w3c.dom.Text;
  */
 @JRubyClass(name="Nokogiri::XML::Node")
 public class XmlNode extends RubyObject {
+    protected static final String TEXT_WRAPPER_NAME = "nokogiri_text_wrapper";
 
     /** The underlying Node object. */
     protected Node node;
@@ -1498,14 +1499,18 @@ public class XmlNode extends RubyObject {
          * text node as the root element.  Java (and XML spec?) does
          * not.  So we wrap the text node in an element.
          */
-        if (parent.getNodeType() == Node.DOCUMENT_NODE &&
-            otherNode.getNodeType() == Node.TEXT_NODE) {
-            Element e = ((Document)parent).createElement("nokogiri_text_wrapper");
-            e.appendChild(otherNode);
-            otherNode = e;
+        if (parent.getNodeType() == Node.DOCUMENT_NODE && otherNode.getNodeType() == Node.TEXT_NODE) {
+          Element e = (Element) parent.getFirstChild();
+          if (e == null || !e.getNodeName().equals(TEXT_WRAPPER_NAME)) {
+            e = ((Document)parent).createElement(TEXT_WRAPPER_NAME);
+            adoptAsChild(context, parent, e);
+          }
+          e.appendChild(otherNode);
+          otherNode = e;
+        } else {
+          addNamespaceURIIfNeeded(otherNode);
+          parent.appendChild(otherNode);
         }
-        addNamespaceURIIfNeeded(otherNode);
-        parent.appendChild(otherNode);
         Node[] nodes = new Node[1];
         nodes[0] = otherNode;
         return nodes;

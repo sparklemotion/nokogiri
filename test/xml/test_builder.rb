@@ -13,6 +13,15 @@ module Nokogiri
         assert_equal 'world', doc.root['abcDef']
       end
 
+      def test_builder_multiple_nodes
+        builder = Nokogiri::XML::Builder.new do |xml|
+          0.upto(10) do
+            xml.text "test"
+          end
+        end
+      end
+
+
       def test_builder_with_utf8_text
         text = "test ﺵ "
         doc = Nokogiri::XML::Builder.new(:encoding => "UTF-8") { |xml| xml.test text }.doc
