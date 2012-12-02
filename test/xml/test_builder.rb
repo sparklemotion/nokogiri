@@ -15,7 +15,7 @@ module Nokogiri
 
       def test_builder_with_utf8_text
         text = "test ﺵ "
-        doc = Nokogiri::XML::Builder.new(encoding: "UTF-8") { |xml| xml.test text }.doc
+        doc = Nokogiri::XML::Builder.new(:encoding => "UTF-8") { |xml| xml.test text }.doc
         assert_equal text, doc.content
       end
 
