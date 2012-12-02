@@ -38,7 +38,6 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
-import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -62,17 +61,9 @@ public class XmlElement extends XmlNode {
     
     @Override
     public void setNode(ThreadContext context, Node node) {
-        this.node = node;
-        if (node != null) {
-            resetCache();
-            if (node.getNodeType() != Node.DOCUMENT_NODE) {
-                doc = document(context);
-                setInstanceVariable("@document", doc);
-                if (doc != null) {
-                    RuntimeHelpers.invoke(context, doc, "decorate", this);
-                }
-            }
-        }
+      super.setNode(context, node);
+      if (doc != null)
+        setInstanceVariable("@document", doc);
     }
     
     @Override

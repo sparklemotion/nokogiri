@@ -117,7 +117,8 @@ public abstract class ReaderNode {
         RubyArray array = RubyArray.newArray(ruby);
         if (attributeList != null && attributeList.length > 0) {
             if (document == null) {
-                document = ((XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Document"))).getDocument();
+                XmlDocument doc = (XmlDocument) XmlDocument.rbNew(ruby.getCurrentContext(), getNokogiriClass(ruby, "Nokogiri::XML::Document"), new IRubyObject[0]);
+                document = doc.getDocument();
             }
             for (int i=0; i<attributeList.length; i++) {
                 if (!isNamespace(attributeList.names.get(i))) {

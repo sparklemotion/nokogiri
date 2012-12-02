@@ -699,6 +699,18 @@ module Nokogiri
         assert_match %r{foo attr}, doc.to_xml
       end
 
+      # issue #785
+      def test_attribute_decoration
+        decorator = Module.new do
+          def test_method
+          end
+        end
+
+        util_decorate(@xml, decorator)
+
+        assert @xml.search('//@street').first.respond_to?(:test_method)
+      end
+
       def test_subset_is_decorated
         x = Module.new do
           def awesome!

@@ -211,22 +211,23 @@ public class XmlNode extends RubyObject {
      */
     public XmlNode(Ruby ruby, RubyClass cls, Node node) {
         super(ruby, cls);
-        this.node = node;
+        setNode(ruby.getCurrentContext(), node);
+    }
 
+    protected void decorate(Ruby ruby) {
         if (node != null) {
             resetCache();
 
             if (node.getNodeType() != Node.DOCUMENT_NODE) {
                 doc = document(ruby.getCurrentContext());
 
-                if (doc != null) {
+                if (doc != null && doc.isTrue()) {
                     RuntimeHelpers.invoke(ruby.getCurrentContext(), doc, "decorate", this);
                 }
             }
         }
-        
     }
-    
+
     /**
      * Create and return a copy of this object.
      *
@@ -514,13 +515,8 @@ public class XmlNode extends RubyObject {
 
     public void setNode(ThreadContext context, Node node) {
         this.node = node;
-        
-        if (node != null) {
-            resetCache();
-            if (node.getNodeType() != Node.DOCUMENT_NODE) {
-                doc = document(context);
-            }
-        }
+
+        decorate(context.getRuntime());
 
         if (this instanceof XmlAttr) {
             ((XmlAttr)this).setNamespaceIfNecessary(context.getRuntime());
