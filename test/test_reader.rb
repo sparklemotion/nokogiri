@@ -399,6 +399,39 @@ class TestReader < Nokogiri::TestCase
                   reader.map {|n| n.base_uri })
   end
 
+  def test_xlink_href_without_base_uri
+    reader = Nokogiri::XML::Reader(<<-eoxml)
+      <x xmlns:xlink="http://www.w3.org/1999/xlink">
+        <link xlink:href="#other">Link</link>
+        <other id="other">Linked Element</other>
+      </x>
+    eoxml
+  
+    reader.each do |node|
+      if node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT
+        if node.name == 'link'
+          assert_nil node.base_uri
+        end
+      end
+    end
+  end
+  
+  def test_xlink_href_with_base_uri
+    reader = Nokogiri::XML::Reader(<<-eoxml)
+      <x xml:base="http://base.example.org/base/"
+         xmlns:xlink="http://www.w3.org/1999/xlink">
+        <link xlink:href="#other">Link</link>
+        <other id="other">Linked Element</other>
+      </x>
+    eoxml
+  
+    reader.each do |node|
+      if node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT
+        assert_equal node.base_uri, "http://base.example.org/base/"
+      end
+    end
+  end
+
   def test_read_from_memory
     called = false
     reader = Nokogiri::XML::Reader.from_memory('<foo>bar</foo>')
