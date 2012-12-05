@@ -111,6 +111,21 @@ module Nokogiri
         assert_equal 'bar', doc.at('foo|baz', 'foo' => 'bar').namespace.href
       end
 
+      def test_dtd_in_builder_output
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.doc.create_internal_subset(
+                                         'html',
+                                         "-//W3C//DTD HTML 4.01 Transitional//EN",
+                                         "http://www.w3.org/TR/html4/loose.dtd"
+                                         )
+          xml.root do
+            xml.foo
+          end
+        end
+        assert_match(/<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4.01 Transitional\/\/EN" "http:\/\/www.w3.org\/TR\/html4\/loose.dtd">/,
+                     builder.to_xml)
+      end
+
       def test_specify_namespace_nested
         b = Nokogiri::XML::Builder.new { |xml|
           xml.root('xmlns:foo' => 'bar') do

@@ -129,9 +129,20 @@ public class XmlDtd extends XmlNode {
                                   IRubyObject name,
                                   IRubyObject external_id,
                                   IRubyObject system_id) {
-        Element placeHolder = doc.createElement("dtd_placeholder");
+
+        DocumentType placeholder = null;
+        if (doc.getDoctype() == null) {
+          String javaName = NokogiriHelpers.rubyStringToString(name);
+          String javaExternalId = NokogiriHelpers.rubyStringToString(external_id);
+          String javaSystemId = NokogiriHelpers.rubyStringToString(system_id);
+          placeholder = doc.getImplementation().createDocumentType(javaName, javaExternalId, javaSystemId);
+          doc.appendChild(placeholder);
+        } else {
+          placeholder = doc.getDoctype();
+        }
+        // FIXME: what if the document had a doc type, why are we here ?
         XmlDtd dtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
-        dtd.setNode(runtime, placeHolder);
+        dtd.setNode(runtime, placeholder);
         dtd.name = name;
         dtd.pubId = external_id;
         dtd.sysId = system_id;
