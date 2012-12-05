@@ -26,6 +26,7 @@
   * [JRuby] Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. #781
   * [JRuby] Fixed "bad file descriptor" bug when closing open file descriptors. #495
   * [JRuby] JRuby/CRuby incompatibility for attribute decorators. #785
+  * [JRUBY] JRuby - Issues parsing valid XML with no internal subset in the DTD. #547
 
 
 == 1.5.5 / 2012-06-24
