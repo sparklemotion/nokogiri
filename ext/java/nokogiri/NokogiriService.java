@@ -100,6 +100,7 @@ public class NokogiriService implements BasicLibraryService {
         RubyModule htmlSaxModule = htmlModule.defineModuleUnder("SAX");
         RubyModule xsltModule = nokogiri.defineModuleUnder("XSLT");
 
+        createJavaLibraryVersionConstants(ruby, nokogiri);
         createNokogiriModule(ruby, nokogiri);
         createSyntaxErrors(ruby, nokogiri, xmlModule);
         RubyClass xmlNode = createXmlModule(ruby, xmlModule);
@@ -108,7 +109,12 @@ public class NokogiriService implements BasicLibraryService {
         createSaxModule(ruby, xmlSaxModule, htmlSaxModule);
         createXsltModule(ruby, xsltModule);
     }
-    
+
+    private void createJavaLibraryVersionConstants(Ruby ruby, RubyModule nokogiri) {
+        nokogiri.defineConstant("XERCES_VERSION", ruby.newString(org.apache.xerces.impl.Version.getVersion()));
+        nokogiri.defineConstant("NEKO_VERSION", ruby.newString(org.cyberneko.html.Version.getVersion()));
+    }
+
     private void createNokogiriModule(Ruby ruby, RubyModule nokogiri) {;
         RubyClass encHandler = nokogiri.defineClassUnder("EncodingHandler", ruby.getObject(), ENCODING_HANDLER_ALLOCATOR);
         encHandler.defineAnnotatedMethods(EncodingHandler.class);
