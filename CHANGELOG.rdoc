@@ -9,15 +9,17 @@
   * XML::Node#[]= stringifies values. #729 (Thanks, Ben Langfeld.)
   * bin/nokogiri will process a document from $stdin
   * bin/nokogiri -e will execute a program from the command line
+  * bin/nokogiri --version will print the Xerces and NekoHTML versions when ran with JRuby.
 
 
 * Bugfixes
+  * Nokogiri now detects XSLT transform errors. #731 (Thanks, Justin Fitzsimmons!)
+  * Don't throw an Error when trying to replace top-level text node in DocumentFragment. #775
+  * Raise an ArgumentError if an invalid encoding is passed to the SAX parser. #756 (Thanks, Bradley Schaefer!)
   * [JRuby] space prior to xml preamble causes nokogiri to fail parsing. (fixed along with #748) #790
   * [JRuby] Fixed the bug Nokogiri::XML::Node#content inconsistency between Java and C. #794, #797
   * [JRuby] raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
   * [JRuby] doesn't coerce namespaces out of strings on a direct subclass of Node. #715
-  * Nokogiri now detects XSLT transform errors. #731 (Thanks, Justin Fitzsimmons!)
-  * Raise an ArgumentError if an invalid encoding is passed to the SAX parser. #756 (Thanks, Bradley Schaefer!)
   * [JRuby] Node#content now renders newlines properly. #737 (Thanks, Piotr Szmielew!)
   * [JRuby] Unknown namespace are ignore when the recover option is used. #748
   * [JRuby] XPath queries for namespaces should not throw exceptions when called twice in a row. #764
@@ -26,8 +28,11 @@
   * [JRuby] Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. #781
   * [JRuby] Fixed "bad file descriptor" bug when closing open file descriptors. #495
   * [JRuby] JRuby/CRuby incompatibility for attribute decorators. #785
-  * [JRUBY] JRuby - Issues parsing valid XML with no internal subset in the DTD. #547
-
+  * [JRUBY] Issues parsing valid XML with no internal subset in the DTD. #547
+  * [JRUBY] Issues parsing valid node content when it contains colons. #728
+  * [JRUBY] Correctly parse the doc type of html documents. #733
+  * [JRUBY] Include dtd in the xml output when a builder is used with create_internal_subset. #751
+  * [JRUBY] builder requires textwrappers for valid utf8 in jruby, not in mri. #784
 
 == 1.5.5 / 2012-06-24
 
