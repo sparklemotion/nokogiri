@@ -87,13 +87,15 @@ module Nokogiri
               if key =~ NCNAME_RE
                 ns_name = key.split(":", 2)[1]
                 elm.add_namespace_definition ns_name, v
-                next
               end
               elm[k.to_s] = v.to_s
             }
           else
             elm.content = arg
           end
+        end
+        if ns = elm.namespace_definitions.find { |n| n.prefix.nil? or n.prefix == '' }
+          elm.namespace = ns
         end
         elm
       end
