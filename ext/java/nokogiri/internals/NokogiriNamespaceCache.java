@@ -99,7 +99,7 @@ public class NokogiriNamespaceCache {
         List<XmlNamespace> namespaces = new ArrayList<XmlNamespace>();
         for (int i=0; i < keys.size(); i++) {
             CacheEntry entry = cache.get(i);
-            if (entry.ownerNode == node) {
+            if (entry.isOwner(node)) {
                 namespaces.add(entry.namespace);
             }
         }
@@ -151,6 +151,15 @@ public class NokogiriNamespaceCache {
         defaultNamespace = null;
     }
     
+    public void replaceNode(Node oldNode, Node newNode) {
+        for (int i=0; i < keys.size(); i++) {
+            CacheEntry entry = cache.get(i);
+            if (entry.isOwner(oldNode)) {
+                entry.replaceOwner(newNode);
+            }
+        }
+    }
+
     private class CacheEntry {
         private XmlNamespace namespace;
         private Node ownerNode;
@@ -158,6 +167,14 @@ public class NokogiriNamespaceCache {
         CacheEntry(XmlNamespace namespace, Node ownerNode) {
             this.namespace = namespace;
             this.ownerNode = ownerNode;
+        }
+
+        public Boolean isOwner(Node n) {
+            return this.ownerNode.isSameNode(n);
+        }
+
+        public void replaceOwner(Node newNode) {
+            this.ownerNode = newNode;
         }
     }
 }
