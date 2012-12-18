@@ -143,11 +143,27 @@ module Nokogiri
         assert_equal 'bar', doc.at('foo|baz', 'foo' => 'bar').namespace.href
       end
 
+      def test_specified_namespace_postdeclared
+        doc = Nokogiri::XML::Builder.new { |xml|
+          xml.a do
+            xml[:foo].b("xmlns:foo" => "bar")
+          end
+        }.doc
+        a = doc.at('a')
+        assert_equal({}, a.namespaces)
+
+        b = doc.at_xpath('//foo:b', {:foo=>'bar'})
+        assert b
+        assert_equal({"xmlns:foo"=>"bar"}, b.namespaces)
+        assert_equal("b", b.name)
+        assert_equal("bar", b.namespace.href)
+      end
+
       def test_specified_namespace_undeclared
         Nokogiri::XML::Builder.new { |xml|
           xml.root do
             assert_raises(ArgumentError) do
-              xml[:foo]
+              xml[:foo].bar
             end
           end
         }
