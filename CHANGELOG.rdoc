@@ -28,11 +28,12 @@
   * [JRuby] Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. #781
   * [JRuby] Fixed "bad file descriptor" bug when closing open file descriptors. #495
   * [JRuby] JRuby/CRuby incompatibility for attribute decorators. #785
-  * [JRUBY] Issues parsing valid XML with no internal subset in the DTD. #547
-  * [JRUBY] Issues parsing valid node content when it contains colons. #728
-  * [JRUBY] Correctly parse the doc type of html documents. #733
-  * [JRUBY] Include dtd in the xml output when a builder is used with create_internal_subset. #751
-  * [JRUBY] builder requires textwrappers for valid utf8 in jruby, not in mri. #784
+  * [JRuby] Issues parsing valid XML with no internal subset in the DTD. #547, #811
+  * [JRuby] Issues parsing valid node content when it contains colons. #728
+  * [JRuby] Correctly parse the doc type of html documents. #733
+  * [JRuby] Include dtd in the xml output when a builder is used with create_internal_subset. #751
+  * [JRuby] builder requires textwrappers for valid utf8 in jruby, not in mri. #784
+
 
 == 1.5.5 / 2012-06-24
 
