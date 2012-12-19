@@ -25,3 +25,9 @@ matrix:
       jdk: openjdk7
     - rvm: rbx-19mode
       jdk: openjdk7
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install valgrind
+
+script: rake ci
