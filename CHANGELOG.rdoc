@@ -19,6 +19,7 @@
   * Nokogiri now detects XSLT transform errors. #731 (Thanks, Justin Fitzsimmons!)
   * Don't throw an Error when trying to replace top-level text node in DocumentFragment. #775
   * Raise an ArgumentError if an invalid encoding is passed to the SAX parser. #756 (Thanks, Bradley Schaefer!)
+  * Prefixed element inconsistency between CRuby and JRuby. #712
   * [JRuby] space prior to xml preamble causes nokogiri to fail parsing. (fixed along with #748) #790
   * [JRuby] Fixed the bug Nokogiri::XML::Node#content inconsistency between Java and C. #794, #797
   * [JRuby] raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
