@@ -46,13 +46,13 @@ module Nokogiri
         assert_equal 'http://www.w3.org/1999/xlink', check_namespace(@doc.root.elements[2].elements[0].attribute_nodes[0])
       end
       def test_single_decl_ns_2
-        assert_equal 'ns:meat',  check_namespace(@doc.root.elements[3].elements[0])
+        assert_equal 'ns:meat',  check_namespace(@doc.root.elements[3])
       end
       def test_buried_default_ns
-        assert_equal 'ns:fruit',  check_namespace(@doc.root.elements[3].elements[0].elements[0])
+        assert_equal 'ns:fruit',  check_namespace(@doc.root.elements[3].elements[0])
       end
       def test_buried_decl_ns
-        assert_equal 'ns:veg',  check_namespace(@doc.root.elements[3].elements[0].elements[1])
+        assert_equal 'ns:veg',  check_namespace(@doc.root.elements[3].elements[1])
       end
     end
   end
