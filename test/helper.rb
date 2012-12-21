@@ -1,6 +1,7 @@
 #Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
 $VERBOSE = true
 require 'minitest/autorun'
+require 'minitest/pride'
 require 'fileutils'
 require 'tempfile'
 require 'pp'
