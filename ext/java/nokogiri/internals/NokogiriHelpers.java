@@ -72,9 +72,11 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.DOMException;
 
 /**
  * A class for various utility methods.
@@ -635,10 +637,11 @@ public class NokogiriHelpers {
     }
 
     public static String newQName(String newPrefix, Node node) {
+        String tagName = getLocalPart(node.getNodeName());
         if(newPrefix == null) {
-            return node.getLocalName();
+            return tagName;
         } else {
-            return newPrefix + ":" + node.getLocalName();
+            return newPrefix + ":" + tagName;
         }
     }
 
@@ -814,5 +817,17 @@ public class NokogiriHelpers {
 
     public static boolean shouldDecode(Node text) {
       return !shouldEncode(text);
+    }
+
+    public static Node renameNode(Node n, String namespaceURI, String qualifiedName) throws DOMException {
+        Document doc = n.getOwnerDocument();
+        XmlDocument xmlDoc = (XmlDocument)getCachedNode(doc);
+        NokogiriNamespaceCache nsCache = xmlDoc.getNamespaceCache();
+        int oldHash = n.hashCode();
+        Node result = doc.renameNode(n, namespaceURI, qualifiedName);
+        if (result != n) {
+            nsCache.replaceNode(n, result);
+        }
+        return result;
     }
 }
