@@ -20,23 +20,23 @@
   * Don't throw an Error when trying to replace top-level text node in DocumentFragment. #775
   * Raise an ArgumentError if an invalid encoding is passed to the SAX parser. #756 (Thanks, Bradley Schaefer!)
   * Prefixed element inconsistency between CRuby and JRuby. #712
-  * [JRuby] space prior to xml preamble causes nokogiri to fail parsing. (fixed along with #748) #790
-  * [JRuby] Fixed the bug Nokogiri::XML::Node#content inconsistency between Java and C. #794, #797
-  * [JRuby] raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
-  * [JRuby] doesn't coerce namespaces out of strings on a direct subclass of Node. #715
-  * [JRuby] Node#content now renders newlines properly. #737 (Thanks, Piotr Szmielew!)
-  * [JRuby] Unknown namespace are ignore when the recover option is used. #748
-  * [JRuby] XPath queries for namespaces should not throw exceptions when called twice in a row. #764
-  * [JRuby] More consistent (with libxml2) whitespace formatting when emitting XML. #771
-  * [JRuby] namespaced attributes broken when appending raw xml to builder. #770
-  * [JRuby] Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. #781
-  * [JRuby] Fixed "bad file descriptor" bug when closing open file descriptors. #495
-  * [JRuby] JRuby/CRuby incompatibility for attribute decorators. #785
-  * [JRuby] Issues parsing valid XML with no internal subset in the DTD. #547, #811
-  * [JRuby] Issues parsing valid node content when it contains colons. #728
-  * [JRuby] Correctly parse the doc type of html documents. #733
-  * [JRuby] Include dtd in the xml output when a builder is used with create_internal_subset. #751
-  * [JRuby] builder requires textwrappers for valid utf8 in jruby, not in mri. #784
+  * (JRuby) space prior to xml preamble causes nokogiri to fail parsing. (fixed along with #748) #790
+  * (JRuby) Fixed the bug Nokogiri::XML::Node#content inconsistency between Java and C. #794, #797
+  * (JRuby) raises INVALID_CHARACTER_ERR exception when EntityReference name starts with '#'. #719
+  * (JRuby) doesn't coerce namespaces out of strings on a direct subclass of Node. #715
+  * (JRuby) Node#content now renders newlines properly. #737 (Thanks, Piotr Szmielew!)
+  * (JRuby) Unknown namespace are ignore when the recover option is used. #748
+  * (JRuby) XPath queries for namespaces should not throw exceptions when called twice in a row. #764
+  * (JRuby) More consistent (with libxml2) whitespace formatting when emitting XML. #771
+  * (JRuby) namespaced attributes broken when appending raw xml to builder. #770
+  * (JRuby) Nokogiri::XML::Document#wrap raises undefined method `length' for nil:NilClass when trying to << to a node. #781
+  * (JRuby) Fixed "bad file descriptor" bug when closing open file descriptors. #495
+  * (JRuby) JRuby/CRuby incompatibility for attribute decorators. #785
+  * (JRuby) Issues parsing valid XML with no internal subset in the DTD. #547, #811
+  * (JRuby) Issues parsing valid node content when it contains colons. #728
+  * (JRuby) Correctly parse the doc type of html documents. #733
+  * (JRuby) Include dtd in the xml output when a builder is used with create_internal_subset. #751
+  * (JRuby) builder requires textwrappers for valid utf8 in jruby, not in mri. #784
 
 
 == 1.5.5 / 2012-06-24
@@ -75,7 +75,7 @@
   * Segmentation fault when creating a comment node for a DocumentFragment. #677, #678.
   * Treat '.' as xpath in at() and search(). #690
 
-  * [MRI, Security] Default parse options for XML documents were
+  * (MRI, Security) Default parse options for XML documents were
     changed to not make network connections during document parsing,
     to avoid XXE vulnerability. #693
 
@@ -83,7 +83,7 @@
     be called, like this:
 
     Nokogiri::XML::Document.parse(xml) { |config| config.nononet }
-    
+
     Insert your own joke about double-negatives here.
 
 
@@ -109,12 +109,12 @@
   * Nokogiri::XML::Attribute on JRuby returns a nil namespace #647
   * Nokogiri::XML::Node#namespace= cannot set a namespace without a
     prefix on JRuby #648
-  * [JRuby] 1.9 mode causes dead lock while running rake #571
+  * (JRuby) 1.9 mode causes dead lock while running rake #571
   * HTML::Document#meta_encoding does not raise exception on docs with
     malformed content-type. #655
   * Fixing segfault related to unsupported encodings in in-context
     parsing on 1.8.7. #643
-  * [JRuby] Concurrency issue in XPath parsing. #682
+  * (JRuby) Concurrency issue in XPath parsing. #682
 
 
 == 1.5.2 / 2012-03-09
@@ -159,11 +159,11 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     object. #489
   * 1.5.0 Not using correct character encoding #488
   * Raw XML string in XML Builder broken on JRuby #486
-  * Nokogiri 1.5.0 XML generation broken on JRuby #484    
+  * Nokogiri 1.5.0 XML generation broken on JRuby #484
   * Do not allow multiple root nodes. #550
   * Fixes for custom XPath functions. #605, #606 (thanks, Juan Wajnerman!)
   * Node#to_xml does not override :save_with if it is provided. #505
-  * Node#set is a private method [JRuby]. #564 (thanks, Nick Sieger!)
+  * Node#set is a private method (JRuby). #564 (thanks, Nick Sieger!)
   * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
 
 
@@ -243,7 +243,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * Node#serialize-and-friends now accepts a SaveOption object as the, erm, save object.
   * Nokogiri::CSS::Parser has-a Nokogiri::CSS::Tokenizer
-  * [JRUBY+FFI only] Weak references are now threadsafe. #355
+  * (JRUBY+FFI only) Weak references are now threadsafe. #355
   * Make direct start_element() callback (currently used for
     HTML::SAX::Parser) pass attributes in assoc array, just as
     emulated start_element() callback does.  rel. #356
@@ -276,7 +276,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Fix a memory leak when duplicating child nodes. #353
   * Fixed off-by-one bug with nth-last-{child,of-type} CSS selectors when NOT using an+b notation. #354
   * Fixed passing of non-namespace attributes to SAX::Document#start_element. #356
-  * Workaround for libxml2 in-context parsing bug. #362  
+  * Workaround for libxml2 in-context parsing bug. #362
   * Fixed NodeSet#wrap on nodes within a fragment. #331
 
 === 1.4.3 / 2010/07/28
@@ -698,4 +698,3 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 * 1 major enhancement
 
   * Birthday!
-

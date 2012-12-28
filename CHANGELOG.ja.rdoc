@@ -19,24 +19,24 @@
   * Nokogiri はこのバージョンからXSLT変換のエラーを検出するようになった。#731 (ありがとう、Justin Fitzsimmons!)
   * Don't throw an Error when trying to replace top-level text node in DocumentFragment. #775
   * SAXパーザに不正なエンコーディングに渡された場合はArgumentErrorを投げるようにした。#756 (ありがとう、Bradley Schaefer!)
-  * [JRuby] XML宣言の前にスペースがあると、ドキュメントのパーズに失敗する。(#748の修正でこれもなおっている) #790
-  * [JRuby] Nokogiri::XML::Node#content のJRubyの振る舞いがCRubyと同じではない。#794, #797
-  * [JRuby] で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外がはっせいする。 #719
-  * [JRuby] では Nodeのサブクラスのnamespaceを正しく文字列に変換しない。 #715
-  * [JRuby] Node#contentがこのバージョンから改行コードを正しく表示するようになった。#737 (ありがとう、Piotr Szmielew!)
-  * [JRuby] recover optionが指定されている場合は宣言の無いネームスペースを無視するようにした。#748
-  * [JRuby] ネームスペースを検出するXPathが続けて実行されても例外を投げてはいけない。#764
-  * [JRuby] XMLを表示(出力)する際のホワイトスペースの扱いをlibxml2バージョンとさらに同様になるようにした。#771
-  * [JRuby] ネームスペース付きの属性を含むXMLドキュメントを文字列でbuilderに追加しようとすると失敗する。#770
-  * [JRuby] Nokogiri::XML::Document#wrapを使って生成したドキュメントに << でノードを追加しようとすると
+  * (JRuby) XML宣言の前にスペースがあると、ドキュメントのパーズに失敗する。(#748の修正でこれもなおっている) #790
+  * (JRuby) Nokogiri::XML::Node#content のJRubyの振る舞いがCRubyと同じではない。#794, #797
+  * (JRuby) で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外がはっせいする。 #719
+  * (JRuby) では Nodeのサブクラスのnamespaceを正しく文字列に変換しない。 #715
+  * (JRuby) Node#contentがこのバージョンから改行コードを正しく表示するようになった。#737 (ありがとう、Piotr Szmielew!)
+  * (JRuby) recover optionが指定されている場合は宣言の無いネームスペースを無視するようにした。#748
+  * (JRuby) ネームスペースを検出するXPathが続けて実行されても例外を投げてはいけない。#764
+  * (JRuby) XMLを表示(出力)する際のホワイトスペースの扱いをlibxml2バージョンとさらに同様になるようにした。#771
+  * (JRuby) ネームスペース付きの属性を含むXMLドキュメントを文字列でbuilderに追加しようとすると失敗する。#770
+  * (JRuby) Nokogiri::XML::Document#wrapを使って生成したドキュメントに << でノードを追加しようとすると
      undefined method `length' for nil:NilClassのエラーが発生する #781
-  * [JRuby] 開いているファイルのデスクリプタを閉じようとすると、"bad file descriptor" が発生する。#495
-  * [JRuby] JRuby/CRuby incompatibility for attribute decorators. #785
-  * [JRuby] Issues parsing valid XML with no internal subset in the DTD. #547, #811
-  * [JRuby] Issues parsing valid node content when it contains colons. #728
-  * [JRuby] Correctly parse the doc type of html documents. #733
-  * [JRuby] Include dtd in the xml output when a builder is used with create_internal_subset. #751
-  * [JRuby] builder requires textwrappers for valid utf8 in jruby, not in mri. #784
+  * (JRuby) 開いているファイルのデスクリプタを閉じようとすると、"bad file descriptor" が発生する。#495
+  * (JRuby) JRuby/CRuby incompatibility for attribute decorators. #785
+  * (JRuby) Issues parsing valid XML with no internal subset in the DTD. #547, #811
+  * (JRuby) Issues parsing valid node content when it contains colons. #728
+  * (JRuby) Correctly parse the doc type of html documents. #733
+  * (JRuby) Include dtd in the xml output when a builder is used with create_internal_subset. #751
+  * (JRuby) builder requires textwrappers for valid utf8 in jruby, not in mri. #784
 
 
 == 1.5.5 / ２０１２年６月２４日
@@ -75,7 +75,7 @@
   * DocumentFragment をベースにしてコメントノードを作ったときに Segmentation fault する。 #677, #678.
   * at() と search() メソッドで '.' をxpathとして扱う。 #690
 
-  * [MRI, Security] XML パース時のディフォルトのオプションを nonet に変更。これにより、ディフォルトでは
+  * (MRI, Security) XML パース時のディフォルトのオプションを nonet に変更。これにより、ディフォルトでは
     ドキュメントパース時にネットワーク接続を行わないようにし、XXE 脆弱性に対応した。#693
 
     パース時にネットワークに接続して外部のドキュメントを見にいかせたい場合には、以下のように `nonoet` オプションを設定する:
@@ -105,12 +105,12 @@
   * Nokogiri::XML::Attribute が JRuby 上で　nil namespace を返す　#647
   * Nokogiri::XML::Node#namespace= メソッドが JRuby　上で prefix
   　が無い namespace を設定できない #648
-  * [JRuby] 1.9 モードで rake を実行するとデッドロックを引き起こす #571
+  * (JRuby) 1.9 モードで rake を実行するとデッドロックを引き起こす #571
   * HTML::Document#meta_encoding does not raise exception on docs with
     malformed content-type. #655
   * Fixing segfault related to unsupported encodings in in-context
     parsing on 1.8.7. #643
-  * [JRuby] Concurrency issue in XPath parsing. #682
+  * (JRuby) Concurrency issue in XPath parsing. #682
 
 
 == 1.5.2 / 2012-03-09
@@ -160,7 +160,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Do not allow multiple root nodes. #550
   * Fixes for custom XPath functions. #605, #606 (thanks, Juan Wajnerman!)
   * Node#to_xml does not override :save_with if it is provided. #505
-  * Node#set is a private method [JRuby]. #564 (thanks, Nick Sieger!)
+  * Node#set is a private method (JRuby). #564 (thanks, Nick Sieger!)
   * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
 
 == 1.5.0 / 2011年7月1日
@@ -235,7 +235,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * Node#serialize とその仲間達はSaveOptionオブジェクトを受け入れる
   * Nokogiri::CSS::Parser has-a Nokogiri::CSS::Tokenizer
-  * [JRUBY+FFIのみ] 「弱い参照」はスレッドセーフになった. #355
+  * (JRUBY+FFIのみ) 「弱い参照」はスレッドセーフになった. #355
   * HTML::SAX::Parserから呼ばれるstart_element()コールバックのattributes引数はHTML::XML::Parserによるエミュレートコールバックと同じく連想配列になった.  rel. #356
   * HTML::SAX::Parserのparse*()メソッドはXML::SAX::Parser同様に渡されたブロックをコールバックするようになった.
   * HTMLパーサーのエンコーディング判定をlibxml2の仕様を超えて拡張・改善した. (XML宣言のencodingを認識、非ASCII文字出現後のmetaタグも文字化けを生じずに反映)
