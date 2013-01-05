@@ -911,8 +911,9 @@ public class XmlNode extends RubyObject {
             if (rbkey == null || rbkey.isNil()) context.getRuntime().getNil();
             String key = rubyStringToString(rbkey);
             Element element = (Element) node;
+            if (!element.hasAttribute(key)) return context.getRuntime().getNil();
             String value = element.getAttribute(key);
-            return nonEmptyStringOrNil(context.getRuntime(), value);
+            return stringOrNil(context.getRuntime(), value);
         }
         return context.getRuntime().getNil();
     }
