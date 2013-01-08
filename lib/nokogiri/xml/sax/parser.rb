@@ -90,7 +90,7 @@ module Nokogiri
         def parse_io io, encoding = 'ASCII'
           check_encoding(encoding)
           @encoding = encoding
-          ctx = ParserContext.io(io, ENCODINGS[encoding])
+          ctx = ParserContext.io(io, ENCODINGS[encoding.upcase])
           yield ctx if block_given?
           ctx.parse_with self
         end
@@ -114,7 +114,7 @@ module Nokogiri
 
         private
         def check_encoding(encoding)
-          raise ArgumentError.new("'#{encoding}' is not a valid encoding") unless ENCODINGS[encoding]
+          raise ArgumentError.new("'#{encoding}' is not a valid encoding") unless ENCODINGS[encoding.upcase]
         end
       end
     end
