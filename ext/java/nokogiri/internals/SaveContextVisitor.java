@@ -733,6 +733,10 @@ public class SaveContextVisitor {
         // no-op
     }
 
+    private boolean isHtmlScript(Text text) {
+      return htmlDoc && text.getParentNode().getNodeName().equals("script");
+    }
+
     private static char lineSeparator = '\n'; // System.getProperty("line.separator"); ?
     public boolean enter(Text text) {
         String textContent = text.getNodeValue();
@@ -744,7 +748,7 @@ public class SaveContextVisitor {
             }
         }
 
-        if (NokogiriHelpers.shouldEncode(text)) {
+        if (NokogiriHelpers.shouldEncode(text) && !isHtmlScript(text)) {
             textContent = encodeJavaString(textContent);
         }
 
