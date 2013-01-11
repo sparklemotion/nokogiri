@@ -40,7 +40,6 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -724,21 +723,14 @@ public class NokogiriHelpers {
     }
     
     public static byte[] convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
-        Charset input = Charset.forName("UTF-8");
-        CharsetDecoder decoder = input.newDecoder();
         CharsetEncoder encoder = output_charset.newEncoder();
-        decoder.reset();
-        encoder.reset();
-        ByteBuffer bbuf = ByteBuffer.wrap(input_string.getBytes());
-        CharBuffer cbuf = decoder.decode(bbuf);
-        bbuf.clear();
-        encoder.encode(cbuf, bbuf, true);
-        int length = bbuf.position();
-        byte[] bytes = new byte[length];
-        System.arraycopy(bbuf.array(), 0, bytes, 0, length);
-        return bytes;
+        CharBuffer charBuffer = CharBuffer.wrap(input_string);
+        ByteBuffer byteBuffer = encoder.encode(charBuffer);
+        byte[] buffer = new byte[byteBuffer.remaining()];
+        byteBuffer.get(buffer);
+        return buffer;
     }
-    
+
     public static String convertEncodingByNKFIfNecessary(Ruby runtime, XmlDocument doc, String thing) {
         if (!(doc instanceof HtmlDocument)) return thing;
         String parsed_encoding = ((HtmlDocument)doc).getPraedEncoding();

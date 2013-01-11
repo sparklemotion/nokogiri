@@ -37,6 +37,8 @@ import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -746,9 +748,7 @@ public class SaveContextVisitor {
             textContent = encodeJavaString(textContent);
         }
 
-        if (getEncoding(text) == null) {
-            textContent = encodeStringToHtmlEntity(textContent);
-        }
+        textContent = encodeStringToHtmlEntity(textContent);
         buffer.append(textContent);
         return true;
     }
@@ -760,12 +760,15 @@ public class SaveContextVisitor {
     }
 
     private String encodeStringToHtmlEntity(String text) {
+        if (encoding == null)
+          return text;
+        CharsetEncoder encoder = Charset.forName(encoding).newEncoder();
         int last = 126; // = U+007E. No need to encode under U+007E.
         StringBuffer sb = new StringBuffer();
-        for (int i=0; i<text.length(); i++) {
-            int codePoint = text.codePointAt(i);
-            if (codePoint > last) sb.append("&#x" + Integer.toHexString(codePoint) + ";");
-            else sb.append(text.charAt(i));
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (encoder.canEncode(ch)) sb.append(ch);
+            else sb.append("&#x" + Integer.toHexString(ch) + ";");
         }
         return new String(sb);
     }
