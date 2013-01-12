@@ -34,6 +34,29 @@ class TestReader < Nokogiri::TestCase
     assert_equal [false, false, nil, nil, true, nil], results
   end
 
+  # Issue #831
+  # Make sure that the reader doesn't block reading the entire input
+  def test_reader_blocking
+    rd, wr = IO.pipe()
+    node_out = nil
+    t = Thread.start do
+      reader = Nokogiri::XML::Reader(rd, 'UTF-8')
+      reader.each do |node|
+        node_out = node
+        break
+      end
+    end
+    sleep(1)              # sleep for one second to make sure the reader will actually block for input
+    wr.puts "<foo>"
+    wr.puts "<bar/>" * 10000
+    wr.flush
+    res = t.join(5)    # wait 5 seconds for the thread to finish
+    wr.close
+    rd.close
+    refute_nil node_out, "Didn't read any nodes, exclude the trivial case"
+    refute_nil res, "Reader blocks trying to read the entire stream"
+  end
+
   def test_reader_takes_block
     options = nil
     Nokogiri::XML::Reader(File.read(XML_FILE), XML_FILE) do |cfg|
