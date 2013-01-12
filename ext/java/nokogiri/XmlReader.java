@@ -35,8 +35,8 @@ package nokogiri;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Stack;
 
@@ -45,7 +45,6 @@ import nokogiri.internals.ParserContext;
 import nokogiri.internals.ParserContext.Options;
 import nokogiri.internals.ReaderNode;
 import nokogiri.internals.ReaderNode.ElementNode;
-import nokogiri.internals.UncloseableInputStream;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -53,13 +52,15 @@ import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyObject;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.runtime.Block;
+import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.lexer.yacc.SyntaxException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.jruby.util.IOInputStream;
+import org.jruby.util.ByteList;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -106,12 +107,14 @@ public class XmlReader extends RubyObject {
         nodeQueue.add(new ReaderNode.EmptyNode(runtime));
     }
 
-    private void parseRubyString(ThreadContext context, InputStream stream, IRubyObject url, Options options){
+    private void parseRubyString(ThreadContext context, RubyString content, IRubyObject url, Options options){
         Ruby ruby = context.getRuntime();
         try {
             this.setState(XML_TEXTREADER_MODE_READING);
             XMLReader reader = this.createReader(ruby, options);
-            InputSource inputSource = new InputSource(stream);
+            ByteList byteList = content.getByteList();
+            ByteArrayInputStream bais = new ByteArrayInputStream(byteList.unsafeBytes(), byteList.begin(), byteList.length());
+            InputSource inputSource = new InputSource(bais);
             ParserContext.setUrl(context, inputSource, url);
             reader.parse(inputSource);
             this.setState(XML_TEXTREADER_MODE_CLOSED);
@@ -195,7 +198,7 @@ public class XmlReader extends RubyObject {
         if (args.length > 1) url = args[1];
         if (args.length > 2) reader.setInstanceVariable("@encoding", args[2]);
 
-        InputStream stream = new UncloseableInputStream(new IOInputStream(args[0]));
+        RubyString content = RuntimeHelpers.invoke(context, args[0], "read").convertToString();
 
         Options options;
         if (args.length > 3) {
@@ -204,7 +207,7 @@ public class XmlReader extends RubyObject {
           // use the default options RECOVER | NONET
           options = new ParserContext.Options(2048 | 1);
         }
-        reader.parseRubyString(context, stream, url, options);
+        reader.parseRubyString(context, content, url, options);
         return reader;
     }
 
@@ -230,12 +233,7 @@ public class XmlReader extends RubyObject {
           // use the default options RECOVER | NONET
           options = new ParserContext.Options(2048 | 1);
         }
-
-        RubyClass klass = NokogiriService.nokogiriClassCache.get("StringIO");
-        IRubyObject stringIO = klass.newInstance(context, args[0], Block.NULL_BLOCK);
-        InputStream stream = new IOInputStream(stringIO);
-
-        reader.parseRubyString(context, stream, url, options);
+        reader.parseRubyString(context, args[0].convertToString(), url, options);
         return reader;
     }
 

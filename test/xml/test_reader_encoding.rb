@@ -121,22 +121,6 @@ module Nokogiri
           end
         end
 
-        def test_reader_blocking
-          rd, wr = IO.pipe()
-          wr.puts "<foo/>" * 10000
-          wr.flush
-          t = Thread.start do
-            reader = Nokogiri::XML::Reader(rd, 'UTF-8')
-            reader.each do |node|
-              break
-            end
-          end
-          res = t.join(5)    # wait 5 seconds for the thread to finish
-          rd.close
-          wr.close
-          refute_nil res, "Reader blocks trying to read the entire stream"
-        end
-
         def test_value_lookup_segfault
           skip("JRuby doesn't do GC.") if Nokogiri.jruby?
           old_stress = GC.stress
