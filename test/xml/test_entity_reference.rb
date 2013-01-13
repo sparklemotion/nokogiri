@@ -232,14 +232,12 @@ EOF
       end
 
       test_relative_and_absolute_path :test_reader_entity_reference_without_dtdload do
-        # Make sure that we can parse entity references and include them in the document
         html = File.read xml_document
         assert_raises(Nokogiri::XML::SyntaxError) do
           reader = Nokogiri::XML::Reader html, path do |cfg|
             cfg.default_xml
           end
-          nodes = []
-          reader.each { |n| nodes << n.value }
+          reader.each { |n| n }
         end
       end
     end

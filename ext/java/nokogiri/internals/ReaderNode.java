@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -51,6 +51,7 @@ import nokogiri.XmlAttr;
 import nokogiri.XmlDocument;
 import nokogiri.XmlSyntaxError;
 
+import org.apache.xerces.xni.XMLAttributes;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
@@ -59,12 +60,10 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXParseException;
 
 /**
  * Abstract class of Node for XmlReader.
- * 
+ *
  * @author Yoko Harada <yokolet@gmail.com>
  *
  */
@@ -75,17 +74,18 @@ public abstract class ReaderNode {
     public Map<String, String> namespaces;
     public int depth, nodeType;
     public String lang, localName, xmlBase, prefix, name, uri, value, xmlVersion = "1.0";
+    public int startOffset, endOffset;
     public boolean hasChildren = false;
     public abstract String getString();
     private Document document = null;
-    
+
     private static ElementNode elementNode = null;
     private static ClosingNode closingNode = null;
     private static TextNode textNode = null;
-    
+
     public IRubyObject getAttributeByIndex(IRubyObject index){
         if(index.isNil()) return index;
-        
+
         long i = index.convertToInteger().getLongValue();
         if(i > Integer.MAX_VALUE) {
             throw ruby.newArgumentError("value too long to be an array index");
@@ -101,7 +101,7 @@ public abstract class ReaderNode {
         String value = attributeList.getByName(rubyStringToString(name));
         return stringOrNil(ruby, value);
     }
-    
+
     public IRubyObject getAttributeByName(String name){
         if(attributeList == null) return ruby.getNil();
         String value = attributeList.getByName(name);
@@ -132,7 +132,7 @@ public abstract class ReaderNode {
         }
         return array;
     }
-    
+
     public IRubyObject getAttributes(ThreadContext context) {
         if(attributeList == null) return context.getRuntime().getNil();
         RubyHash hash = RubyHash.newHash(context.getRuntime());
@@ -174,7 +174,7 @@ public abstract class ReaderNode {
         }
         return hash;
     }
-    
+
     public IRubyObject getXmlBase() {
         return stringOrNil(ruby, xmlBase);
     }
@@ -219,7 +219,7 @@ public abstract class ReaderNode {
     }
 
     public IRubyObject toSyntaxError() { return ruby.getNil(); }
-    
+
     public IRubyObject getNodeType() { return ruby.newFixnum(nodeType); }
 
     public static enum ReaderNodeType {
@@ -241,17 +241,17 @@ public abstract class ReaderNode {
         END_ELEMENT(15),
         END_ENTITY(16),
         XML_DECLARATION(17);
-        
+
         private final int value;
         ReaderNodeType(int value) {
             this.value = value;
         }
-        
+
         public int getValue() {
             return value;
         }
     }
-    
+
     public static ClosingNode createClosingNode(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
         if (closingNode == null) closingNode = new ClosingNode();
         ClosingNode clone;
@@ -265,13 +265,13 @@ public abstract class ReaderNode {
     }
 
     public static class ClosingNode extends ReaderNode {
-        
+
         public ClosingNode() {}
 
         public ClosingNode(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             init(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
         }
-        
+
         public void init(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
             nodeType = ReaderNodeType.END_ELEMENT.getValue();
@@ -301,8 +301,8 @@ public abstract class ReaderNode {
             return new String(sb);
         }
     }
-    
-    public static ElementNode createElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+
+    public static ElementNode createElementNode(Ruby ruby, String uri, String localName, String qName, XMLAttributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
         if (elementNode == null) elementNode = new ElementNode();
         ElementNode clone;
         try {
@@ -313,17 +313,17 @@ public abstract class ReaderNode {
         clone.init(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
         return clone;
     }
-    
+
     public static class ElementNode extends ReaderNode {
-        private List<String> attributeStrings = new ArrayList<String>();
-        
+        private final List<String> attributeStrings = new ArrayList<String>();
+
         public ElementNode() {}
-        
-        public ElementNode(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+
+        public ElementNode(Ruby ruby, String uri, String localName, String qName, XMLAttributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             init(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
         }
-        
-        public void init(Ruby ruby, String uri, String localName, String qName, Attributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+
+        public void init(Ruby ruby, String uri, String localName, String qName, XMLAttributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
             this.nodeType = ReaderNodeType.ELEMENT.getValue();
             this.uri = "".equals(uri) ? null : uri;
@@ -331,7 +331,6 @@ public abstract class ReaderNode {
             this.name = qName;
             parsePrefix(qName);
             this.depth = depth;
-            hasChildren = true;
             parseAttributes(attrs, langStack, xmlBaseStack);
         }
 
@@ -340,7 +339,7 @@ public abstract class ReaderNode {
             return ruby.getFalse();
         }
 
-        private void parseAttributes(Attributes attrs, Stack<String> langStack, Stack<String> xmlBaseStack) {
+        private void parseAttributes(XMLAttributes attrs, Stack<String> langStack, Stack<String> xmlBaseStack) {
             if (attrs.getLength() > 0) attributeList = new ReaderAttributeList();
             String u, n, v;
             for (int i = 0; i < attrs.getLength(); i++) {
@@ -358,7 +357,7 @@ public abstract class ReaderNode {
                 attributeStrings.add(n + "=\"" + v + "\"");
             }
         }
-        
+
         private String resolveLang(String n, String v, Stack<String> langStack) {
             if ("xml:lang".equals(n)) {
                 return v;
@@ -368,7 +367,7 @@ public abstract class ReaderNode {
                 return null;
             }
         }
-        
+
         private String resolveXmlBase(String n, String v, Stack<String> xmlBaseStack) {
             if (isXmlBase(n)) {
                 return getXmlBaseUri(n, v, xmlBaseStack);
@@ -378,7 +377,7 @@ public abstract class ReaderNode {
                 return null;
             }
         }
-        
+
         private String getXmlBaseUri(String n, String v, Stack<String> xmlBaseStack) {
             if ("xml:base".equals(n)) {
                 if (v.startsWith("http://")) {
@@ -424,7 +423,7 @@ public abstract class ReaderNode {
         List<String> names  = new ArrayList<String>();
         List<String> values = new ArrayList<String>();
         int length = 0;
-        
+
         void add(String namespace, String name, String value) {
             namespace = namespace != null ? namespace : "";
             namespaces.add(namespace);
@@ -434,7 +433,7 @@ public abstract class ReaderNode {
             values.add(value);
             length++;
         }
-        
+
         String getByName(String name) {
             for (int i=0; i<names.size(); i++) {
                 if (name.equals(names.get(i))) {
@@ -472,7 +471,7 @@ public abstract class ReaderNode {
         private final XmlSyntaxError exception;
 
         // Still don't know what to do with ex.
-        public ExceptionNode(Ruby runtime, SAXParseException ex) {
+        public ExceptionNode(Ruby runtime, Exception ex) {
             super(runtime);
             exception = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(ruby, "Nokogiri::XML::SyntaxError"));
         }
@@ -487,7 +486,7 @@ public abstract class ReaderNode {
             return this.exception;
         }
     }
-    
+
     public static TextNode createTextNode(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
         if (textNode == null) textNode = new TextNode();
         TextNode clone;
@@ -506,7 +505,7 @@ public abstract class ReaderNode {
         public TextNode(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             init(ruby, content, depth, langStack, xmlBaseStack);
         }
-        
+
         public void init(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
             this.ruby = ruby;
             this.value = content;
