@@ -624,6 +624,13 @@ module Nokogiri
         assert_equal "Yes", address[:domestic]
       end
 
+      def test_empty_attribute_reading
+        node = Nokogiri::XML '<foo empty="" whitespace="  "/>'
+
+        assert_equal '', node.root['empty']
+        assert_equal '  ', node.root['whitespace']
+      end
+
       def test_delete
         address = @xml.xpath('/staff/employee/address').first
         assert_equal 'Yes', address['domestic']
