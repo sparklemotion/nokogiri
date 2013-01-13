@@ -114,6 +114,7 @@ module Nokogiri
 
         private
         def check_encoding(encoding)
+          encoding.upcase!
           raise ArgumentError.new("'#{encoding}' is not a valid encoding") unless ENCODINGS[encoding]
         end
       end

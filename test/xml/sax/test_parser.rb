@@ -194,8 +194,16 @@ module Nokogiri
         end
 
         def test_parse_io
+          call_parse_io_with_encoding 'UTF-8'
+        end
+
+        def test_parse_io_lower_case_encoding
+          call_parse_io_with_encoding 'utf-8'
+        end
+
+        def call_parse_io_with_encoding encoding
           File.open(XML_FILE, 'rb') { |f|
-            @parser.parse_io(f, 'UTF-8')
+            @parser.parse_io(f, encoding)
           }
           assert(@parser.document.cdata_blocks.length > 0)
           if RUBY_VERSION =~ /^1\.9/
