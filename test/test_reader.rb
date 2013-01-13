@@ -342,12 +342,23 @@ class TestReader < Nokogiri::TestCase
   end
 
   def test_outer_xml
-    str = "<x><y>hello</y></x>"
-    reader = Nokogiri::XML::Reader.from_memory(str)
+    str = ["<x><y>hello</y></x>", "<y>hello</y>", "hello", "<y/>", "<x/>"]
+    reader = Nokogiri::XML::Reader.from_memory(str.first)
 
-    reader.read
+    xml = []
+    reader.map { |node| xml << node.outer_xml }
 
-    assert_equal str, reader.outer_xml
+    assert_equal str, xml
+  end
+
+  def test_outer_xml_with_empty_nodes
+    str = ["<x><y/></x>", "<y/>", "<x/>"]
+    reader = Nokogiri::XML::Reader.from_memory(str.first)
+
+    xml = []
+    reader.map { |node| xml << node.outer_xml }
+
+    assert_equal str, xml
   end
 
   def test_state
