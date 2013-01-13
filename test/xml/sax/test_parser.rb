@@ -197,6 +197,7 @@ module Nokogiri
           call_parse_io_with_encoding 'UTF-8'
         end
 
+        # issue #828
         def test_parse_io_lower_case_encoding
           call_parse_io_with_encoding 'utf-8'
         end
