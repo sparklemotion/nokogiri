@@ -109,6 +109,10 @@ module Nokogiri
       Nokogiri(*args, &block).slop!
     end
   end
+
+  ###
+  # Alias for libxml2.
+  EncodingHandler.alias('CP932', 'Windows-31J')
 end
 
 ###
