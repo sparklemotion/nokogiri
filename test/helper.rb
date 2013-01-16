@@ -26,6 +26,7 @@ module Nokogiri
     PO_SCHEMA_FILE      = File.join(ASSETS_DIR, 'po.xsd')
     PO_XML_FILE         = File.join(ASSETS_DIR, 'po.xml')
     SHIFT_JIS_HTML      = File.join(ASSETS_DIR, 'shift_jis.html')
+    SHIFT_JIS_NO_CHARSET= File.join(ASSETS_DIR, 'shift_jis_no_charset.html')
     SHIFT_JIS_XML       = File.join(ASSETS_DIR, 'shift_jis.xml')
     SNUGGLES_FILE       = File.join(ASSETS_DIR, 'snuggles.xml')
     XML_FILE            = File.join(ASSETS_DIR, 'staff.xml')
