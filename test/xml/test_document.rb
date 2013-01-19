@@ -26,6 +26,12 @@ module Nokogiri
         assert doc.root
       end
 
+      # issue #837
+      def test_document_with_refentity
+        doc = Nokogiri::XML '&amp;'
+        assert_equal '', doc.content
+      end
+
       def test_document_with_initial_space
         doc = Nokogiri::XML(" <?xml version='1.0' encoding='utf-8' ?><first \>")
         assert_equal 2, doc.children.size

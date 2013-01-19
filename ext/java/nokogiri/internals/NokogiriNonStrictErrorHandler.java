@@ -56,6 +56,15 @@ public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler{
     }
 
     public void fatalError(SAXParseException ex) throws SAXException {
+        // fix #837
+        // Xerces won't skip the reference entity (and other invalid) constructs
+        // found in the prolog, instead it will keep calling this method and we'll
+        // keep inserting the error in the document errors array until we run
+        // out of memory
+        String message = ex.getMessage();
+        if (message != null && message.toLowerCase().contains("in prolog")) {
+          throw ex;
+        }
         errors.add(ex);
     }
 
