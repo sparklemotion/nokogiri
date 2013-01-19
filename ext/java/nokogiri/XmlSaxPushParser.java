@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadFactory;
 
 import nokogiri.internals.ClosedStreamException;
 import nokogiri.internals.NokogiriBlockingQueueInputStream;
@@ -76,6 +77,11 @@ public class XmlSaxPushParser extends RubyObject {
 
     public XmlSaxPushParser(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
+    }
+
+    @Override
+    public void finalize() {
+      terminateTask(null);
     }
 
     @JRubyMethod
@@ -159,7 +165,15 @@ public class XmlSaxPushParser extends RubyObject {
 
             parserTask = new ParserTask(context, saxParser);
             futureTask = new FutureTask<XmlSaxParserContext>(parserTask);
-            executor = Executors.newSingleThreadExecutor();
+            executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+              @Override
+              public Thread newThread(Runnable r) {
+                Thread t = new Thread(r);
+                t.setName("XmlSaxPushParser");
+                t.setDaemon(true);
+                return t;
+              }
+            });
             executor.submit(futureTask);
         }
     }
@@ -171,7 +185,8 @@ public class XmlSaxPushParser extends RubyObject {
         } catch (ClosedStreamException ex) {
           // ignore this exception, it means the stream was closed
         } catch (Exception e) {
-            throw context.getRuntime().newRuntimeError(e.getMessage());
+            if (context != null)
+              throw context.getRuntime().newRuntimeError(e.getMessage());
         }
         futureTask.cancel(true);
         executor.shutdown();
