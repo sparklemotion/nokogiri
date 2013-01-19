@@ -38,6 +38,7 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -47,6 +48,8 @@ import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
+import nokogiri.internals.org.apache.xml.security.c14n.CanonicalizationException;
+import nokogiri.internals.org.apache.xml.security.c14n.Canonicalizer;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -558,7 +561,53 @@ public class XmlDocument extends XmlNode {
      */
     @JRubyMethod(optional=3)
     public IRubyObject canonicalize(ThreadContext context, IRubyObject[] args, Block block) {
-        XmlNode startingNode = getStartingNode(block);
+        Integer mode = 0;
+        String inclusive_namespace = null;
+        Boolean with_comments = false;
+        if (args.length > 0) {
+            mode = (Integer)args[0].toJava(Integer.class);
+        } else if (args.length > 1 && !(args[1].isNil())) {
+            if (args[1] instanceof List) {
+                inclusive_namespace = (String)((RubyArray)args[1]).get(0);
+            } else {
+                inclusive_namespace = (String)args[1].toJava(String.class);
+            }
+        } else if (args.length > 2) {
+            with_comments = (Boolean)args[2].toJava(Boolean.class);
+        }
+        String algorithmURI = null;
+        switch(mode) {
+        case 0:  // XML_C14N_1_0
+            if (with_comments) algorithmURI = Canonicalizer.ALGO_ID_C14N_WITH_COMMENTS;
+            else algorithmURI = Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS;
+        case 1:  // XML_C14N_EXCLUSIVE_1_0
+            if (with_comments) algorithmURI = Canonicalizer.ALGO_ID_C14N_EXCL_WITH_COMMENTS;
+            else algorithmURI = Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS;
+        case 2: // XML_C14N_1_1 = 2
+            if (with_comments) algorithmURI = Canonicalizer.ALGO_ID_C14N11_WITH_COMMENTS;
+            else algorithmURI = Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS;
+        }
+        try {
+            Canonicalizer canonicalizer = Canonicalizer.getInstance(algorithmURI);
+            XmlNode startingNode = getStartingNode(block);
+            byte[] result;
+            if (inclusive_namespace == null) {
+                result = canonicalizer.canonicalizeSubtree(startingNode.getNode());
+            } else {
+                result = canonicalizer.canonicalizeSubtree(startingNode.getNode(), inclusive_namespace);
+            }
+            String resultString = new String(result, "UTF-8");
+            return stringOrNil(context.getRuntime(), resultString);
+        } catch (CanonicalizationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return context.getRuntime().getNil();
+        
+        /*
         int canonicalOpts = 1;
         int mode = 0;
         if (args.length == 3) {
@@ -585,6 +634,7 @@ public class XmlDocument extends XmlNode {
             }
         }
         return result.isTrue() ? stringOrNil(runtime, visitor.toString()) : RubyString.newEmptyString(runtime);
+        */
     }
     
     private XmlNode getStartingNode(Block block) {
