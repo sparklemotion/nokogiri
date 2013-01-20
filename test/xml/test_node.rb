@@ -811,6 +811,16 @@ module Nokogiri
         assert_equal '12345678', node.content
       end
 
+      # issue #839
+      def test_encoding_of_copied_nodes
+        d1 = Nokogiri::XML('<r><a>&amp;</a></r>')
+        d2 = Nokogiri::XML('<r></r>')
+        ne = d1.root.xpath('//a').first.dup(1)
+        ne.content += "& < & > \" &"
+        d2.root << ne
+        assert_match d2.to_s, /<a>&amp;&amp; &lt; &amp; &gt; " &amp;<\/a>/
+      end
+
       def test_content_after_appending_text
         doc = Nokogiri::XML '<foo />'
         node = doc.children.first

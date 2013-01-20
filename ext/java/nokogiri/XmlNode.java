@@ -54,6 +54,7 @@ import nokogiri.internals.NokogiriNamespaceCache;
 import nokogiri.internals.SaveContextVisitor;
 import nokogiri.internals.XmlDomParserContext;
 
+import org.apache.xerces.dom.CoreDocumentImpl;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -1398,12 +1399,16 @@ public class XmlNode extends RubyObject {
         Node otherNode = other.node;
 
          try {
+            Document prev = otherNode.getOwnerDocument();
             Document doc = thisNode.getOwnerDocument();
             if (doc != null && doc != otherNode.getOwnerDocument()) {
                 Node ret = doc.adoptNode(otherNode);
+                // FIXME: this is really a hack, see documentation of fixUserData() for more details.
+                fixUserData(prev, ret);
                 if (ret == null) {
                     throw context.getRuntime().newRuntimeError("Failed to take ownership of node");
                 }
+                otherNode = ret;
             }
 
             Node parent = thisNode.getParentNode();
@@ -1439,6 +1444,20 @@ public class XmlNode extends RubyObject {
         // post_add_child(context, this, other);
 
         return nodeOrTags;
+    }
+
+    /**
+     * This is a hack to fix #839. We should submit a patch to Xerces.
+     * It looks like CoreDocumentImpl.adoptNode() doesn't copy
+     * the user data associated with child nodes (recursively).
+     */
+    private void fixUserData(Document previous, Node ret) {
+      String key = NokogiriHelpers.ENCODED_STRING;
+      for (Node child = ret.getFirstChild(); child != null; child = child.getNextSibling()) {
+        CoreDocumentImpl previousDocument = (CoreDocumentImpl) previous;
+        child.setUserData(key, previousDocument.getUserData(child, key), null);
+        fixUserData(previous, child);
+      }
     }
 
     protected Node[] adoptAsChild(ThreadContext context, Node parent,
