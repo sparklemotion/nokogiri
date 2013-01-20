@@ -16,6 +16,7 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   # should skip loading xml jars. This is because those are in WEB-INF/lib and 
   # already set in the classpath.
   unless $LOAD_PATH.to_s.include?("appengine-rack")
+    require 'stringio'
     require 'isorelax.jar'
     require 'jing.jar'
     require 'nekohtml.jar'
