@@ -435,11 +435,13 @@ public class SaveContextVisitor {
             return true;
         }
         // no child
-        if (asHtml || asXhtml) {
+        if (asHtml) {
             buffer.append(">");
         } else if (asXml && noEmpty) {
             buffer.append(">");
         } else {
+            if (asXhtml)
+              buffer.append(" "); // see http://www.w3.org/TR/xhtml1/#C_2
             buffer.append("/>");
         }
         if (needBreakInOpening(element)) {
