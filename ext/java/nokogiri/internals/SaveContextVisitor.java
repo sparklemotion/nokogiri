@@ -195,7 +195,7 @@ public class SaveContextVisitor {
             return enter((Entity)node);
         }
         if (node instanceof EntityReference) {
-            return enter(node);
+            return enter((EntityReference) node);
         }
         if (node instanceof Notation) {
             return enter((Notation)node);
@@ -239,7 +239,7 @@ public class SaveContextVisitor {
             return;
         }
         if (node instanceof EntityReference) {
-            leave(node);
+            leave((EntityReference) node);
             return;
         }
         if (node instanceof Notation) {
@@ -681,13 +681,11 @@ public class SaveContextVisitor {
         // no-op
     }
 
-    public boolean enterEntityReference(Text entityRef) {
-        String name = entityRef.getNodeName();
-        buffer.append("&" + name + ";");
+    public boolean enter(EntityReference entityRef) {
+        buffer.append("&" + entityRef.getNodeName() + ";");
         return true;
     }
-
-    public void leaveEntityReference(Text entityRef) {
+    public void leave(EntityReference entityRef) {
         // no-op
     }
 

@@ -26,7 +26,7 @@ EOF
         doc = Nokogiri::XML xml
         lf_node = Nokogiri::XML::EntityReference.new(doc, "#xa")
         doc.xpath('/item').first.add_child(lf_node)
-        assert_equal "#xa", doc.xpath('./item').first.child.name
+        assert_match doc.to_xml, /&#xa;/
       end
     end
 

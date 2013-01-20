@@ -38,6 +38,18 @@ module Nokogiri
         assert_equal '', doc.content
       end
 
+      # issue #835
+      def test_manually_adding_reference_entities
+        d = Nokogiri::XML::Document.new
+        root = Nokogiri::XML::Element.new('bar', d)
+        txt = Nokogiri::XML::Text.new('foo', d)
+        ent = Nokogiri::XML::EntityReference.new(d, '#8217')
+        root << txt
+        root << ent
+        d << root
+        assert_match d.to_html, /&#8217;/
+      end
+
       def test_document_with_initial_space
         doc = Nokogiri::XML(" <?xml version='1.0' encoding='utf-8' ?><first \>")
         assert_equal 2, doc.children.size
