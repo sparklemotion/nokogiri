@@ -33,7 +33,7 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import java.io.ByteArrayInputStream;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +53,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
