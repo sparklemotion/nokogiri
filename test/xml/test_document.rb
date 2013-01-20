@@ -26,6 +26,12 @@ module Nokogiri
         assert doc.root
       end
 
+      # issue #838
+      def test_document_with_invalid_prolog
+        doc = Nokogiri::XML '<? ?>'
+        assert_empty doc.content
+      end
+
       # issue #837
       def test_document_with_refentity
         doc = Nokogiri::XML '&amp;'

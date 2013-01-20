@@ -246,7 +246,12 @@ public class XmlDomParserContext extends ParserContext {
     }
 
     protected Document do_parse() throws SAXException, IOException {
-        parser.parse(getInputSource());
+        try {
+          parser.parse(getInputSource());
+        } catch (NullPointerException ex) {
+          // FIXME: this is really a hack to fix #838. Xerces will throw a NullPointerException
+          // if we tried to parse '<? ?>'. We should submit a patch to Xerces.
+        }
         if (options.noBlanks) {
             List<Node> emptyNodes = new ArrayList<Node>();
             findEmptyTexts(parser.getDocument(), emptyNodes);
