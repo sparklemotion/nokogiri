@@ -564,7 +564,7 @@ public class XmlDocument extends XmlNode {
         Integer mode = 0;
         String inclusive_namespace = null;
         Boolean with_comments = false;
-        if (args.length > 0) {
+        if (args.length > 0 && !(args[0].isNil())) {
             mode = (Integer)args[0].toJava(Integer.class);
         } else if (args.length > 1 && !(args[1].isNil())) {
             if (args[1] instanceof List) {
