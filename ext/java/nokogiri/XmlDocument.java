@@ -566,13 +566,12 @@ public class XmlDocument extends XmlNode {
         Boolean with_comments = false;
         if (args.length > 0 && !(args[0].isNil())) {
             mode = (Integer)args[0].toJava(Integer.class);
-        } else if (args.length > 1 && !(args[1].isNil())) {
-            if (args[1] instanceof List) {
-                inclusive_namespace = (String)((RubyArray)args[1]).get(0);
-            } else {
-                inclusive_namespace = (String)args[1].toJava(String.class);
-            }
-        } else if (args.length > 2) {
+        }
+        if (args.length > 1 && (args[1] instanceof List)) {
+            // TODO : if incl_ns has multiple namespaces, Java version can't handle it.
+            inclusive_namespace = (String)((RubyArray)args[1]).get(0);
+        }
+        if (args.length > 2) {
             with_comments = (Boolean)args[2].toJava(Boolean.class);
         }
         String algorithmURI = null;
@@ -580,9 +579,11 @@ public class XmlDocument extends XmlNode {
         case 0:  // XML_C14N_1_0
             if (with_comments) algorithmURI = Canonicalizer.ALGO_ID_C14N_WITH_COMMENTS;
             else algorithmURI = Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS;
+            break;
         case 1:  // XML_C14N_EXCLUSIVE_1_0
             if (with_comments) algorithmURI = Canonicalizer.ALGO_ID_C14N_EXCL_WITH_COMMENTS;
             else algorithmURI = Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS;
+            break;
         case 2: // XML_C14N_1_1 = 2
             if (with_comments) algorithmURI = Canonicalizer.ALGO_ID_C14N11_WITH_COMMENTS;
             else algorithmURI = Canonicalizer.ALGO_ID_C14N11_OMIT_COMMENTS;
