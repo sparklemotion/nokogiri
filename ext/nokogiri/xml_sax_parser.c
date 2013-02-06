@@ -239,14 +239,17 @@ static void cdata_block(void * ctx, const xmlChar * value, int len)
 
 static void processing_instruction(void * ctx, const xmlChar * name, const xmlChar * content)
 {
+  VALUE rb_content;
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
+
+  rb_content = content ? NOKOGIRI_STR_NEW2(content) : Qnil;
 
   rb_funcall( doc,
               id_processing_instruction,
               2,
               NOKOGIRI_STR_NEW2(name),
-              NOKOGIRI_STR_NEW2(content)
+              rb_content
   );
 }
 

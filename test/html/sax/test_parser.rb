@@ -132,6 +132,10 @@ module Nokogiri
               ]]
           ], @parser.document.start_elements
         end
+
+        def test_empty_processing_instruction
+          @parser.parse_memory("<strong>this will segfault<?strong>")
+        end
       end
     end
   end
