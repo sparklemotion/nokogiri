@@ -45,7 +45,7 @@ module Nokogiri
         assert_equal 'ns:dairy', check_namespace(@doc.root.elements[2].elements[0])
       end
       def test_nondefault_attr_ns
-        assert_equal 'http://www.w3.org/1999/xlink', check_namespace(@doc.root.elements[2].elements[0].attribute_nodes[0])
+        assert_equal 'http://www.w3.org/1999/xlink', check_namespace(@doc.root.elements[2].elements[0].attribute_nodes.last)
       end
       def test_single_decl_ns_2
         assert_equal 'ns:meat',  check_namespace(@doc.root.elements[3])
