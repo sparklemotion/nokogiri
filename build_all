@@ -31,7 +31,7 @@
 #      end
 #
 #  - you may also have to hack rubygems.rb to eliminate a reference to
-#    RUBY_ENGINE
+#    RUBY_ENGINE (just comment it out)
 #
 
 HOST=
@@ -71,11 +71,16 @@ if [[ $platform =~ "64" ]] ; then
     exit 1
 fi
 rvm_use 1.8.7
-if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.8.7-p330/lib/ruby/1.8.7/x86_64-linux/rbconfig.rb ]] ; then
-    bundle exec rake-compiler cross-ruby VERSION=1.8.7-p330
+if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.8.7-p358/lib/ruby/1.8.7/x86_64-linux/rbconfig.rb ]] ; then
+
+    # if this fails around the purelib.rb thing, try varying the ruby
+    # used to run this script, and whether the HOST env var is set
+    # below.
+
+    bundle exec rake-compiler cross-ruby VERSION=1.8.7-p358 # HOST=i386-mingw32
 fi
-if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.9.2-p136/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
-    bundle exec rake-compiler cross-ruby VERSION=1.9.2-p136
+if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.9.3-p194/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
+    bundle exec rake-compiler cross-ruby VERSION=1.9.3-p194
 fi
 bundle exec rake cross
 bundle exec rake gem:windows
