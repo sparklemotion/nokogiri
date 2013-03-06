@@ -78,7 +78,9 @@ else
       recipe.activate
     end
 
-    libxml2_recipe = MiniPortile.new("libxml2",  "2.7.8").tap do |recipe|
+    dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
+
+    libxml2_recipe = MiniPortile.new("libxml2", dependencies["libxml2"]).tap do |recipe|
       recipe.configure_options = [
         "--enable-shared",
         "--disable-static",
@@ -90,7 +92,7 @@ else
       common_recipe.call recipe
     end
 
-    libxslt_recipe = MiniPortile.new("libxslt", "1.1.26").tap do |recipe|
+    libxslt_recipe = MiniPortile.new("libxslt", dependencies["libxslt"]).tap do |recipe|
       recipe.configure_options = [
         "--enable-shared",
         "--disable-static",
