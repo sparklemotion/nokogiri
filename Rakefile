@@ -67,6 +67,19 @@ end
 
 # ----------------------------------------
 
+def add_file_to_gem relative_path
+  target_path = File.join gem_build_path, relative_path
+  target_dir = File.dirname(target_path)
+  mkdir_p target_dir unless File.directory?(target_dir)
+  rm_f target_path
+  ln relative_path, target_path
+  HOE.spec.files += [relative_path]
+end
+
+def gem_build_path
+  File.join 'pkg', HOE.spec.full_name
+end
+
 if java?
   # TODO: clean this section up.
   require "rake/javaextensiontask"
@@ -78,11 +91,8 @@ if java?
     ext.classpath = jars.map { |x| File.expand_path x }.join ':'
   end
 
-  gem_build_path = File.join 'pkg', HOE.spec.full_name
-
   task gem_build_path => [:compile] do
-    cp 'lib/nokogiri/nokogiri.jar', File.join(gem_build_path, 'lib', 'nokogiri')
-    HOE.spec.files += ['lib/nokogiri/nokogiri.jar']
+    add_file_to_gem 'lib/nokogiri/nokogiri.jar'
   end
 else
   mingw_available = true
