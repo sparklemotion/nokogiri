@@ -115,6 +115,19 @@ else
 
   HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
 
+  if ENV['BUILD_LIBXML2']
+    task gem_build_path do
+      add_file_to_gem "dependencies.yml"
+
+      dependencies = YAML.load_file("dependencies.yml")
+      %w[libxml2 libxslt].each do |lib|
+        version = dependencies[lib]
+        archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
+        add_file_to_gem archive
+      end
+    end
+  end
+
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
