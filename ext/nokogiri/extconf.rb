@@ -49,46 +49,107 @@ if RbConfig::CONFIG['target_os'] =~ /mswin/
 else
   lib_prefix = ''
 
-  HEADER_DIRS = [
-    # First search /opt/local for macports
-    '/opt/local/include',
+  if ENV['BUILD_LIBXML2']
+    require 'mini_portile'
+    require 'yaml'
 
-    # Then search /usr/local for people that installed from source
-    '/usr/local/include',
+    common_recipe = lambda do |recipe|
+      recipe.target = File.join(ROOT, "ports")
+      recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
 
-    # Check the ruby install locations
-    INCLUDEDIR,
+      class << recipe
+        def download
+          #  this should *never* get run at gem installation time.
+          puts "#{__FILE__}:#{__LINE__}: WARNING: downloading files should never happen at gem installation time."
+          FileUtils.mkdir_p archives_path unless File.directory? archives_path
+          Dir.chdir archives_path do
+            @files.each do |url|
+              system "wget #{url} || curl -O #{url}"
+            end
+          end
+        end
+      end
 
-    # Finally fall back to /usr
-    '/usr/include',
-    '/usr/include/libxml2',
-  ]
+      checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+      unless File.exist?(checkpoint)
+        recipe.cook
+        FileUtils.touch checkpoint
+      end
+      recipe.activate
+    end
 
-  LIB_DIRS = [
-    # First search /opt/local for macports
-    '/opt/local/lib',
+    libxml2_recipe = MiniPortile.new("libxml2",  "2.7.8").tap do |recipe|
+      recipe.configure_options = [
+        "--enable-shared",
+        "--disable-static",
+        "--without-python",
+        "--without-readline",
+        "--with-c14n",
+        "--with-debug"
+      ]
+      common_recipe.call recipe
+    end
 
-    # Then search /usr/local for people that installed from source
-    '/usr/local/lib',
+    libxslt_recipe = MiniPortile.new("libxslt", "1.1.26").tap do |recipe|
+      recipe.configure_options = [
+        "--enable-shared",
+        "--disable-static",
+        "--without-python",
+        "--without-crypto",
+        "--with-debug",
+        "--with-libxml-prefix=#{libxml2_recipe.path}"
+      ]
+      common_recipe.call recipe
+    end
 
-    # Check the ruby install locations
-    LIBDIR,
+    $LDFLAGS << " -Wl,-rpath,#{libxml2_recipe.path}/lib"
+    $LDFLAGS << " -Wl,-rpath,#{libxslt_recipe.path}/lib"
 
-    # Finally fall back to /usr
-    '/usr/lib',
-  ]
+    HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "include") }
+    LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "lib") }
+    XML2_HEADER_DIRS = HEADER_DIRS + [File.join(libxml2_recipe.path, "include", "libxml2")]
+  else
+    HEADER_DIRS = [
+      # First search /opt/local for macports
+      '/opt/local/include',
 
-  XML2_HEADER_DIRS = [
-    '/opt/local/include/libxml2',
-    '/usr/local/include/libxml2',
-    File.join(INCLUDEDIR, "libxml2")
-  ] + HEADER_DIRS
+      # Then search /usr/local for people that installed from source
+      '/usr/local/include',
 
-  # If the user has homebrew installed, use the libxml2 inside homebrew
-  brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
-  unless brew_prefix.empty?
-    LIB_DIRS.unshift File.join(brew_prefix, 'lib')
-    XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+      # Check the ruby install locations
+      INCLUDEDIR,
+
+      # Finally fall back to /usr
+      '/usr/include',
+      '/usr/include/libxml2',
+    ]
+
+    LIB_DIRS = [
+      # First search /opt/local for macports
+      '/opt/local/lib',
+
+      # Then search /usr/local for people that installed from source
+      '/usr/local/lib',
+
+      # Check the ruby install locations
+      LIBDIR,
+
+      # Finally fall back to /usr
+      '/usr/lib',
+    ]
+
+    XML2_HEADER_DIRS = [
+      '/opt/local/include/libxml2',
+      '/usr/local/include/libxml2',
+      File.join(INCLUDEDIR, "libxml2")
+    ] + HEADER_DIRS
+
+    # If the user has homebrew installed, use the libxml2 inside homebrew
+    brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
+    unless brew_prefix.empty?
+      LIB_DIRS.unshift File.join(brew_prefix, 'lib')
+      XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+    end
   end
 end
 
