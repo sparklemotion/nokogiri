@@ -48,7 +48,7 @@ namespace :cross do
       end
     end
 
-    checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}.installed"
+    checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
       recipe.cook
       touch checkpoint
@@ -69,7 +69,7 @@ namespace :cross do
       "LDFLAGS=-mno-cygwin"
     ]
 
-    checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}.installed"
+    checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
       recipe.cook
       touch checkpoint
@@ -100,7 +100,7 @@ namespace :cross do
       end
     end
 
-    checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}.installed"
+    checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
       recipe.cook
       touch checkpoint
@@ -130,7 +130,7 @@ namespace :cross do
       end
     end
 
-    checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}.installed"
+    checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
       recipe.cook
       touch checkpoint
