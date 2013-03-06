@@ -102,10 +102,10 @@ else
     if mingw_available
       ext.cross_compile  = true
       ext.cross_platform = ["x86-mswin32-60", "x86-mingw32"]
-      ext.cross_config_options << "--with-xml2-include=#{File.join($recipes[:libxml2].path, 'include', 'libxml2')}"
-      ext.cross_config_options << "--with-xml2-lib=#{File.join($recipes[:libxml2].path, 'lib')}"
-      ext.cross_config_options << "--with-iconv-dir=#{$recipes[:libiconv].path}"
-      ext.cross_config_options << "--with-xslt-dir=#{$recipes[:libxslt].path}"
+      ext.cross_config_options << "--with-xml2-include=#{File.join($recipes["libxml2"].path, 'include', 'libxml2')}"
+      ext.cross_config_options << "--with-xml2-lib=#{File.join($recipes["libxml2"].path, 'lib')}"
+      ext.cross_config_options << "--with-iconv-dir=#{$recipes["libiconv"].path}"
+      ext.cross_config_options << "--with-xslt-dir=#{$recipes["libxslt"].path}"
       ext.cross_config_options << "--with-zlib-dir=#{CROSS_DIR}"
     end
   end
@@ -208,7 +208,7 @@ task "gem:windows" => "gem" do
   rbconfig_19 = rake_compiler_config["rbconfig-1.9.2"]
   raise "rbconfig #{rbconfig_19} needs --export-all in its DLDFLAGS value" if File.read(rbconfig_19).split("\n").grep(/CONFIG\["DLDFLAGS"\].*--export-all/).empty?
 
-  pkg_config_path = [:libxslt, :libxml2].collect { |pkg| File.join($recipes[pkg].path, "lib/pkgconfig") }.join(":")
+  pkg_config_path = %w[libxslt libxml2].collect { |pkg| File.join($recipes[pkg].path, "lib/pkgconfig") }.join(":")
   sh("env PKG_CONFIG_PATH=#{pkg_config_path} RUBY_CC_VERSION=#{ruby_cc_version} rake cross native gem") || raise("build failed!")
 end
 
