@@ -89,6 +89,7 @@ else
   begin
     require 'tasks/cross_compile'
   rescue
+    puts "WARNING: cross compilation not available: #{$!}"
     mingw_available = false
   end
   require "rake/extensiontask"
