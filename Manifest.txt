@@ -66,6 +66,7 @@ ext/java/nokogiri/internals/ParserContext.java
 ext/java/nokogiri/internals/ReaderNode.java
 ext/java/nokogiri/internals/SaveContextVisitor.java
 ext/java/nokogiri/internals/SchemaErrorHandler.java
+ext/java/nokogiri/internals/UncloseableInputStream.java
 ext/java/nokogiri/internals/XmlDeclHandler.java
 ext/java/nokogiri/internals/XmlDomParserContext.java
 ext/java/nokogiri/internals/XmlSaxParser.java
