@@ -58,11 +58,11 @@ public class NokogiriService implements BasicLibraryService {
 
     public boolean basicLoad(Ruby ruby) {
         init(ruby);
-        createNokogiriClassCahce(ruby);
+        createNokogiriClassCache(ruby);
         return true;
     }
     
-    private static void createNokogiriClassCahce(Ruby ruby) {
+    private static void createNokogiriClassCache(Ruby ruby) {
         nokogiriClassCache = Collections.synchronizedMap(new HashMap<String, RubyClass>());
         nokogiriClassCache.put("Nokogiri::EncodingHandler", (RubyClass)ruby.getClassFromPath("Nokogiri::EncodingHandler"));
         nokogiriClassCache.put("Nokogiri::HTML::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::Document"));
