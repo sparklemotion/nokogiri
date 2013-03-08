@@ -651,6 +651,18 @@ module Nokogiri
         assert_equal "<!-- < -->", comment.to_xml
       end
 
+      def test_find_by_css_class_with_nonstandard_whitespace
+        doc = Nokogiri::HTML '
+<html>
+  <body>
+    <div class="a 
+b"></div>
+  </body>
+</html>
+'
+        assert_not_nil doc.at_css(".b")
+      end
+
       def test_find_by_css_with_tilde_eql
         xml = Nokogiri::XML.parse(<<-eoxml)
         <root>
@@ -905,7 +917,7 @@ module Nokogiri
         </root>
         eoxml
 
-        tires = xml.css('bike|tire', 'bike' => 'http://schwinn.com/')
+        tires = xml.css('bike|tire', 'bike' => 'http://schwinn.com/' )
         assert_equal 1, tires.length
       end
 

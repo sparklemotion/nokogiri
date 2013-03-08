@@ -120,7 +120,7 @@ module Nokogiri
       end
 
       def visit_class_condition node
-        "contains(concat(' ', @class, ' '), ' #{node.value.first} ')"
+        "contains(concat(' ', normalize-space(@class), ' '), ' #{node.value.first} ')"
       end
 
       {

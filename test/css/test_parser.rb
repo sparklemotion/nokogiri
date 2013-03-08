@@ -263,33 +263,33 @@ module Nokogiri
         assert_xpath "//a[visited(.)]", @parser.parse('a:visited')
         assert_xpath "//a[hover(.)]", @parser.parse('a:hover')
         assert_xpath "//a[active(.)]", @parser.parse('a:active')
-        assert_xpath  "//a[active(.) and contains(concat(' ', @class, ' '), ' foo ')]",
+        assert_xpath  "//a[active(.) and contains(concat(' ', normalize-space(@class), ' '), ' foo ')]",
                       @parser.parse('a:active.foo')
       end
 
       def test_star
         assert_xpath "//*", @parser.parse('*')
-        assert_xpath "//*[contains(concat(' ', @class, ' '), ' pastoral ')]",
+        assert_xpath "//*[contains(concat(' ', normalize-space(@class), ' '), ' pastoral ')]",
                       @parser.parse('*.pastoral')
       end
 
       def test_class
-        assert_xpath  "//*[contains(concat(' ', @class, ' '), ' a ') and contains(concat(' ', @class, ' '), ' b ')]",
+        assert_xpath  "//*[contains(concat(' ', normalize-space(@class), ' '), ' a ') and contains(concat(' ', normalize-space(@class), ' '), ' b ')]",
                       @parser.parse('.a.b')
-        assert_xpath  "//*[contains(concat(' ', @class, ' '), ' awesome ')]",
+        assert_xpath  "//*[contains(concat(' ', normalize-space(@class), ' '), ' awesome ')]",
                       @parser.parse('.awesome')
-        assert_xpath  "//foo[contains(concat(' ', @class, ' '), ' awesome ')]",
+        assert_xpath  "//foo[contains(concat(' ', normalize-space(@class), ' '), ' awesome ')]",
                       @parser.parse('foo.awesome')
-        assert_xpath  "//foo//*[contains(concat(' ', @class, ' '), ' awesome ')]",
+        assert_xpath  "//foo//*[contains(concat(' ', normalize-space(@class), ' '), ' awesome ')]",
                       @parser.parse('foo .awesome')
       end
 
       def test_not_so_simple_not
-        assert_xpath "//*[@id = 'p' and not(contains(concat(' ', @class, ' '), ' a '))]",
+        assert_xpath "//*[@id = 'p' and not(contains(concat(' ', normalize-space(@class), ' '), ' a '))]",
                      @parser.parse('#p:not(.a)')
-        assert_xpath "//p[contains(concat(' ', @class, ' '), ' a ') and not(contains(concat(' ', @class, ' '), ' b '))]",
+        assert_xpath "//p[contains(concat(' ', normalize-space(@class), ' '), ' a ') and not(contains(concat(' ', normalize-space(@class), ' '), ' b '))]",
                      @parser.parse('p.a:not(.b)')
-        assert_xpath "//p[@a = 'foo' and not(contains(concat(' ', @class, ' '), ' b '))]",
+        assert_xpath "//p[@a = 'foo' and not(contains(concat(' ', normalize-space(@class), ' '), ' b '))]",
                      @parser.parse("p[a='foo']:not(.b)")
       end
 
