@@ -90,15 +90,6 @@ namespace :cross do
       "--without-readline",
       "CFLAGS='-DIN_LIBXML'"
     ]
-    class << recipe
-      def download
-        Dir.chdir archives_path do
-          @files.each do |url|
-            sh "wget #{url} || curl -O #{url}"
-          end
-        end
-      end
-    end
 
     checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
@@ -120,15 +111,6 @@ namespace :cross do
       "--without-crypto",
       "CFLAGS='-DIN_LIBXML'"
     ]
-    class << recipe
-      def download
-        Dir.chdir archives_path do
-          @files.each do |url|
-            sh "wget #{url} || curl -O #{url}"
-          end
-        end
-      end
-    end
 
     checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
