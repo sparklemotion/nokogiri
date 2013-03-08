@@ -57,19 +57,6 @@ else
       recipe.target = File.join(ROOT, "ports")
       recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
 
-      class << recipe
-        def download
-          #  this should *never* get run at gem installation time.
-          puts "#{__FILE__}:#{__LINE__}: WARNING: downloading files should never happen at gem installation time."
-          FileUtils.mkdir_p archives_path unless File.directory? archives_path
-          Dir.chdir archives_path do
-            @files.each do |url|
-              system "wget #{url} || curl -O #{url}"
-            end
-          end
-        end
-      end
-
       checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
       unless File.exist?(checkpoint)
         recipe.cook

@@ -54,11 +54,11 @@ HOE = Hoe.spec 'nokogiri' do
 
   if ENV['BUILD_LIBXML2']
     self.extra_deps += [
-      ["mini_portile",    "~> 0.3.0"],
+      ["mini_portile",    "~> 0.5.0"],
     ]
   else
     self.extra_dev_deps += [
-      ["mini_portile",    "~> 0.3.0"],
+      ["mini_portile",    "~> 0.5.0"],
     ]
   end
 
