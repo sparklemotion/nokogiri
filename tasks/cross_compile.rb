@@ -140,7 +140,7 @@ namespace :cross do
 
   task :file_list do
     HOE.spec.files += Dir["lib/nokogiri/nokogiri.rb"]
-    HOE.spec.files += Dir["lib/nokogiri/1.{8,9}/nokogiri.so"]
+    HOE.spec.files += Dir["lib/nokogiri/{1.8,1.9,2.0}/nokogiri.so"]
   end
 end
 
