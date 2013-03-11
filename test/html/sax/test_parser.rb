@@ -17,8 +17,7 @@ module Nokogiri
 
         def test_parse_empty_file
           # Make sure empty files don't break stuff
-          empty_file_name =  File.join(Dir.tmpdir, 'bogus.xml')
-          FileUtils.touch empty_file_name
+          empty_file_name =  File.join(ASSETS_DIR, 'bogus.xml')
           # assert_nothing_raised do
             @parser.parse_file empty_file_name
           # end
