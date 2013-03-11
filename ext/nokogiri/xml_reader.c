@@ -25,9 +25,6 @@ static int has_attributes(xmlTextReaderPtr reader)
   return(0);
 }
 
-#define XMLNS_PREFIX "xmlns"
-#define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
-#define XMLNS_BUFFER_LEN 128
 static void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 {
   xmlNsPtr ns;

@@ -157,4 +157,8 @@ void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
 # endif
 #endif
 
+#define XMLNS_PREFIX "xmlns"
+#define XMLNS_PREFIX_LEN 6 /* including either colon or \0 */
+#define XMLNS_BUFFER_LEN 128
+
 #endif

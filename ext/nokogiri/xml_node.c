@@ -27,20 +27,21 @@ static void relink_namespace(xmlNodePtr reparented)
   xmlNodePtr child;
   xmlNsPtr ns;
 
-  /* Also, don't bother relinking anything but elements and attributes */
-  if(reparented->type > 2) return;
+  if (reparented->type != XML_ATTRIBUTE_NODE &&
+      reparented->type != XML_ELEMENT_NODE) return;
 
-  if(reparented->ns == NULL || reparented->ns->prefix == NULL) {
+  if (reparented->ns == NULL || reparented->ns->prefix == NULL) {
     name = xmlSplitQName2(reparented->name, &prefix);
 
-    if(reparented->type == 2) {
-      if (prefix == NULL || strcmp(prefix,"xmlns") == 0) return;
+    if(reparented->type == XML_ATTRIBUTE_NODE) {
+      if (prefix == NULL || strcmp((char*)prefix, XMLNS_PREFIX) == 0) return;
     }
 
     ns = xmlSearchNs(reparented->doc, reparented, prefix);
 
-    if (ns == NULL && reparented->parent)
+    if (ns == NULL && reparented->parent) {
       ns = xmlSearchNs(reparented->doc, reparented->parent, prefix);
+    }
 
     if (ns != NULL) {
       xmlNodeSetName(reparented, name);
@@ -49,7 +50,7 @@ static void relink_namespace(xmlNodePtr reparented)
   }
 
   /* Avoid segv when relinking against unlinked nodes. */
-  if(reparented->type > 1 || !reparented->parent) return;
+  if (reparented->type != XML_ELEMENT_NODE || !reparented->parent) return;
 
   /* Make sure that our reparented node has the correct namespaces */
   if(!reparented->ns && reparented->doc != (xmlDocPtr)reparented->parent)
@@ -94,7 +95,7 @@ static void relink_namespace(xmlNodePtr reparented)
     child = child->next;
   }
 
-  if (reparented->type == 1) {
+  if (reparented->type == XML_ELEMENT_NODE) {
     child = (xmlNodePtr)((xmlElementPtr)reparented)->attributes;
     while(NULL != child) {
       relink_namespace(child);
