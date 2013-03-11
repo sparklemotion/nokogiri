@@ -11,6 +11,7 @@
   * (JRuby) Adding an EntityReference after a Text node mangles the entity in JRuby. #835
   * (JRuby) JRuby version inconsistency: nil for empty attributes. #818
   * CSS queries for classes (e.g., ".foo") now treat all whitespace identically. #854
+  * (MRI) Fixed a memory leak in fragment parsing if nodes are not all subsequently reparented. #856
 
 
 == 1.5.6 / 2012-12-19
