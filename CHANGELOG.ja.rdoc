@@ -3,6 +3,7 @@
 === 1.5.7 / unreleased
 
 * Bugfixes
+
   * SAX::Parser.parse_io throw an error when used with lower case encoding. #828
   * (JRuby) Java Nokogiri is finally green (passes all tests) under 1.8 and 1.9 mode. High five everyone. #798, #705
   * (JRuby) Nokogiri::XML::Reader broken (as a pull parser) on jruby - reads the whole XML document. #831
@@ -32,6 +33,7 @@
 
 
 * Bugfixes
+
   * Nokogiri はこのバージョンからXSLT変換のエラーを検出するようになった。#731 (ありがとう、Justin Fitzsimmons!)
   * Don't throw an Error when trying to replace top-level text node in DocumentFragment. #775
   * SAXパーザに不正なエンコーディングに渡された場合はArgumentErrorを投げるようにした。#756 (ありがとう、Bradley Schaefer!)
