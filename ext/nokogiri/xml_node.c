@@ -23,10 +23,33 @@ typedef xmlNodePtr (*pivot_reparentee_func)(xmlNodePtr, xmlNodePtr);
 /* :nodoc: */
 static void relink_namespace(xmlNodePtr reparented)
 {
+  xmlChar *name, *prefix;
   xmlNodePtr child;
+  xmlNsPtr ns;
+
+  /* Also, don't bother relinking anything but elements and attributes */
+  if(reparented->type > 2) return;
+
+  if(reparented->ns == NULL || reparented->ns->prefix == NULL) {
+    name = xmlSplitQName2(reparented->name, &prefix);
+
+    if(reparented->type == 2) {
+      if (prefix == NULL || strcmp(prefix,"xmlns") == 0) return;
+    }
+
+    ns = xmlSearchNs(reparented->doc, reparented, prefix);
+
+    if (ns == NULL && reparented->parent)
+      ns = xmlSearchNs(reparented->doc, reparented->parent, prefix);
+
+    if (ns != NULL) {
+      xmlNodeSetName(reparented, name);
+      xmlSetNs(reparented, ns);
+    }
+  }
 
   /* Avoid segv when relinking against unlinked nodes. */
-  if(!reparented->parent) return;
+  if(reparented->type > 1 || !reparented->parent) return;
 
   /* Make sure that our reparented node has the correct namespaces */
   if(!reparented->ns && reparented->doc != (xmlDocPtr)reparented->parent)
@@ -69,6 +92,14 @@ static void relink_namespace(xmlNodePtr reparented)
   while(NULL != child) {
     relink_namespace(child);
     child = child->next;
+  }
+
+  if (reparented->type == 1) {
+    child = (xmlNodePtr)((xmlElementPtr)reparented)->attributes;
+    while(NULL != child) {
+      relink_namespace(child);
+      child = child->next;
+    }
   }
 }
 

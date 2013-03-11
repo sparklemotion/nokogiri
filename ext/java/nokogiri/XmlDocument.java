@@ -179,11 +179,11 @@ public class XmlDocument extends XmlNode {
         if (node == null) return;
         String nodePrefix = node.getPrefix();
         if (nodePrefix == null) { // default namespace
-            node.getOwnerDocument().renameNode(node, default_href, node.getNodeName());
+            NokogiriHelpers.renameNode(node, default_href, node.getNodeName());
         } else {
             XmlNamespace xmlNamespace = nsCache.get(nodePrefix);
             String href = rubyStringToString(xmlNamespace.href(context));
-            node.getOwnerDocument().renameNode(node, href, node.getNodeName());
+            NokogiriHelpers.renameNode(node, href, node.getNodeName());
         }
         resolveNamespaceIfNecessary(context, node.getNextSibling(), default_href);
         NodeList children = node.getChildNodes();
@@ -358,7 +358,7 @@ public class XmlDocument extends XmlNode {
         Node node = xmlNode.node;
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             node.setPrefix(null);
-            node.getOwnerDocument().renameNode(node, null, node.getLocalName());
+            NokogiriHelpers.renameNode(node, null, node.getLocalName());
             NamedNodeMap attrs = node.getAttributes();
             for (int i=0; i<attrs.getLength(); i++) {
                 Attr attr = (Attr) attrs.item(i);
@@ -366,7 +366,7 @@ public class XmlDocument extends XmlNode {
                     ((org.w3c.dom.Element)node).removeAttributeNode(attr);
                 } else {
                     attr.setPrefix(null);
-                    attr.getOwnerDocument().renameNode(attr, null, attr.getLocalName());
+                    NokogiriHelpers.renameNode(attr, null, attr.getLocalName());
                 }
             }
         }

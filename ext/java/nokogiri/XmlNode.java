@@ -328,12 +328,15 @@ public class XmlNode extends RubyObject {
 
         Element element = null;
         String node_name = rubyStringToString(name);
-        try {
-          element = document.createElementNS(null, node_name);
-        } catch (org.w3c.dom.DOMException e) {
-            // issue#683 NAMESPACE_ERR is thrown from RDF::RDFXML::Writer.new
-            // retry without namespace
+        String prefix = NokogiriHelpers.getPrefix(node_name);
+        if (prefix == null) {
             element = document.createElement(node_name);
+        } else {
+            String namespace_uri = null;
+            if (document.getDocumentElement() != null) {
+                namespace_uri = document.getDocumentElement().lookupNamespaceURI(prefix);
+            }
+            element = document.createElementNS(namespace_uri, node_name);
         }
         setNode(context, element);
     }
@@ -451,8 +454,16 @@ public class XmlNode extends RubyObject {
     public void relink_namespace(ThreadContext context) {
         if (node instanceof Element) {
             Element e = (Element) node;
+            String prefix = e.getPrefix();
+            String currentNS = e.getNamespaceURI();
+            if (prefix == null && currentNS == null) {
+                prefix = NokogiriHelpers.getPrefix(e.getNodeName());
+            } else if (currentNS != null) {
+                prefix = e.lookupPrefix(currentNS);
+            }
             e.getOwnerDocument().setStrictErrorChecking(false);
-            e.getOwnerDocument().renameNode(e, e.lookupNamespaceURI(e.getPrefix()), e.getNodeName());
+            String nsURI = e.lookupNamespaceURI(prefix);
+            this.node = NokogiriHelpers.renameNode(e, nsURI, e.getNodeName());
 
             if (e.hasAttributes()) {
                 NamedNodeMap attrs = e.getAttributes();
@@ -460,24 +471,28 @@ public class XmlNode extends RubyObject {
                 for (int i = 0; i < attrs.getLength(); i++) {
                     Attr attr = (Attr) attrs.item(i);
                     String nsUri = "";
-                    String prefix = attr.getPrefix();
+                    String attrPrefix = attr.getPrefix();
+                    if (attrPrefix == null) {
+                        attrPrefix = NokogiriHelpers.getPrefix(attr.getNodeName());
+                    }
                     String nodeName = attr.getNodeName();
                     if ("xml".equals(prefix)) {
                         nsUri = "http://www.w3.org/XML/1998/namespace";
-                    } else if ("xmlns".equals(prefix) || nodeName.equals("xmlns")) {
+                    } else if ("xmlns".equals(attrPrefix) || nodeName.equals("xmlns")) {
                         nsUri = "http://www.w3.org/2000/xmlns/";
                     } else {
-                        nsUri = attr.getNamespaceURI();
+                        nsUri = attr.lookupNamespaceURI(attrPrefix);
                     }
                     if (!(nsUri == null || "".equals(nsUri))) {
                         XmlNamespace.createFromAttr(context.getRuntime(), attr);
                     }
-                    e.getOwnerDocument().renameNode(attr, nsUri, nodeName);
+                    NokogiriHelpers.renameNode(attr, nsUri, nodeName);
                 }
             }
 
-            if (e.hasChildNodes()) {
-                ((XmlNodeSet) children(context)).relink_namespace(context);
+            if (this.node.hasChildNodes()) {
+                XmlNodeSet nodeSet = (XmlNodeSet)(children(context));
+                nodeSet.relink_namespace(context);
             }
         }
     }
@@ -536,7 +551,7 @@ public class XmlNode extends RubyObject {
                 && oldPrefix.equals(rubyStringToString(ns.prefix(context))));
 
         if(update) {
-            this.node.getOwnerDocument().renameNode(this.node, uri, this.node.getNodeName());
+            this.node = NokogiriHelpers.renameNode(this.node, uri, this.node.getNodeName());
         }
     }
 
@@ -576,7 +591,7 @@ public class XmlNode extends RubyObject {
         else namespaceOwner = node.getParentNode();
         XmlNamespace ns = XmlNamespace.createFromPrefixAndHref(namespaceOwner, prefix, href);
         if (node != namespaceOwner) {
-            node.getOwnerDocument().renameNode(node, ns.getHref(), ns.getPrefix() + node.getLocalName());
+            this.node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + node.getLocalName());
         }
         
         updateNodeNamespaceIfNecessary(context, ns);
@@ -1172,7 +1187,7 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(name = {"node_name=", "name="})
     public IRubyObject node_name_set(ThreadContext context, IRubyObject nodeName) {
         String newName = rubyStringToString(nodeName);
-        getOwnerDocument().renameNode(node, null, newName);
+        this.node = NokogiriHelpers.renameNode(node, null, newName);
         setName(nodeName);
         return this;
     }
@@ -1190,6 +1205,8 @@ public class XmlNode extends RubyObject {
               String uri = null;
               if (prefix.equals("xml")) {
                 uri = "http://www.w3.org/XML/1998/namespace";
+              } else if (prefix.equals("xmlns")) {
+                uri = "http://www.w3.org/2000/xmlns/";
               } else {
                 uri = findNamespaceHref(context, prefix);
               }
@@ -1214,7 +1231,11 @@ public class XmlNode extends RubyObject {
             return namespace.getHref();
           }
         }
-        currentNode = (XmlNode) currentNode.parent(context);
+        if (currentNode.parent(context).isNil()) {
+            break;
+        } else {
+            currentNode = (XmlNode) currentNode.parent(context);
+        }
       }
       return null;
     }
@@ -1261,7 +1282,7 @@ public class XmlNode extends RubyObject {
                 String prefix = n.getPrefix();
                 String href = n.getNamespaceURI();
                 ((XmlDocument)doc).getNamespaceCache().remove(prefix == null ? "" : prefix, href);
-                n.getOwnerDocument().renameNode(n, null, n.getNodeName());
+                this.node = NokogiriHelpers.renameNode(n, null, NokogiriHelpers.getLocalPart(n.getNodeName()));
             }
         } else {
             XmlNamespace ns = (XmlNamespace) namespace;
@@ -1270,7 +1291,14 @@ public class XmlNode extends RubyObject {
 
             // Assigning node = ...renameNode() or not seems to make no
             // difference.  Why not? -pmahoney
-            node = node.getOwnerDocument().renameNode(node, href, NokogiriHelpers.newQName(prefix, node));
+
+            // It actually makes a great deal of difference. renameNode()
+            // will operate in place if it can, but sometimes it can't.
+            // The node you passed in *might* come back as you expect, but
+            // it might not. It's much safer to throw away the original
+            // and keep the return value. -mbklein
+            String new_name = NokogiriHelpers.newQName(prefix, node);
+            this.node = NokogiriHelpers.renameNode(node, href, new_name);
         }
 
         return this;
@@ -1485,7 +1513,7 @@ public class XmlNode extends RubyObject {
             XmlElement fragmentContext = ((XmlDocumentFragment)this).getFragmentContext();
             String namespace_uri = fragmentContext.node.getNamespaceURI();
             if (namespace_uri != null && namespace_uri.length() > 0) {
-                node.getOwnerDocument().renameNode(child, namespace_uri, child.getNodeName());
+                NokogiriHelpers.renameNode(child, namespace_uri, child.getNodeName());
             }
         }
     }
@@ -1542,7 +1570,7 @@ public class XmlNode extends RubyObject {
         try {
             parentNode.replaceChild(otherNode, thisNode);
             if (otherNode.getNodeType() != Node.TEXT_NODE) {
-                otherNode.getOwnerDocument().renameNode(otherNode, thisNode.getNamespaceURI(), otherNode.getNodeName());
+                NokogiriHelpers.renameNode(otherNode, thisNode.getNamespaceURI(), otherNode.getNodeName());
             }
         } catch (Exception e) {
             String prefix = "could not replace child: ";
