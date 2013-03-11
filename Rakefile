@@ -215,7 +215,7 @@ task "gem:windows" => "gem" do
   end
 
   # verify that --export-all is in the 1.9 rbconfig. see #279,#374,#375.
-  rbconfig_19 = rake_compiler_config["rbconfig-1.9.2"]
+  rbconfig_19 = rake_compiler_config["rbconfig-1.9.3"]
   raise "rbconfig #{rbconfig_19} needs --export-all in its DLDFLAGS value" if File.read(rbconfig_19).split("\n").grep(/CONFIG\["DLDFLAGS"\].*--export-all/).empty?
 
   pkg_config_path = %w[libxslt libxml2].collect { |pkg| File.join($recipes[pkg].path, "lib/pkgconfig") }.join(":")
