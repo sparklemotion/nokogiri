@@ -1,4 +1,6 @@
-== 1.5.7 / unreleased
+== 1.5.x
+
+=== 1.5.7 / unreleased
 
 * Bugfixes
   * SAX::Parser.parse_io throw an error when used with lower case encoding. #828
@@ -14,7 +16,7 @@
   * (MRI) Fixed a memory leak in fragment parsing if nodes are not all subsequently reparented. #856
 
 
-== 1.5.6 / 2012年12月19日
+=== 1.5.6 / 2012年12月19日
 
 * Features
 
@@ -52,7 +54,7 @@
   * (JRuby) builder requires textwrappers for valid utf8 in jruby, not in mri. #784
 
 
-== 1.5.5 / ２０１２年６月２４日
+=== 1.5.5 / ２０１２年６月２４日
 
 * Features
 
@@ -74,7 +76,7 @@
   * JRuby の Entity 解決は C version の Nokogiri と同じ結果にならないといけない。#704, #647, #703
 
 
-== 1.5.4 / ２０１２年６月１２日
+=== 1.5.4 / ２０１２年６月１２日
 
 * Features
 
@@ -98,7 +100,7 @@
     ここに、自分ならではの二重否定のジョークをうめこむとなおよし。
 
 
-== 1.5.3 / ２０１２年６月１日
+=== 1.5.3 / ２０１２年６月１日
 
 * Features
 
@@ -126,12 +128,12 @@
   * (JRuby) Concurrency issue in XPath parsing. #682
 
 
-== 1.5.2 / 2012-03-09
+=== 1.5.2 / 2012-03-09
 
 Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, #632.
 
 
-== 1.5.1 / 2012年3月9日
+=== 1.5.1 / 2012年3月9日
 
 * 新機能
 
@@ -176,7 +178,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Node#set is a private method (JRuby). #564 (thanks, Nick Sieger!)
   * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
 
-== 1.5.0 / 2011年7月1日
+=== 1.5.0 / 2011年7月1日
 
 * 註
 
@@ -196,7 +198,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * <meta charset="..."> を認識するようになった.
 
 
-== 1.5.0 beta3 ２０１０年１２月２日
+=== 1.5.0 beta3 ２０１０年１２月２日
 
 * 註
 
@@ -207,13 +209,13 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * Node#inner_textはnilを返さなくなった. (JRuby) #264
 
-== 1.5.0 beta2 ２０１０年７月３０日
+=== 1.5.0 beta2 ２０１０年７月３０日
 
 * 註
 
   * 1.4.3からの変更点を参照
 
-== 1.5.0 beta1 ２０１０年５月２２日
+=== 1.5.0 beta1 ２０１０年５月２２日
 
 * 註
 
@@ -224,6 +226,9 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Ruby 1.8.6は非推奨となった. インストールできるかもしれないが、正式なサポートは終了.
   * LibXML 2.6.16および古いバージョンは非推奨. インストールできない.
   * FFIサポートは削除された.
+
+
+== 1.4.x
 
 === 1.4.7 / 2011年7月1日
 
@@ -434,6 +439,9 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * Hpricot用の互換性レイヤーを削除
 
+
+== 1.3.x
+
 === 1.3.3 / ２００９年７月２６日
 
 * 新しい機能
@@ -540,6 +548,9 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Node#before/after/inner_html=で値なしのHTML属性が受け入れられなかった問題を
     修正　(GH#35)
 
+
+== 1.2.x
+
 === 1.2.3 / ２００９年３月２２日
 
 * バグの修正
@@ -620,6 +631,9 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * Nokogiri::HTML.fragment は XML::DocumentFragment (LH #32)で返す
 
+
+== 1.1.x
+
 === 1.1.1
 
 * 新しい機能
@@ -651,6 +665,9 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * XML::Node#to_xml が引数indentationを取る 
   * XML::Node#dup が引数任意のdepthを取る 
   * XML::Node#add_previous_sibling が新しい兄弟ノードで返す
+
+
+== 1.0.x
 
 === 1.0.7
 
