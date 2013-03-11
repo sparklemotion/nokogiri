@@ -2,7 +2,7 @@ require "helper"
 
 module Nokogiri
   module XML
-    class TestNamespacesInBuilderDoc < Nokogiri::TestCase
+    class TestNamespacesInCreatedDoc < Nokogiri::TestCase
       def setup
         super
         @doc = Nokogiri::XML('<fruit xmlns="ns:fruit" xmlns:veg="ns:veg" xmlns:xlink="http://www.w3.org/1999/xlink"/>')
