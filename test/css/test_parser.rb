@@ -291,6 +291,8 @@ module Nokogiri
                      @parser.parse('p.a:not(.b)')
         assert_xpath "//p[@a = 'foo' and not(contains(concat(' ', normalize-space(@class), ' '), ' b '))]",
                      @parser.parse("p[a='foo']:not(.b)")
+        assert_xpath "//*[not(contains(concat(' ', normalize-space(@class), ' '), ' b '))]",
+                     @parser.parse(":not(.b)")
       end
 
       def test_ident
