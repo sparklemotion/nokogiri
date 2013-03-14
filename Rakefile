@@ -7,7 +7,7 @@ Hoe.plugin :debugging
 Hoe.plugin :git
 Hoe.plugin :gemspec
 Hoe.plugin :bundler
-Hoe.add_include_dirs '.' # for ruby 1.9.2
+Hoe.add_include_dirs '.'
 
 GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
@@ -35,7 +35,7 @@ HOE = Hoe.spec 'nokogiri' do
   self.clean_globs += [
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
-    'lib/nokogiri/1.{8,9}',
+    'lib/nokogiri/{1.8,1.9,2.0}',
     # GENERATED_PARSER,
     # GENERATED_TOKENIZER
   ]
@@ -48,7 +48,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["mini_portile",    ">= 0.2.2"],
     ["minitest",        "~> 2.2.2"],
     ["rake",            ">= 0.9"],
-    ["rake-compiler",   "=  0.8.0"],
+    ["rake-compiler",   "~> 0.8.0"],
     ["racc",            ">= 1.4.6"],
     ["rexical",         ">= 1.0.5"]
   ]
@@ -194,7 +194,7 @@ end
 
 desc "build a windows gem without all the ceremony."
 task "gem:windows" => "gem" do
-  cross_rubies = ["1.8.7-p358", "1.9.3-p194"]
+  cross_rubies = ["1.8.7-p358", "1.9.3-p194", "2.0.0-p0"]
   ruby_cc_version = cross_rubies.collect { |_| _.split("-").first }.join(":") # e.g., "1.8.7:1.9.2"
   rake_compiler_config_path = "#{ENV['HOME']}/.rake-compiler/config.yml"
 
@@ -215,8 +215,11 @@ task "gem:windows" => "gem" do
   end
 
   # verify that --export-all is in the 1.9 rbconfig. see #279,#374,#375.
-  rbconfig_19 = rake_compiler_config["rbconfig-1.9.2"]
+  rbconfig_19 = rake_compiler_config["rbconfig-1.9.3"]
   raise "rbconfig #{rbconfig_19} needs --export-all in its DLDFLAGS value" if File.read(rbconfig_19).split("\n").grep(/CONFIG\["DLDFLAGS"\].*--export-all/).empty?
+
+  rbconfig_20 = rake_compiler_config["rbconfig-2.0.0"]
+  raise "rbconfig #{rbconfig_20} needs --export-all in its DLDFLAGS value" if File.read(rbconfig_20).split("\n").grep(/CONFIG\["DLDFLAGS"\].*--export-all/).empty?
 
   pkg_config_path = %w[libxslt libxml2].collect { |pkg| File.join($recipes[pkg].path, "lib/pkgconfig") }.join(":")
   sh("env PKG_CONFIG_PATH=#{pkg_config_path} RUBY_CC_VERSION=#{ruby_cc_version} rake cross native gem") || raise("build failed!")

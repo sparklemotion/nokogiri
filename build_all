@@ -82,6 +82,9 @@ fi
 if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.9.3-p194/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
     bundle exec rake-compiler cross-ruby VERSION=1.9.3-p194
 fi
+if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-2.0.0-p0/lib/ruby/2.0.0/x86_64-linux/rbconfig.rb ]] ; then
+    bundle exec rake-compiler cross-ruby VERSION=2.0.0-p0
+fi
 bundle exec rake cross
 bundle exec rake gem:windows
 cp -v pkg/nokogiri*x86-{mingw32,mswin32}*.gem gems
