@@ -2,6 +2,11 @@
 
 === 1.5.7 / unreleased
 
+* Features
+
+  * Windows support for Ruby 2.0.
+
+
 * Bugfixes
 
   * SAX::Parser.parse_io throw an error when used with lower case encoding. #828

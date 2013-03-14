@@ -1,6 +1,12 @@
+
 == 1.5.x
 
 === 1.5.7 / unreleased
+
+* Features
+
+  * Windows support for Ruby 2.0.
+
 
 * Bugfixes
 
