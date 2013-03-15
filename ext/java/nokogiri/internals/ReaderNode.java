@@ -396,6 +396,7 @@ public abstract class ReaderNode {
                     else return base.concat("/").concat(v);
                 }
             } else if ("xlink:href".equals(n)) {
+                if (xmlBaseStack.isEmpty()) return v;
                 String base = xmlBaseStack.peek();
                 if (base.endsWith("/")) return base.concat(v);
                 else return base.concat("/").concat(v);
