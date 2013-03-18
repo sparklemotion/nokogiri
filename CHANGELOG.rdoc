@@ -1,4 +1,3 @@
-== 1.5.x
 
 === 1.5.7 / unreleased
 
@@ -210,6 +209,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     encoding.
   * Add support for <meta charset="...">.
 
+
 === 1.5.0 beta3 / 2010/12/02
 
 * Notes
@@ -221,11 +221,13 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * Node#inner_text no longer returns nil. (JRuby) #264
 
+
 === 1.5.0 beta2 / 2010/07/30
 
 * Notes
 
   * See changelog from 1.4.3
+
 
 === 1.5.0 beta1 / 2010/05/22
 
@@ -240,8 +242,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * FFI support is removed.
 
 
-== 1.4.x
-
 === 1.4.7 / 2011-07-01
 
 * Bugfixes
@@ -250,12 +250,14 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     duplicated document when parsing an HTML file with unknown
     encoding. Thanks, Timothy Elliott (@ender672)! #478
 
+
 === 1.4.6 / 2011-06-19
 
 * Notes
 
   * This version is functionally identical to 1.4.5.
   * Ruby 1.8.6 support has been restored.
+
 
 === 1.4.5 / 2011-05-19
 
@@ -278,6 +280,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Document#remove_namespaces! now handles attributes with namespaces. #396
   * XSLT::Stylesheet#transform no longer segfaults when handed a non-XML::Document. #452
   * XML::Reader no longer segfaults when under GC pressure. #439
+
 
 === 1.4.4 / 2010-11-15
 
@@ -305,6 +308,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Workaround for libxml2 in-context parsing bug. #362
   * Fixed NodeSet#wrap on nodes within a fragment. #331
 
+
 === 1.4.3 / 2010/07/28
 
 * New Features
@@ -327,6 +331,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Fix the CSS3 selector translation rule for the general sibling combinator
     (a.k.a. preceding selector) that incorrectly converted "E ~ F G" to
     "//F//G[preceding-sibling::E]".
+
 
 === 1.4.2 / 2010/05/22
 
@@ -380,6 +385,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     1.1.26. Prior to this release, libxml 2.7.3 and libxslt 1.1.24
     were bundled.
 
+
 === 1.4.1 / 2009/12/10
 
 * New Features
@@ -410,6 +416,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Fixed load path issue with JRuby under Windows. GH #160.
   * XSLT#apply_to will honor the "output method". Thanks richardlehane!
   * Fragments containing leading text nodes with newlines now parse properly. GH #178.
+
 
 === 1.4.0 / 2009/10/30
 
@@ -454,8 +461,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Hpricot compatibility layer removed
 
 
-== 1.3.x
-
 === 1.3.3 / 2009/07/26
 
 * New Features
@@ -475,6 +480,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 * Deprecations
 
   * Hpricot compatibility layer will be removed in 1.4.0
+
 
 === 1.3.2 / 2009-06-22
 
@@ -499,12 +505,14 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Nokogiri::XML::SAX::Document#end_element_ns is deprecated, please switch
     to Nokogiri::XML::SAX::Document#end_element_namespace
 
+
 === 1.3.1 / 2009-06-07
 
 * Bugfixes
 
   * extconf.rb checks for optional RelaxNG and Schema functions
   * Namespace nodes are added to the Document node cache
+
 
 === 1.3.0 / 2009-05-30
 
@@ -550,8 +558,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Fixed intolerance of HTML attributes without values in Node#before/after/inner_html=. (GH#35)
 
 
-== 1.2.x
-
 === 1.2.3 / 2009-03-22
 
 * Bugfixes
@@ -562,6 +568,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Nokogiri::HTML returns an empty Document when given a blank string GH#11
   * Adding a child will remove duplicate namespace declarations LH #67
   * Builder methods take a hash as a second argument
+
 
 === 1.2.2 / 2009-03-14
 
@@ -589,12 +596,14 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Document#dup should create a new document of the same type (LH #59)
   * Document should not have a parent method (LH #64)
 
+
 === 1.2.1 / 2009-02-23
 
 * Bugfixes
 
   * Fixed a CSS selector space bug
   * Fixed Ruby 1.9 String Encoding (Thanks 角谷さん！)
+
 
 === 1.2.0 / 2009-02-22
 
@@ -633,8 +642,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Nokogiri::HTML.fragment now returns an XML::DocumentFragment (LH #32)
 
 
-== 1.1.x
-
 === 1.1.1
 
 * New features
@@ -651,6 +658,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Removed CSS::SelectorHandler and XML::XPathHandler
   * XML::Node#attributes returns an Attr node for the value.
   * XML::NodeSet implements to_xml
+
 
 === 1.1.0
 
@@ -669,8 +677,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * XML::Node#add_previous_sibling returns new sibling node.
 
 
-== 1.0.x
-
 === 1.0.7
 
 * Bugfixes
@@ -682,6 +688,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Prepending rather than appending to ENV['PATH'] on windows
   * Fixed a bug in complex CSS negation selectors
 
+
 === 1.0.6
 
 * 5 Bugfixes
@@ -692,6 +699,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * CSS searches via Node#search are now always relative
   * CSS to XPath conversion is now cached
 
+
 === 1.0.5
 
 * Bugfixes
@@ -700,6 +708,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Sets ENV['PATH'] on windows if it doesn't exist
   * Caching results of NodeSet#[] on Document
 
+
 === 1.0.4
 
 * Bugfixes
@@ -707,6 +716,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Changed memory management from weak refs to document refs
   * Plugged some memory leaks
   * Builder blocks can call methods from surrounding contexts
+
 
 === 1.0.3
 
@@ -718,11 +728,13 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Removed RARRAY_LEN for 1.8.5 compatibility.  Thanks Shane Hanna.
   * inner_html fixed. (Thanks Yehuda!)
 
+
 === 1.0.2
 
 * 1 Bugfix
 
   * extconf.rb should not check for frex and racc
+
 
 === 1.0.1
 
@@ -730,6 +742,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * Made sure extconf.rb searched libdir and prefix so that ports libxml/ruby
     will link properly.  Thanks lucsky!
+
 
 === 1.0.0 / 2008-07-13
 

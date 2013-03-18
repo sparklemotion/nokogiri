@@ -1,6 +1,4 @@
 
-== 1.5.x
-
 === 1.5.7 / unreleased
 
 * Features
@@ -187,6 +185,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Node#set is a private method (JRuby). #564 (thanks, Nick Sieger!)
   * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
 
+
 === 1.5.0 / 2011年7月1日
 
 * 註
@@ -218,11 +217,13 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * Node#inner_textはnilを返さなくなった. (JRuby) #264
 
+
 === 1.5.0 beta2 ２０１０年７月３０日
 
 * 註
 
   * 1.4.3からの変更点を参照
+
 
 === 1.5.0 beta1 ２０１０年５月２２日
 
@@ -237,13 +238,12 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * FFIサポートは削除された.
 
 
-== 1.4.x
-
 === 1.4.7 / 2011年7月1日
 
 * バグの修正
 
   * エンコーディング宣言のないHTMLファイルで部分的に重複したドキュメントが生成される問題を修正した. #478
+
 
 === 1.4.6 / 2011年6月19日
 
@@ -251,6 +251,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * このバージョンは、1.4.5と機能的に同じです
   * Rubyの1.8.6のサポートが復元されている
+
 
 === 1.4.5 / 未リリース
 
@@ -267,6 +268,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * HTML::SAX::Parserのparse*()メソッドはXML::SAX::Parser同様に渡されたブロックをコールバックするようになった.
   * HTMLパーサーのエンコーディング判定をlibxml2の仕様を超えて拡張・改善した. (XML宣言のencodingを認識、非ASCII文字出現後のmetaタグも文字化けを生じずに反映)
   * Document#remove_namespaces! は名前空間付きの属性に対応した. #396
+
 
 === 1.4.4 ２０１０年１１月１５日
 
@@ -294,6 +296,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * libxml2 in-contextの解析バグの処置　 #362
   * フレグメント内のノードの中にあるNodeSet#wrapの修正　#331
 
+
 === 1.4.3 ２０１０年７月２８日
 
 * 新しい機能
@@ -316,6 +319,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * HTML::DocumentFragment が文字列に存在するエンコードを使用　#305
   * CSS3の間接セレクタ"E ~ F G"がXPathの"//F//G[preceding-sibling::E]"へと
     誤変換されてしまうのを修正
+
 
 === 1.4.2 ２０１０年５月２２日
 
@@ -367,6 +371,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     1.1.26にDLLsを標準装備しています。このリリース以前にも既にDLLsはlibxml
     2.7.3 と libxslt 1.1.24に標準装備済み。
 
+
 === 1.4.1 ２００９年１２月１０日
 
 * 新しい機能
@@ -402,6 +407,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * XSLT#apply_toは "output method"の値を使用する（richardlehaneに感謝）
   * 新しい文字列の先頭にくるテキストノードを含んだフレグメントが 正確に
     解析出来るようになった　GH #178
+
 
 === 1.4.0 ２００９年１０月３０日
 
@@ -449,8 +455,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Hpricot用の互換性レイヤーを削除
 
 
-== 1.3.x
-
 === 1.3.3 / ２００９年７月２６日
 
 * 新しい機能
@@ -471,6 +475,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 * 廃棄予定
 
   * Hpricotの互換性レイヤーがNokogiriの1.4.0で除去される予定
+
 
 === 1.3.2 / ２００９年６月２２日
 
@@ -497,12 +502,14 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Nokogiri::XML::SAX::Document#end_element_nsは廃棄予定なので
     Nokogiri::XML::SAX::Document#end_element_namespaceを代わりに使用して下さい
 
+
 === 1.3.1 / ２００９年６月７日
 
 * バグの修正
 
   * extconf.rb は任意のRelaxNGとSchemaの機能を探すようになった
   * ドキュメントのノードキャッシュに名前空間のノードが入るようになった
+
 
 === 1.3.0 / ２００９年５月３０日
 
@@ -558,8 +565,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     修正　(GH#35)
 
 
-== 1.2.x
-
 === 1.2.3 / ２００９年３月２２日
 
 * バグの修正
@@ -570,6 +575,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Nokogiri::HTMLは文字列がブランクの時、空のドキュメントで返す GH#11
   * 子ノードを付加する事で、重複した名前空間の宣言を取り除く LH#67
   * ビルダ方法はハッシュを第二引数とする
+
 
 === 1.2.2 / ２００９年３月１４日
 
@@ -606,6 +612,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * CSS のセレクターのスペースを修正
   * Ruby 1.9 のStringのエンコードを修正 （角谷さんに感謝！）
 
+
 === 1.2.0 / ２００９年２月２２日
 
 * 新しい機能
@@ -641,8 +648,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Nokogiri::HTML.fragment は XML::DocumentFragment (LH #32)で返す
 
 
-== 1.1.x
-
 === 1.1.1
 
 * 新しい機能
@@ -658,6 +663,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * CSS::SelectorHandler と XML::XPathHandler を除去
   * XML::Node#attributes が Attr node を value値に返す
   * XML::NodeSet が to_xml へ実行
+
 
 === 1.1.0
 
@@ -676,8 +682,6 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * XML::Node#add_previous_sibling が新しい兄弟ノードで返す
 
 
-== 1.0.x
-
 === 1.0.7
 
 * バグの修正
@@ -689,6 +693,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * ENV['PATH'] に付加せれる代わりに先頭へデータ挿入される
   * 複雑な CSS 内のバグを修正完了 :not selector ではありません
 
+
 === 1.0.6
 
 * 5つの修正
@@ -699,6 +704,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * CSS が Node#search 経由で検索し、常時対応する事が出来るようになった
   * CSS より XPath 変換がキャッシュに入れられるようになった
 
+
 === 1.0.5
 
 * バグフィックス
@@ -708,6 +714,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Windows 内で ENV['PATH'] が存在しない場合でも、存在出来るように設定完了
   * Document 内の NodeSet#[] の結果をキャッシュする
 
+
 === 1.0.4
 
 * バグフィックス
@@ -716,6 +723,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * メモリリークに接続
   * Builderブロックが取り囲んでいるコンテキストから
     メソッドの呼び出しをする事が出来る
+
 
 === 1.0.3
 
@@ -727,11 +735,13 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * 1.8.5互換性の為の RARRAY_LEN 除去
   * inner_html 修正済み (Yahuda に感謝)
 
+
 === 1.0.2
 
 * 1つのバグ修正
 
   * extconf.rb は frex や racc を調べないはず
+
 
 === 1.0.1
 
@@ -739,6 +749,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
 
   * extconf.rb が libdir や prefix を検索しない事を確認済み
     それによって、ports libxml/ruby が正しくリンクする (lucsky に感謝!)
+
 
 === 1.0.0 / 2008-07-13
 
