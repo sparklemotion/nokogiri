@@ -1,9 +1,10 @@
 
-=== 1.6.0 / unreleased
+=== 1.5.8 / unreleased
 
 * Bugfixes
 
   * (JRuby) Fix EmptyStackException thrown by elements with xlink:href attributes and no base_uri #534, #805. (Thanks, Patrick Quinn and Brian Hoffman!)
+  * (MRI) Fixes duplicate attributes issue introduced in 1.5.7. #865
 
 
 === 1.5.7 / 2013-03-18
