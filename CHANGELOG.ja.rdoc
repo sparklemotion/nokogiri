@@ -1,4 +1,11 @@
 
+=== 1.6.0 / unreleased
+
+* Bugfixes
+
+  * (JRuby) Fix EmptyStackException thrown by elements with xlink:href attributes and no base_uri #534, #805. (Thanks, Patrick Quinn and Brian Hoffman!)
+
+
 === 1.5.7 / 2013年03月18日
 
 * Features
