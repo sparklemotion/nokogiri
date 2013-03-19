@@ -103,15 +103,11 @@ public class XmlNamespace extends RubyObject {
     
     public static XmlNamespace createFromAttr(Ruby runtime, Attr attr) {
         String prefixValue = getLocalNameForNamespace(attr.getName());
-        IRubyObject prefix_value;
-        if (prefixValue == null) {
-            prefix_value = runtime.getNil();
-            prefixValue = "";
-        } else {
-            prefix_value = RubyString.newString(runtime, prefixValue);
-        }
+        IRubyObject prefix_value = stringOrNil(runtime, prefixValue);
+        if (prefixValue == null) prefixValue = "";
         String hrefValue = attr.getValue();
         IRubyObject href_value = RubyString.newString(runtime, hrefValue);
+
         // check namespace cache
         XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, attr.getOwnerDocument());
         xmlDocument.initializeNamespaceCacheIfNecessary();
