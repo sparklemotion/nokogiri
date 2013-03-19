@@ -57,7 +57,7 @@ module Nokogiri
       end
       def test_builder_namespace_count
         n = @doc.root.clone
-        n.children.each &:remove
+        n.children.each(&:remove)
         ns_attrs = n.to_xml.scan(/\bxmlns(?::.+?)?=/)
         assert_equal 3, ns_attrs.length
       end
