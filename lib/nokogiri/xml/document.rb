@@ -87,8 +87,9 @@ module Nokogiri
               if key =~ NCNAME_RE
                 ns_name = key.split(":", 2)[1]
                 elm.add_namespace_definition ns_name, v
+              else
+                elm[k.to_s] = v.to_s
               end
-              elm[k.to_s] = v.to_s
             }
           else
             elm.content = arg
