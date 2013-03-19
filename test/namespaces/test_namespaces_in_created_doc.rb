@@ -57,6 +57,12 @@ module Nokogiri
       def test_created_buried_decl_ns
         assert_equal 'ns:veg',  check_namespace(@doc.root.elements[3].elements[1])
       end
+      def test_created_namespace_count
+        n = @doc.root.clone
+        n.children.each &:remove
+        ns_attrs = n.to_xml.scan(/\bxmlns(?::.+?)?=/)
+        assert_equal 3, ns_attrs.length
+      end
     end
   end
 end
