@@ -318,7 +318,9 @@ module Nokogiri
       # Build a tag that is associated with namespace +ns+.  Raises an
       # ArgumentError if +ns+ has not been defined higher in the tree.
       def [] ns
-        @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
+        if @parent != @doc
+          @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
+        end
         return self if @ns
 
         @parent.ancestors.each do |a|
