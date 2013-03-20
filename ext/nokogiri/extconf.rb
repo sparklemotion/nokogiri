@@ -74,7 +74,8 @@ else
         "--without-python",
         "--without-readline",
         "--with-c14n",
-        "--with-debug"
+        "--with-debug",
+        "--with-threads"
       ]
       common_recipe.call recipe
     end
