@@ -753,6 +753,8 @@ static VALUE get(VALUE self, VALUE rattribute)
     ns = xmlSearchNs(node->doc, node, (const xmlChar *)(prefix));
     if (ns) {
       value = xmlGetNsProp(node, (xmlChar*)(attr_name), ns->href);
+    } else {
+      value = xmlGetProp(node, (xmlChar*)StringValuePtr(rattribute));
     }
   } else {
     value = xmlGetNoNsProp(node, (xmlChar*)attribute);

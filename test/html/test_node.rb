@@ -34,6 +34,14 @@ module Nokogiri
         assert_match(/%22AGGA-KA-BOO!%22/, element.to_html)
       end
 
+      # The HTML parser ignores namespaces, so even properly declared namespaces
+      # are treated as as undeclared and have to be accessed via prefix:tagname
+      def test_ns_attribute
+        html = '<i foo:bar="baz"></i>'
+        doc = Nokogiri::HTML(html)
+        assert_equal 'baz', (doc%'i')['foo:bar']
+      end
+
       def test_css_path_round_trip
         doc = Nokogiri::HTML(File.read(HTML_FILE))
         %w{ #header small div[2] div.post body }.each do |css_sel|
