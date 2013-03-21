@@ -14,6 +14,7 @@ module Nokogiri
       attr_reader :str3
       attr_reader :int1
       attr_reader :column
+      attr_reader :node
 
       ###
       # return true if this is a non error
