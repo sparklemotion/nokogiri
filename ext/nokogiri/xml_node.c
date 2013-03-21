@@ -1270,7 +1270,7 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 /* TODO: DOCUMENT ME */
 static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
 {
-    xmlNodePtr node, list = 0, child_iter, node_children, doc_children;
+    xmlNodePtr node, list = 0, tmp, child_iter, node_children, doc_children;
     xmlNodeSetPtr set;
     xmlParserErrors error;
     VALUE doc, err;
@@ -1357,8 +1357,11 @@ static VALUE in_context(VALUE self, VALUE _str, VALUE _options)
     set = xmlXPathNodeSetCreate(NULL);
 
     while (list) {
+      tmp = list->next;
+      list->next = NULL;
       xmlXPathNodeSetAddUnique(set, list);
-      list = list->next;
+      nokogiri_root_node(list);
+      list = tmp;
     }
 
     return Nokogiri_wrap_xml_node_set(set, doc);

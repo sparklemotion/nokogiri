@@ -5,6 +5,7 @@
 
   * Ensure that prefixed attributes are properly namespaced when reparented. #869
   * Fix for inconsistent namespaced attribute access for SVG nested in HTML. #861
+  * (MRI) Fixed a memory leak in fragment parsing if nodes are not all subsequently reparented. #856
 
 
 === 1.5.8 / 2013年03月19日

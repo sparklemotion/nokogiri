@@ -134,6 +134,10 @@ EOF
       end
     end
 
+    def test_in_context_parser_leak_ii
+      loop { Nokogiri::XML('<a/>').root.parse('<b/>') }
+    end
+
     def test_leak_on_xpath_string_function
       doc = Nokogiri::XML(@str)
       loop do
