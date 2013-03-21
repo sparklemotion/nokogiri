@@ -1199,10 +1199,10 @@ public class XmlNode extends RubyObject {
             String val = rubyStringToString(rbval);
             Element element = (Element) node;
 
+            String uri = null;
             int colonIndex = key.indexOf(":");
             if (colonIndex > 0) {
               String prefix = key.substring(0, colonIndex);
-              String uri = null;
               if (prefix.equals("xml")) {
                 uri = "http://www.w3.org/XML/1998/namespace";
               } else if (prefix.equals("xmlns")) {
@@ -1210,6 +1210,9 @@ public class XmlNode extends RubyObject {
               } else {
                 uri = findNamespaceHref(context, prefix);
               }
+            }
+
+            if (uri != null) {
               element.setAttributeNS(uri, key, val);
             } else {
               element.setAttribute(key, val);

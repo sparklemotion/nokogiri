@@ -63,6 +63,13 @@ module Nokogiri
         ns_attrs = n.to_xml.scan(/\bxmlns(?::.+?)?=/)
         assert_equal 3, ns_attrs.length
       end
+
+      def test_created_namespaced_attribute_on_unparented_node
+        doc = Nokogiri::XML('<root xmlns:foo="http://foo.io"/>')
+        node = @doc.create_element('obj', 'foo:attr' => 'baz')
+        doc.root.add_child(node)
+        assert_equal 'http://foo.io', doc.root.children.first.attribute_nodes.first.namespace.href
+      end
     end
   end
 end
