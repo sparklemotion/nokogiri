@@ -1,4 +1,11 @@
 
+=== 1.5.9 / unreleased
+
+* Bugfixes
+
+  * Ensure that prefixed attributes are properly namespaced when reparented. #869
+
+
 === 1.5.8 / 2013-03-19
 
 * Bugfixes
