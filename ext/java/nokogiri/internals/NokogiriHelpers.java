@@ -175,7 +175,7 @@ public class NokogiriHelpers {
     }
     
     public static RubyClass getNokogiriClass(Ruby ruby, String name) {
-        return NokogiriService.nokogiriClassCache.get(name);
+        return NokogiriService.nokogiriClassCache.get(ruby.hashCode()).get(name);
     }
 
     public static IRubyObject stringOrNil(Ruby runtime, String s) {
