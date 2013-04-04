@@ -3,41 +3,41 @@
 
 * Bugfixes
 
-  * Ensure that prefixed attributes are properly namespaced when reparented. #869
-  * Fix for inconsistent namespaced attribute access for SVG nested in HTML. #861
-  * (MRI) Fixed a memory leak in fragment parsing if nodes are not all subsequently reparented. #856
+  * prefixed attributes が再び親になったときネームスペースを適切に扱う #869
+  * ネストされた HTML のなかの SVG 要素が持つネームスペースつき属性を参照したときの返り値が一致しないバグを修正 #861
+  * (MRI) 部分ノードをパースしたときメモリリークするバグを修正 #856
 
 
 === 1.5.8 / 2013年03月19日
 
 * Bugfixes
 
-  * (JRuby) Fix EmptyStackException thrown by elements with xlink:href attributes and no base_uri #534, #805. (Thanks, Patrick Quinn and Brian Hoffman!)
-  * Fixes duplicate attributes issue introduced in 1.5.7. #865
-  * Allow use of a prefixed namespace on a root node using Nokogiri::XML::Builder #868
+  * (JRuby) xlink:href 属性があり base_uri が無いとき、 EmptyStackException 例外が発生するのを修正 #534, #805. (ありがとう, Patrick Quinn と Brian Hoffman!)
+  * 1.5.7 から xmlns 属性が重複するバグを修正 #865
+  * Nokogiri::XML::Builder を使って prefixed ネームスペースをルートノードに対しても使えるようにした。 #868
 
 
 === 1.5.7 / 2013年03月18日
 
 * Features
 
-  * Windows support for Ruby 2.0.
+  * Ruby 2.0 で Windows 環境をサポート
 
 
 * Bugfixes
 
-  * SAX::Parser.parse_io throw an error when used with lower case encoding. #828
-  * (JRuby) Java Nokogiri is finally green (passes all tests) under 1.8 and 1.9 mode. High five everyone. #798, #705
-  * (JRuby) Nokogiri::XML::Reader broken (as a pull parser) on jruby - reads the whole XML document. #831
-  * (JRuby) JRuby hangs parsing "&amp;". #837
-  * (JRuby) JRuby NPE parsing an invalid XML instruction. #838
-  * (JRuby) Node#content= incompatibility. #839
-  * (JRuby) to_xhtml doesn't print the last slash for self-closing tags in JRuby. #834
-  * (JRuby) Adding an EntityReference after a Text node mangles the entity in JRuby. #835
-  * (JRuby) JRuby version inconsistency: nil for empty attributes. #818
-  * CSS queries for classes (e.g., ".foo") now treat all whitespace identically. #854
-  * Namespace behavior cleaned up and made consistent between JRuby and MRI. #846, #801 (Thanks, Michael Klein!)
-  * (MRI) SAX parser handles empty processing instructions. #845
+  * エンコーディング名が小文字のとき SAX::Parser.parse_io が例外を投げるようになった。 #828
+  * (JRuby) Java の Nokogiri はついに 1.8 と 1.9 両方のモードで全てのテストがグリーンになった！イェーイ！ #798, #705
+  * (JRuby) Nokogiri::XML::Reader が jruby で壊れていたのを修正 (pull parser なのに全ての xml ドキュメントをメモリ上にロードしていた) #831
+  * (JRuby) JRuby が "&amp;" をパースすると停止してしまう #837
+  * (JRuby) JRuby で不正な XML 命令をパースさせると NullPointerException 例外が発生する #838
+  * (JRuby) Node#content= が JRuby と MRI で一致しない #839
+  * (JRuby) to_xhtml が自分自身に閉じタグを表すスラッシュを含む要素を正しく表示しない #834
+  * (JRuby) テキストノードの後ろに続くエンティティが壊れてしまう (`&` や `;` が消える) #835
+  * (JRuby) 空の attributes を参照すると nil が返る #818
+  * ".foo" のような CSS クラス名の問い合わせ時に連続した空白を単一とみなす #854
+  * ネームスペースの扱いが MRI と JRuby の間で統一された #846, #801 (ありがとう, Michael Klein!)
+  * (MRI) SAX パーサーが空の xml 命令をパースできるようにする #845
 
 
 === 1.5.6 / 2012年12月19日
