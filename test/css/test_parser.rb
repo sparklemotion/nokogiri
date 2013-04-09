@@ -284,6 +284,11 @@ module Nokogiri
                       @parser.parse('foo .awesome')
       end
 
+      def test_bare_not
+        assert_xpath "//*[not(contains(concat(' ', normalize-space(@class), ' '), ' a '))]",
+                     @parser.parse(':not(.a)')
+      end
+
       def test_not_so_simple_not
         assert_xpath "//*[@id = 'p' and not(contains(concat(' ', normalize-space(@class), ' '), ' a '))]",
                      @parser.parse('#p:not(.a)')
@@ -291,6 +296,11 @@ module Nokogiri
                      @parser.parse('p.a:not(.b)')
         assert_xpath "//p[@a = 'foo' and not(contains(concat(' ', normalize-space(@class), ' '), ' b '))]",
                      @parser.parse("p[a='foo']:not(.b)")
+      end
+
+      def test_multiple_not
+        assert_xpath "//p[not(contains(concat(' ', normalize-space(@class), ' '), ' a ')) and not(contains(concat(' ', normalize-space(@class), ' '), ' b ')) and not(contains(concat(' ', normalize-space(@class), ' '), ' c '))]",
+                    @parser.parse("p:not(.a):not(.b):not(.c)")
       end
 
       def test_ident
