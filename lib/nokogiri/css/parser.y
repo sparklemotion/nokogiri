@@ -130,7 +130,7 @@ rule
     | FUNCTION expr RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
-    | FUNCTION an_plus_b RPAREN {
+    | FUNCTION nth RPAREN {
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
       }
     | NOT expr RPAREN {
@@ -150,10 +150,10 @@ rule
       {
         if val[0] == 'even'
           val = ["2","n","+","0"]
-          result = Node.new(:AN_PLUS_B, val)
+          result = Node.new(:NTH, val)
         elsif val[0] == 'odd'
           val = ["2","n","+","1"]
-          result = Node.new(:AN_PLUS_B, val)
+          result = Node.new(:NTH, val)
         else
           # This is not CSS standard.  It allows us to support this:
           # assert_xpath("//a[foo(., @href)]", @parser.parse('a:foo(@href)'))
@@ -163,11 +163,11 @@ rule
         end
       }
     ;
-  an_plus_b
+  nth
     : NUMBER IDENT PLUS NUMBER          # 5n+3 -5n+3
       {
         if val[1] == 'n'
-          result = Node.new(:AN_PLUS_B, val)
+          result = Node.new(:NTH, val)
         else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
         end
@@ -175,21 +175,27 @@ rule
     | IDENT PLUS NUMBER {               # n+3, -n+3
         if val[0] == 'n'
           val.unshift("1")
-          result = Node.new(:AN_PLUS_B, val)
+          result = Node.new(:NTH, val)
         elsif val[0] == '-n'
           val[0] = 'n'
           val.unshift("-1")
-          result = Node.new(:AN_PLUS_B, val)
+          result = Node.new(:NTH, val)
         else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
         end
       }
-    | NUMBER IDENT                      # 5n, -5n
-      {
-        if val[1] == 'n'
+    | NUMBER IDENT {                    # 5n, -5n, 10n-1
+        n = val[1]
+        if n[0, 2] == 'n-'
+          val[1] = 'n'
+          val << "-"
+          # b is contained in n as n is the string "n-b"
+          val << n[2, n.size]
+          result = Node.new(:NTH, val)
+        elsif n == 'n'
           val << "+"
           val << "0"
-          result = Node.new(:AN_PLUS_B, val)
+          result = Node.new(:NTH, val)
         else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
         end

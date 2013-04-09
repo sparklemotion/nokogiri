@@ -74,6 +74,10 @@ EOF
         assert_result_rows [1,2,3], @parser.search("table/tr:nth(-n+3)")
       end
 
+      def test_4nm1
+        assert_result_rows [3,7,11], @parser.search("table/tr:nth(4n-1)")
+      end
+
       def test_np3
         assert_result_rows [3,4,5,6,7,8,9,10,11,12,13,14], @parser.search("table/tr:nth(n+3)")
       end
