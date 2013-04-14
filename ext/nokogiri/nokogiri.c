@@ -90,6 +90,12 @@ void Init_nokogiri()
                 NOKOGIRI_STR_NEW2(xmlParserVersion)
               );
 
+#ifdef NOKOGIRI_USE_PACKAGED_LIBRARIES
+  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PACKAGED_LIBRARIES"), Qtrue);
+#else
+  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PACKAGED_LIBRARIES"), Qfalse);
+#endif
+
 #ifdef LIBXML_ICONV_ENABLED
   rb_const_set(mNokogiri, rb_intern("LIBXML_ICONV_ENABLED"), Qtrue);
 #else
