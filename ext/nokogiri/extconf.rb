@@ -49,46 +49,100 @@ if RbConfig::CONFIG['target_os'] =~ /mswin/
 else
   lib_prefix = ''
 
-  HEADER_DIRS = [
-    # First search /opt/local for macports
-    '/opt/local/include',
+  if ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
+    HEADER_DIRS = [
+      # First search /opt/local for macports
+      '/opt/local/include',
 
-    # Then search /usr/local for people that installed from source
-    '/usr/local/include',
+      # Then search /usr/local for people that installed from source
+      '/usr/local/include',
 
-    # Check the ruby install locations
-    INCLUDEDIR,
+      # Check the ruby install locations
+      INCLUDEDIR,
 
-    # Finally fall back to /usr
-    '/usr/include',
-    '/usr/include/libxml2',
-  ]
+      # Finally fall back to /usr
+      '/usr/include',
+      '/usr/include/libxml2',
+    ]
 
-  LIB_DIRS = [
-    # First search /opt/local for macports
-    '/opt/local/lib',
+    LIB_DIRS = [
+      # First search /opt/local for macports
+      '/opt/local/lib',
 
-    # Then search /usr/local for people that installed from source
-    '/usr/local/lib',
+      # Then search /usr/local for people that installed from source
+      '/usr/local/lib',
 
-    # Check the ruby install locations
-    LIBDIR,
+      # Check the ruby install locations
+      LIBDIR,
 
-    # Finally fall back to /usr
-    '/usr/lib',
-  ]
+      # Finally fall back to /usr
+      '/usr/lib',
+    ]
 
-  XML2_HEADER_DIRS = [
-    '/opt/local/include/libxml2',
-    '/usr/local/include/libxml2',
-    File.join(INCLUDEDIR, "libxml2")
-  ] + HEADER_DIRS
+    XML2_HEADER_DIRS = [
+      '/opt/local/include/libxml2',
+      '/usr/local/include/libxml2',
+      File.join(INCLUDEDIR, "libxml2")
+    ] + HEADER_DIRS
 
-  # If the user has homebrew installed, use the libxml2 inside homebrew
-  brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
-  unless brew_prefix.empty?
-    LIB_DIRS.unshift File.join(brew_prefix, 'lib')
-    XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+    # If the user has homebrew installed, use the libxml2 inside homebrew
+    brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
+    unless brew_prefix.empty?
+      LIB_DIRS.unshift File.join(brew_prefix, 'lib')
+      XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+    end
+
+  else
+    require 'mini_portile'
+    require 'yaml'
+
+    common_recipe = lambda do |recipe|
+      recipe.target = File.join(ROOT, "ports")
+      recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+
+      checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+      unless File.exist?(checkpoint)
+        recipe.cook
+        FileUtils.touch checkpoint
+      end
+      recipe.activate
+    end
+
+    dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
+
+    libxml2_recipe = MiniPortile.new("libxml2", dependencies["libxml2"]).tap do |recipe|
+      recipe.configure_options = [
+        "--enable-shared",
+        "--disable-static",
+        "--without-python",
+        "--without-readline",
+        "--with-c14n",
+        "--with-debug",
+        "--with-threads"
+      ]
+      common_recipe.call recipe
+    end
+
+    libxslt_recipe = MiniPortile.new("libxslt", dependencies["libxslt"]).tap do |recipe|
+      recipe.configure_options = [
+        "--enable-shared",
+        "--disable-static",
+        "--without-python",
+        "--without-crypto",
+        "--with-debug",
+        "--with-libxml-prefix=#{libxml2_recipe.path}"
+      ]
+      common_recipe.call recipe
+    end
+
+    $LDFLAGS << " -Wl,-rpath,#{libxml2_recipe.path}/lib"
+    $LDFLAGS << " -Wl,-rpath,#{libxslt_recipe.path}/lib"
+
+    $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES"
+
+    HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "include") }
+    LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "lib") }
+    XML2_HEADER_DIRS = HEADER_DIRS + [File.join(libxml2_recipe.path, "include", "libxml2")]
   end
 end
 
@@ -141,4 +195,5 @@ if ENV['CPUPROFILE']
 end
 
 create_makefile('nokogiri/nokogiri')
+
 # :startdoc:

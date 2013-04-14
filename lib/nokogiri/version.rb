@@ -25,6 +25,14 @@ module Nokogiri
       defined?(LIBXML_VERSION)
     end
 
+    def libxml2_using_system?
+      ! libxml2_using_packaged?
+    end
+
+    def libxml2_using_packaged?
+      NOKOGIRI_USE_PACKAGED_LIBRARIES
+    end
+
     def warnings
       return [] unless libxml2?
 
@@ -49,6 +57,7 @@ module Nokogiri
       if libxml2?
         hash_info['libxml']              = {}
         hash_info['libxml']['binding']   = 'extension'
+        hash_info['libxml']['source']    = libxml2_using_packaged? ? "packaged" : "system"
         hash_info['libxml']['compiled']  = compiled_parser_version
         hash_info['libxml']['loaded']    = loaded_parser_version
         hash_info['warnings']            = warnings

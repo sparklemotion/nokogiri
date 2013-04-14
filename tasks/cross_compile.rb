@@ -3,11 +3,11 @@ require 'rake/extensioncompiler'
 HOST = Rake::ExtensionCompiler.mingw_host
 
 require 'mini_portile'
+dependencies = YAML.load_file("dependencies.yml")
 $recipes = {}
-$recipes["zlib"]     = MiniPortile.new "zlib",     "1.2.7"
-$recipes["libiconv"] = MiniPortile.new "libiconv", "1.13.1"
-$recipes["libxml2"]  = MiniPortile.new "libxml2",  "2.7.7"
-$recipes["libxslt"]  = MiniPortile.new "libxslt",  "1.1.26"
+%w[zlib libiconv libxml2 libxslt].each do |lib|
+  $recipes[lib] = MiniPortile.new lib, dependencies[lib]
+end
 $recipes.each { |_, recipe| recipe.host = HOST }
 
 file "lib/nokogiri/nokogiri.rb" do
@@ -90,15 +90,6 @@ namespace :cross do
       "--without-readline",
       "CFLAGS='-DIN_LIBXML'"
     ]
-    class << recipe
-      def download
-        Dir.chdir archives_path do
-          @files.each do |url|
-            sh "wget #{url} || curl -O #{url}"
-          end
-        end
-      end
-    end
 
     checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
@@ -120,15 +111,6 @@ namespace :cross do
       "--without-crypto",
       "CFLAGS='-DIN_LIBXML'"
     ]
-    class << recipe
-      def download
-        Dir.chdir archives_path do
-          @files.each do |url|
-            sh "wget #{url} || curl -O #{url}"
-          end
-        end
-      end
-    end
 
     checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)

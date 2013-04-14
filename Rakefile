@@ -45,13 +45,22 @@ HOE = Hoe.spec 'nokogiri' do
     ["hoe-debugging",   ">= 1.0.3"],
     ["hoe-gemspec",     ">= 1.0"],
     ["hoe-git",         ">= 1.4"],
-    ["mini_portile",    ">= 0.2.2"],
     ["minitest",        "~> 2.2.2"],
     ["rake",            ">= 0.9"],
     ["rake-compiler",   "~> 0.8.0"],
     ["racc",            ">= 1.4.6"],
     ["rexical",         ">= 1.0.5"]
   ]
+
+  if ENV['BUILD_LIBXML2']
+    self.extra_deps += [
+      ["mini_portile",    "~> 0.5.0"],
+    ]
+  else
+    self.extra_dev_deps += [
+      ["mini_portile",    "~> 0.5.0"],
+    ]
+  end
 
   if java?
     self.spec_extras = { :platform => 'java' }
@@ -105,6 +114,19 @@ else
   require "rake/extensiontask"
 
   HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
+
+  if ENV['BUILD_LIBXML2']
+    task gem_build_path do
+      add_file_to_gem "dependencies.yml"
+
+      dependencies = YAML.load_file("dependencies.yml")
+      %w[libxml2 libxslt].each do |lib|
+        version = dependencies[lib]
+        archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
+        add_file_to_gem archive
+      end
+    end
+  end
 
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
