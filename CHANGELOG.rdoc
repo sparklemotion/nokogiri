@@ -1,3 +1,14 @@
+=== 1.6.0.rc1 / 2013-04-14
+
+* Features
+
+  * (MRI) Source code for libxml 2.8.0 and libxslt 1.2.26 is packaged
+    with the gem. These libraries are compiled at gem install time
+    unless the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES is
+    set. VERSION_INFO (also `nokogiri -v`) exposes whether libxml was
+    compiled from packaged source, or the system library was used.
+  * (Windows) libxml upgraded to 2.8.0
+
 
 === 1.5.9 / 2013-03-21
 
