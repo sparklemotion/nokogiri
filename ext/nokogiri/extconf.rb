@@ -49,7 +49,50 @@ if RbConfig::CONFIG['target_os'] =~ /mswin/
 else
   lib_prefix = ''
 
-  if ENV['BUILD_LIBXML2']
+  if ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
+    HEADER_DIRS = [
+      # First search /opt/local for macports
+      '/opt/local/include',
+
+      # Then search /usr/local for people that installed from source
+      '/usr/local/include',
+
+      # Check the ruby install locations
+      INCLUDEDIR,
+
+      # Finally fall back to /usr
+      '/usr/include',
+      '/usr/include/libxml2',
+    ]
+
+    LIB_DIRS = [
+      # First search /opt/local for macports
+      '/opt/local/lib',
+
+      # Then search /usr/local for people that installed from source
+      '/usr/local/lib',
+
+      # Check the ruby install locations
+      LIBDIR,
+
+      # Finally fall back to /usr
+      '/usr/lib',
+    ]
+
+    XML2_HEADER_DIRS = [
+      '/opt/local/include/libxml2',
+      '/usr/local/include/libxml2',
+      File.join(INCLUDEDIR, "libxml2")
+    ] + HEADER_DIRS
+
+    # If the user has homebrew installed, use the libxml2 inside homebrew
+    brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
+    unless brew_prefix.empty?
+      LIB_DIRS.unshift File.join(brew_prefix, 'lib')
+      XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+    end
+
+  else
     require 'mini_portile'
     require 'yaml'
 
@@ -98,48 +141,6 @@ else
     HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "include") }
     LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "lib") }
     XML2_HEADER_DIRS = HEADER_DIRS + [File.join(libxml2_recipe.path, "include", "libxml2")]
-  else
-    HEADER_DIRS = [
-      # First search /opt/local for macports
-      '/opt/local/include',
-
-      # Then search /usr/local for people that installed from source
-      '/usr/local/include',
-
-      # Check the ruby install locations
-      INCLUDEDIR,
-
-      # Finally fall back to /usr
-      '/usr/include',
-      '/usr/include/libxml2',
-    ]
-
-    LIB_DIRS = [
-      # First search /opt/local for macports
-      '/opt/local/lib',
-
-      # Then search /usr/local for people that installed from source
-      '/usr/local/lib',
-
-      # Check the ruby install locations
-      LIBDIR,
-
-      # Finally fall back to /usr
-      '/usr/lib',
-    ]
-
-    XML2_HEADER_DIRS = [
-      '/opt/local/include/libxml2',
-      '/usr/local/include/libxml2',
-      File.join(INCLUDEDIR, "libxml2")
-    ] + HEADER_DIRS
-
-    # If the user has homebrew installed, use the libxml2 inside homebrew
-    brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
-    unless brew_prefix.empty?
-      LIB_DIRS.unshift File.join(brew_prefix, 'lib')
-      XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
-    end
   end
 end
 
@@ -192,4 +193,5 @@ if ENV['CPUPROFILE']
 end
 
 create_makefile('nokogiri/nokogiri')
+
 # :startdoc:
