@@ -18,7 +18,9 @@ end
 $CFLAGS << " #{ENV["CFLAGS"]}"
 $LIBS << " #{ENV["LIBS"]}"
 
-if RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
+windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
+
+if windows_p
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
 elsif RbConfig::CONFIG['target_os'] =~ /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
@@ -36,19 +38,13 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 end
 
-if RbConfig::CONFIG['target_os'] =~ /mswin/
-  lib_prefix = 'lib'
-
-  # There's no default include/lib dir on Windows. Let's just add the Ruby ones
-  # and resort on the search path specified by INCLUDE and LIB environment
-  # variables
+if windows_p
+  # I'm cross compiling!
   HEADER_DIRS = [INCLUDEDIR]
   LIB_DIRS = [LIBDIR]
   XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
 
 else
-  lib_prefix = ''
-
   if ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
     HEADER_DIRS = [
       # First search /opt/local for macports
@@ -171,9 +167,9 @@ asplode "libxml2"  unless find_header('libxml/parser.h')
 asplode "libxslt"  unless find_header('libxslt/xslt.h')
 asplode "libexslt" unless find_header('libexslt/exslt.h')
 asplode "libiconv" unless have_iconv?
-asplode "libxml2"  unless find_library("#{lib_prefix}xml2", 'xmlParseDoc')
-asplode "libxslt"  unless find_library("#{lib_prefix}xslt", 'xsltParseStylesheetDoc')
-asplode "libexslt" unless find_library("#{lib_prefix}exslt", 'exsltFuncRegister')
+asplode "libxml2"  unless find_library("xml2", 'xmlParseDoc')
+asplode "libxslt"  unless find_library("xslt", 'xsltParseStylesheetDoc')
+asplode "libexslt" unless find_library("exslt", 'exsltFuncRegister')
 
 unless have_func('xmlHasFeature')
   abort "-----\nThe function 'xmlHasFeature' is missing from your installation of libxml2.  Likely this means that your installed version of libxml2 is old enough that nokogiri will not work well.  To get around this problem, please upgrade your installation of libxml2.
