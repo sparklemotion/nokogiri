@@ -134,7 +134,7 @@ else
     $LDFLAGS << " -Wl,-rpath,#{libxml2_recipe.path}/lib"
     $LDFLAGS << " -Wl,-rpath,#{libxslt_recipe.path}/lib"
 
-    $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES"
+    $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
 
     HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "include") }
     LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "lib") }
