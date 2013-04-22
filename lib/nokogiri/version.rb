@@ -57,7 +57,13 @@ module Nokogiri
       if libxml2?
         hash_info['libxml']              = {}
         hash_info['libxml']['binding']   = 'extension'
-        hash_info['libxml']['source']    = libxml2_using_packaged? ? "packaged" : "system"
+        if libxml2_using_packaged?
+          hash_info['libxml']['source']  = "packaged"
+          hash_info['libxml']['libxml2_path'] = NOKOGIRI_LIBXML2_PATH
+          hash_info['libxml']['libxslt_path'] = NOKOGIRI_LIBXSLT_PATH
+        else
+          hash_info['libxml']['source']  = "system"
+        end
         hash_info['libxml']['compiled']  = compiled_parser_version
         hash_info['libxml']['loaded']    = loaded_parser_version
         hash_info['warnings']            = warnings

@@ -92,8 +92,12 @@ void Init_nokogiri()
 
 #ifdef NOKOGIRI_USE_PACKAGED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PACKAGED_LIBRARIES"), Qtrue);
+  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXML2_PATH"), NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXML2_PATH));
+  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXSLT_PATH"), NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXSLT_PATH));
 #else
   rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PACKAGED_LIBRARIES"), Qfalse);
+  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXML2_PATH"), Qnil);
+  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXSLT_PATH"), Qnil);
 #endif
 
 #ifdef LIBXML_ICONV_ENABLED
