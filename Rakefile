@@ -40,6 +40,10 @@ HOE = Hoe.spec 'nokogiri' do
     # GENERATED_TOKENIZER
   ]
 
+  self.extra_deps += [
+    ["mini_portile",    "~> 0.5.0"],
+  ]
+
   self.extra_dev_deps += [
     ["hoe-bundler",     ">= 1.1"],
     ["hoe-debugging",   ">= 1.0.3"],
@@ -51,16 +55,6 @@ HOE = Hoe.spec 'nokogiri' do
     ["racc",            ">= 1.4.6"],
     ["rexical",         ">= 1.0.5"]
   ]
-
-  if ENV['BUILD_LIBXML2']
-    self.extra_deps += [
-      ["mini_portile",    "~> 0.5.0"],
-    ]
-  else
-    self.extra_dev_deps += [
-      ["mini_portile",    "~> 0.5.0"],
-    ]
-  end
 
   if java?
     self.spec_extras = { :platform => 'java' }
