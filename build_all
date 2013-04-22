@@ -8,7 +8,7 @@
 #  here's what I recommend for building all the gems:
 #
 #   1. set up a vagrant VM guest running ubuntu lucid 32-bit.
-#   2. install rvm, and install 1.8.7, 1.9.3 and jruby.
+#   2. install rvm, and install 1.9.3, 2.0.0 and jruby.
 #   3. `sudo apt-get install mingw32`
 #
 #  as you build, you may run into these problems:
