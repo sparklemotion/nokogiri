@@ -10,7 +10,7 @@
 #  (e.g., 1.9.3's glob_helper). ["rake test:valgrind:suppression"]
 #
 
-RUBIES="ruby-1.9.3-p327 jruby-1.7.3 jruby-1.6.5.1 jruby-1.6.7.2 ree-1.8.7-2011.12 ruby-1.9.2-p320 ruby-1.8.7-p370"
+RUBIES="ruby-1.9.3-p327 jruby-1.7.3 jruby-1.6.5.1 jruby-1.6.7.2 ruby-1.9.2-p320"
 TEST_LOG=test.log
 VALGRIND_LOG=valgrind.log
 
@@ -34,7 +34,7 @@ function rvm_use {
 
 function generate_parser_and_tokenizer {
     old_ruby=$current_ruby
-    rvm_use ruby-1.8.7-p357
+    rvm_use ruby-1.9.3-p327
     bundle exec rake generate 2>&1 > /dev/null
     rvm_use $old_ruby
 }

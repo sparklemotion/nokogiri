@@ -35,7 +35,7 @@ HOE = Hoe.spec 'nokogiri' do
   self.clean_globs += [
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
-    'lib/nokogiri/{1.8,1.9,2.0}',
+    'lib/nokogiri/{1.9,2.0}',
     # GENERATED_PARSER,
     # GENERATED_TOKENIZER
   ]
@@ -67,7 +67,7 @@ HOE = Hoe.spec 'nokogiri' do
   else
     self.spec_extras = {
       :extensions => ["ext/nokogiri/extconf.rb"],
-      :required_ruby_version => '>= 1.8.7'
+      :required_ruby_version => '>= 1.9.2'
     }
   end
 
@@ -216,7 +216,7 @@ end
 
 desc "build a windows gem without all the ceremony."
 task "gem:windows" => "gem" do
-  cross_rubies = ["1.8.7-p358", "1.9.3-p194", "2.0.0-p0"]
+  cross_rubies = ["1.9.3-p194", "2.0.0-p0"]
   ruby_cc_version = cross_rubies.collect { |_| _.split("-").first }.join(":") # e.g., "1.8.7:1.9.2"
   rake_compiler_config_path = "#{ENV['HOME']}/.rake-compiler/config.yml"
 
