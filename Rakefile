@@ -109,7 +109,9 @@ else
 
   HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
 
-  if ENV['BUILD_LIBXML2']
+  windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
+
+  unless windows_p || java?
     task gem_build_path do
       add_file_to_gem "dependencies.yml"
 
