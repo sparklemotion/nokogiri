@@ -1,5 +1,11 @@
 === 1.6.0.rc1 / 2013-04-14
 
+* Notes
+
+  * mini_portile is now a runtime dependency
+  * Ruby 1.9.2 and higher now required
+
+
 * Features
 
   * (MRI) Source code for libxml 2.8.0 and libxslt 1.2.26 is packaged
