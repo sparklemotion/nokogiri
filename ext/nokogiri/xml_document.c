@@ -17,13 +17,29 @@ static int dealloc_node_i(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
   return ST_CONTINUE;
 }
 
+static void remove_private(xmlNodePtr node)
+{
+  xmlNodePtr child;
+
+  for (child = node->children; child; child = child->next)
+    remove_private(child);
+
+  if ((node->type == XML_ELEMENT_NODE ||
+       node->type == XML_XINCLUDE_START ||
+       node->type == XML_XINCLUDE_END) &&
+      node->properties) {
+    for (child = (xmlNodePtr)node->properties; child; child = child->next)
+      remove_private(child);
+  }
+
+  node->_private = NULL;
+}
+
 static void dealloc(xmlDocPtr doc)
 {
-  xmlDeregisterNodeFunc func;
   st_table *node_hash;
 
   NOKOGIRI_DEBUG_START(doc);
-  func = xmlDeregisterNodeDefault(NULL);
 
   node_hash  = DOC_UNLINKED_NODE_HASH(doc);
 
@@ -31,10 +47,17 @@ static void dealloc(xmlDocPtr doc)
   st_free_table(node_hash);
 
   free(doc->_private);
-  doc->_private = NULL;
+
+  /* When both Nokogiri and libxml-ruby are loaded, make sure that all nodes
+   * have their _private pointers cleared. This is to avoid libxml-ruby's
+   * xmlDeregisterNode callback from accessing VALUE pointers from ruby's GC
+   * free context, which can result in segfaults.
+   */
+  if (xmlDeregisterNodeDefaultValue)
+    remove_private((xmlNodePtr)doc);
+
   xmlFreeDoc(doc);
 
-  xmlDeregisterNodeDefault(func);
   NOKOGIRI_DEBUG_END(doc);
 }
 
