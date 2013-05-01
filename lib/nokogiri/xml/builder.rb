@@ -269,10 +269,8 @@ module Nokogiri
           @doc    = root.document
           @parent = root
         else
-          namespace     = self.class.name.split('::')
-          namespace[-1] = 'Document'
-          @doc          = eval(namespace.join('::')).new
-          @parent       = @doc
+          @doc    = self.class.name.rpartition('::').first.const_get(:Document).new
+          @parent = @doc
         end
 
         @context  = nil
