@@ -23,16 +23,14 @@ module Nokogiri
       def first n = nil
         return self[0] unless n
         list = []
-        0.upto(n - 1) do |i|
-          list << self[i]
-        end
+        n.times { |i| list << self[i] }
         list
       end
 
       ###
       # Get the last element of the NodeSet.
       def last
-        self[length - 1]
+        self[-1]
       end
 
       ###
