@@ -1,30 +1,29 @@
+=== 1.5.9 / 2013年3月21日
 
-=== 1.5.9 / 2013年03月21日
-
-* Bugfixes
+* バグ修正
 
   * prefixed attributes を持つ要素が親を付け替えられたときネームスペースを適切に扱う #869
   * ネストされた HTML のなかの SVG 要素が持つネームスペースつき属性を参照したときの返り値が一致しないバグを修正 #861
   * (MRI) 部分ノードをパースしたときメモリリークするバグを修正 #856
 
 
-=== 1.5.8 / 2013年03月19日
+=== 1.5.8 / 2013年3月19日
 
-* Bugfixes
+* バグ修正
 
   * (JRuby) xlink:href 属性があり base_uri が無いとき、 EmptyStackException 例外が発生するのを修正 #534, #805. (ありがとう, Patrick Quinn と Brian Hoffman!)
   * 1.5.7 から xmlns 属性が重複するバグを修正 #865
   * Nokogiri::XML::Builder を使って prefixed ネームスペースをルートノードに対しても使えるようにした。 #868
 
 
-=== 1.5.7 / 2013年03月18日
+=== 1.5.7 / 2013年3月18日
 
-* Features
+* 機能
 
   * Ruby 2.0 で Windows 環境をサポート
 
 
-* Bugfixes
+* バグ修正
 
   * エンコーディング名が小文字のとき SAX::Parser.parse_io が例外を投げるようになった。 #828
   * (JRuby) Java の Nokogiri はついに 1.8 と 1.9 両方のモードで全てのテストがグリーンになった！イェーイ！ #798, #705
@@ -42,7 +41,7 @@
 
 === 1.5.6 / 2012年12月19日
 
-* Features
+* 新機能
 
   * XML::Document#collect_namespaces　メソッドのパフォーマンスを改善した。 #761 (ありがとう、Juergen Mangler!)
   * SAX::Document#processing_instructionに新しいcallbackが追加 (ありがとう、Kitaiti Makoto!)
@@ -54,7 +53,7 @@
   * bin/nokogiri --version will print the Xerces and NekoHTML versions when ran with JRuby.
 
 
-* Bugfixes
+* バグ修正
 
   * Nokogiri はこのバージョンからXSLT変換のエラーを検出するようになった。#731 (ありがとう、Justin Fitzsimmons!)
   * Don't throw an Error when trying to replace top-level text node in DocumentFragment. #775
@@ -79,13 +78,13 @@
   * (JRuby) builder requires textwrappers for valid utf8 in jruby, not in mri. #784
 
 
-=== 1.5.5 / ２０１２年６月２４日
+=== 1.5.5 / 2012年6月24日
 
-* Features
+* 機能
 
   * Much-improved support for JRuby in 1.9 mode! Yay!
 
-* Bugfixes
+* バグ修正
 
   * JRuby Nokogiri の add_previous_sibling が以前は動いていたのに今は動かない(1.5.0 -> 1.5.1)。 #691 (ありがとう, John Shahid!)
   * JRuby バーションは URL が引数にあたえられると HTML ドキュメントを作れない。 #674 (ありがとう, John Shahid!)
@@ -101,16 +100,16 @@
   * JRuby の Entity 解決は C version の Nokogiri と同じ結果にならないといけない。#704, #647, #703
 
 
-=== 1.5.4 / ２０１２年６月１２日
+=== 1.5.4 / 2012年6月12日
 
-* Features
+* 機能
 
   * "nokogiri" コマンドに `--rng` オプションが与えられと、より詳しい説明を表示するようになった。 #675 (ありがとう, Dan Radez!)
   * `-Werror=format-security`　CFLAGを使っている hardened な Debian 系 Linux でのビルドをサポート #680.
   * pkg-config ありのシステム上でのよりよいビルドをサポート。 #584
   * 複数の iconv がイストールされているシステムでのよりよいビルドをサポート。
 
-* Bugfixes
+* バグ修正
 
   * DocumentFragment をベースにしてコメントノードを作ったときに Segmentation fault する。 #677, #678.
   * at() と search() メソッドで '.' をxpathとして扱う。 #690
@@ -125,15 +124,15 @@
     ここに、自分ならではの二重否定のジョークをうめこむとなおよし。
 
 
-=== 1.5.3 / ２０１２年６月１日
+=== 1.5.3 / 2012年6月1日
 
-* Features
+* 機能
 
   * jQuery のような "prefixless" CSS セレクタ, ~ や >, + をサポート。#621, #623. (ありがとう, David Lee!)
   * Attempting to improve installation on homebrew 0.9 (with regards
     to iconv). Isn't package management convenient?
 
-* Bugfixes
+* バグ修正
 
   * カスタム xpath 関数が空の nodeset を引数に含む場合、segfault を起こす。 #634.
   * Nokogiri::XML::Node#css now works for XML documents with default
@@ -153,7 +152,7 @@
   * (JRuby) Concurrency issue in XPath parsing. #682
 
 
-=== 1.5.2 / 2012-03-09
+=== 1.5.2 / 2012年3月9日
 
 Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, #632.
 
@@ -224,7 +223,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * <meta charset="..."> を認識するようになった.
 
 
-=== 1.5.0 beta3 ２０１０年１２月２日
+=== 1.5.0 beta3 2010年12月2日
 
 * 註
 
@@ -236,14 +235,14 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Node#inner_textはnilを返さなくなった. (JRuby) #264
 
 
-=== 1.5.0 beta2 ２０１０年７月３０日
+=== 1.5.0 beta2 2010年7月30日
 
 * 註
 
   * 1.4.3からの変更点を参照
 
 
-=== 1.5.0 beta1 ２０１０年５月２２日
+=== 1.5.0 beta1 2010年5月22日
 
 * 註
 
@@ -271,7 +270,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Rubyの1.8.6のサポートが復元されている
 
 
-=== 1.4.5 / 未リリース
+=== 1.4.5 / 2011年5月19日
 
 * 新機能
 
@@ -288,7 +287,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Document#remove_namespaces! は名前空間付きの属性に対応した. #396
 
 
-=== 1.4.4 ２０１０年１１月１５日
+=== 1.4.4 2010年11月15日
 
 * 新機能
 
@@ -315,7 +314,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * フレグメント内のノードの中にあるNodeSet#wrapの修正　#331
 
 
-=== 1.4.3 ２０１０年７月２８日
+=== 1.4.3 2010年7月28日
 
 * 新しい機能
 
@@ -339,7 +338,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     誤変換されてしまうのを修正
 
 
-=== 1.4.2 ２０１０年５月２２日
+=== 1.4.2 2010年5月22日
 
 * 新機能
 
@@ -390,7 +389,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     2.7.3 と libxslt 1.1.24に標準装備済み。
 
 
-=== 1.4.1 ２００９年１２月１０日
+=== 1.4.1 2009年12月10日
 
 * 新しい機能
   * Nokogiri::LIBXML_ICONV_ENABLED を追加
@@ -427,7 +426,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     解析出来るようになった　GH #178
 
 
-=== 1.4.0 ２００９年１０月３０日
+=== 1.4.0 2009年10月30日
 
 * 今日はノコギリの満一歳のお誕生日です
 
@@ -473,7 +472,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Hpricot用の互換性レイヤーを削除
 
 
-=== 1.3.3 / ２００９年７月２６日
+=== 1.3.3 / 2009年7月26日
 
 * 新しい機能
 
@@ -495,7 +494,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Hpricotの互換性レイヤーがNokogiriの1.4.0で除去される予定
 
 
-=== 1.3.2 / ２００９年６月２２日
+=== 1.3.2 / 2009年6月22日
 
 * 新しい機能
 
@@ -521,7 +520,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     Nokogiri::XML::SAX::Document#end_element_namespaceを代わりに使用して下さい
 
 
-=== 1.3.1 / ２００９年６月７日
+=== 1.3.1 / 2009年6月7日
 
 * バグの修正
 
@@ -529,7 +528,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * ドキュメントのノードキャッシュに名前空間のノードが入るようになった
 
 
-=== 1.3.0 / ２００９年５月３０日
+=== 1.3.0 / 2009年5月30日
 
 * 新しい機能
 
@@ -583,7 +582,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     修正　(GH#35)
 
 
-=== 1.2.3 / ２００９年３月２２日
+=== 1.2.3 / 2009年3月22日
 
 * バグの修正
 
@@ -595,7 +594,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * ビルダ方法はハッシュを第二引数とする
 
 
-=== 1.2.2 / ２００９年３月１４日
+=== 1.2.2 / 2009年3月14日
 
 * 新しい機能
 
@@ -623,7 +622,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Document#parent は存在しない (LH #64)
 
 
-=== 1.2.1 / ２００９年２月２３日
+=== 1.2.1 / 2009年2月23日
 
 * 修正
 
@@ -631,7 +630,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
   * Ruby 1.9 のStringのエンコードを修正 （角谷さんに感謝！）
 
 
-=== 1.2.0 / ２００９年２月２２日
+=== 1.2.0 / 2009年2月22日
 
 * 新しい機能
   * CSSサーチが CSS3 名前空間クエリをサポートするようになった
@@ -769,7 +768,7 @@ Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, 
     それによって、ports libxml/ruby が正しくリンクする (lucsky に感謝!)
 
 
-=== 1.0.0 / 2008-07-13
+=== 1.0.0 / 2008年07月13日
 
 * 1つの偉大な増進
 
