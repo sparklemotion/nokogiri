@@ -1,4 +1,9 @@
 
+* Deprecations
+
+  * Support for Ruby 1.8.7 and prior has been dropped
+
+
 === 1.5.9 / 2013-03-21
 
 * Bugfixes
