@@ -1,19 +1,22 @@
 === 1.6.0.rc1 / 2013-04-14
 
-* Notes
+* 註
 
-  * mini_portile is now a runtime dependency
-  * Ruby 1.9.2 and higher now required
+  * 実行時依存 gem として mini_portile を追加
+  * Ruby 1.9.2以上のみサポート
 
 
-* Features
+* 機能
 
-  * (MRI) Source code for libxml 2.8.0 and libxslt 1.2.26 is packaged
-    with the gem. These libraries are compiled at gem install time
-    unless the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES is
-    set. VERSION_INFO (also `nokogiri -v`) exposes whether libxml was
-    compiled from packaged source, or the system library was used.
-  * (Windows) libxml upgraded to 2.8.0
+  * (MRI) libxml 2.8.0 と libxslt 1.2.26 を同梱。
+    環境変数 NOKOGIRI_USE_SYSTEM_LIBRARIES を設定しない限り、 gem のインストール時にコンパイルして使われる。
+    VERSION_INFO (および `nokogiri -v`) には、同梱の libxml またはシステムの libxml のいずれが使われているかの情報が含まれる。
+  * (Windows) libxml 2.8.0 に更新
+
+
+* 廃止
+
+  * Ruby 1.8.7以下のサポートを終了
 
 
 === 1.5.9 / 2013年03月21日
