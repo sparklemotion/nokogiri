@@ -56,7 +56,7 @@
   * XML::Node#[]= stringifies values. #729 (Thanks, Ben Langfeld.)
   * bin/nokogiri will process a document from $stdin
   * bin/nokogiri -e will execute a program from the command line
-  * bin/nokogiri --version will print the Xerces and NekoHTML versions when ran with JRuby.
+  * (JRuby) bin/nokogiri --version will print the Xerces and NekoHTML versions.
 
 
 * Bugfixes
