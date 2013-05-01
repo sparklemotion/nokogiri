@@ -71,13 +71,13 @@
   * XML::Node#[]= メソッド内で受け取った引数を文字列に変換するようにした。#729 (ありがとう、Ben Langfeld.)
   * bin/nokogiri コマンドが $stdin からドキュメントを読んで処理できるようにした。
   * bin/nokogiri -e を指定することでコマンドラインプログラムを実行できるようにした。
-  * bin/nokogiri --version will print the Xerces and NekoHTML versions when ran with JRuby.
+  * (JRuby) bin/nokogiri --version は Xerces および NekoHTML のバージョンを表示。
 
 
 * バグ修正
 
   * Nokogiri はこのバージョンからXSLT変換のエラーを検出するようになった。#731 (ありがとう、Justin Fitzsimmons!)
-  * Don't throw an Error when trying to replace top-level text node in DocumentFragment. #775
+  * DocumentFragment のトップレベルノードを置き換えようとした際に Error を出さない。 #775
   * SAXパーザに不正なエンコーディングに渡された場合はArgumentErrorを投げるようにした。#756 (ありがとう、Bradley Schaefer!)
   * (JRuby) XML宣言の前にスペースがあると、ドキュメントのパーズに失敗する。(#748の修正でこれもなおっている) #790
   * (JRuby) Nokogiri::XML::Node#content のJRubyの振る舞いがCRubyと同じではない。#794, #797
@@ -91,19 +91,19 @@
   * (JRuby) Nokogiri::XML::Document#wrapを使って生成したドキュメントに << でノードを追加しようとすると
      undefined method `length' for nil:NilClassのエラーが発生する #781
   * (JRuby) 開いているファイルのデスクリプタを閉じようとすると、"bad file descriptor" が発生する。#495
-  * (JRuby) JRuby/CRuby incompatibility for attribute decorators. #785
-  * (JRuby) Issues parsing valid XML with no internal subset in the DTD. #547, #811
-  * (JRuby) Issues parsing valid node content when it contains colons. #728
-  * (JRuby) Correctly parse the doc type of html documents. #733
-  * (JRuby) Include dtd in the xml output when a builder is used with create_internal_subset. #751
-  * (JRuby) builder requires textwrappers for valid utf8 in jruby, not in mri. #784
+  * (JRuby) 属性デコレータに関するJRubyとCRubyの非互換性 #785
+  * (JRuby) DOCTYPE宣言内に内部サブセットを持たない(正しい)XMLをパースする際の問題 #547, #811
+  * (JRuby) テキストにコロンを含むノードをパースする際の問題 #728
+  * (JRuby) HTML文書のDOCTYPEを正しくパース #733
+  * (JRuby) Builder で create_internal_subset を使った場合のXML出力にDOCTYPE宣言を含める #751
+  * (JRuby) JRubyでのみ、 Builder でUTF-8テキストを #text で括る必要があった #784
 
 
 === 1.5.5 / 2012年6月24日
 
 * 機能
 
-  * Much-improved support for JRuby in 1.9 mode! Yay!
+  * JRuby の1.9モードのサポートを大幅改善！イェイ！
 
 * バグ修正
 
