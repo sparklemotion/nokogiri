@@ -917,18 +917,23 @@ module Nokogiri
       end
 
       def coerce data # :nodoc:
-        return data                    if data.is_a?(XML::NodeSet)
-        return data.children           if data.is_a?(XML::DocumentFragment)
-        return fragment(data).children if data.is_a?(String)
-
-        if data.is_a?(Document) || data.is_a?(XML::Attr) || !data.is_a?(XML::Node)
-          raise ArgumentError, <<-EOERR
-Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
-(You probably want to select a node from the Document with at() or search(), or create a new Node via Node.new().)
-          EOERR
+        case data
+        when XML::NodeSet
+          return data
+        when XML::DocumentFragment
+          return data.children
+        when String
+          return fragment(data).children
+        when Document, XML::Attr
+          # unacceptable
+        when XML::Node
+          return data
         end
 
-        data
+        raise ArgumentError, <<-EOERR
+Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
+(You probably want to select a node from the Document with at() or search(), or create a new Node via Node.new().)
+        EOERR
       end
 
       def implied_xpath_context
