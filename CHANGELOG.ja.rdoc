@@ -23,8 +23,8 @@
 
 * バグ修正
 
-  * prefixed attributes を持つ要素が親を付け替えられたときネームスペースを適切に扱う #869
-  * ネストされた HTML のなかの SVG 要素が持つネームスペースつき属性を参照したときの返り値が一致しないバグを修正 #861
+  * prefixed attributes を持つ要素が親を付け替えられたとき名前空間を適切に扱う #869
+  * ネストされた HTML のなかの SVG 要素が持つ名前空間つき属性を参照したときの返り値が一致しないバグを修正 #861
   * (MRI) 部分ノードをパースしたときメモリリークするバグを修正 #856
 
 
@@ -34,7 +34,7 @@
 
   * (JRuby) xlink:href 属性があり base_uri が無いとき、 EmptyStackException 例外が発生するのを修正 #534, #805. (ありがとう, Patrick Quinn と Brian Hoffman!)
   * 1.5.7 から xmlns 属性が重複するバグを修正 #865
-  * Nokogiri::XML::Builder を使って prefixed ネームスペースをルートノードに対しても使えるようにした。 #868
+  * Nokogiri::XML::Builder を使って prefixed 名前空間をルートノードに対しても使えるようにした。 #868
 
 
 === 1.5.7 / 2013年3月18日
@@ -56,7 +56,7 @@
   * (JRuby) テキストノードの後ろに続くエンティティが壊れてしまう (`&` や `;` が消える) #835
   * (JRuby) 空の attributes を参照すると nil が返る #818
   * ".foo" のような CSS クラス名の問い合わせ時に連続した空白を単一とみなす #854
-  * ネームスペースの扱いが MRI と JRuby の間で統一された #846, #801 (ありがとう, Michael Klein!)
+  * 名前空間の扱いが MRI と JRuby の間で統一された #846, #801 (ありがとう, Michael Klein!)
   * (MRI) SAX パーサーが空の xml 命令をパースできるようにする #845
 
 
@@ -84,10 +84,10 @@
   * (JRuby) で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外がはっせいする。 #719
   * (JRuby) では Nodeのサブクラスのnamespaceを正しく文字列に変換しない。 #715
   * (JRuby) Node#contentがこのバージョンから改行コードを正しく表示するようになった。#737 (ありがとう、Piotr Szmielew!)
-  * (JRuby) recover optionが指定されている場合は宣言の無いネームスペースを無視するようにした。#748
-  * (JRuby) ネームスペースを検出するXPathが続けて実行されても例外を投げてはいけない。#764
+  * (JRuby) recover optionが指定されている場合は宣言の無い名前空間を無視するようにした。#748
+  * (JRuby) 名前空間を検出するXPathが続けて実行されても例外を投げてはいけない。#764
   * (JRuby) XMLを表示(出力)する際のホワイトスペースの扱いをlibxml2バージョンとさらに同様になるようにした。#771
-  * (JRuby) ネームスペース付きの属性を含むXMLドキュメントを文字列でbuilderに追加しようとすると失敗する。#770
+  * (JRuby) 名前空間付きの属性を含むXMLドキュメントを文字列でbuilderに追加しようとすると失敗する。#770
   * (JRuby) Nokogiri::XML::Document#wrapを使って生成したドキュメントに << でノードを追加しようとすると
      undefined method `length' for nil:NilClassのエラーが発生する #781
   * (JRuby) 開いているファイルのデスクリプタを閉じようとすると、"bad file descriptor" が発生する。#495
