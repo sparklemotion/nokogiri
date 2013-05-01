@@ -150,32 +150,27 @@
 * 機能
 
   * jQuery のような "prefixless" CSS セレクタ, ~ や >, + をサポート。#621, #623. (ありがとう, David Lee!)
-  * Attempting to improve installation on homebrew 0.9 (with regards
-    to iconv). Isn't package management convenient?
+  * homebrew 0.9でのインストールを改善してみる。(iconv周り)
+    パッケージ管理って便利じゃない？
 
 * バグ修正
 
   * カスタム xpath 関数が空の nodeset を引数に含む場合、segfault を起こす。 #634.
-  * Nokogiri::XML::Node#css now works for XML documents with default
-    namespaces when the rule contains attribute selector without
-    namespace.
-  * Fixed marshalling bugs around how arguments are passed to (and
-    returned from) XSLT custom xpath functions. #640.
+  * Nokogiri::XML::Node#css は、デフォルトの名前空間を持つXML文書に対して名前空間なしの属性セレクタをルールに含めても動作するようになった。
+  * Marshalにおいて、XSLTのカスタムXPath関数への引数の渡し方(および戻し方)に関するバグを修正 #640.
   * Nokogiri::XML::Reader#outer_xml がJRubyで正しく動作しない #617
   * Nokogiri::XML::Attribute が JRuby 上で　nil namespace を返す　#647
   * Nokogiri::XML::Node#namespace= メソッドが JRuby　上で prefix
   　が無い namespace を設定できない #648
   * (JRuby) 1.9 モードで rake を実行するとデッドロックを引き起こす #571
-  * HTML::Document#meta_encoding does not raise exception on docs with
-    malformed content-type. #655
-  * Fixing segfault related to unsupported encodings in in-context
-    parsing on 1.8.7. #643
-  * (JRuby) Concurrency issue in XPath parsing. #682
+  * HTML::Document#meta_encoding は誤った Content-Type (charset部)を含む文書で例外を起こさなくなった #655
+  * コンテキスト付きフラグメントのパースで非サポートのエンコーディングが原因でRuby 1.8.7がSEGVを起こすのを修正 #643
+  * (JRuby) XPathパースにおける並行実行時の問題 #682
 
 
 === 1.5.2 / 2012年3月9日
 
-Repackaging of 1.5.1 with a gemspec that is compatible with older Rubies. #631, #632.
+古いRuby用にgemspecを修正しての再パッケージ. #631, #632.
 
 
 === 1.5.1 / 2012年3月9日
