@@ -45,12 +45,13 @@ module Nokogiri
         # Give the options to the user
         yield options if block_given?
 
+        return new if empty_doc?(string_or_io)
+
         doc = if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
           read_io(string_or_io, url, encoding, options.to_i)
         else
           # read_memory pukes on empty docs
-          return new if string_or_io.nil? or string_or_io.empty?
           read_memory(string_or_io, url, encoding, options.to_i)
         end
 
@@ -260,6 +261,12 @@ module Nokogiri
       end
 
       private
+      def self.empty_doc? string_or_io
+        string_or_io.nil? ||
+          (string_or_io.respond_to?(:empty?) && string_or_io.empty?) ||
+          (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
+      end
+
       def implied_xpath_context
         "/"
       end
