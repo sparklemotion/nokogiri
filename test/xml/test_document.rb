@@ -580,6 +580,11 @@ module Nokogiri
         assert set.length > 0
       end
 
+      def test_parsing_empty_io
+        doc = Nokogiri::XML.parse(StringIO.new(''))
+        refute_nil doc
+      end
+
       def test_search_on_empty_documents
         doc = Nokogiri::XML::Document.new
         ns = doc.search('//foo')
