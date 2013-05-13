@@ -136,8 +136,8 @@ else
 
     $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
 
-    HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "include") }
-    LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |_| File.join(_.path, "lib") }
+    HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "include") }
+    LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "lib") }
     XML2_HEADER_DIRS = HEADER_DIRS + [File.join(libxml2_recipe.path, "include", "libxml2")]
   end
 end
