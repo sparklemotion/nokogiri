@@ -1,8 +1,10 @@
 .autotest
 .gemtest
+.travis.yml
 CHANGELOG.ja.rdoc
 CHANGELOG.rdoc
 C_CODING_STYLE.rdoc
+Gemfile
 Manifest.txt
 README.ja.rdoc
 README.rdoc
@@ -12,6 +14,7 @@ STANDARD_RESPONSES.md
 Y_U_NO_GEMSPEC.md
 bin/nokogiri
 build_all
+dependencies.yml
 ext/java/nokogiri/EncodingHandler.java
 ext/java/nokogiri/HtmlDocument.java
 ext/java/nokogiri/HtmlElementDescription.java
@@ -219,6 +222,7 @@ test/files/2ch.html
 test/files/address_book.rlx
 test/files/address_book.xml
 test/files/bar/bar.xsd
+test/files/bogus.xml
 test/files/dont_hurt_em_why.xml
 test/files/encoding.html
 test/files/encoding.xhtml
@@ -253,6 +257,10 @@ test/html/test_element_description.rb
 test/html/test_named_characters.rb
 test/html/test_node.rb
 test/html/test_node_encoding.rb
+test/namespaces/test_additional_namespaces_in_builder_doc.rb
+test/namespaces/test_namespaces_in_builder_doc.rb
+test/namespaces/test_namespaces_in_created_doc.rb
+test/namespaces/test_namespaces_in_parsed_doc.rb
 test/test_convert_xpath.rb
 test/test_css_cache.rb
 test/test_encoding_handler.rb
