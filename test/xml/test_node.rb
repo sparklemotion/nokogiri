@@ -830,7 +830,7 @@ b"></div>
         ne = d1.root.xpath('//a').first.dup(1)
         ne.content += "& < & > \" &"
         d2.root << ne
-        assert_match d2.to_s, /<a>&amp;&amp; &lt; &amp; &gt; " &amp;<\/a>/
+        assert_match /<a>&amp;&amp; &lt; &amp; &gt; " &amp;<\/a>/, d2.to_s
       end
 
       def test_content_after_appending_text
