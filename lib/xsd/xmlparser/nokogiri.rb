@@ -17,7 +17,7 @@ module XSD # :nodoc:
     #   gem 'soap4r'
     #   require 'defaultDriver'
     #   require 'xsd/xmlparser/nokogiri'
-    #   
+    #
     #   obj = AvlPortType.new
     #   obj.getLatestByRoute(obj.getAgencies.first, 8).each do |bus|
     #     p "#{bus.routeID}, #{bus.longitude}, #{bus.latitude}"
@@ -62,6 +62,13 @@ module XSD # :nodoc:
         characters string
       end
 
+      ###
+      # Called at the beginning of an element
+      # +name+ is the element name
+      # +attrs+ is a list of attributes
+      # +prefix+ is the namespace prefix for the element
+      # +uri+ is the associated namespace URI
+      # +ns+ is a hash of namespace prefix:urls associated with the element
       def start_element_namespace name, attrs = [], prefix = nil, uri = nil, ns = []
         ###
         # Deal with SAX v1 interface
@@ -74,6 +81,11 @@ module XSD # :nodoc:
         start_element name, attributes
       end
 
+      ###
+      # Called at the end of an element
+      # +name+ is the element's name
+      # +prefix+ is the namespace prefix associated with the element
+      # +uri+ is the associated namespace URI
       def end_element_namespace name, prefix = nil, uri = nil
         ###
         # Deal with SAX v1 interface
