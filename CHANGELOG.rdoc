@@ -9,6 +9,10 @@
   * Use rb_ary_entry instead of RARRAY_PTR. #877 (Dirkjan Bussink)
   * Fix TypeError when running tests. #900 (Cédric Boutillier)
 
+* Deprecations
+
+  * Remove pre 1.9 monitoring from Travis.
+
 
 === 1.6.0.rc1 / 2013-04-14
 

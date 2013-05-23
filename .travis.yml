@@ -1,13 +1,10 @@
 language: ruby
 rvm:
-  - 1.8.7
   - 1.9.2
   - 1.9.3
   - ruby-head
   - ree
-  - jruby-18mode
   - jruby-19mode
-  - rbx-18mode
   - rbx-19mode
 
 jdk:
@@ -18,8 +15,6 @@ matrix:
   allow_failures:
     - rvm: rbx-19mode
   exclude:
-    - rvm: 1.8.7
-      jdk: openjdk7
     - rvm: 1.9.2
       jdk: openjdk7
     - rvm: 1.9.3
@@ -27,8 +22,6 @@ matrix:
     - rvm: ruby-head
       jdk: openjdk7
     - rvm: ree
-      jdk: openjdk7
-    - rvm: rbx-18mode
       jdk: openjdk7
     - rvm: rbx-19mode
       jdk: openjdk7
