@@ -4,6 +4,12 @@
 
   * (JRuby) Fix "null document" error when parsing an empty IO in jruby 1.7.3. #883
 
+* Minor Enhancements
+
+  * Use rb_ary_entry instead of RARRAY_PTR. #877 (Dirkjan Bussink)
+  * Fix TypeError when running tests. #900 (Cédric Boutillier)
+
+
 === 1.6.0.rc1 / 2013-04-14
 
 * Notes
