@@ -32,7 +32,7 @@
 * https://github.com/sparklemotion/nokogiri/issues/451
   chained :not pseudoselectors
 
-* better jQuery selector support:
+* better jQuery selector and CSS pseudo-selector support:
   * https://github.com/sparklemotion/nokogiri/issues/621
   * https://github.com/sparklemotion/nokogiri/issues/342
   * https://github.com/sparklemotion/nokogiri/issues/628
