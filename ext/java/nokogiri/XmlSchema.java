@@ -224,7 +224,7 @@ public class XmlSchema extends RubyObject {
         public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
             String adjusted = adjustSystemIdIfNecessary(currentDir, scriptFileName, baseURI, systemId);
             lsInput.setPublicId(publicId);
-            lsInput.setSystemId(adjusted);
+            lsInput.setSystemId(adjusted != null? adjusted : systemId);
             lsInput.setBaseURI(baseURI);
             return lsInput;
         }

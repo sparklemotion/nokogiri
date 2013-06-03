@@ -89,6 +89,15 @@ module Nokogiri
         assert(@xsd.valid?(valid_doc))
         assert(!@xsd.valid?(invalid_doc))
       end
+
+      def test_xsd_with_dtd
+        Dir.chdir(File.join(ASSETS_DIR, 'saml')) do
+           # works
+           Nokogiri::XML::Schema(IO.read('xmldsig_schema.xsd'))
+           # was not working
+           Nokogiri::XML::Schema(IO.read('saml20protocol_schema.xsd'))
+        end
+      end
     end
   end
 end
