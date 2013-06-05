@@ -296,6 +296,19 @@ module Nokogiri
           builder.to_xml.gsub(/\n/, ''))
       end
 
+      def test_builder_inside_builder
+        Nokogiri::XML::Builder.new do |xml|
+          xml.foo do |foo|
+            Nokogiri::XML::Builder.with(foo) do |xml|
+              xml.bar
+            end
+          end
+        end
+
+        assert_equal("<?xml version=\"1.0\"?><foo><bar/></foo>",
+          builder.to_xml.gsub(/\n/, ''))
+      end
+
     private
 
       def namespaces_defined_on(node)
