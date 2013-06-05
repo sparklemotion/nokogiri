@@ -297,7 +297,7 @@ module Nokogiri
       end
 
       def test_builder_inside_builder
-        Nokogiri::XML::Builder.new do |xml|
+        builder = Nokogiri::XML::Builder.new do |xml|
           xml.foo do |foo|
             Nokogiri::XML::Builder.with(foo) do |xml|
               xml.bar
@@ -305,7 +305,7 @@ module Nokogiri
           end
         end
 
-        assert_equal("<?xml version=\"1.0\"?><foo><bar/></foo>",
+        assert_equal("<?xml version=\"1.0\"?><foo>  <bar/></foo>",
           builder.to_xml.gsub(/\n/, ''))
       end
 
