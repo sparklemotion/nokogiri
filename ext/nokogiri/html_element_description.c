@@ -86,7 +86,10 @@ static VALUE default_sub_element(VALUE self)
   htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
-  return NOKOGIRI_STR_NEW2(description->defaultsubelt);
+  if (description->defaultsubelt)
+    return NOKOGIRI_STR_NEW2(description->defaultsubelt);
+
+  return Qnil;
 }
 
 /*
