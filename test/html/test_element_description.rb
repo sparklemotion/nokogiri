@@ -69,6 +69,11 @@ module Nokogiri
         assert_equal 'div', ElementDescription['body'].default_sub_element
       end
 
+      def test_null_default_sub_element
+        doc = Nokogiri::HTML('foo')
+        doc.root.description.default_sub_element
+      end
+
       def test_optional_attributes
         attrs = ElementDescription['table'].optional_attributes
         assert attrs
