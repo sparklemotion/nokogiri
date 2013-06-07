@@ -1,14 +1,7 @@
 === 1.6.0.rc2 / unreleased
 
-* Bugfixes
-
-  * (JRuby) Fix "null document" error when parsing an empty IO in jruby 1.7.3. #883
-  * (MRI) Fix segfault when there is no default subelement for an HTML node. #917
-
-* Minor Enhancements
-
-  * Use rb_ary_entry instead of RARRAY_PTR. #877 (Dirkjan Bussink)
-  * Fix TypeError when running tests. #900 (Cédric Boutillier)
+This release was based on v1.5.10 and 1.6.0.rc1, and contains changes
+mentioned in both.
 
 * Deprecations
 
@@ -16,6 +9,9 @@
 
 
 === 1.6.0.rc1 / 2013-04-14
+
+This release was based on v1.5.9, and so does not contain any fixes
+mentioned in the notes for v1.5.10.
 
 * Notes
 
@@ -36,6 +32,21 @@
 * Deprecations
 
   * Support for Ruby 1.8.7 and prior has been dropped
+
+
+=== 1.5.10 / 2013-06-07
+
+* Bugfixes
+
+  * (JRuby) Fix "null document" error when parsing an empty IO in jruby 1.7.3. #883
+  * (JRuby) Fix schema validation when XSD has DOCTYPE set to DTD. #861 (Thanks, Patrick Cheng!)
+  * (MRI) Fix segfault when there is no default subelement for an HTML node. #917
+
+
+* Notes
+
+  * Use rb_ary_entry instead of RARRAY_PTR (you know, for Rubinius). #877 (Thanks, Dirkjan Bussink!)
+  * Fix TypeError when running tests. #900 (Thanks, Cédric Boutillier!)
 
 
 === 1.5.9 / 2013-03-21
