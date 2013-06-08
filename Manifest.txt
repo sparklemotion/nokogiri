@@ -233,6 +233,10 @@ test/files/metacharset.html
 test/files/noencoding.html
 test/files/po.xml
 test/files/po.xsd
+test/files/saml/saml20assertion_schema.xsd
+test/files/saml/saml20protocol_schema.xsd
+test/files/saml/xenc_schema.xsd
+test/files/saml/xmldsig_schema.xsd
 test/files/shift_jis.html
 test/files/shift_jis.xml
 test/files/snuggles.xml
