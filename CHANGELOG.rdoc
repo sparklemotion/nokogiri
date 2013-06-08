@@ -1,4 +1,4 @@
-=== 1.6.0.rc2 / unreleased
+=== 1.6.0 / 2013-06-08
 
 This release was based on v1.5.10 and 1.6.0.rc1, and contains changes
 mentioned in both.
