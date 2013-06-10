@@ -45,14 +45,17 @@ class TestReader < Nokogiri::TestCase
         node_out = node
         break
       end
+      rd.close
     end
     sleep(1)              # sleep for one second to make sure the reader will actually block for input
-    wr.puts "<foo>"
-    wr.puts "<bar/>" * 10000
-    wr.flush
+    begin
+      wr.puts "<foo>"
+      wr.puts "<bar/>" * 10000
+      wr.flush
+    rescue Errno::EPIPE
+    end
     res = t.join(5)    # wait 5 seconds for the thread to finish
     wr.close
-    rd.close
     refute_nil node_out, "Didn't read any nodes, exclude the trivial case"
     refute_nil res, "Reader blocks trying to read the entire stream"
   end
