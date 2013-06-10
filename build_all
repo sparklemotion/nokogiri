@@ -83,6 +83,7 @@ cp -v pkg/nokogiri*x86-{mingw32,mswin32}*.gem gems
 
 # MRI
 rvm_use 1.9.3
+bundle exec rake clean
 bundle exec rake gem
 cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 
