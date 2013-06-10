@@ -121,12 +121,12 @@ namespace :cross do
   end
 
   task :file_list do
-    HOE.spec.files += Dir["lib/nokogiri/nokogiri.rb"]
-    HOE.spec.files += Dir["lib/nokogiri/{1.9,2.0}/nokogiri.so"]
+    add_file_to_gem "lib/nokogiri/nokogiri.rb"
   end
+
 end
 
 require 'rake/clean'
 CLOBBER.include("#{CROSS_DIR}/*.installed", "#{CROSS_DIR}/#{HOST}", "tmp/#{HOST}")
 
-task :cross => ["cross:libxslt", "lib/nokogiri/nokogiri.rb", "cross:file_list"]
+task :cross2 => ["cross:libxslt", "lib/nokogiri/nokogiri.rb", "cross", "cross:file_list"]
