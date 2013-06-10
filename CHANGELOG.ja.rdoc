@@ -1,17 +1,22 @@
+=== 1.6.1 / 未リリース
+
+* 機能
+
+  * FreeBSDなど、libiconvがシステム標準ディレクトリ外にある環境でlibxml2がiconvサポート付きで正しくビルドされるようになった
+
+
 === 1.6.0 / 2013年6月8日
 
-This release was based on v1.5.10 and 1.6.0.rc1, and contains changes
-mentioned in both.
+本リリースは1.5.10および1.6.0.rc1を元にしているため、両リリースの改善点を含む
 
 * 廃止
 
-  * Remove pre 1.9 monitoring from Travis.
+  * TravisのCI対象からRuby 1.8を外した
 
 
 === 1.6.0.rc1 / 2013年4月14日
 
-This release was based on v1.5.9, and so does not contain any fixes
-mentioned in the notes for v1.5.10.
+本リリースは1.5.9を元にしているため、1.5.10の変更点は含まない
 
 * 註
 
@@ -23,7 +28,7 @@ mentioned in the notes for v1.5.10.
 
   * (MRI) libxml 2.8.0 と libxslt 1.2.26 を同梱。
     環境変数 NOKOGIRI_USE_SYSTEM_LIBRARIES を設定しない限り、 gem のインストール時にコンパイルして使われる。
-    VERSION_INFO (および `nokogiri -v`) には、同梱の libxml またはシステムの libxml のいずれが使われているかの情報が含まれる。
+    VERSION_INFO (および `nokogiri -v`) には、同梱の libxml またはシステムの libxml のいずれが使われているかの情報が含まれる
   * (Windows) libxml 2.8.0 に更新
 
 
@@ -36,15 +41,15 @@ mentioned in the notes for v1.5.10.
 
 * バグ修正
 
-  * (JRuby) Fix "null document" error when parsing an empty IO in jruby 1.7.3. #883
-  * (JRuby) Fix schema validation when XSD has DOCTYPE set to DTD. #861 (Thanks, Patrick Cheng!)
-  * (MRI) Fix segfault when there is no default subelement for an HTML node. #917
+  * (JRuby) JRuby 1.7.3で空のIOをパースする際の "null document" エラーを修正 #883
+  * (JRuby) XSDにDTDのDOCTYPEがあったときのスキーマ検証の問題を修正 #912 (Patrick Chengに感謝!)
+  * (MRI) HTMLノードに対するdefault_sub_element呼出でsegfaultしていたのを修正 #917
 
 
 * 註
 
-  * Use rb_ary_entry instead of RARRAY_PTR (you know, for Rubinius). #877 (Thanks, Dirkjan Bussink!)
-  * Fix TypeError when running tests. #900 (Thanks, Cédric Boutillier!)
+  * RARRAY_PTR()の代わりにrb_ary_entry()を使うように変更 (そう、Rubiniusのためにね) #877 (Dirkjan Bussinkに感謝!)
+  * テストでTypeErrorが起きるのを修正 #900 (Cédric Boutillierに感謝!)
 
 
 === 1.5.9 / 2013年3月21日
