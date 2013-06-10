@@ -53,7 +53,7 @@ function rvm_use {
 set -o errexit
 
 # initialize
-rvm_use 1.8.7
+rvm_use 1.9.3
 bundle install --quiet --local || bundle install
 rm -rf tmp pkg
 bundle exec rake clean
@@ -70,15 +70,7 @@ if [[ $platform =~ "64" ]] ; then
     echo ""
     exit 1
 fi
-rvm_use 1.8.7
-if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.8.7-p358/lib/ruby/1.8.7/x86_64-linux/rbconfig.rb ]] ; then
-
-    # if this fails around the purelib.rb thing, try varying the ruby
-    # used to run this script, and whether the HOST env var is set
-    # below.
-
-    bundle exec rake-compiler cross-ruby VERSION=1.8.7-p358 # HOST=i386-mingw32
-fi
+rvm_use 1.9.3
 if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.9.3-p194/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
     bundle exec rake-compiler cross-ruby VERSION=1.9.3-p194
 fi
@@ -90,7 +82,7 @@ bundle exec rake gem:windows
 cp -v pkg/nokogiri*x86-{mingw32,mswin32}*.gem gems
 
 # MRI
-rvm_use 1.8.7
+rvm_use 1.9.3
 bundle exec rake gem
 cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 
@@ -98,7 +90,7 @@ cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 rvm_use jruby
 bundle install --quiet --local || bundle install
 bundle exec rake clean clobber
-rvm_use 1.8.7
+rvm_use 1.9.3
 bundle exec rake generate
 rvm_use jruby
 bundle exec rake gem
