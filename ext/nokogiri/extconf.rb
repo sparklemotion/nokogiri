@@ -18,6 +18,31 @@ end
 $CFLAGS << " #{ENV["CFLAGS"]}"
 $LIBS << " #{ENV["LIBS"]}"
 
+def preserving_globals
+  values =
+    $arg_config,
+    $CFLAGS, $CPPFLAGS,
+    $LDFLAGS, $LIBPATH, $libs
+  yield
+ensure
+  $arg_config,
+  $CFLAGS, $CPPFLAGS,
+  $LDFLAGS, $LIBPATH, $libs =
+    values
+end
+
+def asplode(lib)
+  abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
+end
+
+def have_iconv?
+  have_header('iconv.h') or return false
+  %w{ iconv_open libiconv_open }.any? do |method|
+    have_func(method, 'iconv.h') or
+      have_library('iconv', method, 'iconv.h')
+  end
+end
+
 windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
 
 if windows_p
@@ -45,18 +70,20 @@ if windows_p
   XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
 
 else
+  opt_header_dirs = [
+    # First search /opt/local for macports
+    '/opt/local/include',
+
+    # Then search /usr/local for people that installed from source
+    '/usr/local/include',
+
+    # Check the ruby install locations
+    INCLUDEDIR,
+  ]
+
   if ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
-    HEADER_DIRS = [
-      # First search /opt/local for macports
-      '/opt/local/include',
-
-      # Then search /usr/local for people that installed from source
-      '/usr/local/include',
-
-      # Check the ruby install locations
-      INCLUDEDIR,
-
-      # Finally fall back to /usr
+    HEADER_DIRS = opt_header_dirs + [
+      # Fall back to /usr
       '/usr/include',
       '/usr/include/libxml2',
     ]
@@ -75,11 +102,9 @@ else
       '/usr/lib',
     ]
 
-    XML2_HEADER_DIRS = [
-      '/opt/local/include/libxml2',
-      '/usr/local/include/libxml2',
-      File.join(INCLUDEDIR, "libxml2")
-    ] + HEADER_DIRS
+    XML2_HEADER_DIRS = opt_header_dirs.map { |idir|
+      File.join(idir, "libxml2")
+    } + HEADER_DIRS
 
     # If the user has homebrew installed, use the libxml2 inside homebrew
     brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
@@ -104,6 +129,50 @@ else
       recipe.activate
     end
 
+    def each_idir
+      # If --with-iconv-dir is given, it should be the first priority
+      idir = preserving_globals {
+        dir_config('iconv')
+      }.first and yield idirta
+
+      # Then --with-opt-dir
+      idir = preserving_globals {
+        dir_config('opt')
+      }.first and yield idir
+
+      # Try the system default
+      yield "/usr/include"
+
+      opt_header_dirs.each { |dir|
+        yield dir
+      }
+
+      cflags, = preserving_globals {
+        pkg_config('libiconv')
+      }
+      if cflags
+        cflags.shellsplit.each { |arg|
+          arg.sub!(/\A-I/, '') and
+          yield arg
+        }
+      end
+
+      nil
+    end
+
+    # Make sure libxml2 is built with iconv
+    iconv_prefix = each_idir { |idir|
+      prefix = %r{\A(.+)?/include\z} === idir && $1 or next
+      File.exist?(File.join(idir, 'iconv.h')) or next
+      preserving_globals {
+        # Follow the way libxml2's configure uses a value given with
+        # --with-iconv[=DIR]
+        $CPPFLAGS << " -I#{idir}"
+        $LDFLAGS  << " -L#{prefix}/lib"
+        have_iconv?
+      } and break prefix
+    } or asplode "libiconv"
+
     dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
 
     libxml2_recipe = MiniPortile.new("libxml2", dependencies["libxml2"]).tap do |recipe|
@@ -112,6 +181,7 @@ else
         "--disable-static",
         "--without-python",
         "--without-readline",
+        "--with-iconv=#{iconv_prefix}",
         "--with-c14n",
         "--with-debug",
         "--with-threads"
@@ -147,21 +217,9 @@ dir_config('iconv', HEADER_DIRS, LIB_DIRS)
 dir_config('xml2', XML2_HEADER_DIRS, LIB_DIRS)
 dir_config('xslt', HEADER_DIRS, LIB_DIRS)
 
-def asplode(lib)
-  abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
-end
-
 pkg_config('libxslt')
 pkg_config('libxml-2.0')
 pkg_config('libiconv')
-
-def have_iconv?
-  %w{ iconv_open libiconv_open }.any? do |method|
-    have_func(method, 'iconv.h') or
-      have_library('iconv', method, 'iconv.h') or
-      find_library('iconv', method, 'iconv.h')
-  end
-end
 
 asplode "libxml2"  unless find_header('libxml/parser.h')
 asplode "libxslt"  unless find_header('libxslt/xslt.h')
