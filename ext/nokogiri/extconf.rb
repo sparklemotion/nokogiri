@@ -213,18 +213,15 @@ else
 end
 
 dir_config('zlib', HEADER_DIRS, LIB_DIRS)
-dir_config('iconv', HEADER_DIRS, LIB_DIRS)
 dir_config('xml2', XML2_HEADER_DIRS, LIB_DIRS)
 dir_config('xslt', HEADER_DIRS, LIB_DIRS)
 
 pkg_config('libxslt')
 pkg_config('libxml-2.0')
-pkg_config('libiconv')
 
 asplode "libxml2"  unless find_header('libxml/parser.h')
 asplode "libxslt"  unless find_header('libxslt/xslt.h')
 asplode "libexslt" unless find_header('libexslt/exslt.h')
-asplode "libiconv" unless have_iconv?
 asplode "libxml2"  unless find_library("xml2", 'xmlParseDoc')
 asplode "libxslt"  unless find_library("xslt", 'xsltParseStylesheetDoc')
 asplode "libexslt" unless find_library("exslt", 'exsltFuncRegister')
