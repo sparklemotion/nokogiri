@@ -130,15 +130,13 @@ else
     end
 
     def each_idir
-      # If --with-iconv-dir is given, it should be the first priority
-      idir = preserving_globals {
-        dir_config('iconv')
-      }.first and yield idirta
-
-      # Then --with-opt-dir
-      idir = preserving_globals {
-        dir_config('opt')
-      }.first and yield idir
+      # If --with-iconv-dir or --with-opt-dir is given, it should be
+      # the first priority
+      %w[iconv opt].each { |config|
+        idir = preserving_globals {
+          dir_config(config)
+        }.first and yield idir
+      }
 
       # Try the system default
       yield "/usr/include"
