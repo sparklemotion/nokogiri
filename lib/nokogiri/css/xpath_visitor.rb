@@ -14,14 +14,14 @@ module Nokogiri
         when /^eq\(/
           "position() = #{node.value[1]}"
         when /^(nth|nth-of-type|nth-child)\(/
-          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
-            an_plus_b(node.value[1])
+          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
+            nth(node.value[1])
           else
             "position() = #{node.value[1]}"
           end
         when /^(nth-last-child|nth-last-of-type)\(/
-          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :AN_PLUS_B
-            an_plus_b(node.value[1], :last => true)
+          if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
+            nth(node.value[1], :last => true)
           else
             index = node.value[1].to_i - 1
             index == 0 ? "position() = last()" : "position() = last() - #{index}"
@@ -151,11 +151,10 @@ module Nokogiri
       end
 
     private
-      def an_plus_b node, options={}
+      def nth node, options={}
         raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
 
-        a = node.value[0].to_i
-        b = node.value[3].to_i
+        a, b = read_a_and_positive_b node.value
         position = options[:last] ? "(last()-position()+1)" : "position()"
 
         if (b == 0)
@@ -166,6 +165,19 @@ module Nokogiri
         end
       end
 
+      def read_a_and_positive_b values
+        op = values[2]
+        if op == "+"
+          a = values[0].to_i
+          b = values[3].to_i
+        elsif op == "-"
+          a = values[0].to_i
+          b = a - (values[3].to_i % a)
+        else
+          raise ArgumentError, "expected an+b node to have either + or - as the operator, but is #{op.inspect}"
+        end
+        [a, b]
+      end
     end
   end
 end
