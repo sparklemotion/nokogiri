@@ -77,8 +77,7 @@
 ## Encoding
 
 We have a lot of issues open around encoding. How bad are things?
-Would it help if we deprecated support for Ruby 1.8.7? Somebody who
-knows encoding well should head this up.
+Somebody who knows encoding well should head this up.
 
 * Extract EncodingReader as a real object that can be injected
   https://groups.google.com/forum/#!msg/nokogiri-talk/arJeAtMqvkg/tGihB-iBRSAJ
