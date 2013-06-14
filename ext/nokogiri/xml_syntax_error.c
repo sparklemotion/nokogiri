@@ -37,6 +37,7 @@ VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error)
     rb_iv_set(e, "@str3", RBSTR_OR_QNIL(error->str3));
     rb_iv_set(e, "@int1", INT2NUM(error->int1));
     rb_iv_set(e, "@column", INT2NUM(error->int2));
+    if (error->node) rb_iv_set(e, "@node", Nokogiri_wrap_xml_node(Qnil, error->node));
   }
 
   return e;
