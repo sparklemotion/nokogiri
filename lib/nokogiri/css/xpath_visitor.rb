@@ -109,6 +109,7 @@ module Nokogiri
           when "last", "last-child" then "position() = last()"
           when "first-of-type" then "position() = 1"
           when "last-of-type" then "position() = last()"
+          when "only-child" then "last() = 1"
           when "only-of-type" then "last() = 1"
           when "empty" then "not(node())"
           when "parent" then "node()"
