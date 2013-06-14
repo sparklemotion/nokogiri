@@ -152,7 +152,7 @@ module Nokogiri
         ], @scanner)
       end
 
-      def test_scan_an_plus_b
+      def test_scan_nth
         @scanner.scan('x:nth-child(5n+3)')
         assert_tokens([ [:IDENT, 'x'],
                         [':', ':'],
