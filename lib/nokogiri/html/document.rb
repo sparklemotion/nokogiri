@@ -6,8 +6,12 @@ module Nokogiri
       # then nil is returned.
       def meta_encoding
         meta = meta_content_type and
-          match = /charset\s*=\s*([\w-]+)/i.match(meta['content']) and
+          match = /charset\s*=\s*([\w-]+)/i.match(meta['content'])
+        if match
           match[1]
+        else
+          cs = at('meta[@charset]') and cs[:charset]
+        end
       end
 
       ###

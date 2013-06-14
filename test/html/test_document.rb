@@ -166,6 +166,20 @@ EOHTML
         assert_nil doc.meta_encoding
       end
 
+      def test_meta_encoding_checks_charset
+        doc = Nokogiri::HTML(<<-eohtml)
+<html>
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    foo
+  </body>
+</html>
+        eohtml
+        assert_equal 'UTF-8', doc.meta_encoding
+      end
+
       def test_meta_encoding=
         @html.meta_encoding = 'EUC-JP'
         assert_equal 'EUC-JP', @html.meta_encoding
