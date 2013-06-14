@@ -17,6 +17,11 @@ module Nokogiri
           @parser.parse('ol > *:not(:last-child)'))
       end
 
+      def test_not_only_child
+        assert_xpath('//ol/*[not(last() = 1)]',
+          @parser.parse('ol > *:not(:only-child)'))
+      end
+
       def test_function_calls_allow_at_params
         assert_xpath("//a[foo(., @href)]", @parser.parse('a:foo(@href)'))
         assert_xpath("//a[foo(., @a, b)]", @parser.parse('a:foo(@a, b)'))
