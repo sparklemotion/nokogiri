@@ -74,6 +74,9 @@ else
     # First search /opt/local for macports
     '/opt/local/include',
 
+    # Then check for OpenCSW packages
+    '/opt/csw/include',
+
     # Then search /usr/local for people that installed from source
     '/usr/local/include',
 
@@ -91,6 +94,9 @@ else
     LIB_DIRS = [
       # First search /opt/local for macports
       '/opt/local/lib',
+
+      # Then check for OpenCSW packages
+      '/opt/csw/lib',
 
       # Then search /usr/local for people that installed from source
       '/usr/local/lib',
