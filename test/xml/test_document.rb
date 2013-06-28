@@ -519,6 +519,12 @@ module Nokogiri
         end
       end
 
+      def test_memory_explosion_on_invalid_xml
+        doc = Nokogiri::XML("<<<")
+        refute_nil doc
+        refute_empty doc.errors
+      end
+
       def test_document_has_errors
         doc = Nokogiri::XML(<<-eoxml)
           <foo><bar></foo>
