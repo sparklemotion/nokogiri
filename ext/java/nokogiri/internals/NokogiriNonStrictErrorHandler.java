@@ -61,11 +61,16 @@ public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler{
         // found in the prolog, instead it will keep calling this method and we'll
         // keep inserting the error in the document errors array until we run
         // out of memory
+        errors.add(ex);
         String message = ex.getMessage();
-        if (message != null && message.toLowerCase().contains("in prolog")) {
+
+        // The problem with Xerces is that some errors will cause the
+        // parser not to advance the reader and it will keep reporting
+        // the same error over and over, which will cause the parser
+        // to enter an infinite loop unless we throw the exception.
+        if (message != null && isFatal(message)) {
           throw ex;
         }
-        errors.add(ex);
     }
 
     public void error(String domain, String key, XMLParseException e) {
@@ -80,4 +85,13 @@ public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler{
         errors.add(e);
     }
 
+    /*
+     * Determine whether this is a fatal error that should cause
+     * the parsing to stop, or an error that can be ignored.
+     */
+    private static boolean isFatal(String msg) {
+        return
+          msg.toLowerCase().contains("in prolog") ||
+          msg.toLowerCase().contains("preceding the root element must be well-formed");
+    }
 }
