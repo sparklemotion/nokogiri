@@ -119,6 +119,8 @@ else
       XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
     end
 
+    pkg_config('libxslt')
+    pkg_config('libxml-2.0')
   else
     require 'mini_portile'
     require 'yaml'
@@ -219,9 +221,6 @@ end
 dir_config('zlib', HEADER_DIRS, LIB_DIRS)
 dir_config('xml2', XML2_HEADER_DIRS, LIB_DIRS)
 dir_config('xslt', HEADER_DIRS, LIB_DIRS)
-
-pkg_config('libxslt')
-pkg_config('libxml-2.0')
 
 asplode "libxml2"  unless find_header('libxml/parser.h')
 asplode "libxslt"  unless find_header('libxslt/xslt.h')
