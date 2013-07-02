@@ -6,11 +6,15 @@
     where libiconv is installed outside the system default directories,
     such as FreeBSD.
   * Add support for an-b in nth selectors. #886 (Thanks, Magnus Bergmark!)
+  * Add support for bare and multiple :not() functions in selectors. #887
+    (Thanks, Magnus Bergmark!)
 
 * Bugfixes
 
   * Ensure :only-child pseudo class works within :not pseudo class. #858
     (Thanks, Yamagishi Kazutoshi!)
+  * Don't call pkg_config when using bundled libraries in extconf.rb
+    #931 (Thanks, Shota Fukumori!)
 
 
 === 1.6.0 / 2013-06-08
