@@ -3,7 +3,13 @@
 * 機能
 
   * FreeBSDなど、libiconvがシステム標準ディレクトリ外にある環境でlibxml2がiconvサポート付きで正しくビルドされるようになった
+  * nthセレクタにおいてan-bを認識するようになった #886 (Magnus Bergmarkに感謝!)
+  * 孤立している、もしくは複数の:not疑似クラスを認識するようになった #887 (Magnus Bergmarkに感謝!)
 
+* バグ修正
+
+  * :only-child疑似クラスが:not疑似クラスの中にある場合に正常な動作が行われるようになった #858 (Yamagishi Kazutoshiに感謝!)
+  * extconf.rbが同梱のライブラリが使われる時にpkg_configを呼ばなくなった #931 (Shota Fukumoriに感謝!)
 
 === 1.6.0 / 2013年6月8日
 
