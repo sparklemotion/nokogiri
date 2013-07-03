@@ -30,6 +30,7 @@ module Nokogiri
     SNUGGLES_FILE       = File.join(ASSETS_DIR, 'snuggles.xml')
     XML_FILE            = File.join(ASSETS_DIR, 'staff.xml')
     XML_XINCLUDE_FILE   = File.join(ASSETS_DIR, 'xinclude.xml')
+    XML_ATOM_FILE       = File.join(ASSETS_DIR, 'atom.xml')
     XSLT_FILE           = File.join(ASSETS_DIR, 'staff.xslt')
 
     def teardown
