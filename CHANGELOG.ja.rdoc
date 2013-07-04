@@ -179,38 +179,31 @@
 
 * バグの修正
 
-  * エンコーディング自動認識において発生しうるメモリリークを修正.
+  * エンコーディング自動認識において発生しうるメモリリークを修正
     Tim Elliottに感謝！
-  * homebrew はインストールしたら、extconf は homebrew のパスを読む。
-  * Inconsistent behavior of Nokogiri 1.5.0 Java #620
-  * Inheriting from Nokogiri::XML::Node on JRuby (1.6.4/5) fails #560
-  * XML::Attr nodes are not allowed to be added as node children, so an
-    exception is raised. #558
-  * No longer defensively "pickle" adjacent text nodes on
-    Node#add_next_sibling and Node#add_previous_sibling calls. #595.
-  * Java version inconsistency: it returns nil for empty attributes #589
-  * to_xhtml incorrectly generates <p /></p> when tag is empty #557
-  * Document#add_child now accepts a Node, NodeSet, DocumentFragment,
-    or String. #546.
-  * Document#create_element now recognizes namespaces containing
-    non-word characters (like "SOAP-ENV"). This is mostly relevant to
-    users of Builder, which calls Document#create_element for nearly
-    everything. #531.
-  * File encoding broken in 1.5.0 / jruby / windows #529
-  * Java version does not return namespace defs as attrs for ::HTML #542
-  * Bad file descriptor with Nokogiri 1.5.0 #495
-  * remove_namespace! doesn't work in pure java version #492
-  * The Nokogiri Java native build throws a null pointer exception when
-    ActiveSupport's .blank? method is called directly on a parsed object.
-    #489
-  * 1.5.0 Not using correct character encoding #488
-  * Raw XML string in XML Builder broken on JRuby #486
-  * Nokogiri 1.5.0 XML generation broken on JRuby #484
-  * Do not allow multiple root nodes. #550
-  * Fixes for custom XPath functions. #605, #606 (thanks, Juan Wajnerman!)
-  * Node#to_xml does not override :save_with if it is provided. #505
-  * Node#set is a private method (JRuby). #564 (thanks, Nick Sieger!)
-  * C14n cleanup and Node#canonicalize (thanks, Ivan Pirlik!) #563
+  * homebrew がインストールされていたら、extconf は homebrew のパスを読む。
+  * Java版の一貫性のない挙動 #620
+  * JRuby (1.6.4/5) で Nokogiri::XML::Node を継承できなかった #560
+  * XML::Attr ノードは子ノードとして追加できないので例外を出す #558
+  * Node#add_next_sibling と Node#add_previous_sibling で隣接テキストノードをdupする条件を緩和 #595
+  * Java版の一貫性のない挙動: 空の属性値をnilとして返していた #589
+  * to_xhtml が要素が空のときに <p /></p> と誤ったタグを生成していた #557
+  * Document#add_child が Node, NodeSet, DocumentFragment および
+    String を受け付けるようになった #546
+  * Document#create_element が("SOAP-ENV"のように)非単語構成文字を含む名前空間を認識するようになった. これは主に Builder を使う際に効いてくる. Builder はほぼすべてのものに Document#create_element を適用するためである #531
+  * ファイルエンコーディングが効かなかった (1.5.0 / jruby / windows) #529
+  * Java版において、<html>タグに含まれる名前空間定義を属性として返さなかった #542
+  * Nokogiri 1.5.0で Bad file descriptor が発生していた #495
+  * remove_namespace! がpure Java版で動かなかった #492
+  * Javaネイティブ版でパースされたオブジェクトに対して ActiveSupport の .blank? メソッドを呼ぶと null pointer exception が発生していた #489
+  * 1.5.0 で正しい文字エンコーディングが仕様されなかった #488
+  * XML Builder に生のXML文字列を渡した際の問題 (JRuby) #486
+  * Nokogiri 1.5.0でXML生成が壊れていた (JRuby) #484
+  * ルートノードを複数持つことを認めない #550
+  * カスタムXPath関数を修正 #606 (Juan Wajnermanに感謝!)
+  * Node#to_xml で :save_with が指定されている場合は上書きしないように修正 #505
+  * Node#set をプライベートメソッドに (JRuby) #564 (Nick Siegerに感謝!)
+  * C14nの整理と Node#canonicalize (Ivan Pirlikに感謝!) #563
 
 
 === 1.5.0 / 2011年7月1日
