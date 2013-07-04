@@ -172,10 +172,10 @@
 * 新機能
 
   * XML::Builder#comment はコメントノードを作れるようになった.
-  * CSS searches now support namespaced attributes. #593
+  * CSSセレクター検索が名前空間付き属性に対応 #593
   * Java integration 機能が追加された. このバージョンから,
     XML::Document.wrap と XML::Document#to_java メソッドが利用可能。
-  * RelaxNG validator support in the `nokogiri` cli utility. #591 (thanks, Dan Radez!)
+  * `nokogiri` CLIユーティリティがRelaxNGバリデーションに対応 #591 (thanks, Dan Radez!)
 
 * バグの修正
 
