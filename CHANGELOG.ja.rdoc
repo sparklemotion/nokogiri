@@ -75,7 +75,7 @@
   * SAXパーザに不正なエンコーディングに渡された場合はArgumentErrorを投げるようにした。#756 (ありがとう、Bradley Schaefer!)
   * (JRuby) XML宣言の前にスペースがあると、ドキュメントのパーズに失敗する。(#748の修正でこれもなおっている) #790
   * (JRuby) Nokogiri::XML::Node#content のJRubyの振る舞いがCRubyと同じではない。#794, #797
-  * (JRuby) で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外がはっせいする。 #719
+  * (JRuby) で '#' で始まる文字列を名前とする EntityReference を作ろうとすると INVALID_CHARACTER_ERR という例外が発生する。 #719
   * (JRuby) では Nodeのサブクラスのnamespaceを正しく文字列に変換しない。 #715
   * (JRuby) Node#contentがこのバージョンから改行コードを正しく表示するようになった。#737 (ありがとう、Piotr Szmielew!)
   * (JRuby) recover optionが指定されている場合は宣言の無い名前空間を無視するようにした。#748
@@ -108,7 +108,7 @@
   * JRuby で US-ASCII にエンコードされた文字列が正しくないエンコードを返してくる。 #583
   * 512 文字以上が与えられたときに XmlSaxPushParser が IndexOutOfBoundsException を投げる。#567, #615
   * Xpath を評価した結果、空の NodeSet が帰ってくる場合に、NodeSet が持っている Document の decorate に失敗して例外が投げられる。#514
-  * JRuby で xpath を namespace 付きで指定した場合に、エラーが発生する。pull request #681 (ありがとう, Piotr Szmielew) 
+  * JRuby で xpath を namespace 付きで指定した場合に、エラーが発生する。pull request #681 (ありがとう, Piotr Szmielew)
   * JRuby で Nokogiri::XML::Node を継承したクラスを定義すると、namespace が表示されない。 #695
   * JRuby で RDF::RDFXML::Writer をインスタンス化しようとすると NAMESPACE_ERR (org.w3c.dom.DOMException) が発生する. #683
   * JRuby で xpath に namespaces を指定すると例外が発生する. #493
@@ -135,7 +135,7 @@
     パース時にネットワークに接続して外部のドキュメントを見にいかせたい場合には、以下のように `nonoet` オプションを設定する:
 
     Nokogiri::XML::Document.parse(xml) { |config| config.nononet }
-    
+
     ここに、自分ならではの二重否定のジョークをうめこむとなおよし。
 
 
@@ -173,7 +173,7 @@
 
   * XML::Builder#comment はコメントノードを作れるようになった.
   * CSS searches now support namespaced attributes. #593
-  * Java integration 機能が追加された. このバージョンから, 
+  * Java integration 機能が追加された. このバージョンから,
     XML::Document.wrap と XML::Document#to_java メソッドが利用可能。
   * RelaxNG validator support in the `nokogiri` cli utility. #591 (thanks, Dan Radez!)
 
@@ -394,7 +394,7 @@
 
 * ノート
 
-  * 今日４月１８日現在、Windows gems は libxml 2.7.7 とlibxslt
+  * 今日4月18日現在、Windows gems は libxml 2.7.7 とlibxslt
     1.1.26にDLLsを標準装備しています。このリリース以前にも既にDLLsはlibxml
     2.7.3 と libxslt 1.1.24に標準装備済み。
 
@@ -686,26 +686,26 @@
 
 * バグの修正
 
-  * HTML のノードを \r のエンティティを含まない
+  * HTML のノードに \r のエンティティを含めない
   * CSS::SelectorHandler と XML::XPathHandler を除去
-  * XML::Node#attributes が Attr node を value値に返す
-  * XML::NodeSet が to_xml へ実行
+  * XML::Node#attributes が Attr node を値として返す
+  * XML::NodeSet が to_xml を実装
 
 
 === 1.1.0
 
 * 新しい機能
 
-  * カスタム XPath 機能はある。（ Nokogiri::XML::Node#xpath 参照 ）
-  * カスタム CSS 擬似クラスと機能はある。（ Nokogiri::XML::Node#css 参照 ）
+  * カスタム XPath 機能を追加。（ Nokogiri::XML::Node#xpath 参照 ）
+  * カスタム CSS 擬似クラスと機能を追加。（ Nokogiri::XML::Node#css 参照 ）
   * Nokogiri::XML::Node#<< が作成中に子ノードを自動追加
 
 * バグの修正
 
   * mutex が CSS のキャッシュのアクセスをロックする
   * GCC 3.3.5 のビルドに関する問題を修正
-  * XML::Node#to_xml が引数indentationを取る 
-  * XML::Node#dup が引数任意のdepthを取る 
+  * XML::Node#to_xml が引数indentationを取る
+  * XML::Node#dup が引数任意のdepthを取る
   * XML::Node#add_previous_sibling が新しい兄弟ノードで返す
 
 
@@ -714,10 +714,10 @@
 * バグの修正
 
   * Dike 使用時中のメモリーリークの修正
-  * SAX パーサーが現在 IO Stream 同時解析
+  * SAX パーサーが IO Stream を逐次解析
   * コメント nodes が独自のクラスを継承する
   * Nokogiri() は Nokogiri.parse() へデリゲートする
-  * ENV['PATH'] に付加せれる代わりに先頭へデータ挿入される
+  * ENV['PATH'] に付加する代わりに先頭へ挿入する (Windows)
   * 複雑な CSS 内のバグを修正完了 :not selector ではありません
 
 
@@ -736,7 +736,7 @@
 
 * バグフィックス
 
-  * メーリンクリストを作成
+  * メーリングリストを作成
   * バグファイルを作成
   * Windows 内で ENV['PATH'] が存在しない場合でも、存在出来るように設定完了
   * Document 内の NodeSet#[] の結果をキャッシュする
@@ -756,7 +756,7 @@
 
 * 5つのバグ修正
 
-  * NodeSet が to_ary へ実行
+  * NodeSet が to_ary を実装
   * XML::Document#parent を除去
   * GCバグ修正済み (Mike は最高！)
   * 1.8.5互換性の為の RARRAY_LEN 除去
@@ -767,7 +767,7 @@
 
 * 1つのバグ修正
 
-  * extconf.rb は frex や racc を調べないはず
+  * extconf.rb は frex や racc の存在をチェックすべきでない
 
 
 === 1.0.1
