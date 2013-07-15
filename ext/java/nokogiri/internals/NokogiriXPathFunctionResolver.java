@@ -63,7 +63,7 @@ public class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
     
     private NokogiriXPathFunctionResolver() {}
     
-    private void setHandler(IRubyObject handler) {
+    public void setHandler(IRubyObject handler) {
         this.handler = handler;
     }
 
