@@ -132,6 +132,45 @@ module Nokogiri
         assert_equal(['asdf'] * set.length, @handler.things)
       end
 
+      def parse_params node
+        params={}
+        node.xpath('./param').each do |p|
+          subparams = parse_params p
+          if(subparams.length > 0)
+            if(not params.has_key? p.attributes['name'].value)
+              params[p.attributes['name'].value] = subparams
+            else
+              if(params[p.attributes['name'].value].is_a? Array)
+                params[p.attributes['name'].value] << subparams
+              else
+                value = params[p.attributes['name'].value]
+                params[p.attributes['name'].value] = [value,subparams]
+              end
+            end
+          else
+            params[p.attributes['name'].value]=p.text
+          end
+        end
+        params
+      end
+
+      # issue #741 (xpath() around 10x slower in JRuby)
+      def test_slow_jruby_xpath
+        doc = Nokogiri::XML(File.open(XPATH_FILE))
+        start = Time.now
+
+        doc.xpath('.//category').each do |c|
+          c.xpath('programformats/programformat').each do |p|
+            p.xpath('./modules/module').each do |m|
+              parse_params m
+            end
+          end
+        end
+        stop = Time.now
+        elapsed_time = stop - start
+        assert elapsed_time < 10, "XPath is taking too long"
+      end
+
       def test_custom_xpath_function_returns_string
         if Nokogiri.uses_libxml?
           result = @xml.xpath('thing("asdf")', @handler)
