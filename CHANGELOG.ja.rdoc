@@ -36,15 +36,15 @@ mentioned in the notes for v1.5.10.
 
 * バグ修正
 
-  * (JRuby) Fix "null document" error when parsing an empty IO in jruby 1.7.3. #883
-  * (JRuby) Fix schema validation when XSD has DOCTYPE set to DTD. #861 (Thanks, Patrick Cheng!)
-  * (MRI) Fix segfault when there is no default subelement for an HTML node. #917
+  * (JRuby) JRuby 1.7.3で空のIOをパースする際の "null document" エラーを修正 #883
+  * (JRuby) XSDにDTDのDOCTYPEがあったときのスキーマ検証の問題を修正 #912 (Patrick Chengに感謝!)
+  * (MRI) HTMLノードに対するdefault_sub_element呼出でsegfaultしていたのを修正 #917
 
 
 * 註
 
-  * Use rb_ary_entry instead of RARRAY_PTR (you know, for Rubinius). #877 (Thanks, Dirkjan Bussink!)
-  * Fix TypeError when running tests. #900 (Thanks, Cédric Boutillier!)
+  * RARRAY_PTR()の代わりにrb_ary_entry()を使うように変更 (そう、Rubiniusのためにね) #877 (Dirkjan Bussinkに感謝!)
+  * テストでTypeErrorが起きるのを修正 #900 (Cédric Boutillierに感謝!)
 
 
 === 1.5.9 / 2013年3月21日
