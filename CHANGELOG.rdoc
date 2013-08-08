@@ -8,6 +8,8 @@
   * Add support for an-b in nth selectors. #886 (Thanks, Magnus Bergmark!)
   * Add support for bare and multiple :not() functions in selectors. #887
     (Thanks, Magnus Bergmark!)
+  * (MRI) Add an extconf.rb option --use-system-libraries, alternative to
+    setting the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES.
 
 * Bugfixes
 
