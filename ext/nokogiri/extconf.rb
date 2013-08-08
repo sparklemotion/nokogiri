@@ -88,6 +88,22 @@ def iconv_prefix
   } or asplode "libiconv"
 end
 
+def process_recipe(name, version)
+  MiniPortile.new(name, version).tap { |recipe|
+    recipe.target = File.join(ROOT, "ports")
+    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+
+    yield recipe
+
+    checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+    unless File.exist?(checkpoint)
+      recipe.cook
+      FileUtils.touch checkpoint
+    end
+    recipe.activate
+  }
+end
+
 windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
 
 if windows_p
@@ -170,21 +186,9 @@ else
     require 'mini_portile'
     require 'yaml'
 
-    common_recipe = lambda do |recipe|
-      recipe.target = File.join(ROOT, "ports")
-      recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
-
-      checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
-      unless File.exist?(checkpoint)
-        recipe.cook
-        FileUtils.touch checkpoint
-      end
-      recipe.activate
-    end
-
     dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
 
-    libxml2_recipe = MiniPortile.new("libxml2", dependencies["libxml2"]).tap do |recipe|
+    libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) { |recipe|
       recipe.configure_options = [
         "--enable-shared",
         "--disable-static",
@@ -195,10 +199,9 @@ else
         "--with-debug",
         "--with-threads"
       ]
-      common_recipe.call recipe
-    end
+    }
 
-    libxslt_recipe = MiniPortile.new("libxslt", dependencies["libxslt"]).tap do |recipe|
+    libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) { |recipe|
       recipe.configure_options = [
         "--enable-shared",
         "--disable-static",
@@ -207,8 +210,7 @@ else
         "--with-debug",
         "--with-libxml-prefix=#{libxml2_recipe.path}"
       ]
-      common_recipe.call recipe
-    end
+    }
 
     $LIBPATH = ["#{libxml2_recipe.path}/lib"] | $LIBPATH
     $LIBPATH = ["#{libxslt_recipe.path}/lib"] | $LIBPATH
