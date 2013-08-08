@@ -8,6 +8,34 @@ RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 
+if arg_config('--clean')
+  require 'pathname'
+  require 'fileutils'
+
+  root = Pathname(ROOT)
+  pwd  = Pathname(Dir.pwd)
+
+  # Skip if this is a development work tree
+  unless (root + '.git').exist?
+    message "Cleaning files only used during build.\n"
+
+    if pwd.relative_path_from(root).fnmatch?('tmp/*')
+      # (root + 'tmp') cannot be removed at this stage because
+      # nokogiri.so is yet to be copied to lib.
+      FileUtils.rm_rf(pwd + 'tmp')
+    end
+
+    if enable_config('static')
+      # ports installation can be safely removed if statically linked.
+      FileUtils.rm_rf(root + 'ports')
+    else
+      FileUtils.rm_rf(root + 'ports' + 'archives')
+    end
+  end
+
+  exit
+end
+
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
   $LIBRUBYARG_STATIC.gsub!(/-static/, '')
 end
@@ -281,5 +309,17 @@ if ENV['CPUPROFILE']
 end
 
 create_makefile('nokogiri/nokogiri')
+
+if enable_config('clean', true)
+  # Do not clean if run in a development work tree.
+  File.open('Makefile', 'at') { |mk|
+    mk.print <<EOF
+all: clean-ports
+
+clean-ports: $(DLLIB)
+	-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? 'enable' : 'disable'}-static
+EOF
+  }
+end
 
 # :startdoc:
