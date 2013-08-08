@@ -151,14 +151,29 @@ else
   require 'mini_portile'
   require 'yaml'
 
+  static_p = enable_config('static', true) or
+    message "Static linking is disabled.\n"
+
   dir_config('zlib')
 
   dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
 
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) { |recipe|
     recipe.configure_options = [
-      "--enable-shared",
-      "--disable-static",
+      *(
+        if static_p
+          [
+            "--disable-shared",
+            "--enable-static",
+            "CFLAGS=-fPIC",
+          ]
+        else
+          [
+            "--enable-shared",
+            "--disable-static",
+          ]
+        end
+        ),
       "--without-python",
       "--without-readline",
       "--with-iconv=#{iconv_prefix}",
@@ -170,8 +185,20 @@ else
 
   libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) { |recipe|
     recipe.configure_options = [
-      "--enable-shared",
-      "--disable-static",
+      *(
+        if static_p
+          [
+            "--disable-shared",
+            "--enable-static",
+            "CFLAGS=-fPIC",
+          ]
+        else
+          [
+            "--enable-shared",
+            "--disable-static",
+          ]
+        end
+        ),
       "--without-python",
       "--without-crypto",
       "--with-debug",
@@ -179,10 +206,51 @@ else
     ]
   }
 
-  $LIBPATH = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "lib") } | $LIBPATH
-  $CPPFLAGS = ["-I#{libxml2_recipe.path}/include/libxml2", "-I#{libxslt_recipe.path}/include"].shelljoin << ' ' << $CPPFLAGS
+  $CFLAGS << ' ' << '-DNOKOGIRI_USE_PACKAGED_LIBRARIES'
 
-  $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
+  $libs.shellsplit.tap { |libs|
+    [libxml2_recipe, libxslt_recipe].each { |recipe|
+      libname = recipe.name[/\Alib(.+)\z/, 1]
+      File.join(recipe.path, "bin", "#{libname}-config").tap { |config|
+        $CPPFLAGS = `#{config} --cflags`.strip << ' ' << $CPPFLAGS
+        `#{config} --libs`.strip.shellsplit.each { |arg|
+          case arg
+          when /\A-L(.+)\z/
+            # Prioritize ports' directories
+            if $1.start_with?(ROOT + '/')
+              $LIBPATH = [$1] | $LIBPATH
+            else
+              $LIBPATH = $LIBPATH | [$1]
+            end
+          when /\A-l./
+            libs.unshift(arg)
+          else
+            $LDFLAGS << ' ' << arg.shellescape
+          end
+        }
+      }
+      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".shellescape
+    }
+
+    libs.unshift('-lexslt')
+
+    $libs = libs.shelljoin
+  }
+
+  if static_p
+    $libs.replace($libs.shellsplit.flat_map {  |arg|
+        case arg
+        when '-lxml2', '-lxslt', '-lexslt'
+          ['-Wl,-Bstatic', arg, '-Wl,-Bdynamic']
+        else
+          arg
+        end
+      }.shelljoin)
+
+    # xslt-config --libs or pkg-config libxslt --libs does not include
+    # -llzma, so we need to add it manually when linking statically.
+    have_library('lzma')
+  end
 end
 
 {
