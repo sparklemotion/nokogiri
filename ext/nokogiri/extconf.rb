@@ -207,8 +207,8 @@ else
       common_recipe.call recipe
     end
 
-    $LDFLAGS << " -Wl,-rpath,#{libxml2_recipe.path}/lib"
-    $LDFLAGS << " -Wl,-rpath,#{libxslt_recipe.path}/lib"
+    $LIBPATH = ["#{libxml2_recipe.path}/lib"] | $LIBPATH
+    $LIBPATH = ["#{libxslt_recipe.path}/lib"] | $LIBPATH
 
     $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
 
