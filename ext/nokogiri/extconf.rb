@@ -7,9 +7,6 @@ require 'mkmf'
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
-LIBDIR = RbConfig::CONFIG['libdir']
-@libdir_basename = "lib" # shrug, ruby 2.0 won't work for me.
-INCLUDEDIR = RbConfig::CONFIG['includedir']
 
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
   $LIBRUBYARG_STATIC.gsub!(/-static/, '')
@@ -124,123 +121,77 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 end
 
-if windows_p
+case
+when windows_p
   message "Cross-building nokogiri.\n"
 
   dir_config('iconv')
   have_iconv? or asplode 'iconv'
 
-  HEADER_DIRS = [INCLUDEDIR]
-  LIB_DIRS = [LIBDIR]
-  XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
+  @libdir_basename = "lib" # shrug, ruby 2.0 won't work for me.
+  idir, ldir = RbConfig::CONFIG['includedir'], RbConfig::CONFIG['libdir']
 
+  dir_config('zlib', idir, ldir)
+  dir_config('xml2', [File.join(idir, "libxml2"), idir], ldir)
+  dir_config('xslt', idir, ldir)
+when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+  message "Building nokogiri using system libraries.\n"
+
+  dir_config('zlib')
+
+  # Using system libraries means we rely on the system libxml2 with
+  # regard to the iconv support.
+
+  dir_config('xml2').any?  || pkg_config('libxml-2.0')
+  dir_config('xslt').any?  || pkg_config('libxslt')
+  dir_config('exslt').any? || pkg_config('libexslt')
 else
-  opt_header_dirs = [
-    # First search /opt/local for macports
-    '/opt/local/include',
+  message "Building nokogiri using packaged libraries.\n"
 
-    # Then check for OpenCSW packages
-    '/opt/csw/include',
+  require 'mini_portile'
+  require 'yaml'
 
-    # Then search /usr/local for people that installed from source
-    '/usr/local/include',
+  dir_config('zlib')
 
-    # Check the ruby install locations
-    INCLUDEDIR,
-  ]
+  dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
 
-  if arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
-    message "Building nokogiri using system libraries.\n"
-
-    HEADER_DIRS = opt_header_dirs + [
-      # Fall back to /usr
-      '/usr/include',
-      '/usr/include/libxml2',
+  libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) { |recipe|
+    recipe.configure_options = [
+      "--enable-shared",
+      "--disable-static",
+      "--without-python",
+      "--without-readline",
+      "--with-iconv=#{iconv_prefix}",
+      "--with-c14n",
+      "--with-debug",
+      "--with-threads"
     ]
+  }
 
-    LIB_DIRS = [
-      # First search /opt/local for macports
-      '/opt/local/lib',
-
-      # Then check for OpenCSW packages
-      '/opt/csw/lib',
-
-      # Then search /usr/local for people that installed from source
-      '/usr/local/lib',
-
-      # Check the ruby install locations
-      LIBDIR,
-
-      # Finally fall back to /usr
-      '/usr/lib',
+  libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) { |recipe|
+    recipe.configure_options = [
+      "--enable-shared",
+      "--disable-static",
+      "--without-python",
+      "--without-crypto",
+      "--with-debug",
+      "--with-libxml-prefix=#{libxml2_recipe.path}"
     ]
+  }
 
-    XML2_HEADER_DIRS = opt_header_dirs.map { |idir|
-      File.join(idir, "libxml2")
-    } + HEADER_DIRS
+  $LIBPATH = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "lib") } | $LIBPATH
+  $CPPFLAGS = ["-I#{libxml2_recipe.path}/include/libxml2", "-I#{libxslt_recipe.path}/include"].shelljoin << ' ' << $CPPFLAGS
 
-    # If the user has homebrew installed, use the libxml2 inside homebrew
-    brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
-    unless brew_prefix.empty?
-      LIB_DIRS.unshift File.join(brew_prefix, 'lib')
-      XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
-    end
-
-    pkg_config('libxslt')
-    pkg_config('libxml-2.0')
-  else
-    message "Building nokogiri using packaged libraries.\n"
-
-    require 'mini_portile'
-    require 'yaml'
-
-    dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
-
-    libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) { |recipe|
-      recipe.configure_options = [
-        "--enable-shared",
-        "--disable-static",
-        "--without-python",
-        "--without-readline",
-        "--with-iconv=#{iconv_prefix}",
-        "--with-c14n",
-        "--with-debug",
-        "--with-threads"
-      ]
-    }
-
-    libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) { |recipe|
-      recipe.configure_options = [
-        "--enable-shared",
-        "--disable-static",
-        "--without-python",
-        "--without-crypto",
-        "--with-debug",
-        "--with-libxml-prefix=#{libxml2_recipe.path}"
-      ]
-    }
-
-    $LIBPATH = ["#{libxml2_recipe.path}/lib"] | $LIBPATH
-    $LIBPATH = ["#{libxslt_recipe.path}/lib"] | $LIBPATH
-
-    $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
-
-    HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "include") }
-    LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "lib") }
-    XML2_HEADER_DIRS = HEADER_DIRS + [File.join(libxml2_recipe.path, "include", "libxml2")]
-  end
+  $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
 end
 
-dir_config('zlib', HEADER_DIRS, LIB_DIRS)
-dir_config('xml2', XML2_HEADER_DIRS, LIB_DIRS)
-dir_config('xslt', HEADER_DIRS, LIB_DIRS)
-
-asplode "libxml2"  unless find_header('libxml/parser.h')
-asplode "libxslt"  unless find_header('libxslt/xslt.h')
-asplode "libexslt" unless find_header('libexslt/exslt.h')
-asplode "libxml2"  unless find_library("xml2", 'xmlParseDoc')
-asplode "libxslt"  unless find_library("xslt", 'xsltParseStylesheetDoc')
-asplode "libexslt" unless find_library("exslt", 'exsltFuncRegister')
+{
+  "xml2"  => ['xmlParseDoc',            'libxml/parser.h'],
+  "xslt"  => ['xsltParseStylesheetDoc', 'libxslt/xslt.h'],
+  "exslt" => ['exsltFuncRegister',      'libexslt/exslt.h'],
+}.each { |lib, (func, header)|
+  have_func(func, header) || have_library(lib, func, header) or asplode("lib#{lib}")
+}
 
 unless have_func('xmlHasFeature')
   abort "-----\nThe function 'xmlHasFeature' is missing from your installation of libxml2.  Likely this means that your installed version of libxml2 is old enough that nokogiri will not work well.  To get around this problem, please upgrade your installation of libxml2.
