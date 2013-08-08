@@ -26,6 +26,7 @@ HOE = Hoe.spec 'nokogiri' do
   developer 'Mike Dalessio',   'mike.dalessio@gmail.com'
   developer 'Yoko Harada',     'yokolet@gmail.com'
   developer 'Tim Elliott',     'tle@holymonkey.com'
+  developer 'Akinori MUSHA',   'knu@idaemons.org'
 
   self.readme_file  = ['README',    ENV['HLANG'], 'rdoc'].compact.join('.')
   self.history_file = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')

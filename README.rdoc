@@ -150,7 +150,7 @@ Then run rake:
 
 (The MIT License)
 
-Copyright (c) 2008 - 2012:
+Copyright (c) 2008 - 2013:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]
@@ -158,6 +158,7 @@ Copyright (c) 2008 - 2012:
 * {Sergio Arbeo}[http://www.serabe.com]
 * {Patrick Mahoney}[http://polycrystal.org]
 * {Yoko Harada}[http://yokolet.blogspot.com]
+* {Akinori MUSHA}[https://akinori.org]
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
