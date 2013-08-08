@@ -1,10 +1,10 @@
 = Nokogiri (鋸) {<img src="https://secure.travis-ci.org/sparklemotion/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/sparklemotion/nokogiri] {<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/sparklemotion/nokogiri]
 
 * http://nokogiri.org/
-* http://github.com/sparklemotion/nokogiri/wikis
-* http://github.com/sparklemotion/nokogiri/tree/master
-* http://groups.google.com/group/nokogiri-list
-* http://github.com/sparklemotion/nokogiri/issues
+* https://github.com/sparklemotion/nokogiri/wikis
+* https://github.com/sparklemotion/nokogiri/tree/master
+* https://groups.google.com/group/nokogiri-list
+* https://github.com/sparklemotion/nokogiri/issues
 
 == DESCRIPTION:
 
@@ -25,13 +25,13 @@ XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPath
 == SUPPORT:
 
 日本語でNokogiriの
-{メーリングリスト}[http://groups.google.com/group/nokogiri-list]
+{メーリングリスト}[https://groups.google.com/group/nokogiri-list]
 
-  * http://groups.google.com/group/nokogiri-list
+  * https://groups.google.com/group/nokogiri-list
 
-{バグ報告}[http://github.com/sparklemotion/nokogiri/issues]
+{バグ報告}[https://github.com/sparklemotion/nokogiri/issues]
 
-  * http://github.com/sparklemotion/nokogiri/issues
+  * https://github.com/sparklemotion/nokogiri/issues
 
 IRCのチャンネルはfreenodeの #nokogiri です。
 
