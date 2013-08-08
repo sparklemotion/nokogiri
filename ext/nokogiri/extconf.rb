@@ -125,7 +125,8 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
 end
 
 if windows_p
-  # I'm cross compiling!
+  message "Cross-building nokogiri.\n"
+
   HEADER_DIRS = [INCLUDEDIR]
   LIB_DIRS = [LIBDIR]
   XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
@@ -145,7 +146,9 @@ else
     INCLUDEDIR,
   ]
 
-  if ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
+  if arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+    message "Building nokogiri using system libraries.\n"
+
     HEADER_DIRS = opt_header_dirs + [
       # Fall back to /usr
       '/usr/include',
@@ -183,6 +186,8 @@ else
     pkg_config('libxslt')
     pkg_config('libxml-2.0')
   else
+    message "Building nokogiri using packaged libraries.\n"
+
     require 'mini_portile'
     require 'yaml'
 
