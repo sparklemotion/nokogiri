@@ -19,10 +19,11 @@ $CFLAGS << " #{ENV["CFLAGS"]}"
 $LIBS << " #{ENV["LIBS"]}"
 
 def preserving_globals
-  values =
+  values = [
     $arg_config,
     $CFLAGS, $CPPFLAGS,
     $LDFLAGS, $LIBPATH, $libs
+  ].map(&:dup)
   yield
 ensure
   $arg_config,
@@ -41,6 +42,50 @@ def have_iconv?
     have_func(method, 'iconv.h') or
       have_library('iconv', method, 'iconv.h')
   end
+end
+
+def each_iconv_idir
+  # If --with-iconv-dir or --with-opt-dir is given, it should be
+  # the first priority
+  %w[iconv opt].each { |config|
+    idir = preserving_globals {
+      dir_config(config)
+    }.first and yield idir
+  }
+
+  # Try the system default
+  yield "/usr/include"
+
+  opt_header_dirs.each { |dir|
+    yield dir
+  }
+
+  cflags, = preserving_globals {
+    pkg_config('libiconv')
+  }
+  if cflags
+    cflags.shellsplit.each { |arg|
+      arg.sub!(/\A-I/, '') and
+      yield arg
+    }
+  end
+
+  nil
+end
+
+def iconv_prefix
+  # Make sure libxml2 is built with iconv
+  each_iconv_idir { |idir|
+    prefix = %r{\A(.+)?/include\z} === idir && $1 or next
+    File.exist?(File.join(idir, 'iconv.h')) or next
+    preserving_globals {
+      # Follow the way libxml2's configure uses a value given with
+      # --with-iconv[=DIR]
+      $CPPFLAGS = "-I#{idir} " << $CPPFLAGS
+      $LIBPATH.unshift(File.join(prefix, "lib"))
+      have_iconv?
+    } and break prefix
+  } or asplode "libiconv"
 end
 
 windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
@@ -136,48 +181,6 @@ else
       end
       recipe.activate
     end
-
-    def each_idir
-      # If --with-iconv-dir or --with-opt-dir is given, it should be
-      # the first priority
-      %w[iconv opt].each { |config|
-        idir = preserving_globals {
-          dir_config(config)
-        }.first and yield idir
-      }
-
-      # Try the system default
-      yield "/usr/include"
-
-      opt_header_dirs.each { |dir|
-        yield dir
-      }
-
-      cflags, = preserving_globals {
-        pkg_config('libiconv')
-      }
-      if cflags
-        cflags.shellsplit.each { |arg|
-          arg.sub!(/\A-I/, '') and
-          yield arg
-        }
-      end
-
-      nil
-    end
-
-    # Make sure libxml2 is built with iconv
-    iconv_prefix = each_idir { |idir|
-      prefix = %r{\A(.+)?/include\z} === idir && $1 or next
-      File.exist?(File.join(idir, 'iconv.h')) or next
-      preserving_globals {
-        # Follow the way libxml2's configure uses a value given with
-        # --with-iconv[=DIR]
-        $CPPFLAGS << " -I#{idir}"
-        $LDFLAGS  << " -L#{prefix}/lib"
-        have_iconv?
-      } and break prefix
-    } or asplode "libiconv"
 
     dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
 
