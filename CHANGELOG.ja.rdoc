@@ -12,6 +12,7 @@
 
   * :only-child疑似クラスが:not疑似クラスの中にある場合に正常な動作が行われるようになった #858 (Yamagishi Kazutoshiに感謝!)
   * 同梱のライブラリを使う場合にはextconf.rbでpkg_configを呼ばなくなった #931 (Shota Fukumoriに感謝!)
+  * Nokogiri.parse()がRSS文書などをHTML文書として誤認する問題を修正 #932 (Yamagishi Kazutoshiに感謝!)
 
 === 1.6.0 / 2013年6月8日
 

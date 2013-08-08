@@ -17,6 +17,8 @@
     (Thanks, Yamagishi Kazutoshi!)
   * Don't call pkg_config when using bundled libraries in extconf.rb
     #931 (Thanks, Shota Fukumori!)
+  * Nokogiri.parse() does not mistake a non-HTML document like a RSS
+    document as HTML document. #932 (Thanks, Yamagishi Kazutoshi!)
 
 
 === 1.6.0 / 2013-06-08
