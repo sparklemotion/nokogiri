@@ -63,10 +63,9 @@ namespace :cross do
       "--host=#{HOST}",
       "--enable-static",
       "--disable-shared",
-      "CPPFLAGS='-mno-cygwin -Wall'",
-      "CFLAGS='-mno-cygwin -O2 -g'",
-      "CXXFLAGS='-mno-cygwin -O2 -g'",
-      "LDFLAGS=-mno-cygwin"
+      "CPPFLAGS='-Wall'",
+      "CFLAGS='-O2 -g'",
+      "CXXFLAGS='-O2 -g'"
     ]
 
     checkpoint = "#{CROSS_DIR}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
