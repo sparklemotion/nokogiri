@@ -7,6 +7,7 @@
   * :not疑似クラスが、先行セレクタがない場合や複数重ねられた場合にも対応した #887 (Magnus Bergmarkに感謝!)
   * (MRI) extconf.rb のオプション --use-system-libraries を追加
     環境変数 NOKOGIRI_USE_SYSTEM_LIBRARIES を設定する代わりに使える
+  * (MRI) 同梱の libxslt を 1.1.28 に、 zlib を 1.2.8 に、 libiconv を 1.14 にそれぞれ更新した
 
 * バグ修正
 
