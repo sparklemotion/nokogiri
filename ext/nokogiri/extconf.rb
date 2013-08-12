@@ -127,6 +127,9 @@ end
 if windows_p
   message "Cross-building nokogiri.\n"
 
+  dir_config('iconv')
+  have_iconv? or asplode 'iconv'
+
   HEADER_DIRS = [INCLUDEDIR]
   LIB_DIRS = [LIBDIR]
   XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
