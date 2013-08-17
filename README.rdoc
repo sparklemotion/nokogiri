@@ -16,12 +16,12 @@ enough of it.
 
 == FEATURES:
 
-* XPath support for document searching
+* XPath 1.0 support for document searching
 * CSS3 selector support for document searching
 * XML/HTML builder
 
 Nokogiri parses and searches XML/HTML very quickly, and also has
-correctly implemented CSS3 selector support as well as XPath support.
+correctly implemented CSS3 selector support as well as XPath 1.0 support.
 
 == SUPPORT:
 

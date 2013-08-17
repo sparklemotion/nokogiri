@@ -16,11 +16,11 @@ XMLは暴力に似ている - XMLが君の問題を解決しないとしたら�
 
 == FEATURES:
 
-* XPath による探索
+* XPath 1.0による探索
 * CSS3 のセレクターによる探索
 * XML/HTMLのビルダー
 
-XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPathをサポートしています。
+XML/HTMLの高速な解析と探索検索、ならびにCSS3セレクタとXPath 1.0をサポートしています。
 
 == SUPPORT:
 

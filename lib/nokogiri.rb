@@ -36,7 +36,8 @@ require 'nokogiri/css'
 require 'nokogiri/html/builder'
 
 # Nokogiri parses and searches XML/HTML very quickly, and also has
-# correctly implemented CSS3 selector support as well as XPath support.
+# correctly implemented CSS3 selector support as well as XPath 1.0
+# support.
 #
 # Parsing a document returns either a Nokogiri::XML::Document, or a
 # Nokogiri::HTML::Document depending on the kind of document you parse.
