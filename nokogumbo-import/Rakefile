@@ -3,44 +3,54 @@ require 'rake/clean'
 
 task 'default' => 'test'
 
-file 'Makefile' => 'ext/extconf.rb' do
-  Dir.chdir 'ext' do 
+file 'gumbo-parser' do
+  sh 'git clone https://github.com/google/gumbo-parser.git'
+end
+
+file 'work/extconf.rb' => 'gumbo-parser' do
+  sh 'mkdir work'
+  sh 'cp gumbo-parser/src/* work'
+  sh 'cp ext/* work'
+end
+
+file 'work/Makefile' => 'work/extconf.rb' do
+  Dir.chdir 'work' do 
     ruby 'extconf.rb'
   end
 end
 
-task 'test' => 'Makefile' do
-  Dir.chdir 'ext' do 
+task 'test' => 'work/Makefile' do
+  Dir.chdir 'work' do 
     sh 'make -s'
   end
   ruby 'test-nokogumbo.rb'
 end
 
-CLEAN.include('ext/*.o', 'ext/*.so', 'ext/*.log', 'ext/Makefile', 'pkg')
+CLEAN.include 'pkg', 'gumbo-parser', 'work'
 
-MANIFEST = %w(
-  ext/extconf.rb  
-  ext/nokogumbo.c  
+MANIFEST = FileList[*%w(
+  work/*.rb  
+  work/*.c  
+  work/*.h  
   lib/nokogumbo.rb  
   Rakefile  
   README.md
-)
+)]
 
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '0.1'
+  gem.version = '0.2'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/tree/master/ruby#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
   gem.files = MANIFEST
-  gem.extensions = 'ext/extconf.rb'
+  gem.extensions = 'work/extconf.rb'
   gem.author = 'Sam Ruby'
   gem.add_dependency 'nokogiri'
-  gem.license = 'MIT'
+  gem.license = 'Apache 2.0'
   gem.description = %q(
-    At the moment, this is a proof of concept, allowing a Ruby
-    program to invoke the Gumbo HTML5 parser and access the result as a Nokogiri
-    parsed document.).strip.gsub(/\s+/, ' ')
+    Nokogumbo allows a Ruby program to invoke the Gumbo HTML5 parser and
+    access the result as a Nokogiri parsed document.).strip.gsub(/\s+/, ' ')
 end
 
 task 'gem' => 'test'

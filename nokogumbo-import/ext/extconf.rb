@@ -1,3 +1,3 @@
 require 'mkmf'
-have_library('gumbo', 'gumbo_parse')
+$CFLAGS << " -std=c99"
 create_makefile('nokogumboc')

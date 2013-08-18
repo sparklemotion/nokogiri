@@ -44,12 +44,11 @@ static VALUE _name(GumboElement *node) {
 
 // Build a Nokogiri Element for a given GumboElement (recursively)
 static VALUE _element(VALUE document, GumboElement *node) {
-  int i;
   VALUE element = rb_funcall(Element, new, 2, _name(node), document);
 
   // add in the attributes
   GumboVector* attrs = &node->attributes;
-  for (i=0; i < attrs->length; i++) {
+  for (int i=0; i < attrs->length; i++) {
     GumboAttribute *attr = attrs->data[i];
     VALUE name = rb_str_new2(attr->name);
     rb_funcall(element, set_attribute, 2, name, rb_str_new2(attr->value));
@@ -57,7 +56,7 @@ static VALUE _element(VALUE document, GumboElement *node) {
 
   // add in the children
   GumboVector* children = &node->children;
-  for (i=0; i < children->length; i++) {
+  for (int i=0; i < children->length; i++) {
     GumboNode* child = children->data[i];
 
     VALUE node = 0;

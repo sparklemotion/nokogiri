@@ -1,4 +1,4 @@
-$:.push('lib', 'ext')
+$:.push('lib', 'work')
 
 require 'nokogumbo'
 require 'test/unit'

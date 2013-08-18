@@ -29,11 +29,10 @@ original tag name is returned verbatim.
 * Nothing meaningful is done with the `GumboDocument` struct, i.e., no
 Nokogiri `EntityDecl` is produced.
 
+* The gem itself includes a copy of the Nokogumbo HTML5 parser.
+
 Installation:
 ============
-
-* Build and install the 
-[gumbo-parser](https://github.com/google/gumbo-parser#readme) C library
 
 * Execute `rake gem`
 
