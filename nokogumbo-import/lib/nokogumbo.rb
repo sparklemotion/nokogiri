@@ -3,7 +3,7 @@ require 'nokogumboc'
 
 module Nokogiri
   def self.HTML5(string)
-    Nokogumbo.parse(string)
+    Nokogiri::HTML5.parse(string)
   end
 
   module HTML5
@@ -159,7 +159,12 @@ module Nokogiri
 
     Unknown = TAGS.length - 1
 
-    def parse(string)
+    def self.parse(string)
+      # convert to UTF-8 (Ruby 1.9+) 
+      if string.respond_to?(:encoding) and string.encoding != Encoding::UTF_8
+        string = string.encode(Encoding::UTF_8)
+      end
+
       Nokogumbo.parse(string)
     end
   end

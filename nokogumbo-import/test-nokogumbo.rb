@@ -45,4 +45,12 @@ class TestNokogumbo < Test::Unit::TestCase
   def test_unknown_element
     assert_equal "main", @doc.at('main').name
   end
+
+  if ''.respond_to? 'encoding'
+    def test_encoding
+      mac="<span>\xCA</span>".force_encoding('macroman')
+      assert_equal '<span>&#xA0;</span>',
+        Nokogumbo.parse(mac.encode('utf-8')).at('span').to_xml
+    end
+  end
 end
