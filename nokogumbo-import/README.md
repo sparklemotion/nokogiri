@@ -1,8 +1,9 @@
 Nokogumbo - a Nokogiri interface to the Gumbo HTML5 parser.
 ===========
 
-At the moment, this is a proof of concept, allowing a Ruby program to invoke
-the Gumbo HTML5 parser and access the result as a Nokogiri parsed document.
+Nokogumbo provides the ability for a Ruby program to invoke the 
+[Gumbo HTML5 parser](https://github.com/google/gumbo-parser#readme)
+and to access the result as a Nokogiri parsed document.
 
 Usage:
 -----
@@ -29,7 +30,7 @@ original tag name is returned verbatim.
 * Nothing meaningful is done with the `GumboDocument` struct, i.e., no
 Nokogiri `EntityDecl` is produced.
 
-* The gem itself includes a copy of the Nokogumbo HTML5 parser.
+* The gem itself includes a copy of the Gumbo HTML5 parser.
 
 Installation:
 ============
