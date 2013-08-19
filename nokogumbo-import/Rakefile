@@ -8,9 +8,9 @@ file 'gumbo-parser' do
 end
 
 file 'work/extconf.rb' => 'gumbo-parser' do
-  sh 'mkdir work'
-  sh 'cp gumbo-parser/src/* work'
-  sh 'cp ext/* work'
+  mkdir_p 'work'
+  cp Dir['gumbo-parser/src/*'], 'work'
+  cp Dir['ext/*'], 'work'
 end
 
 file 'work/Makefile' => 'work/extconf.rb' do
@@ -33,6 +33,7 @@ MANIFEST = FileList[*%w(
   work/*.c  
   work/*.h  
   lib/nokogumbo.rb  
+  LICENSE.txt
   Rakefile  
   README.md
 )]
