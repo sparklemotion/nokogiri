@@ -15,7 +15,7 @@ class TestNokogumbo < Test::Unit::TestCase
         <h1>hello world</h1>
         <main>
           <span>content</span>
-        <main>
+        </main>
         <!-- test comment -->
         <form>
           <textarea>foo<x>bar</textarea>

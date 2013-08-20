@@ -1,35 +1,169 @@
 #include "ruby.h"
 #include "gumbo.h"
+#include <nokogiri.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 // class constants
-static VALUE Nokogiri;
-static VALUE HTML;
-static VALUE XML;
 static VALUE Document;
-static VALUE Element;
-static VALUE Text;
-static VALUE CDATA;
-static VALUE Comment;
-static VALUE TAGS=0;
-static int Unknown=0;
 
-// interned symbols
-static VALUE new;
-static VALUE set_attribute;
-static VALUE add_child;
+static const char* TAGS[] = {
+  "html",
+  "head",
+  "title",
+  "base",
+  "link",
+  "meta",
+  "style",
+  "script",
+  "noscript",
+  "body",
+  "section",
+  "nav",
+  "article",
+  "aside",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "hgroup",
+  "header",
+  "footer",
+  "address",
+  "p",
+  "hr",
+  "pre",
+  "blockquote",
+  "ol",
+  "ul",
+  "li",
+  "dl",
+  "dt",
+  "dd",
+  "figure",
+  "figcaption",
+  "div",
+  "a",
+  "em",
+  "strong",
+  "small",
+  "s",
+  "cite",
+  "q",
+  "dfn",
+  "abbr",
+  "time",
+  "code",
+  "var",
+  "samp",
+  "kbd",
+  "sub",
+  "sup",
+  "i",
+  "b",
+  "mark",
+  "ruby",
+  "rt",
+  "rp",
+  "bdi",
+  "bdo",
+  "span",
+  "br",
+  "wbr",
+  "ins",
+  "del",
+  "image",
+  "img",
+  "iframe",
+  "embed",
+  "object",
+  "param",
+  "video",
+  "audio",
+  "source",
+  "track",
+  "canvas",
+  "map",
+  "area",
+  "math",
+  "mi",
+  "mo",
+  "mn",
+  "ms",
+  "mtext",
+  "mglyph",
+  "malignmark",
+  "annotation_xml",
+  "svg",
+  "foreignobject",
+  "desc",
+  "table",
+  "caption",
+  "colgroup",
+  "col",
+  "tbody",
+  "thead",
+  "tfoot",
+  "tr",
+  "td",
+  "th",
+  "form",
+  "fieldset",
+  "legend",
+  "label",
+  "input",
+  "button",
+  "select",
+  "datalist",
+  "optgroup",
+  "option",
+  "textarea",
+  "keygen",
+  "output",
+  "progress",
+  "meter",
+  "details",
+  "summary",
+  "command",
+  "menu",
+  "applet",
+  "acronym",
+  "bgsound",
+  "dir",
+  "frame",
+  "frameset",
+  "noframes",
+  "isindex",
+  "listing",
+  "xmp",
+  "nextid",
+  "noembed",
+  "plaintext",
+  "rb",
+  "strike",
+  "basefont",
+  "big",
+  "blink",
+  "center",
+  "font",
+  "marquee",
+  "multicol",
+  "nobr",
+  "spacer",
+  "tt",
+  "u",
+  "unknown"
+};
+
+const static int Unknown=sizeof(TAGS)/sizeof(char*)-1;
 
 // determine tag name for a given node
-static VALUE _name(GumboElement *node) {
-  if (!TAGS) {
-    // Deferred initialization of "Unknown" as the GumboParser class is
-    // defined *after* the Nokogumbo class is.
-    VALUE HTML5 = rb_const_get(Nokogiri, rb_intern("HTML5"));
-    TAGS = rb_const_get(HTML5, rb_intern("TAGS"));
-    Unknown = NUM2INT(rb_const_get(HTML5, rb_intern("Unknown")));
-  }
-
+static xmlNodePtr new_element(GumboElement *node) {
+  xmlNodePtr element;
   if (node->tag != Unknown) {
-    return rb_ary_entry(TAGS, (long) node->tag);
+    element = xmlNewNode(NULL, BAD_CAST TAGS[(int)node->tag]);
   } else {
     // Gumbo doesn't provide unknown tags, so we need to parse it ourselves:
     // http://www.w3.org/html/wg/drafts/html/CR/syntax.html#tag-name-state
@@ -38,20 +172,23 @@ static VALUE _name(GumboElement *node) {
     for (length = 1; length < tag->length-1; length++) {
       if (strchr(" \t\r\n<", *((char*)tag->data+length))) break; 
     }
-    return rb_str_new(1+(char *)tag->data, length-1);
+    char name[length];
+    strncpy(name, 1+(char *)tag->data, length-1);
+    name[length-1] = '\0';
+    element = xmlNewNode(NULL, BAD_CAST name);
   }
+  return element;
 }
 
 // Build a Nokogiri Element for a given GumboElement (recursively)
-static VALUE _element(VALUE document, GumboElement *node) {
-  VALUE element = rb_funcall(Element, new, 2, _name(node), document);
+static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
+  xmlNodePtr element = new_element(node);
 
   // add in the attributes
   GumboVector* attrs = &node->attributes;
   for (int i=0; i < attrs->length; i++) {
     GumboAttribute *attr = attrs->data[i];
-    VALUE name = rb_str_new2(attr->name);
-    rb_funcall(element, set_attribute, 2, name, rb_str_new2(attr->value));
+    xmlNewProp(element, BAD_CAST attr->name, BAD_CAST attr->value);
   }
 
   // add in the children
@@ -59,31 +196,29 @@ static VALUE _element(VALUE document, GumboElement *node) {
   for (int i=0; i < children->length; i++) {
     GumboNode* child = children->data[i];
 
-    VALUE node = 0;
-    VALUE text;
+    xmlNodePtr node = NULL;
 
     switch (child->type) {
       case GUMBO_NODE_ELEMENT:
-        node = _element(document, &child->v.element);
+        node = walk_tree(document, &child->v.element);
         break;
       case GUMBO_NODE_WHITESPACE:
       case GUMBO_NODE_TEXT:
-        text = rb_str_new2(child->v.text.text);
-        node = rb_funcall(Text, new, 2, text, document);
+        node = xmlNewText(BAD_CAST child->v.text.text);
         break;
       case GUMBO_NODE_CDATA:
-        text = rb_str_new2(child->v.text.text);
-        node = rb_funcall(CDATA, new, 2, text, document);
+        node = xmlNewCDataBlock(document, 
+          BAD_CAST child->v.text.original_text.data,
+          child->v.text.original_text.length);
         break;
       case GUMBO_NODE_COMMENT:
-        text = rb_str_new2(child->v.text.text);
-        node = rb_funcall(Comment, new, 2, document, text);
+        node = xmlNewComment(BAD_CAST child->v.text.text);
         break;
       case GUMBO_NODE_DOCUMENT:
         break; // should never happen -- ignore
     }
 
-    if (node) rb_funcall(element, add_child, 1, node);
+    if (node) xmlAddChild(element, node);
   }
 
   return element;
@@ -91,16 +226,15 @@ static VALUE _element(VALUE document, GumboElement *node) {
 
 // Parse a string using gumbo_parse into a Nokogiri document
 static VALUE t_parse(VALUE self, VALUE string) {
-  VALUE document = rb_funcall(Document, new, 0);
-
   GumboOutput *output = gumbo_parse_with_options(
     &kGumboDefaultOptions, RSTRING_PTR(string), RSTRING_LEN(string)
   );
-  VALUE root = _element(document, (GumboElement*)&output->root->v.element);
-  rb_funcall(document, add_child, 1, root);
+  xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
+  xmlNodePtr root = walk_tree(doc, (GumboElement*)&output->root->v.element);
+  xmlDocSetRootElement(doc, root);
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 
-  return document;
+  return Nokogiri_wrap_xml_document(Document, doc);
 }
 
 // Initialize the Nokogumbo class and fetch constants we will use later
@@ -109,19 +243,9 @@ void Init_nokogumboc() {
   rb_require("nokogiri");
 
   // class constants
-  Nokogiri = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
-  HTML = rb_const_get(Nokogiri, rb_intern("HTML"));
-  XML = rb_const_get(Nokogiri, rb_intern("XML"));
+  VALUE Nokogiri = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
+  VALUE HTML = rb_const_get(Nokogiri, rb_intern("HTML"));
   Document = rb_const_get(HTML, rb_intern("Document"));
-  Element = rb_const_get(XML, rb_intern("Element"));
-  Text = rb_const_get(XML, rb_intern("Text"));
-  CDATA = rb_const_get(XML, rb_intern("CDATA"));
-  Comment = rb_const_get(XML, rb_intern("Comment"));
-
-  // interned symbols
-  new = rb_intern("new");
-  set_attribute = rb_intern("set_attribute");
-  add_child = rb_intern("add_child");
 
   // define Nokogumbo class with a singleton parse method
   VALUE Gumbo = rb_define_class("Nokogumbo", rb_cObject);
