@@ -6,182 +6,20 @@
 // class constants
 static VALUE Document;
 
-static const char* const TAGS[] = {
-  "html",
-  "head",
-  "title",
-  "base",
-  "link",
-  "meta",
-  "style",
-  "script",
-  "noscript",
-  "body",
-  "section",
-  "nav",
-  "article",
-  "aside",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "hgroup",
-  "header",
-  "footer",
-  "address",
-  "p",
-  "hr",
-  "pre",
-  "blockquote",
-  "ol",
-  "ul",
-  "li",
-  "dl",
-  "dt",
-  "dd",
-  "figure",
-  "figcaption",
-  "div",
-  "a",
-  "em",
-  "strong",
-  "small",
-  "s",
-  "cite",
-  "q",
-  "dfn",
-  "abbr",
-  "time",
-  "code",
-  "var",
-  "samp",
-  "kbd",
-  "sub",
-  "sup",
-  "i",
-  "b",
-  "mark",
-  "ruby",
-  "rt",
-  "rp",
-  "bdi",
-  "bdo",
-  "span",
-  "br",
-  "wbr",
-  "ins",
-  "del",
-  "image",
-  "img",
-  "iframe",
-  "embed",
-  "object",
-  "param",
-  "video",
-  "audio",
-  "source",
-  "track",
-  "canvas",
-  "map",
-  "area",
-  "math",
-  "mi",
-  "mo",
-  "mn",
-  "ms",
-  "mtext",
-  "mglyph",
-  "malignmark",
-  "annotation_xml",
-  "svg",
-  "foreignobject",
-  "desc",
-  "table",
-  "caption",
-  "colgroup",
-  "col",
-  "tbody",
-  "thead",
-  "tfoot",
-  "tr",
-  "td",
-  "th",
-  "form",
-  "fieldset",
-  "legend",
-  "label",
-  "input",
-  "button",
-  "select",
-  "datalist",
-  "optgroup",
-  "option",
-  "textarea",
-  "keygen",
-  "output",
-  "progress",
-  "meter",
-  "details",
-  "summary",
-  "command",
-  "menu",
-  "applet",
-  "acronym",
-  "bgsound",
-  "dir",
-  "frame",
-  "frameset",
-  "noframes",
-  "isindex",
-  "listing",
-  "xmp",
-  "nextid",
-  "noembed",
-  "plaintext",
-  "rb",
-  "strike",
-  "basefont",
-  "big",
-  "blink",
-  "center",
-  "font",
-  "marquee",
-  "multicol",
-  "nobr",
-  "spacer",
-  "tt",
-  "u",
-  "unknown"
-};
-
-const static int Unknown=sizeof(TAGS)/sizeof(char*)-1;
-
-// determine tag name for a given node
-static xmlNodePtr new_element(GumboElement *node) {
-  xmlNodePtr element;
-  if (node->tag != Unknown) {
-    element = xmlNewNode(NULL, BAD_CAST TAGS[(int)node->tag]);
-  } else {
-    // Gumbo doesn't provide unknown tags, so we need to parse it ourselves:
-    // http://www.w3.org/html/wg/drafts/html/CR/syntax.html#tag-name-state
-    GumboStringPiece *tag = &node->original_tag;
-    int length;
-    for (length = 1; length < tag->length-1; length++) {
-      if (strchr(" \t\r\n<", *((char*)tag->data+length))) break; 
-    }
-    char name[length];
-    strncpy(name, 1+(char *)tag->data, length-1);
-    name[length-1] = '\0';
-    element = xmlNewNode(NULL, BAD_CAST name);
-  }
-  return element;
-}
-
 // Build a Nokogiri Element for a given GumboElement (recursively)
 static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
-  xmlNodePtr element = new_element(node);
+  // determine tag name for a given node
+  xmlNodePtr element;
+  if (node->tag != GUMBO_TAG_UNKNOWN) {
+    element = xmlNewNode(NULL, BAD_CAST gumbo_normalized_tagname(node->tag));
+  } else {
+    GumboStringPiece tag = node->original_tag;
+    gumbo_tag_from_original_text(&tag);
+    char name[tag.length+1];
+    strncpy(name, tag.data, tag.length);
+    name[tag.length] = '\0';
+    element = xmlNewNode(NULL, BAD_CAST name);
+  }
 
   // add in the attributes
   GumboVector* attrs = &node->attributes;
@@ -224,7 +62,7 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
 }
 
 // Parse a string using gumbo_parse into a Nokogiri document
-static VALUE t_parse(VALUE self, VALUE string) {
+static VALUE parse(VALUE self, VALUE string) {
   GumboOutput *output = gumbo_parse_with_options(
     &kGumboDefaultOptions, RSTRING_PTR(string), RSTRING_LEN(string)
   );
@@ -255,6 +93,5 @@ void Init_nokogumboc() {
 
   // define Nokogumbo class with a singleton parse method
   VALUE Gumbo = rb_define_class("Nokogumbo", rb_cObject);
-  rb_define_singleton_method(Gumbo, "parse", t_parse, 1);
+  rb_define_singleton_method(Gumbo, "parse", parse, 1);
 }
-
