@@ -27,9 +27,6 @@ is returned.
 * Instead of returning 'unknown' as the element name for unknown tags, the
 original tag name is returned verbatim.
 
-* Nothing meaningful is done with the `GumboDocument` struct, i.e., no
-Nokogiri `EntityDecl` is produced.
-
 * The gem itself includes a copy of the Gumbo HTML5 parser.
 
 Installation:

@@ -229,8 +229,15 @@ static VALUE t_parse(VALUE self, VALUE string) {
     &kGumboDefaultOptions, RSTRING_PTR(string), RSTRING_LEN(string)
   );
   xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
-  xmlNodePtr root = walk_tree(doc, (GumboElement*)&output->root->v.element);
+  xmlNodePtr root = walk_tree(doc, &output->root->v.element);
   xmlDocSetRootElement(doc, root);
+  if (output->document->v.document.has_doctype) {
+    const char *public = output->document->v.document.public_identifier;
+    const char *system = output->document->v.document.system_identifier;
+    xmlCreateIntSubset(doc, BAD_CAST "html",
+      (strlen(public) ? public : NULL),
+      (strlen(system) ? system : NULL));
+  }
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 
   return Nokogiri_wrap_xml_document(Document, doc);

@@ -49,8 +49,13 @@ class TestNokogumbo < Test::Unit::TestCase
   if ''.respond_to? 'encoding'
     def test_encoding
       mac="<span>\xCA</span>".force_encoding('macroman')
-      assert_equal '<span>&#xA0;</span>',
-        Nokogumbo.parse(mac.encode('utf-8')).at('span').to_xml
+      doc = Nokogumbo.parse(mac.encode('utf-8'))
+      assert_equal '<span>&#xA0;</span>', doc.at('span').to_xml
     end
+  end
+
+  def test_html5_doctype
+    doc = Nokogumbo.parse("<!DOCTYPE html><html></html>")
+    assert_match /<!DOCTYPE html>/, doc.to_html
   end
 end
