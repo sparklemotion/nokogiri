@@ -11,7 +11,7 @@ file 'work/extconf.rb' => ['ext/extconf.rb', 'gumbo-parser'] do
   mkdir_p 'work'
   rm_f 'work/Makefile'
   cp Dir['gumbo-parser/src/*'], 'work', :preserve => true
-  cp Dir['ext/*'], 'work', :preserve => true
+  cp Dir['ext/*'], 'work'
 end
 
 file 'work/Makefile' => 'work/extconf.rb' do
