@@ -1,13 +1,12 @@
-#include "ruby.h"
-#include "gumbo.h"
+#include <ruby.h>
+#include <gumbo.h>
 #include <nokogiri.h>
-#include <libxml/parser.h>
 #include <libxml/tree.h>
 
 // class constants
 static VALUE Document;
 
-static const char* TAGS[] = {
+static const char* const TAGS[] = {
   "html",
   "head",
   "title",

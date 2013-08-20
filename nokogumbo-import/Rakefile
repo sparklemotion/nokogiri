@@ -7,8 +7,9 @@ file 'gumbo-parser' do
   sh 'git clone https://github.com/google/gumbo-parser.git'
 end
 
-file 'work/extconf.rb' => 'gumbo-parser' do
+file 'work/extconf.rb' => ['ext/extconf.rb', 'gumbo-parser'] do
   mkdir_p 'work'
+  rm_f 'work/Makefile'
   cp Dir['gumbo-parser/src/*'], 'work', :preserve => true
   cp Dir['ext/*'], 'work', :preserve => true
 end
@@ -35,7 +36,6 @@ end
 
 CLEAN.include 'pkg', 'gumbo-parser', 'work'
 
-
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
   gem.version = '0.4'
@@ -50,9 +50,6 @@ SPEC = Gem::Specification.new do |gem|
     Nokogumbo allows a Ruby program to invoke the Gumbo HTML5 parser and
     access the result as a Nokogiri parsed document.).strip.gsub(/\s+/, ' ')
   gem.files = FileList[
-    'work/*.rb',
-    'work/*.c',
-    'work/*.h',
     'lib/nokogumbo.rb',
     'LICENSE.txt',
     'Rakefile',
@@ -60,8 +57,12 @@ SPEC = Gem::Specification.new do |gem|
   ]
 end
 
-task 'gem' => 'test'
-Gem::PackageTask.new(SPEC) do |pkg|
+task 'package_workfiles' => 'work/extconf.rb' do
+  PKG.package_files += FileList['work/*.rb', 'work/*.c', 'work/*.h']
+end
+
+task 'gem' => ['test', 'package_workfiles']
+PKG = Gem::PackageTask.new(SPEC) do |pkg|
   pkg.need_tar = true
   pkg.need_zip = true
 end
