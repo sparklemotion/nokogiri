@@ -38,7 +38,7 @@ CLEAN.include 'pkg', 'gumbo-parser', 'work'
 
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '0.4'
+  gem.version = '0.5'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
