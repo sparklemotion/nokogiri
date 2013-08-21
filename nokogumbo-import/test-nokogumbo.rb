@@ -47,10 +47,16 @@ class TestNokogumbo < Test::Unit::TestCase
   end
 
   if ''.respond_to? 'encoding'
-    def test_encoding
+    def test_macroman_encoding
       mac="<span>\xCA</span>".force_encoding('macroman')
-      doc = Nokogumbo.parse(mac.encode('utf-8'))
+      doc = Nokogiri::HTML5(mac)
       assert_equal '<span>&#xA0;</span>', doc.at('span').to_xml
+    end
+
+    def test_iso8859_encoding
+      iso8859="<span>Se\xF2or</span>".force_encoding(Encoding::ASCII_8BIT)
+      doc = Nokogiri::HTML5(iso8859)
+      assert_equal '<span>Se&#xF2;or</span>', doc.at('span').to_xml
     end
   end
 
