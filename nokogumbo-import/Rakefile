@@ -43,7 +43,7 @@ CLEAN.include 'pkg', 'gumbo-parser', 'work'
 
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '0.5.1'
+  gem.version = '0.5.2'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
@@ -62,8 +62,9 @@ SPEC = Gem::Specification.new do |gem|
 end
 
 task 'package_workfiles' => 'sources' do
-  SPEC.files += FileList['work/*']
-  PKG.package_files += FileList['work/*']
+  sources = FileList['work/*.c', 'work/*.h', 'work/*.rb']
+  SPEC.files += sources
+  PKG.package_files += sources
 end
 
 task 'gem' => ['test', 'package_workfiles']
