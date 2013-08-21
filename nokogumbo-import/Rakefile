@@ -7,21 +7,26 @@ file 'gumbo-parser' do
   sh 'git clone https://github.com/google/gumbo-parser.git'
 end
 
-file 'work/extconf.rb' => ['ext/extconf.rb', 'gumbo-parser'] do
-  mkdir_p 'work'
-  rm_f 'work/Makefile'
-  cp Dir['gumbo-parser/src/*'], 'work', :preserve => true
-  cp Dir['ext/*'], 'work'
-end
+task 'sources' => ['work/parser.c', 'work/nokogumbo.c', 'work/extconf.rb']
 
-file 'work/Makefile' => 'work/extconf.rb' do
-  Dir.chdir 'work' do 
-    ruby 'extconf.rb'
-  end
+file 'work/parser.c' => ['gumbo-parser'] do
+  mkdir_p 'work'
+  cp Dir['gumbo-parser/src/*'], 'work', :preserve => true
 end
 
 file 'work/nokogumbo.c' => 'ext/nokogumbo.c' do
   cp 'ext/nokogumbo.c', 'work/nokogumbo.c'
+end
+
+file 'work/extconf.rb' => 'ext/extconf.rb' do
+  rm_f 'work/Makefile'
+  cp 'ext/extconf.rb', 'work/extconf.rb'
+end
+
+file 'work/Makefile' => 'sources' do
+  Dir.chdir 'work' do 
+    ruby 'extconf.rb'
+  end
 end
 
 task 'compile' => ['work/Makefile', 'work/nokogumbo.c'] do
@@ -52,13 +57,13 @@ SPEC = Gem::Specification.new do |gem|
   gem.files = FileList[
     'lib/nokogumbo.rb',
     'LICENSE.txt',
-    'Rakefile',
-    'README.md'
+    'README.md',
   ]
 end
 
-task 'package_workfiles' => 'work/extconf.rb' do
-  PKG.package_files += FileList['work/*.rb', 'work/*.c', 'work/*.h']
+task 'package_workfiles' => 'sources' do
+  SPEC.files += FileList['work/*']
+  PKG.package_files += FileList['work/*']
 end
 
 task 'gem' => ['test', 'package_workfiles']
