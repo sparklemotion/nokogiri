@@ -63,11 +63,16 @@ IRCのチャンネルはfreenodeの #nokogiri です。
 
 == REQUIREMENTS:
 
-* ruby 1.8 or 1.9
-* libxml2
-* libxml2-dev
-* libxslt
-* libxslt-dev
+* ruby 1.9.3以上
+
+* Nokogiri 1.6.0以降ではlibxml2とlibxsltは同梱されているが、
+  もしインストール済みのものを使いたい場合:
+
+  * libxml2 2.6.17以上2.9.0未満, iconvサポート付きのもの
+    (libxml2-dev/-develパッケージも必要)
+
+  * libxslt 上記のlibxml2でビルドされ、サポートされているもの
+    (libxslt-dev/-develパッケージも必要)
 
 == INSTALL:
 
