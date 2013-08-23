@@ -47,7 +47,7 @@ module Nokogiri
         assert_equal "http://flavorjon.es/", attr.namespace.href
       end
 
-      def test_setting_attribute_namespace
+      def test_setting_attribute_namespace    
         doc = Nokogiri::XML <<-EOXML
 <root xmlns='http://google.com/' xmlns:f='http://flavorjon.es/'>
   <div f:myattr='foo'></div>
@@ -57,6 +57,7 @@ module Nokogiri
         node = doc.at_css "div"
         attr = node.attributes["myattr"]
         attr.add_namespace("fizzle", "http://fizzle.com/")
+        attr.namespace
         assert_equal "http://fizzle.com/", attr.namespace.href
       end
     end

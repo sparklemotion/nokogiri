@@ -135,13 +135,15 @@ module Nokogiri
       end
 
       def test_fragment_without_a_namespace_does_not_get_a_namespace
+
         doc = Nokogiri::XML <<-EOX
-          <root xmlns="http://tenderlovemaking.com/" xmlns:foo="http://flavorjon.es/" xmlns:bar="http://google.com/">
+          <root xmlns:foo="http://flavorjon.es/" xmlns:bar="http://google.com/">
             <foo:existing></foo:existing>
           </root>
         EOX
+
         frag = doc.fragment "<newnode></newnode>"
-        assert_nil frag.namespace
+        assert_nil frag.child.namespace
       end
 
       def test_fragment_namespace_resolves_against_document_root

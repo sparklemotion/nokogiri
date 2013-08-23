@@ -107,7 +107,7 @@ public class NokogiriHelpers {
             String prefix = getLocalNameForNamespace(((Attr)node).getName());
             prefix = prefix != null ? prefix : "";
             String href = ((Attr)node).getValue();
-            XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
+            XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, node);
             if (xmlNamespace != null) return xmlNamespace;
             else return XmlNamespace.createFromAttr(ruby, (Attr)node);
             }
@@ -637,7 +637,7 @@ public class NokogiriHelpers {
 
     public static String newQName(String newPrefix, Node node) {
         String tagName = getLocalPart(node.getNodeName());
-        if(newPrefix == null) {
+        if(newPrefix == null || newPrefix.equals("")) {
             return tagName;
         } else {
             return newPrefix + ":" + tagName;

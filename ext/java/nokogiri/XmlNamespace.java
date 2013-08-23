@@ -115,7 +115,7 @@ public class XmlNamespace extends RubyObject {
         // check namespace cache
         XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, attr.getOwnerDocument());
         xmlDocument.initializeNamespaceCacheIfNecessary();
-        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
+        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, attr.getOwnerElement());
         if (xmlNamespace != null) return xmlNamespace;
         
         // creating XmlNamespace instance
@@ -136,7 +136,7 @@ public class XmlNamespace extends RubyObject {
         // check namespace cache
         XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, document);
         xmlDocument.initializeNamespaceCacheIfNecessary();
-        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
+        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, owner);
         if (xmlNamespace != null) return xmlNamespace;
 
         // creating XmlNamespace instance
@@ -164,7 +164,7 @@ public class XmlNamespace extends RubyObject {
         Document document = owner.getOwnerDocument();
         // check namespace cache
         XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, document);
-        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
+        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().getFromHierarchy(prefixValue, owner);
         if (xmlNamespace != null) return xmlNamespace;
 
         // creating XmlNamespace instance

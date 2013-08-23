@@ -39,6 +39,7 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -102,7 +103,14 @@ public class XmlDocumentFragment extends XmlNode {
 
         //TODO: Get namespace definitions from doc.
         if (args.length == 3 && args[2] != null && args[2] instanceof XmlElement) {
-            fragment.fragmentContext = (XmlElement)args[2];
+            XmlElement elm = (XmlElement)args[2];
+            RubyArray namespaces = (RubyArray)elm.namespace_definitions(context);
+            for (Object obj : namespaces) {
+            	 XmlNamespace namespace=(XmlNamespace)obj;
+            	 doc.getNamespaceCache().put(namespace,fragment.node);
+            	 //XmlNamespace ns = XmlNamespace.createFromPrefixAndHref(fragment.node, namespace.prefix(context), namespace.href(context));
+            }
+        	fragment.fragmentContext = (XmlElement)args[2];
         }
         RuntimeHelpers.invoke(context, fragment, "initialize", args);
         return fragment;

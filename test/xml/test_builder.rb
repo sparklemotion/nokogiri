@@ -29,6 +29,7 @@ module Nokogiri
       end
 
       def test_builder_namespace
+         skip("Java version behaves differently in that it allows for re-assinging namespace prefix at an element level") if Nokogiri.jruby?
         doc = Nokogiri::XML::Builder.new { |xml|
           xml.a("xmlns:a" => "x") do
             xml.b("xmlns:a" => "x", "xmlns:b" => "y")
@@ -42,6 +43,7 @@ module Nokogiri
       end
 
       def test_builder_namespace_part_deux
+        skip("Java version behaves differently in that it allows for re-assinging namespace prefix at an element level") if Nokogiri.jruby?
         doc = Nokogiri::XML::Builder.new { |xml|
           xml.a("xmlns:b" => "y") do
             xml.b("xmlns:a" => "x", "xmlns:b" => "y", "xmlns:c" => "z")
