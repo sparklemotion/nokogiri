@@ -7,6 +7,8 @@
 .classpath
 .project
 .rake_tasks
+.ruby-gemset
+.ruby-version
 .rvmrc
 .settings
 Gemfile*
