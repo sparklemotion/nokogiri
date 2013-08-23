@@ -3,7 +3,8 @@ Nokogumbo - a Nokogiri interface to the Gumbo HTML5 parser.
 
 Nokogumbo provides the ability for a Ruby program to invoke the 
 [Gumbo HTML5 parser](https://github.com/google/gumbo-parser#readme)
-and to access the result as a Nokogiri parsed document.
+and to access the result as a
+[Nokogiri::HTML::Document](http://nokogiri.org/Nokogiri/HTML/Document.html).
 
 Usage:
 -----
