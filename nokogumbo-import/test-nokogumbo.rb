@@ -54,9 +54,16 @@ class TestNokogumbo < Test::Unit::TestCase
     end
 
     def test_iso8859_encoding
-      iso8859="<span>Se\xF2or</span>".force_encoding(Encoding::ASCII_8BIT)
+      iso8859="<span>Se\xF1or</span>".force_encoding(Encoding::ASCII_8BIT)
       doc = Nokogiri::HTML5(iso8859)
-      assert_equal '<span>Se&#xF2;or</span>', doc.at('span').to_xml
+      assert_equal '<span>Se&#xF1;or</span>', doc.at('span').to_xml
+    end
+
+    def test_charset_encoding
+      utf8="<meta charset='utf-8'><span>Se\xC3\xB1or</span>".
+        force_encoding(Encoding::ASCII_8BIT)
+      doc = Nokogiri::HTML5(utf8)
+      assert_equal '<span>Se&#xF1;or</span>', doc.at('span').to_xml
     end
   end
 

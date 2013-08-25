@@ -82,7 +82,7 @@ module Nokogiri
         if not encoding
           data = body[0..1023].gsub(/<!--.*?(-->|\Z)/m, '')
           data.scan(/<meta.*?>/m).each do |meta|
-            encoding ||= meta[/charset="?(.*?)($|"|\s|>)/im, 1]
+            encoding ||= meta[/charset=["']?([^>]*?)($|["'\s>])/im, 1]
           end
         end
 
