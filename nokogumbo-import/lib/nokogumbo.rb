@@ -2,11 +2,15 @@ require 'nokogiri'
 require 'nokogumboc'
 
 module Nokogiri
+  # Parse an HTML document.  +string+ contains the document.  +string+
+  # may also be an IO-like object.  Returns a +Nokogiri::HTML::Document+.
   def self.HTML5(string)
     Nokogiri::HTML5.parse(string)
   end
 
   module HTML5
+    # Parse an HTML document.  +string+ contains the document.  +string+
+    # may also be an IO-like object.  Returns a +Nokogiri::HTML::Document+.
     def self.parse(string)
       if string.respond_to? :read
         string = string.read
@@ -20,6 +24,10 @@ module Nokogiri
       Nokogumbo.parse(string)
     end
 
+    # Fetch and parse a HTML document from the web, following redirects,
+    # handling https, and determining the character encoding using HTML5
+    # rules.  +uri+ may be a +String+ or a +URI+.  +limit+ controls the
+    # number of redirects that will be followed.
     def self.get(uri, limit=10)
       require 'net/http'
       uri = URI(uri) unless URI === uri
