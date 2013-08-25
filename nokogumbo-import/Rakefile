@@ -9,16 +9,18 @@ end
 
 task 'sources' => ['work/parser.c', 'work/nokogumbo.c', 'work/extconf.rb']
 
-file 'work/parser.c' => ['gumbo-parser'] do
-  mkdir_p 'work'
-  cp Dir['gumbo-parser/src/*'], 'work', :preserve => true
+file 'work/parser.c' => 'gumbo-parser' do
+  mkdir_p 'work' unless File.exist? 'work'
+  cp Dir['gumbo-parser/src/*'], 'work'
 end
 
 file 'work/nokogumbo.c' => 'ext/nokogumbo.c' do
+  mkdir_p 'work' unless File.exist? 'work'
   cp 'ext/nokogumbo.c', 'work/nokogumbo.c'
 end
 
 file 'work/extconf.rb' => 'ext/extconf.rb' do
+  mkdir_p 'work' unless File.exist? 'work'
   rm_f 'work/Makefile'
   cp 'ext/extconf.rb', 'work/extconf.rb'
 end
