@@ -26,10 +26,12 @@ Notes:
 
 * The `Nokogiri::HTML5.parse` function takes a string and passes it to the
 <code>gumbo_parse_with_options</code> method, using the default options.
-The resulting Gumbo parse tree is the walked, producing a libxml2 parse tree.
+The resulting Gumbo parse tree is the walked, producing a 
+[libxml2](http://xmlsoft.org/html/)
+[xmlDoc](http://xmlsoft.org/html/libxml-tree.html#xmlDoc).
 The original Gumbo parse tree is then destroyed, and single Nokogiri Ruby
-object is constructed to wrap the libxml2 parse tree.  Nokogiri only produces
-Ruby objects as necessary, so all scanning is done using the underlying
+object is constructed to wrap the xmlDoc structure.  Nokogiri only produces
+Ruby objects as necessary, so all searching is done using the underlying
 libxml2 libraries.
 
 * The `Nokogiri::HTML5.get` function takes care of following redirects,
