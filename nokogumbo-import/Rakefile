@@ -7,11 +7,16 @@ file 'gumbo-parser' do
   sh 'git clone https://github.com/google/gumbo-parser.git'
 end
 
+task 'pull' => 'gumbo-parser' do
+  Dir.chdir('gumbo-parser') do
+    sh 'git pull'
+  end
+end
+
 task 'sources' => ['work/parser.c', 'work/nokogumbo.c', 'work/extconf.rb']
 
-file 'work/parser.c' => 'gumbo-parser' do
+file 'work/parser.c' do
   mkdir_p 'work' unless File.exist? 'work'
-  cp Dir['gumbo-parser/src/*'], 'work'
 end
 
 file 'work/nokogumbo.c' => 'ext/nokogumbo.c' do
@@ -25,7 +30,7 @@ file 'work/extconf.rb' => 'ext/extconf.rb' do
   cp 'ext/extconf.rb', 'work/extconf.rb'
 end
 
-file 'work/Makefile' => 'sources' do
+file 'work/Makefile' => ['sources', 'gumbo-parser'] do
   Dir.chdir 'work' do 
     ruby 'extconf.rb'
   end
@@ -41,11 +46,12 @@ task 'test' => 'compile' do
   ruby 'test-nokogumbo.rb'
 end
 
-CLEAN.include 'pkg', 'gumbo-parser', 'work'
+CLEAN.include FileList.new('work').existing
+CLOBBER.include FileList.new('gumbo-parser').existing
 
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '0.7'
+  gem.version = '0.8'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
@@ -64,7 +70,8 @@ SPEC = Gem::Specification.new do |gem|
 end
 
 task 'package_workfiles' => 'sources' do
-  sources = FileList['work/*.c', 'work/*.h', 'work/*.rb']
+  sources = 'work/nokogumbo.c', 'work/extconf.rb'
+  sources += FileList['gumbo-parser/src/*']
   SPEC.files += sources
   PKG.package_files += sources
 end

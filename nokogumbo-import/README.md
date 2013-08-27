@@ -22,7 +22,7 @@ require 'nokogumbo'
 doc = Nokogiri::HTML5.get(uri)
 ```
 
-Example Usage
+Example
 -----
 ```ruby
 require 'nokogumbo'
@@ -51,7 +51,8 @@ rules defined in the HTML5 specification for doing so.
 * Instead of returning `unknown` as the element name for unknown tags, the
 original tag name is returned verbatim.
 
-* The gem itself includes a copy of the Gumbo HTML5 parser.
+* If the Gumbo HTML5 parser is not already installed, the source for the
+parser will be downloaded and compiled into the Gem itself.
 
 Installation
 ============
