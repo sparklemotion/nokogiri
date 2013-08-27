@@ -6,7 +6,7 @@ Nokogumbo provides the ability for a Ruby program to invoke the
 and to access the result as a
 [Nokogiri::HTML::Document](http://nokogiri.org/Nokogiri/HTML/Document.html).
 
-Usage:
+Usage
 -----
 
 ```ruby
@@ -14,14 +14,22 @@ require 'nokogumbo'
 doc = Nokogiri::HTML5(string)
 ```
 
-Because HTML is often fetched via the web, a convenience interface is also
-provided:
+Because HTML is often fetched via the web, a convenience interface to
+HTTP get is also provided:
 
 ```ruby
 require 'nokogumbo'
 doc = Nokogiri::HTML5.get(uri)
 ```
-Notes:
+
+Example Usage
+-----
+```ruby
+require 'nokogumbo'
+puts Nokogiri::HTML5.get('http://nokogiri.org').at('h1 abbr')['title']
+```
+
+Notes
 -----
 
 * The `Nokogiri::HTML5.parse` function takes a string and passes it to the
@@ -45,14 +53,14 @@ original tag name is returned verbatim.
 
 * The gem itself includes a copy of the Gumbo HTML5 parser.
 
-Installation:
+Installation
 ============
 
 * Execute `rake gem`
 
 * [sudo] gem install pkg/nokogumbo*.gem
 
-Related efforts:
+Related efforts
 ============
 
 * [ruby-gumbo](https://github.com/galdor/ruby-gumbo#readme) - a ruby binding
