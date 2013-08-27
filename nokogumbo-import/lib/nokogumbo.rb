@@ -98,7 +98,11 @@ module Nokogiri
         encoding ||= Encoding::ISO_8859_1
 
         # change the encoding to match the detected or inferred encoding
-        body.force_encoding(encoding)
+        begin
+          body.force_encoding(encoding)
+        rescue ArgumentError
+          body.force_encoding(Encoding::ISO_8859_1)
+        end
       end
 
       body.encode(Encoding::UTF_8)

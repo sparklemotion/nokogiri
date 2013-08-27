@@ -54,6 +54,13 @@ class TestNokogumbo < Test::Unit::TestCase
       doc = Nokogiri::HTML5(utf8)
       assert_equal '<span>Se&#xF1;or</span>', doc.at('span').to_xml
     end
+
+    def test_bogus_encoding
+      bogus="<meta charset='bogus'><span>Se\xF1or</span>".
+        force_encoding(Encoding::ASCII_8BIT)
+      doc = Nokogiri::HTML5(bogus)
+      assert_equal '<span>Se&#xF1;or</span>', doc.at('span').to_xml
+    end
   end
 
   def test_html5_doctype
