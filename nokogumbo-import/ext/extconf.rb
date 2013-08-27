@@ -5,11 +5,15 @@ $CFLAGS = " -std=c99"
 pkg_config('libxml-2.0')
 
 # nokogiri configuration from gem install
-nokogiri_lib = Gem.find_files('nokogiri').sort.last or gem 'nokogiri'
+nokogiri_lib = Gem.find_files('nokogiri').
+  sort_by {|name| name[/nokogiri-([\d.]+)/,1].split('.').map(&:to_i)}.last
+gem 'nokogiri' unless nokogiri_lib
 nokogiri_ext = nokogiri_lib.sub(%r(lib/nokogiri(.rb)?$), 'ext/nokogiri')
+
+# if that doesn't work, try workarounds found in Nokogiri's extconf
 unless find_header('nokogiri.h', nokogiri_ext)
   require "#{nokogiri_ext}/extconf.rb"
-  find_header('nokogiri.h', nokogiri_ext)
+  throw 'nokogiri.h not found' unless find_header('nokogiri.h', nokogiri_ext)
 end
 
 # add in gumbo-parser source from github if not already installed
