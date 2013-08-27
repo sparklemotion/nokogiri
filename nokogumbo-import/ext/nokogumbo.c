@@ -3,6 +3,8 @@
 #include <nokogiri.h>
 #include <libxml/tree.h>
 
+#define CONST_CAST (xmlChar const*)
+
 // class constants
 static VALUE Document;
 
@@ -11,7 +13,7 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
   // determine tag name for a given node
   xmlNodePtr element;
   if (node->tag != GUMBO_TAG_UNKNOWN) {
-    element = xmlNewNode(NULL, BAD_CAST gumbo_normalized_tagname(node->tag));
+    element = xmlNewNode(NULL, CONST_CAST gumbo_normalized_tagname(node->tag));
   } else {
     GumboStringPiece tag = node->original_tag;
     gumbo_tag_from_original_text(&tag);
@@ -25,7 +27,7 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
   GumboVector* attrs = &node->attributes;
   for (int i=0; i < attrs->length; i++) {
     GumboAttribute *attr = attrs->data[i];
-    xmlNewProp(element, BAD_CAST attr->name, BAD_CAST attr->value);
+    xmlNewProp(element, CONST_CAST attr->name, CONST_CAST attr->value);
   }
 
   // add in the children
@@ -41,15 +43,15 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
         break;
       case GUMBO_NODE_WHITESPACE:
       case GUMBO_NODE_TEXT:
-        node = xmlNewText(BAD_CAST child->v.text.text);
+        node = xmlNewText(CONST_CAST child->v.text.text);
         break;
       case GUMBO_NODE_CDATA:
         node = xmlNewCDataBlock(document, 
-          BAD_CAST child->v.text.original_text.data,
-          child->v.text.original_text.length);
+          CONST_CAST child->v.text.original_text.data,
+          (int) child->v.text.original_text.length);
         break;
       case GUMBO_NODE_COMMENT:
-        node = xmlNewComment(BAD_CAST child->v.text.text);
+        node = xmlNewComment(CONST_CAST child->v.text.text);
         break;
       case GUMBO_NODE_DOCUMENT:
         break; // should never happen -- ignore
@@ -64,17 +66,18 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
 // Parse a string using gumbo_parse into a Nokogiri document
 static VALUE parse(VALUE self, VALUE string) {
   GumboOutput *output = gumbo_parse_with_options(
-    &kGumboDefaultOptions, RSTRING_PTR(string), RSTRING_LEN(string)
+    &kGumboDefaultOptions, RSTRING_PTR(string),
+    (size_t) RSTRING_LEN(string)
   );
-  xmlDocPtr doc = xmlNewDoc(BAD_CAST "1.0");
+  xmlDocPtr doc = xmlNewDoc(CONST_CAST "1.0");
   xmlNodePtr root = walk_tree(doc, &output->root->v.element);
   xmlDocSetRootElement(doc, root);
   if (output->document->v.document.has_doctype) {
     const char *public = output->document->v.document.public_identifier;
     const char *system = output->document->v.document.system_identifier;
-    xmlCreateIntSubset(doc, BAD_CAST "html",
-      (strlen(public) ? public : NULL),
-      (strlen(system) ? system : NULL));
+    xmlCreateIntSubset(doc, CONST_CAST "html",
+      (strlen(public) ? CONST_CAST public : NULL),
+      (strlen(system) ? CONST_CAST system : NULL));
   }
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 
