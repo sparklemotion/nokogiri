@@ -889,6 +889,17 @@ eoxml
         Nokogiri::XML f
         f.close
       end
+
+      def test_returns_same_string_from_safe_html
+        doc = Document.new('<<<some html')
+        assert_equal 1, doc.children.size, "Document should have an element."
+        assert_equal '<<<some html', doc.to_s
+      end
+
+      def test_create_element_from_unclosed_double_brackets
+        doc = Document.new('<<<some html>')
+        assert_equal '<<', doc.to_s
+      end
     end
   end
 end
