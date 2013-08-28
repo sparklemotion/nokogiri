@@ -203,11 +203,13 @@ EOHTML
 </html>
 eohtml
         doc.title = 'new'
+        assert_equal 1, doc.css('title').size
         assert_equal 'new', doc.title
 
         doc = Nokogiri::HTML(<<eohtml)
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   </head>
   <body>
     foo
@@ -216,6 +218,10 @@ eohtml
 eohtml
         doc.title = 'new'
         assert_equal 'new', doc.title
+        title = doc.at('/html/head/title')
+        assert_not_nil title
+        assert_equal 'new', title.text
+        assert_equal -1, doc.at('meta[@http-equiv]') <=> title
 
         doc = Nokogiri::HTML(<<eohtml)
 <html>
@@ -225,11 +231,36 @@ eohtml
 </html>
 eohtml
         doc.title = 'new'
-        if Nokogiri.uses_libxml?
-          assert_nil doc.title
-        else
-          assert_equal 'new', doc.title
-        end
+        assert_equal 'new', doc.title
+        # <head> may or may not be added
+        title = doc.at('/html//title')
+        assert_not_nil title
+        assert_equal 'new', title.text
+        assert_equal -1, title <=> doc.at('body')
+
+        doc = Nokogiri::HTML(<<eohtml)
+<html>
+  <meta charset="UTF-8">
+  <body>
+    foo
+  </body>
+</html>
+eohtml
+        doc.title = 'new'
+        assert_equal 'new', doc.title
+        assert_equal -1, doc.at('meta[@charset]') <=> doc.at('title')
+        assert_equal -1, doc.at('title') <=> doc.at('body')
+
+        doc = Nokogiri::HTML('<!DOCTYPE html><p>hello')
+        doc.title = 'new'
+        assert_equal 'new', doc.title
+        assert_instance_of Nokogiri::XML::DTD, doc.children.first
+        assert_equal -1, doc.at('title') <=> doc.at('p')
+
+        doc = Nokogiri::HTML('')
+        doc.title = 'new'
+        assert_equal 'new', doc.title
+        assert_equal 'new', doc.at('/html/head/title/text()').to_s
       end
 
       def test_meta_encoding_without_head

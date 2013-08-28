@@ -39,15 +39,51 @@ module Nokogiri
       end
 
       ###
-      # Set the title string of this document.  If there is no head
-      # element, the title is not set.
+      # Set the title string of this document.
+      #
+      # If a title element is already present, its content is replaced
+      # with the given text.
+      #
+      # Otherwise, this method tries to create one at an appropriate
+      # place supplying head and/or html elements as necessary, which
+      # is inside a head element if any, right after a meta
+      # encoding/charset tag if any, and before any text node or
+      # content element (typically <body>) if any.
       def title=(text)
-        unless title = at('title')
-          head = at('head') or return nil
-          title = Nokogiri::XML::Node.new('title', self)
-          head << title
+        tnode = XML::Text.new(text, self)
+        if title = at('title')
+          title.children = tnode
+          return text
         end
-        title.children = XML::Text.new(text, self)
+
+        title = XML::Node.new('title', self) << tnode
+        case
+        when meta = at('meta[@charset]') || meta_content_type
+          # better put after charset declaration
+          meta.add_next_sibling(title)
+        when head = at('head')
+            head << title
+        when html = at('html')
+          head = XML::Node.new('head', self) << title
+          if first = html.children.first
+            first.add_previous_sibling(head)
+          else
+            html.add_child(head)
+          end
+        when first = children.find { |node|
+            case node
+            when XML::Element, XML::Text
+              true
+            end
+          }
+          # We reach here only if the underlying document model
+          # allows <html>/<head> elements to be omitted and does not
+          # automatically supply them.
+          first.add_previous_sibling(title)
+        when
+          add_child(XML::Node.new('html', self) << (XML::Node.new('head', self) << title))
+        end
+        text
       end
 
       ####
