@@ -1,7 +1,23 @@
 require 'rubygems/package_task'
 require 'rake/clean'
+require 'rake/extensiontask'
 
 task 'default' => 'test'
+
+file 'lib/nokogumbo.rb' do
+  mkdir_p 'lib'
+  cp 'nokogumbo.rb', 'lib'
+end
+
+EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
+task 'compile' => EXT
+
+EXT.each do |ext|
+  file ext => File.basename(ext) do
+    mkdir_p File.dirname(ext)
+    cp File.basename(ext), File.dirname(ext)
+  end
+end
 
 file 'gumbo-parser' do
   sh 'git clone https://github.com/google/gumbo-parser.git'
@@ -13,45 +29,27 @@ task 'pull' => 'gumbo-parser' do
   end
 end
 
-SOURCES = ['work/nokogumbo.c', 'work/extconf.rb']
-
-file 'work/nokogumbo.c' => 'ext/nokogumbo.c' do
-  mkdir_p 'work' unless File.exist? 'work'
-  cp 'ext/nokogumbo.c', 'work/nokogumbo.c'
-end
-
-file 'work/extconf.rb' => 'ext/extconf.rb' do
-  mkdir_p 'work' unless File.exist? 'work'
-  rm_f 'work/Makefile'
-  cp 'ext/extconf.rb', 'work/extconf.rb'
-end
-
-file 'work/Makefile' => SOURCES + ['gumbo-parser'] do
-  Dir.chdir 'work' do 
-    ruby 'extconf.rb'
-  end
-end
-
-task 'compile' => ['work/Makefile', 'work/nokogumbo.c'] do
-  Dir.chdir 'work' do 
-    sh 'make -s'
-  end
-end
-
-task 'test' => 'compile' do
+task 'test' => ['compile', 'lib/nokogumbo.rb'] do
   ruby 'test-nokogumbo.rb'
 end
 
-CLEAN.include FileList.new('work').existing
-CLOBBER.include FileList.new('gumbo-parser').existing
+CLEAN.include FileList.new('ext', 'lib').existing
+CLOBBER.include FileList.new('gumbo-parser', 'Gemfile.lock').existing
 
+task 'package-ext' => EXT + ['gumbo-parser'] do
+  sources = EXT + FileList['gumbo-parser/src/*']
+  SPEC.files += sources
+  PKG.package_files += sources
+end
+
+task 'gem' => ['test', 'package-ext']
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
   gem.version = '0.9'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
-  gem.extensions = 'work/extconf.rb'
+  gem.extensions = 'ext/nokogumboc/extconf.rb'
   gem.author = 'Sam Ruby'
   gem.add_dependency 'nokogiri'
   gem.license = 'Apache 2.0'
@@ -65,15 +63,9 @@ SPEC = Gem::Specification.new do |gem|
   ]
 end
 
-task 'package_workfiles' => SOURCES do
-  sources = 'work/nokogumbo.c', 'work/extconf.rb'
-  sources += FileList['gumbo-parser/src/*']
-  SPEC.files += sources
-  PKG.package_files += sources
-end
-
-task 'gem' => ['test', 'package_workfiles']
 PKG = Gem::PackageTask.new(SPEC) do |pkg|
   pkg.need_tar = true
   pkg.need_zip = true
 end
+
+Rake::ExtensionTask.new('nokogumboc')

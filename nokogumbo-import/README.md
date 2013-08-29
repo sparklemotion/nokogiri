@@ -57,9 +57,11 @@ parser will be downloaded and compiled into the Gem itself.
 Installation
 ============
 
-* Execute `rake gem`
-
-* [sudo] gem install pkg/nokogumbo*.gem
+    git clone https://github.com/rubys/nokogumbo.git
+    cd nokogumbo
+    bundle install
+    rake gem
+    gem install pkg/nokogumbo*.gem
 
 Related efforts
 ============
