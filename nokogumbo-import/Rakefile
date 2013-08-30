@@ -2,6 +2,8 @@ require 'rubygems/package_task'
 require 'rake/clean'
 require 'rake/extensiontask'
 
+ENV['RAKEHOME'] = File.dirname(File.expand_path(__FILE__))
+
 task 'default' => 'test'
 
 file 'lib/nokogumbo.rb' do

@@ -19,7 +19,9 @@ end
 # add in gumbo-parser source from github if not already installed
 unless have_library('gumbo', 'gumbo_parse') or File.exist? 'work/gumbo.h'
   require 'fileutils'
-  FileUtils.cp Dir['../gumbo-parser/src/*'], '.'
+  rakehome = ENV['RAKEHOME'] || File.expand_path('../..')
+  FileUtils.cp Dir["#{rakehome}/gumbo-parser/src/*"],
+    "#{rakehome}/ext/nokogumboc"
 end
 
 create_makefile('nokogumboc')
