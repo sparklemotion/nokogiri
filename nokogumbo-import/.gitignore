@@ -1,4 +1,6 @@
-gumbo-parser
-pkg
-work
 Gemfile.lock
+ext
+gumbo-parser
+lib
+pkg
+tmp
