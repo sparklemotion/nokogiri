@@ -35,9 +35,6 @@ task 'test' => ['compile', 'lib/nokogumbo.rb'] do
   ruby 'test-nokogumbo.rb'
 end
 
-CLEAN.include FileList.new('ext', 'lib').existing
-CLOBBER.include FileList.new('gumbo-parser', 'Gemfile.lock').existing
-
 task 'package-ext' => EXT + ['gumbo-parser'] do
   sources = EXT + FileList['gumbo-parser/src/*']
   SPEC.files += sources
@@ -70,4 +67,16 @@ PKG = Gem::PackageTask.new(SPEC) do |pkg|
   pkg.need_zip = true
 end
 
-Rake::ExtensionTask.new('nokogumboc')
+Rake::ExtensionTask.new('nokogumboc', SPEC) do |ext|
+  ext.cross_compile  = true
+  ext.cross_platform = ["x86-mingw32"]
+end
+
+CLEAN.include FileList.new('ext', 'lib')
+CLOBBER.include FileList.new('pkg', 'gumbo-parser', 'Gemfile.lock')
+
+# silence cleanup operations
+Rake::Task[:clobber_package].clear
+CLEAN.existing!
+CLOBBER.uniq!.existing!
+CLOBBER.exclude *Dir['lib/*']
