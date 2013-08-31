@@ -78,5 +78,5 @@ CLOBBER.include FileList.new('pkg', 'gumbo-parser', 'Gemfile.lock')
 # silence cleanup operations
 Rake::Task[:clobber_package].clear
 CLEAN.existing!
-CLOBBER.uniq!.existing!
+CLOBBER.existing!.uniq!
 CLOBBER.exclude *Dir['lib/*']
