@@ -12,8 +12,8 @@ file 'lib/nokogumbo.rb' do
 end
 
 EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
-task 'cross' => EXT + ['gumbo-parser']
-task 'compile' => EXT + ['gumbo-parser']
+task 'cross' => EXT
+task 'compile' => EXT
 
 EXT.each do |ext|
   file ext => File.basename(ext) do
@@ -22,27 +22,11 @@ EXT.each do |ext|
   end
 end
 
-file 'gumbo-parser' do
-  sh 'git clone https://github.com/google/gumbo-parser.git'
-end
-
-task 'pull' => 'gumbo-parser' do
-  Dir.chdir('gumbo-parser') do
-    sh 'git pull'
-  end
-end
-
 task 'test' => ['compile', 'lib/nokogumbo.rb'] do
   ruby 'test-nokogumbo.rb'
 end
 
-task 'package-ext' => EXT + ['gumbo-parser'] do
-  sources = EXT + FileList['gumbo-parser/src/*']
-  SPEC.files += sources
-  PKG.package_files += sources
-end
-
-task 'gem' => ['test', 'package-ext']
+task 'gem' => 'test'
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
   gem.version = '0.9'
@@ -56,10 +40,11 @@ SPEC = Gem::Specification.new do |gem|
   gem.description = %q(
     Nokogumbo allows a Ruby program to invoke the Gumbo HTML5 parser and
     access the result as a Nokogiri parsed document.).strip.gsub(/\s+/, ' ')
-  gem.files = FileList[
+  gem.files = EXT + FileList[
     'lib/nokogumbo.rb',
     'LICENSE.txt',
     'README.md',
+    'gumbo-parser/src/*'
   ]
 end
 
@@ -74,7 +59,7 @@ Rake::ExtensionTask.new('nokogumboc', SPEC) do |ext|
 end
 
 CLEAN.include FileList.new('ext', 'lib')
-CLOBBER.include FileList.new('pkg', 'gumbo-parser', 'Gemfile.lock')
+CLOBBER.include FileList.new('pkg', 'Gemfile.lock')
 
 # silence cleanup operations
 Rake::Task[:clobber_package].clear
