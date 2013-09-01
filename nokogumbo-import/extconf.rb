@@ -7,13 +7,16 @@ pkg_config('libxml-2.0')
 # nokogiri configuration from gem install
 nokogiri_lib = Gem.find_files('nokogiri').
   sort_by {|name| name[/nokogiri-([\d.]+)/,1].split('.').map(&:to_i)}.last
-gem 'nokogiri' unless nokogiri_lib
-nokogiri_ext = nokogiri_lib.sub(%r(lib/nokogiri(.rb)?$), 'ext/nokogiri')
+if nokogiri_lib
+  nokogiri_ext = nokogiri_lib.sub(%r(lib/nokogiri(.rb)?$), 'ext/nokogiri')
 
-# if that doesn't work, try workarounds found in Nokogiri's extconf
-unless find_header('nokogiri.h', nokogiri_ext)
-  require "#{nokogiri_ext}/extconf.rb"
-  throw 'nokogiri.h not found' unless find_header('nokogiri.h', nokogiri_ext)
+  # if that doesn't work, try workarounds found in Nokogiri's extconf
+  unless find_header('nokogiri.h', nokogiri_ext)
+    require "#{nokogiri_ext}/extconf.rb"
+  end
+
+  # if found, enable direct calls to Nokogiri (and libxml2)
+  $CFLAGS += ' -DNGLIB' if find_header('nokogiri.h', nokogiri_ext)
 end
 
 # add in gumbo-parser source from github if not already installed

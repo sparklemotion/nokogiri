@@ -34,13 +34,16 @@ Notes
 
 * The `Nokogiri::HTML5.parse` function takes a string and passes it to the
 <code>gumbo_parse_with_options</code> method, using the default options.
-The resulting Gumbo parse tree is the walked, producing a 
-[libxml2](http://xmlsoft.org/html/)
-[xmlDoc](http://xmlsoft.org/html/libxml-tree.html#xmlDoc).
-The original Gumbo parse tree is then destroyed, and single Nokogiri Ruby
-object is constructed to wrap the xmlDoc structure.  Nokogiri only produces
-Ruby objects as necessary, so all searching is done using the underlying
-libxml2 libraries.
+The resulting Gumbo parse tree is the walked.
+  * If the necessary Nokogiri and [libxml2](http://xmlsoft.org/html/) headers
+    can be found at installation time then an
+    [xmlDoc](http://xmlsoft.org/html/libxml-tree.html#xmlDoc) tree is produced
+    and a single Nokogiri Ruby object is constructed to wrap the xmlDoc
+    structure.  Nokogiri only produces Ruby objects as necessary, so all
+    searching is done using the underlying libxml2 libraries.
+  * If the necessary headers are not present at installation time, then
+    Nokogiri Ruby objects are created for each Gumbo node.  Other than
+    memory usage and CPU time, the results should be equivalent.
 
 * The `Nokogiri::HTML5.get` function takes care of following redirects,
 https, and determining the character encoding of the result, based on the

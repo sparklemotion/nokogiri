@@ -1,26 +1,101 @@
+//
+// nokogumbo.c defines the following:
+//
+//   class Nokogumbo
+//     def parse(utf8_string) # returns Nokogiri::HTML::Document
+//   end
+//
+// Processing starts by calling gumbo_parse_with_options.  The resulting
+// document tree is then walked:
+//
+//  * if Nokogiri and libxml2 headers are available at compile time,
+//    (ifdef NGLIB) then a parallel libxml2 tree is constructed, and the
+//    final document is then wrapped using Nokogiri_wrap_xml_document.
+//    This approach reduces memory and CPU requirements as Ruby objects
+//    are only built when necessary.
+//
+//  * if the necessary headers are not available at compile time, Nokogiri
+//    methods are called instead, producing the equivalent functionality.
+//
+
 #include <ruby.h>
 #include <gumbo.h>
-#include <nokogiri.h>
-#include <libxml/tree.h>
-
-#define CONST_CAST (xmlChar const*)
 
 // class constants
 static VALUE Document;
+
+#ifdef NGLIB
+#include <nokogiri.h>
+#include <libxml/tree.h>
+
+#define NIL NULL
+#define CONST_CAST (xmlChar const*)
+#else
+#define NIL 0
+#define CONST_CAST
+
+// more class constants
+static VALUE Element;
+static VALUE Text;
+static VALUE CDATA;
+static VALUE Comment;
+
+// interned symbols
+static VALUE new;
+static VALUE set_attribute;
+static VALUE add_child;
+static VALUE internal_subset;
+static VALUE remove_;
+static VALUE create_internal_subset;
+
+// map libxml2 types to Ruby VALUE
+#define xmlNodePtr VALUE
+#define xmlDocPtr VALUE
+
+// redefine libxml2 API as Ruby function calls
+#define xmlNewDocNode(doc, ns, name, content) \
+  rb_funcall(Element, new, 2, rb_str_new2(name), doc)
+#define xmlNewProp(element, name, value) \
+  rb_funcall(element, set_attribute, 2, rb_str_new2(name), rb_str_new2(value))
+#define xmlNewDocText(doc, text) \
+  rb_funcall(Text, new, 2, rb_str_new2(text), doc)
+#define xmlNewCDataBlock(doc, content, length) \
+  rb_funcall(CDATA, new, 2, rb_str_new(content, length), doc)
+#define xmlNewDocComment(doc, text) \
+  rb_funcall(Comment, new, 2, doc, rb_str_new2(text))
+#define xmlAddChild(element, node) \
+  rb_funcall(element, add_child, 1, node)
+#define xmlDocSetRootElement(doc, root) \
+  rb_funcall(doc, add_child, 1, root)
+#define xmlCreateIntSubset(doc, name, external, system) \
+  rb_funcall(doc, create_internal_subset, 3, rb_str_new2(name), \
+    (external ? rb_str_new2(external) : Qnil), \
+    (system ? rb_str_new2(system) : Qnil));
+#define Nokogiri_wrap_xml_document(klass, doc) \
+  doc
+
+// remove internal subset from newly created documents
+static VALUE xmlNewDoc(char* version) {
+  VALUE doc = rb_funcall(Document, new, 0);
+  rb_funcall(rb_funcall(doc, internal_subset, 0), remove_, 0);
+  return doc;
+}
+#endif
 
 // Build a Nokogiri Element for a given GumboElement (recursively)
 static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
   // determine tag name for a given node
   xmlNodePtr element;
   if (node->tag != GUMBO_TAG_UNKNOWN) {
-    element = xmlNewNode(NULL, CONST_CAST gumbo_normalized_tagname(node->tag));
+    element = xmlNewDocNode(document, NIL,
+      CONST_CAST gumbo_normalized_tagname(node->tag), NIL);
   } else {
     GumboStringPiece tag = node->original_tag;
     gumbo_tag_from_original_text(&tag);
     char name[tag.length+1];
     strncpy(name, tag.data, tag.length);
     name[tag.length] = '\0';
-    element = xmlNewNode(NULL, BAD_CAST name);
+    element = xmlNewDocNode(document, NIL, CONST_CAST name, NIL);
   }
 
   // add in the attributes
@@ -35,7 +110,7 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
   for (int i=0; i < children->length; i++) {
     GumboNode* child = children->data[i];
 
-    xmlNodePtr node = NULL;
+    xmlNodePtr node = NIL;
 
     switch (child->type) {
       case GUMBO_NODE_ELEMENT:
@@ -43,7 +118,7 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
         break;
       case GUMBO_NODE_WHITESPACE:
       case GUMBO_NODE_TEXT:
-        node = xmlNewText(CONST_CAST child->v.text.text);
+        node = xmlNewDocText(document, CONST_CAST child->v.text.text);
         break;
       case GUMBO_NODE_CDATA:
         node = xmlNewCDataBlock(document, 
@@ -51,7 +126,7 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
           (int) child->v.text.original_text.length);
         break;
       case GUMBO_NODE_COMMENT:
-        node = xmlNewComment(CONST_CAST child->v.text.text);
+        node = xmlNewDocComment(document, CONST_CAST child->v.text.text);
         break;
       case GUMBO_NODE_DOCUMENT:
         break; // should never happen -- ignore
@@ -76,8 +151,8 @@ static VALUE parse(VALUE self, VALUE string) {
     const char *public = output->document->v.document.public_identifier;
     const char *system = output->document->v.document.system_identifier;
     xmlCreateIntSubset(doc, CONST_CAST "html",
-      (strlen(public) ? CONST_CAST public : NULL),
-      (strlen(system) ? CONST_CAST system : NULL));
+      (strlen(public) ? CONST_CAST public : NIL),
+      (strlen(system) ? CONST_CAST system : NIL));
   }
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 
@@ -93,6 +168,23 @@ void Init_nokogumboc() {
   VALUE Nokogiri = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
   VALUE HTML = rb_const_get(Nokogiri, rb_intern("HTML"));
   Document = rb_const_get(HTML, rb_intern("Document"));
+
+#ifndef NGLIB
+  // more class constants
+  VALUE XML = rb_const_get(Nokogiri, rb_intern("XML"));
+  Element = rb_const_get(XML, rb_intern("Element"));
+  Text = rb_const_get(XML, rb_intern("Text"));
+  CDATA = rb_const_get(XML, rb_intern("CDATA"));
+  Comment = rb_const_get(XML, rb_intern("Comment"));
+
+  // interned symbols
+  new = rb_intern("new");
+  set_attribute = rb_intern("set_attribute");
+  add_child = rb_intern("add_child");
+  internal_subset = rb_intern("internal_subset");
+  remove_ = rb_intern("remove");
+  create_internal_subset = rb_intern("create_internal_subset");
+#endif
 
   // define Nokogumbo class with a singleton parse method
   VALUE Gumbo = rb_define_class("Nokogumbo", rb_cObject);
