@@ -12,6 +12,7 @@ file 'lib/nokogumbo.rb' do
 end
 
 EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
+task 'cross' => EXT + ['gumbo-parser']
 task 'compile' => EXT + ['gumbo-parser']
 
 EXT.each do |ext|
