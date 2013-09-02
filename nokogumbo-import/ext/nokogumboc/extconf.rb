@@ -22,11 +22,13 @@ if have_library('xml2', 'xmlNewDoc')
 end
 
 # add in gumbo-parser source from github if not already installed
-unless have_library('gumbo', 'gumbo_parse') or File.exist? 'work/gumbo.h'
-  require 'fileutils'
+unless have_library('gumbo', 'gumbo_parse')
   rakehome = ENV['RAKEHOME'] || File.expand_path('../..')
-  FileUtils.cp Dir["#{rakehome}/gumbo-parser/src/*"],
-    "#{rakehome}/ext/nokogumboc"
+  unless File.exist? "#{rakehome}/ext/nokogumboc/gumbo.h"
+    require 'fileutils'
+    FileUtils.cp Dir["#{rakehome}/gumbo-parser/src/*"],
+      "#{rakehome}/ext/nokogumboc"
+  end
 end
 
 create_makefile('nokogumboc')

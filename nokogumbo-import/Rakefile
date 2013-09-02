@@ -18,16 +18,9 @@ end
 
 EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
 
-task 'setup' => EXT + ['lib/nokogumbo.rb', 'gumbo-parser/src']
+task 'setup' => 'gumbo-parser/src'
 task 'cross' => 'setup'
 task 'compile' => 'setup'
-
-EXT.each do |ext|
-  file ext => File.basename(ext) do
-    mkdir_p File.dirname(ext)
-    cp File.basename(ext), File.dirname(ext)
-  end
-end
 
 task 'test' => 'compile' do
   ruby 'test-nokogumbo.rb'
@@ -65,7 +58,7 @@ Rake::ExtensionTask.new('nokogumboc', SPEC) do |ext|
   ext.cross_platform = ["x86-mingw32"]
 end
 
-CLEAN.include FileList.new('ext', 'lib')
+CLEAN.include FileList.new('ext/nokogumboc/*')-EXT
 CLOBBER.include FileList.new('pkg', 'Gemfile.lock')
 
 # silence cleanup operations
