@@ -60,7 +60,7 @@ parser will be downloaded and compiled into the Gem itself.
 Installation
 ============
 
-    git clone https://github.com/rubys/nokogumbo.git
+    git clone --recursive https://github.com/rubys/nokogumbo.git
     cd nokogumbo
     bundle install
     rake gem
