@@ -6,14 +6,21 @@ ENV['RAKEHOME'] = File.dirname(File.expand_path(__FILE__))
 
 task 'default' => 'test'
 
+file 'gumbo-parser/src' do
+  sh 'git submodule init'
+  sh 'git submodule update'
+end
+
 file 'lib/nokogumbo.rb' do
   mkdir_p 'lib'
   cp 'nokogumbo.rb', 'lib'
 end
 
 EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
-task 'cross' => EXT
-task 'compile' => EXT
+
+task 'setup' => EXT + ['lib/nokogumbo.rb', 'gumbo-parser/src']
+task 'cross' => 'setup'
+task 'compile' => 'setup'
 
 EXT.each do |ext|
   file ext => File.basename(ext) do
@@ -22,7 +29,7 @@ EXT.each do |ext|
   end
 end
 
-task 'test' => ['compile', 'lib/nokogumbo.rb'] do
+task 'test' => 'compile' do
   ruby 'test-nokogumbo.rb'
 end
 
