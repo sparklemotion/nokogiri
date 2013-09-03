@@ -2,34 +2,34 @@ require 'rubygems/package_task'
 require 'rake/clean'
 require 'rake/extensiontask'
 
+# home directory - used to find gumbo-parser/src by extconf.rb
 ENV['RAKEHOME'] = File.dirname(File.expand_path(__FILE__))
 
+# default to running tests
 task 'default' => 'test'
+
+task 'test' => 'compile' do
+  ruby 'test-nokogumbo.rb'
+end
+
+# ensure gumbo-parser submodule is updated
+task 'setup' => 'gumbo-parser/src'
+task 'cross' => 'setup'
+task 'compile' => 'setup'
 
 file 'gumbo-parser/src' do
   sh 'git submodule init'
   sh 'git submodule update'
 end
 
-file 'lib/nokogumbo.rb' do
-  mkdir_p 'lib'
-  cp 'nokogumbo.rb', 'lib'
-end
-
+# list of ext source files to be included in package, excluded from CLEAN
 EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
 
-task 'setup' => 'gumbo-parser/src'
-task 'cross' => 'setup'
-task 'compile' => 'setup'
-
-task 'test' => 'compile' do
-  ruby 'test-nokogumbo.rb'
-end
-
+# gem, package, and extension tasks
 task 'gem' => 'test'
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '0.9'
+  gem.version = '0.10'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
@@ -58,6 +58,7 @@ Rake::ExtensionTask.new('nokogumboc', SPEC) do |ext|
   ext.cross_platform = ["x86-mingw32"]
 end
 
+# cleanup
 CLEAN.include FileList.new('ext/nokogumboc/*')-EXT
 CLOBBER.include FileList.new('pkg', 'Gemfile.lock')
 
@@ -65,4 +66,3 @@ CLOBBER.include FileList.new('pkg', 'Gemfile.lock')
 Rake::Task[:clobber_package].clear
 CLEAN.existing!
 CLOBBER.existing!.uniq!
-CLOBBER.exclude *Dir['lib/*']
