@@ -26,10 +26,20 @@ module Nokogiri
 <div>
   <b>bold1 </b>
   <i>italic1 </i>
-  <b>bold2 </b>
+  <b class="a">bold2 </b>
+  <em class="a">emphasis1 </em>
   <i>italic2 </i>
   <p>para1 </p>
-  <b>bold3 </b>
+  <b class="a">bold3 </b>
+</div>
+<div>
+  <i class="b">italic3 </i>
+  <em>emphasis2 </em>
+  <i class="b">italic4 </i>
+  <em>emphasis3 </em>
+  <i class="c">italic5 </i>
+  <span><i class="b">italic6 </i></span>  
+  <i>italic7 </i>
 </div>
 <div>
   <p>para2 </p>
@@ -105,15 +115,40 @@ EOF
       def test_first_of_type
         assert_result_rows [1], @parser.search("table/tr:first-of-type")
         assert_result_rows [1], @parser.search("div/b:first-of-type"), "bold"
+        assert_result_rows [2], @parser.search("div/b.a:first-of-type"), "bold"
+        assert_result_rows [3], @parser.search("div/i.b:first-of-type"), "italic"
       end
 
       def test_last_of_type
         assert_result_rows [14], @parser.search("table/tr:last-of-type")
         assert_result_rows [3], @parser.search("div/b:last-of-type"), "bold"
+        assert_result_rows [2,7], @parser.search("div/i:last-of-type"), "italic"
+        assert_result_rows [2,6,7], @parser.search("div i:last-of-type"), "italic"
+        assert_result_rows [4], @parser.search("div/i.b:last-of-type"), "italic"
+      end
+      
+      def test_nth_of_type
+        assert_result_rows [1], @parser.search("div/b:nth-of-type(1)"), "bold"
+        assert_result_rows [2], @parser.search("div/b:nth-of-type(2)"), "bold"
+        assert_result_rows [2], @parser.search("div/.a:nth-of-type(1)"), "bold"
+        assert_result_rows [2,4,7], @parser.search("div i:nth-of-type(2n)"), "italic"
+        assert_result_rows [1,3,5,6], @parser.search("div i:nth-of-type(2n+1)"), "italic"
+        assert_result_rows [1], @parser.search("div .a:nth-of-type(2n)"), "emphasis"
+        assert_result_rows [2,3], @parser.search("div .a:nth-of-type(2n+1)"), "bold"
+      end
+      
+      def test_nth_last_of_type
+        assert_result_rows [14], @parser.search("table/tr:nth-last-of-type(1)")
+        assert_result_rows [12], @parser.search("table/tr:nth-last-of-type(3)")
+        assert_result_rows [2,6,7], @parser.search("div i:nth-last-of-type(1)"), "italic"
+        assert_result_rows [1,5], @parser.search("div i:nth-last-of-type(2)"), "italic"        
+        assert_result_rows [4], @parser.search("div/i.b:nth-last-of-type(1)"), "italic"
+        assert_result_rows [3], @parser.search("div/i.b:nth-last-of-type(2)"), "italic"
       end
 
       def test_only_of_type
         assert_result_rows [1,4], @parser.search("div/p:only-of-type"), "para"
+        assert_result_rows [5], @parser.search("div/i.c:only-of-type"), "italic"
       end
 
       def test_only_child

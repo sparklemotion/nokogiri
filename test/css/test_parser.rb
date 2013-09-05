@@ -158,11 +158,19 @@ module Nokogiri
       def test_standard_nth_selectors
         assert_xpath '//a[position() = 1]',             @parser.parse('a:first-of-type()')
         assert_xpath '//a[position() = 1]',             @parser.parse('a:first-of-type') # no parens
-        assert_xpath '//a[position() = 99]',            @parser.parse('a:nth-of-type(99)')
+        assert_xpath "//a[contains(concat(' ', normalize-space(@class), ' '), ' b ')][position() = 1]",
+                     @parser.parse('a.b:first-of-type') # no parens
+        assert_xpath '//a[position() = 99]',            @parser.parse('a:nth-of-type(99)') 
+        assert_xpath "//a[contains(concat(' ', normalize-space(@class), ' '), ' b ')][position() = 99]",
+                     @parser.parse('a.b:nth-of-type(99)')
         assert_xpath '//a[position() = last()]',        @parser.parse('a:last-of-type()')
         assert_xpath '//a[position() = last()]',        @parser.parse('a:last-of-type') # no parens
+        assert_xpath "//a[contains(concat(' ', normalize-space(@class), ' '), ' b ')][position() = last()]",
+                     @parser.parse('a.b:last-of-type') # no parens
         assert_xpath '//a[position() = last()]',        @parser.parse('a:nth-last-of-type(1)')
         assert_xpath '//a[position() = last() - 98]',   @parser.parse('a:nth-last-of-type(99)')
+        assert_xpath "//a[contains(concat(' ', normalize-space(@class), ' '), ' b ')][position() = last() - 98]",
+                     @parser.parse('a.b:nth-last-of-type(99)')
       end
 
       def test_nth_child_selectors
@@ -174,8 +182,7 @@ module Nokogiri
       end
 
       def test_miscellaneous_selectors
-        assert_xpath '//*[last() = 1 and self::a]',
-          @parser.parse('a:only-child')
+        assert_xpath '//*[last() = 1 and self::a]',  @parser.parse('a:only-child')
         assert_xpath '//a[last() = 1]', @parser.parse('a:only-of-type')
         assert_xpath '//a[not(node())]', @parser.parse('a:empty')
       end

@@ -124,8 +124,15 @@ module Nokogiri
         "contains(concat(' ', normalize-space(@class), ' '), ' #{node.value.first} ')"
       end
 
+      def visit_combinator node
+        if is_of_type_pseudo_class?(node.value.last)
+          "#{node.value.first.accept(self) if node.value.first}][#{node.value.last.accept(self)}"
+        else
+          "#{node.value.first.accept(self) if node.value.first} and #{node.value.last.accept(self)}"
+        end
+      end
+      
       {
-        'combinator'                => ' and ',
         'direct_adjacent_selector'  => "/following-sibling::*[1]/self::",
         'following_selector'        => "/following-sibling::",
         'descendant_selector'       => '//',
@@ -178,6 +185,16 @@ module Nokogiri
           raise ArgumentError, "expected an+b node to have either + or - as the operator, but is #{op.inspect}"
         end
         [a, b]
+      end
+      
+      def is_of_type_pseudo_class? node
+        if node.type==:PSEUDO_CLASS
+          if node.value[0].is_a?(Nokogiri::CSS::Node) and node.value[0].type == :FUNCTION
+            node.value[0].value[0]
+          else
+            node.value[0]
+          end =~ /(nth|first|last|only)-of-type(\()?/
+        end   
       end
     end
   end
