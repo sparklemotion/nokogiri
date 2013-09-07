@@ -48,6 +48,20 @@ module Nokogiri
 <div>
   <p>para4 </p>
 </div>
+
+<div>
+  <h2></h2>
+  <h1 class='c'>header1 </h1>
+  <h2></h2>
+</div>
+<div>
+  <h1 class='c'>header2 </h1>
+  <h1 class='c'>header3 </h1>
+</div>
+<div>
+  <h1 class='c'>header4</h1>
+</div>
+  
 <p class='empty'></p>
 <p class='not-empty'><b></b></p>
 </html>
@@ -105,11 +119,13 @@ EOF
       def test_first_child
         assert_result_rows [1], @parser.search("div/b:first-child"), "bold"
         assert_result_rows [1], @parser.search("table/tr:first-child")
+        assert_result_rows [2,4],  @parser.search("div/h1.c:first-child"), "header"
       end
 
       def test_last_child
         assert_result_rows [3], @parser.search("div/b:last-child"), "bold"
         assert_result_rows [14], @parser.search("table/tr:last-child")
+        assert_result_rows [3,4], @parser.search("div/h1.c:last-child"), "header"
       end
 
       def test_first_of_type
@@ -153,6 +169,7 @@ EOF
 
       def test_only_child
         assert_result_rows [4], @parser.search("div/p:only-child"), "para"
+        assert_result_rows [4], @parser.search("div/h1.c:only-child"), "header"
       end
 
       def test_empty
