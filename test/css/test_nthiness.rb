@@ -127,6 +127,13 @@ EOF
         assert_result_rows [14], @parser.search("table/tr:last-child")
         assert_result_rows [3,4], @parser.search("div/h1.c:last-child"), "header"
       end
+      
+      def test_nth_child
+        assert_result_rows [2], @parser.search("div/b:nth-child(3)"), "bold"
+        assert_result_rows [5], @parser.search("table/tr:nth-child(5)")
+        assert_result_rows [1,3], @parser.search("div/h1.c:nth-child(2)"), "header"
+        assert_result_rows [3,4], @parser.search("div/i.b:nth-child(2n+1)"), "italic"
+      end
 
       def test_first_of_type
         assert_result_rows [1], @parser.search("table/tr:first-of-type")
