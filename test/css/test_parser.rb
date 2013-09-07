@@ -82,9 +82,9 @@ module Nokogiri
       end
 
       def test_function_with_arguments
-        assert_xpath  "//*[position() = 2 and self::a]",
+        assert_xpath  "//a[count(preceding-sibling::*) = 1]",
                       @parser.parse("a[2]")
-        assert_xpath  "//*[position() = 2 and self::a]",
+        assert_xpath  "//a[count(preceding-sibling::*) = 1]",
                       @parser.parse("a:nth-child(2)")
       end
 
@@ -174,15 +174,15 @@ module Nokogiri
       end
 
       def test_nth_child_selectors
-        assert_xpath '//*[position() = 1 and self::a]',           @parser.parse('a:first-child')
-        assert_xpath '//*[position() = 99 and self::a]',          @parser.parse('a:nth-child(99)')
-        assert_xpath '//*[position() = last() and self::a]',      @parser.parse('a:last-child')
-        assert_xpath '//*[position() = last() and self::a]',      @parser.parse('a:nth-last-child(1)')
-        assert_xpath '//*[position() = last() - 98 and self::a]', @parser.parse('a:nth-last-child(99)')
+        assert_xpath '//a[count(preceding-sibling::*) = 0]',         @parser.parse('a:first-child')
+        assert_xpath '//a[count(preceding-sibling::*) = 98]',          @parser.parse('a:nth-child(99)')
+        assert_xpath '//a[count(following-sibling::*) = 0]',      @parser.parse('a:last-child')
+        assert_xpath '//a[count(following-sbiling::*) = 0]',      @parser.parse('a:nth-last-child(1)')
+        assert_xpath '//a[count(following-sbiling::*) = 98]', @parser.parse('a:nth-last-child(99)')
       end
 
       def test_miscellaneous_selectors
-        assert_xpath '//*[last() = 1 and self::a]',  @parser.parse('a:only-child')
+        assert_xpath '//a[count(preceding-sibling::*) = 0 and count(following-sibling::*) = 0]',  @parser.parse('a:only-child')
         assert_xpath '//a[last() = 1]', @parser.parse('a:only-of-type')
         assert_xpath '//a[not(node())]', @parser.parse('a:empty')
       end

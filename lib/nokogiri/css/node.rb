@@ -22,58 +22,8 @@ module Nokogiri
       ###
       # Convert this CSS node to xpath with +prefix+ using +visitor+
       def to_xpath prefix = '//', visitor = XPathVisitor.new
-        self.preprocess!
         prefix = '.' if ALLOW_COMBINATOR_ON_SELF.include?(type) && value.first.nil?
         prefix + visitor.accept(self)
-      end
-
-      # Preprocess this node tree
-      def preprocess!
-        ### Deal with nth-child
-        matches = find_by_type(
-          [:CONDITIONAL_SELECTOR,
-            [:ELEMENT_NAME],
-            [:PSEUDO_CLASS,
-              [:FUNCTION]
-            ]
-          ]
-        )
-        matches.each do |match|
-          if match.value[1].value[0].value[0] =~ /^nth-(last-)?child/
-            tag_name = match.value[0].value.first
-            match.value[0].value = ['*']
-            match.value[1] = Node.new(:COMBINATOR, [
-              match.value[1].value[0],
-              Node.new(:FUNCTION, ['self(', tag_name])
-            ])
-          end
-        end
-
-        ### Deal with first-child, last-child
-        matches = find_by_type(
-          [:CONDITIONAL_SELECTOR,
-            [:ELEMENT_NAME], [:PSEUDO_CLASS]
-        ])
-        matches.each do |match|
-          if ['first-child', 'last-child'].include?(match.value[1].value.first)
-            which = match.value[1].value.first.gsub(/-\w*$/, '')
-            tag_name = match.value[0].value.first
-            match.value[0].value = ['*']
-            match.value[1] = Node.new(:COMBINATOR, [
-              Node.new(:FUNCTION, ["#{which}("]),
-              Node.new(:FUNCTION, ['self(', tag_name])
-            ])
-          elsif 'only-child' == match.value[1].value.first
-            tag_name = match.value[0].value.first
-            match.value[0].value = ['*']
-            match.value[1] = Node.new(:COMBINATOR, [
-              Node.new(:FUNCTION, ["#{match.value[1].value.first}("]),
-              Node.new(:FUNCTION, ['self(', tag_name])
-            ])
-          end
-        end
-
-        self
       end
 
       # Find a node by type using +types+
