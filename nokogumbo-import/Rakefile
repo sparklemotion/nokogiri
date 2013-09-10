@@ -22,6 +22,10 @@ file 'gumbo-parser/src' do
   sh 'git submodule update'
 end
 
+task 'pull' => 'setup' do
+  sh 'git submodule foreach git pull origin master'
+end
+
 # list of ext source files to be included in package, excluded from CLEAN
 EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
 
@@ -29,7 +33,7 @@ EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
 task 'gem' => 'test'
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '0.10'
+  gem.version = '1.0'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
