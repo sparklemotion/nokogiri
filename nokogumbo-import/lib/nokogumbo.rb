@@ -61,7 +61,10 @@ module Nokogiri
 
       case response
       when Net::HTTPSuccess
-        parse(reencode(response.body, response['content-type']))
+        doc = parse(reencode(response.body, response['content-type']))
+        doc.instance_variable_set('@response', response)
+        doc.class.send(:attr_reader, :response)
+        doc
       when Net::HTTPRedirection
         response.value if limit <= 1
         get(response['location'], options.merge(:follow_limit => limit-1))
