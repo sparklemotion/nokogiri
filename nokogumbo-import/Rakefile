@@ -1,6 +1,5 @@
 require 'rubygems/package_task'
 require 'rake/clean'
-require 'rake/extensiontask'
 
 # home directory - used to find gumbo-parser/src by extconf.rb
 ENV['RAKEHOME'] = File.dirname(File.expand_path(__FILE__))
@@ -13,21 +12,33 @@ task 'test' => 'compile' do
 end
 
 # ensure gumbo-parser submodule is updated
-task 'setup' => 'gumbo-parser/src'
-task 'cross' => 'setup'
-task 'compile' => 'setup'
+DLEXT = RbConfig::CONFIG['DLEXT']
+EXT = 'ext/nokogumboc'
+file "#{EXT}/nokogumboc.#{DLEXT}" => ["#{EXT}/Makefile","#{EXT}/nokogumbo.c"] do
+  Dir.chdir 'ext/nokogumboc' do
+    sh 'make'
+  end
+end
+
+file "#{EXT}/Makefile" => ['gumbo-parser/src', "#{EXT}/extconf.rb"] do
+  Dir.chdir 'ext/nokogumboc' do
+    ruby 'extconf.rb'
+  end
+end
+
+task 'compile' => "#{EXT}/nokogumboc.#{DLEXT}"
 
 file 'gumbo-parser/src' do
   sh 'git submodule init'
   sh 'git submodule update'
 end
 
-task 'pull' => 'setup' do
+task 'pull' => 'gumbo-parser/src' do
   sh 'git submodule foreach git pull origin master'
 end
 
 # list of ext source files to be included in package, excluded from CLEAN
-EXT = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
+SOURCES = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
 
 # gem, package, and extension tasks
 task 'gem' => 'test'
@@ -44,7 +55,7 @@ SPEC = Gem::Specification.new do |gem|
   gem.description = %q(
     Nokogumbo allows a Ruby program to invoke the Gumbo HTML5 parser and
     access the result as a Nokogiri parsed document.).strip.gsub(/\s+/, ' ')
-  gem.files = EXT + FileList[
+  gem.files = SOURCES + FileList[
     'lib/nokogumbo.rb',
     'LICENSE.txt',
     'README.md',
@@ -57,13 +68,8 @@ PKG = Gem::PackageTask.new(SPEC) do |pkg|
   pkg.need_zip = true
 end
 
-Rake::ExtensionTask.new('nokogumboc', SPEC) do |ext|
-  ext.cross_compile  = true
-  ext.cross_platform = ["x86-mingw32"]
-end
-
 # cleanup
-CLEAN.include FileList.new('ext/nokogumboc/*')-EXT
+CLEAN.include FileList.new('ext/nokogumboc/*')-SOURCES
 CLOBBER.include FileList.new('pkg', 'Gemfile.lock')
 
 # silence cleanup operations

@@ -28,6 +28,7 @@ unless have_library('gumbo', 'gumbo_parse')
     require 'fileutils'
     FileUtils.cp Dir["#{rakehome}/gumbo-parser/src/*"],
       "#{rakehome}/ext/nokogumboc"
+    $srcs = $objs = nil
   end
 end
 
