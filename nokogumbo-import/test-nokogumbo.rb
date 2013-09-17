@@ -1,5 +1,5 @@
-$:.push('lib')
-$:.push('ext/nokogumboc')
+$:.unshift('lib')
+$:.unshift('ext/nokogumboc')
 
 require 'nokogumbo'
 require 'test/unit'
