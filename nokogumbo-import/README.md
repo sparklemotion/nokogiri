@@ -34,7 +34,7 @@ Notes
 
 * The `Nokogiri::HTML5.parse` function takes a string and passes it to the
 <code>gumbo_parse_with_options</code> method, using the default options.
-The resulting Gumbo parse tree is the walked.
+The resulting Gumbo parse tree is then walked.
   * If the necessary Nokogiri and [libxml2](http://xmlsoft.org/html/) headers
     can be found at installation time then an
     [xmlDoc](http://xmlsoft.org/html/libxml-tree.html#xmlDoc) tree is produced
