@@ -89,9 +89,39 @@ def iconv_prefix
 end
 
 def process_recipe(name, version)
-  MiniPortile.new(name, version).tap { |recipe|
+  MiniPortile.new(name, version).tap do |recipe|
     recipe.target = File.join(ROOT, "ports")
-    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.host = RbConfig::CONFIG["host_alias"]
+
+    # Apply any bundled patches, that match the version to build
+    recipe.patch_files += Dir[File.join(ROOT, "ports", "patches", "#{name}-#{version}-*")].sort
+    class << recipe
+      # Use patch instead of git-apply because git-apply does nothing
+      # when it is run within another git checkout
+      def patch
+        @patch_files.each do |full_path|
+          next unless File.exists?(full_path)
+          output "Running patch with #{full_path}..."
+          execute('patch', %Q(patch -p1 < #{full_path}))
+        end
+      end
+
+      def config_cross
+        self.configure_options += [
+          "--target=#{host}",
+          "--host=#{host}",
+          "--enable-static",
+          "--disable-shared",
+        ]
+      end
+
+      def config_native
+        self.configure_options += [
+          "--enable-shared",
+          "--disable-static",
+        ]
+      end
+    end
 
     yield recipe
 
@@ -101,7 +131,7 @@ def process_recipe(name, version)
       FileUtils.touch checkpoint
     end
     recipe.activate
-  }
+  end
 end
 
 windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
@@ -116,7 +146,8 @@ end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
   $CFLAGS << " -DIN_LIBXML"
-  $LIBS << " -lz" # TODO why is this necessary?
+  # Mingw32 package is static linked
+  $LIBS << " -lz -liconv"
 end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
@@ -124,108 +155,146 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 end
 
-if windows_p
-  message "Cross-building nokogiri.\n"
+opt_header_dirs = [
+  # First search /opt/local for macports
+  '/opt/local/include',
 
-  HEADER_DIRS = [INCLUDEDIR]
-  LIB_DIRS = [LIBDIR]
-  XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
+  # Then check for OpenCSW packages
+  '/opt/csw/include',
 
-else
-  opt_header_dirs = [
-    # First search /opt/local for macports
-    '/opt/local/include',
+  # Then search /usr/local for people that installed from source
+  '/usr/local/include',
 
-    # Then check for OpenCSW packages
-    '/opt/csw/include',
+  # Check the ruby install locations
+  INCLUDEDIR,
+]
 
-    # Then search /usr/local for people that installed from source
-    '/usr/local/include',
+if arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+  message "Building nokogiri using system libraries.\n"
 
-    # Check the ruby install locations
-    INCLUDEDIR,
+  HEADER_DIRS = opt_header_dirs + [
+    # Fall back to /usr
+    '/usr/include',
+    '/usr/include/libxml2',
   ]
 
-  if arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
-    message "Building nokogiri using system libraries.\n"
+  LIB_DIRS = [
+    # First search /opt/local for macports
+    '/opt/local/lib',
 
-    HEADER_DIRS = opt_header_dirs + [
-      # Fall back to /usr
-      '/usr/include',
-      '/usr/include/libxml2',
-    ]
+    # Then check for OpenCSW packages
+    '/opt/csw/lib',
 
-    LIB_DIRS = [
-      # First search /opt/local for macports
-      '/opt/local/lib',
+    # Then search /usr/local for people that installed from source
+    '/usr/local/lib',
 
-      # Then check for OpenCSW packages
-      '/opt/csw/lib',
+    # Check the ruby install locations
+    LIBDIR,
 
-      # Then search /usr/local for people that installed from source
-      '/usr/local/lib',
+    # Finally fall back to /usr
+    '/usr/lib',
+  ]
 
-      # Check the ruby install locations
-      LIBDIR,
+  XML2_HEADER_DIRS = opt_header_dirs.map { |idir|
+    File.join(idir, "libxml2")
+  } + HEADER_DIRS
 
-      # Finally fall back to /usr
-      '/usr/lib',
-    ]
+  # If the user has homebrew installed, use the libxml2 inside homebrew
+  brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
+  unless brew_prefix.empty?
+    LIB_DIRS.unshift File.join(brew_prefix, 'lib')
+    XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+  end
 
-    XML2_HEADER_DIRS = opt_header_dirs.map { |idir|
-      File.join(idir, "libxml2")
-    } + HEADER_DIRS
+  pkg_config('libxslt')
+  pkg_config('libxml-2.0')
+else
+  message "Building nokogiri using packaged libraries.\n"
 
-    # If the user has homebrew installed, use the libxml2 inside homebrew
-    brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
-    unless brew_prefix.empty?
-      LIB_DIRS.unshift File.join(brew_prefix, 'lib')
-      XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+  require 'mini_portile'
+  require 'yaml'
+
+  dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
+
+  cross_build = enable_config("cross-build")
+  if cross_build
+    zlib_recipe = process_recipe("zlib", dependencies["zlib"]) do |recipe|
+      recipe.files = ["http://zlib.net/#{recipe.name}-#{recipe.version}.tar.gz"]
+      class << recipe
+        def configure
+          Dir.chdir work_path do
+            mk = File.read 'win32/Makefile.gcc'
+            File.open 'win32/Makefile.gcc', 'wb' do |f|
+              f.puts "BINARY_PATH = #{path}/bin"
+              f.puts "LIBRARY_PATH = #{path}/lib"
+              f.puts "INCLUDE_PATH = #{path}/include"
+              f.puts mk.sub(/^PREFIX\s*=\s*$/, "PREFIX = #{host}-")
+            end
+          end
+        end
+
+        def configured?
+          Dir.chdir work_path do
+            !! (File.read('win32/Makefile.gcc') =~ /^BINARY_PATH/)
+          end
+        end
+
+        def compile
+          execute "compile", "make -f win32/Makefile.gcc"
+        end
+
+        def install
+          execute "install", "make -f win32/Makefile.gcc install"
+        end
+      end
     end
 
-    pkg_config('libxslt')
-    pkg_config('libxml-2.0')
-  else
-    message "Building nokogiri using packaged libraries.\n"
-
-    require 'mini_portile'
-    require 'yaml'
-
-    dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
-
-    libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) { |recipe|
+    libiconv_recipe = process_recipe("libiconv", dependencies["libiconv"]) do |recipe|
+      recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz"]
       recipe.configure_options = [
-        "--enable-shared",
-        "--disable-static",
-        "--without-python",
-        "--without-readline",
-        "--with-iconv=#{iconv_prefix}",
-        "--with-c14n",
-        "--with-debug",
-        "--with-threads"
+        "CPPFLAGS='-Wall'",
+        "CFLAGS='-O2 -g'",
+        "CXXFLAGS='-O2 -g'",
+        "LDFLAGS="
       ]
-    }
-
-    libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) { |recipe|
-      recipe.configure_options = [
-        "--enable-shared",
-        "--disable-static",
-        "--without-python",
-        "--without-crypto",
-        "--with-debug",
-        "--with-libxml-prefix=#{libxml2_recipe.path}"
-      ]
-    }
-
-    $LIBPATH = ["#{libxml2_recipe.path}/lib"] | $LIBPATH
-    $LIBPATH = ["#{libxslt_recipe.path}/lib"] | $LIBPATH
-
-    $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
-
-    HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "include") }
-    LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "lib") }
-    XML2_HEADER_DIRS = HEADER_DIRS + [File.join(libxml2_recipe.path, "include", "libxml2")]
+      recipe.config_cross
+    end
   end
+
+  libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) do |recipe|
+    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.configure_options = [
+      "--without-python",
+      "--without-readline",
+      "--with-iconv=#{cross_build ? libiconv_recipe.path : iconv_prefix}",
+      "--with-c14n",
+      "--with-debug",
+      "--with-threads"
+    ]
+    cross_build ? recipe.config_cross : recipe.config_native
+  end
+
+  libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) do |recipe|
+    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.configure_options = [
+      "--without-python",
+      "--without-crypto",
+      "--with-debug",
+      "--with-libxml-prefix=#{libxml2_recipe.path}"
+    ]
+    cross_build ? recipe.config_cross : recipe.config_native
+  end
+
+  $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
+  $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
+  $LIBPATH = ["#{libxml2_recipe.path}/lib"] | $LIBPATH
+  $LIBPATH = ["#{libxslt_recipe.path}/lib"] | $LIBPATH
+
+  $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
+
+  HEADER_DIRS = [zlib_recipe, libiconv_recipe, libxml2_recipe, libxslt_recipe].compact.map { |f| File.join(f.path, "include") }
+  LIB_DIRS = [zlib_recipe, libiconv_recipe, libxml2_recipe, libxslt_recipe].compact.map { |f| File.join(f.path, "lib") }
+  XML2_HEADER_DIRS = HEADER_DIRS + [File.join(libxml2_recipe.path, "include", "libxml2")]
 end
 
 dir_config('zlib', HEADER_DIRS, LIB_DIRS)

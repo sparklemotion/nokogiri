@@ -2,12 +2,17 @@
 #
 #  script to build gems for all relevant platforms:
 #  - MRI et al (standard gem)
-#  - windows (x86-mingw32 and x86-mswin32-60)
+#  - windows (x86-mingw32 and x64-mingw32)
 #  - jruby
 #
 #  here's what I recommend for building all the gems:
 #
-#   1. set up a vagrant VM guest running ubuntu lucid 32-bit.
+#  set up a rake-compiler-dev-box as described here:
+#      https://github.com/tjschuck/rake-compiler-dev-box
+#  It is prepared with all the necessary build environments.
+#
+#  or alternatively do:
+#   1. Setup a ubuntu 12.04+ machine
 #   2. install rvm, and install 1.9.3, 2.0.0 and jruby.
 #   3. `sudo apt-get install mingw32`
 #
@@ -63,26 +68,46 @@ rm -rf gems
 mkdir -p gems
 
 # windows
-platform=$(uname -i)
-if [[ $platform =~ "64" ]] ; then
-    echo ""
-    echo "ERROR: You need to build the windows gem on a 32-bit machine!"
-    echo ""
-    exit 1
-fi
 rvm_use 1.9.3
-if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.9.3-p194/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
-    bundle exec rake-compiler cross-ruby VERSION=1.9.3-p194
+
+# download and install mingw-w64 compilers
+mingw32='i686-w64-mingw32-gcc-4.7.2-release-linux64_rubenvb.tar.xz'
+mingw64='x86_64-w64-mingw32-gcc-4.7.2-release-linux64_rubenvb.tar.xz'
+
+mkdir -p ~/mingw
+
+if [ ! -f "$HOME/mingw/$mingw32" ]; then
+    curl -L http://downloads.sourceforge.net/mingw-w64/$mingw32 -o ~/mingw/$mingw32
+    tar -C ~/mingw -xf ~/mingw/$mingw32
 fi
-if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-2.0.0-p0/lib/ruby/2.0.0/x86_64-linux/rbconfig.rb ]] ; then
-    bundle exec rake-compiler cross-ruby VERSION=2.0.0-p0
+
+if [ ! -f "$HOME/mingw/$mingw64" ]; then
+    curl -L http://downloads.sourceforge.net/mingw-w64/$mingw64 -o ~/mingw/$mingw64
+    tar -C ~/mingw -xf ~/mingw/$mingw64
 fi
-bundle exec rake cross
+
+# add mingw-w64 to the PATH
+mingw_w64_paths="$HOME/mingw/mingw32/bin:$HOME/mingw/mingw64/bin"
+
+export PATH=$PATH:$mingw_w64_paths
+
+# Build 1.9.3 using 1.9.3 as base
+rvm use 1.9.3
+rake-compiler cross-ruby VERSION=1.9.3-p448 HOST=i586-mingw32msvc
+
+# Now build Ruby 2.0.0 too
+rvm use 2.0.0
+rake-compiler cross-ruby VERSION=2.0.0-p247 HOST=i686-w64-mingw32 debugflags="-g"
+
+# And the cherry of the cake: x64 Ruby
+rake-compiler cross-ruby VERSION=2.0.0-p247 HOST=x86_64-w64-mingw32 debugflags="-g"
+
+
+rvm use 1.9.3
 bundle exec rake gem:windows
-cp -v pkg/nokogiri*x86-{mingw32,mswin32}*.gem gems
+cp -v pkg/nokogiri*{x86,x64}-mingw32*.gem gems
 
 # MRI
-rvm_use 1.9.3
 bundle exec rake clean
 bundle exec rake gem
 cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
