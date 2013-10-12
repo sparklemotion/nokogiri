@@ -67,7 +67,8 @@ module Nokogiri
         doc
       when Net::HTTPRedirection
         response.value if limit <= 1
-        get(response['location'], options.merge(:follow_limit => limit-1))
+        location = URI.join(uri, response['location'])
+        get(location, options.merge(:follow_limit => limit-1))
       else
         response.value
       end
