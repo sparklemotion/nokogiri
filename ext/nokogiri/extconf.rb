@@ -8,7 +8,11 @@ RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 LIBDIR = RbConfig::CONFIG['libdir']
-@libdir_basename = "lib" # shrug, ruby 2.0 won't work for me.
+
+# Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
+# https://bugs.ruby-lang.org/issues/8074
+@libdir_basename = "lib"
+
 INCLUDEDIR = RbConfig::CONFIG['includedir']
 
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
