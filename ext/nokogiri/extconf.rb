@@ -81,10 +81,6 @@ def each_iconv_idir
   # Try the system default
   yield "/usr/include"
 
-  opt_header_dirs.each { |dir|
-    yield dir
-  }
-
   cflags, = preserving_globals {
     pkg_config('libiconv')
   }
