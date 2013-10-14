@@ -149,10 +149,10 @@ case
 when windows_p
   message "Cross-building nokogiri.\n"
 
+  @libdir_basename = "lib" # shrug, ruby 2.0 won't work for me.
   dir_config('iconv')
   have_iconv? or asplode 'iconv'
 
-  @libdir_basename = "lib" # shrug, ruby 2.0 won't work for me.
   idir, ldir = RbConfig::CONFIG['includedir'], RbConfig::CONFIG['libdir']
 
   dir_config('zlib', idir, ldir)
