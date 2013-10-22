@@ -262,14 +262,24 @@ else
   }
 
   if static_p
-    $libs.replace($libs.shellsplit.flat_map {  |arg|
-        case arg
-        when '-lxml2', '-lxslt', '-lexslt'
-          ['-Wl,-Bstatic', arg, '-Wl,-Bdynamic']
-        else
-          arg
-        end
-      }.shelljoin)
+    message 'checking for linker flags for static linking... '
+
+    case
+    when try_link('int main(void) { return 0; }',
+                  ['-Wl,-Bstatic', '-lxml2', '-Wl,-Bdynamic'].shelljoin)
+      message "-Wl,-Bstatic\n"
+
+      $libs.replace($libs.shellsplit.flat_map {  |arg|
+          case arg
+          when '-lxml2', '-lxslt', '-lexslt'
+            ['-Wl,-Bstatic', arg, '-Wl,-Bdynamic']
+          else
+            arg
+          end
+        }.shelljoin)
+    else
+      message "NONE\n"
+    end
 
     # xslt-config --libs or pkg-config libxslt --libs does not include
     # -llzma, so we need to add it manually when linking statically.
