@@ -41,15 +41,15 @@ if arg_config('--clean')
 
     # clean the ports build directory
     Pathname.glob(pwd.join('tmp', '*', 'ports')) { |dir|
-      FileUtils.rm_rf(dir)
-      FileUtils.rmdir(dir.parent, parents: true)
+      FileUtils.rm_rf(dir, verbose: true)
+      FileUtils.rmdir(dir.parent, parents: true, verbose: true)
     }
 
     if enable_config('static')
       # ports installation can be safely removed if statically linked.
-      FileUtils.rm_rf(root + 'ports')
+      FileUtils.rm_rf(root + 'ports', verbose: true)
     else
-      FileUtils.rm_rf(root + 'ports' + 'archives')
+      FileUtils.rm_rf(root + 'ports' + 'archives', verbose: true)
     end
   end
 
