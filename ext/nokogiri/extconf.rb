@@ -1,5 +1,22 @@
 ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
+# Available options:
+#
+# --enable-clean (default)
+# --disable-clean
+#
+# --enable-static (default)
+# --disable-static
+#
+# --with-iconv-dir=DIR
+#
+# --with-zlib-dir=DIR
+#
+# --use-system-libraries
+#   --with-xml2-dir=DIR / --with-xml2-config=CONFIG
+#   --with-xslt-dir=DIR / --with-xslt-config=CONFIG
+#   --with-exslt-dir=DIR / --with-exslt-config=CONFIG
+
 # :stopdoc:
 
 require 'mkmf'
