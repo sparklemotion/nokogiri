@@ -19,11 +19,14 @@ if arg_config('--clean')
   unless (root + '.git').exist?
     message "Cleaning files only used during build.\n"
 
-    if pwd.relative_path_from(root).fnmatch?('tmp/*')
-      # (root + 'tmp') cannot be removed at this stage because
-      # nokogiri.so is yet to be copied to lib.
-      FileUtils.rm_rf(pwd + 'tmp')
-    end
+    # (root + 'tmp') cannot be removed at this stage because
+    # nokogiri.so is yet to be copied to lib.
+
+    # clean the ports build directory
+    Pathname.glob(pwd.join('tmp', '*', 'ports')) { |dir|
+      FileUtils.rm_rf(dir)
+      FileUtils.rmdir(dir.parent, parents: true)
+    }
 
     if enable_config('static')
       # ports installation can be safely removed if statically linked.
