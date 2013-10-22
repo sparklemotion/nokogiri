@@ -1,5 +1,22 @@
 ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
+# Available options:
+#
+# --enable-clean (default)
+# --disable-clean
+#
+# --enable-static (default)
+# --disable-static
+#
+# --with-iconv-dir=DIR
+#
+# --with-zlib-dir=DIR
+#
+# --use-system-libraries
+#   --with-xml2-dir=DIR / --with-xml2-config=CONFIG
+#   --with-xslt-dir=DIR / --with-xslt-config=CONFIG
+#   --with-exslt-dir=DIR / --with-exslt-config=CONFIG
+
 # :stopdoc:
 
 require 'mkmf'
@@ -7,9 +24,37 @@ require 'mkmf'
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
-LIBDIR = RbConfig::CONFIG['libdir']
-@libdir_basename = "lib" # shrug, ruby 2.0 won't work for me.
-INCLUDEDIR = RbConfig::CONFIG['includedir']
+
+if arg_config('--clean')
+  require 'pathname'
+  require 'fileutils'
+
+  root = Pathname(ROOT)
+  pwd  = Pathname(Dir.pwd)
+
+  # Skip if this is a development work tree
+  unless (root + '.git').exist?
+    message "Cleaning files only used during build.\n"
+
+    # (root + 'tmp') cannot be removed at this stage because
+    # nokogiri.so is yet to be copied to lib.
+
+    # clean the ports build directory
+    Pathname.glob(pwd.join('tmp', '*', 'ports')) { |dir|
+      FileUtils.rm_rf(dir)
+      FileUtils.rmdir(dir.parent, parents: true)
+    }
+
+    if enable_config('static')
+      # ports installation can be safely removed if statically linked.
+      FileUtils.rm_rf(root + 'ports')
+    else
+      FileUtils.rm_rf(root + 'ports' + 'archives')
+    end
+  end
+
+  exit
+end
 
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
   $LIBRUBYARG_STATIC.gsub!(/-static/, '')
@@ -55,10 +100,6 @@ def each_iconv_idir
 
   # Try the system default
   yield "/usr/include"
-
-  opt_header_dirs.each { |dir|
-    yield dir
-  }
 
   cflags, = preserving_globals {
     pkg_config('libiconv')
@@ -124,123 +165,155 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
 end
 
-if windows_p
+case
+when windows_p
   message "Cross-building nokogiri.\n"
 
+  @libdir_basename = "lib" # shrug, ruby 2.0 won't work for me.
   dir_config('iconv')
   have_iconv? or asplode 'iconv'
 
-  HEADER_DIRS = [INCLUDEDIR]
-  LIB_DIRS = [LIBDIR]
-  XML2_HEADER_DIRS = [File.join(INCLUDEDIR, "libxml2"), INCLUDEDIR]
+  idir, ldir = RbConfig::CONFIG['includedir'], RbConfig::CONFIG['libdir']
 
+  dir_config('zlib', idir, ldir)
+  dir_config('xml2', [File.join(idir, "libxml2"), idir], ldir)
+  dir_config('xslt', idir, ldir)
+when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+  message "Building nokogiri using system libraries.\n"
+
+  dir_config('zlib')
+
+  # Using system libraries means we rely on the system libxml2 with
+  # regard to the iconv support.
+
+  dir_config('xml2').any?  || pkg_config('libxml-2.0')
+  dir_config('xslt').any?  || pkg_config('libxslt')
+  dir_config('exslt').any? || pkg_config('libexslt')
 else
-  opt_header_dirs = [
-    # First search /opt/local for macports
-    '/opt/local/include',
+  message "Building nokogiri using packaged libraries.\n"
 
-    # Then check for OpenCSW packages
-    '/opt/csw/include',
+  require 'mini_portile'
+  require 'yaml'
 
-    # Then search /usr/local for people that installed from source
-    '/usr/local/include',
+  static_p = enable_config('static', true) or
+    message "Static linking is disabled.\n"
 
-    # Check the ruby install locations
-    INCLUDEDIR,
-  ]
+  dir_config('zlib')
 
-  if arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
-    message "Building nokogiri using system libraries.\n"
+  dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
 
-    HEADER_DIRS = opt_header_dirs + [
-      # Fall back to /usr
-      '/usr/include',
-      '/usr/include/libxml2',
+  libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) { |recipe|
+    recipe.configure_options = [
+      *(
+        if static_p
+          [
+            "--disable-shared",
+            "--enable-static",
+            "CFLAGS=-fPIC",
+          ]
+        else
+          [
+            "--enable-shared",
+            "--disable-static",
+          ]
+        end
+        ),
+      "--without-python",
+      "--without-readline",
+      "--with-iconv=#{iconv_prefix}",
+      "--with-c14n",
+      "--with-debug",
+      "--with-threads"
     ]
+  }
 
-    LIB_DIRS = [
-      # First search /opt/local for macports
-      '/opt/local/lib',
-
-      # Then check for OpenCSW packages
-      '/opt/csw/lib',
-
-      # Then search /usr/local for people that installed from source
-      '/usr/local/lib',
-
-      # Check the ruby install locations
-      LIBDIR,
-
-      # Finally fall back to /usr
-      '/usr/lib',
+  libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) { |recipe|
+    recipe.configure_options = [
+      *(
+        if static_p
+          [
+            "--disable-shared",
+            "--enable-static",
+            "CFLAGS=-fPIC",
+          ]
+        else
+          [
+            "--enable-shared",
+            "--disable-static",
+          ]
+        end
+        ),
+      "--without-python",
+      "--without-crypto",
+      "--with-debug",
+      "--with-libxml-prefix=#{libxml2_recipe.path}"
     ]
+  }
 
-    XML2_HEADER_DIRS = opt_header_dirs.map { |idir|
-      File.join(idir, "libxml2")
-    } + HEADER_DIRS
+  $CFLAGS << ' ' << '-DNOKOGIRI_USE_PACKAGED_LIBRARIES'
 
-    # If the user has homebrew installed, use the libxml2 inside homebrew
-    brew_prefix = `brew --prefix libxml2 2> /dev/null`.chomp
-    unless brew_prefix.empty?
-      LIB_DIRS.unshift File.join(brew_prefix, 'lib')
-      XML2_HEADER_DIRS.unshift File.join(brew_prefix, 'include/libxml2')
+  $libs.shellsplit.tap { |libs|
+    [libxml2_recipe, libxslt_recipe].each { |recipe|
+      libname = recipe.name[/\Alib(.+)\z/, 1]
+      File.join(recipe.path, "bin", "#{libname}-config").tap { |config|
+        $CPPFLAGS = `#{config} --cflags`.strip << ' ' << $CPPFLAGS
+        `#{config} --libs`.strip.shellsplit.each { |arg|
+          case arg
+          when /\A-L(.+)\z/
+            # Prioritize ports' directories
+            if $1.start_with?(ROOT + '/')
+              $LIBPATH = [$1] | $LIBPATH
+            else
+              $LIBPATH = $LIBPATH | [$1]
+            end
+          when /\A-l./
+            libs.unshift(arg)
+          else
+            $LDFLAGS << ' ' << arg.shellescape
+          end
+        }
+      }
+      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".shellescape
+    }
+
+    libs.unshift('-lexslt')
+
+    $libs = libs.shelljoin
+  }
+
+  if static_p
+    message 'checking for linker flags for static linking... '
+
+    case
+    when try_link('int main(void) { return 0; }',
+                  ['-Wl,-Bstatic', '-lxml2', '-Wl,-Bdynamic'].shelljoin)
+      message "-Wl,-Bstatic\n"
+
+      $libs.replace($libs.shellsplit.flat_map {  |arg|
+          case arg
+          when '-lxml2', '-lxslt', '-lexslt'
+            ['-Wl,-Bstatic', arg, '-Wl,-Bdynamic']
+          else
+            arg
+          end
+        }.shelljoin)
+    else
+      message "NONE\n"
     end
 
-    pkg_config('libxslt')
-    pkg_config('libxml-2.0')
-  else
-    message "Building nokogiri using packaged libraries.\n"
-
-    require 'mini_portile'
-    require 'yaml'
-
-    dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
-
-    libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) { |recipe|
-      recipe.configure_options = [
-        "--enable-shared",
-        "--disable-static",
-        "--without-python",
-        "--without-readline",
-        "--with-iconv=#{iconv_prefix}",
-        "--with-c14n",
-        "--with-debug",
-        "--with-threads"
-      ]
-    }
-
-    libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) { |recipe|
-      recipe.configure_options = [
-        "--enable-shared",
-        "--disable-static",
-        "--without-python",
-        "--without-crypto",
-        "--with-debug",
-        "--with-libxml-prefix=#{libxml2_recipe.path}"
-      ]
-    }
-
-    $LIBPATH = ["#{libxml2_recipe.path}/lib"] | $LIBPATH
-    $LIBPATH = ["#{libxslt_recipe.path}/lib"] | $LIBPATH
-
-    $CFLAGS << " -DNOKOGIRI_USE_PACKAGED_LIBRARIES -DNOKOGIRI_LIBXML2_PATH='\"#{libxml2_recipe.path}\"' -DNOKOGIRI_LIBXSLT_PATH='\"#{libxslt_recipe.path}\"'"
-
-    HEADER_DIRS = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "include") }
-    LIB_DIRS = [libxml2_recipe, libxslt_recipe].map { |f| File.join(f.path, "lib") }
-    XML2_HEADER_DIRS = HEADER_DIRS + [File.join(libxml2_recipe.path, "include", "libxml2")]
+    # xslt-config --libs or pkg-config libxslt --libs does not include
+    # -llzma, so we need to add it manually when linking statically.
+    have_library('lzma')
   end
 end
 
-dir_config('zlib', HEADER_DIRS, LIB_DIRS)
-dir_config('xml2', XML2_HEADER_DIRS, LIB_DIRS)
-dir_config('xslt', HEADER_DIRS, LIB_DIRS)
-
-asplode "libxml2"  unless find_header('libxml/parser.h')
-asplode "libxslt"  unless find_header('libxslt/xslt.h')
-asplode "libexslt" unless find_header('libexslt/exslt.h')
-asplode "libxml2"  unless find_library("xml2", 'xmlParseDoc')
-asplode "libxslt"  unless find_library("xslt", 'xsltParseStylesheetDoc')
-asplode "libexslt" unless find_library("exslt", 'exsltFuncRegister')
+{
+  "xml2"  => ['xmlParseDoc',            'libxml/parser.h'],
+  "xslt"  => ['xsltParseStylesheetDoc', 'libxslt/xslt.h'],
+  "exslt" => ['exsltFuncRegister',      'libexslt/exslt.h'],
+}.each { |lib, (func, header)|
+  have_func(func, header) || have_library(lib, func, header) or asplode("lib#{lib}")
+}
 
 unless have_func('xmlHasFeature')
   abort "-----\nThe function 'xmlHasFeature' is missing from your installation of libxml2.  Likely this means that your installed version of libxml2 is old enough that nokogiri will not work well.  To get around this problem, please upgrade your installation of libxml2.
@@ -262,5 +335,17 @@ if ENV['CPUPROFILE']
 end
 
 create_makefile('nokogiri/nokogiri')
+
+if enable_config('clean', true)
+  # Do not clean if run in a development work tree.
+  File.open('Makefile', 'at') { |mk|
+    mk.print <<EOF
+all: clean-ports
+
+clean-ports: $(DLLIB)
+	-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? 'enable' : 'disable'}-static
+EOF
+  }
+end
 
 # :startdoc:
