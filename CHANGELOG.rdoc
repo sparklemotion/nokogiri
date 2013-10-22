@@ -2,6 +2,7 @@
 
 * Features
 
+  * (MRI) Alias CP932 to Windows-31J if iconv does not support Windows-31J.
   * (MRI) Nokogiri now links packaged libraries statically.  To
     disable static linking, pass --disable-static to extconf.rb. #923
   * (MRI) Nokogiri automatically deletes directories of packaged
