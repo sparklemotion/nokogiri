@@ -119,15 +119,6 @@ Binary packages are available for:
 * SuSE[https://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/]
 * Fedora[http://s390.koji.fedoraproject.org/koji/packageinfo?packageID=6756]
 
-If you are installing on Solaris, OpenSolaris, or illumos will need to install
-libxslt[https://www.opencsw.org/package/libxslt/] and
-libxml[https://www.opencsw.org/package/libxml2_2/] from OpenCSW.  After these
-libraries have been installed, run:
-
-    NOKOGIRI_USE_SYSTEM_LIBRARIES=true sudo gem install nokogiri
-
-See above for version restrictions.
-
 == DEVELOPMENT:
 
 === Developing on C Ruby (MRI)
