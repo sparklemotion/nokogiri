@@ -169,7 +169,10 @@ case
 when windows_p
   message "Cross-building nokogiri.\n"
 
-  @libdir_basename = "lib" # shrug, ruby 2.0 won't work for me.
+  # Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
+  # https://bugs.ruby-lang.org/issues/8074
+  @libdir_basename = "lib"
+
   dir_config('iconv')
   have_iconv? or asplode 'iconv'
 
