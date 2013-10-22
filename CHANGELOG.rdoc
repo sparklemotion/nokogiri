@@ -2,9 +2,14 @@
 
 * Features
 
-  * Nokogiri now builds libxml2 properly with iconv support on platforms
-    where libiconv is installed outside the system default directories,
-    such as FreeBSD.
+  * (MRI) Nokogiri now links packaged libraries statically.  To
+    disable static linking, pass --disable-static to extconf.rb. #923
+  * (MRI) Nokogiri automatically deletes directories of packaged
+    libraries only used during build.  To keep them for debugging
+    purposes, pass --disable-clean to extconf.rb. #952
+  * (MRI) Nokogiri now builds libxml2 properly with iconv support on
+    platforms where libiconv is installed outside the system default
+    directories, such as FreeBSD.
   * Add support for an-b in nth selectors. #886 (Thanks, Magnus Bergmark!)
   * Add support for bare and multiple :not() functions in selectors. #887
     (Thanks, Magnus Bergmark!)
