@@ -19,6 +19,16 @@ module Nokogiri
           assert_match 'UTF-8', doc.to_html(:encoding => 'UTF-8').encoding.name
         end
 
+        def test_encoding_without_charset
+          doc = Nokogiri::HTML File.open(SHIFT_JIS_NO_CHARSET, 'r:cp932:cp932').read
+
+          hello = "こんにちは"
+
+          assert_match hello, doc.content
+          assert_match hello, doc.to_html(:encoding => 'UTF-8')
+          assert_match 'UTF-8', doc.to_html(:encoding => 'UTF-8').encoding.name
+        end
+
         def test_default_to_encoding_from_string
           bad_charset = <<-eohtml
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
