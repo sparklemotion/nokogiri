@@ -306,7 +306,7 @@ else
 
     # xslt-config --libs or pkg-config libxslt --libs does not include
     # -llzma, so we need to add it manually when linking statically.
-    have_library('lzma')
+    have_library('lzma') && $libs.concat(" -llzma")
   end
 end
 
