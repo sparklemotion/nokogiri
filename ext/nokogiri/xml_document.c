@@ -510,7 +510,7 @@ static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
   xmlC14NExecute(doc, cb, ctx, 
     (int)      (NIL_P(mode)        ? 0 : NUM2INT(mode)), 
     ns,
-    (int)      (NIL_P(with_comments)        ? 0 : 1),
+    (int)      (NIL_P(with_comments) || with_comments == Qfalse ? 0 : 1),
     buf);
 
   xmlOutputBufferClose(buf);
