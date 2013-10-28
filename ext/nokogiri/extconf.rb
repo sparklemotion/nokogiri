@@ -255,7 +255,11 @@ else
 
   $CFLAGS << ' ' << '-DNOKOGIRI_USE_PACKAGED_LIBRARIES'
 
-  $libs.shellsplit.tap { |libs|
+  have_lzma = preserving_globals {
+    have_library('lzma')
+  }
+
+  $libs = $libs.shellsplit.tap { |libs|
     [libxml2_recipe, libxslt_recipe].each { |recipe|
       libname = recipe.name[/\Alib(.+)\z/, 1]
       File.join(recipe.path, "bin", "#{libname}-config").tap { |config|
@@ -276,13 +280,24 @@ else
           end
         }
       }
+
       $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".shellescape
+
+      case libname
+      when 'xml2'
+        # xslt-config --libs or pkg-config libxslt --libs does not include
+        # -llzma, so we need to add it manually when linking statically.
+        if static_p && have_lzma
+          # Add it at the end; GH #988
+          libs << '-llzma'
+        end
+      when 'xslt'
+        # xslt-config does not have a flag to emit options including
+        # -lexslt, so add it manually.
+        libs.unshift('-lexslt')
+      end
     }
-
-    libs.unshift('-lexslt')
-
-    $libs = libs.shelljoin
-  }
+  }.shelljoin
 
   if static_p
     message 'checking for linker flags for static linking... '
@@ -292,21 +307,17 @@ else
                   ['-Wl,-Bstatic', '-lxml2', '-Wl,-Bdynamic'].shelljoin)
       message "-Wl,-Bstatic\n"
 
-      $libs.replace($libs.shellsplit.flat_map {  |arg|
-          case arg
-          when '-lxml2', '-lxslt', '-lexslt'
-            ['-Wl,-Bstatic', arg, '-Wl,-Bdynamic']
-          else
-            arg
-          end
-        }.shelljoin)
+      $libs = $libs.shellsplit.flat_map { |arg|
+        case arg
+        when '-lxml2', '-lxslt', '-lexslt'
+          ['-Wl,-Bstatic', arg, '-Wl,-Bdynamic']
+        else
+          arg
+        end
+      }.shelljoin
     else
       message "NONE\n"
     end
-
-    # xslt-config --libs or pkg-config libxslt --libs does not include
-    # -llzma, so we need to add it manually when linking statically.
-    have_library('lzma')
   end
 end
 
