@@ -52,6 +52,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.RubyInteger;
 import org.jruby.RubyNil;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
@@ -561,20 +562,28 @@ public class XmlDocument extends XmlNode {
         XmlNode startingNode = getStartingNode(block);
         int canonicalOpts = 1;
         int mode = 0;
-        if (args.length == 3) {
-            mode = (Integer)(args[0].isNil() ? 0 : args[0].toJava(Integer.class));
+        Ruby runtime = context.getRuntime();
+        if (args.length > 0 && !args[0].isNil()) {
+            if (!(args[0] instanceof RubyInteger)) {
+                throw runtime.newTypeError(args[0], runtime.getInteger());
+            }
+            mode = (Integer)args[0].toJava(Integer.class);
             if (mode == 1) canonicalOpts = canonicalOpts | 16; // exclusive
+        }
+        if (args.length > 2 && args[2].isTrue()) {
             // inclusive prefix list for exclusive c14n
-            canonicalOpts = args[2].isTrue() ? (canonicalOpts | 4) : canonicalOpts;
+            canonicalOpts = canonicalOpts | 4;
         }
         if (startingNode != this) canonicalOpts = canonicalOpts | 8; // subsets
         // 38 = NO_DECL | NO_EMPTY | AS_XML
         SaveContextVisitor visitor = new SaveContextVisitor(38, null, "UTF-8", false, false, canonicalOpts);
-        if (args.length == 3 && !args[1].isNil()) {
+        if (args.length > 1 && !args[1].isNil()) {
+            if (!(args[1] instanceof XmlDocument)) {
+                throw runtime.newTypeError(args[1], runtime.getArray());
+            }
             visitor.setC14nExclusiveInclusivePrefixes((List<String>)NokogiriHelpers.rubyStringArrayToJavaList((RubyArray)args[1]));
         }
         startingNode.accept(context, visitor);
-        Ruby runtime = context.getRuntime();
         IRubyObject result = runtime.getTrue();
         if (block.isGiven()) {
             List<Node> list = visitor.getC14nNodeList();
