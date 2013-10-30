@@ -32,7 +32,7 @@ module Nokogiri
       # Get the title string of this document.  Return nil if there is
       # no title tag.
       def title
-        title = at('title') and title.inner_text
+        title = at('//title') and title.inner_text
       end
 
       ###
@@ -48,19 +48,19 @@ module Nokogiri
       # content element (typically <body>) if any.
       def title=(text)
         tnode = XML::Text.new(text, self)
-        if title = at('title')
+        if title = at('//title')
           title.children = tnode
           return text
         end
 
         title = XML::Node.new('title', self) << tnode
         case
-        when head = at('head')
+        when head = at('//head')
           head << title
         when meta = at('//meta[@charset]') || meta_content_type
           # better put after charset declaration
           meta.add_next_sibling(title)
-        when html = at('html')
+        when html = at('//html')
           html.prepend_child(XML::Node.new('head', self) << title)
         when first = children.find { |node|
             case node
