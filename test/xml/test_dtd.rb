@@ -87,7 +87,20 @@ module Nokogiri
             true,
           ],
         }.each { |name, (dtd_str, html_p, html5_p)|
-          assert dtd = Nokogiri.XML(dtd_str).internal_subset, 'no internal subset'
+          doc = Nokogiri(dtd_str)
+          dtd = doc.internal_subset
+          if Nokogiri.jruby?
+            case name
+            when 'HTML 2.0', 'HTML 3.2', 'CHTML 1.0'
+              if dtd.nil?
+                puts "The #{name} DTD is known to be unparsable by JRuby."
+                next
+              else
+                puts "The #{name} DTD is now parsable by JRuby!  Fix me at #{__FILE__}:#{__LINE__}"
+              end
+            end
+          end
+          assert_instance_of Nokogiri::XML::DTD, dtd, name
           if html_p
             assert_send [dtd, :html_dtd?], name
           else
