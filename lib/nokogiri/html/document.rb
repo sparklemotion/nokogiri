@@ -26,6 +26,9 @@ module Nokogiri
       #
       # The result when trying to set an encoding that is different
       # from the document encoding is undefined.
+      #
+      # Beware in CRuby, that libxml2 automatically inserts a meta tag
+      # into a head element.
       def meta_encoding= encoding
         case
         when meta = meta_content_type
