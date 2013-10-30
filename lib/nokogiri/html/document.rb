@@ -77,7 +77,7 @@ module Nokogiri
           # allows <html>/<head> elements to be omitted and does not
           # automatically supply them.
           first.add_previous_sibling(title)
-        when
+        else
           add_child(XML::Node.new('html', self) << (XML::Node.new('head', self) << title))
         end
         text
