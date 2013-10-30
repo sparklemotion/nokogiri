@@ -22,6 +22,7 @@
     even if a head element is not present, trying hard to find the
     best place to put it.
   * Nokogiri::XML::DTD#html_dtd? and #html5_dtd? are added.
+  * Nokogiri::XML::Node#prepend_child is added. #664
 
 * Bugfixes
 

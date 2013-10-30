@@ -4,7 +4,7 @@
 
   * (MRI) iconvが Windows-31J をサポートしていない場合は CP932 のエイリアスとして扱うようにした #836
   * (MRI) 同梱ライブラリを静的にリンクするようになった (静的リンクをオフにするにはextconf.rbに --disable-static を渡す) #923
-  * (MRI) 同梱ライブラリのビルド後に不要になったディレクトリ群を自動的に削除するようになった (デバッグ等の目的で残すようにするにはextconf.rbに --disable-clean を渡す) #952OB
+  * (MRI) 同梱ライブラリのビルド後に不要になったディレクトリ群を自動的に削除するようになった (デバッグ等の目的で残すようにするにはextconf.rbに --disable-clean を渡す) #952
   * (MRI) FreeBSDなど、libiconvがシステム標準ディレクトリ外にある環境でlibxml2がiconvサポート付きで正しくビルドされるようになった
   * nthセレクタにおいてan-bを認識するようになった #886 (Magnus Bergmarkに感謝!)
   * :not疑似クラスが、先行セレクタがない場合や複数重ねられた場合にも対応した #887 (Magnus Bergmarkに感謝!)
@@ -13,6 +13,7 @@
   * (MRI) 同梱の libxslt を 1.1.28 に、 zlib を 1.2.8 に、 libiconv を 1.14 にそれぞれ更新した
   * Nokogiri::HTML::Document#title= は、head要素がない場合でも常に、最適な場所を探しつつtitle要素を追加するようになった
   * Nokogiri::XML::DTD#html_dtd? と #html5_dtd? を追加
+  * Nokogiri::XML::Node#prepend_child を追加 #664
 
 * バグ修正
 

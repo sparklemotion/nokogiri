@@ -278,6 +278,23 @@ module Nokogiri
       end
 
       ###
+      # Add +node_or_tags+ as the first child of this Node.
+      # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
+      #
+      # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
+      #
+      # Also see related method +add_child+.
+      def prepend_child node_or_tags
+        if first = children.first
+          # Mimic the error add_child would raise.
+          raise RuntimeError, "Document already has a root node" if is_a?(XML::Document) && !node_or_tags.is_a?(XML::ProcessingInstruction)
+          first.__send__(:add_sibling, :previous, node_or_tags)
+        else
+          add_child(node_or_tags)
+        end
+      end
+
+      ###
       # Add +node_or_tags+ as a child of this Node.
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
       #
