@@ -71,6 +71,13 @@ module Nokogiri
     alias :assert_not_nil       :refute_nil
     alias :assert_raise         :assert_raises
     alias :assert_not_equal     :refute_equal
+
+    def assert_not_send send_ary, m = nil
+      recv, msg, *args = send_ary
+      m = message(m) {
+        "Expected #{mu_pp(recv)}.#{msg}(*#{mu_pp(args)}) to return false" }
+      assert !recv.__send__(msg, *args), m
+    end unless method_defined?(:assert_not_send)
   end
 
   module SAX

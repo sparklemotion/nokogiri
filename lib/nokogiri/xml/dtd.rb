@@ -17,6 +17,16 @@ module Nokogiri
           block.call([key, value])
         }
       end
+
+      def html_dtd?
+        name.casecmp('html').zero?
+      end
+
+      def html5_dtd?
+        html_dtd? &&
+          external_id.nil? &&
+          (system_id.nil? || system_id == 'about:legacy-compat')
+      end
     end
   end
 end

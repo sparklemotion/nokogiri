@@ -19,6 +19,88 @@ module Nokogiri
         assert_equal 'bar', dtd.external_id
       end
 
+      def test_html_dtd
+        {
+          'MathML 2.0' => [
+            '<!DOCTYPE math PUBLIC "-//W3C//DTD MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/mathml2.dtd">',
+            false,
+            false,
+          ],
+          'HTML 2.0' => [
+            '<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">',
+            true,
+            false,
+          ],
+          'HTML 3.2' => [
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">',
+            true,
+            false,
+          ],
+          'XHTML Basic 1.0' => [
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">',
+            true,
+            false,
+          ],
+          'XHTML 1.0 Strict' => [
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+            true,
+            false,
+          ],
+          'XHTML + MathML + SVG Profile (XHTML as the host language)' => [
+            '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">',
+            true,
+            false,
+          ],
+          'XHTML + MathML + SVG Profile (Using SVG as the host)' => [
+            '<!DOCTYPE svg:svg PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">',
+            false,
+            false,
+          ],
+          'CHTML 1.0' => [
+            '<!DOCTYPE HTML PUBLIC "-//W3C//DTD Compact HTML 1.0 Draft//EN">',
+            true,
+            false,
+          ],
+          'HTML 4.01 Strict' => [
+            '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
+            true,
+            false,
+          ],
+          'HTML 4.01 Transitional' => [
+            '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
+            true,
+            false,
+          ],
+          'HTML 4.01 Frameset' => [
+            '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
+            true,
+            false,
+          ],
+          'HTML 5' => [
+            '<!DOCTYPE html>',
+            true,
+            true,
+          ],
+          'HTML 5 legacy compatible' => [
+            '<!DOCTYPE HTML SYSTEM "about:legacy-compat">',
+            true,
+            true,
+          ],
+        }.each { |name, (dtd_str, html_p, html5_p)|
+          assert dtd = Nokogiri.XML(dtd_str).internal_subset, 'no internal subset'
+          if html_p
+            assert_send [dtd, :html_dtd?], name
+          else
+            assert_not_send [dtd, :html_dtd?], name
+          end
+          if html5_p
+            assert_send [dtd, :html5_dtd?], name
+          else
+            assert_not_send [dtd, :html5_dtd?], name
+          end
+        }
+      end
+
       def test_content
         assert_raise NoMethodError do
           @dtd.content

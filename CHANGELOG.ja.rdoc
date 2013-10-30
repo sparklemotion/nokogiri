@@ -12,6 +12,7 @@
     環境変数 NOKOGIRI_USE_SYSTEM_LIBRARIES を設定する代わりに使える
   * (MRI) 同梱の libxslt を 1.1.28 に、 zlib を 1.2.8 に、 libiconv を 1.14 にそれぞれ更新した
   * Nokogiri::HTML::Document#title= は、head要素がない場合でも常に、最適な場所を探しつつtitle要素を追加するようになった
+  * Nokogiri::XML::DTD#html_dtd? と #html5_dtd? を追加
 
 * バグ修正
 
