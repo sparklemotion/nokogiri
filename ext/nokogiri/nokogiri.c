@@ -14,7 +14,12 @@ VALUE mNokogiriHtmlSax ;
  */
 int vasprintf (char **strp, const char *fmt, va_list ap)
 {
-  int len = vsnprintf (NULL, 0, fmt, ap) + 1;
+  /* Mingw32/64 have a broken vsnprintf implementation that fails when
+   * using a zero-byte limit in order to retrieve the required size for malloc.
+   * So we use a one byte buffer instead.
+   */
+  char tmp[1];
+  int len = vsnprintf (tmp, 1, fmt, ap) + 1;
   char *res = (char *)malloc((unsigned int)len);
   if (res == NULL)
       return -1;
