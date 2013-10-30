@@ -264,11 +264,33 @@ eohtml
       end
 
       def test_meta_encoding_without_head
-        html = Nokogiri::HTML('<html><body>foo</body></html>')
+        encoding = 'EUC-JP'
+        html = Nokogiri::HTML('<html><body>foo</body></html>', nil, encoding)
+
         assert_nil html.meta_encoding
 
-        html.meta_encoding = 'EUC-JP'
+        html.meta_encoding = encoding
+        assert_equal encoding, html.meta_encoding
+
+        meta = html.at('/html/head/meta[@http-equiv and boolean(@content)]')
+        assert meta, 'meta is in head'
+
+        assert meta.at('./parent::head/following-sibling::body'), 'meta is before body'
+      end
+
+      def test_html5_meta_encoding_without_head
+        encoding = 'EUC-JP'
+        html = Nokogiri::HTML('<!DOCTYPE html><html><body>foo</body></html>', nil, encoding)
+
         assert_nil html.meta_encoding
+
+        html.meta_encoding = encoding
+        assert_equal encoding, html.meta_encoding
+
+        meta = html.at('/html/head/meta[@charset]')
+        assert meta, 'meta is in head'
+
+        assert meta.at('./parent::head/following-sibling::body'), 'meta is before body'
       end
 
       def test_meta_encoding_with_empty_content_type

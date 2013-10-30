@@ -14,11 +14,42 @@ module Nokogiri
       end
 
       ###
-      # Set the meta tag encoding for this document.  If there is no meta
-      # content tag, the encoding is not set.
+      # Set the meta tag encoding for this document.
+      #
+      # If an meta encoding tag is already present, its content is
+      # replaced with the given text.
+      #
+      # Otherwise, this method tries to create one at an appropriate
+      # place supplying head and/or html elements as necessary, which
+      # is inside a head element if any, and before any text node or
+      # content element (typically <body>) if any.
+      #
+      # The result when trying to set an encoding that is different
+      # from the document encoding is undefined.
       def meta_encoding= encoding
-        meta = meta_content_type and
-          meta['content'] = "text/html; charset=%s" % encoding
+        case
+        when meta = meta_content_type
+          meta['content'] = 'text/html; charset=%s' % encoding
+          encoding
+        when meta = at('//meta[@charset]')
+          meta['charset'] = encoding
+        else
+          meta = XML::Node.new('meta', self)
+          if dtd = internal_subset and dtd.html5_dtd?
+            meta['charset'] = encoding
+          else
+            meta['http-equiv'] = 'Content-Type'
+            meta['content'] = 'text/html; charset=%s' % encoding
+          end
+
+          case
+          when head = at('//head')
+            head.prepend_child(meta)
+          else
+            set_metadata_element(meta)
+          end
+          encoding
+        end
       end
 
       def meta_content_type
@@ -60,8 +91,19 @@ module Nokogiri
         when meta = at('//meta[@charset]') || meta_content_type
           # better put after charset declaration
           meta.add_next_sibling(title)
+        else
+          set_metadata_element(title)
+        end
+        text
+      end
+
+      def set_metadata_element(element)
+        case
+        when head = at('//head')
+          head << element
         when html = at('//html')
-          html.prepend_child(XML::Node.new('head', self) << title)
+          head = html.prepend_child(XML::Node.new('head', self))
+          head.prepend_child(element)
         when first = children.find { |node|
             case node
             when XML::Element, XML::Text
@@ -71,12 +113,14 @@ module Nokogiri
           # We reach here only if the underlying document model
           # allows <html>/<head> elements to be omitted and does not
           # automatically supply them.
-          first.add_previous_sibling(title)
+          first.add_previous_sibling(element)
         else
-          add_child(XML::Node.new('html', self) << (XML::Node.new('head', self) << title))
+          html = add_child(XML::Node.new('html', self))
+          head = html.add_child(XML::Node.new('head', self))
+          head.prepend_child(element)
         end
-        text
       end
+      private :set_metadata_element
 
       ####
       # Serialize Node using +options+.  Save options can also be set using a

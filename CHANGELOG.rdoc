@@ -18,9 +18,9 @@
     setting the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES.
   * (MRI) Update packaged libraries: libxslt to 1.1.28, zlib to 1.2.8,
     and libiconv to 1.14, respectively.
-  * Nokogiri::HTML::Document#title= now always add a title element
-    even if a head element is not present, trying hard to find the
-    best place to put it.
+  * Nokogiri::HTML::Document#title= and #meta_encoding= now always add
+    an element if not present, trying hard to find the best place to
+    put it.
   * Nokogiri::XML::DTD#html_dtd? and #html5_dtd? are added.
   * Nokogiri::XML::Node#prepend_child is added. #664
 
