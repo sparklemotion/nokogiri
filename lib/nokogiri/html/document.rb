@@ -5,12 +5,11 @@ module Nokogiri
       # Get the meta tag encoding for this document.  If there is no meta tag,
       # then nil is returned.
       def meta_encoding
-        meta = meta_content_type and
-          match = /charset\s*=\s*([\w-]+)/i.match(meta['content'])
-        if match
-          match[1]
-        else
-          cs = at('meta[@charset]') and cs[:charset]
+        case
+        when meta = at('//meta[@charset]')
+          meta[:charset]
+        when meta = meta_content_type
+          meta['content'][/charset\s*=\s*([\w-]+)/i, 1]
         end
       end
 
@@ -23,10 +22,8 @@ module Nokogiri
       end
 
       def meta_content_type
-        css('meta[@http-equiv]').find { |node|
-          node['http-equiv'] =~ /\AContent-Type\z/i and
-            !node['content'].nil? and
-            !node['content'].empty?
+        xpath('//meta[@http-equiv and boolean(@content)]').find { |node|
+          node['http-equiv'] =~ /\AContent-Type\z/i
         }
       end
       private :meta_content_type
