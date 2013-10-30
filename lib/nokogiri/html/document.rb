@@ -55,18 +55,13 @@ module Nokogiri
 
         title = XML::Node.new('title', self) << tnode
         case
-        when meta = at('meta[@charset]') || meta_content_type
+        when head = at('head')
+          head << title
+        when meta = at('//meta[@charset]') || meta_content_type
           # better put after charset declaration
           meta.add_next_sibling(title)
-        when head = at('head')
-            head << title
         when html = at('html')
-          head = XML::Node.new('head', self) << title
-          if first = html.children.first
-            first.add_previous_sibling(head)
-          else
-            html.add_child(head)
-          end
+          html.prepend_child(XML::Node.new('head', self) << title)
         when first = children.find { |node|
             case node
             when XML::Element, XML::Text
