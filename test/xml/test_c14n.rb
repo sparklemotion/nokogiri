@@ -144,7 +144,16 @@ module Nokogiri
         assert_equal '<n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xml:lang="en">
     <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>
   </n1:elem2>', c14n
-        
+
+      end
+
+      def test_wrong_params
+        xml = '<a><b></b></a>'
+        doc = Nokogiri.XML xml
+
+        assert_raise(TypeError){ doc.canonicalize :wrong_type }
+        assert_raise(TypeError){ doc.canonicalize nil, :wrong_type }
+        doc.canonicalize nil, nil, :wrong_type
       end
 
 

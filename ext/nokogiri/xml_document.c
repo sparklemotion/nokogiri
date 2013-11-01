@@ -497,6 +497,7 @@ static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
     ns = NULL;
   }
   else{
+    Check_Type(incl_ns, T_ARRAY);
     ns_len = RARRAY_LEN(incl_ns);
     ns = calloc((size_t)ns_len+1, sizeof(xmlChar *));
     for (i = 0 ; i < ns_len ; i++) {
