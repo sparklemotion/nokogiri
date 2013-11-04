@@ -1,0 +1,78 @@
+From 8c222b89f6f68157283498d1bc6e0cce568c977b Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Mon, 23 Jul 2012 14:15:40 +0800
+Subject: [PATCH 6/9] Do not fetch external parsed entities
+
+Unless explicietely asked for when validating or replacing entities
+with their value. Problem pointed out by Tom Lane <tgl@redhat.com>
+
+* parser.c: do not load external parsed entities unless needed
+* test/errors/extparsedent.xml result/errors/extparsedent.xml*:
+  add a regression test to avoid change of the behaviour in the future
+
+[Origin: 4629ee02ac649c27f9c0cf98ba017c6b5526070f]
+---
+ parser.c                           | 11 +++++++++--
+ result/errors/extparsedent.xml     |  5 +++++
+ result/errors/extparsedent.xml.err |  0
+ result/errors/extparsedent.xml.str |  0
+ test/errors/extparsedent.xml       |  5 +++++
+ 5 files changed, 19 insertions(+), 2 deletions(-)
+ create mode 100644 result/errors/extparsedent.xml
+ create mode 100644 result/errors/extparsedent.xml.err
+ create mode 100644 result/errors/extparsedent.xml.str
+ create mode 100644 test/errors/extparsedent.xml
+
+diff --git a/parser.c b/parser.c
+index b206f05..8fb16af 100644
+--- a/parser.c
++++ b/parser.c
+@@ -6943,8 +6943,15 @@ xmlParseReference(xmlParserCtxtPtr ctxt) {
+      * The first reference to the entity trigger a parsing phase
+      * where the ent->children is filled with the result from
+      * the parsing.
+-     */
+-    if (ent->checked == 0) {
++     * Note: external parsed entities will not be loaded, it is not
++     * required for a non-validating parser, unless the parsing option
++     * of validating, or substituting entities were given. Doing so is
++     * far more secure as the parser will only process data coming from
++     * the document entity by default.
++     */
++    if ((ent->checked == 0) &&
++        ((ent->etype != XML_EXTERNAL_GENERAL_PARSED_ENTITY) ||
++         (ctxt->options & (XML_PARSE_NOENT | XML_PARSE_DTDVALID)))) {
+ 	unsigned long oldnbent = ctxt->nbentities;
+ 
+ 	/*
+diff --git a/result/errors/extparsedent.xml b/result/errors/extparsedent.xml
+new file mode 100644
+index 0000000..07e4c54
+--- /dev/null
++++ b/result/errors/extparsedent.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0"?>
++<!DOCTYPE foo [
++<!ENTITY c PUBLIC "bar" "/etc/doesnotexist">
++]>
++<root>&c;</root>
+diff --git a/result/errors/extparsedent.xml.err b/result/errors/extparsedent.xml.err
+new file mode 100644
+index 0000000..e69de29
+diff --git a/result/errors/extparsedent.xml.str b/result/errors/extparsedent.xml.str
+new file mode 100644
+index 0000000..e69de29
+diff --git a/test/errors/extparsedent.xml b/test/errors/extparsedent.xml
+new file mode 100644
+index 0000000..07e4c54
+--- /dev/null
++++ b/test/errors/extparsedent.xml
+@@ -0,0 +1,5 @@
++<?xml version="1.0"?>
++<!DOCTYPE foo [
++<!ENTITY c PUBLIC "bar" "/etc/doesnotexist">
++]>
++<root>&c;</root>
+-- 
+1.8.4.1
+

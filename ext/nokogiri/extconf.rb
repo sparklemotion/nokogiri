@@ -131,8 +131,9 @@ end
 
 def process_recipe(name, version)
   MiniPortile.new(name, version).tap { |recipe|
-    recipe.target = File.join(ROOT, "ports")
+    recipe.target = portsdir = File.join(ROOT, "ports")
     recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.patch_files += Dir[File.join(portsdir, "patches", name, "*.patch")].sort
 
     yield recipe
 

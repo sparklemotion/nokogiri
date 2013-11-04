@@ -1,0 +1,26 @@
+From 83bbfdfe1e804f8cdc72b86742364cf045dd8678 Mon Sep 17 00:00:00 2001
+From: Aron Xu <happyaron.xu@gmail.com>
+Date: Fri, 20 Jul 2012 15:41:34 +0800
+Subject: [PATCH 3/9] Fix an error in previous commit
+
+[Origin: baaf03f80f817bb34c421421e6cb4d68c353ac9a]
+---
+ entities.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/entities.c b/entities.c
+index 859ec3b..7d06820 100644
+--- a/entities.c
++++ b/entities.c
+@@ -529,7 +529,7 @@ xmlGetDocEntity(xmlDocPtr doc, const xmlChar *name) {
+  */
+ #define growBufferReentrant() {						\
+     xmlChar *tmp;                                                       \
+-    size_t new_size = buffer_size *= 2;                                 \
++    size_t new_size = buffer_size * 2;                                  \
+     if (new_size < buffer_size) goto mem_error;                         \
+     tmp = (xmlChar *) xmlRealloc(buffer, new_size);	                \
+     if (tmp == NULL) goto mem_error;                                    \
+-- 
+1.8.4.1
+

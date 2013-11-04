@@ -1,0 +1,26 @@
+From c8385ccac9e9723a1f87da1c29da56d97df4af85 Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Mon, 29 Oct 2012 10:39:55 +0800
+Subject: [PATCH 4/9] Fix potential out of bound access
+
+[Origin: 6a36fbe3b3e001a8a840b5c1fdd81cefc9947f0d]
+---
+ parser.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/parser.c b/parser.c
+index 9863275..e1b0364 100644
+--- a/parser.c
++++ b/parser.c
+@@ -3932,7 +3932,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 	c = CUR_CHAR(l);
+     }
+     if ((in_space) && (normalize)) {
+-        while (buf[len - 1] == 0x20) len--;
++        while ((len > 0) && (buf[len - 1] == 0x20)) len--;
+     }
+     buf[len] = 0;
+     if (RAW == '<') {
+-- 
+1.8.4.1
+

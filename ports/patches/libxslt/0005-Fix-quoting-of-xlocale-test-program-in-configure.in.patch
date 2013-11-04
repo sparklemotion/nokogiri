@@ -1,0 +1,47 @@
+From 0a1a5f8c67c90637f0ea3fdc9ec35280d54878d8 Mon Sep 17 00:00:00 2001
+From: Nick Wellnhofer <wellnhofer@aevum.de>
+Date: Tue, 30 Jul 2013 13:57:28 +0200
+Subject: [PATCH 05/14] Fix quoting of xlocale test program in configure.in
+
+Double square brackets aren't needed anymore, probably due to the
+changes in commit a2cd8a03.
+---
+ configure.in | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index fc8d5a8..dcbd971 100644
+--- a/configure.in
++++ b/configure.in
+@@ -196,21 +196,21 @@ typedef locale_t xsltLocale;
+ #endif
+ ]],[[
+     xsltLocale locale;
+-    const char *src[[2]] = { "\xc3\x84rger", "Zeppelin" };
+-    char *dst[[2]];
++    const char *src[2] = { "\xc3\x84rger", "Zeppelin" };
++    char *dst[2];
+     size_t len, r;
+     int i;
+ 
+     locale = newlocale(LC_COLLATE_MASK, "en_US.utf8", NULL);
+     if (locale == NULL) exit(1);
+     for (i=0; i<2; ++i) {
+-        len = strxfrm_l(NULL, src[[i]], 0, locale) + 1;
+-        dst[[i]] = malloc(len);
+-        if(dst[[i]] == NULL) exit(1);
+-        r = strxfrm_l(dst[[i]], src[[i]], len, locale);
++        len = strxfrm_l(NULL, src[i], 0, locale) + 1;
++        dst[i] = malloc(len);
++        if(dst[i] == NULL) exit(1);
++        r = strxfrm_l(dst[i], src[i], len, locale);
+         if(r >= len) exit(1);
+     }
+-    if (strcmp(dst[[0]], dst[[1]]) >= 0) exit(1);
++    if (strcmp(dst[0], dst[1]) >= 0) exit(1);
+ 
+     exit(0);
+     return(0);
+-- 
+1.8.4.1
+

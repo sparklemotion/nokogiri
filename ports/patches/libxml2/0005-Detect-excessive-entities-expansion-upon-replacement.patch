@@ -1,0 +1,158 @@
+From e8b2f1774cfffce792f38eb1116ea1104758cfc5 Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Tue, 19 Feb 2013 10:21:49 +0800
+Subject: [PATCH 5/9] Detect excessive entities expansion upon replacement
+
+If entities expansion in the XML parser is asked for,
+it is possble to craft relatively small input document leading
+to excessive on-the-fly content generation.
+This patch accounts for those replacement and stop parsing
+after a given threshold. it can be bypassed as usual with the
+HUGE parser option.
+
+[Origin: 23f05e0c33987d6605387b300c4be5da2120a7ab]
+---
+ include/libxml/parser.h |  1 +
+ parser.c                | 44 ++++++++++++++++++++++++++++++++++++++------
+ parserInternals.c       |  2 ++
+ 3 files changed, 41 insertions(+), 6 deletions(-)
+
+diff --git a/include/libxml/parser.h b/include/libxml/parser.h
+index 04edb9d..5b36584 100644
+--- a/include/libxml/parser.h
++++ b/include/libxml/parser.h
+@@ -310,6 +310,7 @@ struct _xmlParserCtxt {
+     xmlParserNodeInfo *nodeInfoTab;   /* array of nodeInfos */
+ 
+     int                input_id;      /* we need to label inputs */
++    unsigned long      sizeentcopy;   /* volume of entity copy */
+ };
+ 
+ /**
+diff --git a/parser.c b/parser.c
+index e1b0364..b206f05 100644
+--- a/parser.c
++++ b/parser.c
+@@ -119,7 +119,7 @@ xmlCreateEntityParserCtxtInternal(const xmlChar *URL, const xmlChar *ID,
+  */
+ static int
+ xmlParserEntityCheck(xmlParserCtxtPtr ctxt, size_t size,
+-                     xmlEntityPtr ent)
++                     xmlEntityPtr ent, size_t replacement)
+ {
+     size_t consumed = 0;
+ 
+@@ -127,7 +127,24 @@ xmlParserEntityCheck(xmlParserCtxtPtr ctxt, size_t size,
+         return (0);
+     if (ctxt->lastError.code == XML_ERR_ENTITY_LOOP)
+         return (1);
+-    if (size != 0) {
++    if (replacement != 0) {
++	if (replacement < XML_MAX_TEXT_LENGTH)
++	    return(0);
++
++        /*
++	 * If the volume of entity copy reaches 10 times the
++	 * amount of parsed data and over the large text threshold
++	 * then that's very likely to be an abuse.
++	 */
++        if (ctxt->input != NULL) {
++	    consumed = ctxt->input->consumed +
++	               (ctxt->input->cur - ctxt->input->base);
++	}
++        consumed += ctxt->sizeentities;
++
++        if (replacement < XML_PARSER_NON_LINEAR * consumed)
++	    return(0);
++    } else if (size != 0) {
+         /*
+          * Do the check based on the replacement size of the entity
+          */
+@@ -173,7 +190,6 @@ xmlParserEntityCheck(xmlParserCtxtPtr ctxt, size_t size,
+          */
+         return (0);
+     }
+-
+     xmlFatalErr(ctxt, XML_ERR_ENTITY_LOOP, NULL);
+     return (1);
+ }
+@@ -2706,7 +2722,7 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 		    while (*current != 0) { /* non input consuming loop */
+ 			buffer[nbchars++] = *current++;
+ 			if (nbchars + XML_PARSER_BUFFER_SIZE > buffer_size) {
+-			    if (xmlParserEntityCheck(ctxt, nbchars, ent))
++			    if (xmlParserEntityCheck(ctxt, nbchars, ent, 0))
+ 				goto int_error;
+ 			    growBuffer(buffer, XML_PARSER_BUFFER_SIZE);
+ 			}
+@@ -2748,7 +2764,7 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 		    while (*current != 0) { /* non input consuming loop */
+ 			buffer[nbchars++] = *current++;
+ 			if (nbchars + XML_PARSER_BUFFER_SIZE > buffer_size) {
+-			    if (xmlParserEntityCheck(ctxt, nbchars, ent))
++			    if (xmlParserEntityCheck(ctxt, nbchars, ent, 0))
+ 			        goto int_error;
+ 			    growBuffer(buffer, XML_PARSER_BUFFER_SIZE);
+ 			}
+@@ -6976,7 +6992,7 @@ xmlParseReference(xmlParserCtxtPtr ctxt) {
+ 	    xmlFreeNodeList(list);
+ 	    return;
+ 	}
+-	if (xmlParserEntityCheck(ctxt, 0, ent)) {
++	if (xmlParserEntityCheck(ctxt, 0, ent, 0)) {
+ 	    xmlFreeNodeList(list);
+ 	    return;
+ 	}
+@@ -7136,6 +7152,13 @@ xmlParseReference(xmlParserCtxtPtr ctxt) {
+ 		xmlNodePtr nw = NULL, cur, firstChild = NULL;
+ 
+ 		/*
++		 * We are copying here, make sure there is no abuse
++		 */
++		ctxt->sizeentcopy += ent->length;
++		if (xmlParserEntityCheck(ctxt, 0, ent, ctxt->sizeentcopy))
++		    return;
++
++		/*
+ 		 * when operating on a reader, the entities definitions
+ 		 * are always owning the entities subtree.
+ 		if (ctxt->parseMode == XML_PARSE_READER)
+@@ -7175,6 +7198,14 @@ xmlParseReference(xmlParserCtxtPtr ctxt) {
+ 	    } else if (list == NULL) {
+ 		xmlNodePtr nw = NULL, cur, next, last,
+ 			   firstChild = NULL;
++
++		/*
++		 * We are copying here, make sure there is no abuse
++		 */
++		ctxt->sizeentcopy += ent->length;
++		if (xmlParserEntityCheck(ctxt, 0, ent, ctxt->sizeentcopy))
++		    return;
++
+ 		/*
+ 		 * Copy the entity child list and make it the new
+ 		 * entity child list. The goal is to make sure any
+@@ -14355,6 +14386,7 @@ xmlCtxtReset(xmlParserCtxtPtr ctxt)
+     ctxt->catalogs = NULL;
+     ctxt->nbentities = 0;
+     ctxt->sizeentities = 0;
++    ctxt->sizeentcopy = 0;
+     xmlInitNodeInfoSeq(&ctxt->node_seq);
+ 
+     if (ctxt->attsDefault != NULL) {
+diff --git a/parserInternals.c b/parserInternals.c
+index 746b7fd..d7e320c 100644
+--- a/parserInternals.c
++++ b/parserInternals.c
+@@ -1761,6 +1761,8 @@ xmlInitParserCtxt(xmlParserCtxtPtr ctxt)
+     ctxt->charset = XML_CHAR_ENCODING_UTF8;
+     ctxt->catalogs = NULL;
+     ctxt->nbentities = 0;
++    ctxt->sizeentities = 0;
++    ctxt->sizeentcopy = 0;
+     ctxt->input_id = 1;
+     xmlInitNodeInfoSeq(&ctxt->node_seq);
+     return(0);
+-- 
+1.8.4.1
+

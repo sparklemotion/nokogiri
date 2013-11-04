@@ -1,0 +1,480 @@
+From c27670420c22b2d64da7d44e266a73bb4e66c2cc Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Mon, 30 Jul 2012 16:16:04 +0800
+Subject: [PATCH 7/9] Enforce XML_PARSER_EOF state handling through the parser
+
+That condition is one raised when the parser should positively stop
+processing further even to report errors. Best is to test is after
+most GROW call especially within loops
+
+[Origin: 48b4cdde3483e054af8ea02e0cd7ee467b0e9a50]
+---
+ parser.c | 131 +++++++++++++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 110 insertions(+), 21 deletions(-)
+
+diff --git a/parser.c b/parser.c
+index 8fb16af..409cde8 100644
+--- a/parser.c
++++ b/parser.c
+@@ -2161,6 +2161,8 @@ xmlPushInput(xmlParserCtxtPtr ctxt, xmlParserInputPtr input) {
+ 		"Pushing input %d : %.30s\n", ctxt->inputNr+1, input->cur);
+     }
+     ret = inputPush(ctxt, input);
++    if (ctxt->instate == XML_PARSER_EOF)
++        return(-1);
+     GROW;
+     return(ret);
+ }
+@@ -2197,6 +2199,8 @@ xmlParseCharRef(xmlParserCtxtPtr ctxt) {
+ 	    if (count++ > 20) {
+ 		count = 0;
+ 		GROW;
++                if (ctxt->instate == XML_PARSER_EOF)
++                    return(0);
+ 	    }
+ 	    if ((RAW >= '0') && (RAW <= '9')) 
+ 	        val = val * 16 + (CUR - '0');
+@@ -2228,6 +2232,8 @@ xmlParseCharRef(xmlParserCtxtPtr ctxt) {
+ 	    if (count++ > 20) {
+ 		count = 0;
+ 		GROW;
++                if (ctxt->instate == XML_PARSER_EOF)
++                    return(0);
+ 	    }
+ 	    if ((RAW >= '0') && (RAW <= '9')) 
+ 	        val = val * 10 + (CUR - '0');
+@@ -2576,6 +2582,8 @@ xmlParserHandlePEReference(xmlParserCtxtPtr ctxt) {
+ 		     * the amount of data in the buffer.
+ 		     */
+ 		    GROW
++                    if (ctxt->instate == XML_PARSER_EOF)
++                        return;
+ 		    if ((ctxt->input->end - ctxt->input->cur)>=4) {
+ 			start[0] = RAW;
+ 			start[1] = NXT(1);
+@@ -3194,6 +3202,8 @@ xmlParseNameComplex(xmlParserCtxtPtr ctxt) {
+      * Handler for more complex cases
+      */
+     GROW;
++    if (ctxt->instate == XML_PARSER_EOF)
++        return(NULL);
+     c = CUR_CHAR(l);
+     if ((ctxt->options & XML_PARSE_OLD10) == 0) {
+         /*
+@@ -3245,6 +3255,8 @@ xmlParseNameComplex(xmlParserCtxtPtr ctxt) {
+ 	    if (count++ > 100) {
+ 		count = 0;
+ 		GROW;
++                if (ctxt->instate == XML_PARSER_EOF)
++                    return(NULL);
+ 	    }
+ 	    len += l;
+ 	    NEXTL(l);
+@@ -3269,6 +3281,8 @@ xmlParseNameComplex(xmlParserCtxtPtr ctxt) {
+ 	    if (count++ > 100) {
+ 		count = 0;
+ 		GROW;
++                if (ctxt->instate == XML_PARSER_EOF)
++                    return(NULL);
+ 	    }
+ 	    len += l;
+ 	    NEXTL(l);
+@@ -3362,6 +3376,8 @@ xmlParseNCNameComplex(xmlParserCtxtPtr ctxt) {
+ 	if (count++ > 100) {
+ 	    count = 0;
+ 	    GROW;
++            if (ctxt->instate == XML_PARSER_EOF)
++                return(NULL);
+ 	}
+ 	len += l;
+ 	NEXTL(l);
+@@ -3442,6 +3458,8 @@ xmlParseNameAndCompare(xmlParserCtxtPtr ctxt, xmlChar const *other) {
+     const xmlChar *ret;
+ 
+     GROW;
++    if (ctxt->instate == XML_PARSER_EOF)
++        return(NULL);
+ 
+     in = ctxt->input->cur;
+     while (*in != 0 && *in == *cmp) {
+@@ -3569,6 +3587,8 @@ xmlParseNmtoken(xmlParserCtxtPtr ctxt) {
+ #endif
+ 
+     GROW;
++    if (ctxt->instate == XML_PARSER_EOF)
++        return(NULL);
+     c = CUR_CHAR(l);
+ 
+     while (xmlIsNameChar(ctxt, c)) {
+@@ -3597,6 +3617,10 @@ xmlParseNmtoken(xmlParserCtxtPtr ctxt) {
+ 		if (count++ > 100) {
+ 		    count = 0;
+ 		    GROW;
++                    if (ctxt->instate == XML_PARSER_EOF) {
++                        xmlFree(buffer);
++                        return(NULL);
++                    }
+ 		}
+ 		if (len + 10 > max) {
+ 		    xmlChar *tmp;
+@@ -3667,6 +3691,10 @@ xmlParseEntityValue(xmlParserCtxtPtr ctxt, xmlChar **orig) {
+     ctxt->instate = XML_PARSER_ENTITY_VALUE;
+     input = ctxt->input;
+     GROW;
++    if (ctxt->instate == XML_PARSER_EOF) {
++        xmlFree(buf);
++        return(NULL);
++    }
+     NEXT;
+     c = CUR_CHAR(l);
+     /*
+@@ -3678,8 +3706,8 @@ xmlParseEntityValue(xmlParserCtxtPtr ctxt, xmlChar **orig) {
+      * In practice it means we stop the loop only when back at parsing
+      * the initial entity and the quote is found
+      */
+-    while ((IS_CHAR(c)) && ((c != stop) || /* checked */
+-	   (ctxt->input != input))) {
++    while (((IS_CHAR(c)) && ((c != stop) || /* checked */
++	    (ctxt->input != input))) && (ctxt->instate != XML_PARSER_EOF)) {
+ 	if (len + 5 >= size) {
+ 	    xmlChar *tmp;
+ 
+@@ -3708,6 +3736,10 @@ xmlParseEntityValue(xmlParserCtxtPtr ctxt, xmlChar **orig) {
+ 	}
+     }
+     buf[len] = 0;
++    if (ctxt->instate == XML_PARSER_EOF) {
++        xmlFree(buf);
++        return(NULL);
++    }
+ 
+     /*
+      * Raise problem w.r.t. '&' and '%' being used in non-entities
+@@ -3755,12 +3787,12 @@ xmlParseEntityValue(xmlParserCtxtPtr ctxt, xmlChar **orig) {
+ 	 */
+ 	ret = xmlStringDecodeEntities(ctxt, buf, XML_SUBSTITUTE_PEREF,
+ 				      0, 0, 0);
+-	if (orig != NULL) 
++	if (orig != NULL)
+ 	    *orig = buf;
+ 	else
+ 	    xmlFree(buf);
+     }
+-    
++
+     return(ret);
+ }
+ 
+@@ -3811,8 +3843,9 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+      * OK loop until we reach one of the ending char or a size limit.
+      */
+     c = CUR_CHAR(l);
+-    while ((NXT(0) != limit) && /* checked */
+-           (IS_CHAR(c)) && (c != '<')) {
++    while (((NXT(0) != limit) && /* checked */
++            (IS_CHAR(c)) && (c != '<')) &&
++            (ctxt->instate != XML_PARSER_EOF)) {
+ 	if (c == 0) break;
+ 	if (c == '&') {
+ 	    in_space = 0;
+@@ -3947,6 +3980,9 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 	GROW;
+ 	c = CUR_CHAR(l);
+     }
++    if (ctxt->instate == XML_PARSER_EOF)
++        goto error;
++
+     if ((in_space) && (normalize)) {
+         while ((len > 0) && (buf[len - 1] == 0x20)) len--;
+     }
+@@ -3979,6 +4015,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 
+ mem_error:
+     xmlErrMemory(ctxt, NULL);
++error:
+     if (buf != NULL)
+         xmlFree(buf);
+     if (rep != NULL)
+@@ -4084,6 +4121,10 @@ xmlParseSystemLiteral(xmlParserCtxtPtr ctxt) {
+ 	if (count > 50) {
+ 	    GROW;
+ 	    count = 0;
++            if (ctxt->instate == XML_PARSER_EOF) {
++	        xmlFree(buf);
++		return(NULL);
++            }
+ 	}
+ 	COPY_BUF(l,buf,len,cur);
+ 	NEXTL(l);
+@@ -4161,6 +4202,10 @@ xmlParsePubidLiteral(xmlParserCtxtPtr ctxt) {
+ 	if (count > 50) {
+ 	    GROW;
+ 	    count = 0;
++            if (ctxt->instate == XML_PARSER_EOF) {
++		xmlFree(buf);
++		return(NULL);
++            }
+ 	}
+ 	NEXT;
+ 	cur = CUR;
+@@ -4367,6 +4412,8 @@ get_more:
+ 	    }
+ 	    SHRINK;
+ 	    GROW;
++            if (ctxt->instate == XML_PARSER_EOF)
++		return;
+ 	    in = ctxt->input->cur;
+ 	} while (((*in >= 0x20) && (*in <= 0x7F)) || (*in == 0x09));
+ 	nbchar = 0;
+@@ -4435,6 +4482,8 @@ xmlParseCharDataComplex(xmlParserCtxtPtr ctxt, int cdata) {
+ 	if (count > 50) {
+ 	    GROW;
+ 	    count = 0;
++            if (ctxt->instate == XML_PARSER_EOF)
++		return;
+ 	}
+ 	NEXTL(l);
+ 	cur = CUR_CHAR(l);
+@@ -4635,6 +4684,10 @@ xmlParseCommentComplex(xmlParserCtxtPtr ctxt, xmlChar *buf, int len, int size) {
+ 	if (count > 50) {
+ 	    GROW;
+ 	    count = 0;
++            if (ctxt->instate == XML_PARSER_EOF) {
++		xmlFree(buf);
++		return;
++            }
+ 	}
+ 	NEXTL(l);
+ 	cur = CUR_CHAR(l);
+@@ -4785,6 +4838,10 @@ get_more:
+ 	}
+ 	SHRINK;
+ 	GROW;
++        if (ctxt->instate == XML_PARSER_EOF) {
++            xmlFree(buf);
++            return;
++        }
+ 	in = ctxt->input->cur;
+ 	if (*in == '-') {
+ 	    if (in[1] == '-') {
+@@ -5022,6 +5079,10 @@ xmlParsePI(xmlParserCtxtPtr ctxt) {
+ 		count++;
+ 		if (count > 50) {
+ 		    GROW;
++                    if (ctxt->instate == XML_PARSER_EOF) {
++                        xmlFree(buf);
++                        return;
++                    }
+ 		    count = 0;
+ 		}
+ 		COPY_BUF(l,buf,len,cur);
+@@ -5762,7 +5823,7 @@ xmlParseAttributeListDecl(xmlParserCtxtPtr ctxt) {
+ 	}
+ 	SKIP_BLANKS;
+ 	GROW;
+-	while (RAW != '>') {
++	while ((RAW != '>') && (ctxt->instate != XML_PARSER_EOF)) {
+ 	    const xmlChar *check = CUR_PTR;
+ 	    int type;
+ 	    int def;
+@@ -5911,7 +5972,7 @@ xmlParseElementMixedContentDecl(xmlParserCtxtPtr ctxt, int inputchk) {
+ 	    ret = cur = xmlNewDocElementContent(ctxt->myDoc, NULL, XML_ELEMENT_CONTENT_PCDATA);
+ 	    if (ret == NULL) return(NULL);
+ 	}
+-	while (RAW == '|') {
++	while ((RAW == '|') && (ctxt->instate != XML_PARSER_EOF)) {
+ 	    NEXT;
+ 	    if (elem == NULL) {
+ 	        ret = xmlNewDocElementContent(ctxt->myDoc, NULL, XML_ELEMENT_CONTENT_OR);
+@@ -6055,7 +6116,7 @@ xmlParseElementChildrenContentDeclPriv(xmlParserCtxtPtr ctxt, int inputchk,
+     }
+     SKIP_BLANKS;
+     SHRINK;
+-    while (RAW != ')') {
++    while ((RAW != ')') && (ctxt->instate != XML_PARSER_EOF)) {
+         /*
+ 	 * Each loop we parse one separator and one element.
+ 	 */
+@@ -6334,6 +6395,8 @@ xmlParseElementContentDecl(xmlParserCtxtPtr ctxt, const xmlChar *name,
+     }
+     NEXT;
+     GROW;
++    if (ctxt->instate == XML_PARSER_EOF)
++        return(-1);
+     SKIP_BLANKS;
+     if (CMP7(CUR_PTR, '#', 'P', 'C', 'D', 'A', 'T', 'A')) {
+         tree = xmlParseElementMixedContentDecl(ctxt, inputid);
+@@ -6501,8 +6564,8 @@ xmlParseConditionalSections(xmlParserCtxtPtr ctxt) {
+ 		    "Entering INCLUDE Conditional Section\n");
+ 	}
+ 
+-	while ((RAW != 0) && ((RAW != ']') || (NXT(1) != ']') ||
+-	       (NXT(2) != '>'))) {
++	while (((RAW != 0) && ((RAW != ']') || (NXT(1) != ']') ||
++	        (NXT(2) != '>'))) && (ctxt->instate != XML_PARSER_EOF)) {
+ 	    const xmlChar *check = CUR_PTR;
+ 	    unsigned int cons = ctxt->input->consumed;
+ 
+@@ -6570,7 +6633,8 @@ xmlParseConditionalSections(xmlParserCtxtPtr ctxt) {
+ 	if (ctxt->recovery == 0) ctxt->disableSAX = 1;
+ 	ctxt->instate = XML_PARSER_IGNORE;
+ 
+-	while ((depth >= 0) && (RAW != 0)) {
++	while (((depth >= 0) && (RAW != 0)) &&
++               (ctxt->instate != XML_PARSER_EOF)) {
+ 	  if ((RAW == '<') && (NXT(1) == '!') && (NXT(2) == '[')) {
+ 	    depth++;
+ 	    SKIP(3);
+@@ -6841,7 +6905,7 @@ xmlParseExternalSubset(xmlParserCtxtPtr ctxt, const xmlChar *ExternalID,
+ 	    break;
+ 	}
+     }
+-    
++
+     if (RAW != 0) {
+ 	xmlFatalErr(ctxt, XML_ERR_EXT_SUBSET_NOT_FINISHED, NULL);
+     }
+@@ -7310,6 +7374,8 @@ xmlParseEntityRef(xmlParserCtxtPtr ctxt) {
+     xmlEntityPtr ent = NULL;
+ 
+     GROW;
++    if (ctxt->instate == XML_PARSER_EOF)
++        return(NULL);
+ 
+     if (RAW != '&')
+         return(NULL);
+@@ -7840,6 +7906,10 @@ xmlLoadEntityContent(xmlParserCtxtPtr ctxt, xmlEntityPtr entity) {
+ 	if (count++ > 100) {
+ 	    count = 0;
+ 	    GROW;
++            if (ctxt->instate == XML_PARSER_EOF) {
++                xmlBufferFree(buf);
++                return(-1);
++            }
+ 	}
+ 	NEXTL(l);
+ 	c = CUR_CHAR(l);
+@@ -8073,7 +8143,7 @@ xmlParseInternalSubset(xmlParserCtxtPtr ctxt) {
+ 	 * PEReferences.
+ 	 * Subsequence (markupdecl | PEReference | S)*
+ 	 */
+-	while (RAW != ']') {
++	while ((RAW != ']') && (ctxt->instate != XML_PARSER_EOF)) {
+ 	    const xmlChar *check = CUR_PTR;
+ 	    unsigned int cons = ctxt->input->consumed;
+ 
+@@ -8259,9 +8329,9 @@ xmlParseStartTag(xmlParserCtxtPtr ctxt) {
+     SKIP_BLANKS;
+     GROW;
+ 
+-    while ((RAW != '>') && 
++    while (((RAW != '>') && 
+ 	   ((RAW != '/') || (NXT(1) != '>')) &&
+-	   (IS_BYTE_CHAR(RAW))) {
++	   (IS_BYTE_CHAR(RAW))) && (ctxt->instate != XML_PARSER_EOF)) {
+ 	const xmlChar *q = CUR_PTR;
+ 	unsigned int cons = ctxt->input->consumed;
+ 
+@@ -8685,6 +8755,8 @@ xmlParseAttValueInternal(xmlParserCtxtPtr ctxt, int *len, int *alloc,
+ 	    if (in >= end) {
+ 		const xmlChar *oldbase = ctxt->input->base;
+ 		GROW;
++                if (ctxt->instate == XML_PARSER_EOF)
++                    return(NULL);
+ 		if (oldbase != ctxt->input->base) {
+ 		    long delta = ctxt->input->base - oldbase;
+ 		    start = start + delta;
+@@ -8699,6 +8771,8 @@ xmlParseAttValueInternal(xmlParserCtxtPtr ctxt, int *len, int *alloc,
+ 	    if (in >= end) {
+ 		const xmlChar *oldbase = ctxt->input->base;
+ 		GROW;
++                if (ctxt->instate == XML_PARSER_EOF)
++                    return(NULL);
+ 		if (oldbase != ctxt->input->base) {
+ 		    long delta = ctxt->input->base - oldbase;
+ 		    start = start + delta;
+@@ -8719,6 +8793,8 @@ xmlParseAttValueInternal(xmlParserCtxtPtr ctxt, int *len, int *alloc,
+ 	    if (in >= end) {
+ 		const xmlChar *oldbase = ctxt->input->base;
+ 		GROW;
++                if (ctxt->instate == XML_PARSER_EOF)
++                    return(NULL);
+ 		if (oldbase != ctxt->input->base) {
+ 		    long delta = ctxt->input->base - oldbase;
+ 		    start = start + delta;
+@@ -8736,6 +8812,8 @@ xmlParseAttValueInternal(xmlParserCtxtPtr ctxt, int *len, int *alloc,
+ 	    if (in >= end) {
+ 		const xmlChar *oldbase = ctxt->input->base;
+ 		GROW;
++                if (ctxt->instate == XML_PARSER_EOF)
++                    return(NULL);
+ 		if (oldbase != ctxt->input->base) {
+ 		    long delta = ctxt->input->base - oldbase;
+ 		    start = start + delta;
+@@ -8967,9 +9045,9 @@ reparse:
+     GROW;
+     if (ctxt->input->base != base) goto base_changed;
+ 
+-    while ((RAW != '>') && 
++    while (((RAW != '>') &&
+ 	   ((RAW != '/') || (NXT(1) != '>')) &&
+-	   (IS_BYTE_CHAR(RAW))) {
++	   (IS_BYTE_CHAR(RAW))) && (ctxt->instate != XML_PARSER_EOF)) {
+ 	const xmlChar *q = CUR_PTR;
+ 	unsigned int cons = ctxt->input->consumed;
+ 	int len = -1, alloc = 0;
+@@ -9140,6 +9218,8 @@ skip_ns:
+ failed:
+ 
+ 	GROW
++        if (ctxt->instate == XML_PARSER_EOF)
++            break;
+ 	if (ctxt->input->base != base) goto base_changed;
+ 	if ((RAW == '>') || (((RAW == '/') && (NXT(1) == '>'))))
+ 	    break;
+@@ -9377,6 +9457,8 @@ xmlParseEndTag2(xmlParserCtxtPtr ctxt, const xmlChar *prefix,
+      * We should definitely be at the ending "S? '>'" part
+      */
+     GROW;
++    if (ctxt->instate == XML_PARSER_EOF)
++        return;
+     SKIP_BLANKS;
+     if ((!IS_BYTE_CHAR(RAW)) || (RAW != '>')) {
+ 	xmlFatalErr(ctxt, XML_ERR_GT_REQUIRED, NULL);
+@@ -9485,6 +9567,10 @@ xmlParseCDSect(xmlParserCtxtPtr ctxt) {
+ 	count++;
+ 	if (count > 50) {
+ 	    GROW;
++            if (ctxt->instate == XML_PARSER_EOF) {
++		xmlFree(buf);
++		return;
++            }
+ 	    count = 0;
+ 	}
+ 	NEXTL(l);
+@@ -10255,9 +10341,10 @@ xmlParseXMLDecl(xmlParserCtxtPtr ctxt) {
+ 
+ void
+ xmlParseMisc(xmlParserCtxtPtr ctxt) {
+-    while (((RAW == '<') && (NXT(1) == '?')) ||
+-           (CMP4(CUR_PTR, '<', '!', '-', '-')) ||
+-           IS_BLANK_CH(CUR)) {
++    while ((ctxt->instate != XML_PARSER_EOF) &&
++           (((RAW == '<') && (NXT(1) == '?')) ||
++            (CMP4(CUR_PTR, '<', '!', '-', '-')) ||
++            IS_BLANK_CH(CUR))) {
+         if ((RAW == '<') && (NXT(1) == '?')) {
+ 	    xmlParsePI(ctxt);
+ 	} else if (IS_BLANK_CH(CUR)) {
+@@ -11727,6 +11814,8 @@ xmlParseChunk(xmlParserCtxtPtr ctxt, const char *chunk, int size,
+         return(XML_ERR_INTERNAL_ERROR);
+     if ((ctxt->errNo != XML_ERR_OK) && (ctxt->disableSAX == 1))
+         return(ctxt->errNo);
++    if (ctxt->instate == XML_PARSER_EOF)
++        return(-1);
+     if (ctxt->instate == XML_PARSER_START)
+         xmlDetectSAX2(ctxt);
+     if ((size > 0) && (chunk != NULL) && (!terminate) &&
+-- 
+1.8.4.1
+

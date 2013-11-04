@@ -1,0 +1,265 @@
+From bc168aab5749acbe6630a29be4dcfabf0a81e2da Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Tue, 17 Jul 2012 16:19:17 +0800
+Subject: [PATCH 1/9] Fix parser local buffers size problems
+
+[Origin: 459eeb9dc752d5185f57ff6b135027f11981a626]
+---
+ parser.c | 74 +++++++++++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 43 insertions(+), 31 deletions(-)
+
+diff --git a/parser.c b/parser.c
+index 2c38fae..9863275 100644
+--- a/parser.c
++++ b/parser.c
+@@ -40,6 +40,7 @@
+ #endif
+ 
+ #include <stdlib.h>
++#include <limits.h>
+ #include <string.h>
+ #include <stdarg.h>
+ #include <libxml/xmlmemory.h>
+@@ -117,10 +118,10 @@ xmlCreateEntityParserCtxtInternal(const xmlChar *URL, const xmlChar *ID,
+  * parser option.
+  */
+ static int
+-xmlParserEntityCheck(xmlParserCtxtPtr ctxt, unsigned long size,
++xmlParserEntityCheck(xmlParserCtxtPtr ctxt, size_t size,
+                      xmlEntityPtr ent)
+ {
+-    unsigned long consumed = 0;
++    size_t consumed = 0;
+ 
+     if ((ctxt == NULL) || (ctxt->options & XML_PARSE_HUGE))
+         return (0);
+@@ -2589,15 +2590,17 @@ xmlParserHandlePEReference(xmlParserCtxtPtr ctxt) {
+ 
+ /*
+  * Macro used to grow the current buffer.
++ * buffer##_size is expected to be a size_t
++ * mem_error: is expected to handle memory allocation failures
+  */
+ #define growBuffer(buffer, n) {						\
+     xmlChar *tmp;							\
+-    buffer##_size *= 2;							\
+-    buffer##_size += n;							\
+-    tmp = (xmlChar *)							\
+-		xmlRealloc(buffer, buffer##_size * sizeof(xmlChar));	\
++    size_t new_size = buffer##_size * 2 + n;                            \
++    if (new_size < buffer##_size) goto mem_error;                       \
++    tmp = (xmlChar *) xmlRealloc(buffer, new_size);                     \
+     if (tmp == NULL) goto mem_error;					\
+     buffer = tmp;							\
++    buffer##_size = new_size;                                           \
+ }
+ 
+ /**
+@@ -2623,14 +2626,14 @@ xmlChar *
+ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 		      int what, xmlChar end, xmlChar  end2, xmlChar end3) {
+     xmlChar *buffer = NULL;
+-    int buffer_size = 0;
++    size_t buffer_size = 0;
++    size_t nbchars = 0;
+ 
+     xmlChar *current = NULL;
+     xmlChar *rep = NULL;
+     const xmlChar *last;
+     xmlEntityPtr ent;
+     int c,l;
+-    int nbchars = 0;
+ 
+     if ((ctxt == NULL) || (str == NULL) || (len < 0))
+ 	return(NULL);
+@@ -2647,7 +2650,7 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+      * allocate a translation buffer.
+      */
+     buffer_size = XML_PARSER_BIG_BUFFER_SIZE;
+-    buffer = (xmlChar *) xmlMallocAtomic(buffer_size * sizeof(xmlChar));
++    buffer = (xmlChar *) xmlMallocAtomic(buffer_size);
+     if (buffer == NULL) goto mem_error;
+ 
+     /*
+@@ -2667,7 +2670,7 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 	    if (val != 0) {
+ 		COPY_BUF(0,buffer,nbchars,val);
+ 	    }
+-	    if (nbchars > buffer_size - XML_PARSER_BUFFER_SIZE) {
++	    if (nbchars + XML_PARSER_BUFFER_SIZE > buffer_size) {
+ 	        growBuffer(buffer, XML_PARSER_BUFFER_SIZE);
+ 	    }
+ 	} else if ((c == '&') && (what & XML_SUBSTITUTE_REF)) {
+@@ -2685,7 +2688,7 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 		(ent->etype == XML_INTERNAL_PREDEFINED_ENTITY)) {
+ 		if (ent->content != NULL) {
+ 		    COPY_BUF(0,buffer,nbchars,ent->content[0]);
+-		    if (nbchars > buffer_size - XML_PARSER_BUFFER_SIZE) {
++		    if (nbchars + XML_PARSER_BUFFER_SIZE > buffer_size) {
+ 			growBuffer(buffer, XML_PARSER_BUFFER_SIZE);
+ 		    }
+ 		} else {
+@@ -2702,8 +2705,7 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 		    current = rep;
+ 		    while (*current != 0) { /* non input consuming loop */
+ 			buffer[nbchars++] = *current++;
+-			if (nbchars >
+-		            buffer_size - XML_PARSER_BUFFER_SIZE) {
++			if (nbchars + XML_PARSER_BUFFER_SIZE > buffer_size) {
+ 			    if (xmlParserEntityCheck(ctxt, nbchars, ent))
+ 				goto int_error;
+ 			    growBuffer(buffer, XML_PARSER_BUFFER_SIZE);
+@@ -2717,7 +2719,7 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 		const xmlChar *cur = ent->name;
+ 
+ 		buffer[nbchars++] = '&';
+-		if (nbchars > buffer_size - i - XML_PARSER_BUFFER_SIZE) {
++		if (nbchars + i + XML_PARSER_BUFFER_SIZE > buffer_size) {
+ 		    growBuffer(buffer, i + XML_PARSER_BUFFER_SIZE);
+ 		}
+ 		for (;i > 0;i--)
+@@ -2745,8 +2747,7 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 		    current = rep;
+ 		    while (*current != 0) { /* non input consuming loop */
+ 			buffer[nbchars++] = *current++;
+-			if (nbchars >
+-		            buffer_size - XML_PARSER_BUFFER_SIZE) {
++			if (nbchars + XML_PARSER_BUFFER_SIZE > buffer_size) {
+ 			    if (xmlParserEntityCheck(ctxt, nbchars, ent))
+ 			        goto int_error;
+ 			    growBuffer(buffer, XML_PARSER_BUFFER_SIZE);
+@@ -2759,8 +2760,8 @@ xmlStringLenDecodeEntities(xmlParserCtxtPtr ctxt, const xmlChar *str, int len,
+ 	} else {
+ 	    COPY_BUF(l,buffer,nbchars,c);
+ 	    str += l;
+-	    if (nbchars > buffer_size - XML_PARSER_BUFFER_SIZE) {
+-	      growBuffer(buffer, XML_PARSER_BUFFER_SIZE);
++	    if (nbchars + XML_PARSER_BUFFER_SIZE > buffer_size) {
++	        growBuffer(buffer, XML_PARSER_BUFFER_SIZE);
+ 	    }
+ 	}
+ 	if (str < last)
+@@ -3764,8 +3765,8 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+     xmlChar limit = 0;
+     xmlChar *buf = NULL;
+     xmlChar *rep = NULL;
+-    int len = 0;
+-    int buf_size = 0;
++    size_t len = 0;
++    size_t buf_size = 0;
+     int c, l, in_space = 0;
+     xmlChar *current = NULL;
+     xmlEntityPtr ent;
+@@ -3787,7 +3788,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+      * allocate a translation buffer.
+      */
+     buf_size = XML_PARSER_BUFFER_SIZE;
+-    buf = (xmlChar *) xmlMallocAtomic(buf_size * sizeof(xmlChar));
++    buf = (xmlChar *) xmlMallocAtomic(buf_size);
+     if (buf == NULL) goto mem_error;
+ 
+     /*
+@@ -3804,7 +3805,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 
+ 		if (val == '&') {
+ 		    if (ctxt->replaceEntities) {
+-			if (len > buf_size - 10) {
++			if (len + 10 > buf_size) {
+ 			    growBuffer(buf, 10);
+ 			}
+ 			buf[len++] = '&';
+@@ -3813,7 +3814,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 			 * The reparsing will be done in xmlStringGetNodeList()
+ 			 * called by the attribute() function in SAX.c
+ 			 */
+-			if (len > buf_size - 10) {
++			if (len + 10 > buf_size) {
+ 			    growBuffer(buf, 10);
+ 			}
+ 			buf[len++] = '&';
+@@ -3823,7 +3824,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 			buf[len++] = ';';
+ 		    }
+ 		} else if (val != 0) {
+-		    if (len > buf_size - 10) {
++		    if (len + 10 > buf_size) {
+ 			growBuffer(buf, 10);
+ 		    }
+ 		    len += xmlCopyChar(0, &buf[len], val);
+@@ -3835,7 +3836,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 		    ctxt->nbentities += ent->owner;
+ 		if ((ent != NULL) &&
+ 		    (ent->etype == XML_INTERNAL_PREDEFINED_ENTITY)) {
+-		    if (len > buf_size - 10) {
++		    if (len + 10 > buf_size) {
+ 			growBuffer(buf, 10);
+ 		    }
+ 		    if ((ctxt->replaceEntities == 0) &&
+@@ -3863,7 +3864,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+                                     current++;
+                                 } else
+                                     buf[len++] = *current++;
+-				if (len > buf_size - 10) {
++				if (len + 10 > buf_size) {
+ 				    growBuffer(buf, 10);
+ 				}
+ 			    }
+@@ -3871,7 +3872,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 			    rep = NULL;
+ 			}
+ 		    } else {
+-			if (len > buf_size - 10) {
++			if (len + 10 > buf_size) {
+ 			    growBuffer(buf, 10);
+ 			}
+ 			if (ent->content != NULL)
+@@ -3899,7 +3900,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 		     * Just output the reference
+ 		     */
+ 		    buf[len++] = '&';
+-		    while (len > buf_size - i - 10) {
++		    while (len + i + 10 > buf_size) {
+ 			growBuffer(buf, i + 10);
+ 		    }
+ 		    for (;i > 0;i--)
+@@ -3912,7 +3913,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 	        if ((len != 0) || (!normalize)) {
+ 		    if ((!normalize) || (!in_space)) {
+ 			COPY_BUF(l,buf,len,0x20);
+-			while (len > buf_size - 10) {
++			while (len + 10 > buf_size) {
+ 			    growBuffer(buf, 10);
+ 			}
+ 		    }
+@@ -3921,7 +3922,7 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+ 	    } else {
+ 	        in_space = 0;
+ 		COPY_BUF(l,buf,len,c);
+-		if (len > buf_size - 10) {
++		if (len + 10 > buf_size) {
+ 		    growBuffer(buf, 10);
+ 		}
+ 	    }
+@@ -3946,7 +3947,18 @@ xmlParseAttValueComplex(xmlParserCtxtPtr ctxt, int *attlen, int normalize) {
+         }
+     } else
+ 	NEXT;
+-    if (attlen != NULL) *attlen = len;
++
++    /*
++     * There we potentially risk an overflow, don't allow attribute value of
++     * lenght more than INT_MAX it is a very reasonnable assumption !
++     */
++    if (len >= INT_MAX) {
++        xmlFatalErrMsg(ctxt, XML_ERR_ATTRIBUTE_NOT_FINISHED,
++                       "AttValue lenght too long\n");
++        goto mem_error;
++    }
++
++    if (attlen != NULL) *attlen = (int) len;
+     return(buf);
+ 
+ mem_error:
+-- 
+1.8.4.1
+

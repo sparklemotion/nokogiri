@@ -1,0 +1,37 @@
+From e86d141d88213af6c7e0bc4b607f879e1e89e406 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?J=C3=BCri=20Aedla?= <aedla@chromium.org>
+Date: Tue, 16 Apr 2013 22:00:13 +0800
+Subject: [PATCH 9/9] Fix a couple of return without value
+
+Error introduced in previous commit !
+
+[Origin: 9ca816b3a64e7b1bada7baa2cbc09e8937b38215]
+---
+ parser.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/parser.c b/parser.c
+index 7de8111..1b62bc4 100644
+--- a/parser.c
++++ b/parser.c
+@@ -7620,7 +7620,7 @@ xmlParseStringEntityRef(xmlParserCtxtPtr ctxt, const xmlChar ** str) {
+     }
+     if (ctxt->instate == XML_PARSER_EOF) {
+ 	xmlFree(name);
+-	return;
++	return(NULL);
+     }
+ 
+     /*
+@@ -8016,7 +8016,7 @@ xmlParseStringPEReference(xmlParserCtxtPtr ctxt, const xmlChar **str) {
+ 	entity = ctxt->sax->getParameterEntity(ctxt->userData, name);
+     if (ctxt->instate == XML_PARSER_EOF) {
+ 	xmlFree(name);
+-	return;
++	return(NULL);
+     }
+     if (entity == NULL) {
+ 	/*
+-- 
+1.8.4.1
+
