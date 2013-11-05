@@ -92,7 +92,7 @@ module Nokogiri
       end
 
       def test_recognize_namespace_in_attribute
-        doc = Document.new(%Q{<link xmlns:special="http://nowhere.com"></link>})
+        doc = Document.parse(%Q{<link xmlns:special="http://nowhere.com"></link>})
         assert !doc.namespaces.empty?, 'namespace was not recognized'
       end
     end
