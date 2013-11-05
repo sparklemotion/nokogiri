@@ -445,11 +445,22 @@ public class XmlDocument extends XmlNode {
                 dtd = XmlDtd.newFromInternalSubset(context.getRuntime(), document);
             } else if (document.getDoctype() != null) {
                 DocumentType docType = document.getDoctype();
+                IRubyObject name, publicId, systemId;
+                name = publicId = systemId = context.getRuntime().getNil();
+                if (docType.getName() != null) {
+                    name = context.getRuntime().newString(docType.getName());
+                }
+                if (docType.getPublicId() != null) {
+                    publicId = context.getRuntime().newString(docType.getPublicId());
+                }
+                if (docType.getSystemId() != null) {
+                    systemId = context.getRuntime().newString(docType.getSystemId());
+                }
                 dtd = XmlDtd.newEmpty(context.getRuntime(),
                                       document,
-                                      context.getRuntime().newString(docType.getName()),
-                                      context.getRuntime().newString(docType.getPublicId()),
-                                      context.getRuntime().newString(docType.getSystemId()));
+                                      name,
+                                      publicId,
+                                      systemId);
             } else {
                 dtd = context.getRuntime().getNil();
             }
@@ -544,7 +555,7 @@ public class XmlDocument extends XmlNode {
     
     @JRubyMethod
     public IRubyObject toJavaDocument(ThreadContext context) {
-        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), (org.w3c.dom.Document)node);
+        return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), node);
     }
     
     /* call-seq:
@@ -581,7 +592,7 @@ public class XmlDocument extends XmlNode {
             if (!(args[1] instanceof XmlDocument)) {
                 throw runtime.newTypeError(args[1], runtime.getArray());
             }
-            visitor.setC14nExclusiveInclusivePrefixes((List<String>)NokogiriHelpers.rubyStringArrayToJavaList((RubyArray)args[1]));
+            visitor.setC14nExclusiveInclusivePrefixes(NokogiriHelpers.rubyStringArrayToJavaList((RubyArray)args[1]));
         }
         startingNode.accept(context, visitor);
         IRubyObject result = runtime.getTrue();
