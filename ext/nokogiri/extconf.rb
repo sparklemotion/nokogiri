@@ -137,7 +137,9 @@ end
 def process_recipe(name, version, static_p, cross_p)
   MiniPortile.new(name, version).tap do |recipe|
     recipe.target = portsdir = File.join(ROOT, "ports")
-    recipe.host = RbConfig::CONFIG["host_alias"]
+    # Prefer host_alias over host in order to use i586-mingw32msvc as
+    # correct compiler prefix for cross build, but use host if not set.
+    recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
     recipe.patch_files += Dir[File.join(portsdir, "patches", name, "*.patch")].sort
 
     if static_p
