@@ -14,7 +14,6 @@ jdk:
 matrix:
   allow_failures:
     - rvm: rbx-19mode
-    - rvm: jruby-20mode
   exclude:
     - rvm: 1.9.3
       jdk: openjdk7
