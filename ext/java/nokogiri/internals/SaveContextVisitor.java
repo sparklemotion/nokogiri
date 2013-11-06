@@ -439,9 +439,13 @@ public class SaveContextVisitor {
             buffer.append(">");
         } else if (asXml && noEmpty) {
             buffer.append(">");
+        } else if (asXhtml) {
+            if (isEmpty(name)) {
+                buffer.append(" />"); // see http://www.w3.org/TR/xhtml1/#C_2
+            } else {
+                buffer.append(">");
+            }
         } else {
-            if (asXhtml)
-              buffer.append(" "); // see http://www.w3.org/TR/xhtml1/#C_2
             buffer.append("/>");
         }
         if (needBreakInOpening(element)) {
