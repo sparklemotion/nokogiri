@@ -22,7 +22,7 @@ module Nokogiri
       #   end
       #
       #   parser = Nokogiri::HTML::SAX::Parser.new(MyDoc.new)
-      #   parser.parse(File.read(ARGV[0], 'rb'))
+      #   parser.parse(File.read(ARGV[0], mode: 'rb'))
       #
       # For more information on SAX parsers, see Nokogiri::XML::SAX
       class Parser < Nokogiri::XML::SAX::Parser
