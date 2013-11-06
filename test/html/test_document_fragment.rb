@@ -193,14 +193,14 @@ module Nokogiri
       end
 
       def test_to_xhtml
-        doc = "<span>foo<br></span><span>bar</span>"
+        doc = "<span>foo<br></span><span>bar</span><p></p>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
         if Nokogiri.jruby? || Nokogiri::VERSION_INFO['libxml']['loaded'] >= "2.7.0"
-          assert_equal "<span>foo<br /></span><span>bar</span>", fragment.to_xhtml
+          assert_equal "<span>foo<br /></span><span>bar</span><p></p>", fragment.to_xhtml
         else
           # FIXME: why are we doing this ? this violates the spec,
           # see http://www.w3.org/TR/xhtml1/#C_2
-          assert_equal "<span>foo<br></span><span>bar</span>", fragment.to_xhtml
+          assert_equal "<span>foo<br></span><span>bar</span><p></p>", fragment.to_xhtml
         end
       end
 
