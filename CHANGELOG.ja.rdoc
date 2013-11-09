@@ -1,3 +1,11 @@
+=== 1.6.1 / 2013年12月14日
+
+* Bugfixes
+
+  * (JRuby) Fix out of memory bug when certain invalid documents are parsed.
+  * (JRuby) Fix regression of billion-laughs vulnerability. #586
+
+
 === 1.6.0 / 2013年6月8日
 
 This release was based on v1.5.10 and 1.6.0.rc1, and contains changes
