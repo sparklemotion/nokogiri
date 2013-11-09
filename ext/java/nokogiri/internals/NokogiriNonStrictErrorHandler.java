@@ -92,6 +92,7 @@ public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler{
     private static boolean isFatal(String msg) {
         return
           msg.toLowerCase().contains("in prolog") ||
+          msg.toLowerCase().contains("limit") ||
           msg.toLowerCase().contains("preceding the root element must be well-formed");
     }
 }
