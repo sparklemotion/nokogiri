@@ -1,3 +1,11 @@
+=== 1.5.11 / 2013-11-09
+
+* Bugfixes
+
+  * (JRuby) Fix out of memory bug when certain invalid documents are parsed.
+  * (JRuby) Fix regression of billion-laughs vulnerability. #568
+
+
 === 1.5.10 / 2013年6月7日
 
 * バグ修正
