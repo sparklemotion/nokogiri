@@ -360,6 +360,22 @@ module Nokogiri
 
           assert_equal [['root', []], ['foo', [['a', '&b'], ['c', '>d']]]], @parser.document.start_elements
         end
+
+        def test_recovery_from_incorrect_xml
+          xml = <<-eoxml
+<?xml version="1.0" ?><Root><Data><?xml version='1.0'?><Item>hey</Item></Data><Data><Item>hey yourself</Item></Data></Root>
+          eoxml
+
+          block_called = false
+          @parser.parse(xml) { |ctx|
+            block_called = true
+            ctx.recovery = true
+          }
+
+          assert block_called
+
+          assert_equal [['Root', []], ['Data', []], ['Item', []], ['Data', []], ['Item', []]], @parser.document.start_elements
+        end
       end
     end
   end

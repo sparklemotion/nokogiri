@@ -65,6 +65,15 @@ world
           assert_equal true, pc.replace_entities
         end
 
+        def test_recovery
+          pc = ParserContext.new StringIO.new('<root />'), 'UTF-8'
+          pc.recovery = false
+          assert_equal false, pc.recovery
+
+          pc.recovery = true
+          assert_equal true, pc.recovery
+        end
+
         def test_from_io
           ctx = ParserContext.new StringIO.new('fo'), 'UTF-8'
           assert ctx

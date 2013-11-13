@@ -201,6 +201,44 @@ static VALUE column(VALUE self)
   return Qnil;
 }
 
+/*
+ * call-seq:
+ *  recovery=(boolean)
+ *
+ * Should this parser recover from structural errors? It will not stop processing
+ * file on structural errors if if set to true
+ */
+static VALUE set_recovery(VALUE self, VALUE value)
+{
+  xmlParserCtxtPtr ctxt;
+  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+
+  if(value == Qfalse)
+    ctxt->recovery = 0;
+  else
+    ctxt->recovery = 1;
+
+  return value;
+}
+
+/*
+ * call-seq:
+ *  recovery
+ *
+ * Should this parser recover from structural errors? It will not stop processing
+ * file on structural errors if if set to true
+ */
+static VALUE get_recovery(VALUE self)
+{
+  xmlParserCtxtPtr ctxt;
+  Data_Get_Struct(self, xmlParserCtxt, ctxt);
+
+  if(ctxt->recovery == 0)
+    return Qfalse;
+  else
+    return Qtrue;
+}
+
 void init_xml_sax_parser_context()
 {
   VALUE nokogiri  = rb_define_module("Nokogiri");
@@ -217,6 +255,8 @@ void init_xml_sax_parser_context()
   rb_define_method(klass, "parse_with", parse_with, 1);
   rb_define_method(klass, "replace_entities=", set_replace_entities, 1);
   rb_define_method(klass, "replace_entities", get_replace_entities, 0);
+  rb_define_method(klass, "recovery=", set_recovery, 1);
+  rb_define_method(klass, "recovery", get_recovery, 0);
   rb_define_method(klass, "line", line, 0);
   rb_define_method(klass, "column", column, 0);
 }
