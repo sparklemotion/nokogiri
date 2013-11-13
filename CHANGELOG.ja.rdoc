@@ -14,6 +14,7 @@
   * Nokogiri::HTML::Document#title= 及び #meta_encoding= は、head要素がない場合でも常に、最適な場所を探しつつ要素を追加するようになった
   * Nokogiri::XML::DTD#html_dtd? と #html5_dtd? を追加
   * Nokogiri::XML::Node#prepend_child を追加 #664
+  * Nokogiri::XML::SAX::ParserContext#recovery is added. #453
 
 * バグ修正
 
