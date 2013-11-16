@@ -21,7 +21,7 @@ module Nokogiri
         string = reencode(string)
       end
 
-      Nokogumbo.parse(string)
+      Nokogumbo.parse(string.to_s)
     end
 
     # Fetch and parse a HTML document from the web, following redirects,

@@ -36,6 +36,11 @@ class TestNokogumbo < Test::Unit::TestCase
     assert_equal 'textarea', doc.at('form').element_children.first.name
   end
 
+  def test_nil
+    doc = Nokogiri::HTML5(nil)
+    assert_equal 1, doc.search('body').count
+  end
+
   if ''.respond_to? 'encoding'
     def test_macroman_encoding
       mac="<span>\xCA</span>".force_encoding('macroman')
