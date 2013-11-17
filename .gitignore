@@ -13,8 +13,7 @@ Gemfile*
 TAGS
 build
 ext/java/Canna
-ext/java/nokogiri/*.class
-ext/java/nokogiri/*/*.class
+ext/java/nokogiri/**/*.class
 ext/nokogiri/*.dll
 gems
 lib/nokogiri/1.8
