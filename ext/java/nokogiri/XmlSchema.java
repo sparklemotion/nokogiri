@@ -32,8 +32,8 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.adjustSystemIdIfNecessary;
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +48,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import nokogiri.internals.IgnoreSchemaErrorsErrorHandler;
 import nokogiri.internals.SchemaErrorHandler;
 import nokogiri.internals.XmlDomParserContext;
 
@@ -95,7 +96,8 @@ public class XmlSchema extends RubyObject {
     private Schema getSchema(Source source, String currentDir, String scriptFileName) throws SAXException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         SchemaResourceResolver resourceResolver = new SchemaResourceResolver(currentDir, scriptFileName, null);
-        schemaFactory.setResourceResolver(resourceResolver); 
+        schemaFactory.setResourceResolver(resourceResolver);
+        schemaFactory.setErrorHandler(new IgnoreSchemaErrorsErrorHandler());
         return schemaFactory.newSchema(source);
     }
     

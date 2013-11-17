@@ -14,6 +14,32 @@ module Nokogiri
         assert_instance_of Nokogiri::XML::Schema, xsd
       end
 
+      def test_invalid_schema_do_not_raise_exceptions
+        xsd = Nokogiri::XML::Schema.new <<EOF
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:group name="foo1">
+		<xs:sequence>
+			<xs:element name="bar" type="xs:boolean" />
+		</xs:sequence>
+  </xs:group>
+	<xs:group name="foo2">
+		<xs:sequence>
+			<xs:element name="bar" type="xs:string" />
+		</xs:sequence>
+  </xs:group>
+	<xs:element name="foo">
+		<xs:complexType>
+			<xs:choice>
+				<xs:group ref="foo1"/>
+				<xs:group ref="foo2"/>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+EOF
+        assert_instance_of Nokogiri::XML::Schema, xsd
+      end
+
       def test_schema_from_document_node
         doc = Nokogiri::XML(File.open(PO_SCHEMA_FILE))
         assert doc
