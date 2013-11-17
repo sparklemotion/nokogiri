@@ -22,10 +22,7 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 import org.w3c.dom.Node;
-
-import com.sun.org.apache.xml.internal.security.exceptions.AlgorithmAlreadyRegisteredException;
 
 /**
  *
@@ -125,7 +122,7 @@ public class Canonicalizer {
      *
      * @param algorithmURI
      * @param implementingClass
-     * @throws AlgorithmAlreadyRegisteredException
+     * @throws CanonicalizationException
      */
     @SuppressWarnings("unchecked")
     public static void register(String algorithmURI, String implementingClass)
@@ -149,7 +146,7 @@ public class Canonicalizer {
      *
      * @param algorithmURI
      * @param implementingClass
-     * @throws AlgorithmAlreadyRegisteredException
+     * @throws CanonicalizationException
      */
     public static void register(String algorithmURI, Class<? extends CanonicalizerSpi> implementingClass)
         throws CanonicalizationException, ClassNotFoundException {
