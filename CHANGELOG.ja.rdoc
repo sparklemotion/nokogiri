@@ -23,6 +23,7 @@
   * Nokogiri.parse()がRSS文書などをHTML文書として誤認する問題を修正 #932 (Yamagishi Kazutoshiに感謝!)
   * (JRuby) XSD validation crashes in Java version. #373
   * (JRuby) Document already has a root node error while using Builder. #646
+  * (JRuby) c14n tests are all passing on JRuby. #226
 
 === 1.6.0 / 2013年6月8日
 
