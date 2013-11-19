@@ -59,7 +59,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["hoe-git",         ">= 1.4"],
     ["minitest",        "~> 2.2.2"],
     ["rake",            ">= 0.9"],
-    ["rake-compiler",   "~> 0.9.1"],
+    ["rake-compiler",   "~> 0.9.2"],
     ["racc",            ">= 1.4.6"],
     ["rexical",         ">= 1.0.5"]
   ]
