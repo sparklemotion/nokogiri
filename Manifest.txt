@@ -210,7 +210,7 @@ lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
-tasks/cross_compile.rb
+ports/patches/libxslt/0015-Fix-mkdir-for-mingw.patch
 tasks/nokogiri.org.rb
 tasks/test.rb
 test/css/test_nthiness.rb

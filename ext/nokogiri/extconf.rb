@@ -16,6 +16,8 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 #   --with-xml2-dir=DIR / --with-xml2-config=CONFIG
 #   --with-xslt-dir=DIR / --with-xslt-config=CONFIG
 #   --with-exslt-dir=DIR / --with-exslt-config=CONFIG
+#
+# --enable-cross-build
 
 # :stopdoc:
 
@@ -24,6 +26,9 @@ require 'mkmf'
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+# Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
+# https://bugs.ruby-lang.org/issues/8074
+@libdir_basename = "lib"
 
 if arg_config('--clean')
   require 'pathname'
@@ -129,11 +134,31 @@ def iconv_prefix
   } or asplode "libiconv"
 end
 
-def process_recipe(name, version)
-  MiniPortile.new(name, version).tap { |recipe|
+def process_recipe(name, version, static_p, cross_p)
+  MiniPortile.new(name, version).tap do |recipe|
     recipe.target = portsdir = File.join(ROOT, "ports")
-    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.host = RbConfig::CONFIG["host_alias"]
     recipe.patch_files += Dir[File.join(portsdir, "patches", name, "*.patch")].sort
+
+    if static_p
+      recipe.configure_options = [
+        "--disable-shared",
+        "--enable-static",
+        "CFLAGS=-fPIC",
+      ]
+    else
+      recipe.configure_options = [
+        "--enable-shared",
+        "--disable-static",
+      ]
+    end
+
+    if cross_p
+      recipe.configure_options += [
+        "--target=#{recipe.host}",
+        "--host=#{recipe.host}",
+      ]
+    end
 
     yield recipe
 
@@ -143,7 +168,7 @@ def process_recipe(name, version)
       FileUtils.touch checkpoint
     end
     recipe.activate
-  }
+  end
 end
 
 windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
@@ -158,7 +183,8 @@ end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
   $CFLAGS << " -DIN_LIBXML"
-  $LIBS << " -lz" # TODO why is this necessary?
+  # Mingw32 package is static linked
+  $LIBS << " -lz -liconv"
 end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
@@ -167,21 +193,6 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
 end
 
 case
-when windows_p
-  message "Cross-building nokogiri.\n"
-
-  # Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
-  # https://bugs.ruby-lang.org/issues/8074
-  @libdir_basename = "lib"
-
-  dir_config('iconv')
-  have_iconv? or asplode 'iconv'
-
-  idir, ldir = RbConfig::CONFIG['includedir'], RbConfig::CONFIG['libdir']
-
-  dir_config('zlib', idir, ldir)
-  dir_config('xml2', [File.join(idir, "libxml2"), idir], ldir)
-  dir_config('xslt', idir, ldir)
 when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
   message "Building nokogiri using system libraries.\n"
 
@@ -206,55 +217,79 @@ else
 
   dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
 
-  libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]) { |recipe|
-    recipe.configure_options = [
-      *(
-        if static_p
-          [
-            "--disable-shared",
-            "--enable-static",
-            "CFLAGS=-fPIC",
-          ]
-        else
-          [
-            "--enable-shared",
-            "--disable-static",
-          ]
+  cross_build_p = enable_config("cross-build")
+  if cross_build_p || windows_p
+    zlib_recipe = process_recipe("zlib", dependencies["zlib"], static_p, cross_build_p) do |recipe|
+      recipe.files = ["http://zlib.net/#{recipe.name}-#{recipe.version}.tar.gz"]
+      class << recipe
+        attr_accessor :cross_build_p
+
+        def configure
+          Dir.chdir work_path do
+            mk = File.read 'win32/Makefile.gcc'
+            File.open 'win32/Makefile.gcc', 'wb' do |f|
+              f.puts "BINARY_PATH = #{path}/bin"
+              f.puts "LIBRARY_PATH = #{path}/lib"
+              f.puts "INCLUDE_PATH = #{path}/include"
+              mk.sub!(/^PREFIX\s*=\s*$/, "PREFIX = #{host}-") if cross_build_p
+              f.puts mk
+            end
+          end
         end
-        ),
+
+        def configured?
+          Dir.chdir work_path do
+            !! (File.read('win32/Makefile.gcc') =~ /^BINARY_PATH/)
+          end
+        end
+
+        def compile
+          execute "compile", "make -f win32/Makefile.gcc"
+        end
+
+        def install
+          execute "install", "make -f win32/Makefile.gcc install"
+        end
+      end
+      recipe.cross_build_p = cross_build_p
+    end
+
+    libiconv_recipe = process_recipe("libiconv", dependencies["libiconv"], static_p, cross_build_p) do |recipe|
+      recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz"]
+      recipe.configure_options += [
+        "CPPFLAGS='-Wall'",
+        "CFLAGS='-O2 -g'",
+        "CXXFLAGS='-O2 -g'",
+        "LDFLAGS="
+      ]
+    end
+  end
+
+  libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"], static_p, cross_build_p) do |recipe|
+    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.configure_options += [
       "--without-python",
       "--without-readline",
-      "--with-iconv=#{iconv_prefix}",
+      "--with-iconv=#{libiconv_recipe ? libiconv_recipe.path : iconv_prefix}",
       "--with-c14n",
       "--with-debug",
       "--with-threads"
     ]
-  }
+  end
 
-  libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]) { |recipe|
-    recipe.configure_options = [
-      *(
-        if static_p
-          [
-            "--disable-shared",
-            "--enable-static",
-            "CFLAGS=-fPIC",
-          ]
-        else
-          [
-            "--enable-shared",
-            "--disable-static",
-          ]
-        end
-        ),
+  libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"], static_p, cross_build_p) do |recipe|
+    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.configure_options += [
       "--without-python",
       "--without-crypto",
       "--with-debug",
       "--with-libxml-prefix=#{libxml2_recipe.path}"
     ]
-  }
+  end
 
   $CFLAGS << ' ' << '-DNOKOGIRI_USE_PACKAGED_LIBRARIES'
+  $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
+  $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
 
   have_lzma = preserving_globals {
     have_library('lzma')
@@ -264,8 +299,9 @@ else
     [libxml2_recipe, libxslt_recipe].each { |recipe|
       libname = recipe.name[/\Alib(.+)\z/, 1]
       File.join(recipe.path, "bin", "#{libname}-config").tap { |config|
-        $CPPFLAGS = `#{config} --cflags`.strip << ' ' << $CPPFLAGS
-        `#{config} --libs`.strip.shellsplit.each { |arg|
+        # call config scripts explicit with 'sh' for compat with Windows
+        $CPPFLAGS = `sh #{config} --cflags`.strip << ' ' << $CPPFLAGS
+        `sh #{config} --libs`.strip.shellsplit.each { |arg|
           case arg
           when /\A-L(.+)\z/
             # Prioritize ports' directories
@@ -281,8 +317,8 @@ else
           end
         }
       }
-
-      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".shellescape
+      # Use quoting instead of shellescape for compat with Windows
+      $CPPFLAGS << ' ' << "\"-DNOKOGIRI_#{recipe.name.upcase}_PATH=\\\"#{recipe.path}\\\"\""
 
       case libname
       when 'xml2'
