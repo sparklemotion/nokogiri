@@ -24,6 +24,7 @@
   * (JRuby) XSD validation crashes in Java version. #373
   * (JRuby) Document already has a root node error while using Builder. #646
   * (JRuby) c14n tests are all passing on JRuby. #226
+  * Parsing empty documents raise SyntaxError in strict mode. #1005
 
 === 1.6.0 / 2013年6月8日
 

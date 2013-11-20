@@ -26,6 +26,13 @@ module Nokogiri
         assert doc.root
       end
 
+      # issue #1005
+      def test_strict_parsing_empty_doc_should_raise_exception
+        assert_raises(SyntaxError) do
+          Nokogiri::XML(StringIO.new('')) { |c| c.strict }
+        end
+      end
+
       # issue #838
       def test_document_with_invalid_prolog
         doc = Nokogiri::XML '<? ?>'

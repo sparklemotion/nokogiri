@@ -45,7 +45,7 @@ module Nokogiri
         # Give the options to the user
         yield options if block_given?
 
-        return new if empty_doc?(string_or_io)
+        return new if !options.strict? && empty_doc?(string_or_io)
 
         doc = if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
