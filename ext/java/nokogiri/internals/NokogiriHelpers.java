@@ -175,7 +175,7 @@ public class NokogiriHelpers {
     }
     
     public static RubyClass getNokogiriClass(Ruby ruby, String name) {
-        return NokogiriService.nokogiriClassCache.get(name);
+        return NokogiriService.getNokogiriClassCache(ruby).get(name);
     }
 
     public static IRubyObject stringOrNil(Ruby runtime, String s) {
@@ -775,7 +775,7 @@ public class NokogiriHelpers {
         } catch (ClassNotFoundException e1) {
             try {
                 // Before JRuby 1.7
-                nkfClass = runtime.getClassLoader().loadClass("org.jruby.RubyNKF");  
+                nkfClass = runtime.getClassLoader().loadClass("org.jruby.RubyNKF");
             } catch (ClassNotFoundException e2) {
                 return thing;
             }

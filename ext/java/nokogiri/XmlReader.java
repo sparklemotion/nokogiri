@@ -244,7 +244,7 @@ public class XmlReader extends RubyObject {
           // use the default options RECOVER | NONET
           options = new ParserContext.Options(2048 | 1);
         }
-        IRubyObject stringIO = NokogiriService.nokogiriClassCache.get("StringIO").newInstance(context, args[0], Block.NULL_BLOCK);
+        IRubyObject stringIO = NokogiriService.getNokogiriClassCache(context.getRuntime()).get("StringIO").newInstance(context, args[0], Block.NULL_BLOCK);
         InputStream in = new UncloseableInputStream(new IOInputStream(stringIO));
         reader.setInput(context, in, url, options);
         return reader;
