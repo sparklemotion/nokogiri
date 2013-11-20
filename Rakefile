@@ -42,9 +42,11 @@ HOE = Hoe.spec 'nokogiri' do
     # GENERATED_TOKENIZER
   ]
 
-  self.extra_deps += [
-    ["mini_portile",    "~> 0.5.0"],
-  ]
+  unless java?
+    self.extra_deps += [
+      ["mini_portile",    "~> 0.5.0"],
+    ]
+  end
 
   self.extra_dev_deps += [
     ["hoe-bundler",     ">= 1.1"],
