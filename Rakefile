@@ -14,7 +14,7 @@ GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
 CROSS_DIR           =  File.join(File.dirname(__FILE__), 'ports')
 
 def java?
-  !! (RUBY_PLATFORM =~ /java/)
+  /java/ === RUBY_PLATFORM
 end
 
 ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
@@ -101,9 +101,9 @@ if java?
     add_file_to_gem 'lib/nokogiri/nokogiri.jar'
   end
 else
-  mingw_available = true
   begin
     require 'tasks/cross_compile'
+    mingw_available = true
   rescue
     puts "WARNING: cross compilation not available: #{$!}"
     mingw_available = false
@@ -112,9 +112,9 @@ else
 
   HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
 
-  windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
-
-  unless windows_p || java?
+  case RbConfig::CONFIG['target_os']
+  when 'mingw32', /mswin/
+  else
     task gem_build_path do
       add_file_to_gem "dependencies.yml"
 
