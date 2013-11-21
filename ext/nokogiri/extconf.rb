@@ -21,6 +21,15 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
 require 'mkmf'
 
+def message!(important_message)
+  message important_message
+  if !$stdout.tty? && File.chardev?('/dev/tty')
+    File.open('/dev/tty', 'w') { |tty|
+      tty.print important_message
+    }
+  end
+end
+
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
@@ -133,9 +142,49 @@ def process_recipe(name, version)
   MiniPortile.new(name, version).tap { |recipe|
     recipe.target = portsdir = File.join(ROOT, "ports")
     recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
-    recipe.patch_files += Dir[File.join(portsdir, "patches", name, "*.patch")].sort
+    recipe.patch_files = Dir[File.join(portsdir, "patches", name, "*.patch")].sort
 
     yield recipe
+
+    if recipe.patch_files.empty?
+      message! "Building #{name}-#{version} for nokogiri.\n"
+    else
+      message! "Building #{name}-#{version} for nokogiri with the following patches applied:\n"
+
+      recipe.patch_files.each { |patch|
+        message! "\t- %s\n" % File.basename(patch)
+      }
+    end
+
+    message! <<-"EOS"
+************************************************************************
+IMPORTANT!  Nokogiri builds and uses a packaged version of #{name}.
+
+If this is a concern for you and you want to use the system library
+instead, abort this installation process and reinstall nokogiri as
+follows:
+
+    gem install nokogiri -- --use-system-libraries
+
+If you are using Bundler, tell it to use the option:
+
+    bundle config build.nokogiri --use-system-libraries
+    bundle install
+    EOS
+
+    message! <<-"EOS" if name == 'libxml2'
+
+However, note that nokogiri does not necessarily support all versions
+of libxml2.
+
+For example, libxml2-2.9.0 and higher are currently known to be broken
+and thus unsupported by nokogiri, due to compatibility problems and
+XPath optimization bugs.
+    EOS
+
+    message! <<-"EOS"
+************************************************************************
+    EOS
 
     checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
@@ -183,7 +232,7 @@ when windows_p
   dir_config('xml2', [File.join(idir, "libxml2"), idir], ldir)
   dir_config('xslt', idir, ldir)
 when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
-  message "Building nokogiri using system libraries.\n"
+  message! "Building nokogiri using system libraries.\n"
 
   dir_config('zlib')
 
@@ -194,13 +243,13 @@ when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
   dir_config('xslt').any?  || pkg_config('libxslt')
   dir_config('exslt').any? || pkg_config('libexslt')
 else
-  message "Building nokogiri using packaged libraries.\n"
+  message! "Building nokogiri using packaged libraries.\n"
 
   require 'mini_portile'
   require 'yaml'
 
   static_p = enable_config('static', true) or
-    message "Static linking is disabled.\n"
+    message! "Static linking is disabled.\n"
 
   dir_config('zlib')
 
