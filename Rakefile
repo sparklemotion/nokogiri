@@ -129,6 +129,9 @@ Nokogiri is built with the packaged libraries: #{libs}.
         version = dependencies[lib]
         archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
         add_file_to_gem archive
+        Dir[File.join("ports", "patches", lib, '*.patch')].each { |patch|
+          add_file_to_gem patch
+        }
       end
     end
   end
