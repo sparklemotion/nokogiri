@@ -125,33 +125,22 @@ else
 
   dependencies = YAML.load_file("dependencies.yml")
 
-  case RbConfig::CONFIG['target_os']
-  when 'mingw32', /mswin/
-    libs = dependencies.map { |name, version| "#{name}-#{version}" }.join(', ')
-
-    HOE.spec.post_install_message = <<-'EOS'
-Nokogiri is built with the packaged libraries: #{libs}.
-    EOS
-  else
-    task gem_build_path do
-      add_file_to_gem "dependencies.yml"
-
-      %w[libxml2 libxslt].each do |lib|
-        version = dependencies[lib]
-        archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
-        add_file_to_gem archive
-        patchesdir = File.join("ports", "patches", lib)
-        patches = `#{['git', 'ls-files', patchesdir].shelljoin}`.split("\n").grep(/\.patch\z/)
-        patches.each { |patch|
-          add_file_to_gem patch
-        }
-        (untracked = Dir[File.join(patchesdir, '*.patch')] - patches).empty? or
-          at_exit {
-            untracked.each { |patch|
-              puts "** WARNING: untracked patch file not added to gem: #{patch}"
-            }
+  task gem_build_path do
+    %w[libxml2 libxslt].each do |lib|
+      version = dependencies[lib]
+      archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
+      add_file_to_gem archive
+      patchesdir = File.join("ports", "patches", lib)
+      patches = `#{['git', 'ls-files', patchesdir].shelljoin}`.split("\n").grep(/\.patch\z/)
+      patches.each { |patch|
+        add_file_to_gem patch
+      }
+      (untracked = Dir[File.join(patchesdir, '*.patch')] - patches).empty? or
+        at_exit {
+          untracked.each { |patch|
+            puts "** WARNING: untracked patch file not added to gem: #{patch}"
           }
-      end
+        }
     end
   end
 
@@ -162,6 +151,14 @@ Nokogiri is built with the packaged libraries: #{libs}.
       ext.cross_compile  = true
       ext.cross_platform = ["x86-mingw32", "x64-mingw32"]
       ext.cross_config_options << "--enable-cross-build"
+      ext.cross_compiling do |spec|
+        libs = dependencies.map { |name, version| "#{name}-#{version}" }.join(', ')
+
+        spec.post_install_message = <<-EOS
+Nokogiri is built with the packaged libraries: #{libs}.
+        EOS
+        spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
+      end
     end
   end
 end
