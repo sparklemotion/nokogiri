@@ -260,7 +260,7 @@ def verify_dll(dll, fformat, dll_imports=[])
 end
 
 desc "build a windows gem without all the ceremony."
-task "gem:windows" => "gem" do
+task "gem:windows" do
   cross_rubies = [
     ["x86-mingw32", "1.9.3-p448"],
     ["x86-mingw32", "2.0.0-p247"],
