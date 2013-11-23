@@ -1,5 +1,6 @@
 # -*- ruby -*-
 require 'rubygems'
+require 'shellwords'
 
 gem 'hoe'
 require 'hoe'
@@ -131,9 +132,17 @@ Nokogiri is built with the packaged libraries: #{libs}.
         version = dependencies[lib]
         archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
         add_file_to_gem archive
-        Dir[File.join("ports", "patches", lib, '*.patch')].each { |patch|
+        patchesdir = File.join("ports", "patches", lib)
+        patches = `#{['git', 'ls-files', patchesdir].shelljoin}`.split("\n").grep(/\.patch\z/)
+        patches.each { |patch|
           add_file_to_gem patch
         }
+        (untracked = Dir[File.join(patchesdir, '*.patch')] - patches).empty? or
+          at_exit {
+            untracked.each { |patch|
+              puts "** WARNING: untracked patch file not added to gem: #{patch}"
+            }
+          }
       end
     end
   end
