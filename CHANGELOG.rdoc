@@ -38,6 +38,7 @@
   * (JRuby) Document already has a root node error while using Builder. #646
   * (JRuby) c14n tests are all passing on JRuby. #226
   * Parsing empty documents raise SyntaxError in strict mode. #1005
+  * (JRuby) Make xpath faster by caching the xpath context. #741
 
 
 === 1.6.0 / 2013-06-08
