@@ -85,6 +85,7 @@ import org.w3c.dom.Text;
  * @author sergio
  * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
+ * @author John Shahid <jvshahid@gmail.com>
  */
 @JRubyClass(name="Nokogiri::XML::Node")
 public class XmlNode extends RubyObject {
@@ -1305,6 +1306,8 @@ public class XmlNode extends RubyObject {
             this.node = NokogiriHelpers.renameNode(node, href, new_name);
         }
 
+        clearXpathContext(getNode());
+
         return this;
     }
 
@@ -1433,6 +1436,8 @@ public class XmlNode extends RubyObject {
          try {
             Document prev = otherNode.getOwnerDocument();
             Document doc = thisNode.getOwnerDocument();
+            clearXpathContext(prev);
+            clearXpathContext(doc);
             if (doc != null && doc != otherNode.getOwnerDocument()) {
                 Node ret = doc.adoptNode(otherNode);
                 // FIXME: this is really a hack, see documentation of fixUserData() for more details.
@@ -1476,6 +1481,18 @@ public class XmlNode extends RubyObject {
         // post_add_child(context, this, other);
 
         return nodeOrTags;
+    }
+
+    public static void clearXpathContext(Node node) {
+        if (node == null) {
+            return;
+        }
+
+        Node myDoc = node.getOwnerDocument();
+        if (myDoc == null) {
+            myDoc = node;
+        }
+        myDoc.setUserData(XmlXpathContext.XPATH_CONTEXT, null, null);
     }
 
     /**
