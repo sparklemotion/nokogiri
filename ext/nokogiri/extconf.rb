@@ -233,6 +233,10 @@ else
 end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
+  # Work around a character escaping bug in MSYS by passing an arbitrary
+  # double quoted parameter to gcc. See https://sourceforge.net/p/mingw/bugs/2142
+  $CPPFLAGS << ' "-Idummypath"'
+
   $CFLAGS << " -DIN_LIBXML"
   # Mingw32 package is static linked
   $LIBS << " -lz -liconv"
@@ -368,8 +372,8 @@ else
           end
         }
       }
-      # Use quoting instead of shellescape for compat with Windows
-      $CPPFLAGS << ' ' << "\"-DNOKOGIRI_#{recipe.name.upcase}_PATH=\\\"#{recipe.path}\\\"\""
+
+      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".shellescape
 
       case libname
       when 'xml2'
