@@ -76,8 +76,6 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     private final LinkedList<XmlSyntaxError> errors = new LinkedList<XmlSyntaxError>();
 
     private Locator locator;
-    private final ArrayDeque<Integer> lines;
-    private final ArrayDeque<Integer> columns;
     private static String htmlParserName = "Nokogiri::HTML::SAX::Parser";
     private boolean needEmptyAttrCheck = false;
 
@@ -85,8 +83,6 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         this.ruby = runtime;
         this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
         this.object = object;
-        lines = new ArrayDeque<Integer>();
-        columns = new ArrayDeque<Integer>();
         String objectName = object.getMetaClass().getName();
         if (htmlParserName.equals(objectName)) needEmptyAttrCheck = true;
     }
@@ -141,10 +137,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
         ThreadContext context = ruby.getCurrentContext();
         boolean fromFragmentHandler = false; // isFromFragmentHandler();
-        
-        lines.add(locator.getLineNumber());
-        columns.add(locator.getColumnNumber() - 1); // libxml counts from 0 while java does from 1
-        
+
         for (int i = 0; i < attrs.getLength(); i++) {
             String u = attrs.getURI(i);
             String qn = attrs.getQName(i);
@@ -208,11 +201,11 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     }
     
     public Integer getLine() {
-        return lines.pop();
+        return locator.getLineNumber();
     }
     
     public Integer getColumn() {
-        return columns.pop();
+        return locator.getColumnNumber() - 1;
     }
     
     private boolean isFromFragmentHandler() {

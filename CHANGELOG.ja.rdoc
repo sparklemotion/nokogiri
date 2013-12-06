@@ -26,6 +26,7 @@
   * (JRuby) c14n tests are all passing on JRuby. #226
   * Parsing empty documents raise SyntaxError in strict mode. #1005
   * (JRuby) Make xpath faster by caching the xpath context. #741
+  * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
 
 === 1.6.0 / 2013年6月8日
 
