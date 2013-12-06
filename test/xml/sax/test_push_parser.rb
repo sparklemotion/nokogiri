@@ -153,6 +153,7 @@ module Nokogiri
         end
 
         def test_untouched_entities
+          skip("entities are always replaced in pure Java version") if Nokogiri.jruby?
           @parser.<<(<<-eoxml)
             <p id="asdf&amp;asdf">
               <!-- This is a comment -->

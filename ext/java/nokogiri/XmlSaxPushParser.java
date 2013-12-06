@@ -114,6 +114,25 @@ public class XmlSaxPushParser extends RubyObject {
         return getOptions(context);
     }
 
+    /**
+     * Can take a boolean assignment.
+     *
+     * @param context
+     * @param value
+     * @return
+     */
+    @JRubyMethod(name = "replace_entities=")
+    public IRubyObject setReplaceEntities(ThreadContext context, IRubyObject value) {
+        // Ignore the value.
+        return this;
+    }
+
+    @JRubyMethod(name="replace_entities")
+    public IRubyObject getReplaceEntities(ThreadContext context) {
+        // The java parser always replaces entities.
+        return context.getRuntime().getTrue();
+    }
+
     @JRubyMethod
     public IRubyObject native_write(ThreadContext context, IRubyObject chunk,
                                     IRubyObject isLast) {
