@@ -97,6 +97,44 @@ static VALUE set_options(VALUE self, VALUE options)
   return Qnil;
 }
 
+/*
+ * call-seq:
+ *  replace_entities
+ *
+ * Should this parser replace entities?  &amp; will get converted to '&' if
+ * set to true
+ */
+static VALUE get_replace_entities(VALUE self)
+{
+  xmlParserCtxtPtr ctx;
+  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  if(0 == ctx->replaceEntities)
+    return Qfalse;
+  else
+    return Qtrue;
+}
+
+/*
+ * call-seq:
+ *  replace_entities=(boolean)
+ *
+ * Should this parser replace entities?  &amp; will get converted to '&' if
+ * set to true
+ */
+static VALUE set_replace_entities(VALUE self, VALUE value)
+{
+  xmlParserCtxtPtr ctx;
+  Data_Get_Struct(self, xmlParserCtxt, ctx);
+
+  if(Qfalse == value)
+    ctx->replaceEntities = 0;
+  else
+    ctx->replaceEntities = 1;
+
+  return value;
+}
+
 VALUE cNokogiriXmlSaxPushParser ;
 void init_xml_sax_push_parser()
 {
@@ -112,4 +150,6 @@ void init_xml_sax_push_parser()
   rb_define_private_method(klass, "native_write", native_write, 2);
   rb_define_method(klass, "options", get_options, 0);
   rb_define_method(klass, "options=", set_options, 1);
+  rb_define_method(klass, "replace_entities", get_replace_entities, 0);
+  rb_define_method(klass, "replace_entities=", set_replace_entities, 1);
 }
