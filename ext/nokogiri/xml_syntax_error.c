@@ -1,5 +1,23 @@
 #include <xml_syntax_error.h>
 
+struct nogvl_error {
+  void * ctx;
+  xmlErrorPtr error;
+};
+
+static void lock_and_push(struct nogvl_error * args)
+{
+  return Nokogiri_error_array_pusher(args->ctx, args->error);
+}
+
+void Nokogiri_concurrent_error_array_pusher(void * ctx, xmlErrorPtr error)
+{
+  struct nogvl_error args;
+  args.ctx = ctx;
+  args.error = error;
+  rb_thread_call_with_gvl((void *(*)(void *))lock_and_push, (void *)&args);
+}
+
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 {
   VALUE list = (VALUE)ctx;
