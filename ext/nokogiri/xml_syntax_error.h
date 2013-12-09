@@ -4,7 +4,7 @@
 #include <nokogiri.h>
 
 void init_xml_syntax_error();
-VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error);
+VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error);
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error);
 NORETURN(void Nokogiri_error_raise(void * ctx, xmlErrorPtr error));
 

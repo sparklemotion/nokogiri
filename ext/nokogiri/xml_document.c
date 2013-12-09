@@ -231,7 +231,7 @@ static VALUE read_io( VALUE klass,
 
     error = xmlGetLastError();
     if(error)
-      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
     else
       rb_raise(rb_eRuntimeError, "Could not parse document");
 
@@ -275,7 +275,7 @@ static VALUE read_memory( VALUE klass,
 
     error = xmlGetLastError();
     if(error)
-      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
     else
       rb_raise(rb_eRuntimeError, "Could not parse document");
 
@@ -417,7 +417,7 @@ static VALUE create_entity(int argc, VALUE *argv, VALUE self)
   if(NULL == ptr) {
     xmlErrorPtr error = xmlGetLastError();
     if(error)
-      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
     else
       rb_raise(rb_eRuntimeError, "Could not create entity");
 

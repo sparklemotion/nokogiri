@@ -1258,7 +1258,7 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 
     error = xmlGetLastError();
     if(error)
-      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
     else
       rb_raise(rb_eRuntimeError, "Could not perform xinclude substitution");
   }

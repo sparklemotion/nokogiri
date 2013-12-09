@@ -171,15 +171,6 @@ static xmlXPathFunction lookup( void *ctx,
   return NULL;
 }
 
-NORETURN(static void xpath_exception_handler(void * ctx, xmlErrorPtr error));
-static void xpath_exception_handler(void * ctx, xmlErrorPtr error)
-{
-  VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
-  VALUE klass = rb_const_get(xpath, rb_intern("SyntaxError"));
-
-  rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
-}
-
 NORETURN(static void xpath_generic_exception_handler(void * ctx, const char *msg, ...));
 static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
 {
@@ -221,7 +212,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   }
 
   xmlResetLastError();
-  xmlSetStructuredErrorFunc(NULL, xpath_exception_handler);
+  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_raise);
 
   /* For some reason, xmlXPathEvalExpression will blow up with a generic error */
   /* when there is a non existent function. */
@@ -232,11 +223,8 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   xmlSetGenericErrorFunc(NULL, NULL);
 
   if(xpath == NULL) {
-    VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
-    VALUE klass = rb_const_get(xpath, rb_intern("SyntaxError"));
-
     xmlErrorPtr error = xmlGetLastError();
-    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(klass, error));
+    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
   }
 
   assert(ctx->doc);

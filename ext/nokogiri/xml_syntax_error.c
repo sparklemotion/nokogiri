@@ -3,19 +3,24 @@
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 {
   VALUE list = (VALUE)ctx;
-  rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+  rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error(error));
 }
 
 void Nokogiri_error_raise(void * ctx, xmlErrorPtr error)
 {
-  rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+  rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
 }
 
-VALUE Nokogiri_wrap_xml_syntax_error(VALUE klass, xmlErrorPtr error)
+VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
 {
-  VALUE msg, e;
+  VALUE msg, e, klass;
 
-  if(!klass) klass = cNokogiriXmlSyntaxError;
+  klass = cNokogiriXmlSyntaxError;
+
+  if (error->domain == XML_FROM_XPATH) {
+    VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
+    klass = rb_const_get(xpath, rb_intern("SyntaxError"));
+  }
 
   msg = (error && error->message) ? NOKOGIRI_STR_NEW2(error->message) : Qnil;
 

@@ -509,6 +509,12 @@ module Nokogiri
         }
       end
 
+      def test_xpath_syntax_error
+        assert_raises(Nokogiri::XML::XPath::SyntaxError) do
+          @xml.xpath('\\')
+        end
+      end
+
       def test_ancestors
         assert_equal 0, @xml.ancestors.length
       end
