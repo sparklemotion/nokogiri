@@ -262,7 +262,7 @@ else
           [
             "--disable-shared",
             "--enable-static",
-            "CFLAGS=-fPIC",
+            "CFLAGS='-fPIC #{ENV["CFLAGS"]}'",
           ]
         else
           [
