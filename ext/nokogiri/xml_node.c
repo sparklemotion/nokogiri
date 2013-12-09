@@ -14,7 +14,14 @@ static void debug_node_dealloc(xmlNodePtr x)
 
 static void mark(xmlNodePtr node)
 {
-  rb_gc_mark(DOC_RUBY_OBJECT(node->doc));
+  xmlNodePtr doc = node->doc;
+  if(doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE) {
+    if(DOC_RUBY_OBJECT_TEST(doc)) {
+      rb_gc_mark(DOC_RUBY_OBJECT(doc));
+    }
+  } else if(node->doc->_private) {
+    rb_gc_mark((VALUE)doc->_private);
+  }
 }
 
 /* :nodoc: */
