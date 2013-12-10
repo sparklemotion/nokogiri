@@ -262,10 +262,20 @@ static VALUE read_memory( VALUE klass,
   VALUE error_list      = rb_ary_new();
   VALUE document;
   xmlDocPtr doc;
+  struct nogvl_memparse_args args;
+
+  args.string     = c_buffer;
+  args.url        = c_url;
+  args.encoding   = c_enc;
+  args.len        = len;
+  args.options    = (int)NUM2INT(options);
+  args.readMemory = (void *(*)(const char *, int, const char *, const char *, int))
+                    xmlReadMemory;
 
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
-  doc = xmlReadMemory(c_buffer, len, c_url, c_enc, (int)NUM2INT(options));
+  doc = (xmlDocPtr)rb_thread_call_without_gvl((void *(*)(void *))nogvl_mem_parse,
+        (void *)&args, RUBY_UBF_PROCESS, 0);
   xmlSetStructuredErrorFunc(NULL, NULL);
 
   if(doc == NULL) {

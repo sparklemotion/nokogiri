@@ -38,6 +38,8 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <st.h>
 #endif
 
+#include <ruby/thread.h>
+
 #ifndef UNUSED
 # if defined(__GNUC__)
 #  define MAYBE_UNUSED(name) name __attribute__((unused))
@@ -79,6 +81,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
   (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
 
 #include <xml_libxml2_hacks.h>
+#include <xml_concurrency.h>
 
 #include <xml_io.h>
 #include <xml_document.h>

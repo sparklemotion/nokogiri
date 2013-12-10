@@ -1,5 +1,4 @@
 #include <html_document.h>
-#include <ruby/thread.h>
 
 static ID id_encoding_found;
 
@@ -90,25 +89,6 @@ static VALUE read_io( VALUE klass,
   return document;
 }
 
-struct nogvl_memparse_args {
-  const char * string;
-  const char * url;
-  const char * encoding;
-  int len;
-  int options;
-};
-
-static void * nogvl_mem_parse(struct nogvl_memparse_args * args)
-{
-  const char * c_buffer = args->string;
-  const char * c_url    = args->url;
-  const char * c_enc    = args->encoding;
-  int len               = args->len;
-  int options           = args->options;
-
-  return htmlReadMemory(c_buffer, len, c_url, c_enc, options);
-}
-
 /*
  * call-seq:
  *  read_memory(string, url, encoding, options)
@@ -131,15 +111,16 @@ static VALUE read_memory( VALUE klass,
   htmlDocPtr doc;
   struct nogvl_memparse_args args;
 
+  args.string     = c_buffer;
+  args.url        = c_url;
+  args.encoding   = c_enc;
+  args.len        = len;
+  args.options    = (int)NUM2INT(options);
+  args.readMemory = (void *(*)(const char *, int, const char *, const char *, int))
+                    htmlReadMemory;
+
   xmlResetLastError();
   xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_concurrent_error_array_pusher);
-
-  args.string = c_buffer;
-  args.url = c_url;
-  args.encoding = c_enc;
-  args.len = len;
-  args.options = (int)NUM2INT(options);
-
   doc = (htmlDocPtr)rb_thread_call_without_gvl((void *(*)(void *))nogvl_mem_parse,
         (void *)&args, RUBY_UBF_PROCESS, 0);
   xmlSetStructuredErrorFunc(NULL, NULL);
