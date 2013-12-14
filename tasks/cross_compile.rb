@@ -2,6 +2,8 @@ gem 'rake-compiler'
 require 'rake/extensioncompiler'
 HOST = Rake::ExtensionCompiler.mingw_host
 
+require 'resolv'
+
 require 'mini_portile'
 dependencies = YAML.load_file("dependencies.yml")
 $recipes = {}
