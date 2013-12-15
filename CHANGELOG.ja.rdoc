@@ -1,4 +1,4 @@
-=== 1.6.1 / 未リリース
+=== 1.6.2 / 未リリース
 
 * 機能
 
@@ -27,6 +27,15 @@
   * Parsing empty documents raise SyntaxError in strict mode. #1005
   * (JRuby) Make xpath faster by caching the xpath context. #741
   * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
+
+
+=== 1.6.1 / 2013年12月14日
+
+* Bugfixes
+
+  * (JRuby) Fix out of memory bug when certain invalid documents are parsed.
+  * (JRuby) Fix regression of billion-laughs vulnerability. #586
+
 
 === 1.6.0 / 2013年6月8日
 
@@ -58,6 +67,14 @@
 * 廃止
 
   * Ruby 1.8.7以下のサポートを終了
+
+
+=== 1.5.11 / 2013年12月14日
+
+* Bugfixes
+
+  * (JRuby) Fix out of memory bug when certain invalid documents are parsed.
+  * (JRuby) Fix regression of billion-laughs vulnerability. #586
 
 
 === 1.5.10 / 2013年6月7日
