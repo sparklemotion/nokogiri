@@ -42,7 +42,7 @@
   * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
 
 
-+=== 1.6.1 / 2013-12-14
+=== 1.6.1 / 2013-12-14
 
 * Bugfixes
 
