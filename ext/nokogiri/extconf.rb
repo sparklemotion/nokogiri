@@ -376,7 +376,7 @@ end
   "xslt"  => ['xsltParseStylesheetDoc', 'libxslt/xslt.h'],
   "exslt" => ['exsltFuncRegister',      'libexslt/exslt.h'],
 }.each { |lib, (func, header)|
-  have_func(func, header) || have_library(lib, func, header) or asplode("lib#{lib}")
+  have_func(func, header) || have_library(lib, func, header) || have_library("lib#{lib}", func, header) or asplode("lib#{lib}")
 }
 
 unless have_func('xmlHasFeature')
