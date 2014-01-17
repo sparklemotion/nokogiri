@@ -237,7 +237,7 @@ static void shutdownFunc(xsltTransformContextPtr ctxt,
  *  call-seq:
  *    register(uri, custom_handler_class)
  *
- *  Register a class that implements custom XLST transformation functions.
+ *  Register a class that implements custom XSLT transformation functions.
  */
 static VALUE registr(VALUE self, VALUE uri, VALUE obj)
 {
