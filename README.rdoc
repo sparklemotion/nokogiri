@@ -1,4 +1,4 @@
-= Nokogiri {<img src="https://secure.travis-ci.org/sparklemotion/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/sparklemotion/nokogiri] {<img src="https://codeclimate.com/github/sparklemotion/nokogiri.png" />}[https://codeclimate.com/github/sparklemotion/nokogiri]
+= Nokogiri {<img src="https://secure.travis-ci.org/sparklemotion/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/sparklemotion/nokogiri] {<img src="https://codeclimate.com/github/sparklemotion/nokogiri.png" />}[https://codeclimate.com/github/sparklemotion/nokogiri] {<img src="https://www.versioneye.com/ruby/nokogiri/1.6.1/badge.png" alt="Dependency Status" />}[https://www.versioneye.com/ruby/nokogiri/1.6.1]
 * http://nokogiri.org
 * https://github.com/sparklemotion/nokogiri/wikis
 * https://github.com/sparklemotion/nokogiri/tree/master
