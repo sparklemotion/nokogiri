@@ -159,6 +159,14 @@ module Nokogiri
         # is a number that sets options in the parser, such as
         # Nokogiri::XML::ParseOptions::RECOVER.  See the constants in
         # Nokogiri::XML::ParseOptions.
+        #
+        # If encoding is +nil+ Nokogiri will try to autodetect an encoding from document meta tags,
+        # and the fallback to letting libxml guess it.
+        # If you want to provide a forced fallback encoding you can pass an option hash, with key 
+        # +autodetect_fallback+ e.g.:
+        #   
+        #   +{:autodetect_fallback => 'utf-8'}+
+        #
         def parse string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML
 
           options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
@@ -173,7 +181,11 @@ module Nokogiri
 
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-            if !encoding
+            if !encoding || encoding.is_a?(Hash)
+              if encoding
+                fallback_encoding = encoding[:autodetect_fallback]
+                encoding = fallback_encoding
+              end
               # Libxml2's parser has poor support for encoding
               # detection.  First, it does not recognize the HTML5
               # style meta charset declaration.  Secondly, even if it

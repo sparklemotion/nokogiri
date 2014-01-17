@@ -143,6 +143,23 @@ module Nokogiri
           assert_equal(evil, ary_from_file)
         }
       end
+
+      def test_document_wrongly_detected_as_iso88591
+        if Nokogiri.jruby? 
+          mangled_string = "We Don\342\200\231t have an encoding"
+        else
+          mangled_string = "We Donâ\u0080\u0099t have an encoding"
+        end
+        doc = Nokogiri::HTML.parse(binopen(NOENCODING_UTF8_FILE))
+        assert_equal(mangled_string, doc.at('p').text)
+
+        correct_string = 'We Don’t have an encoding'
+        doc = Nokogiri::HTML.parse(binopen(NOENCODING_UTF8_FILE), nil, 'utf-8')
+        assert_equal(correct_string, doc.at('p').text)
+
+        doc = Nokogiri::HTML.parse(binopen(NOENCODING_UTF8_FILE), nil, {:autodetect_fallback =>'utf-8'})
+        assert_equal(correct_string, doc.at('p').text)
+      end
     end
   end
 end
