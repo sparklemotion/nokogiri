@@ -899,7 +899,6 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] |= save_option if options[:save_with]
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
       end
