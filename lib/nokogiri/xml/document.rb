@@ -165,43 +165,51 @@ module Nokogiri
       end
 
       ##
-      # In order to collect all namespaces in a document with multiple
-      # default namespace definitions use
-      #   - collect_namespaces_href_keys
-      #   - collect_namespaces_prefix_keys
+      # In order to collect all namespaces in a document with
+      # multiple default namespace definitions use either 
+      # collect_namespaces_prefix_keys or collect_namespaces_href_keys
       #
-      # See https://github.com/sparklemotion/nokogiri/issues/885 for details
+      # For example, given this document:
       #
-      # collect_namespaces_href_keys will return e.g.
+      # <?xml version="1.0"?>
+      # <foo xmlns="foospace">
+      #   <bar xmlns="barspace"/>
+      # </foo>
       #
-      #   {
-      #     "http://www.w3.org/XML/1998/namespace"              =>  ["xml"],
-      #     "http://www.smpte-ra.org/schemas/429-7/2006/CPL"    =>  [nil],
-      #     "http://isdcf.com/schemas/draft/2011/cpl-metadata"  =>  ["meta"],
-      #     "http://www.w3.org/2000/09/xmldsig#"                =>  [nil]
-      #   }
+      # collect_namespaces_prefix_keys will return a hash with
+      #
+      # {"xml"=>["http://www.w3.org/XML/1998/namespace"], nil=>["foospace", "barspace"]}
       #
       # where nil implies xmlns.
       #
-      # collect_namespaces_prefix_keys will return e.g.
+      def collect_namespaces_prefix_keys
+        xpath("//namespace::*").inject({}) do |hash, ns|
+          (hash[ ns.prefix ] ||= []) << ns.href unless (hash[ ns.prefix ] and hash[ ns.prefix ].include? ns.href)
+          hash
+        end
+      end
+
+      ##
+      # In order to collect all namespaces in a document with
+      # multiple default namespace definitions use either 
+      # collect_namespaces_prefix_keys or collect_namespaces_href_keys
       #
-      #   {
-      #     "xml"   =>  ["http://www.w3.org/XML/1998/namespace"],
-      #     "nil"   =>  ["http://www.smpte-ra.org/schemas/429-7/2006/CPL", "http://www.w3.org/2000/09/xmldsig#"],
-      #     "meta"  =>  ["http://isdcf.com/schemas/draft/2011/cpl-metadata"]
-      #   }
+      # For example, given this document:
+      #
+      # <?xml version="1.0"?>
+      # <foo xmlns="foospace">
+      #   <bar xmlns="barspace"/>
+      # </foo>
+      #
+      # collect_namespaces_href_keys will return a hash with
+      #
+      # {"http://www.w3.org/XML/1998/namespace"=>["xml"], "foospace"=>[nil], "barspace"=>[nil]}
       #
       # where nil implies xmlns.
       #
       def collect_namespaces_href_keys
         xpath("//namespace::*").inject({}) do |hash, ns|
           (hash[ ns.href ] ||= []) << ns.prefix unless (hash[ ns.href ] and hash[ ns.href ].include? ns.prefix)
-          hash
-        end
-      end
-      def collect_namespaces_prefix_keys
-        xpath("//namespace::*").inject({}) do |hash, ns|
-          (hash[ ns.prefix ] ||= []) << ns.href unless (hash[ ns.prefix ] and hash[ ns.prefix ].include? ns.href)
           hash
         end
       end
