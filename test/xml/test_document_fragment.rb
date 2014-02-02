@@ -76,6 +76,11 @@ module Nokogiri
         assert_instance_of klass, doc
       end
 
+      def test_unparented_text_node_parse
+        fragment = Nokogiri::XML::DocumentFragment.parse("foo")
+        fragment.children.after("<bar/>")
+      end
+
       def test_xml_fragment
         fragment = Nokogiri::XML.fragment("<div>a</div>")
         assert_equal "<div>a</div>", fragment.to_s
