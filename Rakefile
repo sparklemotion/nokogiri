@@ -266,4 +266,6 @@ task "gem:windows" => "gem" do
   sh("env PKG_CONFIG_PATH=#{pkg_config_path} RUBY_CC_VERSION=#{ruby_cc_version} rake cross2 native gem") || raise("build failed!")
 end
 
+task :ci => [:default, 'test:valgrind']
+
 # vim: syntax=Ruby
