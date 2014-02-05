@@ -80,6 +80,11 @@ module Nokogiri
         assert_equal ['http://tenderlovemaking.com/'],
           doc.css('a').map { |a| a['href'] }
       end
+
+      def test_empty_doc_encoding
+        encoding = 'US-ASCII'
+        assert_equal encoding, Nokogiri::HTML.parse(nil, nil, encoding).encoding
+      end
     end
 
     class TestDocumentEncodingDetection < Nokogiri::TestCase

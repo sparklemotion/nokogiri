@@ -173,7 +173,7 @@ module Nokogiri
 
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-            if !encoding
+            unless encoding
               # Libxml2's parser has poor support for encoding
               # detection.  First, it does not recognize the HTML5
               # style meta charset declaration.  Secondly, even if it
@@ -196,7 +196,9 @@ module Nokogiri
           end
 
           # read_memory pukes on empty docs
-          return new if string_or_io.nil? or string_or_io.empty?
+          if string_or_io.nil? or string_or_io.empty?
+            return encoding ? new.tap { |i| i.encoding = encoding } : new
+          end
 
           encoding ||= EncodingReader.detect_encoding(string_or_io)
 
