@@ -508,6 +508,15 @@ module Nokogiri
       # *this* node.  Returns a XML::NodeSet containing the nodes parsed from
       # +string_or_io+.
       def parse string_or_io, options = nil
+        ##
+        # When the current node is unparented and not an element node, use the
+        # document as the parsing context instead. Otherwise, the in-context
+        # parser cannot find an element or a document node.
+        # Document Fragments are also not usable by the in-context parser.
+        if !element? && !xml? && (!parent || parent.fragment?)
+          return document.parse(string_or_io, options)
+        end
+
         options ||= (document.html? ? ParseOptions::DEFAULT_HTML : ParseOptions::DEFAULT_XML)
         if Fixnum === options
           options = Nokogiri::XML::ParseOptions.new(options)

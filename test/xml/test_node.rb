@@ -133,6 +133,12 @@ module Nokogiri
         node.parse('<baz><</baz>')
       end
 
+      def test_parse_with_unparented_text_context_node
+        doc = XML::Document.new
+        elem = XML::Text.new("foo", doc)
+        elem.parse("<bar/>")
+      end
+
       def test_subclass_dup
         subclass = Class.new(Nokogiri::XML::Node)
         node = subclass.new('foo', @xml).dup

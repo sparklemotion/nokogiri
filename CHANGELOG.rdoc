@@ -25,6 +25,7 @@
   * Nokogiri::XML::Node#prepend_child is added. #664
   * Nokogiri::XML::SAX::ParserContext#recovery is added. #453
   * Fix documentation for XML::Node#namespace. #803 #802 (Thanks, Hoylen Sue)
+  * Allow Nokogiri::XML::Node#parse from unparented non-element nodes. #407
 
 * Bugfixes
 
