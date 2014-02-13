@@ -460,6 +460,13 @@ module Nokogiri
         assert_equal node, @xml.xpath('//address').first
       end
 
+      def test_at!
+        assert_equal @xml.at!('address'), @xml.at('address')
+        assert_raises(Nokogiri::XML::NotFound) do
+          @xml.at!('helmetSize')
+        end
+      end
+
       def test_at_self
         node = @xml.at('address')
         assert_equal node, node.at('.')
@@ -472,11 +479,25 @@ module Nokogiri
         assert_equal node, nodes.first
       end
 
+      def test_at_xpath!
+        assert_equal @xml.at_xpath!('//address'), @xml.at_xpath('//address')
+        assert_raises(Nokogiri::XML::NotFound) do
+          @xml.at_xpath!('//helmetSize')
+        end
+      end
+
       def test_at_css
         node = @xml.at_css('address')
         nodes = @xml.css('address')
         assert_equal 5, nodes.size
         assert_equal node, nodes.first
+      end
+
+      def test_at_css!
+        assert_equal @xml.at_css!('address'), @xml.at_css('address')
+        assert_raises(Nokogiri::XML::NotFound) do
+          @xml.at_css!('helmetSize')
+        end
       end
 
       def test_percent

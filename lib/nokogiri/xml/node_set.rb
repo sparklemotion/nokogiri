@@ -1,3 +1,4 @@
+require 'nokogiri/xml/bang_finders'
 module Nokogiri
   module XML
     ####
@@ -5,6 +6,7 @@ module Nokogiri
     # a NodeSet is return as a result of searching a Document via
     # Nokogiri::XML::Node#css or Nokogiri::XML::Node#xpath
     class NodeSet
+      include Nokogiri::XML::BangFinders
       include Enumerable
 
       # The Document this NodeSet is associated with

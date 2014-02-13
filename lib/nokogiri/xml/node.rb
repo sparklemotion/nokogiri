@@ -1,5 +1,6 @@
 require 'stringio'
 require 'nokogiri/xml/node/save_options'
+require 'nokogiri/xml/bang_finders'
 
 module Nokogiri
   module XML
@@ -35,6 +36,7 @@ module Nokogiri
     # You may search this node's subtree using Node#xpath and Node#css
     class Node
       include Nokogiri::XML::PP::Node
+      include Nokogiri::XML::BangFinders
       include Enumerable
 
       # Element node type, see Nokogiri::XML::Node#element?
