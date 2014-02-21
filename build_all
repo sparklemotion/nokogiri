@@ -2,14 +2,19 @@
 #
 #  script to build gems for all relevant platforms:
 #  - MRI et al (standard gem)
-#  - windows (x86-mingw32 and x86-mswin32-60)
+#  - windows (x86-mingw32 and x64-mingw32)
 #  - jruby
 #
 #  here's what I recommend for building all the gems:
 #
-#   1. set up a vagrant VM guest running ubuntu lucid 32-bit.
+#  set up a rake-compiler-dev-box as described here:
+#      https://github.com/tjschuck/rake-compiler-dev-box
+#  It is prepared with all the necessary build tools and environments.
+#
+#  or alternatively do:
+#   1. Setup a ubuntu 12.04+ machine
 #   2. install rvm, and install 1.9.3, 2.0.0 and jruby.
-#   3. `sudo apt-get install mingw32`
+#   3. `sudo apt-get install mingw32 gcc-mingw-w64-i686 gcc-mingw-w64-x86-64`
 #
 #  as you build, you may run into these problems:
 #
@@ -53,7 +58,8 @@ function rvm_use {
 set -o errexit
 
 # initialize
-rvm_use 1.9.3
+rvm_use 2.0.0
+gem install bundler
 bundle install --quiet --local || bundle install
 rm -rf tmp pkg
 bundle exec rake clean
@@ -63,26 +69,19 @@ rm -rf gems
 mkdir -p gems
 
 # windows
-platform=$(uname -i)
-if [[ $platform =~ "64" ]] ; then
-    echo ""
-    echo "ERROR: You need to build the windows gem on a 32-bit machine!"
-    echo ""
-    exit 1
-fi
-rvm_use 1.9.3
-if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-1.9.3-p194/lib/ruby/1.9.1/x86_64-linux/rbconfig.rb ]] ; then
-    bundle exec rake-compiler cross-ruby VERSION=1.9.3-p194
-fi
-if [[ ! -a ${HOME}/.rake-compiler/ruby/ruby-2.0.0-p0/lib/ruby/2.0.0/x86_64-linux/rbconfig.rb ]] ; then
-    bundle exec rake-compiler cross-ruby VERSION=2.0.0-p0
-fi
-bundle exec rake cross
+# Build 1.9.3
+rake-compiler cross-ruby VERSION=1.9.3-p448 HOST=i586-mingw32msvc
+
+# Now build Ruby 2.0.0 too
+rake-compiler cross-ruby VERSION=2.0.0-p247 HOST=i686-w64-mingw32 debugflags="-g"
+
+# And the cherry of the cake: x64 Ruby
+rake-compiler cross-ruby VERSION=2.0.0-p247 HOST=x86_64-w64-mingw32 debugflags="-g"
+
 bundle exec rake gem:windows
-cp -v pkg/nokogiri*x86-{mingw32,mswin32}*.gem gems
+cp -v pkg/nokogiri*{x86,x64}-mingw32*.gem gems
 
 # MRI
-rvm_use 1.9.3
 bundle exec rake clean
 bundle exec rake gem
 cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
@@ -91,7 +90,7 @@ cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 rvm_use jruby
 bundle install --quiet --local || bundle install
 bundle exec rake clean clobber
-rvm_use 1.9.3
+rvm_use 2.0.0
 bundle exec rake generate
 rvm_use jruby
 bundle exec rake gem

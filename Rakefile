@@ -39,13 +39,19 @@ HOE = Hoe.spec 'nokogiri' do
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
     'lib/nokogiri/{1.9,2.0}',
+    'ports/*.installed',
+    'ports/i686-w64-mingw32',
+    'ports/x86_64-w64-mingw32',
+    'ports/i586-mingw32msvc',
+    'ports/libxml2',
+    'ports/libxslt',
     # GENERATED_PARSER,
     # GENERATED_TOKENIZER
   ]
 
   unless java?
     self.extra_deps += [
-      ["mini_portile",    "~> 0.5.0"],
+      ["mini_portile",    "~> 0.5.2"],
     ]
   end
 
@@ -56,7 +62,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["hoe-git",         ">= 1.4"],
     ["minitest",        "~> 2.2.2"],
     ["rake",            ">= 0.9"],
-    ["rake-compiler",   "~> 0.8.0"],
+    ["rake-compiler",   "~> 0.9.2"],
     ["racc",            ">= 1.4.6"],
     ["rexical",         ">= 1.0.5"]
   ]
@@ -81,7 +87,7 @@ def add_file_to_gem relative_path
   target_dir = File.dirname(target_path)
   mkdir_p target_dir unless File.directory?(target_dir)
   rm_f target_path
-  ln relative_path, target_path
+  safe_ln relative_path, target_path
   HOE.spec.files += [relative_path]
 end
 
@@ -105,7 +111,9 @@ if java?
   end
 else
   begin
-    require 'tasks/cross_compile'
+    require 'rake/extensioncompiler'
+    # Ensure mingw compiler is installed
+    Rake::ExtensionCompiler.mingw_host
     mingw_available = true
   rescue
     puts "WARNING: cross compilation not available: #{$!}"
@@ -117,33 +125,22 @@ else
 
   dependencies = YAML.load_file("dependencies.yml")
 
-  case RbConfig::CONFIG['target_os']
-  when 'mingw32', /mswin/
-    libs = dependencies.map { |name, version| "#{name}-#{version}" }.join(', ')
-
-    HOE.spec.post_install_message = <<-'EOS'
-Nokogiri is built with the packaged libraries: #{libs}.
-    EOS
-  else
-    task gem_build_path do
-      add_file_to_gem "dependencies.yml"
-
-      %w[libxml2 libxslt].each do |lib|
-        version = dependencies[lib]
-        archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
-        add_file_to_gem archive
-        patchesdir = File.join("ports", "patches", lib)
-        patches = `#{['git', 'ls-files', patchesdir].shelljoin}`.split("\n").grep(/\.patch\z/)
-        patches.each { |patch|
-          add_file_to_gem patch
-        }
-        (untracked = Dir[File.join(patchesdir, '*.patch')] - patches).empty? or
-          at_exit {
-            untracked.each { |patch|
-              puts "** WARNING: untracked patch file not added to gem: #{patch}"
-            }
+  task gem_build_path do
+    %w[libxml2 libxslt].each do |lib|
+      version = dependencies[lib]
+      archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
+      add_file_to_gem archive
+      patchesdir = File.join("ports", "patches", lib)
+      patches = `#{['git', 'ls-files', patchesdir].shelljoin}`.split("\n").grep(/\.patch\z/)
+      patches.each { |patch|
+        add_file_to_gem patch
+      }
+      (untracked = Dir[File.join(patchesdir, '*.patch')] - patches).empty? or
+        at_exit {
+          untracked.each { |patch|
+            puts "** WARNING: untracked patch file not added to gem: #{patch}"
           }
-      end
+        }
     end
   end
 
@@ -152,13 +149,28 @@ Nokogiri is built with the packaged libraries: #{libs}.
     ext.config_options << ENV['EXTOPTS']
     if mingw_available
       ext.cross_compile  = true
-      ext.cross_platform = ["x86-mswin32-60", "x86-mingw32"]
-      ext.cross_config_options << "--with-xml2-include=#{File.join($recipes["libxml2"].path, 'include', 'libxml2')}"
-      ext.cross_config_options << "--with-xml2-lib=#{File.join($recipes["libxml2"].path, 'lib')}"
-      ext.cross_config_options << "--with-iconv-dir=#{$recipes["libiconv"].path}"
-      ext.cross_config_options << "--with-xslt-dir=#{$recipes["libxslt"].path}"
-      ext.cross_config_options << "--with-zlib-dir=#{CROSS_DIR}"
+      ext.cross_platform = ["x86-mingw32", "x64-mingw32"]
+      ext.cross_config_options << "--enable-cross-build"
+      ext.cross_compiling do |spec|
+        libs = dependencies.map { |name, version| "#{name}-#{version}" }.join(', ')
+
+        spec.post_install_message = <<-EOS
+Nokogiri is built with the packaged libraries: #{libs}.
+        EOS
+        spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
+      end
     end
+  end
+end
+
+# To reduce the gem file size strip mingw32 dlls before packaging
+ENV['RUBY_CC_VERSION'].to_s.split(':').each do |ruby_version|
+  task "copy:nokogiri:x86-mingw32:#{ruby_version}" do |t|
+    sh "i686-w64-mingw32-strip -S tmp/x86-mingw32/stage/lib/nokogiri/#{ruby_version[/^\d+\.\d+/]}/nokogiri.so"
+  end
+
+  task "copy:nokogiri:x64-mingw32:#{ruby_version}" do |t|
+    sh "x86_64-w64-mingw32-strip -S tmp/x64-mingw32/stage/lib/nokogiri/#{ruby_version[/^\d+\.\d+/]}/nokogiri.so"
   end
 end
 
@@ -233,37 +245,55 @@ end
 
 # ----------------------------------------
 
+def verify_dll(dll, fformat, dll_imports=[])
+  host = 'x86_64-w64-mingw32'
+  dump = `env LANG=C #{host}-objdump -p #{dll.inspect}`
+  raise "unexpected file format for generated dll #{dll}" unless dump =~ /file format #{fformat}\s/
+  raise "export function Init_nokogiri not in dll #{dll}" unless dump =~ /Table.*\sInit_nokogiri\s/mi
+
+  # Verify that the expected DLL dependencies match the actual dependencies
+  # and that no further dependencies exist.
+  dll_imports_is = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
+  if dll_imports_is.sort != dll_imports.sort
+    raise "unexpected dll imports #{dll_imports_is.inspect} in #{dll}"
+  end
+end
+
 desc "build a windows gem without all the ceremony."
-task "gem:windows" => "gem" do
-  cross_rubies = ["1.9.3-p194", "2.0.0-p0"]
-  ruby_cc_version = cross_rubies.collect { |_| _.split("-").first }.join(":") # e.g., "1.8.7:1.9.2"
+task "gem:windows" do
+  cross_rubies = [
+    ["x86-mingw32", "1.9.3-p448"],
+    ["x86-mingw32", "2.0.0-p247"],
+    ["x64-mingw32", "2.0.0-p247"],
+  ]
+  ruby_cc_version = cross_rubies.collect { |platform, version| version.split("-").first }.uniq.join(":") # e.g., "1.8.7:1.9.2"
   rake_compiler_config_path = "#{ENV['HOME']}/.rake-compiler/config.yml"
 
   unless File.exists? rake_compiler_config_path
-    raise "rake-compiler has not installed any cross rubies. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{cross_rubies.first}'"
+    raise "rake-compiler has not installed any cross rubies. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{cross_rubies.first.last}'"
   end
   rake_compiler_config = YAML.load_file(rake_compiler_config_path)
 
   # check that rake-compiler config contains the right patchlevels. see #279 for background,
   # and http://blog.mmediasys.com/2011/01/22/rake-compiler-updated-list-of-supported-ruby-versions-for-cross-compilation/
   # for more up-to-date docs.
-  cross_rubies.each do |version|
+  cross_rubies.each do |platform, version|
     majmin, patchlevel = version.split("-")
-    rbconfig = "rbconfig-#{majmin}"
+    rbconfig = "rbconfig-#{platform}-#{majmin}"
     unless rake_compiler_config.key?(rbconfig) && rake_compiler_config[rbconfig] =~ /-#{patchlevel}/
       raise "rake-compiler '#{rbconfig}' not #{patchlevel}. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{version}'"
     end
   end
 
-  # verify that --export-all is in the 1.9 rbconfig. see #279,#374,#375.
-  rbconfig_19 = rake_compiler_config["rbconfig-1.9.3"]
-  raise "rbconfig #{rbconfig_19} needs --export-all in its DLDFLAGS value" if File.read(rbconfig_19).split("\n").grep(/CONFIG\["DLDFLAGS"\].*--export-all/).empty?
+  sh("env RUBY_CC_VERSION=#{ruby_cc_version} rake cross native gem") || raise("build failed!")
 
-  rbconfig_20 = rake_compiler_config["rbconfig-2.0.0"]
-  raise "rbconfig #{rbconfig_20} needs --export-all in its DLDFLAGS value" if File.read(rbconfig_20).split("\n").grep(/CONFIG\["DLDFLAGS"\].*--export-all/).empty?
-
-  pkg_config_path = %w[libxslt libxml2].collect { |pkg| File.join($recipes[pkg].path, "lib/pkgconfig") }.join(":")
-  sh("env PKG_CONFIG_PATH=#{pkg_config_path} RUBY_CC_VERSION=#{ruby_cc_version} rake cross2 native gem") || raise("build failed!")
+  # Do some sanity checks on the built DLLs
+  verify_dll 'tmp/x86-mingw32/nokogiri/1.9.3/nokogiri.so', 'pei-i386',
+      %w[kernel32.dll msvcrt.dll ws2_32.dll msvcrt-ruby191.dll]
+  verify_dll 'tmp/x86-mingw32/nokogiri/2.0.0/nokogiri.so', 'pei-i386',
+      %w[kernel32.dll msvcrt.dll user32.dll ws2_32.dll msvcrt-ruby200.dll]
+  verify_dll 'tmp/x64-mingw32/nokogiri/2.0.0/nokogiri.so', 'pei-x86-64',
+      %w[kernel32.dll msvcrt.dll user32.dll ws2_32.dll x64-msvcrt-ruby200.dll]
 end
 
 # vim: syntax=Ruby
