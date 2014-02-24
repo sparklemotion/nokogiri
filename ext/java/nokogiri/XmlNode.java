@@ -34,6 +34,7 @@ package nokogiri;
 
 import static java.lang.Math.max;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
+import static nokogiri.internals.NokogiriHelpers.clearCachedNode;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
 import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
@@ -455,6 +456,7 @@ public class XmlNode extends RubyObject {
 
     public void relink_namespace(ThreadContext context) {
         if (node instanceof Element) {
+            clearCachedNode(node);
             Element e = (Element) node;
             String prefix = e.getPrefix();
             String currentNS = e.getNamespaceURI();
@@ -485,9 +487,13 @@ public class XmlNode extends RubyObject {
                     } else {
                         nsUri = attr.lookupNamespaceURI(attrPrefix);
                     }
+                    if (nsUri == e.getNamespaceURI()) {
+                        nsUri = null;
+                    }
                     if (!(nsUri == null || "".equals(nsUri))) {
                         XmlNamespace.createFromAttr(context.getRuntime(), attr);
                     }
+                    clearCachedNode(attr);
                     NokogiriHelpers.renameNode(attr, nsUri, nodeName);
                 }
             }

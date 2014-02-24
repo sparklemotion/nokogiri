@@ -93,6 +93,10 @@ public class NokogiriHelpers {
         return (XmlNode) node.getUserData(CACHED_NODE);
     }
 
+    public static void clearCachedNode(Node node) {
+        node.setUserData(CACHED_NODE, null, null);
+    }
+
     /**
      * Get the XmlNode associated with the underlying
      * <code>node</code>. Creates a new XmlNode (or appropriate subclass)
