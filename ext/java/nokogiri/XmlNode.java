@@ -1219,6 +1219,7 @@ public class XmlNode extends RubyObject {
             } else {
               element.setAttribute(key, val);
             }
+            clearXpathContext(node);
             return this;
         } else {
             return rbval;
@@ -1316,6 +1317,7 @@ public class XmlNode extends RubyObject {
         if(node.getParentNode() == null) {
             throw context.getRuntime().newRuntimeError("TYPE: " + node.getNodeType()+ " PARENT NULL");
         } else {
+            clearXpathContext(node.getParentNode());
             node.getParentNode().removeChild(node);
         }
 
