@@ -59,6 +59,23 @@ module Nokogiri
         assert_equal [], node.namespace_definitions.map(&:prefix)
       end
 
+      def test_append_child_element_with_prefixed_attributes
+        doc = Nokogiri::XML "<root/>"
+        node = doc.root
+
+        assert_equal [], node.namespace_definitions.map(&:prefix)
+
+
+        # assert_nothing_raised do
+          child_node = Nokogiri::XML::Node.new 'foo', doc
+          child_node['xml:lang'] = 'en-GB'
+
+          node << child_node
+        # end
+
+        assert_equal [], child_node.namespace_definitions.map(&:prefix)
+      end
+
       def test_namespace_key?
         doc = Nokogiri::XML <<-eoxml
           <root xmlns:tlm='http://tenderlovemaking.com/'>
