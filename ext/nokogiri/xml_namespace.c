@@ -37,20 +37,24 @@ static VALUE href(VALUE self)
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 {
   VALUE ns, document, node_cache;
+  nokogiriTuplePtr node_has_a_document;
 
-  assert(doc->_private);
+  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
+  node_has_a_document = DOC_RUBY_OBJECT_TEST(doc);
 
-  if(node->_private)
+  if(node->_private && node_has_a_document)
     return (VALUE)node->_private;
 
   ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
 
-  document = DOC_RUBY_OBJECT(doc);
+  if (doc->_private) {
+    document = DOC_RUBY_OBJECT(doc);
 
-  node_cache = rb_iv_get(document, "@node_cache");
-  rb_ary_push(node_cache, ns);
+    node_cache = rb_iv_get(document, "@node_cache");
+    rb_ary_push(node_cache, ns);
 
-  rb_iv_set(ns, "@document", DOC_RUBY_OBJECT(doc));
+    rb_iv_set(ns, "@document", DOC_RUBY_OBJECT(doc));
+  }
 
   node->_private = (void *)ns;
 
