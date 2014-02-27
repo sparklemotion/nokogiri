@@ -386,6 +386,25 @@ class TestReader < Nokogiri::TestCase
                   reader.map { |n| n.namespace_uri })
   end
 
+  def test_namespaced_attributes
+    reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
+    <x xmlns:edi='http://ecommerce.example.org/schema' xmlns:commons="http://rets.org/xsd/RETSCommons">
+      <edi:foo commons:street-number="43">hello</edi:foo>
+      <y edi:name="francis" bacon="87"/>
+    </x>
+    eoxml
+    attr_ns = []
+    while reader.read
+      if reader.node_type == Nokogiri::XML::Node::ELEMENT_NODE
+        reader.attribute_nodes.each {|attr| attr_ns << (attr.namespace.nil? ? nil : attr.namespace.prefix) }
+      end
+    end
+    assert_equal(['commons',
+                  'edi',
+                  nil],
+                 attr_ns)
+  end
+
   def test_local_name
     reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
     <x xmlns:edi='http://ecommerce.example.org/schema'>

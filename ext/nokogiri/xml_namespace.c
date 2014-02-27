@@ -38,19 +38,19 @@ VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 {
   VALUE ns, document, node_cache;
 
-  assert(doc->_private);
-
   if(node->_private)
     return (VALUE)node->_private;
 
   ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
 
-  document = DOC_RUBY_OBJECT(doc);
+  if (doc->_private) {
+    document = DOC_RUBY_OBJECT(doc);
 
-  node_cache = rb_iv_get(document, "@node_cache");
-  rb_ary_push(node_cache, ns);
+    node_cache = rb_iv_get(document, "@node_cache");
+    rb_ary_push(node_cache, ns);
 
-  rb_iv_set(ns, "@document", DOC_RUBY_OBJECT(doc));
+    rb_iv_set(ns, "@document", DOC_RUBY_OBJECT(doc));
+  }
 
   node->_private = (void *)ns;
 
