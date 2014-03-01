@@ -32,6 +32,7 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.clearXpathContext;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
@@ -355,7 +356,7 @@ public class XmlDocument extends XmlNode {
     public IRubyObject remove_namespaces(ThreadContext context) {
         removeNamespceRecursively(context, this);
         nsCache.clear();
-        XmlNode.clearXpathContext(getNode());
+        clearXpathContext(getNode());
         return this;
     }
 

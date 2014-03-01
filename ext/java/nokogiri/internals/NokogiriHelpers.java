@@ -60,6 +60,7 @@ import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
 import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
+import nokogiri.XmlXpathContext;
 
 import org.jcodings.specific.UTF8Encoding;
 import org.jruby.Ruby;
@@ -95,6 +96,16 @@ public class NokogiriHelpers {
 
     public static void clearCachedNode(Node node) {
         node.setUserData(CACHED_NODE, null, null);
+    }
+
+    public static void clearXpathContext(Node node) {
+        if (node == null) return;
+
+        Node ownerDocument = node.getOwnerDocument();
+        if (ownerDocument == null) {
+            ownerDocument = node;
+        }
+        ownerDocument.setUserData(XmlXpathContext.XPATH_CONTEXT, null, null);
     }
 
     /**

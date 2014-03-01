@@ -35,6 +35,7 @@ package nokogiri;
 import static java.lang.Math.max;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.clearCachedNode;
+import static nokogiri.internals.NokogiriHelpers.clearXpathContext;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
 import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
@@ -1489,18 +1490,6 @@ public class XmlNode extends RubyObject {
         // post_add_child(context, this, other);
 
         return nodeOrTags;
-    }
-
-    public static void clearXpathContext(Node node) {
-        if (node == null) {
-            return;
-        }
-
-        Node myDoc = node.getOwnerDocument();
-        if (myDoc == null) {
-            myDoc = node;
-        }
-        myDoc.setUserData(XmlXpathContext.XPATH_CONTEXT, null, null);
     }
 
     /**
