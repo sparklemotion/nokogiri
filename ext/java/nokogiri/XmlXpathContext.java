@@ -96,7 +96,7 @@ public class XmlXpathContext extends RubyObject {
         xpathSupport = (XPathContext) doc.getUserData(XPATH_CONTEXT);
 
         if (xpathSupport == null) {
-          JAXPExtensionsProvider jep = new JAXPExtensionsProvider(functionResolver, false );
+          JAXPExtensionsProvider jep = new JAXPExtensionsProvider(functionResolver);
           xpathSupport = new XPathContext( jep );
           xpathSupport.setVarStack(new JAXPVariableStack(variableResolver));
           doc.setUserData(XPATH_CONTEXT, xpathSupport, null);
