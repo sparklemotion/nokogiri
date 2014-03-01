@@ -329,6 +329,48 @@ END
         onix = xml_doc.children.first
         assert_equal 'a', onix.at_xpath('xmlns:Product').at_xpath('xmlns:RecordReference').text
       end
+
+      def test_xpath_after_attribute_change
+        xml_string = %q{<?xml version="1.0" encoding="UTF-8"?>
+        <mods version="3.0" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-0.xsd" xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <titleInfo>
+              <nonSort>THE</nonSort>
+              <title xml:lang="eng">ARTICLE TITLE HYDRANGEA ARTICLE 1</title>
+              <subTitle>SUBTITLE</subTitle>
+          </titleInfo>
+          <titleInfo lang="finnish">
+              <title>Artikkelin otsikko Hydrangea artiklan 1</title>
+          </titleInfo>
+        </mods>}
+        
+        xml_doc = Nokogiri::XML(xml_string)
+        ns_hash = {'mods'=>'http://www.loc.gov/mods/v3'}
+        node = xml_doc.at_xpath('//mods:titleInfo[1]',ns_hash)
+        node['lang'] = 'english'
+        assert_equal 1, xml_doc.xpath('//mods:titleInfo[1]/@lang',ns_hash).length
+        assert_equal 'english', xml_doc.xpath('//mods:titleInfo[1]/@lang',ns_hash).first.value
+      end
+
+      def test_xpath_after_element_removal
+        xml_string = %q{<?xml version="1.0" encoding="UTF-8"?>
+        <mods version="3.0" xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-0.xsd" xmlns="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <titleInfo>
+              <nonSort>THE</nonSort>
+              <title xml:lang="eng">ARTICLE TITLE HYDRANGEA ARTICLE 1</title>
+              <subTitle>SUBTITLE</subTitle>
+          </titleInfo>
+          <titleInfo lang="finnish">
+              <title>Artikkelin otsikko Hydrangea artiklan 1</title>
+          </titleInfo>
+        </mods>}
+        
+        xml_doc = Nokogiri::XML(xml_string)
+        ns_hash = {'mods'=>'http://www.loc.gov/mods/v3'}
+        node = xml_doc.at_xpath('//mods:titleInfo[1]',ns_hash)
+        node.remove
+        assert_equal 1, xml_doc.xpath('//mods:titleInfo',ns_hash).length
+        assert_equal 'finnish', xml_doc.xpath('//mods:titleInfo[1]/@lang',ns_hash).first.value
+      end
     end
   end
 end
