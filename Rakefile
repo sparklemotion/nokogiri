@@ -19,6 +19,7 @@ def java?
 end
 
 ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
+ENV['RUBY_CC_VERSION'] ||= '1.9.3:2.0.0' # Set default versions for cross rubies
 
 require 'tasks/nokogiri.org'
 
@@ -248,8 +249,10 @@ end
 # ----------------------------------------
 
 def verify_dll(dll, fformat, dll_imports=[])
-  host = 'x86_64-w64-mingw32'
-  dump = `env LANG=C #{host}-objdump -p #{dll.inspect}`
+  host = 'x86_64-w64-mingw32-'
+  cmd = "#{host}objdump -p #{dll.inspect}"
+  puts cmd
+  dump = `env LANG=C #{cmd}`
   raise "unexpected file format for generated dll #{dll}" unless dump =~ /file format #{fformat}\s/
   raise "export function Init_nokogiri not in dll #{dll}" unless dump =~ /Table.*\sInit_nokogiri\s/mi
 
@@ -261,41 +264,27 @@ def verify_dll(dll, fformat, dll_imports=[])
   end
 end
 
-desc "build a windows gem without all the ceremony."
-task "gem:windows" do
-  cross_rubies = [
-    ["x86-mingw32", "1.9.3-p448"],
-    ["x86-mingw32", "2.0.0-p247"],
-    ["x64-mingw32", "2.0.0-p247"],
-  ]
-  ruby_cc_version = cross_rubies.collect { |platform, version| version.split("-").first }.uniq.join(":") # e.g., "1.8.7:1.9.2"
+task :cross do
   rake_compiler_config_path = "#{ENV['HOME']}/.rake-compiler/config.yml"
-
   unless File.exists? rake_compiler_config_path
-    raise "rake-compiler has not installed any cross rubies. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{cross_rubies.first.last}'"
-  end
-  rake_compiler_config = YAML.load_file(rake_compiler_config_path)
-
-  # check that rake-compiler config contains the right patchlevels. see #279 for background,
-  # and http://blog.mmediasys.com/2011/01/22/rake-compiler-updated-list-of-supported-ruby-versions-for-cross-compilation/
-  # for more up-to-date docs.
-  cross_rubies.each do |platform, version|
-    majmin, patchlevel = version.split("-")
-    rbconfig = "rbconfig-#{platform}-#{majmin}"
-    unless rake_compiler_config.key?(rbconfig) && rake_compiler_config[rbconfig] =~ /-#{patchlevel}/
-      raise "rake-compiler '#{rbconfig}' not #{patchlevel}. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{version}'"
-    end
+    raise "rake-compiler has not installed any cross rubies. Try using rake-compiler-dev-box for building binary windows gems.'"
   end
 
-  sh("env RUBY_CC_VERSION=#{ruby_cc_version} rake cross native gem") || raise("build failed!")
-
-  # Do some sanity checks on the built DLLs
-  verify_dll 'tmp/x86-mingw32/nokogiri/1.9.3/nokogiri.so', 'pei-i386',
-      %w[kernel32.dll msvcrt.dll ws2_32.dll msvcrt-ruby191.dll]
-  verify_dll 'tmp/x86-mingw32/nokogiri/2.0.0/nokogiri.so', 'pei-i386',
-      %w[kernel32.dll msvcrt.dll user32.dll ws2_32.dll msvcrt-ruby200.dll]
-  verify_dll 'tmp/x64-mingw32/nokogiri/2.0.0/nokogiri.so', 'pei-x86-64',
-      %w[kernel32.dll msvcrt.dll user32.dll ws2_32.dll x64-msvcrt-ruby200.dll]
+  # Do some sanity checks for cross built dlls, to make sure, they
+  # can be loaded on a native Windows environment and don't have
+  # unexpected dependencies.
+  task 'tmp/x86-mingw32/stage/lib/nokogiri/1.9/nokogiri.so' do |t|
+    verify_dll t.name, 'pei-i386', %w[kernel32.dll msvcrt.dll ws2_32.dll msvcrt-ruby191.dll]
+  end
+  task 'tmp/x86-mingw32/stage/lib/nokogiri/2.0/nokogiri.so' do |t|
+    verify_dll t.name, 'pei-i386', %w[kernel32.dll msvcrt.dll user32.dll ws2_32.dll msvcrt-ruby200.dll]
+  end
+  task 'tmp/x64-mingw32/stage/lib/nokogiri/2.0/nokogiri.so' do |t|
+    verify_dll t.name, 'pei-x86-64', %w[kernel32.dll msvcrt.dll user32.dll ws2_32.dll x64-msvcrt-ruby200.dll]
+  end
 end
+
+desc "build a windows gem without all the ceremony."
+task "gem:windows" => %w[cross native gem]
 
 # vim: syntax=Ruby
