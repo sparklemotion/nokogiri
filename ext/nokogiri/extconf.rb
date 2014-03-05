@@ -232,11 +232,13 @@ else
   $CFLAGS << " -g -DXP_UNIX"
 end
 
-if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
+if RUBY_PLATFORM =~ /mingw/i
   # Work around a character escaping bug in MSYS by passing an arbitrary
   # double quoted parameter to gcc. See https://sourceforge.net/p/mingw/bugs/2142
   $CPPFLAGS << ' "-Idummypath"'
+end
 
+if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
   $CFLAGS << " -DIN_LIBXML"
   # Mingw32 package is static linked
   $LIBS << " -lz -liconv"
