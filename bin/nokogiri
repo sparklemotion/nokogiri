@@ -17,6 +17,7 @@ opts = OptionParser.new do |opts|
   opts.separator "  nokogiri http://www.ruby-lang.org/"
   opts.separator "  nokogiri ./public/index.html"
   opts.separator "  curl -s http://nokogiri.org | nokogiri -e'p $_.css(\"h1\").length'"
+  opts.separator "  echo http://nokogiri.org http://example.com | xargs -tn1 nokogiri -e'p $_.css(\"title\").text'"
   opts.separator ""
   opts.separator "Options:"
 
@@ -55,7 +56,7 @@ if uri.to_s.strip.empty? && $stdin.tty?
   exit 1
 end
 
-if $stdin.tty?
+if uri || $stdin.tty?
   @doc = parse_class.parse(open(uri).read, nil, encoding)
 else
   @doc = parse_class.parse($stdin, nil, encoding)
