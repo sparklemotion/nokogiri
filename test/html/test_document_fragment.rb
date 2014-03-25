@@ -164,6 +164,12 @@ module Nokogiri
         assert_match %r%     \n<div>b</div> *%, fragment.to_s
       end
 
+      def test_html_fragment_with_input_and_intermediate_whitespace
+        doc = "<label>Label</label><input type=\"text\"> <span>span</span>"
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<label>Label</label><input type=\"text\"> <span>span</span>", fragment.to_s
+      end
+
       def test_html_fragment_with_leading_text_and_newline
         fragment = HTML::Document.new.fragment("First line\nSecond line<br>Broken line")
         assert_equal fragment.to_s, "First line\nSecond line<br>Broken line"
