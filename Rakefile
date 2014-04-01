@@ -328,6 +328,7 @@ def verify_dll(dll, fformat, dll_imports=[])
   if dll_imports_is.sort != dll_imports.sort
     raise "unexpected dll imports #{dll_imports_is.inspect} in #{dll}"
   end
+  puts "#{dll}: Looks good!"
 end
 
 desc "build a windows gem without all the ceremony."
