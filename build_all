@@ -120,6 +120,7 @@ cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 
 # jruby
 rvm_use jruby
+gem install bundler --conservative
 bundle install --quiet --local || bundle install
 bundle exec rake clean clobber
 rvm_use $DEFAULT_RUBY
