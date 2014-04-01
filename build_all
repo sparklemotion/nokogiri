@@ -75,10 +75,14 @@ ruby_vers () {
 
 set -o errexit
 
-# initialize
+for ver in `ruby_vers`; do
+    rvm_use $ver
+    gem install bundler
+    bundle install --quiet --local || bundle install
+done
+
 rvm_use $DEFAULT_RUBY
-gem install bundler
-bundle install --quiet --local || bundle install
+
 rm -rf tmp pkg
 bundle exec rake clean
 
