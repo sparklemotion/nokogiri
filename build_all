@@ -77,7 +77,7 @@ set -o errexit
 
 for ver in `ruby_vers`; do
     rvm_use $ver
-    gem install bundler
+    gem install bundler --conservative
     bundle install --quiet --local || bundle install
 done
 
