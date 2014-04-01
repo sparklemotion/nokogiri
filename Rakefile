@@ -48,6 +48,16 @@ CrossRuby = Struct.new(:version, :host) {
       end
   end
 
+  def tool(name)
+    (@binutils_prefix ||=
+      case platform
+      when 'x64-mingw32'
+        'x86_64-w64-mingw32-'
+      when 'x86-mingw32'
+        'i686-w64-mingw32-'
+      end) + name
+  end
+
   def target
     case platform
     when 'x64-mingw32'
@@ -233,14 +243,12 @@ Nokogiri is built with the packaged libraries: #{libs}.
 end
 
 # To reduce the gem file size strip mingw32 dlls before packaging
+CROSS_RUBIES.each do |cross_ruby|
+  platform = cross_ruby.platform
+  ver = cross_ruby.ver
 
-ENV['RUBY_CC_VERSION'].to_s.split(':').each do |ruby_version|
-  task "copy:nokogiri:x86-mingw32:#{ruby_version}" do |t|
-    sh "i686-w64-mingw32-strip -S tmp/x86-mingw32/stage/lib/nokogiri/#{ruby_version[/^\d+\.\d+/]}/nokogiri.so"
-  end
-
-  task "copy:nokogiri:x64-mingw32:#{ruby_version}" do |t|
-    sh "x86_64-w64-mingw32-strip -S tmp/x64-mingw32/stage/lib/nokogiri/#{ruby_version[/^\d+\.\d+/]}/nokogiri.so"
+  task "copy:nokogiri:#{platform}:#{ver}" do |t|
+    sh [cross_ruby.tool('strip'), '-S', 'tmp/#{platform}/stage/lib/nokogiri/#{ver[/^\d+\.\d+/]}/nokogiri.so'].shelljoin
   end
 end
 
@@ -315,11 +323,11 @@ end
 
 # ----------------------------------------
 
-def verify_dll(dll, fformat, dll_imports=[])
-  host = 'x86_64-w64-mingw32'
-  dump = `env LANG=C #{host}-objdump -p #{dll.inspect}`
-  raise "unexpected file format for generated dll #{dll}" unless dump =~ /file format #{fformat}\s/
-  raise "export function Init_nokogiri not in dll #{dll}" unless dump =~ /Table.*\sInit_nokogiri\s/mi
+def verify_dll(dll, cross_ruby)
+  dll_imports = cross_ruby.dlls
+  dump = `#{['env', 'LANG=C', cross_ruby.tool('objdump'), '-p', dll].shelljoin}`
+  raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target)}\s/ === dump
+  raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
 
   # Verify that the expected DLL dependencies match the actual dependencies
   # and that no further dependencies exist.
@@ -332,7 +340,6 @@ end
 
 desc "build a windows gem without all the ceremony."
 task "gem:windows" do
-  ruby_cc_version = CROSS_RUBIES.map(&:ver).uniq.join(":") # e.g., "1.9.3:2.0.0"
   rake_compiler_config_path = File.expand_path("~/.rake-compiler/config.yml")
 
   unless File.exists? rake_compiler_config_path
@@ -353,7 +360,8 @@ task "gem:windows" do
     end
   end
 
-  sh("env RUBY_CC_VERSION=#{ruby_cc_version} rake cross native gem") || raise("build failed!")
+  ENV['RUBY_CC_VERSION'] = CROSS_RUBIES.map(&:ver).uniq.join(":")
+  sh("rake cross native gem") or raise "build failed!"
 
   Rake::Task["gem:windows:verify_dll"].execute
 end
@@ -364,7 +372,7 @@ task "gem:windows:verify_dll" do
     dll = "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so"
 
     if File.file?(dll)
-      verify_dll dll, cross_ruby.target, cross_ruby.dlls
+      verify_dll dll, cross_ruby
     else
       puts "#{dll}: not found."
     end
