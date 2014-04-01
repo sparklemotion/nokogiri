@@ -97,7 +97,17 @@ for verspec in `cross_rubies`; do
     ver="${version%%-*}"
     host="${verspec#*:}"
 
-    rake-compiler cross-ruby VERSION=$version HOST=$host debugflags="-g"
+    case $ver in
+        1.9.3)
+            # Parallel make does not work in 1.9.3, as it has a
+            # missing dependency problem with main.o.
+            make="make"
+            ;;
+        *)
+            make="$MAKE"
+    esac
+
+    MAKE="$make" rvm_do $ver rake-compiler cross-ruby VERSION=$version HOST=$host debugflags="-g"
 done
 
 bundle exec rake gem:windows
