@@ -235,6 +235,7 @@ Nokogiri is built with the packaged libraries: #{libs}.
 end
 
 # To reduce the gem file size strip mingw32 dlls before packaging
+
 ENV['RUBY_CC_VERSION'].to_s.split(':').each do |ruby_version|
   task "copy:nokogiri:x86-mingw32:#{ruby_version}" do |t|
     sh "i686-w64-mingw32-strip -S tmp/x86-mingw32/stage/lib/nokogiri/#{ruby_version[/^\d+\.\d+/]}/nokogiri.so"
@@ -334,7 +335,7 @@ end
 desc "build a windows gem without all the ceremony."
 task "gem:windows" do
   ruby_cc_version = CROSS_RUBIES.map(&:ver).uniq.join(":") # e.g., "1.9.3:2.0.0"
-  rake_compiler_config_path = "#{ENV['HOME']}/.rake-compiler/config.yml"
+  rake_compiler_config_path = File.expand_path("~/.rake-compiler/config.yml")
 
   unless File.exists? rake_compiler_config_path
     raise "rake-compiler has not installed any cross rubies. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{CROSS_RUBIES.first.version}'"
