@@ -248,7 +248,7 @@ CROSS_RUBIES.each do |cross_ruby|
   ver = cross_ruby.ver
 
   task "copy:nokogiri:#{platform}:#{ver}" do |t|
-    sh [cross_ruby.tool('strip'), '-S', 'tmp/#{platform}/stage/lib/nokogiri/#{ver[/^\d+\.\d+/]}/nokogiri.so'].shelljoin
+    sh [cross_ruby.tool('strip'), '-S', "tmp/#{platform}/stage/lib/nokogiri/#{ver[/^\d+\.\d+/]}/nokogiri.so"].shelljoin
   end
 end
 
@@ -338,45 +338,22 @@ def verify_dll(dll, cross_ruby)
   puts "#{dll}: Looks good!"
 end
 
-desc "build a windows gem without all the ceremony."
-task "gem:windows" do
+task :cross do
   rake_compiler_config_path = File.expand_path("~/.rake-compiler/config.yml")
-
   unless File.exists? rake_compiler_config_path
-    raise "rake-compiler has not installed any cross rubies. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{CROSS_RUBIES.first.version}'"
-  end
-  rake_compiler_config = YAML.load_file(rake_compiler_config_path)
-
-  # check that rake-compiler config contains the right patchlevels. see #279 for background,
-  # and http://blog.mmediasys.com/2011/01/22/rake-compiler-updated-list-of-supported-ruby-versions-for-cross-compilation/
-  # for more up-to-date docs.
-  CROSS_RUBIES.each do |cross_ruby|
-    rbconfig = "rbconfig-#{cross_ruby.platform}-#{cross_ruby.ver}"
-    case rake_compiler_config[rbconfig]
-    when %r{/#{Regexp.quote(cross_ruby.version)}/}
-      # ok
-    when %r{/#{Regexp.quote(cross_ruby.ver)}(?:-p\d+)/}
-      raise "rake-compiler '#{rbconfig}' not #{cross_ruby.version}. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{cross_ruby.version}'"
-    end
+    raise "rake-compiler has not installed any cross rubies. Try using rake-compiler-dev-box for building binary windows gems.'"
   end
 
   ENV['RUBY_CC_VERSION'] = CROSS_RUBIES.map(&:ver).uniq.join(":")
-  sh("rake cross native gem") or raise "build failed!"
 
-  Rake::Task["gem:windows:verify_dll"].execute
-end
-
-desc "do some sanity checks on the built DLLs."
-task "gem:windows:verify_dll" do
   CROSS_RUBIES.each do |cross_ruby|
-    dll = "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so"
-
-    if File.file?(dll)
-      verify_dll dll, cross_ruby
-    else
-      puts "#{dll}: not found."
+    task "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so" do |t|
+      verify_dll t.name, cross_ruby
     end
   end
 end
+
+desc "build a windows gem without all the ceremony."
+task "gem:windows" => %w[cross native gem]
 
 # vim: syntax=Ruby
