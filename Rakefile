@@ -20,6 +20,77 @@ end
 
 ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
 
+CrossRuby = Struct.new(:version, :host) {
+  def ver
+    @ver ||= version[/\A[^-]+/]
+  end
+
+  def api_ver_suffix
+    case ver
+    when /\A([2-9])\.([0-9])\./
+      "#{$1}#{$2}0"
+    when /\A1\.9\./
+      '191'
+    else
+      raise "unsupported version: #{ver}"
+    end
+  end
+
+  def platform
+    @platform ||=
+      case host
+      when /\Ax86_64-/
+        'x64-mingw32'
+      when /\Ai[3-6]86-/
+        'x86-mingw32'
+      else
+        raise "unsupported host: #{host}"
+      end
+  end
+
+  def target
+    case host
+    when /\Ax86_64-/
+      'pei-x86-64'
+    when /\Ai[3-6]86-/
+      'pei-i386'
+    else
+      raise "unsupported host: #{host}"
+    end
+  end
+
+  def libruby_dll
+    case platform
+    when 'x64-mingw32'
+      "x64-msvcrt-ruby#{api_ver_suffix}.dll"
+    when 'x86-mingw32'
+      "msvcrt-ruby#{api_ver_suffix}.dll"
+    end
+  end
+
+  def dlls
+    [
+      'kernel32.dll',
+      'msvcrt.dll',
+      'ws2_32.dll',
+      *(case
+        when ver >= '2.0.0'
+          'user32.dll'
+        end),
+      libruby_dll
+    ]
+  end
+}
+
+CROSS_RUBIES = File.read('.cross_rubies').lines.flat_map { |line|
+  case line
+  when /\A([^#]+):([^#]+)/
+    CrossRuby.new($1, $2)
+  else
+    []
+  end
+}
+
 require 'tasks/nokogiri.org'
 
 HOE = Hoe.spec 'nokogiri' do
@@ -38,11 +109,9 @@ HOE = Hoe.spec 'nokogiri' do
   self.clean_globs += [
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
-    'lib/nokogiri/{1.9,2.0}',
+    'lib/nokogiri/[0-9].[0-9]',
     'ports/*.installed',
-    'ports/i686-w64-mingw32',
-    'ports/x86_64-w64-mingw32',
-    'ports/i586-mingw32msvc',
+    'ports/{i[3-6]86,x86_64}-{w64-,}mingw32*',
     'ports/libxml2',
     'ports/libxslt',
     # GENERATED_PARSER,
@@ -151,7 +220,7 @@ else
     ext.config_options << ENV['EXTOPTS']
     if mingw_available
       ext.cross_compile  = true
-      ext.cross_platform = ["x86-mingw32", "x64-mingw32"]
+      ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
       ext.cross_config_options << "--enable-cross-build"
       ext.cross_compiling do |spec|
         libs = dependencies.map { |name, version| "#{name}-#{version}" }.join(', ')
@@ -263,39 +332,43 @@ end
 
 desc "build a windows gem without all the ceremony."
 task "gem:windows" do
-  cross_rubies = [
-    ["x86-mingw32", "1.9.3-p448"],
-    ["x86-mingw32", "2.0.0-p247"],
-    ["x64-mingw32", "2.0.0-p247"],
-  ]
-  ruby_cc_version = cross_rubies.collect { |platform, version| version.split("-").first }.uniq.join(":") # e.g., "1.8.7:1.9.2"
+  ruby_cc_version = CROSS_RUBIES.map(&:ver).uniq.join(":") # e.g., "1.9.3:2.0.0"
   rake_compiler_config_path = "#{ENV['HOME']}/.rake-compiler/config.yml"
 
   unless File.exists? rake_compiler_config_path
-    raise "rake-compiler has not installed any cross rubies. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{cross_rubies.first.last}'"
+    raise "rake-compiler has not installed any cross rubies. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{CROSS_RUBIES.first.version}'"
   end
   rake_compiler_config = YAML.load_file(rake_compiler_config_path)
 
   # check that rake-compiler config contains the right patchlevels. see #279 for background,
   # and http://blog.mmediasys.com/2011/01/22/rake-compiler-updated-list-of-supported-ruby-versions-for-cross-compilation/
   # for more up-to-date docs.
-  cross_rubies.each do |platform, version|
-    majmin, patchlevel = version.split("-")
-    rbconfig = "rbconfig-#{platform}-#{majmin}"
-    unless rake_compiler_config.key?(rbconfig) && rake_compiler_config[rbconfig] =~ /-#{patchlevel}/
-      raise "rake-compiler '#{rbconfig}' not #{patchlevel}. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{version}'"
+  CROSS_RUBIES.each do |cross_ruby|
+    rbconfig = "rbconfig-#{cross_ruby.platform}-#{cross_ruby.ver}"
+    case rake_compiler_config[rbconfig]
+    when %r{/#{Regexp.quote(cross_ruby.version)}/}
+      # ok
+    when %r{/#{Regexp.quote(cross_ruby.ver)}(?:-p\d+)/}
+      raise "rake-compiler '#{rbconfig}' not #{cross_ruby.version}. try running 'env --unset=HOST rake-compiler cross-ruby VERSION=#{cross_ruby.version}'"
     end
   end
 
   sh("env RUBY_CC_VERSION=#{ruby_cc_version} rake cross native gem") || raise("build failed!")
 
-  # Do some sanity checks on the built DLLs
-  verify_dll 'tmp/x86-mingw32/nokogiri/1.9.3/nokogiri.so', 'pei-i386',
-      %w[kernel32.dll msvcrt.dll ws2_32.dll msvcrt-ruby191.dll]
-  verify_dll 'tmp/x86-mingw32/nokogiri/2.0.0/nokogiri.so', 'pei-i386',
-      %w[kernel32.dll msvcrt.dll user32.dll ws2_32.dll msvcrt-ruby200.dll]
-  verify_dll 'tmp/x64-mingw32/nokogiri/2.0.0/nokogiri.so', 'pei-x86-64',
-      %w[kernel32.dll msvcrt.dll user32.dll ws2_32.dll x64-msvcrt-ruby200.dll]
+  Rake::Task["gem:windows:verify_dll"].execute
+end
+
+desc "do some sanity checks on the built DLLs."
+task "gem:windows:verify_dll" do
+  CROSS_RUBIES.each do |cross_ruby|
+    dll = "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so"
+
+    if File.file?(dll)
+      verify_dll dll, cross_ruby.target, cross_ruby.dlls
+    else
+      puts "#{dll}: not found."
+    end
+  end
 end
 
 # vim: syntax=Ruby
