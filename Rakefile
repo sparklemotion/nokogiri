@@ -49,13 +49,11 @@ CrossRuby = Struct.new(:version, :host) {
   end
 
   def target
-    case host
-    when /\Ax86_64-/
+    case platform
+    when 'x64-mingw32'
       'pei-x86-64'
-    when /\Ai[3-6]86-/
+    when 'x86-mingw32'
       'pei-i386'
-    else
-      raise "unsupported host: #{host}"
     end
   end
 
