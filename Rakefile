@@ -19,7 +19,6 @@ def java?
 end
 
 ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
-ENV['RUBY_CC_VERSION'] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 
 CrossRuby = Struct.new(:version, :host) {
   def ver
@@ -99,6 +98,8 @@ CROSS_RUBIES = File.read('.cross_rubies').lines.flat_map { |line|
     []
   end
 }
+
+ENV['RUBY_CC_VERSION'] ||= CROSS_RUBIES.map(&:ver).uniq.join(":")
 
 require 'tasks/nokogiri.org'
 
