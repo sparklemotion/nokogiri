@@ -19,6 +19,7 @@ def java?
 end
 
 ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
+ENV['RUBY_CC_VERSION'] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 
 CrossRuby = Struct.new(:version, :host) {
   def ver
@@ -333,8 +334,6 @@ task :cross do
   unless File.exists? rake_compiler_config_path
     raise "rake-compiler has not installed any cross rubies. Try using rake-compiler-dev-box for building binary windows gems.'"
   end
-
-  ENV['RUBY_CC_VERSION'] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 
   CROSS_RUBIES.each do |cross_ruby|
     task "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so" do |t|
