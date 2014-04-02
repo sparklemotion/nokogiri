@@ -39,6 +39,8 @@
 #    RUBY_ENGINE (just comment it out)
 #
 
+DEFAULT_RUBY=2.0.0
+
 HOST=
 
 # Load RVM into a shell session *as a function*
@@ -50,17 +52,37 @@ else
     echo "ERROR: An RVM installation was not found.\n"
 fi
 
-function rvm_use {
+rvm_use () {
     current_ruby=$1
     rvm use "${1}@nokogiri" --create || rvm -v
 }
 
+rvm_do () {
+    local ver=$1
+    shift
+    rvm "${ver}@nokogiri" do "$@"
+}
+
+cross_rubies () {
+    grep -v '#' .cross_rubies
+}
+
+ruby_vers () {
+    cross_rubies | while read -r line; do
+        echo "${line%%[-:]*}"
+    done | uniq
+}
+
 set -o errexit
 
-# initialize
-rvm_use 2.0.0
-gem install bundler
-bundle install --quiet --local || bundle install
+for ver in `ruby_vers`; do
+    rvm_use $ver
+    gem install bundler --conservative
+    bundle install --quiet --local || bundle install
+done
+
+rvm_use $DEFAULT_RUBY
+
 rm -rf tmp pkg
 bundle exec rake clean
 
@@ -69,14 +91,24 @@ rm -rf gems
 mkdir -p gems
 
 # windows
-# Build 1.9.3
-rake-compiler cross-ruby VERSION=1.9.3-p448 HOST=i586-mingw32msvc
 
-# Now build Ruby 2.0.0 too
-rake-compiler cross-ruby VERSION=2.0.0-p247 HOST=i686-w64-mingw32 debugflags="-g"
+for verspec in `cross_rubies`; do
+    version="${verspec%%:*}"
+    ver="${version%%-*}"
+    host="${verspec#*:}"
 
-# And the cherry of the cake: x64 Ruby
-rake-compiler cross-ruby VERSION=2.0.0-p247 HOST=x86_64-w64-mingw32 debugflags="-g"
+    case $ver in
+        1.9.3)
+            # Parallel make does not work in 1.9.3, as it has a
+            # missing dependency problem with main.o.
+            make="make"
+            ;;
+        *)
+            make="$MAKE"
+    esac
+
+    MAKE="$make" rvm_do $ver rake-compiler cross-ruby VERSION=$version HOST=$host debugflags="-g"
+done
 
 bundle exec rake gem:windows
 cp -v pkg/nokogiri*{x86,x64}-mingw32*.gem gems
@@ -88,9 +120,10 @@ cp -v pkg/nokogiri*.gem gems # should only be one at this point in the script
 
 # jruby
 rvm_use jruby
+gem install bundler --conservative
 bundle install --quiet --local || bundle install
 bundle exec rake clean clobber
-rvm_use 2.0.0
+rvm_use $DEFAULT_RUBY
 bundle exec rake generate
 rvm_use jruby
 bundle exec rake gem

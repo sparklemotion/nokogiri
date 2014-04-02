@@ -238,12 +238,6 @@ if RUBY_PLATFORM =~ /mingw/i
   $CPPFLAGS << ' "-Idummypath"'
 end
 
-if RbConfig::MAKEFILE_CONFIG['CC'] =~ /mingw/
-  $CFLAGS << " -DIN_LIBXML"
-  # Mingw32 package is static linked
-  $LIBS << " -lz -liconv"
-end
-
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -O3" unless $CFLAGS[/-O\d/]
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
