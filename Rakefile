@@ -244,16 +244,6 @@ Nokogiri is built with the packaged libraries: #{libs}.
   end
 end
 
-# To reduce the gem file size strip mingw32 dlls before packaging
-CROSS_RUBIES.each do |cross_ruby|
-  platform = cross_ruby.platform
-  ver = cross_ruby.ver
-
-  task "copy:nokogiri:#{platform}:#{ver}" do |t|
-    sh [cross_ruby.tool('strip'), '-S', "tmp/#{platform}/stage/lib/nokogiri/#{ver[/^\d+\.\d+/]}/nokogiri.so"].shelljoin
-  end
-end
-
 # ----------------------------------------
 
 desc "Generate css/parser.rb and css/tokenizer.rex"
@@ -348,6 +338,8 @@ task :cross do
 
   CROSS_RUBIES.each do |cross_ruby|
     task "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so" do |t|
+      # To reduce the gem file size strip mingw32 dlls before packaging
+      sh [cross_ruby.tool('strip'), '-S', t.name].shelljoin
       verify_dll t.name, cross_ruby
     end
   end
