@@ -296,9 +296,9 @@ task :java_debug do
 end
 
 if java?
-  task :test_18 => :test
-  task :test_19 do
-    ENV['JRUBY_OPTS'] = "--1.9"
+  task :test_19 => :test
+  task :test_20 do
+    ENV['JRUBY_OPTS'] = "--2.0"
     Rake::Task["test"].invoke
   end
 end
