@@ -319,9 +319,10 @@ module Nokogiri
       def test_at!
         assert node_set = @xml.search('//employee')
         assert_equal node_set.at!(0), node_set.at(0)
-        assert_raises(Nokogiri::XML::NotFound) do
+        err = assert_raises(Nokogiri::XML::NotFound) do
           node_set.at!(500)
         end
+        err.message.must_match(/500/)
       end
 
       def test_at_xpath
@@ -332,9 +333,10 @@ module Nokogiri
       def test_at_xpath!
         assert node_set = @xml.search('//employee')
         assert_equal node_set.at_xpath!('./employeeId'), node_set.at_xpath('./employeeId')
-        assert_raises(Nokogiri::XML::NotFound) do
+        err = assert_raises(Nokogiri::XML::NotFound) do
           node_set.at_xpath!('./helmetSize')
         end
+        err.message.must_match(/\.\/helmetSize/)
       end
 
       def test_at_css
@@ -345,9 +347,10 @@ module Nokogiri
       def test_at_css!
         assert node_set = @xml.search('//employee')
         assert_equal node_set.at_css!('employeeId'), node_set.at_css('employeeId')
-        assert_raises(Nokogiri::XML::NotFound) do
+        err = assert_raises(Nokogiri::XML::NotFound) do
           node_set.at_css!('helmetSize')
         end
+        err.message.must_match(/helmetSize/)
       end
 
       def test_percent
