@@ -222,11 +222,11 @@ XPath optimization bugs.
   end
 end
 
-windows_p = RbConfig::CONFIG['target_os'] == 'mingw32' || RbConfig::CONFIG['target_os'] =~ /mswin/
-
-if windows_p
+case RbConfig::CONFIG['target_os']
+when 'mingw32', /mswin/
+  windows_p = true
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
-elsif RbConfig::CONFIG['target_os'] =~ /solaris/
+when /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
 else
   $CFLAGS << " -g -DXP_UNIX"
@@ -252,9 +252,9 @@ when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
   # Using system libraries means we rely on the system libxml2 with
   # regard to the iconv support.
 
-  dir_config('xml2').any?  || pkg_config('libxml-2.0')
-  dir_config('xslt').any?  || pkg_config('libxslt')
-  dir_config('exslt').any? || pkg_config('libexslt')
+  dir_config('xml2').any?  or pkg_config('libxml-2.0')
+  dir_config('xslt').any?  or pkg_config('libxslt')
+  dir_config('exslt').any? or pkg_config('libexslt')
 else
   message! "Building nokogiri using packaged libraries.\n"
 
@@ -414,7 +414,10 @@ end
   "xslt"  => ['xsltParseStylesheetDoc', 'libxslt/xslt.h'],
   "exslt" => ['exsltFuncRegister',      'libexslt/exslt.h'],
 }.each { |lib, (func, header)|
-  have_func(func, header) || have_library(lib, func, header) || have_library("lib#{lib}", func, header) or asplode("lib#{lib}")
+  have_func(func, header) ||
+  have_library(lib, func, header) ||
+  have_library("lib#{lib}", func, header) or
+    asplode("lib#{lib}")
 }
 
 unless have_func('xmlHasFeature')
@@ -423,7 +426,7 @@ unless have_func('xmlHasFeature')
 Please visit http://nokogiri.org/tutorials/installing_nokogiri.html for more help!"
 end
 
-have_func 'xmlFirstElementChild'
+have_func('xmlFirstElementChild')
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetValidStructuredErrors')
