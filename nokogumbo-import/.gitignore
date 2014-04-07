@@ -1,5 +1,7 @@
 Gemfile.lock
-ext
+ext/nokogumboc/*
+!ext/nokogumboc/extconf.rb
+!ext/nokogumboc/nokogumbo.c
 lib
 pkg
 tmp
