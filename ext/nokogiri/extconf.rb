@@ -256,6 +256,14 @@ when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
   dir_config('xml2').any?  or pkg_config('libxml-2.0')
   dir_config('xslt').any?  or pkg_config('libxslt')
   dir_config('exslt').any? or pkg_config('libexslt')
+
+  try_cpp(<<-SRC) or abort "libxml2 version 2.6.21 or later is required!"
+#include <libxml/xmlversion.h>
+
+#if LIBXML_VERSION < 20621
+#error libxml2 is too old
+#endif
+  SRC
 else
   message! "Building nokogiri using packaged libraries.\n"
 
@@ -421,12 +429,7 @@ end
     asplode("lib#{lib}")
 }
 
-unless have_func('xmlHasFeature')
-  abort "-----\nThe function 'xmlHasFeature' is missing from your installation of libxml2.  Likely this means that your installed version of libxml2 is old enough that nokogiri will not work well.  To get around this problem, please upgrade your installation of libxml2.
-
-Please visit http://nokogiri.org/tutorials/installing_nokogiri.html for more help!"
-end
-
+have_func('xmlHasFeature') or abort "xmlHasFeature() is missing."
 have_func('xmlFirstElementChild')
 have_func('xmlRelaxNGSetParserStructuredErrors')
 have_func('xmlRelaxNGSetParserStructuredErrors')
