@@ -264,6 +264,14 @@ when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
 #error libxml2 is too old
 #endif
   SRC
+
+  try_cpp(<<-SRC) or warn "libxml2 version 2.9.0 and later is not yet supported, but proceeding anyway."
+#include <libxml/xmlversion.h>
+
+#if LIBXML_VERSION >= 20900
+#error libxml2 is too new
+#endif
+  SRC
 else
   message! "Building nokogiri using packaged libraries.\n"
 
