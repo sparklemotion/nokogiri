@@ -30,6 +30,7 @@ def message!(important_message)
       tty.print important_message
     }
   end
+rescue Errno::ENXIO
 end
 
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
