@@ -2,6 +2,8 @@
 
 * Features
 
+  * Add cross building of fat binary gems for 64-Bit Windows (x64-mingw32)
+    and add support for native builds on Windows. #864, #989, #1072
   * (MRI) Alias CP932 to Windows-31J if iconv does not support Windows-31J.
   * (MRI) Nokogiri now links packaged libraries statically.  To
     disable static linking, pass --disable-static to extconf.rb. #923
