@@ -168,7 +168,7 @@ module Nokogiri
         end
         stop = Time.now
         elapsed_time = stop - start
-        assert elapsed_time < 10, "XPath is taking too long"
+        assert_send [elapsed_time, :<, 10], "XPath is taking too long"
       end
 
       def test_custom_xpath_function_returns_string
