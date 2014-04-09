@@ -168,7 +168,13 @@ module Nokogiri
         end
         stop = Time.now
         elapsed_time = stop - start
-        assert_send [elapsed_time, :<, 10], "XPath is taking too long"
+        time_limit =
+          if ENV['TRAVIS'] && ENV['CI']
+            20 # Travis CI box slowness
+          else
+            10
+          end
+        assert_send [elapsed_time, :<, time_limit], "XPath is taking too long"
       end
 
       def test_custom_xpath_function_returns_string
