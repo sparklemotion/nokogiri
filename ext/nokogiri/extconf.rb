@@ -1,27 +1,38 @@
+# :stopdoc:
 ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
-# Available options:
-#
-# --enable-clean (default)
-# --disable-clean
-#
-# --enable-static (default)
-# --disable-static
-#
-# --with-iconv-dir=DIR
-#
-# --with-zlib-dir=DIR
-#
-# --use-system-libraries
-#   --with-xml2-dir=DIR / --with-xml2-config=CONFIG
-#   --with-xslt-dir=DIR / --with-xslt-config=CONFIG
-#   --with-exslt-dir=DIR / --with-exslt-config=CONFIG
-#
-# --enable-cross-build
-
-# :stopdoc:
-
 require 'mkmf'
+
+if arg_config('--help')
+  print <<HELP
+usage: ruby #{$0} [options]
+
+    --disable-clean
+        Do not clean out intermediate files after successful build.
+
+    --disable-static
+        Do not statically link bundled libraries.
+
+    --with-iconv-dir=DIR
+        Use the iconv library placed under DIR.
+
+    --with-zlib-dir=DIR
+        Use the zlib library placed under DIR.
+
+    --use-system-libraries
+        Use system libraries intead of building and using the bundled
+        libraries.
+
+    --with-xml2-dir=DIR / --with-xml2-config=CONFIG
+    --with-xslt-dir=DIR / --with-xslt-config=CONFIG
+    --with-exslt-dir=DIR / --with-exslt-config=CONFIG
+        Use libxml2/libxslt/libexslt as specified.
+
+    --enable-cross-build
+        Do cross-build.
+HELP
+  exit! 0
+end
 
 def message!(important_message)
   message important_message
