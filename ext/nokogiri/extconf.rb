@@ -143,12 +143,15 @@ end
 def iconv_prefix
   # Make sure libxml2 is built with iconv
   each_iconv_idir { |idir|
-    prefix = %r{\A(.+)?/include\z} === idir && $1 or next
-    File.exist?(File.join(idir, 'iconv.h')) or next
+    next unless File.file?(File.join(idir, 'iconv.h'))
+
+    prefix, dir = File.split(idir)
+    next unless dir == 'include'
+
     preserving_globals {
       # Follow the way libxml2's configure uses a value given with
       # --with-iconv[=DIR]
-      $CPPFLAGS = "-I#{idir} " << $CPPFLAGS
+      $CPPFLAGS = "-I#{idir}".quote << ' ' << $CPPFLAGS
       $LIBPATH.unshift(File.join(prefix, "lib"))
       have_iconv?
     } and break prefix
