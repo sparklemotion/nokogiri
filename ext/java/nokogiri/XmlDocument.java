@@ -175,7 +175,7 @@ public class XmlDocument extends XmlNode {
     public XmlDocument(Ruby ruby, RubyClass klass, Document document, XmlDocument contextDoc) {
         super(ruby, klass, document);
         nsCache = contextDoc.getNamespaceCache();
-        XmlNamespace default_ns = nsCache.getDefault();
+        XmlNamespace default_ns = nsCache.getDefault(document.getDocumentElement());
         String default_href = rubyStringToString(default_ns.href(ruby.getCurrentContext()));
         resolveNamespaceIfNecessary(ruby.getCurrentContext(), document.getDocumentElement(), default_href);
     }
@@ -186,7 +186,7 @@ public class XmlDocument extends XmlNode {
         if (nodePrefix == null) { // default namespace
             NokogiriHelpers.renameNode(node, default_href, node.getNodeName());
         } else {
-            XmlNamespace xmlNamespace = nsCache.get(nodePrefix);
+            XmlNamespace xmlNamespace = nsCache.get(nodePrefix, node);
             String href = rubyStringToString(xmlNamespace.href(context));
             NokogiriHelpers.renameNode(node, href, node.getNodeName());
         }

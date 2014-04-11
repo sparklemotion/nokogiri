@@ -600,9 +600,10 @@ public class XmlNode extends RubyObject {
         }
         else if (node.getNodeType() == Node.ATTRIBUTE_NODE) namespaceOwner = ((Attr)node).getOwnerElement();
         else namespaceOwner = node.getParentNode();
+       
         XmlNamespace ns = XmlNamespace.createFromPrefixAndHref(namespaceOwner, prefix, href);
         if (node != namespaceOwner) {
-            this.node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + node.getLocalName());
+            this.node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + ":" + node.getLocalName());
         }
         
         updateNodeNamespaceIfNecessary(context, ns);
@@ -1049,7 +1050,7 @@ public class XmlNode extends RubyObject {
         XmlDocument xmlDocument = (XmlDocument) doc;
         NokogiriNamespaceCache nsCache = xmlDocument.getNamespaceCache();
         String prefix = node.getPrefix();
-        XmlNamespace namespace = nsCache.get(prefix == null ? "" : prefix, node.getNamespaceURI());
+        XmlNamespace namespace = nsCache.getFromHierarchy(prefix == null ? "" : prefix, node);
         if (namespace == null || namespace.isEmpty()) {
             return context.getRuntime().getNil();
         }
@@ -1296,7 +1297,7 @@ public class XmlNode extends RubyObject {
                 Node n = node;
                 String prefix = n.getPrefix();
                 String href = n.getNamespaceURI();
-                ((XmlDocument)doc).getNamespaceCache().remove(prefix == null ? "" : prefix, href);
+                ((XmlDocument)doc).getNamespaceCache().remove(prefix == null ? "" : prefix, node);
                 this.node = NokogiriHelpers.renameNode(n, null, NokogiriHelpers.getLocalPart(n.getNodeName()));
             }
         } else {
@@ -1314,6 +1315,7 @@ public class XmlNode extends RubyObject {
             // and keep the return value. -mbklein
             String new_name = NokogiriHelpers.newQName(prefix, node);
             this.node = NokogiriHelpers.renameNode(node, href, new_name);
+            ((XmlDocument)doc).getNamespaceCache().put(ns, node);
         }
 
         clearXpathContext(getNode());

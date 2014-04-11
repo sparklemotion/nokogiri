@@ -115,7 +115,6 @@ HOE = Hoe.spec 'nokogiri' do
 
   self.extra_rdoc_files = FileList['*.rdoc','ext/nokogiri/*.c']
 
-
   self.clean_globs += [
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',

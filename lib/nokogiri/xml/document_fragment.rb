@@ -9,7 +9,6 @@ module Nokogiri
       #  to +ctx+.
       def initialize document, tags = nil, ctx = nil
         return self unless tags
-
         children = if ctx
                      # Fix for issue#490
                      if Nokogiri.jruby?

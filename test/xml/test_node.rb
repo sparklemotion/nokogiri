@@ -44,8 +44,8 @@ module Nokogiri
       end
 
       def test_remove_namespace
-        @xml = Nokogiri::XML('<r xmlns="v"><s /></r>')
-        tag = @xml.at('s')
+        @xml = Nokogiri::XML('<v:r xmlns:v="v"><v:s /></v:r>')
+        tag = @xml.at_xpath('//v:s')
         assert tag.namespace
         tag.namespace = nil
         assert_nil tag.namespace
