@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2014:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -186,7 +186,7 @@ public class XmlDocument extends XmlNode {
         if (nodePrefix == null) { // default namespace
             NokogiriHelpers.renameNode(node, default_href, node.getNodeName());
         } else {
-            XmlNamespace xmlNamespace = nsCache.get(nodePrefix);
+            XmlNamespace xmlNamespace = nsCache.get(node, nodePrefix);
             String href = rubyStringToString(xmlNamespace.href(context));
             NokogiriHelpers.renameNode(node, href, node.getNodeName());
         }
