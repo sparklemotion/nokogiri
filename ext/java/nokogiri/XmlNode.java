@@ -1089,18 +1089,31 @@ public class XmlNode extends RubyObject {
      */
     @JRubyMethod
     public IRubyObject namespace_scopes(ThreadContext context) {
-        RubyArray parentNamespaces;
-        RubyArray namespaces = (RubyArray) namespace_definitions(context);
+        RubyArray scoped_namespaces = context.getRuntime().newArray();
+        if (doc == null) return scoped_namespaces;
+        if (doc instanceof HtmlDocument) return scoped_namespaces;
 
-        IRubyObject parent = parent(context);
-        if (!parent.isNil()) {
-            parentNamespaces = (RubyArray)
-                ((XmlNode) parent).namespace_scopes(context);
+        Node parentNode;
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            parentNode = node;
+        } else if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
+            parentNode = ((Attr)node).getOwnerElement();
         } else {
-            parentNamespaces = getRuntime().newEmptyArray();
+            parentNode = node.getParentNode();
         }
+        if (parentNode == null) return scoped_namespaces;
 
-        return parentNamespaces.op_plus(namespaces);
+        List<String> prefixes_in_scope = new ArrayList<String>();
+        NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCacheFormNode(parentNode);
+        for (Node parent=parentNode; parent != null; parent = parent.getParentNode()) {
+            List<XmlNamespace> namespaces = nsCache.get(parent);
+            for (XmlNamespace namespace : namespaces) {
+                if (prefixes_in_scope.contains(namespace.getPrefix())) continue;
+                scoped_namespaces.append(namespace);
+                prefixes_in_scope.add(namespace.getPrefix());
+            }
+        }
+        return scoped_namespaces;
     }
 
     @JRubyMethod(name="namespaced_key?")
