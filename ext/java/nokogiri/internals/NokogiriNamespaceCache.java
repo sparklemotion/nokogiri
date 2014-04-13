@@ -35,11 +35,9 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import nokogiri.XmlNamespace;
 
@@ -55,12 +53,12 @@ import org.w3c.dom.Node;
  */
 public class NokogiriNamespaceCache {
 
-    private Set<String[]> keys;
+    private List<String[]> keys;
     private Map<String[], CacheEntry> cache;  // pair of the index of a given key and entry
     private XmlNamespace defaultNamespace = null;
 
     public NokogiriNamespaceCache() {
-        keys = new HashSet<String[]>(); // keys are [prefix, href]
+        keys = new ArrayList<String[]>(); // keys are [prefix, href]
         cache = new LinkedHashMap<String[], CacheEntry>();
     }
 

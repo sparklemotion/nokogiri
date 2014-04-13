@@ -608,7 +608,7 @@ public class XmlNode extends RubyObject {
         else namespaceOwner = node.getParentNode();
         XmlNamespace ns = XmlNamespace.createFromPrefixAndHref(namespaceOwner, prefix, href);
         if (node != namespaceOwner) {
-            this.node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + node.getLocalName());
+            this.node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + ":" + node.getLocalName());
         }
         updateNodeNamespaceIfNecessary(context, ns);
 
