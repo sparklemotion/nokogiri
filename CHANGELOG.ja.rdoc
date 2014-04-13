@@ -1,7 +1,13 @@
 === 1.6.2 / 未リリース
 
+* 註
+
+  * Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
+
 * 機能
 
+  * Add cross building of fat binary gems for 64-Bit Windows (x64-mingw32)
+    and add support for native builds on Windows. #864, #989, #1072
   * (MRI) iconvが Windows-31J をサポートしていない場合は CP932 のエイリアスとして扱うようにした #836
   * (MRI) 同梱ライブラリを静的にリンクするようになった (静的リンクをオフにするにはextconf.rbに --disable-static を渡す) #923
   * (MRI) 同梱ライブラリのビルド後に不要になったディレクトリ群を自動的に削除するようになった (デバッグ等の目的で残すようにするにはextconf.rbに --disable-clean を渡す) #952

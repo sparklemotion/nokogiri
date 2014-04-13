@@ -1,5 +1,9 @@
 === 1.6.2 / unreleased
 
+* Notes
+
+  * Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
+
 * Features
 
   * Add cross building of fat binary gems for 64-Bit Windows (x64-mingw32)
