@@ -47,7 +47,8 @@
   * Parsing empty documents raise SyntaxError in strict mode. #1005
   * (JRuby) Make xpath faster by caching the xpath context. #741
   * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
-
+  * (JRUby) Inconsistent behavior aliasing the default namespace. #940
+  * (JRuby) Inconsistent behavior between parsing and adding namespaces. #943
 
 === 1.6.1 / 2013-12-14
 

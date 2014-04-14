@@ -7,7 +7,7 @@ module Nokogiri
         super
       end
 
-      def test_alised_defautl_namespace_on_parse
+      def test_alised_default_namespace_on_parse
         doc = Nokogiri::XML('<apple xmlns="ns:fruit" xmlns:fruit="ns:fruit" />')
         ns = doc.root.namespaces
         assert_equal  "ns:fruit", ns["xmlns:fruit"], "Should have parsed aliased default namespace"

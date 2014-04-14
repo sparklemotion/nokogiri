@@ -33,7 +33,8 @@
   * Parsing empty documents raise SyntaxError in strict mode. #1005
   * (JRuby) Make xpath faster by caching the xpath context. #741
   * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
-
+  * (JRUby) JRubyによるディフォルトネームスペースエイリアスの振る舞いがCRubyと同じではない。#940
+  * (JRuby) JRubyによるネームスペースのパースと追加の振る舞いが一致していない。 #943
 
 === 1.6.1 / 2013年12月14日
 
