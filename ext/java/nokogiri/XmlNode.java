@@ -1093,27 +1093,38 @@ public class XmlNode extends RubyObject {
         if (doc == null) return scoped_namespaces;
         if (doc instanceof HtmlDocument) return scoped_namespaces;
 
-        Node parentNode;
+        Node previousNode;
         if (node.getNodeType() == Node.ELEMENT_NODE) {
-            parentNode = node;
+            previousNode = node;
         } else if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
-            parentNode = ((Attr)node).getOwnerElement();
+            previousNode = ((Attr)node).getOwnerElement();
         } else {
-            parentNode = node.getParentNode();
+            previousNode = findPreviousElement(node);
         }
-        if (parentNode == null) return scoped_namespaces;
+        if (previousNode == null) return scoped_namespaces;
 
         List<String> prefixes_in_scope = new ArrayList<String>();
-        NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCacheFormNode(parentNode);
-        for (Node parent=parentNode; parent != null; parent = parent.getParentNode()) {
-            List<XmlNamespace> namespaces = nsCache.get(parent);
+        NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCacheFormNode(previousNode);
+        for (Node previous=previousNode; previous != null; ) {
+            List<XmlNamespace> namespaces = nsCache.get(previous);
             for (XmlNamespace namespace : namespaces) {
                 if (prefixes_in_scope.contains(namespace.getPrefix())) continue;
                 scoped_namespaces.append(namespace);
                 prefixes_in_scope.add(namespace.getPrefix());
             }
+            previous = findPreviousElement(previous);
         }
         return scoped_namespaces;
+    }
+
+    private Node findPreviousElement(Node n) {
+        Node previous = n.getPreviousSibling() == null ? n.getParentNode() : n.getPreviousSibling();
+        if (previous == null || previous.getNodeType() == Node.DOCUMENT_NODE) return null;
+        if (previous.getNodeType() == Node.ELEMENT_NODE) {
+            return previous;
+        } else {
+            return findPreviousElement(previous);
+        }
     }
 
     @JRubyMethod(name="namespaced_key?")
