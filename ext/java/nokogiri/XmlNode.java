@@ -574,7 +574,9 @@ public class XmlNode extends RubyObject {
             str = NokogiriHelpers.getLocalPart(str);
         }
         if (str == null) str = "";
+        if (str.startsWith("#")) str = str.substring(1);  // eliminates '#'
         name = NokogiriHelpers.stringOrBlank(context.getRuntime(), str);
+
         return name;
     }
 
