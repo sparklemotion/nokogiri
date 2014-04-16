@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2012:
+ * Copyright (c) 2008 - 2014:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -34,6 +34,8 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import javax.xml.transform.TransformerException;
@@ -88,23 +90,37 @@ public class XmlXpathContext extends RubyObject {
         variableResolver = NokogiriXPathVariableResolver.create();
     }
 
-    public void setNode(XmlNode node) {
+    private void setNode(XmlNode node) throws IllegalArgumentException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Node doc = node.getNode().getOwnerDocument();
         if (doc == null) {
-          doc = node.getNode();
+            doc = node.getNode();
         }
         xpathSupport = (XPathContext) doc.getUserData(XPATH_CONTEXT);
 
         if (xpathSupport == null) {
-          JAXPExtensionsProvider jep = new JAXPExtensionsProvider(functionResolver);
-          xpathSupport = new XPathContext( jep );
-          xpathSupport.setVarStack(new JAXPVariableStack(variableResolver));
-          doc.setUserData(XPATH_CONTEXT, xpathSupport, null);
+            JAXPExtensionsProvider jep = getProviderInstance();
+            xpathSupport = new XPathContext(jep);
+            xpathSupport.setVarStack(new JAXPVariableStack(variableResolver));
+            doc.setUserData(XPATH_CONTEXT, xpathSupport, null);
         }
 
         context = node;
         nsContext = NokogiriNamespaceContext.create();
         prefixResolver = new JAXPPrefixResolver(nsContext);
+    }
+
+    private JAXPExtensionsProvider getProviderInstance() throws ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Class<?> clazz = Class.forName("com.sun.org.apache.xpath.internal.jaxp.JAXPExtensionsProvider");
+        Constructor[] constructors = clazz.getDeclaredConstructors();
+        for (int i = 0; i < constructors.length; i++) {
+            Class[] parameterTypes = constructors[i].getParameterTypes();
+            if (parameterTypes.length == 2) {
+                return (JAXPExtensionsProvider) constructors[i].newInstance(functionResolver, false);
+            } else if (parameterTypes.length == 1) {
+                return (JAXPExtensionsProvider) constructors[i].newInstance(functionResolver);
+            }
+        }
+        return null;
     }
 
     /**
@@ -122,7 +138,19 @@ public class XmlXpathContext extends RubyObject {
         XmlNode xmlNode = (XmlNode)node;
         XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(thread_context.getRuntime(), (RubyClass)klazz);
         XPathFactory.newInstance().newXPath();
-        xmlXpathContext.setNode(xmlNode);
+        try {
+            xmlXpathContext.setNode(xmlNode);
+        } catch (IllegalArgumentException e) {
+            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
+        } catch (ClassNotFoundException e) {
+            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
+        } catch (InstantiationException e) {
+            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
+        } catch (IllegalAccessException e) {
+            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
+        } catch (InvocationTargetException e) {
+            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
+        }
         return xmlXpathContext;
     }
 
