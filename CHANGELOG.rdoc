@@ -50,10 +50,11 @@
   * (JRUby) Inconsistent behavior aliasing the default namespace. #940
   * (JRuby) Inconsistent behavior between parsing and adding namespaces. #943
   * (JRuby) Xpath returns inconsistent result set on cloned document with
-	namespaces and attributes. #1034
+    namespaces and attributes. #1034
   * (JRuby) Java-Implementation forgets element namespaces #902
   * (JRuby) JRuby-Nokogiri does not recognise attributes inside namespaces #1081
   * (JRuby) JRuby-Nokogiri has different comment node name #1080
+  * (JRuby) JAXPExtensionsProvider / Java 7 / Secure Processing #1070
 
 === 1.6.1 / 2013-12-14
 

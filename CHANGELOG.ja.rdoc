@@ -35,6 +35,11 @@
   * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
   * (JRUby) JRubyによるディフォルトネームスペースエイリアスの振る舞いがCRubyと同じではない。#940
   * (JRuby) JRubyによるネームスペースのパースと追加の振る舞いが一致していない。 #943
+  * (JRuby) Builderで作ったドキュメントとクローンしたドキュメントではXpathの結果が違う。#1034
+  * (JRuby) Javaの実装はネームスペースを忘れることがある。 #902
+  * (JRuby) JRuby-Nokogiriはネームスペーススコープ内のアトリビュートを正しく認識しない。#1081
+  * (JRuby) JRuby-Nokogiriはコメントノードの名前が違う。#1080
+  * (JRuby) JAXPExtensionsProvider / Java 7 / Secure Processingに問題がある。 #1070
 
 === 1.6.1 / 2013年12月14日
 
