@@ -1150,6 +1150,67 @@ eoxml
         root << "<a>hello:with_colon</a>"
         assert_match(/hello:with_colon/, document.to_xml)
       end
+
+      def test_document_add_morethanone_comment_or_processinginstruction
+        document = Nokogiri::XML::Document.new
+        root = Nokogiri::XML::Node.new 'foo', document
+        document.root = root
+
+        comment1 = Nokogiri::XML::Comment.new(document, 'comment message')
+        pi1 = Nokogiri::XML::ProcessingInstruction.new(document, 'xml-pi', 'key="value"')
+
+        assert_equal comment1, document.add_child(comment1)
+        assert_equal pi1, document.add_child(pi1)
+
+        assert_equal comment1, root.add_previous_sibling(comment1)
+        assert_equal pi1, root.add_previous_sibling(pi1)
+
+        assert_equal comment1, root.add_next_sibling(comment1)
+        assert_equal pi1, root.add_next_sibling(pi1)
+      end
+
+      def test_document_add_morethanone_other_node
+        document = Nokogiri::XML::Document.new
+        root = Nokogiri::XML::Node.new 'foo', document
+        document.root = root
+
+        node1 = Nokogiri::XML::Node.new('node1',  document)
+
+        assert_raises(RuntimeError, 'Document already has a root node') do
+          document.add_child(node1)
+        end
+
+        assert_raises(ArgumentError, 'A document may not have multiple root nodes') do
+          root.add_previous_sibling(node1)
+        end
+
+        assert_raises(ArgumentError, 'A document may not have multiple root nodes') do
+          root.add_next_sibling(node1)
+        end
+      end
+
+      def test_node_add_sibling
+        document = Nokogiri::XML::Document.new
+        root = Nokogiri::XML::Node.new 'foo', document
+        document.root = root
+
+        comment1 = Nokogiri::XML::Comment.new(document, 'comment message')
+        pi1 = Nokogiri::XML::ProcessingInstruction.new(document, 'xml-pi', 'key="value"')
+        node1 = Nokogiri::XML::Node.new('node1',  document)
+        node2 = Nokogiri::XML::Node.new('node2',  document)
+
+        assert_equal comment1, root.add_child(comment1)
+        assert_equal pi1, root.add_child(pi1)
+        assert_equal node1, root.add_child(node1)
+
+        assert_equal comment1, node1.add_previous_sibling(comment1)
+        assert_equal pi1, node1.add_previous_sibling(pi1)
+        assert_equal node2, node1.add_previous_sibling(node2)
+
+        assert_equal comment1, node1.add_next_sibling(comment1)
+        assert_equal pi1, node1.add_next_sibling(pi1)
+        assert_equal node2, node1.add_next_sibling(node2)
+      end
     end
   end
 end
