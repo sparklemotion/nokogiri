@@ -1,3 +1,9 @@
+=== 1.6.2.2 / unreleased
+
+==== Bug fixes
+
+* Fix JRuby memory exhaustion vulnerability. #1087 (Thanks, @ocher)
+
 === 1.6.2.1 / 2014-05-13
 
 ==== Bug fixes
