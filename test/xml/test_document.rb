@@ -625,6 +625,12 @@ module Nokogiri
         refute_empty doc.errors
       end
 
+      def test_memory_explosion_on_wrong_formatted_element_following_the_root_element
+        doc = Nokogiri::XML("<a/><\n")
+        refute_nil doc
+        refute_empty doc.errors
+      end
+
       def test_document_has_errors
         doc = Nokogiri::XML(<<-eoxml)
           <foo><bar></foo>

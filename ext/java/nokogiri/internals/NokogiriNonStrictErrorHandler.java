@@ -90,9 +90,11 @@ public class NokogiriNonStrictErrorHandler extends NokogiriErrorHandler{
      * the parsing to stop, or an error that can be ignored.
      */
     private static boolean isFatal(String msg) {
+        String msgLowerCase = msg.toLowerCase();
         return
-          msg.toLowerCase().contains("in prolog") ||
-          msg.toLowerCase().contains("limit") ||
-          msg.toLowerCase().contains("preceding the root element must be well-formed");
+          msgLowerCase.contains("in prolog") ||
+          msgLowerCase.contains("limit") ||
+          msgLowerCase.contains("preceding the root element must be well-formed") ||
+          msgLowerCase.contains("following the root element must be well-formed");
     }
 }
