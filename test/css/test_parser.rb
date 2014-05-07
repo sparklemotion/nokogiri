@@ -174,11 +174,11 @@ module Nokogiri
       end
 
       def test_nth_child_selectors
-        assert_xpath '//a[count(preceding-sibling::*) = 0]',         @parser.parse('a:first-child')
-        assert_xpath '//a[count(preceding-sibling::*) = 98]',          @parser.parse('a:nth-child(99)')
-        assert_xpath '//a[count(following-sibling::*) = 0]',      @parser.parse('a:last-child')
-        assert_xpath '//a[count(following-sbiling::*) = 0]',      @parser.parse('a:nth-last-child(1)')
-        assert_xpath '//a[count(following-sbiling::*) = 98]', @parser.parse('a:nth-last-child(99)')
+        assert_xpath '//a[count(preceding-sibling::*) = 0]',  @parser.parse('a:first-child')
+        assert_xpath '//a[count(preceding-sibling::*) = 98]', @parser.parse('a:nth-child(99)')
+        assert_xpath '//a[count(following-sibling::*) = 0]',  @parser.parse('a:last-child')
+        assert_xpath '//a[count(following-sibling::*) = 0]',  @parser.parse('a:nth-last-child(1)')
+        assert_xpath '//a[count(following-sibling::*) = 98]', @parser.parse('a:nth-last-child(99)')
       end
 
       def test_miscellaneous_selectors
