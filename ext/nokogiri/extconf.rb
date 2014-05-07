@@ -51,6 +51,20 @@ ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 # https://bugs.ruby-lang.org/issues/8074
 @libdir_basename = "lib" if RUBY_VERSION < '2.1.0'
 
+# Workaround for Ruby bug #9760, will be fixed in Ruby 2.2
+class Array
+  alias orig_or |
+
+  def | other
+    if self.equal?($DEFLIBPATH) && other.equal?($LIBPATH)
+      # Make sure library directories we set take precedence over $(libdir)
+      other.orig_or(self)
+    else
+      self.orig_or(other)
+    end
+  end
+end if RUBY_VERSION < '2.2.0'
+
 if arg_config('--clean')
   require 'pathname'
   require 'fileutils'
