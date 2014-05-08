@@ -1,0 +1,2006 @@
+From f933c898132f20a50ba39ac6116378b71a01c700 Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Fri, 7 Sep 2012 19:32:12 +0800
+Subject: [PATCH] Keep non-significant blanks node in HTML parser
+
+For https://bugzilla.gnome.org/show_bug.cgi?id=681822
+
+Regardless if the option HTML_PARSE_NOBLANKS is set or not, blank nodes
+are removed from a HTML document, for example:
+
+<html>
+  <head>
+    <title>This is a test.</title>
+  </head>
+  <body>
+    <p>This is a test.</p>
+  </body>
+</html>
+
+is read as:
+
+<html><head><title>This is a test.</title></head><body>
+    <p>This is a test.</p>
+  </body></html>
+
+This changes the default behaviour but the old behaviour is available
+as expected when using the parser flag HTML_PARSE_NOBLANKS
+
+Based on original patch from Igor Ignatyuk <igor_ignatiouk@hotmail.com>
+
+* HTMLparser.c: change various places in the parser where ignorable_space
+  SAX callback was called without checking for the parser flag preference
+* xmllint.c: make sure we use the new flag even for HTML parsing
+* result/HTML/*: this modifies the output of a number of tests
+---
+ HTMLparser.c               |  33 ++-
+ result/HTML/53867.html     |   8 +-
+ result/HTML/Down.html      |   5 +-
+ result/HTML/attrents.html  |   8 +-
+ result/HTML/autoclose.html |   4 +-
+ result/HTML/cf_128.html    |  22 +-
+ result/HTML/doc2.htm       |   4 +-
+ result/HTML/doc3.htm       | 286 +++++++++++++++++++-------
+ result/HTML/entities.html  |   6 +-
+ result/HTML/entities2.html |   6 +-
+ result/HTML/fp40.htm       |  20 +-
+ result/HTML/html5_enc.html |   4 +-
+ result/HTML/liclose.html   |   5 +-
+ result/HTML/lt.html        |   6 +-
+ result/HTML/noscript.html  |  10 +-
+ result/HTML/pre.html       |   6 +-
+ result/HTML/python.html    |   5 +-
+ result/HTML/reg1.html      |   4 +-
+ result/HTML/reg2.html      |   4 +-
+ result/HTML/reg3.html      |   4 +-
+ result/HTML/reg4.html      |   5 +-
+ result/HTML/repeat.html    |   4 +-
+ result/HTML/script.html    |   3 +-
+ result/HTML/script2.html   |   7 +-
+ result/HTML/test2.html     |  11 +-
+ result/HTML/test3.html     |  32 +--
+ result/HTML/utf8bug.html   | 100 ++++++----
+ result/HTML/wired.html     | 488 ++++++++++++++++++++++++++++++---------------
+ xmllint.c                  |   5 +-
+ 29 files changed, 768 insertions(+), 337 deletions(-)
+
+diff --git a/HTMLparser.c b/HTMLparser.c
+index 09a9a4b..a2976f0 100644
+--- a/HTMLparser.c
++++ b/HTMLparser.c
+@@ -2981,9 +2981,14 @@ htmlParseCharData(htmlParserCtxtPtr ctxt) {
+ 	     */
+ 	    if ((ctxt->sax != NULL) && (!ctxt->disableSAX)) {
+ 		if (areBlanks(ctxt, buf, nbchar)) {
+-		    if (ctxt->sax->ignorableWhitespace != NULL)
+-			ctxt->sax->ignorableWhitespace(ctxt->userData,
+-			                               buf, nbchar);
++		    if (ctxt->keepBlanks) {
++			if (ctxt->sax->characters != NULL)
++			    ctxt->sax->characters(ctxt->userData, buf, nbchar);
++		    } else {
++			if (ctxt->sax->ignorableWhitespace != NULL)
++			    ctxt->sax->ignorableWhitespace(ctxt->userData,
++			                                   buf, nbchar);
++		    }
+ 		} else {
+ 		    htmlCheckParagraph(ctxt);
+ 		    if (ctxt->sax->characters != NULL)
+@@ -3014,8 +3019,14 @@ htmlParseCharData(htmlParserCtxtPtr ctxt) {
+ 	 */
+ 	if ((ctxt->sax != NULL) && (!ctxt->disableSAX)) {
+ 	    if (areBlanks(ctxt, buf, nbchar)) {
+-		if (ctxt->sax->ignorableWhitespace != NULL)
+-		    ctxt->sax->ignorableWhitespace(ctxt->userData, buf, nbchar);
++		if (ctxt->keepBlanks) {
++		    if (ctxt->sax->characters != NULL)
++			ctxt->sax->characters(ctxt->userData, buf, nbchar);
++		} else {
++		    if (ctxt->sax->ignorableWhitespace != NULL)
++			ctxt->sax->ignorableWhitespace(ctxt->userData,
++			                               buf, nbchar);
++		}
+ 	    } else {
+ 		htmlCheckParagraph(ctxt);
+ 		if (ctxt->sax->characters != NULL)
+@@ -5687,9 +5698,15 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
+ 		    if ((cur != '<') && (cur != '&')) {
+ 			if (ctxt->sax != NULL) {
+ 			    if (IS_BLANK_CH(cur)) {
+-				if (ctxt->sax->ignorableWhitespace != NULL)
+-				    ctxt->sax->ignorableWhitespace(
+-					    ctxt->userData, &cur, 1);
++				if (ctxt->keepBlanks) {
++				    if (ctxt->sax->characters != NULL)
++					ctxt->sax->characters(
++						ctxt->userData, &cur, 1);
++				} else {
++				    if (ctxt->sax->ignorableWhitespace != NULL)
++					ctxt->sax->ignorableWhitespace(
++						ctxt->userData, &cur, 1);
++				}
+ 			    } else {
+ 				htmlCheckParagraph(ctxt);
+ 				if (ctxt->sax->characters != NULL)
+diff --git a/result/HTML/53867.html b/result/HTML/53867.html
+index acdad7c..f4902af 100644
+--- a/result/HTML/53867.html
++++ b/result/HTML/53867.html
+@@ -1,5 +1,7 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+-<html><head><style>
++<html>
++<head>
++<style>
+ .......
+ ...............................................................
+ ...............................................................
+@@ -63,4 +65,6 @@
+ ...............................................................
+ ...............................................................
+ ...............................................................
+-</style></head></html>
++</style>
++</head>
++</html>
+diff --git a/result/HTML/Down.html b/result/HTML/Down.html
+index 929ed8a..8489033 100644
+--- a/result/HTML/Down.html
++++ b/result/HTML/Down.html
+@@ -1,6 +1,9 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
+-<head><title>This service is temporary down</title></head>
++<head>
++  <title>This service is temporary down</title>
++</head>
++
+ <body bgcolor="#FFFFFF">
+ <h1 align="center">Sorry, this service is temporary down</h1>
+ We are doing our best to get it back on-line,
+diff --git a/result/HTML/attrents.html b/result/HTML/attrents.html
+index 0433f48..f7feaa6 100644
+--- a/result/HTML/attrents.html
++++ b/result/HTML/attrents.html
+@@ -1,4 +1,6 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+-<html><body bgcolor="#FFFFFF">
+-                <a href="mailto:katherine@cbfanc.org,website@bis.doc.gov?subject=South%20San%20Francisco%20BIS%20Seminar%20-%20October%2016th"></a><br>
+-</body></html>
++<html>
++<body bgcolor="#FFFFFF">
++                <a href="mailto:katherine@cbfanc.org,website@bis.doc.gov?subject=South%20San%20Francisco%20BIS%20Seminar%20-%20October%2016th"></a><br>
++</body>
++</html>
+diff --git a/result/HTML/autoclose.html b/result/HTML/autoclose.html
+index 1a54517..cacf4ed 100644
+--- a/result/HTML/autoclose.html
++++ b/result/HTML/autoclose.html
+@@ -1,2 +1,4 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+-<html><body><hr></body></html>
++<html><body>
++<hr>
++</body></html>
+diff --git a/result/HTML/cf_128.html b/result/HTML/cf_128.html
+index b3e6b41..e2261ea 100644
+--- a/result/HTML/cf_128.html
++++ b/result/HTML/cf_128.html
+@@ -1,16 +1,24 @@
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+ <html>
+-<head><title>gnome-xml push mode bug</title></head>
++<head>
++<title>gnome-xml push mode bug</title>
++</head>
+ <body>
+ 
+-<table border="4"><tr>
+-<td bgcolor="white">
++<table border="4">
++  <tr>
++    <td bgcolor="white">
+ 	Foo1
+-	<table border="4"><tr><td>Foo2<p></p>
++	<table border="4">
++	  <tr>
++	    <td>Foo2<p></p>
+ <p></p>
+-</td></tr></table>
+ </td>
++</tr>
++</table>
++    </td>
+     <td bgcolor="blue">Foo3</td>
+-   </tr></table>
+-</body>
++   </tr>
++  </table>
++  </body>
+ </html>
+diff --git a/result/HTML/doc2.htm b/result/HTML/doc2.htm
+index 2c7e230..4f959e9 100644
+--- a/result/HTML/doc2.htm
++++ b/result/HTML/doc2.htm
+@@ -7,7 +7,9 @@
+           function NS_NullWindow(){this.window;}
+           function NS_NewOpen(url,nam,atr){return(new NS_NullWindow());}
+           window.open=NS_NewOpen;
+-</script><!-- END Naviscope Javascript --><!-- saved from url=(0027)http://www.agents-tech.com/ --><meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
++</script>
++<!-- END Naviscope Javascript --><!-- saved from url=(0027)http://www.agents-tech.com/ -->
++<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+ <meta content="Copernic.com Inc. develops innovative agent technology solutions to efficiently access and manage the overwhelming quantity of information available on the Internet and intranets." name="DESCRIPTION">
+ <meta content="agent,technology,intranet,extranet,management,filtering,ranking,solution,service,intelligent,intelligence,client,server,architecture,developer,development,information,telecommunication,announcement,press,product,profile,contact,multi-agent,meta-search,metasearch,multi-thread,mobile,wireless,shopping,robot,PCS,Copernic,engine,toolkit,CDK,EDK" name="KEYWORDS">
+ <meta content="MSHTML 5.00.3103.1000" name="GENERATOR">
+diff --git a/result/HTML/doc3.htm b/result/HTML/doc3.htm
+index e66e256..e9d5e44 100644
+--- a/result/HTML/doc3.htm
++++ b/result/HTML/doc3.htm
+@@ -1,21 +1,24 @@
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+ <!-- saved from url=(0025)http://bp6.gamesquad.net/ --><!-- BEGIN Naviscope Javascript --><html>
+ <head>
+-<title>BP6.com #1 online resource for the BP6 Mobo....</title>
++<title>BP6.com #1 online resource for the BP6 Mobo....</title>
+ <script language="javascript">
+           NS_ActualOpen=window.open;
+           function NS_NullWindow(){this.window;}
+           function NS_NewOpen(url,nam,atr){return(new NS_NullWindow());}
+           window.open=NS_NewOpen;
+-</script><!-- END Naviscope Javascript --><!--last modified on Tuesday, February 22, 2000 11:47 PM --><meta content="text/html;CHARSET=iso-8859-1" http-equiv="Content-Type">
+-<meta content="Tim" name="Author">
++</script>
++<!-- END Naviscope Javascript --><!--last modified on Tuesday, February 22, 2000 11:47 PM -->
++<meta content="text/html;CHARSET=iso-8859-1" http-equiv="Content-Type">
++<meta content="Tim" name="Author">
+ <style type="text/css">A.nav {
+ 	COLOR: #003399; TEXT-DECORATION: none
+ }
+ A.nav:hover {
+ 	COLOR: #3366cc; TEXT-DECORATION: underline
+ }
+-</style>
++</style>
++
+ <script language="JavaScript">
+ <!-- Idea by:  Nic Wolfe (Nic@TimelapseProductions.com) -->
+ <!-- Web URL:  http://fineline.xs.mw -->
+@@ -30,33 +33,46 @@ id = day.getTime();
+ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0, location=0, statusbars=0, menubars=0, resizable=0, width=145, height=250');");
+ }
+ // End -->
+-</script><meta content="MSHTML 5.00.3103.1000" name="GENERATOR">
+-</head>
++</script>
++
++<meta content="MSHTML 5.00.3103.1000" name="GENERATOR">
++</head>
+ <body alink="red" bgcolor="black" link="red" text="white" vlink="red">
+ <p>
+ </p>
+ <div align="center">
+-<table border="0" cellpadding="0" cellspacing="0" width="80%"><tbody>
+-<tr>
+-<td valign="top" width="31"><a href="http://bp6.gamesquad.net/"><img align="bottom" border="0" height="74" src="doc3_files/logo.gif" width="252"></a></td>
++<table border="0" cellpadding="0" cellspacing="0" width="80%">
++  <tbody>
++  <tr>
++    <td valign="top" width="31"><a href="http://bp6.gamesquad.net/"><img align="bottom" border="0" height="74" src="doc3_files/logo.gif" width="252"></a></td>
+     <td align="left" bgcolor="#000000">
+-<img height="15" src="doc3_files/spacer.gif" width="15"><!-- START GAMESQUAD.NET IFRAME RICH MEDIA CODE --><!-- � 2000 GameSquad.net All Rights Reserved. --><iframe border="0" frameborder="no" height="60" marginheight="0" marginwidth="0" scrolling="no" src="doc3_files/adcycle.htm" width="468">
++<img height="15" src="doc3_files/spacer.gif" width="15"><!-- START GAMESQUAD.NET IFRAME RICH MEDIA CODE --> <!-- � 2000 GameSquad.net All Rights Reserved. --><iframe border="0" frameborder="no" height="60" marginheight="0" marginwidth="0" scrolling="no" src="doc3_files/adcycle.htm" width="468">
+ <a href="http://ads.gamesquad.net/addclick.exe/adclick.cgi?REGION=game%7Ctech%7Cent&amp;id=1" target="_top"><img src="http://ads.gamesquad.net/addclick.exe/adcycle.cgi?group=52&amp;media=1&amp;id=1" width="468" height="60" border="0" alt="GSN ROS Ad"></a>
+-</iframe><!-- END GAMESQUAD.NET IFRAME RICH MEDIA CODE --><br><img height="15" src="doc3_files/spacer.gif" width="400">
+-</td>
+-</tr>
+-<tr><td bgcolor="#003399" colspan="2">
++</iframe><!-- END GAMESQUAD.NET IFRAME RICH MEDIA CODE --><br><img height="15" src="doc3_files/spacer.gif" width="400"> </td>
++</tr>
++  <tr>
++    <td bgcolor="#003399" colspan="2">
+       <p align="right"><img align="right" border="0" height="18" hspace="0" src="doc3_files/trcorner.gif" width="20"><img align="left" border="0" height="18" hspace="0" src="doc3_files/tlcorner.gif" width="20"><font face="Verdana" size="2">Monday, July 31st, 2000</font> </p>
+-</td></tr>
+-<tr><td colspan="2">
+-      <table bgcolor="#003399" border="0" cellpadding="0" cellspacing="4" width="100%"><tbody><tr><td bgcolor="#666666" width="100%">
++</td>
++</tr>
++  <tr>
++    <td colspan="2">
++      <table bgcolor="#003399" border="0" cellpadding="0" cellspacing="4" width="100%"><tbody>
++        <tr>
++          <td bgcolor="#666666" width="100%">
+             <center>
+             <p>
+             </p>
+-<table bgcolor="black" border="0" cellpadding="0" cellspacing="1" width="100%"><tbody><tr><td background="doc3_files/hscan.gif" bgcolor="#666666" width="100%">
+-<img height="1" src="doc3_files/spacer.gif" width="738"><br><center>
+-                  <table border="0" cellpadding="2" cellspacing="0" width="91%"><tbody><tr>
+-<td valign="top" width="15%">
++<table bgcolor="black" border="0" cellpadding="0" cellspacing="1" width="100%">
++              <tbody>
++              <tr>
++                <td background="doc3_files/hscan.gif" bgcolor="#666666" width="100%">
++<img height="1" src="doc3_files/spacer.gif" width="738"><br>
++                  <center>
++                  <table border="0" cellpadding="2" cellspacing="0" width="91%">
++                    <tbody>
++                    <tr>
++                      <td valign="top" width="15%">
+                         <p align="center"><a href="http://bp6.gamesquad.net/specs.phtml"><img align="bottom" alt="Abit BP6 Motherboard specification and information." border="0" height="45" src="doc3_files/bp6icon.gif" width="70"></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/specs.phtml"><font color="white" face="Verdana" size="1">BP6 Specs</font></a> 
+                       </p>
+ </td>
+@@ -84,35 +100,63 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+                         <p align="center"><a href="http://www.gentus.com/"><img align="bottom" alt="Taking a first look at the Abit Linux release called " border="0" height="45" src="doc3_files/gentusbox.gif" width="70" gentus></a><br><a href="http://www.gentus.com/"><font color="white" face="Verdana" size="1">Gentus</font></a> 
+                   </p>
+ </td>
+-</tr></tbody></table>
++</tr>
++</tbody>
++</table>
+ </center>
+-</td></tr></tbody></table>
++</td>
++</tr>
++</tbody>
++</table>
+ </center>
+-</td></tr></tbody></table>
+-</td></tr>
++</td>
++</tr>
+ </tbody></table>
+-<table bgcolor="#003399" border="0" cellspacing="6" width="80%"><tbody><tr>
+-<td bgcolor="black" valign="top" width="10%">
+-      <table border="0" cellpadding="3" cellspacing="0" width="100%"><tbody><tr><td width="100%">
+-<img height="1" src="doc3_files/spacer.gif" width="111"><br><b><font color="yellow" face="Verdana" size="2">REVIEWS</font></b><font face="Verdana" size="2"><br><hr align="center"></font><a href="http://bp6.gamesquad.net/bp6reviews.phtml"><font color="white" face="Verdana" size="1">BP6 Reviews</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/h2o.phtml"><font color="white" face="Verdana" size="1">BP6 Watercooling</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/bxcool.phtml"><font color="white" face="Verdana" size="1">BX Chipset Cooling</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/benchmark.phtml"><font color="white" face="Verdana" size="1">Benchmarks</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/bp6fsb.phtml"><font color="white" face="Verdana" size="1">BP6FSB Utility</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/powerleap.phtml"><font color="white" face="Verdana" size="1">PowerLeap NEO S370</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/seti.phtml"><font color="white" face="Verdana" size="1">SETI on the BP6</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/orbs.phtml"><font color="white" face="Verdana" size="1">Golden Orbs I</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/orbs/orbs2.phtml"><font color="white" face="Verdana" size="1">Golden Orbs II</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/Q6fix.phtml"><font color="white" face="Verdana" size="1">VTT Solution</font></a><font face="Verdana" size="1"><br><br></font><b><font color="yellow" face="Verdana" size="2">NAVIGATE</font></b><font color="yellow" face="Verdana" size="2"> 
+-            <hr align="center"></font><a href="http://www.bp6.com/"><font color="white" face="Verdana" size="1">News</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/chat.phtml"><font color="white" face="Verdana" size="1">Online Text Chat</font></a><font face="Verdana" size="1"><br></font><a href="javascript:popUp('chat_popup.htm')"><font color="white" face="Verdana" size="1">Voice Chat</font></a><br><a href="http://216.247.220.192/Forum"><font color="white" face="Verdana" size="1">Messageboard</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/cooling"><font color="white" face="Verdana" size="1">Temp. Converter</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/uc.phtml"><font color="white" face="Verdana" size="1">Picture Gallery</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/bios.phtml"><font color="white" face="Verdana" size="1">Latest BIOS</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/files/"><font color="white" face="Verdana" size="1">Drivers &amp; Files</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/uc.phtml"><font color="white" face="Verdana" size="1">UGM of the week</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/contest.phtml"><font color="white" face="Verdana" size="1">BP6 Contest</font></a><font face="Verdana" size="1"><br><br></font><b><font color="yellow" face="Verdana" size="2">OTHER STUFF</font></b><font color="yellow" face="Verdana" size="2"> 
++</td>
++</tr>
++</tbody>
++</table>
++<table bgcolor="#003399" border="0" cellspacing="6" width="80%">
++  <tbody>
++  <tr>
++    <td bgcolor="black" valign="top" width="10%">
++      <table border="0" cellpadding="3" cellspacing="0" width="100%">
++        <tbody>
++        <tr>
++          <td width="100%">
++<img height="1" src="doc3_files/spacer.gif" width="111"><br><b><font color="yellow" face="Verdana" size="2">REVIEWS</font></b><font face="Verdana" size="2"><br>
++            <hr align="center">
++            </font><a href="http://bp6.gamesquad.net/bp6reviews.phtml"><font color="white" face="Verdana" size="1">BP6 Reviews</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/h2o.phtml"><font color="white" face="Verdana" size="1">BP6 Watercooling</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/bxcool.phtml"><font color="white" face="Verdana" size="1">BX Chipset Cooling</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/benchmark.phtml"><font color="white" face="Verdana" size="1">Benchmarks</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/bp6fsb.phtml"><font color="white" face="Verdana" size="1">BP6FSB Utility</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/powerleap.phtml"><font color="white" face="Verdana" size="1">PowerLeap NEO S370</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/seti.phtml"><font color="white" face="Verdana" size="1">SETI on the BP6</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/orbs.phtml"><font color="white" face="Verdana" size="1">Golden Orbs I</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/orbs/orbs2.phtml"><font color="white" face="Verdana" size="1">Golden Orbs II</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/Q6fix.phtml"><font color="white" face="Verdana" size="1">VTT Solution</font></a><font face="Verdana" size="1"><br><br></font><b><font color="yellow" face="Verdana" size="2">NAVIGATE</font></b><font color="yellow" face="Verdana" size="2"> 
++            <hr align="center">
++            </font><a href="http://www.bp6.com/"><font color="white" face="Verdana" size="1">News</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/chat.phtml"><font color="white" face="Verdana" size="1">Online Text Chat</font></a><font face="Verdana" size="1"><br></font><a href="javascript:popUp('chat_popup.htm')"><font color="white" face="Verdana" size="1">Voice Chat</font></a><br><a href="http://216.247.220.192/Forum"><font color="white" face="Verdana" size="1">Messageboard</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/cooling"><font color="white" face="Verdana" size="1">Temp. Converter</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/uc.phtml"><font color="white" face="Verdana" size="1">Picture Gallery</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/bios.phtml"><font color="white" face="Verdana" size="1">Latest BIOS</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/files/"><font color="white" face="Verdana" size="1">Drivers &amp; Files</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/uc.phtml"><font color="white" face="Verdana" size="1">UGM of the week</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/contest.phtml"><font color="white" face="Verdana" size="1">BP6 Contest</font></a><font face="Verdana" size="1"><br><br></font><b><font color="yellow" face="Verdana" size="2">OTHER STUFF</font></b><font color="yellow" face="Verdana" size="2"> 
+ 
+-            <hr align="center"></font><a href="http://bp6.gamesquad.net/whois.phtml"><font color="white" face="Verdana" size="1">Who is Tim?</font></a><font face="Verdana" size="1"><br></font><a href="mailto:tim@bp6.com"><font color="white" face="Verdana" size="1">Contact BP6.com</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/uc.phtml"><font color="white" face="Verdana" size="1">Affiliates Section</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/uc.phtml"><font color="white" face="Verdana" size="1">Sponsors Section <br></font></a><a href="http://bp6.gamesquad.net/links.phtml"><font color="white" face="Verdana" size="1">Links<br><br></font></a><b><font color="yellow" face="Verdana" size="2">PC SPECIALS</font></b><font color="yellow" face="Verdana" size="2"> 
+-            <hr align="center"></font><a href="http://bp6.gamesquad.net/specials.phtml"><font color="white" face="Verdana" size="1">Vendor 
++            <hr align="center">
++            </font><a href="http://bp6.gamesquad.net/whois.phtml"><font color="white" face="Verdana" size="1">Who is Tim?</font></a><font face="Verdana" size="1"><br></font><a href="mailto:tim@bp6.com"><font color="white" face="Verdana" size="1">Contact BP6.com</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/uc.phtml"><font color="white" face="Verdana" size="1">Affiliates Section</font></a><font face="Verdana" size="1"><br></font><a href="http://bp6.gamesquad.net/uc.phtml"><font color="white" face="Verdana" size="1">Sponsors Section <br></font></a><a href="http://bp6.gamesquad.net/links.phtml"><font color="white" face="Verdana" size="1">Links<br><br></font></a><b><font color="yellow" face="Verdana" size="2">PC SPECIALS</font></b><font color="yellow" face="Verdana" size="2"> 
++            <hr align="center">
++            </font><a href="http://bp6.gamesquad.net/specials.phtml"><font color="white" face="Verdana" size="1">Vendor 
+             Specials<br><br></font></a><br><b><font color="yellow" face="Verdana" size="2">Pic of the day</font></b>
+-            <hr>
+-<center>
++            <hr>
++             
++            <center>
+             <p align="center"><font face="Verdana, Arial, Helvetica" size="1"><a href="http://bp6.gamesquad.net/cgi-bin/schlabo/potd.pl"><img alt="No picture is available for today." border="0" src="doc3_files/potd_na_110x83.gif"></a> </font></p>
+ </center>
+-<br><center></center>
++<br>
++            <center></center>
+ <br><!--<A HREF="code:javascript:ID_FTPWebView.InvokeHelp()"><FONT SIZE="1" COLOR="white" FACE="Verdana">FTP Help</FONT></A>-->
+-</td></tr></tbody></table>
++</td>
++</tr>
++</tbody>
++</table>
+ </td>
+     <td bgcolor="white" valign="top" width="80%">
+-<img height="1" src="doc3_files/spacer.gif" width="490"><br><center>
++<img height="1" src="doc3_files/spacer.gif" width="490"><br>
++      <center>
+       <p>
+       </p>
+-<table bgcolor="white" border="0" cellpadding="10" cellspacing="0" height="100%" width="100%"><tbody><tr><td bgcolor="white" valign="top" width="100%">
++<table bgcolor="white" border="0" cellpadding="10" cellspacing="0" height="100%" width="100%">
++        <tbody>
++        <tr>
++          <td bgcolor="white" valign="top" width="100%">
+             <center>
+ <a href="http://www.encounter2001.com/" target="_blank"><img border="0" height="60" src="doc3_files/banner2.gif" width="468"></a> 
+             </center>
+@@ -128,8 +172,14 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             the heck is a Peltier?!?! - 10:05AM PDT</a></font><br><font face="arial" size="1"><a class="nav" href="http://bp6.gamesquad.net/index.phtml#newsitem964587833,74573,">HELLO 
+             EVERYONE!!! - 10:03PM PDT</a></font><br><font face="arial" size="1"><a class="nav" href="http://bp6.gamesquad.net/index.phtml#newsitem964429577,13375,">BP6 
+             Q3 server up and running.. - 2:06AM PDT</a></font><br><br><!-- NP v3.7.5 --><a name="newsitem965012956,78924,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Sunday, 
+-                  July 30, 2000</b></font></td></tr></tbody></table>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Sunday, 
++                  July 30, 2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">Chat with 
+             ABIT</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:Holodeck@bp6.com">Holodeck2</a> @ 8:09PM 
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/965012956,78924,.html"><img border="0" src="doc3_files/comments.gif">0 comments</a> 
+@@ -141,8 +191,14 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             BP6-2??<br>[EricBoeing] We already have a micro ATX dual flip-chip 
+             board<br>[EricBoeing] but it's OEM only<br>[EricBoeing] the full ATX 
+             version should be out Septemberish<br></font><br><br><a name="newsitem964766837,26344,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Thursday, 
+-                  July 27, 2000</b></font></td></tr></tbody></table>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Thursday, 
++                  July 27, 2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">Fixed 
+             wallpaper</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:Holodeck@bp6.com">Holodeck2</a> @ 11:47PM 
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/964766837,26344,.html"><img border="0" src="doc3_files/comments.gif">5 comments</a> 
+@@ -155,7 +211,9 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             error.<br>And 1 more person, THANK YOU TIM for letting me borrow 
+             your server space ;-)<br><br>If you need a weird resolution, feel 
+             free to <a href="mailto:Holodeck2@home.com">e-mail</a> me requesting 
+-            for one.<br>If you have ideas or more errors to point out, <a href="mailto:Holodeck2@home.com">mailto:Holodeck2@home.com</a><br><br><a href="doc3_files/3-800.jpg" target="800">800x600 </a><br><a href="http://www.bp6.com/pics/holodeck2/wallpaper/3-1024.jpg" target="800">1024x768 </a><br><a href="http://www.bp6.com/pics/holodeck2/wallpaper/3-1152.jpg" target="800">1152x864 </a><br><a href="http://www.bp6.com/pics/holodeck2/wallpaper/3-1280x1024.jpg" target="800">1280x1024 </a><br><a href="http://www.bp6.com/pics/holodeck2/wallpaper/3-1600.jpg" target="800">1600x1200 </a><br><p>Enjoy :-)<br></p>
++            for one.<br>If you have ideas or more errors to point out, <a href="mailto:Holodeck2@home.com">mailto:Holodeck2@home.com</a><br><br><a href="doc3_files/3-800.jpg" target="800">800x600 </a><br><a href="http://www.bp6.com/pics/holodeck2/wallpaper/3-1024.jpg" target="800">1024x768 </a><br><a href="http://www.bp6.com/pics/holodeck2/wallpaper/3-1152.jpg" target="800">1152x864 </a><br><a href="http://www.bp6.com/pics/holodeck2/wallpaper/3-1280x1024.jpg" target="800">1280x1024 </a><br><a href="http://www.bp6.com/pics/holodeck2/wallpaper/3-1600.jpg" target="800">1600x1200 </a><br>
++            <p>Enjoy :-)<br>
++            </p>
+ <p><a href="mailto:Holodeck2@home.com">Holodeck2,</a><br>[H]ard at 
+             work on the Brand Spanking New Wallpaper.<br></p></font><br><br><a name="newsitem964762841,25865,"></a><b><u><font color="#003366" face="Verdana, Arial" size="2">Seti update</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:Holodeck@bp6.com">Holodeck2</a> @ 10:40PM 
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/964762841,25865,.html"><img border="0" src="doc3_files/comments.gif">5 comments</a> 
+@@ -183,8 +241,14 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             �|�<a href="http://bp6.gamesquad.net/#news_top">top</a></font> <br><font color="black" face="Arial" size="2">Need some cooling for your Videocard 
+             memory to get a little extra overclockability and FPS? <a href="http://www.overclockershideout.com/RamSinks.html" target="_BLANK">Overclockers Hiedout Ram Sinks</a> They just notified 
+             me of their new design.<br><img border="1" src="doc3_files/ramsink.jpg"></font><br><br><a name="newsitem964671589,7831,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Wednesday, July 26, 
+-            2000</b></font></td></tr></tbody></table>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Wednesday, July 26, 
++            2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">is it 
+             [H]ard?</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:Holodeck@bp6.com">Holodeck2</a> @ 9:19PM 
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/964671589,7831,.html"><img border="0" src="doc3_files/comments.gif">0 comments</a> 
+@@ -212,8 +276,14 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             sleeping it would be like 4 in the morning here. Just to let you 
+             know <img src="doc3_files/smile.gif"><br>I'm not angry at anyone... 
+             good thing I have a long fuse <img src="doc3_files/tongue.gif"><br></font><br><br><a name="newsitem964587833,74573,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Tuesday, 
+-                  July 25, 2000</b></font></td></tr></tbody></table>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Tuesday, 
++                  July 25, 2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">HELLO 
+             EVERYONE!!!</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:Holodeck@bp6.com">Holodeck2</a> @ 10:03PM 
+             PDT</small>� <br><font color="black" face="Arial" size="2">Hello 
+@@ -233,8 +303,14 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             if I&#8217;m in front of my comp and not trying to frag someone)<br><a href="http://www.icq.com/download">ICQ: </a>82640218 (rarely 
+             on)<br><br>P.S. If someone named &#8220;Digital Vortex&#8221; on either Quake 3 
+             or 2 frags you, it&#8217;s probably me. ;-)<br></font><br><br><a name="newsitem964429577,13375,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Monday, 
+-                  July 24, 2000</b></font></td></tr></tbody></table>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Monday, 
++                  July 24, 2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">BP6 Q3 server up and 
+             running..</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:tim@bp6.com">tim</a> @ 2:06AM PDT</small>� <a href="http://bp6.gamesquad.net/news/964429577,13375,.html"><img border="0" src="doc3_files/comments.gif">3 comments</a> 
+             �|�<a href="http://bp6.gamesquad.net/#news_top">top</a></font> <br><font color="black" face="Arial" size="2">Setup a Q3 server for anyone wanting 
+@@ -254,8 +330,14 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             system, and flash again. This is also good as a failsafe in case you 
+             don't believe in Virus Protecting your computer. (Thanks to Fred for 
+             link)<br><a href="http://www.ioss.com.tw/eg/rd1/RD1info0004.PDF" target="_NEW">Manufacturers Brochure</a> (PDF Format)<br><a href="http://192.216.185.10/mwave/doc/A06950.html" target='_BLANK"'>Another info page</a><br><a href="http://192.216.185.10/mwave/ProdMB-AC-MW.hmx?UID=&amp;CID=&amp;updepts=MB&amp;DNAME=%3Cb%3EMotherboards%3C%2Fb%3E&amp;Back=ProdMB-AC-MW.hmx?" target="_BLANK">Available for about $20</a><br><br><img src="doc3_files/rd1.jpg"></font><br><br><a name="newsitem963875853,12731,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Monday, 
+-                  July 17, 2000</b></font></td></tr></tbody></table>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Monday, 
++                  July 17, 2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">How To 
+             Overclock</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:killz@i82hq.com">DareDevil</a> @ 4:17PM 
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/963875853,12731,.html"><img border="0" src="doc3_files/comments.gif">3 comments</a> 
+@@ -277,7 +359,8 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/963859982,88982,.html"><img border="0" src="doc3_files/comments.gif">1 comments</a> 
+             �|�<a href="http://bp6.gamesquad.net/#news_top">top</a></font> <br><font color="black" face="Arial" size="2">We all need to have some fun 
+             sometimes! Check out this little web site that sells 'nerd' clothing 
+-            ;) (I like the bibs in the Junior Hackerz section) :-�<br><br><div align="center"><a href="http://www.nerdgear.com/" target="_blank"><img border="0" src="doc3_files/nerdinside.gif"></a></div></font><br><br><a name="newsitem963819796,9688,"></a><b><u><font color="#003366" face="Verdana, Arial" size="2">Dual PSU Wiring diagram... (preview to 
++            ;) (I like the bibs in the Junior Hackerz section) :-�<br><br>
++            <div align="center"><a href="http://www.nerdgear.com/" target="_blank"><img border="0" src="doc3_files/nerdinside.gif"></a></div></font><br><br><a name="newsitem963819796,9688,"></a><b><u><font color="#003366" face="Verdana, Arial" size="2">Dual PSU Wiring diagram... (preview to 
+             Part 1 Watercooling Project)</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:tim@bp6.com">tim</a> @ 12:43AM PDT</small>� <a href="http://bp6.gamesquad.net/news/963819796,9688,.html"><img border="0" src="doc3_files/comments.gif">11 comments</a> 
+             �|�<a href="http://bp6.gamesquad.net/#news_top">top</a></font> <br><font color="black" face="Arial" size="2">When is comes to overclocking your 
+             system, cooling plays a big role. Powering all of those fans in your 
+@@ -293,8 +376,14 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             <br><br>View Diagram 1 <a href="http://bp6.gamesquad.net/images/wiring.jpg" target="_BLANK">here</a>.<br>View Diagram 2 <a href="http://bp6.gamesquad.net/images/psu2.gif" target="_BLANK">here</a>.<br><br>I used Tap-In Squeeze Connectors and 
+             22 guage wire to connect the wires. You can get them at Radio Shack 
+             Part# 64-3053 or <a href="http://www.radioshack.com/ProductCatalog/ProductDetail/Index/1,2098,,00.html?SKUString1=64&amp;SKUString2=3053" target="_blank">click here</a>.</font><br><br><a name="newsitem963766655,78511,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Sunday, 
+-                  July 16, 2000</b></font></td></tr></tbody></table>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Sunday, 
++                  July 16, 2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">RAM Overclocking? 
+             Hmmmmm.</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:killz@i82hq.com">DareDevil</a> @ 9:57AM 
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/963766655,78511,.html"><img border="0" src="doc3_files/comments.gif">3 comments</a> 
+@@ -319,9 +408,16 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             �|�<a href="http://bp6.gamesquad.net/#news_top">top</a></font> <br><font color="black" face="Arial" size="2">A follow up on the 'Weekly CPU 
+             Prices', this guide will help you determine which cpu is best for 
+             you (and your board ;-)). Sent to me by Spanky, here's the 
+-            link:<br><br><li><a href="http://www6.tomshardware.com/howto/00q2/000412/index.html" target="_blank">http://www6.tomshardware.com/howto/00q2/000412/index.html</a></li></font><br><br><a name="newsitem963685749,28290,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Saturday, 
+-                  July 15, 2000</b></font></td></tr></tbody></table>
++            link:<br><br>
++            <li><a href="http://www6.tomshardware.com/howto/00q2/000412/index.html" target="_blank">http://www6.tomshardware.com/howto/00q2/000412/index.html</a></li></font><br><br><a name="newsitem963685749,28290,"></a>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Saturday, 
++                  July 15, 2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">Weekly CPU 
+             Prices</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:killz@i82hq.com">DareDevil</a> @ 11:29AM 
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/963685749,28290,.html"><img border="0" src="doc3_files/comments.gif">2 comments</a> 
+@@ -341,8 +437,14 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             any porno piccies in my mailbox! I have enough of those!) Kidding 
+             guys.<br><br>Okay, that's all for now.<br><br>The 
+             ��.</font><br><br><a name="newsitem963619505,3764,"></a>
+-            <table bgcolor="#003399" width="100%"><tbody><tr><td><font color="#ffffff" face="Verdana,arial" size="2"><b>Friday, 
+-                  July 14, 2000</b></font></td></tr></tbody></table>
++            <table bgcolor="#003399" width="100%">
++              <tbody>
++              <tr>
++                <td><font color="#ffffff" face="Verdana,arial" size="2"><b>Friday, 
++                  July 14, 2000</b></font></td>
++</tr>
++</tbody>
++</table>
+ <br><!--<hr noshade width=100%>--><b><u><font color="#003366" face="Verdana, Arial" size="2">Hey 
+             There!</font></u></b><br><font color="#0066cc" face="Arial" size="1"><small>Posted by <a class="nav" href="mailto:killz@i82hq.com">DareDevil</a> @ 5:05PM 
+             PDT</small>� <a href="http://bp6.gamesquad.net/news/963619505,3764,.html"><img border="0" src="doc3_files/comments.gif">7 comments</a> 
+@@ -351,15 +453,22 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             I'll be posting up news from time to time now so, if you'd like, you 
+             may send me some news to be posted if you find any ( we don't want 
+             to flood Tim ;-) ).<br><br>My e-mail address is <a href="mailto:killz@i82hq.com">killz@i82hq.com</a><br><br>Ciao for 
+-            now.<br><br>The ��.</font><br><br></font><center><iframe frameborder="0" height="60" marginheight="0" marginwidth="0" noresize scrolling="no" src="doc3_files/ad_iframe.htm" width="468"><a href="http://ads.adflight.com/go_static.asp?asid=7708" target="_top"><img width="468" height="60" border="0" alt="Advertisement" src="http://ads.adflight.com/ad_static.asp?pid=2097&amp;sid=1881&amp;asid=7708"></a></iframe></center>
+-</td></tr></tbody></table>
++            now.<br><br>The ��.</font><br><br>
++            </font><center><iframe frameborder="0" height="60" marginheight="0" marginwidth="0" noresize scrolling="no" src="doc3_files/ad_iframe.htm" width="468"><a href="http://ads.adflight.com/go_static.asp?asid=7708" target="_top"><img width="468" height="60" border="0" alt="Advertisement" src="http://ads.adflight.com/ad_static.asp?pid=2097&amp;sid=1881&amp;asid=7708"></a></iframe></center>
++</td>
++</tr>
++</tbody>
++</table>
+ </center>
+ </td>
+     <td bgcolor="silver" valign="top" width="10%">
+       <center>
+       <p>
+       </p>
+-<table bgcolor="silver" border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td colstart="1">
++<table bgcolor="silver" border="0" cellpadding="0" cellspacing="0" width="100%">
++        <tbody>
++        <tr>
++          <td colstart="1">
+             <center>
+ <!--	<FORM ACTION="/cgi-bin/subscribe.pl" METHOD="POST" ENCTYPE="application/x-www-form-urlencoded">
+ 						<IMG SRC="/images/spacer.gif" WIDTH="111" HEIGHT="1"><BR>
+@@ -375,7 +484,10 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+             <form action="http://bp6.gamesquad.net/cgi-bin/news/viewnews.cgi?search" method="post">Search news<br><input name="searchstring" size="13"><br><input name="submit" style="BACKGROUND-COLOR: #000000; COLOR: #ffffff; FONT-FAMILY: Verdana; FONT-SIZE: xx-small; FONT-WEIGHT: bold" type="submit" value="Submit"><br><a href="http://bp6.gamesquad.net/cgi-bin/news/viewnews.cgi?newsall">News 
+             archive</a>
+ </form></font> </center>
+-</td></tr></tbody></table>
++</td>
++</tr>
++</tbody>
++</table>
+ <!--				<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" BGCOLOR="silver">
+ 					<TR>
+ 						<TD WIDTH="100%">
+@@ -384,7 +496,11 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+ 						</TD>
+ 					</TR>
+ 				</TABLE> 
+---><table bgcolor="silver" border="0" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td align="middle" width="100%">
++-->
++      <table bgcolor="silver" border="0" cellpadding="0" cellspacing="0" width="100%">
++        <tbody>
++        <tr>
++          <td align="middle" width="100%">
+ <!-- BEGIN GoTo.com Search Box -->
+             <script language="javascript" type="text/javascript">
+ 							<!--
+@@ -415,31 +531,49 @@ eval("page" + id + " = window.open(URL, '" + id + "', 'toolbars=0, scrollbars=0,
+ 							document.write("ype=gif&size=100x90>");
+ 							}
+ 							// -->
+-							</script><b><noscript></noscript></b><a href="http://www.goto.com/d/search/ssn/?fromGIF=true" target="_blank"><img align="bottom" border="0" height="90" ismap src="doc3_files/100x90.gif" width="100"></a><b><a href="http://www.goto.com/d/search/ssn/?fromGIF=true" target="_blank"> 
++							</script>
++            <b><noscript></noscript></b><a href="http://www.goto.com/d/search/ssn/?fromGIF=true" target="_blank"><img align="bottom" border="0" height="90" ismap src="doc3_files/100x90.gif" width="100"></a><b><a href="http://www.goto.com/d/search/ssn/?fromGIF=true" target="_blank"> 
+             </a></b><b></b><b><!-- END GoTo.com Search Box --></b><!-- Pricewatch Search Box -->
+             <form action="http://www.pricewatch.com/search/search.asp" method="get" target="_Blank">
+             <center>
+             <p><b><font color="white" face="ARIAL, HELVETICA" size="1">PC Price 
+-            Search<br></font></b><input maxlength="30" name="criteria" size="10"><br><input name="submit" style="BACKGROUND-COLOR: #000000; COLOR: #ffffff; FONT-FAMILY: Verdana; FONT-SIZE: xx-small; FONT-WEIGHT: bold" type="submit" value="Search"></p>
++            Search<br></font></b><input maxlength="30" name="criteria" size="10"><br><input name="submit" style="BACKGROUND-COLOR: #000000; COLOR: #ffffff; FONT-FAMILY: Verdana; FONT-SIZE: xx-small; FONT-WEIGHT: bold" type="submit" value="Search"> 
++            </p>
+ </center>
+ </form>
+ <!-- Pricewatch Search Box --><a href="http://www.puicorp.com/bp6specials.htm" target="_BLANK"><img src="doc3_files/puibp6.gif"></a><br><br><br><br><a href="http://store.yahoo.com/dunamis-site/maxtor.html" target="_BLANK"><img alt="BP6.com Special - Enter CODE: BP6-hd in the order (notes) to receive a discount" src="doc3_files/hd5.gif"><font size="1"><br>BP6.COM 
+-            Special<br>Code:BP6-hd</font></a> </td></tr></tbody></table>
+-<table bgcolor="silver" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%"><tbody><tr><td width="100%">�</td></tr></tbody></table>
++            Special<br>Code:BP6-hd</font></a> </td>
++</tr>
++</tbody>
++</table>
++      <table bgcolor="silver" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
++        <tbody>
++        <tr>
++          <td width="100%">�</td>
++</tr>
++</tbody>
++</table>
+ </center>
+ </td>
+-</tr></tbody></table>
+-<!--	</TABLE>--><center></center>
++</tr>
++</tbody>
++</table>
++<!--	</TABLE>-->
++<center></center>
+ <tr>
+-<td colspan="3" valign="TOP" height="70">�</td> </tr>
+-<table border="0" width="780"><tbody>
+-<tr><td width="780">
++<td colspan="3" valign="TOP" height="70">�</td> </tr>
++<table border="0" width="780">
++  <tbody>
++  <tr>
++    <td width="780">
+       <p align="center"><font color="#999999" face="verdana,arial" size="1">Copyright 
+       �1999-2000 BP6.com, All rights reserved.<br>Got news? Send it to </font><a href="mailto:tim@bp6.com"><font color="white" face="Verdana" size="1">Tim</font></a> </p>
+-</td></tr>
++</td>
++</tr>
+ <!--	<TR>		<TD WIDTH="780">			<P ALIGN="CENTER"><FONT SIZE="1" COLOR="#999999" FACE="Verdana,arial">Site design by Tim Brinkley</FONT>		</TD>	</TR> -->
+-</tbody></table>
++</tbody>
++</table>
+ </div>
+-<script> window.open=NS_ActualOpen; </script>
++<script> window.open=NS_ActualOpen; </script>
+ </body>
+ </html>
+diff --git a/result/HTML/entities.html b/result/HTML/entities.html
+index 6e53680..f84424c 100644
+--- a/result/HTML/entities.html
++++ b/result/HTML/entities.html
+@@ -1,6 +1,8 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+-<html><body><p tst="a&amp;b" tst2="a&amp;b" tst3="a &amp; b">
++<html><body>
++<p tst="a&amp;b" tst2="a&amp;b" tst3="a &amp; b">
+ a&amp;b
+ a&amp;b
+ a &amp; b
+-</p></body></html>
++</p>
++</body></html>
+diff --git a/result/HTML/entities2.html b/result/HTML/entities2.html
+index 0b85caf..8e854d3 100644
+--- a/result/HTML/entities2.html
++++ b/result/HTML/entities2.html
+@@ -1,6 +1,8 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+-<html><body>
++<html>
++<body>
+ <form>
+   <input type="text" name="test" value="&scaron;">
+ </form>
+-</body></html>
++</body>
++</html>
+diff --git a/result/HTML/fp40.htm b/result/HTML/fp40.htm
+index a1244dd..8affc19 100644
+--- a/result/HTML/fp40.htm
++++ b/result/HTML/fp40.htm
+@@ -1,10 +1,12 @@
+ <!DOCTYPE html PUBLIC "-//IETF//DTD HTML//EN">
+ <html>
++
+ <head>
+ <meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+ <title>README - Microsoft FrontPage 2000 Server Extensions</title>
+ <meta name="Microsoft Theme" content="none">
+ </head>
++
+ <body>
+ <font face="Verdana">
+ <h1><a name="top">Microsoft FrontPage 2000 Server Extensions, UNIX</a></h1>
+@@ -16,13 +18,16 @@
+ 
+ </p>
+ <ul>
+-<li>Authoring FrontPage webs</li>
++  <li>Authoring FrontPage webs</li>
+   <li>Administering FrontPage webs</li>
+   <li>Browse-time FrontPage web functionality</li>
+ </ul>
++
++
+ <h2>Contents&nbsp;</h2>
+ 
+-<a href="#relnotes">Release Notes</a><br><a href="#moreinfo">Resources for More Information</a>
++<a href="#relnotes">Release Notes</a><br>
++<a href="#moreinfo">Resources for More Information</a>
+ <p>&nbsp;</p>
+ <hr>
+ <h2><a name="relnotes">Release Notes</a></h2>
+@@ -30,7 +35,9 @@
+ <p>This section provides complementary or late-breaking 
+ information to supplement the Microsoft FrontPage Server Extensions documentation.</p>
+ 
+-<p><a href="#apache">Apache 1.3.4 Support</a><br><a href="#upgrading">Upgrading from previous version of FrontPage Server Extensions</a><br><a href="#executables">Uploading files into executable folders</a></p>
++<p><a href="#apache">Apache 1.3.4 Support</a><br>
++<a href="#upgrading">Upgrading from previous version of FrontPage Server Extensions</a><br>
++<a href="#executables">Uploading files into executable folders</a></p>
+ 
+ 
+ <p align="right"><font size="1"><a href="#top">Top of Page</a></font></p>
+@@ -100,12 +107,17 @@ see the FrontPage 2000 Server Extensions Resource Kit at <a href="http://officeu
+ 
+ 
+ <hr>
++
++
++
+ <h2><a name="moreinfo">Resources for More Information</a></h2>
+ 
+ <p>This section lists sources of more information about the
+ FrontPage Server Extensions.</p>
+ 
+-<p><a href="#serk">Server Extensions Resource Kit</a><br><a href="#serkupdate">Server Extensions Resource Kit Update</a><br><a href="#kb">Knowledge Base</a></p>
++<p><a href="#serk">Server Extensions Resource Kit</a><br>
++<a href="#serkupdate">Server Extensions Resource Kit Update</a><br>
++<a href="#kb">Knowledge Base</a></p>
+ 
+ 
+ <p align="right"><font size="1"><a href="#top">Top of Page</a></font></p>
+diff --git a/result/HTML/html5_enc.html b/result/HTML/html5_enc.html
+index 596d54d..44ceebc 100644
+--- a/result/HTML/html5_enc.html
++++ b/result/HTML/html5_enc.html
+@@ -1,6 +1,8 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
+-<head><meta charset="iso-8859-1"></head>
++<head>
++<meta charset="iso-8859-1">
++</head>
+ <body>
+   <p>tr&egrave;s</p>
+ </body>
+diff --git a/result/HTML/liclose.html b/result/HTML/liclose.html
+index f4e4edb..62391dc 100644
+--- a/result/HTML/liclose.html
++++ b/result/HTML/liclose.html
+@@ -1,6 +1,8 @@
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
+-<head><title></title></head>
++<head>
++  <title></title>
++</head>
+ <body>
+ <ul>
+ <li>First item
+@@ -8,5 +10,6 @@
+ <li>Second item, closes the first one
+ </li>
+ </ul>
++
+ </body>
+ </html>
+diff --git a/result/HTML/lt.html b/result/HTML/lt.html
+index ca28039..c29f74f 100644
+--- a/result/HTML/lt.html
++++ b/result/HTML/lt.html
+@@ -1,2 +1,6 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+-<html><head><meta name="Author" content="Root &lt;root@aol.com&gt;"></head></html>
++<html>
++<head>
++<meta name="Author" content="Root &lt;root@aol.com&gt;">
++</head>
++</html>
+diff --git a/result/HTML/noscript.html b/result/HTML/noscript.html
+index 09d98ce..454e943 100644
+--- a/result/HTML/noscript.html
++++ b/result/HTML/noscript.html
+@@ -1,10 +1,10 @@
+ <!DOCTYPE html>
+ <html>
+-<head>
+-<title>omg</title>
+-<noscript><link rel="stylesheet" href="http://foo.com"></noscript>
+-</head>
+-<body id="xxx">
++    <head>
++        <title>omg</title>
++        <noscript><link rel="stylesheet" href="http://foo.com"></noscript>
++    </head>
++    <body id="xxx">
+         <p>yo</p>
+     </body>
+ </html>
+diff --git a/result/HTML/pre.html b/result/HTML/pre.html
+index 5308b6d..f83a7cb 100644
+--- a/result/HTML/pre.html
++++ b/result/HTML/pre.html
+@@ -1,4 +1,6 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+-<html><body>
++<html>
++<body>
+ <pre><a href="toto"></a><img src="titi"></pre>
+-</body></html>
++</body>
++</html>
+diff --git a/result/HTML/python.html b/result/HTML/python.html
+index 5fdc6a2..ea0be18 100644
+--- a/result/HTML/python.html
++++ b/result/HTML/python.html
+@@ -1,6 +1,9 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+ <?xml-stylesheet href="./css/ht2html.css" type="text/css"?><html>
+-<!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. --><head><title>Python Programming Language</title></head>
++<!-- THIS PAGE IS AUTOMATICALLY GENERATED.  DO NOT EDIT. -->
++<head>
++<title>Python Programming Language</title>
++</head>
+ <body>
+ </body>
+ </html>
+diff --git a/result/HTML/reg1.html b/result/HTML/reg1.html
+index ef9f2e1..893d6a2 100644
+--- a/result/HTML/reg1.html
++++ b/result/HTML/reg1.html
+@@ -1,6 +1,8 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
+-<head><title>Regression test 1</title></head>
++<head>
++<title>Regression test 1</title>
++</head>
+ <body>
+ <h1>Regression test 1</h1>
+ <p>
+diff --git a/result/HTML/reg2.html b/result/HTML/reg2.html
+index ac12028..88cf9d3 100644
+--- a/result/HTML/reg2.html
++++ b/result/HTML/reg2.html
+@@ -1,6 +1,8 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
+-<head><title>Regression test 2</title></head>
++<head>
++<title>Regression test 2</title>
++</head>
+ <body>
+ <h1>Regression test 2</h1>
+ <p>
+diff --git a/result/HTML/reg3.html b/result/HTML/reg3.html
+index 7b1bc1d..d35ac0d 100644
+--- a/result/HTML/reg3.html
++++ b/result/HTML/reg3.html
+@@ -1,6 +1,8 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
+-<head><title>Regression test 3</title></head>
++<head>
++<title>Regression test 3</title>
++</head>
+ <body>
+ <h1>Regression test 3</h1>
+ <p>
+diff --git a/result/HTML/reg4.html b/result/HTML/reg4.html
+index f6a6ab8..eb1ba09 100644
+--- a/result/HTML/reg4.html
++++ b/result/HTML/reg4.html
+@@ -1,11 +1,14 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
+-<head><title>Regression test 4</title></head>
++<head>
++<title>Regression test 4</title>
++</head>
+ <body>
+ <h1>Regression test 4</h1>
+ <p>
+ Wrong close of tag P
+ </p>
+ <hr>
++
+ </body>
+ </html>
+diff --git a/result/HTML/repeat.html b/result/HTML/repeat.html
+index 550c66f..71cf72e 100644
+--- a/result/HTML/repeat.html
++++ b/result/HTML/repeat.html
+@@ -1,5 +1,7 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html><body>
+ <td></td>
+-<td><!-- <a><b> --></td>
++<td>
++<!-- <a><b> -->
++</td>
+ </body></html>
+diff --git a/result/HTML/script.html b/result/HTML/script.html
+index 908723e..5b95a1f 100644
+--- a/result/HTML/script.html
++++ b/result/HTML/script.html
+@@ -4,6 +4,7 @@
+ <body>
+ <script language="javascript">
+     if (window.open<max) ;
+-</script><input onclick="if(window.open&lt;max);">
++</script>
++<input onclick="if(window.open&lt;max);">
+ </body>
+ </html>
+diff --git a/result/HTML/script2.html b/result/HTML/script2.html
+index 2be4f93..2ad9b95 100644
+--- a/result/HTML/script2.html
++++ b/result/HTML/script2.html
+@@ -1,14 +1,15 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+ <html xmlns="http://www.w3.org/1999/xhtml">
+-<head>
+-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
++	<head>
++		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ <title>Test Page</title>
+ </head>
+ <body>
+ <div id="portal">
+ <script type="text/javascript">
+ 	documen.write("Příliš žluťoučký kůň úpěl ďábelksé ódy");
+-</script><p>
++</script>
++	<p>
+ 	Příliš žluťoučký kůň úpěl ďábelksé ódy;
+ 	</p>
+ </div>
+diff --git a/result/HTML/test2.html b/result/HTML/test2.html
+index 98a2716..eaa8864 100644
+--- a/result/HTML/test2.html
++++ b/result/HTML/test2.html
+@@ -1,11 +1,13 @@
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
+-<head><title>Linux Today</title></head>
++<head> <title>Linux Today</title>
++</head>
+ <body bgcolor="White" link="Blue" text="Black" vlink="Black" alink="Red">
+ 
+ <center>
+-<table border="0" width="100%" cellspacing="0" cellpadding="0"><tr bgcolor="#FFFFFF">
+-<td height="90">
++<table border="0" width="100%" cellspacing="0" cellpadding="0">
++        <tr bgcolor="#FFFFFF">
++                <td height="90">
+ <a href="http://linuxtoday.com/cgi-bin/click.pl?adnum=49"><img src="/pics/door_linux.gif" border="0" width="468" height="60" alt="Atipa Linux solutions. Your reliable cluster, server, and workstation solution. Win a Free Celeron Linux Workstation!"></a>
+ 
+                 </td>
+@@ -13,7 +15,8 @@
+ <img src="/pics/lt.gif" vspace="5" alt="Linux Today Logo"><br><font size="-1"><a href="http://linux.com">linux.com</a> partner</font><p></p>
+ </td>
+ 
+-        </tr></table>
++        </tr>
++</table>
+ <font size="2" face="Helvetica">
+ [ <a href="http://linuxtoday.com/">headlines</a> |
+ <a href="http://features.linuxtoday.com/">features</a> |
+diff --git a/result/HTML/test3.html b/result/HTML/test3.html
+index 903723c..b37a1c7 100644
+--- a/result/HTML/test3.html
++++ b/result/HTML/test3.html
+@@ -1,11 +1,13 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+-<html>
+-<head><base target="contents"></head>
++<html>
++<head>
++<base target="contents">
++</head>
+ <body>
+ <a name="ProblemDomain.Package"><h2>Component Package diagram ProblemDomain</h2>
+ </a><p></p>
+-<hr>
+-<dl>
++<hr>
++<dl>
+ <dt>
+ <b>Stereotype </b>problem domain</dt>
+ <dt>
+@@ -15,10 +17,11 @@
+ <dd>Interface, thats stores and manipulates the Family Tree.
+ </dd>
+ </dd>
+-</dl>
++</dl>
+ <p></p>
+-<hr>
+-<dl>
++<hr>
++<dl>
++
+ <dt><h4>Class <a href="HumanInterface.FamilyFrame.html#HumanInterface.FamilyFrame">HumanInterface.FamilyFrame</a>
+ </h4></dt>
+ <dt><h4>Class <a href="ProblemDomain.Birth.html#ProblemDomain.Birth">ProblemDomain.Birth</a>
+@@ -37,19 +40,20 @@
+ </h4></dt>
+ <dt><h4>Class <a href="ProblemDomain.Note.html#ProblemDomain.Note">ProblemDomain.Note</a>
+ </h4></dt>
+-</dl>
++</dl>
++
+ <h4><b>Links</b></h4>
+ <ul><li>
+ <b>Link to </b><a href="HumanInterface.Package.html#HumanInterface.Package">HumanInterface</a>
+-</li></ul>
+-<dir></dir>
++</li></ul>
++<dir></dir>
+ <ul><li>
+ <b>Link to </b><a href="DataManagement.FlatFile.Package.html#DataManagement.FlatFile.Package">DataManagement.FlatFile</a>
+-</li></ul>
+-<dir></dir>
++</li></ul>
++<dir></dir>
+ <ul><li>
+ <b>Link to </b><a href="DataManagement.Package.html#DataManagement.Package">DataManagement</a>
+-</li></ul>
+-<dir></dir>
++</li></ul>
++<dir></dir>
+ </body>
+ </html>
+diff --git a/result/HTML/utf8bug.html b/result/HTML/utf8bug.html
+index 42fbb43..66a498a 100644
+--- a/result/HTML/utf8bug.html
++++ b/result/HTML/utf8bug.html
+@@ -1,5 +1,6 @@
+ <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+ <html>
++
+ <head>
+ <meta http-equiv="Content-Language" content="en-us">
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+@@ -7,24 +8,28 @@
+ <link rel="SHORTCUT ICON" href="favicon.ico">
+ <title>شهير بلاگ</title>
+ </head>
++
+ <body>
+ 
+ <table border="0" width="100%" id="MainTBL" cellspacing="0" cellpadding="0">
+-<tr>
+-<td class="Header1">
+-		<table border="0" width="100%" cellspacing="0" cellpadding="0" height="100%"><tr>
+-<td>
++	<tr>
++		<td class="Header1">
++		<table border="0" width="100%" cellspacing="0" cellpadding="0" height="100%">
++			<tr>
++				<td>
+ 				<img border="0" src="Shell/Shahir.ShahidSales1.png" width="442" height="110">
+ </td>
+ 				<td> </td>
+-			</tr></table>
+-</td>
++			</tr>
++		</table>
++		</td>
+ 	</tr>
+-<tr>
+-<td height="28">
++	<tr>
++		<td height="28">
+ 			<div id="SideBar1">
+-				<table width="100%"><tr>
+-<td>
++				<table width="100%">
++				<tr>
++				<td>
+ 				 <span class="Item">
+ <a href="Index.asp">
+ خانه </a></span> <span class="Item">
+@@ -52,13 +57,19 @@ RSS </a></span> <span class="Item">
+ 				</p>
+ </div>
+ 				</td>
+-				</tr></table>
+-</div>
++				</tr>
++				</table>
++			</div>
+ 		</td>
+ 	</tr>
+-<tr><td valign="top">
+-		<table border="0" width="100%" cellspacing="0" cellpadding="0" id="Content"><tr><td class="Right" valign="top" style="padding-right: 60px">
+-					<table width="100%"><tr><td valign="top">
++	<tr>
++		<td valign="top">
++		<table border="0" width="100%" cellspacing="0" cellpadding="0" id="Content">
++			<tr>
++				<td class="Right" valign="top" style="padding-right: 60px">
++					<table width="100%">
++						<tr>
++							<td valign="top">
+ 								
+ <script>
+ var tgs = new Array( 'div','td','tr','a');
+@@ -78,9 +89,11 @@ function ChangeSize( trgt,sz ) {
+ 		for ( j = 0 ; j < cTags.length ; j++ ) cTags[ j ].style.fontSize = sz; //szs[ sz ];
+ 	}
+ }
+-</script><table width="100%" id="NewsDetail">
+-<tr>
+-<td valign="top">
++</script>
++
++<table width="100%" id="NewsDetail">
++	<tr>
++		<td valign="top">
+ 		<div class="News_Info">
+ 			تاريخ درج: <font color="#000000">چهارشنبه، 29 اسفند 1386 
+ 			- Wednesday, March 19, 2008</font>      
+@@ -88,32 +101,42 @@ function ChangeSize( trgt,sz ) {
+ 			دفعات مشاهده: <font color="#000000">2688</font> 
+ 			بار      كد: <font color="#000000">341</font>
+ 		</div>
+-		<br><!--
++		<br>
++		<!--
+ 		<div>&#1575;&#1606;&#1583;&#1575;&#1586;&#1607; &#1601;&#1608;&#1606;&#1578;:&nbsp;
+ 		<a href="javascript:ChangeSize('NewsBody','7pt')"><font size="1">&#1705;&#1608;&#1670;&#1705;</font></a>&nbsp;
+ 		<a href="javascript:ChangeSize('NewsBody','10pt')"><font size="2">&#1605;&#1593;&#1605;&#1608;&#1604;&#1740;</font></a>&nbsp;
+ 		<a href="javascript:ChangeSize('NewsBody','13pt')"><font size="3">&#1576;&#1586;&#1585;&#1711;</font></a>&nbsp;
+-		</div>--><div class="Titr1">
++		</div>-->
++		
++
++		<div class="Titr1">
+ 			 </div>
+-		<br><div id="NewsBody">
++		<br>
++		<div id="NewsBody">
+ 			
+ 			<div class="Image">
+ 				
+ 				<a href="showimage.aspx?path=Files_Upload%5C302.JPG&amp;Width=" rel="lightbox" title="شهير بلاگ">
+-				<img src="showimage.aspx?path=Files_Upload%5C302.JPG&amp;Width=220" align="left" border="1"></a>
++				<img src="showimage.aspx?path=Files_Upload%5C302.JPG&amp;Width=220" align="left" border="1">
++				</a>
+ </div>
+-			<strong><font size="4"><font color="#0000ff">عکس</font> <font color="#0000ff">محصول هنر یکی از همکاران است. روی آن کلیک کند.</font></font></strong><s1></s1>
++			<strong><font size="4"><font color="#0000ff">عکس</font> <font color="#0000ff">محصول هنر یکی از همکاران است. روی آن کلیک کند.</font></font></strong><s1>  </s1>
+ </div>
+-		<br><div align="left">
++		<br>
++		<div align="left">
+ 			<a href="printfriendly.asp?id=341">
+ 			<img src="shell/PrintFriendly.png" border="0"></a>
+ 			<a href="#" onclick="window.open('SendNews.asp?PageID=341','myWin','toolbar=no,directories=no,location=no,status=no,menubar=no,resizable=yes,scrollbars=no,width=500, height=200'); return false">
+-			<img border="0" src="Shell/SendToFriends.jpg" width="140" height="30"></a>
++			<img border="0" src="Shell/SendToFriends.jpg" width="140" height="30">
++			</a>
+ 		</div>
+ 		<br>
+-</td>
++		</td>
+ 	</tr>
+-<tr><td> <br><hr>
++	<tr>
++		<td> <br>
++		<hr>
+ <div id="Comments"><ul>
+ <b>نظرات
+ 		کاربران:</b><br><li>
+@@ -153,15 +176,18 @@ function ChangeSize( trgt,sz ) {
+ 		دیشلمه....شما تشریف نمی آورید؟</li>
+ <br><br><li>
+ <font color="blue">سیاوش:</font><br><font size="1">4/3/2008 - 9:28:00 PM</font><br>مرد هزار چهره مرد هزار چهره کیست؟شخصیتی ساخته و پرداخته مهران مدیری، پیمان قاسم خانی و دیگر نویسندگان؟ تنها هدفش آنست که چند روز تعطیلات، مارا سرگم کند و دیگر هیچ؟ مرد هزار چهره یک طنز است یک طنز تلخ، برداشتی واقعی از جامعه ایرانی. من جوانم پس دردآشنای جوانانم و خود را با خود و دیگر جوانان طرف می کنم بسیار اند جوانانی که مصداق مرد هزار چهره هستند جوانانی سودا زده یا به قول خود مسعود "جو گیر" که هر با محصولی کهنه را با تعریفی جدید به آنها ارائه کنند چنان با تمام و جود می پذیرند که گویی راه فائق آمدن بر تمام مشکلاتشان را یافته اند و می خرند، خواه این تحفه تئوری بر گرفته از تفکرات خشک و فسیلی گروهی باشد یا مدل ملیجک وار لباسی در پشت ویترین فروشگاه. مهم نیست چه باشد! مهم نیست دلیل انتخابش چه باشد! مهم نیست نتیجه این انتخاب چیست! تنها مهم است که می گویند از این طرف بفرمائید!حال این بفرمائید چه معنایی دارد باز هم مهم نیست!!! وای بر ما که نه خود را می شناسیم و نه در جهت شناخت خویش قدم می گذاریم. وای بر ما که دیگر حتی ندای درون خویش را نمی توانیم بشنویم. وای بر ما که نمی دانیم چه می خواهیم و هر بار که چیزی می خواهیم و در مسیر وصال پا می گذاریم به میانه راه نرسیده چنان مجذوب زرق و برق راههای دیگر می شویم که مبدا و مقصد را یکجا فراموش می کنیم. وای بر ما که نمی توانیم در برابر هر آنچه در مقابل انسانیت ما ایستاده "نه"بگوییم. درست است که ما جوانان به تنهایی مقصر نیستیم اما چون شروع تقصیریم پس می توانیم از ابتدا مانع مشکل هم باشیم. با احترام سیاوش<br>
+- <br><font color="#800000">بسیار زیبا سیاوش جان. درود بر تو. شهیر</font>
++ <br>
++<font color="#800000">بسیار زیبا سیاوش جان. درود بر تو. شهیر</font>
+ </li>
+ <br><br><li>
+ <font color="blue">احسان __ خط سوم:</font><br><font size="1">4/3/2008 - 8:21:00 PM</font><br>با سلام و ادای احترام وکسب اجازه از شهیر عزیز . از عماد جان عزیزم بخاطر زحمتی که کشیدند و اطلاعات خوبی که دادند ، به سهم خودم تشکر می کنم . با کمال شرمندگی از اینکه "بدون هماهنگی" و " اجازه ای قبلی شما" و "بسرعت" ، معدود اشتباهات تایپی را که با توجه به حجم مطلب ، امری کاملا اجتناب ناپذیر است ، سعی کردم که اصلاح کنم ، از شما پوزش می خواهم . البته عماد جان عزیزم ، بد نیست بدانید که در میزان اشتباه در تایپ هرگز به پای بنده نخواهید رسید ! شاهد ادعای حقیر، شهیر و حسین جان عزیزم هستند که خبردارند که چگونه بنده در یک فقره عملیات تایپ ، دو صفحه ای کامل را جا انداختم !!! کافی است بپرسید ، در نهایت صداقت ، بر این رکورد بی نظیر و تاریخی شهادت خواهند داد ! باز هم از زحمات عماد جان و نیز سوالات خوب حسین جان تشکر می کنم که ان وعده ای مقاله ای عیدانه ای مفصل شهیر را در باره ای زنده یاد مرحوم مصدق ، در وسع خود بجای اوردند . ضمن انکه هیچکدام از دوستان، این زحمت ارزشمند عماد جان را دلیل ان نخواهند دانست که شهیرعزیز بعد از بازگشت از مسافرت ، سر فرصت وعده ای خود را عمل نکنند . مشتاقانه اما نه عجولانه ، منتظر مقاله ای شهیر هم خواهیم ماند. با احترام : احسان<br>
+- <br><font color="#800000">احسان جان، من فکر کردم قضیه شامل مرور زمان شده است. تا امروز که نرسیده ام دست به این پروژه بزنم. اگر عشق به حفظ ارتباط با شما ها نبود تا روز 25 اپریل به خودم مرخصی می دادم. در این سفر خدا می داند چند هزار مایل در 3 قاره را پیموده ام. از پوست کلفت خودم در عجبم که چطوری تونستم اخبار را دنبال کنم و چند مقاله کوتاه بنویسم. گرفتاری زیاد بود. شهیر</font>
++ <br>
++<font color="#800000">احسان جان، من فکر کردم قضیه شامل مرور زمان شده است. تا امروز که نرسیده ام دست به این پروژه بزنم. اگر عشق به حفظ ارتباط با شما ها نبود تا روز 25 اپریل به خودم مرخصی می دادم. در این سفر خدا می داند چند هزار مایل در 3 قاره را پیموده ام. از پوست کلفت خودم در عجبم که چطوری تونستم اخبار را دنبال کنم و چند مقاله کوتاه بنویسم. گرفتاری زیاد بود. شهیر</font>
+ </li>
+ <br><br><li>
+ <font color="blue">عماد ۲۴ ساله از اصفهان:</font><br><font size="1">4/3/2008 - 7:14:00 PM</font><br>شهير جان اگر طولانی شد ببخشيد چاره ای نبود احسان جان از کمک شما نيز در ويرايش اين مطلب متشکرم اميدوارم حسين عزیز نيز راضی باشد<br>
+- <br><font color="#800000">ممنون از زحمتی که کشیدی عماد جان. شهیر</font>
++ <br>
++<font color="#800000">ممنون از زحمتی که کشیدی عماد جان. شهیر</font>
+ </li>
+ <br><br><li>
+ <font color="blue">حسین:</font><br><font size="1">4/3/2008 - 7:04:00 PM</font><br>سلام آقا شهیر با اجازه شما خواستم از عماد عزیز وهمچنین سرور بزرگوار آقااحسان تشکر کنم وبه آقا عمادبگویم دستت درد نکنه بابت زحمتت وفوق العاده عالی بود.قسمتی که نوشتید" خود دکتر مصدق در تقریراتشان به اشتباه بودن تصمیمشان مبنی بر استعفاء اقرار می کنند"واقعا جالب وحاکی از روح بلند دکتر مصدق هست .بااینکه سوالات خرد وریز زیاد هست اما از اینکه به سوالات عمده من با توجه به کتاب دکتر مصدق پاسخ دادید بازهم تشکر میکنم .میخواستم این پاسخ را برای نویسنده مقاله رجانیوز copy&amp;paste <br>
+@@ -173,11 +199,17 @@ function ChangeSize( trgt,sz ) {
+ <font color="blue">حاجی جفرسون:</font><br><font size="1">4/3/2008 - 6:06:00 PM FOO!</font><br>با درود از قدیم گفته اند که یک کلمه هم از مادر عروس بشنوید. بنابراین به افاضات اخیر کشور دوست و برادر و سوسیالیست چین عزیز و جان جانان کمونیست عنایت بفرمایید: رادیو فردا: ديپلمات ها در وين گفته اند: که چين، از مخالفان تشديد تحريم های ايران در شورای امينت، اطلاعات خود درباره ارتباط برنامه هسته ای تهران با تلاش برای دستيابی سلاح اتمی را در اختيار آژانس بين المللی انرژی اتمی قرار داده است. العجب!!!!!! انتخاب :با وجود اینکه چین به شدت با تحریمهای شورای امنیت سازمان ملل علیه ایران مخالفت می کرد، اطلاعاتی در رابطه با فعالیتهای هسته ای ایران در اختیار مقامات آژانس بین المللی انرژی اتمی قرار داده که بر اساس آن ایران در تلاش برای دست یابی به سلاح های اتمی است. به گزارش خبرنگار سرویس بین الملل خبرگزاری انتخاب به نقل از فاکس نیوز؛جان بولتون ،نمایندۀ پیشین ایالات متحدۀ امریکا در سازمان ملل،در این باره گفت: اقدام اینچنینی از سوی چین به دلیل روابط نظامی که میان دو کشور [ایران و چین] برقرار است، بسیار قابل توجه است. خبرنگار انتخاب می افزاید؛ در حالی چین به این اقدام دست زده است که همکاری های تجاری و نظامی ایران با این کشور بطور بی سابقه ای افزایش یافته است. یا باب الحوائج!!!!! رادیو زمانه: چین با وجود مخالفت با تحریم‌های شدید شورای امنیت علیه تهران، اطلاعاتی درباره تلاش‌های تهران برای ساخت تسلیحات هسته‌ای به آژانس بین‌المللی انرژی اتمی ارائه کرده است. آسوشیتدپرس با اعلام این خبر به نقل از چند دیپلمات آشنا با پرونده هسته‌ای ایران نوشت، پکن به همراه مسکو همواره بر سر راه شورای امنیت و امریکا برای اعمال مجازات های سخت تر علیه تهران به دلیل مقاومت هسته ای این کشور به صورت یک مانع عمل کرده‌اند. این گزارش می افزاید، تصمیم چین برای ارائه اطلاعاتی جهت استفاده در تحقیقات آژانس انرژی اتمی درباره برنامه تسلیحات هسته‌ای ایران، گویای افزایش نارضایتی بین‌المللی درباره برنامه هسته‌ای جمهوری اسلامی است که حتی تلاش برای ساخت چنین تسلیحاتی را نیز تکذیب می‌کند. بر اساس این گزارش، دو دیپلمات بلندپایه که ارتباط نزدیکی با آژانس بین‌المللی انرژی اتمی دارند این اقدام چین را برملا کرده‌اند. آژانس بین‌المللی انرژی اتمی از اظهار نظر در این باره خودداری کرده است. العجب. من مامور و معذور..حالا از پدر عروس چند کلمه بشنوید: سخنگوی آژانس بین المللی انرژی اتمی ادعای برخی از رسانه های غربی را درباره این که چین اطلاعاتی را درباره برنامه هسته ای ایران در اختیار آژانس قرار داده است ، تکذیب کرد . ملیسا فلمینگ در گفت و گو با خبرنگار واحد مرکزی خبر تاکید کرد : آژانس بین المللی انرژی اتمی هرگز درباره اطلاعات محرمانه دریافتی از کشورها اظهار نظر نمی کند . وی گفت: هم
+ </li>
+ </ul></div>
+-</td></tr>
++</td>
++</tr>
+ </table>
+-</td></tr></table>
+-</td></tr></table>
+-</td></tr>
++</td>
++</tr>
++</table>
++</td>
++</tr>
++</table>
++</td>
++</tr>
+ </table>
+ </body>
+ </html>
+diff --git a/result/HTML/wired.html b/result/HTML/wired.html
+index f7123e8..74d366e 100644
+--- a/result/HTML/wired.html
++++ b/result/HTML/wired.html
+@@ -3,81 +3,91 @@
+ <head><title>Top Stories News from Wired News</title></head>
+ <body bgcolor="#FFFFFF" text="#000000" link="#333399" vlink="#660066" alink="#666699">
+ 
+-<table border="0" width="600" cellspacing="0" cellpadding="0"><tr>
+-<td valign="top" align="LEFT"><table border="0" cellpadding="0" cellspacing="0" width="468" height="60" bgcolor="#FFFFFF">
++<table border="0" width="600" cellspacing="0" cellpadding="0">
++  <tr>
++    <td valign="top" align="LEFT"><table border="0" cellpadding="0" cellspacing="0" width="468" height="60" bgcolor="#FFFFFF">
+ <form method="GET" action="http://nsads.hotwired.com/event.ng/Type=click&amp;ProfileID=9688&amp;RunID=14074&amp;AdID=22584&amp;GroupID=1&amp;FamilyID=2684&amp;TagValues=8.25.156.159.166.171.172.174.179.180.181.182.183.196.197.199.208.389.412.436.2041.6750.78456.79630.81880&amp;Redirect=http://www.springstreet.com/aa/citysearch.htm" id="form1" name="form1">
+ <tr>
+ <td bgcolor="#330099"><input name="city" type="text" size="7" maxlength="20" value="Seattle"></td>
+ <td rowspan="2" align="LEFT" bgcolor="FFFFFF"><input type="IMAGE" src="http://static.wired.com/advertising/blipverts/allapartments/990625jpa_ssthome.gif" width="375" height="60" border="0" value="search" hspace="0" alt="Search over 6,000,000 Apts with SpringStreet"></td>
+-</tr>
++</tr>
+ <tr><td bgcolor="#330099">
+-<select name="state"><option value="WA" selected>WA
++<select name="state">
++<option value="WA" selected>WA
+ </option>
+ <option value="AL">AL</option>
+-<option value="AK">AK</option>
+-<option value="AZ">AZ</option>
+-<option value="AR">AR</option>
+-<option value="CA">CA</option>
+-<option value="CO">CO</option>
+-<option value="CT">CT</option>
+-<option value="DE">DE</option>
+-<option value="DC">DC</option>
+-<option value="FL">FL</option>
++<option value="AK">AK</option>
++<option value="AZ">AZ</option>
++<option value="AR">AR</option>
++<option value="CA">CA</option>
++<option value="CO">CO</option>
++<option value="CT">CT</option>
++<option value="DE">DE</option>
++<option value="DC">DC</option>
++<option value="FL">FL</option>
+ <option value="GA">GA</option>
+-<option value="HI">HI</option>
+-<option value="ID">ID</option>
+-<option value="IL">IL</option>
++<option value="HI">HI</option>
++<option value="ID">ID</option>
++<option value="IL">IL</option>
+ <option value="IN">IN</option>
+ <option value="IA">IA</option>
+ <option value="KS">KS</option>
+-<option value="KY">KY</option>
+-<option value="LA">LA</option>
++<option value="KY">KY</option>
++<option value="LA">LA</option>
+ <option value="ME">ME</option>
+-<option value="MD">MD</option>
+-<option value="MA">MA</option>
++<option value="MD">MD</option>
++<option value="MA">MA</option>
+ <option value="MI">MI</option>
+ <option value="MN">MN</option>
+-<option value="MS">MS</option>
+-<option value="MO">MO</option>
++<option value="MS">MS</option>
++<option value="MO">MO</option>
+ <option value="MT">MT</option>
+-<option value="NE">NE</option>
++<option value="NE">NE</option>
+ <option value="NV">NV</option>
+-<option value="NH">NH</option>
+-<option value="NJ">NJ</option>
++<option value="NH">NH</option>
++<option value="NJ">NJ</option>
+ <option value="NM">NM</option>
+-<option value="NY">NY</option>
+-<option value="NC">NC</option>
+-<option value="ND">ND</option>
++<option value="NY">NY</option>
++<option value="NC">NC</option>
++<option value="ND">ND</option>
+ <option value="OH">OH</option>
+-<option value="OK">OK</option>
+-<option value="OR">OR</option>
+-<option value="PA">PA</option>
++<option value="OK">OK</option>
++<option value="OR">OR</option>
++<option value="PA">PA</option>
+ <option value="PR">PR</option>
+-<option value="RI">RI</option>
+-<option value="SC">SC</option>
++<option value="RI">RI</option>
++<option value="SC">SC</option> 
+ <option value="SD">SD</option>
+ <option value="TN">TN</option>
+-<option value="TX">TX</option>
+-<option value="UT">UT</option>
+-<option value="VT">VT</option>
+-<option value="VA">VA</option>
+-<option value="WA">WA</option>
+-<option value="WV">WV</option>
+-<option value="WI">WI</option>
+-<option value="WY">WY</option></select><input type="hidden" name="source" value="2hb8bhc059">
++<option value="TX">TX</option>
++<option value="UT">UT</option>
++<option value="VT">VT</option>
++<option value="VA">VA</option>
++<option value="WA">WA</option>
++<option value="WV">WV</option>
++<option value="WI">WI</option>
++<option value="WY">WY</option>
++</select><input type="hidden" name="source" value="2hb8bhc059">
+ </td></tr>
+ </form>
+ </table></td>
+     <td valign="top" align="RIGHT"><a href="http://nsads.hotwired.com/event.ng/Type=click&amp;ProfileID=5597&amp;RunID=17167&amp;AdID=22588&amp;GroupID=1&amp;FamilyID=3228&amp;TagValues=8.25.159.171.172.174.179.180.181.182.183.196.197.199.208.241.389.412.436.2035.6749.6750.70367.78456.79630.81880&amp;Redirect=http:%2F%2Fwww.hp.com%2Fgo%2Foriginal%20" target="_top"><img src="http://static.wired.com/advertising/blipverts/hp_colorinkjet/hp_970c_120x60_6.gif" border="1" height="60" width="120" alt="True to the Original"></a></td>
+-  </tr></table>
+-<!-- WIRED NEWS header --><!-- CMD_HOST = scoop.hotwired.com --><a name="#"></a>
++  </tr>
++</table>
++
++<!-- WIRED NEWS header -->
++<!-- CMD_HOST = scoop.hotwired.com -->
++
++<a name="#"></a>
+ <table border="0" width="600" cellspacing="0" cellpadding="0">
+-<tr>
++
++  <tr>
+ <td></td>
+ <td colspan="2"><img src="http://static.wired.com/news/images/spacer.gif" height="5" width="447" alt=""></td>
+-</tr>
+-<tr>
+-<td valign="BOTTOM" align="RIGHT" class="wired" bgcolor="#FFFFFF"><a href="/news/0,1287,,00.html"><img src="http://static.wired.com/news/images/wired_000000.gif" width="153" height="30" border="0"></a></td>
++</tr> 
++
++ <tr> 
++      <td valign="BOTTOM" align="RIGHT" class="wired" bgcolor="#FFFFFF"><a href="/news/0,1287,,00.html"><img src="http://static.wired.com/news/images/wired_000000.gif" width="153" height="30" border="0"></a></td>
+       <td bgcolor="#FF0000" valign="BOTTOM" align="LEFT" width="97"><a href="/news/0,1287,,00.html"><img src="http://static.wired.com/news/images/news_ffffff.gif" width="103" height="30" border="0"></a></td>
+ 
+ 
+@@ -85,36 +95,42 @@
+ 
+ 
+         </tr>
+-<tr>
+-<td valign="MIDDLE" align="RIGHT" bgcolor="#FFFFFF"><img src="http://static.wired.com/news/images/spacer.gif" width="1" height="30"></td>
++    <tr> 
++      <td valign="MIDDLE" align="RIGHT" bgcolor="#FFFFFF"><img src="http://static.wired.com/news/images/spacer.gif" width="1" height="30"></td>
+       
+       <td colspan="2" bgcolor="#999999">
+ 
+        <table border="0" cellspacing="0" cellpadding="5">
+ <form name="RedirectSearch" action="http://redirect.wired.com/search">
+-                <tr>
+-<td> 
++                <tr>  
++            <td> 
+ <font face="courier" size="1"><input type="TEXT" name="query" size="20" value=""></font>
+             </td>
+ 
+             <td>
+-<select name="url"><option value="http://search.hotwired.com/search97/s97.vts?Action=FilterSearch&amp;Filter=docs_filter.hts&amp;ResultTemplate=vignette.hts&amp;Collection=vignette&amp;QueryMode=Internet&amp;Query=" selected>Wired News</option>
+-<option value="http://search.hotwired.com/search97/s97.vts?Action=FilterSearch&amp;Filter=docs_filter.hts&amp;ResultTemplate=webmonkey.hts&amp;Collection=webmonkey&amp;QueryMode=Internet&amp;Query=">Webmonkey</option>
+-<option value="http://search.hotwired.com/search97/s97.vts?collection=webmonkey_guides&amp;Action=FilterSearch&amp;filter=docs_filter.hts&amp;ResultTemplate=webmonkey_guides.hts&amp;QueryMode=Internet&amp;Query=">Webmonkey Guides</option>
+-<option value="http://search.hotwired.com/search97/s97.vts?collection=hotwired&amp;Action=FilterSearch&amp;filter=docs_filter.hts&amp;ResultTemplate=hotwired_archive.hts&amp;QueryMode=Internet&amp;Query=">HotWired Archives</option>
+-<option value="http://search.hotwired.com/search97/s97.vts?Action=FilterSearch&amp;Filter=docs_filter.hts&amp;ResultTemplate=magazine.hts&amp;Collection=magazine&amp;QueryMode=Internet&amp;Query=">Wired Magazine</option>
+-<option value="http://search.hotwired.com/search97/s97.vts?Action=FilterSearch&amp;Filter=docs_filter.hts&amp;ResultTemplate=animation.hts&amp;Collection=animation&amp;QueryMode=Internet&amp;Query=">Animation Express</option>
+-<option value="http://search.hotwired.com/search97/s97.vts?collection=suck&amp;Action=FilterSearch&amp;filter=docs_filter.hts&amp;ResultTemplate=suck.hts&amp;QueryMode=Internet&amp;Query=">Suck.com</option>
+-<option value="http://search.hotwired.com/search97/s97.vts?collection=uber_hotwired&amp;Action=FilterSearch&amp;filter=docs_filter.hts&amp;ResultTemplate=uber_hotwired.hts&amp;QueryMode=Internet&amp;Query=">All of HotWired</option>
+-<option value="http://www.hotbot.com/?SM=MC&amp;DV=0&amp;LG=any&amp;RD=RG&amp;DC=10&amp;DE=2&amp;_v=2&amp;OPs=MDRTP&amp;MT=">The Web -&gt; HotBot</option></select>
+-</td>
++<select name="url">
++
++  <option value="http://search.hotwired.com/search97/s97.vts?Action=FilterSearch&amp;Filter=docs_filter.hts&amp;ResultTemplate=vignette.hts&amp;Collection=vignette&amp;QueryMode=Internet&amp;Query=" selected>Wired News</option>
++  <option value="http://search.hotwired.com/search97/s97.vts?Action=FilterSearch&amp;Filter=docs_filter.hts&amp;ResultTemplate=webmonkey.hts&amp;Collection=webmonkey&amp;QueryMode=Internet&amp;Query=">Webmonkey</option>
++ <option value="http://search.hotwired.com/search97/s97.vts?collection=webmonkey_guides&amp;Action=FilterSearch&amp;filter=docs_filter.hts&amp;ResultTemplate=webmonkey_guides.hts&amp;QueryMode=Internet&amp;Query=">Webmonkey Guides</option>
++ <option value="http://search.hotwired.com/search97/s97.vts?collection=hotwired&amp;Action=FilterSearch&amp;filter=docs_filter.hts&amp;ResultTemplate=hotwired_archive.hts&amp;QueryMode=Internet&amp;Query=">HotWired Archives</option>
++  <option value="http://search.hotwired.com/search97/s97.vts?Action=FilterSearch&amp;Filter=docs_filter.hts&amp;ResultTemplate=magazine.hts&amp;Collection=magazine&amp;QueryMode=Internet&amp;Query=">Wired Magazine</option>
++  <option value="http://search.hotwired.com/search97/s97.vts?Action=FilterSearch&amp;Filter=docs_filter.hts&amp;ResultTemplate=animation.hts&amp;Collection=animation&amp;QueryMode=Internet&amp;Query=">Animation Express</option> 
++ <option value="http://search.hotwired.com/search97/s97.vts?collection=suck&amp;Action=FilterSearch&amp;filter=docs_filter.hts&amp;ResultTemplate=suck.hts&amp;QueryMode=Internet&amp;Query=">Suck.com</option>
++ <option value="http://search.hotwired.com/search97/s97.vts?collection=uber_hotwired&amp;Action=FilterSearch&amp;filter=docs_filter.hts&amp;ResultTemplate=uber_hotwired.hts&amp;QueryMode=Internet&amp;Query=">All of HotWired</option>
++ <option value="http://www.hotbot.com/?SM=MC&amp;DV=0&amp;LG=any&amp;RD=RG&amp;DC=10&amp;DE=2&amp;_v=2&amp;OPs=MDRTP&amp;MT=">The Web -&gt; HotBot</option>
++</select>
++
++
++
++            </td>
+             <td> 
+               <input type="SUBMIT" name="SUBMIT" value="SEARCH">
+-</td>
++            </td>
+           </tr>
+-</form>        
++  </form>        
+        </table>
+-</td>
++          </td>
+         </tr>
+ <!-- 
+ <TR>
+@@ -124,11 +140,16 @@
+ </TR>
+ -->
+ </table>
+-<!-- end WIRED NEWS header --><!-- begin upper left side Navigation --><table border="0" cellpadding="3" cellspacing="0" align="LEFT" bgcolor="#FFFFFF">
+-<tr>
+-<td bgcolor="#FF0000"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"> 
++<!-- end WIRED NEWS header -->
++
++<!-- begin upper left side Navigation -->
++
++<table border="0" cellpadding="3" cellspacing="0" align="LEFT" bgcolor="#FFFFFF">
++  <tr> 
++    <td bgcolor="#FF0000"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"> 
+       <img src="http://static.wired.com/news/images/spacer.gif" width="147" height="1" border="0"><br><b>SECTIONS</b></font></td>
+   </tr>
++
+ <tr><td bgcolor="#CCFFCC"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="/news/business/0,1367,,00.html">Business</a></font></td></tr>
+ <tr><td bgcolor="#99FF99"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="/news/culture/0,1284,,00.html">Culture</a></font></td></tr>
+ <tr><td bgcolor="#CCFFCC"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="/news/technology/0,1282,,00.html">Technology</a></font></td></tr>
+@@ -137,76 +158,102 @@
+ <td bgcolor="#FF0000"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF">
+ <b>WIRE SERVICE NEWS</b></font></td>
+ </tr>
++
+ <tr>
+ <td bgcolor="#99FF99"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="/news/news/reuters/">Top Headlines</a></font></td>
+ </tr>
++
+ <tr>
+ <td bgcolor="#CCFFCC"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="/news/news/reuters/sports/">Sports</a></font></td>
+ </tr>
++
+ <tr>
+ <td bgcolor="#99FF99"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="/news/news/reuters/business/">Finance</a></font></td>
+ </tr>
+-<!-- End upper left nav --><!-- Begin lower Left Nav --><tr>
+-<td bgcolor="#FF0000"><font face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"> 
++<!-- End upper left nav --><!-- Begin lower Left Nav -->
++    <tr> 
++    <td bgcolor="#FF0000"><font face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"> 
+       <b><font size="1">FREE DELIVERY</font></b></font></td>
+     </tr>
+-<tr>
+-<td bgcolor="#99FF99">
+-<table cellspacing="0" cellpadding="0" border="0"><tr>
++    <tr> 
++    <td bgcolor="#99FF99">
++<table cellspacing="0" cellpadding="0" border="0">
++		<tr>
+ <td bgcolor="#99FF99">
+ 		 <form action="http://r.hotwired.com/r/hw_wm_r_nav_nwsltr/http://perl.hotwired.com/massmail/cgiParser.cgi" method="get" target="_top">
+ 
+- <input type="hidden" name="success_page" value="http://www.hotwired.com/email/signup/wirednews-ascii.html"><input type="hidden" name="failure_page" value="http://www.hotwired.com/email/signup/wirednews-ascii.html"><input type="hidden" name="LIST" value="wn_ascii"><input type="hidden" name="SOURCE" value="other"><input type="hidden" name="ACTION" value="subscribe"><input type="TEXT" name="from" size="10" value="enter email">&nbsp;
++ <input type="hidden" name="success_page" value="http://www.hotwired.com/email/signup/wirednews-ascii.html">
++ 
++<input type="hidden" name="failure_page" value="http://www.hotwired.com/email/signup/wirednews-ascii.html">
++ 
++<input type="hidden" name="LIST" value="wn_ascii">
++<input type="hidden" name="SOURCE" value="other">
++ <input type="hidden" name="ACTION" value="subscribe">
++ 
++<input type="TEXT" name="from" size="10" value="enter email">&nbsp;
+ </form>
+ </td> 
+ 		<td valign="top" bgcolor="#99FF99">
+-		<input type="SUBMIT" name="SUBMIT" value="GO">
+-</td>
+-	</tr></table>
++		<input type="SUBMIT" name="SUBMIT" value="GO"> 
++
++  </td>
++	</tr>    
++</table>
+ </td>
+   </tr>
+-<tr>
+-<td bgcolor="#FF0000"><font face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"> 
++  <tr> 
++    <td bgcolor="#FF0000"><font face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"> 
+       <b><font size="1">STOCKS</font></b></font></td>
+   </tr>
+-<tr>
+-<td bgcolor="#99FF99"><font face="Verdana, Arial, Helvetica, sans-serif" size="1">Get Quote:</font></td>
++  <tr> 
++    <td bgcolor="#99FF99"><font face="Verdana, Arial, Helvetica, sans-serif" size="1">Get Quote:</font></td>
+   </tr>
+-<tr>
+-<td bgcolor="#99FF99" marginwidth="0" marginheight="0"><form method="get" action="http://r.wired.com/r/10020/http://stocks.wired.com/stocks_quotes.asp">
++  <tr>
++    <td bgcolor="#99FF99" marginwidth="0" marginheight="0"><form method="get" action="http://r.wired.com/r/10020/http://stocks.wired.com/stocks_quotes.asp">
+ <input type="TEXT" name="Symbol" size="12">&nbsp;<input type="SUBMIT" name="submit" value="GO">
+ </form></td>
+   </tr>
+-<!-- BEGIN BUTTON ADS --><tr>
++<!-- BEGIN BUTTON ADS -->
++  
++ <tr>
+ <td bgcolor="#CCFFCC">
+-<font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000">Financial Services</font><br><center>
++<font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000">Financial Services</font><br>
++<center>
+ <img src="http://static.wired.com/news/images/spacer.gif" height="3" width="5" alt=""><br><img src="http://static.wired.com/news/images/button_ads_news10.gif" width="143" height="56" border="0" alt="" usemap="#buttons" hspace="0" vspace="0">
+ </center>
+ 
+-<map name="buttons"><area shape="RECT" alt="Datek" coords="0,0,69,24" href="http://r.wired.com/r/1649/http://ads16.focalink.com/SmartBanner/page/1266.631">
+-<area shape="RECT" alt="Wired Index Fund" coords="73,0,142,24" href="http://r.wired.com/r/227/http://www.gffunds.com/wired">
+-<area shape="RECT" alt="internet.com Index Fund" coords="73,31,142,55" href="http://r.wired.com/r/298/http://www.gffunds.com/isdex/">
+-<area shape="RECT" alt="GetSmart's MortgageFinder" coords="0,31,69,55" href="http://r.wired.com/r/294/http://www.getsmartinc.com/mortgage/HomeBanner?BANNERNAME=www.getsmartinc.com/mwired001m6075x25"></map>
+-</td>
+-  </tr>
+-<!-- END BUTTON ADS --><tr>
+-<td bgcolor="#99FF99"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="http://redirect.wired.com/redir/51/http://stocks.wired.com/">Today's Summary</a></font></td>
++<map name="buttons">
++        <area shape="RECT" alt="Datek" coords="0,0,69,24" href="http://r.wired.com/r/1649/http://ads16.focalink.com/SmartBanner/page/1266.631">
++        <area shape="RECT" alt="Wired Index Fund" coords="73,0,142,24" href="http://r.wired.com/r/227/http://www.gffunds.com/wired">
++        <area shape="RECT" alt="internet.com Index Fund" coords="73,31,142,55" href="http://r.wired.com/r/298/http://www.gffunds.com/isdex/">
++        <area shape="RECT" alt="GetSmart's MortgageFinder" coords="0,31,69,55" href="http://r.wired.com/r/294/http://www.getsmartinc.com/mortgage/HomeBanner?BANNERNAME=www.getsmartinc.com/mwired001m6075x25"></map>
++        </td>
++  </tr> <!-- END BUTTON ADS -->
++  
++  <tr> 
++    <td bgcolor="#99FF99"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="http://redirect.wired.com/redir/51/http://stocks.wired.com/">Today's Summary</a></font></td>
+   </tr>
+-<tr>
+-<td bgcolor="#CCFFCC"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="http://r.wired.com/r/hb_fin_r_wn_top/http://stocks.wired.com/stocks_indexes_detail.asp?Symbol=%24WIRED">Wired Index</a> | <a href="http://redirect.wired.com/redir/52/http://stocks.wired.com/stocks_indexes.asp%20">All Indexes</a></font></td>
++  <tr> 
++    <td bgcolor="#CCFFCC"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="http://r.wired.com/r/hb_fin_r_wn_top/http://stocks.wired.com/stocks_indexes_detail.asp?Symbol=%24WIRED">Wired Index</a> | <a href="http://redirect.wired.com/redir/52/http://stocks.wired.com/stocks_indexes.asp%20">All Indexes</a></font></td>
+   </tr>
+-<tr>
+-<td bgcolor="#99FF99"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="http://redirect.wired.com/redir/53/http://stocks.wired.com/stocks_portfolios.asp">Portfolios</a></font></td>
++  <tr> 
++    <td bgcolor="#99FF99"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000"><a href="http://redirect.wired.com/redir/53/http://stocks.wired.com/stocks_portfolios.asp">Portfolios</a></font></td>
+   </tr>
+-<!-- BEGIN B&N spot --><tr>
+-<td bgcolor="#FF0000"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b>FIND A BOOK</b></font></td>
++
++<!-- BEGIN B&N spot -->
++
++<tr> 
++ <td bgcolor="#FF0000"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b>FIND A BOOK</b></font></td>
+ </tr>
+ <tr><td bgcolor="#CCFFCC">
+ <table cellspacing="0" cellpadding="0" border="0" width="145">
+-<tr><td bgcolor="#CCFFCC">
++                <tr><td bgcolor="#CCFFCC">
+                 <form action="http://r.wired.com/r/wn_nav_c_bn/http://barnesandnoble.bfast.com/booklink/click">
+-<input type="hidden" name="sourceid" value="383471"><input type="hidden" name="categoryid" value="categorydropdown"><font size="2">
+-                <select name="Subjects" size="4"><option value="301">Business Top 20
++<input type="hidden" name="sourceid" value="383471">
++<input type="hidden" name="categoryid" value="categorydropdown">
++                <font size="2">
++                <select name="Subjects" size="4">
++<option value="301">Business Top 20
+ </option>
+ <option value="500">Computers
+ </option>
+@@ -244,38 +291,53 @@
+  </option></select></font>
+ </form>
+ </td></tr>
+-<tr align="left" valign="top">
+-<td valign="top" bgcolor="#CCFFCC"> <input type="submit" value="GO"><img src="http://barnesandnoble.bfast.com/booklink/serve?sourceid=383471&amp;is_search=Y" border="0" align="top"><!--
++ <tr align="left" valign="top">
++                <td valign="top" bgcolor="#CCFFCC"> <input type="submit" value="GO">
++
++<img src="http://barnesandnoble.bfast.com/booklink/serve?sourceid=383471&amp;is_search=Y" border="0" align="top">
++<!--
+ <IMG SRC="http://www.wired.com/partner/bn/trackingimg/ot_wn_nav_c_bn.gif" border=0 width=1 height=1 align=top>
+ -->
+ </td>
+                  
+                 </tr>
+-<tr align="left" valign="top">
+-<td align="left" valign="top" colspan="2" rowspan="1" bgcolor="#CCFFCC">
++                <tr align="left" valign="top">
++ 
++        <td align="left" valign="top" colspan="2" rowspan="1" bgcolor="#CCFFCC">
+ <p>
+         <font size="1" face="Verdana, Arial, Helvetica, " color="#000000">Powered by <a href="http://r.wired.com/r/wn_nav_c_bn/http://barnesandnoble.bfast.com/booklink/click?sourceid=383471">barnesandnoble.com</a>
+  </font>
+-<br clear="all"></p>
++<br clear="all">
++
++
++</p>
+ </td>
+-        </tr>
+-</table>
++        </tr>  
++        </table>
++
+ </td></tr>
+-<!-- END B&N spot --><!-- BEGIN MAGAZINE SPOT --><tr>
+-<td bgcolor="#000000"><font color="#FFFFFF" face="Verdana, Arial, Helvetica, sans-serif" size="1"><b>WIRED 
++ <!-- END B&N spot -->   
++  
++<!-- BEGIN MAGAZINE SPOT -->
++
++ <tr> 
++    <td bgcolor="#000000"><font color="#FFFFFF" face="Verdana, Arial, Helvetica, sans-serif" size="1"><b>WIRED 
+       MAGAZINE </b></font></td>
+   </tr>
+-<tr>
++<tr> 
+ <td bgcolor="#FFFF99" align="CENTER">
+ <font face="verdana, arial, helvetica, sans-serif" size="1">
+ <b>
+-<br><a href="http://www.wired.com/wired/"><img src="http://static.wired.com/news/images/wiredcover.gif" width="91" height="109" border="0" alt="Wired Magazine"></a><br></b>
++<br>
++
++<a href="http://www.wired.com/wired/"><img src="http://static.wired.com/news/images/wiredcover.gif" width="91" height="109" border="0" alt="Wired Magazine"></a><br></b>
+ 
+ Issue 7.11
+ </font>
+ </td>
+ </tr>
+-<tr>
++
++<tr> 
+ <td bgcolor="#FFFF99" align="center">
+ <font face="verdana, arial, helvetica, sans-serif" size="1"> 
+ 
+@@ -285,96 +347,201 @@ Issue 7.11
+ </font>
+ </td>
+ </tr>
+-<!-- END MAGAZINE SPOT --><tr>
+-<td bgcolor="#000000"> 
++<!-- END MAGAZINE SPOT -->
++
++  <tr>
++    <td bgcolor="#000000"> 
+     <font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b>HOTWIRED</b></font>
+ </td>
+   </tr>
+-<tr>
+-<td bgcolor="#FFFF99"> <font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000">
+-<a href="http://www.hotwired.com/">Frontdoor</a><br><a href="http://www.hotwired.com/webmonkey/">Webmonkey</a><br><a href="http://www.hotwired.com/webmonkey/guides/index.html">Webmonkey Guides</a><br><a href="http://www.hotwired.com/rgb/">RGB Gallery</a><br><a href="http://www.hotwired.com/animation/">Animation Express</a><br><a href="http://go.suck.com/su_wnfd">Suck.com</a><br></font>
++  <tr> 
++    <td bgcolor="#FFFF99"> <font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000">
++<a href="http://www.hotwired.com/">Frontdoor</a><br>
++<a href="http://www.hotwired.com/webmonkey/">Webmonkey</a><br>
++<a href="http://www.hotwired.com/webmonkey/guides/index.html">Webmonkey Guides</a><br>
++<a href="http://www.hotwired.com/rgb/">RGB Gallery</a><br>
++<a href="http://www.hotwired.com/animation/">Animation Express</a><br>
++<a href="http://go.suck.com/su_wnfd">Suck.com</a><br>
++</font>
+ </td>
+   </tr>
+-<tr>
+-<td bgcolor="#000000"> 
++  
++    <tr>
++    <td bgcolor="#000000"> 
+     <font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b>HOTBOT</b></font>
+ </td>
+   </tr>
+-<tr>
+-<td bgcolor="#FFFF99"> <font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000">
+-<a href="http://redirect.wired.com/redir/54/http://www.hotbot.com/">Search</a><br><a href="http://shop.hotbot.com/">Shopping</a><br></font>
++  <tr> 
++    <td bgcolor="#FFFF99"> <font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#000000">
++<a href="http://redirect.wired.com/redir/54/http://www.hotbot.com/">Search</a><br>
++<a href="http://shop.hotbot.com/">Shopping</a><br>
++</font>
+ </td>
+   </tr>
+-<tr>
++  
++  <tr>
+ <td>
+-  <br><font face="Verdana, Arial, Helvetica, sans-serif" size="1">
++  <br>
++  <font face="Verdana, Arial, Helvetica, sans-serif" size="1">
+   <font face="Verdana, Arial, Helvetica, sans-serif" size="1">
+-  Wired News <a href="/news/who/0,1362,,00.html">staff</a><br><br><!-- Wired News is <a href="http://www.wired.com/news/jobs.html">hiring</a><br><br> --><b><a href="/news/feedback/0,1364,,00.html">Contact us</a></b></font>
++  Wired News <a href="/news/who/0,1362,,00.html">staff</a><br><br>
++
++  <!-- Wired News is <a href="http://www.wired.com/news/jobs.html">hiring</a><br><br> -->
++
++  <b><a href="/news/feedback/0,1364,,00.html">Contact us</a></b></font>
+ 
+   
+-  <br><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1">Wired News  delivered<br>by <a href="/news/palmpilot/0,1365,,00.html">PalmPilot</a>,<br><a href="http://www.hotwired.com/email/signup/wn_outlook.html">Outlook  Express</a>,<br><a href="http://redirect.wired.com/redir/55/http://form.netscape.com/ibd/html/ibd_frameset.html">In-Box Direct</a>,<br>
+-or <a href="/news/pointcast/0,1366,,00.html">PointCast</a></font><br><!-- TRACKING --><img src="http://www.wired.com/special/modx/news.gif" height="1" width="1" alt=""></font>
++  <br><br>
++  
++  <font face="Verdana, Arial, Helvetica, sans-serif" size="1">Wired News  delivered<br>by <a href="/news/palmpilot/0,1365,,00.html">PalmPilot</a>,<br><a href="http://www.hotwired.com/email/signup/wn_outlook.html">Outlook  Express</a>,<br><a href="http://redirect.wired.com/redir/55/http://form.netscape.com/ibd/html/ibd_frameset.html">In-Box Direct</a>,<br>
++or <a href="/news/pointcast/0,1366,,00.html">PointCast</a></font><br>
++
++<!-- TRACKING -->
++<img src="http://www.wired.com/special/modx/news.gif" height="1" width="1" alt="">
++</font>
+ </td>
+   </tr>
++
+ </table>
+-<!-- end lower left side Navigation --><!-- CONTENT TABLE --><table border="0" width="447" cellspacing="0" cellpadding="0" bordercolor="#66FF00">
+-<tr>
+-<td valign="TOP" align="LEFT" rowspan="2">
++
++<!-- end lower left side Navigation -->
++<!-- CONTENT TABLE -->
++
++<table border="0" width="447" cellspacing="0" cellpadding="0" bordercolor="#66FF00">
++ <tr>
++  <td valign="TOP" align="LEFT" rowspan="2">
+    <img src="http://static.wired.com/news/images/spacer.gif" height="1" width="15" alt=""><br>
+-</td>
++  </td>
+   <td colspan="3" valign="TOP" align="LEFT">
+-<img src="http://static.wired.com/news/images/spacer.gif" height="7" width="432" alt=""><br><!-- SQL query for Package here --><font face="Verdana, Arial, Geneva, sans-serif" size="2"><b><i>Nomad's Land</i></b></font><br><img src="http://static.wired.com/news/images/pix155.gif" height="10" width="155" alt=""><br><!-- IBD_SUBJECT: Homeless, but ID'd, in Seattle --><font face="Arial, Helvetica, sans-serif" size="5"><b><a href="/news/politics/0,1283,31911,00.html">Homeless, but ID'd, in Seattle</a></b></font><br><font size="1" face="Verdana, Arial, Geneva, sans-serif" color="#FF0000">8:15 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The city council approves a plan to track the homeless by a numbering system, saying it'll improve services. The implications worry privacy advocates, naturally. By Craig Bicknell.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/politics/0,1283,,00.html">in&nbsp;Politics</a></i></font><br><table bgcolor="#F0F0F0" cellpadding="0" cellspacing="0" border="0" width="147" align="RIGHT">
+-<!-- Commentary Frag Begin --><tr>
+-<td bgcolor="#000000">&nbsp;</td>
++<img src="http://static.wired.com/news/images/spacer.gif" height="7" width="432" alt=""><br>
++
++
++<!-- SQL query for Package here -->
++
++<font face="Verdana, Arial, Geneva, sans-serif" size="2"><b><i>Nomad's Land</i></b></font><br><img src="http://static.wired.com/news/images/pix155.gif" height="10" width="155" alt=""><br><!-- IBD_SUBJECT: Homeless, but ID'd, in Seattle --><font face="Arial, Helvetica, sans-serif" size="5"><b><a href="/news/politics/0,1283,31911,00.html">Homeless, but ID'd, in Seattle</a></b></font><br><font size="1" face="Verdana, Arial, Geneva, sans-serif" color="#FF0000">8:15 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The city council approves a plan to track the homeless by a numbering system, saying it'll improve services. The implications worry privacy advocates, naturally. By Craig Bicknell.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/politics/0,1283,,00.html">in&nbsp;Politics</a></i></font><br><table bgcolor="#F0F0F0" cellpadding="0" cellspacing="0" border="0" width="147" align="RIGHT">
++ <!-- Commentary Frag Begin -->
++        <tr>
++          <td bgcolor="#000000">&nbsp;</td>
+           <td bgcolor="#000000"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b>HITS &amp; MISC.</b></font></td>
+         </tr>
+-<tr>
+-<td>&nbsp;</td>
++        <tr>
++          <td>&nbsp;</td>
+           <td>
+-<img src="http://static.wired.com/news/images/spacer.gif" height="5" width="5" alt=""><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/commentarySection/0,1292,31664,00.html">Calendar of E-Vents</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Ongoing goings-on. </font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/commentarySection/0,1292,31926,00.html">Rants &amp; Raves</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Readers on Apple's G4 ... AOL's passwords ... MS vs. Linux.</font><br><br></font></font>
++<img src="http://static.wired.com/news/images/spacer.gif" height="5" width="5" alt=""><br>
++
++		<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/commentarySection/0,1292,31664,00.html">Calendar of E-Vents</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Ongoing goings-on. </font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/commentarySection/0,1292,31926,00.html">Rants &amp; Raves</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Readers on Apple's G4 ... AOL's passwords ... MS vs. Linux.</font><br><br>  </font></font>
+ </td>
+         </tr>
+-<!-- Commentary Frag End --><tr>
++<!-- Commentary Frag End -->
++<tr> 
+ <td align="left" bgcolor="#000000">&nbsp;</td> 
+ <td bgcolor="#000000"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b>CURRENT HOO-HA</b></font></td>
+ </tr>
+-<tr>
++
++<tr> 
+ <td>&nbsp;</td>
+ <td>
+-<img src="http://static.wired.com/news/images/spacer.gif" height="5" width="5" alt=""><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/mp3/0,1285,,00.html">MP3 Rocks the Web</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Download the sound.  <br><i>Sponsored by <a href="http://r.hotwired.com/r/wn_fd_mp3_r_mscm_txt/http://webfarm.mediaplex.com/click_thru_request/164-1361b-1052" style="text-decoration:none"><font color="#000000">Musicmaker</font></a></i></font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/wireless/0,1382,,00.html">The Wireless World</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Networking gets unplugged.  <br><i>Sponsored by <a href="http://www.ericsson.se/get/internet/default.shtml" style="text-decoration:none"><font color="#000000">Ericsson</font></a></i></font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/digiwood/0,1412,,00.html">Digital Hollywood</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">The buzz of tech.</font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/ipo/0,1350,,00.html">IPO Outlook</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Deals in the pipeline.  <br><i>Sponsored by <a href="http://r.hotwired.com/r/wn_ipo_r_sun_txt/http://sun.com/ads/smi/brand/hotwired.html" style="text-decoration:none"><font color="#000000">Sun</font></a></i></font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/ebiz/0,1272,,00.html">E-Biz</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Business unusual.  <br><i>Sponsored by <a href="http://r.wired.com/r/wn_fd_r_ebiz_ibm_txt/http://www.ibm.com" style="text-decoration:none"><font color="#000000">IBM</font></a></i></font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/medtech/0,1286,,00.html">Med-Tech Center</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">From the bleeding edge.<br><i>Sponsored by WebMD</i></font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/linux/0,1411,,00.html">The Linux Effect</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Not just for geeks.</font><br><br><img src="http://static.wired.com/news/images/spacer.gif" height="7" width="5" alt=""><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/exec/0,1370,,00.html">Executive Summary</a></b></font><br><font size="1" face="Arial, Helvetica, sans-serif" color="#000000">CEOs, COOs, CIOs unite.  <br><i>Sponsored by <a href="http://r.wired.com/r/wn_exec_r_vign/http://www.vignette.com/" style="text-decoration:none"><font color="#000000">Vignette</font></a></i></font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/school/0,1383,,00.html">Making the Grade</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Reading, writing, and ROM.  <br><i>Sponsored by <a href="http://r.hotwired.com/r/wn_sch_r_nav_uop/http://ads25.focalink.com/SmartBanner/page?12630.53" style="text-decoration:none"><font color="#000000">U of Phoenix</font></a></i></font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/infostructure/0,1377,,00.html">Infostructure</a></b></font><br><font size="1" face="Arial, Helvetica, sans-serif" color="#000000">An IS/IT resource <br><i>Sponsored by <a href="http://r.wired.com/r/wn_is_r_ssec/http://ad.doubleclick.net/clk;653163;3599571;s?http://www.sprintbiz.com/s%0Aervlet/appservlet?from=/wired/sprint/&amp;template=/security/security.html&amp;SITE=%0Awired.com&amp;BANNER=Sprint" style="text-decoration:none"><font color="#000000">Sprint</font></a></i></font></font><br><br><font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/y2k/0,1360,,00.html">Y2K Watch</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Tick... Tick... Tick...</font><br><br><font face="Arial, Helvetica, sans-serif" size="2"><b><i><a href="/news/special_reports/1,1293,,00.html">More Hoo-Ha</a></i></b></font><br>&nbsp;<br></font></font></font></font></font></font></font></font>
++<img src="http://static.wired.com/news/images/spacer.gif" height="5" width="5" alt="">
++<br>
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/mp3/0,1285,,00.html">MP3 Rocks the Web</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Download the sound.  <br><i>Sponsored by <a href="http://r.hotwired.com/r/wn_fd_mp3_r_mscm_txt/http://webfarm.mediaplex.com/click_thru_request/164-1361b-1052" style="text-decoration:none"><font color="#000000">Musicmaker</font></a></i></font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/wireless/0,1382,,00.html">The Wireless World</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Networking gets unplugged.  <br><i>Sponsored by <a href="http://www.ericsson.se/get/internet/default.shtml" style="text-decoration:none"><font color="#000000">Ericsson</font></a></i></font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/digiwood/0,1412,,00.html">Digital Hollywood</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">The buzz of tech.</font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/ipo/0,1350,,00.html">IPO Outlook</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Deals in the pipeline.  <br><i>Sponsored by <a href="http://r.hotwired.com/r/wn_ipo_r_sun_txt/http://sun.com/ads/smi/brand/hotwired.html" style="text-decoration:none"><font color="#000000">Sun</font></a></i></font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/ebiz/0,1272,,00.html">E-Biz</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Business unusual.  <br><i>Sponsored by <a href="http://r.wired.com/r/wn_fd_r_ebiz_ibm_txt/http://www.ibm.com" style="text-decoration:none"><font color="#000000">IBM</font></a></i></font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/medtech/0,1286,,00.html">Med-Tech Center</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">From the bleeding edge.<br><i>Sponsored by WebMD</i></font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/linux/0,1411,,00.html">The Linux Effect</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Not just for geeks.</font><br><br> <img src="http://static.wired.com/news/images/spacer.gif" height="7" width="5" alt=""><br>
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/exec/0,1370,,00.html">Executive Summary</a></b></font><br><font size="1" face="Arial, Helvetica, sans-serif" color="#000000">CEOs, COOs, CIOs unite.  <br><i>Sponsored by <a href="http://r.wired.com/r/wn_exec_r_vign/http://www.vignette.com/" style="text-decoration:none"><font color="#000000">Vignette</font></a></i></font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/school/0,1383,,00.html">Making the Grade</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Reading, writing, and ROM.  <br><i>Sponsored by <a href="http://r.hotwired.com/r/wn_sch_r_nav_uop/http://ads25.focalink.com/SmartBanner/page?12630.53" style="text-decoration:none"><font color="#000000">U of Phoenix</font></a></i></font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/infostructure/0,1377,,00.html">Infostructure</a></b></font><br><font size="1" face="Arial, Helvetica, sans-serif" color="#000000">An IS/IT resource <br><i>Sponsored by <a href="http://r.wired.com/r/wn_is_r_ssec/http://ad.doubleclick.net/clk;653163;3599571;s?http://www.sprintbiz.com/s%0Aervlet/appservlet?from=/wired/sprint/&amp;template=/security/security.html&amp;SITE=%0Awired.com&amp;BANNER=Sprint" style="text-decoration:none"><font color="#000000">Sprint</font></a></i></font></font><br><br> 
++
++<font size="2" face="Arial,Helvetica, sans-serif"><b><a href="/news/y2k/0,1360,,00.html">Y2K Watch</a></b></font><br><font size="2" face="Arial, Helvetica, sans-serif"><font size="1" face="Arial, Geneva, sans-serif" color="#000000">Tick... Tick... Tick...</font><br><br> 
++
++<font face="Arial, Helvetica, sans-serif" size="2"><b><i><a href="/news/special_reports/1,1293,,00.html">More Hoo-Ha</a></i></b></font><br>&nbsp;<br>
++
++</font></font></font></font></font></font></font></font>
+ </td>
+ </tr>
+-<!-- start of Gen News --><tr>
+-<td bgcolor="#000000">&nbsp;</td>
++<!-- start of Gen News -->
++                <tr> 
++                  <td bgcolor="#000000">&nbsp;</td>
+           <td bgcolor="#000000"><font size="1" face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b>MEANWHILE...</b></font></td>
+         </tr>
+-<tr>
+-<td>&nbsp;</td>
++
++        <tr> 
++          <td>&nbsp;</td>
+           <td align="left" valign="top">
+-          <img src="http://static.wired.com/news/images/spacer.gif" height="5" width="5" alt=""><br><!-- 31942 --><font size="2" face="Arial, Helvetica, sans-serif" color="#000000"><b>F&uuml;hrer Furor</b></font><br><font size="1" face="Arial, Geneva, sans-serif" color="#000000"><p>
++          <img src="http://static.wired.com/news/images/spacer.gif" height="5" width="5" alt=""><br>
++
++
++<!-- 31942 -->
++<font size="2" face="Arial, Helvetica, sans-serif" color="#000000"><b>F&uuml;hrer Furor</b></font><br><font size="1" face="Arial, Geneva, sans-serif" color="#000000"><p>
+ Contruction workers in Berlin opened an old wound in the German psyche this week when they accidentally stumbled across Adolf Hitler's bunker while excavating near the Brandenburg Gate. The bunker, just south of the Gate, was where Hitler and his closest associates barricaded themselves as the Red Army approached Berlin in the waning days of World War II. It is also where the F&uuml;hrer and his bride, Eva Braun, committed suicide rather than fall into the hands of the Russians. Although the bunker's location has never been a mystery, it has been sealed off since the end of the war to keep neo-Nazis from turning it into a shrine.
+ <br></p>
+ <li>More from <a href="http://www.lycos.com/news/flash/hitlerbunker.html?v=wn1015&amp;lpv=1">Lycos</a>
+ </li></font><br><br>
+-</td>
++ </td>
+         </tr>
+ <!-- end of Gen News -->
+ </table>
++
++
+ <font size="1">&nbsp;<br></font>
+ 
+-<br><font face="Verdana, Arial, Geneva, sans-serif" size="2"><b><i>Other Top Stories</i></b></font><br><img src="http://static.wired.com/news/images/pix155.gif" height="10" width="155" alt=""><br><!-- SQL query here --><!-- IBD_SUBJECT:Wall Street Keeps Reeling --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/reuters/0,1349,31934,00.html">Wall Street Keeps Reeling</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">10:15 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The Dow and Nasdaq suffer sizeable losses during the first half of Friday trading. Why? Wholesale prices are the highest this decade, and Greenspan is concerned about stock prices.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/reuters/0,1349,,00.html">in&nbsp;Reuters</a></i></font><br><br><!-- IBD_SUBJECT:The Market's Madness --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/reuters/0,1349,31935,00.html">The Market's Madness</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">9:10 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The bulls and the bears are in the midst of a Battle Royale, and all this turbulence is not a healthy thing. So say the experts.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/reuters/0,1349,,00.html">in&nbsp;Reuters</a></i></font><br><br><!-- IBD_SUBJECT:'Want a Loan? What's Your Race?' --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/politics/0,1283,31533,00.html">'Want a Loan? What's Your Race?'</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The Federal Reserve is in the middle of changing banking regulations to let banks collect data on the race, sex, religion, and national origin of their customers. By Declan McCullagh. </font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/politics/0,1283,,00.html">in&nbsp;Politics</a></i></font><br><br><!-- IBD_SUBJECT:Music Regs: A Bagful of Noise --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/business/0,1367,31832,00.html">Music Regs: A Bagful of Noise</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The struggle to come up with a digital music standard that would minimize download piracy is pushing right up against the holiday gift-giving season. By Jennifer Sullivan.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/business/0,1367,,00.html">in&nbsp;Business</a></i></font><br><br><!-- IBD_SUBJECT:Can't Beat 'Em? Green 'Em --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/technology/0,1282,31927,00.html">Can't Beat 'Em? Green 'Em</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">High-tech companies are notoriously environmentally unfriendly, and a growing number of "Greenies" are trying to change things from the inside ... with varying results. By Chris Gaither.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/technology/0,1282,,00.html">in&nbsp;Technology</a></i></font><br><br><!-- IBD_SUBJECT:Y2K Cloud Over MS Office --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/business/0,1367,31932,00.html">Y2K Cloud Over MS Office</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">Windows NT sales remain strong, but corporate clients are wary of upgrading to MS Office 2000. Analysts say that means strong, but not stunning, Microsoft earnings. </font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/business/0,1367,,00.html">in&nbsp;Business</a></i></font><br><br><font color="#FF0000" face="Verdana, Arial, Geneva, sans-serif" size="1">Med-Tech</font><br><!-- IBD_SUBJECT:Biochips for Custom Chemo --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/technology/0,1282,31914,00.html">Biochips for Custom Chemo</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">Different cancer patients need different medicine, but doctors can rarely determine the best match. New biochip technology promises chemotherapy tailored to a tumor's genetic make-up. By Kristen Philipkoski.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/technology/0,1282,,00.html">in&nbsp;Technology</a></i></font><br><br><!-- IBD_SUBJECT:High Stakes in Priceline Suit --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/business/0,1367,31916,00.html">High Stakes in Priceline Suit</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">It's not just another round of Redmond-bashing. A Priceline.com lawsuit against Microsoft's Expedia.com may have a big impact on how Net companies protect their business models. By Joanna Glasner.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/business/0,1367,,00.html">in&nbsp;Business</a></i></font><br><br><!-- IBD_SUBJECT:Biodiversity Merges Online --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/technology/0,1282,31918,00.html">Biodiversity Merges Online</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The far-flung databases on global biodiversity get together to form one monster database. Soon the red-eyed tree frog will be eyeing those Swedish lingonberries. From the Environment News Service.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/technology/0,1282,,00.html">in&nbsp;Technology</a></i></font><br><br><!-- SQL above --><!------TRADES---------><br><font face="Verdana, Arial, Geneva, sans-serif" size="2"><b><i>Elsewhere Today</i></b></font><br><img src="http://static.wired.com/news/images/pix155.gif" height="10" width="155" alt=""><br><!-- SQL query here --><font face="helvetica, arial" size="3"><b><a href="http://www.thestandard.com/articles/display/0,1449,6975,00.html?home.tf">FCC: Hands-Off on Broadband</a></b></font><br><font face="geneva, arial" size="2"><cite>The Industry Standard</cite></font><br><br><font face="helvetica, arial" size="3"><b><a href="http://news.lycos.com/stories/TopNews/19991014RTNEWS-ARMS-TREATY.asp">White House Lashes Out on Treaty</a></b></font><br><font face="geneva, arial" size="2">Lycos</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.pathfinder.com/time/magazine/articles/0,3266,32207,00.html">Steve Jobs at 44</a></b></font><br><font face="geneva, arial" size="2"><cite>Time</cite></font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.zdnet.com/zdnn/stories/news/0,4586,2353608,00.html">Computers May Run on Gas</a></b></font><br><font face="geneva, arial" size="2">ZDNN</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.nytimes.com/library/tech/99/10/biztech/articles/14free.html">Much Is Free in the Wired World</a></b></font><br><font face="geneva, arial" size="2"><cite>The New York Times</cite> (Registration Required)</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.usatoday.com/life/cyber/nb/nb4.htm">Melissa: I'm Baaaack</a></b></font><br><font face="geneva, arial" size="2"><cite>USA Today</cite></font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.msnbc.com/news/322926.asp">Domain Owners Surrender Privacy</a></b></font><br><font face="geneva, arial" size="2">MSNBC</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.washingtonpost.com/wp-srv/business/longterm/tech/techthursday/download/download.htm">Dividing to Conquer in VC Game</a></b></font><br><font face="geneva, arial" size="2"><cite>The Washington Post</cite></font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.salon.com/tech/books/1999/10/14/redhat_book/index.html">The Red Hat Diaries</a></b></font><br><font face="geneva, arial" size="2">Salon</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://news.bbc.co.uk/hi/english/sci/tech/newsid_473000/473856.stm">Screensaver to Predict Climate</a></b></font><br><font face="geneva, arial" size="2">BBC News</font><br><br><!-- SQL above --><!-- - - - - - - - - - - - - -->
+-</td>
++<br>
++
++<font face="Verdana, Arial, Geneva, sans-serif" size="2"><b><i>Other Top Stories</i></b></font><br>
++<img src="http://static.wired.com/news/images/pix155.gif" height="10" width="155" alt=""><br>
++
++<!-- SQL query here -->
++<!-- IBD_SUBJECT:Wall Street Keeps Reeling --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/reuters/0,1349,31934,00.html">Wall Street Keeps Reeling</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">10:15 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The Dow and Nasdaq suffer sizeable losses during the first half of Friday trading. Why? Wholesale prices are the highest this decade, and Greenspan is concerned about stock prices.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/reuters/0,1349,,00.html">in&nbsp;Reuters</a></i></font><br><br><!-- IBD_SUBJECT:The Market's Madness --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/reuters/0,1349,31935,00.html">The Market's Madness</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">9:10 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The bulls and the bears are in the midst of a Battle Royale, and all this turbulence is not a healthy thing. So say the experts.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/reuters/0,1349,,00.html">in&nbsp;Reuters</a></i></font><br><br><!-- IBD_SUBJECT:'Want a Loan? What's Your Race?' --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/politics/0,1283,31533,00.html">'Want a Loan? What's Your Race?'</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The Federal Reserve is in the middle of changing banking regulations to let banks collect data on the race, sex, religion, and national origin of their customers. By Declan McCullagh. </font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/politics/0,1283,,00.html">in&nbsp;Politics</a></i></font><br><br><!-- IBD_SUBJECT:Music Regs: A Bagful of Noise --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/business/0,1367,31832,00.html">Music Regs: A Bagful of Noise</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The struggle to come up with a digital music standard that would minimize download piracy is pushing right up against the holiday gift-giving season. By Jennifer Sullivan.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/business/0,1367,,00.html">in&nbsp;Business</a></i></font><br><br><!-- IBD_SUBJECT:Can't Beat 'Em? Green 'Em --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/technology/0,1282,31927,00.html">Can't Beat 'Em? Green 'Em</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">High-tech companies are notoriously environmentally unfriendly, and a growing number of "Greenies" are trying to change things from the inside ... with varying results. By Chris Gaither.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/technology/0,1282,,00.html">in&nbsp;Technology</a></i></font><br><br><!-- IBD_SUBJECT:Y2K Cloud Over MS Office --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/business/0,1367,31932,00.html">Y2K Cloud Over MS Office</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">Windows NT sales remain strong, but corporate clients are wary of upgrading to MS Office 2000. Analysts say that means strong, but not stunning, Microsoft earnings. </font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/business/0,1367,,00.html">in&nbsp;Business</a></i></font><br><br><font color="#FF0000" face="Verdana, Arial, Geneva, sans-serif" size="1">Med-Tech</font><br><!-- IBD_SUBJECT:Biochips for Custom Chemo --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/technology/0,1282,31914,00.html">Biochips for Custom Chemo</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">Different cancer patients need different medicine, but doctors can rarely determine the best match. New biochip technology promises chemotherapy tailored to a tumor's genetic make-up. By Kristen Philipkoski.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/technology/0,1282,,00.html">in&nbsp;Technology</a></i></font><br><br><!-- IBD_SUBJECT:High Stakes in Priceline Suit --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/business/0,1367,31916,00.html">High Stakes in Priceline Suit</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">It's not just another round of Redmond-bashing. A Priceline.com lawsuit against Microsoft's Expedia.com may have a big impact on how Net companies protect their business models. By Joanna Glasner.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/business/0,1367,,00.html">in&nbsp;Business</a></i></font><br><br><!-- IBD_SUBJECT:Biodiversity Merges Online --><font face="Arial, Helvetica, sans-serif" size="3"><b><a href="/news/technology/0,1282,31918,00.html">Biodiversity Merges Online</a></b></font><br><font color="#ff0000" face="Verdana, Arial, Geneva, sans-serif" size="1">3:00 a.m.</font>&nbsp;<font face="Verdana, Arial, Geneva, sans-serif" size="2">The far-flung databases on global biodiversity get together to form one monster database. Soon the red-eyed tree frog will be eyeing those Swedish lingonberries. From the Environment News Service.</font><br><font face="Verdana, Arial, Helvetica, sans-serif" size="1"><i><a href="/news/technology/0,1282,,00.html">in&nbsp;Technology</a></i></font><br><br><!-- SQL above -->
++
++
++        
++<!------TRADES--------->
++<br>
++<font face="Verdana, Arial, Geneva, sans-serif" size="2"><b><i>Elsewhere Today</i></b></font><br>
++<img src="http://static.wired.com/news/images/pix155.gif" height="10" width="155" alt=""><br>
++
++<!-- SQL query here -->
++<font face="helvetica, arial" size="3"><b><a href="http://www.thestandard.com/articles/display/0,1449,6975,00.html?home.tf">FCC: Hands-Off on Broadband</a></b></font><br><font face="geneva, arial" size="2"><cite>The Industry Standard</cite></font><br><br><font face="helvetica, arial" size="3"><b><a href="http://news.lycos.com/stories/TopNews/19991014RTNEWS-ARMS-TREATY.asp">White House Lashes Out on Treaty</a></b></font><br><font face="geneva, arial" size="2">Lycos</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.pathfinder.com/time/magazine/articles/0,3266,32207,00.html">Steve Jobs at 44</a></b></font><br><font face="geneva, arial" size="2"><cite>Time</cite></font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.zdnet.com/zdnn/stories/news/0,4586,2353608,00.html">Computers May Run on Gas</a></b></font><br><font face="geneva, arial" size="2">ZDNN</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.nytimes.com/library/tech/99/10/biztech/articles/14free.html">Much Is Free in the Wired World</a></b></font><br><font face="geneva, arial" size="2"><cite>The New York Times</cite> (Registration Required)</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.usatoday.com/life/cyber/nb/nb4.htm">Melissa: I'm Baaaack</a></b></font><br><font face="geneva, arial" size="2"><cite>USA Today</cite></font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.msnbc.com/news/322926.asp">Domain Owners Surrender Privacy</a></b></font><br><font face="geneva, arial" size="2">MSNBC</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.washingtonpost.com/wp-srv/business/longterm/tech/techthursday/download/download.htm">Dividing to Conquer in VC Game</a></b></font><br><font face="geneva, arial" size="2"><cite>The Washington Post</cite></font><br><br><font face="helvetica, arial" size="3"><b><a href="http://www.salon.com/tech/books/1999/10/14/redhat_book/index.html">The Red Hat Diaries</a></b></font><br><font face="geneva, arial" size="2">Salon</font><br><br><font face="helvetica, arial" size="3"><b><a href="http://news.bbc.co.uk/hi/english/sci/tech/newsid_473000/473856.stm">Screensaver to Predict Climate</a></b></font><br><font face="geneva, arial" size="2">BBC News</font><br><br><!-- SQL above -->
++
++
++
++<!-- - - - - - - - - - - - - -->
++ 
++   </td>
+   </tr>
+-<tr>
+-<td valign="TOP" align="LEFT">
+ 
+-    <img src="http://static.wired.com/news/images/spacer.gif" height="1" width="280" alt=""><br><!-- FOOTER --><br><img src="http://static.wired.com/news/images/pix155.gif" height="10" width="155" border="0" usemap="#navstrip.map" alt=""><br><img src="http://static.wired.com/news/images/navstrip_off.gif" height="17" width="126" usemap="#navstrip.map" border="0" alt=""><br><br><p><font face="Verdana, Arial, Geneva, sans-serif" size="1">
++  <tr>
++   <td valign="TOP" align="LEFT">
++
++    <img src="http://static.wired.com/news/images/spacer.gif" height="1" width="280" alt=""><br>
++	
++    <!-- FOOTER -->
++
++<br><img src="http://static.wired.com/news/images/pix155.gif" height="10" width="155" border="0" usemap="#navstrip.map" alt="">
++<br>
++
++<img src="http://static.wired.com/news/images/navstrip_off.gif" height="17" width="126" usemap="#navstrip.map" border="0" alt=""><br><br>
++
++<p><font face="Verdana, Arial, Geneva, sans-serif" size="1">
+ <a href="http://www.wired.com/news/feedback.html">Send us feedback</a>
+ &nbsp;|&nbsp;
+ <a href="http://www.hotwired.com/jobs/">Work at Wired Digital</a>
+ &nbsp;|&nbsp;
+ <a href="http://home.wired.com/advertising/">Advertise with us</a>
+-<br><a href="http://home.wired.com/">About Wired Digital</a>
++<br>
++<a href="http://home.wired.com/">About Wired Digital</a>
+ &nbsp;|&nbsp;
+ <a href="http://www.wired.com/home/digital/privacy/">Our Privacy Policy</a></font>
+ 
+@@ -382,19 +549,28 @@ Contruction workers in Berlin opened an old wound in the German psyche this week
+ </p>
+ <p><font face="Verdana, Arial, Geneva" size="1"><a href="http://www.wired.com/home/copyright.html">Copyright</a> &copy; 1994-99 Wired Digital Inc. All rights reserved.</font>
+ 
+-<br><!-- TRACKING --><img src="http://www.wired.com/special/modx/news.gif" height="1" width="1" alt=""><map name="navstrip.map"><area shape="rect" coords="0,0,14,16" href="/news">
++<br>
++<!-- TRACKING -->
++<img src="http://www.wired.com/special/modx/news.gif" height="1" width="1" alt="">
++
++<map name="navstrip.map">
++<area shape="rect" coords="0,0,14,16" href="/news">
+ <area shape="rect" coords="15,0 31,16" href="/news/business/">
+ <area shape="rect" coords="32,0,48,16" href="/news/culture/">
+ <area shape="rect" coords="49,0,65,16" href="/news/technology/">
+-<area shape="rect" coords="66,0,83,16" href="/news/politics/"></map></p>
++<area shape="rect" coords="66,0,83,16" href="/news/politics/">
++</map>
++ </p>
+ </td>
+    <td valign="TOP" align="LEFT">
+     <img src="http://static.wired.com/news/images/spacer.gif" height="1" width="5" alt="">
+-</td>
++   </td>
+    <td valign="TOP" align="LEFT">
+    </td>
+   </tr>
+ </table>
++
++
+ <br>
+ </body>
+ </html>
+diff --git a/xmllint.c b/xmllint.c
+index b58d184..9415d9a 100644
+--- a/xmllint.c
++++ b/xmllint.c
+@@ -3340,8 +3340,9 @@ main(int argc, char **argv) {
+         }
+ 	else if ((!strcmp(argv[i], "-noblanks")) ||
+ 	         (!strcmp(argv[i], "--noblanks"))) {
+-	     noblanks++;
+-	     xmlKeepBlanksDefault(0);
++	    noblanks++;
++	    xmlKeepBlanksDefault(0);
++	    options |= XML_PARSE_NOBLANKS;
+         }
+ 	else if ((!strcmp(argv[i], "-maxmem")) ||
+ 	         (!strcmp(argv[i], "--maxmem"))) {
+-- 
+1.9.2
+
