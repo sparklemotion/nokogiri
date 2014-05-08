@@ -43,6 +43,7 @@
     #931 (Thanks, Shota Fukumori!)
   * Nokogiri.parse() does not mistake a non-HTML document like a RSS
     document as HTML document. #932 (Thanks, Yamagishi Kazutoshi!)
+  * (MRI) Perform a node type check before adding a child node to another.  Previously adding a text node to another as a child could cause a SEGV. #1092
   * (JRuby) XSD validation crashes in Java version. #373
   * (JRuby) Document already has a root node error while using Builder. #646
   * (JRuby) c14n tests are all passing on JRuby. #226

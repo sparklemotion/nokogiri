@@ -139,7 +139,7 @@ static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr pivot, xmlNodePtr new_node)
 static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func prf)
 {
   VALUE reparented_obj ;
-  xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text ;
+  xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text, parent ;
 
   if(!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
@@ -149,9 +149,71 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
   Data_Get_Struct(reparentee_obj, xmlNode, reparentee);
   Data_Get_Struct(pivot_obj, xmlNode, pivot);
 
-  if(XML_DOCUMENT_NODE == reparentee->type || XML_HTML_DOCUMENT_NODE == reparentee->type)
-    rb_raise(rb_eArgError, "cannot reparent a document node");
+  /*
+   * Check if nodes given are appropriate to have a parent-child
+   * relationship, based on the DOM specification.
+   *
+   * cf. http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#ID-1590626202
+   */
+  if (prf == xmlAddChild) {
+    parent = pivot;
+  } else {
+    parent = pivot->parent;
+  }
 
+  if (parent) {
+    switch (parent->type) {
+    case XML_DOCUMENT_NODE:
+    case XML_HTML_DOCUMENT_NODE:
+      switch (reparentee->type) {
+        case XML_ELEMENT_NODE:
+        case XML_PI_NODE:
+        case XML_COMMENT_NODE:
+        case XML_DOCUMENT_TYPE_NODE:
+      /*
+       * The DOM specification says no to adding text-like nodes
+       * directly to a document, but we allow it for compatibility.
+       */
+        case XML_TEXT_NODE:
+        case XML_CDATA_SECTION_NODE:
+        case XML_ENTITY_REF_NODE:
+          goto ok;
+      }
+      break;
+    case XML_DOCUMENT_FRAG_NODE:
+    case XML_ENTITY_REF_NODE:
+    case XML_ELEMENT_NODE:
+      switch (reparentee->type) {
+      case XML_ELEMENT_NODE:
+      case XML_PI_NODE:
+      case XML_COMMENT_NODE:
+      case XML_TEXT_NODE:
+      case XML_CDATA_SECTION_NODE:
+      case XML_ENTITY_REF_NODE:
+        goto ok;
+      }
+      break;
+    case XML_ATTRIBUTE_NODE:
+      switch (reparentee->type) {
+      case XML_TEXT_NODE:
+      case XML_ENTITY_REF_NODE:
+        goto ok;
+      }
+      break;
+    case XML_TEXT_NODE:
+      /*
+       * xmlAddChild() breaks the DOM specification in that it allows
+       * adding a text node to another, in which case text nodes are
+       * coalesced, but since our JRuby version does not support such
+       * operation, we should inhibit it.
+       */
+      break;
+    }
+
+    rb_raise(rb_eArgError, "cannot reparent %s there", rb_obj_classname(reparentee_obj));
+  }
+
+ok:
   xmlUnlinkNode(reparentee);
 
   if (reparentee->doc != pivot->doc || reparentee->type == XML_TEXT_NODE) {

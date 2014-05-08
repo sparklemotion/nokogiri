@@ -40,6 +40,21 @@ module Nokogiri
         assert_equal('& <foo> &amp;', node.content)
         assert_equal('&amp; &lt;foo&gt; &amp;amp;', node.to_xml)
       end
+
+      def test_add_child
+        node = Text.new('foo', Document.new)
+        if Nokogiri.jruby?
+          exc = RuntimeError
+        else
+          exc = ArgumentError
+        end
+        assert_raises(exc) {
+          node.add_child Text.new('bar', Document.new)
+        }
+        assert_raises(exc) {
+          node << Text.new('bar', Document.new)
+        }
+      end
     end
   end
 end
