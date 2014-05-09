@@ -110,6 +110,8 @@ HOE = Hoe.spec 'nokogiri' do
   developer 'Tim Elliott',     'tle@holymonkey.com'
   developer 'Akinori MUSHA',   'knu@idaemons.org'
 
+  license "MIT"
+
   self.readme_file  = ['README',    ENV['HLANG'], 'rdoc'].compact.join('.')
   self.history_file = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
 
@@ -157,7 +159,6 @@ HOE = Hoe.spec 'nokogiri' do
 
   self.testlib = :minitest
 end
-HOE.spec.licenses = ['MIT']
 
 # ----------------------------------------
 
