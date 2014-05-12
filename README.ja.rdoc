@@ -1,9 +1,8 @@
 = Nokogiri (鋸) {<img src="https://secure.travis-ci.org/sparklemotion/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/sparklemotion/nokogiri] {<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/sparklemotion/nokogiri]
 
-* http://nokogiri.org/
-* https://github.com/sparklemotion/nokogiri/wikis
-* https://github.com/sparklemotion/nokogiri/tree/master
-* https://groups.google.com/group/nokogiri-list
+* http://nokogiri.org
+* https://github.com/sparklemotion/nokogiri
+* https://groups.google.com/group/nokogiri-talk
 * https://github.com/sparklemotion/nokogiri/issues
 
 == DESCRIPTION:
