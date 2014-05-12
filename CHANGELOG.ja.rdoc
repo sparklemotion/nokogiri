@@ -2,7 +2,7 @@
 
 ==== Security 註
 
-A set of security and bugfix patches have been backported from the libxml2 repository onto the version of 2.8.0 packaged with Nokogiri, including these notable security fixes:
+A set of security and bugfix patches have been backported from the libxml2 and libxslt repositories onto the version of 2.8.0 packaged with Nokogiri, including these notable security fixes:
 
 * https://git.gnome.org/browse/libxml2/commit/?id=4629ee02ac649c27f9c0cf98ba017c6b5526070f
 * CVE-2013-2877 https://git.gnome.org/browse/libxml2/commit/?id=e50ba8164eee06461c73cd8abb9b46aa0be81869
