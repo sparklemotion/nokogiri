@@ -1,47 +1,57 @@
-=== 1.6.2 / 未リリース
+=== 1.6.2 / 2014年5月12日
 
-* 註
+==== Security 註
 
-  * Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
+A set of security and bugfix patches have been backported from the libxml2 repository onto the version of 2.8.0 packaged with Nokogiri, including these notable security fixes:
 
-* 機能
+* https://git.gnome.org/browse/libxml2/commit/?id=4629ee02ac649c27f9c0cf98ba017c6b5526070f
+* CVE-2013-2877 https://git.gnome.org/browse/libxml2/commit/?id=e50ba8164eee06461c73cd8abb9b46aa0be81869
+* CVE-2014-0191 https://git.gnome.org/browse/libxml2/commit/?id=9cd1c3cfbd32655d60572c0a413e017260c854df
 
-  * Add cross building of fat binary gems for 64-Bit Windows (x64-mingw32)
-    and add support for native builds on Windows. #864, #989, #1072
-  * (MRI) iconvが Windows-31J をサポートしていない場合は CP932 のエイリアスとして扱うようにした #836
-  * (MRI) 同梱ライブラリを静的にリンクするようになった (静的リンクをオフにするにはextconf.rbに --disable-static を渡す) #923
-  * (MRI) CRubyのバグ #9760 に起因するライブラリパス(LIBPATH)の優先順位問題に対応した
-  * (MRI) 同梱ライブラリのビルド後に不要になったディレクトリ群を自動的に削除するようになった (デバッグ等の目的で残すようにするにはextconf.rbに --disable-clean を渡す) #952
-  * (MRI) FreeBSDなど、libiconvがシステム標準ディレクトリ外にある環境でlibxml2がiconvサポート付きで正しくビルドされるようになった
-  * nthセレクタにおいてan-bを認識するようになった #886 (Magnus Bergmarkに感謝!)
-  * :not疑似クラスが、先行セレクタがない場合や複数重ねられた場合にも対応した #887 (Magnus Bergmarkに感謝!)
-  * (MRI) extconf.rb のオプション --use-system-libraries を追加
-    環境変数 NOKOGIRI_USE_SYSTEM_LIBRARIES を設定する代わりに使える
-  * (MRI) 同梱の libxslt を 1.1.28 に、 zlib を 1.2.8 に、 libiconv を 1.14 にそれぞれ更新した
-  * Nokogiri::HTML::Document#title= 及び #meta_encoding= は、head要素がない場合でも常に、最適な場所を探しつつ要素を追加するようになった
-  * Nokogiri::XML::DTD#html_dtd? と #html5_dtd? を追加
-  * Nokogiri::XML::Node#prepend_child を追加 #664
-  * Nokogiri::XML::SAX::ParserContext#recovery is added. #453
+It is recommended that you upgrade from 1.6.x to this version as soon as possible.
 
-* バグ修正
+==== Compatibility 註
 
-  * :only-child疑似クラスが:not疑似クラスの中にある場合に正常な動作が行われるようになった #858 (Yamagishi Kazutoshiに感謝!)
-  * 同梱のライブラリを使う場合にはextconf.rbでpkg_configを呼ばなくなった #931 (Shota Fukumoriに感謝!)
-  * Nokogiri.parse()がRSS文書などをHTML文書として誤認する問題を修正 #932 (Yamagishi Kazutoshiに感謝!)
-  * (MRI) ノードに対して子ノードを追加する際、ノードタイプをチェックするようにした。従来はテキストノードに別のテキストノードを追加する操作によりSEGVが発生していた。 #1092
-  * (JRuby) XSD validation crashes in Java version. #373
-  * (JRuby) Document already has a root node error while using Builder. #646
-  * (JRuby) c14n tests are all passing on JRuby. #226
-  * Parsing empty documents raise SyntaxError in strict mode. #1005
-  * (JRuby) Make xpath faster by caching the xpath context. #741
-  * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
-  * (JRUby) JRubyによるディフォルトネームスペースエイリアスの振る舞いがCRubyと同じではない。#940
-  * (JRuby) JRubyによるネームスペースのパースと追加の振る舞いが一致していない。 #943
-  * (JRuby) Builderで作ったドキュメントとクローンしたドキュメントではXpathの結果が違う。#1034
-  * (JRuby) Javaの実装はネームスペースを忘れることがある。 #902
-  * (JRuby) JRuby-Nokogiriはネームスペーススコープ内のアトリビュートを正しく認識しない。#1081
-  * (JRuby) JRuby-Nokogiriはコメントノードの名前が違う。#1080
-  * (JRuby) JAXPExtensionsProvider / Java 7 / Secure Processingに問題がある。 #1070
+Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
+
+==== 機能
+
+* Add cross building of fat binary gems for 64-Bit Windows (x64-mingw32)
+  and add support for native builds on Windows. #864, #989, #1072
+* (MRI) iconvが Windows-31J をサポートしていない場合は CP932 のエイリアスとして扱うようにした #836
+* (MRI) 同梱ライブラリを静的にリンクするようになった (静的リンクをオフにするにはextconf.rbに --disable-static を渡す) #923
+* (MRI) CRubyのバグ #9760 に起因するライブラリパス(LIBPATH)の優先順位問題に対応した
+* (MRI) 同梱ライブラリのビルド後に不要になったディレクトリ群を自動的に削除するようになった (デバッグ等の目的で残すようにするにはextconf.rbに --disable-clean を渡す) #952
+* (MRI) FreeBSDなど、libiconvがシステム標準ディレクトリ外にある環境でlibxml2がiconvサポート付きで正しくビルドされるようになった
+* nthセレクタにおいてan-bを認識するようになった #886 (Magnus Bergmarkに感謝!)
+* :not疑似クラスが、先行セレクタがない場合や複数重ねられた場合にも対応した #887 (Magnus Bergmarkに感謝!)
+* (MRI) extconf.rb のオプション --use-system-libraries を追加
+  環境変数 NOKOGIRI_USE_SYSTEM_LIBRARIES を設定する代わりに使える
+* (MRI) 同梱の libxslt を 1.1.28 に、 zlib を 1.2.8 に、 libiconv を 1.14 にそれぞれ更新した
+* Nokogiri::HTML::Document#title= 及び #meta_encoding= は、head要素がない場合でも常に、最適な場所を探しつつ要素を追加するようになった
+* Nokogiri::XML::DTD#html_dtd? と #html5_dtd? を追加
+* Nokogiri::XML::Node#prepend_child を追加 #664
+* Nokogiri::XML::SAX::ParserContext#recovery is added. #453
+
+==== バグ修正
+
+* :only-child疑似クラスが:not疑似クラスの中にある場合に正常な動作が行われるようになった #858 (Yamagishi Kazutoshiに感謝!)
+* 同梱のライブラリを使う場合にはextconf.rbでpkg_configを呼ばなくなった #931 (Shota Fukumoriに感謝!)
+* Nokogiri.parse()がRSS文書などをHTML文書として誤認する問題を修正 #932 (Yamagishi Kazutoshiに感謝!)
+* (MRI) ノードに対して子ノードを追加する際、ノードタイプをチェックするようにした。従来はテキストノードに別のテキストノードを追加する操作によりSEGVが発生していた。 #1092
+* (JRuby) XSD validation crashes in Java version. #373
+* (JRuby) Document already has a root node error while using Builder. #646
+* (JRuby) c14n tests are all passing on JRuby. #226
+* Parsing empty documents raise SyntaxError in strict mode. #1005
+* (JRuby) Make xpath faster by caching the xpath context. #741
+* (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
+* (JRUby) JRubyによるディフォルトネームスペースエイリアスの振る舞いがCRubyと同じではない。#940
+* (JRuby) JRubyによるネームスペースのパースと追加の振る舞いが一致していない。 #943
+* (JRuby) Builderで作ったドキュメントとクローンしたドキュメントではXpathの結果が違う。#1034
+* (JRuby) Javaの実装はネームスペースを忘れることがある。 #902
+* (JRuby) JRuby-Nokogiriはネームスペーススコープ内のアトリビュートを正しく認識しない。#1081
+* (JRuby) JRuby-Nokogiriはコメントノードの名前が違う。#1080
+* (JRuby) JAXPExtensionsProvider / Java 7 / Secure Processingに問題がある。 #1070
 
 === 1.6.1 / 2013年12月14日
 

@@ -1,47 +1,57 @@
-=== 1.6.2 / unreleased
+=== 1.6.2 / 2014-05-12
 
-* Notes
+==== Security Note
 
-  * Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
+A set of security and bugfix patches have been backported from the libxml2 repository onto the version of 2.8.0 packaged with Nokogiri, including these notable security fixes:
 
-* Features
+* https://git.gnome.org/browse/libxml2/commit/?id=4629ee02ac649c27f9c0cf98ba017c6b5526070f
+* CVE-2013-2877 https://git.gnome.org/browse/libxml2/commit/?id=e50ba8164eee06461c73cd8abb9b46aa0be81869
+* CVE-2014-0191 https://git.gnome.org/browse/libxml2/commit/?id=9cd1c3cfbd32655d60572c0a413e017260c854df
 
-  * Add cross building of fat binary gems for 64-Bit Windows (x64-mingw32) and add support for native builds on Windows. #864, #989, #1072
-  * (MRI) Alias CP932 to Windows-31J if iconv does not support Windows-31J.
-  * (MRI) Nokogiri now links packaged libraries statically. To disable static linking, pass --disable-static to extconf.rb. #923
-  * (MRI) Fix a library path (LIBPATH) precedence problem caused by CRuby bug #9760.
-  * (MRI) Nokogiri automatically deletes directories of packaged libraries only used during build. To keep them for debugging purposes, pass --disable-clean to extconf.rb. #952
-  * (MRI) Nokogiri now builds libxml2 properly with iconv support on platforms where libiconv is installed outside the system default directories, such as FreeBSD.
-  * Add support for an-b in nth selectors. #886 (Thanks, Magnus Bergmark!)
-  * Add support for bare and multiple :not() functions in selectors. #887 (Thanks, Magnus Bergmark!)
-  * (MRI) Add an extconf.rb option --use-system-libraries, alternative to setting the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES.
-  * (MRI) Update packaged libraries: libxslt to 1.1.28, zlib to 1.2.8, and libiconv to 1.14, respectively.
-  * Nokogiri::HTML::Document#title= and #meta_encoding= now always add an element if not present, trying hard to find the best place to put it.
-  * Nokogiri::XML::DTD#html_dtd? and #html5_dtd? are added.
-  * Nokogiri::XML::Node#prepend_child is added. #664
-  * Nokogiri::XML::SAX::ParserContext#recovery is added. #453
-  * Fix documentation for XML::Node#namespace. #803 #802 (Thanks, Hoylen Sue)
-  * Allow Nokogiri::XML::Node#parse from unparented non-element nodes. #407
+It is recommended that you upgrade from 1.6.x to this version as soon as possible.
 
-* Bugfixes
+==== Compatibility Note
 
-  * Ensure :only-child pseudo class works within :not pseudo class. #858 (Thanks, Yamagishi Kazutoshi!)
-  * Don't call pkg_config when using bundled libraries in extconf.rb #931 (Thanks, Shota Fukumori!)
-  * Nokogiri.parse() does not mistake a non-HTML document like a RSS document as HTML document. #932 (Thanks, Yamagishi Kazutoshi!)
-  * (MRI) Perform a node type check before adding a child node to another. Previously adding a text node to another as a child could cause a SEGV. #1092
-  * (JRuby) XSD validation crashes in Java version. #373
-  * (JRuby) Document already has a root node error while using Builder. #646
-  * (JRuby) c14n tests are all passing on JRuby. #226
-  * Parsing empty documents raise SyntaxError in strict mode. #1005
-  * (JRuby) Make xpath faster by caching the xpath context. #741
-  * (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
-  * (JRuby) Inconsistent behavior aliasing the default namespace. #940
-  * (JRuby) Inconsistent behavior between parsing and adding namespaces. #943
-  * (JRuby) Xpath returns inconsistent result set on cloned document with namespaces and attributes. #1034
-  * (JRuby) Java-Implementation forgets element namespaces #902
-  * (JRuby) JRuby-Nokogiri does not recognise attributes inside namespaces #1081
-  * (JRuby) JRuby-Nokogiri has different comment node name #1080
-  * (JRuby) JAXPExtensionsProvider / Java 7 / Secure Processing #1070
+Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
+
+==== Features
+
+* Add cross building of fat binary gems for 64-Bit Windows (x64-mingw32) and add support for native builds on Windows. #864, #989, #1072
+* (MRI) Alias CP932 to Windows-31J if iconv does not support Windows-31J.
+* (MRI) Nokogiri now links packaged libraries statically. To disable static linking, pass --disable-static to extconf.rb. #923
+* (MRI) Fix a library path (LIBPATH) precedence problem caused by CRuby bug #9760.
+* (MRI) Nokogiri automatically deletes directories of packaged libraries only used during build. To keep them for debugging purposes, pass --disable-clean to extconf.rb. #952
+* (MRI) Nokogiri now builds libxml2 properly with iconv support on platforms where libiconv is installed outside the system default directories, such as FreeBSD.
+* Add support for an-b in nth selectors. #886 (Thanks, Magnus Bergmark!)
+* Add support for bare and multiple :not() functions in selectors. #887 (Thanks, Magnus Bergmark!)
+* (MRI) Add an extconf.rb option --use-system-libraries, alternative to setting the environment variable NOKOGIRI_USE_SYSTEM_LIBRARIES.
+* (MRI) Update packaged libraries: libxslt to 1.1.28, zlib to 1.2.8, and libiconv to 1.14, respectively.
+* Nokogiri::HTML::Document#title= and #meta_encoding= now always add an element if not present, trying hard to find the best place to put it.
+* Nokogiri::XML::DTD#html_dtd? and #html5_dtd? are added.
+* Nokogiri::XML::Node#prepend_child is added. #664
+* Nokogiri::XML::SAX::ParserContext#recovery is added. #453
+* Fix documentation for XML::Node#namespace. #803 #802 (Thanks, Hoylen Sue)
+* Allow Nokogiri::XML::Node#parse from unparented non-element nodes. #407
+
+==== Bugfixes
+
+* Ensure :only-child pseudo class works within :not pseudo class. #858 (Thanks, Yamagishi Kazutoshi!)
+* Don't call pkg_config when using bundled libraries in extconf.rb #931 (Thanks, Shota Fukumori!)
+* Nokogiri.parse() does not mistake a non-HTML document like a RSS document as HTML document. #932 (Thanks, Yamagishi Kazutoshi!)
+* (MRI) Perform a node type check before adding a child node to another. Previously adding a text node to another as a child could cause a SEGV. #1092
+* (JRuby) XSD validation crashes in Java version. #373
+* (JRuby) Document already has a root node error while using Builder. #646
+* (JRuby) c14n tests are all passing on JRuby. #226
+* Parsing empty documents raise SyntaxError in strict mode. #1005
+* (JRuby) Make xpath faster by caching the xpath context. #741
+* (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
+* (JRuby) Inconsistent behavior aliasing the default namespace. #940
+* (JRuby) Inconsistent behavior between parsing and adding namespaces. #943
+* (JRuby) Xpath returns inconsistent result set on cloned document with namespaces and attributes. #1034
+* (JRuby) Java-Implementation forgets element namespaces #902
+* (JRuby) JRuby-Nokogiri does not recognise attributes inside namespaces #1081
+* (JRuby) JRuby-Nokogiri has different comment node name #1080
+* (JRuby) JAXPExtensionsProvider / Java 7 / Secure Processing #1070
 
 === 1.6.1 / 2013-12-14
 
