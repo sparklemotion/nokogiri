@@ -180,14 +180,32 @@ def process_recipe(name, version, static_p, cross_p)
     recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
     recipe.patch_files = Dir[File.join(portsdir, "patches", name, "*.patch")].sort
 
+    yield recipe
+
+    env = Hash.new { |hash, key|
+      hash[key] = "#{ENV[key]}"  # (ENV[key].dup rescue '')
+    }
+
+    recipe.configure_options.flatten!
+
+    recipe.configure_options.delete_if { |option|
+      case option.shellsplit.first
+      when /\A(\w+)=(.*)\z/
+        env[$1] = $2
+        true
+      else
+        false
+      end
+    }
+
     if static_p
-      recipe.configure_options = [
+      recipe.configure_options += [
         "--disable-shared",
         "--enable-static",
-        "CFLAGS='-fPIC #{ENV["CFLAGS"]}'",
       ]
+      env['CFLAGS'] = "-fPIC #{env['CFLAGS']}"
     else
-      recipe.configure_options = [
+      recipe.configure_options += [
         "--enable-shared",
         "--disable-static",
       ]
@@ -200,7 +218,17 @@ def process_recipe(name, version, static_p, cross_p)
       ]
     end
 
-    yield recipe
+    if RbConfig::CONFIG['target_cpu'] == 'universal'
+      %w[CFLAGS LDFLAGS].each { |key|
+        unless env[key].shellsplit.include?('-arch')
+          env[key] << ' ' << RbConfig::CONFIG['ARCH_FLAG']
+        end
+      }
+    end
+
+    recipe.configure_options += env.map { |key, value|
+      "#{key}=#{value}".shellescape
+    }
 
     if recipe.patch_files.empty?
       message! "Building #{name}-#{version} for nokogiri.\n"
