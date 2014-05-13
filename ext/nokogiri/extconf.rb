@@ -257,6 +257,13 @@ XPath optimization bugs.
   end
 end
 
+def lib_a(ldflag)
+  case ldflag
+  when /\A-l(.+)/
+    "lib#{$1}.#{$LIBEXT}"
+  end
+end
+
 #
 # monkey patches
 #
@@ -495,24 +502,16 @@ else
   }.shelljoin
 
   if static_p
-    message 'checking for linker flags for static linking... '
-
-    case
-    when try_link('int main(void) { return 0; }',
-                  ['-Wl,-Bstatic', '-lxml2', '-Wl,-Bdynamic'].shelljoin)
-      message "-Wl,-Bstatic\n"
-
-      $libs = $libs.shellsplit.flat_map { |arg|
-        case arg
-        when '-lxml2', '-lxslt', '-lexslt'
-          ['-Wl,-Bstatic', arg, '-Wl,-Bdynamic']
-        else
-          arg
-        end
-      }.shelljoin
-    else
-      message "NONE\n"
-    end
+    $libs = $libs.shellsplit.map { |arg|
+      case arg
+      when '-lxml2'
+        File.join(libxml2_recipe.path, 'lib', lib_a(arg))
+      when '-lxslt', '-lexslt'
+        File.join(libxslt_recipe.path, 'lib', lib_a(arg))
+      else
+        arg
+      end
+    }.shelljoin
   end
 end
 
