@@ -3,7 +3,13 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
 require 'mkmf'
 
-if arg_config('--help')
+ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+
+#
+# functions
+#
+
+def do_help
   print <<HELP
 usage: ruby #{$0} [options]
 
@@ -44,28 +50,7 @@ def message!(important_message)
 rescue Errno::ENXIO
 end
 
-RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
-
-ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
-# Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
-# https://bugs.ruby-lang.org/issues/8074
-@libdir_basename = "lib" if RUBY_VERSION < '2.1.0'
-
-# Workaround for Ruby bug #9760, will be fixed in Ruby 2.2
-class Array
-  alias orig_or |
-
-  def | other
-    if self.equal?($DEFLIBPATH) && other.equal?($LIBPATH)
-      # Make sure library directories we set take precedence over $(libdir)
-      other.orig_or(self)
-    else
-      self.orig_or(other)
-    end
-  end
-end if RUBY_VERSION < '2.2.0'
-
-if arg_config('--clean')
+def do_clean
   require 'pathname'
   require 'fileutils'
 
@@ -93,15 +78,8 @@ if arg_config('--clean')
     end
   end
 
-  exit
+  exit! 0
 end
-
-if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
-  $LIBRUBYARG_STATIC.gsub!(/-static/, '')
-end
-
-$CFLAGS << " #{ENV["CFLAGS"]}"
-$LIBS << " #{ENV["LIBS"]}"
 
 def preserving_globals
   values = [
@@ -278,6 +256,48 @@ XPath optimization bugs.
     recipe.activate
   end
 end
+
+#
+# monkey patches
+#
+
+# Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
+# https://bugs.ruby-lang.org/issues/8074
+@libdir_basename = "lib" if RUBY_VERSION < '2.1.0'
+
+# Workaround for Ruby bug #9760, will be fixed in Ruby 2.2
+class Array
+  alias orig_or |
+
+  def | other
+    if self.equal?($DEFLIBPATH) && other.equal?($LIBPATH)
+      # Make sure library directories we set take precedence over $(libdir)
+      other.orig_or(self)
+    else
+      self.orig_or(other)
+    end
+  end
+end if RUBY_VERSION < '2.2.0'
+
+#
+# main
+#
+
+case
+when arg_config('--help')
+  do_help
+when arg_config('--clean')
+  do_clean
+end
+
+RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
+
+if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
+  $LIBRUBYARG_STATIC.gsub!(/-static/, '')
+end
+
+$CFLAGS << " #{ENV["CFLAGS"]}"
+$LIBS << " #{ENV["LIBS"]}"
 
 case RbConfig::CONFIG['target_os']
 when 'mingw32', /mswin/
