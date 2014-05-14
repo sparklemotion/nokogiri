@@ -257,6 +257,13 @@ XPath optimization bugs.
   end
 end
 
+def lib_a(ldflag)
+  case ldflag
+  when /\A-l(.+)/
+    "lib#{$1}.#{$LIBEXT}"
+  end
+end
+
 #
 # monkey patches
 #
@@ -264,20 +271,6 @@ end
 # Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
 # https://bugs.ruby-lang.org/issues/8074
 @libdir_basename = "lib" if RUBY_VERSION < '2.1.0'
-
-# Workaround for Ruby bug #9760, will be fixed in Ruby 2.2
-class Array
-  alias orig_or |
-
-  def | other
-    if self.equal?($DEFLIBPATH) && other.equal?($LIBPATH)
-      # Make sure library directories we set take precedence over $(libdir)
-      other.orig_or(self)
-    else
-      self.orig_or(other)
-    end
-  end
-end if RUBY_VERSION < '2.2.0'
 
 # Workaround for #1102
 def monkey_patch_mini_portile
@@ -495,24 +488,16 @@ else
   }.shelljoin
 
   if static_p
-    message 'checking for linker flags for static linking... '
-
-    case
-    when try_link('int main(void) { return 0; }',
-                  ['-Wl,-Bstatic', '-lxml2', '-Wl,-Bdynamic'].shelljoin)
-      message "-Wl,-Bstatic\n"
-
-      $libs = $libs.shellsplit.flat_map { |arg|
-        case arg
-        when '-lxml2', '-lxslt', '-lexslt'
-          ['-Wl,-Bstatic', arg, '-Wl,-Bdynamic']
-        else
-          arg
-        end
-      }.shelljoin
-    else
-      message "NONE\n"
-    end
+    $libs = $libs.shellsplit.map { |arg|
+      case arg
+      when '-lxml2'
+        File.join(libxml2_recipe.path, 'lib', lib_a(arg))
+      when '-lxslt', '-lexslt'
+        File.join(libxslt_recipe.path, 'lib', lib_a(arg))
+      else
+        arg
+      end
+    }.shelljoin
   end
 end
 
