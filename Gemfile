@@ -4,7 +4,7 @@
 
 source "https://rubygems.org/"
 
-gem "mini_portile", "~>0.5.2"
+gem "mini_portile", "=0.6.0"
 
 gem "rdoc", "~>4.0", :group => [:development, :test]
 gem "hoe-bundler", ">=1.1", :group => [:development, :test]

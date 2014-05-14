@@ -279,6 +279,19 @@ class Array
   end
 end if RUBY_VERSION < '2.2.0'
 
+# Workaround for #1102
+def monkey_patch_mini_portile
+  MiniPortile.class_eval do
+    def patch
+      @patch_files.each do |full_path|
+        next unless File.exists?(full_path)
+        output "Running patch with #{full_path}..."
+        execute('patch', %Q(patch -p1 < #{full_path}))
+      end
+    end
+  end
+end
+
 #
 # main
 #
@@ -352,6 +365,7 @@ else
   message! "Building nokogiri using packaged libraries.\n"
 
   require 'mini_portile'
+  monkey_patch_mini_portile
   require 'yaml'
 
   static_p = enable_config('static', true) or
