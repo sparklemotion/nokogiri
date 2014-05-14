@@ -248,6 +248,8 @@ ports/patches/libxml2/0006-Do-not-fetch-external-parsed-entities.patch
 ports/patches/libxml2/0007-Enforce-XML_PARSER_EOF-state-handling-through-the-pa.patch
 ports/patches/libxml2/0008-Improve-handling-of-xmlStopParser.patch
 ports/patches/libxml2/0009-Fix-a-couple-of-return-without-value.patch
+ports/patches/libxml2/0010-Keep-non-significant-blanks-node-in-HTML-parser.patch
+ports/patches/libxml2/0011-Do-not-fetch-external-parameter-entities.patch
 ports/patches/libxslt/0001-Adding-doc-update-related-to-1.1.28.patch
 ports/patches/libxslt/0002-Fix-a-couple-of-places-where-f-printf-parameters-wer.patch
 ports/patches/libxslt/0003-Initialize-pseudo-random-number-generator-with-curre.patch
@@ -295,6 +297,7 @@ test/files/saml/xmldsig_schema.xsd
 test/files/shift_jis.html
 test/files/shift_jis.xml
 test/files/shift_jis_no_charset.html
+test/files/slow-xpath.xml
 test/files/snuggles.xml
 test/files/staff.dtd
 test/files/staff.xml
@@ -318,9 +321,12 @@ test/html/test_named_characters.rb
 test/html/test_node.rb
 test/html/test_node_encoding.rb
 test/namespaces/test_additional_namespaces_in_builder_doc.rb
+test/namespaces/test_namespaces_aliased_default.rb
 test/namespaces/test_namespaces_in_builder_doc.rb
+test/namespaces/test_namespaces_in_cloned_doc.rb
 test/namespaces/test_namespaces_in_created_doc.rb
 test/namespaces/test_namespaces_in_parsed_doc.rb
+test/namespaces/test_namespaces_preservation.rb
 test/test_convert_xpath.rb
 test/test_css_cache.rb
 test/test_encoding_handler.rb
