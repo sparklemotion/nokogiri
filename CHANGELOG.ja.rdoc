@@ -2,8 +2,7 @@
 
 ==== Bugの修正
 
-* Fix statically linked libxml2 installation when using universal builds of
-  Ruby.
+* Fix statically linked libxml2 installation when using universal builds of Ruby.
 
 === 1.6.2 / 2014年5月12日
 
