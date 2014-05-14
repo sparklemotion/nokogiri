@@ -1,9 +1,10 @@
-=== 1.6.2.1
+=== 1.6.2.1 / 2014年5月13日
 
-==== Bugの修正
+==== バグ修正
 
 * Fix statically-linked libxml2 installation when using universal builds of Ruby. #1104
 * Patching `mini_portile` to address the git dependency detailed in #1102.
+* Library load fix to address segfault reported on some systems. #1097
 
 
 === 1.6.2 / 2014年5月12日
