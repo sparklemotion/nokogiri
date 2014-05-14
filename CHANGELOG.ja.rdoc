@@ -2,7 +2,9 @@
 
 ==== Bugの修正
 
-* Fix statically linked libxml2 installation when using universal builds of Ruby.
+* Fix statically-linked libxml2 installation when using universal builds of Ruby. #1104
+* Patching `mini_portile` to address the git dependency detailed in #1102.
+
 
 === 1.6.2 / 2014年5月12日
 
