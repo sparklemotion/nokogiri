@@ -486,7 +486,7 @@ module Nokogiri
       # Remove the attribute named +name+
       def remove_attribute name
         attributes[name].remove if key? name
-      end
+      end unless Nokogiri.jruby?
       alias :delete :remove_attribute
 
       ###

@@ -1315,6 +1315,7 @@ public class XmlNode extends RubyObject {
             String key = name.convertToString().asJavaString();
             Element element = (Element) node;
             element.removeAttribute(key);
+            clearXpathContext(getNode());
         }
         return this;
     }
