@@ -209,6 +209,22 @@ module Nokogiri
         assert_send [elapsed_time, :<, time_limit], "XPath is taking too long"
       end
 
+      # issue #1109 (jruby impl's xpath() cache not being cleared on attr removal)
+      def test_xpath_results_cache_should_get_cleared_on_attr_removal
+        doc = Nokogiri::HTML('<html><div name="foo"></div></html>')
+        element = doc.at_xpath('//div[@name="foo"]')
+        element.remove_attribute('name')
+        assert_nil doc.at_xpath('//div[@name="foo"]')
+      end
+
+      # issue #1109 (jruby impl's xpath() cache not being cleared on attr update )
+      def test_xpath_results_cache_should_get_cleared_on_attr_update
+        doc = Nokogiri::HTML('<html><div name="foo"></div></html>')
+        element = doc.at_xpath('//div[@name="foo"]')
+        element['name'] = 'bar'
+        assert_nil doc.at_xpath('//div[@name="foo"]')
+      end
+
       def test_custom_xpath_function_returns_string
         if Nokogiri.uses_libxml?
           result = @xml.xpath('thing("asdf")', @handler)
@@ -362,7 +378,7 @@ END
             <RecordReference>a</RecordReference>
           </Product>
         </ONIXMessage>}
-        
+
         xml_doc = Nokogiri::XML(xml_string)
         onix = xml_doc.children.first
         assert_equal 'a', onix.at_xpath('xmlns:Product').at_xpath('xmlns:RecordReference').text
@@ -380,7 +396,7 @@ END
               <title>Artikkelin otsikko Hydrangea artiklan 1</title>
           </titleInfo>
         </mods>}
-        
+
         xml_doc = Nokogiri::XML(xml_string)
         ns_hash = {'mods'=>'http://www.loc.gov/mods/v3'}
         node = xml_doc.at_xpath('//mods:titleInfo[1]',ns_hash)
@@ -401,7 +417,7 @@ END
               <title>Artikkelin otsikko Hydrangea artiklan 1</title>
           </titleInfo>
         </mods>}
-        
+
         xml_doc = Nokogiri::XML(xml_string)
         ns_hash = {'mods'=>'http://www.loc.gov/mods/v3'}
         node = xml_doc.at_xpath('//mods:titleInfo[1]',ns_hash)

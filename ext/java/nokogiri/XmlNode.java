@@ -1341,16 +1341,6 @@ public class XmlNode extends RubyObject {
         return RubyFixnum.newFixnum(context.getRuntime(), this.node.hashCode());
     }
 
-    @JRubyMethod(name = {"remove_attribute", "delete"})
-    public IRubyObject remove_attribute(ThreadContext context, IRubyObject name) {
-        if (node instanceof Element) {
-            String key = name.convertToString().asJavaString();
-            Element element = (Element) node;
-            element.removeAttribute(key);
-        }
-        return this;
-    }
-
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject set_namespace(ThreadContext context, IRubyObject namespace) {
         if (namespace.isNil()) {
@@ -1717,4 +1707,9 @@ public class XmlNode extends RubyObject {
         return this;
     }
 
+    @JRubyMethod(visibility=Visibility.PRIVATE)
+    public IRubyObject clear_xpath_context(ThreadContext context) {
+        clearXpathContext(getNode());
+        return context.nil ;
+    }
 }

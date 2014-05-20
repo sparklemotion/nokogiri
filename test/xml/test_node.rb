@@ -635,8 +635,17 @@ module Nokogiri
       def test_remove_attribute
         address = @xml.xpath('/staff/employee/address').first
         assert_equal 'Yes', address['domestic']
-        address.remove_attribute 'domestic'
+        attr = address.attributes['domestic']
+
+        returned_attr = address.remove_attribute 'domestic'
         assert_nil address['domestic']
+        assert_equal attr, returned_attr
+      end
+
+      def test_remove_attribute_when_not_found
+        address = @xml.xpath('/staff/employee/address').first
+        attr = address.remove_attribute 'not-an-attribute'
+        assert_nil attr
       end
 
       def test_attribute_setter_accepts_non_string

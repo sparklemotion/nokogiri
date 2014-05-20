@@ -335,7 +335,9 @@ module Nokogiri
       ###
       # Remove the attribute named +name+
       def remove_attribute name
-        attributes[name].remove if key? name
+        attr = attributes[name].remove if key? name
+        clear_xpath_context if Nokogiri.jruby?
+        attr
       end
       alias :delete :remove_attribute
 

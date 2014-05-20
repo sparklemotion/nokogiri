@@ -27,12 +27,15 @@ module Nokogiri
         assert_equal "Y&ent1;", street.value
       end
 
-      def test_unlink
+      def test_unlink # aliased as :remove
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath('/staff/employee/address').first
         assert_equal 'Yes', address['domestic']
-        address.attribute_nodes.first.unlink
+
+        attr = address.attribute_nodes.first
+        return_val = attr.unlink
         assert_nil address['domestic']
+        assert_equal attr, return_val
       end
 
       def test_parsing_attribute_namespace
