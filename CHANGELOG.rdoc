@@ -1,8 +1,10 @@
-=== 1.6.2.2 / unreleased
+=== 1.6.3 / unreleased
 
 ==== Bug fixes
 
 * Fix JRuby memory exhaustion vulnerability. #1087 (Thanks, @ocher)
+* Fix segfault during GC when using `libxml-ruby` and `nokogiri` together in multi-threaded environment. #895 (Thanks, @ender672!)
+
 
 === 1.6.2.1 / 2014-05-13
 
