@@ -6,6 +6,8 @@ Nokogumbo provides the ability for a Ruby program to invoke the
 and to access the result as a
 [Nokogiri::HTML::Document](http://nokogiri.org/Nokogiri/HTML/Document.html).
 
+[![Build Status](https://travis-ci.org/rubys/nokogumbo.svg)](https://travis-ci.org/rubys/nokogumbo) 
+
 Usage
 -----
 
