@@ -1,10 +1,12 @@
 $:.unshift('lib')
 $:.unshift('ext/nokogumboc')
 
-require 'nokogumbo'
-require 'test/unit'
+gem 'minitest'
 
-class TestNokogumbo < Test::Unit::TestCase
+require 'nokogumbo'
+require 'minitest/autorun'
+
+class TestNokogumbo < Minitest::Test
   def test_element_text
     doc = Nokogiri::HTML5(buffer)
     assert_equal "content", doc.at('span').text
