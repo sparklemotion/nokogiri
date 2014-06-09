@@ -115,7 +115,7 @@ public class XmlDocumentFragment extends XmlNode {
         // strips trailing \n off forcefully
         // not to return new object in case of no chomp needed, chomp! is used here.
         IRubyObject result;
-        if (context.getRuntime().is1_9()) result = str.chomp_bang19(context);
+        if (context.getRuntime().is1_9()) result = str.chomp19(context);
         else result = str.chomp_bang(context);
         return result.isNil() ? str : result;
     }
