@@ -311,6 +311,9 @@ when 'mingw32', /mswin/
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
 when /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
+when /darwin/
+  # TODO: maybe make it stricter to only work on stock ruby? How to tell?
+  $CFLAGS << " -Wno-error=unused-command-line-argument-hard-error-in-future"
 else
   $CFLAGS << " -g -DXP_UNIX"
 end
