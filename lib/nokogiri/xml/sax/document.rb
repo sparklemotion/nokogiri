@@ -8,7 +8,7 @@ module Nokogiri
     # The basic way a SAX style parser works is by creating a parser,
     # telling the parser about the events we're interested in, then giving
     # the parser some XML to process.  The parser will notify you when
-    # it encounters events your said you would like to know about.
+    # it encounters events you said you would like to know about.
     #
     # To register for events, you simply subclass Nokogiri::XML::SAX::Document,
     # and implement the methods for which you would like notification.
