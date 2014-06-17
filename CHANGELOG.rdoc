@@ -4,6 +4,7 @@
 
 * [JRuby] Fix Ruby memory exhaustion vulnerability. #1087 (Thanks, @ocher)
 * [MRI] Fix segfault during GC when using `libxml-ruby` and `nokogiri` together in multi-threaded environment. #895 (Thanks, @ender672!)
+* Building on OSX 10.9 stock ruby 2.0.0 now works. #1101 (Thanks, @zenspider!)
 
 
 === 1.6.2.1 / 2014-05-13
