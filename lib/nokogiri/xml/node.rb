@@ -287,7 +287,7 @@ module Nokogiri
       def prepend_child node_or_tags
         if first = children.first
           # Mimic the error add_child would raise.
-          raise RuntimeError, "Document already has a root node" if is_a?(XML::Document) && !node_or_tags.is_a?(XML::ProcessingInstruction)
+          raise RuntimeError, "Document already has a root node" if document? && !node_or_tags.is_a?(XML::ProcessingInstruction)
           first.__send__(:add_sibling, :previous, node_or_tags)
         else
           add_child(node_or_tags)
@@ -313,7 +313,7 @@ module Nokogiri
       #
       # Also see related method +before+.
       def add_previous_sibling node_or_tags
-        raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document) && !node_or_tags.is_a?(XML::ProcessingInstruction)
+        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !node_or_tags.is_a?(XML::ProcessingInstruction)
 
         add_sibling :previous, node_or_tags
       end
@@ -326,7 +326,7 @@ module Nokogiri
       #
       # Also see related method +after+.
       def add_next_sibling node_or_tags
-        raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document) && !node_or_tags.is_a?(XML::ProcessingInstruction)
+        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !node_or_tags.is_a?(XML::ProcessingInstruction)
         
         add_sibling :next, node_or_tags
       end
@@ -513,7 +513,7 @@ module Nokogiri
         # document as the parsing context instead. Otherwise, the in-context
         # parser cannot find an element or a document node.
         # Document Fragments are also not usable by the in-context parser.
-        if !element? && !is_a?(Nokogiri::XML::Document) && (!parent || parent.fragment?)
+        if !element? && !document? && (!parent || parent.fragment?)
           return document.parse(string_or_io, options)
         end
 
@@ -599,6 +599,11 @@ module Nokogiri
       # Returns true if this is an HTML::Document node
       def html?
         type == HTML_DOCUMENT_NODE
+      end
+
+      # Returns true if this is a Document
+      def document?
+        is_a? XML::Document
       end
 
       # Returns true if this is a Text node

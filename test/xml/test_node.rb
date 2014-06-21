@@ -1172,6 +1172,18 @@ eoxml
         root << "<a>hello:with_colon</a>"
         assert_match(/hello:with_colon/, document.to_xml)
       end
+
+      def test_document_eh
+        html_doc = Nokogiri::HTML "<div>foo</div>"
+        xml_doc = Nokogiri::XML "<div>foo</div>"
+        html_node = html_doc.at_css "div"
+        xml_node = xml_doc.at_css "div"
+
+        assert html_doc.document?
+        assert xml_doc.document?
+        assert ! html_node.document?
+        assert ! xml_node.document?
+      end
     end
   end
 end
