@@ -1184,6 +1184,14 @@ eoxml
         assert ! html_node.document?
         assert ! xml_node.document?
       end
+
+      def test_processing_instruction_eh
+        xml_doc = Nokogiri::XML %Q{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<?xml-stylesheet type="text/xsl" href="foo2.xsl"?>\n<root><div>foo</div></root>}
+        pi_node = xml_doc.children.first
+        div_node = xml_doc.at_css "div"
+        assert pi_node.processing_instruction?
+        assert ! div_node.processing_instruction?
+      end
     end
   end
 end

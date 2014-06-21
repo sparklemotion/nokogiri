@@ -1,5 +1,10 @@
 === 1.6.3 / unreleased
 
+==== Features
+
+* Added Node#document? and Node#processing_instruction?
+
+
 ==== Bug fixes
 
 * [JRuby] Fix Ruby memory exhaustion vulnerability. #1087 (Thanks, @ocher)
