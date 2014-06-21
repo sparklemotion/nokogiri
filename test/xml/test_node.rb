@@ -136,7 +136,29 @@ module Nokogiri
       def test_parse_with_unparented_text_context_node
         doc = XML::Document.new
         elem = XML::Text.new("foo", doc)
-        elem.parse("<bar/>")
+        x = elem.parse("<bar/>") # should not raise an exception
+        assert_equal x.first.name, "bar"
+      end
+
+      def test_parse_with_unparented_html_text_context_node
+        doc = HTML::Document.new
+        elem = XML::Text.new("div", doc)
+        x = elem.parse("<div/>") # should not raise an exception
+        assert_equal x.first.name, "div"
+      end
+
+      def test_parse_with_unparented_fragment_text_context_node
+        doc = XML::DocumentFragment.parse "<div><span>foo</span></div>"
+        elem = doc.at_css "span"
+        x = elem.parse("<span/>") # should not raise an exception
+        assert_equal x.first.name, "span"
+      end
+
+      def test_parse_with_unparented_html_fragment_text_context_node
+        doc = HTML::DocumentFragment.parse "<div><span>foo</span></div>"
+        elem = doc.at_css "span"
+        x = elem.parse("<span/>") # should not raise an exception
+        assert_equal x.first.name, "span"
       end
 
       def test_subclass_dup

@@ -513,7 +513,7 @@ module Nokogiri
         # document as the parsing context instead. Otherwise, the in-context
         # parser cannot find an element or a document node.
         # Document Fragments are also not usable by the in-context parser.
-        if !element? && !xml? && (!parent || parent.fragment?)
+        if !element? && !is_a?(Nokogiri::XML::Document) && (!parent || parent.fragment?)
           return document.parse(string_or_io, options)
         end
 
