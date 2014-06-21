@@ -248,11 +248,16 @@ module Nokogiri
         end
       end
 
-      def test_add_pi_as_previous_sibling_to_root_is_ok
+      def test_add_pi_as_previous_and_next_sibling_to_root_is_ok
         doc = Nokogiri::XML "<root>foo</root>"
         pi = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo.xsl"})
         doc.root.add_previous_sibling pi
         expected_doc = %Q{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<root>foo</root>}
+        assert_includes doc.to_xml, expected_doc
+
+        pi2 = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo2.xsl"})
+        pi.add_next_sibling pi2
+        expected_doc = %Q{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<?xml-stylesheet type="text/xsl" href="foo2.xsl"?>\n<root>foo</root>}
         assert_includes doc.to_xml, expected_doc
       end
 

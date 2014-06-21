@@ -326,7 +326,7 @@ module Nokogiri
       #
       # Also see related method +after+.
       def add_next_sibling node_or_tags
-        raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document)
+        raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document) && !node_or_tags.is_a?(XML::ProcessingInstruction)
         
         add_sibling :next, node_or_tags
       end
