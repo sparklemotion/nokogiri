@@ -505,6 +505,7 @@ else
   end
 end
 
+find_library("lzma", 'lzma_end') # for systems with liblzma
 {
   "xml2"  => ['xmlParseDoc',            'libxml/parser.h'],
   "xslt"  => ['xsltParseStylesheetDoc', 'libxslt/xslt.h'],
