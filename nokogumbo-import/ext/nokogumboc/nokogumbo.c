@@ -92,7 +92,11 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
   } else {
     GumboStringPiece tag = node->original_tag;
     gumbo_tag_from_original_text(&tag);
+#ifdef _MSC_VER
+    char* name = alloca(tag.length+1);
+#else
     char name[tag.length+1];
+#endif
     strncpy(name, tag.data, tag.length);
     name[tag.length] = '\0';
     element = xmlNewDocNode(document, NIL, CONST_CAST name, NIL);
