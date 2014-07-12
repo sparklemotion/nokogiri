@@ -34,6 +34,13 @@ unless have_library('gumbo', 'gumbo_parse')
     require 'fileutils'
     FileUtils.cp Dir["#{rakehome}/gumbo-parser/src/*"],
       "#{rakehome}/ext/nokogumboc"
+
+    case RbConfig::CONFIG['target_os']
+    when 'mingw32', /mswin/
+      FileUtils.cp Dir["#{rakehome}/gumbo-parser/visualc/include/*"],
+        "#{rakehome}/ext/nokogumboc"
+    end
+
     $srcs = $objs = nil
   end
 end
