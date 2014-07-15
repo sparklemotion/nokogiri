@@ -11,6 +11,7 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
   xmlParserCtxtPtr ctx;
   const char * chunk  = NULL;
   int size            = 0;
+  int rc = 0;
 
 
   Data_Get_Struct(self, xmlParserCtxt, ctx);
@@ -20,10 +21,15 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
     size = (int)RSTRING_LEN(_chunk);
   }
 
-  if(htmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
+  rc = htmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0);
+  if(rc != 0) {
     if (!(ctx->options & XML_PARSE_RECOVER)) {
       xmlErrorPtr e = xmlCtxtGetLastError(ctx);
-      Nokogiri_error_raise(NULL, e);
+      if (e != NULL) {
+        Nokogiri_error_raise(NULL, e);
+      } else {
+        rb_raise(rb_eArgError, "XML error: %d", rc);
+      }
     }
   }
 
