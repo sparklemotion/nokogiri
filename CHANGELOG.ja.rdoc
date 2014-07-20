@@ -1,11 +1,11 @@
-=== 1.6.3 / unreleased
+=== 1.6.3 / 2014年7月20日
 
-==== Features
+==== 機能
 
 * Added Node#document? and Node#processing_instruction?
 
 
-==== Bug fixes
+==== バグ修正
 
 * [JRuby] Fix Ruby memory exhaustion vulnerability. #1087 (Thanks, @ocher)
 * [MRI] Fix segfault during GC when using `libxml-ruby` and `nokogiri` together in multi-threaded environment. #895 (Thanks, @ender672!)
