@@ -312,8 +312,9 @@ when 'mingw32', /mswin/
 when /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
 when /darwin/
-  # TODO: maybe make it stricter to only work on stock ruby? How to tell?
-  $CFLAGS << " -Wno-error=unused-command-line-argument-hard-error-in-future"
+  if RbConfig::MAKEFILE_CONFIG['CC'] !~ /gcc/ then
+    $CFLAGS << " -Wno-error=unused-command-line-argument-hard-error-in-future"
+  end
 else
   $CFLAGS << " -g -DXP_UNIX"
 end
