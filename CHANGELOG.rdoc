@@ -1,3 +1,10 @@
+=== 1.6.3.1 / 2014-07-21
+
+==== Bug fixes
+
+* Addressing an Apple Macintosh installation problem for GCC users. #1130 (Thanks, @zenspider!)
+
+
 === 1.6.3 / 2014-07-20
 
 ==== Features

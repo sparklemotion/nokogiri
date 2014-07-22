@@ -1,3 +1,10 @@
+=== 1.6.3.1 / 2014年7月21日
+
+==== バグ修正
+
+* Addressing an Apple Macintosh installation problem for GCC users. #1130 (Thanks, @zenspider!)
+
+
 === 1.6.3 / 2014年7月20日
 
 ==== 機能
