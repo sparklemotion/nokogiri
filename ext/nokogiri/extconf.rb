@@ -81,6 +81,19 @@ def do_clean
   exit! 0
 end
 
+def add_cflags(flags)
+  print "checking if the C compiler accepts #{flags}... "
+  with_cflags("#{$CFLAGS} #{flags}") do
+    if try_compile("int main() {return 0;}")
+      puts 'yes'
+      true
+    else
+      puts 'no'
+      false
+    end
+  end
+end
+
 def preserving_globals
   values = [
     $arg_config,
@@ -312,9 +325,8 @@ when 'mingw32', /mswin/
 when /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
 when /darwin/
-  if RbConfig::MAKEFILE_CONFIG['CC'] !~ /gcc/ then
-    $CFLAGS << " -Wno-error=unused-command-line-argument-hard-error-in-future"
-  end
+  # Let Clang ignore unknown compiler flags
+  add_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future")
 else
   $CFLAGS << " -g -DXP_UNIX"
 end
