@@ -10,7 +10,7 @@
 #  (e.g., 1.9.3's glob_helper). ["rake test:valgrind:suppression"]
 #
 
-RUBIES="ruby-1.9.3 ruby-1.9.2 ruby-2.0 ruby-2.1 jruby-1.7"
+RUBIES="ruby-2.1 ruby-2.0 ruby-1.9.3 ruby-1.9.2 jruby-1.7"
 TEST_LOG=test.log
 VALGRIND_LOG=valgrind.log
 
