@@ -29,7 +29,7 @@ set -o errexit
 
 function rvm_use {
     current_ruby=$1
-    rvm use "${1}@nokogiri" --create || rvm -v
+    rvm use "${1}@nokogiri" --create || exit 1
 }
 
 function generate_parser_and_tokenizer {
