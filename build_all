@@ -90,22 +90,6 @@ bundle exec rake clean
 rm -rf gems
 mkdir -p gems
 
-# MRI
-bundle exec rake clean
-bundle exec rake gem
-cp -v pkg/nokogiri*.gem gems
-
-# jruby
-rvm_use jruby
-gem install bundler --conservative
-bundle install --quiet --local || bundle install
-bundle exec rake clean clobber
-rvm_use $DEFAULT_RUBY
-bundle exec rake generate
-rvm_use jruby
-bundle exec rake gem
-cp -v pkg/nokogiri*java.gem gems
-
 # windows
 for verspec in `cross_rubies`; do
     version="${verspec%%:*}"
@@ -127,3 +111,19 @@ done
 
 bundle exec rake gem:windows
 cp -v pkg/nokogiri*{x86,x64}-mingw32*.gem gems
+
+# MRI
+bundle exec rake clean
+bundle exec rake gem
+cp -v pkg/nokogiri*.gem gems
+
+# jruby
+rvm_use jruby
+gem install bundler --conservative
+bundle install --quiet --local || bundle install
+bundle exec rake clean clobber
+rvm_use $DEFAULT_RUBY
+bundle exec rake generate
+rvm_use jruby
+bundle exec rake gem
+cp -v pkg/nokogiri*java.gem gems
