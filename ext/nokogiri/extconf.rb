@@ -315,8 +315,10 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
   $LIBRUBYARG_STATIC.gsub!(/-static/, '')
 end
 
-$CFLAGS << " #{ENV["CFLAGS"]}"
 $LIBS << " #{ENV["LIBS"]}"
+
+# Read CFLAGS from ENV and make sure compiling works.
+add_cflags(ENV["CFLAGS"])
 
 case RbConfig::CONFIG['target_os']
 when 'mingw32', /mswin/
