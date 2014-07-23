@@ -327,7 +327,7 @@ when 'mingw32', /mswin/
 when /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
 when /darwin/
-  # Let Clang ignore unknown compiler flags
+  # Let Apple LLVM/clang 5.1 ignore unknown compiler flags
   add_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future")
 else
   $CFLAGS << " -g -DXP_UNIX"
