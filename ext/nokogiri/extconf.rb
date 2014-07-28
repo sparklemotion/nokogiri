@@ -129,6 +129,9 @@ def each_iconv_idir
     }.first and yield idir
   }
 
+  # Try /usr/local
+  yield "/usr/local/include"
+
   # Try the system default
   yield "/usr/include"
 
