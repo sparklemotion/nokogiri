@@ -109,7 +109,7 @@ ensure
 end
 
 def asplode(lib)
-  abort "-----\n#{lib} is missing.  please visit http://nokogiri.org/tutorials/installing_nokogiri.html for help with installing dependencies.\n-----"
+  abort "-----\n#{lib} is missing.  Please locate mkmf.log to investigate how it is failing.\n-----"
 end
 
 def have_iconv?
