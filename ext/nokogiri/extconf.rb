@@ -126,7 +126,11 @@ def each_iconv_idir
   %w[iconv opt].each { |config|
     idir = preserving_globals {
       dir_config(config)
-    }.first and yield idir
+    }.first or next
+
+    idir.split(File::PATH_SEPARATOR).each { |dir|
+      yield dir
+    }
   }
 
   # Try the system default
