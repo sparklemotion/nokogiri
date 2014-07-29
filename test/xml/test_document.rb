@@ -54,7 +54,7 @@ module Nokogiri
         root << txt
         root << ent
         d << root
-        assert_match /&#8217;/, d.to_html
+        assert_match(/&#8217;/, d.to_html)
       end
 
       def test_document_with_initial_space
