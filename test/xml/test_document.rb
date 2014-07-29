@@ -376,14 +376,6 @@ module Nokogiri
         end
       end
 
-      def test_prepend_child_fragment_with_multiple_nodes
-        doc = Nokogiri::XML::Document.new
-        fragment = doc.fragment('<hello /><goodbye />')
-        assert_raises(RuntimeError) do
-          doc.prepend_child fragment
-        end
-      end
-
       def test_prepend_child_with_multiple_roots
         assert_raises(RuntimeError) do
           @xml.prepend_child Node.new('foo', @xml)
