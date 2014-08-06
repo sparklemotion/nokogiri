@@ -1,6 +1,20 @@
---- a/tree.c.orig	2012-05-14 19:39:20.000000000 -0700
-+++ b/tree.c	2014-07-29 13:01:58.000000000 -0700
-@@ -3438,6 +3438,7 @@
+From da41bd5d34d5e1fe058f8670338643e689906877 Mon Sep 17 00:00:00 2001
+From: Kyle VanderBeek <kylev@kylev.com>
+Date: Tue, 29 Jul 2014 00:32:15 -0700
+Subject: [PATCH] Support element node traversal in document fragments.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=733900
+
+[Origin: 1db9969966aac1e844372e9b3288653a296e0365]
+---
+ tree.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tree.c b/tree.c
+index 8baae3d..1d26919 100644
+--- a/tree.c
++++ b/tree.c
+@@ -3438,6 +3438,7 @@ xmlChildElementCount(xmlNodePtr parent) {
          case XML_ELEMENT_NODE:
          case XML_ENTITY_NODE:
          case XML_DOCUMENT_NODE:
@@ -8,7 +22,7 @@
          case XML_HTML_DOCUMENT_NODE:
              cur = parent->children;
              break;
-@@ -3473,6 +3474,7 @@
+@@ -3473,6 +3474,7 @@ xmlFirstElementChild(xmlNodePtr parent) {
          case XML_ELEMENT_NODE:
          case XML_ENTITY_NODE:
          case XML_DOCUMENT_NODE:
@@ -16,7 +30,7 @@
          case XML_HTML_DOCUMENT_NODE:
              cur = parent->children;
              break;
-@@ -3508,6 +3510,7 @@
+@@ -3508,6 +3510,7 @@ xmlLastElementChild(xmlNodePtr parent) {
          case XML_ELEMENT_NODE:
          case XML_ENTITY_NODE:
          case XML_DOCUMENT_NODE:
@@ -24,3 +38,6 @@
          case XML_HTML_DOCUMENT_NODE:
              cur = parent->last;
              break;
+-- 
+2.0.2
+
