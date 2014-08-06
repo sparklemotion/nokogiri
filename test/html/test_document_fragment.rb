@@ -230,6 +230,11 @@ module Nokogiri
           fragment.to_s)
       end
 
+      def test_element_children_counts
+        doc = Nokogiri::HTML::DocumentFragment.parse("   <div>  </div>\n   ")
+        assert doc.element_children.count == 1
+      end
+
       def test_malformed_fragment_is_corrected
         fragment = HTML::DocumentFragment.parse("<div </div>")
         assert_equal "<div></div>", fragment.to_s

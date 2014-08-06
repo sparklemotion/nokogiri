@@ -1,0 +1,26 @@
+--- a/tree.c.orig	2012-05-14 19:39:20.000000000 -0700
++++ b/tree.c	2014-07-29 13:01:58.000000000 -0700
+@@ -3438,6 +3438,7 @@
+         case XML_ELEMENT_NODE:
+         case XML_ENTITY_NODE:
+         case XML_DOCUMENT_NODE:
++        case XML_DOCUMENT_FRAG_NODE:
+         case XML_HTML_DOCUMENT_NODE:
+             cur = parent->children;
+             break;
+@@ -3473,6 +3474,7 @@
+         case XML_ELEMENT_NODE:
+         case XML_ENTITY_NODE:
+         case XML_DOCUMENT_NODE:
++        case XML_DOCUMENT_FRAG_NODE:
+         case XML_HTML_DOCUMENT_NODE:
+             cur = parent->children;
+             break;
+@@ -3508,6 +3510,7 @@
+         case XML_ELEMENT_NODE:
+         case XML_ENTITY_NODE:
+         case XML_DOCUMENT_NODE:
++        case XML_DOCUMENT_FRAG_NODE:
+         case XML_HTML_DOCUMENT_NODE:
+             cur = parent->last;
+             break;
