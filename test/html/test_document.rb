@@ -221,7 +221,7 @@ eohtml
         title = doc.at('/html/head/title')
         assert_not_nil title
         assert_equal 'new', title.text
-        assert_equal -1, doc.at('meta[@http-equiv]') <=> title
+        assert_equal(-1, doc.at('meta[@http-equiv]') <=> title)
 
         doc = Nokogiri::HTML(<<eohtml)
 <html>
@@ -236,7 +236,7 @@ eohtml
         title = doc.at('/html//title')
         assert_not_nil title
         assert_equal 'new', title.text
-        assert_equal -1, title <=> doc.at('body')
+        assert_equal(-1, title <=> doc.at('body'))
 
         doc = Nokogiri::HTML(<<eohtml)
 <html>
@@ -248,14 +248,14 @@ eohtml
 eohtml
         doc.title = 'new'
         assert_equal 'new', doc.title
-        assert_equal -1, doc.at('meta[@charset]') <=> doc.at('title')
-        assert_equal -1, doc.at('title') <=> doc.at('body')
+        assert_equal(-1, doc.at('meta[@charset]') <=> doc.at('title'))
+        assert_equal(-1, doc.at('title') <=> doc.at('body'))
 
         doc = Nokogiri::HTML('<!DOCTYPE html><p>hello')
         doc.title = 'new'
         assert_equal 'new', doc.title
         assert_instance_of Nokogiri::XML::DTD, doc.children.first
-        assert_equal -1, doc.at('title') <=> doc.at('p')
+        assert_equal(-1, doc.at('title') <=> doc.at('p'))
 
         doc = Nokogiri::HTML('')
         doc.title = 'new'
