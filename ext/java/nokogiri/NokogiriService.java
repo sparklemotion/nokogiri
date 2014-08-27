@@ -228,6 +228,9 @@ public class NokogiriService implements BasicLibraryService {
         RubyClass xmlSaxPushParser = xmlSaxModule.defineClassUnder("PushParser", ruby.getObject(), XML_SAXPUSHPARSER_ALLOCATOR);
         xmlSaxPushParser.defineAnnotatedMethods(XmlSaxPushParser.class);
         
+        RubyClass htmlSaxPushParser = htmlSaxModule.defineClassUnder("PushParser", ruby.getObject(), HTML_SAXPUSHPARSER_ALLOCATOR);
+        htmlSaxPushParser.defineAnnotatedMethods(HtmlSaxPushParser.class);
+        
         RubyClass htmlSaxParserContext = htmlSaxModule.defineClassUnder("ParserContext", xmlSaxParserContext, HTML_SAXPARSER_CONTEXT_ALLOCATOR);
         htmlSaxParserContext.defineAnnotatedMethods(HtmlSaxParserContext.class);
     }
@@ -534,6 +537,12 @@ public class NokogiriService implements BasicLibraryService {
     private static ObjectAllocator XML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             return new XmlSaxPushParser(runtime, klazz);
+        }
+    };
+    
+    private static ObjectAllocator HTML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator() {
+        public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
+            return new HtmlSaxPushParser(runtime, klazz);
         }
     };
 
