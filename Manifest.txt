@@ -21,6 +21,7 @@ ext/java/nokogiri/HtmlDocument.java
 ext/java/nokogiri/HtmlElementDescription.java
 ext/java/nokogiri/HtmlEntityLookup.java
 ext/java/nokogiri/HtmlSaxParserContext.java
+ext/java/nokogiri/HtmlSaxPushParser.java
 ext/java/nokogiri/NokogiriService.java
 ext/java/nokogiri/XmlAttr.java
 ext/java/nokogiri/XmlAttributeDecl.java
