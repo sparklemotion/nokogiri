@@ -23,6 +23,10 @@ module Nokogiri
           assert_equal "こんにちは！", f.content
         end
       end
+      
+      def test_unlink_empty_document
+        Nokogiri::HTML::DocumentFragment.parse('').unlink
+      end
 
       def test_colons_are_not_removed
         doc = Nokogiri::HTML::DocumentFragment.parse("<span>3:30pm</span>")
