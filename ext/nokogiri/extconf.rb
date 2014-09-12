@@ -493,6 +493,7 @@ else
 
       # Defining a macro that expands to a C string; double quotes are significant.
       $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".shellescape
+      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATCHES=\"#{recipe.patch_files.map { |path| File.basename(path) }.join(' ')}\"".shellescape
 
       case libname
       when 'xml2'

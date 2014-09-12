@@ -61,6 +61,8 @@ module Nokogiri
           hash_info['libxml']['source']  = "packaged"
           hash_info['libxml']['libxml2_path'] = NOKOGIRI_LIBXML2_PATH
           hash_info['libxml']['libxslt_path'] = NOKOGIRI_LIBXSLT_PATH
+          hash_info['libxml']['libxml2_patches'] = NOKOGIRI_LIBXML2_PATCHES
+          hash_info['libxml']['libxslt_patches'] = NOKOGIRI_LIBXSLT_PATCHES
         else
           hash_info['libxml']['source']  = "system"
         end
