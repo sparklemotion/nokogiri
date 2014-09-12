@@ -215,10 +215,15 @@ def process_recipe(name, version, static_p, cross_p)
       "#{key}=#{value}".shellescape
     }
 
-    if recipe.patch_files.empty?
-      message "Building #{name}-#{version} for nokogiri.\n"
-    else
-      message "Building #{name}-#{version} for nokogiri with the following patches applied:\n"
+    message <<-"EOS"
+************************************************************************
+IMPORTANT NOTICE:
+
+Buidling Nokogiri with a packaged version of #{name}-#{version}#{'.' if recipe.patch_files.empty?}
+    EOS
+
+    unless recipe.patch_files.empty?
+      message "with the following patches applied:\n"
 
       recipe.patch_files.each { |patch|
         message "\t- %s\n" % File.basename(patch)
@@ -226,14 +231,15 @@ def process_recipe(name, version, static_p, cross_p)
     end
 
     message <<-"EOS"
-************************************************************************
-IMPORTANT!  Nokogiri builds and uses a packaged version of #{name}.
 
-If this is a concern for you and you want to use the system library
-instead, abort this installation process and reinstall nokogiri as
-follows:
+Team Nokogiri will keep on doing their best to provide security
+updates in a timely manner, but if this is a concern for you and want
+to use the system library instead; abort this installation process and
+reinstall nokogiri as follows:
 
     gem install nokogiri -- --use-system-libraries
+        [--with-xml2-config=/path/to/xml2-config]
+        [--with-xslt-config=/path/to/xslt-config]
 
 If you are using Bundler, tell it to use the option:
 
@@ -243,12 +249,8 @@ If you are using Bundler, tell it to use the option:
 
     message <<-"EOS" if name == 'libxml2'
 
-However, note that nokogiri does not necessarily support all versions
-of libxml2.
-
-For example, libxml2-2.9.0 and higher are currently known to be broken
-and thus unsupported by nokogiri, due to compatibility problems and
-XPath optimization bugs.
+Note, however, that nokogiri is not fully compatible with arbitrary
+versions of libxml2 provided by OS/package vendors.
     EOS
 
     message <<-"EOS"
