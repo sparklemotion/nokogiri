@@ -149,7 +149,7 @@ def iconv_configure_flags
       return [
         '--with-iconv=yes',
         *("CPPFLAGS=#{idirs.map { |dir| '-I' << dir }.join(' ')}".quote if idirs),
-        *("LDFLAGS=#{ldirs.map { |dir| '-I' << dir }.join(' ')}".quote if ldirs),
+        *("LDFLAGS=#{ldirs.map { |dir| '-L' << dir }.join(' ')}".quote if ldirs),
       ]
     end
   }
