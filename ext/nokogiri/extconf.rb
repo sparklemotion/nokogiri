@@ -337,6 +337,7 @@ when 'mingw32', /mswin/
 when /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
 when /darwin/
+  darwin_p = true
   # Let Apple LLVM/clang 5.1 ignore unknown compiler flags
   add_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future")
 else
@@ -441,6 +442,21 @@ else
         "CXXFLAGS='-O2 -g'",
         "LDFLAGS="
       ]
+    end
+  else
+    if darwin_p && !File.exist?('/usr/include/iconv.h')
+      abort <<'EOM'.chomp
+-----
+The file "/usr/include/iconv.h" is missing in your build environment,
+which means you haven't installed Xcode Command Line Tools properly.
+
+To install Command Line Tools, try running `xcode-select --install` on
+terminal and follow the instructions.  If it fails, open Xcode.app,
+select from the menu "Xcode" - "Open Developer Tool" - "More Developer
+Tools" to open the developer site, download the installer for your OS
+version and run it.
+-----
+EOM
     end
   end
 
