@@ -102,59 +102,65 @@ def asplode(lib)
   abort "-----\n#{lib} is missing.  Please locate mkmf.log to investigate how it is failing.\n-----"
 end
 
-def have_iconv?
-  have_header('iconv.h') or return false
-  %w{ iconv_open libiconv_open }.any? do |method|
-    have_func(method, 'iconv.h') or
-      have_library('iconv', method, 'iconv.h')
-  end
+def have_iconv?(using = nil)
+  checking_for(using ? "iconv using #{using}" : 'iconv') {
+    ['', '-liconv'].any? { |opt|
+      preserving_globals {
+        yield if block_given?
+
+        try_link(<<-'SRC', opt)
+#include <stdlib.h>
+#include <iconv.h>
+
+int main(void)
+{
+    iconv_t cd = iconv_open("", "");
+    iconv(cd, NULL, NULL, NULL, NULL);
+    return EXIT_SUCCESS;
+}
+        SRC
+      }
+    }
+  }
 end
 
-def each_iconv_idir
+def iconv_configure_flags
   # If --with-iconv-dir or --with-opt-dir is given, it should be
   # the first priority
-  %w[iconv opt].each { |config|
-    idir = preserving_globals {
-      dir_config(config)
-    }.first or next
+  %w[iconv opt].each { |name|
+    if (config = preserving_globals { dir_config(name) }).any? &&
+       have_iconv?("--with-#{name}-* flags") { dir_config(name) }
+      idirs, ldirs = config.map { |dirs|
+        Array(dirs).flat_map { |dir|
+          dir.split(File::PATH_SEPARATOR)
+        } if dirs
+      }
 
-    idir.split(File::PATH_SEPARATOR).each { |dir|
-      yield dir
-    }
+      return [
+        '--with-iconv=yes',
+        *("CPPFLAGS=#{idirs.map { |dir| '-I' << dir }.join(' ')}".quote if idirs),
+        *("LDFLAGS=#{ldirs.map { |dir| '-L' << dir }.join(' ')}".quote if ldirs),
+      ]
+    end
   }
 
-  # Try the system default
-  yield "/usr/include"
-
-  cflags, = preserving_globals {
-    pkg_config('libiconv')
-  }
-  if cflags
-    cflags.shellsplit.each { |arg|
-      arg.sub!(/\A-I/, '') and
-      yield arg
-    }
+  if have_iconv?
+    return ['--with-iconv=yes']
   end
 
-  nil
-end
+  if (config = preserving_globals { pkg_config('libiconv') }) &&
+     have_iconv?('pkg-config libiconv') { pkg_config('libiconv') }
+    cflags, ldflags, libs = config
 
-def iconv_prefix
-  # Make sure libxml2 is built with iconv
-  each_iconv_idir { |idir|
-    next unless File.file?(File.join(idir, 'iconv.h'))
+    return [
+      '--with-iconv=yes',
+      "CPPFLAGS=#{cflags}".quote,
+      "LDFLAGS=#{ldflags}".quote,
+      "LIBS=#{libs}".quote,
+    ]
+  end
 
-    prefix, dir = File.split(idir)
-    next unless dir == 'include'
-
-    preserving_globals {
-      # Follow the way libxml2's configure uses a value given with
-      # --with-iconv[=DIR]
-      $CPPFLAGS = "-I#{idir}".quote << ' ' << $CPPFLAGS
-      $LIBPATH.unshift(File.join(prefix, "lib"))
-      have_iconv?
-    } and break prefix
-  } or asplode "libiconv"
+  asplode "libiconv"
 end
 
 def process_recipe(name, version, static_p, cross_p)
@@ -323,6 +329,7 @@ when 'mingw32', /mswin/
 when /solaris/
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
 when /darwin/
+  darwin_p = true
   # Let Apple LLVM/clang 5.1 ignore unknown compiler flags
   add_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future")
 else
@@ -428,6 +435,21 @@ else
         "LDFLAGS="
       ]
     end
+  else
+    if darwin_p && !File.exist?('/usr/include/iconv.h')
+      abort <<'EOM'.chomp
+-----
+The file "/usr/include/iconv.h" is missing in your build environment,
+which means you haven't installed Xcode Command Line Tools properly.
+
+To install Command Line Tools, try running `xcode-select --install` on
+terminal and follow the instructions.  If it fails, open Xcode.app,
+select from the menu "Xcode" - "Open Developer Tool" - "More Developer
+Tools" to open the developer site, download the installer for your OS
+version and run it.
+-----
+EOM
+    end
   end
 
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"], static_p, cross_build_p) do |recipe|
@@ -435,7 +457,7 @@ else
     recipe.configure_options += [
       "--without-python",
       "--without-readline",
-      "--with-iconv=#{libiconv_recipe ? libiconv_recipe.path : iconv_prefix}",
+      *(libiconv_recipe ? "--with-iconv=#{libiconv_recipe.path}" : iconv_configure_flags),
       "--with-c14n",
       "--with-debug",
       "--with-threads"
