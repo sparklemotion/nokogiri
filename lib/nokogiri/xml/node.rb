@@ -327,7 +327,7 @@ module Nokogiri
       # Also see related method +after+.
       def add_next_sibling node_or_tags
         raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !node_or_tags.processing_instruction?
-        
+
         add_sibling :next, node_or_tags
       end
 
@@ -571,12 +571,12 @@ module Nokogiri
       def namespaces
         Hash[namespace_scopes.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
-          if RUBY_VERSION >= '1.9' && document.encoding
-            begin
-              key.force_encoding document.encoding
-            rescue ArgumentError
-            end
-          end
+          # if RUBY_VERSION >= '1.9' && document.encoding
+          #   begin
+          #     key.force_encoding document.encoding
+          #   rescue ArgumentError
+          #   end
+          # end
           [key, nd.href]
         }]
       end
