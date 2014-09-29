@@ -8,12 +8,17 @@ rvm:
   - jruby-20mode
   - rbx-19mode
 
+os:
+  - linux
+  - osx
+
 jdk:
   - openjdk7
   - openjdk6
 
 matrix:
   allow_failures:
+    - os: osx
     - rvm: rbx-19mode
     # currently broken on Travis CI
     - rvm: jruby-20mode
