@@ -2,7 +2,7 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.2
+  - 2.1.3
   - ruby-head
   - jruby-19mode
   - jruby-20mode
@@ -22,7 +22,7 @@ matrix:
       jdk: openjdk7
     - rvm: 2.0.0
       jdk: openjdk7
-    - rvm: 2.1.2
+    - rvm: 2.1.3
       jdk: openjdk7
     - rvm: ruby-head
       jdk: openjdk7
