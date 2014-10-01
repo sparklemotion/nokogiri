@@ -17,7 +17,7 @@ VALUE Nokogiri_wrap_xml_syntax_error(xmlErrorPtr error)
 
   klass = cNokogiriXmlSyntaxError;
 
-  if (error->domain == XML_FROM_XPATH) {
+  if (error && error->domain == XML_FROM_XPATH) {
     VALUE xpath = rb_const_get(mNokogiriXml, rb_intern("XPath"));
     klass = rb_const_get(xpath, rb_intern("SyntaxError"));
   }
