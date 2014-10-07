@@ -1,3 +1,17 @@
+=== 1.6.4 / unreleased
+
+==== Features
+
+* (MRI) `nokogiri --version` will include a list of applied patches.
+* (MRI) Nokogiri no longer prints messages directly to TTY while building the extension.
+* (MRI) Detect and help user fix a missing /usr/include/iconv.h on OS X. (#1111)
+* (MRI) Improve the iconv detection for building libxml2.
+
+==== Bug fixes
+
+* (MRI) Fix DocumentFragment#element_children (#1138).
+* Fix a bug with CSS attribute selector without any prefix where "foo [bar]" was treated as "foo[bar]". (#1174)
+
 === 1.6.3.1 / 2014-07-21
 
 ==== Bug fixes
