@@ -10,13 +10,12 @@ rule
         result = [val.first, val.last].flatten
       }
     | prefixless_combinator_selector { result = val.flatten }
-    | simple_selector_1toN { result = val.flatten }
+    | optional_S simple_selector_1toN { result = [val.last].flatten }
     ;
   combinator
     : PLUS { result = :DIRECT_ADJACENT_SELECTOR }
     | GREATER { result = :CHILD_SELECTOR }
     | TILDE { result = :FOLLOWING_SELECTOR }
-    | S { result = :DESCENDANT_SELECTOR }
     | DOUBLESLASH { result = :DESCENDANT_SELECTOR }
     | SLASH { result = :CHILD_SELECTOR }
     ;
@@ -49,6 +48,9 @@ rule
   simple_selector_1toN
     : simple_selector combinator simple_selector_1toN {
         result = Node.new(val[1], [val.first, val.last])
+      }
+    | simple_selector S simple_selector_1toN {
+        result = Node.new(:DESCENDANT_SELECTOR, [val.first, val.last])
       }
     | simple_selector
     ;
@@ -240,6 +242,10 @@ rule
     : element_name
     | element_name hcap_1toN
     | hcap_1toN
+    ;
+  optional_S
+    : S
+    |
     ;
 end
 

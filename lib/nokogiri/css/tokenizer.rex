@@ -34,7 +34,7 @@ rule
             {w}!={w}         { [:NOT_EQUAL, text] }
             {w}={w}          { [:EQUAL, text] }
             {w}\)            { [:RPAREN, text] }
-            {w}\[{w}         { [:LSQUARE, text] }
+            \[{w}            { [:LSQUARE, text] }
             {w}\]            { [:RSQUARE, text] }
             {w}\+{w}         { [:PLUS, text] }
             {w}>{w}          { [:GREATER, text] }

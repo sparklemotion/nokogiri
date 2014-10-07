@@ -94,7 +94,7 @@ class Tokenizer # :nodoc:
       when (text = @ss.scan(/[\s]*\)/))
          action { [:RPAREN, text] }
 
-      when (text = @ss.scan(/[\s]*\[[\s]*/))
+      when (text = @ss.scan(/\[[\s]*/))
          action { [:LSQUARE, text] }
 
       when (text = @ss.scan(/[\s]*\]/))

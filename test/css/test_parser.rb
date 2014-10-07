@@ -274,6 +274,11 @@ module Nokogiri
                       @parser.parse('a:active.foo')
       end
 
+      def test_significant_space
+        assert_xpath "//x//*[count(preceding-sibling::*) = 0]//*[@a]//*[@b]", @parser.parse("x :first-child [a] [b]")
+        assert_xpath "//*[@a]//*[@b]", @parser.parse(" [a] [b]")
+      end
+
       def test_star
         assert_xpath "//*", @parser.parse('*')
         assert_xpath "//*[contains(concat(' ', normalize-space(@class), ' '), ' pastoral ')]",
