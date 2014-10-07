@@ -43,7 +43,11 @@ rule
     ;
   prefixless_combinator_selector
     : combinator simple_selector_1toN {
-        result = Node.new(val.first, [nil, val.last])
+        if val.first == :DESCENDANT_SELECTOR
+          result = val.last
+        else
+          result = Node.new(val.first, [nil, val.last])
+        end
       }
     ;
   simple_selector_1toN
