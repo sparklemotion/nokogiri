@@ -7,7 +7,7 @@ VALUE read_check(VALUE *args) {
 }
 
 VALUE read_failed(void) {
-	return Qnil;
+	return Qundef;
 }
 
 int io_read_callback(void * ctx, char * buffer, int len) {
@@ -19,7 +19,8 @@ int io_read_callback(void * ctx, char * buffer, int len) {
 
   string = rb_rescue(read_check, (VALUE)args, read_failed, 0);
 
-  if(NIL_P(string)) return 0;
+  if (NIL_P(string)) return 0;
+  if (string == Qundef) return -1;
 
   str_len = (size_t)RSTRING_LEN(string);
   safe_len = str_len > (size_t)len ? (size_t)len : str_len;
