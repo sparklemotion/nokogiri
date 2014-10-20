@@ -12,10 +12,10 @@ module Nokogiri
         attributes.keys
       end
 
-      def each &block
-        attributes.each { |key, value|
-          block.call([key, value])
-        }
+      def each
+        attributes.each do |key, value|
+          yield([key, value])
+        end
       end
 
       def html_dtd?
