@@ -240,8 +240,6 @@ lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
 ports/patches/libxml2/0011-Do-not-fetch-external-parameter-entities.patch
-ports/patches/libxml2/0012-Fix-regressions-introduced-by-CVE-2014-0191-patch.patch
-ports/patches/libxml2/0013-Support-element-node-traversal-in-document-fragments.patch
 ports/patches/libxslt/0001-Adding-doc-update-related-to-1.1.28.patch
 ports/patches/libxslt/0002-Fix-a-couple-of-places-where-f-printf-parameters-wer.patch
 ports/patches/libxslt/0003-Initialize-pseudo-random-number-generator-with-curre.patch
