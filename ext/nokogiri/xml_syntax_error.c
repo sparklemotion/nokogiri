@@ -3,6 +3,7 @@
 void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
 {
   VALUE list = (VALUE)ctx;
+  Check_Type(list, T_ARRAY);
   rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error(error));
 }
 
