@@ -23,7 +23,7 @@ module Nokogiri
         assert_raises(TypeError) {
           reader.read
         }
-      end
+      end unless Nokogiri.jruby? # which does not internally call `errors`
     end
   end
 end
