@@ -13,6 +13,7 @@ module Nokogiri
         assert_raises(SyntaxError) {
           reader.read
         }
+        assert_equal [SyntaxError], reader.errors.map(&:class)
       end
 
       def test_pushing_to_array
