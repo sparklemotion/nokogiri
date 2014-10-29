@@ -77,7 +77,7 @@ The IRC channel is #nokogiri on freenode.
 * in Nokogiri 1.6.0 and later libxml2 and libxslt are bundled with the
   gem, but if you want to use them installed on the system:
 
-  * libxml2 >=2.6.21 and <2.9.0, with iconv support
+  * libxml2 >=2.6.21 with iconv support
     (libxml2-dev/-devel is required too)
 
   * libxslt, built with and supported by the given libxml2
@@ -150,7 +150,7 @@ Then run rake:
 
 (The MIT License)
 
-Copyright (c) 2008 - 2013:
+Copyright (c) 2008 - 2014:
 
 * {Aaron Patterson}[http://tenderlovemaking.com]
 * {Mike Dalessio}[http://mike.daless.io]
