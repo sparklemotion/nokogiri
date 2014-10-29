@@ -364,15 +364,15 @@ when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES']
 #include <libxml/xmlversion.h>
 
 #if LIBXML_VERSION < 20621
-#error libxml2 is too old
+#error libxml2 is way too old
 #endif
   SRC
 
-  try_cpp(<<-SRC) or warn "libxml2 version 2.9.0 and later is not yet supported, but proceeding anyway."
+  try_cpp(<<-SRC) or warn "libxml2 version 2.9.2 or later is highly recommended, but proceeding anyway."
 #include <libxml/xmlversion.h>
 
-#if LIBXML_VERSION >= 20900
-#error libxml2 is too new
+#if LIBXML_VERSION < 20902
+#error libxml2 is too old
 #endif
   SRC
 else
