@@ -239,7 +239,8 @@ lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
 lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
-ports/patches/libxml2/0011-Do-not-fetch-external-parameter-entities.patch
+ports/patches/libxml2/0001-Revert-Missing-initialization-for-the-catalog-module.patch
+ports/patches/libxml2/0002-Fix-missing-entities-after-CVE-2014-3660-fix.patch
 ports/patches/libxslt/0001-Adding-doc-update-related-to-1.1.28.patch
 ports/patches/libxslt/0002-Fix-a-couple-of-places-where-f-printf-parameters-wer.patch
 ports/patches/libxslt/0003-Initialize-pseudo-random-number-generator-with-curre.patch
