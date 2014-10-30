@@ -2,6 +2,7 @@
 
 ==== Features
 
+* (MRI) Bundled Libxml2 is upgraded to 2.9.2.
 * (MRI) `nokogiri --version` will include a list of applied patches.
 * (MRI) Nokogiri no longer prints messages directly to TTY while building the extension.
 * (MRI) Detect and help user fix a missing /usr/include/iconv.h on OS X. (#1111)

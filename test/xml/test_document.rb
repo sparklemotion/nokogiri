@@ -54,7 +54,7 @@ module Nokogiri
         root << txt
         root << ent
         d << root
-        assert_match /&#8217;/, d.to_html
+        assert_match(/&#8217;/, d.to_html)
       end
 
       def test_document_with_initial_space
@@ -366,14 +366,6 @@ module Nokogiri
         doc.prepend_child fragment
         assert_equal '/hello', doc.at('//hello').path
         assert_equal 'hello', doc.root.name
-      end
-
-      def test_prepend_child_fragment_with_multiple_nodes
-        doc = Nokogiri::XML::Document.new
-        fragment = doc.fragment('<hello /><goodbye />')
-        assert_raises(RuntimeError) do
-          doc.prepend_child fragment
-        end
       end
 
       def test_prepend_child_fragment_with_multiple_nodes
