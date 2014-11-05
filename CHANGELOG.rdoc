@@ -1,4 +1,4 @@
-=== 1.6.4 / unreleased
+=== 1.6.4 / 2014-11-04
 
 ==== Features
 
@@ -12,6 +12,7 @@
 
 * (MRI) Fix DocumentFragment#element_children (#1138).
 * Fix a bug with CSS attribute selector without any prefix where "foo [bar]" was treated as "foo[bar]". (#1174)
+
 
 === 1.6.3.1 / 2014-07-21
 
