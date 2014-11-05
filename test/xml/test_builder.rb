@@ -14,7 +14,7 @@ module Nokogiri
       end
 
       def test_builder_multiple_nodes
-        builder = Nokogiri::XML::Builder.new do |xml|
+        Nokogiri::XML::Builder.new do |xml|
           0.upto(10) do
             xml.text "test"
           end
