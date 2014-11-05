@@ -54,7 +54,7 @@ fi
 
 rvm_use () {
     current_ruby=$1
-    rvm use "${1}@nokogiri" --create || rvm -v
+    rvm use "${1}@nokogiri" --create
 }
 
 rvm_do () {
