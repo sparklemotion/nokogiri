@@ -183,11 +183,15 @@ module Nokogiri
           options[:last] ? "(last()-position()+1)" : "position()"
         end
 
-        if (b == 0)
-          return "(#{position} mod #{a}) = 0"
+        if b.zero?
+          "(#{position} mod #{a}) = 0"
         else
-          compare = (a < 0) ? "<=" : ">="
-          return "(#{position} #{compare} #{b}) and (((#{position}-#{b}) mod #{a.abs}) = 0)"
+          compare = a < 0 ? "<=" : ">="
+          if a.abs == 1
+            "#{position} #{compare} #{b}"
+          else
+            "(#{position} #{compare} #{b}) and (((#{position}-#{b}) mod #{a.abs}) = 0)"
+          end
         end
       end
 
