@@ -131,12 +131,13 @@ rule
     | STRING
     | IDENT                             # even, odd
       {
-        if val[0] == 'even'
-          val = ["2","n","+","0"]
-          result = Node.new(:NTH, val)
-        elsif val[0] == 'odd'
-          val = ["2","n","+","1"]
-          result = Node.new(:NTH, val)
+        case val[0]
+        when 'even'
+          result = Node.new(:NTH, ['2','n','+','0'])
+        when 'odd'
+          result = Node.new(:NTH, ['2','n','+','1'])
+        when 'n'
+          result = Node.new(:NTH, ['1','n','+','0'])
         else
           # This is not CSS standard.  It allows us to support this:
           # assert_xpath("//a[foo(., @href)]", @parser.parse('a:foo(@href)'))
