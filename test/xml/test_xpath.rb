@@ -156,6 +156,8 @@ module Nokogiri
 
       # issue #741 (xpath() around 10x slower in JRuby)
       def test_slow_jruby_xpath
+        skip("MRI will exceed this timeout when running under valgrind") unless Nokogiri.jruby?
+
         doc = Nokogiri::XML(File.open(XPATH_FILE))
         start = Time.now
 
