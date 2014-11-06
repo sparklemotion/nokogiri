@@ -1,5 +1,9 @@
 === 1.6.5 / unreleased
 
+==== Features
+
+* Implement Slop#respond_to_missing?. (#1176)
+
 ==== Bug fixes
 
 * Fix a bug where CFLAGS passed in are dropped.

@@ -30,6 +30,14 @@ module Nokogiri
         super if list.empty?
         list.length == 1 ? list.first : list
       end
+
+      def respond_to_missing? name, include_private = false
+        prefix = implied_xpath_context
+
+        list = xpath("#{prefix}#{name.to_s.sub(/^_/, '')}")
+
+        !list.empty?
+      end
     end
   end
 end
