@@ -74,7 +74,7 @@ end
 def add_cflags(flags)
   print "checking if the C compiler accepts #{flags}... "
   with_cflags("#{$CFLAGS} #{flags}") do
-    if try_compile("int main() {return 0;}", werror: true)
+    if try_compile("int main() {return 0;}", '', werror: true)
       puts 'yes'
       true
     else
