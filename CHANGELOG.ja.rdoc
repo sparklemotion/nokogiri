@@ -1,66 +1,77 @@
-=== 1.6.4 / 2014-11-04
+=== 1.6.5 / 未リリース
 
 ==== 機能
 
-* (MRI) Bundled Libxml2 is upgraded to 2.9.2.
-* (MRI) `nokogiri --version` will include a list of applied patches.
-* (MRI) Nokogiri no longer prints messages directly to TTY while building the extension.
-* (MRI) Detect and help user fix a missing /usr/include/iconv.h on OS X. (#1111)
-* (MRI) Improve the iconv detection for building libxml2.
+* Slop#respond_to_missing? を実装 (#1176)
 
 ==== バグ修正
 
-* (MRI) Fix DocumentFragment#element_children (#1138).
-* Fix a bug with CSS attribute selector without any prefix where "foo [bar]" was treated as "foo[bar]". (#1174)
+* (MRI) 渡したCFLAGSが反映されないバグを修正
+* CSSセレクタの :nth(n) が動かなかったのを修正 (#1187)
+
+=== 1.6.4 / 2014年11月4日
+
+==== 機能
+
+* (MRI) 同梱の libxml2 を 2.9.2 に更新
+* (MRI) `nokogiri --version` の出力にパッチ一覧を追加
+* (MRI) ビルド中に端末に直接注意書きを出力していたのを廃止
+* (MRI) OS Xで /usr/include/iconv.h が存在しないのを検出し、警告するように (#1111)
+* (MRI) iconvの検出を libxml2 と同一の手順で行うようにした
+
+==== バグ修正
+
+* (MRI) DocumentFragment#element_children を修正 (#1138)
+* CSSの属性セレクタが先行トークンを伴わない場合 "foo [bar]" → "foo[bar]" のように解釈されていたバグを修正 (#1174)
 
 
 === 1.6.3.1 / 2014年7月21日
 
 ==== バグ修正
 
-* Addressing an Apple Macintosh installation problem for GCC users. #1130 (Thanks, @zenspider!)
+* MacでGCCを使うとエラーになる問題に対処 #1130 (@zenspiderに感謝!)
 
 
 === 1.6.3 / 2014年7月20日
 
 ==== 機能
 
-* Added Node#document? and Node#processing_instruction?
+* Node#document? と Node#processing_instruction? を追加
 
 
 ==== バグ修正
 
-* [JRuby] Fix Ruby memory exhaustion vulnerability. #1087 (Thanks, @ocher)
-* [MRI] Fix segfault during GC when using `libxml-ruby` and `nokogiri` together in multi-threaded environment. #895 (Thanks, @ender672!)
-* Building on OSX 10.9 stock ruby 2.0.0 now works. #1101 (Thanks, @zenspider!)
-* Node#parse now works again for HTML document nodes (broken in 1.6.2+).
-* Processing instructions can now be added via Node#add_next_sibling.
+* [JRuby] メモリを使い果たす脆弱性の修正 #1087 (@ocherに感謝)
+* [MRI] `libxml-ruby` と `nokogiri` とをマルチスレッド環境で同時に使うとGC中にsegfaultする問題を修正 #895 (@ender672に感謝!)
+* OS X 10.9 同梱の ruby 2.0.0 でビルド可能に #1101 (@zenspiderに感謝!)
+* 1.6.2以降 Node#parse がHTML文書ノードに対して動かなかった問題を修正
+* XML処理命令(PI)を Node#add_next_sibling で挿入可能に
 
 
 === 1.6.2.1 / 2014年5月13日
 
 ==== バグ修正
 
-* Fix statically-linked libxml2 installation when using universal builds of Ruby. #1104
-* Patching `mini_portile` to address the git dependency detailed in #1102.
-* Library load fix to address segfault reported on some systems. #1097
+* ユニバーサルバイナリ版 ruby における libxml2 の静的リンクを修正 #1104
+* `mini_portile` の Git への依存をパッチによって除去 #1102
+* 一部プラットフォームにおけるライブラリロードにまつわるsegfaultを修正 #1097
 
 
 === 1.6.2 / 2014年5月12日
 
-==== Security 註
+==== セキュリティ
 
-A set of security and bugfix patches have been backported from the libxml2 and libxslt repositories onto the version of 2.8.0 packaged with Nokogiri, including these notable security fixes:
+同梱の libxml2 (2.8.0) と libxslt に各レポジトリからセキュリティ修正が移植された. 以下の脆弱性対応を含む.
 
 * https://git.gnome.org/browse/libxml2/commit/?id=4629ee02ac649c27f9c0cf98ba017c6b5526070f
 * CVE-2013-2877 https://git.gnome.org/browse/libxml2/commit/?id=e50ba8164eee06461c73cd8abb9b46aa0be81869
 * CVE-2014-0191 https://git.gnome.org/browse/libxml2/commit/?id=9cd1c3cfbd32655d60572c0a413e017260c854df
 
-It is recommended that you upgrade from 1.6.x to this version as soon as possible.
+1.6.x のユーザは早急にアップグレードされたい.
 
-==== Compatibility 註
+==== 互換性
 
-Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
+libxml2 2.6.21 以上が必要に. (従前は 2.6.17 以上)
 
 ==== 機能
 
@@ -87,12 +98,12 @@ Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
 * 同梱のライブラリを使う場合にはextconf.rbでpkg_configを呼ばなくなった #931 (Shota Fukumoriに感謝!)
 * Nokogiri.parse()がRSS文書などをHTML文書として誤認する問題を修正 #932 (Yamagishi Kazutoshiに感謝!)
 * (MRI) ノードに対して子ノードを追加する際、ノードタイプをチェックするようにした。従来はテキストノードに別のテキストノードを追加する操作によりSEGVが発生していた。 #1092
-* (JRuby) XSD validation crashes in Java version. #373
-* (JRuby) Document already has a root node error while using Builder. #646
-* (JRuby) c14n tests are all passing on JRuby. #226
-* Parsing empty documents raise SyntaxError in strict mode. #1005
-* (JRuby) Make xpath faster by caching the xpath context. #741
-* (JRuby) XML SAX push parser leaks memory on JRuby, but not on MRI. #998
+* (JRuby) XSDのバリデーションがJava版でクラッシュする問題 #373
+* (JRuby) Builder使用時の「Document already has a root node」エラー #646
+* (JRuby) c14nテストがすべて通るように #226
+* 厳格(strict)モードで空の文書をパースするとSyntaxErrorが起きる問題 #1005
+* (JRuby) XPathコンテクストをキャッシュするようにして高速化 #741
+* (JRuby) XML SAXプッシュパーサーのメモリリーク #998
 * (JRUby) JRubyによるディフォルトネームスペースエイリアスの振る舞いがCRubyと同じではない。#940
 * (JRuby) JRubyによるネームスペースのパースと追加の振る舞いが一致していない。 #943
 * (JRuby) Builderで作ったドキュメントとクローンしたドキュメントではXpathの結果が違う。#1034
@@ -105,8 +116,8 @@ Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
 
 * Bugfixes
 
-  * (JRuby) Fix out of memory bug when certain invalid documents are parsed.
-  * (JRuby) Fix regression of billion-laughs vulnerability. #586
+  * (JRuby) 不正なドキュメントをパースするときにメモリ不足に陥るバグを修正
+  * (JRuby) Billion-laughs攻撃対策のリグレッションを修正 #586
 
 
 === 1.6.0 / 2013年6月8日
@@ -145,8 +156,8 @@ Now requires libxml >= 2.6.21 (was previously >= 2.6.17).
 
 * Bugfixes
 
-  * (JRuby) Fix out of memory bug when certain invalid documents are parsed.
-  * (JRuby) Fix regression of billion-laughs vulnerability. #586
+  * (JRuby) 不正なドキュメントをパースするときにメモリ不足に陥るバグを修正
+  * (JRuby) Billion-laughs攻撃対策のリグレッションを修正 #586
 
 
 === 1.5.10 / 2013年6月7日
