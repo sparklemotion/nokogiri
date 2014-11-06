@@ -452,6 +452,10 @@ EOM
     end
   end
 
+  preserving_globals {
+    have_library('z', 'gzdopen', 'zlib.h')
+  } or abort 'zlib is missing; necessary for building libxml2'
+
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"], static_p, cross_build_p) do |recipe|
     recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
     recipe.configure_options += [
