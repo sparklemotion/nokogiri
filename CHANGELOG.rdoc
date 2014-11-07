@@ -5,6 +5,7 @@
 * (MRI) Fix a bug where CFLAGS passed in are dropped.
 * Fix a bug where CSS selector :nth(n) did not work (#1187).
 
+
 === 1.6.4 / 2014-11-04
 
 ==== Features
