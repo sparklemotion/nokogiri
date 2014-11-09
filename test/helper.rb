@@ -47,6 +47,19 @@ module Nokogiri
       end
     end
 
+    def stress_memory_while &block
+      # force the test to explicitly declare a skip
+      raise "JRuby doesn't do GC" if Nokogiri.jruby?
+
+      old_stress = GC.stress
+      begin
+        GC.stress = true
+        yield
+      ensure
+        GC.stress = old_stress
+      end
+    end
+
     def assert_indent amount, doc, message = nil
       nodes = []
       doc.traverse do |node|

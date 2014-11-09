@@ -100,12 +100,8 @@ module Nokogiri
         text = Nokogiri::XML::Text.new 'bar', document
         attribute.add_child(text)
 
-        begin
-          gc_previous = GC.stress
-          GC.stress = true
+        stress_memory_while do
           node['visible'] = 'attr'
-        ensure
-          GC.stress = gc_previous
         end
       end
     end
