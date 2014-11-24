@@ -2,6 +2,7 @@
 require 'optparse'
 require 'open-uri'
 require 'irb'
+require 'pry' rescue LoadError
 require 'uri'
 require 'rubygems'
 require 'nokogiri'
@@ -72,7 +73,11 @@ else
     eval @script, binding, '<main>'
   else
     puts "Your document is stored in @doc..."
-    IRB.start
+    if defined? Pry
+      Pry.start
+    else
+      IRB.start
+    end
   end
 end
 
