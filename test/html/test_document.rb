@@ -452,8 +452,7 @@ eohtml
       end
       
       def test_content_size
-        html = Nokogiri::HTML('<div>
-</div>')
+        html = Nokogiri::HTML("<div>\n</div>")
         assert_equal 1, html.content.size
         assert_equal 1, html.content.split("").size
         assert_equal "\n", html.content
@@ -520,7 +519,7 @@ eohtml
       end
 
       def test_inner_html
-        html = Nokogiri::HTML(<<-eohtml)
+        html = Nokogiri::HTML <<-EOHTML
         <html>
           <body>
             <div>
@@ -530,9 +529,9 @@ eohtml
             </div>
           </body>
         </html>
-        eohtml
-        node = html.xpath('//div').first
-        assert_equal('<p>Helloworld!</p>', node.inner_html.gsub(/\s/, ''))
+        EOHTML
+        node = html.xpath("//div").first
+        assert_equal("<p>Helloworld!</p>", node.inner_html.gsub(%r{\s}, ""))
       end
 
       def test_round_trip
