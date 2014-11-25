@@ -10,6 +10,7 @@
 
 * Capture non-parse errors from Document#dup in Document#errors. (#1196)
 * Check if `zlib` is available before building `libxml2`. (#1188)
+* (JRuby) Document#canonicalize parameters are now consistent with MRI. (#1189)
 
 
 === 1.6.4.1 / 2014-11-05

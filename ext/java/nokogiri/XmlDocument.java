@@ -586,7 +586,10 @@ public class XmlDocument extends XmlNode {
                 throw context.getRuntime().newTypeError("Expected array");
             }
             if (!args[1].isNil()) {
-                inclusive_namespace = (String)((RubyArray)args[1]).get(0);
+              inclusive_namespace = (String)((RubyArray)args[1])
+                .join(context, context.getRuntime().newString(" "))
+                .asString()
+                .asJavaString(); // OMG I wish I knew JRuby better, this is ugly
             }
         }
         if (args.length > 2) {
