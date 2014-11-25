@@ -5,6 +5,11 @@
 * Implement Slop#respond_to_missing?. (#1176)
 
 
+==== Bug fixes
+
+* Capture non-parse errors from Document#dup in Document#errors. (#1196)
+
+
 === 1.6.4.1 / 2014-11-05
 
 ==== Bug fixes

@@ -612,6 +612,15 @@ eohtml
         assert_equal "", Nokogiri::HTML.parse(nil).text
         assert_equal "", Nokogiri::HTML.parse("").text
       end
+
+      def test_capturing_nonparse_errors_during_clone
+        # see https://github.com/sparklemotion/nokogiri/issues/1196 for background
+        original = Nokogiri::HTML.parse("<div id='unique'></div><div id='unique'></div>")
+        original_errors = original.errors
+
+        copy = original.dup
+        assert_equal original_errors, copy.errors
+      end
     end
   end
 end
