@@ -266,8 +266,13 @@ module Nokogiri
       def initialize options = {}, root = nil, &block
 
         if root
-          @doc    = root.document
-          @parent = root
+          if root.is_a?(Nokogiri::XML::Builder)
+            @doc    = root.doc
+            @parent = root.parent
+          else
+            @doc    = root.document
+            @parent = root
+          end
         else
           namespace     = self.class.name.split('::')
           namespace[-1] = 'Document'
