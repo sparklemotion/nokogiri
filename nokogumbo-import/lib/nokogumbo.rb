@@ -74,6 +74,45 @@ module Nokogiri
       end
     end
 
+    # while fragment is on the Gumbo TODO list, simulate it by doing
+    # a full document parse and ignoring the parent <html>, <head>, and <body>
+    # tags, and collecting up the children of each.
+    def self.fragment(string)
+      doc = parse(string)
+      fragment = Nokogiri::HTML::DocumentFragment.new(doc)
+
+      if doc.children.length != 1 or doc.children.first.name != 'html'
+        # no HTML?  Return document as is
+        fragment = doc
+      else
+        # examine children of HTML element
+        children = doc.children.first.children
+
+        # head is always first.  If present, take children but otherwise
+        # ignore the head element
+        if children.length > 0 and doc.children.first.name = 'head'
+          fragment << children.shift.children
+        end
+
+        # body may be next, or last.  If found, take children but otherwise
+        # ignore the body element.  Also take any remaining elements, taking
+        # care to preserve order.
+        if children.length > 0 and doc.children.first.name = 'body'
+          fragment << children.shift.children
+          fragment << children
+        elsif children.length > 0 and doc.children.last.name = 'body'
+          body = children.pop
+          fragment << children
+          fragment << body.children
+        else
+          fragment << children
+        end
+      end
+
+      # return result
+      fragment
+    end
+
   private
 
     # Charset sniffing is a complex and controversial topic that understandably

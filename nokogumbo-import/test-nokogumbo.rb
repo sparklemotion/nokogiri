@@ -76,6 +76,18 @@ class TestNokogumbo < Minitest::Test
     assert_match /<!DOCTYPE html>/, doc.to_html
   end
 
+  def test_fragment_head
+    doc = Nokogiri::HTML5.fragment(buffer[/<head>(.*?)<\/head>/m, 1])
+    assert_equal "hello world", doc.xpath('title').text
+    assert_equal "utf-8", doc.xpath('meta').first['charset']
+  end
+
+  def test_fragment_body
+    doc = Nokogiri::HTML5.fragment(buffer[/<body>(.*?)<\/body>/m, 1])
+    assert_equal '<span>content</span>', doc.xpath('main/span').to_xml
+    assert_equal " test comment ", doc.xpath('comment()').text
+  end
+
 private
 
   def buffer

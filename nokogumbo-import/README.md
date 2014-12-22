@@ -16,6 +16,14 @@ require 'nokogumbo'
 doc = Nokogiri::HTML5(string)
 ```
 
+An experimental _fragment_ method is also provided.  While not HTML5
+compliant, it may be useful:
+
+```ruby
+require 'nokogumbo'
+doc = Nokogiri::HTML5.fragment(string)
+```
+
 Because HTML is often fetched via the web, a convenience interface to
 HTTP get is also provided:
 
@@ -34,6 +42,10 @@ puts Nokogiri::HTML5.get('http://nokogiri.org').at('h1 abbr')['title']
 Notes
 -----
 
+* The `Nokogiri::HTML5.fragment` function takes a string and parses it
+  as a HTML5 document.  The `<html>`, `<head>`, and `<body>` elements are
+  removed, and any children that remain are returned as a
+  `Nokogiri::HTML::DocumentFragment`.
 * The `Nokogiri::HTML5.parse` function takes a string and passes it to the
 <code>gumbo_parse_with_options</code> method, using the default options.
 The resulting Gumbo parse tree is then walked.
