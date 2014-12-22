@@ -44,8 +44,8 @@ Notes
 
 * The `Nokogiri::HTML5.fragment` function takes a string and parses it
   as a HTML5 document.  The `<html>`, `<head>`, and `<body>` elements are
-  removed, and any children that remain are returned as a
-  `Nokogiri::HTML::DocumentFragment`.
+  removed from this document, and any children of these elements that remain
+  are returned as a `Nokogiri::HTML::DocumentFragment`.
 * The `Nokogiri::HTML5.parse` function takes a string and passes it to the
 <code>gumbo_parse_with_options</code> method, using the default options.
 The resulting Gumbo parse tree is then walked.
