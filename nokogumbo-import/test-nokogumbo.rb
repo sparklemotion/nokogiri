@@ -88,6 +88,17 @@ class TestNokogumbo < Minitest::Test
     assert_equal " test comment ", doc.xpath('comment()').text
   end
 
+  def test_xlink_attribute
+    source = <<-EOF.gsub(/^ {6}/, '')
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <a xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#s1"/>
+      </svg>
+    EOF
+    doc = Nokogiri::HTML5.fragment(source)
+    a = doc.at('a')
+    assert_equal ["xlink:href", "xmlns:xlink"], a.attributes.keys.sort
+  end
+
 private
 
   def buffer

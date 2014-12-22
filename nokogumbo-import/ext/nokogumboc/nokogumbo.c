@@ -104,10 +104,49 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
 
   // add in the attributes
   GumboVector* attrs = &node->attributes;
+  char *name = NULL;
+  int namelen = 0;
+  char *ns;
   for (int i=0; i < attrs->length; i++) {
     GumboAttribute *attr = attrs->data[i];
-    xmlNewProp(element, CONST_CAST attr->name, CONST_CAST attr->value);
+
+    switch (attr->attr_namespace) {
+      case GUMBO_ATTR_NAMESPACE_XLINK:
+        ns = "xlink:";
+        break;
+
+      case GUMBO_ATTR_NAMESPACE_XML:
+        ns = "xml:";
+        break;
+
+      case GUMBO_ATTR_NAMESPACE_XMLNS:
+        ns = "xmlns:";
+        if (!strcmp(attr->name, "xmlns")) ns = NULL;
+        break;
+
+      default:
+        ns = NULL;
+    }
+
+    if (ns) {
+      if (strlen(ns) + strlen(attr->name) + 1 > namelen) {
+        free(name);
+        name = NULL;
+      }
+
+      if (!name) {
+        namelen = strlen(ns) + strlen(attr->name) + 1;
+        name = malloc(namelen);
+      }
+
+      strcpy(name, ns);
+      strcat(name, attr->name);
+      xmlNewProp(element, CONST_CAST name, CONST_CAST attr->value);
+    } else {
+      xmlNewProp(element, CONST_CAST attr->name, CONST_CAST attr->value);
+    }
   }
+  if (name) free(name);
 
   // add in the children
   GumboVector* children = &node->children;
