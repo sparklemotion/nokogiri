@@ -157,7 +157,7 @@ HOE = Hoe.spec 'nokogiri' do
   else
     self.spec_extras = {
       :extensions => ["ext/nokogiri/extconf.rb"],
-      :required_ruby_version => '>= 1.9.2'
+      :required_ruby_version => '>= 1.9.3'
     }
   end
 
