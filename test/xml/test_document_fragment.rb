@@ -139,6 +139,24 @@ module Nokogiri
         assert_equal p_tag, frag.xpath('./*[@id = \'content\']').first
       end
 
+      def test_fragment_search_with_multiple_queries
+        xml = '<thing>
+                 <div class="title">important thing</div>
+               </thing>
+               <thing>
+                 <div class="content">stuff</div>
+               </thing>
+               <thing>
+                 <p class="blah">more stuff</div>
+               </thing>'
+        fragment = Nokogiri::XML.fragment(xml)
+        assert_kind_of Nokogiri::XML::DocumentFragment, fragment
+
+        assert_equal 3, fragment.xpath('.//div', './/p').length
+        assert_equal 3, fragment.css('.title', '.content', 'p').length
+        assert_equal 3, fragment.search('.//div', 'p.blah').length
+      end
+
       def test_fragment_without_a_namespace_does_not_get_a_namespace
         doc = Nokogiri::XML <<-EOX
           <root xmlns="http://tenderlovemaking.com/" xmlns:foo="http://flavorjon.es/" xmlns:bar="http://google.com/">

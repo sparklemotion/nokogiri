@@ -62,63 +62,72 @@ module Nokogiri
       alias :remove :unlink
 
       ###
-      # Search this document for +paths+
+      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
       #
-      # For more information see Nokogiri::XML::Node#css and
-      # Nokogiri::XML::Node#xpath
-      def search *paths
-        paths, handler, ns, binds = Node.extract_params(document, paths)
+      # Search this node set for +paths+. +paths+ must be one or more XPath or CSS queries.
+      #
+      # For more information see Nokogiri::XML::Node#search
+      def search *args
+        paths, handler, ns, binds = Node.extract_params(document, args)
 
-        sub_set = NodeSet.new(document)
+        xpaths = paths.map do |path|
+          path = path.to_s
+          if path =~ Node::LOOKS_LIKE_XPATH
+            path
+          else
+            implied_xpath_contexts.map do |implied_xpath_context|
+              CSS.xpath_for(path, :prefix => implied_xpath_context, :ns => ns)
+            end.join(' | ')
+          end
+        end.flatten.uniq
 
-        paths.each do |path|
-          sub_set += send(
-            path =~ Node::LOOKS_LIKE_XPATH ? :xpath : :css,
-            *(paths + [ns, handler, binds]).compact
-          )
-        end
-
-        document.decorate(sub_set)
-        sub_set
+        xpath(*(xpaths + [ns, handler, binds].compact))
       end
       alias :/ :search
 
       ###
-      # Search this NodeSet for css +paths+
+      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
+      #
+      # Search this node set for CSS +rules+. +rules+ must be one or more CSS
+      # selectors. For example:
       #
       # For more information see Nokogiri::XML::Node#css
-      def css *paths
-        paths, handler, ns, binds = Node.extract_params(document, paths)
+      def css *args
+        rules, handler, ns, binds = Node.extract_params(document, args)
 
         sub_set = NodeSet.new(document)
 
         each do |node|
           doc = node.document
 
-          xpaths = paths.map { |rule|
-            [
-              CSS.xpath_for(rule.to_s, :prefix => ".//", :ns => ns),
-              CSS.xpath_for(rule.to_s, :prefix => "self::", :ns => ns)
-            ].join(' | ')
+          xpaths = rules.map { |rule|
+            implied_xpath_contexts.map do |implied_xpath_context|
+              CSS.xpath_for(rule.to_s, :prefix => implied_xpath_context, :ns => ns)
+            end.join(' | ')
           }
 
           sub_set += node.xpath(*(xpaths + [ns, handler].compact))
         end
+
         document.decorate(sub_set)
         sub_set
       end
 
       ###
-      # Search this NodeSet for XPath +paths+
+      # call-seq: xpath *paths, [namespace-bindings, variable-bindings, custom-handler-class]
+      #
+      # Search this node set for XPath +paths+. +paths+ must be one or more XPath
+      # queries.
       #
       # For more information see Nokogiri::XML::Node#xpath
-      def xpath *paths
-        paths, handler, ns, binds = Node.extract_params(document, paths)
+      def xpath *args
+        paths, handler, ns, binds = Node.extract_params(document, args)
 
         sub_set = NodeSet.new(document)
         each do |node|
           sub_set += node.xpath(*(paths + [ns, handler, binds].compact))
         end
+
         document.decorate(sub_set)
         sub_set
       end
@@ -337,6 +346,12 @@ module Nokogiri
       end
 
       alias :+ :|
+
+      private
+
+      def implied_xpath_contexts # :nodoc:
+        [".//", "self::"]
+      end
     end
   end
 end

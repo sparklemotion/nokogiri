@@ -84,6 +84,26 @@ module Nokogiri
         assert_equal 'foo', @xml.xpath('concat("fo", "o")')
       end
 
+      def test_node_search_with_multiple_queries
+        xml = '<document>
+                 <thing>
+                   <div class="title">important thing</div>
+                 </thing>
+                 <thing>
+                   <div class="content">stuff</div>
+                 </thing>
+                 <thing>
+                   <p class="blah">more stuff</div>
+                 </thing>
+               </document>'
+        node = Nokogiri::XML(xml).root
+        assert_kind_of Nokogiri::XML::Node, node
+
+        assert_equal 3, node.xpath('.//div', './/p').length
+        assert_equal 3, node.css('.title', '.content', 'p').length
+        assert_equal 3, node.search('.//div', 'p.blah').length
+      end
+
       def test_css_search_uses_custom_selectors_with_arguments
         set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
         assert set.length > 0

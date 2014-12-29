@@ -124,6 +124,26 @@ module Nokogiri
         assert_equal 0, set.search('foo').length
       end
 
+      def test_node_set_search_with_multiple_queries
+        xml = '<document>
+                 <thing>
+                   <div class="title">important thing</div>
+                 </thing>
+                 <thing>
+                   <div class="content">stuff</div>
+                 </thing>
+                 <thing>
+                   <p class="blah">more stuff</div>
+                 </thing>
+               </document>'
+        set = Nokogiri::XML(xml).xpath(".//thing")
+        assert_kind_of Nokogiri::XML::NodeSet, set
+
+        assert_equal 3, set.xpath('./div', './p').length
+        assert_equal 3, set.css('.title', '.content', 'p').length
+        assert_equal 3, set.search('./div', 'p.blah').length
+      end
+
       def test_search_with_custom_selector
         set = @xml.xpath('//staff')
 

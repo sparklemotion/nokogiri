@@ -701,6 +701,26 @@ module Nokogiri
         assert_equal 0, ns.length
       end
 
+      def test_document_search_with_multiple_queries
+        xml = '<document>
+                 <thing>
+                   <div class="title">important thing</div>
+                 </thing>
+                 <thing>
+                   <div class="content">stuff</div>
+                 </thing>
+                 <thing>
+                   <p class="blah">more stuff</div>
+                 </thing>
+               </document>'
+        document = Nokogiri::XML(xml)
+        assert_kind_of Nokogiri::XML::Document, document
+
+        assert_equal 3, document.xpath('.//div', './/p').length
+        assert_equal 3, document.css('.title', '.content', 'p').length
+        assert_equal 3, document.search('.//div', 'p.blah').length
+      end
+
       def test_bad_xpath_raises_syntax_error
         assert_raises(XML::XPath::SyntaxError) {
           @xml.xpath('\\')

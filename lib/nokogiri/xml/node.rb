@@ -97,7 +97,7 @@ module Nokogiri
       ###
       # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
       #
-      # Search this node for +paths+.  +paths+ must be one or more XPath or CSS queries:
+      # Search this node for +paths+. +paths+ must be one or more XPath or CSS queries:
       #
       #   node.search("div.employee", ".//title")
       #

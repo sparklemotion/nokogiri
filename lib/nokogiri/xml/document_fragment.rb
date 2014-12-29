@@ -73,7 +73,12 @@ module Nokogiri
       end
 
       ###
-      # Search this fragment.  See Nokogiri::XML::Node#css
+      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
+      #
+      # Search this fragment for CSS +rules+. +rules+ must be one or more CSS
+      # selectors. For example:
+      #
+      # For more information see Nokogiri::XML::Node#css
       def css *args
         if children.any?
           children.css(*args)
