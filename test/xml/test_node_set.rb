@@ -124,42 +124,39 @@ module Nokogiri
         assert_equal 0, set.search('foo').length
       end
 
-      def test_xpath_with_custom_object
+      def test_search_with_custom_selector
         set = @xml.xpath('//staff')
-        custom_employees = set.xpath('//*[awesome(.)]', Class.new {
-          def awesome ns
-            ns.select { |n| n.name == 'employee' }
-          end
-        }.new)
 
-        assert_equal @xml.xpath('//employee'), custom_employees
+        [
+          [:xpath,  '//*[awesome(.)]'],
+          [:search, '//*[awesome(.)]'],
+          [:css,    '*:awesome'],
+          [:search, '*:awesome']
+        ].each do |method, query|
+          custom_employees = set.send(method, query, Class.new {
+              def awesome ns
+                ns.select { |n| n.name == 'employee' }
+              end
+            }.new)
+
+          assert_equal(@xml.xpath('//employee'), custom_employees,
+            "using #{method} with custom selector '#{query}'")
+        end
       end
 
-      def test_css_with_custom_object
+      def test_search_with_variable_bindings
         set = @xml.xpath('//staff')
-        custom_employees = set.css('*:awesome', Class.new {
-          def awesome ns
-            ns.select { |n| n.name == 'employee' }
-          end
-        }.new)
 
-        assert_equal @xml.xpath('//employee'), custom_employees
+        assert_equal(4, set.xpath('//address[@domestic=$value]', nil, :value => 'Yes').length,
+          "using #xpath with variable binding")
+
+        assert_equal(4, set.search('//address[@domestic=$value]', nil, :value => 'Yes').length,
+          "using #search with variable binding")
       end
 
       def test_search_self
         set = @xml.xpath('//staff')
         assert_equal set.to_a, set.search('.').to_a
-      end
-
-      def test_search_with_custom_object
-        set = @xml.xpath('//staff')
-        custom_employees = set.search('//*[awesome(.)]', Class.new {
-          def awesome ns
-            ns.select { |n| n.name == 'employee' }
-          end
-        }.new)
-
-        assert_equal @xml.xpath('//employee'), custom_employees
       end
 
       def test_css_searches_match_self

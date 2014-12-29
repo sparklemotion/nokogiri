@@ -74,7 +74,7 @@ module Nokogiri
         paths.each do |path|
           sub_set += send(
             path =~ Node::LOOKS_LIKE_XPATH ? :xpath : :css,
-            *(paths + [ns, handler]).compact
+            *(paths + [ns, handler, binds]).compact
           )
         end
 
@@ -117,7 +117,7 @@ module Nokogiri
 
         sub_set = NodeSet.new(document)
         each do |node|
-          sub_set += node.xpath(*(paths + [ns, handler].compact))
+          sub_set += node.xpath(*(paths + [ns, handler, binds].compact))
         end
         document.decorate(sub_set)
         sub_set
