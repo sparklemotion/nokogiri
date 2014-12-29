@@ -50,7 +50,7 @@ module Nokogiri
       #   :read_timeout, :ssl_timeout, :ssl_version, :use_ssl,
       #   :verify_callback, :verify_depth, :verify_mode
       options.each do |key, value|
-        http.send "#{key}=", value if http.respond_to? "#{key}="
+        http.send "#{key}=", headers.delete(key) if http.respond_to? "#{key}="
       end
 
       request = Net::HTTP::Get.new(uri.request_uri)
