@@ -95,24 +95,53 @@ module Nokogiri
       end
 
       ###
-      # Search this node for +paths+.  +paths+ can be XPath or CSS, and an
-      # optional hash of namespaces may be appended.
-      # See Node#xpath and Node#css.
-      def search *rules
-        rules, handler, ns, binds = extract_params(rules)
+      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
+      #
+      # Search this node for +paths+.  +paths+ must be one or more XPath or CSS queries:
+      #
+      #   node.search("div.employee", ".//title")
+      #
+      # A hash of namespace bindings may be appended:
+      #
+      #   node.search('.//bike:tire', {'bike' => 'http://schwinn.com/'})
+      #   node.search('bike|tire', {'bike' => 'http://schwinn.com/'})
+      #
+      # For XPath queries, a hash of variable bindings may also be
+      # appended to the namespace bindings. For example:
+      #
+      #   node.search('.//address[@domestic=$value]', nil, {:value => 'Yes'})
+      #
+      # Custom XPath functions and CSS pseudo-selectors may also be
+      # defined. To define custom functions create a class and
+      # implement the function you want to define.  The first argument
+      # to the method will be the current matching NodeSet.  Any other
+      # arguments are ones that you pass in.  Note that this class may
+      # appear anywhere in the argument list.  For example:
+      #
+      #   node.search('.//title[regex(., "\w+")]', 'div.employee:regex("[0-9]+")'
+      #     Class.new {
+      #       def regex node_set, regex
+      #         node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
+      #       end
+      #     }.new
+      #   )
+      #
+      # See Node#xpath and Node#css for further usage help.
+      def search *args
+        paths, handler, ns, binds = extract_params(args)
 
         prefix = "#{implied_xpath_context}/"
 
-        rules = rules.map { |rule|
-          rule = rule.to_s
-          if rule =~ LOOKS_LIKE_XPATH
-            rule
+        xpaths = paths.map { |path|
+          path = path.to_s
+          if path =~ LOOKS_LIKE_XPATH
+            path
           else
-            CSS.xpath_for(rule, :prefix => prefix, :ns => ns)
+            CSS.xpath_for(path, :prefix => prefix, :ns => ns)
           end
-        }.flatten.uniq + [ns, handler, binds].compact
+        }.flatten.uniq
 
-        xpath(*rules)
+        xpath(*(xpaths + [ns, handler, binds].compact))
       end
       alias :/ :search
 
@@ -146,10 +175,10 @@ module Nokogiri
       #     end
       #   }.new)
       #
-      def xpath *paths
+      def xpath *args
         return NodeSet.new(document) unless document
 
-        paths, handler, ns, binds = extract_params(paths)
+        paths, handler, ns, binds = extract_params(args)
 
         sets = paths.map { |path|
           ctx = XPathContext.new(self)
@@ -206,16 +235,16 @@ module Nokogiri
       # found in an XML document, where tags names are case-sensitive
       # (e.g., "H1" is distinct from "h1").
       #
-      def css *rules
-        rules, handler, ns, binds = extract_params(rules)
+      def css *args
+        rules, handler, ns, binds = extract_params(args)
 
         prefix = "#{implied_xpath_context}/"
 
-        rules = rules.map { |rule|
+        xpaths = rules.map { |rule|
           CSS.xpath_for(rule, :prefix => prefix, :ns => ns)
-        }.flatten.uniq + [ns, handler, binds].compact
+        }.flatten.uniq
 
-        xpath(*rules)
+        xpath(*(xpaths + [ns, handler, binds].compact))
       end
 
       ###
@@ -331,7 +360,7 @@ module Nokogiri
       # Also see related method +after+.
       def add_next_sibling node_or_tags
         raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !node_or_tags.processing_instruction?
-        
+
         add_sibling :next, node_or_tags
       end
 
