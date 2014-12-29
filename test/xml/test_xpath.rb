@@ -69,6 +69,10 @@ module Nokogiri
         assert_equal 4, @xml.xpath('//address[@domestic=$value]', nil, :value => 'Yes').length
       end
 
+      def test_variable_binding_with_search
+        assert_equal 4, @xml.search('//address[@domestic=$value]', nil, :value => 'Yes').length
+      end
+
       def test_unknown_attribute
         assert_equal 0, @xml.xpath('//employee[@id="asdfasdf"]/@fooo').length
         assert_nil @xml.xpath('//employee[@id="asdfasdf"]/@fooo')[0]
@@ -101,6 +105,27 @@ module Nokogiri
         @xml.css('employee:thing()', @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
+      end
+
+      def test_search_with_css_query_uses_custom_selectors_with_arguments
+        skip("JRuby port doesn't support custom selectors with CSS queries") unless Nokogiri.uses_libxml?
+        set = @xml.search('employee > address:my_filter("domestic", "Yes")', @handler)
+        assert set.length > 0
+        set.each do |node|
+          assert_equal 'Yes', node['domestic']
+        end
+      end
+
+      def test_search_with_xpath_query_uses_custom_selectors_with_arguments
+        set = if Nokogiri.uses_libxml?
+                @xml.search('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
+              else
+                @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @ns, @handler)
+              end
+        assert set.length > 0
+        set.each do |node|
+          assert_equal 'Yes', node['domestic']
+        end
       end
 
       def test_pass_self_to_function

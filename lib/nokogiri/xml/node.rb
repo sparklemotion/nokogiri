@@ -94,21 +94,21 @@ module Nokogiri
       # Search this node for +paths+.  +paths+ can be XPath or CSS, and an
       # optional hash of namespaces may be appended.
       # See Node#xpath and Node#css.
-      def search *paths
-        # TODO use         paths, handler, ns, binds = extract_params(paths)
-        ns = paths.last.is_a?(Hash) ? paths.pop :
-          (document.root ? document.root.namespaces : {})
+      def search *rules
+        rules, handler, ns, binds = extract_params(rules)
 
         prefix = "#{implied_xpath_context}/"
 
-        xpath(*(paths.map { |path|
-          path = path.to_s
-          path =~ /^(\.\/|\/|\.\.|\.$)/ ? path : CSS.xpath_for(
-            path,
-            :prefix => prefix,
-            :ns     => ns
-          )
-        }.flatten.uniq) + [ns])
+        rules = rules.map { |rule|
+          rule = rule.to_s
+          if rule =~ /^(\.\/|\/|\.\.|\.$)/
+            rule
+          else
+            CSS.xpath_for(rule, :prefix => prefix, :ns => ns)
+          end
+        }.flatten.uniq + [ns, handler, binds].compact
+
+        xpath(*rules)
       end
       alias :/ :search
 
