@@ -96,13 +96,12 @@ module Nokogiri
       def search *rules
         rules, handler, ns, binds = extract_params(rules)
 
-        sub_set = NodeSet.new(document)
-        rules.each do |rule|
-          sub_set += if rule =~ Node::LOOKS_LIKE_XPATH
-                       xpath(*([rule, ns, handler, binds].compact))
-                     else
-                       children.css(*([rule, ns, handler, binds].compact))
-                     end
+        sub_set = rules.inject(NodeSet.new(document)) do |set, rule|
+          set += if rule =~ Searchable::LOOKS_LIKE_XPATH
+                   xpath(*([rule, ns, handler, binds].compact))
+                 else
+                   children.css(*([rule, ns, handler, binds].compact))
+                 end
         end
 
         document.decorate(sub_set)

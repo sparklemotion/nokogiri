@@ -35,6 +35,7 @@ module Nokogiri
     # You may search this node's subtree using Node#xpath and Node#css
     class Node
       include Nokogiri::XML::PP::Node
+      include Nokogiri::XML::Searchable
       include Enumerable
 
       # Element node type, see Nokogiri::XML::Node#element?
@@ -80,10 +81,6 @@ module Nokogiri
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
-      # Regular expression used by Node#search to determine if a query
-      # string is CSS or XPath
-      LOOKS_LIKE_XPATH = /^(\.\/|\/|\.\.|\.$)/
-
       def initialize name, document # :nodoc:
         # ... Ya.  This is empty on purpose.
       end
@@ -93,57 +90,6 @@ module Nokogiri
       def decorate!
         document.decorate(self)
       end
-
-      ###
-      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
-      #
-      # Search this node for +paths+. +paths+ must be one or more XPath or CSS queries:
-      #
-      #   node.search("div.employee", ".//title")
-      #
-      # A hash of namespace bindings may be appended:
-      #
-      #   node.search('.//bike:tire', {'bike' => 'http://schwinn.com/'})
-      #   node.search('bike|tire', {'bike' => 'http://schwinn.com/'})
-      #
-      # For XPath queries, a hash of variable bindings may also be
-      # appended to the namespace bindings. For example:
-      #
-      #   node.search('.//address[@domestic=$value]', nil, {:value => 'Yes'})
-      #
-      # Custom XPath functions and CSS pseudo-selectors may also be
-      # defined. To define custom functions create a class and
-      # implement the function you want to define.  The first argument
-      # to the method will be the current matching NodeSet.  Any other
-      # arguments are ones that you pass in.  Note that this class may
-      # appear anywhere in the argument list.  For example:
-      #
-      #   node.search('.//title[regex(., "\w+")]', 'div.employee:regex("[0-9]+")'
-      #     Class.new {
-      #       def regex node_set, regex
-      #         node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
-      #       end
-      #     }.new
-      #   )
-      #
-      # See Node#xpath and Node#css for further usage help.
-      def search *args
-        paths, handler, ns, binds = extract_params(args)
-
-        prefix = "#{implied_xpath_context}/"
-
-        xpaths = paths.map do |path|
-          path = path.to_s
-          if path =~ LOOKS_LIKE_XPATH
-            path
-          else
-            CSS.xpath_for(path, :prefix => prefix, :ns => ns)
-          end
-        end.flatten.uniq
-
-        xpath(*(xpaths + [ns, handler, binds].compact))
-      end
-      alias :/ :search
 
       ###
       # call-seq: xpath *paths, [namespace-bindings, variable-bindings, custom-handler-class]
@@ -238,10 +184,10 @@ module Nokogiri
       def css *args
         rules, handler, ns, binds = extract_params(args)
 
-        prefix = "#{implied_xpath_context}/"
-
         xpaths = rules.map { |rule|
-          CSS.xpath_for(rule, :prefix => prefix, :ns => ns)
+          implied_xpath_contexts.map do |implied_xpath_context|
+            CSS.xpath_for(rule, :prefix => implied_xpath_context, :ns => ns)
+          end.join(' | ')
         }.flatten.uniq
 
         xpath(*(xpaths + [ns, handler, binds].compact))
@@ -967,31 +913,6 @@ module Nokogiri
         [:name, :namespace, :attribute_nodes, :children]
       end
 
-      def extract_params params # :nodoc:
-        self.class.extract_params document, params
-      end
-
-      def self.extract_params document, params # :nodoc:
-        # Pop off our custom function handler if it exists
-        handler = params.find { |param|
-          ![Hash, String, Symbol].include?(param.class)
-        }
-
-        params -= [handler] if handler
-
-        hashes = []
-        while Hash === params.last || params.last.nil?
-          hashes << params.pop
-          break if params.empty?
-        end
-
-        ns, binds = hashes.reverse
-
-        ns ||= document.root ? document.root.namespaces : {}
-
-        [params, handler, ns, binds]
-      end
-
       def coerce data # :nodoc:
         case data
         when XML::NodeSet
@@ -1012,8 +933,8 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
         EOERR
       end
 
-      def implied_xpath_context # :nodoc:
-        "./"
+      def implied_xpath_contexts # :nodoc:
+        [".//"]
       end
 
       def add_child_node_and_reparent_attrs node # :nodoc:

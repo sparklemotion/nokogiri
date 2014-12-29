@@ -5,6 +5,7 @@ module Nokogiri
     # a NodeSet is return as a result of searching a Document via
     # Nokogiri::XML::Node#css or Nokogiri::XML::Node#xpath
     class NodeSet
+      include Nokogiri::XML::Searchable
       include Enumerable
 
       # The Document this NodeSet is associated with
@@ -62,30 +63,6 @@ module Nokogiri
       alias :remove :unlink
 
       ###
-      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
-      #
-      # Search this node set for +paths+. +paths+ must be one or more XPath or CSS queries.
-      #
-      # For more information see Nokogiri::XML::Node#search
-      def search *args
-        paths, handler, ns, binds = Node.extract_params(document, args)
-
-        xpaths = paths.map do |path|
-          path = path.to_s
-          if path =~ Node::LOOKS_LIKE_XPATH
-            path
-          else
-            implied_xpath_contexts.map do |implied_xpath_context|
-              CSS.xpath_for(path, :prefix => implied_xpath_context, :ns => ns)
-            end.join(' | ')
-          end
-        end.flatten.uniq
-
-        xpath(*(xpaths + [ns, handler, binds].compact))
-      end
-      alias :/ :search
-
-      ###
       # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
       #
       # Search this node set for CSS +rules+. +rules+ must be one or more CSS
@@ -93,11 +70,9 @@ module Nokogiri
       #
       # For more information see Nokogiri::XML::Node#css
       def css *args
-        rules, handler, ns, binds = Node.extract_params(document, args)
+        rules, handler, ns, binds = extract_params(args)
 
-        sub_set = NodeSet.new(document)
-
-        each do |node|
+        sub_set = inject(NodeSet.new(document)) do |set, node|
           doc = node.document
 
           xpaths = rules.map { |rule|
@@ -106,7 +81,7 @@ module Nokogiri
             end.join(' | ')
           }
 
-          sub_set += node.xpath(*(xpaths + [ns, handler].compact))
+          set += node.xpath(*(xpaths + [ns, handler].compact))
         end
 
         document.decorate(sub_set)
@@ -121,11 +96,10 @@ module Nokogiri
       #
       # For more information see Nokogiri::XML::Node#xpath
       def xpath *args
-        paths, handler, ns, binds = Node.extract_params(document, args)
+        paths, handler, ns, binds = extract_params(args)
 
-        sub_set = NodeSet.new(document)
-        each do |node|
-          sub_set += node.xpath(*(paths + [ns, handler, binds].compact))
+        sub_set = inject(NodeSet.new(document)) do |set, node|
+          set += node.xpath(*(paths + [ns, handler, binds].compact))
         end
 
         document.decorate(sub_set)
