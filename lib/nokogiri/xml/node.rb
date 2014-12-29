@@ -132,14 +132,14 @@ module Nokogiri
 
         prefix = "#{implied_xpath_context}/"
 
-        xpaths = paths.map { |path|
+        xpaths = paths.map do |path|
           path = path.to_s
           if path =~ LOOKS_LIKE_XPATH
             path
           else
             CSS.xpath_for(path, :prefix => prefix, :ns => ns)
           end
-        }.flatten.uniq
+        end.flatten.uniq
 
         xpath(*(xpaths + [ns, handler, binds].compact))
       end
