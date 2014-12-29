@@ -80,6 +80,10 @@ module Nokogiri
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
+      # Regular expression used by Node#search to determine if a query
+      # string is CSS or XPath
+      LOOKS_LIKE_XPATH = /^(\.\/|\/|\.\.|\.$)/
+
       def initialize name, document # :nodoc:
         # ... Ya.  This is empty on purpose.
       end
@@ -101,7 +105,7 @@ module Nokogiri
 
         rules = rules.map { |rule|
           rule = rule.to_s
-          if rule =~ /^(\.\/|\/|\.\.|\.$)/
+          if rule =~ LOOKS_LIKE_XPATH
             rule
           else
             CSS.xpath_for(rule, :prefix => prefix, :ns => ns)
