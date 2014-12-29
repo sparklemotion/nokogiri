@@ -935,6 +935,10 @@ module Nokogiri
       end
 
       def extract_params params # :nodoc:
+        self.class.extract_params document, params
+      end
+
+      def self.extract_params document, params # :nodoc:
         # Pop off our custom function handler if it exists
         handler = params.find { |param|
           ![Hash, String, Symbol].include?(param.class)
