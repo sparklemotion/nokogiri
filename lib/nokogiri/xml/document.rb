@@ -267,7 +267,7 @@ module Nokogiri
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
       end
 
-      def implied_xpath_context
+      def implied_xpath_context # :nodoc:
         "/"
       end
 

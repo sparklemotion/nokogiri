@@ -963,6 +963,10 @@ module Nokogiri
         write_to io, options
       end
 
+      def inspect_attributes
+        [:name, :namespace, :attribute_nodes, :children]
+      end
+
       def extract_params params # :nodoc:
         self.class.extract_params document, params
       end
@@ -1008,22 +1012,17 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
         EOERR
       end
 
-      def implied_xpath_context
+      def implied_xpath_context # :nodoc:
         "./"
       end
 
-      def inspect_attributes
-        [:name, :namespace, :attribute_nodes, :children]
-      end
-
-      def add_child_node_and_reparent_attrs node
+      def add_child_node_and_reparent_attrs node # :nodoc:
         add_child_node node
         node.attribute_nodes.find_all { |a| a.name =~ /:/ }.each do |attr_node|
           attr_node.remove
           node[attr_node.name] = attr_node.value
         end
       end
-
     end
   end
 end
