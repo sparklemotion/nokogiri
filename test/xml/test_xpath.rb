@@ -13,12 +13,6 @@ module Nokogiri
       # functions to be in a namespace. This is not required by XPath, afaik,
       # but it is an usual convention though.
       #
-      # Furthermore, CSS does not support extension functions but it does in
-      # Nokogiri. Result: you cannot use them in JRuby impl. At least, until
-      # the CSS to XPath parser is patched, and let me say that there are more
-      # important features to add before that happens. I hope you will forgive
-      # me.
-      #
       # Yours truly,
       #
       # The guy whose headaches belong to Nokogiri JRuby impl.
@@ -91,7 +85,6 @@ module Nokogiri
       end
 
       def test_css_search_uses_custom_selectors_with_arguments
-        skip("JRuby port doesn't support custom selectors with CSS queries") unless Nokogiri.uses_libxml?
         set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
         assert set.length > 0
         set.each do |node|
@@ -100,7 +93,6 @@ module Nokogiri
       end
 
       def test_css_search_uses_custom_selectors
-        skip("JRuby port doesn't support custom selectors with CSS queries") unless Nokogiri.uses_libxml?
         set = @xml.xpath('//employee')
         @xml.css('employee:thing()', @handler)
         assert_equal(set.length, @handler.things.length)
@@ -108,7 +100,6 @@ module Nokogiri
       end
 
       def test_search_with_css_query_uses_custom_selectors_with_arguments
-        skip("JRuby port doesn't support custom selectors with CSS queries") unless Nokogiri.uses_libxml?
         set = @xml.search('employee > address:my_filter("domestic", "Yes")', @handler)
         assert set.length > 0
         set.each do |node|
