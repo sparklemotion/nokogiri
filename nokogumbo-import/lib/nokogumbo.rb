@@ -42,9 +42,15 @@ module Nokogiri
       http = Net::HTTP.new(uri.host, uri.port)
 
       # TLS / SSL support
-      if uri.scheme == 'https'
-        http.use_ssl = true 
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      http.use_ssl = true if uri.scheme == 'https'
+
+      # Pass through Net::HTTP override values, which currently include:
+      #   :ca_file, :ca_path, :cert, :cert_store, :ciphers,
+      #   :close_on_empty_response, :continue_timeout, :key, :open_timeout,
+      #   :read_timeout, :ssl_timeout, :ssl_version, :use_ssl,
+      #   :verify_callback, :verify_depth, :verify_mode
+      options.each do |key, value|
+        http.send "#{key}=", value if http.respond_to? "#{key}="
       end
 
       request = Net::HTTP::Get.new(uri.request_uri)
