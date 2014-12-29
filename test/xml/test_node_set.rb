@@ -163,11 +163,6 @@ module Nokogiri
         html = Nokogiri::HTML("<html><body><div class='a'></div></body></html>")
         set = html.xpath("/html/body/div")
         assert_equal set.first, set.css(".a").first
-      end
-
-      def test_search_with_css_matches_self
-        html = Nokogiri::HTML("<html><body><div class='a'></div></body></html>")
-        set = html.xpath("/html/body/div")
         assert_equal set.first, set.search(".a").first
       end
 
