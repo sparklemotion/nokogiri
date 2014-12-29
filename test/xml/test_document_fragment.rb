@@ -125,18 +125,31 @@ module Nokogiri
         fragment = Nokogiri::XML::Document.new.fragment(
           '<div><p id="content">hi</p></div>'
         )
-        css     = fragment.children.css('p')
-        xpath   = fragment.children.xpath('.//p')
-        assert_equal css, xpath
+        expected = fragment.children.xpath('.//p')
+        assert_equal 1, expected.length
+
+        css          = fragment.children.css('p')
+        search_css   = fragment.children.search('p')
+        search_xpath = fragment.children.search('.//p')
+        assert_equal expected, css
+        assert_equal expected, search_css
+        assert_equal expected, search_xpath
       end
 
       def test_fragment_search
         frag = Nokogiri::XML::Document.new.fragment '<p id="content">hi</p>'
+        expected = frag.xpath('./*[@id = \'content\']')
+        assert_equal 1, expected.length
 
-        p_tag = frag.css('#content').first
-        assert_equal 'p', p_tag.name
-
-        assert_equal p_tag, frag.xpath('./*[@id = \'content\']').first
+        [
+          [:css, '#content'],
+          [:search, '#content'],
+          [:search, './*[@id = \'content\']'],
+        ].each do |method, query|
+          p_tag = frag.send(method, query)
+          assert_equal(expected, p_tag,
+            "fragment search with :#{method} using '#{query}' expected #{expected} got #{p_tag}")
+        end
       end
 
       def test_fragment_search_with_multiple_queries

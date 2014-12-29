@@ -87,6 +87,28 @@ module Nokogiri
         end
       end
 
+      ###
+      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
+      #
+      # Search this fragment for +paths+. +paths+ must be one or more XPath or CSS queries.
+      #
+      # For more information see Nokogiri::XML::Node#search
+      def search *rules
+        rules, handler, ns, binds = extract_params(rules)
+
+        sub_set = NodeSet.new(document)
+        rules.each do |rule|
+          sub_set += if rule =~ Node::LOOKS_LIKE_XPATH
+                       xpath(*([rule, ns, handler, binds].compact))
+                     else
+                       children.css(*([rule, ns, handler, binds].compact))
+                     end
+        end
+
+        document.decorate(sub_set)
+        sub_set
+      end
+
       alias :serialize :to_s
 
       class << self
