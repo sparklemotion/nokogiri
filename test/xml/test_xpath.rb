@@ -87,11 +87,8 @@ module Nokogiri
       end
 
       def test_css_search_uses_custom_selectors_with_arguments
-        set = if Nokogiri.uses_libxml?
-                @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
-              else
-                @xml.xpath("//employee/address[nokogiri:my_filter(., \"domestic\", \"Yes\")]", @ns, @handler)
-               end
+        skip("JRuby port doesn't support custom selectors with CSS queries") unless Nokogiri.uses_libxml?
+        set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
         assert set.length > 0
         set.each do |node|
           assert_equal 'Yes', node['domestic']
@@ -99,12 +96,9 @@ module Nokogiri
       end
 
       def test_css_search_uses_custom_selectors
+        skip("JRuby port doesn't support custom selectors with CSS queries") unless Nokogiri.uses_libxml?
         set = @xml.xpath('//employee')
-        if Nokogiri.uses_libxml?
-          @xml.css('employee:thing()', @handler)
-        else
-          @xml.xpath("//employee[nokogiri:thing(.)]", @ns, @handler)
-        end
+        @xml.css('employee:thing()', @handler)
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
       end
