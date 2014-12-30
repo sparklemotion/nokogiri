@@ -136,19 +136,19 @@ module Nokogiri
         assert_equal expected, search_xpath
       end
 
-      def test_fragment_search
-        frag = Nokogiri::XML::Document.new.fragment '<p id="content">hi</p>'
-        expected = frag.xpath('./*[@id = \'content\']')
-        assert_equal 1, expected.length
+      def test_fragment_search_three_ways
+        frag = Nokogiri::XML::Document.new.fragment '<p id="content">foo</p><p id="content">bar</p>'
+        expected = frag.xpath('./*[@id = "content"]')
+        assert_equal 2, expected.length
 
         [
           [:css, '#content'],
           [:search, '#content'],
           [:search, './*[@id = \'content\']'],
         ].each do |method, query|
-          p_tag = frag.send(method, query)
-          assert_equal(expected, p_tag,
-            "fragment search with :#{method} using '#{query}' expected #{expected} got #{p_tag}")
+          result = frag.send(method, query)
+          assert_equal(expected, result,
+            "fragment search with :#{method} using '#{query}' expected '#{expected}' got '#{result}'")
         end
       end
 
