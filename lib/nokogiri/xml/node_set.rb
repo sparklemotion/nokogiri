@@ -87,12 +87,9 @@ module Nokogiri
       def xpath *args
         paths, handler, ns, binds = extract_params(args)
 
-        sub_set = inject(NodeSet.new(document)) do |set, node|
+        inject(NodeSet.new(document)) do |set, node|
           set += node.xpath(*(paths + [ns, handler, binds].compact))
         end
-
-        document.decorate(sub_set)
-        sub_set
       end
 
       ###
