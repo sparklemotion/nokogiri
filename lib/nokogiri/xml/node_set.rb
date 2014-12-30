@@ -72,20 +72,9 @@ module Nokogiri
       def css *args
         rules, handler, ns, binds = extract_params(args)
 
-        sub_set = inject(NodeSet.new(document)) do |set, node|
-          doc = node.document
-
-          xpaths = rules.map { |rule|
-            implied_xpath_contexts.map do |implied_xpath_context|
-              CSS.xpath_for(rule.to_s, :prefix => implied_xpath_context, :ns => ns)
-            end.join(' | ')
-          }
-
-          set += node.xpath(*(xpaths + [ns, handler].compact))
+        inject(NodeSet.new(document)) do |set, node|
+          set += css_internal node, rules, handler, ns
         end
-
-        document.decorate(sub_set)
-        sub_set
       end
 
       ###
