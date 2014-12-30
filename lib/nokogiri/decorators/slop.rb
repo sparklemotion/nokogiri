@@ -4,25 +4,26 @@ module Nokogiri
     # The Slop decorator implements method missing such that a methods may be
     # used instead of XPath or CSS.  See Nokogiri.Slop
     module Slop
+      # The default XPath search context for Slop
+      XPATH_PREFIX = "./"
+
       ###
       # look for node with +name+.  See Nokogiri.Slop
       def method_missing name, *args, &block
-        prefix = implied_xpath_context
-
         if args.empty?
-          list = xpath("#{prefix}#{name.to_s.sub(/^_/, '')}")
+          list = xpath("#{XPATH_PREFIX}#{name.to_s.sub(/^_/, '')}")
         elsif args.first.is_a? Hash
           hash = args.first
           if hash[:css]
             list = css("#{name}#{hash[:css]}")
           elsif hash[:xpath]
             conds = Array(hash[:xpath]).join(' and ')
-            list = xpath("#{prefix}#{name}[#{conds}]")
+            list = xpath("#{XPATH_PREFIX}#{name}[#{conds}]")
           end
         else
           CSS::Parser.without_cache do
             list = xpath(
-              *CSS.xpath_for("#{name}#{args.first}", :prefix => prefix)
+              *CSS.xpath_for("#{name}#{args.first}", :prefix => XPATH_PREFIX)
             )
           end
         end
@@ -32,9 +33,7 @@ module Nokogiri
       end
 
       def respond_to_missing? name, include_private = false
-        prefix = implied_xpath_context
-
-        list = xpath("#{prefix}#{name.to_s.sub(/^_/, '')}")
+        list = xpath("#{XPATH_PREFIX}#{name.to_s.sub(/^_/, '')}")
 
         !list.empty?
       end

@@ -61,8 +61,8 @@ require 'nokogiri/html/builder'
 #     puts link.content
 #   end
 #
-# See Nokogiri::XML::Node#css for more information about CSS searching.
-# See Nokogiri::XML::Node#xpath for more information about XPath searching.
+# See Nokogiri::XML::Searchable#css for more information about CSS searching.
+# See Nokogiri::XML::Searchable#xpath for more information about XPath searching.
 module Nokogiri
   class << self
     ###

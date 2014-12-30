@@ -57,6 +57,7 @@
   - https://github.com/sparklemotion/nokogiri/issues/370
   - https://github.com/sparklemotion/nokogiri/issues/454
   - https://github.com/sparklemotion/nokogiri/issues/572
+  could we fix this by making DocumentFragment be a subclass of NodeSet?
 
 
 ## Better Syntax for custom XPath function handler
@@ -70,9 +71,6 @@
   * we should standardize on a hash of options for these and other calls
 * what should NodeSet#xpath return?
   * https://github.com/sparklemotion/nokogiri/issues/656
-* also, clean up or unify the implementations of #xpath-and-friends in Node and NodeSet
-  * implementations are very similar, but no shared code :(
-  * decorate nodes in a consistent manner
 
 ## Encoding
 
