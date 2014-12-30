@@ -64,11 +64,9 @@ module Nokogiri
       alias :/ :search
 
       def extract_params params # :nodoc:
-        # Pop off our custom function handler if it exists
-        handler = params.find { |param|
+        handler = params.find do |param|
           ![Hash, String, Symbol].include?(param.class)
-        }
-
+        end
         params -= [handler] if handler
 
         hashes = []

@@ -126,7 +126,7 @@ module Nokogiri
 
         paths, handler, ns, binds = extract_params(args)
 
-        sets = paths.map { |path|
+        sets = paths.map do |path|
           ctx = XPathContext.new(self)
           ctx.register_namespaces(ns)
           path = path.gsub(/xmlns:/, ' :') unless Nokogiri.uses_libxml?
@@ -136,7 +136,7 @@ module Nokogiri
           end if binds
 
           ctx.evaluate(path, handler)
-        }
+        end
         return sets.first if sets.length == 1
 
         NodeSet.new(document) do |combined|
