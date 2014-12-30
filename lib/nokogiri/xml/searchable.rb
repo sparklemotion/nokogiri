@@ -8,7 +8,7 @@ module Nokogiri
     #  of the important behaviors.
     #
     module Searchable
-      # Regular expression used by Node#search to determine if a query
+      # Regular expression used by Searchable#search to determine if a query
       # string is CSS or XPath
       LOOKS_LIKE_XPATH = /^(\.\/|\/|\.\.|\.$)/
       

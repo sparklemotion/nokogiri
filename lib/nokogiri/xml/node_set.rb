@@ -3,7 +3,7 @@ module Nokogiri
     ####
     # A NodeSet contains a list of Nokogiri::XML::Node objects.  Typically
     # a NodeSet is return as a result of searching a Document via
-    # Nokogiri::XML::Node#css or Nokogiri::XML::Node#xpath
+    # Nokogiri::XML::Searchable#css or Nokogiri::XML::Searchable#xpath
     class NodeSet
       include Nokogiri::XML::Searchable
       include Enumerable
@@ -68,7 +68,7 @@ module Nokogiri
       # Search this node set for CSS +rules+. +rules+ must be one or more CSS
       # selectors. For example:
       #
-      # For more information see Nokogiri::XML::Node#css
+      # For more information see Nokogiri::XML::Searchable#css
       def css *args
         rules, handler, ns, binds = extract_params(args)
 
@@ -83,7 +83,7 @@ module Nokogiri
       # Search this node set for XPath +paths+. +paths+ must be one or more XPath
       # queries.
       #
-      # For more information see Nokogiri::XML::Node#xpath
+      # For more information see Nokogiri::XML::Searchable#xpath
       def xpath *args
         paths, handler, ns, binds = extract_params(args)
 

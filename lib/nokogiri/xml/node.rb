@@ -32,7 +32,7 @@ module Nokogiri
     # * Nokogiri::XML::Node#next
     # * Nokogiri::XML::Node#previous
     #
-    # You may search this node's subtree using Node#xpath and Node#css
+    # You may search this node's subtree using Searchable#xpath and Searchable#css
     class Node
       include Nokogiri::XML::PP::Node
       include Nokogiri::XML::Searchable
