@@ -48,15 +48,8 @@ module Nokogiri
       def search *args
         paths, handler, ns, binds = extract_params(args)
 
-        xpaths = paths.map do |path|
-          path = path.to_s
-          if path =~ LOOKS_LIKE_XPATH
-            path
-          else
-            implied_xpath_contexts.map do |implied_xpath_context|
-              CSS.xpath_for(path, :prefix => implied_xpath_context, :ns => ns)
-            end.join(' | ')
-          end
+        xpaths = paths.map(&:to_s).map do |path|
+          (path =~ LOOKS_LIKE_XPATH) ? path : xpath_query_from_css_rule(path, ns)
         end.flatten.uniq
 
         xpath(*(xpaths + [ns, handler, binds].compact))
