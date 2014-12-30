@@ -92,94 +92,10 @@ module Nokogiri
       end
 
       ###
-      # call-seq: xpath *paths, [namespace-bindings, variable-bindings, custom-handler-class]
-      #
-      # Search this node for XPath +paths+. +paths+ must be one or more XPath
-      # queries.
-      #
-      #   node.xpath('.//title')
-      #
-      # A hash of namespace bindings may be appended. For example:
-      #
-      #   node.xpath('.//foo:name', {'foo' => 'http://example.org/'})
-      #   node.xpath('.//xmlns:name', node.root.namespaces)
-      #
-      # A hash of variable bindings may also be appended to the namespace bindings. For example:
-      #
-      #   node.xpath('.//address[@domestic=$value]', nil, {:value => 'Yes'})
-      #
-      # Custom XPath functions may also be defined.  To define custom
-      # functions create a class and implement the function you want
-      # to define.  The first argument to the method will be the
-      # current matching NodeSet.  Any other arguments are ones that
-      # you pass in.  Note that this class may appear anywhere in the
-      # argument list.  For example:
-      #
-      #   node.xpath('.//title[regex(., "\w+")]', Class.new {
-      #     def regex node_set, regex
-      #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
-      #     end
-      #   }.new)
-      #
-      def xpath *args
-        return NodeSet.new(document) unless document
-
-        paths, handler, ns, binds = extract_params(args)
-
-        sets = paths.map do |path|
-          ctx = XPathContext.new(self)
-          ctx.register_namespaces(ns)
-          path = path.gsub(/xmlns:/, ' :') unless Nokogiri.uses_libxml?
-
-          binds.each do |key,value|
-            ctx.register_variable key.to_s, value
-          end if binds
-
-          ctx.evaluate(path, handler)
-        end
-        return sets.first if sets.length == 1
-
-        NodeSet.new(document) do |combined|
-          sets.each do |set|
-            set.each do |node|
-              combined << node
-            end
-          end
-        end
-      end
-
-      ###
       # Search this node's immediate children using CSS selector +selector+
       def > selector
         ns = document.root.namespaces
         xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
-      end
-
-      ###
-      # Search for the first occurrence of +path+.
-      #
-      # Returns nil if nothing is found, otherwise a Node.
-      def at path, ns = document.root ? document.root.namespaces : {}
-        search(path, ns).first
-      end
-      alias :% :at
-
-      ##
-      # Search this node for the first occurrence of XPath +paths+.
-      # Equivalent to <tt>xpath(paths).first</tt>
-      # See Node#xpath for more information.
-      #
-      def at_xpath *paths
-        xpath(*paths).first
-      end
-
-      ##
-      # Search this node for the first occurrence of CSS +rules+.
-      # Equivalent to <tt>css(rules).first</tt>
-      # See Node#css for more information.
-      #
-      def at_css *rules
-        css(*rules).first
       end
 
       ###
