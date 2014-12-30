@@ -149,51 +149,6 @@ module Nokogiri
       end
 
       ###
-      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
-      #
-      # Search this node for CSS +rules+. +rules+ must be one or more CSS
-      # selectors. For example:
-      #
-      #   node.css('title')
-      #   node.css('body h1.bold')
-      #   node.css('div + p.green', 'div#one')
-      #
-      # A hash of namespace bindings may be appended. For example:
-      #
-      #   node.css('bike|tire', {'bike' => 'http://schwinn.com/'})
-      #
-      # Custom CSS pseudo classes may also be defined.  To define
-      # custom pseudo classes, create a class and implement the custom
-      # pseudo class you want defined.  The first argument to the
-      # method will be the current matching NodeSet.  Any other
-      # arguments are ones that you pass in.  For example:
-      #
-      #   node.css('title:regex("\w+")', Class.new {
-      #     def regex node_set, regex
-      #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
-      #     end
-      #   }.new)
-      #
-      # Note that the CSS query string is case-sensitive with regards
-      # to your document type. That is, if you're looking for "H1" in
-      # an HTML document, you'll never find anything, since HTML tags
-      # will match only lowercase CSS queries. However, "H1" might be
-      # found in an XML document, where tags names are case-sensitive
-      # (e.g., "H1" is distinct from "h1").
-      #
-      def css *args
-        rules, handler, ns, binds = extract_params(args)
-
-        xpaths = rules.map { |rule|
-          implied_xpath_contexts.map do |implied_xpath_context|
-            CSS.xpath_for(rule, :prefix => implied_xpath_context, :ns => ns)
-          end.join(' | ')
-        }.flatten.uniq
-
-        xpath(*(xpaths + [ns, handler, binds].compact))
-      end
-
-      ###
       # Search this node's immediate children using CSS selector +selector+
       def > selector
         ns = document.root.namespaces
