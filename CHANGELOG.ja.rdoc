@@ -1,3 +1,20 @@
+=== 1.?.? / unreleased
+
+==== 機能
+
+* Unified Node and NodeSet implementations of #search, #xpath and #css
+
+
+==== バグ修正
+
+* DocumentFragment#search now matches against root nodes. (#1205)
+
+
+==== 互換性
+
+The requirement for Ruby >=1.9.3 is now forced via gemspec. (#1207)
+
+
 === 1.6.5 / 2014年11月26日
 
 ==== 機能
