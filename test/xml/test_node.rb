@@ -1192,6 +1192,33 @@ eoxml
         assert pi_node.processing_instruction?
         assert ! div_node.processing_instruction?
       end
+
+      def test_node_lang
+        document = Nokogiri::XML <<-EOXML
+          <root>
+            <div class='english'  xml:lang='en'>
+              <div class='english_child'>foo</div>
+            </div>
+            <div class='japanese' xml:lang='jp'>bar</div>
+            <div class='unspecified'>bar</div>
+          </root>
+        EOXML
+        assert_equal "en", document.at_css(".english").lang
+        assert_equal "en", document.at_css(".english_child").lang
+        assert_equal "jp", document.at_css(".japanese").lang
+        assert_nil document.at_css(".unspecified").lang
+      end
+
+      def test_set_node_lang
+        document = Nokogiri::XML "<root><div class='subject'>foo</div></root>"
+        subject = document.at_css(".subject")
+
+        subject.lang = "de"
+        assert_equal "de", subject.lang
+
+        subject.lang = "fr"
+        assert_equal "fr", subject.lang
+      end
     end
   end
 end

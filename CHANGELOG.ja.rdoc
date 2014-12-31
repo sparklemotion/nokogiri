@@ -2,7 +2,8 @@
 
 ==== 機能
 
-* Unified Node and NodeSet implementations of #search, #xpath and #css
+* Unified Node and NodeSet implementations of #search, #xpath and #css.
+* Added Node#lang and Node#lang=.
 
 
 ==== バグ修正

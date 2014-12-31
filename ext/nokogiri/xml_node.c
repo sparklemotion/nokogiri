@@ -14,7 +14,7 @@ static void debug_node_dealloc(xmlNodePtr x)
 
 static void mark(xmlNodePtr node)
 {
-  xmlNodePtr doc = node->doc;
+  xmlDocPtr doc = node->doc;
   if(doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE) {
     if(DOC_RUBY_OBJECT_TEST(doc)) {
       rb_gc_mark(DOC_RUBY_OBJECT(doc));
@@ -1012,7 +1012,7 @@ static VALUE node_type(VALUE self)
  *
  * Set the content for this Node
  */
-static VALUE native_content(VALUE self, VALUE content)
+static VALUE set_native_content(VALUE self, VALUE content)
 {
   xmlNodePtr node, child, next ;
   Data_Get_Struct(self, xmlNode, node);
@@ -1035,7 +1035,7 @@ static VALUE native_content(VALUE self, VALUE content)
  *
  * Returns the content for this Node
  */
-static VALUE get_content(VALUE self)
+static VALUE get_native_content(VALUE self)
 {
   xmlNodePtr node;
   xmlChar * content;
@@ -1049,6 +1049,50 @@ static VALUE get_content(VALUE self)
     return rval;
   }
   return Qnil;
+}
+
+/*
+ * call-seq:
+ *  lang=
+ *
+ * Set the language of a node, i.e. the values of the xml:lang attribute.
+ */
+static VALUE set_lang(VALUE self_rb, VALUE lang_rb)
+{
+  xmlNodePtr self ;
+  xmlChar* lang ;
+
+  Data_Get_Struct(self_rb, xmlNode, self);
+  lang = (xmlChar*)StringValuePtr(lang_rb);
+
+  xmlNodeSetLang(self, lang);
+
+  return Qnil ;
+}
+
+/*
+ * call-seq:
+ *  lang
+ *
+ * Searches the language of a node, i.e. the values of the xml:lang attribute or
+ * the one carried by the nearest ancestor.
+ */
+static VALUE get_lang(VALUE self_rb)
+{
+  xmlNodePtr self ;
+  xmlChar* lang ;
+  VALUE lang_rb ;
+
+  Data_Get_Struct(self_rb, xmlNode, self);
+
+  lang = xmlNodeGetLang(self);
+  if (lang) {
+    lang_rb = NOKOGIRI_STR_NEW2(lang);
+    xmlFree(lang);
+    return lang_rb ;
+  }
+
+  return Qnil ;
 }
 
 /* :nodoc: */
@@ -1561,7 +1605,6 @@ void init_xml_node()
   rb_define_method(klass, "next_element", next_element, 0);
   rb_define_method(klass, "previous_element", previous_element, 0);
   rb_define_method(klass, "node_type", node_type, 0);
-  rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "path", path, 0);
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "namespaced_key?", namespaced_key_eh, 2);
@@ -1581,7 +1624,10 @@ void init_xml_node()
   rb_define_method(klass, "create_external_subset", create_external_subset, 3);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
-  rb_define_method(klass, "native_content=", native_content, 1);
+  rb_define_method(klass, "content", get_native_content, 0);
+  rb_define_method(klass, "native_content=", set_native_content, 1);
+  rb_define_method(klass, "lang", get_lang, 0);
+  rb_define_method(klass, "lang=", set_lang, 1);
 
   rb_define_private_method(klass, "process_xincludes", process_xincludes, 1);
   rb_define_private_method(klass, "in_context", in_context, 2);
