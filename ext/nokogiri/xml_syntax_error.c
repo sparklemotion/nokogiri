@@ -7,6 +7,10 @@ void Nokogiri_error_array_pusher(void * ctx, xmlErrorPtr error)
   rb_ary_push(list,  Nokogiri_wrap_xml_syntax_error(error));
 }
 
+void Nokogiri_error_silencer(void * ctx, xmlErrorPtr error)
+{
+}
+
 void Nokogiri_error_raise(void * ctx, xmlErrorPtr error)
 {
   rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));

@@ -621,6 +621,20 @@ eohtml
         copy = original.dup
         assert_equal original_errors, copy.errors
       end
+
+      def test_capturing_nonparse_errors_during_node_copy_between_docs
+        doc1 = Nokogiri::HTML("<div id='unique'>one</div>")
+        doc2 = Nokogiri::HTML("<div id='unique'>two</div>")
+        node1 = doc1.at_css("#unique")
+        node2 = doc2.at_css("#unique")
+
+        original_errors = doc1.errors.dup
+
+        node1.add_child node2
+
+        assert_equal original_errors.length+1, doc1.errors.length
+        assert_match /ID unique already defined/, doc1.errors.last.to_s
+      end
     end
   end
 end
