@@ -355,7 +355,7 @@ eohtml
         File.open(HTML_FILE, 'rb') { |f| temp_html_file.write f.read }
         temp_html_file.close
         temp_html_file.open
-        assert_equal Nokogiri::HTML.parse(File.read(HTML_FILE)).xpath('//div/a').length, 
+        assert_equal Nokogiri::HTML.parse(File.read(HTML_FILE)).xpath('//div/a').length,
           Nokogiri::HTML.parse(temp_html_file).xpath('//div/a').length
       end
 
@@ -450,7 +450,7 @@ eohtml
         assert_equal "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd", html.internal_subset.system_id
         assert_equal "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">", html.to_s[0,97]
       end
-      
+
       def test_content_size
         html = Nokogiri::HTML("<div>\n</div>")
         assert_equal 1, html.content.size
@@ -613,10 +613,10 @@ eohtml
         assert_equal "", Nokogiri::HTML.parse("").text
       end
 
-      def test_capturing_nonparse_errors_during_clone
+      def test_capturing_nonparse_errors_during_document_clone
         # see https://github.com/sparklemotion/nokogiri/issues/1196 for background
         original = Nokogiri::HTML.parse("<div id='unique'></div><div id='unique'></div>")
-        original_errors = original.errors
+        original_errors = original.errors.dup
 
         copy = original.dup
         assert_equal original_errors, copy.errors
@@ -624,4 +624,3 @@ eohtml
     end
   end
 end
-
