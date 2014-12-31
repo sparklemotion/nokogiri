@@ -1156,6 +1156,25 @@ public class XmlNode extends RubyObject {
         return content;
     }
 
+    @JRubyMethod
+    public IRubyObject lang(ThreadContext context) {
+        IRubyObject currentObj = this ;
+        while (!currentObj.isNil()) {
+            XmlNode currentNode = asXmlNode(context, currentObj);
+            IRubyObject lang = currentNode.getAttribute(context.getRuntime(), "xml:lang");
+            if (!lang.isNil()) { return lang ; }
+
+            currentObj = currentNode.parent(context);
+        }
+        return context.nil ;
+    }
+
+    @JRubyMethod(name = "lang=")
+    public IRubyObject set_lang(ThreadContext context, IRubyObject lang) {
+        setAttribute(context, "xml:lang", rubyStringToString(lang));
+        return context.nil ;
+    }
+
     /**
      * @param args {IRubyObject io,
      *              IRubyObject encoding,
@@ -1236,33 +1255,35 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(visibility = Visibility.PRIVATE)
     public IRubyObject set(ThreadContext context, IRubyObject rbkey, IRubyObject rbval) {
         if (node instanceof Element) {
-            String key = rubyStringToString(rbkey);
-            String val = rubyStringToString(rbval);
-            Element element = (Element) node;
-
-            String uri = null;
-            int colonIndex = key.indexOf(":");
-            if (colonIndex > 0) {
-              String prefix = key.substring(0, colonIndex);
-              if (prefix.equals("xml")) {
-                uri = "http://www.w3.org/XML/1998/namespace";
-              } else if (prefix.equals("xmlns")) {
-                uri = "http://www.w3.org/2000/xmlns/";
-              } else {
-                uri = findNamespaceHref(context, prefix);
-              }
-            }
-
-            if (uri != null) {
-              element.setAttributeNS(uri, key, val);
-            } else {
-              element.setAttribute(key, val);
-            }
-            clearXpathContext(node);
+            setAttribute(context, rubyStringToString(rbkey), rubyStringToString(rbval));
             return this;
         } else {
             return rbval;
         }
+    }
+
+    private void setAttribute(ThreadContext context, String key, String val) {
+        Element element = (Element) node;
+
+        String uri = null;
+        int colonIndex = key.indexOf(":");
+        if (colonIndex > 0) {
+            String prefix = key.substring(0, colonIndex);
+            if (prefix.equals("xml")) {
+                uri = "http://www.w3.org/XML/1998/namespace";
+            } else if (prefix.equals("xmlns")) {
+                uri = "http://www.w3.org/2000/xmlns/";
+            } else {
+                uri = findNamespaceHref(context, prefix);
+            }
+        }
+
+        if (uri != null) {
+            element.setAttributeNS(uri, key, val);
+        } else {
+            element.setAttribute(key, val);
+        }
+        clearXpathContext(node);
     }
 
     private String findNamespaceHref(ThreadContext context, String prefix) {
