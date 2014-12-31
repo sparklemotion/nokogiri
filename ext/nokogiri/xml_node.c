@@ -1051,6 +1051,50 @@ static VALUE get_native_content(VALUE self)
   return Qnil;
 }
 
+/*
+ * call-seq:
+ *  lang=
+ *
+ * Set the language of a node, i.e. the values of the xml:lang attribute.
+ */
+static VALUE set_lang(VALUE self_rb, VALUE lang_rb)
+{
+  xmlNodePtr self ;
+  xmlChar* lang ;
+
+  Data_Get_Struct(self_rb, xmlNode, self);
+  lang = (xmlChar*)StringValuePtr(lang_rb);
+
+  xmlNodeSetLang(self, lang);
+
+  return Qnil ;
+}
+
+/*
+ * call-seq:
+ *  lang
+ *
+ * Searches the language of a node, i.e. the values of the xml:lang attribute or
+ * the one carried by the nearest ancestor.
+ */
+static VALUE get_lang(VALUE self_rb)
+{
+  xmlNodePtr self ;
+  xmlChar* lang ;
+  VALUE lang_rb ;
+
+  Data_Get_Struct(self_rb, xmlNode, self);
+
+  lang = xmlNodeGetLang(self);
+  if (lang) {
+    lang_rb = NOKOGIRI_STR_NEW2(lang);
+    xmlFree(lang);
+    return lang_rb ;
+  }
+
+  return Qnil ;
+}
+
 /* :nodoc: */
 static VALUE add_child(VALUE self, VALUE new_child)
 {
@@ -1582,6 +1626,8 @@ void init_xml_node()
   rb_define_method(klass, "line", line, 0);
   rb_define_method(klass, "content", get_native_content, 0);
   rb_define_method(klass, "native_content=", set_native_content, 1);
+  rb_define_method(klass, "lang", get_lang, 0);
+  rb_define_method(klass, "lang=", set_lang, 1);
 
   rb_define_private_method(klass, "process_xincludes", process_xincludes, 1);
   rb_define_private_method(klass, "in_context", in_context, 2);
