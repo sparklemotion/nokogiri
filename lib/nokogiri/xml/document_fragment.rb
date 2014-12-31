@@ -120,6 +120,15 @@ module Nokogiri
         end
       end
 
+      # A list of Nokogiri::XML::SyntaxError found when parsing a document
+      def errors
+        document.errors
+      end
+
+      def errors= things # :nodoc:
+        document.errors = things
+      end
+
       private
 
       # fix for issue 770
