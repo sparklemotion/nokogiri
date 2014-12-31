@@ -1012,7 +1012,7 @@ static VALUE node_type(VALUE self)
  *
  * Set the content for this Node
  */
-static VALUE native_content(VALUE self, VALUE content)
+static VALUE set_native_content(VALUE self, VALUE content)
 {
   xmlNodePtr node, child, next ;
   Data_Get_Struct(self, xmlNode, node);
@@ -1035,7 +1035,7 @@ static VALUE native_content(VALUE self, VALUE content)
  *
  * Returns the content for this Node
  */
-static VALUE get_content(VALUE self)
+static VALUE get_native_content(VALUE self)
 {
   xmlNodePtr node;
   xmlChar * content;
@@ -1561,7 +1561,6 @@ void init_xml_node()
   rb_define_method(klass, "next_element", next_element, 0);
   rb_define_method(klass, "previous_element", previous_element, 0);
   rb_define_method(klass, "node_type", node_type, 0);
-  rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "path", path, 0);
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "namespaced_key?", namespaced_key_eh, 2);
@@ -1581,7 +1580,8 @@ void init_xml_node()
   rb_define_method(klass, "create_external_subset", create_external_subset, 3);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
-  rb_define_method(klass, "native_content=", native_content, 1);
+  rb_define_method(klass, "content", get_native_content, 0);
+  rb_define_method(klass, "native_content=", set_native_content, 1);
 
   rb_define_private_method(klass, "process_xincludes", process_xincludes, 1);
   rb_define_private_method(klass, "in_context", in_context, 2);
