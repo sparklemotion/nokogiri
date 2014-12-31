@@ -623,6 +623,8 @@ eohtml
       end
 
       def test_capturing_nonparse_errors_during_node_copy_between_docs
+        skip("JRuby HTML parse errors are different than libxml2's") if Nokogiri.jruby?
+
         doc1 = Nokogiri::HTML("<div id='unique'>one</div>")
         doc2 = Nokogiri::HTML("<div id='unique'>two</div>")
         node1 = doc1.at_css("#unique")

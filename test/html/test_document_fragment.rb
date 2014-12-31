@@ -278,6 +278,8 @@ module Nokogiri
       end
 
       def test_capturing_nonparse_errors_during_node_copy_between_fragments
+        skip("JRuby HTML parse errors are different than libxml2's") if Nokogiri.jruby?
+
         frag1 = Nokogiri::HTML.fragment("<div id='unique'>one</div>")
         frag2 = Nokogiri::HTML.fragment("<div id='unique'>two</div>")
         node1 = frag1.at_css("#unique")
