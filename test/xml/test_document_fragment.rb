@@ -254,6 +254,78 @@ EOHTML
         doc = Nokogiri::HTML html
         doc.at_css("div").replace("Bar")
       end
+
+      describe "css pseudoselector :last" do
+        attr_reader :html, :fragment
+
+        before do
+          @html = '<p>Lorem ipsum</p><p>Second paragraph</p><div>Not paragraph</div>'
+          @fragment = Nokogiri::XML.fragment html
+        end
+
+        it "works in #css" do
+          assert_equal(1, fragment.css('p:last').size)
+        end
+        it "works in #search" do
+          assert_equal(1, fragment.search('p:last').size)
+        end
+      end
+
+      describe "xpath search" do
+        # https://github.com/sparklemotion/nokogiri/issues/572
+        attr_reader :xml, :fragment
+
+        before do
+          @xml = <<-EOXML.strip
+            <root name="root_1">
+              <descendant name="desc_1_1"/>
+              <descendant name="desc_1_2"/>
+            </root>
+            <root name="root_2">
+              <descendant name="desc_2_1"/>
+              <descendant name="desc_2_2"/>
+            </root>
+          EOXML
+        end
+
+        {
+          "on a fragment parsed in a node context" => lambda do |xml|
+            Nokogiri::XML::Document.new.fragment xml
+          end,
+          "on a bare fragment" => lambda do |xml|
+            Nokogiri::XML::Document.parse("<context></context>").at_css("context").parse xml            
+          end
+        }.each do |desc, factory|
+
+          describe desc do
+            before do
+              @fragment = factory.call(xml)
+            end
+
+            [
+              ['root', 2],
+              ['./root', 2],
+              ['.//root', 2],
+              ['.//*[@name="root_1"]', 1],
+              ['/root', 2],
+              ['/*[@name="root_1"]', 1],
+              ['//root', 2],
+              ['//*[@name="root_1"]', 1],
+              ['./root/descendant', 4],
+              ['.//descendant', 4],
+            ].each do |xpath, expected_n|
+
+              it "returns expected results" do
+                actual_n = fragment.xpath(xpath).length
+                assert_equal(expected_n, actual_n,
+                  "expected #{expected_n} results when searching with '#{xpath}', got #{actual_n}")
+              end
+
+            end
+          end # describe desc
+
+        end
+      end
     end
   end
 end

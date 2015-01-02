@@ -947,6 +947,59 @@ eoxml
         Nokogiri::XML f
         f.close
       end
+
+      describe "css pseudoselector :last" do
+        attr_reader :html, :document
+
+        before do
+          @html = '<p>Lorem ipsum</p><p>Second paragraph</p><div>Not paragraph</div>'
+          @document = Nokogiri::XML html
+        end
+
+        it "works in #css" do
+          assert_equal(1, document.css('p:last').size)
+        end
+
+        it "works in #search" do
+          assert_equal(1, document.search('p:last').size)
+        end
+      end
+
+      describe "flavors of xpath search" do
+        # https://github.com/sparklemotion/nokogiri/issues/572
+        attr_reader :xml, :document
+
+        before do
+          @xml = <<-EOXML.strip
+            <root name="root_1">
+              <descendant name="desc_1_1"/>
+              <descendant name="desc_1_2"/>
+            </root>
+          EOXML
+          @document = Nokogiri::XML::Document.parse xml
+        end
+
+        [
+          ['root', 1],
+          ['./root', 1],
+          ['.//root', 1],
+          ['.//*[@name="root_1"]', 1],
+          ['/root', 1],
+          ['/*[@name="root_1"]', 1],
+          ['//root', 1],
+          ['//*[@name="root_1"]', 1],
+          ['./root/descendant', 2],
+          ['.//descendant', 2],
+        ].each do |xpath, expected_n|
+
+          it "returns expected results" do
+            actual_n = document.xpath(xpath).size
+            assert_equal(expected_n, actual_n,
+              "expected #{expected_n} results when searching with '#{xpath}', got #{actual_n}")
+          end
+
+        end
+      end
     end
   end
 end
