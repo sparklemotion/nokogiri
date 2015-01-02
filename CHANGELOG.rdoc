@@ -10,6 +10,7 @@
 
 * DocumentFragment#search now matches against root nodes. (#1205)
 * (MRI) More fixes related to handling libxml2 parse errors during DocumentFragment#dup. (#1196)
+* (JRuby) Builder now handles namespace hrefs properly when there is a default ns. (#1039)
 
 
 ==== Compatibility Note

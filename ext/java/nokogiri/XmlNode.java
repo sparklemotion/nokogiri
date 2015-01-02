@@ -590,7 +590,18 @@ public class XmlNode extends RubyObject {
                                                 IRubyObject prefix,
                                                 IRubyObject href) {
         String prefixString = rubyStringToString(prefix);
-        String hrefString = rubyStringToString(href);
+        String hrefString ;
+
+        // try to search the namespace first
+        if (href.isNil()) {
+            hrefString = this.findNamespaceHref(context, rubyStringToString(prefix));
+            if (hrefString == null) {
+                return context.nil;
+            }
+            href = context.getRuntime().newString(hrefString);
+        } else {
+            hrefString = rubyStringToString(href);
+        }
 
         NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCacheFormNode(node);
         XmlNamespace cachedNamespace = nsCache.get(prefixString, hrefString);
