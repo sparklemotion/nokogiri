@@ -36,7 +36,7 @@ Example
 -----
 ```ruby
 require 'nokogumbo'
-puts Nokogiri::HTML5.get('http://nokogiri.org').at('h1 abbr')['title']
+puts Nokogiri::HTML5.get('http://nokogiri.org').search('ol li')[2].text
 ```
 
 Notes
