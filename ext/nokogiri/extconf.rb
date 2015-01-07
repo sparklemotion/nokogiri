@@ -436,10 +436,10 @@ else
       ]
     end
   else
-    if darwin_p && !File.exist?('/usr/include/iconv.h')
+    if darwin_p && !have_header('iconv.h')
       abort <<'EOM'.chomp
 -----
-The file "/usr/include/iconv.h" is missing in your build environment,
+The file "iconv.h" is missing in your build environment,
 which means you haven't installed Xcode Command Line Tools properly.
 
 To install Command Line Tools, try running `xcode-select --install` on
