@@ -225,7 +225,7 @@ def process_recipe(name, version, static_p, cross_p)
 ************************************************************************
 IMPORTANT NOTICE:
 
-Buidling Nokogiri with a packaged version of #{name}-#{version}#{'.' if recipe.patch_files.empty?}
+Building Nokogiri with a packaged version of #{name}-#{version}#{'.' if recipe.patch_files.empty?}
     EOS
 
     unless recipe.patch_files.empty?
