@@ -294,7 +294,7 @@ def monkey_patch_mini_portile
       @patch_files.each do |full_path|
         next unless File.exists?(full_path)
         output "Running patch with #{full_path}..."
-        execute('patch', %Q(patch -p1 < #{full_path}))
+        execute('patch', %Q(patch -p1 < "#{full_path}"))
       end
     end
   end
