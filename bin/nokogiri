@@ -20,7 +20,7 @@ opts = OptionParser.new do |opts|
   opts.separator ""
   opts.separator "Options:"
 
-  opts.on("--type [TYPE]", [:xml, :html]) do |v|
+  opts.on("--type type", "Parse as type: xml or html (default: auto)", [:xml, :html]) do |v|
     parse_class = {:xml => Nokogiri::XML, :html => Nokogiri::HTML}[v]
   end
 
