@@ -90,7 +90,7 @@ if File.file?(Nokogiri::CLI.rcfile)
   load Nokogiri::CLI.rcfile
 end
 
-if $stdin.tty?
+if url || $stdin.tty?
   case uri = (URI(url) rescue url)
   when URI::HTTP
     @doc = parse_class.parse(uri.read, url, encoding)
