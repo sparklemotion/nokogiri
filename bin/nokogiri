@@ -9,6 +9,14 @@ require 'nokogiri'
 parse_class = Nokogiri
 encoding = nil
 
+module Nokogiri::CLI
+  class << self
+    attr_accessor :rcfile
+  end
+
+  self.rcfile  = File.expand_path('~/.nokogirirc')
+end
+
 opts = OptionParser.new do |opts|
   opts.banner = "Nokogiri: an HTML, XML, SAX, and Reader parser"
   opts.define_head "Usage: nokogiri <uri|path> [options]"
@@ -22,6 +30,10 @@ opts = OptionParser.new do |opts|
 
   opts.on("--type type", "Parse as type: xml or html (default: auto)", [:xml, :html]) do |v|
     parse_class = {:xml => Nokogiri::XML, :html => Nokogiri::HTML}[v]
+  end
+
+  opts.on("-C file", "Specifies initialization file to load (default #{Nokogiri::CLI.rcfile})") do |v|
+    Nokogiri::CLI.rcfile = v
   end
 
   opts.on("-E", "--encoding encoding", "Read as encoding (default: #{encoding || 'none'})") do |v|
@@ -53,6 +65,10 @@ url = ARGV.shift
 if url.to_s.strip.empty? && $stdin.tty?
   puts opts
   exit 1
+end
+
+if File.file?(Nokogiri::CLI.rcfile)
+  load Nokogiri::CLI.rcfile
 end
 
 if $stdin.tty?
