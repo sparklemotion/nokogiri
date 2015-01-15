@@ -1,13 +1,40 @@
 #!/usr/bin/env ruby
 require 'optparse'
 require 'open-uri'
-require 'irb'
 require 'uri'
 require 'rubygems'
 require 'nokogiri'
+autoload :IRB, 'irb'
 
 parse_class = Nokogiri
 encoding = nil
+
+# This module provides some tunables with the nokogiri CLI for use in
+# your ~/.nokogirirc.
+module Nokogiri::CLI
+  class << self
+    # Specify the console engine, defaulted to IRB.
+    #
+    # call-seq:
+    #   require 'pry'
+    #   Nokogiri::CLI.console = Pry
+    attr_writer :console
+
+    def console
+      case @console
+      when Symbol
+        Kernel.const_get(@console)
+      else
+        @console
+      end
+    end
+
+    attr_accessor :rcfile
+  end
+
+  self.rcfile  = File.expand_path('~/.nokogirirc')
+  self.console = :IRB
+end
 
 opts = OptionParser.new do |opts|
   opts.banner = "Nokogiri: an HTML, XML, SAX, and Reader parser"
@@ -22,6 +49,10 @@ opts = OptionParser.new do |opts|
 
   opts.on("--type type", "Parse as type: xml or html (default: auto)", [:xml, :html]) do |v|
     parse_class = {:xml => Nokogiri::XML, :html => Nokogiri::HTML}[v]
+  end
+
+  opts.on("-C file", "Specifies initialization file to load (default #{Nokogiri::CLI.rcfile})") do |v|
+    Nokogiri::CLI.rcfile = v
   end
 
   opts.on("-E", "--encoding encoding", "Read as encoding (default: #{encoding || 'none'})") do |v|
@@ -55,6 +86,10 @@ if url.to_s.strip.empty? && $stdin.tty?
   exit 1
 end
 
+if File.file?(Nokogiri::CLI.rcfile)
+  load Nokogiri::CLI.rcfile
+end
+
 if $stdin.tty?
   case uri = (URI(url) rescue url)
   when URI::HTTP
@@ -77,7 +112,7 @@ else
     eval @script, binding, '<main>'
   else
     puts "Your document is stored in @doc..."
-    IRB.start
+    Nokogiri::CLI.console.start
   end
 end
 
