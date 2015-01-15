@@ -24,7 +24,7 @@ opts = OptionParser.new do |opts|
     parse_class = {:xml => Nokogiri::XML, :html => Nokogiri::HTML}[v]
   end
 
-  opts.on("-E", "--encoding encoding", "Read as encoding (default #{encoding})") do |v|
+  opts.on("-E", "--encoding encoding", "Read as encoding (default: #{encoding || 'none'})") do |v|
     encoding = v
   end
 
