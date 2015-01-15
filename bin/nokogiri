@@ -1,20 +1,39 @@
 #!/usr/bin/env ruby
 require 'optparse'
 require 'open-uri'
-require 'irb'
 require 'uri'
 require 'rubygems'
 require 'nokogiri'
+autoload :IRB, 'irb'
 
 parse_class = Nokogiri
 encoding = nil
 
+# This module provides some tunables with the nokogiri CLI for use in
+# your ~/.nokogirirc.
 module Nokogiri::CLI
   class << self
+    # Specify the console engine, defaulted to IRB.
+    #
+    # call-seq:
+    #   require 'pry'
+    #   Nokogiri::CLI.console = Pry
+    attr_writer :console
+
+    def console
+      case @console
+      when Symbol
+        Kernel.const_get(@console)
+      else
+        @console
+      end
+    end
+
     attr_accessor :rcfile
   end
 
   self.rcfile  = File.expand_path('~/.nokogirirc')
+  self.console = :IRB
 end
 
 opts = OptionParser.new do |opts|
@@ -93,7 +112,7 @@ else
     eval @script, binding, '<main>'
   else
     puts "Your document is stored in @doc..."
-    IRB.start
+    Nokogiri::CLI.console.start
   end
 end
 
