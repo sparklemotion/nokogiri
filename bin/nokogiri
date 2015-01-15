@@ -48,15 +48,20 @@ opts = OptionParser.new do |opts|
 end
 opts.parse!
 
-uri = ARGV.shift
+url = ARGV.shift
 
-if uri.to_s.strip.empty? && $stdin.tty?
+if url.to_s.strip.empty? && $stdin.tty?
   puts opts
   exit 1
 end
 
 if $stdin.tty?
-  @doc = parse_class.parse(open(uri).read, nil, encoding)
+  case uri = (URI(url) rescue url)
+  when URI::HTTP
+    @doc = parse_class.parse(uri.read, url, encoding)
+  else
+    @doc = parse_class.parse(open(url).read, nil, encoding)
+  end
 else
   @doc = parse_class.parse($stdin, nil, encoding)
 end
