@@ -12,6 +12,7 @@
 * (MRI) More fixes related to handling libxml2 parse errors during DocumentFragment#dup. (#1196)
 * (JRuby) Builder now handles namespace hrefs properly when there is a default ns. (#1039)
 * (JRuby) Clear the XPath cache on attr removal. (#1109)
+* `XML::Comment.new` argument types are now consistent and safe (and documented) across MRI and JRuby. (#1224)
 
 
 ==== 互換性

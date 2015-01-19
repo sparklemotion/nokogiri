@@ -1,10 +1,13 @@
 #include <xml_comment.h>
 
+static ID document_id ;
+
 /*
  * call-seq:
- *  new(document, content)
+ *  new(document_or_node, content)
  *
- * Create a new Comment element on the +document+ with +content+
+ * Create a new Comment element on the +document+ with +content+.
+ * Alternatively, if a +node+ is passed, the +node+'s document is used.
  */
 static VALUE new(int argc, VALUE *argv, VALUE klass)
 {
@@ -16,6 +19,16 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   VALUE rb_node;
 
   rb_scan_args(argc, argv, "2*", &document, &content, &rest);
+
+  if (rb_obj_is_kind_of(document, cNokogiriXmlNode))
+  {
+    document = rb_funcall(document, document_id, 0);
+  }
+  else if (   !rb_obj_is_kind_of(document, cNokogiriXmlDocument)
+           && !rb_obj_is_kind_of(document, cNokogiriXmlDocumentFragment))
+  {
+    rb_raise(rb_eArgError, "first argument must be a XML::Document or XML::Node");
+  }
 
   Data_Get_Struct(document, xmlDoc, xml_doc);
 
@@ -51,4 +64,6 @@ void init_xml_comment()
   cNokogiriXmlComment = klass;
 
   rb_define_singleton_method(klass, "new", new, -1);
+
+  document_id = rb_intern("document");
 }
