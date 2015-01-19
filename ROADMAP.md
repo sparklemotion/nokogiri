@@ -85,3 +85,17 @@ Somebody who knows encoding well should head this up.
 
 It's fundamentally broken, in that we can't stop people from crashing
 their application if they want to use object reference unsafely.
+
+
+## Class methods that require Document
+
+There are a few methods, like `Nokogiri::XML::Comment.new` that
+require a Document object.
+
+We should probably make Document instance methods to wrap this, since
+it's a non-obvious expectation and thus fails as a convention.
+
+So, instead, let's make alternative methods like
+`Nokogiri::XML::Document#new_comment`, and recommend those as the
+proper convention.
+
