@@ -17,6 +17,7 @@
 * (JRuby) Builder now handles namespace hrefs properly when there is a default ns. (#1039)
 * (JRuby) Clear the XPath cache on attr removal. (#1109)
 * `XML::Comment.new` argument types are now consistent and safe (and documented) across MRI and JRuby. (#1224)
+* (MRI) Restoring support for Ruby 1.9.2 that was broken in v1.6.4.1 and v1.6.5. (#1207)
 
 
 ==== Compatibility Note

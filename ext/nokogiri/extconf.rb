@@ -71,10 +71,19 @@ def do_clean
   exit! 0
 end
 
+def nokogiri_try_compile
+  args = if defined?(RUBY_VERSION) && RUBY_VERSION <= "1.9.2"
+           ["int main() {return 0;}"]
+         else
+           ["int main() {return 0;}", "", {werror: true}]
+         end
+end
+
+
 def add_cflags(flags)
   print "checking if the C compiler accepts #{flags}... "
   with_cflags("#{$CFLAGS} #{flags}") do
-    if try_compile("int main() {return 0;}", '', werror: true)
+    if nokogiri_try_compile
       puts 'yes'
       true
     else
