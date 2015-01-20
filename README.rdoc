@@ -59,16 +59,15 @@ The IRC channel is #nokogiri on freenode.
 
   ####
   # Search for nodes by xpath
-  doc.xpath('//h3/a').each do |link|
+  doc.xpath('//h3[@class="r"]/a').each do |link|
     puts link.content
   end
 
   ####
   # Or mix and match.
-  doc.search('h3.r a.l', '//h3/a').each do |link|
+  doc.search('h3.r a', '//h3[@class="r"]/a').each do |link|
     puts link.content
   end
-
 
 == REQUIREMENTS:
 
