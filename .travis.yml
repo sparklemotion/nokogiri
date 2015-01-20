@@ -6,14 +6,10 @@ rvm:
   - ruby-2.0
   - ruby-2.1
   - ruby-2.2
-  - ruby-head
   - jruby-19mode
-  - jruby-1.6.8
   - jruby-1.7.18
-  - jruby-head
   - rbx-19mode
   - rbx-2
-  - rbx-head
 
 os:
   - linux
@@ -25,6 +21,3 @@ jdk:
 matrix:
   allow_failures:
     - os: osx
-    - rvm: ruby-head
-    - rvm: jruby-head
-    - rvm: rbx-head
