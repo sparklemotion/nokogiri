@@ -192,5 +192,21 @@ module Nokogiri
         end
       end
     end
+
+    def test_GH_1042
+      file = File.join(ASSETS_DIR, 'GH_1042.html');
+      html = Nokogiri::HTML(File.read(file))
+      table = html.xpath("//table")[1]
+      trs = table.xpath("tr").drop(1)
+
+      # the jruby inplementation of drop uses dup() on the IRubyObject (which
+      # is NOT the same dup() method on the ruby Object) which produces a
+      # shallow clone. a shallow of valid XMLNode triggers several
+      # NullPointerException on inspect() since loads of invariants
+      # are not set. the fix for GH1042 ensures a proper working clone.
+      assert_nothing_raised do
+        trs.inspect
+      end
+    end
   end
 end
