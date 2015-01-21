@@ -130,6 +130,9 @@ public class XmlSyntaxError extends RubyException {
     // to support older version of JRuby, the annotation is commented out
     @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_9)
     public IRubyObject to_s19(ThreadContext context) {
-        return this.to_s(context);
+        if (exception != null && exception.getMessage() != null)
+            return context.getRuntime().newString(exception.getMessage());
+        else
+            return super.to_s19(context);
     }
 }
