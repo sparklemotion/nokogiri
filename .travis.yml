@@ -8,6 +8,7 @@ rvm:
   - ruby-2.2
   - jruby-19mode
   - jruby-1.7.18
+  - jruby-9.0.0.0.pre1
   - rbx-19mode
   - rbx-2
 
@@ -21,3 +22,4 @@ jdk:
 matrix:
   allow_failures:
     - os: osx
+    - rvm: jruby-9.0.0.0.pre1
