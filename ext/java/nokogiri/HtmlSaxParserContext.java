@@ -226,7 +226,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
     /**
      * Create a new parser context that will read from a raw input
      * stream. Not a JRuby method.  Meant to be run in a separate
-     * thread by XmlSaxPushParser.
+     * thread by HtmlSaxPushParser.
      */
     public static IRubyObject parse_stream(ThreadContext context,
                                            IRubyObject klazz,
