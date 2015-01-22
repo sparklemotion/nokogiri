@@ -1,4 +1,5 @@
 .autotest
+.cross_rubies
 .editorconfig
 .gemtest
 .travis.yml
@@ -231,6 +232,7 @@ lib/nokogiri/xml/sax/parser.rb
 lib/nokogiri/xml/sax/parser_context.rb
 lib/nokogiri/xml/sax/push_parser.rb
 lib/nokogiri/xml/schema.rb
+lib/nokogiri/xml/searchable.rb
 lib/nokogiri/xml/syntax_error.rb
 lib/nokogiri/xml/text.rb
 lib/nokogiri/xml/xpath.rb
@@ -254,12 +256,12 @@ ports/patches/libxslt/0010-Fix-handling-of-UTF-8-strings-in-EXSLT-crypto-module.
 ports/patches/libxslt/0013-Memory-leak-in-xsltCompileIdKeyPattern-error-path.patch
 ports/patches/libxslt/0014-Fix-for-bug-436589.patch
 ports/patches/libxslt/0015-Fix-mkdir-for-mingw.patch
+ports/patches/sort-patches-by-date
 suppressions/README.txt
 suppressions/nokogiri_ree-1.8.7.358.supp
 suppressions/nokogiri_ruby-1.8.7.370.supp
 suppressions/nokogiri_ruby-1.9.2.320.supp
 suppressions/nokogiri_ruby-1.9.3.327.supp
-tasks/nokogiri.org.rb
 tasks/test.rb
 test/css/test_nthiness.rb
 test/css/test_parser.rb
@@ -304,6 +306,7 @@ test/files/xinclude.xml
 test/helper.rb
 test/html/sax/test_parser.rb
 test/html/sax/test_parser_context.rb
+test/html/sax/test_push_parser.rb
 test/html/test_builder.rb
 test/html/test_document.rb
 test/html/test_document_encoding.rb
