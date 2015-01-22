@@ -101,8 +101,6 @@ CROSS_RUBIES = File.read('.cross_rubies').lines.flat_map { |line|
 
 ENV['RUBY_CC_VERSION'] ||= CROSS_RUBIES.map(&:ver).uniq.join(":")
 
-require 'tasks/nokogiri.org'
-
 HOE = Hoe.spec 'nokogiri' do
   developer 'Aaron Patterson', 'aaronp@rubyforge.org'
   developer 'Mike Dalessio',   'mike.dalessio@gmail.com'
