@@ -1,4 +1,6 @@
-=== 1.?.? / unreleased
+=== 1.6.6.1 / 2015-01-22
+
+Note that 1.6.6.0 was not released.
 
 ==== Features
 
