@@ -8,6 +8,7 @@
 * bin/nokogiri now loads ~/.nokogirirc so user can define helper methods, etc.
 * bin/nokogiri can be configured to use Pry instead of IRB by adding a couple of lines to ~/.nokogirirc. (#1198)
 * bin/nokogiri can better handle urls from STDIN (aiding use of xargs). (#1065)
+* JRuby 9K support.
 
 
 ==== バグ修正
