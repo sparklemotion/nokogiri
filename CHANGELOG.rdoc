@@ -23,11 +23,6 @@
 * (JRuby) HtmlSaxPushParser now exists. (#1147) (Thanks, Piotr Szmielew!)
 
 
-==== Compatibility Note
-
-The requirement for Ruby >=1.9.3 is now forced via gemspec. (#1207)
-
-
 === 1.6.5 / 2014-11-26
 
 ==== Features
