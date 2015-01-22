@@ -102,7 +102,7 @@ module Nokogiri
       # (e.g., "H1" is distinct from "h1").
       #
       def css *args
-        rules, handler, ns, binds = extract_params(args)
+        rules, handler, ns, _ = extract_params(args)
 
         css_internal self, rules, handler, ns
       end

@@ -635,7 +635,7 @@ eohtml
         node1.add_child node2
 
         assert_equal original_errors.length+1, doc1.errors.length
-        assert_match /ID unique already defined/, doc1.errors.last.to_s
+        assert_match(/ID unique already defined/, doc1.errors.last.to_s)
       end
     end
   end

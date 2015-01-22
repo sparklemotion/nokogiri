@@ -290,7 +290,7 @@ module Nokogiri
         node1.add_child node2 # we should also not see an error on stderr
 
         assert_equal original_errors.length+1, frag1.errors.length
-        assert_match /ID unique already defined/, frag1.errors.last.to_s
+        assert_match(/ID unique already defined/, frag1.errors.last.to_s)
       end
     end
   end

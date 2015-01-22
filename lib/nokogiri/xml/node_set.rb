@@ -70,7 +70,7 @@ module Nokogiri
       #
       # For more information see Nokogiri::XML::Searchable#css
       def css *args
-        rules, handler, ns, binds = extract_params(args)
+        rules, handler, ns, _ = extract_params(args)
 
         inject(NodeSet.new(document)) do |set, node|
           set += css_internal node, rules, handler, ns

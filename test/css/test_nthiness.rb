@@ -79,7 +79,7 @@ EOF
       end
 
       def test_n
-        assert_result_rows (1..14).to_a, @parser.search("table/tr:nth(n)")
+        assert_result_rows((1..14).to_a, @parser.search("table/tr:nth(n)"))
       end
 
       def test_2n
