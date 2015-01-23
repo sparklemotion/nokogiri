@@ -77,6 +77,7 @@ def nokogiri_try_compile
          else
            ["int main() {return 0;}", "", {werror: true}]
          end
+  try_compile(*args)
 end
 
 
@@ -288,6 +289,10 @@ def lib_a(ldflag)
   end
 end
 
+def using_system_libraries?
+  arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+end
+
 #
 # monkey patches
 #
@@ -357,7 +362,7 @@ if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
 end
 
 case
-when arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+when using_system_libraries?
   message "Building nokogiri using system libraries.\n"
 
   dir_config('zlib')
