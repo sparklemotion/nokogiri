@@ -77,6 +77,7 @@ def nokogiri_try_compile
          else
            ["int main() {return 0;}", "", {werror: true}]
          end
+  try_compile(*args)
 end
 
 
