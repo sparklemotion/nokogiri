@@ -18,7 +18,6 @@ os:
 
 matrix:
   allow_failures:
-    - os: osx
     - rvm: jruby-9.0.0.0.pre1
 
   exclude:
