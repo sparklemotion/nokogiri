@@ -16,10 +16,23 @@ os:
   - linux
   - osx
 
-jdk:
-  - openjdk7
-
 matrix:
   allow_failures:
     - os: osx
     - rvm: jruby-9.0.0.0.pre1
+
+  exclude:
+    - os: osx
+      rvm: ruby-1.9.2
+    - os: osx
+      rvm: ruby-2.2
+    - os: osx
+      rvm: jruby-19mode
+    - os: osx
+      rvm: jruby-1.7.18
+    - os: osx
+      rvm: jruby-9.0.0.0.pre1
+    - os: osx
+      rvm: rbx-19mode
+    - os: osx
+      rvm: rbx-2
