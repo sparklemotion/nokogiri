@@ -1,3 +1,10 @@
+=== 1.6.6.2 / 2015年01月23日
+
+==== Bug fixes
+
+* Fixed installation issue affecting compiler arguments. (#1230)
+
+
 === 1.6.6.1 / 2015年01月22日
 
 Note that 1.6.6.0 was not released.
