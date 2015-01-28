@@ -1,9 +1,10 @@
 = Nokogiri {<img src="https://secure.travis-ci.org/sparklemotion/nokogiri.png?rvm=1.9.3" />}[http://travis-ci.org/sparklemotion/nokogiri] {<img src="https://codeclimate.com/github/sparklemotion/nokogiri.png" />}[https://codeclimate.com/github/sparklemotion/nokogiri] {<img src="https://www.versioneye.com/ruby/nokogiri/badge.png" alt="Dependency Status" />}[https://www.versioneye.com/ruby/nokogiri]
 
-* http://nokogiri.org
-* https://github.com/sparklemotion/nokogiri
-* https://groups.google.com/group/nokogiri-talk
-* https://github.com/sparklemotion/nokogiri/issues
+* tutorials:    http://nokogiri.org
+* installation: http://nokogiri.org/tutorials/installing_nokogiri.html
+* readme:       https://github.com/sparklemotion/nokogiri
+* mailing list: https://groups.google.com/group/nokogiri-talk
+* bug reports:  https://github.com/sparklemotion/nokogiri/issues
 
 == DESCRIPTION:
 
@@ -21,6 +22,25 @@ enough of it.
 
 Nokogiri parses and searches XML/HTML very quickly, and also has
 correctly implemented CSS3 selector support as well as XPath 1.0 support.
+
+== INSTALLATION
+
+If this doesn't work:
+
+  gem install nokogiri
+
+then please, please, please start troubleshooting here:
+
+  * http://www.nokogiri.org/tutorials/installing_nokogiri.html
+
+There are currently 1,237 Stack Overflow questions on Nokogiri
+installation. The vast majority of them are out of date and
+therefore incorrect. Do not use them.
+
+Instead, {tell us}[http://nokogiri.org/tutorials/getting_help.html]
+when the above instructions don't work for you and we will help you
+and improve the documentation.
+
 
 == SUPPORT:
 
