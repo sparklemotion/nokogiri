@@ -1,4 +1,7 @@
 language: ruby
+notifications:
+  slack:
+    secure: eVLEv3Sf5d5gYmKvY6iZE5EnrG6BqlTvnurAY8KnZsNLxis8HGkR5T+CgQnTyqdMuATAhTgpWKf/AiM6oywyAmDjmZXNobQ6/cbE9glFKCKDCXliBkQzzubeL5vUwgTGLLvgSs9LPGsb08L22KLuQALeAfQZSBOkUlXtTH3y8ow=
 rvm:
 - ruby-1.9.2
 - ruby-1.9.3
