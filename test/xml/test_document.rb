@@ -689,6 +689,17 @@ module Nokogiri
         refute_nil doc
       end
 
+      def test_parse_works_with_an_object_that_responds_to_read
+        klass = Class.new do
+          def read *args
+            "<div>foo</div>"
+          end
+        end
+
+        doc = Nokogiri::XML.parse klass.new
+        doc.at_css("div").content.must_equal("foo")
+      end
+
       def test_search_on_empty_documents
         doc = Nokogiri::XML::Document.new
         ns = doc.search('//foo')
