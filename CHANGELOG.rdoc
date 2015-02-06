@@ -1,3 +1,10 @@
+=== unreleased
+
+==== Bug fixes
+
+* [JRuby] Document#parse should support IO objects that respond to #read. (#1124) (Thanks, Jake Byman!)
+
+
 === 1.6.6.2 / 2015-01-23
 
 ==== Bug fixes
