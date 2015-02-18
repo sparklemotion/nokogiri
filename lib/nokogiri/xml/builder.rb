@@ -234,6 +234,9 @@ module Nokogiri
       # A context object for use when the block has no arguments
       attr_accessor :context
 
+      # The detached children when building detached nodes
+      attr_reader :children
+
       attr_accessor :arity # :nodoc:
 
       ###
@@ -255,6 +258,25 @@ module Nokogiri
       end
 
       ###
+      # Create a builder with an existing document.  This is for use when
+      # you have an existing document that you would like to augment with
+      # builder methods.  The builder context created will not have a
+      # parent, so any elements created will need to later be attached
+      # to the document
+      #
+      # For example:
+      #
+      #   doc = Nokogiri::XML::Document.new
+      #   doc << Nokogiri::XML::Builder.detached(doc) do |xml|
+      #     # ... Use normal builder methods here ...
+      #     xml.awesome # add the "awesome" tag below "some_tag"
+      #   end
+      #
+      def self.detached document, &block
+        new({}, nil, document, &block).children
+      end
+
+      ###
       # Create a new Builder object.  +options+ are sent to the top level
       # Document that is being built.
       #
@@ -263,9 +285,13 @@ module Nokogiri
       #   Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       #     ...
       #   end
-      def initialize options = {}, root = nil, &block
+      def initialize options = {}, root = nil, document = nil, &block
 
-        if root
+        if document
+          @doc = document
+          @parent = nil
+          @children = Nokogiri::XML::NodeSet.new(@doc)
+        elsif root
           @doc    = root.document
           @parent = root
         else
@@ -318,15 +344,17 @@ module Nokogiri
       # Build a tag that is associated with namespace +ns+.  Raises an
       # ArgumentError if +ns+ has not been defined higher in the tree.
       def [] ns
-        if @parent != @doc
-          @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
-        end
-        return self if @ns
-
-        @parent.ancestors.each do |a|
-          next if a == doc
-          @ns = a.namespace_definitions.find { |x| x.prefix == ns.to_s }
+        if @parent
+          if @parent != @doc
+            @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
+          end
           return self if @ns
+
+          @parent.ancestors.each do |a|
+            next if a == doc
+            @ns = a.namespace_definitions.find { |x| x.prefix == ns.to_s }
+            return self if @ns
+          end
         end
 
         @ns = { :pending => ns.to_s }
@@ -380,7 +408,11 @@ module Nokogiri
       ###
       # Insert +node+ as a child of the current Node
       def insert(node, &block)
-        node = @parent.add_child(node)
+        if @parent
+          node = @parent.add_child(node)
+        else
+          @children << node
+        end
         if block_given?
           old_parent = @parent
           @parent    = node
