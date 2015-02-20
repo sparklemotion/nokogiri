@@ -826,7 +826,11 @@ static VALUE get(VALUE self, VALUE rattribute)
   if (NIL_P(rattribute)) return Qnil;
 
   Data_Get_Struct(self, xmlNode, node);
-  attribute = strdup(StringValuePtr(rattribute));
+
+  rattribute = StringValue(rattribute);
+  attribute = malloc(RSTRING_LEN(rattribute) + 1);
+  strncpy(attribute, RSTRING_PTR(rattribute), RSTRING_LEN(rattribute));
+  attribute[RSTRING_LEN(rattribute)] = '\0';
 
   colon = strchr(attribute, ':');
   if (colon) {
