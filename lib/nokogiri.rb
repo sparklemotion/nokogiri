@@ -19,6 +19,7 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
     require 'nekohtml.jar'
     require 'nekodtd.jar'
     require 'xercesImpl.jar'
+    require 'xml-apis-1.4.01.jar'
   end
 end
 
