@@ -115,7 +115,7 @@ public class NokogiriNonStrictErrorHandler4NekoHtml extends NokogiriErrorHandler
      * @param e Exception.
      */
     public void warning(String domain, String key, XMLParseException e) {
-        //noop. NekoHtml adds too many warnings.
+        add(e);
     }
 
 }

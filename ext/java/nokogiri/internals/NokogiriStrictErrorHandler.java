@@ -73,7 +73,6 @@ public class NokogiriStrictErrorHandler extends NokogiriErrorHandler {
 
     public void warning(String domain, String key, XMLParseException e) throws XMLParseException {
         if (!nowarning) throw e;
-        if (!usesNekoHtml(domain)) errors.add(e);
+        else add(e);
     }
-
 }
