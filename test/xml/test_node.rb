@@ -106,7 +106,8 @@ module Nokogiri
           options.recover
         end
         assert_equal "<div></div>", nodeset.to_s
-        assert_equal 1, doc.errors.length
+        # current nekohtml does not produce an error anymore
+        assert_equal defined?(JRUBY_VERSION) ? 0 : 1, doc.errors.length
         assert_equal 1, nodeset.length
       end
 
@@ -116,8 +117,14 @@ module Nokogiri
         nodeset = context_node.parse("<div </div>") do |options|
           options.strict
         end
-        assert_equal 1, doc.errors.length
-        assert_equal 0, nodeset.length
+        # current nekohtml does not produce an error anymore
+        if defined? JRUBY_VERSION
+          assert_equal 0, doc.errors.length
+          assert_equal 1, nodeset.length
+        else
+          assert_equal 1, doc.errors.length
+          assert_equal 0, nodeset.length
+        end
       end
 
       def test_parse_error_list
