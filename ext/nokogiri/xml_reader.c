@@ -219,19 +219,6 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   name = StringValue(name) ;
 
   value = xmlTextReaderGetAttribute(reader, (xmlChar*)StringValueCStr(name));
-  if(value == NULL) {
-    /* this section is an attempt to workaround older versions of libxml that
-       don't handle namespaces properly in all attribute-and-friends functions */
-    xmlChar *prefix = NULL ;
-    xmlChar *localname = xmlSplitQName2((xmlChar*)StringValueCStr(name), &prefix);
-    if (localname != NULL) {
-      value = xmlTextReaderLookupNamespace(reader, localname);
-      xmlFree(localname) ;
-    } else {
-      value = xmlTextReaderLookupNamespace(reader, prefix);
-    }
-    xmlFree(prefix);
-  }
   if(value == NULL) return Qnil;
 
   rb_value = NOKOGIRI_STR_NEW2(value);

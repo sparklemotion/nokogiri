@@ -576,6 +576,14 @@ module Nokogiri
         assert(has_child2[1])
         assert(!has_child2[0])
       end
+
+      def test_nonexistent_attribute
+        require 'nokogiri'
+        reader = Nokogiri::XML::Reader("<root xmlns='bob'><el attr='fred' /></root>")
+        reader.read
+        reader.read
+        assert_equal reader.attribute('other'), nil
+      end
     end
   end
 end
