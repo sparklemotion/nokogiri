@@ -187,11 +187,6 @@ static VALUE parse(VALUE self, VALUE string) {
     &kGumboDefaultOptions, RSTRING_PTR(string),
     (size_t) RSTRING_LEN(string)
   );
-
-  VALUE error_list = rb_ary_new();
-  xmlResetLastError();
-  xmlSetStructuredErrorFunc((void *)error_list, Nokogiri_error_array_pusher);
-
   xmlDocPtr doc = xmlNewDoc(CONST_CAST "1.0");
   xmlNodePtr root = walk_tree(doc, &output->root->v.element);
   xmlDocSetRootElement(doc, root);
@@ -204,11 +199,7 @@ static VALUE parse(VALUE self, VALUE string) {
   }
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 
-  xmlSetStructuredErrorFunc(NULL, NULL);
-
-  VALUE wrapped_doc = Nokogiri_wrap_xml_document(Document, doc);
-  rb_iv_set(wrapped_doc, "@errors", error_list);
-  return wrapped_doc;
+  return Nokogiri_wrap_xml_document(Document, doc);
 }
 
 // Initialize the Nokogumbo class and fetch constants we will use later
