@@ -99,6 +99,21 @@ class TestNokogumbo < Minitest::Test
     assert_equal ["xlink:href", "xmlns:xlink"], a.attributes.keys.sort
   end
 
+  def test_template
+    source = <<-EOF.gsub(/^ {6}/, '')
+      <template id="productrow">
+        <tr>
+          <td class="record"></td>
+          <td></td>
+        </tr>
+      </template>
+    EOF
+    doc = Nokogiri::HTML5.fragment(source)
+    template = doc.at('template')
+    assert_equal "productrow", template['id']
+    assert_equal "record", template.at('td')['class']
+  end
+
 private
 
   def buffer
