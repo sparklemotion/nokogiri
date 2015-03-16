@@ -637,6 +637,24 @@ eohtml
         assert_equal original_errors.length+1, doc1.errors.length
         assert_match(/ID unique already defined/, doc1.errors.last.to_s)
       end
+
+      def test_silencing_nonparse_errors_during_attribute_insertion_1262
+        # see https://github.com/sparklemotion/nokogiri/issues/1262
+        #
+        # libxml2 emits a warning when this happens; the JRuby
+        # implementation does not. so rather than capture the error in
+        # doc.errors in a platform-dependent way, I'm opting to have
+        # the error silenced.
+        #
+        # So this test doesn't look meaningful, but we want to avoid
+        # having `ID unique-issue-1262 already defined` emitted to
+        # stderr when running the test suite.
+        #
+        doc = Nokogiri::HTML::Document.new
+        Nokogiri::XML::Element.new("div", doc).set_attribute('id', 'unique-issue-1262')
+        Nokogiri::XML::Element.new("div", doc).set_attribute('id', 'unique-issue-1262')
+        assert_equal 0, doc.errors.length
+      end
     end
   end
 end
