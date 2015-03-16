@@ -32,6 +32,22 @@ module Nokogiri
     # * Nokogiri::XML::Node#next
     # * Nokogiri::XML::Node#previous
     #
+    #
+    # When printing or otherwise emitting a document or a node (and
+    # its subtree), there are a few methods you might want to use:
+    #
+    # * content, text, inner_text, to_str: emit plaintext
+    #  
+    #   These methods will all emit the plaintext version of your
+    #   document, meaning that entities will be replaced (e.g., "&lt;"
+    #   will be replaced with "<"), meaning that any sanitizing will
+    #   likely be un-done in the output.
+    #
+    # * to_s, to_xml, to_html, inner_html: emit well-formed markup
+    #
+    #   These methods will all emit properly-escaped markup, meaning
+    #   that it's suitable for consumption by browsers, parsers, etc.
+    #
     # You may search this node's subtree using Searchable#xpath and Searchable#css
     class Node
       include Nokogiri::XML::PP::Node
