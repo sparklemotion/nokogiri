@@ -425,6 +425,21 @@ END
         assert_equal 1, xml_doc.xpath('//mods:titleInfo',ns_hash).length
         assert_equal 'finnish', xml_doc.xpath('//mods:titleInfo[1]/@lang',ns_hash).first.value
       end
+
+      def test_xpath_after_reset_doc_via_innerhtml
+        xml = <<XML
+<?xml version="1.0" encoding="UTF-8"?>
+<document xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+  <text:section name="Section1">[TEXT_INSIDE_SECTION]</text:section>
+</document>
+XML
+
+        doc = Nokogiri::XML(xml)
+        doc.inner_html = doc.inner_html
+        sections = doc.xpath(".//text:section[@name='Section1']")
+        assert_equal 1, sections.size
+        assert_equal "[TEXT_INSIDE_SECTION]", sections.first.text
+      end
     end
   end
 end
