@@ -58,6 +58,7 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.xml.sax.SAXException;
 
 /**
  * Class for Nokogiri::XML::SAX::PushParser
@@ -136,8 +137,11 @@ public class XmlSaxPushParser extends RubyObject {
 
 
         if (isLast.isTrue()) {
-            IRubyObject document = invoke(context, this, "document");
-            invoke(context, document, "end_document");
+            try {
+                parserTask.parser.getNokogiriHandler().endDocument();
+            } catch (SAXException e) {
+                throw context.getRuntime().newRuntimeError(e.getMessage());
+            }
             terminateTask(context);
         } else {
             try {
