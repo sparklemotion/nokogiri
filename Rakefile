@@ -25,14 +25,18 @@ CrossRuby = Struct.new(:version, :host) {
     @ver ||= version[/\A[^-]+/]
   end
 
+  def minor_ver
+    @minor_ver ||= ver[/\A\d\.\d(?=\.)/]
+  end
+
   def api_ver_suffix
-    case ver
-    when /\A([2-9])\.([0-9])\./
-      "#{$1}#{$2}0"
-    when /\A1\.9\./
+    case minor_ver
+    when nil
+      raise "unsupported version: #{ver}"
+    when '1.9'
       '191'
     else
-      raise "unsupported version: #{ver}"
+      minor_ver.delete('.') << '0'
     end
   end
 
@@ -237,6 +241,11 @@ else
       ext.cross_config_options << "--enable-cross-build"
       ext.cross_compiling do |spec|
         libs = dependencies.map { |name, version| "#{name}-#{version}" }.join(', ')
+
+        spec.required_ruby_version = [
+          '>= 1.9.2',
+          "< #{CROSS_RUBIES.max_by(&:ver).minor_ver.succ}"
+        ]
 
         spec.post_install_message = <<-EOS
 Nokogiri is built with the packaged libraries: #{libs}.
