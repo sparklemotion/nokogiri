@@ -1,11 +1,14 @@
 === unreleased
 
+==== Features
+
+* Cross-built gems now have a proper ruby version requirement. (#1266)
+
 ==== Bug fixes
 
 * [JRuby] Document#parse should support IO objects that respond to #read. (#1124) (Thanks, Jake Byman!)
 * [MRI] Duplicate-id errors when setting the `id` attribute on HTML documents are now silenced. (#1262)
 * [JRuby] SAX parser cuts texts in peices when quare brackets exist. (#1261)
-
 
 === 1.6.6.2 / 2015-01-23
 
