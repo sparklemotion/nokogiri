@@ -473,7 +473,7 @@ EOM
   end
 
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"], static_p, cross_build_p) do |recipe|
-    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.files = ["http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz"]
     recipe.configure_options += [
       "--without-python",
       "--without-readline",
@@ -485,7 +485,7 @@ EOM
   end
 
   libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"], static_p, cross_build_p) do |recipe|
-    recipe.files = ["ftp://ftp.xmlsoft.org/libxml2/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.files = ["http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz"]
     recipe.configure_options += [
       "--without-python",
       "--without-crypto",
