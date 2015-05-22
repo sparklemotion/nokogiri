@@ -216,9 +216,9 @@ module Nokogiri
       HR_DEPR = ['align', 'noshade', 'size', 'width']
       VERSION_ATTR = ['version']
       HTML_CONTENT = ['head', 'body', 'frameset']
-      IFRAME_ATTRS = [COREATTRS, 'longdesc', 'name', 'src', 'frameborder',
-                      'marginwidth', 'marginheight', 'scrolling', 'align',
-                      'height', 'width']
+      IFRAME_ATTRS = [COREATTRS, 'autoplay', 'longdesc', 'name', 'src',
+                      'frameborder', 'marginwidth', 'marginheight', 
+                      'scrolling', 'align', 'height', 'width']
       IMG_ATTRS = [ATTRS, 'longdesc', 'name', 'height', 'width', 'usemap',
                    'ismap']
       EMBED_ATTRS = [COREATTRS, 'align', 'alt', 'border', 'code', 'codebase',
