@@ -41,9 +41,9 @@ opts = OptionParser.new do |opts|
   opts.define_head "Usage: nokogiri <uri|path> [options]"
   opts.separator ""
   opts.separator "Examples:"
-  opts.separator "  nokogiri http://www.ruby-lang.org/"
+  opts.separator "  nokogiri https://www.ruby-lang.org/"
   opts.separator "  nokogiri ./public/index.html"
-  opts.separator "  curl -s http://nokogiri.org | nokogiri -e'p $_.css(\"h1\").length'"
+  opts.separator "  curl -s http://www.nokogiri.org | nokogiri -e'p $_.css(\"h1\").length'"
   opts.separator ""
   opts.separator "Options:"
 
