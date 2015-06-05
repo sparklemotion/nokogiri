@@ -191,7 +191,7 @@ module Nokogiri
       ###
       # Get the inner text of all contained Node objects
       def inner_text
-        collect{|j| j.inner_text}.join('')
+        collect(&:inner_text).join('')
       end
       alias :text :inner_text
 
@@ -215,7 +215,7 @@ module Nokogiri
       ###
       # Convert this NodeSet to a string.
       def to_s
-        map { |x| x.to_s }.join
+        map(&:to_s).join
       end
 
       ###
@@ -296,7 +296,7 @@ module Nokogiri
       ###
       # Return a nicely formated string representation
       def inspect
-        "[#{map { |c| c.inspect }.join ', '}]"
+        "[#{map(&:inspect).join ', '}]"
       end
 
       alias :+ :|

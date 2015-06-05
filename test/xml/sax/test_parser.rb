@@ -136,12 +136,8 @@ module Nokogiri
 </root>
           eoxml
           assert_equal 5, @parser.document.start_elements.length
-          assert @parser.document.start_elements.map { |se|
-            se.first
-          }.include?('foo:bar')
-          assert @parser.document.end_elements.map { |se|
-            se.first
-          }.include?('foo:bar')
+          assert @parser.document.start_elements.map(&:first).include?('foo:bar')
+          assert @parser.document.end_elements.map(&:first).include?('foo:bar')
         end
 
         def test_start_is_called_without_namespace
@@ -151,7 +147,7 @@ module Nokogiri
 </root>
           eoxml
           assert_equal ['root', 'foo:f', 'bar'],
-            @parser.document.start_elements.map { |x| x.first }
+            @parser.document.start_elements.map(&:first)
         end
 
         def test_parser_sets_encoding

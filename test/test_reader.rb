@@ -85,7 +85,7 @@ class TestReader < Nokogiri::TestCase
     reader = Nokogiri::XML::Reader.from_io(io)
     assert_equal false, reader.default?
     assert_equal [false, false, false, false, false, false, false],
-      reader.map { |x| x.default? }
+      reader.map(&:default?)
   end
 
   def test_io
@@ -93,7 +93,7 @@ class TestReader < Nokogiri::TestCase
     reader = Nokogiri::XML::Reader(io)
     assert_equal false, reader.default?
     assert_equal [false, false, false, false, false, false, false],
-      reader.map { |x| x.default? }
+      reader.map(&:default?)
   end
 
   def test_string_io
@@ -105,7 +105,7 @@ class TestReader < Nokogiri::TestCase
     reader = Nokogiri::XML::Reader(io)
     assert_equal false, reader.default?
     assert_equal [false, false, false, false, false, false, false],
-      reader.map { |x| x.default? }
+      reader.map(&:default?)
   end
   
   class ReallyBadIO
@@ -156,7 +156,7 @@ class TestReader < Nokogiri::TestCase
     eoxml
     assert_equal false, reader.default?
     assert_equal [false, false, false, false, false, false, false],
-      reader.map { |x| x.default? }
+      reader.map(&:default?)
   end
 
   def test_value?
@@ -167,7 +167,7 @@ class TestReader < Nokogiri::TestCase
     eoxml
     assert_equal false, reader.value?
     assert_equal [false, true, false, true, false, true, false],
-      reader.map { |x| x.value? }
+      reader.map(&:value?)
   end
 
   def test_read_error_document
@@ -191,7 +191,7 @@ class TestReader < Nokogiri::TestCase
     eoxml
     assert_equal false, reader.attributes?
     assert_equal [true, false, true, false, true, false, true],
-      reader.map { |x| x.attributes? }
+      reader.map(&:attributes?)
   end
 
   def test_attributes
@@ -208,7 +208,7 @@ class TestReader < Nokogiri::TestCase
                   {}, {"awesome"=>"true"}, {}, {"awesome"=>"true"}, {},
                   {'xmlns:tenderlove'=>'http://tenderlovemaking.com/',
                    'xmlns'=>'http://mothership.connection.com/'}],
-      reader.map { |x| x.attributes }
+      reader.map(&:attributes)
   end
 
   def test_attribute_roundtrip
@@ -257,7 +257,7 @@ class TestReader < Nokogiri::TestCase
     </x>
     eoxml
     assert_equal 0, reader.attribute_count
-    assert_equal [1, 0, 1, 0, 0, 0, 0], reader.map { |x| x.attribute_count }
+    assert_equal [1, 0, 1, 0, 0, 0, 0], reader.map(&:attribute_count)
   end
 
   def test_depth
@@ -267,7 +267,7 @@ class TestReader < Nokogiri::TestCase
     </x>
     eoxml
     assert_equal 0, reader.depth
-    assert_equal [0, 1, 1, 2, 1, 1, 0], reader.map { |x| x.depth }
+    assert_equal [0, 1, 1, 2, 1, 1, 0], reader.map(&:depth)
   end
 
   def test_encoding
@@ -278,7 +278,7 @@ class TestReader < Nokogiri::TestCase
     </awesome>
     eoxml
     reader = Nokogiri::XML::Reader.from_memory(string, nil, 'UTF-8')
-    assert_equal ['UTF-8'], reader.map { |x| x.encoding }.uniq
+    assert_equal ['UTF-8'], reader.map(&:encoding).uniq
   end
 
   def test_xml_version
@@ -288,7 +288,7 @@ class TestReader < Nokogiri::TestCase
     </x>
     eoxml
     assert_nil reader.xml_version
-    assert_equal ['1.0'], reader.map { |x| x.xml_version }.uniq
+    assert_equal ['1.0'], reader.map(&:xml_version).uniq
   end
 
   def test_lang
@@ -300,7 +300,7 @@ class TestReader < Nokogiri::TestCase
     eoxml
     assert_nil reader.lang
     assert_equal [nil, nil, "en", "en", "en", nil, "ja", "ja", "ja", nil, nil],
-      reader.map { |x| x.lang }
+      reader.map(&:lang)
   end
 
   def test_value
@@ -311,7 +311,7 @@ class TestReader < Nokogiri::TestCase
     eoxml
     assert_nil reader.value
     assert_equal [nil, "\n      ", nil, "snuggles!", nil, "\n    ", nil],
-      reader.map { |x| x.value }
+      reader.map(&:value)
   end
 
   def test_prefix
@@ -322,7 +322,7 @@ class TestReader < Nokogiri::TestCase
     eoxml
     assert_nil reader.prefix
     assert_equal [nil, nil, "edi", nil, "edi", nil, nil],
-      reader.map { |n| n.prefix }
+      reader.map(&:prefix)
   end
 
   def test_node_type
@@ -332,7 +332,7 @@ class TestReader < Nokogiri::TestCase
     </x>
     eoxml
     assert_equal 0, reader.node_type
-    assert_equal [1, 14, 1, 3, 15, 14, 15], reader.map { |n| n.node_type }
+    assert_equal [1, 14, 1, 3, 15, 14, 15], reader.map(&:node_type)
   end
 
   def test_inner_xml
@@ -383,7 +383,7 @@ class TestReader < Nokogiri::TestCase
                   "http://ecommerce.example.org/schema",
                   nil,
                   nil],
-                  reader.map { |n| n.namespace_uri })
+                  reader.map(&:namespace_uri))
   end
 
   def test_local_name
@@ -394,7 +394,7 @@ class TestReader < Nokogiri::TestCase
     eoxml
     assert_nil reader.local_name
     assert_equal(["x", "#text", "foo", "#text", "foo", "#text", "x"],
-                 reader.map { |n| n.local_name })
+                 reader.map(&:local_name))
   end
 
   def test_name
@@ -405,7 +405,7 @@ class TestReader < Nokogiri::TestCase
     eoxml
     assert_nil reader.name
     assert_equal(["x", "#text", "edi:foo", "#text", "edi:foo", "#text", "x"],
-                 reader.map { |n| n.name })
+                 reader.map(&:name))
   end
 
   def test_base_uri
@@ -433,7 +433,7 @@ class TestReader < Nokogiri::TestCase
                   "http://base.example.org/base/relative",
                   "http://base.example.org/base/",
                   "http://base.example.org/base/"],
-                  reader.map {|n| n.base_uri })
+                  reader.map(&:base_uri))
   end
 
   def test_xlink_href_without_base_uri

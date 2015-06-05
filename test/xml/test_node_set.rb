@@ -660,7 +660,7 @@ module Nokogiri
         employees = @xml.search("//employee")
         inspected = employees.inspect
 
-        assert_equal "[#{employees.map { |x| x.inspect }.join(', ')}]",
+        assert_equal "[#{employees.map(&:inspect).join(', ')}]",
           inspected
       end
 

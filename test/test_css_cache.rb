@@ -6,7 +6,7 @@ class TestCssCache < Nokogiri::TestCase
     super
     @css = "a1 > b2 > c3"
     @parse_result = Nokogiri::CSS.parse(@css)
-    @to_xpath_result = @parse_result.map {|ast| ast.to_xpath}
+    @to_xpath_result = @parse_result.map(&:to_xpath)
     Nokogiri::CSS::Parser.class_eval do
       class << @cache
         alias :old_bracket :[]
