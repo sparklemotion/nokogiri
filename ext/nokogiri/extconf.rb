@@ -179,7 +179,7 @@ def process_recipe(name, version, static_p, cross_p)
     # Prefer host_alias over host in order to use i586-mingw32msvc as
     # correct compiler prefix for cross build, but use host if not set.
     recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
-    recipe.patch_files = Dir[File.join(portsdir, "patches", name, "*.patch")].sort
+    recipe.patch_files = Dir[File.join(ROOT, "patches", name, "*.patch")].sort
 
     yield recipe
 

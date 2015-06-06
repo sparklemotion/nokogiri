@@ -25,9 +25,7 @@ lib/nokogiri/nokogiri.jar
 lib/nokogiri/nokogiri.rb
 lib/nokogiri/nokogiri.so
 pkg
-ports/archives
-ports/*-*-*
-ports/*.installed
+ports
 stash
 tags
 test/*/*_mini.rb
