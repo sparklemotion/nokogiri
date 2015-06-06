@@ -12,7 +12,6 @@ Hoe.add_include_dirs '.'
 
 GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
-CROSS_DIR           =  File.join(File.dirname(__FILE__), 'ports')
 
 def java?
   /java/ === RUBY_PLATFORM
@@ -123,14 +122,9 @@ HOE = Hoe.spec 'nokogiri' do
   self.clean_globs += [
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
-    'lib/nokogiri/[0-9].[0-9]',
-    'ports/*.installed',
-    'ports/{i[3-6]86,x86_64}-{w64-,}mingw32*',
-    'ports/libxml2',
-    'ports/libxslt',
-    # GENERATED_PARSER,
-    # GENERATED_TOKENIZER
+    'lib/nokogiri/[0-9].[0-9]'
   ]
+  self.clean_globs += Dir.glob("ports/*").reject { |d| d =~ %r{/archives$} }
 
   unless java?
     self.extra_deps += [
