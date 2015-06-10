@@ -1055,7 +1055,18 @@ public class XmlNode extends RubyObject {
         if (node instanceof Element) {
             String key = rubyStringToString(rbkey);
             Element element = (Element) node;
-            return context.getRuntime().newBoolean(element.hasAttribute(key));
+            if (element.hasAttribute(key)) {
+                return context.getRuntime().getTrue();
+            } else {
+                NamedNodeMap namedNodeMap = element.getAttributes();
+                for (int i=0; i<namedNodeMap.getLength(); i++) {
+                    Node n = namedNodeMap.item(i);
+                    if (key.equals(n.getLocalName())) {
+                        return context.getRuntime().getTrue();
+                    }
+                }
+            }
+            return context.getRuntime().getFalse();
         } else {
             return context.getRuntime().getNil();
         }
