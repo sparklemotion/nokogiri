@@ -8,9 +8,15 @@ require 'racc/parser.rb'
 
 
 require 'nokogiri/css/parser_extras'
+
 module Nokogiri
   module CSS
     class Parser < Racc::Parser
+
+
+def unescape_css_identifier(identifier)
+  identifier.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})\s?)/){ |m| $1 || [$2.hex].pack('U') }
+end
 ##### State transition tables begin ###
 
 racc_action_table = [
@@ -406,7 +412,7 @@ end
 # reduce 17 omitted
 
 def _reduce_18(val, _values, result)
- result = Node.new(:CLASS_CONDITION, [val[1]]) 
+ result = Node.new(:CLASS_CONDITION, [unescape_css_identifier(val[1])]) 
     result
 end
 
@@ -650,7 +656,7 @@ end
 # reduce 57 omitted
 
 def _reduce_58(val, _values, result)
- result = Node.new(:ID, val) 
+ result = Node.new(:ID, [unescape_css_identifier(val.first)]) 
     result
 end
 

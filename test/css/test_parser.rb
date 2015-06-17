@@ -160,7 +160,7 @@ module Nokogiri
         assert_xpath '//a[position() = 1]',             @parser.parse('a:first-of-type') # no parens
         assert_xpath "//a[contains(concat(' ', normalize-space(@class), ' '), ' b ')][position() = 1]",
                      @parser.parse('a.b:first-of-type') # no parens
-        assert_xpath '//a[position() = 99]',            @parser.parse('a:nth-of-type(99)') 
+        assert_xpath '//a[position() = 99]',            @parser.parse('a:nth-of-type(99)')
         assert_xpath "//a[contains(concat(' ', normalize-space(@class), ' '), ' b ')][position() = 99]",
                      @parser.parse('a.b:nth-of-type(99)')
         assert_xpath '//a[position() = last()]',        @parser.parse('a:last-of-type()')
@@ -259,6 +259,10 @@ module Nokogiri
 
       def test_id
         assert_xpath "//*[@id = 'foo']", @parser.parse('#foo')
+        assert_xpath "//*[@id = 'escape:needed,']", @parser.parse('#escape\:needed\,')
+        assert_xpath "//*[@id = 'escape:needed,']", @parser.parse('#escape\3Aneeded\,')
+        assert_xpath "//*[@id = 'escape:needed,']", @parser.parse('#escape\3A needed\2C')
+        assert_xpath "//*[@id = 'escape:needed']", @parser.parse('#escape\00003Aneeded')
       end
 
       def test_pseudo_class_no_ident
@@ -294,6 +298,8 @@ module Nokogiri
                       @parser.parse('foo.awesome')
         assert_xpath  "//foo//*[contains(concat(' ', normalize-space(@class), ' '), ' awesome ')]",
                       @parser.parse('foo .awesome')
+        assert_xpath  "//foo//*[contains(concat(' ', normalize-space(@class), ' '), ' awe.some ')]",
+                      @parser.parse('foo .awe\.some')
       end
 
       def test_bare_not

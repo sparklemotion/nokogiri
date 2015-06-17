@@ -55,7 +55,7 @@ rule
     | simple_selector
     ;
   class
-    : '.' IDENT { result = Node.new(:CLASS_CONDITION, [val[1]]) }
+    : '.' IDENT { result = Node.new(:CLASS_CONDITION, [unescape_css_identifier(val[1])]) }
     ;
   element_name
     : namespaced_ident
@@ -218,7 +218,7 @@ rule
     | negation
     ;
   attribute_id
-    : HASH { result = Node.new(:ID, val) }
+    : HASH { result = Node.new(:ID, [unescape_css_identifier(val.first)]) }
     ;
   attrib_val_0or1
     : eql_incl_dash IDENT { result = [val.first, val[1]] }
@@ -254,3 +254,8 @@ end
 
 require 'nokogiri/css/parser_extras'
 
+---- inner
+
+def unescape_css_identifier(identifier)
+  identifier.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})\s?)/){ |m| $1 || [$2.hex].pack('U') }
+end
