@@ -40,7 +40,7 @@ module Nokogiri
       end
 
       def to_s
-        super.chomp
+        [super.chomp, line, column].compact.join(', ')
       end
     end
   end
