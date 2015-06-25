@@ -12,6 +12,7 @@ rvm:
 - jruby-19mode
 - jruby-1.7.23
 - jruby-9.0.4.0
+- jruby-head
 - rbx-19mode
 - rbx-2
 
@@ -24,6 +25,7 @@ matrix:
   # https://github.com/travis-ci/travis-ci/issues/5361
   - os: osx
     rvm: 2.3.0
+  - rvm: jruby-head
   exclude:
   - os: osx
     rvm: ruby-1.9.2
