@@ -148,8 +148,8 @@ def iconv_configure_flags
 
       return [
         '--with-iconv=yes',
-        *("CPPFLAGS=#{idirs.map { |dir| '-I' << dir }.join(' ')}".quote if idirs),
-        *("LDFLAGS=#{ldirs.map { |dir| '-L' << dir }.join(' ')}".quote if ldirs),
+        *("CPPFLAGS=#{idirs.map { |dir| '-I' << dir }.join(' ')}" if idirs),
+        *("LDFLAGS=#{ldirs.map { |dir| '-L' << dir }.join(' ')}" if ldirs),
       ]
     end
   }
@@ -164,9 +164,9 @@ def iconv_configure_flags
 
     return [
       '--with-iconv=yes',
-      "CPPFLAGS=#{cflags}".quote,
-      "LDFLAGS=#{ldflags}".quote,
-      "LIBS=#{libs}".quote,
+      "CPPFLAGS=#{cflags}",
+      "LDFLAGS=#{ldflags}",
+      "LIBS=#{libs}",
     ]
   end
 
@@ -190,7 +190,7 @@ def process_recipe(name, version, static_p, cross_p)
     recipe.configure_options.flatten!
 
     recipe.configure_options.delete_if { |option|
-      case option.shellsplit.first
+      case option
       when /\A(\w+)=(.*)\z/
         env[$1] = $2
         true
@@ -221,14 +221,14 @@ def process_recipe(name, version, static_p, cross_p)
 
     if RbConfig::CONFIG['target_cpu'] == 'universal'
       %w[CFLAGS LDFLAGS].each { |key|
-        unless env[key].shellsplit.include?('-arch')
+        unless env[key].include?('-arch')
           env[key] << ' ' << RbConfig::CONFIG['ARCH_FLAG']
         end
       }
     end
 
     recipe.configure_options += env.map { |key, value|
-      "#{key}=#{value}".shellescape
+      "#{key}=#{value}"
     }
 
     message <<-"EOS"
@@ -308,7 +308,7 @@ def monkey_patch_mini_portile
       @patch_files.each do |full_path|
         next unless File.exists?(full_path)
         output "Running patch with #{full_path}..."
-        execute('patch', %Q(patch -p1 < "#{full_path}"))
+        execute('patch', %Q(patch -p1 < #{full_path.shellescape}))
       end
     end
   end
@@ -393,7 +393,10 @@ else
   message "Building nokogiri using packaged libraries.\n"
 
   require 'mini_portile'
-  monkey_patch_mini_portile
+  # RubyInstaller's Devkit doesn't provide patch command
+  unless RUBY_PLATFORM =~ /mingw/i
+    monkey_patch_mini_portile
+  end
   require 'yaml'
 
   static_p = enable_config('static', true) or
@@ -443,9 +446,9 @@ else
     libiconv_recipe = process_recipe("libiconv", dependencies["libiconv"], static_p, cross_build_p) do |recipe|
       recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz"]
       recipe.configure_options += [
-        "CPPFLAGS='-Wall'",
-        "CFLAGS='-O2 -g'",
-        "CXXFLAGS='-O2 -g'",
+        "CPPFLAGS=-Wall",
+        "CFLAGS=-O2 -g",
+        "CXXFLAGS=-O2 -g",
         "LDFLAGS="
       ]
     end
@@ -526,8 +529,8 @@ EOM
       }
 
       # Defining a macro that expands to a C string; double quotes are significant.
-      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".shellescape
-      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATCHES=\"#{recipe.patch_files.map { |path| File.basename(path) }.join(' ')}\"".shellescape
+      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".inspect
+      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATCHES=\"#{recipe.patch_files.map { |path| File.basename(path) }.join(' ')}\"".inspect
 
       case libname
       when 'xml2'
