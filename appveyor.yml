@@ -1,6 +1,7 @@
 install:
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
   - SET PATH=C:\MinGW\bin;%PATH%
+  - SET RAKEOPT=-rdevkit
   - ruby --version
   - gem --version
   - bundle install

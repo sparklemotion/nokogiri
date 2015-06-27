@@ -132,7 +132,7 @@ HOE = Hoe.spec 'nokogiri' do
       # for more details, see:
       # - https://github.com/sparklemotion/nokogiri/issues/1102
       # - https://github.com/luislavena/mini_portile/issues/32
-      ["mini_portile",    "~> 0.6.0"],
+      ["mini_portile",    "~> 0.7.0"],
     ]
   end
 
