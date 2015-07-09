@@ -468,7 +468,7 @@ EOM
 
   unless windows_p
     preserving_globals {
-      have_library('z', 'gzdopen', 'zlib.h')
+      have_library('z', 'gzdopen')
     } or abort 'zlib is missing; necessary for building libxml2'
   end
 
