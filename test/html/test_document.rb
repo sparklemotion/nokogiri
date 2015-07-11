@@ -655,6 +655,32 @@ eohtml
         Nokogiri::XML::Element.new("div", doc).set_attribute('id', 'unique-issue-1262')
         assert_equal 0, doc.errors.length
       end
+
+      def test_script_html_encoding
+        html = Nokogiri::HTML <<-EOHTML
+        <html>
+          <head>
+            <script>var isGreater = 4 > 5;</script>
+          </head>
+          <body></body>
+        </html>
+        EOHTML
+        node = html.xpath("//script").first
+        assert_equal("var isGreater = 4 > 5;", node.inner_html)
+      end
+
+      def test_style_html_encoding
+        html = Nokogiri::HTML <<-EOHTML
+        <html>
+          <head>
+            <style>tr > div { display:block; }</style>
+          </head>
+          <body></body>
+        </html>
+        EOHTML
+        node = html.xpath("//style").first
+        assert_equal("tr > div { display:block; }", node.inner_html)
+      end
     end
   end
 end
