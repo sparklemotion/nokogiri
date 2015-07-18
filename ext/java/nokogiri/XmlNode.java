@@ -1635,10 +1635,6 @@ public class XmlNode extends RubyObject {
 
         Node nextSib = thisNode.getNextSibling();
 
-        if (nextSib != null &&
-            nextSib.getNodeType() == Node.TEXT_NODE &&
-            otherNode.getNodeType() == Node.TEXT_NODE) return;
-
         if (nextSib != null) {
             parent.insertBefore(otherNode, nextSib);
         } else {
