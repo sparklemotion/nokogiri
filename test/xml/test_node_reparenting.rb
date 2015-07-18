@@ -418,6 +418,20 @@ module Nokogiri
             assert_equal "text nodefoo <p></p> bar", xml.root.children.to_html
           end
 
+          it 'should append a text node before an existing non text node' do
+            xml = Nokogiri::XML %Q(<root><p>foo</p><p>bar</p></root>)
+            p = xml.at_css 'p'
+            p.add_next_sibling 'a'
+            assert_equal '<root><p>foo</p>a<p>bar</p></root>', xml.root.to_s
+          end
+
+          it 'should append a text node before an existing text node' do
+            xml = Nokogiri::XML %Q(<root><p>foo</p>after</root>)
+            p = xml.at_css 'p'
+            p.add_next_sibling 'x'
+            assert_equal '<root><p>foo</p>xafter</root>', xml.root.to_s
+          end
+
           describe "with a text node after" do
             it "should not defensively dup the 'after' text node" do
               xml = Nokogiri::XML %Q(<root>before<p></p>after</root>)
