@@ -219,6 +219,16 @@ module Nokogiri
         assert fragment.children.respond_to?(:awesome!), fragment.children.class
       end
 
+      def test_decorator_is_applied_to_empty_set
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+        fragment = Nokogiri::XML::DocumentFragment.new(@xml, "")
+        assert fragment.children.respond_to?(:awesome!), fragment.children.class
+      end
+
       def test_add_node_to_doc_fragment_segfault
         frag = Nokogiri::XML::DocumentFragment.new(@xml, '<p>hello world</p>')
         Nokogiri::XML::Comment.new(frag,'moo')
