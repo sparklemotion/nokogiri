@@ -136,6 +136,24 @@ module Nokogiri
         assert_equal expected, search_xpath
       end
 
+      def test_fragment_css_search_with_whitespace_and_node_removal
+        # The same xml without leading whitespace in front of the first line
+        # does not expose the error. Putting both nodes on the same line
+        # instead also fixes the crash.
+        fragment = Nokogiri::XML::DocumentFragment.parse <<-EOXML
+          <p id="content">hi</p>
+<p>another paragraph</p>
+        EOXML
+        children = fragment.css('p')
+        assert_equal 2, children.length
+        # removing the last node instead does not yield the error. Probably the
+        # node removal leaves around two consecutive text nodes which make the
+        # css search crash?
+        children.first.remove
+        # using xpath('/p') instead works as expected
+        assert_equal 1, fragment.css('p').length
+      end
+
       def test_fragment_search_three_ways
         frag = Nokogiri::XML::Document.new.fragment '<p id="content">foo</p><p id="content">bar</p>'
         expected = frag.xpath('./*[@id = "content"]')
