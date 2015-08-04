@@ -1082,12 +1082,23 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject namespace(ThreadContext context) {
-        if (doc instanceof HtmlDocument) return context.getRuntime().getNil();
+        Ruby runtime = context.getRuntime();
+        if (doc instanceof HtmlDocument) return runtime.getNil();
         NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCacheFormNode(node);
         String prefix = node.getPrefix();
-        XmlNamespace namespace = nsCache.get(prefix == null ? "" : prefix, node.getNamespaceURI());
+        String namespaceURI = node.getNamespaceURI();
+        if (namespaceURI == null || namespaceURI == "") {
+            return runtime.getNil();
+        }
+
+        XmlNamespace namespace = nsCache.get(prefix == null ? "" : prefix, namespaceURI);
         if (namespace == null || namespace.isEmpty()) {
-            return context.getRuntime().getNil();
+          // if it's not in the cache, create an unowned, uncached namespace and
+          // return that. XmlReader can't insert namespaces into the cache, so
+          // this is necessary for XmlReader to work correctly.
+          namespace =
+            (XmlNamespace) NokogiriService.XML_NAMESPACE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Namespace"));
+          namespace.init(null, RubyString.newString(runtime, prefix), RubyString.newString(runtime, namespaceURI), doc);
         }
 
         return namespace;
