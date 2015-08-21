@@ -1,7 +1,3 @@
-<meta charset='utf-8'>
-<head><style> code { font-size: smaller ; } </style>
-<body style="font-size: 10pt; font-family: 'Arial'">
-
 # Nokogiri
 
 [![Build Status](https://travis-ci.org/sparklemotion/nokogiri.svg?branch=master)](https://travis-ci.org/sparklemotion/nokogiri)
