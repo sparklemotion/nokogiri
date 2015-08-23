@@ -7,9 +7,9 @@ CHANGELOG.ja.rdoc
 CHANGELOG.rdoc
 C_CODING_STYLE.rdoc
 Gemfile
+LICENSE.txt
 Manifest.txt
-README.ja.rdoc
-README.rdoc
+README.md
 ROADMAP.md
 Rakefile
 STANDARD_RESPONSES.md

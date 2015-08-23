@@ -44,7 +44,7 @@ If this doesn't work:
 gem install nokogiri
 ```
 
-then please troubleshooting here:
+then please start troubleshooting here:
 
 > http://www.nokogiri.org/tutorials/installing_nokogiri.html
 
