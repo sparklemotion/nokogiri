@@ -128,11 +128,7 @@ HOE = Hoe.spec 'nokogiri' do
 
   unless java?
     self.extra_deps += [
-      # this dependency locked because we're monkey-punching mini_portile.
-      # for more details, see:
-      # - https://github.com/sparklemotion/nokogiri/issues/1102
-      # - https://github.com/luislavena/mini_portile/issues/32
-      ["mini_portile",    "~> 0.7.0"],
+      ["mini_portile",    "~> 0.7.0.rc1"],
     ]
   end
 

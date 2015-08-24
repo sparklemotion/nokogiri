@@ -301,19 +301,6 @@ end
 # https://bugs.ruby-lang.org/issues/8074
 @libdir_basename = "lib" if RUBY_VERSION < '2.1.0'
 
-# Workaround for #1102
-def monkey_patch_mini_portile
-  MiniPortile.class_eval do
-    def patch
-      @patch_files.each do |full_path|
-        next unless File.exists?(full_path)
-        output "Running patch with #{full_path}..."
-        execute('patch', %Q(patch -p1 < #{full_path.shellescape}))
-      end
-    end
-  end
-end
-
 #
 # main
 #
@@ -393,10 +380,6 @@ else
   message "Building nokogiri using packaged libraries.\n"
 
   require 'mini_portile'
-  # RubyInstaller's Devkit doesn't provide patch command
-  unless RUBY_PLATFORM =~ /mingw/i
-    monkey_patch_mini_portile
-  end
   require 'yaml'
 
   static_p = enable_config('static', true) or
