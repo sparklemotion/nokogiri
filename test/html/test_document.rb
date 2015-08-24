@@ -88,9 +88,9 @@ module Nokogiri
       def test_document_parse_method_with_url
         require 'open-uri'
         begin
-          html = open('http://google.com').read
-        rescue
-          skip("This test needs the internet. Skips if no internet available.")
+          html = open('https://www.yahoo.com').read
+        rescue Exception => e
+          skip("This test needs the internet. Skips if no internet available. (#{e})")
         end
         doc = Nokogiri::HTML html ,"http:/foobar.foobar/"
         refute_empty doc.to_s, "Document should not be empty"
