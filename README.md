@@ -1,14 +1,18 @@
 # Nokogiri
 
-[![Build Status](https://travis-ci.org/sparklemotion/nokogiri.svg?branch=master)](https://travis-ci.org/sparklemotion/nokogiri)
-[![Code Climate](https://codeclimate.com/github/sparklemotion/nokogiri.png)](https://codeclimate.com/github/sparklemotion/nokogiri)
-[![Version Eye](https://www.versioneye.com/ruby/nokogiri/badge.png)](https://www.versioneye.com/ruby/nokogiri)
-
 * Installation: http://nokogiri.org/tutorials/installing_nokogiri.html
 * Tutorials:    http://nokogiri.org
 * README:       https://github.com/sparklemotion/nokogiri
 * Mailing List: https://groups.google.com/group/nokogiri-talk
 * Bug Reports:  https://github.com/sparklemotion/nokogiri/issues
+
+
+## Status
+
+[![Travis Build Status](https://travis-ci.org/sparklemotion/nokogiri.svg?branch=master)](https://travis-ci.org/sparklemotion/nokogiri)
+[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/sparklemotion/nokogiri?branch=master&svg=true)](https://ci.appveyor.com/project/flavorjones/nokogiri?branch=master)
+[![Code Climate](https://codeclimate.com/github/sparklemotion/nokogiri.png)](https://codeclimate.com/github/sparklemotion/nokogiri)
+[![Version Eye](https://www.versioneye.com/ruby/nokogiri/badge.png)](https://www.versioneye.com/ruby/nokogiri)
 
 
 ## Description

@@ -148,8 +148,8 @@ def iconv_configure_flags
 
       return [
         '--with-iconv=yes',
-        *("CPPFLAGS=#{idirs.map { |dir| '-I' << dir }.join(' ')}".quote if idirs),
-        *("LDFLAGS=#{ldirs.map { |dir| '-L' << dir }.join(' ')}".quote if ldirs),
+        *("CPPFLAGS=#{idirs.map { |dir| '-I' << dir }.join(' ')}" if idirs),
+        *("LDFLAGS=#{ldirs.map { |dir| '-L' << dir }.join(' ')}" if ldirs),
       ]
     end
   }
@@ -164,13 +164,23 @@ def iconv_configure_flags
 
     return [
       '--with-iconv=yes',
-      "CPPFLAGS=#{cflags}".quote,
-      "LDFLAGS=#{ldflags}".quote,
-      "LIBS=#{libs}".quote,
+      "CPPFLAGS=#{cflags}",
+      "LDFLAGS=#{ldflags}",
+      "LIBS=#{libs}",
     ]
   end
 
   asplode "libiconv"
+end
+
+# When using rake-compiler-dock on Windows, the underlying Virtualbox shared
+# folders don't support symlinks, but libiconv expects it for a build on
+# Linux. We work around this limitation by using the temp dir for cooking.
+def chdir_for_build
+  build_dir = ENV['RCD_HOST_RUBY_PLATFORM'].to_s =~ /mingw|mswin|cygwin/ ? '/tmp' : '.'
+  Dir.chdir(build_dir) do
+    yield
+  end
 end
 
 def process_recipe(name, version, static_p, cross_p)
@@ -190,7 +200,7 @@ def process_recipe(name, version, static_p, cross_p)
     recipe.configure_options.flatten!
 
     recipe.configure_options.delete_if { |option|
-      case option.shellsplit.first
+      case option
       when /\A(\w+)=(.*)\z/
         env[$1] = $2
         true
@@ -221,14 +231,14 @@ def process_recipe(name, version, static_p, cross_p)
 
     if RbConfig::CONFIG['target_cpu'] == 'universal'
       %w[CFLAGS LDFLAGS].each { |key|
-        unless env[key].shellsplit.include?('-arch')
+        unless env[key].include?('-arch')
           env[key] << ' ' << RbConfig::CONFIG['ARCH_FLAG']
         end
       }
     end
 
     recipe.configure_options += env.map { |key, value|
-      "#{key}=#{value}".shellescape
+      "#{key}=#{value}"
     }
 
     message <<-"EOS"
@@ -275,7 +285,9 @@ versions of libxml2 provided by OS/package vendors.
 
     checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
-      recipe.cook
+      chdir_for_build do
+        recipe.cook
+      end
       FileUtils.touch checkpoint
     end
     recipe.activate
@@ -300,19 +312,6 @@ end
 # Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
 # https://bugs.ruby-lang.org/issues/8074
 @libdir_basename = "lib" if RUBY_VERSION < '2.1.0'
-
-# Workaround for #1102
-def monkey_patch_mini_portile
-  MiniPortile.class_eval do
-    def patch
-      @patch_files.each do |full_path|
-        next unless File.exists?(full_path)
-        output "Running patch with #{full_path}..."
-        execute('patch', %Q(patch -p1 < "#{full_path}"))
-      end
-    end
-  end
-end
 
 #
 # main
@@ -393,7 +392,6 @@ else
   message "Building nokogiri using packaged libraries.\n"
 
   require 'mini_portile'
-  monkey_patch_mini_portile
   require 'yaml'
 
   static_p = enable_config('static', true) or
@@ -443,9 +441,9 @@ else
     libiconv_recipe = process_recipe("libiconv", dependencies["libiconv"], static_p, cross_build_p) do |recipe|
       recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz"]
       recipe.configure_options += [
-        "CPPFLAGS='-Wall'",
-        "CFLAGS='-O2 -g'",
-        "CXXFLAGS='-O2 -g'",
+        "CPPFLAGS=-Wall",
+        "CFLAGS=-O2 -g",
+        "CXXFLAGS=-O2 -g",
         "LDFLAGS="
       ]
     end
@@ -526,8 +524,8 @@ EOM
       }
 
       # Defining a macro that expands to a C string; double quotes are significant.
-      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".shellescape
-      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATCHES=\"#{recipe.patch_files.map { |path| File.basename(path) }.join(' ')}\"".shellescape
+      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".inspect
+      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATCHES=\"#{recipe.patch_files.map { |path| File.basename(path) }.join(' ')}\"".inspect
 
       case libname
       when 'xml2'
