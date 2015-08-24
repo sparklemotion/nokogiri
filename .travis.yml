@@ -15,8 +15,6 @@ os:
 - linux
 - osx
 matrix:
-  allow_failures:
-  - rvm: jruby-9.0.0.0
   exclude:
   - os: osx
     rvm: ruby-1.9.2
