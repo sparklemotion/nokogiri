@@ -1,25 +1,27 @@
 language: ruby
+
 sudo: false
+
 rvm:
 - ruby-1.9.2
 - ruby-1.9.3
-- ruby-2.0
-- ruby-2.1
-- ruby-2.2
+- ruby-2.0.0
+- ruby-2.1.7
+- ruby-2.2.2
 - jruby-19mode
 - jruby-1.7.22
 - jruby-9.0.0.0
 - rbx-19mode
 - rbx-2
+
 os:
 - linux
 - osx
+
 matrix:
   exclude:
   - os: osx
     rvm: ruby-1.9.2
-  - os: osx
-    rvm: ruby-2.2
   - os: osx
     rvm: jruby-19mode
   - os: osx
@@ -30,6 +32,7 @@ matrix:
     rvm: rbx-19mode
   - os: osx
     rvm: rbx-2
+
 notifications:
   irc:
     channels:
