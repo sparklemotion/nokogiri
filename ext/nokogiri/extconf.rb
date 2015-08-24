@@ -173,6 +173,16 @@ def iconv_configure_flags
   asplode "libiconv"
 end
 
+# When using rake-compiler-dock on Windows, the underlying Virtualbox shared
+# folders don't support symlinks, but libiconv expects it for a build on
+# Linux. We work around this limitation by using the temp dir for cooking.
+def chdir_for_build
+  build_dir = ENV['RCD_HOST_RUBY_PLATFORM'].to_s =~ /mingw|mswin|cygwin/ ? '/tmp' : '.'
+  Dir.chdir(build_dir) do
+    yield
+  end
+end
+
 def process_recipe(name, version, static_p, cross_p)
   MiniPortile.new(name, version).tap do |recipe|
     recipe.target = portsdir = File.join(ROOT, "ports")
@@ -275,7 +285,9 @@ versions of libxml2 provided by OS/package vendors.
 
     checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
-      recipe.cook
+      chdir_for_build do
+        recipe.cook
+      end
       FileUtils.touch checkpoint
     end
     recipe.activate
