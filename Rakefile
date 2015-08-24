@@ -195,7 +195,6 @@ else
     Rake::ExtensionCompiler.mingw_host
     mingw_available = true
   rescue
-    puts "WARNING: cross compilation not available: #{$!}"
     mingw_available = false
   end
   require "rake/extensiontask"
