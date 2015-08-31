@@ -14,6 +14,7 @@ ROADMAP.md
 Rakefile
 STANDARD_RESPONSES.md
 Y_U_NO_GEMSPEC.md
+appveyor.yml
 bin/nokogiri
 build_all
 dependencies.yml
