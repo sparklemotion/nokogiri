@@ -1,4 +1,11 @@
-=== 未リリース
+=== 1.6.7.rc1 / 2015年08月31日
+
+==== 機能
+
+* Cross-built gems now have a proper ruby version requirement. (#1266)
+* Ruby 2.2.x is supported on Windows.
+* Native build is supported on Windows.
+
 
 ==== バグ修正
 

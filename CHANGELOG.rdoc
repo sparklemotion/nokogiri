@@ -1,8 +1,11 @@
-=== unreleased
+=== 1.6.7.rc1 / 2015-08-31
 
 ==== Features
 
 * Cross-built gems now have a proper ruby version requirement. (#1266)
+* Ruby 2.2.x is supported on Windows.
+* Native build is supported on Windows.
+
 
 ==== Bug fixes
 
@@ -10,6 +13,7 @@
 * [MRI] Duplicate-id errors when setting the `id` attribute on HTML documents are now silenced. (#1262)
 * [JRuby] SAX parser cuts texts in peices when quare brackets exist. (#1261)
 * [JRuby] Namespaced attributes aren't removed by remove_attribute. (#1299)
+
 
 === 1.6.6.2 / 2015-01-23
 
