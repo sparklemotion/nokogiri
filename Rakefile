@@ -128,7 +128,7 @@ HOE = Hoe.spec 'nokogiri' do
 
   unless java?
     self.extra_deps += [
-      ["mini_portile",    "~> 0.7.0.rc2"],
+      ["mini_portile",    "~> 0.7.0.rc4"],
     ]
   end
 
