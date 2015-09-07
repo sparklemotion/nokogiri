@@ -391,6 +391,7 @@ when using_system_libraries?
 else
   message "Building nokogiri using packaged libraries.\n"
 
+  # Please keep this version requirement in sync with that of the Rakefile.
   gem 'mini_portile', '~>0.7.0.rc5'
   require 'mini_portile2'
   require 'yaml'
