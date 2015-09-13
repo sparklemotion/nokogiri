@@ -28,8 +28,13 @@ module Nokogiri
 
       # issue #1005
       def test_strict_parsing_empty_doc_should_raise_exception
-        assert_raises(SyntaxError) do
-          Nokogiri::XML(StringIO.new('')) { |c| c.strict }
+        ["", " "].each do |empty_string|
+          assert_raises(SyntaxError, "empty string '#{empty_string}' should raise a SyntaxError") do
+            Nokogiri::XML(empty_string) { |c| c.strict }
+          end
+          assert_raises(SyntaxError, "StringIO of '#{empty_string}' should raise a SyntaxError") do
+            Nokogiri::XML(StringIO.new(empty_string)) { |c| c.strict }
+          end
         end
       end
 
