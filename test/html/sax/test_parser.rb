@@ -29,9 +29,9 @@ module Nokogiri
           # Take a look at the comment in test_parse_document to know
           # a possible reason to this difference.
           if Nokogiri.uses_libxml?
-            assert_equal 1110, @parser.document.end_elements.length
+            assert_equal 1111, @parser.document.end_elements.length
           else
-            assert_equal 1119, @parser.document.end_elements.length
+            assert_equal 1120, @parser.document.end_elements.length
           end
         end
 
