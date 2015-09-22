@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -71,7 +71,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Class for Nokogiri::XML::Schema
- * 
+ *
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
@@ -82,7 +82,7 @@ public class XmlSchema extends RubyObject {
     public XmlSchema(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
     }
-    
+
     /**
      * Create and return a copy of this object.
      *
@@ -100,7 +100,7 @@ public class XmlSchema extends RubyObject {
         schemaFactory.setErrorHandler(new IgnoreSchemaErrorsErrorHandler());
         return schemaFactory.newSchema(source);
     }
-    
+
     private void setValidator(Validator validator) {
         this.validator = validator;
     }
@@ -109,7 +109,7 @@ public class XmlSchema extends RubyObject {
         Ruby runtime = context.getRuntime();
         XmlSchema xmlSchema = (XmlSchema) NokogiriService.XML_SCHEMA_ALLOCATOR.allocate(runtime, klazz);
         xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
-        
+
         try {
             Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory(), context.getRuntime().getInstanceConfig().getScriptFileName());
             xmlSchema.setValidator(schema.newValidator());
@@ -137,14 +137,14 @@ public class XmlSchema extends RubyObject {
         DOMSource source = new DOMSource(doc.getDocument());
 
         IRubyObject uri = doc.url(context);
-        
+
         if (!uri.isNil()) {
             source.setSystemId(uri.convertToString().asJavaString());
         }
-        
+
         return getSchema(context, (RubyClass)klazz, source);
     }
-    
+
     private static IRubyObject getSchema(ThreadContext context, RubyClass klazz, Source source) {
         String moduleName = klazz.getName();
         if ("Nokogiri::XML::Schema".equals(moduleName)) {
@@ -165,17 +165,17 @@ public class XmlSchema extends RubyObject {
     public IRubyObject validate_document(ThreadContext context, IRubyObject document) {
         return validate_document_or_file(context, (XmlDocument)document);
     }
-    
+
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject validate_file(ThreadContext context, IRubyObject file) {
         Ruby ruby = context.getRuntime();
 
         XmlDomParserContext ctx = new XmlDomParserContext(ruby, RubyFixnum.newFixnum(ruby, 1L));
-        ctx.setInputSource(context, file, context.getRuntime().getNil());
+        ctx.setInputSourceFile(context, file);
         XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(ruby, "Nokogiri::XML::Document"), ruby.getNil());
         return validate_document_or_file(context, xmlDocument);
     }
-    
+
     IRubyObject validate_document_or_file(ThreadContext context, XmlDocument xmlDocument) {
         RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
         ErrorHandler errorHandler = new SchemaErrorHandler(context.getRuntime(), errors);
@@ -193,22 +193,22 @@ public class XmlSchema extends RubyObject {
 
         return errors;
     }
-    
+
     protected void setErrorHandler(ErrorHandler errorHandler) {
         validator.setErrorHandler(errorHandler);
     }
-    
+
     protected void validate(Document document) throws SAXException, IOException {
         DOMSource docSource = new DOMSource(document);
         validator.validate(docSource);
     }
-    
+
     private class SchemaResourceResolver implements LSResourceResolver {
         SchemaLSInput lsInput = new SchemaLSInput();
         String currentDir;
         String scriptFileName;
         //String defaultURI;
-        
+
         SchemaResourceResolver(String currentDir, String scriptFileName, Object input) {
             this.currentDir = currentDir;
             this.scriptFileName = scriptFileName;
@@ -231,7 +231,7 @@ public class XmlSchema extends RubyObject {
             return lsInput;
         }
     }
-    
+
     private class SchemaLSInput implements LSInput {
         protected String fPublicId;
         protected String fSystemId;
@@ -241,7 +241,7 @@ public class XmlSchema extends RubyObject {
         protected String fData;
         protected String fEncoding;
         protected boolean fCertifiedText = false;
-        
+
         @Override
         public String getBaseURI() {
             return fBaseSystemId;
@@ -289,7 +289,7 @@ public class XmlSchema extends RubyObject {
 
         @Override
         public void setByteStream(InputStream byteStream) {
-            fByteStream = byteStream;   
+            fByteStream = byteStream;
         }
 
         @Override
@@ -321,6 +321,6 @@ public class XmlSchema extends RubyObject {
         public void setSystemId(String sysId) {
             fSystemId = sysId;
         }
-        
+
     }
 }
