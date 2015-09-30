@@ -57,7 +57,6 @@ void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr c
   VALUE node_set = Qnil;
   xmlNodeSetPtr xml_node_set = NULL;
   xmlXPathObjectPtr obj;
-  nokogiriNodeSetTuple *node_set_tuple;
 
   assert(ctx->context->doc);
   assert(DOC_RUBY_OBJECT_TEST(ctx->context->doc));
@@ -123,25 +122,23 @@ void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr c
     case T_ARRAY:
       {
         VALUE args[2];
-	args[0] = doc;
-	args[1] = result;
+        args[0] = doc;
+        args[1] = result;
         node_set = rb_class_new_instance(2, args, cNokogiriXmlNodeSet);
-        Data_Get_Struct(node_set, nokogiriNodeSetTuple, node_set_tuple);
-	xml_node_set = node_set_tuple->node_set;
+        Data_Get_Struct(node_set, xmlNodeSet, xml_node_set);
         xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
       }
-      break;
+    break;
     case T_DATA:
       if(rb_obj_is_kind_of(result, cNokogiriXmlNodeSet)) {
-        Data_Get_Struct(result, nokogiriNodeSetTuple, node_set_tuple);
-	xml_node_set = node_set_tuple->node_set;
+        Data_Get_Struct(result, xmlNodeSet, xml_node_set);
         /* Copy the node set, otherwise it will get GC'd. */
         xmlXPathReturnNodeSet(ctx, xmlXPathNodeSetMerge(NULL, xml_node_set));
         break;
       }
     default:
       rb_raise(rb_eRuntimeError, "Invalid return type");
-  }
+    }
 }
 
 static void ruby_funcall(xmlXPathParserContextPtr ctx, int nargs)
