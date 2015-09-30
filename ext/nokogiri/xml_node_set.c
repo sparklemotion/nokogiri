@@ -49,13 +49,10 @@ static void deallocate(nokogiriNodeSetTuple *tuple)
     return;
 
   NOKOGIRI_DEBUG_START(node_set) ;
-  st_foreach(tuple->namespaces, dealloc_namespace, 0);
-
   if (node_set->nodeTab != NULL)
     xmlFree(node_set->nodeTab);
 
   xmlFree(node_set);
-  st_free_table(tuple->namespaces);
   free(tuple);
   NOKOGIRI_DEBUG_END(node_set) ;
 }
@@ -420,22 +417,10 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
 			     deallocate, tuple);
 
   tuple->node_set = node_set;
-  tuple->namespaces = st_init_numtable();
 
   if (!NIL_P(document)) {
     rb_iv_set(new_set, "@document", document);
     rb_funcall(document, decorate, 1, new_set);
-  }
-
-  if (node_set && node_set->nodeTab) {
-    for (i = 0; i < node_set->nodeNr; i++) {
-      cur = node_set->nodeTab[i];
-      if (cur && cur->type == XML_NAMESPACE_DECL) {
-        ns = (xmlNsPtr)cur;
-        if (ns->next && ns->next->type != XML_NAMESPACE_DECL)
-          st_insert(tuple->namespaces, (st_data_t)cur, (st_data_t)0);
-      }
-    }
   }
 
   return new_set ;
