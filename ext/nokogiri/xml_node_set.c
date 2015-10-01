@@ -3,15 +3,15 @@
 
 static ID decorate ;
 
-static int dealloc_namespace(xmlNsPtr ns)
+
+static void Check_Node_Set_Node_Type(VALUE node)
 {
-  if (ns->href)
-    xmlFree((xmlChar *)ns->href);
-  if (ns->prefix)
-    xmlFree((xmlChar *)ns->prefix);
-  xmlFree(ns);
-  return ST_CONTINUE;
+  if (!(rb_obj_is_kind_of(node, cNokogiriXmlNode) ||
+        rb_obj_is_kind_of(node, cNokogiriXmlNamespace))) {
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+  }
 }
+
 
 static void deallocate(xmlNodeSetPtr node_set)
 {
@@ -89,8 +89,7 @@ static VALUE push(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
-  if(!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+  Check_Node_Set_Node_Type(rb_node);
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
@@ -114,8 +113,7 @@ delete(VALUE self, VALUE rb_node)
   xmlNodePtr node;
   int j ;
 
-  if (!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+  Check_Node_Set_Node_Type(rb_node);
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
@@ -171,8 +169,7 @@ static VALUE include_eh(VALUE self, VALUE rb_node)
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
-  if(!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+  Check_Node_Set_Node_Type(rb_node);
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
