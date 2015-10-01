@@ -2,6 +2,7 @@
 #include <libxml/xpathInternals.h>
 
 static ID decorate ;
+static void xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val);
 
 
 static void Check_Node_Set_Node_Type(VALUE node)
@@ -119,17 +120,7 @@ delete(VALUE self, VALUE rb_node)
   Data_Get_Struct(rb_node, xmlNode, node);
 
   if (xmlXPathNodeSetContains(node_set, node)) {
-    /*
-     * this code is lifted from xmlXPathNodeSetDel(), and we're doing it because
-     * we want to avoid freeing the namespace nodes.
-     */
-    for (j = 0; j < node_set->nodeNr; j++)
-	    if (node_set->nodeTab[j] == node) break;
-
-    node_set->nodeNr--;
-    for (;j < node_set->nodeNr;j++)
-	    node_set->nodeTab[j] = node_set->nodeTab[j + 1];
-    node_set->nodeTab[node_set->nodeNr] = NULL;
+    xpath_node_set_del(node_set, node);
     return rb_node;
   }
   return Qnil ;
@@ -223,7 +214,7 @@ static VALUE minus(VALUE self, VALUE rb_other)
 
   new = xmlXPathNodeSetMerge(NULL, node_set);
   for (j = 0 ; j < other->nodeNr ; ++j) {
-    xmlXPathNodeSetDel(new, other->nodeTab[j]); /* TODO namespace delete issue! */
+    xpath_node_set_del(new, other->nodeTab[j]);
   }
 
   return Nokogiri_wrap_xml_node_set(new, rb_iv_get(self, "@document"));
@@ -396,8 +387,41 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
     rb_funcall(document, decorate, 1, new_set);
   }
 
+  rb_iv_set(new_set, "@namespace_cache", rb_ary_new());
+  reify_node_set_namespaces(new_set);
+
   return new_set ;
 }
+
+static void xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val)
+{
+  /*
+   * as mentioned a few times above, we do not want to free xmlNs structs
+   * outside of the Namespace lifecycle.
+   *
+   * xmlXPathNodeSetDel() frees xmlNs structs, and so here we reproduce that
+   * function with the xmlNs logic.
+   */
+  int i;
+
+  if (cur == NULL) return;
+  if (val == NULL) return;
+
+  /*
+   * find node in nodeTab
+   */
+  for (i = 0;i < cur->nodeNr;i++)
+    if (cur->nodeTab[i] == val) break;
+
+  if (i >= cur->nodeNr) {	/* not found */
+    return;
+  }
+  cur->nodeNr--;
+  for (;i < cur->nodeNr;i++)
+    cur->nodeTab[i] = cur->nodeTab[i + 1];
+  cur->nodeTab[cur->nodeNr] = NULL;
+}
+
 
 VALUE cNokogiriXmlNodeSet ;
 void init_xml_node_set(void)
