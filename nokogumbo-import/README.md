@@ -39,6 +39,12 @@ require 'nokogumbo'
 puts Nokogiri::HTML5.get('http://nokogiri.org').search('ol li')[2].text
 ```
 
+Use `.to_html` instead of `.to_s` when parsing and serializing multiple times
+```
+require 'nokogumbo'
+Nokogiri::HTML5.parse(Nokogiri::HTML5.parse('<div></div> a').to_html).to_html
+```
+
 Notes
 -----
 
