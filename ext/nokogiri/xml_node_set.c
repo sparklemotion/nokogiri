@@ -388,6 +388,10 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
 {
   VALUE new_set ;
 
+  if (node_set == NULL) {
+    node_set = xmlXPathNodeSetCreate(NULL);
+  }
+
   new_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, 0, deallocate, node_set);
 
   if (!NIL_P(document)) {
