@@ -2,6 +2,34 @@
 
 VALUE cNokogiriXmlNamespace ;
 
+static void dealloc_namespace(xmlNsPtr ns)
+{
+  /*
+   *
+   * this deallocator is only used for namespace nodes that are part of an xpath
+   * node set.
+   *
+   * see Nokogiri_wrap_xml_namespace() for more details.
+   *
+   */
+  NOKOGIRI_DEBUG_START(ns) ;
+  if (ns->href) {
+    xmlFree((xmlChar *)ns->href);
+  }
+  if (ns->prefix) {
+    xmlFree((xmlChar *)ns->prefix);
+  }
+  xmlFree(ns);
+  NOKOGIRI_DEBUG_END(ns) ;
+}
+
+
+int Nokogiri_namespace_eh(xmlNodePtr node)
+{
+  return (node->type == XML_NAMESPACE_DECL);
+}
+
+
 /*
  * call-seq:
  *  prefix
@@ -34,21 +62,37 @@ static VALUE href(VALUE self)
   return NOKOGIRI_STR_NEW2(ns->href);
 }
 
+static int part_of_an_xpath_node_set_eh(xmlNsPtr node)
+{
+  return (node->next && ! Nokogiri_namespace_eh(node->next));
+}
+
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 {
   VALUE ns, document, node_cache;
 
+  assert(doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE);
   assert(doc->_private);
 
-  if(node->_private)
+  if (node->_private) {
     return (VALUE)node->_private;
-
-  ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
+  }
 
   document = DOC_RUBY_OBJECT(doc);
 
-  node_cache = rb_iv_get(document, "@node_cache");
-  rb_ary_push(node_cache, ns);
+  if (part_of_an_xpath_node_set_eh(node)) {
+    /*
+     *  this is a duplicate returned as part of an xpath query node set, and so
+     *  we need to make sure we manage this memory.
+     *
+     *  see comments in xml_node_set.c for more details.
+     */
+    ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, dealloc_namespace, node);
+  } else {
+    ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
+    node_cache = rb_iv_get(document, "@node_cache");
+    rb_ary_push(node_cache, ns);
+  }
 
   rb_iv_set(ns, "@document", DOC_RUBY_OBJECT(doc));
 
@@ -56,14 +100,6 @@ VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 
   return ns;
 }
-
-VALUE Nokogiri_wrap_xml_namespace2(VALUE document, xmlNsPtr node)
-{
-  xmlDocPtr doc;
-  Data_Get_Struct(document, xmlDoc, doc) ;
-  return Nokogiri_wrap_xml_namespace(doc, node);
-}
-
 
 void init_xml_namespace()
 {
