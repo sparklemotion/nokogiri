@@ -1,4 +1,5 @@
 #include <xml_node_set.h>
+#include <xml_namespace.h>
 #include <libxml/xpathInternals.h>
 
 static ID decorate ;
@@ -17,20 +18,19 @@ static void Check_Node_Set_Node_Type(VALUE node)
 static void deallocate(xmlNodeSetPtr node_set)
 {
   /*
-   *  xmlXPathFreeNodeSet() contains an implicit assumption that it is being
-   *  called before any of its pointed-to nodes have been free()d. this
-   *  assumption lies in the operation where it dereferences nodeTab pointers
-   *  while searching for namespace nodes to free.
    *
-   *  however, since Ruby's GC mechanism cannot guarantee the strict order in
-   *  which ruby objects will be GC'd, nodes may be garbage collected before a
-   *  nodeset containing pointers to those nodes. (this is true regardless of
-   *  how we declare dependencies between objects with rb_gc_mark().)
+   *  since xpath queries return copies of the xmlNs structs,
+   *  xmlXPathFreeNodeSet() frees those xmlNs structs that are in the
+   *  NodeSet.
    *
-   *  as a result, xmlXPathFreeNodeSet() will perform unsafe memory operations,
-   *  and calling it would be evil.
+   *  this is bad if someone is still trying to use the Namespace object wrapped
+   *  around the xmlNs, so we need to avoid that.
    *
-   *  "In Valgrind We Trust." seriously.
+   *  here we reproduce xmlXPathFreeNodeSet() without the xmlNs logic.
+   *
+   *  this doesn't cause a leak because Namespace objects that are in an XPath
+   *  query NodeSet are given their own lifecycle in
+   *  Nokogiri_wrap_xml_namespace().
    */
   NOKOGIRI_DEBUG_START(node_set) ;
   if (node_set->nodeTab != NULL)
@@ -112,7 +112,6 @@ delete(VALUE self, VALUE rb_node)
 {
   xmlNodeSetPtr node_set;
   xmlNodePtr node;
-  int j ;
 
   Check_Node_Set_Node_Type(rb_node);
 
@@ -227,15 +226,13 @@ static VALUE index_at(VALUE self, long offset)
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  if (offset >= node_set->nodeNr || abs((int)offset) > node_set->nodeNr)
+  if (offset >= node_set->nodeNr || abs((int)offset) > node_set->nodeNr) {
     return Qnil;
+  }
 
-  if (offset < 0)
-    offset += node_set->nodeNr;
+  if (offset < 0) { offset += node_set->nodeNr ; }
 
-  if (XML_NAMESPACE_DECL == node_set->nodeTab[offset]->type)
-    return Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(node_set->nodeTab[offset]));
-  return Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[offset]);
+  return Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[offset], self);
 }
 
 static VALUE subseq(VALUE self, long beg, long len)
@@ -300,7 +297,7 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
   if (FIXNUM_P(arg)) {
     return index_at(self, FIX2LONG(arg));
   }
-  
+
   /* if arg is Range */
   switch (rb_range_beg_len(arg, &beg, &len, (long)node_set->nodeNr, 0)) {
   case Qfalse:
@@ -330,17 +327,18 @@ static VALUE to_array(VALUE self, VALUE rb_node)
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  elts = calloc((size_t)node_set->nodeNr, sizeof(VALUE *));
+  elts = (VALUE *)calloc((size_t)(node_set->nodeNr), sizeof(VALUE));
   for(i = 0; i < node_set->nodeNr; i++) {
-    if (XML_NAMESPACE_DECL == node_set->nodeTab[i]->type)
-      elts[i] = Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(node_set->nodeTab[i]));
-    else
-      elts[i] = Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[i]);
+    elts[i] = Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[i], self);
+    rb_gc_register_address(&elts[i]);
   }
 
   list = rb_ary_new4((long)node_set->nodeNr, elts);
 
-  /*free(elts); */
+  for(i = 0; i < node_set->nodeNr; i++) {
+    rb_gc_unregister_address(&elts[i]);
+  }
+  free(elts);
 
   return list;
 }
@@ -360,7 +358,7 @@ static VALUE unlink_nodeset(VALUE self)
 
   nodeNr = node_set->nodeNr ;
   for (j = 0 ; j < nodeNr ; j++) {
-    if (XML_NAMESPACE_DECL != node_set->nodeTab[j]->type) {
+    if (! Nokogiri_namespace_eh(node_set->nodeTab[j])) {
       VALUE node ;
       xmlNodePtr node_ptr;
       node = Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[j]);
@@ -371,6 +369,39 @@ static VALUE unlink_nodeset(VALUE self)
   }
   return self ;
 }
+
+
+static void reify_node_set_namespaces(VALUE self)
+{
+  /*
+   *  as mentioned in deallocate() above, xmlNs structs returned in an XPath
+   *  NodeSet are duplicates, and we don't clean them up at deallocate() time.
+   *
+   *  as a result, we need to make sure the Ruby manages this memory. we do this
+   *  by forcing the creation of a Ruby object wrapped around the xmlNs.
+   *
+   *  we also have to make sure that the NodeSet has a reference to the
+   *  Namespace object, otherwise GC will kick in and the Namespace won't be
+   *  marked.
+   *
+   *  we *could* do this safely with *all* the nodes in the NodeSet, but we only
+   *  *need* to do it for xmlNs structs, and so you get the code we have here.
+   */
+  int j ;
+  xmlNodeSetPtr node_set ;
+  VALUE namespace_cache ;
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  namespace_cache = rb_iv_get(self, "@namespace_cache");
+
+  for (j = 0 ; j < node_set->nodeNr ; j++) {
+    if (Nokogiri_namespace_eh(node_set->nodeTab[j])) {
+      rb_ary_push(namespace_cache, Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[j], self));
+    }
+  }
+}
+
 
 VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
 {
@@ -392,6 +423,19 @@ VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
 
   return new_set ;
 }
+
+VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
+{
+  xmlDocPtr document ;
+
+  if (Nokogiri_namespace_eh(node)) {
+    Data_Get_Struct(rb_iv_get(node_set, "@document"), xmlDoc, document);
+    return Nokogiri_wrap_xml_namespace(document, (xmlNsPtr)node);
+  } else {
+    return Nokogiri_wrap_xml_node(Qnil, node);
+  }
+}
+
 
 static void xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val)
 {
