@@ -233,13 +233,8 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
       xmlFree(xpath->stringval);
       break;
     case XPATH_NODESET:
-      if(NULL == xpath->nodesetval) {
-        thing = Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL),
-          DOC_RUBY_OBJECT(ctx->doc));
-      } else {
-        thing = Nokogiri_wrap_xml_node_set(xpath->nodesetval,
-            DOC_RUBY_OBJECT(ctx->doc));
-      }
+      thing = Nokogiri_wrap_xml_node_set(xpath->nodesetval,
+                                         DOC_RUBY_OBJECT(ctx->doc));
       break;
     case XPATH_NUMBER:
       thing = rb_float_new(xpath->floatval);
@@ -248,8 +243,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
       thing = xpath->boolval == 1 ? Qtrue : Qfalse;
       break;
     default:
-      thing = Nokogiri_wrap_xml_node_set(xmlXPathNodeSetCreate(NULL),
-        DOC_RUBY_OBJECT(ctx->doc));
+      thing = Nokogiri_wrap_xml_node_set(NULL, DOC_RUBY_OBJECT(ctx->doc));
   }
 
   xmlXPathFreeNodeSetList(xpath);
