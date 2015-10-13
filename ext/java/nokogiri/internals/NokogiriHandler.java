@@ -128,12 +128,10 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     }
 
     /*
-     * This has to call either "start_element" or
-     * "start_element_namespace" depending on whether there are any
-     * namespace attributes.
+     * This calls "start_element_namespace".
      *
      * Attributes that define namespaces are passed in a separate
-     * array of of <code>[:prefix, :uri]</code> arrays and are not
+     * array of <code>[:prefix, :uri]</code> arrays and are not
      * passed with the other attributes.
      */
     @Override
@@ -158,7 +156,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
             if (isNamespace(qn) && !fromFragmentHandler) {
                 // I haven't figured the reason out yet, but, in somewhere,
-                // namespace is converted to array in array in array and cause
+                // namespace is converted to array in array and cause
                 // TypeError at line 45 in fragment_handler.rb
                 RubyArray ns = RubyArray.newArray(ruby, 2);
                 if (ln.equals("xmlns")) ln = null;
