@@ -101,6 +101,11 @@ module Nokogiri
             assert_equal doc.encoding, v.encoding.name
           end
         end
+
+        def test_empty_doc_encoding
+          encoding = 'US-ASCII'
+          assert_equal encoding, Nokogiri::XML(nil, nil, encoding).encoding
+        end
       end
     end
   end

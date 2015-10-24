@@ -3,8 +3,8 @@ require "helper"
 
 module Nokogiri
   module HTML
-    if RUBY_VERSION =~ /^1\.9/
-      class TestDocumentEncoding < Nokogiri::TestCase
+    class TestDocumentEncoding < Nokogiri::TestCase
+      if RUBY_VERSION =~ /^1\.9/  
         def test_encoding
           doc = Nokogiri::HTML File.open(SHIFT_JIS_HTML, 'rb')
 
@@ -81,6 +81,11 @@ module Nokogiri
           assert_equal ['http://tenderlovemaking.com/'],
             doc.css('a').map { |a| a['href'] }
         end
+      end
+
+      def test_empty_doc_encoding
+        encoding = 'US-ASCII'
+        assert_equal encoding, Nokogiri::HTML.parse(nil, nil, encoding).encoding
       end
     end
 
