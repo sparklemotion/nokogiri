@@ -99,7 +99,7 @@ class TestNokogumbo < Minitest::Test
     assert_equal ["xlink:href", "xmlns:xlink"], a.attributes.keys.sort
   end
 
-  def x_test_template # future
+  def test_template
     source = <<-EOF.gsub(/^ {6}/, '')
       <template id="productrow">
         <tr>

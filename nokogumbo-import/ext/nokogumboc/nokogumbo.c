@@ -157,7 +157,7 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
 
     switch (child->type) {
       case GUMBO_NODE_ELEMENT:
-//    case GUMBO_NODE_TEMPLATE: /* future */
+      case GUMBO_NODE_TEMPLATE:
         node = walk_tree(document, &child->v.element);
         break;
       case GUMBO_NODE_WHITESPACE:
