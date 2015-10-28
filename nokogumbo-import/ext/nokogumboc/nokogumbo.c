@@ -189,6 +189,7 @@ static VALUE parse(VALUE self, VALUE string) {
     (size_t) RSTRING_LEN(string)
   );
   xmlDocPtr doc = xmlNewDoc(CONST_CAST "1.0");
+  doc->type = XML_HTML_DOCUMENT_NODE;
   xmlNodePtr root = walk_tree(doc, &output->root->v.element);
   xmlDocSetRootElement(doc, root);
   if (output->document->v.document.has_doctype) {

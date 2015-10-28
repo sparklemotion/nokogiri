@@ -12,9 +12,15 @@ class TestNokogumbo < Minitest::Test
     assert_equal "content", doc.at('span').text
   end
 
-  def test_element_cdata
+  def test_element_cdata_textarea
     doc = Nokogiri::HTML5(buffer)
     assert_equal "foo<x>bar", doc.at('textarea').text.strip
+  end
+
+  def test_element_cdata_script
+    doc = Nokogiri::HTML5.fragment(buffer)
+    assert_equal true, doc.document.html?
+    assert_equal "<script> if (a < b) alert(1) </script>", doc.at('script').to_s
   end
 
   def test_attr_value
@@ -122,6 +128,7 @@ private
         <head>
           <meta charset="utf-8"/>
           <title>hello world</title>
+          <script> if (a < b) alert(1) </script>
         </head>
         <body>
           <h1>hello world</h1>
