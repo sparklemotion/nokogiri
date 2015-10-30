@@ -34,6 +34,10 @@ static VALUE Document;
 #define NIL 0
 #define CONST_CAST
 
+#ifndef XML_HTML_DOCUMENT_NODE
+#define XML_HTML_DOCUMENT_NODE 13
+#endif
+
 // more class constants
 static VALUE Element;
 static VALUE Text;
