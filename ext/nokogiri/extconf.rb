@@ -134,6 +134,21 @@ int main(void)
   }
 end
 
+def iconv_libs
+  # OS X users with Macports zlib, lzma and libiconv
+  # these users _must_ have the +universal variants installed
+  if RUBY_PLATFORM =~ /darwin/
+    # If --with-iconv-dir or --with-opt-dir is given, it should be
+    # added when testing libxml (have_func / have_library) after activate
+    %w[iconv opt].each { |name|
+      if (config = preserving_globals{ dir_config(name) }).any?
+        idirs, ldirs = config
+        return ["-L#{ldirs}"]
+      end
+    }
+  end
+end
+
 def iconv_configure_flags
   # If --with-iconv-dir or --with-opt-dir is given, it should be
   # the first priority
@@ -452,7 +467,7 @@ else
       abort <<'EOM'.chomp
 -----
 The file "iconv.h" is missing in your build environment,
-which means you haven't installed Xcode Command Line Tools properly.
+which means you have not installed Xcode Command Line Tools properly.
 
 To install Command Line Tools, try running `xcode-select --install` on
 terminal and follow the instructions.  If it fails, open Xcode.app,
@@ -563,18 +578,19 @@ end
   "exslt" => ['exsltFuncRegister',      'libexslt/exslt.h'],
 }.each { |lib, (func, header)|
   have_func(func, header) ||
-  have_library(lib, func, header) ||
+  have_library(lib, func, header, iconv_libs) ||
   have_library("lib#{lib}", func, header) or
     asplode("lib#{lib}")
 }
 
-have_func('xmlHasFeature') or abort "xmlHasFeature() is missing."
-have_func('xmlFirstElementChild')
-have_func('xmlRelaxNGSetParserStructuredErrors')
-have_func('xmlRelaxNGSetParserStructuredErrors')
-have_func('xmlRelaxNGSetValidStructuredErrors')
-have_func('xmlSchemaSetValidStructuredErrors')
-have_func('xmlSchemaSetParserStructuredErrors')
+[
+  'xmlHasFeature', 'xmlFirstElementChild', 'xmlRelaxNGSetParserStructuredErrors',
+  'xmlRelaxNGSetValidStructuredErrors', 'xmlSchemaSetValidStructuredErrors',
+  'xmlSchemaSetParserStructuredErrors'
+].each { |func|
+  have_func(func, nil, iconv_libs) or
+    abort("#{func}() is missing")
+}
 
 if ENV['CPUPROFILE']
   unless find_library('profiler', 'ProfilerEnable', *LIB_DIRS)
