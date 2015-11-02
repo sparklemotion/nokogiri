@@ -144,6 +144,8 @@ def iconv_libs
       if (config = preserving_globals{ dir_config(name) }).any?
         idirs, ldirs = config
         return ["-L#{ldirs}"]
+      else
+        return nil
       end
     }
   end
