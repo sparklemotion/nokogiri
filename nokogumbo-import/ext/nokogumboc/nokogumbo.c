@@ -34,10 +34,6 @@ static VALUE Document;
 #define NIL 0
 #define CONST_CAST
 
-#ifndef XML_HTML_DOCUMENT_NODE
-#define XML_HTML_DOCUMENT_NODE 13
-#endif
-
 // more class constants
 static VALUE Element;
 static VALUE Text;
@@ -193,7 +189,9 @@ static VALUE parse(VALUE self, VALUE string) {
     (size_t) RSTRING_LEN(string)
   );
   xmlDocPtr doc = xmlNewDoc(CONST_CAST "1.0");
+#ifdef NGLIB
   doc->type = XML_HTML_DOCUMENT_NODE;
+#endif
   xmlNodePtr root = walk_tree(doc, &output->root->v.element);
   xmlDocSetRootElement(doc, root);
   if (output->document->v.document.has_doctype) {
