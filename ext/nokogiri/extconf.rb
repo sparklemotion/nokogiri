@@ -590,8 +590,13 @@ end
   'xmlRelaxNGSetValidStructuredErrors', 'xmlSchemaSetValidStructuredErrors',
   'xmlSchemaSetParserStructuredErrors'
 ].each { |func|
-  have_func(func, nil, iconv_libs) or
-    abort("#{func}() is missing")
+  if RUBY_VERSION <= '1.9.3'
+    have_func(func, nil) or
+      abort("#{func}() is missing")
+  else
+    have_func(func, nil, iconv_libs) or
+      abort("#{func}() is missing")
+  end
 }
 
 if ENV['CPUPROFILE']
