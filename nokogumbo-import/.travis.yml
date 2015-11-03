@@ -4,3 +4,10 @@ rvm:
   - 2.0.0
   - 2.1.2
   - ruby-head
+env:
+  - WITH_LIBXML=true
+  - WITH_LIBXML=false
+before_script: |
+  if [ "$WITH_LIBXML" == "false" ]; then
+    sudo apt-get remove libxml2-dev
+  fi
