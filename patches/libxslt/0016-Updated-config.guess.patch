@@ -1,6 +1,6 @@
-From 00e077d0b3be5f6f1c290806a80aaadb6d28d33d Mon Sep 17 00:00:00 2001
+From ccad29dec09d5f25ed0a1a2a6fa18173ca90a70f Mon Sep 17 00:00:00 2001
 From: Hernan Erasmo <dherasmo@gmail.com>
-Date: Tue, 15 Sep 2015 09:50:06 -0300
+Date: Fri, 6 Nov 2015 08:10:07 -0300
 Subject: [PATCH] Updated config.guess
 
 config.guess has been updated to the latest version (now
@@ -8,9 +8,12 @@ recognizes ppc64le architecture)
 ---
  config.guess | 786 +++++++++++++++++++++++++++--------------------------------
  1 file changed, 357 insertions(+), 429 deletions(-)
+ mode change 100755 => 100644 config.guess
 
 diff --git a/config.guess b/config.guess
-index 951383e..3c022c5 100755
+old mode 100755
+new mode 100644
+index 951383e..b3f9053
 --- a/config.guess
 +++ b/config.guess
 @@ -1,14 +1,12 @@
@@ -22,7 +25,7 @@ index 951383e..3c022c5 100755
 +#   Copyright 1992-2015 Free Software Foundation, Inc.
  
 -timestamp='2007-05-17'
-+timestamp='2015-09-14'
++timestamp='2015-10-21'
  
  # This file is free software; you can redistribute it and/or modify it
  # under the terms of the GNU General Public License as published by
@@ -899,7 +902,7 @@ index 951383e..3c022c5 100755
 +	# uname -m prints for DJGPP always 'pc', but it prints nothing about
 +	# the processor, so we play safe by assuming i586.
 +	# Note: whatever this is, it MUST be the same as what config.sub
-+	# prints for the "djgpp" host, or else GDB configury will decide that
++	# prints for the "djgpp" host, or else GDB configure will decide that
 +	# this is a cross-build.
 +	echo i586-pc-msdosdjgpp
 +	exit ;;
