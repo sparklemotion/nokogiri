@@ -1,16 +1,16 @@
-From 0ebad7e13585b6a080ebee4be131baabaeabe589 Mon Sep 17 00:00:00 2001
+From e69a9f45d49d97cd1b0bb56e52d4eed1de9c9b25 Mon Sep 17 00:00:00 2001
 From: Hernan Erasmo <dherasmo@gmail.com>
-Date: Tue, 15 Sep 2015 09:55:35 -0300
+Date: Fri, 6 Nov 2015 08:16:13 -0300
 Subject: [PATCH] Updated config.guess
 
 config.guess has been updated to the latest version (now
-recognizes ppc64le architecture)
+recognizes ppc64le architecture)     
 ---
- config.guess | 236 +++++++++++++++--------------------------------------------
- 1 file changed, 61 insertions(+), 175 deletions(-)
+ config.guess | 238 ++++++++++++++++-------------------------------------------
+ 1 file changed, 62 insertions(+), 176 deletions(-)
 
 diff --git a/config.guess b/config.guess
-index b79252d..3c022c5 100755
+index b79252d..b3f9053 100755
 --- a/config.guess
 +++ b/config.guess
 @@ -1,8 +1,8 @@
@@ -20,7 +20,7 @@ index b79252d..3c022c5 100755
 +#   Copyright 1992-2015 Free Software Foundation, Inc.
  
 -timestamp='2013-06-10'
-+timestamp='2015-09-14'
++timestamp='2015-10-21'
  
  # This file is free software; you can redistribute it and/or modify it
  # under the terms of the GNU General Public License as published by
@@ -192,6 +192,15 @@ index b79252d..3c022c5 100755
  	exit ;;
      xtensa*:Linux:*:*)
  	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
+@@ -1099,7 +1123,7 @@ EOF
+ 	# uname -m prints for DJGPP always 'pc', but it prints nothing about
+ 	# the processor, so we play safe by assuming i586.
+ 	# Note: whatever this is, it MUST be the same as what config.sub
+-	# prints for the "djgpp" host, or else GDB configury will decide that
++	# prints for the "djgpp" host, or else GDB configure will decide that
+ 	# this is a cross-build.
+ 	echo i586-pc-msdosdjgpp
+ 	exit ;;
 @@ -1260,16 +1284,26 @@ EOF
  	if test "$UNAME_PROCESSOR" = unknown ; then
  	    UNAME_PROCESSOR=powerpc
