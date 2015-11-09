@@ -11,6 +11,7 @@ rvm:
 - jruby-19mode
 - jruby-1.7.22
 - jruby-9.0.0.0
+- jruby-head
 - rbx-19mode
 - rbx-2
 
@@ -19,6 +20,8 @@ os:
 - osx
 
 matrix:
+  allow_failures:
+  - rvm: jruby-head
   exclude:
   - os: osx
     rvm: ruby-1.9.2
