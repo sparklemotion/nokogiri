@@ -34,6 +34,7 @@ module Nokogiri
     XML_ATOM_FILE       = File.join(ASSETS_DIR, 'atom.xml')
     XSLT_FILE           = File.join(ASSETS_DIR, 'staff.xslt')
     XPATH_FILE          = File.join(ASSETS_DIR, 'slow-xpath.xml')
+    XML_CONTACT_FILE    = File.join(ASSETS_DIR, 'contact.xml')
 
     def teardown
       if ENV['NOKOGIRI_GC']
