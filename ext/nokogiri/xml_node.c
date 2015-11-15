@@ -140,6 +140,7 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
 {
   VALUE reparented_obj ;
   xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text, parent ;
+  int original_ns_prefix_is_default = 0 ;
 
   if(!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
@@ -250,9 +251,20 @@ ok:
        */
       reparentee->_private = NULL ;
     }
+
+    if (reparentee->ns != NULL && reparentee->ns->prefix == NULL) {
+      original_ns_prefix_is_default = 1;
+    }
+
     nokogiri_root_node(reparentee);
+
     if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
+    }
+
+    if (original_ns_prefix_is_default && reparentee->ns != NULL && reparentee->ns->prefix != NULL) {
+      /* issue #391, where new node's prefix may become the string "default" */
+      reparentee->ns->prefix = NULL;
     }
   }
 

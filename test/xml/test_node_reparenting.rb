@@ -368,6 +368,43 @@ module Nokogiri
             end
           end
         end
+
+        describe "reparenting into another document" do
+          it "correctly sets default namespace of a reparented node" do
+            # issue described in #391
+            # thanks to Nick Canzoneri @nickcanz for this test case!
+            source_doc = Nokogiri::XML <<-EOX
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product>
+        <Package />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Component>
+                <File />
+            </Component>
+        </Directory>
+    </Product>
+</Wix>
+EOX
+
+            dest_doc = Nokogiri::XML <<-EOX
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Fragment Id='MSIComponents'>
+      <DirectoryRef Id='InstallDir'>
+      </DirectoryRef>
+  </Fragment>
+</Wix>
+EOX
+
+            stuff = source_doc.at_css("Directory[Id='TARGETDIR']")
+            insert_point = dest_doc.at_css("DirectoryRef[Id='InstallDir']")
+            insert_point.children = stuff.children()
+
+            assert_no_match(/default:/, insert_point.children.to_xml)
+            assert_match(/<Component>/, insert_point.children.to_xml)
+          end
+        end
       end
     end
   end
