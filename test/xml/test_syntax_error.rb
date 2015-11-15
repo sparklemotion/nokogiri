@@ -32,7 +32,7 @@ module Nokogiri
         assert_equal "Start tag expected, '<' not found, 1, 1", error.message
         assert_equal 1, error.line
         assert_equal 1, error.column
-      end
+      end unless Nokogiri.jruby? # which does not internally call `errors`
     end
   end
 end
