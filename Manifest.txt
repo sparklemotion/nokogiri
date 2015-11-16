@@ -244,6 +244,12 @@ lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
 ports/patches/libxml2/0001-Revert-Missing-initialization-for-the-catalog-module.patch
 ports/patches/libxml2/0002-Fix-missing-entities-after-CVE-2014-3660-fix.patch
+ports/patches/libxml2/0003-Stop-parsing-on-entities-boundaries-errors.patch
+ports/patches/libxml2/0004-Cleanup-conditional-section-error-handling.patch
+ports/patches/libxml2/0005-CVE-2015-1819-Enforce-the-reader-to-run-in-constant-.patch
+ports/patches/libxml2/0006-Another-variation-of-overflow-in-Conditional-section.patch
+ports/patches/libxml2/0007-Fix-an-error-in-previous-Conditional-section-patch.patch
+ports/patches/libxml2/0008-CVE-2015-8035-Fix-XZ-compression-support-loop.patch
 ports/patches/libxslt/0001-Adding-doc-update-related-to-1.1.28.patch
 ports/patches/libxslt/0002-Fix-a-couple-of-places-where-f-printf-parameters-wer.patch
 ports/patches/libxslt/0003-Initialize-pseudo-random-number-generator-with-curre.patch
@@ -256,6 +262,7 @@ ports/patches/libxslt/0010-Fix-handling-of-UTF-8-strings-in-EXSLT-crypto-module.
 ports/patches/libxslt/0013-Memory-leak-in-xsltCompileIdKeyPattern-error-path.patch
 ports/patches/libxslt/0014-Fix-for-bug-436589.patch
 ports/patches/libxslt/0015-Fix-mkdir-for-mingw.patch
+ports/patches/libxslt/0016-Fix-for-type-confusion-in-preprocessing-attributes.patch
 ports/patches/sort-patches-by-date
 suppressions/README.txt
 suppressions/nokogiri_ree-1.8.7.358.supp
