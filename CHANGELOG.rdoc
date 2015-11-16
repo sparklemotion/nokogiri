@@ -1,3 +1,18 @@
+=== 1.6.6.3 / 2015-11-16
+
+This version pulls in several upstream patches to the vendored libxml2 and libxslt to address:
+
+* CVE-2015-1819
+* CVE-2015-7941_1
+* CVE-2015-7941_2
+* CVE-2015-7942
+* CVE-2015-7942-2
+* CVE-2015-8035
+* CVE-2015-7995
+
+See #1374 for details.
+
+
 === 1.6.6.2 / 2015-01-23
 
 ==== Bug fixes
