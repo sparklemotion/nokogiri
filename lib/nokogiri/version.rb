@@ -11,6 +11,10 @@ module Nokogiri
       defined?(RUBY_ENGINE) ? RUBY_ENGINE : 'mri'
     end
 
+    def rbx?
+      RUBY_ENGINE == 'rbx'
+    end
+
     def loaded_parser_version
       LIBXML_PARSER_VERSION.scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first.collect{ |j|
         j.to_i
@@ -104,5 +108,9 @@ module Nokogiri
 
   def self.jruby? # :nodoc:
     VersionInfo.instance.jruby?
+  end
+
+  def self.rbx? # :nodoc:
+    VersionInfo.instance.rbx?
   end
 end
