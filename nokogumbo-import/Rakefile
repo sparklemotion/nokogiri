@@ -8,7 +8,7 @@ ENV['RAKEHOME'] = File.dirname(File.expand_path(__FILE__))
 task 'default' => 'test'
 
 task 'test' => 'compile' do
-  ruby 'test-nokogumbo.rb'
+  ruby '-I lib test-nokogumbo.rb'
 end
 
 # ensure gumbo-parser submodule is updated
@@ -26,7 +26,11 @@ file "#{EXT}/Makefile" => ['gumbo-parser/src', "#{EXT}/extconf.rb"] do
   end
 end
 
-task 'compile' => "#{EXT}/nokogumboc.#{DLEXT}"
+file "lib/nokogumboc.#{DLEXT}" => "#{EXT}/nokogumboc.#{DLEXT}" do
+  cp "#{EXT}/nokogumboc.#{DLEXT}", "lib/nokogumboc.#{DLEXT}"
+end
+
+task 'compile' => "lib/nokogumboc.#{DLEXT}"
 
 file 'gumbo-parser/src' do
   sh 'git submodule init'
