@@ -1551,6 +1551,10 @@ public class XmlNode extends RubyObject {
             coalesceTextNodes(context, other, scheme);
         }
 
+        if (this instanceof XmlDocument) {
+            ((XmlDocument) this).resetNamespaceCache(context);
+        }
+
         relink_namespace(context);
         // post_add_child(context, this, other);
 

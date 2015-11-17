@@ -639,4 +639,9 @@ public class XmlDocument extends XmlNode {
         }
         return this;
     }
+
+    public void resetNamespaceCache(ThreadContext context) {
+        nsCache = new NokogiriNamespaceCache();
+        createAndCacheNamespaces(context.getRuntime(), node);
+    }
 }
