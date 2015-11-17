@@ -14,6 +14,11 @@ module Nokogiri
         assert @html.xpath(nil)
       end
 
+      def test_does_not_fail_with_illformatted_html
+        doc = Nokogiri::HTML('"</html>";'.force_encoding(Encoding::BINARY))
+        assert_not_nil doc
+      end
+
       def test_exceptions_remove_newlines
         errors = @html.errors
         assert errors.length > 0, 'has errors'
