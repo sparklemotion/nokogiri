@@ -1,0 +1,64 @@
+From e724879d964d774df9b7969fc846605aa1bac54c Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Fri, 30 Oct 2015 21:14:55 +0800
+Subject: Fix parsing short unclosed comment uninitialized access
+
+For https://bugzilla.gnome.org/show_bug.cgi?id=746048
+The HTML parser was too optimistic when processing comments and
+didn't check for the end of the stream on the first 2 characters
+---
+ HTMLparser.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
+
+diff --git a/HTMLparser.c b/HTMLparser.c
+index 19c10c3..bdf7807 100644
+--- a/HTMLparser.c
++++ b/HTMLparser.c
+@@ -3264,12 +3264,17 @@ htmlParseComment(htmlParserCtxtPtr ctxt) {
+ 	ctxt->instate = state;
+ 	return;
+     }
++    len = 0;
++    buf[len] = 0;
+     q = CUR_CHAR(ql);
++    if (!IS_CHAR(q))
++        goto unfinished;
+     NEXTL(ql);
+     r = CUR_CHAR(rl);
++    if (!IS_CHAR(r))
++        goto unfinished;
+     NEXTL(rl);
+     cur = CUR_CHAR(l);
+-    len = 0;
+     while (IS_CHAR(cur) &&
+            ((cur != '>') ||
+ 	    (r != '-') || (q != '-'))) {
+@@ -3300,18 +3305,20 @@ htmlParseComment(htmlParserCtxtPtr ctxt) {
+ 	}
+     }
+     buf[len] = 0;
+-    if (!IS_CHAR(cur)) {
+-	htmlParseErr(ctxt, XML_ERR_COMMENT_NOT_FINISHED,
+-	             "Comment not terminated \n<!--%.50s\n", buf, NULL);
+-	xmlFree(buf);
+-    } else {
++    if (IS_CHAR(cur)) {
+         NEXT;
+ 	if ((ctxt->sax != NULL) && (ctxt->sax->comment != NULL) &&
+ 	    (!ctxt->disableSAX))
+ 	    ctxt->sax->comment(ctxt->userData, buf);
+ 	xmlFree(buf);
++	ctxt->instate = state;
++	return;
+     }
+-    ctxt->instate = state;
++
++unfinished:
++    htmlParseErr(ctxt, XML_ERR_COMMENT_NOT_FINISHED,
++		 "Comment not terminated \n<!--%.50s\n", buf, NULL);
++    xmlFree(buf);
+ }
+ 
+ /**
+-- 
+cgit v0.11.2
