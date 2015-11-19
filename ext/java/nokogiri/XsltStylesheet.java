@@ -35,6 +35,7 @@ package nokogiri;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
@@ -58,6 +59,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import nokogiri.internals.NokogiriXsltErrorListener;
 
+import org.apache.xalan.transformer.TransformerImpl;
+import org.apache.xml.serializer.SerializationHandler;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -194,10 +197,14 @@ public class XsltStylesheet extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject serialize(ThreadContext context, IRubyObject doc) {
-        return RuntimeHelpers.invoke(context,
-                RuntimeHelpers.invoke(context, doc, "root"),
-                "to_s");
+    public IRubyObject serialize(ThreadContext context, IRubyObject doc) throws IOException, TransformerException {
+    	XmlDocument xmlDoc = (XmlDocument) doc;
+    	TransformerImpl transformer = (TransformerImpl) this.sheet.newTransformer();
+    	ByteArrayOutputStream writer = new ByteArrayOutputStream();
+    	StreamResult streamResult = new StreamResult(writer);
+    	SerializationHandler serializationHandler = transformer.createSerializationHandler(streamResult);
+    	serializationHandler.serialize(xmlDoc.getNode());
+    	return context.getRuntime().newString(writer.toString());
     }
 
     @JRubyMethod(rest = true, required=1, optional=2)
