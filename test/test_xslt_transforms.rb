@@ -95,7 +95,6 @@ encoding="iso-8859-1" indent="yes"/>
 </xsl:stylesheet>
       eoxslt
     end
-    assert_no_match(/<td>/, xslt.apply_to(@doc, ['title', 'foo']))
     result = xslt.apply_to(@doc, ['title', 'foo'])
     assert_no_match(/<td>/, result)
     assert_match(/This is an adjacent/, result)
