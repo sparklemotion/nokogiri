@@ -1,4 +1,28 @@
-=== 1.6.7.rc2 / 2015年08月31日
+=== 1.6.7.rc4 / YYYY-MM-DD
+
+==== Security patches
+
+This version pulls in several upstream patches to the vendored libxml2 and libxslt to address:
+
+* CVE-2015-1819
+* CVE-2015-7941_1
+* CVE-2015-7941_2
+* CVE-2015-7942
+* CVE-2015-7942-2
+* CVE-2015-8035
+* CVE-2015-7995
+* unclosed comment uninitialized access issue (does not have a CVE assigned)
+
+See #1374 and #1376 for details.
+
+==== Features
+
+* [MRI] libxml2 and libxslt `config.guess` files brought up to date. (#1326) (Thanks, @hernan-erasmo!)
+* [JRuby] fix error in validating files with jruby (#1355, #1361) (Thanks, @twalpole!)
+
+
+
+=== 1.6.7.rc3 / 2015年09月04日 and 1.6.7.rc2 / 2015年08月31日
 
 Note that rc1 was not released.
 
