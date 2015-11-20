@@ -381,10 +381,10 @@ when using_system_libraries?
 #endif
   SRC
 
-  try_cpp(<<-SRC) or warn "libxml2 version 2.9.2 or later is highly recommended, but proceeding anyway."
+  try_cpp(<<-SRC) or warn "libxml2 version 2.9.3 or later is highly recommended, but proceeding anyway."
 #include <libxml/xmlversion.h>
 
-#if LIBXML_VERSION < 20902
+#if LIBXML_VERSION < 20903
 #error libxml2 is too old
 #endif
   SRC

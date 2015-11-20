@@ -2,24 +2,12 @@
 
 ==== Security patches
 
-This version pulls in several upstream patches to the vendored libxml2 and libxslt to address:
-
-* CVE-2015-1819
-* CVE-2015-7941_1
-* CVE-2015-7941_2
-* CVE-2015-7942
-* CVE-2015-7942-2
-* CVE-2015-8035
-* CVE-2015-7995
-* unclosed comment uninitialized access issue (does not have a CVE assigned)
-
-See #1374 and #1376 for details.
+* (MRI) Bundled Libxml2 is upgraded to 2.9.3, which fixes a series of security issues. See https://mail.gnome.org/archives/xml/2015-November/msg00012.html
 
 ==== Features
 
-* [MRI] libxml2 and libxslt `config.guess` files brought up to date. (#1326) (Thanks, @hernan-erasmo!)
+* [MRI] libxslt `config.guess` files brought up to date. (#1326) (Thanks, @hernan-erasmo!)
 * [JRuby] fix error in validating files with jruby (#1355, #1361) (Thanks, @twalpole!)
-
 
 
 === 1.6.7.rc3 / 2015-09-04 and 1.6.7.rc2 / 2015-08-31
