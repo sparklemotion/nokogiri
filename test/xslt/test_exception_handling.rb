@@ -28,7 +28,7 @@ EOXSL
           xsl.transform xml
           fail('It should not get here')
         rescue RuntimeError => e
-          assert_match(/HIERARCHY_REQUEST_ERR/, e.to_s, 'The exception message does not contain the expected information')
+          assert_match(/Can't have more than one root/, e.to_s, 'The exception message does not contain the expected information')
         end
       end
 
