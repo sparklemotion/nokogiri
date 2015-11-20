@@ -1,6 +1,6 @@
 === 1.6.6.4 / 2015-11-19
 
-This version pulls in an upstream patche to the vendored libxml2 to address:
+This version pulls in an upstream patch to the vendored libxml2 to address:
 
 * unclosed comment uninitialized access issue (#1376)
 
