@@ -52,17 +52,17 @@ public class NokogiriXsltErrorListener implements ErrorListener {
     private String errorMessage = null;
     private Exception exception = null;
 
-    public void warning(TransformerException ex) throws TransformerException {
+    public void warning(TransformerException ex) {
         type = ErrorType.WARNING;
         setError(ex);
     }
 
-    public void error(TransformerException ex) throws TransformerException {
+    public void error(TransformerException ex) {
        type = ErrorType.ERROR;
        setError(ex);
     }
 
-    public void fatalError(TransformerException ex) throws TransformerException {
+    public void fatalError(TransformerException ex) {
         type = ErrorType.FATAL;
         setError(ex);
     }
