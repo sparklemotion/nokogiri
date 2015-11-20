@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "helper"
 
 module Nokogiri
@@ -40,6 +41,23 @@ module Nokogiri
         def test_encode_special_chars
           foo = @html.css('a').first.encode_special_chars('foo')
           assert_equal @html.encoding, foo.encoding.name
+        end
+
+        def test_encoding_GH_1113
+          utf8 = '<frag>ὡ 𐄣 𢂁</frag>'
+          ascii = '<frag>&#x1f61; &#x10123; &#x22081;</frag>'
+
+          frag = Nokogiri::XML(utf8, nil, 'UTF-8', Nokogiri::XML::ParseOptions::STRICT)
+          assert_equal utf8, frag.to_xml.sub(/^<.xml.*>\n/m, '')
+
+          frag = Nokogiri::XML(ascii, nil, 'UTF-8', Nokogiri::XML::ParseOptions::STRICT)
+          assert_equal utf8, frag.to_xml.sub(/^<.xml.*>\n/m, '')
+
+          frag = Nokogiri::XML(utf8, nil, 'US-ASCII', Nokogiri::XML::ParseOptions::STRICT)
+          assert_equal ascii, frag.to_xml.sub(/^<.xml.*>\n/m, '')
+
+          frag = Nokogiri::XML(ascii, nil, 'US-ASCII', Nokogiri::XML::ParseOptions::STRICT)
+          assert_equal ascii, frag.to_xml.sub(/^<.xml.*>\n/m, '')
         end
 
         def test_content

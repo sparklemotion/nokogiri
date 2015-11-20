@@ -105,10 +105,11 @@ public class HtmlElementDescription extends RubyObject {
     public static IRubyObject get(ThreadContext context,
                                   IRubyObject klazz, IRubyObject name) {
 
-        HTMLElements.Element elem = HTMLElements.getElement(name.toString());
+        HTMLElements.Element elem = HTMLElements.getElement(name.asJavaString(), HTMLElements.NO_SUCH_ELEMENT);
         if (elem == HTMLElements.NO_SUCH_ELEMENT)
             return context.getRuntime().getNil();
 
+        elem = HTMLElements.getElement(name.toString());
         HtmlElementDescription desc =
             new HtmlElementDescription(context.getRuntime(), (RubyClass)klazz);
         desc.element = elem;
