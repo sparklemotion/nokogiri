@@ -270,7 +270,7 @@ encoding="iso-8859-1" indent="yes"/>
         <xsl:output encoding="UTF-8" indent="yes" method="xml" />
 
         <xsl:template match="/">
-          <xsl:value-of select="/a" />
+          <a><xsl:value-of select="/a" /></a>
         </xsl:template>
       </xsl:stylesheet>
     EOXSL
