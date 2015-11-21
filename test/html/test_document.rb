@@ -628,19 +628,20 @@ eohtml
       end
 
       def test_capturing_nonparse_errors_during_node_copy_between_docs
-        skip("JRuby HTML parse errors are different than libxml2's") if Nokogiri.jruby?
-
-        doc1 = Nokogiri::HTML("<div id='unique'>one</div>")
-        doc2 = Nokogiri::HTML("<div id='unique'>two</div>")
+        # Errors should be emitted while parsing only, and should not change when moving nodes.
+        doc1 = Nokogiri::HTML("<html><body><diva id='unique'>one</diva></body></html>")
+        doc2 = Nokogiri::HTML("<html><body><dive id='unique'>two</dive></body></html>")
         node1 = doc1.at_css("#unique")
         node2 = doc2.at_css("#unique")
-
-        original_errors = doc1.errors.dup
+        original_errors1 = doc1.errors.dup
+        original_errors2 = doc2.errors.dup
+        assert original_errors1.any?{|e| e.to_s =~ /Tag diva invalid/ }, "it should complain about the tag name"
+        assert original_errors2.any?{|e| e.to_s =~ /Tag dive invalid/ }, "it should complain about the tag name"
 
         node1.add_child node2
 
-        assert_equal original_errors.length+1, doc1.errors.length
-        assert_match(/ID unique already defined/, doc1.errors.last.to_s)
+        assert_equal original_errors1, doc1.errors
+        assert_equal original_errors2, doc2.errors
       end
 
       def test_silencing_nonparse_errors_during_attribute_insertion_1262
