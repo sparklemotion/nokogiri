@@ -481,13 +481,7 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
 
   Data_Get_Struct(self, xmlNode, node);
 
-  xmlResetLastError();
-  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_silencer);
-
   dup = xmlDocCopyNode(node, node->doc, (int)NUM2INT(level));
-
-  xmlSetStructuredErrorFunc(NULL, NULL);
-
   if(dup == NULL) return Qnil;
 
   nokogiri_root_node(dup);
