@@ -270,7 +270,7 @@ module Nokogiri
 
       def test_capturing_nonparse_errors_during_fragment_clone
         # see https://github.com/sparklemotion/nokogiri/issues/1196 for background
-        original = Nokogiri::HTML.fragment("<div id='unique'></div>")
+        original = Nokogiri::HTML.fragment("<div id='unique'></div><div id='unique'></div>")
         original_errors = original.errors.dup
 
         copy = original.dup
@@ -278,19 +278,20 @@ module Nokogiri
       end
 
       def test_capturing_nonparse_errors_during_node_copy_between_fragments
-        skip("JRuby HTML parse errors are different than libxml2's") if Nokogiri.jruby?
-
-        frag1 = Nokogiri::HTML.fragment("<div id='unique'>one</div>")
-        frag2 = Nokogiri::HTML.fragment("<div id='unique'>two</div>")
+        # Errors should be emitted while parsing only, and should not change when moving nodes.
+        frag1 = Nokogiri::HTML.fragment("<diva id='unique'>one</diva>")
+        frag2 = Nokogiri::HTML.fragment("<dive id='unique'>two</dive>")
         node1 = frag1.at_css("#unique")
         node2 = frag2.at_css("#unique")
+        original_errors1 = frag1.errors.dup
+        original_errors2 = frag2.errors.dup
+        assert original_errors1.any?{|e| e.to_s =~ /Tag diva invalid/ }, "it should complain about the tag name"
+        assert original_errors2.any?{|e| e.to_s =~ /Tag dive invalid/ }, "it should complain about the tag name"
 
-        original_errors = frag1.errors.dup
+        node1.add_child node2
 
-        node1.add_child node2 # we should also not see an error on stderr
-
-        assert_equal original_errors.length+1, frag1.errors.length
-        assert_match(/ID unique already defined/, frag1.errors.last.to_s)
+        assert_equal original_errors1, frag1.errors
+        assert_equal original_errors2, frag2.errors
       end
     end
   end

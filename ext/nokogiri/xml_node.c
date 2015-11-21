@@ -234,15 +234,7 @@ ok:
      *  reparent the actual reparentee, so we reparent a duplicate.
      */
     nokogiri_root_node(reparentee);
-
-    xmlResetLastError();
-    xmlSetStructuredErrorFunc((void *)rb_iv_get(DOC_RUBY_OBJECT(pivot->doc), "@errors"), Nokogiri_error_array_pusher);
-
-    reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1) ;
-
-    xmlSetStructuredErrorFunc(NULL, NULL);
-
-    if (! reparentee) {
+    if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
   }
