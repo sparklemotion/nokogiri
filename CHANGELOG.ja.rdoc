@@ -1,4 +1,4 @@
-=== 1.6.7.rc4 / YYYY-MM-DD
+=== 1.6.7.rc4 / 2015年11月22日
 
 ==== Security patches
 
@@ -19,7 +19,7 @@ See #1374 and #1376 for details.
 
 * [MRI] libxml2 and libxslt `config.guess` files brought up to date. (#1326) (Thanks, @hernan-erasmo!)
 * [JRuby] fix error in validating files with jruby (#1355, #1361) (Thanks, @twalpole!)
-
+* [MRI, OSX] Patch to handle nonstandard location of `iconv.h`. (#1206, #1210, #1218, #1345) (Thanks, @neonichu!)
 
 
 === 1.6.7.rc3 / 2015年09月04日 and 1.6.7.rc2 / 2015年08月31日
