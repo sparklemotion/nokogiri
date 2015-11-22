@@ -21,6 +21,10 @@ See #1374 and #1376 for details.
 * [JRuby] fix error in validating files with jruby (#1355, #1361) (Thanks, @twalpole!)
 * [MRI, OSX] Patch to handle nonstandard location of `iconv.h`. (#1206, #1210, #1218, #1345) (Thanks, @neonichu!)
 
+==== Bug Fixes
+
+* [JRuby] reset the namespace cache when replacing the document's innerHtml (#1265) (Thanks, @mkristian!)
+
 
 === 1.6.7.rc3 / 2015-09-04 and 1.6.7.rc2 / 2015-08-31
 
