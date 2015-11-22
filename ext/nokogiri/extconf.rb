@@ -395,6 +395,8 @@ else
   # Keep this version in sync with the one in the Rakefile !
   gem "mini_portile2", "~> 2.0.0.rc1"
   require 'mini_portile2'
+  message "Using mini_portile version #{MiniPortile::VERSION}\n"
+
   require 'yaml'
 
   static_p = enable_config('static', true) or
