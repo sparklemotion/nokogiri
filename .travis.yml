@@ -9,7 +9,7 @@ rvm:
 - ruby-2.1.7
 - ruby-2.2.2
 - jruby-19mode
-- jruby-1.7.22
+- jruby
 - jruby-9.0.0.0
 - rbx-19mode
 - rbx-2
@@ -25,7 +25,7 @@ matrix:
   - os: osx
     rvm: jruby-19mode
   - os: osx
-    rvm: jruby-1.7.22
+    rvm: jruby
   - os: osx
     rvm: jruby-9.0.0.0
   - os: osx
