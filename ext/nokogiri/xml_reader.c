@@ -471,7 +471,7 @@ static VALUE read_more(VALUE self)
 
   error = xmlGetLastError();
   if(error)
-    rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
   else
     rb_raise(rb_eRuntimeError, "Error pulling: %d", ret);
 

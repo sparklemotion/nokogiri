@@ -123,17 +123,11 @@ module Nokogiri
 
         def test_value_lookup_segfault
           skip("JRuby doesn't do GC.") if Nokogiri.jruby?
-          old_stress = GC.stress
-
-          begin
-            GC.stress = true
-
+          stress_memory_while do
             while node = @reader.read
               nodes = node.send(:attr_nodes)
               nodes.first.name if nodes.first
             end
-          ensure
-            GC.stress = old_stress
           end
         end
       end

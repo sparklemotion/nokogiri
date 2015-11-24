@@ -164,6 +164,12 @@ module Nokogiri
         assert_match %r%     \n<div>b</div> *%, fragment.to_s
       end
 
+      def test_html_fragment_with_input_and_intermediate_whitespace
+        doc = "<label>Label</label><input type=\"text\"> <span>span</span>"
+        fragment = Nokogiri::HTML::Document.new.fragment(doc)
+        assert_equal "<label>Label</label><input type=\"text\"> <span>span</span>", fragment.to_s
+      end
+
       def test_html_fragment_with_leading_text_and_newline
         fragment = HTML::Document.new.fragment("First line\nSecond line<br>Broken line")
         assert_equal fragment.to_s, "First line\nSecond line<br>Broken line"
@@ -224,6 +230,11 @@ module Nokogiri
           fragment.to_s)
       end
 
+      def test_element_children_counts
+        doc = Nokogiri::HTML::DocumentFragment.parse("   <div>  </div>\n   ")
+        assert doc.element_children.count == 1
+      end
+
       def test_malformed_fragment_is_corrected
         fragment = HTML::DocumentFragment.parse("<div </div>")
         assert_equal "<div></div>", fragment.to_s
@@ -255,6 +266,31 @@ module Nokogiri
         frag = Nokogiri::HTML::DocumentFragment.new doc, "<hello>oh, hello there.</hello>", context_node
         assert frag.errors.any?{|err| err.to_s =~ /Tag hello invalid/}, "errors should be on the context node's document"
         assert frag.errors.none?{|err| err.to_s =~ /jimmy/}, "errors should not include pre-existing document errors"
+      end
+
+      def test_capturing_nonparse_errors_during_fragment_clone
+        # see https://github.com/sparklemotion/nokogiri/issues/1196 for background
+        original = Nokogiri::HTML.fragment("<div id='unique'></div>")
+        original_errors = original.errors.dup
+
+        copy = original.dup
+        assert_equal original_errors, copy.errors
+      end
+
+      def test_capturing_nonparse_errors_during_node_copy_between_fragments
+        skip("JRuby HTML parse errors are different than libxml2's") if Nokogiri.jruby?
+
+        frag1 = Nokogiri::HTML.fragment("<div id='unique'>one</div>")
+        frag2 = Nokogiri::HTML.fragment("<div id='unique'>two</div>")
+        node1 = frag1.at_css("#unique")
+        node2 = frag2.at_css("#unique")
+
+        original_errors = frag1.errors.dup
+
+        node1.add_child node2 # we should also not see an error on stderr
+
+        assert_equal original_errors.length+1, frag1.errors.length
+        assert_match(/ID unique already defined/, frag1.errors.last.to_s)
       end
     end
   end

@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2012:
+ * Copyright (c) 2008 - 2014:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -53,52 +53,65 @@ import org.w3c.dom.Node;
  */
 public class NokogiriNamespaceCache {
 
-    private List<Long> keys;  // order matters.
-    private Map<Integer, CacheEntry> cache;  // pair of the index of a given key and entry
+    private List<String[]> keys;
+    private Map<String[], CacheEntry> cache;  // pair of the index of a given key and entry
     private XmlNamespace defaultNamespace = null;
 
     public NokogiriNamespaceCache() {
-        keys = new ArrayList<Long>();
-        cache = new LinkedHashMap<Integer, CacheEntry>();
+        keys = new ArrayList<String[]>(); // keys are [prefix, href]
+        cache = new LinkedHashMap<String[], CacheEntry>();
     }
-    
-    private Long hashCode(String prefix, String href) {
-        long prefix_hash = prefix.hashCode();
-        long href_hash = href.hashCode();
-        return prefix_hash << 31 | href_hash;
+
+    public XmlNamespace getDefault() {
+        return defaultNamespace;
+    }
+
+    private String[] getKey(String prefix, String href) {
+        for (String[] key : keys) {
+            if (key[0].equals(prefix) && key[1].equals(href)) return key;
+        }
+        return null;
     }
 
     public XmlNamespace get(String prefix, String href) {
         // prefix should not be null.
         // In case of a default namespace, an empty string should be given to prefix argument.
         if (prefix == null || href == null) return null;
-        Long hash = hashCode(prefix, href);
-        Integer index = keys.indexOf(hash);
-        if (index != -1) return cache.get(index).namespace;
+        String[] key = getKey(prefix, href);
+        if (key != null) {
+            return cache.get(key).namespace;
+        }
         return null;
     }
-    
-    public XmlNamespace getDefault() {
-        return defaultNamespace;
-    }
-    
-    public XmlNamespace get(String prefix) {
+
+    public XmlNamespace get(Node node, String prefix) {
         if (prefix == null) return defaultNamespace;
-        long h = prefix.hashCode();
-        Long hash = h << 31;
-        Long mask = 0xFF00L;
-        for (int i=0; i < keys.size(); i++) {
-            if ((keys.get(i) & mask) == hash) {
-                return cache.get(i).namespace;
+        for (String[] key : keys) {
+            if (key[0].equals(prefix) && cache.get(key) != null && cache.get(key).isOwner(node)) {
+                return cache.get(key).namespace;
             }
         }
         return null;
     }
-    
+
+    public List<XmlNamespace> get(String prefix) {
+        List<XmlNamespace> namespaces = new ArrayList<XmlNamespace>();
+        if (prefix == null) {
+            namespaces.add(defaultNamespace);
+            return namespaces;
+        }
+        for (String[] key : keys) {
+            if (key[0].equals(prefix) && cache.get(key) != null) {
+                namespaces.add(cache.get(key).namespace);
+            }
+        }
+        return namespaces;
+    }
+
     public List<XmlNamespace> get(Node node) {
         List<XmlNamespace> namespaces = new ArrayList<XmlNamespace>();
-        for (int i=0; i < keys.size(); i++) {
-            CacheEntry entry = cache.get(i);
+        for (String[] key : keys) {
+            CacheEntry entry = cache.get(key);
             if (entry.isOwner(node)) {
                 namespaces.add(entry.namespace);
             }
@@ -111,33 +124,25 @@ public class NokogiriNamespaceCache {
         // In case of a default namespace, an empty string should be given to prefix argument.
         String prefixString = namespace.getPrefix();
         String hrefString = namespace.getHref();
-        Long hash = hashCode(prefixString, hrefString);
-        Integer index;
-        if ((index = keys.indexOf(hash)) != -1) {
-            return;
-        } else {
-            keys.add(hash);
-            index = keys.size() - 1;
-            CacheEntry entry = new CacheEntry(namespace, ownerNode);
-            cache.put(index, entry);
-            if ("".equals(prefixString)) defaultNamespace = namespace;
-        }
+        if (getKey(prefixString, hrefString) != null) return;
+        String[] key = {prefixString, hrefString};
+        keys.add(key);
+        CacheEntry entry = new CacheEntry(namespace, ownerNode);
+        cache.put(key, entry);
+        if ("".equals(prefixString)) defaultNamespace = namespace;
     }
 
     public void remove(String prefix, String href) {
-        if (prefix == null || href == null) return;
-        Long hash = hashCode(prefix, href);
-        Integer index = keys.indexOf(hash);
-        if (index != -1) {
-            cache.remove(index);
-        }
-        keys.remove(index);
+        String[] key = getKey(prefix, href);
+        if (key == null) return;
+        keys.remove(key);
+        cache.remove(key);
     }
-    
+
     public void clear() {
         // removes namespace declarations from node
-        for (int i=0; i < keys.size(); i++) {
-            CacheEntry entry = cache.get(i);
+        for (String[] key : cache.keySet()) {
+            CacheEntry entry = cache.get(key);
             NamedNodeMap attributes = entry.ownerNode.getAttributes();
             for (int j=0; j<attributes.getLength(); j++) {
                 String name = ((Attr)attributes.item(j)).getName();
@@ -150,10 +155,10 @@ public class NokogiriNamespaceCache {
         cache.clear();
         defaultNamespace = null;
     }
-    
+
     public void replaceNode(Node oldNode, Node newNode) {
-        for (int i=0; i < keys.size(); i++) {
-            CacheEntry entry = cache.get(i);
+        for (String[] key : keys) {
+            CacheEntry entry = cache.get(key);
             if (entry.isOwner(oldNode)) {
                 entry.replaceOwner(newNode);
             }
@@ -163,14 +168,14 @@ public class NokogiriNamespaceCache {
     private class CacheEntry {
         private XmlNamespace namespace;
         private Node ownerNode;
-        
+
         CacheEntry(XmlNamespace namespace, Node ownerNode) {
             this.namespace = namespace;
             this.ownerNode = ownerNode;
         }
 
         public Boolean isOwner(Node n) {
-            return this.ownerNode.isSameNode(n);
+            return ownerNode.isSameNode(n);
         }
 
         public void replaceOwner(Node newNode) {

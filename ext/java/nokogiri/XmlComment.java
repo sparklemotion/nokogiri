@@ -76,6 +76,8 @@ public class XmlComment extends XmlNode {
         } else if (doc instanceof XmlNode) {
             XmlNode xmlNode = (XmlNode) doc;
             xmlDoc = (XmlDocument)xmlNode.document(context);
+        } else {
+            throw getRuntime().newArgumentError("first argument must be a XML::Document or XML::Node");
         }
         if (xmlDoc != null) {
             Document document = xmlDoc.getDocument();

@@ -124,26 +124,54 @@ module Nokogiri
         assert_equal 0, set.search('foo').length
       end
 
-      def test_xpath_with_custom_object
-        set = @xml.xpath('//staff')
-        custom_employees = set.xpath('//*[awesome(.)]', Class.new {
-          def awesome ns
-            ns.select { |n| n.name == 'employee' }
-          end
-        }.new)
+      def test_node_set_search_with_multiple_queries
+        xml = '<document>
+                 <thing>
+                   <div class="title">important thing</div>
+                 </thing>
+                 <thing>
+                   <div class="content">stuff</div>
+                 </thing>
+                 <thing>
+                   <p class="blah">more stuff</div>
+                 </thing>
+               </document>'
+        set = Nokogiri::XML(xml).xpath(".//thing")
+        assert_kind_of Nokogiri::XML::NodeSet, set
 
-        assert_equal @xml.xpath('//employee'), custom_employees
+        assert_equal 3, set.xpath('./div', './p').length
+        assert_equal 3, set.css('.title', '.content', 'p').length
+        assert_equal 3, set.search('./div', 'p.blah').length
       end
 
-      def test_css_with_custom_object
+      def test_search_with_custom_selector
         set = @xml.xpath('//staff')
-        custom_employees = set.css('*:awesome', Class.new {
-          def awesome ns
-            ns.select { |n| n.name == 'employee' }
-          end
-        }.new)
 
-        assert_equal @xml.xpath('//employee'), custom_employees
+        [
+          [:xpath,  '//*[awesome(.)]'],
+          [:search, '//*[awesome(.)]'],
+          [:css,    '*:awesome'],
+          [:search, '*:awesome']
+        ].each do |method, query|
+          custom_employees = set.send(method, query, Class.new {
+              def awesome ns
+                ns.select { |n| n.name == 'employee' }
+              end
+            }.new)
+
+          assert_equal(@xml.xpath('//employee'), custom_employees,
+            "using #{method} with custom selector '#{query}'")
+        end
+      end
+
+      def test_search_with_variable_bindings
+        set = @xml.xpath('//staff')
+
+        assert_equal(4, set.xpath('//address[@domestic=$value]', nil, :value => 'Yes').length,
+          "using #xpath with variable binding")
+
+        assert_equal(4, set.search('//address[@domestic=$value]', nil, :value => 'Yes').length,
+          "using #search with variable binding")
       end
 
       def test_search_self
@@ -151,26 +179,10 @@ module Nokogiri
         assert_equal set.to_a, set.search('.').to_a
       end
 
-      def test_search_with_custom_object
-        set = @xml.xpath('//staff')
-        custom_employees = set.search('//*[awesome(.)]', Class.new {
-          def awesome ns
-            ns.select { |n| n.name == 'employee' }
-          end
-        }.new)
-
-        assert_equal @xml.xpath('//employee'), custom_employees
-      end
-
       def test_css_searches_match_self
         html = Nokogiri::HTML("<html><body><div class='a'></div></body></html>")
         set = html.xpath("/html/body/div")
         assert_equal set.first, set.css(".a").first
-      end
-
-      def test_search_with_css_matches_self
-        html = Nokogiri::HTML("<html><body><div class='a'></div></body></html>")
-        set = html.xpath("/html/body/div")
         assert_equal set.first, set.search(".a").first
       end
 
@@ -311,9 +323,22 @@ module Nokogiri
         assert_equal node_set.xpath('./employeeId'), (node_set > 'employeeId')
       end
 
-      def test_at
+      def test_at_performs_a_search_with_css
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first.first_element_child, node_set.at('employeeId')
+        assert_equal node_set.first.first_element_child, node_set.%('employeeId')
+      end
+
+      def test_at_performs_a_search_with_xpath
+        assert node_set = @xml.search('//employee')
+        assert_equal node_set.first.first_element_child, node_set.at('./employeeId')
+        assert_equal node_set.first.first_element_child, node_set.%('./employeeId')
+      end
+
+      def test_at_with_integer_index
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first, node_set.at(0)
+        assert_equal node_set.first, node_set % 0
       end
 
       def test_at_xpath
@@ -324,11 +349,6 @@ module Nokogiri
       def test_at_css
         assert node_set = @xml.search('//employee')
         assert_equal node_set.first.first_element_child, node_set.at_css('employeeId')
-      end
-
-      def test_percent
-        assert node_set = @xml.search('//employee')
-        assert_equal node_set.first, node_set % 0
       end
 
       def test_to_ary

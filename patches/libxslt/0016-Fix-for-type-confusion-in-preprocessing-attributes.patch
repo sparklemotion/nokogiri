@@ -1,0 +1,29 @@
+From 5865b9545891a38608374ff6458663e483a0dfb5 Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Thu, 29 Oct 2015 19:33:23 +0800
+Subject: [PATCH] Fix for type confusion in preprocessing attributes
+
+CVE-2015-7995 http://www.openwall.com/lists/oss-security/2015/10/27/10
+We need to check that the parent node is an element before dereferencing
+its namespace
+---
+ libxslt/preproc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/libxslt/preproc.c b/libxslt/preproc.c
+index 4ef3f63..dac6acb 100644
+--- a/libxslt/preproc.c
++++ b/libxslt/preproc.c
+@@ -2245,7 +2245,8 @@ xsltStylePreCompute(xsltStylesheetPtr style, xmlNodePtr inst) {
+ 	} else if (IS_XSLT_NAME(inst, "attribute")) {
+ 	    xmlNodePtr parent = inst->parent;
+ 
+-	    if ((parent == NULL) || (parent->ns == NULL) ||
++	    if ((parent == NULL) ||
++	        (parent->type != XML_ELEMENT_NODE) || (parent->ns == NULL) ||
+ 		((parent->ns != inst->ns) &&
+ 		 (!xmlStrEqual(parent->ns->href, inst->ns->href))) ||
+ 		(!xmlStrEqual(parent->name, BAD_CAST "attribute-set"))) {
+-- 
+2.5.0
+

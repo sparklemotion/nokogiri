@@ -1,25 +1,41 @@
 language: ruby
-rvm:
-  - 1.9.3
-  - 2.0.0
-  - ruby-head
-  - jruby-19mode
-  - jruby-20mode
-  - rbx-19mode
 
-jdk:
-  - openjdk7
-  - openjdk6
+sudo: false
+
+rvm:
+- ruby-1.9.2
+- ruby-1.9.3
+- ruby-2.0.0
+- ruby-2.1.7
+- ruby-2.2.2
+- jruby-19mode
+- jruby-1.7.22
+- jruby-9.0.0.0
+- rbx-19mode
+- rbx-2
+
+os:
+- linux
+- osx
 
 matrix:
-  allow_failures:
-    - rvm: rbx-19mode
   exclude:
-    - rvm: 1.9.3
-      jdk: openjdk7
-    - rvm: 2.0.0
-      jdk: openjdk7
-    - rvm: ruby-head
-      jdk: openjdk7
-    - rvm: rbx-19mode
-      jdk: openjdk7
+  - os: osx
+    rvm: ruby-1.9.2
+  - os: osx
+    rvm: jruby-19mode
+  - os: osx
+    rvm: jruby-1.7.22
+  - os: osx
+    rvm: jruby-9.0.0.0
+  - os: osx
+    rvm: rbx-19mode
+  - os: osx
+    rvm: rbx-2
+
+notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#nokogiri"
+    use_notice: true
+    skip_join: true

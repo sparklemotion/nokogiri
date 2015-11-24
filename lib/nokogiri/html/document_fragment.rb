@@ -1,8 +1,6 @@
 module Nokogiri
   module HTML
     class DocumentFragment < Nokogiri::XML::DocumentFragment
-      attr_accessor :errors
-
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+, using +encoding+
       def self.parse tags, encoding = nil

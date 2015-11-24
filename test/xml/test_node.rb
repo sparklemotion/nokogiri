@@ -133,6 +133,34 @@ module Nokogiri
         node.parse('<baz><</baz>')
       end
 
+      def test_parse_with_unparented_text_context_node
+        doc = XML::Document.new
+        elem = XML::Text.new("foo", doc)
+        x = elem.parse("<bar/>") # should not raise an exception
+        assert_equal x.first.name, "bar"
+      end
+
+      def test_parse_with_unparented_html_text_context_node
+        doc = HTML::Document.new
+        elem = XML::Text.new("div", doc)
+        x = elem.parse("<div/>") # should not raise an exception
+        assert_equal x.first.name, "div"
+      end
+
+      def test_parse_with_unparented_fragment_text_context_node
+        doc = XML::DocumentFragment.parse "<div><span>foo</span></div>"
+        elem = doc.at_css "span"
+        x = elem.parse("<span/>") # should not raise an exception
+        assert_equal x.first.name, "span"
+      end
+
+      def test_parse_with_unparented_html_fragment_text_context_node
+        doc = HTML::DocumentFragment.parse "<div><span>foo</span></div>"
+        elem = doc.at_css "span"
+        x = elem.parse("<span/>") # should not raise an exception
+        assert_equal x.first.name, "span"
+      end
+
       def test_subclass_dup
         subclass = Class.new(Nokogiri::XML::Node)
         node = subclass.new('foo', @xml).dup
@@ -607,8 +635,17 @@ module Nokogiri
       def test_remove_attribute
         address = @xml.xpath('/staff/employee/address').first
         assert_equal 'Yes', address['domestic']
-        address.remove_attribute 'domestic'
+        attr = address.attributes['domestic']
+
+        returned_attr = address.remove_attribute 'domestic'
         assert_nil address['domestic']
+        assert_equal attr, returned_attr
+      end
+
+      def test_remove_attribute_when_not_found
+        address = @xml.xpath('/staff/employee/address').first
+        attr = address.remove_attribute 'not-an-attribute'
+        assert_nil attr
       end
 
       def test_attribute_setter_accepts_non_string
@@ -830,7 +867,7 @@ b"></div>
         ne = d1.root.xpath('//a').first.dup(1)
         ne.content += "& < & > \" &"
         d2.root << ne
-        assert_match /<a>&amp;&amp; &lt; &amp; &gt; " &amp;<\/a>/, d2.to_s
+        assert_match(/<a>&amp;&amp; &lt; &amp; &gt; \" &amp;<\/a>/, d2.to_s)
       end
 
       def test_content_after_appending_text
@@ -1143,6 +1180,53 @@ eoxml
         document.root = root
         root << "<a>hello:with_colon</a>"
         assert_match(/hello:with_colon/, document.to_xml)
+      end
+
+      def test_document_eh
+        html_doc = Nokogiri::HTML "<div>foo</div>"
+        xml_doc = Nokogiri::XML "<div>foo</div>"
+        html_node = html_doc.at_css "div"
+        xml_node = xml_doc.at_css "div"
+
+        assert html_doc.document?
+        assert xml_doc.document?
+        assert ! html_node.document?
+        assert ! xml_node.document?
+      end
+
+      def test_processing_instruction_eh
+        xml_doc = Nokogiri::XML %Q{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<?xml-stylesheet type="text/xsl" href="foo2.xsl"?>\n<root><div>foo</div></root>}
+        pi_node = xml_doc.children.first
+        div_node = xml_doc.at_css "div"
+        assert pi_node.processing_instruction?
+        assert ! div_node.processing_instruction?
+      end
+
+      def test_node_lang
+        document = Nokogiri::XML <<-EOXML
+          <root>
+            <div class='english'  xml:lang='en'>
+              <div class='english_child'>foo</div>
+            </div>
+            <div class='japanese' xml:lang='jp'>bar</div>
+            <div class='unspecified'>bar</div>
+          </root>
+        EOXML
+        assert_equal "en", document.at_css(".english").lang
+        assert_equal "en", document.at_css(".english_child").lang
+        assert_equal "jp", document.at_css(".japanese").lang
+        assert_nil document.at_css(".unspecified").lang
+      end
+
+      def test_set_node_lang
+        document = Nokogiri::XML "<root><div class='subject'>foo</div></root>"
+        subject = document.at_css(".subject")
+
+        subject.lang = "de"
+        assert_equal "de", subject.lang
+
+        subject.lang = "fr"
+        assert_equal "fr", subject.lang
       end
     end
   end

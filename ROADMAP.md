@@ -57,6 +57,7 @@
   - https://github.com/sparklemotion/nokogiri/issues/370
   - https://github.com/sparklemotion/nokogiri/issues/454
   - https://github.com/sparklemotion/nokogiri/issues/572
+  could we fix this by making DocumentFragment be a subclass of NodeSet?
 
 
 ## Better Syntax for custom XPath function handler
@@ -70,9 +71,6 @@
   * we should standardize on a hash of options for these and other calls
 * what should NodeSet#xpath return?
   * https://github.com/sparklemotion/nokogiri/issues/656
-* also, clean up or unify the implementations of #xpath-and-friends in Node and NodeSet
-  * implementations are very similar, but no shared code :(
-  * decorate nodes in a consistent manner
 
 ## Encoding
 
@@ -87,3 +85,17 @@ Somebody who knows encoding well should head this up.
 
 It's fundamentally broken, in that we can't stop people from crashing
 their application if they want to use object reference unsafely.
+
+
+## Class methods that require Document
+
+There are a few methods, like `Nokogiri::XML::Comment.new` that
+require a Document object.
+
+We should probably make Document instance methods to wrap this, since
+it's a non-obvious expectation and thus fails as a convention.
+
+So, instead, let's make alternative methods like
+`Nokogiri::XML::Document#new_comment`, and recommend those as the
+proper convention.
+

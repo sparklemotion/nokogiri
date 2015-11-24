@@ -33,7 +33,7 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+import static org.jruby.runtime.Helpers.invoke;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -46,12 +46,9 @@ import java.nio.charset.UnsupportedCharsetException;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyFixnum;
 import org.jruby.RubyIO;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
-import org.jruby.RubyStringIO;
-import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -103,25 +100,29 @@ public class ParserContext extends RubyObject {
         RubyString stringData = null;
         if (invoke(context, data, "respond_to?",
                    ruby.newSymbol("to_io").to_sym()).isTrue()) {
-            /* IO or other object that responds to :to_io */
             RubyIO io =
                 (RubyIO) TypeConverter.convertToType(data,
                                                      ruby.getIO(),
                                                      "to_io");
             // use unclosedable input stream to fix #495
             source.setByteStream(new UncloseableInputStream(io.getInStream()));
-        } else {
-            if (invoke(context, data, "respond_to?",
+
+        } else if (invoke(context, data, "respond_to?",
+                          ruby.newSymbol("read").to_sym()).isTrue()) {
+            stringData = invoke(context, data, "read").convertToString();
+
+        } else if (invoke(context, data, "respond_to?",
                           ruby.newSymbol("string").to_sym()).isTrue()) {
-                /* StringIO or other object that responds to :string */
-                stringData = invoke(context, data, "string").convertToString();
-            } else if (data instanceof RubyString) {
-                stringData = (RubyString) data;
-            } else {
-                throw ruby.newArgumentError(
-                    "must be kind_of String or respond to :to_io or :string");
-            }
+            stringData = invoke(context, data, "string").convertToString();
+
+        } else if (data instanceof RubyString) {
+            stringData = (RubyString) data;
+
+        } else {
+            throw ruby.newArgumentError(
+                "must be kind_of String or respond to :to_io, :read, or :string");
         }
+
         if (stringData != null) {
             String encName = null;
             if (stringData.encoding(context) != null) {

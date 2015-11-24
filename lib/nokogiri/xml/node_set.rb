@@ -3,8 +3,9 @@ module Nokogiri
     ####
     # A NodeSet contains a list of Nokogiri::XML::Node objects.  Typically
     # a NodeSet is return as a result of searching a Document via
-    # Nokogiri::XML::Node#css or Nokogiri::XML::Node#xpath
+    # Nokogiri::XML::Searchable#css or Nokogiri::XML::Searchable#xpath
     class NodeSet
+      include Nokogiri::XML::Searchable
       include Enumerable
 
       # The Document this NodeSet is associated with
@@ -62,78 +63,33 @@ module Nokogiri
       alias :remove :unlink
 
       ###
-      # Search this document for +paths+
+      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
       #
-      # For more information see Nokogiri::XML::Node#css and
-      # Nokogiri::XML::Node#xpath
-      def search *paths
-        handler = ![
-          Hash, String, Symbol
-        ].include?(paths.last.class) ? paths.pop : nil
-
-        ns = paths.last.is_a?(Hash) ? paths.pop : nil
-
-        sub_set = NodeSet.new(document)
-
-        paths.each do |path|
-          sub_set += send(
-            path =~ /^(\.\/|\/|\.\.|\.$)/ ? :xpath : :css,
-            *(paths + [ns, handler]).compact
-          )
-        end
-
-        document.decorate(sub_set)
-        sub_set
-      end
-      alias :/ :search
-
-      ###
-      # Search this NodeSet for css +paths+
+      # Search this node set for CSS +rules+. +rules+ must be one or more CSS
+      # selectors. For example:
       #
-      # For more information see Nokogiri::XML::Node#css
-      def css *paths
-        handler = ![
-          Hash, String, Symbol
-        ].include?(paths.last.class) ? paths.pop : nil
+      # For more information see Nokogiri::XML::Searchable#css
+      def css *args
+        rules, handler, ns, _ = extract_params(args)
 
-        ns = paths.last.is_a?(Hash) ? paths.pop : nil
-
-        sub_set = NodeSet.new(document)
-
-        each do |node|
-          doc = node.document
-          search_ns = ns || (doc.root ? doc.root.namespaces : {})
-
-          xpaths = paths.map { |rule|
-            [
-              CSS.xpath_for(rule.to_s, :prefix => ".//", :ns => search_ns),
-              CSS.xpath_for(rule.to_s, :prefix => "self::", :ns => search_ns)
-            ].join(' | ')
-          }
-
-          sub_set += node.xpath(*(xpaths + [search_ns, handler].compact))
+        inject(NodeSet.new(document)) do |set, node|
+          set += css_internal node, rules, handler, ns
         end
-        document.decorate(sub_set)
-        sub_set
       end
 
       ###
-      # Search this NodeSet for XPath +paths+
+      # call-seq: xpath *paths, [namespace-bindings, variable-bindings, custom-handler-class]
       #
-      # For more information see Nokogiri::XML::Node#xpath
-      def xpath *paths
-        handler = ![
-          Hash, String, Symbol
-        ].include?(paths.last.class) ? paths.pop : nil
+      # Search this node set for XPath +paths+. +paths+ must be one or more XPath
+      # queries.
+      #
+      # For more information see Nokogiri::XML::Searchable#xpath
+      def xpath *args
+        paths, handler, ns, binds = extract_params(args)
 
-        ns = paths.last.is_a?(Hash) ? paths.pop : nil
-
-        sub_set = NodeSet.new(document)
-        each do |node|
-          sub_set += node.xpath(*(paths + [ns, handler].compact))
+        inject(NodeSet.new(document)) do |set, node|
+          set += node.xpath(*(paths + [ns, handler, binds].compact))
         end
-        document.decorate(sub_set)
-        sub_set
       end
 
       ###
@@ -144,31 +100,25 @@ module Nokogiri
       end
 
       ###
-      # If path is a string, search this document for +path+ returning the
-      # first Node.  Otherwise, index in to the array with +path+.
-      def at path, ns = document.root ? document.root.namespaces : {}
-        return self[path] if path.is_a?(Numeric)
-        search(path, ns).first
+      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
+      #
+      # Search this object for +paths+, and return only the first
+      # result. +paths+ must be one or more XPath or CSS queries.
+      #
+      # See Searchable#search for more information.
+      #
+      # Or, if passed an integer, index into the NodeSet:
+      #
+      #   node_set.at(3) # same as node_set[3]
+      #
+      def at *args
+        if args.length == 1 && args.first.is_a?(Numeric)
+          return self[args.first]
+        end
+
+        super(*args)
       end
       alias :% :at
-
-      ##
-      # Search this NodeSet for the first occurrence of XPath +paths+.
-      # Equivalent to <tt>xpath(paths).first</tt>
-      # See NodeSet#xpath for more information.
-      #
-      def at_xpath *paths
-        xpath(*paths).first
-      end
-
-      ##
-      # Search this NodeSet for the first occurrence of CSS +rules+.
-      # Equivalent to <tt>css(rules).first</tt>
-      # See NodeSet#css for more information.
-      #
-      def at_css *rules
-        css(*rules).first
-      end
 
       ###
       # Filter this list for nodes that match +expr+
@@ -350,6 +300,12 @@ module Nokogiri
       end
 
       alias :+ :|
+
+      private
+
+      def implied_xpath_contexts # :nodoc:
+        [".//", "self::"]
+      end
     end
   end
 end

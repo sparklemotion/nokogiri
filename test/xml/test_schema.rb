@@ -94,9 +94,22 @@ EOF
       end
 
       def test_validate_invalid_document
-        read_doc = File.read(PO_XML_FILE).gsub(/<city>[^<]*<\/city>/, '')
+        doc = Nokogiri::XML File.read(PO_XML_FILE)
+        doc.css("city").unlink
 
-        assert errors = @xsd.validate(Nokogiri::XML(read_doc))
+        assert errors = @xsd.validate(doc)
+        assert_equal 2, errors.length
+      end
+
+      def test_validate_invalid_file
+        tempfile = Tempfile.new("xml")
+
+        doc = Nokogiri::XML File.read(PO_XML_FILE)
+        doc.css("city").unlink
+        tempfile.write doc.to_xml
+        tempfile.close
+
+        assert errors = @xsd.validate(tempfile.path)
         assert_equal 2, errors.length
       end
 

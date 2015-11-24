@@ -1,13 +1,40 @@
 #!/usr/bin/env ruby
 require 'optparse'
 require 'open-uri'
-require 'irb'
 require 'uri'
 require 'rubygems'
 require 'nokogiri'
+autoload :IRB, 'irb'
 
 parse_class = Nokogiri
 encoding = nil
+
+# This module provides some tunables with the nokogiri CLI for use in
+# your ~/.nokogirirc.
+module Nokogiri::CLI
+  class << self
+    # Specify the console engine, defaulted to IRB.
+    #
+    # call-seq:
+    #   require 'pry'
+    #   Nokogiri::CLI.console = Pry
+    attr_writer :console
+
+    def console
+      case @console
+      when Symbol
+        Kernel.const_get(@console)
+      else
+        @console
+      end
+    end
+
+    attr_accessor :rcfile
+  end
+
+  self.rcfile  = File.expand_path('~/.nokogirirc')
+  self.console = :IRB
+end
 
 opts = OptionParser.new do |opts|
   opts.banner = "Nokogiri: an HTML, XML, SAX, and Reader parser"
@@ -20,11 +47,15 @@ opts = OptionParser.new do |opts|
   opts.separator ""
   opts.separator "Options:"
 
-  opts.on("--type [TYPE]", [:xml, :html]) do |v|
+  opts.on("--type type", "Parse as type: xml or html (default: auto)", [:xml, :html]) do |v|
     parse_class = {:xml => Nokogiri::XML, :html => Nokogiri::HTML}[v]
   end
 
-  opts.on("-E", "--encoding encoding", "Read as encoding (default #{encoding})") do |v|
+  opts.on("-C file", "Specifies initialization file to load (default #{Nokogiri::CLI.rcfile})") do |v|
+    Nokogiri::CLI.rcfile = v
+  end
+
+  opts.on("-E", "--encoding encoding", "Read as encoding (default: #{encoding || 'none'})") do |v|
     encoding = v
   end
 
@@ -48,15 +79,24 @@ opts = OptionParser.new do |opts|
 end
 opts.parse!
 
-uri = ARGV.shift
+url = ARGV.shift
 
-if uri.to_s.strip.empty? && $stdin.tty?
+if url.to_s.strip.empty? && $stdin.tty?
   puts opts
   exit 1
 end
 
-if $stdin.tty?
-  @doc = parse_class.parse(open(uri).read, nil, encoding)
+if File.file?(Nokogiri::CLI.rcfile)
+  load Nokogiri::CLI.rcfile
+end
+
+if url || $stdin.tty?
+  case uri = (URI(url) rescue url)
+  when URI::HTTP
+    @doc = parse_class.parse(uri.read, url, encoding)
+  else
+    @doc = parse_class.parse(open(url).read, nil, encoding)
+  end
 else
   @doc = parse_class.parse($stdin, nil, encoding)
 end
@@ -72,7 +112,7 @@ else
     eval @script, binding, '<main>'
   else
     puts "Your document is stored in @doc..."
-    IRB.start
+    Nokogiri::CLI.console.start
   end
 end
 

@@ -5,8 +5,8 @@ module Nokogiri
     # XML documents.  The Document is created by parsing an XML document.
     # See Nokogiri::XML::Document.parse() for more information on parsing.
     #
-    # For searching a Document, see Nokogiri::XML::Node#css and
-    # Nokogiri::XML::Node#xpath
+    # For searching a Document, see Nokogiri::XML::Searchable#css and
+    # Nokogiri::XML::Searchable#xpath
     #
     class Document < Nokogiri::XML::Node
       # I'm ignoring unicode characters here.
@@ -267,8 +267,8 @@ module Nokogiri
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
       end
 
-      def implied_xpath_context
-        "/"
+      def implied_xpath_contexts # :nodoc:
+        ["//"]
       end
 
       def inspect_attributes

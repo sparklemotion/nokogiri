@@ -32,9 +32,26 @@ module Nokogiri
     # * Nokogiri::XML::Node#next
     # * Nokogiri::XML::Node#previous
     #
-    # You may search this node's subtree using Node#xpath and Node#css
+    #
+    # When printing or otherwise emitting a document or a node (and
+    # its subtree), there are a few methods you might want to use:
+    #
+    # * content, text, inner_text, to_str: emit plaintext
+    #  
+    #   These methods will all emit the plaintext version of your
+    #   document, meaning that entities will be replaced (e.g., "&lt;"
+    #   will be replaced with "<"), meaning that any sanitizing will
+    #   likely be un-done in the output.
+    #
+    # * to_s, to_xml, to_html, inner_html: emit well-formed markup
+    #
+    #   These methods will all emit properly-escaped markup, meaning
+    #   that it's suitable for consumption by browsers, parsers, etc.
+    #
+    # You may search this node's subtree using Searchable#xpath and Searchable#css
     class Node
       include Nokogiri::XML::PP::Node
+      include Nokogiri::XML::Searchable
       include Enumerable
 
       # Element node type, see Nokogiri::XML::Node#element?
@@ -91,161 +108,10 @@ module Nokogiri
       end
 
       ###
-      # Search this node for +paths+.  +paths+ can be XPath or CSS, and an
-      # optional hash of namespaces may be appended.
-      # See Node#xpath and Node#css.
-      def search *paths
-        # TODO use         paths, handler, ns, binds = extract_params(paths)
-        ns = paths.last.is_a?(Hash) ? paths.pop :
-          (document.root ? document.root.namespaces : {})
-
-        prefix = "#{implied_xpath_context}/"
-
-        xpath(*(paths.map { |path|
-          path = path.to_s
-          path =~ /^(\.\/|\/|\.\.|\.$)/ ? path : CSS.xpath_for(
-            path,
-            :prefix => prefix,
-            :ns     => ns
-          )
-        }.flatten.uniq) + [ns])
-      end
-      alias :/ :search
-
-      ###
-      # call-seq: xpath *paths, [namespace-bindings, variable-bindings, custom-handler-class]
-      #
-      # Search this node for XPath +paths+. +paths+ must be one or more XPath
-      # queries.
-      #
-      #   node.xpath('.//title')
-      #
-      # A hash of namespace bindings may be appended. For example:
-      #
-      #   node.xpath('.//foo:name', {'foo' => 'http://example.org/'})
-      #   node.xpath('.//xmlns:name', node.root.namespaces)
-      #
-      # A hash of variable bindings may also be appended to the namespace bindings. For example:
-      #
-      #   node.xpath('.//address[@domestic=$value]', nil, {:value => 'Yes'})
-      #
-      # Custom XPath functions may also be defined.  To define custom
-      # functions create a class and implement the function you want
-      # to define.  The first argument to the method will be the
-      # current matching NodeSet.  Any other arguments are ones that
-      # you pass in.  Note that this class may appear anywhere in the
-      # argument list.  For example:
-      #
-      #   node.xpath('.//title[regex(., "\w+")]', Class.new {
-      #     def regex node_set, regex
-      #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
-      #     end
-      #   }.new)
-      #
-      def xpath *paths
-        return NodeSet.new(document) unless document
-
-        paths, handler, ns, binds = extract_params(paths)
-
-        sets = paths.map { |path|
-          ctx = XPathContext.new(self)
-          ctx.register_namespaces(ns)
-          path = path.gsub(/xmlns:/, ' :') unless Nokogiri.uses_libxml?
-
-          binds.each do |key,value|
-            ctx.register_variable key.to_s, value
-          end if binds
-
-          ctx.evaluate(path, handler)
-        }
-        return sets.first if sets.length == 1
-
-        NodeSet.new(document) do |combined|
-          sets.each do |set|
-            set.each do |node|
-              combined << node
-            end
-          end
-        end
-      end
-
-      ###
-      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
-      #
-      # Search this node for CSS +rules+. +rules+ must be one or more CSS
-      # selectors. For example:
-      #
-      #   node.css('title')
-      #   node.css('body h1.bold')
-      #   node.css('div + p.green', 'div#one')
-      #
-      # A hash of namespace bindings may be appended. For example:
-      #
-      #   node.css('bike|tire', {'bike' => 'http://schwinn.com/'})
-      #
-      # Custom CSS pseudo classes may also be defined.  To define
-      # custom pseudo classes, create a class and implement the custom
-      # pseudo class you want defined.  The first argument to the
-      # method will be the current matching NodeSet.  Any other
-      # arguments are ones that you pass in.  For example:
-      #
-      #   node.css('title:regex("\w+")', Class.new {
-      #     def regex node_set, regex
-      #       node_set.find_all { |node| node['some_attribute'] =~ /#{regex}/ }
-      #     end
-      #   }.new)
-      #
-      # Note that the CSS query string is case-sensitive with regards
-      # to your document type. That is, if you're looking for "H1" in
-      # an HTML document, you'll never find anything, since HTML tags
-      # will match only lowercase CSS queries. However, "H1" might be
-      # found in an XML document, where tags names are case-sensitive
-      # (e.g., "H1" is distinct from "h1").
-      #
-      def css *rules
-        rules, handler, ns, binds = extract_params(rules)
-
-        prefix = "#{implied_xpath_context}/"
-
-        rules = rules.map { |rule|
-          CSS.xpath_for(rule, :prefix => prefix, :ns => ns)
-        }.flatten.uniq + [ns, handler, binds].compact
-
-        xpath(*rules)
-      end
-
-      ###
       # Search this node's immediate children using CSS selector +selector+
       def > selector
         ns = document.root.namespaces
         xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
-      end
-
-      ###
-      # Search for the first occurrence of +path+.
-      #
-      # Returns nil if nothing is found, otherwise a Node.
-      def at path, ns = document.root ? document.root.namespaces : {}
-        search(path, ns).first
-      end
-      alias :% :at
-
-      ##
-      # Search this node for the first occurrence of XPath +paths+.
-      # Equivalent to <tt>xpath(paths).first</tt>
-      # See Node#xpath for more information.
-      #
-      def at_xpath *paths
-        xpath(*paths).first
-      end
-
-      ##
-      # Search this node for the first occurrence of CSS +rules+.
-      # Equivalent to <tt>css(rules).first</tt>
-      # See Node#css for more information.
-      #
-      def at_css *rules
-        css(*rules).first
       end
 
       ###
@@ -287,7 +153,7 @@ module Nokogiri
       def prepend_child node_or_tags
         if first = children.first
           # Mimic the error add_child would raise.
-          raise RuntimeError, "Document already has a root node" if is_a?(XML::Document) && !node_or_tags.is_a?(XML::ProcessingInstruction)
+          raise RuntimeError, "Document already has a root node" if document? && !node_or_tags.processing_instruction?
           first.__send__(:add_sibling, :previous, node_or_tags)
         else
           add_child(node_or_tags)
@@ -313,7 +179,7 @@ module Nokogiri
       #
       # Also see related method +before+.
       def add_previous_sibling node_or_tags
-        raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document) && !node_or_tags.is_a?(XML::ProcessingInstruction)
+        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !node_or_tags.processing_instruction?
 
         add_sibling :previous, node_or_tags
       end
@@ -326,8 +192,8 @@ module Nokogiri
       #
       # Also see related method +after+.
       def add_next_sibling node_or_tags
-        raise ArgumentError.new("A document may not have multiple root nodes.") if parent.is_a?(XML::Document)
-        
+        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !node_or_tags.processing_instruction?
+
         add_sibling :next, node_or_tags
       end
 
@@ -485,7 +351,9 @@ module Nokogiri
       ###
       # Remove the attribute named +name+
       def remove_attribute name
-        attributes[name].remove if key? name
+        attr = attributes[name].remove if key? name
+        clear_xpath_context if Nokogiri.jruby?
+        attr
       end
       alias :delete :remove_attribute
 
@@ -508,6 +376,15 @@ module Nokogiri
       # *this* node.  Returns a XML::NodeSet containing the nodes parsed from
       # +string_or_io+.
       def parse string_or_io, options = nil
+        ##
+        # When the current node is unparented and not an element node, use the
+        # document as the parsing context instead. Otherwise, the in-context
+        # parser cannot find an element or a document node.
+        # Document Fragments are also not usable by the in-context parser.
+        if !element? && !document? && (!parent || parent.fragment?)
+          return document.parse(string_or_io, options)
+        end
+
         options ||= (document.html? ? ParseOptions::DEFAULT_HTML : ParseOptions::DEFAULT_XML)
         if Fixnum === options
           options = Nokogiri::XML::ParseOptions.new(options)
@@ -590,6 +467,16 @@ module Nokogiri
       # Returns true if this is an HTML::Document node
       def html?
         type == HTML_DOCUMENT_NODE
+      end
+
+      # Returns true if this is a Document
+      def document?
+        is_a? XML::Document
+      end
+
+      # Returns true if this is a ProcessingInstruction node
+      def processing_instruction?
+        type == PI_NODE
       end
 
       # Returns true if this is a Text node
@@ -899,7 +786,6 @@ module Nokogiri
         # FIXME: this is a hack around broken libxml versions
         return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
 
-        options[:save_with] |= save_option if options[:save_with]
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
       end
@@ -912,25 +798,8 @@ module Nokogiri
         write_to io, options
       end
 
-      def extract_params params # :nodoc:
-        # Pop off our custom function handler if it exists
-        handler = params.find { |param|
-          ![Hash, String, Symbol].include?(param.class)
-        }
-
-        params -= [handler] if handler
-
-        hashes = []
-        while Hash === params.last || params.last.nil?
-          hashes << params.pop
-          break if params.empty?
-        end
-
-        ns, binds = hashes.reverse
-
-        ns ||= document.root ? document.root.namespaces : {}
-
-        [params, handler, ns, binds]
+      def inspect_attributes
+        [:name, :namespace, :attribute_nodes, :children]
       end
 
       def coerce data # :nodoc:
@@ -953,22 +822,17 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
         EOERR
       end
 
-      def implied_xpath_context
-        "./"
+      def implied_xpath_contexts # :nodoc:
+        [".//"]
       end
 
-      def inspect_attributes
-        [:name, :namespace, :attribute_nodes, :children]
-      end
-
-      def add_child_node_and_reparent_attrs node
+      def add_child_node_and_reparent_attrs node # :nodoc:
         add_child_node node
         node.attribute_nodes.find_all { |a| a.name =~ /:/ }.each do |attr_node|
           attr_node.remove
           node[attr_node.name] = attr_node.value
         end
       end
-
     end
   end
 end

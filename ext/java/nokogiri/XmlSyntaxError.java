@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -58,7 +58,7 @@ public class XmlSyntaxError extends RubyException {
     public XmlSyntaxError(Ruby runtime, RubyClass klazz) {
         super(runtime, klazz);
     }
-    
+
     /**
      * Create and return a copy of this object.
      *
@@ -93,13 +93,13 @@ public class XmlSyntaxError extends RubyException {
     }
 
     public static XmlSyntaxError createNokogiriXmlSyntaxError(Ruby runtime) {
-      return (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+        return (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
     }
 
     public void setException(Exception exception) {
         this.exception = exception;
     }
-    
+
     public void setException(Ruby runtime, Exception exception, int level) {
         this.exception = exception;
         setInstanceVariable("@level", runtime.newFixnum(level));
@@ -122,15 +122,17 @@ public class XmlSyntaxError extends RubyException {
         if (exception != null && exception.getMessage() != null)
             return context.getRuntime().newString(exception.getMessage());
         else
-            return super.to_s(context);  
+            return super.to_s(context);
     }
-    
+
     //@Override
     //"to_s" method was branched in 1.8 and 1.9 since JRuby 1.6.6
     // to support older version of JRuby, the annotation is commented out
     @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_9)
     public IRubyObject to_s19(ThreadContext context) {
-        return this.to_s(context);
+        if (exception != null && exception.getMessage() != null)
+            return context.getRuntime().newString(exception.getMessage());
+        else
+            return super.to_s19(context);
     }
-    
 }

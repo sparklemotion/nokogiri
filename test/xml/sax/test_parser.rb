@@ -376,6 +376,17 @@ module Nokogiri
 
           assert_equal [['Root', []], ['Data', []], ['Item', []], ['Data', []], ['Item', []]], @parser.document.start_elements
         end
+
+        def test_square_bracket_in_text  # issue 1261
+          xml = <<-eoxml
+<tu tuid="87dea04cf60af103ff09d1dba36ae820" segtype="block">
+  <prop type="x-smartling-string-variant">en:#:home_page:#:stories:#:[6]:#:name</prop>
+  <tuv xml:lang="en-US"><seg>Sandy S.</seg></tuv>
+</tu>
+          eoxml
+          @parser.parse(xml)
+          assert @parser.document.data.must_include "en:#:home_page:#:stories:#:[6]:#:name"
+        end
       end
     end
   end

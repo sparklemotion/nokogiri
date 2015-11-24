@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2012:
+ * Copyright (c) 2008 - 2014:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -60,6 +60,7 @@ import nokogiri.XmlNamespace;
 import nokogiri.XmlNode;
 import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
+import nokogiri.XmlXpathContext;
 
 import org.jcodings.specific.UTF8Encoding;
 import org.jruby.Ruby;
@@ -91,6 +92,20 @@ public class NokogiriHelpers {
 
     public static XmlNode getCachedNode(Node node) {
         return (XmlNode) node.getUserData(CACHED_NODE);
+    }
+
+    public static void clearCachedNode(Node node) {
+        node.setUserData(CACHED_NODE, null, null);
+    }
+
+    public static void clearXpathContext(Node node) {
+        if (node == null) return;
+
+        Node ownerDocument = node.getOwnerDocument();
+        if (ownerDocument == null) {
+            ownerDocument = node;
+        }
+        ownerDocument.setUserData(XmlXpathContext.XPATH_CONTEXT, null, null);
     }
 
     /**
@@ -542,7 +557,7 @@ public class NokogiriHelpers {
     private static Pattern decoded_pattern = Pattern.compile("&|>|<|\r");
     private static String[] encoded = {"&amp;", "&gt;", "&lt;", "&#13;"};
     private static String[] decoded = {"&", ">", "<", "\r"};
-    
+
     private static String convert(Pattern ptn, String input, String[] oldChars, String[] newChars)  {
         Matcher matcher = ptn.matcher(input);
         boolean result = matcher.find();
@@ -562,11 +577,11 @@ public class NokogiriHelpers {
         matcher.appendTail(sb);
         return sb.toString();
     }
-    
+
     public static String encodeJavaString(String s) {
         return convert(decoded_pattern, s, decoded, encoded);
     }
-    
+
     public static String decodeJavaString(String s) {
         return convert(encoded_pattern, s, encoded, decoded);
     }
@@ -602,7 +617,7 @@ public class NokogiriHelpers {
     public static boolean isXmlBase(String attrName) {
         return "xml:base".equals(attrName) || "xlink:href".equals(attrName);
     }
-    
+
     public static boolean isWhitespaceText(ThreadContext context, IRubyObject obj) {
         if (obj == null || obj.isNil()) return false;
 
@@ -613,11 +628,11 @@ public class NokogiriHelpers {
         String content = rubyStringToString(node.content(context));
         return content.trim().length() == 0;
     }
-    
+
     public static boolean isWhitespaceText(String s) {
         return s.trim().length() == 0;
     }
-    
+
     public static String canonicalizeWhitespce(String s) {
         StringBuilder sb = new StringBuilder();
         char[] chars = s.toCharArray();
@@ -648,14 +663,14 @@ public class NokogiriHelpers {
         RubyArray array = RubyArray.newArray(ruby, nodes.getLength());
         return nodeListToRubyArray(ruby, nodes, array);
     }
-    
+
     public static RubyArray nodeListToRubyArray(Ruby ruby, NodeList nodes, RubyArray array) {
         for(int i = 0; i < nodes.getLength(); i++) {
             array.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)));
         }
         return array;
     }
-    
+
     public static RubyArray nodeArrayToRubyArray(Ruby ruby, Node[] nodes) {
         RubyArray n = RubyArray.newArray(ruby, nodes.length);
         for(int i = 0; i < nodes.length; i++) {
@@ -663,7 +678,7 @@ public class NokogiriHelpers {
         }
         return n;
     }
-    
+
     public static RubyArray namedNodeMapToRubyArray(Ruby ruby, NamedNodeMap map) {
         RubyArray n = RubyArray.newArray(ruby, map.getLength());
         for(int i = 0; i < map.getLength(); i++) {
@@ -671,7 +686,7 @@ public class NokogiriHelpers {
         }
         return n;
     }
-    
+
     public static String getValidEncoding(Ruby runtime, IRubyObject encoding) {
         if (encoding.isNil()) {
             return guessEncoding();
@@ -679,7 +694,7 @@ public class NokogiriHelpers {
             return ignoreInvalidEncoding(runtime, encoding);
         }
     }
-    
+
     private static String guessEncoding() {
         String name = null;
         if (name == null) name = System.getProperty("file.encoding");
@@ -694,7 +709,7 @@ public class NokogiriHelpers {
         if (charsetNames.contains(givenEncoding)) return givenEncoding;
         else return guessEncoding();
     }
-    
+
     public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
         if (systemId == null) return systemId;
         File file = new File(systemId);
@@ -705,7 +720,7 @@ public class NokogiriHelpers {
         if (path != null) return path;
         return resolveSystemId(scriptFileName, systemId);
     }
-    
+
     private static String resolveSystemId(String baseName, String systemId) {
         if (baseName == null || baseName.length() < 1) return null;
         String parentName = null;
@@ -719,13 +734,13 @@ public class NokogiriHelpers {
         if (dtdFile.exists()) return dtdFile.getPath();
         return null;
     }
-    
+
     public static boolean isUTF8(String encoding) {
         if (encoding == null) return true;   // no need to convert encoding
         int ret = Charset.forName(encoding).compareTo(Charset.forName("UTF-8"));
         return ret == 0;
     }
-    
+
     public static byte[] convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
         CharsetEncoder encoder = output_charset.newEncoder();
         CharBuffer charBuffer = CharBuffer.wrap(input_string);
@@ -746,7 +761,6 @@ public class NokogiriHelpers {
         } else {
             return NokogiriHelpers.nkf(runtime, ruby_encoding, thing);
         }
-        
     }
 
     // This method is used from HTML documents. HTML meta tag with encoding specification
@@ -798,7 +812,7 @@ public class NokogiriHelpers {
             return thing;
         }
     }
-    
+
     private static Charset shift_jis = Charset.forName("Shift_JIS");
     private static Charset jis = Charset.forName("ISO-2022-JP");
     private static Charset euc_jp = Charset.forName("EUC-JP");
@@ -812,11 +826,14 @@ public class NokogiriHelpers {
       return !shouldEncode(text);
     }
 
+    public static NokogiriNamespaceCache getNamespaceCacheFormNode(Node n) {
+        XmlDocument xmlDoc = (XmlDocument)getCachedNode(n.getOwnerDocument());
+        return xmlDoc.getNamespaceCache();
+    }
+
     public static Node renameNode(Node n, String namespaceURI, String qualifiedName) throws DOMException {
         Document doc = n.getOwnerDocument();
-        XmlDocument xmlDoc = (XmlDocument)getCachedNode(doc);
-        NokogiriNamespaceCache nsCache = xmlDoc.getNamespaceCache();
-        int oldHash = n.hashCode();
+        NokogiriNamespaceCache nsCache = getNamespaceCacheFormNode(n);
         Node result = doc.renameNode(n, namespaceURI, qualifiedName);
         if (result != n) {
             nsCache.replaceNode(n, result);

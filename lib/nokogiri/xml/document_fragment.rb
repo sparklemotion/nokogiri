@@ -73,12 +73,40 @@ module Nokogiri
       end
 
       ###
-      # Search this fragment.  See Nokogiri::XML::Node#css
+      # call-seq: css *rules, [namespace-bindings, custom-pseudo-class]
+      #
+      # Search this fragment for CSS +rules+. +rules+ must be one or more CSS
+      # selectors. For example:
+      #
+      # For more information see Nokogiri::XML::Searchable#css
       def css *args
         if children.any?
-          children.css(*args)
+          children.css(*args) # 'children' is a smell here
         else
           NodeSet.new(document)
+        end
+      end
+
+      #
+      #  NOTE that we don't delegate #xpath to children ... another smell.
+      #  def xpath ; end
+      #
+
+      ###
+      # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
+      #
+      # Search this fragment for +paths+. +paths+ must be one or more XPath or CSS queries.
+      #
+      # For more information see Nokogiri::XML::Searchable#search
+      def search *rules
+        rules, handler, ns, binds = extract_params(rules)
+
+        rules.inject(NodeSet.new(document)) do |set, rule|
+          set += if rule =~ Searchable::LOOKS_LIKE_XPATH
+                   xpath(*([rule, ns, handler, binds].compact))
+                 else
+                   children.css(*([rule, ns, handler].compact)) # 'children' is a smell here
+                 end
         end
       end
 
@@ -90,6 +118,15 @@ module Nokogiri
         def parse tags
           self.new(XML::Document.new, tags)
         end
+      end
+
+      # A list of Nokogiri::XML::SyntaxError found when parsing a document
+      def errors
+        document.errors
+      end
+
+      def errors= things # :nodoc:
+        document.errors = things
       end
 
       private

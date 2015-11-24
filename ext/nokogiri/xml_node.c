@@ -14,7 +14,14 @@ static void debug_node_dealloc(xmlNodePtr x)
 
 static void mark(xmlNodePtr node)
 {
-  rb_gc_mark(DOC_RUBY_OBJECT(node->doc));
+  xmlDocPtr doc = node->doc;
+  if(doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE) {
+    if(DOC_RUBY_OBJECT_TEST(doc)) {
+      rb_gc_mark(DOC_RUBY_OBJECT(doc));
+    }
+  } else if(node->doc->_private) {
+    rb_gc_mark((VALUE)doc->_private);
+  }
 }
 
 /* :nodoc: */
@@ -132,7 +139,7 @@ static xmlNodePtr xmlReplaceNodeWrapper(xmlNodePtr pivot, xmlNodePtr new_node)
 static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_reparentee_func prf)
 {
   VALUE reparented_obj ;
-  xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text ;
+  xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text, parent ;
 
   if(!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
@@ -142,9 +149,71 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
   Data_Get_Struct(reparentee_obj, xmlNode, reparentee);
   Data_Get_Struct(pivot_obj, xmlNode, pivot);
 
-  if(XML_DOCUMENT_NODE == reparentee->type || XML_HTML_DOCUMENT_NODE == reparentee->type)
-    rb_raise(rb_eArgError, "cannot reparent a document node");
+  /*
+   * Check if nodes given are appropriate to have a parent-child
+   * relationship, based on the DOM specification.
+   *
+   * cf. http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#ID-1590626202
+   */
+  if (prf == xmlAddChild) {
+    parent = pivot;
+  } else {
+    parent = pivot->parent;
+  }
 
+  if (parent) {
+    switch (parent->type) {
+    case XML_DOCUMENT_NODE:
+    case XML_HTML_DOCUMENT_NODE:
+      switch (reparentee->type) {
+        case XML_ELEMENT_NODE:
+        case XML_PI_NODE:
+        case XML_COMMENT_NODE:
+        case XML_DOCUMENT_TYPE_NODE:
+      /*
+       * The DOM specification says no to adding text-like nodes
+       * directly to a document, but we allow it for compatibility.
+       */
+        case XML_TEXT_NODE:
+        case XML_CDATA_SECTION_NODE:
+        case XML_ENTITY_REF_NODE:
+          goto ok;
+      }
+      break;
+    case XML_DOCUMENT_FRAG_NODE:
+    case XML_ENTITY_REF_NODE:
+    case XML_ELEMENT_NODE:
+      switch (reparentee->type) {
+      case XML_ELEMENT_NODE:
+      case XML_PI_NODE:
+      case XML_COMMENT_NODE:
+      case XML_TEXT_NODE:
+      case XML_CDATA_SECTION_NODE:
+      case XML_ENTITY_REF_NODE:
+        goto ok;
+      }
+      break;
+    case XML_ATTRIBUTE_NODE:
+      switch (reparentee->type) {
+      case XML_TEXT_NODE:
+      case XML_ENTITY_REF_NODE:
+        goto ok;
+      }
+      break;
+    case XML_TEXT_NODE:
+      /*
+       * xmlAddChild() breaks the DOM specification in that it allows
+       * adding a text node to another, in which case text nodes are
+       * coalesced, but since our JRuby version does not support such
+       * operation, we should inhibit it.
+       */
+      break;
+    }
+
+    rb_raise(rb_eArgError, "cannot reparent %s there", rb_obj_classname(reparentee_obj));
+  }
+
+ok:
   xmlUnlinkNode(reparentee);
 
   if (reparentee->doc != pivot->doc || reparentee->type == XML_TEXT_NODE) {
@@ -165,7 +234,15 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
      *  reparent the actual reparentee, so we reparent a duplicate.
      */
     nokogiri_root_node(reparentee);
-    if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
+
+    xmlResetLastError();
+    xmlSetStructuredErrorFunc((void *)rb_iv_get(DOC_RUBY_OBJECT(pivot->doc), "@errors"), Nokogiri_error_array_pusher);
+
+    reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1) ;
+
+    xmlSetStructuredErrorFunc(NULL, NULL);
+
+    if (! reparentee) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
   }
@@ -404,7 +481,13 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
 
   Data_Get_Struct(self, xmlNode, node);
 
+  xmlResetLastError();
+  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_silencer);
+
   dup = xmlDocCopyNode(node, node->doc, (int)NUM2INT(level));
+
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
   if(dup == NULL) return Qnil;
 
   nokogiri_root_node(dup);
@@ -695,11 +778,19 @@ static VALUE namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
  *
  * Set the +property+ to +value+
  */
-static VALUE set(VALUE self, VALUE property, VALUE value)
+static VALUE set(VALUE node_rb, VALUE property_name_rb, VALUE property_value_rb)
 {
   xmlNodePtr node, cur;
-  xmlAttrPtr prop;
-  Data_Get_Struct(self, xmlNode, node);
+  xmlChar*   property_name ;
+  xmlAttrPtr property;
+
+  Data_Get_Struct(node_rb, xmlNode, node);
+
+  if (node->type != XML_ELEMENT_NODE) {
+    return(Qnil); // TODO: would raising an exception be more appropriate?
+  }
+
+  property_name = (xmlChar *)StringValuePtr(property_name_rb);
 
   /* If a matching attribute node already exists, then xmlSetProp will destroy
    * the existing node's children. However, if Nokogiri has a node object
@@ -707,11 +798,9 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
    *
    * We can avoid this by unlinking these nodes first.
    */
-  if (node->type != XML_ELEMENT_NODE)
-    return(Qnil);
-  prop = xmlHasProp(node, (xmlChar *)StringValuePtr(property));
-  if (prop && prop->children) {
-    for (cur = prop->children; cur; cur = cur->next) {
+  property = xmlHasProp(node, property_name);
+  if (property && property->children) {
+    for (cur = property->children; cur; cur = cur->next) {
       if (cur->_private) {
         nokogiri_root_node(cur);
         xmlUnlinkNode(cur);
@@ -719,10 +808,14 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
     }
   }
 
-  xmlSetProp(node, (xmlChar *)StringValuePtr(property),
-      (xmlChar *)StringValuePtr(value));
+  xmlResetLastError();
+  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_silencer);
 
-  return value;
+  xmlSetProp(node, property_name, (xmlChar *)StringValuePtr(property_value_rb));
+
+  xmlSetStructuredErrorFunc(NULL, NULL);
+
+  return property_value_rb;
 }
 
 /*
@@ -943,7 +1036,7 @@ static VALUE node_type(VALUE self)
  *
  * Set the content for this Node
  */
-static VALUE native_content(VALUE self, VALUE content)
+static VALUE set_native_content(VALUE self, VALUE content)
 {
   xmlNodePtr node, child, next ;
   Data_Get_Struct(self, xmlNode, node);
@@ -966,7 +1059,7 @@ static VALUE native_content(VALUE self, VALUE content)
  *
  * Returns the content for this Node
  */
-static VALUE get_content(VALUE self)
+static VALUE get_native_content(VALUE self)
 {
   xmlNodePtr node;
   xmlChar * content;
@@ -980,6 +1073,50 @@ static VALUE get_content(VALUE self)
     return rval;
   }
   return Qnil;
+}
+
+/*
+ * call-seq:
+ *  lang=
+ *
+ * Set the language of a node, i.e. the values of the xml:lang attribute.
+ */
+static VALUE set_lang(VALUE self_rb, VALUE lang_rb)
+{
+  xmlNodePtr self ;
+  xmlChar* lang ;
+
+  Data_Get_Struct(self_rb, xmlNode, self);
+  lang = (xmlChar*)StringValuePtr(lang_rb);
+
+  xmlNodeSetLang(self, lang);
+
+  return Qnil ;
+}
+
+/*
+ * call-seq:
+ *  lang
+ *
+ * Searches the language of a node, i.e. the values of the xml:lang attribute or
+ * the one carried by the nearest ancestor.
+ */
+static VALUE get_lang(VALUE self_rb)
+{
+  xmlNodePtr self ;
+  xmlChar* lang ;
+  VALUE lang_rb ;
+
+  Data_Get_Struct(self_rb, xmlNode, self);
+
+  lang = xmlNodeGetLang(self);
+  if (lang) {
+    lang_rb = NOKOGIRI_STR_NEW2(lang);
+    xmlFree(lang);
+    return lang_rb ;
+  }
+
+  return Qnil ;
 }
 
 /* :nodoc: */
@@ -1258,7 +1395,7 @@ static VALUE process_xincludes(VALUE self, VALUE options)
 
     error = xmlGetLastError();
     if(error)
-      rb_exc_raise(Nokogiri_wrap_xml_syntax_error((VALUE)NULL, error));
+      rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
     else
       rb_raise(rb_eRuntimeError, "Could not perform xinclude substitution");
   }
@@ -1492,7 +1629,6 @@ void init_xml_node()
   rb_define_method(klass, "next_element", next_element, 0);
   rb_define_method(klass, "previous_element", previous_element, 0);
   rb_define_method(klass, "node_type", node_type, 0);
-  rb_define_method(klass, "content", get_content, 0);
   rb_define_method(klass, "path", path, 0);
   rb_define_method(klass, "key?", key_eh, 1);
   rb_define_method(klass, "namespaced_key?", namespaced_key_eh, 2);
@@ -1512,7 +1648,10 @@ void init_xml_node()
   rb_define_method(klass, "create_external_subset", create_external_subset, 3);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
-  rb_define_method(klass, "native_content=", native_content, 1);
+  rb_define_method(klass, "content", get_native_content, 0);
+  rb_define_method(klass, "native_content=", set_native_content, 1);
+  rb_define_method(klass, "lang", get_lang, 0);
+  rb_define_method(klass, "lang=", set_lang, 1);
 
   rb_define_private_method(klass, "process_xincludes", process_xincludes, 1);
   rb_define_private_method(klass, "in_context", in_context, 2);

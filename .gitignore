@@ -7,6 +7,8 @@
 .classpath
 .project
 .rake_tasks
+.ruby-gemset
+.ruby-version
 .rvmrc
 .settings
 Gemfile*
@@ -23,9 +25,7 @@ lib/nokogiri/nokogiri.jar
 lib/nokogiri/nokogiri.rb
 lib/nokogiri/nokogiri.so
 pkg
-ports/archives
-ports/*-*-*
-ports/*.installed
+ports
 stash
 tags
 test/*/*_mini.rb
@@ -33,3 +33,4 @@ test/*_mini.rb
 test/test_jruby_footer.rb
 test/test_jruby_header.rb
 tmp
+vendor

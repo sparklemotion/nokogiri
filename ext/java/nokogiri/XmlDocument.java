@@ -1,7 +1,7 @@
 /**
  * (The MIT License)
  *
- * Copyright (c) 2008 - 2011:
+ * Copyright (c) 2008 - 2014:
  *
  * * {Aaron Patterson}[http://tenderlovemaking.com]
  * * {Mike Dalessio}[http://mike.daless.io]
@@ -32,6 +32,7 @@
 
 package nokogiri;
 
+import static nokogiri.internals.NokogiriHelpers.clearXpathContext;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
@@ -185,7 +186,7 @@ public class XmlDocument extends XmlNode {
         if (nodePrefix == null) { // default namespace
             NokogiriHelpers.renameNode(node, default_href, node.getNodeName());
         } else {
-            XmlNamespace xmlNamespace = nsCache.get(nodePrefix);
+            XmlNamespace xmlNamespace = nsCache.get(node, nodePrefix);
             String href = rubyStringToString(xmlNamespace.href(context));
             NokogiriHelpers.renameNode(node, href, node.getNodeName());
         }
@@ -355,7 +356,7 @@ public class XmlDocument extends XmlNode {
     public IRubyObject remove_namespaces(ThreadContext context) {
         removeNamespceRecursively(context, this);
         nsCache.clear();
-        XmlNode.clearXpathContext(getNode());
+        clearXpathContext(getNode());
         return this;
     }
 
@@ -585,7 +586,10 @@ public class XmlDocument extends XmlNode {
                 throw context.getRuntime().newTypeError("Expected array");
             }
             if (!args[1].isNil()) {
-                inclusive_namespace = (String)((RubyArray)args[1]).get(0);
+              inclusive_namespace = (String)((RubyArray)args[1])
+                .join(context, context.getRuntime().newString(" "))
+                .asString()
+                .asJavaString(); // OMG I wish I knew JRuby better, this is ugly
             }
         }
         if (args.length > 2) {
@@ -634,5 +638,10 @@ public class XmlDocument extends XmlNode {
             }
         }
         return this;
+    }
+
+    public void resetNamespaceCache(ThreadContext context) {
+        nsCache = new NokogiriNamespaceCache();
+        createAndCacheNamespaces(context.getRuntime(), node);
     }
 }

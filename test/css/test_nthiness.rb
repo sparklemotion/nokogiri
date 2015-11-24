@@ -78,6 +78,10 @@ EOF
         assert_result_rows [1,3,5,7,9,11,13], @parser.search("table/tr:nth(odd)")
       end
 
+      def test_n
+        assert_result_rows((1..14).to_a, @parser.search("table/tr:nth(n)"))
+      end
+
       def test_2n
         assert_equal @parser.search("table/tr:nth(even)").inner_text, @parser.search("table/tr:nth(2n)").inner_text
       end

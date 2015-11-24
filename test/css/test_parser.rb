@@ -174,11 +174,11 @@ module Nokogiri
       end
 
       def test_nth_child_selectors
-        assert_xpath '//a[count(preceding-sibling::*) = 0]',         @parser.parse('a:first-child')
-        assert_xpath '//a[count(preceding-sibling::*) = 98]',          @parser.parse('a:nth-child(99)')
-        assert_xpath '//a[count(following-sibling::*) = 0]',      @parser.parse('a:last-child')
-        assert_xpath '//a[count(following-sbiling::*) = 0]',      @parser.parse('a:nth-last-child(1)')
-        assert_xpath '//a[count(following-sbiling::*) = 98]', @parser.parse('a:nth-last-child(99)')
+        assert_xpath '//a[count(preceding-sibling::*) = 0]',  @parser.parse('a:first-child')
+        assert_xpath '//a[count(preceding-sibling::*) = 98]', @parser.parse('a:nth-child(99)')
+        assert_xpath '//a[count(following-sibling::*) = 0]',  @parser.parse('a:last-child')
+        assert_xpath '//a[count(following-sibling::*) = 0]',  @parser.parse('a:nth-last-child(1)')
+        assert_xpath '//a[count(following-sibling::*) = 98]', @parser.parse('a:nth-last-child(99)')
       end
 
       def test_miscellaneous_selectors
@@ -193,20 +193,20 @@ module Nokogiri
         assert_xpath '//a[(position() mod 2) = 0]', @parser.parse('a:nth-of-type(even)')
         assert_xpath '//a[(position() >= 1) and (((position()-1) mod 2) = 0)]', @parser.parse('a:nth-of-type(odd)')
         assert_xpath '//a[(position() >= 3) and (((position()-3) mod 4) = 0)]', @parser.parse('a:nth-of-type(4n+3)')
-        assert_xpath '//a[(position() <= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(-1n+3)')
-        assert_xpath '//a[(position() <= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(-n+3)')
-        assert_xpath '//a[(position() >= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(1n+3)')
-        assert_xpath '//a[(position() >= 3) and (((position()-3) mod 1) = 0)]', @parser.parse('a:nth-of-type(n+3)')
+        assert_xpath '//a[position() <= 3]', @parser.parse('a:nth-of-type(-1n+3)')
+        assert_xpath '//a[position() <= 3]', @parser.parse('a:nth-of-type(-n+3)')
+        assert_xpath '//a[position() >= 3]', @parser.parse('a:nth-of-type(1n+3)')
+        assert_xpath '//a[position() >= 3]', @parser.parse('a:nth-of-type(n+3)')
 
         assert_xpath '//a[((last()-position()+1) mod 2) = 0]', @parser.parse('a:nth-last-of-type(2n)')
         assert_xpath '//a[((last()-position()+1) >= 1) and ((((last()-position()+1)-1) mod 2) = 0)]', @parser.parse('a:nth-last-of-type(2n+1)')
         assert_xpath '//a[((last()-position()+1) mod 2) = 0]', @parser.parse('a:nth-last-of-type(even)')
         assert_xpath '//a[((last()-position()+1) >= 1) and ((((last()-position()+1)-1) mod 2) = 0)]', @parser.parse('a:nth-last-of-type(odd)')
         assert_xpath '//a[((last()-position()+1) >= 3) and ((((last()-position()+1)-3) mod 4) = 0)]', @parser.parse('a:nth-last-of-type(4n+3)')
-        assert_xpath '//a[((last()-position()+1) <= 3) and ((((last()-position()+1)-3) mod 1) = 0)]', @parser.parse('a:nth-last-of-type(-1n+3)')
-        assert_xpath '//a[((last()-position()+1) <= 3) and ((((last()-position()+1)-3) mod 1) = 0)]', @parser.parse('a:nth-last-of-type(-n+3)')
-        assert_xpath '//a[((last()-position()+1) >= 3) and ((((last()-position()+1)-3) mod 1) = 0)]', @parser.parse('a:nth-last-of-type(1n+3)')
-        assert_xpath '//a[((last()-position()+1) >= 3) and ((((last()-position()+1)-3) mod 1) = 0)]', @parser.parse('a:nth-last-of-type(n+3)')
+        assert_xpath '//a[(last()-position()+1) <= 3]', @parser.parse('a:nth-last-of-type(-1n+3)')
+        assert_xpath '//a[(last()-position()+1) <= 3]', @parser.parse('a:nth-last-of-type(-n+3)')
+        assert_xpath '//a[(last()-position()+1) >= 3]', @parser.parse('a:nth-last-of-type(1n+3)')
+        assert_xpath '//a[(last()-position()+1) >= 3]', @parser.parse('a:nth-last-of-type(n+3)')
       end
 
       def test_preceding_selector
@@ -272,6 +272,11 @@ module Nokogiri
         assert_xpath "//a[active(.)]", @parser.parse('a:active')
         assert_xpath  "//a[active(.) and contains(concat(' ', normalize-space(@class), ' '), ' foo ')]",
                       @parser.parse('a:active.foo')
+      end
+
+      def test_significant_space
+        assert_xpath "//x//*[count(preceding-sibling::*) = 0]//*[@a]//*[@b]", @parser.parse("x :first-child [a] [b]")
+        assert_xpath "//*[@a]//*[@b]", @parser.parse(" [a] [b]")
       end
 
       def test_star

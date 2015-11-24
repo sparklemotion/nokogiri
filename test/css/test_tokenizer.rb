@@ -186,6 +186,23 @@ module Nokogiri
         ], @scanner)
       end
 
+      def test_significant_space
+        @scanner.scan('x :first-child [a] [b]')
+        assert_tokens([ [:IDENT, 'x'],
+                        [:S, ' '],
+                        [':', ':'],
+                        [:IDENT, 'first-child'],
+                        [:S, ' '],
+                        [:LSQUARE, '['],
+                        [:IDENT, 'a'],
+                        [:RSQUARE, ']'],
+                        [:S, ' '],
+                        [:LSQUARE, '['],
+                        [:IDENT, 'b'],
+                        [:RSQUARE, ']'],
+        ], @scanner)
+      end
+
       def assert_tokens(tokens, scanner)
         toks = []
         while tok = @scanner.next_token

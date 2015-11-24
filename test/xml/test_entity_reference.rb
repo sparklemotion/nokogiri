@@ -26,7 +26,7 @@ EOF
         doc = Nokogiri::XML xml
         lf_node = Nokogiri::XML::EntityReference.new(doc, "#xa")
         doc.xpath('/item').first.add_child(lf_node)
-        assert_match /&#xa;/, doc.to_xml
+        assert_match(/&#xa;/, doc.to_xml)
       end
     end
 
@@ -233,12 +233,18 @@ EOF
 
       test_relative_and_absolute_path :test_reader_entity_reference_without_dtdload do
         html = File.read xml_document
-        assert_raises(Nokogiri::XML::SyntaxError) do
-          reader = Nokogiri::XML::Reader html, path do |cfg|
-            cfg.default_xml
-          end
-          reader.each { |n| n }
+        reader = Nokogiri::XML::Reader html, path do |cfg|
+          cfg.default_xml
         end
+        if Nokogiri.uses_libxml? && Nokogiri::LIBXML_PARSER_VERSION.to_i >= 20900
+          # Unknown entity is not fatal in libxml2 >= 2.9
+          assert_equal 8, reader.count
+        else
+          assert_raises(Nokogiri::XML::SyntaxError) {
+            assert_equal 5, reader.count
+          }
+        end
+        assert_operator reader.errors.size, :>, 0
       end
     end
   end
