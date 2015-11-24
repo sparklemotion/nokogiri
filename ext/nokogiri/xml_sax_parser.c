@@ -9,9 +9,6 @@ static ID id_comment, id_characters, id_xmldecl, id_error, id_warning;
 static ID id_cdata_block, id_cAttribute;
 static ID id_processing_instruction;
 
-#define STRING_OR_NULL(str) \
-   (RTEST(str) ? StringValuePtr(str) : NULL)
-
 static void start_document(void * ctx)
 {
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
