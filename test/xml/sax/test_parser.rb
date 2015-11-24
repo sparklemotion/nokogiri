@@ -167,10 +167,8 @@ module Nokogiri
           assert @parser.document.errors
           assert @parser.document.errors.length > 0
 
-          if RUBY_VERSION =~ /^1\.9/
-            doc.errors.each do |error|
-              assert_equal 'UTF-8', error.message.encoding.name
-            end
+          doc.errors.each do |error|
+            assert_equal 'UTF-8', error.message.encoding.name
           end
 
           # when using JRuby Nokogiri, more errors will be generated as the DOM
@@ -207,42 +205,41 @@ module Nokogiri
             @parser.parse_io(f, encoding)
           }
           assert(@parser.document.cdata_blocks.length > 0)
-          if RUBY_VERSION =~ /^1\.9/
-            called = false
-            @parser.document.start_elements.flatten.each do |thing|
-              assert_equal 'UTF-8', thing.encoding.name
-              called = true
-            end
-            assert called
 
-            called = false
-            @parser.document.end_elements.flatten.each do |thing|
-              assert_equal 'UTF-8', thing.encoding.name
-              called = true
-            end
-            assert called
-
-            called = false
-            @parser.document.data.each do |thing|
-              assert_equal 'UTF-8', thing.encoding.name
-              called = true
-            end
-            assert called
-
-            called = false
-            @parser.document.comments.flatten.each do |thing|
-              assert_equal 'UTF-8', thing.encoding.name
-              called = true
-            end
-            assert called
-
-            called = false
-            @parser.document.cdata_blocks.flatten.each do |thing|
-              assert_equal 'UTF-8', thing.encoding.name
-              called = true
-            end
-            assert called
+          called = false
+          @parser.document.start_elements.flatten.each do |thing|
+            assert_equal 'UTF-8', thing.encoding.name
+            called = true
           end
+          assert called
+
+          called = false
+          @parser.document.end_elements.flatten.each do |thing|
+            assert_equal 'UTF-8', thing.encoding.name
+            called = true
+          end
+          assert called
+
+          called = false
+          @parser.document.data.each do |thing|
+            assert_equal 'UTF-8', thing.encoding.name
+            called = true
+          end
+          assert called
+
+          called = false
+          @parser.document.comments.flatten.each do |thing|
+            assert_equal 'UTF-8', thing.encoding.name
+            called = true
+          end
+          assert called
+
+          called = false
+          @parser.document.cdata_blocks.flatten.each do |thing|
+            assert_equal 'UTF-8', thing.encoding.name
+            called = true
+          end
+          assert called
         end
 
         def test_parse_file

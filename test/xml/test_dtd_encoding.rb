@@ -4,7 +4,6 @@ require "helper"
 
 module Nokogiri
   module XML
-   if RUBY_VERSION =~ /^1\.9/
     class TestDTDEncoding < Nokogiri::TestCase
       def setup
         super
@@ -28,6 +27,5 @@ module Nokogiri
         end
       end
     end
-   end
   end
 end

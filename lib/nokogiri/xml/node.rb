@@ -37,7 +37,7 @@ module Nokogiri
     # its subtree), there are a few methods you might want to use:
     #
     # * content, text, inner_text, to_str: emit plaintext
-    #  
+    #
     #   These methods will all emit the plaintext version of your
     #   document, meaning that entities will be replaced (e.g., "&lt;"
     #   will be replaced with "<"), meaning that any sanitizing will
@@ -439,7 +439,7 @@ module Nokogiri
       def namespaces
         Hash[namespace_scopes.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
-          if RUBY_VERSION >= '1.9' && document.encoding
+          if document.encoding
             begin
               key.force_encoding document.encoding
             rescue ArgumentError

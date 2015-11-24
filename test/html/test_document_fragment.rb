@@ -9,19 +9,17 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
-      if RUBY_VERSION >= '1.9'
-        def test_inspect_encoding
-          fragment = "<div>こんにちは！</div>".encode('EUC-JP')
-          f = Nokogiri::HTML::DocumentFragment.parse fragment
-          assert_equal "こんにちは！", f.content
-        end
+      def test_inspect_encoding
+        fragment = "<div>こんにちは！</div>".encode('EUC-JP')
+        f = Nokogiri::HTML::DocumentFragment.parse fragment
+        assert_equal "こんにちは！", f.content
+      end
 
-        def test_html_parse_encoding
-          fragment = "<div>こんにちは！</div>".encode 'EUC-JP'
-          f = Nokogiri::HTML.fragment fragment
-          assert_equal 'EUC-JP', f.document.encoding
-          assert_equal "こんにちは！", f.content
-        end
+      def test_html_parse_encoding
+        fragment = "<div>こんにちは！</div>".encode 'EUC-JP'
+        f = Nokogiri::HTML.fragment fragment
+        assert_equal 'EUC-JP', f.document.encoding
+        assert_equal "こんにちは！", f.content
       end
 
       def test_colons_are_not_removed

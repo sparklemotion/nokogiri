@@ -157,7 +157,7 @@ start_element_ns (
 }
 
 /**
- * end_element_ns was borrowed heavily from libxml-ruby. 
+ * end_element_ns was borrowed heavily from libxml-ruby.
  */
 static void
 end_element_ns (
@@ -169,7 +169,7 @@ end_element_ns (
   VALUE self = NOKOGIRI_SAX_SELF(ctx);
   VALUE doc = rb_iv_get(self, "@document");
 
-  rb_funcall(doc, id_end_element_namespace, 3, 
+  rb_funcall(doc, id_end_element_namespace, 3,
     NOKOGIRI_STR_NEW2(localname),
     RBSTR_OR_QNIL(prefix),
     RBSTR_OR_QNIL(uri)
