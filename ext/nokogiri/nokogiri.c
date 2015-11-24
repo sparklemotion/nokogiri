@@ -28,17 +28,10 @@ int vasprintf (char **strp, const char *fmt, va_list ap)
 }
 #endif
 
-#ifdef USING_SYSTEM_ALLOCATOR_LIBRARY /* Ruby Enterprise Edition with tcmalloc */
-void vasprintf_free (void *p)
-{
-  system_free(p);
-}
-#else
 void vasprintf_free (void *p)
 {
   free(p);
 }
-#endif
 
 #ifdef HAVE_RUBY_UTIL_H
 #include "ruby/util.h"
