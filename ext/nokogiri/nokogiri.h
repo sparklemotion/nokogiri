@@ -135,22 +135,6 @@ void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
 
 #endif
 
-#ifndef RSTRING_PTR
-#define RSTRING_PTR(s) (RSTRING(s)->ptr)
-#endif
-
-#ifndef RSTRING_LEN
-#define RSTRING_LEN(s) (RSTRING(s)->len)
-#endif
-
-#ifndef RARRAY_PTR
-#define RARRAY_PTR(a) RARRAY(a)->ptr
-#endif
-
-#ifndef RARRAY_LEN
-#define RARRAY_LEN(a) RARRAY(a)->len
-#endif
-
 #ifndef __builtin_expect
 # if defined(__GNUC__)
 #  define __builtin_expect(expr, c) __builtin_expect((long)(expr), (long)(c))
