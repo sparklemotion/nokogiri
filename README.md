@@ -121,7 +121,7 @@ Nokogiri is a large library, but here is example usage for parsing and examining
   gem, but if you want to use the system versions:
 
   * at install time, set the environment variable
-    `USING_SYSTEM_ALLOCATOR_LIBRARY` or else use the
+    `NOKOGIRI_USE_SYSTEM_LIBRARIES` or else use the
     `--use-system-libraries` argument. (See
     http://nokogiri.org/tutorials/installing_nokogiri.html#using_your_system_libraries
     for specifics.)
