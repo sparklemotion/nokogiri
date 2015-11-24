@@ -31,12 +31,8 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxslt/extensions.h>
 #include <libxml/c14n.h>
 #include <ruby.h>
-
-#ifdef HAVE_RUBY_ENCODING_H
 #include <ruby/st.h>
-#else
-#include <st.h>
-#endif
+#include <ruby/encoding.h>
 
 #ifndef UNUSED
 # if defined(__GNUC__)
@@ -56,24 +52,11 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 # endif
 #endif
 
-#ifdef HAVE_RUBY_ENCODING_H
-
-#include <ruby/encoding.h>
-
 #define NOKOGIRI_STR_NEW2(str) \
   NOKOGIRI_STR_NEW(str, strlen((const char *)(str)))
 
 #define NOKOGIRI_STR_NEW(str, len) \
   rb_external_str_new_with_enc((const char *)(str), (long)(len), rb_utf8_encoding())
-
-#else
-
-#define NOKOGIRI_STR_NEW2(str) \
-  rb_str_new2((const char *)(str))
-
-#define NOKOGIRI_STR_NEW(str, len) \
-  rb_str_new((const char *)(str), (long)(len))
-#endif
 
 #define RBSTR_OR_QNIL(_str) \
   (_str ? NOKOGIRI_STR_NEW2(_str) : Qnil)
