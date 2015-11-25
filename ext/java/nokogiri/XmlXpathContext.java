@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -58,13 +58,13 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.sun.org.apache.xml.internal.dtm.DTM;
-import com.sun.org.apache.xml.internal.utils.PrefixResolver;
-import com.sun.org.apache.xpath.internal.XPathContext;
-import com.sun.org.apache.xpath.internal.jaxp.JAXPExtensionsProvider;
-import com.sun.org.apache.xpath.internal.jaxp.JAXPPrefixResolver;
-import com.sun.org.apache.xpath.internal.jaxp.JAXPVariableStack;
-import com.sun.org.apache.xpath.internal.objects.XObject;
+import org.apache.xml.dtm.DTM;
+import org.apache.xml.utils.PrefixResolver;
+import org.apache.xpath.XPathContext;
+import org.apache.xpath.jaxp.JAXPExtensionsProvider;
+import org.apache.xpath.jaxp.JAXPPrefixResolver;
+import org.apache.xpath.jaxp.JAXPVariableStack;
+import org.apache.xpath.objects.XObject;
 
 /**
  * Class for Nokogiri::XML::XpathContext
@@ -110,7 +110,7 @@ public class XmlXpathContext extends RubyObject {
     }
 
     private JAXPExtensionsProvider getProviderInstance() throws ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Class<?> clazz = Class.forName("com.sun.org.apache.xpath.internal.jaxp.JAXPExtensionsProvider");
+        Class<?> clazz = Class.forName("org.apache.xpath.jaxp.JAXPExtensionsProvider");
         Constructor[] constructors = clazz.getDeclaredConstructors();
         for (int i = 0; i < constructors.length; i++) {
             Class[] parameterTypes = constructors[i].getParameterTypes();
@@ -184,8 +184,8 @@ public class XmlXpathContext extends RubyObject {
         Node contextNode = context.node;
 
         try {
-          com.sun.org.apache.xpath.internal.XPath xpathInternal = new com.sun.org.apache.xpath.internal.XPath (expr, null,
-                      prefixResolver, com.sun.org.apache.xpath.internal.XPath.SELECT );
+          org.apache.xpath.XPath xpathInternal = new org.apache.xpath.XPath (expr, null,
+                      prefixResolver, org.apache.xpath.XPath.SELECT );
 
           // We always need to have a ContextNode with Xalan XPath implementation
           // To allow simple expression evaluation like 1+1 we are setting

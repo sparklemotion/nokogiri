@@ -24,6 +24,7 @@ See #1374 and #1376 for details.
 ==== Bug Fixes
 
 * [JRuby] reset the namespace cache when replacing the document's innerHtml (#1265) (Thanks, @mkristian!)
+* [JRuby] fix load errors when deploying to JRuby/Torquebox (#1114) (Thanks, @atambo!)
 
 
 === 1.6.7.rc3 / 2015-09-04 and 1.6.7.rc2 / 2015-08-31

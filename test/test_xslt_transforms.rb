@@ -32,7 +32,7 @@ class TestXsltTransforms < Nokogiri::TestCase
     assert_match %r{<h1>Grandma</h1>}, result
 
     assert result = style.apply_to(@doc)
-    assert_match %r{<h1></h1>}, result
+    assert_match %r{<h1></h1>|<h1/>}, result
   end
 
   def test_transform_with_output_style
@@ -95,7 +95,9 @@ encoding="iso-8859-1" indent="yes"/>
 </xsl:stylesheet>
       eoxslt
     end
-    assert_no_match(/<td>/, xslt.apply_to(@doc, ['title', 'foo']))
+    result = xslt.apply_to(@doc, ['title', 'foo'])
+    assert_no_match(/<td>/, result)
+    assert_match(/This is an adjacent/, result)
   end
 
   def test_transform_arg_error
@@ -268,7 +270,7 @@ encoding="iso-8859-1" indent="yes"/>
         <xsl:output encoding="UTF-8" indent="yes" method="xml" />
 
         <xsl:template match="/">
-          <xsl:value-of select="/a" />
+          <a><xsl:value-of select="/a" /></a>
         </xsl:template>
       </xsl:stylesheet>
     EOXSL
