@@ -180,6 +180,10 @@ lib/isorelax.jar
 lib/jing.jar
 lib/nekodtd.jar
 lib/nekohtml.jar
+lib/serializer.jar
+lib/xalan.jar
+lib/xercesImpl.jar
+lib/xml-apis.jar
 lib/nokogiri.rb
 lib/nokogiri/css.rb
 lib/nokogiri/css/node.rb
@@ -241,7 +245,6 @@ lib/nokogiri/xml/xpath/syntax_error.rb
 lib/nokogiri/xml/xpath_context.rb
 lib/nokogiri/xslt.rb
 lib/nokogiri/xslt/stylesheet.rb
-lib/xercesImpl.jar
 lib/xsd/xmlparser/nokogiri.rb
 patches/sort-patches-by-date
 suppressions/README.txt
