@@ -4,30 +4,6 @@ require "helper"
 module Nokogiri
   module XML
     class TestNodeEncoding < Nokogiri::TestCase
-      def setup
-        super
-        @html = Nokogiri::HTML(File.open(HTML_FILE, "rb"))
-      end
-
-      def test_get_attribute
-        node = @html.css('a').first
-        assert_equal @html.encoding, node['href'].encoding.name
-      end
-
-      def test_text_encoding_is_utf_8
-        @html = Nokogiri::HTML(File.open(NICH_FILE))
-        assert_equal 'UTF-8', @html.text.encoding.name
-      end
-
-      def test_serialize_encoding_html
-        @html = Nokogiri::HTML(File.open(NICH_FILE))
-        assert_equal @html.encoding.downcase,
-          @html.serialize.encoding.name.downcase
-
-        @doc = Nokogiri::HTML(@html.serialize)
-        assert_equal @html.serialize, @doc.serialize
-      end
-
       def test_serialize_encoding_xml
         @xml = Nokogiri::XML(File.open(SHIFT_JIS_XML))
         assert_equal @xml.encoding.downcase,
@@ -35,11 +11,6 @@ module Nokogiri
 
         @doc = Nokogiri::XML(@xml.serialize)
         assert_equal @xml.serialize, @doc.serialize
-      end
-
-      def test_encode_special_chars
-        foo = @html.css('a').first.encode_special_chars('foo')
-        assert_equal @html.encoding, foo.encoding.name
       end
 
       def test_encoding_GH_1113
@@ -58,34 +29,20 @@ module Nokogiri
         assert_equal expected, frag.to_xml.sub(/^<.xml[^>]*>\n/m, '').strip
       end
 
-      def test_content
-        node = @html.css('a').first
-        assert_equal @html.encoding, node.content.encoding.name
-      end
-
-      def test_name
-        node = @html.css('a').first
-        assert_equal @html.encoding, node.name.encoding.name
-      end
-
-      def test_path
-        node = @html.css('a').first
-        assert_equal @html.encoding, node.path.encoding.name
-      end
+      VEHICLE_XML = <<-eoxml
+        <root>
+          <car xmlns:part="http://general-motors.com/">
+            <part:tire>Michelin Model XGV</part:tire>
+          </car>
+          <bicycle xmlns:part="http://schwinn.com/">
+            <part:tire>I'm a bicycle tire!</part:tire>
+          </bicycle>
+        </root>
+      eoxml
 
       def test_namespace
-        xml = <<-eoxml
-<root>
-  <car xmlns:part="http://general-motors.com/">
-    <part:tire>Michelin Model XGV</part:tire>
-  </car>
-  <bicycle xmlns:part="http://schwinn.com/">
-    <part:tire>I'm a bicycle tire!</part:tire>
-  </bicycle>
-</root>
-        eoxml
-        doc = Nokogiri::XML(xml, nil, 'UTF-8')
-        assert_equal 'UTF-8', doc.encoding
+        doc = Nokogiri::XML(VEHICLE_XML.encode('Shift_JIS'), nil, 'Shift_JIS')
+        assert_equal 'Shift_JIS', doc.encoding
         n = doc.xpath('//part:tire', { 'part' => 'http://schwinn.com/' }).first
         assert n
         assert_equal 'UTF-8', n.namespace.href.encoding.name
@@ -93,18 +50,8 @@ module Nokogiri
       end
 
       def test_namespace_as_hash
-        xml = <<-eoxml
-<root>
-  <car xmlns:part="http://general-motors.com/">
-    <part:tire>Michelin Model XGV</part:tire>
-  </car>
-  <bicycle xmlns:part="http://schwinn.com/">
-    <part:tire>I'm a bicycle tire!</part:tire>
-  </bicycle>
-</root>
-        eoxml
-        doc = Nokogiri::XML(xml, nil, 'UTF-8')
-        assert_equal 'UTF-8', doc.encoding
+        doc = Nokogiri::XML(VEHICLE_XML.encode('Shift_JIS'), nil, 'Shift_JIS')
+        assert_equal 'Shift_JIS', doc.encoding
         assert n = doc.xpath('//car').first
 
         n.namespace_definitions.each do |nd|
