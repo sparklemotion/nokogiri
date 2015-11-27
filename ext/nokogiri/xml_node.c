@@ -234,15 +234,7 @@ ok:
      *  reparent the actual reparentee, so we reparent a duplicate.
      */
     nokogiri_root_node(reparentee);
-
-    xmlResetLastError();
-    xmlSetStructuredErrorFunc((void *)rb_iv_get(DOC_RUBY_OBJECT(pivot->doc), "@errors"), Nokogiri_error_array_pusher);
-
-    reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1) ;
-
-    xmlSetStructuredErrorFunc(NULL, NULL);
-
-    if (! reparentee) {
+    if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
     }
   }
@@ -481,13 +473,7 @@ static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
 
   Data_Get_Struct(self, xmlNode, node);
 
-  xmlResetLastError();
-  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_silencer);
-
   dup = xmlDocCopyNode(node, node->doc, (int)NUM2INT(level));
-
-  xmlSetStructuredErrorFunc(NULL, NULL);
-
   if(dup == NULL) return Qnil;
 
   nokogiri_root_node(dup);
@@ -778,19 +764,11 @@ static VALUE namespaced_key_eh(VALUE self, VALUE attribute, VALUE namespace)
  *
  * Set the +property+ to +value+
  */
-static VALUE set(VALUE node_rb, VALUE property_name_rb, VALUE property_value_rb)
+static VALUE set(VALUE self, VALUE property, VALUE value)
 {
   xmlNodePtr node, cur;
-  xmlChar*   property_name ;
-  xmlAttrPtr property;
-
-  Data_Get_Struct(node_rb, xmlNode, node);
-
-  if (node->type != XML_ELEMENT_NODE) {
-    return(Qnil); // TODO: would raising an exception be more appropriate?
-  }
-
-  property_name = (xmlChar *)StringValuePtr(property_name_rb);
+  xmlAttrPtr prop;
+  Data_Get_Struct(self, xmlNode, node);
 
   /* If a matching attribute node already exists, then xmlSetProp will destroy
    * the existing node's children. However, if Nokogiri has a node object
@@ -798,9 +776,11 @@ static VALUE set(VALUE node_rb, VALUE property_name_rb, VALUE property_value_rb)
    *
    * We can avoid this by unlinking these nodes first.
    */
-  property = xmlHasProp(node, property_name);
-  if (property && property->children) {
-    for (cur = property->children; cur; cur = cur->next) {
+  if (node->type != XML_ELEMENT_NODE)
+    return(Qnil);
+  prop = xmlHasProp(node, (xmlChar *)StringValuePtr(property));
+  if (prop && prop->children) {
+    for (cur = prop->children; cur; cur = cur->next) {
       if (cur->_private) {
         nokogiri_root_node(cur);
         xmlUnlinkNode(cur);
@@ -808,14 +788,10 @@ static VALUE set(VALUE node_rb, VALUE property_name_rb, VALUE property_value_rb)
     }
   }
 
-  xmlResetLastError();
-  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_silencer);
+  xmlSetProp(node, (xmlChar *)StringValuePtr(property),
+      (xmlChar *)StringValuePtr(value));
 
-  xmlSetProp(node, property_name, (xmlChar *)StringValuePtr(property_value_rb));
-
-  xmlSetStructuredErrorFunc(NULL, NULL);
-
-  return property_value_rb;
+  return value;
 }
 
 /*
