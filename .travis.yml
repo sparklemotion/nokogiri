@@ -37,5 +37,8 @@ notifications:
   irc:
     channels:
       - "chat.freenode.net#nokogiri"
-    use_notice: true
+    on_success: change
+    on_failure: always
+    template:
+      - "%{repository} (%{branch}:%{commit} by %{author}): %{message} (%{build_url})"
     skip_join: true
