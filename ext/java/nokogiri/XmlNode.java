@@ -904,6 +904,10 @@ public class XmlNode extends RubyObject {
         return doc;
     }
 
+    public IRubyObject dup() {
+        return this.dup_implementation(getMetaClass().getClassRuntime(), true);
+    }
+
     @JRubyMethod
     public IRubyObject dup(ThreadContext context) {
         return this.dup_implementation(context, true);
@@ -917,13 +921,17 @@ public class XmlNode extends RubyObject {
     }
 
     protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
+       return dup_implementation(context.getRuntime(), deep);
+    }
+
+    protected IRubyObject dup_implementation(Ruby runtime, boolean deep) {
         XmlNode clone;
         try {
             clone = (XmlNode) clone();
         } catch (CloneNotSupportedException e) {
-            throw context.getRuntime().newRuntimeError(e.toString());
+            throw runtime.newRuntimeError(e.toString());
         }
-        if (node == null) throw context.getRuntime().newRuntimeError("FFFFFFFFFUUUUUUU");
+        if (node == null) throw runtime.newRuntimeError("FFFFFFFFFUUUUUUU");
         Node newNode = node.cloneNode(deep);
         clone.node = newNode;
         return clone;

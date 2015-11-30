@@ -3,7 +3,7 @@
 ==== Bug Fixes
 
 * [JRuby] fix load errors when deploying to JRuby/Torquebox (#1114) (Thanks, @atambo!)
-
+* [JRuby] fix NPE when inspecting nodes returned by NodeSet#drop (#1042) (Thanks, @mkristian!)
 
 === 1.6.7 / 2015-11-29
 
