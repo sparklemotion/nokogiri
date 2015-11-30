@@ -1,49 +1,39 @@
-=== 1.6.7.rc4 / 2015年11月22日
+=== 1.6.8 / 未リリース
 
-==== Security patches
+==== バグ修正
 
-This version pulls in several upstream patches to the vendored libxml2 and libxslt to address:
+* [JRuby] fix load errors when deploying to JRuby/Torquebox (#1114) (Thanks, @atambo!)
 
-* CVE-2015-1819
-* CVE-2015-7941_1
-* CVE-2015-7941_2
-* CVE-2015-7942
-* CVE-2015-7942-2
-* CVE-2015-8035
-* CVE-2015-7995
-* unclosed comment uninitialized access issue (does not have a CVE assigned)
 
+=== 1.6.7 / 2015年11月29日
+
+==== 註
+
+This version supports native builds on Windows using the RubyInstaller
+DevKit. It also supports Ruby 2.2.x on Windows, as well as making
+several other improvements to the installation process on various
+platforms.
+
+This version also includes the security patches already applied in
+v1.6.6.3 and v1.6.6.4 to the vendored libxml2 and libxslt source.
 See #1374 and #1376 for details.
-
-==== Features
-
-* [MRI] libxml2 and libxslt `config.guess` files brought up to date. (#1326) (Thanks, @hernan-erasmo!)
-* [JRuby] fix error in validating files with jruby (#1355, #1361) (Thanks, @twalpole!)
-* [MRI, OSX] Patch to handle nonstandard location of `iconv.h`. (#1206, #1210, #1218, #1345) (Thanks, @neonichu!)
-
-==== Bug Fixes
-
-* [JRuby] reset the namespace cache when replacing the document's innerHtml (#1265) (Thanks, @mkristian!)
-
-
-=== 1.6.7.rc3 / 2015年09月04日 and 1.6.7.rc2 / 2015年08月31日
-
-Note that rc1 was not released.
-
 
 ==== 機能
 
 * Cross-built gems now have a proper ruby version requirement. (#1266)
 * Ruby 2.2.x is supported on Windows.
 * Native build is supported on Windows.
-
+* [MRI] libxml2 and libxslt `config.guess` files brought up to date. (#1326) (Thanks, @hernan-erasmo!)
+* [JRuby] fix error in validating files with jruby (#1355, #1361) (Thanks, @twalpole!)
+* [MRI, OSX] Patch to handle nonstandard location of `iconv.h`. (#1206, #1210, #1218, #1345) (Thanks, @neonichu!)
 
 ==== バグ修正
 
+* [JRuby] reset the namespace cache when replacing the document's innerHtml (#1265) (Thanks, @mkristian!)
 * [JRuby] Document#parse should support IO objects that respond to #read. (#1124) (Thanks, Jake Byman!)
 * [MRI] Duplicate-id errors when setting the `id` attribute on HTML documents are now silenced. (#1262)
-* [JRuby] 角括弧([, ])がテキスト内に存在すると、SAXパーザがテキストを分割してしまう。(#1261)
-* [JRuby] ネームスペース付きのアトリビュートがremove_attributeで削除されない。 (#1299)
+* [JRuby] SAX parser cuts texts in peices when quare brackets exist. (#1261)
+* [JRuby] Namespaced attributes aren't removed by remove_attribute. (#1299)
 
 
 === 1.6.6.4 / 2015年11月19日
