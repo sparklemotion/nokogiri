@@ -4,13 +4,13 @@ sudo: false
 
 rvm:
 - ruby-1.9.2
-- ruby-1.9.3
-- ruby-2.0.0
-- ruby-2.1.7
-- ruby-2.2.2
+- 1.9.3
+- 2.0
+- 2.1
+- 2.2
 - jruby-19mode
-- jruby-1.7.22
-- jruby-9.0.0.0
+- jruby-1.7.23
+- jruby-9.0.4.0
 - rbx-19mode
 - rbx-2
 
@@ -25,9 +25,9 @@ matrix:
   - os: osx
     rvm: jruby-19mode
   - os: osx
-    rvm: jruby-1.7.22
+    rvm: jruby-1.7.23
   - os: osx
-    rvm: jruby-9.0.0.0
+    rvm: jruby-9.0.4.0
   - os: osx
     rvm: rbx-19mode
   - os: osx
