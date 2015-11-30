@@ -5,6 +5,7 @@
 .travis.yml
 CHANGELOG.ja.rdoc
 CHANGELOG.rdoc
+CONTRIBUTING.md
 C_CODING_STYLE.rdoc
 Gemfile
 LICENSE.txt
