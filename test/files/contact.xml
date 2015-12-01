@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:batch="http://schemas.google.com/gdata/batch" xmlns:gContact="http://schemas.google.com/contact/2008" xmlns:gd="http://schemas.google.com/g/2005" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/">
+ <entry>
+  <id>http://www.google.com/m8/feeds/contacts/</id>
+  <updated>2014-06-20T18:11:02.792Z</updated>
+  <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/contact/2008#contact"/>
+  <title type="text">John DOE</title>
+  <gd:organization rel="http://schemas.google.com/g/2005#other">
+   <gd:orgName>HERE</gd:orgName>
+  </gd:organization>
+  <gd:phoneNumber rel="http://schemas.google.com/g/2005#mobile">XXX XXX-XXX</gd:phoneNumber>
+ </entry>
+</feed>

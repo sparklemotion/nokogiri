@@ -140,6 +140,7 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
 {
   VALUE reparented_obj ;
   xmlNodePtr reparentee, pivot, reparented, next_text, new_next_text, parent ;
+  int prefix_was_null;
 
   if(!rb_obj_is_kind_of(reparentee_obj, cNokogiriXmlNode))
     rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node");
@@ -238,7 +239,15 @@ ok:
     xmlResetLastError();
     xmlSetStructuredErrorFunc((void *)rb_iv_get(DOC_RUBY_OBJECT(pivot->doc), "@errors"), Nokogiri_error_array_pusher);
 
+    if (reparentee->ns != NULL && reparentee->ns->prefix == NULL) {
+      prefix_was_null = 1;
+    }
+
     reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1) ;
+
+    if (reparentee->ns != NULL && reparentee->ns->prefix != NULL && prefix_was_null == 1) {
+        reparentee->ns->prefix = NULL;
+    }
 
     xmlSetStructuredErrorFunc(NULL, NULL);
 

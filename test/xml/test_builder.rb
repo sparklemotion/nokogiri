@@ -331,6 +331,42 @@ module Nokogiri
         assert_nil doc.at_xpath("//*[local-name() = 'products']").namespace
       end
 
+      def test_builder_insert_node
+        xml = Nokogiri::XML(File.read(XML_CONTACT_FILE), XML_CONTACT_FILE)
+
+        entry = xml.xpath("//np:entry", np: "http://www.w3.org/2005/Atom")[0]
+
+        namespaces = {
+          'xmlns' => 'http://www.w3.org/2005/Atom',
+          'xmlns:gContact' => 'http://schemas.google.com/contact/2008',
+          'xmlns:gd' => 'http://schemas.google.com/g/2005',
+          'xmlns:batch' => 'http://schemas.google.com/gdata/batch'
+        }
+
+        builder = Nokogiri::XML::Builder.new do |xml|
+          xml.feed(namespaces) do
+            xml.parent << entry
+          end
+        end
+
+        expected_output = %{<?xml version=\"1.0\"?>
+<feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:gContact=\"http://schemas.google.com/contact/2008\" xmlns:gd=\"http://schemas.google.com/g/2005\" xmlns:batch=\"http://schemas.google.com/gdata/batch\">
+  <entry>
+  <id>http://www.google.com/m8/feeds/contacts/</id>
+  <updated>2014-06-20T18:11:02.792Z</updated>
+  <category scheme=\"http://schemas.google.com/g/2005#kind\" term=\"http://schemas.google.com/contact/2008#contact\"/>
+  <title type=\"text\">John DOE</title>
+  <gd:organization rel=\"http://schemas.google.com/g/2005#other\">
+   <gd:orgName>HERE</gd:orgName>
+  </gd:organization>
+  <gd:phoneNumber rel=\"http://schemas.google.com/g/2005#mobile\">XXX XXX-XXX</gd:phoneNumber>
+ </entry>
+</feed>
+}
+
+        assert_equal expected_output, builder.to_xml
+      end
+
       private
 
       def namespaces_defined_on(node)
