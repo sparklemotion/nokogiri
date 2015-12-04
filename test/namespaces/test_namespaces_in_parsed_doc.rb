@@ -61,6 +61,20 @@ module Nokogiri
         ns_attrs = n.to_xml.scan(/\bxmlns(?::.+?)?=/)
         assert_equal 3, ns_attrs.length
       end
+
+      def test_namespaces_under_memory_pressure_issue1155
+        skip("JRuby doesn't do GC.") if Nokogiri.jruby?
+
+        # this test is here to emit warnings when run under valgrind
+        # see https://github.com/sparklemotion/nokogiri/issues/1155 for background
+        filename = File.join ASSETS_DIR, 'namespace_pressure_test.xml'
+        doc = Nokogiri::XML File.open(filename)
+
+        # bizarrely, can't repro without the call to #to_a
+        doc.xpath('//namespace::*').to_a.each do |ns|
+          ns.inspect
+        end
+      end
     end
   end
 end
