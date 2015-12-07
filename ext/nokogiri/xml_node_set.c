@@ -1,62 +1,42 @@
 #include <xml_node_set.h>
+#include <xml_namespace.h>
 #include <libxml/xpathInternals.h>
 
 static ID decorate ;
+static void xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val);
 
-static int dealloc_namespace(xmlNsPtr ns)
+
+static void Check_Node_Set_Node_Type(VALUE node)
 {
-  if (ns->href)
-    xmlFree((xmlChar *)ns->href);
-  if (ns->prefix)
-    xmlFree((xmlChar *)ns->prefix);
-  xmlFree(ns);
-  return ST_CONTINUE;
+  if (!(rb_obj_is_kind_of(node, cNokogiriXmlNode) ||
+        rb_obj_is_kind_of(node, cNokogiriXmlNamespace))) {
+    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+  }
 }
 
-static void deallocate(nokogiriNodeSetTuple *tuple)
+
+static void deallocate(xmlNodeSetPtr node_set)
 {
   /*
-   *  xmlXPathFreeNodeSet() contains an implicit assumption that it is being
-   *  called before any of its pointed-to nodes have been free()d. this
-   *  assumption lies in the operation where it dereferences nodeTab pointers
-   *  while searching for namespace nodes to free.
    *
-   *  however, since Ruby's GC mechanism cannot guarantee the strict order in
-   *  which ruby objects will be GC'd, nodes may be garbage collected before a
-   *  nodeset containing pointers to those nodes. (this is true regardless of
-   *  how we declare dependencies between objects with rb_gc_mark().)
+   *  since xpath queries return copies of the xmlNs structs,
+   *  xmlXPathFreeNodeSet() frees those xmlNs structs that are in the
+   *  NodeSet.
    *
-   *  as a result, xmlXPathFreeNodeSet() will perform unsafe memory operations,
-   *  and calling it would be evil.
+   *  this is bad if someone is still trying to use the Namespace object wrapped
+   *  around the xmlNs, so we need to avoid that.
    *
-   *  so here, we *manually* free the set of namespace nodes that was
-   *  constructed at initialization time (see Nokogiri_wrap_xml_node_set()), as
-   *  well as the NodeSet, without using the official xmlXPathFreeNodeSet().
+   *  here we reproduce xmlXPathFreeNodeSet() without the xmlNs logic.
    *
-   *  there's probably a lesson in here somewhere about intermingling, within a
-   *  single array, structs with different memory-ownership semantics. or more
-   *  generally, a lesson about building an API in C/C++ that does not contain
-   *  assumptions about the strict order in which memory will be released. hey,
-   *  that sounds like a great idea for a blog post! get to it!
-   *
-   *  "In Valgrind We Trust." seriously.
+   *  this doesn't cause a leak because Namespace objects that are in an XPath
+   *  query NodeSet are given their own lifecycle in
+   *  Nokogiri_wrap_xml_namespace().
    */
-  xmlNodeSetPtr node_set;
-
-  node_set = tuple->node_set;
-
-  if (!node_set)
-    return;
-
   NOKOGIRI_DEBUG_START(node_set) ;
-  st_foreach(tuple->namespaces, dealloc_namespace, 0);
-
   if (node_set->nodeTab != NULL)
     xmlFree(node_set->nodeTab);
 
   xmlFree(node_set);
-  st_free_table(tuple->namespaces);
-  free(tuple);
   NOKOGIRI_DEBUG_END(node_set) ;
 }
 
@@ -74,12 +54,12 @@ static VALUE allocate(VALUE klass)
  */
 static VALUE duplicate(VALUE self)
 {
-  nokogiriNodeSetTuple *tuple;
+  xmlNodeSetPtr node_set;
   xmlNodeSetPtr dupl;
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
+  Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  dupl = xmlXPathNodeSetMerge(NULL, tuple->node_set);
+  dupl = xmlXPathNodeSetMerge(NULL, node_set);
 
   return Nokogiri_wrap_xml_node_set(dupl, rb_iv_get(self, "@document"));
 }
@@ -92,10 +72,11 @@ static VALUE duplicate(VALUE self)
  */
 static VALUE length(VALUE self)
 {
-  nokogiriNodeSetTuple *tuple;
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
+  xmlNodeSetPtr node_set;
 
-  return tuple->node_set ? INT2NUM(tuple->node_set->nodeNr) : INT2NUM(0);
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  return node_set ? INT2NUM(node_set->nodeNr) : INT2NUM(0);
 }
 
 /*
@@ -106,15 +87,16 @@ static VALUE length(VALUE self)
  */
 static VALUE push(VALUE self, VALUE rb_node)
 {
-  nokogiriNodeSetTuple *tuple;
+  xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
-  if(!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+  Check_Node_Set_Node_Type(rb_node);
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
+  Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
-  xmlXPathNodeSetAdd(tuple->node_set, node);
+
+  xmlXPathNodeSetAdd(node_set, node);
+
   return self;
 }
 
@@ -128,29 +110,19 @@ static VALUE push(VALUE self, VALUE rb_node)
 static VALUE
 delete(VALUE self, VALUE rb_node)
 {
-    nokogiriNodeSetTuple *tuple;
-    xmlNodePtr node;
-    xmlNodeSetPtr cur;
-    int i;
+  xmlNodeSetPtr node_set;
+  xmlNodePtr node;
 
-    if (!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
-	rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+  Check_Node_Set_Node_Type(rb_node);
 
-    Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-    Data_Get_Struct(rb_node, xmlNode, node);
-    cur = tuple->node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_node, xmlNode, node);
 
-    if (xmlXPathNodeSetContains(cur, node)) {
-	for (i = 0; i < cur->nodeNr; i++)
-	    if (cur->nodeTab[i] == node) break;
-
-	cur->nodeNr--;
-	for (;i < cur->nodeNr;i++)
-	    cur->nodeTab[i] = cur->nodeTab[i + 1];
-	cur->nodeTab[cur->nodeNr] = NULL;
-	return rb_node;
-    }
-    return Qnil ;
+  if (xmlXPathNodeSetContains(node_set, node)) {
+    xpath_node_set_del(node_set, node);
+    return rb_node;
+  }
+  return Qnil ;
 }
 
 
@@ -162,16 +134,16 @@ delete(VALUE self, VALUE rb_node)
  */
 static VALUE intersection(VALUE self, VALUE rb_other)
 {
-  nokogiriNodeSetTuple *tuple, *other;
+  xmlNodeSetPtr node_set, other ;
   xmlNodeSetPtr intersection;
 
   if(!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet))
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  Data_Get_Struct(rb_other, nokogiriNodeSetTuple, other);
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
 
-  intersection = xmlXPathIntersection(tuple->node_set, other->node_set);
+  intersection = xmlXPathIntersection(node_set, other);
   return Nokogiri_wrap_xml_node_set(intersection, rb_iv_get(self, "@document"));
 }
 
@@ -184,16 +156,15 @@ static VALUE intersection(VALUE self, VALUE rb_other)
  */
 static VALUE include_eh(VALUE self, VALUE rb_node)
 {
-  nokogiriNodeSetTuple *tuple;
+  xmlNodeSetPtr node_set;
   xmlNodePtr node;
 
-  if(!(rb_obj_is_kind_of(rb_node, cNokogiriXmlNode) || rb_obj_is_kind_of(rb_node, cNokogiriXmlNamespace)))
-    rb_raise(rb_eArgError, "node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
+  Check_Node_Set_Node_Type(rb_node);
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
+  Data_Get_Struct(self, xmlNodeSet, node_set);
   Data_Get_Struct(rb_node, xmlNode, node);
 
-  return (xmlXPathNodeSetContains(tuple->node_set, node) ? Qtrue : Qfalse);
+  return (xmlXPathNodeSetContains(node_set, node) ? Qtrue : Qfalse);
 }
 
 
@@ -206,17 +177,17 @@ static VALUE include_eh(VALUE self, VALUE rb_node)
  */
 static VALUE set_union(VALUE self, VALUE rb_other)
 {
-  nokogiriNodeSetTuple *tuple, *other;
+  xmlNodeSetPtr node_set, other;
   xmlNodeSetPtr new;
 
   if(!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet))
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  Data_Get_Struct(rb_other, nokogiriNodeSetTuple, other);
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
 
-  new = xmlXPathNodeSetMerge(NULL, tuple->node_set);
-  new = xmlXPathNodeSetMerge(new, other->node_set);
+  new = xmlXPathNodeSetMerge(NULL, node_set);
+  new = xmlXPathNodeSetMerge(new, other);
 
   return Nokogiri_wrap_xml_node_set(new, rb_iv_get(self, "@document"));
 }
@@ -230,19 +201,19 @@ static VALUE set_union(VALUE self, VALUE rb_other)
  */
 static VALUE minus(VALUE self, VALUE rb_other)
 {
-  nokogiriNodeSetTuple *tuple, *other;
+  xmlNodeSetPtr node_set, other;
   xmlNodeSetPtr new;
   int j ;
 
   if(!rb_obj_is_kind_of(rb_other, cNokogiriXmlNodeSet))
     rb_raise(rb_eArgError, "node_set must be a Nokogiri::XML::NodeSet");
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  Data_Get_Struct(rb_other, nokogiriNodeSetTuple, other);
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+  Data_Get_Struct(rb_other, xmlNodeSet, other);
 
-  new = xmlXPathNodeSetMerge(NULL, tuple->node_set);
-  for (j = 0 ; j < other->node_set->nodeNr ; ++j) {
-    xmlXPathNodeSetDel(new, other->node_set->nodeTab[j]);
+  new = xmlXPathNodeSetMerge(NULL, node_set);
+  for (j = 0 ; j < other->nodeNr ; ++j) {
+    xpath_node_set_del(new, other->nodeTab[j]);
   }
 
   return Nokogiri_wrap_xml_node_set(new, rb_iv_get(self, "@document"));
@@ -252,31 +223,25 @@ static VALUE minus(VALUE self, VALUE rb_other)
 static VALUE index_at(VALUE self, long offset)
 {
   xmlNodeSetPtr node_set;
-  nokogiriNodeSetTuple *tuple;
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  node_set = tuple->node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  if (offset >= node_set->nodeNr || abs((int)offset) > node_set->nodeNr)
+  if (offset >= node_set->nodeNr || abs((int)offset) > node_set->nodeNr) {
     return Qnil;
+  }
 
-  if (offset < 0)
-    offset += node_set->nodeNr;
+  if (offset < 0) { offset += node_set->nodeNr ; }
 
-  if (XML_NAMESPACE_DECL == node_set->nodeTab[offset]->type)
-    return Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(node_set->nodeTab[offset]));
-  return Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[offset]);
+  return Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[offset], self);
 }
 
 static VALUE subseq(VALUE self, long beg, long len)
 {
   long j;
-  nokogiriNodeSetTuple *tuple;
   xmlNodeSetPtr node_set;
   xmlNodeSetPtr new_set ;
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  node_set = tuple->node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
 
   if (beg > node_set->nodeNr) return Qnil ;
   if (beg < 0 || len < 0) return Qnil ;
@@ -312,9 +277,8 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
   VALUE arg ;
   long beg, len ;
   xmlNodeSetPtr node_set;
-  nokogiriNodeSetTuple *tuple;
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  node_set = tuple->node_set;
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
 
   if (argc == 2) {
     beg = NUM2LONG(argv[0]);
@@ -333,7 +297,7 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
   if (FIXNUM_P(arg)) {
     return index_at(self, FIX2LONG(arg));
   }
-  
+
   /* if arg is Range */
   switch (rb_range_beg_len(arg, &beg, &len, (long)node_set->nodeNr, 0)) {
   case Qfalse:
@@ -356,26 +320,25 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
  */
 static VALUE to_array(VALUE self, VALUE rb_node)
 {
-  xmlNodeSetPtr set;
+  xmlNodeSetPtr node_set ;
   VALUE *elts;
   VALUE list;
   int i;
-  nokogiriNodeSetTuple *tuple;
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  set = tuple->node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  elts = calloc((size_t)set->nodeNr, sizeof(VALUE *));
-  for(i = 0; i < set->nodeNr; i++) {
-    if (XML_NAMESPACE_DECL == set->nodeTab[i]->type)
-      elts[i] = Nokogiri_wrap_xml_namespace2(rb_iv_get(self, "@document"), (xmlNsPtr)(set->nodeTab[i]));
-    else
-      elts[i] = Nokogiri_wrap_xml_node(Qnil, set->nodeTab[i]);
+  elts = (VALUE *)calloc((size_t)(node_set->nodeNr), sizeof(VALUE));
+  for(i = 0; i < node_set->nodeNr; i++) {
+    elts[i] = Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[i], self);
+    rb_gc_register_address(&elts[i]);
   }
 
-  list = rb_ary_new4((long)set->nodeNr, elts);
+  list = rb_ary_new4((long)node_set->nodeNr, elts);
 
-  /*free(elts); */
+  for(i = 0; i < node_set->nodeNr; i++) {
+    rb_gc_unregister_address(&elts[i]);
+  }
+  free(elts);
 
   return list;
 }
@@ -390,13 +353,12 @@ static VALUE unlink_nodeset(VALUE self)
 {
   xmlNodeSetPtr node_set;
   int j, nodeNr ;
-  nokogiriNodeSetTuple *tuple;
 
-  Data_Get_Struct(self, nokogiriNodeSetTuple, tuple);
-  node_set = tuple->node_set;
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
   nodeNr = node_set->nodeNr ;
   for (j = 0 ; j < nodeNr ; j++) {
-    if (XML_NAMESPACE_DECL != node_set->nodeTab[j]->type) {
+    if (! Nokogiri_namespace_eh(node_set->nodeTab[j])) {
       VALUE node ;
       xmlNodePtr node_ptr;
       node = Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[j]);
@@ -408,38 +370,102 @@ static VALUE unlink_nodeset(VALUE self)
   return self ;
 }
 
+
+static void reify_node_set_namespaces(VALUE self)
+{
+  /*
+   *  as mentioned in deallocate() above, xmlNs structs returned in an XPath
+   *  NodeSet are duplicates, and we don't clean them up at deallocate() time.
+   *
+   *  as a result, we need to make sure the Ruby manages this memory. we do this
+   *  by forcing the creation of a Ruby object wrapped around the xmlNs.
+   *
+   *  we also have to make sure that the NodeSet has a reference to the
+   *  Namespace object, otherwise GC will kick in and the Namespace won't be
+   *  marked.
+   *
+   *  we *could* do this safely with *all* the nodes in the NodeSet, but we only
+   *  *need* to do it for xmlNs structs, and so you get the code we have here.
+   */
+  int j ;
+  xmlNodeSetPtr node_set ;
+  VALUE namespace_cache ;
+
+  Data_Get_Struct(self, xmlNodeSet, node_set);
+
+  namespace_cache = rb_iv_get(self, "@namespace_cache");
+
+  for (j = 0 ; j < node_set->nodeNr ; j++) {
+    if (Nokogiri_namespace_eh(node_set->nodeTab[j])) {
+      rb_ary_push(namespace_cache, Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[j], self));
+    }
+  }
+}
+
+
 VALUE Nokogiri_wrap_xml_node_set(xmlNodeSetPtr node_set, VALUE document)
 {
   VALUE new_set ;
-  int i;
-  xmlNodePtr cur;
-  xmlNsPtr ns;
-  nokogiriNodeSetTuple *tuple;
 
-  new_set = Data_Make_Struct(cNokogiriXmlNodeSet, nokogiriNodeSetTuple, 0,
-			     deallocate, tuple);
+  if (node_set == NULL) {
+    node_set = xmlXPathNodeSetCreate(NULL);
+  }
 
-  tuple->node_set = node_set;
-  tuple->namespaces = st_init_numtable();
+  new_set = Data_Wrap_Struct(cNokogiriXmlNodeSet, 0, deallocate, node_set);
 
   if (!NIL_P(document)) {
     rb_iv_set(new_set, "@document", document);
     rb_funcall(document, decorate, 1, new_set);
   }
 
-  if (node_set && node_set->nodeTab) {
-    for (i = 0; i < node_set->nodeNr; i++) {
-      cur = node_set->nodeTab[i];
-      if (cur && cur->type == XML_NAMESPACE_DECL) {
-        ns = (xmlNsPtr)cur;
-        if (ns->next && ns->next->type != XML_NAMESPACE_DECL)
-          st_insert(tuple->namespaces, (st_data_t)cur, (st_data_t)0);
-      }
-    }
-  }
+  rb_iv_set(new_set, "@namespace_cache", rb_ary_new());
+  reify_node_set_namespaces(new_set);
 
   return new_set ;
 }
+
+VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
+{
+  xmlDocPtr document ;
+
+  if (Nokogiri_namespace_eh(node)) {
+    Data_Get_Struct(rb_iv_get(node_set, "@document"), xmlDoc, document);
+    return Nokogiri_wrap_xml_namespace(document, (xmlNsPtr)node);
+  } else {
+    return Nokogiri_wrap_xml_node(Qnil, node);
+  }
+}
+
+
+static void xpath_node_set_del(xmlNodeSetPtr cur, xmlNodePtr val)
+{
+  /*
+   * as mentioned a few times above, we do not want to free xmlNs structs
+   * outside of the Namespace lifecycle.
+   *
+   * xmlXPathNodeSetDel() frees xmlNs structs, and so here we reproduce that
+   * function with the xmlNs logic.
+   */
+  int i;
+
+  if (cur == NULL) return;
+  if (val == NULL) return;
+
+  /*
+   * find node in nodeTab
+   */
+  for (i = 0;i < cur->nodeNr;i++)
+    if (cur->nodeTab[i] == val) break;
+
+  if (i >= cur->nodeNr) {	/* not found */
+    return;
+  }
+  cur->nodeNr--;
+  for (;i < cur->nodeNr;i++)
+    cur->nodeTab[i] = cur->nodeTab[i + 1];
+  cur->nodeTab[cur->nodeNr] = NULL;
+}
+
 
 VALUE cNokogiriXmlNodeSet ;
 void init_xml_node_set(void)
