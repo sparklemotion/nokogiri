@@ -1,0 +1,36 @@
+From 770bbd3016efa2ed73516136d8fed5faf849cbfc Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Fri, 20 Nov 2015 15:04:09 +0800
+Subject: [PATCH 16/18] Detect incoherency on GROW
+
+the current pointer to the input has to be between the base and end
+if not stop everything we have an internal state error.
+---
+ parser.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/parser.c b/parser.c
+index 0b8282b..aef618f 100644
+--- a/parser.c
++++ b/parser.c
+@@ -2075,9 +2075,16 @@ static void xmlGROW (xmlParserCtxtPtr ctxt) {
+          ((ctxt->input->buf) && (ctxt->input->buf->readcallback != (xmlInputReadCallback) xmlNop)) &&
+         ((ctxt->options & XML_PARSE_HUGE) == 0)) {
+         xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR, "Huge input lookup");
+-        ctxt->instate = XML_PARSER_EOF;
++        xmlHaltParser(ctxt);
++	return;
+     }
+     xmlParserInputGrow(ctxt->input, INPUT_CHUNK);
++    if ((ctxt->input->cur > ctxt->input->end) ||
++        (ctxt->input->cur < ctxt->input->base)) {
++        xmlHaltParser(ctxt);
++        xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR, "cur index out of bound");
++	return;
++    }
+     if ((ctxt->input->cur != NULL) && (*ctxt->input->cur == 0) &&
+         (xmlParserInputGrow(ctxt->input, INPUT_CHUNK) <= 0))
+ 	    xmlPopInput(ctxt);
+-- 
+2.5.0
+

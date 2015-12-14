@@ -1,0 +1,35 @@
+From b57e4be41ab56653d45ce212cacf4640b55dd589 Mon Sep 17 00:00:00 2001
+From: Hugh Davenport <hugh@allthethings.co.nz>
+Date: Tue, 3 Nov 2015 20:40:49 +0800
+Subject: [PATCH 11/18] Avoid extra processing of MarkupDecl when EOF
+
+For https://bugzilla.gnome.org/show_bug.cgi?id=756263
+
+One place where ctxt->instate == XML_PARSER_EOF whic was set up
+by entity detection issues doesn't get noticed, and even overrided
+---
+ parser.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/parser.c b/parser.c
+index d67b300..134afe7 100644
+--- a/parser.c
++++ b/parser.c
+@@ -6972,6 +6972,14 @@ xmlParseMarkupDecl(xmlParserCtxtPtr ctxt) {
+ 	    xmlParsePI(ctxt);
+ 	}
+     }
++
++    /*
++     * detect requirement to exit there and act accordingly
++     * and avoid having instate overriden later on
++     */
++    if (ctxt->instate == XML_PARSER_EOF)
++        return;
++
+     /*
+      * This is only for internal subset. On external entities,
+      * the replacement is done before parsing stage
+-- 
+2.5.0
+
