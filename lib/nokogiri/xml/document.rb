@@ -45,7 +45,13 @@ module Nokogiri
         # Give the options to the user
         yield options if block_given?
 
-        return new if !options.strict? && empty_doc?(string_or_io)
+        if empty_doc?(string_or_io)
+          if options.strict?
+            raise Nokogiri::XML::SyntaxError.new("Empty document")
+          else
+            return new
+          end
+        end
 
         doc = if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
