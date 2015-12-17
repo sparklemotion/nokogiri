@@ -2,25 +2,15 @@
 
 ==== セキュリティ
 
-This version pulls in several upstream patches to the vendored libxml2 and libxslt to address:
-
-  CVE-2015-5312
-  CVE-2015-7497
-  CVE-2015-7498
-  CVE-2015-7499
-  CVE-2015-7500
-  CVE-2015-8241
-  CVE-2015-8242
-  CVE-2015-8317
-
-See also http://www.ubuntu.com/usn/usn-2834-1/
-
-These patches were also applied to v1.6.7.1.
+* (MRI) Bundled Libxml2 is upgraded to 2.9.3, which fixes a series of security issues. See https://mail.gnome.org/archives/xml/2015-November/msg00012.html
 
 
 ==== バグ修正
 
 * [JRuby] fix load errors when deploying to JRuby/Torquebox (#1114) (Thanks, @atambo!)
+* [JRuby] fix NPE when inspecting nodes returned by NodeSet#drop (#1042) (Thanks, @mkristian!)
+* [JRuby] fix nil attriubte node's namespace in reader (#1327) (Thanks, @codekitchen!)
+* [MRI]   fix assertion failure while accessing attribute node's namespace in reader (#843) (Thanks, @2potatocakes!)
 
 
 === 1.6.7.1 / 2015年12月16日
