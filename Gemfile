@@ -8,7 +8,7 @@ gem "mini_portile2", "~>2.0.0"
 
 gem "rdoc", "~>4.0", :group => [:development, :test]
 gem "hoe-bundler", ">=1.1", :group => [:development, :test]
-gem "hoe-debugging", "~>1.2.0", :group => [:development, :test]
+gem "hoe-debugging", "~>1.2.1", :group => [:development, :test]
 gem "hoe-gemspec", ">=1.0", :group => [:development, :test]
 gem "hoe-git", ">=1.4", :group => [:development, :test]
 gem "minitest", "~>2.2.2", :group => [:development, :test]
