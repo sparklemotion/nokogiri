@@ -259,6 +259,7 @@ test/css/test_tokenizer.rb
 test/css/test_xpath_visitor.rb
 test/decorators/test_slop.rb
 test/files/2ch.html
+test/files/GH_1042.html
 test/files/address_book.rlx
 test/files/address_book.xml
 test/files/atom.xml
@@ -271,6 +272,7 @@ test/files/exslt.xml
 test/files/exslt.xslt
 test/files/foo/foo.xsd
 test/files/metacharset.html
+test/files/namespace_pressure_test.xml
 test/files/noencoding.html
 test/files/po.xml
 test/files/po.xsd
