@@ -1,3 +1,19 @@
+=== 1.6.7.1 / 2015-12-16
+
+This version pulls in several upstream patches to the vendored libxml2 and libxslt to address:
+
+  CVE-2015-5312
+  CVE-2015-7497
+  CVE-2015-7498
+  CVE-2015-7499
+  CVE-2015-7500
+  CVE-2015-8241
+  CVE-2015-8242
+  CVE-2015-8317
+
+See also http://www.ubuntu.com/usn/usn-2834-1/
+
+
 === 1.6.7 / 2015-11-29
 
 ==== Notes
