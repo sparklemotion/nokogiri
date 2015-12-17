@@ -13,6 +13,7 @@
 * [MRI] fix assertion failure while accessing attribute node's namespace in reader (#843) (Thanks, @2potatocakes!)
 * [MRI] fix issue with GCing namespace nodes returned in an xpath query. (#1155)
 * unescape special characters in CSS queries (#1303) (Thanks, @twalpole!)
+* consistently handle empty documents (#1349)
 
 
 === 1.6.7.1 / 2015-12-16
