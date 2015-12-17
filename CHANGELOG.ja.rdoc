@@ -10,8 +10,9 @@
 * [JRuby] fix load errors when deploying to JRuby/Torquebox (#1114) (Thanks, @atambo!)
 * [JRuby] fix NPE when inspecting nodes returned by NodeSet#drop (#1042) (Thanks, @mkristian!)
 * [JRuby] fix nil attriubte node's namespace in reader (#1327) (Thanks, @codekitchen!)
-* [MRI]   fix assertion failure while accessing attribute node's namespace in reader (#843) (Thanks, @2potatocakes!)
-* [MRI]   fix issue with GCing namespace nodes returned in an xpath query. (#1155)
+* [MRI] fix assertion failure while accessing attribute node's namespace in reader (#843) (Thanks, @2potatocakes!)
+* [MRI] fix issue with GCing namespace nodes returned in an xpath query. (#1155)
+* unescape special characters in CSS queries (#1303) (Thanks, @twalpole!)
 
 
 === 1.6.7.1 / 2015年12月16日
