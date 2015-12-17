@@ -61,8 +61,10 @@ function compile {
 
 for ruby in $RUBIES ; do
     rvm_use ${ruby}
-    if ! [[ $(bundle -v) =~ "1.6." ]] ; then
-        gem install bundler
+    if ! [[ $(bundle -v) =~ "1.10." ]] ; then
+      yes | gem uninstall --force bundler
+      gem install bundler -v 1.10.6
+      bundle -v
     fi
     bundle install --quiet --local || bundle install
     clean
