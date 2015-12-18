@@ -97,7 +97,7 @@ module Nokogiri
         rescue Exception => e
           skip("This test needs the internet. Skips if no internet available. (#{e})")
         end
-        doc = Nokogiri::HTML html ,"http:/foobar.foobar/"
+        doc = Nokogiri::HTML html ,"http:/foobar.foobar/", 'UTF-8'
         refute_empty doc.to_s, "Document should not be empty"
       end
 
