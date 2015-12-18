@@ -79,10 +79,7 @@ public abstract class NokogiriErrorHandler implements ErrorHandler, XMLErrorHand
         return res;
     }
 
-    protected void add(Exception e){
-        // this message might be bound to the nekohtml version 1.9.21
-        if (!e.getMessage().equals("No character encoding indicator at beginning of document.")) {
-            errors.add(e);
-        }
+    protected boolean usesNekoHtml(String domain) {
+        return "http://cyberneko.org/html".equals(domain);
     }
 }

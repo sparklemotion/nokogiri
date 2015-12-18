@@ -28,16 +28,15 @@ module Nokogiri
         encoded = '<p>🍀</p>'
 
         doc.encoding = 'UTF-8'
-        expected = encoded
-        assert_equal expected, doc.fragment(hex).to_s
-        assert_equal expected, doc.fragment(decimal).to_s
-        assert_equal expected, doc.fragment(encoded).to_s
+        [hex, decimal, encoded].each do |document|
+          assert_equal encoded, doc.fragment(document).to_s
+        end
 
         doc.encoding = 'US-ASCII'
         expected = Nokogiri.jruby? ? hex : decimal
-        assert_equal expected, doc.fragment(hex).to_s
-        assert_equal expected, doc.fragment(decimal).to_s
-        assert_equal expected, doc.fragment(encoded).to_s
+        [hex, decimal].each do |document|
+          assert_equal expected, doc.fragment(document).to_s
+        end
       end
     end
   end
