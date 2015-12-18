@@ -184,6 +184,7 @@ if java?
     ext.target_version = '1.6'
     jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
     ext.classpath = jars.map { |x| File.expand_path x }.join ':'
+    ext.debug = true if ENV['JAVA_DEBUG']
   end
 
   task gem_build_path => [:compile] do
@@ -295,7 +296,8 @@ end
 require 'tasks/test'
 
 task :java_debug do
-  ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if java? && ENV['JAVA_DEBUG']
+  ENV['JRUBY_OPTS'] = "#{ENV['JRUBY_OPTS']} --debug --dev"
+  ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if ENV['JAVA_DEBUG']
 end
 
 if java?
