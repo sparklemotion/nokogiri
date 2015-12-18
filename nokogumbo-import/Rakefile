@@ -8,7 +8,7 @@ ENV['RAKEHOME'] = File.dirname(File.expand_path(__FILE__))
 task 'default' => 'test'
 
 task 'test' => 'compile' do
-  ruby '-I lib test-nokogumbo.rb'
+  ruby 'test-nokogumbo.rb'
 end
 
 # ensure gumbo-parser submodule is updated
@@ -26,11 +26,7 @@ file "#{EXT}/Makefile" => ['gumbo-parser/src', "#{EXT}/extconf.rb"] do
   end
 end
 
-file "lib/nokogumboc.#{DLEXT}" => "#{EXT}/nokogumboc.#{DLEXT}" do
-  cp "#{EXT}/nokogumboc.#{DLEXT}", "lib/nokogumboc.#{DLEXT}"
-end
-
-task 'compile' => "lib/nokogumboc.#{DLEXT}"
+task 'compile' => "#{EXT}/nokogumboc.#{DLEXT}"
 
 file 'gumbo-parser/src' do
   sh 'git submodule init'
@@ -48,7 +44,7 @@ SOURCES = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
 task 'gem' => 'test'
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '1.4.6'
+  gem.version = '1.4.7'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
