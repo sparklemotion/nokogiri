@@ -773,7 +773,7 @@ public class SaveContextVisitor {
             // TODO not sure about bigger offset then 2 ?!
             if (code > 65535) {
                 offset = 2;
-                canEncode = encoder.canEncode(text.substring(0, offset));
+                canEncode = encoder.canEncode(text.substring(i, i + offset));
             }
             else {
                 offset = 1;

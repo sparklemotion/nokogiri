@@ -42,8 +42,8 @@ module Nokogiri
       end
 
       def test_encoding_GH_1113
-        utf8 = '<frag>ὡ 𐄣 𢂁</frag>'
-        ascii = '<frag>&#x1f61; &#x10123; &#x22081;</frag>'
+        utf8 = '<frag>shahid ὡ 𐄣 𢂁</frag>'
+        ascii = '<frag>shahid &#x1f61; &#x10123; &#x22081;</frag>'
 
         frag = Nokogiri::XML(utf8, nil, 'UTF-8', Nokogiri::XML::ParseOptions::STRICT)
         assert_equal utf8, frag.to_xml.sub(/^<.xml.*>\n/m, '')
