@@ -766,19 +766,12 @@ public class SaveContextVisitor {
           return text;
         CharsetEncoder encoder = Charset.forName(encoding).newEncoder();
         StringBuffer sb = new StringBuffer();
+        // make sure we can handle code points that are higher than 2 bytes
         for (int i = 0; i < text.length();) {
             int code = text.codePointAt(i);
-            final int offset;
-            final boolean canEncode;
             // TODO not sure about bigger offset then 2 ?!
-            if (code > 65535) {
-                offset = 2;
-                canEncode = encoder.canEncode(text.substring(i, i + offset));
-            }
-            else {
-                offset = 1;
-                canEncode = encoder.canEncode(text.charAt(i));
-            }
+            int offset = code > 65535 ? 2 : 1;
+            boolean canEncode = encoder.canEncode(text.substring(i, i + offset));
             if (canEncode) {
                 sb.append(text.substring(i, i + offset));
             }

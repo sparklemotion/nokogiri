@@ -34,7 +34,7 @@ module Nokogiri
         assert_equal expected, doc.fragment(encoded).to_s
 
         doc.encoding = 'US-ASCII'
-        expected = defined?(JRUBY_VERSION) ? hex : decimal
+        expected = Nokogiri.jruby? ? hex : decimal
         assert_equal expected, doc.fragment(hex).to_s
         assert_equal expected, doc.fragment(decimal).to_s
         assert_equal expected, doc.fragment(encoded).to_s
