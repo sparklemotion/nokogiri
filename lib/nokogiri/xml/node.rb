@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'stringio'
 require 'nokogiri/xml/node/save_options'
 
@@ -439,12 +440,6 @@ module Nokogiri
       def namespaces
         Hash[namespace_scopes.map { |nd|
           key = ['xmlns', nd.prefix].compact.join(':')
-          if document.encoding
-            begin
-              key.force_encoding document.encoding
-            rescue ArgumentError
-            end
-          end
           [key, nd.href]
         }]
       end
