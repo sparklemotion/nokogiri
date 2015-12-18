@@ -4,6 +4,48 @@ require "helper"
 module Nokogiri
   module HTML
     class TestNodeEncoding < Nokogiri::TestCase
+      def setup
+        super
+        @html = Nokogiri::HTML(File.open(NICH_FILE, "rb"))
+      end
+
+      def test_get_attribute
+        node = @html.css('a').first
+        assert_equal 'UTF-8', node['href'].encoding.name
+      end
+
+      def test_text_encoding_is_utf_8
+        assert_equal 'UTF-8', @html.text.encoding.name
+      end
+
+      def test_serialize_encoding_html
+        assert_equal @html.encoding.downcase,
+          @html.serialize.encoding.name.downcase
+
+        @doc = Nokogiri::HTML(@html.serialize)
+        assert_equal @html.serialize, @doc.serialize
+      end
+
+      def test_encode_special_chars
+        foo = @html.css('a').first.encode_special_chars('foo')
+        assert_equal 'UTF-8', foo.encoding.name
+      end
+
+      def test_content
+        node = @html.css('a').first
+        assert_equal 'UTF-8', node.content.encoding.name
+      end
+
+      def test_name
+        node = @html.css('a').first
+        assert_equal 'UTF-8', node.name.encoding.name
+      end
+
+      def test_path
+        node = @html.css('a').first
+        assert_equal 'UTF-8', node.path.encoding.name
+      end
+
       def test_inner_html
         doc = Nokogiri::HTML File.open(SHIFT_JIS_HTML, 'rb')
 
