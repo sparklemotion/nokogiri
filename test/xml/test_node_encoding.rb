@@ -5,7 +5,7 @@ module Nokogiri
     class TestNodeEncoding < Nokogiri::TestCase
       def setup
         super
-        @html = Nokogiri::HTML(File.read(HTML_FILE), HTML_FILE)
+        @html = Nokogiri::HTML(File.read(HTML_FILE, encoding: Encoding::UTF_8), HTML_FILE)
       end
 
       def test_get_attribute
