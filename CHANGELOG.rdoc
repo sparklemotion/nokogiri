@@ -59,7 +59,7 @@ See #1374 and #1376 for details.
 * [JRuby] reset the namespace cache when replacing the document's innerHtml (#1265) (Thanks, @mkristian!)
 * [JRuby] Document#parse should support IO objects that respond to #read. (#1124) (Thanks, Jake Byman!)
 * [MRI] Duplicate-id errors when setting the `id` attribute on HTML documents are now silenced. (#1262)
-* [JRuby] SAX parser cuts texts in peices when quare brackets exist. (#1261)
+* [JRuby] SAX parser cuts texts in pieces when square brackets exist. (#1261)
 * [JRuby] Namespaced attributes aren't removed by remove_attribute. (#1299)
 
 
