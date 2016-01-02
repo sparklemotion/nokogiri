@@ -80,7 +80,6 @@ public abstract class NokogiriErrorHandler implements ErrorHandler, XMLErrorHand
     }
 
     protected boolean usesNekoHtml(String domain) {
-        if ("http://cyberneko.org/html".equals(domain)) return true;
-        else return false;
+        return "http://cyberneko.org/html".equals(domain);
     }
 }

@@ -806,6 +806,13 @@ public class XmlNode extends RubyObject {
         }
 
         ctx.setInputSource(istream);
+        // TODO: for some reason, document.getEncoding() can be null or nil (don't know why)
+        // run `test_parse_with_unparented_html_text_context_node' few times to see this happen
+        if (document instanceof HtmlDocument && !(document.getEncoding() == null || document.getEncoding().isNil())) {
+        	HtmlDomParserContext htmlCtx= (HtmlDomParserContext) ctx;
+        	htmlCtx.setEncoding(document.getEncoding().asJavaString());
+        }
+        
         XmlDocument doc = ctx.parse(context, klass, runtime.getNil());
 
         RubyArray documentErrors = getErrorArray(document);

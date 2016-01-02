@@ -190,6 +190,10 @@ public class ParserContext extends RubyObject {
         }
         return false;
     }
+    
+    protected void setEncoding(String encoding) {
+    	source.setEncoding(encoding);
+    }
 
     /**
      * Set the InputSource to read from <code>file</code>, a String filename.

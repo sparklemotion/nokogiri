@@ -75,5 +75,4 @@ public class NokogiriStrictErrorHandler extends NokogiriErrorHandler {
         if (!nowarning) throw e;
         if (!usesNekoHtml(domain)) errors.add(e);
     }
-
 }

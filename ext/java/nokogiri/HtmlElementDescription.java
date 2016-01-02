@@ -105,9 +105,12 @@ public class HtmlElementDescription extends RubyObject {
     public static IRubyObject get(ThreadContext context,
                                   IRubyObject klazz, IRubyObject name) {
 
-        HTMLElements.Element elem = HTMLElements.getElement(name.toString());
+        // nekohtml will return an element even for invalid names, see
+        // http://sourceforge.net/p/nekohtml/code/HEAD/tree/trunk/src/org/cyberneko/html/HTMLElements.java#l514
+        // which breaks `test_fetch_nonexistent'
+        HTMLElements.Element elem = HTMLElements.getElement(name.asJavaString(), HTMLElements.NO_SUCH_ELEMENT);
         if (elem == HTMLElements.NO_SUCH_ELEMENT)
-            return context.getRuntime().getNil();
+            return context.nil;
 
         HtmlElementDescription desc =
             new HtmlElementDescription(context.getRuntime(), (RubyClass)klazz);

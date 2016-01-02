@@ -65,7 +65,9 @@ import org.w3c.dom.NodeList;
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
 
-    public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
+    private String encoding;
+
+	public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         super(runtime, options);
     }
     
@@ -101,6 +103,11 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         setProperty("http://cyberneko.org/html/properties/filters", filters);
         setFeature("http://cyberneko.org/html/features/report-errors", true);
         setFeature("http://xml.org/sax/features/namespaces", false);
+    }
+    
+    @Override
+    public void setEncoding(String encoding) {
+		super.setEncoding(encoding);
     }
 
     /**

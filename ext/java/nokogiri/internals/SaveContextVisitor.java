@@ -761,24 +761,25 @@ public class SaveContextVisitor {
         return true;
     }
 
-    private String getEncoding(Text text) {
-        if (encoding != null) return encoding;
-        encoding = text.getOwnerDocument().getInputEncoding();
-        return encoding;
-    }
-
     private String encodeStringToHtmlEntity(String text) {
         if (encoding == null)
           return text;
         CharsetEncoder encoder = Charset.forName(encoding).newEncoder();
-        int last = 126; // = U+007E. No need to encode under U+007E.
         StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < text.length(); i++) {
-            char ch = text.charAt(i);
-            if (encoder.canEncode(ch)) sb.append(ch);
-            else sb.append("&#x" + Integer.toHexString(ch) + ";");
+        // make sure we can handle code points that are higher than 2 bytes
+        for (int i = 0; i < text.length();) {
+            int code = text.codePointAt(i);
+            // TODO not sure about bigger offset then 2 ?!
+            int offset = code > 65535 ? 2 : 1;
+            boolean canEncode = encoder.canEncode(text.substring(i, i + offset));
+            if (canEncode) {
+                sb.append(text.substring(i, i + offset));
+            }
+            else {
+                sb.append("&#x" + Integer.toHexString(code) + ";");
+            }
+            i += offset;
         }
         return new String(sb);
     }
-
 }
