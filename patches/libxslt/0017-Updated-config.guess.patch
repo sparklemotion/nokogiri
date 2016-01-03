@@ -92,7 +92,7 @@ index 951383e..b3f9053
 +	LIBC=gnu
 +
 +	eval $set_cc_for_build
-+	cat <<-EOF > $dummy.c
++	cat <<EOF > $dummy.c
 +	#include <features.h>
 +	#if defined(__UCLIBC__)
 +	LIBC=uclibc
@@ -101,7 +101,7 @@ index 951383e..b3f9053
 +	#else
 +	LIBC=gnu
 +	#endif
-+	EOF
++EOF
 +	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^LIBC' | sed 's, ,,g'`
 +	;;
 +esac
