@@ -57,7 +57,6 @@ def do_clean
     # clean the ports build directory
     Pathname.glob(pwd.join('tmp', '*', 'ports')) { |dir|
       FileUtils.rm_rf(dir, verbose: true)
-      FileUtils.rmdir(dir.parent, parents: true, verbose: true)
     }
 
     if enable_config('static')
