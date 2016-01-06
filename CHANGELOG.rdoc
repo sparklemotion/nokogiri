@@ -15,6 +15,7 @@
 * [MRI] fix issue with GCing namespace nodes returned in an xpath query. (#1155)
 * unescape special characters in CSS queries (#1303) (Thanks, @twalpole!)
 * consistently handle empty documents (#1349)
+* Update to mini_portile2 2.1.0 to address whitespace-handling during patching. (#1402)
 
 
 === 1.6.7.1 / 2015-12-16
