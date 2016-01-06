@@ -546,9 +546,10 @@ module Nokogiri
         return NodeSet.new(document, parents) unless selector
 
         root = parents.last
+        search_results = root.search(selector)
 
         NodeSet.new(document, parents.find_all { |parent|
-          root.search(selector).include?(parent)
+          search_results.include?(parent)
         })
       end
 
