@@ -40,7 +40,7 @@ module Nokogiri
 
       def test_namespace_node_prefix
         namespaces = @xml.root.namespace_definitions
-        assert_equal [nil, 'foo'], namespaces.map { |x| x.prefix }
+        assert_equal [nil, 'foo'], namespaces.map(&:prefix)
       end
 
       def test_namespace_node_href
@@ -48,7 +48,7 @@ module Nokogiri
         assert_equal [
           'http://tenderlovemaking.com/',
           'bar'
-        ], namespaces.map { |x| x.href }
+        ], namespaces.map(&:href)
       end
 
       def test_equality

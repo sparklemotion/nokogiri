@@ -422,7 +422,7 @@ eohtml
         eohtml
         set = html.css('p, a')
         assert_equal(2, set.length)
-        assert_equal ['a tag', 'p tag'].sort, set.map { |x| x.content }.sort
+        assert_equal ['a tag', 'p tag'].sort, set.map(&:content).sort
       end
 
       def test_inner_text
@@ -600,7 +600,7 @@ eohtml
         eohtml
         list = doc.css('.red')
         assert_equal 2, list.length
-        assert_equal %w{ RED RED }, list.map { |x| x.text }
+        assert_equal %w{ RED RED }, list.map(&:text)
       end
 
       def test_parse_can_take_io

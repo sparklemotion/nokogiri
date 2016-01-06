@@ -331,13 +331,13 @@ module Nokogiri
       ###
       # Get the attribute values for this Node.
       def values
-        attribute_nodes.map { |node| node.value }
+        attribute_nodes.map(&:value)
       end
 
       ###
       # Get the attribute names for this Node.
       def keys
-        attribute_nodes.map { |node| node.node_name }
+        attribute_nodes.map(&:node_name)
       end
 
       ###

@@ -107,16 +107,16 @@ module Nokogiri
       def test_document_xhtml_enc
         [ENCODING_XHTML_FILE, ENCODING_HTML_FILE].each { |file|
           doc_from_string_enc = Nokogiri::HTML(binread(file), nil, 'Shift_JIS')
-          ary_from_string_enc = doc_from_string_enc.xpath('//p/text()').map { |text| text.text }
+          ary_from_string_enc = doc_from_string_enc.xpath('//p/text()').map(&:text)
 
           doc_from_string = Nokogiri::HTML(binread(file))
-          ary_from_string = doc_from_string.xpath('//p/text()').map { |text| text.text }
+          ary_from_string = doc_from_string.xpath('//p/text()').map(&:text)
 
           doc_from_file_enc = Nokogiri::HTML(binopen(file), nil, 'Shift_JIS')
-          ary_from_file_enc = doc_from_file_enc.xpath('//p/text()').map { |text| text.text }
+          ary_from_file_enc = doc_from_file_enc.xpath('//p/text()').map(&:text)
 
           doc_from_file = Nokogiri::HTML(binopen(file))
-          ary_from_file = doc_from_file.xpath('//p/text()').map { |text| text.text }
+          ary_from_file = doc_from_file.xpath('//p/text()').map(&:text)
 
           title = 'たこ焼き仮面'
 

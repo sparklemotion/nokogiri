@@ -19,7 +19,7 @@ module Nokogiri
       def test_element_children
         nodes = @xml.root.element_children
         assert_equal @xml.root.first_element_child, nodes.first
-        assert nodes.all? { |node| node.element? }, 'all nodes are elements'
+        assert nodes.all?(&:element?), 'all nodes are elements'
       end
 
       def test_last_element_child
@@ -622,7 +622,7 @@ module Nokogiri
         address = @xml.xpath('//address').first
         assert_equal 3, address.ancestors.length
         assert_equal ['employee', 'staff', 'document'],
-          address.ancestors.map { |x| x.name }
+          address.ancestors.map(&:name)
       end
 
       def test_read_only?
@@ -714,7 +714,7 @@ b"></div>
         eoxml
         set = xml.css('a[@class~="bar"]')
         assert_equal 4, set.length
-        assert_equal ['Bar'], set.map { |node| node.content }.uniq
+        assert_equal ['Bar'], set.map(&:content).uniq
       end
 
       def test_unlink
@@ -892,7 +892,7 @@ b"></div>
 
       def test_whitespace_nodes
         doc = Nokogiri::XML.parse("<root><b>Foo</b>\n<i>Bar</i> <p>Bazz</p></root>")
-        children = doc.at('//root').children.collect{|j| j.to_s}
+        children = doc.at('//root').children.collect(&:to_s)
         assert_equal "\n", children[1]
         assert_equal " ", children[3]
       end
