@@ -321,24 +321,16 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
 static VALUE to_array(VALUE self, VALUE rb_node)
 {
   xmlNodeSetPtr node_set ;
-  VALUE *elts;
   VALUE list;
   int i;
 
   Data_Get_Struct(self, xmlNodeSet, node_set);
 
-  elts = (VALUE *)calloc((size_t)(node_set->nodeNr), sizeof(VALUE));
+  list = rb_ary_new2(node_set->nodeNr);
   for(i = 0; i < node_set->nodeNr; i++) {
-    elts[i] = Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[i], self);
-    rb_gc_register_address(&elts[i]);
+    VALUE elt = Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[i], self);
+    rb_ary_push( list, elt );
   }
-
-  list = rb_ary_new4((long)node_set->nodeNr, elts);
-
-  for(i = 0; i < node_set->nodeNr; i++) {
-    rb_gc_unregister_address(&elts[i]);
-  }
-  free(elts);
 
   return list;
 }
