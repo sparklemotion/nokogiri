@@ -18,8 +18,8 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   external_id = rb_ary_entry(rest, (long)1);
 
   doc = htmlNewDoc(
-      RTEST(uri) ? (const xmlChar *)StringValuePtr(uri) : NULL,
-      RTEST(external_id) ? (const xmlChar *)StringValuePtr(external_id) : NULL
+      RTEST(uri) ? (const xmlChar *)StringValueCStr(uri) : NULL,
+      RTEST(external_id) ? (const xmlChar *)StringValueCStr(external_id) : NULL
   );
   rb_doc = Nokogiri_wrap_xml_document(klass, doc);
   rb_obj_call_init(rb_doc, argc, argv);
@@ -39,8 +39,8 @@ static VALUE read_io( VALUE klass,
                       VALUE encoding,
                       VALUE options )
 {
-  const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
-  const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
+  const char * c_url    = NIL_P(url)      ? NULL : StringValueCStr(url);
+  const char * c_enc    = NIL_P(encoding) ? NULL : StringValueCStr(encoding);
   VALUE error_list      = rb_ary_new();
   VALUE document;
   htmlDocPtr doc;
@@ -103,8 +103,8 @@ static VALUE read_memory( VALUE klass,
                           VALUE options )
 {
   const char * c_buffer = StringValuePtr(string);
-  const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
-  const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
+  const char * c_url    = NIL_P(url)      ? NULL : StringValueCStr(url);
+  const char * c_enc    = NIL_P(encoding) ? NULL : StringValueCStr(encoding);
   int len               = (int)RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
   VALUE document;

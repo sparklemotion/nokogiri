@@ -61,7 +61,7 @@ static VALUE validate_file(VALUE self, VALUE rb_filename)
   VALUE errors;
 
   Data_Get_Struct(self, xmlSchema, schema);
-  filename = (const char*)StringValuePtr(rb_filename) ;
+  filename = (const char*)StringValueCStr(rb_filename) ;
 
   errors = rb_ary_new();
 

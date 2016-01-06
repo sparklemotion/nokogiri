@@ -21,8 +21,8 @@ static VALUE register_ns(VALUE self, VALUE prefix, VALUE uri)
   Data_Get_Struct(self, xmlXPathContext, ctx);
 
   xmlXPathRegisterNs( ctx,
-                      (const xmlChar *)StringValuePtr(prefix),
-                      (const xmlChar *)StringValuePtr(uri)
+                      (const xmlChar *)StringValueCStr(prefix),
+                      (const xmlChar *)StringValueCStr(uri)
   );
   return self;
 }
@@ -39,10 +39,10 @@ static VALUE register_variable(VALUE self, VALUE name, VALUE value)
    xmlXPathObjectPtr xmlValue;
    Data_Get_Struct(self, xmlXPathContext, ctx);
 
-   xmlValue = xmlXPathNewCString(StringValuePtr(value));
+   xmlValue = xmlXPathNewCString(StringValueCStr(value));
 
    xmlXPathRegisterVariable( ctx,
-      (const xmlChar *)StringValuePtr(name),
+      (const xmlChar *)StringValueCStr(name),
       xmlValue
    );
 
@@ -108,7 +108,7 @@ void Nokogiri_marshal_xpath_funcall_and_return_values(xmlXPathParserContextPtr c
     case T_STRING:
       xmlXPathReturnString(
           ctx,
-          xmlCharStrdup(StringValuePtr(result))
+          xmlCharStrdup(StringValueCStr(result))
       );
       break;
     case T_TRUE:
@@ -200,7 +200,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   if(rb_scan_args(argc, argv, "11", &search_path, &xpath_handler) == 1)
     xpath_handler = Qnil;
 
-  query = (xmlChar *)StringValuePtr(search_path);
+  query = (xmlChar *)StringValueCStr(search_path);
 
   if(Qnil != xpath_handler) {
     /* FIXME: not sure if this is the correct place to shove private data. */

@@ -245,7 +245,7 @@ static VALUE name(VALUE self)
 static VALUE get_description(VALUE klass, VALUE tag_name)
 {
   const htmlElemDesc * description = htmlTagLookup(
-      (const xmlChar *)StringValuePtr(tag_name)
+      (const xmlChar *)StringValueCStr(tag_name)
   );
 
   if(NULL == description) return Qnil;

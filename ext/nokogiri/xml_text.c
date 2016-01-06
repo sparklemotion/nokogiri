@@ -19,7 +19,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   Data_Get_Struct(document, xmlDoc, doc);
 
-  node = xmlNewText((xmlChar *)StringValuePtr(string));
+  node = xmlNewText((xmlChar *)StringValueCStr(string));
   node->doc = doc->doc;
 
   nokogiri_root_node(node);

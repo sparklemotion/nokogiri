@@ -9,7 +9,7 @@ static VALUE get(VALUE klass, VALUE key)
 {
   xmlCharEncodingHandlerPtr handler;
 
-  handler = xmlFindCharEncodingHandler(StringValuePtr(key));
+  handler = xmlFindCharEncodingHandler(StringValueCStr(key));
   if(handler)
     return Data_Wrap_Struct(klass, NULL, NULL, handler);
 
@@ -23,7 +23,7 @@ static VALUE get(VALUE klass, VALUE key)
  */
 static VALUE delete(VALUE klass, VALUE name)
 {
-  if(xmlDelEncodingAlias(StringValuePtr(name))) return Qnil;
+  if(xmlDelEncodingAlias(StringValueCStr(name))) return Qnil;
 
   return Qtrue;
 }
@@ -35,7 +35,7 @@ static VALUE delete(VALUE klass, VALUE name)
  */
 static VALUE alias(VALUE klass, VALUE from, VALUE to)
 {
-  xmlAddEncodingAlias(StringValuePtr(from), StringValuePtr(to));
+  xmlAddEncodingAlias(StringValueCStr(from), StringValueCStr(to));
 
   return to;
 }

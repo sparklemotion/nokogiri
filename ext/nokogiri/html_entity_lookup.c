@@ -9,7 +9,7 @@
 static VALUE get(VALUE self, VALUE key)
 {
   const htmlEntityDesc * desc =
-    htmlEntityLookup((const xmlChar *)StringValuePtr(key));
+    htmlEntityLookup((const xmlChar *)StringValueCStr(key));
   VALUE klass, args[3];
 
   if(NULL == desc) return Qnil;

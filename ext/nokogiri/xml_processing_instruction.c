@@ -23,8 +23,8 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewDocPI(
       xml_doc,
-      (const xmlChar *)StringValuePtr(name),
-      (const xmlChar *)StringValuePtr(content)
+      (const xmlChar *)StringValueCStr(name),
+      (const xmlChar *)StringValueCStr(content)
   );
 
   nokogiri_root_node(node);

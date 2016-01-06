@@ -45,7 +45,7 @@ parse_io(VALUE klass, VALUE io, VALUE encoding)
  */
 static VALUE parse_file(VALUE klass, VALUE filename)
 {
-  xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(StringValuePtr(filename));
+  xmlParserCtxtPtr ctxt = xmlCreateFileParserCtxt(StringValueCStr(filename));
   return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
 }
 

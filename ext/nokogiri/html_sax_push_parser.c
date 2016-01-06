@@ -46,10 +46,10 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename,
 
   Data_Get_Struct(_xml_sax, xmlSAXHandler, sax);
 
-  if(_filename != Qnil) filename = StringValuePtr(_filename);
+  if(_filename != Qnil) filename = StringValueCStr(_filename);
 
   if (!NIL_P(encoding)) {
-    enc = xmlParseCharEncoding(StringValuePtr(encoding));
+    enc = xmlParseCharEncoding(StringValueCStr(encoding));
     if (enc == XML_CHAR_ENCODING_ERROR)
       rb_raise(rb_eArgError, "Unsupported Encoding");
   }
