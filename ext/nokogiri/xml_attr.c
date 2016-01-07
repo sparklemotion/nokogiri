@@ -20,7 +20,7 @@ static VALUE set_value(VALUE self, VALUE content)
     xmlNode *tmp;
 
     /* Encode our content */
-    buffer = xmlEncodeEntitiesReentrant(attr->doc, (unsigned char *)StringValuePtr(content));
+    buffer = xmlEncodeEntitiesReentrant(attr->doc, (unsigned char *)StringValueCStr(content));
 
     attr->children = xmlStringGetNodeList(attr->doc, buffer);
     attr->last = NULL;
@@ -61,7 +61,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewDocProp(
       xml_doc,
-      (const xmlChar *)StringValuePtr(name),
+      (const xmlChar *)StringValueCStr(name),
       NULL
   );
 

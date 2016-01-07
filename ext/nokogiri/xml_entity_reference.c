@@ -21,7 +21,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewReference(
       xml_doc,
-      (const xmlChar *)StringValuePtr(name)
+      (const xmlChar *)StringValueCStr(name)
   );
 
   nokogiri_root_node(node);

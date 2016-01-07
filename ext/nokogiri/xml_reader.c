@@ -218,12 +218,12 @@ static VALUE reader_attribute(VALUE self, VALUE name)
   if(NIL_P(name)) return Qnil;
   name = StringValue(name) ;
 
-  value = xmlTextReaderGetAttribute(reader, (xmlChar*)StringValuePtr(name));
+  value = xmlTextReaderGetAttribute(reader, (xmlChar*)StringValueCStr(name));
   if(value == NULL) {
     /* this section is an attempt to workaround older versions of libxml that
        don't handle namespaces properly in all attribute-and-friends functions */
     xmlChar *prefix = NULL ;
-    xmlChar *localname = xmlSplitQName2((xmlChar*)StringValuePtr(name), &prefix);
+    xmlChar *localname = xmlSplitQName2((xmlChar*)StringValueCStr(name), &prefix);
     if (localname != NULL) {
       value = xmlTextReaderLookupNamespace(reader, localname);
       xmlFree(localname) ;
@@ -546,8 +546,8 @@ static VALUE from_memory(int argc, VALUE *argv, VALUE klass)
   rb_scan_args(argc, argv, "13", &rb_buffer, &rb_url, &encoding, &rb_options);
 
   if (!RTEST(rb_buffer)) rb_raise(rb_eArgError, "string cannot be nil");
-  if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
-  if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
+  if (RTEST(rb_url)) c_url = StringValueCStr(rb_url);
+  if (RTEST(encoding)) c_encoding = StringValueCStr(encoding);
   if (RTEST(rb_options)) c_options = (int)NUM2INT(rb_options);
 
   reader = xmlReaderForMemory(
@@ -590,8 +590,8 @@ static VALUE from_io(int argc, VALUE *argv, VALUE klass)
   rb_scan_args(argc, argv, "13", &rb_io, &rb_url, &encoding, &rb_options);
 
   if (!RTEST(rb_io)) rb_raise(rb_eArgError, "io cannot be nil");
-  if (RTEST(rb_url)) c_url = StringValuePtr(rb_url);
-  if (RTEST(encoding)) c_encoding = StringValuePtr(encoding);
+  if (RTEST(rb_url)) c_url = StringValueCStr(rb_url);
+  if (RTEST(encoding)) c_encoding = StringValueCStr(encoding);
   if (RTEST(rb_options)) c_options = (int)NUM2INT(rb_options);
 
   reader = xmlReaderForIO(

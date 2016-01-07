@@ -22,7 +22,7 @@ static void dealloc(nokogiriXsltStylesheetTuple *wrapper)
     NOKOGIRI_DEBUG_START(doc);
     xsltFreeStylesheet(doc); /* commented out for now. */
     NOKOGIRI_DEBUG_END(doc);
-    
+
     free(wrapper);
 }
 
@@ -47,7 +47,7 @@ VALUE Nokogiri_wrap_xslt_stylesheet(xsltStylesheetPtr ss)
 
   self = Data_Make_Struct(cNokogiriXsltStylesheet, nokogiriXsltStylesheetTuple,
                           mark, dealloc, wrapper);
-  
+
   ss->_private = (void *)self;
   wrapper->ss = ss;
   wrapper->func_instances = rb_ary_new();
@@ -122,7 +122,7 @@ static void swallow_superfluous_xml_errors(void * userdata, xmlErrorPtr error, .
  *  returns Nokogiri::XML::Document
  *
  *  Example:
- * 
+ *
  *    doc   = Nokogiri::XML(File.read(ARGV[0]))
  *    xslt  = Nokogiri::XSLT(File.read(ARGV[1]))
  *    puts xslt.transform(doc, ['key', 'value'])
@@ -158,7 +158,7 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
     params = calloc((size_t)param_len+1, sizeof(char*));
     for (j = 0 ; j < param_len ; j++) {
       VALUE entry = rb_ary_entry(paramobj, j);
-      const char * ptr = StringValuePtr(entry);
+      const char * ptr = StringValueCStr(entry);
       params[j] = ptr;
     }
     params[param_len] = 0 ;
@@ -211,7 +211,7 @@ static void * initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
     for(i = 0; i < RARRAY_LEN(methods); i++) {
 	VALUE method_name = rb_obj_as_string(rb_ary_entry(methods, i));
 	xsltRegisterExtFunction(ctxt,
-          (unsigned char *)StringValuePtr(method_name), uri, method_caller);
+          (unsigned char *)StringValueCStr(method_name), uri, method_caller);
     }
 
     Data_Get_Struct(ctxt->style->_private, nokogiriXsltStylesheetTuple,
@@ -245,7 +245,7 @@ static VALUE registr(VALUE self, VALUE uri, VALUE obj)
     if(NIL_P(modules)) rb_raise(rb_eRuntimeError, "wtf! @modules isn't set");
 
     rb_hash_aset(modules, uri, obj);
-    xsltRegisterExtModule((unsigned char *)StringValuePtr(uri), initFunc, shutdownFunc);
+    xsltRegisterExtModule((unsigned char *)StringValueCStr(uri), initFunc, shutdownFunc);
     return self;
 }
 

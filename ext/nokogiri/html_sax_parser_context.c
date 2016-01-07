@@ -31,12 +31,12 @@ parse_memory(VALUE klass, VALUE data, VALUE encoding)
     }
 
     if (RTEST(encoding)) {
-	xmlCharEncodingHandlerPtr enc = xmlFindCharEncodingHandler(StringValuePtr(encoding));
+	xmlCharEncodingHandlerPtr enc = xmlFindCharEncodingHandler(StringValueCStr(encoding));
 	if (enc != NULL) {
 	    xmlSwitchToEncoding(ctxt, enc);
 	    if (ctxt->errNo == XML_ERR_UNSUPPORTED_ENCODING) {
 		rb_raise(rb_eRuntimeError, "Unsupported encoding %s",
-			 StringValuePtr(encoding));
+			 StringValueCStr(encoding));
 	    }
 	}
     }
@@ -47,8 +47,8 @@ parse_memory(VALUE klass, VALUE data, VALUE encoding)
 static VALUE parse_file(VALUE klass, VALUE filename, VALUE encoding)
 {
   htmlParserCtxtPtr ctxt = htmlCreateFileParserCtxt(
-      StringValuePtr(filename),
-      StringValuePtr(encoding)
+      StringValueCStr(filename),
+      StringValueCStr(encoding)
   );
   return Data_Wrap_Struct(klass, NULL, deallocate, ctxt);
 }

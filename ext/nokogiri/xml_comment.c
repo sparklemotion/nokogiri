@@ -34,7 +34,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   node = xmlNewDocComment(
       xml_doc,
-      (const xmlChar *)StringValuePtr(content)
+      (const xmlChar *)StringValueCStr(content)
   );
 
   rb_node = Nokogiri_wrap_xml_node(klass, node);

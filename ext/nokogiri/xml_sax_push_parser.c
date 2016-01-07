@@ -59,7 +59,7 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 
   Data_Get_Struct(_xml_sax, xmlSAXHandler, sax);
 
-  if(_filename != Qnil) filename = StringValuePtr(_filename);
+  if(_filename != Qnil) filename = StringValueCStr(_filename);
 
   ctx = xmlCreatePushParserCtxt(
       sax,

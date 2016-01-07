@@ -181,7 +181,7 @@ static VALUE set_encoding(VALUE self, VALUE encoding)
   if (doc->encoding)
       free((char *) doc->encoding); /* this may produce a gcc cast warning */
 
-  doc->encoding = xmlStrdup((xmlChar *)StringValuePtr(encoding));
+  doc->encoding = xmlStrdup((xmlChar *)StringValueCStr(encoding));
 
   return encoding;
 }
@@ -228,8 +228,8 @@ static VALUE read_io( VALUE klass,
                       VALUE encoding,
                       VALUE options )
 {
-  const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
-  const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
+  const char * c_url    = NIL_P(url)      ? NULL : StringValueCStr(url);
+  const char * c_enc    = NIL_P(encoding) ? NULL : StringValueCStr(encoding);
   VALUE error_list      = rb_ary_new();
   VALUE document;
   xmlDocPtr doc;
@@ -279,8 +279,8 @@ static VALUE read_memory( VALUE klass,
                           VALUE options )
 {
   const char * c_buffer = StringValuePtr(string);
-  const char * c_url    = NIL_P(url)      ? NULL : StringValuePtr(url);
-  const char * c_enc    = NIL_P(encoding) ? NULL : StringValuePtr(encoding);
+  const char * c_url    = NIL_P(url)      ? NULL : StringValueCStr(url);
+  const char * c_enc    = NIL_P(encoding) ? NULL : StringValueCStr(encoding);
   int len               = (int)RSTRING_LEN(string);
   VALUE error_list      = rb_ary_new();
   VALUE document;
@@ -355,7 +355,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   version = rb_ary_entry(rest, (long)0);
   if (NIL_P(version)) version = rb_str_new2("1.0");
 
-  doc = xmlNewDoc((xmlChar *)StringValuePtr(version));
+  doc = xmlNewDoc((xmlChar *)StringValueCStr(version));
   rb_doc = Nokogiri_wrap_xml_document(klass, doc);
   rb_obj_call_init(rb_doc, argc, argv);
   return rb_doc ;
@@ -383,13 +383,13 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
  *         </bicycle>
  *       </root>
  *       EOXML
- *    
+ *
  *    doc.xpath("//tire").to_s # => ""
  *    doc.xpath("//part:tire", "part" => "http://general-motors.com/").to_s # => "<part:tire>Michelin Model XGV</part:tire>"
  *    doc.xpath("//part:tire", "part" => "http://schwinn.com/").to_s # => "<part:tire>I'm a bicycle tire!</part:tire>"
- *    
+ *
  *    doc.remove_namespaces!
- *    
+ *
  *    doc.xpath("//tire").to_s # => "<tire>Michelin Model XGV</tire><tire>I'm a bicycle tire!</tire>"
  *    doc.xpath("//part:tire", "part" => "http://general-motors.com/").to_s # => ""
  *    doc.xpath("//part:tire", "part" => "http://schwinn.com/").to_s # => ""
@@ -436,11 +436,11 @@ static VALUE create_entity(int argc, VALUE *argv, VALUE self)
   xmlResetLastError();
   ptr = xmlAddDocEntity(
       doc,
-      (xmlChar *)(NIL_P(name)        ? NULL                        : StringValuePtr(name)),
+      (xmlChar *)(NIL_P(name)        ? NULL                        : StringValueCStr(name)),
       (int)      (NIL_P(type)        ? XML_INTERNAL_GENERAL_ENTITY : NUM2INT(type)),
-      (xmlChar *)(NIL_P(external_id) ? NULL                        : StringValuePtr(external_id)),
-      (xmlChar *)(NIL_P(system_id)   ? NULL                        : StringValuePtr(system_id)),
-      (xmlChar *)(NIL_P(content)     ? NULL                        : StringValuePtr(content))
+      (xmlChar *)(NIL_P(external_id) ? NULL                        : StringValueCStr(external_id)),
+      (xmlChar *)(NIL_P(system_id)   ? NULL                        : StringValueCStr(system_id)),
+      (xmlChar *)(NIL_P(content)     ? NULL                        : StringValueCStr(content))
     );
 
   if(NULL == ptr) {
@@ -484,9 +484,9 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
  *  doc.canonicalize { |obj, parent| ... }
  *
  * Canonicalize a document and return the results.  Takes an optional block
- * that takes two parameters: the +obj+ and that node's +parent+.  
+ * that takes two parameters: the +obj+ and that node's +parent+.
  * The  +obj+ will be either a Nokogiri::XML::Node, or a Nokogiri::XML::Namespace
- * The block must return a non-nil, non-false value if the +obj+ passed in 
+ * The block must return a non-nil, non-false value if the +obj+ passed in
  * should be included in the canonicalized document.
  */
 static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
@@ -531,14 +531,14 @@ static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
     ns = calloc((size_t)ns_len+1, sizeof(xmlChar *));
     for (i = 0 ; i < ns_len ; i++) {
       VALUE entry = rb_ary_entry(incl_ns, i);
-      const char * ptr = StringValuePtr(entry);
+      const char * ptr = StringValueCStr(entry);
       ns[i] = (xmlChar*) ptr;
     }
   }
 
 
-  xmlC14NExecute(doc, cb, ctx, 
-    (int)      (NIL_P(mode)        ? 0 : NUM2INT(mode)), 
+  xmlC14NExecute(doc, cb, ctx,
+    (int)      (NIL_P(mode)        ? 0 : NUM2INT(mode)),
     ns,
     (int)      RTEST(with_comments),
     buf);
