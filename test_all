@@ -12,9 +12,10 @@
 
 # I'd add rubinius, but rvm errors when building it on my machine. :(
 RUBIES="\
+  ruby-2.3 \
   ruby-2.2 \
   ruby-2.1 \
-  ruby-2.0.0-p647 \
+  ruby-2.0.0-p648 \
   ruby-1.9.3-p551 \
   ruby-1.9.2-p330 \
   jruby-9.0.4.0 \
@@ -59,15 +60,20 @@ function compile {
     bundle exec rake compile 2>&1 > /dev/null
 }
 
+# quick check that we have All The Rubies
 for ruby in $RUBIES ; do
-    rvm_use ${ruby}
-    if ! [[ $(bundle -v) =~ "1.10." ]] ; then
-      yes | gem uninstall --force bundler
-      gem install bundler -v 1.10.6
-      bundle -v
-    fi
-    bundle install --quiet --local || bundle install
-    clean
+  rvm_use ${ruby}
+done
+
+for ruby in $RUBIES ; do
+  rvm_use ${ruby}
+  if ! [[ $(bundle -v) =~ "1.10." ]] ; then
+    yes | gem uninstall --force bundler
+    gem install bundler -v 1.10.6
+    bundle -v
+  fi
+  bundle install --quiet --local || bundle install
+  clean
 done
 
 for ruby in $RUBIES ; do
