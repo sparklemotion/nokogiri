@@ -27,7 +27,7 @@ Several changes were made to improve performance:
 * consistently handle empty documents (#1349)
 * Update to mini_portile2 2.1.0 to address whitespace-handling during patching. (#1402)
 * Fix encoding of xml node namespaces.
-* Work around issue installing Nokogiri on overlayfs. (#1370, #1405)
+* Work around issue installing Nokogiri on overlayfs (commonly used in Docker containers). (#1370, #1405)
 
 
 === 1.6.7.1 / 2015-12-16
