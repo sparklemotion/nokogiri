@@ -1,0 +1,175 @@
+From e3b1597421ad7cbeb5939fc3b54f43f141c82366 Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Fri, 20 Nov 2015 14:59:30 +0800
+Subject: Reuse xmlHaltParser() where it makes sense
+
+Unify the various place where either xmlStopParser was called
+(which resets the error as a side effect) and places where we
+used ctxt->instate = XML_PARSER_EOF to stop further processing
+---
+ parser.c | 37 +++++++++++++++++--------------------
+ 1 file changed, 17 insertions(+), 20 deletions(-)
+
+diff --git a/parser.c b/parser.c
+index b6e99b1..1810f99 100644
+--- a/parser.c
++++ b/parser.c
+@@ -1773,7 +1773,7 @@ nodePush(xmlParserCtxtPtr ctxt, xmlNodePtr value)
+ 	xmlFatalErrMsgInt(ctxt, XML_ERR_INTERNAL_ERROR,
+ 		 "Excessive depth in document: %d use XML_PARSE_HUGE option\n",
+ 			  xmlParserMaxDepth);
+-	ctxt->instate = XML_PARSER_EOF;
++	xmlHaltParser(ctxt);
+ 	return(-1);
+     }
+     ctxt->nodeTab[ctxt->nodeNr] = value;
+@@ -5675,7 +5675,7 @@ xmlParseEntityDecl(xmlParserCtxtPtr ctxt) {
+ 	if (RAW != '>') {
+ 	    xmlFatalErrMsgStr(ctxt, XML_ERR_ENTITY_NOT_FINISHED,
+ 	            "xmlParseEntityDecl: entity %s not terminated\n", name);
+-	    xmlStopParser(ctxt);
++	    xmlHaltParser(ctxt);
+ 	} else {
+ 	    if (input != ctxt->input) {
+ 		xmlFatalErrMsg(ctxt, XML_ERR_ENTITY_BOUNDARY,
+@@ -6787,8 +6787,7 @@ xmlParseConditionalSections(xmlParserCtxtPtr ctxt) {
+ 	SKIP_BLANKS;
+ 	if (RAW != '[') {
+ 	    xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID, NULL);
+-	    xmlStopParser(ctxt);
+-	    ctxt->errNo = XML_ERR_CONDSEC_INVALID;
++	    xmlHaltParser(ctxt);
+ 	    return;
+ 	} else {
+ 	    if (ctxt->input->id != id) {
+@@ -6850,8 +6849,7 @@ xmlParseConditionalSections(xmlParserCtxtPtr ctxt) {
+ 	SKIP_BLANKS;
+ 	if (RAW != '[') {
+ 	    xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID, NULL);
+-	    xmlStopParser(ctxt);
+-	    ctxt->errNo = XML_ERR_CONDSEC_INVALID;
++	    xmlHaltParser(ctxt);
+ 	    return;
+ 	} else {
+ 	    if (ctxt->input->id != id) {
+@@ -6908,8 +6906,7 @@ xmlParseConditionalSections(xmlParserCtxtPtr ctxt) {
+ 
+     } else {
+ 	xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID_KEYWORD, NULL);
+-	xmlStopParser(ctxt);
+-	ctxt->errNo = XML_ERR_CONDSEC_INVALID_KEYWORD;
++	xmlHaltParser(ctxt);
+ 	return;
+     }
+ 
+@@ -7120,7 +7117,7 @@ xmlParseExternalSubset(xmlParserCtxtPtr ctxt, const xmlChar *ExternalID,
+ 	    /*
+ 	     * The XML REC instructs us to stop parsing right here
+ 	     */
+-	    ctxt->instate = XML_PARSER_EOF;
++	    xmlHaltParser(ctxt);
+ 	    return;
+ 	}
+     }
+@@ -8107,7 +8104,7 @@ xmlParsePEReference(xmlParserCtxtPtr ctxt)
+ 		     * The XML REC instructs us to stop parsing
+ 		     * right here
+ 		     */
+-		    ctxt->instate = XML_PARSER_EOF;
++		    xmlHaltParser(ctxt);
+ 		    return;
+ 		}
+ 	    }
+@@ -10047,7 +10044,7 @@ xmlParseContent(xmlParserCtxtPtr ctxt) {
+ 	if ((cons == ctxt->input->consumed) && (test == CUR_PTR)) {
+ 	    xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR,
+ 	                "detected an error in element content\n");
+-	    ctxt->instate = XML_PARSER_EOF;
++	    xmlHaltParser(ctxt);
+             break;
+ 	}
+     }
+@@ -10082,7 +10079,7 @@ xmlParseElement(xmlParserCtxtPtr ctxt) {
+ 	xmlFatalErrMsgInt(ctxt, XML_ERR_INTERNAL_ERROR,
+ 		 "Excessive depth in document: %d use XML_PARSE_HUGE option\n",
+ 			  xmlParserMaxDepth);
+-	ctxt->instate = XML_PARSER_EOF;
++	xmlHaltParser(ctxt);
+ 	return;
+     }
+ 
+@@ -11412,7 +11409,7 @@ xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate) {
+ 			ctxt->sax->setDocumentLocator(ctxt->userData,
+ 						      &xmlDefaultSAXLocator);
+ 		    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, NULL);
+-		    ctxt->instate = XML_PARSER_EOF;
++		    xmlHaltParser(ctxt);
+ #ifdef DEBUG_PUSH
+ 		    xmlGenericError(xmlGenericErrorContext,
+ 			    "PP: entering EOF\n");
+@@ -11445,7 +11442,7 @@ xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate) {
+ 			     * The XML REC instructs us to stop parsing right
+ 			     * here
+ 			     */
+-			    ctxt->instate = XML_PARSER_EOF;
++			    xmlHaltParser(ctxt);
+ 			    return(0);
+ 			}
+ 			ctxt->standalone = ctxt->input->standalone;
+@@ -11501,7 +11498,7 @@ xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate) {
+ 		cur = ctxt->input->cur[0];
+ 	        if (cur != '<') {
+ 		    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_EMPTY, NULL);
+-		    ctxt->instate = XML_PARSER_EOF;
++		    xmlHaltParser(ctxt);
+ 		    if ((ctxt->sax) && (ctxt->sax->endDocument != NULL))
+ 			ctxt->sax->endDocument(ctxt->userData);
+ 		    goto done;
+@@ -11533,7 +11530,7 @@ xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate) {
+ 		    goto done;
+ 		if (name == NULL) {
+ 		    spacePop(ctxt);
+-		    ctxt->instate = XML_PARSER_EOF;
++		    xmlHaltParser(ctxt);
+ 		    if ((ctxt->sax) && (ctxt->sax->endDocument != NULL))
+ 			ctxt->sax->endDocument(ctxt->userData);
+ 		    goto done;
+@@ -11700,7 +11697,7 @@ xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate) {
+ 		if ((cons == ctxt->input->consumed) && (test == CUR_PTR)) {
+ 		    xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR,
+ 		                "detected an error in element content\n");
+-		    ctxt->instate = XML_PARSER_EOF;
++		    xmlHaltParser(ctxt);
+ 		    break;
+ 		}
+ 		break;
+@@ -12021,7 +12018,7 @@ xmlParseTryOrFinish(xmlParserCtxtPtr ctxt, int terminate) {
+ 		    goto done;
+ 		} else {
+ 		    xmlFatalErr(ctxt, XML_ERR_DOCUMENT_END, NULL);
+-		    ctxt->instate = XML_PARSER_EOF;
++		    xmlHaltParser(ctxt);
+ #ifdef DEBUG_PUSH
+ 		    xmlGenericError(xmlGenericErrorContext,
+ 			    "PP: entering EOF\n");
+@@ -12385,7 +12382,7 @@ xmldecl_done:
+ 	res = xmlParserInputBufferPush(ctxt->input->buf, size, chunk);
+ 	if (res < 0) {
+ 	    ctxt->errNo = XML_PARSER_EOF;
+-	    ctxt->disableSAX = 1;
++	    xmlHaltParser(ctxt);
+ 	    return (XML_PARSER_EOF);
+ 	}
+         xmlBufSetInputBaseCur(ctxt->input->buf->buffer, ctxt->input, base, cur);
+@@ -12439,7 +12436,7 @@ xmldecl_done:
+          ((ctxt->input->cur - ctxt->input->base) > XML_MAX_LOOKUP_LIMIT)) &&
+         ((ctxt->options & XML_PARSE_HUGE) == 0)) {
+         xmlFatalErr(ctxt, XML_ERR_INTERNAL_ERROR, "Huge input lookup");
+-        ctxt->instate = XML_PARSER_EOF;
++        xmlHaltParser(ctxt);
+     }
+     if ((ctxt->errNo != XML_ERR_OK) && (ctxt->disableSAX == 1))
+         return(ctxt->errNo);
+-- 
+cgit v0.11.2
+

@@ -1,0 +1,28 @@
+From ce0b0d0d81fdbb5f722a890432b52d363e4de57b Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Fri, 20 Nov 2015 15:01:22 +0800
+Subject: Do not print error context when there is none
+
+Which now happens more frequently du to xmlHaltParser use
+---
+ error.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/error.c b/error.c
+index cbcf5c9..9c45040 100644
+--- a/error.c
++++ b/error.c
+@@ -177,7 +177,9 @@ xmlParserPrintFileContextInternal(xmlParserInputPtr input ,
+     xmlChar  content[81]; /* space for 80 chars + line terminator */
+     xmlChar *ctnt;
+ 
+-    if (input == NULL) return;
++    if ((input == NULL) || (input->cur == NULL) ||
++        (*input->cur == 0)) return;
++
+     cur = input->cur;
+     base = input->base;
+     /* skip backwards over any end-of-lines */
+-- 
+cgit v0.11.2
+

@@ -1,0 +1,41 @@
+From 53ac9c9649fa091377dfea9511f012171f08972d Mon Sep 17 00:00:00 2001
+From: Daniel Veillard <veillard@redhat.com>
+Date: Mon, 9 Nov 2015 18:16:00 +0800
+Subject: xmlStopParser reset errNo
+
+I had used it in contexts where that information ought to be preserved
+---
+ parser.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/parser.c b/parser.c
+index c79b4e8..b7b6668 100644
+--- a/parser.c
++++ b/parser.c
+@@ -6782,6 +6782,7 @@ xmlParseConditionalSections(xmlParserCtxtPtr ctxt) {
+ 	if (RAW != '[') {
+ 	    xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID, NULL);
+ 	    xmlStopParser(ctxt);
++	    ctxt->errNo = XML_ERR_CONDSEC_INVALID;
+ 	    return;
+ 	} else {
+ 	    if (ctxt->input->id != id) {
+@@ -6844,6 +6845,7 @@ xmlParseConditionalSections(xmlParserCtxtPtr ctxt) {
+ 	if (RAW != '[') {
+ 	    xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID, NULL);
+ 	    xmlStopParser(ctxt);
++	    ctxt->errNo = XML_ERR_CONDSEC_INVALID;
+ 	    return;
+ 	} else {
+ 	    if (ctxt->input->id != id) {
+@@ -6901,6 +6903,7 @@ xmlParseConditionalSections(xmlParserCtxtPtr ctxt) {
+     } else {
+ 	xmlFatalErr(ctxt, XML_ERR_CONDSEC_INVALID_KEYWORD, NULL);
+ 	xmlStopParser(ctxt);
++	ctxt->errNo = XML_ERR_CONDSEC_INVALID_KEYWORD;
+ 	return;
+     }
+ 
+-- 
+cgit v0.11.2
+
