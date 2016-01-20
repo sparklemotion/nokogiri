@@ -221,7 +221,7 @@ module Nokogiri
       end
 
       def test_pp
-        out = StringIO.new('')
+        out = StringIO.new(String.new)
         ::PP.pp @xml, out
         assert_operator out.string.length, :>, 0
       end

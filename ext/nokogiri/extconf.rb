@@ -223,8 +223,8 @@ def iconv_configure_flags
 
       return [
         '--with-iconv=yes',
-        *("CPPFLAGS=#{idirs.map { |dir| '-I' << dir }.join(' ')}" if idirs),
-        *("LDFLAGS=#{ldirs.map { |dir| '-L' << dir }.join(' ')}" if ldirs),
+        *("CPPFLAGS=#{idirs.map { |dir| '-I' + dir }.join(' ')}" if idirs),
+        *("LDFLAGS=#{ldirs.map { |dir| '-L' + dir }.join(' ')}" if ldirs),
       ]
     end
   end
@@ -307,7 +307,7 @@ def process_recipe(name, version, static_p, cross_p)
     if RbConfig::CONFIG['target_cpu'] == 'universal'
       %w[CFLAGS LDFLAGS].each do |key|
         unless env[key].include?('-arch')
-          env[key] << ' ' << RbConfig::CONFIG['ARCH_FLAG']
+          env[key] += ' ' + RbConfig::CONFIG['ARCH_FLAG']
         end
       end
     end
