@@ -1,3 +1,14 @@
+=== 1.6.7.2 / 2015-01-20
+
+This version pulls in several upstream patches to the vendored libxml2 and libxslt to address:
+
+  CVE-2015-7499
+
+Ubuntu classifies this as "Priority: Low", RedHat classifies this as "Impact: Moderate", and NIST classifies this as "Severity: 5.0 (MEDIUM)".
+
+MITRE record is https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-7499
+
+
 === 1.6.7.1 / 2015-12-16
 
 This version pulls in several upstream patches to the vendored libxml2 and libxslt to address:
@@ -10,6 +21,8 @@ This version pulls in several upstream patches to the vendored libxml2 and libxs
   CVE-2015-8241
   CVE-2015-8242
   CVE-2015-8317
+
+These CVEs are all low or medium priority according to Canonical, however NIST NVD gives CVE-2015-5312 a high severity score.
 
 See also http://www.ubuntu.com/usn/usn-2834-1/
 
