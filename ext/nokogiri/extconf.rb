@@ -70,6 +70,29 @@ def do_clean
   exit! 0
 end
 
+# The gem version constraint in the Rakefile is not respected at install time.
+# Keep this version in sync with the one in the Rakefile !
+require 'rubygems'
+gem 'pkg-config', '~> 1.1.7'
+require 'pkg-config'
+message "Using mini_portile version #{PKGConfig::VERSION}\n"
+
+def package_config pkg, options={}
+  package = pkg_config(pkg)
+  return package if package
+
+  return nil unless PKGConfig.have_package(pkg)
+
+  cflags  = PKGConfig.cflags(pkg)
+  ldflags = PKGConfig.libs_only_L(pkg)
+  libs    = PKGConfig.libs_only_l(pkg)
+
+  Logging::message "PKGConfig package configuration for %s\n", pkg
+  Logging::message "cflags: %s\nldflags: %s\nlibs: %s\n\n", cflags, ldflags, libs
+
+  [cflags, ldflags, libs]
+end
+
 def nokogiri_try_compile
   args = if defined?(RUBY_VERSION) && RUBY_VERSION <= "1.9.2"
            ["int main() {return 0;}"]
@@ -174,8 +197,8 @@ def iconv_configure_flags
     return ['--with-iconv=yes']
   end
 
-  if (config = preserving_globals { pkg_config('libiconv') }) &&
-     have_iconv?('pkg-config libiconv') { pkg_config('libiconv') }
+  if (config = preserving_globals { package_config('libiconv') }) &&
+     have_iconv?('pkg-config libiconv') { package_config('libiconv') }
     cflags, ldflags, libs = config
 
     return [
@@ -385,9 +408,9 @@ when using_system_libraries?
   # Using system libraries means we rely on the system libxml2 with
   # regard to the iconv support.
 
-  dir_config('xml2').any?  or pkg_config('libxml-2.0')
-  dir_config('xslt').any?  or pkg_config('libxslt')
-  dir_config('exslt').any? or pkg_config('libexslt')
+  dir_config('xml2').any?  or package_config('libxml-2.0')
+  dir_config('xslt').any?  or package_config('libxslt')
+  dir_config('exslt').any? or package_config('libexslt')
 
   check_libxml_version or abort "ERROR: cannot discover where libxml2 is located on your system. please make sure `pkg-config` is installed."
   check_libxml_version("2.6.21") or abort "ERROR: libxml2 version 2.6.21 or later is required!"
