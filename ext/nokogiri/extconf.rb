@@ -79,6 +79,23 @@ def nokogiri_try_compile
   try_compile(*args)
 end
 
+def check_libxml_version version=nil
+  source = if version.nil?
+             <<-SRC
+#include <libxml/xmlversion.h>
+             SRC
+           else
+             version_int = sprintf "%d%2.2d%2.2d", *(version.split("."))
+             <<-SRC
+#include <libxml/xmlversion.h>
+#if LIBXML_VERSION < #{version_int}
+#error libxml2 is older than #{version}
+#endif
+             SRC
+           end
+
+  try_cpp source
+end
 
 def add_cflags(flags)
   print "checking if the C compiler accepts #{flags}... "
@@ -372,21 +389,10 @@ when using_system_libraries?
   dir_config('xslt').any?  or pkg_config('libxslt')
   dir_config('exslt').any? or pkg_config('libexslt')
 
-  try_cpp(<<-SRC) or abort "libxml2 version 2.6.21 or later is required!"
-#include <libxml/xmlversion.h>
+  check_libxml_version or abort "ERROR: cannot discover where libxml2 is located on your system. please make sure `pkg-config` is installed."
+  check_libxml_version("2.6.21") or abort "ERROR: libxml2 version 2.6.21 or later is required!"
+  check_libxml_version("2.9.3") or warn "WARNING: libxml2 version 2.9.3 or later is highly recommended, but proceeding anyway."
 
-#if LIBXML_VERSION < 20621
-#error libxml2 is way too old
-#endif
-  SRC
-
-  try_cpp(<<-SRC) or warn "libxml2 version 2.9.3 or later is highly recommended, but proceeding anyway."
-#include <libxml/xmlversion.h>
-
-#if LIBXML_VERSION < 20903
-#error libxml2 is too old
-#endif
-  SRC
 else
   message "Building nokogiri using packaged libraries.\n"
 
