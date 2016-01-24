@@ -55,9 +55,9 @@ def do_clean
     # nokogiri.so is yet to be copied to lib.
 
     # clean the ports build directory
-    Pathname.glob(pwd.join('tmp', '*', 'ports')) { |dir|
+    Pathname.glob(pwd.join('tmp', '*', 'ports')) do |dir|
       FileUtils.rm_rf(dir, verbose: true)
-    }
+    end
 
     if enable_config('static')
       # ports installation can be safely removed if statically linked.
@@ -112,9 +112,9 @@ def asplode(lib)
 end
 
 def have_iconv?(using = nil)
-  checking_for(using ? "iconv using #{using}" : 'iconv') {
-    ['', '-liconv'].any? { |opt|
-      preserving_globals {
+  checking_for(using ? "iconv using #{using}" : 'iconv') do
+    ['', '-liconv'].any? do |opt|
+      preserving_globals do
         yield if block_given?
 
         try_link(<<-'SRC', opt)
@@ -128,22 +128,22 @@ int main(void)
     return EXIT_SUCCESS;
 }
         SRC
-      }
-    }
-  }
+      end
+    end
+  end
 end
 
 def iconv_configure_flags
   # If --with-iconv-dir or --with-opt-dir is given, it should be
   # the first priority
-  %w[iconv opt].each { |name|
+  %w[iconv opt].each do |name|
     if (config = preserving_globals { dir_config(name) }).any? &&
-       have_iconv?("--with-#{name}-* flags") { dir_config(name) }
-      idirs, ldirs = config.map { |dirs|
-        Array(dirs).flat_map { |dir|
+        have_iconv?("--with-#{name}-* flags") { dir_config(name) }
+      idirs, ldirs = config.map do |dirs|
+        Array(dirs).flat_map do |dir|
           dir.split(File::PATH_SEPARATOR)
-        } if dirs
-      }
+        end if dirs
+      end
 
       return [
         '--with-iconv=yes',
@@ -151,7 +151,7 @@ def iconv_configure_flags
         *("LDFLAGS=#{ldirs.map { |dir| '-L' << dir }.join(' ')}" if ldirs),
       ]
     end
-  }
+  end
 
   if have_iconv?
     return ['--with-iconv=yes']
@@ -192,13 +192,13 @@ def process_recipe(name, version, static_p, cross_p)
 
     yield recipe
 
-    env = Hash.new { |hash, key|
+    env = Hash.new do |hash, key|
       hash[key] = "#{ENV[key]}"  # (ENV[key].dup rescue '')
-    }
+    end
 
     recipe.configure_options.flatten!
 
-    recipe.configure_options.delete_if { |option|
+    recipe.configure_options.delete_if do |option|
       case option
       when /\A(\w+)=(.*)\z/
         env[$1] = $2
@@ -206,7 +206,7 @@ def process_recipe(name, version, static_p, cross_p)
       else
         false
       end
-    }
+    end
 
     if static_p
       recipe.configure_options += [
@@ -229,16 +229,16 @@ def process_recipe(name, version, static_p, cross_p)
     end
 
     if RbConfig::CONFIG['target_cpu'] == 'universal'
-      %w[CFLAGS LDFLAGS].each { |key|
+      %w[CFLAGS LDFLAGS].each do |key|
         unless env[key].include?('-arch')
           env[key] << ' ' << RbConfig::CONFIG['ARCH_FLAG']
         end
-      }
+      end
     end
 
-    recipe.configure_options += env.map { |key, value|
+    recipe.configure_options += env.map do |key, value|
       "#{key}=#{value}"
-    }
+    end
 
     message <<-"EOS"
 ************************************************************************
@@ -250,9 +250,9 @@ Building Nokogiri with a packaged version of #{name}-#{version}#{'.' if recipe.p
     unless recipe.patch_files.empty?
       message "with the following patches applied:\n"
 
-      recipe.patch_files.each { |patch|
+      recipe.patch_files.each do |patch|
         message "\t- %s\n" % File.basename(patch)
-      }
+      end
     end
 
     message <<-"EOS"
@@ -393,7 +393,7 @@ else
   # The gem version constraint in the Rakefile is not respected at install time.
   # Keep this version in sync with the one in the Rakefile !
   require 'rubygems'
-  gem "mini_portile2", "~> 2.1.0"
+  gem 'mini_portile2', '~> 2.1.0'
   require 'mini_portile2'
   message "Using mini_portile version #{MiniPortile::VERSION}\n"
 
@@ -505,13 +505,13 @@ EOM
     have_library('lzma')
   }
 
-  $libs = $libs.shellsplit.tap { |libs|
-    [libxml2_recipe, libxslt_recipe].each { |recipe|
+  $libs = $libs.shellsplit.tap do |libs|
+    [libxml2_recipe, libxslt_recipe].each do |recipe|
       libname = recipe.name[/\Alib(.+)\z/, 1]
-      File.join(recipe.path, "bin", "#{libname}-config").tap { |config|
+      File.join(recipe.path, "bin", "#{libname}-config").tap do |config|
         # call config scripts explicit with 'sh' for compat with Windows
         $CPPFLAGS = `sh #{config} --cflags`.strip << ' ' << $CPPFLAGS
-        `sh #{config} --libs`.strip.shellsplit.each { |arg|
+        `sh #{config} --libs`.strip.shellsplit.each do |arg|
           case arg
           when /\A-L(.+)\z/
             # Prioritize ports' directories
@@ -525,8 +525,8 @@ EOM
           else
             $LDFLAGS << ' ' << arg.shellescape
           end
-        }
-      }
+        end
+      end
 
       # Defining a macro that expands to a C string; double quotes are significant.
       $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATH=\"#{recipe.path}\"".inspect
@@ -545,11 +545,11 @@ EOM
         # -lexslt, so add it manually.
         libs.unshift('-lexslt')
       end
-    }
-  }.shelljoin
+    end
+  end.shelljoin
 
   if static_p
-    $libs = $libs.shellsplit.map { |arg|
+    $libs = $libs.shellsplit.map do |arg|
       case arg
       when '-lxml2'
         File.join(libxml2_recipe.path, 'lib', lib_a(arg))
@@ -558,7 +558,7 @@ EOM
       else
         arg
       end
-    }.shelljoin
+    end.shelljoin
   end
 end
 
@@ -566,12 +566,12 @@ end
   "xml2"  => ['xmlParseDoc',            'libxml/parser.h'],
   "xslt"  => ['xsltParseStylesheetDoc', 'libxslt/xslt.h'],
   "exslt" => ['exsltFuncRegister',      'libexslt/exslt.h'],
-}.each { |lib, (func, header)|
+}.each do |lib, (func, header)|
   have_func(func, header) ||
   have_library(lib, func, header) ||
   have_library("lib#{lib}", func, header) or
     asplode("lib#{lib}")
-}
+end
 
 have_func('xmlHasFeature') or abort "xmlHasFeature() is missing."
 have_func('xmlFirstElementChild')
@@ -591,14 +591,14 @@ create_makefile('nokogiri/nokogiri')
 
 if enable_config('clean', true)
   # Do not clean if run in a development work tree.
-  File.open('Makefile', 'at') { |mk|
+  File.open('Makefile', 'at') do |mk|
     mk.print <<EOF
 all: clean-ports
 
 clean-ports: $(DLLIB)
 	-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? 'enable' : 'disable'}-static
 EOF
-  }
+  end
 end
 
 # :startdoc:
