@@ -15,7 +15,7 @@ gem "hoe-git", ">=1.4", :group => [:development, :test]
 gem "minitest", "~>2.2.2", :group => [:development, :test]
 gem "rake", ">=0.9", :group => [:development, :test]
 gem "rake-compiler", "~>0.9.2", :group => [:development, :test]
-gem "rake-compiler-dock", "~>0.5.0", :group => [:development, :test]
+gem "rake-compiler-dock", "~>0.5.1", :group => [:development, :test]
 gem "racc", ">=1.4.6", :group => [:development, :test], :platform => :ruby
 gem "rexical", ">=1.0.5", :group => [:development, :test], :platform => :ruby
 gem "hoe", "~>3.14", :group => [:development, :test]
