@@ -25,6 +25,14 @@ RUBIES="\
 TEST_LOG=test.log
 VALGRIND_LOG=valgrind.log
 
+if ! grep libxml-ruby Gemfile ; then
+  echo "ERROR: please add this line your Gemfile temporarily so we can run libxml-ruby tests:"
+  echo
+  echo "gem 'libxml-ruby', :platform => :mri"
+  echo
+  exit 1
+fi
+
 # Load RVM into a shell session *as a function*
 if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
     source "$HOME/.rvm/scripts/rvm"
@@ -83,6 +91,13 @@ for ruby in $RUBIES ; do
     compile
     echo "** running tests ..."
     bundle exec rake test 2>&1 | tee -a $TEST_LOG
+    if [[ ! $ruby =~ "jruby" ]] ; then
+      echo "** running tests again with libxml-ruby loaded ..."
+      if ! gem list libxml-ruby | fgrep 2.8.0 ; then
+        gem install libxml-ruby
+      fi
+      bundle exec rake test:libxml-ruby 2>&1 | tee -a $TEST_LOG
+    fi
     clean
 done
 
@@ -94,6 +109,8 @@ for ruby in $RUBIES ; do
         compile
         echo "** running valgrind on tests ..."
         bundle exec rake test:valgrind 2>&1 | tee -a $VALGRIND_LOG
+        echo "** running valgrind again with libxml-ruby loaded ..."
+        bundle exec rake test:valgrind:libxml-ruby 2>&1 | tee -a $VALGRIND_LOG
         clean
     fi
 done

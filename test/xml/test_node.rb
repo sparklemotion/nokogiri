@@ -1228,6 +1228,17 @@ eoxml
         subject.lang = "fr"
         assert_equal "fr", subject.lang
       end
+
+      def test_text_node_robustness_gh1426
+        # notably, the original bug report was about libxml-ruby interactions
+        # this test should blow up under valgrind if we regress on libxml-ruby workarounds
+        message = "<h2>BOOM!</h2>"
+        10_000.times do
+          node = Nokogiri::HTML::DocumentFragment.parse(message)
+          node.add_previous_sibling(Nokogiri::XML::Text.new('before', node.document))
+          node.add_next_sibling(Nokogiri::XML::Text.new('after', node.document))
+        end
+      end
     end
   end
 end

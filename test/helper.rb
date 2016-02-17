@@ -7,6 +7,10 @@ require 'tempfile'
 require 'pp'
 
 require 'nokogiri'
+if ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY']
+  require 'libxml'
+  warn "#{__FILE__}:#{__LINE__}: loaded libxml-ruby '#{LibXML::XML::VERSION}'"
+end
 
 warn "#{__FILE__}:#{__LINE__}: version info: #{Nokogiri::VERSION_INFO.inspect}"
 
