@@ -224,6 +224,18 @@ module Nokogiri
         Nokogiri::XML::Comment.new(frag,'moo')
       end
 
+      def test_issue_1077_parsing_of_frozen_strings
+        input = <<-EOS
+<?xml version="1.0" encoding="utf-8"?>
+<library>
+  <book title="I like turtles"/>
+</library>
+EOS
+        input.freeze
+
+        Nokogiri::XML::DocumentFragment.parse(input) # assert_nothing_raised
+      end
+
       if Nokogiri.uses_libxml?
         def test_for_libxml_in_context_fragment_parsing_bug_workaround
           10.times do

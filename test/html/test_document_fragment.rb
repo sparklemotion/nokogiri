@@ -296,6 +296,11 @@ module Nokogiri
         assert_equal original_errors1, frag1.errors
         assert_equal original_errors2, frag2.errors
       end
+
+      def test_issue_444_trim_when_no_schem_given
+        fragment = Nokogiri::HTML::DocumentFragment.parse("<p>hi</p>\n").to_html
+        assert_equal "<p>hi</p>", fragment
+      end
     end
   end
 end
