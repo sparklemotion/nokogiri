@@ -29,6 +29,7 @@ Several changes were made to improve performance:
 * [MRI] Ensure C strings are null-terminated. (#1381)
 * [MRI] Ensure Rubygems is loaded before using mini_portile2 at installation. (#1393, #1411) (Thanks, @JonRowe!)
 * [MRI] Handling another edge case where the `libxml-ruby` gem's global callbacks were smashing the heap. (#1426). (Thanks to @bbergstrom for providing an isolated test case!)
+* [MRI] Ensure encodings are passed to Sax::Parser xmldecl callback. (#844)
 * unescape special characters in CSS queries (#1303) (Thanks, @twalpole!)
 * consistently handle empty documents (#1349)
 * Update to mini_portile2 2.1.0 to address whitespace-handling during patching. (#1402)

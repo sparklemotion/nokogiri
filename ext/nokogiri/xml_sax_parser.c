@@ -18,16 +18,16 @@ static void start_document(void * ctx)
 
   if(NULL != ctxt && ctxt->html != 1) {
     if(ctxt->standalone != -1) {  /* -1 means there was no declaration */
-      VALUE encoding = ctxt->encoding ?
-        NOKOGIRI_STR_NEW2(ctxt->encoding) :
-        Qnil;
+      VALUE encoding = Qnil ;
+      if (ctxt->encoding) {
+        encoding = NOKOGIRI_STR_NEW2(ctxt->encoding) ;
+      } else if (ctxt->input && ctxt->input->encoding) {
+        encoding = NOKOGIRI_STR_NEW2(ctxt->input->encoding) ;
+      }
 
-      VALUE version = ctxt->version ?
-        NOKOGIRI_STR_NEW2(ctxt->version) :
-        Qnil;
+      VALUE version = ctxt->version ? NOKOGIRI_STR_NEW2(ctxt->version) : Qnil;
 
       VALUE standalone = Qnil;
-
       switch(ctxt->standalone)
       {
         case 0:
