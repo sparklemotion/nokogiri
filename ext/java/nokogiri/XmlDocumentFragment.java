@@ -54,7 +54,6 @@ import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 
 /**
@@ -90,7 +89,6 @@ public class XmlDocumentFragment extends XmlNode {
         
         // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
         if (args.length > 1 && args[1] instanceof RubyString) {
-            args[1] = trim(context, doc, (RubyString)args[1]);
             if (XmlDocumentFragment.isTag((RubyString)args[1])) {
                 args[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(args[1])));
             }
@@ -106,18 +104,6 @@ public class XmlDocumentFragment extends XmlNode {
         }
         RuntimeHelpers.invoke(context, fragment, "initialize", args);
         return fragment;
-    }
-    
-    private static IRubyObject trim(ThreadContext context, XmlDocument xmlDocument, RubyString str) {
-        // checks whether schema is given. if exists, allows whitespace processing to a parser
-        Document document = (Document)xmlDocument.node;
-        if (document.getDoctype() != null) return str;
-        // strips trailing \n off forcefully
-        // not to return new object in case of no chomp needed, chomp! is used here.
-        IRubyObject result;
-        if (context.getRuntime().is1_9()) result = str.chomp19(context);
-        else result = str.chomp_bang(context);
-        return result.isNil() ? str : result;
     }
 
     private static boolean isTag(RubyString ruby_string) {
