@@ -16,6 +16,7 @@ Several changes were made to improve performance:
 * Use Symbol#to_proc where we weren't previously. (#1296) (Thanks, Bruno Sutic!)
 * XML::DTD#each uses implicit block calls. (Thanks, @glaucocustodio!)
 * Fall back to the `pkg-config` gem if we're having trouble finding the system libxml2. This should help many FreeBSD users. (#1417)
+* Set document encoding appropriately even on blank document. (#1043) (Thanks, @batter!)
 
 
 ==== Bug Fixes

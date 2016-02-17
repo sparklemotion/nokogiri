@@ -49,7 +49,7 @@ module Nokogiri
           if options.strict?
             raise Nokogiri::XML::SyntaxError.new("Empty document")
           else
-            return new
+            return encoding ? new.tap { |i| i.encoding = encoding } : new
           end
         end
 
