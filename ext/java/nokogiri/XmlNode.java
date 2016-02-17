@@ -1413,13 +1413,10 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"unlink", "remove"})
     public IRubyObject unlink(ThreadContext context) {
-        if(node.getParentNode() == null) {
-            throw context.getRuntime().newRuntimeError("TYPE: " + node.getNodeType()+ " PARENT NULL");
-        } else {
+        if (node.getParentNode() != null) {
             clearXpathContext(node.getParentNode());
             node.getParentNode().removeChild(node);
         }
-
         return this;
     }
 

@@ -21,6 +21,11 @@ module Nokogiri
         assert_equal 'EUC-JP', f.document.encoding
         assert_equal "こんにちは！", f.content
       end
+      
+      def test_unlink_empty_document
+        frag = Nokogiri::HTML::DocumentFragment.parse('').unlink # must_not_raise
+        assert_nil frag.parent
+      end
 
       def test_colons_are_not_removed
         doc = Nokogiri::HTML::DocumentFragment.parse("<span>3:30pm</span>")
