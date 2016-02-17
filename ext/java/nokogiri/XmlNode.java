@@ -1413,16 +1413,10 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"unlink", "remove"})
     public IRubyObject unlink(ThreadContext context) {
-        if(node.getParentNode() == null) {
-            //throw context.getRuntime().newRuntimeError("TYPE: " + node.getNodeType()+ " PARENT NULL");
-            return this;
-            // if node doesn't have parent node - simply return self, as would Nokogiri for C would do
-            // because that means that node is already detached
-        } else {
+        if (node.getParentNode() != null) {
             clearXpathContext(node.getParentNode());
             node.getParentNode().removeChild(node);
         }
-
         return this;
     }
 

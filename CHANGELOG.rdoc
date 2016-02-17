@@ -24,6 +24,7 @@ Several changes were made to improve performance:
 * [JRuby] fix NPE when inspecting nodes returned by NodeSet#drop (#1042) (Thanks, @mkristian!)
 * [JRuby] fix nil attriubte node's namespace in reader (#1327) (Thanks, @codekitchen!)
 * [JRuby] fix Nokogiri munging unicode characters that require more than 2 bytes (#1113) (Thanks, @mkristian!)
+* [JRuby] allow unlinking an unparented node (#1112, #1152) (Thanks, @esse!)
 * [MRI] fix assertion failure while accessing attribute node's namespace in reader (#843) (Thanks, @2potatocakes!)
 * [MRI] fix issue with GCing namespace nodes returned in an xpath query. (#1155)
 * [MRI] Ensure C strings are null-terminated. (#1381)

@@ -422,6 +422,19 @@ module Nokogiri
         old_node = @node.at('.//employee')
         assert_raises(ArgumentError){ old_node.replace new_node }
       end
+
+      def test_unlink_on_unlinked_node_1
+        node = Nokogiri::XML::Node.new 'div', Nokogiri::XML::Document.new
+        node.unlink # must_not_raise
+        assert_nil node.parent
+      end
+
+      def test_unlink_on_unlinked_node_2
+        node = Nokogiri::XML('<div>foo</div>').at_css("div")
+        node.unlink
+        node.unlink # must_not_raise
+        assert_nil node.parent
+      end
     end
   end
 end

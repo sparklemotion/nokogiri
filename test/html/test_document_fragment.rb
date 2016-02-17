@@ -23,7 +23,8 @@ module Nokogiri
       end
       
       def test_unlink_empty_document
-        Nokogiri::HTML::DocumentFragment.parse('').unlink
+        frag = Nokogiri::HTML::DocumentFragment.parse('').unlink # must_not_raise
+        assert_nil frag.parent
       end
 
       def test_colons_are_not_removed
