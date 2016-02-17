@@ -33,6 +33,8 @@ class TestXsltTransforms < Nokogiri::TestCase
 
     assert result = style.apply_to(@doc)
     assert_match %r{<h1></h1>|<h1/>}, result
+
+    assert_includes result, '<?xml version="1.0" encoding="UTF-8"?>'
   end
 
   def test_transform_with_output_style
