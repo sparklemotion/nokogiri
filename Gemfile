@@ -8,16 +8,16 @@ gem "mini_portile2", "~>2.1.0"
 gem "pkg-config", "~>1.1.7"
 
 gem "rdoc", "~>4.0", :group => [:development, :test]
-gem "hoe-bundler", ">=1.1", :group => [:development, :test]
+gem "hoe-bundler", "~>1.2.0", :group => [:development, :test]
 gem "hoe-debugging", "~>1.2.1", :group => [:development, :test]
-gem "hoe-gemspec", ">=1.0", :group => [:development, :test]
-gem "hoe-git", ">=1.4", :group => [:development, :test]
-gem "minitest", "~>2.2.2", :group => [:development, :test]
-gem "rake", ">=0.9", :group => [:development, :test]
+gem "hoe-gemspec", "~>1.0.0", :group => [:development, :test]
+gem "hoe-git", "~>1.6.0", :group => [:development, :test]
+gem "minitest", "~>5.8.4", :group => [:development, :test]
+gem "rake", "~>10.5.0", :group => [:development, :test]
 gem "rake-compiler", "~>0.9.2", :group => [:development, :test]
 gem "rake-compiler-dock", "~>0.5.1", :group => [:development, :test]
-gem "racc", ">=1.4.6", :group => [:development, :test], :platform => :ruby
-gem "rexical", ">=1.0.5", :group => [:development, :test], :platform => :ruby
+gem "racc", "~>1.4.14", :group => [:development, :test], :platform => :ruby
+gem "rexical", "~>1.0.5", :group => [:development, :test], :platform => :ruby
 gem "hoe", "~>3.14", :group => [:development, :test]
 
 # vim: syntax=ruby
