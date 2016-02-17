@@ -233,6 +233,23 @@ ok:
      *  uninteresting libxml2 implementation detail). as a result, we cannot
      *  reparent the actual reparentee, so we reparent a duplicate.
      */
+    if (reparentee->type == XML_TEXT_NODE && reparentee->_private) {
+      /*
+       *  additionally, since we know this C struct isn't going to be related to
+       *  a Ruby object anymore, let's break the relationship on this end as
+       *  well.
+       *
+       *  this is not absolutely necessary unless libxml-ruby is also in effect,
+       *  in which case its global callback `rxml_node_deregisterNode` will try
+       *  to do things to our data.
+       *
+       *  for more details on this particular (and particularly nasty) edge
+       *  case, see:
+       *
+       *    https://github.com/sparklemotion/nokogiri/issues/1426
+       */
+      reparentee->_private = NULL ;
+    }
     nokogiri_root_node(reparentee);
     if (!(reparentee = xmlDocCopyNode(reparentee, pivot->doc, 1))) {
       rb_raise(rb_eRuntimeError, "Could not reparent node (xmlDocCopyNode)");
