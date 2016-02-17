@@ -2,7 +2,9 @@
 
 ==== Security Note
 
-* (MRI) Bundled Libxml2 is upgraded to 2.9.3, which fixes a series of security issues. See https://mail.gnome.org/archives/xml/2015-November/msg00012.html
+* (MRI) Bundled Libxml2 is upgraded to 2.9.3, which fixes a series of security issues.
+  These security issues had been patched in the vendored libxml 2.9.2 in the 1.6.7.x branch.
+  See https://mail.gnome.org/archives/xml/2015-November/msg00012.html for more.
 
 
 ==== Features
@@ -10,24 +12,37 @@
 Several changes were made to improve performance:
 
 * [MRI] Simplify NodeSet#to_a with a minor speed-up. (#1397)
-* XML::Node#ancestors optimization (#1297) (Thanks, Bruno Sutic!)
-* Use Symbol#to_proc where we weren't previously, because Ruby 1.8.7 reasons. (#1296) (Thanks, Bruno Sutic!)
+* XML::Node#ancestors optimization. (#1297) (Thanks, Bruno Sutic!)
+* Use Symbol#to_proc where we weren't previously. (#1296) (Thanks, Bruno Sutic!)
+* XML::DTD#each uses implicit block calls. (Thanks, @glaucocustodio!)
+* Fall back to the `pkg-config` gem if we're having trouble finding the system libxml2. This should help many FreeBSD users. (#1417)
 
 
 ==== Bug Fixes
 
-* [JRuby] fix load errors when deploying to JRuby/Torquebox (#1114) (Thanks, @atambo!)
+* [JRuby] fix load errors when deploying to JRuby/Torquebox (#1114) (Thanks, @atambo and @jvshahid!)
 * [JRuby] fix NPE when inspecting nodes returned by NodeSet#drop (#1042) (Thanks, @mkristian!)
 * [JRuby] fix nil attriubte node's namespace in reader (#1327) (Thanks, @codekitchen!)
 * [JRuby] fix Nokogiri munging unicode characters that require more than 2 bytes (#1113) (Thanks, @mkristian!)
 * [MRI] fix assertion failure while accessing attribute node's namespace in reader (#843) (Thanks, @2potatocakes!)
 * [MRI] fix issue with GCing namespace nodes returned in an xpath query. (#1155)
 * [MRI] Ensure C strings are null-terminated. (#1381)
+* [MRI] Ensure Rubygems is loaded before using mini_portile2 at installation. (#1393, #1411) (Thanks, @JonRowe!)
+* [MRI] Handling another edge case where the `libxml-ruby` gem's global callbacks were smashing the heap. (#1426). (Thanks to @bbergstrom for providing an isolated test case!)
 * unescape special characters in CSS queries (#1303) (Thanks, @twalpole!)
 * consistently handle empty documents (#1349)
 * Update to mini_portile2 2.1.0 to address whitespace-handling during patching. (#1402)
 * Fix encoding of xml node namespaces.
 * Work around issue installing Nokogiri on overlayfs (commonly used in Docker containers). (#1370, #1405)
+
+
+
+==== Other Notes
+
+* Removed legacy code remaining from Ruby 1.8.x support.
+* Removed legacy code remaining from REE support.
+* Removing hacky workarounds for bugs in some older versions of libxml2.
+* Handling C strings in a forward-compatible manner, see https://github.com/ruby/ruby/blob/v2_2_0/NEWS#L319
 
 
 === 1.6.7.2 / 2016-01-20
