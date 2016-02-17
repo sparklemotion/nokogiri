@@ -1,4 +1,4 @@
-# Roadmap for 2.0
+# Roadmap for API Changes
 
 ## overhaul serialize/pretty printing API
 
@@ -99,3 +99,13 @@ So, instead, let's make alternative methods like
 `Nokogiri::XML::Document#new_comment`, and recommend those as the
 proper convention.
 
+
+## `collect_namespaces` is just broken
+
+`collect_namespaces` is returning a hash, which means it can't return
+namespaces with the same prefix. See this issue for background:
+
+> https://github.com/sparklemotion/nokogiri/issues/885
+
+Do we care? This seems like a useless method, but then again I hate
+XML, so what do I know?
