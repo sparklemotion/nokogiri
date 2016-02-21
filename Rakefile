@@ -8,7 +8,6 @@ Hoe.plugin :debugging
 Hoe.plugin :git
 Hoe.plugin :gemspec
 Hoe.plugin :bundler
-Hoe.add_include_dirs '.'
 
 GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
@@ -293,7 +292,7 @@ task :debug do
   ENV['CFLAGS'] += " -DDEBUG"
 end
 
-require 'tasks/test'
+require File.join File.dirname(__FILE__), 'tasks/test'
 
 task :java_debug do
   ENV['JRUBY_OPTS'] = "#{ENV['JRUBY_OPTS']} --debug --dev"

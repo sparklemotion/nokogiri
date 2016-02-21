@@ -5,6 +5,11 @@ namespace :test do
     Rake::Task["test"].invoke
   end
 
+  task :installed do
+    ENV['RUBY_FLAGS'] = "-w -Itest:."
+    sh 'rake test'
+  end
+
   desc "find call-seq in the rdoc"
   task :rdoc_call_seq => 'docs' do
     Dir['doc/**/*.html'].each { |docfile|
