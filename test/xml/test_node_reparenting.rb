@@ -49,6 +49,15 @@ module Nokogiri
         #   end
         # end
 
+
+        before do
+          @doc  = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third <bx />node</a3></root>"
+          @doc2 = @doc.dup
+          @fragment_string = "<b1>foo</b1><b2>bar</b2>"
+          @fragment        = Nokogiri::XML::DocumentFragment.parse @fragment_string
+          @node_set        = Nokogiri::XML("<root><b1>foo</b1><b2>bar</b2></root>").xpath("/root/node()")
+        end
+
         {
           :add_child            => {:target => "/root/a1",        :returns_self => false, :children_tags => %w[text b1 b2]},
           :<<                   => {:target => "/root/a1",        :returns_self => true, :children_tags => %w[text b1 b2]},
@@ -67,15 +76,6 @@ module Nokogiri
           :next=                => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[text b1 b2]},
           :after                => {:target => "/root/a1/text()", :returns_self => true,  :children_tags => %w[text b1 b2]}
         }.each do |method, params|
-
-          before do
-            @doc  = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third <bx />node</a3></root>"
-            @doc2 = @doc.dup
-            @fragment_string = "<b1>foo</b1><b2>bar</b2>"
-            @fragment        = Nokogiri::XML::DocumentFragment.parse @fragment_string
-            @node_set        = Nokogiri::XML("<root><b1>foo</b1><b2>bar</b2></root>").xpath("/root/node()")
-          end
-
           describe "##{method}" do
             describe "passed a Node" do
               [:current, :another].each do |which|
