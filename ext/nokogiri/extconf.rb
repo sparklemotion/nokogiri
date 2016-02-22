@@ -504,7 +504,9 @@ EOM
     } or abort 'zlib is missing; necessary for building libxml2'
   end
 
-  libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"], static_p, cross_build_p) do |recipe|
+
+  xml2thread = Thread.new do
+  process_recipe("libxml2", dependencies["libxml2"], static_p, cross_build_p) do |recipe|
     recipe.files = ["http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz"]
     recipe.configure_options += [
       "--without-python",
@@ -515,9 +517,14 @@ EOM
       "--with-threads"
     ]
   end
+  end
 
-  libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"], static_p, cross_build_p) do |recipe|
+  xsltthread = Thread.new do
+  process_recipe("libxslt", dependencies["libxslt"], static_p, cross_build_p) do |recipe|
     recipe.files = ["http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz"]
+    recipe.download
+    xml2thread.join
+    libxml2_recipe = xml2thread.value
     recipe.configure_options += [
       "--without-python",
       "--without-crypto",
@@ -525,6 +532,10 @@ EOM
       "--with-libxml-prefix=#{libxml2_recipe.path}"
     ]
   end
+  end
+  xsltthread.join
+  libxml2_recipe = xml2thread.value
+  libxslt_recipe = xsltthread.value
 
   $CFLAGS << ' ' << '-DNOKOGIRI_USE_PACKAGED_LIBRARIES'
   $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
