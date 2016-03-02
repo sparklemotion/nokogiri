@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Nokogiri
   module XML
     class ElementDecl < Nokogiri::XML::Node
