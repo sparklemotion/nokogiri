@@ -237,6 +237,60 @@ module Nokogiri
                 assert @doc.at('//foo:second', "foo" => "http://flavorjon.es/")
               end
             end
+
+            describe "and a child node with a namespace matching the parent's default namespace, but with a different prefix" do
+              it "inserts a node that keeps its namespace" do
+                assert node = @doc.at('//xmlns:first')
+                child = Nokogiri::XML::Node.new('second', @doc)
+                ns = child.add_namespace('foo2', 'http://tenderlovemaking.com/')
+                child.namespace = ns
+
+                node.add_child(child)
+                assert newchild = @doc.at('//foo2:second', "foo2" => "http://tenderlovemaking.com/")
+                assert newchild.namespace_definitions.include?(ns)
+              end
+            end
+
+            describe "and a child node with a namespace matching the parent's non-default namespace, but with a different prefix" do
+              it "inserts a node that keeps its namespace" do
+                assert node = @doc.at('//xmlns:first')
+                child = Nokogiri::XML::Node.new('second', @doc)
+                ns = child.add_namespace('foo2', 'http://flavorjon.es/')
+                child.namespace = ns
+
+                node.add_child(child)
+                assert newchild = @doc.at('//foo2:second', "foo2" => "http://flavorjon.es/")
+                assert newchild.namespace_definitions.include?(ns)
+              end
+            end
+
+            describe "and a child node with a default namespace prefix matching the parent's non-default namespace" do
+              it "inserts a node that keeps its namespace" do
+                assert node = @doc.at('//xmlns:first')
+                child = Nokogiri::XML::Node.new('second', @doc)
+                ns = child.add_namespace(nil, 'http://flavorjon.es/')
+                child.namespace = ns
+
+                node.add_child(child)
+                assert newchild = @doc.at('//*[local-name()="second" and namespace-uri()="http://flavorjon.es/"]')
+                assert newchild.namespace_definitions.include?(ns)
+              end
+            end
+
+            describe "and a child node with a default namespace not matching the parent's default namespace and a namespace matching a parent namespace but with a different prefix" do
+              it "inserts a node that keeps its namespace" do
+                assert node = @doc.at('//xmlns:first')
+                child = Nokogiri::XML::Node.new('second', @doc)
+                ns = child.add_namespace(nil, 'http://example.org/')
+                child.namespace = ns
+                ns2 = child.add_namespace('foo2', 'http://tenderlovemaking.com/')
+
+                node.add_child(child)
+                assert newchild = @doc.at('//*[local-name()="second" and namespace-uri()="http://example.org/"]')
+                assert newchild.namespace_definitions.include?(ns)
+                assert newchild.namespace_definitions.include?(ns2)
+              end
+            end
           end
         end
 

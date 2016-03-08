@@ -76,7 +76,7 @@ static void relink_namespace(xmlNodePtr reparented)
       );
       /* If we find the namespace is already declared, remove it from this
        * definition list. */
-      if(ns && ns != curr) {
+      if(ns && ns != curr && xmlStrEqual(ns->prefix, curr->prefix)) {
         if (prev) {
           prev->next = curr->next;
         } else {
