@@ -5,6 +5,8 @@ require "helper"
 class TestEncodingHandler < Nokogiri::TestCase
   def teardown
     Nokogiri::EncodingHandler.clear_aliases!
+    #Replace default aliases removed by clear_aliases!
+    Nokogiri.install_default_aliases
   end
 
   def test_get

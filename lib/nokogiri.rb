@@ -114,15 +114,19 @@ module Nokogiri
     def Slop(*args, &block)
       Nokogiri(*args, &block).slop!
     end
+
+    def install_default_aliases
+      # Make sure to support some popular encoding aliases not known by
+      # all iconv implementations.
+      {
+        'Windows-31J' => 'CP932',	# Windows-31J is the IANA registered name of CP932.
+      }.each { |alias_name, name|
+        EncodingHandler.alias(name, alias_name) if EncodingHandler[alias_name].nil?
+      }
+    end
   end
 
-  # Make sure to support some popular encoding aliases not known by
-  # all iconv implementations.
-  {
-    'Windows-31J' => 'CP932',	# Windows-31J is the IANA registered name of CP932.
-  }.each { |alias_name, name|
-    EncodingHandler.alias(name, alias_name) if EncodingHandler[alias_name].nil?
-  }
+  Nokogiri.install_default_aliases
 end
 
 ###
