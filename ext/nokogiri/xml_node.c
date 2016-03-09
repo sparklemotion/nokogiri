@@ -51,10 +51,6 @@ static void relink_namespace(xmlNodePtr reparented)
 
     ns = xmlSearchNs(reparented->doc, reparented, prefix);
 
-    if (ns == NULL && reparented->parent) {
-      ns = xmlSearchNs(reparented->doc, reparented->parent, prefix);
-    }
-
     if (ns != NULL) {
       xmlNodeSetName(reparented, name);
       xmlSetNs(reparented, ns);
