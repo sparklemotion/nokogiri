@@ -333,15 +333,11 @@ public class XmlNode extends RubyObject {
         Element element = null;
         String node_name = rubyStringToString(name);
         String prefix = NokogiriHelpers.getPrefix(node_name);
-        if (prefix == null) {
-            element = document.createElement(node_name);
-        } else {
-            String namespace_uri = null;
-            if (document.getDocumentElement() != null) {
-                namespace_uri = document.getDocumentElement().lookupNamespaceURI(prefix);
-            }
-            element = document.createElementNS(namespace_uri, node_name);
+        String namespace_uri = null;
+        if (document.getDocumentElement() != null) {
+            namespace_uri = document.getDocumentElement().lookupNamespaceURI(prefix);
         }
+        element = document.createElementNS(namespace_uri, node_name);
         setNode(context, element);
     }
 
@@ -454,56 +450,76 @@ public class XmlNode extends RubyObject {
     public void post_add_child(ThreadContext context, XmlNode current, XmlNode child) {
     }
 
+    /**
+     * This method should be called after a node has been adopted in a new
+     * document. This method will ensure that the node is renamed with the
+     * appriopriate NS uri. First the prefix of the node is extracted, then is
+     * used to lookup the namespace uri in the new document starting at the
+     * current node and traversing the ancestors. If the namespace uri wasn't
+     * empty (or null) all children and the node has attributes and/or children
+     * then the algorithm is recursively applied to the children.
+     */
     public void relink_namespace(ThreadContext context) {
-        if (node instanceof Element) {
-            clearCachedNode(node);
-            Element e = (Element) node;
-            String prefix = e.getPrefix();
-            String currentNS = e.getNamespaceURI();
-            if (prefix == null && currentNS == null) {
-                prefix = NokogiriHelpers.getPrefix(e.getNodeName());
-            } else if (currentNS != null) {
-                prefix = e.lookupPrefix(currentNS);
-            }
-            e.getOwnerDocument().setStrictErrorChecking(false);
-            String nsURI = e.lookupNamespaceURI(prefix);
-            this.node = NokogiriHelpers.renameNode(e, nsURI, e.getNodeName());
+        if (!(node instanceof Element)) {
+            return;
+        }
 
-            if (e.hasAttributes()) {
-                NamedNodeMap attrs = e.getAttributes();
+        // TODO: this feels kind of weird, why are we clearing the XmlNode
+        // cache here !!!
+        clearCachedNode(node);
+        Element e = (Element) node;
 
-                for (int i = 0; i < attrs.getLength(); i++) {
-                    Attr attr = (Attr) attrs.item(i);
-                    String nsUri = "";
-                    String attrPrefix = attr.getPrefix();
-                    if (attrPrefix == null) {
-                        attrPrefix = NokogiriHelpers.getPrefix(attr.getNodeName());
-                    }
-                    String nodeName = attr.getNodeName();
-                    if ("xml".equals(attrPrefix)) {
-                        nsUri = "http://www.w3.org/XML/1998/namespace";
-                    } else if ("xmlns".equals(attrPrefix) || nodeName.equals("xmlns")) {
-                        nsUri = "http://www.w3.org/2000/xmlns/";
-                    } else {
-                        nsUri = attr.lookupNamespaceURI(attrPrefix);
-                    }
+        // disable error checking to prevent lines like the following
+        // from throwing a `NAMESPACE_ERR' exception:
+        // Nokogiri::XML::DocumentFragment.parse("<o:div>a</o:div>")
+        // since the `o' prefix isn't defined anywhere.
+        e.getOwnerDocument().setStrictErrorChecking(false);
 
-                    if (nsUri == e.getNamespaceURI()) {
-                        nsUri = null;
-                    }
+        String prefix = e.getPrefix();
+        String nsURI = e.lookupNamespaceURI(prefix);
+        this.node = NokogiriHelpers.renameNode(e, nsURI, e.getNodeName());
 
-                    if (!(nsUri == null || "".equals(nsUri) || "http://www.w3.org/XML/1998/namespace".equals(nsUri))) {
-                        XmlNamespace.createFromAttr(context.getRuntime(), attr);
-                    }
-                    clearCachedNode(attr);
-                    NokogiriHelpers.renameNode(attr, nsUri, nodeName);
+        if (nsURI == null || nsURI == "") {
+            return;
+        }
+
+        if (e.hasAttributes()) {
+            NamedNodeMap attrs = e.getAttributes();
+
+            for (int i = 0; i < attrs.getLength(); i++) {
+                Attr attr = (Attr) attrs.item(i);
+                String nsUri = "";
+                String attrPrefix = attr.getPrefix();
+                if (attrPrefix == null) {
+                    attrPrefix = NokogiriHelpers.getPrefix(attr.getNodeName());
                 }
-            }
+                String nodeName = attr.getNodeName();
+                if ("xml".equals(attrPrefix)) {
+                    nsUri = "http://www.w3.org/XML/1998/namespace";
+                } else if ("xmlns".equals(attrPrefix) || nodeName.equals("xmlns")) {
+                    nsUri = "http://www.w3.org/2000/xmlns/";
+                } else {
+                    nsUri = attr.lookupNamespaceURI(attrPrefix);
+                }
 
-            if (this.node.hasChildNodes()) {
-                XmlNodeSet nodeSet = (XmlNodeSet)(children(context));
-                nodeSet.relink_namespace(context);
+                if (nsUri == e.getNamespaceURI()) {
+                    nsUri = null;
+                }
+
+                if (!(nsUri == null || "".equals(nsUri) || "http://www.w3.org/XML/1998/namespace".equals(nsUri))) {
+                    // Create a new namespace object and add it to the document
+                    // namespace cache.
+                    // TODO: why do we need the namespace cache ?
+                    XmlNamespace.createFromAttr(context.getRuntime(), attr);
+                }
+                clearCachedNode(attr);
+                NokogiriHelpers.renameNode(attr, nsUri, nodeName);
             }
+        }
+
+        if (this.node.hasChildNodes()) {
+            XmlNodeSet nodeSet = (XmlNodeSet)(children(context));
+            nodeSet.relink_namespace(context);
         }
     }
 
@@ -605,6 +621,7 @@ public class XmlNode extends RubyObject {
 
         NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCacheFormNode(node);
         XmlNamespace cachedNamespace = nsCache.get(prefixString, hrefString);
+
         if (cachedNamespace != null) return cachedNamespace;
 
         Node namespaceOwner;
@@ -615,12 +632,14 @@ public class XmlNode extends RubyObject {
             final String uri = "http://www.w3.org/2000/xmlns/";
             String qName =
                 prefix.isNil() ? "xmlns" : "xmlns:" + prefixString;
+
             element.setAttributeNS(uri, qName, hrefString);
         }
         else if (node.getNodeType() == Node.ATTRIBUTE_NODE) namespaceOwner = ((Attr)node).getOwnerElement();
         else namespaceOwner = node.getParentNode();
         XmlNamespace ns = XmlNamespace.createFromPrefixAndHref(namespaceOwner, prefix, href);
         if (node != namespaceOwner) {
+
             this.node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + ":" + node.getLocalName());
         }
         updateNodeNamespaceIfNecessary(context, ns);
@@ -1323,7 +1342,7 @@ public class XmlNode extends RubyObject {
             } else if (prefix.equals("xmlns")) {
                 uri = "http://www.w3.org/2000/xmlns/";
             } else {
-                uri = findNamespaceHref(context, prefix);
+                uri = node.lookupNamespaceURI(prefix);
             }
         }
 
