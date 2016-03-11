@@ -26,6 +26,12 @@ module Nokogiri
         assert_equal nil, node['lang']
       end
 
+      def test_unknown_namespace_prefix_should_not_be_removed
+        doc = Nokogiri::XML ''
+        elem = doc.create_element 'foo', 'bar:attr' => 'something'
+        assert_equal elem.attribute_nodes.first.name, 'bar:attr'
+      end
+
       def test_set_prefixed_attributes
         doc = Nokogiri::XML %Q{<root xmlns:foo="x"/>}
 

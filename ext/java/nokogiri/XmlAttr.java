@@ -164,7 +164,9 @@ public class XmlAttr extends XmlNode{
     protected IRubyObject getNodeName(ThreadContext context) {
         if (name != null) return name;
         String attrName = ((Attr)node).getName();
-        if (!(doc instanceof HtmlDocument)) attrName = NokogiriHelpers.getLocalPart(attrName);
+        if (!(doc instanceof HtmlDocument) && node.getNamespaceURI() != null) {
+            attrName = NokogiriHelpers.getLocalPart(attrName);
+        }
         return attrName == null ? context.getRuntime().getNil() : RubyString.newString(context.getRuntime(), attrName);
     }
 
