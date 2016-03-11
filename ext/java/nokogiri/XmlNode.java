@@ -1579,7 +1579,7 @@ public class XmlNode extends RubyObject {
             ((XmlDocument) this).resetNamespaceCache(context);
         }
 
-        relink_namespace(context);
+        other.relink_namespace(context);
         // post_add_child(context, this, other);
 
         return nodeOrTags;
