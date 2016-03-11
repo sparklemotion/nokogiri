@@ -21,6 +21,7 @@ Several changes were made to improve performance:
 
 ==== Bug Fixes
 
+* [JRuby] fix slow add_child (#692)
 * [JRuby] fix load errors when deploying to JRuby/Torquebox (#1114) (Thanks, @atambo and @jvshahid!)
 * [JRuby] fix NPE when inspecting nodes returned by NodeSet#drop (#1042) (Thanks, @mkristian!)
 * [JRuby] fix nil attriubte node's namespace in reader (#1327) (Thanks, @codekitchen!)
