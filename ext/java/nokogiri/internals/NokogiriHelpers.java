@@ -119,12 +119,12 @@ public class NokogiriHelpers {
         if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
             XmlDocument xmlDocument = (XmlDocument)node.getOwnerDocument().getUserData(CACHED_NODE);
             if (!(xmlDocument instanceof HtmlDocument)) {
-            String prefix = getLocalNameForNamespace(((Attr)node).getName());
-            prefix = prefix != null ? prefix : "";
-            String href = ((Attr)node).getValue();
-            XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
-            if (xmlNamespace != null) return xmlNamespace;
-            else return XmlNamespace.createFromAttr(ruby, (Attr)node);
+                String prefix = getLocalNameForNamespace(((Attr)node).getName());
+                prefix = prefix != null ? prefix : "";
+                String href = ((Attr)node).getValue();
+                XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
+                if (xmlNamespace != null) return xmlNamespace;
+                else return XmlNamespace.createFromAttr(ruby, (Attr)node);
             }
         }
         XmlNode xmlNode = getCachedNode(node);
@@ -134,7 +134,7 @@ public class NokogiriHelpers {
         }
         return xmlNode;
     }
-    
+
     /**
      * Construct a new XmlNode wrapping <code>node</code>.  The proper
      * subclass of XmlNode is chosen based on the type of
