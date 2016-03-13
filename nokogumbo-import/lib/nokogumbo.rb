@@ -151,7 +151,7 @@ module Nokogiri
 
         # look for a charset in a content-encoding header
         if content_type
-          encoding ||= content_type[/charset=(.*?)($|\s|;)/i, 1]
+          encoding ||= content_type[/charset=["']?(.*?)($|["';\s])/i, 1]
         end
 
         # look for a charset in a meta tag in the first 1024 bytes
