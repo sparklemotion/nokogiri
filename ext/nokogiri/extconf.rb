@@ -364,6 +364,8 @@ when arg_config('--clean')
 end
 
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
+# use same c compiler for libxml and libxslt
+ENV['CC'] = RbConfig::MAKEFILE_CONFIG['CC']
 
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
   $LIBRUBYARG_STATIC.gsub!(/-static/, '')
