@@ -1,4 +1,3 @@
-*.gemspec
 *.rbc
 *.tmproj
 *~
@@ -21,7 +20,6 @@ gems
 lib/nokogiri/1.8
 lib/nokogiri/1.9
 lib/nokogiri/nokogiri.bundle
-lib/nokogiri/nokogiri.jar
 lib/nokogiri/nokogiri.rb
 lib/nokogiri/nokogiri.so
 pkg
