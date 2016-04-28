@@ -1,4 +1,4 @@
-# Issue and Pull Request Guidlines
+# Issue and Pull Request Guidelines
 
 Thank you for getting involved in making Nokogiri better!
 
