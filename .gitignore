@@ -22,7 +22,6 @@ lib/nokogiri/1.9
 lib/nokogiri/nokogiri.bundle
 lib/nokogiri/nokogiri.rb
 lib/nokogiri/nokogiri.so
-pkg
 ports
 stash
 tags

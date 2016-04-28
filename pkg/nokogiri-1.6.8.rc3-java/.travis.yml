@@ -1,0 +1,51 @@
+language: ruby
+
+sudo: false
+
+rvm:
+- ruby-1.9.2
+- 1.9.3
+- 2.0
+- 2.1
+- 2.2.3
+- 2.3.0
+- jruby-19mode
+- jruby
+- jruby-9.0.4.0
+- jruby-head
+- rbx-19mode
+- rbx-2
+
+os:
+- linux
+- osx
+
+matrix:
+  allow_failures:
+  # https://github.com/travis-ci/travis-ci/issues/5361
+  - os: osx
+    rvm: 2.3.0
+  - rvm: jruby-head
+  exclude:
+  - os: osx
+    rvm: ruby-1.9.2
+  - os: osx
+    rvm: jruby-19mode
+  - os: osx
+    rvm: jruby
+  - os: osx
+    rvm: jruby-9.0.4.0
+  - os: osx
+    rvm: rbx-19mode
+  - os: osx
+    rvm: rbx-2
+
+notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#nokogiri"
+    on_success: change
+    on_failure: always
+    template:
+      - "%{repository} (%{branch}:%{commit} by %{author}): %{message} (%{build_url})"
+    skip_join: true
