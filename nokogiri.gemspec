@@ -1,15 +1,15 @@
 # -*- encoding: utf-8 -*-
-# stub: nokogiri 1.6.8.rc3.20160426112638 java lib
+# stub: nokogiri 1.6.8.rc3.20160428093317 java lib
 
 Gem::Specification.new do |s|
   s.name = "nokogiri"
-  s.version = "1.6.8.rc3.20160426112638"
+  s.version = "1.6.8.rc3"
   s.platform = "java"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
   s.authors = ["Aaron Patterson", "Mike Dalessio", "Yoko Harada", "Tim Elliott", "Akinori MUSHA"]
-  s.date = "2016-04-26"
+  s.date = "2016-04-28"
   s.description = "Nokogiri (\u{92f8}) is an HTML, XML, SAX, and Reader parser.  Among\nNokogiri's many features is the ability to search documents via XPath\nor CSS3 selectors.\n\nXML is like violence - if it doesn\u{2019}t solve your problems, you are not\nusing enough of it."
   s.email = ["aaronp@rubyforge.org", "mike.dalessio@gmail.com", "yokolet@gmail.com", "tle@holymonkey.com", "knu@idaemons.org"]
   s.executables = ["nokogiri"]
