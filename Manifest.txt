@@ -319,7 +319,6 @@ test/test_css_cache.rb
 test/test_encoding_handler.rb
 test/test_memory_leak.rb
 test/test_nokogiri.rb
-test/test_reader.rb
 test/test_soap4r_sax.rb
 test/test_xslt_transforms.rb
 test/xml/node/test_save_options.rb
@@ -351,6 +350,7 @@ test/xml/test_node_reparenting.rb
 test/xml/test_node_set.rb
 test/xml/test_parse_options.rb
 test/xml/test_processing_instruction.rb
+test/xml/test_reader.rb
 test/xml/test_reader_encoding.rb
 test/xml/test_relax_ng.rb
 test/xml/test_schema.rb
