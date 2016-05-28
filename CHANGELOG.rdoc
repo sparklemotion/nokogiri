@@ -35,6 +35,7 @@ Several changes were made to improve performance:
 * [MRI] Handling another edge case where the `libxml-ruby` gem's global callbacks were smashing the heap. (#1426). (Thanks to @bbergstrom for providing an isolated test case!)
 * [MRI] Ensure encodings are passed to Sax::Parser xmldecl callback. (#844)
 * [MRI] Ensure default ns prefix is applied correctly when reparenting nodes to another document. (#391) (Thanks, @ylecuyer!)
+* [MRI] Ensure Reader handles non-existent attributes as expected. (#1254) (Thanks, @ccutrer!)
 * unescape special characters in CSS queries (#1303) (Thanks, @twalpole!)
 * consistently handle empty documents (#1349)
 * Update to mini_portile2 2.1.0 to address whitespace-handling during patching. (#1402)
