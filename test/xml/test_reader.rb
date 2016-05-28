@@ -580,9 +580,9 @@ module Nokogiri
       def test_nonexistent_attribute
         require 'nokogiri'
         reader = Nokogiri::XML::Reader("<root xmlns='bob'><el attr='fred' /></root>")
-        reader.read
-        reader.read
-        assert_equal reader.attribute('other'), nil
+        reader.read # root
+        reader.read # el
+        assert_equal nil, reader.attribute('other')
       end
     end
   end
