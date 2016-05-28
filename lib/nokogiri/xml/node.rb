@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 require 'stringio'
 require 'nokogiri/xml/node/save_options'
 
@@ -622,7 +623,7 @@ module Nokogiri
         encoding = options[:encoding] || document.encoding
         options[:encoding] = encoding
 
-        outstring = ""
+        outstring = String.new("")
         if encoding && outstring.respond_to?(:force_encoding)
           outstring.force_encoding(Encoding.find(encoding))
         end

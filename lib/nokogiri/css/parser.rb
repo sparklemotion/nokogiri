@@ -320,42 +320,42 @@ Racc_debug_parser = false
 
 def _reduce_1(val, _values, result)
         result = [val.first, val.last].flatten
-      
+
     result
 end
 
 def _reduce_2(val, _values, result)
- result = val.flatten 
+ result = val.flatten
     result
 end
 
 def _reduce_3(val, _values, result)
- result = [val.last].flatten 
+ result = [val.last].flatten
     result
 end
 
 def _reduce_4(val, _values, result)
- result = :DIRECT_ADJACENT_SELECTOR 
+ result = :DIRECT_ADJACENT_SELECTOR
     result
 end
 
 def _reduce_5(val, _values, result)
- result = :CHILD_SELECTOR 
+ result = :CHILD_SELECTOR
     result
 end
 
 def _reduce_6(val, _values, result)
- result = :FOLLOWING_SELECTOR 
+ result = :FOLLOWING_SELECTOR
     result
 end
 
 def _reduce_7(val, _values, result)
- result = :DESCENDANT_SELECTOR 
+ result = :DESCENDANT_SELECTOR
     result
 end
 
 def _reduce_8(val, _values, result)
- result = :CHILD_SELECTOR 
+ result = :CHILD_SELECTOR
     result
 end
 
@@ -365,7 +365,7 @@ def _reduce_9(val, _values, result)
                   else
                     Node.new(:CONDITIONAL_SELECTOR, [val.first, val[1]])
                   end
-      
+
     result
 end
 
@@ -373,13 +373,13 @@ end
 
 def _reduce_11(val, _values, result)
         result = Node.new(:CONDITIONAL_SELECTOR, val)
-      
+
     result
 end
 
 def _reduce_12(val, _values, result)
         result = Node.new(:CONDITIONAL_SELECTOR, val)
-      
+
     result
 end
 
@@ -387,39 +387,39 @@ def _reduce_13(val, _values, result)
         result = Node.new(:CONDITIONAL_SELECTOR,
           [Node.new(:ELEMENT_NAME, ['*']), val.first]
         )
-      
+
     result
 end
 
 def _reduce_14(val, _values, result)
         result = Node.new(val.first, [nil, val.last])
-      
+
     result
 end
 
 def _reduce_15(val, _values, result)
         result = Node.new(val[1], [val.first, val.last])
-      
+
     result
 end
 
 def _reduce_16(val, _values, result)
         result = Node.new(:DESCENDANT_SELECTOR, [val.first, val.last])
-      
+
     result
 end
 
 # reduce 17 omitted
 
 def _reduce_18(val, _values, result)
- result = Node.new(:CLASS_CONDITION, [unescape_css_identifier(val[1])]) 
+ result = Node.new(:CLASS_CONDITION, [unescape_css_identifier(val[1])])
     result
 end
 
 # reduce 19 omitted
 
 def _reduce_20(val, _values, result)
- result = Node.new(:ELEMENT_NAME, val) 
+ result = Node.new(:ELEMENT_NAME, val)
     result
 end
 
@@ -427,19 +427,19 @@ def _reduce_21(val, _values, result)
         result = Node.new(:ELEMENT_NAME,
           [[val.first, val.last].compact.join(':')]
         )
-      
+
     result
 end
 
 def _reduce_22(val, _values, result)
         name = @namespaces.key?('xmlns') ? "xmlns:#{val.first}" : val.first
         result = Node.new(:ELEMENT_NAME, [name])
-      
+
     result
 end
 
 def _reduce_23(val, _values, result)
- result = val[0] 
+ result = val[0]
     result
 end
 
@@ -449,7 +449,7 @@ def _reduce_25(val, _values, result)
         result = Node.new(:ATTRIBUTE_CONDITION,
           [val[1]] + (val[2] || [])
         )
-      
+
     result
 end
 
@@ -457,7 +457,7 @@ def _reduce_26(val, _values, result)
         result = Node.new(:ATTRIBUTE_CONDITION,
           [val[1]] + (val[2] || [])
         )
-      
+
     result
 end
 
@@ -466,7 +466,7 @@ def _reduce_27(val, _values, result)
         result = Node.new(:PSEUDO_CLASS,
           [Node.new(:FUNCTION, ['nth-child(', val[1]])]
         )
-      
+
     result
 end
 
@@ -474,7 +474,7 @@ def _reduce_28(val, _values, result)
         result = Node.new(:ELEMENT_NAME,
           [[val.first, val.last].compact.join(':')]
         )
-      
+
     result
 end
 
@@ -482,52 +482,52 @@ def _reduce_29(val, _values, result)
         # Default namespace is not applied to attributes.
         # So we don't add prefix "xmlns:" as in namespaced_ident.
         result = Node.new(:ELEMENT_NAME, [val.first])
-      
+
     result
 end
 
 def _reduce_30(val, _values, result)
         result = Node.new(:FUNCTION, [val.first.strip])
-      
+
     result
 end
 
 def _reduce_31(val, _values, result)
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
-      
+
     result
 end
 
 def _reduce_32(val, _values, result)
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
-      
+
     result
 end
 
 def _reduce_33(val, _values, result)
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
-      
+
     result
 end
 
 def _reduce_34(val, _values, result)
         result = Node.new(:FUNCTION, [val.first.strip, val[1]].flatten)
-      
+
     result
 end
 
 def _reduce_35(val, _values, result)
- result = [val.first, val.last] 
+ result = [val.first, val.last]
     result
 end
 
 def _reduce_36(val, _values, result)
- result = [val.first, val.last] 
+ result = [val.first, val.last]
     result
 end
 
 def _reduce_37(val, _values, result)
- result = [val.first, val.last] 
+ result = [val.first, val.last]
     result
 end
 
@@ -550,7 +550,7 @@ def _reduce_40(val, _values, result)
           # assert_xpath("//a[foo(., a, 10)]", @parser.parse('a:foo(a, 10)'))
           result = val
         end
-      
+
     result
 end
 
@@ -560,7 +560,7 @@ def _reduce_41(val, _values, result)
         else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
         end
-      
+
     result
 end
 
@@ -576,7 +576,7 @@ def _reduce_42(val, _values, result)
         else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
         end
-      
+
     result
 end
 
@@ -596,18 +596,18 @@ def _reduce_43(val, _values, result)
         else
           raise Racc::ParseError, "parse error on IDENT '#{val[1]}'"
         end
-      
+
     result
 end
 
 def _reduce_44(val, _values, result)
         result = Node.new(:PSEUDO_CLASS, [val[1]])
-      
+
     result
 end
 
 def _reduce_45(val, _values, result)
- result = Node.new(:PSEUDO_CLASS, [val[1]]) 
+ result = Node.new(:PSEUDO_CLASS, [val[1]])
     result
 end
 
@@ -617,31 +617,31 @@ end
 
 def _reduce_48(val, _values, result)
         result = Node.new(:COMBINATOR, val)
-      
+
     result
 end
 
 def _reduce_49(val, _values, result)
         result = Node.new(:COMBINATOR, val)
-      
+
     result
 end
 
 def _reduce_50(val, _values, result)
         result = Node.new(:COMBINATOR, val)
-      
+
     result
 end
 
 def _reduce_51(val, _values, result)
         result = Node.new(:COMBINATOR, val)
-      
+
     result
 end
 
 def _reduce_52(val, _values, result)
         result = Node.new(:COMBINATOR, val)
-      
+
     result
 end
 
@@ -656,60 +656,60 @@ end
 # reduce 57 omitted
 
 def _reduce_58(val, _values, result)
- result = Node.new(:ID, [unescape_css_identifier(val.first)]) 
+ result = Node.new(:ID, [unescape_css_identifier(val.first)])
     result
 end
 
 def _reduce_59(val, _values, result)
- result = [val.first, val[1]] 
+ result = [val.first, val[1]]
     result
 end
 
 def _reduce_60(val, _values, result)
- result = [val.first, val[1]] 
+ result = [val.first, val[1]]
     result
 end
 
 # reduce 61 omitted
 
 def _reduce_62(val, _values, result)
- result = :equal 
+ result = :equal
     result
 end
 
 def _reduce_63(val, _values, result)
- result = :prefix_match 
+ result = :prefix_match
     result
 end
 
 def _reduce_64(val, _values, result)
- result = :suffix_match 
+ result = :suffix_match
     result
 end
 
 def _reduce_65(val, _values, result)
- result = :substring_match 
+ result = :substring_match
     result
 end
 
 def _reduce_66(val, _values, result)
- result = :not_equal 
+ result = :not_equal
     result
 end
 
 def _reduce_67(val, _values, result)
- result = :includes 
+ result = :includes
     result
 end
 
 def _reduce_68(val, _values, result)
- result = :dash_match 
+ result = :dash_match
     result
 end
 
 def _reduce_69(val, _values, result)
         result = Node.new(:NOT, [val[1]])
-      
+
     result
 end
 
