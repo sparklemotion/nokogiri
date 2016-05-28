@@ -520,6 +520,7 @@ EOM
     recipe.configure_options += [
       "--without-python",
       "--without-readline",
+      *(zlib_recipe ? ["--with-zlib=#{zlib_recipe.path}", "CFLAGS=-I#{zlib_recipe.path}/include"] : []),
       *(libiconv_recipe ? "--with-iconv=#{libiconv_recipe.path}" : iconv_configure_flags),
       "--with-c14n",
       "--with-debug",
