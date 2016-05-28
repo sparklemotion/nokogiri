@@ -237,6 +237,46 @@ module Nokogiri
                 assert @doc.at('//foo:second', "foo" => "http://flavorjon.es/")
               end
             end
+
+            describe "and a child node with a namespace matching the parent's non-default namespace, but with a different prefix" do
+              it "inserts a node that keeps its namespace" do
+                assert node = @doc.at('//xmlns:first')
+                child = Nokogiri::XML::Node.new('second', @doc)
+
+                ns = child.add_namespace(nil, 'http://flavorjon.es/')
+                child.namespace = ns
+
+                node.add_child(child)
+                assert newchild = @doc.at('//foo:second', "foo" => "http://flavorjon.es/")
+                assert newchild.namespace_definitions.include?(ns)
+              end
+            end
+
+            describe "and a child with an intervening incorrect namespace" do
+              it "inserts a node that keeps its namespace" do
+                assert node = @doc.at('//xmlns:first')
+                child1 = Nokogiri::XML::Node.new('second', @doc)
+
+                ns1 = child1.add_namespace('foo', 'bogus')
+                child1.namespace = ns1
+
+                node.add_child(child1)
+
+                # Java Nokogiri won't let you add a duplicate (prefix/href) namespace
+                # if it already exists _anywhere_ in the document; so fudge by
+                # creating are duplicate in a separate document
+                doc2 = Nokogiri::XML::Document.new
+                child2 = Nokogiri::XML::Node.new('third', doc2)
+                ns2 = child2.add_namespace('foo', 'http://flavorjon.es/')
+                child2.namespace = ns2
+
+                child1.add_child(child2)
+                assert newchild = @doc.at('//foo:third', "foo" => "http://flavorjon.es/")
+                # and it also won't find namespace definitions duplicated elsewhere,
+                # so serialize this check
+                assert_equal '<foo:third xmlns:foo="http://flavorjon.es/"/>', newchild.to_s
+              end
+            end
           end
         end
 

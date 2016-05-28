@@ -74,9 +74,11 @@ static void relink_namespace(xmlNodePtr reparented)
           reparented->parent,
           curr->href
       );
-      /* If we find the namespace is already declared, remove it from this
-       * definition list. */
-      if(ns && ns != curr) {
+      /* If we find the namespace is already declared with the same prefix,
+       * remove it from this definition list. */
+      if(ns && ns != curr &&
+         (ns->prefix == NULL && curr->prefix == NULL ||
+         xmlStrEqual(ns->prefix, curr->prefix))) {
         if (prev) {
           prev->next = curr->next;
         } else {
