@@ -215,7 +215,7 @@ module Nokogiri
             end
           end
 
-          describe "given a parent node with a non-default namespace" do
+          describe "given a parent node with a default and non-default namespace" do
             before do
               @doc = Nokogiri::XML(<<-eoxml)
                 <root xmlns="http://tenderlovemaking.com/" xmlns:foo="http://flavorjon.es/">
@@ -235,6 +235,26 @@ module Nokogiri
                 end
 
                 it "inserts a node that inherits the matching parent namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented.namespace_definitions.empty?
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     =>"http://tenderlovemaking.com/",
+                      "xmlns:foo" =>"http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+
+              describe "with the same prefix" do
+                before do
+                  @ns = @child.add_namespace("foo", 'http://flavorjon.es/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that uses the parent's namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.empty?
