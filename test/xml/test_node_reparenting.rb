@@ -236,7 +236,23 @@ module Nokogiri
 
                 it "inserts a node that inherits the matching parent namespace" do
                   @node.add_child(@child)
-                  assert @doc.at('//foo:second', "foo" => "http://flavorjon.es/")
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented.namespace_definitions.empty?
+                  assert_equal @ns, reparented.namespace
+                end
+              end
+
+              describe "but with a different prefix" do
+                before do
+                  @ns = @child.add_namespace(nil, 'http://flavorjon.es/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that keeps its namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_equal @ns, reparented.namespace
                 end
               end
             end
