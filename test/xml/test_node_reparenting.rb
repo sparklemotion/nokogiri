@@ -239,10 +239,16 @@ module Nokogiri
                   assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.empty?
                   assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     =>"http://tenderlovemaking.com/",
+                      "xmlns:foo" =>"http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
                 end
               end
 
-              describe "but with a different prefix" do
+              describe "as the default prefix" do
                 before do
                   @ns = @child.add_namespace(nil, 'http://flavorjon.es/')
                   @child.namespace = @ns
@@ -253,6 +259,33 @@ module Nokogiri
                   assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.include?(@ns)
                   assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     =>"http://flavorjon.es/",
+                      "xmlns:foo" =>"http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+
+              describe "but with a different prefix" do
+                before do
+                  @ns = @child.add_namespace('baz', 'http://flavorjon.es/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that keeps its namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     =>"http://tenderlovemaking.com/",
+                      "xmlns:foo" =>"http://flavorjon.es/",
+                      "xmlns:baz" =>"http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
                 end
               end
             end
