@@ -223,18 +223,21 @@ module Nokogiri
                   </first>
                 </root>
               eoxml
+              assert @node = @doc.at('//xmlns:first')
+              @child = Nokogiri::XML::Node.new('second', @doc)
             end
 
-            describe "and a child node with a namespace matching the parent's non-default namespace" do
-              it "inserts a node that inherits the matching parent namespace" do
-                assert node = @doc.at('//xmlns:first')
-                child = Nokogiri::XML::Node.new('second', @doc)
+            describe "and a child with a namespace matching the parent's non-default namespace" do
+              describe "set by #namespace=" do
+                before do
+                  @ns = @doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
+                  @child.namespace = @ns
+                end
 
-                ns = @doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
-                child.namespace = ns
-
-                node.add_child(child)
-                assert @doc.at('//foo:second', "foo" => "http://flavorjon.es/")
+                it "inserts a node that inherits the matching parent namespace" do
+                  @node.add_child(@child)
+                  assert @doc.at('//foo:second', "foo" => "http://flavorjon.es/")
+                end
               end
             end
           end
