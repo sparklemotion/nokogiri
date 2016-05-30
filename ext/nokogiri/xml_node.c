@@ -35,13 +35,13 @@ static void relink_namespace(xmlNodePtr reparented)
   xmlNsPtr ns;
 
   if (reparented->type != XML_ATTRIBUTE_NODE &&
-      reparented->type != XML_ELEMENT_NODE) return;
+      reparented->type != XML_ELEMENT_NODE) { return; }
 
   if (reparented->ns == NULL || reparented->ns->prefix == NULL) {
     name = xmlSplitQName2(reparented->name, &prefix);
 
     if(reparented->type == XML_ATTRIBUTE_NODE) {
-      if (prefix == NULL || strcmp((char*)prefix, XMLNS_PREFIX) == 0) return;
+      if (prefix == NULL || strcmp((char*)prefix, XMLNS_PREFIX) == 0) { return; }
     }
 
     ns = xmlSearchNs(reparented->doc, reparented, prefix);
@@ -57,18 +57,19 @@ static void relink_namespace(xmlNodePtr reparented)
   }
 
   /* Avoid segv when relinking against unlinked nodes. */
-  if (reparented->type != XML_ELEMENT_NODE || !reparented->parent) return;
+  if (reparented->type != XML_ELEMENT_NODE || !reparented->parent) { return; }
 
   /* Make sure that our reparented node has the correct namespaces */
-  if(!reparented->ns && reparented->doc != (xmlDocPtr)reparented->parent)
+  if (!reparented->ns && reparented->doc != (xmlDocPtr)reparented->parent) {
     xmlSetNs(reparented, reparented->parent->ns);
+  }
 
   /* Search our parents for an existing definition */
-  if(reparented->nsDef) {
+  if (reparented->nsDef) {
     xmlNsPtr curr = reparented->nsDef;
     xmlNsPtr prev = NULL;
 
-    while(curr) {
+    while (curr) {
       xmlNsPtr ns = xmlSearchNsByHref(
           reparented->doc,
           reparented->parent,
@@ -76,7 +77,7 @@ static void relink_namespace(xmlNodePtr reparented)
       );
       /* If we find the namespace is already declared, remove it from this
        * definition list. */
-      if(ns && ns != curr) {
+      if (ns && ns != curr && xmlStrEqual(ns->prefix, curr->prefix)) {
         if (prev) {
           prev->next = curr->next;
         } else {
@@ -92,12 +93,12 @@ static void relink_namespace(xmlNodePtr reparented)
 
   /* Only walk all children if there actually is a namespace we need to */
   /* reparent. */
-  if(NULL == reparented->ns) return;
+  if (NULL == reparented->ns) { return; }
 
   /* When a node gets reparented, walk it's children to make sure that */
   /* their namespaces are reparented as well. */
   child = reparented->children;
-  while(NULL != child) {
+  while (NULL != child) {
     relink_namespace(child);
     child = child->next;
   }
