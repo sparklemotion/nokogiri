@@ -215,7 +215,7 @@ module Nokogiri
             end
           end
 
-          describe "given a parent node with a non-default namespace" do
+          describe "given a parent node with a default and non-default namespace" do
             before do
               @doc = Nokogiri::XML(<<-eoxml)
                 <root xmlns="http://tenderlovemaking.com/" xmlns:foo="http://flavorjon.es/">
@@ -223,18 +223,156 @@ module Nokogiri
                   </first>
                 </root>
               eoxml
+              assert @node = @doc.at('//xmlns:first')
+              @child = Nokogiri::XML::Node.new('second', @doc)
             end
 
-            describe "and a child node with a namespace matching the parent's non-default namespace" do
-              it "inserts a node that inherits the matching parent namespace" do
-                assert node = @doc.at('//xmlns:first')
-                child = Nokogiri::XML::Node.new('second', @doc)
+            describe "and a child with a namespace matching the parent's default namespace" do
+              describe "and as the default prefix" do
+                before do
+                  @ns = @child.add_namespace(nil, 'http://tenderlovemaking.com/')
+                  @child.namespace = @ns
+                end
 
-                ns = @doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
-                child.namespace = ns
+                it "inserts a node that inherits the parent's default namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://tenderlovemaking.com/")
+                  assert reparented.namespace_definitions.empty?
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
+                end
+              end
 
-                node.add_child(child)
-                assert @doc.at('//foo:second', "foo" => "http://flavorjon.es/")
+              describe "but with a different prefix" do
+                before do
+                  @ns = @child.add_namespace("baz", 'http://tenderlovemaking.com/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that uses its own namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://tenderlovemaking.com/")
+                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
+                      "xmlns:baz" => "http://tenderlovemaking.com/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+            end
+
+            describe "and a child with a namespace matching the parent's non-default namespace" do
+              describe "set by #namespace=" do
+                before do
+                  @ns = @doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that inherits the matching parent namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented.namespace_definitions.empty?
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+
+              describe "with the same prefix" do
+                before do
+                  @ns = @child.add_namespace("foo", 'http://flavorjon.es/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that uses the parent's namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented.namespace_definitions.empty?
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+
+              describe "as the default prefix" do
+                before do
+                  @ns = @child.add_namespace(nil, 'http://flavorjon.es/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that keeps its namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     => "http://flavorjon.es/",
+                      "xmlns:foo" => "http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+
+              describe "but with a different prefix" do
+                before do
+                  @ns = @child.add_namespace('baz', 'http://flavorjon.es/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that keeps its namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     =>"http://tenderlovemaking.com/",
+                      "xmlns:foo" =>"http://flavorjon.es/",
+                      "xmlns:baz" =>"http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+            end
+
+            describe "and a child node with a default namespace not matching the parent's default namespace and a namespace matching a parent namespace but with a different prefix" do
+              before do
+                @ns = @child.add_namespace(nil, 'http://example.org/')
+                @child.namespace = @ns
+                @ns2 = @child.add_namespace('baz', 'http://tenderlovemaking.com/')
+              end
+
+              it "inserts a node that keeps its namespace" do
+                @node.add_child(@child)
+                assert reparented = @doc.at('//bar:second', "bar" => "http://example.org/")
+                assert reparented.namespace_definitions.include?(@ns)
+                assert reparented.namespace_definitions.include?(@ns2)
+                assert_equal @ns, reparented.namespace
+                assert_equal(
+                  {
+                    "xmlns"     => "http://example.org/",
+                    "xmlns:foo" => "http://flavorjon.es/",
+                    "xmlns:baz" => "http://tenderlovemaking.com/",
+                  },
+                  reparented.namespaces)
               end
             end
           end
