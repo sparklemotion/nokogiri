@@ -352,6 +352,29 @@ module Nokogiri
                 end
               end
             end
+
+            describe "and a child node with a default namespace not matching the parent's default namespace and a namespace matching a parent namespace but with a different prefix" do
+              before do
+                @ns = @child.add_namespace(nil, 'http://example.org/')
+                @child.namespace = @ns
+                @ns2 = @child.add_namespace('baz', 'http://tenderlovemaking.com/')
+              end
+
+              it "inserts a node that keeps its namespace" do
+                @node.add_child(@child)
+                assert reparented = @doc.at('//bar:second', "bar" => "http://example.org/")
+                assert reparented.namespace_definitions.include?(@ns)
+                assert reparented.namespace_definitions.include?(@ns2)
+                assert_equal @ns, reparented.namespace
+                assert_equal(
+                  {
+                    "xmlns"     => "http://example.org/",
+                    "xmlns:foo" => "http://flavorjon.es/",
+                    "xmlns:baz" => "http://tenderlovemaking.com/",
+                  },
+                  reparented.namespaces)
+              end
+            end
           end
         end
 
