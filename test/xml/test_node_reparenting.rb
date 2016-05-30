@@ -227,6 +227,49 @@ module Nokogiri
               @child = Nokogiri::XML::Node.new('second', @doc)
             end
 
+            describe "and a child with a namespace matching the parent's default namespace" do
+              describe "and as the default prefix" do
+                before do
+                  @ns = @child.add_namespace(nil, 'http://tenderlovemaking.com/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that inherits the parent's default namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://tenderlovemaking.com/")
+                  assert reparented.namespace_definitions.empty?
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+
+              describe "but with a different prefix" do
+                before do
+                  @ns = @child.add_namespace("baz", 'http://tenderlovemaking.com/')
+                  @child.namespace = @ns
+                end
+
+                it "inserts a node that uses its own namespace" do
+                  @node.add_child(@child)
+                  assert reparented = @doc.at('//bar:second', "bar" => "http://tenderlovemaking.com/")
+                  assert reparented.namespace_definitions.include?(@ns)
+                  assert_equal @ns, reparented.namespace
+                  assert_equal(
+                    {
+                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
+                      "xmlns:baz" => "http://tenderlovemaking.com/",
+                    },
+                    reparented.namespaces)
+                end
+              end
+            end
+
             describe "and a child with a namespace matching the parent's non-default namespace" do
               describe "set by #namespace=" do
                 before do
@@ -241,8 +284,8 @@ module Nokogiri
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     =>"http://tenderlovemaking.com/",
-                      "xmlns:foo" =>"http://flavorjon.es/",
+                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
                     },
                     reparented.namespaces)
                 end
@@ -261,8 +304,8 @@ module Nokogiri
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     =>"http://tenderlovemaking.com/",
-                      "xmlns:foo" =>"http://flavorjon.es/",
+                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
                     },
                     reparented.namespaces)
                 end
@@ -281,8 +324,8 @@ module Nokogiri
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     =>"http://flavorjon.es/",
-                      "xmlns:foo" =>"http://flavorjon.es/",
+                      "xmlns"     => "http://flavorjon.es/",
+                      "xmlns:foo" => "http://flavorjon.es/",
                     },
                     reparented.namespaces)
                 end
