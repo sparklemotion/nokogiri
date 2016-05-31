@@ -38,7 +38,7 @@ def sh_export_path path
   # configuration
   if windows?
     match = Regexp.new("^([A-Z]):(/.*)").match(path)
-    if match.length == 3
+    if match && match.length == 3
       return File.join("/", match[1], match[2])
     end
   end
