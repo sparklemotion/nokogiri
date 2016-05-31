@@ -206,7 +206,7 @@ else
 
   task gem_build_path do
     %w[libxml2 libxslt].each do |lib|
-      version = dependencies[lib]
+      version = dependencies[lib]["version"]
       archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
       add_file_to_gem archive
       patchesdir = File.join("patches", lib)
@@ -231,7 +231,7 @@ else
       ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
       ext.cross_config_options << "--enable-cross-build"
       ext.cross_compiling do |spec|
-        libs = dependencies.map { |name, version| "#{name}-#{version}" }.join(', ')
+        libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
 
         spec.required_ruby_version = [
           '>= 1.9.2',
