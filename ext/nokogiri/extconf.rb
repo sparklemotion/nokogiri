@@ -24,6 +24,27 @@ def nix?
   ! (windows? || solaris? || darwin?)
 end
 
+def sh_export_path path
+  # because libxslt 1.1.29 configure.in uses AC_PATH_TOOL which treats ":"
+  # as a $PATH separator, we need to convert windows paths from
+  #
+  #   C:/path/to/foo
+  #
+  # to
+  #
+  #   /C/path/to/foo
+  #
+  # which is sh-compatible, in order to find things properly during
+  # configuration
+  if windows?
+    match = Regexp.new("^([A-Z]):(/.*)").match(path)
+    if match.length == 3
+      return File.join("/", match[1], match[2])
+    end
+  end
+  path
+end
+
 def do_help
   print <<HELP
 usage: ruby #{$0} [options]
@@ -556,7 +577,7 @@ EOM
       "--without-python",
       "--without-crypto",
       "--with-debug",
-      "--with-libxml-prefix=#{libxml2_recipe.path}"
+      "--with-libxml-prefix=#{sh_export_path(libxml2_recipe.path)}"
     ]
   end
 
