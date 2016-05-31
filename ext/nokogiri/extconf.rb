@@ -439,8 +439,11 @@ else
 
   cross_build_p = enable_config("cross-build")
   if cross_build_p || windows_p
-    zlib_recipe = process_recipe("zlib", dependencies["zlib"], static_p, cross_build_p) do |recipe|
-      recipe.files = ["http://zlib.net/#{recipe.name}-#{recipe.version}.tar.gz"]
+    zlib_recipe = process_recipe("zlib", dependencies["zlib"]["version"], static_p, cross_build_p) do |recipe|
+      recipe.files = [{
+          url: "http://zlib.net/#{recipe.name}-#{recipe.version}.tar.gz",
+          md5: dependencies["zlib"]["md5"]
+        }]
       class << recipe
         attr_accessor :cross_build_p
 
@@ -474,8 +477,11 @@ else
       recipe.cross_build_p = cross_build_p
     end
 
-    libiconv_recipe = process_recipe("libiconv", dependencies["libiconv"], static_p, cross_build_p) do |recipe|
-      recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz"]
+    libiconv_recipe = process_recipe("libiconv", dependencies["libiconv"]["version"], static_p, cross_build_p) do |recipe|
+      recipe.files = [{
+          url: "http://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
+          md5: dependencies["libiconv"]["md5"]
+        }]
       recipe.configure_options += [
         "CPPFLAGS=-Wall",
         "CFLAGS=-O2 -g",
@@ -506,8 +512,11 @@ EOM
     } or abort 'zlib is missing; necessary for building libxml2'
   end
 
-  libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"], static_p, cross_build_p) do |recipe|
-    recipe.files = ["http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz"]
+  libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]["version"], static_p, cross_build_p) do |recipe|
+    recipe.files = [{
+        url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
+        md5: dependencies["libxml2"]["md5"]
+      }]
     recipe.configure_options += [
       "--without-python",
       "--without-readline",
@@ -518,8 +527,11 @@ EOM
     ]
   end
 
-  libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"], static_p, cross_build_p) do |recipe|
-    recipe.files = ["http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz"]
+  libxslt_recipe = process_recipe("libxslt", dependencies["libxslt"]["version"], static_p, cross_build_p) do |recipe|
+    recipe.files = [{
+        url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
+        md5: dependencies["libxslt"]["md5"]
+      }]
     recipe.configure_options += [
       "--without-python",
       "--without-crypto",

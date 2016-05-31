@@ -1,4 +1,29 @@
-libxml2: "2.9.4"
-libxslt: "1.1.29"
-zlib: "1.2.8"
-libiconv: "1.14"
+libxml2:
+  version: "2.9.4"
+  md5: "ae249165c173b1ff386ee8ad676815f5" # manually confirmed via `gpg --verify`
+  # gpg: Signature made Mon 23 May 2016 04:02:13 AM EDT using DSA key ID DE95BC1F
+  # gpg: Good signature from "Daniel Veillard (Red Hat work email) <veillard@redhat.com>"
+  # gpg:                 aka "Daniel Veillard <Daniel.Veillard@w3.org>"
+  # gpg: WARNING: This key is not certified with a trusted signature!
+  # gpg:          There is no indication that the signature belongs to the owner.
+  # Primary key fingerprint: C744 15BA 7C9C 7F78 F02E  1DC3 4606 B8A5 DE95 BC1F
+
+libxslt:
+  version: "1.1.29"
+  md5: "a129d3c44c022de3b9dcf6d6f288d72e"
+  # gpg: Signature made Mon 23 May 2016 09:58:52 PM EDT using DSA key ID DE95BC1F
+  # gpg: Good signature from "Daniel Veillard (Red Hat work email) <veillard@redhat.com>"
+  # gpg:                 aka "Daniel Veillard <Daniel.Veillard@w3.org>"
+  # gpg: WARNING: This key is not certified with a trusted signature!
+  # gpg:          There is no indication that the signature belongs to the owner.
+  # Primary key fingerprint: C744 15BA 7C9C 7F78 F02E  1DC3 4606 B8A5 DE95 BC1F
+
+zlib:
+  version: "1.2.8"
+  md5: "44d667c142d7cda120332623eab69f40"
+
+libiconv:
+  version: "1.14"
+  md5: "e34509b1623cec449dfeb73d7ce9c6c6"
+  # gpg: Signature made Sun 07 Aug 2011 01:58:18 PM EDT using DSA key ID F059B1D1
+  # gpg: BAD signature from "Bruno Haible (Open Source Development) <bruno@clisp.org>"
