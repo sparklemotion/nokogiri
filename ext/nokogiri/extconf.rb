@@ -8,6 +8,21 @@ ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 #
 # functions
 #
+def windows?
+  RbConfig::CONFIG['target_os'] =~ /mingw32|mswin/
+end
+
+def solaris?
+  RbConfig::CONFIG['target_os'] =~ /solaris/
+end
+
+def darwin?
+  RbConfig::CONFIG['target_os'] =~ /darwin/
+end
+
+def nix?
+  ! (windows? || solaris? || darwin?)
+end
 
 def do_help
   print <<HELP
@@ -367,6 +382,7 @@ RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 # use same c compiler for libxml and libxslt
 ENV['CC'] = RbConfig::MAKEFILE_CONFIG['CC']
 
+# TODO: deprecate MacRuby: https://github.com/sparklemotion/nokogiri/issues/1474
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
   $LIBRUBYARG_STATIC.gsub!(/-static/, '')
 end
@@ -376,17 +392,20 @@ $LIBS << " #{ENV["LIBS"]}"
 # Read CFLAGS from ENV and make sure compiling works.
 add_cflags(ENV["CFLAGS"])
 
-case RbConfig::CONFIG['target_os']
-when 'mingw32', /mswin/
-  windows_p = true
+if windows?
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
-when /solaris/
+end
+
+if solaris?
   $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
-when /darwin/
-  darwin_p = true
+end
+
+if darwin?
   # Let Apple LLVM/clang 5.1 ignore unknown compiler flags
   add_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future")
-else
+end
+
+if nix?
   $CFLAGS << " -g -DXP_UNIX"
 end
 
@@ -438,7 +457,7 @@ else
   dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
 
   cross_build_p = enable_config("cross-build")
-  if cross_build_p || windows_p
+  if cross_build_p || windows?
     zlib_recipe = process_recipe("zlib", dependencies["zlib"]["version"], static_p, cross_build_p) do |recipe|
       recipe.files = [{
           url: "http://zlib.net/#{recipe.name}-#{recipe.version}.tar.gz",
@@ -490,7 +509,7 @@ else
       ]
     end
   else
-    if darwin_p && !have_header('iconv.h')
+    if darwin? && !have_header('iconv.h')
       abort <<'EOM'.chomp
 -----
 The file "iconv.h" is missing in your build environment,
@@ -506,7 +525,7 @@ EOM
     end
   end
 
-  unless windows_p
+  unless windows?
     preserving_globals {
       have_library('z', 'gzdopen', 'zlib.h')
     } or abort 'zlib is missing; necessary for building libxml2'
