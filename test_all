@@ -76,32 +76,32 @@ for ruby in $RUBIES ; do
 done
 
 for ruby in $RUBIES ; do
-    rvm_use ${ruby}
-    echo -e "**\n** testing nokogiri on ${ruby}\n**" | tee -a $TEST_LOG
-    clean
-    compile
-    echo "** running tests ..."
-    bundle exec rake test 2>&1 | tee -a $TEST_LOG
-    if [[ ! $ruby =~ "jruby" ]] ; then
-      echo "** running tests again with libxml-ruby loaded ..."
-      if ! gem list libxml-ruby | fgrep 2.8.0 ; then
-        gem install libxml-ruby
-      fi
-      bundle exec rake test:libxml-ruby 2>&1 | tee -a $TEST_LOG
+  rvm_use ${ruby}
+  echo -e "**\n** testing nokogiri on ${ruby}\n**"
+  clean
+  compile
+  echo "** running tests ..."
+  bundle exec rake test 2>&1
+  if [[ ! $ruby =~ "jruby" ]] ; then
+    echo "** running tests again with libxml-ruby loaded ..."
+    if ! gem list libxml-ruby | fgrep 2.8.0 ; then
+      gem install libxml-ruby
     fi
-    clean
-done
+    bundle exec rake test:libxml-ruby 2>&1
+  fi
+  clean
+done | tee -a $TEST_LOG
 
 for ruby in $RUBIES ; do
-    if [[ ! $ruby =~ "jruby" ]] ; then
-        rvm_use ${ruby}
-        echo -e "**\n** nokogiri prerelease: ${ruby}\n**" | tee -a $VALGRIND_LOG
-        clean
-        compile
-        echo "** running valgrind on tests ..."
-        bundle exec rake test:valgrind 2>&1 | tee -a $VALGRIND_LOG
-        echo "** running valgrind again with libxml-ruby loaded ..."
-        bundle exec rake test:valgrind:libxml-ruby 2>&1 | tee -a $VALGRIND_LOG
-        clean
-    fi
-done
+  if [[ ! $ruby =~ "jruby" ]] ; then
+    rvm_use ${ruby}
+    echo -e "**\n** nokogiri prerelease: ${ruby}\n**"
+    clean
+    compile
+    echo "** running valgrind on tests ..."
+    bundle exec rake test:valgrind 2>&1
+    echo "** running valgrind again with libxml-ruby loaded ..."
+    bundle exec rake test:valgrind:libxml-ruby 2>&1
+    clean
+  fi
+done | tee -a $VALGRIND_LOG
