@@ -25,13 +25,12 @@ RUBIES="\
 TEST_LOG=test.log
 VALGRIND_LOG=valgrind.log
 
-if ! grep libxml-ruby Gemfile ; then
-  echo "ERROR: please add this line your Gemfile temporarily so we can run libxml-ruby tests:"
-  echo
-  echo "gem 'libxml-ruby', :platform => :mri"
-  echo
-  exit 1
-fi
+# make sure we can test with libxml-ruby installed
+export BUNDLE_GEMFILE="$(pwd)/Gemfile_test_all"
+cat > $BUNDLE_GEMFILE <<EOF
+gem "libxml-ruby", :platform => :mri
+eval_gemfile File.join(File.dirname(ENV['BUNDLE_GEMFILE']),"Gemfile")
+EOF
 
 # Load RVM into a shell session *as a function*
 if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then

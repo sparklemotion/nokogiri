@@ -15,11 +15,6 @@ else
     echo "ERROR: An RVM installation was not found.\n"
 fi
 
-if grep libxml-ruby Gemfile ; then
-  echo "ERROR: please remove the libxml-ruby line from your Gemfile"
-  exit 1
-fi
-
 set -o errexit
 set -x
 
