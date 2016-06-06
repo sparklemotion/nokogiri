@@ -28,7 +28,7 @@ VALGRIND_LOG=valgrind.log
 # make sure we can test with libxml-ruby installed
 export BUNDLE_GEMFILE="$(pwd)/Gemfile_test_all"
 cat > $BUNDLE_GEMFILE <<EOF
-gem "libxml-ruby", :platform => :mri
+gem "libxml-ruby", :platform => :mri, :require => false
 eval_gemfile File.join(File.dirname(ENV['BUNDLE_GEMFILE']),"Gemfile")
 EOF
 
