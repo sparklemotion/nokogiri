@@ -67,9 +67,9 @@ done
 
 for ruby in $RUBIES ; do
   rvm_use ${ruby}
-  if ! [[ $(bundle -v) =~ "1.10." ]] ; then
+  if ! [[ $(bundle -v) =~ "1.12." ]] ; then
     yes | gem uninstall --force bundler
-    gem install bundler -v 1.10.6
+    gem install bundler -v 1.12.5
     bundle -v
   fi
   bundle install --quiet --local || bundle install
