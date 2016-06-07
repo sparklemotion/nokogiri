@@ -12,11 +12,7 @@ end
 
 Autotest.add_hook :run_command do |at|
   at.unit_diff = 'cat'
-  if ENV['ONENINE']
-    system "rake1.9 compile"
-  else
-    system "rake compile"
-  end
+  system "rake compile"
 end
 
 Autotest.add_hook :ran_command do |at|

@@ -130,12 +130,7 @@ def package_config pkg, options={}
 end
 
 def nokogiri_try_compile
-  args = if defined?(RUBY_VERSION) && RUBY_VERSION <= "1.9.2"
-           ["int main() {return 0;}"]
-         else
-           ["int main() {return 0;}", "", {werror: true}]
-         end
-  try_compile(*args)
+  try_compile "int main() {return 0;}", "", {werror: true}
 end
 
 def check_libxml_version version=nil
@@ -379,14 +374,6 @@ end
 def using_system_libraries?
   arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
 end
-
-#
-# monkey patches
-#
-
-# Workaround for Ruby bug #8074, introduced in Ruby 2.0.0, fixed in Ruby 2.1.0
-# https://bugs.ruby-lang.org/issues/8074
-@libdir_basename = "lib" if RUBY_VERSION < '2.1.0'
 
 #
 # main

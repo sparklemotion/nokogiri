@@ -3,8 +3,6 @@ language: ruby
 sudo: false
 
 rvm:
-- 1.9.2
-- 1.9.3
 - 2.0
 - 2.1
 - 2.2
@@ -21,14 +19,8 @@ matrix:
   allow_failures:
   # https://github.com/travis-ci/travis-ci/issues/5361
   - os: osx
-    rvm: 2.3.0
+    rvm: 2.3
   exclude:
-  - os: osx
-    rvm: 1.9.2
-  - os: osx
-    rvm: 1.9.3
-  - os: osx
-    rvm: 2.0
   - os: osx
     rvm: jruby-1.7
   - os: osx

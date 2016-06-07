@@ -1,6 +1,16 @@
 # 2.0.0 / unreleased
 
 
+## Backwards incompatibilities.
+
+This release ends support for:
+
+* Ruby 1.9.2, for which official support ended on 2014-07-31
+* Ruby 1.9.3, for which official support ended on 2015-02-23
+* Ruby 2.0.0, for which official support ended on 2016-02-24
+
+
+
 
 # 1.6.8 / 2016-06-06
 

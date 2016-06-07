@@ -15,9 +15,6 @@ RUBIES="\
   ruby-2.3 \
   ruby-2.2 \
   ruby-2.1 \
-  ruby-2.0.0-p648 \
-  ruby-1.9.3-p551 \
-  ruby-1.9.2-p330 \
   jruby-9.0.4.0 \
   jruby-1.7.19
   "

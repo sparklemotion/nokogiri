@@ -31,8 +31,6 @@ CrossRuby = Struct.new(:version, :host) {
     case minor_ver
     when nil
       raise "unsupported version: #{ver}"
-    when '1.9'
-      '191'
     else
       minor_ver.delete('.') << '0'
     end
@@ -150,7 +148,7 @@ HOE = Hoe.spec 'nokogiri' do
   else
     self.spec_extras = {
       :extensions => ["ext/nokogiri/extconf.rb"],
-      :required_ruby_version => '>= 1.9.2'
+      :required_ruby_version => '>= 2.1.0'
     }
   end
 
@@ -234,7 +232,7 @@ else
         libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
 
         spec.required_ruby_version = [
-          '>= 1.9.2',
+          '>= 2.1.0',
           "< #{CROSS_RUBIES.max_by(&:ver).minor_ver.succ}"
         ]
 

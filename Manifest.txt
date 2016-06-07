@@ -3,7 +3,7 @@
 .editorconfig
 .gemtest
 .travis.yml
-CHANGELOG.rdoc
+CHANGELOG.md
 CONTRIBUTING.md
 C_CODING_STYLE.rdoc
 Gemfile
