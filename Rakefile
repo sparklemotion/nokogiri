@@ -113,7 +113,7 @@ HOE = Hoe.spec 'nokogiri' do
   license "MIT"
 
   self.readme_file  = "README.md"
-  self.history_file = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
+  self.history_file = "CHANGELOG.md"
 
   self.extra_rdoc_files = FileList['*.rdoc','ext/nokogiri/*.c']
 
