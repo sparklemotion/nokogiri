@@ -390,11 +390,6 @@ RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 # use same c compiler for libxml and libxslt
 ENV['CC'] = RbConfig::MAKEFILE_CONFIG['CC']
 
-# TODO: deprecate MacRuby: https://github.com/sparklemotion/nokogiri/issues/1474
-if defined?(RUBY_ENGINE) && RUBY_ENGINE == 'macruby'
-  $LIBRUBYARG_STATIC.gsub!(/-static/, '')
-end
-
 $LIBS << " #{ENV["LIBS"]}"
 
 # Read CFLAGS from ENV and make sure compiling works.
