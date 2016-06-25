@@ -106,27 +106,28 @@ def do_clean
   exit! 0
 end
 
-# The gem version constraint in the Rakefile is not respected at install time.
-# Keep this version in sync with the one in the Rakefile !
-require 'rubygems'
-gem 'pkg-config', '~> 1.1.7'
-require 'pkg-config'
-message "Using pkg-config version #{PKGConfig::VERSION}\n"
-
 def package_config pkg, options={}
   package = pkg_config(pkg)
   return package if package
 
-  return nil unless PKGConfig.have_package(pkg)
+  begin
+    require 'rubygems'
+    gem 'pkg-config', (gem_ver='~> 1.1.7')
+    require 'pkg-config' and message("Using pkg-config gem version #{PKGConfig::VERSION}\n")
+  rescue LoadError
+    message "pkg-config could not be used to find #{pkg}\nPlease install either `pkg-config` or the pkg-config gem per\n\n    gem install pkg-config -v #{gem_ver.inspect}\n\n"
+  else
+    return nil unless PKGConfig.have_package(pkg)
 
-  cflags  = PKGConfig.cflags(pkg)
-  ldflags = PKGConfig.libs_only_L(pkg)
-  libs    = PKGConfig.libs_only_l(pkg)
+    cflags  = PKGConfig.cflags(pkg)
+    ldflags = PKGConfig.libs_only_L(pkg)
+    libs    = PKGConfig.libs_only_l(pkg)
 
-  Logging::message "PKGConfig package configuration for %s\n", pkg
-  Logging::message "cflags: %s\nldflags: %s\nlibs: %s\n\n", cflags, ldflags, libs
+    Logging::message "PKGConfig package configuration for %s\n", pkg
+    Logging::message "cflags: %s\nldflags: %s\nlibs: %s\n\n", cflags, ldflags, libs
 
-  [cflags, ldflags, libs]
+    [cflags, ldflags, libs]
+  end
 end
 
 def nokogiri_try_compile
