@@ -5,7 +5,6 @@
 source "https://rubygems.org/"
 
 gem "mini_portile2", "~>2.1.0"
-gem "pkg-config", "~>1.1.7"
 
 gem "rdoc", "~>4.0", :group => [:development, :test]
 gem "hoe-bundler", "~>1.2.0", :group => [:development, :test]
