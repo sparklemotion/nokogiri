@@ -43,6 +43,13 @@ module Nokogiri
           assert_equal [['foo', [['a', '&b']]]], doc.start_elements
         end
 
+        def test_keep_entities
+          doc = Doc.new
+          parser = XML::SAX::Parser.new doc
+          parser.parse('<d>&#146;</d>'){|ctx| ctx.replace_entities = false }
+          assert_equal '&#146;', doc.data.join
+        end
+
         def test_xml_decl
           [
             ['', nil],
