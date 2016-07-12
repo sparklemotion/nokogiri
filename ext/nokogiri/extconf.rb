@@ -62,7 +62,7 @@ usage: ruby #{$0} [options]
         Use the zlib library placed under DIR.
 
     --use-system-libraries
-        Use system libraries intead of building and using the bundled
+        Use system libraries instead of building and using the bundled
         libraries.
 
     --with-xml2-dir=DIR / --with-xml2-config=CONFIG
