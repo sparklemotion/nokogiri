@@ -833,37 +833,40 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 static VALUE get(VALUE self, VALUE rattribute)
 {
   xmlNodePtr node;
-  xmlChar* value = 0;
-  VALUE rvalue ;
-  char* attribute = 0;
-  char *colon = 0, *attr_name = 0, *prefix = 0;
+  const xmlChar *value = 0;
+  VALUE rvalue;
+  xmlChar *colon;
+  const xmlChar *attribute, *attr_name, *prefix;
   xmlNsPtr ns;
 
   if (NIL_P(rattribute)) return Qnil;
 
   Data_Get_Struct(self, xmlNode, node);
-  attribute = strdup(StringValueCStr(rattribute));
+  attribute = xmlCharStrdup(StringValueCStr(rattribute));
 
-  colon = strchr(attribute, ':');
+  colon = (xmlChar *)xmlStrchr(attribute, (const xmlChar)':');
   if (colon) {
-    (*colon) = 0 ; /* create two null-terminated strings of the prefix and attribute name */
-    prefix = attribute ;
-    attr_name = colon + 1 ;
-    ns = xmlSearchNs(node->doc, node, (const xmlChar *)(prefix));
+    /* split the attribute string into separate prefix and name by
+     * null-terminating the prefix at the colon */
+    prefix = attribute;
+    attr_name = colon + 1;
+    (*colon) = 0;
+
+    ns = xmlSearchNs(node->doc, node, prefix);
     if (ns) {
-      value = xmlGetNsProp(node, (xmlChar*)(attr_name), ns->href);
+      value = xmlGetNsProp(node, attr_name, ns->href);
     } else {
       value = xmlGetProp(node, (xmlChar*)StringValueCStr(rattribute));
     }
   } else {
-    value = xmlGetNoNsProp(node, (xmlChar*)attribute);
+    value = xmlGetNoNsProp(node, attribute);
   }
 
-  free(attribute);
+  xmlFree((void *)attribute);
   if (!value) return Qnil;
 
   rvalue = NOKOGIRI_STR_NEW2(value);
-  xmlFree(value);
+  xmlFree((void *)value);
 
   return rvalue ;
 }
