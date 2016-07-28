@@ -190,6 +190,17 @@ module Nokogiri
 
       ###
       # Get the inner text of all contained Node objects
+      #
+      # Note: This joins the text of all Node objects in the NodeSet:
+      #
+      #    doc = Nokogiri::XML('<xml><a><d>foo</d><d>bar</d></a></xml>')
+      #    doc.css('d').text # => "foobar"
+      #
+      # Instead, if you want to return the text of all nodes in the NodeSet:
+      #
+      #    doc.css('d').map(&:text) # => ["foo", "bar"]
+      #
+      # See Nokogiri::XML::Node#content for more information.
       def inner_text
         collect(&:inner_text).join('')
       end
