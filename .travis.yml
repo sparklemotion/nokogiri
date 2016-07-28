@@ -20,6 +20,7 @@ matrix:
   # https://github.com/travis-ci/travis-ci/issues/5361
   - os: osx
     rvm: 2.3.1
+    rvm: 2.2.5
   exclude:
   - os: osx
     rvm: jruby-1.7
