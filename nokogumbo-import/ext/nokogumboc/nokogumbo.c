@@ -82,8 +82,11 @@ static VALUE xmlNewDoc(char* version) {
 }
 #endif
 
-// Build a Nokogiri Element for a given GumboElement (recursively)
-static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
+// Build a xmlNodePtr for a given GumboNode (recursively)
+static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node);
+
+// Build a xmlNodePtr for a given GumboElement (recursively)
+static xmlNodePtr walk_element(xmlDocPtr document, GumboElement *node) {
   // determine tag name for a given node
   xmlNodePtr element;
   if (node->tag != GUMBO_TAG_UNKNOWN) {
@@ -151,35 +154,30 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboElement *node) {
   // add in the children
   GumboVector* children = &node->children;
   for (int i=0; i < children->length; i++) {
-    GumboNode* child = children->data[i];
-
-    xmlNodePtr node = NIL;
-
-    switch (child->type) {
-      case GUMBO_NODE_ELEMENT:
-      case GUMBO_NODE_TEMPLATE:
-        node = walk_tree(document, &child->v.element);
-        break;
-      case GUMBO_NODE_WHITESPACE:
-      case GUMBO_NODE_TEXT:
-        node = xmlNewDocText(document, CONST_CAST child->v.text.text);
-        break;
-      case GUMBO_NODE_CDATA:
-        node = xmlNewCDataBlock(document, 
-          CONST_CAST child->v.text.original_text.data,
-          (int) child->v.text.original_text.length);
-        break;
-      case GUMBO_NODE_COMMENT:
-        node = xmlNewDocComment(document, CONST_CAST child->v.text.text);
-        break;
-      case GUMBO_NODE_DOCUMENT:
-        break; // should never happen -- ignore
-    }
-
+    xmlNodePtr node = walk_tree(document, children->data[i]);
     if (node) xmlAddChild(element, node);
   }
 
   return element;
+}
+
+static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node) {
+  switch (node->type) {
+    case GUMBO_NODE_DOCUMENT:
+      return NIL;
+    case GUMBO_NODE_ELEMENT:
+    case GUMBO_NODE_TEMPLATE:
+      return walk_element(document, &node->v.element);
+    case GUMBO_NODE_TEXT:
+    case GUMBO_NODE_WHITESPACE:
+      return xmlNewDocText(document, CONST_CAST node->v.text.text);
+    case GUMBO_NODE_CDATA:
+      return xmlNewCDataBlock(document,
+        CONST_CAST node->v.text.original_text.data,
+        (int) node->v.text.original_text.length);
+    case GUMBO_NODE_COMMENT:
+      return xmlNewDocComment(document, CONST_CAST node->v.text.text);
+  }
 }
 
 // Parse a string using gumbo_parse into a Nokogiri document
@@ -192,14 +190,25 @@ static VALUE parse(VALUE self, VALUE string) {
 #ifdef NGLIB
   doc->type = XML_HTML_DOCUMENT_NODE;
 #endif
-  xmlNodePtr root = walk_tree(doc, &output->root->v.element);
-  xmlDocSetRootElement(doc, root);
   if (output->document->v.document.has_doctype) {
+    const char *name   = output->document->v.document.name;
     const char *public = output->document->v.document.public_identifier;
     const char *system = output->document->v.document.system_identifier;
-    xmlCreateIntSubset(doc, CONST_CAST "html",
-      (strlen(public) ? CONST_CAST public : NIL),
-      (strlen(system) ? CONST_CAST system : NIL));
+    xmlCreateIntSubset(doc, CONST_CAST name,
+      (public[0] ? CONST_CAST public : NIL),
+      (system[0] ? CONST_CAST system : NIL));
+  }
+
+  GumboVector *children = &output->document->v.document.children;
+  for (int i=0; i < children->length; i++) {
+    GumboNode *child = children->data[i];
+    xmlNodePtr node = walk_tree(doc, child);
+    if (node) {
+      if (child == output->root)
+        xmlDocSetRootElement(doc, node);
+      else
+        xmlAddChild((xmlNodePtr)doc, node);
+    }
   }
   gumbo_destroy_output(&kGumboDefaultOptions, output);
 
@@ -227,7 +236,7 @@ void Init_nokogumboc() {
   // interned symbols
   new = rb_intern("new");
   set_attribute = rb_intern("set_attribute");
-  add_child = rb_intern("add_child");
+  add_child = rb_intern("add_child_node_and_reparent_attrs");
   internal_subset = rb_intern("internal_subset");
   remove_ = rb_intern("remove");
   create_internal_subset = rb_intern("create_internal_subset");
