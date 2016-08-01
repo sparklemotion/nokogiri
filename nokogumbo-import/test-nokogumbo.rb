@@ -120,6 +120,11 @@ class TestNokogumbo < Minitest::Test
     assert_equal "record", template.at('td')['class']
   end
 
+  def test_root_comments
+    doc = Nokogiri::HTML5("<!DOCTYPE html><!-- start --><html></html><!-- -->")
+    assert_equal ["html", "comment", "html", "comment"], doc.children.map(&:name)
+  end
+
 private
 
   def buffer
