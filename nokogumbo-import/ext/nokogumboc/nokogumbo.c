@@ -20,9 +20,12 @@
 
 #include <ruby.h>
 #include <gumbo.h>
+#include <error.h>
+#include <parser.h>
 
 // class constants
 static VALUE Document;
+static VALUE XMLSyntaxError;
 
 #ifdef NGLIB
 #include <nokogiri.h>
@@ -182,10 +185,10 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node) {
 
 // Parse a string using gumbo_parse into a Nokogiri document
 static VALUE parse(VALUE self, VALUE string) {
-  GumboOutput *output = gumbo_parse_with_options(
-    &kGumboDefaultOptions, RSTRING_PTR(string),
-    (size_t) RSTRING_LEN(string)
-  );
+  const GumboOptions *options = &kGumboDefaultOptions;
+  const char *input = RSTRING_PTR(string);
+  size_t input_len = RSTRING_LEN(string);
+  GumboOutput *output = gumbo_parse_with_options(options, input, input_len);
   xmlDocPtr doc = xmlNewDoc(CONST_CAST "1.0");
 #ifdef NGLIB
   doc->type = XML_HTML_DOCUMENT_NODE;
@@ -210,9 +213,42 @@ static VALUE parse(VALUE self, VALUE string) {
         xmlAddChild((xmlNodePtr)doc, node);
     }
   }
-  gumbo_destroy_output(&kGumboDefaultOptions, output);
 
-  return Nokogiri_wrap_xml_document(Document, doc);
+  VALUE rdoc = Nokogiri_wrap_xml_document(Document, doc);
+
+  // Add parse errors to rdoc.
+  if (output->errors.length) {
+    GumboVector *errors = &output->errors;
+    GumboParser parser = { ._options = options };
+    GumboStringBuffer msg;
+    VALUE rerrors = rb_ary_new2(errors->length);
+
+    gumbo_string_buffer_init(&parser, &msg);
+    for (int i=0; i < errors->length; i++) {
+      GumboError *err = errors->data[i];
+      gumbo_string_buffer_clear(&parser, &msg);
+      gumbo_caret_diagnostic_to_string(&parser, err, input, &msg);
+      VALUE err_str = rb_str_new(msg.data, msg.length);
+      VALUE syntax_error = rb_class_new_instance(1, &err_str, XMLSyntaxError);
+      rb_iv_set(syntax_error, "@domain", INT2NUM(1)); // XML_FROM_PARSER
+      rb_iv_set(syntax_error, "@code", INT2NUM(1));   // XML_ERR_INTERNAL_ERROR
+      rb_iv_set(syntax_error, "@level", INT2NUM(2));  // XML_ERR_ERROR
+      rb_iv_set(syntax_error, "@file", Qnil);
+      rb_iv_set(syntax_error, "@line", INT2NUM(err->position.line));
+      rb_iv_set(syntax_error, "@str1", Qnil);
+      rb_iv_set(syntax_error, "@str2", Qnil);
+      rb_iv_set(syntax_error, "@str3", Qnil);
+      rb_iv_set(syntax_error, "@int1", INT2NUM(err->type));
+      rb_iv_set(syntax_error, "@column", INT2NUM(err->position.column));
+      rb_ary_push(rerrors, syntax_error);
+    }
+    rb_iv_set(rdoc, "@errors", rerrors);
+    gumbo_string_buffer_destroy(&parser, &msg);
+  }
+
+  gumbo_destroy_output(options, output);
+
+  return rdoc;
 }
 
 // Initialize the Nokogumbo class and fetch constants we will use later
@@ -224,10 +260,11 @@ void Init_nokogumboc() {
   VALUE Nokogiri = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
   VALUE HTML = rb_const_get(Nokogiri, rb_intern("HTML"));
   Document = rb_const_get(HTML, rb_intern("Document"));
+  VALUE XML = rb_const_get(Nokogiri, rb_intern("XML"));
+  XMLSyntaxError = rb_const_get(XML, rb_intern("SyntaxError"));
 
 #ifndef NGLIB
   // more class constants
-  VALUE XML = rb_const_get(Nokogiri, rb_intern("XML"));
   Element = rb_const_get(XML, rb_intern("Element"));
   Text = rb_const_get(XML, rb_intern("Text"));
   CDATA = rb_const_get(XML, rb_intern("CDATA"));
