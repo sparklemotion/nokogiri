@@ -125,6 +125,13 @@ class TestNokogumbo < Minitest::Test
     assert_equal ["html", "comment", "html", "comment"], doc.children.map(&:name)
   end
 
+  def test_parse_errors
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- -- --></a>")
+    assert_equal doc.errors.length, 2
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html>")
+    assert_empty doc.errors
+  end
+
 private
 
   def buffer
