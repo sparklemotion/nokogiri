@@ -210,6 +210,7 @@ lib/nokogiri/xml/character_data.rb
 lib/nokogiri/xml/document.rb
 lib/nokogiri/xml/document_fragment.rb
 lib/nokogiri/xml/dtd.rb
+lib/nokogiri/xml/element.rb
 lib/nokogiri/xml/element_content.rb
 lib/nokogiri/xml/element_decl.rb
 lib/nokogiri/xml/entity_decl.rb
@@ -335,6 +336,7 @@ test/xml/test_document_encoding.rb
 test/xml/test_document_fragment.rb
 test/xml/test_dtd.rb
 test/xml/test_dtd_encoding.rb
+test/xml/test_element.rb
 test/xml/test_element_content.rb
 test/xml/test_element_decl.rb
 test/xml/test_entity_decl.rb
