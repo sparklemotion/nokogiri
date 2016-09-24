@@ -22,7 +22,7 @@ the historical record:
 * [A nokogiri-talk thread](http://groups.google.com/group/nokogiri-talk/browse_thread/thread/4706b002e492d23f)
 * [Another nokogiri-talk thread](http://groups.google.com/group/nokogiri-talk/browse_thread/thread/0b201bb80ea3eea0)
 
-Sometimes people imply that we've forgotten, or that we don't how to
+Sometimes people imply that we've forgotten, or that we don't know how to
 properly manage our codebase. Those people are super fun to respond
 to!
 
