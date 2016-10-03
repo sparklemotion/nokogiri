@@ -29,6 +29,8 @@ matrix:
     rvm: jruby
   - os: osx
     rvm: rbx
+  - os: linux
+    rvm: rbx
 
 notifications:
   irc:
