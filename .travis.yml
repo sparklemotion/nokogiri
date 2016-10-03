@@ -22,14 +22,14 @@ matrix:
     rvm: 2.2.5
   - os: osx
     rvm: 2.3.1
+  - os: linux
+    rvm: rbx
   exclude:
   - os: osx
     rvm: jruby-1.7
   - os: osx
     rvm: jruby
   - os: osx
-    rvm: rbx
-  - os: linux
     rvm: rbx
 
 notifications:
