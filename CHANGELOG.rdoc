@@ -1,3 +1,16 @@
+=== 1.6.8.1 / 2016-10-03
+
+==== Dependency License Notes
+
+Removes required dependency on the `pkg-config` gem. This dependency
+was introduced in v1.6.8 and, because it's distributed under LGPL, was
+objectionable to many Nokogiri users (#1488, #1496).
+
+This version makes `pkg-config` an optional dependency. If it's
+installed, it's used; but otherwise Nokogiri will attempt to work
+around its absence.
+
+
 === 1.6.8 / 2016-06-06
 
 ==== Security Notes
