@@ -548,9 +548,8 @@ public class NokogiriHelpers {
     }
 
     private static boolean nodesAreEqual(Object a, Object b) {
-      return (((a == null) && (a == null)) ||
-                (a != null) && (b != null) &&
-                (b.equals(a)));
+        return (((a == null) && (b == null)) ||
+                ((a != null) && (b != null) && (b.equals(a))));
     }
 
     private static Pattern encoded_pattern = Pattern.compile("&amp;|&gt;|&lt;|&#13;");
