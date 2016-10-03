@@ -16,7 +16,6 @@ else
 fi
 
 set -o errexit
-set -x
 
 rm -rf tmp pkg
 bundle exec rake clean clobber
