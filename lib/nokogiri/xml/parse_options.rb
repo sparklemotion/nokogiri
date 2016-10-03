@@ -7,11 +7,11 @@ module Nokogiri
     # You can build your own combinations of these parse options by using any of the following methods:
     # *Note*: All examples attempt to set the +RECOVER+ & +NOENT+ options. All examples use Ruby 2 optional parameter syntax.
     # [Ruby's bitwise operators] You can use the Ruby bitwise operators to set various combinations.
-    #   <code>Nokogiri.XML('<content>Chapter 1</content', options: Nokogiri::XML::ParseOptions.new((1 << 0) | (1 << 1)))</code>
+    #   Nokogiri.XML('<content>Chapter 1</content', options: Nokogiri::XML::ParseOptions.new((1 << 0) | (1 << 1)))
     # [Method chaining] Every option has an equivalent method in lowercase. You can chain these methods together to set various combinations.
-    #   <code>Nokogiri.XML('<content>Chapter 1</content', options: Nokogiri::XML::ParseOptions.new.recover.noent)</code>
+    #   Nokogiri.XML('<content>Chapter 1</content', options: Nokogiri::XML::ParseOptions.new.recover.noent)
     # [Using Ruby Blocks] You can also setup parse combinations in the block passed to Nokogiri.XML or Nokogiri.HTML
-    #   <code>Nokogiri.XML('<content>Chapter 1</content') {|config| config.recover.noent}</code>
+    #   Nokogiri.XML('<content>Chapter 1</content') {|config| config.recover.noent}
     #
     # == Removing particular parse options
     # You can also remove options from an instance of +ParseOptions+ dynamically.
