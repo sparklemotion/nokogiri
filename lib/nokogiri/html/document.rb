@@ -161,7 +161,7 @@ module Nokogiri
         # Nokogiri::XML::ParseOptions.
         def parse string_or_io, url = nil, encoding = nil, options = XML::ParseOptions::DEFAULT_HTML
 
-          options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
+          options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
           # Give the options to the user
           yield options if block_given?
 

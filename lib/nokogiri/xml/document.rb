@@ -41,7 +41,7 @@ module Nokogiri
       # Nokogiri.XML() is a convenience method which will call this method.
       #
       def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
-        options = Nokogiri::XML::ParseOptions.new(options) if Fixnum === options
+        options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
         # Give the options to the user
         yield options if block_given?
 
