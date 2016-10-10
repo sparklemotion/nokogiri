@@ -15,8 +15,8 @@ gem "minitest", "~>5.8.4", :group => [:development, :test]
 gem "rake", "~>10.5.0", :group => [:development, :test]
 gem "rake-compiler", "~>0.9.2", :group => [:development, :test]
 gem "rake-compiler-dock", "~>0.5.1", :group => [:development, :test]
-gem "racc", "~>1.4.14", :group => [:development, :test], :platform => :ruby
-gem "rexical", "~>1.0.5", :group => [:development, :test], :platform => :ruby
+gem "racc", "~>1.4.14", :group => [:development, :test], :platform => [:ruby, :mingw, :x64_mingw]
+gem "rexical", "~>1.0.5", :group => [:development, :test], :platform => [:ruby, :mingw, :x64_mingw]
 gem "hoe", "~>3.14", :group => [:development, :test]
 
 # vim: syntax=ruby
