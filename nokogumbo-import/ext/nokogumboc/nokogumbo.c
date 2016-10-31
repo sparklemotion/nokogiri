@@ -19,9 +19,9 @@
 //
 
 #include <ruby.h>
-#include <gumbo.h>
-#include <error.h>
-#include <parser.h>
+#include "gumbo.h"
+#include "error.h"
+#include "parser.h"
 
 // class constants
 static VALUE Document;
