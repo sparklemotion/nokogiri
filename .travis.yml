@@ -1,6 +1,7 @@
 language: ruby
-
-sudo: false
+dist: trusty
+group: beta
+sudo: required
 
 rvm:
 - 2.0
@@ -9,7 +10,7 @@ rvm:
 - 2.3.1
 - jruby-1.7
 - jruby
-- rbx
+- rbx-3
 
 os:
 - linux
@@ -23,14 +24,14 @@ matrix:
   - os: osx
     rvm: 2.3.1
   - os: linux
-    rvm: rbx
+    rvm: rbx-3
   exclude:
   - os: osx
     rvm: jruby-1.7
   - os: osx
     rvm: jruby
   - os: osx
-    rvm: rbx
+    rvm: rbx-3
 
 notifications:
   irc:
