@@ -26,7 +26,7 @@ if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
 end
 
 begin
-  RUBY_VERSION =~ /(\d+.\d+)/
+  RUBY_VERSION =~ /(\d+\.\d+)/
   require "nokogiri/#{$1}/nokogiri"
 rescue LoadError
   require 'nokogiri/nokogiri'
