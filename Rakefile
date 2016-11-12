@@ -230,9 +230,10 @@ else
       ext.cross_compiling do |spec|
         libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
 
+        cross_rubies = CROSS_RUBIES.select{|r| r.platform == spec.platform.to_s }
         spec.required_ruby_version = [
-          '>= 2.1.0',
-          "< #{CROSS_RUBIES.max_by(&:ver).minor_ver.succ}"
+          ">= #{cross_rubies.min_by(&:ver).minor_ver}",
+          "< #{cross_rubies.max_by(&:ver).minor_ver.succ}"
         ]
 
         spec.post_install_message = <<-EOS
