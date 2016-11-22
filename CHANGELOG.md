@@ -1,4 +1,9 @@
-# 2.0.0 / unreleased
+# 1.7.0 / unreleased
+
+## Features
+
+* Remove deprecation warnings in Ruby 2.4.0 (#1545) (Thanks, @matthewd!)
+
 
 ## Backwards incompatibilities.
 
