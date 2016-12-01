@@ -391,7 +391,7 @@ when arg_config('--clean')
   do_clean
 end
 
-if openbsd?
+if openbsd? && !ENV['CC']
   unless find_executable 'egcc'
     message "please install gcc 4.9+ from ports using `pkg_add -v gcc`\n"
     exit! 1
