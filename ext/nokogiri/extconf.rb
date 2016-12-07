@@ -391,16 +391,12 @@ when arg_config('--clean')
   do_clean
 end
 
-if openbsd? && !ENV['CC']
-  unless find_executable 'egcc'
-    message "please install gcc 4.9+ from ports using `pkg_add -v gcc`\n"
-    exit! 1
-  end
-  RbConfig::MAKEFILE_CONFIG['CC'] = find_executable 'egcc'
-elsif ENV['CC']
-  RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC']
+if openbsd?
+  ENV['CC'] ||= find_executable('egcc')
+    abort "Please install gcc 4.9+ from ports using `pkg_add -v gcc`"
 end
 
+RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 # use same c compiler for libxml and libxslt
 ENV['CC'] = RbConfig::MAKEFILE_CONFIG['CC']
 
