@@ -41,7 +41,7 @@ public class NokogiriEncodingReaderWrapper extends InputStream {
     this.encodingReader = encodingReader;
     this.ruby = context.getRuntime();
 
-    if (!RuntimeHelpers.invoke(context, encodingReader, "respond_to?", ruby.newSymbol("read").to_sym()).isTrue()
+    if (!RuntimeHelpers.invoke(context, encodingReader, "respond_to?", ruby.newSymbol("read")).isTrue()
         || encodingReader.getInstanceVariable("@io") == null) {
       throw ruby.newArgumentError("Argument doesn't respond to read or doesn't have instance variable @io");
     }

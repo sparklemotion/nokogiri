@@ -98,8 +98,7 @@ public class ParserContext extends RubyObject {
           return;
 
         RubyString stringData = null;
-        if (invoke(context, data, "respond_to?",
-                   ruby.newSymbol("to_io").to_sym()).isTrue()) {
+        if (invoke(context, data, "respond_to?", ruby.newSymbol("to_io")).isTrue()) {
             RubyIO io =
                 (RubyIO) TypeConverter.convertToType(data,
                                                      ruby.getIO(),
@@ -107,20 +106,17 @@ public class ParserContext extends RubyObject {
             // use unclosedable input stream to fix #495
             source.setByteStream(new UncloseableInputStream(io.getInStream()));
 
-        } else if (invoke(context, data, "respond_to?",
-                          ruby.newSymbol("read").to_sym()).isTrue()) {
+        } else if (invoke(context, data, "respond_to?", ruby.newSymbol("read")).isTrue()) {
             stringData = invoke(context, data, "read").convertToString();
 
-        } else if (invoke(context, data, "respond_to?",
-                          ruby.newSymbol("string").to_sym()).isTrue()) {
+        } else if (invoke(context, data, "respond_to?", ruby.newSymbol("string")).isTrue()) {
             stringData = invoke(context, data, "string").convertToString();
 
         } else if (data instanceof RubyString) {
             stringData = (RubyString) data;
 
         } else {
-            throw ruby.newArgumentError(
-                "must be kind_of String or respond to :to_io, :read, or :string");
+            throw ruby.newArgumentError("must be kind_of String or respond to :to_io, :read, or :string");
         }
 
         if (stringData != null) {
