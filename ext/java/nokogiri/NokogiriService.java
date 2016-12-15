@@ -72,8 +72,6 @@ public class NokogiriService implements BasicLibraryService {
         MonkeyPatchHTMLElements.patchIt();
     }
 
-    public static final String nokogiriClassCacheGvarName = "$NOKOGIRI_CLASS_CACHE";
-
     public boolean basicLoad(Ruby ruby) {
         init(ruby);
         return true;
@@ -84,7 +82,7 @@ public class NokogiriService implements BasicLibraryService {
     }
 
     private static Map<String, RubyClass> populateNokogiriClassCahce(Ruby ruby) {
-        Map<String, RubyClass> nokogiriClassCache = Collections.synchronizedMap(new HashMap<String, RubyClass>());
+        Map<String, RubyClass> nokogiriClassCache = new HashMap<String, RubyClass>();
         nokogiriClassCache.put("Nokogiri::EncodingHandler", (RubyClass)ruby.getClassFromPath("Nokogiri::EncodingHandler"));
         nokogiriClassCache.put("Nokogiri::HTML::Document", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::Document"));
         nokogiriClassCache.put("Nokogiri::HTML::ElementDescription", (RubyClass)ruby.getClassFromPath("Nokogiri::HTML::ElementDescription"));
@@ -111,8 +109,8 @@ public class NokogiriService implements BasicLibraryService {
         nokogiriClassCache.put("Nokogiri::XML::XPathContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::XPathContext"));
         nokogiriClassCache.put("Nokogiri::XML::AttributeDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::AttributeDecl"));
         nokogiriClassCache.put("Nokogiri::XML::SAX::ParserContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::ParserContext"));
-        nokogiriClassCache.put("StringIO", (RubyClass)ruby.getClassFromPath("StringIO"));
-        return nokogiriClassCache;
+        nokogiriClassCache.put("StringIO", (RubyClass)ruby.getClassFromPath("StringIO")); // no longer used
+        return Collections.unmodifiableMap(nokogiriClassCache);
     }
 
     private void init(Ruby ruby) {
