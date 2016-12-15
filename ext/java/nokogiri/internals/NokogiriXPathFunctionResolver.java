@@ -45,20 +45,13 @@ import org.jruby.runtime.builtin.IRubyObject;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
-    private static NokogiriXPathFunctionResolver resolver;
+
     private IRubyObject handler;
     
     public static NokogiriXPathFunctionResolver create(IRubyObject handler) {
-        if (resolver == null) resolver = new NokogiriXPathFunctionResolver();
-        try {
-            NokogiriXPathFunctionResolver clone = (NokogiriXPathFunctionResolver) resolver.clone();
-            clone.setHandler(handler);
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            NokogiriXPathFunctionResolver freshResolver = new NokogiriXPathFunctionResolver();
-            freshResolver.setHandler(handler);
-            return freshResolver;
-        }
+        NokogiriXPathFunctionResolver freshResolver = new NokogiriXPathFunctionResolver();
+        freshResolver.setHandler(handler);
+        return freshResolver;
     }
     
     private NokogiriXPathFunctionResolver() {}

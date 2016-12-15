@@ -42,18 +42,11 @@ import javax.xml.xpath.XPathVariableResolver;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriXPathVariableResolver implements XPathVariableResolver {
-    private static NokogiriXPathVariableResolver resolver;
-    private HashMap<QName,String> variables = new HashMap<QName,String>();
+
+    private final HashMap<QName,String> variables = new HashMap<QName,String>();
 
     public static NokogiriXPathVariableResolver create() {
-        if (resolver == null) resolver = new NokogiriXPathVariableResolver();
-        try {
-            NokogiriXPathVariableResolver clone = (NokogiriXPathVariableResolver) resolver.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            NokogiriXPathVariableResolver freshResolver = new NokogiriXPathVariableResolver();
-            return freshResolver;
-        }
+        return new NokogiriXPathVariableResolver();
     }
     
     private NokogiriXPathVariableResolver() {}
