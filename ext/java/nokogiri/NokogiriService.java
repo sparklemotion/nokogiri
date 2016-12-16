@@ -109,7 +109,6 @@ public class NokogiriService implements BasicLibraryService {
         nokogiriClassCache.put("Nokogiri::XML::XPathContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::XPathContext"));
         nokogiriClassCache.put("Nokogiri::XML::AttributeDecl", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::AttributeDecl"));
         nokogiriClassCache.put("Nokogiri::XML::SAX::ParserContext", (RubyClass)ruby.getClassFromPath("Nokogiri::XML::SAX::ParserContext"));
-        nokogiriClassCache.put("StringIO", (RubyClass)ruby.getClassFromPath("StringIO")); // no longer used
         return Collections.unmodifiableMap(nokogiriClassCache);
     }
 
@@ -551,13 +550,13 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    private static ObjectAllocator XML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator() {
+    private static final ObjectAllocator XML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             return new XmlSaxPushParser(runtime, klazz);
         }
     };
-    
-    private static ObjectAllocator HTML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator() {
+
+    private static final ObjectAllocator HTML_SAXPUSHPARSER_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             return new HtmlSaxPushParser(runtime, klazz);
         }
