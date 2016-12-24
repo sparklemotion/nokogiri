@@ -239,6 +239,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void comment(char[] ch, int start, int length) throws SAXException {
+        populateCharacters();
         call("comment", ruby.newString(new String(ch, start, length)));
     }
 

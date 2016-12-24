@@ -131,7 +131,7 @@ module Nokogiri
 
           @processing_instructions = []
 
-          @calls = []
+          @calls = Calls.new
 
           super
         end
@@ -212,16 +212,59 @@ module Nokogiri
           super
         end
 
-        def select_calls methods
-          @calls.select do |call|
-            methods.include? call.keys.first
-          end
-        end
-
         protected
 
         def add_call *args
-          @calls << { caller_locations[0].label.to_sym => args }
+          @calls.append caller_locations[0].label, args
+        end
+      end
+
+      class Calls
+        attr_reader :items
+
+        def initialize
+          # [
+          #   [ :method_1, args ],
+          #   [ :method_2, args ],
+          #   ...
+          # ]
+          @items = []
+        end
+
+        def select! methods
+          @items = @items.select do |item|
+            methods.include? item[0]
+          end
+        end
+
+        def cut! element_name
+          is_inside_element = false
+          @items = @items.select do |item|
+            if item[1][0] == element_name
+              if item[0] == :start_element
+                is_inside_element = true
+                next false
+              elsif item[0] == :end_element
+                is_inside_element = false
+              end
+            end
+            is_inside_element
+          end
+        end
+
+        def strip_text!
+          @items.each do |item|
+            if item[0] == :characters or item[0] == :comment
+              args = item[1]
+              args.each do |arg|
+                arg.strip!
+              end
+            end
+          end
+        end
+
+        def append method, args
+          @items << [method.to_sym, args]
         end
       end
     end
