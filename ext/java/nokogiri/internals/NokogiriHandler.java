@@ -38,7 +38,6 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.util.LinkedList;
-import java.util.Stack;
 
 import nokogiri.XmlSyntaxError;
 
