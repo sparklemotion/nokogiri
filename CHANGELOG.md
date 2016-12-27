@@ -1,8 +1,9 @@
-# 1.7.0 / unreleased
+# 1.7.0 / 2016-12-26
 
 ## Features
 
 * Remove deprecation warnings in Ruby 2.4.0 (#1545) (Thanks, @matthewd!)
+* Support egcc compiler on OpenBSD (#1543) (Thanks, @frenkel and @knu!)
 
 
 ## Backwards incompatibilities.
