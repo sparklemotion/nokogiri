@@ -12,10 +12,11 @@
 
 # I'd add rubinius, but rvm errors when building it on my machine. :(
 RUBIES="\
+  ruby-2.4 \
   ruby-2.3 \
   ruby-2.2 \
   ruby-2.1 \
-  jruby-9.0.4.0 \
+  jruby-9.1.6.0 \
   jruby-1.7.19
   "
 
