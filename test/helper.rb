@@ -237,7 +237,7 @@ module Nokogiri
           end
         end
 
-        def cut! element_name
+        def filter! element_name
           is_inside_element = false
           @items = @items.select do |item|
             if item[1][0] == element_name

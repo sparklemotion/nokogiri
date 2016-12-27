@@ -30,7 +30,7 @@ module Nokogiri
 
           @parser.parse html
           calls = @doc.calls
-          calls.cut! "body"
+          calls.filter! "body"
           calls.select! [:start_element, :end_element, :characters]
           calls.strip_text!
 
@@ -73,7 +73,7 @@ module Nokogiri
 
           @parser.parse html
           calls = @doc.calls
-          calls.cut! "body"
+          calls.filter! "body"
           calls.select! [:start_element, :end_element, :characters]
           calls.strip_text!
 
@@ -125,7 +125,7 @@ module Nokogiri
 
           @parser.parse html
           calls = @doc.calls
-          calls.cut! "body"
+          calls.filter! "body"
           calls.select! [:start_element, :end_element, :characters, :comment]
           calls.strip_text!
 
