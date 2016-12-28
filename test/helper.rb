@@ -215,7 +215,8 @@ module Nokogiri
         protected
 
         def add_call *args
-          @calls.append caller_locations[0].label, args
+          # ruby 1.8+
+          @calls.append caller[0][/`([^']*)'/, 1], args
         end
       end
 
