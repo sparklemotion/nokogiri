@@ -136,7 +136,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["hoe-git",            "~> 1.6.0"],
     ["minitest",           "~> 5.8.4"],
     ["rake",               "~> 10.5.0"],
-    ["rake-compiler",      "~> 0.9.2"],
+    ["rake-compiler",      "~> 1.0.3"],
     ["rake-compiler-dock", "~> 0.6.0"],
     ["racc",               "~> 1.4.14"],
     ["rexical",            "~> 1.0.5"]
@@ -229,11 +229,6 @@ else
       ext.cross_config_options << "--enable-cross-build"
       ext.cross_compiling do |spec|
         libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
-
-        spec.required_ruby_version = [
-          '>= 2.1.0',
-          "< #{CROSS_RUBIES.max_by(&:ver).minor_ver.succ}"
-        ]
 
         spec.post_install_message = <<-EOS
 Nokogiri is built with the packaged libraries: #{libs}.
