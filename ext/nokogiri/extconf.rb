@@ -392,7 +392,7 @@ when arg_config('--clean')
 end
 
 if openbsd?
-  ENV['CC'] ||= find_executable('egcc')
+  ENV['CC'] ||= find_executable('egcc') or
     abort "Please install gcc 4.9+ from ports using `pkg_add -v gcc`"
 end
 
