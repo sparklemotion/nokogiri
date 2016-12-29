@@ -393,7 +393,7 @@ end
 
 if openbsd?
   ENV['CC'] ||= find_executable('egcc')
-    abort "Please install gcc 4.9+ from ports using `pkg_add -v gcc`"
+  abort "Please install gcc 4.9+ from ports using `pkg_add -v gcc`" if !ENV['CC']
 end
 
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
