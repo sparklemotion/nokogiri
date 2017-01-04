@@ -1,3 +1,10 @@
+# 1.7.0.1 / 2017-01-04
+
+## Bugs
+
+* Fix OpenBSD support. (#1569) (related to #1543)
+
+
 # 1.7.0 / 2016-12-26
 
 ## Features
