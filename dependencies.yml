@@ -19,8 +19,8 @@ libxslt:
   # Primary key fingerprint: C744 15BA 7C9C 7F78 F02E  1DC3 4606 B8A5 DE95 BC1F
 
 zlib:
-  version: "1.2.8"
-  md5: "44d667c142d7cda120332623eab69f40"
+  version: "1.2.10"
+  md5: "d9794246f853d15ce0fcbf79b9a3cf13"
 
 libiconv:
   version: "1.14"
