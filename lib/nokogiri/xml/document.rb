@@ -33,10 +33,11 @@ module Nokogiri
       # +block+ (optional) is passed a configuration object on which
       # parse options may be set.
       #
-      # When parsing untrusted documents, it's recommended that the
-      # +nonet+ option be used, as shown in this example code:
-      #
-      #   Nokogiri::XML::Document.parse(xml_string) { |config| config.nonet }
+      # By default, Nokogiri treats documents as untrusted, and so
+      # does not attempt to load DTDs or access the network. See
+      # Nokogiri::XML::ParseOptions for a complete list of options;
+      # and that module's DEFAULT_XML constant for what's set (and not
+      # set) by default.
       #
       # Nokogiri.XML() is a convenience method which will call this method.
       #
