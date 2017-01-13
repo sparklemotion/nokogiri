@@ -1,3 +1,21 @@
+# 1.7.1 / unreleased
+
+## Dependencies
+
+* Upgrade zlib from 1.2.8 to 1.2.10 (unless --use-system-libraries)
+
+
+## Features
+
+* [JRuby] remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
+* [JRuby] remove unnecessary cloning of objects in XPath searches [#1563] (Thanks, @kares!)
+
+
+## Bugs
+
+* [MRI] on OpenBSD, do not require gcc if using system libraries [#151] (Thanks, @jeremyevans!)
+
+
 # 1.7.0.1 / 2017-01-04
 
 ## Bugs
