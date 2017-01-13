@@ -490,11 +490,11 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
         // If the input buffer starts with a root slash "/" then move this
         // character to the output buffer.
         if (input.charAt(0) == '/') {
-            output.append("/");
+            output.append('/');
             input = input.substring(1);
         }
 
-        printStep("1 ", output.toString(), input);
+        printStep("1 ", output, input);
 
         // While the input buffer is not empty, loop as follows
         while (input.length() != 0) {
@@ -506,23 +506,23 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
             // remove that prefix
             if (input.startsWith("./")) {
                 input = input.substring(2);
-                printStep("2A", output.toString(), input);
+                printStep("2A", output, input);
             } else if (input.startsWith("../")) {
                 input = input.substring(3);
                 if (!output.toString().equals("/")) {
                     output.append("../");
                 }
-                printStep("2A", output.toString(), input);
+                printStep("2A", output, input);
                 // 2B. if the input buffer begins with a prefix of "/./" or "/.",
                 // where "." is a complete path segment, then replace that prefix
                 // with "/" in the input buffer; otherwise,
             } else if (input.startsWith("/./")) {
                 input = input.substring(2);
-                printStep("2B", output.toString(), input);
+                printStep("2B", output, input);
             } else if (input.equals("/.")) {
                 // FIXME: what is complete path segment?
                 input = input.replaceFirst("/.", "/");
-                printStep("2B", output.toString(), input);
+                printStep("2B", output, input);
                 // 2C. if the input buffer begins with a prefix of "/../" or "/..",
                 // where ".." is a complete path segment, then replace that prefix
                 // with "/" in the input buffer and if also the output buffer is
@@ -552,7 +552,7 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
                         output = output.delete(index, output.length());
                     }
                 }
-                printStep("2C", output.toString(), input);
+                printStep("2C", output, input);
             } else if (input.equals("/..")) {
                 // FIXME: what is complete path segment?
                 input = input.replaceFirst("/..", "/");
@@ -573,7 +573,7 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
                         output = output.delete(index, output.length());
                     }
                 }
-                printStep("2C", output.toString(), input);
+                printStep("2C", output, input);
                 // 2D. if the input buffer consists only of ".", then remove
                 // that from the input buffer else if the input buffer consists
                 // only of ".." and if the output buffer does not contain only
@@ -581,13 +581,13 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
                 // else delte it.; otherwise,
             } else if (input.equals(".")) {
                 input = "";
-                printStep("2D", output.toString(), input);
+                printStep("2D", output, input);
             } else if (input.equals("..")) {
                 if (!output.toString().equals("/")) {
                     output.append("..");
                 }
                 input = "";
-                printStep("2D", output.toString(), input);
+                printStep("2D", output, input);
                 // 2E. move the first path segment (if any) in the input buffer
                 // to the end of the output buffer, including the initial "/"
                 // character (if any) and any subsequent characters up to, but not
@@ -610,7 +610,7 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
                     input = input.substring(end);
                 }
                 output.append(segment);
-                printStep("2E", output.toString(), input);
+                printStep("2E", output, input);
             }
         }
 
@@ -619,21 +619,22 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
         // then append a slash "/". The output buffer is returned as the result
         // of remove_dot_segments
         if (output.toString().endsWith("..")) {
-            output.append("/");
-            printStep("3 ", output.toString(), input);
+            output.append('/');
+            printStep("3 ", output, input);
         }
 
         return output.toString();
     }
 
-    private static void printStep(String step, String output, String input) {
-        if (System.getProperty("nokogiri.c14.debug") == "on") {
-            System.out.println(" " + step + ":   " + output);
-            if (output.length() == 0) {
-                System.out.println("\t\t\t\t" + input);
-            } else {
-                System.out.println("\t\t\t" + input);
-            }
-        }
+    private static void printStep(String step, StringBuilder output, String input) {
+        //if (System.getProperty("nokogiri.c14.debug") == "on") { //
+        //    System.out.println(" " + step + ":   " + output);
+        //    if (output.length() == 0) {
+        //        System.out.println("\t\t\t\t" + input);
+        //    } else {
+        //        System.out.println("\t\t\t" + input);
+        //    }
+        //}
     }
+
 }
