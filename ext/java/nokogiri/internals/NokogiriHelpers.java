@@ -32,6 +32,7 @@
 
 package nokogiri.internals;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
@@ -309,14 +310,13 @@ public class NokogiriHelpers {
         ByteBuffer buf = ByteBuffer.wrap(data, offset, len);
         return getCharsetUTF8().decode(buf).toString();
     }
-    
-    public static List<String> rubyStringArrayToJavaList(RubyArray ary) {
-        List<String> list = new ArrayList<String>();
-        for (int i=0; i < ary.getLength(); i++) {
-            Object obj = ary.get(i);
-            if (obj != null) list.add(obj.toString());
+
+    public static ByteArrayInputStream stringBytesToStream(final IRubyObject str) {
+        if (str instanceof RubyString || str.respondsTo("to_str")) {
+            final ByteList bytes = str.convertToString().getByteList();
+            return new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length());
         }
-        return list;
+        return null;
     }
 
     public static String getNodeCompletePath(Node node) {

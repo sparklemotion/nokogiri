@@ -575,7 +575,7 @@ public class XmlDocument extends XmlNode {
      */
     @JRubyMethod(optional=3)
     public IRubyObject canonicalize(ThreadContext context, IRubyObject[] args, Block block) {
-        Integer mode = 0;
+        int mode = 0;
         String inclusive_namespace = null;
         Boolean with_comments = false;
         if (args.length > 0 && !(args[0].isNil())) {
@@ -586,7 +586,7 @@ public class XmlDocument extends XmlNode {
                 throw context.getRuntime().newTypeError("Expected array");
             }
             if (!args[1].isNil()) {
-              inclusive_namespace = (String)((RubyArray)args[1])
+              inclusive_namespace = ((RubyArray)args[1])
                 .join(context, context.getRuntime().newString(" "))
                 .asString()
                 .asJavaString(); // OMG I wish I knew JRuby better, this is ugly

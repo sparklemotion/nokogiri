@@ -46,6 +46,7 @@ import java.util.concurrent.ThreadFactory;
 
 import nokogiri.internals.ClosedStreamException;
 import nokogiri.internals.NokogiriBlockingQueueInputStream;
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.ParserContext;
 
 import org.jruby.Ruby;
@@ -58,6 +59,7 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
 import org.xml.sax.SAXException;
 
 /**
@@ -123,10 +125,8 @@ public class XmlSaxPushParser extends RubyObject {
         } catch (IOException e) {
             throw context.getRuntime().newRuntimeError(e.getMessage());
         }
-        byte[] data = null;
-        if (chunk instanceof RubyString || chunk.respondsTo("to_str")) {
-            data = chunk.convertToString().getBytes();
-        } else {
+        final ByteArrayInputStream data = NokogiriHelpers.stringBytesToStream(chunk);
+        if (data == null) {
             terminateTask(context);
             XmlSyntaxError xmlSyntaxError =
                 (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
@@ -145,7 +145,7 @@ public class XmlSaxPushParser extends RubyObject {
             terminateTask(context);
         } else {
             try {
-              Future<Void> task = stream.addChunk(new ByteArrayInputStream(data));
+              Future<Void> task = stream.addChunk(data);
               task.get();
             } catch (ClosedStreamException ex) {
               // this means the stream is closed, ignore this exception

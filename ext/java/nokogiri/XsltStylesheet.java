@@ -82,15 +82,11 @@ import org.w3c.dom.Document;
  */
 @JRubyClass(name="Nokogiri::XSLT::Stylesheet")
 public class XsltStylesheet extends RubyObject {
-    private static Map<String, Object> registry = new HashMap<String, Object>();
+
     private TransformerFactory factory = null;
     private Templates sheet = null;
     private IRubyObject stylesheet = null;
     private boolean htmlish = false;
-
-    public static Map<String, Object> getRegistry() {
-        return registry;
-    }
 
     public XsltStylesheet(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -215,8 +211,7 @@ public class XsltStylesheet extends RubyObject {
 
         NokogiriXsltErrorListener elistener = new NokogiriXsltErrorListener();
         DOMSource domSource = new DOMSource(((XmlDocument) args[0]).getDocument());
-        DOMResult result = null;
-        String stringResult = null;
+        final DOMResult result; String stringResult = null;
         try{
             result = tryXsltTransformation(context, args, domSource, elistener); // DOMResult
             if (result.getNode().getFirstChild() == null) {
@@ -275,16 +270,17 @@ public class XsltStylesheet extends RubyObject {
         pwriter.connect(preader);
         StreamResult result = new StreamResult(pwriter);
         transf.transform(domSource, result);
+
         char[] cbuf = new char[1024];
         int len = preader.read(cbuf, 0, 1024);
-        StringBuilder builder = new StringBuilder();
-        builder.append(CharBuffer.wrap(cbuf, 0, len));
-        htmlish = isHtml(builder.toString()); // judge from the first chunk
+        StringBuilder builder = new StringBuilder(len);
+        builder.append(cbuf, 0, len);
+        htmlish = isHtml(builder); // judge from the first chunk
         
         while (len == 1024) {
             len = preader.read(cbuf, 0, 1024);
             if (len > 0) {
-                builder.append(CharBuffer.wrap(cbuf, 0, len));
+                builder.append(cbuf, 0, len);
             }
         }
         
@@ -308,20 +304,18 @@ public class XsltStylesheet extends RubyObject {
     
     private Templates getTemplatesFromStreamSource() throws TransformerConfigurationException {
         if (stylesheet instanceof RubyString) {
-            StringReader reader = new StringReader((String)stylesheet.toJava(String.class));
+            StringReader reader = new StringReader(stylesheet.asJavaString());
             StreamSource xsltStreamSource = new StreamSource(reader);
             return factory.newTemplates(xsltStreamSource);
         }
         return null;
     }
     
-    private static Pattern html_tag = 
-        Pattern.compile("<(%s)*html", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HTML_TAG = Pattern.compile("<(%s)*html", Pattern.CASE_INSENSITIVE);
     
-    private boolean isHtml(String chunk) {  
-        Matcher m = XsltStylesheet.html_tag.matcher(chunk);
-        if (m.find()) return true;
-        else return false;
+    private static boolean isHtml(CharSequence chunk) {
+        Matcher match = HTML_TAG.matcher(chunk);
+        return match.find();
     }
     
     private IRubyObject createDocumentFromString(ThreadContext context, Ruby runtime, String stringResult) {
@@ -346,12 +340,9 @@ public class XsltStylesheet extends RubyObject {
         }
     }
     
-    private void argumentTypeCheck(Ruby runtime, IRubyObject arg) {
-        if (arg instanceof XmlDocument) {
-            return;
-        } else {
-            throw runtime.newArgumentError("argument must be a Nokogiri::XML::Document");
-        }
+    private static void argumentTypeCheck(Ruby runtime, IRubyObject arg) {
+        if (arg instanceof XmlDocument) return;
+        throw runtime.newArgumentError("argument must be a Nokogiri::XML::Document");
     }
     
     @JRubyMethod(name = {"registr", "register"}, meta = true)

@@ -158,7 +158,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         if (encoding instanceof RubyString) {
             rubyEncoding = rubyStringToString(encoding);
         } else if (encoding instanceof RubyFixnum) {
-            int value = (Integer)encoding.toJava(Integer.class);
+            int value = RubyFixnum.fix2int((RubyFixnum) encoding);
             rubyEncoding = findName(value);
         }
         if (rubyEncoding == null) return null;
@@ -173,14 +173,15 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                     "encoding should not be nil");
         }
     }
-    
+
+    private static final Pattern CHARSET_PATTERN = Pattern.compile("charset(()|\\s)=(()|\\s)([a-z]|-|_|\\d)+");
+
     private static String applyEncoding(String input, String enc) {
         String str = input.toLowerCase();
         int start_pos = 0;
         int end_pos = 0;
         if (input.contains("meta") && input.contains("charset")) {
-            Pattern p = Pattern.compile("charset(()|\\s)=(()|\\s)([a-z]|-|_|\\d)+");
-            Matcher m = p.matcher(str);
+            Matcher m = CHARSET_PATTERN.matcher(str);
             while (m.find()) {
                 start_pos = m.start();
                 end_pos = m.end();

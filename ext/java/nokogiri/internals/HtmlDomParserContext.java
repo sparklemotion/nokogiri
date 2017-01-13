@@ -39,7 +39,6 @@ import nokogiri.HtmlDocument;
 import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
 
-import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLAttributes;
@@ -65,8 +64,6 @@ import org.w3c.dom.NodeList;
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
 
-    private String encoding;
-
 	public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         super(runtime, options);
     }
@@ -87,7 +84,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     @Override
     protected void initParser(Ruby runtime) {
         XMLParserConfiguration config = new HTMLConfiguration();
-        XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
+        //XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
         XMLDocumentFilter elementValidityCheckFilter = new ElementValidityCheckFilter(errorHandler);
         //XMLDocumentFilter[] filters = { removeNSAttrsFilter,  elementValidityCheckFilter};
         XMLDocumentFilter[] filters = { elementValidityCheckFilter};
@@ -227,12 +224,12 @@ public class HtmlDomParserContext extends XmlDomParserContext {
                 {}  // z
         };
         
-        private boolean isValid(String testee) {
-            char[] c = testee.toCharArray();
-            int index = new Integer(c[0]) - 97;
-            if (index > 25) return false;
-            for (int i=0; i<element_names[index].length; i++) {
-                if (testee.equals(element_names[index][i])) {
+        private static boolean isValid(final String name) {
+            int index = name.charAt(0) - 97;
+            if (index >= element_names.length) return false;
+            String[] elementNames = element_names[index];
+            for (int i=0; i<elementNames.length; i++) {
+                if (name.equals(elementNames[i])) {
                     return true;
                 }
             }
