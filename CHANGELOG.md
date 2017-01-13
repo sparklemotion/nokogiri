@@ -3,6 +3,7 @@
 ## Dependencies
 
 * Upgrade zlib from 1.2.8 to 1.2.10 (unless --use-system-libraries)
+* Upgrade rake-compiler dependency from 0.9.2 to 1.0.3
 
 
 ## Features
@@ -14,6 +15,7 @@
 ## Bugs
 
 * [MRI] on OpenBSD, do not require gcc if using system libraries [#151] (Thanks, @jeremyevans!)
+* HTML::SAX::Parser#parse_io now correctly parser HTML and not XML [#1577] (Thanks for the test case, @gregors!)
 
 
 # 1.7.0.1 / 2017-01-04
