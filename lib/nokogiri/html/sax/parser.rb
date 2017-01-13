@@ -37,6 +37,16 @@ module Nokogiri
         end
 
         ###
+        # Parse given +io+
+        def parse_io io, encoding = 'UTF-8'
+          check_encoding(encoding)
+          @encoding = encoding
+          ctx = ParserContext.io(io, ENCODINGS[encoding])
+          yield ctx if block_given?
+          ctx.parse_with self
+        end
+
+        ###
         # Parse a file with +filename+
         def parse_file filename, encoding = 'UTF-8'
           raise ArgumentError unless filename

@@ -149,14 +149,13 @@ module Nokogiri
         EOF
 
         def test_parsing_dom_error_from_string
-         @parser.parse(HTML_WITH_BR_TAG)
-         assert_equal 6, @parser.document.start_elements.length
+          @parser.parse(HTML_WITH_BR_TAG)
+          assert_equal 6, @parser.document.start_elements.length
         end
 
         def test_parsing_dom_error_from_io
-         @parser.parse(StringIO.new(HTML_WITH_BR_TAG))
-
-         assert_equal 6, @parser.document.start_elements.length
+          @parser.parse(StringIO.new(HTML_WITH_BR_TAG))
+          assert_equal 6, @parser.document.start_elements.length
         end
 
 
