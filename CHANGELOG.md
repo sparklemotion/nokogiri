@@ -16,7 +16,7 @@
 ## Bugs
 
 * [MRI] on OpenBSD, do not require gcc if using system libraries [#151] (Thanks, @jeremyevans!)
-* HTML::SAX::Parser#parse_io now correctly parser HTML and not XML [#1577] (Thanks for the test case, @gregors!)
+* HTML::SAX::Parser#parse_io now correctly parses HTML and not XML [#1577] (Thanks for the test case, @gregors!)
 
 
 # 1.7.0.1 / 2017-01-04
