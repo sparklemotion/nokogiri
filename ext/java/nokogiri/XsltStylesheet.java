@@ -211,8 +211,7 @@ public class XsltStylesheet extends RubyObject {
 
         NokogiriXsltErrorListener elistener = new NokogiriXsltErrorListener();
         DOMSource domSource = new DOMSource(((XmlDocument) args[0]).getDocument());
-        DOMResult result = null;
-        String stringResult = null;
+        final DOMResult result; String stringResult = null;
         try{
             result = tryXsltTransformation(context, args, domSource, elistener); // DOMResult
             if (result.getNode().getFirstChild() == null) {
@@ -342,12 +341,9 @@ public class XsltStylesheet extends RubyObject {
         }
     }
     
-    private void argumentTypeCheck(Ruby runtime, IRubyObject arg) {
-        if (arg instanceof XmlDocument) {
-            return;
-        } else {
-            throw runtime.newArgumentError("argument must be a Nokogiri::XML::Document");
-        }
+    private static void argumentTypeCheck(Ruby runtime, IRubyObject arg) {
+        if (arg instanceof XmlDocument) return;
+        throw runtime.newArgumentError("argument must be a Nokogiri::XML::Document");
     }
     
     @JRubyMethod(name = {"registr", "register"}, meta = true)

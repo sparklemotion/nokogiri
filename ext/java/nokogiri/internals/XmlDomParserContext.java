@@ -262,7 +262,7 @@ public class XmlDomParserContext extends ParserContext {
         return parser.getDocument();
     }
     
-    private void findEmptyTexts(Node node, List<Node> emptyNodes) {
+    private static void findEmptyTexts(Node node, List<Node> emptyNodes) {
         if (node.getNodeType() == Node.TEXT_NODE && "".equals(node.getTextContent().trim())) {
             emptyNodes.add(node);
         } else {
