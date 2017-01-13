@@ -11,11 +11,11 @@ static VALUE set_value(VALUE self, VALUE content)
   xmlAttrPtr attr;
   Data_Get_Struct(self, xmlAttr, attr);
 
-  if(attr->children) xmlFreeNodeList(attr->children);
+  if (attr->children) { xmlFreeNodeList(attr->children); }
 
   attr->children = attr->last = NULL;
 
-  if(content) {
+  if (content) {
     xmlChar *buffer;
     xmlNode *tmp;
 
@@ -30,7 +30,7 @@ static VALUE set_value(VALUE self, VALUE content)
     for(tmp = attr->children; tmp; tmp = tmp->next) {
       tmp->parent = (xmlNode *)attr;
       tmp->doc = attr->doc;
-      if(tmp->next == NULL) attr->last = tmp;
+      if (tmp->next == NULL) { attr->last = tmp; }
     }
 
     /* Free up memory */
@@ -64,17 +64,17 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   Data_Get_Struct(document, xmlDoc, xml_doc);
 
   node = xmlNewDocProp(
-      xml_doc,
-      (const xmlChar *)StringValueCStr(name),
-      NULL
-  );
+           xml_doc,
+           (const xmlChar *)StringValueCStr(name),
+           NULL
+         );
 
   nokogiri_root_node((xmlNodePtr)node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  if(rb_block_given_p()) rb_yield(rb_node);
+  if (rb_block_given_p()) { rb_yield(rb_node); }
 
   return rb_node;
 }
