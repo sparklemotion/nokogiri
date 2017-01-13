@@ -304,7 +304,7 @@ public class XsltStylesheet extends RubyObject {
     
     private Templates getTemplatesFromStreamSource() throws TransformerConfigurationException {
         if (stylesheet instanceof RubyString) {
-            StringReader reader = new StringReader((String)stylesheet.toJava(String.class));
+            StringReader reader = new StringReader(stylesheet.asJavaString());
             StreamSource xsltStreamSource = new StreamSource(reader);
             return factory.newTemplates(xsltStreamSource);
         }
