@@ -869,9 +869,8 @@ public class XmlNode extends RubyObject {
     }
 
     private boolean isErrorIncreased(RubyArray baseErrors, RubyArray createdErrors) {
-        RubyFixnum length = ((RubyArray)createdErrors.op_diff(baseErrors)).length();
-        int diff_in_length = (Integer)length.toJava(Integer.class);
-        return diff_in_length > 0;
+        int length = ((RubyArray) createdErrors.op_diff(baseErrors)).size();
+        return length > 0;
     }
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
