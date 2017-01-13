@@ -224,12 +224,12 @@ public class HtmlDomParserContext extends XmlDomParserContext {
                 {}  // z
         };
         
-        private boolean isValid(String testee) {
-            char[] c = testee.toCharArray();
-            int index = new Integer(c[0]) - 97;
-            if (index > 25) return false;
-            for (int i=0; i<element_names[index].length; i++) {
-                if (testee.equals(element_names[index][i])) {
+        private static boolean isValid(final String name) {
+            int index = name.charAt(0) - 97;
+            if (index >= element_names.length) return false;
+            String[] elementNames = element_names[index];
+            for (int i=0; i<elementNames.length; i++) {
+                if (name.equals(elementNames[i])) {
                     return true;
                 }
             }
