@@ -54,7 +54,6 @@ ext/java/nokogiri/internals/ClosedStreamException.java
 ext/java/nokogiri/internals/HtmlDomParserContext.java
 ext/java/nokogiri/internals/IgnoreSchemaErrorsErrorHandler.java
 ext/java/nokogiri/internals/NokogiriBlockingQueueInputStream.java
-ext/java/nokogiri/internals/NokogiriDocumentCache.java
 ext/java/nokogiri/internals/NokogiriDomParser.java
 ext/java/nokogiri/internals/NokogiriEncodingReaderWrapper.java
 ext/java/nokogiri/internals/NokogiriEntityResolver.java
@@ -78,7 +77,6 @@ ext/java/nokogiri/internals/UncloseableInputStream.java
 ext/java/nokogiri/internals/XmlDeclHandler.java
 ext/java/nokogiri/internals/XmlDomParserContext.java
 ext/java/nokogiri/internals/XmlSaxParser.java
-ext/java/nokogiri/internals/XsltExtensionFunction.java
 ext/java/nokogiri/internals/c14n/AttrCompare.java
 ext/java/nokogiri/internals/c14n/C14nHelper.java
 ext/java/nokogiri/internals/c14n/CanonicalFilter.java
