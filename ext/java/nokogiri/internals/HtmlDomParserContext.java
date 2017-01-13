@@ -39,7 +39,6 @@ import nokogiri.HtmlDocument;
 import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
 
-import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;
 import org.apache.xerces.xni.XMLAttributes;
@@ -64,8 +63,6 @@ import org.w3c.dom.NodeList;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
-
-    private String encoding;
 
 	public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         super(runtime, options);
