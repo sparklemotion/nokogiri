@@ -310,13 +310,11 @@ public class XsltStylesheet extends RubyObject {
         return null;
     }
     
-    private static Pattern html_tag = 
-        Pattern.compile("<(%s)*html", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HTML_TAG = Pattern.compile("<(%s)*html", Pattern.CASE_INSENSITIVE);
     
-    private boolean isHtml(String chunk) {  
-        Matcher m = XsltStylesheet.html_tag.matcher(chunk);
-        if (m.find()) return true;
-        else return false;
+    private static boolean isHtml(String chunk) {
+        Matcher match = HTML_TAG.matcher(chunk);
+        return match.find();
     }
     
     private IRubyObject createDocumentFromString(ThreadContext context, Ruby runtime, String stringResult) {
