@@ -80,9 +80,9 @@ public abstract class ElementProxy {
             throw new CanonicalizationException("ElementProxy.nullElement");
         }
 
-        if (System.getProperty("nokogiri.c14.debug") == "on") {
-            System.out.println("setElement(\"" + element.getTagName() + "\", \"" + BaseURI + "\")");
-        }
+        //if (System.getProperty("nokogiri.c14.debug") == "on") {
+        //    System.out.println("setElement(\"" + element.getTagName() + "\", \"" + BaseURI + "\")");
+        //}
 
         this.doc = element.getOwnerDocument();
         this.constructionElement = element;
