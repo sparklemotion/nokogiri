@@ -309,15 +309,6 @@ public class NokogiriHelpers {
         ByteBuffer buf = ByteBuffer.wrap(data, offset, len);
         return getCharsetUTF8().decode(buf).toString();
     }
-    
-    public static List<String> rubyStringArrayToJavaList(RubyArray ary) {
-        List<String> list = new ArrayList<String>();
-        for (int i=0; i < ary.getLength(); i++) {
-            Object obj = ary.get(i);
-            if (obj != null) list.add(obj.toString());
-        }
-        return list;
-    }
 
     public static String getNodeCompletePath(Node node) {
 
