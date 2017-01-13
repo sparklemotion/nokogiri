@@ -87,7 +87,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     @Override
     protected void initParser(Ruby runtime) {
         XMLParserConfiguration config = new HTMLConfiguration();
-        XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
+        //XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
         XMLDocumentFilter elementValidityCheckFilter = new ElementValidityCheckFilter(errorHandler);
         //XMLDocumentFilter[] filters = { removeNSAttrsFilter,  elementValidityCheckFilter};
         XMLDocumentFilter[] filters = { elementValidityCheckFilter};
