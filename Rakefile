@@ -39,13 +39,21 @@ CrossRuby = Struct.new(:version, :host) {
   def platform
     @platform ||=
       case host
-      when /\Ax86_64-/
+      when /\Ax86_64.*mingw32/
         'x64-mingw32'
-      when /\Ai[3-6]86-/
+      when /\Ai[3-6]86.*mingw32/
         'x86-mingw32'
+      when /\Ax86_64.*linux/
+        'x86_64-linux'
+      when /\Ai[3-6]86.*linux/
+        'x86-linux'
       else
         raise "unsupported host: #{host}"
       end
+  end
+
+  def windows?
+    !!(platform =~ /mingw|mswin/)
   end
 
   def tool(name)
@@ -55,6 +63,10 @@ CrossRuby = Struct.new(:version, :host) {
         'x86_64-w64-mingw32-'
       when 'x86-mingw32'
         'i686-w64-mingw32-'
+      when 'x86_64-linux'
+        'x86_64-linux-gnu-'
+      when 'x86-linux'
+        'i686-linux-gnu-'
       end) + name
   end
 
@@ -77,16 +89,32 @@ CrossRuby = Struct.new(:version, :host) {
   end
 
   def dlls
-    [
-      'kernel32.dll',
-      'msvcrt.dll',
-      'ws2_32.dll',
-      *(case
-        when ver >= '2.0.0'
-          'user32.dll'
-        end),
-      libruby_dll
-    ]
+    case platform
+      when /mingw32/
+      [
+        'kernel32.dll',
+        'msvcrt.dll',
+        'ws2_32.dll',
+        *(case
+          when ver >= '2.0.0'
+            'user32.dll'
+          end),
+        libruby_dll
+      ]
+      when /linux/
+      [
+        'libm.so.6',
+        'libpthread.so.0',
+        'libc.so.6',
+      ]
+    end
+  end
+
+  def dll_ref_versions
+    case platform
+      when /linux/
+        {"GLIBC"=>"2.17"}
+    end
   end
 }
 
@@ -312,14 +340,35 @@ Concourse.new("nokogiri").create_tasks!
 def verify_dll(dll, cross_ruby)
   dll_imports = cross_ruby.dlls
   dump = `#{['env', 'LANG=C', cross_ruby.tool('objdump'), '-p', dll].shelljoin}`
-  raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target)}\s/ === dump
-  raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
+  if cross_ruby.windows?
+    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target)}\s/ === dump
+    raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
 
-  # Verify that the expected DLL dependencies match the actual dependencies
-  # and that no further dependencies exist.
-  dll_imports_is = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
-  if dll_imports_is.sort != dll_imports.sort
-    raise "unexpected dll imports #{dll_imports_is.inspect} in #{dll}"
+    # Verify that the expected DLL dependencies match the actual dependencies
+    # and that no further dependencies exist.
+    dll_imports_is = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
+    if dll_imports_is.sort != dll_imports.sort
+      raise "unexpected dll imports #{dll_imports_is.inspect} in #{dll}"
+    end
+  else
+    # Verify that the expected so dependencies match the actual dependencies
+    # and that no further dependencies exist.
+    dll_imports_is = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
+    if dll_imports_is.sort != dll_imports.sort
+      raise "unexpected so imports #{dll_imports_is.inspect} in #{dll}"
+    end
+
+    # Verify that the expected so version requirements match the actual dependencies.
+    dll_ref_versions_list = dump.scan(/0x[\da-f]+ 0x[\da-f]+ \d+ (\w+)_([\d\.]+)$/i)
+    # Build a hash of library versions like {"LIBUDEV"=>"183", "GLIBC"=>"2.17"}
+    dll_ref_versions_is = dll_ref_versions_list.each.with_object({}) do |(lib, ver), h|
+      if !h[lib] || ver.split(".").map(&:to_i).pack("C*") > h[lib].split(".").map(&:to_i).pack("C*")
+        h[lib] = ver
+      end
+    end
+    if dll_ref_versions_is != cross_ruby.dll_ref_versions
+      raise "unexpected so version requirements #{dll_ref_versions_is.inspect} in #{dll}"
+    end
   end
   puts "#{dll}: Looks good!"
 end
@@ -339,8 +388,8 @@ task :cross do
   end
 end
 
-desc "build a windows gem without all the ceremony."
-task "gem:windows" do
+desc "build native fat binary gems for windows and linux"
+task "gem:native" do
   require "rake_compiler_dock"
   RakeCompilerDock.sh "bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
 end
