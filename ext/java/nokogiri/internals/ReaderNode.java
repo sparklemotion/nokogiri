@@ -298,7 +298,7 @@ public abstract class ReaderNode {
         public String getString() {
             StringBuffer sb = new StringBuffer();
             sb.append("</").append(name).append(">");
-            return new String(sb);
+            return sb.toString();
         }
     }
 

@@ -70,7 +70,7 @@ public abstract class NokogiriErrorHandler implements ErrorHandler, XMLErrorHand
 
     public List<IRubyObject> getErrorsReadyForRuby(ThreadContext context) {
         Ruby runtime = context.getRuntime();
-        List<IRubyObject> res = new ArrayList<IRubyObject>();
+        List<IRubyObject> res = new ArrayList<IRubyObject>(errors.size());
         for (int i = 0; i < errors.size(); i++) {
             XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
             xmlSyntaxError.setException(errors.get(i));

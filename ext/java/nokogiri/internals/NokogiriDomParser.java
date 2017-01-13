@@ -99,7 +99,7 @@ public class NokogiriDomParser extends DOMParser {
         doc.setUserData(XmlDocument.DTD_RAW_DOCUMENT, dtd.getDocument(), null);
     }
 
-    private class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
+    private static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
         InputSource source;
         private NokogiriXInlcudeEntityResolver(InputSource source) {
             this.source = source;

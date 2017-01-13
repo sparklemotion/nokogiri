@@ -19,7 +19,7 @@ import org.xml.sax.ext.EntityResolver2;
  * to be relative to the current directory of the Ruby runtime.
  */
 public class NokogiriEntityResolver implements EntityResolver2 {
-    protected Ruby runtime;
+    protected final Ruby runtime;
     private final NokogiriErrorHandler handler;
     private final Options options;
 
