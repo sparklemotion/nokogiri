@@ -58,6 +58,7 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
 import org.xml.sax.SAXException;
 
 /**
@@ -123,9 +124,9 @@ public class XmlSaxPushParser extends RubyObject {
         } catch (IOException e) {
             throw context.getRuntime().newRuntimeError(e.getMessage());
         }
-        byte[] data = null;
+        final ByteList data;
         if (chunk instanceof RubyString || chunk.respondsTo("to_str")) {
-            data = chunk.convertToString().getBytes();
+            data = chunk.convertToString().getByteList();
         } else {
             terminateTask(context);
             XmlSyntaxError xmlSyntaxError =
@@ -145,7 +146,7 @@ public class XmlSaxPushParser extends RubyObject {
             terminateTask(context);
         } else {
             try {
-              Future<Void> task = stream.addChunk(new ByteArrayInputStream(data));
+              Future<Void> task = stream.addChunk(new ByteArrayInputStream(data.unsafeBytes(), data.begin(), data.length()));
               task.get();
             } catch (ClosedStreamException ex) {
               // this means the stream is closed, ignore this exception
