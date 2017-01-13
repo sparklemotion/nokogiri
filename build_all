@@ -18,7 +18,7 @@ bundle exec rake clean
 bundle exec rake gem:jruby
 cp -v pkg/nokogiri*java.gem gems
 
-# windows (x86-mingw32 and x64-mingw32)
+# windows and linux fat binary gems
 bundle exec rake clean
-bundle exec rake gem:windows
-cp -v pkg/nokogiri*{x86,x64}-mingw32*.gem gems
+bundle exec rake gem:native
+cp -v pkg/nokogiri-*{x86,x64}*.gem gems
