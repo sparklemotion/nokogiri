@@ -11,6 +11,8 @@ module Nokogiri
       # The Document this NodeSet is associated with
       attr_accessor :document
 
+      alias :clone :dup
+
       # Create a NodeSet with +document+ defaulting to +list+
       def initialize document, list = []
         @document = document

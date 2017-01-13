@@ -252,12 +252,14 @@ module Nokogiri
         assert_equal 2, node_set.first(2).length
       end
 
-      def test_dup
-        assert node_set = @xml.xpath('//employee')
-        dup = node_set.dup
-        assert_equal node_set.length, dup.length
-        node_set.zip(dup).each do |a,b|
-          assert_equal a, b
+      [:dup, :clone].each do |method_name|
+        define_method "test_#{method_name}" do
+          assert node_set = @xml.xpath('//employee')
+          duplicate = node_set.send(method_name)
+          assert_equal node_set.length, duplicate.length
+          node_set.zip(duplicate).each do |a,b|
+            assert_equal a, b
+          end
         end
       end
 
