@@ -34,16 +34,6 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <ruby/st.h>
 #include <ruby/encoding.h>
 
-#ifndef UNUSED
-# if defined(__GNUC__)
-#  define MAYBE_UNUSED(name) name __attribute__((unused))
-#  define UNUSED(name) MAYBE_UNUSED(UNUSED_ ## name)
-# else
-#  define MAYBE_UNUSED(name) name
-#  define UNUSED(name) name
-# endif
-#endif
-
 #ifndef NORETURN
 # if defined(__GNUC__)
 #  define NORETURN(name) __attribute__((noreturn)) name
