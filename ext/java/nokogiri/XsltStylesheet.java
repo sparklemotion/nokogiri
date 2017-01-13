@@ -270,16 +270,17 @@ public class XsltStylesheet extends RubyObject {
         pwriter.connect(preader);
         StreamResult result = new StreamResult(pwriter);
         transf.transform(domSource, result);
+
         char[] cbuf = new char[1024];
         int len = preader.read(cbuf, 0, 1024);
-        StringBuilder builder = new StringBuilder();
-        builder.append(CharBuffer.wrap(cbuf, 0, len));
-        htmlish = isHtml(builder.toString()); // judge from the first chunk
+        StringBuilder builder = new StringBuilder(len);
+        builder.append(cbuf, 0, len);
+        htmlish = isHtml(builder); // judge from the first chunk
         
         while (len == 1024) {
             len = preader.read(cbuf, 0, 1024);
             if (len > 0) {
-                builder.append(CharBuffer.wrap(cbuf, 0, len));
+                builder.append(cbuf, 0, len);
             }
         }
         
@@ -312,7 +313,7 @@ public class XsltStylesheet extends RubyObject {
     
     private static final Pattern HTML_TAG = Pattern.compile("<(%s)*html", Pattern.CASE_INSENSITIVE);
     
-    private static boolean isHtml(String chunk) {
+    private static boolean isHtml(CharSequence chunk) {
         Matcher match = HTML_TAG.matcher(chunk);
         return match.find();
     }
