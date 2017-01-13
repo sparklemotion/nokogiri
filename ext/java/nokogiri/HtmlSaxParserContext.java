@@ -158,7 +158,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         if (encoding instanceof RubyString) {
             rubyEncoding = rubyStringToString(encoding);
         } else if (encoding instanceof RubyFixnum) {
-            int value = (Integer)encoding.toJava(Integer.class);
+            int value = RubyFixnum.fix2int((RubyFixnum) encoding);
             rubyEncoding = findName(value);
         }
         if (rubyEncoding == null) return null;
