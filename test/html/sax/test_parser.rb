@@ -132,6 +132,34 @@ module Nokogiri
           ], @parser.document.start_elements
         end
 
+        HTML_WITH_BR_TAG = <<-EOF
+        <html>
+          <head></head>
+          <body>
+            <div>
+              hello
+              <br>
+            </div>
+
+            <div>
+              hello again
+            </div>
+          </body>
+        </html>
+        EOF
+
+        def test_parsing_dom_error_from_string
+         @parser.parse(HTML_WITH_BR_TAG)
+         assert_equal 6, @parser.document.start_elements.length
+        end
+
+        def test_parsing_dom_error_from_io
+         @parser.parse(StringIO.new(HTML_WITH_BR_TAG))
+
+         assert_equal 6, @parser.document.start_elements.length
+        end
+
+
         def test_empty_processing_instruction
           @parser.parse_memory("<strong>this will segfault<?strong>")
         end
