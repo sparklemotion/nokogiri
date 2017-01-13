@@ -8,6 +8,7 @@
 
 ## Features
 
+* NodeSet#clone is not an alias for NodeSet#dup [#1503] (Thanks, @stephankaag!)
 * [JRuby] remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
 * [JRuby] remove unnecessary cloning of objects in XPath searches [#1563] (Thanks, @kares!)
 
