@@ -82,15 +82,11 @@ import org.w3c.dom.Document;
  */
 @JRubyClass(name="Nokogiri::XSLT::Stylesheet")
 public class XsltStylesheet extends RubyObject {
-    private static Map<String, Object> registry = new HashMap<String, Object>();
+
     private TransformerFactory factory = null;
     private Templates sheet = null;
     private IRubyObject stylesheet = null;
     private boolean htmlish = false;
-
-    public static Map<String, Object> getRegistry() {
-        return registry;
-    }
 
     public XsltStylesheet(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
