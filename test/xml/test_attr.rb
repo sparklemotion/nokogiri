@@ -11,6 +11,13 @@ module Nokogiri
         }
       end
 
+      def test_new_raises_argerror_on_nondocument
+        document = Nokogiri::XML "<root><foo/></root>"
+        assert_raises ArgumentError do
+          Nokogiri::XML::Attr.new document.at_css("foo"), "bar"
+        end
+      end
+
       def test_content=
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath('//address')[3]

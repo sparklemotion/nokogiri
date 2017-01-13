@@ -57,6 +57,10 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
 
   rb_scan_args(argc, argv, "2*", &document, &name, &rest);
 
+  if (! rb_obj_is_kind_of(document, cNokogiriXmlDocument)) {
+    rb_raise(rb_eArgError, "parameter must be a Nokogiri::XML::Document");
+  }
+
   Data_Get_Struct(document, xmlDoc, xml_doc);
 
   node = xmlNewDocProp(
