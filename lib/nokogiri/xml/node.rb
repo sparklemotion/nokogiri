@@ -779,11 +779,17 @@ module Nokogiri
       end
 
       def to_format save_option, options
+        # FIXME: this is a hack around broken libxml versions
+        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
       end
 
       def write_format_to save_option, io, options
+        # FIXME: this is a hack around broken libxml versions
+        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+
         options[:save_with] ||= save_option
         write_to io, options
       end
