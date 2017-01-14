@@ -12,9 +12,10 @@ module Nokogiri
     end
 
     def loaded_parser_version
-      LIBXML_PARSER_VERSION.scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first.collect{ |j|
-        j.to_i
-      }.join(".")
+      LIBXML_PARSER_VERSION.
+        scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first.
+        collect(&:to_i).
+        join(".")
     end
 
     def compiled_parser_version
