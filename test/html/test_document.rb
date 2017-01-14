@@ -628,6 +628,7 @@ eohtml
       end
 
       def test_capturing_nonparse_errors_during_document_clone
+        skip("Rubinius does not dup column, bug?") if Nokogiri.rbx?
         # see https://github.com/sparklemotion/nokogiri/issues/1196 for background
         original = Nokogiri::HTML.parse("<div id='unique'></div><div id='unique'></div>")
         original_errors = original.errors.dup
