@@ -152,6 +152,28 @@ module Nokogiri
           assert_equal [["r"]], @parser.document.end_elements
         end
 
+        def test_replace_entities_attribute_behavior
+          if Nokogiri.uses_libxml?
+            # initially false
+            assert_equal false, @parser.replace_entities
+
+            # can be set to true
+            @parser.replace_entities = true
+            assert_equal true, @parser.replace_entities
+
+            # can be set to false
+            @parser.replace_entities = false
+            assert_equal false, @parser.replace_entities
+          else
+            # initially true
+            assert_equal true, @parser.replace_entities
+
+            # ignore attempts to set to false
+            @parser.replace_entities = false # TODO: should we raise an exception here?
+            assert_equal true, @parser.replace_entities
+          end
+        end
+
         def test_untouched_entities
           skip("entities are always replaced in pure Java version") if Nokogiri.jruby?
           @parser.<<(<<-eoxml)

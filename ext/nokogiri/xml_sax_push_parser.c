@@ -3,7 +3,7 @@
 static void deallocate(xmlParserCtxtPtr ctx)
 {
   NOKOGIRI_DEBUG_START(ctx);
-  if(ctx != NULL) {
+  if (ctx != NULL) {
     NOKOGIRI_SAX_TUPLE_DESTROY(ctx->userData);
     xmlFreeParserCtxt(ctx);
   }
@@ -30,12 +30,12 @@ static VALUE native_write(VALUE self, VALUE _chunk, VALUE _last_chunk)
 
   Data_Get_Struct(self, xmlParserCtxt, ctx);
 
-  if(Qnil != _chunk) {
+  if (Qnil != _chunk) {
     chunk = StringValuePtr(_chunk);
     size = (int)RSTRING_LEN(_chunk);
   }
 
-  if(xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
+  if (xmlParseChunk(ctx, chunk, size, Qtrue == _last_chunk ? 1 : 0)) {
     if (!(ctx->options & XML_PARSE_RECOVER)) {
       xmlErrorPtr e = xmlCtxtGetLastError(ctx);
       Nokogiri_error_raise(NULL, e);
@@ -59,17 +59,18 @@ static VALUE initialize_native(VALUE self, VALUE _xml_sax, VALUE _filename)
 
   Data_Get_Struct(_xml_sax, xmlSAXHandler, sax);
 
-  if(_filename != Qnil) filename = StringValueCStr(_filename);
+  if (_filename != Qnil) { filename = StringValueCStr(_filename); }
 
   ctx = xmlCreatePushParserCtxt(
-      sax,
-      NULL,
-      NULL,
-      0,
-      filename
-  );
-  if(ctx == NULL)
+          sax,
+          NULL,
+          NULL,
+          0,
+          filename
+        );
+  if (ctx == NULL) {
     rb_raise(rb_eRuntimeError, "Could not create a parser context");
+  }
 
   ctx->userData = NOKOGIRI_SAX_TUPLE_NEW(ctx, self);
 
@@ -91,8 +92,9 @@ static VALUE set_options(VALUE self, VALUE options)
   xmlParserCtxtPtr ctx;
   Data_Get_Struct(self, xmlParserCtxt, ctx);
 
-  if (xmlCtxtUseOptions(ctx, (int)NUM2INT(options)) != 0)
+  if (xmlCtxtUseOptions(ctx, (int)NUM2INT(options)) != 0) {
     rb_raise(rb_eRuntimeError, "Cannot set XML parser context options");
+  }
 
   return Qnil;
 }
@@ -109,10 +111,11 @@ static VALUE get_replace_entities(VALUE self)
   xmlParserCtxtPtr ctx;
   Data_Get_Struct(self, xmlParserCtxt, ctx);
 
-  if(0 == ctx->replaceEntities)
+  if (0 == ctx->replaceEntities) {
     return Qfalse;
-  else
+  } else {
     return Qtrue;
+  }
 }
 
 /*
@@ -127,10 +130,11 @@ static VALUE set_replace_entities(VALUE self, VALUE value)
   xmlParserCtxtPtr ctx;
   Data_Get_Struct(self, xmlParserCtxt, ctx);
 
-  if(Qfalse == value)
+  if (Qfalse == value) {
     ctx->replaceEntities = 0;
-  else
+  } else {
     ctx->replaceEntities = 1;
+  }
 
   return value;
 }
