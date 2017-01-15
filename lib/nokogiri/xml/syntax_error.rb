@@ -40,7 +40,26 @@ module Nokogiri
       end
 
       def to_s
-        super.chomp
+        message = super.chomp
+        [location_to_s, level_to_s, message].
+          compact.join(": ").
+          force_encoding(message.encoding)
+      end
+
+      private
+
+      def level_to_s
+        case level
+        when 3 then "FATAL"
+        when 2 then "ERROR"
+        when 1 then "WARNING"
+        else nil
+        end
+      end
+
+      def location_to_s
+        return nil if line.nil? && column.nil?
+        "#{line}:#{column}"
       end
     end
   end

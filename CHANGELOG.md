@@ -9,8 +9,9 @@
 ## Features
 
 * NodeSet#clone is not an alias for NodeSet#dup [#1503] (Thanks, @stephankaag!)
-* [JRuby] remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
-* [JRuby] remove unnecessary cloning of objects in XPath searches [#1563] (Thanks, @kares!)
+* [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1503] (Thanks, @spk!)
+* [JRuby] (performance) remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
+* [JRuby] (performance) remove unnecessary cloning of objects in XPath searches [#1563] (Thanks, @kares!)
 
 
 ## Bugs

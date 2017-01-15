@@ -141,7 +141,7 @@ EOF
         end
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath('//body').first.children.first
         if Nokogiri.uses_libxml?
-          assert_equal ["Entity 'bar' not defined"], doc.errors.map(&:to_s)
+          assert_equal ["5:14: ERROR: Entity 'bar' not defined"], doc.errors.map(&:to_s)
         end
       end
 
@@ -159,7 +159,7 @@ EOF
         end
         assert_kind_of Nokogiri::XML::EntityReference, doc.xpath('//body').first.children.first
         if Nokogiri.uses_libxml?
-          assert_equal ["Attempt to load network entity http://foo.bar.com/", "Entity 'bar' not defined"], doc.errors.map(&:to_s)
+          assert_equal ["0:0: ERROR: Attempt to load network entity http://foo.bar.com/", "4:34: ERROR: Entity 'bar' not defined"], doc.errors.map(&:to_s)
         else
           assert_equal ["Attempt to load network entity http://foo.bar.com/"], doc.errors.map(&:to_s)
         end
