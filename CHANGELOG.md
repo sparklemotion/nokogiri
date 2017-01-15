@@ -18,8 +18,9 @@
 
 ## Bugs
 
-* [MRI] on OpenBSD, do not require gcc if using system libraries [#151] (Thanks, @jeremyevans!)
 * HTML::SAX::Parser#parse_io now correctly parses HTML and not XML [#1577] (Thanks for the test case, @gregors!)
+* [MRI] on OpenBSD, do not require gcc if using system libraries [#1515] (Thanks, @jeremyevans!)
+* [JRuby] correctly append a text node before another text node [#1318] (Thanks, @jkraemer!)
 
 
 # 1.7.0.1 / 2017-01-04
