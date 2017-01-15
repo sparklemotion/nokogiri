@@ -223,12 +223,12 @@ module Nokogiri
         right_space.add_next_sibling(left_space)
         assert_equal left_space, right_space
       end
-      
+
       def test_add_next_sibling_to_root_raises_exception
         xml = Nokogiri::XML(<<-eoxml)
         <root />
         eoxml
-        
+
         node = Nokogiri::XML::Node.new 'child', xml
 
         assert_raise(ArgumentError) do
@@ -240,7 +240,7 @@ module Nokogiri
         xml = Nokogiri::XML(<<-eoxml)
         <root />
         eoxml
-        
+
         node = Nokogiri::XML::Node.new 'child', xml
 
         assert_raise(ArgumentError) do
@@ -248,17 +248,60 @@ module Nokogiri
         end
       end
 
-      def test_add_pi_as_previous_and_next_sibling_to_root_is_ok
+      def test_document_root_can_have_a_comment_sibling_via_add_child
+        doc = Nokogiri::XML "<root>foo</root>"
+        comment = Nokogiri::XML::Comment.new(doc, "this is a comment")
+        doc.add_child comment
+        assert_equal [doc.root, comment], doc.children.to_a
+      end
+
+      def test_document_root_can_have_a_comment_sibling_via_prepend_child
+        doc = Nokogiri::XML "<root>foo</root>"
+        comment = Nokogiri::XML::Comment.new(doc, "this is a comment")
+        doc.prepend_child comment
+        assert_equal [comment, doc.root], doc.children.to_a
+      end
+
+      def test_document_root_can_have_a_comment_sibling_via_add_next_sibling
+        doc = Nokogiri::XML "<root>foo</root>"
+        comment = Nokogiri::XML::Comment.new(doc, "this is a comment")
+        doc.root.add_next_sibling comment
+        assert_equal [doc.root, comment], doc.children.to_a
+      end
+
+      def test_document_root_can_have_a_comment_sibling_via_add_previous_sibling
+        doc = Nokogiri::XML "<root>foo</root>"
+        comment = Nokogiri::XML::Comment.new(doc, "this is a comment")
+        doc.root.add_previous_sibling comment
+        assert_equal [comment, doc.root], doc.children.to_a
+      end
+
+      def test_document_root_can_have_a_processing_instruction_sibling_via_add_child
+        doc = Nokogiri::XML "<root>foo</root>"
+        pi = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo.xsl"})
+        doc.add_child pi
+        assert_equal [doc.root, pi], doc.children.to_a
+      end
+
+      def test_document_root_can_have_a_processing_instruction_sibling_via_prepend_child
+        doc = Nokogiri::XML "<root>foo</root>"
+        pi = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo.xsl"})
+        doc.prepend_child pi
+        assert_equal [pi, doc.root], doc.children.to_a
+      end
+
+      def test_document_root_can_have_a_processing_instruction_sibling_via_add_next_sibling
+        doc = Nokogiri::XML "<root>foo</root>"
+        pi = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo.xsl"})
+        doc.root.add_next_sibling pi
+        assert_equal [doc.root, pi], doc.children.to_a
+      end
+
+      def test_document_root_can_have_a_processing_instruction_sibling_via_add_previous_sibling
         doc = Nokogiri::XML "<root>foo</root>"
         pi = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo.xsl"})
         doc.root.add_previous_sibling pi
-        expected_doc = %Q{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<root>foo</root>}
-        assert_includes doc.to_xml, expected_doc
-
-        pi2 = Nokogiri::XML::ProcessingInstruction.new(doc, "xml-stylesheet", %q{type="text/xsl" href="foo2.xsl"})
-        pi.add_next_sibling pi2
-        expected_doc = %Q{<?xml version="1.0"?>\n<?xml-stylesheet type="text/xsl" href="foo.xsl"?>\n<?xml-stylesheet type="text/xsl" href="foo2.xsl"?>\n<root>foo</root>}
-        assert_includes doc.to_xml, expected_doc
+        assert_equal [pi, doc.root], doc.children.to_a
       end
 
       def test_find_by_css_with_tilde_eql
