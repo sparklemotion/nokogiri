@@ -154,7 +154,7 @@ module Nokogiri
       def prepend_child node_or_tags
         if first = children.first
           # Mimic the error add_child would raise.
-          raise RuntimeError, "Document already has a root node" if document? && !node_or_tags.processing_instruction?
+          raise RuntimeError, "Document already has a root node" if document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
           first.__send__(:add_sibling, :previous, node_or_tags)
         else
           add_child(node_or_tags)
@@ -172,6 +172,7 @@ module Nokogiri
         add_child node_or_tags
         self
       end
+
       ###
       # Insert +node_or_tags+ before this Node (as a sibling).
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.
@@ -180,7 +181,7 @@ module Nokogiri
       #
       # Also see related method +before+.
       def add_previous_sibling node_or_tags
-        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !node_or_tags.processing_instruction?
+        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
 
         add_sibling :previous, node_or_tags
       end
@@ -193,7 +194,7 @@ module Nokogiri
       #
       # Also see related method +after+.
       def add_next_sibling node_or_tags
-        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !node_or_tags.processing_instruction?
+        raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
 
         add_sibling :next, node_or_tags
       end

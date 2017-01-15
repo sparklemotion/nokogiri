@@ -129,7 +129,7 @@ module Nokogiri
         @xml.root.parse('<hello>')
         assert(error_count < @xml.errors.length, "errors should have increased")
       end
-      
+
       def test_parse_error_on_fragment_with_empty_document
         doc = Document.new
         fragment = DocumentFragment.new(doc, '<foo><bar/></foo>')
@@ -693,14 +693,7 @@ module Nokogiri
       end
 
       def test_find_by_css_class_with_nonstandard_whitespace
-        doc = Nokogiri::HTML '
-<html>
-  <body>
-    <div class="a 
-b"></div>
-  </body>
-</html>
-'
+        doc = Nokogiri::HTML "<div class='a\nb'></div>"
         assert_not_nil doc.at_css(".b")
       end
 
