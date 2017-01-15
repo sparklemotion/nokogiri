@@ -151,6 +151,32 @@ module Nokogiri
           assert_equal "Gau\337", @parser.document.data.join
           assert_equal [["r"]], @parser.document.end_elements
         end
+
+        def test_untouched_entities
+          skip("entities are always replaced in pure Java version") if Nokogiri.jruby?
+          @parser.<<(<<-eoxml)
+            <p id="asdf&amp;asdf">
+              <!-- This is a comment -->
+              Paragraph 1 &amp; 2
+            </p>
+          eoxml
+          @parser.finish
+          assert_equal [["p", [["id", "asdf&#38;asdf"]]]], @parser.document.start_elements
+          assert_equal "Paragraph 1 & 2", @parser.document.data.join.strip
+        end
+
+        def test_replaced_entities
+          @parser.replace_entities = true
+          @parser.<<(<<-eoxml)
+            <p id="asdf&amp;asdf">
+              <!-- This is a comment -->
+              Paragraph 1 &amp; 2
+            </p>
+          eoxml
+          @parser.finish
+          assert_equal [["p", [["id", "asdf&asdf"]]]], @parser.document.start_elements
+          assert_equal "Paragraph 1 & 2", @parser.document.data.join.strip
+        end
       end
     end
   end
