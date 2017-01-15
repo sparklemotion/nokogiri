@@ -91,12 +91,14 @@ module Nokogiri
         assert_equal Nokogiri::XML::ParseOptions::DEFAULT_XML, options.to_i
       end
 
-      # descriptive, not prescriptive.
-      def test_parse_invalid_html_markup_results_in_empty_nodeset
-        doc = Nokogiri::HTML("<html></html>")
-        nodeset = doc.root.parse "<div><div>a</div><snippet>b</snippet></div>"
-        assert_equal 1, doc.errors.length # "Tag snippet invalid"
+      def test_node_context_parsing_of_malformed_html_fragment
+        doc = HTML.parse "<html><body><div></div></body></html>"
+        context_node = doc.at_css "div"
+        nodeset = context_node.parse("<div </div>")
+
+        assert_equal 1, doc.errors.length
         assert_equal 1, nodeset.length
+        assert_equal "<div></div>", nodeset.to_s
       end
 
       def test_node_context_parsing_of_malformed_html_fragment_with_recover_is_corrected
@@ -105,9 +107,10 @@ module Nokogiri
         nodeset = context_node.parse("<div </div>") do |options|
           options.recover
         end
-        assert_equal "<div></div>", nodeset.to_s
+
         assert_equal 1, doc.errors.length
         assert_equal 1, nodeset.length
+        assert_equal "<div></div>", nodeset.to_s
       end
 
       def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
@@ -116,6 +119,7 @@ module Nokogiri
         nodeset = context_node.parse("<div </div>") do |options|
           options.strict
         end
+
         assert_equal 1, doc.errors.length
         assert_equal 0, nodeset.length
       end

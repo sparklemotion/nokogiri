@@ -185,6 +185,26 @@ module Nokogiri
         assert 1, reader.errors.length
       end
 
+      def test_errors_is_an_array
+        skip "TODO: xerces does not internally call `errors`" if Nokogiri.jruby?
+        reader = Nokogiri::XML::Reader(StringIO.new('&bogus;'))
+        assert_raises(SyntaxError) {
+          reader.read
+        }
+        assert_equal [SyntaxError], reader.errors.map(&:class)
+      end
+
+      def test_pushing_to_non_array_raises_TypeError
+        skip "TODO: xerces does not internally call `errors`" if Nokogiri.jruby?
+        reader = Nokogiri::XML::Reader(StringIO.new('&bogus;'))
+        def reader.errors
+          1
+        end
+        assert_raises(TypeError) {
+          reader.read
+        }
+      end
+
       def test_attributes?
         reader = Nokogiri::XML::Reader.from_memory(<<-eoxml)
         <x xmlns:tenderlove='http://tenderlovemaking.com/'>
