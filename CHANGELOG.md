@@ -14,6 +14,7 @@
 * [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1503] (Thanks, @spk!)
 * [JRuby] (performance) remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
 * [JRuby] (performance) remove unnecessary cloning of objects in XPath searches [#1563] (Thanks, @kares!)
+* Cross-built Windows gems now support Ruby 2.4
 
 
 ## Bugs
