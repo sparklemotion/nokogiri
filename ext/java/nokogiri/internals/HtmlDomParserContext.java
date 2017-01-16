@@ -239,7 +239,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         @Override
         public void startElement(QName name, XMLAttributes attrs, Augmentations augs) throws XNIException {
             if (!isValid(name.rawname)) {
-                errorHandler.getErrors().add(new Exception("Tag " + name.rawname + " invalid"));
+                errorHandler.addError(new Exception("Tag " + name.rawname + " invalid"));
             }
             super.startElement(name, attrs, augs);
         }

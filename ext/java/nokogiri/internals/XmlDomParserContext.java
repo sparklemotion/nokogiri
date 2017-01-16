@@ -167,9 +167,20 @@ public class XmlDomParserContext extends ParserContext {
     }
 
     public void addErrorsIfNecessary(ThreadContext context, XmlDocument doc) {
-        Ruby ruby = context.getRuntime();
-        RubyArray errors = ruby.newArray(errorHandler.getErrorsReadyForRuby(context));
-        doc.setInstanceVariable("@errors", errors);
+        doc.setInstanceVariable("@errors", mapErrors(context, errorHandler));
+    }
+
+
+    public static RubyArray mapErrors(ThreadContext context, NokogiriErrorHandler errorHandler) {
+        final Ruby runtime = context.runtime;
+        final List<Exception> errors = errorHandler.getErrors();
+        final IRubyObject[] errorsAry = new IRubyObject[errors.size()];
+        for (int i = 0; i < errors.size(); i++) {
+            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+            xmlSyntaxError.setException(errors.get(i));
+            errorsAry[i] = xmlSyntaxError;
+        }
+        return runtime.newArrayNoCopy(errorsAry);
     }
 
     public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, RubyClass klazz, Exception ex) {

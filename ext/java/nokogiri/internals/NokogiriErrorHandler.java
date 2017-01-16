@@ -32,18 +32,10 @@
 
 package nokogiri.internals;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import nokogiri.NokogiriService;
-import nokogiri.XmlSyntaxError;
-
 import org.apache.xerces.xni.parser.XMLErrorHandler;
-import org.jruby.Ruby;
-import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.ErrorHandler;
 
 /**
@@ -56,30 +48,22 @@ import org.xml.sax.ErrorHandler;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public abstract class NokogiriErrorHandler implements ErrorHandler, XMLErrorHandler {
-    protected List<Exception> errors;
+    protected final List<Exception> errors;
     protected boolean noerror;
     protected boolean nowarning;
 
     public NokogiriErrorHandler(boolean noerror, boolean nowarning) {
-        errors = new ArrayList<Exception>();
+        this.errors = new ArrayList<Exception>(4);
         this.noerror = noerror;
         this.nowarning = nowarning;
     }
 
-    public List<Exception> getErrors() { return errors; }
+    List<Exception> getErrors() { return errors; }
 
-    public List<IRubyObject> getErrorsReadyForRuby(ThreadContext context) {
-        Ruby runtime = context.getRuntime();
-        List<IRubyObject> res = new ArrayList<IRubyObject>(errors.size());
-        for (int i = 0; i < errors.size(); i++) {
-            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
-            xmlSyntaxError.setException(errors.get(i));
-            res.add(xmlSyntaxError);
-        }
-        return res;
-    }
+    public void addError(Exception ex) { errors.add(ex); }
 
     protected boolean usesNekoHtml(String domain) {
         return "http://cyberneko.org/html".equals(domain);
     }
+
 }
