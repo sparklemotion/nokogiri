@@ -479,7 +479,7 @@ public class XmlNode extends RubyObject {
         String nsURI = e.lookupNamespaceURI(prefix);
         this.node = NokogiriHelpers.renameNode(e, nsURI, e.getNodeName());
 
-        if (nsURI == null || nsURI == "") {
+        if (nsURI == null || nsURI.isEmpty()) {
             return;
         }
 
@@ -488,12 +488,12 @@ public class XmlNode extends RubyObject {
 
             for (int i = 0; i < attrs.getLength(); i++) {
                 Attr attr = (Attr) attrs.item(i);
-                String nsUri = "";
                 String attrPrefix = attr.getPrefix();
                 if (attrPrefix == null) {
                     attrPrefix = NokogiriHelpers.getPrefix(attr.getNodeName());
                 }
                 String nodeName = attr.getNodeName();
+                String nsUri;
                 if ("xml".equals(attrPrefix)) {
                     nsUri = "http://www.w3.org/XML/1998/namespace";
                 } else if ("xmlns".equals(attrPrefix) || nodeName.equals("xmlns")) {
