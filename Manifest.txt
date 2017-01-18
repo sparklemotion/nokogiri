@@ -210,7 +210,6 @@ lib/nokogiri/xml/character_data.rb
 lib/nokogiri/xml/document.rb
 lib/nokogiri/xml/document_fragment.rb
 lib/nokogiri/xml/dtd.rb
-lib/nokogiri/xml/element.rb
 lib/nokogiri/xml/element_content.rb
 lib/nokogiri/xml/element_decl.rb
 lib/nokogiri/xml/entity_decl.rb
