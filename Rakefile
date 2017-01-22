@@ -309,6 +309,7 @@ if Hoe.plugins.include?(:debugging)
   end
 end
 
+desc "run tests with libxml-ruby loaded"
 task "test:libxml-ruby" do
   ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY'] = "1"
   warn "#{__FILE__}:#{__LINE__}: --- running tests with libxml-ruby loaded ---"
@@ -318,6 +319,7 @@ end
 
 Rake::Task["test:libxml-ruby"].prerequisites << :compile
 
+desc "run tests under valgrind with libxml-ruby loaded"
 task "test:valgrind:libxml-ruby" do
   ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY'] = "1"
   warn "#{__FILE__}:#{__LINE__}: --- running tests with libxml-ruby loaded ---"
