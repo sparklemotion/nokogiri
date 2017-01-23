@@ -29,9 +29,9 @@ jobs:
             path: bash
             args:
               - "-c"
-              - >-
-                bundle install &&
-                rake test
+              - |
+                bundle install
+                bundle exec rake test
 
   - name: "ruby-<%= ruby_version %>-valgrind"
     public: true
@@ -54,11 +54,11 @@ jobs:
             path: bash
             args:
               - "-c"
-              - >-
-                apt update &&
-                apt install -y valgrind &&
-                bundle install &&
-                rake test:valgrind
+              - |
+                apt update
+                apt install -y valgrind
+                bundle install
+                bundle exec rake test:valgrind
 
   - name: "ruby-<%= ruby_version %>-libxmlruby"
     public: true
@@ -81,10 +81,10 @@ jobs:
             path: bash
             args:
               - "-c"
-              - >-
-                BUNDLE_GEMFILE="Gemfile-libxml-ruby"
-                bundle install &&
-                rake test:libxml-ruby
+              - |
+                export BUNDLE_GEMFILE="Gemfile-libxml-ruby"
+                bundle install
+                bundle exec rake test:libxml-ruby
 
   - name: "ruby-<%= ruby_version %>-libxmlruby-valgrind"
     public: true
@@ -107,12 +107,12 @@ jobs:
             path: bash
             args:
               - "-c"
-              - >-
-                BUNDLE_GEMFILE="Gemfile-libxml-ruby"
-                apt update &&
-                apt install -y valgrind &&
-                bundle install &&
-                rake test:valgrind:libxml-ruby
+              - |
+                export BUNDLE_GEMFILE="Gemfile-libxml-ruby"
+                apt update
+                apt install -y valgrind
+                bundle install
+                bundle exec rake test:valgrind:libxml-ruby
   <% end %>
 
   <% for jruby_version in RUBIES[:jruby] %>
@@ -138,9 +138,9 @@ jobs:
             path: bash
             args:
               - "-c"
-              - >-
-                bundle install &&
-                rake test
+              - |
+                bundle install
+                bundle exec rake test
   <% end %>
 
   <% for rbx_version in RUBIES[:rbx] %>
@@ -164,9 +164,9 @@ jobs:
             path: bash
             args:
               - "-c"
-              - >-
-                apt update &&
-                apt install -y ca-certificates gcc &&
-                bundle install &&
-                rake test
+              - |
+                apt update
+                apt install -y ca-certificates gcc
+                bundle install
+                bundle exec rake test
   <% end %>
