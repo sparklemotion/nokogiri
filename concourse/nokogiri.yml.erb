@@ -1,9 +1,11 @@
 resources:
-- name: nokogiri
-  type: git
-  source:
-    uri: https://github.com/sparklemotion/nokogiri/
-    branch: master
+  - name: nokogiri
+    type: git
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      ignore_paths:
+        - concourse/**
 
 jobs:
   <% for ruby_version in RUBIES[:mri] %>
