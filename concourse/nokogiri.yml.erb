@@ -106,6 +106,7 @@ jobs:
             args:
               - "-c"
               - >-
+                BUNDLE_GEMFILE="Gemfile-libxml-ruby"
                 apt update &&
                 apt install -y valgrind &&
                 bundle install &&
