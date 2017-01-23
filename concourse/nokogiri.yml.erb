@@ -9,7 +9,33 @@ resources:
 
 jobs:
   <% for ruby_version in RUBIES[:mri] %>
-  - name: "ruby-<%= ruby_version %>"
+  - name: "ruby-<%= ruby_version %>-system"
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: ruby
+              tag: "<%= ruby_version %>"
+          platform: linux
+          inputs:
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: "1"
+          run:
+            dir: nokogiri
+            path: bash
+            args:
+              - "-ce"
+              - |
+                bundle install
+                bundle exec rake test
+
+  - name: "ruby-<%= ruby_version %>-vendored"
     public: true
     plan:
       - get: nokogiri
@@ -28,7 +54,7 @@ jobs:
             dir: nokogiri
             path: bash
             args:
-              - "-c"
+              - "-ce"
               - |
                 bundle install
                 bundle exec rake test
@@ -37,7 +63,7 @@ jobs:
     public: true
     plan:
       - get: nokogiri
-        passed: ["ruby-<%= ruby_version %>"]
+        passed: ["ruby-<%= ruby_version %>-vendored"]
         trigger: true
       - task: rake-test
         config:
@@ -53,7 +79,7 @@ jobs:
             dir: nokogiri
             path: bash
             args:
-              - "-c"
+              - "-ce"
               - |
                 apt update
                 apt install -y valgrind
@@ -64,7 +90,7 @@ jobs:
     public: true
     plan:
       - get: nokogiri
-        passed: ["ruby-<%= ruby_version %>"]
+        passed: ["ruby-<%= ruby_version %>-vendored"]
         trigger: true
       - task: rake-test
         config:
@@ -80,9 +106,9 @@ jobs:
             dir: nokogiri
             path: bash
             args:
-              - "-c"
+              - "-ce"
               - |
-                export BUNDLE_GEMFILE="Gemfile-libxml-ruby"
+                export BUNDLE_GEMFILE=Gemfile-libxml-ruby
                 bundle install
                 bundle exec rake test:libxml-ruby
 
@@ -106,9 +132,9 @@ jobs:
             dir: nokogiri
             path: bash
             args:
-              - "-c"
+              - "-ce"
               - |
-                export BUNDLE_GEMFILE="Gemfile-libxml-ruby"
+                export BUNDLE_GEMFILE=Gemfile-libxml-ruby
                 apt update
                 apt install -y valgrind
                 bundle install
@@ -137,7 +163,7 @@ jobs:
             dir: nokogiri
             path: bash
             args:
-              - "-c"
+              - "-ce"
               - |
                 bundle install
                 bundle exec rake test
@@ -163,7 +189,7 @@ jobs:
             dir: nokogiri
             path: bash
             args:
-              - "-c"
+              - "-ce"
               - |
                 apt update
                 apt install -y ca-certificates gcc
