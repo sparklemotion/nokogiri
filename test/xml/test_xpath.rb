@@ -200,12 +200,7 @@ module Nokogiri
         end
         stop = Time.now
         elapsed_time = stop - start
-        time_limit =
-          if ENV['TRAVIS'] && ENV['CI']
-            20 # Travis CI box slowness
-          else
-            10
-          end
+        time_limit = 20
         assert_send [elapsed_time, :<, time_limit], "XPath is taking too long"
       end
 
