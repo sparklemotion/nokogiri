@@ -234,6 +234,9 @@ module Nokogiri
       end
 
       def test_element_children_counts
+        if Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO['libxml']['loaded'] <= "2.9.1"
+          skip "#elements doesn't work in 2.9.1, see 1793a5a for history"
+        end
         doc = Nokogiri::HTML::DocumentFragment.parse("   <div>  </div>\n   ")
         assert_equal 1, doc.element_children.count
       end
