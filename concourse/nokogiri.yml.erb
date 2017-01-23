@@ -1,0 +1,169 @@
+resources:
+- name: nokogiri
+  type: git
+  source:
+    uri: https://github.com/sparklemotion/nokogiri/
+    branch: master
+
+jobs:
+  <% for ruby_version in RUBIES[:mri] %>
+  - name: "ruby-<%= ruby_version %>"
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: ruby
+              tag: "<%= ruby_version %>"
+          platform: linux
+          inputs:
+            - name: nokogiri
+          run:
+            dir: nokogiri
+            path: bash
+            args:
+              - "-c"
+              - >-
+                bundle install &&
+                rake test
+
+  - name: "ruby-<%= ruby_version %>-valgrind"
+    public: true
+    plan:
+      - get: nokogiri
+        passed: ["ruby-<%= ruby_version %>"]
+        trigger: true
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: ruby
+              tag: "<%= ruby_version %>"
+          platform: linux
+          inputs:
+            - name: nokogiri
+          run:
+            dir: nokogiri
+            path: bash
+            args:
+              - "-c"
+              - >-
+                apt update &&
+                apt install -y valgrind &&
+                bundle install &&
+                rake test:valgrind
+
+  - name: "ruby-<%= ruby_version %>-libxmlruby"
+    public: true
+    plan:
+      - get: nokogiri
+        passed: ["ruby-<%= ruby_version %>"]
+        trigger: true
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: ruby
+              tag: "<%= ruby_version %>"
+          platform: linux
+          inputs:
+            - name: nokogiri
+          run:
+            dir: nokogiri
+            path: bash
+            args:
+              - "-c"
+              - >-
+                BUNDLE_GEMFILE="Gemfile-libxml-ruby"
+                bundle install &&
+                rake test:libxml-ruby
+
+  - name: "ruby-<%= ruby_version %>-libxmlruby-valgrind"
+    public: true
+    plan:
+      - get: nokogiri
+        passed: ["ruby-<%= ruby_version %>-libxmlruby"]
+        trigger: true
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: ruby
+              tag: "<%= ruby_version %>"
+          platform: linux
+          inputs:
+            - name: nokogiri
+          run:
+            dir: nokogiri
+            path: bash
+            args:
+              - "-c"
+              - >-
+                apt update &&
+                apt install -y valgrind &&
+                bundle install &&
+                rake test:valgrind:libxml-ruby
+  <% end %>
+
+  <% for jruby_version in RUBIES[:jruby] %>
+  - name: "jruby-<%= jruby_version %>"
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: jruby
+              tag: "<%= jruby_version %>-jdk"
+          platform: linux
+          inputs:
+            - name: nokogiri
+          params:
+            JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
+          run:
+            dir: nokogiri
+            path: bash
+            args:
+              - "-c"
+              - >-
+                bundle install &&
+                rake test
+  <% end %>
+
+  <% for rbx_version in RUBIES[:rbx] %>
+  - name: "rbx-<%= rbx_version %>"
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: rubinius/docker
+              tag: "<%= rbx_version %>"
+          platform: linux
+          inputs:
+            - name: nokogiri
+          run:
+            dir: nokogiri
+            path: bash
+            args:
+              - "-c"
+              - >-
+                apt update &&
+                apt install -y ca-certificates gcc &&
+                bundle install &&
+                rake test
+  <% end %>

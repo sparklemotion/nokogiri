@@ -131,15 +131,16 @@ HOE = Hoe.spec 'nokogiri' do
 
   self.extra_dev_deps += [
     ["hoe-bundler",        "~> 1.2.0"],
-    ["hoe-debugging",      "~> 1.2.1"],
+    ["hoe-debugging",      "~> 1.3.0"],
     ["hoe-gemspec",        "~> 1.0.0"],
     ["hoe-git",            "~> 1.6.0"],
     ["minitest",           "~> 5.8.4"],
-    ["rake",               "~> 10.5.0"],
+    ["rake",               "~> 12.0"],
     ["rake-compiler",      "~> 1.0.3"],
     ["rake-compiler-dock", "~> 0.6.0"],
     ["racc",               "~> 1.4.14"],
-    ["rexical",            "~> 1.0.5"]
+    ["rexical",            "~> 1.0.5"],
+    ["concourse",          "~> 0.1"],
   ]
 
   if java?
@@ -328,6 +329,9 @@ task "test:valgrind:libxml-ruby" do
 end
 
 Rake::Task["test:valgrind:libxml-ruby"].prerequisites << :compile
+
+require 'concourse'
+Concourse.new("nokogiri").create_tasks!
 
 # ----------------------------------------
 

@@ -1,0 +1,2 @@
+gem "libxml-ruby", :platform => :mri, :require => false
+eval_gemfile File.join(File.dirname(ENV['BUNDLE_GEMFILE']),"Gemfile")

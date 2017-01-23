@@ -11,9 +11,10 @@
 .ruby-version
 .rvmrc
 .settings
-Gemfile*
+Gemfile*lock
 TAGS
 build
+concourse/*.yml
 ext/java/Canna
 ext/java/nokogiri/**/*.class
 ext/nokogiri/*.dll
