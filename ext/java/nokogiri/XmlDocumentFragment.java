@@ -53,6 +53,7 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.NamedNodeMap;
 
@@ -106,10 +107,11 @@ public class XmlDocumentFragment extends XmlNode {
         return fragment;
     }
 
-    private static boolean isTag(RubyString ruby_string) {
-        String str = rubyStringToString(ruby_string);
-        if (str.startsWith("<") && str.endsWith(">")) return true;
-        return false;
+    private static final ByteList TAG_BEG = ByteList.create("<");
+    private static final ByteList TAG_END = ByteList.create(">");
+
+    private static boolean isTag(final RubyString str) {
+        return str.getByteList().startsWith(TAG_BEG) && str.getByteList().endsWith(TAG_END);
     }
 
     private static Pattern qname_pattern = Pattern.compile("[^</:>\\s]+:[^</:>=\\s]+");
