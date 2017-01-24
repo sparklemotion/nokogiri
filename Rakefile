@@ -255,7 +255,7 @@ task 'bundler:gemfile' do
   old_gemfile_task.invoke if old_gemfile_task
 
   lines = File.open('Gemfile', 'r') { |f| f.readlines }.map do |line|
-    line =~ /racc|rexical/ ? "#{line.strip}, :platform => :ruby" : line
+    line =~ /racc|rexical/ ? "#{line.strip}, :platform => [:ruby, :mingw, :x64_mingw]" : line
   end
   File.open('Gemfile', 'w') { |f| lines.each { |line| f.puts line } }
 end

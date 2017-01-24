@@ -14,8 +14,8 @@ gem "minitest", "~>5.8.4", :group => [:development, :test]
 gem "rake", "~>12.0", :group => [:development, :test]
 gem "rake-compiler", "~>1.0.3", :group => [:development, :test]
 gem "rake-compiler-dock", "~>0.6.0", :group => [:development, :test]
-gem "racc", "~>1.4.14", :group => [:development, :test], :platform => :ruby
-gem "rexical", "~>1.0.5", :group => [:development, :test], :platform => :ruby
+gem "racc", "~>1.4.14", :group => [:development, :test], :platform => [:ruby, :mingw, :x64_mingw]
+gem "rexical", "~>1.0.5", :group => [:development, :test], :platform => [:ruby, :mingw, :x64_mingw]
 gem "concourse", "~>0.1", :group => [:development, :test]
 gem "rdoc", "~>4.0", :group => [:development, :test]
 gem "hoe", "~>3.16", :group => [:development, :test]
