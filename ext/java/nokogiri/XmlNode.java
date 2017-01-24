@@ -60,6 +60,7 @@ import org.apache.xerces.dom.CoreDocumentImpl;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyInteger;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyModule;
 import org.jruby.RubyObject;
@@ -940,22 +941,21 @@ public class XmlNode extends RubyObject {
     }
 
     public IRubyObject dup() {
-        return this.dup_implementation(getMetaClass().getClassRuntime(), true);
+        return dup_implementation(getMetaClass().getClassRuntime(), true);
     }
 
     @JRubyMethod
     public IRubyObject dup(ThreadContext context) {
-        return this.dup_implementation(context, true);
+        return dup_implementation(context, true);
     }
 
     @JRubyMethod
     public IRubyObject dup(ThreadContext context, IRubyObject depth) {
-        boolean deep = (Integer)depth.toJava(Integer.class) != 0;
-
-        return this.dup_implementation(context, deep);
+        boolean deep = depth instanceof RubyInteger && RubyFixnum.fix2int(depth) != 0;
+        return dup_implementation(context, deep);
     }
 
-    protected IRubyObject dup_implementation(ThreadContext context, boolean deep) {
+    protected final IRubyObject dup_implementation(ThreadContext context, boolean deep) {
        return dup_implementation(context.getRuntime(), deep);
     }
 
