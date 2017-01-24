@@ -807,13 +807,13 @@ public class NokogiriHelpers {
         }
     }
 
-    private static Charset shift_jis = Charset.forName("Shift_JIS");
-    private static Charset jis = Charset.forName("ISO-2022-JP");
-    private static Charset euc_jp = Charset.forName("EUC-JP");
+    private static final Charset shift_jis = Charset.forName("Shift_JIS");
+    private static final Charset jis = Charset.forName("ISO-2022-JP");
+    private static final Charset euc_jp = Charset.forName("EUC-JP");
 
     public static boolean shouldEncode(Node text) {
-      return text.getUserData(NokogiriHelpers.ENCODED_STRING) == null ||
-          !((Boolean)text.getUserData(NokogiriHelpers.ENCODED_STRING));
+        final Boolean encoded = (Boolean) text.getUserData(NokogiriHelpers.ENCODED_STRING);
+        return encoded == null || ! encoded;
     }
 
     public static boolean shouldDecode(Node text) {
