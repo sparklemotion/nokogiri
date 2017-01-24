@@ -44,6 +44,7 @@ import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -73,6 +74,7 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
@@ -1271,14 +1273,16 @@ public class XmlNode extends RubyObject {
             new SaveContextVisitor((Integer) options.toJava(Integer.class), rubyStringToString(indentString), encString, isHtmlDoc(context), isFragment(), 0);
         accept(context, visitor);
 
-        IRubyObject rubyString = null;
+        final IRubyObject rubyString;
         if (NokogiriHelpers.isUTF8(encString)) {
             rubyString = stringOrNil(context.getRuntime(), visitor.toString());
         } else {
             try {
-                byte[] bytes = NokogiriHelpers.convertEncoding(Charset.forName(encString), visitor.toString());
-                rubyString = stringOrNil(context.getRuntime(), bytes);
-            } catch (CharacterCodingException e) {
+                ByteBuffer bytes = NokogiriHelpers.convertEncoding(Charset.forName(encString), visitor.toString());
+                ByteList str = new ByteList(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+                rubyString = RubyString.newString(context.getRuntime(), str);
+            }
+            catch (CharacterCodingException e) {
                 throw context.getRuntime().newRuntimeError(e.getMessage());
             }
         }

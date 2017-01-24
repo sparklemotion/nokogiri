@@ -42,8 +42,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -203,7 +201,7 @@ public class NokogiriHelpers {
         if (bytes == null) return runtime.getNil();
         return RubyString.newString(runtime, bytes);
     }
-    
+
     public static IRubyObject stringOrBlank(Ruby runtime, String s) {
         if (s == null) return runtime.newString();
         return convertJavaStringToRuby(runtime, s);
@@ -740,13 +738,10 @@ public class NokogiriHelpers {
         return ret == 0;
     }
 
-    public static byte[] convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
+    public static ByteBuffer convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
         CharsetEncoder encoder = output_charset.newEncoder();
         CharBuffer charBuffer = CharBuffer.wrap(input_string);
-        ByteBuffer byteBuffer = encoder.encode(charBuffer);
-        byte[] buffer = new byte[byteBuffer.remaining()];
-        byteBuffer.get(buffer);
-        return buffer;
+        return encoder.encode(charBuffer);
     }
 
     public static String convertEncodingByNKFIfNecessary(Ruby runtime, XmlDocument doc, String thing) {
