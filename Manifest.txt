@@ -359,4 +359,3 @@ test/xml/test_xinclude.rb
 test/xml/test_xpath.rb
 test/xslt/test_custom_functions.rb
 test/xslt/test_exception_handling.rb
-test_all
