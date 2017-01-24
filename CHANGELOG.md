@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-* Upgrade zlib from 1.2.8 to 1.2.10 (unless --use-system-libraries)
+* Upgrade zlib from 1.2.8 to 1.2.11 (unless --use-system-libraries)
 * Upgrade rake-compiler dependency from 0.9.2 to 1.0.3
 
 
