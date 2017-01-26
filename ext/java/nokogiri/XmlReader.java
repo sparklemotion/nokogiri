@@ -329,7 +329,7 @@ public class XmlReader extends RubyObject {
             continueParsing = config.parse(false);
         }
         catch (XNIException e) {
-            throw new RaiseException(XmlSyntaxError.createXMLSyntaxError(context.runtime)); // Nokogiri::XML::SyntaxError
+            throw new RaiseException(XmlSyntaxError.createXMLSyntaxError(context.runtime, e)); // Nokogiri::XML::SyntaxError
         }
         catch (IOException e) {
             throw context.runtime.newRuntimeError(e.toString());

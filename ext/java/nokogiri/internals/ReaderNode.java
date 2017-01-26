@@ -471,10 +471,10 @@ public abstract class ReaderNode {
     public static class ExceptionNode extends EmptyNode {
         private final XmlSyntaxError exception;
 
-        // Still don't know what to do with ex.
         public ExceptionNode(Ruby runtime, Exception ex) {
             super(runtime);
             exception = XmlSyntaxError.createXMLSyntaxError(runtime); // Nokogiri::XML::SyntaxError
+            exception.setException(ex);
         }
 
         @Override

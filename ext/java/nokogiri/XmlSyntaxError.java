@@ -69,6 +69,11 @@ public class XmlSyntaxError extends RubyException {
         return new XmlSyntaxError(runtime, klazz);
     }
 
+    public static XmlSyntaxError createXMLSyntaxError(final Ruby runtime, final Exception ex) {
+        RubyClass klazz = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SyntaxError");
+        return new XmlSyntaxError(runtime, klazz, ex);
+    }
+
     public static XmlSyntaxError createHTMLSyntaxError(final Ruby runtime) {
         RubyClass klazz = (RubyClass) runtime.getClassFromPath("Nokogiri::HTML::SyntaxError");
         return new XmlSyntaxError(runtime, klazz);
