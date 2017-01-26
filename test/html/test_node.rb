@@ -31,7 +31,7 @@ module Nokogiri
         assert_equal 'baz', element.get_attribute('class')
         assert_equal 'baz', element['class']
         element['href'] = "javascript:alert(\"AGGA-KA-BOO!\")"
-        assert_match(/%22AGGA-KA-BOO!%22/, element.to_html)
+        assert_match(/&quot;AGGA-KA-BOO!&quot;/, element.to_html)
       end
 
       # The HTML parser ignores namespaces, so even properly declared namespaces
