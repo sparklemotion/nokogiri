@@ -36,6 +36,7 @@ import static java.lang.Math.max;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.clearCachedNode;
 import static nokogiri.internals.NokogiriHelpers.clearXpathContext;
+import static nokogiri.internals.NokogiriHelpers.convertString;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
 import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
@@ -887,20 +888,20 @@ public class XmlNode extends RubyObject {
         if (!node.hasChildNodes() && node.getNodeValue() == null &&
             (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE))
           return context.nil;
-        String textContent;
+        CharSequence textContent;
         if (this instanceof XmlDocument) {
             Node node = ((Document)this.node).getDocumentElement();
             if (node == null) {
                 textContent = "";
             } else {
                 Node documentElement = ((Document) this.node).getDocumentElement();
-                textContent = getTextContentRecursively(new StringBuilder(), documentElement).toString();
+                textContent = getTextContentRecursively(new StringBuilder(), documentElement);
             }
         } else {
-            textContent = getTextContentRecursively(new StringBuilder(), node).toString();
+            textContent = getTextContentRecursively(new StringBuilder(), node);
         }
         NokogiriHelpers.convertEncodingByNKFIfNecessary(context, (XmlDocument)document(context), textContent);
-        return stringOrNil(context.getRuntime(), textContent);
+        return convertString(context.getRuntime(), textContent);
     }
 
     private StringBuilder getTextContentRecursively(StringBuilder buffer, Node currentNode) {

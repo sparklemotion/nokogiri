@@ -61,7 +61,6 @@ import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
 import nokogiri.XmlXpathContext;
 
-import org.jcodings.specific.UTF8Encoding;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -192,28 +191,30 @@ public class NokogiriHelpers {
         return NokogiriService.getNokogiriClassCache(ruby).get(name);
     }
 
-    public static IRubyObject stringOrNil(Ruby runtime, String s) {
-        if (s == null) return runtime.getNil();
-        return convertJavaStringToRuby(runtime, s);
-    }
-    
-    public static IRubyObject stringOrNil(Ruby runtime, byte[] bytes) {
-        if (bytes == null) return runtime.getNil();
-        return RubyString.newString(runtime, bytes);
+    public static IRubyObject stringOrNil(Ruby runtime, String str) {
+        return str == null ? runtime.getNil() : convertString(runtime, str);
     }
 
-    public static IRubyObject stringOrBlank(Ruby runtime, String s) {
-        if (s == null) return runtime.newString();
-        return convertJavaStringToRuby(runtime, s);
+    public static IRubyObject stringOrNil(Ruby runtime, CharSequence str) {
+        return str == null ? runtime.getNil() : convertString(runtime, str);
+    }
+
+    public static IRubyObject stringOrNil(Ruby runtime, byte[] bytes) {
+        return bytes == null ? runtime.getNil() : RubyString.newString(runtime, bytes);
+    }
+
+    public static IRubyObject stringOrBlank(Ruby runtime, String str) {
+        return str == null ? runtime.newString() : convertString(runtime, str);
     }
     
-    private static IRubyObject convertJavaStringToRuby(Ruby runtime, String str) {
-        if (runtime.is1_9()) {
-            ByteList bytes = new ByteList(str.getBytes(RubyEncoding.UTF8), UTF8Encoding.INSTANCE);
-            return RubyString.newString(runtime, bytes);
-        } else {
-            return RubyString.newString(runtime, str);
-        }
+    public static RubyString convertString(Ruby runtime, String str) {
+        if (runtime.is1_8()) return RubyString.newString(runtime, str); // 1.8 not really supported (could get removed)
+        return RubyString.newUTF8String(runtime, str);
+    }
+
+    public static RubyString convertString(Ruby runtime, CharSequence str) {
+        if (runtime.is1_8()) return RubyString.newString(runtime, str); // 1.8 not really supported (could get removed)
+        return RubyString.newUTF8String(runtime, str);
     }
 
     /**
@@ -739,7 +740,7 @@ public class NokogiriHelpers {
         return encoder.encode(charBuffer);
     }
 
-    public static String convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, String str) {
+    public static CharSequence convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, CharSequence str) {
         if (!(doc instanceof HtmlDocument)) return str;
         String parsed_encoding = ((HtmlDocument)doc).getPraedEncoding();
         if (parsed_encoding == null) return str;
@@ -760,7 +761,7 @@ public class NokogiriHelpers {
     // a meta tag. In such a case, Xerces encodes characters in UTF-8 without seeing meta tag.
     // Nokogiri uses NKF library to convert characters correct encoding. This means the method
     // works only for JIS/Shift_JIS/EUC-JP.
-    static String nkf(ThreadContext context, Charset encoding, String str) {
+    static CharSequence nkf(ThreadContext context, Charset encoding, CharSequence str) {
         final Ruby runtime = context.getRuntime();
 
         final ByteList opt;
@@ -785,7 +786,7 @@ public class NokogiriHelpers {
         try {
             nkf_method = nkfClass.getMethod("nkf", ThreadContext.class, IRubyObject.class, IRubyObject.class, IRubyObject.class);
             RubyString r_str = 
-                (RubyString)nkf_method.invoke(null, context, null, runtime.newString(opt), runtime.newString(str));
+                (RubyString)nkf_method.invoke(null, context, null, runtime.newString(opt), runtime.newString(str.toString()));
             return NokogiriHelpers.rubyStringToString(r_str);
         } catch (SecurityException e) {
             return str;
