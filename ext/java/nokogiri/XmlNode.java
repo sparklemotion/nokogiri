@@ -290,7 +290,7 @@ public class XmlNode extends RubyObject {
         Ruby ruby = context.getRuntime();
         RubyClass klazz = (RubyClass) cls;
 
-        if (cls.equals(getNokogiriClass(ruby, "Nokogiri::XML::Node"))) {
+        if ("Nokogiri::XML::Node".equals(klazz.getName())) {
             klazz = getNokogiriClass(ruby, "Nokogiri::XML::Element");
         }
 
