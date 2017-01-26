@@ -956,7 +956,6 @@ public class XmlNode extends RubyObject {
         } catch (CloneNotSupportedException e) {
             throw runtime.newRuntimeError(e.toString());
         }
-        if (node == null) throw runtime.newRuntimeError("FFFFFFFFFUUUUUUU");
         Node newNode = node.cloneNode(deep);
         clone.node = newNode;
         return clone;
