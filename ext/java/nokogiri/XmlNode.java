@@ -123,12 +123,11 @@ public class XmlNode extends RubyObject {
      * in <code>context</code>.
      */
     protected static XmlNode asXmlNode(ThreadContext context, IRubyObject node) {
-        if (node == null || !(node instanceof XmlNode)) {
-            Ruby ruby = context.getRuntime();
-            throw ruby.newTypeError(node, getNokogiriClass(ruby, "Nokogiri::XML::Node"));
-        } else {
-            return (XmlNode) node;
+        if ( !(node instanceof XmlNode) ) {
+            final Ruby runtime = context.getRuntime();
+            throw runtime.newTypeError(node == null ? runtime.getNil() : node, getNokogiriClass(runtime, "Nokogiri::XML::Node"));
         }
+        return (XmlNode) node;
     }
 
     /**
@@ -136,11 +135,8 @@ public class XmlNode extends RubyObject {
      * raise a type error in <code>context</code>.
      */
     protected static XmlNode asXmlNodeOrNull(ThreadContext context, IRubyObject node) {
-        if (node == null || node.isNil()) {
-            return null;
-        } else {
-            return asXmlNode(context, node);
-        }
+        if (node == null || node.isNil()) return null;
+        return asXmlNode(context, node);
     }
 
     /**
