@@ -179,8 +179,6 @@ public class XmlXpathContext extends RubyObject {
     }
 
     private IRubyObject tryGetNodeSet(ThreadContext thread_context, String expr) throws XPathExpressionException {
-        XObject xobj = null;
-
         Node contextNode = context.node;
 
         try {
@@ -190,7 +188,7 @@ public class XmlXpathContext extends RubyObject {
           // We always need to have a ContextNode with Xalan XPath implementation
           // To allow simple expression evaluation like 1+1 we are setting
           // dummy Document as Context Node
-
+          final XObject xobj;
           if ( contextNode == null )
               xobj = xpathInternal.execute(xpathSupport, DTM.NULL, prefixResolver);
           else

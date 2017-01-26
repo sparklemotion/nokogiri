@@ -56,7 +56,7 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
             int level;
             boolean rendered = false;
             List<Attr> nodes = new ArrayList<Attr>();
-        };
+        }
 
         int currentLevel = 0;
         int lastlevel = 0;
@@ -99,11 +99,10 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
                 levels.add(cur);
             }
             boolean parentRendered = false;
-            XmlsStackElement e = null;
             if (size == -1) {
                 parentRendered = true;
             } else {
-                e = levels.get(size);
+                XmlsStackElement e = levels.get(size);
                 if (e.rendered && e.level + 1 == currentLevel) {
                     parentRendered = true;
                 }
@@ -118,7 +117,7 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
             List<Attr> baseAttrs = new ArrayList<Attr>();
             boolean successiveOmitted = true;
             for (; size >= 0; size--) {
-                e = levels.get(size);
+                XmlsStackElement e = levels.get(size);
                 if (e.rendered) {
                     successiveOmitted = false;
                 }
@@ -167,7 +166,7 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
             cur.rendered = true;
             col.addAll(loa.values());
         }
-    };
+    }
 
     private final XmlAttrStack xmlattrStack = new XmlAttrStack();
 
@@ -593,7 +592,7 @@ public abstract class Canonicalizer11 extends CanonicalizerBase {
                 // character (if any) and any subsequent characters up to, but not
                 // including, the next "/" character or the end of the input buffer.
             } else {
-                int end = -1;
+                int end;
                 int begin = input.indexOf('/');
                 if (begin == 0) {
                     end = input.indexOf('/', 1);

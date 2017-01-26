@@ -423,12 +423,12 @@ public class XmlReader extends RubyObject {
 
 
         @Override
-        public void startGeneralEntity(String name, XMLResourceIdentifier identifier, String encoding,
-            Augmentations augs) throws XNIException {
-          Object entitySkipped;
-          if (augs != null && (entitySkipped = augs.getItem(Constants.ENTITY_SKIPPED)) != null && ((Boolean) entitySkipped) == true) {
-            nodeQueue.add(new ReaderNode.ExceptionNode(ruby, null));
-          }
+        public void startGeneralEntity(String name, XMLResourceIdentifier identifier,
+                                       String encoding, Augmentations augs) throws XNIException {
+            Object entitySkipped;
+            if (augs != null && (entitySkipped = augs.getItem(Constants.ENTITY_SKIPPED)) != null && ((Boolean) entitySkipped)) {
+                nodeQueue.add(new ReaderNode.ExceptionNode(ruby, null));
+            }
         }
 
 
@@ -528,5 +528,5 @@ public class XmlReader extends RubyObject {
             nodeQueue.add(new ReaderNode.ExceptionNode(ruby, ex));
             throw ex;
         }
-    };
+    }
 }

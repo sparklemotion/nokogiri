@@ -136,7 +136,7 @@ public class NokogiriService implements BasicLibraryService {
         nokogiri.defineConstant("NEKO_VERSION", ruby.newString(org.cyberneko.html.Version.getVersion()));
     }
 
-    private void createNokogiriModule(Ruby ruby, RubyModule nokogiri) {;
+    private void createNokogiriModule(Ruby ruby, RubyModule nokogiri) {
         RubyClass encHandler = nokogiri.defineClassUnder("EncodingHandler", ruby.getObject(), ENCODING_HANDLER_ALLOCATOR);
         encHandler.defineAnnotatedMethods(EncodingHandler.class);
     }

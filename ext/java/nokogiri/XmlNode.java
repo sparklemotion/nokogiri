@@ -334,7 +334,7 @@ public class XmlNode extends RubyObject {
             throw getRuntime().newArgumentError("node must have owner document");
         }
 
-        Element element = null;
+        Element element;
         String node_name = rubyStringToString(name);
         String prefix = NokogiriHelpers.getPrefix(node_name);
         String namespace_uri = null;
@@ -886,8 +886,9 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(name = {"content", "text", "inner_text"})
     public IRubyObject content(ThreadContext context) {
         if (!node.hasChildNodes() && node.getNodeValue() == null &&
-            (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE))
-          return context.nil;
+            (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE)) {
+            return context.nil;
+        }
         CharSequence textContent;
         if (this instanceof XmlDocument) {
             Node node = ((Document)this.node).getDocumentElement();
@@ -1540,7 +1541,7 @@ public class XmlNode extends RubyObject {
     }
 
     protected enum AdoptScheme {
-        CHILD, PREV_SIBLING, NEXT_SIBLING, REPLACEMENT;
+        CHILD, PREV_SIBLING, NEXT_SIBLING, REPLACEMENT
     }
 
     /**

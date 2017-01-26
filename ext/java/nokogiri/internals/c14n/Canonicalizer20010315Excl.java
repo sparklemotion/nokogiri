@@ -154,7 +154,7 @@ public abstract class Canonicalizer20010315Excl extends CanonicalizerBase {
                 }
             }
         }
-        String prefix = null;
+        String prefix;
         if (element.getNamespaceURI() != null
             && !(element.getPrefix() == null || element.getPrefix().length() == 0)) {
             prefix = element.getPrefix();
@@ -256,7 +256,7 @@ public abstract class Canonicalizer20010315Excl extends CanonicalizerBase {
                 ns.addMapping(XMLNS, "", nullNode);
             }
 
-            String prefix = null;
+            String prefix;
             if (element.getNamespaceURI() != null
                 && !(element.getPrefix() == null || element.getPrefix().length() == 0)) {
                 prefix = element.getPrefix();

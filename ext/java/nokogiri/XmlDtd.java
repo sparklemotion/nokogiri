@@ -130,7 +130,7 @@ public class XmlDtd extends XmlNode {
                                   IRubyObject external_id,
                                   IRubyObject system_id) {
 
-        DocumentType placeholder = null;
+        DocumentType placeholder;
         if (doc.getDoctype() == null) {
           String javaName = NokogiriHelpers.rubyStringToString(name);
           String javaExternalId = NokogiriHelpers.rubyStringToString(external_id);

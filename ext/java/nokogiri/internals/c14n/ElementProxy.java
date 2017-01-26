@@ -109,7 +109,7 @@ public abstract class ElementProxy {
     protected Element createElementForFamilyLocal(
         Document doc, String namespace, String localName
     ) {	   	  
-        Element result = null;
+        Element result;
         if (namespace == null) {
             result = doc.createElementNS(null, localName);
         } else {
@@ -140,7 +140,7 @@ public abstract class ElementProxy {
      * @return The element created.
      */
     public static Element createElementForFamily(Document doc, String namespace, String localName) {
-        Element result = null;
+        Element result;
         String prefix = ElementProxy.getDefaultPrefix(namespace);
 
         if (namespace == null) {

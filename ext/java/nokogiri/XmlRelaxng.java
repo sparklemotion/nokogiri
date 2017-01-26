@@ -93,7 +93,7 @@ public class XmlRelaxng extends XmlSchema {
     }
 
     private Schema getSchema(Source source, ThreadContext context) {
-        InputStream is = null;
+        InputStream is;
         VerifierFactory factory = new com.thaiopensource.relaxng.jarv.VerifierFactoryImpl();
         if (source instanceof StreamSource) {
             StreamSource ss = (StreamSource)source;

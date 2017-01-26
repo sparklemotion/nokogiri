@@ -397,7 +397,7 @@ public class XMLUtils {
      */
     public static boolean protectAgainstWrappingAttack(Node startNode, String value) {
         Node startParent = startNode.getParentNode();
-        Node processedNode = null;
+        Node processedNode;
         Element foundElement = null;
 
         String id = value.trim();
@@ -458,7 +458,7 @@ public class XMLUtils {
         Node startNode, Element knownElement, String value
     ) {
         Node startParent = startNode.getParentNode();
-        Node processedNode = null;
+        Node processedNode;
 
         String id = value.trim();
         if (id.charAt(0) == '#') {

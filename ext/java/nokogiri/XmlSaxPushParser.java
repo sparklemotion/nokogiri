@@ -152,7 +152,7 @@ public class XmlSaxPushParser extends RubyObject {
             throw new RaiseException(xmlSyntaxError);
         }
 
-        int errorCount0 = parserTask.getErrorCount();;
+        int errorCount0 = parserTask.getErrorCount();
 
 
         if (isLast.isTrue()) {
