@@ -384,7 +384,7 @@ public class XmlNode extends RubyObject {
         boolean closingTag = false;
         String indentString = rubyStringToString(indentStringObject);
         int lengthInd = indentString.length();
-        StringBuffer curInd = new StringBuffer();
+        StringBuilder curInd = new StringBuilder();
 
         resultLines[0] = lines[0];
 
@@ -408,10 +408,9 @@ public class XmlNode extends RubyObject {
             closingTag = false;
         }
 
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         for(int i = 0; i < resultLines.length; i++) {
-            result.append(resultLines[i]);
-            result.append("\n");
+            result.append(resultLines[i]).append('\n');
         }
 
         return result.toString();
