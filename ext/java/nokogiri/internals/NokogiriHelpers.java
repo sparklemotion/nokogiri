@@ -610,11 +610,10 @@ public class NokogiriHelpers {
         if (obj == null || obj.isNil()) return false;
 
         XmlNode node = (XmlNode) obj;
-        if (!(node instanceof XmlText))
-            return false;
+        if (!(node instanceof XmlText)) return false;
 
         String content = rubyStringToString(node.content(context));
-        return content.trim().length() == 0;
+        return content == null || content.trim().length() == 0;
     }
 
     public static boolean isWhitespaceText(String s) {
@@ -684,8 +683,7 @@ public class NokogiriHelpers {
     }
 
     private static String guessEncoding() {
-        String name = null;
-        if (name == null) name = System.getProperty("file.encoding");
+        String name = System.getProperty("file.encoding");
         if (name == null) name = "UTF-8";
         return name;
     }
