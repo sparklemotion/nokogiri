@@ -258,12 +258,7 @@ public class NokogiriHelpers {
         return ("xmlns".equals(localName)) ? null : localName;
     }
 
-    private static Charset utf8 = null;
-    
-    private static Charset getCharsetUTF8() {
-        if (utf8 == null) utf8 = Charset.forName("UTF-8");
-        return utf8;
-    }
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
      * Converts a RubyString in to a Java String.  Assumes the
@@ -306,7 +301,7 @@ public class NokogiriHelpers {
         int offset = byteList.begin();
         int len = byteList.length();
         ByteBuffer buf = ByteBuffer.wrap(data, offset, len);
-        return getCharsetUTF8().decode(buf).toString();
+        return UTF8.decode(buf).toString();
     }
 
     public static ByteArrayInputStream stringBytesToStream(final IRubyObject str) {
