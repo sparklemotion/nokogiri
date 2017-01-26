@@ -748,6 +748,7 @@ public class NokogiriHelpers {
         if (ruby_encoding == null) return str;
         Charset encoding = Charset.forName(ruby_encoding);
         if (Charset.forName(parsed_encoding).compareTo(encoding) == 0) return str;
+        if (str.length() == 0) return str; // no need to convert
         return NokogiriHelpers.nkf(context, encoding, str);
     }
 
@@ -761,9 +762,8 @@ public class NokogiriHelpers {
     // a meta tag. In such a case, Xerces encodes characters in UTF-8 without seeing meta tag.
     // Nokogiri uses NKF library to convert characters correct encoding. This means the method
     // works only for JIS/Shift_JIS/EUC-JP.
-    static CharSequence nkf(ThreadContext context, Charset encoding, CharSequence str) {
+    private static CharSequence nkf(ThreadContext context, Charset encoding, CharSequence str) {
         final Ruby runtime = context.getRuntime();
-
         final ByteList opt;
         if (NokogiriHelpers.shift_jis.compareTo(encoding) == 0) opt = _Sw;
         else if (NokogiriHelpers.jis.compareTo(encoding) == 0) opt = _Jw;
