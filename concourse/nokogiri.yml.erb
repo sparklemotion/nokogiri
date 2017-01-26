@@ -1,3 +1,9 @@
+<%
+def anchorify string
+  string.tr '^a-zA-Z0-9', '_'
+end
+%>
+
 groups:
   - name: master
     jobs:
@@ -14,6 +20,15 @@ groups:
       <% for rbx_version in RUBIES[:rbx] %>
         - "rbx-<%= rbx_version %>"
       <% end %>
+  - name: PRs
+    jobs:
+      - "ruby-<%= RUBIES[:mri].last %>-system-pr"
+
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
 
 resources:
   - name: nokogiri
@@ -23,6 +38,14 @@ resources:
       branch: master
       ignore_paths:
         - concourse/**
+  - name: nokogiri-pull-requests
+    type: pull-request
+    source:
+      repo: sparklemotion/nokogiri
+      access_token: {{github-repo-status-access-token}}
+      ignore_paths:
+        - concourse/**
+      base: flavorjones-concourse-pull-requests # for testing
 
 jobs:
   <% for ruby_version in RUBIES[:mri] %>
@@ -31,7 +54,8 @@ jobs:
     plan:
       - get: nokogiri
         trigger: true
-      - task: rake-test
+      - &ruby_<%= anchorify ruby_version %>_system_task
+        task: rake-test
         config:
           image_resource:
             type: docker-image
@@ -213,3 +237,10 @@ jobs:
                 bundle install
                 bundle exec rake test
   <% end %>
+
+  - name: "ruby-<%= RUBIES[:mri].last %>-system-pr"
+    public: true
+    plan:
+      - get: nokogiri-pull-requests
+        trigger: true
+      - *ruby_<%= anchorify ruby_version %>_system_task
