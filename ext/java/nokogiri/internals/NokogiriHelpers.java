@@ -319,19 +319,14 @@ public class NokogiriHelpers {
 
         // TODO: Rename buffer to path.
         String buffer = "";
-        String sep;
-        String name;
-
-        int occur = 0;
-        boolean generic;
 
         cur = node;
 
         do {
-            name = "";
-            sep = "?";
-            occur = 0;
-            generic = false;
+            String name = "";
+            String sep = "?";
+            int occur = 0;
+            boolean generic = false;
 
             if(cur.getNodeType() == Node.DOCUMENT_NODE) {
                 if(buffer.startsWith("/")) break;
