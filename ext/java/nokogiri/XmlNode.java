@@ -297,7 +297,7 @@ public class XmlNode extends RubyObject {
         XmlNode xmlNode = (XmlNode) klazz.allocate();
         xmlNode.init(context, args);
         xmlNode.callInit(args, block);
-        if (xmlNode.node == null) context.getRuntime().newRuntimeError("NODE IS NULL");
+        assert xmlNode.node != null;
         if (block.isGiven()) block.call(context, xmlNode);
         return xmlNode;
     }
