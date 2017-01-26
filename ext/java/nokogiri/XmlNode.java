@@ -893,37 +893,32 @@ public class XmlNode extends RubyObject {
             if (node == null) {
                 textContent = "";
             } else {
-                Node documentElement = ((Document)this.node).getDocumentElement();
-                StringBuffer buffer = new StringBuffer();
-                getTextContentRecursively(context, buffer, documentElement);
-                textContent = buffer.toString();
+                Node documentElement = ((Document) this.node).getDocumentElement();
+                textContent = getTextContentRecursively(new StringBuilder(), documentElement).toString();
             }
         } else {
-            StringBuffer buffer = new StringBuffer();
-            getTextContentRecursively(context, buffer, node);
-            textContent = buffer.toString();
+            textContent = getTextContentRecursively(new StringBuilder(), node).toString();
         }
-        NokogiriHelpers.convertEncodingByNKFIfNecessary(context.getRuntime(), (XmlDocument)document(context), textContent);
+        NokogiriHelpers.convertEncodingByNKFIfNecessary(context, (XmlDocument)document(context), textContent);
         return stringOrNil(context.getRuntime(), textContent);
     }
 
-    private void getTextContentRecursively(ThreadContext context, StringBuffer buffer, Node currentNode) {
-      String textContent = currentNode.getNodeValue();
-      if (textContent != null && NokogiriHelpers.shouldDecode(currentNode))
-        textContent = NokogiriHelpers.decodeJavaString(textContent);
-      if (textContent != null)
-        buffer.append(textContent);
-      NodeList children = currentNode.getChildNodes();
-      for (int i = 0; i < children.getLength(); i++) {
-        Node child = children.item(i);
-        if (hasTextContent(child))
-          getTextContentRecursively(context, buffer, child);
-      }
+    private StringBuilder getTextContentRecursively(StringBuilder buffer, Node currentNode) {
+        String textContent = currentNode.getNodeValue();
+        if (textContent != null && NokogiriHelpers.shouldDecode(currentNode)) {
+            textContent = NokogiriHelpers.decodeJavaString(textContent);
+        }
+        if (textContent != null) buffer.append(textContent);
+        NodeList children = currentNode.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if (hasTextContent(child)) getTextContentRecursively(buffer, child);
+        }
+        return buffer;
     }
 
     private boolean hasTextContent(Node child) {
-      return child.getNodeType() != Node.COMMENT_NODE &&
-          child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
+        return child.getNodeType() != Node.COMMENT_NODE && child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
     }
 
     @JRubyMethod

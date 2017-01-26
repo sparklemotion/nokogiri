@@ -739,39 +739,37 @@ public class NokogiriHelpers {
         return encoder.encode(charBuffer);
     }
 
-    public static String convertEncodingByNKFIfNecessary(Ruby runtime, XmlDocument doc, String thing) {
-        if (!(doc instanceof HtmlDocument)) return thing;
+    public static String convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, String str) {
+        if (!(doc instanceof HtmlDocument)) return str;
         String parsed_encoding = ((HtmlDocument)doc).getPraedEncoding();
-        if (parsed_encoding == null) return thing;
+        if (parsed_encoding == null) return str;
         String ruby_encoding = rubyStringToString(doc.getEncoding());
-        if (ruby_encoding == null) return thing;
-        if (Charset.forName(parsed_encoding).compareTo(Charset.forName(ruby_encoding)) == 0) {
-            return thing;
-        } else {
-            return NokogiriHelpers.nkf(runtime, ruby_encoding, thing);
-        }
+        if (ruby_encoding == null) return str;
+        Charset encoding = Charset.forName(ruby_encoding);
+        if (Charset.forName(parsed_encoding).compareTo(encoding) == 0) return str;
+        return NokogiriHelpers.nkf(context, encoding, str);
     }
+
+    private static final ByteList _Sw = new ByteList(new byte[] { '-','S','w' }, false);
+    private static final ByteList _Jw = new ByteList(new byte[] { '-','J','w' }, false);
+    private static final ByteList _Ew = new ByteList(new byte[] { '-','E','w' }, false);
+    private static final ByteList _Ww = new ByteList(new byte[] { '-','W','w' }, false);
 
     // This method is used from HTML documents. HTML meta tag with encoding specification
     // might appear after non-ascii characters are used. For example, a title tag before
     // a meta tag. In such a case, Xerces encodes characters in UTF-8 without seeing meta tag.
     // Nokogiri uses NKF library to convert characters correct encoding. This means the method
     // works only for JIS/Shift_JIS/EUC-JP.
-    public static String nkf(Ruby runtime, String ruby_encoding, String thing) {
-        StringBuffer sb = new StringBuffer("-");
-        Charset that = Charset.forName(ruby_encoding);
-        if (NokogiriHelpers.shift_jis.compareTo(that) == 0) {
-            sb.append("S");
-        } else if (NokogiriHelpers.jis.compareTo(that) == 0) {
-            sb.append("J");
-        } else if (NokogiriHelpers.euc_jp.compareTo(that) == 0) {
-            sb.append("E");
-        } else {
-            // should not come here. should be treated before this method.
-            sb.append("W");
-        }
-        sb.append("w");
-        Class nkfClass = null;
+    static String nkf(ThreadContext context, Charset encoding, String str) {
+        final Ruby runtime = context.getRuntime();
+
+        final ByteList opt;
+        if (NokogiriHelpers.shift_jis.compareTo(encoding) == 0) opt = _Sw;
+        else if (NokogiriHelpers.jis.compareTo(encoding) == 0) opt = _Jw;
+        else if (NokogiriHelpers.euc_jp.compareTo(encoding) == 0) opt = _Ew;
+        else opt = _Ww; // should not come here. should be treated before this method.
+
+        Class nkfClass;
         try {
             // JRuby 1.7 and later
             nkfClass = runtime.getClassLoader().loadClass("org.jruby.ext.nkf.RubyNKF");
@@ -780,25 +778,25 @@ public class NokogiriHelpers {
                 // Before JRuby 1.7
                 nkfClass = runtime.getClassLoader().loadClass("org.jruby.RubyNKF");
             } catch (ClassNotFoundException e2) {
-                return thing;
+                return str;
             }
         }
         Method nkf_method;
         try {
             nkf_method = nkfClass.getMethod("nkf", ThreadContext.class, IRubyObject.class, IRubyObject.class, IRubyObject.class);
             RubyString r_str = 
-                (RubyString)nkf_method.invoke(null, runtime.getCurrentContext(), null, runtime.newString(new String(sb)), runtime.newString(thing));
+                (RubyString)nkf_method.invoke(null, context, null, runtime.newString(opt), runtime.newString(str));
             return NokogiriHelpers.rubyStringToString(r_str);
         } catch (SecurityException e) {
-            return thing;
+            return str;
         } catch (NoSuchMethodException e) {
-            return thing;
+            return str;
         } catch (IllegalArgumentException e) {
-            return thing;
+            return str;
         } catch (IllegalAccessException e) {
-            return thing;
+            return str;
         } catch (InvocationTargetException e) {
-            return thing;
+            return str;
         }
     }
 
