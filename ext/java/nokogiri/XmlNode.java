@@ -588,17 +588,15 @@ public class XmlNode extends RubyObject {
 
     protected IRubyObject getNodeName(ThreadContext context) {
         if (name != null) return name;
-        String str = null;
 
-        if (this.name == null && node != null) {
+        String str = null;
+        if (node != null) {
             str = node.getNodeName();
             str = NokogiriHelpers.getLocalPart(str);
         }
         if (str == null) str = "";
         if (str.startsWith("#")) str = str.substring(1);  // eliminates '#'
-        name = NokogiriHelpers.stringOrBlank(context.getRuntime(), str);
-
-        return name;
+        return name = NokogiriHelpers.stringOrBlank(context.getRuntime(), str);
     }
 
     /**
@@ -820,13 +818,11 @@ public class XmlNode extends RubyObject {
             ctx = new HtmlDomParserContext(runtime, options);
             ((HtmlDomParserContext)ctx).enableDocumentFragment();
             istream = new ByteArrayInputStream((rubyStringToString(str)).getBytes());
-        } else if (document instanceof XmlDocument) {
+        } else {
             klass = getNokogiriClass(runtime, "Nokogiri::XML::Document");
             ctx = new XmlDomParserContext(runtime, options);
             String input = rubyStringToString(str);
             istream = new ByteArrayInputStream(input.getBytes());
-        } else {
-            return runtime.getNil();
         }
 
         ctx.setInputSource(istream);
@@ -1208,7 +1204,7 @@ public class XmlNode extends RubyObject {
     protected void setContent(IRubyObject content) {
         String javaContent = rubyStringToString(content);
         node.setTextContent(javaContent);
-        if (javaContent.length() == 0) return;
+        if (javaContent == null || javaContent.length() == 0) return;
         if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) return;
         if (node.getFirstChild() != null) {
             node.getFirstChild().setUserData(NokogiriHelpers.ENCODED_STRING, true, null);
