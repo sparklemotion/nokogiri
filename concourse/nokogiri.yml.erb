@@ -1,9 +1,3 @@
-<%
-def anchorify string
-  string.tr '^a-zA-Z0-9', '_'
-end
-%>
-
 groups:
   - name: master
     jobs:
@@ -54,8 +48,7 @@ jobs:
     plan:
       - get: nokogiri
         trigger: true
-      - &ruby_<%= anchorify ruby_version %>_system_task
-        task: rake-test
+      - task: rake-test
         config:
           image_resource:
             type: docker-image
@@ -243,4 +236,34 @@ jobs:
     plan:
       - get: nokogiri-pull-requests
         trigger: true
-      - *ruby_<%= anchorify ruby_version %>_system_task
+        version: every
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source:
+              repository: ruby
+              tag: "<%= ruby_version %>"
+          platform: linux
+          inputs:
+            - name: nokogiri-pull-requests
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: "1"
+          run:
+            dir: nokogiri-pull-requests
+            path: bash
+            args:
+              - "-ce"
+              - |
+                bundle install
+                bundle exec rake test
+        on_success:
+          put: nokogiri-pull-requests
+          params:
+            path: nokogiri-pull-requests
+            status: success
+        on_failure:
+          put: nokogiri-pull-requests
+          params:
+            path: nokogiri-pull-requests
+            status: failure
