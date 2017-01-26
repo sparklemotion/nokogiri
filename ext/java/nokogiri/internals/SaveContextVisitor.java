@@ -301,28 +301,27 @@ public class SaveContextVisitor {
         return false;
     }
 
-    private String serializeAttrTextContent(String s, boolean htmlDoc) {
-        if (s == null) return "";
+    private static CharSequence serializeAttrTextContent(String str, boolean htmlDoc) {
+        if (str == null || str.length() == 0) return "";
 
-        char[] c = s.toCharArray();
-        StringBuffer buffer = new StringBuffer(c.length);
+        StringBuilder buffer = new StringBuilder(str.length() + 16);
 
-        for(int i = 0; i < c.length; i++) {
-            switch(c[i]){
-            case '\n': buffer.append("&#10;"); break;
-            case '\r': buffer.append("&#13;"); break;
-            case '\t': buffer.append("&#9;"); break;
-            case '"': if (htmlDoc) buffer.append("%22");
+        for (int i = 0; i < str.length(); i++) {
+            char c; switch (c = str.charAt(i)) {
+                case '\n': buffer.append("&#10;"); break;
+                case '\r': buffer.append("&#13;"); break;
+                case '\t': buffer.append("&#9;"); break;
+                case '"': if (htmlDoc) buffer.append("%22");
                 else buffer.append("&quot;");
-                break;
-            case '<': buffer.append("&lt;"); break;
-            case '>': buffer.append("&gt;"); break;
-            case '&': buffer.append("&amp;"); break;
-            default: buffer.append(c[i]);
+                    break;
+                case '<': buffer.append("&lt;"); break;
+                case '>': buffer.append("&gt;"); break;
+                case '&': buffer.append("&amp;"); break;
+                default: buffer.append(c);
             }
         }
 
-        return buffer.toString();
+        return buffer;
     }
 
     public void leave(Attr attr) {
