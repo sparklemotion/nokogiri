@@ -1,3 +1,20 @@
+groups:
+  - name: master
+    jobs:
+      <% for ruby_version in RUBIES[:mri] %>
+        - "ruby-<%= ruby_version %>-system"
+        - "ruby-<%= ruby_version %>-vendored"
+        - "ruby-<%= ruby_version %>-valgrind"
+        - "ruby-<%= ruby_version %>-libxmlruby"
+        - "ruby-<%= ruby_version %>-libxmlruby-valgrind"
+      <% end %>
+      <% for jruby_version in RUBIES[:jruby] %>
+        - "jruby-<%= jruby_version %>"
+      <% end %>
+      <% for rbx_version in RUBIES[:rbx] %>
+        - "rbx-<%= rbx_version %>"
+      <% end %>
+
 resources:
   - name: nokogiri
     type: git
