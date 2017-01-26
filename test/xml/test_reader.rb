@@ -186,7 +186,6 @@ module Nokogiri
       end
 
       def test_errors_is_an_array
-        skip "TODO: xerces does not internally call `errors`" if Nokogiri.jruby?
         reader = Nokogiri::XML::Reader(StringIO.new('&bogus;'))
         assert_raises(SyntaxError) {
           reader.read
@@ -195,7 +194,7 @@ module Nokogiri
       end
 
       def test_pushing_to_non_array_raises_TypeError
-        skip "TODO: xerces does not internally call `errors`" if Nokogiri.jruby?
+        skip "TODO: JRuby ext does not internally call `errors`" if Nokogiri.jruby?
         reader = Nokogiri::XML::Reader(StringIO.new('&bogus;'))
         def reader.errors
           1
