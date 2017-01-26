@@ -900,7 +900,7 @@ public class XmlNode extends RubyObject {
         } else {
             textContent = getTextContentRecursively(new StringBuilder(), node);
         }
-        NokogiriHelpers.convertEncodingByNKFIfNecessary(context, (XmlDocument)document(context), textContent);
+        // textContent = NokogiriHelpers.convertEncodingByNKFIfNecessary(context, (XmlDocument) document(context), textContent);
         return convertString(context.getRuntime(), textContent);
     }
 
