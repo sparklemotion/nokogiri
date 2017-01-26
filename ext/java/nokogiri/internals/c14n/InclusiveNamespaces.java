@@ -80,7 +80,7 @@ public class InclusiveNamespaces extends ElementProxy {
             if (prefix.equals("xmlns")) {
                 sb.append("#default ");
             } else {
-                sb.append(prefix + " ");
+                sb.append(prefix).append(' ');
             }
         }
         
