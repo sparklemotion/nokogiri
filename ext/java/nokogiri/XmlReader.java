@@ -280,15 +280,15 @@ public class XmlReader extends RubyObject {
 
     private String getOuterXml() {
         ReaderNode current = currentNode();
-        if (current.depth < 0) return null;
+        if (current == null || current.depth < 0) return null;
 
         if (current instanceof ClosingNode) {
-          return "<" + current.name + "/>";
+            return "<" + current.name + "/>";
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = position; i <= current.endOffset; i++) {
-          sb.append(nodeQueue.get(i).getString());
+            sb.append(nodeQueue.get(i).getString());
         }
         return new String(sb);
     }
@@ -354,24 +354,23 @@ public class XmlReader extends RubyObject {
         while (nodeQueue.size() <= position && continueParsing) {
           readMoreData(context);
         }
-        if(currentNode() == null) {
-            return context.nil;
-        } else if(currentNode().isError()) {
+        final ReaderNode currentNode = currentNode();
+        if (currentNode == null) return context.nil;
+        if (currentNode.isError()) {
             RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
-            errors.append(currentNode().toSyntaxError());
+            errors.append(currentNode.toSyntaxError());
 
             this.setInstanceVariable("@errors", errors);
 
-            throw new RaiseException((XmlSyntaxError) currentNode().toSyntaxError());
+            throw new RaiseException((XmlSyntaxError) currentNode.toSyntaxError());
         } else {
             return this;
         }
     }
 
     private ReaderNode currentNode() {
-      if (position >= nodeQueue.size())
-        return null;
-      return nodeQueue.get(position);
+        if (position >= nodeQueue.size()) return null;
+        return nodeQueue.get(position);
     }
 
     @JRubyMethod
