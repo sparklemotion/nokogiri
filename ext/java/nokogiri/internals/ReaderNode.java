@@ -474,7 +474,7 @@ public abstract class ReaderNode {
         // Still don't know what to do with ex.
         public ExceptionNode(Ruby runtime, Exception ex) {
             super(runtime);
-            exception = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(ruby, "Nokogiri::XML::SyntaxError"));
+            exception = XmlSyntaxError.createXMLSyntaxError(runtime); // Nokogiri::XML::SyntaxError
         }
 
         @Override

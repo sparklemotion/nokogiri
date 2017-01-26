@@ -169,12 +169,12 @@ public class XmlXpathContext extends RubyObject {
         return node_set(thread_context, src);
     }
 
-    protected IRubyObject node_set(ThreadContext thread_context, String expr) {
+    protected IRubyObject node_set(ThreadContext context, String expr) {
         try {
-          return tryGetNodeSet(thread_context, expr);
-        } catch (XPathExpressionException xpee) {
-          RubyException e = XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
-          throw new RaiseException(e);
+            return tryGetNodeSet(context, expr);
+        }
+        catch (XPathExpressionException ex) {
+            throw new RaiseException(XmlSyntaxError.createXMLXPathSyntaxError(context.runtime, ex)); // Nokogiri::XML::XPath::SyntaxError
         }
     }
 

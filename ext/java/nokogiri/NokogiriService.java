@@ -577,16 +577,8 @@ public class NokogiriService implements BasicLibraryService {
     };
 
     public static final ObjectAllocator XML_SYNTAXERROR_ALLOCATOR = new ObjectAllocator() {
-        private XmlSyntaxError xmlSyntaxError = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            if (xmlSyntaxError == null) xmlSyntaxError = new XmlSyntaxError(runtime, klazz);
-            try {
-                XmlSyntaxError clone  = (XmlSyntaxError) xmlSyntaxError.clone();
-                clone.setMetaClass(klazz);
-                return clone;
-            } catch (CloneNotSupportedException e) {
-                return new XmlSyntaxError(runtime, klazz);
-            }
+            return new XmlSyntaxError(runtime, klazz);
         }
     };
 

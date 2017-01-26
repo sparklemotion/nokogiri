@@ -178,17 +178,19 @@ public class XmlSchema extends RubyObject {
 
     IRubyObject validate_document_or_file(ThreadContext context, XmlDocument xmlDocument) {
         RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
-        ErrorHandler errorHandler = new SchemaErrorHandler(context.getRuntime(), errors);
+        ErrorHandler errorHandler = new SchemaErrorHandler(context.runtime, errors);
         setErrorHandler(errorHandler);
 
         try {
             validate(xmlDocument.getDocument());
-        } catch(SAXException ex) {
-            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+        }
+        catch (SAXException ex) {
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
             xmlSyntaxError.setException(ex);
             errors.append(xmlSyntaxError);
-        } catch (IOException ex) {
-            throw context.getRuntime().newIOError(ex.getMessage());
+        }
+        catch (IOException ex) {
+            throw context.runtime.newIOError(ex.getMessage());
         }
 
         return errors;

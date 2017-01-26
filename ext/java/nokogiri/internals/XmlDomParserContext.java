@@ -176,7 +176,7 @@ public class XmlDomParserContext extends ParserContext {
         final List<Exception> errors = errorHandler.getErrors();
         final IRubyObject[] errorsAry = new IRubyObject[errors.size()];
         for (int i = 0; i < errors.size(); i++) {
-            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(runtime);
             xmlSyntaxError.setException(errors.get(i));
             errorsAry[i] = xmlSyntaxError;
         }
@@ -187,12 +187,12 @@ public class XmlDomParserContext extends ParserContext {
         if (options.recover) {
             XmlDocument xmlDocument = getInterruptedOrNewXmlDocument(context, klazz);
             this.addErrorsIfNecessary(context, xmlDocument);
-            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
             xmlSyntaxError.setException(ex);
             ((RubyArray) xmlDocument.getInstanceVariable("@errors")).append(xmlSyntaxError);
             return xmlDocument;
         } else {
-            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
             xmlSyntaxError.setException(ex);
             throw new RaiseException(xmlSyntaxError);
         }

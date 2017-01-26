@@ -59,58 +59,54 @@ public class XmlSyntaxError extends RubyException {
         super(runtime, klazz);
     }
 
-    /**
-     * Create and return a copy of this object.
-     *
-     * @return a clone of this object
-     */
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
     public XmlSyntaxError(Ruby runtime, RubyClass rubyClass, Exception ex) {
         super(runtime, rubyClass, ex.getMessage());
         this.exception = ex;
     }
 
+    public static XmlSyntaxError createXMLSyntaxError(final Ruby runtime) {
+        RubyClass klazz = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SyntaxError");
+        return new XmlSyntaxError(runtime, klazz);
+    }
+
+    public static XmlSyntaxError createHTMLSyntaxError(final Ruby runtime) {
+        RubyClass klazz = (RubyClass) runtime.getClassFromPath("Nokogiri::HTML::SyntaxError");
+        return new XmlSyntaxError(runtime, klazz);
+    }
+
+    public static RubyException createXMLXPathSyntaxError(Ruby runtime, Exception e) {
+        RubyClass klazz = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
+        return new XmlSyntaxError(runtime, klazz, e);
+    }
+
     public static XmlSyntaxError createWarning(Ruby runtime, SAXParseException e) {
-        XmlSyntaxError xmlSyntaxError = createNokogiriXmlSyntaxError(runtime);
+        XmlSyntaxError xmlSyntaxError = createXMLSyntaxError(runtime);
         xmlSyntaxError.setException(runtime, e, 1);
         return xmlSyntaxError;
     }
 
     public static XmlSyntaxError createError(Ruby runtime, SAXParseException e) {
-        XmlSyntaxError xmlSyntaxError = createNokogiriXmlSyntaxError(runtime);
+        XmlSyntaxError xmlSyntaxError = createXMLSyntaxError(runtime);
         xmlSyntaxError.setException(runtime, e, 2);
         return xmlSyntaxError;
     }
 
     public static XmlSyntaxError createFatalError(Ruby runtime, SAXParseException e) {
-        XmlSyntaxError xmlSyntaxError = createNokogiriXmlSyntaxError(runtime);
+        XmlSyntaxError xmlSyntaxError = createXMLSyntaxError(runtime);
         xmlSyntaxError.setException(runtime, e, 3);
         return xmlSyntaxError;
-    }
-
-    public static XmlSyntaxError createNokogiriXmlSyntaxError(Ruby runtime) {
-        return (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
     }
 
     public void setException(Exception exception) {
         this.exception = exception;
     }
 
-    public void setException(Ruby runtime, Exception exception, int level) {
+    public void setException(Ruby runtime, SAXParseException exception, int level) {
         this.exception = exception;
         setInstanceVariable("@level", runtime.newFixnum(level));
-        setInstanceVariable("@line", runtime.newFixnum(((SAXParseException)exception).getLineNumber()));
-        setInstanceVariable("@column", runtime.newFixnum(((SAXParseException)exception).getColumnNumber()));
-        setInstanceVariable("@file", stringOrNil(runtime, ((SAXParseException)exception).getSystemId()));
-    }
-
-    public static RubyException createXPathSyntaxError(Ruby runtime, Exception e) {
-        RubyClass klazz = (RubyClass)runtime.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
-        return new XmlSyntaxError(runtime, klazz, e);
+        setInstanceVariable("@line", runtime.newFixnum(exception.getLineNumber()));
+        setInstanceVariable("@column", runtime.newFixnum(exception.getColumnNumber()));
+        setInstanceVariable("@file", stringOrNil(runtime, exception.getSystemId()));
     }
 
     //@Override

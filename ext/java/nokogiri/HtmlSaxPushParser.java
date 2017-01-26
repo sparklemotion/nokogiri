@@ -137,9 +137,7 @@ public class HtmlSaxPushParser extends RubyObject {
         final ByteArrayInputStream data = NokogiriHelpers.stringBytesToStream(chunk);
         if (data == null) {
             terminateTask(context);
-            XmlSyntaxError xmlSyntaxError =
-                (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::SyntaxError"));
-            throw new RaiseException(xmlSyntaxError);
+            throw new RaiseException(XmlSyntaxError.createHTMLSyntaxError(context.runtime)); // Nokogiri::HTML::SyntaxError
         }
 
         int errorCount0 = parserTask.getErrorCount();

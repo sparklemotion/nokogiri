@@ -48,9 +48,10 @@ import org.xml.sax.SAXParseException;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class SchemaErrorHandler implements ErrorHandler{
-    private RubyArray errors;
-    private Ruby runtime;
+public class SchemaErrorHandler implements ErrorHandler {
+
+    private final Ruby runtime;
+    final RubyArray errors;
 
     public SchemaErrorHandler(Ruby ruby, RubyArray array) {
         this.runtime = ruby;
@@ -58,15 +59,11 @@ public class SchemaErrorHandler implements ErrorHandler{
     }
 
     public void warning(SAXParseException ex) throws SAXException {
-        XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
-        xmlSyntaxError.setException(ex);
-        this.errors.append(xmlSyntaxError);
+        errors.append( XmlSyntaxError.createWarning(runtime, ex) );
     }
 
     public void error(SAXParseException ex) throws SAXException {
-        XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::SyntaxError"));
-        xmlSyntaxError.setException(ex);
-        this.errors.append(xmlSyntaxError);
+        errors.append( XmlSyntaxError.createError(runtime, ex) );
     }
 
     public void fatalError(SAXParseException ex) throws SAXException {
