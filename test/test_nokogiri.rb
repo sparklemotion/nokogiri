@@ -1,6 +1,10 @@
 require "helper"
 
 class TestNokogiri < Nokogiri::TestCase
+  def test_concourse_pr_failure
+    assert false
+  end
+
   def test_versions
     version_match = /\d+\.\d+\.\d+/
     assert_match version_match, Nokogiri::VERSION
