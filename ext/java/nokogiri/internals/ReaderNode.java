@@ -215,7 +215,7 @@ public abstract class ReaderNode {
     }
 
     public void setLang(String lang) {
-        lang = (lang != null) ? lang : null;
+        this.lang = lang;
     }
 
     public IRubyObject toSyntaxError() { return ruby.getNil(); }
@@ -296,9 +296,7 @@ public abstract class ReaderNode {
 
         @Override
         public String getString() {
-            StringBuffer sb = new StringBuffer();
-            sb.append("</").append(name).append(">");
-            return sb.toString();
+            return "</" + name + '>';
         }
     }
 
