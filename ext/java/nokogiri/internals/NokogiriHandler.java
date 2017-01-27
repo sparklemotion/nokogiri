@@ -38,7 +38,6 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import java.util.LinkedList;
-import java.util.Stack;
 
 import nokogiri.XmlSyntaxError;
 
@@ -62,7 +61,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
-    Stack<StringBuffer> characterStack;
+    StringBuffer charactersBuffer;
     private final Ruby ruby;
     private final RubyClass attrClass;
     private final IRubyObject object;
@@ -100,7 +99,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     @Override
     public void startDocument() throws SAXException {
         call("start_document");
-        characterStack = new Stack();
+        charactersBuffer = new StringBuffer();
     }
 
     @Override
@@ -112,13 +111,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void endDocument() throws SAXException {
-        StringBuffer sb;
-        if (!characterStack.empty()) {
-            for (int i=0; i<characterStack.size(); i++) {
-                sb = characterStack.get(i);
-                call("characters", ruby.newString(sb.toString()));
-            }
-        }
+        populateCharacters();
         call("end_document");
     }
 
@@ -187,13 +180,13 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         }
 
         if (localName == null || localName.equals("")) localName = getLocalPart(qName);
+        populateCharacters();
         call("start_element_namespace",
              stringOrNil(ruby, localName),
              rubyAttr,
              stringOrNil(ruby, getPrefix(qName)),
              stringOrNil(ruby, uri),
              rubyNSAttr);
-        characterStack.push(new StringBuffer());
     }
     
     private static String[] emptyAttrs =
@@ -231,8 +224,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        StringBuffer sb = characterStack.pop();
-        call("characters", ruby.newString(sb.toString()));
+        populateCharacters();
         call("end_element_namespace",
              stringOrNil(ruby, localName),
              stringOrNil(ruby, getPrefix(qName)),
@@ -241,24 +233,24 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-        StringBuffer sb = characterStack.peek();
-        sb.append(new String(ch, start, length));
+        charactersBuffer.append(new String(ch, start, length));
     }
 
     @Override
     public void comment(char[] ch, int start, int length) throws SAXException {
+        populateCharacters();
         call("comment", ruby.newString(new String(ch, start, length)));
     }
 
     @Override
     public void startCDATA() throws SAXException {
-        characterStack.push(new StringBuffer());
+        populateCharacters();
     }
 
     @Override
     public void endCDATA() throws SAXException {
-        StringBuffer sb = characterStack.pop();
-        call("cdata_block", ruby.newString(sb.toString()));
+        call("cdata_block", ruby.newString(charactersBuffer.toString()));
+        charactersBuffer.setLength(0);
     }
 
     @Override
@@ -335,6 +327,13 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
             return ((RubyObject)object).fastGetInstanceVariable("@document");
         }
         return context.getRuntime().getNil();
+    }
+
+    protected void populateCharacters() {
+        if (charactersBuffer.length() > 0) {
+            call("characters", ruby.newString(charactersBuffer.toString()));
+            charactersBuffer.setLength(0);
+        }
     }
 
 }

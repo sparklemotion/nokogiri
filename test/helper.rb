@@ -101,79 +101,171 @@ module Nokogiri
   module SAX
     class TestCase < Nokogiri::TestCase
       class Doc < XML::SAX::Document
-        attr_reader :start_elements, :start_document_called
-        attr_reader :end_elements, :end_document_called
-        attr_reader :data, :comments, :cdata_blocks, :start_elements_namespace
-        attr_reader :errors, :warnings, :end_elements_namespace
-        attr_reader :xmldecls
+        attr_reader :xml_declaration
+        attr_reader :errors, :warnings
+        attr_reader :start_document_called, :end_document_called
+        attr_reader :start_elements, :end_elements
+        attr_reader :start_elements_namespace, :end_elements_namespace
+        attr_reader :data, :comments, :cdata_blocks
         attr_reader :processing_instructions
+        attr_reader :calls
+
+        def initialize
+          @xml_declaration = nil
+
+          @errors   = []
+          @warnings = []
+
+          @start_document_called = false
+          @end_document_called   = false
+
+          @start_elements = []
+          @end_elements   = []
+
+          @start_elements_namespace = []
+          @end_elements_namespace   = []
+
+          @data         = []
+          @comments     = []
+          @cdata_blocks = []
+
+          @processing_instructions = []
+
+          @calls = Calls.new
+
+          super
+        end
 
         def xmldecl version, encoding, standalone
-          @xmldecls = [version, encoding, standalone].compact
+          @xml_declaration = [version, encoding, standalone].compact
+          add_call version, encoding, standalone
+          super
+        end
+
+        def error error
+          @errors << error
+          super
+        end
+
+        def warning warning
+          @warnings << warning
           super
         end
 
         def start_document
           @start_document_called = true
+          add_call
           super
         end
 
         def end_document
           @end_document_called = true
-          super
-        end
-
-        def error error
-          (@errors ||= []) << error
-          super
-        end
-
-        def warning warning
-          (@warning ||= []) << warning
+          add_call
           super
         end
 
         def start_element *args
-          (@start_elements ||= []) << args
-          super
-        end
-
-        def start_element_namespace *args
-          (@start_elements_namespace ||= []) << args
+          @start_elements << args
+          add_call *args
           super
         end
 
         def end_element *args
-          (@end_elements ||= []) << args
+          @end_elements << args
+          add_call *args
+          super
+        end
+
+        def start_element_namespace *args
+          @start_elements_namespace << args
+          add_call *args
           super
         end
 
         def end_element_namespace *args
-          (@end_elements_namespace ||= []) << args
+          @end_elements_namespace << args
+          add_call *args
           super
         end
 
         def characters string
-          @data ||= []
-          @data += [string]
+          @data << string
+          add_call string
           super
         end
 
         def comment string
-          @comments ||= []
-          @comments += [string]
+          @comments << string
+          add_call string
           super
         end
 
         def cdata_block string
-          @cdata_blocks ||= []
-          @cdata_blocks += [string]
+          @cdata_blocks << string
+          add_call string
           super
         end
 
         def processing_instruction name, content
-          @processing_instructions ||= []
           @processing_instructions << [name, content]
+          add_call name, content
+          super
+        end
+
+        protected
+
+        def add_call *args
+          # ruby 1.8+
+          @calls.append caller[0][/`([^']*)'/, 1], args
+        end
+      end
+
+      class Calls
+        attr_reader :items
+
+        def initialize
+          # [
+          #   [ :method_1, args ],
+          #   [ :method_2, args ],
+          #   ...
+          # ]
+          @items = []
+        end
+
+        def select! methods
+          @items = @items.select do |item|
+            methods.include? item[0]
+          end
+        end
+
+        def filter! element_name
+          is_inside_element = false
+          @items = @items.select do |item|
+            if item[1][0] == element_name
+              if item[0] == :start_element
+                is_inside_element = true
+                next false
+              elsif item[0] == :end_element
+                is_inside_element = false
+              end
+            end
+            is_inside_element
+          end
+        end
+
+        def strip_text!
+          @items.each do |item|
+            if item[0] == :characters or item[0] == :comment
+              args = item[1]
+              args.each do |arg|
+                arg.strip!
+              end
+            end
+          end
+        end
+
+        def append method, args
+          @items << [method.to_sym, args]
         end
       end
     end

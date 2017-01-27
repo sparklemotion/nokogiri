@@ -64,7 +64,7 @@ module Nokogiri
             xml = "#{decl}\n<root />"
             parser.parse xml
             assert parser.document.start_document_called, xml
-            assert_equal value, parser.document.xmldecls, xml
+            assert_equal value, parser.document.xml_declaration, xml
           end
         end
 
