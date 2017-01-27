@@ -186,7 +186,7 @@ module Nokogiri
 
       # issue #741 (xpath() around 10x slower in JRuby)
       def test_slow_jruby_xpath
-        skip("MRI will exceed this timeout when running under valgrind") unless Nokogiri.jruby?
+        skip("testing against an absolute time is brittle. help make this better! see https://github.com/sparklemotion/nokogiri/issues/741")
 
         doc = Nokogiri::XML(File.open(XPATH_FILE))
         start = Time.now
