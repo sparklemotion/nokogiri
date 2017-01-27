@@ -68,8 +68,7 @@ module Nokogiri
 
         # Create a new Parser with +doc+ and +encoding+
         def initialize doc = Nokogiri::XML::SAX::Document.new, encoding = 'UTF-8'
-          check_encoding(encoding)
-          @encoding = encoding
+          @encoding = check_encoding(encoding)
           @document = doc
           @warned   = false
         end
@@ -88,9 +87,8 @@ module Nokogiri
         ###
         # Parse given +io+
         def parse_io io, encoding = 'ASCII'
-          check_encoding(encoding)
-          @encoding = encoding
-          ctx = ParserContext.io(io, ENCODINGS[encoding])
+          @encoding = check_encoding(encoding)
+          ctx = ParserContext.io(io, ENCODINGS[@encoding])
           yield ctx if block_given?
           ctx.parse_with self
         end
@@ -114,8 +112,9 @@ module Nokogiri
 
         private
         def check_encoding(encoding)
-          encoding.upcase!
-          raise ArgumentError.new("'#{encoding}' is not a valid encoding") unless ENCODINGS[encoding]
+          encoding.upcase.tap do |enc|
+            raise ArgumentError.new("'#{enc}' is not a valid encoding") unless ENCODINGS[enc]
+          end
         end
       end
     end

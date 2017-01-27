@@ -15,7 +15,7 @@ module Nokogiri
       end
 
       def test_does_not_fail_with_illformatted_html
-        doc = Nokogiri::HTML('"</html>";'.force_encoding(Encoding::BINARY))
+        doc = Nokogiri::HTML('"</html>";'.dup.force_encoding(Encoding::BINARY))
         assert_not_nil doc
       end
 

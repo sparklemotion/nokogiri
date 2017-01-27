@@ -54,6 +54,11 @@ resources:
 
 jobs:
   <% for ruby_version in RUBIES[:mri] %>
+    <% rubyopt = if ruby_version =~ /^2\.4/
+                   "--enable-frozen-string-literal --debug=frozen-string-literal"
+                 else
+                   ""
+                 end %>
   - name: ruby-<%= ruby_version %>-system
     public: true
     plan:
@@ -77,6 +82,7 @@ jobs:
             args:
               - "-ce"
               - |
+                export RUBYOPT="<%= rubyopt %>"
                 bundle install
                 bundle exec rake test
 
@@ -101,6 +107,7 @@ jobs:
             args:
               - "-ce"
               - |
+                export RUBYOPT="<%= rubyopt %>"
                 bundle install
                 bundle exec rake test
 
@@ -126,6 +133,7 @@ jobs:
             args:
               - "-ce"
               - |
+                export RUBYOPT="<%= rubyopt %>"
                 apt update
                 apt install -y valgrind
                 bundle install
@@ -154,6 +162,7 @@ jobs:
               - "-ce"
               - |
                 export BUNDLE_GEMFILE=Gemfile-libxml-ruby
+                export RUBYOPT="<%= rubyopt %>"
                 bundle install
                 bundle exec rake test:libxml-ruby
 
@@ -180,6 +189,7 @@ jobs:
               - "-ce"
               - |
                 export BUNDLE_GEMFILE=Gemfile-libxml-ruby
+                export RUBYOPT="<%= rubyopt %>"
                 apt update
                 apt install -y valgrind
                 bundle install

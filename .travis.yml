@@ -3,35 +3,37 @@ dist: trusty
 group: beta
 sudo: required
 
-rvm:
-- 2.0
-- 2.1
-- 2.2.5
-- 2.3.1
-- 2.4.0
-- jruby-1.7
-- jruby-9.1.5.0
-- rbx-3
-
-os:
-- linux
-- osx
-
 matrix:
-  allow_failures:
-  # https://github.com/travis-ci/travis-ci/issues/5361
+  include:
+  - os: linux
+    rvm: 2.0
+  - os: osx
+    rvm: 2.0
+  - os: linux
+    rvm: 2.1
+  - os: osx
+    rvm: 2.1
+  - os: linux
+    rvm: 2.2.5
   - os: osx
     rvm: 2.2.5
+  - os: linux
+    rvm: 2.3.1
   - os: osx
     rvm: 2.3.1
   - os: linux
-    rvm: rbx-3
-  exclude:
+    rvm: 2.4.0
+    env:
+      - RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
   - os: osx
+    rvm: 2.4.0
+    env:
+      - RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
+  - os: linux
     rvm: jruby-1.7
-  - os: osx
+  - os: linux
     rvm: jruby-9.1.5.0
-  - os: osx
+  - os: linux
     rvm: rbx-3
 
 notifications:
