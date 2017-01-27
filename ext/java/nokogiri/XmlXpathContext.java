@@ -48,7 +48,6 @@ import nokogiri.internals.NokogiriXPathVariableResolver;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyException;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
@@ -84,13 +83,13 @@ public class XmlXpathContext extends RubyObject {
     private XPathContext xpathSupport = null;
     private NokogiriNamespaceContext nsContext;
 
-    public XmlXpathContext(Ruby ruby, RubyClass rubyClass) {
-        super(ruby, rubyClass);
-        functionResolver = NokogiriXPathFunctionResolver.create(ruby.getCurrentContext().nil);
+    public XmlXpathContext(Ruby runtime, RubyClass rubyClass) {
+        super(runtime, rubyClass);
+        functionResolver = NokogiriXPathFunctionResolver.create(runtime.getNil());
         variableResolver = NokogiriXPathVariableResolver.create();
     }
 
-    private void setNode(XmlNode node) throws IllegalArgumentException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    private void setNode(XmlNode node) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Node doc = node.getNode().getOwnerDocument();
         if (doc == null) {
             doc = node.getNode();
@@ -109,9 +108,8 @@ public class XmlXpathContext extends RubyObject {
         prefixResolver = new JAXPPrefixResolver(nsContext);
     }
 
-    private JAXPExtensionsProvider getProviderInstance() throws ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Class<?> clazz = Class.forName("org.apache.xpath.jaxp.JAXPExtensionsProvider");
-        Constructor[] constructors = clazz.getDeclaredConstructors();
+    private JAXPExtensionsProvider getProviderInstance() throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor[] constructors = JAXPExtensionsProvider.class.getDeclaredConstructors();
         for (int i = 0; i < constructors.length; i++) {
             Class[] parameterTypes = constructors[i].getParameterTypes();
             if (parameterTypes.length == 2) {
@@ -142,8 +140,6 @@ public class XmlXpathContext extends RubyObject {
             xmlXpathContext.setNode(xmlNode);
         } catch (IllegalArgumentException e) {
             throw thread_context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (ClassNotFoundException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
         } catch (InstantiationException e) {
             throw thread_context.getRuntime().newRuntimeError(e.getMessage());
         } catch (IllegalAccessException e) {
@@ -155,18 +151,36 @@ public class XmlXpathContext extends RubyObject {
     }
 
     @JRubyMethod
-    public IRubyObject evaluate(ThreadContext thread_context, IRubyObject expr, IRubyObject handler) {
+    public IRubyObject evaluate(ThreadContext context, IRubyObject expr, IRubyObject handler) {
         functionResolver.setHandler(handler);
-        String src = (String) expr.toJava(String.class);
-        if(!handler.isNil()) {
+
+        String src = expr.convertToString().asJavaString();
+        if (!handler.isNil()) {
             if (!isContainsPrefix(src)) {
                 Set<String> methodNames = handler.getMetaClass().getMethods().keySet();
                 for (String name : methodNames) {
-                    src = src.replaceAll(name, NokogiriNamespaceContext.NOKOGIRI_PREFIX+":"+name);
+                    src = src.replaceAll(name, NokogiriNamespaceContext.NOKOGIRI_PREFIX + ':' + name);
                 }
             }
         }
-        return node_set(thread_context, src);
+        return node_set(context, src);
+    }
+
+    @JRubyMethod
+    public IRubyObject evaluate(ThreadContext context, IRubyObject expr) {
+        return this.evaluate(context, expr, context.getRuntime().getNil());
+    }
+
+    @JRubyMethod
+    public IRubyObject register_ns(ThreadContext context, IRubyObject prefix, IRubyObject uri) {
+        nsContext.registerNamespace((String)prefix.toJava(String.class), (String)uri.toJava(String.class));
+        return this;
+    }
+
+    @JRubyMethod
+    public IRubyObject register_variable(ThreadContext context, IRubyObject name, IRubyObject value) {
+        variableResolver.registerVariable((String)name.toJava(String.class), (String)value.toJava(String.class));
+        return this;
     }
 
     protected IRubyObject node_set(ThreadContext context, String expr) {
@@ -216,28 +230,11 @@ public class XmlXpathContext extends RubyObject {
     private boolean isContainsPrefix(String str) {
         Set<String> prefixes = nsContext.getAllPrefixes();
         for (String prefix : prefixes) {
-            if (str.contains(prefix + ":")) {
+            if (str.contains(prefix + ':')) {
                 return true;
             }
         }
         return false;
     }
 
-
-    @JRubyMethod
-    public IRubyObject evaluate(ThreadContext context, IRubyObject expr) {
-        return this.evaluate(context, expr, context.getRuntime().getNil());
-    }
-
-    @JRubyMethod
-    public IRubyObject register_ns(ThreadContext context, IRubyObject prefix, IRubyObject uri) {
-        nsContext.registerNamespace((String)prefix.toJava(String.class), (String)uri.toJava(String.class));
-        return this;
-    }
-
-    @JRubyMethod
-    public IRubyObject register_variable(ThreadContext context, IRubyObject name, IRubyObject value) {
-        variableResolver.registerVariable((String)name.toJava(String.class), (String)value.toJava(String.class));
-        return this;
-    }
 }
