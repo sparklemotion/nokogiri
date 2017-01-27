@@ -137,8 +137,8 @@ jobs:
               - "-ce"
               - |
                 export RUBYOPT="<%= rubyopts ruby_version %>"
-                apt update
-                apt install -y valgrind
+                apt-get update
+                apt-get install -y valgrind
                 bundle install
                 bundle exec rake test:valgrind
 
@@ -193,8 +193,8 @@ jobs:
               - |
                 export BUNDLE_GEMFILE=Gemfile-libxml-ruby
                 export RUBYOPT="<%= rubyopts ruby_version %>"
-                apt update
-                apt install -y valgrind
+                apt-get update
+                apt-get install -y valgrind
                 bundle install
                 bundle exec rake test:valgrind:libxml-ruby
   <% end %>
@@ -249,8 +249,8 @@ jobs:
             args:
               - "-ce"
               - |
-                apt update
-                apt install -y ca-certificates gcc
+                apt-get update
+                apt-get install -y ca-certificates gcc
                 bundle install
                 bundle exec rake test
   <% end %>
