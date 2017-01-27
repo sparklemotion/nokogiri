@@ -56,7 +56,7 @@ import org.w3c.dom.Node;
  */
 
 @JRubyClass(name="Nokogiri::XML::Attr", parent="Nokogiri::XML::Node")
-public class XmlAttr extends XmlNode{
+public class XmlAttr extends XmlNode {
 
     public static final String[] HTML_BOOLEAN_ATTRS = {
         "checked", "compact", "declare", "defer", "disabled", "ismap",
@@ -115,31 +115,6 @@ public class XmlAttr extends XmlNode{
         }
 
         return false;
-    }
-
-
-    private String serializeAttrTextContent(String s, boolean htmlDoc) {
-        if (s == null) return "";
-
-        char[] c = s.toCharArray();
-        StringBuffer buffer = new StringBuffer(c.length);
-
-        for(int i = 0; i < c.length; i++) {
-            switch(c[i]){
-            case '\n': buffer.append("&#10;"); break;
-            case '\r': buffer.append("&#13;"); break;
-            case '\t': buffer.append("&#9;"); break;
-            case '"': if (htmlDoc) buffer.append("%22"); 
-                else buffer.append("&quot;");
-                break;
-            case '<': buffer.append("&lt;"); break;
-            case '>': buffer.append("&gt;"); break;
-            case '&': buffer.append("&amp;"); break;
-            default: buffer.append(c[i]);
-            }
-        }
-
-        return buffer.toString();
     }
 
     @Override

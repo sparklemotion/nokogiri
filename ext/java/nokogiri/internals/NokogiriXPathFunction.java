@@ -121,8 +121,7 @@ public class NokogiriXPathFunction implements XPathFunction {
         } else if (o instanceof XmlNodeSet) {
             return o;
         } else if (o instanceof RubyArray) {
-            XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(runtime.getCurrentContext(), (RubyArray)o);
-            return xmlNodeSet;
+            return XmlNodeSet.newXmlNodeSet(runtime.getCurrentContext(), (RubyArray)o);
         } else /*if (o instanceof XmlNode)*/ {
             return ((XmlNode) o).getNode();
         }

@@ -128,9 +128,7 @@ module Nokogiri
           assert_equal(title, doc_from_string_enc.at('//title/text()').text)
           assert_equal(title, doc_from_string.at('//title/text()').text)
           assert_equal(title, doc_from_file_enc.at('//title/text()').text)
-          unless Nokogiri.jruby? && file == ENCODING_HTML_FILE
-            assert_equal(title, doc_from_file.at('//title/text()').text)
-          end
+          assert_equal(title, doc_from_file.at('//title/text()').text)
 
           evil = (0..72).map { |i| '超' * i + '悪い事を構想中。' }
 

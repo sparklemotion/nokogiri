@@ -48,9 +48,8 @@ import javax.xml.namespace.NamespaceContext;
  * @author Yoko Harada <yokolet@gmail.com>
  *
  */
+public final class NokogiriNamespaceContext implements NamespaceContext {
 
-public class NokogiriNamespaceContext implements NamespaceContext {
-    private static NokogiriNamespaceContext namespaceContext;
 	public static final String NOKOGIRI_PREFIX = "nokogiri";
     public static final String NOKOGIRI_URI = "http://www.nokogiri.org/default_ns/ruby/extensions_functions";
     public static final String NOKOGIRI_TEMPORARY_ROOT_TAG = "nokogiri-temporary-root-tag";
@@ -58,14 +57,7 @@ public class NokogiriNamespaceContext implements NamespaceContext {
     private Hashtable<String,String> register;
 
     public static NokogiriNamespaceContext create() {
-        if (namespaceContext == null) namespaceContext = new NokogiriNamespaceContext();
-        try {
-            NokogiriNamespaceContext clone = (NokogiriNamespaceContext) namespaceContext.clone();
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            NokogiriNamespaceContext freshContext = new NokogiriNamespaceContext();
-            return freshContext;
-        }
+        return new NokogiriNamespaceContext();
     }
     
     private NokogiriNamespaceContext() {

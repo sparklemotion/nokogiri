@@ -42,8 +42,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,7 +61,6 @@ import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
 import nokogiri.XmlXpathContext;
 
-import org.jcodings.specific.UTF8Encoding;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -194,28 +191,30 @@ public class NokogiriHelpers {
         return NokogiriService.getNokogiriClassCache(ruby).get(name);
     }
 
-    public static IRubyObject stringOrNil(Ruby runtime, String s) {
-        if (s == null) return runtime.getNil();
-        return convertJavaStringToRuby(runtime, s);
+    public static IRubyObject stringOrNil(Ruby runtime, String str) {
+        return str == null ? runtime.getNil() : convertString(runtime, str);
     }
-    
+
+    public static IRubyObject stringOrNil(Ruby runtime, CharSequence str) {
+        return str == null ? runtime.getNil() : convertString(runtime, str);
+    }
+
     public static IRubyObject stringOrNil(Ruby runtime, byte[] bytes) {
-        if (bytes == null) return runtime.getNil();
-        return RubyString.newString(runtime, bytes);
+        return bytes == null ? runtime.getNil() : RubyString.newString(runtime, bytes);
+    }
+
+    public static IRubyObject stringOrBlank(Ruby runtime, String str) {
+        return str == null ? runtime.newString() : convertString(runtime, str);
     }
     
-    public static IRubyObject stringOrBlank(Ruby runtime, String s) {
-        if (s == null) return runtime.newString();
-        return convertJavaStringToRuby(runtime, s);
+    public static RubyString convertString(Ruby runtime, String str) {
+        if (runtime.is1_8()) return RubyString.newString(runtime, str); // 1.8 not really supported (could get removed)
+        return RubyString.newUTF8String(runtime, str);
     }
-    
-    private static IRubyObject convertJavaStringToRuby(Ruby runtime, String str) {
-        if (runtime.is1_9()) {
-            ByteList bytes = new ByteList(str.getBytes(RubyEncoding.UTF8), UTF8Encoding.INSTANCE);
-            return RubyString.newString(runtime, bytes);
-        } else {
-            return RubyString.newString(runtime, str);
-        }
+
+    public static RubyString convertString(Ruby runtime, CharSequence str) {
+        if (runtime.is1_8()) return RubyString.newString(runtime, str); // 1.8 not really supported (could get removed)
+        return RubyString.newUTF8String(runtime, str);
     }
 
     /**
@@ -260,12 +259,7 @@ public class NokogiriHelpers {
         return ("xmlns".equals(localName)) ? null : localName;
     }
 
-    private static Charset utf8 = null;
-    
-    private static Charset getCharsetUTF8() {
-        if (utf8 == null) utf8 = Charset.forName("UTF-8");
-        return utf8;
-    }
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
      * Converts a RubyString in to a Java String.  Assumes the
@@ -308,7 +302,7 @@ public class NokogiriHelpers {
         int offset = byteList.begin();
         int len = byteList.length();
         ByteBuffer buf = ByteBuffer.wrap(data, offset, len);
-        return getCharsetUTF8().decode(buf).toString();
+        return UTF8.decode(buf).toString();
     }
 
     public static ByteArrayInputStream stringBytesToStream(final IRubyObject str) {
@@ -325,19 +319,14 @@ public class NokogiriHelpers {
 
         // TODO: Rename buffer to path.
         String buffer = "";
-        String sep;
-        String name;
-
-        int occur = 0;
-        boolean generic;
 
         cur = node;
 
         do {
-            name = "";
-            sep = "?";
-            occur = 0;
-            generic = false;
+            String name = "";
+            String sep = "?";
+            int occur = 0;
+            boolean generic = false;
 
             if(cur.getNodeType() == Node.DOCUMENT_NODE) {
                 if(buffer.startsWith("/")) break;
@@ -621,11 +610,10 @@ public class NokogiriHelpers {
         if (obj == null || obj.isNil()) return false;
 
         XmlNode node = (XmlNode) obj;
-        if (!(node instanceof XmlText))
-            return false;
+        if (!(node instanceof XmlText)) return false;
 
         String content = rubyStringToString(node.content(context));
-        return content.trim().length() == 0;
+        return content == null || content.trim().length() == 0;
     }
 
     public static boolean isWhitespaceText(String s) {
@@ -695,8 +683,7 @@ public class NokogiriHelpers {
     }
 
     private static String guessEncoding() {
-        String name = null;
-        if (name == null) name = System.getProperty("file.encoding");
+        String name = System.getProperty("file.encoding");
         if (name == null) name = "UTF-8";
         return name;
     }
@@ -722,7 +709,7 @@ public class NokogiriHelpers {
 
     private static String resolveSystemId(String baseName, String systemId) {
         if (baseName == null || baseName.length() < 1) return null;
-        String parentName = null;
+        String parentName;
         baseName = baseName.replaceAll("%20", " ");
         File base = new File(baseName);
         if (base.isDirectory()) parentName = baseName;
@@ -740,48 +727,43 @@ public class NokogiriHelpers {
         return ret == 0;
     }
 
-    public static byte[] convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
+    public static ByteBuffer convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
         CharsetEncoder encoder = output_charset.newEncoder();
         CharBuffer charBuffer = CharBuffer.wrap(input_string);
-        ByteBuffer byteBuffer = encoder.encode(charBuffer);
-        byte[] buffer = new byte[byteBuffer.remaining()];
-        byteBuffer.get(buffer);
-        return buffer;
+        return encoder.encode(charBuffer);
     }
 
-    public static String convertEncodingByNKFIfNecessary(Ruby runtime, XmlDocument doc, String thing) {
-        if (!(doc instanceof HtmlDocument)) return thing;
+    public static CharSequence convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, CharSequence str) {
+        if (!(doc instanceof HtmlDocument)) return str;
         String parsed_encoding = ((HtmlDocument)doc).getPraedEncoding();
-        if (parsed_encoding == null) return thing;
+        if (parsed_encoding == null) return str;
         String ruby_encoding = rubyStringToString(doc.getEncoding());
-        if (ruby_encoding == null) return thing;
-        if (Charset.forName(parsed_encoding).compareTo(Charset.forName(ruby_encoding)) == 0) {
-            return thing;
-        } else {
-            return NokogiriHelpers.nkf(runtime, ruby_encoding, thing);
-        }
+        if (ruby_encoding == null) return str;
+        Charset encoding = Charset.forName(ruby_encoding);
+        if (Charset.forName(parsed_encoding).compareTo(encoding) == 0) return str;
+        if (str.length() == 0) return str; // no need to convert
+        return NokogiriHelpers.nkf(context, encoding, str);
     }
+
+    private static final ByteList _Sw = new ByteList(new byte[] { '-','S','w' }, false);
+    private static final ByteList _Jw = new ByteList(new byte[] { '-','J','w' }, false);
+    private static final ByteList _Ew = new ByteList(new byte[] { '-','E','w' }, false);
+    private static final ByteList _Ww = new ByteList(new byte[] { '-','W','w' }, false);
 
     // This method is used from HTML documents. HTML meta tag with encoding specification
     // might appear after non-ascii characters are used. For example, a title tag before
     // a meta tag. In such a case, Xerces encodes characters in UTF-8 without seeing meta tag.
     // Nokogiri uses NKF library to convert characters correct encoding. This means the method
     // works only for JIS/Shift_JIS/EUC-JP.
-    public static String nkf(Ruby runtime, String ruby_encoding, String thing) {
-        StringBuffer sb = new StringBuffer("-");
-        Charset that = Charset.forName(ruby_encoding);
-        if (NokogiriHelpers.shift_jis.compareTo(that) == 0) {
-            sb.append("S");
-        } else if (NokogiriHelpers.jis.compareTo(that) == 0) {
-            sb.append("J");
-        } else if (NokogiriHelpers.euc_jp.compareTo(that) == 0) {
-            sb.append("E");
-        } else {
-            // should not come here. should be treated before this method.
-            sb.append("W");
-        }
-        sb.append("w");
-        Class nkfClass = null;
+    private static CharSequence nkf(ThreadContext context, Charset encoding, CharSequence str) {
+        final Ruby runtime = context.getRuntime();
+        final ByteList opt;
+        if (NokogiriHelpers.shift_jis.compareTo(encoding) == 0) opt = _Sw;
+        else if (NokogiriHelpers.jis.compareTo(encoding) == 0) opt = _Jw;
+        else if (NokogiriHelpers.euc_jp.compareTo(encoding) == 0) opt = _Ew;
+        else opt = _Ww; // should not come here. should be treated before this method.
+
+        Class nkfClass;
         try {
             // JRuby 1.7 and later
             nkfClass = runtime.getClassLoader().loadClass("org.jruby.ext.nkf.RubyNKF");
@@ -790,35 +772,35 @@ public class NokogiriHelpers {
                 // Before JRuby 1.7
                 nkfClass = runtime.getClassLoader().loadClass("org.jruby.RubyNKF");
             } catch (ClassNotFoundException e2) {
-                return thing;
+                return str;
             }
         }
         Method nkf_method;
         try {
             nkf_method = nkfClass.getMethod("nkf", ThreadContext.class, IRubyObject.class, IRubyObject.class, IRubyObject.class);
             RubyString r_str = 
-                (RubyString)nkf_method.invoke(null, runtime.getCurrentContext(), null, runtime.newString(new String(sb)), runtime.newString(thing));
+                (RubyString)nkf_method.invoke(null, context, null, runtime.newString(opt), runtime.newString(str.toString()));
             return NokogiriHelpers.rubyStringToString(r_str);
         } catch (SecurityException e) {
-            return thing;
+            return str;
         } catch (NoSuchMethodException e) {
-            return thing;
+            return str;
         } catch (IllegalArgumentException e) {
-            return thing;
+            return str;
         } catch (IllegalAccessException e) {
-            return thing;
+            return str;
         } catch (InvocationTargetException e) {
-            return thing;
+            return str;
         }
     }
 
-    private static Charset shift_jis = Charset.forName("Shift_JIS");
-    private static Charset jis = Charset.forName("ISO-2022-JP");
-    private static Charset euc_jp = Charset.forName("EUC-JP");
+    private static final Charset shift_jis = Charset.forName("Shift_JIS");
+    private static final Charset jis = Charset.forName("ISO-2022-JP");
+    private static final Charset euc_jp = Charset.forName("EUC-JP");
 
     public static boolean shouldEncode(Node text) {
-      return text.getUserData(NokogiriHelpers.ENCODED_STRING) == null ||
-          !((Boolean)text.getUserData(NokogiriHelpers.ENCODED_STRING));
+        final Boolean encoded = (Boolean) text.getUserData(NokogiriHelpers.ENCODED_STRING);
+        return encoded == null || ! encoded;
     }
 
     public static boolean shouldDecode(Node text) {

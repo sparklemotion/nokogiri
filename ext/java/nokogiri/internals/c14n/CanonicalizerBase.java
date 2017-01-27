@@ -85,7 +85,7 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi {
     private List<NodeFilter> nodeFilter;
 
     private final boolean includeComments;
-    private Set<Node> xpathNodeSet;
+    //private Set<Node> xpathNodeSet;
     /**
      * The node to be skipped/excluded from the DOM tree
      * in subtree canonicalizations.
@@ -294,9 +294,9 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi {
                 }
             }
         }
-        if ((this.xpathNodeSet != null) && !this.xpathNodeSet.contains(currentNode)) {
-            return 0;
-        }
+        //if ((this.xpathNodeSet != null) && !this.xpathNodeSet.contains(currentNode)) {
+        //    return 0;
+        //}
         return 1;
     }
 
@@ -310,9 +310,9 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi {
                 }
             }
         }
-        if ((this.xpathNodeSet != null) && !this.xpathNodeSet.contains(currentNode)) {
-            return 0;
-        }
+        //if ((this.xpathNodeSet != null) && !this.xpathNodeSet.contains(currentNode)) {
+        //    return 0;
+        //}
         return 1;
     }
 
@@ -325,9 +325,9 @@ public abstract class CanonicalizerBase extends CanonicalizerSpi {
                 }
             }
         }
-        if ((this.xpathNodeSet != null) && !this.xpathNodeSet.contains(currentNode)) {
-            return false;
-        }
+        //if ((this.xpathNodeSet != null) && !this.xpathNodeSet.contains(currentNode)) {
+        //    return false;
+        //}
         return true;
     }
 

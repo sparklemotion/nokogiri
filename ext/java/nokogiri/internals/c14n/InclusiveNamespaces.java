@@ -68,7 +68,7 @@ public class InclusiveNamespaces extends ElementProxy {
     public InclusiveNamespaces(Document doc, Set<String> prefixes) {
         super(doc);
 
-        SortedSet<String> prefixList = null;
+        SortedSet<String> prefixList;
         if (prefixes instanceof SortedSet<?>) {
             prefixList = (SortedSet<String>)prefixes;
         } else {
@@ -80,7 +80,7 @@ public class InclusiveNamespaces extends ElementProxy {
             if (prefix.equals("xmlns")) {
                 sb.append("#default ");
             } else {
-                sb.append(prefix + " ");
+                sb.append(prefix).append(' ');
             }
         }
         

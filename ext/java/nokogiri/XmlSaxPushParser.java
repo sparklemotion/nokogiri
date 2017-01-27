@@ -142,34 +142,35 @@ public class XmlSaxPushParser extends RubyObject {
         try {
             initialize_task(context);
         } catch (IOException e) {
-            throw context.getRuntime().newRuntimeError(e.getMessage());
+            throw context.runtime.newRuntimeError(e.getMessage());
         }
         final ByteArrayInputStream data = NokogiriHelpers.stringBytesToStream(chunk);
         if (data == null) {
             terminateTask(context);
-            XmlSyntaxError xmlSyntaxError =
-                (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
-            throw new RaiseException(xmlSyntaxError);
+            throw new RaiseException(XmlSyntaxError.createXMLSyntaxError(context.runtime)); // Nokogiri::XML::SyntaxError
         }
 
-        int errorCount0 = parserTask.getErrorCount();;
+        int errorCount0 = parserTask.getErrorCount();
 
 
         if (isLast.isTrue()) {
             try {
                 parserTask.parser.getNokogiriHandler().endDocument();
-            } catch (SAXException e) {
-                throw context.getRuntime().newRuntimeError(e.getMessage());
+            }
+            catch (SAXException e) {
+                throw context.runtime.newRuntimeError(e.getMessage());
             }
             terminateTask(context);
         } else {
             try {
-              Future<Void> task = stream.addChunk(data);
-              task.get();
-            } catch (ClosedStreamException ex) {
-              // this means the stream is closed, ignore this exception
-            } catch (Exception e) {
-              throw context.getRuntime().newRuntimeError(e.getMessage());
+                Future<Void> task = stream.addChunk(data);
+                task.get();
+            }
+            catch (ClosedStreamException ex) {
+                // this means the stream is closed, ignore this exception
+            }
+            catch (Exception e) {
+                throw context.runtime.newRuntimeError(e.toString());
             }
 
         }

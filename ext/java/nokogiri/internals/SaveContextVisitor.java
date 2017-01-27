@@ -265,11 +265,11 @@ public class SaveContextVisitor {
         String name = attr.getName();
         buffer.append(name);
         if (!asHtml || !isHtmlBooleanAttr(name)) {
-            buffer.append("=");
-            buffer.append("\"");
+            buffer.append('=');
+            buffer.append('"');
             String value = replaceCharsetIfNecessary(attr);
             buffer.append(serializeAttrTextContent(value, htmlDoc));
-            buffer.append("\"");
+            buffer.append('"');
         }
         return true;
     }
@@ -301,28 +301,27 @@ public class SaveContextVisitor {
         return false;
     }
 
-    private String serializeAttrTextContent(String s, boolean htmlDoc) {
-        if (s == null) return "";
+    private static CharSequence serializeAttrTextContent(String str, boolean htmlDoc) {
+        if (str == null || str.length() == 0) return "";
 
-        char[] c = s.toCharArray();
-        StringBuffer buffer = new StringBuffer(c.length);
+        StringBuilder buffer = new StringBuilder(str.length() + 16);
 
-        for(int i = 0; i < c.length; i++) {
-            switch(c[i]){
-            case '\n': buffer.append("&#10;"); break;
-            case '\r': buffer.append("&#13;"); break;
-            case '\t': buffer.append("&#9;"); break;
-            case '"': if (htmlDoc) buffer.append("%22");
+        for (int i = 0; i < str.length(); i++) {
+            char c; switch (c = str.charAt(i)) {
+                case '\n': buffer.append("&#10;"); break;
+                case '\r': buffer.append("&#13;"); break;
+                case '\t': buffer.append("&#9;"); break;
+                case '"': if (htmlDoc) buffer.append("%22");
                 else buffer.append("&quot;");
-                break;
-            case '<': buffer.append("&lt;"); break;
-            case '>': buffer.append("&gt;"); break;
-            case '&': buffer.append("&amp;"); break;
-            default: buffer.append(c[i]);
+                    break;
+                case '<': buffer.append("&lt;"); break;
+                case '>': buffer.append("&gt;"); break;
+                case '&': buffer.append("&amp;"); break;
+                default: buffer.append(c);
             }
         }
 
-        return buffer.toString();
+        return buffer;
     }
 
     public void leave(Attr attr) {
@@ -385,19 +384,19 @@ public class SaveContextVisitor {
         String sysId = docType.getSystemId();
         String internalSubset = docType.getInternalSubset();
         if (docType.getPreviousSibling() != null) {
-            buffer.append("\n");
+            buffer.append('\n');
         }
-        buffer.append("<!DOCTYPE " + name + " ");
+        buffer.append("<!DOCTYPE ").append(name).append(' ');
         if (pubId != null) {
-            buffer.append("PUBLIC \"" + pubId + "\"");
-            if (sysId != null) buffer.append(" \"" + sysId + "\"");
+            buffer.append("PUBLIC \"").append(pubId).append('"');
+            if (sysId != null) buffer.append(" \"").append(sysId).append('"');
         } else if (sysId != null) {
-            buffer.append("SYSTEM \"" + sysId + "\"");
+            buffer.append("SYSTEM \"").append(sysId).append('"');
         }
         if (internalSubset != null) {
-            buffer.append(" [");
+            buffer.append(' ').append('[');
             buffer.append(internalSubset);
-            buffer.append("]");
+            buffer.append(']');
         }
         buffer.append(">\n");
         return true;
@@ -420,25 +419,25 @@ public class SaveContextVisitor {
             indentation.push(current + indentString);
         }
         String name = element.getTagName();
-        buffer.append("<" + name);
+        buffer.append('<').append(name);
         Attr[] attrs = getAttrsAndNamespaces(element);
         for (Attr attr : attrs) {
             if (attr.getSpecified()) {
-                buffer.append(" ");
+                buffer.append(' ');
                 enter(attr);
                 leave(attr);
             }
         }
         if (element.hasChildNodes()) {
-            buffer.append(">");
-            if (needBreakInOpening(element)) buffer.append("\n");
+            buffer.append('>');
+            if (needBreakInOpening(element)) buffer.append('\n');
             return true;
         }
         // no child
         if (asHtml) {
-            buffer.append(">");
+            buffer.append('>');
         } else if (asXml && noEmpty) {
-            buffer.append(">");
+            buffer.append('>');
         } else if (asXhtml) {
             if (isEmpty(name)) {
                 buffer.append(" />"); // see http://www.w3.org/TR/xhtml1/#C_2
@@ -449,7 +448,7 @@ public class SaveContextVisitor {
             buffer.append("/>");
         }
         if (needBreakInOpening(element)) {
-            buffer.append("\n");
+            buffer.append('\n');
         }
         return true;
     }
@@ -619,21 +618,21 @@ public class SaveContextVisitor {
             } else if (asBuilder) {
                 if (!containsText(element)) indentation.pop();
             }
-            buffer.append("</" + name + ">");
+            buffer.append("</").append(name).append('>');
             if (needBreakInClosing(element)) {
-                buffer.append("\n");
+                buffer.append('\n');
             }
             return;
         }
         // no child, but HTML might need a closing tag.
         if (asHtml || noEmpty) {
             if (!isEmpty(name) && noEmpty) {
-                buffer.append("</" + name + ">");
+                buffer.append("</").append(name).append('>');
             }
         }
         if (needBreakInClosing(element)) {
             if (!containsText(element)) indentation.pop();
-            buffer.append("\n");
+            buffer.append('\n');
         }
     }
 
@@ -686,7 +685,7 @@ public class SaveContextVisitor {
     }
 
     public boolean enter(EntityReference entityRef) {
-        buffer.append("&" + entityRef.getNodeName() + ";");
+        buffer.append('&').append(entityRef.getNodeName()).append(';');
         return true;
     }
     public void leave(EntityReference entityRef) {
@@ -780,7 +779,7 @@ public class SaveContextVisitor {
                 sb.append(text.substring(i, i + offset));
             }
             else {
-                sb.append("&#x" + Integer.toHexString(code) + ";");
+                sb.append("&#x").append(Integer.toHexString(code)).append(';');
             }
             i += offset;
         }

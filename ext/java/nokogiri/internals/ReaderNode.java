@@ -215,7 +215,7 @@ public abstract class ReaderNode {
     }
 
     public void setLang(String lang) {
-        lang = (lang != null) ? lang : null;
+        this.lang = lang;
     }
 
     public IRubyObject toSyntaxError() { return ruby.getNil(); }
@@ -296,9 +296,7 @@ public abstract class ReaderNode {
 
         @Override
         public String getString() {
-            StringBuffer sb = new StringBuffer();
-            sb.append("</").append(name).append(">");
-            return sb.toString();
+            return "</" + name + '>';
         }
     }
 
@@ -473,10 +471,10 @@ public abstract class ReaderNode {
     public static class ExceptionNode extends EmptyNode {
         private final XmlSyntaxError exception;
 
-        // Still don't know what to do with ex.
         public ExceptionNode(Ruby runtime, Exception ex) {
             super(runtime);
-            exception = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(runtime, getNokogiriClass(ruby, "Nokogiri::XML::SyntaxError"));
+            exception = XmlSyntaxError.createXMLSyntaxError(runtime); // Nokogiri::XML::SyntaxError
+            exception.setException(ex);
         }
 
         @Override

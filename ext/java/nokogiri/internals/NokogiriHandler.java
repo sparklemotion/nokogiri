@@ -242,7 +242,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         StringBuffer sb = characterStack.peek();
-        sb.append(new String(ch, start, length));
+        sb.append(ch, start, length);
     }
 
     @Override

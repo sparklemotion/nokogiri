@@ -33,7 +33,7 @@ public class NokogiriEntityResolver implements EntityResolver2 {
     @Override
     public InputSource getExternalSubset(String name, String baseURI)
         throws SAXException, IOException {
-      return null;
+        return null;
     }
 
     @Override
@@ -51,17 +51,16 @@ public class NokogiriEntityResolver implements EntityResolver2 {
         return resolveEntity(runtime, name, publicId, baseURI, systemId);
     }
 
-    private File join(String parent, String child) {
-      if (new File(parent).isFile()) {
-        parent = new File(parent).getParent();
-      }
-
-      return new File(parent, child);
+    private static File join(String parent, String child) {
+        if (new File(parent).isFile()) {
+            parent = new File(parent).getParent();
+        }
+        return new File(parent, child);
     }
 
-    private InputSource emptyInputSource(InputSource source) {
-      source.setByteStream(new ByteArrayInputStream(new byte[0]));
-      return source;
+    private static InputSource emptyInputSource(InputSource source) {
+        source.setByteStream(new ByteArrayInputStream(new byte[0]));
+        return source;
     }
 
     private boolean shouldLoadDtd() {
@@ -69,8 +68,7 @@ public class NokogiriEntityResolver implements EntityResolver2 {
     }
 
     private void addError(String errorMessage) {
-      if (handler != null)
-        handler.errors.add(new Exception(errorMessage));
+        if (handler != null) handler.errors.add(new Exception(errorMessage));
     }
 
     /**

@@ -280,15 +280,15 @@ public class XmlReader extends RubyObject {
 
     private String getOuterXml() {
         ReaderNode current = currentNode();
-        if (current.depth < 0) return null;
+        if (current == null || current.depth < 0) return null;
 
         if (current instanceof ClosingNode) {
-          return "<" + current.name + "/>";
+            return "<" + current.name + "/>";
         }
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = position; i <= current.endOffset; i++) {
-          sb.append(nodeQueue.get(i).getString());
+            sb.append(nodeQueue.get(i).getString());
         }
         return new String(sb);
     }
@@ -324,54 +324,56 @@ public class XmlReader extends RubyObject {
     }
 
     private void readMoreData(ThreadContext context) {
-      if (!continueParsing) {
-        throw context.runtime.newRuntimeError("Cannot parse more data");
-      }
-      try {
-        continueParsing = config.parse(false);
-      } catch (XNIException e) {
-        Ruby ruby = context.runtime;
-        XmlSyntaxError exception = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::SyntaxError"));
-        throw new RaiseException(exception);
-      } catch (IOException e) {
-        throw context.getRuntime().newRuntimeError("Received IOException: " + e.getMessage());
-      }
+        if (!continueParsing) throw context.runtime.newRuntimeError("Cannot parse more data");
+        try {
+            continueParsing = config.parse(false);
+        }
+        catch (XNIException e) {
+            throw new RaiseException(XmlSyntaxError.createXMLSyntaxError(context.runtime, e)); // Nokogiri::XML::SyntaxError
+        }
+        catch (IOException e) {
+            throw context.runtime.newRuntimeError(e.toString());
+        }
     }
 
     private void ensureNodeClosed(ThreadContext context) {
-      ReaderNode node = currentNode();
-      if (node instanceof TextNode) {
-        return;
-      }
-      while (node.endOffset < 1) {
-        readMoreData(context);
-      }
+        ReaderNode node = currentNode();
+        if (node instanceof TextNode) return;
+        while (node.endOffset < 1) readMoreData(context);
     }
 
     @JRubyMethod
     public IRubyObject read(ThreadContext context) {
         position++;
-        while (nodeQueue.size() <= position && continueParsing) {
-          readMoreData(context);
+        try {
+            while (nodeQueue.size() <= position && continueParsing) {
+                readMoreData(context);
+            }
+            return setAndRaiseErrorsIfAny(context.runtime, null);
         }
-        if(currentNode() == null) {
-            return context.nil;
-        } else if(currentNode().isError()) {
-            RubyArray errors = (RubyArray) this.getInstanceVariable("@errors");
-            errors.append(currentNode().toSyntaxError());
-
-            this.setInstanceVariable("@errors", errors);
-
-            throw new RaiseException((XmlSyntaxError) currentNode().toSyntaxError());
-        } else {
-            return this;
+        catch (RaiseException ex) {
+            return setAndRaiseErrorsIfAny(context.runtime, ex);
         }
     }
 
+    private IRubyObject setAndRaiseErrorsIfAny(final Ruby runtime, final RaiseException ex) throws RaiseException {
+        final ReaderNode currentNode = currentNode();
+        if (currentNode == null) return runtime.getNil();
+        if (currentNode.isError()) {
+            RubyArray errors = (RubyArray) getInstanceVariable("@errors");
+            IRubyObject error = currentNode.toSyntaxError();
+            errors.append(error);
+            setInstanceVariable("@errors", errors);
+
+            throw ex != null ? ex : new RaiseException((XmlSyntaxError) error);
+        }
+        if ( ex != null ) throw ex;
+        return this;
+    }
+
     private ReaderNode currentNode() {
-      if (position >= nodeQueue.size())
-        return null;
-      return nodeQueue.get(position);
+        if (position >= nodeQueue.size()) return null;
+        return nodeQueue.get(position);
     }
 
     @JRubyMethod
@@ -420,15 +422,13 @@ public class XmlReader extends RubyObject {
           this.ruby = ruby;
         }
 
-
-
         @Override
-        public void startGeneralEntity(String name, XMLResourceIdentifier identifier, String encoding,
-            Augmentations augs) throws XNIException {
-          Object entitySkipped;
-          if (augs != null && (entitySkipped = augs.getItem(Constants.ENTITY_SKIPPED)) != null && ((Boolean) entitySkipped) == true) {
-            nodeQueue.add(new ReaderNode.ExceptionNode(ruby, null));
-          }
+        public void startGeneralEntity(String name, XMLResourceIdentifier identifier,
+                                       String encoding, Augmentations augs) throws XNIException {
+            Object entitySkipped;
+            if (augs != null && (entitySkipped = augs.getItem(Constants.ENTITY_SKIPPED)) != null && ((Boolean) entitySkipped)) {
+                nodeQueue.add(new ReaderNode.ExceptionNode(ruby, null));
+            }
         }
 
 
@@ -479,7 +479,7 @@ public class XmlReader extends RubyObject {
 
         @Override
         public void emptyElement(QName element, XMLAttributes attrs, Augmentations augs) {
-          commonElement(element, attrs, true);
+            commonElement(element, attrs, true);
         }
 
         private void commonElement(QName element, XMLAttributes attrs, boolean isEmpty) {
@@ -528,5 +528,5 @@ public class XmlReader extends RubyObject {
             nodeQueue.add(new ReaderNode.ExceptionNode(ruby, ex));
             throw ex;
         }
-    };
+    }
 }

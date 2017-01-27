@@ -167,21 +167,32 @@ public class XmlDomParserContext extends ParserContext {
     }
 
     public void addErrorsIfNecessary(ThreadContext context, XmlDocument doc) {
-        Ruby ruby = context.getRuntime();
-        RubyArray errors = ruby.newArray(errorHandler.getErrorsReadyForRuby(context));
-        doc.setInstanceVariable("@errors", errors);
+        doc.setInstanceVariable("@errors", mapErrors(context, errorHandler));
+    }
+
+
+    public static RubyArray mapErrors(ThreadContext context, NokogiriErrorHandler errorHandler) {
+        final Ruby runtime = context.runtime;
+        final List<Exception> errors = errorHandler.getErrors();
+        final IRubyObject[] errorsAry = new IRubyObject[errors.size()];
+        for (int i = 0; i < errors.size(); i++) {
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(runtime);
+            xmlSyntaxError.setException(errors.get(i));
+            errorsAry[i] = xmlSyntaxError;
+        }
+        return runtime.newArrayNoCopy(errorsAry);
     }
 
     public XmlDocument getDocumentWithErrorsOrRaiseException(ThreadContext context, RubyClass klazz, Exception ex) {
         if (options.recover) {
             XmlDocument xmlDocument = getInterruptedOrNewXmlDocument(context, klazz);
             this.addErrorsIfNecessary(context, xmlDocument);
-            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
             xmlSyntaxError.setException(ex);
             ((RubyArray) xmlDocument.getInstanceVariable("@errors")).append(xmlSyntaxError);
             return xmlDocument;
         } else {
-            XmlSyntaxError xmlSyntaxError = (XmlSyntaxError) NokogiriService.XML_SYNTAXERROR_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SyntaxError"));
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
             xmlSyntaxError.setException(ex);
             throw new RaiseException(xmlSyntaxError);
         }

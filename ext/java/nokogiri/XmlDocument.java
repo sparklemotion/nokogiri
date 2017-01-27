@@ -249,7 +249,7 @@ public class XmlDocument extends XmlNode {
      */
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
-        XmlDocument xmlDocument = null;
+        XmlDocument xmlDocument;
         try {
             Document docNode = createNewDocument();
             if ("Nokogiri::HTML::Document".equals(((RubyClass)klazz).getName())) {
@@ -281,8 +281,7 @@ public class XmlDocument extends XmlNode {
     }
 
     @Override
-    @JRubyMethod
-    public IRubyObject document(ThreadContext context) {
+    IRubyObject document(Ruby runtime) {
         return this;
     }
 

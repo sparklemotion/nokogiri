@@ -52,7 +52,7 @@ public abstract class Canonicalizer20010315 extends CanonicalizerBase {
             int level;
             boolean rendered = false;
             List<Attr> nodes = new ArrayList<Attr>();
-        };
+        }
 
         int currentLevel = 0;
         int lastlevel = 0;
@@ -95,11 +95,10 @@ public abstract class Canonicalizer20010315 extends CanonicalizerBase {
                 levels.add(cur);
             }
             boolean parentRendered = false;
-            XmlsStackElement e = null;
             if (size == -1) {
                 parentRendered = true;
             } else {
-                e = levels.get(size);
+                XmlsStackElement e = levels.get(size);
                 if (e.rendered && e.level + 1 == currentLevel) {
                     parentRendered = true;
                 }
@@ -112,7 +111,7 @@ public abstract class Canonicalizer20010315 extends CanonicalizerBase {
 
             Map<String, Attr> loa = new HashMap<String, Attr>();
             for (; size >= 0; size--) {
-                e = levels.get(size);
+                XmlsStackElement e = levels.get(size);
                 Iterator<Attr> it = e.nodes.iterator();
                 while (it.hasNext()) {
                     Attr n = it.next();

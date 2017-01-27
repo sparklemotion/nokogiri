@@ -149,7 +149,7 @@ public class Canonicalizer {
      * @throws CanonicalizationException
      */
     public static void register(String algorithmURI, Class<? extends CanonicalizerSpi> implementingClass)
-        throws CanonicalizationException, ClassNotFoundException {
+        throws CanonicalizationException {
         // check whether URI is already registered
         Class<? extends CanonicalizerSpi> registeredClass = canonicalizerHash.get(algorithmURI);
 

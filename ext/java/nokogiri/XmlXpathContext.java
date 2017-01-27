@@ -169,18 +169,16 @@ public class XmlXpathContext extends RubyObject {
         return node_set(thread_context, src);
     }
 
-    protected IRubyObject node_set(ThreadContext thread_context, String expr) {
+    protected IRubyObject node_set(ThreadContext context, String expr) {
         try {
-          return tryGetNodeSet(thread_context, expr);
-        } catch (XPathExpressionException xpee) {
-          RubyException e = XmlSyntaxError.createXPathSyntaxError(getRuntime(), xpee);
-          throw new RaiseException(e);
+            return tryGetNodeSet(context, expr);
+        }
+        catch (XPathExpressionException ex) {
+            throw new RaiseException(XmlSyntaxError.createXMLXPathSyntaxError(context.runtime, ex)); // Nokogiri::XML::XPath::SyntaxError
         }
     }
 
     private IRubyObject tryGetNodeSet(ThreadContext thread_context, String expr) throws XPathExpressionException {
-        XObject xobj = null;
-
         Node contextNode = context.node;
 
         try {
@@ -190,7 +188,7 @@ public class XmlXpathContext extends RubyObject {
           // We always need to have a ContextNode with Xalan XPath implementation
           // To allow simple expression evaluation like 1+1 we are setting
           // dummy Document as Context Node
-
+          final XObject xobj;
           if ( contextNode == null )
               xobj = xpathInternal.execute(xpathSupport, DTM.NULL, prefixResolver);
           else

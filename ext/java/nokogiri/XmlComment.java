@@ -69,7 +69,7 @@ public class XmlComment extends XmlNode {
         IRubyObject doc = args[0];
         IRubyObject text = args[1];
 
-        XmlDocument xmlDoc = null;
+        XmlDocument xmlDoc;
         if (doc instanceof XmlDocument) {
             xmlDoc = (XmlDocument) doc;
             

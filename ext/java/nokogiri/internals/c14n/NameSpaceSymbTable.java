@@ -306,7 +306,7 @@ class NameSpaceSymbEntry implements Cloneable {
             return null;
         }
     }
-};
+}
 
 class SymbMap implements Cloneable {
     int free = 23;

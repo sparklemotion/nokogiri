@@ -32,6 +32,7 @@
 
 package nokogiri;
 
+import static nokogiri.XmlNode.setDocumentAndDecorate;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.nodeListToRubyArray;
 
@@ -58,9 +59,8 @@ import org.w3c.dom.NodeList;
  */
 @JRubyClass(name="Nokogiri::XML::NodeSet")
 public class XmlNodeSet extends RubyObject implements NodeList {
-    private List<?> list;
+
     private RubyArray nodes;
-    private IRubyObject doc;
     
     public XmlNodeSet(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
@@ -93,18 +93,15 @@ public class XmlNodeSet extends RubyObject implements NodeList {
         setNodes(nodeListToRubyArray(getRuntime(), nodeList));
     }
     
-    public void initialize(Ruby ruby, IRubyObject refNode) {
+    public void initialize(Ruby runtime, IRubyObject refNode) {
         if (refNode instanceof XmlNode) {
             XmlNode n = (XmlNode)refNode;
-            doc = n.document(ruby.getCurrentContext());
-            setInstanceVariable("@document", doc);
-            if (doc != null) {
-                RuntimeHelpers.invoke(ruby.getCurrentContext(), doc, "decorate", this);
-            }
+            IRubyObject doc = n.document(runtime);
+            setDocumentAndDecorate(runtime.getCurrentContext(), this, doc);
         }
     }
 
-    public static IRubyObject newEmptyNodeSet(ThreadContext context) {
+    public static XmlNodeSet newEmptyNodeSet(ThreadContext context) {
         return (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
     }
 
