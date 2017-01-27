@@ -247,6 +247,7 @@ jobs:
     plan:
       - get: nokogiri-pr
         trigger: true
+        version: every
       - put: nokogiri-pr
         params:
           path: nokogiri-pr
@@ -353,9 +354,11 @@ jobs:
     plan:
       - get: nokogiri-pr
         trigger: true
+        version: every
         passed:
           - ruby-<%= RUBIES[:mri].last %>-system-pr
           - ruby-<%= RUBIES[:mri].last %>-vendored-pr
+          - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
           - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr
