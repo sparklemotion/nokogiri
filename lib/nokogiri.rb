@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Modify the PATH on windows so that the external DLLs will get loaded.
 
+puts "this is to test the pull request resource"
+
 require 'rbconfig'
 
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
