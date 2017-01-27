@@ -34,8 +34,6 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import javax.xml.transform.TransformerException;
@@ -89,7 +87,7 @@ public class XmlXpathContext extends RubyObject {
         variableResolver = NokogiriXPathVariableResolver.create();
     }
 
-    private void setNode(XmlNode node) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    private void setNode(XmlNode node) {
         Node doc = node.getNode().getOwnerDocument();
         if (doc == null) {
             doc = node.getNode();
@@ -108,17 +106,8 @@ public class XmlXpathContext extends RubyObject {
         prefixResolver = new JAXPPrefixResolver(nsContext);
     }
 
-    private JAXPExtensionsProvider getProviderInstance() throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor[] constructors = JAXPExtensionsProvider.class.getDeclaredConstructors();
-        for (int i = 0; i < constructors.length; i++) {
-            Class[] parameterTypes = constructors[i].getParameterTypes();
-            if (parameterTypes.length == 2) {
-                return (JAXPExtensionsProvider) constructors[i].newInstance(functionResolver, false);
-            } else if (parameterTypes.length == 1) {
-                return (JAXPExtensionsProvider) constructors[i].newInstance(functionResolver);
-            }
-        }
-        return null;
+    private JAXPExtensionsProvider getProviderInstance() {
+        return new JAXPExtensionsProvider(functionResolver, false);
     }
 
     /**
@@ -132,20 +121,15 @@ public class XmlXpathContext extends RubyObject {
     }
 
     @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext thread_context, IRubyObject klazz, IRubyObject node) {
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node) {
         XmlNode xmlNode = (XmlNode)node;
-        XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(thread_context.getRuntime(), (RubyClass)klazz);
+        XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
         XPathFactory.newInstance().newXPath();
         try {
             xmlXpathContext.setNode(xmlNode);
-        } catch (IllegalArgumentException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (InstantiationException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (IllegalAccessException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (InvocationTargetException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
+        }
+        catch (IllegalArgumentException e) {
+            throw context.getRuntime().newRuntimeError(e.getMessage());
         }
         return xmlXpathContext;
     }
