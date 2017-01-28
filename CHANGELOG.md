@@ -12,9 +12,10 @@
 * Allow Processing Instructions and Comments as children of a document root. [#1033] (Thanks, @windwiny!)
 * [MRI] PushParser#replace_entities and #replace_entities= will control whether entities are replaced or not. [#1017] (Thanks, @spraints!)
 * [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1503] (Thanks, @spk!)
+* [MRI] Cross-built Windows gems now support Ruby 2.4
+* [MRI] Support for frozen string literals. [#1413]
 * [JRuby] (performance) remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
 * [JRuby] (performance) remove unnecessary cloning of objects in XPath searches [#1563] (Thanks, @kares!)
-* Cross-built Windows gems now support Ruby 2.4
 
 
 ## Bugs
