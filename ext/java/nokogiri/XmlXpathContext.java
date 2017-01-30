@@ -97,19 +97,6 @@ public class XmlXpathContext extends RubyObject {
     }
 
     private void initNode(XmlNode node) {
-        Node doc = node.getNode().getOwnerDocument();
-        if (doc == null) {
-            doc = node.getNode();
-        }
-        xpathSupport = (XPathContext) doc.getUserData(XPATH_CONTEXT);
-
-        if (xpathSupport == null) {
-            JAXPExtensionsProvider jep = getProviderInstance();
-            xpathSupport = new XPathContext(jep);
-            xpathSupport.setVarStack(new JAXPVariableStack(variableResolver));
-            doc.setUserData(XPATH_CONTEXT, xpathSupport, null);
-        }
-
         context = node;
         nsContext = NokogiriNamespaceContext.create();
         prefixResolver = new JAXPPrefixResolver(nsContext);
@@ -171,44 +158,50 @@ public class XmlXpathContext extends RubyObject {
         try {
             return tryGetNodeSet(context, expr);
         }
-        catch (XPathExpressionException ex) {
+        catch (TransformerException ex) {
             throw new RaiseException(XmlSyntaxError.createXMLXPathSyntaxError(context.runtime, ex)); // Nokogiri::XML::XPath::SyntaxError
         }
     }
 
-    private IRubyObject tryGetNodeSet(ThreadContext thread_context, String expr) throws XPathExpressionException {
-        Node contextNode = context.node;
+    private IRubyObject tryGetNodeSet(ThreadContext context, String expr) throws TransformerException {
+        final Node contextNode = this.context.node;
 
-        try {
-          org.apache.xpath.XPath xpathInternal = new org.apache.xpath.XPath (expr, null,
-                      prefixResolver, org.apache.xpath.XPath.SELECT );
+        org.apache.xpath.XPath xpathInternal = new org.apache.xpath.XPath (expr, null, prefixResolver, org.apache.xpath.XPath.SELECT );
 
-          // We always need to have a ContextNode with Xalan XPath implementation
-          // To allow simple expression evaluation like 1+1 we are setting
-          // dummy Document as Context Node
-          final XObject xobj;
-          if ( contextNode == null )
-              xobj = xpathInternal.execute(xpathSupport, DTM.NULL, prefixResolver);
-          else
-              xobj = xpathInternal.execute(xpathSupport, contextNode, prefixResolver);
+        // We always need to have a ContextNode with Xalan XPath implementation
+        // To allow simple expression evaluation like 1+1 we are setting
+        // dummy Document as Context Node
+        final XObject xobj;
+        if ( contextNode == null )
+            xobj = xpathInternal.execute(getXPathContext(), DTM.NULL, prefixResolver);
+        else
+            xobj = xpathInternal.execute(getXPathContext(), contextNode, prefixResolver);
 
-          switch (xobj.getType()) {
-          case XObject.CLASS_BOOLEAN:
-            return thread_context.getRuntime().newBoolean(xobj.bool());
-          case XObject.CLASS_NUMBER:
-            return thread_context.getRuntime().newFloat(xobj.num());
-          case XObject.CLASS_NODESET:
-            NodeList nodeList = xobj.nodelist();
-            XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
-            xmlNodeSet.setNodeList(nodeList);
-            xmlNodeSet.initialize(thread_context.getRuntime(), context);
-            return xmlNodeSet;
-          default:
-            return thread_context.getRuntime().newString(xobj.str());
-          }
-        } catch(TransformerException ex) {
-          throw new XPathExpressionException(expr);
+        switch (xobj.getType()) {
+            case XObject.CLASS_BOOLEAN : return context.getRuntime().newBoolean(xobj.bool());
+            case XObject.CLASS_NUMBER :  return context.getRuntime().newFloat(xobj.num());
+            case XObject.CLASS_NODESET :
+                NodeList nodeList = xobj.nodelist();
+                XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
+                xmlNodeSet.setNodeList(nodeList);
+                xmlNodeSet.initialize(context.getRuntime(), this.context);
+                return xmlNodeSet;
+            default : return context.getRuntime().newString(xobj.str());
         }
+    }
+
+    private XPathContext getXPathContext() {
+        Node doc = context.getNode().getOwnerDocument();
+        if (doc == null) doc = context.getNode();
+
+        XPathContext xpathContext = (XPathContext) doc.getUserData(XPATH_CONTEXT);
+
+        if (xpathContext == null) {
+            xpathContext = new XPathContext(getProviderInstance());
+            doc.setUserData(XPATH_CONTEXT, xpathContext, null);
+        }
+        xpathContext.setVarStack(new JAXPVariableStack(variableResolver));
+        return xpathContext;
     }
 
     private boolean isContainsPrefix(final String str) {
