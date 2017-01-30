@@ -293,8 +293,6 @@ public abstract class ReaderNode {
 
     public static class ElementNode extends ReaderNode {
 
-        private final List<String> attributeStrings = new ArrayList<String>();
-
         // public ElementNode() {}
 
         ElementNode(Ruby runtime, String uri, String localName, String qName, XMLAttributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
@@ -328,7 +326,6 @@ public abstract class ReaderNode {
                     if (xmlBase == null) xmlBase = resolveXmlBase(n, v, xmlBaseStack);
                 }
                 attributeList.add(u, n, v);
-                attributeStrings.add(n + "=\"" + v + "\"");
             }
         }
 
@@ -382,23 +379,26 @@ public abstract class ReaderNode {
 
         @Override
         public String getString() {
-            StringBuffer sb = new StringBuffer();
-            sb.append("<").append(name);
+            StringBuffer sb = new StringBuffer(24);
+            sb.append('<').append(name);
             if (attributeList != null) {
                 for (int i=0; i<attributeList.length; i++) {
-                    sb.append(" ").append(attributeStrings.get(i));
+                    String n = attributeList.names.get(i);
+                    String v = attributeList.values.get(i);
+                    sb.append(' ').append(n).append('=')
+                      .append('"').append(v).append('"');
                 }
             }
-            if (hasChildren) sb.append(">");
+            if (hasChildren) sb.append('>');
             else sb.append("/>");
-            return new String(sb);
+            return sb.toString();
         }
     }
 
     private static class ReaderAttributeList {
-        List<String> namespaces  = new ArrayList<String>();
-        List<String> names  = new ArrayList<String>();
-        List<String> values = new ArrayList<String>();
+        final List<String> namespaces  = new ArrayList<String>();
+        final List<String> names  = new ArrayList<String>();
+        final List<String> values = new ArrayList<String>();
         int length = 0;
 
         void add(String namespace, String name, String value) {
