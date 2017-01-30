@@ -91,7 +91,12 @@ public class XmlXpathContext extends RubyObject {
         variableResolver = NokogiriXPathVariableResolver.create();
     }
 
-    private void setNode(XmlNode node) {
+    public XmlXpathContext(Ruby runtime, RubyClass klass, XmlNode node) {
+        this(runtime, klass);
+        initNode(node);
+    }
+
+    private void initNode(XmlNode node) {
         Node doc = node.getNode().getOwnerDocument();
         if (doc == null) {
             doc = node.getNode();
@@ -126,11 +131,10 @@ public class XmlXpathContext extends RubyObject {
 
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node) {
-        XmlNode xmlNode = (XmlNode)node;
+        XmlNode xmlNode = (XmlNode) node;
         XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
-        XPathFactory.newInstance().newXPath();
         try {
-            xmlXpathContext.setNode(xmlNode);
+            xmlXpathContext.initNode(xmlNode);
         }
         catch (IllegalArgumentException e) {
             throw context.getRuntime().newRuntimeError(e.getMessage());
