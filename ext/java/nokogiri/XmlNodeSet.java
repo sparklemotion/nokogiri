@@ -66,6 +66,24 @@ public class XmlNodeSet extends RubyObject implements NodeList {
         super(ruby, klazz);
     }
 
+    public static XmlNodeSet create(final Ruby runtime) {
+        return (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
+    }
+
+    public static XmlNodeSet newEmptyNodeSet(ThreadContext context) {
+        return create(context.getRuntime());
+    }
+
+    public static XmlNodeSet newXmlNodeSet(final Ruby runtime, RubyArray nodes) {
+        XmlNodeSet xmlNodeSet = create(runtime);
+        xmlNodeSet.setNodes(nodes);
+        return xmlNodeSet;
+    }
+
+    static XmlNodeSet newXmlNodeSet(ThreadContext context, RubyArray nodes) {
+        return newXmlNodeSet(context.getRuntime(), nodes);
+    }
+
     /**
      * Create and return a copy of this object.
      *
@@ -92,17 +110,12 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     public void setNodeList(NodeList nodeList) {
         setNodes(nodeListToRubyArray(getRuntime(), nodeList));
     }
-    
-    public void initialize(Ruby runtime, IRubyObject refNode) {
+
+    final void initialize(Ruby runtime, IRubyObject refNode) {
         if (refNode instanceof XmlNode) {
-            XmlNode n = (XmlNode)refNode;
-            IRubyObject doc = n.document(runtime);
+            IRubyObject doc = ((XmlNode) refNode).document(runtime);
             setDocumentAndDecorate(runtime.getCurrentContext(), this, doc);
         }
-    }
-
-    public static XmlNodeSet newEmptyNodeSet(ThreadContext context) {
-        return (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
     }
 
     public long length() {
@@ -221,14 +234,8 @@ public class XmlNodeSet extends RubyObject implements NodeList {
         return this;
     }
 
-    public static XmlNodeSet newXmlNodeSet(ThreadContext context, RubyArray array) {
-        XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
-        xmlNodeSet.setNodes(array);
-        return xmlNodeSet;
-    }
-
     private XmlNodeSet newXmlNodeSet(ThreadContext context, XmlNodeSet reference) {
-        XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
+        XmlNodeSet xmlNodeSet = create(context.getRuntime());
         xmlNodeSet.setReference(reference);
         return xmlNodeSet;
     }
