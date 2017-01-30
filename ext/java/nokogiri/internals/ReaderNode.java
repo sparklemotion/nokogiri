@@ -69,19 +69,20 @@ import org.w3c.dom.Document;
  */
 public abstract class ReaderNode {
 
-    Ruby ruby;
+    final Ruby ruby;
     public ReaderAttributeList attributeList;
     public Map<String, String> namespaces;
     public int depth, nodeType;
     public String lang, localName, xmlBase, prefix, name, uri, value, xmlVersion = "1.0";
     public int startOffset, endOffset;
     public boolean hasChildren = false;
-    public abstract String getString();
     private Document document = null;
 
-    private static ElementNode elementNode = null;
-    private static ClosingNode closingNode = null;
-    private static TextNode textNode = null;
+    protected ReaderNode(final Ruby runtime) {
+        this.ruby = runtime;
+    }
+
+    public abstract String getString();
 
     public IRubyObject getAttributeByIndex(IRubyObject index){
         if(index.isNil()) return index;
@@ -134,13 +135,13 @@ public abstract class ReaderNode {
     }
 
     public IRubyObject getAttributes(ThreadContext context) {
-        if(attributeList == null) return context.getRuntime().getNil();
-        RubyHash hash = RubyHash.newHash(context.getRuntime());
+        final Ruby runtime = context.runtime;
+        if (attributeList == null) return runtime.getNil();
+        RubyHash hash = RubyHash.newHash(runtime);
         for (int i=0; i<attributeList.length; i++) {
-            IRubyObject k = stringOrBlank(context.getRuntime(), attributeList.names.get(i));
-            IRubyObject v = stringOrBlank(context.getRuntime(), attributeList.values.get(i));
-            if (context.getRuntime().is1_9()) hash.op_aset19(context, k, v);
-            else hash.op_aset(context, k, v);
+            IRubyObject k = stringOrBlank(runtime, attributeList.names.get(i));
+            IRubyObject v = stringOrBlank(runtime, attributeList.values.get(i));
+            hash.fastASetCheckString(runtime, k, v); // hash.op_aset(context, k, v)
         }
         return hash;
     }
@@ -162,15 +163,13 @@ public abstract class ReaderNode {
     }
 
     public IRubyObject getNamespaces(ThreadContext context) {
-        if(namespaces == null) return ruby.getNil();
-        RubyHash hash = RubyHash.newHash(ruby);
-        Set<String> keys = namespaces.keySet();
-        for (String key : keys) {
-            String stringValue = namespaces.get(key);
-            IRubyObject k = stringOrBlank(context.getRuntime(), key);
-            IRubyObject v = stringOrBlank(context.getRuntime(), stringValue);
-            if (context.getRuntime().is1_9()) hash.op_aset19(context, k, v);
-            else hash.op_aset(context, k, v);
+        final Ruby runtime = context.runtime;
+        if (namespaces == null) return runtime.getNil();
+        RubyHash hash = RubyHash.newHash(runtime);
+        for (Map.Entry<String, String> entry : namespaces.entrySet()) {
+            IRubyObject k = stringOrBlank(runtime, entry.getKey());
+            IRubyObject v = stringOrBlank(runtime, entry.getValue());
+            hash.fastASetCheckString(runtime, k, v); // hash.op_aset(context, k, v)
         }
         return hash;
     }
@@ -253,27 +252,15 @@ public abstract class ReaderNode {
     }
 
     public static ClosingNode createClosingNode(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-        if (closingNode == null) closingNode = new ClosingNode();
-        ClosingNode clone;
-        try {
-            clone = (ClosingNode) closingNode.clone();
-        } catch (CloneNotSupportedException e) {
-            clone = new ClosingNode();
-        }
-        clone.init(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
-        return clone;
+        return new ClosingNode(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
     }
 
     public static class ClosingNode extends ReaderNode {
 
-        public ClosingNode() {}
+        // public ClosingNode() {}
 
-        public ClosingNode(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-            init(ruby, uri, localName, qName, depth, langStack, xmlBaseStack);
-        }
-
-        public void init(Ruby ruby, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-            this.ruby = ruby;
+        ClosingNode(Ruby runtime, String uri, String localName, String qName, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+            super(runtime);
             nodeType = ReaderNodeType.END_ELEMENT.getValue();
             this.uri = "".equals(uri) ? null : uri;
             this.localName = localName.trim().length() > 0 ? localName : qName;
@@ -301,28 +288,17 @@ public abstract class ReaderNode {
     }
 
     public static ElementNode createElementNode(Ruby ruby, String uri, String localName, String qName, XMLAttributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-        if (elementNode == null) elementNode = new ElementNode();
-        ElementNode clone;
-        try {
-            clone = (ElementNode) elementNode.clone();
-        } catch (CloneNotSupportedException e) {
-            clone = new ElementNode();
-        }
-        clone.init(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
-        return clone;
+        return new ElementNode(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
     }
 
     public static class ElementNode extends ReaderNode {
+
         private final List<String> attributeStrings = new ArrayList<String>();
 
-        public ElementNode() {}
+        // public ElementNode() {}
 
-        public ElementNode(Ruby ruby, String uri, String localName, String qName, XMLAttributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-            init(ruby, uri, localName, qName, attrs, depth, langStack, xmlBaseStack);
-        }
-
-        public void init(Ruby ruby, String uri, String localName, String qName, XMLAttributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-            this.ruby = ruby;
+        ElementNode(Ruby runtime, String uri, String localName, String qName, XMLAttributes attrs, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+            super(runtime);
             this.nodeType = ReaderNodeType.ELEMENT.getValue();
             this.uri = "".equals(uri) ? null : uri;
             this.localName = localName.trim().length() > 0 ? localName : qName;
@@ -419,19 +395,16 @@ public abstract class ReaderNode {
         }
     }
 
-    public static class ReaderAttributeList {
+    private static class ReaderAttributeList {
         List<String> namespaces  = new ArrayList<String>();
         List<String> names  = new ArrayList<String>();
         List<String> values = new ArrayList<String>();
         int length = 0;
 
         void add(String namespace, String name, String value) {
-            namespace = namespace != null ? namespace : "";
-            namespaces.add(namespace);
-            name = name != null ? name : "";
-            names.add(name);
-            value = value != null ? value : "";
-            values.add(value);
+            namespaces.add(namespace != null ? namespace : "");
+            names.add(name != null ? name : "");
+            values.add(value != null ? value : "");
             length++;
         }
 
@@ -447,8 +420,8 @@ public abstract class ReaderNode {
 
     public static class EmptyNode extends ReaderNode {
 
-        public EmptyNode(Ruby ruby) {
-            this.ruby = ruby;
+        public EmptyNode(Ruby runtime) {
+            super(runtime);
             this.nodeType = ReaderNodeType.NODE.getValue();
         }
 
@@ -489,26 +462,15 @@ public abstract class ReaderNode {
     }
 
     public static TextNode createTextNode(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-        if (textNode == null) textNode = new TextNode();
-        TextNode clone;
-        try {
-            clone = (TextNode) textNode.clone();
-        } catch (CloneNotSupportedException e) {
-            clone = new TextNode();
-        }
-        clone.init(ruby, content, depth, langStack, xmlBaseStack);
-        return clone;
+        return new TextNode(ruby, content, depth, langStack, xmlBaseStack);
     }
 
     public static class TextNode extends ReaderNode {
-        public TextNode() {}
 
-        public TextNode(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-            init(ruby, content, depth, langStack, xmlBaseStack);
-        }
+        // public TextNode() {}
 
-        public void init(Ruby ruby, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
-            this.ruby = ruby;
+        TextNode(Ruby runtime, String content, int depth, Stack<String> langStack, Stack<String> xmlBaseStack) {
+            super(runtime);
             this.value = content;
             this.localName = "#text";
             this.name = "#text";
