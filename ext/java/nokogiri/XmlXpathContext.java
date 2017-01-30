@@ -162,8 +162,8 @@ public class XmlXpathContext extends RubyObject {
     private IRubyObject tryGetNodeSet(ThreadContext context, String expr, NokogiriXPathFunctionResolver fnResolver) throws TransformerException {
         final Node contextNode = this.context.node;
 
-        JAXPPrefixResolver prefixResolver = new JAXPPrefixResolver(nsContext);
-        XPath xpathInternal = new XPath(expr, null, prefixResolver, org.apache.xpath.XPath.SELECT );
+        final JAXPPrefixResolver prefixResolver = new JAXPPrefixResolver(nsContext);
+        XPath xpathInternal = new XPath(expr, null, prefixResolver, XPath.SELECT);
 
         // We always need to have a ContextNode with Xalan XPath implementation
         // To allow simple expression evaluation like 1+1 we are setting
@@ -195,15 +195,19 @@ public class XmlXpathContext extends RubyObject {
 
         if ( xpathContext == null ) {
             xpathContext = newXPathContext(fnResolver);
-            //if ( variableResolver != null ) {
-            //    xpathContext.setVarStack(new JAXPVariableStack(variableResolver));
-            //}
-            // TODO: caching disabled as its not thread-safe !
-            //doc.setUserData(XPATH_CONTEXT, xpathContext, null);
+            if ( variableResolver == null ) {
+                // NOTE: only caching without variables - could be improved by more sophisticated caching
+                doc.setUserData(XPATH_CONTEXT, xpathContext, null);
+            }
         }
         else {
-            // NOTE: implement correct caching ...
-            xpathContext = newXPathContext(fnResolver);
+            Object owner = xpathContext.getOwnerObject();
+            if ( ( owner == null && fnResolver == null ) ||
+                ( owner instanceof JAXPExtensionsProvider && ((JAXPExtensionsProvider) owner).hasSameResolver(fnResolver) ) ) {
+                // can be re-used assuming it has the same variable-stack (for now only cached if no variables)
+                if ( variableResolver == null ) return xpathContext;
+            }
+            xpathContext = newXPathContext(fnResolver); // otherwise we can not use the cached xpath-context
         }
 
         if ( variableResolver != null ) {
@@ -229,6 +233,34 @@ public class XmlXpathContext extends RubyObject {
             }
         }
         return false;
+    }
+
+    private static final class JAXPExtensionsProvider extends org.apache.xpath.jaxp.JAXPExtensionsProvider {
+
+        final NokogiriXPathFunctionResolver resolver;
+
+        JAXPExtensionsProvider(NokogiriXPathFunctionResolver resolver) {
+            super(resolver, false);
+            this.resolver = resolver;
+        }
+
+        //@Override
+        //public boolean equals(Object obj) {
+        //    if (obj instanceof JAXPExtensionsProvider) {
+        //        return hasSameResolver(((JAXPExtensionsProvider) obj).resolver);
+        //    }
+        //    return false;
+        //}
+
+        final boolean hasSameResolver(final NokogiriXPathFunctionResolver resolver) {
+            return resolver == this.resolver || resolver != null && (
+                resolver.getHandler() == null ? this.resolver.getHandler() == null : (
+                    resolver.getHandler() == this.resolver.getHandler()
+                    // resolver.getHandler().eql( this.resolver.getHandler() )
+                )
+            );
+        }
+
     }
 
 }
