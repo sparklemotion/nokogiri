@@ -56,6 +56,10 @@ module Nokogiri
           def value
             123.456
           end
+
+          def anint
+            1230456
+          end
         }.new
       end
 
@@ -339,6 +343,15 @@ module Nokogiri
           value = @xml.xpath('nokogiri:value()', @ns, @handler)
         end
         assert_equal 123.456, value
+      end
+
+      def test_custom_xpath_without_arguments_returning_int
+        if Nokogiri.uses_libxml?
+          value = @xml.xpath('anint()', @handler)
+        else
+          value = @xml.xpath('nokogiri:anint()', @ns, @handler)
+        end
+        assert_equal 1230456, value
       end
 
       def test_custom_xpath_with_bullshit_arguments
