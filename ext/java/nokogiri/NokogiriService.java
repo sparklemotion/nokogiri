@@ -596,17 +596,9 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    public static ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = new ObjectAllocator() {
-        private XmlXpathContext xmlXpathContext = null;
+    public static final ObjectAllocator XML_XPATHCONTEXT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
-            if (xmlXpathContext == null) xmlXpathContext = new XmlXpathContext(runtime, klazz);
-            try {
-                XmlXpathContext clone  = (XmlXpathContext) xmlXpathContext.clone();
-                clone.setMetaClass(klazz);
-                return clone;
-            } catch (CloneNotSupportedException e) {
-                return new XmlXpathContext(runtime, klazz);
-            }
+            return new XmlXpathContext(runtime, klazz);
         }
     };
 
