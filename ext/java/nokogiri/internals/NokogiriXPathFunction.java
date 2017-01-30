@@ -32,21 +32,20 @@
 
 package nokogiri.internals;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-
 import java.util.List;
 
 import javax.xml.xpath.XPathFunction;
 import javax.xml.xpath.XPathFunctionException;
 
-import nokogiri.NokogiriService;
 import nokogiri.XmlNode;
 import nokogiri.XmlNodeSet;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
+import org.jruby.RubyFixnum;
 import org.jruby.RubyFloat;
+import org.jruby.RubyInteger;
 import org.jruby.RubyString;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.javasupport.util.RuntimeHelpers;
@@ -77,53 +76,48 @@ public class NokogiriXPathFunction implements XPathFunction {
     }
 
     public Object evaluate(List args) throws XPathFunctionException {
-        if(args.size() != this.arity) {
+        if (args.size() != this.arity) {
             throw new XPathFunctionException("arity does not match");
         }
         
-        Ruby ruby = this.handler.getRuntime();
-        ThreadContext context = ruby.getCurrentContext();
+        final Ruby runtime = this.handler.getRuntime();
+        ThreadContext context = runtime.getCurrentContext();
 
-        IRubyObject result = RuntimeHelpers.invoke(context, this.handler,
-                this.name, fromObjectToRubyArgs(args));
+        IRubyObject result = RuntimeHelpers.invoke(context, this.handler, this.name, fromObjectToRubyArgs(runtime, args));
 
-        return fromRubyToObject(result);
+        return fromRubyToObject(runtime, result);
     }
 
-    private IRubyObject[] fromObjectToRubyArgs(List args) {
+    private static IRubyObject[] fromObjectToRubyArgs(final Ruby runtime, List args) {
         IRubyObject[] newArgs = new IRubyObject[args.size()];
         for(int i = 0; i < args.size(); i++) {
-            newArgs[i] = fromObjectToRuby(args.get(i));
+            newArgs[i] = fromObjectToRuby(runtime, args.get(i));
         }
         return newArgs;
     }
 
-    private IRubyObject fromObjectToRuby(Object o) {
+    private static IRubyObject fromObjectToRuby(final Ruby runtime, Object obj) {
         // argument object type is one of NodeList, String, Boolean, or Double.
-        Ruby runtime = this.handler.getRuntime();
-        if (o instanceof NodeList) {
-            XmlNodeSet xmlNodeSet = (XmlNodeSet)NokogiriService.XML_NODESET_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::NodeSet"));
-            xmlNodeSet.setNodeList((NodeList) o);
+        if (obj instanceof NodeList) {
+            XmlNodeSet xmlNodeSet = XmlNodeSet.create(runtime);
+            xmlNodeSet.setNodeList((NodeList) obj);
             return xmlNodeSet;
-        } else {
-            return JavaUtil.convertJavaToUsableRubyObject(runtime, o);
         }
+        return JavaUtil.convertJavaToUsableRubyObject(runtime, obj);
     }
 
-    private Object fromRubyToObject(IRubyObject o) {
-        Ruby runtime = this.handler.getRuntime();
-        if (o instanceof RubyString) {
-            return o.asJavaString();
-        } else if (o instanceof RubyFloat) {
-            return o.toJava(Double.class);
-        } else if (o instanceof RubyBoolean) {
-            return o.toJava(Boolean.class);
-        } else if (o instanceof XmlNodeSet) {
-            return o;
-        } else if (o instanceof RubyArray) {
-            return XmlNodeSet.newXmlNodeSet(runtime.getCurrentContext(), (RubyArray)o);
-        } else /*if (o instanceof XmlNode)*/ {
-            return ((XmlNode) o).getNode();
+    private static Object fromRubyToObject(final Ruby runtime, IRubyObject obj) {
+        if (obj instanceof RubyString) return obj.asJavaString();
+        if (obj instanceof RubyBoolean) return obj.toJava(Boolean.class);
+        if (obj instanceof RubyFloat) return obj.toJava(Double.class);
+        if (obj instanceof RubyInteger) {
+            if ( obj instanceof RubyFixnum ) return RubyFixnum.fix2long(obj);
+            return obj.toJava(java.math.BigInteger.class);
         }
+        if (obj instanceof XmlNodeSet) return obj;
+        if (obj instanceof RubyArray) {
+            return XmlNodeSet.newXmlNodeSet(runtime, (RubyArray) obj);
+        }
+        /*if (o instanceof XmlNode)*/ return ((XmlNode) obj).getNode();
     }
 }
