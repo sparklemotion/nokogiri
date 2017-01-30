@@ -72,7 +72,11 @@ import org.apache.xpath.objects.XObject;
  */
 @JRubyClass(name="Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject {
-    public final static String XPATH_CONTEXT = "CACHCED_XPATH_CONTEXT";
+
+    /**
+     * user-data key for (cached) {@link XPathContext}
+     */
+    public static final String XPATH_CONTEXT = "CACHED_XPATH_CONTEXT";
 
     private XmlNode context;
     private final NokogiriXPathFunctionResolver functionResolver;
