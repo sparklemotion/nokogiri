@@ -44,7 +44,7 @@ import org.jruby.runtime.builtin.IRubyObject;
  * @author sergio
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
+public final class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
 
     private IRubyObject handler;
     
@@ -55,7 +55,11 @@ public class NokogiriXPathFunctionResolver implements XPathFunctionResolver {
     }
     
     private NokogiriXPathFunctionResolver() {}
-    
+
+    public final IRubyObject getHandler() {
+        return handler;
+    }
+
     public void setHandler(IRubyObject handler) {
         this.handler = handler;
     }
