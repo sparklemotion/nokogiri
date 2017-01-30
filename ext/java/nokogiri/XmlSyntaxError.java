@@ -32,7 +32,6 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
 import org.jruby.CompatVersion;
@@ -53,7 +52,9 @@ import org.xml.sax.SAXParseException;
  */
 @JRubyClass(name="Nokogiri::XML::SyntaxError", parent="Nokogiri::SyntaxError")
 public class XmlSyntaxError extends RubyException {
+
     private Exception exception;
+    private boolean messageSet; // whether a custom error message was set
 
     public XmlSyntaxError(Ruby runtime, RubyClass klazz) {
         super(runtime, klazz);
@@ -62,6 +63,11 @@ public class XmlSyntaxError extends RubyException {
     public XmlSyntaxError(Ruby runtime, RubyClass rubyClass, Exception ex) {
         super(runtime, rubyClass, ex.getMessage());
         this.exception = ex;
+    }
+
+    public XmlSyntaxError(Ruby runtime, RubyClass rubyClass, String message, Exception ex) {
+        super(runtime, rubyClass, message);
+        this.exception = ex; this.messageSet = true;
     }
 
     public static XmlSyntaxError createXMLSyntaxError(final Ruby runtime) {
@@ -79,9 +85,9 @@ public class XmlSyntaxError extends RubyException {
         return new XmlSyntaxError(runtime, klazz);
     }
 
-    public static RubyException createXMLXPathSyntaxError(Ruby runtime, Exception e) {
+    public static RubyException createXMLXPathSyntaxError(final Ruby runtime, final String msg, final Exception ex) {
         RubyClass klazz = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::XPath::SyntaxError");
-        return new XmlSyntaxError(runtime, klazz, e);
+        return new XmlSyntaxError(runtime, klazz, msg, ex);
     }
 
     public static XmlSyntaxError createWarning(Ruby runtime, SAXParseException e) {
@@ -120,10 +126,8 @@ public class XmlSyntaxError extends RubyException {
     @Override
     @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_8)
     public IRubyObject to_s(ThreadContext context) {
-        if (exception != null && exception.getMessage() != null)
-            return context.getRuntime().newString(exception.getMessage());
-        else
-            return super.to_s(context);
+        IRubyObject msg = msg(context.runtime);
+        return msg != null ? msg : super.to_s(context);
     }
 
     //@Override
@@ -131,9 +135,16 @@ public class XmlSyntaxError extends RubyException {
     // to support older version of JRuby, the annotation is commented out
     @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_9)
     public IRubyObject to_s19(ThreadContext context) {
-        if (exception != null && exception.getMessage() != null)
-            return context.getRuntime().newString(exception.getMessage());
-        else
-            return super.to_s19(context);
+        IRubyObject msg = msg(context.runtime);
+        return msg != null ? msg : super.to_s19(context);
     }
+
+    private IRubyObject msg(final Ruby runtime) {
+        if (exception != null && exception.getMessage() != null) {
+            if (messageSet) return null;
+            return runtime.newString( exception.getMessage() );
+        }
+        return null;
+    }
+
 }
