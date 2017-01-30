@@ -220,10 +220,13 @@ public class XmlXpathContext extends RubyObject {
         }
     }
 
-    private boolean isContainsPrefix(String str) {
-        Set<String> prefixes = nsContext.getAllPrefixes();
-        for (String prefix : prefixes) {
-            if (str.contains(prefix + ':')) {
+    private boolean isContainsPrefix(final String str) {
+        final StringBuilder prefix_ = new StringBuilder();
+        for ( String prefix : nsContext.getAllPrefixes() ) {
+            prefix_.setLength(0);
+            prefix_.ensureCapacity(prefix.length() + 1);
+            prefix_.append(prefix).append(':');
+            if ( str.contains(prefix_) ) { // prefix + ':'
                 return true;
             }
         }
