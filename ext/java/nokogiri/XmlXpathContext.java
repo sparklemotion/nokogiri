@@ -85,8 +85,8 @@ public class XmlXpathContext extends RubyObject {
     private XPathContext xpathSupport = null;
     private NokogiriNamespaceContext nsContext;
 
-    public XmlXpathContext(Ruby runtime, RubyClass rubyClass) {
-        super(runtime, rubyClass);
+    public XmlXpathContext(Ruby runtime, RubyClass klass) {
+        super(runtime, klass);
         functionResolver = NokogiriXPathFunctionResolver.create(runtime.getNil());
         variableResolver = NokogiriXPathVariableResolver.create();
     }
@@ -119,27 +119,14 @@ public class XmlXpathContext extends RubyObject {
         return new JAXPExtensionsProvider(functionResolver, false);
     }
 
-    /**
-     * Create and return a copy of this object.
-     *
-     * @return a clone of this object
-     */
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
     @JRubyMethod(name = "new", meta = true)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node) {
-        XmlNode xmlNode = (XmlNode) node;
-        XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
         try {
-            xmlXpathContext.initNode(xmlNode);
+            return new XmlXpathContext(context.runtime, (RubyClass) klazz, (XmlNode) node);
         }
         catch (IllegalArgumentException e) {
             throw context.getRuntime().newRuntimeError(e.getMessage());
         }
-        return xmlXpathContext;
     }
 
     @JRubyMethod
