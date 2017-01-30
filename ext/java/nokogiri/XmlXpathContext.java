@@ -145,9 +145,14 @@ public class XmlXpathContext extends RubyObject {
         String src = expr.convertToString().asJavaString();
         if (!handler.isNil()) {
             if (!isContainsPrefix(src)) {
+                StringBuilder replacement = new StringBuilder();
                 Set<String> methodNames = handler.getMetaClass().getMethods().keySet();
+                final String PREFIX = NokogiriNamespaceContext.NOKOGIRI_PREFIX;
                 for (String name : methodNames) {
-                    src = src.replaceAll(name, NokogiriNamespaceContext.NOKOGIRI_PREFIX + ':' + name);
+                    replacement.setLength(0);
+                    replacement.ensureCapacity(PREFIX.length() + 1 + name.length());
+                    replacement.append(PREFIX).append(':').append(name);
+                    src = src.replace(name, replacement); // replace(name, NOKOGIRI_PREFIX + ':' + name)
                 }
             }
         }
