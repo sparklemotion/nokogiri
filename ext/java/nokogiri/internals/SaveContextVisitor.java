@@ -39,14 +39,7 @@ import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -276,7 +269,7 @@ public class SaveContextVisitor {
         return true;
     }
 
-    private static Pattern p =
+    private static final Pattern CHARSET =
         Pattern.compile("charset(()|\\s+)=(()|\\s+)(\\w|\\_|\\.|\\-)+", Pattern.CASE_INSENSITIVE);
 
     private String replaceCharsetIfNecessary(Attr attr) {
@@ -284,23 +277,24 @@ public class SaveContextVisitor {
         if (encoding == null) return value;   // unable to replace in any case
         if (!"content".equals(attr.getName().toLowerCase())) return value;  // must be content attr
         if (!"meta".equals(attr.getOwnerElement().getNodeName().toLowerCase())) return value;
-        Matcher m = p.matcher(value);
+        Matcher m = CHARSET.matcher(value);
         if (!m.find()) return value;
         if (value.contains(encoding)) return value;  // no need to replace
         return value.replace(m.group(), "charset=" + encoding);
     }
 
-    public static final String[] HTML_BOOLEAN_ATTRS = {
-        "checked", "compact", "declare", "defer", "disabled", "ismap",
-        "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
-        "selected"
-    };
+    static final Set<String> HTML_BOOLEAN_ATTRS;
+    static {
+        final String[] _HTML_BOOLEAN_ATTRS = {
+            "checked", "compact", "declare", "defer", "disabled", "ismap",
+            "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
+            "selected"
+        };
+        HTML_BOOLEAN_ATTRS = new HashSet<String>(Arrays.asList(_HTML_BOOLEAN_ATTRS));
+    }
 
-    private boolean isHtmlBooleanAttr(String name) {
-        for (String s : HTML_BOOLEAN_ATTRS) {
-            if (s.equals(name)) return true;
-        }
-        return false;
+    private static boolean isHtmlBooleanAttr(String name) {
+        return HTML_BOOLEAN_ATTRS.contains(name);
     }
 
     private static CharSequence serializeAttrTextContent(String str, boolean htmlDoc) {
