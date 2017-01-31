@@ -32,8 +32,6 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-
 import java.util.Set;
 
 import javax.xml.transform.TransformerException;
@@ -51,7 +49,6 @@ import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.apache.xml.dtm.DTM;
 import org.apache.xpath.XPath;
@@ -178,9 +175,8 @@ public class XmlXpathContext extends RubyObject {
             case XObject.CLASS_BOOLEAN : return context.getRuntime().newBoolean(xobj.bool());
             case XObject.CLASS_NUMBER :  return context.getRuntime().newFloat(xobj.num());
             case XObject.CLASS_NODESET :
-                NodeList nodeList = xobj.nodelist();
-                XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
-                xmlNodeSet.setNodeList(nodeList);
+                XmlNodeSet xmlNodeSet = XmlNodeSet.create(context.getRuntime());
+                xmlNodeSet.setNodeList(xobj.nodelist());
                 xmlNodeSet.initialize(context.getRuntime(), this.context);
                 return xmlNodeSet;
             default : return context.getRuntime().newString(xobj.str());
