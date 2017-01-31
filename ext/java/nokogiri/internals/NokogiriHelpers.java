@@ -722,9 +722,8 @@ public class NokogiriHelpers {
     }
 
     public static boolean isUTF8(String encoding) {
-        if (encoding == null) return true;   // no need to convert encoding
-        int ret = Charset.forName(encoding).compareTo(Charset.forName("UTF-8"));
-        return ret == 0;
+        if (encoding == null) return true; // no need to convert encoding
+        return Charset.forName(encoding).compareTo(UTF8) == 0;
     }
 
     public static ByteBuffer convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
