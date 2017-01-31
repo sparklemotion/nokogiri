@@ -74,7 +74,7 @@ import org.w3c.dom.Text;
  */
 public class SaveContextVisitor {
 
-    private final StringBuffer buffer;
+    private final StringBuilder buffer;
     private final Stack<String> indentation;
     private String encoding;
     private final String indentString;
@@ -118,7 +118,7 @@ public class SaveContextVisitor {
     public static final int EXCLUSIVE = 16;
 
     public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment, int canonicalOpts) {
-        buffer = new StringBuffer();
+        buffer = new StringBuilder();
         this.encoding = encoding;
         indentation = new Stack<String>(); indentation.push("");
         this.htmlDoc = htmlDoc;
@@ -150,8 +150,10 @@ public class SaveContextVisitor {
 
     @Override
     public String toString() {
-        return (new String(buffer));
+        return buffer.toString();
     }
+
+    public StringBuilder getInternalBuffer() { return buffer; }
 
     public void setHtmlDoc(boolean htmlDoc) {
         this.htmlDoc = htmlDoc;

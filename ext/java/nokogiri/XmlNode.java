@@ -36,6 +36,7 @@ import static java.lang.Math.max;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.clearCachedNode;
 import static nokogiri.internals.NokogiriHelpers.clearXpathContext;
+import static nokogiri.internals.NokogiriHelpers.convertEncoding;
 import static nokogiri.internals.NokogiriHelpers.convertString;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
@@ -1262,10 +1263,10 @@ public class XmlNode extends RubyObject {
 
         final IRubyObject rubyString;
         if (NokogiriHelpers.isUTF8(encString)) {
-            rubyString = stringOrNil(context.getRuntime(), visitor.toString());
+            rubyString = convertString(context.getRuntime(), visitor.getInternalBuffer());
         } else {
             try {
-                ByteBuffer bytes = NokogiriHelpers.convertEncoding(Charset.forName(encString), visitor.toString());
+                ByteBuffer bytes = convertEncoding(Charset.forName(encString), visitor.toString());
                 ByteList str = new ByteList(bytes.array(), bytes.arrayOffset(), bytes.remaining());
                 rubyString = RubyString.newString(context.getRuntime(), str);
             }
