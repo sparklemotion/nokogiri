@@ -37,7 +37,6 @@ import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
-import org.jruby.RubyNil;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
@@ -117,7 +116,7 @@ public class XmlEntityDecl extends XmlNode {
     @JRubyMethod
     public IRubyObject node_name(ThreadContext context) {
         IRubyObject value = getAttribute(context, "name");
-        if (value instanceof RubyNil) value = name;
+        if (value.isNil()) value = name;
         return value;
     }
 
@@ -131,7 +130,7 @@ public class XmlEntityDecl extends XmlNode {
     @JRubyMethod
     public IRubyObject content(ThreadContext context) {
         IRubyObject value = getAttribute(context, "value");
-        if (value instanceof RubyNil) value = content;
+        if (value.isNil()) value = content;
         return value;
     }
 
@@ -144,14 +143,14 @@ public class XmlEntityDecl extends XmlNode {
     @JRubyMethod
     public IRubyObject system_id(ThreadContext context) {
         IRubyObject value = getAttribute(context, "sysid");
-        if (value instanceof RubyNil) value = system_id;
+        if (value.isNil()) value = system_id;
         return value;
     }
 
     @JRubyMethod
     public IRubyObject external_id(ThreadContext context) {
         IRubyObject value = getAttribute(context, "pubid");
-        if (value instanceof RubyNil) value = external_id;
+        if (value.isNil()) value = external_id;
         return value;
     }
 
