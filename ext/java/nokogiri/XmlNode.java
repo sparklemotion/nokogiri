@@ -898,7 +898,7 @@ public class XmlNode extends RubyObject {
     }
 
     private StringBuilder getTextContentRecursively(StringBuilder buffer, Node currentNode) {
-        String textContent = currentNode.getNodeValue();
+        CharSequence textContent = currentNode.getNodeValue();
         if (textContent != null && NokogiriHelpers.shouldDecode(currentNode)) {
             textContent = NokogiriHelpers.decodeJavaString(textContent);
         }
@@ -962,10 +962,9 @@ public class XmlNode extends RubyObject {
         return clone;
     }
 
-    public static IRubyObject encode_special_chars(ThreadContext context, IRubyObject string) {
-        String s = rubyStringToString(string);
-        String enc = NokogiriHelpers.encodeJavaString(s);
-        return context.getRuntime().newString(enc);
+    public static RubyString encode_special_chars(ThreadContext context, IRubyObject string) {
+        CharSequence str = NokogiriHelpers.encodeJavaString( rubyStringToString(string) );
+        return RubyString.newString(context.getRuntime(), str);
     }
 
     /**

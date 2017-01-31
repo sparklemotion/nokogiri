@@ -32,7 +32,7 @@
 
 package nokogiri.internals;
 
-import static nokogiri.internals.NokogiriHelpers.canonicalizeWhitespce;
+import static nokogiri.internals.NokogiriHelpers.canonicalizeWhitespace;
 import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
@@ -733,20 +733,19 @@ public class SaveContextVisitor {
     }
 
     private boolean isHtmlScript(Text text) {
-      return htmlDoc && text.getParentNode().getNodeName().equals("script");
+        return htmlDoc && text.getParentNode().getNodeName().equals("script");
     }
 
     private boolean isHtmlStyle(Text text) {
-      return htmlDoc && text.getParentNode().getNodeName().equals("style");
+        return htmlDoc && text.getParentNode().getNodeName().equals("style");
     }
 
-    private static char lineSeparator = '\n'; // System.getProperty("line.separator"); ?
     public boolean enter(Text text) {
-        String textContent = text.getNodeValue();
+        CharSequence textContent = text.getNodeValue();
         if (canonical) {
             c14nNodeList.add(text);
             if (isWhitespaceText(textContent)) {
-                buffer.append(canonicalizeWhitespce(textContent));
+                buffer.append(canonicalizeWhitespace(textContent));
                 return true;
             }
         }
@@ -760,25 +759,26 @@ public class SaveContextVisitor {
         return true;
     }
 
-    private String encodeStringToHtmlEntity(String text) {
-        if (encoding == null)
-          return text;
+    private CharSequence encodeStringToHtmlEntity(CharSequence text) {
+        if (encoding == null) return text;
+
         CharsetEncoder encoder = Charset.forName(encoding).newEncoder();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder(text.length() + 16);
         // make sure we can handle code points that are higher than 2 bytes
-        for (int i = 0; i < text.length();) {
-            int code = text.codePointAt(i);
+        for ( int i = 0; i < text.length(); ) {
+            int code = Character.codePointAt(text, i);
             // TODO not sure about bigger offset then 2 ?!
             int offset = code > 65535 ? 2 : 1;
-            boolean canEncode = encoder.canEncode(text.substring(i, i + offset));
+            CharSequence substr = text.subSequence(i, i + offset);
+            boolean canEncode = encoder.canEncode(substr);
             if (canEncode) {
-                sb.append(text.substring(i, i + offset));
+                sb.append(substr);
             }
             else {
                 sb.append("&#x").append(Integer.toHexString(code)).append(';');
             }
             i += offset;
         }
-        return new String(sb);
+        return sb;
     }
 }
