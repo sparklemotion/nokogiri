@@ -722,10 +722,8 @@ public class NokogiriHelpers {
         return Charset.forName(encoding).compareTo(UTF8) == 0;
     }
 
-    public static ByteBuffer convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
-        CharsetEncoder encoder = output_charset.newEncoder();
-        CharBuffer charBuffer = CharBuffer.wrap(input_string);
-        return encoder.encode(charBuffer);
+    public static ByteBuffer convertEncoding(Charset output_charset, String input_string) {
+        return output_charset.encode(input_string); // does replace implicitly on un-mappable characters
     }
 
     public static CharSequence convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, CharSequence str) {
