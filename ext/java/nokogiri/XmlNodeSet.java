@@ -136,7 +136,7 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     @JRubyMethod(name="&")
     public IRubyObject and(ThreadContext context, IRubyObject nodeSet) {
         if (nodes == null) setNodes(RubyArray.newEmptyArray(context.getRuntime()));
-        return newXmlNodeSet(context, (RubyArray) nodes.op_and(asXmlNodeSet(context, nodeSet).nodes));
+        return newXmlNodeSet(context, (RubyArray) nodes.op_and(getNodes(context, nodeSet)));
     }
 
     @JRubyMethod
@@ -170,14 +170,14 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     public IRubyObject op_diff(ThreadContext context, IRubyObject nodeSet) {
         XmlNodeSet xmlNodeSet = newXmlNodeSet(context, this);
         if (nodes == null) setNodes(RubyArray.newEmptyArray(context.getRuntime()));
-        xmlNodeSet.setNodes((RubyArray) nodes.op_diff(asXmlNodeSet(context, nodeSet).nodes));
+        xmlNodeSet.setNodes((RubyArray) nodes.op_diff(getNodes(context, nodeSet)));
         return xmlNodeSet;
     }
 
     @JRubyMethod(name={"|", "+"})
     public IRubyObject op_or(ThreadContext context, IRubyObject nodeSet) {
         if (nodes == null) setNodes(RubyArray.newEmptyArray(context.getRuntime()));
-        return newXmlNodeSet(context, (RubyArray) nodes.op_or(asXmlNodeSet(context, nodeSet).nodes));
+        return newXmlNodeSet(context, (RubyArray) nodes.op_or(getNodes(context, nodeSet)));
     }
 
     @JRubyMethod(name = {"push", "<<"})
@@ -243,20 +243,16 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     private static IRubyObject asXmlNodeOrNamespace(ThreadContext context, IRubyObject possibleNode) {
         if (possibleNode instanceof XmlNode || possibleNode instanceof XmlNamespace) {
             return possibleNode;
-        } else {
-            throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
         }
+        throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::Node or Nokogiri::XML::Namespace");
     }
 
-    private static XmlNodeSet asXmlNodeSet(ThreadContext context, IRubyObject possibleNodeSet) {
-//        if(!(possibleNodeSet instanceof XmlNodeSet)) {
-        if(!RuntimeHelpers.invoke(context, possibleNodeSet, "is_a?",
-                getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet")).isTrue()) {
-            throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");
+    private static RubyArray getNodes(ThreadContext context, IRubyObject possibleNodeSet) {
+        if (possibleNodeSet instanceof XmlNodeSet) {
+            RubyArray nodes = ((XmlNodeSet) possibleNodeSet).nodes;
+            return nodes == null ? RubyArray.newEmptyArray(context.getRuntime()) : nodes;
         }
-        XmlNodeSet xmlNodeSet = (XmlNodeSet)possibleNodeSet;
-        if (xmlNodeSet.nodes == null) xmlNodeSet.setNodes(RubyArray.newEmptyArray(context.getRuntime()));
-        return xmlNodeSet;
+        throw context.getRuntime().newArgumentError("node must be a Nokogiri::XML::NodeSet");
     }
     
     public int getLength() {
