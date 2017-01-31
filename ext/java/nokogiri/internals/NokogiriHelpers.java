@@ -606,13 +606,11 @@ public class NokogiriHelpers {
     }
 
     public static boolean isWhitespaceText(ThreadContext context, IRubyObject obj) {
-        if (obj == null || obj.isNil()) return false;
+        //if (obj == null || obj.isNil()) return false;
+        if ( !(obj instanceof XmlText) ) return false;
 
-        XmlNode node = (XmlNode) obj;
-        if (!(node instanceof XmlText)) return false;
-
-        String content = rubyStringToString(node.content(context));
-        return content == null || content.trim().length() == 0;
+        CharSequence content = ((XmlNode) obj).getContentImpl();
+        return content == null || isWhitespaceText(content);
     }
 
     public static boolean isWhitespaceText(CharSequence str) {

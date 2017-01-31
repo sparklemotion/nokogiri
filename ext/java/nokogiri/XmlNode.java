@@ -877,9 +877,13 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
     public IRubyObject content(ThreadContext context) {
+        return stringOrNil(context.getRuntime(), getContentImpl());
+    }
+
+    public CharSequence getContentImpl() {
         if (!node.hasChildNodes() && node.getNodeValue() == null &&
             (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE)) {
-            return context.nil;
+            return null;
         }
         CharSequence textContent;
         if (this instanceof XmlDocument) {
@@ -894,7 +898,7 @@ public class XmlNode extends RubyObject {
             textContent = getTextContentRecursively(new StringBuilder(), node);
         }
         // textContent = NokogiriHelpers.convertEncodingByNKFIfNecessary(context, (XmlDocument) document(context), textContent);
-        return convertString(context.getRuntime(), textContent);
+        return textContent;
     }
 
     private StringBuilder getTextContentRecursively(StringBuilder buffer, Node currentNode) {
