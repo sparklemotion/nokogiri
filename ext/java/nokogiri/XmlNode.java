@@ -1268,7 +1268,7 @@ public class XmlNode extends RubyObject {
         if (NokogiriHelpers.isUTF8(encString)) {
             rubyString = convertString(context.getRuntime(), visitor.getInternalBuffer());
         } else {
-            ByteBuffer bytes = convertEncoding(Charset.forName(encString), visitor.toString());
+            ByteBuffer bytes = convertEncoding(Charset.forName(encString), visitor.getInternalBuffer());
             ByteList str = new ByteList(bytes.array(), bytes.arrayOffset(), bytes.remaining());
             rubyString = RubyString.newString(context.getRuntime(), str);
         }

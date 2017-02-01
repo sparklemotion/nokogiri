@@ -39,9 +39,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -722,8 +720,8 @@ public class NokogiriHelpers {
         return Charset.forName(encoding).compareTo(UTF8) == 0;
     }
 
-    public static ByteBuffer convertEncoding(Charset output_charset, String input_string) {
-        return output_charset.encode(input_string); // does replace implicitly on un-mappable characters
+    public static ByteBuffer convertEncoding(Charset output_charset, CharSequence input_string) {
+        return output_charset.encode(CharBuffer.wrap(input_string)); // does replace implicitly on un-mappable characters
     }
 
     public static CharSequence convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, CharSequence str) {
