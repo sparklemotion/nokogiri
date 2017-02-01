@@ -38,6 +38,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.EnumSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,10 +47,7 @@ import nokogiri.internals.NokogiriHandler;
 
 import org.apache.xerces.parsers.AbstractSAXParser;
 import org.cyberneko.html.parsers.SAXParser;
-import org.jruby.Ruby;
-import org.jruby.RubyClass;
-import org.jruby.RubyFixnum;
-import org.jruby.RubyString;
+import org.jruby.*;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
@@ -104,7 +102,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         return ctx;
     }
     
-    public static enum EncodingType {
+    public enum EncodingType {
         NONE(0, "NONE"),
         UTF_8(1, "UTF-8"),
         UTF16LE(2, "UTF16LE"),
@@ -131,6 +129,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         
         private final int value;
         private final String name;
+
         EncodingType(int value, String name) {
             this.value = value;
             this.name = name;
@@ -145,9 +144,8 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         }
     }
     
-    private static String findName(int value) {
-        EnumSet<EncodingType> set = EnumSet.allOf(EncodingType.class);
-        for (EncodingType type : set) {
+    private static String findName(final int value) {
+        for (EncodingType type : EncodingType.values()) {
             if (type.getValue() == value) return type.toString();
         }
         return null;
@@ -157,20 +155,20 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         String rubyEncoding = null;
         if (encoding instanceof RubyString) {
             rubyEncoding = rubyStringToString(encoding);
-        } else if (encoding instanceof RubyFixnum) {
+        }
+        else if (encoding instanceof RubyFixnum) {
             int value = RubyFixnum.fix2int((RubyFixnum) encoding);
             rubyEncoding = findName(value);
         }
         if (rubyEncoding == null) return null;
         try {
-            Charset charset = Charset.forName(rubyEncoding);
-            return charset.displayName();
-        } catch (IllegalCharsetNameException e) {
-            throw context.getRuntime().newEncodingCompatibilityError(
-                    rubyEncoding + "is not supported in Java.");
-        } catch (IllegalArgumentException e) {
-            throw context.getRuntime().newInvalidEncoding(
-                    "encoding should not be nil");
+            return Charset.forName(rubyEncoding).displayName();
+        }
+        catch (UnsupportedCharsetException e) {
+            throw context.getRuntime().newEncodingCompatibilityError(rubyEncoding + "is not supported");
+        }
+        catch (IllegalCharsetNameException e) {
+            throw context.getRuntime().newInvalidEncoding(e.getMessage());
         }
     }
 
