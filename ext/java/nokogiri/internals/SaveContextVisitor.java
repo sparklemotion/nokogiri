@@ -70,7 +70,7 @@ public class SaveContextVisitor {
     private final StringBuilder buffer;
     private final Stack<String> indentation;
     private String encoding;
-    private final String indentString;
+    private final CharSequence indentString;
     private boolean format;
     private final boolean noDecl;
     private final boolean noEmpty;
@@ -87,7 +87,8 @@ public class SaveContextVisitor {
     private final List<Node> c14nNodeList;
     private final Deque<Attr[]> c14nNamespaceStack;
     private final Deque<Attr[]> c14nAttrStack;
-    private List<String> c14nExclusiveInclusivePrefixes = null;
+    //private List<String> c14nExclusiveInclusivePrefixes = null;
+
     /*
      * U can't touch this.
      * http://www.youtube.com/watch?v=WJ2ZFVx6A4Q
@@ -110,7 +111,7 @@ public class SaveContextVisitor {
     public static final int SUBSETS = 8;
     public static final int EXCLUSIVE = 16;
 
-    public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment, int canonicalOpts) {
+    public SaveContextVisitor(int options, CharSequence indent, String encoding, boolean htmlDoc, boolean fragment, int canonicalOpts) {
         buffer = new StringBuilder();
         this.encoding = encoding;
         indentation = new Stack<String>(); indentation.push("");
@@ -155,14 +156,6 @@ public class SaveContextVisitor {
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
-
-    public List<Node> getC14nNodeList() {
-        return c14nNodeList;
-    }
-
-   public void setC14nExclusiveInclusivePrefixes(List<String> prefixes) {
-       c14nExclusiveInclusivePrefixes = prefixes;
-   }
 
     public boolean enter(Node node) {
         if (node instanceof Document) {
@@ -438,7 +431,7 @@ public class SaveContextVisitor {
             if (isEmpty(name)) {
                 buffer.append(" />"); // see http://www.w3.org/TR/xhtml1/#C_2
             } else {
-                buffer.append(">");
+                buffer.append('>');
             }
         } else {
             buffer.append("/>");
