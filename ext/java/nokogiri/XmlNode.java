@@ -1261,7 +1261,7 @@ public class XmlNode extends RubyObject {
         String encString = encoding.isNil() ? null : rubyStringToString(encoding);
 
         SaveContextVisitor visitor = 
-            new SaveContextVisitor((Integer) options.toJava(Integer.class), rubyStringToString(indentString), encString, isHtmlDoc(context), isFragment(), 0);
+            new SaveContextVisitor(RubyFixnum.fix2int(options), rubyStringToString(indentString), encString, isHtmlDoc(context), isFragment(), 0);
         accept(context, visitor);
 
         final IRubyObject rubyString;
