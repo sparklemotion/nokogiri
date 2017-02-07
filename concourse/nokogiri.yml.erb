@@ -243,6 +243,8 @@ jobs:
           platform: linux
           inputs:
             - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: "1"
           run:
             dir: nokogiri
             path: bash
@@ -250,7 +252,7 @@ jobs:
               - "-ce"
               - |
                 apt-get update
-                apt-get install -y ca-certificates gcc
+                apt-get install -y ca-certificates gcc pkg-config libxml2-dev libxslt-dev
                 bundle install
                 bundle exec rake test
   <% end %>
