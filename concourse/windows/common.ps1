@@ -26,3 +26,17 @@ function run-cmd {
         throw "$($command) $($arguments) returned error code: $($p.exitcode)"
     }
 }
+
+function stream-cmd {
+    param ($command, $arguments)
+    $cmdline = "$($command) $($arguments)"
+    cmd /c $cmdline
+    if (-not ($?)) {
+        throw "$($cmdline) failed"
+    }
+}
+
+function prepend-path {
+    param ($dir)
+    $env:PATH = $dir + ";" + $env:PATH
+}

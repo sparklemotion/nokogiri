@@ -16,18 +16,20 @@ groups:
   - name: master
     jobs:
       <% for ruby_version in RUBIES[:mri] %>
-        - "ruby-<%= ruby_version %>-system"
-        - "ruby-<%= ruby_version %>-vendored"
-        - "ruby-<%= ruby_version %>-valgrind"
-        - "ruby-<%= ruby_version %>-libxmlruby"
-        - "ruby-<%= ruby_version %>-libxmlruby-valgrind"
+      - "ruby-<%= ruby_version %>-system"
+      - "ruby-<%= ruby_version %>-vendored"
+      - "ruby-<%= ruby_version %>-valgrind"
+      - "ruby-<%= ruby_version %>-libxmlruby"
+      - "ruby-<%= ruby_version %>-libxmlruby-valgrind"
       <% end %>
       <% for jruby_version in RUBIES[:jruby] %>
-        - "jruby-<%= jruby_version %>"
+      - "jruby-<%= jruby_version %>"
       <% end %>
       <% for rbx_version in RUBIES[:rbx] %>
-        - "rbx-<%= rbx_version %>"
+      - "rbx-<%= rbx_version %>"
       <% end %>
+      - windows-devkit
+
   - name: PRs
     jobs:
       - pr-pending
@@ -381,7 +383,7 @@ jobs:
           path: nokogiri-pr
           status: success
 
-  - name: windows
+  - name: windows-devkit
     public: true
     plan:
       - get: nokogiri
@@ -399,3 +401,16 @@ jobs:
               - "Bypass"
               - "-File"
               - "concourse/windows/setup.ps1"
+      - task: rake-test
+        config:
+          platform: windows
+          inputs:
+            - name: nokogiri
+          run:
+            dir: nokogiri
+            path: powershell
+            args:
+              - "-ExecutionPolicy"
+              - "Bypass"
+              - "-File"
+              - "concourse/windows/rake-test.ps1"
