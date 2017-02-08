@@ -259,130 +259,6 @@ jobs:
                 bundle exec rake test
   <% end %>
 
-  - name: pr-pending
-    public: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-      - put: nokogiri-pr
-        params:
-          path: nokogiri-pr
-          status: pending
-
-  - name: ruby-<%= RUBIES[:mri].last %>-system-pr
-    public: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          <<: *<%= anchorify "ruby-#{RUBIES[:mri].last}-system-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
-        on_failure:
-          put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
-
-  - name: ruby-<%= RUBIES[:mri].last %>-vendored-pr
-    public: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          <<: *<%= anchorify "ruby-#{RUBIES[:mri].last}-vendored-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
-        on_failure:
-          put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
-
-  - name: ruby-<%= RUBIES[:mri].last %>-valgrind-pr
-    public: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          <<: *<%= anchorify "ruby-#{ruby_version}-valgrind-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
-        on_failure:
-          put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
-
-  - name: jruby-<%= RUBIES[:jruby].last %>-pr
-    public: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          <<: *<%= anchorify "jruby-#{RUBIES[:jruby].last}-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
-        on_failure:
-          put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
-
-  - name: rbx-<%= RUBIES[:rbx].last %>-pr
-    public: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          <<: *<%= anchorify "rbx-#{RUBIES[:rbx].last}-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
-        on_failure:
-          put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
-
-  - name: pr-success
-    public: true
-    disable_manual_trigger: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed:
-          - ruby-<%= RUBIES[:mri].last %>-system-pr
-          - ruby-<%= RUBIES[:mri].last %>-vendored-pr
-          - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
-          - jruby-<%= RUBIES[:jruby].last %>-pr
-          - rbx-<%= RUBIES[:rbx].last %>-pr
-      - put: nokogiri-pr
-        params:
-          path: nokogiri-pr
-          status: success
-
   - name: windows-devkit
     public: true
     plan:
@@ -414,3 +290,133 @@ jobs:
               - "Bypass"
               - "-File"
               - "concourse/windows/rake-test.ps1"
+
+  - name: pr-pending
+    public: true
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+      - put: nokogiri-pr
+        params:
+          path: nokogiri-pr
+          status: pending
+
+  - name: ruby-<%= RUBIES[:mri].last %>-system-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          <<: *<%= anchorify "ruby-#{RUBIES[:mri].last}-system-rake-test-config" %>
+          inputs:
+            - name: nokogiri-pr
+              path: nokogiri
+        on_failure:
+          put: nokogiri-pr
+          params:
+            path: nokogiri-pr
+            status: failure
+
+  - name: ruby-<%= RUBIES[:mri].last %>-vendored-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          <<: *<%= anchorify "ruby-#{RUBIES[:mri].last}-vendored-rake-test-config" %>
+          inputs:
+            - name: nokogiri-pr
+              path: nokogiri
+        on_failure:
+          put: nokogiri-pr
+          params:
+            path: nokogiri-pr
+            status: failure
+
+  - name: ruby-<%= RUBIES[:mri].last %>-valgrind-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          <<: *<%= anchorify "ruby-#{ruby_version}-valgrind-rake-test-config" %>
+          inputs:
+            - name: nokogiri-pr
+              path: nokogiri
+        on_failure:
+          put: nokogiri-pr
+          params:
+            path: nokogiri-pr
+            status: failure
+
+  - name: jruby-<%= RUBIES[:jruby].last %>-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          <<: *<%= anchorify "jruby-#{RUBIES[:jruby].last}-rake-test-config" %>
+          inputs:
+            - name: nokogiri-pr
+              path: nokogiri
+        on_failure:
+          put: nokogiri-pr
+          params:
+            path: nokogiri-pr
+            status: failure
+
+  - name: rbx-<%= RUBIES[:rbx].last %>-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          <<: *<%= anchorify "rbx-#{RUBIES[:rbx].last}-rake-test-config" %>
+          inputs:
+            - name: nokogiri-pr
+              path: nokogiri
+        on_failure:
+          put: nokogiri-pr
+          params:
+            path: nokogiri-pr
+            status: failure
+
+  - name: pr-success
+    public: true
+    max_in_flight: 1
+    disable_manual_trigger: true
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed:
+          - ruby-<%= RUBIES[:mri].last %>-system-pr
+          - ruby-<%= RUBIES[:mri].last %>-vendored-pr
+          - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
+          - jruby-<%= RUBIES[:jruby].last %>-pr
+          - rbx-<%= RUBIES[:rbx].last %>-pr
+      - put: nokogiri-pr
+        params:
+          path: nokogiri-pr
+          status: success
