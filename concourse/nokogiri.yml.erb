@@ -293,6 +293,7 @@ jobs:
 
   - name: pr-pending
     public: true
+    serial_groups: [pr]
     plan:
       - get: nokogiri-pr
         trigger: true
@@ -304,7 +305,7 @@ jobs:
 
   - name: ruby-<%= RUBIES[:mri].last %>-system-pr
     public: true
-    max_in_flight: 1
+    serial_groups: [pr]
     plan:
       - get: nokogiri-pr
         trigger: true
@@ -324,7 +325,7 @@ jobs:
 
   - name: ruby-<%= RUBIES[:mri].last %>-vendored-pr
     public: true
-    max_in_flight: 1
+    serial_groups: [pr]
     plan:
       - get: nokogiri-pr
         trigger: true
@@ -344,7 +345,7 @@ jobs:
 
   - name: ruby-<%= RUBIES[:mri].last %>-valgrind-pr
     public: true
-    max_in_flight: 1
+    serial_groups: [pr]
     plan:
       - get: nokogiri-pr
         trigger: true
@@ -364,7 +365,7 @@ jobs:
 
   - name: jruby-<%= RUBIES[:jruby].last %>-pr
     public: true
-    max_in_flight: 1
+    serial_groups: [pr]
     plan:
       - get: nokogiri-pr
         trigger: true
@@ -384,7 +385,7 @@ jobs:
 
   - name: rbx-<%= RUBIES[:rbx].last %>-pr
     public: true
-    max_in_flight: 1
+    serial_groups: [pr]
     plan:
       - get: nokogiri-pr
         trigger: true
@@ -404,7 +405,7 @@ jobs:
 
   - name: pr-success
     public: true
-    max_in_flight: 1
+    serial_groups: [pr]
     disable_manual_trigger: true
     plan:
       - get: nokogiri-pr
