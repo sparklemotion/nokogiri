@@ -353,7 +353,7 @@ end
 task :cross do
   rake_compiler_config_path = File.expand_path("~/.rake-compiler/config.yml")
   unless File.exists? rake_compiler_config_path
-    raise "rake-compiler has not installed any cross rubies. Try using rake-compiler-dev-box for building binary windows gems.'"
+    raise "rake-compiler has not installed any cross rubies. Use rake-compiler-dock or 'rake gem:windows' for building binary windows gems."
   end
 
   CROSS_RUBIES.each do |cross_ruby|
