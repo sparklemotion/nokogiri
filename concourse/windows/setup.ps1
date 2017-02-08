@@ -1,13 +1,4 @@
-trap {
-    write-error $_
-    exit 1
-}
-
-$installation_dir = "C:"
-
-$ruby23_path = join-path $installation_dir "ruby23"
-$ruby23_bin_path = join-path $ruby23_path "bin"
-$ruby23_exe = join-path $ruby23_bin_path "ruby.exe"
+. "concourse\windows\common.ps1"
 
 $rubydk_path = join-path $installation_dir "rubydk"
 $rubydk_config = join-path $rubydk_path "config.yml"
@@ -16,24 +7,6 @@ $rubydk_echo = join-path $rubydk_bin "echo.exe"
 
 $rubyinstaller_url = "https://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-2.3.3-x64.exe"
 $devkit_url = "https://dl.bintray.com/oneclick/rubyinstaller/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe"
-
-function start-cmd {
-    param ($command, $arguments)
-    $p = start-process $command $arguments -wait -passthru -redirectstandardoutput stdout.log -redirectstandarderror stderr.log
-    return $p
-}
-
-function run-cmd {
-    param ($command, $arguments)
-    $p = start-cmd $command $arguments
-    if ($p.exitcode -ne 0) {
-        write-host "stdout:"
-        write-host (get-content stdout.log)
-        write-host "stderr:"
-        write-host (get-content stderr.log)
-        throw "$($command) $($arguments) returned error code: $($p.exitcode)"
-    }
-}
 
 function is-ruby-23-installed {
     if (-not (test-path $ruby23_exe)) {
