@@ -380,3 +380,22 @@ jobs:
         params:
           path: nokogiri-pr
           status: success
+
+  - name: windows
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+      - task: setup
+        config:
+          platform: windows
+          inputs:
+            - name: nokogiri
+          run:
+            dir: nokogiri
+            path: powershell
+            args:
+              - "-ExecutionPolicy"
+              - "Bypass"
+              - "-File"
+              - "concourse/windows/setup.ps1"
