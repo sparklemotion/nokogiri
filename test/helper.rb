@@ -7,7 +7,17 @@ require 'tempfile'
 require 'pp'
 
 require 'nokogiri'
+
 if ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY']
+  #
+  #  if you'd like to test with the libxml-ruby gem loaded, it's
+  #  recommended that you set
+  #
+  #    BUNDLE_GEMFILE=Gemfile-libxml-ruby
+  #
+  #  which will a) bundle that gem, and b) set the appropriate env var to
+  #  trigger this block
+  #
   require 'libxml'
   warn "#{__FILE__}:#{__LINE__}: loaded libxml-ruby '#{LibXML::XML::VERSION}'"
 end

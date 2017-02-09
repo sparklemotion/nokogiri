@@ -310,26 +310,6 @@ if Hoe.plugins.include?(:debugging)
   end
 end
 
-desc "run tests with libxml-ruby loaded"
-task "test:libxml-ruby" do
-  ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY'] = "1"
-  warn "#{__FILE__}:#{__LINE__}: --- running tests with libxml-ruby loaded ---"
-  Rake::Task[:test].execute
-  ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY'] = nil
-end
-
-Rake::Task["test:libxml-ruby"].prerequisites << :compile
-
-desc "run tests under valgrind with libxml-ruby loaded"
-task "test:valgrind:libxml-ruby" do
-  ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY'] = "1"
-  warn "#{__FILE__}:#{__LINE__}: --- running tests with libxml-ruby loaded ---"
-  Rake::Task["test:valgrind"].execute
-  ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY'] = nil
-end
-
-Rake::Task["test:valgrind:libxml-ruby"].prerequisites << :compile
-
 require 'concourse'
 Concourse.new("nokogiri").create_tasks!
 
