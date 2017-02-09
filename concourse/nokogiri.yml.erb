@@ -1,9 +1,3 @@
-<%
-def anchorify string
-  string.tr '^a-zA-Z0-9', '_'
-end
-%>
-
 groups:
   - name: master
     jobs:
@@ -58,7 +52,7 @@ jobs:
       - get: nokogiri
         trigger: true
       - task: rake-test
-        config: &<%= anchorify "ruby-#{ruby_version}-system-rake-test-config" %>
+        config:
           platform: linux
           image_resource:
             type: docker-image
@@ -76,7 +70,7 @@ jobs:
       - get: nokogiri
         trigger: true
       - task: rake-test
-        config: &<%= anchorify "ruby-#{ruby_version}-vendored-rake-test-config" %>
+        config:
           platform: linux
           image_resource:
             type: docker-image
@@ -93,7 +87,7 @@ jobs:
         passed: ["ruby-<%= ruby_version %>-vendored"]
         trigger: true
       - task: rake-test
-        config: &<%= anchorify "ruby-#{ruby_version}-valgrind-rake-test-config" %>
+        config:
           platform: linux
           image_resource:
             type: docker-image
@@ -152,7 +146,7 @@ jobs:
       - get: nokogiri
         trigger: true
       - task: rake-test
-        config: &<%= anchorify "jruby-#{jruby_version}-rake-test-config" %>
+        config:
           platform: linux
           image_resource:
             type: docker-image
@@ -172,7 +166,7 @@ jobs:
       - get: nokogiri
         trigger: true
       - task: rake-test
-        config: &<%= anchorify "rbx-#{rbx_version}-rake-test-config" %>
+        config:
           image_resource:
             type: docker-image
             source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
@@ -227,82 +221,143 @@ jobs:
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: pending}
 
-  - name: ruby-<%= RUBIES[:mri].last %>-system-pr
+% ruby_version = RUBIES[:mri].last
+  - name: ruby-<%= ruby_version %>-system-pr
     public: true
     serial_groups: [pr]
     plan:
+      - get: ci
+        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: [pr-pending]
       - task: rake-test
         config:
-          <<: *<%= anchorify "ruby-#{RUBIES[:mri].last}-system-rake-test-config" %>
-        input_mapping: {nokogiri: nokogiri-pr}
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
 
-  - name: ruby-<%= RUBIES[:mri].last %>-vendored-pr
+  - name: ruby-<%= ruby_version %>-vendored-pr
     public: true
     serial_groups: [pr]
     plan:
+      - get: ci
+        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: [pr-pending]
       - task: rake-test
         config:
-          <<: *<%= anchorify "ruby-#{RUBIES[:mri].last}-vendored-rake-test-config" %>
-        input_mapping: {nokogiri: nokogiri-pr}
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          run:
+            path: nokogiri/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
 
-  - name: ruby-<%= RUBIES[:mri].last %>-valgrind-pr
+  - name: ruby-<%= ruby_version %>-valgrind-pr
     public: true
     serial_groups: [pr]
     plan:
+      - get: ci
+        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: [pr-pending]
       - task: rake-test
         config:
-          <<: *<%= anchorify "ruby-#{ruby_version}-valgrind-rake-test-config" %>
-        input_mapping: {nokogiri: nokogiri-pr}
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: nokogiri/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
 
-  - name: jruby-<%= RUBIES[:jruby].last %>-pr
+% jruby_version = RUBIES[:jruby].last
+  - name: jruby-<%= jruby_version %>-pr
     public: true
     serial_groups: [pr]
     plan:
+      - get: ci
+        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: [pr-pending]
       - task: rake-test
         config:
-          <<: *<%= anchorify "jruby-#{RUBIES[:jruby].last}-rake-test-config" %>
-        input_mapping: {nokogiri: nokogiri-pr}
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: jruby, tag: "<%= jruby_version %>-jdk"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
+          run:
+            path: nokogiri/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
 
-  - name: rbx-<%= RUBIES[:rbx].last %>-pr
+% rbx_version = RUBIES[:rbx].last
+  - name: rbx-<%= rbx_version %>-pr
     public: true
     serial_groups: [pr]
     plan:
+      - get: ci
+        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: [pr-pending]
       - task: rake-test
         config:
-          <<: *<%= anchorify "rbx-#{RUBIES[:rbx].last}-rake-test-config" %>
-        input_mapping: {nokogiri: nokogiri-pr}
+          image_resource:
+            type: docker-image
+            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
+          platform: linux
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: nokogiri/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
