@@ -2,14 +2,6 @@
 def anchorify string
   string.tr '^a-zA-Z0-9', '_'
 end
-
-def rubyopts ruby_version
-  if ruby_version =~ /^2\.4/
-    "--enable-frozen-string-literal --debug=frozen-string-literal"
-  else
-    ""
-  end
-end
 %>
 
 groups:
@@ -71,25 +63,17 @@ jobs:
         trigger: true
       - task: rake-test
         config: &<%= anchorify "ruby-#{ruby_version}-system-rake-test-config" %>
+          platform: linux
           image_resource:
             type: docker-image
-            source:
-              repository: ruby
-              tag: "<%= ruby_version %>"
-          platform: linux
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
             - name: nokogiri
           params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: "1"
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             dir: nokogiri
-            path: bash
-            args:
-              - "-ce"
-              - |
-                export RUBYOPT="<%= rubyopts ruby_version %>"
-                bundle install
-                bundle exec rake test
+            path: concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
@@ -98,23 +82,15 @@ jobs:
         trigger: true
       - task: rake-test
         config: &<%= anchorify "ruby-#{ruby_version}-vendored-rake-test-config" %>
+          platform: linux
           image_resource:
             type: docker-image
-            source:
-              repository: ruby
-              tag: "<%= ruby_version %>"
-          platform: linux
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
             - name: nokogiri
           run:
             dir: nokogiri
-            path: bash
-            args:
-              - "-ce"
-              - |
-                export RUBYOPT="<%= rubyopts ruby_version %>"
-                bundle install
-                bundle exec rake test
+            path: concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
@@ -124,25 +100,17 @@ jobs:
         trigger: true
       - task: rake-test
         config: &<%= anchorify "ruby-#{ruby_version}-valgrind-rake-test-config" %>
+          platform: linux
           image_resource:
             type: docker-image
-            source:
-              repository: ruby
-              tag: "<%= ruby_version %>"
-          platform: linux
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
             - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
           run:
             dir: nokogiri
-            path: bash
-            args:
-              - "-ce"
-              - |
-                export RUBYOPT="<%= rubyopts ruby_version %>"
-                apt-get update
-                apt-get install -y valgrind
-                bundle install
-                bundle exec rake test:valgrind
+            path: concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-libxmlruby
     public: true
@@ -152,24 +120,17 @@ jobs:
         trigger: true
       - task: rake-test
         config:
+          platform: linux
           image_resource:
             type: docker-image
-            source:
-              repository: ruby
-              tag: "<%= ruby_version %>"
-          platform: linux
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
             - name: nokogiri
+          params:
+            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
           run:
             dir: nokogiri
-            path: bash
-            args:
-              - "-ce"
-              - |
-                export BUNDLE_GEMFILE=Gemfile-libxml-ruby
-                export RUBYOPT="<%= rubyopts ruby_version %>"
-                bundle install
-                bundle exec rake test:libxml-ruby
+            path: concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-libxmlruby-valgrind
     public: true
@@ -179,26 +140,18 @@ jobs:
         trigger: true
       - task: rake-test
         config:
+          platform: linux
           image_resource:
             type: docker-image
-            source:
-              repository: ruby
-              tag: "<%= ruby_version %>"
-          platform: linux
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
             - name: nokogiri
+          params:
+            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+            TEST_WITH_VALGRIND: t
           run:
             dir: nokogiri
-            path: bash
-            args:
-              - "-ce"
-              - |
-                export BUNDLE_GEMFILE=Gemfile-libxml-ruby
-                export RUBYOPT="<%= rubyopts ruby_version %>"
-                apt-get update
-                apt-get install -y valgrind
-                bundle install
-                bundle exec rake test:valgrind:libxml-ruby
+            path: concourse/tasks/rake-test/run.sh
   <% end %>
 
   <% for jruby_version in RUBIES[:jruby] %>
@@ -209,24 +162,17 @@ jobs:
         trigger: true
       - task: rake-test
         config: &<%= anchorify "jruby-#{jruby_version}-rake-test-config" %>
+          platform: linux
           image_resource:
             type: docker-image
-            source:
-              repository: jruby
-              tag: "<%= jruby_version %>-jdk"
-          platform: linux
+            source: {repository: jruby, tag: "<%= jruby_version %>-jdk"}
           inputs:
             - name: nokogiri
           params:
             JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
           run:
             dir: nokogiri
-            path: bash
-            args:
-              - "-ce"
-              - |
-                bundle install
-                bundle exec rake test
+            path: concourse/tasks/rake-test/run.sh
   <% end %>
 
   <% for rbx_version in RUBIES[:rbx] %>
@@ -239,24 +185,15 @@ jobs:
         config: &<%= anchorify "rbx-#{rbx_version}-rake-test-config" %>
           image_resource:
             type: docker-image
-            source:
-              repository: rubinius/docker
-              tag: "<%= rbx_version %>"
+            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
           platform: linux
           inputs:
             - name: nokogiri
           params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: "1"
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             dir: nokogiri
-            path: bash
-            args:
-              - "-ce"
-              - |
-                apt-get update
-                apt-get install -y ca-certificates gcc pkg-config libxml2-dev libxslt-dev
-                bundle install
-                bundle exec rake test
+            path: concourse/tasks/rake-test/run.sh
   <% end %>
 
   - name: windows-devkit
@@ -299,9 +236,7 @@ jobs:
         trigger: true
         version: every
       - put: nokogiri-pr
-        params:
-          path: nokogiri-pr
-          status: pending
+        params: {path: nokogiri-pr, status: pending}
 
   - name: ruby-<%= RUBIES[:mri].last %>-system-pr
     public: true
@@ -314,14 +249,10 @@ jobs:
       - task: rake-test
         config:
           <<: *<%= anchorify "ruby-#{RUBIES[:mri].last}-system-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
+        input_mapping: {nokogiri: nokogiri-pr}
         on_failure:
           put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
+          params: {path: nokogiri-pr, status: failure}
 
   - name: ruby-<%= RUBIES[:mri].last %>-vendored-pr
     public: true
@@ -334,14 +265,10 @@ jobs:
       - task: rake-test
         config:
           <<: *<%= anchorify "ruby-#{RUBIES[:mri].last}-vendored-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
+        input_mapping: {nokogiri: nokogiri-pr}
         on_failure:
           put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
+          params: {path: nokogiri-pr, status: failure}
 
   - name: ruby-<%= RUBIES[:mri].last %>-valgrind-pr
     public: true
@@ -354,14 +281,10 @@ jobs:
       - task: rake-test
         config:
           <<: *<%= anchorify "ruby-#{ruby_version}-valgrind-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
+        input_mapping: {nokogiri: nokogiri-pr}
         on_failure:
           put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
+          params: {path: nokogiri-pr, status: failure}
 
   - name: jruby-<%= RUBIES[:jruby].last %>-pr
     public: true
@@ -374,14 +297,10 @@ jobs:
       - task: rake-test
         config:
           <<: *<%= anchorify "jruby-#{RUBIES[:jruby].last}-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
+        input_mapping: {nokogiri: nokogiri-pr}
         on_failure:
           put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
+          params: {path: nokogiri-pr, status: failure}
 
   - name: rbx-<%= RUBIES[:rbx].last %>-pr
     public: true
@@ -394,14 +313,10 @@ jobs:
       - task: rake-test
         config:
           <<: *<%= anchorify "rbx-#{RUBIES[:rbx].last}-rake-test-config" %>
-          inputs:
-            - name: nokogiri-pr
-              path: nokogiri
+        input_mapping: {nokogiri: nokogiri-pr}
         on_failure:
           put: nokogiri-pr
-          params:
-            path: nokogiri-pr
-            status: failure
+          params: {path: nokogiri-pr, status: failure}
 
   - name: pr-success
     public: true
@@ -418,6 +333,4 @@ jobs:
           - jruby-<%= RUBIES[:jruby].last %>-pr
           - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr
-        params:
-          path: nokogiri-pr
-          status: success
+        params: {path: nokogiri-pr, status: success}
