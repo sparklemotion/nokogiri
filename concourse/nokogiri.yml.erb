@@ -44,15 +44,11 @@ resources:
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
-      ignore_paths:
-        - concourse/**
   - name: nokogiri-pr
     type: pull-request
     source:
       repo: sparklemotion/nokogiri
       access_token: {{github-repo-status-access-token}}
-      ignore_paths:
-        - concourse/**
 
 jobs:
   <% for ruby_version in RUBIES[:mri] %>
