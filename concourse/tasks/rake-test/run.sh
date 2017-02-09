@@ -10,6 +10,8 @@ pushd nokogiri
 
   APT_UPDATED=false
 
+  FROZEN_STRING_REF="53f9b66"
+
   function mri-24-or-greater {
     if [[ $RUBY_ENGINE != "ruby" ]] ; then
       return 1
@@ -20,6 +22,13 @@ pushd nokogiri
     fi
 
     return 0
+  }
+
+  function commit-is-post-frozen-string-support {
+    if git merge-base --is-ancestor ${FROZEN_STRING_REF} HEAD ; then
+       return 0
+    fi
+    return 1
   }
 
   function rbx-engine {
@@ -38,7 +47,7 @@ pushd nokogiri
     APT_UPDATED=true
   }
 
-  if mri-24-or-greater ; then
+  if mri-24-or-greater && commit-is-post-frozen-string-support ; then
     export RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
   fi
 
