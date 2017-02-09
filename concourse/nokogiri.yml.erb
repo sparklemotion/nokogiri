@@ -68,8 +68,7 @@ jobs:
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
-            dir: nokogiri
-            path: concourse/tasks/rake-test/run.sh
+            path: nokogiri/concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
@@ -85,8 +84,7 @@ jobs:
           inputs:
             - name: nokogiri
           run:
-            dir: nokogiri
-            path: concourse/tasks/rake-test/run.sh
+            path: nokogiri/concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
@@ -105,8 +103,7 @@ jobs:
           params:
             TEST_WITH_VALGRIND: t
           run:
-            dir: nokogiri
-            path: concourse/tasks/rake-test/run.sh
+            path: nokogiri/concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-libxmlruby
     public: true
@@ -125,8 +122,7 @@ jobs:
           params:
             BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
           run:
-            dir: nokogiri
-            path: concourse/tasks/rake-test/run.sh
+            path: nokogiri/concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-libxmlruby-valgrind
     public: true
@@ -146,8 +142,7 @@ jobs:
             BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
             TEST_WITH_VALGRIND: t
           run:
-            dir: nokogiri
-            path: concourse/tasks/rake-test/run.sh
+            path: nokogiri/concourse/tasks/rake-test/run.sh
   <% end %>
 
   <% for jruby_version in RUBIES[:jruby] %>
@@ -167,8 +162,7 @@ jobs:
           params:
             JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
           run:
-            dir: nokogiri
-            path: concourse/tasks/rake-test/run.sh
+            path: nokogiri/concourse/tasks/rake-test/run.sh
   <% end %>
 
   <% for rbx_version in RUBIES[:rbx] %>
@@ -188,8 +182,7 @@ jobs:
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
-            dir: nokogiri
-            path: concourse/tasks/rake-test/run.sh
+            path: nokogiri/concourse/tasks/rake-test/run.sh
   <% end %>
 
   - name: windows-devkit
