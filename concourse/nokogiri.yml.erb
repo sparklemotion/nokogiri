@@ -245,13 +245,11 @@ jobs:
           platform: windows
           inputs:
             - name: ci
-            - name: nokogiri
           run:
-            dir: nokogiri
             path: powershell
             args:
               - "-File"
-              - "concourse/windows/setup.ps1"
+              - "ci/concourse/windows/setup.ps1"
 
   - name: ruby-2.3-devkit
     public: true
@@ -267,11 +265,10 @@ jobs:
             - name: ci
             - name: nokogiri
           run:
-            dir: nokogiri
             path: powershell
             args:
               - "-File"
-              - "concourse/windows/rake-test.ps1"
+              - "ci/concourse/windows/rake-test.ps1"
 
   - name: windex
     public: true
@@ -283,15 +280,13 @@ jobs:
           platform: windows
           inputs:
             - name: ci
-            - name: nokogiri
           params:
             CLEAN_WINDOWS: t
           run:
-            dir: ci
             path: powershell
             args:
               - "-File"
-              - "concourse/windows/setup.ps1"
+              - "ci/concourse/windows/setup.ps1"
 
   - name: pr-pending
     public: true
