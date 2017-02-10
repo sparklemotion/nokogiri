@@ -1,13 +1,15 @@
-trap {
-    write-error $_
-    exit 1
-}
+$ErrorActionPreference = "Stop" # exit on cmdlet errors ("set -e")
+Set-PSDebug -trace 1 # "set -x"
+Set-PSDebug -strict # "set -u"
 
-$installation_dir = "C:"
-
-$ruby23_path = join-path $installation_dir "ruby23"
-$ruby23_bin_path = join-path $ruby23_path "bin"
-$ruby23_exe = join-path $ruby23_bin_path "ruby.exe"
+# avoid overly narrow default linewrap
+$term = (get-host).ui.rawui
+$size = $term.buffersize
+$size.width = 128
+$term.buffersize = $size
+$size = $term.windowsize
+$size.width = 128
+$term.windowsize = $size
 
 function start-cmd {
     param ($command, $arguments)
@@ -40,3 +42,9 @@ function prepend-path {
     param ($dir)
     $env:PATH = $dir + ";" + $env:PATH
 }
+
+$installation_dir = "C:"
+
+$ruby23_path = join-path $installation_dir "ruby23"
+$ruby23_bin_path = join-path $ruby23_path "bin"
+$ruby23_exe = join-path $ruby23_bin_path "ruby.exe"
