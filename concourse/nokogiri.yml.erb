@@ -29,6 +29,10 @@ groups:
       - rbx-<%= RUBIES[:rbx].last %>-pr
       - pr-success
 
+  - name: janitor
+    jobs:
+      - windex
+
 resource_types:
 - name: pull-request
   type: docker-image
@@ -229,6 +233,24 @@ jobs:
             args:
               - "-File"
               - "concourse/windows/rake-test.ps1"
+
+  - name: windex
+    public: true
+    plan:
+      - get: nokogiri
+      - task: clean
+        config:
+          platform: windows
+          inputs:
+            - name: nokogiri
+          params:
+            CLEAN_WINDOWS: t
+          run:
+            dir: nokogiri
+            path: powershell
+            args:
+              - "-File"
+              - "concourse/windows/setup.ps1"
 
   - name: pr-pending
     public: true

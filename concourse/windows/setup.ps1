@@ -107,5 +107,10 @@ function clean-ruby-dk {
     }
 }
 
-ensure-ruby-23-is-installed
-ensure-ruby-dk-is-installed
+if ($env:CLEAN_WINDOWS) {
+    clean-ruby-23
+    clean-ruby-dk
+} else {
+    ensure-ruby-23-is-installed
+    ensure-ruby-dk-is-installed
+}
