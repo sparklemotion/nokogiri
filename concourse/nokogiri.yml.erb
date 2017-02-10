@@ -236,7 +236,6 @@ jobs:
 
   - name: pr-pending
     public: true
-    serial_groups: [pr]
     plan:
       - get: nokogiri-pr
         trigger: true
