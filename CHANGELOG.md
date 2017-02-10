@@ -26,6 +26,7 @@
 * [JRuby] correctly append a text node before another text node [#1318] (Thanks, @jkraemer!)
 * [JRuby] custom xpath functions returning an integer now work correctly [#1595] (Thanks, @kares!)
 * [JRuby] serializing (`#to_html`, `#to_s`, et al) a document with explicit encoding now works correctly. [#1281, #1440] (Thanks, @kares!)
+* [JRuby] XML::Reader now returns parse errors [#1586] (Thanks, @kares!)
 
 
 # 1.7.0.1 / 2017-01-04
