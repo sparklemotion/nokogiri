@@ -246,10 +246,6 @@ lib/xml-apis.jar
 lib/xsd/xmlparser/nokogiri.rb
 patches/sort-patches-by-date
 suppressions/README.txt
-suppressions/nokogiri_ree-1.8.7.358.supp
-suppressions/nokogiri_ruby-1.8.7.370.supp
-suppressions/nokogiri_ruby-1.9.2.320.supp
-suppressions/nokogiri_ruby-1.9.3.327.supp
 tasks/test.rb
 test/css/test_nthiness.rb
 test/css/test_parser.rb
