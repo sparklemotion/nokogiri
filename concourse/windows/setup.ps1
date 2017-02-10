@@ -70,7 +70,7 @@ function ensure-ruby-dk-is-installed {
     if (-not (is-ruby-dk-extracted)) {
         new-item -itemtype directory -force -path $rubydk_path
 
-        set-location $rubydk_path
+        push-location $rubydk_path
 
             invoke-webrequest $devkit_url -outfile "devkitinstaller.exe" -verbose
 
@@ -79,21 +79,21 @@ function ensure-ruby-dk-is-installed {
                 throw "devkitinstaller returned error code: $($p.exitcode)"
             }
 
-        set-location $savedir
+        pop-location
     }
     if (-not (is-ruby-dk-extracted)) {
         throw "ruby dk was not properly extracted"
     }
 
     if (-not (is-ruby-dk-installed)) {
-        set-location $rubydk_path
+        push-location $rubydk_path
 
             "---`n- $($ruby23_path)" | out-file $rubydk_config -encoding ASCII
             get-content $rubydk_config
 
             run-cmd $ruby23_exe "dk.rb install --force"
 
-        set-location $savedir
+        pop-location
     }
     if (-not (is-ruby-dk-installed)) {
         throw "ruby dk was not properly installed"
