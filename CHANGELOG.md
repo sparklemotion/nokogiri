@@ -4,14 +4,15 @@
 
 * Upgrade zlib from 1.2.8 to 1.2.11 (unless --use-system-libraries)
 * Upgrade rake-compiler dependency from 0.9.2 to 1.0.3
+* Vendored libraries are verified with SHA-256 hashes (formerly some MD5 hashes were used) [#1544]
 
 
 ## Features
 
-* NodeSet#clone is not an alias for NodeSet#dup [#1503] (Thanks, @stephankaag!)
+<* NodeSet#clone is not an alias for NodeSet#dup [#1503] (Thanks, @stephankaag!)
 * Allow Processing Instructions and Comments as children of a document root. [#1033] (Thanks, @windwiny!)
 * [MRI] PushParser#replace_entities and #replace_entities= will control whether entities are replaced or not. [#1017] (Thanks, @spraints!)
-* [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1503] (Thanks, @spk!)
+* [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1304] (Thanks, @spk!)
 * [MRI] Cross-built Windows gems now support Ruby 2.4
 * [MRI] Support for frozen string literals. [#1413]
 * [JRuby] (performance) remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
@@ -23,6 +24,7 @@
 
 * HTML::SAX::Parser#parse_io now correctly parses HTML and not XML [#1577] (Thanks for the test case, @gregors!)
 * [MRI] on OpenBSD, do not require gcc if using system libraries [#1515] (Thanks, @jeremyevans!)
+* [MRI] XML::Attr.new checks type of Document arg to prevent segfaults. [#1477]
 * [JRuby] correctly append a text node before another text node [#1318] (Thanks, @jkraemer!)
 * [JRuby] custom xpath functions returning an integer now work correctly [#1595] (Thanks, @kares!)
 * [JRuby] serializing (`#to_html`, `#to_s`, et al) a document with explicit encoding now works correctly. [#1281, #1440] (Thanks, @kares!)
