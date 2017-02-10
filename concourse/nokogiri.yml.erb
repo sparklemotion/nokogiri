@@ -7,8 +7,9 @@ groups:
       - "ruby-<%= ruby_version %>-valgrind"
       <% end %>
       <% for ruby_version in RUBIES[:mri][-1,1] %>
-      - "ruby-<%= ruby_version %>-libxmlruby"
-      - "ruby-<%= ruby_version %>-libxmlruby-valgrind"
+      - "ruby-libxmlruby-system"
+      - "ruby-libxmlruby-vendored"
+      - "ruby-libxmlruby-valgrind"
       <% end %>
       <% for jruby_version in RUBIES[:jruby] %>
       - "jruby-<%= jruby_version %>"
@@ -126,13 +127,34 @@ jobs:
   <% end %>
 
   <% for ruby_version in RUBIES[:mri][-1,1] %>
-  - name: ruby-<%= ruby_version %>-libxmlruby
+  - name: ruby-libxmlruby-system
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-valgrind"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+
+  - name: ruby-libxmlruby-vendored
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: [ruby-libxmlruby-system]
       - task: rake-test
         config:
           platform: linux
@@ -147,13 +169,13 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
 
-  - name: ruby-<%= ruby_version %>-libxmlruby-valgrind
+  - name: ruby-libxmlruby-valgrind
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-libxmlruby"]
+        passed: ["ruby-libxmlruby-vendored"]
       - task: rake-test
         config:
           platform: linux
