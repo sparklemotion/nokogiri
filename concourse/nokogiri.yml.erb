@@ -5,6 +5,8 @@ groups:
       - "ruby-<%= ruby_version %>-system"
       - "ruby-<%= ruby_version %>-vendored"
       - "ruby-<%= ruby_version %>-valgrind"
+      <% end %>
+      <% for ruby_version in RUBIES[:mri][-1,1] %>
       - "ruby-<%= ruby_version %>-libxmlruby"
       - "ruby-<%= ruby_version %>-libxmlruby-valgrind"
       <% end %>
@@ -12,7 +14,8 @@ groups:
       - "jruby-<%= jruby_version %>"
       <% end %>
       <% for rbx_version in RUBIES[:rbx] %>
-      - "rbx-<%= rbx_version %>"
+      - "rbx-<%= rbx_version %>-system"
+      - "rbx-<%= rbx_version %>-vendored"
       <% end %>
       - windows-devkit
 
@@ -69,6 +72,7 @@ jobs:
     plan:
       - get: nokogiri
         trigger: true
+        passed: ["ruby-<%= ruby_version %>-system"]
       - task: rake-test
         config:
           platform: linux
@@ -84,8 +88,8 @@ jobs:
     public: true
     plan:
       - get: nokogiri
-        passed: ["ruby-<%= ruby_version %>-vendored"]
         trigger: true
+        passed: ["ruby-<%= ruby_version %>-vendored"]
       - task: rake-test
         config:
           platform: linux
@@ -98,13 +102,15 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: nokogiri/concourse/tasks/rake-test/run.sh
+  <% end %>
 
+  <% for ruby_version in RUBIES[:mri][-1,1] %>
   - name: ruby-<%= ruby_version %>-libxmlruby
     public: true
     plan:
       - get: nokogiri
-        passed: ["ruby-<%= ruby_version %>-vendored"]
         trigger: true
+        passed: ["ruby-<%= ruby_version %>-valgrind"]
       - task: rake-test
         config:
           platform: linux
@@ -122,8 +128,8 @@ jobs:
     public: true
     plan:
       - get: nokogiri
-        passed: ["ruby-<%= ruby_version %>-libxmlruby"]
         trigger: true
+        passed: ["ruby-<%= ruby_version %>-libxmlruby"]
       - task: rake-test
         config:
           platform: linux
@@ -160,7 +166,7 @@ jobs:
   <% end %>
 
   <% for rbx_version in RUBIES[:rbx] %>
-  - name: rbx-<%= rbx_version %>
+  - name: rbx-<%= rbx_version %>-system
     public: true
     plan:
       - get: nokogiri
@@ -175,6 +181,23 @@ jobs:
             - name: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: nokogiri/concourse/tasks/rake-test/run.sh
+
+  - name: rbx-<%= rbx_version %>-vendored
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+        passed: ["rbx-<%= rbx_version %>-system"]
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
+          platform: linux
+          inputs:
+            - name: nokogiri
           run:
             path: nokogiri/concourse/tasks/rake-test/run.sh
   <% end %>
