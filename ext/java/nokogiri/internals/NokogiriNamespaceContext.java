@@ -33,11 +33,11 @@
 package nokogiri.internals;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -54,14 +54,14 @@ public final class NokogiriNamespaceContext implements NamespaceContext {
     public static final String NOKOGIRI_URI = "http://www.nokogiri.org/default_ns/ruby/extensions_functions";
     public static final String NOKOGIRI_TEMPORARY_ROOT_TAG = "nokogiri-temporary-root-tag";
     
-    private Hashtable<String,String> register;
+    private final Map<String,String> register;
 
     public static NokogiriNamespaceContext create() {
         return new NokogiriNamespaceContext();
     }
     
     private NokogiriNamespaceContext() {
-        this.register = new Hashtable<String,String>();
+        register = new HashMap<String, String>(6, 1);
         register.put(NOKOGIRI_PREFIX, NOKOGIRI_URI);
         register.put("xml", "http://www.w3.org/XML/1998/namespace");
         register.put("xhtml", "http://www.w3.org/1999/xhtml");
@@ -87,21 +87,19 @@ public final class NokogiriNamespaceContext implements NamespaceContext {
     public String getPrefix(String uri) {
     	if (uri == null) {
             throw new IllegalArgumentException("uri is null");
-        } else {
-            Set<Entry<String, String>> entries = register.entrySet();
-            for (Entry<String, String> entry : entries) {
-                if (uri.equals(entry.getValue())) {
-                    return entry.getKey();
-                }
+        }
+        Set<Entry<String, String>> entries = register.entrySet();
+        for (Entry<String, String> entry : entries) {
+            if (uri.equals(entry.getValue())) {
+                return entry.getKey();
             }
         }
         return null;
     }
 
     public Iterator<String> getPrefixes(String uri) {
-        if (register == null) return null;
         Set<Entry<String, String>> entries = register.entrySet();
-        List<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<String>(entries.size());
         for (Entry<String, String> entry : entries) {
             if (uri.equals(entry.getValue())) {
                 list.add(entry.getKey());
@@ -111,12 +109,12 @@ public final class NokogiriNamespaceContext implements NamespaceContext {
     }
     
     public Set<String> getAllPrefixes() {
-        if (register == null) return null;
         return register.keySet();
     }
 
     public void registerNamespace(String prefix, String uri) {
-        if("xmlns".equals(prefix)) prefix = "";
-        this.register.put(prefix, uri);
+        if ("xmlns".equals(prefix)) prefix = "";
+        register.put(prefix, uri);
     }
+
 }

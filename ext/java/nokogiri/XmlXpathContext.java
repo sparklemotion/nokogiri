@@ -32,15 +32,9 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import javax.xml.transform.TransformerException;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import nokogiri.internals.NokogiriNamespaceContext;
 import nokogiri.internals.NokogiriXPathFunctionResolver;
@@ -48,7 +42,6 @@ import nokogiri.internals.NokogiriXPathVariableResolver;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyException;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
@@ -56,10 +49,9 @@ import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import org.apache.xml.dtm.DTM;
-import org.apache.xml.utils.PrefixResolver;
+import org.apache.xpath.XPath;
 import org.apache.xpath.XPathContext;
 import org.apache.xpath.jaxp.JAXPExtensionsProvider;
 import org.apache.xpath.jaxp.JAXPPrefixResolver;
@@ -75,169 +67,196 @@ import org.apache.xpath.objects.XObject;
  */
 @JRubyClass(name="Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject {
-    public final static String XPATH_CONTEXT = "CACHCED_XPATH_CONTEXT";
-
-    private XmlNode context;
-    private final NokogiriXPathFunctionResolver functionResolver;
-    private final NokogiriXPathVariableResolver variableResolver;
-    private PrefixResolver prefixResolver;
-    private XPathContext xpathSupport = null;
-    private NokogiriNamespaceContext nsContext;
-
-    public XmlXpathContext(Ruby ruby, RubyClass rubyClass) {
-        super(ruby, rubyClass);
-        functionResolver = NokogiriXPathFunctionResolver.create(ruby.getCurrentContext().nil);
-        variableResolver = NokogiriXPathVariableResolver.create();
-    }
-
-    private void setNode(XmlNode node) throws IllegalArgumentException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Node doc = node.getNode().getOwnerDocument();
-        if (doc == null) {
-            doc = node.getNode();
-        }
-        xpathSupport = (XPathContext) doc.getUserData(XPATH_CONTEXT);
-
-        if (xpathSupport == null) {
-            JAXPExtensionsProvider jep = getProviderInstance();
-            xpathSupport = new XPathContext(jep);
-            xpathSupport.setVarStack(new JAXPVariableStack(variableResolver));
-            doc.setUserData(XPATH_CONTEXT, xpathSupport, null);
-        }
-
-        context = node;
-        nsContext = NokogiriNamespaceContext.create();
-        prefixResolver = new JAXPPrefixResolver(nsContext);
-    }
-
-    private JAXPExtensionsProvider getProviderInstance() throws ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Class<?> clazz = Class.forName("org.apache.xpath.jaxp.JAXPExtensionsProvider");
-        Constructor[] constructors = clazz.getDeclaredConstructors();
-        for (int i = 0; i < constructors.length; i++) {
-            Class[] parameterTypes = constructors[i].getParameterTypes();
-            if (parameterTypes.length == 2) {
-                return (JAXPExtensionsProvider) constructors[i].newInstance(functionResolver, false);
-            } else if (parameterTypes.length == 1) {
-                return (JAXPExtensionsProvider) constructors[i].newInstance(functionResolver);
-            }
-        }
-        return null;
-    }
 
     /**
-     * Create and return a copy of this object.
-     *
-     * @return a clone of this object
+     * user-data key for (cached) {@link XPathContext}
      */
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public static final String XPATH_CONTEXT = "CACHED_XPATH_CONTEXT";
+
+    private XmlNode context;
+
+    public XmlXpathContext(Ruby runtime, RubyClass klass) {
+        super(runtime, klass);
+    }
+
+    public XmlXpathContext(Ruby runtime, RubyClass klass, XmlNode node) {
+        this(runtime, klass);
+        initNode(node);
+    }
+
+    private void initNode(XmlNode node) {
+        context = node;
     }
 
     @JRubyMethod(name = "new", meta = true)
-    public static IRubyObject rbNew(ThreadContext thread_context, IRubyObject klazz, IRubyObject node) {
-        XmlNode xmlNode = (XmlNode)node;
-        XmlXpathContext xmlXpathContext = (XmlXpathContext) NokogiriService.XML_XPATHCONTEXT_ALLOCATOR.allocate(thread_context.getRuntime(), (RubyClass)klazz);
-        XPathFactory.newInstance().newXPath();
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject node) {
         try {
-            xmlXpathContext.setNode(xmlNode);
-        } catch (IllegalArgumentException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (ClassNotFoundException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (InstantiationException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (IllegalAccessException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
-        } catch (InvocationTargetException e) {
-            throw thread_context.getRuntime().newRuntimeError(e.getMessage());
+            return new XmlXpathContext(context.runtime, (RubyClass) klazz, (XmlNode) node);
         }
-        return xmlXpathContext;
+        catch (IllegalArgumentException e) {
+            throw context.getRuntime().newRuntimeError(e.getMessage());
+        }
     }
 
     @JRubyMethod
-    public IRubyObject evaluate(ThreadContext thread_context, IRubyObject expr, IRubyObject handler) {
-        functionResolver.setHandler(handler);
-        String src = (String) expr.toJava(String.class);
-        if(!handler.isNil()) {
+    public IRubyObject evaluate(ThreadContext context, IRubyObject expr, IRubyObject handler) {
+
+        String src = expr.convertToString().asJavaString();
+        if (!handler.isNil()) {
             if (!isContainsPrefix(src)) {
+                StringBuilder replacement = new StringBuilder();
                 Set<String> methodNames = handler.getMetaClass().getMethods().keySet();
+                final String PREFIX = NokogiriNamespaceContext.NOKOGIRI_PREFIX;
                 for (String name : methodNames) {
-                    src = src.replaceAll(name, NokogiriNamespaceContext.NOKOGIRI_PREFIX+":"+name);
+                    replacement.setLength(0);
+                    replacement.ensureCapacity(PREFIX.length() + 1 + name.length());
+                    replacement.append(PREFIX).append(':').append(name);
+                    src = src.replace(name, replacement); // replace(name, NOKOGIRI_PREFIX + ':' + name)
                 }
             }
         }
-        return node_set(thread_context, src);
+
+        return node_set(context, src, handler);
     }
-
-    protected IRubyObject node_set(ThreadContext context, String expr) {
-        try {
-            return tryGetNodeSet(context, expr);
-        }
-        catch (XPathExpressionException ex) {
-            throw new RaiseException(XmlSyntaxError.createXMLXPathSyntaxError(context.runtime, ex)); // Nokogiri::XML::XPath::SyntaxError
-        }
-    }
-
-    private IRubyObject tryGetNodeSet(ThreadContext thread_context, String expr) throws XPathExpressionException {
-        Node contextNode = context.node;
-
-        try {
-          org.apache.xpath.XPath xpathInternal = new org.apache.xpath.XPath (expr, null,
-                      prefixResolver, org.apache.xpath.XPath.SELECT );
-
-          // We always need to have a ContextNode with Xalan XPath implementation
-          // To allow simple expression evaluation like 1+1 we are setting
-          // dummy Document as Context Node
-          final XObject xobj;
-          if ( contextNode == null )
-              xobj = xpathInternal.execute(xpathSupport, DTM.NULL, prefixResolver);
-          else
-              xobj = xpathInternal.execute(xpathSupport, contextNode, prefixResolver);
-
-          switch (xobj.getType()) {
-          case XObject.CLASS_BOOLEAN:
-            return thread_context.getRuntime().newBoolean(xobj.bool());
-          case XObject.CLASS_NUMBER:
-            return thread_context.getRuntime().newFloat(xobj.num());
-          case XObject.CLASS_NODESET:
-            NodeList nodeList = xobj.nodelist();
-            XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(getRuntime(), getNokogiriClass(getRuntime(), "Nokogiri::XML::NodeSet"));
-            xmlNodeSet.setNodeList(nodeList);
-            xmlNodeSet.initialize(thread_context.getRuntime(), context);
-            return xmlNodeSet;
-          default:
-            return thread_context.getRuntime().newString(xobj.str());
-          }
-        } catch(TransformerException ex) {
-          throw new XPathExpressionException(expr);
-        }
-    }
-
-    private boolean isContainsPrefix(String str) {
-        Set<String> prefixes = nsContext.getAllPrefixes();
-        for (String prefix : prefixes) {
-            if (str.contains(prefix + ":")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     @JRubyMethod
     public IRubyObject evaluate(ThreadContext context, IRubyObject expr) {
         return this.evaluate(context, expr, context.getRuntime().getNil());
     }
 
+    private final NokogiriNamespaceContext nsContext = NokogiriNamespaceContext.create();
+
     @JRubyMethod
-    public IRubyObject register_ns(ThreadContext context, IRubyObject prefix, IRubyObject uri) {
-        nsContext.registerNamespace((String)prefix.toJava(String.class), (String)uri.toJava(String.class));
+    public IRubyObject register_ns(IRubyObject prefix, IRubyObject uri) {
+        nsContext.registerNamespace(prefix.asJavaString(), uri.asJavaString());
         return this;
     }
 
+    private NokogiriXPathVariableResolver variableResolver; // binds (if any)
+
     @JRubyMethod
-    public IRubyObject register_variable(ThreadContext context, IRubyObject name, IRubyObject value) {
-        variableResolver.registerVariable((String)name.toJava(String.class), (String)value.toJava(String.class));
+    public IRubyObject register_variable(IRubyObject name, IRubyObject value) {
+        NokogiriXPathVariableResolver variableResolver = this.variableResolver;
+        if (variableResolver == null) {
+            variableResolver = NokogiriXPathVariableResolver.create();
+            this.variableResolver = variableResolver;
+        }
+        variableResolver.registerVariable(name.asJavaString(), value.asJavaString());
         return this;
     }
+
+    private IRubyObject node_set(ThreadContext context, String expr, IRubyObject handler) {
+        final NokogiriXPathFunctionResolver fnResolver =
+            handler.isNil() ? null : NokogiriXPathFunctionResolver.create(handler);
+        try {
+            return tryGetNodeSet(context, expr, fnResolver);
+        }
+        catch (TransformerException ex) {
+            throw new RaiseException(XmlSyntaxError.createXMLXPathSyntaxError(context.runtime, expr, ex)); // Nokogiri::XML::XPath::SyntaxError
+        }
+    }
+
+    private IRubyObject tryGetNodeSet(ThreadContext context, String expr, NokogiriXPathFunctionResolver fnResolver) throws TransformerException {
+        final Node contextNode = this.context.node;
+
+        final JAXPPrefixResolver prefixResolver = new JAXPPrefixResolver(nsContext);
+        XPath xpathInternal = new XPath(expr, null, prefixResolver, XPath.SELECT);
+
+        // We always need to have a ContextNode with Xalan XPath implementation
+        // To allow simple expression evaluation like 1+1 we are setting
+        // dummy Document as Context Node
+        final XObject xobj;
+        if ( contextNode == null )
+            xobj = xpathInternal.execute(getXPathContext(fnResolver), DTM.NULL, prefixResolver);
+        else
+            xobj = xpathInternal.execute(getXPathContext(fnResolver), contextNode, prefixResolver);
+
+        switch (xobj.getType()) {
+            case XObject.CLASS_BOOLEAN : return context.getRuntime().newBoolean(xobj.bool());
+            case XObject.CLASS_NUMBER :  return context.getRuntime().newFloat(xobj.num());
+            case XObject.CLASS_NODESET :
+                XmlNodeSet xmlNodeSet = XmlNodeSet.create(context.getRuntime());
+                xmlNodeSet.setNodeList(xobj.nodelist());
+                xmlNodeSet.initialize(context.getRuntime(), this.context);
+                return xmlNodeSet;
+            default : return context.getRuntime().newString(xobj.str());
+        }
+    }
+
+    private XPathContext getXPathContext(final NokogiriXPathFunctionResolver fnResolver) {
+        Node doc = context.getNode().getOwnerDocument();
+        if (doc == null) doc = context.getNode();
+
+        XPathContext xpathContext = (XPathContext) doc.getUserData(XPATH_CONTEXT);
+
+        if ( xpathContext == null ) {
+            xpathContext = newXPathContext(fnResolver);
+            if ( variableResolver == null ) {
+                // NOTE: only caching without variables - could be improved by more sophisticated caching
+                doc.setUserData(XPATH_CONTEXT, xpathContext, null);
+            }
+        }
+        else {
+            Object owner = xpathContext.getOwnerObject();
+            if ( ( owner == null && fnResolver == null ) ||
+                ( owner instanceof JAXPExtensionsProvider && ((JAXPExtensionsProvider) owner).hasSameResolver(fnResolver) ) ) {
+                // can be re-used assuming it has the same variable-stack (for now only cached if no variables)
+                if ( variableResolver == null ) return xpathContext;
+            }
+            xpathContext = newXPathContext(fnResolver); // otherwise we can not use the cached xpath-context
+        }
+
+        if ( variableResolver != null ) {
+            xpathContext.setVarStack(new JAXPVariableStack(variableResolver));
+        }
+
+        return xpathContext;
+    }
+
+    private static XPathContext newXPathContext(final NokogiriXPathFunctionResolver functionResolver) {
+        if ( functionResolver == null ) return new XPathContext(false);
+        return new XPathContext(new JAXPExtensionsProvider(functionResolver), false);
+    }
+
+    private boolean isContainsPrefix(final String str) {
+        final StringBuilder prefix_ = new StringBuilder();
+        for ( String prefix : nsContext.getAllPrefixes() ) {
+            prefix_.setLength(0);
+            prefix_.ensureCapacity(prefix.length() + 1);
+            prefix_.append(prefix).append(':');
+            if ( str.contains(prefix_) ) { // prefix + ':'
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static final class JAXPExtensionsProvider extends org.apache.xpath.jaxp.JAXPExtensionsProvider {
+
+        final NokogiriXPathFunctionResolver resolver;
+
+        JAXPExtensionsProvider(NokogiriXPathFunctionResolver resolver) {
+            super(resolver, false);
+            this.resolver = resolver;
+        }
+
+        //@Override
+        //public boolean equals(Object obj) {
+        //    if (obj instanceof JAXPExtensionsProvider) {
+        //        return hasSameResolver(((JAXPExtensionsProvider) obj).resolver);
+        //    }
+        //    return false;
+        //}
+
+        final boolean hasSameResolver(final NokogiriXPathFunctionResolver resolver) {
+            return resolver == this.resolver || resolver != null && (
+                resolver.getHandler() == null ? this.resolver.getHandler() == null : (
+                    resolver.getHandler() == this.resolver.getHandler()
+                    // resolver.getHandler().eql( this.resolver.getHandler() )
+                )
+            );
+        }
+
+    }
+
 }

@@ -696,6 +696,17 @@ eohtml
         node = html.xpath("//style").first
         assert_equal("tr > div { display:block; }", node.inner_html)
       end
+
+      it "does not fail when converting to_html using explicit encoding" do
+        html_fragment=<<-eos
+  <img width="16" height="16" src="images/icon.gif" border="0" alt="Inactive hide details for &quot;User&quot; ---19/05/2015 12:55:29---Provvediamo subito nell&#8217;integrare">
+        eos
+        doc = Nokogiri::HTML(html_fragment, nil, 'ISO-8859-1')
+        html = doc.to_html
+        assert html.index("src=\"images/icon.gif\"")
+        assert_equal 'ISO-8859-1', html.encoding.name
+      end
+
     end
   end
 end

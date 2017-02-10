@@ -36,6 +36,7 @@ import static java.lang.Math.max;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.clearCachedNode;
 import static nokogiri.internals.NokogiriHelpers.clearXpathContext;
+import static nokogiri.internals.NokogiriHelpers.convertEncoding;
 import static nokogiri.internals.NokogiriHelpers.convertString;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
@@ -876,9 +877,13 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"content", "text", "inner_text"})
     public IRubyObject content(ThreadContext context) {
+        return stringOrNil(context.getRuntime(), getContentImpl());
+    }
+
+    public CharSequence getContentImpl() {
         if (!node.hasChildNodes() && node.getNodeValue() == null &&
             (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE)) {
-            return context.nil;
+            return null;
         }
         CharSequence textContent;
         if (this instanceof XmlDocument) {
@@ -893,11 +898,11 @@ public class XmlNode extends RubyObject {
             textContent = getTextContentRecursively(new StringBuilder(), node);
         }
         // textContent = NokogiriHelpers.convertEncodingByNKFIfNecessary(context, (XmlDocument) document(context), textContent);
-        return convertString(context.getRuntime(), textContent);
+        return textContent;
     }
 
     private StringBuilder getTextContentRecursively(StringBuilder buffer, Node currentNode) {
-        String textContent = currentNode.getNodeValue();
+        CharSequence textContent = currentNode.getNodeValue();
         if (textContent != null && NokogiriHelpers.shouldDecode(currentNode)) {
             textContent = NokogiriHelpers.decodeJavaString(textContent);
         }
@@ -961,10 +966,9 @@ public class XmlNode extends RubyObject {
         return clone;
     }
 
-    public static IRubyObject encode_special_chars(ThreadContext context, IRubyObject string) {
-        String s = rubyStringToString(string);
-        String enc = NokogiriHelpers.encodeJavaString(s);
-        return context.getRuntime().newString(enc);
+    public static RubyString encode_special_chars(ThreadContext context, IRubyObject string) {
+        CharSequence str = NokogiriHelpers.encodeJavaString( rubyStringToString(string) );
+        return RubyString.newString(context.getRuntime(), str);
     }
 
     /**
@@ -1257,21 +1261,16 @@ public class XmlNode extends RubyObject {
         String encString = encoding.isNil() ? null : rubyStringToString(encoding);
 
         SaveContextVisitor visitor = 
-            new SaveContextVisitor((Integer) options.toJava(Integer.class), rubyStringToString(indentString), encString, isHtmlDoc(context), isFragment(), 0);
+            new SaveContextVisitor(RubyFixnum.fix2int(options), rubyStringToString(indentString), encString, isHtmlDoc(context), isFragment(), 0);
         accept(context, visitor);
 
         final IRubyObject rubyString;
         if (NokogiriHelpers.isUTF8(encString)) {
-            rubyString = stringOrNil(context.getRuntime(), visitor.toString());
+            rubyString = convertString(context.getRuntime(), visitor.getInternalBuffer());
         } else {
-            try {
-                ByteBuffer bytes = NokogiriHelpers.convertEncoding(Charset.forName(encString), visitor.toString());
-                ByteList str = new ByteList(bytes.array(), bytes.arrayOffset(), bytes.remaining());
-                rubyString = RubyString.newString(context.getRuntime(), str);
-            }
-            catch (CharacterCodingException e) {
-                throw context.getRuntime().newRuntimeError(e.getMessage());
-            }
+            ByteBuffer bytes = convertEncoding(Charset.forName(encString), visitor.getInternalBuffer());
+            ByteList str = new ByteList(bytes.array(), bytes.arrayOffset(), bytes.remaining());
+            rubyString = RubyString.newString(context.getRuntime(), str);
         }
         RuntimeHelpers.invoke(context, io, "write", rubyString);
 

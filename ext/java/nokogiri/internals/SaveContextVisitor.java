@@ -32,21 +32,14 @@
 
 package nokogiri.internals;
 
-import static nokogiri.internals.NokogiriHelpers.canonicalizeWhitespce;
+import static nokogiri.internals.NokogiriHelpers.canonicalizeWhitespace;
 import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,10 +67,10 @@ import org.w3c.dom.Text;
  */
 public class SaveContextVisitor {
 
-    private final StringBuffer buffer;
+    private final StringBuilder buffer;
     private final Stack<String> indentation;
     private String encoding;
-    private final String indentString;
+    private final CharSequence indentString;
     private boolean format;
     private final boolean noDecl;
     private final boolean noEmpty;
@@ -94,7 +87,8 @@ public class SaveContextVisitor {
     private final List<Node> c14nNodeList;
     private final Deque<Attr[]> c14nNamespaceStack;
     private final Deque<Attr[]> c14nAttrStack;
-    private List<String> c14nExclusiveInclusivePrefixes = null;
+    //private List<String> c14nExclusiveInclusivePrefixes = null;
+
     /*
      * U can't touch this.
      * http://www.youtube.com/watch?v=WJ2ZFVx6A4Q
@@ -117,8 +111,8 @@ public class SaveContextVisitor {
     public static final int SUBSETS = 8;
     public static final int EXCLUSIVE = 16;
 
-    public SaveContextVisitor(int options, String indent, String encoding, boolean htmlDoc, boolean fragment, int canonicalOpts) {
-        buffer = new StringBuffer();
+    public SaveContextVisitor(int options, CharSequence indent, String encoding, boolean htmlDoc, boolean fragment, int canonicalOpts) {
+        buffer = new StringBuilder();
         this.encoding = encoding;
         indentation = new Stack<String>(); indentation.push("");
         this.htmlDoc = htmlDoc;
@@ -150,8 +144,10 @@ public class SaveContextVisitor {
 
     @Override
     public String toString() {
-        return (new String(buffer));
+        return buffer.toString();
     }
+
+    public StringBuilder getInternalBuffer() { return buffer; }
 
     public void setHtmlDoc(boolean htmlDoc) {
         this.htmlDoc = htmlDoc;
@@ -160,14 +156,6 @@ public class SaveContextVisitor {
     public void setEncoding(String encoding) {
         this.encoding = encoding;
     }
-
-    public List<Node> getC14nNodeList() {
-        return c14nNodeList;
-    }
-
-   public void setC14nExclusiveInclusivePrefixes(List<String> prefixes) {
-       c14nExclusiveInclusivePrefixes = prefixes;
-   }
 
     public boolean enter(Node node) {
         if (node instanceof Document) {
@@ -274,7 +262,7 @@ public class SaveContextVisitor {
         return true;
     }
 
-    private static Pattern p =
+    private static final Pattern CHARSET =
         Pattern.compile("charset(()|\\s+)=(()|\\s+)(\\w|\\_|\\.|\\-)+", Pattern.CASE_INSENSITIVE);
 
     private String replaceCharsetIfNecessary(Attr attr) {
@@ -282,23 +270,24 @@ public class SaveContextVisitor {
         if (encoding == null) return value;   // unable to replace in any case
         if (!"content".equals(attr.getName().toLowerCase())) return value;  // must be content attr
         if (!"meta".equals(attr.getOwnerElement().getNodeName().toLowerCase())) return value;
-        Matcher m = p.matcher(value);
+        Matcher m = CHARSET.matcher(value);
         if (!m.find()) return value;
         if (value.contains(encoding)) return value;  // no need to replace
         return value.replace(m.group(), "charset=" + encoding);
     }
 
-    public static final String[] HTML_BOOLEAN_ATTRS = {
-        "checked", "compact", "declare", "defer", "disabled", "ismap",
-        "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
-        "selected"
-    };
+    static final Set<String> HTML_BOOLEAN_ATTRS;
+    static {
+        final String[] _HTML_BOOLEAN_ATTRS = {
+            "checked", "compact", "declare", "defer", "disabled", "ismap",
+            "multiple", "nohref", "noresize", "noshade", "nowrap", "readonly",
+            "selected"
+        };
+        HTML_BOOLEAN_ATTRS = new HashSet<String>(Arrays.asList(_HTML_BOOLEAN_ATTRS));
+    }
 
-    private boolean isHtmlBooleanAttr(String name) {
-        for (String s : HTML_BOOLEAN_ATTRS) {
-            if (s.equals(name)) return true;
-        }
-        return false;
+    private static boolean isHtmlBooleanAttr(String name) {
+        return HTML_BOOLEAN_ATTRS.contains(name);
     }
 
     private static CharSequence serializeAttrTextContent(String str, boolean htmlDoc) {
@@ -442,7 +431,7 @@ public class SaveContextVisitor {
             if (isEmpty(name)) {
                 buffer.append(" />"); // see http://www.w3.org/TR/xhtml1/#C_2
             } else {
-                buffer.append(">");
+                buffer.append('>');
             }
         } else {
             buffer.append("/>");
@@ -737,20 +726,19 @@ public class SaveContextVisitor {
     }
 
     private boolean isHtmlScript(Text text) {
-      return htmlDoc && text.getParentNode().getNodeName().equals("script");
+        return htmlDoc && text.getParentNode().getNodeName().equals("script");
     }
 
     private boolean isHtmlStyle(Text text) {
-      return htmlDoc && text.getParentNode().getNodeName().equals("style");
+        return htmlDoc && text.getParentNode().getNodeName().equals("style");
     }
 
-    private static char lineSeparator = '\n'; // System.getProperty("line.separator"); ?
     public boolean enter(Text text) {
-        String textContent = text.getNodeValue();
+        CharSequence textContent = text.getNodeValue();
         if (canonical) {
             c14nNodeList.add(text);
             if (isWhitespaceText(textContent)) {
-                buffer.append(canonicalizeWhitespce(textContent));
+                buffer.append(canonicalizeWhitespace(textContent));
                 return true;
             }
         }
@@ -764,25 +752,26 @@ public class SaveContextVisitor {
         return true;
     }
 
-    private String encodeStringToHtmlEntity(String text) {
-        if (encoding == null)
-          return text;
+    private CharSequence encodeStringToHtmlEntity(CharSequence text) {
+        if (encoding == null) return text;
+
         CharsetEncoder encoder = Charset.forName(encoding).newEncoder();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder(text.length() + 16);
         // make sure we can handle code points that are higher than 2 bytes
-        for (int i = 0; i < text.length();) {
-            int code = text.codePointAt(i);
+        for ( int i = 0; i < text.length(); ) {
+            int code = Character.codePointAt(text, i);
             // TODO not sure about bigger offset then 2 ?!
             int offset = code > 65535 ? 2 : 1;
-            boolean canEncode = encoder.canEncode(text.substring(i, i + offset));
+            CharSequence substr = text.subSequence(i, i + offset);
+            boolean canEncode = encoder.canEncode(substr);
             if (canEncode) {
-                sb.append(text.substring(i, i + offset));
+                sb.append(substr);
             }
             else {
                 sb.append("&#x").append(Integer.toHexString(code)).append(';');
             }
             i += offset;
         }
-        return new String(sb);
+        return sb;
     }
 }

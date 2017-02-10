@@ -39,9 +39,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -541,16 +539,16 @@ public class NokogiriHelpers {
                 ((a != null) && (b != null) && (b.equals(a))));
     }
 
-    private static Pattern encoded_pattern = Pattern.compile("&amp;|&gt;|&lt;|&#13;");
-    private static Pattern decoded_pattern = Pattern.compile("&|>|<|\r");
-    private static String[] encoded = {"&amp;", "&gt;", "&lt;", "&#13;"};
-    private static String[] decoded = {"&", ">", "<", "\r"};
+    private static final Pattern encoded_pattern = Pattern.compile("&amp;|&gt;|&lt;|&#13;");
+    private static final String[] encoded = {"&amp;", "&gt;", "&lt;", "&#13;"};
+    private static final Pattern decoded_pattern = Pattern.compile("&|>|<|\r");
+    private static final String[] decoded = {"&", ">", "<", "\r"};
 
-    private static String convert(Pattern ptn, String input, String[] oldChars, String[] newChars)  {
+    private static StringBuffer convert(Pattern ptn, CharSequence input, String[] oldChars, String[] newChars)  {
         Matcher matcher = ptn.matcher(input);
         boolean result = matcher.find();
-        StringBuffer sb = new StringBuffer();
-        while(result) {
+        StringBuffer sb = new StringBuffer(input.length() + 8);
+        while (result) {
             String matched = matcher.group();
             String replacement = "";
             for (int i=0; i<oldChars.length; i++) {
@@ -563,15 +561,15 @@ public class NokogiriHelpers {
             result = matcher.find();
         }
         matcher.appendTail(sb);
-        return sb.toString();
+        return sb;
     }
 
-    public static String encodeJavaString(String s) {
-        return convert(decoded_pattern, s, decoded, encoded);
+    public static CharSequence encodeJavaString(CharSequence str) {
+        return convert(decoded_pattern, str, decoded, encoded);
     }
 
-    public static String decodeJavaString(String s) {
-        return convert(encoded_pattern, s, encoded, decoded);
+    public static CharSequence decodeJavaString(CharSequence str) {
+        return convert(encoded_pattern, str, encoded, decoded);
     }
 
     public static String getNodeName(Node node) {
@@ -590,8 +588,7 @@ public class NokogiriHelpers {
 
     public static final String XMLNS_URI = "http://www.w3.org/2000/xmlns/";
     public static boolean isNamespace(Node node) {
-        return (XMLNS_URI.equals(node.getNamespaceURI()) ||
-                isNamespace(node.getNodeName()));
+        return (XMLNS_URI.equals(node.getNamespaceURI()) || isNamespace(node.getNodeName()));
     }
 
     public static boolean isNamespace(String nodeName) {
@@ -607,43 +604,40 @@ public class NokogiriHelpers {
     }
 
     public static boolean isWhitespaceText(ThreadContext context, IRubyObject obj) {
-        if (obj == null || obj.isNil()) return false;
+        //if (obj == null || obj.isNil()) return false;
+        if ( !(obj instanceof XmlText) ) return false;
 
-        XmlNode node = (XmlNode) obj;
-        if (!(node instanceof XmlText)) return false;
-
-        String content = rubyStringToString(node.content(context));
-        return content == null || content.trim().length() == 0;
+        CharSequence content = ((XmlNode) obj).getContentImpl();
+        return content == null || isWhitespaceText(content);
     }
 
-    public static boolean isWhitespaceText(String s) {
-        return s.trim().length() == 0;
+    public static boolean isWhitespaceText(CharSequence str) {
+        int len = str.length(); int beg = 0;
+        while ((beg < len) && (str.charAt(beg) <= ' ')) beg++;
+        return beg == len;
     }
 
-    public static String canonicalizeWhitespce(String s) {
-        StringBuilder sb = new StringBuilder();
-        char[] chars = s.toCharArray();
+    public static CharSequence canonicalizeWhitespace(CharSequence str) {
+        final int len = str.length();
+        StringBuilder sb = new StringBuilder(len);
         boolean newline_added = false;
-        for (int i=0; i<chars.length; i++) {
-            if (chars[i] == '\n') {
-                if (!newline_added) {
-                    sb.append(chars[i]);
-                    newline_added = true;
+        for ( int i = 0; i < len; i++ ) {
+            char c = str.charAt(i);
+            if ( c == '\n' ) {
+                if ( ! newline_added ) {
+                    sb.append(c); newline_added = true;
                 }
             } else {
-                sb.append(chars[i]);
+                sb.append(c);
             }
         }
-        return sb.toString();
+        return sb;
     }
 
     public static String newQName(String newPrefix, Node node) {
         String tagName = getLocalPart(node.getNodeName());
-        if(newPrefix == null) {
-            return tagName;
-        } else {
-            return newPrefix + ":" + tagName;
-        }
+        if (newPrefix == null) return tagName;
+        return newPrefix + ':' + tagName;
     }
 
     public static RubyArray nodeListToRubyArray(Ruby ruby, NodeList nodes) {
@@ -710,7 +704,7 @@ public class NokogiriHelpers {
     private static String resolveSystemId(String baseName, String systemId) {
         if (baseName == null || baseName.length() < 1) return null;
         String parentName;
-        baseName = baseName.replaceAll("%20", " ");
+        baseName = baseName.replace("%20", " ");
         File base = new File(baseName);
         if (base.isDirectory()) parentName = baseName;
         else parentName = base.getParent();
@@ -722,15 +716,12 @@ public class NokogiriHelpers {
     }
 
     public static boolean isUTF8(String encoding) {
-        if (encoding == null) return true;   // no need to convert encoding
-        int ret = Charset.forName(encoding).compareTo(Charset.forName("UTF-8"));
-        return ret == 0;
+        if (encoding == null) return true; // no need to convert encoding
+        return Charset.forName(encoding).compareTo(UTF8) == 0;
     }
 
-    public static ByteBuffer convertEncoding(Charset output_charset, String input_string) throws CharacterCodingException {
-        CharsetEncoder encoder = output_charset.newEncoder();
-        CharBuffer charBuffer = CharBuffer.wrap(input_string);
-        return encoder.encode(charBuffer);
+    public static ByteBuffer convertEncoding(Charset output_charset, CharSequence input_string) {
+        return output_charset.encode(CharBuffer.wrap(input_string)); // does replace implicitly on un-mappable characters
     }
 
     public static CharSequence convertEncodingByNKFIfNecessary(ThreadContext context, XmlDocument doc, CharSequence str) {
