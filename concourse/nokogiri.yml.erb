@@ -41,22 +41,33 @@ resource_types:
     repository: jtarchie/pr
 
 resources:
+  - name: ci
+    type: git
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      disable_ci_skip: true # always get the latest pipeline configuration
   - name: nokogiri
     type: git
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
+      ignore_paths:
+        - concourse/**
   - name: nokogiri-pr
     type: pull-request
     source:
       repo: sparklemotion/nokogiri
       access_token: {{github-repo-status-access-token}}
+      ignore_paths:
+        - concourse/**
 
 jobs:
   <% for ruby_version in RUBIES[:mri] %>
   - name: ruby-<%= ruby_version %>-system
     public: true
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
       - task: rake-test
@@ -66,15 +77,17 @@ jobs:
             type: docker-image
             source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
+            - name: ci
             - name: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
         passed: ["ruby-<%= ruby_version %>-system"]
@@ -85,13 +98,15 @@ jobs:
             type: docker-image
             source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
+            - name: ci
             - name: nokogiri
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
         passed: ["ruby-<%= ruby_version %>-vendored"]
@@ -102,17 +117,19 @@ jobs:
             type: docker-image
             source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
+            - name: ci
             - name: nokogiri
           params:
             TEST_WITH_VALGRIND: t
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
   <% for ruby_version in RUBIES[:mri][-1,1] %>
   - name: ruby-<%= ruby_version %>-libxmlruby
     public: true
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
         passed: ["ruby-<%= ruby_version %>-valgrind"]
@@ -123,15 +140,17 @@ jobs:
             type: docker-image
             source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
+            - name: ci
             - name: nokogiri
           params:
             BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
 
   - name: ruby-<%= ruby_version %>-libxmlruby-valgrind
     public: true
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
         passed: ["ruby-<%= ruby_version %>-libxmlruby"]
@@ -142,18 +161,20 @@ jobs:
             type: docker-image
             source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
+            - name: ci
             - name: nokogiri
           params:
             BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
             TEST_WITH_VALGRIND: t
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
   <% for jruby_version in RUBIES[:jruby] %>
   - name: jruby-<%= jruby_version %>
     public: true
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
       - task: rake-test
@@ -163,17 +184,19 @@ jobs:
             type: docker-image
             source: {repository: jruby, tag: "<%= jruby_version %>-jdk"}
           inputs:
+            - name: ci
             - name: nokogiri
           params:
             JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
   <% for rbx_version in RUBIES[:rbx] %>
   - name: rbx-<%= rbx_version %>-system
     public: true
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
       - task: rake-test
@@ -183,15 +206,17 @@ jobs:
             source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
           platform: linux
           inputs:
+            - name: ci
             - name: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
 
   - name: rbx-<%= rbx_version %>-vendored
     public: true
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
         passed: ["rbx-<%= rbx_version %>-system"]
@@ -202,21 +227,24 @@ jobs:
             source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
           platform: linux
           inputs:
+            - name: ci
             - name: nokogiri
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
   - name: windows-install-ruby-2.3
     public: true
     serial_groups: [windows-configuration]
     plan:
+      - get: ci
       - get: nokogiri
         trigger: true
       - task: setup
         config:
           platform: windows
           inputs:
+            - name: ci
             - name: nokogiri
           run:
             dir: nokogiri
@@ -236,6 +264,7 @@ jobs:
         config:
           platform: windows
           inputs:
+            - name: ci
             - name: nokogiri
           run:
             dir: nokogiri
@@ -248,16 +277,17 @@ jobs:
     public: true
     serial_groups: [windows-configuration]
     plan:
-      - get: nokogiri
+      - get: ci
       - task: clean
         config:
           platform: windows
           inputs:
+            - name: ci
             - name: nokogiri
           params:
             CLEAN_WINDOWS: t
           run:
-            dir: nokogiri
+            dir: ci
             path: powershell
             args:
               - "-File"
@@ -266,6 +296,7 @@ jobs:
   - name: pr-pending
     public: true
     plan:
+      - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
@@ -278,7 +309,6 @@ jobs:
     serial_groups: [pr]
     plan:
       - get: ci
-        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
@@ -306,7 +336,6 @@ jobs:
     serial_groups: [pr]
     plan:
       - get: ci
-        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
@@ -332,7 +361,6 @@ jobs:
     serial_groups: [pr]
     plan:
       - get: ci
-        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
@@ -361,7 +389,6 @@ jobs:
     serial_groups: [pr]
     plan:
       - get: ci
-        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
@@ -390,7 +417,6 @@ jobs:
     serial_groups: [pr]
     plan:
       - get: ci
-        resource: nokogiri
       - get: nokogiri-pr
         trigger: true
         version: every
