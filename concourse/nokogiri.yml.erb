@@ -247,9 +247,7 @@ jobs:
             - name: ci
           run:
             path: powershell
-            args:
-              - "-File"
-              - "ci/concourse/windows/setup.ps1"
+            args: ["-File", "ci/concourse/tasks/windows-config/install-ruby-and-devkit.ps1"]
 
   - name: ruby-2.3-devkit
     public: true
@@ -266,9 +264,7 @@ jobs:
             - name: nokogiri
           run:
             path: powershell
-            args:
-              - "-File"
-              - "ci/concourse/windows/rake-test.ps1"
+            args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
 
   - name: windex
     public: true
@@ -284,9 +280,7 @@ jobs:
             CLEAN_WINDOWS: t
           run:
             path: powershell
-            args:
-              - "-File"
-              - "ci/concourse/windows/setup.ps1"
+            args: ["-File", "ci/concourse/tasks/windows-config/install-ruby-and-devkit.ps1"]
 
   - name: pr-pending
     public: true

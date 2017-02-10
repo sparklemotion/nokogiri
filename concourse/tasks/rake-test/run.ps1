@@ -1,4 +1,4 @@
-. "ci\concourse\windows\common.ps1"
+. "ci\concourse\shared\common.ps1"
 
 prepend-path $ruby23_bin_path
 $env:RUBYOPT = "-rdevkit"

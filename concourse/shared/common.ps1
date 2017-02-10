@@ -1,6 +1,6 @@
-$ErrorActionPreference = "Stop" # exit on cmdlet errors ("set -e")
 Set-PSDebug -trace 1 # "set -x"
 Set-PSDebug -strict # "set -u"
+$ErrorActionPreference = "Stop" # "set -e" for cmdlet errors
 
 # avoid overly narrow default linewrap
 $term = (get-host).ui.rawui

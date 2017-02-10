@@ -1,4 +1,4 @@
-. "ci\concourse\windows\common.ps1"
+. "ci\concourse\shared\common.ps1"
 
 $rubydk_path = join-path $installation_dir "rubydk"
 $rubydk_config = join-path $rubydk_path "config.yml"
