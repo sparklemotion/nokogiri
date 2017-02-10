@@ -58,7 +58,7 @@ pushd nokogiri
 
   RAKE_TASK="test"
 
-  if [[ $TEST_WITH_VALGRIND != "" ]] ; then
+  if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
     RAKE_TASK="test:valgrind" # override
     ensure-apt-update
     apt-get install -y valgrind
