@@ -271,7 +271,7 @@ jobs:
             - name: nokogiri-pr
               path: nokogiri
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
@@ -299,7 +299,7 @@ jobs:
           params:
             TEST_WITH_VALGRIND: t
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
@@ -328,7 +328,7 @@ jobs:
           params:
             JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
@@ -357,7 +357,7 @@ jobs:
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
-            path: nokogiri/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/rake-test/run.sh
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
