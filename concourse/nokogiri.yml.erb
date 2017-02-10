@@ -17,7 +17,8 @@ groups:
       - "rbx-<%= rbx_version %>-system"
       - "rbx-<%= rbx_version %>-vendored"
       <% end %>
-      - windows-devkit
+      - windows-install-ruby-2.3
+      - ruby-2.3-devkit
 
   - name: PRs
     jobs:
@@ -206,8 +207,9 @@ jobs:
             path: nokogiri/concourse/tasks/rake-test/run.sh
   <% end %>
 
-  - name: windows-devkit
+  - name: windows-install-ruby-2.3
     public: true
+    serial_groups: [windows-configuration]
     plan:
       - get: nokogiri
         trigger: true
@@ -222,6 +224,14 @@ jobs:
             args:
               - "-File"
               - "concourse/windows/setup.ps1"
+
+  - name: ruby-2.3-devkit
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["windows-install-ruby-2.3"]
       - task: rake-test
         config:
           platform: windows
@@ -236,6 +246,7 @@ jobs:
 
   - name: windex
     public: true
+    serial_groups: [windows-configuration]
     plan:
       - get: nokogiri
       - task: clean
