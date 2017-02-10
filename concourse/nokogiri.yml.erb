@@ -216,8 +216,6 @@ jobs:
             dir: nokogiri
             path: powershell
             args:
-              - "-ExecutionPolicy"
-              - "Bypass"
               - "-File"
               - "concourse/windows/setup.ps1"
       - task: rake-test
@@ -229,8 +227,6 @@ jobs:
             dir: nokogiri
             path: powershell
             args:
-              - "-ExecutionPolicy"
-              - "Bypass"
               - "-File"
               - "concourse/windows/rake-test.ps1"
 
