@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -e -x
+set -e -x -u
 
 VERSION_INFO=$(ruby -v)
 RUBY_ENGINE=$(cut -d" " -f1 <<< "${VERSION_INFO}")
