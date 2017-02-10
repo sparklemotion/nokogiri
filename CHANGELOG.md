@@ -16,6 +16,7 @@
 * [MRI] Support for frozen string literals. [#1413]
 * [JRuby] (performance) remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
 * [JRuby] (performance) remove unnecessary cloning of objects in XPath searches [#1563] (Thanks, @kares!)
+* [JRuby] (performance) more performance improvements, particularly in XPath, Reader, XmlNode, and XmlNodeSet [#1597] (Thanks, @kares!)
 
 
 ## Bugs
@@ -23,6 +24,8 @@
 * HTML::SAX::Parser#parse_io now correctly parses HTML and not XML [#1577] (Thanks for the test case, @gregors!)
 * [MRI] on OpenBSD, do not require gcc if using system libraries [#1515] (Thanks, @jeremyevans!)
 * [JRuby] correctly append a text node before another text node [#1318] (Thanks, @jkraemer!)
+* [JRuby] custom xpath functions returning an integer now work correctly [#1595] (Thanks, @kares!)
+* [JRuby] serializing (`#to_html`, `#to_s`, et al) a document with explicit encoding now works correctly. [#1281, #1440] (Thanks, @kares!)
 
 
 # 1.7.0.1 / 2017-01-04
