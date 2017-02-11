@@ -274,9 +274,8 @@ module Nokogiri
           (string_or_io.respond_to?(:eof?) && string_or_io.eof?)
       end
 
-      def implied_xpath_contexts # :nodoc:
-        ["//"]
-      end
+      # @private
+      IMPLIED_XPATH_CONTEXTS = [ '//'.freeze ].freeze # :nodoc:
 
       def inspect_attributes
         [:name, :children]

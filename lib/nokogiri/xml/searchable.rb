@@ -200,7 +200,7 @@ module Nokogiri
       end
 
       def xpath_query_from_css_rule rule, ns
-        implied_xpath_contexts.map do |implied_xpath_context|
+        self.class::IMPLIED_XPATH_CONTEXTS.map do |implied_xpath_context|
           CSS.xpath_for(rule.to_s, :prefix => implied_xpath_context, :ns => ns)
         end.join(' | ')
       end

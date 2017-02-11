@@ -819,9 +819,8 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
         EOERR
       end
 
-      def implied_xpath_contexts # :nodoc:
-        [".//"]
-      end
+      # @private
+      IMPLIED_XPATH_CONTEXTS = [ './/'.freeze ].freeze # :nodoc:
 
       def add_child_node_and_reparent_attrs node # :nodoc:
         add_child_node node

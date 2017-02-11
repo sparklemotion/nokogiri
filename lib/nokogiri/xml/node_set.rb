@@ -314,11 +314,9 @@ module Nokogiri
 
       alias :+ :|
 
-      private
+      # @private
+      IMPLIED_XPATH_CONTEXTS = [ './/'.freeze, 'self::'.freeze ].freeze # :nodoc:
 
-      def implied_xpath_contexts # :nodoc:
-        [".//", "self::"]
-      end
     end
   end
 end
