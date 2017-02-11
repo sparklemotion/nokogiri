@@ -48,6 +48,7 @@ import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.SafePropertyAccessor;
 import org.w3c.dom.Node;
 
 import org.apache.xml.dtm.DTM;
@@ -67,6 +68,16 @@ import org.apache.xpath.objects.XObject;
  */
 @JRubyClass(name="Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject {
+
+    static {
+        final String DTMManager = "org.apache.xml.dtm.DTMManager";
+        if (SafePropertyAccessor.getProperty(DTMManager) == null) {
+            try { // use patched "org.apache.xml.dtm.ref.DTMManagerDefault"
+                System.setProperty(DTMManager, nokogiri.internals.XalanDTMManagerPatch.class.getName());
+            }
+            catch (SecurityException ex) { /* no-op - will work although might be slower */ }
+        }
+    }
 
     /**
      * user-data key for (cached) {@link XPathContext}
