@@ -75,7 +75,7 @@ module Nokogiri
         rules, handler, ns, _ = extract_params(args)
 
         inject(NodeSet.new(document)) do |set, node|
-          set += css_internal node, rules, handler, ns
+          set + css_internal(node, rules, handler, ns)
         end
       end
 
@@ -90,7 +90,7 @@ module Nokogiri
         paths, handler, ns, binds = extract_params(args)
 
         inject(NodeSet.new(document)) do |set, node|
-          set += node.xpath(*(paths + [ns, handler, binds].compact))
+          set + xpath_internal(node, paths, handler, ns, binds)
         end
       end
 
