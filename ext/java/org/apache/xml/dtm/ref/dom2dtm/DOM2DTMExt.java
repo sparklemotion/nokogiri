@@ -20,8 +20,6 @@
  */
 package org.apache.xml.dtm.ref.dom2dtm;
 
-import java.util.Vector;
-
 import javax.xml.transform.SourceLocator;
 import javax.xml.transform.dom.DOMSource;
 
@@ -102,7 +100,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
      * Text/CDATASection nodes in the DOM have been coalesced into a
      * single DTM Text node); this table points only to the first in
      * that sequence. */
-    protected Vector m_nodes = new Vector();
+    protected final java.util.List<Node> m_nodes = new java.util.ArrayList<Node>(12);
 
     /**
      * Construct a DOM2DTM object from a DOM node.
@@ -244,7 +242,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
             }
         }
 
-        m_nodes.addElement(node);
+        m_nodes.add(node);
 
         m_firstch.setElementAt(NOTPROCESSED,nodeIndex);
         m_nextsib.setElementAt(NOTPROCESSED,nodeIndex);
@@ -598,7 +596,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
 
         int identity = makeNodeIdentity(nodeHandle);
 
-        return (Node) m_nodes.elementAt(identity);
+        return (Node) m_nodes.get(identity);
     }
 
     /**
@@ -610,7 +608,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
      */
     protected Node lookupNode(int nodeIdentity)
     {
-        return (Node) m_nodes.elementAt(nodeIdentity);
+        return (Node) m_nodes.get(nodeIdentity);
     }
 
     /**
@@ -664,7 +662,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
             {
                 for (; i < len; i++)
                 {
-                    if (m_nodes.elementAt(i) == node)
+                    if (m_nodes.get(i) == node)
                         return makeNodeHandle(i);
                 }
 
@@ -1017,7 +1015,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
 //        {
             int id=makeNodeIdentity(nodeHandle);
             if(NULL==id) return null;
-            Node newnode=(Node)m_nodes.elementAt(id);
+            Node newnode=(Node)m_nodes.get(id);
             String newname=newnode.getLocalName();
             if (null == newname)
             {
@@ -1137,7 +1135,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
 //        {
             int id=makeNodeIdentity(nodeHandle);
             if(id==NULL) return null;
-            Node node=(Node)m_nodes.elementAt(id);
+            Node node=(Node)m_nodes.get(id);
             return node.getNamespaceURI();
 //        }
 //        else
