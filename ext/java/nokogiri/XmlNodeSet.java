@@ -117,9 +117,9 @@ public class XmlNodeSet extends RubyObject implements NodeList {
         }
     }
 
-    public long length() {
-        if (nodes == null) return 0L;
-        return nodes.length().getLongValue();
+    public int length() {
+        if (nodes == null) return 0;
+        return nodes.size();
     }
 
     public void relink_namespace(ThreadContext context) {
