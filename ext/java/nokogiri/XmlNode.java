@@ -227,7 +227,7 @@ public class XmlNode extends RubyObject {
             if (node.getNodeType() != Node.DOCUMENT_NODE) {
                 doc = document(context.runtime);
 
-                if (doc != null && doc.isTrue()) {
+                if (doc != null && ! doc.isNil()) {
                     RuntimeHelpers.invoke(context, doc, "decorate", this);
                 }
             }
@@ -700,10 +700,9 @@ public class XmlNode extends RubyObject {
         // a node is blank if if it is a Text or CDATA node consisting of whitespace only
         if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) {
             String data = node.getTextContent();
-            if (data == null) return context.getRuntime().getTrue();
-            if ("".equals(data.trim())) return context.getRuntime().getTrue();
+            return context.runtime.newBoolean(data == null || data.isEmpty() || data.trim().isEmpty());
         }
-        return context.getRuntime().getFalse();
+        return context.runtime.getFalse();
     }
 
     @JRubyMethod
