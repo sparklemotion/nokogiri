@@ -483,17 +483,18 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
 
             // Scan logically contiguous text (siblings, plus "flattening"
             // of entity reference boundaries).
-            Node n=next;
-            while(n!=null)
-            {
-                lastTextNode=n;
-                // Any Text node means DTM considers it all Text
-                if(TEXT_NODE == n.getNodeType()) nexttype = TEXT_NODE;
-                // Any non-whitespace in this sequence blocks whitespace
-                // suppression
-                suppressNode &= XMLCharacterRecognizer.isWhiteSpace(n.getNodeValue());
+            if (suppressNode) {
+                Node n = next;
+                while (n != null) {
+                    lastTextNode=n;
+                    // Any Text node means DTM considers it all Text
+                    if (TEXT_NODE == n.getNodeType()) nexttype = TEXT_NODE;
+                    // Any non-whitespace in this sequence blocks whitespace
+                    // suppression
+                    suppressNode &= XMLCharacterRecognizer.isWhiteSpace(n.getNodeValue());
 
-                n=logicalNextDOMTextNode(n);
+                    n = logicalNextDOMTextNode(n);
+                }
             }
         }
 
@@ -571,12 +572,11 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
         } // (if !suppressNode)
 
         // Text postprocessing: Act on values stored above
-//        if(TEXT_NODE == nexttype || CDATA_SECTION_NODE == nexttype)
-//        {
-//            // %TBD% If nexttype was forced to TEXT, patch the DTM node
-//
-//            //next=lastTextNode;      // Advance the DOM cursor over contiguous text
-//        }
+        //if(TEXT_NODE == nexttype || CDATA_SECTION_NODE == nexttype)
+        //{
+            // %TBD% If nexttype was forced to TEXT, patch the DTM node
+            if (lastTextNode != null) next=lastTextNode;      // Advance the DOM cursor over contiguous text
+        //}
 
         // Remember where we left off.
         m_pos=next;
