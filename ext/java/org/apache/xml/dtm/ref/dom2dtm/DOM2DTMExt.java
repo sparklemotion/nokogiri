@@ -66,8 +66,8 @@ import org.xml.sax.ContentHandler;
  * */
 public class DOM2DTMExt extends DTMDefaultBaseIterators
 {
-    static final boolean JJK_DEBUG=false;
-    static final boolean JJK_NEWCODE=true;
+//    static final boolean JJK_DEBUG=false;
+//    static final boolean JJK_NEWCODE=true;
 
     /** Manefest constant
      */
@@ -397,24 +397,23 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
 
                     // No next-sibling found. Pop the DOM.
                     pos=pos.getParentNode();
-                    if(pos==null)
-                    {
-                        // %TBD% Should never arise, but I want to be sure of that...
-                        if(JJK_DEBUG)
-                        {
-                            System.out.println("***** DOM2DTM Pop Control Flow problem");
-                            for(;;); // Freeze right here!
-                        }
-                    }
+//                    if(pos==null)
+//                    {
+//                        // %TBD% Should never arise, but I want to be sure of that...
+//                        if(JJK_DEBUG)
+//                        {
+//                            System.out.println("***** DOM2DTM Pop Control Flow problem");
+//                            for(;;); // Freeze right here!
+//                        }
+//                    }
 
                     // The only parents in the DTM are Elements.  However,
                     // the DOM could contain EntityReferences.  If we
                     // encounter one, pop it _without_ popping DTM.
                     if(pos!=null && ENTITY_REFERENCE_NODE == pos.getNodeType())
                     {
-                        // Nothing needs doing
-                        if(JJK_DEBUG)
-                            System.out.println("***** DOM2DTM popping EntRef");
+//                        // Nothing needs doing
+//                        if(JJK_DEBUG) System.out.println("***** DOM2DTM popping EntRef");
                     }
                     else
                     {
@@ -427,20 +426,17 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
                         m_last_parent=m_parent.elementAt(m_last_kid=m_last_parent);
                     }
                 }
-                if(m_last_parent==NULL)
-                    next=null;
+                if(m_last_parent==NULL) next=null;
             }
 
-            if(next!=null)
-                nexttype=next.getNodeType();
+            if(next!=null) nexttype=next.getNodeType();
 
             // If it's an entity ref, advance past it.
             //
             // %REVIEW% Should we let this out the door and just suppress it?
             // More work, but simpler code, more likely to be correct, and
             // it doesn't happen very often. We'd get rid of the loop too.
-            if (ENTITY_REFERENCE_NODE == nexttype)
-                pos=next;
+            if (ENTITY_REFERENCE_NODE == nexttype) pos=next;
         }
         while (ENTITY_REFERENCE_NODE == nexttype);
 
@@ -451,12 +447,12 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
             m_nodesAreProcessed = true;
             m_pos=null;
 
-            if(JJK_DEBUG)
-            {
-                System.out.println("***** DOM2DTM Crosscheck:");
-                for(int i=0;i<m_nodes.size();++i)
-                    System.out.println(i+":\t"+m_firstch.elementAt(i)+"\t"+m_nextsib.elementAt(i));
-            }
+//            if(JJK_DEBUG)
+//            {
+//                System.out.println("***** DOM2DTM Crosscheck:");
+//                for(int i=0;i<m_nodes.size();++i)
+//                    System.out.println(i+":\t"+m_firstch.elementAt(i)+"\t"+m_nextsib.elementAt(i));
+//            }
 
             return false;
         }
@@ -494,12 +490,10 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
             {
                 lastTextNode=n;
                 // Any Text node means DTM considers it all Text
-                if(TEXT_NODE == n.getNodeType())
-                    nexttype=TEXT_NODE;
+                if(TEXT_NODE == n.getNodeType()) nexttype = TEXT_NODE;
                 // Any non-whitespace in this sequence blocks whitespace
                 // suppression
-                suppressNode &=
-                    XMLCharacterRecognizer.isWhiteSpace(n.getNodeValue());
+                suppressNode &= XMLCharacterRecognizer.isWhiteSpace(n.getNodeValue());
 
                 n=logicalNextDOMTextNode(n);
             }
@@ -521,8 +515,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
             // Inserting next. NOTE that we force the node type; for
             // coalesced Text, this records CDATASections adjacent to
             // ordinary Text as Text.
-            int nextindex=addNode(next,m_last_parent,m_last_kid,
-                nexttype);
+            int nextindex=addNode(next, m_last_parent, m_last_kid, nexttype);
 
             m_last_kid=nextindex;
 
@@ -540,8 +533,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
                         // No need to force nodetype in this case;
                         // addNode() will take care of switching it from
                         // Attr to Namespace if necessary.
-                        attrIndex=addNode(attrs.item(i),
-                            nextindex,attrIndex,NULL);
+                        attrIndex=addNode(attrs.item(i), nextindex, attrIndex, NULL);
                         m_firstch.setElementAt(DTM.NULL,attrIndex);
 
                         // If the xml: prefix is explicitly declared
@@ -576,18 +568,17 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
                     m_firstch.setElementAt(DTM.NULL,attrIndex);
                     m_processedFirstElement=true;
                 }
-                if(attrIndex!=NULL)
-                    m_nextsib.setElementAt(DTM.NULL,attrIndex);
+                if(attrIndex!=NULL) m_nextsib.setElementAt(DTM.NULL,attrIndex);
             } //if(ELEMENT_NODE)
         } // (if !suppressNode)
 
         // Text postprocessing: Act on values stored above
-        if(TEXT_NODE == nexttype || CDATA_SECTION_NODE == nexttype)
-        {
-            // %TBD% If nexttype was forced to TEXT, patch the DTM node
-
-            //next=lastTextNode;      // Advance the DOM cursor over contiguous text
-        }
+//        if(TEXT_NODE == nexttype || CDATA_SECTION_NODE == nexttype)
+//        {
+//            // %TBD% If nexttype was forced to TEXT, patch the DTM node
+//
+//            //next=lastTextNode;      // Advance the DOM cursor over contiguous text
+//        }
 
         // Remember where we left off.
         m_pos=next;
@@ -1022,8 +1013,8 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
      */
     public String getLocalName(int nodeHandle)
     {
-        if(JJK_NEWCODE)
-        {
+//        if(JJK_NEWCODE)
+//        {
             int id=makeNodeIdentity(nodeHandle);
             if(NULL==id) return null;
             Node newnode=(Node)m_nodes.elementAt(id);
@@ -1045,38 +1036,38 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
                 }
             }
             return newname;
-        }
-        else
-        {
-            String name;
-            short type = getNodeType(nodeHandle);
-            switch (type)
-            {
-                case DTM.ATTRIBUTE_NODE :
-                case DTM.ELEMENT_NODE :
-                case DTM.ENTITY_REFERENCE_NODE :
-                case DTM.NAMESPACE_NODE :
-                case DTM.PROCESSING_INSTRUCTION_NODE :
-                {
-                    Node node = getNode(nodeHandle);
-
-                    // assume not null.
-                    name = node.getLocalName();
-
-                    if (null == name)
-                    {
-                        String qname = node.getNodeName();
-                        int index = qname.indexOf(':');
-
-                        name = (index < 0) ? qname : qname.substring(index + 1);
-                    }
-                }
-                break;
-                default :
-                    name = "";
-            }
-            return name;
-        }
+//        }
+//        else
+//        {
+//            String name;
+//            short type = getNodeType(nodeHandle);
+//            switch (type)
+//            {
+//                case DTM.ATTRIBUTE_NODE :
+//                case DTM.ELEMENT_NODE :
+//                case DTM.ENTITY_REFERENCE_NODE :
+//                case DTM.NAMESPACE_NODE :
+//                case DTM.PROCESSING_INSTRUCTION_NODE :
+//                {
+//                    Node node = getNode(nodeHandle);
+//
+//                    // assume not null.
+//                    name = node.getLocalName();
+//
+//                    if (null == name)
+//                    {
+//                        String qname = node.getNodeName();
+//                        int index = qname.indexOf(':');
+//
+//                        name = (index < 0) ? qname : qname.substring(index + 1);
+//                    }
+//                }
+//                break;
+//                default :
+//                    name = "";
+//            }
+//            return name;
+//        }
     }
 
     /**
@@ -1142,41 +1133,40 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
      */
     public String getNamespaceURI(int nodeHandle)
     {
-        if(JJK_NEWCODE)
-        {
+//        if(JJK_NEWCODE)
+//        {
             int id=makeNodeIdentity(nodeHandle);
             if(id==NULL) return null;
             Node node=(Node)m_nodes.elementAt(id);
             return node.getNamespaceURI();
-        }
-        else
-        {
-            String nsuri;
-            short type = getNodeType(nodeHandle);
-
-            switch (type)
-            {
-                case DTM.ATTRIBUTE_NODE :
-                case DTM.ELEMENT_NODE :
-                case DTM.ENTITY_REFERENCE_NODE :
-                case DTM.NAMESPACE_NODE :
-                case DTM.PROCESSING_INSTRUCTION_NODE :
-                {
-                    Node node = getNode(nodeHandle);
-
-                    // assume not null.
-                    nsuri = node.getNamespaceURI();
-
-                    // %TBD% Handle DOM1?
-                }
-                break;
-                default :
-                    nsuri = null;
-            }
-
-            return nsuri;
-        }
-
+//        }
+//        else
+//        {
+//            String nsuri;
+//            short type = getNodeType(nodeHandle);
+//
+//            switch (type)
+//            {
+//                case DTM.ATTRIBUTE_NODE :
+//                case DTM.ELEMENT_NODE :
+//                case DTM.ENTITY_REFERENCE_NODE :
+//                case DTM.NAMESPACE_NODE :
+//                case DTM.PROCESSING_INSTRUCTION_NODE :
+//                {
+//                    Node node = getNode(nodeHandle);
+//
+//                    // assume not null.
+//                    nsuri = node.getNamespaceURI();
+//
+//                    // %TBD% Handle DOM1?
+//                }
+//                break;
+//                default :
+//                    nsuri = null;
+//            }
+//
+//            return nsuri;
+//        }
     }
 
     /** Utility function: Given a DOM Text node, determine whether it is
@@ -1731,12 +1721,6 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
         {
             treeWalker.setContentHandler(null);
         }
-    }
-
-    public interface CharacterNodeHandler
-    {
-        public void characters(Node node)
-            throws org.xml.sax.SAXException;
     }
 
     /**
