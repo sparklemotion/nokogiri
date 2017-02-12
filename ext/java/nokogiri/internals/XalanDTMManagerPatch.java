@@ -20,10 +20,13 @@
 package nokogiri.internals;
 
 import org.apache.xml.dtm.DTM;
-import org.apache.xml.dtm.ref.dom2dtm.DOM2DTM;
+import org.apache.xml.dtm.DTMWSFilter;
+import org.apache.xml.dtm.ref.dom2dtm.DOM2DTMExt;
 import org.apache.xml.res.XMLErrorResources;
 import org.apache.xml.res.XMLMessages;
 import org.w3c.dom.Node;
+
+import javax.xml.transform.dom.DOMSource;
 
 /**
  * @author kares
@@ -72,8 +75,8 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
         //   Have each DTM cache last DOM node search?
         for(int i = 0; i < m_dtms.length; i++) {
             DTM thisDTM = m_dtms[i];
-            if (thisDTM instanceof DOM2DTM) {
-                int handle = ((DOM2DTM) thisDTM).getHandleOfNode(node);
+            if (thisDTM instanceof org.apache.xml.dtm.ref.dom2dtm.DOM2DTM) {
+                int handle = ((org.apache.xml.dtm.ref.dom2dtm.DOM2DTM) thisDTM).getHandleOfNode(node);
                 if (handle != DTM.NULL) {
                     return handle;
                 }
@@ -99,15 +102,12 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
         // Since the real root of our tree may be a DocumentFragment, we need to
         // use getParent to find the root, instead of getOwnerDocument.  Otherwise
         // DOM2DTM#getHandleOfNode will be very unhappy.
-        Node root = node;
-        Node p = (root.getNodeType() == Node.ATTRIBUTE_NODE) ? ((org.w3c.dom.Attr)root).getOwnerElement() : root.getParentNode();
-        for (; p != null; p = p.getParentNode()) {
-            root = p;
-        }
+        Node root = node; int rootType = root.getNodeType();
+        Node p = (rootType == Node.ATTRIBUTE_NODE) ? ((org.w3c.dom.Attr) root).getOwnerElement() : root.getParentNode();
+        for (; p != null; p = p.getParentNode()) root = p;
 
-        DOM2DTM dtm = (DOM2DTM) getDTM(
-            new javax.xml.transform.dom.DOMSource(root), false, null, true, true
-        );
+        // DOM2DTM dtm = (DOM2DTM) getDTM(new DOMSource(root), false, null);
+        DOM2DTMExt dtm = getDTMExt(new DOMSource(root), false, null/*, true, true*/);
 
         int handle;
 
@@ -115,17 +115,53 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
             // Can't return the same node since it's unique to a specific DTM,
             // but can return the equivalent node -- find the corresponding
             // Document Element, then ask it for the xml: namespace decl.
-            handle = dtm.getHandleOfNode(((org.w3c.dom.Attr)node).getOwnerElement());
-            handle = dtm.getAttributeNode(handle,node.getNamespaceURI(),node.getLocalName());
+            handle = dtm.getHandleOfNode(((org.w3c.dom.Attr) node).getOwnerElement());
+            handle = dtm.getAttributeNode(handle, node.getNamespaceURI(), node.getLocalName());
         }
         else {
             handle = dtm.getHandleOfNode(node);
+
+            rootType = root.getNodeType();
+            // Is Node actually within the same document? If not, don't search!
+            // This would be easier if m_root was always the Document node, but
+            // we decided to allow wrapping a DTM around a subtree.
+            if((root==node) ||
+                (rootType==Node.DOCUMENT_NODE && root==node.getOwnerDocument()) ||
+                (rootType!=Node.DOCUMENT_NODE && root.getOwnerDocument()==node.getOwnerDocument())
+                )
+            {
+                // If node _is_ in m_root's tree, find its handle
+                //
+                // %OPT% This check may be improved significantly when DOM
+                // Level 3 nodeKey and relative-order tests become
+                // available!
+                for (Node cursor = node; cursor != null;
+                    cursor = (cursor.getNodeType()!=Node.ATTRIBUTE_NODE)
+                            ? cursor.getParentNode()
+                            : ((org.w3c.dom.Attr)cursor).getOwnerElement()) {
+                    if (cursor==root) {
+                        // We know this node; find its handle.
+                        return (dtm).getHandleFromNode(node);
+                    }
+                } // for ancestors of node
+            } // if node and m_root in same Document
         }
 
         if (DTM.NULL == handle)
             throw new RuntimeException(XMLMessages.createXMLMessage(XMLErrorResources.ER_COULD_NOT_RESOLVE_NODE, null)); //"Could not resolve the node to a handle!");
 
         return handle;
+    }
+
+    private DOM2DTMExt getDTMExt(DOMSource source, boolean unique, DTMWSFilter whiteSpaceFilter/*, boolean incremental, boolean doIndexing*/) {
+        int dtmPos = getFirstFreeDTMID();
+        int documentID = dtmPos << IDENT_DTM_NODE_BITS;
+
+        //DOM2DTM dtm = new DOM2DTM(this, source, documentID, whiteSpaceFilter, m_xsf, true);
+        DOM2DTMExt dtm = new DOM2DTMExt(this, source, documentID, whiteSpaceFilter, m_xsf, true);
+
+        addDTM(dtm, dtmPos, 0);
+        return dtm;
     }
 
 }

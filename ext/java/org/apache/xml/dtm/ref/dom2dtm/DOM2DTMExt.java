@@ -651,7 +651,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
      *
      * @return The node handle or <code>DTM.NULL</code>.
      */
-    private int getHandleFromNode(Node node)
+    public int getHandleFromNode(Node node)
     {
         if (null != node)
         {
