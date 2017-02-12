@@ -713,8 +713,16 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
-        XmlNodeSet xmlNodeSet = (XmlNodeSet) NokogiriService.XML_NODESET_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::NodeSet"));
-        xmlNodeSet.setNodeList(node.getChildNodes());
+        XmlNodeSet xmlNodeSet = XmlNodeSet.create(context.runtime);
+
+        NodeList nodeList = node.getChildNodes();
+        if (nodeList.getLength() > 0) {
+            xmlNodeSet.setNodeList(nodeList); // initializes @document from first node
+        }
+        else { // TODO this is very ripe for refactoring
+            setDocumentAndDecorate(context, xmlNodeSet, doc);
+        }
+
         return xmlNodeSet;
     }
 
@@ -1430,9 +1438,10 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"unlink", "remove"})
     public IRubyObject unlink(ThreadContext context) {
-        if (node.getParentNode() != null) {
-            clearXpathContext(node.getParentNode());
-            node.getParentNode().removeChild(node);
+        final Node parent = node.getParentNode();
+        if (parent != null) {
+            parent.removeChild(node);
+            clearXpathContext(parent);
         }
         return this;
     }

@@ -293,7 +293,11 @@ module Nokogiri
       # Returns a new NodeSet containing all the children of all the nodes in
       # the NodeSet
       def children
-        inject(NodeSet.new(document)) { |set, node| set += node.children }
+        node_set = NodeSet.new(document)
+        each do |node|
+          node.children.each { |n| node_set.push(n) }
+        end
+        node_set
       end
 
       ###

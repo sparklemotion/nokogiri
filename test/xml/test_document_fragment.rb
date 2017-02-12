@@ -141,8 +141,7 @@ module Nokogiri
         # does not expose the error. Putting both nodes on the same line
         # instead also fixes the crash.
         fragment = Nokogiri::XML::DocumentFragment.parse <<-EOXML
-          <p id="content">hi</p>
-<p>another paragraph</p>
+          <p id="content">hi</p> x <!--y--> <p>another paragraph</p>
         EOXML
         children = fragment.css('p')
         assert_equal 2, children.length
@@ -150,7 +149,7 @@ module Nokogiri
         # node removal leaves around two consecutive text nodes which make the
         # css search crash?
         children.first.remove
-        # using xpath('/p') instead works as expected
+        assert_equal 1, fragment.xpath('.//p | self::p').length
         assert_equal 1, fragment.css('p').length
       end
 
@@ -234,6 +233,16 @@ module Nokogiri
         node_set.each do |node|
           assert node.respond_to?(:awesome!), node.class
         end
+        assert fragment.children.respond_to?(:awesome!), fragment.children.class
+      end
+
+      def test_decorator_is_applied_to_empty_set
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+        fragment = Nokogiri::XML::DocumentFragment.new(@xml, "")
         assert fragment.children.respond_to?(:awesome!), fragment.children.class
       end
 
