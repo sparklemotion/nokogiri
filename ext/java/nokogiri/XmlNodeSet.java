@@ -44,7 +44,6 @@ import org.jruby.RubyClass;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -60,7 +59,7 @@ import org.w3c.dom.NodeList;
 @JRubyClass(name="Nokogiri::XML::NodeSet")
 public class XmlNodeSet extends RubyObject implements NodeList {
 
-    private RubyArray nodes;
+    RubyArray nodes;
     
     public XmlNodeSet(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
