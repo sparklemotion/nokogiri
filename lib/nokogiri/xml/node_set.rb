@@ -73,9 +73,10 @@ module Nokogiri
       # For more information see Nokogiri::XML::Searchable#css
       def css *args
         rules, handler, ns, _ = extract_params(args)
+        paths = css_rules_to_xpath(rules, ns)
 
         inject(NodeSet.new(document)) do |set, node|
-          set + css_internal(node, rules, handler, ns)
+          set + xpath_internal(node, paths, handler, ns, nil)
         end
       end
 

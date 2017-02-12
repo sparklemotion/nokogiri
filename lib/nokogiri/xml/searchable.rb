@@ -168,8 +168,7 @@ module Nokogiri
       private
 
       def css_internal node, rules, handler, ns
-        xpaths = rules.map { |rule| xpath_query_from_css_rule(rule, ns) }
-        xpath_internal node, xpaths, handler, ns, nil
+        xpath_internal node, css_rules_to_xpath(rules, ns), handler, ns, nil
       end
 
       def xpath_internal node, paths, handler, ns, binds
@@ -197,6 +196,10 @@ module Nokogiri
         end if binds
 
         ctx.evaluate(path, handler)
+      end
+
+      def css_rules_to_xpath(rules, ns)
+        rules.map { |rule| xpath_query_from_css_rule(rule, ns) }
       end
 
       def xpath_query_from_css_rule rule, ns
