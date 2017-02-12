@@ -53,6 +53,7 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
@@ -118,14 +119,12 @@ public class HtmlDomParserContext extends XmlDomParserContext {
 
     @Override
     protected XmlDocument getNewEmptyDocument(ThreadContext context) {
-        IRubyObject[] args = new IRubyObject[0];
+        IRubyObject[] args = IRubyObject.NULL_ARRAY;
         return (XmlDocument) XmlDocument.rbNew(context, getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::Document"), args);
     }
 
     @Override
-    protected XmlDocument wrapDocument(ThreadContext context,
-                                       RubyClass klazz,
-                                       Document document) {
+    protected XmlDocument wrapDocument(ThreadContext context, RubyClass klazz, Document document) {
         HtmlDocument htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
         htmlDocument.setDocumentNode(context, document);
         if (ruby_encoding.isNil()) {
@@ -146,18 +145,18 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     // NekoHtml doesn't understand HTML5 meta tag format. This fails to detect charset
     // from an HTML5 style meta tag. Luckily, the meta tag and charset exists in DOM tree
     // so, this method attempts to find the charset.
-    private String tryGetCharsetFromHtml5MetaTag(Document document) {
+    private static String tryGetCharsetFromHtml5MetaTag(Document document) {
         if (!"html".equalsIgnoreCase(document.getDocumentElement().getNodeName())) return null;
-        NodeList list = document.getDocumentElement().getChildNodes();
+        NodeList list = document.getDocumentElement().getChildNodes(); Node item;
         for (int i = 0; i < list.getLength(); i++) {
-            if ("head".equalsIgnoreCase(list.item(i).getNodeName())) {
-                NodeList headers = list.item(i).getChildNodes();
+            if ("head".equalsIgnoreCase((item = list.item(i)).getNodeName())) {
+                NodeList headers = item.getChildNodes();
                 for (int j = 0; j < headers.getLength(); j++) {
-                    if ("meta".equalsIgnoreCase(headers.item(j).getNodeName())) {
-                        NamedNodeMap nodeMap = headers.item(j).getAttributes();
+                    if ("meta".equalsIgnoreCase((item = headers.item(j)).getNodeName())) {
+                        NamedNodeMap nodeMap = item.getAttributes();
                         for (int k = 0; k < nodeMap.getLength(); k++) {
-                            if ("charset".equalsIgnoreCase(nodeMap.item(k).getNodeName())) {
-                                return nodeMap.item(k).getNodeValue();
+                            if ("charset".equalsIgnoreCase((item = nodeMap.item(k)).getNodeName())) {
+                                return item.getNodeValue();
                             }
                         }
                     }
