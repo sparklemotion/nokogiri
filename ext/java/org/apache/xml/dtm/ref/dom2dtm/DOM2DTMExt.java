@@ -586,7 +586,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
         {
             // %TBD% If nexttype was forced to TEXT, patch the DTM node
 
-            next=lastTextNode;      // Advance the DOM cursor over contiguous text
+            //next=lastTextNode;      // Advance the DOM cursor over contiguous text
         }
 
         // Remember where we left off.
