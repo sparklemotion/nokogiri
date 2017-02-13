@@ -7,7 +7,9 @@ CHANGELOG.md
 CONTRIBUTING.md
 C_CODING_STYLE.rdoc
 Gemfile
-LICENSE.txt
+Gemfile-libxml-ruby
+LICENSE-DEPENDENCIES.md
+LICENSE.md
 Manifest.txt
 README.md
 ROADMAP.md

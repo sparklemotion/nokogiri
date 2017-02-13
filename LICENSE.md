@@ -1,6 +1,6 @@
 (The MIT License)
 
-Copyright (c) 2008 - 2016:
+Copyright (c) 2008 - 2017:
 
 * [Aaron Patterson](http://tenderlovemaking.com)
 * [Mike Dalessio](http://mike.daless.io)
