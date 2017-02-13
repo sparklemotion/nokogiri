@@ -149,30 +149,9 @@ module Nokogiri
       #   }.new)
       #
       def xpath *args
-        return NodeSet.new(document) unless document
-
         paths, handler, ns, binds = extract_params(args)
 
-        sets = paths.map do |path|
-          ctx = XPathContext.new(self)
-          ctx.register_namespaces(ns)
-          path = path.gsub(/xmlns:/, ' :') unless Nokogiri.uses_libxml?
-
-          binds.each do |key,value|
-            ctx.register_variable key.to_s, value
-          end if binds
-
-          ctx.evaluate(path, handler)
-        end
-        return sets.first if sets.length == 1
-
-        NodeSet.new(document) do |combined|
-          sets.each do |set|
-            set.each do |node|
-              combined << node
-            end
-          end
-        end
+        xpath_internal self, paths, handler, ns, binds
       end
 
       ##
@@ -189,12 +168,42 @@ module Nokogiri
       private
 
       def css_internal node, rules, handler, ns
-        xpaths = rules.map { |rule| xpath_query_from_css_rule(rule, ns) }
-        node.xpath(*(xpaths + [ns, handler].compact))
+        xpath_internal node, css_rules_to_xpath(rules, ns), handler, ns, nil
+      end
+
+      def xpath_internal node, paths, handler, ns, binds
+        document = node.document
+        return NodeSet.new(document) unless document
+
+        if paths.length == 1
+          return xpath_impl(node, paths.first, handler, ns, binds)
+        end
+
+        NodeSet.new(document) do |combined|
+          paths.each do |path|
+            xpath_impl(node, path, handler, ns, binds).each { |set| combined << set }
+          end
+        end
+      end
+
+      def xpath_impl node, path, handler, ns, binds
+        ctx = XPathContext.new(node)
+        ctx.register_namespaces(ns)
+        path = path.gsub(/xmlns:/, ' :') unless Nokogiri.uses_libxml?
+
+        binds.each do |key,value|
+          ctx.register_variable key.to_s, value
+        end if binds
+
+        ctx.evaluate(path, handler)
+      end
+
+      def css_rules_to_xpath(rules, ns)
+        rules.map { |rule| xpath_query_from_css_rule(rule, ns) }
       end
 
       def xpath_query_from_css_rule rule, ns
-        implied_xpath_contexts.map do |implied_xpath_context|
+        self.class::IMPLIED_XPATH_CONTEXTS.map do |implied_xpath_context|
           CSS.xpath_for(rule.to_s, :prefix => implied_xpath_context, :ns => ns)
         end.join(' | ')
       end

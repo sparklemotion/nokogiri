@@ -73,9 +73,10 @@ module Nokogiri
       # For more information see Nokogiri::XML::Searchable#css
       def css *args
         rules, handler, ns, _ = extract_params(args)
+        paths = css_rules_to_xpath(rules, ns)
 
         inject(NodeSet.new(document)) do |set, node|
-          set += css_internal node, rules, handler, ns
+          set + xpath_internal(node, paths, handler, ns, nil)
         end
       end
 
@@ -90,7 +91,7 @@ module Nokogiri
         paths, handler, ns, binds = extract_params(args)
 
         inject(NodeSet.new(document)) do |set, node|
-          set += node.xpath(*(paths + [ns, handler, binds].compact))
+          set + xpath_internal(node, paths, handler, ns, binds)
         end
       end
 
@@ -292,7 +293,11 @@ module Nokogiri
       # Returns a new NodeSet containing all the children of all the nodes in
       # the NodeSet
       def children
-        inject(NodeSet.new(document)) { |set, node| set += node.children }
+        node_set = NodeSet.new(document)
+        each do |node|
+          node.children.each { |n| node_set.push(n) }
+        end
+        node_set
       end
 
       ###
@@ -314,11 +319,9 @@ module Nokogiri
 
       alias :+ :|
 
-      private
+      # @private
+      IMPLIED_XPATH_CONTEXTS = [ './/'.freeze, 'self::'.freeze ].freeze # :nodoc:
 
-      def implied_xpath_contexts # :nodoc:
-        [".//", "self::"]
-      end
     end
   end
 end

@@ -68,21 +68,20 @@ public class XmlElement extends XmlNode {
     
     @Override
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
-        visitor.enter((Element)node);
+        visitor.enter((Element) node);
         XmlNodeSet xmlNodeSet = (XmlNodeSet) children(context);
         if (xmlNodeSet.length() > 0) {
-            RubyArray array = (RubyArray) xmlNodeSet.to_a(context);
-            for(int i = 0; i < array.getLength(); i++) {
-                Object item = array.get(i);
+            RubyArray nodes = xmlNodeSet.nodes;
+            for( int i = 0; i < nodes.size(); i++ ) {
+                Object item = nodes.eltInternal(i);
                 if (item instanceof XmlNode) {
-                  XmlNode cur = (XmlNode) item;
-                  cur.accept(context, visitor);
-                } else if (item instanceof XmlNamespace) {
-                    XmlNamespace cur = (XmlNamespace)item;
-                    cur.accept(context, visitor);
+                    ((XmlNode) item).accept(context, visitor);
+                }
+                else if (item instanceof XmlNamespace) {
+                    ((XmlNamespace) item).accept(context, visitor);
                 }
             }
         }
-        visitor.leave((Element)node);
+        visitor.leave((Element) node);
     }
 }

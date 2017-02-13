@@ -136,6 +136,23 @@ module Nokogiri
         assert_equal expected, search_xpath
       end
 
+      def test_fragment_css_search_with_whitespace_and_node_removal
+        # The same xml without leading whitespace in front of the first line
+        # does not expose the error. Putting both nodes on the same line
+        # instead also fixes the crash.
+        fragment = Nokogiri::XML::DocumentFragment.parse <<-EOXML
+          <p id="content">hi</p> x <!--y--> <p>another paragraph</p>
+        EOXML
+        children = fragment.css('p')
+        assert_equal 2, children.length
+        # removing the last node instead does not yield the error. Probably the
+        # node removal leaves around two consecutive text nodes which make the
+        # css search crash?
+        children.first.remove
+        assert_equal 1, fragment.xpath('.//p | self::p').length
+        assert_equal 1, fragment.css('p').length
+      end
+
       def test_fragment_search_three_ways
         frag = Nokogiri::XML::Document.new.fragment '<p id="content">foo</p><p id="content">bar</p>'
         expected = frag.xpath('./*[@id = "content"]')
@@ -216,6 +233,16 @@ module Nokogiri
         node_set.each do |node|
           assert node.respond_to?(:awesome!), node.class
         end
+        assert fragment.children.respond_to?(:awesome!), fragment.children.class
+      end
+
+      def test_decorator_is_applied_to_empty_set
+        x = Module.new do
+          def awesome!
+          end
+        end
+        util_decorate(@xml, x)
+        fragment = Nokogiri::XML::DocumentFragment.new(@xml, "")
         assert fragment.children.respond_to?(:awesome!), fragment.children.class
       end
 
