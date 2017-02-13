@@ -206,12 +206,10 @@ public class NokogiriHelpers {
     }
     
     public static RubyString convertString(Ruby runtime, String str) {
-        if (runtime.is1_8()) return RubyString.newString(runtime, str); // 1.8 not really supported (could get removed)
         return RubyString.newUTF8String(runtime, str);
     }
 
     public static RubyString convertString(Ruby runtime, CharSequence str) {
-        if (runtime.is1_8()) return RubyString.newString(runtime, str); // 1.8 not really supported (could get removed)
         return RubyString.newUTF8String(runtime, str);
     }
 
@@ -285,11 +283,9 @@ public class NokogiriHelpers {
     private static String toJavaString(RubyString str) {
         ByteList value = str.getByteList();
         try {
-            if (str.getRuntime().is1_9()) {
-                return new String(value.getUnsafeBytes(), value.begin(), value.length(), str.getEncoding().toString());
-            }
-            return RubyEncoding.decodeUTF8(value.getUnsafeBytes(), value.begin(), value.length());
-        } catch (UnsupportedEncodingException uee) {
+            return new String(value.getUnsafeBytes(), value.begin(), value.length(), str.getEncoding().toString());
+        }
+        catch (UnsupportedEncodingException uee) {
             return str.toString();
         }
     }

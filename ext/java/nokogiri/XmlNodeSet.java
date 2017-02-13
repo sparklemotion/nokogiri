@@ -188,13 +188,8 @@ public class XmlNodeSet extends RubyObject implements NodeList {
 
     @JRubyMethod(name={"[]", "slice"})
     public IRubyObject slice(ThreadContext context, IRubyObject indexOrRange){
-        IRubyObject result;
         if (nodes == null) return context.getRuntime().getNil();
-        if (context.getRuntime().is1_9()) {
-            result = nodes.aref19(indexOrRange);
-        } else {
-            result = nodes.aref(indexOrRange);
-        }
+        IRubyObject result = nodes.aref19(indexOrRange);
         if (result instanceof RubyArray) {
             return newXmlNodeSet(context, (RubyArray) result);
         }
@@ -203,13 +198,8 @@ public class XmlNodeSet extends RubyObject implements NodeList {
 
     @JRubyMethod(name={"[]", "slice"})
     public IRubyObject slice(ThreadContext context, IRubyObject start, IRubyObject length){
-        IRubyObject result;
         if (nodes == null) return context.getRuntime().getNil();
-        if (context.getRuntime().is1_9()) {
-            result = nodes.aref19(start, length);
-        } else {
-            result = nodes.aref(start, length);
-        }
+        IRubyObject result = nodes.aref19(start, length);
         if (result instanceof RubyArray) {
             return newXmlNodeSet(context, (RubyArray) result);
         }
