@@ -9,7 +9,7 @@
 
 ## Features
 
-<* NodeSet#clone is not an alias for NodeSet#dup [#1503] (Thanks, @stephankaag!)
+* NodeSet#clone is not an alias for NodeSet#dup [#1503] (Thanks, @stephankaag!)
 * Allow Processing Instructions and Comments as children of a document root. [#1033] (Thanks, @windwiny!)
 * [MRI] PushParser#replace_entities and #replace_entities= will control whether entities are replaced or not. [#1017] (Thanks, @spraints!)
 * [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1304] (Thanks, @spk!)
@@ -29,6 +29,8 @@
 * [JRuby] custom xpath functions returning an integer now work correctly [#1595] (Thanks, @kares!)
 * [JRuby] serializing (`#to_html`, `#to_s`, et al) a document with explicit encoding now works correctly. [#1281, #1440] (Thanks, @kares!)
 * [JRuby] XML::Reader now returns parse errors [#1586] (Thanks, @kares!)
+* [JRuby] Empty NodeSets are now decorated properly. [#1319] (Thanks, @kares!)
+* [JRuby] Merged nodes no longer results in Java exceptions during XPath queries. [#1320] (Thanks, @kares!)
 
 
 # 1.7.0.1 / 2017-01-04
