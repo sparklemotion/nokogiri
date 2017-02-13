@@ -281,13 +281,7 @@ public class NokogiriHelpers {
     }
     
     private static String toJavaString(RubyString str) {
-        ByteList value = str.getByteList();
-        try {
-            return new String(value.getUnsafeBytes(), value.begin(), value.length(), str.getEncoding().toString());
-        }
-        catch (UnsupportedEncodingException uee) {
-            return str.toString();
-        }
+        return str.decodeString(); // toString()
     }
 
     public static String rubyStringToString(RubyString str) {
