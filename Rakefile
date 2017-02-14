@@ -144,7 +144,10 @@ HOE = Hoe.spec 'nokogiri' do
   ]
 
   if java?
-    self.spec_extras = { :platform => 'java' }
+    self.spec_extras = {
+        :platform => 'java',
+        :required_ruby_version => '>= 1.9.3' # JRuby >= 1.7
+    }
   else
     self.spec_extras = {
       :extensions => ["ext/nokogiri/extconf.rb"],
