@@ -37,7 +37,10 @@ import static nokogiri.internals.NokogiriHelpers.getPrefix;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import nokogiri.XmlSyntaxError;
 
@@ -98,7 +101,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     }
 
     @Override
-    public void startDocument() throws SAXException {
+    public void startDocument() {
         call("start_document");
         charactersBuilder = new StringBuilder();
     }
@@ -111,7 +114,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     }
 
     @Override
-    public void endDocument() throws SAXException {
+    public void endDocument() {
         populateCharacters();
         call("end_document");
     }
@@ -146,7 +149,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
             String pre;
 
             pre = getPrefix(qn);
-            if (ln == null || ln.equals("")) ln = getLocalPart(qn);
+            if (ln == null || ln.isEmpty()) ln = getLocalPart(qn);
 
             if (isNamespace(qn) && !fromFragmentHandler) {
                 // I haven't figured the reason out yet, but, in somewhere,
@@ -161,18 +164,15 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
                 IRubyObject[] args = null;
                 if (needEmptyAttrCheck) {
                     if (isEmptyAttr(ln)) {
-                        args = new IRubyObject[3];
-                        args[0] = stringOrNil(ruby, ln);
-                        args[1] = stringOrNil(ruby, pre);
-                        args[2] = stringOrNil(ruby, u);
+                        args = new IRubyObject[] {
+                            stringOrNil(ruby, ln), stringOrNil(ruby, pre), stringOrNil(ruby, u)
+                        };
                     }
                 }
                 if (args == null) {
-                    args = new IRubyObject[4];
-                    args[0] = stringOrNil(ruby, ln);
-                    args[1] = stringOrNil(ruby, pre);
-                    args[2] = stringOrNil(ruby, u);
-                    args[3] = stringOrNil(ruby, val);
+                    args = new IRubyObject[] {
+                        stringOrNil(ruby, ln), stringOrNil(ruby, pre), stringOrNil(ruby, u), stringOrNil(ruby, val)
+                    };
                 }
 
                 IRubyObject attr = RuntimeHelpers.invoke(context, attrClass, "new", args);
@@ -180,7 +180,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
             }
         }
 
-        if (localName == null || localName.equals("")) localName = getLocalPart(qName);
+        if (localName == null || localName.isEmpty()) localName = getLocalPart(qName);
         populateCharacters();
         call("start_element_namespace",
              stringOrNil(ruby, localName),
@@ -190,37 +190,27 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
              rubyNSAttr);
     }
 
-    private static String[] emptyAttrs =
-        {"checked", "compact", "declare", "defer", "disabled", "ismap", "multiple",
-         "noresize", "nohref", "noshade", "nowrap", "readonly", "selected"};
-
-    private boolean isEmptyAttr(String name) {
-        for (String emptyAttr : emptyAttrs) {
-            if (emptyAttr.equals(name)) return true;
-        }
-        return false;
+    static final Set<String> EMPTY_ATTRS;
+    static {
+        final String[] emptyAttrs = {
+            "checked", "compact", "declare", "defer", "disabled", "ismap", "multiple",
+            "noresize", "nohref", "noshade", "nowrap", "readonly", "selected"
+        };
+        EMPTY_ATTRS = new HashSet<String>(Arrays.asList(emptyAttrs));
     }
-
-    public Integer getLine() {
-        return locator.getLineNumber();
+    
+    private static boolean isEmptyAttr(String name) {
+        return EMPTY_ATTRS.contains(name);
     }
-
-    public Integer getColumn() {
-        return locator.getColumnNumber() - 1;
+    
+    public final Integer getLine() { // -1 if none is available
+        final int line = locator.getLineNumber();
+        return line == -1 ? null : line;
     }
-
-    private boolean isFromFragmentHandler() {
-        if (object != null && object instanceof RubyObject) {
-            RubyObject rubyObj = (RubyObject)object;
-            IRubyObject document = rubyObj.getInstanceVariable("@document");
-            if (document != null) {
-                String name = document.getMetaClass().getName();
-                if ("Nokogiri::XML::FragmentHandler".equals(name)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    
+    public final Integer getColumn() { // -1 if none is available
+        final int column = locator.getColumnNumber();
+        return column == -1 ? null : column - 1;
     }
 
     @Override
@@ -244,12 +234,12 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     }
 
     @Override
-    public void startCDATA() throws SAXException {
+    public void startCDATA() {
         populateCharacters();
     }
 
     @Override
-    public void endCDATA() throws SAXException {
+    public void endCDATA() {
         call("cdata_block", ruby.newString(charactersBuilder.toString()));
         charactersBuilder.setLength(0);
     }
@@ -265,8 +255,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     }
 
     @Override
-    public void fatalError(SAXParseException saxpe) throws SAXException
-    {
+    public void fatalError(SAXParseException saxpe) {
         try {
             call("error", ruby.newString(saxpe.getMessage()));
             addError(new RaiseException(XmlSyntaxError.createFatalError(ruby, saxpe), true));
@@ -311,8 +300,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     private void call(String methodName, IRubyObject arg1, IRubyObject arg2,
                       IRubyObject arg3) {
         ThreadContext context = ruby.getCurrentContext();
-        RuntimeHelpers.invoke(context, document(context), methodName,
-                              arg1, arg2, arg3);
+        RuntimeHelpers.invoke(context, document(context), methodName, arg1, arg2, arg3);
     }
 
     private void call(String methodName,
@@ -321,19 +309,13 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
                       IRubyObject arg2,
                       IRubyObject arg3,
                       IRubyObject arg4) {
-        IRubyObject[] args = new IRubyObject[5];
-        args[0] = arg0;
-        args[1] = arg1;
-        args[2] = arg2;
-        args[3] = arg3;
-        args[4] = arg4;
         ThreadContext context = ruby.getCurrentContext();
-        RuntimeHelpers.invoke(context, document(context), methodName, args);
+        RuntimeHelpers.invoke(context, document(context), methodName, arg0, arg1, arg2, arg3, arg4);
     }
 
     private IRubyObject document(ThreadContext context) {
         if (object instanceof RubyObject) {
-            return ((RubyObject)object).fastGetInstanceVariable("@document");
+            return ((RubyObject) object).fastGetInstanceVariable("@document");
         }
         return context.getRuntime().getNil();
     }

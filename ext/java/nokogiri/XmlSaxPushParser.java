@@ -167,14 +167,8 @@ public class XmlSaxPushParser extends RubyObject {
         }
 
         if (isLast.isTrue()) {
-            try {
-                parserTask.parser.getNokogiriHandler().endDocument();
-            }
-            catch (SAXException e) {
-                throw context.runtime.newRuntimeError(e.getMessage());
-            } finally {
-                terminateTask(context);
-            }
+            parserTask.parser.getNokogiriHandler().endDocument();
+            terminateTask(context);
         }
 
         if (!options.recover && parserTask.getErrorCount() > errorCount0) {
