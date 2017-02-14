@@ -32,13 +32,13 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import nokogiri.internals.NokogiriHandler;
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.ParserContext;
 import nokogiri.internals.XmlSaxParser;
 
@@ -343,19 +343,15 @@ public class XmlSaxParserContext extends ParserContext {
         for (;;) {
             children = adapter.callMethod(doc, "children");
             IRubyObject first = adapter.callMethod(children, "first");
-            if (isWhitespaceText(first))
-                adapter.callMethod(first, "unlink");
-            else
-                break;
+            if (NokogiriHelpers.isBlank(first)) adapter.callMethod(first, "unlink");
+            else break;
         }
 
         for (;;) {
             children = adapter.callMethod(doc, "children");
             IRubyObject last = adapter.callMethod(children, "last");
-            if (isWhitespaceText(last))
-                adapter.callMethod(last, "unlink");
-            else
-                break;
+            if (NokogiriHelpers.isBlank(last)) adapter.callMethod(last, "unlink");
+            else break;
         }
 
         // While we have a document, normalize it.

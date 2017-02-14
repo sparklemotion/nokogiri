@@ -587,17 +587,21 @@ public class NokogiriHelpers {
         return "xml:base".equals(attrName) || "xlink:href".equals(attrName);
     }
 
-    public static boolean isWhitespaceText(IRubyObject obj) {
+    public static boolean isBlank(IRubyObject obj) {
         if ( !(obj instanceof XmlText) ) return false;
 
         CharSequence content = ((XmlNode) obj).getContentImpl();
-        return content == null || isWhitespaceText(content);
+        return content == null || isBlank(content);
     }
 
-    public static boolean isWhitespaceText(CharSequence str) {
+    public static boolean isBlank(CharSequence str) {
         int len = str.length(); int beg = 0;
         while ((beg < len) && (str.charAt(beg) <= ' ')) beg++;
         return beg == len;
+    }
+
+    public static boolean isBlank(String str) {
+        return str.isEmpty() || isBlank((CharSequence) str);
     }
 
     public static CharSequence canonicalizeWhitespace(CharSequence str) {
