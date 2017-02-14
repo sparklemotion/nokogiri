@@ -209,10 +209,10 @@ public class HtmlSaxPushParser extends RubyObject {
         private final HtmlSaxParserContext parser;
 
         private ParserTask(ThreadContext context, IRubyObject handler) {
-            RubyClass klazz = getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::SAX::ParserContext");
+            RubyClass klazz = getNokogiriClass(context.runtime, "Nokogiri::HTML::SAX::ParserContext");
             this.context = context;
             this.handler = handler;
-            this.parser = (HtmlSaxParserContext) HtmlSaxParserContext.parse_stream(context, klazz, stream);
+            this.parser = HtmlSaxParserContext.parse_stream(context.runtime, klazz, stream);
         }
 
         @Override
