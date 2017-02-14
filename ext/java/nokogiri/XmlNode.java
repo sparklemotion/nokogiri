@@ -33,21 +33,11 @@
 package nokogiri;
 
 import static java.lang.Math.max;
-import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
-import static nokogiri.internals.NokogiriHelpers.clearCachedNode;
-import static nokogiri.internals.NokogiriHelpers.clearXpathContext;
-import static nokogiri.internals.NokogiriHelpers.convertEncoding;
-import static nokogiri.internals.NokogiriHelpers.convertString;
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
-import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+import static nokogiri.internals.NokogiriHelpers.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -696,7 +686,7 @@ public class XmlNode extends RubyObject {
         // a node is blank if if it is a Text or CDATA node consisting of whitespace only
         if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) {
             String data = node.getTextContent();
-            return context.runtime.newBoolean(data == null || data.isEmpty() || data.trim().isEmpty());
+            return context.runtime.newBoolean(data == null || isBlank(data));
         }
         return context.runtime.getFalse();
     }

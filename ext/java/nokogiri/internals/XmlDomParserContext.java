@@ -33,6 +33,7 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+import static nokogiri.internals.NokogiriHelpers.isBlank;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -274,7 +275,7 @@ public class XmlDomParserContext extends ParserContext {
     }
     
     private static void findEmptyTexts(Node node, List<Node> emptyNodes) {
-        if (node.getNodeType() == Node.TEXT_NODE && "".equals(node.getTextContent().trim())) {
+        if (node.getNodeType() == Node.TEXT_NODE && isBlank(node.getTextContent())) {
             emptyNodes.add(node);
         } else {
             NodeList children = node.getChildNodes();
