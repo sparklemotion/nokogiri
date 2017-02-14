@@ -251,26 +251,25 @@ public class XmlSaxParserContext extends ParserContext {
             try {
                 do_parse();
             }
-            catch (SAXParseException spe) {
+            catch (SAXParseException ex) {
                 // A bad document (<foo><bar></foo>) should call the
                 // error handler instead of raising a SAX exception.
 
-                // However, an EMPTY document should raise a
-                // RuntimeError.  This is a bit kludgy, but AFAIK SAX
-                // doesn't distinguish between empty and bad whereas
-                // Nokogiri does.
-                String message = spe.getMessage();
-                if ("Premature end of file.".matches(message) && stringDataSize < 1) {
+                // However, an EMPTY document should raise a RuntimeError.
+                // This is a bit kludgy, but AFAIK SAX doesn't distinguish
+                // between empty and bad whereas Nokogiri does.
+                String message = ex.getMessage();
+                if (message != null && message.contains("Premature end of file.") && stringDataSize < 1) {
                     throw runtime.newRuntimeError("couldn't parse document: " + message);
                 }
-                handler.error(spe);
+                handler.error(ex);
             }
         }
-        catch (SAXException se) {
-            throw RaiseException.createNativeRaiseException(runtime, se);
+        catch (SAXException ex) {
+            throw RaiseException.createNativeRaiseException(runtime, ex);
         }
-        catch (IOException ioe) {
-            throw runtime.newIOErrorFromException(ioe);
+        catch (IOException ex) {
+            throw runtime.newIOErrorFromException(ex);
         }
 
         postParse(runtime, handlerRuby, handler);
