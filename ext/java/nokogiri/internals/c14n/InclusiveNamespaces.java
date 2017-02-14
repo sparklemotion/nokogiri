@@ -75,7 +75,7 @@ public class InclusiveNamespaces extends ElementProxy {
             prefixList = new TreeSet<String>(prefixes);
         }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(prefixList.size() * 8);
         for (String prefix : prefixList) {
             if (prefix.equals("xmlns")) {
                 sb.append("#default ");
@@ -83,9 +83,10 @@ public class InclusiveNamespaces extends ElementProxy {
                 sb.append(prefix).append(' ');
             }
         }
+        int last = sb.length() - 1;
+        while (last >= 0 && sb.charAt(last) == ' ') sb.setLength(last--); // trim
         
-        this.constructionElement.setAttributeNS(
-            null, InclusiveNamespaces._ATT_EC_PREFIXLIST, sb.toString().trim());
+        this.constructionElement.setAttributeNS(null, InclusiveNamespaces._ATT_EC_PREFIXLIST, sb.toString());
     }
 
     /**
