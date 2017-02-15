@@ -69,6 +69,7 @@ import org.xml.sax.SAXParseException;
  */
 @JRubyClass(name="Nokogiri::XML::SAX::ParserContext")
 public class XmlSaxParserContext extends ParserContext {
+
     protected static final String FEATURE_NAMESPACES =
         "http://xml.org/sax/features/namespaces";
     protected static final String FEATURE_NAMESPACE_PREFIXES =
@@ -164,15 +165,11 @@ public class XmlSaxParserContext extends ParserContext {
     }
 
     /**
-     * Create a new parser context that will read from a raw input
-     * stream. Not a JRuby method.  Meant to be run in a separate
-     * thread by XmlSaxPushParser.
+     * Create a new parser context that will read from a raw input stream.
+     * Meant to be run in a separate thread by XmlSaxPushParser.
      */
-    public static IRubyObject parse_stream(ThreadContext context,
-                                           IRubyObject klazz,
-                                           InputStream stream) {
-        final Ruby runtime = context.runtime;
-        XmlSaxParserContext ctx = newInstance(runtime, (RubyClass) klazz);
+    static XmlSaxParserContext parse_stream(final Ruby runtime, RubyClass klazz, InputStream stream) {
+        XmlSaxParserContext ctx = newInstance(runtime, klazz);
         ctx.initialize(runtime);
         ctx.setInputSource(stream);
         return ctx;
@@ -198,9 +195,7 @@ public class XmlSaxParserContext extends ParserContext {
         parser.setErrorHandler(handler);
     }
 
-    public NokogiriHandler getNokogiriHandler() {
-        return handler;
-    }
+    public final NokogiriHandler getNokogiriHandler() { return handler; }
 
     /**
      * Perform any initialization prior to parsing with the handler
