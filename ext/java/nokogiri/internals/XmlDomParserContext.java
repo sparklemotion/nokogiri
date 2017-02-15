@@ -48,6 +48,7 @@ import org.apache.xerces.parsers.DOMParser;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -65,6 +66,7 @@ import org.xml.sax.SAXException;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class XmlDomParserContext extends ParserContext {
+
     protected static final String FEATURE_LOAD_EXTERNAL_DTD =
         "http://apache.org/xml/features/nonvalidating/load-external-dtd";
     protected static final String FEATURE_LOAD_DTD_GRAMMAR =
@@ -91,13 +93,13 @@ public class XmlDomParserContext extends ParserContext {
     
     public XmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
         super(runtime);
-        this.options = new ParserContext.Options((Long)options.toJava(Long.class));
+        this.options = new ParserContext.Options(RubyFixnum.fix2long(options));
         java_encoding = NokogiriHelpers.getValidEncoding(runtime, encoding);
         ruby_encoding = encoding;
         initErrorHandler();
         initParser(runtime);
     }
-    
+
     protected void initErrorHandler() {
         if (options.recover) {
             errorHandler = new NokogiriNonStrictErrorHandler(options.noError, options.noWarning);
