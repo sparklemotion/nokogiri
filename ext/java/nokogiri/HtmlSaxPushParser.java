@@ -67,7 +67,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 @JRubyClass(name="Nokogiri::HTML::SAX::PushParser")
 public class HtmlSaxPushParser extends RubyObject {
     ParserContext.Options options;
-    IRubyObject optionsRuby;
     IRubyObject saxParser;
 
     NokogiriBlockingQueueInputStream stream;
@@ -88,39 +87,35 @@ public class HtmlSaxPushParser extends RubyObject {
         catch (Exception e) { /* ignored */ }
     }
 
-    /**
-    * Silently skips provided encoding
-    *
-    */
     @JRubyMethod
     public IRubyObject initialize_native(final ThreadContext context,
                                          IRubyObject saxParser,
                                          IRubyObject fileName,
                                          IRubyObject encoding) {
-        optionsRuby
-            = invoke(context, context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions"), "new");
-       
+        // NOTE: Silently skips provided encoding
         options = new ParserContext.Options(0);
         this.saxParser = saxParser;
         return this;
     }
 
-    /**
-     * Returns an integer.
-     */
-    @JRubyMethod(name="options")
-    public IRubyObject getOptions(ThreadContext context) {
-        return invoke(context, optionsRuby, "options");
+    private transient IRubyObject parse_options;
+
+    private IRubyObject parse_options(final ThreadContext context) {
+        if (parse_options == null) {
+            parse_options = invoke(context, context.runtime.getClassFromPath("Nokogiri::XML::ParseOptions"), "new");
+        }
+        return parse_options;
     }
 
-    /**
-     * <code>val</code> is an integer.
-     */
+    @JRubyMethod(name="options")
+    public IRubyObject getOptions(ThreadContext context) {
+        return invoke(context, parse_options(context), "options");
+    }
+
     @JRubyMethod(name="options=")
-    public IRubyObject setOptions(ThreadContext context, IRubyObject val) {
-        invoke(context, optionsRuby, "options=", val);
-        options =
-            new ParserContext.Options(val.convertToInteger().getLongValue());
+    public IRubyObject setOptions(ThreadContext context, IRubyObject opts) {
+        invoke(context, parse_options(context), "options=", opts);
+        options = new ParserContext.Options(opts.convertToInteger().getLongValue());
         return getOptions(context);
     }
 
