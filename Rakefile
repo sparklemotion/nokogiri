@@ -140,7 +140,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["rake-compiler-dock", "~> 0.6.0"],
     ["racc",               "~> 1.4.14"],
     ["rexical",            "~> 1.0.5"],
-    ["concourse",          "~> 0.1"],
+    ["concourse",          "~> 0.11"],
   ]
 
   if java?

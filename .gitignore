@@ -14,7 +14,8 @@
 Gemfile*lock
 TAGS
 build
-concourse/*.yml
+concourse/*.final.yml
+concourse/private.yml
 ext/java/Canna
 ext/java/nokogiri/**/*.class
 ext/nokogiri/*.dll
