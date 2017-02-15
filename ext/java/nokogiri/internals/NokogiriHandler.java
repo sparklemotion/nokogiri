@@ -83,6 +83,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     private boolean needEmptyAttrCheck;
 
     public NokogiriHandler(Ruby runtime, IRubyObject object) {
+        assert object != null;
         this.runtime = runtime;
         this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
         this.object = object;
@@ -119,7 +120,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void processingInstruction(String target, String data) {
-      call("processing_instruction", runtime.newString(target), runtime.newString(data));
+        call("processing_instruction", runtime.newString(target), runtime.newString(data));
     }
 
     /*
@@ -317,7 +318,6 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     }
 
     private IRubyObject document(ThreadContext context) {
-        if (object == null) return context.nil;
         return object.getInstanceVariables().getInstanceVariable("@document");
     }
 
