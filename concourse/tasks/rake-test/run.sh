@@ -47,10 +47,6 @@ function ensure-apt-update {
 
 pushd nokogiri
 
-  if mri-24-or-greater && commit-is-post-frozen-string-support ; then
-    export RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
-  fi
-
   if rbx-engine ; then
     ensure-apt-update
     apt-get install -y ca-certificates gcc pkg-config libxml2-dev libxslt-dev
@@ -65,6 +61,12 @@ pushd nokogiri
   fi
 
   bundle install
+  bundle exec rake generate # do this before setting frozen string option, because racc isn't compatible with frozen string literals yet
+
+  if mri-24-or-greater && commit-is-post-frozen-string-support ; then
+    export RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
+  fi
+
   bundle exec rake ${RAKE_TASK}
 
 popd
