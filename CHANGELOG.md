@@ -23,6 +23,7 @@
 ## Bugs
 
 * HTML::SAX::Parser#parse_io now correctly parses HTML and not XML [#1577] (Thanks for the test case, @gregors!)
+* Support installation on systems with a `lib64` site config. [#1562]
 * [MRI] on OpenBSD, do not require gcc if using system libraries [#1515] (Thanks, @jeremyevans!)
 * [MRI] XML::Attr.new checks type of Document arg to prevent segfaults. [#1477]
 * [JRuby] correctly append a text node before another text node [#1318] (Thanks, @jkraemer!)
