@@ -658,12 +658,6 @@ have_func('xmlRelaxNGSetValidStructuredErrors')
 have_func('xmlSchemaSetValidStructuredErrors')
 have_func('xmlSchemaSetParserStructuredErrors')
 
-if ENV['CPUPROFILE']
-  unless find_library('profiler', 'ProfilerEnable', *LIB_DIRS)
-    abort "google performance tools are not installed"
-  end
-end
-
 create_makefile('nokogiri/nokogiri')
 
 if enable_config('clean', true)
