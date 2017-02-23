@@ -132,6 +132,11 @@ class TestNokogumbo < Minitest::Test
     assert_empty doc.errors
   end
 
+  def test_parse_fragment_errors
+    doc = Nokogiri::HTML5.fragment("<\r\n")
+    refute_empty doc.errors
+  end
+
 private
 
   def buffer
