@@ -2,9 +2,10 @@ language: ruby
 rvm: # http://rubies.travis-ci.org/
   - 1.9.3
   - 2.0.0
-  - 2.1.9
-  - 2.2.5
-  - 2.3.1
+  - 2.1.10
+  - 2.2.6
+  - 2.3.3
+  - 2.4.0
 env:
   - WITH_LIBXML=true
   - WITH_LIBXML=false

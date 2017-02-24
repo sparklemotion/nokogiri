@@ -1,6 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'nokogiri'
+if RUBY_VERSION =~ /^1|^2\.0/
+  gem 'nokogiri', '~> 1.6'
+else
+  gem 'nokogiri'
+end
 
 group :development, :test do
   gem 'minitest'
