@@ -30,11 +30,22 @@ matrix:
     env:
       - RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
   - os: linux
+    rvm: ruby-head
+    env:
+      - RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
+  - os: osx
+    rvm: ruby-head
+    env:
+      - RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
+  - os: linux
     rvm: jruby-1.7
   - os: linux
     rvm: jruby-9.1.5.0
   - os: linux
     rvm: rbx-3
+  allow_failures:
+  - rvm: ruby-head
+  fast_finish: true
 
 notifications:
   irc:
