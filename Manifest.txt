@@ -76,6 +76,7 @@ ext/java/nokogiri/internals/ReaderNode.java
 ext/java/nokogiri/internals/SaveContextVisitor.java
 ext/java/nokogiri/internals/SchemaErrorHandler.java
 ext/java/nokogiri/internals/UncloseableInputStream.java
+ext/java/nokogiri/internals/XalanDTMManagerPatch.java
 ext/java/nokogiri/internals/XmlDeclHandler.java
 ext/java/nokogiri/internals/XmlDomParserContext.java
 ext/java/nokogiri/internals/XmlSaxParser.java
@@ -106,6 +107,7 @@ ext/java/nokogiri/internals/c14n/NameSpaceSymbTable.java
 ext/java/nokogiri/internals/c14n/NodeFilter.java
 ext/java/nokogiri/internals/c14n/UtfHelpper.java
 ext/java/nokogiri/internals/c14n/XMLUtils.java
+ext/java/org/apache/xml/dtm/ref/dom2dtm/DOM2DTMExt.java
 ext/nokogiri/depend
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
