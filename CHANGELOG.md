@@ -1,4 +1,4 @@
-# 1.7.1 / unreleased
+# 1.8.0 / unreleased
 
 ## Dependencies
 
@@ -32,6 +32,19 @@
 * [JRuby] XML::Reader now returns parse errors [#1586] (Thanks, @kares!)
 * [JRuby] Empty NodeSets are now decorated properly. [#1319] (Thanks, @kares!)
 * [JRuby] Merged nodes no longer results in Java exceptions during XPath queries. [#1320] (Thanks, @kares!)
+
+
+# 1.7.1 / unreleased
+
+## Security Notes
+
+[MRI] Upstream libxml2 patches are applied to the vendored libxml 2.9.4 which address CVE-2016-4658 and CVE-2016-5131.
+
+For more information:
+
+* https://github.com/sparklemotion/nokogiri/issues/1615
+* http://people.canonical.com/~ubuntu-security/cve/2016/CVE-2016-4658.html
+* http://people.canonical.com/~ubuntu-security/cve/2016/CVE-2016-5131.html
 
 
 # 1.7.0.1 / 2017-01-04
