@@ -330,8 +330,9 @@ module Nokogiri
       end
 
       def test_document_compare
+        skip "underlying libxml2 behavior changed in libxml2@a005199"
         nodes = @xml.xpath('//employee')
-        assert_equal(-1, (nodes.first <=> @xml))
+        assert_equal(-1, (nodes.first <=> @xml)) # post-libxml2@a005199, returns 1
       end
 
       def test_different_document_compare
