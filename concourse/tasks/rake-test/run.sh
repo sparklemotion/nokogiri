@@ -49,7 +49,7 @@ pushd nokogiri
 
   if rbx-engine ; then
     ensure-apt-update
-    apt-get install -y ca-certificates gcc pkg-config libxml2-dev libxslt-dev
+    apt-get install -y ca-certificates gcc pkg-config libxml2-dev libxslt-dev patch
   fi
 
   RAKE_TASK="test"
