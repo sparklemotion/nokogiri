@@ -31,6 +31,21 @@ groups:
       - rbx-<%= RUBIES[:rbx].last %>-pr
       - pr-success
 
+  - name: v1.7.x
+    jobs:
+      <% for ruby_version in RUBIES[:mri] %>
+      - v1.7.x-ruby-<%= ruby_version %>
+      <% end %>
+      <% ruby_version = RUBIES[:mri].last %>
+      - v1.7.x-ruby-<%= ruby_version %>-valgrind
+      <% for jruby_version in RUBIES[:jruby] %>
+      - "v1.7.x-jruby-<%= jruby_version %>"
+      <% end %>
+      <% for rbx_version in RUBIES[:rbx] %>
+      - "v1.7.x-rbx-<%= rbx_version %>"
+      <% end %>
+      - v1.7.x-ruby-2.3-devkit
+
   - name: janitor
     jobs:
       - windex
@@ -62,8 +77,17 @@ resources:
       access_token: {{github-repo-status-access-token}}
       ignore_paths:
         - concourse/**
+  - name: v1.7.x
+    type: git
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: v1.7.x
+      ignore_paths:
 
 jobs:
+  #
+  #  master
+  #
   <% for ruby_version in RUBIES[:mri] %>
   - name: ruby-<%= ruby_version %>-system
     public: true
@@ -288,6 +312,9 @@ jobs:
             path: powershell
             args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
 
+  #
+  #  utility
+  #
   - name: windex
     public: true
     serial_groups: [windows-configuration]
@@ -304,6 +331,9 @@ jobs:
             path: powershell
             args: ["-File", "ci/concourse/tasks/windows-config/install-ruby-and-devkit.ps1"]
 
+  #
+  #  PRs
+  #
   - name: pr-pending
     public: true
     plan:
@@ -466,3 +496,111 @@ jobs:
           - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
+
+  #
+  #  v1.7.x
+  #
+  <% for ruby_version in RUBIES[:mri] %>
+  - name: v1.7.x-ruby-<%= ruby_version %>
+    public: true
+    plan:
+      - get: ci
+      - get: v1.7.x
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: v1.7.x
+              path: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+  <% end %>
+
+  <% ruby_version = RUBIES[:mri].last %>
+  - name: v1.7.x-ruby-<%= ruby_version %>-valgrind
+    public: true
+    plan:
+      - get: ci
+      - get: v1.7.x
+        trigger: true
+        passed: ["v1.7.x-ruby-<%= ruby_version %>"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: v1.7.x
+              path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+
+  <% for jruby_version in RUBIES[:jruby] %>
+  - name: v1.7.x-jruby-<%= jruby_version %>
+    public: true
+    plan:
+      - get: ci
+      - get: v1.7.x
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: jruby, tag: "<%= jruby_version %>-jdk"}
+          inputs:
+            - name: ci
+            - name: v1.7.x
+              path: nokogiri
+          params:
+            JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+  <% end %>
+
+  <% for rbx_version in RUBIES[:rbx] %>
+  - name: v1.7.x-rbx-<%= rbx_version %>
+    public: true
+    plan:
+      - get: ci
+      - get: v1.7.x
+        trigger: true
+      - task: rake-test
+        config:
+          image_resource:
+            type: docker-image
+            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
+          platform: linux
+          inputs:
+            - name: ci
+            - name: v1.7.x
+              path: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+  <% end %>
+
+  - name: v1.7.x-ruby-2.3-devkit
+    public: true
+    plan:
+      - get: ci
+      - get: v1.7.x
+        trigger: true
+      - task: rake-test
+        config:
+          platform: windows
+          inputs:
+            - name: ci
+            - name: v1.7.x
+              path: nokogiri
+          run:
+            path: powershell
+            args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
