@@ -248,6 +248,9 @@ lib/xalan.jar
 lib/xercesImpl.jar
 lib/xml-apis.jar
 lib/xsd/xmlparser/nokogiri.rb
+patches/libxml2/0001-Fix-comparison-with-root-node-in-xmlXPathCmpNodes.patch
+patches/libxml2/0002-Fix-XPointer-paths-beginning-with-range-to.patch
+patches/libxml2/0003-Disallow-namespace-nodes-in-XPointer-ranges.patch
 patches/sort-patches-by-date
 suppressions/README.txt
 tasks/test.rb
