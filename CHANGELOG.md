@@ -34,7 +34,7 @@
 * [JRuby] Merged nodes no longer results in Java exceptions during XPath queries. [#1320] (Thanks, @kares!)
 
 
-# 1.7.1 / unreleased
+# 1.7.1 / 2017-03-20
 
 ## Security Notes
 
