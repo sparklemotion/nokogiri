@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # :stopdoc:
 ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
