@@ -138,6 +138,11 @@ module Nokogiri
           assert_equal(evil, ary_from_file)
         }
       end
+
+      def test_does_not_fail_with_illformatted_html
+        doc = Nokogiri::HTML('"</html>";'.force_encoding(Encoding::BINARY))
+        assert doc
+      end
     end
   end
 end
