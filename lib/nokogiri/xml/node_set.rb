@@ -189,6 +189,7 @@ module Nokogiri
         0.upto(length - 1) do |x|
           yield self[x]
         end
+        self
       end
 
       ###
