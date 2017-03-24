@@ -91,6 +91,11 @@ module Nokogiri
         assert_equal 'urn:xmpp:foospec:barfoo', child.namespace.href
         assert_empty child.attributes
       end
+
+      def test_recognize_namespace_in_attribute
+        doc = Nokogiri::HTML::Document.parse(%Q{<link xmlns:special="http://nowhere.com"></link>})
+        assert !doc.namespaces.empty?, 'namespace was not recognized'
+      end
     end
   end
 end
