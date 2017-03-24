@@ -99,12 +99,6 @@ def do_clean
       FileUtils.rm_rf(dir, verbose: true)
     end
 
-    if enable_config('static')
-      # ports installation can be safely removed if statically linked.
-      FileUtils.rm_rf(root + 'ports', verbose: true)
-    else
-      FileUtils.rm_rf(root + 'ports' + 'archives', verbose: true)
-    end
   end
 
   exit! 0
