@@ -171,6 +171,56 @@ module Nokogiri
         end
       end
 
+      ##
+      # In order to collect all namespaces in a document with
+      # multiple default namespace definitions use either 
+      # collect_namespaces_prefix_keys or collect_namespaces_href_keys
+      #
+      # For example, given this document:
+      #
+      # <?xml version="1.0"?>
+      # <foo xmlns="foospace">
+      #   <bar xmlns="barspace"/>
+      # </foo>
+      #
+      # collect_namespaces_prefix_keys will return a hash with
+      #
+      # {"xml"=>["http://www.w3.org/XML/1998/namespace"], nil=>["foospace", "barspace"]}
+      #
+      # where nil implies xmlns.
+      #
+      def collect_namespaces_prefix_keys
+        xpath("//namespace::*").inject({}) do |hash, ns|
+          (hash[ ns.prefix ] ||= []) << ns.href unless (hash[ ns.prefix ] and hash[ ns.prefix ].include? ns.href)
+          hash
+        end
+      end
+
+      ##
+      # In order to collect all namespaces in a document with
+      # multiple default namespace definitions use either 
+      # collect_namespaces_prefix_keys or collect_namespaces_href_keys
+      #
+      # For example, given this document:
+      #
+      # <?xml version="1.0"?>
+      # <foo xmlns="foospace">
+      #   <bar xmlns="barspace"/>
+      # </foo>
+      #
+      # collect_namespaces_href_keys will return a hash with
+      #
+      # {"http://www.w3.org/XML/1998/namespace"=>["xml"], "foospace"=>[nil], "barspace"=>[nil]}
+      #
+      # where nil implies xmlns.
+      #
+      def collect_namespaces_href_keys
+        xpath("//namespace::*").inject({}) do |hash, ns|
+          (hash[ ns.href ] ||= []) << ns.prefix unless (hash[ ns.href ] and hash[ ns.href ].include? ns.prefix)
+          hash
+        end
+      end
+
       # Get the list of decorators given +key+
       def decorators key
         @decorators ||= Hash.new
