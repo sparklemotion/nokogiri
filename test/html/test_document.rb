@@ -13,6 +13,17 @@ module Nokogiri
         assert @html.css(nil)
         assert @html.xpath(nil)
       end
+      
+      def test_parse_self_closed_meta_tag
+        html=<<-eof
+        <html>
+          <head>
+            <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+          </head>
+        </html>
+        eof
+        assert_equal Nokogiri::HTML.parse(html).errors, []
+      end
 
       def test_does_not_fail_with_illformatted_html
         doc = Nokogiri::HTML('"</html>";'.dup.force_encoding(Encoding::BINARY))
