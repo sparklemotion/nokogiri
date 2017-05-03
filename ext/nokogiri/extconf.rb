@@ -474,7 +474,7 @@ else
   if cross_build_p || windows?
     zlib_recipe = process_recipe("zlib", dependencies["zlib"]["version"], static_p, cross_build_p) do |recipe|
       recipe.files = [{
-          url: "http://zlib.net/#{recipe.name}-#{recipe.version}.tar.gz",
+          url: "http://zlib.net/fossils/#{recipe.name}-#{recipe.version}.tar.gz",
           sha256: dependencies["zlib"]["sha256"]
         }]
       class << recipe
