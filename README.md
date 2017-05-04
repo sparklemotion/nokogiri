@@ -167,4 +167,4 @@ explicitly setting the encoding to EUC-JP on the parser:
 
 ## License
 
-MIT. See the `LICENSE.txt` file.
+MIT. See the `LICENSE.md` file.
