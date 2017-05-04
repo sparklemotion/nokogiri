@@ -448,6 +448,15 @@ XML
         assert_equal 1, sections.size
         assert_equal "[TEXT_INSIDE_SECTION]", sections.first.text
       end
+
+      def test_xpath_syntax_error
+        doc = Nokogiri::XML('<ns1:Root></ns1:Root>')
+        begin
+          doc.xpath('//ns1:Root')
+        rescue => e
+          assert_equal false, e.message.include?('0:0')
+        end
+      end
     end
   end
 end
