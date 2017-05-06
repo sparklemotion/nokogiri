@@ -57,8 +57,12 @@ module Nokogiri
         end
       end
 
+      def nil_or_zero?(attribute)
+        attribute.nil? || attribute.zero?
+      end
+
       def location_to_s
-        return nil if line.nil? && column.nil?
+        return nil if nil_or_zero?(line) && nil_or_zero?(column)
         "#{line}:#{column}"
       end
     end
