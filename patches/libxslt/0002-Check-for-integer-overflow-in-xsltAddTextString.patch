@@ -1,0 +1,74 @@
+From 08ab2774b870de1c7b5a48693df75e8154addae5 Mon Sep 17 00:00:00 2001
+From: Nick Wellnhofer <wellnhofer@aevum.de>
+Date: Thu, 12 Jan 2017 15:39:52 +0100
+Subject: [PATCH] Check for integer overflow in xsltAddTextString
+
+Limit buffer size in xsltAddTextString to INT_MAX. The issue can be
+exploited to trigger an out of bounds write on 64-bit systems.
+
+Originally reported to Chromium:
+
+https://crbug.com/676623
+---
+ libxslt/transform.c     | 25 ++++++++++++++++++++++---
+ libxslt/xsltInternals.h |  4 ++--
+ 2 files changed, 24 insertions(+), 5 deletions(-)
+
+diff --git a/libxslt/transform.c b/libxslt/transform.c
+index 519133f..02bff34 100644
+--- a/libxslt/transform.c
++++ b/libxslt/transform.c
+@@ -813,13 +813,32 @@ xsltAddTextString(xsltTransformContextPtr ctxt, xmlNodePtr target,
+         return(target);
+ 
+     if (ctxt->lasttext == target->content) {
++        int minSize;
+ 
+-	if (ctxt->lasttuse + len >= ctxt->lasttsize) {
++        /* Check for integer overflow accounting for NUL terminator. */
++        if (len >= INT_MAX - ctxt->lasttuse) {
++            xsltTransformError(ctxt, NULL, target,
++                "xsltCopyText: text allocation failed\n");
++            return(NULL);
++        }
++        minSize = ctxt->lasttuse + len + 1;
++
++        if (ctxt->lasttsize < minSize) {
+ 	    xmlChar *newbuf;
+ 	    int size;
++            int extra;
++
++            /* Double buffer size but increase by at least 100 bytes. */
++            extra = minSize < 100 ? 100 : minSize;
++
++            /* Check for integer overflow. */
++            if (extra > INT_MAX - ctxt->lasttsize) {
++                size = INT_MAX;
++            }
++            else {
++                size = ctxt->lasttsize + extra;
++            }
+ 
+-	    size = ctxt->lasttsize + len + 100;
+-	    size *= 2;
+ 	    newbuf = (xmlChar *) xmlRealloc(target->content,size);
+ 	    if (newbuf == NULL) {
+ 		xsltTransformError(ctxt, NULL, target,
+diff --git a/libxslt/xsltInternals.h b/libxslt/xsltInternals.h
+index 060b178..5ad1771 100644
+--- a/libxslt/xsltInternals.h
++++ b/libxslt/xsltInternals.h
+@@ -1754,8 +1754,8 @@ struct _xsltTransformContext {
+      * Speed optimization when coalescing text nodes
+      */
+     const xmlChar  *lasttext;		/* last text node content */
+-    unsigned int    lasttsize;		/* last text node size */
+-    unsigned int    lasttuse;		/* last text node use */
++    int             lasttsize;		/* last text node size */
++    int             lasttuse;		/* last text node use */
+     /*
+      * Per Context Debugging
+      */
+-- 
+2.9.3
+
