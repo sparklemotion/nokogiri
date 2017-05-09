@@ -34,6 +34,19 @@
 * [JRuby] Merged nodes no longer results in Java exceptions during XPath queries. [#1320] (Thanks, @kares!)
 
 
+# 1.7.2 / 2017-05-09
+
+## Security Notes
+
+[MRI] Upstream libxslt patches are applied to the vendored libxslt 1.1.29 which address CVE-2017-5029 and CVE-2016-4738.
+
+For more information:
+
+* https://github.com/sparklemotion/nokogiri/issues/1634
+* http://people.canonical.com/~ubuntu-security/cve/2017/CVE-2017-5029.html
+* http://people.canonical.com/~ubuntu-security/cve/2016/CVE-2016-4738.html
+
+
 # 1.7.1 / 2017-03-19
 
 ## Security Notes
