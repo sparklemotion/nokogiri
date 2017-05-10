@@ -7,12 +7,18 @@
 * Vendored libraries are verified with SHA-256 hashes (formerly some MD5 hashes were used) [#1544]
 
 
+## Compatibility notes
+
+* [JRuby] Removed support for `jruby --1.8` code paths. [#1607] (Thanks, @kares!)
+* [MRI Windows] Retrieve zlib source from http://zlib.net/fossils to avoid deprecation issues going forward. See #1632 for details around this problem.
+
+
 ## Features
 
 * NodeSet#clone is not an alias for NodeSet#dup [#1503] (Thanks, @stephankaag!)
 * Allow Processing Instructions and Comments as children of a document root. [#1033] (Thanks, @windwiny!)
 * [MRI] PushParser#replace_entities and #replace_entities= will control whether entities are replaced or not. [#1017] (Thanks, @spraints!)
-* [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1304] (Thanks, @spk!)
+* [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1304, #1637] (Thanks, @spk and @ccarruitero!)
 * [MRI] Cross-built Windows gems now support Ruby 2.4
 * [MRI] Support for frozen string literals. [#1413]
 * [JRuby] (performance) remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
@@ -26,6 +32,7 @@
 * Support installation on systems with a `lib64` site config. [#1562]
 * [MRI] on OpenBSD, do not require gcc if using system libraries [#1515] (Thanks, @jeremyevans!)
 * [MRI] XML::Attr.new checks type of Document arg to prevent segfaults. [#1477]
+* [MRI] Prefer xmlCharStrdup (and friends) to strdup (and friends), which can cause problems on some platforms. [#1517] (Thanks, @jeremy!)
 * [JRuby] correctly append a text node before another text node [#1318] (Thanks, @jkraemer!)
 * [JRuby] custom xpath functions returning an integer now work correctly [#1595] (Thanks, @kares!)
 * [JRuby] serializing (`#to_html`, `#to_s`, et al) a document with explicit encoding now works correctly. [#1281, #1440] (Thanks, @kares!)
