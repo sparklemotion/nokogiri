@@ -9,10 +9,13 @@ module Nokogiri
           <description>this is the foo thing</description>
         </item>
       eoxml
+
       assert doc.item.respond_to?(:title)
       assert_equal 'foo', doc.item.title.text
+
       assert doc.item.respond_to?(:_description), 'should have description'
-      assert 'this is the foo thing', doc.item._description.text
+      assert_equal 'this is the foo thing', doc.item._description.text
+
       assert !doc.item.respond_to?(:foo)
       assert_raise(NoMethodError) { doc.item.foo }
     end
