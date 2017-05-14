@@ -14,19 +14,19 @@ matrix:
   - os: osx
     rvm: 2.1
   - os: linux
-    rvm: 2.2.5
+    rvm: 2.2.7
   - os: osx
-    rvm: 2.2.5
+    rvm: 2.2.7
   - os: linux
-    rvm: 2.3.1
+    rvm: 2.3.4
   - os: osx
-    rvm: 2.3.1
+    rvm: 2.3.4
   - os: linux
-    rvm: 2.4.0
+    rvm: 2.4.1
     env:
       - RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
   - os: osx
-    rvm: 2.4.0
+    rvm: 2.4.1
     env:
       - RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
   - os: linux
@@ -40,7 +40,7 @@ matrix:
   - os: linux
     rvm: jruby-1.7
   - os: linux
-    rvm: jruby-9.1.5.0
+    rvm: jruby-9.1.8.0
   - os: linux
     rvm: rbx-3
   allow_failures:
