@@ -1,3 +1,17 @@
+=== 1.6.8.2 / unreleased
+
+==== Security Notes
+
+[MRI] Upstream libxml2 patches are applied to the vendored libxml 2.9.4 which address CVE-2016-4658 and CVE-2016-5131.
+
+For more information:
+
+* https://github.com/sparklemotion/nokogiri/issues/1615
+* http://people.canonical.com/~ubuntu-security/cve/2016/CVE-2016-4658.html
+* http://people.canonical.com/~ubuntu-security/cve/2016/CVE-2016-5131.html
+
+
+
 === 1.6.8.1 / 2016-10-03
 
 ==== Dependency License Notes
