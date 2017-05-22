@@ -14,8 +14,8 @@ macro
   nmstart   [_A-Za-z]|{nonascii}|{escape}
   ident     [-@]?({nmstart})({nmchar})*
   name      ({nmchar})+
-  string1   "([^\n\r\f"]|{nl}|{nonascii}|{escape})*"
-  string2   '([^\n\r\f']|{nl}|{nonascii}|{escape})*'
+  string1   "([^\n\r\f"]|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*"
+  string2   '([^\n\r\f']|{nl}|{nonascii}|{escape})*(?<!\\)(?:\\{2})*'
   string    {string1}|{string2}
 
 rule
@@ -44,9 +44,9 @@ rule
             {num}            { [:NUMBER, text] }
             {w}\/\/{w}       { [:DOUBLESLASH, text] }
             {w}\/{w}         { [:SLASH, text] }
-            
+
             U\+[0-9a-f?]{1,6}(-[0-9a-f]{1,6})?  {[:UNICODE_RANGE, text] }
-            
+
             [\s]+            { [:S, text] }
             {string}         { [:STRING, text] }
             .                { [text, text] }

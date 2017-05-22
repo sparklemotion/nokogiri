@@ -88,6 +88,13 @@ module Nokogiri
         value = node.value.last
         value = "'#{value}'" if value !~ /^['"]/
 
+        if (value[0]==value[-1]) && %q{"'}.include?(value[0])
+          str_value = value[1..-2]
+          if str_value.include?(value[0])
+            value = 'concat("' + str_value.split('"', -1).join(%q{", '"', "}) + '", "")'
+          end
+        end
+
         case node.value[1]
         when :equal
           attribute + " = " + "#{value}"
@@ -145,7 +152,7 @@ module Nokogiri
           "#{node.value.first.accept(self) if node.value.first} and #{node.value.last.accept(self)}"
         end
       end
-      
+
       {
         'direct_adjacent_selector'  => "/following-sibling::*[1]/self::",
         'following_selector'        => "/following-sibling::",
@@ -208,7 +215,7 @@ module Nokogiri
         end
         [a, b]
       end
-      
+
       def is_of_type_pseudo_class? node
         if node.type==:PSEUDO_CLASS
           if node.value[0].is_a?(Nokogiri::CSS::Node) and node.value[0].type == :FUNCTION
@@ -216,7 +223,7 @@ module Nokogiri
           else
             node.value[0]
           end =~ /(nth|first|last|only)-of-type(\()?/
-        end   
+        end
       end
     end
   end
