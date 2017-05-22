@@ -221,8 +221,8 @@ rule
     : HASH { result = Node.new(:ID, [unescape_css_identifier(val.first)]) }
     ;
   attrib_val_0or1
-    : eql_incl_dash IDENT { result = [val.first, val[1]] }
-    | eql_incl_dash STRING { result = [val.first, val[1]] }
+    : eql_incl_dash IDENT { result = [val.first, unescape_css_identifier(val[1])] }
+    | eql_incl_dash STRING { result = [val.first, unescape_css_string(val[1])] }
     | eql_incl_dash NUMBER { result = [val.first, val[1]] }
     |
     ;
@@ -259,4 +259,14 @@ require 'nokogiri/css/parser_extras'
 
 def unescape_css_identifier(identifier)
   identifier.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})\s?)/){ |m| $1 || [$2.hex].pack('U') }
+end
+
+def unescape_css_string(str)
+  str.gsub(/\\(?:([^0-9a-fA-F])|([0-9a-fA-F]{1,6})\s?)/) do |m|
+    if $1=="\n"
+      ''
+    else
+      $1 || [$2.hex].pack('U')
+    end
+  end
 end
