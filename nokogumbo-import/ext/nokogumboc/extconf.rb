@@ -40,4 +40,21 @@ unless have_library('gumbo', 'gumbo_parse')
   end
 end
 
+# We use some Gumbo Internals, and not all distros ship the internal headers.
+header_typedefs = {
+  'error.h' => 'GumboErrorType',
+  'insertion_mode.h' => 'GumboInsertionMode',
+  'parser.h' => 'GumboParser',
+  'string_buffer.h' => 'GumboStringBuffer',
+  'token_type.h' => 'GumboTokenType',
+}
+
+header_typedefs.each_pair do |header, type|
+  unless find_type(type, header)
+    require 'fileutils'
+    FileUtils.cp Dir["#{rakehome}/gumbo-parser/src/#{header}"],
+      "#{rakehome}/ext/nokogumboc"
+  end
+end
+
 create_makefile('nokogumboc')
