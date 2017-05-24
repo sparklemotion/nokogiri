@@ -3,10 +3,20 @@ module Nokogiri
     class Node
       ###
       # Save options for serializing nodes
+      #
+      # Usage example:
+      #   Nokogiri::XML::Builder.new { |xml|
+      #   xml.foo {
+      #     xml.bar {
+      #       xml.baz 'quux'
+      #     }
+      #   }.to_xml(:save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
+      #
+
       class SaveOptions
-        # Format serialized xml
+        # Format serialized xml, e.g. with newlines
         FORMAT          = 1
-        # Do not include declarations
+        # Do not include declarations, e.g. <?xml version="1.0">
         NO_DECLARATION  = 2
         # Do not include empty tags
         NO_EMPTY_TAGS   = 4
