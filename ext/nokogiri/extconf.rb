@@ -541,7 +541,7 @@ EOM
 
   unless windows?
     preserving_globals {
-      have_library('z', 'gzdopen', 'zlib.h')
+      have_library('z', 'gzdopen') || have_library('z', 'gzdopen', 'zlib.h')
     } or abort 'zlib is missing; necessary for building libxml2'
   end
 
