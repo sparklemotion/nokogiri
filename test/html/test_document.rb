@@ -7,6 +7,19 @@ module Nokogiri
         super
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
       end
+      
+      def test_parse_element_without_head
+        html = <<-eohtml
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+  <body>
+    <p>TEXT</p>
+  </body>
+</html>
+        eohtml
+        html_parsed = Nokogiri::HTML.parse(html)
+        assert_equal html_parsed.to_s, html
+      end
 
       def test_nil_css
         # Behavior is undefined but shouldn't break
