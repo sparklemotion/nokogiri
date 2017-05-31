@@ -38,6 +38,7 @@ groups:
       <% end %>
       <% ruby_version = RUBIES[:mri].last %>
       - v1.7.x-ruby-<%= ruby_version %>-valgrind
+      - v1.7.x-ruby-<%= ruby_version %>-system
       <% for jruby_version in RUBIES[:jruby] %>
       - "v1.7.x-jruby-<%= jruby_version %>"
       <% end %>
@@ -541,6 +542,27 @@ jobs:
               path: nokogiri
           params:
             TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+
+  - name: v1.7.x-ruby-<%= ruby_version %>-system
+    public: true
+    plan:
+      - get: ci
+      - get: v1.7.x
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: v1.7.x
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
 
