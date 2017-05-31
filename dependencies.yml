@@ -24,12 +24,11 @@ zlib:
   # SHA-256 hash provided on http://zlib.net/
 
 libiconv:
-  version: "1.14"
-  sha256: "72b24ded17d687193c3366d0ebe7cde1e6b18f0df8c55438ac95be39e8a30613"
-  # gpg: Signature made Sun Aug  7 19:58:18 2011 CEST using DSA key ID F059B1D1
-  # gpg: NOTE: signature key F059B1D1 expired Sun Oct  6 15:53:39 2013 CEST
-  # gpg: NOTE: signature key F059B1D1 expired Sun Oct  6 15:53:39 2013 CEST
-  # gpg: NOTE: signature key F059B1D1 expired Sun Oct  6 15:53:39 2013 CEST
-  # gpg: Good signature from "Bruno Haible (Open Source Development) <bruno@clisp.org>"
-  # gpg: Note: This key has expired!
-  # Primary key fingerprint: 1736 90D4 963E 5FC4 6917  7FA7 C71A 4C65 F059 B1D1
+  version: "1.15"
+  sha256: "ccf536620a45458d26ba83887a983b96827001e92a13847b45e4925cc8913178"
+  # gpg: Signature made Fri Feb  3 00:38:12 2017 CET
+  # gpg:                using RSA key 4F494A942E4616C2
+  # gpg: Good signature from "Bruno Haible (Open Source Development) <bruno@clisp.org>" [unknown]
+  # gpg: WARNING: This key is not certified with a trusted signature!
+  # gpg:          There is no indication that the signature belongs to the owner.
+  # Primary key fingerprint: 68D9 4D8A AEEA D48A E7DC  5B90 4F49 4A94 2E46 16C2

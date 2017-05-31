@@ -2,7 +2,7 @@
 
 ## Dependencies
 
-* [Windows] Upgrade zlib from 1.2.8 to 1.2.11 (unless --use-system-libraries)
+* [Windows] Upgrade iconv from 1.14 to 1.15 and zlib from 1.2.8 to 1.2.11 (unless --use-system-libraries)
 * Upgrade rake-compiler dependency from 0.9.2 to 1.0.3
 * Vendored libraries are verified with SHA-256 hashes (formerly some MD5 hashes were used) [#1544]
 
