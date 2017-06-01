@@ -16,7 +16,12 @@ DLEXT = RbConfig::CONFIG['DLEXT']
 EXT = 'ext/nokogumboc'
 file "#{EXT}/nokogumboc.#{DLEXT}" => ["#{EXT}/Makefile","#{EXT}/nokogumbo.c"] do
   Dir.chdir 'ext/nokogumboc' do
-    sh 'make'
+    # Make it possible to get quiet or verbose Make
+    job = %w{make}
+    %w{V Q}.each do |k|
+      job << "#{k}="+ENV[k] if ENV[k]
+    end
+    sh job.join(' ')
   end
 end
 
