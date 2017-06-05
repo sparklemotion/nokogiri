@@ -1,4 +1,4 @@
-# 1.8.0 / unreleased
+# 1.8.0 / 2017-06-04
 
 ## Backwards incompatibilities
 
