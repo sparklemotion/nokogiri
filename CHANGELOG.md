@@ -1,5 +1,12 @@
 # 1.8.0 / unreleased
 
+## Backwards incompatibilities
+
+This release ends support for Ruby 2.1 on Windows in the `x86-mingw32` and `x64-mingw32` platform gems (containing pre-compiled DLLs). Official support ended for Ruby 2.1 on 2017-04-01.
+
+Please note that this deprecation note only applies to the precompiled Windows gems. Ruby 2.1 continues to be supported (for now) in the default gem when compiled on installation.
+
+
 ## Dependencies
 
 * [Windows] Upgrade iconv from 1.14 to 1.15 (unless --use-system-libraries)
