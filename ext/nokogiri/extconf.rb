@@ -457,7 +457,7 @@ else
   # The gem version constraint in the Rakefile is not respected at install time.
   # Keep this version in sync with the one in the Rakefile !
   require 'rubygems'
-  gem 'mini_portile2', '~> 2.1.0'
+  gem 'mini_portile2', '~> 2.2.0'
   require 'mini_portile2'
   message "Using mini_portile version #{MiniPortile::VERSION}\n"
 
