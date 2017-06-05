@@ -2,9 +2,10 @@
 
 ## Dependencies
 
-* [Windows] Upgrade iconv from 1.14 to 1.15 and zlib from 1.2.8 to 1.2.11 (unless --use-system-libraries)
-* Upgrade rake-compiler dependency from 0.9.2 to 1.0.3
-* Vendored libraries are verified with SHA-256 hashes (formerly some MD5 hashes were used) [#1544]
+* [Windows] Upgrade iconv from 1.14 to 1.15 (unless --use-system-libraries)
+* [Windows] Upgrade zlib from 1.2.8 to 1.2.11 (unless --use-system-libraries)
+* [MRI] Upgrade rake-compiler dependency from 0.9.2 to 1.0.3
+* [MRI] Upgrade mini-portile2 dependency from `~> 2.1.0` to `~> 2.2.0`
 
 
 ## Compatibility notes
@@ -21,6 +22,8 @@
 * [MRI] SyntaxError#to_s now includes line number, column number, and log level if made available by the parser. [#1304, #1637] (Thanks, @spk and @ccarruitero!)
 * [MRI] Cross-built Windows gems now support Ruby 2.4
 * [MRI] Support for frozen string literals. [#1413]
+* [MRI] Support for installing Nokogiri on a machine in FIPS-enabled mode [#1544]
+* [MRI] Vendored libraries are verified with SHA-256 hashes (formerly some MD5 hashes were used) [#1544]
 * [JRuby] (performance) remove unnecessary synchronization of class-cache [#1563] (Thanks, @kares!)
 * [JRuby] (performance) remove unnecessary cloning of objects in XPath searches [#1563] (Thanks, @kares!)
 * [JRuby] (performance) more performance improvements, particularly in XPath, Reader, XmlNode, and XmlNodeSet [#1597] (Thanks, @kares!)
