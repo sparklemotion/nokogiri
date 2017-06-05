@@ -629,9 +629,11 @@ EOM
     $libs = $libs.shellsplit.map do |arg|
       case arg
       when '-lxml2'
-        File.join(libxml2_recipe.path, 'lib', lib_a(arg))
+        # look in lib64 first, else fall back to lib
+        (lib64 = File.join(libxml2_recipe.path, 'lib64', lib_a(arg))) && File.exist?(lib64) ? lib64 : File.join(libxml2_recipe.path, 'lib', lib_a(arg))
       when '-lxslt', '-lexslt'
-        File.join(libxslt_recipe.path, 'lib', lib_a(arg))
+        # look in lib64 first, else fall back to lib
+        (lib64 = File.join(libxslt_recipe.path, 'lib64', lib_a(arg))) && File.exist?(lib64) ? lib64 : File.join(libxslt_recipe.path, 'lib', lib_a(arg))
       else
         arg
       end
