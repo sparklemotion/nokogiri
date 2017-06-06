@@ -331,6 +331,20 @@ module Nokogiri
         assert_nil doc.at_xpath("//*[local-name() = 'products']").namespace
       end
 
+      def test_detached
+        doc = Nokogiri::XML::Document.new
+        doc.root = doc.create_element('root')
+        nodes = Nokogiri::XML::Builder.detached(doc) do |xml|
+          xml['foo'].bar('xmlns:foo' => 'fooey')
+          xml['foo2'].bar('xmlns:foo2' => 'fooey')
+        end
+        assert_equal doc.root.children.length, 0
+        doc.root << nodes
+        assert_equal doc.root.children.length, 2
+        assert_equal doc.root.children.first.namespace.prefix, 'foo'
+        assert_equal doc.root.children.last.namespace.prefix, 'foo2'
+      end
+
       private
 
       def namespaces_defined_on(node)
