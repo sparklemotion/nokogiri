@@ -26,7 +26,7 @@ module Nokogiri
       def first n = nil
         return self[0] unless n
         list = []
-        n.times { |i| list << self[i] }
+        [n, length].min.times { |i| list << self[i] }
         list
       end
 
