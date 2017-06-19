@@ -6,10 +6,10 @@ source "https://rubygems.org/"
 
 gem "mini_portile2", "~>2.2.0"
 
-gem "hoe-bundler", "~>1.2.0", :group => [:development, :test]
-gem "hoe-debugging", "~>1.3.0", :group => [:development, :test]
-gem "hoe-gemspec", "~>1.0.0", :group => [:development, :test]
-gem "hoe-git", "~>1.6.0", :group => [:development, :test]
+gem "hoe-bundler", "~>1.2", :group => [:development, :test]
+gem "hoe-debugging", "~>1.4", :group => [:development, :test]
+gem "hoe-gemspec", "~>1.0", :group => [:development, :test]
+gem "hoe-git", "~>1.6", :group => [:development, :test]
 gem "minitest", "~>5.8.4", :group => [:development, :test]
 gem "rake", "~>12.0", :group => [:development, :test]
 gem "rake-compiler", "~>1.0.3", :group => [:development, :test]
