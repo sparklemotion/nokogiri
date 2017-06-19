@@ -494,7 +494,7 @@ jobs:
           - ruby-<%= RUBIES[:mri].last %>-vendored-pr
           - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
-          - rbx-<%= RUBIES[:rbx].last %>-pr
+#          - rbx-<%= RUBIES[:rbx].last %>-pr # until we unpause the task
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
 
