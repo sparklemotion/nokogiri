@@ -310,6 +310,12 @@ module Nokogiri
         end
       end
 
+      def test_set_line
+        assert_raise NoMethodError do
+          @xml.line = 42
+        end
+      end
+
       def test_empty_node_converted_to_html_is_not_self_closing
         doc = Nokogiri::XML('<a></a>')
         assert_equal "<a></a>", doc.inner_html
