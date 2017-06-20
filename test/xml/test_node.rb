@@ -1094,6 +1094,21 @@ EOXML
         assert_equal 2, node.line
       end
 
+      def test_set_line
+        xml = Nokogiri::XML(<<-eoxml)
+        <root>
+          <a>
+            Hello world
+          </a>
+        </root>
+        eoxml
+
+        set = xml.search("//a")
+        node = set.first
+        node.line = 42
+        assert_equal 42, node.line
+      end
+
       def test_xpath_results_have_document_and_are_decorated
         x = Module.new do
           def awesome! ; end
