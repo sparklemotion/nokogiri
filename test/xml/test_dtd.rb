@@ -147,6 +147,12 @@ module Nokogiri
         end
       end
 
+      def test_set_line
+        assert_raise NoMethodError do
+          @dtd.line = 42
+        end
+      end
+
       def test_validate
         if Nokogiri.uses_libxml?
           list = @xml.internal_subset.validate @xml
