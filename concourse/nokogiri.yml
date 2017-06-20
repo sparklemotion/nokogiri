@@ -257,6 +257,7 @@ jobs:
             - name: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
 
@@ -276,6 +277,8 @@ jobs:
           inputs:
             - name: ci
             - name: nokogiri
+          params:
+            TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
@@ -475,6 +478,7 @@ jobs:
               path: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure:
@@ -494,7 +498,7 @@ jobs:
           - ruby-<%= RUBIES[:mri].last %>-vendored-pr
           - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
-#          - rbx-<%= RUBIES[:rbx].last %>-pr # until we unpause the task
+          - rbx-<%= RUBIES[:rbx].last %>-pr # until we unpause the task
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
 
@@ -606,6 +610,8 @@ jobs:
             - name: ci
             - name: v1.7.x
               path: nokogiri
+          params:
+            TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
