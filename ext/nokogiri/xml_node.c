@@ -1254,6 +1254,30 @@ static VALUE native_write_to(
 
 /*
  * call-seq:
+ *  line=
+ *
+ * Sets the line number for this Node to +line+
+ */
+static VALUE set_line(VALUE self, VALUE line)
+{
+  xmlNodePtr node;
+  int line_int = NUM2INT(line);
+  
+  Data_Get_Struct(self, xmlNode, node);
+
+  if (line_int < 65535)
+    node->line = (unsigned short)line;
+  else {
+    node->line = 65535;
+    if (node->type == XML_TEXT_NODE)
+      node->psvi = (void *)line;
+  }
+  
+  return self;
+}
+
+/*
+ * call-seq:
  *  line
  *
  * Returns the line for this Node
@@ -1657,6 +1681,7 @@ void init_xml_node()
   rb_define_method(klass, "create_external_subset", create_external_subset, 3);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
+  rb_define_method(klass, "line=", set_line, 1);
   rb_define_method(klass, "content", get_native_content, 0);
   rb_define_method(klass, "native_content=", set_native_content, 1);
   rb_define_method(klass, "lang", get_lang, 0);
