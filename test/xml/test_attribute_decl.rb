@@ -63,6 +63,12 @@ module Nokogiri
         end
       end
 
+      def test_set_line
+        assert_raise NoMethodError do
+          @attr_decl.line = 42
+        end
+      end
+
       def test_attribute_type
         if Nokogiri.uses_libxml?
           assert_equal 1, @attr_decl.attribute_type
