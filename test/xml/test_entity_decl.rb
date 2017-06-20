@@ -111,6 +111,12 @@ module Nokogiri
         end
       end
 
+      def test_set_line
+        assert_raise NoMethodError do
+          @entity_decl.line = 42
+        end
+      end
+
       def test_inspect
         assert_equal(
           "#<#{@entity_decl.class.name}:#{sprintf("0x%x", @entity_decl.object_id)} #{@entity_decl.to_s.inspect}>",
