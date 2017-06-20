@@ -40,6 +40,12 @@ module Nokogiri
         end
       end
 
+      def test_set_line
+        assert_raise NoMethodError do
+          @elements.first.line = 42
+        end
+      end
+
       def test_namespace
         assert_raise NoMethodError do
           @elements.first.namespace
