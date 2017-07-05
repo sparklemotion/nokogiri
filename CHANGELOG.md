@@ -1,3 +1,10 @@
+# 1.8.1 / unreleased
+
+## Dependencies
+
+The optional dependency on the pkg-config gem has had its constraint loosened to `~> 1.1` (from `~> 1.1.7`). [#1660]
+
+
 # 1.8.0 / 2017-06-04
 
 ## Backwards incompatibilities
