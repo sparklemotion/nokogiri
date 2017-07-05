@@ -116,7 +116,7 @@ def package_config pkg, options={}
 
   begin
     require 'rubygems'
-    gem 'pkg-config', (gem_ver='~> 1.1.7')
+    gem 'pkg-config', (gem_ver='~> 1.1')
     require 'pkg-config' and message("Using pkg-config gem version #{PKGConfig::VERSION}\n")
   rescue LoadError
     message "pkg-config could not be used to find #{pkg}\nPlease install either `pkg-config` or the pkg-config gem per\n\n    gem install pkg-config -v #{gem_ver.inspect}\n\n"
