@@ -679,7 +679,7 @@ module Nokogiri
       #
       # To save indented with two dashes:
       #
-      #   node.write_to(io, :indent_text => '-', :indent => 2
+      #   node.write_to(io, :indent_text => '-', :indent => 2)
       #
       def write_to io, *options
         options       = options.first.is_a?(Hash) ? options.shift : {}
