@@ -1,0 +1,3 @@
+exclude_paths:
+  - "lib/nokogiri/css/parser.rb"
+  - "lib/nokogiri/css/tokenizer.rb"
