@@ -251,6 +251,11 @@ module Nokogiri
         assert node_set = @xml.xpath('//employee')
         assert_equal 2, node_set.first(2).length
       end
+      
+      def test_first_clamps_arguments
+        assert node_set = @xml.xpath('//employee[position() < 3]')
+        assert_equal 2, node_set.first(5).length
+      end
 
       [:dup, :clone].each do |method_name|
         define_method "test_#{method_name}" do
