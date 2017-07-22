@@ -5,6 +5,11 @@
 The optional dependency on the pkg-config gem has had its constraint loosened to `~> 1.1` (from `~> 1.1.7`). [#1660]
 
 
+## Bugs
+
+* NodeSet#first with an integer argument longer than the length of the NodeSet now correctly clamps the length of the returned NodeSet to the original length. [#1650] (Thanks, @Derenge!)
+
+
 # 1.8.0 / 2017-06-04
 
 ## Backwards incompatibilities
