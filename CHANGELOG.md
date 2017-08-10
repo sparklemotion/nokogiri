@@ -8,6 +8,7 @@ The optional dependency on the pkg-config gem has had its constraint loosened to
 ## Bugs
 
 * NodeSet#first with an integer argument longer than the length of the NodeSet now correctly clamps the length of the returned NodeSet to the original length. [#1650] (Thanks, @Derenge!)
+* [MRI] Ensure CData.new raises TypeError if the `content` argument is not implicitly convertible into a string. (#1669)
 
 
 # 1.8.0 / 2017-06-04
