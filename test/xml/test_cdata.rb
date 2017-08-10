@@ -28,6 +28,12 @@ module Nokogiri
         assert_equal nil, node.content
       end
 
+      def test_new_with_non_string
+        assert_raises(TypeError) do
+          CDATA.new(@xml, 1.234)
+        end
+      end
+
       def test_lots_of_new_cdata
         assert 100.times { CDATA.new(@xml, "asdfasdf") }
       end
