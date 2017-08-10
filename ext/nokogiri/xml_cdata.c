@@ -20,17 +20,17 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   Data_Get_Struct(doc, xmlDoc, xml_doc);
 
   node = xmlNewCDataBlock(
-      xml_doc->doc,
-      NIL_P(content) ? NULL : (const xmlChar *)StringValuePtr(content),
-      NIL_P(content) ? 0 : (int)RSTRING_LEN(content)
-  );
+           xml_doc->doc,
+           NIL_P(content) ? NULL : (const xmlChar *)StringValuePtr(content),
+           NIL_P(content) ? 0 : (int)RSTRING_LEN(content)
+         );
 
   nokogiri_root_node(node);
 
   rb_node = Nokogiri_wrap_xml_node(klass, node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  if(rb_block_given_p()) rb_yield(rb_node);
+  if(rb_block_given_p()) { rb_yield(rb_node); }
 
   return rb_node;
 }
