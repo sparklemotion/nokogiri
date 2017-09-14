@@ -351,6 +351,7 @@ jobs:
 % ruby_version = RUBIES[:mri].last
   - name: ruby-<%= ruby_version %>-system-pr
     public: true
+    max_in_flight: 1
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -377,6 +378,7 @@ jobs:
 
   - name: ruby-<%= ruby_version %>-vendored-pr
     public: true
+    max_in_flight: 1
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -401,6 +403,7 @@ jobs:
 
   - name: ruby-<%= ruby_version %>-valgrind-pr
     public: true
+    max_in_flight: 1
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -428,6 +431,7 @@ jobs:
 % jruby_version = RUBIES[:jruby].last
   - name: jruby-<%= jruby_version %>-pr
     public: true
+    max_in_flight: 1
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -455,6 +459,7 @@ jobs:
 % rbx_version = RUBIES[:rbx].last
   - name: rbx-<%= rbx_version %>-pr
     public: true
+    max_in_flight: 1
     plan:
       - get: ci
       - get: nokogiri-pr
