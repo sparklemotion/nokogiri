@@ -2,8 +2,9 @@
 
 ## Dependencies
 
-The optional dependency on the pkg-config gem has had its constraint loosened to `~> 1.1` (from `~> 1.1.7`). [#1660]
-
+* libxml2 is updated from 2.9.4 to 2.9.5.
+* libxslt is updated from 1.1.29 to 1.1.30.
+* optional dependency on the pkg-config gem has had its constraint loosened to `~> 1.1` (from `~> 1.1.7`). [#1660]
 
 ## Bugs
 
