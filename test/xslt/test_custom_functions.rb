@@ -55,7 +55,7 @@ EOXML
 </xsl:stylesheet>
 EOXSL
         result = xsl.transform @xml
-        assert_equal 'FOO', result.css('title').first.text
+        assert_match(/FOO/, result.css('title').first.text)
       end
 
 
@@ -126,7 +126,7 @@ EOXSL
 </xsl:stylesheet>
 EOXSL
         result = xsl.transform @xml
-        assert_equal 'FOO', result.css('title').first.text
+        assert_match(/FOO/, result.css('title').first.text)
       end
     end
   end
