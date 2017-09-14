@@ -4,7 +4,7 @@
 
 source "https://rubygems.org/"
 
-gem "mini_portile2", "~>2.2.0"
+gem "mini_portile2", "~>2.3.0"
 
 gem "hoe-bundler", "~>1.2", :group => [:development, :test]
 gem "hoe-debugging", "~>1.4", :group => [:development, :test]
