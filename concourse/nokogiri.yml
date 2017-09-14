@@ -351,7 +351,6 @@ jobs:
 % ruby_version = RUBIES[:mri].last
   - name: ruby-<%= ruby_version %>-system-pr
     public: true
-    serial_groups: [pr]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -378,7 +377,6 @@ jobs:
 
   - name: ruby-<%= ruby_version %>-vendored-pr
     public: true
-    serial_groups: [pr]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -403,7 +401,6 @@ jobs:
 
   - name: ruby-<%= ruby_version %>-valgrind-pr
     public: true
-    serial_groups: [pr]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -431,7 +428,6 @@ jobs:
 % jruby_version = RUBIES[:jruby].last
   - name: jruby-<%= jruby_version %>-pr
     public: true
-    serial_groups: [pr]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -459,7 +455,6 @@ jobs:
 % rbx_version = RUBIES[:rbx].last
   - name: rbx-<%= rbx_version %>-pr
     public: true
-    serial_groups: [pr]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -487,7 +482,6 @@ jobs:
 
   - name: pr-success
     public: true
-    serial_groups: [pr]
     disable_manual_trigger: true
     plan:
       - get: nokogiri-pr
@@ -498,7 +492,7 @@ jobs:
           - ruby-<%= RUBIES[:mri].last %>-vendored-pr
           - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
-          - rbx-<%= RUBIES[:rbx].last %>-pr # until we unpause the task
+          - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
 
