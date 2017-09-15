@@ -2,14 +2,16 @@
 
 ## Dependencies
 
-* libxml2 is updated from 2.9.4 to 2.9.5.
-* libxslt is updated from 1.1.29 to 1.1.30.
-* optional dependency on the pkg-config gem has had its constraint loosened to `~> 1.1` (from `~> 1.1.7`). [#1660]
+* [MRI] libxml2 is updated from 2.9.4 to 2.9.5.
+* [MRI] libxslt is updated from 1.1.29 to 1.1.30.
+* [MRI] optional dependency on the pkg-config gem has had its constraint loosened to `~> 1.1` (from `~> 1.1.7`). [#1660]
+* [MRI] Upgrade mini_portile2 dependency from `~> 2.2.0` to `~> 2.3.0`, which will validate checksums on the vendored libxml2 and libxslt tarballs before using them.
+
 
 ## Bugs
 
 * NodeSet#first with an integer argument longer than the length of the NodeSet now correctly clamps the length of the returned NodeSet to the original length. [#1650] (Thanks, @Derenge!)
-* [MRI] Ensure CData.new raises TypeError if the `content` argument is not implicitly convertible into a string. (#1669)
+* [MRI] Ensure CData.new raises TypeError if the `content` argument is not implicitly convertible into a string. [#1669]
 
 
 # 1.8.0 / 2017-06-04
