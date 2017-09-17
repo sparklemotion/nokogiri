@@ -30,22 +30,6 @@ groups:
       - rbx-<%= RUBIES[:rbx].last %>-pr
       - pr-success
 
-  - name: v1.7.x
-    jobs:
-      <% for ruby_version in RUBIES[:mri] %>
-      - v1.7.x-ruby-<%= ruby_version %>
-      <% end %>
-      <% ruby_version = RUBIES[:mri].last %>
-      - v1.7.x-ruby-<%= ruby_version %>-valgrind
-      - v1.7.x-ruby-<%= ruby_version %>-system
-      <% for jruby_version in RUBIES[:jruby] %>
-      - "v1.7.x-jruby-<%= jruby_version %>"
-      <% end %>
-      <% for rbx_version in RUBIES[:rbx] %>
-      - "v1.7.x-rbx-<%= rbx_version %>"
-      <% end %>
-      - v1.7.x-win-ruby-2.3-devkit
-
 resource_types:
 - name: pull-request
   type: docker-image
