@@ -18,8 +18,7 @@ groups:
       - "rbx-<%= rbx_version %>-system"
       - "rbx-<%= rbx_version %>-vendored"
       <% end %>
-      - windows-install-ruby-2.3
-      - ruby-2.3-devkit
+      - win-ruby-2.3-devkit
 
   - name: PRs
     jobs:
@@ -45,11 +44,7 @@ groups:
       <% for rbx_version in RUBIES[:rbx] %>
       - "v1.7.x-rbx-<%= rbx_version %>"
       <% end %>
-      - v1.7.x-ruby-2.3-devkit
-
-  - name: janitor
-    jobs:
-      - windex
+      - v1.7.x-win-ruby-2.3-devkit
 
 resource_types:
 - name: pull-request
@@ -283,29 +278,12 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
-  - name: windows-install-ruby-2.3
-    public: true
-    serial_groups: [windows-configuration]
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-      - task: setup
-        config:
-          platform: windows
-          inputs:
-            - name: ci
-          run:
-            path: powershell
-            args: ["-File", "ci/concourse/tasks/windows-config/install-ruby-and-devkit.ps1"]
-
-  - name: ruby-2.3-devkit
+  - name: win-ruby-2.3-devkit
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["windows-install-ruby-2.3"]
       - task: rake-test
         config:
           platform: windows
@@ -315,25 +293,6 @@ jobs:
           run:
             path: powershell
             args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
-
-  #
-  #  utility
-  #
-  - name: windex
-    public: true
-    serial_groups: [windows-configuration]
-    plan:
-      - get: ci
-      - task: clean
-        config:
-          platform: windows
-          inputs:
-            - name: ci
-          params:
-            CLEAN_WINDOWS: t
-          run:
-            path: powershell
-            args: ["-File", "ci/concourse/tasks/windows-config/install-ruby-and-devkit.ps1"]
 
   #
   #  PRs
@@ -615,7 +574,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
-  - name: v1.7.x-ruby-2.3-devkit
+  - name: v1.7.x-win-ruby-2.3-devkit
     public: true
     plan:
       - get: ci
