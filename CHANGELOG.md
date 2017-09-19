@@ -1,4 +1,4 @@
-# 1.8.1 / unreleased
+# 1.8.1 / 2017-09-19
 
 ## Dependencies
 
