@@ -624,9 +624,7 @@ module Nokogiri
         options[:encoding] = encoding
 
         outstring = String.new
-        if encoding && outstring.respond_to?(:force_encoding)
-          outstring.force_encoding(Encoding.find(encoding))
-        end
+        outstring.force_encoding(Encoding.find(encoding || 'utf-8'))
         io = StringIO.new(outstring)
         write_to io, options, &block
         io.string
