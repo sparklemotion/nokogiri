@@ -131,6 +131,7 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
+        passed: ["ruby-<%= ruby_version %>-system"]
       - task: rake-test
         config:
           platform: linux
@@ -152,7 +153,7 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: [ruby-libxmlruby-system]
+        passed: ["ruby-<%= ruby_version %>-system"]
       - task: rake-test
         config:
           platform: linux
