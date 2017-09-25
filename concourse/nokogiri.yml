@@ -18,7 +18,10 @@ groups:
       - "rbx-<%= rbx_version %>-system"
       - "rbx-<%= rbx_version %>-vendored"
       <% end %>
-      - win-ruby-2.3-devkit
+      <% for ruby_version in RUBIES[:windows] %>
+      - "win-ruby-<%= ruby_version %>-devkit"
+      <% end %>
+
 
   - name: PRs
     jobs:
@@ -257,21 +260,26 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
-  - name: win-ruby-2.3-devkit
+  <% for ruby_version in RUBIES[:windows] %>
+  - name: win-ruby-<%= ruby_version %>-devkit
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
+        passed: ["ruby-<%= ruby_version %>-system"]
       - task: rake-test
         config:
           platform: windows
           inputs:
             - name: ci
             - name: nokogiri
+          params:
+            WIN_RUBY_VERSION: "<%= ruby_version %>"
           run:
             path: powershell
             args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
+  <% end %>
 
   #
   #  PRs
