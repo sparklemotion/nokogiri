@@ -136,7 +136,7 @@ static bool consume_numeric_ref(
     return false;
   }
 
-  int codepoint = 0;
+  unsigned int codepoint = 0;
   bool status = true;
   do {
     codepoint = (codepoint * (is_hex ? 16 : 10)) + digit;
