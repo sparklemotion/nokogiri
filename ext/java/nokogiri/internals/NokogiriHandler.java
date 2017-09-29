@@ -61,7 +61,7 @@ import org.xml.sax.ext.DefaultHandler2;
  * @author Yoko Harada <yokolet@gmail.com>
  */
 public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
-    StringBuffer charactersBuffer;
+    StringBuilder charactersBuilder;
     private final Ruby ruby;
     private final RubyClass attrClass;
     private final IRubyObject object;
@@ -99,7 +99,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     @Override
     public void startDocument() throws SAXException {
         call("start_document");
-        charactersBuffer = new StringBuffer();
+        charactersBuilder = new StringBuilder();
     }
 
     @Override
@@ -233,7 +233,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-        charactersBuffer.append(new String(ch, start, length));
+        charactersBuilder.append(ch, start, length);
     }
 
     @Override
@@ -249,8 +249,8 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void endCDATA() throws SAXException {
-        call("cdata_block", ruby.newString(charactersBuffer.toString()));
-        charactersBuffer.setLength(0);
+        call("cdata_block", ruby.newString(charactersBuilder.toString()));
+        charactersBuilder.setLength(0);
     }
 
     @Override
@@ -330,9 +330,9 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     }
 
     protected void populateCharacters() {
-        if (charactersBuffer.length() > 0) {
-            call("characters", ruby.newString(charactersBuffer.toString()));
-            charactersBuffer.setLength(0);
+        if (charactersBuilder.length() > 0) {
+            call("characters", ruby.newString(charactersBuilder.toString()));
+            charactersBuilder.setLength(0);
         }
     }
 }
