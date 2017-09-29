@@ -186,6 +186,86 @@ module Nokogiri
           @processing_instructions << [name, content]
         end
       end
+
+      # This document will help us to test the strict order of items.
+
+      class DocWithOrderedItems < XML::SAX::Document
+        attr_reader :items
+
+        def initialize
+          # [
+          #   [ :method_1, argument_1, ... ],
+          #   [ :method_2, argument_2, ... ],
+          #   ...
+          # ]
+          @items = Items.new
+        end
+
+        [
+          :xmldecl,
+          :start_document, :end_document,
+          :start_element, :end_element,
+          :start_element_namespace, :end_element_namespace,
+          :characters, :comment, :cdata_block,
+          :processing_instruction,
+          :error, :warning
+        ]
+        .each do |name|
+          define_method name do |*arguments|
+            @items << [name, *arguments]
+            super *arguments
+          end
+        end
+
+        class Items < Array
+          def get_root_content root_name
+            items          = clone
+            is_inside_root = false
+
+            items.select! do |item|
+              method_name  = item[0]
+              element_name = item[1]
+
+              case method_name
+              when :start_element, :start_element_namespace
+                if element_name == root_name
+                  is_inside_root = true
+                  next false
+                end
+
+              when :end_element, :end_element_namespace
+                is_inside_root = false if element_name == root_name and is_inside_root
+              end
+
+              is_inside_root
+            end
+
+            items
+          end
+
+          def select_methods(names)
+            items = clone
+
+            items.select! do |item|
+              name = item[0]
+              names.include? name
+            end
+
+            items
+          end
+
+          def strip_text! method_names
+            each do |item|
+              method_name = item[0]
+              text        = item[1]
+
+              text.strip! if method_names.include? method_name
+            end
+
+            nil
+          end
+        end
+      end
     end
   end
 end
