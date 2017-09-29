@@ -18,7 +18,6 @@
 #include "tag_lookup.h"
 
 #include <assert.h>
-#include <ctype.h>
 #include <string.h>
 
 static const char kGumboTagNames[GUMBO_TAG_LAST+1][15] = {
@@ -204,12 +203,21 @@ void gumbo_tag_from_original_text(GumboStringPiece* text) {
     // strnchr is apparently not a standard C library function, so I loop
     // explicitly looking for whitespace or other illegal tag characters.
     for (const char* c = text->data; c != text->data + text->length; ++c) {
-      if (isspace(*c) || *c == '/') {
+      switch (*c) {
+      case '\t':
+      case '\n':
+      case '\f':
+      case ' ':
+      case '/':
         text->length = c - text->data;
-        break;
+        return;
       }
     }
   }
+}
+
+static char ascii_tolower(char ch) {
+    return 'A' <= ch && ch <= 'Z' ? ch | 0x20 : ch;
 }
 
 GumboTag gumbo_tagn_enum(const char *tagname, size_t tagname_length) {
@@ -221,7 +229,7 @@ GumboTag gumbo_tagn_enum(const char *tagname, size_t tagname_length) {
     // Convert tagname to lowercase
     char tagname_lower[15] = {'\0'};
     for (size_t i = 0; i < tagname_length; i++) {
-        tagname_lower[i] = tolower(tagname[i]);
+        tagname_lower[i] = ascii_tolower(tagname[i]);
     }
 
     const TagHashSlot *slot = gumbo_tag_lookup(tagname_lower, tagname_length);
