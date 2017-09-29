@@ -201,14 +201,14 @@ module Nokogiri
           @items = Items.new
         end
 
-        %i[
-          xmldecl
-          start_document end_document
-          start_element end_element
-          start_element_namespace end_element_namespace
-          characters comment cdata_block
-          processing_instruction
-          error warning
+        [
+          :xmldecl,
+          :start_document, :end_document,
+          :start_element, :end_element,
+          :start_element_namespace, :end_element_namespace,
+          :characters, :comment, :cdata_block,
+          :processing_instruction,
+          :error, :warning
         ]
         .each do |name|
           define_method name do |*arguments|

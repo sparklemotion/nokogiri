@@ -42,11 +42,11 @@ module Nokogiri
 
           @parser.parse html
           items = @doc.items.get_root_content "body"
-          items = items.select_methods %i[
-            start_element end_element
-            characters comment
+          items = items.select_methods [
+            :start_element, :end_element,
+            :characters, :comment
           ]
-          items.strip_text! %i[characters comment]
+          items.strip_text! [:characters, :comment]
 
           assert_equal [
             [:characters, 'text 0'],
@@ -113,11 +113,11 @@ module Nokogiri
 
           @parser.parse html
           items = @doc.items.get_root_content "body"
-          items = items.select_methods %i[
-            start_element end_element
-            characters comment
+          items = items.select_methods [
+            :start_element, :end_element,
+            :characters, :comment
           ]
-          items.strip_text! %i[characters comment]
+          items.strip_text! [:characters, :comment]
 
           assert_equal [
             [:characters, ''],

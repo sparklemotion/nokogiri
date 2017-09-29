@@ -46,11 +46,11 @@ module Nokogiri
 
           @parser.parse xml
           items = @doc.items.get_root_content "root"
-          items = items.select_methods %i[
-            start_element end_element
-            characters comment cdata_block
+          items = items.select_methods [
+            :start_element, :end_element,
+            :characters, :comment, :cdata_block
           ]
-          items.strip_text! %i[characters comment cdata_block]
+          items.strip_text! [:characters, :comment, :cdata_block]
 
           assert_equal [
             [:characters, 'text 0'],
@@ -139,11 +139,11 @@ module Nokogiri
 
           @parser.parse xml
           items = @doc.items.get_root_content "root"
-          items = items.select_methods %i[
-            start_element end_element
-            characters comment cdata_block
+          items = items.select_methods [
+            :start_element, :end_element,
+            :characters, :comment, :cdata_block
           ]
-          items.strip_text! %i[characters comment cdata_block]
+          items.strip_text! [:characters, :comment, :cdata_block]
 
           assert_equal [
             [:characters, ''],
