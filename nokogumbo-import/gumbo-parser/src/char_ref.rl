@@ -14,13 +14,7 @@
 //
 // Author: jdtang@google.com (Jonathan Tang)
 //
-// This is a Ragel state machine re-implementation of the original char_ref.c,
-// rewritten to improve efficiency.  To generate the .c file from it,
-//
-// $ ragel -F0 char_ref.rl
-//
-// The generated source is also checked into source control so that most people
-// hacking on the parser do not need to install ragel.
+// To generate the .c file use: ragel -F0 char_ref.rl
 
 #include "char_ref.h"
 
@@ -28,7 +22,7 @@
 #include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>     // Only for debug assertions at present.
+#include <string.h>  // Only for debug assertions at present.
 
 #include "error.h"
 #include "string_piece.h"
@@ -82,7 +76,7 @@ static const CharReplacement kCharReplacements[] = {
   { 0x9D, 0x009D },
   { 0x9E, 0x017E },
   { 0x9F, 0x0178 },
-  // Terminator.
+  // Terminator
   { -1, -1 }
 };
 
@@ -99,8 +93,10 @@ static int parse_digit(int c, bool allow_hex) {
   return -1;
 }
 
-static void add_no_digit_error(
-    struct GumboInternalParser* parser, Utf8Iterator* input) {
+static void add_no_digit_error (
+  struct GumboInternalParser* parser,
+  Utf8Iterator* input
+) {
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
     return;
@@ -109,9 +105,12 @@ static void add_no_digit_error(
   error->type = GUMBO_ERR_NUMERIC_CHAR_REF_NO_DIGITS;
 }
 
-static void add_codepoint_error(
-    struct GumboInternalParser* parser, Utf8Iterator* input,
-    GumboErrorType type, int codepoint) {
+static void add_codepoint_error (
+  struct GumboInternalParser* parser,
+  Utf8Iterator* input,
+  GumboErrorType type,
+  int codepoint
+) {
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
     return;
@@ -121,9 +120,12 @@ static void add_codepoint_error(
   error->v.codepoint = codepoint;
 }
 
-static void add_named_reference_error(
-    struct GumboInternalParser* parser, Utf8Iterator* input,
-    GumboErrorType type, GumboStringPiece text) {
+static void add_named_reference_error (
+  struct GumboInternalParser* parser,
+  Utf8Iterator* input,
+  GumboErrorType type,
+  GumboStringPiece text
+) {
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
     return;
@@ -142,8 +144,11 @@ static int maybe_replace_codepoint(int codepoint) {
   return -1;
 }
 
-static bool consume_numeric_ref(
-    struct GumboInternalParser* parser, Utf8Iterator* input, int* output) {
+static bool consume_numeric_ref (
+  struct GumboInternalParser* parser,
+  Utf8Iterator* input,
+  int* output
+) {
   utf8iterator_next(input);
   bool is_hex = false;
   int c = utf8iterator_current(input);
@@ -203,8 +208,10 @@ static bool consume_numeric_ref(
   return status;
 }
 
-static bool maybe_add_invalid_named_reference(
-    struct GumboInternalParser* parser, Utf8Iterator* input) {
+static bool maybe_add_invalid_named_reference (
+  struct GumboInternalParser* parser,
+  Utf8Iterator* input
+) {
   // The iterator will always be reset in this code path, so we don't need to
   // worry about consuming characters.
   const char* start = utf8iterator_get_char_pointer(input);
@@ -2464,13 +2471,14 @@ valid_named_ref := |*
 *|;
 }%%
 
-// clang-format off
 %% write data noerror nofinal;
-// clang-format on
 
-static bool consume_named_ref(
-    struct GumboInternalParser* parser, Utf8Iterator* input, bool is_in_attribute,
-    OneOrTwoCodepoints* output) {
+static bool consume_named_ref (
+  struct GumboInternalParser* parser,
+  Utf8Iterator* input,
+  bool is_in_attribute,
+  OneOrTwoCodepoints* output
+) {
   assert(output->first == kGumboNoChar);
   const char* p = utf8iterator_get_char_pointer(input);
   const char* pe = utf8iterator_get_end_pointer(input);
@@ -2479,7 +2487,6 @@ static bool consume_named_ref(
   const char *ts, *start;
   int cs, act;
 
-  // clang-format off
   %% write init;
   // Avoid unused variable warnings.
   (void) act;
@@ -2488,7 +2495,6 @@ static bool consume_named_ref(
 
   start = p;
   %% write exec;
-  // clang-format on
 
   if (cs >= %%{ write first_final; }%%) {
     assert(output->first != kGumboNoChar);
@@ -2522,10 +2528,13 @@ static bool consume_named_ref(
   }
 }
 
-bool consume_char_ref(
-    struct GumboInternalParser* parser, struct GumboInternalUtf8Iterator* input,
-    int additional_allowed_char, bool is_in_attribute,
-    OneOrTwoCodepoints* output) {
+bool consume_char_ref (
+  struct GumboInternalParser* parser,
+  struct GumboInternalUtf8Iterator* input,
+  int additional_allowed_char,
+  bool is_in_attribute,
+  OneOrTwoCodepoints* output
+) {
   utf8iterator_mark(input);
   utf8iterator_next(input);
   int c = utf8iterator_current(input);
