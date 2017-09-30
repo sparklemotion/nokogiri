@@ -20838,7 +20838,7 @@ _again:
   }
 }
 
-bool consume_char_ref (
+bool gumbo_consume_char_ref (
   struct GumboInternalParser* parser,
   struct GumboInternalUtf8Iterator* input,
   int additional_allowed_char,

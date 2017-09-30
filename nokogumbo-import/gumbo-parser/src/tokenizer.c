@@ -578,18 +578,24 @@ static void abandon_current_tag(GumboParser* parser) {
   gumbo_debug("Abandoning current tag.\n");
 }
 
-// Wraps the consume_char_ref function to handle its output and make the
+// Wraps the gumbo_consume_char_ref function to handle its output and make the
 // appropriate TokenizerState modifications.  Returns RETURN_ERROR if a parse
 // error occurred, RETURN_SUCCESS otherwise.
 static StateResult emit_char_ref(GumboParser* parser,
     int additional_allowed_char, bool is_in_attribute, GumboToken* output) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   OneOrTwoCodepoints char_ref;
-  bool status = consume_char_ref(
-      parser, &tokenizer->_input, additional_allowed_char, false, &char_ref);
+  bool status = gumbo_consume_char_ref (
+    parser,
+    &tokenizer->_input,
+    additional_allowed_char,
+    false,
+    &char_ref
+  );
   if (char_ref.first != kGumboNoChar) {
-    // consume_char_ref ends with the iterator pointing at the next character,
-    // so we need to be sure not advance it again before reading the next token.
+    // gumbo_consume_char_ref ends with the iterator pointing at the next
+    // character, so we need to be sure not advance it again before
+    // reading the next token.
     tokenizer->_reconsume_current_input = true;
     emit_char(parser, char_ref.first, output);
     tokenizer->_buffered_emit_char = char_ref.second;
@@ -1895,7 +1901,13 @@ static StateResult handle_char_ref_in_attr_value_state(GumboParser* parser,
   // a parser error has occurred when the error occurs in the middle of a
   // multi-state token.  We'd need a flag inside the TokenizerState to do this,
   // but that's a low priority fix.
-  consume_char_ref(parser, &tokenizer->_input, allowed_char, true, &char_ref);
+  gumbo_consume_char_ref (
+    parser,
+    &tokenizer->_input,
+    allowed_char,
+    true,
+    &char_ref
+  );
   if (char_ref.first != kGumboNoChar) {
     tokenizer->_reconsume_current_input = true;
     append_char_to_tag_buffer(parser, char_ref.first, is_unquoted);
