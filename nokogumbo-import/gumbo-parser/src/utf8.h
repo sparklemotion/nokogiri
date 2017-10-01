@@ -1,19 +1,6 @@
-// Copyright 2010 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// Author: jdtang@google.com (Jonathan Tang)
-//
+// Copyright 2010 Google Inc.
+// Licensed under the Apache License, version 2.0.
+
 // This contains an implementation of a UTF8 iterator and decoder suitable for
 // an HTML5 parser.  This does a bit more than straight UTF-8 decoding.  The
 // HTML5 spec specifies that:
@@ -36,10 +23,6 @@
 #include <stddef.h>
 
 #include "gumbo.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 struct GumboInternalError;
 struct GumboInternalParser;
@@ -81,8 +64,12 @@ bool utf8_is_invalid_code_point(int c);
 
 // Initializes a new Utf8Iterator from the given byte buffer.  The source does
 // not have to be NUL-terminated, but the length must be passed in explicitly.
-void utf8iterator_init(struct GumboInternalParser* parser, const char* source,
-    size_t source_length, Utf8Iterator* iter);
+void utf8iterator_init (
+  struct GumboInternalParser* parser,
+  const char* source,
+  size_t source_length,
+  Utf8Iterator* iter
+);
 
 // Advances the current position by one code point.
 void utf8iterator_next(Utf8Iterator* iter);
@@ -109,8 +96,12 @@ const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter);
 // this returns false.  Note that prefix should not contain null bytes because
 // of the use of strncmp/strncasecmp internally.  All existing use-cases adhere
 // to this.
-bool utf8iterator_maybe_consume_match(
-    Utf8Iterator* iter, const char* prefix, size_t length, bool case_sensitive);
+bool utf8iterator_maybe_consume_match (
+  Utf8Iterator* iter,
+  const char* prefix,
+  size_t length,
+  bool case_sensitive
+);
 
 // "Marks" a particular location of interest in the input stream, so that it can
 // later be reset() to.  There's also the ability to record an error at the
@@ -123,10 +114,9 @@ void utf8iterator_reset(Utf8Iterator* iter);
 
 // Sets the position and original text fields of an error to the value at the
 // mark.
-void utf8iterator_fill_error_at_mark(
-    Utf8Iterator* iter, struct GumboInternalError* error);
+void utf8iterator_fill_error_at_mark (
+  Utf8Iterator* iter,
+  struct GumboInternalError* error
+);
 
-#ifdef __cplusplus
-}
-#endif
-#endif  // GUMBO_UTF8_H_
+#endif // GUMBO_UTF8_H_

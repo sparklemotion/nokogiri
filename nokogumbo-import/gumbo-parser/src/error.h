@@ -1,36 +1,19 @@
-// Copyright 2010 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// Author: jdtang@google.com (Jonathan Tang)
-//
-// Error types, enums, and handling functions.
+// Copyright 2010 Google Inc.
+// Licensed under the Apache License, version 2.0.
 
 #ifndef GUMBO_ERROR_H_
 #define GUMBO_ERROR_H_
+
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+
 #include <stdint.h>
 
 #include "gumbo.h"
 #include "insertion_mode.h"
 #include "string_buffer.h"
 #include "token_type.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 struct GumboInternalParser;
 
@@ -218,8 +201,4 @@ void gumbo_caret_diagnostic_to_string(struct GumboInternalParser* parser,
 void gumbo_print_caret_diagnostic(struct GumboInternalParser* parser,
     const GumboError* error, const char* source_text);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // GUMBO_ERROR_H_
+#endif // GUMBO_ERROR_H_

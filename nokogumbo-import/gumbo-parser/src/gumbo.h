@@ -1,22 +1,9 @@
-// Copyright 2010 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// Author: jdtang@google.com (Jonathan Tang)
-//
-// We use Gumbo as a prefix for types, gumbo_ as a prefix for functions, and
-// GUMBO_ as a prefix for enum constants (static constants get the Google-style
-// kGumbo prefix).
+// Copyright 2010 Google Inc.
+// Licensed under the Apache License, version 2.0.
+
+// We use Gumbo as a prefix for types, gumbo_ as a prefix for functions,
+// GUMBO_ as a prefix for enum constants and kGumbo as a prefix for
+// static constants
 
 /**
  * @file
@@ -49,10 +36,6 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * A struct representing a character position within the original text buffer.
@@ -100,15 +83,19 @@ extern const GumboStringPiece kGumboEmptyString;
  * Compares two GumboStringPieces, and returns true if they're equal or false
  * otherwise.
  */
-bool gumbo_string_equals(
-    const GumboStringPiece* str1, const GumboStringPiece* str2);
+bool gumbo_string_equals (
+  const GumboStringPiece* str1,
+  const GumboStringPiece* str2
+);
 
 /**
  * Compares two GumboStringPieces ignoring case, and returns true if they're
  * equal or false otherwise.
  */
-bool gumbo_string_equals_ignore_case(
-    const GumboStringPiece* str1, const GumboStringPiece* str2);
+bool gumbo_string_equals_ignore_case (
+  const GumboStringPiece* str1,
+  const GumboStringPiece* str2
+);
 
 /**
  * A simple vector implementation.  This stores a pointer to a data array and a
@@ -804,14 +791,13 @@ GumboOutput* gumbo_parse(const char* buffer);
  * Extended version of gumbo_parse that takes an explicit options structure,
  * buffer, and length.
  */
-GumboOutput* gumbo_parse_with_options(
-    const GumboOptions* options, const char* buffer, size_t buffer_length);
+GumboOutput* gumbo_parse_with_options (
+  const GumboOptions* options,
+  const char* buffer,
+  size_t buffer_length
+);
 
 /** Release the memory used for the parse tree & parse errors. */
 void gumbo_destroy_output(const GumboOptions* options, GumboOutput* output);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // GUMBO_GUMBO_H_
+#endif // GUMBO_GUMBO_H_
