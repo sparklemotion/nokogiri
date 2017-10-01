@@ -27,16 +27,24 @@
 #include "util.h"
 #include "vector.h"
 
-// Prints a formatted message to a StringBuffer.  This automatically resizes the
-// StringBuffer as necessary to fit the message.  Returns the number of bytes
+// Prints a formatted message to a StringBuffer. This automatically resizes the
+// StringBuffer as necessary to fit the message. Returns the number of bytes
 // written.
-static int print_message(
-    GumboParser* parser, GumboStringBuffer* output, const char* format, ...) {
+static int print_message (
+  GumboParser* parser,
+  GumboStringBuffer* output,
+  const char* format,
+  ...
+) {
   va_list args;
   int remaining_capacity = output->capacity - output->length;
   va_start(args, format);
-  int bytes_written = vsnprintf(
-      output->data + output->length, remaining_capacity, format, args);
+  int bytes_written = vsnprintf (
+    output->data + output->length,
+    remaining_capacity,
+    format,
+    args
+  );
   va_end(args);
 #ifdef _MSC_VER
   if (bytes_written == -1) {
@@ -47,8 +55,12 @@ static int print_message(
     // no way to smartly resize the buffer.
     gumbo_string_buffer_reserve(parser, output->capacity * 2, output);
     va_start(args, format);
-    int result = vsnprintf(
-        output->data + output->length, remaining_capacity, format, args);
+    int result = vsnprintf (
+      output->data + output->length,
+      remaining_capacity,
+      format,
+      args
+    );
     va_end(args);
     return result == -1 ? 0 : result;
   }
@@ -60,20 +72,30 @@ static int print_message(
 #endif
 
   if (bytes_written >= remaining_capacity) {
-    gumbo_string_buffer_reserve(
-        parser, output->capacity + bytes_written, output);
+    gumbo_string_buffer_reserve (
+      parser,
+      output->capacity + bytes_written,
+      output
+    );
     remaining_capacity = output->capacity - output->length;
     va_start(args, format);
-    bytes_written = vsnprintf(
-        output->data + output->length, remaining_capacity, format, args);
+    bytes_written = vsnprintf (
+      output->data + output->length,
+      remaining_capacity,
+      format,
+      args
+    );
     va_end(args);
   }
   output->length += bytes_written;
   return bytes_written;
 }
 
-static void print_tag_stack(GumboParser* parser, const GumboParserError* error,
-    GumboStringBuffer* output) {
+static void print_tag_stack (
+  GumboParser* parser,
+  const GumboParserError* error,
+  GumboStringBuffer* output
+) {
   print_message(parser, output, "  Currently open tags: ");
   for (unsigned int i = 0; i < error->tag_stack.length; ++i) {
     if (i) {
@@ -85,12 +107,20 @@ static void print_tag_stack(GumboParser* parser, const GumboParserError* error,
   gumbo_string_buffer_append_codepoint(parser, '.', output);
 }
 
-static void handle_parser_error(GumboParser* parser,
-    const GumboParserError* error, GumboStringBuffer* output) {
-  if (error->parser_state == GUMBO_INSERTION_MODE_INITIAL &&
-      error->input_type != GUMBO_TOKEN_DOCTYPE) {
-    print_message(
-        parser, output, "The doctype must be the first token in the document");
+static void handle_parser_error (
+  GumboParser* parser,
+  const GumboParserError* error,
+  GumboStringBuffer* output
+) {
+  if (
+    error->parser_state == GUMBO_INSERTION_MODE_INITIAL
+    && error->input_type != GUMBO_TOKEN_DOCTYPE
+  ) {
+    print_message (
+      parser,
+      output,
+      "The doctype must be the first token in the document"
+    );
     return;
   }
 
@@ -132,8 +162,10 @@ static void handle_parser_error(GumboParser* parser,
 // Finds the preceding newline in an original source buffer from a given byte
 // location.  Returns a character pointer to the character after that, or a
 // pointer to the beginning of the string if this is the first line.
-static const char* find_last_newline(
-    const char* original_text, const char* error_location) {
+static const char* find_last_newline (
+  const char* original_text,
+  const char* error_location
+) {
   assert(error_location >= original_text);
   const char* c = error_location;
   for (; c != original_text && *c != '\n'; --c) {
@@ -146,8 +178,10 @@ static const char* find_last_newline(
 // Finds the next newline in the original source buffer from a given byte
 // location.  Returns a character pointer to that newline, or a pointer to the
 // terminating null byte if this is the last line.
-static const char* find_next_newline(
-    const char* original_text, const char* error_location) {
+static const char* find_next_newline (
+  const char* original_text,
+  const char* error_location
+) {
   const char* c = error_location;
   for (; *c && *c != '\n'; ++c)
     ;
@@ -164,70 +198,112 @@ GumboError* gumbo_add_error(GumboParser* parser) {
   return error;
 }
 
-void gumbo_error_to_string(
-    GumboParser* parser, const GumboError* error, GumboStringBuffer* output) {
-  print_message(
-      parser, output, "@%d:%d: ", error->position.line, error->position.column);
+void gumbo_error_to_string (
+  GumboParser* parser,
+  const GumboError* error,
+  GumboStringBuffer* output
+) {
+  print_message (
+    parser,
+    output,
+    "@%d:%d: ",
+    error->position.line,
+    error->position.column
+  );
   switch (error->type) {
     case GUMBO_ERR_UTF8_INVALID:
-      print_message(
-          parser, output, "Invalid UTF8 character 0x%x", error->v.codepoint);
+      print_message (
+        parser,
+        output,
+        "Invalid UTF8 character 0x%x",
+        error->v.codepoint
+      );
       break;
     case GUMBO_ERR_UTF8_TRUNCATED:
-      print_message(parser, output,
-          "Input stream ends with a truncated UTF8 character 0x%x",
-          error->v.codepoint);
+      print_message (
+        parser,
+        output,
+        "Input stream ends with a truncated UTF8 character 0x%x",
+        error->v.codepoint
+      );
       break;
     case GUMBO_ERR_NUMERIC_CHAR_REF_NO_DIGITS:
-      print_message(
-          parser, output, "No digits after &# in numeric character reference");
+      print_message (
+        parser,
+        output,
+        "No digits after &# in numeric character reference"
+      );
       break;
     case GUMBO_ERR_NUMERIC_CHAR_REF_WITHOUT_SEMICOLON:
-      print_message(parser, output,
-          "The numeric character reference &#%d should be followed "
-          "by a semicolon",
-          error->v.codepoint);
+      print_message (
+        parser,
+        output,
+        "The numeric character reference &#%d should be followed "
+        "by a semicolon",
+        error->v.codepoint
+      );
       break;
     case GUMBO_ERR_NUMERIC_CHAR_REF_INVALID:
-      print_message(parser, output,
-          "The numeric character reference &#%d; encodes an invalid "
-          "unicode codepoint",
-          error->v.codepoint);
+      print_message (
+        parser,
+        output,
+        "The numeric character reference &#%d; encodes an invalid "
+        "unicode codepoint",
+        error->v.codepoint
+      );
       break;
     case GUMBO_ERR_NAMED_CHAR_REF_WITHOUT_SEMICOLON:
       // The textual data came from one of the literal strings in the table, and
       // so it'll be null-terminated.
-      print_message(parser, output,
-          "The named character reference &%.*s should be followed by a "
-          "semicolon",
-          (int) error->v.text.length, error->v.text.data);
+      print_message (
+        parser,
+        output,
+        "The named character reference &%.*s should be followed by a "
+        "semicolon",
+        (int) error->v.text.length,
+        error->v.text.data
+      );
       break;
     case GUMBO_ERR_NAMED_CHAR_REF_INVALID:
-      print_message(parser, output,
-          "The named character reference &%.*s; is not a valid entity name",
-          (int) error->v.text.length, error->v.text.data);
+      print_message (
+        parser,
+        output,
+        "The named character reference &%.*s; is not a valid entity name",
+        (int) error->v.text.length,
+        error->v.text.data
+      );
       break;
     case GUMBO_ERR_DUPLICATE_ATTR:
-      print_message(parser, output,
-          "Attribute %s occurs multiple times, at positions %d and %d",
-          error->v.duplicate_attr.name, error->v.duplicate_attr.original_index,
-          error->v.duplicate_attr.new_index);
+      print_message (
+        parser,
+        output,
+        "Attribute %s occurs multiple times, at positions %d and %d",
+        error->v.duplicate_attr.name,
+        error->v.duplicate_attr.original_index,
+        error->v.duplicate_attr.new_index
+      );
       break;
     case GUMBO_ERR_PARSER:
     case GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG:
       handle_parser_error(parser, &error->v.parser, output);
       break;
     default:
-      print_message(parser, output,
-          "Tokenizer error with an unimplemented error message");
+      print_message (
+        parser,
+        output,
+        "Tokenizer error with an unimplemented error message"
+      );
       break;
   }
   gumbo_string_buffer_append_codepoint(parser, '.', output);
 }
 
-void gumbo_caret_diagnostic_to_string(GumboParser* parser,
-    const GumboError* error, const char* source_text,
-    GumboStringBuffer* output) {
+void gumbo_caret_diagnostic_to_string (
+  GumboParser* parser,
+  const GumboError* error,
+  const char* source_text,
+  GumboStringBuffer* output
+) {
   gumbo_error_to_string(parser, error, output);
 
   const char* line_start = find_last_newline(source_text, error->original_text);
@@ -239,8 +315,11 @@ void gumbo_caret_diagnostic_to_string(GumboParser* parser,
   gumbo_string_buffer_append_codepoint(parser, '\n', output);
   gumbo_string_buffer_append_string(parser, &original_line, output);
   gumbo_string_buffer_append_codepoint(parser, '\n', output);
-  gumbo_string_buffer_reserve(
-      parser, output->length + error->position.column, output);
+  gumbo_string_buffer_reserve (
+    parser,
+    output->length + error->position.column,
+    output
+  );
   int num_spaces = error->position.column - 1;
   memset(output->data + output->length, ' ', num_spaces);
   output->length += num_spaces;
@@ -248,8 +327,11 @@ void gumbo_caret_diagnostic_to_string(GumboParser* parser,
   gumbo_string_buffer_append_codepoint(parser, '\n', output);
 }
 
-void gumbo_print_caret_diagnostic(
-    GumboParser* parser, const GumboError* error, const char* source_text) {
+void gumbo_print_caret_diagnostic (
+  GumboParser* parser,
+  const GumboError* error,
+  const char* source_text
+) {
   GumboStringBuffer text;
   gumbo_string_buffer_init(parser, &text);
   gumbo_caret_diagnostic_to_string(parser, error, source_text, &text);
@@ -258,8 +340,10 @@ void gumbo_print_caret_diagnostic(
 }
 
 void gumbo_error_destroy(GumboParser* parser, GumboError* error) {
-  if (error->type == GUMBO_ERR_PARSER ||
-      error->type == GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG) {
+  if (
+    error->type == GUMBO_ERR_PARSER
+    || error->type == GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG
+  ) {
     gumbo_vector_destroy(parser, &error->v.parser.tag_stack);
   } else if (error->type == GUMBO_ERR_DUPLICATE_ATTR) {
     gumbo_parser_deallocate(parser, (void*) error->v.duplicate_attr.name);

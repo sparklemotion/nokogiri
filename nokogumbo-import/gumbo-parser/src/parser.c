@@ -33,10 +33,8 @@
 
 #define AVOID_UNUSED_VARIABLE_WARNING(i) (void)(i)
 
-#define GUMBO_STRING(literal) \
-  { literal, sizeof(literal) - 1 }
-#define TERMINATOR \
-  { "", 0 }
+#define GUMBO_STRING(literal) {literal, sizeof(literal) - 1}
+#define TERMINATOR {"", 0}
 
 typedef char gumbo_tagset[GUMBO_TAG_LAST];
 #define TAG(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_HTML)
@@ -46,40 +44,53 @@ typedef char gumbo_tagset[GUMBO_TAG_LAST];
 #define TAGSET_INCLUDES(tagset, namespace, tag) \
   (tag < GUMBO_TAG_LAST && tagset[(int) tag] == (1 << (int) namespace))
 
-// selected forward declarations as it is getting hard to find
-// an appropriate order
+// Selected forward declarations (as it's getting hard to find
+// an appropriate order).
 static bool node_html_tag_is(const GumboNode*, GumboTag);
-static GumboInsertionMode get_current_template_insertion_mode(
-    const GumboParser*);
 static bool handle_in_template(GumboParser*, GumboToken*);
 static void destroy_node(GumboParser*, GumboNode*);
+static GumboInsertionMode get_current_template_insertion_mode (
+    const GumboParser*
+);
 
-static void* malloc_wrapper(void* unused, size_t size) { return malloc(size); }
+static void* malloc_wrapper(void* unused, size_t size) {
+  return malloc(size);
+}
 
-static void free_wrapper(void* unused, void* ptr) { free(ptr); }
+static void free_wrapper(void* unused, void* ptr) {
+  free(ptr);
+}
 
-const GumboOptions kGumboDefaultOptions = {&malloc_wrapper, &free_wrapper, NULL,
-    8, false, -1, GUMBO_TAG_LAST, GUMBO_NAMESPACE_HTML};
+const GumboOptions kGumboDefaultOptions = {
+  .allocator = &malloc_wrapper,
+  .deallocator = &free_wrapper,
+  .userdata = NULL,
+  .tab_stop = 8,
+  .stop_on_first_error = false,
+  .max_errors = -1,
+  .fragment_context = GUMBO_TAG_LAST,
+  .fragment_namespace = GUMBO_NAMESPACE_HTML
+};
 
 static const GumboStringPiece kDoctypeHtml = GUMBO_STRING("html");
 static const GumboStringPiece kPublicIdHtml4_0 =
-    GUMBO_STRING("-//W3C//DTD HTML 4.0//EN");
+  GUMBO_STRING("-//W3C//DTD HTML 4.0//EN");
 static const GumboStringPiece kPublicIdHtml4_01 =
-    GUMBO_STRING("-//W3C//DTD HTML 4.01//EN");
+  GUMBO_STRING("-//W3C//DTD HTML 4.01//EN");
 static const GumboStringPiece kPublicIdXhtml1_0 =
-    GUMBO_STRING("-//W3C//DTD XHTML 1.0 Strict//EN");
+  GUMBO_STRING("-//W3C//DTD XHTML 1.0 Strict//EN");
 static const GumboStringPiece kPublicIdXhtml1_1 =
-    GUMBO_STRING("-//W3C//DTD XHTML 1.1//EN");
+  GUMBO_STRING("-//W3C//DTD XHTML 1.1//EN");
 static const GumboStringPiece kSystemIdRecHtml4_0 =
-    GUMBO_STRING("http://www.w3.org/TR/REC-html40/strict.dtd");
+  GUMBO_STRING("http://www.w3.org/TR/REC-html40/strict.dtd");
 static const GumboStringPiece kSystemIdHtml4 =
-    GUMBO_STRING("http://www.w3.org/TR/html4/strict.dtd");
+  GUMBO_STRING("http://www.w3.org/TR/html4/strict.dtd");
 static const GumboStringPiece kSystemIdXhtmlStrict1_1 =
-    GUMBO_STRING("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+  GUMBO_STRING("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
 static const GumboStringPiece kSystemIdXhtml1_1 =
-    GUMBO_STRING("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd");
+  GUMBO_STRING("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd");
 static const GumboStringPiece kSystemIdLegacyCompat =
-    GUMBO_STRING("about:legacy-compat");
+  GUMBO_STRING("about:legacy-compat");
 
 // The doctype arrays have an explicit terminator because we want to pass them
 // to a helper function, and passing them as a pointer discards sizeof
@@ -87,94 +98,108 @@ static const GumboStringPiece kSystemIdLegacyCompat =
 // over them use sizeof directly instead of a terminator.
 
 static const GumboStringPiece kQuirksModePublicIdPrefixes[] = {
-    GUMBO_STRING("+//Silmaril//dtd html Pro v0r11 19970101//"),
-    GUMBO_STRING("-//AdvaSoft Ltd//DTD HTML 3.0 asWedit + extensions//"),
-    GUMBO_STRING("-//AS//DTD HTML 3.0 asWedit + extensions//"),
-    GUMBO_STRING("-//IETF//DTD HTML 2.0 Level 1//"),
-    GUMBO_STRING("-//IETF//DTD HTML 2.0 Level 2//"),
-    GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict Level 1//"),
-    GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict Level 2//"),
-    GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict//"),
-    GUMBO_STRING("-//IETF//DTD HTML 2.0//"),
-    GUMBO_STRING("-//IETF//DTD HTML 2.1E//"),
-    GUMBO_STRING("-//IETF//DTD HTML 3.0//"),
-    GUMBO_STRING("-//IETF//DTD HTML 3.2 Final//"),
-    GUMBO_STRING("-//IETF//DTD HTML 3.2//"),
-    GUMBO_STRING("-//IETF//DTD HTML 3//"),
-    GUMBO_STRING("-//IETF//DTD HTML Level 0//"),
-    GUMBO_STRING("-//IETF//DTD HTML Level 1//"),
-    GUMBO_STRING("-//IETF//DTD HTML Level 2//"),
-    GUMBO_STRING("-//IETF//DTD HTML Level 3//"),
-    GUMBO_STRING("-//IETF//DTD HTML Strict Level 0//"),
-    GUMBO_STRING("-//IETF//DTD HTML Strict Level 1//"),
-    GUMBO_STRING("-//IETF//DTD HTML Strict Level 2//"),
-    GUMBO_STRING("-//IETF//DTD HTML Strict Level 3//"),
-    GUMBO_STRING("-//IETF//DTD HTML Strict//"),
-    GUMBO_STRING("-//IETF//DTD HTML//"),
-    GUMBO_STRING("-//Metrius//DTD Metrius Presentational//"),
-    GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 HTML Strict//"),
-    GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 HTML//"),
-    GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 Tables//"),
-    GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 HTML Strict//"),
-    GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 HTML//"),
-    GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 Tables//"),
-    GUMBO_STRING("-//Netscape Comm. Corp.//DTD HTML//"),
-    GUMBO_STRING("-//Netscape Comm. Corp.//DTD Strict HTML//"),
-    GUMBO_STRING("-//O'Reilly and Associates//DTD HTML 2.0//"),
-    GUMBO_STRING("-//O'Reilly and Associates//DTD HTML Extended 1.0//"),
-    GUMBO_STRING("-//O'Reilly and Associates//DTD HTML Extended Relaxed 1.0//"),
-    GUMBO_STRING(
-        "-//SoftQuad Software//DTD HoTMetaL PRO 6.0::19990601::)"
-        "extensions to HTML 4.0//"),
-    GUMBO_STRING(
-        "-//SoftQuad//DTD HoTMetaL PRO 4.0::19971010::"
-        "extensions to HTML 4.0//"),
-    GUMBO_STRING("-//Spyglass//DTD HTML 2.0 Extended//"),
-    GUMBO_STRING("-//SQ//DTD HTML 2.0 HoTMetaL + extensions//"),
-    GUMBO_STRING("-//Sun Microsystems Corp.//DTD HotJava HTML//"),
-    GUMBO_STRING("-//Sun Microsystems Corp.//DTD HotJava Strict HTML//"),
-    GUMBO_STRING("-//W3C//DTD HTML 3 1995-03-24//"),
-    GUMBO_STRING("-//W3C//DTD HTML 3.2 Draft//"),
-    GUMBO_STRING("-//W3C//DTD HTML 3.2 Final//"),
-    GUMBO_STRING("-//W3C//DTD HTML 3.2//"),
-    GUMBO_STRING("-//W3C//DTD HTML 3.2S Draft//"),
-    GUMBO_STRING("-//W3C//DTD HTML 4.0 Frameset//"),
-    GUMBO_STRING("-//W3C//DTD HTML 4.0 Transitional//"),
-    GUMBO_STRING("-//W3C//DTD HTML Experimental 19960712//"),
-    GUMBO_STRING("-//W3C//DTD HTML Experimental 970421//"),
-    GUMBO_STRING("-//W3C//DTD W3 HTML//"),
-    GUMBO_STRING("-//W3O//DTD W3 HTML 3.0//"),
-    GUMBO_STRING("-//WebTechs//DTD Mozilla HTML 2.0//"),
-    GUMBO_STRING("-//WebTechs//DTD Mozilla HTML//"), TERMINATOR};
+  GUMBO_STRING("+//Silmaril//dtd html Pro v0r11 19970101//"),
+  GUMBO_STRING("-//AdvaSoft Ltd//DTD HTML 3.0 asWedit + extensions//"),
+  GUMBO_STRING("-//AS//DTD HTML 3.0 asWedit + extensions//"),
+  GUMBO_STRING("-//IETF//DTD HTML 2.0 Level 1//"),
+  GUMBO_STRING("-//IETF//DTD HTML 2.0 Level 2//"),
+  GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict Level 1//"),
+  GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict Level 2//"),
+  GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict//"),
+  GUMBO_STRING("-//IETF//DTD HTML 2.0//"),
+  GUMBO_STRING("-//IETF//DTD HTML 2.1E//"),
+  GUMBO_STRING("-//IETF//DTD HTML 3.0//"),
+  GUMBO_STRING("-//IETF//DTD HTML 3.2 Final//"),
+  GUMBO_STRING("-//IETF//DTD HTML 3.2//"),
+  GUMBO_STRING("-//IETF//DTD HTML 3//"),
+  GUMBO_STRING("-//IETF//DTD HTML Level 0//"),
+  GUMBO_STRING("-//IETF//DTD HTML Level 1//"),
+  GUMBO_STRING("-//IETF//DTD HTML Level 2//"),
+  GUMBO_STRING("-//IETF//DTD HTML Level 3//"),
+  GUMBO_STRING("-//IETF//DTD HTML Strict Level 0//"),
+  GUMBO_STRING("-//IETF//DTD HTML Strict Level 1//"),
+  GUMBO_STRING("-//IETF//DTD HTML Strict Level 2//"),
+  GUMBO_STRING("-//IETF//DTD HTML Strict Level 3//"),
+  GUMBO_STRING("-//IETF//DTD HTML Strict//"),
+  GUMBO_STRING("-//IETF//DTD HTML//"),
+  GUMBO_STRING("-//Metrius//DTD Metrius Presentational//"),
+  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 HTML Strict//"),
+  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 HTML//"),
+  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 Tables//"),
+  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 HTML Strict//"),
+  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 HTML//"),
+  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 Tables//"),
+  GUMBO_STRING("-//Netscape Comm. Corp.//DTD HTML//"),
+  GUMBO_STRING("-//Netscape Comm. Corp.//DTD Strict HTML//"),
+  GUMBO_STRING("-//O'Reilly and Associates//DTD HTML 2.0//"),
+  GUMBO_STRING("-//O'Reilly and Associates//DTD HTML Extended 1.0//"),
+  GUMBO_STRING("-//O'Reilly and Associates//DTD HTML Extended Relaxed 1.0//"),
+  GUMBO_STRING(
+    "-//SoftQuad Software//DTD HoTMetaL PRO 6.0::19990601::)"
+    "extensions to HTML 4.0//"),
+  GUMBO_STRING(
+    "-//SoftQuad//DTD HoTMetaL PRO 4.0::19971010::"
+    "extensions to HTML 4.0//"),
+  GUMBO_STRING("-//Spyglass//DTD HTML 2.0 Extended//"),
+  GUMBO_STRING("-//SQ//DTD HTML 2.0 HoTMetaL + extensions//"),
+  GUMBO_STRING("-//Sun Microsystems Corp.//DTD HotJava HTML//"),
+  GUMBO_STRING("-//Sun Microsystems Corp.//DTD HotJava Strict HTML//"),
+  GUMBO_STRING("-//W3C//DTD HTML 3 1995-03-24//"),
+  GUMBO_STRING("-//W3C//DTD HTML 3.2 Draft//"),
+  GUMBO_STRING("-//W3C//DTD HTML 3.2 Final//"),
+  GUMBO_STRING("-//W3C//DTD HTML 3.2//"),
+  GUMBO_STRING("-//W3C//DTD HTML 3.2S Draft//"),
+  GUMBO_STRING("-//W3C//DTD HTML 4.0 Frameset//"),
+  GUMBO_STRING("-//W3C//DTD HTML 4.0 Transitional//"),
+  GUMBO_STRING("-//W3C//DTD HTML Experimental 19960712//"),
+  GUMBO_STRING("-//W3C//DTD HTML Experimental 970421//"),
+  GUMBO_STRING("-//W3C//DTD W3 HTML//"),
+  GUMBO_STRING("-//W3O//DTD W3 HTML 3.0//"),
+  GUMBO_STRING("-//WebTechs//DTD Mozilla HTML 2.0//"),
+  GUMBO_STRING("-//WebTechs//DTD Mozilla HTML//"),
+  TERMINATOR
+};
 
 static const GumboStringPiece kQuirksModePublicIdExactMatches[] = {
-    GUMBO_STRING("-//W3O//DTD W3 HTML Strict 3.0//EN//"),
-    GUMBO_STRING("-/W3C/DTD HTML 4.0 Transitional/EN"), GUMBO_STRING("HTML"),
-    TERMINATOR};
+  GUMBO_STRING("-//W3O//DTD W3 HTML Strict 3.0//EN//"),
+  GUMBO_STRING("-/W3C/DTD HTML 4.0 Transitional/EN"),
+  GUMBO_STRING("HTML"),
+  TERMINATOR
+};
 
 static const GumboStringPiece kQuirksModeSystemIdExactMatches[] = {
-    GUMBO_STRING("http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd"),
-    TERMINATOR};
+  GUMBO_STRING("http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd"),
+  TERMINATOR
+};
 
 static const GumboStringPiece kLimitedQuirksPublicIdPrefixes[] = {
-    GUMBO_STRING("-//W3C//DTD XHTML 1.0 Frameset//"),
-    GUMBO_STRING("-//W3C//DTD XHTML 1.0 Transitional//"), TERMINATOR};
+  GUMBO_STRING("-//W3C//DTD XHTML 1.0 Frameset//"),
+  GUMBO_STRING("-//W3C//DTD XHTML 1.0 Transitional//"),
+  TERMINATOR
+};
 
-static const GumboStringPiece kLimitedQuirksRequiresSystemIdPublicIdPrefixes[] =
-    {GUMBO_STRING("-//W3C//DTD HTML 4.01 Frameset//"),
-        GUMBO_STRING("-//W3C//DTD HTML 4.01 Transitional//"), TERMINATOR};
+static const GumboStringPiece kLimitedQuirksRequiresSystemIdPublicIdPrefixes[] = {
+  GUMBO_STRING("-//W3C//DTD HTML 4.01 Frameset//"),
+  GUMBO_STRING("-//W3C//DTD HTML 4.01 Transitional//"),
+  TERMINATOR
+};
 
 // Indexed by GumboNamespaceEnum; keep in sync with that.
-static const char* kLegalXmlns[] = {"http://www.w3.org/1999/xhtml",
-    "http://www.w3.org/2000/svg", "http://www.w3.org/1998/Math/MathML"};
+static const char* kLegalXmlns[] = {
+  "http://www.w3.org/1999/xhtml",
+  "http://www.w3.org/2000/svg",
+  "http://www.w3.org/1998/Math/MathML"
+};
 
 typedef struct _ReplacementEntry {
   const GumboStringPiece from;
   const GumboStringPiece to;
 } ReplacementEntry;
 
-#define REPLACEMENT_ENTRY(from, to) \
-  { GUMBO_STRING(from), GUMBO_STRING(to) }
+#define REPLACEMENT_ENTRY(from, to) { \
+  GUMBO_STRING(from), \
+  GUMBO_STRING(to) \
+}
 
 // Static data for SVG attribute replacements.
 // https://html.spec.whatwg.org/multipage/syntax.html#creating-and-inserting-nodes
@@ -406,23 +431,31 @@ static bool token_has_attribute(const GumboToken* token, const char* name) {
 
 // Checks if the value of the specified attribute is a case-insensitive match
 // for the specified string.
-static bool attribute_matches(
-    const GumboVector* attributes, const char* name, const char* value) {
+static bool attribute_matches (
+  const GumboVector* attributes,
+  const char* name,
+  const char* value
+) {
   const GumboAttribute* attr = gumbo_get_attribute(attributes, name);
   return attr ? strcasecmp(value, attr->value) == 0 : false;
 }
 
 // Checks if the value of the specified attribute is a case-sensitive match
 // for the specified string.
-static bool attribute_matches_case_sensitive(
-    const GumboVector* attributes, const char* name, const char* value) {
+static bool attribute_matches_case_sensitive (
+  const GumboVector* attributes,
+  const char* name,
+  const char* value
+) {
   const GumboAttribute* attr = gumbo_get_attribute(attributes, name);
   return attr ? strcmp(value, attr->value) == 0 : false;
 }
 
 // Checks if the specified attribute vectors are identical.
-static bool all_attributes_match(
-    const GumboVector* attr1, const GumboVector* attr2) {
+static bool all_attributes_match (
+  const GumboVector* attr1,
+  const GumboVector* attr2
+) {
   unsigned int num_unmatched_attr2_elements = attr2->length;
   for (unsigned int i = 0; i < attr1->length; ++i) {
     const GumboAttribute* attr = attr1->data[i];
@@ -560,8 +593,10 @@ static void set_insertion_mode(GumboParser* parser, GumboInsertionMode mode) {
 // of setting it.  Returns GUMBO_INSERTION_MODE_INITIAL as a sentinel value to
 // indicate that there is no appropriate insertion mode, and the loop should
 // continue.
-static GumboInsertionMode get_appropriate_insertion_mode(
-    const GumboParser* parser, int index) {
+static GumboInsertionMode get_appropriate_insertion_mode (
+  const GumboParser* parser,
+  int index
+) {
   const GumboVector* open_elements = &parser->_parser_state->_open_elements;
   const GumboNode* node = open_elements->data[index];
   const bool is_last = index == 0;
@@ -571,10 +606,10 @@ static GumboInsertionMode get_appropriate_insertion_mode(
   }
 
   assert(node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE);
-  if (node->v.element.tag_namespace != GUMBO_NAMESPACE_HTML)
-    return is_last ?
-      GUMBO_INSERTION_MODE_IN_BODY : GUMBO_INSERTION_MODE_INITIAL;
-  
+  if (node->v.element.tag_namespace != GUMBO_NAMESPACE_HTML) {
+    return is_last ? GUMBO_INSERTION_MODE_IN_BODY : GUMBO_INSERTION_MODE_INITIAL;
+  }
+
   switch (node->v.element.tag) {
     case GUMBO_TAG_SELECT: {
       if (is_last) {
@@ -618,8 +653,8 @@ static GumboInsertionMode get_appropriate_insertion_mode(
       return GUMBO_INSERTION_MODE_IN_FRAMESET;
     case GUMBO_TAG_HTML:
       return parser->_parser_state->_head_element
-                 ? GUMBO_INSERTION_MODE_AFTER_HEAD
-                 : GUMBO_INSERTION_MODE_BEFORE_HEAD;
+        ? GUMBO_INSERTION_MODE_AFTER_HEAD
+        : GUMBO_INSERTION_MODE_BEFORE_HEAD;
     default:
       break;
   }
@@ -641,8 +676,10 @@ static void reset_insertion_mode_appropriately(GumboParser* parser) {
   assert(0);
 }
 
-static GumboError* parser_add_parse_error(
-    GumboParser* parser, const GumboToken* token) {
+static GumboError* parser_add_parse_error (
+  GumboParser* parser,
+  const GumboToken* token
+) {
   gumbo_debug("Adding parse error.\n");
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
@@ -677,8 +714,11 @@ static GumboError* parser_add_parse_error(
 // by is_start) with one of the tag types in the varargs list.  Terminate the
 // list with GUMBO_TAG_LAST; this functions as a sentinel since no portion of
 // the spec references tags that are not in the spec.
-static bool tag_in(
-    const GumboToken* token, bool is_start, const gumbo_tagset tags) {
+static bool tag_in (
+  const GumboToken* token,
+  bool is_start,
+  const gumbo_tagset tags
+) {
   GumboTag token_tag;
   if (is_start && token->type == GUMBO_TOKEN_START_TAG) {
     token_tag = token->v.start_tag.tag;
@@ -712,12 +752,16 @@ static bool node_tag_in_set(const GumboNode* node, const gumbo_tagset tags) {
 }
 
 // Like node_tag_in, but for the single-tag case.
-static bool node_qualified_tag_is(
-    const GumboNode* node, GumboNamespaceEnum ns, GumboTag tag) {
+static bool node_qualified_tag_is (
+  const GumboNode* node,
+  GumboNamespaceEnum ns,
+  GumboTag tag
+) {
   assert(node);
-  return (node->type == GUMBO_NODE_ELEMENT ||
-             node->type == GUMBO_NODE_TEMPLATE) &&
-         node->v.element.tag == tag && node->v.element.tag_namespace == ns;
+  return
+    (node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE)
+    && node->v.element.tag == tag
+    && node->v.element.tag_namespace == ns;
 }
 
 // Like node_tag_in, but for the single-tag case in the HTML namespace
@@ -725,10 +769,15 @@ static bool node_html_tag_is(const GumboNode* node, GumboTag tag) {
   return node_qualified_tag_is(node, GUMBO_NAMESPACE_HTML, tag);
 }
 
-static void push_template_insertion_mode(
-    GumboParser* parser, GumboInsertionMode mode) {
-  gumbo_vector_add(
-      parser, (void*) mode, &parser->_parser_state->_template_insertion_modes);
+static void push_template_insertion_mode (
+  GumboParser* parser,
+  GumboInsertionMode mode
+) {
+  gumbo_vector_add (
+    parser,
+    (void*) mode,
+    &parser->_parser_state->_template_insertion_modes
+  );
 }
 
 static void pop_template_insertion_mode(GumboParser* parser) {
@@ -737,8 +786,9 @@ static void pop_template_insertion_mode(GumboParser* parser) {
 
 // Returns the current template insertion mode.  If the stack of template
 // insertion modes is empty, this returns GUMBO_INSERTION_MODE_INITIAL.
-static GumboInsertionMode get_current_template_insertion_mode(
-    const GumboParser* parser) {
+static GumboInsertionMode get_current_template_insertion_mode (
+  const GumboParser* parser
+) {
   GumboVector* template_insertion_modes =
       &parser->_parser_state->_template_insertion_modes;
   if (template_insertion_modes->length == 0) {
@@ -750,9 +800,16 @@ static GumboInsertionMode get_current_template_insertion_mode(
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#mathml-text-integration-point
 static bool is_mathml_integration_point(const GumboNode* node) {
-  return node_tag_in_set(
-      node, (gumbo_tagset){TAG_MATHML(MI), TAG_MATHML(MO), TAG_MATHML(MN),
-                TAG_MATHML(MS), TAG_MATHML(MTEXT)});
+  return node_tag_in_set (
+    node,
+    (gumbo_tagset) {
+      TAG_MATHML(MI),
+      TAG_MATHML(MO),
+      TAG_MATHML(MN),
+      TAG_MATHML(MS),
+      TAG_MATHML(MTEXT)
+    }
+  );
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#html-integration-point
