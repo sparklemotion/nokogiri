@@ -1420,20 +1420,26 @@ static GumboQuirksModeEnum compute_quirks_mode(
 // from the rest of the document. Note that because of the way the spec is
 // written,
 // all elements are expected to be in the HTML namespace
-static bool has_an_element_in_specific_scope(GumboParser* parser,
-    int expected_size, const GumboTag* expected, bool negate,
-    const TagSet tags) {
+static bool has_an_element_in_specific_scope (
+  GumboParser* parser,
+  int expected_size,
+  const GumboTag* expected,
+  bool negate,
+  const TagSet tags
+) {
   GumboVector* open_elements = &parser->_parser_state->_open_elements;
   for (int i = open_elements->length; --i >= 0;) {
     const GumboNode* node = open_elements->data[i];
-    if (node->type != GUMBO_NODE_ELEMENT && node->type != GUMBO_NODE_TEMPLATE)
+    if (node->type != GUMBO_NODE_ELEMENT && node->type != GUMBO_NODE_TEMPLATE) {
       continue;
+    }
 
     GumboTag node_tag = node->v.element.tag;
     GumboNamespaceEnum node_ns = node->v.element.tag_namespace;
     for (int j = 0; j < expected_size; ++j) {
-      if (node_tag == expected[j] && node_ns == GUMBO_NAMESPACE_HTML)
+      if (node_tag == expected[j] && node_ns == GUMBO_NAMESPACE_HTML) {
         return true;
+      }
     }
 
     bool found = TAGSET_INCLUDES(tags, node_ns, node_tag);
@@ -1444,43 +1450,54 @@ static bool has_an_element_in_specific_scope(GumboParser* parser,
 
 // Checks for the presence of an open element of the specified tag type.
 static bool has_open_element(GumboParser* parser, GumboTag tag) {
-  return has_an_element_in_specific_scope(
-      parser, 1, &tag, false, (TagSet){TAG(HTML)});
+  static const TagSet tags = {TAG(HTML)};
+  return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-scope
+#define DEFAULT_SCOPE_TAGS \
+  TAG(APPLET), \
+  TAG(CAPTION), \
+  TAG(HTML), \
+  TAG(TABLE), \
+  TAG(TD), \
+  TAG(TH), \
+  TAG(MARQUEE), \
+  TAG(OBJECT), \
+  TAG(TEMPLATE), \
+  TAG_MATHML(MI), \
+  TAG_MATHML(MO), \
+  TAG_MATHML(MN), \
+  TAG_MATHML(MS), \
+  TAG_MATHML(MTEXT), \
+  TAG_MATHML(ANNOTATION_XML), \
+  TAG_SVG(FOREIGNOBJECT), \
+  TAG_SVG(DESC), \
+  TAG_SVG(TITLE)
+
+// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-scope
 static bool has_an_element_in_scope(GumboParser* parser, GumboTag tag) {
-  return has_an_element_in_specific_scope(parser, 1, &tag, false,
-      (TagSet){TAG(APPLET), TAG(CAPTION), TAG(HTML), TAG(TABLE), TAG(TD),
-          TAG(TH), TAG(MARQUEE), TAG(OBJECT), TAG(TEMPLATE), TAG_MATHML(MI),
-          TAG_MATHML(MO), TAG_MATHML(MN), TAG_MATHML(MS), TAG_MATHML(MTEXT),
-          TAG_MATHML(ANNOTATION_XML), TAG_SVG(FOREIGNOBJECT), TAG_SVG(DESC),
-          TAG_SVG(TITLE)});
+  static const TagSet tags = {DEFAULT_SCOPE_TAGS};
+  return has_an_element_in_specific_scope (parser, 1, &tag, false, tags);
 }
 
 // Like "has an element in scope", but for the specific case of looking for a
-// unique target node, not for any node with a given tag name.  This duplicates
+// unique target node, not for any node with a given tag name. This duplicates
 // much of the algorithm from has_an_element_in_specific_scope because the
 // predicate is different when checking for an exact node, and it's easier &
 // faster just to duplicate the code for this one case than to try and
 // parameterize it.
 static bool has_node_in_scope(GumboParser* parser, const GumboNode* node) {
+  static const TagSet tags = {DEFAULT_SCOPE_TAGS};
   GumboVector* open_elements = &parser->_parser_state->_open_elements;
   for (int i = open_elements->length; --i >= 0;) {
     const GumboNode* current = open_elements->data[i];
+    const GumboNodeType type = current->type;
     if (current == node) {
       return true;
-    }
-    if (current->type != GUMBO_NODE_ELEMENT &&
-        current->type != GUMBO_NODE_TEMPLATE) {
+    } else if (type != GUMBO_NODE_ELEMENT && type != GUMBO_NODE_TEMPLATE) {
       continue;
-    }
-    if (node_tag_in_set(current,
-            (TagSet){TAG(APPLET), TAG(CAPTION), TAG(HTML), TAG(TABLE),
-                TAG(TD), TAG(TH), TAG(MARQUEE), TAG(OBJECT), TAG(TEMPLATE),
-                TAG_MATHML(MI), TAG_MATHML(MO), TAG_MATHML(MN), TAG_MATHML(MS),
-                TAG_MATHML(MTEXT), TAG_MATHML(ANNOTATION_XML),
-                TAG_SVG(FOREIGNOBJECT), TAG_SVG(DESC), TAG_SVG(TITLE)})) {
+    } else if (node_tag_in_set(current, tags)) {
       return false;
     }
   }
@@ -1490,55 +1507,48 @@ static bool has_node_in_scope(GumboParser* parser, const GumboNode* node) {
 
 // Like has_an_element_in_scope, but restricts the expected qualified name to a
 // range of possible qualified names instead of just a single one.
-static bool has_an_element_in_scope_with_tagname(
-    GumboParser* parser, int expected_len, const GumboTag expected[]) {
-  return has_an_element_in_specific_scope(parser, expected_len, expected, false,
-      (TagSet){TAG(APPLET), TAG(CAPTION), TAG(HTML), TAG(TABLE), TAG(TD),
-          TAG(TH), TAG(MARQUEE), TAG(OBJECT), TAG(TEMPLATE), TAG_MATHML(MI),
-          TAG_MATHML(MO), TAG_MATHML(MN), TAG_MATHML(MS), TAG_MATHML(MTEXT),
-          TAG_MATHML(ANNOTATION_XML), TAG_SVG(FOREIGNOBJECT), TAG_SVG(DESC),
-          TAG_SVG(TITLE)});
+static bool has_an_element_in_scope_with_tagname (
+  GumboParser* parser,
+  int len,
+  const GumboTag expected[]
+) {
+  static const TagSet tags = {DEFAULT_SCOPE_TAGS};
+  return has_an_element_in_specific_scope(parser, len, expected, false, tags);
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-list-item-scope
 static bool has_an_element_in_list_scope(GumboParser* parser, GumboTag tag) {
-  return has_an_element_in_specific_scope(parser, 1, &tag, false,
-      (TagSet){TAG(APPLET), TAG(CAPTION), TAG(HTML), TAG(TABLE), TAG(TD),
-          TAG(TH), TAG(MARQUEE), TAG(OBJECT), TAG(TEMPLATE), TAG_MATHML(MI),
-          TAG_MATHML(MO), TAG_MATHML(MN), TAG_MATHML(MS), TAG_MATHML(MTEXT),
-          TAG_MATHML(ANNOTATION_XML), TAG_SVG(FOREIGNOBJECT), TAG_SVG(DESC),
-          TAG_SVG(TITLE), TAG(OL), TAG(UL)});
+  static const TagSet tags = {DEFAULT_SCOPE_TAGS, TAG(OL), TAG(UL)};
+  return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-button-scope
 static bool has_an_element_in_button_scope(GumboParser* parser, GumboTag tag) {
-  return has_an_element_in_specific_scope(parser, 1, &tag, false,
-      (TagSet){TAG(APPLET), TAG(CAPTION), TAG(HTML), TAG(TABLE), TAG(TD),
-          TAG(TH), TAG(MARQUEE), TAG(OBJECT), TAG(TEMPLATE), TAG_MATHML(MI),
-          TAG_MATHML(MO), TAG_MATHML(MN), TAG_MATHML(MS), TAG_MATHML(MTEXT),
-          TAG_MATHML(ANNOTATION_XML), TAG_SVG(FOREIGNOBJECT), TAG_SVG(DESC),
-          TAG_SVG(TITLE), TAG(BUTTON)});
+  static const TagSet tags = {DEFAULT_SCOPE_TAGS, TAG(BUTTON)};
+  return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-table-scope
 static bool has_an_element_in_table_scope(GumboParser* parser, GumboTag tag) {
-  return has_an_element_in_specific_scope(parser, 1, &tag, false,
-      (TagSet){TAG(HTML), TAG(TABLE), TAG(TEMPLATE)});
+  static const TagSet tags = {TAG(HTML), TAG(TABLE), TAG(TEMPLATE)};
+  return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-select-scope
 static bool has_an_element_in_select_scope(GumboParser* parser, GumboTag tag) {
-  return has_an_element_in_specific_scope(
-      parser, 1, &tag, true, (TagSet){TAG(OPTGROUP), TAG(OPTION)});
+  static const TagSet tags = {TAG(OPTGROUP), TAG(OPTION)};
+  return has_an_element_in_specific_scope(parser, 1, &tag, true, tags);
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete/tokenization.html#generate-implied-end-tags
 // "exception" is the "element to exclude from the process" listed in the spec.
 // Pass GUMBO_TAG_LAST to not exclude any of them.
 static void generate_implied_end_tags(GumboParser* parser, GumboTag exception) {
-  for (; node_tag_in_set(get_current_node(parser),
-             (TagSet){TAG(DD), TAG(DT), TAG(LI), TAG(OPTION),
-                 TAG(OPTGROUP), TAG(P), TAG(RP), TAG(RB), TAG(RT), TAG(RTC)}) &&
+  static const TagSet tags = {
+    TAG(DD), TAG(DT), TAG(LI), TAG(OPTION), TAG(OPTGROUP),
+    TAG(P), TAG(RP), TAG(RB), TAG(RT), TAG(RTC)
+  };
+  for (; node_tag_in_set(get_current_node(parser), tags) &&
          !node_html_tag_is(get_current_node(parser), exception);
        pop_current_node(parser))
     ;
@@ -1547,11 +1557,12 @@ static void generate_implied_end_tags(GumboParser* parser, GumboTag exception) {
 // This is the "generate all implied end tags thoroughly" clause of the spec.
 // https://html.spec.whatwg.org/multipage/syntax.html#closing-elements-that-have-implied-end-tags
 static void generate_all_implied_end_tags_thoroughly(GumboParser* parser) {
-  for (
-      ; node_tag_in_set(get_current_node(parser),
-          (TagSet){TAG(CAPTION), TAG(COLGROUP), TAG(DD), TAG(DT), TAG(LI),
-              TAG(OPTION), TAG(OPTGROUP), TAG(P), TAG(RP), TAG(RT), TAG(RTC),
-              TAG(TBODY), TAG(TD), TAG(TFOOT), TAG(TH), TAG(HEAD), TAG(TR)});
+  static const TagSet tags = {
+    TAG(CAPTION), TAG(COLGROUP), TAG(DD), TAG(DT), TAG(LI), TAG(OPTION),
+    TAG(OPTGROUP), TAG(P), TAG(RP), TAG(RT), TAG(RTC), TAG(TBODY),
+    TAG(TD), TAG(TFOOT), TAG(TH), TAG(HEAD), TAG(TR)
+  };
+  for (; node_tag_in_set(get_current_node(parser), tags);
       pop_current_node(parser))
     ;
 }
@@ -1621,27 +1632,29 @@ static void close_current_select(GumboParser* parser) {
 // http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#special
 static bool is_special_node(const GumboNode* node) {
   assert(node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE);
-  return node_tag_in_set(node,
-      (TagSet){TAG(ADDRESS), TAG(APPLET), TAG(AREA), TAG(ARTICLE),
-          TAG(ASIDE), TAG(BASE), TAG(BASEFONT), TAG(BGSOUND), TAG(BLOCKQUOTE),
-          TAG(BODY), TAG(BR), TAG(BUTTON), TAG(CAPTION), TAG(CENTER), TAG(COL),
-          TAG(COLGROUP), TAG(MENUITEM), TAG(DD), TAG(DETAILS), TAG(DIR),
-          TAG(DIV), TAG(DL), TAG(DT), TAG(EMBED), TAG(FIELDSET),
-          TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(FORM), TAG(FRAME),
-          TAG(FRAMESET), TAG(H1), TAG(H2), TAG(H3), TAG(H4), TAG(H5), TAG(H6),
-          TAG(HEAD), TAG(HEADER), TAG(HGROUP), TAG(HR), TAG(HTML), TAG(IFRAME),
-          TAG(IMG), TAG(INPUT), TAG(ISINDEX), TAG(LI), TAG(LINK), TAG(LISTING),
-          TAG(MARQUEE), TAG(MENU), TAG(META), TAG(NAV), TAG(NOEMBED),
-          TAG(NOFRAMES), TAG(NOSCRIPT), TAG(OBJECT), TAG(OL), TAG(P),
-          TAG(PARAM), TAG(PLAINTEXT), TAG(PRE), TAG(SCRIPT), TAG(SECTION),
-          TAG(SELECT), TAG(STYLE), TAG(SUMMARY), TAG(TABLE), TAG(TBODY),
-          TAG(TD), TAG(TEMPLATE), TAG(TEXTAREA), TAG(TFOOT), TAG(TH),
-          TAG(THEAD), TAG(TITLE), TAG(TR), TAG(UL), TAG(WBR), TAG(XMP),
+  return node_tag_in_set(node, (TagSet) {
+      TAG(ADDRESS), TAG(APPLET), TAG(AREA), TAG(ARTICLE),
+      TAG(ASIDE), TAG(BASE), TAG(BASEFONT), TAG(BGSOUND), TAG(BLOCKQUOTE),
+      TAG(BODY), TAG(BR), TAG(BUTTON), TAG(CAPTION), TAG(CENTER), TAG(COL),
+      TAG(COLGROUP), TAG(MENUITEM), TAG(DD), TAG(DETAILS), TAG(DIR),
+      TAG(DIV), TAG(DL), TAG(DT), TAG(EMBED), TAG(FIELDSET),
+      TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(FORM), TAG(FRAME),
+      TAG(FRAMESET), TAG(H1), TAG(H2), TAG(H3), TAG(H4), TAG(H5), TAG(H6),
+      TAG(HEAD), TAG(HEADER), TAG(HGROUP), TAG(HR), TAG(HTML), TAG(IFRAME),
+      TAG(IMG), TAG(INPUT), TAG(ISINDEX), TAG(LI), TAG(LINK), TAG(LISTING),
+      TAG(MARQUEE), TAG(MENU), TAG(META), TAG(NAV), TAG(NOEMBED),
+      TAG(NOFRAMES), TAG(NOSCRIPT), TAG(OBJECT), TAG(OL), TAG(P),
+      TAG(PARAM), TAG(PLAINTEXT), TAG(PRE), TAG(SCRIPT), TAG(SECTION),
+      TAG(SELECT), TAG(STYLE), TAG(SUMMARY), TAG(TABLE), TAG(TBODY),
+      TAG(TD), TAG(TEMPLATE), TAG(TEXTAREA), TAG(TFOOT), TAG(TH),
+      TAG(THEAD), TAG(TITLE), TAG(TR), TAG(UL), TAG(WBR), TAG(XMP),
 
-          TAG_MATHML(MI), TAG_MATHML(MO), TAG_MATHML(MN), TAG_MATHML(MS),
-          TAG_MATHML(MTEXT), TAG_MATHML(ANNOTATION_XML),
+      TAG_MATHML(MI), TAG_MATHML(MO), TAG_MATHML(MN), TAG_MATHML(MS),
+      TAG_MATHML(MTEXT), TAG_MATHML(ANNOTATION_XML),
 
-          TAG_SVG(FOREIGNOBJECT), TAG_SVG(DESC)});
+      TAG_SVG(FOREIGNOBJECT), TAG_SVG(DESC), TAG_SVG(TITLE)
+    }
+  );
 }
 
 // Implicitly closes currently open elements until it reaches an element with
@@ -1680,31 +1693,42 @@ static bool maybe_implicitly_close_p_tag(
 }
 
 // Convenience function to encapsulate the logic for closing <li> or <dd>/<dt>
-// tags.  Pass true to is_li for handling <li> tags, false for <dd> and <dt>.
-static void maybe_implicitly_close_list_tag(
-    GumboParser* parser, GumboToken* token, bool is_li) {
+// tags. Pass true to is_li for handling <li> tags, false for <dd> and <dt>.
+static void maybe_implicitly_close_list_tag (
+  GumboParser* parser,
+  GumboToken* token,
+  bool is_li
+) {
   GumboParserState* state = parser->_parser_state;
   state->_frameset_ok = false;
   for (int i = state->_open_elements.length; --i >= 0;) {
     const GumboNode* node = state->_open_elements.data[i];
-    bool is_list_tag =
-        is_li ? node_html_tag_is(node, GUMBO_TAG_LI)
-              : node_tag_in_set(node, (TagSet){TAG(DD), TAG(DT)});
+    bool is_list_tag = is_li
+      ? node_html_tag_is(node, GUMBO_TAG_LI)
+      : node_tag_in_set(node, (TagSet){TAG(DD), TAG(DT)});
     if (is_list_tag) {
-      implicitly_close_tags(
-          parser, token, node->v.element.tag_namespace, node->v.element.tag);
+      implicitly_close_tags (
+        parser,
+        token,
+        node->v.element.tag_namespace,
+        node->v.element.tag
+      );
       return;
     }
-    if (is_special_node(node) &&
-        !node_tag_in_set(
-            node, (TagSet){TAG(ADDRESS), TAG(DIV), TAG(P)})) {
+    if (
+      is_special_node(node)
+      && !node_tag_in_set(node, (TagSet){TAG(ADDRESS), TAG(DIV), TAG(P)})
+    ) {
       return;
     }
   }
 }
 
-static void merge_attributes(
-    GumboParser* parser, GumboToken* token, GumboNode* node) {
+static void merge_attributes (
+  GumboParser* parser,
+  GumboToken* token,
+  GumboNode* node
+) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   assert(node->type == GUMBO_NODE_ELEMENT);
   const GumboVector* token_attr = &token->v.start_tag.attributes;
@@ -1734,8 +1758,11 @@ static void merge_attributes(
 }
 
 const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tag) {
-  for (size_t i = 0; i < sizeof(kSvgTagReplacements) / sizeof(ReplacementEntry);
-       ++i) {
+  for (
+    size_t i = 0;
+    i < sizeof(kSvgTagReplacements) / sizeof(ReplacementEntry);
+    ++i
+  ) {
     const ReplacementEntry* entry = &kSvgTagReplacements[i];
     if (gumbo_string_equals_ignore_case(tag, &entry->from)) {
       return entry->to.data;
@@ -1750,11 +1777,12 @@ const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tag) {
 static void adjust_foreign_attributes(GumboParser* parser, GumboToken* token) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   const GumboVector* attributes = &token->v.start_tag.attributes;
-  for (size_t i = 0; i < sizeof(kForeignAttributeReplacements) /
-                             sizeof(NamespacedAttributeReplacement);
-       ++i) {
-    const NamespacedAttributeReplacement* entry =
-        &kForeignAttributeReplacements[i];
+  for (
+    size_t i = 0;
+    i < sizeof(kForeignAttributeReplacements) / sizeof(NamespacedAttributeReplacement);
+    ++i
+  ) {
+    const NamespacedAttributeReplacement* entry = &kForeignAttributeReplacements[i];
     GumboAttribute* attr = gumbo_get_attribute(attributes, entry->from);
     if (!attr) {
       continue;
@@ -1770,8 +1798,11 @@ static void adjust_foreign_attributes(GumboParser* parser, GumboToken* token) {
 static void adjust_svg_attributes(GumboParser* parser, GumboToken* token) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   const GumboVector* attributes = &token->v.start_tag.attributes;
-  for (size_t i = 0;
-       i < sizeof(kSvgAttributeReplacements) / sizeof(ReplacementEntry); ++i) {
+  for (
+    size_t i = 0;
+    i < sizeof(kSvgAttributeReplacements) / sizeof(ReplacementEntry);
+    ++i
+  ) {
     const ReplacementEntry* entry = &kSvgAttributeReplacements[i];
     GumboAttribute* attr = gumbo_get_attribute(attributes, entry->from.data);
     if (!attr) {
@@ -1796,16 +1827,22 @@ static void adjust_mathml_attributes(GumboParser* parser, GumboToken* token) {
   attr->name = gumbo_copy_stringz(parser, "definitionURL");
 }
 
-static bool doctype_matches(const GumboTokenDocType* doctype,
-    const GumboStringPiece* public_id, const GumboStringPiece* system_id,
-    bool allow_missing_system_id) {
-  return !strcmp(doctype->public_identifier, public_id->data) &&
-         (allow_missing_system_id || doctype->has_system_identifier) &&
-         !strcmp(doctype->system_identifier, system_id->data);
+static bool doctype_matches (
+  const GumboTokenDocType* doctype,
+  const GumboStringPiece* public_id,
+  const GumboStringPiece* system_id,
+  bool allow_missing_system_id
+) {
+  return
+    !strcmp(doctype->public_identifier, public_id->data)
+    && (allow_missing_system_id || doctype->has_system_identifier)
+    && !strcmp(doctype->system_identifier, system_id->data);
 }
 
-static bool maybe_add_doctype_error(
-    GumboParser* parser, const GumboToken* token) {
+static bool maybe_add_doctype_error (
+  GumboParser* parser,
+  const GumboToken* token
+) {
   const GumboTokenDocType* doctype = &token->v.doc_type;
   bool html_doctype = !strcmp(doctype->name, kDoctypeHtml.data);
   if ((!html_doctype || doctype->has_public_identifier ||
@@ -1850,8 +1887,11 @@ static void remove_from_parent(GumboParser* parser, GumboNode* node) {
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#an-introduction-to-error-handling-and-strange-cases-in-the-parser
 // Also described in the "in body" handling for end formatting tags.
-static bool adoption_agency_algorithm(
-    GumboParser* parser, GumboToken* token, GumboTag subject) {
+static bool adoption_agency_algorithm (
+  GumboParser* parser,
+  GumboToken* token,
+  GumboTag subject
+) {
   GumboParserState* state = parser->_parser_state;
   gumbo_debug("Entering adoption agency algorithm.\n");
   // Step 1.
