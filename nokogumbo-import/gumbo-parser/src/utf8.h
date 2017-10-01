@@ -21,6 +21,10 @@
 
 #include "gumbo.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct GumboInternalError;
 struct GumboInternalParser;
 
@@ -115,5 +119,9 @@ void utf8iterator_fill_error_at_mark (
   Utf8Iterator* iter,
   struct GumboInternalError* error
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GUMBO_UTF8_H_

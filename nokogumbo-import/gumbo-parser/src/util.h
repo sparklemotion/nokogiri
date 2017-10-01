@@ -8,6 +8,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Forward declaration since it's passed into some of the functions in this
 // header.
 struct GumboInternalParser;
@@ -33,5 +37,9 @@ void gumbo_parser_deallocate(struct GumboInternalParser* parser, void* ptr);
 // Debug wrapper for printf, to make it easier to turn off debugging info when
 // required.
 void gumbo_debug(const char* format, ...);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GUMBO_UTIL_H_

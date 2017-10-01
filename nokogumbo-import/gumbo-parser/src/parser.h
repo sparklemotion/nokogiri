@@ -1,6 +1,10 @@
 #ifndef GUMBO_PARSER_H_
 #define GUMBO_PARSER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Contains the definition of the top-level GumboParser structure that's
 // threaded through basically every internal function in the library.
 
@@ -29,5 +33,9 @@ typedef struct GumboInternalParser {
   // parse end; end-users will never see a non-garbage value in this pointer.
   struct GumboInternalParserState* _parser_state;
 } GumboParser;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // GUMBO_PARSER_H_

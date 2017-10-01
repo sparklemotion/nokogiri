@@ -3,6 +3,10 @@
 
 #include "gumbo.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Forward declaration (it's passed into some functions in this header).
 struct GumboInternalParser;
 
@@ -56,5 +60,9 @@ void* gumbo_vector_remove_at (
   unsigned int index,
   GumboVector* vector
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GUMBO_VECTOR_H_

@@ -12,6 +12,10 @@
 #include "string_buffer.h"
 #include "token_type.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct GumboInternalParser;
 
 typedef enum {
@@ -197,5 +201,9 @@ void gumbo_caret_diagnostic_to_string(struct GumboInternalParser* parser,
 // of writing to a string.
 void gumbo_print_caret_diagnostic(struct GumboInternalParser* parser,
     const GumboError* error, const char* source_text);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GUMBO_ERROR_H_

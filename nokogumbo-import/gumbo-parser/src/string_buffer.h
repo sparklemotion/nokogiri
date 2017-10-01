@@ -6,6 +6,10 @@
 
 #include "gumbo.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct GumboInternalParser;
 
 // A struct representing a mutable, growable string.  This consists of a
@@ -73,5 +77,9 @@ void gumbo_string_buffer_destroy (
   struct GumboInternalParser* parser,
   GumboStringBuffer* buffer
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GUMBO_STRING_BUFFER_H_

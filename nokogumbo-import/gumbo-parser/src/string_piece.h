@@ -3,6 +3,10 @@
 
 #include "gumbo.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct GumboInternalParser;
 
 // Performs a deep-copy of an GumboStringPiece, allocating a fresh buffer in the
@@ -13,5 +17,9 @@ void gumbo_string_copy (
   GumboStringPiece* dest,
   const GumboStringPiece* source
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // GUMBO_STRING_PIECE_H_
