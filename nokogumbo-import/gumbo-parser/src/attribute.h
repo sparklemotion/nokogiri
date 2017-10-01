@@ -1,6 +1,3 @@
-// Copyright 2010 Google Inc.
-// Licensed under the Apache License, version 2.0.
-
 #ifndef GUMBO_ATTRIBUTE_H_
 #define GUMBO_ATTRIBUTE_H_
 

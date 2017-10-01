@@ -1,11 +1,8 @@
-// Copyright 2010 Google Inc.
-// Licensed under the Apache License, version 2.0.
+#ifndef GUMBO_TOKENIZER_H_
+#define GUMBO_TOKENIZER_H_
 
 // This contains an implementation of a tokenizer for HTML5. It consumes a
 // buffer of UTF-8 characters, and then emits a stream of tokens.
-
-#ifndef GUMBO_TOKENIZER_H_
-#define GUMBO_TOKENIZER_H_
 
 #include <stdbool.h>
 #include <stddef.h>

@@ -1,11 +1,8 @@
-// Copyright 2010 Google Inc.
-// Licensed under the Apache License, version 2.0.
+#ifndef GUMBO_PARSER_H_
+#define GUMBO_PARSER_H_
 
 // Contains the definition of the top-level GumboParser structure that's
 // threaded through basically every internal function in the library.
-
-#ifndef GUMBO_PARSER_H_
-#define GUMBO_PARSER_H_
 
 struct GumboInternalParserState;
 struct GumboInternalOutput;

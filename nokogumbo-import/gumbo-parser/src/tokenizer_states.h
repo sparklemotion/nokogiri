@@ -1,5 +1,5 @@
-// Copyright 2011 Google Inc.
-// Licensed under the Apache License, version 2.0.
+#ifndef GUMBO_TOKENIZER_STATES_H_
+#define GUMBO_TOKENIZER_STATES_H_
 
 // This contains the list of states used in the tokenizer.  Although at first
 // glance it seems like these could be kept internal to the tokenizer, several
@@ -10,9 +10,6 @@
 // This may also be useful for providing more detailed error messages for parse
 // errors, as we can match up states and inputs in a table without having to
 // clutter the tokenizer code with lots of precise error messages.
-
-#ifndef GUMBO_TOKENIZER_STATES_H_
-#define GUMBO_TOKENIZER_STATES_H_
 
 // The ordering of this enum is also used to build the dispatch table for the
 // tokenizer state machine, so if it is changed, be sure to update that too.

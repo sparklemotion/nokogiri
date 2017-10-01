@@ -1,6 +1,3 @@
-// Copyright 2011 Google Inc.
-// Licensed under the Apache License, version 2.0.
-
 #ifndef GUMBO_CHAR_REF_H_
 #define GUMBO_CHAR_REF_H_
 

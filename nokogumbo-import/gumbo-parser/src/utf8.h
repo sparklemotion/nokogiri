@@ -1,5 +1,5 @@
-// Copyright 2010 Google Inc.
-// Licensed under the Apache License, version 2.0.
+#ifndef GUMBO_UTF8_H_
+#define GUMBO_UTF8_H_
 
 // This contains an implementation of a UTF8 iterator and decoder suitable for
 // an HTML5 parser.  This does a bit more than straight UTF-8 decoding.  The
@@ -15,9 +15,6 @@
 //
 // This header is internal-only, which is why we prefix functions with only
 // utf8_ or utf8_iterator_ instead of gumbo_utf8_.
-
-#ifndef GUMBO_UTF8_H_
-#define GUMBO_UTF8_H_
 
 #include <stdbool.h>
 #include <stddef.h>

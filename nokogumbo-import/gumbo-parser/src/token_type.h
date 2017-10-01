@@ -1,6 +1,3 @@
-// Copyright 2011 Google Inc.
-// Licensed under the Apache License, version 2.0.
-
 #ifndef GUMBO_TOKEN_TYPE_H_
 #define GUMBO_TOKEN_TYPE_H_
 
