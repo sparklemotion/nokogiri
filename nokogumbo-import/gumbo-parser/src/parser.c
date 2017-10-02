@@ -2617,8 +2617,8 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     return success;
   } else if (tag_in(token, kStartTag,
                  (TagSet){TAG(ADDRESS), TAG(ARTICLE), TAG(ASIDE),
-                     TAG(BLOCKQUOTE), TAG(CENTER), TAG(DETAILS), TAG(DIR),
-                     TAG(DIV), TAG(DL), TAG(FIELDSET), TAG(FIGCAPTION),
+                     TAG(BLOCKQUOTE), TAG(CENTER), TAG(DETAILS), TAG(DIALOG),
+                     TAG(DIR), TAG(DIV), TAG(DL), TAG(FIELDSET), TAG(FIGCAPTION),
                      TAG(FIGURE), TAG(FOOTER), TAG(HEADER), TAG(HGROUP),
                      TAG(MENU), TAG(MAIN), TAG(NAV), TAG(OL), TAG(P),
                      TAG(SECTION), TAG(SUMMARY), TAG(UL)})) {
@@ -2687,7 +2687,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
   } else if (tag_in(token, kEndTag,
                  (TagSet){TAG(ADDRESS), TAG(ARTICLE), TAG(ASIDE),
                      TAG(BLOCKQUOTE), TAG(BUTTON), TAG(CENTER), TAG(DETAILS),
-                     TAG(DIR), TAG(DIV), TAG(DL), TAG(FIELDSET),
+                     TAG(DIALOG), TAG(DIR), TAG(DIV), TAG(DL), TAG(FIELDSET),
                      TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(HEADER),
                      TAG(HGROUP), TAG(LISTING), TAG(MAIN), TAG(MENU), TAG(NAV),
                      TAG(OL), TAG(PRE), TAG(SECTION), TAG(SUMMARY), TAG(UL)})) {
