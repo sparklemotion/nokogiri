@@ -25,7 +25,11 @@
 
 struct GumboInternalParser;
 
-const GumboVector kGumboEmptyVector = {NULL, 0, 0};
+const GumboVector kGumboEmptyVector = { \
+  .data = NULL, \
+  .length = 0, \
+  .capacity = 0 \
+};
 
 void gumbo_vector_init (
   struct GumboInternalParser* parser,

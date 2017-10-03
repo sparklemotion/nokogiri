@@ -65,7 +65,10 @@
 
 // Compared against _script_data_buffer to determine if we're in
 // double-escaped script mode.
-static const GumboStringPiece kScriptTag = {"script", 6};
+static const GumboStringPiece kScriptTag = { \
+  .data = "script", \
+  .length = 6 \
+};
 
 // An enum for the return value of each individual state.
 typedef enum {

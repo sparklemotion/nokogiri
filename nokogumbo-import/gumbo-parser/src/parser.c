@@ -34,8 +34,15 @@
 #define AVOID_UNUSED_VARIABLE_WARNING(i) (void)(i)
 #define ARRAY_COUNT(x) (sizeof(x) / sizeof(x[0]))
 
-#define GUMBO_STRING(literal) {literal, sizeof(literal) - 1}
-#define TERMINATOR {"", 0}
+#define GUMBO_STRING(literal) { \
+  .data = literal, \
+  .length = sizeof(literal) - 1 \
+}
+
+#define TERMINATOR { \
+  .data = "", \
+  .length = 0 \
+}
 
 typedef char TagSet[GUMBO_TAG_LAST];
 #define TAG(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_HTML)

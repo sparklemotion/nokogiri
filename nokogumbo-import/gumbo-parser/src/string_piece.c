@@ -25,7 +25,10 @@
 
 struct GumboInternalParser;
 
-const GumboStringPiece kGumboEmptyString = {NULL, 0};
+const GumboStringPiece kGumboEmptyString = { \
+  .data = NULL, \
+  .length = 0 \
+};
 
 bool gumbo_string_equals (
   const GumboStringPiece* str1,

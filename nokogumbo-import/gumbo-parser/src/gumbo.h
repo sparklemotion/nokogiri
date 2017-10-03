@@ -73,10 +73,10 @@ extern const GumboSourcePosition kGumboEmptySourcePosition;
  * explicit lengths when manipulating them.
  */
 typedef struct {
-  /** A pointer to the beginning of the string.  NULL iff length == 0. */
+  /** A pointer to the beginning of the string. NULL if length == 0. */
   const char* data;
 
-  /** The length of the string fragment, in bytes.  May be zero. */
+  /** The length of the string fragment, in bytes (may be zero). */
   size_t length;
 } GumboStringPiece;
 
