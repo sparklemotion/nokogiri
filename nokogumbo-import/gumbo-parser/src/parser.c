@@ -32,6 +32,7 @@
 #include "vector.h"
 
 #define AVOID_UNUSED_VARIABLE_WARNING(i) (void)(i)
+#define ARRAY_COUNT(x) (sizeof(x) / sizeof(x[0]))
 
 #define GUMBO_STRING(literal) {literal, sizeof(literal) - 1}
 #define TERMINATOR {"", 0}
@@ -1758,11 +1759,7 @@ static void merge_attributes (
 }
 
 const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tag) {
-  for (
-    size_t i = 0;
-    i < sizeof(kSvgTagReplacements) / sizeof(ReplacementEntry);
-    ++i
-  ) {
+  for (size_t i = 0; i < ARRAY_COUNT(kSvgTagReplacements); i++) {
     const ReplacementEntry* entry = &kSvgTagReplacements[i];
     if (gumbo_string_equals_ignore_case(tag, &entry->from)) {
       return entry->to.data;
@@ -1777,11 +1774,7 @@ const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tag) {
 static void adjust_foreign_attributes(GumboParser* parser, GumboToken* token) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   const GumboVector* attributes = &token->v.start_tag.attributes;
-  for (
-    size_t i = 0;
-    i < sizeof(kForeignAttributeReplacements) / sizeof(NamespacedAttributeReplacement);
-    ++i
-  ) {
+  for (size_t i = 0; i < ARRAY_COUNT(kForeignAttributeReplacements); i++) {
     const NamespacedAttributeReplacement* entry = &kForeignAttributeReplacements[i];
     GumboAttribute* attr = gumbo_get_attribute(attributes, entry->from);
     if (!attr) {
@@ -1798,11 +1791,7 @@ static void adjust_foreign_attributes(GumboParser* parser, GumboToken* token) {
 static void adjust_svg_attributes(GumboParser* parser, GumboToken* token) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   const GumboVector* attributes = &token->v.start_tag.attributes;
-  for (
-    size_t i = 0;
-    i < sizeof(kSvgAttributeReplacements) / sizeof(ReplacementEntry);
-    ++i
-  ) {
+  for (size_t i = 0; i < ARRAY_COUNT(kSvgAttributeReplacements); i++) {
     const ReplacementEntry* entry = &kSvgAttributeReplacements[i];
     GumboAttribute* attr = gumbo_get_attribute(attributes, entry->from.data);
     if (!attr) {
