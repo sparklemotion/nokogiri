@@ -393,8 +393,11 @@ when arg_config('--clean')
 end
 
 if openbsd? && !using_system_libraries?
-  ENV['CC'] ||= find_executable('egcc') or
-    abort "Please install gcc 4.9+ from ports using `pkg_add -v gcc`"
+  if `#{ENV['CC'] || '/usr/bin/cc'} -v 2>&1` !~ /clang/
+    ENV['CC'] ||= find_executable('egcc') or
+      abort "Please install gcc 4.9+ from ports using `pkg_add -v gcc`"
+  end
+  ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I /usr/local/include"
 end
 
 RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
