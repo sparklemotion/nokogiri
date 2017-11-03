@@ -1556,10 +1556,12 @@ static void generate_implied_end_tags(GumboParser* parser, GumboTag exception) {
     TAG(DD), TAG(DT), TAG(LI), TAG(OPTION), TAG(OPTGROUP),
     TAG(P), TAG(RP), TAG(RB), TAG(RT), TAG(RTC)
   };
-  for (; node_tag_in_set(get_current_node(parser), tags) &&
-         !node_html_tag_is(get_current_node(parser), exception);
-       pop_current_node(parser))
-    ;
+  while (
+    node_tag_in_set(get_current_node(parser), tags)
+    && !node_html_tag_is(get_current_node(parser), exception)
+  ) {
+    pop_current_node(parser);
+  }
 }
 
 // This is the "generate all implied end tags thoroughly" clause of the spec.
@@ -1570,9 +1572,9 @@ static void generate_all_implied_end_tags_thoroughly(GumboParser* parser) {
     TAG(OPTGROUP), TAG(P), TAG(RP), TAG(RT), TAG(RTC), TAG(TBODY),
     TAG(TD), TAG(TFOOT), TAG(TH), TAG(HEAD), TAG(TR)
   };
-  for (; node_tag_in_set(get_current_node(parser), tags);
-      pop_current_node(parser))
-    ;
+  while (node_tag_in_set(get_current_node(parser), tags)) {
+    pop_current_node(parser);
+  }
 }
 
 // This factors out the clauses relating to "act as if an end tag token with tag
