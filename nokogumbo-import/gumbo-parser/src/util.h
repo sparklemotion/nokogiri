@@ -38,9 +38,12 @@ void gumbo_parser_deallocate(struct GumboInternalParser* parser, void* ptr);
 // required.
 void gumbo_debug(const char* format, ...);
 
-char gumbo_ascii_tolower(char ch);
 int gumbo_ascii_strcasecmp(const char *s1, const char *s2);
 int gumbo_ascii_strncasecmp(const char *s1, const char *s2, size_t n);
+
+static inline char gumbo_ascii_tolower(char ch) {
+    return 'A' <= ch && ch <= 'Z' ? ch | 0x20 : ch;
+}
 
 #ifdef __cplusplus
 }

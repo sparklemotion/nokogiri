@@ -48,10 +48,6 @@ char* gumbo_copy_stringz(GumboParser* parser, const char* str) {
   return buffer;
 }
 
-char gumbo_ascii_tolower(char ch) {
-    return 'A' <= ch && ch <= 'Z' ? ch | 0x20 : ch;
-}
-
 int gumbo_ascii_strcasecmp(const char *s1, const char *s2) {
   int c1, c2;
   while (*s1 && *s2) {
