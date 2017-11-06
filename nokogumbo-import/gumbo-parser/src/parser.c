@@ -50,8 +50,10 @@ typedef char TagSet[GUMBO_TAG_LAST];
 #define TAG_SVG(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_SVG)
 #define TAG_MATHML(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_MATHML)
 
-#define TAGSET_INCLUDES(tagset, namespace, tag) \
-  (tag < GUMBO_TAG_LAST && tagset[(int) tag] == (1 << (int) namespace))
+#define TAGSET_INCLUDES(tagset, ns, tag) ( \
+  tag < GUMBO_TAG_LAST \
+  && (tagset[(int) tag] & (1 << (int) ns)) \
+)
 
 // Selected forward declarations (as it's getting hard to find
 // an appropriate order).
