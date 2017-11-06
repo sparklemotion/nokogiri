@@ -10,8 +10,8 @@
  * @mainpage Gumbo HTML Parser
  *
  * This provides a conformant, no-dependencies implementation of the HTML5
- * parsing algorithm.  It supports only UTF8; if you need to parse a different
- * encoding, run a preprocessing step to convert to UTF8.  It returns a parse
+ * parsing algorithm. It supports only UTF8; if you need to parse a different
+ * encoding, run a preprocessing step to convert to UTF8. It returns a parse
  * tree made of the structs in this file.
  *
  * Example:
@@ -23,7 +23,7 @@
  * @endcode
  * HTML5 Spec:
  *
- * http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html
+ * https://html.spec.whatwg.org/multipage/
  */
 
 #ifndef GUMBO_GUMBO_H_
@@ -324,7 +324,7 @@ void gumbo_tag_from_original_text(GumboStringPiece* text);
 
 /**
  * Fixes the case of SVG elements that are not all lowercase.
- * http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#parsing-main-inforeign
+ * https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inforeign
  * This is not done at parse time because there's no place to store a mutated
  * tag name.  tag_name is an enum (which will be TAG_UNKNOWN for most SVG tags
  * without special handling), while original_tag_name is a pointer into the
@@ -364,7 +364,7 @@ typedef struct {
    * The namespace for the attribute.  This will usually be
    * GUMBO_ATTR_NAMESPACE_NONE, but some XLink/XMLNS/XML attributes take special
    * values, per:
-   * http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#adjust-foreign-attributes
+   * https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
    */
   GumboAttributeNamespaceEnum attr_namespace;
 
@@ -454,7 +454,7 @@ typedef enum {
 typedef struct GumboInternalNode GumboNode;
 
 /**
- * http://www.whatwg.org/specs/web-apps/current-work/complete/dom.html#quirks-mode
+ * https://dom.spec.whatwg.org/#concept-document-quirks
  */
 typedef enum {
   GUMBO_DOCTYPE_NO_QUIRKS,

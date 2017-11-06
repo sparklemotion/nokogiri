@@ -5,7 +5,7 @@
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,17 +30,17 @@
 const int kUtf8ReplacementChar = 0xFFFD;
 
 // Reference material:
-// Wikipedia: http://en.wikipedia.org/wiki/UTF-8#Description
-// RFC 3629: http://tools.ietf.org/html/rfc3629
+// Wikipedia: https://en.wikipedia.org/wiki/UTF-8#Description
+// RFC 3629: https://tools.ietf.org/html/rfc3629
 // HTML5 Unicode handling:
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#preprocessing-the-input-stream
+// https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
 //
 // This implementation is based on a DFA-based decoder by Bjoern Hoehrmann
 // <bjoern@hoehrmann.de>.  We wrap the inner table-based decoder routine in our
 // own handling for newlines, tabs, invalid continuation bytes, and other
 // conditions that the HTML5 spec fully specifies but normal UTF8 decoders do
 // not handle.
-// See http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details.  Full text of
+// See https://bjoern.hoehrmann.de/utf-8/decoder/dfa/ for details. Full text of
 // the license agreement and code follows.
 
 // Copyright (c) 2008-2009 Bjoern Hoehrmann <bjoern@hoehrmann.de>
@@ -142,7 +142,7 @@ static void read_char(Utf8Iterator* iter) {
       // the HTML5 spec.  Since we're looking for particular 7-bit literal
       // characters, we operate in terms of chars and only need a check for iter
       // overrun, instead of having to read in a full next code point.
-      // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#preprocessing-the-input-stream
+      // https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
       if (code_point == '\r') {
         assert(iter->_width == 1);
         const char* next = c + 1;

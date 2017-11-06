@@ -1,15 +1,15 @@
 #ifndef GUMBO_UTF8_H_
 #define GUMBO_UTF8_H_
 
-// This contains an implementation of a UTF8 iterator and decoder suitable for
-// an HTML5 parser.  This does a bit more than straight UTF-8 decoding.  The
+// This contains an implementation of a UTF-8 iterator and decoder suitable for
+// a HTML5 parser. This does a bit more than straight UTF-8 decoding. The
 // HTML5 spec specifies that:
 // 1. Decoding errors are parse errors.
-// 2. Certain other codepoints (eg. control characters) are parse errors.
+// 2. Certain other codepoints (e.g. control characters) are parse errors.
 // 3. Carriage returns and CR/LF groups are converted to line feeds.
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/infrastructure.html#decoded-as-utf-8,-with-error-handling
+// https://encoding.spec.whatwg.org/#utf-8-decode
 //
-// Also, we want to keep track of source positions for error handling.  As a
+// Also, we want to keep track of source positions for error handling. As a
 // result, we fold all that functionality into this decoder, and can't use an
 // off-the-shelf library.
 //
