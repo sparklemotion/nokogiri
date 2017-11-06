@@ -30,6 +30,7 @@
 #include "utf8.h"
 #include "util.h"
 #include "vector.h"
+#include "replacement.h"
 
 #define AVOID_UNUSED_VARIABLE_WARNING(i) (void)(i)
 #define ARRAY_COUNT(x) (sizeof(x) / sizeof(x[0]))
@@ -199,7 +200,7 @@ static const char* kLegalXmlns[] = {
   "http://www.w3.org/1998/Math/MathML"
 };
 
-typedef struct _ReplacementEntry {
+typedef struct {
   const GumboStringPiece from;
   const GumboStringPiece to;
 } ReplacementEntry;
@@ -208,73 +209,6 @@ typedef struct _ReplacementEntry {
   GUMBO_STRING(from), \
   GUMBO_STRING(to) \
 }
-
-// Static data for SVG attribute replacements.
-// https://html.spec.whatwg.org/multipage/syntax.html#creating-and-inserting-nodes
-static const ReplacementEntry kSvgAttributeReplacements[] = {
-    REPLACEMENT_ENTRY("attributename", "attributeName"),
-    REPLACEMENT_ENTRY("attributetype", "attributeType"),
-    REPLACEMENT_ENTRY("basefrequency", "baseFrequency"),
-    REPLACEMENT_ENTRY("baseprofile", "baseProfile"),
-    REPLACEMENT_ENTRY("calcmode", "calcMode"),
-    REPLACEMENT_ENTRY("clippathunits", "clipPathUnits"),
-    // REPLACEMENT_ENTRY("contentscripttype", "contentScriptType"),
-    // REPLACEMENT_ENTRY("contentstyletype", "contentStyleType"),
-    REPLACEMENT_ENTRY("diffuseconstant", "diffuseConstant"),
-    REPLACEMENT_ENTRY("edgemode", "edgeMode"),
-    // REPLACEMENT_ENTRY("externalresourcesrequired",
-    // "externalResourcesRequired"),
-    // REPLACEMENT_ENTRY("filterres", "filterRes"),
-    REPLACEMENT_ENTRY("filterunits", "filterUnits"),
-    REPLACEMENT_ENTRY("glyphref", "glyphRef"),
-    REPLACEMENT_ENTRY("gradienttransform", "gradientTransform"),
-    REPLACEMENT_ENTRY("gradientunits", "gradientUnits"),
-    REPLACEMENT_ENTRY("kernelmatrix", "kernelMatrix"),
-    REPLACEMENT_ENTRY("kernelunitlength", "kernelUnitLength"),
-    REPLACEMENT_ENTRY("keypoints", "keyPoints"),
-    REPLACEMENT_ENTRY("keysplines", "keySplines"),
-    REPLACEMENT_ENTRY("keytimes", "keyTimes"),
-    REPLACEMENT_ENTRY("lengthadjust", "lengthAdjust"),
-    REPLACEMENT_ENTRY("limitingconeangle", "limitingConeAngle"),
-    REPLACEMENT_ENTRY("markerheight", "markerHeight"),
-    REPLACEMENT_ENTRY("markerunits", "markerUnits"),
-    REPLACEMENT_ENTRY("markerwidth", "markerWidth"),
-    REPLACEMENT_ENTRY("maskcontentunits", "maskContentUnits"),
-    REPLACEMENT_ENTRY("maskunits", "maskUnits"),
-    REPLACEMENT_ENTRY("numoctaves", "numOctaves"),
-    REPLACEMENT_ENTRY("pathlength", "pathLength"),
-    REPLACEMENT_ENTRY("patterncontentunits", "patternContentUnits"),
-    REPLACEMENT_ENTRY("patterntransform", "patternTransform"),
-    REPLACEMENT_ENTRY("patternunits", "patternUnits"),
-    REPLACEMENT_ENTRY("pointsatx", "pointsAtX"),
-    REPLACEMENT_ENTRY("pointsaty", "pointsAtY"),
-    REPLACEMENT_ENTRY("pointsatz", "pointsAtZ"),
-    REPLACEMENT_ENTRY("preservealpha", "preserveAlpha"),
-    REPLACEMENT_ENTRY("preserveaspectratio", "preserveAspectRatio"),
-    REPLACEMENT_ENTRY("primitiveunits", "primitiveUnits"),
-    REPLACEMENT_ENTRY("refx", "refX"), REPLACEMENT_ENTRY("refy", "refY"),
-    REPLACEMENT_ENTRY("repeatcount", "repeatCount"),
-    REPLACEMENT_ENTRY("repeatdur", "repeatDur"),
-    REPLACEMENT_ENTRY("requiredextensions", "requiredExtensions"),
-    REPLACEMENT_ENTRY("requiredfeatures", "requiredFeatures"),
-    REPLACEMENT_ENTRY("specularconstant", "specularConstant"),
-    REPLACEMENT_ENTRY("specularexponent", "specularExponent"),
-    REPLACEMENT_ENTRY("spreadmethod", "spreadMethod"),
-    REPLACEMENT_ENTRY("startoffset", "startOffset"),
-    REPLACEMENT_ENTRY("stddeviation", "stdDeviation"),
-    REPLACEMENT_ENTRY("stitchtiles", "stitchTiles"),
-    REPLACEMENT_ENTRY("surfacescale", "surfaceScale"),
-    REPLACEMENT_ENTRY("systemlanguage", "systemLanguage"),
-    REPLACEMENT_ENTRY("tablevalues", "tableValues"),
-    REPLACEMENT_ENTRY("targetx", "targetX"),
-    REPLACEMENT_ENTRY("targety", "targetY"),
-    REPLACEMENT_ENTRY("textlength", "textLength"),
-    REPLACEMENT_ENTRY("viewbox", "viewBox"),
-    REPLACEMENT_ENTRY("viewtarget", "viewTarget"),
-    REPLACEMENT_ENTRY("xchannelselector", "xChannelSelector"),
-    REPLACEMENT_ENTRY("ychannelselector", "yChannelSelector"),
-    REPLACEMENT_ENTRY("zoomandpan", "zoomAndPan"),
-};
 
 static const ReplacementEntry kSvgTagReplacements[] = {
     REPLACEMENT_ENTRY("altglyph", "altGlyph"),
@@ -1822,14 +1756,17 @@ static void adjust_foreign_attributes(GumboParser* parser, GumboToken* token) {
 static void adjust_svg_attributes(GumboParser* parser, GumboToken* token) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   const GumboVector* attributes = &token->v.start_tag.attributes;
-  for (size_t i = 0; i < ARRAY_COUNT(kSvgAttributeReplacements); i++) {
-    const ReplacementEntry* entry = &kSvgAttributeReplacements[i];
-    GumboAttribute* attr = gumbo_get_attribute(attributes, entry->from.data);
-    if (!attr) {
+  for (unsigned int i = 0, n = attributes->length; i < n; i++) {
+    GumboAttribute* attr = (GumboAttribute*) attributes->data[i];
+    const StringReplacement* replacement = gumbo_get_svg_attr_replacement (
+      attr->name,
+      attr->original_name.length
+    );
+    if (!replacement) {
       continue;
     }
     gumbo_parser_deallocate(parser, (void*) attr->name);
-    attr->name = gumbo_copy_stringz(parser, entry->to.data);
+    attr->name = gumbo_copy_stringz(parser, replacement->to);
   }
 }
 
