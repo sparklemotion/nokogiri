@@ -18,7 +18,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 
 #include "attribute.h"
 #include "error.h"
@@ -332,7 +331,7 @@ static bool attribute_matches (
   const char* value
 ) {
   const GumboAttribute* attr = gumbo_get_attribute(attributes, name);
-  return attr ? strcasecmp(value, attr->value) == 0 : false;
+  return attr ? gumbo_ascii_strcasecmp(value, attr->value) == 0 : false;
 }
 
 // Checks if the value of the specified attribute is a case-sensitive match
@@ -472,7 +471,7 @@ static bool is_in_static_list(
     const char* needle, const GumboStringPiece* haystack, bool exact_match) {
   for (unsigned int i = 0; haystack[i].length > 0; ++i) {
     if ((exact_match && !strcmp(needle, haystack[i].data)) ||
-        (!exact_match && !strcasecmp(needle, haystack[i].data))) {
+        (!exact_match && !gumbo_ascii_strcasecmp(needle, haystack[i].data))) {
       return true;
     }
   }

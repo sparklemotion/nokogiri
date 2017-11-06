@@ -19,7 +19,6 @@
 #include <assert.h>
 #include <stdint.h>
 #include <string.h>
-#include <strings.h> // For strncasecmp
 
 #include "error.h"
 #include "gumbo.h"
@@ -235,11 +234,20 @@ const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter) {
   return iter->_end;
 }
 
-bool utf8iterator_maybe_consume_match(Utf8Iterator* iter, const char* prefix,
-    size_t length, bool case_sensitive) {
-  bool matched = (iter->_start + length <= iter->_end) &&
-                 (case_sensitive ? !strncmp(iter->_start, prefix, length)
-                                 : !strncasecmp(iter->_start, prefix, length));
+bool utf8iterator_maybe_consume_match (
+  Utf8Iterator* iter,
+  const char* prefix,
+  size_t length,
+  bool case_sensitive
+) {
+  bool matched =
+    (iter->_start + length <= iter->_end)
+    && (
+      case_sensitive
+        ? !strncmp(iter->_start, prefix, length)
+        : !gumbo_ascii_strncasecmp(iter->_start, prefix, length)
+    )
+  ;
   if (matched) {
     for (unsigned int i = 0; i < length; ++i) {
       utf8iterator_next(iter);

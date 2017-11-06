@@ -19,7 +19,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 
 #include "util.h"
 
@@ -45,7 +44,7 @@ bool gumbo_string_equals_ignore_case (
 ) {
   return
     str1->length == str2->length
-    && !strncasecmp(str1->data, str2->data, str1->length);
+    && !gumbo_ascii_strncasecmp(str1->data, str2->data, str1->length);
 }
 
 void gumbo_string_copy (
