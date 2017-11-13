@@ -1,5 +1,11 @@
 # unreleased
 
+## Dependencies
+
+* [MRI] libxml2 is updated from 2.9.5 to 2.9.7
+* [MRI] libxml2 is updated from 1.1.30 to 1.1.32
+
+
 ## Features
 
 * [MRI] OpenBSD installation should be a bit easier now. [#1685] (Thanks, @jeremyevans!)
