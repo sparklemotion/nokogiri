@@ -5,6 +5,11 @@
 * [MRI] OpenBSD installation should be a bit easier now. [#1685] (Thanks, @jeremyevans!)
 
 
+## Bug fixes
+
+* Node#serialize once again returns UTF-8-encoded strings. [#1659]
+
+
 # 1.8.1 / 2017-09-19
 
 ## Dependencies
