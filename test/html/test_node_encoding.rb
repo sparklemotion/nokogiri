@@ -26,6 +26,12 @@ module Nokogiri
         assert_equal @html.serialize, @doc.serialize
       end
 
+      def test_default_encoding
+        doc = Nokogiri::HTML(nil)
+        assert_nil doc.encoding
+        assert_equal 'UTF-8', doc.serialize.encoding.name
+      end
+
       def test_encode_special_chars
         foo = @html.css('a').first.encode_special_chars('foo')
         assert_equal 'UTF-8', foo.encoding.name

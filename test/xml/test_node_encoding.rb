@@ -13,6 +13,12 @@ module Nokogiri
         assert_equal @xml.serialize, @doc.serialize
       end
 
+      def test_default_encoding
+        doc = Nokogiri::XML(VEHICLE_XML)
+        assert_nil doc.encoding
+        assert_equal 'UTF-8', doc.serialize.encoding.name
+      end
+
       def test_encoding_GH_1113
         utf8 = '<frag>shahid ὡ 𐄣 𢂁</frag>'
         hex = '<frag>shahid &#x1f61; &#x10123; &#x22081;</frag>'
