@@ -1,3 +1,10 @@
+# unreleased
+
+## Features
+
+* [MRI] OpenBSD installation should be a bit easier now. [#1685] (Thanks, @jeremyevans!)
+
+
 # 1.8.1 / 2017-09-19
 
 ## Dependencies
