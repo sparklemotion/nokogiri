@@ -3,7 +3,7 @@ module Nokogiri
     class DocumentFragment < Nokogiri::XML::DocumentFragment
       ####
       # Create a Nokogiri::XML::DocumentFragment from +tags+, using +encoding+
-      def self.parse tags, encoding = nil
+      def self.parse tags, encoding = nil, options = nil
         doc = HTML::Document.new
 
         encoding ||= if tags.respond_to?(:encoding)
@@ -19,10 +19,10 @@ module Nokogiri
 
         doc.encoding = encoding
 
-        new(doc, tags)
+        new(doc, tags, nil, options)
       end
 
-      def initialize document, tags = nil, ctx = nil
+      def initialize document, tags = nil, ctx = nil, options = nil, &block
         return self unless tags
 
         if ctx
@@ -38,7 +38,7 @@ module Nokogiri
             path = "/html/body/node()"
           end
 
-          temp_doc = HTML::Document.parse "<html><body>#{tags}", nil, document.encoding
+          temp_doc = HTML::Document.parse "<html><body>#{tags}", nil, document.encoding, options, &block
           temp_doc.xpath(path).each { |child| child.parent = self }
           self.errors = temp_doc.errors
         end
