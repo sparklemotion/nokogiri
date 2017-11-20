@@ -38,6 +38,14 @@ module Nokogiri
         assert_match(/3:30/, doc.to_s)
       end
 
+      def test_passed_options_have_an_effect
+        html = "<span>test</span"
+        doc = Nokogiri::HTML::DocumentFragment.parse(html) do |options|
+          options.norecover
+        end
+        assert_equal "<span>test</span>", doc.to_html
+      end
+
       def test_parse_encoding
         fragment = "<div>hello world</div>"
         f = Nokogiri::HTML::DocumentFragment.parse fragment, 'ISO-8859-1'
