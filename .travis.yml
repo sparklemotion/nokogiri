@@ -25,6 +25,8 @@ matrix:
     rvm: 2.3.1
   - os: linux
     rvm: rbx
+  - os: linux
+    rvm: jruby
   exclude:
   - os: osx
     rvm: jruby-1.7
