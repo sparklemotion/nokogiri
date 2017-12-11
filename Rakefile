@@ -137,7 +137,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["minitest",           "~> 5.8.4"],
     ["rake",               "~> 10.5.0"],
     ["rake-compiler",      "~> 0.9.2"],
-    ["rake-compiler-dock", "~> 0.5.1"],
+    ["rake-compiler-dock", "~> 0.6.0"],
     ["racc",               "~> 1.4.14"],
     ["rexical",            "~> 1.0.5"]
   ]
