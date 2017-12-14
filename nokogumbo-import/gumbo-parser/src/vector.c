@@ -112,7 +112,6 @@ void gumbo_vector_insert_at (
   unsigned int index,
   GumboVector* vector
 ) {
-  assert(index >= 0);
   assert(index <= vector->length);
   enlarge_vector_if_full(parser, vector);
   ++vector->length;
@@ -138,7 +137,6 @@ void* gumbo_vector_remove_at (
   unsigned int index,
   GumboVector* vector
 ) {
-  assert(index >= 0);
   assert(index < vector->length);
   void* result = vector->data[index];
   memmove(&vector->data[index], &vector->data[index + 1],
