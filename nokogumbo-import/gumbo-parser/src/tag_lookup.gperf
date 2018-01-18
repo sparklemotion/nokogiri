@@ -6,6 +6,7 @@
 %omit-struct-type
 %compare-lengths
 %readonly-tables
+%null-strings
 %includes
 %define lookup-function-name gumbo_tag_lookup
 %define slot-name key

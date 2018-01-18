@@ -383,9 +383,10 @@ static bool temporary_buffer_equals(GumboParser* parser, const char* text) {
   // TODO(jdtang): See if the extra strlen is a performance problem, and replace
   // it with an explicit sizeof(literal) if necessary.  I don't think it will
   // be, as this is only used in a couple of rare states.
-  int text_len = strlen(text);
-  return text_len == buffer->length &&
-         memcmp(buffer->data, text, text_len) == 0;
+  size_t text_len = strlen(text);
+  return
+    text_len == buffer->length
+    && memcmp(buffer->data, text, text_len) == 0;
 }
 #endif
 

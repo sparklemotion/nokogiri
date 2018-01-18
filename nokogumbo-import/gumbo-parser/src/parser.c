@@ -778,13 +778,18 @@ static InsertionLocation get_appropriate_insertion_location (
 
 // Appends a node to the end of its parent, setting the "parent" and
 // "index_within_parent" fields appropriately.
-static void append_node(
-    GumboParser* parser, GumboNode* parent, GumboNode* node) {
+static void append_node (
+  GumboParser* parser,
+  GumboNode* parent,
+  GumboNode* node
+) {
   assert(node->parent == NULL);
   assert(node->index_within_parent == -1);
   GumboVector* children;
-  if (parent->type == GUMBO_NODE_ELEMENT ||
-      parent->type == GUMBO_NODE_TEMPLATE) {
+  if (
+    parent->type == GUMBO_NODE_ELEMENT
+    || parent->type == GUMBO_NODE_TEMPLATE
+  ) {
     children = &parent->v.element.children;
   } else {
     assert(parent->type == GUMBO_NODE_DOCUMENT);
@@ -799,16 +804,21 @@ static void append_node(
 // Inserts a node at the specified InsertionLocation, updating the
 // "parent" and "index_within_parent" fields of it and all its siblings.
 // If the index of the location is -1, this calls append_node.
-static void insert_node(
-    GumboParser* parser, GumboNode* node, InsertionLocation location) {
+static void insert_node (
+  GumboParser* parser,
+  GumboNode* node,
+  InsertionLocation location
+) {
   assert(node->parent == NULL);
   assert(node->index_within_parent == -1);
   GumboNode* parent = location.target;
   int index = location.index;
   if (index != -1) {
     GumboVector* children = NULL;
-    if (parent->type == GUMBO_NODE_ELEMENT ||
-        parent->type == GUMBO_NODE_TEMPLATE) {
+    if (
+      parent->type == GUMBO_NODE_ELEMENT
+      || parent->type == GUMBO_NODE_TEMPLATE
+    ) {
       children = &parent->v.element.children;
     } else if (parent->type == GUMBO_NODE_DOCUMENT) {
       children = &parent->v.document.children;
