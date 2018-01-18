@@ -909,8 +909,11 @@ static GumboNode* pop_current_node(GumboParser* parser) {
   return current_node;
 }
 
-static void append_comment_node(
-    GumboParser* parser, GumboNode* node, const GumboToken* token) {
+static void append_comment_node (
+  GumboParser* parser,
+  GumboNode* node,
+  const GumboToken* token
+) {
   maybe_flush_text_node_buffer(parser);
   GumboNode* comment = create_node(parser, GUMBO_NODE_COMMENT);
   comment->type = GUMBO_NODE_COMMENT;
@@ -964,8 +967,11 @@ static GumboNode* create_element(GumboParser* parser, GumboTag tag) {
 }
 
 // Constructs an element from the given start tag token.
-static GumboNode* create_element_from_token(
-    GumboParser* parser, GumboToken* token, GumboNamespaceEnum tag_namespace) {
+static GumboNode* create_element_from_token (
+  GumboParser* parser,
+  GumboToken* token,
+  GumboNamespaceEnum tag_namespace
+) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   GumboTokenStartTag* start_tag = &token->v.start_tag;
 
@@ -996,8 +1002,11 @@ static GumboNode* create_element_from_token(
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete/tokenization.html#insert-an-html-element
-static void insert_element(GumboParser* parser, GumboNode* node,
-    bool is_reconstructing_formatting_elements) {
+static void insert_element (
+  GumboParser* parser,
+  GumboNode* node,
+  bool is_reconstructing_formatting_elements
+) {
   GumboParserState* state = parser->_parser_state;
   // NOTE(jdtang): The text node buffer must always be flushed before inserting
   // a node, otherwise we're handling nodes in a different order than the spec
@@ -1019,8 +1028,10 @@ static void insert_element(GumboParser* parser, GumboNode* node,
 // Convenience method that combines create_element_from_token and
 // insert_element, inserting the generated element directly into the current
 // node.  Returns the node inserted.
-static GumboNode* insert_element_from_token(
-    GumboParser* parser, GumboToken* token) {
+static GumboNode* insert_element_from_token (
+  GumboParser* parser,
+  GumboToken* token
+) {
   GumboNode* element =
       create_element_from_token(parser, token, GUMBO_NAMESPACE_HTML);
   insert_element(parser, element, false);
@@ -1044,8 +1055,11 @@ static GumboNode* insert_element_of_tag_type(
 
 // Convenience method for creating foreign namespaced element.  Returns the node
 // inserted.
-static GumboNode* insert_foreign_element(
-    GumboParser* parser, GumboToken* token, GumboNamespaceEnum tag_namespace) {
+static GumboNode* insert_foreign_element (
+  GumboParser* parser,
+  GumboToken* token,
+  GumboNamespaceEnum tag_namespace
+) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   GumboNode* element = create_element_from_token(parser, token, tag_namespace);
   insert_element(parser, element, false);
@@ -1119,8 +1133,11 @@ static bool find_last_anchor_index(GumboParser* parser, int* anchor_index) {
 // formatting elements (after the last active scope marker) that have a specific
 // tag.  If this is > 0, then earliest_matching_index will be filled in with the
 // index of the first such element.
-static int count_formatting_elements_of_tag(GumboParser* parser,
-    const GumboNode* desired_node, int* earliest_matching_index) {
+static int count_formatting_elements_of_tag (
+  GumboParser* parser,
+  const GumboNode* desired_node,
+  int* earliest_matching_index
+) {
   const GumboElement* desired_element = &desired_node->v.element;
   GumboVector* elements = &parser->_parser_state->_active_formatting_elements;
   int num_identical_elements = 0;
@@ -1143,8 +1160,10 @@ static int count_formatting_elements_of_tag(GumboParser* parser,
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#reconstruct-the-active-formatting-elements
 static void add_formatting_element(GumboParser* parser, const GumboNode* node) {
-  assert(node == &kActiveFormattingScopeMarker ||
-         node->type == GUMBO_NODE_ELEMENT);
+  assert (
+    node == &kActiveFormattingScopeMarker
+    || node->type == GUMBO_NODE_ELEMENT
+  );
   GumboVector* elements = &parser->_parser_state->_active_formatting_elements;
   if (node == &kActiveFormattingScopeMarker) {
     gumbo_debug("Adding a scope marker.\n");
@@ -1154,13 +1173,18 @@ static void add_formatting_element(GumboParser* parser, const GumboNode* node) {
 
   // Hunt for identical elements.
   int earliest_identical_element = elements->length;
-  int num_identical_elements = count_formatting_elements_of_tag(
-      parser, node, &earliest_identical_element);
+  int num_identical_elements = count_formatting_elements_of_tag (
+    parser,
+    node,
+    &earliest_identical_element
+  );
 
   // Noah's Ark clause: if there're at least 3, remove the earliest.
   if (num_identical_elements >= 3) {
-    gumbo_debug("Noah's ark clause: removing element at %d.\n",
-        earliest_identical_element);
+    gumbo_debug (
+      "Noah's ark clause: removing element at %d.\n",
+      earliest_identical_element
+    );
     gumbo_vector_remove_at(parser, earliest_identical_element, elements);
   }
 
@@ -1280,8 +1304,9 @@ static void clear_active_formatting_elements(GumboParser* parser) {
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/complete/tokenization.html#the-initial-insertion-mode
-static GumboQuirksModeEnum compute_quirks_mode(
-    const GumboTokenDocType* doctype) {
+static GumboQuirksModeEnum compute_quirks_mode (
+  const GumboTokenDocType* doctype
+) {
   if (doctype->force_quirks || strcmp(doctype->name, kDoctypeHtml.data) ||
       is_in_static_list(
           doctype->public_identifier, kQuirksModePublicIdPrefixes, false) ||
