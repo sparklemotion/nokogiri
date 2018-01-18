@@ -65,10 +65,7 @@
 
 // Compared against _script_data_buffer to determine if we're in
 // double-escaped script mode.
-static const GumboStringPiece kScriptTag = { \
-  .data = "script", \
-  .length = 6 \
-};
+static const GumboStringPiece kScriptTag = {.data = "script", .length = 6};
 
 // An enum for the return value of each individual state.
 typedef enum {
@@ -204,8 +201,10 @@ typedef struct GumboInternalTokenizerState {
 } GumboTokenizerState;
 
 // Adds an ERR_UNEXPECTED_CODE_POINT parse error to the parser's error struct.
-static void tokenizer_add_parse_error(
-    GumboParser* parser, GumboErrorType type) {
+static void tokenizer_add_parse_error (
+  GumboParser* parser,
+  GumboErrorType type
+) {
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
     return;
@@ -368,8 +367,10 @@ static void clear_temporary_buffer(GumboParser* parser) {
 }
 
 // Appends a codepoint to the temporary buffer.
-static void append_char_to_temporary_buffer(
-    GumboParser* parser, int codepoint) {
+static void append_char_to_temporary_buffer (
+  GumboParser* parser,
+  int codepoint
+) {
   gumbo_string_buffer_append_codepoint(
       parser, codepoint, &parser->_tokenizer_state->_temporary_buffer);
 }
@@ -586,8 +587,12 @@ static void abandon_current_tag(GumboParser* parser) {
 // Wraps the gumbo_consume_char_ref function to handle its output and make the
 // appropriate TokenizerState modifications.  Returns RETURN_ERROR if a parse
 // error occurred, RETURN_SUCCESS otherwise.
-static StateResult emit_char_ref(GumboParser* parser,
-    int additional_allowed_char, bool is_in_attribute, GumboToken* output) {
+static StateResult emit_char_ref (
+  GumboParser* parser,
+  int additional_allowed_char,
+  bool is_in_attribute,
+  GumboToken* output
+) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   OneOrTwoCodepoints char_ref;
   bool status = gumbo_consume_char_ref (
@@ -670,8 +675,11 @@ static bool emit_temporary_buffer(GumboParser* parser, GumboToken* output) {
 // start point; the only time you would *not* want to pass true for this
 // parameter is if you want the original_text to include character (like an
 // opening quote) that doesn't appear in the value.
-static void append_char_to_tag_buffer(
-    GumboParser* parser, int codepoint, bool reinitilize_position_on_first) {
+static void append_char_to_tag_buffer (
+  GumboParser* parser,
+  int codepoint,
+  bool reinitilize_position_on_first
+) {
   GumboStringBuffer* buffer = &parser->_tokenizer_state->_tag_state._buffer;
   if (buffer->length == 0 && reinitilize_position_on_first) {
     reset_tag_buffer_start_point(parser);
@@ -728,9 +736,12 @@ static void copy_over_tag_buffer(GumboParser* parser, const char** output) {
 // * The start_pos GumboSourcePosition with the start position of the tag
 // buffer.
 // * The end_pos GumboSourcePosition with the current source position.
-static void copy_over_original_tag_text(GumboParser* parser,
-    GumboStringPiece* original_text, GumboSourcePosition* start_pos,
-    GumboSourcePosition* end_pos) {
+static void copy_over_original_tag_text (
+  GumboParser* parser,
+  GumboStringPiece* original_text,
+  GumboSourcePosition* start_pos,
+  GumboSourcePosition* end_pos
+) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   GumboTagState* tag_state = &tokenizer->_tag_state;
 
@@ -767,8 +778,12 @@ static void finish_tag_name(GumboParser* parser) {
 }
 
 // Adds an ERR_DUPLICATE_ATTR parse error to the parser's error struct.
-static void add_duplicate_attr_error(GumboParser* parser, const char* attr_name,
-    int original_index, int new_index) {
+static void add_duplicate_attr_error (
+  GumboParser* parser,
+  const char* attr_name,
+  int original_index,
+  int new_index
+) {
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
     return;
@@ -853,8 +868,11 @@ static bool is_appropriate_end_tag(GumboParser* parser) {
                                            tag_state->_buffer.length);
 }
 
-void gumbo_tokenizer_state_init(
-    GumboParser* parser, const char* text, size_t text_length) {
+void gumbo_tokenizer_state_init (
+  GumboParser* parser,
+  const char* text,
+  size_t text_length
+) {
   GumboTokenizerState* tokenizer =
       gumbo_parser_allocate(parser, sizeof(GumboTokenizerState));
   parser->_tokenizer_state = tokenizer;
