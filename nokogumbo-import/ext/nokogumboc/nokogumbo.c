@@ -184,7 +184,8 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node) {
 }
 
 // Parse a string using gumbo_parse into a Nokogiri document
-static VALUE parse(VALUE self, VALUE string) {
+static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
+  int max_errors = NUM2INT(max_parse_errors);
   const GumboOptions *options = &kGumboDefaultOptions;
   const char *input = RSTRING_PTR(string);
   size_t input_len = RSTRING_LEN(string);
@@ -217,14 +218,14 @@ static VALUE parse(VALUE self, VALUE string) {
   VALUE rdoc = Nokogiri_wrap_xml_document(Document, doc);
 
   // Add parse errors to rdoc.
-  if (output->errors.length) {
+  if (output->errors.length && max_errors > 0) {
     GumboVector *errors = &output->errors;
     GumboParser parser = { ._options = options };
     GumboStringBuffer msg;
-    VALUE rerrors = rb_ary_new2(errors->length);
+    VALUE rerrors = rb_ary_new2(errors->length < max_errors ? errors->length : max_errors);
 
     gumbo_string_buffer_init(&parser, &msg);
-    for (int i=0; i < errors->length; i++) {
+    for (int i=0; i < errors->length && i < max_errors; i++) {
       GumboError *err = errors->data[i];
       gumbo_string_buffer_clear(&parser, &msg);
       // Work around bug in gumbo_caret_diagnostic_to_string.
@@ -288,5 +289,5 @@ void Init_nokogumboc() {
 
   // define Nokogumbo class with a singleton parse method
   VALUE Gumbo = rb_define_class("Nokogumbo", rb_cObject);
-  rb_define_singleton_method(Gumbo, "parse", parse, 1);
+  rb_define_singleton_method(Gumbo, "parse", parse, 2);
 }

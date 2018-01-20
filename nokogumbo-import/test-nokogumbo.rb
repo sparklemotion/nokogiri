@@ -78,7 +78,7 @@ class TestNokogumbo < Minitest::Test
   end
 
   def test_html5_doctype
-    doc = Nokogumbo.parse("<!DOCTYPE html><html></html>")
+    doc = Nokogiri::HTML5.parse("<!DOCTYPE html><html></html>")
     assert_match /<!DOCTYPE html>/, doc.to_html
   end
 
@@ -132,9 +132,35 @@ class TestNokogumbo < Minitest::Test
     assert_empty doc.errors
   end
 
+  def test_max_parse_errors
+    # This document contains 2 parse errors, but we force limit to 1.
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- -- --></a>", max_parse_errors: 1)
+    assert_equal 1, doc.errors.length
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_parse_errors: 1)
+    assert_empty doc.errors
+  end
+
+  def test_default_max_parse_errors
+    # This document contains 200 parse errors, but default limit is 100.
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html>" + "</p>" * 200)
+    assert_equal 100, doc.errors.length
+  end
+
   def test_parse_fragment_errors
     doc = Nokogiri::HTML5.fragment("<\r\n")
     refute_empty doc.errors
+  end
+
+  def test_fragment_max_parse_errors
+    # This fragment contains 3 parse errors, but we force limit to 1.
+    doc = Nokogiri::HTML5.fragment("<!-- -- --></a>", max_parse_errors: 1)
+    assert_equal 1, doc.errors.length
+  end
+
+  def test_fragment_default_max_parse_errors
+    # This fragment contains 201 parse errors, but default limit is 100.
+    doc = Nokogiri::HTML5.fragment("</p>" * 200)
+    assert_equal 100, doc.errors.length
   end
 
 private
