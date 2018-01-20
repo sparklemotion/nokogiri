@@ -218,7 +218,7 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
   VALUE rdoc = Nokogiri_wrap_xml_document(Document, doc);
 
   // Add parse errors to rdoc.
-  if (output->errors.length && max_errors > 0) {
+  if (max_errors > 0 && output->errors.length) {
     GumboVector *errors = &output->errors;
     GumboParser parser = { ._options = options };
     GumboStringBuffer msg;
