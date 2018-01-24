@@ -185,11 +185,13 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node) {
 
 // Parse a string using gumbo_parse into a Nokogiri document
 static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
-  int max_errors = NUM2INT(max_parse_errors);
-  const GumboOptions *options = &kGumboDefaultOptions;
+  GumboOptions options;
+  memcpy(&options, &kGumboDefaultOptions, sizeof options);
+  options.max_errors = NUM2INT(max_parse_errors);
+
   const char *input = RSTRING_PTR(string);
   size_t input_len = RSTRING_LEN(string);
-  GumboOutput *output = gumbo_parse_with_options(options, input, input_len);
+  GumboOutput *output = gumbo_parse_with_options(&options, input, input_len);
   xmlDocPtr doc = xmlNewDoc(CONST_CAST "1.0");
 #ifdef NGLIB
   doc->type = XML_HTML_DOCUMENT_NODE;
@@ -218,14 +220,14 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
   VALUE rdoc = Nokogiri_wrap_xml_document(Document, doc);
 
   // Add parse errors to rdoc.
-  if (max_errors > 0 && output->errors.length) {
+  if (output->errors.length) {
     GumboVector *errors = &output->errors;
-    GumboParser parser = { ._options = options };
+    GumboParser parser = { ._options = &options };
     GumboStringBuffer msg;
-    VALUE rerrors = rb_ary_new2(errors->length < max_errors ? errors->length : max_errors);
+    VALUE rerrors = rb_ary_new2(errors->length);
 
     gumbo_string_buffer_init(&parser, &msg);
-    for (int i=0; i < errors->length && i < max_errors; i++) {
+    for (int i=0; i < errors->length; i++) {
       GumboError *err = errors->data[i];
       gumbo_string_buffer_clear(&parser, &msg);
       // Work around bug in gumbo_caret_diagnostic_to_string.
@@ -254,7 +256,7 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
     gumbo_string_buffer_destroy(&parser, &msg);
   }
 
-  gumbo_destroy_output(options, output);
+  gumbo_destroy_output(&options, output);
 
   return rdoc;
 }
