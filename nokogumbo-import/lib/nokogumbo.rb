@@ -4,14 +4,14 @@ require 'nokogumboc'
 module Nokogiri
   # Parse an HTML document.  +string+ contains the document.  +string+
   # may also be an IO-like object.  Returns a +Nokogiri::HTML::Document+.
-  def self.HTML5(string)
-    Nokogiri::HTML5.parse(string)
+  def self.HTML5(*args)
+    Nokogiri::HTML5.parse(*args)
   end
 
   module HTML5
     # Parse an HTML document.  +string+ contains the document.  +string+
     # may also be an IO-like object.  Returns a +Nokogiri::HTML::Document+.
-    def self.parse(string)
+    def self.parse(string, options={})
       if string.respond_to? :read
         string = string.read
       end
@@ -21,7 +21,7 @@ module Nokogiri
         string = reencode(string)
       end
 
-      Nokogumbo.parse(string.to_s)
+      Nokogumbo.parse(string.to_s, options[:max_parse_errors] || 0)
     end
 
     # Fetch and parse a HTML document from the web, following redirects,
@@ -67,7 +67,7 @@ module Nokogiri
 
       case response
       when Net::HTTPSuccess
-        doc = parse(reencode(response.body, response['content-type']))
+        doc = parse(reencode(response.body, response['content-type']), options)
         doc.instance_variable_set('@response', response)
         doc.class.send(:attr_reader, :response)
         doc
@@ -83,8 +83,8 @@ module Nokogiri
     # while fragment is on the Gumbo TODO list, simulate it by doing
     # a full document parse and ignoring the parent <html>, <head>, and <body>
     # tags, and collecting up the children of each.
-    def self.fragment(string)
-      doc = parse(string)
+    def self.fragment(*args)
+      doc = parse(*args)
       fragment = Nokogiri::HTML::DocumentFragment.new(doc)
 
       if doc.children.length != 1 or doc.children.first.name != 'html'
