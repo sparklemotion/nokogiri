@@ -23,6 +23,7 @@ require 'nokogiri/xml/builder'
 require 'nokogiri/xml/reader'
 require 'nokogiri/xml/notation'
 require 'nokogiri/xml/entity_decl'
+require 'nokogiri/xml/entity_reference'
 require 'nokogiri/xml/schema'
 require 'nokogiri/xml/relax_ng'
 

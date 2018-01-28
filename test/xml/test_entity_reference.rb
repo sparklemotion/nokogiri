@@ -28,6 +28,17 @@ EOF
         doc.xpath('/item').first.add_child(lf_node)
         assert_match(/&#xa;/, doc.to_xml)
       end
+
+      def test_children_should_always_be_empty
+        # https://github.com/sparklemotion/nokogiri/issues/1238
+        #
+        # libxml2 will create a malformed child node for predefined
+        # entities. because any use of that child is likely to cause a
+        # segfault, we shall pretend that it doesn't exist.
+        entity = Nokogiri::XML::EntityReference.new(@xml, "amp")
+        assert_equal 0, entity.children.length
+        entity.inspect # should not segfault
+      end
     end
 
     module Common
