@@ -15,6 +15,7 @@
 ## Bug fixes
 
 * Node#serialize once again returns UTF-8-encoded strings. [#1659]
+* [JRuby] made SAX parsing of characters consistent with C implementation [#1676] (Thanks, @andrew-aladev!)
 
 
 # 1.8.1 / 2017-09-19
