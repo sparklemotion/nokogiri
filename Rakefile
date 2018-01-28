@@ -264,10 +264,7 @@ task 'bundler:gemfile' do
 end
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
-  racc = RbConfig::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
-  racc = "#{::RbConfig::CONFIG['bindir']}/racc" if racc.empty?
-  racc = %x{command -v racc}.strip if racc.empty?
-  sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
+  sh "racc -l -o #{t.name} #{t.prerequisites.first}"
 end
 
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
