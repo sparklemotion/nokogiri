@@ -37,8 +37,8 @@ cp -v pkg/nokogiri*.gem gems
 bundle exec rake clean clobber
 bundle exec rake generate
 
-rvm jruby-1.7.19
+rvm jruby
 gem install bundler --conservative
 bundle install --quiet --local || bundle install
-bundle exec rake gem
+bundle exec ruby -S rake gem
 cp -v pkg/nokogiri*java.gem gems
