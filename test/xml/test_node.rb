@@ -165,6 +165,29 @@ module Nokogiri
         assert_equal x.first.name, "span"
       end
 
+      def test_dup_is_deep_copy_by_default
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup
+        assert_equal 1, node.children.length
+        assert_equal "<p>hello</p>", node.children.first.to_html
+      end
+
+      def test_dup_deep_copy
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup(1)
+        assert_equal 1, node.children.length
+        assert_equal "<p>hello</p>", node.children.first.to_html
+      end
+
+      def test_dup_shallow_copy
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup(0)
+        assert_equal 0, node.children.length
+      end
+
       def test_subclass_dup
         subclass = Class.new(Nokogiri::XML::Node)
         node = subclass.new('foo', @xml).dup
