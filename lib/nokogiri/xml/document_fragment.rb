@@ -25,6 +25,15 @@ module Nokogiri
         children.each { |child| child.parent = self }
       end
 
+      def dup
+        new_document = document.dup
+        new_fragment = XML::DocumentFragment.new(new_document)
+        children.each do |child|
+          child.dup(1, new_document).parent = new_fragment
+        end
+        new_fragment
+      end
+
       ###
       # return the name for DocumentFragment
       def name

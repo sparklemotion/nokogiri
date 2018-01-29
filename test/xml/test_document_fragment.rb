@@ -263,6 +263,20 @@ EOS
         Nokogiri::XML::DocumentFragment.parse(input) # assert_nothing_raised
       end
 
+      def test_dup_creates_tree_with_identical_structure
+        original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
+        duplicate = original.dup
+        assert_equal original.to_html, duplicate.to_html
+      end
+
+      def test_dup_creates_mutable_tree
+        original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
+        duplicate = original.dup
+        duplicate.at_css("div").add_child("<b>hello there</b>")
+        assert_nil original.at_css("b")
+        assert_not_nil duplicate.at_css("b")
+      end
+
       if Nokogiri.uses_libxml?
         def test_for_libxml_in_context_fragment_parsing_bug_workaround
           10.times do
