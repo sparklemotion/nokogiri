@@ -1,5 +1,10 @@
 # unreleased
 
+## Security Notes
+
+[MRI] The update of vendored libxml2 from 2.9.5 to 2.9.7 addresses at least one published vulnerability, CVE-2017-15412. [#1714 has complete details]
+
+
 ## Dependencies
 
 * [MRI] libxml2 is updated from 2.9.5 to 2.9.7
