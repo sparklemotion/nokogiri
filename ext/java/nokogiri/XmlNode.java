@@ -464,9 +464,6 @@ public class XmlNode extends RubyObject {
             return;
         }
 
-        // TODO: this feels kind of weird, why are we clearing the XmlNode
-        // cache here !!!
-        clearCachedNode(node);
         Element e = (Element) node;
 
         // disable error checking to prevent lines like the following
