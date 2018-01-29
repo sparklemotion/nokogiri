@@ -464,9 +464,6 @@ public class XmlNode extends RubyObject {
             return;
         }
 
-        // TODO: this feels kind of weird, why are we clearing the XmlNode
-        // cache here !!!
-        clearCachedNode(node);
         Element e = (Element) node;
 
         // disable error checking to prevent lines like the following
@@ -512,7 +509,6 @@ public class XmlNode extends RubyObject {
                     // TODO: why do we need the namespace cache ?
                     XmlNamespace.createFromAttr(context.getRuntime(), attr);
                 }
-                clearCachedNode(attr);
                 NokogiriHelpers.renameNode(attr, nsUri, nodeName);
             }
         }
