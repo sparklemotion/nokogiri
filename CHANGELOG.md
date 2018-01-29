@@ -1,4 +1,4 @@
-# unreleased
+# 1.8.2 / 2018-01-29
 
 ## Security Notes
 
