@@ -21,6 +21,14 @@ module Nokogiri
           end
         end
 
+        def test_write_last_chunk
+          @parser << "<foo>"
+          @parser.write "</foo>", true
+          assert_equal [["foo", []]], @parser.document.start_elements
+          assert_equal [["foo"]], @parser.document.end_elements
+        end
+
+
         def test_finish_should_rethrow_last_error
           begin
             @parser << "</foo>"

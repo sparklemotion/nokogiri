@@ -157,6 +157,14 @@ public class XmlSaxPushParser extends RubyObject {
 
         int errorCount0 = parserTask.getErrorCount();
 
+        try {
+            Future<Void> task = stream.addChunk(data);
+            task.get();
+        } catch (ClosedStreamException ex) {
+            // this means the stream is closed, ignore this exception
+        } catch (Exception e) {
+            throw context.runtime.newRuntimeError(e.toString());
+        }
 
         if (isLast.isTrue()) {
             try {
@@ -167,18 +175,6 @@ public class XmlSaxPushParser extends RubyObject {
             } finally {
                 terminateTask(context);
             }
-        } else {
-            try {
-                Future<Void> task = stream.addChunk(data);
-                task.get();
-            }
-            catch (ClosedStreamException ex) {
-                // this means the stream is closed, ignore this exception
-            }
-            catch (Exception e) {
-                throw context.runtime.newRuntimeError(e.toString());
-            }
-
         }
 
         if (!options.recover && parserTask.getErrorCount() > errorCount0) {
