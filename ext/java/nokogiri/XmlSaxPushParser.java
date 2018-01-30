@@ -77,6 +77,7 @@ public class XmlSaxPushParser extends RubyObject {
     ParserTask parserTask = null;
     FutureTask<XmlSaxParserContext> futureTask = null;
     ExecutorService executor = null;
+    RaiseException ex = null;
 
     public XmlSaxPushParser(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
@@ -139,6 +140,11 @@ public class XmlSaxPushParser extends RubyObject {
     @JRubyMethod
     public IRubyObject native_write(ThreadContext context, IRubyObject chunk,
                                     IRubyObject isLast) {
+        if (ex != null) {
+            // parser has already errored, rethrow the exception
+            throw ex;
+        }
+
         try {
             initialize_task(context);
         } catch (IOException e) {
@@ -158,8 +164,9 @@ public class XmlSaxPushParser extends RubyObject {
             }
             catch (SAXException e) {
                 throw context.runtime.newRuntimeError(e.getMessage());
+            } finally {
+                terminateTask(context);
             }
-            terminateTask(context);
         } else {
             try {
                 Future<Void> task = stream.addChunk(data);
@@ -176,6 +183,7 @@ public class XmlSaxPushParser extends RubyObject {
 
         if (!options.recover && parserTask.getErrorCount() > errorCount0) {
             terminateTask(context);
+            ex = parserTask.getLastError();
             throw parserTask.getLastError();
         }
 

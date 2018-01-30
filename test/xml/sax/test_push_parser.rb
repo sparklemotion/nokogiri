@@ -21,6 +21,22 @@ module Nokogiri
           end
         end
 
+        def test_finish_should_rethrow_last_error
+          begin
+            @parser << "</foo>"
+          rescue => e
+            expected = e
+          end
+
+          begin
+            @parser.finish
+          rescue => e
+            actual = e
+          end
+
+          assert_equal actual.message, expected.message
+        end
+
         def test_should_throw_error_returned_by_document
           doc = Doc.new
           class << doc
