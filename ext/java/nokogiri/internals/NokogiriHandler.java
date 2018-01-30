@@ -45,6 +45,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -72,7 +73,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
      * TODO: should these be stored in the document 'errors' array?
      * Currently only string messages are stored there.
      */
-    private final LinkedList<XmlSyntaxError> errors = new LinkedList<XmlSyntaxError>();
+    private final LinkedList<RaiseException> errors = new LinkedList<RaiseException>();
 
     private Locator locator;
     private static String htmlParserName = "Nokogiri::HTML::SAX::Parser";
@@ -255,15 +256,23 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     @Override
     public void error(SAXParseException saxpe) {
-        addError(XmlSyntaxError.createError(ruby, saxpe));
-        call("error", ruby.newString(saxpe.getMessage()));
+        try {
+            call("error", ruby.newString(saxpe.getMessage()));
+            addError(new RaiseException(XmlSyntaxError.createError(ruby, saxpe), true));
+        } catch(RaiseException e) {
+            addError(e);
+        }
     }
 
     @Override
     public void fatalError(SAXParseException saxpe) throws SAXException
     {
-        addError(XmlSyntaxError.createFatalError(ruby, saxpe));
-        call("error", ruby.newString(saxpe.getMessage()));
+        try {
+            call("error", ruby.newString(saxpe.getMessage()));
+            addError(new RaiseException(XmlSyntaxError.createFatalError(ruby, saxpe), true));
+        } catch(RaiseException e) {
+            addError(e);
+        }
     }
 
     @Override
@@ -272,7 +281,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         call("warning", ruby.newString(saxpe.getMessage()));
     }
 
-    protected synchronized void addError(XmlSyntaxError e) {
+    protected synchronized void addError(RaiseException e) {
         errors.add(e);
     }
 
@@ -280,7 +289,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         return errors.size();
     }
 
-    public synchronized IRubyObject getLastError() {
+    public synchronized RaiseException getLastError() {
         return errors.getLast();
     }
 

@@ -21,6 +21,24 @@ module Nokogiri
           end
         end
 
+        def test_should_throw_error_returned_by_document
+          doc = Doc.new
+          class << doc
+            def error msg
+              raise "parse error"
+            end
+          end
+
+          @parser = XML::SAX::PushParser.new(doc)
+          begin
+            @parser << "</foo>"
+          rescue => e
+            actual = e
+          end
+
+          assert_equal actual.message, "parse error"
+        end
+
         def test_writing_nil
           assert_equal @parser.write(nil), @parser
         end

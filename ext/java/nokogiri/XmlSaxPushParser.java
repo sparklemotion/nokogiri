@@ -176,7 +176,7 @@ public class XmlSaxPushParser extends RubyObject {
 
         if (!options.recover && parserTask.getErrorCount() > errorCount0) {
             terminateTask(context);
-            throw new RaiseException(parserTask.getLastError(), true);
+            throw parserTask.getLastError();
         }
 
         return this;
@@ -248,8 +248,8 @@ public class XmlSaxPushParser extends RubyObject {
             else return parser.getNokogiriHandler().getErrorCount();
         }
 
-        private synchronized RubyException getLastError() {
-            return (RubyException) parser.getNokogiriHandler().getLastError();
+        private synchronized RaiseException getLastError() {
+            return parser.getNokogiriHandler().getLastError();
         }
     }
 }
