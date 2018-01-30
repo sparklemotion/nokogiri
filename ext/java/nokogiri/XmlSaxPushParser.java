@@ -206,6 +206,10 @@ public class XmlSaxPushParser extends RubyObject {
     }
 
     private synchronized void terminateTask(ThreadContext context) {
+        if (futureTask == null || stream == null) {
+            return;
+        }
+
         try {
           Future<Void> task = stream.addChunk(NokogiriBlockingQueueInputStream.END);
           task.get();

@@ -21,6 +21,13 @@ module Nokogiri
           end
         end
 
+        def test_early_finish
+          @parser << "<foo>"
+          assert_raises(SyntaxError) do
+            @parser.finish
+          end
+        end
+
         def test_write_last_chunk
           @parser << "<foo>"
           @parser.write "</foo>", true
