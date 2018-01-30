@@ -21,6 +21,10 @@ module Nokogiri
           end
         end
 
+        def test_writing_nil
+          assert_equal @parser.write(nil), @parser
+        end
+
         def test_end_document_called
           @parser.<<(<<-eoxml)
             <p id="asdfasdf">

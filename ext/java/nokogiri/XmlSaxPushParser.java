@@ -146,8 +146,7 @@ public class XmlSaxPushParser extends RubyObject {
         }
         final ByteArrayInputStream data = NokogiriHelpers.stringBytesToStream(chunk);
         if (data == null) {
-            terminateTask(context);
-            throw new RaiseException(XmlSyntaxError.createXMLSyntaxError(context.runtime)); // Nokogiri::XML::SyntaxError
+            return this;
         }
 
         int errorCount0 = parserTask.getErrorCount();
