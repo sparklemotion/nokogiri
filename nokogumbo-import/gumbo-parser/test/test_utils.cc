@@ -122,7 +122,7 @@ void SanityCheckPointers(
     EXPECT_LE(element->end_pos.offset, input_length);
 
     const GumboVector* children = &element->children;
-    for (int i = 0; i < children->length; ++i) {
+    for (unsigned int i = 0; i < children->length; ++i) {
       const GumboNode* child = static_cast<const GumboNode*>(children->data[i]);
       // Checks on parent/child links.
       ASSERT_TRUE(child != NULL);
@@ -153,7 +153,7 @@ static void* LeakDetectingMalloc(void* userdata, size_t size) {
   ++stats->objects_allocated;
   // Arbitrary limit of 2G on allocation; parsing any reasonable document
   // shouldn't take more than that.
-  assert(stats->bytes_allocated < (1 << 31));
+  assert(stats->bytes_allocated < (UINT64_C(1) << UINT64_C(31)));
   void* obj = malloc(size);
   // gumbo_debug("Allocated %u bytes at %x.\n", size, obj);
   return obj;
@@ -193,7 +193,7 @@ GumboTest::~GumboTest() {
     // TODO(jdtang): A googlemock matcher may be a more appropriate solution for
     // this; we only want to pretty-print errors that are not an expected
     // output of the test.
-    for (int i = 0; i < parser_._output->errors.length && i < 1; ++i) {
+    for (unsigned int i = 0; i < parser_._output->errors.length && i < 1; ++i) {
       gumbo_print_caret_diagnostic(&parser_,
           static_cast<GumboError*>(parser_._output->errors.data[i]), text_);
     }
