@@ -784,7 +784,7 @@ static void append_node (
   GumboNode* node
 ) {
   assert(node->parent == NULL);
-  assert(node->index_within_parent == -1);
+  assert(node->index_within_parent == (size_t) -1);
   GumboVector* children;
   if (
     parent->type == GUMBO_NODE_ELEMENT
@@ -810,7 +810,7 @@ static void insert_node (
   InsertionLocation location
 ) {
   assert(node->parent == NULL);
-  assert(node->index_within_parent == -1);
+  assert(node->index_within_parent == (size_t) -1);
   GumboNode* parent = location.target;
   int index = location.index;
   if (index != -1) {
