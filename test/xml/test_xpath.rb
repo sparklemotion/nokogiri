@@ -108,6 +108,14 @@ module Nokogiri
         assert_equal 3, node.search('.//div', 'p.blah').length
       end
 
+      def test_css_search_with_ambiguous_integer_or_string_attributes
+        # https://github.com/sparklemotion/nokogiri/issues/711
+        html = "<body><div><img width=200>"
+        doc = Nokogiri::HTML(html)
+        assert_not_nil doc.at_css("img[width='200']")
+        assert_not_nil doc.at_css("img[width=200]")
+      end
+
       def test_css_search_uses_custom_selectors_with_arguments
         set = @xml.css('employee > address:my_filter("domestic", "Yes")', @handler)
         assert set.length > 0

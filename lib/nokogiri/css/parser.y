@@ -223,6 +223,7 @@ rule
   attrib_val_0or1
     : eql_incl_dash IDENT { result = [val.first, val[1]] }
     | eql_incl_dash STRING { result = [val.first, val[1]] }
+    | eql_incl_dash NUMBER { result = [val.first, val[1]] }
     |
     ;
   eql_incl_dash

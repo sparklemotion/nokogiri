@@ -257,6 +257,11 @@ module Nokogiri
                       @parser.parse("h1[a='Tender Lovemaking']")
       end
 
+      def test_attribute_with_number_or_string
+        assert_xpath "//img[@width = '200']", @parser.parse("img[width='200']")
+        assert_xpath "//img[@width = '200']", @parser.parse("img[width=200]")
+      end
+
       def test_id
         assert_xpath "//*[@id = 'foo']", @parser.parse('#foo')
         assert_xpath "//*[@id = 'escape:needed,']", @parser.parse('#escape\:needed\,')
