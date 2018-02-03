@@ -8,7 +8,7 @@
 ## Dependencies
 
 * [MRI] libxml2 is updated from 2.9.5 to 2.9.7
-* [MRI] libxml2 is updated from 1.1.30 to 1.1.32
+* [MRI] libxslt is updated from 1.1.30 to 1.1.32
 
 
 ## Features
