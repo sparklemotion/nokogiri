@@ -1,3 +1,10 @@
+# unreleased
+
+## Bug fixes
+
+* CSS attribute selectors now gracefully handle queries using integers. [#711]
+
+
 # 1.8.2 / 2018-01-29
 
 ## Security Notes
