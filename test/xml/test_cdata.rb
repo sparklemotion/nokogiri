@@ -25,7 +25,7 @@ module Nokogiri
 
       def test_new_with_nil
         node = CDATA.new(@xml, nil)
-        assert_equal nil, node.content
+        assert_nil node.content
       end
 
       def test_new_with_non_string

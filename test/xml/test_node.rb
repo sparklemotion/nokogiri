@@ -1054,15 +1054,15 @@ EOXML
         assert_equal 'http://bar.com/', set[1].namespace.href
         assert_equal "c", set[2].namespace.prefix
         assert_equal 'http://bazz.com/', set[2].namespace.href
-        assert_equal nil, set[3].namespace.prefix # default namespace
+        assert_nil set[3].namespace.prefix # default namespace
         assert_equal 'http://ns.example.com/d', set[3].namespace.href
-        assert_equal nil, set[4].namespace # no namespace
+        assert_nil set[4].namespace # no namespace
 
         assert_equal 'b', set[2].attributes['y'].namespace.prefix
         assert_equal 'http://bar.com/', set[2].attributes['y'].namespace.href
-        assert_equal nil, set[2].attributes['x'].namespace
-        assert_equal nil, set[3].attributes['x'].namespace
-        assert_equal nil, set[4].attributes['x'].namespace
+        assert_nil set[2].attributes['x'].namespace
+        assert_nil set[3].attributes['x'].namespace
+        assert_nil set[4].attributes['x'].namespace
       end
 
       if Nokogiri.uses_libxml?
@@ -1076,7 +1076,7 @@ EOXML
 
           assert_equal 1, node.namespaces.keys.size
           assert       node.namespaces.has_key?('xmlns:o')
-          assert_equal nil, node.namespaces['xmlns:o']
+          assert_nil node.namespaces['xmlns:o']
         end
       end
 

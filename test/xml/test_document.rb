@@ -69,7 +69,7 @@ module Nokogiri
 
       def test_root_set_to_nil
         @xml.root = nil
-        assert_equal nil, @xml.root
+        assert_nil @xml.root
       end
 
       def test_million_laugh_attach
@@ -869,9 +869,9 @@ module Nokogiri
         assert_equal 1, doc.xpath("//x:foo", "x" => "http://c.flavorjon.es/").length
         assert_match %r{foo c:attr}, doc.to_xml
         doc.at_xpath("//x:foo", "x" => "http://c.flavorjon.es/").tap do |node|
-          assert_equal nil,          node["attr"]
+          assert_nil          node["attr"]
           assert_equal "attr-value", node["c:attr"]
-          assert_equal nil,          node.attribute_with_ns("attr", nil)
+          assert_nil          node.attribute_with_ns("attr", nil)
           assert_equal "attr-value", node.attribute_with_ns("attr", "http://c.flavorjon.es/").value
           assert_equal "attr-value", node.attributes["attr"].value
         end
@@ -887,9 +887,9 @@ module Nokogiri
         assert_match %r{foo attr}, doc.to_xml
         doc.at_xpath("//container/foo").tap do |node|
           assert_equal "attr-value", node["attr"]
-          assert_equal nil,          node["c:attr"]
+          assert_nil          node["c:attr"]
           assert_equal "attr-value", node.attribute_with_ns("attr", nil).value
-          assert_equal nil,          node.attribute_with_ns("attr", "http://c.flavorjon.es/")
+          assert_nil          node.attribute_with_ns("attr", "http://c.flavorjon.es/")
           assert_equal "attr-value", node.attributes["attr"].value # doesn't change!
         end
       end

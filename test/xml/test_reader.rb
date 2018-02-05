@@ -601,7 +601,7 @@ module Nokogiri
         reader = Nokogiri::XML::Reader("<root xmlns='bob'><el attr='fred' /></root>")
         reader.read # root
         reader.read # el
-        assert_equal nil, reader.attribute('other')
+        assert_nil reader.attribute('other')
       end
     end
   end
