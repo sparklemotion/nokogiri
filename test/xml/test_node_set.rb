@@ -408,7 +408,7 @@ module Nokogiri
       def test_delete_on_empty_set
         empty_set = Nokogiri::XML::NodeSet.new @xml, []
         employee  = @xml.at_xpath("//employee")
-        assert_equal nil, empty_set.delete(employee)
+        assert_nil empty_set.delete(employee)
       end
 
       def test_unlink
@@ -573,9 +573,9 @@ module Nokogiri
 
       def test_slice_on_empty_node_set
         empty_set = Nokogiri::XML::NodeSet.new @xml, []
-        assert_equal nil, empty_set[99]
-        assert_equal nil, empty_set[99..101]
-        assert_equal nil, empty_set[99,2]
+        assert_nil empty_set[99]
+        assert_nil empty_set[99..101]
+        assert_nil empty_set[99,2]
       end
 
       def test_slice_waaaaaay_off_the_end

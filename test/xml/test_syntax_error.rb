@@ -27,9 +27,9 @@ module Nokogiri
         error = bad_doc.errors.first
 
         assert_equal "The element type \"root\" must be terminated by the matching end-tag \"</root>\".", error.message
-        assert_equal nil, error.line
-        assert_equal nil, error.column
-        assert_equal nil, error.level
+        assert_nil error.line
+        assert_nil error.column
+        assert_nil error.level
       end
     end
   end
