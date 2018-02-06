@@ -312,11 +312,11 @@ const char* gumbo_normalized_tagname(GumboTag tag);
 
 /**
  * Extracts the tag name from the original_text field of an element or token by
- * stripping off </> characters and attributes and adjusting the passed-in
+ * stripping off `</>` characters and attributes and adjusting the passed-in
  * GumboStringPiece appropriately.  The tag name is in the original case and
  * shares a buffer with the original text, to simplify memory management.
  * Behavior is undefined if a string-piece that doesn't represent an HTML tag
- * (<tagname> or </tagname>) is passed in.  If the string piece is completely
+ * (`<tagname>` or `</tagname>`) is passed in.  If the string piece is completely
  * empty (NULL data pointer), then this function will exit successfully as a
  * no-op.
  */
@@ -465,8 +465,8 @@ typedef enum {
 /**
  * Namespaces.
  * Unlike in X(HT)ML, namespaces in HTML5 are not denoted by a prefix.  Rather,
- * anything inside an <svg> tag is in the SVG namespace, anything inside the
- * <math> tag is in the MathML namespace, and anything else is inside the HTML
+ * anything inside an `<svg>` tag is in the SVG namespace, anything inside the
+ * `<math>` tag is in the MathML namespace, and anything else is inside the HTML
  * namespace.  No other namespaces are supported, so this can be an enum only.
  */
 typedef enum {
@@ -502,10 +502,10 @@ typedef enum {
    * A flag indicating that the end tag for this node did not appear in the
    * document source.  Note that in some cases, you can still have
    * parser-inserted nodes with an explicit end tag: for example, "Text</html>"
-   * has GUMBO_INSERTED_BY_PARSER set on the <html> node, but
-   * GUMBO_INSERTED_END_TAG_IMPLICITLY is unset, as the </html> tag actually
+   * has GUMBO_INSERTED_BY_PARSER set on the `<html>` node, but
+   * GUMBO_INSERTED_END_TAG_IMPLICITLY is unset, as the `</html>` tag actually
    * exists.  This flag will be set only if the end tag is completely missing;
-   * in some cases, the end tag may be misplaced (eg. a </body> tag with text
+   * in some cases, the end tag may be misplaced (eg. a `</body>` tag with text
    * afterwards), which will leave this flag unset and require clients to
    * inspect the parse errors for that case.
    */
@@ -515,22 +515,22 @@ typedef enum {
 
   /**
    * A flag for nodes that are inserted because their presence is implied by
-   * other tags, eg. <html>, <head>, <body>, <tbody>, etc.
+   * other tags, eg. `<html>`, `<head>`, `<body>`, `<tbody>`, etc.
    */
   GUMBO_INSERTION_IMPLIED = 1 << 3,
 
   /**
    * A flag for nodes that are converted from their end tag equivalents.  For
-   * example, </p> when no paragraph is open implies that the parser should
-   * create a <p> tag and immediately close it, while </br> means the same thing
-   * as <br>.
+   * example, `</p>` when no paragraph is open implies that the parser should
+   * create a `<p>` tag and immediately close it, while `</br>` means the same thing
+   * as `<br>`.
    */
   GUMBO_INSERTION_CONVERTED_FROM_END_TAG = 1 << 4,
 
-  /** A flag for nodes that are converted from the parse of an <isindex> tag. */
+  /** A flag for nodes that are converted from the parse of an `<isindex>` tag. */
   GUMBO_INSERTION_FROM_ISINDEX = 1 << 5,
 
-  /** A flag for <image> tags that are rewritten as <img>. */
+  /** A flag for `<image>` tags that are rewritten as `<img>`. */
   GUMBO_INSERTION_FROM_IMAGE = 1 << 6,
 
   /**
@@ -559,12 +559,12 @@ typedef enum {
 typedef struct {
   /**
    * An array of GumboNodes, containing the children of this element.  This will
-   * normally consist of the <html> element and any comment nodes found.
+   * normally consist of the `<html>` element and any comment nodes found.
    * Pointers are owned.
    */
   GumboVector /* GumboNode* */ children;
 
-  // True if there was an explicit doctype token as opposed to it being omitted.
+  /// `true` if there was an explicit doctype token as opposed to it being omitted.
   bool has_doctype;
 
   // Fields from the doctype token, copied verbatim.
@@ -623,8 +623,8 @@ typedef struct {
   /**
    * A GumboStringPiece pointing to the original tag text for this element,
    * pointing directly into the source buffer.  If the tag was inserted
-   * algorithmically (for example, <head> or <tbody> insertion), this will be a
-   * zero-length string.
+   * algorithmically (for example, `<head>` or `<tbody>` insertion), this
+   * will be a zero-length string.
    */
   GumboStringPiece original_tag;
 
@@ -749,8 +749,8 @@ typedef struct GumboInternalOptions {
 
   /**
    * The namespace for the fragment context.  This lets client code
-   * differentiate between, say, parsing a <title> tag in SVG vs. parsing it in
-   * HTML.
+   * differentiate between, say, parsing a `<title>` tag in SVG vs. parsing
+   * it in HTML.
    * Default: GUMBO_NAMESPACE_HTML
    */
   GumboNamespaceEnum fragment_namespace;
@@ -768,7 +768,7 @@ typedef struct GumboInternalOutput {
   GumboNode* document;
 
   /**
-   * Pointer to the root node.  This the <html> tag that forms the root of the
+   * Pointer to the root node.  This the `<html>` tag that forms the root of the
    * document.
    */
   GumboNode* root;
