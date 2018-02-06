@@ -16,6 +16,7 @@
 
 #include <assert.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -4266,7 +4267,7 @@ GumboOutput* gumbo_parse_with_options (
 
   // Sanity check so that infinite loops die with an assertion failure instead
   // of hanging the process before we ever get an error.
-  int loop_count = 0;
+  uint_fast32_t loop_count = 0;
 
   GumboToken token;
   bool has_error = false;
@@ -4322,7 +4323,7 @@ GumboOutput* gumbo_parse_with_options (
     }
 
     ++loop_count;
-    assert(loop_count < 1000000000);
+    assert(loop_count < 1000000000UL);
 
   } while ((token.type != GUMBO_TOKEN_EOF || state->_reprocess_current_token) &&
            !(options->stop_on_first_error && has_error));
