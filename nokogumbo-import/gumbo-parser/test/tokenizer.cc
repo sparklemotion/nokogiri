@@ -69,6 +69,14 @@ TEST(GumboTagEnumTest, TagLookupCaseSensitivity) {
   EXPECT_EQ(GUMBO_TAG_DIALOG, gumbo_tagn_enum("diAloG", 6));
   EXPECT_EQ(GUMBO_TAG_ANNOTATION_XML, gumbo_tagn_enum("annotation-xml", 14));
   EXPECT_EQ(GUMBO_TAG_ANNOTATION_XML, gumbo_tagn_enum("ANNOTATION-XML", 14));
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, gumbo_tagn_enum("ANNOTATION-XML-", 15));
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, gumbo_tagn_enum("ANNOTATION-XM", 13));
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, gumbo_tagn_enum("", 0));
+  EXPECT_EQ(GUMBO_TAG_B, gumbo_tagn_enum("b", 1));
+  EXPECT_EQ(GUMBO_TAG_I, gumbo_tagn_enum("i", 1));
+  EXPECT_EQ(GUMBO_TAG_U, gumbo_tagn_enum("u", 1));
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, gumbo_tagn_enum("x", 1));
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, gumbo_tagn_enum("c", 1));
 }
 
 TEST_F(GumboTokenizerTest, PartialTag) {
