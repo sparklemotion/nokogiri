@@ -1,10 +1,10 @@
 #ifndef GUMBO_TOKENIZER_STATES_H_
 #define GUMBO_TOKENIZER_STATES_H_
 
-// This contains the list of states used in the tokenizer.  Although at first
+// This contains the list of states used in the tokenizer. Although at first
 // glance it seems like these could be kept internal to the tokenizer, several
 // of the actions in the parser require that it reach into the tokenizer and
-// reset the tokenizer state.  For that to work, it needs to have the
+// reset the tokenizer state. For that to work, it needs to have the
 // definitions of individual states available.
 //
 // This may also be useful for providing more detailed error messages for parse

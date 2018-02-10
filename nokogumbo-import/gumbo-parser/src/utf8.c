@@ -87,8 +87,10 @@ static const uint8_t utf8d[] = {
 static inline uint32_t decode(uint32_t* state, uint32_t* codep, uint32_t byte) {
   uint32_t type = utf8d[byte];
 
-  *codep = (*state != UTF8_ACCEPT) ? (byte & 0x3fu) | (*codep << 6)
-                                   : (0xff >> type) & (byte);
+  *codep =
+    (*state != UTF8_ACCEPT)
+      ? (byte & 0x3fu) | (*codep << 6)
+      : (0xff >> type) & (byte);
 
   *state = utf8d[256 + *state + type];
   return *state;
@@ -195,13 +197,23 @@ static void update_position(Utf8Iterator* iter) {
 // Returns true if this Unicode code point is in the list of characters
 // forbidden by the HTML5 spec, such as undefined control chars.
 bool utf8_is_invalid_code_point(int c) {
-  return (c >= 0x1 && c <= 0x8) || c == 0xB || (c >= 0xE && c <= 0x1F) ||
-         (c >= 0x7F && c <= 0x9F) || (c >= 0xFDD0 && c <= 0xFDEF) ||
-         ((c & 0xFFFF) == 0xFFFE) || ((c & 0xFFFF) == 0xFFFF);
+  return
+    (c >= 0x1 && c <= 0x8)
+    || c == 0xB
+    || (c >= 0xE && c <= 0x1F)
+    || (c >= 0x7F && c <= 0x9F)
+    || (c >= 0xFDD0 && c <= 0xFDEF)
+    || ((c & 0xFFFF) == 0xFFFE)
+    || ((c & 0xFFFF) == 0xFFFF)
+  ;
 }
 
-void utf8iterator_init(GumboParser* parser, const char* source,
-    size_t source_length, Utf8Iterator* iter) {
+void utf8iterator_init (
+  GumboParser* parser,
+  const char* source,
+  size_t source_length,
+  Utf8Iterator* iter
+) {
   iter->_start = source;
   iter->_end = source + source_length;
   iter->_pos.line = 1;
@@ -219,10 +231,14 @@ void utf8iterator_next(Utf8Iterator* iter) {
   read_char(iter);
 }
 
-int utf8iterator_current(const Utf8Iterator* iter) { return iter->_current; }
+int utf8iterator_current(const Utf8Iterator* iter) {
+  return iter->_current;
+}
 
-void utf8iterator_get_position(
-    const Utf8Iterator* iter, GumboSourcePosition* output) {
+void utf8iterator_get_position (
+  const Utf8Iterator* iter,
+  GumboSourcePosition* output
+) {
   *output = iter->_pos;
 }
 
@@ -249,7 +265,7 @@ bool utf8iterator_maybe_consume_match (
     )
   ;
   if (matched) {
-    for (unsigned int i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) {
       utf8iterator_next(iter);
     }
     return true;
