@@ -54,6 +54,21 @@ class GumboTokenizerTest : public GumboTest {
 TEST(GumboTagEnumTest, TagEnumIncludesAllTags) {
   EXPECT_EQ(151, GUMBO_TAG_UNKNOWN);
   EXPECT_STREQ("", gumbo_normalized_tagname(GUMBO_TAG_UNKNOWN));
+  EXPECT_STREQ("html", gumbo_normalized_tagname(GUMBO_TAG_HTML));
+  EXPECT_STREQ("a", gumbo_normalized_tagname(GUMBO_TAG_A));
+  EXPECT_STREQ("dialog", gumbo_normalized_tagname(GUMBO_TAG_DIALOG));
+  EXPECT_STREQ("template", gumbo_normalized_tagname(GUMBO_TAG_TEMPLATE));
+}
+
+TEST(GumboTagEnumTest, TagLookupCaseSensitivity) {
+  EXPECT_EQ(GUMBO_TAG_HTML, gumbo_tagn_enum("HTML", 4));
+  EXPECT_EQ(GUMBO_TAG_BODY, gumbo_tagn_enum("boDy", 4));
+  EXPECT_EQ(GUMBO_TAG_A, gumbo_tagn_enum("A", 1));
+  EXPECT_EQ(GUMBO_TAG_A, gumbo_tagn_enum("a", 1));
+  EXPECT_EQ(GUMBO_TAG_TEMPLATE, gumbo_tagn_enum("Template", 8));
+  EXPECT_EQ(GUMBO_TAG_DIALOG, gumbo_tagn_enum("diAloG", 6));
+  EXPECT_EQ(GUMBO_TAG_ANNOTATION_XML, gumbo_tagn_enum("annotation-xml", 14));
+  EXPECT_EQ(GUMBO_TAG_ANNOTATION_XML, gumbo_tagn_enum("ANNOTATION-XML", 14));
 }
 
 TEST_F(GumboTokenizerTest, PartialTag) {
