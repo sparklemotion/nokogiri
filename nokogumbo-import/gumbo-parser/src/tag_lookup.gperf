@@ -2,6 +2,7 @@
 #include "tag_lookup.h"
 %}
 
+%ignore-case
 %struct-type
 %omit-struct-type
 %compare-lengths

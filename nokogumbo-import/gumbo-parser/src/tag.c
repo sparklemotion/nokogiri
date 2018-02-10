@@ -219,17 +219,6 @@ void gumbo_tag_from_original_text(GumboStringPiece* text) {
 }
 
 GumboTag gumbo_tagn_enum(const char *tagname, size_t tagname_length) {
-    // Longest known tag length is 14 bytes ("annotation-xml")
-    if (tagname_length > 14 || tagname_length == 0) {
-        return GUMBO_TAG_UNKNOWN;
-    }
-
-    // Convert tagname to lowercase
-    char tagname_lower[15] = {'\0'};
-    for (size_t i = 0; i < tagname_length; i++) {
-        tagname_lower[i] = gumbo_ascii_tolower(tagname[i]);
-    }
-
-    const TagHashSlot *slot = gumbo_tag_lookup(tagname_lower, tagname_length);
+    const TagHashSlot *slot = gumbo_tag_lookup(tagname, tagname_length);
     return slot ? slot->tag : GUMBO_TAG_UNKNOWN;
 }
