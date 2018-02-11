@@ -138,8 +138,12 @@ static bool consume_numeric_ref (
   } while (digit != -1);
 
   if (utf8iterator_current(input) != ';') {
-    add_codepoint_error(
-        parser, input, GUMBO_ERR_NUMERIC_CHAR_REF_WITHOUT_SEMICOLON, codepoint);
+    add_codepoint_error (
+      parser,
+      input,
+      GUMBO_ERR_NUMERIC_CHAR_REF_WITHOUT_SEMICOLON,
+      codepoint
+    );
     status = false;
   } else {
     utf8iterator_next(input);
@@ -147,22 +151,34 @@ static bool consume_numeric_ref (
 
   int replacement = maybe_replace_codepoint(codepoint);
   if (replacement != -1) {
-    add_codepoint_error(
-        parser, input, GUMBO_ERR_NUMERIC_CHAR_REF_INVALID, codepoint);
+    add_codepoint_error (
+      parser,
+      input,
+      GUMBO_ERR_NUMERIC_CHAR_REF_INVALID,
+      codepoint
+    );
     *output = replacement;
     return false;
   }
 
   if ((codepoint >= 0xd800 && codepoint <= 0xdfff) || codepoint > 0x10ffff) {
-    add_codepoint_error(
-        parser, input, GUMBO_ERR_NUMERIC_CHAR_REF_INVALID, codepoint);
+    add_codepoint_error (
+      parser,
+      input,
+      GUMBO_ERR_NUMERIC_CHAR_REF_INVALID,
+      codepoint
+    );
     *output = 0xfffd;
     return false;
   }
 
   if (utf8_is_invalid_code_point(codepoint) || codepoint == 0xb) {
-    add_codepoint_error(
-        parser, input, GUMBO_ERR_NUMERIC_CHAR_REF_INVALID, codepoint);
+    add_codepoint_error (
+      parser,
+      input,
+      GUMBO_ERR_NUMERIC_CHAR_REF_INVALID,
+      codepoint
+    );
     status = false;
     // But return it anyway, per spec.
   }
@@ -178,9 +194,11 @@ static bool maybe_add_invalid_named_reference (
   // worry about consuming characters.
   const char* start = utf8iterator_get_char_pointer(input);
   int c = utf8iterator_current(input);
-  while ((c >= 'a' && c <= 'z') ||
-         (c >= 'A' && c <= 'Z') ||
-         (c >= '0' && c <= '9')) {
+  while (
+    (c >= 'a' && c <= 'z')
+    || (c >= 'A' && c <= 'Z')
+    || (c >= '0' && c <= '9')
+  ) {
     utf8iterator_next(input);
     c = utf8iterator_current(input);
   }
@@ -188,8 +206,12 @@ static bool maybe_add_invalid_named_reference (
     GumboStringPiece bad_ref;
     bad_ref.data = start;
     bad_ref.length = utf8iterator_get_char_pointer(input) - start;
-    add_named_reference_error(
-        parser, input, GUMBO_ERR_NAMED_CHAR_REF_INVALID, bad_ref);
+    add_named_reference_error (
+      parser,
+      input,
+      GUMBO_ERR_NAMED_CHAR_REF_INVALID,
+      bad_ref
+    );
     return false;
   }
   return true;
@@ -20785,8 +20807,12 @@ _again:
       GumboStringPiece bad_ref;
       bad_ref.length = te - start;
       bad_ref.data = start;
-      add_named_reference_error(
-          parser, input, GUMBO_ERR_NAMED_CHAR_REF_WITHOUT_SEMICOLON, bad_ref);
+      add_named_reference_error (
+        parser,
+        input,
+        GUMBO_ERR_NAMED_CHAR_REF_WITHOUT_SEMICOLON,
+        bad_ref
+      );
       bool matched = utf8iterator_maybe_consume_match(input, start, len, true);
       assert(matched);
       return false;
