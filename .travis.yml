@@ -47,15 +47,15 @@ matrix:
   - rvm: ruby-head
   fast_finish: true
 
-notifications:
-  irc:
-    channels:
-      - "chat.freenode.net#nokogiri"
-    on_success: always
-    on_failure: always
-    template:
-      - "%{repository} (%{branch}:%{commit} by %{author}): %{message} (%{build_url})"
-    skip_join: true
+# notifications:
+#   irc:
+#     channels:
+#       - "chat.freenode.net#nokogiri"
+#     on_success: always
+#     on_failure: always
+#     template:
+#       - "%{repository} (%{branch}:%{commit} by %{author}): %{message} (%{build_url})"
+#     skip_join: true
 
 addons:
   apt:
