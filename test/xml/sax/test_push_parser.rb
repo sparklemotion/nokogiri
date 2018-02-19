@@ -21,6 +21,59 @@ module Nokogiri
           end
         end
 
+        def test_early_finish
+          @parser << "<foo>"
+          assert_raises(SyntaxError) do
+            @parser.finish
+          end
+        end
+
+        def test_write_last_chunk
+          @parser << "<foo>"
+          @parser.write "</foo>", true
+          assert_equal [["foo", []]], @parser.document.start_elements
+          assert_equal [["foo"]], @parser.document.end_elements
+        end
+
+
+        def test_finish_should_rethrow_last_error
+          begin
+            @parser << "</foo>"
+          rescue => e
+            expected = e
+          end
+
+          begin
+            @parser.finish
+          rescue => e
+            actual = e
+          end
+
+          assert_equal actual.message, expected.message
+        end
+
+        def test_should_throw_error_returned_by_document
+          doc = Doc.new
+          class << doc
+            def error msg
+              raise "parse error"
+            end
+          end
+
+          @parser = XML::SAX::PushParser.new(doc)
+          begin
+            @parser << "</foo>"
+          rescue => e
+            actual = e
+          end
+
+          assert_equal actual.message, "parse error"
+        end
+
+        def test_writing_nil
+          assert_equal @parser.write(nil), @parser
+        end
+
         def test_end_document_called
           @parser.<<(<<-eoxml)
             <p id="asdfasdf">
