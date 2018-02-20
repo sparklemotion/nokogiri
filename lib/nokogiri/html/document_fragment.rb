@@ -6,7 +6,17 @@ module Nokogiri
       def self.parse tags, encoding = nil
         doc = HTML::Document.new
 
-        encoding ||= tags.respond_to?(:encoding) ? tags.encoding.name : 'UTF-8'
+        encoding ||= if tags.respond_to?(:encoding)
+                       encoding = tags.encoding
+                       if encoding == ::Encoding::ASCII_8BIT
+                         'UTF-8'
+                       else
+                         encoding.name
+                       end
+                     else
+                       'UTF-8'
+                     end
+
         doc.encoding = encoding
 
         new(doc, tags)

@@ -9,6 +9,11 @@ module Nokogiri
         @html = Nokogiri::HTML.parse(File.read(HTML_FILE), HTML_FILE)
       end
 
+      def test_ascii_8bit_encoding
+        s = String.new 'hello', encoding: Encoding::ASCII_8BIT
+        assert_equal "hello", Nokogiri::HTML::DocumentFragment.parse(s).to_html
+      end
+
       def test_inspect_encoding
         fragment = "<div>こんにちは！</div>".encode('EUC-JP')
         f = Nokogiri::HTML::DocumentFragment.parse fragment
@@ -21,7 +26,7 @@ module Nokogiri
         assert_equal 'EUC-JP', f.document.encoding
         assert_equal "こんにちは！", f.content
       end
-      
+
       def test_unlink_empty_document
         frag = Nokogiri::HTML::DocumentFragment.parse('').unlink # must_not_raise
         assert_nil frag.parent
