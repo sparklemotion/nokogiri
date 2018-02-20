@@ -43,9 +43,17 @@ module Nokogiri
           assert_equal [['foo', [['a', '&b']]]], doc.start_elements
         end
 
+        def test_empty_decl
+          parser = XML::SAX::Parser.new(Doc.new)
+
+          xml = "<root />"
+          parser.parse xml
+          assert parser.document.start_document_called, xml
+          assert_nil parser.document.xmldecls, xml
+        end
+
         def test_xml_decl
           [
-            ['', nil],
             ['<?xml version="1.0" ?>',
               ['1.0']],
             ['<?xml version="1.0" encoding="UTF-8" ?>',

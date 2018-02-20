@@ -91,14 +91,14 @@ module Nokogiri
           dtd = doc.internal_subset
           assert_instance_of Nokogiri::XML::DTD, dtd, name
           if html_p
-            assert_send [dtd, :html_dtd?], name
+            assert dtd.html_dtd?, name
           else
-            assert_not_send [dtd, :html_dtd?], name
+            refute dtd.html_dtd?, name
           end
           if html5_p
-            assert_send [dtd, :html5_dtd?], name
+            assert dtd.html5_dtd?, name
           else
-            assert_not_send [dtd, :html5_dtd?], name
+            refute dtd.html5_dtd?, name
           end
         }
       end
