@@ -21,6 +21,7 @@ int io_read_callback(void * ctx, char * buffer, int len) {
 
   if (NIL_P(string)) return 0;
   if (string == Qundef) return -1;
+  if (TYPE(string) != T_STRING) return -1;
 
   str_len = (size_t)RSTRING_LEN(string);
   safe_len = str_len > (size_t)len ? (size_t)len : str_len;

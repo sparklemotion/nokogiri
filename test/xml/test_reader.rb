@@ -4,6 +4,18 @@ require "helper"
 module Nokogiri
   module XML
     class TestReader < Nokogiri::TestCase
+      class NonStringIO
+        def read(size)
+          :invalid_object
+        end
+      end
+
+      def test_io_non_string
+        io = NonStringIO.new
+        reader = Nokogiri::XML::Reader(io)
+        assert_equal io, reader.source
+      end
+
       def test_from_io_sets_io_as_source
         io = File.open SNUGGLES_FILE
         reader = Nokogiri::XML::Reader.from_io(io)
