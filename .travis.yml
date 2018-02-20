@@ -42,9 +42,12 @@ matrix:
   - os: linux
     rvm: jruby-9.1.5.0
   - os: linux
+    rvm: jruby-head
+  - os: linux
     rvm: rbx-3
   allow_failures:
   - rvm: ruby-head
+  - rvm: jruby-head
   fast_finish: true
 
 # notifications:
