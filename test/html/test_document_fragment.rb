@@ -10,7 +10,8 @@ module Nokogiri
       end
 
       def test_ascii_8bit_encoding
-        s = String.new 'hello', encoding: Encoding::ASCII_8BIT
+        s = String.new 'hello'
+        s.force_encoding ::Encoding::ASCII_8BIT
         assert_equal "hello", Nokogiri::HTML::DocumentFragment.parse(s).to_html
       end
 
