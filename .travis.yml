@@ -40,7 +40,7 @@ matrix:
   - os: linux
     rvm: jruby-1.7
   - os: linux
-    rvm: jruby-9.1.5.0
+    rvm: jruby-9.1.15.0
   - os: linux
     rvm: rbx-3
   allow_failures:
