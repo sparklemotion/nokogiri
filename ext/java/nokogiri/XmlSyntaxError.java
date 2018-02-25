@@ -34,10 +34,10 @@ package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
-import org.jruby.CompatVersion;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
@@ -120,26 +120,18 @@ public class XmlSyntaxError extends RubyException {
         setInstanceVariable("@file", stringOrNil(runtime, exception.getSystemId()));
     }
 
-    //@Override
-    //"to_s" method was branched in 1.8 and 1.9 since JRuby 1.6.6
-    // to support older version of JRuby, the annotation is commented out
+    // NOTE: special care - due JRuby 1.7.x
+    
     @Override
-    @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_8)
-    public IRubyObject to_s(ThreadContext context) {
-        IRubyObject msg = msg(context.runtime);
-        return msg != null ? msg : super.to_s(context);
+    public IRubyObject to_s(ThreadContext context) { return to_s19(context); }
+
+    @JRubyMethod(name = "to_s")
+    public RubyString to_s19(ThreadContext context) {
+        RubyString msg = msg(context.runtime);
+        return msg != null ? msg : super.to_s(context).asString();
     }
 
-    //@Override
-    //"to_s" method was branched in 1.8 and 1.9 since JRuby 1.6.6
-    // to support older version of JRuby, the annotation is commented out
-    @JRubyMethod(name = "to_s", compat = CompatVersion.RUBY1_9)
-    public IRubyObject to_s19(ThreadContext context) {
-        IRubyObject msg = msg(context.runtime);
-        return msg != null ? msg : super.to_s19(context);
-    }
-
-    private IRubyObject msg(final Ruby runtime) {
+    private RubyString msg(final Ruby runtime) {
         if (exception != null && exception.getMessage() != null) {
             if (messageSet) return null;
             return runtime.newString( exception.getMessage() );
