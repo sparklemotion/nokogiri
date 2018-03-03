@@ -18,7 +18,7 @@ groups:
       - "rbx-<%= rbx_version %>-system"
       - "rbx-<%= rbx_version %>-vendored"
       <% end %>
-      <% for ruby_version in RUBIES[:windows] %>
+      <% RUBIES[:windows].first(1).each do |ruby_version| %>
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
 
@@ -36,6 +36,13 @@ groups:
       - jruby-<%= RUBIES[:jruby].last %>-pr
       - rbx-<%= RUBIES[:rbx].last %>-pr
       - pr-success
+
+  - name: allow-failure
+    jobs:
+      <% RUBIES[:windows].last(2).each do |ruby_version| %>
+      - "win-ruby-<%= ruby_version %>-devkit"
+      <% end %>
+
 
 resource_types:
 - name: pull-request
@@ -131,14 +138,13 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
-  <% for ruby_version in RUBIES[:mri][-1,1] %>
+% ruby_version = RUBIES[:mri].last
   - name: ruby-libxmlruby-system
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-system"]
       - task: rake-test
         config:
           platform: linux
@@ -160,7 +166,7 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-system"]
+        passed: ["ruby-libxmlruby-system"]
       - task: rake-test
         config:
           platform: linux
@@ -196,7 +202,6 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-  <% end %>
 
   <% for jruby_version in RUBIES[:jruby] %>
   - name: jruby-<%= jruby_version %>
@@ -271,7 +276,6 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-system"]
       - task: rake-test
         config:
           platform: windows
