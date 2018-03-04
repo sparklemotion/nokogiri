@@ -223,30 +223,24 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
     }
 
     /**
-     * Create a new parser context that will read from a raw input
-     * stream. Not a JRuby method.  Meant to be run in a separate
-     * thread by HtmlSaxPushParser.
+     * Create a new parser context that will read from a raw input stream.
+     * Meant to be run in a separate thread by HtmlSaxPushParser.
      */
-    public static IRubyObject parse_stream(ThreadContext context,
-                                           IRubyObject klazz,
-                                           InputStream stream) {
-        HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
-        ctx.initialize(context.getRuntime());
+    static HtmlSaxParserContext parse_stream(final Ruby runtime, RubyClass klazz, InputStream stream) {
+        HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(runtime, klazz);
+        ctx.initialize(runtime);
         ctx.setInputSource(stream);
         return ctx;
     }
 
     @Override
-    protected void preParse(ThreadContext context,
-                             IRubyObject handlerRuby,
-                             NokogiriHandler handler) {
+    protected void preParse(final Ruby runtime, IRubyObject handlerRuby, NokogiriHandler handler) {
         // final String path = "Nokogiri::XML::FragmentHandler";
         // final String docFrag =
         //     "http://cyberneko.org/html/features/balance-tags/document-fragment";
         // RubyObjectAdapter adapter = JavaEmbedUtils.newObjectAdapter();
         // IRubyObject doc = adapter.getInstanceVariable(handlerRuby, "@document");
-        // RubyModule mod =
-        //     context.getRuntime().getClassFromPath(path);
+        // RubyModule mod = runtime.getClassFromPath(path);
         // try {
         //     if (doc != null && !doc.isNil() && adapter.isKindOf(doc, mod))
         //         parser.setFeature(docFrag, true);

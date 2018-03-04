@@ -32,13 +32,13 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
 import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import nokogiri.internals.NokogiriHandler;
+import nokogiri.internals.NokogiriHelpers;
 import nokogiri.internals.ParserContext;
 import nokogiri.internals.XmlSaxParser;
 
@@ -69,6 +69,7 @@ import org.xml.sax.SAXParseException;
  */
 @JRubyClass(name="Nokogiri::XML::SAX::ParserContext")
 public class XmlSaxParserContext extends ParserContext {
+
     protected static final String FEATURE_NAMESPACES =
         "http://xml.org/sax/features/namespaces";
     protected static final String FEATURE_NAMESPACE_PREFIXES =
@@ -80,20 +81,19 @@ public class XmlSaxParserContext extends ParserContext {
 
     protected AbstractSAXParser parser;
 
-    protected NokogiriHandler handler = null;
-    private IRubyObject replaceEntities;
-    private IRubyObject recovery;
+    protected NokogiriHandler handler;
+    private boolean replaceEntities = true;
+    private boolean recovery = false;
 
     public XmlSaxParserContext(final Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
         
     protected void initialize(Ruby runtime) {
-        replaceEntities = runtime.getTrue();
-        recovery = runtime.getFalse();
         try {
             parser = createParser();
-        } catch (SAXException se) {
+        }
+        catch (SAXException se) {
             throw RaiseException.createNativeRaiseException(runtime, se);
         }
     }
@@ -123,9 +123,10 @@ public class XmlSaxParserContext extends ParserContext {
     public static IRubyObject parse_memory(ThreadContext context,
                                            IRubyObject klazz,
                                            IRubyObject data) {
-        XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
-        ctx.initialize(context.getRuntime());
-        ctx.setInputSource(context, data, context.getRuntime().getNil());
+        final Ruby runtime = context.runtime;
+        XmlSaxParserContext ctx = newInstance(runtime, (RubyClass) klazz);
+        ctx.initialize(runtime);
+        ctx.setInputSource(context, data, runtime.getNil());
         return ctx;
     }
 
@@ -137,7 +138,8 @@ public class XmlSaxParserContext extends ParserContext {
     public static IRubyObject parse_file(ThreadContext context,
                                          IRubyObject klazz,
                                          IRubyObject data) {
-        XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+        final Ruby runtime = context.runtime;
+        XmlSaxParserContext ctx = newInstance(runtime, (RubyClass) klazz);
         ctx.initialize(context.getRuntime());
         ctx.setInputSourceFile(context, data);
         return ctx;
@@ -155,24 +157,26 @@ public class XmlSaxParserContext extends ParserContext {
                                        IRubyObject data,
                                        IRubyObject enc) {
         //int encoding = (int)enc.convertToInteger().getLongValue();
-        XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
-        ctx.initialize(context.getRuntime());
-        ctx.setInputSource(context, data, context.getRuntime().getNil());
+        final Ruby runtime = context.runtime;
+        XmlSaxParserContext ctx = newInstance(runtime, (RubyClass) klazz);
+        ctx.initialize(runtime);
+        ctx.setInputSource(context, data, runtime.getNil());
         return ctx;
     }
 
     /**
-     * Create a new parser context that will read from a raw input
-     * stream. Not a JRuby method.  Meant to be run in a separate
-     * thread by XmlSaxPushParser.
+     * Create a new parser context that will read from a raw input stream.
+     * Meant to be run in a separate thread by XmlSaxPushParser.
      */
-    public static IRubyObject parse_stream(ThreadContext context,
-                                           IRubyObject klazz,
-                                           InputStream stream) {
-        XmlSaxParserContext ctx = (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
-        ctx.initialize(context.getRuntime());
+    static XmlSaxParserContext parse_stream(final Ruby runtime, RubyClass klazz, InputStream stream) {
+        XmlSaxParserContext ctx = newInstance(runtime, klazz);
+        ctx.initialize(runtime);
         ctx.setInputSource(stream);
         return ctx;
+    }
+
+    private static XmlSaxParserContext newInstance(final Ruby runtime, final RubyClass klazz) {
+        return (XmlSaxParserContext) NokogiriService.XML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(runtime, klazz);
     }
 
     /**
@@ -191,30 +195,25 @@ public class XmlSaxParserContext extends ParserContext {
         parser.setErrorHandler(handler);
     }
 
-    public NokogiriHandler getNokogiriHandler() {
-        return handler;
-    }
+    public final NokogiriHandler getNokogiriHandler() { return handler; }
 
     /**
      * Perform any initialization prior to parsing with the handler
      * <code>handlerRuby</code>. Convenience hook for subclasses.
      */
-    protected void preParse(ThreadContext context,
-                            IRubyObject handlerRuby,
-                            NokogiriHandler handler) {
+    protected void preParse(Ruby runtime, IRubyObject handlerRuby, NokogiriHandler handler) {
         ((XmlSaxParser) parser).setXmlDeclHandler(handler);
-        if(recovery.isTrue()) {
-          try {
-            ((XmlSaxParser) parser).setFeature(FEATURE_CONTINUE_AFTER_FATAL_ERROR, true);
-          } catch(Exception e) {
-            throw RaiseException.createNativeRaiseException(context.getRuntime(), e);
-          }
+        if (recovery) {
+            try {
+                parser.setFeature(FEATURE_CONTINUE_AFTER_FATAL_ERROR, true);
+            }
+            catch (Exception e) {
+                throw RaiseException.createNativeRaiseException(runtime, e);
+            }
         }
     }
 
-    protected void postParse(ThreadContext context,
-                             IRubyObject handlerRuby,
-                             NokogiriHandler handler) {
+    protected void postParse(Ruby runtime, IRubyObject handlerRuby, NokogiriHandler handler) {
         // noop
     }
 
@@ -223,61 +222,56 @@ public class XmlSaxParserContext extends ParserContext {
     }
 
     @JRubyMethod
-    public IRubyObject parse_with(ThreadContext context,
-                                  IRubyObject handlerRuby) {
-        Ruby ruby = context.getRuntime();
+    public IRubyObject parse_with(ThreadContext context, IRubyObject handlerRuby) {
+        final Ruby runtime = context.getRuntime();
 
-        if(!invoke(context, handlerRuby, "respond_to?",
-                   ruby.newSymbol("document")).isTrue()) {
-            String msg = "argument must respond_to document";
-            throw ruby.newArgumentError(msg);
+        if(!invoke(context, handlerRuby, "respond_to?", runtime.newSymbol("document")).isTrue()) {
+            throw runtime.newArgumentError("argument must respond_to document");
         }
 
-        handler = new NokogiriHandler(ruby, handlerRuby);
-        preParse(context, handlerRuby, handler);
+        NokogiriHandler handler = this.handler = new NokogiriHandler(runtime, handlerRuby);
+        preParse(runtime, handlerRuby, handler);
 
         setContentHandler(handler);
         setErrorHandler(handler);
 
         try{
-            setProperty("http://xml.org/sax/properties/lexical-handler",
-                        handler);
-        } catch(Exception ex) {
-            throw ruby.newRuntimeError(
-                "Problem while creating XML SAX Parser: " + ex.toString());
+            setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+        }
+        catch (Exception ex) {
+            throw runtime.newRuntimeError("Problem while creating XML SAX Parser: " + ex.toString());
         }
 
         try{
             try {
                 do_parse();
-            } catch(SAXParseException spe) {
+            }
+            catch (SAXParseException ex) {
                 // A bad document (<foo><bar></foo>) should call the
                 // error handler instead of raising a SAX exception.
 
-                // However, an EMPTY document should raise a
-                // RuntimeError.  This is a bit kludgy, but AFAIK SAX
-                // doesn't distinguish between empty and bad whereas
-                // Nokogiri does.
-                String message = spe.getMessage();
-                if ("Premature end of file.".matches(message) && stringDataSize < 1) {
-                    throw ruby.newRuntimeError(
-                        "couldn't parse document: " + message);
-                } else {
-                    handler.error(spe);
+                // However, an EMPTY document should raise a RuntimeError.
+                // This is a bit kludgy, but AFAIK SAX doesn't distinguish
+                // between empty and bad whereas Nokogiri does.
+                String message = ex.getMessage();
+                if (message != null && message.contains("Premature end of file.") && stringDataSize < 1) {
+                    throw runtime.newRuntimeError("couldn't parse document: " + message);
                 }
-
+                handler.error(ex);
             }
-        } catch(SAXException se) {
-            throw RaiseException.createNativeRaiseException(ruby, se);
-        } catch(IOException ioe) {
-            throw ruby.newIOErrorFromException(ioe);
+        }
+        catch (SAXException ex) {
+            throw RaiseException.createNativeRaiseException(runtime, ex);
+        }
+        catch (IOException ex) {
+            throw runtime.newIOErrorFromException(ex);
         }
 
-        postParse(context, handlerRuby, handler);
+        postParse(runtime, handlerRuby, handler);
 
         //maybeTrimLeadingAndTrailingWhitespace(context, handlerRuby);
 
-        return ruby.getNil();
+        return runtime.getNil();
     }
 
     /**
@@ -288,17 +282,14 @@ public class XmlSaxParserContext extends ParserContext {
      * @return
      */
     @JRubyMethod(name = "replace_entities=")
-    public IRubyObject set_replace_entities(ThreadContext context,
-                                            IRubyObject value) {
-        if (!value.isTrue()) replaceEntities = context.getRuntime().getFalse();
-        else replaceEntities = context.getRuntime().getTrue();
-
+    public IRubyObject set_replace_entities(ThreadContext context, IRubyObject value) {
+        replaceEntities = value.isTrue();
         return this;
     }
 
     @JRubyMethod(name="replace_entities")
     public IRubyObject get_replace_entities(ThreadContext context) {
-        return replaceEntities;
+        return context.runtime.newBoolean(replaceEntities);
     }
 
     /**
@@ -309,20 +300,15 @@ public class XmlSaxParserContext extends ParserContext {
      * @return
      */
     @JRubyMethod(name = "recovery=")
-    public IRubyObject set_recovery(ThreadContext context,
-                                            IRubyObject value) {
-        if (!value.isTrue()) recovery = context.getRuntime().getFalse();
-        else recovery = context.getRuntime().getTrue();
-
+    public IRubyObject set_recovery(ThreadContext context, IRubyObject value) {
+        recovery = value.isTrue();
         return this;
     }
 
     @JRubyMethod(name="recovery")
     public IRubyObject get_recovery(ThreadContext context) {
-        return recovery;
+        return context.runtime.newBoolean(recovery);
     }
-
-
 
     /**
      * If the handler's document is a FragmentHandler, attempt to trim
@@ -331,12 +317,9 @@ public class XmlSaxParserContext extends ParserContext {
      * This is a bit hackish and depends heavily on the internals of
      * FragmentHandler.
      */
-    protected void maybeTrimLeadingAndTrailingWhitespace(ThreadContext context,
-                                                         IRubyObject parser) {
-        final String path = "Nokogiri::XML::FragmentHandler";
+    protected void maybeTrimLeadingAndTrailingWhitespace(ThreadContext context, IRubyObject parser) {
         RubyObjectAdapter adapter = JavaEmbedUtils.newObjectAdapter();
-        RubyModule mod =
-            context.getRuntime().getClassFromPath(path);
+        RubyModule mod = context.getRuntime().getClassFromPath("Nokogiri::XML::FragmentHandler");
 
         IRubyObject handler = adapter.getInstanceVariable(parser, "@document");
         if (handler == null || handler.isNil() || !adapter.isKindOf(handler, mod))
@@ -354,19 +337,15 @@ public class XmlSaxParserContext extends ParserContext {
         for (;;) {
             children = adapter.callMethod(doc, "children");
             IRubyObject first = adapter.callMethod(children, "first");
-            if (isWhitespaceText(context, first))
-                adapter.callMethod(first, "unlink");
-            else
-                break;
+            if (NokogiriHelpers.isBlank(first)) adapter.callMethod(first, "unlink");
+            else break;
         }
 
         for (;;) {
             children = adapter.callMethod(doc, "children");
             IRubyObject last = adapter.callMethod(children, "last");
-            if (isWhitespaceText(context, last))
-                adapter.callMethod(last, "unlink");
-            else
-                break;
+            if (NokogiriHelpers.isBlank(last)) adapter.callMethod(last, "unlink");
+            else break;
         }
 
         // While we have a document, normalize it.
@@ -375,15 +354,16 @@ public class XmlSaxParserContext extends ParserContext {
 
     @JRubyMethod(name="column")
     public IRubyObject column(ThreadContext context) {
-        Integer number = handler.getColumn();
+        final Integer number = handler.getColumn();
         if (number == null) return context.getRuntime().getNil();
-        else return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
+        return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
     }
 
     @JRubyMethod(name="line")
     public IRubyObject line(ThreadContext context) {
-        Integer number = handler.getLine();
+        final Integer number = handler.getLine();
         if (number == null) return context.getRuntime().getNil();
-        else return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
+        return RubyFixnum.newFixnum(context.getRuntime(), number.longValue());
     }
+
 }

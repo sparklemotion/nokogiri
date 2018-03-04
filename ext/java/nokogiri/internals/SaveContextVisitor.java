@@ -35,7 +35,8 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.canonicalizeWhitespace;
 import static nokogiri.internals.NokogiriHelpers.encodeJavaString;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
-import static nokogiri.internals.NokogiriHelpers.isWhitespaceText;
+import static nokogiri.internals.NokogiriHelpers.isBlank;
+import static nokogiri.internals.NokogiriHelpers.shouldEncode;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -737,13 +738,13 @@ public class SaveContextVisitor {
         CharSequence textContent = text.getNodeValue();
         if (canonical) {
             c14nNodeList.add(text);
-            if (isWhitespaceText(textContent)) {
+            if (isBlank(textContent)) {
                 buffer.append(canonicalizeWhitespace(textContent));
                 return true;
             }
         }
 
-        if (NokogiriHelpers.shouldEncode(text) && !isHtmlScript(text) && !isHtmlStyle(text)) {
+        if (shouldEncode(text) && !isHtmlScript(text) && !isHtmlStyle(text)) {
             textContent = encodeJavaString(textContent);
         }
 

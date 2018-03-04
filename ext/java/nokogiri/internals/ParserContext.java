@@ -43,6 +43,7 @@ import java.io.StringReader;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.concurrent.Callable;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -54,7 +55,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.jruby.util.TypeConverter;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * Base class for the various parser contexts.  Handles converting
@@ -63,7 +63,7 @@ import org.xml.sax.SAXException;
  * @author Patrick Mahoney <pat@polycrystal.org>
  * @author Yoko Harada <yokolet@gmail.com>
  */
-public class ParserContext extends RubyObject {
+public abstract class ParserContext extends RubyObject {
     protected InputSource source = null;
     protected IRubyObject detected_encoding = null;
     protected int stringDataSize = -1;
@@ -229,23 +229,23 @@ public class ParserContext extends RubyObject {
         protected static final long NOCDATA = 16384;
         protected static final long NOXINCNODE = 32768;
 
-        public boolean strict;
-        public boolean recover;
-        public boolean noEnt;
-        public boolean dtdLoad;
-        public boolean dtdAttr;
-        public boolean dtdValid;
-        public boolean noError;
-        public boolean noWarning;
-        public boolean pedantic;
-        public boolean noBlanks;
-        public boolean sax1;
-        public boolean xInclude;
-        public boolean noNet;
-        public boolean noDict;
-        public boolean nsClean;
-        public boolean noCdata;
-        public boolean noXIncNode;
+        public final boolean strict;
+        public final boolean recover;
+        public final boolean noEnt;
+        public final boolean dtdLoad;
+        public final boolean dtdAttr;
+        public final boolean dtdValid;
+        public final boolean noError;
+        public final boolean noWarning;
+        public final boolean pedantic;
+        public final boolean noBlanks;
+        public final boolean sax1;
+        public final boolean xInclude;
+        public final boolean noNet;
+        public final boolean noDict;
+        public final boolean nsClean;
+        public final boolean noCdata;
+        public final boolean noXIncNode;
 
         protected static boolean test(long options, long mask) {
             return ((options & mask) == mask);
@@ -272,6 +272,7 @@ public class ParserContext extends RubyObject {
         }
     }
 
+    /*
     public static class NokogiriXInlcudeEntityResolver implements org.xml.sax.EntityResolver {
         InputSource source;
         public NokogiriXInlcudeEntityResolver(InputSource source) {
@@ -285,6 +286,20 @@ public class ParserContext extends RubyObject {
             if (publicId != null) source.setPublicId(publicId);
             return source;
         }
+    } */
+
+    public static abstract class ParserTask<T extends ParserContext> implements Callable<T> {
+
+        protected final ThreadContext context; // TODO does not seem like a good idea!?
+        protected final IRubyObject handler;
+        protected final T parser;
+
+        protected ParserTask(ThreadContext context, IRubyObject handler, T parser) {
+            this.context = context;
+            this.handler = handler;
+            this.parser = parser;
+        }
+
     }
 
 }

@@ -37,29 +37,25 @@ import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.concurrent.Callable;
+import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 
-import nokogiri.internals.ClosedStreamException;
-import nokogiri.internals.NokogiriBlockingQueueInputStream;
-import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.ParserContext;
+import nokogiri.internals.*;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyException;
 import org.jruby.RubyObject;
-import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.jruby.util.ByteList;
 import org.xml.sax.SAXException;
 
 /**
@@ -71,12 +67,13 @@ import org.xml.sax.SAXException;
 @JRubyClass(name="Nokogiri::XML::SAX::PushParser")
 public class XmlSaxPushParser extends RubyObject {
     ParserContext.Options options;
-    IRubyObject optionsRuby;
     IRubyObject saxParser;
+
     NokogiriBlockingQueueInputStream stream;
-    ParserTask parserTask = null;
-    FutureTask<XmlSaxParserContext> futureTask = null;
-    ExecutorService executor = null;
+
+    private ParserTask parserTask = null;
+    private FutureTask<XmlSaxParserContext> futureTask = null;
+    private ExecutorService executor = null;
     RaiseException ex = null;
 
     public XmlSaxPushParser(Ruby ruby, RubyClass rubyClass) {
@@ -85,36 +82,37 @@ public class XmlSaxPushParser extends RubyObject {
 
     @Override
     public void finalize() {
-      terminateTask(null);
+        try {
+            terminateImpl();
+        }
+        catch (Exception e) { /* ignored */ }
     }
 
     @JRubyMethod
-    public IRubyObject initialize_native(final ThreadContext context,
-                                         IRubyObject saxParser,
-                                         IRubyObject fileName) {
-        optionsRuby
-            = invoke(context, context.getRuntime().getClassFromPath("Nokogiri::XML::ParseOptions"), "new");
+    public IRubyObject initialize_native(final ThreadContext context, IRubyObject saxParser, IRubyObject fileName) {
         options = new ParserContext.Options(0);
         this.saxParser = saxParser;
         return this;
     }
 
-    /**
-     * Returns an integer.
-     */
-    @JRubyMethod(name="options")
-    public IRubyObject getOptions(ThreadContext context) {
-        return invoke(context, optionsRuby, "options");
+    private transient IRubyObject parse_options;
+
+    private IRubyObject parse_options(final ThreadContext context) {
+        if (parse_options == null) {
+            parse_options = invoke(context, context.runtime.getClassFromPath("Nokogiri::XML::ParseOptions"), "new");
+        }
+        return parse_options;
     }
 
-    /**
-     * <code>val</code> is an integer.
-     */
+    @JRubyMethod(name="options")
+    public IRubyObject getOptions(ThreadContext context) {
+        return invoke(context, parse_options(context), "options");
+    }
+
     @JRubyMethod(name="options=")
-    public IRubyObject setOptions(ThreadContext context, IRubyObject val) {
-        invoke(context, optionsRuby, "options=", val);
-        options =
-            new ParserContext.Options(val.convertToInteger().getLongValue());
+    public IRubyObject setOptions(ThreadContext context, IRubyObject opts) {
+        invoke(context, parse_options(context), "options=", opts);
+        options = new ParserContext.Options(opts.convertToInteger().getLongValue());
         return getOptions(context);
     }
 
@@ -167,20 +165,13 @@ public class XmlSaxPushParser extends RubyObject {
         }
 
         if (isLast.isTrue()) {
-            try {
-                parserTask.parser.getNokogiriHandler().endDocument();
-            }
-            catch (SAXException e) {
-                throw context.runtime.newRuntimeError(e.getMessage());
-            } finally {
-                terminateTask(context);
-            }
+            parserTask.getNokogiriHandler().endDocument();
+            terminateTask(context.runtime);
         }
 
         if (!options.recover && parserTask.getErrorCount() > errorCount0) {
-            terminateTask(context);
-            ex = parserTask.getLastError();
-            throw parserTask.getLastError();
+            terminateTask(context.runtime);
+            throw ex = parserTask.getLastError();
         }
 
         return this;
@@ -190,74 +181,104 @@ public class XmlSaxPushParser extends RubyObject {
         if (futureTask == null || stream == null) {
             stream = new NokogiriBlockingQueueInputStream();
 
-            parserTask = new ParserTask(context, saxParser);
+            assert saxParser != null : "saxParser null";
+            parserTask = new ParserTask(context, saxParser, stream);
             futureTask = new FutureTask<XmlSaxParserContext>(parserTask);
             executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-              @Override
-              public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("XmlSaxPushParser");
-                t.setDaemon(true);
-                return t;
-              }
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread t = new Thread(r);
+                    t.setName("XmlSaxPushParser");
+                    t.setDaemon(true);
+                    return t;
+                }
             });
             executor.submit(futureTask);
         }
     }
 
-    private synchronized void terminateTask(ThreadContext context) {
-        if (futureTask == null || stream == null) {
-            return;
-        }
+    private void terminateTask(final Ruby runtime) {
+        if (executor == null) return;
 
         try {
-          Future<Void> task = stream.addChunk(NokogiriBlockingQueueInputStream.END);
-          task.get();
-        } catch (ClosedStreamException ex) {
-          // ignore this exception, it means the stream was closed
-        } catch (Exception e) {
-            if (context != null)
-              throw context.getRuntime().newRuntimeError(e.getMessage());
+            terminateImpl();
+        }
+        catch (InterruptedException e) {
+            throw runtime.newRuntimeError(e.toString());
+        }
+        catch (Exception e) {
+            throw runtime.newRuntimeError(e.toString());
+        }
+    }
+
+    private synchronized void terminateImpl() throws InterruptedException, ExecutionException {
+        terminateExecution(executor, stream, futureTask);
+
+        executor = null; stream = null; futureTask = null;
+    }
+
+    // SHARED for HtmlSaxPushParser
+    static void terminateExecution(final ExecutorService executor, final NokogiriBlockingQueueInputStream stream,
+                                   final FutureTask<?> futureTask)
+        throws InterruptedException, ExecutionException {
+
+        if (executor == null) return;
+
+        try {
+            Future<Void> task = stream.addChunk(NokogiriBlockingQueueInputStream.END);
+            task.get();
+        }
+        catch (ClosedStreamException ex) {
+            // ignore this exception, it means the stream was closed
         }
         futureTask.cancel(true);
         executor.shutdown();
-        executor = null;
-        stream = null;
-        futureTask = null;
     }
 
-    private class ParserTask implements Callable<XmlSaxParserContext> {
-        private final ThreadContext context;
-        private final IRubyObject handler;
-        private final XmlSaxParserContext parser;
+    private static XmlSaxParserContext parse(final Ruby runtime, final InputStream stream) {
+        RubyClass klazz = getNokogiriClass(runtime, "Nokogiri::XML::SAX::ParserContext");
+        return XmlSaxParserContext.parse_stream(runtime, klazz, stream);
+    }
 
-        private ParserTask(ThreadContext context, IRubyObject handler) {
-            RubyClass klazz = getNokogiriClass(context.getRuntime(), "Nokogiri::XML::SAX::ParserContext");
-            this.context = context;
-            this.handler = handler;
-            this.parser = (XmlSaxParserContext) XmlSaxParserContext.parse_stream(context, klazz, stream);
+    static class ParserTask extends ParserContext.ParserTask<XmlSaxParserContext> {
+
+        final InputStream stream;
+
+        private ParserTask(ThreadContext context, IRubyObject handler, InputStream stream) {
+            this(context, handler, parse(context.runtime, stream), stream);
+        }
+
+        // IMPL with HtmlSaxPushParser
+        protected ParserTask(ThreadContext context, IRubyObject handler, XmlSaxParserContext parser, InputStream stream) {
+            super(context, handler, parser);
+            this.stream = stream;
         }
 
         @Override
         public XmlSaxParserContext call() throws Exception {
-          try {
-            parser.parse_with(context, handler);
-          } finally {
+            try {
+                parser.parse_with(context, handler);
+            }
+            finally { stream.close(); }
             // we have to close the stream before exiting, otherwise someone
             // can add a chunk and block on task.get() forever.
-            stream.close();
-          }
-          return parser;
+            return parser;
         }
 
-        private synchronized int getErrorCount() {
+        final NokogiriHandler getNokogiriHandler() {
+            return parser.getNokogiriHandler();
+        }
+
+        synchronized final int getErrorCount() {
             // check for null because thread may not have started yet
             if (parser.getNokogiriHandler() == null) return 0;
-            else return parser.getNokogiriHandler().getErrorCount();
+            return parser.getNokogiriHandler().getErrorCount();
         }
 
-        private synchronized RaiseException getLastError() {
+        synchronized final RaiseException getLastError() {
             return parser.getNokogiriHandler().getLastError();
         }
+
     }
+
 }

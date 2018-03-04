@@ -32,13 +32,6 @@
 
 package nokogiri.internals;
 
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.isNamespace;
-import static nokogiri.internals.NokogiriHelpers.isXmlBase;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import static nokogiri.internals.NokogiriHelpers.stringOrBlank;
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +53,8 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+
+import static nokogiri.internals.NokogiriHelpers.*;
 
 /**
  * Abstract class of Node for XmlReader.
@@ -263,7 +258,7 @@ public abstract class ReaderNode {
             super(runtime);
             nodeType = ReaderNodeType.END_ELEMENT.getValue();
             this.uri = "".equals(uri) ? null : uri;
-            this.localName = localName.trim().length() > 0 ? localName : qName;
+            this.localName = ! isBlank(localName) ? localName : qName;
             this.name = qName;
             parsePrefix(qName);
             this.depth = depth;
@@ -299,7 +294,7 @@ public abstract class ReaderNode {
             super(runtime);
             this.nodeType = ReaderNodeType.ELEMENT.getValue();
             this.uri = "".equals(uri) ? null : uri;
-            this.localName = localName.trim().length() > 0 ? localName : qName;
+            this.localName = ! isBlank(localName) ? localName : qName;
             this.name = qName;
             parsePrefix(qName);
             this.depth = depth;
@@ -475,7 +470,7 @@ public abstract class ReaderNode {
             this.localName = "#text";
             this.name = "#text";
             this.depth = depth;
-            if (content.trim().length() > 0) nodeType = ReaderNodeType.TEXT.getValue();
+            if (!isBlank(content)) nodeType = ReaderNodeType.TEXT.getValue();
             else nodeType = ReaderNodeType.SIGNIFICANT_WHITESPACE.getValue();
             if (!langStack.isEmpty()) this.lang = langStack.peek();
             if (!xmlBaseStack.isEmpty()) this.xmlBase = xmlBaseStack.peek();
@@ -491,4 +486,5 @@ public abstract class ReaderNode {
             return value;
         }
     }
+
 }

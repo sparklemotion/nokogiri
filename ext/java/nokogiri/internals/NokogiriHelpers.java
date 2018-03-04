@@ -229,11 +229,8 @@ public class NokogiriHelpers {
     public static String getPrefix(String qName) {
         if (qName == null) return null;
 
-        int pos = qName.indexOf(':');
-        if (pos > 0)
-            return qName.substring(0, pos);
-        else
-            return null;
+        final int pos = qName.indexOf(':');
+        return pos > 0 ? qName.substring(0, pos) : null;
     }
 
     /**
@@ -243,11 +240,8 @@ public class NokogiriHelpers {
     public static String getLocalPart(String qName) {
         if (qName == null) return null;
 
-        int pos = qName.indexOf(':');
-        if (pos > 0)
-            return qName.substring(pos + 1);
-        else
-            return qName;
+        final int pos = qName.indexOf(':');
+        return pos > 0 ? qName.substring(pos + 1) : qName;
     }
 
     public static String getLocalNameForNamespace(String name) {
@@ -593,18 +587,21 @@ public class NokogiriHelpers {
         return "xml:base".equals(attrName) || "xlink:href".equals(attrName);
     }
 
-    public static boolean isWhitespaceText(ThreadContext context, IRubyObject obj) {
-        //if (obj == null || obj.isNil()) return false;
+    public static boolean isBlank(IRubyObject obj) {
         if ( !(obj instanceof XmlText) ) return false;
 
         CharSequence content = ((XmlNode) obj).getContentImpl();
-        return content == null || isWhitespaceText(content);
+        return content == null || isBlank(content);
     }
 
-    public static boolean isWhitespaceText(CharSequence str) {
+    public static boolean isBlank(CharSequence str) {
         int len = str.length(); int beg = 0;
         while ((beg < len) && (str.charAt(beg) <= ' ')) beg++;
         return beg == len;
+    }
+
+    public static boolean isBlank(String str) {
+        return str.isEmpty() || isBlank((CharSequence) str);
     }
 
     public static CharSequence canonicalizeWhitespace(CharSequence str) {
