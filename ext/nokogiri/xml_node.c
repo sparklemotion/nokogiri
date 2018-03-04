@@ -168,18 +168,20 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
     case XML_DOCUMENT_NODE:
     case XML_HTML_DOCUMENT_NODE:
       switch (reparentee->type) {
-        case XML_ELEMENT_NODE:
-        case XML_PI_NODE:
-        case XML_COMMENT_NODE:
-        case XML_DOCUMENT_TYPE_NODE:
-      /*
-       * The DOM specification says no to adding text-like nodes
-       * directly to a document, but we allow it for compatibility.
-       */
-        case XML_TEXT_NODE:
-        case XML_CDATA_SECTION_NODE:
-        case XML_ENTITY_REF_NODE:
-          goto ok;
+      case XML_ELEMENT_NODE:
+      case XML_PI_NODE:
+      case XML_COMMENT_NODE:
+      case XML_DOCUMENT_TYPE_NODE:
+        /*
+         * The DOM specification says no to adding text-like nodes
+         * directly to a document, but we allow it for compatibility.
+         */
+      case XML_TEXT_NODE:
+      case XML_CDATA_SECTION_NODE:
+      case XML_ENTITY_REF_NODE:
+        goto ok;
+      default:
+        break;
       }
       break;
     case XML_DOCUMENT_FRAG_NODE:
@@ -193,6 +195,8 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
       case XML_CDATA_SECTION_NODE:
       case XML_ENTITY_REF_NODE:
         goto ok;
+      default:
+        break;
       }
       break;
     case XML_ATTRIBUTE_NODE:
@@ -200,6 +204,8 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
       case XML_TEXT_NODE:
       case XML_ENTITY_REF_NODE:
         goto ok;
+      default:
+        break;
       }
       break;
     case XML_TEXT_NODE:
@@ -209,6 +215,8 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
        * coalesced, but since our JRuby version does not support such
        * operation, we should inhibit it.
        */
+      break;
+    default:
       break;
     }
 

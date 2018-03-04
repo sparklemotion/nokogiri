@@ -214,7 +214,7 @@ static void * initFunc(xsltTransformContextPtr ctxt, const xmlChar *uri)
           (unsigned char *)StringValueCStr(method_name), uri, method_caller);
     }
 
-    Data_Get_Struct(ctxt->style->_private, nokogiriXsltStylesheetTuple,
+    Data_Get_Struct((VALUE)ctxt->style->_private, nokogiriXsltStylesheetTuple,
                     wrapper);
     inst = rb_class_new_instance(0, NULL, obj);
     rb_ary_push(wrapper->func_instances, inst);
@@ -227,7 +227,7 @@ static void shutdownFunc(xsltTransformContextPtr ctxt,
 {
     nokogiriXsltStylesheetTuple *wrapper;
 
-    Data_Get_Struct(ctxt->style->_private, nokogiriXsltStylesheetTuple,
+    Data_Get_Struct((VALUE)ctxt->style->_private, nokogiriXsltStylesheetTuple,
                     wrapper);
 
     rb_ary_clear(wrapper->func_instances);
