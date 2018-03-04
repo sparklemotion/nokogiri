@@ -24,12 +24,6 @@ static void dealloc_namespace(xmlNsPtr ns)
 }
 
 
-int Nokogiri_namespace_eh(xmlNodePtr node)
-{
-  return (node->type == XML_NAMESPACE_DECL);
-}
-
-
 /*
  * call-seq:
  *  prefix
@@ -64,7 +58,7 @@ static VALUE href(VALUE self)
 
 static int part_of_an_xpath_node_set_eh(xmlNsPtr node)
 {
-  return (node->next && ! Nokogiri_namespace_eh(node->next));
+  return (node->next && ! NOKOGIRI_NAMESPACE_EH(node->next));
 }
 
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)

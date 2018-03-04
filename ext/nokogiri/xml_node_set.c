@@ -350,7 +350,7 @@ static VALUE unlink_nodeset(VALUE self)
 
   nodeNr = node_set->nodeNr ;
   for (j = 0 ; j < nodeNr ; j++) {
-    if (! Nokogiri_namespace_eh(node_set->nodeTab[j])) {
+    if (! NOKOGIRI_NAMESPACE_EH(node_set->nodeTab[j])) {
       VALUE node ;
       xmlNodePtr node_ptr;
       node = Nokogiri_wrap_xml_node(Qnil, node_set->nodeTab[j]);
@@ -388,7 +388,7 @@ static void reify_node_set_namespaces(VALUE self)
   namespace_cache = rb_iv_get(self, "@namespace_cache");
 
   for (j = 0 ; j < node_set->nodeNr ; j++) {
-    if (Nokogiri_namespace_eh(node_set->nodeTab[j])) {
+    if (NOKOGIRI_NAMESPACE_EH(node_set->nodeTab[j])) {
       rb_ary_push(namespace_cache, Nokogiri_wrap_xml_node_set_node(node_set->nodeTab[j], self));
     }
   }
@@ -420,7 +420,7 @@ VALUE Nokogiri_wrap_xml_node_set_node(xmlNodePtr node, VALUE node_set)
 {
   xmlDocPtr document ;
 
-  if (Nokogiri_namespace_eh(node)) {
+  if (NOKOGIRI_NAMESPACE_EH(node)) {
     Data_Get_Struct(rb_iv_get(node_set, "@document"), xmlDoc, document);
     return Nokogiri_wrap_xml_namespace(document, (xmlNsPtr)node);
   } else {
