@@ -434,7 +434,7 @@ end
 
 if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -O3" unless $CFLAGS[/-O\d/]
-  $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wconversion -Wmissing-noreturn -Winline"
+  $CFLAGS << " -Wall -Wextra -Wwrite-strings -Wmissing-noreturn -Winline"
 end
 
 case
