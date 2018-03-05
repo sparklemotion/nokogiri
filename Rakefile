@@ -107,6 +107,8 @@ HOE = Hoe.spec 'nokogiri' do
   developer 'Yoko Harada',     'yokolet@gmail.com'
   developer 'Tim Elliott',     'tle@holymonkey.com'
   developer 'Akinori MUSHA',   'knu@idaemons.org'
+  developer 'John Shahid',     'jvshahid@gmail.com'
+  developer 'Lars Kanis',      'lars@greiz-reinsdorf.de'
 
   license "MIT"
 

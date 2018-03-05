@@ -1,6 +1,6 @@
 (The MIT License)
 
-Copyright (c) 2008 - 2017:
+Copyright (c) 2008 - 2018:
 
 * [Aaron Patterson](http://tenderlovemaking.com)
 * [Mike Dalessio](http://mike.daless.io)
@@ -10,6 +10,7 @@ Copyright (c) 2008 - 2017:
 * [Yoko Harada](http://yokolet.blogspot.com)
 * [Akinori MUSHA](https://akinori.org)
 * [John Shahid](https://github.com/jvshahid)
+* [Lars Kanis](https://github.com/larskanis)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
