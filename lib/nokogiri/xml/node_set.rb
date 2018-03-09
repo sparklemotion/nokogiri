@@ -43,9 +43,14 @@ module Nokogiri
       end
 
       ###
-      # Returns the index of the first node in self that is == to +node+. Returns nil if no match is found.
-      def index(node)
-        each_with_index { |member, j| return j if member == node }
+      # Returns the index of the first node in self that is == to +node+ or meets the given block. Returns nil if no match is found.
+      def index(node = nil, &block)
+        if node
+          warn "given block not used" if block_given?
+          each_with_index { |member, j| return j if member == node }
+        elsif block_given?
+          each_with_index { |member, j| return j if yield(member) }
+        end
         nil
       end
 

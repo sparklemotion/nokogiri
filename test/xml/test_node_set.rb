@@ -563,6 +563,8 @@ module Nokogiri
 
         assert_equal 3, employees.index(employees[3])
         assert_nil employees.index(other)
+        assert_equal 3, employees.index {|employee| employee.search("employeeId/text()").to_s == "EMP0004" }
+        assert_nil employees.index {|employee| employee.search("employeeId/text()").to_s == "EMP0000" }
       end
 
       def test_slice_too_far
