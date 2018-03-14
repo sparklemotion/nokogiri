@@ -8,7 +8,7 @@
  */
 static VALUE required_attributes(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   VALUE list;
   int i;
 
@@ -33,7 +33,7 @@ static VALUE required_attributes(VALUE self)
  */
 static VALUE deprecated_attributes(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   VALUE list;
   int i;
 
@@ -58,7 +58,7 @@ static VALUE deprecated_attributes(VALUE self)
  */
 static VALUE optional_attributes(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   VALUE list;
   int i;
 
@@ -83,7 +83,7 @@ static VALUE optional_attributes(VALUE self)
  */
 static VALUE default_sub_element(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if (description->defaultsubelt)
@@ -100,7 +100,7 @@ static VALUE default_sub_element(VALUE self)
  */
 static VALUE sub_elements(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   VALUE list;
   int i;
 
@@ -125,7 +125,7 @@ static VALUE sub_elements(VALUE self)
  */
 static VALUE description(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   return NOKOGIRI_STR_NEW2(description->desc);
@@ -139,7 +139,7 @@ static VALUE description(VALUE self)
  */
 static VALUE inline_eh(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if(description->isinline) return Qtrue;
@@ -154,7 +154,7 @@ static VALUE inline_eh(VALUE self)
  */
 static VALUE deprecated_eh(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if(description->depr) return Qtrue;
@@ -169,7 +169,7 @@ static VALUE deprecated_eh(VALUE self)
  */
 static VALUE empty_eh(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if(description->empty) return Qtrue;
@@ -184,7 +184,7 @@ static VALUE empty_eh(VALUE self)
  */
 static VALUE save_end_tag_eh(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if(description->saveEndTag) return Qtrue;
@@ -199,7 +199,7 @@ static VALUE save_end_tag_eh(VALUE self)
  */
 static VALUE implied_end_tag_eh(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if(description->endTag) return Qtrue;
@@ -214,7 +214,7 @@ static VALUE implied_end_tag_eh(VALUE self)
  */
 static VALUE implied_start_tag_eh(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if(description->startTag) return Qtrue;
@@ -229,7 +229,7 @@ static VALUE implied_start_tag_eh(VALUE self)
  */
 static VALUE name(VALUE self)
 {
-  htmlElemDesc * description;
+  const htmlElemDesc * description;
   Data_Get_Struct(self, htmlElemDesc, description);
 
   if(NULL == description->name) return Qnil;
@@ -249,7 +249,7 @@ static VALUE get_description(VALUE klass, VALUE tag_name)
   );
 
   if(NULL == description) return Qnil;
-  return Data_Wrap_Struct(klass, 0, 0, (void *)description);
+  return Data_Wrap_Struct(klass, 0, 0, (void *)(uintptr_t)description);
 }
 
 VALUE cNokogiriHtmlElementDescription ;
