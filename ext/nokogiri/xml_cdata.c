@@ -17,7 +17,7 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   VALUE content;
   VALUE rest;
   VALUE rb_node;
-  const xmlChar *content_str = NULL;
+  xmlChar *content_str = NULL;
   int content_str_len = 0;
 
   rb_scan_args(argc, argv, "2*", &doc, &content, &rest);
@@ -25,8 +25,8 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   Data_Get_Struct(doc, xmlDoc, xml_doc);
 
   if (!NIL_P(content)) {
-    content_str = (const xmlChar *)StringValueCStr(content);
-    content_str_len = strlen((char *)content_str);
+    content_str = (xmlChar *)StringValuePtr(content);
+    content_str_len = RSTRING_LEN(content);
   }
 
   node = xmlNewCDataBlock(xml_doc->doc, content_str, content_str_len);
