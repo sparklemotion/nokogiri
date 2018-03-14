@@ -841,10 +841,10 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 static VALUE get(VALUE self, VALUE rattribute)
 {
   xmlNodePtr node;
-  const xmlChar *value = 0;
+  xmlChar *value = 0;
   VALUE rvalue;
   xmlChar *colon;
-  const xmlChar *attribute, *attr_name, *prefix;
+  xmlChar *attribute, *attr_name, *prefix;
   xmlNsPtr ns;
 
   if (NIL_P(rattribute)) return Qnil;
@@ -852,7 +852,7 @@ static VALUE get(VALUE self, VALUE rattribute)
   Data_Get_Struct(self, xmlNode, node);
   attribute = xmlCharStrdup(StringValueCStr(rattribute));
 
-  colon = (xmlChar *)xmlStrchr(attribute, (const xmlChar)':');
+  colon = (xmlChar *)(uintptr_t)xmlStrchr(attribute, (const xmlChar)':');
   if (colon) {
     /* split the attribute string into separate prefix and name by
      * null-terminating the prefix at the colon */

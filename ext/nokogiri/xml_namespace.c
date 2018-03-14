@@ -14,10 +14,10 @@ static void dealloc_namespace(xmlNsPtr ns)
    */
   NOKOGIRI_DEBUG_START(ns) ;
   if (ns->href) {
-    xmlFree((xmlChar *)ns->href);
+    xmlFree((xmlChar *)(uintptr_t)ns->href);
   }
   if (ns->prefix) {
-    xmlFree((xmlChar *)ns->prefix);
+    xmlFree((xmlChar *)(uintptr_t)ns->prefix);
   }
   xmlFree(ns);
   NOKOGIRI_DEBUG_END(ns) ;
