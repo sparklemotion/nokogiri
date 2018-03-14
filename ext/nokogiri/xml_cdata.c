@@ -17,15 +17,17 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   VALUE content;
   VALUE rest;
   VALUE rb_node;
-  const xmlChar *content_str;
-  int content_str_len;
+  xmlChar *content_str = NULL;
+  int content_str_len = 0;
 
   rb_scan_args(argc, argv, "2*", &doc, &content, &rest);
 
   Data_Get_Struct(doc, xmlDoc, xml_doc);
 
-  content_str = NIL_P(content) ? NULL : (const xmlChar *)StringValueCStr(content);
-  content_str_len = (content_str == NULL) ? 0 : strlen(content_str);
+  if (!NIL_P(content)) {
+    content_str = (xmlChar *)StringValuePtr(content);
+    content_str_len = RSTRING_LEN(content);
+  }
 
   node = xmlNewCDataBlock(xml_doc->doc, content_str, content_str_len);
 

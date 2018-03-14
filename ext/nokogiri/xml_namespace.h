@@ -10,4 +10,6 @@ extern VALUE cNokogiriXmlNamespace ;
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node) ;
 VALUE Nokogiri_wrap_xml_namespace2(VALUE document, xmlNsPtr node) ;
 
+#define NOKOGIRI_NAMESPACE_EH(node) ((node)->type == XML_NAMESPACE_DECL)
+
 #endif

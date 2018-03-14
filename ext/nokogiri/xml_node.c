@@ -168,18 +168,20 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
     case XML_DOCUMENT_NODE:
     case XML_HTML_DOCUMENT_NODE:
       switch (reparentee->type) {
-        case XML_ELEMENT_NODE:
-        case XML_PI_NODE:
-        case XML_COMMENT_NODE:
-        case XML_DOCUMENT_TYPE_NODE:
-      /*
-       * The DOM specification says no to adding text-like nodes
-       * directly to a document, but we allow it for compatibility.
-       */
-        case XML_TEXT_NODE:
-        case XML_CDATA_SECTION_NODE:
-        case XML_ENTITY_REF_NODE:
-          goto ok;
+      case XML_ELEMENT_NODE:
+      case XML_PI_NODE:
+      case XML_COMMENT_NODE:
+      case XML_DOCUMENT_TYPE_NODE:
+        /*
+         * The DOM specification says no to adding text-like nodes
+         * directly to a document, but we allow it for compatibility.
+         */
+      case XML_TEXT_NODE:
+      case XML_CDATA_SECTION_NODE:
+      case XML_ENTITY_REF_NODE:
+        goto ok;
+      default:
+        break;
       }
       break;
     case XML_DOCUMENT_FRAG_NODE:
@@ -193,6 +195,8 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
       case XML_CDATA_SECTION_NODE:
       case XML_ENTITY_REF_NODE:
         goto ok;
+      default:
+        break;
       }
       break;
     case XML_ATTRIBUTE_NODE:
@@ -200,6 +204,8 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
       case XML_TEXT_NODE:
       case XML_ENTITY_REF_NODE:
         goto ok;
+      default:
+        break;
       }
       break;
     case XML_TEXT_NODE:
@@ -209,6 +215,8 @@ static VALUE reparent_node_with(VALUE pivot_obj, VALUE reparentee_obj, pivot_rep
        * coalesced, but since our JRuby version does not support such
        * operation, we should inhibit it.
        */
+      break;
+    default:
       break;
     }
 
@@ -833,10 +841,10 @@ static VALUE set(VALUE self, VALUE property, VALUE value)
 static VALUE get(VALUE self, VALUE rattribute)
 {
   xmlNodePtr node;
-  const xmlChar *value = 0;
+  xmlChar *value = 0;
   VALUE rvalue;
   xmlChar *colon;
-  const xmlChar *attribute, *attr_name, *prefix;
+  xmlChar *attribute, *attr_name, *prefix;
   xmlNsPtr ns;
 
   if (NIL_P(rattribute)) return Qnil;
@@ -844,7 +852,7 @@ static VALUE get(VALUE self, VALUE rattribute)
   Data_Get_Struct(self, xmlNode, node);
   attribute = xmlCharStrdup(StringValueCStr(rattribute));
 
-  colon = (xmlChar *)xmlStrchr(attribute, (const xmlChar)':');
+  colon = (xmlChar *)(uintptr_t)xmlStrchr(attribute, (const xmlChar)':');
   if (colon) {
     /* split the attribute string into separate prefix and name by
      * null-terminating the prefix at the colon */

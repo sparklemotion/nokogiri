@@ -179,7 +179,7 @@ static VALUE set_encoding(VALUE self, VALUE encoding)
   Data_Get_Struct(self, xmlDoc, doc);
 
   if (doc->encoding)
-      free((char *) doc->encoding); /* this may produce a gcc cast warning */
+      free((char *)(uintptr_t) doc->encoding); /* avoid gcc cast warning */
 
   doc->encoding = xmlStrdup((xmlChar *)StringValueCStr(encoding));
 
@@ -531,8 +531,7 @@ static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
     ns = calloc((size_t)ns_len+1, sizeof(xmlChar *));
     for (i = 0 ; i < ns_len ; i++) {
       VALUE entry = rb_ary_entry(incl_ns, i);
-      const char * ptr = StringValueCStr(entry);
-      ns[i] = (xmlChar*) ptr;
+      ns[i] = (xmlChar*)StringValueCStr(entry);
     }
   }
 
