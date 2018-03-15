@@ -81,6 +81,11 @@ There are open-source tutorials (to which we invite contributions!) here: http:/
 * The IRC channel is #nokogiri on freenode.
 
 
+## Security and Vulnerability Reporting
+
+See [`SECURITY.md`](SECURITY.md)
+
+
 ## Synopsis
 
 Nokogiri is a large library, but here is example usage for parsing and examining a document:
@@ -170,4 +175,4 @@ explicitly setting the encoding to EUC-JP on the parser:
 
 ## License
 
-MIT. See the `LICENSE.md` file.
+MIT. See [`LICENSE.md`](LICENSE.md).
