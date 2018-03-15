@@ -7,6 +7,7 @@ If you would like to report a vulnerablity or have a security concern regarding 
 Your report will be acknowledged within 24 hours, and you'll receive a more detailed response within 72 hours indicating next steps in handling your report.
 
 If you have not received a reply to your submission within 48 hours, there are a few steps you can take:
+
 * Contact the current security coordinator (Mike Dalessio <mike.dalessio@gmail.com>)
 * Contact the core contributor mailing list (nokogiri-core@googlegroups.com)
 * Join the [nokogiri-talk group](https://groups.google.com/d/forum/nokogiri-talk)
