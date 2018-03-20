@@ -163,7 +163,7 @@ best bet is to explicitly set the encoding.  Here is an example of
 explicitly setting the encoding to EUC-JP on the parser:
 
 ```ruby
-  doc = Nokogiri.XML('<foo><bar /><foo>', nil, 'EUC-JP')
+  doc = Nokogiri.XML('<foo><bar /></foo>', nil, 'EUC-JP')
 ```
 
 ## Development
