@@ -3,6 +3,7 @@
 ## Bug fixes
 
 * CSS attribute selectors now gracefully handle queries using integers. [#711]
+* [JRuby] Allow Node#replace to insert Comment and CDATA nodes. [#1666]
 
 
 # 1.8.2 / 2018-01-29

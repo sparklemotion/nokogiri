@@ -459,6 +459,24 @@ module Nokogiri
             end
           end
 
+          it "can replace with a comment node" do
+            doc = Nokogiri::XML %Q{<parent><child>text}
+            replacee = doc.at_css("child")
+            replacer = doc.create_comment("<b>text</b>")
+            replacee.replace replacer
+            assert_equal 1, doc.root.children.length
+            assert_equal replacer, doc.root.children.first
+          end
+
+          it "can replace with a CDATA node" do
+            doc = Nokogiri::XML %Q{<parent><child>text}
+            replacee = doc.at_css("child")
+            replacer = doc.create_cdata("<b>text</b>")
+            replacee.replace replacer
+            assert_equal 1, doc.root.children.length
+            assert_equal replacer, doc.root.children.first
+          end
+
           describe "when a document has a default namespace" do
             before do
               @fruits = Nokogiri::XML(<<-eoxml)

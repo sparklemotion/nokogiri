@@ -437,9 +437,6 @@ public class XmlNode extends RubyObject {
         return value.length() == 0 ? null : value;
     }
 
-    public void post_add_child(ThreadContext context, XmlNode current, XmlNode child) {
-    }
-
     /**
      * This method should be called after a node has been adopted in a new
      * document. This method will ensure that the node is renamed with the
@@ -1591,7 +1588,6 @@ public class XmlNode extends RubyObject {
         }
 
         other.relink_namespace(context);
-        // post_add_child(context, this, other);
 
         return nodeOrTags;
     }
@@ -1691,9 +1687,6 @@ public class XmlNode extends RubyObject {
 
         try {
             parentNode.replaceChild(otherNode, thisNode);
-            if (otherNode.getNodeType() != Node.TEXT_NODE) {
-                NokogiriHelpers.renameNode(otherNode, thisNode.getNamespaceURI(), otherNode.getNodeName());
-            }
         } catch (Exception e) {
             String prefix = "could not replace child: ";
             throw context.getRuntime().newRuntimeError(prefix + e.toString());
