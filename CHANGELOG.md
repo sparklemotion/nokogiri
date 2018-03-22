@@ -1,5 +1,10 @@
 # unreleased
 
+## Dependencies
+
+* [MRI] libxml2 is updated from 2.9.7 to 2.9.8
+
+
 ## Bug fixes
 
 * CSS attribute selectors now gracefully handle queries using integers. [#711]
