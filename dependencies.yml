@@ -1,10 +1,10 @@
 libxml2:
-  version: "2.9.7"
-  sha256: "f63c5e7d30362ed28b38bfa1ac6313f9a80230720b7fb6c80575eeab3ff5900c"
+  version: "2.9.8"
+  sha256: "0b74e51595654f958148759cfef0993114ddccccbb6f31aee018f3558e8e2732"
   # manually verified checksum:
   #
-  #   $ gpg --verify libxml2-2.9.7.tar.gz.asc libxml2-2.9.7.tar.gz
-  #   gpg: Signature made Thu 02 Nov 2017 04:17:54 PM EDT using RSA key ID 596BEA5D
+  #   $ gpg --verify libxml2-2.9.8.tar.gz.asc ./ports/archives/libxml2-2.9.8.tar.gz
+  #   gpg: Signature made Mon 05 Mar 2018 11:07:45 AM EST using RSA key ID 596BEA5D
   #   gpg: Good signature from "Daniel Veillard (Red Hat work email) <veillard@redhat.com>"
   #   gpg:                 aka "Daniel Veillard <Daniel.Veillard@w3.org>"
   #   gpg: WARNING: This key is not certified with a trusted signature!
@@ -15,13 +15,13 @@ libxml2:
   # using this pgp signature:
   #   -----BEGIN PGP SIGNATURE-----
   #
-  #   iQEcBAABAgAGBQJZ+31yAAoJEBVYiyZZa+pd+MMH/RTsPCo8CegAHsSUlNCae2Ay
-  #   HpM6J7sNWs0b2xwaYRtwhewJ5z/rsCcM5nn7MeGiU8dX7W5MKF69uGXUywufRxzO
-  #   GFoQSxO0a1z5mtGu7jC/W6DTYHFBeOJcEfMa3zUZjZ0RXqrENRhX55okse4pJPmG
-  #   dWQphbu9G3qoCuWD7QpyI7Mjhjemmyi4Ai/4vJPO8WtB7VDfdtpuZFVCRLG2cp0X
-  #   90SZde+0oWJcN8oIG3FaTd7O4OuJPAceqNhTvF90dLvqSqRBd0RqZNnjYNYZ6uRy
-  #   FQSlQBVCxdLY0AI7Yooq79TJD+0vcqiQNwQwH7L+hBWgvPos4DKN1M9LaJc/RTk=
-  #   =5Qzo
+  #   iQEcBAABAgAGBQJanWtRAAoJEBVYiyZZa+pdV7oIAJWdFahwt+reN/Zt2RPmjjcr
+  #   eSsY7UV1RXjScnNjTzJT1h2hJ7SnUjCkqjR6VdtKDUIzpuX+S2U83joafJH6mxUb
+  #   yw2nO4RfjYTPxpz5JkvqT7jmgEIaD81BuwcMehqpMpIfiKa2NgO1DSfZxgs8a9E2
+  #   +ehc/kZWuI5gmNGrd84EEWUqpYW/Xx7jy02osioJuU5IMPjzZKNR3maXp9oAKeBc
+  #   S2QNa1ID/pUk3K3M/5nlwNgAtQ7lxQrqhrSma2dsKt/IpL6VXomxuD4Bh1r2MZhX
+  #   uZ456X/xJN8UmPewLZWGBU1MK9wqu3Zx5Qwz64H6UdlYIzXZ2jXj2YWZa6xkxPA=
+  #   =69xn
   #   -----END PGP SIGNATURE-----
   #
 
