@@ -71,6 +71,7 @@ resources:
       access_token: {{github-repo-status-access-token}}
       ignore_paths:
         - concourse/**
+      ci_skip: true
 
 jobs:
   #
