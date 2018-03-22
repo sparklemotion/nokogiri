@@ -11,7 +11,7 @@ groups:
       - "ruby-libxmlruby-vendored"
       - "ruby-libxmlruby-valgrind"
       <% end %>
-      <% for jruby_version in RUBIES[:jruby] %>
+      <% for jruby_version in RUBIES[:jruby].last(1) %>
       - "jruby-<%= jruby_version %>"
       <% end %>
       <% for rbx_version in RUBIES[:rbx] %>
@@ -32,7 +32,6 @@ groups:
       - ruby-<%= RUBIES[:mri].last %>-system-pr
       - ruby-<%= RUBIES[:mri].last %>-vendored-pr
       - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
-      - jruby-<%= RUBIES[:jruby].first %>-pr
       - jruby-<%= RUBIES[:jruby].last %>-pr
       - rbx-<%= RUBIES[:rbx].last %>-pr
       - pr-success
@@ -42,6 +41,7 @@ groups:
       <% RUBIES[:windows].last(2).each do |ruby_version| %>
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
+      - "jruby-<%= RUBIES[:jruby].first %>"
 
 
 resource_types:
@@ -71,7 +71,6 @@ resources:
       access_token: {{github-repo-status-access-token}}
       ignore_paths:
         - concourse/**
-      ci_skip: true
 
 jobs:
   #
@@ -384,7 +383,7 @@ jobs:
           params: {path: nokogiri-pr, status: failure}
   <% end %>
 
-  <% [RUBIES[:jruby].first, RUBIES[:jruby].last].each do |jruby_version| %>
+% jruby_version = RUBIES[:jruby].last
   - name: jruby-<%= jruby_version %>-pr
     public: true
     max_in_flight: 1
@@ -411,7 +410,6 @@ jobs:
         on_failure:
           put: nokogiri-pr
           params: {path: nokogiri-pr, status: failure}
-  <% end %>
 
 % rbx_version = RUBIES[:rbx].last
   - name: rbx-<%= rbx_version %>-pr
@@ -456,7 +454,6 @@ jobs:
           - ruby-<%= RUBIES[:mri].last %>-system-pr
           - ruby-<%= RUBIES[:mri].last %>-vendored-pr
           - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
-          - jruby-<%= RUBIES[:jruby].first %>-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
           - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr
