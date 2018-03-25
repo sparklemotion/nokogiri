@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nokogiri/css/node'
 require 'nokogiri/css/xpath_visitor'
 x = $-w

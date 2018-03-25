@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Nokogiri
   module HTML
     class Document < Nokogiri::XML::Document

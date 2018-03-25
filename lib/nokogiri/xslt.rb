@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nokogiri/xslt/stylesheet'
 
 module Nokogiri

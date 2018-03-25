@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nokogiri/html/entity_lookup'
 require 'nokogiri/html/document'
 require 'nokogiri/html/document_fragment'

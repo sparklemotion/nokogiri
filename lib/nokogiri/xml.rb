@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'nokogiri/xml/pp'
 require 'nokogiri/xml/parse_options'
 require 'nokogiri/xml/sax'
