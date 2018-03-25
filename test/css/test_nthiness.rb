@@ -71,83 +71,83 @@ EOF
 
 
       def test_even
-        assert_result_rows [2,4,6,8,10,12,14], @parser.search("table/tr:nth(even)")
+        assert_result_rows [2,4,6,8,10,12,14], @parser.search("table//tr:nth(even)")
       end
 
       def test_odd
-        assert_result_rows [1,3,5,7,9,11,13], @parser.search("table/tr:nth(odd)")
+        assert_result_rows [1,3,5,7,9,11,13], @parser.search("table//tr:nth(odd)")
       end
 
       def test_n
-        assert_result_rows((1..14).to_a, @parser.search("table/tr:nth(n)"))
+        assert_result_rows((1..14).to_a, @parser.search("table//tr:nth(n)"))
       end
 
       def test_2n
-        assert_equal @parser.search("table/tr:nth(even)").inner_text, @parser.search("table/tr:nth(2n)").inner_text
+        assert_equal @parser.search("table//tr:nth(even)").inner_text, @parser.search("table//tr:nth(2n)").inner_text
       end
 
       def test_2np1
-        assert_equal @parser.search("table/tr:nth(odd)").inner_text, @parser.search("table/tr:nth(2n+1)").inner_text
+        assert_equal @parser.search("table//tr:nth(odd)").inner_text, @parser.search("table//tr:nth(2n+1)").inner_text
       end
 
       def test_4np3
-        assert_result_rows [3,7,11], @parser.search("table/tr:nth(4n+3)")
+        assert_result_rows [3,7,11], @parser.search("table//tr:nth(4n+3)")
       end
 
       def test_3np4
-        assert_result_rows [4,7,10,13], @parser.search("table/tr:nth(3n+4)")
+        assert_result_rows [4,7,10,13], @parser.search("table//tr:nth(3n+4)")
       end
 
       def test_mnp3
-        assert_result_rows [1,2,3], @parser.search("table/tr:nth(-n+3)")
+        assert_result_rows [1,2,3], @parser.search("table//tr:nth(-n+3)")
       end
 
       def test_4nm1
-        assert_result_rows [3,7,11], @parser.search("table/tr:nth(4n-1)")
+        assert_result_rows [3,7,11], @parser.search("table//tr:nth(4n-1)")
       end
 
       def test_np3
-        assert_result_rows [3,4,5,6,7,8,9,10,11,12,13,14], @parser.search("table/tr:nth(n+3)")
+        assert_result_rows [3,4,5,6,7,8,9,10,11,12,13,14], @parser.search("table//tr:nth(n+3)")
       end
 
       def test_first
-        assert_result_rows [1], @parser.search("table/tr:first")
-        assert_result_rows [1], @parser.search("table/tr:first()")
+        assert_result_rows [1], @parser.search("table//tr:first")
+        assert_result_rows [1], @parser.search("table//tr:first()")
       end
 
       def test_last
-        assert_result_rows [14], @parser.search("table/tr:last")
-        assert_result_rows [14], @parser.search("table/tr:last()")
+        assert_result_rows [14], @parser.search("table//tr:last")
+        assert_result_rows [14], @parser.search("table//tr:last()")
       end
 
       def test_first_child
         assert_result_rows [1], @parser.search("div/b:first-child"), "bold"
-        assert_result_rows [1], @parser.search("table/tr:first-child")
+        assert_result_rows [1], @parser.search("table//tr:first-child")
         assert_result_rows [2,4],  @parser.search("div/h1.c:first-child"), "header"
       end
 
       def test_last_child
         assert_result_rows [3], @parser.search("div/b:last-child"), "bold"
-        assert_result_rows [14], @parser.search("table/tr:last-child")
+        assert_result_rows [14], @parser.search("table//tr:last-child")
         assert_result_rows [3,4], @parser.search("div/h1.c:last-child"), "header"
       end
       
       def test_nth_child
         assert_result_rows [2], @parser.search("div/b:nth-child(3)"), "bold"
-        assert_result_rows [5], @parser.search("table/tr:nth-child(5)")
+        assert_result_rows [5], @parser.search("table//tr:nth-child(5)")
         assert_result_rows [1,3], @parser.search("div/h1.c:nth-child(2)"), "header"
         assert_result_rows [3,4], @parser.search("div/i.b:nth-child(2n+1)"), "italic"
       end
 
       def test_first_of_type
-        assert_result_rows [1], @parser.search("table/tr:first-of-type")
+        assert_result_rows [1], @parser.search("table//tr:first-of-type")
         assert_result_rows [1], @parser.search("div/b:first-of-type"), "bold"
         assert_result_rows [2], @parser.search("div/b.a:first-of-type"), "bold"
         assert_result_rows [3], @parser.search("div/i.b:first-of-type"), "italic"
       end
 
       def test_last_of_type
-        assert_result_rows [14], @parser.search("table/tr:last-of-type")
+        assert_result_rows [14], @parser.search("table//tr:last-of-type")
         assert_result_rows [3], @parser.search("div/b:last-of-type"), "bold"
         assert_result_rows [2,7], @parser.search("div/i:last-of-type"), "italic"
         assert_result_rows [2,6,7], @parser.search("div i:last-of-type"), "italic"
@@ -165,8 +165,8 @@ EOF
       end
       
       def test_nth_last_of_type
-        assert_result_rows [14], @parser.search("table/tr:nth-last-of-type(1)")
-        assert_result_rows [12], @parser.search("table/tr:nth-last-of-type(3)")
+        assert_result_rows [14], @parser.search("table//tr:nth-last-of-type(1)")
+        assert_result_rows [12], @parser.search("table//tr:nth-last-of-type(3)")
         assert_result_rows [2,6,7], @parser.search("div i:nth-last-of-type(1)"), "italic"
         assert_result_rows [1,5], @parser.search("div i:nth-last-of-type(2)"), "italic"        
         assert_result_rows [4], @parser.search("div/i.b:nth-last-of-type(1)"), "italic"
