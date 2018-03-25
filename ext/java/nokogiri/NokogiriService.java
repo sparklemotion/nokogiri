@@ -63,7 +63,9 @@ public class NokogiriService implements BasicLibraryService {
             Element[] array = ELEMENTS_ARRAY['T'-'A'];
             for(int i = 0; i < array.length; i++) {
                 if (array[i].name.equals("TR")) {
-                    array[i] = new Element(TR, "TR", Element.BLOCK, TABLE, new short[]{TD,TH,TR,COLGROUP,DIV});
+                    array[i] = new Element(TR, "TR", Element.BLOCK, null, new short[]{TD,TH,TR,COLGROUP,DIV});
+                    array[i].parent = new Element[]{getElement(TABLE)};
+                    break;
                 }
             }
         }
