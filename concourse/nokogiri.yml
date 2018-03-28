@@ -11,7 +11,7 @@ groups:
       - "ruby-libxmlruby-vendored"
       - "ruby-libxmlruby-valgrind"
       <% end %>
-      <% for jruby_version in RUBIES[:jruby].last(1) %>
+      <% for jruby_version in RUBIES[:jruby] %>
       - "jruby-<%= jruby_version %>"
       <% end %>
       <% for rbx_version in RUBIES[:rbx] %>
@@ -41,7 +41,6 @@ groups:
       <% RUBIES[:windows].last(2).each do |ruby_version| %>
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
-      - "jruby-<%= RUBIES[:jruby].first %>"
 
 
 resource_types:
