@@ -332,6 +332,15 @@ jobs:
           <% for ruby_version in RUBIES[:mri].last(1) %>
           - "ruby-libxmlruby-valgrind"
           <% end %>
+          <% for jruby_version in RUBIES[:jruby] %>
+          - "jruby-<%= jruby_version %>"
+          <% end %>
+          <% for rbx_version in RUBIES[:rbx] %>
+          - "rbx-<%= rbx_version %>-vendored"
+          <% end %>
+          <% RUBIES[:windows].first(1).each do |ruby_version| %>
+          - "win-ruby-<%= ruby_version %>-devkit"
+          <% end %>
       - put: nokogiri-irc
         params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
 
