@@ -320,7 +320,7 @@ jobs:
 
   - name: build-success
     public: true
-#    disable_manual_trigger: true
+    disable_manual_trigger: true
     plan:
       - get: nokogiri
         trigger: true
