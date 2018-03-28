@@ -6,7 +6,7 @@ groups:
       - "ruby-<%= ruby_version %>-vendored"
       - "ruby-<%= ruby_version %>-valgrind"
       <% end %>
-      <% for ruby_version in RUBIES[:mri][-1,1] %>
+      <% for ruby_version in RUBIES[:mri].last(1) %>
       - "ruby-libxmlruby-system"
       - "ruby-libxmlruby-vendored"
       - "ruby-libxmlruby-valgrind"
@@ -21,6 +21,7 @@ groups:
       <% RUBIES[:windows].first(1).each do |ruby_version| %>
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
+      - build-success
 
 
   - name: PRs
@@ -48,6 +49,10 @@ resource_types:
   type: docker-image
   source:
     repository: jtarchie/pr
+- name: irc-notification
+  type: docker-image
+  source:
+    repository: flavorjones/irc-notification-resource
 
 resources:
   - name: ci
@@ -70,6 +75,22 @@ resources:
       access_token: {{github-repo-status-access-token}}
       ignore_paths:
         - concourse/**
+  - name: nokogiri-irc
+    type: irc-notification
+    source:
+      server: chat.freenode.net
+      port: 7070
+      channel: "#nokogiri"
+      user: {{nokobot-irc-username}}
+      password: {{nokobot-irc-password}}
+
+anchors:
+  notify_failure_to_irc: &notify_failure_to_irc
+    put: nokogiri-irc
+    params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)"}
+  notify_failure_to_pr: &notify_failure_to_pr
+    put: nokogiri-pr
+    params: {path: nokogiri-pr, status: failure}
 
 jobs:
   #
@@ -95,6 +116,7 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
@@ -114,6 +136,7 @@ jobs:
             - name: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
@@ -135,6 +158,7 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
   <% end %>
 
 % ruby_version = RUBIES[:mri].last
@@ -158,6 +182,7 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
   - name: ruby-libxmlruby-vendored
     public: true
@@ -179,6 +204,7 @@ jobs:
             BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
   - name: ruby-libxmlruby-valgrind
     public: true
@@ -201,6 +227,7 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
   <% for jruby_version in RUBIES[:jruby] %>
   - name: jruby-<%= jruby_version %>
@@ -222,6 +249,7 @@ jobs:
             JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
   <% end %>
 
   <% for rbx_version in RUBIES[:rbx] %>
@@ -245,6 +273,7 @@ jobs:
             TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
   - name: rbx-<%= rbx_version %>-vendored
     public: true
@@ -266,6 +295,7 @@ jobs:
             TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
   <% end %>
 
   <% for ruby_version in RUBIES[:windows] %>
@@ -287,6 +317,23 @@ jobs:
             path: powershell
             args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
   <% end %>
+
+  - name: build-success
+    public: true
+#    disable_manual_trigger: true
+    plan:
+      - get: nokogiri
+        trigger: true
+        version: every
+        passed:
+          <% for ruby_version in RUBIES[:mri] %>
+          - "ruby-<%= ruby_version %>-valgrind"
+          <% end %>
+          <% for ruby_version in RUBIES[:mri].last(1) %>
+          - "ruby-libxmlruby-valgrind"
+          <% end %>
+      - put: nokogiri-irc
+        params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
 
   #
   #  PRs
@@ -325,9 +372,7 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure:
-          put: nokogiri-pr
-          params: {path: nokogiri-pr, status: failure}
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
   - name: ruby-<%= ruby_version %>-vendored-pr
     public: true
@@ -350,9 +395,7 @@ jobs:
               path: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure:
-          put: nokogiri-pr
-          params: {path: nokogiri-pr, status: failure}
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
   - name: ruby-<%= ruby_version %>-valgrind-pr
     public: true
@@ -377,9 +420,7 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure:
-          put: nokogiri-pr
-          params: {path: nokogiri-pr, status: failure}
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
   <% end %>
 
 % jruby_version = RUBIES[:jruby].last
@@ -406,9 +447,7 @@ jobs:
             JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure:
-          put: nokogiri-pr
-          params: {path: nokogiri-pr, status: failure}
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 % rbx_version = RUBIES[:rbx].last
   - name: rbx-<%= rbx_version %>-pr
@@ -435,9 +474,7 @@ jobs:
             TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure:
-          put: nokogiri-pr
-          params: {path: nokogiri-pr, status: failure}
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
   - name: pr-success
     public: true
