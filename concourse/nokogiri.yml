@@ -503,3 +503,5 @@ jobs:
           - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
+      - put: nokogiri-irc
+        params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
