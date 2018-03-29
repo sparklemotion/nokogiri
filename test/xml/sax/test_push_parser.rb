@@ -35,6 +35,13 @@ module Nokogiri
           assert_equal [["foo"]], @parser.document.end_elements
         end
 
+        def test_empty_doc
+          @parser.options |= XML::ParseOptions::RECOVER
+          @parser.write "", true
+          assert_nil @parser.document.start_elements
+          assert_nil @parser.document.end_elements
+        end
+
 
         def test_finish_should_rethrow_last_error
           begin
