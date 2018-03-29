@@ -250,6 +250,7 @@ lib/xalan.jar
 lib/xercesImpl.jar
 lib/xml-apis.jar
 lib/xsd/xmlparser/nokogiri.rb
+patches/libxml2/0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
 patches/sort-patches-by-date
 suppressions/README.txt
 suppressions/nokogiri_ruby-2.supp
@@ -301,6 +302,7 @@ test/html/sax/test_parser.rb
 test/html/sax/test_parser_context.rb
 test/html/sax/test_parser_text.rb
 test/html/sax/test_push_parser.rb
+test/html/test_attributes.rb
 test/html/test_builder.rb
 test/html/test_document.rb
 test/html/test_document_encoding.rb

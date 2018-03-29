@@ -1,5 +1,22 @@
 # unreleased
 
+## Security Notes
+
+[MRI] Behavior in libxml2 has been reverted which caused CVE-2018-8048 (loofah gem), CVE-2018-3740 (sanitize gem), and CVE-2018-3741 (rails-html-sanitizer gem). The commit in question is here:
+
+> https://github.com/GNOME/libxml2/commit/960f0e2
+
+and more information is available about this commit and its impact here:
+
+> https://github.com/flavorjones/loofah/issues/144
+
+This release simply reverts the libxml2 commit in question to protect users of Nokogiri's vendored libraries from similar vulnerabilities.
+
+If you're offended by what happened here, I'd kindly ask that you comment on the upstream bug report here:
+
+> https://bugzilla.gnome.org/show_bug.cgi?id=769760
+
+
 ## Dependencies
 
 * [MRI] libxml2 is updated from 2.9.7 to 2.9.8
