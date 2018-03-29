@@ -237,6 +237,7 @@ jobs:
       - get: nokogiri
         trigger: true
       - task: rake-test
+        attempts: 3
         config:
           platform: linux
           image_resource:
@@ -443,6 +444,7 @@ jobs:
         version: every
         passed: [pr-pending]
       - task: rake-test
+        attempts: 3
         config:
           platform: linux
           image_resource:
