@@ -1,6 +1,6 @@
 #include <xml_dtd.h>
 
-static void notation_copier(void *payload, void *data, xmlChar *name)
+static void notation_copier(void *payload, void *data, const xmlChar *name)
 {
   VALUE hash = (VALUE)data;
   VALUE klass = rb_const_get(mNokogiriXml, rb_intern("Notation"));
@@ -17,7 +17,7 @@ static void notation_copier(void *payload, void *data, xmlChar *name)
   rb_hash_aset(hash, NOKOGIRI_STR_NEW2(name),notation);
 }
 
-static void element_copier(void *_payload, void *data, xmlChar *name)
+static void element_copier(void *_payload, void *data, const xmlChar *name)
 {
   VALUE hash = (VALUE)data;
   xmlNodePtr payload = (xmlNodePtr)_payload;
