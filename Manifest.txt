@@ -301,6 +301,7 @@ test/html/sax/test_parser.rb
 test/html/sax/test_parser_context.rb
 test/html/sax/test_parser_text.rb
 test/html/sax/test_push_parser.rb
+test/html/test_attributes.rb
 test/html/test_builder.rb
 test/html/test_document.rb
 test/html/test_document_encoding.rb
