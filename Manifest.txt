@@ -14,6 +14,7 @@ Manifest.txt
 README.md
 ROADMAP.md
 Rakefile
+SECURITY.md
 STANDARD_RESPONSES.md
 Y_U_NO_GEMSPEC.md
 appveyor.yml
