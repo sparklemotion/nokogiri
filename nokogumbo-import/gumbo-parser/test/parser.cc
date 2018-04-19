@@ -1113,6 +1113,23 @@ TEST_F(GumboParserTest, Form) {
   EXPECT_STREQ("After form", text->v.text.text);
 }
 
+// See: https://github.com/google/gumbo-parser/issues/350
+TEST_F(GumboParserTest, FormEndPos) {
+  Parse(" <form><input type=hidden /></form>");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(1, GetChildCount(body));
+
+  GumboNode* form = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, form->type);
+  EXPECT_EQ(GUMBO_TAG_FORM, GetTag(form));
+  ASSERT_EQ(1, GetChildCount(form));
+
+  ASSERT_EQ(form->v.element.start_pos.offset, 1);
+  ASSERT_EQ(form->v.element.end_pos.offset, 28);
+}
+
 TEST_F(GumboParserTest, NestedForm) {
   Parse("<form><label>Label</label><form><input id=input2></form>After form");
 
