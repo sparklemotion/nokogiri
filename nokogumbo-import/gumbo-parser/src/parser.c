@@ -2713,7 +2713,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       return success;
     } else {
       bool result = true;
-      const GumboNode* node = state->_form_element;
+      GumboNode* node = state->_form_element;
       assert(!node || node->type == GUMBO_NODE_ELEMENT);
       state->_form_element = NULL;
       if (!node || !has_node_in_scope(parser, node)) {
@@ -2728,6 +2728,8 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       if (get_current_node(parser) != node) {
         parser_add_parse_error(parser, token);
         result = false;
+      } else {
+        record_end_of_element(token, &node->v.element);
       }
 
       GumboVector* open_elements = &state->_open_elements;
