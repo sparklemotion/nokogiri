@@ -1,4 +1,5 @@
 /*
+ Copyright 2018 Craig Barnes.
  Copyright 2010 Google Inc.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +15,10 @@
  limitations under the License.
 */
 
-#include "string_piece.h"
-
-#include <assert.h>
-#include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
-
+#include "gumbo.h"
 #include "util.h"
-
-struct GumboInternalParser;
 
 const GumboStringPiece kGumboEmptyString = { \
   .data = NULL, \
@@ -45,15 +41,4 @@ bool gumbo_string_equals_ignore_case (
   return
     str1->length == str2->length
     && !gumbo_ascii_strncasecmp(str1->data, str2->data, str1->length);
-}
-
-void gumbo_string_copy (
-  struct GumboInternalParser* parser,
-  GumboStringPiece* dest,
-  const GumboStringPiece* source
-) {
-  dest->length = source->length;
-  char* buffer = gumbo_parser_allocate(parser, source->length);
-  memcpy(buffer, source->data, source->length);
-  dest->data = buffer;
 }

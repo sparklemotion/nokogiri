@@ -14,13 +14,8 @@
  limitations under the License.
 */
 
-#include "string_buffer.h"
-
-#include <assert.h>
-#include <stdlib.h>
 #include <string.h>
-
-#include "string_piece.h"
+#include "string_buffer.h"
 #include "util.h"
 
 struct GumboInternalParser;

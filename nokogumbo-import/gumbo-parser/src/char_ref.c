@@ -1,5 +1,5 @@
 /*
- Copyright 2017 Craig Barnes.
+ Copyright 2017-2018 Craig Barnes.
  Copyright 2011 Google Inc.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +15,10 @@
  limitations under the License.
 */
 
-#include "char_ref.h"
-
 #include <assert.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>  // Only for debug assertions at present.
-
+#include "char_ref.h"
 #include "error.h"
-#include "string_piece.h"
 #include "utf8.h"
-#include "util.h"
 
 struct GumboInternalParser;
 
