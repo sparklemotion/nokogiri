@@ -14,15 +14,7 @@
 //
 // Author: jdtang@google.com (Jonathan Tang)
 
-#include "string_piece.h"
-
-#include <stdlib.h>
-#include <string.h>
-
-#include "gtest/gtest.h"
-#include "parser.h"
 #include "test_utils.h"
-#include "util.h"
 
 namespace {
 
@@ -71,16 +63,6 @@ TEST_F(GumboStringPieceTest, CaseNotEqual_Str2Shorter) {
   INIT_GUMBO_STRING(str1, "foobar");
   INIT_GUMBO_STRING(str2, "foo");
   EXPECT_FALSE(gumbo_string_equals_ignore_case(&str1, &str2));
-}
-
-TEST_F(GumboStringPieceTest, Copy) {
-  GumboParser parser;
-  parser._options = &kGumboDefaultOptions;
-  INIT_GUMBO_STRING(str1, "bar");
-  GumboStringPiece str2;
-  gumbo_string_copy(&parser, &str2, &str1);
-  EXPECT_TRUE(gumbo_string_equals(&str1, &str2));
-  gumbo_parser_deallocate(&parser, (void*) str2.data);
 }
 
 }  // namespace

@@ -18,6 +18,7 @@
 #define GUMBO_TEST_UTILS_H_
 
 #include <assert.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <string>
 
