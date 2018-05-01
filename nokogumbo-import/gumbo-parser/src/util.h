@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "macros.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,19 +24,16 @@ struct GumboInternalParser;
 // when the parse tree is destroyed.
 char* gumbo_copy_stringz(struct GumboInternalParser* parser, const char* str);
 
-// Allocate a chunk of memory, using the allocator specified in the Parser's
-// config options.
+// Allocate a chunk of memory
 void* gumbo_parser_allocate (
   struct GumboInternalParser* parser,
   size_t num_bytes
-);
+) MALLOC RETURNS_NONNULL;
 
-// Deallocate a chunk of memory, using the deallocator specified in the Parser's
-// config options.
+// Deallocate a chunk of memory
 void gumbo_parser_deallocate(struct GumboInternalParser* parser, void* ptr);
 
-// Debug wrapper for printf, to make it easier to turn off debugging info when
-// required.
+// Debug wrapper for printf
 void gumbo_debug(const char* format, ...);
 
 int gumbo_ascii_strcasecmp(const char *s1, const char *s2);

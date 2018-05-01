@@ -1,4 +1,5 @@
 /*
+ Copyright 2017-2018 Craig Barnes.
  Copyright 2010 Google Inc.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,32 +15,24 @@
  limitations under the License.
 */
 
-#include "util.h"
-
-#include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
-
+#include "util.h"
 #include "gumbo.h"
 #include "parser.h"
 
-// TODO(jdtang): This should be elsewhere, but there's no .c file for
-// SourcePositions and yet the constant needs some linkage, so this is as good
-// as any.
-const GumboSourcePosition kGumboEmptySourcePosition = { \
-  .line = 0, \
-  .column = 0, \
-  .offset = 0 \
-};
-
-void* gumbo_parser_allocate(GumboParser* parser, size_t num_bytes) {
-  return parser->_options->allocator(parser->_options->userdata, num_bytes);
+void* gumbo_parser_allocate(GumboParser* parser, size_t size) {
+  void* ptr = malloc(size);
+  if (unlikely(ptr == NULL)) {
+    perror(__func__);
+    abort();
+  }
+  return ptr;
 }
 
 void gumbo_parser_deallocate(GumboParser* parser, void* ptr) {
-  parser->_options->deallocator(parser->_options->userdata, ptr);
+  free(ptr);
 }
 
 char* gumbo_copy_stringz(GumboParser* parser, const char* str) {
@@ -78,14 +71,17 @@ int gumbo_ascii_strncasecmp(const char *s1, const char *s2, size_t n) {
   return 0;
 }
 
+#ifdef GUMBO_DEBUG
+#include <stdarg.h>
 // Debug function to trace operation of the parser
 // (define GUMBO_DEBUG to use).
 void gumbo_debug(const char* format, ...) {
-#ifdef GUMBO_DEBUG
   va_list args;
   va_start(args, format);
   vprintf(format, args);
   va_end(args);
   fflush(stdout);
-#endif
 }
+#else
+void gumbo_debug(const char* format, ...) {}
+#endif

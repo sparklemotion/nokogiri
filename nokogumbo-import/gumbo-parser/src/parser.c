@@ -1,4 +1,5 @@
 /*
+ Copyright 2017-2018 Craig Barnes.
  Copyright 2010 Google Inc.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +34,6 @@
 #include "replacement.h"
 
 #define AVOID_UNUSED_VARIABLE_WARNING(i) (void)(i)
-#define ARRAY_COUNT(x) (sizeof(x) / sizeof(x[0]))
 
 #define GUMBO_STRING(literal) { \
   .data = literal, \
@@ -55,6 +55,12 @@ typedef char TagSet[GUMBO_TAG_LAST];
   && (tagset[(int) tag] & (1 << (int) ns)) \
 )
 
+static const GumboSourcePosition kGumboEmptySourcePosition = { \
+  .line = 0, \
+  .column = 0, \
+  .offset = 0 \
+};
+
 // Selected forward declarations (as it's getting hard to find
 // an appropriate order).
 static bool node_html_tag_is(const GumboNode*, GumboTag);
@@ -64,18 +70,7 @@ static GumboInsertionMode get_current_template_insertion_mode (
     const GumboParser*
 );
 
-static void* malloc_wrapper(void* unused, size_t size) {
-  return malloc(size);
-}
-
-static void free_wrapper(void* unused, void* ptr) {
-  free(ptr);
-}
-
 const GumboOptions kGumboDefaultOptions = {
-  .allocator = &malloc_wrapper,
-  .deallocator = &free_wrapper,
-  .userdata = NULL,
   .tab_stop = 8,
   .stop_on_first_error = false,
   .max_errors = -1,

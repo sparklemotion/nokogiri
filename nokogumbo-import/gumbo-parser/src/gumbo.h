@@ -53,12 +53,6 @@ typedef struct {
 } GumboSourcePosition;
 
 /**
- * A `GumboSourcePosition` used for elements that have no source
- * position (i.e. parser-inserted elements).
- */
-extern const GumboSourcePosition kGumboEmptySourcePosition;
-
-/**
  * A struct representing a string or part of a string. Strings within
  * the parser are represented by a `char*` and a length; the `char*`
  * points into an existing data buffer owned by some other code (often
