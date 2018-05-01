@@ -37,7 +37,7 @@ static const int kCharReplacements[256] = {
   [0x9E] = 0x017E, [0x9F] = 0x0178
 };
 
-static int parse_digit(int c, bool allow_hex) {
+static int CONST_FN parse_digit(int c, bool allow_hex) {
   if (c >= '0' && c <= '9') {
     return c - '0';
   }
@@ -92,7 +92,7 @@ static void add_named_reference_error (
   error->v.text = text;
 }
 
-static int maybe_replace_codepoint(int codepoint) {
+static int PURE maybe_replace_codepoint(int codepoint) {
   if (codepoint > 255 || codepoint < 0) {
     return -1;
   }
@@ -13958,7 +13958,7 @@ static const unsigned char ascii_alnum_table[256] = {
   // 128..255: implicitly zero
 };
 
-static inline bool ascii_isalnum(unsigned char ch) {
+static inline bool PURE ascii_isalnum(unsigned char ch) {
   return ascii_alnum_table[ch];
 }
 
