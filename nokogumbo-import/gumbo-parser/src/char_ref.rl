@@ -18,6 +18,7 @@
 #include <assert.h>
 #include "char_ref.h"
 #include "error.h"
+#include "macros.h"
 #include "utf8.h"
 
 struct GumboInternalParser;

@@ -7,6 +7,7 @@
 #endif
 
 #if defined(_WIN32)
+# define inline __inline
 # define __func__ __FUNCTION__
 #endif
 
