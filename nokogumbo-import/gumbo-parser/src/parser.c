@@ -3986,15 +3986,17 @@ static bool handle_in_select_in_table(GumboParser* parser, GumboToken* token) {
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intemplate
 static bool handle_in_template(GumboParser* parser, GumboToken* token) {
   GumboParserState* state = parser->_parser_state;
+  switch (token->type) {
+    case GUMBO_TOKEN_WHITESPACE:
+    case GUMBO_TOKEN_CHARACTER:
+    case GUMBO_TOKEN_COMMENT:
+    case GUMBO_TOKEN_NULL:
+    case GUMBO_TOKEN_DOCTYPE:
+      return handle_in_body(parser, token);
+    default:
+      break;
+  }
   if (
-    token->type == GUMBO_TOKEN_WHITESPACE
-    || token->type == GUMBO_TOKEN_CHARACTER
-    || token->type == GUMBO_TOKEN_COMMENT
-    || token->type == GUMBO_TOKEN_NULL
-    || token->type == GUMBO_TOKEN_DOCTYPE
-  ) {
-    return handle_in_body(parser, token);
-  } else if (
     tag_in(token, kStartTag, (TagSet) {
       TAG(BASE), TAG(BASEFONT), TAG(BGSOUND), TAG(LINK), TAG(META),
       TAG(NOFRAMES), TAG(SCRIPT), TAG(STYLE), TAG(TEMPLATE), TAG(TITLE)
