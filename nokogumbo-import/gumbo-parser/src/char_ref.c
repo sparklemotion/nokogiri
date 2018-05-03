@@ -20791,6 +20791,7 @@ _again:
     if (last_char == ';') {
       bool matched = utf8iterator_maybe_consume_match(input, start, len, true);
       assert(matched);
+      UNUSED_IF_NDEBUG(matched);
       return true;
     } else if (is_in_attribute && (*te == '=' || ascii_isalnum(*te))) {
       output->first = kGumboNoChar;
@@ -20809,6 +20810,7 @@ _again:
       );
       bool matched = utf8iterator_maybe_consume_match(input, start, len, true);
       assert(matched);
+      UNUSED_IF_NDEBUG(matched);
       return false;
     }
   } else {

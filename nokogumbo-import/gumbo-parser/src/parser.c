@@ -25,15 +25,14 @@
 #include "error.h"
 #include "gumbo.h"
 #include "insertion_mode.h"
+#include "macros.h"
 #include "parser.h"
+#include "replacement.h"
 #include "tokenizer.h"
 #include "tokenizer_states.h"
 #include "utf8.h"
 #include "util.h"
 #include "vector.h"
-#include "replacement.h"
-
-#define AVOID_UNUSED_VARIABLE_WARNING(i) (void)(i)
 
 #define GUMBO_STRING(literal) { \
   .data = literal, \
@@ -2272,7 +2271,7 @@ static bool handle_in_head(GumboParser* parser, GumboToken* token) {
     return true;
   } else if (tag_is(token, kEndTag, GUMBO_TAG_HEAD)) {
     GumboNode* head = pop_current_node(parser);
-    AVOID_UNUSED_VARIABLE_WARNING(head);
+    UNUSED_IF_NDEBUG(head);
     assert(node_html_tag_is(head, GUMBO_TAG_HEAD));
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_AFTER_HEAD);
     return true;
@@ -2334,7 +2333,7 @@ static bool handle_in_head_noscript(GumboParser* parser, GumboToken* token) {
   } else if (tag_is(token, kEndTag, GUMBO_TAG_NOSCRIPT)) {
     const GumboNode* node = pop_current_node(parser);
     assert(node_html_tag_is(node, GUMBO_TAG_NOSCRIPT));
-    AVOID_UNUSED_VARIABLE_WARNING(node);
+    UNUSED_IF_NDEBUG(node);
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_HEAD);
     return true;
   } else if (
@@ -2360,7 +2359,7 @@ static bool handle_in_head_noscript(GumboParser* parser, GumboToken* token) {
     parser_add_parse_error(parser, token);
     const GumboNode* node = pop_current_node(parser);
     assert(node_html_tag_is(node, GUMBO_TAG_NOSCRIPT));
-    AVOID_UNUSED_VARIABLE_WARNING(node);
+    UNUSED_IF_NDEBUG(node);
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_HEAD);
     parser->_parser_state->_reprocess_current_token = true;
     return false;

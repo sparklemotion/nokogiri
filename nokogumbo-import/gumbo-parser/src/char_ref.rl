@@ -2497,6 +2497,7 @@ static bool consume_named_ref (
     if (last_char == ';') {
       bool matched = utf8iterator_maybe_consume_match(input, start, len, true);
       assert(matched);
+      UNUSED_IF_NDEBUG(matched);
       return true;
     } else if (is_in_attribute && (*te == '=' || ascii_isalnum(*te))) {
       output->first = kGumboNoChar;
@@ -2515,6 +2516,7 @@ static bool consume_named_ref (
       );
       bool matched = utf8iterator_maybe_consume_match(input, start, len, true);
       assert(matched);
+      UNUSED_IF_NDEBUG(matched);
       return false;
     }
   } else {

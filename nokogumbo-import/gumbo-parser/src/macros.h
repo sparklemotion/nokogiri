@@ -20,6 +20,12 @@
     / ((size_t)(!(sizeof(x) % sizeof((x)[0])))) \
 )
 
+#ifdef NDEBUG
+    #define UNUSED_IF_NDEBUG(x) (void)(x)
+#else
+    #define UNUSED_IF_NDEBUG(x)
+#endif
+
 #ifdef __GNUC__
     #define GNUC_AT_LEAST(major, minor) ( \
         (__GNUC__ > major) \
