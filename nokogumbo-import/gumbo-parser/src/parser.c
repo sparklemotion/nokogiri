@@ -1516,6 +1516,10 @@ static const TagSet heading_tags = {
   TAG(H1), TAG(H2), TAG(H3), TAG(H4), TAG(H5), TAG(H6)
 };
 
+static const TagSet td_th_tags = {
+  TAG(TD), TAG(TH)
+};
+
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
 static bool has_an_element_in_scope(GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS};
@@ -3673,7 +3677,7 @@ static bool handle_in_table_body(GumboParser* parser, GumboToken* token) {
     insert_element_from_token(parser, token);
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_ROW);
     return true;
-  } else if (tag_in(token, kStartTag, (TagSet){TAG(TD), TAG(TH)})) {
+  } else if (tag_in(token, kStartTag, td_th_tags)) {
     parser_add_parse_error(parser, token);
     clear_stack_to_table_body_context(parser);
     insert_element_of_tag_type(parser, GUMBO_TAG_TR, GUMBO_INSERTION_IMPLIED);
@@ -3731,7 +3735,7 @@ static bool handle_in_table_body(GumboParser* parser, GumboToken* token) {
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intr
 static bool handle_in_row(GumboParser* parser, GumboToken* token) {
-  if (tag_in(token, kStartTag, (TagSet){TAG(TH), TAG(TD)})) {
+  if (tag_in(token, kStartTag, td_th_tags)) {
     clear_stack_to_table_row_context(parser);
     insert_element_from_token(parser, token);
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_CELL);
@@ -3799,7 +3803,7 @@ static bool handle_in_row(GumboParser* parser, GumboToken* token) {
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intd
 static bool handle_in_cell(GumboParser* parser, GumboToken* token) {
-  if (tag_in(token, kEndTag, (TagSet){TAG(TD), TAG(TH)})) {
+  if (tag_in(token, kEndTag, td_th_tags)) {
     GumboTag token_tag = token->v.end_tag;
     if (!has_an_element_in_table_scope(parser, token_tag)) {
       parser_add_parse_error(parser, token);
@@ -4026,7 +4030,7 @@ static bool handle_in_template(GumboParser* parser, GumboToken* token) {
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_TABLE_BODY);
     state->_reprocess_current_token = true;
     return true;
-  } else if (tag_in(token, kStartTag, (TagSet){TAG(TD), TAG(TH)})) {
+  } else if (tag_in(token, kStartTag, td_th_tags)) {
     pop_template_insertion_mode(parser);
     push_template_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_ROW);
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_ROW);
