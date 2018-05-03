@@ -1443,6 +1443,10 @@ static bool has_open_element(GumboParser* parser, GumboTag tag) {
   TAG_SVG(DESC), \
   TAG_SVG(TITLE)
 
+static const TagSet heading_tags = {
+  TAG(H1), TAG(H2), TAG(H3), TAG(H4), TAG(H5), TAG(H6)
+};
+
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-scope
 static bool has_an_element_in_scope(GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS};
@@ -2191,15 +2195,19 @@ static bool handle_before_html(GumboParser* parser, GumboToken* token) {
     parser->_output->root = html_node;
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_BEFORE_HEAD);
     return true;
-  } else if (token->type == GUMBO_TOKEN_END_TAG &&
-             !tag_in(token, false,
-                 (TagSet){TAG(HEAD), TAG(BODY), TAG(HTML), TAG(BR)})) {
+  } else if (
+    token->type == GUMBO_TOKEN_END_TAG
+    && !tag_in(token, false, (TagSet){TAG(HEAD), TAG(BODY), TAG(HTML), TAG(BR)})
+  ) {
     parser_add_parse_error(parser, token);
     ignore_token(parser);
     return false;
   } else {
-    GumboNode* html_node = insert_element_of_tag_type(
-        parser, GUMBO_TAG_HTML, GUMBO_INSERTION_IMPLIED);
+    GumboNode* html_node = insert_element_of_tag_type (
+      parser,
+      GUMBO_TAG_HTML,
+      GUMBO_INSERTION_IMPLIED
+    );
     assert(html_node);
     parser->_output->root = html_node;
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_BEFORE_HEAD);
@@ -2225,15 +2233,19 @@ static bool handle_before_head(GumboParser* parser, GumboToken* token) {
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_HEAD);
     parser->_parser_state->_head_element = node;
     return true;
-  } else if (token->type == GUMBO_TOKEN_END_TAG &&
-             !tag_in(token, false,
-                 (TagSet){TAG(HEAD), TAG(BODY), TAG(HTML), TAG(BR)})) {
+  } else if (
+    token->type == GUMBO_TOKEN_END_TAG
+    && !tag_in(token, false, (TagSet){TAG(HEAD), TAG(BODY), TAG(HTML), TAG(BR)})
+  ) {
     parser_add_parse_error(parser, token);
     ignore_token(parser);
     return false;
   } else {
-    GumboNode* node = insert_element_of_tag_type(
-        parser, GUMBO_TAG_HEAD, GUMBO_INSERTION_IMPLIED);
+    GumboNode* node = insert_element_of_tag_type (
+      parser,
+      GUMBO_TAG_HEAD,
+      GUMBO_INSERTION_IMPLIED
+    );
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_HEAD);
     parser->_parser_state->_head_element = node;
     parser->_parser_state->_reprocess_current_token = true;
@@ -2411,10 +2423,12 @@ static bool handle_after_head(GumboParser* parser, GumboToken* token) {
     insert_element_from_token(parser, token);
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_FRAMESET);
     return true;
-  } else if (tag_in(token, kStartTag,
-                 (TagSet){TAG(BASE), TAG(BASEFONT), TAG(BGSOUND),
-                     TAG(LINK), TAG(META), TAG(NOFRAMES), TAG(SCRIPT),
-                     TAG(STYLE), TAG(TEMPLATE), TAG(TITLE)})) {
+  } else if (
+    tag_in(token, kStartTag, (TagSet) {
+      TAG(BASE), TAG(BASEFONT), TAG(BGSOUND), TAG(LINK), TAG(META),
+      TAG(NOFRAMES), TAG(SCRIPT), TAG(STYLE), TAG(TEMPLATE), TAG(TITLE)
+    })
+  ) {
     parser_add_parse_error(parser, token);
     assert(state->_head_element != NULL);
     // This must be flushed before we push the head element on, as there may be
@@ -2514,11 +2528,14 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     assert(parser->_output->root->type == GUMBO_NODE_ELEMENT);
     merge_attributes(parser, token, parser->_output->root);
     return false;
-  } else if (tag_in(token, kStartTag,
-                 (TagSet){TAG(BASE), TAG(BASEFONT), TAG(BGSOUND),
-                     TAG(MENUITEM), TAG(LINK), TAG(META), TAG(NOFRAMES),
-                     TAG(SCRIPT), TAG(STYLE), TAG(TEMPLATE), TAG(TITLE)}) ||
-             tag_is(token, kEndTag, GUMBO_TAG_TEMPLATE)) {
+  } else if (
+    tag_in(token, kStartTag, (TagSet) {
+      TAG(BASE), TAG(BASEFONT), TAG(BGSOUND), TAG(MENUITEM), TAG(LINK),
+      TAG(META), TAG(NOFRAMES), TAG(SCRIPT), TAG(STYLE), TAG(TEMPLATE),
+      TAG(TITLE)
+    })
+    || tag_is(token, kEndTag, GUMBO_TAG_TEMPLATE)
+  ) {
     return handle_in_head(parser, token);
   } else if (tag_is(token, kStartTag, GUMBO_TAG_BODY)) {
     parser_add_parse_error(parser, token);
@@ -2576,10 +2593,12 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     return true;
   } else if (token->type == GUMBO_TOKEN_EOF) {
     for (unsigned int i = 0; i < state->_open_elements.length; ++i) {
-      if (!node_tag_in_set(state->_open_elements.data[i],
-              (TagSet){TAG(DD), TAG(DT), TAG(LI), TAG(P), TAG(TBODY),
-                  TAG(TD), TAG(TFOOT), TAG(TH), TAG(THEAD), TAG(TR), TAG(BODY),
-                  TAG(HTML)})) {
+      if (
+        !node_tag_in_set(state->_open_elements.data[i], (TagSet) {
+          TAG(DD), TAG(DT), TAG(LI), TAG(P), TAG(TBODY), TAG(TD), TAG(TFOOT),
+          TAG(TH), TAG(THEAD), TAG(TR), TAG(BODY), TAG(HTML)
+        })
+      ) {
         parser_add_parse_error(parser, token);
       }
     }
@@ -2596,11 +2615,13 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     }
     bool success = true;
     for (unsigned int i = 0; i < state->_open_elements.length; ++i) {
-      if (!node_tag_in_set(state->_open_elements.data[i],
-              (TagSet){TAG(DD), TAG(DT), TAG(LI), TAG(OPTGROUP),
-                  TAG(OPTION), TAG(P), TAG(RB), TAG(RP), TAG(RT), TAG(RTC),
-                  TAG(TBODY), TAG(TD), TAG(TFOOT), TAG(TH), TAG(THEAD), TAG(TR),
-                  TAG(BODY), TAG(HTML)})) {
+      if (
+        !node_tag_in_set(state->_open_elements.data[i], (TagSet) {
+          TAG(DD), TAG(DT), TAG(LI), TAG(OPTGROUP), TAG(OPTION), TAG(P),
+          TAG(RB), TAG(RP), TAG(RT), TAG(RTC), TAG(TBODY), TAG(TD),
+          TAG(TFOOT), TAG(TH), TAG(THEAD), TAG(TR), TAG(BODY), TAG(HTML)
+        })
+      ) {
         parser_add_parse_error(parser, token);
         success = false;
         break;
@@ -2615,22 +2636,21 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       record_end_of_element(state->_current_token, &body->v.element);
     }
     return success;
-  } else if (tag_in(token, kStartTag,
-                 (TagSet){TAG(ADDRESS), TAG(ARTICLE), TAG(ASIDE),
-                     TAG(BLOCKQUOTE), TAG(CENTER), TAG(DETAILS), TAG(DIALOG),
-                     TAG(DIR), TAG(DIV), TAG(DL), TAG(FIELDSET), TAG(FIGCAPTION),
-                     TAG(FIGURE), TAG(FOOTER), TAG(HEADER), TAG(HGROUP),
-                     TAG(MENU), TAG(MAIN), TAG(NAV), TAG(OL), TAG(P),
-                     TAG(SECTION), TAG(SUMMARY), TAG(UL)})) {
+  } else if (
+    tag_in(token, kStartTag, (TagSet) {
+      TAG(ADDRESS), TAG(ARTICLE), TAG(ASIDE), TAG(BLOCKQUOTE), TAG(CENTER),
+      TAG(DETAILS), TAG(DIALOG), TAG(DIR), TAG(DIV), TAG(DL), TAG(FIELDSET),
+      TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(HEADER), TAG(HGROUP),
+      TAG(MENU), TAG(MAIN), TAG(NAV), TAG(OL), TAG(P), TAG(SECTION),
+      TAG(SUMMARY), TAG(UL)
+    })
+  ) {
     bool result = maybe_implicitly_close_p_tag(parser, token);
     insert_element_from_token(parser, token);
     return result;
-  } else if (tag_in(token, kStartTag, (TagSet){TAG(H1), TAG(H2), TAG(H3),
-                                          TAG(H4), TAG(H5), TAG(H6)})) {
+  } else if (tag_in(token, kStartTag, heading_tags)) {
     bool result = maybe_implicitly_close_p_tag(parser, token);
-    if (node_tag_in_set(
-            get_current_node(parser), (TagSet){TAG(H1), TAG(H2), TAG(H3),
-                                          TAG(H4), TAG(H5), TAG(H6)})) {
+    if (node_tag_in_set(get_current_node(parser), heading_tags)) {
       parser_add_parse_error(parser, token);
       pop_current_node(parser);
       result = false;
@@ -2690,13 +2710,15 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     insert_element_from_token(parser, token);
     state->_frameset_ok = false;
     return true;
-  } else if (tag_in(token, kEndTag,
-                 (TagSet){TAG(ADDRESS), TAG(ARTICLE), TAG(ASIDE),
-                     TAG(BLOCKQUOTE), TAG(BUTTON), TAG(CENTER), TAG(DETAILS),
-                     TAG(DIALOG), TAG(DIR), TAG(DIV), TAG(DL), TAG(FIELDSET),
-                     TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(HEADER),
-                     TAG(HGROUP), TAG(LISTING), TAG(MAIN), TAG(MENU), TAG(NAV),
-                     TAG(OL), TAG(PRE), TAG(SECTION), TAG(SUMMARY), TAG(UL)})) {
+  } else if (
+    tag_in(token, kEndTag, (TagSet) {
+      TAG(ADDRESS), TAG(ARTICLE), TAG(ASIDE), TAG(BLOCKQUOTE), TAG(BUTTON),
+      TAG(CENTER), TAG(DETAILS), TAG(DIALOG), TAG(DIR), TAG(DIV), TAG(DL),
+      TAG(FIELDSET), TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(HEADER),
+      TAG(HGROUP), TAG(LISTING), TAG(MAIN), TAG(MENU), TAG(NAV), TAG(OL),
+      TAG(PRE), TAG(SECTION), TAG(SUMMARY), TAG(UL)
+    })
+  ) {
     GumboTag tag = token->v.end_tag;
     if (!has_an_element_in_scope(parser, tag)) {
       parser_add_parse_error(parser, token);
@@ -2797,11 +2819,13 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       GUMBO_NAMESPACE_HTML,
       token_tag
     );
-  } else if (tag_in(token, kEndTag, (TagSet){TAG(H1), TAG(H2), TAG(H3),
-                                        TAG(H4), TAG(H5), TAG(H6)})) {
-    if (!has_an_element_in_scope_with_tagname(
-            parser, 6, (GumboTag[]){GUMBO_TAG_H1, GUMBO_TAG_H2, GUMBO_TAG_H3,
-                           GUMBO_TAG_H4, GUMBO_TAG_H5, GUMBO_TAG_H6})) {
+  } else if (tag_in(token, kEndTag, heading_tags)) {
+    if (
+      !has_an_element_in_scope_with_tagname(parser, 6, (GumboTag[]) {
+        GUMBO_TAG_H1, GUMBO_TAG_H2, GUMBO_TAG_H3, GUMBO_TAG_H4,
+        GUMBO_TAG_H5, GUMBO_TAG_H6
+      })
+    ) {
       // No heading open; ignore the token entirely.
       parser_add_parse_error(parser, token);
       ignore_token(parser);
@@ -2819,12 +2843,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       }
       do {
         current_node = pop_current_node(parser);
-      } while (
-        !node_tag_in_set (
-          current_node,
-          (TagSet){TAG(H1), TAG(H2), TAG(H3), TAG(H4), TAG(H5), TAG(H6)}
-        )
-      );
+      } while (!node_tag_in_set(current_node, heading_tags));
       return success;
     }
   } else if (tag_is(token, kStartTag, GUMBO_TAG_A)) {
