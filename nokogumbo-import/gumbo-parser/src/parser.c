@@ -458,15 +458,20 @@ static GumboNode* get_adjusted_current_node(GumboParser* parser) {
 }
 
 // Returns true if the given needle is in the given array of literal
-// GumboStringPieces.  If exact_match is true, this requires that they match
+// GumboStringPieces. If exact_match is true, this requires that they match
 // exactly; otherwise, this performs a prefix match to check if any of the
-// elements in haystack start with needle.  This always performs a
+// elements in haystack start with needle. This always performs a
 // case-insensitive match.
-static bool is_in_static_list(
-    const char* needle, const GumboStringPiece* haystack, bool exact_match) {
+static bool is_in_static_list (
+  const char* needle,
+  const GumboStringPiece* haystack,
+  bool exact_match
+) {
   for (unsigned int i = 0; haystack[i].length > 0; ++i) {
-    if ((exact_match && !strcmp(needle, haystack[i].data)) ||
-        (!exact_match && !gumbo_ascii_strcasecmp(needle, haystack[i].data))) {
+    if (
+      (exact_match && !strcmp(needle, haystack[i].data))
+      || (!exact_match && !gumbo_ascii_strcasecmp(needle, haystack[i].data))
+    ) {
       return true;
     }
   }
@@ -712,16 +717,32 @@ static bool is_mathml_integration_point(const GumboNode* node) {
   );
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#html-integration-point
+// https://html.spec.whatwg.org/multipage/parsing.html#html-integration-point
 static bool is_html_integration_point(const GumboNode* node) {
-  return node_tag_in_set(node, (TagSet){TAG_SVG(FOREIGNOBJECT),
-                                   TAG_SVG(DESC), TAG_SVG(TITLE)}) ||
-         (node_qualified_tag_is(
-              node, GUMBO_NAMESPACE_MATHML, GUMBO_TAG_ANNOTATION_XML) &&
-             (attribute_matches(
-                  &node->v.element.attributes, "encoding", "text/html") ||
-                 attribute_matches(&node->v.element.attributes, "encoding",
-                     "application/xhtml+xml")));
+  static const TagSet html_integration_point_svg_tags = {
+      TAG_SVG(FOREIGNOBJECT), TAG_SVG(DESC), TAG_SVG(TITLE)
+  };
+  if (node_tag_in_set(node, html_integration_point_svg_tags)) {
+    return true;
+  }
+
+  const bool is_mathml_annotation_xml_element = node_qualified_tag_is (
+    node,
+    GUMBO_NAMESPACE_MATHML,
+    GUMBO_TAG_ANNOTATION_XML
+  );
+  const GumboVector* attributes = &node->v.element.attributes;
+  if (
+    is_mathml_annotation_xml_element
+    && (
+      attribute_matches(attributes, "encoding", "text/html")
+      || attribute_matches(attributes, "encoding", "application/xhtml+xml")
+    )
+  ) {
+    return true;
+  }
+
+  return false;
 }
 
 // This represents a place to insert a node, consisting of a target parent and a
