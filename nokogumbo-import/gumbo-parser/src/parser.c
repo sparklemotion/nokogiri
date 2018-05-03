@@ -251,24 +251,24 @@ typedef struct _TextNodeBufferState {
 } TextNodeBufferState;
 
 typedef struct GumboInternalParserState {
-  // http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#insertion-mode
+  // https://html.spec.whatwg.org/multipage/parsing.html#insertion-mode
   GumboInsertionMode _insertion_mode;
 
   // Used for run_generic_parsing_algorithm, which needs to switch back to the
   // original insertion mode at its conclusion.
   GumboInsertionMode _original_insertion_mode;
 
-  // http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#the-stack-of-open-elements
+  // https://html.spec.whatwg.org/multipage/parsing.html#the-stack-of-open-elements
   GumboVector /*GumboNode*/ _open_elements;
 
-  // http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#the-list-of-active-formatting-elements
+  // https://html.spec.whatwg.org/multipage/parsing.html#the-list-of-active-formatting-elements
   GumboVector /*GumboNode*/ _active_formatting_elements;
 
   // The stack of template insertion modes.
-  // http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#the-insertion-mode
+  // https://html.spec.whatwg.org/multipage/parsing.html#the-insertion-mode
   GumboVector /*InsertionMode*/ _template_insertion_modes;
 
-  // http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#the-element-pointers
+  // https://html.spec.whatwg.org/multipage/parsing.html#the-element-pointers
   GumboNode* _head_element;
   GumboNode* _form_element;
 
@@ -482,9 +482,9 @@ static void set_insertion_mode(GumboParser* parser, GumboInsertionMode mode) {
   parser->_parser_state->_insertion_mode = mode;
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#reset-the-insertion-mode-appropriately
+// https://html.spec.whatwg.org/multipage/parsing.html#reset-the-insertion-mode-appropriately
 // This is a helper function that returns the appropriate insertion mode instead
-// of setting it.  Returns GUMBO_INSERTION_MODE_INITIAL as a sentinel value to
+// of setting it. Returns GUMBO_INSERTION_MODE_INITIAL as a sentinel value to
 // indicate that there is no appropriate insertion mode, and the loop should
 // continue.
 static GumboInsertionMode get_appropriate_insertion_mode (
@@ -703,7 +703,7 @@ static GumboInsertionMode get_current_template_insertion_mode (
       template_insertion_modes->data[(template_insertion_modes->length - 1)];
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#mathml-text-integration-point
+// https://html.spec.whatwg.org/multipage/parsing.html#mathml-text-integration-point
 static bool is_mathml_integration_point(const GumboNode* node) {
   return node_tag_in_set (
     node,
@@ -1205,7 +1205,7 @@ static int count_formatting_elements_of_tag (
   return num_identical_elements;
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#reconstruct-the-active-formatting-elements
+// https://html.spec.whatwg.org/multipage/parsing.html#reconstruct-the-active-formatting-elements
 static void add_formatting_element(GumboParser* parser, const GumboNode* node) {
   assert (
     node == &kActiveFormattingScopeMarker
@@ -1377,7 +1377,7 @@ static GumboQuirksModeEnum compute_quirks_mode (
 
 // The following functions are all defined by the "has an element in __ scope"
 // sections of the HTML5 spec:
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-the-specific-scope
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-the-specific-scope
 // The basic idea behind them is that they check for an element of the given
 // qualified name, contained within a scope formed by a set of other qualified
 // names.  For example, "has an element in list scope" looks for an element of
@@ -1422,7 +1422,7 @@ static bool has_open_element(GumboParser* parser, GumboTag tag) {
   return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-scope
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
 #define DEFAULT_SCOPE_TAGS \
   TAG(APPLET), \
   TAG(CAPTION), \
@@ -1447,7 +1447,7 @@ static const TagSet heading_tags = {
   TAG(H1), TAG(H2), TAG(H3), TAG(H4), TAG(H5), TAG(H6)
 };
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-scope
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
 static bool has_an_element_in_scope(GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS};
   return has_an_element_in_specific_scope (parser, 1, &tag, false, tags);
@@ -1488,25 +1488,25 @@ static bool has_an_element_in_scope_with_tagname (
   return has_an_element_in_specific_scope(parser, len, expected, false, tags);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-list-item-scope
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-list-item-scope
 static bool has_an_element_in_list_scope(GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS, TAG(OL), TAG(UL)};
   return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-button-scope
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
 static bool has_an_element_in_button_scope(GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS, TAG(BUTTON)};
   return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-table-scope
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-table-scope
 static bool has_an_element_in_table_scope(GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {TAG(HTML), TAG(TABLE), TAG(TEMPLATE)};
   return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/parsing.html#has-an-element-in-select-scope
+// https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-select-scope
 static bool has_an_element_in_select_scope(GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {TAG(OPTGROUP), TAG(OPTION)};
   return has_an_element_in_specific_scope(parser, 1, &tag, true, tags);
@@ -1529,7 +1529,7 @@ static void generate_implied_end_tags(GumboParser* parser, GumboTag exception) {
 }
 
 // This is the "generate all implied end tags thoroughly" clause of the spec.
-// https://html.spec.whatwg.org/multipage/syntax.html#closing-elements-that-have-implied-end-tags
+// https://html.spec.whatwg.org/multipage/parsing.html#closing-elements-that-have-implied-end-tags
 static void generate_all_implied_end_tags_thoroughly(GumboParser* parser) {
   static const TagSet tags = {
     TAG(CAPTION), TAG(COLGROUP), TAG(DD), TAG(DT), TAG(LI), TAG(OPTION),
@@ -1606,7 +1606,7 @@ static void close_current_select(GumboParser* parser) {
 }
 
 // The list of nodes in the "special" category:
-// http://www.whatwg.org/specs/web-apps/current-work/complete/parsing.html#special
+// https://html.spec.whatwg.org/multipage/parsing.html#special
 static bool is_special_node(const GumboNode* node) {
   assert(node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE);
   return node_tag_in_set(node, (TagSet) {
@@ -1761,7 +1761,7 @@ const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tag) {
   return replacement ? replacement->to : NULL;
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#adjust-foreign-attributes
+// https://html.spec.whatwg.org/multipage/parsing.html#adjust-foreign-attributes
 // This destructively modifies any matching attributes on the token and sets the
 // namespace appropriately.
 static void adjust_foreign_attributes(GumboParser* parser, GumboToken* token) {
@@ -1870,7 +1870,7 @@ static void remove_from_parent(GumboParser* parser, GumboNode* node) {
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#an-introduction-to-error-handling-and-strange-cases-in-the-parser
+// https://html.spec.whatwg.org/multipage/parsing.html#an-introduction-to-error-handling-and-strange-cases-in-the-parser
 // Also described in the "in body" handling for end formatting tags.
 static bool adoption_agency_algorithm (
   GumboParser* parser,
@@ -2137,7 +2137,7 @@ static void ignore_token(GumboParser* parser) {
 #endif
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete/the-end.html
+// https://html.spec.whatwg.org/multipage/parsing.html#the-end
 static void finish_parsing(GumboParser* parser) {
   gumbo_debug("Finishing parsing");
   maybe_flush_text_node_buffer(parser);
@@ -4214,7 +4214,7 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html#tree-construction
+// https://html.spec.whatwg.org/multipage/parsing.html#tree-construction
 static bool handle_token(GumboParser* parser, GumboToken* token) {
   if (
     parser->_parser_state->_ignore_next_linefeed
