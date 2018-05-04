@@ -1520,6 +1520,10 @@ static const TagSet td_th_tags = {
   TAG(TD), TAG(TH)
 };
 
+static const TagSet dd_dt_tags = {
+  TAG(DD), TAG(DT)
+};
+
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
 static bool has_an_element_in_scope(GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS};
@@ -1774,7 +1778,7 @@ static void maybe_implicitly_close_list_tag (
     const GumboNode* node = state->_open_elements.data[i];
     bool is_list_tag = is_li
       ? node_html_tag_is(node, GUMBO_TAG_LI)
-      : node_tag_in_set(node, (TagSet){TAG(DD), TAG(DT)})
+      : node_tag_in_set(node, dd_dt_tags)
     ;
     if (is_list_tag) {
       implicitly_close_tags (
@@ -2818,7 +2822,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     bool result = maybe_implicitly_close_p_tag(parser, token);
     insert_element_from_token(parser, token);
     return result;
-  } else if (tag_in(token, kStartTag, (TagSet){TAG(DD), TAG(DT)})) {
+  } else if (tag_in(token, kStartTag, dd_dt_tags)) {
     maybe_implicitly_close_list_tag(parser, token, false);
     bool result = maybe_implicitly_close_p_tag(parser, token);
     insert_element_from_token(parser, token);
@@ -2939,7 +2943,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       GUMBO_NAMESPACE_HTML,
       GUMBO_TAG_LI
     );
-  } else if (tag_in(token, kEndTag, (TagSet){TAG(DD), TAG(DT)})) {
+  } else if (tag_in(token, kEndTag, dd_dt_tags)) {
     assert(token->type == GUMBO_TOKEN_END_TAG);
     GumboTag token_tag = token->v.end_tag;
     if (!has_an_element_in_scope(parser, token_tag)) {
