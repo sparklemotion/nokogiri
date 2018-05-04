@@ -428,7 +428,7 @@ static void parser_state_destroy(GumboParser* parser) {
   gumbo_parser_deallocate(parser, state);
 }
 
-static GumboNode* get_document_node(GumboParser* parser) {
+static GumboNode* get_document_node(const GumboParser* parser) {
   return parser->_output->document;
 }
 
@@ -438,8 +438,8 @@ static bool is_fragment_parser(const GumboParser* parser) {
 
 // Returns the node at the bottom of the stack of open elements, or NULL if no
 // elements have been added yet.
-static GumboNode* get_current_node(GumboParser* parser) {
-  GumboVector* open_elements = &parser->_parser_state->_open_elements;
+static GumboNode* get_current_node(const GumboParser* parser) {
+  const GumboVector* open_elements = &parser->_parser_state->_open_elements;
   if (open_elements->length == 0) {
     assert(!parser->_output->root);
     return NULL;
@@ -449,8 +449,8 @@ static GumboNode* get_current_node(GumboParser* parser) {
   return open_elements->data[open_elements->length - 1];
 }
 
-static GumboNode* get_adjusted_current_node(GumboParser* parser) {
-  GumboParserState* state = parser->_parser_state;
+static GumboNode* get_adjusted_current_node(const GumboParser* parser) {
+  const GumboParserState* state = parser->_parser_state;
   if (state->_open_elements.length == 1 && state->_fragment_ctx) {
     return state->_fragment_ctx;
   }
@@ -590,7 +590,7 @@ static GumboError* parser_add_parse_error (
   } else if (token->type == GUMBO_TOKEN_END_TAG) {
     extra_data->input_tag = token->v.end_tag;
   }
-  GumboParserState* state = parser->_parser_state;
+  const GumboParserState* state = parser->_parser_state;
   extra_data->parser_state = state->_insertion_mode;
   gumbo_vector_init (
     parser,
@@ -754,7 +754,7 @@ typedef struct {
 } InsertionLocation;
 
 static InsertionLocation get_appropriate_insertion_location (
-  GumboParser* parser,
+  const GumboParser* parser,
   GumboNode* override_target
 ) {
   InsertionLocation retval = {override_target, -1};
@@ -779,7 +779,7 @@ static InsertionLocation get_appropriate_insertion_location (
   // Foster-parenting case.
   int last_template_index = -1;
   int last_table_index = -1;
-  GumboVector* open_elements = &parser->_parser_state->_open_elements;
+  const GumboVector* open_elements = &parser->_parser_state->_open_elements;
   for (unsigned int i = 0; i < open_elements->length; ++i) {
     if (node_html_tag_is(open_elements->data[i], GUMBO_TAG_TEMPLATE)) {
       last_template_index = i;
@@ -799,7 +799,7 @@ static InsertionLocation get_appropriate_insertion_location (
     retval.target = open_elements->data[0];
     return retval;
   }
-  GumboNode* last_table = open_elements->data[last_table_index];
+  const GumboNode* last_table = open_elements->data[last_table_index];
   if (last_table->parent != NULL) {
     retval.target = last_table->parent;
     retval.index = last_table->index_within_parent;
@@ -920,7 +920,7 @@ static void maybe_flush_text_node_buffer(GumboParser* parser) {
 }
 
 static void record_end_of_element (
-  GumboToken* current_token,
+  const GumboToken* current_token,
   GumboElement* element
 ) {
   element->end_pos = current_token->position;
@@ -990,10 +990,8 @@ static void append_comment_node (
 
 // https://html.spec.whatwg.org/multipage/parsing.html#clear-the-stack-back-to-a-table-row-context
 static void clear_stack_to_table_row_context(GumboParser* parser) {
-  while (
-    !node_tag_in_set(get_current_node(parser),
-             (TagSet){TAG(HTML), TAG(TR), TAG(TEMPLATE)})
-  ) {
+  static const TagSet tags = {TAG(HTML), TAG(TR), TAG(TEMPLATE)};
+  while (!node_tag_in_set(get_current_node(parser), tags)) {
     pop_current_node(parser);
   }
 }
@@ -1291,8 +1289,8 @@ static void add_formatting_element(GumboParser* parser, const GumboNode* node) {
   gumbo_vector_add(parser, (void*) node, elements);
 }
 
-static bool is_open_element(GumboParser* parser, const GumboNode* node) {
-  GumboVector* open_elements = &parser->_parser_state->_open_elements;
+static bool is_open_element(const GumboParser* parser, const GumboNode* node) {
+  const GumboVector* open_elements = &parser->_parser_state->_open_elements;
   for (unsigned int i = 0; i < open_elements->length; ++i) {
     if (open_elements->data[i] == node) {
       return true;
@@ -1365,8 +1363,10 @@ static void reconstruct_active_formatting_elements(GumboParser* parser) {
     }
     // Step 5
     element = elements->data[--i];
-  } while (element != &kActiveFormattingScopeMarker &&
-           !is_open_element(parser, element));
+  } while (
+    element != &kActiveFormattingScopeMarker
+    && !is_open_element(parser, element)
+  );
 
   ++i;
   gumbo_debug (
@@ -1456,13 +1456,13 @@ static GumboQuirksModeEnum compute_quirks_mode (
 // written,
 // all elements are expected to be in the HTML namespace
 static bool has_an_element_in_specific_scope (
-  GumboParser* parser,
+  const GumboParser* parser,
   int expected_size,
   const GumboTag* expected,
   bool negate,
   const TagSet tags
 ) {
-  GumboVector* open_elements = &parser->_parser_state->_open_elements;
+  const GumboVector* open_elements = &parser->_parser_state->_open_elements;
   for (int i = open_elements->length; --i >= 0;) {
     const GumboNode* node = open_elements->data[i];
     if (node->type != GUMBO_NODE_ELEMENT && node->type != GUMBO_NODE_TEMPLATE) {
@@ -1486,7 +1486,7 @@ static bool has_an_element_in_specific_scope (
 }
 
 // Checks for the presence of an open element of the specified tag type.
-static bool has_open_element(GumboParser* parser, GumboTag tag) {
+static bool has_open_element(const GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {TAG(HTML)};
   return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
@@ -1525,9 +1525,9 @@ static const TagSet dd_dt_tags = {
 };
 
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-scope
-static bool has_an_element_in_scope(GumboParser* parser, GumboTag tag) {
+static bool has_an_element_in_scope(const GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS};
-  return has_an_element_in_specific_scope (parser, 1, &tag, false, tags);
+  return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
 // Like "has an element in scope", but for the specific case of looking for a
@@ -1536,9 +1536,9 @@ static bool has_an_element_in_scope(GumboParser* parser, GumboTag tag) {
 // predicate is different when checking for an exact node, and it's easier &
 // faster just to duplicate the code for this one case than to try and
 // parameterize it.
-static bool has_node_in_scope(GumboParser* parser, const GumboNode* node) {
+static bool has_node_in_scope(const GumboParser* parser, const GumboNode* node) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS};
-  GumboVector* open_elements = &parser->_parser_state->_open_elements;
+  const GumboVector* open_elements = &parser->_parser_state->_open_elements;
   for (int i = open_elements->length; --i >= 0;) {
     const GumboNode* current = open_elements->data[i];
     const GumboNodeType type = current->type;
@@ -1557,7 +1557,7 @@ static bool has_node_in_scope(GumboParser* parser, const GumboNode* node) {
 // Like has_an_element_in_scope, but restricts the expected qualified name to a
 // range of possible qualified names instead of just a single one.
 static bool has_an_element_in_scope_with_tagname (
-  GumboParser* parser,
+  const GumboParser* parser,
   int len,
   const GumboTag expected[]
 ) {
@@ -1566,25 +1566,25 @@ static bool has_an_element_in_scope_with_tagname (
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-list-item-scope
-static bool has_an_element_in_list_scope(GumboParser* parser, GumboTag tag) {
+static bool has_an_element_in_list_scope(const GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS, TAG(OL), TAG(UL)};
   return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-button-scope
-static bool has_an_element_in_button_scope(GumboParser* parser, GumboTag tag) {
+static bool has_an_element_in_button_scope(const GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {DEFAULT_SCOPE_TAGS, TAG(BUTTON)};
   return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-table-scope
-static bool has_an_element_in_table_scope(GumboParser* parser, GumboTag tag) {
+static bool has_an_element_in_table_scope(const GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {TAG(HTML), TAG(TABLE), TAG(TEMPLATE)};
   return has_an_element_in_specific_scope(parser, 1, &tag, false, tags);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-select-scope
-static bool has_an_element_in_select_scope(GumboParser* parser, GumboTag tag) {
+static bool has_an_element_in_select_scope(const GumboParser* parser, GumboTag tag) {
   static const TagSet tags = {TAG(OPTGROUP), TAG(OPTION)};
   return has_an_element_in_specific_scope(parser, 1, &tag, true, tags);
 }
@@ -4601,6 +4601,7 @@ GumboOutput* gumbo_parse_with_options (
       );
       has_error = !gumbo_lex(&parser, &token) || has_error;
     }
+
     const char* token_type = "text";
     switch (token.type) {
       case GUMBO_TOKEN_DOCTYPE:
