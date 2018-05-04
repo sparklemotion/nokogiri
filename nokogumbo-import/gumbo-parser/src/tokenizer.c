@@ -558,8 +558,11 @@ static StateResult emit_current_tag(GumboParser* parser, GumboToken* output) {
   }
   gumbo_string_buffer_destroy(parser, &tag_state->_buffer);
   finish_token(parser, output);
-  gumbo_debug("Original text = %.*s.\n", output->original_text.length,
-      output->original_text.data);
+  gumbo_debug (
+    "Original text = %.*s.\n",
+    (int) output->original_text.length,
+    output->original_text.data
+  );
   assert(output->original_text.length >= 2);
   assert(output->original_text.data[0] == '<');
   assert(output->original_text.data[output->original_text.length - 1] == '>');

@@ -1108,9 +1108,9 @@ static GumboNode* insert_element_from_token (
     create_element_from_token(parser, token, GUMBO_NAMESPACE_HTML);
   insert_element(parser, element, false);
   gumbo_debug (
-    "Inserting <%s> element (@%x) from token.\n",
+    "Inserting <%s> element (@%p) from token.\n",
     gumbo_normalized_tagname(element->v.element.tag),
-    element
+    (void*)element
   );
   return element;
 }
@@ -1127,9 +1127,9 @@ static GumboNode* insert_element_of_tag_type (
   element->parse_flags |= GUMBO_INSERTION_BY_PARSER | reason;
   insert_element(parser, element, false);
   gumbo_debug (
-    "Inserting %s element (@%x) from tag type.\n",
+    "Inserting %s element (@%p) from tag type.\n",
     gumbo_normalized_tagname(tag),
-    element
+    (void*)element
   );
   return element;
 }
@@ -4391,7 +4391,7 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
       // point.)
       gumbo_debug (
         "Foreign %.*s node at %d.\n",
-        node_tagname.length,
+        (int) node_tagname.length,
         node_tagname.data,
         i
       );
@@ -4576,7 +4576,11 @@ GumboOutput* gumbo_parse_with_options (
   }
 
   GumboParserState* state = parser._parser_state;
-  gumbo_debug("Parsing %.*s.\n", length, buffer);
+  gumbo_debug (
+    "Parsing %.*s.\n",
+    (int) length,
+    buffer
+  );
 
   // Sanity check so that infinite loops die with an assertion failure instead
   // of hanging the process before we ever get an error.

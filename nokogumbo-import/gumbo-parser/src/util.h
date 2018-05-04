@@ -37,7 +37,7 @@ void* gumbo_parser_allocate (
 void gumbo_parser_deallocate(struct GumboInternalParser* parser, void* ptr);
 
 // Debug wrapper for printf
-void gumbo_debug(const char* format, ...);
+void gumbo_debug(const char* format, ...) PRINTF(1);
 
 int gumbo_ascii_strcasecmp(const char *s1, const char *s2) NONNULL_ARGS;
 int gumbo_ascii_strncasecmp(const char *s1, const char *s2, size_t n) NONNULL_ARGS;
