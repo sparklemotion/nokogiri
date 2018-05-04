@@ -147,7 +147,7 @@ typedef struct GumboInternalError {
     // * GUMBO_ERR_UTF8_TRUNCATED
     // * GUMBO_ERR_NUMERIC_CHAR_REF_WITHOUT_SEMICOLON
     // * GUMBO_ERR_NUMERIC_CHAR_REF_INVALID
-    uint64_t codepoint;
+    uint32_t codepoint;
 
     // Tokenizer errors.
     GumboTokenizerError tokenizer;

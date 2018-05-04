@@ -114,7 +114,7 @@ static void add_error(Utf8Iterator* iter, GumboErrorType type) {
   // At the point the error is recorded, the code point hasn't been computed
   // yet (and can't be, because it's invalid), so we need to build up the raw
   // hex value from the bytes under the cursor.
-  uint64_t code_point = 0;
+  uint32_t code_point = 0;
   for (int i = 0; i < iter->_width; ++i) {
     code_point = (code_point << 8) | (unsigned char) iter->_start[i];
   }

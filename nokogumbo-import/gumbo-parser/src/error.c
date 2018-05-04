@@ -14,14 +14,14 @@
  limitations under the License.
 */
 
-#include "error.h"
-
 #include <assert.h>
+#include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "error.h"
 #include "gumbo.h"
+#include "macros.h"
 #include "parser.h"
 #include "string_buffer.h"
 #include "util.h"
@@ -30,7 +30,7 @@
 // Prints a formatted message to a StringBuffer. This automatically resizes the
 // StringBuffer as necessary to fit the message. Returns the number of bytes
 // written.
-static int print_message (
+static int PRINTF(3) print_message (
   GumboParser* parser,
   GumboStringBuffer* output,
   const char* format,
@@ -215,7 +215,7 @@ void gumbo_error_to_string (
       print_message (
         parser,
         output,
-        "Invalid UTF8 character 0x%x",
+        "Invalid UTF8 character 0x%" PRIx32,
         error->v.codepoint
       );
       break;
@@ -223,7 +223,7 @@ void gumbo_error_to_string (
       print_message (
         parser,
         output,
-        "Input stream ends with a truncated UTF8 character 0x%x",
+        "Input stream ends with a truncated UTF8 character 0x%" PRIx32,
         error->v.codepoint
       );
       break;
@@ -238,7 +238,7 @@ void gumbo_error_to_string (
       print_message (
         parser,
         output,
-        "The numeric character reference &#%d should be followed "
+        "The numeric character reference &#%" PRIu32 " should be followed "
         "by a semicolon",
         error->v.codepoint
       );
@@ -247,7 +247,7 @@ void gumbo_error_to_string (
       print_message (
         parser,
         output,
-        "The numeric character reference &#%d; encodes an invalid "
+        "The numeric character reference &#%" PRIu32 "; encodes an invalid "
         "unicode codepoint",
         error->v.codepoint
       );
