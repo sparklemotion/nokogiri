@@ -102,7 +102,7 @@ static void print_tag_stack (
       print_message(parser, output, ", ");
     }
     GumboTag tag = (GumboTag) error->tag_stack.data[i];
-    print_message(parser, output, gumbo_normalized_tagname(tag));
+    print_message(parser, output, "%s", gumbo_normalized_tagname(tag));
   }
   gumbo_string_buffer_append_codepoint(parser, '.', output);
 }
