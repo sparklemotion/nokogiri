@@ -4652,7 +4652,7 @@ GumboOutput* gumbo_parse_with_options (
       }
     }
 
-    if (unlikely(parser._parser_state->_open_elements.length > 512)) {
+    if (unlikely(parser._parser_state->_open_elements.length > 400)) {
       parser._output->status = GUMBO_STATUS_TREE_TOO_DEEP;
       gumbo_debug("Tree depth limit exceeded.\n");
       break;
