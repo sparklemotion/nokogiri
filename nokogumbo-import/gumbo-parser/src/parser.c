@@ -390,6 +390,7 @@ static void output_init(GumboParser* parser) {
   GumboOutput* output = gumbo_parser_allocate(parser, sizeof(GumboOutput));
   output->root = NULL;
   output->document = new_document_node(parser);
+  output->status = GUMBO_STATUS_OK;
   parser->_output = output;
   gumbo_init_errors(parser);
 }
@@ -4651,6 +4652,12 @@ GumboOutput* gumbo_parse_with_options (
       }
     }
 
+    if (unlikely(parser._parser_state->_open_elements.length > 512)) {
+      parser._output->status = GUMBO_STATUS_TREE_TOO_DEEP;
+      gumbo_debug("Tree depth limit exceeded.\n");
+      break;
+    }
+
     ++loop_count;
     assert(loop_count < 1000000000UL);
 
@@ -4676,6 +4683,19 @@ GumboOutput* gumbo_parse_with_options (
   parser_state_destroy(&parser);
   gumbo_tokenizer_state_destroy(&parser);
   return parser._output;
+}
+
+const char* gumbo_status_to_string(GumboOutputStatus status) {
+  switch (status) {
+    case GUMBO_STATUS_OK:
+      return "OK";
+    case GUMBO_STATUS_OUT_OF_MEMORY:
+      return "System allocator returned NULL during parsing";
+    case GUMBO_STATUS_TREE_TOO_DEEP:
+      return "Document tree depth limit exceeded";
+    default:
+      return "Unknown GumboOutputStatus value";
+  }
 }
 
 void gumbo_destroy_node(GumboOptions* options, GumboNode* node) {

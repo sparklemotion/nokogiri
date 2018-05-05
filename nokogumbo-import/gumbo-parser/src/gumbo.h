@@ -769,6 +769,13 @@ typedef struct GumboInternalOptions {
 /** Default options struct; use this with gumbo_parse_with_options. */
 extern const GumboOptions kGumboDefaultOptions;
 
+typedef enum {
+  GUMBO_STATUS_OK,
+  GUMBO_STATUS_OUT_OF_MEMORY,
+  GUMBO_STATUS_TREE_TOO_DEEP
+} GumboOutputStatus;
+
+
 /** The output struct containing the results of the parse. */
 typedef struct GumboInternalOutput {
   /**
@@ -791,6 +798,12 @@ typedef struct GumboInternalOutput {
    * reported so we can work out something appropriate for your use-case.
    */
   GumboVector /* GumboError */ errors;
+
+  /**
+   * A status code indicating whether parsing finished successfully or was
+   * stopped mid-document due to exceptional circumstances.
+   */
+  GumboOutputStatus status;
 } GumboOutput;
 
 /**
@@ -811,6 +824,9 @@ GumboOutput* gumbo_parse_with_options (
   const char* buffer,
   size_t buffer_length
 );
+
+/** Convert a `GumboOutputStatus` code into a readable description. */
+const char* gumbo_status_to_string(GumboOutputStatus status);
 
 /** Release the memory used for the parse tree and parse errors. */
 void gumbo_destroy_output (
