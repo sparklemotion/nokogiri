@@ -20,9 +20,8 @@
 #include <string.h>
 #include "util.h"
 #include "gumbo.h"
-#include "parser.h"
 
-void* gumbo_parser_allocate(GumboParser* parser, size_t size) {
+void* gumbo_alloc(size_t size) {
   void* ptr = malloc(size);
   if (unlikely(ptr == NULL)) {
     perror(__func__);
@@ -31,12 +30,12 @@ void* gumbo_parser_allocate(GumboParser* parser, size_t size) {
   return ptr;
 }
 
-void gumbo_parser_deallocate(GumboParser* parser, void* ptr) {
+void gumbo_free(void* ptr) {
   free(ptr);
 }
 
-char* gumbo_copy_stringz(GumboParser* parser, const char* str) {
-  char* buffer = gumbo_parser_allocate(parser, strlen(str) + 1);
+char* gumbo_copy_stringz(const char* str) {
+  char* buffer = gumbo_alloc(strlen(str) + 1);
   strcpy(buffer, str);
   return buffer;
 }

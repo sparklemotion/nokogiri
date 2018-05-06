@@ -30,8 +30,7 @@
 // Prints a formatted message to a StringBuffer. This automatically resizes the
 // StringBuffer as necessary to fit the message. Returns the number of bytes
 // written.
-static int PRINTF(3) print_message (
-  GumboParser* parser,
+static int PRINTF(2) print_message (
   GumboStringBuffer* output,
   const char* format,
   ...
@@ -53,7 +52,7 @@ static int PRINTF(3) print_message (
     // enough.  In this case, we'll double the buffer size and hope it fits when
     // we retry (letting it fail and returning 0 if it doesn't), since there's
     // no way to smartly resize the buffer.
-    gumbo_string_buffer_reserve(parser, output->capacity * 2, output);
+    gumbo_string_buffer_reserve(output->capacity * 2, output);
     va_start(args, format);
     int result = vsnprintf (
       output->data + output->length,
@@ -72,11 +71,7 @@ static int PRINTF(3) print_message (
 #endif
 
   if (bytes_written >= remaining_capacity) {
-    gumbo_string_buffer_reserve (
-      parser,
-      output->capacity + bytes_written,
-      output
-    );
+    gumbo_string_buffer_reserve(output->capacity + bytes_written, output);
     remaining_capacity = output->capacity - output->length;
     va_start(args, format);
     bytes_written = vsnprintf (
@@ -92,23 +87,21 @@ static int PRINTF(3) print_message (
 }
 
 static void print_tag_stack (
-  GumboParser* parser,
   const GumboParserError* error,
   GumboStringBuffer* output
 ) {
-  print_message(parser, output, "  Currently open tags: ");
+  print_message(output, "  Currently open tags: ");
   for (unsigned int i = 0; i < error->tag_stack.length; ++i) {
     if (i) {
-      print_message(parser, output, ", ");
+      print_message(output, ", ");
     }
     GumboTag tag = (GumboTag) error->tag_stack.data[i];
-    print_message(parser, output, "%s", gumbo_normalized_tagname(tag));
+    print_message(output, "%s", gumbo_normalized_tagname(tag));
   }
-  gumbo_string_buffer_append_codepoint(parser, '.', output);
+  gumbo_string_buffer_append_codepoint('.', output);
 }
 
 static void handle_parser_error (
-  GumboParser* parser,
   const GumboParserError* error,
   GumboStringBuffer* output
 ) {
@@ -117,7 +110,6 @@ static void handle_parser_error (
     && error->input_type != GUMBO_TOKEN_DOCTYPE
   ) {
     print_message (
-      parser,
       output,
       "The doctype must be the first token in the document"
     );
@@ -126,34 +118,34 @@ static void handle_parser_error (
 
   switch (error->input_type) {
     case GUMBO_TOKEN_DOCTYPE:
-      print_message(parser, output, "This is not a legal doctype");
+      print_message(output, "This is not a legal doctype");
       return;
     case GUMBO_TOKEN_COMMENT:
       // Should never happen; comments are always legal.
       assert(0);
       // But just in case...
-      print_message(parser, output, "Comments aren't legal here");
+      print_message(output, "Comments aren't legal here");
       return;
     case GUMBO_TOKEN_CDATA:
     case GUMBO_TOKEN_WHITESPACE:
     case GUMBO_TOKEN_CHARACTER:
-      print_message(parser, output, "Character tokens aren't legal here");
+      print_message(output, "Character tokens aren't legal here");
       return;
     case GUMBO_TOKEN_NULL:
-      print_message(parser, output, "Null bytes are not allowed in HTML5");
+      print_message(output, "Null bytes are not allowed in HTML5");
       return;
     case GUMBO_TOKEN_EOF:
       if (error->parser_state == GUMBO_INSERTION_MODE_INITIAL) {
-        print_message(parser, output, "You must provide a doctype");
+        print_message(output, "You must provide a doctype");
       } else {
-        print_message(parser, output, "Premature end of file");
-        print_tag_stack(parser, error, output);
+        print_message(output, "Premature end of file");
+        print_tag_stack(error, output);
       }
       return;
     case GUMBO_TOKEN_START_TAG:
     case GUMBO_TOKEN_END_TAG:
-      print_message(parser, output, "That tag isn't allowed here");
-      print_tag_stack(parser, error, output);
+      print_message(output, "That tag isn't allowed here");
+      print_tag_stack(error, output);
       // TODO(jdtang): Give more specific messaging.
       return;
   }
@@ -193,18 +185,16 @@ GumboError* gumbo_add_error(GumboParser* parser) {
   if (max_errors >= 0 && parser->_output->errors.length >= (unsigned int) max_errors) {
     return NULL;
   }
-  GumboError* error = gumbo_parser_allocate(parser, sizeof(GumboError));
-  gumbo_vector_add(parser, error, &parser->_output->errors);
+  GumboError* error = gumbo_alloc(sizeof(GumboError));
+  gumbo_vector_add(error, &parser->_output->errors);
   return error;
 }
 
 void gumbo_error_to_string (
-  GumboParser* parser,
   const GumboError* error,
   GumboStringBuffer* output
 ) {
   print_message (
-    parser,
     output,
     "@%d:%d: ",
     error->position.line,
@@ -213,7 +203,6 @@ void gumbo_error_to_string (
   switch (error->type) {
     case GUMBO_ERR_UTF8_INVALID:
       print_message (
-        parser,
         output,
         "Invalid UTF8 character 0x%" PRIx32,
         error->v.codepoint
@@ -221,7 +210,6 @@ void gumbo_error_to_string (
       break;
     case GUMBO_ERR_UTF8_TRUNCATED:
       print_message (
-        parser,
         output,
         "Input stream ends with a truncated UTF8 character 0x%" PRIx32,
         error->v.codepoint
@@ -229,14 +217,12 @@ void gumbo_error_to_string (
       break;
     case GUMBO_ERR_NUMERIC_CHAR_REF_NO_DIGITS:
       print_message (
-        parser,
         output,
         "No digits after &# in numeric character reference"
       );
       break;
     case GUMBO_ERR_NUMERIC_CHAR_REF_WITHOUT_SEMICOLON:
       print_message (
-        parser,
         output,
         "The numeric character reference &#%" PRIu32 " should be followed "
         "by a semicolon",
@@ -245,7 +231,6 @@ void gumbo_error_to_string (
       break;
     case GUMBO_ERR_NUMERIC_CHAR_REF_INVALID:
       print_message (
-        parser,
         output,
         "The numeric character reference &#%" PRIu32 "; encodes an invalid "
         "unicode codepoint",
@@ -256,7 +241,6 @@ void gumbo_error_to_string (
       // The textual data came from one of the literal strings in the table, and
       // so it'll be null-terminated.
       print_message (
-        parser,
         output,
         "The named character reference &%.*s should be followed by a "
         "semicolon",
@@ -266,7 +250,6 @@ void gumbo_error_to_string (
       break;
     case GUMBO_ERR_NAMED_CHAR_REF_INVALID:
       print_message (
-        parser,
         output,
         "The named character reference &%.*s; is not a valid entity name",
         (int) error->v.text.length,
@@ -275,7 +258,6 @@ void gumbo_error_to_string (
       break;
     case GUMBO_ERR_DUPLICATE_ATTR:
       print_message (
-        parser,
         output,
         "Attribute %s occurs multiple times, at positions %d and %d",
         error->v.duplicate_attr.name,
@@ -285,26 +267,24 @@ void gumbo_error_to_string (
       break;
     case GUMBO_ERR_PARSER:
     case GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG:
-      handle_parser_error(parser, &error->v.parser, output);
+      handle_parser_error(&error->v.parser, output);
       break;
     default:
       print_message (
-        parser,
         output,
         "Tokenizer error with an unimplemented error message"
       );
       break;
   }
-  gumbo_string_buffer_append_codepoint(parser, '.', output);
+  gumbo_string_buffer_append_codepoint('.', output);
 }
 
 void gumbo_caret_diagnostic_to_string (
-  GumboParser* parser,
   const GumboError* error,
   const char* source_text,
   GumboStringBuffer* output
 ) {
-  gumbo_error_to_string(parser, error, output);
+  gumbo_error_to_string(error, output);
 
   const char* line_start = find_last_newline(source_text, error->original_text);
   const char* line_end = find_next_newline(source_text, error->original_text);
@@ -312,52 +292,47 @@ void gumbo_caret_diagnostic_to_string (
   original_line.data = line_start;
   original_line.length = line_end - line_start;
 
-  gumbo_string_buffer_append_codepoint(parser, '\n', output);
-  gumbo_string_buffer_append_string(parser, &original_line, output);
-  gumbo_string_buffer_append_codepoint(parser, '\n', output);
-  gumbo_string_buffer_reserve (
-    parser,
-    output->length + error->position.column,
-    output
-  );
+  gumbo_string_buffer_append_codepoint('\n', output);
+  gumbo_string_buffer_append_string(&original_line, output);
+  gumbo_string_buffer_append_codepoint('\n', output);
+  gumbo_string_buffer_reserve(output->length + error->position.column, output);
   int num_spaces = error->position.column - 1;
   memset(output->data + output->length, ' ', num_spaces);
   output->length += num_spaces;
-  gumbo_string_buffer_append_codepoint(parser, '^', output);
-  gumbo_string_buffer_append_codepoint(parser, '\n', output);
+  gumbo_string_buffer_append_codepoint('^', output);
+  gumbo_string_buffer_append_codepoint('\n', output);
 }
 
 void gumbo_print_caret_diagnostic (
-  GumboParser* parser,
   const GumboError* error,
   const char* source_text
 ) {
   GumboStringBuffer text;
-  gumbo_string_buffer_init(parser, &text);
-  gumbo_caret_diagnostic_to_string(parser, error, source_text, &text);
+  gumbo_string_buffer_init(&text);
+  gumbo_caret_diagnostic_to_string(error, source_text, &text);
   printf("%.*s", (int) text.length, text.data);
-  gumbo_string_buffer_destroy(parser, &text);
+  gumbo_string_buffer_destroy(&text);
 }
 
-void gumbo_error_destroy(GumboParser* parser, GumboError* error) {
+void gumbo_error_destroy(GumboError* error) {
   if (
     error->type == GUMBO_ERR_PARSER
     || error->type == GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG
   ) {
-    gumbo_vector_destroy(parser, &error->v.parser.tag_stack);
+    gumbo_vector_destroy(&error->v.parser.tag_stack);
   } else if (error->type == GUMBO_ERR_DUPLICATE_ATTR) {
-    gumbo_parser_deallocate(parser, (void*) error->v.duplicate_attr.name);
+    gumbo_free((void*) error->v.duplicate_attr.name);
   }
-  gumbo_parser_deallocate(parser, error);
+  gumbo_free(error);
 }
 
 void gumbo_init_errors(GumboParser* parser) {
-  gumbo_vector_init(parser, 5, &parser->_output->errors);
+  gumbo_vector_init(5, &parser->_output->errors);
 }
 
 void gumbo_destroy_errors(GumboParser* parser) {
   for (unsigned int i = 0; i < parser->_output->errors.length; ++i) {
-    gumbo_error_destroy(parser, parser->_output->errors.data[i]);
+    gumbo_error_destroy(parser->_output->errors.data[i]);
   }
-  gumbo_vector_destroy(parser, &parser->_output->errors);
+  gumbo_vector_destroy(&parser->_output->errors);
 }

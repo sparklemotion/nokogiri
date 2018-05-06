@@ -1,4 +1,5 @@
 /*
+ Copyright 2018 Craig Barnes.
  Copyright 2010 Google Inc.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +15,11 @@
  limitations under the License.
 */
 
-#include "attribute.h"
-
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "attribute.h"
 #include "util.h"
-
-struct GumboInternalParser;
 
 GumboAttribute* gumbo_get_attribute (
   const GumboVector* attributes,
@@ -37,11 +34,8 @@ GumboAttribute* gumbo_get_attribute (
   return NULL;
 }
 
-void gumbo_destroy_attribute (
-  struct GumboInternalParser* parser,
-  GumboAttribute* attribute
-) {
-  gumbo_parser_deallocate(parser, (void*) attribute->name);
-  gumbo_parser_deallocate(parser, (void*) attribute->value);
-  gumbo_parser_deallocate(parser, (void*) attribute);
+void gumbo_destroy_attribute(GumboAttribute* attribute) {
+  gumbo_free((void*) attribute->name);
+  gumbo_free((void*) attribute->value);
+  gumbo_free((void*) attribute);
 }

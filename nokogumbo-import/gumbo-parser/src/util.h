@@ -13,28 +13,15 @@
 extern "C" {
 #endif
 
-// Forward declaration since it's passed into some of the functions in this
-// header.
-struct GumboInternalParser;
-
 // Utility function for allocating & copying a null-terminated string into a
 // freshly-allocated buffer. This is necessary for proper memory management; we
 // have the convention that all const char* in parse tree structures are
 // freshly-allocated, so if we didn't copy, we'd try to delete a literal string
 // when the parse tree is destroyed.
-char* gumbo_copy_stringz (
-  struct GumboInternalParser* parser,
-  const char* str
-) MALLOC NONNULL_ARGS RETURNS_NONNULL;
+char* gumbo_copy_stringz(const char* str) MALLOC NONNULL_ARGS RETURNS_NONNULL;
 
-// Allocate a chunk of memory
-void* gumbo_parser_allocate (
-  struct GumboInternalParser* parser,
-  size_t num_bytes
-) MALLOC RETURNS_NONNULL;
-
-// Deallocate a chunk of memory
-void gumbo_parser_deallocate(struct GumboInternalParser* parser, void* ptr);
+void* gumbo_alloc(size_t size) MALLOC RETURNS_NONNULL;
+void gumbo_free(void* ptr);
 
 // Debug wrapper for printf
 void gumbo_debug(const char* format, ...) PRINTF(1);

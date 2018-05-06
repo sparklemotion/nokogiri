@@ -1,4 +1,5 @@
 /*
+ Copyright 2018 Craig Barnes.
  Copyright 2010 Google Inc.
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +15,11 @@
  limitations under the License.
 */
 
-#include "vector.h"
-
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "vector.h"
 #include "util.h"
-
-struct GumboInternalParser;
 
 const GumboVector kGumboEmptyVector = { \
   .data = NULL, \
@@ -30,67 +27,48 @@ const GumboVector kGumboEmptyVector = { \
   .capacity = 0 \
 };
 
-void gumbo_vector_init (
-  struct GumboInternalParser* parser,
-  size_t initial_capacity,
-  GumboVector* vector
-) {
+void gumbo_vector_init(size_t initial_capacity, GumboVector* vector) {
   vector->length = 0;
   vector->capacity = initial_capacity;
   if (initial_capacity > 0) {
-    vector->data =
-        gumbo_parser_allocate(parser, sizeof(void*) * initial_capacity);
+    vector->data = gumbo_alloc(sizeof(void*) * initial_capacity);
   } else {
     vector->data = NULL;
   }
 }
 
-void gumbo_vector_destroy (
-  struct GumboInternalParser* parser,
-  GumboVector* vector
-) {
+void gumbo_vector_destroy(GumboVector* vector) {
   if (vector->capacity > 0) {
-    gumbo_parser_deallocate(parser, vector->data);
+    gumbo_free(vector->data);
   }
 }
 
-static void enlarge_vector_if_full (
-  struct GumboInternalParser* parser,
-  GumboVector* vector
-) {
+static void enlarge_vector_if_full(GumboVector* vector) {
   if (vector->length >= vector->capacity) {
     if (vector->capacity) {
       size_t old_num_bytes = sizeof(void*) * vector->capacity;
       vector->capacity *= 2;
       size_t num_bytes = sizeof(void*) * vector->capacity;
-      void** temp = gumbo_parser_allocate(parser, num_bytes);
+      void** temp = gumbo_alloc(num_bytes);
       memcpy(temp, vector->data, old_num_bytes);
-      gumbo_parser_deallocate(parser, vector->data);
+      gumbo_free(vector->data);
       vector->data = temp;
     } else {
       // 0-capacity vector; no previous array to deallocate.
       vector->capacity = 2;
-      vector->data =
-          gumbo_parser_allocate(parser, sizeof(void*) * vector->capacity);
+      vector->data = gumbo_alloc(sizeof(void*) * vector->capacity);
     }
   }
 }
 
-void gumbo_vector_add (
-  struct GumboInternalParser* parser,
-  void* element,
-  GumboVector* vector
-) {
-  enlarge_vector_if_full(parser, vector);
+void gumbo_vector_add(void* element, GumboVector* vector) {
+  enlarge_vector_if_full(vector);
   assert(vector->data);
   assert(vector->length < vector->capacity);
   vector->data[vector->length++] = element;
 }
 
-void* gumbo_vector_pop (
-  struct GumboInternalParser* parser,
-  GumboVector* vector
-) {
+void* gumbo_vector_pop(GumboVector* vector) {
   if (vector->length == 0) {
     return NULL;
   }
@@ -107,40 +85,37 @@ int gumbo_vector_index_of(GumboVector* vector, const void* element) {
 }
 
 void gumbo_vector_insert_at (
-  struct GumboInternalParser* parser,
   void* element,
   unsigned int index,
   GumboVector* vector
 ) {
   assert(index <= vector->length);
-  enlarge_vector_if_full(parser, vector);
+  enlarge_vector_if_full(vector);
   ++vector->length;
-  memmove(&vector->data[index + 1], &vector->data[index],
-      sizeof(void*) * (vector->length - index - 1));
+  memmove (
+    &vector->data[index + 1],
+    &vector->data[index],
+    sizeof(void*) * (vector->length - index - 1)
+  );
   vector->data[index] = element;
 }
 
-void gumbo_vector_remove (
-  struct GumboInternalParser* parser,
-  void* node,
-  GumboVector* vector
-) {
+void gumbo_vector_remove(void* node, GumboVector* vector) {
   int index = gumbo_vector_index_of(vector, node);
   if (index == -1) {
     return;
   }
-  gumbo_vector_remove_at(parser, index, vector);
+  gumbo_vector_remove_at(index, vector);
 }
 
-void* gumbo_vector_remove_at (
-  struct GumboInternalParser* parser,
-  unsigned int index,
-  GumboVector* vector
-) {
+void* gumbo_vector_remove_at(unsigned int index, GumboVector* vector) {
   assert(index < vector->length);
   void* result = vector->data[index];
-  memmove(&vector->data[index], &vector->data[index + 1],
-      sizeof(void*) * (vector->length - index - 1));
+  memmove (
+    &vector->data[index],
+    &vector->data[index + 1],
+    sizeof(void*) * (vector->length - index - 1)
+  );
   --vector->length;
   return result;
 }

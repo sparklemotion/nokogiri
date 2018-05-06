@@ -829,10 +829,7 @@ GumboOutput* gumbo_parse_with_options (
 const char* gumbo_status_to_string(GumboOutputStatus status);
 
 /** Release the memory used for the parse tree and parse errors. */
-void gumbo_destroy_output (
-  const GumboOptions* options,
-  GumboOutput* output
-);
+void gumbo_destroy_output(GumboOutput* output);
 
 #ifdef __cplusplus
 }

@@ -7,13 +7,8 @@
 extern "C" {
 #endif
 
-struct GumboInternalParser;
-
 // Release the memory used for a GumboAttribute, including the attribute itself
-void gumbo_destroy_attribute (
-  struct GumboInternalParser* parser,
-  GumboAttribute* attribute
-);
+void gumbo_destroy_attribute(GumboAttribute* attribute);
 
 #ifdef __cplusplus
 }
