@@ -1777,7 +1777,6 @@ static void maybe_implicitly_close_list_tag (
 }
 
 static void merge_attributes (
-  GumboParser* parser,
   GumboToken* token,
   GumboNode* node
 ) {
@@ -1800,7 +1799,7 @@ static void merge_attributes (
   // with another token, so we need to free its memory.  The attributes that are
   // transferred need to be nulled-out in the vector above so that they aren't
   // double-deleted.
-  gumbo_token_destroy(parser, token);
+  gumbo_token_destroy(token);
 
 #ifndef NDEBUG
   // Mark this sentinel so the assertion in the main loop knows it's been
@@ -2229,7 +2228,7 @@ static void ignore_token(GumboParser* parser) {
   // element, but if no element is emitted (as happens in non-verbatim-mode
   // when a token is ignored), we need to free it here to prevent a memory
   // leak.
-  gumbo_token_destroy(parser, token);
+  gumbo_token_destroy(token);
 #ifndef NDEBUG
   if (token->type == GUMBO_TOKEN_START_TAG) {
     // Mark this sentinel so the assertion in the main loop knows it's been
@@ -2635,7 +2634,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     }
     assert(parser->_output->root != NULL);
     assert(parser->_output->root->type == GUMBO_NODE_ELEMENT);
-    merge_attributes(parser, token, parser->_output->root);
+    merge_attributes(token, parser->_output->root);
     return false;
   } else if (
     tag_in(token, kStartTag, (TagSet) {
@@ -2657,7 +2656,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       return false;
     }
     state->_frameset_ok = false;
-    merge_attributes(parser, token, state->_open_elements.data[1]);
+    merge_attributes(token, state->_open_elements.data[1]);
     return false;
   } else if (tag_is(token, kStartTag, GUMBO_TAG_FRAMESET)) {
     parser_add_parse_error(parser, token);

@@ -3207,7 +3207,7 @@ bool gumbo_lex(GumboParser* parser, GumboToken* output) {
   }
 }
 
-void gumbo_token_destroy(GumboParser* parser, GumboToken* token) {
+void gumbo_token_destroy(GumboToken* token) {
   if (!token) return;
 
   switch (token->type) {
