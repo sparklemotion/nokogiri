@@ -49,7 +49,7 @@ static int PRINTF(2) print_message (
   if (bytes_written == -1) {
     // vsnprintf returns -1 on MSVC++ if there's not enough capacity, instead of
     // returning the number of bytes that would've been written had there been
-    // enough.  In this case, we'll double the buffer size and hope it fits when
+    // enough. In this case, we'll double the buffer size and hope it fits when
     // we retry (letting it fail and returning 0 if it doesn't), since there's
     // no way to smartly resize the buffer.
     gumbo_string_buffer_reserve(output->capacity * 2, output);
@@ -64,7 +64,7 @@ static int PRINTF(2) print_message (
     return result == -1 ? 0 : result;
   }
 #else
-  // -1 in standard C99 indicates an encoding error.  Return 0 and do nothing.
+  // -1 in standard C99 indicates an encoding error. Return 0 and do nothing.
   if (bytes_written == -1) {
     return 0;
   }
@@ -152,7 +152,7 @@ static void handle_parser_error (
 }
 
 // Finds the preceding newline in an original source buffer from a given byte
-// location.  Returns a character pointer to the character after that, or a
+// location. Returns a character pointer to the character after that, or a
 // pointer to the beginning of the string if this is the first line.
 static const char* find_last_newline (
   const char* original_text,
@@ -168,12 +168,9 @@ static const char* find_last_newline (
 }
 
 // Finds the next newline in the original source buffer from a given byte
-// location.  Returns a character pointer to that newline, or a pointer to the
+// location. Returns a character pointer to that newline, or a pointer to the
 // terminating null byte if this is the last line.
-static const char* find_next_newline (
-  const char* original_text,
-  const char* error_location
-) {
+static const char* find_next_newline(const char* error_location) {
   const char* c = error_location;
   for (; *c && *c != '\n'; ++c)
     ;
@@ -287,7 +284,7 @@ void gumbo_caret_diagnostic_to_string (
   gumbo_error_to_string(error, output);
 
   const char* line_start = find_last_newline(source_text, error->original_text);
-  const char* line_end = find_next_newline(source_text, error->original_text);
+  const char* line_end = find_next_newline(error->original_text);
   GumboStringPiece original_line;
   original_line.data = line_start;
   original_line.length = line_end - line_start;
