@@ -193,7 +193,7 @@ void gumbo_error_to_string (
 ) {
   print_message (
     output,
-    "@%d:%d: ",
+    "@%u:%u: ",
     error->position.line,
     error->position.column
   );
@@ -256,7 +256,7 @@ void gumbo_error_to_string (
     case GUMBO_ERR_DUPLICATE_ATTR:
       print_message (
         output,
-        "Attribute %s occurs multiple times, at positions %d and %d",
+        "Attribute %s occurs multiple times, at positions %u and %u",
         error->v.duplicate_attr.name,
         error->v.duplicate_attr.original_index,
         error->v.duplicate_attr.new_index

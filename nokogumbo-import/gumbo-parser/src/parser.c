@@ -1350,7 +1350,7 @@ static void reconstruct_active_formatting_elements(GumboParser* parser) {
 
   ++i;
   gumbo_debug (
-    "Reconstructing elements from %d on %s parent.\n",
+    "Reconstructing elements from %u on %s parent.\n",
     i,
     gumbo_normalized_tagname(get_current_node(parser)->v.element.tag)
   );
@@ -1376,7 +1376,7 @@ static void reconstruct_active_formatting_elements(GumboParser* parser) {
     // Step 10.
     elements->data[i] = clone;
     gumbo_debug (
-      "Reconstructed %s element at %d.\n",
+      "Reconstructed %s element at %u.\n",
       gumbo_normalized_tagname(clone->v.element.tag),
       i
     );
@@ -4587,7 +4587,7 @@ GumboOutput* gumbo_parse_with_options (
         break;
     }
     gumbo_debug (
-      "Handling %s token @%d:%d in state %d.\n",
+      "Handling %s token @%u:%u in state %u.\n",
       (char*) token_type,
       token.position.line,
       token.position.column,
