@@ -82,5 +82,5 @@ void gumbo_debug(const char* format, ...) {
   fflush(stdout);
 }
 #else
-void gumbo_debug(const char* format, ...) {}
+void gumbo_debug(const char* UNUSED(format), ...) {}
 #endif
