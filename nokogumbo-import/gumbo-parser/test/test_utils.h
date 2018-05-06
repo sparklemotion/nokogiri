@@ -40,23 +40,13 @@ GumboAttribute* GetAttribute(GumboNode* node, int index);
 // document (nodes are elements, nodes have the right tags) and then return
 // the body node.
 void GetAndAssertBody(GumboNode* root, GumboNode** body);
-void SanityCheckPointers(
-    const char* input, size_t input_length, const GumboNode* node, int depth);
 
-// Custom allocator machinery to sanity check for memory leaks.  Normally we can
-// use heapcheck/valgrind/ASAN for this, but they only give the
-// results when the program terminates.  This means that if the parser is run in
-// a loop (say, a MapReduce) and there's a leak, it may end up exhausting memory
-// before it can catch the particular document responsible for the leak.  These
-// allocators let us check each document individually for leaks.
-
-typedef struct {
-  uint64_t bytes_allocated;
-  uint64_t objects_allocated;
-  uint64_t objects_freed;
-} MallocStats;
-
-void InitLeakDetection(GumboOptions* options, MallocStats* stats);
+void SanityCheckPointers (
+  const char* input,
+  size_t input_length,
+  const GumboNode* node,
+  int depth
+);
 
 // Base class for Gumbo tests.  This provides an GumboParser object that's
 // been initialized to sane values, as normally happens in the beginning of
@@ -66,7 +56,6 @@ class GumboTest : public ::testing::Test {
   GumboTest();
   virtual ~GumboTest();
 
-  MallocStats malloc_stats_;
   GumboOptions options_;
   GumboParser parser_;
   bool errors_are_expected_;

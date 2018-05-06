@@ -30,9 +30,9 @@ namespace {
 
 class GumboStringBufferTest : public GumboTest {
  protected:
-  GumboStringBufferTest() { gumbo_string_buffer_init(&parser_, &buffer_); }
+  GumboStringBufferTest() { gumbo_string_buffer_init(&buffer_); }
 
-  ~GumboStringBufferTest() { gumbo_string_buffer_destroy(&parser_, &buffer_); }
+  ~GumboStringBufferTest() { gumbo_string_buffer_destroy(&buffer_); }
 
   void NullTerminateBuffer() { buffer_.data[buffer_.length++] = 0; }
 
@@ -40,7 +40,7 @@ class GumboStringBufferTest : public GumboTest {
 };
 
 TEST_F(GumboStringBufferTest, Reserve) {
-  gumbo_string_buffer_reserve(&parser_, 21, &buffer_);
+  gumbo_string_buffer_reserve(21, &buffer_);
   EXPECT_EQ(40, buffer_.capacity);
   strcpy(buffer_.data, "01234567890123456789");
   buffer_.length = 20;
@@ -51,51 +51,51 @@ TEST_F(GumboStringBufferTest, Reserve) {
 
 TEST_F(GumboStringBufferTest, AppendString) {
   INIT_GUMBO_STRING(str, "01234567");
-  gumbo_string_buffer_append_string(&parser_, &str, &buffer_);
+  gumbo_string_buffer_append_string(&str, &buffer_);
   NullTerminateBuffer();
   EXPECT_STREQ("01234567", buffer_.data);
 }
 
 TEST_F(GumboStringBufferTest, AppendStringWithResize) {
   INIT_GUMBO_STRING(str, "01234567");
-  gumbo_string_buffer_append_string(&parser_, &str, &buffer_);
-  gumbo_string_buffer_append_string(&parser_, &str, &buffer_);
+  gumbo_string_buffer_append_string(&str, &buffer_);
+  gumbo_string_buffer_append_string(&str, &buffer_);
   NullTerminateBuffer();
   EXPECT_STREQ("0123456701234567", buffer_.data);
 }
 
 TEST_F(GumboStringBufferTest, AppendCodepoint_1Byte) {
-  gumbo_string_buffer_append_codepoint(&parser_, 'a', &buffer_);
+  gumbo_string_buffer_append_codepoint('a', &buffer_);
   NullTerminateBuffer();
   EXPECT_STREQ("a", buffer_.data);
 }
 
 TEST_F(GumboStringBufferTest, AppendCodepoint_2Bytes) {
-  gumbo_string_buffer_append_codepoint(&parser_, 0xE5, &buffer_);
+  gumbo_string_buffer_append_codepoint(0xE5, &buffer_);
   NullTerminateBuffer();
   EXPECT_STREQ("\xC3\xA5", buffer_.data);
 }
 
 TEST_F(GumboStringBufferTest, AppendCodepoint_3Bytes) {
-  gumbo_string_buffer_append_codepoint(&parser_, 0x39E7, &buffer_);
+  gumbo_string_buffer_append_codepoint(0x39E7, &buffer_);
   NullTerminateBuffer();
   EXPECT_STREQ("\xE3\xA7\xA7", buffer_.data);
 }
 
 TEST_F(GumboStringBufferTest, AppendCodepoint_4Bytes) {
-  gumbo_string_buffer_append_codepoint(&parser_, 0x679E7, &buffer_);
+  gumbo_string_buffer_append_codepoint(0x679E7, &buffer_);
   NullTerminateBuffer();
   EXPECT_STREQ("\xF1\xA7\xA7\xA7", buffer_.data);
 }
 
 TEST_F(GumboStringBufferTest, ToString) {
-  gumbo_string_buffer_reserve(&parser_, 8, &buffer_);
+  gumbo_string_buffer_reserve(8, &buffer_);
   strcpy(buffer_.data, "012345");
   buffer_.length = 7;
 
-  char* dest = gumbo_string_buffer_to_string(&parser_, &buffer_);
+  char* dest = gumbo_string_buffer_to_string(&buffer_);
   EXPECT_STREQ("012345", dest);
-  gumbo_parser_deallocate(&parser_, dest);
+  gumbo_free(dest);
 }
 
 }  // namespace

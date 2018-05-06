@@ -14,10 +14,8 @@
 //
 // Author: jdtang@google.com (Jonathan Tang)
 
-#include "gumbo.h"
-
 #include <string>
-
+#include "gumbo.h"
 #include "gtest/gtest.h"
 #include "test_utils.h"
 
@@ -26,20 +24,18 @@ namespace {
 class GumboParserTest : public ::testing::Test {
  protected:
   GumboParserTest()
-      : options_(kGumboDefaultOptions), output_(NULL), root_(NULL) {
-    InitLeakDetection(&options_, &malloc_stats_);
-  }
+    : options_(kGumboDefaultOptions), output_(NULL), root_(NULL)
+  {}
 
   virtual ~GumboParserTest() {
     if (output_) {
-      gumbo_destroy_output(&options_, output_);
+      gumbo_destroy_output(output_);
     }
-    EXPECT_EQ(malloc_stats_.objects_allocated, malloc_stats_.objects_freed);
   }
 
   virtual void Parse(const char* input) {
     if (output_) {
-      gumbo_destroy_output(&options_, output_);
+      gumbo_destroy_output(output_);
     }
 
     output_ = gumbo_parse_with_options(&options_, input, strlen(input));
@@ -52,7 +48,7 @@ class GumboParserTest : public ::testing::Test {
   virtual void ParseFragment(
       const char* input, GumboTag context, GumboNamespaceEnum context_ns) {
     if (output_) {
-      gumbo_destroy_output(&options_, output_);
+      gumbo_destroy_output(output_);
     }
 
     options_.fragment_context = context;
@@ -65,7 +61,7 @@ class GumboParserTest : public ::testing::Test {
     // This overload is so we can test/demonstrate that computing offsets from
     // the .data() member of an STL string works properly.
     if (output_) {
-      gumbo_destroy_output(&options_, output_);
+      gumbo_destroy_output(output_);
     }
 
     output_ = gumbo_parse_with_options(&options_, input.data(), input.length());
@@ -73,7 +69,6 @@ class GumboParserTest : public ::testing::Test {
     SanityCheckPointers(input.data(), input.length(), output_->root, 1000);
   }
 
-  MallocStats malloc_stats_;
   GumboOptions options_;
   GumboOutput* output_;
   GumboNode* root_;
@@ -1352,9 +1347,10 @@ TEST_F(GumboParserTest, RawtextInBody) {
 }
 
 TEST_F(GumboParserTest, MetaBeforeHead) {
-  Parse(
-      "<html><meta http-equiv='content-type' "
-      "content='text/html; charset=UTF-8' /><head></head>");
+  Parse (
+    "<html><meta http-equiv='content-type' "
+    "content='text/html; charset=UTF-8' /><head></head>"
+  );
 
   GumboNode* body;
   GetAndAssertBody(root_, &body);
@@ -1363,9 +1359,10 @@ TEST_F(GumboParserTest, MetaBeforeHead) {
 }
 
 TEST_F(GumboParserTest, NoahsArkClause) {
-  Parse(
-      "<p><font size=4><font color=red><font size=4><font size=4>"
-      "<font size=4><font size=4><font size=4><font color=red><p>X");
+  Parse (
+    "<p><font size=4><font color=red><font size=4><font size=4>"
+    "<font size=4><font size=4><font size=4><font color=red><p>X"
+  );
 
   GumboNode* body;
   GetAndAssertBody(root_, &body);

@@ -140,51 +140,11 @@ void SanityCheckPointers(
   }
 }
 
-// Custom allocator machinery to sanity check for memory leaks.  Normally we can
-// use heapcheck/valgrind/ASAN for this, but they only give the
-// results when the program terminates.  This means that if the parser is run in
-// a loop (say, a MapReduce) and there's a leak, it may end up exhausting memory
-// before it can catch the particular document responsible for the leak.  These
-// allocators let us check each document individually for leaks.
-
-static void* LeakDetectingMalloc(void* userdata, size_t size) {
-  MallocStats* stats = static_cast<MallocStats*>(userdata);
-  stats->bytes_allocated += size;
-  ++stats->objects_allocated;
-  // Arbitrary limit of 2G on allocation; parsing any reasonable document
-  // shouldn't take more than that.
-  assert(stats->bytes_allocated < (UINT64_C(1) << UINT64_C(31)));
-  void* obj = malloc(size);
-  // gumbo_debug("Allocated %u bytes at %x.\n", size, obj);
-  return obj;
-}
-
-static void LeakDetectingFree(void* userdata, void* ptr) {
-  MallocStats* stats = static_cast<MallocStats*>(userdata);
-  if (ptr) {
-    ++stats->objects_freed;
-    // gumbo_debug("Freed %x.\n");
-    free(ptr);
-  }
-}
-
-void InitLeakDetection(GumboOptions* options, MallocStats* stats) {
-  stats->bytes_allocated = 0;
-  stats->objects_allocated = 0;
-  stats->objects_freed = 0;
-
-  options->allocator = LeakDetectingMalloc;
-  options->deallocator = LeakDetectingFree;
-  options->userdata = stats;
-}
-
 GumboTest::GumboTest()
     : options_(kGumboDefaultOptions), errors_are_expected_(false), text_("") {
-  InitLeakDetection(&options_, &malloc_stats_);
   options_.max_errors = 100;
   parser_._options = &options_;
-  parser_._output = static_cast<GumboOutput*>(
-      gumbo_parser_allocate(&parser_, sizeof(GumboOutput)));
+  parser_._output = static_cast<GumboOutput*>(gumbo_alloc(sizeof(GumboOutput)));
   gumbo_init_errors(&parser_);
 }
 
@@ -194,11 +154,12 @@ GumboTest::~GumboTest() {
     // this; we only want to pretty-print errors that are not an expected
     // output of the test.
     for (unsigned int i = 0; i < parser_._output->errors.length && i < 1; ++i) {
-      gumbo_print_caret_diagnostic(&parser_,
-          static_cast<GumboError*>(parser_._output->errors.data[i]), text_);
+      gumbo_print_caret_diagnostic (
+        static_cast<GumboError*>(parser_._output->errors.data[i]),
+        text_
+      );
     }
   }
   gumbo_destroy_errors(&parser_);
-  gumbo_parser_deallocate(&parser_, parser_._output);
-  EXPECT_EQ(malloc_stats_.objects_allocated, malloc_stats_.objects_freed);
+  gumbo_free(parser_._output);
 }

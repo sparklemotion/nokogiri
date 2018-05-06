@@ -27,9 +27,9 @@ namespace {
 
 class GumboAttributeTest : public GumboTest {
  protected:
-  GumboAttributeTest() { gumbo_vector_init(&parser_, 2, &vector_); }
+  GumboAttributeTest() { gumbo_vector_init(2, &vector_); }
 
-  ~GumboAttributeTest() { gumbo_vector_destroy(&parser_, &vector_); }
+  ~GumboAttributeTest() { gumbo_vector_destroy(&vector_); }
 
   GumboVector vector_;
 };
@@ -40,8 +40,8 @@ TEST_F(GumboAttributeTest, GetAttribute) {
   attr1.name = "";
   attr2.name = "foo";
 
-  gumbo_vector_add(&parser_, &attr1, &vector_);
-  gumbo_vector_add(&parser_, &attr2, &vector_);
+  gumbo_vector_add(&attr1, &vector_);
+  gumbo_vector_add(&attr2, &vector_);
   EXPECT_EQ(&attr2, gumbo_get_attribute(&vector_, "foo"));
   EXPECT_EQ(NULL, gumbo_get_attribute(&vector_, "bar"));
 }
