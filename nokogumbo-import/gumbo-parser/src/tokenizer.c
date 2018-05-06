@@ -781,7 +781,6 @@ static void finish_tag_name(GumboParser* parser) {
 // Adds an ERR_DUPLICATE_ATTR parse error to the parser's error struct.
 static void add_duplicate_attr_error (
   GumboParser* parser,
-  const char* attr_name,
   int original_index,
   int new_index
 ) {
@@ -825,7 +824,7 @@ static bool finish_attribute_name(GumboParser* parser) {
       )
     ) {
       // Identical attribute; bail.
-      add_duplicate_attr_error(parser, attr->name, i, attributes->length);
+      add_duplicate_attr_error(parser, i, attributes->length);
       tag_state->_drop_next_attr_value = true;
       return false;
     }
