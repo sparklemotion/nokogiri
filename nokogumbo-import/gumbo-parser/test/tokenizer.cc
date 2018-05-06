@@ -32,7 +32,7 @@ class GumboTokenizerTest : public GumboTest {
 
   virtual ~GumboTokenizerTest() {
     gumbo_tokenizer_state_destroy(&parser_);
-    gumbo_token_destroy(&parser_, &token_);
+    gumbo_token_destroy(&token_);
   }
 
   void SetInput(const char* input) {
@@ -44,7 +44,7 @@ class GumboTokenizerTest : public GumboTest {
   void Advance(int num_tokens) {
     for (int i = 0; i < num_tokens; ++i) {
       EXPECT_TRUE(gumbo_lex(&parser_, &token_));
-      gumbo_token_destroy(&parser_, &token_);
+      gumbo_token_destroy(&token_);
     }
   }
 
@@ -233,22 +233,22 @@ TEST_F(GumboTokenizerTest, RawtextEnd) {
   EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.start_tag.tag);
 
   gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_RAWTEXT);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('x', token_.v.character);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
 
   Advance(9);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('<', token_.v.character);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
 
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('t', token_.v.character);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
 
   Advance(3);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
@@ -263,12 +263,12 @@ TEST_F(GumboTokenizerTest, RCDataEnd) {
   EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.start_tag.tag);
 
   gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_RCDATA);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('x', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
   EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.end_tag);
@@ -281,28 +281,28 @@ TEST_F(GumboTokenizerTest, ScriptEnd) {
   EXPECT_EQ(GUMBO_TAG_SCRIPT, token_.v.start_tag.tag);
 
   gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('x', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   Advance(6);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('<', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('/', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('\'', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   Advance(1);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
@@ -316,12 +316,12 @@ TEST_F(GumboTokenizerTest, ScriptEscapedEnd) {
   EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.start_tag.tag);
 
   gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_ESCAPED);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('x', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
   EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.end_tag);
@@ -340,42 +340,42 @@ TEST_F(GumboTokenizerTest, ScriptCommentEscaped) {
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('x', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_WHITESPACE, token_.type);
   EXPECT_EQ(' ', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('<', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_WHITESPACE, token_.type);
   EXPECT_EQ(' ', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('7', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   Advance(4);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('<', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('/', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('d', token_.v.character);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   Advance(25);
 }
 
@@ -386,23 +386,23 @@ TEST_F(GumboTokenizerTest, ScriptEscapedEmbeddedLessThan) {
   EXPECT_EQ(GUMBO_TAG_SCRIPT, token_.v.start_tag.tag);
 
   gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT);
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   Advance(14);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('x', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('<', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('7', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   Advance(8);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
@@ -419,17 +419,17 @@ TEST_F(GumboTokenizerTest, ScriptHasTagEmbedded) {
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('<', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('/', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('d', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('i', token_.v.character);
@@ -447,28 +447,28 @@ TEST_F(GumboTokenizerTest, ScriptDoubleEscaped) {
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('<', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('s', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('C', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   Advance(20);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('-', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('-', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('>', token_.v.character);
@@ -486,7 +486,7 @@ TEST_F(GumboTokenizerTest, CData) {
   EXPECT_EQ(GUMBO_TOKEN_NULL, token_.type);
   EXPECT_EQ(0, token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CDATA, token_.type);
   EXPECT_EQ('f', token_.v.character);
@@ -502,12 +502,12 @@ TEST_F(GumboTokenizerTest, StyleHasTagEmbedded) {
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('<', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('h', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('e', token_.v.character);
@@ -519,7 +519,7 @@ TEST_F(GumboTokenizerTest, PreWithNewlines) {
   ASSERT_EQ(GUMBO_TOKEN_DOCTYPE, token_.type);
   EXPECT_EQ(0, token_.position.offset);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   ASSERT_EQ(GUMBO_TOKEN_START_TAG, token_.type);
   EXPECT_EQ("<pre>", ToString(token_.original_text));
@@ -570,7 +570,7 @@ TEST_F(GumboTokenizerTest, BogusComment1) {
   ASSERT_EQ(GUMBO_TOKEN_COMMENT, token_.type);
   EXPECT_STREQ("?xml is bogus-comment", token_.v.text);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ('T', token_.v.character);
@@ -584,7 +584,7 @@ TEST_F(GumboTokenizerTest, BogusComment2) {
   ASSERT_EQ(GUMBO_TOKEN_COMMENT, token_.type);
   EXPECT_STREQ("#bogus-comment", token_.v.text);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_EOF, token_.type);
   errors_are_expected_ = true;
@@ -667,13 +667,13 @@ TEST_F(GumboTokenizerTest, MatchedTagPair) {
   EXPECT_EQ(30, data_attr->value_start.column);
   EXPECT_EQ(35, data_attr->value_end.column);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   ASSERT_TRUE(gumbo_lex(&parser_, &token_));
   ASSERT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
   EXPECT_EQ(35, token_.position.offset);
   EXPECT_EQ('a', token_.v.character);
 
-  gumbo_token_destroy(&parser_, &token_);
+  gumbo_token_destroy(&token_);
   ASSERT_TRUE(gumbo_lex(&parser_, &token_));
   ASSERT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
   EXPECT_EQ(GUMBO_TAG_DIV, token_.v.end_tag);
