@@ -20,7 +20,7 @@
  *    GumboOutput* output = gumbo_parse(input);
  *    do_something_with_doctype(output->document);
  *    do_something_with_html_tree(output->root);
- *    gumbo_destroy_output(&options, output);
+ *    gumbo_destroy_output(output);
  * @endcode
  *
  * [HTML5]: https://html.spec.whatwg.org/multipage/
