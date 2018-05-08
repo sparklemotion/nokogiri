@@ -491,7 +491,7 @@ TEST_F(Utf8Test, CRLF) {
   // CRLF combination as one character.
   EXPECT_EQ(8, pos.column);
   // However, it should not be ignored in computing offsets, which are often
-  // used by other tools to index into the original buffer.  We don't expect
+  // used by other tools to index into the original buffer. We don't expect
   // other unicode-aware tools to have the same \r\n handling as HTML5.
   EXPECT_EQ(8, pos.offset);
 }
@@ -502,7 +502,7 @@ TEST_F(Utf8Test, CarriageReturn) {
 
   EXPECT_EQ('\n', utf8iterator_current(&input_));
   // We don't change the original pointer, which is part of the const input
-  // buffer.  original_text pointers will see a carriage return as original
+  // buffer. original_text pointers will see a carriage return as original
   // written.
   EXPECT_EQ('\r', *utf8iterator_get_char_pointer(&input_));
 

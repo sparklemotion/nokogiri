@@ -14,10 +14,10 @@
 //
 // Author: jdtang@google.com (Jonathan Tang)
 //
-// GUnit char_ref tests.  These are quick smoke tests, mostly to identify
+// GUnit char_ref tests. These are quick smoke tests, mostly to identify
 // crashing bugs so that they can be fixed without having to debug
-// multi-language tests.  As such, they focus on coverage rather than
-// completeness.  For testing the full spec, use char_ref_py_tests, which share
+// multi-language tests. As such, they focus on coverage rather than
+// completeness. For testing the full spec, use char_ref_py_tests, which share
 // their testdata with the Python html5lib library.
 
 #include "char_ref.h"

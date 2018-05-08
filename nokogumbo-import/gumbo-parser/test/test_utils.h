@@ -48,7 +48,7 @@ void SanityCheckPointers (
   int depth
 );
 
-// Base class for Gumbo tests.  This provides an GumboParser object that's
+// Base class for Gumbo tests. This provides an GumboParser object that's
 // been initialized to sane values, as normally happens in the beginning of
 // gumbo_parse, and then a destructor that cleans up after it.
 class GumboTest : public ::testing::Test {

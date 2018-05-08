@@ -556,7 +556,7 @@ TEST_F(GumboParserTest, UnknownTag) {
   EXPECT_EQ(GUMBO_TAG_UNKNOWN, GetTag(foo));
   EXPECT_EQ("<foo>", ToString(foo->v.element.original_tag));
   // According to the spec, the misplaced end tag is ignored, and so we return
-  // an empty original_end_tag text.  We may want to extend our error-reporting
+  // an empty original_end_tag text. We may want to extend our error-reporting
   // a bit so that we close off the tag that it *would have closed*, had the
   // HTML been correct, along with a parse flag that says the end tag was in the
   // wrong place.
@@ -1153,14 +1153,14 @@ TEST_F(GumboParserTest, NestedForm) {
 }
 
 TEST_F(GumboParserTest, MisnestedFormInTable) {
-  // Parse of this is somewhat weird.  The first <form> is opened outside the
+  // Parse of this is somewhat weird. The first <form> is opened outside the
   // table, so when </form> checks to see if there's a form in scope, it stops
-  // at the <table> boundary and returns null.  The form pointer is nulled out
+  // at the <table> boundary and returns null. The form pointer is nulled out
   // anyway, though, which means that the second form (parsed in the table body
-  // state) ends up creating an element.  It's immediately popped off
+  // state) ends up creating an element. It's immediately popped off
   // the stack, but the form element pointer remains set to that node (which is
-  // not on the stack of open elements).  The final </form> tag triggers the
-  // "does not have node in scope" clause and is ignored.  (Note that this is
+  // not on the stack of open elements). The final </form> tag triggers the
+  // "does not have node in scope" clause and is ignored. (Note that this is
   // different from "has a form element in scope" - the first form is still in
   // scope at that point, but the form pointer does not point to it.) Then the
   // original <form> element is closed implicitly when the table cell is closed.
@@ -1724,14 +1724,14 @@ TEST_F(GumboParserTest, MisnestedHeading) {
   //   </body>
   // </html>
   // Explanation:
-  // <html>, <head>, and <body> tags are implied.  The opening <h1> and <section
-  // tags function as expected.  Because the current node is <section>, the <h2>
+  // <html>, <head>, and <body> tags are implied. The opening <h1> and <section
+  // tags function as expected. Because the current node is <section>, the <h2>
   // does *not* close the existing <h1>, and then we enter a definition list.
   // The closing </h1>, even though it's misnested, causes the <dt> to be closed
-  // implicitly, then also closes the <dl> and <h2> as a parse error.  <h1> is
-  // still open, and so "Heading1" goes into it.  Because the current node is a
+  // implicitly, then also closes the <dl> and <h2> as a parse error. <h1> is
+  // still open, and so "Heading1" goes into it. Because the current node is a
   // heading tag, <h3> closes it (as a parse error) and reopens a new <h3> node,
-  // which is closed by the </h4> tag.  The remaining text goes straight into
+  // which is closed by the </h4> tag. The remaining text goes straight into
   // the <body>; since no heading is open, the </h3> tag is ignored and the
   // second run is condensed into the first.
   // TODO(jdtang): Make sure that parse_flags are set appropriately for this.
