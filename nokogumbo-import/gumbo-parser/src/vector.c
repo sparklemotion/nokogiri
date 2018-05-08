@@ -46,13 +46,9 @@ void gumbo_vector_destroy(GumboVector* vector) {
 static void enlarge_vector_if_full(GumboVector* vector) {
   if (vector->length >= vector->capacity) {
     if (vector->capacity) {
-      size_t old_num_bytes = sizeof(void*) * vector->capacity;
       vector->capacity *= 2;
       size_t num_bytes = sizeof(void*) * vector->capacity;
-      void** temp = gumbo_alloc(num_bytes);
-      memcpy(temp, vector->data, old_num_bytes);
-      gumbo_free(vector->data);
-      vector->data = temp;
+      vector->data = gumbo_realloc(vector->data, num_bytes);
     } else {
       // 0-capacity vector; no previous array to deallocate.
       vector->capacity = 2;
