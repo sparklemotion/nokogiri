@@ -19,14 +19,14 @@
 
  1. Functions that fill in a token should be named emit_*, and should be
     followed immediately by a return from the tokenizer (true if no error
-    occurred, false if an error occurred).  Sometimes the emit functions
+    occurred, false if an error occurred). Sometimes the emit functions
     themselves return a boolean so that they can be combined with the return
     statement; in this case, they should match this convention.
  2. Functions that shuffle data from temporaries to final API structures
     should be named finish_*, and be called just before the tokenizer exits the
     state that accumulates the temporary.
  3. All internal data structures should be kept in an initialized state from
-    tokenizer creation onwards, ready to accept input.  When a buffer's flushed
+    tokenizer creation onwards, ready to accept input. When a buffer's flushed
     and reset, it should be deallocated and immediately reinitialized.
  4. Make sure there are appropriate break statements following each state.
  5. Assertions on the state of the temporary and tag buffers are usually a
@@ -34,7 +34,7 @@
  6. Statement order within states goes:
     1. Add parse errors, if appropriate.
     2. Call finish_* functions to build up tag state.
-    2. Switch to new state.  Set _reconsume flag if appropriate.
+    2. Switch to new state. Set _reconsume flag if appropriate.
     3. Perform any other temporary buffer manipulation.
     4. Emit tokens
     5. Return/break.
@@ -87,28 +87,28 @@ typedef struct GumboInternalTagState {
   // The starting location of the text in the buffer.
   GumboSourcePosition _start_pos;
 
-  // The current list of attributes.  This is copied (and ownership of its data
-  // transferred) to the GumboStartTag token upon completion of the tag.  New
+  // The current list of attributes. This is copied (and ownership of its data
+  // transferred) to the GumboStartTag token upon completion of the tag. New
   // attributes are added as soon as their attribute name state is complete, and
   // values are filled in by operating on _attributes.data[attributes.length-1].
   GumboVector /* GumboAttribute */ _attributes;
 
-  // If true, the next attribute value to be finished should be dropped.  This
+  // If true, the next attribute value to be finished should be dropped. This
   // happens if a duplicate attribute name is encountered - we want to consume
   // the attribute value, but shouldn't overwrite the existing value.
   bool _drop_next_attr_value;
 
   // The state that caused the tokenizer to switch into a character reference in
-  // attribute value state.  This is used to set the additional allowed
-  // character, and is switched back to on completion.  Initialized as the
+  // attribute value state. This is used to set the additional allowed
+  // character, and is switched back to on completion. Initialized as the
   // tokenizer enters the character reference state.
   GumboTokenizerEnum _attr_value_state;
 
-  // The last start tag to have been emitted by the tokenizer.  This is
+  // The last start tag to have been emitted by the tokenizer. This is
   // necessary to check for appropriate end tags.
   GumboTag _last_start_tag;
 
-  // If true, then this is a start tag.  If false, it's an end tag.  This is
+  // If true, then this is a start tag. If false, it's an end tag. This is
   // necessary to generate the appropriate token type at tag-closing time.
   bool _is_start_tag;
 
@@ -119,43 +119,43 @@ typedef struct GumboInternalTagState {
 // This is the main tokenizer state struct, containing all state used by in
 // tokenizing the input stream.
 typedef struct GumboInternalTokenizerState {
-  // The current lexer state.  Starts in GUMBO_LEX_DATA.
+  // The current lexer state. Starts in GUMBO_LEX_DATA.
   GumboTokenizerEnum _state;
 
   // A flag indicating whether the current input character needs to reconsumed
   // in another state, or whether the next input character should be read for
-  // the next iteration of the state loop.  This is set when the spec reads
+  // the next iteration of the state loop. This is set when the spec reads
   // "Reconsume the current input character in..."
   bool _reconsume_current_input;
 
-  // A flag indicating whether the current node is a foreign element.  This is
+  // A flag indicating whether the current node is a foreign element. This is
   // set by gumbo_tokenizer_set_is_current_node_foreign and checked in the
   // markup declaration state.
   bool _is_current_node_foreign;
 
-  // A flag indicating whether the tokenizer is in a CDATA section.  If so, then
+  // A flag indicating whether the tokenizer is in a CDATA section. If so, then
   // text tokens emitted will be GUMBO_TOKEN_CDATA.
   bool _is_in_cdata;
 
   // Certain states (notably character references) may emit two character tokens
-  // at once, but the contract for lex() fills in only one token at a time.  The
+  // at once, but the contract for lex() fills in only one token at a time. The
   // extra character is buffered here, and then this is checked on entry to
-  // lex().  If a character is stored here, it's immediately emitted and control
-  // returns from the lexer.  kGumboNoChar is used to represent 'no character
+  // lex(). If a character is stored here, it's immediately emitted and control
+  // returns from the lexer. kGumboNoChar is used to represent 'no character
   // stored.'
   //
   // Note that characters emitted through this mechanism will have their source
   // position marked as the character under the mark, i.e. multiple characters
-  // may be emitted with the same position.  This is desirable for character
-  // references, but unsuitable for many other cases.  Use the _temporary_buffer
+  // may be emitted with the same position. This is desirable for character
+  // references, but unsuitable for many other cases. Use the _temporary_buffer
   // mechanism if the buffered characters must have their original positions in
   // the document.
   int _buffered_emit_char;
 
   // A temporary buffer to accumulate characters, as described by the "temporary
-  // buffer" phrase in the tokenizer spec.  We use this in a somewhat unorthodox
+  // buffer" phrase in the tokenizer spec. We use this in a somewhat unorthodox
   // way: we record the specific character to go into the buffer, which may
-  // sometimes be a lowercased version of the actual input character.  However,
+  // sometimes be a lowercased version of the actual input character. However,
   // we *also* use utf8iterator_mark() to record the position at tag start.
   // When we start flushing the temporary buffer, we set _temporary_buffer_emit
   // to the start of it, and then increment it for each call to the tokenizer.
@@ -165,13 +165,13 @@ typedef struct GumboInternalTokenizerState {
   GumboStringBuffer _temporary_buffer;
 
   // The current cursor position we're emitting from within
-  // _temporary_buffer.data.  NULL whenever we're not flushing the buffer.
+  // _temporary_buffer.data. NULL whenever we're not flushing the buffer.
   const char* _temporary_buffer_emit;
 
   // The temporary buffer is also used by the spec to check whether we should
   // enter the script data double escaped state, but we can't use the same
   // buffer for both because we have to flush out "<s" as emits while still
-  // maintaining the context that will eventually become "script".  This is a
+  // maintaining the context that will eventually become "script". This is a
   // separate buffer that's used in place of the temporary buffer for states
   // that may enter the script data double escape start state.
   GumboStringBuffer _script_data_buffer;
@@ -187,7 +187,7 @@ typedef struct GumboInternalTokenizerState {
   // Current tag state.
   GumboTagState _tag_state;
 
-  // Doctype state.  We use the temporary buffer to accumulate characters (it's
+  // Doctype state. We use the temporary buffer to accumulate characters (it's
   // not used for anything else in the doctype states), and then freshly
   // allocate the strings in the doctype token, then copy it over on emit.
   GumboTokenDocType _doc_type_state;
@@ -346,7 +346,7 @@ static GumboTokenType get_char_token_type(bool is_in_cdata, int c) {
 // text that will eventually be emitted, it needs to be called a couple of
 // states before the spec says "Set the temporary buffer to the empty string".
 // In general, this should be called whenever there's a transition to a
-// "less-than sign state".  The initial < and possibly / then need to be
+// "less-than sign state". The initial < and possibly / then need to be
 // appended to the temporary buffer, their presence needs to be accounted for in
 // states that compare the temporary buffer against a literal value, and
 // spec stanzas that say "emit a < and / character token along with a character
@@ -379,7 +379,7 @@ static void append_char_to_temporary_buffer (
 static bool temporary_buffer_equals(GumboParser* parser, const char* text) {
   GumboStringBuffer* buffer = &parser->_tokenizer_state->_temporary_buffer;
   // TODO(jdtang): See if the extra strlen is a performance problem, and replace
-  // it with an explicit sizeof(literal) if necessary.  I don't think it will
+  // it with an explicit sizeof(literal) if necessary. I don't think it will
   // be, as this is only used in a couple of rare states.
   size_t text_len = strlen(text);
   return
@@ -392,9 +392,9 @@ static void doc_type_state_init(GumboParser* parser) {
   GumboTokenDocType* doc_type_state =
       &parser->_tokenizer_state->_doc_type_state;
   // We initialize these to NULL here so that we don't end up leaking memory if
-  // we never see a doctype token.  When we do see a doctype token, we reset
+  // we never see a doctype token. When we do see a doctype token, we reset
   // them to a freshly-allocated empty string so that we can present a uniform
-  // interface to client code and not make them check for null.  Ownership is
+  // interface to client code and not make them check for null. Ownership is
   // transferred to the doctype token when it's emitted.
   doc_type_state->name = NULL;
   doc_type_state->public_identifier = NULL;
@@ -413,7 +413,7 @@ static void reset_token_start_point(GumboTokenizerState* tokenizer) {
 }
 
 // Sets the tag buffer original text and start point to the current iterator
-// position.  This is necessary because attribute names & values may have
+// position. This is necessary because attribute names & values may have
 // whitespace preceeding them, and so we can't assume that the actual token
 // starting point was the end of the last tag buffer usage.
 static void reset_tag_buffer_start_point(GumboParser* parser) {
@@ -433,9 +433,9 @@ static void finish_temporary_buffer(GumboParser* parser, const char** output) {
 }
 
 // Advances the iterator past the end of the token, and then fills in the
-// relevant position fields.  It's assumed that after every emit, the tokenizer
+// relevant position fields. It's assumed that after every emit, the tokenizer
 // will immediately return (letting the tree-construction stage read the filled
-// in Token).  Thus, it's safe to advance the input stream here, since it will
+// in Token). Thus, it's safe to advance the input stream here, since it will
 // bypass the advance at the bottom of the state machine loop.
 //
 // Since this advances the iterator and resets the current input, make sure to
@@ -454,7 +454,7 @@ static void finish_token(GumboParser* parser, GumboToken* token) {
   if (token->original_text.length > 0 &&
       token->original_text.data[token->original_text.length - 1] == '\r') {
     // The UTF8 iterator will ignore carriage returns in the input stream, which
-    // means that the next token may start one past a \r character.  The pointer
+    // means that the next token may start one past a \r character. The pointer
     // arithmetic above results in that \r being appended to the original text
     // of the preceding token, so we have to adjust its length here to chop the
     // \r off.
@@ -499,7 +499,7 @@ static StateResult emit_replacement_char(
   return RETURN_ERROR;
 }
 
-// Writes an EOF character token.  Always returns RETURN_SUCCESS.
+// Writes an EOF character token. Always returns RETURN_SUCCESS.
 static StateResult emit_eof(GumboParser* parser, GumboToken* output) {
   emit_char(parser, -1, output);
   return RETURN_SUCCESS;
@@ -548,7 +548,7 @@ static StateResult emit_current_tag(GumboParser* parser, GumboToken* output) {
     output->v.end_tag = tag_state->_tag;
     // In end tags, ownership of the attributes vector is not transferred to the
     // token, but it's still initialized as normal, so it must be manually
-    // deallocated.  There may also be attributes to destroy, in certain broken
+    // deallocated. There may also be attributes to destroy, in certain broken
     // cases like </div</th> (the "th" is an attribute there).
     for (unsigned int i = 0; i < tag_state->_attributes.length; ++i) {
       gumbo_destroy_attribute(tag_state->_attributes.data[i]);
@@ -587,7 +587,7 @@ static void abandon_current_tag(GumboParser* parser) {
 }
 
 // Wraps the gumbo_consume_char_ref function to handle its output and make the
-// appropriate TokenizerState modifications.  Returns RETURN_ERROR if a parse
+// appropriate TokenizerState modifications. Returns RETURN_ERROR if a parse
 // error occurred, RETURN_SUCCESS otherwise.
 static StateResult emit_char_ref (
   GumboParser* parser,
@@ -617,9 +617,9 @@ static StateResult emit_char_ref (
   return status ? RETURN_SUCCESS : RETURN_ERROR;
 }
 
-// Emits a comment token.  Comments use the temporary buffer to accumulate their
+// Emits a comment token. Comments use the temporary buffer to accumulate their
 // data, and then it's copied over and released to the 'text' field of the
-// GumboToken union.  Always returns RETURN_SUCCESS.
+// GumboToken union. Always returns RETURN_SUCCESS.
 static StateResult emit_comment(GumboParser* parser, GumboToken* output) {
   output->type = GUMBO_TOKEN_COMMENT;
   finish_temporary_buffer(parser, &output->v.text);
@@ -644,11 +644,11 @@ static bool maybe_emit_from_temporary_buffer(
   }
 
   assert(*c == utf8iterator_current(&tokenizer->_input));
-  // emit_char also advances the input stream.  We need to do some juggling of
+  // emit_char also advances the input stream. We need to do some juggling of
   // the _reconsume_current_input flag to get the proper behavior when emitting
-  // previous tokens.  Basically, _reconsume_current_input should *never* be set
+  // previous tokens. Basically, _reconsume_current_input should *never* be set
   // when emitting anything from the temporary buffer, since those characters
-  // have already been advanced past.  However, it should be preserved so that
+  // have already been advanced past. However, it should be preserved so that
   // when the *next* character is encountered again, the tokenizer knows not to
   // advance past it.
   bool saved_reconsume_state = tokenizer->_reconsume_current_input;
@@ -662,7 +662,7 @@ static bool maybe_emit_from_temporary_buffer(
 // Sets up the tokenizer to begin flushing the temporary buffer.
 // This resets the input iterator stream to the start of the last tag, sets up
 // _temporary_buffer_emit, and then (if the temporary buffer is non-empty) emits
-// the first character in it.  It returns true if a character was emitted, false
+// the first character in it. It returns true if a character was emitted, false
 // otherwise.
 static bool emit_temporary_buffer(GumboParser* parser, GumboToken* output) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
@@ -672,7 +672,7 @@ static bool emit_temporary_buffer(GumboParser* parser, GumboToken* output) {
   return maybe_emit_from_temporary_buffer(parser, output);
 }
 
-// Appends a codepoint to the current tag buffer.  If
+// Appends a codepoint to the current tag buffer. If
 // reinitilize_position_on_first is set, this also initializes the tag buffer
 // start point; the only time you would *not* want to pass true for this
 // parameter is if you want the original_text to include character (like an
@@ -689,7 +689,7 @@ static void append_char_to_tag_buffer (
   gumbo_string_buffer_append_codepoint(codepoint, buffer);
 }
 
-// (Re-)initialize the tag buffer.  This also resets the original_text pointer
+// (Re-)initialize the tag buffer. This also resets the original_text pointer
 // and _start_pos field to point to the current position.
 static void initialize_tag_buffer(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
@@ -700,7 +700,7 @@ static void initialize_tag_buffer(GumboParser* parser) {
 }
 
 // Initializes the tag_state to start a new tag, keeping track of the opening
-// positions and original text.  Takes a boolean indicating whether this is a
+// positions and original text. Takes a boolean indicating whether this is a
 // start or end tag.
 static void start_new_tag(GumboParser* parser, bool is_start_tag) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
@@ -715,7 +715,7 @@ static void start_new_tag(GumboParser* parser, bool is_start_tag) {
 
   assert(tag_state->_attributes.data == NULL);
   // Initial size chosen by statistical analysis of a corpus of 60k webpages.
-  // 99.5% of elements have 0 attributes, 93% of the remainder have 1.  These
+  // 99.5% of elements have 0 attributes, 93% of the remainder have 1. These
   // numbers are a bit higher for more modern websites (eg. ~45% = 0, ~40% = 1
   // for the HTML5 Spec), but still have basically 99% of nodes with <= 2 attrs.
   gumbo_vector_init(1, &tag_state->_attributes);
@@ -753,7 +753,7 @@ static void copy_over_original_tag_text (
   if (original_text->data[original_text->length - 1] == '\r') {
     // Since \r is skipped by the UTF-8 iterator, it can sometimes end up
     // appended to the end of original text even when it's really the first part
-    // of the next character.  If we detect this situation, shrink the length of
+    // of the next character. If we detect this situation, shrink the length of
     // the original text by 1 to remove the carriage return.
     --original_text->length;
   }
@@ -799,11 +799,11 @@ static void add_duplicate_attr_error (
 }
 
 // Creates a new attribute in the current tag, copying the current tag buffer to
-// the attribute's name.  The attribute's value starts out as the empty string
+// the attribute's name. The attribute's value starts out as the empty string
 // (following the "Boolean attributes" section of the spec) and is only
-// overwritten on finish_attribute_value().  If the attribute has already been
+// overwritten on finish_attribute_value(). If the attribute has already been
 // specified, the new attribute is dropped, a parse error is added, and the
-// function returns false.  Otherwise, this returns true.
+// function returns false. Otherwise, this returns true.
 static bool finish_attribute_name(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   GumboTagState* tag_state = &tokenizer->_tag_state;
@@ -851,7 +851,7 @@ static bool finish_attribute_name(GumboParser* parser) {
   return true;
 }
 
-// Finishes an attribute value.  This sets the value of the most recently added
+// Finishes an attribute value. This sets the value of the most recently added
 // attribute to the current contents of the tag buffer.
 static void finish_attribute_value(GumboParser* parser) {
   GumboTagState* tag_state = &parser->_tokenizer_state->_tag_state;
@@ -2114,7 +2114,7 @@ static StateResult handle_char_ref_in_attr_value_state (
 
   // Ignore the status, since we don't have a convenient way of signalling that
   // a parser error has occurred when the error occurs in the middle of a
-  // multi-state token.  We'd need a flag inside the TokenizerState to do this,
+  // multi-state token. We'd need a flag inside the TokenizerState to do this,
   // but that's a low priority fix.
   gumbo_consume_char_ref (
     parser,
@@ -2243,7 +2243,7 @@ static StateResult handle_markup_declaration_state (
     gumbo_tokenizer_set_state(parser, GUMBO_LEX_DOCTYPE);
     tokenizer->_reconsume_current_input = true;
     // If we get here, we know we'll eventually emit a doctype token, so now is
-    // the time to initialize the doctype strings.  (Not in doctype_state_init,
+    // the time to initialize the doctype strings. (Not in doctype_state_init,
     // since then they'll leak if ownership never gets transferred to the
     // doctype token.
     tokenizer->_doc_type_state.name = gumbo_copy_stringz("");
@@ -3162,9 +3162,9 @@ bool gumbo_lex(GumboParser* parser, GumboToken* output) {
   // state.
   //
   // ...all state must be held in the GumboTokenizer struct instead of in local
-  // variables in this function.  That allows us to return from this method with
+  // variables in this function. That allows us to return from this method with
   // a token, and then immediately jump back to the same state with the same
-  // input if we need to return a different token.  The various emit_* functions
+  // input if we need to return a different token. The various emit_* functions
   // are responsible for changing state (eg. flushing the chardata buffer,
   // reading the next input character) to avoid an infinite loop.
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;

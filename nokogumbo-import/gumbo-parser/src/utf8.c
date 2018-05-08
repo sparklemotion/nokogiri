@@ -35,7 +35,7 @@ const int kUtf8ReplacementChar = 0xFFFD;
 // https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
 //
 // This implementation is based on a DFA-based decoder by Bjoern Hoehrmann
-// <bjoern@hoehrmann.de>.  We wrap the inner table-based decoder routine in our
+// <bjoern@hoehrmann.de>. We wrap the inner table-based decoder routine in our
 // own handling for newlines, tabs, invalid continuation bytes, and other
 // conditions that the HTML5 spec fully specifies but normal UTF8 decoders do
 // not handle.
@@ -140,7 +140,7 @@ static void read_char(Utf8Iterator* iter) {
     if (state == UTF8_ACCEPT) {
       iter->_width = c - iter->_start + 1;
       // This is the special handling for carriage returns that is mandated by
-      // the HTML5 spec.  Since we're looking for particular 7-bit literal
+      // the HTML5 spec. Since we're looking for particular 7-bit literal
       // characters, we operate in terms of chars and only need a check for iter
       // overrun, instead of having to read in a full next code point.
       // https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
@@ -172,8 +172,8 @@ static void read_char(Utf8Iterator* iter) {
     }
   }
   // If we got here without exiting early, then we've reached the end of the
-  // iterator.  Add an error for truncated input, set the width to consume the
-  // rest of the iterator, and emit a replacement character.  The next time we
+  // iterator. Add an error for truncated input, set the width to consume the
+  // rest of the iterator, and emit a replacement character. The next time we
   // enter this method, it will detect that there's no input to consume and
   // output an EOF.
   iter->_current = kUtf8ReplacementChar;

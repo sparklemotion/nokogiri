@@ -35,7 +35,7 @@ typedef struct GumboInternalUtf8Iterator {
   // Points at the start of the code point most recently read into 'current'.
   const char* _start;
 
-  // Points at the mark.  The mark is initially set to the beginning of the
+  // Points at the mark. The mark is initially set to the beginning of the
   // input.
   const char* _mark;
 
@@ -63,7 +63,7 @@ typedef struct GumboInternalUtf8Iterator {
 // forbidden by the HTML5 spec, such as NUL bytes and undefined control chars.
 bool utf8_is_invalid_code_point(int c);
 
-// Initializes a new Utf8Iterator from the given byte buffer.  The source does
+// Initializes a new Utf8Iterator from the given byte buffer. The source does
 // not have to be NUL-terminated, but the length must be passed in explicitly.
 void utf8iterator_init (
   struct GumboInternalParser* parser,
@@ -85,17 +85,17 @@ void utf8iterator_get_position(
 // Retrieves a character pointer to the start of the current character.
 const char* utf8iterator_get_char_pointer(const Utf8Iterator* iter);
 
-// Retrieves a character pointer to 1 past the end of the buffer.  This is
+// Retrieves a character pointer to 1 past the end of the buffer. This is
 // necessary for certain state machines and string comparisons that would like
 // to look directly for ASCII text in the buffer without going through the
 // decoder.
 const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter);
 
 // If the upcoming text in the buffer matches the specified prefix (which has
-// length 'length'), consume it and return true.  Otherwise, return false with
-// no other effects.  If the length of the string would overflow the buffer,
-// this returns false.  Note that prefix should not contain null bytes because
-// of the use of strncmp/strncasecmp internally.  All existing use-cases adhere
+// length 'length'), consume it and return true. Otherwise, return false with
+// no other effects. If the length of the string would overflow the buffer,
+// this returns false. Note that prefix should not contain null bytes because
+// of the use of strncmp/strncasecmp internally. All existing use-cases adhere
 // to this.
 bool utf8iterator_maybe_consume_match (
   Utf8Iterator* iter,
@@ -105,7 +105,7 @@ bool utf8iterator_maybe_consume_match (
 );
 
 // "Marks" a particular location of interest in the input stream, so that it can
-// later be reset() to.  There's also the ability to record an error at the
+// later be reset() to. There's also the ability to record an error at the
 // point that was marked, as oftentimes that's more useful than the last
 // character before the error was detected.
 void utf8iterator_mark(Utf8Iterator* iter);

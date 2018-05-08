@@ -99,7 +99,7 @@ static const GumboStringPiece kSystemIdLegacyCompat =
 
 // The doctype arrays have an explicit terminator because we want to pass them
 // to a helper function, and passing them as a pointer discards sizeof
-// information.  The SVG arrays are used only by one-off functions, and so loops
+// information. The SVG arrays are used only by one-off functions, and so loops
 // over them use sizeof directly instead of a terminator.
 
 static const GumboStringPiece kQuirksModePublicIdPrefixes[] = {
@@ -217,7 +217,7 @@ static const NamespacedAttributeReplacement kForeignAttributeReplacements[] = {
     {"xmlns:xlink", "xlink", GUMBO_ATTR_NAMESPACE_XMLNS},
 };
 
-// The "scope marker" for the list of active formatting elements.  We use a
+// The "scope marker" for the list of active formatting elements. We use a
 // pointer to this as a generic marker element, since the particular element
 // scope doesn't matter.
 static const GumboNode kActiveFormattingScopeMarker;
@@ -228,7 +228,7 @@ static const bool kStartTag = true;
 static const bool kEndTag = false;
 
 // Because GumboStringPieces are immutable, we can't insert a character directly
-// into a text node.  Instead, we accumulate all pending characters here and
+// into a text node. Instead, we accumulate all pending characters here and
 // flush them out to a text node whenever a new element is inserted.
 //
 // https://html.spec.whatwg.org/multipage/parsing.html#insert-a-character
@@ -236,7 +236,7 @@ typedef struct _TextNodeBufferState {
   // The accumulated text to be inserted into the current text node.
   GumboStringBuffer _buffer;
 
-  // A pointer to the original text represented by this text node.  Note that
+  // A pointer to the original text represented by this text node. Note that
   // because of foster parenting and other strange DOM manipulations, this may
   // include other non-text HTML tags in it; it is defined as the span of
   // original text from the first character in this text node to the last
@@ -288,7 +288,7 @@ typedef struct GumboInternalParserState {
   bool _ignore_next_linefeed;
 
   // The flag for "whenever a node would be inserted into the current node, it
-  // must instead be foster parented".  This is used for misnested table
+  // must instead be foster parented". This is used for misnested table
   // content, which needs to be handled according to "in body" rules yet foster
   // parented outside of the table.
   // It would perhaps be more explicit to have this as a parameter to
@@ -305,7 +305,7 @@ typedef struct GumboInternalParserState {
 
   // The way that the spec is written, the </body> and </html> tags are *always*
   // implicit, because encountering one of those tokens merely switches the
-  // insertion mode out of "in body".  So we have individual state flags for
+  // insertion mode out of "in body". So we have individual state flags for
   // those end tags that are then inspected by pop_current_node when the <body>
   // and <html> nodes are popped to set the GUMBO_INSERTION_IMPLICIT_END_TAG
   // flag appropriately.
@@ -608,7 +608,7 @@ static GumboError* parser_add_parse_error (
 }
 
 // Returns true if the specified token is either a start or end tag (specified
-// by is_start) with one of the tag types in the varargs list.  Terminate the
+// by is_start) with one of the tag types in the varargs list. Terminate the
 // list with GUMBO_TAG_LAST; this functions as a sentinel since no portion of
 // the spec references tags that are not in the spec.
 static bool tag_in (
@@ -683,7 +683,7 @@ static void pop_template_insertion_mode(GumboParser* parser) {
   gumbo_vector_pop(&parser->_parser_state->_template_insertion_modes);
 }
 
-// Returns the current template insertion mode.  If the stack of template
+// Returns the current template insertion mode. If the stack of template
 // insertion modes is empty, this returns GUMBO_INSERTION_MODE_INITIAL.
 static GumboInsertionMode get_current_template_insertion_mode (
   const GumboParser* parser
@@ -740,7 +740,7 @@ static bool is_html_integration_point(const GumboNode* node) {
 }
 
 // This represents a place to insert a node, consisting of a target parent and a
-// child index within that parent.  If the node should be inserted at the end of
+// child index within that parent. If the node should be inserted at the end of
 // the parent's child, index will be -1.
 typedef struct {
   GumboNode* target;
@@ -1064,11 +1064,11 @@ static void insert_element (
   GumboParserState* state = parser->_parser_state;
   // NOTE(jdtang): The text node buffer must always be flushed before inserting
   // a node, otherwise we're handling nodes in a different order than the spec
-  // mandated.  However, one clause of the spec (character tokens in the body)
+  // mandated. However, one clause of the spec (character tokens in the body)
   // requires that we reconstruct the active formatting elements *before* adding
   // the character, and reconstructing the active formatting elements may itself
   // result in the insertion of new elements (which should be pushed onto the
-  // stack of open elements before the buffer is flushed).  We solve this (for
+  // stack of open elements before the buffer is flushed). We solve this (for
   // the time being, the spec has been rewritten for <template> and the new
   // version may be simpler here) with a boolean flag to this method.
   if (!is_reconstructing_formatting_elements) {
@@ -1081,7 +1081,7 @@ static void insert_element (
 
 // Convenience method that combines create_element_from_token and
 // insert_element, inserting the generated element directly into the current
-// node.  Returns the node inserted.
+// node. Returns the node inserted.
 static GumboNode* insert_element_from_token (
   GumboParser* parser,
   GumboToken* token
@@ -1097,7 +1097,7 @@ static GumboNode* insert_element_from_token (
 }
 
 // Convenience method that combines create_element and insert_element, inserting
-// a parser-generated element of a specific tag type.  Returns the node
+// a parser-generated element of a specific tag type. Returns the node
 // inserted.
 static GumboNode* insert_element_of_tag_type (
   GumboParser* parser,
@@ -1115,7 +1115,7 @@ static GumboNode* insert_element_of_tag_type (
   return element;
 }
 
-// Convenience method for creating foreign namespaced element.  Returns the node
+// Convenience method for creating foreign namespaced element. Returns the node
 // inserted.
 static GumboNode* insert_foreign_element (
   GumboParser* parser,
@@ -1211,7 +1211,7 @@ static bool find_last_anchor_index(GumboParser* parser, int* anchor_index) {
 
 // Counts the number of open formatting elements in the list of active
 // formatting elements (after the last active scope marker) that have a specific
-// tag.  If this is > 0, then earliest_matching_index will be filled in with the
+// tag. If this is > 0, then earliest_matching_index will be filled in with the
 // index of the first such element.
 static int count_formatting_elements_of_tag (
   GumboParser* parser,
@@ -1281,7 +1281,7 @@ static bool is_open_element(const GumboParser* parser, const GumboNode* node) {
   return false;
 }
 
-// Clones attributes, tags, etc. of a node, but does not copy the content.  The
+// Clones attributes, tags, etc. of a node, but does not copy the content. The
 // clone shares no structure with the original node: all owned strings and
 // values are fresh copies.
 static GumboNode* clone_node (
@@ -1427,7 +1427,7 @@ static GumboQuirksModeEnum compute_quirks_mode (
 // https://html.spec.whatwg.org/multipage/parsing.html#has-an-element-in-the-specific-scope
 // The basic idea behind them is that they check for an element of the given
 // qualified name, contained within a scope formed by a set of other qualified
-// names.  For example, "has an element in list scope" looks for an element of
+// names. For example, "has an element in list scope" looks for an element of
 // the given qualified name within the nearest enclosing <ol> or <ul>, along
 // with a bunch of generic element types that serve to "firewall" their content
 // from the rest of the document. Note that because of the way the spec is
@@ -1597,9 +1597,9 @@ static void generate_all_implied_end_tags_thoroughly(GumboParser* parser) {
 }
 
 // This factors out the clauses relating to "act as if an end tag token with tag
-// name "table" had been seen.  Returns true if there's a table element in table
+// name "table" had been seen. Returns true if there's a table element in table
 // scope which was successfully closed, false if not and the token should be
-// ignored.  Does not add parse errors; callers should handle that.
+// ignored. Does not add parse errors; callers should handle that.
 static bool close_table(GumboParser* parser) {
   if (!has_an_element_in_table_scope(parser, GUMBO_TAG_TABLE)) {
     return false;
@@ -1649,7 +1649,7 @@ static bool close_current_cell(GumboParser* parser, const GumboToken* token) {
 }
 
 // This factors out the "act as if an end tag of tag name 'select' had been
-// seen" clause of the spec, since it's referenced in several places.  It pops
+// seen" clause of the spec, since it's referenced in several places. It pops
 // all nodes from the stack until the current <select> has been closed, then
 // resets the insertion mode appropriately.
 static void close_current_select(GumboParser* parser) {
@@ -1699,9 +1699,9 @@ static bool is_special_node(const GumboNode* node) {
 
 // Implicitly closes currently open elements until it reaches an element with
 // the
-// specified qualified name.  If the elements closed are in the set handled by
+// specified qualified name. If the elements closed are in the set handled by
 // generate_implied_end_tags, this is normal operation and this function returns
-// true.  Otherwise, a parse error is recorded and this function returns false.
+// true. Otherwise, a parse error is recorded and this function returns false.
 static bool implicitly_close_tags (
   GumboParser* parser,
   GumboToken* token,
@@ -1725,8 +1725,8 @@ static bool implicitly_close_tags (
 }
 
 // If the stack of open elements has a <p> tag in button scope, this acts as if
-// a </p> tag was encountered, implicitly closing tags.  Returns false if a
-// parse error occurs.  This is a convenience function because this particular
+// a </p> tag was encountered, implicitly closing tags. Returns false if a
+// parse error occurs. This is a convenience function because this particular
 // clause appears several times in the spec.
 static bool maybe_implicitly_close_p_tag (
   GumboParser* parser,
@@ -1796,7 +1796,7 @@ static void merge_attributes (
     }
   }
   // When attributes are merged, it means the token has been ignored and merged
-  // with another token, so we need to free its memory.  The attributes that are
+  // with another token, so we need to free its memory. The attributes that are
   // transferred need to be nulled-out in the vector above so that they aren't
   // double-deleted.
   gumbo_token_destroy(token);
@@ -1908,7 +1908,7 @@ static bool maybe_add_doctype_error (
 static void remove_from_parent(GumboNode* node) {
   if (!node->parent) {
     // The node may not have a parent if, for example, it is a newly-cloned copy
-    // of an active formatting element.  DOM manipulations continue with the
+    // of an active formatting element. DOM manipulations continue with the
     // orphaned fragment of the DOM tree until it's appended/foster-parented to
     // the common ancestor at the end of the adoption agency algorithm.
     return;
@@ -2159,9 +2159,9 @@ static bool adoption_agency_algorithm (
     );
     formatting_node->parse_flags |= GUMBO_INSERTION_IMPLICIT_END_TAG;
 
-    // Step 16.  Instead of appending nodes one-by-one, we swap the children
+    // Step 16. Instead of appending nodes one-by-one, we swap the children
     // vector of furthest_block with the empty children of new_formatting_node,
-    // reducing memory traffic and allocations.  We still have to reset their
+    // reducing memory traffic and allocations. We still have to reset their
     // parent pointers, though.
     GumboVector temp = new_formatting_node->v.element.children;
     new_formatting_node->v.element.children = furthest_block->v.element.children;
@@ -2391,7 +2391,7 @@ static bool handle_in_head(GumboParser* parser, GumboToken* token) {
     pop_current_node(parser);
     acknowledge_self_closing_tag(parser);
     // NOTE(jdtang): Gumbo handles only UTF-8, so the encoding clause of the
-    // spec doesn't apply.  If clients want to handle meta-tag re-encoding, they
+    // spec doesn't apply. If clients want to handle meta-tag re-encoding, they
     // should specifically look for that string in the document and re-encode it
     // before passing to Gumbo.
     return true;
@@ -2720,11 +2720,11 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     // Removing & destroying the body node is going to kill any nodes that have
     // been added to the list of active formatting elements, and so we should
     // clear it to prevent a use-after-free if the list of active formatting
-    // elements is reconstructed afterwards.  This may happen if whitespace
+    // elements is reconstructed afterwards. This may happen if whitespace
     // follows the </frameset>.
     clear_active_formatting_elements(parser);
 
-    // Remove the body node.  We may want to factor this out into a generic
+    // Remove the body node. We may want to factor this out into a generic
     // helper, but right now this is the only code that needs to do this.
     GumboVector* children = &parser->_output->root->v.element.children;
     for (unsigned int i = 0; i < children->length; ++i) {
@@ -3004,7 +3004,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       adoption_agency_algorithm(parser, token, GUMBO_TAG_A);
       // The adoption agency algorithm usually removes all instances of <a>
       // from the list of active formatting elements, but in case it doesn't,
-      // we're supposed to do this.  (The conditions where it might not are
+      // we're supposed to do this. (The conditions where it might not are
       // listed in the spec.)
       if (find_last_anchor_index(parser, &last_a)) {
         void* last_element = gumbo_vector_remove_at (
@@ -3207,7 +3207,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     ignore_token(parser);
 
     // The name attribute, if present, should be destroyed since it's ignored
-    // when copying over.  The action attribute should be kept since it's moved
+    // when copying over. The action attribute should be kept since it's moved
     // to the form.
     if (name_attr) {
       gumbo_destroy_attribute(name_attr);
@@ -3358,7 +3358,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     // Walk up the stack of open elements until we find one that either:
     // a) Matches the tag name we saw
     // b) Is in the "special" category.
-    // If we see a), implicitly close everything up to and including it.  If we
+    // If we see a), implicitly close everything up to and including it. If we
     // see b), then record a parse error, don't close anything (except the
     // implied end tags) and ignore the end tag token.
     for (int i = state->_open_elements.length; --i >= 0;) {
@@ -3393,7 +3393,7 @@ static bool handle_text(GumboParser* parser, GumboToken* token) {
   } else {
     // We provide only bare-bones script handling that doesn't involve any of
     // the parser-pause/already-started/script-nesting flags or re-entrant
-    // invocations of the tokenizer.  Because the intended usage of this library
+    // invocations of the tokenizer. Because the intended usage of this library
     // is mostly for templating, refactoring, and static-analysis libraries, we
     // provide the script body as a text-node child of the <script> element.
     // This behavior doesn't support document.write of partial HTML elements,
@@ -3416,7 +3416,7 @@ static bool handle_in_table(GumboParser* parser, GumboToken* token) {
     || token->type == GUMBO_TOKEN_WHITESPACE
   ) {
     // The "pending table character tokens" list described in the spec is
-    // nothing more than the TextNodeBufferState.  We accumulate text tokens as
+    // nothing more than the TextNodeBufferState. We accumulate text tokens as
     // normal, except that when we go to flush them in the handle_in_table_text,
     // we set _foster_parent_insertions if there're non-whitespace characters in
     // the buffer.
@@ -4405,7 +4405,7 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
       if (gumbo_string_equals_ignore_case(&node_tagname, &token_tagname)) {
         gumbo_debug("Matches.\n");
         while (pop_current_node(parser) != node) {
-          // Pop all the nodes below the current one.  Node is guaranteed to
+          // Pop all the nodes below the current one. Node is guaranteed to
           // be an element on the stack of open elements (set below), so
           // this loop is guaranteed to terminate.
         }

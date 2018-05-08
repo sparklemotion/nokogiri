@@ -37,7 +37,7 @@ typedef struct GumboInternalTokenStartTag {
   bool is_self_closing;
 } GumboTokenStartTag;
 
-// A data structure representing a single token in the input stream.  This
+// A data structure representing a single token in the input stream. This
 // contains an enum for the type, the source position, a GumboStringPiece
 // pointing to the original text, and then a union for any parsed data.
 typedef struct GumboInternalToken {
@@ -65,7 +65,7 @@ void gumbo_tokenizer_state_init (
 // dynamically-allocated structures within it.
 void gumbo_tokenizer_state_destroy(struct GumboInternalParser* parser);
 
-// Sets the tokenizer state to the specified value.  This is needed by some
+// Sets the tokenizer state to the specified value. This is needed by some
 // parser states, which alter the state of the tokenizer in response to tags
 // seen.
 void gumbo_tokenizer_set_state (
@@ -73,7 +73,7 @@ void gumbo_tokenizer_set_state (
   GumboTokenizerEnum state
 );
 
-// Flags whether the current node is a foreign content element.  This is
+// Flags whether the current node is a foreign content element. This is
 // necessary for the markup declaration open state, where the tokenizer must be
 // aware of the state of the parser to properly tokenize bad comment tags.
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/tokenization.html#markup-declaration-open-state
@@ -83,7 +83,7 @@ void gumbo_tokenizer_set_is_current_node_foreign (
 );
 
 // Lexes a single token from the specified buffer, filling the output with the
-// parsed GumboToken data structure.  Returns true for a successful
+// parsed GumboToken data structure. Returns true for a successful
 // tokenization, false if a parse error occurs.
 //
 // Example:
@@ -97,9 +97,9 @@ void gumbo_tokenizer_set_is_current_node_foreign (
 //   gumbo_tokenizer_state_destroy(&parser);
 bool gumbo_lex(struct GumboInternalParser* parser, GumboToken* output);
 
-// Frees the internally-allocated pointers within an GumboToken.  Note that this
+// Frees the internally-allocated pointers within an GumboToken. Note that this
 // doesn't free the token itself, since oftentimes it will be allocated on the
-// stack.  A simple call to free() (or GumboParser->deallocator, if
+// stack. A simple call to free() (or GumboParser->deallocator, if
 // appropriate) can handle that.
 //
 // Note that if you are handing over ownership of the internal strings to some

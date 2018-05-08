@@ -25,10 +25,10 @@ typedef struct {
 
 // Implements the "consume a character reference" section of the spec.
 // This reads in characters from the input as necessary, and fills in a
-// OneOrTwoCodepoints struct containing the characters read.  It may add parse
-// errors to the GumboParser's errors vector, if the spec calls for it.  Pass a
+// OneOrTwoCodepoints struct containing the characters read. It may add parse
+// errors to the GumboParser's errors vector, if the spec calls for it. Pass a
 // space for the "additional allowed char" when the spec says "with no
-// additional allowed char".  Returns false on parse error, true otherwise.
+// additional allowed char". Returns false on parse error, true otherwise.
 bool gumbo_consume_char_ref (
   struct GumboInternalParser* parser,
   struct GumboInternalUtf8Iterator* input,

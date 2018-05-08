@@ -55,7 +55,7 @@ void gumbo_string_buffer_append_codepoint (
   GumboStringBuffer* output
 ) {
   // num_bytes is actually the number of continuation bytes, 1 less than the
-  // total number of bytes.  This is done to keep the loop below simple and
+  // total number of bytes. This is done to keep the loop below simple and
   // should probably change if we unroll it.
   int num_bytes, prefix;
   if (c <= 0x7f) {
