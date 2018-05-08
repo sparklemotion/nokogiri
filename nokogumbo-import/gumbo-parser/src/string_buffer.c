@@ -32,10 +32,7 @@ static void maybe_resize_string_buffer (
     new_capacity *= 2;
   }
   if (new_capacity != buffer->capacity) {
-    char* new_data = gumbo_alloc(new_capacity);
-    memcpy(new_data, buffer->data, buffer->length);
-    gumbo_free(buffer->data);
-    buffer->data = new_data;
+    buffer->data = gumbo_realloc(buffer->data, new_capacity);
     buffer->capacity = new_capacity;
   }
 }

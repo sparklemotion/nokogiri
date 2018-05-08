@@ -30,6 +30,15 @@ void* gumbo_alloc(size_t size) {
   return ptr;
 }
 
+void* gumbo_realloc(void* ptr, size_t size) {
+  ptr = realloc(ptr, size);
+  if (unlikely(ptr == NULL)) {
+    perror(__func__);
+    abort();
+  }
+  return ptr;
+}
+
 void gumbo_free(void* ptr) {
   free(ptr);
 }
