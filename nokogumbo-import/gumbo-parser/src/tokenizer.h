@@ -97,10 +97,9 @@ void gumbo_tokenizer_set_is_current_node_foreign (
 //   gumbo_tokenizer_state_destroy(&parser);
 bool gumbo_lex(struct GumboInternalParser* parser, GumboToken* output);
 
-// Frees the internally-allocated pointers within an GumboToken. Note that this
+// Frees the internally-allocated pointers within a GumboToken. Note that this
 // doesn't free the token itself, since oftentimes it will be allocated on the
-// stack. A simple call to free() (or GumboParser->deallocator, if
-// appropriate) can handle that.
+// stack.
 //
 // Note that if you are handing over ownership of the internal strings to some
 // other data structure - for example, a parse tree - these do not need to be

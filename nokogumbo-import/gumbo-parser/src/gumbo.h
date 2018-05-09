@@ -686,40 +686,12 @@ struct GumboInternalNode {
 };
 
 /**
- * The type for an allocator function. Takes the `userdata` member of
- * the `GumboParser` struct as its first argument. Semantics should be
- * the same as `malloc`, i.e. return a block of `size_t` bytes on
- * success or `NULL` on failure. Allocating a block of 0 bytes behaves
- * as per `malloc`.
- */
-// TODO(jdtang): Add checks throughout the codebase for out-of-memory condition.
-typedef void* (*GumboAllocatorFunction)(void* userdata, size_t size);
-
-/**
- * The type for a deallocator function. Takes the `userdata` member of
- * the `GumboParser` struct as its first argument.
- */
-typedef void (*GumboDeallocatorFunction)(void* userdata, void* ptr);
-
-/**
  * Input struct containing configuration options for the parser.
  * These let you specify alternate memory managers, provide different
  * error handling, etc. Use `kGumboDefaultOptions` for sensible
  * defaults and only set what you need.
  */
 typedef struct GumboInternalOptions {
-  /** A memory allocator function. Default: `malloc`. */
-  GumboAllocatorFunction allocator;
-
-  /** A memory deallocator function. Default: `free`. */
-  GumboDeallocatorFunction deallocator;
-
-  /**
-   * An opaque object that's passed in as the first argument to all
-   * callbacks used by this library. Default: `NULL`.
-   */
-  void* userdata;
-
   /**
    * The tab-stop size, for computing positions in HTML files that
    * use tabs. Default: `8`.
