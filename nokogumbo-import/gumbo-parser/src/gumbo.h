@@ -262,7 +262,6 @@ typedef enum {
   GUMBO_TAG_FRAME,
   GUMBO_TAG_FRAMESET,
   GUMBO_TAG_NOFRAMES,
-  GUMBO_TAG_ISINDEX,
   GUMBO_TAG_LISTING,
   GUMBO_TAG_XMP,
   GUMBO_TAG_NEXTID,
@@ -522,11 +521,7 @@ typedef enum {
    */
   GUMBO_INSERTION_CONVERTED_FROM_END_TAG = 1 << 4,
 
-  /**
-   * A flag for nodes that are converted from the parse of an
-   * `<isindex>` tag.
-   */
-  GUMBO_INSERTION_FROM_ISINDEX = 1 << 5,
+  // Value 1 << 5 was for a flag that has since been removed.
 
   /** A flag for `<image>` tags that are rewritten as `<img>`. */
   GUMBO_INSERTION_FROM_IMAGE = 1 << 6,

@@ -1673,7 +1673,7 @@ static bool is_special_node(const GumboNode* node) {
       TAG(FIGCAPTION), TAG(FIGURE), TAG(FOOTER), TAG(FORM), TAG(FRAME),
       TAG(FRAMESET), TAG(H1), TAG(H2), TAG(H3), TAG(H4), TAG(H5), TAG(H6),
       TAG(HEAD), TAG(HEADER), TAG(HGROUP), TAG(HR), TAG(HTML), TAG(IFRAME),
-      TAG(IMG), TAG(INPUT), TAG(ISINDEX), TAG(LI), TAG(LINK), TAG(LISTING),
+      TAG(IMG), TAG(INPUT), TAG(LI), TAG(LINK), TAG(LISTING),
       TAG(MARQUEE), TAG(MENU), TAG(META), TAG(NAV), TAG(NOEMBED),
       TAG(NOFRAMES), TAG(NOSCRIPT), TAG(OBJECT), TAG(OL), TAG(P),
       TAG(PARAM), TAG(PLAINTEXT), TAG(PRE), TAG(SCRIPT), TAG(SECTION),
@@ -3127,119 +3127,6 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     acknowledge_self_closing_tag(parser);
     set_frameset_not_ok(parser);
     return result;
-  } else if (tag_is(token, kStartTag, GUMBO_TAG_ISINDEX)) {
-    parser_add_parse_error(parser, token);
-    if (
-      parser->_parser_state->_form_element != NULL
-      && !has_open_element(parser, GUMBO_TAG_TEMPLATE)
-    ) {
-      ignore_token(parser);
-      return false;
-    }
-    acknowledge_self_closing_tag(parser);
-    maybe_implicitly_close_p_tag(parser, token);
-    set_frameset_not_ok(parser);
-
-    GumboVector* token_attrs = &token->v.start_tag.attributes;
-    GumboAttribute* prompt_attr = gumbo_get_attribute(token_attrs, "prompt");
-    GumboAttribute* action_attr = gumbo_get_attribute(token_attrs, "action");
-    GumboAttribute* name_attr = gumbo_get_attribute(token_attrs, "name");
-
-    GumboNode* form = insert_element_of_tag_type (
-      parser,
-      GUMBO_TAG_FORM,
-      GUMBO_INSERTION_FROM_ISINDEX
-    );
-    if (!has_open_element(parser, GUMBO_TAG_TEMPLATE)) {
-      parser->_parser_state->_form_element = form;
-    }
-    if (action_attr) {
-      gumbo_vector_add(action_attr, &form->v.element.attributes);
-    }
-    insert_element_of_tag_type (
-      parser,
-      GUMBO_TAG_HR,
-      GUMBO_INSERTION_FROM_ISINDEX
-    );
-    pop_current_node(parser);  // <hr>
-
-    insert_element_of_tag_type (
-      parser,
-      GUMBO_TAG_LABEL,
-      GUMBO_INSERTION_FROM_ISINDEX
-    );
-    TextNodeBufferState* text_state = &parser->_parser_state->_text_node;
-    text_state->_start_original_text = token->original_text.data;
-    text_state->_start_position = token->position;
-    text_state->_type = GUMBO_NODE_TEXT;
-    if (prompt_attr) {
-      int prompt_attr_length = strlen(prompt_attr->value);
-      gumbo_string_buffer_destroy(&text_state->_buffer);
-      text_state->_buffer.data = gumbo_copy_stringz(prompt_attr->value);
-      text_state->_buffer.length = prompt_attr_length;
-      text_state->_buffer.capacity = prompt_attr_length + 1;
-      gumbo_destroy_attribute(prompt_attr);
-    } else {
-      GumboStringPiece prompt_text =
-        GUMBO_STRING("This is a searchable index. Enter search keywords: ");
-      gumbo_string_buffer_append_string (
-        &prompt_text,
-        &text_state->_buffer
-      );
-    }
-
-    GumboNode* input = insert_element_of_tag_type (
-      parser,
-      GUMBO_TAG_INPUT,
-      GUMBO_INSERTION_FROM_ISINDEX
-    );
-    for (unsigned int i = 0; i < token_attrs->length; ++i) {
-      GumboAttribute* attr = token_attrs->data[i];
-      if (attr != prompt_attr && attr != action_attr && attr != name_attr) {
-        gumbo_vector_add(attr, &input->v.element.attributes);
-      }
-      token_attrs->data[i] = NULL;
-    }
-
-    // All attributes have been successfully transferred and nulled out at this
-    // point, so the call to ignore_token will free the memory for it without
-    // touching the attributes.
-    ignore_token(parser);
-
-    // The name attribute, if present, should be destroyed since it's ignored
-    // when copying over. The action attribute should be kept since it's moved
-    // to the form.
-    if (name_attr) {
-      gumbo_destroy_attribute(name_attr);
-    }
-
-    GumboAttribute* name = gumbo_alloc(sizeof(GumboAttribute));
-    GumboStringPiece name_str = GUMBO_STRING("name");
-    GumboStringPiece isindex_str = GUMBO_STRING("isindex");
-    name->attr_namespace = GUMBO_ATTR_NAMESPACE_NONE;
-    name->name = gumbo_copy_stringz("name");
-    name->value = gumbo_copy_stringz("isindex");
-    name->original_name = name_str;
-    name->original_value = isindex_str;
-    name->name_start = kGumboEmptySourcePosition;
-    name->name_end = kGumboEmptySourcePosition;
-    name->value_start = kGumboEmptySourcePosition;
-    name->value_end = kGumboEmptySourcePosition;
-    gumbo_vector_add(name, &input->v.element.attributes);
-
-    pop_current_node(parser);  // <input>
-    pop_current_node(parser);  // <label>
-    insert_element_of_tag_type (
-      parser,
-      GUMBO_TAG_HR,
-      GUMBO_INSERTION_FROM_ISINDEX
-    );
-    pop_current_node(parser);  // <hr>
-    pop_current_node(parser);  // <form>
-    if (!has_open_element(parser, GUMBO_TAG_TEMPLATE)) {
-      parser->_parser_state->_form_element = NULL;
-    }
-    return false;
   } else if (tag_is(token, kStartTag, GUMBO_TAG_TEXTAREA)) {
     run_generic_parsing_algorithm(parser, token, GUMBO_LEX_RCDATA);
     parser->_parser_state->_ignore_next_linefeed = true;

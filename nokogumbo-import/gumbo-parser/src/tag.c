@@ -153,7 +153,6 @@ static const char kGumboTagNames[GUMBO_TAG_LAST+1][15] = {
     [GUMBO_TAG_FRAME] = "frame",
     [GUMBO_TAG_FRAMESET] = "frameset",
     [GUMBO_TAG_NOFRAMES] = "noframes",
-    [GUMBO_TAG_ISINDEX] = "isindex",
     [GUMBO_TAG_LISTING] = "listing",
     [GUMBO_TAG_XMP] = "xmp",
     [GUMBO_TAG_NEXTID] = "nextid",
