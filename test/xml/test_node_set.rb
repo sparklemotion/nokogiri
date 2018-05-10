@@ -62,6 +62,17 @@ module Nokogiri
         @list.each { |x| assert_equal 'bar baz', x['class'] }
       end
 
+      def test_append_class
+        assert_equal @list, @list.append_class('bar')
+        @list.each { |x| assert_equal 'bar', x['class'] }
+
+        @list.append_class('bar')
+        @list.each { |x| assert_equal 'bar bar', x['class'] }
+
+        @list.append_class('baz')
+        @list.each { |x| assert_equal 'bar bar baz', x['class'] }
+      end
+
       def test_remove_class_with_no_class
         assert_equal @list, @list.remove_class('bar')
         @list.each { |e| assert_nil e['class'] }

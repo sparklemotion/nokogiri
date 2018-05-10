@@ -22,6 +22,12 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 * [MRI] libxml2 is updated from 2.9.7 to 2.9.8
 
 
+## Features
+
+* Node#classes, #add_class, #append_class, and #remove_class are added.
+* NodeSet#append_class is added.
+
+
 ## Bug fixes
 
 * CSS attribute selectors now gracefully handle queries using integers. [#711]
