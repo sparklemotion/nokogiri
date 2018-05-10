@@ -22,6 +22,10 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 * [MRI] libxml2 is updated from 2.9.7 to 2.9.8
 
 
+## Features
+
+* NodeSet#remove_attribute is a new alias for NodeSet#remove_attr.
+
 ## Bug fixes
 
 * CSS attribute selectors now gracefully handle queries using integers. [#711]
