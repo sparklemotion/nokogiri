@@ -1087,7 +1087,7 @@ TEST_F(GumboParserTest, ImplicitColgroup) {
 }
 
 TEST_F(GumboParserTest, Form) {
-  Parse("<form><input type=hidden /><isindex /></form>After form");
+  Parse("<form><input type=hidden /></form>After form");
 
   GumboNode* body;
   GetAndAssertBody(root_, &body);
@@ -1218,83 +1218,6 @@ TEST_F(GumboParserTest, MisnestedFormInTable) {
   ASSERT_EQ(GUMBO_NODE_ELEMENT, form2->type);
   EXPECT_EQ(GUMBO_TAG_FORM, GetTag(form2));
   ASSERT_EQ(0, GetChildCount(form2));
-}
-
-TEST_F(GumboParserTest, IsIndex) {
-  Parse("<isindex id=form1 action='/action' prompt='Secret Message'>");
-  GumboNode* body;
-  GetAndAssertBody(root_, &body);
-  ASSERT_EQ(1, GetChildCount(body));
-
-  GumboNode* form = GetChild(body, 0);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, form->type);
-  EXPECT_EQ(GUMBO_TAG_FORM, GetTag(form));
-  ASSERT_EQ(3, GetChildCount(form));
-
-  GumboAttribute* action = GetAttribute(form, 0);
-  EXPECT_STREQ("action", action->name);
-  EXPECT_STREQ("/action", action->value);
-
-  GumboNode* hr1 = GetChild(form, 0);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, hr1->type);
-  EXPECT_EQ(GUMBO_TAG_HR, GetTag(hr1));
-  ASSERT_EQ(0, GetChildCount(hr1));
-
-  GumboNode* label = GetChild(form, 1);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, label->type);
-  EXPECT_EQ(GUMBO_TAG_LABEL, GetTag(label));
-  ASSERT_EQ(2, GetChildCount(label));
-
-  GumboNode* text = GetChild(label, 0);
-  ASSERT_EQ(GUMBO_NODE_TEXT, text->type);
-  EXPECT_STREQ("Secret Message", text->v.text.text);
-
-  GumboNode* input = GetChild(label, 1);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, input->type);
-  EXPECT_EQ(GUMBO_TAG_INPUT, GetTag(input));
-  ASSERT_EQ(0, GetChildCount(input));
-  ASSERT_EQ(2, GetAttributeCount(input));
-
-  GumboAttribute* id = GetAttribute(input, 0);
-  EXPECT_STREQ("id", id->name);
-  EXPECT_STREQ("form1", id->value);
-
-  GumboAttribute* name = GetAttribute(input, 1);
-  EXPECT_STREQ("name", name->name);
-  EXPECT_STREQ("isindex", name->value);
-
-  GumboNode* hr2 = GetChild(form, 2);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, hr2->type);
-  EXPECT_EQ(GUMBO_TAG_HR, GetTag(hr2));
-  ASSERT_EQ(0, GetChildCount(hr2));
-}
-
-TEST_F(GumboParserTest, IsIndexDuplicateAttribute) {
-  Parse("<isindex name=foo>");
-
-  GumboNode* body;
-  GetAndAssertBody(root_, &body);
-  ASSERT_EQ(1, GetChildCount(body));
-
-  GumboNode* form = GetChild(body, 0);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, form->type);
-  EXPECT_EQ(GUMBO_TAG_FORM, GetTag(form));
-  ASSERT_EQ(3, GetChildCount(form));
-
-  GumboNode* label = GetChild(form, 1);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, label->type);
-  EXPECT_EQ(GUMBO_TAG_LABEL, GetTag(label));
-  ASSERT_EQ(2, GetChildCount(label));
-
-  GumboNode* input = GetChild(label, 1);
-  ASSERT_EQ(GUMBO_NODE_ELEMENT, input->type);
-  EXPECT_EQ(GUMBO_TAG_INPUT, GetTag(input));
-  ASSERT_EQ(0, GetChildCount(input));
-  ASSERT_EQ(1, GetAttributeCount(input));
-
-  GumboAttribute* name = GetAttribute(input, 0);
-  EXPECT_STREQ("name", name->name);
-  EXPECT_STREQ("isindex", name->value);
 }
 
 TEST_F(GumboParserTest, NestedRawtextTags) {

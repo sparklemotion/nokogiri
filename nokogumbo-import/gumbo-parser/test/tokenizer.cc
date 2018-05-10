@@ -52,7 +52,13 @@ class GumboTokenizerTest : public GumboTest {
 };
 
 TEST(GumboTagEnumTest, TagEnumIncludesAllTags) {
-  EXPECT_EQ(151, GUMBO_TAG_UNKNOWN);
+  EXPECT_EQ(0, GUMBO_TAG_HTML);
+  for (unsigned int i = 0; i < (unsigned int) GUMBO_TAG_UNKNOWN; i++) {
+    const char* tagname = gumbo_normalized_tagname((GumboTag)i);
+    EXPECT_FALSE(tagname == NULL);
+    EXPECT_FALSE(tagname[0] == '\0');
+    EXPECT_TRUE(strlen(tagname) < 15);
+  }
   EXPECT_STREQ("", gumbo_normalized_tagname(GUMBO_TAG_UNKNOWN));
   EXPECT_STREQ("html", gumbo_normalized_tagname(GUMBO_TAG_HTML));
   EXPECT_STREQ("a", gumbo_normalized_tagname(GUMBO_TAG_A));
