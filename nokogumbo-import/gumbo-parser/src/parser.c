@@ -607,10 +607,8 @@ static GumboError* parser_add_parse_error (
   return error;
 }
 
-// Returns true if the specified token is either a start or end tag (specified
-// by is_start) with one of the tag types in the varargs list. Terminate the
-// list with GUMBO_TAG_LAST; this functions as a sentinel since no portion of
-// the spec references tags that are not in the spec.
+// Returns true if the specified token is either a start or end tag
+// (specified by is_start) with one of the tag types in the TagSet.
 static bool tag_in (
   const GumboToken* token,
   bool is_start,

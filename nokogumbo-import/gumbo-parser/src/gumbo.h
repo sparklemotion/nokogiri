@@ -284,7 +284,6 @@ typedef enum {
   // Used for all tags that don't have special handling in HTML.
   GUMBO_TAG_UNKNOWN,
   // A marker value to indicate the end of the enum, for iterating over it.
-  // Also used as the terminator for varargs functions that take tags.
   GUMBO_TAG_LAST,
 } GumboTag;
 
