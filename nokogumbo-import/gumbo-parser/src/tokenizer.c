@@ -934,7 +934,7 @@ void gumbo_tokenizer_set_is_current_node_foreign (
   parser->_tokenizer_state->_is_current_node_foreign = is_foreign;
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#data-state
+// https://html.spec.whatwg.org/multipage/parsing.html#data-state
 static StateResult handle_data_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -963,7 +963,7 @@ static StateResult handle_data_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#character-reference-in-data-state
+// https://html.spec.whatwg.org/multipage/parsing.html#character-reference-in-data-state
 static StateResult handle_char_ref_in_data_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -974,7 +974,7 @@ static StateResult handle_char_ref_in_data_state (
   return emit_char_ref(parser, ' ', false, output);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#rcdata-state
+// https://html.spec.whatwg.org/multipage/parsing.html#rcdata-state
 static StateResult handle_rcdata_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1000,7 +1000,7 @@ static StateResult handle_rcdata_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#character-reference-in-rcdata-state
+// https://html.spec.whatwg.org/multipage/parsing.html#character-reference-in-rcdata-state
 static StateResult handle_char_ref_in_rcdata_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1011,7 +1011,7 @@ static StateResult handle_char_ref_in_rcdata_state (
   return emit_char_ref(parser, ' ', false, output);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#rawtext-state
+// https://html.spec.whatwg.org/multipage/parsing.html#rawtext-state
 static StateResult handle_rawtext_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1033,7 +1033,7 @@ static StateResult handle_rawtext_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-state
 static StateResult handle_script_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1055,7 +1055,7 @@ static StateResult handle_script_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#plaintext-state
+// https://html.spec.whatwg.org/multipage/parsing.html#plaintext-state
 static StateResult handle_plaintext_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1072,7 +1072,7 @@ static StateResult handle_plaintext_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#tag-open-state
+// https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state
 static StateResult handle_tag_open_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1109,7 +1109,7 @@ static StateResult handle_tag_open_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#end-tag-open-state
+// https://html.spec.whatwg.org/multipage/parsing.html#end-tag-open-state
 static StateResult handle_end_tag_open_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1140,7 +1140,7 @@ static StateResult handle_end_tag_open_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#tag-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#tag-name-state
 static StateResult handle_tag_name_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1178,7 +1178,7 @@ static StateResult handle_tag_name_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#rcdata-less-than-sign-state
+// https://html.spec.whatwg.org/multipage/parsing.html#rcdata-less-than-sign-state
 static StateResult handle_rcdata_lt_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1197,7 +1197,7 @@ static StateResult handle_rcdata_lt_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#rcdata-end-tag-open-state
+// https://html.spec.whatwg.org/multipage/parsing.html#rcdata-end-tag-open-state
 static StateResult handle_rcdata_end_tag_open_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1217,7 +1217,7 @@ static StateResult handle_rcdata_end_tag_open_state (
   return true;
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#rcdata-end-tag-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#rcdata-end-tag-name-state
 static StateResult handle_rcdata_end_tag_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1254,7 +1254,7 @@ static StateResult handle_rcdata_end_tag_name_state (
   return emit_temporary_buffer(parser, output);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#rawtext-less-than-sign-state
+// https://html.spec.whatwg.org/multipage/parsing.html#rawtext-less-than-sign-state
 static StateResult handle_rawtext_lt_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1273,7 +1273,7 @@ static StateResult handle_rawtext_lt_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#rawtext-end-tag-open-state
+// https://html.spec.whatwg.org/multipage/parsing.html#rawtext-end-tag-open-state
 static StateResult handle_rawtext_end_tag_open_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1292,7 +1292,7 @@ static StateResult handle_rawtext_end_tag_open_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#rawtext-end-tag-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#rawtext-end-tag-name-state
 static StateResult handle_rawtext_end_tag_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1331,7 +1331,7 @@ static StateResult handle_rawtext_end_tag_name_state (
   return emit_temporary_buffer(parser, output);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-less-than-sign-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-less-than-sign-state
 static StateResult handle_script_lt_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1354,7 +1354,7 @@ static StateResult handle_script_lt_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-end-tag-open-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-open-state
 static StateResult handle_script_end_tag_open_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1373,7 +1373,7 @@ static StateResult handle_script_end_tag_open_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-end-tag-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-name-state
 static StateResult handle_script_end_tag_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1410,7 +1410,7 @@ static StateResult handle_script_end_tag_name_state (
   return emit_temporary_buffer(parser, output);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escape-start-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-state
 static StateResult handle_script_escaped_start_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1427,7 +1427,7 @@ static StateResult handle_script_escaped_start_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escape-start-dash-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-dash-state
 static StateResult handle_script_escaped_start_dash_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1444,7 +1444,7 @@ static StateResult handle_script_escaped_start_dash_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escaped-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-state
 static StateResult handle_script_escaped_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1470,7 +1470,7 @@ static StateResult handle_script_escaped_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escaped-dash-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-dash-state
 static StateResult handle_script_escaped_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1499,7 +1499,7 @@ static StateResult handle_script_escaped_dash_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escaped-dash-dash-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-dash-dash-state
 static StateResult handle_script_escaped_dash_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1530,7 +1530,7 @@ static StateResult handle_script_escaped_dash_dash_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escaped-less-than-sign-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-less-than-sign-state
 static StateResult handle_script_escaped_lt_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1557,7 +1557,7 @@ static StateResult handle_script_escaped_lt_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escaped-end-tag-open-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-open-state
 static StateResult handle_script_escaped_end_tag_open_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1576,7 +1576,7 @@ static StateResult handle_script_escaped_end_tag_open_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-escaped-end-tag-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-name-state
 static StateResult handle_script_escaped_end_tag_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1613,7 +1613,7 @@ static StateResult handle_script_escaped_end_tag_name_state (
   return emit_temporary_buffer(parser, output);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-double-escape-start-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escape-start-state
 static StateResult handle_script_double_escaped_start_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1652,7 +1652,7 @@ static StateResult handle_script_double_escaped_start_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-double-escaped-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-state
 static StateResult handle_script_double_escaped_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1677,7 +1677,7 @@ static StateResult handle_script_double_escaped_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-double-escaped-dash-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-dash-state
 static StateResult handle_script_double_escaped_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1705,7 +1705,7 @@ static StateResult handle_script_double_escaped_dash_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-double-escaped-dash-dash-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-dash-dash-state
 static StateResult handle_script_double_escaped_dash_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1734,7 +1734,7 @@ static StateResult handle_script_double_escaped_dash_dash_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-double-escaped-less-than-sign-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-less-than-sign-state
 static StateResult handle_script_double_escaped_lt_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1752,7 +1752,7 @@ static StateResult handle_script_double_escaped_lt_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#script-data-double-escape-end-state
+// https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escape-end-state
 static StateResult handle_script_double_escaped_end_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1787,7 +1787,7 @@ static StateResult handle_script_double_escaped_end_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#before-attribute-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-name-state
 static StateResult handle_before_attr_name_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1829,7 +1829,7 @@ static StateResult handle_before_attr_name_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#attribute-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#attribute-name-state
 static StateResult handle_attr_name_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1876,7 +1876,7 @@ static StateResult handle_attr_name_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#after-attribute-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-name-state
 static StateResult handle_after_attr_name_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -1920,7 +1920,7 @@ static StateResult handle_after_attr_name_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#before-attribute-value-state
+// https://html.spec.whatwg.org/multipage/parsing.html#before-attribute-value-state
 static StateResult handle_before_attr_value_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -1973,7 +1973,7 @@ static StateResult handle_before_attr_value_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#attribute-value-double-quoted-state
+// https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-double-quoted-state
 static StateResult handle_attr_value_double_quoted_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2005,7 +2005,7 @@ static StateResult handle_attr_value_double_quoted_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#attribute-value-single-quoted-state
+// https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-single-quoted-state
 static StateResult handle_attr_value_single_quoted_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2037,7 +2037,7 @@ static StateResult handle_attr_value_single_quoted_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#attribute-value-unquoted-state
+// https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-unquoted-state
 static StateResult handle_attr_value_unquoted_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2084,7 +2084,7 @@ static StateResult handle_attr_value_unquoted_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#character-reference-in-attribute-value-state
+// https://html.spec.whatwg.org/multipage/parsing.html#character-reference-in-attribute-value-state
 static StateResult handle_char_ref_in_attr_value_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2136,7 +2136,7 @@ static StateResult handle_char_ref_in_attr_value_state (
   return NEXT_CHAR;
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#after-attribute-value-quoted-state
+// https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-value-quoted-state
 static StateResult handle_after_attr_value_quoted_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2171,7 +2171,7 @@ static StateResult handle_after_attr_value_quoted_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#self-closing-start-tag-state
+// https://html.spec.whatwg.org/multipage/parsing.html#self-closing-start-tag-state
 static StateResult handle_self_closing_start_tag_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2196,7 +2196,7 @@ static StateResult handle_self_closing_start_tag_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#bogus-comment-state
+// https://html.spec.whatwg.org/multipage/parsing.html#bogus-comment-state
 static StateResult handle_bogus_comment_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2215,7 +2215,7 @@ static StateResult handle_bogus_comment_state (
   return emit_comment(parser, output);
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#markup-declaration-open-state
+// https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
 static StateResult handle_markup_declaration_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2269,7 +2269,7 @@ static StateResult handle_markup_declaration_state (
   return NEXT_CHAR;
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#comment-start-state
+// https://html.spec.whatwg.org/multipage/parsing.html#comment-start-state
 static StateResult handle_comment_start_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -2302,7 +2302,7 @@ static StateResult handle_comment_start_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#comment-start-dash-state
+// https://html.spec.whatwg.org/multipage/parsing.html#comment-start-dash-state
 static StateResult handle_comment_start_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -2337,7 +2337,7 @@ static StateResult handle_comment_start_dash_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#comment-state
+// https://html.spec.whatwg.org/multipage/parsing.html#comment-state
 static StateResult handle_comment_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -2363,7 +2363,7 @@ static StateResult handle_comment_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#comment-end-dash-state
+// https://html.spec.whatwg.org/multipage/parsing.html#comment-end-dash-state
 static StateResult handle_comment_end_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -2393,7 +2393,7 @@ static StateResult handle_comment_end_dash_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#comment-end-state
+// https://html.spec.whatwg.org/multipage/parsing.html#comment-end-state
 static StateResult handle_comment_end_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -2436,7 +2436,7 @@ static StateResult handle_comment_end_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#comment-end-bang-state
+// https://html.spec.whatwg.org/multipage/parsing.html#comment-end-bang-state
 static StateResult handle_comment_end_bang_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -2476,7 +2476,7 @@ static StateResult handle_comment_end_bang_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#doctype-state
+// https://html.spec.whatwg.org/multipage/parsing.html#doctype-state
 static StateResult handle_doctype_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2506,7 +2506,7 @@ static StateResult handle_doctype_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#before-doctype-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#before-doctype-name-state
 static StateResult handle_before_doctype_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2545,7 +2545,7 @@ static StateResult handle_before_doctype_name_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete5/tokenization.html#doctype-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#doctype-name-state
 static StateResult handle_doctype_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2587,7 +2587,7 @@ static StateResult handle_doctype_name_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#after-doctype-name-state
+// https://html.spec.whatwg.org/multipage/parsing.html#after-doctype-name-state
 static StateResult handle_after_doctype_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2631,7 +2631,7 @@ static StateResult handle_after_doctype_name_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#after-doctype-public-keyword-state
+// https://html.spec.whatwg.org/multipage/parsing.html#after-doctype-public-keyword-state
 static StateResult handle_after_doctype_public_keyword_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2678,7 +2678,7 @@ static StateResult handle_after_doctype_public_keyword_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#before-doctype-public-identifier-state
+// https://html.spec.whatwg.org/multipage/parsing.html#before-doctype-public-identifier-state
 static StateResult handle_before_doctype_public_id_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2722,7 +2722,7 @@ static StateResult handle_before_doctype_public_id_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#doctype-public-identifier-(double-quoted)-state
+// https://html.spec.whatwg.org/multipage/parsing.html#doctype-public-identifier-(double-quoted)-state
 static StateResult handle_doctype_public_id_double_quoted_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2758,7 +2758,7 @@ static StateResult handle_doctype_public_id_double_quoted_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#doctype-public-identifier-(single-quoted)-state
+// https://html.spec.whatwg.org/multipage/parsing.html#doctype-public-identifier-(single-quoted)-state
 static StateResult handle_doctype_public_id_single_quoted_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2794,7 +2794,7 @@ static StateResult handle_doctype_public_id_single_quoted_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#after-doctype-public-identifier-state
+// https://html.spec.whatwg.org/multipage/parsing.html#after-doctype-public-identifier-state
 static StateResult handle_after_doctype_public_id_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2840,7 +2840,7 @@ static StateResult handle_after_doctype_public_id_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#between-doctype-public-and-system-identifiers-state
+// https://html.spec.whatwg.org/multipage/parsing.html#between-doctype-public-and-system-identifiers-state
 static StateResult handle_between_doctype_public_system_id_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2882,7 +2882,7 @@ static StateResult handle_between_doctype_public_system_id_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#after-doctype-system-keyword-state
+// https://html.spec.whatwg.org/multipage/parsing.html#after-doctype-system-keyword-state
 static StateResult handle_after_doctype_system_keyword_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2928,7 +2928,7 @@ static StateResult handle_after_doctype_system_keyword_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#before-doctype-system-identifier-state
+// https://html.spec.whatwg.org/multipage/parsing.html#before-doctype-system-identifier-state
 static StateResult handle_before_doctype_system_id_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -2971,7 +2971,7 @@ static StateResult handle_before_doctype_system_id_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#doctype-system-identifier-(double-quoted)-state
+// https://html.spec.whatwg.org/multipage/parsing.html#doctype-system-identifier-(double-quoted)-state
 static StateResult handle_doctype_system_id_double_quoted_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -3007,7 +3007,7 @@ static StateResult handle_doctype_system_id_double_quoted_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#doctype-system-identifier-(single-quoted)-state
+// https://html.spec.whatwg.org/multipage/parsing.html#doctype-system-identifier-(single-quoted)-state
 static StateResult handle_doctype_system_id_single_quoted_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -3043,7 +3043,7 @@ static StateResult handle_doctype_system_id_single_quoted_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#after-doctype-system-identifier-state
+// https://html.spec.whatwg.org/multipage/parsing.html#after-doctype-system-identifier-state
 static StateResult handle_after_doctype_system_id_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
@@ -3073,7 +3073,7 @@ static StateResult handle_after_doctype_system_id_state (
   }
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#bogus-doctype-state
+// https://html.spec.whatwg.org/multipage/parsing.html#bogus-doctype-state
 static StateResult handle_bogus_doctype_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED(tokenizer),
@@ -3088,7 +3088,7 @@ static StateResult handle_bogus_doctype_state (
   return NEXT_CHAR;
 }
 
-// http://www.whatwg.org/specs/web-apps/current-work/complete.html#cdata-section-state
+// https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-state
 static StateResult handle_cdata_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,

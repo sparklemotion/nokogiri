@@ -1314,9 +1314,9 @@ static GumboNode* clone_node (
 }
 
 // "Reconstruct active formatting elements" part of the spec.
-// This implementation is based on the html5lib translation from the mess of
-// GOTOs in the spec to reasonably structured programming.
-// http://code.google.com/p/html5lib/source/browse/python/html5lib/treebuilders/_base.py
+// This implementation is based on the html5lib translation from the
+// mess of GOTOs in the spec to reasonably structured programming.
+// https://github.com/html5lib/html5lib-python/blob/master/html5lib/treebuilders/base.py
 static void reconstruct_active_formatting_elements(GumboParser* parser) {
   GumboVector* elements = &parser->_parser_state->_active_formatting_elements;
   // Step 1
