@@ -25,7 +25,7 @@ struct GumboInternalParser;
 
 const int kGumboNoChar = -1;
 
-static const int kCharReplacements[256] = {
+static const uint32_t kCharReplacements[] = {
   [0x00] = 0xFFFD, [0x0D] = 0x000D, [0x80] = 0x20AC, [0x81] = 0x0081,
   [0x82] = 0x201A, [0x83] = 0x0192, [0x84] = 0x201E, [0x85] = 0x2026,
   [0x86] = 0x2020, [0x87] = 0x2021, [0x88] = 0x02C6, [0x89] = 0x2030,
@@ -92,12 +92,8 @@ static void add_named_reference_error (
   error->v.text = text;
 }
 
-static int PURE maybe_replace_codepoint(int codepoint) {
-  if (codepoint > 255 || codepoint < 0) {
-    return -1;
-  }
-  int r = kCharReplacements[codepoint];
-  return r ? r : -1;
+static uint32_t PURE maybe_replace_codepoint(uint32_t codepoint) {
+  return (codepoint > 0x9F) ? 0x00 : kCharReplacements[codepoint];
 }
 
 static bool consume_numeric_ref (
@@ -123,7 +119,7 @@ static bool consume_numeric_ref (
     return false;
   }
 
-  unsigned int codepoint = 0;
+  uint32_t codepoint = 0;
   bool status = true;
   do {
     codepoint = (codepoint * (is_hex ? 16 : 10)) + digit;
@@ -143,8 +139,8 @@ static bool consume_numeric_ref (
     utf8iterator_next(input);
   }
 
-  int replacement = maybe_replace_codepoint(codepoint);
-  if (replacement != -1) {
+  uint32_t replacement = maybe_replace_codepoint(codepoint);
+  if (replacement != 0) {
     add_codepoint_error (
       parser,
       input,
