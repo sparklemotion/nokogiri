@@ -1322,7 +1322,7 @@ TEST_F(GumboParserTest, NoahsArkClause) {
 }
 
 TEST_F(GumboParserTest, AdoptionAgency1) {
-  // http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#misnested-tags:-b-i-/b-/i
+  // https://html.spec.whatwg.org/multipage/parsing.html#misnested-tags:-b-i-/b-/i
   Parse("<p>1<b>2<i>3</b>4</i>5</p>");
   ASSERT_EQ(1, GetChildCount(root_));
 
@@ -1395,7 +1395,7 @@ TEST_F(GumboParserTest, AdoptionAgency1) {
 }
 
 TEST_F(GumboParserTest, AdoptionAgency2) {
-  // http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#misnested-tags:-b-p-/b-/p
+  // https://html.spec.whatwg.org/multipage/parsing.html#misnested-tags:-b-p-/b-/p
   Parse("<b>1<p>2</b>3</p>");
   ASSERT_EQ(1, GetChildCount(root_));
 
