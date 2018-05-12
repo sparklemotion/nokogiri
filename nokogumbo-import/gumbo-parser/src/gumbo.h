@@ -705,7 +705,7 @@ typedef struct GumboInternalOptions {
 
   /**
    * The fragment context for parsing:
-   * https://html.spec.whatwg.org/multipage/syntax.html#parsing-html-fragments
+   * https://html.spec.whatwg.org/multipage/parsing.html#parsing-html-fragments
    *
    * If `GUMBO_TAG_LAST` is passed here, it is assumed to be "no
    * fragment", i.e. the regular parsing algorithm. Otherwise, pass the
