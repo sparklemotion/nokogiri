@@ -24,7 +24,10 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 
 ## Features
 
+* Node#classes, #add_class, #append_class, and #remove_class are added.
+* NodeSet#append_class is added.
 * NodeSet#remove_attribute is a new alias for NodeSet#remove_attr.
+
 
 ## Bug fixes
 

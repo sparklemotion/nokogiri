@@ -351,6 +351,64 @@ module Nokogiri
       end
 
       ###
+      # Get the list of class names of this Node, without
+      # deduplication or sorting.
+      def classes
+        self['class'].to_s.scan(/\S+/)
+      end
+
+      ###
+      # Add +name+ to the "class" attribute value of this Node and
+      # return self.  If the value is already in the current value, it
+      # is not added.  If no "class" attribute exists yet, one is
+      # created with the given value.
+      #
+      # More than one class may be added at a time, separated by a
+      # space.
+      def add_class name
+        names = classes
+        self['class'] = (names + (name.scan(/\S+/) - names)).join(' ')
+        self
+      end
+
+      ###
+      # Append +name+ to the "class" attribute value of this Node and
+      # return self.  The value is simply appended without checking if
+      # it is already in the current value.  If no "class" attribute
+      # exists yet, one is created with the given value.
+      #
+      # More than one class may be appended at a time, separated by a
+      # space.
+      def append_class name
+        self['class'] = (classes + name.scan(/\S+/)).join(' ')
+        self
+      end
+
+      ###
+      # Remove +name+ from the "class" attribute value of this Node
+      # and return self.  If there are many occurrences of the name,
+      # they are all removed.
+      #
+      # More than one class may be removed at a time, separated by a
+      # space.
+      #
+      # If no class name is left after removal, or when +name+ is nil,
+      # the "class" attribute is removed from this Node.
+      def remove_class name = nil
+        if name
+          names = classes - name.scan(/\S+/)
+          if names.empty?
+            delete 'class'
+          else
+            self['class'] = names.join(' ')
+          end
+        else
+          delete "class"
+        end
+        self
+      end
+
+      ###
       # Remove the attribute named +name+
       def remove_attribute name
         attr = attributes[name].remove if key? name

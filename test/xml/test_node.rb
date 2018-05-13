@@ -680,6 +680,89 @@ module Nokogiri
         assert_nil address['domestic']
       end
 
+      def test_classes
+        xml = Nokogiri::XML(<<-eoxml)
+        <div>
+          <p class=" foo  bar foo ">test</p>
+          <p class="">test</p>
+        </div>
+        eoxml
+        div = xml.at_xpath('//div')
+        p1, p2 = xml.xpath('//p')
+
+        assert_equal [], div.classes
+        assert_equal %w[foo bar foo], p1.classes
+        assert_equal [], p2.classes
+      end
+
+      def test_add_class
+        xml = Nokogiri::XML(<<-eoxml)
+        <div>
+          <p class=" foo  bar foo ">test</p>
+          <p class="">test</p>
+        </div>
+        eoxml
+        div = xml.at_xpath('//div')
+        p1, p2 = xml.xpath('//p')
+
+        assert_same div, div.add_class('main')
+        assert_equal 'main', div['class']
+
+        assert_same p1, p1.add_class('baz foo')
+        assert_equal 'foo bar foo baz', p1['class']
+
+        assert_same p2, p2.add_class('foo baz foo')
+        assert_equal 'foo baz foo', p2['class']
+      end
+
+      def test_append_class
+        xml = Nokogiri::XML(<<-eoxml)
+        <div>
+          <p class=" foo  bar foo ">test</p>
+          <p class="">test</p>
+        </div>
+        eoxml
+        div = xml.at_xpath('//div')
+        p1, p2 = xml.xpath('//p')
+
+        assert_same div, div.append_class('main')
+        assert_equal 'main', div['class']
+
+        assert_same p1, p1.append_class('baz foo')
+        assert_equal 'foo bar foo baz foo', p1['class']
+
+        assert_same p2, p2.append_class('foo baz foo')
+        assert_equal 'foo baz foo', p2['class']
+      end
+
+      def test_remove_class
+        xml = Nokogiri::XML(<<-eoxml)
+        <div>
+          <p class=" foo  bar baz foo ">test</p>
+          <p class=" foo  bar baz foo ">test</p>
+          <p class="foo foo">test</p>
+          <p class="">test</p>
+        </div>
+        eoxml
+        div = xml.at_xpath('//div')
+        p1, p2, p3, p4 = xml.xpath('//p')
+
+        assert_same div, div.remove_class('main')
+        assert_nil div['class']
+
+        assert_same p1, p1.remove_class('bar baz')
+        assert_equal 'foo foo', p1['class']
+
+        assert_same p2, p2.remove_class()
+        assert_nil p2['class']
+
+        assert_same p3, p3.remove_class('foo')
+        assert_nil p3['class']
+
+        assert_same p4, p4.remove_class('foo')
+        assert_nil p4['class']
+      end
+
       def test_set_content_with_symbol
         node = @xml.at('//name')
         node.content = :foo

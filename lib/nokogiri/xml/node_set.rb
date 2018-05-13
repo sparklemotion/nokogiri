@@ -135,31 +135,37 @@ module Nokogiri
       end
 
       ###
-      # Append the class attribute +name+ to all Node objects in the NodeSet.
+      # Add the class attribute +name+ to all Node objects in the
+      # NodeSet.
+      #
+      # See Nokogiri::XML::Node#add_class for more information.
       def add_class name
         each do |el|
-          classes = el['class'].to_s.split(/\s+/)
-          el['class'] = classes.push(name).uniq.join " "
+          el.add_class(name)
         end
         self
       end
 
       ###
-      # Remove the class attribute +name+ from all Node objects in the NodeSet.
-      # If +name+ is nil, remove the class attribute from all Nodes in the
+      # Append the class attribute +name+ to all Node objects in the
       # NodeSet.
+      #
+      # See Nokogiri::XML::Node#append_class for more information.
+      def append_class name
+        each do |el|
+          el.append_class(name)
+        end
+        self
+      end
+
+      ###
+      # Remove the class attribute +name+ from all Node objects in the
+      # NodeSet.
+      #
+      # See Nokogiri::XML::Node#remove_class for more information.
       def remove_class name = nil
         each do |el|
-          if name
-            classes = el['class'].to_s.split(/\s+/)
-            if classes.empty?
-              el.delete 'class'
-            else
-              el['class'] = (classes - [name]).uniq.join " "
-            end
-          else
-            el.delete "class"
-          end
+          el.remove_class(name)
         end
         self
       end
