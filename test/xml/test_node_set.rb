@@ -51,6 +51,12 @@ module Nokogiri
         @list.each { |x| assert_nil x['class'] }
       end
 
+      def test_remove_attribute
+        @list.each { |x| x['class'] = 'blah' }
+        assert_equal @list, @list.remove_attribute('class')
+        @list.each { |x| assert_nil x['class'] }
+      end
+
       def test_add_class
         assert_equal @list, @list.add_class('bar')
         @list.each { |x| assert_equal 'bar', x['class'] }

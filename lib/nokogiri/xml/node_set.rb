@@ -193,6 +193,7 @@ module Nokogiri
         each { |el| el.delete name }
         self
       end
+      alias remove_attribute remove_attr
 
       ###
       # Iterate over each node, yielding  to +block+
