@@ -87,6 +87,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         this.runtime = runtime;
         this.attrClass = (RubyClass) runtime.getClassFromPath("Nokogiri::XML::SAX::Parser::Attribute");
         this.object = object;
+        charactersBuilder = new StringBuilder();
         String objectName = object.getMetaClass().getName();
         if ("Nokogiri::HTML::SAX::Parser".equals(objectName)) needEmptyAttrCheck = true;
     }
@@ -104,7 +105,6 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
     @Override
     public void startDocument() {
         call("start_document");
-        charactersBuilder = new StringBuilder();
     }
 
     @Override
