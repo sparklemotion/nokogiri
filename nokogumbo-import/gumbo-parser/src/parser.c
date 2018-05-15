@@ -689,27 +689,20 @@ static void pop_template_insertion_mode(GumboParser* parser) {
 static GumboInsertionMode get_current_template_insertion_mode (
   const GumboParser* parser
 ) {
-  GumboVector* template_insertion_modes =
-      &parser->_parser_state->_template_insertion_modes;
-  if (template_insertion_modes->length == 0) {
+  GumboVector* modes = &parser->_parser_state->_template_insertion_modes;
+  if (modes->length == 0) {
     return GUMBO_INSERTION_MODE_INITIAL;
   }
-  return (GumboInsertionMode)
-      template_insertion_modes->data[(template_insertion_modes->length - 1)];
+  return (GumboInsertionMode) modes->data[(modes->length - 1)];
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#mathml-text-integration-point
 static bool is_mathml_integration_point(const GumboNode* node) {
-  return node_tag_in_set (
-    node,
-    &(TagSet) {
-      TAG_MATHML(MI),
-      TAG_MATHML(MO),
-      TAG_MATHML(MN),
-      TAG_MATHML(MS),
-      TAG_MATHML(MTEXT)
-    }
-  );
+  static const TagSet mathml_integration_point_tags = {
+    TAG_MATHML(MI), TAG_MATHML(MO), TAG_MATHML(MN),
+    TAG_MATHML(MS), TAG_MATHML(MTEXT)
+  };
+  return node_tag_in_set(node, &mathml_integration_point_tags);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#html-integration-point
@@ -1184,9 +1177,9 @@ static void run_generic_parsing_algorithm (
 ) {
   insert_element_from_token(parser, token);
   gumbo_tokenizer_set_state(parser, lexer_state);
-  parser->_parser_state->_original_insertion_mode =
-    parser->_parser_state->_insertion_mode;
-  parser->_parser_state->_insertion_mode = GUMBO_INSERTION_MODE_TEXT;
+  GumboParserState* parser_state = parser->_parser_state;
+  parser_state->_original_insertion_mode = parser_state->_insertion_mode;
+  parser_state->_insertion_mode = GUMBO_INSERTION_MODE_TEXT;
 }
 
 static void acknowledge_self_closing_tag(GumboParser* parser) {
