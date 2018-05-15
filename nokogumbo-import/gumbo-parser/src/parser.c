@@ -49,14 +49,6 @@ typedef const uint8_t TagSet[GUMBO_TAG_LAST + 1];
 #define TAG_SVG(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_SVG)
 #define TAG_MATHML(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_MATHML)
 
-static inline bool tagset_includes (
-  const TagSet* tagset,
-  GumboNamespaceEnum ns,
-  GumboTag tag
-) {
-  return ((*tagset)[(unsigned) tag] & (1u << (unsigned) ns)) != 0u;
-}
-
 static const GumboSourcePosition kGumboEmptySourcePosition = { \
   .line = 0, \
   .column = 0, \
@@ -67,10 +59,6 @@ static const GumboSourcePosition kGumboEmptySourcePosition = { \
 // an appropriate order).
 static bool node_html_tag_is(const GumboNode*, GumboTag);
 static bool handle_in_template(GumboParser*, GumboToken*);
-static void destroy_node(GumboNode*);
-static GumboInsertionMode get_current_template_insertion_mode (
-    const GumboParser*
-);
 
 const GumboOptions kGumboDefaultOptions = {
   .tab_stop = 8,
@@ -398,6 +386,79 @@ static void parser_state_init(GumboParser* parser) {
   parser->_parser_state = parser_state;
 }
 
+typedef void (*TreeTraversalCallback)(GumboNode* node);
+
+static void tree_traverse(GumboNode* node, TreeTraversalCallback callback) {
+  GumboNode* current_node = node;
+  unsigned int offset = 0;
+
+tailcall:
+  switch (current_node->type) {
+    case GUMBO_NODE_DOCUMENT:
+    case GUMBO_NODE_TEMPLATE:
+    case GUMBO_NODE_ELEMENT: {
+      GumboVector* children = (current_node->type == GUMBO_NODE_DOCUMENT)
+        ? &current_node->v.document.children
+        : &current_node->v.element.children
+      ;
+      if (offset >= children->length) {
+        assert(offset == children->length);
+        break;
+      } else {
+        current_node = children->data[offset];
+        offset = 0;
+        goto tailcall;
+      }
+    }
+    case GUMBO_NODE_TEXT:
+    case GUMBO_NODE_CDATA:
+    case GUMBO_NODE_COMMENT:
+    case GUMBO_NODE_WHITESPACE:
+      assert(offset == 0);
+      break;
+  }
+
+  offset = current_node->index_within_parent + 1;
+  GumboNode* next_node = current_node->parent;
+  callback(current_node);
+  if (current_node == node) {
+    return;
+  }
+  current_node = next_node;
+  goto tailcall;
+}
+
+static void destroy_node_callback(GumboNode* node) {
+  switch (node->type) {
+    case GUMBO_NODE_DOCUMENT: {
+      GumboDocument* doc = &node->v.document;
+      gumbo_free((void*) doc->children.data);
+      gumbo_free((void*) doc->name);
+      gumbo_free((void*) doc->public_identifier);
+      gumbo_free((void*) doc->system_identifier);
+    } break;
+    case GUMBO_NODE_TEMPLATE:
+    case GUMBO_NODE_ELEMENT:
+      for (unsigned int i = 0; i < node->v.element.attributes.length; ++i) {
+        gumbo_destroy_attribute(node->v.element.attributes.data[i]);
+      }
+      gumbo_free(node->v.element.attributes.data);
+      gumbo_free(node->v.element.children.data);
+      break;
+    case GUMBO_NODE_TEXT:
+    case GUMBO_NODE_CDATA:
+    case GUMBO_NODE_COMMENT:
+    case GUMBO_NODE_WHITESPACE:
+      gumbo_free((void*) node->v.text.text);
+      break;
+  }
+  gumbo_free(node);
+}
+
+static void destroy_node(GumboNode* node) {
+  tree_traverse(node, &destroy_node_callback);
+}
+
 static void parser_state_destroy(GumboParser* parser) {
   GumboParserState* state = parser->_parser_state;
   if (state->_fragment_ctx) {
@@ -462,6 +523,32 @@ static bool is_in_static_list (
 
 static void set_insertion_mode(GumboParser* parser, GumboInsertionMode mode) {
   parser->_parser_state->_insertion_mode = mode;
+}
+
+static void push_template_insertion_mode (
+  GumboParser* parser,
+  GumboInsertionMode mode
+) {
+  gumbo_vector_add (
+    (void*) mode,
+    &parser->_parser_state->_template_insertion_modes
+  );
+}
+
+static void pop_template_insertion_mode(GumboParser* parser) {
+  gumbo_vector_pop(&parser->_parser_state->_template_insertion_modes);
+}
+
+// Returns the current template insertion mode. If the stack of template
+// insertion modes is empty, this returns GUMBO_INSERTION_MODE_INITIAL.
+static GumboInsertionMode get_current_template_insertion_mode (
+  const GumboParser* parser
+) {
+  GumboVector* modes = &parser->_parser_state->_template_insertion_modes;
+  if (modes->length == 0) {
+    return GUMBO_INSERTION_MODE_INITIAL;
+  }
+  return (GumboInsertionMode) modes->data[(modes->length - 1)];
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#reset-the-insertion-mode-appropriately
@@ -618,6 +705,14 @@ static bool tag_is(const GumboToken* token, bool is_start, GumboTag tag) {
   }
 }
 
+static inline bool tagset_includes (
+  const TagSet* tagset,
+  GumboNamespaceEnum ns,
+  GumboTag tag
+) {
+  return ((*tagset)[(unsigned) tag] & (1u << (unsigned) ns)) != 0u;
+}
+
 // Like tag_in, but checks for the tag of a node, rather than a token.
 static bool node_tag_in_set(const GumboNode* node, const TagSet* tags) {
   assert(node != NULL);
@@ -647,32 +742,6 @@ static bool node_qualified_tag_is (
 // Like node_tag_in, but for the single-tag case in the HTML namespace
 static bool node_html_tag_is(const GumboNode* node, GumboTag tag) {
   return node_qualified_tag_is(node, GUMBO_NAMESPACE_HTML, tag);
-}
-
-static void push_template_insertion_mode (
-  GumboParser* parser,
-  GumboInsertionMode mode
-) {
-  gumbo_vector_add (
-    (void*) mode,
-    &parser->_parser_state->_template_insertion_modes
-  );
-}
-
-static void pop_template_insertion_mode(GumboParser* parser) {
-  gumbo_vector_pop(&parser->_parser_state->_template_insertion_modes);
-}
-
-// Returns the current template insertion mode. If the stack of template
-// insertion modes is empty, this returns GUMBO_INSERTION_MODE_INITIAL.
-static GumboInsertionMode get_current_template_insertion_mode (
-  const GumboParser* parser
-) {
-  GumboVector* modes = &parser->_parser_state->_template_insertion_modes;
-  if (modes->length == 0) {
-    return GUMBO_INSERTION_MODE_INITIAL;
-  }
-  return (GumboInsertionMode) modes->data[(modes->length - 1)];
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#mathml-text-integration-point
@@ -2540,79 +2609,6 @@ static bool handle_after_head(GumboParser* parser, GumboToken* token) {
     state->_reprocess_current_token = true;
     return true;
   }
-}
-
-typedef void (*TreeTraversalCallback)(GumboNode* node);
-
-static void tree_traverse(GumboNode* node, TreeTraversalCallback callback) {
-  GumboNode* current_node = node;
-  unsigned int offset = 0;
-
-tailcall:
-  switch (current_node->type) {
-    case GUMBO_NODE_DOCUMENT:
-    case GUMBO_NODE_TEMPLATE:
-    case GUMBO_NODE_ELEMENT: {
-      GumboVector* children = (current_node->type == GUMBO_NODE_DOCUMENT)
-        ? &current_node->v.document.children
-        : &current_node->v.element.children
-      ;
-      if (offset >= children->length) {
-        assert(offset == children->length);
-        break;
-      } else {
-        current_node = children->data[offset];
-        offset = 0;
-        goto tailcall;
-      }
-    }
-    case GUMBO_NODE_TEXT:
-    case GUMBO_NODE_CDATA:
-    case GUMBO_NODE_COMMENT:
-    case GUMBO_NODE_WHITESPACE:
-      assert(offset == 0);
-      break;
-  }
-
-  offset = current_node->index_within_parent + 1;
-  GumboNode* next_node = current_node->parent;
-  callback(current_node);
-  if (current_node == node) {
-    return;
-  }
-  current_node = next_node;
-  goto tailcall;
-}
-
-static void destroy_node_callback(GumboNode* node) {
-  switch (node->type) {
-    case GUMBO_NODE_DOCUMENT: {
-      GumboDocument* doc = &node->v.document;
-      gumbo_free((void*) doc->children.data);
-      gumbo_free((void*) doc->name);
-      gumbo_free((void*) doc->public_identifier);
-      gumbo_free((void*) doc->system_identifier);
-    } break;
-    case GUMBO_NODE_TEMPLATE:
-    case GUMBO_NODE_ELEMENT:
-      for (unsigned int i = 0; i < node->v.element.attributes.length; ++i) {
-        gumbo_destroy_attribute(node->v.element.attributes.data[i]);
-      }
-      gumbo_free(node->v.element.attributes.data);
-      gumbo_free(node->v.element.children.data);
-      break;
-    case GUMBO_NODE_TEXT:
-    case GUMBO_NODE_CDATA:
-    case GUMBO_NODE_COMMENT:
-    case GUMBO_NODE_WHITESPACE:
-      gumbo_free((void*) node->v.text.text);
-      break;
-  }
-  gumbo_free(node);
-}
-
-static void destroy_node(GumboNode* node) {
-  tree_traverse(node, &destroy_node_callback);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
