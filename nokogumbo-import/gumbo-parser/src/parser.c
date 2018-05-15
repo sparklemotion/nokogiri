@@ -199,27 +199,6 @@ static const char* kLegalXmlns[] = {
   "http://www.w3.org/1998/Math/MathML"
 };
 
-typedef struct _NamespacedAttributeReplacement {
-  const char* from;
-  const char* local_name;
-  const GumboAttributeNamespaceEnum attr_namespace;
-} NamespacedAttributeReplacement;
-
-static const NamespacedAttributeReplacement kForeignAttributeReplacements[] = {
-    {"xlink:actuate", "actuate", GUMBO_ATTR_NAMESPACE_XLINK},
-    {"xlink:actuate", "actuate", GUMBO_ATTR_NAMESPACE_XLINK},
-    {"xlink:href", "href", GUMBO_ATTR_NAMESPACE_XLINK},
-    {"xlink:role", "role", GUMBO_ATTR_NAMESPACE_XLINK},
-    {"xlink:show", "show", GUMBO_ATTR_NAMESPACE_XLINK},
-    {"xlink:title", "title", GUMBO_ATTR_NAMESPACE_XLINK},
-    {"xlink:type", "type", GUMBO_ATTR_NAMESPACE_XLINK},
-    {"xml:base", "base", GUMBO_ATTR_NAMESPACE_XML},
-    {"xml:lang", "lang", GUMBO_ATTR_NAMESPACE_XML},
-    {"xml:space", "space", GUMBO_ATTR_NAMESPACE_XML},
-    {"xmlns", "xmlns", GUMBO_ATTR_NAMESPACE_XMLNS},
-    {"xmlns:xlink", "xlink", GUMBO_ATTR_NAMESPACE_XMLNS},
-};
-
 // The "scope marker" for the list of active formatting elements. We use a
 // pointer to this as a generic marker element, since the particular element
 // scope doesn't matter.
@@ -1816,10 +1795,13 @@ const char* gumbo_normalize_svg_tagname(const GumboStringPiece* tag) {
 static void adjust_foreign_attributes(GumboToken* token) {
   assert(token->type == GUMBO_TOKEN_START_TAG);
   const GumboVector* attributes = &token->v.start_tag.attributes;
-  for (size_t i = 0; i < ARRAY_COUNT(kForeignAttributeReplacements); i++) {
-    const NamespacedAttributeReplacement* entry = &kForeignAttributeReplacements[i];
-    GumboAttribute* attr = gumbo_get_attribute(attributes, entry->from);
-    if (!attr) {
+  for (unsigned int i = 0, n = attributes->length; i < n; ++i) {
+    GumboAttribute* attr = attributes->data[i];
+    const ForeignAttrReplacement* entry = gumbo_get_foreign_attr_replacement (
+      attr->name,
+      strlen(attr->name)
+    );
+    if (!entry) {
       continue;
     }
     gumbo_free((void*) attr->name);
