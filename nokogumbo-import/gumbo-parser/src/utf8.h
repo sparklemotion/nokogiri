@@ -20,6 +20,7 @@
 #include <stddef.h>
 
 #include "gumbo.h"
+#include "macros.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,7 +62,7 @@ typedef struct GumboInternalUtf8Iterator {
 
 // Returns true if this Unicode code point is in the list of characters
 // forbidden by the HTML5 spec, such as NUL bytes and undefined control chars.
-bool utf8_is_invalid_code_point(int c);
+bool utf8_is_invalid_code_point(int c) CONST_FN;
 
 // Initializes a new Utf8Iterator from the given byte buffer. The source does
 // not have to be NUL-terminated, but the length must be passed in explicitly.

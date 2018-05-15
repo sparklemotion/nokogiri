@@ -162,7 +162,7 @@ static bool consume_numeric_ref (
     return false;
   }
 
-  if (utf8_is_invalid_code_point(codepoint) || codepoint == 0xb) {
+  if (utf8_is_invalid_code_point(codepoint)) {
     add_codepoint_error (
       parser,
       input,
