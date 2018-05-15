@@ -15,10 +15,6 @@ groups:
       <% for jruby_version in RUBIES[:jruby] %>
       - "jruby-<%= jruby_version %>"
       <% end %>
-      <% for rbx_version in RUBIES[:rbx] %>
-      - "rbx-<%= rbx_version %>-system"
-      - "rbx-<%= rbx_version %>-vendored"
-      <% end %>
       <% RUBIES[:windows].first(1).each do |ruby_version| %>
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
@@ -36,7 +32,6 @@ groups:
       - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
       - ruby-vanilla-system-pr
       - jruby-<%= RUBIES[:jruby].last %>-pr
-      - rbx-<%= RUBIES[:rbx].last %>-pr
       - pr-success
 
   - name: allow-failure
@@ -44,6 +39,11 @@ groups:
       <% RUBIES[:windows].last(2).each do |ruby_version| %>
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
+      <% for rbx_version in RUBIES[:rbx] %>
+      - "rbx-<%= rbx_version %>-system"
+      - "rbx-<%= rbx_version %>-vendored"
+      <% end %>
+      - rbx-<%= RUBIES[:rbx].last %>-pr
 
 
 resource_types:
@@ -299,7 +299,7 @@ jobs:
             TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
+#        on_failure: *notify_failure_to_irc
 
   - name: rbx-<%= rbx_version %>-vendored
     public: true
@@ -321,7 +321,7 @@ jobs:
             TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
+#        on_failure: *notify_failure_to_irc
   <% end %>
 
   <% for ruby_version in RUBIES[:windows] %>
@@ -361,9 +361,9 @@ jobs:
           <% for jruby_version in RUBIES[:jruby] %>
           - "jruby-<%= jruby_version %>"
           <% end %>
-          <% for rbx_version in RUBIES[:rbx] %>
-          - "rbx-<%= rbx_version %>-vendored"
-          <% end %>
+          # <% for rbx_version in RUBIES[:rbx] %>
+          # - "rbx-<%= rbx_version %>-vendored"
+          # <% end %>
           <% RUBIES[:windows].first(1).each do |ruby_version| %>
           - "win-ruby-<%= ruby_version %>-devkit"
           <% end %>
@@ -537,7 +537,7 @@ jobs:
             TMPDIR: /scratch
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+#        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
   - name: pr-success
     public: true
@@ -555,7 +555,7 @@ jobs:
           - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
           - ruby-vanilla-system-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
-          - rbx-<%= RUBIES[:rbx].last %>-pr
+#          - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
       - put: nokogiri-irc
