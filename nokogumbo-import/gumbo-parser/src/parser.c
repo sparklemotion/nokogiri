@@ -55,11 +55,6 @@ static const GumboSourcePosition kGumboEmptySourcePosition = { \
   .offset = 0 \
 };
 
-// Selected forward declarations (as it's getting hard to find
-// an appropriate order).
-static bool node_html_tag_is(const GumboNode*, GumboTag);
-static bool handle_in_template(GumboParser*, GumboToken*);
-
 const GumboOptions kGumboDefaultOptions = {
   .tab_stop = 8,
   .stop_on_first_error = false,
@@ -551,6 +546,74 @@ static GumboInsertionMode get_current_template_insertion_mode (
   return (GumboInsertionMode) modes->data[(modes->length - 1)];
 }
 
+// Returns true if the specified token is either a start or end tag
+// (specified by is_start) with one of the tag types in the TagSet.
+static bool tag_in (
+  const GumboToken* token,
+  bool is_start,
+  const TagSet* tags
+) {
+  GumboTag token_tag;
+  if (is_start && token->type == GUMBO_TOKEN_START_TAG) {
+    token_tag = token->v.start_tag.tag;
+  } else if (!is_start && token->type == GUMBO_TOKEN_END_TAG) {
+    token_tag = token->v.end_tag;
+  } else {
+    return false;
+  }
+  return (*tags)[(unsigned) token_tag] != 0u;
+}
+
+// Like tag_in, but for the single-tag case.
+static bool tag_is(const GumboToken* token, bool is_start, GumboTag tag) {
+  if (is_start && token->type == GUMBO_TOKEN_START_TAG) {
+    return token->v.start_tag.tag == tag;
+  } else if (!is_start && token->type == GUMBO_TOKEN_END_TAG) {
+    return token->v.end_tag == tag;
+  } else {
+    return false;
+  }
+}
+
+static inline bool tagset_includes (
+  const TagSet* tagset,
+  GumboNamespaceEnum ns,
+  GumboTag tag
+) {
+  return ((*tagset)[(unsigned) tag] & (1u << (unsigned) ns)) != 0u;
+}
+
+// Like tag_in, but checks for the tag of a node, rather than a token.
+static bool node_tag_in_set(const GumboNode* node, const TagSet* tags) {
+  assert(node != NULL);
+  if (node->type != GUMBO_NODE_ELEMENT && node->type != GUMBO_NODE_TEMPLATE) {
+    return false;
+  }
+  return tagset_includes (
+    tags,
+    node->v.element.tag_namespace,
+    node->v.element.tag
+  );
+}
+
+// Like node_tag_in, but for the single-tag case.
+static bool node_qualified_tag_is (
+  const GumboNode* node,
+  GumboNamespaceEnum ns,
+  GumboTag tag
+) {
+  assert(node);
+  return
+    (node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE)
+    && node->v.element.tag == tag
+    && node->v.element.tag_namespace == ns;
+}
+
+// Like node_tag_in, but for the single-tag case in the HTML namespace
+static bool node_html_tag_is(const GumboNode* node, GumboTag tag) {
+  return node_qualified_tag_is(node, GUMBO_NAMESPACE_HTML, tag);
+}
+
 // https://html.spec.whatwg.org/multipage/parsing.html#reset-the-insertion-mode-appropriately
 // This is a helper function that returns the appropriate insertion mode instead
 // of setting it. Returns GUMBO_INSERTION_MODE_INITIAL as a sentinel value to
@@ -674,74 +737,6 @@ static GumboError* parser_add_parse_error (
     );
   }
   return error;
-}
-
-// Returns true if the specified token is either a start or end tag
-// (specified by is_start) with one of the tag types in the TagSet.
-static bool tag_in (
-  const GumboToken* token,
-  bool is_start,
-  const TagSet* tags
-) {
-  GumboTag token_tag;
-  if (is_start && token->type == GUMBO_TOKEN_START_TAG) {
-    token_tag = token->v.start_tag.tag;
-  } else if (!is_start && token->type == GUMBO_TOKEN_END_TAG) {
-    token_tag = token->v.end_tag;
-  } else {
-    return false;
-  }
-  return (*tags)[(unsigned) token_tag] != 0u;
-}
-
-// Like tag_in, but for the single-tag case.
-static bool tag_is(const GumboToken* token, bool is_start, GumboTag tag) {
-  if (is_start && token->type == GUMBO_TOKEN_START_TAG) {
-    return token->v.start_tag.tag == tag;
-  } else if (!is_start && token->type == GUMBO_TOKEN_END_TAG) {
-    return token->v.end_tag == tag;
-  } else {
-    return false;
-  }
-}
-
-static inline bool tagset_includes (
-  const TagSet* tagset,
-  GumboNamespaceEnum ns,
-  GumboTag tag
-) {
-  return ((*tagset)[(unsigned) tag] & (1u << (unsigned) ns)) != 0u;
-}
-
-// Like tag_in, but checks for the tag of a node, rather than a token.
-static bool node_tag_in_set(const GumboNode* node, const TagSet* tags) {
-  assert(node != NULL);
-  if (node->type != GUMBO_NODE_ELEMENT && node->type != GUMBO_NODE_TEMPLATE) {
-    return false;
-  }
-  return tagset_includes (
-    tags,
-    node->v.element.tag_namespace,
-    node->v.element.tag
-  );
-}
-
-// Like node_tag_in, but for the single-tag case.
-static bool node_qualified_tag_is (
-  const GumboNode* node,
-  GumboNamespaceEnum ns,
-  GumboTag tag
-) {
-  assert(node);
-  return
-    (node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE)
-    && node->v.element.tag == tag
-    && node->v.element.tag_namespace == ns;
-}
-
-// Like node_tag_in, but for the single-tag case in the HTML namespace
-static bool node_html_tag_is(const GumboNode* node, GumboTag tag) {
-  return node_qualified_tag_is(node, GUMBO_NAMESPACE_HTML, tag);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#mathml-text-integration-point
@@ -2407,6 +2402,7 @@ static bool handle_before_head(GumboParser* parser, GumboToken* token) {
 // Forward declarations because of mutual dependencies.
 static bool handle_token(GumboParser* parser, GumboToken* token);
 static bool handle_in_body(GumboParser* parser, GumboToken* token);
+static bool handle_in_template(GumboParser* parser, GumboToken* token);
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inhead
 static bool handle_in_head(GumboParser* parser, GumboToken* token) {
