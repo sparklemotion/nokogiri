@@ -1,29 +1,23 @@
 # Nokogiri
 
-* http://nokogiri.org
-* Installation: http://nokogiri.org/tutorials/installing_nokogiri.html
-* Tutorials:    http://nokogiri.org
-* README:       https://github.com/sparklemotion/nokogiri
-* Mailing List: https://groups.google.com/group/nokogiri-talk
-* Bug Reports:  https://github.com/sparklemotion/nokogiri/issues
-
-
-## Status
-
-|System|Status|
-|--|--|
-| Concourse | [![Concourse CI](https://ci.nokogiri.org/api/v1/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.4-system/badge)](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri?groups=master) |
-| Travis | [![Travis Build Status](https://travis-ci.org/sparklemotion/nokogiri.svg?branch=master)](https://travis-ci.org/sparklemotion/nokogiri) |
-| Appveyor | [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/sparklemotion/nokogiri?branch=master&svg=true)](https://ci.appveyor.com/project/flavorjones/nokogiri?branch=master) |
-| Code Climate | [![Code Climate](https://codeclimate.com/github/sparklemotion/nokogiri.svg)](https://codeclimate.com/github/sparklemotion/nokogiri) |
-| Version Eye | [![Version Eye](https://www.versioneye.com/ruby/nokogiri/badge.png)](https://www.versioneye.com/ruby/nokogiri) |
-
-
 ## Description
 
 Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.  Among
 Nokogiri's many features is the ability to search documents via XPath
 or CSS3 selectors.
+
+* http://nokogiri.org
+* [Installation Help](http://nokogiri.org/tutorials/installing_nokogiri.html)
+* [Tutorials](http://nokogiri.org)
+* [GitHub](https://github.com/sparklemotion/nokogiri)
+* [Mailing List](https://groups.google.com/group/nokogiri-talk)
+* [Bug Reports](https://github.com/sparklemotion/nokogiri/issues)
+* [Chat/Gitter](https://gitter.im/sparklemotion/nokogiri)
+
+[![Concourse CI](https://ci.nokogiri.org/api/v1/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.4-system/badge)](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri?groups=master)
+[![Code Climate](https://codeclimate.com/github/sparklemotion/nokogiri.svg)](https://codeclimate.com/github/sparklemotion/nokogiri)
+[![Version Eye](https://www.versioneye.com/ruby/nokogiri/badge.png)](https://www.versioneye.com/ruby/nokogiri)
+[![Join the chat at https://gitter.im/sparklemotion/nokogiri](https://badges.gitter.im/sparklemotion/nokogiri.svg)](https://gitter.im/sparklemotion/nokogiri?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
 ## Features
