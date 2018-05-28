@@ -255,6 +255,18 @@ module Nokogiri
       def test_attribute
         assert_xpath  "//h1[@a = 'Tender Lovemaking']",
                       @parser.parse("h1[a='Tender Lovemaking']")
+        assert_xpath "//h1[@a]",
+                      @parser.parse("h1[a]")
+        assert_xpath %q{//h1[@a = 'gnewline\n']},
+                     @parser.parse("h1[a='\\gnew\\\nline\\\\n']")
+        assert_xpath "//h1[@a = 'test']",
+                     @parser.parse(%q{h1[a=\te\st]})
+        assert_xpath %q{//h1[@a = "'"]},
+                     @parser.parse(%q{h1[a="'"]})
+        assert_xpath %q{//h1[@a = concat("'", "")]},
+                     @parser.parse(%q{h1[a='\\'']})
+        assert_xpath %q{//h1[@a = concat("", '"', "'", "")]},
+                     @parser.parse(%q{h1[a='"\'']})
       end
 
       def test_attribute_with_number_or_string
