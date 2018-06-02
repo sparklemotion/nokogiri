@@ -500,6 +500,9 @@ static VALUE internal_subset(VALUE self)
  *
  * Copy this node.  An optional depth may be passed in, but it defaults
  * to a deep copy.  0 is a shallow copy, 1 is a deep copy.
+ * NOTE: any changes to the duplicated node will also alter the original node, 
+ * since they are contained in the same document. If you wish to change a duplicate
+ * of a node, create a new document based on the node instead.
  */
 static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
 {
