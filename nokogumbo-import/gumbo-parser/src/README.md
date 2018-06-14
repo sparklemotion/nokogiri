@@ -38,4 +38,4 @@ have been made:
 
 [libgumbo]: https://github.com/google/gumbo-parser/tree/aa91b27b02c0c80c482e24348a457ed7c3c088e0/src
 [license]: https://github.com/google/gumbo-parser/blob/aa91b27b02c0c80c482e24348a457ed7c3c088e0/COPYING
-[`0a04728`]: https://github.com/craigbarnes/lua-gumbo/commit/0a047282815af86f3367a7d95fefcfe5723ece48
+[`0a04728`]: https://gitlab.com/craigbarnes/lua-gumbo/commit/0a047282815af86f3367a7d95fefcfe5723ece48
