@@ -674,7 +674,10 @@ module Nokogiri
 
       def test_each
         employees = @xml.search("//employee")
-        assert_instance_of Enumerator, employees.each
+        enum = employees.each
+        assert_instance_of Enumerator, enum
+        assert_equal enum.next, employees[0]
+        assert_equal enum.next, employees[1]
       end
 
       def test_children
