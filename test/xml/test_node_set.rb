@@ -672,6 +672,11 @@ module Nokogiri
         assert ! empty_set.include?(employee)
       end
 
+      def test_each
+        employees = @xml.search("//employee")
+        assert_instance_of Enumerator, employees.each
+      end
+
       def test_children
         employees = @xml.search("//employee")
         count = 0
