@@ -50,10 +50,8 @@ static VALUE allocate(VALUE klass)
  * call-seq:
  *  dup
  *
- * Duplicate this node set. NOTE: any changes to the duplicated node set will also
- * alter the original node set, since they are contained in the same document. If you
- * wish to change a duplicate of a node set, create a new document based on the
- * node set instead.
+ * Duplicate this NodeSet. Note that the Nodes contained in the NodeSet are not
+ * duplicated (similar to how Array and other Enumerable classes work).
  */
 static VALUE duplicate(VALUE self)
 {
