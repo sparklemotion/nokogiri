@@ -27,12 +27,17 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 * Node#classes, #add_class, #append_class, and #remove_class are added.
 * NodeSet#append_class is added.
 * NodeSet#remove_attribute is a new alias for NodeSet#remove_attr.
+* NodeSet#each now returns an Enumerator when no block is passed (Thanks, @park53kr!)
+* [JRuby] General improvements in JRuby implementation (Thanks, @kares!)
 
 
 ## Bug fixes
 
 * CSS attribute selectors now gracefully handle queries using integers. [#711]
+* Handle ASCII-8BIT encoding on fragment input [#553]
+* Handle non-string return values within `Reader` [#898]
 * [JRuby] Allow Node#replace to insert Comment and CDATA nodes. [#1666]
+* [JRuby] Stability and speed improvements to `Node`, `Sax::PushParser`, and the JRuby implementation [#1708, #1710, #1501]
 
 
 # 1.8.2 / 2018-01-29
