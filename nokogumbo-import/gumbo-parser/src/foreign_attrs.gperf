@@ -1,5 +1,6 @@
 %{
 #include "replacement.h"
+#include "macros.h"
 %}
 
 %struct-type

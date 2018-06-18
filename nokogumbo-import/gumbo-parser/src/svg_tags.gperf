@@ -1,5 +1,7 @@
 %{
 #include "replacement.h"
+#include "macros.h"
+#include "util.h"
 %}
 
 %ignore-case

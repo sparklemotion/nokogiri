@@ -1,5 +1,7 @@
 %{
 #include "tag_lookup.h"
+#include "macros.h"
+#include "util.h"
 %}
 
 %ignore-case
