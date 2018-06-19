@@ -34,16 +34,6 @@
 #include "util.h"
 #include "vector.h"
 
-#define GUMBO_STRING(literal) { \
-  .data = literal, \
-  .length = sizeof(literal) - 1 \
-}
-
-#define TERMINATOR { \
-  .data = "", \
-  .length = 0 \
-}
-
 typedef const uint8_t TagSet[GUMBO_TAG_LAST + 1];
 #define TAG(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_HTML)
 #define TAG_SVG(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_SVG)
@@ -63,25 +53,27 @@ const GumboOptions kGumboDefaultOptions = {
   .fragment_namespace = GUMBO_NAMESPACE_HTML
 };
 
-static const GumboStringPiece kDoctypeHtml = GUMBO_STRING("html");
+#define STRING(s) {.data = s, .length = sizeof(s) - 1}
+#define TERMINATOR {.data = "", .length = 0}
+
 static const GumboStringPiece kPublicIdHtml4_0 =
-  GUMBO_STRING("-//W3C//DTD HTML 4.0//EN");
+  STRING("-//W3C//DTD HTML 4.0//EN");
 static const GumboStringPiece kPublicIdHtml4_01 =
-  GUMBO_STRING("-//W3C//DTD HTML 4.01//EN");
+  STRING("-//W3C//DTD HTML 4.01//EN");
 static const GumboStringPiece kPublicIdXhtml1_0 =
-  GUMBO_STRING("-//W3C//DTD XHTML 1.0 Strict//EN");
+  STRING("-//W3C//DTD XHTML 1.0 Strict//EN");
 static const GumboStringPiece kPublicIdXhtml1_1 =
-  GUMBO_STRING("-//W3C//DTD XHTML 1.1//EN");
+  STRING("-//W3C//DTD XHTML 1.1//EN");
 static const GumboStringPiece kSystemIdRecHtml4_0 =
-  GUMBO_STRING("http://www.w3.org/TR/REC-html40/strict.dtd");
+  STRING("http://www.w3.org/TR/REC-html40/strict.dtd");
 static const GumboStringPiece kSystemIdHtml4 =
-  GUMBO_STRING("http://www.w3.org/TR/html4/strict.dtd");
+  STRING("http://www.w3.org/TR/html4/strict.dtd");
 static const GumboStringPiece kSystemIdXhtmlStrict1_1 =
-  GUMBO_STRING("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
+  STRING("http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
 static const GumboStringPiece kSystemIdXhtml1_1 =
-  GUMBO_STRING("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd");
+  STRING("http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd");
 static const GumboStringPiece kSystemIdLegacyCompat =
-  GUMBO_STRING("about:legacy-compat");
+  STRING("about:legacy-compat");
 
 // The doctype arrays have an explicit terminator because we want to pass them
 // to a helper function, and passing them as a pointer discards sizeof
@@ -89,89 +81,89 @@ static const GumboStringPiece kSystemIdLegacyCompat =
 // over them use sizeof directly instead of a terminator.
 
 static const GumboStringPiece kQuirksModePublicIdPrefixes[] = {
-  GUMBO_STRING("+//Silmaril//dtd html Pro v0r11 19970101//"),
-  GUMBO_STRING("-//AdvaSoft Ltd//DTD HTML 3.0 asWedit + extensions//"),
-  GUMBO_STRING("-//AS//DTD HTML 3.0 asWedit + extensions//"),
-  GUMBO_STRING("-//IETF//DTD HTML 2.0 Level 1//"),
-  GUMBO_STRING("-//IETF//DTD HTML 2.0 Level 2//"),
-  GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict Level 1//"),
-  GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict Level 2//"),
-  GUMBO_STRING("-//IETF//DTD HTML 2.0 Strict//"),
-  GUMBO_STRING("-//IETF//DTD HTML 2.0//"),
-  GUMBO_STRING("-//IETF//DTD HTML 2.1E//"),
-  GUMBO_STRING("-//IETF//DTD HTML 3.0//"),
-  GUMBO_STRING("-//IETF//DTD HTML 3.2 Final//"),
-  GUMBO_STRING("-//IETF//DTD HTML 3.2//"),
-  GUMBO_STRING("-//IETF//DTD HTML 3//"),
-  GUMBO_STRING("-//IETF//DTD HTML Level 0//"),
-  GUMBO_STRING("-//IETF//DTD HTML Level 1//"),
-  GUMBO_STRING("-//IETF//DTD HTML Level 2//"),
-  GUMBO_STRING("-//IETF//DTD HTML Level 3//"),
-  GUMBO_STRING("-//IETF//DTD HTML Strict Level 0//"),
-  GUMBO_STRING("-//IETF//DTD HTML Strict Level 1//"),
-  GUMBO_STRING("-//IETF//DTD HTML Strict Level 2//"),
-  GUMBO_STRING("-//IETF//DTD HTML Strict Level 3//"),
-  GUMBO_STRING("-//IETF//DTD HTML Strict//"),
-  GUMBO_STRING("-//IETF//DTD HTML//"),
-  GUMBO_STRING("-//Metrius//DTD Metrius Presentational//"),
-  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 HTML Strict//"),
-  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 HTML//"),
-  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 2.0 Tables//"),
-  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 HTML Strict//"),
-  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 HTML//"),
-  GUMBO_STRING("-//Microsoft//DTD Internet Explorer 3.0 Tables//"),
-  GUMBO_STRING("-//Netscape Comm. Corp.//DTD HTML//"),
-  GUMBO_STRING("-//Netscape Comm. Corp.//DTD Strict HTML//"),
-  GUMBO_STRING("-//O'Reilly and Associates//DTD HTML 2.0//"),
-  GUMBO_STRING("-//O'Reilly and Associates//DTD HTML Extended 1.0//"),
-  GUMBO_STRING("-//O'Reilly and Associates//DTD HTML Extended Relaxed 1.0//"),
-  GUMBO_STRING(
+  STRING("+//Silmaril//dtd html Pro v0r11 19970101//"),
+  STRING("-//AdvaSoft Ltd//DTD HTML 3.0 asWedit + extensions//"),
+  STRING("-//AS//DTD HTML 3.0 asWedit + extensions//"),
+  STRING("-//IETF//DTD HTML 2.0 Level 1//"),
+  STRING("-//IETF//DTD HTML 2.0 Level 2//"),
+  STRING("-//IETF//DTD HTML 2.0 Strict Level 1//"),
+  STRING("-//IETF//DTD HTML 2.0 Strict Level 2//"),
+  STRING("-//IETF//DTD HTML 2.0 Strict//"),
+  STRING("-//IETF//DTD HTML 2.0//"),
+  STRING("-//IETF//DTD HTML 2.1E//"),
+  STRING("-//IETF//DTD HTML 3.0//"),
+  STRING("-//IETF//DTD HTML 3.2 Final//"),
+  STRING("-//IETF//DTD HTML 3.2//"),
+  STRING("-//IETF//DTD HTML 3//"),
+  STRING("-//IETF//DTD HTML Level 0//"),
+  STRING("-//IETF//DTD HTML Level 1//"),
+  STRING("-//IETF//DTD HTML Level 2//"),
+  STRING("-//IETF//DTD HTML Level 3//"),
+  STRING("-//IETF//DTD HTML Strict Level 0//"),
+  STRING("-//IETF//DTD HTML Strict Level 1//"),
+  STRING("-//IETF//DTD HTML Strict Level 2//"),
+  STRING("-//IETF//DTD HTML Strict Level 3//"),
+  STRING("-//IETF//DTD HTML Strict//"),
+  STRING("-//IETF//DTD HTML//"),
+  STRING("-//Metrius//DTD Metrius Presentational//"),
+  STRING("-//Microsoft//DTD Internet Explorer 2.0 HTML Strict//"),
+  STRING("-//Microsoft//DTD Internet Explorer 2.0 HTML//"),
+  STRING("-//Microsoft//DTD Internet Explorer 2.0 Tables//"),
+  STRING("-//Microsoft//DTD Internet Explorer 3.0 HTML Strict//"),
+  STRING("-//Microsoft//DTD Internet Explorer 3.0 HTML//"),
+  STRING("-//Microsoft//DTD Internet Explorer 3.0 Tables//"),
+  STRING("-//Netscape Comm. Corp.//DTD HTML//"),
+  STRING("-//Netscape Comm. Corp.//DTD Strict HTML//"),
+  STRING("-//O'Reilly and Associates//DTD HTML 2.0//"),
+  STRING("-//O'Reilly and Associates//DTD HTML Extended 1.0//"),
+  STRING("-//O'Reilly and Associates//DTD HTML Extended Relaxed 1.0//"),
+  STRING(
     "-//SoftQuad Software//DTD HoTMetaL PRO 6.0::19990601::)"
     "extensions to HTML 4.0//"),
-  GUMBO_STRING(
+  STRING(
     "-//SoftQuad//DTD HoTMetaL PRO 4.0::19971010::"
     "extensions to HTML 4.0//"),
-  GUMBO_STRING("-//Spyglass//DTD HTML 2.0 Extended//"),
-  GUMBO_STRING("-//SQ//DTD HTML 2.0 HoTMetaL + extensions//"),
-  GUMBO_STRING("-//Sun Microsystems Corp.//DTD HotJava HTML//"),
-  GUMBO_STRING("-//Sun Microsystems Corp.//DTD HotJava Strict HTML//"),
-  GUMBO_STRING("-//W3C//DTD HTML 3 1995-03-24//"),
-  GUMBO_STRING("-//W3C//DTD HTML 3.2 Draft//"),
-  GUMBO_STRING("-//W3C//DTD HTML 3.2 Final//"),
-  GUMBO_STRING("-//W3C//DTD HTML 3.2//"),
-  GUMBO_STRING("-//W3C//DTD HTML 3.2S Draft//"),
-  GUMBO_STRING("-//W3C//DTD HTML 4.0 Frameset//"),
-  GUMBO_STRING("-//W3C//DTD HTML 4.0 Transitional//"),
-  GUMBO_STRING("-//W3C//DTD HTML Experimental 19960712//"),
-  GUMBO_STRING("-//W3C//DTD HTML Experimental 970421//"),
-  GUMBO_STRING("-//W3C//DTD W3 HTML//"),
-  GUMBO_STRING("-//W3O//DTD W3 HTML 3.0//"),
-  GUMBO_STRING("-//WebTechs//DTD Mozilla HTML 2.0//"),
-  GUMBO_STRING("-//WebTechs//DTD Mozilla HTML//"),
+  STRING("-//Spyglass//DTD HTML 2.0 Extended//"),
+  STRING("-//SQ//DTD HTML 2.0 HoTMetaL + extensions//"),
+  STRING("-//Sun Microsystems Corp.//DTD HotJava HTML//"),
+  STRING("-//Sun Microsystems Corp.//DTD HotJava Strict HTML//"),
+  STRING("-//W3C//DTD HTML 3 1995-03-24//"),
+  STRING("-//W3C//DTD HTML 3.2 Draft//"),
+  STRING("-//W3C//DTD HTML 3.2 Final//"),
+  STRING("-//W3C//DTD HTML 3.2//"),
+  STRING("-//W3C//DTD HTML 3.2S Draft//"),
+  STRING("-//W3C//DTD HTML 4.0 Frameset//"),
+  STRING("-//W3C//DTD HTML 4.0 Transitional//"),
+  STRING("-//W3C//DTD HTML Experimental 19960712//"),
+  STRING("-//W3C//DTD HTML Experimental 970421//"),
+  STRING("-//W3C//DTD W3 HTML//"),
+  STRING("-//W3O//DTD W3 HTML 3.0//"),
+  STRING("-//WebTechs//DTD Mozilla HTML 2.0//"),
+  STRING("-//WebTechs//DTD Mozilla HTML//"),
   TERMINATOR
 };
 
 static const GumboStringPiece kQuirksModePublicIdExactMatches[] = {
-  GUMBO_STRING("-//W3O//DTD W3 HTML Strict 3.0//EN//"),
-  GUMBO_STRING("-/W3C/DTD HTML 4.0 Transitional/EN"),
-  GUMBO_STRING("HTML"),
+  STRING("-//W3O//DTD W3 HTML Strict 3.0//EN//"),
+  STRING("-/W3C/DTD HTML 4.0 Transitional/EN"),
+  STRING("HTML"),
   TERMINATOR
 };
 
 static const GumboStringPiece kQuirksModeSystemIdExactMatches[] = {
-  GUMBO_STRING("http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd"),
+  STRING("http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd"),
   TERMINATOR
 };
 
 static const GumboStringPiece kLimitedQuirksPublicIdPrefixes[] = {
-  GUMBO_STRING("-//W3C//DTD XHTML 1.0 Frameset//"),
-  GUMBO_STRING("-//W3C//DTD XHTML 1.0 Transitional//"),
+  STRING("-//W3C//DTD XHTML 1.0 Frameset//"),
+  STRING("-//W3C//DTD XHTML 1.0 Transitional//"),
   TERMINATOR
 };
 
-static const GumboStringPiece kLimitedQuirksRequiresSystemIdPublicIdPrefixes[] = {
-  GUMBO_STRING("-//W3C//DTD HTML 4.01 Frameset//"),
-  GUMBO_STRING("-//W3C//DTD HTML 4.01 Transitional//"),
+static const GumboStringPiece kSystemIdDependentPublicIdPrefixes[] = {
+  STRING("-//W3C//DTD HTML 4.01 Frameset//"),
+  STRING("-//W3C//DTD HTML 4.01 Transitional//"),
   TERMINATOR
 };
 
@@ -1435,27 +1427,34 @@ static void clear_active_formatting_elements(GumboParser* parser) {
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
-static GumboQuirksModeEnum compute_quirks_mode (
-  const GumboTokenDocType* doctype
-) {
-  if (doctype->force_quirks || strcmp(doctype->name, kDoctypeHtml.data) ||
-      is_in_static_list(
-          doctype->public_identifier, kQuirksModePublicIdPrefixes, false) ||
-      is_in_static_list(
-          doctype->public_identifier, kQuirksModePublicIdExactMatches, true) ||
-      is_in_static_list(
-          doctype->system_identifier, kQuirksModeSystemIdExactMatches, true) ||
-      (is_in_static_list(doctype->public_identifier,
-           kLimitedQuirksRequiresSystemIdPublicIdPrefixes, false) &&
-          !doctype->has_system_identifier)) {
+static GumboQuirksModeEnum compute_quirks_mode(const GumboTokenDocType* doctype) {
+  const char *const pubid = doctype->public_identifier;
+  const char *const sysid = doctype->system_identifier;
+
+  if (
+    doctype->force_quirks
+    || strcmp(doctype->name, "html")
+    || is_in_static_list(pubid, kQuirksModePublicIdPrefixes, false)
+    || is_in_static_list(pubid, kQuirksModePublicIdExactMatches, true)
+    || is_in_static_list(sysid, kQuirksModeSystemIdExactMatches, true)
+    || (
+      !doctype->has_system_identifier
+      && is_in_static_list(pubid, kSystemIdDependentPublicIdPrefixes, false)
+    )
+  ) {
     return GUMBO_DOCTYPE_QUIRKS;
-  } else if (is_in_static_list(doctype->public_identifier,
-                 kLimitedQuirksPublicIdPrefixes, false) ||
-             (is_in_static_list(doctype->public_identifier,
-                  kLimitedQuirksRequiresSystemIdPublicIdPrefixes, false) &&
-                 doctype->has_system_identifier)) {
+  }
+
+  if (
+    is_in_static_list(pubid, kLimitedQuirksPublicIdPrefixes, false)
+    || (
+      doctype->has_system_identifier
+      && is_in_static_list(pubid, kSystemIdDependentPublicIdPrefixes, false)
+    )
+  ) {
     return GUMBO_DOCTYPE_LIMITED_QUIRKS;
   }
+
   return GUMBO_DOCTYPE_NO_QUIRKS;
 }
 
@@ -1926,7 +1925,7 @@ static bool maybe_add_doctype_error (
   const GumboToken* token
 ) {
   const GumboTokenDocType* doctype = &token->v.doc_type;
-  bool html_doctype = !strcmp(doctype->name, kDoctypeHtml.data);
+  bool html_doctype = !strcmp(doctype->name, "html");
   if ((!html_doctype || doctype->has_public_identifier ||
           (doctype->has_system_identifier &&
               !strcmp(
