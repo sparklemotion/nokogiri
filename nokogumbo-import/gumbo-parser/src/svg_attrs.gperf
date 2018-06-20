@@ -15,10 +15,6 @@
 %define slot-name from
 StringReplacement;
 
-// "contentscripttype", "contentScriptType"
-// "contentstyletype", "contentStyleType"
-// "externalresourcesrequired", "externalResourcesRequired"
-// "filterres", "filterRes"
 %%
 "attributename", "attributeName"
 "attributetype", "attributeType"
