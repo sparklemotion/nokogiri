@@ -30,7 +30,6 @@ typedef xmlNodePtr (*pivot_reparentee_func)(xmlNodePtr, xmlNodePtr);
 /* :nodoc: */
 static void relink_namespace(xmlNodePtr reparented)
 {
-  xmlChar *name, *prefix;
   xmlNodePtr child;
   xmlNsPtr ns;
 
@@ -38,10 +37,16 @@ static void relink_namespace(xmlNodePtr reparented)
       reparented->type != XML_ELEMENT_NODE) { return; }
 
   if (reparented->ns == NULL || reparented->ns->prefix == NULL) {
+    xmlChar *name = 0, *prefix = 0;
+
     name = xmlSplitQName2(reparented->name, &prefix);
 
-    if(reparented->type == XML_ATTRIBUTE_NODE) {
-      if (prefix == NULL || strcmp((char*)prefix, XMLNS_PREFIX) == 0) { return; }
+    if (reparented->type == XML_ATTRIBUTE_NODE) {
+      if (prefix == NULL || strcmp((char*)prefix, XMLNS_PREFIX) == 0) {
+        xmlFree(name);
+        xmlFree(prefix);
+        return;
+      }
     }
 
     ns = xmlSearchNs(reparented->doc, reparented, prefix);
@@ -54,6 +59,9 @@ static void relink_namespace(xmlNodePtr reparented)
       xmlNodeSetName(reparented, name);
       xmlSetNs(reparented, ns);
     }
+
+    xmlFree(name);
+    xmlFree(prefix);
   }
 
   /* Avoid segv when relinking against unlinked nodes. */
