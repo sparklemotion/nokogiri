@@ -1,8 +1,8 @@
-# unreleased
+# 1.8.4 / 2018-07-03
 
 ## Bug fixes
 
-* [MRI] Fix memory leak when creating nodes with namespaces. [#1771]
+* [MRI] Fix memory leak when creating nodes with namespaces. (Introduced in v1.5.7) [#1771]
 
 
 # 1.8.3 / 2018-06-16
