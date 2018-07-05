@@ -44,7 +44,7 @@ module Nokogiri
 
       ###
       # Returns the index of the first node in self that is == to +node+ or meets the given block. Returns nil if no match is found.
-      def index(node = nil, &block)
+      def index(node = nil)
         if node
           warn "given block not used" if block_given?
           each_with_index { |member, j| return j if member == node }
@@ -197,7 +197,7 @@ module Nokogiri
 
       ###
       # Iterate over each node, yielding  to +block+
-      def each(&block)
+      def each
         return to_enum unless block_given?
 
         0.upto(length - 1) do |x|
@@ -230,8 +230,8 @@ module Nokogiri
       end
 
       ###
-      # Wrap this NodeSet with +html+ or the results of the builder in +blk+
-      def wrap(html, &blk)
+      # Wrap this NodeSet with +html+
+      def wrap(html)
         each do |j|
           new_parent = document.parse(html).first
           j.add_next_sibling(new_parent)

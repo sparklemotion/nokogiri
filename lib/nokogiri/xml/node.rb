@@ -795,7 +795,7 @@ module Nokogiri
       # Do xinclude substitution on the subtree below node. If given a block, a
       # Nokogiri::XML::ParseOptions object initialized from +options+, will be
       # passed to it, allowing more convenient modification of the parser options.
-      def do_xinclude options = XML::ParseOptions::DEFAULT_XML, &block
+      def do_xinclude options = XML::ParseOptions::DEFAULT_XML
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
 
         # give options to user
