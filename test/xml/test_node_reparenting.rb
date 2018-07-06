@@ -197,6 +197,17 @@ module Nokogiri
             end
           end
 
+          describe "given the new document is empty" do
+            it "adds the node to the new document" do
+              doc1 = Nokogiri::XML.parse("<value>3</value>")
+              doc2 = Nokogiri::XML::Document.new
+              node = doc1.at_xpath("//value")
+              node.remove
+              doc2.add_child(node)
+              assert_match /<value>3<\/value>/, doc2.to_xml
+            end
+          end
+
           describe "given a parent node with a default namespace" do
             before do
               @doc = Nokogiri::XML(<<-eoxml)
