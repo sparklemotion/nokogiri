@@ -1542,6 +1542,10 @@ public class XmlNode extends RubyObject {
          try {
             Document prev = otherNode.getOwnerDocument();
             Document doc = thisNode.getOwnerDocument();
+            if (doc == null && thisNode instanceof Document) {
+              // we are adding the new node to a new empty document
+              doc = (Document) thisNode;
+            }
             clearXpathContext(prev);
             clearXpathContext(doc);
             if (doc != null && doc != otherNode.getOwnerDocument()) {
