@@ -89,12 +89,13 @@ public class XmlDocumentFragment extends XmlNode {
         
         // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
         if (args.length > 1 && args[1] instanceof RubyString) {
-            if (XmlDocumentFragment.isTag((RubyString)args[1])) {
-                args[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(args[1])));
+            final RubyString arg1 = (RubyString) args[1];
+            if (XmlDocumentFragment.isTag(arg1)) {
+                args[1] = RubyString.newString(context.runtime, addNamespaceDeclIfNeeded(doc, rubyStringToString(arg1)));
             }
         }
 
-        XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)cls);
+        XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.runtime, (RubyClass)cls);
         fragment.setDocument(context, doc);
         fragment.setNode(context, doc.getDocument().createDocumentFragment());
 

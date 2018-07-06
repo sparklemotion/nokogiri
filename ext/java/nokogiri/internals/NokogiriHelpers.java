@@ -247,42 +247,13 @@ public class NokogiriHelpers {
         return ("xmlns".equals(localName)) ? null : localName;
     }
 
-    private static final Charset UTF8 = Charset.forName("UTF-8");
-
-    /**
-     * Converts a RubyString in to a Java String.  Assumes the
-     * RubyString is encoded as UTF-8.  This is generally the case for
-     * RubyStrings created with getRuntime().newString("java string").
-     * It also seems to be the case for strings created within Ruby
-     * where $KCODE has not been set.
-     *
-     * Note that RubyString#toString() decodes the string data as
-     * ISO-8859-1 (See org.jruby.util.ByteList.java).  This is not
-     * what you want if you have any multibyte characters in your
-     * UTF-8 string.
-     *
-     * FIXME: This really needs to be more robust in terms of
-     * detecting the encoding and properly converting to a Java
-     * String.  It's unfortunate that RubyString#toString() doesn't do
-     * this for us.
-     */
     public static String rubyStringToString(IRubyObject str) {
         if (str.isNil()) return null;
-        //return rubyStringToString(str.convertToString());
-        return toJavaString(str.convertToString());
-    }
-    
-    private static String toJavaString(RubyString str) {
-        return str.decodeString(); // toString()
+        return str.convertToString().decodeString();
     }
 
     public static String rubyStringToString(RubyString str) {
-        ByteList byteList = str.getByteList();
-        byte[] data = byteList.unsafeBytes();
-        int offset = byteList.begin();
-        int len = byteList.length();
-        ByteBuffer buf = ByteBuffer.wrap(data, offset, len);
-        return UTF8.decode(buf).toString();
+        return str.decodeString(); // if encoding UTF-8 will decode UTF-8
     }
 
     public static ByteArrayInputStream stringBytesToStream(final IRubyObject str) {
@@ -494,31 +465,18 @@ public class NokogiriHelpers {
         return buffer;
     }
 
-    protected static boolean compareTwoNodes(Node m, Node n) {
+    static boolean compareTwoNodes(Node m, Node n) {
         return nodesAreEqual(m.getLocalName(), n.getLocalName()) &&
                nodesAreEqual(m.getPrefix(), n.getPrefix());
-    }
-
-    protected static boolean fullNamesMatch(Node a, Node b) {
-        return a.getNodeName().equals(b.getNodeName());
-    }
-
-    protected static String getFullName(Node n) {
-        String lname = n.getLocalName();
-        String prefix = n.getPrefix();
-        if (lname != null) {
-            if (prefix != null)
-                return prefix + ":" + lname;
-            else
-                return lname;
-        } else {
-            return n.getNodeName();
-        }
     }
 
     private static boolean nodesAreEqual(Object a, Object b) {
         return (((a == null) && (b == null)) ||
                 ((a != null) && (b != null) && (b.equals(a))));
+    }
+
+    private static boolean fullNamesMatch(Node a, Node b) {
+        return a.getNodeName().equals(b.getNodeName());
     }
 
     private static final Pattern encoded_pattern = Pattern.compile("&amp;|&gt;|&lt;|&#13;");
@@ -705,9 +663,13 @@ public class NokogiriHelpers {
         return null;
     }
 
+    private static final Charset UTF8 = Charset.forName("UTF-8");
+
     public static boolean isUTF8(String encoding) {
         if (encoding == null) return true; // no need to convert encoding
-        return Charset.forName(encoding).compareTo(UTF8) == 0;
+
+        if ("UTF-8".equals(encoding)) return true;
+        return UTF8.aliases().contains(encoding);
     }
 
     public static ByteBuffer convertEncoding(Charset output_charset, CharSequence input_string) {
