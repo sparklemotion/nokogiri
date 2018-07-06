@@ -994,8 +994,7 @@ public class XmlNode extends RubyObject {
      * Instance method version of the above static method.
      */
     @JRubyMethod(name="encode_special_chars")
-    public IRubyObject i_encode_special_chars(ThreadContext context,
-                                              IRubyObject string) {
+    public IRubyObject i_encode_special_chars(ThreadContext context, IRubyObject string) {
         return encode_special_chars(context, string);
     }
 
@@ -1007,14 +1006,14 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(visibility = Visibility.PRIVATE)
     public IRubyObject get(ThreadContext context, IRubyObject rbkey) {
         if (node instanceof Element) {
-            if (rbkey == null || rbkey.isNil()) context.getRuntime().getNil();
+            if (rbkey == null || rbkey.isNil()) return context.nil;
             String key = rubyStringToString(rbkey);
             Element element = (Element) node;
-            if (!element.hasAttribute(key)) return context.getRuntime().getNil();
+            if (!element.hasAttribute(key)) return context.nil;
             String value = element.getAttribute(key);
-            return stringOrNil(context.getRuntime(), value);
+            return stringOrNil(context.runtime, value);
         }
-        return context.getRuntime().getNil();
+        return context.nil;
     }
 
     /**
@@ -1277,7 +1276,7 @@ public class XmlNode extends RubyObject {
         IRubyObject indentString = args[2];
         IRubyObject options = args[3];
 
-        String encString = encoding.isNil() ? null : rubyStringToString(encoding);
+        String encString = rubyStringToString(encoding);
 
         SaveContextVisitor visitor =
             new SaveContextVisitor(RubyFixnum.fix2int(options), rubyStringToString(indentString), encString, isHtmlDoc(context), isFragment(), 0);
@@ -1419,8 +1418,8 @@ public class XmlNode extends RubyObject {
             }
         } else {
             XmlNamespace ns = (XmlNamespace) namespace;
-            String prefix = rubyStringToString(ns.prefix(context));
-            String href = rubyStringToString(ns.href(context));
+            String prefix = rubyStringToString(ns.prefix);
+            String href = rubyStringToString(ns.href);
 
             // Assigning node = ...renameNode() or not seems to make no
             // difference.  Why not? -pmahoney

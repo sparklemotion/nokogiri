@@ -32,7 +32,6 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.CACHED_NODE;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
@@ -61,8 +60,8 @@ import org.w3c.dom.Node;
 @JRubyClass(name="Nokogiri::XML::Namespace")
 public class XmlNamespace extends RubyObject {
     private Attr attr;
-    private IRubyObject prefix;
-    private IRubyObject href;
+    IRubyObject prefix;
+    IRubyObject href;
     private String prefixString;
     private String hrefString;
 

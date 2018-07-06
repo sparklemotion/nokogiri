@@ -175,24 +175,24 @@ public class XmlDocument extends XmlNode {
         super(ruby, klass, document);
         nsCache = contextDoc.getNamespaceCache();
         XmlNamespace default_ns = nsCache.getDefault();
-        String default_href = rubyStringToString(default_ns.href(ruby.getCurrentContext()));
-        resolveNamespaceIfNecessary(ruby.getCurrentContext(), document.getDocumentElement(), default_href);
+        String default_href = rubyStringToString(default_ns.href);
+        resolveNamespaceIfNecessary(document.getDocumentElement(), default_href);
     }
 
-    private void resolveNamespaceIfNecessary(ThreadContext context, Node node, String default_href) {
+    private void resolveNamespaceIfNecessary(Node node, String default_href) {
         if (node == null) return;
         String nodePrefix = node.getPrefix();
         if (nodePrefix == null) { // default namespace
             NokogiriHelpers.renameNode(node, default_href, node.getNodeName());
         } else {
             XmlNamespace xmlNamespace = nsCache.get(node, nodePrefix);
-            String href = rubyStringToString(xmlNamespace.href(context));
+            String href = rubyStringToString(xmlNamespace.href);
             NokogiriHelpers.renameNode(node, href, node.getNodeName());
         }
-        resolveNamespaceIfNecessary(context, node.getNextSibling(), default_href);
+        resolveNamespaceIfNecessary(node.getNextSibling(), default_href);
         NodeList children = node.getChildNodes();
         for (int i=0; i<children.getLength(); i++) {
-            resolveNamespaceIfNecessary(context, children.item(i), default_href);
+            resolveNamespaceIfNecessary(children.item(i), default_href);
         }
     }
 
@@ -293,10 +293,11 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod
     public IRubyObject encoding(ThreadContext context) {
         if (this.encoding == null || this.encoding.isNil()) {
-            if (getDocument().getXmlEncoding() == null) {
-                this.encoding = context.getRuntime().getNil();
+            final String enc = getDocument().getXmlEncoding();
+            if (enc == null) {
+                this.encoding = context.nil;
             } else {
-                this.encoding = context.getRuntime().newString(getDocument().getXmlEncoding());
+                this.encoding = context.runtime.newString(enc);
             }
         }
 
