@@ -586,14 +586,14 @@ public class NokogiriHelpers {
     public static IRubyObject[] nodeListToRubyArray(Ruby ruby, NodeList nodes) {
         IRubyObject[] array = new IRubyObject[nodes.getLength()];
         for (int i = 0; i < nodes.getLength(); i++) {
-          array[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i));
+            array[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i));
         }
         return array;
     }
 
     public static IRubyObject[] nodeArrayToArray(Ruby ruby, Node[] nodes) {
         IRubyObject[] result = new IRubyObject[nodes.length];
-        for(int i = 0; i < nodes.length; i++) {
+        for (int i = 0; i < nodes.length; i++) {
             result[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]);
         }
         return result;
@@ -601,7 +601,7 @@ public class NokogiriHelpers {
 
     public static RubyArray nodeArrayToRubyArray(Ruby ruby, Node[] nodes) {
         RubyArray n = RubyArray.newArray(ruby, nodes.length);
-        for(int i = 0; i < nodes.length; i++) {
+        for (int i = 0; i < nodes.length; i++) {
             n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]));
         }
         return n;
@@ -609,7 +609,7 @@ public class NokogiriHelpers {
 
     public static RubyArray namedNodeMapToRubyArray(Ruby ruby, NamedNodeMap map) {
         RubyArray n = RubyArray.newArray(ruby, map.getLength());
-        for(int i = 0; i < map.getLength(); i++) {
+        for (int i = 0; i < map.getLength(); i++) {
             n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, map.item(i)));
         }
         return n;
@@ -745,17 +745,17 @@ public class NokogiriHelpers {
       return !shouldEncode(text);
     }
 
-    public static NokogiriNamespaceCache getNamespaceCacheFormNode(Node n) {
-        XmlDocument xmlDoc = (XmlDocument)getCachedNode(n.getOwnerDocument());
+    public static NokogiriNamespaceCache getNamespaceCache(Node node) {
+        XmlDocument xmlDoc = (XmlDocument) getCachedNode(node.getOwnerDocument());
         return xmlDoc.getNamespaceCache();
     }
 
-    public static Node renameNode(Node n, String namespaceURI, String qualifiedName) throws DOMException {
-        Document doc = n.getOwnerDocument();
-        NokogiriNamespaceCache nsCache = getNamespaceCacheFormNode(n);
-        Node result = doc.renameNode(n, namespaceURI, qualifiedName);
-        if (result != n) {
-            nsCache.replaceNode(n, result);
+    public static Node renameNode(Node node, String namespaceURI, String qualifiedName) throws DOMException {
+        Document doc = node.getOwnerDocument();
+        NokogiriNamespaceCache nsCache = getNamespaceCache(node);
+        Node result = doc.renameNode(node, namespaceURI, qualifiedName);
+        if (result != node) {
+            nsCache.replaceNode(node, result);
         }
         return result;
     }

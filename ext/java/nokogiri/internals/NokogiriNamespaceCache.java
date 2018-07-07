@@ -129,7 +129,7 @@ public class NokogiriNamespaceCache {
         keys.add(key);
         CacheEntry entry = new CacheEntry(namespace, ownerNode);
         cache.put(key, entry);
-        if ("".equals(prefixString)) defaultNamespace = namespace;
+        if (prefixString.isEmpty()) defaultNamespace = namespace;
     }
 
     public void remove(String prefix, String href) {
@@ -145,7 +145,7 @@ public class NokogiriNamespaceCache {
             CacheEntry entry = cache.get(key);
             NamedNodeMap attributes = entry.ownerNode.getAttributes();
             for (int j=0; j<attributes.getLength(); j++) {
-                String name = ((Attr)attributes.item(j)).getName();
+                String name = ((Attr) attributes.item(j)).getName();
                 if (isNamespace(name)) {
                     attributes.removeNamedItem(name);
                 }

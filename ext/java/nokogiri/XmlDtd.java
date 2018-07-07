@@ -432,18 +432,15 @@ public class XmlDtd extends XmlNode {
             if (isExternalSubset(node)) {
                 break;
             } else if (isAttributeDecl(node)) {
-                XmlAttributeDecl decl = (XmlAttributeDecl)
-                    XmlAttributeDecl.create(context, node);
+                XmlAttributeDecl decl = XmlAttributeDecl.create(context, node);
                 attributes.op_aset(context, decl.attribute_name(context), decl);
                 decls.add(decl);
             } else if (isElementDecl(node)) {
-                XmlElementDecl decl = (XmlElementDecl)
-                    XmlElementDecl.create(context, node);
+                XmlElementDecl decl = XmlElementDecl.create(context, node);
                 elements.op_aset(context, decl.element_name(context), decl);
                 decls.add(decl);
             } else if (isEntityDecl(node)) {
-                XmlEntityDecl decl = (XmlEntityDecl)
-                    XmlEntityDecl.create(context, node);
+                XmlEntityDecl decl = XmlEntityDecl.create(context, node);
                 entities.op_aset(context, decl.node_name(context), decl);
                 decls.add(decl);
             } else if (isNotationDecl(node)) {

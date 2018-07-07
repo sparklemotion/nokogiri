@@ -67,12 +67,11 @@ public class XmlAttributeDecl extends XmlNode {
         super(ruby, klass, attrDeclNode);
     }
 
-    public static IRubyObject create(ThreadContext context, Node attrDeclNode) {
-        XmlAttributeDecl self =
-            new XmlAttributeDecl(context.getRuntime(),
-                                 getNokogiriClass(context.getRuntime(), "Nokogiri::XML::AttributeDecl"),
-                                 attrDeclNode);
-        return self;
+    static XmlAttributeDecl create(ThreadContext context, Node attrDeclNode) {
+        return new XmlAttributeDecl(context.runtime,
+            getNokogiriClass(context.runtime, "Nokogiri::XML::AttributeDecl"),
+            attrDeclNode
+        );
     }
 
     @Override
@@ -84,8 +83,7 @@ public class XmlAttributeDecl extends XmlNode {
     @Override
     @JRubyMethod(name = "node_name=")
     public IRubyObject node_name_set(ThreadContext context, IRubyObject name) {
-        throw context.getRuntime()
-            .newRuntimeError("cannot change name of DTD decl");
+        throw context.runtime.newRuntimeError("cannot change name of DTD decl");
     }
 
     public IRubyObject element_name(ThreadContext context) {
@@ -112,19 +110,20 @@ public class XmlAttributeDecl extends XmlNode {
      */
     @JRubyMethod
     public IRubyObject enumeration(ThreadContext context) {
-        RubyArray enumVals = RubyArray.newArray(context.getRuntime());
-        String atype = ((Element)node).getAttribute("atype");
+        final String atype = ((Element) node).getAttribute("atype");
 
         if (atype != null && atype.length() != 0 && atype.charAt(0) == '(') {
             // removed enclosing parens
             String valueStr = atype.substring(1, atype.length() - 1);
             String[] values = valueStr.split("\\|");
+            RubyArray enumVals = RubyArray.newArray(context.runtime, values.length);
             for (int i = 0; i < values.length; i++) {
-                enumVals.append(context.getRuntime().newString(values[i]));
+                enumVals.append(context.runtime.newString(values[i]));
             }
+            return enumVals;
         }
 
-        return enumVals;
+        return context.runtime.newEmptyArray();
     }
 
 }
