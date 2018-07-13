@@ -78,10 +78,11 @@ gumbo_get_svg_tag_replacement (register const char *str, register size_t len)
     };
   static const StringReplacement wordlist[] =
     {
-      {(char*)0}, {(char*)0}, {(char*)0}, {(char*)0},
-      {(char*)0}, {(char*)0},
+      {(char*)0,(char*)0}, {(char*)0,(char*)0},
+      {(char*)0,(char*)0}, {(char*)0,(char*)0},
+      {(char*)0,(char*)0}, {(char*)0,(char*)0},
       {"fetile", "feTile"},
-      {(char*)0},
+      {(char*)0,(char*)0},
       {"femerge", "feMerge"},
       {"feimage", "feImage"},
       {"fefuncb", "feFuncB"},

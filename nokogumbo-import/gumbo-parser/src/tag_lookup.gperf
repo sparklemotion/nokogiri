@@ -13,6 +13,7 @@
 %includes
 %define lookup-function-name gumbo_tag_lookup
 %define slot-name key
+%define initializer-suffix ,GUMBO_TAG_UNKNOWN
 TagHashSlot;
 
 %%

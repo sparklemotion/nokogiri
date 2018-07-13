@@ -13,6 +13,7 @@
 %includes
 %define lookup-function-name gumbo_get_svg_tag_replacement
 %define slot-name from
+%define initializer-suffix ,(char*)0
 StringReplacement;
 
 %%
