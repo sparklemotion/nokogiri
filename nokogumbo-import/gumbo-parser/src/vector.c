@@ -27,7 +27,7 @@ const GumboVector kGumboEmptyVector = { \
   .capacity = 0 \
 };
 
-void gumbo_vector_init(size_t initial_capacity, GumboVector* vector) {
+void gumbo_vector_init(unsigned int initial_capacity, GumboVector* vector) {
   vector->length = 0;
   vector->capacity = initial_capacity;
   if (initial_capacity > 0) {

@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 // Initializes a new GumboVector with the specified initial capacity.
-void gumbo_vector_init(size_t initial_capacity, GumboVector* vector);
+void gumbo_vector_init(unsigned int initial_capacity, GumboVector* vector);
 
 // Frees the memory used by a GumboVector. Does not free the contained
 // pointers.
