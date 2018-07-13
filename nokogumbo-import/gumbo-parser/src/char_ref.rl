@@ -2489,7 +2489,7 @@ static bool consume_named_ref (
   if (cs >= %%{ write first_final; }%%) {
     assert(output->first != kGumboNoChar);
     char last_char = *(te - 1);
-    int len = te - start;
+    size_t len = te - start;
     if (last_char == ';') {
       bool matched = utf8iterator_maybe_consume_match(input, start, len, true);
       assert(matched);
