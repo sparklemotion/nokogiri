@@ -293,9 +293,11 @@ void gumbo_caret_diagnostic_to_string (
   gumbo_string_buffer_append_string(&original_line, output);
   gumbo_string_buffer_append_codepoint('\n', output);
   gumbo_string_buffer_reserve(output->length + error->position.column, output);
-  int num_spaces = error->position.column - 1;
-  memset(output->data + output->length, ' ', num_spaces);
-  output->length += num_spaces;
+  if (error->position.column >= 2) {
+    size_t num_spaces = error->position.column - 1;
+    memset(output->data + output->length, ' ', num_spaces);
+    output->length += num_spaces;
+  }
   gumbo_string_buffer_append_codepoint('^', output);
   gumbo_string_buffer_append_codepoint('\n', output);
 }
