@@ -42,9 +42,9 @@ extern "C" {
  * which matches how most editors and command-line tools work.
  */
 typedef struct {
-  unsigned int line;
-  unsigned int column;
-  unsigned int offset;
+  size_t line;
+  size_t column;
+  size_t offset;
 } GumboSourcePosition;
 
 /**

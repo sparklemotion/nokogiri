@@ -193,7 +193,7 @@ void gumbo_error_to_string (
 ) {
   print_message (
     output,
-    "@%u:%u: ",
+    "@%zu:%zu: ",
     error->position.line,
     error->position.column
   );
