@@ -837,7 +837,7 @@ static InsertionLocation get_appropriate_insertion_location (
 // "index_within_parent" fields appropriately.
 static void append_node(GumboNode* parent, GumboNode* node) {
   assert(node->parent == NULL);
-  assert(node->index_within_parent == (size_t) -1);
+  assert(node->index_within_parent == (unsigned int) -1);
   GumboVector* children;
   if (
     parent->type == GUMBO_NODE_ELEMENT
@@ -859,7 +859,7 @@ static void append_node(GumboNode* parent, GumboNode* node) {
 // If the index of the location is -1, this calls append_node.
 static void insert_node(GumboNode* node, InsertionLocation location) {
   assert(node->parent == NULL);
-  assert(node->index_within_parent == (size_t) -1);
+  assert(node->index_within_parent == (unsigned int) -1);
   GumboNode* parent = location.target;
   int index = location.index;
   if (index != -1) {

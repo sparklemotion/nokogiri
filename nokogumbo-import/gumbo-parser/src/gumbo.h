@@ -657,7 +657,7 @@ struct GumboInternalNode {
   GumboNode* parent;
 
   /** The index within the parent's children vector of this node. */
-  size_t index_within_parent;
+  unsigned int index_within_parent;
 
   /**
    * A bitvector of flags containing information about why this element
