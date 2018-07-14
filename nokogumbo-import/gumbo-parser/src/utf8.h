@@ -47,7 +47,7 @@ typedef struct GumboInternalUtf8Iterator {
   int _current;
 
   // The width in bytes of the current code point.
-  int _width;
+  size_t _width;
 
   // The SourcePosition for the current location.
   GumboSourcePosition _pos;
