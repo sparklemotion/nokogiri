@@ -224,6 +224,59 @@ module Nokogiri
               node.add_child(child)
               assert @doc.at('//xmlns:second')
             end
+
+            describe "and a child node was added to a new doc with the a different namespace using the same prefix" do
+              before do
+                @doc = Nokogiri::XML %Q{<root xmlns:bar="http://tenderlovemaking.com/"><bar:first/></root>}
+                new_doc = Nokogiri::XML %Q{<newroot xmlns:bar="http://flavorjon.es/"/>}
+                assert node = @doc.at("//tenderlove:first", tenderlove: "http://tenderlovemaking.com/")
+                new_doc.root.add_child node
+                @doc = new_doc
+              end
+
+              it "serializes the doc with the proper default namespace" do
+                assert_match /<bar:first\ xmlns:bar="http:\/\/tenderlovemaking.com\/"\/>/, @doc.to_xml
+              end
+            end
+
+            describe "and a child node was added to a new doc with the same default namespaces" do
+              before do
+                new_doc = Nokogiri::XML %Q{<newroot xmlns="http://tenderlovemaking.com/"/>}
+                assert node = @doc.at("//tenderlove:first", tenderlove: "http://tenderlovemaking.com/")
+                new_doc.root.add_child node
+                @doc = new_doc
+              end
+
+              it "serializes the doc with the proper default namespace" do
+                assert_match /<first>/, @doc.to_xml
+              end
+            end
+
+            describe "and a child node was added to a new doc without any default namespaces" do
+              before do
+                new_doc = Nokogiri::XML "<newroot/>"
+                assert node = @doc.at("//tenderlove:first", tenderlove: "http://tenderlovemaking.com/")
+                new_doc.root.add_child node
+                @doc = new_doc
+              end
+
+              it "serializes the doc with the proper default namespace" do
+                assert_match /<first xmlns=\"http:\/\/tenderlovemaking.com\/\">/, @doc.to_xml
+              end
+            end
+
+            describe "and a child node became the root of a new doc" do
+              before do
+                new_doc = Nokogiri::XML::Document.new
+                assert node = @doc.at("//tenderlove:first", tenderlove: "http://tenderlovemaking.com/")
+                new_doc.root = node
+                @doc = new_doc
+              end
+
+              it "serializes the doc with the proper default namespace" do
+                assert_match /<first xmlns=\"http:\/\/tenderlovemaking.com\/\">/, @doc.to_xml
+              end
+            end
           end
 
           describe "given a parent node with a default and non-default namespace" do

@@ -472,8 +472,29 @@ public class XmlNode extends RubyObject {
         String nsURI = e.lookupNamespaceURI(prefix);
         this.node = NokogiriHelpers.renameNode(e, nsURI, e.getNodeName());
 
-        if (nsURI == null || nsURI.isEmpty()) {
+        if (nsURI == null || nsURI == "") {
             return;
+        }
+
+        String currentPrefix = e.getParentNode().lookupPrefix(nsURI);
+        String currentURI = e.getParentNode().lookupNamespaceURI(prefix);
+        boolean isDefault = e.getParentNode().isDefaultNamespace(nsURI);
+
+        // add xmlns attribute if this is a new root node or if the node's
+        // namespace isn't a default namespace in the new document
+        if (e.getParentNode().getNodeType() == Node.DOCUMENT_NODE) {
+          // this is the root node, so we must set the namespaces attributes
+          // anyway
+          e.setAttribute(prefix == null ? "xmlns":"xmlns:"+prefix, nsURI);
+        } else if (prefix == null) {
+           if (!isDefault)
+             // this is a default namespace but isn't the default where this
+             // node is being added
+             e.setAttribute("xmlns", nsURI);
+        } else if (currentPrefix != prefix || currentURI != nsURI) {
+          // this is a prefixed namespace but doens't have the same prefix or
+          // the prefix is set to a diffent URI
+          e.setAttribute("xmlns:"+prefix, nsURI);
         }
 
         if (e.hasAttributes()) {
