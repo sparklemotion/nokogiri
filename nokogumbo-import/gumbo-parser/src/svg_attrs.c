@@ -5,7 +5,7 @@
 
 #include "replacement.h"
 #include "macros.h"
-#include "util.h"
+#include "ascii.h"
 #include <string.h>
 
 #define TOTAL_KEYWORDS 58

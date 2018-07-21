@@ -23,13 +23,6 @@ void gumbo_free(void* ptr);
 // Debug wrapper for printf
 void gumbo_debug(const char* format, ...) PRINTF(1);
 
-int gumbo_ascii_strcasecmp(const char *s1, const char *s2) NONNULL_ARGS;
-int gumbo_ascii_strncasecmp(const char *s1, const char *s2, size_t n) NONNULL_ARGS;
-
-static inline char CONST_FN gumbo_ascii_tolower(char ch) {
-    return 'A' <= ch && ch <= 'Z' ? ch | 0x20 : ch;
-}
-
 #ifdef __cplusplus
 }
 #endif

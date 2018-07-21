@@ -18,7 +18,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "gumbo.h"
-#include "util.h"
+#include "ascii.h"
 
 const GumboStringPiece kGumboEmptyString = { \
   .data = NULL, \

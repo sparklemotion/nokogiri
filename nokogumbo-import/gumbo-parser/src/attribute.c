@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "attribute.h"
+#include "ascii.h"
 #include "util.h"
 
 GumboAttribute* gumbo_get_attribute (

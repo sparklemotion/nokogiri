@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ascii.h"
 #include "attribute.h"
 #include "error.h"
 #include "gumbo.h"
