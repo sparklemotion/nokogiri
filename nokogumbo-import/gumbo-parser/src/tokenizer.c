@@ -47,6 +47,7 @@
 #include <assert.h>
 #include <string.h>
 #include "tokenizer.h"
+#include "ascii.h"
 #include "attribute.h"
 #include "char_ref.h"
 #include "error.h"
@@ -309,14 +310,14 @@ static void tokenizer_add_parse_error (
 }
 
 static bool is_alpha(int c) {
-  // We don't use ISO C isupper/islower functions here because they
-  // depend upon the program's locale, while the behavior of the HTML5 spec is
-  // independent of which locale the program is run in.
-  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+  // We don't use the ISO C isalpha() function here because it depends
+  // on the current locale, whereas the behavior in the HTML5 spec is
+  // locale-independent.
+  return ((unsigned) c | 32) - 'a' < 26;
 }
 
 static int ensure_lowercase(int c) {
-  return c >= 'A' && c <= 'Z' ? c + 0x20 : c;
+  return gumbo_ascii_tolower(c);
 }
 
 static GumboTokenType get_char_token_type(bool is_in_cdata, int c) {
