@@ -12,10 +12,10 @@ extern "C" {
 
 CONST_FN
 static inline int gumbo_ascii_tolower(int c) {
-    if (gumbo_ascii_isupper(c)) {
-        return c | 32;
-    }
-    return c;
+  if (gumbo_ascii_isupper(c)) {
+    return c | 32;
+  }
+  return c;
 }
 
 PURE NONNULL_ARGS
