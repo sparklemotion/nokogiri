@@ -80,4 +80,6 @@
     #define RETURNS_NONNULL
 #endif
 
+#define XMALLOC MALLOC RETURNS_NONNULL
+
 #endif // ndef MACROS_H
