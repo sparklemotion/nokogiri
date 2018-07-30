@@ -43,10 +43,13 @@ void gumbo_free(void* ptr) {
   free(ptr);
 }
 
-char* gumbo_copy_stringz(const char* str) {
-  char* buffer = gumbo_alloc(strlen(str) + 1);
-  strcpy(buffer, str);
-  return buffer;
+char* gumbo_strdup(const char* str) {
+  const size_t size = strlen(str) + 1;
+  // The strdup(3) function isn't available in strict "-std=c99" mode
+  // (it's part of POSIX, not C99), so use malloc(3) and memcpy(3)
+  // instead:
+  char* buffer = gumbo_alloc(size);
+  return memcpy(buffer, str, size);
 }
 
 #ifdef GUMBO_DEBUG

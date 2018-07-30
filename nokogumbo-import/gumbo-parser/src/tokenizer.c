@@ -840,7 +840,7 @@ static bool finish_attribute_name(GumboParser* parser) {
     &attr->name_start,
     &attr->name_end
   );
-  attr->value = gumbo_copy_stringz("");
+  attr->value = gumbo_strdup("");
   copy_over_original_tag_text (
     parser,
     &attr->original_value,
@@ -2247,9 +2247,9 @@ static StateResult handle_markup_declaration_state (
     // the time to initialize the doctype strings. (Not in doctype_state_init,
     // since then they'll leak if ownership never gets transferred to the
     // doctype token.
-    tokenizer->_doc_type_state.name = gumbo_copy_stringz("");
-    tokenizer->_doc_type_state.public_identifier = gumbo_copy_stringz("");
-    tokenizer->_doc_type_state.system_identifier = gumbo_copy_stringz("");
+    tokenizer->_doc_type_state.name = gumbo_strdup("");
+    tokenizer->_doc_type_state.public_identifier = gumbo_strdup("");
+    tokenizer->_doc_type_state.system_identifier = gumbo_strdup("");
   } else if (
     tokenizer->_is_current_node_foreign
     && utf8iterator_maybe_consume_match (

@@ -14,7 +14,7 @@ extern "C" {
 // have the convention that all const char* in parse tree structures are
 // freshly-allocated, so if we didn't copy, we'd try to delete a literal string
 // when the parse tree is destroyed.
-char* gumbo_copy_stringz(const char* str) XMALLOC NONNULL_ARGS;
+char* gumbo_strdup(const char* str) XMALLOC NONNULL_ARGS;
 
 void* gumbo_alloc(size_t size) XMALLOC;
 void* gumbo_realloc(void* ptr, size_t size) RETURNS_NONNULL;

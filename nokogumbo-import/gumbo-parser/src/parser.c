@@ -1336,8 +1336,8 @@ static GumboNode* clone_node (
     const GumboAttribute* old_attr = old_attributes->data[i];
     GumboAttribute* attr = gumbo_alloc(sizeof(GumboAttribute));
     *attr = *old_attr;
-    attr->name = gumbo_copy_stringz(old_attr->name);
-    attr->value = gumbo_copy_stringz(old_attr->value);
+    attr->name = gumbo_strdup(old_attr->name);
+    attr->value = gumbo_strdup(old_attr->value);
     gumbo_vector_add(attr, &element->attributes);
   }
   return new_node;
@@ -1870,7 +1870,7 @@ static void adjust_foreign_attributes(GumboToken* token) {
     }
     gumbo_free((void*) attr->name);
     attr->attr_namespace = entry->attr_namespace;
-    attr->name = gumbo_copy_stringz(entry->local_name);
+    attr->name = gumbo_strdup(entry->local_name);
   }
 }
 
@@ -1889,7 +1889,7 @@ static void adjust_svg_attributes(GumboToken* token) {
       continue;
     }
     gumbo_free((void*) attr->name);
-    attr->name = gumbo_copy_stringz(replacement->to);
+    attr->name = gumbo_strdup(replacement->to);
   }
 }
 
@@ -1906,7 +1906,7 @@ static void adjust_mathml_attributes(GumboToken* token) {
     return;
   }
   gumbo_free((void*) attr->name);
-  attr->name = gumbo_copy_stringz("definitionURL");
+  attr->name = gumbo_strdup("definitionURL");
 }
 
 static bool doctype_matches (
@@ -4532,13 +4532,13 @@ GumboOutput* gumbo_parse_with_options (
   // empty strings.
   GumboDocument* doc_type = &parser._output->document->v.document;
   if (doc_type->name == NULL) {
-    doc_type->name = gumbo_copy_stringz("");
+    doc_type->name = gumbo_strdup("");
   }
   if (doc_type->public_identifier == NULL) {
-    doc_type->public_identifier = gumbo_copy_stringz("");
+    doc_type->public_identifier = gumbo_strdup("");
   }
   if (doc_type->system_identifier == NULL) {
-    doc_type->system_identifier = gumbo_copy_stringz("");
+    doc_type->system_identifier = gumbo_strdup("");
   }
 
   parser_state_destroy(&parser);
