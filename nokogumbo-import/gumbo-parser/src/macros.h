@@ -40,19 +40,25 @@
     #define HAS_ATTRIBUTE(x) 0
 #endif
 
+#if GNUC_AT_LEAST(3, 0) || HAS_ATTRIBUTE(unused) || defined(__TINYC__)
+    #define UNUSED __attribute__((__unused__))
+#else
+    #define UNUSED
+#endif
+
 #if GNUC_AT_LEAST(3, 0)
-    #define UNUSED(x) UNUSED__ ## x __attribute__((__unused__))
     #define MALLOC __attribute__((__malloc__))
     #define PRINTF(x) __attribute__((__format__(__printf__, (x), (x + 1))))
     #define PURE __attribute__((__pure__))
     #define CONST_FN __attribute__((__const__))
 #else
-    #define UNUSED
     #define MALLOC
     #define PRINTF(x)
     #define PURE
     #define CONST_FN
 #endif
+
+#define UNUSED_ARG(x) unused__ ## x UNUSED
 
 #if GNUC_AT_LEAST(3, 0) && defined(__OPTIMIZE__)
     #define likely(x) __builtin_expect(!!(x), 1)
