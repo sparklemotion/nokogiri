@@ -41,4 +41,4 @@ bool gumbo_consume_char_ref (
 }
 #endif
 
-#endif  // GUMBO_CHAR_REF_H_
+#endif // GUMBO_CHAR_REF_H_
