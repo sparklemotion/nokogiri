@@ -20,48 +20,47 @@ namespace {
 
 typedef GumboTest GumboStringPieceTest;
 
-#define INIT_GUMBO_STRING(varname, literal) \
-  GumboStringPiece varname = {literal, sizeof(literal) - 1}
+#define STRING(s) {"" s, sizeof(s) - 1}
 
 TEST_F(GumboStringPieceTest, Equal) {
-  INIT_GUMBO_STRING(str1, "foo");
-  INIT_GUMBO_STRING(str2, "foo");
+  const GumboStringPiece str1 = STRING("foo");
+  const GumboStringPiece str2 = STRING("foo");
   EXPECT_TRUE(gumbo_string_equals(&str1, &str2));
 }
 
 TEST_F(GumboStringPieceTest, NotEqual_DifferingCase) {
-  INIT_GUMBO_STRING(str1, "foo");
-  INIT_GUMBO_STRING(str2, "Foo");
+  const GumboStringPiece str1 = STRING("foo");
+  const GumboStringPiece str2 = STRING("Foo");
   EXPECT_FALSE(gumbo_string_equals(&str1, &str2));
 }
 
 TEST_F(GumboStringPieceTest, NotEqual_Str1Shorter) {
-  INIT_GUMBO_STRING(str1, "foo");
-  INIT_GUMBO_STRING(str2, "foobar");
+  const GumboStringPiece str1 = STRING("foo");
+  const GumboStringPiece str2 = STRING("foobar");
   EXPECT_FALSE(gumbo_string_equals(&str1, &str2));
 }
 
 TEST_F(GumboStringPieceTest, NotEqual_Str2Shorter) {
-  INIT_GUMBO_STRING(str1, "foobar");
-  INIT_GUMBO_STRING(str2, "foo");
+  const GumboStringPiece str1 = STRING("foobar");
+  const GumboStringPiece str2 = STRING("foo");
   EXPECT_FALSE(gumbo_string_equals(&str1, &str2));
 }
 
 TEST_F(GumboStringPieceTest, NotEqual_DifferentText) {
-  INIT_GUMBO_STRING(str1, "bar");
-  INIT_GUMBO_STRING(str2, "foo");
+  const GumboStringPiece str1 = STRING("bar");
+  const GumboStringPiece str2 = STRING("foo");
   EXPECT_FALSE(gumbo_string_equals(&str1, &str2));
 }
 
 TEST_F(GumboStringPieceTest, CaseEqual) {
-  INIT_GUMBO_STRING(str1, "foo");
-  INIT_GUMBO_STRING(str2, "fOO");
+  const GumboStringPiece str1 = STRING("foo");
+  const GumboStringPiece str2 = STRING("fOO");
   EXPECT_TRUE(gumbo_string_equals_ignore_case(&str1, &str2));
 }
 
 TEST_F(GumboStringPieceTest, CaseNotEqual_Str2Shorter) {
-  INIT_GUMBO_STRING(str1, "foobar");
-  INIT_GUMBO_STRING(str2, "foo");
+  const GumboStringPiece str1 = STRING("foobar");
+  const GumboStringPiece str2 = STRING("foo");
   EXPECT_FALSE(gumbo_string_equals_ignore_case(&str1, &str2));
 }
 
