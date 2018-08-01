@@ -3382,19 +3382,6 @@ static bool handle_in_table(GumboParser* parser, GumboToken* token) {
   }
 }
 
-static bool ascii_isspace(unsigned char ch) {
-    switch (ch) {
-    case ' ':
-    case '\f':
-    case '\n':
-    case '\r':
-    case '\t':
-    case '\v':
-      return true;
-    }
-    return false;
-}
-
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intabletext
 static bool handle_in_table_text(GumboParser* parser, GumboToken* token) {
   if (token->type == GUMBO_TOKEN_NULL) {
@@ -3415,16 +3402,21 @@ static bool handle_in_table_text(GumboParser* parser, GumboToken* token) {
     // Note that TextNodeBuffer may contain UTF-8 characters, but the presence
     // of any one byte that is not whitespace means we flip the flag, so this
     // loop is still valid.
-    for (size_t i = 0; i < buffer->length; ++i) {
-      if (
-        !ascii_isspace((unsigned char)buffer->data[i])
-        || buffer->data[i] == '\v'
-      ) {
+    for (size_t i = 0, n = buffer->length; i < n; ++i) {
+      switch (buffer->data[i]) {
+      case '\t':
+      case '\n':
+      case '\f':
+      case '\r':
+      case ' ':
+        continue;
+      default:
         state->_foster_parent_insertions = true;
         reconstruct_active_formatting_elements(parser);
-        break;
+        goto loopbreak;
       }
     }
+    loopbreak:
     maybe_flush_text_node_buffer(parser);
     state->_foster_parent_insertions = false;
     state->_reprocess_current_token = true;
