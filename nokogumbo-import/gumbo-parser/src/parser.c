@@ -3397,13 +3397,12 @@ static bool handle_in_table_text(GumboParser* parser, GumboToken* token) {
   } else {
     GumboParserState* state = parser->_parser_state;
     GumboStringBuffer* buffer = &state->_text_node._buffer;
-    // Can't use strspn for this because GumboStringBuffers are not
-    // null-terminated.
-    // Note that TextNodeBuffer may contain UTF-8 characters, but the presence
-    // of any one byte that is not whitespace means we flip the flag, so this
-    // loop is still valid.
+    const char* data = buffer->data;
+    // Note that TextNodeBuffer may contain UTF-8 characters, but the
+    // presence of any one byte that is not whitespace means we flip
+    // the flag, so this loop is still valid.
     for (size_t i = 0, n = buffer->length; i < n; ++i) {
-      switch (buffer->data[i]) {
+      switch (data[i]) {
       case '\t':
       case '\n':
       case '\f':
