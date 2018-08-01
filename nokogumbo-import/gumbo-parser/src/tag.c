@@ -192,17 +192,16 @@ void gumbo_tag_from_original_text(GumboStringPiece* text) {
   assert(text->length >= 2);
   assert(text->data[0] == '<');
   assert(text->data[text->length - 1] == '>');
+
   if (text->data[1] == '/') {
-    // End tag.
+    // End tag
     assert(text->length >= 3);
     text->data += 2;  // Move past </
     text->length -= 3;
   } else {
-    // Start tag.
+    // Start tag
     text->data += 1;  // Move past <
     text->length -= 2;
-    // strnchr is apparently not a standard C library function, so I loop
-    // explicitly looking for whitespace or other illegal tag characters.
     for (const char* c = text->data; c != text->data + text->length; ++c) {
       switch (*c) {
       case '\t':
