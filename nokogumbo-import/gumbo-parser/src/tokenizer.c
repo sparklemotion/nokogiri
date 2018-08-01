@@ -374,18 +374,25 @@ static void append_char_to_temporary_buffer (
   );
 }
 
+#ifndef NDEBUG
 // Checks to see if the temporary buffer equals a certain string.
 // Make sure this remains side-effect free; it's used in assertions.
-#ifndef NDEBUG
-static bool temporary_buffer_equals(GumboParser* parser, const char* text) {
-  GumboStringBuffer* buffer = &parser->_tokenizer_state->_temporary_buffer;
+static bool temporary_buffer_equals (
+  const GumboParser* parser,
+  const char* text
+) {
+  const GumboStringBuffer* buf = &parser->_tokenizer_state->_temporary_buffer;
   // TODO(jdtang): See if the extra strlen is a performance problem, and replace
   // it with an explicit sizeof(literal) if necessary. I don't think it will
   // be, as this is only used in a couple of rare states.
   size_t text_len = strlen(text);
   return
-    text_len == buffer->length
-    && memcmp(buffer->data, text, text_len) == 0;
+    text_len == buf->length
+    && memcmp(buf->data, text, text_len) == 0;
+}
+
+static bool temporary_buffer_is_empty(const GumboParser* parser) {
+  return parser->_tokenizer_state->_temporary_buffer.length == 0;
 }
 #endif
 
@@ -2648,13 +2655,13 @@ static StateResult handle_after_doctype_public_keyword_state (
       return NEXT_CHAR;
     case '"':
       tokenizer_add_parse_error(parser, GUMBO_ERR_DOCTYPE_INVALID);
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_PUBLIC_ID_DOUBLE_QUOTED);
       return NEXT_CHAR;
     case '\'':
       tokenizer_add_parse_error(parser, GUMBO_ERR_DOCTYPE_INVALID);
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_PUBLIC_ID_SINGLE_QUOTED);
       return NEXT_CHAR;
@@ -2693,12 +2700,12 @@ static StateResult handle_before_doctype_public_id_state (
     case ' ':
       return NEXT_CHAR;
     case '"':
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_PUBLIC_ID_DOUBLE_QUOTED);
       return NEXT_CHAR;
     case '\'':
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_PUBLIC_ID_SINGLE_QUOTED);
       return NEXT_CHAR;
@@ -2816,13 +2823,13 @@ static StateResult handle_after_doctype_public_id_state (
       return RETURN_SUCCESS;
     case '"':
       tokenizer_add_parse_error(parser, GUMBO_ERR_DOCTYPE_INVALID);
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_SYSTEM_ID_DOUBLE_QUOTED);
       return NEXT_CHAR;
     case '\'':
       tokenizer_add_parse_error(parser, GUMBO_ERR_DOCTYPE_INVALID);
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_SYSTEM_ID_SINGLE_QUOTED);
       return NEXT_CHAR;
@@ -2859,12 +2866,12 @@ static StateResult handle_between_doctype_public_system_id_state (
       emit_doctype(parser, output);
       return RETURN_SUCCESS;
     case '"':
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_SYSTEM_ID_DOUBLE_QUOTED);
       return NEXT_CHAR;
     case '\'':
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_SYSTEM_ID_SINGLE_QUOTED);
       return NEXT_CHAR;
@@ -2899,13 +2906,13 @@ static StateResult handle_after_doctype_system_keyword_state (
       return NEXT_CHAR;
     case '"':
       tokenizer_add_parse_error(parser, GUMBO_ERR_DOCTYPE_INVALID);
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_SYSTEM_ID_DOUBLE_QUOTED);
       return NEXT_CHAR;
     case '\'':
       tokenizer_add_parse_error(parser, GUMBO_ERR_DOCTYPE_INVALID);
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_SYSTEM_ID_SINGLE_QUOTED);
       return NEXT_CHAR;
@@ -2943,12 +2950,12 @@ static StateResult handle_before_doctype_system_id_state (
     case ' ':
       return NEXT_CHAR;
     case '"':
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_SYSTEM_ID_DOUBLE_QUOTED);
       return NEXT_CHAR;
     case '\'':
-      assert(temporary_buffer_equals(parser, ""));
+      assert(temporary_buffer_is_empty(parser));
       gumbo_tokenizer_set_state(
           parser, GUMBO_LEX_DOCTYPE_SYSTEM_ID_SINGLE_QUOTED);
       return NEXT_CHAR;
