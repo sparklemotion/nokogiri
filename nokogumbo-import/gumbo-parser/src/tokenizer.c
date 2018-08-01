@@ -375,21 +375,19 @@ static void append_char_to_temporary_buffer (
 }
 
 #ifndef NDEBUG
-// Checks to see if the temporary buffer equals a certain string.
-// Make sure this remains side-effect free; it's used in assertions.
-static bool temporary_buffer_equals (
+static bool temporary_buffer_equals__ (
   const GumboParser* parser,
-  const char* text
+  const char* text,
+  size_t text_len
 ) {
   const GumboStringBuffer* buf = &parser->_tokenizer_state->_temporary_buffer;
-  // TODO(jdtang): See if the extra strlen is a performance problem, and replace
-  // it with an explicit sizeof(literal) if necessary. I don't think it will
-  // be, as this is only used in a couple of rare states.
-  size_t text_len = strlen(text);
   return
     text_len == buf->length
     && memcmp(buf->data, text, text_len) == 0;
 }
+
+#define temporary_buffer_equals(parser, text) \
+  temporary_buffer_equals__(parser, "" text, sizeof(text) - 1)
 
 static bool temporary_buffer_is_empty(const GumboParser* parser) {
   return parser->_tokenizer_state->_temporary_buffer.length == 0;
