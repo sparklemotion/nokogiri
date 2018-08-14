@@ -1,9 +1,6 @@
 require 'rubygems/package_task'
 require 'rake/clean'
 
-# home directory - used to find gumbo-parser/src by extconf.rb
-ENV['RAKEHOME'] = File.dirname(File.expand_path(__FILE__))
-
 # default to running tests
 task 'default' => 'test'
 
@@ -32,15 +29,6 @@ file "#{EXT}/Makefile" => ['gumbo-parser/src', "#{EXT}/extconf.rb"] do
 end
 
 task 'compile' => "#{EXT}/nokogumboc.#{DLEXT}"
-
-file 'gumbo-parser/src' do
-  sh 'git submodule init'
-  sh 'git submodule update'
-end
-
-task 'pull' => 'gumbo-parser/src' do
-  sh 'git submodule foreach git pull origin master'
-end
 
 # list of ext source files to be included in package, excluded from CLEAN
 SOURCES = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
