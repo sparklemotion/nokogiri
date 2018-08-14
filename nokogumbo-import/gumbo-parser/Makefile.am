@@ -91,6 +91,7 @@ gumbo_test_SOURCES = \
 				tests/string_buffer.cc \
 				tests/string_piece.cc \
 				tests/tokenizer.cc \
+				tests/tag.cc \
 				tests/test_utils.cc \
 				tests/utf8.cc \
 				tests/vector.cc

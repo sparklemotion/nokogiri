@@ -67,6 +67,7 @@
         'tests/string_piece.cc',
         'tests/test_utils.cc',
         'tests/test_utils.h',
+        'tests/tag.cc',
         'tests/tokenizer.cc',
         'tests/utf8.cc',
         'tests/vector.cc',
