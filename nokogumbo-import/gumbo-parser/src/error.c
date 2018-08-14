@@ -136,6 +136,8 @@ static const char* find_last_newline(
     const char* original_text, const char* error_location) {
   assert(error_location >= original_text);
   const char* c = error_location;
+  if (*c == '\n' && c != original_text)
+    --c;
   for (; c != original_text && *c != '\n'; --c) {
     // There may be an error at EOF, which would be a nul byte.
     assert(*c || c == error_location);
