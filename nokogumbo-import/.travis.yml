@@ -10,6 +10,7 @@ rvm: # http://rubies.travis-ci.org/
   - 2.2
   - 2.3
   - 2.4.0 # https://github.com/travis-ci/travis-ci/issues/7848
+  - 2.5
 matrix:
   exclude:
     - os: osx
