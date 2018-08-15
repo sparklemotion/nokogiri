@@ -52,8 +52,8 @@ SPEC = Gem::Specification.new do |gem|
     'lib/nokogumbo.rb',
     'LICENSE.txt',
     'README.md',
-    'gumbo-parser/src/*',
-    'gumbo-parser/visualc/include/*',
+    'gumbo-parser/src/*.[hc]',
+    'gumbo-parser/visualc/include/*.h',
     'test-nokogumbo.rb'
   ]
 end
