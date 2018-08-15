@@ -23,15 +23,15 @@ if have_library('xml2', 'xmlNewDoc')
 end
 
 # Symlink gumbo-parser source files.
-rakehome = File.expand_path('../..')
-unless File.exist? "#{rakehome}/ext/nokogumboc/gumbo.h"
+ext_dir = File.dirname(__FILE__)
+unless File.exist?(File.join(ext_dir, "gumbo.h"))
   require 'fileutils'
-  FileUtils.ln_s(Dir["#{rakehome}/gumbo-parser/src/*"],
-                 "#{rakehome}/ext/nokogumboc", force: true)
+  gumbo_dir = File.expand_path('../../gumbo-parser', ext_dir)
+  FileUtils.ln_s(Dir[File.join(gumbo_dir, 'src/*.[hc]')], ext_dir, force:true)
   case RbConfig::CONFIG['target_os']
   when 'mingw32', /mswin/
-    FileUtils.ln_s(Dir["#{rakehome}/gumbo-parser/visualc/include/*"],
-                 "#{rakehome}/ext/nokogumboc", force: true)
+    FileUtils.ln_s(Dir[File.join(gumbo_dir, 'visualc/include/*.h')], ext_dir,
+                   force: true)
   end
   # Set these to nil so that create_makefile picks up the new sources.
   $srcs = $objs = nil
