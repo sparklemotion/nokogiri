@@ -6,6 +6,7 @@ groups:
       - "ruby-<%= ruby_version %>-vendored"
       - "ruby-<%= ruby_version %>-valgrind"
       <% end %>
+      - "ruby-vanilla-system"
       <% for ruby_version in RUBIES[:mri].last(1) %>
       - "ruby-libxmlruby-system"
       - "ruby-libxmlruby-vendored"
@@ -33,6 +34,7 @@ groups:
       - ruby-<%= RUBIES[:mri].last %>-system-pr
       - ruby-<%= RUBIES[:mri].last %>-vendored-pr
       - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
+      - ruby-vanilla-system-pr
       - jruby-<%= RUBIES[:jruby].last %>-pr
       - rbx-<%= RUBIES[:rbx].last %>-pr
       - pr-success
@@ -162,6 +164,29 @@ jobs:
   <% end %>
 
 % ruby_version = RUBIES[:mri].last
+  - name: ruby-vanilla-system
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-<%= ruby_version %>-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ubuntu, tag: xenial}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TEST_WITH_APT_REPO_RUBY: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
   - name: ruby-libxmlruby-system
     public: true
     plan:
@@ -433,6 +458,33 @@ jobs:
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
   <% end %>
 
+% ruby_version = RUBIES[:mri].last
+  - name: ruby-vanilla-system-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["ruby-<%= ruby_version %>-system-pr"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ubuntu, tag: xenial}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TEST_WITH_APT_REPO_RUBY: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+
 % jruby_version = RUBIES[:jruby].last
   - name: jruby-<%= jruby_version %>-pr
     public: true
@@ -501,6 +553,7 @@ jobs:
           - ruby-<%= RUBIES[:mri].last %>-system-pr
           - ruby-<%= RUBIES[:mri].last %>-vendored-pr
           - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
+          - ruby-vanilla-system-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
           - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr

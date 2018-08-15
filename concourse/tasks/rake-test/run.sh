@@ -2,11 +2,25 @@
 
 set -e -x -u
 
+APT_UPDATED=false
+
+function ensure-apt-update {
+  if [[ $APT_UPDATED != "false" ]] ; then
+    return
+  fi
+
+  apt-get update
+  APT_UPDATED=true
+}
+
+if [[ ${TEST_WITH_APT_REPO_RUBY:-} != "" ]] ; then
+  ensure-apt-update
+  apt-get install -y ruby ruby-dev bundler libxslt-dev libxml2-dev pkg-config
+fi
+
 VERSION_INFO=$(ruby -v)
 RUBY_ENGINE=$(cut -d" " -f1 <<< "${VERSION_INFO}")
 RUBY_VERSION=$(cut -d" " -f2 <<< "${VERSION_INFO}")
-
-APT_UPDATED=false
 
 FROZEN_STRING_REF="53f9b66"
 
@@ -34,15 +48,6 @@ function rbx-engine {
     return 0
   fi
   return 1
-}
-
-function ensure-apt-update {
-  if [[ $APT_UPDATED != "false" ]] ; then
-    return
-  fi
-
-  apt-get update
-  APT_UPDATED=true
 }
 
 pushd nokogiri
