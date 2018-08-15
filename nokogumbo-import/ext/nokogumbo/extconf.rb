@@ -37,5 +37,5 @@ unless File.exist?(File.join(ext_dir, "gumbo.h"))
   $srcs = $objs = nil
 end
 
-create_makefile('nokogumboc')
+create_makefile('nokogumbo/nokogumbo')
 # vim: set sw=2 sts=2 ts=8 et:

@@ -9,5 +9,6 @@ end
 group :development, :test do
   gem 'minitest'
   gem 'rake'
+  gem 'rake-compiler'
 end
 

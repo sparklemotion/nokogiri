@@ -1,47 +1,39 @@
 require 'rubygems/package_task'
 require 'rake/clean'
+require 'rake/extensiontask'
+require 'rake/testtask'
+
+lib = File.expand_path("../lib", __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require "nokogumbo/version"
 
 # default to running tests
-task 'default' => 'test'
+task :default => :test
 
-task 'test' => 'compile' do
-  ruby 'test-nokogumbo.rb'
+ext = Rake::ExtensionTask.new 'nokogumbo' do |ext|
+  ext.lib_dir = 'lib/nokogumbo'
 end
 
-# ensure gumbo-parser submodule is updated
-DLEXT = RbConfig::CONFIG['DLEXT']
-EXT = 'ext/nokogumboc'
-file "#{EXT}/nokogumboc.#{DLEXT}" => ["#{EXT}/Makefile","#{EXT}/nokogumbo.c"] do
-  Dir.chdir 'ext/nokogumboc' do
-    # Make it possible to get quiet or verbose Make
-    job = %w{make}
-    %w{V Q}.each do |k|
-      job << "#{k}="+ENV[k] if ENV[k]
-    end
-    sh job.join(' ')
-  end
+Rake::TestTask.new(:test) do |t|
+  t.libs << 'test'
+  t.test_files = FileList['test/**/*_test.rb']
 end
 
-file "#{EXT}/Makefile" => ['gumbo-parser/src', "#{EXT}/extconf.rb"] do
-  Dir.chdir 'ext/nokogumboc' do
-    ruby 'extconf.rb'
-  end
-end
-
-task 'compile' => "#{EXT}/nokogumboc.#{DLEXT}"
+task :test => :compile
 
 # list of ext source files to be included in package, excluded from CLEAN
-SOURCES = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
+SOURCES = ['ext/nokogumbo/extconf.rb', 'ext/nokogumbo/nokogumbo.c']
 
 # gem, package, and extension tasks
 task 'gem' => 'test'
+
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '1.5.0'
+  gem.version = Nokogumbo::VERSION
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
-  gem.extensions = 'ext/nokogumboc/extconf.rb'
+  gem.extensions = %w[ext/nokogumbo/extconf.rb]
   gem.author = 'Sam Ruby'
   gem.add_dependency 'nokogiri'
   gem.license = 'Apache-2.0'
@@ -50,11 +42,11 @@ SPEC = Gem::Specification.new do |gem|
     access the result as a Nokogiri parsed document.).strip.gsub(/\s+/, ' ')
   gem.files = SOURCES + FileList[
     'lib/nokogumbo.rb',
+    'lib/nokogumbo/version.rb',
     'LICENSE.txt',
     'README.md',
     'gumbo-parser/src/*.[hc]',
     'gumbo-parser/visualc/include/*.h',
-    'test-nokogumbo.rb'
   ]
 end
 
@@ -64,7 +56,8 @@ PKG = Gem::PackageTask.new(SPEC) do |pkg|
 end
 
 # cleanup
-CLEAN.include FileList.new('ext/nokogumboc/*')-SOURCES
+CLEAN.include FileList.new('ext/nokogumbo/*')-SOURCES
+CLEAN.include File.join('lib/nokogumbo', ext.binary)
 CLOBBER.include FileList.new('pkg', 'Gemfile.lock')
 
 # silence cleanup operations

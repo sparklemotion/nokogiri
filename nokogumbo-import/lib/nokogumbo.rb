@@ -1,5 +1,6 @@
 require 'nokogiri'
-require 'nokogumboc'
+require 'nokogumbo/nokogumbo'
+require 'nokogumbo/version'
 
 module Nokogiri
   # Parse an HTML document.  +string+ contains the document.  +string+

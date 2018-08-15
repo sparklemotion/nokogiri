@@ -255,7 +255,7 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
 }
 
 // Initialize the Nokogumbo class and fetch constants we will use later
-void Init_nokogumboc() {
+void Init_nokogumbo() {
   rb_funcall(rb_mKernel, rb_intern("gem"), 1, rb_str_new2("nokogiri"));
   rb_require("nokogiri");
 
@@ -282,7 +282,7 @@ void Init_nokogumboc() {
   create_internal_subset = rb_intern("create_internal_subset");
 #endif
 
-  // define Nokogumbo class with a singleton parse method
-  VALUE Gumbo = rb_define_class("Nokogumbo", rb_cObject);
+  // define Nokogumbo module with a parse method
+  VALUE Gumbo = rb_define_module("Nokogumbo");
   rb_define_singleton_method(Gumbo, "parse", parse, 2);
 }

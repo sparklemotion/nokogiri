@@ -1,8 +1,3 @@
-$:.unshift('lib')
-$:.unshift('ext/nokogumboc')
-
-gem 'minitest'
-
 require 'nokogumbo'
 require 'minitest/autorun'
 
@@ -79,7 +74,7 @@ class TestNokogumbo < Minitest::Test
 
   def test_html5_doctype
     doc = Nokogiri::HTML5.parse("<!DOCTYPE html><html></html>")
-    assert_match /<!DOCTYPE html>/, doc.to_html
+    assert_match(/<!DOCTYPE html>/, doc.to_html)
   end
 
   def test_fragment_head
