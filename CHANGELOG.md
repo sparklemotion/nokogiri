@@ -2,7 +2,7 @@
 
 ## Bug fixes
 
-* [MRI] Fix regression in installation when building against system libraries, where some systems would not be able to find libxml2 or libxslt when present. (Regression introduced in v1.8.4.) [#1722]
+* [MRI] Fix regression in installation when building against system libraries, where some systems would not be able to find libxml2 or libxslt when present. (Regression introduced in v1.8.3.) [#1722]
 
 
 # 1.8.4 / 2018-07-03
