@@ -230,13 +230,6 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
     for (int i=0; i < errors->length; i++) {
       GumboError *err = errors->data[i];
       gumbo_string_buffer_clear(&parser, &msg);
-      // Work around bug in gumbo_caret_diagnostic_to_string.
-      // See https://github.com/google/gumbo-parser/pull/371
-      // The bug occurs when the error starts with a newline (unless it's the
-      // first character in the input--but that shouldn't cause an error in
-      // the first place.
-      if (*err->original_text == '\n' && err->original_text != input)
-        --err->original_text;
       gumbo_caret_diagnostic_to_string(&parser, err, input, &msg);
       VALUE err_str = rb_str_new(msg.data, msg.length);
       VALUE syntax_error = rb_class_new_instance(1, &err_str, XMLSyntaxError);
