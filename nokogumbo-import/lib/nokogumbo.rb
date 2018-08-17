@@ -17,12 +17,14 @@ module Nokogiri
         string = string.read
       end
 
-      # convert to UTF-8 (Ruby 1.9+) 
+      # convert to UTF-8 (Ruby 1.9+)
       if string.respond_to?(:encoding) and string.encoding != Encoding::UTF_8
         string = reencode(string)
       end
 
-      Nokogumbo.parse(string.to_s, options[:max_parse_errors] || 0)
+      document = Nokogumbo.parse(string.to_s, options[:max_parse_errors] || 0)
+      document.encoding = 'UTF-8'
+      document
     end
 
     # Fetch and parse a HTML document from the web, following redirects,
