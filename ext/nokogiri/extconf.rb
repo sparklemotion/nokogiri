@@ -661,6 +661,21 @@ have_func('xmlRelaxNGSetValidStructuredErrors')
 have_func('xmlSchemaSetValidStructuredErrors')
 have_func('xmlSchemaSetParserStructuredErrors')
 
+# Install the header files in the extension directory.
+$INSTALLFILES << ['*.h', '$(archdir)/include']
+
+unless using_system_libraries?
+  # $INSTALLFILES only works for files in this directory for some reason so
+  # copy the headers here first.
+  require 'fileutils'
+  FileUtils.rm_rf('include', secure: true)
+  FileUtils.mkdir('include')
+  [libxml2_recipe, libxslt_recipe].each do |recipe|
+    FileUtils.cp_r(Dir[File.join(recipe.path, 'include/*')], 'include')
+  end
+  $INSTALLFILES << ['include/**/*.h', '$(archdir)']
+end
+
 create_makefile('nokogiri/nokogiri')
 
 if enable_config('clean', true)

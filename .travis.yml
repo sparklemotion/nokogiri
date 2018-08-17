@@ -43,6 +43,32 @@ matrix:
     rvm: jruby-9.1.15.0
   - os: linux
     rvm: rbx-3
+  - name: packaged libraries
+    os: linux
+    rvm: 2.4.2
+    env:
+      - OVERRIDE_GEM_PATH=/tmp/gem_path
+    install:
+      - bundle install --jobs=3 --retry=3 --path vendor/bundle
+      - bundle exec rake
+      - bundle exec rake gem
+      - gem install -i /tmp/gem_path pkg/nokogiri-*.gem
+      - gem install -i /tmp/gem_path minitest
+    script:
+      - bundle exec rake test:package
+  - name: system libraries
+    os: linux
+    rvm: 2.4.2
+    env:
+      - OVERRIDE_GEM_PATH=/tmp/gem_path
+    install:
+      - bundle install --jobs=3 --retry=3 --path vendor/bundle
+      - bundle exec rake
+      - bundle exec rake gem
+      - gem install -i /tmp/gem_path pkg/nokogiri-*.gem -- --use-system-libraries
+      - gem install -i /tmp/gem_path minitest
+    script:
+      - bundle exec rake test:package
   allow_failures:
   - rvm: ruby-head
   fast_finish: true

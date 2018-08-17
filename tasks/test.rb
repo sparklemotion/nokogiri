@@ -97,4 +97,11 @@ namespace :test do
       puts "repro: #{v[:cmd]}" unless passed
     end
   end
+
+  task :package do
+    Bundler.with_clean_env do
+      env = ENV['OVERRIDE_GEM_PATH'] ? { 'GEM_PATH' => ENV['OVERRIDE_GEM_PATH'] } : {}
+      sh(env, RbConfig.ruby, '-rminitest', 'test/package.rb', { verbose: true })
+    end
+  end
 end
