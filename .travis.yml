@@ -47,6 +47,16 @@ matrix:
   - rvm: ruby-head
   fast_finish: true
 
+script:
+  - |
+    bundle exec rake gem:spec && \
+    gem build nokogiri.gemspec && \
+    gem unpack nokogiri-*.gem && \
+    pushd nokogiri-*/ && \
+    BUNDLE_GEMFILE=../Gemfile bundle install --path vendor/bundle && \
+    BUNDLE_GEMFILE=../Gemfile bundle exec rake && \
+    popd
+
 # notifications:
 #   irc:
 #     channels:
