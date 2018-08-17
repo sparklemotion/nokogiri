@@ -1,9 +1,6 @@
 require 'rubygems/package_task'
 require 'rake/clean'
 
-# home directory - used to find gumbo-parser/src by extconf.rb
-ENV['RAKEHOME'] = File.dirname(File.expand_path(__FILE__))
-
 # default to running tests
 task 'default' => 'test'
 
@@ -16,7 +13,12 @@ DLEXT = RbConfig::CONFIG['DLEXT']
 EXT = 'ext/nokogumboc'
 file "#{EXT}/nokogumboc.#{DLEXT}" => ["#{EXT}/Makefile","#{EXT}/nokogumbo.c"] do
   Dir.chdir 'ext/nokogumboc' do
-    sh 'make'
+    # Make it possible to get quiet or verbose Make
+    job = %w{make}
+    %w{V Q}.each do |k|
+      job << "#{k}="+ENV[k] if ENV[k]
+    end
+    sh job.join(' ')
   end
 end
 
@@ -28,15 +30,6 @@ end
 
 task 'compile' => "#{EXT}/nokogumboc.#{DLEXT}"
 
-file 'gumbo-parser/src' do
-  sh 'git submodule init'
-  sh 'git submodule update'
-end
-
-task 'pull' => 'gumbo-parser/src' do
-  sh 'git submodule foreach git pull origin master'
-end
-
 # list of ext source files to be included in package, excluded from CLEAN
 SOURCES = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
 
@@ -44,7 +37,7 @@ SOURCES = ['ext/nokogumboc/extconf.rb', 'ext/nokogumboc/nokogumbo.c']
 task 'gem' => 'test'
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
-  gem.version = '1.4.11'
+  gem.version = '1.5.0'
   gem.email = 'rubys@intertwingly.net'
   gem.homepage = 'https://github.com/rubys/nokogumbo/#readme'
   gem.summary = 'Nokogiri interface to the Gumbo HTML5 parser'
@@ -59,8 +52,8 @@ SPEC = Gem::Specification.new do |gem|
     'lib/nokogumbo.rb',
     'LICENSE.txt',
     'README.md',
-    'gumbo-parser/src/*',
-    'gumbo-parser/visualc/include/*',
+    'gumbo-parser/src/*.[hc]',
+    'gumbo-parser/visualc/include/*.h',
     'test-nokogumbo.rb'
   ]
 end

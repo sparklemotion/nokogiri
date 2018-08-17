@@ -89,5 +89,5 @@ Installation
 Related efforts
 ============
 
-* [ruby-gumbo](https://github.com/galdor/ruby-gumbo#readme) - a ruby binding
+* [ruby-gumbo](https://github.com/nevir/ruby-gumbo#readme) - a ruby binding
 for the Gumbo HTML5 parser.

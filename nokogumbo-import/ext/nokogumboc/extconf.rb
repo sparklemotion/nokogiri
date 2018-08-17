@@ -22,22 +22,20 @@ if have_library('xml2', 'xmlNewDoc')
   end
 end
 
-# add in gumbo-parser source from github if not already installed
-unless have_library('gumbo', 'gumbo_parse')
-  rakehome = ENV['RAKEHOME'] || File.expand_path('../..')
-  unless File.exist? "#{rakehome}/ext/nokogumboc/gumbo.h"
-    require 'fileutils'
-    FileUtils.cp Dir["#{rakehome}/gumbo-parser/src/*"],
-      "#{rakehome}/ext/nokogumboc"
-
-    case RbConfig::CONFIG['target_os']
-    when 'mingw32', /mswin/
-      FileUtils.cp Dir["#{rakehome}/gumbo-parser/visualc/include/*"],
-        "#{rakehome}/ext/nokogumboc"
-    end
-
-    $srcs = $objs = nil
+# Symlink gumbo-parser source files.
+ext_dir = File.dirname(__FILE__)
+unless File.exist?(File.join(ext_dir, "gumbo.h"))
+  require 'fileutils'
+  gumbo_dir = File.expand_path('../../gumbo-parser', ext_dir)
+  FileUtils.ln_s(Dir[File.join(gumbo_dir, 'src/*.[hc]')], ext_dir, force:true)
+  case RbConfig::CONFIG['target_os']
+  when 'mingw32', /mswin/
+    FileUtils.ln_s(Dir[File.join(gumbo_dir, 'visualc/include/*.h')], ext_dir,
+                   force: true)
   end
+  # Set these to nil so that create_makefile picks up the new sources.
+  $srcs = $objs = nil
 end
 
 create_makefile('nokogumboc')
+# vim: set sw=2 sts=2 ts=8 et:
