@@ -48,27 +48,27 @@ class TestNokogumbo < Minitest::Test
     def test_macroman_encoding
       mac="<span>\xCA</span>".force_encoding('macroman')
       doc = Nokogiri::HTML5(mac)
-      assert_equal '<span>&#xA0;</span>', doc.at('span').to_xml
+      assert_equal "<span> </span>", doc.at("span").to_xml
     end
 
     def test_iso8859_encoding
       iso8859="<span>Se\xF1or</span>".force_encoding(Encoding::ASCII_8BIT)
       doc = Nokogiri::HTML5(iso8859)
-      assert_equal '<span>Se&#xF1;or</span>', doc.at('span').to_xml
+      assert_equal '<span>Señor</span>', doc.at('span').to_xml
     end
 
     def test_charset_encoding
       utf8="<meta charset='utf-8'><span>Se\xC3\xB1or</span>".
         force_encoding(Encoding::ASCII_8BIT)
       doc = Nokogiri::HTML5(utf8)
-      assert_equal '<span>Se&#xF1;or</span>', doc.at('span').to_xml
+      assert_equal '<span>Señor</span>', doc.at('span').to_xml
     end
 
     def test_bogus_encoding
       bogus="<meta charset='bogus'><span>Se\xF1or</span>".
         force_encoding(Encoding::ASCII_8BIT)
       doc = Nokogiri::HTML5(bogus)
-      assert_equal '<span>Se&#xF1;or</span>', doc.at('span').to_xml
+      assert_equal '<span>Señor</span>', doc.at('span').to_xml
     end
   end
 
@@ -144,6 +144,22 @@ class TestNokogumbo < Minitest::Test
   def test_parse_fragment_errors
     doc = Nokogiri::HTML5.fragment("<\r\n", max_parse_errors: 10)
     refute_empty doc.errors
+  end
+
+  def test_document_encoding
+    html = <<-TEXT
+      <html>
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        </head>
+        <body>
+          Кирилические символы
+        </body>
+      </html>
+    TEXT
+    doc = Nokogiri::HTML5.parse(html)
+    assert_equal "UTF-8", doc.encoding
+    assert_equal "Кирилические символы", doc.at('body').text.gsub(/\n\s+/,'')
   end
 
   def test_fragment_max_parse_errors
