@@ -138,10 +138,8 @@ static const char* find_last_newline(
   const char* c = error_location;
   if (*c == '\n' && c != original_text)
     --c;
-  for (; c != original_text && *c != '\n'; --c) {
-    // There may be an error at EOF, which would be a nul byte.
-    assert(*c || c == error_location);
-  }
+  for (; c != original_text && *c != '\n'; --c)
+    ;
   return c == original_text ? c : c + 1;
 }
 
@@ -179,6 +177,10 @@ void gumbo_error_to_string(
       print_message(parser, output,
           "Input stream ends with a truncated UTF8 character 0x%x",
           error->v.codepoint);
+      break;
+    case GUMBO_ERR_UTF8_NULL:
+      print_message(parser, output,
+          "Unexpected NULL character in the input stream");
       break;
     case GUMBO_ERR_NUMERIC_CHAR_REF_NO_DIGITS:
       print_message(
@@ -218,6 +220,10 @@ void gumbo_error_to_string(
     case GUMBO_ERR_PARSER:
     case GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG:
       handle_parser_error(parser, &error->v.parser, output);
+      break;
+    case GUMBO_ERR_DASHES_OR_DOCTYPE:
+      print_message(parser, output,
+          "Incorrectly opened comment; expected '--', 'DOCTYPE', or '[CDATA['");
       break;
     default:
       print_message(parser, output,

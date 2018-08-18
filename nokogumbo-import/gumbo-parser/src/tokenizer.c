@@ -1966,6 +1966,7 @@ static StateResult handle_bogus_comment_state(GumboParser* parser,
     GumboTokenizerState* tokenizer, int c, GumboToken* output) {
   while (c != '>' && c != -1) {
     if (c == '\0') {
+      tokenizer_add_parse_error(parser, GUMBO_ERR_UTF8_NULL);
       c = 0xFFFD;
     }
     append_char_to_temporary_buffer(parser, c);
