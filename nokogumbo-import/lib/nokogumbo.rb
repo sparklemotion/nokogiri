@@ -13,15 +13,7 @@ module Nokogiri
     # Parse an HTML document.  +string+ contains the document.  +string+
     # may also be an IO-like object.  Returns a +Nokogiri::HTML::Document+.
     def self.parse(string, options={})
-      if string.respond_to? :read
-        string = string.read
-      end
-
-      # convert to UTF-8 (Ruby 1.9+)
-      if string.respond_to?(:encoding) and string.encoding != Encoding::UTF_8
-        string = reencode(string)
-      end
-
+      string = read_and_encode(string)
       document = Nokogumbo.parse(string.to_s, options[:max_parse_errors] || 0)
       document.encoding = 'UTF-8'
       document
@@ -83,46 +75,45 @@ module Nokogiri
       end
     end
 
-    # while fragment is on the Gumbo TODO list, simulate it by doing
-    # a full document parse and ignoring the parent <html>, <head>, and <body>
-    # tags, and collecting up the children of each.
-    def self.fragment(*args)
-      doc = parse(*args)
-      fragment = Nokogiri::HTML::DocumentFragment.new(doc)
+    # Follow the procedure done by Nokogiri.
+    # 1. Create a new HTML::Document
+    # 2. Create a new HTML::DocumentFragment from that document
+    # 3. Create a temporary document by parsing the fragment with prepended
+    #    html and body elements (and also a DOCTYPE)
+    # 4. Reparent the children to the fragment.
+    # 5. Copy the errors over.
+    def self.fragment(tags, options = {})
+      doc = Nokogiri::HTML::Document.new
+      doc.encoding = 'UTF-8'
+      frag = Nokogiri::HTML::DocumentFragment.new(doc)
+      tags = read_and_encode(tags)
 
-      if doc.children.length != 1 or doc.children.first.name != 'html'
-        # no HTML?  Return document as is
-        fragment = doc
+      # Copied from Nokogiri's document_fragment.rb and labled "a horrible
+      # hack."
+      if tags.strip =~ /^<body/i
+        path = "/html/body"
       else
-        # examine children of HTML element
-        children = doc.children.first.children
-
-        # head is always first.  If present, take children but otherwise
-        # ignore the head element
-        if children.length > 0 and doc.children.first.name = 'head'
-          fragment << children.shift.children
-        end
-
-        # body may be next, or last.  If found, take children but otherwise
-        # ignore the body element.  Also take any remaining elements, taking
-        # care to preserve order.
-        if children.length > 0 and doc.children.first.name = 'body'
-          fragment << children.shift.children
-          fragment << children
-        elsif children.length > 0 and doc.children.last.name = 'body'
-          body = children.pop
-          fragment << children
-          fragment << body.children
-        else
-          fragment << children
-        end
+        path = "/html/body/node()"
       end
-
-      # return result
-      fragment
+      temp_doc = Nokogumbo.parse("<!DOCTYPE html><html><body>#{tags}", options[:max_parse_errors] || 0)
+      temp_doc.xpath(path).each { |child| child.parent = frag }
+      frag.errors = temp_doc.errors
+      frag
     end
 
   private
+
+    def self.read_and_encode(string)
+      if string.respond_to? :read
+        string = string.read
+      end
+
+      # convert to UTF-8 (Ruby 1.9+)
+      if string.respond_to?(:encoding) and string.encoding != Encoding::UTF_8
+        string = reencode(string)
+      end
+      string
+    end
 
     # Charset sniffing is a complex and controversial topic that understandably
     # isn't done _by default_ by the Ruby Net::HTTP library.  This being said,

@@ -50,6 +50,11 @@ class TestNokogumbo < Minitest::Test
     assert_match(/<!DOCTYPE html>/, doc.to_html)
   end
 
+  def test_fragment_no_errors
+    doc = Nokogiri::HTML5.fragment("no missing DOCTYPE errors", max_parse_errors: 10)
+    assert_equal 0, doc.errors.length
+  end
+
   def test_fragment_head
     doc = Nokogiri::HTML5.fragment(buffer[/<head>(.*?)<\/head>/m, 1])
     assert_equal "hello world", doc.xpath('title').text
