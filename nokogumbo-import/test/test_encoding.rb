@@ -30,4 +30,22 @@ class TestNokogumbo < Minitest::Test
       assert_equal '<span>Señor</span>', doc.at('span').to_xml
     end
   end
+
+  # https://github.com/rubys/nokogumbo/issues/68
+  def test_charset_sniff_to_html
+    html = <<~HTML
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=utf-8; width=device-width">
+        </head>
+        <body>
+          Hello!
+        </body>
+      </html>
+    HTML
+    doc = Nokogiri::HTML5(html, max_parse_errors: 10)
+    assert_equal 0, doc.errors.length
+    refute_equal '', doc.to_html
+  end
 end
