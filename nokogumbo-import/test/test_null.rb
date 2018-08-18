@@ -102,4 +102,10 @@ class TestNull < Minitest::Test
     # 12.2.6.5 The rules for parsing tokens in foreign content: parse error
     assert_equal 1, frag.errors.length
   end
+
+  def test_error_api_with_null
+    frag = fragment("<p \u0000>")
+    assert frag.errors.any?
+    assert_includes frag.errors[0].to_s, "<p \u0000>"
+  end
 end
