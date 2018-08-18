@@ -33,7 +33,7 @@ class TestNokogumbo < Minitest::Test
 
   # https://github.com/rubys/nokogumbo/issues/68
   def test_charset_sniff_to_html
-    html = <<~HTML
+    html = <<-EOF.gsub(/^      /, '')
       <!DOCTYPE html>
       <html>
         <head>
@@ -43,7 +43,7 @@ class TestNokogumbo < Minitest::Test
           Hello!
         </body>
       </html>
-    HTML
+    EOF
     doc = Nokogiri::HTML5(html, max_parse_errors: 10)
     assert_equal 0, doc.errors.length
     refute_equal '', doc.to_html
