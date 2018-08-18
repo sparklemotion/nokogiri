@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Documents are now properly marked as UTF-8 after parsing.
 - Fixed `Nokogiri::HTML5.fragment` reporting an error due to a missing
   `<!DOCTYPE html>`.
+- Fixed crash when input contains U+0000 NULL bytes and error reporting is
+  enabled.
 
 ### Security
 - The most recent, released version of Gumbo has a [potential security
