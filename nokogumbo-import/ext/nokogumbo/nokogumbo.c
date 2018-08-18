@@ -229,7 +229,7 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
     for (int i=0; i < errors->length; i++) {
       GumboError *err = errors->data[i];
       gumbo_string_buffer_clear(&parser, &msg);
-      gumbo_caret_diagnostic_to_string(&parser, err, input, &msg);
+      gumbo_caret_diagnostic_to_string(&parser, err, input, input_len, &msg);
       VALUE err_str = rb_str_new(msg.data, msg.length);
       VALUE syntax_error = rb_class_new_instance(1, &err_str, XMLSyntaxError);
       rb_iv_set(syntax_error, "@domain", INT2NUM(1)); // XML_FROM_PARSER
