@@ -132,25 +132,24 @@ static void handle_parser_error(GumboParser* parser,
 // Finds the preceding newline in an original source buffer from a given byte
 // location.  Returns a character pointer to the character after that, or a
 // pointer to the beginning of the string if this is the first line.
-static const char* find_prev_newline(
-    const char* source_text, const char* error_location) {
-  assert(error_location >= source_text);
+static const char* find_last_newline(
+    const char* original_text, const char* error_location) {
+  assert(error_location >= original_text);
   const char* c = error_location;
-  if (*c == '\n' && c != source_text)
-    --c;
-  for (; c != source_text && *c != '\n'; --c)
-    ;
-  return c == source_text ? c : c + 1;
+  for (; c != original_text && *c != '\n'; --c) {
+    // There may be an error at EOF, which would be a nul byte.
+    assert(*c || c == error_location);
+  }
+  return c == original_text ? c : c + 1;
 }
 
 // Finds the next newline in the original source buffer from a given byte
 // location.  Returns a character pointer to that newline, or a pointer to the
 // terminating null byte if this is the last line.
 static const char* find_next_newline(
-    const char* source_text_end, const char* error_location) {
-  assert(error_location <= source_text_end);
+    const char* original_text, const char* error_location) {
   const char* c = error_location;
-  for (; c != source_text_end && *c != '\n'; ++c)
+  for (; *c && *c != '\n'; ++c)
     ;
   return c;
 }
@@ -178,10 +177,6 @@ void gumbo_error_to_string(
       print_message(parser, output,
           "Input stream ends with a truncated UTF8 character 0x%x",
           error->v.codepoint);
-      break;
-    case GUMBO_ERR_UTF8_NULL:
-      print_message(parser, output,
-          "Unexpected NULL character in the input stream");
       break;
     case GUMBO_ERR_NUMERIC_CHAR_REF_NO_DIGITS:
       print_message(
@@ -222,10 +217,6 @@ void gumbo_error_to_string(
     case GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG:
       handle_parser_error(parser, &error->v.parser, output);
       break;
-    case GUMBO_ERR_DASHES_OR_DOCTYPE:
-      print_message(parser, output,
-          "Incorrectly opened comment; expected '--', 'DOCTYPE', or '[CDATA['");
-      break;
     default:
       print_message(parser, output,
           "Tokenizer error with an unimplemented error message");
@@ -236,11 +227,11 @@ void gumbo_error_to_string(
 
 void gumbo_caret_diagnostic_to_string(GumboParser* parser,
     const GumboError* error, const char* source_text,
-    size_t length, GumboStringBuffer* output) {
+    GumboStringBuffer* output) {
   gumbo_error_to_string(parser, error, output);
 
-  const char* line_start = find_prev_newline(source_text, error->original_text);
-  const char* line_end = find_next_newline(source_text+length, error->original_text);
+  const char* line_start = find_last_newline(source_text, error->original_text);
+  const char* line_end = find_next_newline(source_text, error->original_text);
   GumboStringPiece original_line;
   original_line.data = line_start;
   original_line.length = line_end - line_start;
@@ -258,11 +249,10 @@ void gumbo_caret_diagnostic_to_string(GumboParser* parser,
 }
 
 void gumbo_print_caret_diagnostic(
-    GumboParser* parser, const GumboError* error, const char* source_text,
-    size_t length) {
+    GumboParser* parser, const GumboError* error, const char* source_text) {
   GumboStringBuffer text;
   gumbo_string_buffer_init(parser, &text);
-  gumbo_caret_diagnostic_to_string(parser, error, source_text, length, &text);
+  gumbo_caret_diagnostic_to_string(parser, error, source_text, &text);
   printf("%.*s", (int) text.length, text.data);
   gumbo_string_buffer_destroy(parser, &text);
 }

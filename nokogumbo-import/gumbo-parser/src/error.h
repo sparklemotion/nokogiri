@@ -210,13 +210,13 @@ void gumbo_error_to_string(struct GumboInternalParser* parser,
 // allocated with the allocator specified in the GumboParser config and hence
 // should be freed by gumbo_parser_deallocate().)
 void gumbo_caret_diagnostic_to_string(struct GumboInternalParser* parser,
-    const GumboError* error, const char* source_text, size_t length,
+    const GumboError* error, const char* source_text,
     GumboStringBuffer* output);
 
 // Like gumbo_caret_diagnostic_to_string, but prints the text to stdout instead
 // of writing to a string.
 void gumbo_print_caret_diagnostic(struct GumboInternalParser* parser,
-    const GumboError* error, const char* source_text, size_t length);
+    const GumboError* error, const char* source_text);
 
 #ifdef __cplusplus
 }
