@@ -225,11 +225,11 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
     GumboStringBuffer msg;
     VALUE rerrors = rb_ary_new2(errors->length);
 
-    gumbo_string_buffer_init(&parser, &msg);
+    gumbo_string_buffer_init(&msg);
     for (int i=0; i < errors->length; i++) {
       GumboError *err = errors->data[i];
-      gumbo_string_buffer_clear(&parser, &msg);
-      gumbo_caret_diagnostic_to_string(&parser, err, input, input_len, &msg);
+      gumbo_string_buffer_clear(&msg);
+      gumbo_caret_diagnostic_to_string(err, input, input_len, &msg);
       VALUE err_str = rb_str_new(msg.data, msg.length);
       VALUE syntax_error = rb_class_new_instance(1, &err_str, XMLSyntaxError);
       rb_iv_set(syntax_error, "@domain", INT2NUM(1)); // XML_FROM_PARSER
@@ -245,10 +245,10 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
       rb_ary_push(rerrors, syntax_error);
     }
     rb_iv_set(rdoc, "@errors", rerrors);
-    gumbo_string_buffer_destroy(&parser, &msg);
+    gumbo_string_buffer_destroy(&msg);
   }
 
-  gumbo_destroy_output(&options, output);
+  gumbo_destroy_output(output);
 
   return rdoc;
 }
