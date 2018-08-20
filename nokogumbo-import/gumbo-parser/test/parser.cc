@@ -167,9 +167,35 @@ TEST_F(GumboParserTest, TextOnly) {
 
 TEST_F(GumboParserTest, SelfClosingTagError) {
   Parse("<div/>");
-  // TODO(jdtang): I think this is double-counting some error cases, I think we
-  // may ultimately want to de-dup errors that occur on the same token.
-  EXPECT_EQ(8, output_->errors.length);
+  // No DOCTYPE
+  // Tag cannot be self-closing
+  // EOF with div still open
+  EXPECT_EQ(3, output_->errors.length);
+}
+
+TEST_F(GumboParserTest, SelfClosingTagWithComplexProcessing) {
+  Parse("<br/>");
+  ASSERT_EQ(1, output_->errors.length); // No doctype.
+  ASSERT_EQ(1, GetChildCount(root_));
+
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  ASSERT_EQ(2, GetChildCount(html));
+
+  GumboNode* head = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, head->type);
+  EXPECT_EQ(GUMBO_TAG_HEAD, head->v.element.tag);
+  EXPECT_EQ(0, GetChildCount(head));
+
+  GumboNode* body = GetChild(html, 1);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, body->type);
+  EXPECT_EQ(GUMBO_TAG_BODY, body->v.element.tag);
+  ASSERT_EQ(1, GetChildCount(body));
+
+  GumboNode* br = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, br->type);
+  EXPECT_EQ(GUMBO_TAG_BR, br->v.element.tag);
 }
 
 TEST_F(GumboParserTest, UnexpectedEndBreak) {

@@ -38,6 +38,12 @@ typedef struct GumboInternalTokenStartTag {
   bool is_self_closing;
 } GumboTokenStartTag;
 
+// Struct containing all information pertaining to end tag tokens.
+typedef struct GumboInternalTokenEndTag {
+  GumboTag tag;
+  bool is_self_closing;
+} GumboTokenEndTag;
+
 // A data structure representing a single token in the input stream. This
 // contains an enum for the type, the source position, a GumboStringPiece
 // pointing to the original text, and then a union for any parsed data.
@@ -48,7 +54,7 @@ typedef struct GumboInternalToken {
   union {
     GumboTokenDocType doc_type;
     GumboTokenStartTag start_tag;
-    GumboTag end_tag;
+    GumboTokenEndTag end_tag;
     const char* text;  // For comments.
     int character;     // For character, whitespace, null, and EOF tokens.
   } v;

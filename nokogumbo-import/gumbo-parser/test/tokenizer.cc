@@ -259,7 +259,7 @@ TEST_F(GumboTokenizerTest, RawtextEnd) {
   Advance(3);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
-  EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.end_tag);
+  EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.end_tag.tag);
 }
 
 TEST_F(GumboTokenizerTest, RCDataEnd) {
@@ -277,7 +277,7 @@ TEST_F(GumboTokenizerTest, RCDataEnd) {
   gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
-  EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.end_tag);
+  EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.end_tag.tag);
 }
 
 TEST_F(GumboTokenizerTest, ScriptEnd) {
@@ -312,7 +312,7 @@ TEST_F(GumboTokenizerTest, ScriptEnd) {
   Advance(1);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
-  EXPECT_EQ(GUMBO_TAG_SCRIPT, token_.v.end_tag);
+  EXPECT_EQ(GUMBO_TAG_SCRIPT, token_.v.end_tag.tag);
 }
 
 TEST_F(GumboTokenizerTest, ScriptEscapedEnd) {
@@ -330,7 +330,7 @@ TEST_F(GumboTokenizerTest, ScriptEscapedEnd) {
   gumbo_token_destroy(&token_);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
-  EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.end_tag);
+  EXPECT_EQ(GUMBO_TAG_TITLE, token_.v.end_tag.tag);
 }
 
 TEST_F(GumboTokenizerTest, ScriptCommentEscaped) {
@@ -412,7 +412,7 @@ TEST_F(GumboTokenizerTest, ScriptEscapedEmbeddedLessThan) {
   Advance(8);
   EXPECT_TRUE(gumbo_lex(&parser_, &token_));
   EXPECT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
-  EXPECT_EQ(GUMBO_TAG_SCRIPT, token_.v.end_tag);
+  EXPECT_EQ(GUMBO_TAG_SCRIPT, token_.v.end_tag.tag);
 }
 
 TEST_F(GumboTokenizerTest, ScriptHasTagEmbedded) {
@@ -543,6 +543,18 @@ TEST_F(GumboTokenizerTest, SelfClosingStartTag) {
   EXPECT_EQ(GUMBO_TAG_BR, start_tag->tag);
   EXPECT_EQ(0, start_tag->attributes.length);
   EXPECT_TRUE(start_tag->is_self_closing);
+}
+
+TEST_F(GumboTokenizerTest, SelfClosingEndTag) {
+  SetInput("</p />");
+  EXPECT_TRUE(gumbo_lex(&parser_, &token_));
+  ASSERT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
+  EXPECT_EQ(0, token_.position.offset);
+  EXPECT_EQ("</p />", ToString(token_.original_text));
+
+  GumboTokenEndTag* end_tag = &token_.v.end_tag;
+  EXPECT_EQ(GUMBO_TAG_P, end_tag->tag);
+  EXPECT_TRUE(end_tag->is_self_closing);
 }
 
 TEST_F(GumboTokenizerTest, OpenTagWithAttributes) {
@@ -682,7 +694,7 @@ TEST_F(GumboTokenizerTest, MatchedTagPair) {
   gumbo_token_destroy(&token_);
   ASSERT_TRUE(gumbo_lex(&parser_, &token_));
   ASSERT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
-  EXPECT_EQ(GUMBO_TAG_DIV, token_.v.end_tag);
+  EXPECT_EQ(GUMBO_TAG_DIV, token_.v.end_tag.tag);
   errors_are_expected_ = true;
 }
 
@@ -695,7 +707,7 @@ TEST_F(GumboTokenizerTest, BogusEndTag) {
   ASSERT_TRUE(gumbo_lex(&parser_, &token_));
   ASSERT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
   EXPECT_EQ(0, token_.position.offset);
-  EXPECT_EQ(GUMBO_TAG_UNKNOWN, token_.v.end_tag);
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, token_.v.end_tag.tag);
   EXPECT_EQ("</div</th>", ToString(token_.original_text));
   errors_are_expected_ = true;
 }

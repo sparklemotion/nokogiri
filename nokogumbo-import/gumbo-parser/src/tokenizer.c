@@ -557,7 +557,8 @@ static StateResult emit_current_tag(GumboParser* parser, GumboToken* output) {
         "Emitted start tag %s.\n", gumbo_normalized_tagname(tag_state->_tag));
   } else {
     output->type = GUMBO_TOKEN_END_TAG;
-    output->v.end_tag = tag_state->_tag;
+    output->v.end_tag.tag = tag_state->_tag;
+    output->v.end_tag.is_self_closing = tag_state->_is_self_closing;
     // In end tags, ownership of the attributes vector is not transferred to the
     // token, but it's still initialized as normal, so it must be manually
     // deallocated. There may also be attributes to destroy, in certain broken

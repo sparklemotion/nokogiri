@@ -57,6 +57,7 @@ typedef enum {
   GUMBO_ERR_DOCTYPE_END,
   GUMBO_ERR_PARSER,
   GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG,
+  GUMBO_ERR_SELF_CLOSING_END_TAG,
 } GumboErrorType;
 
 // Additional data for duplicated attributes.

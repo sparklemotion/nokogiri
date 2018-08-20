@@ -552,7 +552,7 @@ static bool tag_in (
   if (is_start && token->type == GUMBO_TOKEN_START_TAG) {
     token_tag = token->v.start_tag.tag;
   } else if (!is_start && token->type == GUMBO_TOKEN_END_TAG) {
-    token_tag = token->v.end_tag;
+    token_tag = token->v.end_tag.tag;
   } else {
     return false;
   }
@@ -564,7 +564,7 @@ static bool tag_is(const GumboToken* token, bool is_start, GumboTag tag) {
   if (is_start && token->type == GUMBO_TOKEN_START_TAG) {
     return token->v.start_tag.tag == tag;
   } else if (!is_start && token->type == GUMBO_TOKEN_END_TAG) {
-    return token->v.end_tag == tag;
+    return token->v.end_tag.tag == tag;
   } else {
     return false;
   }
@@ -715,7 +715,7 @@ static GumboError* parser_add_parse_error (
   if (token->type == GUMBO_TOKEN_START_TAG) {
     extra_data->input_tag = token->v.start_tag.tag;
   } else if (token->type == GUMBO_TOKEN_END_TAG) {
-    extra_data->input_tag = token->v.end_tag;
+    extra_data->input_tag = token->v.end_tag.tag;
   }
   const GumboParserState* state = parser->_parser_state;
   extra_data->parser_state = state->_insertion_mode;
@@ -978,7 +978,7 @@ static GumboNode* pop_current_node(GumboParser* parser) {
   if (
     (
       state->_current_token->type != GUMBO_TOKEN_END_TAG
-      || !node_html_tag_is(current_node, state->_current_token->v.end_tag)
+      || !node_html_tag_is(current_node, state->_current_token->v.end_tag.tag)
     )
     && !is_closed_body_or_html_tag
   ) {
@@ -2861,7 +2861,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       TAG(PRE), TAG(SECTION), TAG(SUMMARY), TAG(UL)
     })
   ) {
-    GumboTag tag = token->v.end_tag;
+    GumboTag tag = token->v.end_tag.tag;
     if (!has_an_element_in_scope(parser, tag)) {
       parser_add_parse_error(parser, token);
       ignore_token(parser);
@@ -2871,7 +2871,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       parser,
       token,
       GUMBO_NAMESPACE_HTML,
-      token->v.end_tag
+      token->v.end_tag.tag
     );
     return true;
   } else if (tag_is(token, kEndTag, GUMBO_TAG_FORM)) {
@@ -2949,7 +2949,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     );
   } else if (tag_in(token, kEndTag, &dd_dt_tags)) {
     assert(token->type == GUMBO_TOKEN_END_TAG);
-    GumboTag token_tag = token->v.end_tag;
+    GumboTag token_tag = token->v.end_tag.tag;
     if (!has_an_element_in_scope(parser, token_tag)) {
       parser_add_parse_error(parser, token);
       ignore_token(parser);
@@ -2975,7 +2975,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     } else {
       generate_implied_end_tags(parser, GUMBO_TAG_LAST);
       const GumboNode* current_node = get_current_node(parser);
-      bool success = node_html_tag_is(current_node, token->v.end_tag);
+      bool success = node_html_tag_is(current_node, token->v.end_tag.tag);
       if (!success) {
         // There're children of the heading currently open; close them below and
         // record a parse error.
@@ -3040,7 +3040,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       TAG(U)
     })
   ) {
-    return adoption_agency_algorithm(parser, token, token->v.end_tag);
+    return adoption_agency_algorithm(parser, token, token->v.end_tag.tag);
   } else if (
     tag_in(token, kStartTag, &(const TagSet){TAG(APPLET), TAG(MARQUEE), TAG(OBJECT)})
   ) {
@@ -3052,7 +3052,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
   } else if (
     tag_in(token, kEndTag, &(const TagSet){TAG(APPLET), TAG(MARQUEE), TAG(OBJECT)})
   ) {
-    GumboTag token_tag = token->v.end_tag;
+    GumboTag token_tag = token->v.end_tag.tag;
     if (!has_an_element_in_table_scope(parser, token_tag)) {
       parser_add_parse_error(parser, token);
       ignore_token(parser);
@@ -3233,7 +3233,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     return true;
   } else {
     assert(token->type == GUMBO_TOKEN_END_TAG);
-    GumboTag end_tag = token->v.end_tag;
+    GumboTag end_tag = token->v.end_tag.tag;
     assert(state->_open_elements.length > 0);
     assert(node_html_tag_is(state->_open_elements.data[0], GUMBO_TAG_HTML));
     // Walk up the stack of open elements until we find one that either:
@@ -3574,7 +3574,7 @@ static bool handle_in_table_body(GumboParser* parser, GumboToken* token) {
   } else if (
     tag_in(token, kEndTag, &(const TagSet){TAG(TBODY), TAG(TFOOT), TAG(THEAD)})
   ) {
-    if (!has_an_element_in_table_scope(parser, token->v.end_tag)) {
+    if (!has_an_element_in_table_scope(parser, token->v.end_tag.tag)) {
       parser_add_parse_error(parser, token);
       ignore_token(parser);
       return false;
@@ -3661,7 +3661,7 @@ static bool handle_in_row(GumboParser* parser, GumboToken* token) {
     tag_in(token, kEndTag, &(const TagSet) {TAG(TBODY), TAG(TFOOT), TAG(THEAD)})
   ) {
     if (
-      !has_an_element_in_table_scope(parser, token->v.end_tag)
+      !has_an_element_in_table_scope(parser, token->v.end_tag.tag)
       || !has_an_element_in_table_scope(parser, GUMBO_TAG_TR)
     ) {
       parser_add_parse_error(parser, token);
@@ -3691,7 +3691,7 @@ static bool handle_in_row(GumboParser* parser, GumboToken* token) {
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-intd
 static bool handle_in_cell(GumboParser* parser, GumboToken* token) {
   if (tag_in(token, kEndTag, &td_th_tags)) {
-    GumboTag token_tag = token->v.end_tag;
+    GumboTag token_tag = token->v.end_tag.tag;
     if (!has_an_element_in_table_scope(parser, token_tag)) {
       parser_add_parse_error(parser, token);
       ignore_token(parser);
@@ -3729,7 +3729,7 @@ static bool handle_in_cell(GumboParser* parser, GumboToken* token) {
       TAG(TABLE), TAG(TBODY), TAG(TFOOT), TAG(THEAD), TAG(TR)
     })
   ) {
-    if (!has_an_element_in_table_scope(parser, token->v.end_tag)) {
+    if (!has_an_element_in_table_scope(parser, token->v.end_tag.tag)) {
       parser_add_parse_error(parser, token);
       ignore_token(parser);
       return false;
@@ -3858,7 +3858,7 @@ static bool handle_in_select_in_table(GumboParser* parser, GumboToken* token) {
     return false;
   } else if (tag_in(token, kEndTag, &tags)) {
     parser_add_parse_error(parser, token);
-    if (!has_an_element_in_table_scope(parser, token->v.end_tag)) {
+    if (!has_an_element_in_table_scope(parser, token->v.end_tag.tag)) {
       ignore_token(parser);
       return false;
     } else {
@@ -4497,7 +4497,7 @@ GumboOutput* gumbo_parse_with_options (
           token_type = gumbo_normalized_tagname(token.v.start_tag.tag);
         break;
       case GUMBO_TOKEN_END_TAG:
-        token_type = gumbo_normalized_tagname(token.v.end_tag);
+        token_type = gumbo_normalized_tagname(token.v.end_tag.tag);
         break;
       case GUMBO_TOKEN_COMMENT:
         token_type = "comment";
@@ -4514,11 +4514,7 @@ GumboOutput* gumbo_parse_with_options (
     );
 
     state->_current_token = &token;
-    state->_self_closing_flag_acknowledged =
-      !(
-        token.type == GUMBO_TOKEN_START_TAG
-        && token.v.start_tag.is_self_closing
-      );
+    state->_self_closing_flag_acknowledged = false;
 
     has_error = !handle_token(&parser, &token) || has_error;
 
@@ -4531,10 +4527,19 @@ GumboOutput* gumbo_parse_with_options (
           && token.v.start_tag.name == NULL)
     );
 
-    if (!state->_self_closing_flag_acknowledged) {
-      GumboError* error = parser_add_parse_error(&parser, &token);
-      if (error) {
-        error->type = GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG;
+    if (!state->_reprocess_current_token) {
+      if (token.type == GUMBO_TOKEN_START_TAG &&
+          token.v.start_tag.is_self_closing &&
+          !state->_self_closing_flag_acknowledged) {
+        GumboError* error = parser_add_parse_error(&parser, &token);
+        if (error)
+          error->type = GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG;
+      }
+      if (token.type == GUMBO_TOKEN_END_TAG &&
+          token.v.end_tag.is_self_closing) {
+        GumboError* error = parser_add_parse_error(&parser, &token);
+        if (error)
+          error->type = GUMBO_ERR_SELF_CLOSING_END_TAG;
       }
     }
 
