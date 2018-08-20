@@ -20,22 +20,22 @@ matrix:
     - os: osx
       env: WITH_LIBXML=false V=1
   include:
-    - name: test gumbo macOS
+    - name: test gumbo
       os: osx
       language: cpp
       install:
-        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar zxf - googletest-release-1.8.0/googletest
-        - mv googletest-release-1.8.0/googletest gumbo-parser
+        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | \
+          tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
         - make -C gumbo-parser/googletest/make gtest_main.a
       before_script: true
       script:
         - make -C gumbo-parser
-    - name: test gumbo Linux
+    - name: test gumbo
       os: linux
       language: cpp
       install:
-        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar zxf - googletest-release-1.8.0/googletest
-        - mv googletest-release-1.8.0/googletest gumbo-parser
+        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | \
+          tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
         - make -C gumbo-parser/googletest/make gtest_main.a
       before_script: true
       script:
