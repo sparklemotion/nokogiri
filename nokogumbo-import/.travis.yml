@@ -10,12 +10,11 @@ rvm: # http://rubies.travis-ci.org/
   - 2.3
   - 2.4.0 # https://github.com/travis-ci/travis-ci/issues/7848
   - 2.5
+env:
+  - WITH_LIBXML=true
+  - WITH_LIBXML=true NOKOGIRI_USE_SYSTEM_LIBRARIES=true
+  - WITH_LIBXML=false
 matrix:
-  exclude:
-    - os: osx
-      rvm: 2.0
-    - os: osx
-      env: WITH_LIBXML=false
   include:
     - name: test gumbo
       os: osx
@@ -36,14 +35,14 @@ matrix:
       script:
         - make -C gumbo-parser
 
-env:
-  - WITH_LIBXML=true
-  - WITH_LIBXML=false
 before_script:
-  - if [ "$WITH_LIBXML" = "false" ]; then sudo apt-get remove libxml2-dev; fi
+  - |
+    if [ "$WITH_LIBXML" == "true" ]; then
+      MAKE='make V=1' bundle exec rake compile -- --with-libxml2
+    else
+      MAKE='make V=1' bundle exec rake compile -- --without-libxml2
+    fi
   - cd test && git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git
 script:
-  - MAKE='make V=1' bundle exec rake compile
   - bundle exec rake
-sudo: required
 cache: bundler
