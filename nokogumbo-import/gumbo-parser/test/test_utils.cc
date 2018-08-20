@@ -156,7 +156,8 @@ GumboTest::~GumboTest() {
     for (unsigned int i = 0; i < parser_._output->errors.length && i < 1; ++i) {
       gumbo_print_caret_diagnostic (
         static_cast<GumboError*>(parser_._output->errors.data[i]),
-        text_
+        text_,
+	strlen(text_)
       );
     }
   }
