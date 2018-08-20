@@ -24,8 +24,7 @@ matrix:
       os: osx
       language: cpp
       install:
-        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | \
-          tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
+        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
         - make -C gumbo-parser/googletest/make gtest_main.a
       before_script: true
       script:
@@ -34,8 +33,7 @@ matrix:
       os: linux
       language: cpp
       install:
-        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | \
-          tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
+        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
         - make -C gumbo-parser/googletest/make gtest_main.a
       before_script: true
       script:
