@@ -27,6 +27,12 @@ SOURCES = ['ext/nokogumbo/extconf.rb', 'ext/nokogumbo/nokogumbo.c']
 # gem, package, and extension tasks
 task 'gem' => 'test'
 
+desc 'Run the gumbo unit tests'
+task 'test:gumbo' => 'gumbo-parser/googletest' do
+  sh(*%w{make -C gumbo-parser})
+end
+
+
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
   gem.version = Nokogumbo::VERSION
