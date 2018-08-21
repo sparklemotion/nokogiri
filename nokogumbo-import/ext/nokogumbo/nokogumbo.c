@@ -176,8 +176,8 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node) {
       return xmlNewDocText(document, CONST_CAST node->v.text.text);
     case GUMBO_NODE_CDATA:
       return xmlNewCDataBlock(document,
-        CONST_CAST node->v.text.original_text.data,
-        (int) node->v.text.original_text.length);
+        CONST_CAST node->v.text.text,
+        (int) strlen(node->v.text.text));
     case GUMBO_NODE_COMMENT:
       return xmlNewDocComment(document, CONST_CAST node->v.text.text);
   }
