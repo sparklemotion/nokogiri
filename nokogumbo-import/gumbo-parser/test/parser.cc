@@ -74,8 +74,23 @@ class GumboParserTest : public ::testing::Test {
   GumboNode* root_;
 };
 
+TEST_F(GumboParserTest, TreeDepthLimitEnforced) {
+  std::string input;
+  for (size_t i = 0; i < kGumboDefaultOptions.max_tree_depth; ++i)
+    input.append("<div>");
+  Parse(input);
+  ASSERT_EQ(GUMBO_STATUS_TREE_TOO_DEEP, output_->status);
+  ASSERT_TRUE(root_);
+  ASSERT_EQ(GUMBO_NODE_DOCUMENT, root_->type);
+  EXPECT_EQ(GUMBO_INSERTION_BY_PARSER, root_->parse_flags);
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+}
+
 TEST_F(GumboParserTest, NullDocument) {
   Parse("");
+  ASSERT_EQ(GUMBO_STATUS_OK, output_->status);
   ASSERT_TRUE(root_);
   ASSERT_EQ(GUMBO_NODE_DOCUMENT, root_->type);
   EXPECT_EQ(GUMBO_INSERTION_BY_PARSER, root_->parse_flags);
