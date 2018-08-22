@@ -699,4 +699,17 @@ TEST_F(GumboTokenizerTest, BogusEndTag) {
   EXPECT_EQ("</div</th>", ToString(token_.original_text));
   errors_are_expected_ = true;
 }
+
+TEST_F(GumboTokenizerTest, NullInTagNameState) {
+  char input[] = { '<', 'x', 0, 'x', '>' };
+  text_ = input;
+  gumbo_tokenizer_state_destroy(&parser_);
+  gumbo_tokenizer_state_init(&parser_, input, sizeof input);
+  ASSERT_TRUE(gumbo_lex(&parser_, &token_));
+  ASSERT_EQ(GUMBO_TOKEN_START_TAG, token_.type);
+  EXPECT_EQ(0, token_.position.offset);
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, token_.v.start_tag.tag);
+  EXPECT_EQ(std::string("x\xEF\xBF\xBDx"), token_.v.start_tag.name);
+  errors_are_expected_ = true;
+}
 }  // namespace

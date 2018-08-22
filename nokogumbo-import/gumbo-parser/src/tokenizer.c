@@ -85,6 +85,10 @@ typedef struct GumboInternalTagState {
   // the buffer can be re-used for building up attributes.
   GumboTag _tag;
 
+  // The current tag name. It's set at the same time that _tag is set if _tag
+  // is set to GUMBO_TAG_UNKNOWN.
+  char *_name;
+
   // The starting location of the text in the buffer.
   GumboSourcePosition _start_pos;
 
@@ -532,6 +536,7 @@ static void emit_doctype(GumboParser* parser, GumboToken* output) {
 static void mark_tag_state_as_empty(GumboTagState* tag_state) {
   UNUSED_IF_NDEBUG(tag_state);
 #ifndef NDEBUG
+  tag_state->_name = NULL;
   tag_state->_attributes = kGumboEmptyVector;
 #endif
 }
@@ -543,6 +548,7 @@ static StateResult emit_current_tag(GumboParser* parser, GumboToken* output) {
   if (tag_state->_is_start_tag) {
     output->type = GUMBO_TOKEN_START_TAG;
     output->v.start_tag.tag = tag_state->_tag;
+    output->v.start_tag.name = tag_state->_name;
     output->v.start_tag.attributes = tag_state->_attributes;
     output->v.start_tag.is_self_closing = tag_state->_is_self_closing;
     tag_state->_last_start_tag = tag_state->_tag;
@@ -719,6 +725,7 @@ static void start_new_tag(GumboParser* parser, bool is_start_tag) {
   initialize_tag_buffer(parser);
   gumbo_string_buffer_append_codepoint(c, &tag_state->_buffer);
 
+  assert(tag_state->_name == NULL);
   assert(tag_state->_attributes.data == NULL);
   // Initial size chosen by statistical analysis of a corpus of 60k webpages.
   // 99.5% of elements have 0 attributes, 93% of the remainder have 1. These
@@ -779,8 +786,15 @@ static void finish_tag_name(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   GumboTagState* tag_state = &tokenizer->_tag_state;
 
-  tag_state->_tag =
-      gumbo_tagn_enum(tag_state->_buffer.data, tag_state->_buffer.length);
+  const char *data = tag_state->_buffer.data;
+  size_t length = tag_state->_buffer.length;
+  tag_state->_tag = gumbo_tagn_enum(data, length);
+  if (tag_state->_tag == GUMBO_TAG_UNKNOWN) {
+    char *name = gumbo_alloc(length + 1);
+    memcpy(name, data, length);
+    name[length] = 0;
+    tag_state->_name = name;
+  }
   reinitialize_tag_buffer(parser);
 }
 
@@ -899,6 +913,7 @@ void gumbo_tokenizer_state_init (
   tokenizer->_is_current_node_foreign = false;
   tokenizer->_is_in_cdata = false;
   tokenizer->_tag_state._last_start_tag = GUMBO_TAG_LAST;
+  tokenizer->_tag_state._name = NULL;
 
   tokenizer->_buffered_emit_char = kGumboNoChar;
   gumbo_string_buffer_init(&tokenizer->_temporary_buffer);
@@ -920,6 +935,8 @@ void gumbo_tokenizer_state_destroy(GumboParser* parser) {
   assert(tokenizer->_doc_type_state.system_identifier == NULL);
   gumbo_string_buffer_destroy(&tokenizer->_temporary_buffer);
   gumbo_string_buffer_destroy(&tokenizer->_script_data_buffer);
+  assert(tokenizer->_tag_state._name == NULL);
+  assert(tokenizer->_tag_state._attributes.data == NULL);
   gumbo_free(tokenizer);
 }
 
@@ -3266,6 +3283,8 @@ void gumbo_token_destroy(GumboToken* token) {
         }
       }
       gumbo_free((void*) token->v.start_tag.attributes.data);
+      if (token->v.start_tag.tag == GUMBO_TAG_UNKNOWN)
+        gumbo_free((void*) token->v.start_tag.name);
       return;
     case GUMBO_TOKEN_COMMENT:
       gumbo_free((void*) token->v.text);

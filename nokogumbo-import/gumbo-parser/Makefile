@@ -4,9 +4,9 @@ gumbo_objs := $(patsubst %.c,build/%.o,$(wildcard src/*.c))
 test_objs := $(patsubst %.cc,build/%.o,$(wildcard test/*.cc))
 gtest_lib := googletest/make/gtest_main.a
 
-CPPFLAGS := -isystem googletest/include -Isrc
+CPPFLAGS := -Isrc
 CFLAGS := -std=c99 -Os
-CXXFLAGS := -std=c++11 -Os
+CXXFLAGS := -isystem googletest/include -std=c++11 -Os
 LDFLAGS := -pthread
 
 all: check

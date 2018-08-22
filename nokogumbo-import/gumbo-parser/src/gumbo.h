@@ -288,9 +288,8 @@ typedef enum {
 } GumboTag;
 
 /**
- * Returns the normalized (usually all lower case, except for foreign
- * content) tag name for a `GumboTag` enum. The return value is static
- * data owned by the library.
+ * Returns the normalized (all lower case) tag name for a `GumboTag` enum. The
+ * return value is static data owned by the library.
  */
 const char* gumbo_normalized_tagname(GumboTag tag);
 
@@ -612,6 +611,9 @@ typedef struct {
 
   /** The GumboTag enum for this element. */
   GumboTag tag;
+
+  /** The name for this element. */
+  const char* name;
 
   /** The GumboNamespaceEnum for this element. */
   GumboNamespaceEnum tag_namespace;

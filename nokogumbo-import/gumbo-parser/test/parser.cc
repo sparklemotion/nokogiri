@@ -1912,4 +1912,53 @@ TEST_F(GumboParserTest, FragmentWithTwoNodes) {
   EXPECT_EQ(0, GetChildCount(br));
 }
 
+TEST_F(GumboParserTest, CrazyName) {
+  Parse("<body><WhatAcrazyNAME></WhatAcrazyNAME>");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(1, GetChildCount(body));
+
+  GumboNode* node = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, node->type);
+  ASSERT_EQ(std::string("whatacrazyname"), node->v.element.name);
+}
+
+TEST_F(GumboParserTest, SVGForeignObjectName) {
+  Parse("<body><SVG><FOREIGNOBJECT></FOREIGNOBJECT></SVG>");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(1, GetChildCount(body));
+
+  GumboNode* svg = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, svg->type);
+  ASSERT_EQ(GUMBO_TAG_SVG, svg->v.element.tag);
+  ASSERT_EQ(std::string("svg"), svg->v.element.name);
+
+  GumboNode* node = GetChild(svg, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, node->type);
+  ASSERT_EQ(GUMBO_TAG_FOREIGNOBJECT, node->v.element.tag);
+  ASSERT_EQ(std::string("foreignObject"), node->v.element.name);
+}
+
+TEST_F(GumboParserTest, NonSVGForeignObjectName) {
+  Parse("<body><MATH><FOREIGNOBJECT></FOREIGNOBJECT></math>");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(1, GetChildCount(body));
+
+  GumboNode* math = GetChild(body, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, math->type);
+  ASSERT_EQ(GUMBO_TAG_MATH, math->v.element.tag);
+  ASSERT_EQ(std::string("math"), math->v.element.name);
+
+  GumboNode* node = GetChild(math, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, node->type);
+  ASSERT_EQ(GUMBO_TAG_FOREIGNOBJECT, node->v.element.tag);
+  // Note the lowercase o compared to above
+  ASSERT_EQ(std::string("foreignobject"), node->v.element.name);
+}
+
 }  // namespace

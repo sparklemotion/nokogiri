@@ -432,6 +432,8 @@ static void destroy_node_callback(GumboNode* node) {
       }
       gumbo_free(node->v.element.attributes.data);
       gumbo_free(node->v.element.children.data);
+      if (node->v.element.tag == GUMBO_TAG_UNKNOWN)
+        gumbo_free((void *)node->v.element.name);
       break;
     case GUMBO_NODE_TEXT:
     case GUMBO_NODE_CDATA:
@@ -1036,6 +1038,7 @@ static GumboNode* create_element(GumboParser* parser, GumboTag tag) {
   gumbo_vector_init(1, &element->children);
   gumbo_vector_init(0, &element->attributes);
   element->tag = tag;
+  element->name = gumbo_normalized_tagname(tag);
   element->tag_namespace = GUMBO_NAMESPACE_HTML;
   element->original_tag = kGumboEmptyString;
   element->original_end_tag = kGumboEmptyString;
@@ -1069,6 +1072,7 @@ static GumboNode* create_element_from_token (
   gumbo_vector_init(1, &element->children);
   element->attributes = start_tag->attributes;
   element->tag = start_tag->tag;
+  element->name = start_tag->name ? start_tag->name : gumbo_normalized_tagname(start_tag->tag);
   element->tag_namespace = tag_namespace;
 
   assert(token->original_text.length >= 2);
@@ -1079,9 +1083,10 @@ static GumboNode* create_element_from_token (
   element->original_end_tag = kGumboEmptyString;
   element->end_pos = kGumboEmptySourcePosition;
 
-  // The element takes ownership of the attributes from the token, so any
-  // allocated-memory fields should be nulled out.
+  // The element takes ownership of the attributes and name from the token, so
+  // any allocated-memory fields should be nulled out.
   start_tag->attributes = kGumboEmptyVector;
+  start_tag->name = NULL;
   return node;
 }
 
@@ -1874,6 +1879,26 @@ static void adjust_foreign_attributes(GumboToken* token) {
   }
 }
 
+// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inforeign
+// This adjusts svg tags.
+static void adjust_svg_tag(GumboToken* token) {
+  assert(token->type == GUMBO_TOKEN_START_TAG);
+  if (token->v.start_tag.tag == GUMBO_TAG_FOREIGNOBJECT) {
+    assert(token->v.start_tag.name == NULL);
+    token->v.start_tag.name = "foreignObject";
+  } else if (token->v.start_tag.tag == GUMBO_TAG_UNKNOWN) {
+    assert(token->v.start_tag.name);
+    const StringReplacement *replacement = gumbo_get_svg_tag_replacement(
+      token->v.start_tag.name,
+      strlen(token->v.start_tag.name)
+    );
+    if (replacement) {
+      // This cast is safe because we allocated this memory and we'll free it.
+      strcpy((char *)token->v.start_tag.name, replacement->to);
+    }
+  }
+}
+
 // https://html.spec.whatwg.org/multipage/parsing.html#adjust-svg-attributes
 // This destructively modifies any matching attributes on the token.
 static void adjust_svg_attributes(GumboToken* token) {
@@ -2274,6 +2299,7 @@ static void ignore_token(GumboParser* parser) {
     // Mark this sentinel so the assertion in the main loop knows it's been
     // destroyed.
     token->v.start_tag.attributes = kGumboEmptyVector;
+    token->v.start_tag.name = NULL;
   }
 #endif
 }
@@ -4209,8 +4235,7 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
       adjust_mathml_attributes(token);
     }
     if (current_namespace == GUMBO_NAMESPACE_SVG) {
-      // Tag adjustment is left to the gumbo_normalize_svg_tagname helper
-      // function.
+      adjust_svg_tag(token);
       adjust_svg_attributes(token);
     }
     adjust_foreign_attributes(token);
@@ -4461,7 +4486,10 @@ GumboOutput* gumbo_parse_with_options (
         token_type = "doctype";
         break;
       case GUMBO_TOKEN_START_TAG:
-        token_type = gumbo_normalized_tagname(token.v.start_tag.tag);
+        if (token.v.start_tag.tag == GUMBO_TAG_UNKNOWN)
+          token_type = token.v.start_tag.name;
+        else
+          token_type = gumbo_normalized_tagname(token.v.start_tag.tag);
         break;
       case GUMBO_TOKEN_END_TAG:
         token_type = gumbo_normalized_tagname(token.v.end_tag);
@@ -4494,7 +4522,8 @@ GumboOutput* gumbo_parse_with_options (
     assert (
       state->_reprocess_current_token
       || token.type != GUMBO_TOKEN_START_TAG
-      || token.v.start_tag.attributes.data == NULL
+      || (token.v.start_tag.attributes.data == NULL
+          && token.v.start_tag.name == NULL)
     );
 
     if (!state->_self_closing_flag_acknowledged) {
