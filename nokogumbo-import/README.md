@@ -1,5 +1,4 @@
-Nokogumbo - a Nokogiri interface to the Gumbo HTML5 parser.
-===========
+# Nokogumbo - a Nokogiri interface to the Gumbo HTML5 parser.
 
 Nokogumbo provides the ability for a Ruby program to invoke the 
 [Gumbo HTML5 parser](https://github.com/google/gumbo-parser#readme)
@@ -8,8 +7,7 @@ and to access the result as a
 
 [![Build Status](https://travis-ci.org/rubys/nokogumbo.svg)](https://travis-ci.org/rubys/nokogumbo) 
 
-Usage
------
+## Usage
 
 ```ruby
 require 'nokogumbo'
@@ -32,8 +30,33 @@ require 'nokogumbo'
 doc = Nokogiri::HTML5.get(uri)
 ```
 
-Example
------
+## Error reporting
+Nokogumbo contains an experimental parse error reporting facility. By default,
+no parse errors are reported but this can be configured by passing the
+`:max_parse_errors` option to `::parse` or `::fragment`.
+
+```ruby
+require 'nokogumbo'
+doc = Nokogiri::HTML5.parse('Hi there!<body>', max_parse_errors: 10)
+doc.errors.each do |err|
+  puts err
+end
+```
+
+This prints the following.
+```
+1:1: ERROR: @1:1: The doctype must be the first token in the document.
+Hi there!<body>
+^
+1:10: ERROR: @1:10: That tag isn't allowed here  Currently open tags: html, body..
+Hi there!<body>
+         ^
+```
+
+The errors returned by `#errors` are instances of
+[`Nokogiri::XML::SyntaxError`](https://www.rubydoc.info/github/sparklemotion/nokogiri/Nokogiri/XML/SyntaxError).
+
+## Examples
 ```ruby
 require 'nokogumbo'
 puts Nokogiri::HTML5.get('http://nokogiri.org').search('ol li')[2].text
@@ -45,8 +68,7 @@ require 'nokogumbo'
 Nokogiri::HTML5.parse(Nokogiri::HTML5.parse('<div></div> a').to_html).to_html
 ```
 
-Notes
------
+## Notes
 
 * The `Nokogiri::HTML5.fragment` function takes a string and parses it
   as a HTML5 document.  The `<html>`, `<head>`, and `<body>` elements are
@@ -77,8 +99,7 @@ original tag name is returned verbatim.
 * If the Gumbo HTML5 parser is not already installed, the source for the
 parser will be downloaded and compiled into the Gem itself.
 
-Installation
-============
+# Installation
 
     git clone --recursive https://github.com/rubys/nokogumbo.git
     cd nokogumbo
@@ -86,8 +107,9 @@ Installation
     rake gem
     gem install pkg/nokogumbo*.gem
 
-Related efforts
-============
+# Related efforts
 
-* [ruby-gumbo](https://github.com/nevir/ruby-gumbo#readme) - a ruby binding
-for the Gumbo HTML5 parser.
+* [ruby-gumbo](https://github.com/nevir/ruby-gumbo#readme) -- a ruby binding
+  for the Gumbo HTML5 parser.
+* [lua-gumbo](https://gitlab.com/craigbarnes/lua-gumbo) -- a lua binding for
+  the Gumbo HTML5 parser.

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Experimental support for errors (it was supported in 1.5.0 but undocumented)
 
 ### Changed
 - Integrated [Gumbo parser](https://github.com/google/gumbo-parser) into
