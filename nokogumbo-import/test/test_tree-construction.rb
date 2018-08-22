@@ -80,20 +80,20 @@ def parse_test(test_data)
     elsif /^<!DOCTYPE ([^ >]*)(?: "([^"]*)" "(.*)")?>$/ =~ node_text
       node[:type] = :doctype
       node[:name] = $~[1]
-      node[:public_id] = $~[2]&.empty? ? nil : $~[2]
-      node[:system_id] = $~[3]&.empty? ? nil : $~[3]
+      node[:public_id] = $~[2].nil? || $~[2].empty? ? nil : $~[2]
+      node[:system_id] = $~[3].nil? || $~[3].empty? ? nil : $~[3]
     elsif /^<!-- (.*) -->$/ =~ node_text
       node[:type] = :comment
       node[:contents] = $~[1]
     elsif /^<(svg |math )?(.+)>$/ =~ node_text
       node[:type] = :element
-      node[:ns] = $~[1]&.rstrip
+      node[:ns] = $~[1].nil? ? nil : $~[1].rstrip
       node[:tag] = $~[2]
       node[:attributes] = []
       node[:children] = []
     elsif /^([^ ]+ )?([^=]+)="(.*)"$/ =~ node_text
       node[:type] = :attribute
-      node[:ns] = $~[1]&.strip
+      node[:ns] = $~[1].nil? ? nil : $~[1].rstrip
       node[:name] = $~[2]
       node[:value] = $~[3]
     elsif node_text == 'content'
@@ -154,7 +154,7 @@ class TestTreeConstructionBase < Minitest::Test
         attr_name = attr[:ns].nil? ? attr[:name] : "#{attr[:ns]}:#{attr[:name]}"
         # This does not work with 'xml:lang'!
         # ng_attr = ng_node.get_attribute(attr_name)
-        ng_attr = attributes[attr_name]&.value
+        ng_attr = attributes[attr_name].nil? ? nil : attributes[attr_name].value
         # This changes the tree. grr
         # refute ng_attr.nil?, "Couldn't find attribute '#{attr_name}' on #{ng_node}"
         refute ng_attr.nil?, "Couldn't find attribute '#{attr_name}'"
