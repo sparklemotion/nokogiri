@@ -62,7 +62,7 @@ static VALUE create_internal_subset;
 #define xmlNewDocText(doc, text) \
   rb_funcall(Text, new, 2, rb_str_new2(text), doc)
 #define xmlNewCDataBlock(doc, content, length) \
-  rb_funcall(CDATA, new, 2, rb_str_new(content, length), doc)
+  rb_funcall(CDATA, new, 2, doc, rb_str_new(content, length))
 #define xmlNewDocComment(doc, text) \
   rb_funcall(Comment, new, 2, doc, rb_str_new2(text))
 #define xmlAddChild(element, node) \
