@@ -44,7 +44,7 @@ env:
   - WITH_LIBXML=false V=1
 before_script:
   - if [ "$WITH_LIBXML" = "false" ]; then sudo apt-get remove libxml2-dev; fi
-  - cd test && git clone --depth 1 --branch fix-noscript --single-branch https://github.com/stevecheckoway/html5lib-tests
+  - cd test && git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git
 script:
   - bundle exec rake
 sudo: required
