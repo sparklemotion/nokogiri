@@ -21,7 +21,6 @@
 #include <ruby.h>
 #include "gumbo.h"
 #include "error.h"
-#include "parser.h"
 
 // class constants
 static VALUE Document;
@@ -96,9 +95,9 @@ static xmlNodePtr walk_element(xmlDocPtr document, GumboElement *node) {
   // add in the attributes
   GumboVector* attrs = &node->attributes;
   char *name = NULL;
-  int namelen = 0;
-  char *ns;
-  for (int i=0; i < attrs->length; i++) {
+  size_t namelen = 0;
+  const char *ns;
+  for (size_t i=0; i < attrs->length; i++) {
     GumboAttribute *attr = attrs->data[i];
 
     switch (attr->attr_namespace) {
@@ -141,7 +140,7 @@ static xmlNodePtr walk_element(xmlDocPtr document, GumboElement *node) {
 
   // add in the children
   GumboVector* children = &node->children;
-  for (int i=0; i < children->length; i++) {
+  for (size_t i=0; i < children->length; i++) {
     xmlNodePtr node = walk_tree(document, children->data[i]);
     if (node) xmlAddChild(element, node);
   }
@@ -206,12 +205,11 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
   // Add parse errors to rdoc.
   if (output->errors.length) {
     GumboVector *errors = &output->errors;
-    GumboParser parser = { ._options = &options };
     GumboStringBuffer msg;
     VALUE rerrors = rb_ary_new2(errors->length);
 
     gumbo_string_buffer_init(&msg);
-    for (int i=0; i < errors->length; i++) {
+    for (size_t i=0; i < errors->length; i++) {
       GumboError *err = errors->data[i];
       gumbo_string_buffer_clear(&msg);
       gumbo_caret_diagnostic_to_string(err, input, input_len, &msg);
