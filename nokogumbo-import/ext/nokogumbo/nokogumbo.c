@@ -33,7 +33,7 @@ static VALUE XMLSyntaxError;
 #define NIL NULL
 #define CONST_CAST (xmlChar const*)
 #else
-#define NIL 0
+#define NIL Qnil
 #define CONST_CAST
 
 // more class constants
@@ -44,11 +44,15 @@ static VALUE Comment;
 
 // interned symbols
 static VALUE new;
+static VALUE attribute;
 static VALUE set_attribute;
+static VALUE remove_attribute;
 static VALUE add_child;
 static VALUE internal_subset;
 static VALUE remove_;
 static VALUE create_internal_subset;
+static VALUE key_;
+static VALUE node_name_;
 
 // map libxml2 types to Ruby VALUE
 #define xmlNodePtr VALUE
@@ -57,8 +61,6 @@ static VALUE create_internal_subset;
 // redefine libxml2 API as Ruby function calls
 #define xmlNewDocNode(doc, ns, name, content) \
   rb_funcall(Element, new, 2, rb_str_new2(name), doc)
-#define xmlNewProp(element, name, value) \
-  rb_funcall(element, set_attribute, 2, rb_str_new2(name), rb_str_new2(value))
 #define xmlNewDocText(doc, text) \
   rb_funcall(Text, new, 2, rb_str_new2(text), doc)
 #define xmlNewCDataBlock(doc, content, length) \
@@ -81,6 +83,78 @@ static VALUE xmlNewDoc(char* version) {
   VALUE doc = rb_funcall(Document, new, 0);
   rb_funcall(rb_funcall(doc, internal_subset, 0), remove_, 0);
   return doc;
+}
+
+static VALUE find_dummy_key(VALUE collection) {
+  VALUE r_dummy = Qnil;
+  char dummy[5] = "a";
+  size_t len = 1;
+  while (len < sizeof dummy) {
+    r_dummy = rb_str_new(dummy, len);
+    if (rb_funcall(collection, key_, 1, r_dummy) == Qfalse)
+      return r_dummy;
+    for (size_t i = 0; ; ++i) {
+      if (dummy[i] == 0) {
+        dummy[i] = 'a';
+        ++len;
+        break;
+      }
+      if (dummy[i] == 'z')
+        dummy[i] = 'a';
+      else {
+        ++dummy[i];
+        break;
+      }
+    }
+  }
+  // This collection has 475254 elements?? Give up.
+  return Qnil;
+}
+
+static xmlNodePtr xmlNewProp(xmlNodePtr node, const char *name, const char *value) {
+  // Nokogiri::XML::Node#set_attribute calls xmlSetProp(node, name, value)
+  // which behaves roughly as
+  // if name is a QName prefix:local
+  //   if node->doc has a namespace ns corresponding to prefix
+  //     return xmlSetNsProp(node, ns, local, value)
+  // return xmlSetNsProp(node, NULL, name, value)
+  //
+  // If the prefix is "xml", then the namespace lookup will create it.
+  //
+  // By contrast, xmlNewProp does not do this parsing and creates an attribute
+  // with the name and value exactly as given. This is the behavior that we
+  // want.
+  //
+  // Thus, for attribute names like "xml:lang", #set_attribute will create an
+  // attribute with namespace "xml" and name "lang". This is incorrect for
+  // html elements (but correct for foreign elements).
+  //
+  // Work around this by inserting a dummy attribute and then changing the
+  // name, if needed.
+
+  // Can't use strchr since it's locale-sensitive.
+  size_t len = strlen(name);
+  VALUE r_name = rb_str_new(name, len);
+  if (memchr(name, ':', len) == NULL) {
+    // No colon.
+    return rb_funcall(node, set_attribute, 2, r_name, rb_str_new2(value));
+  }
+  // Find a dummy attribute string that doesn't already exist.
+  VALUE dummy = find_dummy_key(node);
+  if (dummy == Qnil)
+    return Qnil;
+  // Add the dummy attribute.
+  VALUE r_value = rb_funcall(node, set_attribute, 2, dummy, rb_str_new2(value));
+  if (r_value == Qnil)
+    return Qnil;
+  // Remove thet old attribute, if it exists.
+  rb_funcall(node, remove_attribute, 1, r_name);
+  // Rename the dummy
+  VALUE attr = rb_funcall(node, attribute, 1, dummy);
+  if (attr == Qnil)
+    return Qnil;
+  rb_funcall(attr, node_name_, 1, r_name);
+  return attr;
 }
 #endif
 
@@ -184,8 +258,8 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
     const char *public = output->document->v.document.public_identifier;
     const char *system = output->document->v.document.system_identifier;
     xmlCreateIntSubset(doc, CONST_CAST name,
-      (public[0] ? CONST_CAST public : NIL),
-      (system[0] ? CONST_CAST system : NIL));
+      (public[0] ? CONST_CAST public : NULL),
+      (system[0] ? CONST_CAST system : NULL));
   }
 
   GumboVector *children = &output->document->v.document.children;
@@ -257,11 +331,15 @@ void Init_nokogumbo() {
 
   // interned symbols
   new = rb_intern("new");
+  attribute = rb_intern("attribute");
   set_attribute = rb_intern("set_attribute");
+  remove_attribute = rb_intern("remove_attribute");
   add_child = rb_intern("add_child_node_and_reparent_attrs");
   internal_subset = rb_intern("internal_subset");
   remove_ = rb_intern("remove");
   create_internal_subset = rb_intern("create_internal_subset");
+  key_ = rb_intern("key?");
+  node_name_ = rb_intern("node_name=");
 #endif
 
   // define Nokogumbo module with a parse method
