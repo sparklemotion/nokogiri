@@ -9,3 +9,4 @@ ext/nokogumbo/*
 /tmp
 /gumbo-parser/googletest
 /gumbo-parser/build
+/test/html5lib-tests
