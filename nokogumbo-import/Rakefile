@@ -32,6 +32,10 @@ task 'test:gumbo' => 'gumbo-parser/googletest' do
   sh(*%w{make -C gumbo-parser})
 end
 
+desc 'Start a console'
+task :console => :compile do
+  sh(*%w{irb -Ilib -rnokogumbo})
+end
 
 SPEC = Gem::Specification.new do |gem|
   gem.name = 'nokogumbo'
