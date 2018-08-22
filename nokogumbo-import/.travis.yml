@@ -43,7 +43,7 @@ env:
   - WITH_LIBXML=true V=1
   - WITH_LIBXML=false V=1
 before_script:
-  - test "$WITH_LIBXML" = "false" && sudo apt-get remove libxml2-dev
+  - if [ "$WITH_LIBXML" = "false" ]; then sudo apt-get remove libxml2-dev; fi
   - cd test && git clone --depth 1 --branch fix-noscript --single-branch https://github.com/stevecheckoway/html5lib-tests
 sudo: required
 cache: bundler
