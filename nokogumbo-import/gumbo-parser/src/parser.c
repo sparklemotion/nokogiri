@@ -3249,6 +3249,8 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
         // TODO(jdtang): Do I need to add a parse error here?  The condition in
         // the spec seems like it's the inverse of the loop condition above, and
         // so would never fire.
+	// XXX(sfc): Yes, an error is needed here
+	// I think <p><div></p> is an example.
         while (node != pop_current_node(parser))
           ;  // Pop everything.
         return true;
@@ -4251,6 +4253,7 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
     assert(token->type == GUMBO_TOKEN_END_TAG);
     GumboNode* node = get_current_node(parser);
     assert(node != NULL);
+    // XXX(sfc): This doesn't properly handle replacements.
     GumboStringPiece token_tagname = token->original_text;
     GumboStringPiece node_tagname = node->v.element.original_tag;
     gumbo_tag_from_original_text(&token_tagname);
