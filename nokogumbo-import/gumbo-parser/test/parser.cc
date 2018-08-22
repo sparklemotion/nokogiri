@@ -1961,4 +1961,10 @@ TEST_F(GumboParserTest, NonSVGForeignObjectName) {
   ASSERT_EQ(std::string("foreignobject"), node->v.element.name);
 }
 
+// TEST_F(GumboParserTest, UnknownElementMismatch) {
+//   // XXX: This should be a parse error, possibly two.
+//   Parse("<!DOCTYPE html><body><foo></bar>");
+//   EXPECT_TRUE(output_->errors.length != 0);
+// }
+
 }  // namespace

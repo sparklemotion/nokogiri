@@ -3244,6 +3244,8 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     // implied end tags) and ignore the end tag token.
     for (int i = state->_open_elements.length; --i >= 0;) {
       const GumboNode* node = state->_open_elements.data[i];
+      // XXX(sfc): This doesn't work for something like <body><foo></bar>
+      // since foo and bar have the same tag of GUMBO_TAG_UNKNOWN
       if (node_html_tag_is(node, end_tag)) {
         generate_implied_end_tags(parser, end_tag);
         // TODO(jdtang): Do I need to add a parse error here?  The condition in
