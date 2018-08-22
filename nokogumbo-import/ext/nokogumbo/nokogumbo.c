@@ -189,7 +189,7 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
   }
 
   GumboVector *children = &output->document->v.document.children;
-  for (int i=0; i < children->length; i++) {
+  for (size_t i=0; i < children->length; i++) {
     GumboNode *child = children->data[i];
     xmlNodePtr node = walk_tree(doc, child);
     if (node) {
