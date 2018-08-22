@@ -696,6 +696,15 @@ typedef struct GumboInternalOptions {
   bool stop_on_first_error;
 
   /**
+   * Maximum allowed depth for the parse tree. If this limit is exceeded,
+   * the parser will return early with a partial document and the returned
+   * `GumboOutput` will have its `status` field set to
+   * `GUMBO_STATUS_TREE_TOO_DEEP`.
+   * Default: `400`.
+   */
+  unsigned int max_tree_depth;
+
+  /**
    * The maximum number of errors before the parser stops recording
    * them. This is provided so that if the page is totally borked, we
    * don't completely fill up the errors vector and exhaust memory with
@@ -732,10 +741,29 @@ typedef struct GumboInternalOptions {
 /** Default options struct; use this with gumbo_parse_with_options. */
 extern const GumboOptions kGumboDefaultOptions;
 
+/**
+ * Status code indicating whether parsing finished successfully or
+ * was stopped mid-document due to exceptional circumstances.
+ */
 typedef enum {
+  /**
+   * Indicates that parsing completed successfuly. The resulting tree
+   * will be a complete document.
+   */
   GUMBO_STATUS_OK,
+
+  /**
+   * Indicates that the maximum element nesting limit
+   * (`GumboOptions::max_tree_depth`) was reached during parsing. The
+   * resulting tree will be a partial document, with no further nodes
+   * created after the point where the limit was reached. The partial
+   * document may be useful for constructing an error message but
+   * typically shouldn't be used for other purposes.
+   */
+  GUMBO_STATUS_TREE_TOO_DEEP,
+
+  // Currently unused
   GUMBO_STATUS_OUT_OF_MEMORY,
-  GUMBO_STATUS_TREE_TOO_DEEP
 } GumboOutputStatus;
 
 

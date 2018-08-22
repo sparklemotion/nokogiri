@@ -49,6 +49,7 @@ static const GumboSourcePosition kGumboEmptySourcePosition = { \
 const GumboOptions kGumboDefaultOptions = {
   .tab_stop = 8,
   .stop_on_first_error = false,
+  .max_tree_depth = 400,
   .max_errors = -1,
   .fragment_context = GUMBO_TAG_LAST,
   .fragment_namespace = GUMBO_NAMESPACE_HTML
@@ -4502,6 +4503,7 @@ GumboOutput* gumbo_parse_with_options (
   // of hanging the process before we ever get an error.
   uint_fast32_t loop_count = 0;
 
+  const unsigned int max_tree_depth = options->max_tree_depth;
   GumboToken token;
   bool has_error = false;
 
@@ -4576,7 +4578,7 @@ GumboOutput* gumbo_parse_with_options (
       }
     }
 
-    if (unlikely(parser._parser_state->_open_elements.length > 400)) {
+    if (unlikely(state->_open_elements.length > max_tree_depth)) {
       parser._output->status = GUMBO_STATUS_TREE_TOO_DEEP;
       gumbo_debug("Tree depth limit exceeded.\n");
       break;
