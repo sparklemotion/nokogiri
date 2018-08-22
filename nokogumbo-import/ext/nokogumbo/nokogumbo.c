@@ -90,23 +90,8 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node);
 
 // Build a xmlNodePtr for a given GumboElement (recursively)
 static xmlNodePtr walk_element(xmlDocPtr document, GumboElement *node) {
-  // determine tag name for a given node
-  xmlNodePtr element;
-  if (node->tag != GUMBO_TAG_UNKNOWN) {
-    element = xmlNewDocNode(document, NIL,
-      CONST_CAST gumbo_normalized_tagname(node->tag), NIL);
-  } else {
-    GumboStringPiece tag = node->original_tag;
-    gumbo_tag_from_original_text(&tag);
-#ifdef _MSC_VER
-    char* name = alloca(tag.length+1);
-#else
-    char name[tag.length+1];
-#endif
-    strncpy(name, tag.data, tag.length);
-    name[tag.length] = '\0';
-    element = xmlNewDocNode(document, NIL, CONST_CAST name, NIL);
-  }
+  // create the given element
+  xmlNodePtr element = xmlNewDocNode(document, NIL, CONST_CAST node->name, NIL);
 
   // add in the attributes
   GumboVector* attrs = &node->attributes;
