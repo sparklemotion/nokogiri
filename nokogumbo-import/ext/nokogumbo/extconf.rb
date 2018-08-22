@@ -1,6 +1,8 @@
 require 'mkmf'
 $CFLAGS += " -std=c99"
 
+CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')
+
 if have_library('xml2', 'xmlNewDoc') 
   # libxml2 libraries from http://www.xmlsoft.org/
   pkg_config('libxml-2.0')
