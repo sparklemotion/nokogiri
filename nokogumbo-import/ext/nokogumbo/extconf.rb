@@ -1,7 +1,7 @@
 require 'mkmf'
 $CFLAGS += " -std=c99"
 
-CONFIG['warnflags'] = '-Wall'
+$warnflags = CONFIG['warnflags'] = '-Wall'
 
 if have_library('xml2', 'xmlNewDoc') 
   # libxml2 libraries from http://www.xmlsoft.org/
