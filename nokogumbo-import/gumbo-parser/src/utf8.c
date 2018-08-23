@@ -148,8 +148,10 @@ static void read_char(Utf8Iterator* iter) {
         code_point = '\n';
       }
       if (utf8_is_invalid_code_point(code_point)) {
+	// Invalid code points are errors, but they are not replaced by
+	// U+FFFD.
+	// https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
         add_error(iter, GUMBO_ERR_UTF8_INVALID);
-        code_point = kUtf8ReplacementChar;
       }
       iter->_current = code_point;
       return;
