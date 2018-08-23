@@ -51,7 +51,13 @@ class TestNokogumbo < Minitest::Test
   end
 
   def test_fragment_no_errors
-    doc = Nokogiri::HTML5.fragment("no missing DOCTYPE errors", max_parse_errors: 10)
+    doc = Nokogiri::HTML5.fragment("no missing DOCTYPE errors", max_errors: 10)
+    assert_equal 0, doc.errors.length
+  end
+
+  # This should be deleted when `:max_parse_errors` is removed.
+  def test_fragment_max_parse_errors
+    doc = Nokogiri::HTML5.fragment("testing deprecated :max_parse_errors", max_parse_errors: 10)
     assert_equal 0, doc.errors.length
   end
 
@@ -99,28 +105,28 @@ class TestNokogumbo < Minitest::Test
   end
 
   def test_parse_errors
-    doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- -- --></a>", max_parse_errors: 10)
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- -- --></a>", max_errors: 10)
     assert_equal doc.errors.length, 2
-    doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_parse_errors: 10)
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_errors: 10)
     assert_empty doc.errors
   end
 
-  def test_max_parse_errors
+  def test_max_errors
     # This document contains 2 parse errors, but we force limit to 1.
-    doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- -- --></a>", max_parse_errors: 1)
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html><!-- -- --></a>", max_errors: 1)
     assert_equal 1, doc.errors.length
-    doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_parse_errors: 1)
+    doc = Nokogiri::HTML5("<!DOCTYPE html><html>", max_errors: 1)
     assert_empty doc.errors
   end
 
-  def test_default_max_parse_errors
+  def test_default_max_errors
     # This document contains 200 parse errors, but default limit is 0.
     doc = Nokogiri::HTML5("<!DOCTYPE html><html>" + "</p>" * 200)
     assert_equal 0, doc.errors.length
   end
 
   def test_parse_fragment_errors
-    doc = Nokogiri::HTML5.fragment("<\r\n", max_parse_errors: 10)
+    doc = Nokogiri::HTML5.fragment("<\r\n", max_errors: 10)
     refute_empty doc.errors
   end
 
@@ -140,13 +146,13 @@ class TestNokogumbo < Minitest::Test
     assert_equal "Кирилические символы", doc.at('body').text.gsub(/\n\s+/,'')
   end
 
-  def test_fragment_max_parse_errors
+  def test_fragment_max_errors
     # This fragment contains 3 parse errors, but we force limit to 1.
-    doc = Nokogiri::HTML5.fragment("<!-- -- --></a>", max_parse_errors: 1)
+    doc = Nokogiri::HTML5.fragment("<!-- -- --></a>", max_errors: 1)
     assert_equal 1, doc.errors.length
   end
 
-  def test_fragment_default_max_parse_errors
+  def test_fragment_default_max_errors
     # This fragment contains 201 parse errors, but default limit is 0.
     doc = Nokogiri::HTML5.fragment("</p>" * 200)
     assert_equal 0, doc.errors.length

@@ -44,7 +44,7 @@ class TestNokogumbo < Minitest::Test
         </body>
       </html>
     EOF
-    doc = Nokogiri::HTML5(html, max_parse_errors: 10)
+    doc = Nokogiri::HTML5(html, max_errors: 10)
     assert_equal 0, doc.errors.length
     refute_equal '', doc.to_html
   end

@@ -33,11 +33,11 @@ doc = Nokogiri::HTML5.get(uri)
 ## Error reporting
 Nokogumbo contains an experimental parse error reporting facility. By default,
 no parse errors are reported but this can be configured by passing the
-`:max_parse_errors` option to `::parse` or `::fragment`.
+`:max_errors` option to `::parse` or `::fragment`.
 
 ```ruby
 require 'nokogumbo'
-doc = Nokogiri::HTML5.parse('Hi there!<body>', max_parse_errors: 10)
+doc = Nokogiri::HTML5.parse('Hi there!<body>', max_errors: 10)
 doc.errors.each do |err|
   puts err
 end

@@ -2,16 +2,6 @@
 require 'nokogumbo'
 require 'minitest/autorun'
 
-# class TestTreeConstructionBase < Minitest::Test
-#   def fragment(s)
-#     Nokogiri::HTML5.fragment(s, context, max_parse_errors: 100)
-#   end
-# 
-#   def parse(s)
-#     Nokogiri::HTML5.parse(s, max_parse_errors: 100)
-#   end
-# end
-
 def parse_test(test_data)
   test = { script: :both }
   #index = test_data.start_with?("#errors\n") ? 0 : test_data.index("\n#errors\n")
@@ -185,7 +175,7 @@ class TestTreeConstructionBase < Minitest::Test
   def run_test
     skip "Scripting tests not supported" if @test[:script] == :on
     skip "Fragment tests not supported" unless @test[:context].nil?
-    doc = Nokogiri::HTML5.parse(@test[:data], max_parse_errors: @test[:errors].length + 1)
+    doc = Nokogiri::HTML5.parse(@test[:data], max_errors: @test[:errors].length + 1)
     # assert_equal doc.errors.length, @test[:errors].length
 
     # Walk the tree.

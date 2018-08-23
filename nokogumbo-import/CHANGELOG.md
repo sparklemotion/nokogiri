@@ -12,8 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Integrated [Gumbo parser](https://github.com/google/gumbo-parser) into
   Nokogumbo. A system version will not be used.
+- The undocumented (but publicly mentioned) `:max_parse_errors` renamed to `:max_errors`;
+  `:max_parse_errors` is deprecated and will go away
 
 ### Deprecated
+- `:max_parse_errors`; use `:max_errors`
 
 ### Removed
 

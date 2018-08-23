@@ -14,7 +14,8 @@ module Nokogiri
     # may also be an IO-like object.  Returns a +Nokogiri::HTML::Document+.
     def self.parse(string, options={})
       string = read_and_encode(string)
-      document = Nokogumbo.parse(string.to_s, options[:max_parse_errors] || 0)
+      max_errors = options[:max_errors] || options[:max_parse_errors] || 0
+      document = Nokogumbo.parse(string.to_s, max_errors)
       document.encoding = 'UTF-8'
       document
     end
@@ -95,7 +96,8 @@ module Nokogiri
       else
         path = "/html/body/node()"
       end
-      temp_doc = Nokogumbo.parse("<!DOCTYPE html><html><body>#{tags}", options[:max_parse_errors] || 0)
+      max_errors = options[:max_errors] || options[:max_parse_errors] || 0
+      temp_doc = Nokogumbo.parse("<!DOCTYPE html><html><body>#{tags}", max_errors)
       temp_doc.xpath(path).each { |child| child.parent = frag }
       frag.errors = temp_doc.errors
       frag

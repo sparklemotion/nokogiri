@@ -242,9 +242,9 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node) {
 }
 
 // Parse a string using gumbo_parse into a Nokogiri document
-static VALUE parse(VALUE self, VALUE string, VALUE max_parse_errors) {
+static VALUE parse(VALUE self, VALUE string, VALUE max_errors) {
   GumboOptions options = kGumboDefaultOptions;
-  options.max_errors = NUM2INT(max_parse_errors);
+  options.max_errors = NUM2INT(max_errors);
 
   const char *input = RSTRING_PTR(string);
   size_t input_len = RSTRING_LEN(string);
