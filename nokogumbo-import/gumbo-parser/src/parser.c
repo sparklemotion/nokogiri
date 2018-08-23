@@ -591,6 +591,35 @@ static bool node_tag_in_set(const GumboNode* node, const TagSet* tags) {
   );
 }
 
+static bool node_qualified_tagname_is (
+  const GumboNode* node,
+  GumboNamespaceEnum ns,
+  GumboTag tag,
+  const char *name
+) {
+  assert(node);
+  assert(node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE);
+  assert(node->v.element.name);
+  assert(tag != GUMBO_TAG_UNKNOWN || name);
+  GumboTag element_tag = node->v.element.tag;
+  const char *element_name = node->v.element.name;
+  assert(element_tag != GUMBO_TAG_UNKNOWN || element_name);
+  if (node->v.element.tag_namespace != ns || element_tag != tag)
+    return false;
+  if (tag != GUMBO_TAG_UNKNOWN)
+    return true;
+  return !gumbo_ascii_strcasecmp(element_name, name);
+}
+
+static bool node_tagname_is (
+  const GumboNode* node,
+  GumboTag tag,
+  const char *name
+) {
+  assert(node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE);
+  return node_qualified_tagname_is(node, node->v.element.tag_namespace, tag, name);
+}
+
 // Like node_tag_in, but for the single-tag case.
 static bool node_qualified_tag_is (
   const GumboNode* node,
@@ -598,14 +627,16 @@ static bool node_qualified_tag_is (
   GumboTag tag
 ) {
   assert(node);
+  assert(tag != GUMBO_TAG_UNKNOWN);
+  assert(node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE);
   return
-    (node->type == GUMBO_NODE_ELEMENT || node->type == GUMBO_NODE_TEMPLATE)
-    && node->v.element.tag == tag
+    node->v.element.tag == tag
     && node->v.element.tag_namespace == ns;
 }
 
 // Like node_tag_in, but for the single-tag case in the HTML namespace
 static bool node_html_tag_is(const GumboNode* node, GumboTag tag) {
+  assert(tag != GUMBO_TAG_UNKNOWN);
   return node_qualified_tag_is(node, GUMBO_NAMESPACE_HTML, tag);
 }
 
@@ -978,7 +1009,12 @@ static GumboNode* pop_current_node(GumboParser* parser) {
   if (
     (
       state->_current_token->type != GUMBO_TOKEN_END_TAG
-      || !node_html_tag_is(current_node, state->_current_token->v.end_tag.tag)
+      || !node_qualified_tagname_is (
+        current_node,
+        GUMBO_NAMESPACE_HTML,
+        state->_current_token->v.end_tag.tag,
+        state->_current_token->v.end_tag.name
+      )
     )
     && !is_closed_body_or_html_tag
   ) {
@@ -1033,6 +1069,9 @@ static void clear_stack_to_table_body_context(GumboParser* parser) {
 
 // Creates a parser-inserted element in the HTML namespace and returns it.
 static GumboNode* create_element(GumboParser* parser, GumboTag tag) {
+  // XXX: This will fail for creating fragments with an element with tag
+  // GUMBO_TAG_UNKNOWN
+  assert(tag != GUMBO_TAG_UNKNOWN);
   GumboNode* node = create_node(GUMBO_NODE_ELEMENT);
   GumboElement* element = &node->v.element;
   gumbo_vector_init(1, &element->children);
@@ -1263,7 +1302,12 @@ static int count_formatting_elements_of_tag (
     }
     assert(node->type == GUMBO_NODE_ELEMENT);
     if (
-      node_qualified_tag_is(node, desired_element->tag_namespace, desired_element->tag)
+      node_qualified_tagname_is (
+        node,
+        desired_element->tag_namespace,
+        desired_element->tag,
+        desired_element->name
+      )
       && all_attributes_match(&node->v.element.attributes, &desired_element->attributes)
     ) {
       num_identical_elements++;
@@ -3234,6 +3278,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
   } else {
     assert(token->type == GUMBO_TOKEN_END_TAG);
     GumboTag end_tag = token->v.end_tag.tag;
+    const char *end_tagname = token->v.end_tag.name;
     assert(state->_open_elements.length > 0);
     assert(node_html_tag_is(state->_open_elements.data[0], GUMBO_TAG_HTML));
     // Walk up the stack of open elements until we find one that either:
@@ -3244,15 +3289,17 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     // implied end tags) and ignore the end tag token.
     for (int i = state->_open_elements.length; --i >= 0;) {
       const GumboNode* node = state->_open_elements.data[i];
-      // XXX(sfc): This doesn't work for something like <body><foo></bar>
-      // since foo and bar have the same tag of GUMBO_TAG_UNKNOWN
-      if (node_html_tag_is(node, end_tag)) {
+      if (node_qualified_tagname_is(node, GUMBO_NAMESPACE_HTML, end_tag, end_tagname)) {
         generate_implied_end_tags(parser, end_tag);
         // TODO(jdtang): Do I need to add a parse error here?  The condition in
         // the spec seems like it's the inverse of the loop condition above, and
         // so would never fire.
-	// XXX(sfc): Yes, an error is needed here
-	// I think <p><div></p> is an example.
+	// sfc: Yes, an error is needed here.
+	// <!DOCTYPE><body><sarcasm><foo></sarcasm> is an example.
+        // foo is the "current node" but sarcasm is node.
+        // XXX: Write a test for this.
+        if (node != get_current_node(parser))
+          parser_add_parse_error(parser, token);
         while (node != pop_current_node(parser))
           ;  // Pop everything.
         return true;
@@ -4254,15 +4301,13 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
   } else {
     assert(token->type == GUMBO_TOKEN_END_TAG);
     GumboNode* node = get_current_node(parser);
+    GumboTag tag = token->v.end_tag.tag;
+    const char* name = token->v.end_tag.name;
     assert(node != NULL);
-    // XXX(sfc): This doesn't properly handle replacements.
-    GumboStringPiece token_tagname = token->original_text;
-    GumboStringPiece node_tagname = node->v.element.original_tag;
-    gumbo_tag_from_original_text(&token_tagname);
-    gumbo_tag_from_original_text(&node_tagname);
 
+    // XXX(sfc): This doesn't handle the fragment case.
     bool is_success = true;
-    if (!gumbo_string_equals_ignore_case(&node_tagname, &token_tagname)) {
+    if (!node_tagname_is(node, tag, name)) {
       parser_add_parse_error(parser, token);
       is_success = false;
     }
@@ -4272,15 +4317,10 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
       // case we do nothing) or we find the element that we're about to
       // close (in which case we pop everything we've seen until that
       // point.)
-      gumbo_debug (
-        "Foreign %.*s node at %d.\n",
-        (int) node_tagname.length,
-        node_tagname.data,
-        i
-      );
-      if (gumbo_string_equals_ignore_case(&node_tagname, &token_tagname)) {
+      gumbo_debug("Foreign %s node at %d.\n", node->v.element.name, i);
+      if (node_tagname_is(node, tag, name)) {
         gumbo_debug("Matches.\n");
-        while (pop_current_node(parser) != node) {
+        while (node != pop_current_node(parser)) {
           // Pop all the nodes below the current one. Node is guaranteed to
           // be an element on the stack of open elements (set below), so
           // this loop is guaranteed to terminate.
@@ -4290,16 +4330,13 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
       --i;
       node = parser->_parser_state->_open_elements.data[i];
       if (node->v.element.tag_namespace == GUMBO_NAMESPACE_HTML) {
-        // Must break before gumbo_tag_from_original_text to avoid passing
-        // parser-inserted nodes through.
+        // The loop continues only in foreign namespaces.
         break;
       }
-      node_tagname = node->v.element.original_tag;
-      gumbo_tag_from_original_text(&node_tagname);
     }
     assert(node->v.element.tag_namespace == GUMBO_NAMESPACE_HTML);
     // We can't call handle_token directly because the current node is still in
-    // the SVG namespace, so it would re-enter this and result in infinite
+    // a foriegn namespace, so it would re-enter this and result in infinite
     // recursion.
     return handle_html_content(parser, token) && is_success;
   }
@@ -4334,12 +4371,8 @@ static bool handle_token(GumboParser* parser, GumboToken* token) {
     || current_node->type == GUMBO_NODE_ELEMENT
     || current_node->type == GUMBO_NODE_TEMPLATE
   );
-  if (current_node) {
-    gumbo_debug (
-      "Current node: <%s>.\n",
-      gumbo_normalized_tagname(current_node->v.element.tag)
-    );
-  }
+  if (current_node)
+    gumbo_debug("Current node: <%s>.\n", current_node->v.element.name);
   if (!current_node ||
       current_node->v.element.tag_namespace == GUMBO_NAMESPACE_HTML ||
       (is_mathml_integration_point(current_node) &&

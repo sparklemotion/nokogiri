@@ -1987,10 +1987,50 @@ TEST_F(GumboParserTest, NonSVGForeignObjectName) {
   ASSERT_EQ(std::string("foreignobject"), node->v.element.name);
 }
 
-// TEST_F(GumboParserTest, UnknownElementMismatch) {
-//   // XXX: This should be a parse error, possibly two.
-//   Parse("<!DOCTYPE html><body><foo></bar>");
-//   EXPECT_TRUE(output_->errors.length != 0);
-// }
+TEST_F(GumboParserTest, HTMLElementMismatch) {
+  Parse("<!DOCTYPE html><foo><bar></foo><p>");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(2, GetChildCount(body));
+
+  GumboNode* foo = GetChild(body, 0);
+  // If foo becomes a tag at some point, change the example.
+  ASSERT_EQ(GUMBO_TAG_UNKNOWN, foo->v.element.tag);
+  EXPECT_EQ(std::string("foo"), foo->v.element.name);
+  ASSERT_EQ(1, GetChildCount(foo));
+
+  GumboNode* bar = GetChild(foo, 0);
+  ASSERT_EQ(GUMBO_TAG_UNKNOWN, bar->v.element.tag);
+  EXPECT_EQ(std::string("bar"), bar->v.element.name);
+
+  GumboNode* p = GetChild(body, 1);
+  EXPECT_EQ(std::string("p"), p->v.element.name);
+}
+
+TEST_F(GumboParserTest, ForeignElementMismatch) {
+  Parse("<!DOCTYPE html><math><foo><bar></foo><extra /></math>");
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+  ASSERT_EQ(1, GetChildCount(body));
+
+  GumboNode* math = GetChild(body, 0);
+  ASSERT_EQ(std::string("math"), math->v.element.name);
+  ASSERT_EQ(2, GetChildCount(math));
+
+  GumboNode* foo = GetChild(math, 0);
+  // If foo becomes a tag at some point, change the example.
+  ASSERT_EQ(GUMBO_TAG_UNKNOWN, foo->v.element.tag);
+  EXPECT_EQ(std::string("foo"), foo->v.element.name);
+  ASSERT_EQ(1, GetChildCount(foo));
+
+  GumboNode* bar = GetChild(foo, 0);
+  ASSERT_EQ(GUMBO_TAG_UNKNOWN, bar->v.element.tag);
+  EXPECT_EQ(std::string("bar"), bar->v.element.name);
+
+  GumboNode* extra = GetChild(math, 1);
+  EXPECT_EQ(std::string("extra"), extra->v.element.name);
+}
 
 }  // namespace

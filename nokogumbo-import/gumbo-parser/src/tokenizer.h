@@ -33,7 +33,8 @@ typedef struct GumboInternalTokenDocType {
 // Struct containing all information pertaining to start tag tokens.
 typedef struct GumboInternalTokenStartTag {
   GumboTag tag;
-  const char *name;
+  // NULL unless tag is GUMBO_TAG_UNKNOWN
+  char *name;
   GumboVector /* GumboAttribute */ attributes;
   bool is_self_closing;
 } GumboTokenStartTag;
@@ -41,6 +42,8 @@ typedef struct GumboInternalTokenStartTag {
 // Struct containing all information pertaining to end tag tokens.
 typedef struct GumboInternalTokenEndTag {
   GumboTag tag;
+  // NULL unless tag is GUMBO_TAG_UNKNOWN
+  char *name;
   bool is_self_closing;
 } GumboTokenEndTag;
 

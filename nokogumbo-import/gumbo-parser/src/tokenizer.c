@@ -558,6 +558,7 @@ static StateResult emit_current_tag(GumboParser* parser, GumboToken* output) {
   } else {
     output->type = GUMBO_TOKEN_END_TAG;
     output->v.end_tag.tag = tag_state->_tag;
+    output->v.end_tag.name = tag_state->_name;
     output->v.end_tag.is_self_closing = tag_state->_is_self_closing;
     // In end tags, ownership of the attributes vector is not transferred to the
     // token, but it's still initialized as normal, so it must be manually
@@ -3285,8 +3286,12 @@ void gumbo_token_destroy(GumboToken* token) {
       }
       gumbo_free((void*) token->v.start_tag.attributes.data);
       if (token->v.start_tag.tag == GUMBO_TAG_UNKNOWN)
-        gumbo_free((void*) token->v.start_tag.name);
+        gumbo_free(token->v.start_tag.name);
       return;
+    case GUMBO_TOKEN_END_TAG:
+      if (token->v.end_tag.tag == GUMBO_TAG_UNKNOWN)
+        gumbo_free(token->v.end_tag.name);
+      break;
     case GUMBO_TOKEN_COMMENT:
       gumbo_free((void*) token->v.text);
       return;
