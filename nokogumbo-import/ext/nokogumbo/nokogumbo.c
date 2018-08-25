@@ -2,7 +2,7 @@
 // nokogumbo.c defines the following:
 //
 //   class Nokogumbo
-//     def parse(utf8_string) # returns Nokogiri::HTML::Document
+//     def parse(utf8_string) # returns Nokogiri::HTML5::Document
 //   end
 //
 // Processing starts by calling gumbo_parse_with_options.  The resulting
@@ -18,17 +18,19 @@
 //    methods are called instead, producing the equivalent functionality.
 //
 
+#include <assert.h>
 #include <ruby.h>
 #include "gumbo.h"
 #include "error.h"
 
 // class constants
 static VALUE Document;
-static VALUE XMLSyntaxError;
 
 #ifdef NGLIB
 #include <nokogiri.h>
+#include <xml_syntax_error.h>
 #include <libxml/tree.h>
+#include <libxml/HTMLtree.h>
 
 #define NIL NULL
 #define CONST_CAST (xmlChar const*)
@@ -37,6 +39,8 @@ static VALUE XMLSyntaxError;
 #define CONST_CAST
 
 // more class constants
+static VALUE cNokogiriXmlSyntaxError;
+
 static VALUE Element;
 static VALUE Text;
 static VALUE CDATA;
@@ -77,13 +81,6 @@ static VALUE node_name_;
     (system ? rb_str_new2(system) : Qnil));
 #define Nokogiri_wrap_xml_document(klass, doc) \
   doc
-
-// remove internal subset from newly created documents
-static VALUE xmlNewDoc(char* version) {
-  VALUE doc = rb_funcall(Document, new, 0);
-  rb_funcall(rb_funcall(doc, internal_subset, 0), remove_, 0);
-  return doc;
-}
 
 static VALUE find_dummy_key(VALUE collection) {
   VALUE r_dummy = Qnil;
@@ -241,25 +238,64 @@ static xmlNodePtr walk_tree(xmlDocPtr document, GumboNode *node) {
   }
 }
 
+// URI = system id
+// external id = public id
+#if NGLIB
+static htmlDocPtr new_html_doc(const char *dtd_name, const char *system, const char *public)
+{
+  // These two libxml2 functions take the public and system ids in
+  // opposite orders.
+  htmlDocPtr doc = htmlNewDocNoDtD(/* URI */ NULL, /* ExternalID */NULL);
+  assert(doc);
+  if (dtd_name)
+    xmlCreateIntSubset(doc, CONST_CAST dtd_name, CONST_CAST public, CONST_CAST system);
+  return doc;
+}
+#else
+// remove internal subset from newly created documents
+static VALUE new_html_doc(const char *dtd_name, const char *system, const char *public) {
+  VALUE doc;
+  // If system and public are both NULL, Document#new is going to set default
+  // values for them so we're going to have to remove the internal subset
+  // which seems to leak memory in Nokogiri, so leak as little as possible.
+  if (system == NULL && public == NULL) {
+    doc = rb_funcall(Document, new, 2, /* URI */ Qnil, /* external_id */ rb_str_new("", 0));
+    rb_funcall(rb_funcall(doc, internal_subset, 0), remove_, 0);
+    if (dtd_name) {
+      // We need to create an internal subset now.
+      rb_funcall(doc, create_internal_subset, 3, rb_str_new2(dtd_name), Qnil, Qnil);
+    }
+  } else {
+    assert(dtd_name);
+    // Rather than removing and creating the internal subset as we did above,
+    // just create and then rename one.
+    VALUE r_system = system ? rb_str_new2(system) : Qnil;
+    VALUE r_public = public ? rb_str_new2(public) : Qnil;
+    doc = rb_funcall(Document, new, 2, r_system, r_public);
+    rb_funcall(rb_funcall(doc, internal_subset, 0), node_name_, 1, rb_str_new2(dtd_name));
+  }
+  return doc;
+}
+#endif
+
 // Parse a string using gumbo_parse into a Nokogiri document
-static VALUE parse(VALUE self, VALUE string, VALUE max_errors) {
+static VALUE parse(VALUE self, VALUE string, VALUE url, VALUE max_errors) {
   GumboOptions options = kGumboDefaultOptions;
   options.max_errors = NUM2INT(max_errors);
 
   const char *input = RSTRING_PTR(string);
   size_t input_len = RSTRING_LEN(string);
   GumboOutput *output = gumbo_parse_with_options(&options, input, input_len);
-  xmlDocPtr doc = xmlNewDoc(CONST_CAST "1.0");
-#ifdef NGLIB
-  doc->type = XML_HTML_DOCUMENT_NODE;
-#endif
+  xmlDocPtr doc;
   if (output->document->v.document.has_doctype) {
     const char *name   = output->document->v.document.name;
     const char *public = output->document->v.document.public_identifier;
     const char *system = output->document->v.document.system_identifier;
-    xmlCreateIntSubset(doc, CONST_CAST name,
-      (public[0] ? CONST_CAST public : NULL),
-      (system[0] ? CONST_CAST system : NULL));
+    public = public[0] ? public : NULL;
+    system = system[0] ? system : NULL;
+    doc = new_html_doc(name, system, public);
+  } else {
+    doc = new_html_doc(NULL, NULL, NULL);
   }
 
   GumboVector *children = &output->document->v.document.children;
@@ -288,11 +324,11 @@ static VALUE parse(VALUE self, VALUE string, VALUE max_errors) {
       gumbo_string_buffer_clear(&msg);
       gumbo_caret_diagnostic_to_string(err, input, input_len, &msg);
       VALUE err_str = rb_str_new(msg.data, msg.length);
-      VALUE syntax_error = rb_class_new_instance(1, &err_str, XMLSyntaxError);
+      VALUE syntax_error = rb_class_new_instance(1, &err_str, cNokogiriXmlSyntaxError);
       rb_iv_set(syntax_error, "@domain", INT2NUM(1)); // XML_FROM_PARSER
       rb_iv_set(syntax_error, "@code", INT2NUM(1));   // XML_ERR_INTERNAL_ERROR
       rb_iv_set(syntax_error, "@level", INT2NUM(2));  // XML_ERR_ERROR
-      rb_iv_set(syntax_error, "@file", Qnil);
+      rb_iv_set(syntax_error, "@file", url);
       rb_iv_set(syntax_error, "@line", INT2NUM(err->position.line));
       rb_iv_set(syntax_error, "@str1", Qnil);
       rb_iv_set(syntax_error, "@str2", Qnil);
@@ -317,13 +353,13 @@ void Init_nokogumbo() {
 
   // class constants
   VALUE Nokogiri = rb_const_get(rb_cObject, rb_intern("Nokogiri"));
-  VALUE HTML = rb_const_get(Nokogiri, rb_intern("HTML"));
-  Document = rb_const_get(HTML, rb_intern("Document"));
-  VALUE XML = rb_const_get(Nokogiri, rb_intern("XML"));
-  XMLSyntaxError = rb_const_get(XML, rb_intern("SyntaxError"));
+  VALUE HTML5 = rb_const_get(Nokogiri, rb_intern("HTML5"));
+  Document = rb_const_get(HTML5, rb_intern("Document"));
 
 #ifndef NGLIB
   // more class constants
+  VALUE XML = rb_const_get(Nokogiri, rb_intern("XML"));
+  cNokogiriXmlSyntaxError = rb_const_get(XML, rb_intern("SyntaxError"));
   Element = rb_const_get(XML, rb_intern("Element"));
   Text = rb_const_get(XML, rb_intern("Text"));
   CDATA = rb_const_get(XML, rb_intern("CDATA"));
@@ -344,5 +380,5 @@ void Init_nokogumbo() {
 
   // define Nokogumbo module with a parse method
   VALUE Gumbo = rb_define_module("Nokogumbo");
-  rb_define_singleton_method(Gumbo, "parse", parse, 2);
+  rb_define_singleton_method(Gumbo, "parse", parse, 3);
 }

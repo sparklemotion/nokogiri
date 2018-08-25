@@ -22,7 +22,7 @@ end
 task :test => :compile
 
 # list of ext source files to be included in package, excluded from CLEAN
-SOURCES = ['ext/nokogumbo/extconf.rb', 'ext/nokogumbo/nokogumbo.c']
+SOURCES = Dir['ext/nokogumbo/*.{rb,c}']
 
 # gem, package, and extension tasks
 task 'gem' => 'test'

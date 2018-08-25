@@ -102,13 +102,18 @@ end
 
 # Symlink gumbo-parser source files.
 ext_dir = File.dirname(__FILE__)
-unless File.exist?(File.join(ext_dir, "gumbo.h"))
+gumbo_src = File.join(ext_dir, 'gumbo_src')
+unless File.symlink?(gumbo_src)
   require 'fileutils'
-  gumbo_dir = File.expand_path('../../gumbo-parser', ext_dir)
-  FileUtils.ln_s(Dir[File.join(gumbo_dir, 'src/*.[hc]')], ext_dir, force:true)
-  # Set these to nil so that create_makefile picks up the new sources.
-  $srcs = $objs = nil
+  gumbo_src_dir = File.expand_path('../../gumbo-parser/src', ext_dir)
+  FileUtils.ln_s(gumbo_src_dir, gumbo_src)
 end
+
+Dir.chdir(ext_dir) do
+  $srcs = Dir['*.c', 'gumbo_src/*.c']
+end
+$INCFLAGS << ' -I$(srcdir)/gumbo_src'
+$VPATH << '$(srcdir)/gumbo_src'
 
 create_makefile('nokogumbo/nokogumbo')
 # vim: set sw=2 sts=2 ts=8 et:

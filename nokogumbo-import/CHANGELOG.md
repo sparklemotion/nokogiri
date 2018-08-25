@@ -7,13 +7,31 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Experimental support for errors (it was supported in 1.5.0 but undocumented)
+- Experimental support for errors (it was supported in 1.5.0 but
+  undocumented).
 
 ### Changed
 - Integrated [Gumbo parser](https://github.com/google/gumbo-parser) into
   Nokogumbo. A system version will not be used.
 - The undocumented (but publicly mentioned) `:max_parse_errors` renamed to `:max_errors`;
   `:max_parse_errors` is deprecated and will go away
+- The various `#parse` and `#fragment` (and `Nokogiri.HTML5`) methods return
+  `Nokogiri::HTML5::Document` and `Nokogiri::HTML5::DocumentFragment` classes
+  rather than `Nokogiri::HTML::Document` and
+  `Nokogiri::HTML::DocumentFragment`.
+- Changed the top-level API to more closely match Nokogiri's while maintaining
+  backwards compatibility. The new APIs are
+  * `Nokogiri::HTML5(html, url = nil, encoding = nil, **options, &block)`
+  * `Nokogiri::HTML5.parse(html, url = nil, encoding = nil, **options, &block)`
+  * `Nokogiri::HTML5::Document.parse(html, url = nil, encoding = nil, **options, &block)`
+  * `Nokogiri::HTML5.fragment(html, encoding = nil, **options)`
+  * `Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil, **options)`
+  In all cases, `html` can be a string or an `IO` object (something that
+  responds to `#read`). The `url` parameter is entirely for error reporting,
+  as in Nokogiri. The `encoding` parameter only signals what encoding `html`
+  should have on input; the output `Document` or `DocumentFragment` will be in
+  UTF-8. Currently, the only options supported is `:max_errors` which controls
+  the maximum number of reported by `#errors`.
 
 ### Deprecated
 - `:max_parse_errors`; use `:max_errors`
