@@ -213,7 +213,7 @@ Dir[File.join(tc_path, '*.dat')].each do |path|
     .map { |s| s.capitalize }
     .join('')
   tests = []
-  File.open(path, "r") do |f|
+  File.open(path, "r", encoding: 'UTF-8') do |f|
     f.each("\n\n#data\n") do |test_data|
       if test_data.start_with?("#data\n")
         test_data = test_data[6..-1]

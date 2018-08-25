@@ -8,41 +8,36 @@ rvm: # http://rubies.travis-ci.org/
   - 2.1
   - 2.2
   - 2.3
-  - 2.4.0 # https://github.com/travis-ci/travis-ci/issues/7848
+  - 2.4.4 # https://github.com/travis-ci/travis-ci/issues/7848
   - 2.5
 env:
-  - WITH_LIBXML=true
-  - WITH_LIBXML=true NOKOGIRI_USE_SYSTEM_LIBRARIES=true
-  - WITH_LIBXML=false
+  - USE_SYSTEM_LIBRARIES=true
+  - USE_SYSTEM_LIBRARIES=false
 matrix:
   include:
+    - name: test gentoo
+      os: linux
+      rvm: 2.3 # Seems to be what Gentoo is using, not that it should matter
+      sudo: required
+      serices:
+        - docker
+      before_install: docker pull stevecheckoway/gentoo-ruby
+      script: scripts/gentoo-test.sh
     - name: test gumbo
       os: osx
       language: cpp
       install:
         - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
         - make -C gumbo-parser/googletest/make gtest_main.a
-      before_script: true
-      script:
-        - make -C gumbo-parser
+      script: make -C gumbo-parser
     - name: test gumbo
       os: linux
       language: cpp
       install:
         - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
         - make -C gumbo-parser/googletest/make gtest_main.a
-      before_script: true
-      script:
-        - make -C gumbo-parser
+      script: make -C gumbo-parser
 
-before_script:
-  - |
-    if [ "$WITH_LIBXML" == "true" ]; then
-      MAKE='make V=1' bundle exec rake compile -- --with-libxml2
-    else
-      MAKE='make V=1' bundle exec rake compile -- --without-libxml2
-    fi
-  - cd test && git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git
-script:
-  - bundle exec rake
+install: git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git test/html5lib-tests
+script: scripts/ci-test.sh
 cache: bundler

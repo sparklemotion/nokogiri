@@ -1,7 +1,9 @@
+require 'fileutils'
 require 'mkmf'
 require 'nokogiri'
-$CFLAGS += " -std=c99"
 
+$CFLAGS += " -std=c99"
+$LDFLAGS.gsub!('-Wl,--no-undefined', '')
 $warnflags = CONFIG['warnflags'] = '-Wall'
 
 NG_SPEC = Gem::Specification.find_by_name('nokogiri', "= #{Nokogiri::VERSION}")
@@ -103,11 +105,8 @@ end
 # Symlink gumbo-parser source files.
 ext_dir = File.dirname(__FILE__)
 gumbo_src = File.join(ext_dir, 'gumbo_src')
-unless File.symlink?(gumbo_src)
-  require 'fileutils'
-  gumbo_src_dir = File.expand_path('../../gumbo-parser/src', ext_dir)
-  FileUtils.ln_s(gumbo_src_dir, gumbo_src)
-end
+
+FileUtils.ln_s('../../gumbo-parser/src', gumbo_src, force: true)
 
 Dir.chdir(ext_dir) do
   $srcs = Dir['*.c', 'gumbo_src/*.c']
