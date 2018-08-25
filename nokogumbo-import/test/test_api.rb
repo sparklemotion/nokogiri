@@ -39,13 +39,13 @@ class TestAPI < Minitest::Test
     raw = shift_jis.dup
     raw.force_encoding(Encoding::ASCII_8BIT)
 
-    assert_match /おはようございます/, Nokogiri::HTML5(utf8).to_s
-    assert_match /おはようございます/, Nokogiri::HTML5(shift_jis).to_s
-    refute_match /おはようございます/, Nokogiri::HTML5(raw).to_s
+    assert_match(/おはようございます/, Nokogiri::HTML5(utf8).to_s)
+    assert_match(/おはようございます/, Nokogiri::HTML5(shift_jis).to_s)
+    refute_match(/おはようございます/, Nokogiri::HTML5(raw).to_s)
 
-    assert_match /おはようございます/, Nokogiri::HTML5(raw, nil, Encoding::SHIFT_JIS).to_s
-    assert_match /おはようございます/, Nokogiri::HTML5.parse(raw, nil, Encoding::SHIFT_JIS).to_s
-    assert_match /おはようございます/, Nokogiri::HTML5::Document.parse(raw, nil, Encoding::SHIFT_JIS).to_s
+    assert_match(/おはようございます/, Nokogiri::HTML5(raw, nil, Encoding::SHIFT_JIS).to_s)
+    assert_match(/おはようございます/, Nokogiri::HTML5.parse(raw, nil, Encoding::SHIFT_JIS).to_s)
+    assert_match(/おはようございます/, Nokogiri::HTML5::Document.parse(raw, nil, Encoding::SHIFT_JIS).to_s)
   end
 
   def test_fragment_encoding
@@ -54,11 +54,11 @@ class TestAPI < Minitest::Test
     raw = shift_jis.dup
     raw.force_encoding(Encoding::ASCII_8BIT)
 
-    assert_match /おはようございます/, Nokogiri::HTML5.fragment(utf8).to_s
-    assert_match /おはようございます/, Nokogiri::HTML5.fragment(shift_jis).to_s
-    refute_match /おはようございます/, Nokogiri::HTML5.fragment(raw).to_s
+    assert_match(/おはようございます/, Nokogiri::HTML5.fragment(utf8).to_s)
+    assert_match(/おはようございます/, Nokogiri::HTML5.fragment(shift_jis).to_s)
+    refute_match(/おはようございます/, Nokogiri::HTML5.fragment(raw).to_s)
 
-    assert_match /おはようございます/, Nokogiri::HTML5.fragment(raw, Encoding::SHIFT_JIS).to_s
-    assert_match /おはようございます/, Nokogiri::HTML5::DocumentFragment.parse(raw, Encoding::SHIFT_JIS).to_s
+    assert_match(/おはようございます/, Nokogiri::HTML5.fragment(raw, Encoding::SHIFT_JIS).to_s)
+    assert_match(/おはようございます/, Nokogiri::HTML5::DocumentFragment.parse(raw, Encoding::SHIFT_JIS).to_s)
   end
 end
