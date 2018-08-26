@@ -6,7 +6,7 @@ source 'https://rubygems.org'
 # alphabetical order so it tries to install Nokogiri before pkg-config and
 # this fails.
 gem 'fix-dep-order', :path => 'scripts'
-gem 'nokogiri', '~> 1.6.8'
+gem 'nokogiri'
 
 group :development, :test do
   gem 'minitest'
