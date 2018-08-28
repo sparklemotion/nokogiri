@@ -130,6 +130,64 @@ class TestNokogumbo < Minitest::Test
     refute_empty doc.errors
   end
 
+  def test_fragment_max_errors
+    # This fragment contains 3 parse errors, but we force limit to 1.
+    doc = Nokogiri::HTML5.fragment("<!-- -- --></a>", max_errors: 1)
+    assert_equal 1, doc.errors.length
+  end
+
+  def test_fragment_default_max_errors
+    # This fragment contains 200 parse errors, but default limit is 0.
+    doc = Nokogiri::HTML5.fragment("</p>" * 200)
+    assert_equal 0, Nokogumbo::DEFAULT_MAX_ERRORS
+    assert_equal 0, doc.errors.length
+  end
+
+  def test_default_max_depth_parse
+    assert_raises ArgumentError do
+      depth = Nokogumbo::DEFAULT_MAX_TREE_DEPTH + 1
+      Nokogiri::HTML5('<!DOCTYPE html><html><body>' + '<div>' * (depth - 2))
+    end
+  end
+
+  def test_default_max_depth_fragment
+    assert_raises ArgumentError do
+      depth = Nokogumbo::DEFAULT_MAX_TREE_DEPTH + 1
+      Nokogiri::HTML5.fragment('<div>' * depth)
+    end
+  end
+
+  def test_max_depth_parse
+    depth = 10
+    html = '<!DOCTYPE html><html><body>' + '<div>' * (depth - 2)
+    assert_raises ArgumentError do
+      Nokogiri::HTML5(html, max_tree_depth: depth - 1)
+    end
+
+    begin
+      Nokogiri::HTML5(html, max_tree_depth: depth)
+      pass
+    rescue ArgumentError
+      flunk "Expected document parse to succeed"
+    end
+  end
+
+  def test_max_depth_fragment
+    depth = 10
+    html = '<div>' * depth
+    assert_raises ArgumentError do
+      Nokogiri::HTML5.fragment(html, max_tree_depth: depth - 1)
+    end
+
+    begin
+      Nokogiri::HTML5.fragment(html, max_tree_depth: depth)
+      pass
+    rescue ArgumentError
+      flunk "Expected fragment parse to succeed"
+    end
+  end
+
+
   def test_document_encoding
     html = <<-TEXT
       <html>
@@ -146,17 +204,6 @@ class TestNokogumbo < Minitest::Test
     assert_equal "Кирилические символы", doc.at('body').text.gsub(/\n\s+/,'')
   end
 
-  def test_fragment_max_errors
-    # This fragment contains 3 parse errors, but we force limit to 1.
-    doc = Nokogiri::HTML5.fragment("<!-- -- --></a>", max_errors: 1)
-    assert_equal 1, doc.errors.length
-  end
-
-  def test_fragment_default_max_errors
-    # This fragment contains 201 parse errors, but default limit is 0.
-    doc = Nokogiri::HTML5.fragment("</p>" * 200)
-    assert_equal 0, doc.errors.length
-  end
 
 private
 

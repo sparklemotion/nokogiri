@@ -26,8 +26,9 @@ module Nokogiri
       private
       def self.do_parse(string_or_io, url, encoding, options)
         string = HTML5.read_and_encode(string_or_io, encoding)
-        max_errors = options[:max_errors] || options[:max_parse_errors] || 0
-	doc = Nokogumbo.parse(string.to_s, url, max_errors)
+        max_errors = options[:max_errors] || options[:max_parse_errors] || Nokogumbo::DEFAULT_MAX_ERRORS
+        max_depth = options[:max_tree_depth] || Nokogumbo::DEFAULT_MAX_TREE_DEPTH
+        doc = Nokogumbo.parse(string.to_s, url, max_errors, max_depth)
         doc.encoding = 'UTF-8'
         doc
       end

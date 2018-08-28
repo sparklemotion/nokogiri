@@ -18,6 +18,10 @@ module Nokogiri
           else
             path = "/html/body/node()"
           end
+          # Add 2 for <html> and <body>.
+          max_depth = (options[:max_tree_depth] || Nokogumbo::DEFAULT_MAX_TREE_DEPTH) + 2
+          options = options.dup
+          options[:max_tree_depth] = max_depth
           temp_doc = HTML5.parse("<!DOCTYPE html><html><body>#{tags}", options)
           temp_doc.xpath(path).each { |child| child.parent = self }
         self.errors = temp_doc.errors

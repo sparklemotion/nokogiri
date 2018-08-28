@@ -279,13 +279,27 @@ static VALUE new_html_doc(const char *dtd_name, const char *system, const char *
 #endif
 
 // Parse a string using gumbo_parse into a Nokogiri document
-static VALUE parse(VALUE self, VALUE string, VALUE url, VALUE max_errors) {
+static VALUE parse(VALUE self, VALUE string, VALUE url, VALUE max_errors, VALUE max_depth) {
   GumboOptions options = kGumboDefaultOptions;
   options.max_errors = NUM2INT(max_errors);
+  options.max_tree_depth = NUM2INT(max_depth);
 
   const char *input = RSTRING_PTR(string);
   size_t input_len = RSTRING_LEN(string);
   GumboOutput *output = gumbo_parse_with_options(&options, input, input_len);
+
+  const char *status_string = gumbo_status_to_string(output->status);
+  switch (output->status) {
+  case GUMBO_STATUS_OK:
+    break;
+  case GUMBO_STATUS_TREE_TOO_DEEP:
+    gumbo_destroy_output(output);
+    rb_raise(rb_eArgError, "%s", status_string);
+  case GUMBO_STATUS_OUT_OF_MEMORY:
+    gumbo_destroy_output(output);
+    rb_raise(rb_eNoMemError, "%s", status_string);
+  }
+
   xmlDocPtr doc;
   if (output->document->v.document.has_doctype) {
     const char *name   = output->document->v.document.name;
@@ -380,5 +394,5 @@ void Init_nokogumbo() {
 
   // define Nokogumbo module with a parse method
   VALUE Gumbo = rb_define_module("Nokogumbo");
-  rb_define_singleton_method(Gumbo, "parse", parse, 3);
+  rb_define_singleton_method(Gumbo, "parse", parse, 4);
 }
