@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Experimental support for errors (it was supported in 1.5.0 but
   undocumented).
 - Added proper HTML5 serialization.
+- Added option `:max_tree_depth` to control the maximum parse tree depth.
 
 ### Changed
 - Integrated [Gumbo parser](https://github.com/google/gumbo-parser) into

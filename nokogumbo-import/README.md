@@ -11,7 +11,7 @@ and to access the result as a
 
 ```ruby
 require 'nokogumbo'
-doc = Nokogiri::HTML5(string)
+doc = Nokogiri.HTML5(string)
 ```
 
 An experimental _fragment_ method is also provided.  While not HTML5
@@ -30,7 +30,19 @@ require 'nokogumbo'
 doc = Nokogiri::HTML5.get(uri)
 ```
 
-## Error reporting
+## Parsing options
+The document and fragment parsing methods,
+- `Nokogiri.HTML5(html, url = nil, encoding = nil, options = {})`
+- `Nokogiri::HTML5.parse(html, url = nil, encoding = nil, options = {})`
+- `Nokogiri::HTML5::Document.parse(html, url = nil, encoding = nil, options = {})`
+- `Nokogiri::HTML5.fragment(html, encoding = nil, options = {})`
+- `Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil, options = {})`
+support options that are different from Nokogiri's.
+
+The two currently supported options are `:max_errors` and `:max_tree_depth`,
+described below.
+
+### Error reporting
 Nokogumbo contains an experimental parse error reporting facility. By default,
 no parse errors are reported but this can be configured by passing the
 `:max_errors` option to `::parse` or `::fragment`.
@@ -53,8 +65,27 @@ Hi there!<body>
          ^
 ```
 
+Using `max_errors: -1` results in an unlimited number of errors being
+returned.
+
 The errors returned by `#errors` are instances of
 [`Nokogiri::XML::SyntaxError`](https://www.rubydoc.info/github/sparklemotion/nokogiri/Nokogiri/XML/SyntaxError).
+
+### Maximum tree depth
+The maximum depth of the DOM tree parsed by the various parsing methods is
+configurable by the `:max_tree_depth` option. If the depth of the tree would
+exceed this limit, then an
+[ArgumentError](https://ruby-doc.org/core-2.5.0/ArgumentError.html) is thrown.
+
+This limit (which defaults to `Nokogumbo::DEFAULT_MAX_TREE_DEPTH = 400`) can
+be removed by giving the option `max_tree_depth: -1`.
+
+``` ruby
+html = '<!DOCTYPE html>' + '<div>' * 1000
+doc = Nokogiri.HTML5(html)
+# raises ArgumentError: Document tree depth limit exceeded
+doc = Nokogiri.HTML5(html, max_tree_depth: -1)
+```
 
 ## HTML Serialization
 
@@ -110,6 +141,31 @@ puts doc.at('/html/body/listing').serialize(preserve_newline: true)
 # Content</listing>
 ```
 
+## Encodings
+Nokogumbo always parses HTML using
+[UTF-8](https://en.wikipedia.org/wiki/UTF-8); however, the encoding of the
+input can be explicitly selected via the optional `encoding` parameter. This
+is most useful when the input comes not from a string but from an IO object.
+
+When serializing a document or node, the encoding of the output string can be
+specified via the `:encoding` options. Characters that cannot be encoded in
+the selected encoding will be encoded as [HTML numeric
+entities](https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references).
+
+``` ruby
+frag = Nokogiri::HTML5.fragment('<span>아는 길도 물어가라</span>')
+html = frag.serialize(encoding: 'US-ASCII')
+puts html
+# Prints: <span>&#xc544;&#xb294; &#xae38;&#xb3c4; &#xbb3c;&#xc5b4;&#xac00;&#xb77c;</span>
+frag = Nokogiri::HTML5.fragment(html)
+puts frag.serialize
+# Prints: <span>아는 길도 물어가라</span>
+```
+
+(There's a [bug](https://bugs.ruby-lang.org/issues/15033) in all current
+versions of Ruby that can cause the entity encoding to fail. Of the mandated
+supported encodings for HTML, the only encoding I'm aware of that has this bug
+is `'ISO-2022-JP'`. I recommend avoiding this encoding.)
 
 ## Examples
 ```ruby
