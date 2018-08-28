@@ -88,6 +88,23 @@ TEST_F(GumboParserTest, TreeDepthLimitEnforced) {
   GetAndAssertBody(root_, &body);
 }
 
+TEST_F(GumboParserTest, NoTreeDepthLimit) {
+  std::string input;
+  for (size_t i = 0; i < kGumboDefaultOptions.max_tree_depth; ++i)
+    input.append("<div>");
+  GumboOptions options = kGumboDefaultOptions;
+  options.max_tree_depth = -1;
+  output_ = gumbo_parse_with_options(&options, input.data(), input.length());
+  root_ = output_->document;
+  ASSERT_EQ(GUMBO_STATUS_OK, output_->status);
+  ASSERT_TRUE(root_);
+  ASSERT_EQ(GUMBO_NODE_DOCUMENT, root_->type);
+  EXPECT_EQ(GUMBO_INSERTION_BY_PARSER, root_->parse_flags);
+
+  GumboNode* body;
+  GetAndAssertBody(root_, &body);
+}
+
 TEST_F(GumboParserTest, NullDocument) {
   Parse("");
   ASSERT_EQ(GUMBO_STATUS_OK, output_->status);
