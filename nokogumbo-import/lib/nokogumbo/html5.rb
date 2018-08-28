@@ -8,6 +8,14 @@ module Nokogiri
   end
 
   module HTML5
+    # HTML uses the XHTML namespace.
+    HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml'.freeze
+    MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML'.freeze
+    SVG_NAMESPACE = 'http://www.w3.org/2000/svg'.freeze
+    XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink'.freeze
+    XML_NAMESPACE = 'http://www.w3.org/XML/1998/namespace'.freeze
+    XMLNS_NAMESPACE = 'http://www.w3.org/2000/xmlns/'.freeze
+
     # Parse an HTML 5 document. Convenience method for Nokogiri::HTML5::Document.parse
     def self.parse(string, url = nil, encoding = nil, **options, &block)
       Document.parse(string, url, encoding, options, &block)
@@ -153,6 +161,90 @@ module Nokogiri
       end
 
       body.encode(Encoding::UTF_8)
+    end
+
+    def self.serialize_node_internal(current_node, io, encoding, options)
+      case current_node.type
+      when XML::Node::ELEMENT_NODE
+        ns = current_node.namespace
+        ns_uri = ns.nil? ? nil : ns.uri
+        # XXX(sfc): attach namespaces to all nodes, even html?
+        if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
+          tagname = current_node.name
+        else
+          tagname = "#{ns.prefix}:#{current_node.name}"
+        end
+        io << '<' << tagname
+        current_node.attribute_nodes.each do |attr|
+          attr_ns = attr.namespace
+          if attr_ns.nil?
+            attr_name = attr.name
+          else
+            ns_uri = attr_ns.href
+            if ns_uri == XML_NAMESPACE
+              attr_name = 'xml:' + attr.name.sub(/^[^:]*:/, '')
+            elsif ns_uri == XMLNS_NAMESPACE && attr.name.sub(/^[^:]*:/, '') == 'xmlns'
+              attr_name = 'xmlns'
+            elsif ns_uri == XMLNS_NAMESPACE
+              attr_name = 'xmlns:' + attr.name.sub(/^[^:]*:/, '')
+            elsif ns_uri == XLINK_NAMESPACE
+              attr_name = 'xlink:' + attr.name.sub(/^[^:]*:/, '')
+            else
+              attr_name = "#{attr_ns.prefix}:#{attr.name}"
+            end
+          end
+          io << ' ' << attr_name << '="' << escape_text(attr.content, encoding, true) << '"'
+        end
+        io << '>'
+        if !%w[area base basefont bgsound br col embed frame hr img input keygen
+               link meta param source track wbr].include?(current_node.name)
+          io << "\n" if options[:preserve_newline] && prepend_newline?(current_node)
+          current_node.children.each do |child|
+            # XXX(sfc): Templates handled specially?
+            serialize_node_internal(child, io, encoding, options)
+          end
+          io << '</' << tagname << '>'
+        end
+      when XML::Node::TEXT_NODE
+        parent = current_node.parent
+        if parent.element? && %w[style script xmp iframe noembed noframes plaintext noscript].include?(parent.name)
+          io << current_node.content
+        else
+          io << escape_text(current_node.content, encoding, false)
+        end
+      when XML::Node::CDATA_SECTION_NODE
+        io << '<![CDATA[' << current_node.content << ']]>'
+      when XML::Node::COMMENT_NODE
+        io << '<!--' << current_node.content << '-->'
+      when XML::Node::PI_NODE
+        io << '<?' << current_node.content << '>'
+      when XML::Node::DOCUMENT_TYPE_NODE, XML::Node::DTD_NODE
+          io << '<!DOCTYPE ' << current_node.name << '>'
+      when XML::Node::HTML_DOCUMENT_NODE
+        current_node.children.each do |child|
+          serialize_node_internal(child, io, encoding, options)
+        end
+      else
+        raise "Unexpected node '#{current_node.name}' of type #{current_node.type}"
+      end
+    end
+
+    def self.escape_text(text, encoding, attribute_mode)
+      if attribute_mode
+        text = text.gsub(/[&\u00a0"]/,
+                           '&' => '&amp;', "\u00a0" => '&nbsp;', '"' => '&quot;')
+      else
+        text = text.gsub(/[&\u00a0<>]/,
+                           '&' => '&amp;', "\u00a0" => '&nbsp;',  '<' => '&lt;', '>' => '&gt;')
+      end
+      # Not part of the standard
+      text.encode(encoding, fallback: lambda { |c| "&\#x#{c.ord.to_s(16)};" })
+    end
+
+    def self.prepend_newline?(node)
+      return false unless %w[pre textarea listing].include?(node.name) && !node.children.empty?
+      first_child = node.children[0]
+      first_child.text? && first_child.content.start_with?("\n")
     end
   end
 end

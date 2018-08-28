@@ -1,4 +1,3 @@
-# encoding: utf-8
 require 'nokogumbo'
 require 'minitest/autorun'
 
@@ -60,5 +59,41 @@ class TestAPI < Minitest::Test
 
     assert_match(/おはようございます/, Nokogiri::HTML5.fragment(raw, Encoding::SHIFT_JIS).to_s)
     assert_match(/おはようございます/, Nokogiri::HTML5::DocumentFragment.parse(raw, Encoding::SHIFT_JIS).to_s)
+  end
+
+  def test_serialization_encoding
+    html = '<!DOCUMENT html><span>ฉันไม่พูดภาษาไทย</span>'
+    doc = Nokogiri::HTML5(html)
+    span = doc.at('/html/body/span')
+    serialized = span.inner_html(encoding: 'US-ASCII')
+    assert_match(/^(?:&#(?:\d+|x\h+);)*$/, serialized)
+    assert_equal('ฉันไม่พูดภาษาไทย'.each_char.map(&:ord),
+                 serialized.scan(/&#(\d+|x\h+);/).map do |s|
+        s = s.first
+        if s.start_with? 'x'
+          s[1..-1].to_i(16)
+        else
+          s.to_i
+        end
+      end
+    )
+
+    doc2 = Nokogiri::HTML5(doc.serialize(encoding: 'Big5'))
+    html2 = doc2.serialize(encoding: 'UTF-8')
+    assert_match 'ฉันไม่พูดภาษาไทย', html2
+  end
+
+  %w[pre listing textarea].each do |tag|
+    define_method("test_serialize_preserve_newline_#{tag}".to_sym) do
+      doc = Nokogiri::HTML5("<!DOCTYPE html><#{tag}>\n\nContent</#{tag}>")
+      html = doc.at("/html/body/#{tag}").serialize(preserve_newline: true)
+      assert_equal "<#{tag}>\n\nContent</#{tag}>", html
+    end
+
+    define_method("test_inner_html_preserve_newline_#{tag}".to_sym) do
+      doc = Nokogiri::HTML5("<!DOCTYPE html><#{tag}>\n\nContent</#{tag}>")
+      html = doc.at("/html/body/#{tag}").inner_html(preserve_newline: true)
+      assert_equal "\n\nContent", html
+    end
   end
 end

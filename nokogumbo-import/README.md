@@ -56,16 +56,65 @@ Hi there!<body>
 The errors returned by `#errors` are instances of
 [`Nokogiri::XML::SyntaxError`](https://www.rubydoc.info/github/sparklemotion/nokogiri/Nokogiri/XML/SyntaxError).
 
+## HTML Serialization
+
+After parsing HTML, it may be serialized using any of the Nokogiri
+[serialization
+methods](https://www.rubydoc.info/gems/nokogiri/Nokogiri/XML/Node). In
+particular, `#serialize`, `#to_html`, and `#to_s` will serialize a given node
+and its children. (This is the equivalent of JavaScript's
+`Element.outerHTML`.) Similarly, `#inner_html` will serialize the children of
+a given node. (This is the equivalent of JavaScript's `Element.innerHTML`.)
+
+``` ruby
+doc = Nokogiri::HTML5("<!DOCTYPE html><span>Hello world!</span>")
+puts doc.serialize
+# Prints: <!DOCTYPE html><html><head></head><body><span>Hello world!</span></body></html>
+```
+
+Due to quirks in how HTML is parsed and serialized, it's possible for a DOM
+tree to be serialized and then re-parsed, resulting in a different DOM.
+Mostly, this happens with DOMs produced from invalid HTML. Unfortunately, even
+valid HTML may not survive serialization and re-parsing.
+
+In particular, a newline at the start of `pre`, `listing`, and `textarea`
+elements is ignored by the parser.
+
+``` ruby
+doc = Nokogiri::HTML5(<<-EOF)
+<!DOCTYPE html>
+<pre>
+Content</pre>
+EOF
+puts doc.at('/html/body/pre').serialize
+# Prints: <pre>Content</pre>
+```
+
+In this case, the original HTML is semantically equivalent to the serialized
+version. If the `pre`, `listing`, or `textarea` content starts with two
+newlines, the first newline will be stripped on the first parse and the second
+newline will be stripped on the second, leading to semantically different
+DOMs. Passing the parameter `preserve_newline: true` will cause two or more
+newlines to be preserved. (A single leading newline will still be removed.)
+
+``` ruby
+doc = Nokogiri::HTML5(<<-EOF)
+<!DOCTYPE html>
+<listing>
+
+Content</listing>
+EOF
+puts doc.at('/html/body/listing').serialize(preserve_newline: true)
+# Prints: <listing>
+#
+# Content</listing>
+```
+
+
 ## Examples
 ```ruby
 require 'nokogumbo'
 puts Nokogiri::HTML5.get('http://nokogiri.org').search('ol li')[2].text
-```
-
-Use `.to_html` instead of `.to_s` when parsing and serializing multiple times
-```
-require 'nokogumbo'
-Nokogiri::HTML5.parse(Nokogiri::HTML5.parse('<div></div> a').to_html).to_html
 ```
 
 ## Notes
@@ -96,12 +145,9 @@ rules defined in the HTML5 specification for doing so.
 * Instead of returning `unknown` as the element name for unknown tags, the
 original tag name is returned verbatim.
 
-* If the Gumbo HTML5 parser is not already installed, the source for the
-parser will be downloaded and compiled into the Gem itself.
-
 # Installation
 
-    git clone --recursive https://github.com/rubys/nokogumbo.git
+    git clone https://github.com/rubys/nokogumbo.git
     cd nokogumbo
     bundle install
     rake gem
