@@ -28,6 +28,12 @@ module Nokogiri
         end
       end
 
+      def serialize(options = {}, &block)
+        # Bypass XML::Document.serialize which doesn't support options even
+        # though XML::Node.serialize does!
+        XML::Node.instance_method(:serialize).bind(self).call(options, &block)
+      end
+
       # Parse a document fragment from +tags+, returning a Nodeset.
       def self.parse(tags, encoding = nil, options = {})
         doc = HTML5::Document.new

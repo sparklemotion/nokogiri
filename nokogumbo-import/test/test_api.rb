@@ -61,6 +61,14 @@ class TestAPI < Minitest::Test
     assert_match(/おはようございます/, Nokogiri::HTML5::DocumentFragment.parse(raw, Encoding::SHIFT_JIS).to_s)
   end
 
+  def test_fragment_serialization_encoding
+    frag = Nokogiri::HTML5.fragment('<span>아는 길도 물어가라</span>')
+    html = frag.serialize(encoding: 'US-ASCII')
+    assert_equal '<span>&#xc544;&#xb294; &#xae38;&#xb3c4; &#xbb3c;&#xc5b4;&#xac00;&#xb77c;</span>', html
+    frag = Nokogiri::HTML5.fragment(html)
+    assert_equal '<span>아는 길도 물어가라</span>', frag.serialize
+  end
+
   def test_serialization_encoding
     html = '<!DOCUMENT html><span>ฉันไม่พูดภาษาไทย</span>'
     doc = Nokogiri::HTML5(html)
