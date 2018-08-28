@@ -15,7 +15,7 @@ env:
   - USE_SYSTEM_LIBRARIES=false
 matrix:
   include:
-    - name: test gentoo
+    - name: Test Gentoo Linux
       os: linux
       rvm: 2.3 # Seems to be what Gentoo is using, not that it should matter
       sudo: required
@@ -23,20 +23,16 @@ matrix:
         - docker
       before_install: docker pull stevecheckoway/gentoo-ruby
       script: scripts/gentoo-test.sh
-    - name: test gumbo
-      os: osx
-      language: cpp
-      install:
-        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
-        - make -C gumbo-parser/googletest/make gtest_main.a
-      script: make -C gumbo-parser
-    - name: test gumbo
+    - name: Test Gumbo and gem packaging
       os: linux
-      language: cpp
-      install:
-        - curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
-        - make -C gumbo-parser/googletest/make gtest_main.a
-      script: make -C gumbo-parser
+      language: ruby
+      rvm: 2.5
+      script: scripts/ci-package-test.sh
+    - name: Test Gumbo and gem packaging
+      os: osx
+      language: ruby
+      rvm: 2.5
+      script: scripts/ci-package-test.sh
 
 install: git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git test/html5lib-tests
 script: scripts/ci-test.sh
