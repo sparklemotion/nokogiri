@@ -72,7 +72,7 @@ class TestNokogumbo < Minitest::Test
     ['ISO-8859-16',    'Kiedy wszedłeś między wrony, musisz krakać jak i one.'], # Polish
     ['KOI8-R',         'А дело бывало -- и коза волка съедала'], # Russian
     ['KOI8-U',         'Яблуко від яблуньки не далеко. Ґ, Є, І, Ї'], # Ukrainian
-    ['macintosh',      'Some good old Mac Roman œ∑´®†¥¨ˆøπåßƒ©'], # XXX: Shifted macroman?
+    ['macroman',       'Some good old Mac Roman œ∑´®†¥¨ˆøπåßƒ©'], # English
     ['windows-874',    'กระต่ายหมายจันทร์'], # Thai
     ['windows-1250',   'Addig nyújtózkodj, amíg a takaród ér.'], # Hungarian
     ['windows-1251',   'Бързата работа - срам за майстора.'], # Bulgarian
@@ -83,7 +83,7 @@ class TestNokogumbo < Minitest::Test
     ['windows-1256',   'أبطأ من سلحفاة'], # Arabic
     ['windows-1257',   'Hommikune töö kuld, õhtune muld.'], # Estonian
     ['windows-1258',   'Ăn theo thuở, ở theo thời.'], # Vietnamese
-    ['x-mac-cyrillic', 'А дело бывало -- и коза волка съедала'], # Russian; XXX: Shifted MacCyrillic?
+    ['macCyrillic', 'А дело бывало -- и коза волка съедала'], # Russian
     ['GBK',            '不闻不若闻之，闻之不若见之，见之不若知之，知之不若行之；学至于行之而止矣'], # Simplified Chinese
     ['gb18030',        '不聞不若聞之，聞之不若見之，見之不若知之，知之不若行之；學至於行之而止矣'], # Traditional Chinese
     ['Big5',           '有其父必有其子'], # Traditional Chinese
