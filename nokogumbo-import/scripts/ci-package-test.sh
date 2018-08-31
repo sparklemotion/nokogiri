@@ -14,11 +14,15 @@ assert_equal() {
 
 expected='<!DOCTYPE html><html><head></head><body><span>Working!</span></body></html>'
 
-curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | \
-  tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
-make -C gumbo-parser/googletest/make gtest_main.a
-
 bundle install --path vendor/bundle
+
+if [ "$NO_GUMBO_TESTS" != true ]; then
+	curl -L https://github.com/google/googletest/archive/release-1.8.0.tar.gz | \
+	  tar zxf - --strip-components 1 -C gumbo-parser googletest-release-1.8.0/googletest
+	make -C gumbo-parser/googletest/make gtest_main.a
+
+	bundle exec rake test:gumbo
+fi
 bundle exec rake gem
 
 gem install -i /tmp/without pkg/nokogumbo-*.gem -- --without-libxml2

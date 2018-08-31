@@ -106,14 +106,11 @@ end
 ext_dir = File.dirname(__FILE__)
 gumbo_src = File.join(ext_dir, 'gumbo_src')
 
-FileUtils.rm(gumbo_src, force: true)
-FileUtils.ln_s('../../gumbo-parser/src', gumbo_src, force: true)
-
 Dir.chdir(ext_dir) do
-  $srcs = Dir['*.c', 'gumbo_src/*.c']
+  $srcs = Dir['*.c', '../../gumbo-parser/src/*.c']
 end
-$INCFLAGS << ' -I$(srcdir)/gumbo_src'
-$VPATH << '$(srcdir)/gumbo_src'
+$INCFLAGS << ' -I$(srcdir)/../../gumbo-parser/src'
+$VPATH << '$(srcdir)/../../gumbo-parser/src'
 
 create_makefile('nokogumbo/nokogumbo')
 # vim: set sw=2 sts=2 ts=8 et:

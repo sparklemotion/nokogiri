@@ -1,0 +1,33 @@
+version: 1.0.{build}-{branch}
+
+cache:
+  - vendor/bundle
+
+environment:
+  NO_GUMBO_TESTS: true
+  matrix:
+    - RUBY_VERSION: 23
+    - RUBY_VERSION: 23-x64
+    - RUBY_VERSION: 24
+    - RUBY_VERSION: 24-x64
+    - RUBY_VERSION: 25
+    - RUBY_VERSION: 25-x64
+
+install:
+  - set PATH=C:\Ruby%RUBY_VERSION%\bin;C:\msys64\usr\bin;%PATH%
+  - set RAKEOPT=-rdevkit
+  - ruby --version
+  - gem --version
+  - bundle --version
+  - bundle install --path vendor/bundle
+  - bundle exec nokogiri --version
+  - git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git test/html5lib-tests
+
+build: off
+
+test_script:
+  - bash scripts/ci-package-test.sh
+
+# Uncomment to enable RDP access to the builder.
+# on_finish:
+#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

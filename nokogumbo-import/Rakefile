@@ -10,7 +10,7 @@ require 'nokogumbo/version'
 # default to running tests
 task default: :test
 task test: :compile
-task gem: [:test, 'test:gumbo']
+task gem: :test
 
 ext = Rake::ExtensionTask.new 'nokogumbo' do |e|
   e.lib_dir = 'lib/nokogumbo'
@@ -26,7 +26,7 @@ SOURCES = Dir['ext/nokogumbo/*.{rb,c}']
 
 desc 'Run the gumbo unit tests'
 task 'test:gumbo' => 'gumbo-parser/googletest' do
-  sh('make', '-C', 'gumbo-parser')
+  sh('make', '-j2', '-C', 'gumbo-parser')
 end
 
 desc 'Start a console'

@@ -21,9 +21,10 @@ trap cleanup EXIT
 
 cat >.dockerignore <<EOF
 .*
+appveyor.yml
+tags
 tmp
 vendor
-tags
 EOF
 docker build -t gentoo-build-test -f - . <<EOF
 FROM stevecheckoway/gentoo-ruby
