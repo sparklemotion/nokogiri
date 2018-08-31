@@ -40,23 +40,24 @@ typedef uint8_t TagSet[GUMBO_TAG_LAST + 1];
 #define TAG_SVG(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_SVG)
 #define TAG_MATHML(tag) [GUMBO_TAG_##tag] = (1 << GUMBO_NAMESPACE_MATHML)
 
-static const GumboSourcePosition kGumboEmptySourcePosition = { \
-  .line = 0, \
-  .column = 0, \
-  .offset = 0 \
-};
+#define GUMBO_EMPTY_SOURCE_POSITION_INIT { .line = 0, .column = 0, .offset = 0 }
+#define kGumboEmptySourcePosition (const GumboSourcePosition) \
+	GUMBO_EMPTY_SOURCE_POSITION_INIT
 
 const GumboOptions kGumboDefaultOptions = {
   .tab_stop = 8,
   .stop_on_first_error = false,
   .max_tree_depth = 400,
   .max_errors = -1,
-  .fragment_context = GUMBO_TAG_LAST,
-  .fragment_namespace = GUMBO_NAMESPACE_HTML
+  .fragment_context = NULL,
+  .fragment_namespace = GUMBO_NAMESPACE_HTML,
+  .fragment_encoding = NULL,
+  .quirks_mode = GUMBO_DOCTYPE_NO_QUIRKS,
+  .fragment_context_has_form_ancestor = false,
 };
 
 #define STRING(s) {.data = s, .length = sizeof(s) - 1}
-#define TERMINATOR {.data = "", .length = 0}
+#define TERMINATOR {.data = NULL, .length = 0}
 
 static const GumboStringPiece kPublicIdHtml4_0 =
   STRING("-//W3C//DTD HTML 4.0//EN");
@@ -342,6 +343,7 @@ static GumboNode* new_document_node() {
   document->name = NULL;
   document->public_identifier = NULL;
   document->system_identifier = NULL;
+  document->doc_type_quirks_mode = GUMBO_DOCTYPE_NO_QUIRKS;
   return document_node;
 }
 
@@ -450,10 +452,12 @@ static void destroy_node(GumboNode* node) {
   tree_traverse(node, &destroy_node_callback);
 }
 
+static void destroy_fragment_ctx_element(GumboNode* ctx);
+
 static void parser_state_destroy(GumboParser* parser) {
   GumboParserState* state = parser->_parser_state;
   if (state->_fragment_ctx) {
-    destroy_node(state->_fragment_ctx);
+    destroy_fragment_ctx_element(state->_fragment_ctx);
   }
   gumbo_vector_destroy(&state->_active_formatting_elements);
   gumbo_vector_destroy(&state->_open_elements);
@@ -497,16 +501,21 @@ static GumboNode* get_adjusted_current_node(const GumboParser* parser) {
 // elements in haystack start with needle. This always performs a
 // case-insensitive match.
 static bool is_in_static_list (
-  const char* needle,
+  const GumboStringPiece* needle,
   const GumboStringPiece* haystack,
   bool exact_match
 ) {
-  for (unsigned int i = 0; haystack[i].length > 0; ++i) {
-    if (
-      (exact_match && !strcmp(needle, haystack[i].data))
-      || (!exact_match && !gumbo_ascii_strcasecmp(needle, haystack[i].data))
-    ) {
-      return true;
+  if (needle->length == 0)
+    return false;
+  if (exact_match) {
+    for (size_t i = 0; haystack[i].data; ++i) {
+      if (gumbo_string_equals_ignore_case(needle, &haystack[i]))
+        return true;
+    }
+  } else {
+    for (size_t i = 0; haystack[i].data; ++i) {
+      if (gumbo_string_prefix_ignore_case(&haystack[i], needle))
+        return true;
     }
   }
   return false;
@@ -1478,35 +1487,56 @@ static void clear_active_formatting_elements(GumboParser* parser) {
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-initial-insertion-mode
-static GumboQuirksModeEnum compute_quirks_mode(const GumboTokenDocType* doctype) {
-  const char *const pubid = doctype->public_identifier;
-  const char *const sysid = doctype->system_identifier;
+GumboQuirksModeEnum gumbo_compute_quirks_mode (
+  const char *name,
+  const char *pubid_str,
+  const char *sysid_str
+) {
 
+  GumboStringPiece pubid = {
+    .data = pubid_str,
+    .length = pubid_str? strlen(pubid_str) : 0,
+  };
+  GumboStringPiece sysid = {
+    .data = sysid_str,
+    .length = sysid_str? strlen(sysid_str) : 0,
+  };
+  bool has_system_identifier = !!sysid_str;
   if (
-    doctype->force_quirks
-    || strcmp(doctype->name, "html")
-    || is_in_static_list(pubid, kQuirksModePublicIdPrefixes, false)
-    || is_in_static_list(pubid, kQuirksModePublicIdExactMatches, true)
-    || is_in_static_list(sysid, kQuirksModeSystemIdExactMatches, true)
+    name == NULL
+    || strcmp(name, "html")
+    || is_in_static_list(&pubid, kQuirksModePublicIdPrefixes, false)
+    || is_in_static_list(&pubid, kQuirksModePublicIdExactMatches, true)
+    || is_in_static_list(&sysid, kQuirksModeSystemIdExactMatches, true)
     || (
-      !doctype->has_system_identifier
-      && is_in_static_list(pubid, kSystemIdDependentPublicIdPrefixes, false)
+      !has_system_identifier
+      && is_in_static_list(&pubid, kSystemIdDependentPublicIdPrefixes, false)
     )
   ) {
     return GUMBO_DOCTYPE_QUIRKS;
   }
 
   if (
-    is_in_static_list(pubid, kLimitedQuirksPublicIdPrefixes, false)
+    is_in_static_list(&pubid, kLimitedQuirksPublicIdPrefixes, false)
     || (
-      doctype->has_system_identifier
-      && is_in_static_list(pubid, kSystemIdDependentPublicIdPrefixes, false)
+      has_system_identifier
+      && is_in_static_list(&pubid, kSystemIdDependentPublicIdPrefixes, false)
     )
   ) {
     return GUMBO_DOCTYPE_LIMITED_QUIRKS;
   }
 
   return GUMBO_DOCTYPE_NO_QUIRKS;
+}
+
+static GumboQuirksModeEnum compute_quirks_mode(const GumboTokenDocType* doctype) {
+  if (doctype->force_quirks)
+    return GUMBO_DOCTYPE_QUIRKS;
+  return gumbo_compute_quirks_mode (
+    doctype->name,
+    doctype->has_public_identifier? doctype->public_identifier : NULL,
+    doctype->has_system_identifier? doctype->system_identifier : NULL
+  );
 }
 
 // The following functions are all defined by the "has an element in __ scope"
@@ -4306,7 +4336,6 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
     const char* name = token->v.end_tag.name;
     assert(node != NULL);
 
-    // XXX(sfc): This doesn't handle the fragment case.
     bool is_success = true;
     if (!node_tagname_is(node, tag, name)) {
       parser_add_parse_error(parser, token);
@@ -4336,6 +4365,8 @@ static bool handle_in_foreign_content(GumboParser* parser, GumboToken* token) {
       }
     }
     assert(node->v.element.tag_namespace == GUMBO_NAMESPACE_HTML);
+    if (i == 0)
+      return is_success;
     // We can't call handle_token directly because the current node is still in
     // a foriegn namespace, so it would re-enter this and result in infinite
     // recursion.
@@ -4399,23 +4430,79 @@ static bool handle_token(GumboParser* parser, GumboToken* token) {
   }
 }
 
+static GumboNode* create_fragment_ctx_element (
+  const char* tag_name,
+  GumboNamespaceEnum ns,
+  const char* encoding
+) {
+  assert(tag_name);
+  GumboTag tag = gumbo_tagn_enum(tag_name, strlen(tag_name));
+  GumboNodeType type =
+    ns == GUMBO_NAMESPACE_HTML && tag == GUMBO_TAG_TEMPLATE
+    ? GUMBO_NODE_TEMPLATE : GUMBO_NODE_ELEMENT;
+  GumboNode* node = create_node(type);
+  GumboElement* element = &node->v.element;
+  element->children = kGumboEmptyVector;
+  if (encoding) {
+    gumbo_vector_init(1, &element->attributes);
+    GumboAttribute* attr = gumbo_alloc(sizeof(GumboAttribute));
+    attr->attr_namespace = GUMBO_ATTR_NAMESPACE_NONE;
+    attr->name = "encoding"; // Do not free this!
+    attr->original_name = kGumboEmptyString;
+    attr->value = encoding; // Do not free this!
+    attr->original_value = kGumboEmptyString;
+    attr->name_start = kGumboEmptySourcePosition;
+    gumbo_vector_add(attr, &element->attributes);
+  } else {
+    element->attributes = kGumboEmptyVector;
+  }
+  element->tag = tag;
+  element->tag_namespace = ns;
+  element->name = tag_name; // Do not free this!
+  element->original_tag = kGumboEmptyString;
+  element->original_end_tag = kGumboEmptyString;
+  element->start_pos = kGumboEmptySourcePosition;
+  element->end_pos = kGumboEmptySourcePosition;
+  return node;
+}
+
+static void destroy_fragment_ctx_element(GumboNode* ctx) {
+  assert(ctx->type == GUMBO_NODE_ELEMENT || ctx->type == GUMBO_NODE_TEMPLATE);
+  GumboElement* element = &ctx->v.element;
+  element->name = NULL; // Do not free.
+  if (element->attributes.length > 0) {
+    assert(element->attributes.length == 1);
+    GumboAttribute* attr = gumbo_vector_pop(&element->attributes);
+    // Do not free attr->name or attr->value, just free the attr.
+    gumbo_free(attr);
+  }
+  destroy_node(ctx);
+}
+
 static void fragment_parser_init (
   GumboParser* parser,
-  GumboTag fragment_ctx,
-  GumboNamespaceEnum fragment_namespace
+  const GumboOptions* options
 ) {
+  assert(options->fragment_context != NULL);
+  const char* fragment_ctx = options->fragment_context;
+  GumboNamespaceEnum fragment_namespace = options->fragment_namespace;
+  const char* fragment_encoding = options->fragment_encoding;
+  GumboQuirksModeEnum quirks = options->quirks_mode;
+  bool ctx_has_form_ancestor = options->fragment_context_has_form_ancestor;
+
   GumboNode* root;
-  assert(fragment_ctx != GUMBO_TAG_LAST);
+  // 2.
+  get_document_node(parser)->v.document.doc_type_quirks_mode = quirks;
 
-  // 3
-  parser->_parser_state->_fragment_ctx = create_element(parser, fragment_ctx);
-  parser->_parser_state->_fragment_ctx->v.element.tag_namespace =
-      fragment_namespace;
+  // 3.
+  parser->_parser_state->_fragment_ctx =
+    create_fragment_ctx_element(fragment_ctx, fragment_namespace, fragment_encoding);
+  GumboTag ctx_tag = parser->_parser_state->_fragment_ctx->v.element.tag;
 
-  // 4
+  // 4.
   if (fragment_namespace == GUMBO_NAMESPACE_HTML) {
     // Non-HTML namespaces always start in the DATA state.
-    switch (fragment_ctx) {
+    switch (ctx_tag) {
       case GUMBO_TAG_TITLE:
       case GUMBO_TAG_TEXTAREA:
         gumbo_tokenizer_set_state(parser, GUMBO_LEX_RCDATA);
@@ -4457,12 +4544,38 @@ static void fragment_parser_init (
   parser->_output->root = root;
 
   // 8.
-  if (fragment_ctx == GUMBO_TAG_TEMPLATE) {
+  if (ctx_tag == GUMBO_TAG_TEMPLATE) {
     push_template_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_TEMPLATE);
   }
 
   // 10.
   reset_insertion_mode_appropriately(parser);
+
+  // 11.
+  if (ctx_has_form_ancestor
+      || (ctx_tag == GUMBO_TAG_FORM
+	  && fragment_namespace == GUMBO_NAMESPACE_HTML)) {
+    static const GumboNode form_ancestor = {
+      .type = GUMBO_NODE_ELEMENT,
+      .parent = NULL,
+      .index_within_parent = -1,
+      .parse_flags = GUMBO_INSERTION_BY_PARSER,
+      .v.element = {
+        .children = GUMBO_EMPTY_VECTOR_INIT,
+        .tag = GUMBO_TAG_FORM,
+        .name = NULL,
+        .tag_namespace = GUMBO_NAMESPACE_HTML,
+        .original_tag = GUMBO_EMPTY_STRING_INIT,
+        .original_end_tag = GUMBO_EMPTY_STRING_INIT,
+        .start_pos = GUMBO_EMPTY_SOURCE_POSITION_INIT,
+        .end_pos = GUMBO_EMPTY_SOURCE_POSITION_INIT,
+        .attributes = GUMBO_EMPTY_VECTOR_INIT,
+      },
+    };
+    // This cast is okay because _form_element is only modified if it is
+    // in in the list of open elements. This will never be.
+    parser->_parser_state->_form_element = (GumboNode *)&form_ancestor;
+  }
 }
 
 GumboOutput* gumbo_parse(const char* buffer) {
@@ -4484,13 +4597,8 @@ GumboOutput* gumbo_parse_with_options (
   gumbo_tokenizer_state_init(&parser, buffer, length);
   parser_state_init(&parser);
 
-  if (options->fragment_context != GUMBO_TAG_LAST) {
-    fragment_parser_init (
-      &parser,
-      options->fragment_context,
-      options->fragment_namespace
-    );
-  }
+  if (options->fragment_context != NULL)
+    fragment_parser_init(&parser, options);
 
   GumboParserState* state = parser._parser_state;
   gumbo_debug (

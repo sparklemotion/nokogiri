@@ -20,11 +20,6 @@
 #include "gumbo.h"
 #include "ascii.h"
 
-const GumboStringPiece kGumboEmptyString = { \
-  .data = NULL, \
-  .length = 0 \
-};
-
 bool gumbo_string_equals (
   const GumboStringPiece* str1,
   const GumboStringPiece* str2
@@ -41,4 +36,13 @@ bool gumbo_string_equals_ignore_case (
   return
     str1->length == str2->length
     && !gumbo_ascii_strncasecmp(str1->data, str2->data, str1->length);
+}
+
+bool gumbo_string_prefix_ignore_case (
+  const GumboStringPiece* prefix,
+  const GumboStringPiece* str
+) {
+  return
+    prefix->length <= str->length
+    && !gumbo_ascii_strncasecmp(prefix->data, str->data, prefix->length);
 }

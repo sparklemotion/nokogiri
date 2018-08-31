@@ -21,12 +21,6 @@
 #include "vector.h"
 #include "util.h"
 
-const GumboVector kGumboEmptyVector = { \
-  .data = NULL, \
-  .length = 0, \
-  .capacity = 0 \
-};
-
 void gumbo_vector_init(unsigned int initial_capacity, GumboVector* vector) {
   vector->length = 0;
   vector->capacity = initial_capacity;

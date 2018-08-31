@@ -64,8 +64,9 @@ typedef struct {
   size_t length;
 } GumboStringPiece;
 
+#define GUMBO_EMPTY_STRING_INIT { .data = NULL, .length = 0 }
 /** A constant to represent a 0-length null string. */
-extern const GumboStringPiece kGumboEmptyString;
+#define kGumboEmptyString (const GumboStringPiece)GUMBO_EMPTY_STRING_INIT
 
 /**
  * Compares two `GumboStringPiece`s, and returns `true` if they're
@@ -83,6 +84,15 @@ bool gumbo_string_equals (
 bool gumbo_string_equals_ignore_case (
   const GumboStringPiece* str1,
   const GumboStringPiece* str2
+);
+
+/**
+ * Check if the first `GumboStringPiece` is a prefix of the second, ignoring
+ * case.
+ */
+bool gumbo_string_prefix_ignore_case (
+  const GumboStringPiece* prefix,
+  const GumboStringPiece* str
 );
 
 /**
@@ -108,8 +118,9 @@ typedef struct {
   unsigned int capacity;
 } GumboVector;
 
+# define GUMBO_EMPTY_VECTOR_INIT { .data = NULL, .length = 0, .capacity = 0 }
 /** An empty (0-length, 0-capacity) `GumboVector`. */
-extern const GumboVector kGumboEmptyVector;
+#define kGumboEmptyVector (const GumboVector)GUMBO_EMPTY_VECTOR_INIT
 
 /**
  * Returns the first index at which an element appears in this vector
@@ -717,25 +728,48 @@ typedef struct GumboInternalOptions {
    * The fragment context for parsing:
    * https://html.spec.whatwg.org/multipage/parsing.html#parsing-html-fragments
    *
-   * If `GUMBO_TAG_LAST` is passed here, it is assumed to be "no
+   * If `NULL` is passed here, it is assumed to be "no
    * fragment", i.e. the regular parsing algorithm. Otherwise, pass the
-   * tag enum for the intended parent of the parsed fragment. We use
-   * just the tag enum rather than a full node because that's enough to
-   * set all the parsing context we need and it provides some additional
-   * flexibility for client code to act as if parsing a fragment even
-   * when a full HTML tree isn't available.
+   * tag name for the intended parent of the parsed fragment. We use the
+   * tag name, namespace, and encoding attribute which are sufficient to
+   * set all of the parsing context needed for fragment parsing.
    *
-   * Default: `GUMBO_TAG_LAST`.
+   * Default: `NULL`.
    */
-  GumboTag fragment_context;
+  const char* fragment_context;
 
   /**
    * The namespace for the fragment context. This lets client code
    * differentiate between, say, parsing a `<title>` tag in SVG vs.
    * parsing it in HTML.
+   *
    * Default: `GUMBO_NAMESPACE_HTML`.
    */
   GumboNamespaceEnum fragment_namespace;
+
+  /**
+   * The value of the fragment context's `encoding` attribute, if any.
+   * Set to `NULL` for no `encoding` attribute.
+   *
+   * Default: `NULL`.
+   */
+  const char* fragment_encoding;
+
+  /**
+   * Quirks mode for fragment parsing. The quirks mode for a given DOCTYPE can
+   * be looked up using `gumbo_compute_quirks_mode()`.
+   *
+   * Default: `GUMBO_DOCTYPE_NO_QUIRKS`.
+   */
+  GumboQuirksModeEnum quirks_mode;
+
+  /**
+   * For fragment parsing. Set this to true if the context node has a form
+   * element as an ancestor.
+   *
+   * Default: `false`.
+   */
+  bool fragment_context_has_form_ancestor;
 } GumboOptions;
 
 /** Default options struct; use this with gumbo_parse_with_options. */
@@ -814,6 +848,16 @@ GumboOutput* gumbo_parse_with_options (
   const GumboOptions* options,
   const char* buffer,
   size_t buffer_length
+);
+
+/**
+ * Compute the quirks mode based on the name, public identifier, and system
+ * identifier. Any of these may be `NULL` to indicate a missing value.
+ */
+GumboQuirksModeEnum gumbo_compute_quirks_mode (
+  const char *name,
+  const char *pubid,
+  const char *sysid
 );
 
 /** Convert a `GumboOutputStatus` code into a readable description. */

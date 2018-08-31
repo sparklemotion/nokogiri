@@ -46,13 +46,20 @@ class GumboParserTest : public ::testing::Test {
   }
 
   virtual void ParseFragment(
-      const char* input, GumboTag context, GumboNamespaceEnum context_ns) {
+      const char* input,
+      const char* context,
+      GumboNamespaceEnum context_ns,
+      const char* encoding = NULL,
+      bool form_ancestor = false
+  ) {
     if (output_) {
       gumbo_destroy_output(output_);
     }
 
     options_.fragment_context = context;
     options_.fragment_namespace = context_ns;
+    options_.fragment_encoding = encoding;
+    options_.fragment_context_has_form_ancestor = form_ancestor;
     output_ = gumbo_parse_with_options(&options_, input, strlen(input));
     root_ = output_->document;
   }
@@ -1935,7 +1942,7 @@ TEST_F(GumboParserTest, TemplateNull) {
 }
 
 TEST_F(GumboParserTest, FragmentWithNamespace) {
-  ParseFragment("<div></div>", GUMBO_TAG_TITLE, GUMBO_NAMESPACE_SVG);
+  ParseFragment("<div></div>", "title", GUMBO_NAMESPACE_SVG);
 
   EXPECT_EQ(1, GetChildCount(root_));
   GumboNode* html = GetChild(root_, 0);
@@ -1950,7 +1957,7 @@ TEST_F(GumboParserTest, FragmentWithNamespace) {
 }
 
 TEST_F(GumboParserTest, FragmentWithTwoNodes) {
-  ParseFragment("<h1>Hi</h1><br>", GUMBO_TAG_BODY, GUMBO_NAMESPACE_HTML);
+  ParseFragment("<h1>Hi</h1><br>", "body", GUMBO_NAMESPACE_HTML);
 
   EXPECT_EQ(1, GetChildCount(root_));
 
@@ -2063,6 +2070,126 @@ TEST_F(GumboParserTest, ForeignElementMismatch) {
 
   GumboNode* extra = GetChild(math, 1);
   EXPECT_EQ(std::string("extra"), extra->v.element.name);
+}
+
+TEST_F(GumboParserTest, FragmentAtAnnotationXML_text_html) {
+  ParseFragment("<a></a>", "annotation-xml", GUMBO_NAMESPACE_MATHML, "text/html");
+
+  ASSERT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  ASSERT_EQ(1, GetChildCount(html));
+
+  GumboNode* a = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, a->type);
+  EXPECT_EQ(GUMBO_TAG_A, a->v.element.tag);
+  EXPECT_EQ(GUMBO_NAMESPACE_HTML, a->v.element.tag_namespace);
+  EXPECT_EQ(0, GetChildCount(a));
+}
+
+TEST_F(GumboParserTest, FragmentAtAnnotationXML_application_xhtml_xml) {
+  ParseFragment("<a></a>", "annotation-xml", GUMBO_NAMESPACE_MATHML, "application/xhtml+xml");
+
+  ASSERT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  ASSERT_EQ(1, GetChildCount(html));
+
+  GumboNode* a = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, a->type);
+  EXPECT_EQ(GUMBO_TAG_A, a->v.element.tag);
+  EXPECT_EQ(GUMBO_NAMESPACE_HTML, a->v.element.tag_namespace);
+  EXPECT_EQ(0, GetChildCount(a));
+}
+
+TEST_F(GumboParserTest, FragmentAtAnnotationXML_other) {
+  ParseFragment("<a></a>", "annotation-xml", GUMBO_NAMESPACE_MATHML, "not one of those");
+
+  ASSERT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  ASSERT_EQ(1, GetChildCount(html));
+
+  GumboNode* a = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, a->type);
+  EXPECT_EQ(GUMBO_TAG_A, a->v.element.tag);
+  EXPECT_EQ(GUMBO_NAMESPACE_MATHML, a->v.element.tag_namespace);
+  EXPECT_EQ(0, GetChildCount(a));
+}
+
+TEST_F(GumboParserTest, DoctypePrefixPublicId) {
+  Parse("<!DOCTYPE html PUBLIC \"+//Silmaril//dtd html Pro v0r11 19970101//extra\">");
+  EXPECT_EQ(std::string("+//Silmaril//dtd html Pro v0r11 19970101//extra"),
+	    output_->document->v.document.public_identifier);
+  EXPECT_EQ(GUMBO_DOCTYPE_QUIRKS, output_->document->v.document.doc_type_quirks_mode);
+}
+
+TEST_F(GumboParserTest, DoctypePublicIdHTML) {
+  Parse("<!DOCTYPE html PUBLIC \"HTML\">");
+  EXPECT_EQ(std::string("HTML"),
+	    output_->document->v.document.public_identifier);
+  EXPECT_EQ(GUMBO_DOCTYPE_QUIRKS, output_->document->v.document.doc_type_quirks_mode);
+}
+
+TEST_F(GumboParserTest, DoctypePublicIdHTMLblah) {
+  Parse("<!DOCTYPE html PUBLIC \"HTMLblah\">");
+  EXPECT_EQ(std::string("HTMLblah"),
+	    output_->document->v.document.public_identifier);
+  EXPECT_EQ(GUMBO_DOCTYPE_NO_QUIRKS, output_->document->v.document.doc_type_quirks_mode);
+}
+
+TEST_F(GumboParserTest, DoctypeLimitedQuirksPrefix) {
+  Parse("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Frameset//asdf\">");
+  EXPECT_EQ(std::string("-//W3C//DTD XHTML 1.0 Frameset//asdf"),
+	    output_->document->v.document.public_identifier);
+  EXPECT_EQ(GUMBO_DOCTYPE_LIMITED_QUIRKS, output_->document->v.document.doc_type_quirks_mode);
+}
+
+TEST_F(GumboParserTest, DoctypeLimitedQuirks) {
+  Parse("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Frameset//\">");
+  EXPECT_EQ(std::string("-//W3C//DTD XHTML 1.0 Frameset//"),
+	    output_->document->v.document.public_identifier);
+  EXPECT_EQ(GUMBO_DOCTYPE_LIMITED_QUIRKS, output_->document->v.document.doc_type_quirks_mode);
+}
+
+TEST_F(GumboParserTest, FragmentWithForm) {
+  ParseFragment("<form><span></span></form>", "div", GUMBO_NAMESPACE_HTML, NULL, /* form */ true);
+  EXPECT_EQ(2, output_->errors.length); // Nested forms errors (one per tag).
+
+  ASSERT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  ASSERT_EQ(1, GetChildCount(html));
+
+  GumboNode* span = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, span->type);
+  EXPECT_EQ(GUMBO_TAG_SPAN, span->v.element.tag);
+  EXPECT_EQ(0, GetChildCount(span));
+}
+
+TEST_F(GumboParserTest, FragmentWithoutForm) {
+  ParseFragment("<form><span></span></form>", "div", GUMBO_NAMESPACE_HTML, NULL, /* form */ false);
+  EXPECT_EQ(0, output_->errors.length);
+
+  ASSERT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  ASSERT_EQ(1, GetChildCount(html));
+
+  GumboNode* form = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, form->type);
+  EXPECT_EQ(GUMBO_TAG_FORM, form->v.element.tag);
+  ASSERT_EQ(1, GetChildCount(form));
+
+  GumboNode* span = GetChild(form, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, span->type);
+  EXPECT_EQ(GUMBO_TAG_SPAN, span->v.element.tag);
+  EXPECT_EQ(0, GetChildCount(span));
 }
 
 }  // namespace
