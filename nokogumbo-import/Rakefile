@@ -42,6 +42,7 @@ SPEC = Gem::Specification.new do |gem|
   gem.extensions = %w[ext/nokogumbo/extconf.rb]
   gem.authors = ['Sam Ruby', 'Stephen Checkoway']
   gem.email = ['rubys@intertwingly.net', 's@pahtak.org']
+  gem.required_ruby_version = ">= 2.1"
   gem.add_dependency 'nokogiri'
   gem.license = 'Apache-2.0'
   gem.description = 'Nokogumbo allows a Ruby program to invoke the Gumbo ' \
