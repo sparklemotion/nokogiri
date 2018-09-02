@@ -43,6 +43,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Minimum supported version of Nokogiri changed to 1.8.0.
 - `Nokogiri::HTML5::DocumentFragment#errors` returns errors for the document
   fragment itself, not the underlying document.
+- The five XML namespaces described in the HTML spec, MathML, SVG, XLink, XML,
+  and XMLNS, are now supported. Thus `<svg>` will create an `svg` element in
+  the SVG namespace and `<math>` will create a `math` element in the MathML
+  namespace. An attribute `xml:lang=en`, for example, will create a `lang`
+  attribute in the XML namespace, **but only in foreign elements (i.e., those
+  in the SVG or MathML namespaces)**. On HTML elements, this creates an
+  attribute with the name `xml:lang`. This changes the `#xpath` and related
+  APIs.
 
 ### Deprecated
 - `:max_parse_errors`; use `:max_errors`
