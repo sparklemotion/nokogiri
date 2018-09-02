@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Experimental support for errors (it was supported in 1.5.0 but
   undocumented).
 - Added proper HTML5 serialization.
+- Added option `:max_errors` to control the maximum number of errors reported
+  by `#errors`
 - Added option `:max_tree_depth` to control the maximum parse tree depth.
 
 ### Changed
@@ -28,12 +30,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   * `Nokogiri::HTML5::Document.parse(html, url = nil, encoding = nil, **options, &block)`
   * `Nokogiri::HTML5.fragment(html, encoding = nil, **options)`
   * `Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil, **options)`
+  * `Nokogiri::HTML5::DocumentFragment.new(document, html = nil, ctx = nil)`
+  * `Nokogiri::HTML5::Document#fragment(html = nil)`
+  * `Nokogiri::XML::Node#fragment(html = nil)`
   In all cases, `html` can be a string or an `IO` object (something that
   responds to `#read`). The `url` parameter is entirely for error reporting,
   as in Nokogiri. The `encoding` parameter only signals what encoding `html`
   should have on input; the output `Document` or `DocumentFragment` will be in
-  UTF-8. Currently, the only options supported is `:max_errors` which controls
+  UTF-8. Currently, the only options supported are `:max_errors` which controls
   the maximum number of reported by `#errors`.
+- Minimum supported version of Ruby changed to 2.1.
+- Minimum supported version of Nokogiri changed to 1.8.0.
+- `Nokogiri::HTML5::DocumentFragment#errors` returns errors for the document
+  fragment itself, not the underlying document.
 
 ### Deprecated
 - `:max_parse_errors`; use `:max_errors`
