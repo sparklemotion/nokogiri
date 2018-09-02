@@ -181,7 +181,7 @@ class TestAPI < Minitest::Test
   ELEMENTS_WITH_END_TAG.each do |tag|
     define_method("test_outer_html_#{tag}".to_sym) do
       doc = Nokogiri::HTML5::Document.new
-      child = Nokogiri::XML::Node.new(tag, doc)
+      child = Nokogiri::XML::Element.new(tag, doc)
       assert_equal "<#{tag}></#{tag}>", child.serialize(save_with: 0)
     end
   end
@@ -189,7 +189,7 @@ class TestAPI < Minitest::Test
   ELEMENTS_WITHOUT_END_TAG.each do |tag|
     define_method("test_outer_html_#{tag}".to_sym) do
       doc = Nokogiri::HTML5::Document.new
-      child = Nokogiri::XML::Node.new(tag, doc)
+      child = Nokogiri::XML::Element.new(tag, doc)
       assert_equal "<#{tag}>", child.serialize(save_with: 0)
     end
   end
@@ -270,8 +270,8 @@ class TestAPI < Minitest::Test
     ['Attribute in the XML namespace',
       lambda do
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
-        svg = Nokogiri::XML::Node.new('svg', doc)
+        span = Nokogiri::XML::Element.new('span', doc)
+        svg = Nokogiri::XML::Element.new('svg', doc)
         span.add_child(svg)
         svg.add_namespace('xml', 'http://www.w3.org/XML/1998/namespace')
         svg['xml:foo'] = 'test'
@@ -283,8 +283,8 @@ class TestAPI < Minitest::Test
     ["Attribute in the XML namespace with the prefix not set to xml:",
       lambda do
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
-        svg = Nokogiri::XML::Node.new('svg', doc)
+        span = Nokogiri::XML::Element.new('span', doc)
+        svg = Nokogiri::XML::Element.new('svg', doc)
         span.add_child(svg)
         svg['abc:foo'] = 'test'
         ns = svg.add_namespace('xml', 'http://www.w3.org/XML/1998/namespace')
@@ -297,8 +297,8 @@ class TestAPI < Minitest::Test
     ["Non-'xmlns' attribute in the xmlns namespace",
       lambda do
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
-        svg = Nokogiri::XML::Node.new('svg', doc)
+        span = Nokogiri::XML::Element.new('span', doc)
+        svg = Nokogiri::XML::Element.new('svg', doc)
         span.add_child(svg)
         svg.add_namespace('xmlns', 'http://www.w3.org/2000/xmlns/')
         svg['xmlns:foo'] = 'test'
@@ -310,8 +310,8 @@ class TestAPI < Minitest::Test
     ["'xmlns' attribute in the xmlns namespace",
       lambda do
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
-        svg = Nokogiri::XML::Node.new('svg', doc)
+        span = Nokogiri::XML::Element.new('span', doc)
+        svg = Nokogiri::XML::Element.new('svg', doc)
         span.add_child(svg)
         svg.add_namespace('xmlns', 'http://www.w3.org/2000/xmlns/')
         svg['xmlns'] = 'test'
@@ -323,8 +323,8 @@ class TestAPI < Minitest::Test
     ["Attribute in non-standard namespace",
       lambda do
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
-        svg = Nokogiri::XML::Node.new('svg', doc)
+        span = Nokogiri::XML::Element.new('span', doc)
+        svg = Nokogiri::XML::Element.new('svg', doc)
         span.add_child(svg)
         svg.add_namespace('abc', 'fake_ns')
         svg['abc:def'] = 'test'
@@ -336,7 +336,7 @@ class TestAPI < Minitest::Test
     ["<span> starting with U+000A",
       lambda do
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
+        span = Nokogiri::XML::Element.new('span', doc)
         text = Nokogiri::XML::Text.new("\x0A", doc)
         span.add_child(text)
         span
@@ -351,7 +351,7 @@ class TestAPI < Minitest::Test
     ["<%text> context starting with U+000A",
       lambda do |tag|
         doc = Nokogiri::HTML5::Document.new
-        elem = Nokogiri::XML::Node.new(tag, doc)
+        elem = Nokogiri::XML::Element.new(tag, doc)
         text = Nokogiri::XML::Text.new("\x0A", doc)
         elem.add_child(text)
         elem
@@ -362,7 +362,7 @@ class TestAPI < Minitest::Test
     ["<%text> context not starting with U+000A",
       lambda do |tag|
         doc = Nokogiri::HTML5::Document.new
-        elem = Nokogiri::XML::Node.new(tag, doc)
+        elem = Nokogiri::XML::Element.new(tag, doc)
         text = Nokogiri::XML::Text.new("a\x0A", doc)
         elem.add_child(text)
         elem
@@ -373,8 +373,8 @@ class TestAPI < Minitest::Test
     ["<%text> non-context starting with U+000A",
       lambda do |tag|
         doc = Nokogiri::HTML5::Document.new
-        elem = Nokogiri::XML::Node.new(tag, doc)
-        span = Nokogiri::XML::Node.new('span', doc)
+        elem = Nokogiri::XML::Element.new(tag, doc)
+        span = Nokogiri::XML::Element.new('span', doc)
         text = Nokogiri::XML::Text.new("\x0A", doc)
         elem.add_child(text)
         span.add_child(elem)
@@ -386,8 +386,8 @@ class TestAPI < Minitest::Test
     ["<%text> non-context not starting with U+000A",
       lambda do |tag|
         doc = Nokogiri::HTML5::Document.new
-        elem = Nokogiri::XML::Node.new(tag, doc)
-        span = Nokogiri::XML::Node.new('span', doc)
+        elem = Nokogiri::XML::Element.new(tag, doc)
+        span = Nokogiri::XML::Element.new('span', doc)
         text = Nokogiri::XML::Text.new("a\x0A", doc)
         elem.add_child(text)
         span.add_child(elem)
@@ -406,7 +406,7 @@ class TestAPI < Minitest::Test
     ["Void context node",
       lambda do |tag|
         doc = Nokogiri::HTML5::Document.new
-        Nokogiri::XML::Node.new(tag, doc)
+        Nokogiri::XML::Element.new(tag, doc)
       end,
       "",
       "<%void>"],
@@ -414,11 +414,11 @@ class TestAPI < Minitest::Test
     ["void as first child with following siblings",
       lambda do |tag|
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
-        span.add_child(Nokogiri::XML::Node.new(tag, doc))
-        span.add_child(Nokogiri::XML::Node.new('a', doc))
+        span = Nokogiri::XML::Element.new('span', doc)
+        span.add_child(Nokogiri::XML::Element.new(tag, doc))
+        span.add_child(Nokogiri::XML::Element.new('a', doc))
           .add_child(Nokogiri::XML::Text.new('test', doc))
-        span.add_child(Nokogiri::XML::Node.new('b', doc))
+        span.add_child(Nokogiri::XML::Element.new('b', doc))
         span
       end,
       "<%void><a>test</a><b></b>",
@@ -428,11 +428,11 @@ class TestAPI < Minitest::Test
     ["void as second child with following siblings",
       lambda do |tag|
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
-        span.add_child(Nokogiri::XML::Node.new('a', doc))
+        span = Nokogiri::XML::Element.new('span', doc)
+        span.add_child(Nokogiri::XML::Element.new('a', doc))
           .add_child(Nokogiri::XML::Text.new('test', doc))
-        span.add_child(Nokogiri::XML::Node.new(tag, doc))
-        span.add_child(Nokogiri::XML::Node.new('b', doc))
+        span.add_child(Nokogiri::XML::Element.new(tag, doc))
+        span.add_child(Nokogiri::XML::Element.new('b', doc))
         span
       end,
       "<a>test</a><%void><b></b>",
@@ -441,11 +441,11 @@ class TestAPI < Minitest::Test
     ["void as last child with preceding siblings",
       lambda do |tag|
         doc = Nokogiri::HTML5::Document.new
-        span = Nokogiri::XML::Node.new('span', doc)
-        span.add_child(Nokogiri::XML::Node.new('a', doc))
+        span = Nokogiri::XML::Element.new('span', doc)
+        span.add_child(Nokogiri::XML::Element.new('a', doc))
           .add_child(Nokogiri::XML::Text.new('test', doc))
-        span.add_child(Nokogiri::XML::Node.new('b', doc))
-        span.add_child(Nokogiri::XML::Node.new(tag, doc))
+        span.add_child(Nokogiri::XML::Element.new('b', doc))
+        span.add_child(Nokogiri::XML::Element.new(tag, doc))
         span
       end,
       "<a>test</a><b></b><%void>",

@@ -75,13 +75,29 @@ class TestNokogumbo < Minitest::Test
 
   def test_xlink_attribute
     source = <<-EOF.gsub(/^ {6}/, '')
+      <!DOCTYPE html>
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <a xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#s1"/>
+      </svg>
+    EOF
+    doc = Nokogiri::HTML5.parse(source)
+    a = doc.at_xpath('/html/body/svg:svg/svg:a')
+    refute_nil a
+    refute_nil a['xlink:href']
+    refute_nil a['xmlns:xlink']
+  end
+
+  def test_xlink_attribute_fragment
+    source = <<-EOF.gsub(/^ {6}/, '')
       <svg xmlns="http://www.w3.org/2000/svg">
         <a xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#s1"/>
       </svg>
     EOF
     doc = Nokogiri::HTML5.fragment(source)
-    a = doc.at('a')
-    assert_equal ["xlink:href", "xmlns:xlink"], a.attributes.keys.sort
+    a = doc.at_xpath('svg:svg/svg:a')
+    refute_nil a
+    refute_nil a['xlink:href']
+    refute_nil a['xmlns:xlink']
   end
 
   def test_template

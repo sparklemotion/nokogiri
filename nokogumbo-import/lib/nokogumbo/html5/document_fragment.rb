@@ -3,29 +3,19 @@ require 'nokogiri'
 module Nokogiri
   module HTML5
     class DocumentFragment < Nokogiri::HTML::DocumentFragment
+      attr_accessor :document
+      attr_accessor :errors
+
       # Create a document fragment.
       def initialize(doc, tags = nil, ctx = nil, options = {})
+        self.document = doc
+        self.errors = []
         return self unless tags
-        if ctx
-          raise Argument.new("Fragment parsing with context not supported")
-        else
-          tags = Nokogiri::HTML5.read_and_encode(tags, nil)
 
-          # Copied from Nokogiri's document_fragment.rb and labled "a horrible
-          # hack."
-          if tags.strip =~ /^<body/i
-            path = "/html/body"
-          else
-            path = "/html/body/node()"
-          end
-          # Add 2 for <html> and <body>.
-          max_depth = (options[:max_tree_depth] || Nokogumbo::DEFAULT_MAX_TREE_DEPTH) + 2
-          options = options.dup
-          options[:max_tree_depth] = max_depth
-          temp_doc = HTML5.parse("<!DOCTYPE html><html><body>#{tags}", options)
-          temp_doc.xpath(path).each { |child| child.parent = self }
-        self.errors = temp_doc.errors
-        end
+        max_errors = options[:max_errors] || Nokogumbo::DEFAULT_MAX_ERRORS
+        max_depth = options[:max_tree_depth] || Nokogumbo::DEFAULT_MAX_TREE_DEPTH
+        tags = Nokogiri::HTML5.read_and_encode(tags, nil)
+        Nokogumbo.fragment(self, tags, ctx, max_errors, max_depth)
       end
 
       def serialize(options = {}, &block)
@@ -41,6 +31,31 @@ module Nokogiri
         doc.encoding = 'UTF-8'
         new(doc, tags, nil, options)
       end
+
+      def extract_params params # :nodoc:
+        handler = params.find do |param|
+          ![Hash, String, Symbol].include?(param.class)
+        end
+        params -= [handler] if handler
+
+        hashes = []
+        while Hash === params.last || params.last.nil?
+          hashes << params.pop
+          break if params.empty?
+        end
+        ns, binds = hashes.reverse
+
+        ns ||=
+          begin
+            ns = Hash.new
+            children.each { |child| ns.merge!(child.namespaces) }
+            ns
+          end
+
+        [params, handler, ns, binds]
+      end
+
     end
   end
 end
+# vim: set shiftwidth=2 softtabstop=2 tabstop=8 expandtab:

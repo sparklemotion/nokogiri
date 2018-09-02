@@ -4,7 +4,6 @@ require 'minitest/autorun'
 
 def parse_test(test_data)
   test = { script: :both }
-  #index = test_data.start_with?("#errors\n") ? 0 : test_data.index("\n#errors\n")
   index = /(?:^#errors\n|\n#errors\n)/ =~ test_data
   abort "Expected #errors in\n#{test_data}" if index.nil?
   skip_amount = $~[0].length
@@ -39,12 +38,10 @@ def parse_test(test_data)
   index += 1
 
   document = {
-    type: :document,
+    type: test[:context] ? :fragment : :document,
     children: []
   }
   open_nodes = [document]
-  # puts "Processing document:"
-  # lines[index..-1].each { |line| puts line }
   while index < lines.length
     abort "Expected '| ' but got #{lines[index]}" unless /^\| ( *)([^ ].*$)/ =~ lines[index]
     depth = $~[1].length
@@ -133,22 +130,20 @@ class TestTreeConstructionBase < Minitest::Test
     case ng_node.type
     when Nokogiri::XML::Node::ELEMENT_NODE
       assert_equal node[:type], :element
-      # XXX: HTML doesn't serialize namespaces and nokogumbo doesn't attach
-      # them to elements.
-      # assert_equal_or_nil node[:ns], ng_node.namespace&.prefix
+      if node[:ns]
+        refute_nil ng_node.namespace
+        assert_equal node[:ns], ng_node.namespace.prefix
+      end
       assert_equal node[:tag], ng_node.name
       attributes = ng_node.attributes
       assert_equal node[:attributes].length, attributes.length
       node[:attributes].each do |attr|
-        #ng_attr = ng_node.attribute_with_ns(attr[:name], attr[:ns])
-        attr_name = attr[:ns].nil? ? attr[:name] : "#{attr[:ns]}:#{attr[:name]}"
-        # This does not work with 'xml:lang'!
-        # ng_attr = ng_node.get_attribute(attr_name)
-        ng_attr = attributes[attr_name].nil? ? nil : attributes[attr_name].value
-        # This changes the tree. grr
-        # refute ng_attr.nil?, "Couldn't find attribute '#{attr_name}' on #{ng_node}"
-        refute ng_attr.nil?, "Couldn't find attribute '#{attr_name}'"
-        assert_equal attr[:value], ng_attr
+        if attr[:ns]
+          value = ng_node["#{attr[:ns]}:#{attr[:name]}"]
+        else
+          value = attributes[attr[:name]].value
+        end
+        assert_equal attr[:value], value
       end
       assert_equal node[:children].length, ng_node.children.length,
         "Element <#{node[:tag]}> has wrong number of children: #{ng_node.children.map { |c| c.name }}"
@@ -162,6 +157,9 @@ class TestTreeConstructionBase < Minitest::Test
     when Nokogiri::XML::Node::HTML_DOCUMENT_NODE
       assert_equal node[:type], :document
       assert_equal node[:children].length, ng_node.children.length
+    when Nokogiri::XML::Node::DOCUMENT_FRAG_NODE
+      assert_equal node[:type], :fragment
+      assert_equal node[:children].length, ng_node.children.length
     when Nokogiri::XML::Node::DTD_NODE
       assert_equal node[:type], :doctype
       assert_equal node[:name], ng_node.name
@@ -173,9 +171,13 @@ class TestTreeConstructionBase < Minitest::Test
   end
 
   def run_test
-    skip "Scripting tests not supported" if @test[:script] == :on
-    skip "Fragment tests not supported" unless @test[:context].nil?
-    doc = Nokogiri::HTML5.parse(@test[:data], max_errors: @test[:errors].length + 1)
+    if @test[:context]
+      ctx = @test[:context].join(':')
+      doc = Nokogiri::HTML5::Document.new
+      doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], ctx, max_errors: @test[:errors].length + 1)
+    else
+      doc = Nokogiri::HTML5.parse(@test[:data], max_errors: @test[:errors].length + 1)
+    end
     # assert_equal doc.errors.length, @test[:errors].length
 
     # Walk the tree.
@@ -227,6 +229,7 @@ Dir[File.join(tc_path, '*.dat')].each do |path|
 
   klass = Class.new(TestTreeConstructionBase) do
     tests.each_with_index do |test, index|
+      next if test[:script] == :on;
       define_method "test_#{index}".to_sym do
         @test = test
         @index = index

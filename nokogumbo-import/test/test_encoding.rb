@@ -117,7 +117,7 @@ class TestNokogumbo < Minitest::Test
     begin
       encoded = str.encode(encoding)
     rescue Encoding::ConverterNotFoundError
-      skip "Converting UTF-8 to #{str} not supported"
+      skip "Converting UTF-8 to #{enc} not supported"
     end
     begin
       decoded = encoded.encode('UTF-8')

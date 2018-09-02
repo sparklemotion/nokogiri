@@ -3,6 +3,7 @@ module Nokogiri
     class Document < Nokogiri::HTML::Document
       def self.parse(string_or_io, url = nil, encoding = nil, **options, &block)
         yield options if block_given?
+	string_or_io = '' unless string_or_io
 
         if string_or_io.respond_to?(:encoding) && string_or_io.encoding.name != 'ASCII-8BIT'
           encoding ||= string_or_io.encoding.name
@@ -15,12 +16,16 @@ module Nokogiri
       end
 
       def self.read_io(io, url = nil, encoding = nil, **options)
-        raise ArgumentError.new("io object doesn't respond to :read") unless io.respon_to?(:read)
+        raise ArgumentError.new("io object doesn't respond to :read") unless io.respond_to?(:read)
         do_parse(io, url, encoding, options)
       end
 
       def self.read_memory(string, url = nil, encoding = nil, **options)
         do_parse(string.to_s, url, encoding, options)
+      end
+
+      def fragment(tags = nil)
+        DocumentFragment.new(self, tags, self.root)
       end
 
       private

@@ -10,11 +10,16 @@ module Nokogiri
       # annoying with attribute names like xml:lang since libxml2 will
       # actually create the xml namespace if it doesn't exist already.
       define_method(:add_child_node_and_reparent_attrs) do |node|
+        # I'm not sure what this method is supposed to do. Reparenting
+        # namespaces is handled by libxml2, including child namespaces which
+        # this method wouldn't handle.
+        # https://github.com/sparklemotion/nokogiri/issues/1790
         add_child_node(node)
-        node.attribute_nodes.find_all { |a| a.namespace }.each do |attr|
-          attr.remove
-          node[attr.name] = attr.value
-        end
+        #node.attribute_nodes.find_all { |a| a.namespace }.each do |attr|
+        #  attr.remove
+        #  ns = attr.namespace
+        #  a["#{ns.prefix}:#{attr.name}"] = attr.value
+        #end
       end
 
       def inner_html(options = {})
@@ -46,12 +51,26 @@ module Nokogiri
           # Serialize including the current node.
           encoding ||= document.encoding || Encoding::UTF_8
           internal_ops = {
-            trailing_nl: config_options & SaveOptions::FORMAT != 0,
             preserve_newline: options[:preserve_newline] || false
           }
-          HTML5.serialize_node_internal(self, io, encoding, options)
+          HTML5.serialize_node_internal(self, io, encoding, internal_ops)
         end
+      end
+
+      def fragment(tags)
+        doc = document
+        type =
+          if doc.is_a?(HTML5::Document)
+            HTML5
+          elsif doc.html?
+            HTML
+          else
+            XML
+          end
+        type::DocumentFragment.new(doc, tags, self)
       end
     end
   end
 end
+
+# vim: set shiftwidth=2 softtabstop=2 tabstop=8 expandtab:

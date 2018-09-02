@@ -167,7 +167,7 @@ module Nokogiri
       case current_node.type
       when XML::Node::ELEMENT_NODE
         ns = current_node.namespace
-        ns_uri = ns.nil? ? nil : ns.uri
+        ns_uri = ns.nil? ? nil : ns.href
         # XXX(sfc): attach namespaces to all nodes, even html?
         if ns_uri.nil? || ns_uri == HTML_NAMESPACE || ns_uri == MATHML_NAMESPACE || ns_uri == SVG_NAMESPACE
           tagname = current_node.name

@@ -104,4 +104,52 @@ class TestAPI < Minitest::Test
       assert_equal "\n\nContent", html
     end
   end
+
+  def test_document_io_failure
+    html = '<!DOCTYPE html><span>test</span>'
+    assert_raises(ArgumentError) { Nokogiri::HTML5::Document.read_io(html) }
+  end
+
+  def test_document_io
+    html = StringIO.new('<!DOCTYPE html><span>test</span>', 'r')
+    doc = Nokogiri::HTML5::Document.read_io(html)
+    refute_nil doc.at_xpath('/html/body/span')
+  end
+
+  def test_document_memor
+    html = '<!DOCTYPE html><span>test</span>'
+    doc = Nokogiri::HTML5::Document.read_memory(html)
+    refute_nil doc
+    refute_nil doc.at_xpath('/html/body/span')
+  end
+
+  def test_fragment_from_node
+    doc = Nokogiri.HTML5('<!DOCTYPE html><form><span></span></form>')
+    span = doc.at_xpath('/html/body/form/span')
+    refute_nil span
+    frag = span.fragment('<form>Nested forms should be ignored</form>')
+    assert frag.is_a?(Nokogiri::HTML5::DocumentFragment)
+    assert_equal 1, frag.children.length
+    nested_form = frag.at_xpath('form')
+    assert_nil nested_form
+    assert frag.children[0].text?
+  end
+
+  def test_fragment_from_node_no_form
+    doc = Nokogiri.HTML5('<!DOCTYPE html><span></span></form>')
+    span = doc.at_xpath('/html/body/span')
+    refute_nil span
+    frag = span.fragment('<form><span>Form should not be ignored</span></form>')
+    assert frag.is_a?(Nokogiri::HTML5::DocumentFragment)
+    assert_equal 1, frag.children.length
+    form = frag.at_xpath('form')
+    refute_nil form
+  end
+
+  def test_empty_fragment
+    doc = Nokogiri.HTML5('<!DOCTYPE html><body>')
+    frag = doc.fragment
+    assert frag.is_a?(Nokogiri::HTML5::DocumentFragment)
+    assert frag.children.empty?
+  end
 end
