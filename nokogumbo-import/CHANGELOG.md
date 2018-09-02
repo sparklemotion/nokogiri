@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added option `:max_errors` to control the maximum number of errors reported
   by `#errors`
 - Added option `:max_tree_depth` to control the maximum parse tree depth.
+- Line number support via `Nokogiri::XML::Node#line` as long as Nokogumbo has
+  been compiled with libxml2 support.
 
 ### Changed
 - Integrated [Gumbo parser](https://github.com/google/gumbo-parser) into

@@ -220,6 +220,11 @@ class TestNokogumbo < Minitest::Test
     assert_equal "Кирилические символы", doc.at('body').text.gsub(/\n\s+/,'')
   end
 
+  def test_line_numbers
+    doc = Nokogiri::HTML5(buffer)
+    assert_includes [0, 8], doc.at('h1').line
+    assert_includes [0, 10], doc.at('span').line
+  end
 
 private
 

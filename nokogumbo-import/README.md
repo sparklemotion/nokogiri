@@ -202,6 +202,36 @@ rules defined in the HTML5 specification for doing so.
 * Instead of returning `unknown` as the element name for unknown tags, the
 original tag name is returned verbatim.
 
+# Flavors of Nokogumbo
+Nokogumbo uses libxml2, the XML library underlying Nokogiri, to speed up
+parsing. If the libxml2 headers are not available, then Nokogumbo resorts to
+using Nokogiri's Ruby API to construct the DOM tree.
+
+Nokogiri can be configured to either use the system library version of libxml2
+or use a bundled version. By default (as of Nokogiri version 1.8.4), Nokogiri
+will use a bundled version.
+
+To prevent differences between versions of libxml2, Nokogumbo will only use
+libxml2 if the build process can find the exact same version used by Nokogiri.
+This leads to three possibilities
+
+1. Nokogiri is compiled with the bundled libxml2. In this case, Nokogumbo will
+   (by default) use the same version of libxml2.
+2. Nokogiri is compiled with the system libxml2. In this case, if the libxml2
+   headers are available, then Nokogumbo will (by default) use the system
+   version and headers.
+3. Nokogiri is compiled with the system libxml2 but its headers aren't
+   available at build time for Nokogumbo. In this case, Nokogumbo will use the
+   slower Ruby API.
+
+Using libxml2 can be required by passing `-- --with-libxml2` to `bundle exec
+rake` or to `gem install`. Using libxml2 can be prohibited by instead passing
+`-- --without-libxml2`.
+
+Functionally, the only difference between using libxml2 or not is in the
+behavior of `Nokogiri::XML::Node#line`. If it is used, then `#line` will
+return the line number of the corresponding node. Otherwise, it will return 0.
+
 # Installation
 
     git clone https://github.com/rubys/nokogumbo.git

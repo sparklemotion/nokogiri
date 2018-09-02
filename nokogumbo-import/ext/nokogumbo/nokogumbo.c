@@ -290,6 +290,17 @@ static xmlNsPtr lookup_or_add_ns (
 #endif
 }
 
+static void set_line(xmlNodePtr node, size_t line) {
+#if NGLIB
+  // libxml2 uses 65535 to mean look elsewhere for the line number on some
+  // nodes.
+  if (line < 65535)
+    node->line = (unsigned short)line;
+#else
+  // XXX: If Nokogiri gets a `#line=` method, we'll use that.
+#endif
+}
+
 // Construct an XML tree rooted at xml_output_node from the Gumbo tree rooted
 // at gumbo_node.
 static void build_tree (
@@ -323,6 +334,7 @@ static void build_tree (
       continue;
     }
     const GumboNode *gumbo_child = children->data[child_index++];
+    xmlNodePtr xml_child;
 
     switch (gumbo_child->type) {
       case GUMBO_NODE_DOCUMENT:
@@ -330,24 +342,30 @@ static void build_tree (
 
       case GUMBO_NODE_TEXT:
       case GUMBO_NODE_WHITESPACE:
-        xmlAddChild(xml_node, xmlNewDocText(doc, BAD_CAST gumbo_child->v.text.text));
+        xml_child = xmlNewDocText(doc, BAD_CAST gumbo_child->v.text.text);
+        set_line(xml_child, gumbo_child->v.text.start_pos.line);
+        xmlAddChild(xml_node, xml_child);
         break;
 
       case GUMBO_NODE_CDATA:
-        xmlAddChild(xml_node,
-                    xmlNewCDataBlock(doc, BAD_CAST gumbo_child->v.text.text,
-                                     (int) strlen(gumbo_child->v.text.text)));
+        xml_child = xmlNewCDataBlock(doc, BAD_CAST gumbo_child->v.text.text,
+                                     (int) strlen(gumbo_child->v.text.text));
+        set_line(xml_child, gumbo_child->v.text.start_pos.line);
+        xmlAddChild(xml_node, xml_child);
         break;
 
       case GUMBO_NODE_COMMENT:
-        xmlAddChild(xml_node, xmlNewDocComment(doc, BAD_CAST gumbo_child->v.text.text));
+        xml_child = xmlNewDocComment(doc, BAD_CAST gumbo_child->v.text.text);
+        set_line(xml_child, gumbo_child->v.text.start_pos.line);
+        xmlAddChild(xml_node, xml_child);
         break;
 
       case GUMBO_NODE_TEMPLATE:
         // XXX: Should create a template element and a new DocumentFragment
       case GUMBO_NODE_ELEMENT:
       {
-        xmlNodePtr xml_child = xmlNewDocNode(doc, NIL, BAD_CAST gumbo_child->v.element.name, NULL);
+        xml_child = xmlNewDocNode(doc, NIL, BAD_CAST gumbo_child->v.element.name, NULL);
+        set_line(xml_child, gumbo_child->v.text.start_pos.line);
         if (xml_root == NIL)
           xml_root = xml_child;
         xmlNsPtr ns = NIL;
