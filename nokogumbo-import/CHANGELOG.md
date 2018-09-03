@@ -53,6 +53,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   in the SVG or MathML namespaces)**. On HTML elements, this creates an
   attribute with the name `xml:lang`. This changes the `#xpath` and related
   APIs.
+- Calling `#to_xml` on a `Nokogiri::HTML5::Document` will produce XML output
+  rather than HTML.
 
 ### Deprecated
 - `:max_parse_errors`; use `:max_errors`

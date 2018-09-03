@@ -1,15 +1,15 @@
 require 'nokogiri'
 
 module Nokogiri
-  # Monkey patch
-  module XML
-    class Node
+  module HTML5
+    module Node
       # HTML elements can have attributes that contain colons.
       # Nokogiri::XML::Node#[]= treats names with colons as a prefixed QName
       # and tries to create an attribute in a namespace. This is especially
       # annoying with attribute names like xml:lang since libxml2 will
       # actually create the xml namespace if it doesn't exist already.
-      define_method(:add_child_node_and_reparent_attrs) do |node|
+      def add_child_node_and_reparent_attrs(node)
+        return super(node) unless document.is_a?(HTML5::Document)
         # I'm not sure what this method is supposed to do. Reparenting
         # namespaces is handled by libxml2, including child namespaces which
         # this method wouldn't handle.
@@ -23,28 +23,30 @@ module Nokogiri
       end
 
       def inner_html(options = {})
+        return super(options) unless document.is_a?(HTML5::Document)
         result = options[:preserve_newline] && HTML5.prepend_newline?(self) ? "\n" : ""
         result << children.map { |child| child.to_html(options) }.join
         result
       end
 
       def write_to(io, *options)
+        return super(io, *options) unless document.is_a?(HTML5::Document)
         options = options.first.is_a?(Hash) ? options.shift : {}
         encoding = options[:encoding] || options[0]
         if Nokogiri.jruby?
           save_options = options[:save_with] || options[1]
           indent_times = options[:indent] || 0
         else
-          save_options = options[:save_with] || options[1] || SaveOptions::FORMAT
+          save_options = options[:save_with] || options[1] || XML::Node::SaveOptions::FORMAT
           indent_times = options[:indent] || 2
         end
         indent_string = (options[:indent_text] || ' ') * indent_times
 
-        config = SaveOptions.new(save_options.to_i)
+        config = XML::Node::SaveOptions.new(save_options.to_i)
         yield config if block_given?
 
         config_options = config.options
-        if (config_options & (SaveOptions::AS_XML | SaveOptions::AS_XHTML) != 0) || !document.is_a?(HTML5::Document)
+        if (config_options & (XML::Node::SaveOptions::AS_XML | XML::Node::SaveOptions::AS_XHTML) != 0)
           # Use Nokogiri's serializing code.
           native_write_to(io, encoding, indent_string, config_options)
         else
@@ -58,18 +60,12 @@ module Nokogiri
       end
 
       def fragment(tags)
-        doc = document
-        type =
-          if doc.is_a?(HTML5::Document)
-            HTML5
-          elsif doc.html?
-            HTML
-          else
-            XML
-          end
-        type::DocumentFragment.new(doc, tags, self)
+        return super(tags) unless document.is_a?(HTML5::Document)
+        DocumentFragment.new(document, tags, self)
       end
     end
+    # Monkey patch
+    XML::Node.prepend(HTML5::Node)
   end
 end
 

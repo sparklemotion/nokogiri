@@ -28,6 +28,12 @@ module Nokogiri
         DocumentFragment.new(self, tags, self.root)
       end
 
+      def to_xml(options = {}, &block)
+        # Bypass XML::Document#to_xml which doesn't add
+        # XML::Node::SaveOptions::AS_XML like XML::Node#to_xml does.
+        XML::Node.instance_method(:to_xml).bind(self).call(options, &block)
+      end
+
       private
       def self.do_parse(string_or_io, url, encoding, options)
         string = HTML5.read_and_encode(string_or_io, encoding)

@@ -1,5 +1,6 @@
 require 'nokogumbo/html5/document'
 require 'nokogumbo/html5/document_fragment'
+require 'nokogumbo/html5/node'
 
 module Nokogiri
   # Parse an HTML 5 document. Convenience method for Nokogiri::HTML5::Document.parse
