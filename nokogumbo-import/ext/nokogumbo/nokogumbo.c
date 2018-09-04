@@ -92,6 +92,8 @@ static void xmlSetNs(xmlNodePtr node, xmlNsPtr ns) {
   rb_funcall(node, namespace_, 1, ns);
 }
 
+static void xmlFreeDoc(xmlDocPtr doc) { }
+
 static VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc) {
   return doc;
 }
@@ -450,6 +452,23 @@ static void add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE
   }
 }
 
+typedef struct {
+  GumboOutput *output;
+  VALUE input;
+  VALUE url_or_frag;
+  xmlDocPtr doc;
+} ParseArgs;
+
+static VALUE parse_cleanup(ParseArgs *args) {
+  gumbo_destroy_output(args->output);
+  if (args->doc != NIL)
+    xmlFreeDoc(args->doc);
+  return Qnil;
+}
+
+
+static VALUE parse_continue(ParseArgs *args);
+
 // Parse a string using gumbo_parse into a Nokogiri document
 static VALUE parse(VALUE self, VALUE input, VALUE url, VALUE max_errors, VALUE max_depth) {
   GumboOptions options = kGumboDefaultOptions;
@@ -457,7 +476,17 @@ static VALUE parse(VALUE self, VALUE input, VALUE url, VALUE max_errors, VALUE m
   options.max_tree_depth = NUM2INT(max_depth);
 
   GumboOutput *output = perform_parse(&options, input);
+  ParseArgs args = {
+    .output = output,
+    .input = input,
+    .url_or_frag = url,
+    .doc = NIL,
+  };
+  return rb_ensure(parse_continue, (VALUE)&args, parse_cleanup, (VALUE)&args);
+}
 
+static VALUE parse_continue(ParseArgs *args) {
+  GumboOutput *output = args->output;
   xmlDocPtr doc;
   if (output->document->v.document.has_doctype) {
     const char *name   = output->document->v.document.name;
@@ -469,10 +498,11 @@ static VALUE parse(VALUE self, VALUE input, VALUE url, VALUE max_errors, VALUE m
   } else {
     doc = new_html_doc(NULL, NULL, NULL);
   }
+  args->doc = doc; // Make sure doc gets cleaned up if an error is thrown.
   build_tree(doc, (xmlNodePtr)doc, output->document);
   VALUE rdoc = Nokogiri_wrap_xml_document(Document, doc);
-  add_errors(output, rdoc, input, url);
-  gumbo_destroy_output(output);
+  args->doc = NIL; // The Ruby runtime now owns doc so don't delete it.
+  add_errors(output, rdoc, args->input, args->url_or_frag);
   return rdoc;
 }
 
@@ -512,6 +542,8 @@ static xmlNodePtr extract_xml_node(VALUE node) {
   return node;
 #endif
 }
+
+static VALUE fragment_continue(ParseArgs *args);
 
 static VALUE fragment (
   VALUE self,
@@ -632,13 +664,26 @@ static VALUE fragment (
   options.quirks_mode = quirks_mode;
   options.fragment_context_has_form_ancestor = form;
 
-  xmlDocPtr xml_doc = (xmlDocPtr)extract_xml_node(doc);
-  xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
-
   GumboOutput *output = perform_parse(&options, tags);
+  ParseArgs args = {
+    .output = output,
+    .input = tags,
+    .url_or_frag = doc_fragment,
+    .doc = (xmlDocPtr)extract_xml_node(doc),
+  };
+  rb_ensure(fragment_continue, (VALUE)&args, parse_cleanup, (VALUE)&args);
+  return Qnil;
+}
+
+static VALUE fragment_continue(ParseArgs *args) {
+  GumboOutput *output = args->output;
+  VALUE doc_fragment = args->url_or_frag;
+  xmlDocPtr xml_doc = args->doc;
+
+  args->doc = NIL; // The Ruby runtime owns doc so make sure we don't delete it.
+  xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
   build_tree(xml_doc, xml_frag, output->root);
-  add_errors(output, doc_fragment, tags, rb_str_new_cstr("#fragment"));
-  gumbo_destroy_output(output);
+  add_errors(output, doc_fragment, args->input, rb_str_new_cstr("#fragment"));
   return Qnil;
 }
 
