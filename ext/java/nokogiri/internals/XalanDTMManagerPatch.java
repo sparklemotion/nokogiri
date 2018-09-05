@@ -19,14 +19,14 @@
  */
 package nokogiri.internals;
 
+import javax.xml.transform.dom.DOMSource;
+
 import org.apache.xml.dtm.DTM;
 import org.apache.xml.dtm.DTMWSFilter;
 import org.apache.xml.dtm.ref.dom2dtm.DOM2DTMExt;
 import org.apache.xml.res.XMLErrorResources;
 import org.apache.xml.res.XMLMessages;
 import org.w3c.dom.Node;
-
-import javax.xml.transform.dom.DOMSource;
 
 /**
  * @author kares
@@ -75,8 +75,8 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
         //   Have each DTM cache last DOM node search?
         for(int i = 0; i < m_dtms.length; i++) {
             DTM thisDTM = m_dtms[i];
-            if (thisDTM instanceof org.apache.xml.dtm.ref.dom2dtm.DOM2DTM) {
-                int handle = ((org.apache.xml.dtm.ref.dom2dtm.DOM2DTM) thisDTM).getHandleOfNode(node);
+            if (thisDTM instanceof DOM2DTMExt) {
+                int handle = ((DOM2DTMExt) thisDTM).getHandleOfNode(node);
                 if (handle != DTM.NULL) {
                     return handle;
                 }
