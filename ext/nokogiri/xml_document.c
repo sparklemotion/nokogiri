@@ -9,6 +9,9 @@ static int dealloc_node_i(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
   case XML_NAMESPACE_DECL:
     xmlFree(node);
     break;
+  case XML_DTD_NODE:
+    xmlFreeDtd((xmlDtdPtr)node);
+    break;
   default:
     if(node->parent == NULL) {
       xmlAddChild((xmlNodePtr)doc, node);
