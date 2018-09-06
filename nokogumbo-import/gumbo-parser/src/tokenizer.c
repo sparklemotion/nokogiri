@@ -239,24 +239,24 @@ static void tokenizer_add_parse_error (
     case GUMBO_LEX_PLAINTEXT:
       error->v.tokenizer.state = GUMBO_ERR_TOKENIZER_PLAINTEXT;
       break;
-    case GUMBO_LEX_SCRIPT:
-    case GUMBO_LEX_SCRIPT_LT:
-    case GUMBO_LEX_SCRIPT_END_TAG_OPEN:
-    case GUMBO_LEX_SCRIPT_END_TAG_NAME:
-    case GUMBO_LEX_SCRIPT_ESCAPED_START:
-    case GUMBO_LEX_SCRIPT_ESCAPED_START_DASH:
-    case GUMBO_LEX_SCRIPT_ESCAPED:
-    case GUMBO_LEX_SCRIPT_ESCAPED_DASH:
-    case GUMBO_LEX_SCRIPT_ESCAPED_DASH_DASH:
-    case GUMBO_LEX_SCRIPT_ESCAPED_LT:
-    case GUMBO_LEX_SCRIPT_ESCAPED_END_TAG_OPEN:
-    case GUMBO_LEX_SCRIPT_ESCAPED_END_TAG_NAME:
-    case GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_START:
-    case GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED:
-    case GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_DASH:
-    case GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_DASH_DASH:
-    case GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_LT:
-    case GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_END:
+    case GUMBO_LEX_SCRIPT_DATA:
+    case GUMBO_LEX_SCRIPT_DATA_LT:
+    case GUMBO_LEX_SCRIPT_DATA_END_TAG_OPEN:
+    case GUMBO_LEX_SCRIPT_DATA_END_TAG_NAME:
+    case GUMBO_LEX_SCRIPT_DATA_ESCAPED_START:
+    case GUMBO_LEX_SCRIPT_DATA_ESCAPED_START_DASH:
+    case GUMBO_LEX_SCRIPT_DATA_ESCAPED:
+    case GUMBO_LEX_SCRIPT_DATA_ESCAPED_DASH:
+    case GUMBO_LEX_SCRIPT_DATA_ESCAPED_DASH_DASH:
+    case GUMBO_LEX_SCRIPT_DATA_ESCAPED_LT:
+    case GUMBO_LEX_SCRIPT_DATA_ESCAPED_END_TAG_OPEN:
+    case GUMBO_LEX_SCRIPT_DATA_ESCAPED_END_TAG_NAME:
+    case GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_START:
+    case GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED:
+    case GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_DASH:
+    case GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH:
+    case GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_LT:
+    case GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_END:
       error->v.tokenizer.state = GUMBO_ERR_TOKENIZER_SCRIPT;
       break;
     case GUMBO_LEX_TAG_OPEN:
@@ -288,7 +288,7 @@ static void tokenizer_add_parse_error (
     case GUMBO_LEX_COMMENT_END_BANG:
       error->v.tokenizer.state = GUMBO_ERR_TOKENIZER_COMMENT;
       break;
-    case GUMBO_LEX_MARKUP_DECLARATION:
+    case GUMBO_LEX_MARKUP_DECLARATION_OPEN:
     case GUMBO_LEX_DOCTYPE:
     case GUMBO_LEX_BEFORE_DOCTYPE_NAME:
     case GUMBO_LEX_DOCTYPE_NAME:
@@ -1059,7 +1059,7 @@ static StateResult handle_rawtext_state (
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-state
-static StateResult handle_script_state (
+static StateResult handle_script_data_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1067,7 +1067,7 @@ static StateResult handle_script_state (
 ) {
   switch (c) {
     case '<':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_LT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_LT);
       clear_temporary_buffer(parser);
       append_char_to_temporary_buffer(parser, '<');
       return NEXT_CHAR;
@@ -1107,7 +1107,7 @@ static StateResult handle_tag_open_state (
   assert(temporary_buffer_equals(parser, "<"));
   switch (c) {
     case '!':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_MARKUP_DECLARATION);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_MARKUP_DECLARATION_OPEN);
       clear_temporary_buffer(parser);
       return NEXT_CHAR;
     case '/':
@@ -1357,7 +1357,7 @@ static StateResult handle_rawtext_end_tag_name_state (
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-less-than-sign-state
-static StateResult handle_script_lt_state (
+static StateResult handle_script_data_lt_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
@@ -1365,22 +1365,22 @@ static StateResult handle_script_lt_state (
 ) {
   assert(temporary_buffer_equals(parser, "<"));
   if (c == '/') {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_END_TAG_OPEN);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_END_TAG_OPEN);
     append_char_to_temporary_buffer(parser, '/');
     return NEXT_CHAR;
   } else if (c == '!') {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_START);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_START);
     append_char_to_temporary_buffer(parser, '!');
     return emit_temporary_buffer(parser, output);
   } else {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA);
     tokenizer->_reconsume_current_input = true;
     return emit_temporary_buffer(parser, output);
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-open-state
-static StateResult handle_script_end_tag_open_state (
+static StateResult handle_script_data_end_tag_open_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1388,18 +1388,18 @@ static StateResult handle_script_end_tag_open_state (
 ) {
   assert(temporary_buffer_equals(parser, "</"));
   if (is_alpha(c)) {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_END_TAG_NAME);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_END_TAG_NAME);
     start_new_tag(parser, false);
     append_char_to_temporary_buffer(parser, c);
     return NEXT_CHAR;
   } else {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA);
     return emit_temporary_buffer(parser, output);
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-name-state
-static StateResult handle_script_end_tag_name_state (
+static StateResult handle_script_data_end_tag_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
@@ -1430,47 +1430,47 @@ static StateResult handle_script_end_tag_name_state (
         return emit_current_tag(parser, output);
     }
   }
-  gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT);
+  gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA);
   abandon_current_tag(parser);
   return emit_temporary_buffer(parser, output);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-state
-static StateResult handle_script_escaped_start_state (
+static StateResult handle_script_data_escaped_start_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
   GumboToken* output
 ) {
   if (c == '-') {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_START_DASH);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_START_DASH);
     return emit_current_char(parser, output);
   } else {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA);
     tokenizer->_reconsume_current_input = true;
     return NEXT_CHAR;
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-dash-state
-static StateResult handle_script_escaped_start_dash_state (
+static StateResult handle_script_data_escaped_start_dash_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
   GumboToken* output
 ) {
   if (c == '-') {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_DASH_DASH);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_DASH_DASH);
     return emit_current_char(parser, output);
   } else {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA);
     tokenizer->_reconsume_current_input = true;
     return NEXT_CHAR;
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-state
-static StateResult handle_script_escaped_state (
+static StateResult handle_script_data_escaped_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1478,10 +1478,10 @@ static StateResult handle_script_escaped_state (
 ) {
   switch (c) {
     case '-':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_DASH);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_DASH);
       return emit_current_char(parser, output);
     case '<':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_LT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_LT);
       clear_temporary_buffer(parser);
       append_char_to_temporary_buffer(parser, c);
       return NEXT_CHAR;
@@ -1496,7 +1496,7 @@ static StateResult handle_script_escaped_state (
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-dash-state
-static StateResult handle_script_escaped_dash_state (
+static StateResult handle_script_data_escaped_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1504,28 +1504,28 @@ static StateResult handle_script_escaped_dash_state (
 ) {
   switch (c) {
     case '-':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_DASH_DASH);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_DASH_DASH);
       return emit_current_char(parser, output);
     case '<':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_LT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_LT);
       clear_temporary_buffer(parser);
       append_char_to_temporary_buffer(parser, c);
       return NEXT_CHAR;
     case '\0':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
       return emit_replacement_char(parser, output);
     case -1:
       tokenizer_add_parse_error(parser, GUMBO_ERR_SCRIPT_EOF);
       gumbo_tokenizer_set_state(parser, GUMBO_LEX_DATA);
       return NEXT_CHAR;
     default:
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
       return emit_current_char(parser, output);
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-dash-dash-state
-static StateResult handle_script_escaped_dash_dash_state (
+static StateResult handle_script_data_escaped_dash_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1535,28 +1535,28 @@ static StateResult handle_script_escaped_dash_dash_state (
     case '-':
       return emit_current_char(parser, output);
     case '<':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_LT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_LT);
       clear_temporary_buffer(parser);
       append_char_to_temporary_buffer(parser, c);
       return NEXT_CHAR;
     case '>':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA);
       return emit_current_char(parser, output);
     case '\0':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
       return emit_replacement_char(parser, output);
     case -1:
       tokenizer_add_parse_error(parser, GUMBO_ERR_SCRIPT_EOF);
       gumbo_tokenizer_set_state(parser, GUMBO_LEX_DATA);
       return NEXT_CHAR;
     default:
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
       return emit_current_char(parser, output);
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-less-than-sign-state
-static StateResult handle_script_escaped_lt_state (
+static StateResult handle_script_data_escaped_lt_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
@@ -1565,11 +1565,11 @@ static StateResult handle_script_escaped_lt_state (
   assert(temporary_buffer_equals(parser, "<"));
   assert(!tokenizer->_script_data_buffer.length);
   if (c == '/') {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_END_TAG_OPEN);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_END_TAG_OPEN);
     append_char_to_temporary_buffer(parser, c);
     return NEXT_CHAR;
   } else if (is_alpha(c)) {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_START);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_START);
     append_char_to_temporary_buffer(parser, c);
     gumbo_string_buffer_append_codepoint (
       ensure_lowercase(c),
@@ -1577,13 +1577,13 @@ static StateResult handle_script_escaped_lt_state (
     );
     return emit_temporary_buffer(parser, output);
   } else {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
     return emit_temporary_buffer(parser, output);
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-open-state
-static StateResult handle_script_escaped_end_tag_open_state (
+static StateResult handle_script_data_escaped_end_tag_open_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1591,18 +1591,18 @@ static StateResult handle_script_escaped_end_tag_open_state (
 ) {
   assert(temporary_buffer_equals(parser, "</"));
   if (is_alpha(c)) {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED_END_TAG_NAME);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_END_TAG_NAME);
     start_new_tag(parser, false);
     append_char_to_temporary_buffer(parser, c);
     return NEXT_CHAR;
   } else {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
     return emit_temporary_buffer(parser, output);
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-name-state
-static StateResult handle_script_escaped_end_tag_name_state (
+static StateResult handle_script_data_escaped_end_tag_name_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
@@ -1633,13 +1633,13 @@ static StateResult handle_script_escaped_end_tag_name_state (
         return emit_current_tag(parser, output);
     }
   }
-  gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED);
+  gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
   abandon_current_tag(parser);
   return emit_temporary_buffer(parser, output);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escape-start-state
-static StateResult handle_script_double_escaped_start_state (
+static StateResult handle_script_data_double_escaped_start_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
@@ -1658,8 +1658,8 @@ static StateResult handle_script_double_escaped_start_state (
           &kScriptTag,
           (GumboStringPiece*) &tokenizer->_script_data_buffer
         )
-        ? GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED
-        : GUMBO_LEX_SCRIPT_ESCAPED
+        ? GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED
+        : GUMBO_LEX_SCRIPT_DATA_ESCAPED
       );
       return emit_current_char(parser, output);
     default:
@@ -1670,7 +1670,7 @@ static StateResult handle_script_double_escaped_start_state (
         );
         return emit_current_char(parser, output);
       } else {
-        gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_ESCAPED);
+        gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
         tokenizer->_reconsume_current_input = true;
         return NEXT_CHAR;
       }
@@ -1678,7 +1678,7 @@ static StateResult handle_script_double_escaped_start_state (
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-state
-static StateResult handle_script_double_escaped_state (
+static StateResult handle_script_data_double_escaped_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1686,10 +1686,10 @@ static StateResult handle_script_double_escaped_state (
 ) {
   switch (c) {
     case '-':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_DASH);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_DASH);
       return emit_current_char(parser, output);
     case '<':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_LT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_LT);
       return emit_current_char(parser, output);
     case '\0':
       return emit_replacement_char(parser, output);
@@ -1703,7 +1703,7 @@ static StateResult handle_script_double_escaped_state (
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-dash-state
-static StateResult handle_script_double_escaped_dash_state (
+static StateResult handle_script_data_double_escaped_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1712,26 +1712,26 @@ static StateResult handle_script_double_escaped_dash_state (
   switch (c) {
     case '-':
       gumbo_tokenizer_set_state(
-          parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_DASH_DASH);
+          parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH);
       return emit_current_char(parser, output);
     case '<':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_LT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_LT);
       return emit_current_char(parser, output);
     case '\0':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED);
       return emit_replacement_char(parser, output);
     case -1:
       tokenizer_add_parse_error(parser, GUMBO_ERR_SCRIPT_EOF);
       gumbo_tokenizer_set_state(parser, GUMBO_LEX_DATA);
       return NEXT_CHAR;
     default:
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED);
       return emit_current_char(parser, output);
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-dash-dash-state
-static StateResult handle_script_double_escaped_dash_dash_state (
+static StateResult handle_script_data_double_escaped_dash_dash_state (
   GumboParser* parser,
   GumboTokenizerState* UNUSED_ARG(tokenizer),
   int c,
@@ -1741,44 +1741,44 @@ static StateResult handle_script_double_escaped_dash_dash_state (
     case '-':
       return emit_current_char(parser, output);
     case '<':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_LT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_LT);
       return emit_current_char(parser, output);
     case '>':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA);
       return emit_current_char(parser, output);
     case '\0':
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED);
       return emit_replacement_char(parser, output);
     case -1:
       tokenizer_add_parse_error(parser, GUMBO_ERR_SCRIPT_EOF);
       gumbo_tokenizer_set_state(parser, GUMBO_LEX_DATA);
       return NEXT_CHAR;
     default:
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED);
+      gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED);
       return emit_current_char(parser, output);
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escaped-less-than-sign-state
-static StateResult handle_script_double_escaped_lt_state (
+static StateResult handle_script_data_double_escaped_lt_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
   GumboToken* output
 ) {
   if (c == '/') {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_END);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_END);
     gumbo_string_buffer_clear(&tokenizer->_script_data_buffer);
     return emit_current_char(parser, output);
   } else {
-    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED);
+    gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED);
     tokenizer->_reconsume_current_input = true;
     return NEXT_CHAR;
   }
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-double-escape-end-state
-static StateResult handle_script_double_escaped_end_state (
+static StateResult handle_script_data_double_escaped_end_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int c,
@@ -1794,8 +1794,8 @@ static StateResult handle_script_double_escaped_end_state (
       gumbo_tokenizer_set_state(
           parser, gumbo_string_equals(&kScriptTag,
                       (GumboStringPiece*) &tokenizer->_script_data_buffer)
-                      ? GUMBO_LEX_SCRIPT_ESCAPED
-                      : GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED);
+                      ? GUMBO_LEX_SCRIPT_DATA_ESCAPED
+                      : GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED);
       return emit_current_char(parser, output);
     default:
       if (is_alpha(c)) {
@@ -1805,7 +1805,7 @@ static StateResult handle_script_double_escaped_end_state (
         );
         return emit_current_char(parser, output);
       } else {
-        gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED);
+        gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED);
         tokenizer->_reconsume_current_input = true;
         return NEXT_CHAR;
       }
@@ -2242,7 +2242,7 @@ static StateResult handle_bogus_comment_state (
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
-static StateResult handle_markup_declaration_state (
+static StateResult handle_markup_declaration_open_state (
   GumboParser* parser,
   GumboTokenizerState* tokenizer,
   int UNUSED_ARG(c),
@@ -3146,7 +3146,7 @@ static GumboLexerStateFunction dispatch_table[] = {
   [GUMBO_LEX_RCDATA] = handle_rcdata_state,
   [GUMBO_LEX_CHAR_REF_IN_RCDATA] = handle_char_ref_in_rcdata_state,
   [GUMBO_LEX_RAWTEXT] = handle_rawtext_state,
-  [GUMBO_LEX_SCRIPT] = handle_script_state,
+  [GUMBO_LEX_SCRIPT_DATA] = handle_script_data_state,
   [GUMBO_LEX_PLAINTEXT] = handle_plaintext_state,
   [GUMBO_LEX_TAG_OPEN] = handle_tag_open_state,
   [GUMBO_LEX_END_TAG_OPEN] = handle_end_tag_open_state,
@@ -3157,23 +3157,23 @@ static GumboLexerStateFunction dispatch_table[] = {
   [GUMBO_LEX_RAWTEXT_LT] = handle_rawtext_lt_state,
   [GUMBO_LEX_RAWTEXT_END_TAG_OPEN] = handle_rawtext_end_tag_open_state,
   [GUMBO_LEX_RAWTEXT_END_TAG_NAME] = handle_rawtext_end_tag_name_state,
-  [GUMBO_LEX_SCRIPT_LT] = handle_script_lt_state,
-  [GUMBO_LEX_SCRIPT_END_TAG_OPEN] = handle_script_end_tag_open_state,
-  [GUMBO_LEX_SCRIPT_END_TAG_NAME] = handle_script_end_tag_name_state,
-  [GUMBO_LEX_SCRIPT_ESCAPED_START] = handle_script_escaped_start_state,
-  [GUMBO_LEX_SCRIPT_ESCAPED_START_DASH] = handle_script_escaped_start_dash_state,
-  [GUMBO_LEX_SCRIPT_ESCAPED] = handle_script_escaped_state,
-  [GUMBO_LEX_SCRIPT_ESCAPED_DASH] = handle_script_escaped_dash_state,
-  [GUMBO_LEX_SCRIPT_ESCAPED_DASH_DASH] = handle_script_escaped_dash_dash_state,
-  [GUMBO_LEX_SCRIPT_ESCAPED_LT] = handle_script_escaped_lt_state,
-  [GUMBO_LEX_SCRIPT_ESCAPED_END_TAG_OPEN] = handle_script_escaped_end_tag_open_state,
-  [GUMBO_LEX_SCRIPT_ESCAPED_END_TAG_NAME] = handle_script_escaped_end_tag_name_state,
-  [GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_START] = handle_script_double_escaped_start_state,
-  [GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED] = handle_script_double_escaped_state,
-  [GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_DASH] = handle_script_double_escaped_dash_state,
-  [GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_DASH_DASH] = handle_script_double_escaped_dash_dash_state,
-  [GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_LT] = handle_script_double_escaped_lt_state,
-  [GUMBO_LEX_SCRIPT_DOUBLE_ESCAPED_END] = handle_script_double_escaped_end_state,
+  [GUMBO_LEX_SCRIPT_DATA_LT] = handle_script_data_lt_state,
+  [GUMBO_LEX_SCRIPT_DATA_END_TAG_OPEN] = handle_script_data_end_tag_open_state,
+  [GUMBO_LEX_SCRIPT_DATA_END_TAG_NAME] = handle_script_data_end_tag_name_state,
+  [GUMBO_LEX_SCRIPT_DATA_ESCAPED_START] = handle_script_data_escaped_start_state,
+  [GUMBO_LEX_SCRIPT_DATA_ESCAPED_START_DASH] = handle_script_data_escaped_start_dash_state,
+  [GUMBO_LEX_SCRIPT_DATA_ESCAPED] = handle_script_data_escaped_state,
+  [GUMBO_LEX_SCRIPT_DATA_ESCAPED_DASH] = handle_script_data_escaped_dash_state,
+  [GUMBO_LEX_SCRIPT_DATA_ESCAPED_DASH_DASH] = handle_script_data_escaped_dash_dash_state,
+  [GUMBO_LEX_SCRIPT_DATA_ESCAPED_LT] = handle_script_data_escaped_lt_state,
+  [GUMBO_LEX_SCRIPT_DATA_ESCAPED_END_TAG_OPEN] = handle_script_data_escaped_end_tag_open_state,
+  [GUMBO_LEX_SCRIPT_DATA_ESCAPED_END_TAG_NAME] = handle_script_data_escaped_end_tag_name_state,
+  [GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_START] = handle_script_data_double_escaped_start_state,
+  [GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED] = handle_script_data_double_escaped_state,
+  [GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_DASH] = handle_script_data_double_escaped_dash_state,
+  [GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_DASH_DASH] = handle_script_data_double_escaped_dash_dash_state,
+  [GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_LT] = handle_script_data_double_escaped_lt_state,
+  [GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_END] = handle_script_data_double_escaped_end_state,
   [GUMBO_LEX_BEFORE_ATTR_NAME] = handle_before_attr_name_state,
   [GUMBO_LEX_ATTR_NAME] = handle_attr_name_state,
   [GUMBO_LEX_AFTER_ATTR_NAME] = handle_after_attr_name_state,
@@ -3185,7 +3185,7 @@ static GumboLexerStateFunction dispatch_table[] = {
   [GUMBO_LEX_AFTER_ATTR_VALUE_QUOTED] = handle_after_attr_value_quoted_state,
   [GUMBO_LEX_SELF_CLOSING_START_TAG] = handle_self_closing_start_tag_state,
   [GUMBO_LEX_BOGUS_COMMENT] = handle_bogus_comment_state,
-  [GUMBO_LEX_MARKUP_DECLARATION] = handle_markup_declaration_state,
+  [GUMBO_LEX_MARKUP_DECLARATION_OPEN] = handle_markup_declaration_open_state,
   [GUMBO_LEX_COMMENT_START] = handle_comment_start_state,
   [GUMBO_LEX_COMMENT_START_DASH] = handle_comment_start_dash_state,
   [GUMBO_LEX_COMMENT] = handle_comment_state,

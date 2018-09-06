@@ -2550,7 +2550,7 @@ static bool handle_in_head(GumboParser* parser, GumboToken* token) {
     set_insertion_mode(parser, GUMBO_INSERTION_MODE_IN_HEAD_NOSCRIPT);
     return true;
   } else if (tag_is(token, kStartTag, GUMBO_TAG_SCRIPT)) {
-    run_generic_parsing_algorithm(parser, token, GUMBO_LEX_SCRIPT);
+    run_generic_parsing_algorithm(parser, token, GUMBO_LEX_SCRIPT_DATA);
     return true;
   } else if (tag_is(token, kEndTag, GUMBO_TAG_HEAD)) {
     GumboNode* head = pop_current_node(parser);
@@ -4517,7 +4517,7 @@ static void fragment_parser_init (
         break;
 
       case GUMBO_TAG_SCRIPT:
-        gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT);
+        gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA);
         break;
 
       case GUMBO_TAG_NOSCRIPT:
