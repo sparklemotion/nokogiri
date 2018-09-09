@@ -28,7 +28,9 @@ namespace {
 // Tests for tokenizer.c
 class GumboTokenizerTest : public GumboTest {
  protected:
-  GumboTokenizerTest() { gumbo_tokenizer_state_init(&parser_, "", 0); }
+  GumboTokenizerTest() : at_start_(true) {
+    gumbo_tokenizer_state_init(&parser_, "", 0);
+  }
 
   virtual ~GumboTokenizerTest() {
     gumbo_tokenizer_state_destroy(&parser_);
@@ -36,9 +38,12 @@ class GumboTokenizerTest : public GumboTest {
   }
 
   void SetInput(const char* input) {
+    if (!at_start_)
+      gumbo_token_destroy(&token_);
     text_ = input;
     gumbo_tokenizer_state_destroy(&parser_);
     gumbo_tokenizer_state_init(&parser_, input, strlen(input));
+    at_start_ = true;
   }
 
   void Advance(int num_tokens) {
@@ -48,6 +53,31 @@ class GumboTokenizerTest : public GumboTest {
     }
   }
 
+  void Next(bool errors_are_expected = false) {
+    if (!at_start_)
+      gumbo_token_destroy(&token_);
+    at_start_ = false;
+    if (errors_are_expected) {
+      errors_are_expected_ = true;
+      EXPECT_FALSE(gumbo_lex(&parser_, &token_));
+    } else {
+      EXPECT_TRUE(gumbo_lex(&parser_, &token_));
+    }
+  }
+
+  void NextChar(int c, bool errors_are_expected = false) {
+    Next(errors_are_expected);
+    ASSERT_EQ(GUMBO_TOKEN_CHARACTER, token_.type);
+    EXPECT_EQ(c, token_.v.character);
+  }
+
+  void AtEnd(bool errors_are_expected = false) {
+    Next(errors_are_expected);
+    ASSERT_EQ(GUMBO_TOKEN_EOF, token_.type);
+    EXPECT_EQ(-1, token_.v.character);
+  }
+
+  bool at_start_;
   GumboToken token_;
 };
 
@@ -723,5 +753,138 @@ TEST_F(GumboTokenizerTest, NullInTagNameState) {
   EXPECT_EQ(GUMBO_TAG_UNKNOWN, token_.v.start_tag.tag);
   EXPECT_EQ(std::string("x\xEF\xBF\xBDx"), token_.v.start_tag.name);
   errors_are_expected_ = true;
+}
+
+TEST_F(GumboTokenizerTest, Whitespace) {
+  SetInput("&nbsp;");
+  NextChar(0xa0);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NumericHex) {
+  SetInput("&#x12ab;");
+  NextChar(0x12ab);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NumericDecimal) {
+  SetInput("&#1234;");
+  NextChar(1234);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NumericInvalidDigit) {
+  SetInput("&#google");
+  NextChar('&', true);
+  NextChar('#');
+  NextChar('g');
+  NextChar('o');
+  NextChar('o');
+  NextChar('g');
+  NextChar('l');
+  NextChar('e');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NumericNoSemicolon) {
+  SetInput("&#1234google");
+  NextChar(1234, true);
+  NextChar('g');
+  NextChar('o');
+  NextChar('o');
+  NextChar('g');
+  NextChar('l');
+  NextChar('e');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NumericReplacement) {
+  // Low quotation mark character.
+  SetInput("&#X82");
+  NextChar(0x201A, true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NumericInvalid) {
+  SetInput("&#xDA00");
+  NextChar(0xFFFD, true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NumericUtfInvalid) {
+  SetInput("&#x007");
+  NextChar(0x07, true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NamedReplacement) {
+  SetInput("&lt;");
+  NextChar('<');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NamedReplacementNoSemicolon) {
+  SetInput("&gt");
+  NextChar('>', true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NamedReplacementWithInvalidUtf8) {
+  SetInput("&\xc3\xa5");
+  NextChar('&');
+  NextChar(229);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NamedReplacementInvalid) {
+  SetInput("&google;");
+  // XXX: This should actually be an error on the semicolon since that's where
+  // the error occurs.
+  NextChar('&', true);
+  NextChar('g');
+  NextChar('o');
+  NextChar('o');
+  NextChar('g');
+  NextChar('l');
+  NextChar('e');
+  NextChar(';');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NamedReplacementInvalidNoSemicolon) {
+  SetInput("&google");
+  NextChar('&');
+  NextChar('g');
+  NextChar('o');
+  NextChar('o');
+  NextChar('g');
+  NextChar('l');
+  NextChar('e');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, InAttribute) {
+  SetInput("<span foo=\"&noted\"></span>");
+  Next();
+  ASSERT_EQ(GUMBO_TOKEN_START_TAG, token_.type);
+  GumboTokenStartTag* start_tag = &token_.v.start_tag;
+  EXPECT_EQ(GUMBO_TAG_SPAN, start_tag->tag);
+  ASSERT_EQ(1, start_tag->attributes.length);
+  GumboAttribute* attr = static_cast<GumboAttribute*>(start_tag->attributes.data[0]);
+  EXPECT_STREQ("&noted", attr->value);
+}
+
+TEST_F(GumboTokenizerTest, MultiChars) {
+  SetInput("&notindot;");
+  NextChar(0x22F5);
+  NextChar(0x0338);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, CharAfter) {
+  SetInput("&lt;x");
+  NextChar('<');
+  NextChar('x');
+  AtEnd();
 }
 }  // namespace
