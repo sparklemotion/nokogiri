@@ -3285,12 +3285,16 @@ void gumbo_token_destroy(GumboToken* token) {
         }
       }
       gumbo_free((void*) token->v.start_tag.attributes.data);
-      if (token->v.start_tag.tag == GUMBO_TAG_UNKNOWN)
+      if (token->v.start_tag.tag == GUMBO_TAG_UNKNOWN) {
         gumbo_free(token->v.start_tag.name);
+        token->v.start_tag.name = NULL;
+      }
       return;
     case GUMBO_TOKEN_END_TAG:
-      if (token->v.end_tag.tag == GUMBO_TAG_UNKNOWN)
+      if (token->v.end_tag.tag == GUMBO_TAG_UNKNOWN) {
         gumbo_free(token->v.end_tag.name);
+        token->v.end_tag.name = NULL;
+      }
       break;
     case GUMBO_TOKEN_COMMENT:
       gumbo_free((void*) token->v.text);

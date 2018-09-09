@@ -4671,6 +4671,8 @@ GumboOutput* gumbo_parse_with_options (
     );
 
     if (!state->_reprocess_current_token) {
+      // If we're done with the token, check for unacknowledged self-closing
+      // flags on start tags and any self-closing flags on end tags.
       if (token.type == GUMBO_TOKEN_START_TAG &&
           token.v.start_tag.is_self_closing &&
           !state->_self_closing_flag_acknowledged) {
@@ -4684,6 +4686,11 @@ GumboOutput* gumbo_parse_with_options (
         if (error)
           error->type = GUMBO_ERR_SELF_CLOSING_END_TAG;
       }
+      // Make sure we free the end tag's name since it doesn't get transferred
+      // to a token.
+      if (token.type == GUMBO_TOKEN_END_TAG &&
+	  token.v.end_tag.tag == GUMBO_TAG_UNKNOWN)
+        gumbo_free(token.v.end_tag.name);
     }
 
     if (unlikely(state->_open_elements.length > max_tree_depth)) {
