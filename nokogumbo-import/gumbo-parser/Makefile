@@ -7,8 +7,8 @@ gtest_lib := googletest/make/gtest_main.a
 # make SANITIZEFLAGS='-fsanitize=undefined -fsanitize=address'
 SANITIZEFLAGS :=
 CPPFLAGS := -Isrc
-CFLAGS := -std=c99 -Os -g
-CXXFLAGS := -isystem googletest/include -std=c++11 -Os -g
+CFLAGS := -std=c99 -Os -Wall
+CXXFLAGS := -isystem googletest/include -std=c++11 -Os -Wall
 LDFLAGS := -pthread
 
 all: check

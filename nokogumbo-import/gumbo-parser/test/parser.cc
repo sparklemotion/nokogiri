@@ -1605,6 +1605,34 @@ TEST_F(GumboParserTest, CDataInBody) {
   EXPECT_STREQ("[CDATA[this is text]]", cdata->v.text.text);
 }
 
+TEST_F(GumboParserTest, CDataInHTMLFragment) {
+  ParseFragment("<![CDATA[this is text]]>", "div", GUMBO_NAMESPACE_HTML);
+  EXPECT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  EXPECT_EQ(1, GetChildCount(html));
+
+  ASSERT_EQ(1, GetChildCount(html));
+  GumboNode* cdata = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_COMMENT, cdata->type);
+  EXPECT_STREQ("[CDATA[this is text]]", cdata->v.text.text);
+}
+
+TEST_F(GumboParserTest, CDataInSVGFragment) {
+  ParseFragment("<![CDATA[this is text]]>", "svg", GUMBO_NAMESPACE_SVG);
+  EXPECT_EQ(1, GetChildCount(root_));
+  GumboNode* html = GetChild(root_, 0);
+  ASSERT_EQ(GUMBO_NODE_ELEMENT, html->type);
+  EXPECT_EQ(GUMBO_TAG_HTML, html->v.element.tag);
+  EXPECT_EQ(1, GetChildCount(html));
+
+  ASSERT_EQ(1, GetChildCount(html));
+  GumboNode* cdata = GetChild(html, 0);
+  ASSERT_EQ(GUMBO_NODE_CDATA, cdata->type);
+  EXPECT_STREQ("this is text", cdata->v.text.text);
+}
+
 TEST_F(GumboParserTest, FormattingTagsInHeading) {
   Parse("<h2>This is <b>old</h2>text");
 

@@ -82,7 +82,7 @@ class TestNull < Minitest::Test
 
   def test_doctype_name_states
     # There are two missing here for double quoted PUBLIC and SYSTEM values.
-    doc = Nokogiri::HTML5.parse("<!DOCTYPE \u0000\u0000 PUBLIC '\u0000' SYSTEM '\u0000' \u0000>",
+    doc = Nokogiri::HTML5.parse("<!DOCTYPE \u0000\u0000 PUBLIC '\u0000' '\u0000' \u0000>",
                                 max_errors: 10)
     # 12.2.5.54 Before DOCTYPE name state: unexpected-null-character parse
     # error
@@ -94,7 +94,8 @@ class TestNull < Minitest::Test
     # 12.2.5.67 After DOCTYPE system identifier state:
     # unexpected-character-after-doctype-system-identifier parse error
     # 12.2.5.68 Bogus DOCTYPE state: unexpected-null-character parse error
-    assert_equal 6, doc.errors.length
+    # 12.2.6.4.1 The "initial" insertion mode: parse error
+    assert_equal 7, doc.errors.length
   end
 
   def test_cdata_section_state

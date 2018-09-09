@@ -79,7 +79,7 @@ void gumbo_string_buffer_append_codepoint (
 }
 
 void gumbo_string_buffer_append_string (
-  GumboStringPiece* str,
+  const GumboStringPiece* str,
   GumboStringBuffer* output
 ) {
   maybe_resize_string_buffer(str->length, output);

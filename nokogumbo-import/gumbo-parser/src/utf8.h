@@ -66,12 +66,12 @@ typedef struct GumboInternalUtf8Iterator {
 bool utf8_is_invalid_code_point(int c) CONST_FN;
 
 // Returns true if this Unicode code point is a surrogate.
-CONST_FN static bool utf8_is_surrogate(int c) {
+CONST_FN static inline bool utf8_is_surrogate(int c) {
   return c >= 0xD800 && c <= 0xDFFF;
 }
 
 // Returns true if this Unicode code point is a noncharacter.
-CONST_FN static bool utf8_is_noncharacter(int c) {
+CONST_FN static inline bool utf8_is_noncharacter(int c) {
   return
     (c >= 0xFDD0 && c <= 0xFDEF)
     || ((c & 0xFFFF) == 0xFFFE)
@@ -79,7 +79,7 @@ CONST_FN static bool utf8_is_noncharacter(int c) {
 }
 
 // Returns true if this Unicode code point is a control.
-CONST_FN static bool utf8_is_control(int c) {
+CONST_FN static inline bool utf8_is_control(int c) {
   return ((unsigned int)c < 0x1Fu) || (c >= 0x7F && c <= 0x9F);
 }
 

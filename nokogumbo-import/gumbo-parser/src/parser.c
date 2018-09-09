@@ -4619,11 +4619,11 @@ GumboOutput* gumbo_parse_with_options (
     if (state->_reprocess_current_token) {
       state->_reprocess_current_token = false;
     } else {
-      GumboNode* current_node = get_current_node(&parser);
-      gumbo_tokenizer_set_is_current_node_foreign (
+      GumboNode* adjusted_current_node = get_adjusted_current_node(&parser);
+      gumbo_tokenizer_set_is_adjusted_current_node_foreign (
         &parser,
-        current_node &&
-          current_node->v.element.tag_namespace != GUMBO_NAMESPACE_HTML
+        adjusted_current_node &&
+          adjusted_current_node->v.element.tag_namespace != GUMBO_NAMESPACE_HTML
       );
       has_error = !gumbo_lex(&parser, &token) || has_error;
     }
@@ -4672,19 +4672,13 @@ GumboOutput* gumbo_parse_with_options (
 
     if (!state->_reprocess_current_token) {
       // If we're done with the token, check for unacknowledged self-closing
-      // flags on start tags and any self-closing flags on end tags.
+      // flags on start tags.
       if (token.type == GUMBO_TOKEN_START_TAG &&
           token.v.start_tag.is_self_closing &&
           !state->_self_closing_flag_acknowledged) {
         GumboError* error = parser_add_parse_error(&parser, &token);
         if (error)
           error->type = GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG;
-      }
-      if (token.type == GUMBO_TOKEN_END_TAG &&
-          token.v.end_tag.is_self_closing) {
-        GumboError* error = parser_add_parse_error(&parser, &token);
-        if (error)
-          error->type = GUMBO_ERR_SELF_CLOSING_END_TAG;
       }
       // Make sure we free the end tag's name since it doesn't get transferred
       // to a token.

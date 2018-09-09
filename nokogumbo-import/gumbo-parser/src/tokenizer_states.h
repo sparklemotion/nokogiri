@@ -197,19 +197,19 @@ typedef enum {
 
   // 12.2.5.46 Comment less-than sign state
   // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-state
-  // GUMBO_LEX_COMMENT_LT,
+  GUMBO_LEX_COMMENT_LT,
 
   // 12.2.5.47 Comment less-than sign bang state
   // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-bang-state
-  // GUMBO_LEX_COMMENT_LT_BANG,
+  GUMBO_LEX_COMMENT_LT_BANG,
 
   // 12.2.5.48 Comment less-than sign bang dash state
   // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-bang-dash-state
-  // GUMBO_LEX_COMMENT_LT_BANG_DASH,
+  GUMBO_LEX_COMMENT_LT_BANG_DASH,
 
   // 12.2.5.49 Comment less-than sign bang dash dash state
   // https://html.spec.whatwg.org/multipage/parsing.html#comment-less-than-sign-bang-dash-dash-state
-  // GUMBO_LEX_COMMENT_LT_BANG_DASH_DASH,
+  GUMBO_LEX_COMMENT_LT_BANG_DASH_DASH,
 
   // 12.2.5.50 Comment end dash state
   // https://html.spec.whatwg.org/multipage/parsing.html#comment-end-dash-state
@@ -289,15 +289,15 @@ typedef enum {
 
   // 12.2.5.69 CDATA section state
   // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-state
-  GUMBO_LEX_CDATA,
+  GUMBO_LEX_CDATA_SECTION,
 
   // 12.2.5.70 CDATA section bracket state
   // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-bracket-state
-  // GUMBO_LEX_CDATA_SECTION_BRACKET,
+  GUMBO_LEX_CDATA_SECTION_BRACKET,
 
   // 12.2.5.71 CDATA section end state
   // https://html.spec.whatwg.org/multipage/parsing.html#cdata-section-end-state
-  // GUMBO_LEX_CDATA_SECTION_END,
+  GUMBO_LEX_CDATA_SECTION_END,
 
   // 12.2.5.72 Character reference state
   // https://html.spec.whatwg.org/multipage/parsing.html#character-reference-state
@@ -315,16 +315,16 @@ typedef enum {
   // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-state
   GUMBO_LEX_NUMERIC_CHARACTER_REFERENCE,
 
-  // 12.2.5.76 Hexademical character reference start state (XXX: spec typo?)
-  // https://html.spec.whatwg.org/multipage/parsing.html#hexademical-character-reference-start-state
+  // 12.2.5.76 Hexadecimal character reference start state
+  // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-start-state
   GUMBO_LEX_HEXADECIMAL_CHARACTER_REFERENCE_START,
 
   // 12.2.5.77 Decimal character reference start state
   // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-start-state
   GUMBO_LEX_DECIMAL_CHARACTER_REFERENCE_START,
   
-  // 12.2.5.78 Hexademical character reference state (XXX: spec typo?)
-  // https://html.spec.whatwg.org/multipage/parsing.html#hexademical-character-reference-state
+  // 12.2.5.78 Hexadecimal character reference state
+  // https://html.spec.whatwg.org/multipage/parsing.html#hexadecimal-character-reference-state
   GUMBO_LEX_HEXADECIMAL_CHARACTER_REFERENCE,
   
   // 12.2.5.79 Decimal character reference state

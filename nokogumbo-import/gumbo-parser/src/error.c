@@ -282,10 +282,15 @@ void gumbo_error_to_string (
       handle_parser_error(&error->v.parser, output);
       break;
     case GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG:
-    case GUMBO_ERR_SELF_CLOSING_END_TAG:
+    case GUMBO_ERR_CLOSE_TAG_SELF_CLOSING:
       print_message (
         output,
         "Tag cannot be self-closing");
+      break;
+    case GUMBO_ERR_CLOSE_TAG_HAS_ATTRIBUTES:
+      print_message (
+        output,
+        "End tag cannot have attributes");
       break;
     default:
       print_message (
@@ -340,7 +345,6 @@ void gumbo_error_destroy(GumboError* error) {
   if (
     error->type == GUMBO_ERR_PARSER
     || error->type == GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG
-    || error->type == GUMBO_ERR_SELF_CLOSING_END_TAG
   ) {
     gumbo_vector_destroy(&error->v.parser.tag_stack);
   } else if (error->type == GUMBO_ERR_DUPLICATE_ATTR) {

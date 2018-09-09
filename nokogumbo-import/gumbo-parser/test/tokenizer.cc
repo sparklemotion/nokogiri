@@ -1,4 +1,5 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
+// Copyright 2011 Google Inc.
+// Copyright 2018 Stephen Checkoway
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,13 +38,23 @@ class GumboTokenizerTest : public GumboTest {
     gumbo_token_destroy(&token_);
   }
 
-  void SetInput(const char* input) {
+  void SetInput(const char* input, size_t size = -1) {
     if (!at_start_)
       gumbo_token_destroy(&token_);
     text_ = input;
     gumbo_tokenizer_state_destroy(&parser_);
-    gumbo_tokenizer_state_init(&parser_, input, strlen(input));
+    if (size == -1)
+      size = strlen(input);
+    gumbo_tokenizer_state_init(&parser_, input, size);
     at_start_ = true;
+  }
+
+  void SetState(GumboTokenizerEnum state) {
+    gumbo_tokenizer_set_state(&parser_, state);
+  }
+
+  void Foreign() {
+    gumbo_tokenizer_set_is_adjusted_current_node_foreign(&parser_, true);
   }
 
   void Advance(int num_tokens) {
@@ -71,9 +82,16 @@ class GumboTokenizerTest : public GumboTest {
     EXPECT_EQ(c, token_.v.character);
   }
 
-  void NextSpace(bool errors_are_expected = false) {
+  void NextCdata(int c, bool errors_are_expected = false) {
+    Next(errors_are_expected);
+    ASSERT_EQ(GUMBO_TOKEN_CDATA, token_.type);
+    EXPECT_EQ(c, token_.v.character);
+  }
+
+  void NextSpace(int c, bool errors_are_expected = false) {
     Next(errors_are_expected);
     ASSERT_EQ(GUMBO_TOKEN_WHITESPACE, token_.type);
+    EXPECT_EQ(c, token_.v.character);
   }
 
   void NextStartTag(GumboTag tag, bool errors_are_expected = false) {
@@ -86,6 +104,33 @@ class GumboTokenizerTest : public GumboTest {
     Next(errors_are_expected);
     ASSERT_EQ(GUMBO_TOKEN_END_TAG, token_.type);
     EXPECT_EQ(tag, token_.v.end_tag.tag);
+  }
+
+  void NextComment(const char *text, bool errors_are_expected = false) {
+    Next(errors_are_expected);
+    ASSERT_EQ(GUMBO_TOKEN_COMMENT, token_.type);
+    EXPECT_STREQ(text, token_.v.text);
+  }
+
+  void NextDoctype(const char *name, const char *pub, const char *sys, bool errors_are_expected = false) {
+    Next(errors_are_expected);
+    ASSERT_EQ(GUMBO_TOKEN_DOCTYPE, token_.type);
+    // XXX: There's a difference between missing and empty.
+    if (!name)
+      name = "";
+    EXPECT_STREQ(name, token_.v.doc_type.name);
+    if (!pub) {
+      EXPECT_FALSE(token_.v.doc_type.has_public_identifier);
+    } else {
+      EXPECT_TRUE(token_.v.doc_type.has_public_identifier);
+      EXPECT_STREQ(pub, token_.v.doc_type.public_identifier);
+    }
+    if (!sys) {
+      EXPECT_FALSE(token_.v.doc_type.has_system_identifier);
+    } else {
+      EXPECT_TRUE(token_.v.doc_type.has_system_identifier);
+      EXPECT_STREQ(sys, token_.v.doc_type.system_identifier);
+    }
   }
 
   void AtEnd(bool errors_are_expected = false) {
@@ -156,6 +201,16 @@ TEST_F(GumboTokenizerTest, LexCharToken) {
   EXPECT_EQ(1, token_.position.offset);
 }
 
+TEST_F(GumboTokenizerTest, AttrWithCRNL) {
+  SetInput("<span FOO\r\n=''>");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_EQ(3, attr->original_name.length);
+  EXPECT_EQ('O', attr->original_name.data[attr->original_name.length-1]);
+  AtEnd();
+}
+
 TEST_F(GumboTokenizerTest, LexCharRef) {
   SetInput("&nbsp; Text");
   NextChar(0xa0);
@@ -165,9 +220,8 @@ TEST_F(GumboTokenizerTest, LexCharRef) {
   EXPECT_EQ('&', *token_.original_text.data);
   EXPECT_EQ(6, token_.original_text.length);
 
-  NextSpace();
+  NextSpace(' ');
   EXPECT_EQ(' ', *token_.original_text.data);
-  EXPECT_EQ(' ', token_.v.character);
 
   NextChar('T');
   NextChar('e');
@@ -336,10 +390,9 @@ TEST_F(GumboTokenizerTest, ScriptCommentEscaped) {
   gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_DATA);
   Advance(15);
   NextChar('x');
-  NextSpace();
-  EXPECT_EQ(' ', token_.v.character);
+  NextSpace(' ');
   NextChar('<');
-  NextSpace();
+  NextSpace(' ');
   NextChar('7');
   Advance(4);
   NextChar('<');
@@ -349,7 +402,7 @@ TEST_F(GumboTokenizerTest, ScriptCommentEscaped) {
   NextChar('-');
   NextChar('-');
   NextChar('>');
-  NextSpace();
+  NextSpace('\n');
   NextEndTag(GUMBO_TAG_SCRIPT);
   AtEnd();
 }
@@ -400,13 +453,9 @@ TEST_F(GumboTokenizerTest, ScriptDoubleEscaped) {
   AtEnd();
 }
 
-TEST_F(GumboTokenizerTest, CData) {
-  // SetInput uses strlen and so can't handle nulls.
-  text_ = "<![CDATA[\0filler\0text\0]]>";
-  gumbo_tokenizer_state_destroy(&parser_);
-  gumbo_tokenizer_state_init(
-      &parser_, text_, sizeof("<![CDATA[\0filler\0text\0]]>") - 1);
-  gumbo_tokenizer_set_is_current_node_foreign(&parser_, true);
+TEST_F(GumboTokenizerTest, CDataNulls) {
+  SetInput("<![CDATA[\0filter\0text\0]]>", sizeof("<![CDATA[\0filter\0text\0]]>")-1);
+  Foreign();
 
   Next();
   EXPECT_EQ(GUMBO_TOKEN_NULL, token_.type);
@@ -450,12 +499,9 @@ TEST_F(GumboTokenizerTest, SelfClosingStartTag) {
 
 TEST_F(GumboTokenizerTest, SelfClosingEndTag) {
   SetInput("</p />");
-  NextEndTag(GUMBO_TAG_P);
+  NextEndTag(GUMBO_TAG_P, true);
   EXPECT_EQ(0, token_.position.offset);
   EXPECT_EQ("</p />", ToString(token_.original_text));
-
-  GumboTokenEndTag* end_tag = &token_.v.end_tag;
-  EXPECT_TRUE(end_tag->is_self_closing);
   AtEnd();
 }
 
@@ -485,9 +531,7 @@ TEST_F(GumboTokenizerTest, OpenTagWithAttributes) {
 
 TEST_F(GumboTokenizerTest, BogusComment1) {
   SetInput("<?xml is bogus-comment>Text");
-  Next(true);
-  ASSERT_EQ(GUMBO_TOKEN_COMMENT, token_.type);
-  EXPECT_STREQ("?xml is bogus-comment", token_.v.text);
+  NextComment("?xml is bogus-comment", true);
   NextChar('T');
   NextChar('e');
   NextChar('x');
@@ -497,9 +541,7 @@ TEST_F(GumboTokenizerTest, BogusComment1) {
 
 TEST_F(GumboTokenizerTest, BogusComment2) {
   SetInput("</#bogus-comment");
-  Next(true);
-  ASSERT_EQ(GUMBO_TOKEN_COMMENT, token_.type);
-  EXPECT_STREQ("#bogus-comment", token_.v.text);
+  NextComment("#bogus-comment", true);
   AtEnd();
 }
 
@@ -784,4 +826,3775 @@ TEST_F(GumboTokenizerTest, NumericTooLarge) {
   AtEnd();
 }
 
+TEST_F(GumboTokenizerTest, CdataWithBrackets) {
+  SetInput("<![CDATA[x]]]]]>y");
+  Foreign();
+  Next();
+  EXPECT_EQ(GUMBO_TOKEN_CDATA, token_.type);
+  EXPECT_EQ('x', token_.v.character);
+  EXPECT_EQ(10, token_.position.column);
+  EXPECT_EQ(1, token_.position.line);
+  EXPECT_EQ(9, token_.position.offset);
+
+  Next();
+  EXPECT_EQ(GUMBO_TOKEN_CDATA, token_.type);
+  EXPECT_EQ(']', token_.v.character);
+  EXPECT_EQ(11, token_.position.column);
+  EXPECT_EQ(1, token_.position.line);
+  EXPECT_EQ(10, token_.position.offset);
+
+  Next();
+  EXPECT_EQ(GUMBO_TOKEN_CDATA, token_.type);
+  EXPECT_EQ(']', token_.v.character);
+  EXPECT_EQ(12, token_.position.column);
+  EXPECT_EQ(1, token_.position.line);
+  EXPECT_EQ(11, token_.position.offset);
+
+  Next();
+  EXPECT_EQ(GUMBO_TOKEN_CDATA, token_.type);
+  EXPECT_EQ(']', token_.v.character);
+  EXPECT_EQ(13, token_.position.column);
+  EXPECT_EQ(1, token_.position.line);
+  EXPECT_EQ(12, token_.position.offset);
+
+  NextChar('y');
+  EXPECT_EQ(17, token_.position.column);
+  EXPECT_EQ(1, token_.position.line);
+  EXPECT_EQ(16, token_.position.offset);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, EscapedScriptStates) {
+  SetInput("<script><!--<script/></script></script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('/');
+  NextChar('>');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, EscapedScriptStates2) {
+  SetInput("<script><!--<script>--></script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('-');
+  NextChar('-');
+  NextChar('>');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ControlCharRefs) {
+  SetInput("&#x80;&#x82;&#x83;&#x84;&#x85;&#x86;&#x87;&#x88;&#x89;"
+           "&#x8A;&#x8B;&#x8C;&#x8E;&#x91;&#x92;&#x93;&#x94;&#x95;"
+           "&#x96;&#x97;&#x98;&#x99;&#x9A;&#x9B;&#x9C;&#x9E;&#x9F;");
+  NextChar(0x20AC, true);
+  NextChar(0x201A, true);
+  NextChar(0x0192, true);
+  NextChar(0x201E, true);
+  NextChar(0x2026, true);
+  NextChar(0x2020, true);
+  NextChar(0x2021, true);
+  NextChar(0x02C6, true);
+  NextChar(0x2030, true);
+  NextChar(0x0160, true);
+  NextChar(0x2039, true);
+  NextChar(0x0152, true);
+  NextChar(0x017D, true);
+  NextChar(0x2018, true);
+  NextChar(0x2019, true);
+  NextChar(0x201C, true);
+  NextChar(0x201D, true);
+  NextChar(0x2022, true);
+  NextChar(0x2013, true);
+  NextChar(0x2014, true);
+  NextChar(0x02DC, true);
+  NextChar(0x2122, true);
+  NextChar(0x0161, true);
+  NextChar(0x203A, true);
+  NextChar(0x0153, true);
+  NextChar(0x017E, true);
+  NextChar(0x0178, true);
+  AtEnd();
+}
+
+// The tests below here are designed to test all of the tokenizers
+// transitions. The name of each test has a specific form (for the most part):
+//   StartState_Rule1_Rule2_..._Rulen
+// The parser sets the tokenizer in just a handful of states: plaintext,
+// rawtext, rcdata, script data, and data. The tests are divided into those 5
+// categories and should cover every possible transition from each state.
+// (Some transitions are covered more than once, and I'm sure some transitions
+// are missing and should be added when found.)
+//
+// When a character is reconsumed in a new state, the test name _should_
+// include which rule gets matched for the new state, but not all of them do.
+// That's just an oversight and should be fixed for consistency.
+//
+// Many states require additional characters in order to emit a token (or do
+// so without an error). The rules used to match those tokens are omitted from
+// the state name.
+
+// Starting in the PLAINTEXT state
+TEST_F(GumboTokenizerTest, Plaintext_NULL) {
+  SetInput("", 1);
+  SetState(GUMBO_LEX_PLAINTEXT);
+  NextChar(0xFFFD, true);
+}
+
+TEST_F(GumboTokenizerTest, Plaintext_EOF) {
+  SetInput("");
+  SetState(GUMBO_LEX_PLAINTEXT);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Plaintext_AnythingElse) {
+  SetInput("<plaintext>a\xce\xb2\xd7\x92</plaintext>&not;");
+  NextStartTag(GUMBO_TAG_PLAINTEXT);
+  SetState(GUMBO_LEX_PLAINTEXT);
+  NextChar(0x61);
+  NextChar(0x03B2);
+  NextChar(0x05D2);
+  NextChar('<');
+  NextChar('/');
+  NextChar('p');
+  NextChar('l');
+  NextChar('a');
+  NextChar('i');
+  NextChar('n');
+  NextChar('t');
+  NextChar('e');
+  NextChar('x');
+  NextChar('t');
+  NextChar('>');
+  NextChar('&');
+  NextChar('n');
+  NextChar('o');
+  NextChar('t');
+  NextChar(';');
+}
+
+// Starting in the RAWTEXT state
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_InappropriateTab) {
+  SetInput("<iframe></i\tx");
+  NextStartTag(GUMBO_TAG_IFRAME);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('/');
+  NextChar('i');
+  NextSpace('\t');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_InappropriateLF) {
+  SetInput("<noframes></n\nx");
+  NextStartTag(GUMBO_TAG_NOFRAMES);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('/');
+  NextChar('n');
+  NextSpace('\n');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_InappropriateFF) {
+  SetInput("<iframe></i\fx");
+  NextStartTag(GUMBO_TAG_IFRAME);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('/');
+  NextChar('i');
+  NextSpace('\f');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_InappropriateSpace) {
+  SetInput("<noframes></n x");
+  NextStartTag(GUMBO_TAG_NOFRAMES);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('/');
+  NextChar('n');
+  NextSpace(' ');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_InappropriateSlash) {
+  SetInput("<iframe></i/x");
+  NextStartTag(GUMBO_TAG_IFRAME);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('/');
+  NextChar('i');
+  NextChar('/');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_InappropriateGT) {
+  SetInput("<noframes></n>x");
+  NextStartTag(GUMBO_TAG_NOFRAMES);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('/');
+  NextChar('n');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_AppropriateLF) {
+  SetInput("<noframes></nofRAmes\n>x");
+  NextStartTag(GUMBO_TAG_NOFRAMES);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextEndTag(GUMBO_TAG_NOFRAMES);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_AppropriateFF) {
+  SetInput("<iframe></ifrAMe\f foo=bar>x");
+  NextStartTag(GUMBO_TAG_IFRAME);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextEndTag(GUMBO_TAG_IFRAME, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_AppropriateSpace) {
+  SetInput("<noframes></Noframes >x");
+  NextStartTag(GUMBO_TAG_NOFRAMES);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextEndTag(GUMBO_TAG_NOFRAMES);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_AppropriateSlash_GT) {
+  SetInput("<iframe></IFRAME/>x");
+  NextStartTag(GUMBO_TAG_IFRAME);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextEndTag(GUMBO_TAG_IFRAME, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_AppropriateSlash_EOF) {
+  SetInput("<iframe></iframe/");
+  NextStartTag(GUMBO_TAG_IFRAME);
+  SetState(GUMBO_LEX_RAWTEXT);
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_AppropriateSlash_AnythingElse) {
+  SetInput("<iframe></iframe/ >x");
+  NextStartTag(GUMBO_TAG_IFRAME);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextEndTag(GUMBO_TAG_IFRAME, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_AppropriateGT) {
+  SetInput("<noframes></noframes>x");
+  NextStartTag(GUMBO_TAG_NOFRAMES);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextEndTag(GUMBO_TAG_NOFRAMES);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_Alpha_AnythingElse) {
+  SetInput("<iframe></if\xce\xb2");
+  NextStartTag(GUMBO_TAG_IFRAME);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('/');
+  NextChar('i');
+  NextChar('f');
+  NextChar(0x03B2);
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_Slash_AnythingElse) {
+  SetInput("</0");
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('/');
+  NextChar('0');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_LT_AnythingElse) {
+  SetInput("<p>");
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar('<');
+  NextChar('p');
+  NextChar('>');
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_NULL) {
+  SetInput("", 1);
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar(0xFFFD, true);
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_EOF) {
+  SetInput("");
+  SetState(GUMBO_LEX_RAWTEXT);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Rawtext_AnythingElse) {
+  SetInput("a\xce\xb2\xd7\x92>&not;");
+  SetState(GUMBO_LEX_RAWTEXT);
+  NextChar(0x61);
+  NextChar(0x03B2);
+  NextChar(0x05D2);
+  NextChar('>');
+  NextChar('&');
+  NextChar('n');
+  NextChar('o');
+  NextChar('t');
+  NextChar(';');
+}
+
+// Starting in the RCDATA state
+TEST_F(GumboTokenizerTest, Rcdata_Amp_Alnum_Match_Semicolon) {
+  SetInput("&fjlig;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x0066);
+  NextChar(0x006A);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_Alnum_Match) {
+  SetInput("&aacutex");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x00E1, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_Alnum_Otherwise_Alnum_Semicolon) {
+  SetInput("&1f;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('&');
+  NextChar('1');
+  NextChar('f');
+  NextChar(';', true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_Alnum_Otherwise_Alnum_AnythingElse) {
+  SetInput("&1f.x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('&');
+  NextChar('1');
+  NextChar('f');
+  NextChar('.');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_X_Hex_Semicolon_Zero) {
+  SetInput("&#X00;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0xFFFD, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_X_Hex_Semicolon_TooLarge) {
+  SetInput("&#XABCdef123;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0xFFFD, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_X_Hex_Semicolon_Surrogate) {
+  SetInput("&#XDb74;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0xFFFD, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_Semicolon_Noncharacter) {
+  SetInput("&#xFdD8;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0xFDD8, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_Semicolon_Noncharacter2) {
+  SetInput("&#x7FFFE;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x7FFFE, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_Semicolon_C0Control) {
+  SetInput("&#x3;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(3, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_Semicolon_NL) {
+  SetInput("&#x0A;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextSpace('\n');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_Semicolon_FF) {
+  SetInput("&#x0C;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextSpace('\f');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_Semicolon_CR) {
+  SetInput("&#x0D;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextSpace('\r', true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_X_Hex_Semicolon_Control) {
+  SetInput("&#X81;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x81, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_Semicolon_Control2) {
+  SetInput("&#x82;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x201A, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_AnythingElse) {
+  SetInput("&#x2f1Ax");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x2F1A, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_Hex_AnythingElse2) {
+  SetInput("&#x2f1A-");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x2F1A, true);
+  NextChar('-');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_x_AnythingElse) {
+  SetInput("&#xG");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('&', true);
+  NextChar('#');
+  NextChar('x');
+  NextChar('G');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_AnythingElse_Digit_Semicolon) {
+  SetInput("&#1234;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(1234);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_AnythingElse_Digit_Semicolon_Control) {
+  SetInput("&#128;x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x20AC, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_AnythingElse_Digit_AnythingElse) {
+  SetInput("&#1234a");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(1234, true);
+  NextChar('a');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_NumberSign_AnythingElse_Digit_AnythingElse_Control) {
+  SetInput("&#128a");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x20AC, true);
+  NextChar('a');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_Amp_AnythingElse) {
+  SetInput("&#x");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('&', true);
+  NextChar('#');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_InappropriateTab) {
+  SetInput("<title></t\tx");
+  NextStartTag(GUMBO_TAG_TITLE);
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('t');
+  NextSpace('\t');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_InappropriateLF) {
+  SetInput("<textarea></t\nx");
+  NextStartTag(GUMBO_TAG_TEXTAREA);
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('t');
+  NextSpace('\n');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_InappropriateFF) {
+  SetInput("<title></t\fx");
+  NextStartTag(GUMBO_TAG_TITLE);
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('t');
+  NextSpace('\f');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_InappropriateSpace) {
+  SetInput("<textarea></t x");
+  NextStartTag(GUMBO_TAG_TEXTAREA);
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('t');
+  NextSpace(' ');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_InappropriateSlash) {
+  SetInput("<title></t/x");
+  NextStartTag(GUMBO_TAG_TITLE);
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('t');
+  NextChar('/');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_InappropriateGT) {
+  SetInput("<textarea></t>x");
+  NextStartTag(GUMBO_TAG_TEXTAREA);
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('t');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_AppropriateLF) {
+  SetInput("<textarea></teXTarea\n>x");
+  NextStartTag(GUMBO_TAG_TEXTAREA);
+  SetState(GUMBO_LEX_RCDATA);
+  NextEndTag(GUMBO_TAG_TEXTAREA);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_AppropriateFF) {
+  SetInput("<title></titlE\f foo=bar>x");
+  NextStartTag(GUMBO_TAG_TITLE);
+  SetState(GUMBO_LEX_RCDATA);
+  NextEndTag(GUMBO_TAG_TITLE, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_AppropriateSpace) {
+  SetInput("<textarea></Textarea >x");
+  NextStartTag(GUMBO_TAG_TEXTAREA);
+  SetState(GUMBO_LEX_RCDATA);
+  NextEndTag(GUMBO_TAG_TEXTAREA);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_AppropriateSlash_GT) {
+  SetInput("<title></TITLE/>x");
+  NextStartTag(GUMBO_TAG_TITLE);
+  SetState(GUMBO_LEX_RCDATA);
+  NextEndTag(GUMBO_TAG_TITLE, true);
+  NextChar('x');
+}
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_AppropriateSlash_EOF) {
+  SetInput("<title></tITle/");
+  NextStartTag(GUMBO_TAG_TITLE);
+  SetState(GUMBO_LEX_RCDATA);
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_AppropriateSlash_AnythingElse) {
+  SetInput("<title></title/ >x");
+  NextStartTag(GUMBO_TAG_TITLE);
+  SetState(GUMBO_LEX_RCDATA);
+  NextEndTag(GUMBO_TAG_TITLE, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_AppropriateGT) {
+  SetInput("<textarea></textarea>x");
+  NextStartTag(GUMBO_TAG_TEXTAREA);
+  SetState(GUMBO_LEX_RCDATA);
+  NextEndTag(GUMBO_TAG_TEXTAREA);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_Alpha_AnythingElse) {
+  SetInput("<title></ti\xce\xb2");
+  NextStartTag(GUMBO_TAG_TITLE);
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('t');
+  NextChar('i');
+  NextChar(0x03B2);
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_Slash_AnythingElse) {
+  SetInput("</0");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('0');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_LT_AnythingElse) {
+  SetInput("<p>");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar('<');
+  NextChar('p');
+  NextChar('>');
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_NULL) {
+  SetInput("", 1);
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0xFFFD, true);
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_EOF) {
+  SetInput("");
+  SetState(GUMBO_LEX_RCDATA);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Rcdata_AnythingElse) {
+  SetInput("a\xce\xb2\xd7\x92");
+  SetState(GUMBO_LEX_RCDATA);
+  NextChar(0x61);
+  NextChar(0x03B2);
+  NextChar(0x05D2);
+}
+
+// Starting in the script data state
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_InappropriateTab) {
+  SetInput("<script></s\tx");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextSpace('\t');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_InappropriateLF) {
+  SetInput("<script></s\nx");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextSpace('\n');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_InappropriateFF) {
+  SetInput("<script></s\fx");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextSpace('\f');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_InappropriateSpace) {
+  SetInput("<script></s x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextSpace(' ');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_InappropriateSlash) {
+  SetInput("<script></s/x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('/');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_InappropriateGT) {
+  SetInput("<script></s>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_AppropriateLF) {
+  SetInput("<script></scRIpt\n>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextEndTag(GUMBO_TAG_SCRIPT);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_AppropriateFF) {
+  SetInput("<script></scripT\f foo=bar>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextEndTag(GUMBO_TAG_SCRIPT, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_AppropriateSpace) {
+  SetInput("<script></Script >x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextEndTag(GUMBO_TAG_SCRIPT);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_AppropriateSlash_GT) {
+  SetInput("<script></SCRIPT/>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextEndTag(GUMBO_TAG_SCRIPT, true);
+  NextChar('x');
+}
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_AppropriateSlash_EOF) {
+  SetInput("<script></script/");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_AppropriateSlash_AnythingElse) {
+  SetInput("<script></script/ >x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextEndTag(GUMBO_TAG_SCRIPT, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_AppropriateGT) {
+  SetInput("<script></script>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextEndTag(GUMBO_TAG_SCRIPT);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_Alpha_AnythingElse) {
+  SetInput("<script></sc</script>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('c');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Slash_AnythingElse) {
+  SetInput("</0");
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('/');
+  NextChar('0');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_Dash_LT_Slash_Alpha_InappropriateTab_EOF) {
+  SetInput("<script><!---</s\t");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextSpace('\t');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_InappropriateLF_NULL) {
+  SetInput("<script><!--</s\n\x00", sizeof("<script><!--</s\n\x00")-1);
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextSpace('\n');
+  NextChar(0xFFFD, true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_InappropriateFF_AnythingElse) {
+  SetInput("<script><!--</s\fx");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextSpace('\f');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_InappropriateSpace) {
+  SetInput("<script><!--</s x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextSpace(' ');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_InappropriateSlash) {
+  SetInput("<script><!--</s/x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('/');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_InappropriateGT) {
+  SetInput("<script><!--</s>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AppropriateTab) {
+  SetInput("<script><!--</sCrIpT\t>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AppropriateLF) {
+  SetInput("<script><!--</Script\n>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AppropriateFF) {
+  SetInput("<script><!--</SCRIPT\f>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AppropriateSpace) {
+  SetInput("<script><!--</script >x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AppropriateSlash_GT) {
+  SetInput("<script><!--</script/>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextEndTag(GUMBO_TAG_SCRIPT, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AppropriateSlash_EOF) {
+  SetInput("<script><!--</script/");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AppropriateSlash_AnythingElse) {
+  SetInput("<script><!--</script/ >x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextEndTag(GUMBO_TAG_SCRIPT, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AppropriateGT) {
+  SetInput("<script><!--</scrIPT>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_Alpha_AnythingElse) {
+  SetInput("<script><!--</s.x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('.');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Slash_AnythingElse) {
+  SetInput("<!--</>");
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('>');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptTab_Dash_Dash_Dash_NULL_EOF) {
+  SetInput("<!--<scRIpt\t---\x00", sizeof("<!--<scRIpt\t---\x00")-1);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('R');
+  NextChar('I');
+  NextChar('p');
+  NextChar('t');
+  NextSpace('\t');
+  NextChar('-');
+  NextChar('-');
+  NextChar('-');
+  NextChar(0xFFFD, true);
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_Dash_Dash_LT) {
+  SetInput("<script><!--<script>--</script></script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_Dash_Dash_EOF) {
+  SetInput("<script><!--<script>--");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('-');
+  NextChar('-');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_Dash_Dash_AnythingElse) {
+  SetInput("<script><!--<script>--X--></script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('-');
+  NextChar('-');
+  NextChar('X');
+  NextChar('-');
+  NextChar('-');
+  NextChar('>');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptTab_Dash_NULL) {
+  SetInput("<!--<scRIpt\t-\x00", sizeof("<!--<scRIpt\t---\x00")-1);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('R');
+  NextChar('I');
+  NextChar('p');
+  NextChar('t');
+  NextSpace('\t');
+  NextChar('-');
+  NextChar(0xFFFD, true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_Dash_LT) {
+  SetInput("<script><!--<script>-</script></script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('-');
+  NextChar('<');
+  NextChar('/');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_Dash_EOF) {
+  SetInput("<script><!--<script>-");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('-');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_Dash_AnythingElse) {
+  SetInput("<script><!--<script>-X--></script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('-');
+  NextChar('X');
+  NextChar('-');
+  NextChar('-');
+  NextChar('>');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptNL_LT_Slash_ScriptTab) {
+  SetInput("<script><!--<script\n</Script\tx");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextSpace('\n');
+  NextChar('<');
+  NextChar('/');
+  NextChar('S');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextSpace('\t');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptFF_LT_Slash_ScriptNL) {
+  SetInput("<script><!--<script\f</Script\nx");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextSpace('\f');
+  NextChar('<');
+  NextChar('/');
+  NextChar('S');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextSpace('\n');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptSpace_LT_Slash_ScriptFF) {
+  SetInput("<script><!--<script </Script\fx");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextSpace(' ');
+  NextChar('<');
+  NextChar('/');
+  NextChar('S');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextSpace('\f');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptSlash_LT_Slash_ScriptSpace) {
+  SetInput("<script><!--<script/</Script x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('/');
+  NextChar('<');
+  NextChar('/');
+  NextChar('S');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextSpace(' ');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_LT_Slash_ScriptSlash) {
+  SetInput("<script><!--<script></Script/x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('<');
+  NextChar('/');
+  NextChar('S');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('/');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_LT_Slash_ScriptGT) {
+  SetInput("<script><!--<script></Script>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('<');
+  NextChar('/');
+  NextChar('S');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_LT_Slash_Tab) {
+  SetInput("<script><!--<script></\t>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('<');
+  NextChar('/');
+  NextSpace('\t');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_LT_Slash_LF) {
+  SetInput("<script><!--<script></\n>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('<');
+  NextChar('/');
+  NextSpace('\n');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_LT_Slash_FF) {
+  SetInput("<script><!--<script></\f>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('<');
+  NextChar('/');
+  NextSpace('\f');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_LT_Slash_Slash) {
+  SetInput("<script><!--<script><//>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('<');
+  NextChar('/');
+  NextChar('/');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_LT_Slash_AnythingElse) {
+  SetInput("<script><!--<script></.>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('<');
+  NextChar('/');
+  NextChar('.');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_AnythingElse) {
+  SetInput("<script><!--<script>x");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_ScriptGT_NULL) {
+  SetInput("<script><!--<script>\x00", sizeof("<script><!--<script>\x00")-1);
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('c');
+  NextChar('r');
+  NextChar('i');
+  NextChar('p');
+  NextChar('t');
+  NextChar('>');
+  NextChar(0xFFFD, true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_Tab_LT_Slash_Alpha_AppropriateTab) {
+  SetInput("<script><!--<s\t</SCRIPT\t>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextSpace('\t');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_LF_LT_Slash_Alpha_AppropriateLF) {
+  SetInput("<script><!--<s\n</SCRIPT\n>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextSpace('\n');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_FF_LT_Slash_Alpha_AppropriateFF) {
+  SetInput("<script><!--<s\f</SCRIPT\f>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextSpace('\f');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_Space_LT_Slash_Alpha_AppropriateSpace) {
+  SetInput("<script><!--<s </SCRIPT >");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextSpace(' ');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_Slash_LT_Slash_Alpha_AppropriateSlash) {
+  SetInput("<script><!--<s/</SCRIPT/>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('/');
+  NextEndTag(GUMBO_TAG_SCRIPT, true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_GT_LT_Slash_Alpha_AppropriateGT) {
+  SetInput("<script><!--<s></SCRIPT>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('>');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_Alpha_AnythingElse_LT_Slash_Alpha_AnythingElse) {
+  SetInput("<script><!--<s.</S.");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('s');
+  NextChar('.');
+  NextChar('<');
+  NextChar('/');
+  NextChar('S');
+  NextChar('.');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_Dash_LT_AnythingElse_NULL_AnythingElse_EOF) {
+  SetInput("<script><!--<\x00.", sizeof("<script><!--<\x00.")-1);
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar(0xFFFD, true);
+  NextChar('.');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_Bang_Dash_AnythingElse) {
+  SetInput("<script><!-x</script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('x');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_Bang_Dash_Dash_LT_AnythingElse_Dash_Dash_NULL_AnythingElse_EOF) {
+  SetInput("<script><!--<.--\x00.", sizeof("<script><!--<.--\x00.")-1);
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('<');
+  NextChar('.');
+  NextChar('-');
+  NextChar('-');
+  NextChar(0xFFFD, true);
+  NextChar('.');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_Bang_Dash_Dash_EOF) {
+  SetInput("<script><!--");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_Bang_Dash_Dash_GT_EOF) {
+  SetInput("<script><!-->");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('>');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_Bang_Dash_Dash_AnythingElse_Dash_LT) {
+  SetInput("<script><!--X-<</script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('X');
+  NextChar('-');
+  NextChar('<');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_Bang_Dash_Dash_AnythingElse_Dash_NULL) {
+  SetInput("<script><!--X-\x00</script>", sizeof("<script><!--X-\x00</script>")-1);
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('X');
+  NextChar('-');
+  NextChar(0xFFFD, true);
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_Bang_Dash_Dash_AnythingElse_Dash_EOF) {
+  SetInput("<script><!--X-");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('X');
+  NextChar('-');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_Bang_Dash_Dash_AnythingElse_Dash_AnythingElse) {
+  SetInput("<script><!--X-X</script>");
+  NextStartTag(GUMBO_TAG_SCRIPT);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('!');
+  NextChar('-');
+  NextChar('-');
+  NextChar('X');
+  NextChar('-');
+  NextChar('X');
+  NextEndTag(GUMBO_TAG_SCRIPT);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_LT_AnythingElse) {
+  SetInput("<p>");
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar('<');
+  NextChar('p');
+  NextChar('>');
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_NULL) {
+  SetInput("", 1);
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar(0xFFFD, true);
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_EOF) {
+  SetInput("");
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, ScriptData_AnythingElse) {
+  SetInput("a\xce\xb2\xd7\x92>&");
+  SetState(GUMBO_LEX_SCRIPT_DATA);
+  NextChar(0x61);
+  NextChar(0x03B2);
+  NextChar(0x05D2);
+  NextChar('>');
+  NextChar('&');
+}
+
+// Starting in the data state
+TEST_F(GumboTokenizerTest, Data_Amp_Alnum_Match_Semicolon) {
+  SetInput("&fjlig;x");
+  NextChar(0x0066);
+  NextChar(0x006A);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_Alnum_Match) {
+  SetInput("&aacutex");
+  NextChar(0x00E1, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_Alnum_Otherwise_Alnum_Semicolon) {
+  SetInput("&1f;x");
+  NextChar('&');
+  NextChar('1');
+  NextChar('f');
+  NextChar(';', true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_Alnum_Otherwise_Alnum_AnythingElse) {
+  SetInput("&1f.x");
+  NextChar('&');
+  NextChar('1');
+  NextChar('f');
+  NextChar('.');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_X_Hex_Semicolon_Zero) {
+  SetInput("&#X00;x");
+  NextChar(0xFFFD, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_X_Hex_Semicolon_TooLarge) {
+  SetInput("&#XABCdef123;x");
+  NextChar(0xFFFD, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_X_Hex_Semicolon_Surrogate) {
+  SetInput("&#XDb74;x");
+  NextChar(0xFFFD, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_Semicolon_Noncharacter) {
+  SetInput("&#xFdD8;x");
+  NextChar(0xFDD8, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_Semicolon_Noncharacter2) {
+  SetInput("&#x7FFFE;x");
+  NextChar(0x7FFFE, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_Semicolon_C0Control) {
+  SetInput("&#x3;x");
+  NextChar(3, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_Semicolon_NL) {
+  SetInput("&#x0A;x");
+  NextSpace('\n');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_Semicolon_FF) {
+  SetInput("&#x0C;x");
+  NextSpace('\f');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_Semicolon_CR) {
+  SetInput("&#x0D;x");
+  NextSpace('\r', true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_X_Hex_Semicolon_Control) {
+  SetInput("&#X81;x");
+  NextChar(0x81, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_Semicolon_Control2) {
+  SetInput("&#x82;x");
+  NextChar(0x201A, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_AnythingElse) {
+  SetInput("&#x2f1Ax");
+  NextChar(0x2F1A, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_Hex_AnythingElse2) {
+  SetInput("&#x2f1A-");
+  NextChar(0x2F1A, true);
+  NextChar('-');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_x_AnythingElse) {
+  SetInput("&#xG");
+  NextChar('&', true);
+  NextChar('#');
+  NextChar('x');
+  NextChar('G');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_AnythingElse_Digit_Semicolon) {
+  SetInput("&#1234;x");
+  NextChar(1234);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_AnythingElse_Digit_Semicolon_TooLarge) {
+  SetInput("&#1234567890;x");
+  NextChar(0xFFFD, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_AnythingElse_Digit_Semicolon_Control) {
+  SetInput("&#128;x");
+  NextChar(0x20AC, true);
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_AnythingElse_Digit_AnythingElse) {
+  SetInput("&#1234a");
+  NextChar(1234, true);
+  NextChar('a');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_NumberSign_AnythingElse_Digit_AnythingElse_Control) {
+  SetInput("&#128a");
+  NextChar(0x20AC, true);
+  NextChar('a');
+}
+
+TEST_F(GumboTokenizerTest, Data_Amp_AnythingElse) {
+  SetInput("&#x");
+  NextChar('&', true);
+  NextChar('#');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_Dash_GT) {
+  SetInput("<!---->");
+  NextComment("");
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_Dash_Bang_Dash_EOF) {
+  SetInput("<!----!-");
+  NextComment("--!", true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_Dash_Bang_GT) {
+  SetInput("<!----!>");
+  NextComment("", true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_Dash_Bang_EOF) {
+  SetInput("<!----!");
+  NextComment("", true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_Dash_Bang_AnythingElse_AnythingElse_Dash_EOF) {
+  SetInput("<!----!x-");
+  NextComment("--!x", true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_Dash_Dash_EOF) {
+  SetInput("<!-----");
+  NextComment("-", true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_Dash_AnythingElse_AnythingElse_EOF) {
+  SetInput("<!----x");
+  NextComment("--x", true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_GT) {
+  SetInput("<!--->");
+  NextComment("", true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_EOF) {
+  SetInput("<!---");
+  NextComment("", true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_AnythingElse) {
+  SetInput("<!---x-->");
+  NextComment("-x");
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_GT) {
+  SetInput("<!-->");
+  NextComment("", true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_AnythingElse_LT_Bang_Dash_Dash_GT_GT) {
+  SetInput("<!--<!-->");
+  NextComment("<!");
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_AnythingElse_LT_Bang_Dash_Dash_EOF_EOF) {
+  SetInput("<!--<!--");
+  NextComment("<!", true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_AnythingElse_LT_Bang_Dash_Dash_AnythingElse) {
+  SetInput("<!--<!--x-->");
+  NextComment("<!--x", true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_AnythingElse_LT_Bang_Dash_AnythingElse) {
+  SetInput("<!--<!-x-->");
+  NextComment("<!-x");
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_AnythingElse_LT_Bang_AnythingElse) {
+  SetInput("<!--<!x-->");
+  NextComment("<!x");
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_AnythingElse_LT_LT_AnythingElse) {
+  SetInput("<!--<<-->");
+  NextComment("<<");
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_Dash_AnythingElse_AnythingElse_NULL) {
+  SetInput("<!---x\x00-->", sizeof("<!---x\x00-->") - 1);
+  NextComment("-x\xEF\xBF\xBD", true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_DashDash_AnythingElse_AnythingElse_NULL_EOF) {
+  SetInput("<!--0\x00", sizeof("<!--0\x00")-1);
+  NextComment("0\xEF\xBF\xBD", true); // Two errors.
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Tab_Tab_LF_FF_Space_Alpha_Tab_Tab_LF_FF_Space_GT) {
+  SetInput("<!DoCtyPE\t\t\n\f H\t\t\n\f >");
+  NextDoctype("h", NULL, NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_LF_Tab_LF_FF_Space_Alpha_LF_Tab_LF_FF_Space_GT) {
+  SetInput("<!DoCtyPE\n\t\n\f H\n\t\n\f >");
+  NextDoctype("h", NULL, NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_FF_Tab_LF_FF_Space_Alpha_FF_Tab_LF_FF_Space_GT) {
+  SetInput("<!DoCtyPE\f\t\n\f H\f\t\n\f >");
+  NextDoctype("h", NULL, NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Tab_LF_FF_Space_Alpha_Space_Tab_LF_FF_Space_GT) {
+  SetInput("<!DoCtyPE \t\n\f H \t\n\f >");
+  NextDoctype("h", NULL, NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_NULL_GT) {
+  SetInput("<!DOCTYPE \x00>", sizeof("<!DOCTYPE \x00>")-1);
+  NextDoctype("\xEF\xBF\xBD", NULL, NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_GT) {
+  SetInput("<!DOCTYPE >");
+  NextDoctype(NULL, NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_EOF) {
+  SetInput("<!DOCTYPE ");
+  NextDoctype(NULL, NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_AnythingElse_NULL) {
+  SetInput("<!doctype ht\x00ml>", sizeof("<!doctype ht\x00ml>")-1);
+  NextDoctype("ht\xEF\xBF\xBDml", NULL, NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_AnythingElse_EOF) {
+  SetInput("<!doctype html");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_EOF) {
+  SetInput("<!DOCtype HTML ");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Tab_Tab_LF_FF_Space_Quote_Quote_Tab_Tab_LF_FF_Space_GT) {
+  SetInput("<!docTYPE HTML PUBLIC\t\t\n\f \"\"\t\t\n\f >");
+  NextDoctype("html", "", NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_LF_Tab_LF_FF_Space_Quote_Quote_LF_Tab_LF_FF_Space_GT) {
+  SetInput("<!docTYPE HTML PUBLIC\n\t\n\f \"\"\n\t\n\f >");
+  NextDoctype("html", "", NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_FF_Tab_LF_FF_Space_Quote_Quote_FF_Tab_LF_FF_Space_GT) {
+  SetInput("<!docTYPE HTML PUBLIC\f\t\n\f \"\"\f\t\n\f >");
+  NextDoctype("html", "", NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Tab_LF_FF_Space_Quote_Quote_Space_Tab_LF_FF_Space_GT) {
+  SetInput("<!docTYPE HTML PUBLIC \t\n\f \"\" \t\n\f >");
+  NextDoctype("html", "", NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_Quote_Tab_LF_FF_Space_GT) {
+  SetInput("<!DOCTYPE html pubLIC \"\" \"\"\t\n\f >");
+  NextDoctype("html", "", "");
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_Quote_EOF) {
+  SetInput("<!DOCTYPE html pubLIC \"\" \"\"");
+  NextDoctype("html", "", "", true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_Quote_AnythingElse_GT) {
+  SetInput("<!DOCTYPE html public \"\" \"\"x>");
+  NextDoctype("html", "", "", true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_Quote_AnythingElse_NULL_GT) {
+  SetInput("<!DOCTYPE html public \"\" \"\"\x00>", sizeof("<!DOCTYPE html public \"\" \"\"\x00>")-1);
+  NextDoctype("html", "", "", true); // Two errors!
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_Quote_AnythingElse_EOF) {
+  SetInput("<!DOCTYPE html public \"\" \"\"x");
+  NextDoctype("html", "", "", true); // Only one error.
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_NULL) {
+  SetInput("<!DOCTYPE html public \"\" \"\x00\">", sizeof("<!DOCTYPE html public \"\" \"\x00\">")-1);
+  NextDoctype("html", "", "\xEF\xBF\xBD", true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_GT) {
+  SetInput("<!DOCTYPE html public \"\" \">");
+  NextDoctype("html", "", "", true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_EOF) {
+  SetInput("<!DOCTYPE html public \"\" \"");
+  NextDoctype("html", "", "", true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Quote_AnythingElse) {
+  SetInput("<!DOCTYPE html public \"\" \"SyS\">");
+  NextDoctype("html", "", "SyS");
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_Apos_AnythingElse) {
+  SetInput("<!DOCTYPE html public \"\" 'sys'>");
+  NextDoctype("html", "", "sys");
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_EOF) {
+  SetInput("<!DOCTYPE html public \"\" ");
+  NextDoctype("html", "", NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Space_AnythingElse) {
+  SetInput("<!DOCTYPE html public \"\" x>z");
+  NextDoctype("html", "", NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_GT) {
+  SetInput("<!DOCTYPE html public \"\">");
+  NextDoctype("html", "", NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Quote_Quote) {
+  SetInput("<!DOCTYPE html public \"\"\"\">");
+  NextDoctype("html", "", "", true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_Apos) {
+  SetInput("<!DOCTYPE html public \"\"''>");
+  NextDoctype("html", "", "", true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_EOF) {
+  SetInput("<!DOCTYPE html public \"\"");
+  NextDoctype("html", "", NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_Quote_AnythingElse) {
+  SetInput("<!DOCTYPE html public \"\"x>");
+  NextDoctype("html", "", NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_NULL) {
+  SetInput("<!DOCTYPE html public \"\x00\">", sizeof("<!DOCTYPE html public \"\x00\">")-1);
+  NextDoctype("html", "\xEF\xBF\xBD", NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_GT) {
+  SetInput("<!DOCTYPE html public \">");
+  NextDoctype("html", "", NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Quote_EOF) {
+  SetInput("<!DOCTYPE html public \"foo");
+  NextDoctype("html", "foo", NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Apos_Apos) {
+  SetInput("<!DOCTYPE html public ''>");
+  NextDoctype("html", "", NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Apos_NULL) {
+  SetInput("<!DOCTYPE html public '\x00'>", sizeof("<!DOCTYPE html public '\x00'>")-1);
+  NextDoctype("html", "\xEF\xBF\xBD", NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Apos_GT) {
+  SetInput("<!DOCTYPE html public 'foo>");
+  NextDoctype("html", "foo", NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_Apos_EOF) {
+  SetInput("<!DOCTYPE html public 'foo");
+  NextDoctype("html", "foo", NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_GT) {
+  SetInput("<!DOCTYPE HTML PUblic >");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_EOF) {
+  SetInput("<!DOCTYPE HTML PUblic ");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_AnythingElse) {
+  SetInput("<!DOCTYPE HTML PUblic x>");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Quote) {
+  SetInput("<!DOCTYPE html public\"foo\">");
+  NextDoctype("html", "foo", NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Apos) {
+  SetInput("<!DOCTYPE html public''>");
+  NextDoctype("html", "", NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_GT) {
+  SetInput("<!DOCTYPE html public>");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_EOF) {
+  SetInput("<!DOCTYPE html public");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_AnythingElse) {
+  SetInput("<!DOCTYPE html publicX>");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Tab_Tab_LF_FF_Space_Quote_Quote_GT) {
+  SetInput("<!DOCTYPE HtMl SySTem\t\t\n\f \"\">");
+  NextDoctype("html", NULL, "");
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_LF_Apos_Apos_GT) {
+  SetInput("<!docTYPE hTmL sYstEM\n''>");
+  NextDoctype("html", NULL, "");
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_FF_Apos_Apos_GT) {
+  SetInput("<!docTYPE hTmL sYstEM\f''>");
+  NextDoctype("html", NULL, "");
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Space_Apos_NULL) {
+  SetInput("<!DOCTYPE html SYSTEM '\x00'>", sizeof("<!DOCTYPE html SYSTEM '\x00'>")-1);
+  NextDoctype("html", NULL, "\xEF\xBF\xBD", true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Space_Apos_GT) {
+  SetInput("<!DOCTYPE html SYSTEM '>");
+  NextDoctype("html", NULL, "", true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Space_Apos_EOF) {
+  SetInput("<!DOCTYPE html SYSTEM '");
+  NextDoctype("html", NULL, "", true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Space_GT) {
+  SetInput("<!docTYPE hTmL sYstEM >");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Space_EOF) {
+  SetInput("<!docTYPE hTmL sYstEM ");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Space_AnythingElse) {
+  SetInput("<!docTYPE hTmL sYstEM x>z");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Quote) {
+  SetInput("<!DOCTYPE foo system\"bar\">z");
+  NextDoctype("foo", NULL, "bar", true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Apos) {
+  SetInput("<!DOCTYPE foo system'bar'>z");
+  NextDoctype("foo", NULL, "bar", true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_GT) {
+  SetInput("<!DOCTYPE foo system>z");
+  NextDoctype("foo", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_EOF) {
+  SetInput("<!DOCTYPE foo system");
+  NextDoctype("foo", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_AnythingElse) {
+  SetInput("<!DOCTYPE foo systemX>z");
+  NextDoctype("foo", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Bogus) {
+  SetInput("<!DOCTYPE html foobar>z");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_GT) {
+  SetInput("<!DOCTYPE html>z");
+  NextDoctype("html", NULL, NULL);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_NULL) {
+  SetInput("<!DOCTYPE html\x00>z", sizeof("<!DOCTYPE html\x00>z")-1);
+  NextDoctype("html\xEF\xBF\xBD", NULL, NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_EOF) {
+  SetInput("<!DOCTYPE html");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_NULL) {
+  SetInput("<!DOCTYPE \x00>z", sizeof("<!DOCTYPE \x00>z")-1);
+  NextDoctype("\xEF\xBF\xBD", NULL, NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_GT) {
+  SetInput("<!DOCtype>z");
+  NextDoctype(NULL, NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_EOF) {
+  SetInput("<!DOCTYPE");
+  NextDoctype(NULL, NULL, NULL, true);
+  EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_AnythingElse) {
+  SetInput("<!DOCTYPEhtml>z");
+  NextDoctype("html", NULL, NULL, true);
+  EXPECT_FALSE(token_.v.doc_type.force_quirks);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Cdata_Bracket_Bracket_Bracket_GT) {
+  SetInput("<![CDATA[]]]>x");
+  Foreign();
+  NextCdata(']');
+  NextChar('x');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Cdata_Bracket_Bracket_AnythingElse) {
+  SetInput("<![CDATA[]]x]]>z");
+  Foreign();
+  NextCdata(']');
+  NextCdata(']');
+  NextCdata('x');
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Cdata_Bracket_AnythingElse) {
+  SetInput("<![CDATA[]>x]]>z");
+  Foreign();
+  NextCdata(']');
+  NextCdata('>');
+  NextCdata('x');
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Cdata_AnythingElse_EOF) {
+  SetInput("<![CDATA[x");
+  Foreign();
+  NextCdata('x');
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_CdataHtml_GT) {
+  SetInput("<![CDATA[bogus>z");
+  NextComment("[CDATA[bogus", true);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_CdataHtml_EOF) {
+  SetInput("<![CDATA[bogus");
+  NextComment("[CDATA[bogus", true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_Cdata_Html_NULL_AnythingElse) {
+  SetInput("<![CDATA[bogus\x00""comment>z", sizeof("<![CDATA[bogus\x00""comment>z")-1);
+  NextComment("[CDATA[bogus\xEF\xBF\xBD""comment", true); // Two errors.
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Bang_AnythingElse) {
+  SetInput("<!4asdf>z");
+  NextComment("4asdf", true);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Slash_Alpha_Tab_Tab_Slash_Slash_GT) {
+  SetInput("</p\t\t/>z");
+  NextEndTag(GUMBO_TAG_P, true);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Slash_Alpha_LF_LF_Slash_Slash_EOF) {
+  SetInput("</p\n\n/");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Slash_Alpha_FF_FF_GT) {
+  SetInput("</p\f\f>z");
+  NextEndTag(GUMBO_TAG_P);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Slash_Alpha_Space_Space_GT) {
+  SetInput("</p  >z");
+  NextEndTag(GUMBO_TAG_P);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Slash_Alpha_Space_Alpha_EQ_Alpha_GT) {
+  SetInput("</span foo=bar>z");
+  NextEndTag(GUMBO_TAG_SPAN, true);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Slash_GT) {
+  SetInput("</>z");
+  NextChar('z', true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Slash_EOF) {
+  SetInput("</");
+  NextChar('<', true);
+  NextChar('/');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Slash_AnythingElse) {
+  SetInput("</?>z");
+  NextComment("?", true);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Tab_Tab_Slash_Slash_GT) {
+  SetInput("<hr\t\t/>z");
+  NextStartTag(GUMBO_TAG_HR);
+  EXPECT_TRUE(token_.v.start_tag.is_self_closing);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_LF_LF_GT) {
+  SetInput("<hr\n\n>z");
+  NextStartTag(GUMBO_TAG_HR);
+  EXPECT_FALSE(token_.v.start_tag.is_self_closing);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_FF_FF_Slash_Slash_GT) {
+  SetInput("<hr\f\f/>z");
+  NextStartTag(GUMBO_TAG_HR);
+  EXPECT_TRUE(token_.v.start_tag.is_self_closing);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_Space_GT) {
+  SetInput("<hr  >z");
+  NextStartTag(GUMBO_TAG_HR);
+  EXPECT_FALSE(token_.v.start_tag.is_self_closing);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_EOF) {
+  SetInput("<span ");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_EQ_GT) {
+  SetInput("<span =>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("=", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_Tab_Tab_GT) {
+  SetInput("<body X\t>z");
+  NextStartTag(GUMBO_TAG_BODY);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("x", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_AnythingElse_LF_LF_GT) {
+  SetInput("<body ?\n>z");
+  NextStartTag(GUMBO_TAG_BODY);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("?", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_AnythingElse_FF_FF_GT) {
+  SetInput("<body &$\f>z");
+  NextStartTag(GUMBO_TAG_BODY);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("&$", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_Space_Space_GT) {
+  SetInput("<body xml:lang >z");
+  NextStartTag(GUMBO_TAG_BODY);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("xml:lang", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_Slash_GT) {
+  SetInput("<br foo/>z");
+  NextStartTag(GUMBO_TAG_BR);
+  EXPECT_TRUE(token_.v.start_tag.is_self_closing);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_GT) {
+  SetInput("<br foo>z");
+  NextStartTag(GUMBO_TAG_BR);
+  EXPECT_FALSE(token_.v.start_tag.is_self_closing);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EOF) {
+  SetInput("<br foo");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Tab_LF_FF_Space_Quote_Quote_Slash) {
+  SetInput("<span foo=\t\n\f \"\"/>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  EXPECT_TRUE(token_.v.start_tag.is_self_closing);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Tab_LF_FF_Space_Quote_Quote_GT) {
+  SetInput("<span foo=\t\n\f \"\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  EXPECT_FALSE(token_.v.start_tag.is_self_closing);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Space_Quote_Quote_EOF) {
+  SetInput("<span foo= \"\"");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Space_Quote_Quote_AnythingElse) {
+  SetInput("<span foo= \"\"bar=''>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  EXPECT_FALSE(token_.v.start_tag.is_self_closing);
+  ASSERT_EQ(2, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("", attr->value);
+
+  attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[1]);
+  EXPECT_STREQ("bar", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_Alnum_Match_Semicolon) {
+  SetInput("<span foo=\"&fjlig;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\x66\x6Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_Alnum_Match_Alpha) {
+  SetInput("<span foo=\"&aacutex\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&aacutex", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_Alnum_Match_Num) {
+  SetInput("<span foo=\"&aacute0\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&aacute0", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_Alnum_Match_EQ) {
+  SetInput("<span foo=\"&aacute=\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&aacute=", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_Alnum_Match_Otherwise) {
+  SetInput("<span foo=\"&aacute\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xC3\xA1", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_Alnum_Otherwise_Alnum_Semicolon) {
+  SetInput("<span foo=\"&1f;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&1f;x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_Alnum_Otherwise_Alnum_AnythingElse) {
+  SetInput("<span foo=\"&1f.x\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&1f.x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_X_Hex_Semicolon_Zero) {
+  SetInput("<span foo=\"&#X00;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_X_Hex_Semicolon_TooLarge) {
+  SetInput("<span foo=\"&#XABCdefA123;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_X_Hex_Semicolon_Surrogate) {
+  SetInput("<span foo=\"&#XDb74;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_Semicolon_Noncharacter) {
+  SetInput("<span foo=\"&#xFdD8;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xB7\x98x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_Semicolon_Noncharacter2) {
+  SetInput("<span foo=\"&#x7FFFE;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xF1\xBF\xBF\xBEx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_Semicolon_C0Control) {
+  SetInput("<span foo=\"&#x3;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\x03x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_Semicolon_NL) {
+  SetInput("<span foo=\"&#x0A;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\nx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_Semicolon_FF) {
+  SetInput("<span foo=\"&#x0C;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\fx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_Semicolon_CR) {
+  SetInput("<span foo=\"&#x0D;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\rx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_X_Hex_Semicolon_Control) {
+  SetInput("<span foo=\"&#X81;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xC2\x81x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_Semicolon_Control2) {
+  SetInput("<span foo=\"&#x82;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x80\x9Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_AnythingElse) {
+  SetInput("<span foo=\"&#x2f1Ax\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\xBC\x9Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_Hex_AnythingElse2) {
+  SetInput("<span foo=\"&#x2f1A-\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\xBC\x9A-", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_x_AnythingElse) {
+  SetInput("<span foo=\"&#xG\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&#xG", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_AnythingElse_Digit_Semicolon) {
+  SetInput("<span foo=\"&#1234;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xD3\x92x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_AnythingElse_Digit_Semicolon_Control) {
+  SetInput("<span foo=\"&#128;x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x82\xACx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_AnythingElse_Digit_AnythingElse) {
+  SetInput("<span foo=\"&#1234a\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xD3\x92""a", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_NumberSign_AnythingElse_Digit_AnythingElse_Control) {
+  SetInput("<span foo=\"&#128a\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x82\xAC""a", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_Amp_AnythingElse) {
+  SetInput("<span foo=\"&#x\">z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&#x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_NULL) {
+  SetInput("<span foo=\"\x00\">z", sizeof("<span foo=\"\x00\">z")-1);
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBD", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_EOF) {
+  SetInput("<span foo=\"");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Quote_AnythingElse) {
+  SetInput("<span foo=\"b@#$'\t\n\f =<>!\">z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("b@#$'\t\n\f =<>!", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_Alnum_Match_Semicolon) {
+  SetInput("<span foo='&fjlig;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\x66\x6Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_Alnum_Match_Alpha) {
+  SetInput("<span foo='&aacutex'>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&aacutex", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_Alnum_Match_Num) {
+  SetInput("<span foo='&aacute0'>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&aacute0", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_Alnum_Match_EQ) {
+  SetInput("<span foo='&aacute='>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&aacute=", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_Alnum_Match_Otherwise) {
+  SetInput("<span foo='&aacute'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xC3\xA1", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_Alnum_Otherwise_Alnum_Semicolon) {
+  SetInput("<span foo='&1f;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&1f;x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_Alnum_Otherwise_Alnum_AnythingElse) {
+  SetInput("<span foo='&1f.x'>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&1f.x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_X_Hex_Semicolon_Zero) {
+  SetInput("<span foo='&#X00;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_X_Hex_Semicolon_TooLarge) {
+  SetInput("<span foo='&#XABCdef123;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_X_Hex_Semicolon_Surrogate) {
+  SetInput("<span foo='&#XDb74;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_Semicolon_Noncharacter) {
+  SetInput("<span foo='&#xFdD8;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xB7\x98x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_Semicolon_Noncharacter2) {
+  SetInput("<span foo='&#x7FFFE;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xF1\xBF\xBF\xBEx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_Semicolon_C0Control) {
+  SetInput("<span foo='&#x3;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\x03x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_Semicolon_NL) {
+  SetInput("<span foo='&#x0A;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\nx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_Semicolon_FF) {
+  SetInput("<span foo='&#x0C;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\fx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_Semicolon_CR) {
+  SetInput("<span foo='&#x0D;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\rx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_X_Hex_Semicolon_Control) {
+  SetInput("<span foo='&#X81;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xC2\x81x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_Semicolon_Control2) {
+  SetInput("<span foo='&#x82;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x80\x9Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_AnythingElse) {
+  SetInput("<span foo='&#x2f1Ax'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\xBC\x9Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_Hex_AnythingElse2) {
+  SetInput("<span foo='&#x2f1A-'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\xBC\x9A-", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_x_AnythingElse) {
+  SetInput("<span foo='&#xG'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&#xG", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_AnythingElse_Digit_Semicolon) {
+  SetInput("<span foo='&#1234;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xD3\x92x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_AnythingElse_Digit_Semicolon_Control) {
+  SetInput("<span foo='&#128;x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x82\xACx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_AnythingElse_Digit_AnythingElse) {
+  SetInput("<span foo='&#1234a'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xD3\x92""a", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_NumberSign_AnythingElse_Digit_AnythingElse_Control) {
+  SetInput("<span foo='&#128a'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x82\xAC""a", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_Amp_AnythingElse) {
+  SetInput("<span foo='&#x'>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&#x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_NULL) {
+  SetInput("<span foo='\x00'>z", sizeof("<span foo='\x00'>z")-1);
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBD", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_EOF) {
+  SetInput("<span foo='");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_Apos_AnythingElse) {
+  SetInput("<span foo='b@#$\"\t\n\f =<>!'>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("b@#$\"\t\n\f =<>!", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_GT) {
+  SetInput("<span foo=>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_Alnum_Match_Semicolon) {
+  SetInput("<span foo=&fjlig;x>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\x66\x6Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_Alnum_Match_Alpha) {
+  SetInput("<span foo=&aacutex>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&aacutex", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_Alnum_Match_Num) {
+  SetInput("<span foo=&aacute0>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&aacute0", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_Alnum_Match_Otherwise) {
+  SetInput("<span foo=&aacute>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xC3\xA1", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_Alnum_Otherwise_Alnum_Semicolon) {
+  SetInput("<span foo=&1f;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&1f;x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_Alnum_Otherwise_Alnum_AnythingElse) {
+  SetInput("<span foo=&1f.x>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&1f.x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_X_Hex_Semicolon_Zero) {
+  SetInput("<span foo=&#X00;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_X_Hex_Semicolon_TooLarge) {
+  SetInput("<span foo=&#XABCdef123;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_X_Hex_Semicolon_Surrogate) {
+  SetInput("<span foo=&#XDb74;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBDx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_Semicolon_Noncharacter) {
+  SetInput("<span foo=&#xFdD8;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xB7\x98x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_Semicolon_Noncharacter2) {
+  SetInput("<span foo=&#x7FFFE;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xF1\xBF\xBF\xBEx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_Semicolon_C0Control) {
+  SetInput("<span foo=&#x3;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\x03x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_Semicolon_NL) {
+  SetInput("<span foo=&#x0A;x>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\nx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_Semicolon_FF) {
+  SetInput("<span foo=&#x0C;x>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\fx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_Semicolon_CR) {
+  SetInput("<span foo=&#x0D;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\rx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_X_Hex_Semicolon_Control) {
+  SetInput("<span foo=&#X81;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xC2\x81x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_Semicolon_Control2) {
+  SetInput("<span foo=&#x82;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x80\x9Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_AnythingElse) {
+  SetInput("<span foo=&#x2f1Ax>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\xBC\x9Ax", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_Hex_AnythingElse2) {
+  SetInput("<span foo=&#x2f1A->z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\xBC\x9A-", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_x_AnythingElse) {
+  SetInput("<span foo=&#xG>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&#xG", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_AnythingElse_Digit_Semicolon) {
+  SetInput("<span foo=&#1234;x>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xD3\x92x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_AnythingElse_Digit_Semicolon_Control) {
+  SetInput("<span foo=&#128;x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x82\xACx", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_AnythingElse_Digit_AnythingElse) {
+  SetInput("<span foo=&#1234a>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xD3\x92""a", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_NumberSign_AnythingElse_Digit_AnythingElse_Control) {
+  SetInput("<span foo=&#128a>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xE2\x82\xAC""a", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_Amp_AnythingElse) {
+  SetInput("<span foo=&#x>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("&#x", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_NULL) {
+  SetInput("<span foo=\x00>z", sizeof("<span foo=\x00>z")-1);
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("\xEF\xBF\xBD", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_EOF) {
+  SetInput("<span foo=");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_EQ_AnythingElse_AnythingElse) {
+  SetInput("<span foo=b@#$!>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("b@#$!", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Alpha_Space_AnythingElse) {
+  SetInput("<span foo bar=''>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(2, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("", attr->value);
+
+  attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[1]);
+  EXPECT_STREQ("bar", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_NULL) {
+  SetInput("<span \x00=''>z", sizeof("<span \x00=''>z")-1);
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("\xEF\xBF\xBD", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Quote) {
+  SetInput("<span \"=''>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("\"", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_Apos) {
+  SetInput("<span '=''>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("'", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Space_AnythingElse_LT) {
+  SetInput("<span <=''>z");
+  NextStartTag(GUMBO_TAG_SPAN, true);
+  ASSERT_EQ(1, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("<", attr->name);
+  EXPECT_STREQ("", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_MultipleAttributes) {
+  SetInput("<span foo=\"123\"\tbar='456'\nbaz=789\f>z");
+  NextStartTag(GUMBO_TAG_SPAN);
+  ASSERT_EQ(3, token_.v.start_tag.attributes.length);
+  GumboAttribute *attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[0]);
+  EXPECT_STREQ("foo", attr->name);
+  EXPECT_STREQ("123", attr->value);
+
+  attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[1]);
+  EXPECT_STREQ("bar", attr->name);
+  EXPECT_STREQ("456", attr->value);
+
+  attr = static_cast<GumboAttribute*>(token_.v.start_tag.attributes.data[2]);
+  EXPECT_STREQ("baz", attr->name);
+  EXPECT_STREQ("789", attr->value);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Slash_GT) {
+  SetInput("<br/>z");
+  NextStartTag(GUMBO_TAG_BR);
+  EXPECT_TRUE(token_.v.start_tag.is_self_closing);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Slash_EOF) {
+  SetInput("<br/");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_Slash_AnythingElse) {
+  SetInput("<br/ >z");
+  NextStartTag(GUMBO_TAG_BR, true);
+  EXPECT_FALSE(token_.v.start_tag.is_self_closing);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_GT) {
+  SetInput("<mATh>z");
+  NextStartTag(GUMBO_TAG_MATH);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_NULL) {
+  SetInput("<s\x00pan>z", sizeof("<s\x00pan>z")-1);
+  Next(true);
+  ASSERT_EQ(GUMBO_TOKEN_START_TAG, token_.type);
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, token_.v.start_tag.tag);
+  EXPECT_STREQ("s\xEF\xBF\xBDpan", token_.v.start_tag.name);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_EOF) {
+  SetInput("<sp");
+  AtEnd(true);
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Alpha_AnythingElse) {
+  SetInput("<h5?-&!]>z");
+  Next();
+  ASSERT_EQ(GUMBO_TOKEN_START_TAG, token_.type);
+  EXPECT_EQ(GUMBO_TAG_UNKNOWN, token_.v.start_tag.tag);
+  EXPECT_STREQ("h5?-&!]", token_.v.start_tag.name);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_Question) {
+  SetInput("<?php ?>z");
+  NextComment("?php ?", true);
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_EOF) {
+  SetInput("<");
+  NextChar('<', true);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_LT_AnythingElse) {
+  SetInput("<0z");
+  NextChar('<', true);
+  NextChar('0');
+  NextChar('z');
+}
+
+TEST_F(GumboTokenizerTest, Data_NULL) {
+  SetInput("", 1);
+  Next(true);
+  ASSERT_EQ(GUMBO_TOKEN_NULL, token_.type);
+  EXPECT_EQ(0, token_.v.character);
+}
+
+TEST_F(GumboTokenizerTest, Data_EOF) {
+  SetInput("");
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, Data_AnythingElse) {
+  SetInput("a\xce\xb2\xd7\x92");
+  NextChar(0x61);
+  NextChar(0x03B2);
+  NextChar(0x05D2);
+}
+
 }  // namespace
+// vim: set sw=2 sts=2 ts=8 et:

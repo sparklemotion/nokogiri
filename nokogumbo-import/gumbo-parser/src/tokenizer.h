@@ -44,7 +44,6 @@ typedef struct GumboInternalTokenEndTag {
   GumboTag tag;
   // NULL unless tag is GUMBO_TAG_UNKNOWN
   char *name;
-  bool is_self_closing;
 } GumboTokenEndTag;
 
 // A data structure representing a single token in the input stream. This
@@ -83,11 +82,12 @@ void gumbo_tokenizer_set_state (
   GumboTokenizerEnum state
 );
 
-// Flags whether the current node is a foreign content element. This is
-// necessary for the markup declaration open state, where the tokenizer must be
-// aware of the state of the parser to properly tokenize bad comment tags.
+// Flags whether the adjusted current node is a foreign content element. This
+// is necessary for the markup declaration open state, where the tokenizer
+// must be aware of the state of the parser to properly tokenize bad comment
+// tags.
 // https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state
-void gumbo_tokenizer_set_is_current_node_foreign (
+void gumbo_tokenizer_set_is_adjusted_current_node_foreign (
   struct GumboInternalParser* parser,
   bool is_foreign
 );

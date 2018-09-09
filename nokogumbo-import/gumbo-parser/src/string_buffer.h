@@ -47,7 +47,7 @@ void gumbo_string_buffer_append_codepoint (
 
 // Appends a string onto the end of the GumboStringBuffer.
 void gumbo_string_buffer_append_string (
-  GumboStringPiece* str,
+  const GumboStringPiece* str,
   GumboStringBuffer* output
 );
 
