@@ -1,40 +1,25 @@
 #ifndef GUMBO_CHAR_REF_H_
 #define GUMBO_CHAR_REF_H_
 
-#include <stdbool.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct GumboInternalParser;
-struct GumboInternalUtf8Iterator;
-
 // Value that indicates no character was produced.
-extern const int kGumboNoChar;
+#define kGumboNoChar (-1)
 
-// Certain named character references generate two codepoints, not one, and so
-// the gumbo_consume_char_ref subroutine needs to return this instead of an int.
-// The first field will be kGumboNoChar if no character reference was found; the
-// second field will be kGumboNoChar if that is the case or if the character
-// reference returns only a single codepoint.
-typedef struct {
-  int first;
-  int second;
-} OneOrTwoCodepoints;
-
-// Implements the "consume a character reference" section of the spec.
-// This reads in characters from the input as necessary, and fills in a
-// OneOrTwoCodepoints struct containing the characters read. It may add parse
-// errors to the GumboParser's errors vector, if the spec calls for it. Pass a
-// space for the "additional allowed char" when the spec says "with no
-// additional allowed char". Returns false on parse error, true otherwise.
-bool gumbo_consume_char_ref (
-  struct GumboInternalParser* parser,
-  struct GumboInternalUtf8Iterator* input,
-  int additional_allowed_char,
-  bool is_in_attribute,
-  OneOrTwoCodepoints* output
+// On input, str points to the start of the string to match and size is the
+// size of the string.
+//
+// Returns the length of the match or 0 if there is no match.
+// output[0] contains the first codepoint and output[1] contains the second if
+// there are two, otherwise output[1] contains kGumboNoChar.
+size_t match_named_char_ref (
+  const char *str,
+  size_t size,
+  int output[2]
 );
 
 #ifdef __cplusplus

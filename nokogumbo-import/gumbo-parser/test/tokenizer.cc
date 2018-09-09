@@ -134,14 +134,12 @@ TEST(GumboTagEnumTest, TagLookupCaseSensitivity) {
 
 TEST_F(GumboTokenizerTest, PartialTag) {
   SetInput("<a");
-  // XXX: This should be an error
-  AtEnd();
+  AtEnd(true);
 }
 
 TEST_F(GumboTokenizerTest, PartialTagWithAttributes) {
   SetInput("<a href=foo /");
-  // XXX: This should be an error
-  AtEnd();
+  AtEnd(true);
 }
 
 TEST_F(GumboTokenizerTest, LexCharToken) {
@@ -308,7 +306,7 @@ TEST_F(GumboTokenizerTest, ScriptEnd) {
   SetInput("<script>x = '\"></';</script>");
   NextStartTag(GUMBO_TAG_SCRIPT);
 
-  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT);
+  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_DATA);
   NextChar('x');
 
   Advance(6);
@@ -323,7 +321,7 @@ TEST_F(GumboTokenizerTest, ScriptEnd) {
 TEST_F(GumboTokenizerTest, ScriptEscapedEnd) {
   SetInput("<title>x</title>");
   NextStartTag(GUMBO_TAG_TITLE);
-  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_ESCAPED);
+  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
   NextChar('x');
   NextEndTag(GUMBO_TAG_TITLE);
   AtEnd();
@@ -335,7 +333,7 @@ TEST_F(GumboTokenizerTest, ScriptCommentEscaped) {
       "-->\n"
       "</script>");
   NextStartTag(GUMBO_TAG_SCRIPT);
-  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT);
+  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_DATA);
   Advance(15);
   NextChar('x');
   NextSpace();
@@ -359,7 +357,7 @@ TEST_F(GumboTokenizerTest, ScriptCommentEscaped) {
 TEST_F(GumboTokenizerTest, ScriptEscapedEmbeddedLessThan) {
   SetInput("<script>/*<![CDATA[*/ x<7 /*]]>*/</script>");
   NextStartTag(GUMBO_TAG_SCRIPT);
-  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT);
+  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_DATA);
   Advance(14);
   NextChar('x');
   NextChar('<');
@@ -371,7 +369,7 @@ TEST_F(GumboTokenizerTest, ScriptEscapedEmbeddedLessThan) {
 TEST_F(GumboTokenizerTest, ScriptHasTagEmbedded) {
   SetInput("<script>var foo = '</div>';</script>");
   NextStartTag(GUMBO_TAG_SCRIPT);
-  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT);
+  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_DATA);
   Advance(11);
   NextChar('<');
   NextChar('/');
@@ -387,7 +385,7 @@ TEST_F(GumboTokenizerTest, ScriptDoubleEscaped) {
       "<script><!--var foo = '<a href=\"foo\"></a>\n"
       "<sCrIpt>i--<f</script>'-->;</script>");
   NextStartTag(GUMBO_TAG_SCRIPT);
-  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT);
+  gumbo_tokenizer_set_state(&parser_, GUMBO_LEX_SCRIPT_DATA);
   Advance(34);
 
   NextChar('<');
@@ -487,7 +485,7 @@ TEST_F(GumboTokenizerTest, OpenTagWithAttributes) {
 
 TEST_F(GumboTokenizerTest, BogusComment1) {
   SetInput("<?xml is bogus-comment>Text");
-  Next(false); // XXX: Should be an error.
+  Next(true);
   ASSERT_EQ(GUMBO_TOKEN_COMMENT, token_.type);
   EXPECT_STREQ("?xml is bogus-comment", token_.v.text);
   NextChar('T');
@@ -499,7 +497,7 @@ TEST_F(GumboTokenizerTest, BogusComment1) {
 
 TEST_F(GumboTokenizerTest, BogusComment2) {
   SetInput("</#bogus-comment");
-  Next(false); // XXX: Should be an error.
+  Next(true);
   ASSERT_EQ(GUMBO_TOKEN_COMMENT, token_.type);
   EXPECT_STREQ("#bogus-comment", token_.v.text);
   AtEnd();
@@ -546,7 +544,7 @@ TEST_F(GumboTokenizerTest, DoubleAmpersand) {
 
 TEST_F(GumboTokenizerTest, MatchedTagPair) {
   SetInput("<div id=dash<-Dash data-test=\"bar\">a</div>");
-  NextStartTag(GUMBO_TAG_DIV); // XXX: Should be an error
+  NextStartTag(GUMBO_TAG_DIV, true);
   EXPECT_EQ(0, token_.position.offset);
 
   GumboTokenStartTag* start_tag = &token_.v.start_tag;
@@ -589,7 +587,7 @@ TEST_F(GumboTokenizerTest, BogusEndTag) {
   // because end tags don't take attributes), with the tokenizer passing through
   // the self-closing tag state in the process.
   SetInput("</div</th>");
-  NextEndTag(GUMBO_TAG_UNKNOWN, false); // XXX: This should be an error
+  NextEndTag(GUMBO_TAG_UNKNOWN, true);
   EXPECT_STREQ("div<", token_.v.end_tag.name);
   EXPECT_EQ(0, token_.position.offset);
   EXPECT_EQ("</div</th>", ToString(token_.original_text));
@@ -600,7 +598,7 @@ TEST_F(GumboTokenizerTest, NullInTagNameState) {
   text_ = input;
   gumbo_tokenizer_state_destroy(&parser_);
   gumbo_tokenizer_state_init(&parser_, input, sizeof input);
-  NextStartTag(GUMBO_TAG_UNKNOWN, false); // XXX: This should be an error
+  NextStartTag(GUMBO_TAG_UNKNOWN, true);
   EXPECT_EQ(0, token_.position.offset);
   EXPECT_STREQ("x\xEF\xBF\xBDx", token_.v.start_tag.name);
   AtEnd();
@@ -689,16 +687,16 @@ TEST_F(GumboTokenizerTest, NamedReplacementWithInvalidUtf8) {
 
 TEST_F(GumboTokenizerTest, NamedReplacementInvalid) {
   SetInput("&google;");
-  // XXX: This should actually be an error on the semicolon since that's where
-  // the error occurs.
-  NextChar('&', true);
+  // This is an error on the semicolon since that's where the error occurs in
+  // the spec. Anything other than a semicolon would cause no error.
+  NextChar('&');
   NextChar('g');
   NextChar('o');
   NextChar('o');
   NextChar('g');
   NextChar('l');
   NextChar('e');
-  NextChar(';');
+  NextChar(';', true);
   AtEnd();
 }
 
@@ -716,13 +714,13 @@ TEST_F(GumboTokenizerTest, NamedReplacementInvalidNoSemicolon) {
 
 TEST_F(GumboTokenizerTest, InAttribute) {
   SetInput("<span foo=\"&noted\"></span>");
-  Next();
-  ASSERT_EQ(GUMBO_TOKEN_START_TAG, token_.type);
+  NextStartTag(GUMBO_TAG_SPAN);
   GumboTokenStartTag* start_tag = &token_.v.start_tag;
-  EXPECT_EQ(GUMBO_TAG_SPAN, start_tag->tag);
   ASSERT_EQ(1, start_tag->attributes.length);
   GumboAttribute* attr = static_cast<GumboAttribute*>(start_tag->attributes.data[0]);
   EXPECT_STREQ("&noted", attr->value);
+  NextEndTag(GUMBO_TAG_SPAN);
+  AtEnd();
 }
 
 TEST_F(GumboTokenizerTest, MultiChars) {
@@ -738,4 +736,52 @@ TEST_F(GumboTokenizerTest, CharAfter) {
   NextChar('x');
   AtEnd();
 }
+
+TEST_F(GumboTokenizerTest, MaxNumericCharRef) {
+  SetInput("FOO&#x10FFFF;ZOO");
+  NextChar('F');
+  NextChar('O');
+  NextChar('O');
+  NextChar(0x10FFFF, true);
+  NextChar('Z');
+  NextChar('O');
+  NextChar('O');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, InvalidRef) {
+  SetInput("ZZ&prod_id=23");
+  NextChar('Z');
+  NextChar('Z');
+  NextChar('&');
+  NextChar('p');
+  NextChar('r');
+  NextChar('o');
+  NextChar('d');
+  NextChar('_');
+  NextChar('i');
+  NextChar('d');
+  NextChar('=');
+  NextChar('2');
+  NextChar('3');
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, InvalidRefInAttr) {
+  SetInput("<span foo='ZZ&prod_id=23'></span>");
+  NextStartTag(GUMBO_TAG_SPAN);
+  GumboTokenStartTag* start_tag = &token_.v.start_tag;
+  ASSERT_EQ(1, start_tag->attributes.length);
+  GumboAttribute* attr = static_cast<GumboAttribute*>(start_tag->attributes.data[0]);
+  EXPECT_STREQ("ZZ&prod_id=23", attr->value);
+  NextEndTag(GUMBO_TAG_SPAN);
+  AtEnd();
+}
+
+TEST_F(GumboTokenizerTest, NumericTooLarge) {
+  SetInput("&#x100000030;");
+  NextChar(0xFFFD, true);
+  AtEnd();
+}
+
 }  // namespace

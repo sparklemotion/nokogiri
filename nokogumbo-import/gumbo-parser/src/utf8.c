@@ -27,8 +27,6 @@
 #include "ascii.h"
 #include "vector.h"
 
-const int kUtf8ReplacementChar = 0xFFFD;
-
 // References:
 // * https://tools.ietf.org/html/rfc3629
 // * https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream

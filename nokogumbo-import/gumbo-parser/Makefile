@@ -7,11 +7,14 @@ gtest_lib := googletest/make/gtest_main.a
 # make SANITIZEFLAGS='-fsanitize=undefined -fsanitize=address'
 SANITIZEFLAGS :=
 CPPFLAGS := -Isrc
-CFLAGS := -std=c99 -Os
-CXXFLAGS := -isystem googletest/include -std=c++11 -Os
+CFLAGS := -std=c99 -Os -g
+CXXFLAGS := -isystem googletest/include -std=c++11 -Os -g
 LDFLAGS := -pthread
 
 all: check
+
+src/%.c: src/%.rl
+	ragel -F1 -o $@ $<
 
 build/src:
 	mkdir -p "$@"

@@ -30,7 +30,8 @@ struct GumboInternalError;
 struct GumboInternalParser;
 
 // Unicode replacement char.
-extern const int kUtf8ReplacementChar;
+#define kUtf8ReplacementChar 0xFFFD
+#define kUtf8MaxChar 0x10FFFF
 
 typedef struct GumboInternalUtf8Iterator {
   // Points at the start of the code point most recently read into 'current'.
@@ -63,6 +64,24 @@ typedef struct GumboInternalUtf8Iterator {
 // Returns true if this Unicode code point is in the list of characters
 // forbidden by the HTML5 spec, such as NUL bytes and undefined control chars.
 bool utf8_is_invalid_code_point(int c) CONST_FN;
+
+// Returns true if this Unicode code point is a surrogate.
+CONST_FN static bool utf8_is_surrogate(int c) {
+  return c >= 0xD800 && c <= 0xDFFF;
+}
+
+// Returns true if this Unicode code point is a noncharacter.
+CONST_FN static bool utf8_is_noncharacter(int c) {
+  return
+    (c >= 0xFDD0 && c <= 0xFDEF)
+    || ((c & 0xFFFF) == 0xFFFE)
+    || ((c & 0xFFFF) == 0xFFFF);
+}
+
+// Returns true if this Unicode code point is a control.
+CONST_FN static bool utf8_is_control(int c) {
+  return ((unsigned int)c < 0x1Fu) || (c >= 0x7F && c <= 0x9F);
+}
 
 // Initializes a new Utf8Iterator from the given byte buffer. The source does
 // not have to be NUL-terminated, but the length must be passed in explicitly.

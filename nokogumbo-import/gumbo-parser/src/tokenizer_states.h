@@ -18,15 +18,9 @@ typedef enum {
   // https://html.spec.whatwg.org/multipage/parsing.html#data-state
   GUMBO_LEX_DATA,
 
-  // XXX: Not in the standard any longer
-  GUMBO_LEX_CHAR_REF_IN_DATA,
-
   // 12.2.5.2 RCDATA state
   // https://html.spec.whatwg.org/multipage/parsing.html#rcdata-state
   GUMBO_LEX_RCDATA,
-
-  // XXX: Not in the standard any longer
-  GUMBO_LEX_CHAR_REF_IN_RCDATA,
 
   // 12.2.5.3 RAWTEXT state
   // https://html.spec.whatwg.org/multipage/parsing.html#rawtext-state<Paste>
@@ -173,9 +167,6 @@ typedef enum {
   // https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-(unquoted)-state
   GUMBO_LEX_ATTR_VALUE_UNQUOTED,
 
-  // XXX: Not in the spec any longer
-  GUMBO_LEX_CHAR_REF_IN_ATTR_VALUE,
-
   // 12.2.5.39 After attribute value (quoted) state
   // https://html.spec.whatwg.org/multipage/parsing.html#after-attribute-value-(quoted)-state
   GUMBO_LEX_AFTER_ATTR_VALUE_QUOTED,
@@ -310,39 +301,39 @@ typedef enum {
 
   // 12.2.5.72 Character reference state
   // https://html.spec.whatwg.org/multipage/parsing.html#character-reference-state
-  // GUMBO_LEX_CHARACTER_REFERENCE,
+  GUMBO_LEX_CHARACTER_REFERENCE,
 
   // 12.2.5.73 Named character reference state
   // https://html.spec.whatwg.org/multipage/parsing.html#named-character-reference-state
-  // GUMBO_LEX_NAMED_CHARACTER_REFERENCE,
+  GUMBO_LEX_NAMED_CHARACTER_REFERENCE,
 
   // 12.2.5.74 Ambiguous ampersand state
   // https://html.spec.whatwg.org/multipage/parsing.html#ambiguous-ampersand-state
-  // GUMBO_LEX_AMBIGUOUS_AMPERSAND,
+  GUMBO_LEX_AMBIGUOUS_AMPERSAND,
 
   // 12.2.5.75 Numeric character reference state
   // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-state
-  // GUMBO_LEX_NUMERIC_CHARACTER_REFERENCE,
+  GUMBO_LEX_NUMERIC_CHARACTER_REFERENCE,
 
   // 12.2.5.76 Hexademical character reference start state (XXX: spec typo?)
   // https://html.spec.whatwg.org/multipage/parsing.html#hexademical-character-reference-start-state
-  // GUMBO_LEX_HEXADECIMAL_CHARACTER_REFERENCE_START,
+  GUMBO_LEX_HEXADECIMAL_CHARACTER_REFERENCE_START,
 
   // 12.2.5.77 Decimal character reference start state
   // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-start-state
-  // GUMBO_LEX_DECIMAL_CHARACTER_REFERENCE_START,
+  GUMBO_LEX_DECIMAL_CHARACTER_REFERENCE_START,
   
   // 12.2.5.78 Hexademical character reference state (XXX: spec typo?)
   // https://html.spec.whatwg.org/multipage/parsing.html#hexademical-character-reference-state
-  // GUMBO_LEX_HEXADECIMAL_CHARACTER_REFERENCE,
+  GUMBO_LEX_HEXADECIMAL_CHARACTER_REFERENCE,
   
   // 12.2.5.79 Decimal character reference state
   // https://html.spec.whatwg.org/multipage/parsing.html#decimal-character-reference-state
-  // GUMBO_LEX_DECIMAL_CHARACTER_REFERENCE,
+  GUMBO_LEX_DECIMAL_CHARACTER_REFERENCE,
 
   // 12.2.5.80 Numeric character reference end state
   // https://html.spec.whatwg.org/multipage/parsing.html#numeric-character-reference-end-state
-  // GUMBO_LEX_NUMERIC_CHARACTER_REFERENCE_END
+  GUMBO_LEX_NUMERIC_CHARACTER_REFERENCE_END
 } GumboTokenizerEnum;
 
 #endif // GUMBO_TOKENIZER_STATES_H_
