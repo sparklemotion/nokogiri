@@ -14,6 +14,7 @@ task gem: :test
 
 ext = Rake::ExtensionTask.new 'nokogumbo' do |e|
   e.lib_dir = 'lib/nokogumbo'
+  e.source_pattern = '../../gumbo-parser/src/*.[hc]'
 end
 
 Rake::TestTask.new(:test) do |t|

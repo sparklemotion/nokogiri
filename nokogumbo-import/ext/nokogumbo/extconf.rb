@@ -108,9 +108,14 @@ gumbo_src = File.join(ext_dir, 'gumbo_src')
 
 Dir.chdir(ext_dir) do
   $srcs = Dir['*.c', '../../gumbo-parser/src/*.c']
+  $hdrs = Dir['*.h', '../../gumbo-parser/src/*.h']
 end
 $INCFLAGS << ' -I$(srcdir)/../../gumbo-parser/src'
 $VPATH << '$(srcdir)/../../gumbo-parser/src'
 
-create_makefile('nokogumbo/nokogumbo')
+create_makefile('nokogumbo/nokogumbo') do |conf|
+  conf.map! do |chunk|
+    chunk.gsub(/^HDRS = .*$/, "HDRS = #{$hdrs.map { |h| File.join('$(srcdir)', h)}.join(' ')}")
+  end
+end
 # vim: set sw=2 sts=2 ts=8 et:
