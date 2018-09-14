@@ -704,7 +704,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
-        XmlNodeSet xmlNodeSet = XmlNodeSet.create(context.runtime);
+        XmlNodeSet xmlNodeSet = XmlNodeSet.newEmptyNodeSet(context);
 
         NodeList nodeList = node.getChildNodes();
         if (nodeList.getLength() > 0) {
@@ -737,8 +737,8 @@ public class XmlNode extends RubyObject {
     public IRubyObject element_children(ThreadContext context) {
         List<Node> elementNodes = new ArrayList<Node>();
         addElements(node, elementNodes, false);
-        if (elementNodes.size() == 0) return XmlNodeSet.newEmptyNodeSet(context);
-        RubyArray array = NokogiriHelpers.nodeArrayToRubyArray(context.getRuntime(), elementNodes.toArray(new Node[0]));
+        IRubyObject[] array = NokogiriHelpers.nodeArrayToArray(context.runtime,
+                                                               elementNodes.toArray(new Node[0]));
         XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, array);
         return xmlNodeSet;
     }
@@ -842,7 +842,7 @@ public class XmlNode extends RubyObject {
                 documentErrors.add(docErrors.entry(i));
             }
             document.setInstanceVariable("@errors", documentErrors);
-            XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, RubyArray.newArray(runtime));
+            XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, new IRubyObject[0]);
             return xmlNodeSet;
         }
 
@@ -854,10 +854,9 @@ public class XmlNode extends RubyObject {
         } else {
             first = doc.node.getFirstChild();
         }
-        RubyArray nodeArray = RubyArray.newArray(runtime);
-        nodeArray.add(NokogiriHelpers.getCachedNodeOrCreate(runtime, first));
 
-        XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, nodeArray);
+        IRubyObject[] nodes = new IRubyObject[]{NokogiriHelpers.getCachedNodeOrCreate(runtime, first)};
+        XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, nodes);
         return xmlNodeSet;
     }
 

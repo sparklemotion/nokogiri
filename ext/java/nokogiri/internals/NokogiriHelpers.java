@@ -34,7 +34,6 @@ package nokogiri.internals;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -43,6 +42,20 @@ import java.nio.charset.Charset;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jruby.Ruby;
+import org.jruby.RubyArray;
+import org.jruby.RubyClass;
+import org.jruby.RubyString;
+import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.util.ByteList;
+import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import nokogiri.HtmlDocument;
 import nokogiri.NokogiriService;
@@ -58,21 +71,6 @@ import nokogiri.XmlNode;
 import nokogiri.XmlProcessingInstruction;
 import nokogiri.XmlText;
 import nokogiri.XmlXpathContext;
-
-import org.jruby.Ruby;
-import org.jruby.RubyArray;
-import org.jruby.RubyClass;
-import org.jruby.RubyEncoding;
-import org.jruby.RubyString;
-import org.jruby.runtime.ThreadContext;
-import org.jruby.runtime.builtin.IRubyObject;
-import org.jruby.util.ByteList;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.DOMException;
 
 /**
  * A class for various utility methods.
@@ -627,16 +625,20 @@ public class NokogiriHelpers {
         return newPrefix + ':' + tagName;
     }
 
-    public static RubyArray nodeListToRubyArray(Ruby ruby, NodeList nodes) {
-        RubyArray array = RubyArray.newArray(ruby, nodes.getLength());
-        return nodeListToRubyArray(ruby, nodes, array);
-    }
-
-    public static RubyArray nodeListToRubyArray(Ruby ruby, NodeList nodes, RubyArray array) {
-        for(int i = 0; i < nodes.getLength(); i++) {
-            array.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i)));
+    public static IRubyObject[] nodeListToRubyArray(Ruby ruby, NodeList nodes) {
+        IRubyObject[] array = new IRubyObject[nodes.getLength()];
+        for (int i = 0; i < nodes.getLength(); i++) {
+          array[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i));
         }
         return array;
+    }
+
+    public static IRubyObject[] nodeArrayToArray(Ruby ruby, Node[] nodes) {
+        IRubyObject[] result = new IRubyObject[nodes.length];
+        for(int i = 0; i < nodes.length; i++) {
+            result[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]);
+        }
+        return result;
     }
 
     public static RubyArray nodeArrayToRubyArray(Ruby ruby, Node[] nodes) {
