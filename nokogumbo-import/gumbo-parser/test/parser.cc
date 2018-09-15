@@ -73,7 +73,7 @@ class GumboParserTest : public ::testing::Test {
 
     output_ = gumbo_parse_with_options(&options_, input.data(), input.length());
     root_ = output_->document;
-    SanityCheckPointers(input.data(), input.length(), output_->root, 1000);
+    SanityCheckPointers(input.data(), input.length(), output_->root, 0);
   }
 
   GumboOptions options_;
