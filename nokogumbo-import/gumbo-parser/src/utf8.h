@@ -111,6 +111,11 @@ const char* utf8iterator_get_char_pointer(const Utf8Iterator* iter);
 // decoder.
 const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter);
 
+// Retrieves a character pointer to the marked position.
+static inline const char* utf8iterator_get_mark_pointer(const Utf8Iterator* iter) {
+  return iter->_mark;
+}
+
 // If the upcoming text in the buffer matches the specified prefix (which has
 // length 'length'), consume it and return true. Otherwise, return false with
 // no other effects. If the length of the string would overflow the buffer,
