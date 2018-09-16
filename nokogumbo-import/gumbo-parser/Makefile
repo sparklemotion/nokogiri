@@ -1,4 +1,4 @@
-.PHONY: all clean check dirs
+.PHONY: all clean check coverage
 
 gumbo_objs := $(patsubst %.c,build/%.o,$(wildcard src/*.c))
 test_objs := $(patsubst %.cc,build/%.o,$(wildcard test/*.cc))
@@ -34,6 +34,41 @@ build/run_tests: $(gumbo_objs) $(test_objs) $(gtest_lib)
 check: build/run_tests
 	./build/run_tests
 
+coverage:
+	$(RM) build/{src,test}/*.gcda
+	$(RM) build/*.info
+	$(MAKE) CPPFLAGS='-Isrc -DNDEBUG=1' \
+		CFLAGS='-std=c99 --coverage -g -O0' \
+		CXXFLAGS='-isystem googletest/include -std=c++11 --coverage -g -O0' \
+		LDFLAGS='--coverage' \
+		build/run_tests
+	lcov	--no-external \
+		--initial \
+		--capture \
+		--base-directory . \
+		--directory build \
+		--output-file build/coverage-pre.info
+	awk	-F '[:,]' \
+		'/^SF:/ { delete defs } /^FN:/ { defs[$$2]=1 } /^DA:/ { if ($$3 == 0 && $$2 in defs) next } { print }' \
+		build/coverage-pre.info > build/coverage-initial.info
+	./build/run_tests
+	lcov	--no-external \
+		--capture \
+		--base-directory . \
+		--directory build \
+		--rc lcov_branch_coverage=1 \
+		--output-file build/coverage-test.info
+	lcov	--add-tracefile build/coverage-initial.info \
+		--add-tracefile build/coverage-test.info \
+		--rc lcov_branch_coverage=1 \
+		--output-file build/coverage.info
+	lcov	--remove build/coverage.info '$(CURDIR)/googletest/*' \
+		--rc lcov_branch_coverage=1 \
+		--output-file build/coverage.info
+	genhtml --branch-coverage \
+		--output-directory build/coverage \
+		build/coverage.info
+
 clean:
 	$(RM) -r build
 
@@ -51,7 +86,7 @@ build/test/flags: | build/test
 	@echo 'old_SANITIZEFLAGS := $(SANITIZEFLAGS)' >> $@
 	@echo 'old_LDFLAGS := $(LDFLAGS)' >> $@
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(filter clean coverage,$(MAKECMDGOALS)))
 # Ensure that the flags are up to date.
 -include build/src/flags build/test/flags
 ifneq ($(old_CC) | $(old_CPPFLAGS) | $(old_CFLAGS) | $(old_SANITIZEFLAGS) | $(old_LDFLAGS),$(CC) | $(CPPFLAGS) | $(CFLAGS) | $(SANITIZEFLAGS) | $(LDFLAGS))
