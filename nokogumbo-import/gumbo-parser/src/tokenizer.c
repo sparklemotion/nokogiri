@@ -555,8 +555,8 @@ static StateResult emit_doctype(GumboParser* parser, GumboToken* output) {
 // it can be asserted on tag creation, verifying that there are no memory leaks.
 static void mark_tag_state_as_empty(GumboTagState* tag_state) {
   UNUSED_IF_NDEBUG(tag_state);
-#ifndef NDEBUG
   tag_state->_name = NULL;
+#ifndef NDEBUG
   tag_state->_attributes = kGumboEmptyVector;
 #endif
 }
