@@ -8,6 +8,7 @@
 ## Bug fixes
 
 * [MRI] Fix regression in installation when building against system libraries, where some systems would not be able to find libxml2 or libxslt when present. (Regression introduced in v1.8.3.) [#1722]
+* [JRuby] Fix node reparenting when the destination doc is empty. [#1773]
 
 
 # 1.8.4 / 2018-07-03
