@@ -61,10 +61,6 @@ typedef struct GumboInternalUtf8Iterator {
   struct GumboInternalParser* _parser;
 } Utf8Iterator;
 
-// Returns true if this Unicode code point is in the list of characters
-// forbidden by the HTML5 spec, such as NUL bytes and undefined control chars.
-bool utf8_is_invalid_code_point(int c) CONST_FN;
-
 // Returns true if this Unicode code point is a surrogate.
 CONST_FN static inline bool utf8_is_surrogate(int c) {
   return c >= 0xD800 && c <= 0xDFFF;
@@ -96,20 +92,42 @@ void utf8iterator_init (
 void utf8iterator_next(Utf8Iterator* iter);
 
 // Returns the current code point as an integer.
-int utf8iterator_current(const Utf8Iterator* iter);
+static inline int utf8iterator_current(const Utf8Iterator* iter) {
+  return iter->_current;
+}
 
 // Retrieves and fills the output parameter with the current source position.
-void utf8iterator_get_position(
-    const Utf8Iterator* iter, GumboSourcePosition* output);
+static inline void utf8iterator_get_position (
+  const Utf8Iterator* iter,
+  GumboSourcePosition* output
+) {
+  *output = iter->_pos;
+}
+
+// Retrieves the marked position.
+static inline GumboSourcePosition utf8iterator_get_mark_position (
+  const Utf8Iterator* iter
+) {
+  return iter->_mark_pos;
+}
 
 // Retrieves a character pointer to the start of the current character.
-const char* utf8iterator_get_char_pointer(const Utf8Iterator* iter);
+static inline const char* utf8iterator_get_char_pointer(const Utf8Iterator* iter) {
+  return iter->_start;
+}
+
+// Retrieves the width of the current character.
+static inline size_t utf8iterator_get_width(const Utf8Iterator* iter) {
+  return iter->_width;
+}
 
 // Retrieves a character pointer to 1 past the end of the buffer. This is
 // necessary for certain state machines and string comparisons that would like
 // to look directly for ASCII text in the buffer without going through the
 // decoder.
-const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter);
+static inline const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter) {
+  return iter->_end;
+}
 
 // Retrieves a character pointer to the marked position.
 static inline const char* utf8iterator_get_mark_pointer(const Utf8Iterator* iter) {
@@ -137,13 +155,6 @@ void utf8iterator_mark(Utf8Iterator* iter);
 
 // Returns the current input stream position to the mark.
 void utf8iterator_reset(Utf8Iterator* iter);
-
-// Sets the position and original text fields of an error to the value at the
-// mark.
-void utf8iterator_fill_error_at_mark (
-  Utf8Iterator* iter,
-  struct GumboInternalError* error
-);
 
 #ifdef __cplusplus
 }

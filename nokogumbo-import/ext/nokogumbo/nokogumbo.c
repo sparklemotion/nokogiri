@@ -20,11 +20,9 @@
 
 #include <assert.h>
 #include <ruby.h>
-#include <ruby/encoding.h>
 #include <ruby/version.h>
 
 #include "gumbo.h"
-#include "error.h"
 
 // class constants
 static VALUE Document;
@@ -35,16 +33,18 @@ static ID parent;
 
 /* Backwards compatibility to Ruby 2.1.0 */
 #if RUBY_API_VERSION_CODE < 20200
-static VALUE rb_utf8_str_new_cstr(const char *str) {
-  return rb_enc_str_new_cstr(str, rb_utf8_encoding());
-}
+#include <ruby/encoding.h>
 
 static VALUE rb_utf8_str_new(const char *str, long length) {
   return rb_enc_str_new(str, length, rb_utf8_encoding());
 }
 
+static VALUE rb_utf8_str_new_cstr(const char *str) {
+  return rb_enc_str_new_cstr(str, rb_utf8_encoding());
+}
+
 static VALUE rb_utf8_str_new_static(const char *str, long length) {
-  return rb_enc_str_new_static(str, length, rb_utf8_encoding());
+  return rb_enc_str_new(str, length, rb_utf8_encoding());
 }
 #endif
 
@@ -79,22 +79,22 @@ typedef char xmlChar;
 // Redefine libxml2 API as Ruby function calls.
 static xmlNodePtr xmlNewDocNode(xmlDocPtr doc, xmlNsPtr ns, const xmlChar *name, const xmlChar *content) {
   assert(ns == NIL && content == NULL);
-  return rb_funcall(cNokogiriXmlElement, new, 2, rb_str_new2(name), doc);
+  return rb_funcall(cNokogiriXmlElement, new, 2, rb_utf8_str_new_cstr(name), doc);
 }
 
 static xmlNodePtr xmlNewDocText(xmlDocPtr doc, const xmlChar *content) {
-  VALUE str = rb_str_new2(content);
+  VALUE str = rb_utf8_str_new_cstr(content);
   return rb_funcall(cNokogiriXmlText, new, 2, str, doc);
 }
 
 static xmlNodePtr xmlNewCDataBlock(xmlDocPtr doc, const xmlChar *content, int len) {
-  VALUE str = rb_str_new(content, len);
+  VALUE str = rb_utf8_str_new(content, len);
   // CDATA.new takes arguments in the opposite order from Text.new.
   return rb_funcall(cNokogiriXmlCData, new, 2, doc, str);
 }
 
 static xmlNodePtr xmlNewDocComment(xmlDocPtr doc, const xmlChar *content) {
-  VALUE str = rb_str_new2(content);
+  VALUE str = rb_utf8_str_new_cstr(content);
   return rb_funcall(cNokogiriXmlComment, new, 2, doc, str);
 }
 
@@ -123,7 +123,7 @@ static VALUE find_dummy_key(VALUE collection) {
   ID key_;
   CONST_ID(key_, "key?");
   while (len < sizeof dummy) {
-    r_dummy = rb_str_new(dummy, len);
+    r_dummy = rb_utf8_str_new(dummy, len);
     if (rb_funcall(collection, key_, 1, r_dummy) == Qfalse)
       return r_dummy;
     for (size_t i = 0; ; ++i) {
@@ -155,7 +155,7 @@ static void xmlNewNsProp (
   ID set_attribute;
   CONST_ID(set_attribute, "set_attribute");
 
-  VALUE rvalue = rb_str_new2(value);
+  VALUE rvalue = rb_utf8_str_new_cstr(value);
 
   if (RTEST(ns)) {
     // This is an easy case, we have a namespace so it's enough to do
@@ -169,7 +169,7 @@ static void xmlNewNsProp (
   }
 
   size_t len = strlen(name);
-  VALUE rname = rb_str_new(name, len);
+  VALUE rname = rb_utf8_str_new(name, len);
   if (memchr(name, ':', len) == NULL) {
     // This is the easiest case. There's no colon so we can do
     // node[name] = value.
@@ -236,22 +236,22 @@ static xmlDocPtr new_html_doc(const char *dtd_name, const char *system, const ch
   if (system == NULL && public == NULL) {
     ID remove;
     CONST_ID(remove, "remove");
-    doc = rb_funcall(Document, new, 2, /* URI */ Qnil, /* external_id */ rb_str_new("", 0));
+    doc = rb_funcall(Document, new, 2, /* URI */ Qnil, /* external_id */ rb_utf8_str_new_static("", 0));
     rb_funcall(rb_funcall(doc, internal_subset, 0), remove, 0);
     if (dtd_name) {
       // We need to create an internal subset now.
       ID create_internal_subset;
       CONST_ID(create_internal_subset, "create_internal_subset");
-      rb_funcall(doc, create_internal_subset, 3, rb_str_new2(dtd_name), Qnil, Qnil);
+      rb_funcall(doc, create_internal_subset, 3, rb_utf8_str_new_cstr(dtd_name), Qnil, Qnil);
     }
   } else {
     assert(dtd_name);
     // Rather than removing and creating the internal subset as we did above,
     // just create and then rename one.
-    VALUE r_system = system ? rb_str_new2(system) : Qnil;
-    VALUE r_public = public ? rb_str_new2(public) : Qnil;
+    VALUE r_system = system ? rb_utf8_str_new_cstr(system) : Qnil;
+    VALUE r_public = public ? rb_utf8_str_new_cstr(public) : Qnil;
     doc = rb_funcall(Document, new, 2, r_system, r_public);
-    rb_funcall(rb_funcall(doc, internal_subset, 0), node_name_, 1, rb_str_new2(dtd_name));
+    rb_funcall(rb_funcall(doc, internal_subset, 0), node_name_, 1, rb_utf8_str_new_cstr(dtd_name));
   }
   return doc;
 #endif
@@ -304,8 +304,8 @@ static xmlNsPtr lookup_or_add_ns (
 #else
   ID add_namespace_definition;
   CONST_ID(add_namespace_definition, "add_namespace_definition");
-  VALUE rprefix = rb_str_new2(prefix);
-  VALUE rhref = rb_str_new2(href);
+  VALUE rprefix = rb_utf8_str_new_cstr(prefix);
+  VALUE rhref = rb_utf8_str_new_cstr(href);
   return rb_funcall(root, add_namespace_definition, 2, rprefix, rhref);
 #endif
 }
@@ -443,30 +443,31 @@ static void add_errors(const GumboOutput *output, VALUE rdoc, VALUE input, VALUE
   // Add parse errors to rdoc.
   if (output->errors.length) {
     const GumboVector *errors = &output->errors;
-    GumboStringBuffer msg;
     VALUE rerrors = rb_ary_new2(errors->length);
 
-    gumbo_string_buffer_init(&msg);
     for (size_t i=0; i < errors->length; i++) {
       GumboError *err = errors->data[i];
-      gumbo_string_buffer_clear(&msg);
-      gumbo_caret_diagnostic_to_string(err, input_str, input_len, &msg);
-      VALUE err_str = rb_str_new(msg.data, msg.length);
+      GumboSourcePosition position = gumbo_error_position(err);
+      char *msg;
+      size_t size = gumbo_caret_diagnostic_to_string(err, input_str, input_len, &msg);
+      VALUE err_str = rb_utf8_str_new(msg, size);
+      free(msg);
       VALUE syntax_error = rb_class_new_instance(1, &err_str, cNokogiriXmlSyntaxError);
+      const char *error_code = gumbo_error_code(err);
+      VALUE str1 = error_code? rb_utf8_str_new_static(error_code, strlen(error_code)) : Qnil;
       rb_iv_set(syntax_error, "@domain", INT2NUM(1)); // XML_FROM_PARSER
       rb_iv_set(syntax_error, "@code", INT2NUM(1));   // XML_ERR_INTERNAL_ERROR
       rb_iv_set(syntax_error, "@level", INT2NUM(2));  // XML_ERR_ERROR
       rb_iv_set(syntax_error, "@file", url);
-      rb_iv_set(syntax_error, "@line", INT2NUM(err->position.line));
-      rb_iv_set(syntax_error, "@str1", Qnil);
+      rb_iv_set(syntax_error, "@line", INT2NUM(position.line));
+      rb_iv_set(syntax_error, "@str1", str1);
       rb_iv_set(syntax_error, "@str2", Qnil);
       rb_iv_set(syntax_error, "@str3", Qnil);
-      rb_iv_set(syntax_error, "@int1", INT2NUM(err->type));
-      rb_iv_set(syntax_error, "@column", INT2NUM(err->position.column));
+      rb_iv_set(syntax_error, "@int1", INT2NUM(0));
+      rb_iv_set(syntax_error, "@column", INT2NUM(position.column));
       rb_ary_push(rerrors, syntax_error);
     }
     rb_iv_set(rdoc, "@errors", rerrors);
-    gumbo_string_buffer_destroy(&msg);
   }
 }
 
@@ -646,7 +647,8 @@ static VALUE fragment (
     // Encoding.
     if (RSTRING_LEN(tag_name) == 14
         && !st_strcasecmp(ctx_tag, "annotation-xml")) {
-      VALUE enc = rb_funcall(ctx, rb_intern_const("[]"), rb_str_new_cstr("encoding"));
+      VALUE enc = rb_funcall(ctx, rb_intern_const("[]"),
+                             rb_utf8_str_new_static("encoding", 8));
       if (RTEST(enc)) {
         Check_Type(enc, T_STRING);
         encoding = StringValueCStr(enc);
@@ -701,13 +703,13 @@ static VALUE fragment_continue(ParseArgs *args) {
   args->doc = NIL; // The Ruby runtime owns doc so make sure we don't delete it.
   xmlNodePtr xml_frag = extract_xml_node(doc_fragment);
   build_tree(xml_doc, xml_frag, output->root);
-  add_errors(output, doc_fragment, args->input, rb_str_new_cstr("#fragment"));
+  add_errors(output, doc_fragment, args->input, rb_utf8_str_new_static("#fragment", 9));
   return Qnil;
 }
 
 // Initialize the Nokogumbo class and fetch constants we will use later.
 void Init_nokogumbo() {
-  rb_funcall(rb_mKernel, rb_intern("gem"), 1, rb_str_new_cstr("nokogiri"));
+  rb_funcall(rb_mKernel, rb_intern("gem"), 1, rb_utf8_str_new_static("nokogiri", 8));
   rb_require("nokogiri");
 
 #ifndef NGLIB

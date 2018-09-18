@@ -98,16 +98,9 @@ static void add_error(Utf8Iterator* iter, GumboErrorType type) {
   }
   error->type = type;
   error->position = iter->_pos;
-  error->original_text = iter->_start;
-
-  // At the point the error is recorded, the code point hasn't been computed
-  // yet (and can't be, because it's invalid), so we need to build up the raw
-  // hex value from the bytes under the cursor.
-  uint32_t code_point = 0;
-  for (size_t i = 0; i < iter->_width; ++i) {
-    code_point = (code_point << 8) | (unsigned char) iter->_start[i];
-  }
-  error->v.codepoint = code_point;
+  error->original_text.data = iter->_start;
+  error->original_text.length = iter->_width;
+  error->v.tokenizer.codepoint = iter->_current;
 }
 
 // Reads the next UTF-8 character in the iter.
@@ -145,13 +138,15 @@ static void read_char(Utf8Iterator* iter) {
         }
         code_point = '\n';
       }
-      if (utf8_is_invalid_code_point(code_point)) {
-	// Invalid code points are errors, but they are not replaced by
-	// U+FFFD.
-	// https://html.spec.whatwg.org/multipage/parsing.html#preprocessing-the-input-stream
-        add_error(iter, GUMBO_ERR_UTF8_INVALID);
-      }
       iter->_current = code_point;
+      if (utf8_is_surrogate(code_point)) {
+	add_error(iter, GUMBO_ERR_SURROGATE_IN_INPUT_STREAM);
+      } else if (utf8_is_noncharacter(code_point)) {
+        add_error(iter, GUMBO_ERR_NONCHARACTER_IN_INPUT_STREAM);
+      } else if (utf8_is_control(code_point)
+                 && !(gumbo_ascii_isspace(code_point) || code_point == 0)) {
+        add_error(iter, GUMBO_ERR_CONTROL_CHARACTER_IN_INPUT_STREAM);
+      }
       return;
     } else if (state == UTF8_REJECT) {
       // We don't want to consume the invalid continuation byte of a multi-byte
@@ -167,8 +162,8 @@ static void read_char(Utf8Iterator* iter) {
   // rest of the iterator, and emit a replacement character. The next time we
   // enter this method, it will detect that there's no input to consume and
   // output an EOF.
-  iter->_current = kUtf8ReplacementChar;
   iter->_width = iter->_end - iter->_start;
+  iter->_current = kUtf8ReplacementChar;
   add_error(iter, GUMBO_ERR_UTF8_TRUNCATED);
 }
 
@@ -183,20 +178,6 @@ static void update_position(Utf8Iterator* iter) {
   } else if (iter->_current != -1) {
     ++iter->_pos.column;
   }
-}
-
-// Returns true if this Unicode code point is in the list of characters
-// forbidden by the HTML5 spec, such as undefined control chars.
-bool utf8_is_invalid_code_point(int c) {
-  return
-    (c >= 0x1 && c <= 0x8)
-    || c == 0xB
-    || (c >= 0xE && c <= 0x1F)
-    || (c >= 0x7F && c <= 0x9F)
-    || (c >= 0xFDD0 && c <= 0xFDEF)
-    || ((c & 0xFFFF) == 0xFFFE)
-    || ((c & 0xFFFF) == 0xFFFF)
-  ;
 }
 
 void utf8iterator_init (
@@ -220,25 +201,6 @@ void utf8iterator_next(Utf8Iterator* iter) {
   update_position(iter);
   iter->_start += iter->_width;
   read_char(iter);
-}
-
-int utf8iterator_current(const Utf8Iterator* iter) {
-  return iter->_current;
-}
-
-void utf8iterator_get_position (
-  const Utf8Iterator* iter,
-  GumboSourcePosition* output
-) {
-  *output = iter->_pos;
-}
-
-const char* utf8iterator_get_char_pointer(const Utf8Iterator* iter) {
-  return iter->_start;
-}
-
-const char* utf8iterator_get_end_pointer(const Utf8Iterator* iter) {
-  return iter->_end;
 }
 
 bool utf8iterator_maybe_consume_match (
@@ -275,11 +237,4 @@ void utf8iterator_reset(Utf8Iterator* iter) {
   iter->_start = iter->_mark;
   iter->_pos = iter->_mark_pos;
   read_char(iter);
-}
-
-// Sets the position and original text fields of an error to the value at the
-// mark.
-void utf8iterator_fill_error_at_mark(Utf8Iterator* iter, GumboError* error) {
-  error->position = iter->_mark_pos;
-  error->original_text = iter->_mark;
 }

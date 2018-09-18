@@ -7,6 +7,7 @@
 #include "insertion_mode.h"
 #include "string_buffer.h"
 #include "token_type.h"
+#include "tokenizer_states.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,85 +16,65 @@ extern "C" {
 struct GumboInternalParser;
 
 typedef enum {
+  // Defined errors.
+  // https://html.spec.whatwg.org/multipage/parsing.html#parse-errors
+  GUMBO_ERR_ABRUPT_CLOSING_OF_EMPTY_COMMENT,
+  GUMBO_ERR_ABRUPT_DOCTYPE_PUBLIC_IDENTIFIER,
+  GUMBO_ERR_ABRUPT_DOCTYPE_SYSTEM_IDENTIFIER,
+  GUMBO_ERR_ABSENCE_OF_DIGITS_IN_NUMERIC_CHARACTER_REFERENCE,
+  GUMBO_ERR_CDATA_IN_HTML_CONTENT,
+  GUMBO_ERR_CHARACTER_REFERENCE_OUTSIDE_UNICODE_RANGE,
+  GUMBO_ERR_CONTROL_CHARACTER_IN_INPUT_STREAM,
+  GUMBO_ERR_CONTROL_CHARACTER_REFERENCE,
+  GUMBO_ERR_END_TAG_WITH_ATTRIBUTES,
+  GUMBO_ERR_DUPLICATE_ATTRIBUTE,
+  GUMBO_ERR_END_TAG_WITH_TRAILING_SOLIDUS,
+  GUMBO_ERR_EOF_BEFORE_TAG_NAME,
+  GUMBO_ERR_EOF_IN_CDATA,
+  GUMBO_ERR_EOF_IN_COMMENT,
+  GUMBO_ERR_EOF_IN_DOCTYPE,
+  GUMBO_ERR_EOF_IN_SCRIPT_HTML_COMMENT_LIKE_TEXT,
+  GUMBO_ERR_EOF_IN_TAG,
+  GUMBO_ERR_INCORRECTLY_CLOSED_COMMENT,
+  GUMBO_ERR_INCORRECTLY_OPENED_COMMENT,
+  GUMBO_ERR_INVALID_CHARACTER_SEQUENCE_AFTER_DOCTYPE_NAME,
+  GUMBO_ERR_INVALID_FIRST_CHARACTER_OF_TAG_NAME,
+  GUMBO_ERR_MISSING_ATTRIBUTE_VALUE,
+  GUMBO_ERR_MISSING_DOCTYPE_NAME,
+  GUMBO_ERR_MISSING_DOCTYPE_PUBLIC_IDENTIFIER,
+  GUMBO_ERR_MISSING_DOCTYPE_SYSTEM_IDENTIFIER,
+  GUMBO_ERR_MISSING_END_TAG_NAME,
+  GUMBO_ERR_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER,
+  GUMBO_ERR_MISSING_QUOTE_BEFORE_DOCTYPE_SYSTEM_IDENTIFIER,
+  GUMBO_ERR_MISSING_SEMICOLON_AFTER_CHARACTER_REFERENCE,
+  GUMBO_ERR_MISSING_WHITESPACE_AFTER_DOCTYPE_PUBLIC_KEYWORD,
+  GUMBO_ERR_MISSING_WHITESPACE_AFTER_DOCTYPE_SYSTEM_KEYWORD,
+  GUMBO_ERR_MISSING_WHITESPACE_BEFORE_DOCTYPE_NAME,
+  GUMBO_ERR_MISSING_WHITESPACE_BETWEEN_ATTRIBUTES,
+  GUMBO_ERR_MISSING_WHITESPACE_BETWEEN_DOCTYPE_PUBLIC_AND_SYSTEM_IDENTIFIERS,
+  GUMBO_ERR_NESTED_COMMENT,
+  GUMBO_ERR_NONCHARACTER_CHARACTER_REFERENCE,
+  GUMBO_ERR_NONCHARACTER_IN_INPUT_STREAM,
+  GUMBO_ERR_NON_VOID_HTML_ELEMENT_START_TAG_WITH_TRAILING_SOLIDUS,
+  GUMBO_ERR_NULL_CHARACTER_REFERENCE,
+  GUMBO_ERR_SURROGATE_CHARACTER_REFERENCE,
+  GUMBO_ERR_SURROGATE_IN_INPUT_STREAM,
+  GUMBO_ERR_UNEXPECTED_CHARACTER_AFTER_DOCTYPE_SYSTEM_IDENTIFIER,
+  GUMBO_ERR_UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME,
+  GUMBO_ERR_UNEXPECTED_CHARACTER_IN_UNQUOTED_ATTRIBUTE_VALUE,
+  GUMBO_ERR_UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME,
+  GUMBO_ERR_UNEXPECTED_NULL_CHARACTER,
+  GUMBO_ERR_UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME,
+  GUMBO_ERR_UNEXPECTED_SOLIDUS_IN_TAG,
+  GUMBO_ERR_UNKNOWN_NAMED_CHARACTER_REFERENCE,
+
+  // Encoding errors.
   GUMBO_ERR_UTF8_INVALID,
   GUMBO_ERR_UTF8_TRUNCATED,
-  GUMBO_ERR_UTF8_NULL,
-  GUMBO_ERR_NUMERIC_CHAR_REF_NO_DIGITS,
-  GUMBO_ERR_NUMERIC_CHAR_REF_WITHOUT_SEMICOLON,
-  GUMBO_ERR_NUMERIC_CHAR_REF_INVALID,
-  GUMBO_ERR_NAMED_CHAR_REF_WITHOUT_SEMICOLON,
-  GUMBO_ERR_NAMED_CHAR_REF_INVALID,
-  GUMBO_ERR_TAG_STARTS_WITH_QUESTION,
-  GUMBO_ERR_TAG_EOF,
-  GUMBO_ERR_TAG_INVALID,
-  GUMBO_ERR_CLOSE_TAG_EMPTY,
-  GUMBO_ERR_CLOSE_TAG_EOF,
-  GUMBO_ERR_CLOSE_TAG_INVALID,
-  GUMBO_ERR_CLOSE_TAG_SELF_CLOSING,
-  GUMBO_ERR_CLOSE_TAG_HAS_ATTRIBUTES,
-  GUMBO_ERR_SCRIPT_EOF,
-  GUMBO_ERR_ATTR_NAME_EOF,
-  GUMBO_ERR_ATTR_NAME_INVALID,
-  GUMBO_ERR_ATTR_DOUBLE_QUOTE_EOF,
-  GUMBO_ERR_ATTR_SINGLE_QUOTE_EOF,
-  GUMBO_ERR_ATTR_UNQUOTED_EOF,
-  GUMBO_ERR_ATTR_UNQUOTED_RIGHT_BRACKET,
-  GUMBO_ERR_ATTR_UNQUOTED_EQUALS,
-  GUMBO_ERR_ATTR_AFTER_EOF,
-  GUMBO_ERR_ATTR_AFTER_INVALID,
-  GUMBO_ERR_DUPLICATE_ATTR,
-  GUMBO_ERR_SOLIDUS_EOF,
-  GUMBO_ERR_SOLIDUS_INVALID,
-  GUMBO_ERR_DASHES_OR_DOCTYPE,
-  GUMBO_ERR_COMMENT_EOF,
-  GUMBO_ERR_COMMENT_INVALID,
-  GUMBO_ERR_COMMENT_BANG_AFTER_DOUBLE_DASH,
-  GUMBO_ERR_COMMENT_DASH_AFTER_DOUBLE_DASH,
-  GUMBO_ERR_COMMENT_SPACE_AFTER_DOUBLE_DASH,
-  GUMBO_ERR_COMMENT_END_BANG_EOF,
-  GUMBO_ERR_DOCTYPE_EOF,
-  GUMBO_ERR_DOCTYPE_INVALID,
-  GUMBO_ERR_DOCTYPE_SPACE,
-  GUMBO_ERR_DOCTYPE_RIGHT_BRACKET,
-  GUMBO_ERR_DOCTYPE_SPACE_OR_RIGHT_BRACKET,
-  GUMBO_ERR_DOCTYPE_END,
+
+  // Generic parser error.
   GUMBO_ERR_PARSER,
-  GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG,
 } GumboErrorType;
-
-// Additional data for duplicated attributes.
-typedef struct GumboInternalDuplicateAttrError {
-  // The name of the attribute. Owned by this struct.
-  const char* name;
-
-  // The (0-based) index within the attributes vector of the original
-  // occurrence.
-  unsigned int original_index;
-
-  // The (0-based) index where the new occurrence would be.
-  unsigned int new_index;
-} GumboDuplicateAttrError;
-
-// A simplified representation of the tokenizer state, designed to be more
-// useful to clients of this library than the internal representation. This
-// condenses the actual states used in the tokenizer state machine into a few
-// values that will be familiar to users of HTML.
-typedef enum {
-  GUMBO_ERR_TOKENIZER_DATA,
-  GUMBO_ERR_TOKENIZER_CHAR_REF,
-  GUMBO_ERR_TOKENIZER_RCDATA,
-  GUMBO_ERR_TOKENIZER_RAWTEXT,
-  GUMBO_ERR_TOKENIZER_PLAINTEXT,
-  GUMBO_ERR_TOKENIZER_SCRIPT,
-  GUMBO_ERR_TOKENIZER_TAG,
-  GUMBO_ERR_TOKENIZER_SELF_CLOSING_TAG,
-  GUMBO_ERR_TOKENIZER_ATTR_NAME,
-  GUMBO_ERR_TOKENIZER_ATTR_VALUE,
-  GUMBO_ERR_TOKENIZER_MARKUP_DECLARATION,
-  GUMBO_ERR_TOKENIZER_COMMENT,
-  GUMBO_ERR_TOKENIZER_DOCTYPE,
-  GUMBO_ERR_TOKENIZER_CDATA,
-} GumboTokenizerErrorState;
 
 // Additional data for tokenizer errors.
 // This records the current state and codepoint encountered - this is usually
@@ -103,7 +84,7 @@ typedef struct GumboInternalTokenizerError {
   int codepoint;
 
   // The state that the tokenizer was in at the time.
-  GumboTokenizerErrorState state;
+  GumboTokenizerEnum state;
 } GumboTokenizerError;
 
 // Additional data for parse errors.
@@ -126,43 +107,25 @@ typedef struct GumboInternalParserError {
 // The overall error struct representing an error in decoding/tokenizing/parsing
 // the HTML. This contains an enumerated type flag, a source position, and then
 // a union of fields containing data specific to the error.
-typedef struct GumboInternalError {
+struct GumboInternalError {
   // The type of error.
   GumboErrorType type;
 
   // The position within the source file where the error occurred.
   GumboSourcePosition position;
 
-  // A pointer to the byte within the original source file text where the error
-  // occurred (note that this is not the same as position.offset, as that gives
-  // character-based instead of byte-based offsets).
-  const char* original_text;
+  // The piece of text that caused the error.
+  GumboStringPiece original_text;
 
   // Type-specific error information.
   union {
-    // The code point we encountered, for:
-    // * GUMBO_ERR_UTF8_INVALID
-    // * GUMBO_ERR_UTF8_TRUNCATED
-    // * GUMBO_ERR_NUMERIC_CHAR_REF_WITHOUT_SEMICOLON
-    // * GUMBO_ERR_NUMERIC_CHAR_REF_INVALID
-    uint32_t codepoint;
-
     // Tokenizer errors.
     GumboTokenizerError tokenizer;
 
-    // Short textual data, for:
-    // * GUMBO_ERR_NAMED_CHAR_REF_WITHOUT_SEMICOLON
-    // * GUMBO_ERR_NAMED_CHAR_REF_INVALID
-    GumboStringPiece text;
-
-    // Duplicate attribute data, for GUMBO_ERR_DUPLICATE_ATTR.
-    GumboDuplicateAttrError duplicate_attr;
-
-    // Parser state, for GUMBO_ERR_PARSER and
-    // GUMBO_ERR_UNACKNOWLEDGE_SELF_CLOSING_TAG.
-    struct GumboInternalParserError parser;
+    // Parser errors.
+    GumboParserError parser;
   } v;
-} GumboError;
+};
 
 // Adds a new error to the parser's error list, and returns a pointer to it so
 // that clients can fill out the rest of its fields. May return NULL if we're
@@ -177,32 +140,6 @@ void gumbo_destroy_errors(struct GumboInternalParser* errors);
 
 // Frees the memory used for a single GumboError.
 void gumbo_error_destroy(GumboError* error);
-
-// Prints an error to a string. This fills an empty GumboStringBuffer with a
-// freshly-allocated buffer containing the error message text. The caller is
-// responsible for freeing the buffer.
-void gumbo_error_to_string (
-  const GumboError* error,
-  GumboStringBuffer* output
-);
-
-// Prints a caret diagnostic to a string. This fills an empty GumboStringBuffer
-// with a freshly-allocated buffer containing the error message text. The
-// caller is responsible for freeing the buffer.
-void gumbo_caret_diagnostic_to_string (
-  const GumboError* error,
-  const char* source_text,
-  size_t source_length,
-  GumboStringBuffer* output
-);
-
-// Like gumbo_caret_diagnostic_to_string, but prints the text to stdout instead
-// of writing to a string.
-void gumbo_print_caret_diagnostic (
-  const GumboError* error,
-  const char* source_text,
-  size_t source_length
-);
 
 #ifdef __cplusplus
 }

@@ -42,7 +42,7 @@ typedef uint8_t TagSet[GUMBO_TAG_LAST + 1];
 
 #define GUMBO_EMPTY_SOURCE_POSITION_INIT { .line = 0, .column = 0, .offset = 0 }
 #define kGumboEmptySourcePosition (const GumboSourcePosition) \
-	GUMBO_EMPTY_SOURCE_POSITION_INIT
+  GUMBO_EMPTY_SOURCE_POSITION_INIT
 
 const GumboOptions kGumboDefaultOptions = {
   .tab_stop = 8,
@@ -738,18 +738,18 @@ static void reset_insertion_mode_appropriately(GumboParser* parser) {
   assert(0);
 }
 
-static GumboError* parser_add_parse_error (
+static void parser_add_parse_error (
   GumboParser* parser,
   const GumboToken* token
 ) {
   gumbo_debug("Adding parse error.\n");
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
-    return NULL;
+    return;
   }
   error->type = GUMBO_ERR_PARSER;
   error->position = token->position;
-  error->original_text = token->original_text.data;
+  error->original_text = token->original_text;
   GumboParserError* extra_data = &error->v.parser;
   extra_data->input_type = token->type;
   extra_data->input_tag = GUMBO_TAG_UNKNOWN;
@@ -772,7 +772,6 @@ static GumboError* parser_add_parse_error (
       &extra_data->tag_stack
     );
   }
-  return error;
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#mathml-text-integration-point
@@ -3325,8 +3324,8 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
         // TODO(jdtang): Do I need to add a parse error here?  The condition in
         // the spec seems like it's the inverse of the loop condition above, and
         // so would never fire.
-	// sfc: Yes, an error is needed here.
-	// <!DOCTYPE><body><sarcasm><foo></sarcasm> is an example.
+        // sfc: Yes, an error is needed here.
+        // <!DOCTYPE><body><sarcasm><foo></sarcasm> is an example.
         // foo is the "current node" but sarcasm is node.
         // XXX: Write a test for this.
         if (node != get_current_node(parser))
@@ -4554,7 +4553,7 @@ static void fragment_parser_init (
   // 11.
   if (ctx_has_form_ancestor
       || (ctx_tag == GUMBO_TAG_FORM
-	  && fragment_namespace == GUMBO_NAMESPACE_HTML)) {
+          && fragment_namespace == GUMBO_NAMESPACE_HTML)) {
     static const GumboNode form_ancestor = {
       .type = GUMBO_NODE_ELEMENT,
       .parent = NULL,
@@ -4676,14 +4675,19 @@ GumboOutput* gumbo_parse_with_options (
       if (token.type == GUMBO_TOKEN_START_TAG &&
           token.v.start_tag.is_self_closing &&
           !state->_self_closing_flag_acknowledged) {
-        GumboError* error = parser_add_parse_error(&parser, &token);
-        if (error)
-          error->type = GUMBO_ERR_UNACKNOWLEDGED_SELF_CLOSING_TAG;
+        GumboError* error = gumbo_add_error(&parser);
+        if (error) {
+          // This is essentially a tokenizer error that's only caught during
+          // tree construction.
+          error->type = GUMBO_ERR_NON_VOID_HTML_ELEMENT_START_TAG_WITH_TRAILING_SOLIDUS;
+          error->original_text = token.original_text;
+          error->position = token.position;
+        }
       }
       // Make sure we free the end tag's name since it doesn't get transferred
       // to a token.
       if (token.type == GUMBO_TOKEN_END_TAG &&
-	  token.v.end_tag.tag == GUMBO_TAG_UNKNOWN)
+          token.v.end_tag.tag == GUMBO_TAG_UNKNOWN)
         gumbo_free(token.v.end_tag.name);
     }
 

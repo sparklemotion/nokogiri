@@ -817,10 +817,6 @@ typedef struct GumboInternalOutput {
 
   /**
    * A list of errors that occurred during the parse.
-   * NOTE: In version 1.0 of this library, the API for errors hasn't been fully
-   * fleshed out and may change in the future. For this reason, the GumboError
-   * header isn't part of the public API. Contact us if you need errors
-   * reported so we can work out something appropriate for your use-case.
    */
   GumboVector /* GumboError */ errors;
 
@@ -865,6 +861,53 @@ const char* gumbo_status_to_string(GumboOutputStatus status);
 
 /** Release the memory used for the parse tree and parse errors. */
 void gumbo_destroy_output(GumboOutput* output);
+
+/** Opaque GumboError type */
+typedef struct GumboInternalError GumboError;
+
+/**
+ * Returns the position of the error.
+ */
+GumboSourcePosition gumbo_error_position(const GumboError* error);
+
+/**
+ * Returns a constant string representation of the error's code. This is owned
+ * by the library and should not be freed by the caller.
+ */
+const char* gumbo_error_code(const GumboError* error);
+
+/**
+ * Prints an error to a string. This stores a freshly-allocated buffer
+ * containing the error message text in output. The caller is responsible for
+ * freeing the buffer. The size of the error message is returned. The error
+ * message itself may not be NULL-terminated and may contain NULL bytes so the
+ * returned size must be used.
+ */
+size_t gumbo_error_to_string(const GumboError* error, char **output);
+
+/**
+ * Prints a caret diagnostic to a string. This stores a freshly-allocated
+ * buffer containing the error message text in output. The caller is responsible for
+ * freeing the buffer. The size of the error message is returned. The error
+ * message itself may not be NULL-terminated and may contain NULL bytes so the
+ * returned size must be used.
+ */
+size_t gumbo_caret_diagnostic_to_string (
+  const GumboError* error,
+  const char* source_text,
+  size_t source_length,
+  char** output
+);
+
+/**
+ * Like gumbo_caret_diagnostic_to_string, but prints the text to stdout
+ * instead of writing to a string.
+ */
+void gumbo_print_caret_diagnostic (
+  const GumboError* error,
+  const char* source_text,
+  size_t source_length
+);
 
 #ifdef __cplusplus
 }
