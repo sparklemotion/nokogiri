@@ -20,6 +20,9 @@
 
 #include <assert.h>
 #include <ruby.h>
+#include <ruby/encoding.h>
+#include <ruby/version.h>
+
 #include "gumbo.h"
 #include "error.h"
 
@@ -29,6 +32,21 @@ static VALUE Document;
 // Interned symbols
 static ID internal_subset;
 static ID parent;
+
+/* Backwards compatibility to Ruby 2.1.0 */
+#if RUBY_API_VERSION_CODE < 20200
+static VALUE rb_utf8_str_new_cstr(const char *str) {
+  return rb_enc_str_new_cstr(str, rb_utf8_encoding());
+}
+
+static VALUE rb_utf8_str_new(const char *str, long length) {
+  return rb_enc_str_new(str, length, rb_utf8_encoding());
+}
+
+static VALUE rb_utf8_str_new_static(const char *str, long length) {
+  return rb_enc_str_new_static(str, length, rb_utf8_encoding());
+}
+#endif
 
 #if NGLIB
 #include <nokogiri.h>
