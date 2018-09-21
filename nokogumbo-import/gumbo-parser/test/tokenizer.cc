@@ -915,6 +915,14 @@ TEST_F(GumboTokenizerTest, EscapedScriptStates2) {
   NextEndTag(GUMBO_TAG_SCRIPT);
 }
 
+TEST_F(GumboTokenizerTest, ReadOutOfBounds) {
+  SetInput("&notindot;", 6);
+  NextChar(0x00AC, true);
+  NextChar('i');
+  NextChar('n');
+  AtEnd();
+}
+
 TEST_F(GumboTokenizerTest, ControlCharRefs) {
   SetInput("&#x80;&#x82;&#x83;&#x84;&#x85;&#x86;&#x87;&#x88;&#x89;"
            "&#x8A;&#x8B;&#x8C;&#x8E;&#x91;&#x92;&#x93;&#x94;&#x95;"

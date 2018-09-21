@@ -2140,12 +2140,13 @@ size_t match_named_char_ref (
   int cs;
   int act;
   const char *p = str;
-  const char *const eof = 0;
+  const char *pe = str + size;
+  const char *const eof = pe;
   const char *ts;
   const char *te;
   output[0] = output[1] = kGumboNoChar;
   %% write init;
-  %% write exec noend;
+  %% write exec;
   size = p - str;
   return cs >= %%{ write first_final; }%%? size:0;
 }

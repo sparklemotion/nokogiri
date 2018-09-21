@@ -13179,12 +13179,13 @@ size_t match_named_char_ref (
   int cs;
   int act;
   const char *p = str;
-  const char *const eof = 0;
+  const char *pe = str + size;
+  const char *const eof = pe;
   const char *ts;
   const char *te;
   output[0] = output[1] = kGumboNoChar;
   
-#line 13188 "src/char_ref.c"
+#line 13189 "src/char_ref.c"
 	{
 	cs = start;
 	ts = 0;
@@ -13192,14 +13193,16 @@ size_t match_named_char_ref (
 	act = 0;
 	}
 
-#line 2148 "src/char_ref.rl"
+#line 2149 "src/char_ref.rl"
   
-#line 13198 "src/char_ref.c"
+#line 13199 "src/char_ref.c"
 	{
 	int _slen;
 	int _trans;
 	const char *_keys;
 	const short *_inds;
+	if ( p == pe )
+		goto _test_eof;
 	if ( cs == 0 )
 		goto _out;
 _resume:
@@ -13208,7 +13211,7 @@ _resume:
 #line 1 "NONE"
 	{ts = p;}
 	break;
-#line 13212 "src/char_ref.c"
+#line 13215 "src/char_ref.c"
 	}
 
 	_keys = _trans_keys + (cs<<1);
@@ -22186,7 +22189,7 @@ _eof_trans:
 #line 1948 "src/char_ref.rl"
 	{{p = ((te))-1;}{output[0]=0xd7; {p++; goto _out; }}}
 	break;
-#line 22190 "src/char_ref.c"
+#line 22193 "src/char_ref.c"
 	}
 
 _again:
@@ -22195,13 +22198,14 @@ _again:
 #line 1 "NONE"
 	{ts = 0;}
 	break;
-#line 22199 "src/char_ref.c"
+#line 22202 "src/char_ref.c"
 	}
 
 	if ( cs == 0 )
 		goto _out;
-	p += 1;
-	goto _resume;
+	if ( ++p != pe )
+		goto _resume;
+	_test_eof: {}
 	if ( p == eof )
 	{
 	if ( _eof_trans[cs] > 0 ) {
@@ -22213,7 +22217,7 @@ _again:
 	_out: {}
 	}
 
-#line 2149 "src/char_ref.rl"
+#line 2150 "src/char_ref.rl"
   size = p - str;
   return cs >= 7623? size:0;
 }
