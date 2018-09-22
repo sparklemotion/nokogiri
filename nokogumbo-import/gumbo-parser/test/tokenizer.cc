@@ -3212,6 +3212,7 @@ TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Space_A
   NextDoctype("html", NULL, NULL, true);
   Error(GUMBO_ERR_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER);
   EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
 }
 
 TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Quote) {
@@ -3248,6 +3249,7 @@ TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_Public_Anythin
   NextDoctype("html", NULL, NULL, true);
   Error(GUMBO_ERR_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER);
   EXPECT_TRUE(token_.v.doc_type.force_quirks);
+  AtEnd();
 }
 
 TEST_F(GumboTokenizerTest, Data_LT_Bang_Doctype_Space_Alpha_Space_System_Tab_Tab_LF_FF_Space_Quote_Quote_GT) {

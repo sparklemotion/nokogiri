@@ -241,6 +241,22 @@ static void tokenizer_add_char_ref_error (
   error->v.tokenizer.codepoint = codepoint;
 }
 
+static void tokenizer_add_cdata_in_html_error(GumboParser* parser) {
+  GumboTokenizerState* tokenizer = parser->_tokenizer_state;
+  tokenizer->_parse_error = true;
+  GumboError* error = gumbo_add_error(parser);
+  if (!error)
+    return;
+  Utf8Iterator* input = &tokenizer->_input;
+  error->type = GUMBO_ERR_CDATA_IN_HTML_CONTENT;
+  error->position = tokenizer->_token_start_pos;
+  error->original_text.data = tokenizer->_token_start;
+  error->original_text.length =
+    utf8iterator_get_char_pointer(input) - tokenizer->_token_start;
+  error->v.tokenizer.state = tokenizer->_state;
+  error->v.tokenizer.codepoint = 0;
+}
+
 static bool is_alpha(int c) {
   return gumbo_ascii_isalpha(c);
 }
@@ -2073,7 +2089,7 @@ static StateResult handle_markup_declaration_open_state (
       // Start the token after the <![CDATA[.
       reset_token_start_point(tokenizer);
     } else {
-      tokenizer_add_parse_error(parser, GUMBO_ERR_CDATA_IN_HTML_CONTENT);
+      tokenizer_add_cdata_in_html_error(parser);
       clear_temporary_buffer(parser);
       append_string_to_temporary_buffer (
         parser,
@@ -2426,7 +2442,6 @@ static StateResult handle_doctype_name_state (
       finish_temporary_buffer(parser, &tokenizer->_doc_type_state.name);
       return emit_doctype(parser, output);
     default:
-      gumbo_tokenizer_set_state(parser, GUMBO_LEX_DOCTYPE_NAME);
       append_char_to_temporary_buffer(parser, ensure_lowercase(c));
       return CONTINUE;
   }
@@ -2510,7 +2525,7 @@ static StateResult handle_after_doctype_public_keyword_state (
       tokenizer_add_parse_error(parser, GUMBO_ERR_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER);
       reconsume_in_state(parser, GUMBO_LEX_BOGUS_DOCTYPE);
       tokenizer->_doc_type_state.force_quirks = true;
-      return emit_doctype(parser, output);
+      return CONTINUE;
   }
 }
 
@@ -2551,7 +2566,7 @@ static StateResult handle_before_doctype_public_id_state (
       tokenizer_add_parse_error(parser, GUMBO_ERR_MISSING_QUOTE_BEFORE_DOCTYPE_PUBLIC_IDENTIFIER);
       reconsume_in_state(parser, GUMBO_LEX_BOGUS_DOCTYPE);
       tokenizer->_doc_type_state.force_quirks = true;
-      return emit_doctype(parser, output);
+      return CONTINUE;
   }
 }
 

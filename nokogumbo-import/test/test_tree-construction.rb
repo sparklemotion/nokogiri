@@ -16,12 +16,19 @@ def parse_test(test_data)
     line == '#document-fragment' ||
       line == '#document' ||
       line == '#script-off' ||
-      line == '#script-on'
+      line == '#script-on' ||
+      line == '#new-errors'
   end
   abort 'Expected #document' if index.nil?
   test[:errors] = lines[0...index]
-    .map { |line| line.chomp }
-    .keep_if { |line| line != '#new-errors' }
+  test[:new_errors] = []
+  if lines[index] == '#new-errors'
+    index += 1
+    while !%w[#document-fragment #document #script-off #script-on].include?(lines[index])
+      test[:new_errors] << lines[index]
+      index += 1
+    end
+  end
 
   if lines[index] == '#document-fragment'
     test[:context] = lines[index+1].chomp.split(' ', 2)
@@ -174,12 +181,10 @@ class TestTreeConstructionBase < Minitest::Test
     if @test[:context]
       ctx = @test[:context].join(':')
       doc = Nokogiri::HTML5::Document.new
-      doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], ctx, max_errors: @test[:errors].length + 1)
+      doc = Nokogiri::HTML5::DocumentFragment.new(doc, @test[:data], ctx, max_errors: @test[:errors].length + 10)
     else
-      doc = Nokogiri::HTML5.parse(@test[:data], max_errors: @test[:errors].length + 1)
+      doc = Nokogiri::HTML5.parse(@test[:data], max_errors: @test[:errors].length + 10)
     end
-    # assert_equal doc.errors.length, @test[:errors].length
-
     # Walk the tree.
     exp_nodes = [@test[:document]]
     act_nodes = [doc]
@@ -204,6 +209,35 @@ class TestTreeConstructionBase < Minitest::Test
         act_nodes << act_child
         children << 0
       end
+    end
+
+    # Test the errors.
+    assert_equal @test[:errors].length, doc.errors.length
+
+    # The new, standardized tokenizer errors live in @test[:new_errors]. Let's
+    # match each one to exactly one error in doc.errors. Unfortunately, the
+    # tests specify the column the error is detected, _not_ the column of the
+    # start of the problematic HTML (e.g., the start of a character reference
+    # or <![CDATA[) the way gumbo does. So check that Gumbo's column is no
+    # later than the error's column.
+    errors = doc.errors.map { |err| { line: err.line, column: err.column, code: err.str1 } }
+    errors.reject! { |err| err[:code] == 'generic-parser' }
+    error_regex = /^\((?<line>\d+):(?<column>\d+)(?:-\d+:\d+)?\) (?<code>.*)$/
+    @test[:new_errors].each do |err|
+      assert_match(error_regex, err)
+      m = err.match(error_regex)
+      line = m[:line].to_i
+      column = m[:column].to_i
+      code = m[:code]
+      idx = errors.index do |e|
+        e[:line] == line &&
+          e[:code] == code &&
+          e[:column] <= column
+      end
+      # This error should be the first error in the list.
+      #refute_nil(idx, "Expected to find error #{code} at #{line}:#{column}")
+      assert_equal(0, idx, "Expected to find error #{code} at #{line}:#{column}")
+      errors.delete_at(idx)
     end
   end
 end
