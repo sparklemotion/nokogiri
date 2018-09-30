@@ -1287,7 +1287,8 @@ static StateResult handle_script_data_lt_state (
   if (c == '/') {
     gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_END_TAG_OPEN);
     return CONTINUE;
-  } else if (c == '!') {
+  }
+  if (c == '!') {
     // This is the only place we don't reconsume the input before emitting the
     // temporary buffer. Since the current position is stored and the current
     // character is not emitted, we need to advance the input and then
@@ -1295,10 +1296,9 @@ static StateResult handle_script_data_lt_state (
     utf8iterator_next(&tokenizer->_input);
     reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_START);
     return emit_from_mark(parser, output);
-  } else {
-    reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA);
-    return emit_from_mark(parser, output);
   }
+  reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA);
+  return emit_from_mark(parser, output);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-open-state
@@ -1312,10 +1312,9 @@ static StateResult handle_script_data_end_tag_open_state (
     reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA_END_TAG_NAME);
     start_new_tag(parser, false);
     return CONTINUE;
-  } else {
-    reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA);
-    return emit_from_mark(parser, output);
   }
+  reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA);
+  return emit_from_mark(parser, output);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-end-tag-name-state
@@ -1370,10 +1369,9 @@ static StateResult handle_script_data_escaped_start_state (
   if (c == '-') {
     gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_START_DASH);
     return emit_char(parser, c, output);
-  } else {
-    reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA);
-    return CONTINUE;
   }
+  reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA);
+  return CONTINUE;
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escape-start-dash-state
@@ -1487,13 +1485,13 @@ static StateResult handle_script_data_escaped_lt_state (
   if (c == '/') {
     gumbo_tokenizer_set_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_END_TAG_OPEN);
     return CONTINUE;
-  } else if (is_alpha(c)) {
+  }
+  if (is_alpha(c)) {
     reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA_DOUBLE_ESCAPED_START);
     return emit_from_mark(parser, output);
-  } else {
-    reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
-    return emit_from_mark(parser, output);
   }
+  reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
+  return emit_from_mark(parser, output);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-open-state
@@ -1507,10 +1505,9 @@ static StateResult handle_script_data_escaped_end_tag_open_state (
     reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED_END_TAG_NAME);
     start_new_tag(parser, false);
     return CONTINUE;
-  } else {
-    reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
-    return emit_from_mark(parser, output);
   }
+  reconsume_in_state(parser, GUMBO_LEX_SCRIPT_DATA_ESCAPED);
+  return emit_from_mark(parser, output);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#script-data-escaped-end-tag-name-state
