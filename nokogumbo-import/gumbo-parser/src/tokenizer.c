@@ -221,6 +221,7 @@ static void tokenizer_add_parse_error (
   error->v.tokenizer.codepoint = utf8iterator_current(input);
 }
 
+// Adds an error pointing at the start of the character reference.
 static void tokenizer_add_char_ref_error (
   struct GumboInternalParser* parser,
   GumboErrorType type,
@@ -241,14 +242,18 @@ static void tokenizer_add_char_ref_error (
   error->v.tokenizer.codepoint = codepoint;
 }
 
-static void tokenizer_add_cdata_in_html_error(GumboParser* parser) {
+// Adds an error pointing at the start of the token.
+static void tokenizer_add_token_parse_error (
+  GumboParser* parser,
+  GumboErrorType type
+) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   tokenizer->_parse_error = true;
   GumboError* error = gumbo_add_error(parser);
   if (!error)
     return;
   Utf8Iterator* input = &tokenizer->_input;
-  error->type = GUMBO_ERR_CDATA_IN_HTML_CONTENT;
+  error->type = type;
   error->position = tokenizer->_token_start_pos;
   error->original_text.data = tokenizer->_token_start;
   error->original_text.length =
@@ -474,9 +479,9 @@ static StateResult emit_current_tag(GumboParser* parser, GumboToken* output) {
     output->v.end_tag.tag = tag_state->_tag;
     output->v.end_tag.name = tag_state->_name;
     if (tag_state->_is_self_closing)
-      tokenizer_add_parse_error(parser, GUMBO_ERR_END_TAG_WITH_TRAILING_SOLIDUS);
+      tokenizer_add_token_parse_error(parser, GUMBO_ERR_END_TAG_WITH_TRAILING_SOLIDUS);
     if (tag_state->_attributes.length > 0)
-      tokenizer_add_parse_error(parser, GUMBO_ERR_END_TAG_WITH_ATTRIBUTES);
+      tokenizer_add_token_parse_error(parser, GUMBO_ERR_END_TAG_WITH_ATTRIBUTES);
     // In end tags, ownership of the attributes vector is not transferred to the
     // token, but it's still initialized as normal, so it must be manually
     // deallocated. There may also be attributes to destroy, in certain broken
@@ -2089,7 +2094,7 @@ static StateResult handle_markup_declaration_open_state (
       // Start the token after the <![CDATA[.
       reset_token_start_point(tokenizer);
     } else {
-      tokenizer_add_cdata_in_html_error(parser);
+      tokenizer_add_token_parse_error(parser, GUMBO_ERR_CDATA_IN_HTML_CONTENT);
       clear_temporary_buffer(parser);
       append_string_to_temporary_buffer (
         parser,
