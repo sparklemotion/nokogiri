@@ -33,6 +33,7 @@ matrix:
       rvm: 2.5
       script: scripts/ci-package-test.sh
 
-install: git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git test/html5lib-tests
+#install: git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git test/html5lib-tests
+install: git clone --depth 1 --branch all-error-fixes --single-branch https://github.com/stevecheckoway/html5lib-tests.git test/html5lib-tests
 script: scripts/ci-test.sh
 cache: bundler

@@ -21,7 +21,8 @@ install:
   - bundle --version
   - bundle install --path vendor/bundle
   - bundle exec nokogiri --version
-  - git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git test/html5lib-tests
+  - git clone --depth 1 --branch all-error-fixes --single-branch https://github.com/stevecheckoway/html5lib-tests.git test/html5lib-tests
+  #- git clone --depth 1 --branch master --single-branch https://github.com/html5lib/html5lib-tests.git test/html5lib-tests
 
 build: off
 
