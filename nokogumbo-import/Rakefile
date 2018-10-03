@@ -19,11 +19,8 @@ end
 
 Rake::TestTask.new(:test) do |t|
   t.libs << 'test'
-  t.test_files = FileList['test/**/test_*.rb']
+  t.pattern = 'test/test_*.rb'
 end
-
-# list of ext source files to be included in package, excluded from CLEAN
-SOURCES = Dir['ext/nokogumbo/*.{rb,c}']
 
 desc 'Run the gumbo unit tests'
 task 'test:gumbo' => 'gumbo-parser/googletest' do
@@ -41,7 +38,6 @@ Gem::PackageTask.new(Gem::Specification.load('nokogumbo.gemspec')) do |pkg|
 end
 
 # cleanup
-CLEAN.include(FileList.new('ext/nokogumbo/*') - SOURCES)
 CLEAN.include(File.join('lib/nokogumbo', ext.binary))
 CLOBBER.include(FileList.new('pkg', 'Gemfile.lock'))
 

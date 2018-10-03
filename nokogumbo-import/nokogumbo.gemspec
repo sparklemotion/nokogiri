@@ -25,8 +25,7 @@ Gem::Specification.new do |s|
   s.files = %w[ LICENSE.txt README.md ] +
     Dir['lib/**/*.rb'] +
     Dir['ext/nokogumbo/*.{rb,c}'] +
-    Dir['gumbo-parser/src/*.[hc]'] +
-    Dir['gumbo-parser/visualc/include/*.h']
+    Dir['gumbo-parser/src/*.[hc]']
 
   s.required_ruby_version = ">= 2.1"
   s.add_runtime_dependency 'nokogiri', '~> 1.8', '>= 1.8.4'
