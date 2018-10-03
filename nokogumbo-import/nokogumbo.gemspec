@@ -29,5 +29,5 @@ Gem::Specification.new do |s|
     Dir['gumbo-parser/visualc/include/*.h']
 
   s.required_ruby_version = ">= 2.1"
-  s.add_runtime_dependency 'nokogiri'
+  s.add_runtime_dependency 'nokogiri', '~> 1.8', '>= 1.8.4'
 end
