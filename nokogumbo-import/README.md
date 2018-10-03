@@ -15,8 +15,7 @@ require 'nokogumbo'
 doc = Nokogiri.HTML5(string)
 ```
 
-An experimental _fragment_ method is also provided.  While not HTML5
-compliant, it may be useful:
+To parse an HTML fragment, a `fragment` method is provided.
 
 ```ruby
 require 'nokogumbo'
@@ -50,20 +49,26 @@ no parse errors are reported but this can be configured by passing the
 
 ```ruby
 require 'nokogumbo'
-doc = Nokogiri::HTML5.parse('Hi there!<body>', max_errors: 10)
+doc = Nokogiri::HTML5.parse('<span/>Hi there!</span foo=bar />', max_errors: 10)
 doc.errors.each do |err|
-  puts err
+  puts(err)
 end
 ```
 
 This prints the following.
 ```
-1:1: ERROR: @1:1: The doctype must be the first token in the document.
-Hi there!<body>
+1:1: ERROR: Expected a doctype token
+<span/>Hi there!</span foo=bar />
 ^
-1:10: ERROR: @1:10: That tag isn't allowed here  Currently open tags: html, body..
-Hi there!<body>
-         ^
+1:1: ERROR: Start tag of nonvoid HTML element ends with '/>', use '>'.
+<span/>Hi there!</span foo=bar />
+^
+1:17: ERROR: End tag ends with '/>', use '>'.
+<span/>Hi there!</span foo=bar />
+                ^
+1:17: ERROR: End tag contains attributes.
+<span/>Hi there!</span foo=bar />
+                ^
 ```
 
 Using `max_errors: -1` results in an unlimited number of errors being
@@ -71,6 +76,41 @@ returned.
 
 The errors returned by `#errors` are instances of
 [`Nokogiri::XML::SyntaxError`](https://www.rubydoc.info/github/sparklemotion/nokogiri/Nokogiri/XML/SyntaxError).
+
+The [HTML
+standard](https://html.spec.whatwg.org/multipage/parsing.html#parse-errors)
+defines a number of standard parse error codes. These error codes only cover
+the "tokenization" stage of parsing HTML. The parse errors in the
+"tree construction" stage do not have standardized error codes (yet).
+
+As a convenience to Nokogumbo users, the defined error codes are available
+via the
+[`Nokogiri::XML::SyntaxError#str1`](https://www.rubydoc.info/github/sparklemotion/nokogiri/Nokogiri/XML/SyntaxError#str1-instance_method)
+method.
+
+```ruby
+require 'nokogumbo'
+doc = Nokogiri::HTML5.parse('<span/>Hi there!</span foo=bar />', max_errors: 10)
+doc.errors.each do |err|
+  puts("#{err.line}:#{err.column}: #{err.str1}")
+end
+```
+
+This prints the following.
+```
+1:1: generic-parser
+1:1: non-void-html-element-start-tag-with-trailing-solidus
+1:17: end-tag-with-trailing-solidus
+1:17: end-tag-with-attributes
+```
+
+Note that the first error is `generic-parser` because it's an error from the
+tree construction stage and doesn't have a standardized error code.
+
+For the purposes of semantic versioning, the error messages, error locations,
+and error codes are not part of Nokogumbo's public API. That is, these are
+subject to change without Nokogumbo's major version number changing. These may
+be stabilized in the future.
 
 ### Maximum tree depth
 The maximum depth of the DOM tree parsed by the various parsing methods is
