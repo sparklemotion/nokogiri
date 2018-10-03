@@ -320,7 +320,7 @@ static void handle_parser_error (
   ) {
     print_message (
       output,
-      "The doctype must be the first token in the document"
+      "Expected a doctype token"
     );
     return;
   }
