@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [2.0.0] - 2018-10-04
+### Added
 - Experimental support for errors (it was supported in 1.5.0 but
   undocumented).
 - Added proper HTML5 serialization.
@@ -58,8 +66,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Deprecated
 - `:max_parse_errors`; use `:max_errors`
-
-### Removed
 
 ### Fixed
 - Fixed documents failing to serialize (via `to_html`) if they contain certain
