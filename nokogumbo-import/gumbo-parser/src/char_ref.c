@@ -22218,6 +22218,8 @@ _again:
 	}
 
 #line 2150 "src/char_ref.rl"
+  (void)ts;
+  (void)act;
   size = p - str;
   return cs >= 7623? size:0;
 }

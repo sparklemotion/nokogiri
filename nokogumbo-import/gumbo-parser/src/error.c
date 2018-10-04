@@ -516,6 +516,9 @@ const char* gumbo_error_code(const GumboError* error) {
   case GUMBO_ERR_PARSER:
     return "generic-parser";
   }
+  // Silence warning about control reaching end of non-void function.
+  // All errors _should_ be handled in the switch statement.
+  return "generic-parser";
 }
 
 static void error_to_string (

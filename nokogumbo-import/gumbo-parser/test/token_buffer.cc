@@ -34,7 +34,7 @@ class GumboCharacterTokenBufferTest : public GumboTest {
 
   void Fill(const char* input, size_t size = -1) {
     gumbo_character_token_buffer_clear(&buffer_);
-    if (size == -1)
+    if (size == static_cast<size_t>(-1))
       size = strlen(input);
     text_ = input;
     gumbo_tokenizer_state_init(&parser_, input, size);
@@ -192,6 +192,7 @@ TEST_F(GumboCharacterTokenBufferTest, CarriageReturn) {
   EXPECT_EQ(0, t.position.offset);
   EXPECT_EQ(&text_[0], t.original_text.data);
   EXPECT_EQ(6, t.original_text.length);
+  errors_are_expected_ = true;
 }
 
 }  // namespace

@@ -88,6 +88,8 @@ size_t match_named_char_ref (
   output[0] = output[1] = kGumboNoChar;
   %% write init;
   %% write exec;
+  (void)ts;
+  (void)act;
   size = p - str;
   return cs >= %%{ write first_final; }%%? size:0;
 }

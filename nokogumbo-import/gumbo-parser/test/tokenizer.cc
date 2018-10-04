@@ -45,7 +45,7 @@ class GumboTokenizerTest : public GumboTest {
       gumbo_token_destroy(&token_);
     text_ = input;
     gumbo_tokenizer_state_destroy(&parser_);
-    if (size == -1)
+    if (size == static_cast<size_t>(-1))
       size = strlen(input);
     gumbo_tokenizer_state_init(&parser_, input, size);
     at_start_ = true;

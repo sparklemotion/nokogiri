@@ -4782,10 +4782,10 @@ GumboOutput* gumbo_parse_with_options (
         break;
     }
     gumbo_debug (
-      "Handling %s token @%zu:%zu in state %u.\n",
+      "Handling %s token @%lu:%lu in state %u.\n",
       (char*) token_type,
-      token.position.line,
-      token.position.column,
+      (unsigned long)token.position.line,
+      (unsigned long)token.position.column,
       state->_insertion_mode
     );
 
