@@ -2,7 +2,7 @@
 
 ## Security Notes
 
-[MRI] Pulled in upstream patches from libxml2 that address CVE-2018-14404 and CVE-2018-14567. Full details are available in #1785. Note that these patches are not yet (as of 2018-08-15) in an upstream release of libxml2.
+[MRI] Pulled in upstream patches from libxml2 that address CVE-2018-14404 and CVE-2018-14567. Full details are available in [#1785](https://github.com/sparklemotion/nokogiri/issues/1785). Note that these patches are not yet (as of 2018-10-04) in an upstream release of libxml2.
 
 
 ## Bug fixes
