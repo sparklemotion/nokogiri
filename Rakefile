@@ -121,7 +121,8 @@ HOE = Hoe.spec 'nokogiri' do
   self.clean_globs += [
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
-    'lib/nokogiri/[0-9].[0-9]'
+    'lib/nokogiri/[0-9].[0-9]',
+    'test/*'
   ]
   self.clean_globs += Dir.glob("ports/*").reject { |d| d =~ %r{/archives$} }
 
