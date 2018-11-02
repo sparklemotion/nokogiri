@@ -560,7 +560,8 @@ EOM
       *(libiconv_recipe ? "--with-iconv=#{libiconv_recipe.path}" : iconv_configure_flags),
       "--with-c14n",
       "--with-debug",
-      "--with-threads"
+      "--with-threads",
+      *(darwin? ? ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"] : "")
     ]
   end
 
@@ -573,7 +574,8 @@ EOM
       "--without-python",
       "--without-crypto",
       "--with-debug",
-      "--with-libxml-prefix=#{sh_export_path(libxml2_recipe.path)}"
+      "--with-libxml-prefix=#{sh_export_path(libxml2_recipe.path)}",
+      *(darwin? ? ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"] : "")
     ]
   end
 
