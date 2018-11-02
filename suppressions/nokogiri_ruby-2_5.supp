@@ -1,0 +1,30 @@
+{
+   <ruby_cleanup_error_1>
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_locations
+   fun:rb_gc_mark_locations
+   fun:gc_mark_stacked_objects
+   fun:gc_mark_stacked_objects_incremental
+   fun:gc_marks_rest
+   ...
+   fun:ruby_finalize_?
+   fun:ruby_cleanup
+   fun:ruby_run_node
+   fun:main
+}
+{
+   <ruby_cleanup_error_2>
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_locations
+   fun:rb_gc_mark_locations
+   fun:gc_marks_wb_unprotected_objects
+   fun:gc_marks_finish
+   fun:gc_marks_rest
+   ...
+   fun:ruby_finalize_?
+   fun:ruby_cleanup
+   fun:ruby_run_node
+   fun:main
+}
