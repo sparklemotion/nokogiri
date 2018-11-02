@@ -70,6 +70,7 @@ resources:
       branch: master
       ignore_paths:
         - concourse/**
+        - suppressions/**
   - name: nokogiri-pr
     type: pull-request
     source:
@@ -77,6 +78,7 @@ resources:
       access_token: {{github-repo-status-access-token}}
       ignore_paths:
         - concourse/**
+        - suppressions/**
   - name: nokogiri-irc
     type: irc-notification
     source:

@@ -74,6 +74,12 @@ pushd nokogiri
   if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
     RAKE_TASK="test:valgrind" # override
     export TESTOPTS="-v" # see more verbose output to help narrow down warnings
+
+    # always use the CI suppressions if they exist
+    if [[ -d ../ci/suppressions ]] ; then
+      rm -rf suppressions
+      cp -var ../ci/suppressions .
+    fi
   fi
 
   bundle exec rake ${RAKE_TASK}
