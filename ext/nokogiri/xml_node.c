@@ -1308,11 +1308,11 @@ static VALUE line(VALUE self)
  */
 static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 {
-  xmlNodePtr node, namespacee;
+  xmlNodePtr node, namespace;
   xmlNsPtr ns;
 
   Data_Get_Struct(self, xmlNode, node);
-  namespacee = node ;
+  namespace = node ;
 
   ns = xmlSearchNs(
          node->doc,
@@ -1322,10 +1322,10 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 
   if(!ns) {
     if (node->type != XML_ELEMENT_NODE) {
-      namespacee = node->parent;
+      namespace = node->parent;
     }
     ns = xmlNewNs(
-           namespacee,
+           namespace,
            (const xmlChar *)StringValueCStr(href),
            (const xmlChar *)(NIL_P(prefix) ? NULL : StringValueCStr(prefix))
          );
@@ -1333,7 +1333,7 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 
   if (!ns) { return Qnil ; }
 
-  if(NIL_P(prefix) || node != namespacee) { xmlSetNs(node, ns); }
+  if(NIL_P(prefix) || node != namespace) { xmlSetNs(node, ns); }
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }
