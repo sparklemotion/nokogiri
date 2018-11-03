@@ -63,15 +63,13 @@ static int part_of_an_xpath_node_set_eh(xmlNsPtr node)
 
 VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
 {
-  VALUE ns, document, node_cache;
+  VALUE ns = 0, document, node_cache;
 
   assert(doc->type == XML_DOCUMENT_NODE || doc->type == XML_HTML_DOCUMENT_NODE);
 
   if (node->_private) return (VALUE)node->_private;
 
   if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
-
-  ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
 
   if (DOC_RUBY_OBJECT_TEST(doc)) {
     document = DOC_RUBY_OBJECT(doc);
@@ -91,6 +89,8 @@ VALUE Nokogiri_wrap_xml_namespace(xmlDocPtr doc, xmlNsPtr node)
     }
 
     rb_iv_set(ns, "@document", document);
+  } else {
+    ns = Data_Wrap_Struct(cNokogiriXmlNamespace, 0, 0, node);
   }
 
   node->_private = (void *)ns;
