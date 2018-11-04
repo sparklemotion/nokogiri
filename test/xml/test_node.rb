@@ -415,10 +415,17 @@ module Nokogiri
         assert_equal ns, ns2
       end
 
-      def test_add_default_ns
+      def test_add_default_namespace
         node = @xml.at('address')
         node.add_namespace(nil, 'http://tenderlovemaking.com')
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns']
+      end
+
+      def test_add_default_namespace_twice
+        node = @xml.at('address')
+        ns = node.add_namespace(nil, 'http://tenderlovemaking.com')
+        ns2 = node.add_namespace(nil, 'http://tenderlovemaking.com')
+        assert_equal ns.object_id, ns2.object_id
       end
 
       def test_add_multiple_namespaces

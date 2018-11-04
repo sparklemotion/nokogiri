@@ -331,6 +331,18 @@ module Nokogiri
         assert_nil doc.at_xpath("//*[local-name() = 'products']").namespace
       end
 
+      def test_builder_reuses_namespaces
+        # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
+        builder = Nokogiri::XML::Builder.new
+        builder.send "envelope", {'xmlns': 'http://schemas.xmlsoap.org/soap/envelope/'} do
+          builder.send "package", {'xmlns': 'http://schemas.xmlsoap.org/soap/envelope/'}
+        end
+        envelope = builder.doc.at_css("envelope")
+        package = builder.doc.at_css("package")
+        assert_equal envelope.namespace, package.namespace
+        assert_equal envelope.namespace.object_id, package.namespace.object_id
+      end
+
       private
 
       def namespaces_defined_on(node)

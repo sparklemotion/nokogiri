@@ -99,6 +99,25 @@ static void relink_namespace(xmlNodePtr reparented)
     }
   }
 
+  /*
+   *  Search our parents for an existing definition of current namespace,
+   *  because the definition it's pointing to may have just been removed nsDef.
+   *
+   *  And although that would technically probably be OK, I'd feel better if we
+   *  referred to a namespace that's still present in a node's nsDef somewhere
+   *  in the doc.
+   */
+  if (reparented->ns) {
+    xmlNsPtr ns = xmlSearchNs(reparented->doc, reparented, reparented->ns->prefix);
+    if (ns
+        && ns != reparented->ns
+        && xmlStrEqual(ns->prefix, reparented->ns->prefix)
+        && xmlStrEqual(ns->href, reparented->ns->href)
+      ) {
+      xmlSetNs(reparented, ns);
+    }
+  }
+
   /* Only walk all children if there actually is a namespace we need to */
   /* reparent. */
   if (NULL == reparented->ns) { return; }
