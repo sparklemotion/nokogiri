@@ -13,6 +13,22 @@ class TestMemoryLeak < Nokogiri::TestCase
 EOF
   end
 
+  #
+  #  this suite is turned off unless the env var NOKOGIRI_GC is non-nil
+  #
+  #  to run any of these tests, do something like this on the commandline:
+  #
+  #    $ NOKOGIRI_GC=t ruby -Ilib:test \
+  #          test/test_memory_leak.rb \
+  #          -n /test_leaking_namespace_node_strings/
+  #
+  #  also see:
+  #
+  #    https://github.com/sparklemotion/nokogiri/issues/1603
+  #
+  #  which is an open issue to resurrect these tests and run them as
+  #  part of the CI pipeline.
+  #
   if ENV['NOKOGIRI_GC'] # turning these off by default for now
     def test_dont_hurt_em_why
       content = File.open("#{File.dirname(__FILE__)}/files/dont_hurt_em_why.xml").read
@@ -126,7 +142,7 @@ EOF
     end
 
     def test_in_context_parser_leak
-      loop do 
+      loop do
         doc = Nokogiri::XML::Document.new
         fragment1 = Nokogiri::XML::DocumentFragment.new(doc, '<foo/>')
         node = fragment1.children[0]
@@ -144,7 +160,52 @@ EOF
         doc.xpath('name(//node())')
       end
     end
+
+    def test_leaking_namespace_node_strings
+      # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
+      ns = {'xmlns': 'http://schemas.xmlsoap.org/soap/envelope/'}
+      20.times do
+        10_000.times do
+          Nokogiri::XML::Builder.new do |xml|
+            xml.send 'Envelope', ns do
+              xml.send 'Foobar', ns
+            end
+          end
+        end
+        puts MemInfo.rss
+      end
+    end
+
+    def test_leaking_namespace_node_strings_with_prefix
+      # see https://github.com/sparklemotion/nokogiri/issues/1810 for memory leak report
+      ns = {'xmlns:foo': 'http://schemas.xmlsoap.org/soap/envelope/'}
+      20.times do
+        10_000.times do
+          Nokogiri::XML::Builder.new do |xml|
+            xml.send 'Envelope', ns do
+              xml.send 'Foobar', ns
+            end
+          end
+        end
+        puts MemInfo.rss
+      end
+    end
   end # if NOKOGIRI_GC
+
+  module MemInfo
+    # from https://stackoverflow.com/questions/7220896/get-current-ruby-process-memory-usage
+    # this is only going to work on linux
+    PAGE_SIZE = `getconf PAGESIZE`.chomp.to_i rescue 4096
+    STATM_PATH = "/proc/#{Process.pid}/statm"
+    STATM_FOUND = File.exist?(STATM_PATH)
+
+    def self.rss
+      if STATM_FOUND
+        return (File.read(STATM_PATH).split(' ')[1].to_i * PAGE_SIZE) / 1024
+      end
+      return 0
+    end
+  end
 
   private
 
