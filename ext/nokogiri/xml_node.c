@@ -31,13 +31,13 @@ typedef xmlNodePtr (*pivot_reparentee_func)(xmlNodePtr, xmlNodePtr);
 static void relink_namespace(xmlNodePtr reparented)
 {
   xmlNodePtr child;
-  xmlNsPtr ns;
 
   if (reparented->type != XML_ATTRIBUTE_NODE &&
       reparented->type != XML_ELEMENT_NODE) { return; }
 
   if (reparented->ns == NULL || reparented->ns->prefix == NULL) {
-    xmlChar *name = 0, *prefix = 0;
+    xmlNsPtr ns = NULL;
+    xmlChar *name = NULL, *prefix = NULL;
 
     name = xmlSplitQName2(reparented->name, &prefix);
 
