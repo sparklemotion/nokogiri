@@ -5,7 +5,7 @@
    fun:gc_mark_locations
    fun:rb_gc_mark_locations
    fun:gc_mark_stacked_objects
-   fun:gc_mark_stacked_objects_incremental
+   fun:gc_mark_stacked_objects_*
    fun:gc_marks_rest
    ...
    fun:ruby_finalize_?
