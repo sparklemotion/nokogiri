@@ -1,3 +1,10 @@
+# unreleased
+
+## Bug fixes
+
+* [MRI] Address a memory leak when using XML::Builder to create nodes with namespaces. [#1810]
+
+
 # 1.8.5 / 2018-10-04
 
 ## Security Notes
