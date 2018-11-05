@@ -301,7 +301,11 @@ ok:
     }
 
     if (original_ns_prefix_is_default && reparentee->ns != NULL && reparentee->ns->prefix != NULL) {
-      /* issue #391, where new node's prefix may become the string "default" */
+      /*
+       *  issue #391, where new node's prefix may become the string "default"
+       *  see libxml2 tree.c xmlNewReconciliedNs which implements this behavior.
+       */
+      xmlFree(reparentee->ns->prefix);
       reparentee->ns->prefix = NULL;
     }
   }
