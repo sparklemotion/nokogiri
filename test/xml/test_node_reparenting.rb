@@ -553,6 +553,19 @@ module Nokogiri
           end
         end
 
+        describe "reparenting and preserving a reference to the original ns" do
+          it "should not cause illegal memory access" do
+            # this test will only cause a failure in valgrind. it
+            # drives out the reason why we can't call xmlFreeNs in
+            # relink_namespace and instead have to root the nsdef.
+            doc = Nokogiri::XML '<root xmlns="http://flavorjon.es/"><envelope /></root>'
+            elem = doc.create_element "package", {"xmlns" => "http://flavorjon.es/"}
+            ns = elem.namespace_definitions
+            doc.at_css("envelope").add_child elem
+            ns.inspect
+          end
+        end
+
         describe "reparenting into another document" do
           it "correctly sets default namespace of a reparented node" do
             # issue described in #391
