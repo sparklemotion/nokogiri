@@ -204,7 +204,7 @@ module Nokogiri
               node = doc1.at_xpath("//value")
               node.remove
               doc2.add_child(node)
-              assert_match /<value>3<\/value>/, doc2.to_xml
+              assert_match(/<value>3<\/value>/, doc2.to_xml)
             end
           end
 
@@ -249,7 +249,7 @@ module Nokogiri
                   @node.add_child(@child)
                   assert reparented = @doc.at('//bar:second', "bar" => "http://tenderlovemaking.com/")
                   assert reparented.namespace_definitions.empty?
-                  assert_equal @ns, reparented.namespace
+                  assert_equal @doc.root.namespace, reparented.namespace
                   assert_equal(
                     {
                       "xmlns"     => "http://tenderlovemaking.com/",
@@ -282,17 +282,20 @@ module Nokogiri
             end
 
             describe "and a child with a namespace matching the parent's non-default namespace" do
+              before do
+                @root_ns = @doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
+              end
+
               describe "set by #namespace=" do
                 before do
-                  @ns = @doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
-                  @child.namespace = @ns
+                  @child.namespace = @root_ns
                 end
 
                 it "inserts a node that inherits the matching parent namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.empty?
-                  assert_equal @ns, reparented.namespace
+                  assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
                       "xmlns"     => "http://tenderlovemaking.com/",
@@ -312,7 +315,7 @@ module Nokogiri
                   @node.add_child(@child)
                   assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.empty?
-                  assert_equal @ns, reparented.namespace
+                  assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
                       "xmlns"     => "http://tenderlovemaking.com/",
@@ -547,6 +550,19 @@ module Nokogiri
               saved_nodes.each { |child| child.inspect } # try to cause a crash
               assert_equal result, doc.at_xpath("/root/text()").inner_text
             end
+          end
+        end
+
+        describe "reparenting and preserving a reference to the original ns" do
+          it "should not cause illegal memory access" do
+            # this test will only cause a failure in valgrind. it
+            # drives out the reason why we can't call xmlFreeNs in
+            # relink_namespace and instead have to root the nsdef.
+            doc = Nokogiri::XML '<root xmlns="http://flavorjon.es/"><envelope /></root>'
+            elem = doc.create_element "package", {"xmlns" => "http://flavorjon.es/"}
+            ns = elem.namespace_definitions
+            doc.at_css("envelope").add_child elem
+            ns.inspect
           end
         end
 

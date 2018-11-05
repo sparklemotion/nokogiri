@@ -31,13 +31,13 @@ typedef xmlNodePtr (*pivot_reparentee_func)(xmlNodePtr, xmlNodePtr);
 static void relink_namespace(xmlNodePtr reparented)
 {
   xmlNodePtr child;
-  xmlNsPtr ns;
 
   if (reparented->type != XML_ATTRIBUTE_NODE &&
       reparented->type != XML_ELEMENT_NODE) { return; }
 
   if (reparented->ns == NULL || reparented->ns->prefix == NULL) {
-    xmlChar *name = 0, *prefix = 0;
+    xmlNsPtr ns = NULL;
+    xmlChar *name = NULL, *prefix = NULL;
 
     name = xmlSplitQName2(reparented->name, &prefix);
 
@@ -96,6 +96,25 @@ static void relink_namespace(xmlNodePtr reparented)
         prev = curr;
       }
       curr = curr->next;
+    }
+  }
+
+  /*
+   *  Search our parents for an existing definition of current namespace,
+   *  because the definition it's pointing to may have just been removed nsDef.
+   *
+   *  And although that would technically probably be OK, I'd feel better if we
+   *  referred to a namespace that's still present in a node's nsDef somewhere
+   *  in the doc.
+   */
+  if (reparented->ns) {
+    xmlNsPtr ns = xmlSearchNs(reparented->doc, reparented, reparented->ns->prefix);
+    if (ns
+        && ns != reparented->ns
+        && xmlStrEqual(ns->prefix, reparented->ns->prefix)
+        && xmlStrEqual(ns->href, reparented->ns->href)
+      ) {
+      xmlSetNs(reparented, ns);
     }
   }
 
@@ -282,7 +301,11 @@ ok:
     }
 
     if (original_ns_prefix_is_default && reparentee->ns != NULL && reparentee->ns->prefix != NULL) {
-      /* issue #391, where new node's prefix may become the string "default" */
+      /*
+       *  issue #391, where new node's prefix may become the string "default"
+       *  see libxml2 tree.c xmlNewReconciliedNs which implements this behavior.
+       */
+      xmlFree(reparentee->ns->prefix);
       reparentee->ns->prefix = NULL;
     }
   }
@@ -1308,11 +1331,11 @@ static VALUE line(VALUE self)
  */
 static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 {
-  xmlNodePtr node, namespacee;
+  xmlNodePtr node, namespace;
   xmlNsPtr ns;
 
   Data_Get_Struct(self, xmlNode, node);
-  namespacee = node ;
+  namespace = node ;
 
   ns = xmlSearchNs(
          node->doc,
@@ -1322,10 +1345,10 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 
   if(!ns) {
     if (node->type != XML_ELEMENT_NODE) {
-      namespacee = node->parent;
+      namespace = node->parent;
     }
     ns = xmlNewNs(
-           namespacee,
+           namespace,
            (const xmlChar *)StringValueCStr(href),
            (const xmlChar *)(NIL_P(prefix) ? NULL : StringValueCStr(prefix))
          );
@@ -1333,7 +1356,7 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 
   if (!ns) { return Qnil ; }
 
-  if(NIL_P(prefix) || node != namespacee) { xmlSetNs(node, ns); }
+  if(NIL_P(prefix) || node != namespace) { xmlSetNs(node, ns); }
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }
