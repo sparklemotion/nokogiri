@@ -1,13 +1,13 @@
 groups:
   - name: master
     jobs:
-      <% for ruby_version in RUBIES[:mri] %>
+      <% Concourse.production_rubies.each do |ruby_version| %>
       - "ruby-<%= ruby_version %>-system"
       - "ruby-<%= ruby_version %>-vendored"
       - "ruby-<%= ruby_version %>-valgrind"
       <% end %>
       - "ruby-vanilla-system"
-      <% for ruby_version in RUBIES[:mri].last(1) %>
+      <% Concourse.production_rubies.last(1).each do |ruby_version| %>
       - "ruby-libxmlruby-system"
       - "ruby-libxmlruby-vendored"
       - "ruby-libxmlruby-valgrind"
@@ -24,12 +24,12 @@ groups:
   - name: PRs
     jobs:
       - pr-pending
-      - ruby-<%= RUBIES[:mri].first %>-system-pr
-      - ruby-<%= RUBIES[:mri].first %>-vendored-pr
-      - ruby-<%= RUBIES[:mri].first %>-valgrind-pr
-      - ruby-<%= RUBIES[:mri].last %>-system-pr
-      - ruby-<%= RUBIES[:mri].last %>-vendored-pr
-      - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
+      - ruby-<%= Concourse.production_rubies.first %>-system-pr
+      - ruby-<%= Concourse.production_rubies.first %>-vendored-pr
+      - ruby-<%= Concourse.production_rubies.first %>-valgrind-pr
+      - ruby-<%= Concourse.production_rubies.last %>-system-pr
+      - ruby-<%= Concourse.production_rubies.last %>-vendored-pr
+      - ruby-<%= Concourse.production_rubies.last %>-valgrind-pr
       - ruby-vanilla-system-pr
       - jruby-<%= RUBIES[:jruby].last %>-pr
       - pr-success
@@ -44,7 +44,11 @@ groups:
       - "rbx-<%= rbx_version %>-vendored"
       <% end %>
       - rbx-<%= RUBIES[:rbx].last %>-pr
-
+      <% Concourse.rc_rubies.each do |ruby_version| %>
+      - "ruby-<%= ruby_version %>-system"
+      - "ruby-<%= ruby_version %>-vendored"
+      - "ruby-<%= ruby_version %>-valgrind"
+      <% end %>
 
 resource_types:
 - name: pull-request
@@ -100,7 +104,7 @@ jobs:
   #
   #  master
   #
-  <% for ruby_version in RUBIES[:mri] %>
+  <% RUBIES[:mri].each do |ruby_version| %>
   - name: ruby-<%= ruby_version %>-system
     public: true
     plan:
@@ -120,7 +124,9 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+% if Concourse.production_rubies.include? ruby_version
         on_failure: *notify_failure_to_irc
+% end
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
@@ -140,7 +146,9 @@ jobs:
             - name: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+% if Concourse.production_rubies.include? ruby_version
         on_failure: *notify_failure_to_irc
+% end
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
@@ -162,10 +170,12 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+% if Concourse.production_rubies.include? ruby_version
         on_failure: *notify_failure_to_irc
+% end
   <% end %>
 
-% ruby_version = RUBIES[:mri].last
+% ruby_version = Concourse.production_rubies.last
   - name: ruby-vanilla-system
     public: true
     plan:
@@ -354,10 +364,10 @@ jobs:
         trigger: true
         version: every
         passed:
-          <% for ruby_version in RUBIES[:mri] %>
+          <% Concourse.production_rubies.each do |ruby_version| %>
           - "ruby-<%= ruby_version %>-valgrind"
           <% end %>
-          <% for ruby_version in RUBIES[:mri].last(1) %>
+          <% Concourse.production_rubies.last(1).each do |ruby_version| %>
           - "ruby-libxmlruby-valgrind"
           <% end %>
           <% for jruby_version in RUBIES[:jruby] %>
@@ -385,7 +395,7 @@ jobs:
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: pending}
 
-  <% [RUBIES[:mri].first, RUBIES[:mri].last].each do |ruby_version| %>
+  <% [Concourse.production_rubies.first, Concourse.production_rubies.last].each do |ruby_version| %>
   - name: ruby-<%= ruby_version %>-system-pr
     public: true
     max_in_flight: 1
@@ -460,7 +470,7 @@ jobs:
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
   <% end %>
 
-% ruby_version = RUBIES[:mri].last
+% ruby_version = Concourse.production_rubies.last
   - name: ruby-vanilla-system-pr
     public: true
     max_in_flight: 1
@@ -549,12 +559,12 @@ jobs:
         trigger: true
         version: every
         passed:
-          - ruby-<%= RUBIES[:mri].first %>-system-pr
-          - ruby-<%= RUBIES[:mri].first %>-vendored-pr
-          - ruby-<%= RUBIES[:mri].first %>-valgrind-pr
-          - ruby-<%= RUBIES[:mri].last %>-system-pr
-          - ruby-<%= RUBIES[:mri].last %>-vendored-pr
-          - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
+          - ruby-<%= Concourse.production_rubies.first %>-system-pr
+          - ruby-<%= Concourse.production_rubies.first %>-vendored-pr
+          - ruby-<%= Concourse.production_rubies.first %>-valgrind-pr
+          - ruby-<%= Concourse.production_rubies.last %>-system-pr
+          - ruby-<%= Concourse.production_rubies.last %>-vendored-pr
+          - ruby-<%= Concourse.production_rubies.last %>-valgrind-pr
           - ruby-vanilla-system-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
 #          - rbx-<%= RUBIES[:rbx].last %>-pr
