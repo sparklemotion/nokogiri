@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 ### Security
 
+## [2.0.1] - 2018-11-11
+### Fixed
+- Fix line numbers on elements from `#line`.
+
 ## [2.0.0] - 2018-10-04
 ### Added
 - Experimental support for errors (it was supported in 1.5.0 but
