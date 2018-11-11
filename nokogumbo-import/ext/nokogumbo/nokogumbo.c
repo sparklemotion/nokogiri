@@ -709,10 +709,12 @@ static VALUE fragment_continue(ParseArgs *args) {
 
 // Initialize the Nokogumbo class and fetch constants we will use later.
 void Init_nokogumbo() {
-  rb_funcall(rb_mKernel, rb_intern("gem"), 1, rb_utf8_str_new_static("nokogiri", 8));
+  rb_funcall(rb_mKernel, rb_intern_const("gem"), 1, rb_utf8_str_new_static("nokogiri", 8));
   rb_require("nokogiri");
 
-#ifndef NGLIB
+  VALUE line_supported = Qtrue;
+
+#if !NGLIB
   // Class constants.
   VALUE mNokogiri = rb_const_get(rb_cObject, rb_intern_const("Nokogiri"));
   VALUE mNokogiriXml = rb_const_get(mNokogiri, rb_intern_const("XML"));
@@ -725,6 +727,9 @@ void Init_nokogumbo() {
   // Interned symbols.
   new = rb_intern_const("new");
   node_name_ = rb_intern_const("node_name=");
+
+  // #line is not supported (returns 0)
+  line_supported = Qfalse;
 #endif
 
   // Class constants.
@@ -739,6 +744,11 @@ void Init_nokogumbo() {
   VALUE Gumbo = rb_define_module("Nokogumbo");
   rb_define_singleton_method(Gumbo, "parse", parse, 4);
   rb_define_singleton_method(Gumbo, "fragment", fragment, 5);
+
+  // Add private constant for testing.
+  rb_define_const(Gumbo, "LINE_SUPPORTED", line_supported);
+  rb_funcall(Gumbo, rb_intern_const("private_constant"), 1,
+             rb_utf8_str_new_cstr("LINE_SUPPORTED"));
 }
 
 // vim: set shiftwidth=2 softtabstop=2 tabstop=8 expandtab:

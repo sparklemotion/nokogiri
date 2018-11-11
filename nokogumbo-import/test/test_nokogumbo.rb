@@ -223,31 +223,36 @@ class TestNokogumbo < Minitest::Test
   end
 
   def test_line_text
+    skip unless Nokogumbo.const_get(:LINE_SUPPORTED)
     doc = Nokogiri.HTML5("<!DOCTYPE html>\ntext node")
-    assert_includes [0, 2], doc.at_xpath('/html/body/text()').line
+    assert_equal 2, doc.at_xpath('/html/body/text()').line
   end
 
   def test_line_comment
+    skip unless Nokogumbo.const_get(:LINE_SUPPORTED)
     doc = Nokogiri.HTML5("<!DOCTYPE html>\n\n<!-- comment -->")
-    assert_includes [0, 3], doc.at_xpath('/comment()').line
+    assert_equal 3, doc.at_xpath('/comment()').line
   end
 
   def test_line_element
+    skip unless Nokogumbo.const_get(:LINE_SUPPORTED)
     doc = Nokogiri.HTML5("<!DOCTYPE html>\n<p>")
-    assert_includes [0, 2], doc.at_xpath('/html/body/p').line
+    assert_equal 2, doc.at_xpath('/html/body/p').line
   end
 
   def test_line_template
+    skip unless Nokogumbo.const_get(:LINE_SUPPORTED)
     doc = Nokogiri.HTML5("<!DOCTYPE html>\n\n<template></template>")
-    assert_includes [0, 3], doc.at_xpath('/html/head/template').line
+    assert_equal 3, doc.at_xpath('/html/head/template').line
   end
 
   def test_line_cdata
+    skip unless Nokogumbo.const_get(:LINE_SUPPORTED)
     html = "<!DOCTYPE html>\n<svg>\n<script><![CDATA[ ]]></script></svg>"
     doc = Nokogiri.HTML5(html)
     node = doc.at_xpath('/html/body/svg:svg/svg:script/text()')
     assert node.cdata?
-    assert_includes [0, 3], node.line
+    assert_equal 3, node.line
   end
 
 private
