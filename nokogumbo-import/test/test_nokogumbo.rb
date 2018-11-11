@@ -222,10 +222,32 @@ class TestNokogumbo < Minitest::Test
     assert_equal "Кирилические символы", doc.at('body').text.gsub(/\n\s+/,'')
   end
 
-  def test_line_numbers
-    doc = Nokogiri::HTML5(buffer)
-    assert_includes [0, 8], doc.at('h1').line
-    assert_includes [0, 10], doc.at('span').line
+  def test_line_text
+    doc = Nokogiri.HTML5("<!DOCTYPE html>\ntext node")
+    assert_includes [0, 2], doc.at_xpath('/html/body/text()').line
+  end
+
+  def test_line_comment
+    doc = Nokogiri.HTML5("<!DOCTYPE html>\n\n<!-- comment -->")
+    assert_includes [0, 3], doc.at_xpath('/comment()').line
+  end
+
+  def test_line_element
+    doc = Nokogiri.HTML5("<!DOCTYPE html>\n<p>")
+    assert_includes [0, 2], doc.at_xpath('/html/body/p').line
+  end
+
+  def test_line_template
+    doc = Nokogiri.HTML5("<!DOCTYPE html>\n\n<template></template>")
+    assert_includes [0, 3], doc.at_xpath('/html/head/template').line
+  end
+
+  def test_line_cdata
+    html = "<!DOCTYPE html>\n<svg>\n<script><![CDATA[ ]]></script></svg>"
+    doc = Nokogiri.HTML5(html)
+    node = doc.at_xpath('/html/body/svg:svg/svg:script/text()')
+    assert node.cdata?
+    assert_includes [0, 3], node.line
   end
 
 private

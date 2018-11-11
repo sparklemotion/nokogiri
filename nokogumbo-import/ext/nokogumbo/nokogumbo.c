@@ -385,7 +385,7 @@ static void build_tree (
       case GUMBO_NODE_ELEMENT:
       {
         xml_child = xmlNewDocNode(doc, NIL, BAD_CAST gumbo_child->v.element.name, NULL);
-        set_line(xml_child, gumbo_child->v.text.start_pos.line);
+        set_line(xml_child, gumbo_child->v.element.start_pos.line);
         if (xml_root == NIL)
           xml_root = xml_child;
         xmlNsPtr ns = NIL;
