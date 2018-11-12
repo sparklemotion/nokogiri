@@ -839,7 +839,7 @@ public class XmlNode extends RubyObject {
         RubyArray docErrors = getErrorArray(doc);
         if (isErrorIncreased(documentErrors, docErrors)) {
             for (int i = 0; i < docErrors.getLength(); i++) {
-                documentErrors.add(docErrors.get(i));
+                documentErrors.add(docErrors.entry(i));
             }
             document.setInstanceVariable("@errors", documentErrors);
             XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, RubyArray.newArray(runtime));
