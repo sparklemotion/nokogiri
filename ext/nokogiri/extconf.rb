@@ -400,9 +400,11 @@ if openbsd? && !using_system_libraries?
   ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I /usr/local/include"
 end
 
-RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
+if ENV['CC']
+  RbConfig::CONFIG['CC'] = RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC']
+end
 # use same c compiler for libxml and libxslt
-ENV['CC'] = RbConfig::MAKEFILE_CONFIG['CC']
+ENV['CC'] = RbConfig::CONFIG['CC']
 
 $LIBS << " #{ENV["LIBS"]}"
 
@@ -432,7 +434,7 @@ if RUBY_PLATFORM =~ /mingw/i
   $CPPFLAGS << ' "-Idummypath"'
 end
 
-if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
+if RbConfig::CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -O3" unless $CFLAGS[/-O\d/]
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline"
 end
