@@ -48,6 +48,18 @@ class TestNokogiri < Nokogiri::TestCase
     assert !doc.html?
   end
 
+  def test_parsing_xml_pathname_argument?
+    pathname = Pathname.new(XML_ATOM_FILE)
+    doc = Nokogiri::XML.parse(pathname)
+    assert_equal 20,doc.css('author').size
+  end
+
+  def test_parsing_html_pathname_argument?
+    pathname = Pathname.new(XML_ATOM_FILE)
+    doc = Nokogiri::HTML.parse(pathname)
+    assert_equal 20,doc.css('author').size
+  end
+
   def test_parsing_pathname_argument?
     pathname = Pathname.new(XML_ATOM_FILE)
     doc = Nokogiri.parse(pathname)
