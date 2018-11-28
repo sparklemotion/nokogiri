@@ -54,6 +54,8 @@ module Nokogiri
           end
         end
 
+        string_or_io = string_or_io.read if string_or_io.class.to_s == 'Pathname'
+
         doc = if string_or_io.respond_to?(:read)
           url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
           read_io(string_or_io, url, encoding, options.to_i)

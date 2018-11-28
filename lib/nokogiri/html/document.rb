@@ -171,6 +171,8 @@ module Nokogiri
             end
           end
 
+          string_or_io = string_or_io.read if string_or_io.class.to_s == 'Pathname'
+
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
             unless encoding
