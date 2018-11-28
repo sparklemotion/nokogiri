@@ -1,4 +1,5 @@
 require "helper"
+require 'pathname'
 
 class TestNokogiri < Nokogiri::TestCase
   def test_versions
@@ -45,6 +46,12 @@ class TestNokogiri < Nokogiri::TestCase
     doc = Nokogiri.parse(File.read(XML_ATOM_FILE))
     assert doc.xml?
     assert !doc.html?
+  end
+
+  def test_parsing_pathname_argument?
+    pathname = Pathname.new(XML_ATOM_FILE)
+    doc = Nokogiri.parse(pathname)
+    assert_equal 20,doc.css('author').size
   end
 
   def test_html?
