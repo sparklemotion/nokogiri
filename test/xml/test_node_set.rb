@@ -804,6 +804,12 @@ module Nokogiri
         assert_equal node_set.document, new_set.document
         assert new_set.respond_to?(:awesome!)
       end
+
+      def test_each_should_return_self
+        node_set1 = @xml.css("address")
+        node_set2 = node_set1.each {}
+        assert_equal node_set1, node_set2
+      end
     end
   end
 end
