@@ -266,11 +266,21 @@ task 'bundler:gemfile' do
 end
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
-  sh "racc -l -o #{t.name} #{t.prerequisites.first}"
+  if java?
+    warn "WARNING: #{GENERATED_PARSER} may be out of date:"
+    sh "ls -lt #{t.name} #{t.prerequisites.first}"
+  else
+    sh "racc -l -o #{t.name} #{t.prerequisites.first}"
+  end
 end
 
 file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
-  sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
+  if java?
+    warn "WARNING: #{GENERATED_TOKENIZER} may be out of date:"
+    sh "ls -lt #{t.name} #{t.prerequisites.first}"
+  else
+    sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
+  end
 end
 
 [:compile, :check_manifest].each do |task_name|
