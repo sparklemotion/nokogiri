@@ -1,9 +1,15 @@
 # unreleased
 
+## Features
+
+* [MRI] Address installation challenges on macOS High Sierra (Darwin). [#1812, #1813] (Thanks, @gpakosz and @nurse!)
+
+
 ## Bug fixes
 
 * [MRI] Address a memory leak when using XML::Builder to create nodes with namespaces. [#1810]
 * [JRuby] Fix failing tests on JRuby 9.2.x
+
 
 # 1.8.5 / 2018-10-04
 
