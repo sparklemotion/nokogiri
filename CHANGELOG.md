@@ -7,6 +7,7 @@
 
 ## Bug fixes
 
+* `NodeSet#each` now returns `self` instead of zero. [#1822] (Thanks, @olehif!)
 * [MRI] Address a memory leak when using XML::Builder to create nodes with namespaces. [#1810]
 * [JRuby] Fix failing tests on JRuby 9.2.x
 
