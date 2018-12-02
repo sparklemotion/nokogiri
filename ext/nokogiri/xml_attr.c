@@ -11,6 +11,7 @@ static VALUE set_value(VALUE self, VALUE content)
 {
   xmlAttrPtr attr;
   xmlChar *value;
+  xmlNode *cur;
 
   Data_Get_Struct(self, xmlAttr, attr);
 
@@ -31,7 +32,7 @@ static VALUE set_value(VALUE self, VALUE content)
   }
   xmlFree(value);
 
-  for (xmlNode *cur = attr->children; cur; cur = cur->next) {
+  for (cur = attr->children; cur; cur = cur->next) {
     cur->parent = (xmlNode *)attr;
     cur->doc = attr->doc;
     if (cur->next == NULL) {
