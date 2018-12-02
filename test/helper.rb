@@ -213,7 +213,7 @@ module Nokogiri
         .each do |name|
           define_method name do |*arguments|
             @items << [name, *arguments]
-            super *arguments
+            super(*arguments)
           end
         end
 

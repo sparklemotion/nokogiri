@@ -235,7 +235,7 @@ module Nokogiri
               end
 
               it "serializes the doc with the proper default namespace" do
-                assert_match /<bar:first\ xmlns:bar="http:\/\/tenderlovemaking.com\/"\/>/, @doc.to_xml
+                assert_match(/<bar:first\ xmlns:bar="http:\/\/tenderlovemaking.com\/"\/>/, @doc.to_xml)
               end
             end
 
@@ -248,7 +248,7 @@ module Nokogiri
               end
 
               it "serializes the doc with the proper default namespace" do
-                assert_match /<first>/, @doc.to_xml
+                assert_match(/<first>/, @doc.to_xml)
               end
             end
 
@@ -261,7 +261,7 @@ module Nokogiri
               end
 
               it "serializes the doc with the proper default namespace" do
-                assert_match /<first xmlns=\"http:\/\/tenderlovemaking.com\/\">/, @doc.to_xml
+                assert_match(/<first xmlns=\"http:\/\/tenderlovemaking.com\/\">/, @doc.to_xml)
               end
             end
 
@@ -274,7 +274,7 @@ module Nokogiri
               end
 
               it "serializes the doc with the proper default namespace" do
-                assert_match /<first xmlns=\"http:\/\/tenderlovemaking.com\/\">/, @doc.to_xml
+                assert_match(/<first xmlns=\"http:\/\/tenderlovemaking.com\/\">/, @doc.to_xml)
               end
             end
           end
