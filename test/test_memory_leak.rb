@@ -190,6 +190,15 @@ EOF
         puts MemInfo.rss
       end
     end
+
+    def test_leaking_dtd_nodes_after_internal_subset_removal
+      # see https://github.com/sparklemotion/nokogiri/issues/1784
+      100_000.times do |i|
+        doc = Nokogiri::HTML::Document.new
+        doc.internal_subset.remove
+        puts MemInfo.rss if (i % 1000 == 0)
+      end
+    end
   end # if NOKOGIRI_GC
 
   module MemInfo
