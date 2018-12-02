@@ -161,6 +161,18 @@ module Nokogiri
         end
       end
 
+
+      ###
+      # Add html around this node
+      #
+      # Returns self
+      def wrap(html)
+        new_parent = document.parse(html).first
+        add_next_sibling(new_parent)
+        new_parent.add_child(self)
+        self
+      end
+
       ###
       # Add +node_or_tags+ as a child of this Node.
       # +node_or_tags+ can be a Nokogiri::XML::Node, a ::DocumentFragment, a ::NodeSet, or a string containing markup.

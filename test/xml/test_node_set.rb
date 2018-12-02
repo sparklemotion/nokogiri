@@ -511,6 +511,19 @@ module Nokogiri
         assert_equal 'employee', @xml.search("//wrapper").first.children[0].name
       end
 
+      def test_wrap_various_node_types
+        xml = '<root><foo>contents</foo></root>'
+        doc = Nokogiri::XML xml
+        nodes = doc.at_css("root").xpath(".//* | .//*/text()") # foo and "contents"
+        nodes.wrap("<wrapper/>")
+        wrappers = doc.css("wrapper")
+        assert_equal "root", wrappers.first.parent.name
+        assert_equal "foo", wrappers.first.children.first.name
+        assert_equal "foo", wrappers.last.parent.name
+        assert wrappers.last.children.first.text?
+        assert_equal "contents", wrappers.last.children.first.text
+      end
+
       def test_wrap_a_fragment
         frag = Nokogiri::XML::DocumentFragment.parse <<-EOXML
           <employees>
