@@ -1327,6 +1327,15 @@ eoxml
           node.add_next_sibling(Nokogiri::XML::Text.new('after', node.document))
         end
       end
+
+      def test_wrap
+        xml = '<root><thing><div class="title">important thing</div></thing></root>'
+        doc = Nokogiri::XML(xml)
+        thing = doc.at_css("thing")
+        thing.wrap("<wrapper/>")
+        assert_equal 'wrapper', thing.parent.name
+        assert_equal 'thing', doc.at_css("wrapper").children.first.name
+      end
     end
   end
 end
