@@ -2,9 +2,10 @@
 
 ## Features
 
+* `XML::Attr#value=` allows HTML node attribute values to be set to either a blank string or an empty boolean attribute. [#1800]
+* Introduce `XML::Node#wrap` which does what `XML::NodeSet#wrap` has always done, but for a single node. [#1531] (Thanks, @ethirajsrinivasan!)
 * [MRI] Improve installation experience on macOS High Sierra (Darwin). [#1812, #1813] (Thanks, @gpakosz and @nurse!)
 * [JRuby] NodeSet has been rewritten to improve performance! [#1795]
-* `XML::Attr#value=` allows HTML node attribute values to be set to either a blank string or an empty boolean attribute. [#1800]
 
 
 ## Bug fixes
