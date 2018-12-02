@@ -1,15 +1,19 @@
-# unreleased
+# next / unreleased
 
 ## Features
 
-* [MRI] Address installation challenges on macOS High Sierra (Darwin). [#1812, #1813] (Thanks, @gpakosz and @nurse!)
+* [MRI] Improve installation experience on macOS High Sierra (Darwin). [#1812, #1813] (Thanks, @gpakosz and @nurse!)
+* [JRuby] NodeSet has been rewritten to improve performance! [#1795]
 
 
 ## Bug fixes
 
 * `NodeSet#each` now returns `self` instead of zero. [#1822] (Thanks, @olehif!)
 * [MRI] Address a memory leak when using XML::Builder to create nodes with namespaces. [#1810]
+* [MRI] Address a memory leak when unparenting a DTD. [#1784] (Thanks, @stevecheckoway!)
+* [MRI] Decrease large memory usage when making nested XPath queries. [#1749]
 * [JRuby] Fix failing tests on JRuby 9.2.x
+* [JRuby] Fix default namespaces in nodes reparented into a different document [#1774]
 
 
 # 1.8.5 / 2018-10-04
