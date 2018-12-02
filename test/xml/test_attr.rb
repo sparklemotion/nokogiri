@@ -26,12 +26,34 @@ module Nokogiri
         assert_equal "Y&ent1;", street.value
       end
 
-      def test_value=
+      def test_set_value
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath('//address')[3]
         street = address.attributes['street']
         street.value = "Y&ent1;"
         assert_equal "Y&ent1;", street.value
+        assert_includes %Q{ street="Y&amp;ent1;"}, street.to_xml
+      end
+
+      def test_set_value_with_entity_string_in_html_file
+        html = Nokogiri::HTML("<html><body><div foo='asdf'>")
+        foo = html.at_css("div").attributes["foo"]
+        foo.value = "Y&ent1;"
+        assert_includes %Q{ foo="Y&amp;ent1;"}, foo.to_html
+      end
+
+      def test_set_value_with_blank_string_in_html_file
+        html = Nokogiri::HTML("<html><body><div foo='asdf'>")
+        foo = html.at_css("div").attributes["foo"]
+        foo.value = ""
+        assert_includes %Q{ foo=""}, foo.to_html
+      end
+
+      def test_set_value_of_boolean_attr_with_nil_in_html_file
+        html = Nokogiri::HTML("<html><body><div disabled='asdf'>")
+        disabled = html.at_css("div").attributes["disabled"]
+        disabled.value = nil
+        assert_includes %Q{ disabled}, disabled.to_html
       end
 
       def test_unlink # aliased as :remove
