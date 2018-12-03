@@ -18,6 +18,11 @@
 * [JRuby] Fix default namespaces in nodes reparented into a different document [#1774]
 
 
+## Dependencies
+
+* [MRI] Upgrade mini_portile2 dependency from `~> 2.3.0` to `~> 2.4.0`
+
+
 # 1.8.5 / 2018-10-04
 
 ## Security Notes
