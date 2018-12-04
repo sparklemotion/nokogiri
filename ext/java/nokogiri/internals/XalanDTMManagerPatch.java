@@ -22,8 +22,9 @@ package nokogiri.internals;
 import javax.xml.transform.dom.DOMSource;
 
 import org.apache.xml.dtm.DTM;
+import nokogiri.internals.dom2dtm.DOM2DTM;
+import nokogiri.internals.dom2dtm.DOM2DTMdefaultNamespaceDeclarationNode;
 import org.apache.xml.dtm.DTMWSFilter;
-import org.apache.xml.dtm.ref.dom2dtm.DOM2DTMExt;
 import org.apache.xml.res.XMLErrorResources;
 import org.apache.xml.res.XMLMessages;
 import org.w3c.dom.Node;
@@ -75,8 +76,8 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
         //   Have each DTM cache last DOM node search?
         for(int i = 0; i < m_dtms.length; i++) {
             DTM thisDTM = m_dtms[i];
-            if (thisDTM instanceof DOM2DTMExt) {
-                int handle = ((DOM2DTMExt) thisDTM).getHandleOfNode(node);
+            if (thisDTM instanceof DOM2DTM) {
+                int handle = ((DOM2DTM) thisDTM).getHandleOfNode(node);
                 if (handle != DTM.NULL) {
                     return handle;
                 }
@@ -107,11 +108,12 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
         for (; p != null; p = p.getParentNode()) root = p;
 
         // DOM2DTM dtm = (DOM2DTM) getDTM(new DOMSource(root), false, null);
-        DOM2DTMExt dtm = getDTMExt(new DOMSource(root), false, null/*, true, true*/);
+        DOM2DTM dtm = getDTM(new DOMSource(root), false, null/*, true, true*/);
 
         int handle;
 
-        if (node instanceof org.apache.xml.dtm.ref.dom2dtm.DOM2DTMdefaultNamespaceDeclarationNode) {
+        if (node instanceof org.apache.xml.dtm.ref.dom2dtm.DOM2DTMdefaultNamespaceDeclarationNode
+                || node instanceof DOM2DTMdefaultNamespaceDeclarationNode) {
             // Can't return the same node since it's unique to a specific DTM,
             // but can return the equivalent node -- find the corresponding
             // Document Element, then ask it for the xml: namespace decl.
@@ -153,12 +155,11 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
         return handle;
     }
 
-    private DOM2DTMExt getDTMExt(DOMSource source, boolean unique, DTMWSFilter whiteSpaceFilter/*, boolean incremental, boolean doIndexing*/) {
+    private DOM2DTM getDTM(DOMSource source, boolean unique, DTMWSFilter whiteSpaceFilter/*, boolean incremental, boolean doIndexing*/) {
         int dtmPos = getFirstFreeDTMID();
         int documentID = dtmPos << IDENT_DTM_NODE_BITS;
 
-        //DOM2DTM dtm = new DOM2DTM(this, source, documentID, whiteSpaceFilter, m_xsf, true);
-        DOM2DTMExt dtm = new DOM2DTMExt(this, source, documentID, whiteSpaceFilter, m_xsf, true);
+        DOM2DTM dtm = new DOM2DTM(this, source, documentID, whiteSpaceFilter, m_xsf, true);
 
         addDTM(dtm, dtmPos, 0);
         return dtm;

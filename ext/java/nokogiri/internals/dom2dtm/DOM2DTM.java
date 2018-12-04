@@ -15,10 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * $Id: DOM2DTM.java 478671 2006-11-23 21:00:31Z minchau $
- */
-package org.apache.xml.dtm.ref.dom2dtm;
+package nokogiri.internals.dom2dtm;
 
 import javax.xml.transform.SourceLocator;
 import javax.xml.transform.dom.DOMSource;
@@ -30,7 +27,6 @@ import org.apache.xml.dtm.ref.DTMDefaultBaseIterators;
 import org.apache.xml.dtm.ref.DTMManagerDefault;
 import org.apache.xml.dtm.ref.ExpandedNameTable;
 import org.apache.xml.dtm.ref.IncrementalSAXSource;
-//import org.apache.xml.dtm.ref.dom2dtm.DOM2DTMdefaultNamespaceDeclarationNode;
 import org.apache.xml.res.XMLErrorResources;
 import org.apache.xml.res.XMLMessages;
 import org.apache.xml.utils.FastStringBuffer;
@@ -62,7 +58,7 @@ import org.xml.sax.ContentHandler;
  * mutation. If you alter the DOM after wrapping DOM2DTM around it,
  * all bets are off.
  * */
-public class DOM2DTMExt extends DTMDefaultBaseIterators
+public class DOM2DTM extends DTMDefaultBaseIterators
 {
 //    static final boolean JJK_DEBUG=false;
 //    static final boolean JJK_NEWCODE=true;
@@ -114,7 +110,7 @@ public class DOM2DTMExt extends DTMDefaultBaseIterators
      * @param doIndexing true if the caller considers it worth it to use
      *                   indexing schemes.
      */
-    public DOM2DTMExt(DTMManager mgr, DOMSource domSource,
+    public DOM2DTM(DTMManager mgr, DOMSource domSource,
                    int dtmIdentity, DTMWSFilter whiteSpaceFilter,
                    XMLStringFactory xstringfactory,
                    boolean doIndexing)

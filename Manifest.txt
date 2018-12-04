@@ -81,6 +81,8 @@ ext/java/nokogiri/internals/XalanDTMManagerPatch.java
 ext/java/nokogiri/internals/XmlDeclHandler.java
 ext/java/nokogiri/internals/XmlDomParserContext.java
 ext/java/nokogiri/internals/XmlSaxParser.java
+ext/java/nokogiri/internals/dom2dtm/DOM2DTM.java
+ext/java/nokogiri/internals/dom2dtm/DOM2DTMdefaultNamespaceDeclarationNode.java
 ext/java/nokogiri/internals/c14n/AttrCompare.java
 ext/java/nokogiri/internals/c14n/C14nHelper.java
 ext/java/nokogiri/internals/c14n/CanonicalFilter.java
@@ -108,7 +110,6 @@ ext/java/nokogiri/internals/c14n/NameSpaceSymbTable.java
 ext/java/nokogiri/internals/c14n/NodeFilter.java
 ext/java/nokogiri/internals/c14n/UtfHelpper.java
 ext/java/nokogiri/internals/c14n/XMLUtils.java
-ext/java/org/apache/xml/dtm/ref/dom2dtm/DOM2DTMExt.java
 ext/nokogiri/depend
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
