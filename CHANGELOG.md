@@ -16,6 +16,7 @@
 * [MRI] Decrease large memory usage when making nested XPath queries. [#1749]
 * [JRuby] Fix failing tests on JRuby 9.2.x
 * [JRuby] Fix default namespaces in nodes reparented into a different document [#1774]
+* [JRuby] Fix support for Java 9. [#1759] (Thanks, @Taywee!)
 
 
 ## Dependencies
