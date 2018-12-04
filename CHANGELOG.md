@@ -1,5 +1,10 @@
 # next / unreleased
 
+## Security Notes
+
+* [JRuby] Upgrade Xerces dependency from 2.11.0 to 2.12.0 to address upstream vulnerability CVE-2012-0881 [#1831] (Thanks @grajagandev for reporting.)
+
+
 ## Features
 
 * `XML::Attr#value=` allows HTML node attribute values to be set to either a blank string or an empty boolean attribute. [#1800]
@@ -22,7 +27,7 @@
 ## Dependencies
 
 * [MRI] Upgrade mini_portile2 dependency from `~> 2.3.0` to `~> 2.4.0`
-* [JRuby] Upgrade Xerces dependency from 2.11.0 to 2.12.0
+
 
 # 1.8.5 / 2018-10-04
 
