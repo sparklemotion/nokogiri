@@ -76,12 +76,7 @@ public final class XalanDTMManagerPatch extends org.apache.xml.dtm.ref.DTMManage
         //   Have each DTM cache last DOM node search?
         for(int i = 0; i < m_dtms.length; i++) {
             DTM thisDTM = m_dtms[i];
-            if (thisDTM instanceof DOM2DTMExt) {
-                int handle = ((DOM2DTMExt) thisDTM).getHandleOfNode(node);
-                if (handle != DTM.NULL) {
-                    return handle;
-                }
-            } else if (thisDTM instanceof DOM2DTM) {
+            if (thisDTM instanceof DOM2DTM) {
                 int handle = ((DOM2DTM) thisDTM).getHandleOfNode(node);
                 if (handle != DTM.NULL) {
                     return handle;
