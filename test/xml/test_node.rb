@@ -188,17 +188,19 @@ module Nokogiri
         assert_equal 0, node.children.length
       end
 
-      def test_dup_to_another_document
-        doc1 = HTML::Document.parse "<root><div><p>hello</p></div></root>"
-        doc2 = HTML::Document.parse "<div></div>"
+      if Nokogiri.uses_libxml?
+        def test_dup_to_another_document
+          doc1 = HTML::Document.parse "<root><div><p>hello</p></div></root>"
+          doc2 = HTML::Document.parse "<div></div>"
 
-        div = doc1.at_css "div"
-        duplicate_div = div.dup(1, doc2)
+          div = doc1.at_css "div"
+          duplicate_div = div.dup(1, doc2)
 
-        assert_not_nil doc1.at_css("div")
-        assert_equal doc2, duplicate_div.document
-        assert_equal 1, duplicate_div.children.length
-        assert_equal "<p>hello</p>", duplicate_div.children.first.to_html
+          assert_not_nil doc1.at_css("div")
+          assert_equal doc2, duplicate_div.document
+          assert_equal 1, duplicate_div.children.length
+          assert_equal "<p>hello</p>", duplicate_div.children.first.to_html
+        end
       end
 
       def test_subclass_dup
