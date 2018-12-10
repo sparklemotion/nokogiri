@@ -19,6 +19,7 @@
 * [MRI] Address a memory leak when using XML::Builder to create nodes with namespaces. [#1810]
 * [MRI] Address a memory leak when unparenting a DTD. [#1784] (Thanks, @stevecheckoway!)
 * [MRI] Decrease large memory usage when making nested XPath queries. [#1749]
+* [MRI] Use RbConfig::CONFIG instead of ::MAKEFILE_CONFIG to fix installations that use Makefile macros. [#1820] (Thanks, @nobu!)
 * [JRuby] Fix failing tests on JRuby 9.2.x
 * [JRuby] Fix default namespaces in nodes reparented into a different document [#1774]
 * [JRuby] Fix support for Java 9. [#1759] (Thanks, @Taywee!)
