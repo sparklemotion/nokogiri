@@ -1,4 +1,4 @@
-# next / unreleased
+# 1.9.0.rc1 / 2018-12-10
 
 ## Security Notes
 
