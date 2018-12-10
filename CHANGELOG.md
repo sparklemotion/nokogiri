@@ -10,6 +10,8 @@
 * `XML::Attr#value=` allows HTML node attribute values to be set to either a blank string or an empty boolean attribute. [#1800]
 * Introduce `XML::Node#wrap` which does what `XML::NodeSet#wrap` has always done, but for a single node. [#1531] (Thanks, @ethirajsrinivasan!)
 * [MRI] Improve installation experience on macOS High Sierra (Darwin). [#1812, #1813] (Thanks, @gpakosz and @nurse!)
+* [MRI] Node#dup supports copying a node directly to a new document. See the method documentation for details.
+* [MRI] DocumentFragment#dup is now more memory-efficient, avoiding making unnecessary copies. [#1063]
 * [JRuby] NodeSet has been rewritten to improve performance! [#1795]
 
 
@@ -108,8 +110,6 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 
 * [MRI] OpenBSD installation should be a bit easier now. [#1685] (Thanks, @jeremyevans!)
 * [MRI] Cross-built Windows gems now support Ruby 2.5
-* Node#dup supports copying a node directly to a new document. See the method documentation for details.
-* [MRI] DocumentFragment#dup is now more memory-efficient, avoiding making unnecessary copies. [#1063]
 
 
 ## Bug fixes
