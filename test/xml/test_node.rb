@@ -165,6 +165,44 @@ module Nokogiri
         assert_equal x.first.name, "span"
       end
 
+      def test_dup_is_deep_copy_by_default
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup
+        assert_equal 1, node.children.length
+        assert_equal "<p>hello</p>", node.children.first.to_html
+      end
+
+      def test_dup_deep_copy
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup(1)
+        assert_equal 1, node.children.length
+        assert_equal "<p>hello</p>", node.children.first.to_html
+      end
+
+      def test_dup_shallow_copy
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup(0)
+        assert_equal 0, node.children.length
+      end
+
+      if Nokogiri.uses_libxml?
+        def test_dup_to_another_document
+          doc1 = HTML::Document.parse "<root><div><p>hello</p></div></root>"
+          doc2 = HTML::Document.parse "<div></div>"
+
+          div = doc1.at_css "div"
+          duplicate_div = div.dup(1, doc2)
+
+          assert_not_nil doc1.at_css("div")
+          assert_equal doc2, duplicate_div.document
+          assert_equal 1, duplicate_div.children.length
+          assert_equal "<p>hello</p>", duplicate_div.children.first.to_html
+        end
+      end
+
       def test_subclass_dup
         subclass = Class.new(Nokogiri::XML::Node)
         node = subclass.new('foo', @xml).dup

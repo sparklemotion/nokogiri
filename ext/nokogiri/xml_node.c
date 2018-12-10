@@ -113,7 +113,7 @@ static void relink_namespace(xmlNodePtr reparented)
         && ns != reparented->ns
         && xmlStrEqual(ns->prefix, reparented->ns->prefix)
         && xmlStrEqual(ns->href, reparented->ns->href)
-      ) {
+       ) {
       xmlSetNs(reparented, ns);
     }
   }
@@ -532,22 +532,39 @@ static VALUE internal_subset(VALUE self)
 /*
  * call-seq:
  *  dup
+ *  dup(depth)
+ *  dup(depth, new_parent_doc)
  *
- * Copy this node.  An optional depth may be passed in, but it defaults
- * to a deep copy.  0 is a shallow copy, 1 is a deep copy.
+ * Copy this node.
+ * An optional depth may be passed in. 0 is a shallow copy, 1 (the default) is a deep copy.
+ * An optional new_parent_doc may also be passed in, which will be the new
+ * node's parent document. Defaults to the current node's document.
+ * current document.
  */
 static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
 {
-  VALUE level;
+  VALUE r_level, r_new_parent_doc;
+  int level;
+  int n_args;
+  xmlDocPtr new_parent_doc;
   xmlNodePtr node, dup;
-
-  if(rb_scan_args(argc, argv, "01", &level) == 0) {
-    level = INT2NUM((long)1);
-  }
 
   Data_Get_Struct(self, xmlNode, node);
 
-  dup = xmlDocCopyNode(node, node->doc, (int)NUM2INT(level));
+  n_args = rb_scan_args(argc, argv, "02", &r_level, &r_new_parent_doc);
+
+  if (n_args < 1) {
+    r_level = INT2NUM((long)1);
+  }
+  level = (int)NUM2INT(r_level);
+
+  if (n_args < 2) {
+    new_parent_doc = node->doc;
+  } else {
+    Data_Get_Struct(r_new_parent_doc, xmlDoc, new_parent_doc);
+  }
+
+  dup = xmlDocCopyNode(node, new_parent_doc, level);
   if(dup == NULL) { return Qnil; }
 
   nokogiri_root_node(dup);
