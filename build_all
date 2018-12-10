@@ -17,6 +17,10 @@ fi
 
 set -o errexit
 
+# check that we have the latest jruby
+rvm use jruby
+rvm use ruby
+
 rm -rf tmp pkg
 bundle exec rake clean clobber
 
@@ -37,7 +41,7 @@ cp -v pkg/nokogiri*.gem gems
 bundle exec rake clean clobber
 bundle exec rake generate
 
-rvm jruby
+rvm use jruby
 gem install bundler --conservative
 bundle install --quiet --local || bundle install
 bundle exec ruby -S rake gem
