@@ -644,6 +644,11 @@ module Nokogiri
         assert_equal %w{ Yes Yes }, @xml.xpath('//address')[1].values
       end
 
+      def test_value?
+        refute @xml.xpath('//address')[1].value?('no_such_value')
+        assert @xml.xpath('//address')[1].value?('Yes')
+      end
+
       def test_keys
         assert_equal %w{ domestic street }, @xml.xpath('//address')[1].keys
       end
