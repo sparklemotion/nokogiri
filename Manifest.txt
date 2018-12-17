@@ -63,8 +63,6 @@ ext/java/nokogiri/internals/XalanDTMManagerPatch.java
 ext/java/nokogiri/internals/XmlDeclHandler.java
 ext/java/nokogiri/internals/XmlDomParserContext.java
 ext/java/nokogiri/internals/XmlSaxParser.java
-ext/java/nokogiri/internals/dom2dtm/DOM2DTM.java
-ext/java/nokogiri/internals/dom2dtm/DOM2DTMdefaultNamespaceDeclarationNode.java
 ext/java/nokogiri/internals/c14n/AttrCompare.java
 ext/java/nokogiri/internals/c14n/C14nHelper.java
 ext/java/nokogiri/internals/c14n/CanonicalFilter.java
@@ -92,6 +90,8 @@ ext/java/nokogiri/internals/c14n/NameSpaceSymbTable.java
 ext/java/nokogiri/internals/c14n/NodeFilter.java
 ext/java/nokogiri/internals/c14n/UtfHelpper.java
 ext/java/nokogiri/internals/c14n/XMLUtils.java
+ext/java/nokogiri/internals/dom2dtm/DOM2DTM.java
+ext/java/nokogiri/internals/dom2dtm/DOM2DTMdefaultNamespaceDeclarationNode.java
 ext/nokogiri/depend
 ext/nokogiri/extconf.rb
 ext/nokogiri/html_document.c
@@ -236,6 +236,3 @@ lib/xsd/xmlparser/nokogiri.rb
 patches/libxml2/0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
 patches/libxml2/0002-Fix-nullptr-deref-with-XPath-logic-ops.patch
 patches/libxml2/0003-Fix-infinite-loop-in-LZMA-decompression.patch
-patches/sort-patches-by-date
-suppressions/README.txt
-suppressions/nokogiri_ruby-2.supp
