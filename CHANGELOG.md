@@ -5,6 +5,11 @@
 * [JRuby] Upgrade Xerces dependency from 2.11.0 to 2.12.0 to address upstream vulnerability CVE-2012-0881 [#1831] (Thanks @grajagandev for reporting.)
 
 
+## Notable non-functional changes
+
+* Decrease installation size by removing many unneeded files (e.g., `/test`) from the packaged gems. [#1719] (Thanks, @stevecrozz!)
+
+
 ## Features
 
 * `XML::Attr#value=` allows HTML node attribute values to be set to either a blank string or an empty boolean attribute. [#1800]

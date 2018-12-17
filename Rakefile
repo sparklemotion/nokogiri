@@ -115,8 +115,7 @@ HOE = Hoe.spec 'nokogiri' do
   self.readme_file  = "README.md"
   self.history_file = "CHANGELOG.md"
 
-  self.extra_rdoc_files = FileList['*.rdoc','ext/nokogiri/*.c']
-
+  self.extra_rdoc_files = FileList['ext/nokogiri/*.c']
 
   self.clean_globs += [
     'nokogiri.gemspec',
