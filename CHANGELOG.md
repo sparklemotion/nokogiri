@@ -1,3 +1,10 @@
+# 1.9.1 / 2018-12-17
+
+## Bug fixes
+
+* Fix a bug introduced in v1.9.0 where `XML::DocumentFragment#dup` no longer returned an instance of the callee's class, instead always returning an `XML::DocumentFragment`. This notably broke any subclass of `XML::DocumentFragment` including `HTML::DocumentFragment` as well as the Loofah gem's `Loofah::HTML::DocumentFragment`. [#1846]
+
+
 # 1.9.0 / 2018-12-17
 
 ## Security Notes
