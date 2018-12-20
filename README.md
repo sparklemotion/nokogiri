@@ -113,7 +113,7 @@ end
 
 ## Requirements
 
-* Ruby 2.1.0 or higher, including any development packages necessary
+* Ruby 2.3.0 or higher, including any development packages necessary
   to compile native extensions.
 
 * In Nokogiri 1.6.0 and later libxml2 and libxslt are bundled with the

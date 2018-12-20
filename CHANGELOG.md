@@ -1,3 +1,13 @@
+# 1.10.0 / unreleased
+
+## Backwards incompatibilities
+
+This release ends support for:
+
+* Ruby 2.2, for which [official support ended on 2018-03-31](https://www.ruby-lang.org/en/news/2018/06/20/support-of-ruby-2-2-has-ended/) [#1841]
+* JRuby 1.7, for which [official support ended on 2017-11-21](https://github.com/jruby/jruby/issues/4112) [#1741]
+
+
 # 1.9.1 / 2018-12-17
 
 ## Bug fixes
