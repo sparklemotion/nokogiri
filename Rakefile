@@ -144,17 +144,10 @@ HOE = Hoe.spec 'nokogiri' do
     ["concourse",          "~> 0.15"],
   ]
 
-  if java?
-    self.spec_extras = {
-        :platform => 'java',
-        :required_ruby_version => '>= 1.9.3' # JRuby >= 1.7
-    }
-  else
-    self.spec_extras = {
-      :extensions => ["ext/nokogiri/extconf.rb"],
-      :required_ruby_version => '>= 2.1.0'
-    }
-  end
+  self.spec_extras = {
+    :extensions => ["ext/nokogiri/extconf.rb"],
+    :required_ruby_version => '>= 2.1.0'
+  }
 
   self.testlib = :minitest
 end
