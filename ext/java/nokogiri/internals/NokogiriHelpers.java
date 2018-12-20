@@ -745,15 +745,9 @@ public class NokogiriHelpers {
 
         Class nkfClass;
         try {
-            // JRuby 1.7 and later
-            nkfClass = runtime.getClassLoader().loadClass("org.jruby.ext.nkf.RubyNKF");
-        } catch (ClassNotFoundException e1) {
-            try {
-                // Before JRuby 1.7
-                nkfClass = runtime.getClassLoader().loadClass("org.jruby.RubyNKF");
-            } catch (ClassNotFoundException e2) {
-                return str;
-            }
+            nkfClass = runtime.getClassLoader().loadClass("org.jruby.RubyNKF");
+        } catch (ClassNotFoundException e2) {
+            return str;
         }
         Method nkf_method;
         try {
