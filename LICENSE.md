@@ -1,16 +1,6 @@
 The MIT License
 
-Copyright 2008 - 2018:
-
-* [Aaron Patterson](http://tenderlovemaking.com)
-* [Mike Dalessio](http://mike.daless.io)
-* [Charles Nutter](http://blog.headius.com)
-* [Sergio Arbeo](http://www.serabe.com)
-* [Patrick Mahoney](http://polycrystal.org)
-* [Yoko Harada](http://yokolet.blogspot.com)
-* [Akinori MUSHA](https://akinori.org)
-* [John Shahid](https://github.com/jvshahid)
-* [Lars Kanis](https://github.com/larskanis)
+Copyright 2008 -- 2018 by Aaron Patterson, Mike Dalessio, Charles Nutter, Sergio Arbeo, Patrick Mahoney, Yoko Harada, Akinori MUSHA, John Shahid, Lars Kanis
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
