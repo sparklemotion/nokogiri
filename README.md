@@ -78,7 +78,9 @@ There are open-source tutorials (to which we invite contributions!) here: http:/
 
 ## Security and Vulnerability Reporting
 
-See [`SECURITY.md`](SECURITY.md)
+Please report vulnerabilities at https://hackerone.com/nokogiri
+
+Full information and description of our security policy is in [`SECURITY.md`](SECURITY.md)
 
 
 ## Synopsis
