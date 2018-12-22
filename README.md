@@ -172,4 +172,6 @@ explicitly setting the encoding to EUC-JP on the parser:
 
 ## License
 
-MIT. See [`LICENSE.md`](LICENSE.md).
+This project is licensed under the terms of the MIT license.
+
+See this license at [`LICENSE.md`](LICENSE.md).
