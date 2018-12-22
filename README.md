@@ -6,6 +6,7 @@ Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.  Among
 Nokogiri's many features is the ability to search documents via XPath
 or CSS3 selectors.
 
+
 ## Links
 
 * http://nokogiri.org
@@ -167,6 +168,7 @@ explicitly setting the encoding to EUC-JP on the parser:
 ```ruby
   doc = Nokogiri.XML('<foo><bar /></foo>', nil, 'EUC-JP')
 ```
+
 
 ## Development
 
