@@ -138,7 +138,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["minitest",           "~> 5.8.4"],
     ["rake",               "~> 12.0"],
     ["rake-compiler",      "~> 1.0.3"],
-    ["rake-compiler-dock", "~> 0.6.2"],
+    ["rake-compiler-dock", "~> 0.7.0"],
     ["racc",               "~> 1.4.14"],
     ["rexical",            "~> 1.0.5"],
     ["concourse",          "~> 0.15"],
@@ -316,10 +316,16 @@ task :cross do
   end
 end
 
-desc "build a windows gem without all the ceremony."
+desc "build a windows gem without all the ceremony"
 task "gem:windows" do
   require "rake_compiler_dock"
   RakeCompilerDock.sh "bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
+end
+
+desc "build a jruby gem with docker"
+task "gem:jruby" do
+  require "rake_compiler_dock"
+  RakeCompilerDock.sh "bundle && rake java gem", rubyvm: 'jruby'
 end
 
 # vim: syntax=Ruby
