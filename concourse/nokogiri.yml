@@ -36,7 +36,7 @@ groups:
 
   - name: allow-failure
     jobs:
-      <% RUBIES[:windows].last(2).each do |ruby_version| %>
+      <% RUBIES[:windows][1..-1].each do |ruby_version| %>
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
       <% for rbx_version in RUBIES[:rbx] %>
