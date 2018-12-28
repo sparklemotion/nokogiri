@@ -1,48 +1,24 @@
 #! /usr/bin/env bash
 #
-#  script to build gems for all relevant platforms:
-#  - MRI et al (standard gem)
-#  - windows (x86-mingw32 and x64-mingw32)
-#  - jruby
+#  script to build gems for all relevant platforms
 #
-
-# Load RVM into a shell session *as a function*
-if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
-    source "$HOME/.rvm/scripts/rvm"
-elif [[ -s "/usr/local/rvm/scripts/rvm" ]] ; then
-    source "/usr/local/rvm/scripts/rvm"
-else
-    echo "ERROR: An RVM installation was not found.\n"
-fi
-
 set -o errexit
 
-# check that we have the latest jruby
-rvm use jruby
-rvm use ruby
-
-rm -rf tmp pkg
-bundle exec rake clean clobber
-
-# holding pen
-rm -rf gems
+rm -rf tmp pkg gems
 mkdir -p gems
 
-# windows
-bundle exec rake gem:windows
-cp -v pkg/nokogiri*{x86,x64}-mingw32*.gem gems
-
-# MRI
+# MRI et al (standard gem)
 bundle exec rake clean
+bundle exec rake test
 bundle exec rake gem
 cp -v pkg/nokogiri*.gem gems
 
 # jruby
-bundle exec rake clean clobber
-bundle exec rake generate
-
-rvm use jruby
-gem install bundler --conservative
-bundle install --quiet --local || bundle install
-bundle exec ruby -S rake gem
+bundle exec rake clean
+bundle exec rake gem:jruby
 cp -v pkg/nokogiri*java.gem gems
+
+# windows (x86-mingw32 and x64-mingw32)
+bundle exec rake clean
+bundle exec rake gem:windows
+cp -v pkg/nokogiri*{x86,x64}-mingw32*.gem gems
