@@ -23,7 +23,7 @@ gems
 lib/nokogiri/nokogiri.bundle
 lib/nokogiri/nokogiri.jar
 lib/nokogiri/nokogiri.rb
-lib/nokogiri/nokogiri.so
+lib/nokogiri/**/nokogiri.so
 pkg
 ports
 stash
