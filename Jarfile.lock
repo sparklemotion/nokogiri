@@ -1,0 +1,4 @@
+---
+:runtime:
+- xerces:xercesImpl:jar:2.12.0
+- xml-apis:xml-apis:jar:1.4.01

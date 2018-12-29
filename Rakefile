@@ -12,6 +12,12 @@ Hoe.plugin :bundler
 GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
 
+require 'jars/installer'
+desc "Resolve jarfile dependencies"
+task :install_jars do
+  Jars::Installer.vendor_jars!
+end
+
 def java?
   /java/ === RUBY_PLATFORM
 end
@@ -143,6 +149,13 @@ HOE = Hoe.spec 'nokogiri' do
     ["rexical",            "~> 1.0.5"],
     ["concourse",          "~> 0.15"],
   ]
+
+  if java?
+    self.extra_dev_deps += [
+      ["jar-dependencies",   "~> 0.4"],
+      ["jbundler",           "~> 0.9"],
+    ]
+  end
 
   self.spec_extras = {
     :extensions => ["ext/nokogiri/extconf.rb"],
