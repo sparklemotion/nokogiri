@@ -2,6 +2,11 @@
 
 ## 1.10.0 / unreleased
 
+### Features
+
+* [MRI] Cross-built Windows gems now support Ruby 2.6 [#1842, #1850]
+
+
 ### Backwards incompatibilities
 
 This release ends support for:
