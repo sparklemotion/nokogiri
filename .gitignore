@@ -11,6 +11,7 @@
 .ruby-version
 .rvmrc
 .settings
+.yardoc
 Gemfile*lock
 TAGS
 build
@@ -19,10 +20,10 @@ ext/java/Canna
 ext/java/nokogiri/**/*.class
 ext/nokogiri/*.dll
 gems
+lib/nokogiri/**/nokogiri.so
 lib/nokogiri/nokogiri.bundle
 lib/nokogiri/nokogiri.jar
 lib/nokogiri/nokogiri.rb
-lib/nokogiri/**/nokogiri.so
 pkg
 ports
 stash
