@@ -15,6 +15,12 @@ This release ends support for:
 * JRuby 1.7, for which [official support ended on 2017-11-21](https://github.com/jruby/jruby/issues/4112) [#1741]
 
 
+### Dependencies
+
+* [MRI] libxml2 is updated from 2.9.8 to 2.9.9
+* [MRI] libxslt is updated from 1.1.32 to 1.1.33
+
+
 ## 1.9.1 / 2018-12-17
 
 ### Bug fixes
