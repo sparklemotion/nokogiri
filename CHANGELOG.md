@@ -1,6 +1,6 @@
 # Nokogiri Changelog
 
-## 1.10.0 / unreleased
+## 1.10.0 / 2019-01-04
 
 ### Features
 
