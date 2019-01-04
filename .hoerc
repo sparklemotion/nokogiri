@@ -4,6 +4,7 @@
 exclude: !ruby/regexp '/
 (^\.\/
   ((\.git
+    |.yardoc
     |concourse
     |gems
     |ports
