@@ -264,8 +264,6 @@ task :debug do
   ENV['CFLAGS'] += " -DDEBUG"
 end
 
-require File.join File.dirname(__FILE__), 'tasks/test'
-
 task :java_debug do
   ENV['JRUBY_OPTS'] = "#{ENV['JRUBY_OPTS']} --debug --dev"
   ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if ENV['JAVA_DEBUG']
