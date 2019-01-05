@@ -1,5 +1,12 @@
 # Nokogiri Changelog
 
+## unreleased
+
+### Features
+
+* [MRI] Handle Xcode 10's new library path on macOS. [#1801, #1851] (Thanks, @mlj and @deepj!)
+
+
 ## 1.10.0 / 2019-01-04
 
 ### Features
