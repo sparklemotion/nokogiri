@@ -392,6 +392,10 @@ when arg_config('--clean')
   do_clean
 end
 
+if darwin?
+  ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
+end
+
 if openbsd? && !using_system_libraries?
   if `#{ENV['CC'] || '/usr/bin/cc'} -v 2>&1` !~ /clang/
     ENV['CC'] ||= find_executable('egcc') or
