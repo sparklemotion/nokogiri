@@ -1133,7 +1133,8 @@ static VALUE set_native_content(VALUE self, VALUE content)
  * call-seq:
  *  content
  *
- * Returns the content for this Node
+ * Returns the plaintext content for this Node. Note that entities will always
+ * be expanded in the returned string.
  */
 static VALUE get_native_content(VALUE self)
 {
