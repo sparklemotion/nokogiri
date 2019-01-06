@@ -24,3 +24,14 @@
    fun:ruby_run_node
    fun:main
 }
+{
+   <https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-libxmlruby-valgrind/builds/116>
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_stacked_objects
+   fun:gc_mark_stacked_objects_all
+   fun:gc_marks_rest
+   ...
+   fun:garbage_collect_with_gvl
+   ...
+}
