@@ -7,6 +7,11 @@
 * [MRI] Handle Xcode 10's new library path on macOS. [#1801, #1851] (Thanks, @mlj and @deepj!)
 
 
+### Bug fixes
+
+* CSS selector `:has()` correctly matches against any descendant (previously matched against only direct children). [#350] (Thanks, @Phrogz!)
+
+
 ## 1.10.0 / 2019-01-04
 
 ### Features
