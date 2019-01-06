@@ -2,11 +2,25 @@
 
 set -e -x -u
 
+APT_UPDATED=false
+
+function ensure-apt-update {
+  if [[ $APT_UPDATED != "false" ]] ; then
+    return
+  fi
+
+  apt-get update
+  APT_UPDATED=true
+}
+
+if [[ ${TEST_WITH_APT_REPO_RUBY:-} != "" ]] ; then
+  ensure-apt-update
+  apt-get install -y ruby ruby-dev bundler libxslt-dev libxml2-dev pkg-config
+fi
+
 VERSION_INFO=$(ruby -v)
 RUBY_ENGINE=$(cut -d" " -f1 <<< "${VERSION_INFO}")
 RUBY_VERSION=$(cut -d" " -f2 <<< "${VERSION_INFO}")
-
-APT_UPDATED=false
 
 FROZEN_STRING_REF="53f9b66"
 
@@ -36,26 +50,16 @@ function rbx-engine {
   return 1
 }
 
-function ensure-apt-update {
-  if [[ $APT_UPDATED != "false" ]] ; then
-    return
-  fi
-
-  apt-get update
-  APT_UPDATED=true
-}
-
 pushd nokogiri
+
+  RAKE_TASK="test"
 
   if rbx-engine ; then
     ensure-apt-update
     apt-get install -y ca-certificates gcc pkg-config libxml2-dev libxslt-dev patch
   fi
 
-  RAKE_TASK="test"
-
   if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
-    RAKE_TASK="test:valgrind" # override
     ensure-apt-update
     apt-get install -y valgrind
   fi
@@ -65,6 +69,17 @@ pushd nokogiri
 
   if mri-24-or-greater && commit-is-post-frozen-string-support ; then
     export RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
+  fi
+
+  if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
+    RAKE_TASK="test:valgrind" # override
+    export TESTOPTS="-v" # see more verbose output to help narrow down warnings
+
+    # always use the CI suppressions if they exist
+    if [[ -d ../ci/suppressions ]] ; then
+      rm -rf suppressions
+      cp -var ../ci/suppressions .
+    fi
   fi
 
   bundle exec rake ${RAKE_TASK}

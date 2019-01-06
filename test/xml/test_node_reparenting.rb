@@ -197,6 +197,17 @@ module Nokogiri
             end
           end
 
+          describe "given the new document is empty" do
+            it "adds the node to the new document" do
+              doc1 = Nokogiri::XML.parse("<value>3</value>")
+              doc2 = Nokogiri::XML::Document.new
+              node = doc1.at_xpath("//value")
+              node.remove
+              doc2.add_child(node)
+              assert_match(/<value>3<\/value>/, doc2.to_xml)
+            end
+          end
+
           describe "given a parent node with a default namespace" do
             before do
               @doc = Nokogiri::XML(<<-eoxml)
@@ -212,6 +223,59 @@ module Nokogiri
               child = Nokogiri::XML::Node.new('second', @doc)
               node.add_child(child)
               assert @doc.at('//xmlns:second')
+            end
+
+            describe "and a child node was added to a new doc with the a different namespace using the same prefix" do
+              before do
+                @doc = Nokogiri::XML %Q{<root xmlns:bar="http://tenderlovemaking.com/"><bar:first/></root>}
+                new_doc = Nokogiri::XML %Q{<newroot xmlns:bar="http://flavorjon.es/"/>}
+                assert node = @doc.at("//tenderlove:first", tenderlove: "http://tenderlovemaking.com/")
+                new_doc.root.add_child node
+                @doc = new_doc
+              end
+
+              it "serializes the doc with the proper default namespace" do
+                assert_match(/<bar:first\ xmlns:bar="http:\/\/tenderlovemaking.com\/"\/>/, @doc.to_xml)
+              end
+            end
+
+            describe "and a child node was added to a new doc with the same default namespaces" do
+              before do
+                new_doc = Nokogiri::XML %Q{<newroot xmlns="http://tenderlovemaking.com/"/>}
+                assert node = @doc.at("//tenderlove:first", tenderlove: "http://tenderlovemaking.com/")
+                new_doc.root.add_child node
+                @doc = new_doc
+              end
+
+              it "serializes the doc with the proper default namespace" do
+                assert_match(/<first>/, @doc.to_xml)
+              end
+            end
+
+            describe "and a child node was added to a new doc without any default namespaces" do
+              before do
+                new_doc = Nokogiri::XML "<newroot/>"
+                assert node = @doc.at("//tenderlove:first", tenderlove: "http://tenderlovemaking.com/")
+                new_doc.root.add_child node
+                @doc = new_doc
+              end
+
+              it "serializes the doc with the proper default namespace" do
+                assert_match(/<first xmlns=\"http:\/\/tenderlovemaking.com\/\">/, @doc.to_xml)
+              end
+            end
+
+            describe "and a child node became the root of a new doc" do
+              before do
+                new_doc = Nokogiri::XML::Document.new
+                assert node = @doc.at("//tenderlove:first", tenderlove: "http://tenderlovemaking.com/")
+                new_doc.root = node
+                @doc = new_doc
+              end
+
+              it "serializes the doc with the proper default namespace" do
+                assert_match(/<first xmlns=\"http:\/\/tenderlovemaking.com\/\">/, @doc.to_xml)
+              end
             end
           end
 
@@ -238,7 +302,7 @@ module Nokogiri
                   @node.add_child(@child)
                   assert reparented = @doc.at('//bar:second', "bar" => "http://tenderlovemaking.com/")
                   assert reparented.namespace_definitions.empty?
-                  assert_equal @ns, reparented.namespace
+                  assert_equal @doc.root.namespace, reparented.namespace
                   assert_equal(
                     {
                       "xmlns"     => "http://tenderlovemaking.com/",
@@ -271,17 +335,20 @@ module Nokogiri
             end
 
             describe "and a child with a namespace matching the parent's non-default namespace" do
+              before do
+                @root_ns = @doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
+              end
+
               describe "set by #namespace=" do
                 before do
-                  @ns = @doc.root.namespace_definitions.detect { |x| x.prefix == "foo" }
-                  @child.namespace = @ns
+                  @child.namespace = @root_ns
                 end
 
                 it "inserts a node that inherits the matching parent namespace" do
                   @node.add_child(@child)
                   assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.empty?
-                  assert_equal @ns, reparented.namespace
+                  assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
                       "xmlns"     => "http://tenderlovemaking.com/",
@@ -301,7 +368,7 @@ module Nokogiri
                   @node.add_child(@child)
                   assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.empty?
-                  assert_equal @ns, reparented.namespace
+                  assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
                       "xmlns"     => "http://tenderlovemaking.com/",
@@ -536,6 +603,19 @@ module Nokogiri
               saved_nodes.each { |child| child.inspect } # try to cause a crash
               assert_equal result, doc.at_xpath("/root/text()").inner_text
             end
+          end
+        end
+
+        describe "reparenting and preserving a reference to the original ns" do
+          it "should not cause illegal memory access" do
+            # this test will only cause a failure in valgrind. it
+            # drives out the reason why we can't call xmlFreeNs in
+            # relink_namespace and instead have to root the nsdef.
+            doc = Nokogiri::XML '<root xmlns="http://flavorjon.es/"><envelope /></root>'
+            elem = doc.create_element "package", {"xmlns" => "http://flavorjon.es/"}
+            ns = elem.namespace_definitions
+            doc.at_css("envelope").add_child elem
+            ns.inspect
           end
         end
 

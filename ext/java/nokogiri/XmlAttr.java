@@ -130,7 +130,9 @@ public class XmlAttr extends XmlNode {
     @JRubyMethod(name = {"value=", "content="})
     public IRubyObject value_set(ThreadContext context, IRubyObject content){
         Attr attr = (Attr) node;
-        attr.setValue(rubyStringToString(XmlNode.encode_special_chars(context, content)));
+        if (content != null && !content.isNil()) {
+            attr.setValue(rubyStringToString(XmlNode.encode_special_chars(context, content)));
+        }
         setContent(content);
         return content;
     }

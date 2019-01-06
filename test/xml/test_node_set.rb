@@ -115,8 +115,8 @@ module Nokogiri
         @list.each { |e| assert_nil e['foo'] }
 
         [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
-          @list.send(t.first.to_sym, 'foo') { |x| t.last }
-          @list.each { |e| assert_equal t.last, e['foo'] }
+          @list.send(t.first.to_sym, 'foo') { |x| x.at_css("employeeId").text }
+          @list.each { |e| assert_equal e.at_css("employeeId").text, e['foo'] }
         end
       end
 
@@ -129,9 +129,14 @@ module Nokogiri
         end
       end
 
-      def test_attribute_no_args
+      def test_attribute_with_no_args_gets_attribute_from_first_node
         @list.first['foo'] = 'bar'
         assert_equal @list.first.attribute('foo'), @list.attribute('foo')
+      end
+
+      def test_attribute_with_no_args_on_empty_set
+        set = Nokogiri::XML::NodeSet.new(Nokogiri::XML::Document.new)
+        assert_nil set.attribute("foo")
       end
 
       def test_search_empty_node_set
@@ -511,6 +516,19 @@ module Nokogiri
         assert_equal 'employee', @xml.search("//wrapper").first.children[0].name
       end
 
+      def test_wrap_various_node_types
+        xml = '<root><foo>contents</foo></root>'
+        doc = Nokogiri::XML xml
+        nodes = doc.at_css("root").xpath(".//* | .//*/text()") # foo and "contents"
+        nodes.wrap("<wrapper/>")
+        wrappers = doc.css("wrapper")
+        assert_equal "root", wrappers.first.parent.name
+        assert_equal "foo", wrappers.first.children.first.name
+        assert_equal "foo", wrappers.last.parent.name
+        assert wrappers.last.children.first.text?
+        assert_equal "contents", wrappers.last.children.first.text
+      end
+
       def test_wrap_a_fragment
         frag = Nokogiri::XML::DocumentFragment.parse <<-EOXML
           <employees>
@@ -803,6 +821,12 @@ module Nokogiri
         new_set  = node_set[0..-1]
         assert_equal node_set.document, new_set.document
         assert new_set.respond_to?(:awesome!)
+      end
+
+      def test_each_should_return_self
+        node_set1 = @xml.css("address")
+        node_set2 = node_set1.each {}
+        assert_equal node_set1, node_set2
       end
     end
   end

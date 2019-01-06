@@ -36,10 +36,12 @@ import java.util.Set;
 
 import javax.xml.transform.TransformerException;
 
-import nokogiri.internals.NokogiriNamespaceContext;
-import nokogiri.internals.NokogiriXPathFunctionResolver;
-import nokogiri.internals.NokogiriXPathVariableResolver;
-
+import org.apache.xml.dtm.DTM;
+import org.apache.xpath.XPath;
+import org.apache.xpath.XPathContext;
+import org.apache.xpath.jaxp.JAXPPrefixResolver;
+import org.apache.xpath.jaxp.JAXPVariableStack;
+import org.apache.xpath.objects.XObject;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
@@ -51,13 +53,9 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.SafePropertyAccessor;
 import org.w3c.dom.Node;
 
-import org.apache.xml.dtm.DTM;
-import org.apache.xpath.XPath;
-import org.apache.xpath.XPathContext;
-import org.apache.xpath.jaxp.JAXPExtensionsProvider;
-import org.apache.xpath.jaxp.JAXPPrefixResolver;
-import org.apache.xpath.jaxp.JAXPVariableStack;
-import org.apache.xpath.objects.XObject;
+import nokogiri.internals.NokogiriNamespaceContext;
+import nokogiri.internals.NokogiriXPathFunctionResolver;
+import nokogiri.internals.NokogiriXPathVariableResolver;
 
 /**
  * Class for Nokogiri::XML::XpathContext
@@ -186,7 +184,7 @@ public class XmlXpathContext extends RubyObject {
             case XObject.CLASS_BOOLEAN : return context.getRuntime().newBoolean(xobj.bool());
             case XObject.CLASS_NUMBER :  return context.getRuntime().newFloat(xobj.num());
             case XObject.CLASS_NODESET :
-                XmlNodeSet xmlNodeSet = XmlNodeSet.create(context.getRuntime());
+                XmlNodeSet xmlNodeSet = XmlNodeSet.newEmptyNodeSet(context);
                 xmlNodeSet.setNodeList(xobj.nodelist());
                 xmlNodeSet.initialize(context.getRuntime(), this.context);
                 return xmlNodeSet;

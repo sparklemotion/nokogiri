@@ -115,8 +115,7 @@ HOE = Hoe.spec 'nokogiri' do
   self.readme_file  = "README.md"
   self.history_file = "CHANGELOG.md"
 
-  self.extra_rdoc_files = FileList['*.rdoc','ext/nokogiri/*.c']
-
+  self.extra_rdoc_files = FileList['ext/nokogiri/*.c']
 
   self.clean_globs += [
     'nokogiri.gemspec',
@@ -127,35 +126,28 @@ HOE = Hoe.spec 'nokogiri' do
 
   unless java?
     self.extra_deps += [
-      ["mini_portile2",    "~> 2.3.0"], # keep version in sync with extconf.rb
+      ["mini_portile2",    "~> 2.4.0"], # keep version in sync with extconf.rb
     ]
   end
 
   self.extra_dev_deps += [
     ["hoe-bundler",        "~> 1.2"],
-    ["hoe-debugging",      "~> 1.4"],
+    ["hoe-debugging",      "~> 2.0"],
     ["hoe-gemspec",        "~> 1.0"],
     ["hoe-git",            "~> 1.6"],
     ["minitest",           "~> 5.8.4"],
     ["rake",               "~> 12.0"],
     ["rake-compiler",      "~> 1.0.3"],
-    ["rake-compiler-dock", "~> 0.6.2"],
+    ["rake-compiler-dock", "~> 0.7.0"],
     ["racc",               "~> 1.4.14"],
     ["rexical",            "~> 1.0.5"],
     ["concourse",          "~> 0.15"],
   ]
 
-  if java?
-    self.spec_extras = {
-        :platform => 'java',
-        :required_ruby_version => '>= 1.9.3' # JRuby >= 1.7
-    }
-  else
-    self.spec_extras = {
-      :extensions => ["ext/nokogiri/extconf.rb"],
-      :required_ruby_version => '>= 2.1.0'
-    }
-  end
+  self.spec_extras = {
+    :extensions => ["ext/nokogiri/extconf.rb"],
+    :required_ruby_version => '>= 2.3.0'
+  }
 
   self.testlib = :minitest
 end
@@ -250,19 +242,9 @@ end
 desc "Generate css/parser.rb and css/tokenizer.rex"
 task 'generate' => [GENERATED_PARSER, GENERATED_TOKENIZER]
 task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
-
-# This is a big hack to make sure that the racc and rexical
-# dependencies in the Gemfile are constrainted to ruby platforms
-# (i.e. MRI and Rubinius). There's no way to do that through hoe,
-# and any solution will require changing hoe and hoe-bundler.
-old_gemfile_task = Rake::Task['bundler:gemfile'] rescue nil
-task 'bundler:gemfile' do
-  old_gemfile_task.invoke if old_gemfile_task
-
-  lines = File.open('Gemfile', 'r') { |f| f.readlines }.map do |line|
-    line =~ /racc|rexical/ ? "#{line.strip}, :platform => [:ruby, :mingw, :x64_mingw]" : line
-  end
-  File.open('Gemfile', 'w') { |f| lines.each { |line| f.puts line } }
+[:compile, :check_manifest].each do |task_name|
+  Rake::Task[task_name].prerequisites << GENERATED_PARSER
+  Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
 end
 
 file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
@@ -273,11 +255,6 @@ file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
   sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
 end
 
-[:compile, :check_manifest].each do |task_name|
-  Rake::Task[task_name].prerequisites << GENERATED_PARSER
-  Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
-end
-
 # ----------------------------------------
 
 desc "set environment variables to build and/or test with debug options"
@@ -286,8 +263,6 @@ task :debug do
   ENV['CFLAGS'] ||= ""
   ENV['CFLAGS'] += " -DDEBUG"
 end
-
-require File.join File.dirname(__FILE__), 'tasks/test'
 
 task :java_debug do
   ENV['JRUBY_OPTS'] = "#{ENV['JRUBY_OPTS']} --debug --dev"
@@ -339,10 +314,16 @@ task :cross do
   end
 end
 
-desc "build a windows gem without all the ceremony."
+desc "build a windows gem without all the ceremony"
 task "gem:windows" do
   require "rake_compiler_dock"
   RakeCompilerDock.sh "bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
+end
+
+desc "build a jruby gem with docker"
+task "gem:jruby" do
+  require "rake_compiler_dock"
+  RakeCompilerDock.sh "bundle && rake java gem", rubyvm: 'jruby'
 end
 
 # vim: syntax=Ruby

@@ -4,11 +4,8 @@
 
 * [x] real ssl cert
 * [x] github authentication
-* [ ] pipeline: update stemcell(s)
-* [ ] bastion host
-* [ ] pipeline: repave bastion host
-* [ ] ¿upgrade bbl?
-* [ ] ¿stackdriver bosh release?
+* [x] bastion host
+* [x] upgrade bbl
 
 ## nokogiri.yml
 
@@ -30,22 +27,17 @@
   * [ ] windows (fat binary)
   * [ ] windows (devkit)
 * notifications on failure / success
-  * [ ] ¿use a task.yml?
-  * [ ] irc [→ irc resource]
-  * [ ] email (using existing resource)
+  * [x] irc [→ irc resource]
 
 ## other projects
 
 * [x] pipeline: mini_portile [→ bosh release]
 * [x] pipeline: chromedriver-helper
-* [ ] pipeline: LicenseFinder
-  * [ ] and PR a windows task back to the project
-* [ ] move to AWS S3 for the bosh release blobstore (because bosh.io)
 * [x] bosh release for windows worker config:
   * [ ] ruby of all supported versions
   * [ ] devkit installed in all rubies
   * [ ] cmake
-* [ ] resource: irc
+* [x] resource: irc
 * [ ] resource: rubygems
 
 ## nokogiri stretch goals
