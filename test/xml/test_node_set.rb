@@ -115,8 +115,8 @@ module Nokogiri
         @list.each { |e| assert_nil e['foo'] }
 
         [ ['attribute', 'bar'], ['attr', 'biz'], ['set', 'baz'] ].each do |t|
-          @list.send(t.first.to_sym, 'foo') { |x| t.last }
-          @list.each { |e| assert_equal t.last, e['foo'] }
+          @list.send(t.first.to_sym, 'foo') { |x| x.at_css("employeeId").text }
+          @list.each { |e| assert_equal e.at_css("employeeId").text, e['foo'] }
         end
       end
 
@@ -129,9 +129,14 @@ module Nokogiri
         end
       end
 
-      def test_attribute_no_args
+      def test_attribute_with_no_args_gets_attribute_from_first_node
         @list.first['foo'] = 'bar'
         assert_equal @list.first.attribute('foo'), @list.attribute('foo')
+      end
+
+      def test_attribute_with_no_args_on_empty_set
+        set = Nokogiri::XML::NodeSet.new(Nokogiri::XML::Document.new)
+        assert_nil set.attribute("foo")
       end
 
       def test_search_empty_node_set
