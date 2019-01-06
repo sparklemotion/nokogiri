@@ -495,7 +495,7 @@ module Nokogiri
       end
 
       ###
-      # Returns a Hash of {prefix => value} for all namespaces on this
+      # Returns a Hash of +{prefix => value}+ for all namespaces on this
       # node and its ancestors.
       #
       # This method returns the same namespaces as #namespace_scopes.
