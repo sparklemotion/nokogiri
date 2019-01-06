@@ -165,6 +165,44 @@ module Nokogiri
         assert_equal x.first.name, "span"
       end
 
+      def test_dup_is_deep_copy_by_default
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup
+        assert_equal 1, node.children.length
+        assert_equal "<p>hello</p>", node.children.first.to_html
+      end
+
+      def test_dup_deep_copy
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup(1)
+        assert_equal 1, node.children.length
+        assert_equal "<p>hello</p>", node.children.first.to_html
+      end
+
+      def test_dup_shallow_copy
+        doc = XML::Document.parse "<root><div><p>hello</p></div></root>"
+        div = doc.at_css "div"
+        node = div.dup(0)
+        assert_equal 0, node.children.length
+      end
+
+      if Nokogiri.uses_libxml?
+        def test_dup_to_another_document
+          doc1 = HTML::Document.parse "<root><div><p>hello</p></div></root>"
+          doc2 = HTML::Document.parse "<div></div>"
+
+          div = doc1.at_css "div"
+          duplicate_div = div.dup(1, doc2)
+
+          assert_not_nil doc1.at_css("div")
+          assert_equal doc2, duplicate_div.document
+          assert_equal 1, duplicate_div.children.length
+          assert_equal "<p>hello</p>", duplicate_div.children.first.to_html
+        end
+      end
+
       def test_subclass_dup
         subclass = Class.new(Nokogiri::XML::Node)
         node = subclass.new('foo', @xml).dup
@@ -415,10 +453,17 @@ module Nokogiri
         assert_equal ns, ns2
       end
 
-      def test_add_default_ns
+      def test_add_default_namespace
         node = @xml.at('address')
         node.add_namespace(nil, 'http://tenderlovemaking.com')
         assert_equal 'http://tenderlovemaking.com', node.namespaces['xmlns']
+      end
+
+      def test_add_default_namespace_twice
+        node = @xml.at('address')
+        ns = node.add_namespace(nil, 'http://tenderlovemaking.com')
+        ns2 = node.add_namespace(nil, 'http://tenderlovemaking.com')
+        assert_equal ns.object_id, ns2.object_id
       end
 
       def test_add_multiple_namespaces
@@ -1319,6 +1364,15 @@ eoxml
           node.add_previous_sibling(Nokogiri::XML::Text.new('before', node.document))
           node.add_next_sibling(Nokogiri::XML::Text.new('after', node.document))
         end
+      end
+
+      def test_wrap
+        xml = '<root><thing><div class="title">important thing</div></thing></root>'
+        doc = Nokogiri::XML(xml)
+        thing = doc.at_css("thing")
+        thing.wrap("<wrapper/>")
+        assert_equal 'wrapper', thing.parent.name
+        assert_equal 'thing', doc.at_css("wrapper").children.first.name
       end
     end
   end

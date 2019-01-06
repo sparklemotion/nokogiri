@@ -171,16 +171,50 @@ module Nokogiri
       end
 
       ###
-      # Set the attribute +key+ to +value+ or the return value of +blk+
-      # on all Node objects in the NodeSet.
-      def attr key, value = nil, &blk
-        unless Hash === key || key && (value || blk)
-          return first.attribute(key)
+      # Set attributes on each Node in the NodeSet, or get an
+      # attribute from the first Node in the NodeSet.
+      #
+      # To get an attribute from the first Node in a NodeSet:
+      #
+      #   node_set.attr("href") # => "https://www.nokogiri.org"
+      #
+      # Note that an empty NodeSet will return nil when +#attr+ is called as a getter.
+      #
+      # To set an attribute on each node, +key+ can either be an
+      # attribute name, or a Hash of attribute names and values. When
+      # called as a setter, +#attr+ returns the NodeSet.
+      #
+      # If +key+ is an attribute name, then either +value+ or +block+
+      # must be passed.
+      #
+      # If +key+ is a Hash then attributes will be set for each
+      # key/value pair:
+      #
+      #   node_set.attr("href" => "https://www.nokogiri.org", "class" => "member")
+      #
+      # If +value+ is passed, it will be used as the attribute value
+      # for all nodes:
+      #
+      #   node_set.attr("href", "https://www.nokogiri.org")
+      #
+      # If +block+ is passed, it will be called on each Node object in
+      # the NodeSet and the return value used as the attribute value
+      # for that node:
+      #
+      #   node_set.attr("class") { |node| node.name }
+      #
+      def attr key, value = nil, &block
+        unless key.is_a?(Hash) || (key && (value || block))
+          return first ? first.attribute(key) : nil
         end
 
         hash = key.is_a?(Hash) ? key : { key => value }
 
-        hash.each { |k,v| each { |el| el[k] = v || blk[el] } }
+        hash.each do |k,v|
+          each do |node|
+            node[k] = v || block.call(node)
+          end
+        end
 
         self
       end
@@ -203,6 +237,7 @@ module Nokogiri
         0.upto(length - 1) do |x|
           yield self[x]
         end
+        self
       end
 
       ###
@@ -230,14 +265,9 @@ module Nokogiri
       end
 
       ###
-      # Wrap this NodeSet with +html+ or the results of the builder in +blk+
-      def wrap(html, &blk)
-        each do |j|
-          new_parent = document.parse(html).first
-          j.add_next_sibling(new_parent)
-          new_parent.add_child(j)
-        end
-        self
+      # Wrap this NodeSet with +html+
+      def wrap html
+        map { |node| node.wrap html }
       end
 
       ###

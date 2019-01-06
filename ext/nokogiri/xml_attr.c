@@ -4,37 +4,40 @@
  * call-seq:
  *  value=(content)
  *
- * Set the value for this Attr to +content+
+ * Set the value for this Attr to +content+. Use `nil` to remove the value
+ * (e.g., a HTML boolean attribute).
  */
 static VALUE set_value(VALUE self, VALUE content)
 {
   xmlAttrPtr attr;
+  xmlChar *value;
+  xmlNode *cur;
+
   Data_Get_Struct(self, xmlAttr, attr);
 
-  if (attr->children) { xmlFreeNodeList(attr->children); }
-
+  if (attr->children) {
+    xmlFreeNodeList(attr->children);
+  }
   attr->children = attr->last = NULL;
 
-  if (content) {
-    xmlChar *buffer;
-    xmlNode *tmp;
+  if (content == Qnil) {
+    return content;
+  }
 
-    /* Encode our content */
-    buffer = xmlEncodeEntitiesReentrant(attr->doc, (unsigned char *)StringValueCStr(content));
+  value = xmlEncodeEntitiesReentrant(attr->doc, (unsigned char *)StringValueCStr(content));
+  if (xmlStrlen(value) == 0) {
+    attr->children = xmlNewDocText(attr->doc, value);
+  } else {
+    attr->children = xmlStringGetNodeList(attr->doc, value);
+  }
+  xmlFree(value);
 
-    attr->children = xmlStringGetNodeList(attr->doc, buffer);
-    attr->last = NULL;
-    tmp = attr->children;
-
-    /* Loop through the children */
-    for(tmp = attr->children; tmp; tmp = tmp->next) {
-      tmp->parent = (xmlNode *)attr;
-      tmp->doc = attr->doc;
-      if (tmp->next == NULL) { attr->last = tmp; }
+  for (cur = attr->children; cur; cur = cur->next) {
+    cur->parent = (xmlNode *)attr;
+    cur->doc = attr->doc;
+    if (cur->next == NULL) {
+      attr->last = cur;
     }
-
-    /* Free up memory */
-    xmlFree(buffer);
   }
 
   return content;
@@ -74,7 +77,9 @@ static VALUE new(int argc, VALUE *argv, VALUE klass)
   rb_node = Nokogiri_wrap_xml_node(klass, (xmlNodePtr)node);
   rb_obj_call_init(rb_node, argc, argv);
 
-  if (rb_block_given_p()) { rb_yield(rb_node); }
+  if (rb_block_given_p()) {
+    rb_yield(rb_node);
+  }
 
   return rb_node;
 }

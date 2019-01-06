@@ -305,6 +305,13 @@ module Nokogiri
         assert_equal original_errors1, frag1.errors
         assert_equal original_errors2, frag2.errors
       end
+
+      def test_dup_should_create_an_html_document_fragment
+        # https://github.com/sparklemotion/nokogiri/issues/1846
+        original = Nokogiri::HTML::DocumentFragment.parse("<div><p>hello</p></div>")
+        duplicate = original.dup
+        assert_instance_of Nokogiri::HTML::DocumentFragment, duplicate
+      end
     end
   end
 end

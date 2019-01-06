@@ -6,6 +6,7 @@ Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.  Among
 Nokogiri's many features is the ability to search documents via XPath
 or CSS3 selectors.
 
+
 ## Links
 
 * http://nokogiri.org
@@ -13,13 +14,14 @@ or CSS3 selectors.
 * [Tutorials](http://nokogiri.org)
 * [GitHub](https://github.com/sparklemotion/nokogiri)
 * [Mailing List](https://groups.google.com/group/nokogiri-talk)
-* [Bug Reports](https://github.com/sparklemotion/nokogiri/issues)
 * [Chat/Gitter](https://gitter.im/sparklemotion/nokogiri)
 
 [![Concourse CI](https://ci.nokogiri.org/api/v1/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.4-system/badge)](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri?groups=master)
+
 [![Code Climate](https://codeclimate.com/github/sparklemotion/nokogiri.svg)](https://codeclimate.com/github/sparklemotion/nokogiri)
-[![Version Eye](https://www.versioneye.com/ruby/nokogiri/badge.png)](https://www.versioneye.com/ruby/nokogiri)
-[![Join the chat at https://gitter.im/sparklemotion/nokogiri](https://badges.gitter.im/sparklemotion/nokogiri.svg)](https://gitter.im/sparklemotion/nokogiri?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gem Version](https://badge.fury.io/rb/nokogiri.svg)](https://rubygems.org/gems/nokogiri)
+[![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score.html?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)
+[![Tidelift dependencies](https://tidelift.com/badges/github/sparklemotion/nokogiri)](https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&utm_medium=referral&utm_campaign=readme)
 
 
 ## Features
@@ -76,10 +78,16 @@ There are open-source tutorials (to which we invite contributions!) here: http:/
 * Before filing a bug report, please read our submission guidelines: http://nokogiri.org/tutorials/getting_help.html
 * The IRC channel is #nokogiri on freenode.
 
+Consider subscribing to [Tidelift][tidelift] which provides license assurances and timely security notifications for your open source dependencies, including Nokogiri. [Tidelift][tidelift] subscriptions also help the Nokogiri maintainers fund our [automated testing](https://ci.nokogiri.org) which in turn allows us to ship releases, bugfixes, and security updates more often.
+
+  [tidelift]: https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&utm_medium=referral&utm_campaign=readme
+
 
 ## Security and Vulnerability Reporting
 
-See [`SECURITY.md`](SECURITY.md)
+Please report vulnerabilities at https://hackerone.com/nokogiri
+
+Full information and description of our security policy is in [`SECURITY.md`](SECURITY.md)
 
 
 ## Synopsis
@@ -114,7 +122,7 @@ end
 
 ## Requirements
 
-* Ruby 2.1.0 or higher, including any development packages necessary
+* Ruby 2.3.0 or higher, including any development packages necessary
   to compile native extensions.
 
 * In Nokogiri 1.6.0 and later libxml2 and libxslt are bundled with the
@@ -162,6 +170,7 @@ explicitly setting the encoding to EUC-JP on the parser:
   doc = Nokogiri.XML('<foo><bar /></foo>', nil, 'EUC-JP')
 ```
 
+
 ## Development
 
 ```bash
@@ -171,4 +180,6 @@ explicitly setting the encoding to EUC-JP on the parser:
 
 ## License
 
-MIT. See [`LICENSE.md`](LICENSE.md).
+This project is licensed under the terms of the MIT license.
+
+See this license at [`LICENSE.md`](LICENSE.md).

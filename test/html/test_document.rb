@@ -707,6 +707,16 @@ eohtml
         assert_equal 'ISO-8859-1', html.encoding.name
       end
 
+      def test_leaking_dtd_nodes_after_internal_subset_removal
+        # see https://github.com/sparklemotion/nokogiri/issues/1784
+        #
+        # just checking that this doesn't raise a valgrind error. we
+        # don't otherwise have any test coverage for removing DTDs.
+        #
+        100.times do |i|
+          Nokogiri::HTML::Document.new.internal_subset.remove
+        end
+      end
     end
   end
 end

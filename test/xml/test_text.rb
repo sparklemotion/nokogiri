@@ -55,6 +55,15 @@ module Nokogiri
           node << Text.new('bar', Document.new)
         }
       end
+
+      def test_wrap
+        xml = '<root><thing><div class="title">important thing</div></thing></root>'
+        doc = Nokogiri::XML(xml)
+        text = doc.at_css("div").children.first
+        text.wrap("<wrapper/>")
+        assert_equal 'wrapper', text.parent.name
+        assert_equal 'wrapper', doc.at_css("div").children.first.name
+      end
     end
   end
 end

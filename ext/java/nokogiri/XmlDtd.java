@@ -35,9 +35,11 @@ package nokogiri;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
-import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.SaveContextVisitor;
+import static org.jruby.runtime.Helpers.invoke;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.xerces.xni.QName;
 import org.cyberneko.dtd.DTDConfiguration;
@@ -54,6 +56,9 @@ import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import nokogiri.internals.NokogiriHelpers;
+import nokogiri.internals.SaveContextVisitor;
+
 /**
  * Class for Nokogiri::XML::DTD
  * 
@@ -64,8 +69,6 @@ import org.w3c.dom.Node;
 
 @JRubyClass(name="Nokogiri::XML::DTD", parent="Nokogiri::XML::Node")
 public class XmlDtd extends XmlNode {
-    protected RubyArray allDecls = null;
-
     /** cache of children, Nokogiri::XML::NodeSet */
     protected IRubyObject children = null;
 
@@ -369,7 +372,6 @@ public class XmlDtd extends XmlNode {
         Ruby runtime = context.getRuntime();
 
         // initialize data structures
-        allDecls = RubyArray.newArray(runtime);
         attributes = RubyHash.newHash(runtime);
         elements = RubyHash.newHash(runtime);
         entities = RubyHash.newHash(runtime);
@@ -379,10 +381,9 @@ public class XmlDtd extends XmlNode {
 
         // recursively extract decls
         if (node == null) return; // leave all the decl hash's empty
-        extractDecls(context, node.getFirstChild());
 
         // convert allDecls to a NodeSet
-        children = XmlNodeSet.newXmlNodeSet(context, allDecls);
+        children = XmlNodeSet.newXmlNodeSet(context, extractDecls(context, node.getFirstChild()));
 
         // add attribute decls as attributes to the matching element decl
         RubyArray keys = attributes.keys();
@@ -425,25 +426,26 @@ public class XmlDtd extends XmlNode {
      * subset it extracts everything and assumess <code>node</code>
      * and all children are part of the external subset.
      */
-    protected void extractDecls(ThreadContext context, Node node) {
+    protected IRubyObject[] extractDecls(ThreadContext context, Node node) {
+        List<IRubyObject> decls = new ArrayList<IRubyObject>();
         while (node != null) {
             if (isExternalSubset(node)) {
-                return;
+                break;
             } else if (isAttributeDecl(node)) {
                 XmlAttributeDecl decl = (XmlAttributeDecl)
                     XmlAttributeDecl.create(context, node);
                 attributes.op_aset(context, decl.attribute_name(context), decl);
-                allDecls.append(decl);
+                decls.add(decl);
             } else if (isElementDecl(node)) {
                 XmlElementDecl decl = (XmlElementDecl)
                     XmlElementDecl.create(context, node);
                 elements.op_aset(context, decl.element_name(context), decl);
-                allDecls.append(decl);
+                decls.add(decl);
             } else if (isEntityDecl(node)) {
                 XmlEntityDecl decl = (XmlEntityDecl)
                     XmlEntityDecl.create(context, node);
                 entities.op_aset(context, decl.node_name(context), decl);
-                allDecls.append(decl);
+                decls.add(decl);
             } else if (isNotationDecl(node)) {
                 XmlNode tmp = (XmlNode)
                     NokogiriHelpers.constructNode(context.getRuntime(), node);
@@ -453,7 +455,7 @@ public class XmlDtd extends XmlNode {
                                           tmp.getAttribute(context, "sysid"));
                 notations.op_aset(context,
                                   tmp.getAttribute(context, "name"), decl);
-                allDecls.append(decl);
+                decls.add(decl);
             } else if (isContentModel(node)) {
                 XmlElementContent cm =
                     new XmlElementContent(context.getRuntime(),
@@ -462,13 +464,15 @@ public class XmlDtd extends XmlNode {
                 contentModels.op_aset(context, cm.element_name(context), cm);
             } else {
                 // recurse
-                extractDecls(context, node.getFirstChild());
+                decls.addAll(Arrays.asList(extractDecls(context, node.getFirstChild())));
             }
 
             node = node.getNextSibling();
         }
+
+        return decls.toArray(new IRubyObject[decls.size()]);
     }
-    
+
     @Override
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
         // since we use nekoDTD to parse dtd, node might be ElementImpl type

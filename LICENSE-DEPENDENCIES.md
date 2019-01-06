@@ -1,3 +1,5 @@
+## Vendored Dependency Licenses
+
 Nokogiri ships with some third party dependencies, which are listed
 here along with their licenses.
 
@@ -20,9 +22,9 @@ present in any non-Windows releases.
 
 -----
 
-# default platform release
+## default platform release
 
-## libxml2
+### libxml2
 
 MIT
 
@@ -53,7 +55,7 @@ http://xmlsoft.org/
     THE SOFTWARE.
     
 
-## libxslt
+### libxslt
 
 MIT
 
@@ -113,9 +115,9 @@ http://xmlsoft.org/libxslt/
     ings in this Software without prior written authorization from him.
     ----------------------------------------------------------------------
     
-# `java` platform release
+## `java` platform release
 
-## isorelax
+### isorelax
 
 MIT
 
@@ -144,7 +146,7 @@ http://iso-relax.sourceforge.net/
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-## jing
+### jing
 
 BSD-3-Clause
 
@@ -185,7 +187,7 @@ http://www.thaiopensource.com/relaxng/jing.html
     SUCH DAMAGE.
 
     
-## nekodtd
+### nekodtd
 
 Apache 1.0-derived
 
@@ -238,7 +240,7 @@ https://people.apache.org/~andyc/neko/doc/dtd/
     
     This license is based on the Apache Software License, version 1.1.
 
-## nekohtml
+### nekohtml
 
 Apache 2.0
 
@@ -447,7 +449,7 @@ http://nekohtml.sourceforge.net/
        See the License for the specific language governing permissions and
        limitations under the License.
 
-## xalan
+### xalan
 
 Apache 2.0
 
@@ -658,7 +660,7 @@ covers xalan.jar and serializer.jar
        limitations under the License.
     
 
-## xerces
+### xerces
 
 Apache 2.0
 
@@ -868,7 +870,7 @@ https://xerces.apache.org/xerces2-j/
        limitations under the License.
     
 
-## xml-apis
+### xml-apis
 
 Apache 2.0
 
@@ -1088,13 +1090,13 @@ https://xerces.apache.org/xml-commons/
        limitations under the License.
 
 
-# binary windows release
+## binary windows release
 
 NOTE: these libraries are redistributed ONLY with the binary
 cross-compiled Windows platform version of Nokogiri, both x86-mingw32
 and x64-mingw32.
 
-## zlib
+### zlib
 
 zlib license
 
@@ -1122,7 +1124,7 @@ http://www.zlib.net/zlib_license.html
       jloup@gzip.org          madler@alumni.caltech.edu
     
 
-## libiconv
+### libiconv
 
 LGPL
 

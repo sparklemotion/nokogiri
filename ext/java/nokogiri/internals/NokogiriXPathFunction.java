@@ -37,9 +37,6 @@ import java.util.List;
 import javax.xml.xpath.XPathFunction;
 import javax.xml.xpath.XPathFunctionException;
 
-import nokogiri.XmlNode;
-import nokogiri.XmlNodeSet;
-
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBoolean;
@@ -52,6 +49,9 @@ import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.NodeList;
+
+import nokogiri.XmlNode;
+import nokogiri.XmlNodeSet;
 
 /**
  * Xpath function handler.
@@ -99,7 +99,7 @@ public class NokogiriXPathFunction implements XPathFunction {
     private static IRubyObject fromObjectToRuby(final Ruby runtime, Object obj) {
         // argument object type is one of NodeList, String, Boolean, or Double.
         if (obj instanceof NodeList) {
-            XmlNodeSet xmlNodeSet = XmlNodeSet.create(runtime);
+            XmlNodeSet xmlNodeSet = XmlNodeSet.newEmptyNodeSet(runtime.getCurrentContext());
             xmlNodeSet.setNodeList((NodeList) obj);
             return xmlNodeSet;
         }
@@ -116,7 +116,7 @@ public class NokogiriXPathFunction implements XPathFunction {
         }
         if (obj instanceof XmlNodeSet) return obj;
         if (obj instanceof RubyArray) {
-            return XmlNodeSet.newXmlNodeSet(runtime, (RubyArray) obj);
+            return XmlNodeSet.newXmlNodeSet(runtime.getCurrentContext(), ((RubyArray) obj).toJavaArray());
         }
         /*if (o instanceof XmlNode)*/ return ((XmlNode) obj).getNode();
     }

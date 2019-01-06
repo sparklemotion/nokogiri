@@ -31,13 +31,13 @@ typedef xmlNodePtr (*pivot_reparentee_func)(xmlNodePtr, xmlNodePtr);
 static void relink_namespace(xmlNodePtr reparented)
 {
   xmlNodePtr child;
-  xmlNsPtr ns;
 
   if (reparented->type != XML_ATTRIBUTE_NODE &&
       reparented->type != XML_ELEMENT_NODE) { return; }
 
   if (reparented->ns == NULL || reparented->ns->prefix == NULL) {
-    xmlChar *name = 0, *prefix = 0;
+    xmlNsPtr ns = NULL;
+    xmlChar *name = NULL, *prefix = NULL;
 
     name = xmlSplitQName2(reparented->name, &prefix);
 
@@ -50,10 +50,6 @@ static void relink_namespace(xmlNodePtr reparented)
     }
 
     ns = xmlSearchNs(reparented->doc, reparented, prefix);
-
-    if (ns == NULL && reparented->parent) {
-      ns = xmlSearchNs(reparented->doc, reparented->parent, prefix);
-    }
 
     if (ns != NULL) {
       xmlNodeSetName(reparented, name);
@@ -96,6 +92,25 @@ static void relink_namespace(xmlNodePtr reparented)
         prev = curr;
       }
       curr = curr->next;
+    }
+  }
+
+  /*
+   *  Search our parents for an existing definition of current namespace,
+   *  because the definition it's pointing to may have just been removed nsDef.
+   *
+   *  And although that would technically probably be OK, I'd feel better if we
+   *  referred to a namespace that's still present in a node's nsDef somewhere
+   *  in the doc.
+   */
+  if (reparented->ns) {
+    xmlNsPtr ns = xmlSearchNs(reparented->doc, reparented, reparented->ns->prefix);
+    if (ns
+        && ns != reparented->ns
+        && xmlStrEqual(ns->prefix, reparented->ns->prefix)
+        && xmlStrEqual(ns->href, reparented->ns->href)
+       ) {
+      xmlSetNs(reparented, ns);
     }
   }
 
@@ -282,7 +297,11 @@ ok:
     }
 
     if (original_ns_prefix_is_default && reparentee->ns != NULL && reparentee->ns->prefix != NULL) {
-      /* issue #391, where new node's prefix may become the string "default" */
+      /*
+       *  issue #391, where new node's prefix may become the string "default"
+       *  see libxml2 tree.c xmlNewReconciliedNs which implements this behavior.
+       */
+      xmlFree(reparentee->ns->prefix);
       reparentee->ns->prefix = NULL;
     }
   }
@@ -509,22 +528,39 @@ static VALUE internal_subset(VALUE self)
 /*
  * call-seq:
  *  dup
+ *  dup(depth)
+ *  dup(depth, new_parent_doc)
  *
- * Copy this node.  An optional depth may be passed in, but it defaults
- * to a deep copy.  0 is a shallow copy, 1 is a deep copy.
+ * Copy this node.
+ * An optional depth may be passed in. 0 is a shallow copy, 1 (the default) is a deep copy.
+ * An optional new_parent_doc may also be passed in, which will be the new
+ * node's parent document. Defaults to the current node's document.
+ * current document.
  */
 static VALUE duplicate_node(int argc, VALUE *argv, VALUE self)
 {
-  VALUE level;
+  VALUE r_level, r_new_parent_doc;
+  int level;
+  int n_args;
+  xmlDocPtr new_parent_doc;
   xmlNodePtr node, dup;
-
-  if(rb_scan_args(argc, argv, "01", &level) == 0) {
-    level = INT2NUM((long)1);
-  }
 
   Data_Get_Struct(self, xmlNode, node);
 
-  dup = xmlDocCopyNode(node, node->doc, (int)NUM2INT(level));
+  n_args = rb_scan_args(argc, argv, "02", &r_level, &r_new_parent_doc);
+
+  if (n_args < 1) {
+    r_level = INT2NUM((long)1);
+  }
+  level = (int)NUM2INT(r_level);
+
+  if (n_args < 2) {
+    new_parent_doc = node->doc;
+  } else {
+    Data_Get_Struct(r_new_parent_doc, xmlDoc, new_parent_doc);
+  }
+
+  dup = xmlDocCopyNode(node, new_parent_doc, level);
   if(dup == NULL) { return Qnil; }
 
   nokogiri_root_node(dup);
@@ -1093,7 +1129,8 @@ static VALUE set_native_content(VALUE self, VALUE content)
  * call-seq:
  *  content
  *
- * Returns the content for this Node
+ * Returns the plaintext content for this Node. Note that entities will always
+ * be expanded in the returned string.
  */
 static VALUE get_native_content(VALUE self)
 {
@@ -1308,11 +1345,11 @@ static VALUE line(VALUE self)
  */
 static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 {
-  xmlNodePtr node, namespacee;
+  xmlNodePtr node, namespace;
   xmlNsPtr ns;
 
   Data_Get_Struct(self, xmlNode, node);
-  namespacee = node ;
+  namespace = node ;
 
   ns = xmlSearchNs(
          node->doc,
@@ -1322,10 +1359,10 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 
   if(!ns) {
     if (node->type != XML_ELEMENT_NODE) {
-      namespacee = node->parent;
+      namespace = node->parent;
     }
     ns = xmlNewNs(
-           namespacee,
+           namespace,
            (const xmlChar *)StringValueCStr(href),
            (const xmlChar *)(NIL_P(prefix) ? NULL : StringValueCStr(prefix))
          );
@@ -1333,7 +1370,7 @@ static VALUE add_namespace_definition(VALUE self, VALUE prefix, VALUE href)
 
   if (!ns) { return Qnil ; }
 
-  if(NIL_P(prefix) || node != namespacee) { xmlSetNs(node, ns); }
+  if(NIL_P(prefix) || node != namespace) { xmlSetNs(node, ns); }
 
   return Nokogiri_wrap_xml_namespace(node->doc, ns);
 }

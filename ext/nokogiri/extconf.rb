@@ -392,6 +392,10 @@ when arg_config('--clean')
   do_clean
 end
 
+if darwin?
+  ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
+end
+
 if openbsd? && !using_system_libraries?
   if `#{ENV['CC'] || '/usr/bin/cc'} -v 2>&1` !~ /clang/
     ENV['CC'] ||= find_executable('egcc') or
@@ -400,9 +404,11 @@ if openbsd? && !using_system_libraries?
   ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I /usr/local/include"
 end
 
-RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
+if ENV['CC']
+  RbConfig::CONFIG['CC'] = RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC']
+end
 # use same c compiler for libxml and libxslt
-ENV['CC'] = RbConfig::MAKEFILE_CONFIG['CC']
+ENV['CC'] = RbConfig::CONFIG['CC']
 
 $LIBS << " #{ENV["LIBS"]}"
 
@@ -432,7 +438,7 @@ if RUBY_PLATFORM =~ /mingw/i
   $CPPFLAGS << ' "-Idummypath"'
 end
 
-if RbConfig::MAKEFILE_CONFIG['CC'] =~ /gcc/
+if RbConfig::CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -O3" unless $CFLAGS[/-O\d/]
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline"
 end
@@ -460,7 +466,7 @@ else
   # The gem version constraint in the Rakefile is not respected at install time.
   # Keep this version in sync with the one in the Rakefile !
   require 'rubygems'
-  gem 'mini_portile2', '~> 2.3.0'
+  gem 'mini_portile2', '~> 2.4.0'
   require 'mini_portile2'
   message "Using mini_portile version #{MiniPortile::VERSION}\n"
 
@@ -570,7 +576,8 @@ EOM
       *(libiconv_recipe ? "--with-iconv=#{libiconv_recipe.path}" : iconv_configure_flags),
       "--with-c14n",
       "--with-debug",
-      "--with-threads"
+      "--with-threads",
+      *(darwin? ? ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"] : "")
     ]
   end
 
@@ -583,7 +590,8 @@ EOM
       "--without-python",
       "--without-crypto",
       "--with-debug",
-      "--with-libxml-prefix=#{sh_export_path(libxml2_recipe.path)}"
+      "--with-libxml-prefix=#{sh_export_path(libxml2_recipe.path)}",
+      *(darwin? ? ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"] : "")
     ]
   end
 

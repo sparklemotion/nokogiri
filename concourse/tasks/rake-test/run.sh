@@ -52,15 +52,14 @@ function rbx-engine {
 
 pushd nokogiri
 
+  RAKE_TASK="test"
+
   if rbx-engine ; then
     ensure-apt-update
     apt-get install -y ca-certificates gcc pkg-config libxml2-dev libxslt-dev patch
   fi
 
-  RAKE_TASK="test"
-
   if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
-    RAKE_TASK="test:valgrind" # override
     ensure-apt-update
     apt-get install -y valgrind
   fi
@@ -70,6 +69,17 @@ pushd nokogiri
 
   if mri-24-or-greater && commit-is-post-frozen-string-support ; then
     export RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
+  fi
+
+  if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
+    RAKE_TASK="test:valgrind" # override
+    export TESTOPTS="-v" # see more verbose output to help narrow down warnings
+
+    # always use the CI suppressions if they exist
+    if [[ -d ../ci/suppressions ]] ; then
+      rm -rf suppressions
+      cp -var ../ci/suppressions .
+    fi
   fi
 
   bundle exec rake ${RAKE_TASK}

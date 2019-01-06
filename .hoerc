@@ -1,0 +1,41 @@
+# -*- yaml -*-
+---
+# this regex is what `rake check_manifest` should consider excluded from the gem
+exclude: !ruby/regexp '/
+(^\.\/
+  ((\.git
+    |.yardoc
+    |concourse
+    |gems
+    |ports
+    |suppressions
+    |tasks
+    |test
+    |tmp
+  )\/)
+  |\.(autotest
+     |codeclimate\.yml
+     |cross_rubies
+     |editorconfig
+     |gemtest
+     |github
+     |gitignore
+     |hoerc
+     |travis\.yml
+     )
+  |Gemfile.*
+  |Manifest.txt
+  |Rakefile
+  |appveyor\.yml
+  |build_all
+  |CHANGELOG.md
+  |CONTRIBUTING.md
+  |ROADMAP.md
+  |SECURITY.md
+  |STANDARD_RESPONSES.md
+  |Y_U_NO_GEMSPEC.md
+  |C_CODING_STYLE.*
+  |patches/sort-patches-by-date
+)
+|\.gitkeep
+/x'

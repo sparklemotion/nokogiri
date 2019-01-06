@@ -1,54 +1,68 @@
 groups:
   - name: master
     jobs:
-      <% Concourse.production_rubies.each do |ruby_version| %>
-      - "ruby-<%= ruby_version %>-system"
-      - "ruby-<%= ruby_version %>-vendored"
-      - "ruby-<%= ruby_version %>-valgrind"
-      <% end %>
+      
+      - "ruby-2.3-system"
+      - "ruby-2.3-vendored"
+      - "ruby-2.3-valgrind"
+      
+      - "ruby-2.4-system"
+      - "ruby-2.4-vendored"
+      - "ruby-2.4-valgrind"
+      
+      - "ruby-2.5-system"
+      - "ruby-2.5-vendored"
+      - "ruby-2.5-valgrind"
+      
+      - "ruby-2.6-system"
+      - "ruby-2.6-vendored"
+      - "ruby-2.6-valgrind"
+      
       - "ruby-vanilla-system"
-      <% Concourse.production_rubies.last(1).each do |ruby_version| %>
+      
       - "ruby-libxmlruby-system"
       - "ruby-libxmlruby-vendored"
       - "ruby-libxmlruby-valgrind"
-      <% end %>
-      <% for jruby_version in RUBIES[:jruby] %>
-      - "jruby-<%= jruby_version %>"
-      <% end %>
-      <% RUBIES[:windows].first(1).each do |ruby_version| %>
-      - "win-ruby-<%= ruby_version %>-devkit"
-      <% end %>
+      
+      
+      - "jruby-9.1"
+      
+      - "jruby-9.2"
+      
+      
+      - "win-ruby-2.3-devkit"
+      
       - build-success
 
 
   - name: PRs
     jobs:
       - pr-pending
-      - ruby-<%= Concourse.production_rubies.first %>-system-pr
-      - ruby-<%= Concourse.production_rubies.first %>-vendored-pr
-      - ruby-<%= Concourse.production_rubies.first %>-valgrind-pr
-      - ruby-<%= Concourse.production_rubies.last %>-system-pr
-      - ruby-<%= Concourse.production_rubies.last %>-vendored-pr
-      - ruby-<%= Concourse.production_rubies.last %>-valgrind-pr
+      - ruby-2.3-system-pr
+      - ruby-2.3-vendored-pr
+      - ruby-2.3-valgrind-pr
+      - ruby-2.6-system-pr
+      - ruby-2.6-vendored-pr
+      - ruby-2.6-valgrind-pr
       - ruby-vanilla-system-pr
-      - jruby-<%= RUBIES[:jruby].last %>-pr
+      - jruby-9.2-pr
       - pr-success
 
   - name: allow-failure
     jobs:
-      <% RUBIES[:windows][1..-1].each do |ruby_version| %>
-      - "win-ruby-<%= ruby_version %>-devkit"
-      <% end %>
-      <% for rbx_version in RUBIES[:rbx] %>
-      - "rbx-<%= rbx_version %>-system"
-      - "rbx-<%= rbx_version %>-vendored"
-      <% end %>
-      - rbx-<%= RUBIES[:rbx].last %>-pr
-      <% Concourse.rc_rubies.each do |ruby_version| %>
-      - "ruby-<%= ruby_version %>-system"
-      - "ruby-<%= ruby_version %>-vendored"
-      - "ruby-<%= ruby_version %>-valgrind"
-      <% end %>
+      
+      - "win-ruby-2.4-devkit"
+      
+      - "win-ruby-2.5-devkit"
+      
+      - "win-ruby-2.6-devkit"
+      
+      
+      - "rbx-latest-system"
+      - "rbx-latest-vendored"
+      
+      - rbx-latest-pr
+      
 
 resource_types:
 - name: pull-request
@@ -104,8 +118,8 @@ jobs:
   #
   #  master
   #
-  <% RUBIES[:mri].each do |ruby_version| %>
-  - name: ruby-<%= ruby_version %>-system
+  
+  - name: ruby-2.3-system
     public: true
     plan:
       - get: ci
@@ -116,7 +130,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.3"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -124,45 +138,41 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-% if Concourse.production_rubies.include? ruby_version
         on_failure: *notify_failure_to_irc
-% end
 
-  - name: ruby-<%= ruby_version %>-vendored
+  - name: ruby-2.3-vendored
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-system"]
+        passed: ["ruby-2.3-system"]
       - task: rake-test
         config:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.3"}
           inputs:
             - name: ci
             - name: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-% if Concourse.production_rubies.include? ruby_version
         on_failure: *notify_failure_to_irc
-% end
 
-  - name: ruby-<%= ruby_version %>-valgrind
+  - name: ruby-2.3-valgrind
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-vendored"]
+        passed: ["ruby-2.3-vendored"]
       - task: rake-test
         config:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.3"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -170,19 +180,205 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-% if Concourse.production_rubies.include? ruby_version
         on_failure: *notify_failure_to_irc
-% end
-  <% end %>
+  
+  - name: ruby-2.4-system
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.4"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
-% ruby_version = Concourse.production_rubies.last
+  - name: ruby-2.4-vendored
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.4-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.4"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.4-valgrind
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.4-vendored"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.4"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+  
+  - name: ruby-2.5-system
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.5"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.5-vendored
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.5-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.5"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.5-valgrind
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.5-vendored"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.5"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+  
+  - name: ruby-2.6-system
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.6-vendored
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.6-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.6-valgrind
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.6-vendored"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+  
+
   - name: ruby-vanilla-system
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-system"]
+        passed: ["ruby-2.6-system"]
       - task: rake-test
         config:
           platform: linux
@@ -210,7 +406,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.6"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -233,7 +429,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.6"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -255,7 +451,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.6"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -266,8 +462,8 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
 
-  <% for jruby_version in RUBIES[:jruby] %>
-  - name: jruby-<%= jruby_version %>
+  
+  - name: jruby-9.1
     public: true
     plan:
       - get: ci
@@ -279,7 +475,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: jruby, tag: "<%= jruby_version %>-jdk"}
+            source: {repository: jruby, tag: "9.1-jdk"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -288,10 +484,32 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  <% end %>
+  
+  - name: jruby-9.2
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        attempts: 3
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: jruby, tag: "9.2-jdk"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+  
 
-  <% for rbx_version in RUBIES[:rbx] %>
-  - name: rbx-<%= rbx_version %>-system
+  
+  - name: rbx-latest-system
     public: true
     plan:
       - get: ci
@@ -301,7 +519,7 @@ jobs:
         config:
           image_resource:
             type: docker-image
-            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
+            source: {repository: rubinius/docker, tag: "latest"}
           platform: linux
           inputs:
             - name: ci
@@ -313,18 +531,18 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 #        on_failure: *notify_failure_to_irc
 
-  - name: rbx-<%= rbx_version %>-vendored
+  - name: rbx-latest-vendored
     public: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["rbx-<%= rbx_version %>-system"]
+        passed: ["rbx-latest-system"]
       - task: rake-test
         config:
           image_resource:
             type: docker-image
-            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
+            source: {repository: rubinius/docker, tag: "latest"}
           platform: linux
           inputs:
             - name: ci
@@ -334,10 +552,10 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
 #        on_failure: *notify_failure_to_irc
-  <% end %>
+  
 
-  <% for ruby_version in RUBIES[:windows] %>
-  - name: win-ruby-<%= ruby_version %>-devkit
+  
+  - name: win-ruby-2.3-devkit
     public: true
     plan:
       - get: ci
@@ -350,11 +568,65 @@ jobs:
             - name: ci
             - name: nokogiri
           params:
-            WIN_RUBY_VERSION: "<%= ruby_version %>"
+            WIN_RUBY_VERSION: "2.3"
           run:
             path: powershell
             args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
-  <% end %>
+  
+  - name: win-ruby-2.4-devkit
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: windows
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            WIN_RUBY_VERSION: "2.4"
+          run:
+            path: powershell
+            args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
+  
+  - name: win-ruby-2.5-devkit
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: windows
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            WIN_RUBY_VERSION: "2.5"
+          run:
+            path: powershell
+            args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
+  
+  - name: win-ruby-2.6-devkit
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: windows
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            WIN_RUBY_VERSION: "2.6"
+          run:
+            path: powershell
+            args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
+  
 
   - name: build-success
     public: true
@@ -364,21 +636,29 @@ jobs:
         trigger: true
         version: every
         passed:
-          <% Concourse.production_rubies.each do |ruby_version| %>
-          - "ruby-<%= ruby_version %>-valgrind"
-          <% end %>
-          <% Concourse.production_rubies.last(1).each do |ruby_version| %>
+          
+          - "ruby-2.3-valgrind"
+          
+          - "ruby-2.4-valgrind"
+          
+          - "ruby-2.5-valgrind"
+          
+          - "ruby-2.6-valgrind"
+          
+          
           - "ruby-libxmlruby-valgrind"
-          <% end %>
-          <% for jruby_version in RUBIES[:jruby] %>
-          - "jruby-<%= jruby_version %>"
-          <% end %>
-          # <% for rbx_version in RUBIES[:rbx] %>
-          # - "rbx-<%= rbx_version %>-vendored"
-          # <% end %>
-          # <% RUBIES[:windows].first(1).each do |ruby_version| %>
-          # - "win-ruby-<%= ruby_version %>-devkit"
-          # <% end %>
+          
+          
+          - "jruby-9.1"
+          
+          - "jruby-9.2"
+          
+          # 
+          # - "rbx-latest-vendored"
+          # 
+          # 
+          # - "win-ruby-2.3-devkit"
+          # 
       - put: nokogiri-irc
         params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
 
@@ -395,8 +675,8 @@ jobs:
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: pending}
 
-  <% [Concourse.production_rubies.first, Concourse.production_rubies.last].each do |ruby_version| %>
-  - name: ruby-<%= ruby_version %>-system-pr
+  
+  - name: ruby-2.3-system-pr
     public: true
     max_in_flight: 1
     plan:
@@ -410,7 +690,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.3"}
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -421,7 +701,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
-  - name: ruby-<%= ruby_version %>-vendored-pr
+  - name: ruby-2.3-vendored-pr
     public: true
     max_in_flight: 1
     plan:
@@ -435,7 +715,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.3"}
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -444,7 +724,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
-  - name: ruby-<%= ruby_version %>-valgrind-pr
+  - name: ruby-2.3-valgrind-pr
     public: true
     max_in_flight: 1
     plan:
@@ -458,7 +738,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: ruby, tag: "2.3"}
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -468,9 +748,81 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
-  <% end %>
+  
+  - name: ruby-2.6-system-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
-% ruby_version = Concourse.production_rubies.last
+  - name: ruby-2.6-vendored-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+
+  - name: ruby-2.6-valgrind-pr
+    public: true
+    max_in_flight: 1
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+  
+
   - name: ruby-vanilla-system-pr
     public: true
     max_in_flight: 1
@@ -479,7 +831,7 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["ruby-<%= ruby_version %>-system-pr"]
+        passed: ["ruby-2.6-system-pr"]
       - task: rake-test
         config:
           platform: linux
@@ -497,8 +849,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
-% jruby_version = RUBIES[:jruby].last
-  - name: jruby-<%= jruby_version %>-pr
+  - name: jruby-9.2-pr
     public: true
     max_in_flight: 1
     plan:
@@ -513,7 +864,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: jruby, tag: "<%= jruby_version %>-jdk"}
+            source: {repository: jruby, tag: "9.2-jdk"}
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -524,8 +875,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
-% rbx_version = RUBIES[:rbx].last
-  - name: rbx-<%= rbx_version %>-pr
+  - name: rbx-latest-pr
     public: true
     max_in_flight: 1
     plan:
@@ -538,7 +888,7 @@ jobs:
         config:
           image_resource:
             type: docker-image
-            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
+            source: {repository: rubinius/docker, tag: "latest"}
           platform: linux
           inputs:
             - name: ci
@@ -559,15 +909,15 @@ jobs:
         trigger: true
         version: every
         passed:
-          - ruby-<%= Concourse.production_rubies.first %>-system-pr
-          - ruby-<%= Concourse.production_rubies.first %>-vendored-pr
-          - ruby-<%= Concourse.production_rubies.first %>-valgrind-pr
-          - ruby-<%= Concourse.production_rubies.last %>-system-pr
-          - ruby-<%= Concourse.production_rubies.last %>-vendored-pr
-          - ruby-<%= Concourse.production_rubies.last %>-valgrind-pr
+          - ruby-2.3-system-pr
+          - ruby-2.3-vendored-pr
+          - ruby-2.3-valgrind-pr
+          - ruby-2.6-system-pr
+          - ruby-2.6-vendored-pr
+          - ruby-2.6-valgrind-pr
           - ruby-vanilla-system-pr
-          - jruby-<%= RUBIES[:jruby].last %>-pr
-#          - rbx-<%= RUBIES[:rbx].last %>-pr
+          - jruby-9.2-pr
+#          - rbx-latest-pr
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
       - put: nokogiri-irc

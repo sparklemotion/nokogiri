@@ -264,6 +264,36 @@ EOS
       end
 
       if Nokogiri.uses_libxml?
+        def test_dup_should_exist_in_a_new_document
+          # https://github.com/sparklemotion/nokogiri/issues/1063
+          original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
+          duplicate = original.dup
+          assert_not_equal original.document, duplicate.document
+        end
+      end
+
+      def test_dup_should_create_an_xml_document_fragment
+        # https://github.com/sparklemotion/nokogiri/issues/1846
+        original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
+        duplicate = original.dup
+        assert_instance_of Nokogiri::XML::DocumentFragment, duplicate
+      end
+
+      def test_dup_creates_tree_with_identical_structure
+        original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
+        duplicate = original.dup
+        assert_equal original.to_html, duplicate.to_html
+      end
+
+      def test_dup_creates_mutable_tree
+        original = Nokogiri::XML::DocumentFragment.parse("<div><p>hello</p></div>")
+        duplicate = original.dup
+        duplicate.at_css("div").add_child("<b>hello there</b>")
+        assert_nil original.at_css("b")
+        assert_not_nil duplicate.at_css("b")
+      end
+
+      if Nokogiri.uses_libxml?
         def test_for_libxml_in_context_fragment_parsing_bug_workaround
           10.times do
             begin
