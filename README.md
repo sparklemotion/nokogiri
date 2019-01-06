@@ -14,14 +14,13 @@ or CSS3 selectors.
 * [Tutorials](http://nokogiri.org)
 * [GitHub](https://github.com/sparklemotion/nokogiri)
 * [Mailing List](https://groups.google.com/group/nokogiri-talk)
-* [Bug Reports](https://github.com/sparklemotion/nokogiri/issues)
 * [Chat/Gitter](https://gitter.im/sparklemotion/nokogiri)
 
 [![Concourse CI](https://ci.nokogiri.org/api/v1/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.4-system/badge)](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri?groups=master)
+
 [![Code Climate](https://codeclimate.com/github/sparklemotion/nokogiri.svg)](https://codeclimate.com/github/sparklemotion/nokogiri)
 [![Gem Version](https://badge.fury.io/rb/nokogiri.svg)](https://rubygems.org/gems/nokogiri)
 [![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score.html?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)
-[![Join the chat at https://gitter.im/sparklemotion/nokogiri](https://badges.gitter.im/sparklemotion/nokogiri.svg)](https://gitter.im/sparklemotion/nokogiri?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Tidelift dependencies](https://tidelift.com/badges/github/sparklemotion/nokogiri)](https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&utm_medium=referral&utm_campaign=readme)
 
 
