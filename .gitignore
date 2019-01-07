@@ -16,6 +16,7 @@ Gemfile*lock
 TAGS
 build
 concourse/private.yml
+coverage
 ext/java/Canna
 ext/java/nokogiri/**/*.class
 ext/nokogiri/*.dll

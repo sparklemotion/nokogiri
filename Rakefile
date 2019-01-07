@@ -142,6 +142,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["rake-compiler",      "~> 1.0.3"],
     ["rake-compiler-dock", "~> 0.7.0"],
     ["rexical",            "~> 1.0.5"],
+    ["simplecov",          "~> 0.16"],
   ]
 
   self.spec_extras = {
@@ -150,6 +151,7 @@ HOE = Hoe.spec 'nokogiri' do
   }
 
   self.testlib = :minitest
+  self.test_prelude = 'require "helper"' # ensure simplecov gets loaded before anything else
 end
 
 # ----------------------------------------

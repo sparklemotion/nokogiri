@@ -1,4 +1,8 @@
-#Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
+require 'simplecov'
+SimpleCov.start do
+  add_filter "/test/"
+end
+
 $VERBOSE = true
 require 'minitest/autorun'
 require 'minitest/pride'
