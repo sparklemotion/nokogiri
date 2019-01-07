@@ -131,17 +131,17 @@ HOE = Hoe.spec 'nokogiri' do
   end
 
   self.extra_dev_deps += [
+    ["concourse",          "~> 0.15"],
     ["hoe-bundler",        "~> 1.2"],
     ["hoe-debugging",      "~> 2.0"],
     ["hoe-gemspec",        "~> 1.0"],
     ["hoe-git",            "~> 1.6"],
-    ["minitest",           "~> 5.8.4"],
+    ["minitest",           "~> 5.8"],
+    ["racc",               "~> 1.4.14"],
     ["rake",               "~> 12.0"],
     ["rake-compiler",      "~> 1.0.3"],
     ["rake-compiler-dock", "~> 0.7.0"],
-    ["racc",               "~> 1.4.14"],
     ["rexical",            "~> 1.0.5"],
-    ["concourse",          "~> 0.15"],
   ]
 
   self.spec_extras = {
