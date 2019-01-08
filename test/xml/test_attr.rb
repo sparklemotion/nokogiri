@@ -26,7 +26,11 @@ module Nokogiri
         assert_equal "Y&ent1;", street.value
       end
 
-      def test_set_value
+      #
+      #  note that the set of tests around set_value include
+      #  assertions on the serialized format. this is intentional.
+      #
+      def test_set_value_with_entity_string_in_xml_file
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
         address = xml.xpath('//address')[3]
         street = address.attributes['street']
@@ -39,6 +43,7 @@ module Nokogiri
         html = Nokogiri::HTML("<html><body><div foo='asdf'>")
         foo = html.at_css("div").attributes["foo"]
         foo.value = "Y&ent1;"
+        assert_equal "Y&ent1;", foo.value
         assert_includes %Q{ foo="Y&amp;ent1;"}, foo.to_html
       end
 
@@ -46,15 +51,38 @@ module Nokogiri
         html = Nokogiri::HTML("<html><body><div foo='asdf'>")
         foo = html.at_css("div").attributes["foo"]
         foo.value = ""
+        assert_equal "", foo.value
         assert_includes %Q{ foo=""}, foo.to_html
       end
 
+      def test_set_value_with_nil_in_html_file
+        html = Nokogiri::HTML("<html><body><div foo='asdf'>")
+        foo = html.at_css("div").attributes["foo"]
+        foo.value = nil
+        assert_equal "", foo.value # this may be surprising to people, see xmlGetPropNodeValueInternal
+        if Nokogiri.uses_libxml?
+          assert_includes %Q{ foo}, foo.to_html # libxml2 still emits a boolean attribute at serialize-time
+        else
+          assert_includes %Q{ foo=""}, foo.to_html # jruby does not
+        end
+      end
+
+      def test_set_value_of_boolean_attr_with_blank_string_in_html_file
+        html = Nokogiri::HTML("<html><body><div disabled='disabled'>")
+        disabled = html.at_css("div").attributes["disabled"]
+        disabled.value = ""
+        assert_equal "", disabled.value
+        assert_includes %Q{ disabled}, disabled.to_html # we still emit a boolean attribute at serialize-time!
+      end
+
       def test_set_value_of_boolean_attr_with_nil_in_html_file
-        html = Nokogiri::HTML("<html><body><div disabled='asdf'>")
+        html = Nokogiri::HTML("<html><body><div disabled='disabled'>")
         disabled = html.at_css("div").attributes["disabled"]
         disabled.value = nil
-        assert_includes %Q{ disabled}, disabled.to_html
+        assert_equal "", disabled.value # this may be surprising to people, see xmlGetPropNodeValueInternal
+        assert_includes %Q{ disabled}, disabled.to_html # but we emit a boolean attribute at serialize-time
       end
+
 
       def test_unlink # aliased as :remove
         xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
