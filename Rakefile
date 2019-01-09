@@ -12,6 +12,10 @@ Hoe.plugin :bundler
 GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
 GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
 
+def package_tests?
+  ENV['BUILD_GEM_WITH_TESTS']
+end
+
 def java?
   /java/ === RUBY_PLATFORM
 end
@@ -169,6 +173,16 @@ end
 
 def gem_build_path
   File.join 'pkg', HOE.spec.full_name
+end
+
+if package_tests?
+  task gem_build_path do
+    files = Dir["test/**/*"].reject { |f| File.directory? f }
+    puts "-> adding #{files.length} test files to the gem"
+    files.each do |file|
+      add_file_to_gem file
+    end
+  end
 end
 
 if java?
