@@ -5,6 +5,7 @@
 ### Features
 
 * [MRI] Handle Xcode 10's new library path on macOS. [#1801, #1851] (Thanks, @mlj and @deepj!)
+* Avoid unnecessary creation of `Proc`s in many methods. [#1776] (Thanks, @chopraanmol1!)
 
 
 ### Bug fixes
