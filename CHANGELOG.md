@@ -4,10 +4,28 @@
 
 ### Backwards incompatibilities
 
+#### Ruby version support
+
 This release ends support for:
 
 * Ruby 2.3, for which [official support ended on 2019-03-31](https://www.ruby-lang.org/en/news/2019/03/31/support-of-ruby-2-3-has-ended/) [#1886] (Thanks @ashmaroli!)
 * JRuby 9.1, which is the Ruby 2.3-compatible release.
+
+
+#### Self-descriptive version info
+
+This release also changes the information provided in `Nokogiri::VersionInfo`
+
+* Nokogiri::VersionInfo will no longer contain the following keys (previously these were set only when vendored libraries were being used) [#1482]:
+  * `libxml/libxml2_path`
+  * `libxml/libxslt_path`
+* `nokogiri -v` will no longer emit these VersionInfo values [#1482]
+* these C macros will no longer be defined [#1482]:
+  * NOKOGIRI_LIBXML2_PATH
+  * NOKOGIRI_LIBXSLT_PATH
+* these global variables will no longer be defined [#1482]:
+  * NOKOGIRI_LIBXML2_PATH
+  * NOKOGIRI_LIBXSLT_PATH
 
 
 ### Features
