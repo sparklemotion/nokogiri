@@ -179,6 +179,12 @@ explicitly setting the encoding to EUC-JP on the parser:
   bundle exec rake
 ```
 
+
+## Code of Conduct
+
+We've adopted the Contributor Covenant code of conduct, which you can read in full in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
+
 ## License
 
 This project is licensed under the terms of the MIT license.
