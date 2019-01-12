@@ -7,6 +7,11 @@ assignees: ''
 
 ---
 
+**Do not report Security Vulnerabilities here**
+
+If you intend to report a security vulnerability, please do so at [HackerOne](https://hackerone.com/nokogiri) following the process detailed in [`SECURITY.md`](https://nokogiri.org/SECURITY.html). Do not report it through GitHub.
+
+
 **Describe the bug**
 
 A clear and concise description of what the bug is. Please include as much context as you can about what you are trying to do.
