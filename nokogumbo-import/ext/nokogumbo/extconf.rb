@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'fileutils'
 require 'mkmf'
 require 'nokogiri'
@@ -23,7 +24,6 @@ def download_headers
     return nil if dep_index.nil?
     requirement = NG_SPEC.dependencies[dep_index].requirement.to_s
 
-    require 'rubygems'
     gem 'mini_portile2', requirement
     require 'mini_portile2'
     p = MiniPortile::new('libxml2', version).tap do |r|
