@@ -4,7 +4,7 @@
 
 ### Features
 
-* [MRI] During installation, handle Xcode 10's new library pathOS. [#1801, #1851] (Thanks, @mlj and @deepj!)
+* [MRI] During installation, handle Xcode 10's new library path. [#1801, #1851] (Thanks, @mlj and @deepj!)
 * Avoid unnecessary creation of `Proc`s in many methods. [#1776] (Thanks, @chopraanmol1!)
 
 
