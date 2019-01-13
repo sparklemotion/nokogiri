@@ -12,6 +12,7 @@
 
 * CSS selector `:has()` correctly matches against any descendant (previously matched against only direct children). [#350] (Thanks, @Phrogz!)
 * `NodeSet#attr` now returns `nil` if it's empty (previously raised a NoMethodError).
+* [MRI] XPath errors no longer suppressed during `XSLT::Stylesheet#transform`. These errors could have led to silent failures and subsequent segfault. [#1802]
 
 
 ## 1.10.0 / 2019-01-04
