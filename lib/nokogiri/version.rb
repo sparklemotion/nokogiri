@@ -34,6 +34,10 @@ module Nokogiri
       NOKOGIRI_USE_PACKAGED_LIBRARIES
     end
 
+    def libxml2_using_precompiled_native?
+      NOKOGIRI_USE_PRECOMPILED_NATIVE
+    end
+
     def warnings
       return [] unless libxml2?
 
@@ -59,7 +63,8 @@ module Nokogiri
         hash_info['libxml']              = {}
         hash_info['libxml']['binding']   = 'extension'
         if libxml2_using_packaged?
-          hash_info['libxml']['source']  = "packaged"
+          hash_info['libxml']['source'] = "packaged"
+          hash_info['libxml']['precompiled']  = libxml2_using_precompiled_native?
           hash_info['libxml']['libxml2_path'] = NOKOGIRI_LIBXML2_PATH
           hash_info['libxml']['libxslt_path'] = NOKOGIRI_LIBXSLT_PATH
           hash_info['libxml']['libxml2_patches'] = NOKOGIRI_LIBXML2_PATCHES

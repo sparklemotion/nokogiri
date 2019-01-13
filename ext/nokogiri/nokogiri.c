@@ -98,6 +98,12 @@ void Init_nokogiri()
   rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXSLT_PATCHES"), Qnil);
 #endif
 
+#ifdef NOKOGIRI_USE_PRECOMPILED_NATIVE
+  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PRECOMPILED_NATIVE"), Qtrue);
+#else
+  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PRECOMPILED_NATIVE"), Qfalse);
+#endif
+
 #ifdef LIBXML_ICONV_ENABLED
   rb_const_set(mNokogiri, rb_intern("LIBXML_ICONV_ENABLED"), Qtrue);
 #else

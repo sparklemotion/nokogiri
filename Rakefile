@@ -362,6 +362,9 @@ task :cross do
     raise "rake-compiler has not installed any cross rubies. Use rake-compiler-dock or 'rake gem:windows' for building binary windows gems."
   end
 
+  ENV['CFLAGS'] ||= ""
+  ENV['CFLAGS'] += " -DNOKOGIRI_USE_PRECOMPILED_NATIVE"
+
   CROSS_RUBIES.each do |cross_ruby|
     task "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so" do |t|
       # To reduce the gem file size strip mingw32 dlls before packaging
