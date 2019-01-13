@@ -311,4 +311,51 @@ encoding="iso-8859-1" indent="yes"/>
     result = xsl.transform xml
     assert !result.html?
   end
+
+  it "should not crash when given XPath 2.0 features" do
+    #
+    #  https://github.com/sparklemotion/nokogiri/issues/1802
+    #
+    #  note that here the XPath 2.0 feature is `decimal`.
+    #  this test case is taken from the example provided in the original issue.
+    #
+    xml = <<~EOXML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+                 xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+                 xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+          <cac:TaxTotal>
+            <cbc:TaxAmount currencyID="EUR">48.00</cbc:TaxAmount>
+          </cac:TaxTotal>
+        </Invoice>
+      EOXML
+
+    xsl = <<~EOXSL
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                        xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+                        xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+                        xmlns:ubl="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                        version="1.0">
+          <xsl:template match="/">
+            <xsl:apply-templates select="/" mode="qwerty"/>
+          </xsl:template>
+          <xsl:template match="/ubl:Invoice/cac:TaxTotal" priority="1001" mode="qwerty">
+            <xsl:choose>
+              <xsl:when test="(round(xs:decimal(child::cbc:TaxAmount)))"/>
+            </xsl:choose>
+          </xsl:template>
+        </xsl:stylesheet>
+      EOXSL
+
+    doc = Nokogiri::XML(xml)
+    xslt = Nokogiri::XSLT(xsl)
+    exception = assert_raise(RuntimeError) do
+      xslt.transform(doc)
+    end
+    assert_match(/decimal/, exception.message)
+  end
 end
