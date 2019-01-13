@@ -87,6 +87,7 @@ resources:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
       ignore_paths:
+        - CHANGELOG.md
         - concourse/**
         - suppressions/**
   - name: nokogiri-pr
@@ -95,6 +96,7 @@ resources:
       repo: sparklemotion/nokogiri
       access_token: {{github-repo-status-access-token}}
       ignore_paths:
+        - CHANGELOG.md
         - concourse/**
         - suppressions/**
   - name: nokogiri-irc
