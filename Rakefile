@@ -104,7 +104,10 @@ CrossRuby = Struct.new(:version, :host) {
       when /linux/
       [
         'libm.so.6',
-        'libpthread.so.0',
+        *(case
+          when ver < '2.6.0'
+            'libpthread.so.0'
+          end),
         'libc.so.6',
       ]
     end
