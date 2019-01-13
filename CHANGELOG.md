@@ -1,18 +1,18 @@
 # Nokogiri Changelog
 
-## unreleased
+## 1.10.1 / 2019-01-13
 
 ### Features
 
-* [MRI] Handle Xcode 10's new library path on macOS. [#1801, #1851] (Thanks, @mlj and @deepj!)
+* [MRI] During installation, handle Xcode 10's new library pathOS. [#1801, #1851] (Thanks, @mlj and @deepj!)
 * Avoid unnecessary creation of `Proc`s in many methods. [#1776] (Thanks, @chopraanmol1!)
 
 
 ### Bug fixes
 
-* CSS selector `:has()` correctly matches against any descendant (previously matched against only direct children). [#350] (Thanks, @Phrogz!)
-* `NodeSet#attr` now returns `nil` if it's empty (previously raised a NoMethodError).
-* [MRI] XPath errors no longer suppressed during `XSLT::Stylesheet#transform`. These errors could have led to silent failures and subsequent segfault. [#1802]
+* CSS selector `:has()` now correctly matches against any descendant. Previously this selector matched against only direct children). [#350] (Thanks, @Phrogz!)
+* `NodeSet#attr` now returns `nil` if it's empty. Previously this raised a NoMethodError.
+* [MRI] XPath errors are no longer suppressed during `XSLT::Stylesheet#transform`. Previously these errors were suppressed which led to silent failures and a subsequent segfault. [#1802]
 
 
 ## 1.10.0 / 2019-01-04
