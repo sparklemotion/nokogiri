@@ -131,7 +131,7 @@ HOE = Hoe.spec 'nokogiri' do
   end
 
   self.extra_dev_deps += [
-    ["concourse",          "~> 0.15"],
+    ["concourse",          "~> 0.23"],
     ["hoe-bundler",        "~> 1.2"],
     ["hoe-debugging",      "~> 2.0"],
     ["hoe-gemspec",        "~> 1.0"],
@@ -284,7 +284,7 @@ if Hoe.plugins.include?(:debugging)
 end
 
 require 'concourse'
-Concourse.new("nokogiri").create_tasks!
+Concourse.new("nokogiri", fly_target: "ci").create_tasks!
 
 # ----------------------------------------
 
