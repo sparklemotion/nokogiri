@@ -14,6 +14,6 @@ popd
 pushd nokogiri
 
   bundle install
-  rake test
+  rake test # we're testing the installed gem, so we don't compile or use bundler
 
 popd

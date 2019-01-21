@@ -52,7 +52,7 @@ function rbx-engine {
 
 pushd nokogiri
 
-  RAKE_TASK="test"
+  test_task="test"
 
   if rbx-engine ; then
     ensure-apt-update
@@ -72,7 +72,7 @@ pushd nokogiri
   fi
 
   if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
-    RAKE_TASK="test:valgrind" # override
+    test_task="test:valgrind" # override
     export TESTOPTS="-v" # see more verbose output to help narrow down warnings
 
     # always use the CI suppressions if they exist
@@ -82,6 +82,6 @@ pushd nokogiri
     fi
   fi
 
-  bundle exec rake ${RAKE_TASK}
+  bundle exec rake compile ${test_task}
 
 popd

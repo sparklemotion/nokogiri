@@ -6,6 +6,6 @@ push-location nokogiri
 
     system-cmd "gem install bundler"
     system-cmd "bundle install"
-    system-cmd "bundle exec rake test"
+    system-cmd "bundle exec rake compile test"
 
 pop-location
