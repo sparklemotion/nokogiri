@@ -272,10 +272,7 @@ task :java_debug do
   ENV['JRUBY_OPTS'] = "#{ENV['JRUBY_OPTS']} --debug --dev"
   ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if ENV['JAVA_DEBUG']
 end
-
-Rake::Task[:test].prerequisites << :compile
 Rake::Task[:test].prerequisites << :java_debug
-Rake::Task[:test].prerequisites << :check_extra_deps unless java?
 
 if Hoe.plugins.include?(:debugging)
   ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
