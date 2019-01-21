@@ -176,7 +176,7 @@ explicitly setting the encoding to EUC-JP on the parser:
 
 ```bash
   bundle install
-  bundle exec rake
+  bundle exec rake compile test
 ```
 
 
