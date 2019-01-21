@@ -1,5 +1,11 @@
 # Nokogiri Changelog
 
+## unreleased
+
+### Bug fixes
+
+* [JRuby] Fix node ownership in duplicated documents. [#1060]
+
 ## 1.10.1 / 2019-01-13
 
 ### Features

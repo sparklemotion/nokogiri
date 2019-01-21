@@ -397,6 +397,20 @@ public class XmlDocument extends XmlNode {
             return getCachedNodeOrCreate(context.getRuntime(), rootNode);
     }
 
+    protected IRubyObject dup_implementation(Ruby runtime, boolean deep) {
+        XmlDocument doc = (XmlDocument) super.dup_implementation(runtime, deep);
+        // Avoid creating a new XmlDocument since we cloned one
+        // already. Otherwise the following test will fail:
+        //
+        //   dup = doc.dup
+        //   dup.equal?(dup.children[0].document)
+        //
+        // Since `dup.children[0].document' will end up creating a new
+        // XmlDocument.  See #1060.
+        doc.node.setUserData(NokogiriHelpers.CACHED_NODE, doc, null);
+        return doc;
+    }
+
     @JRubyMethod(name="root=")
     public IRubyObject root_set(ThreadContext context, IRubyObject newRoot_) {
         // in case of document fragment, temporary root node should be deleted.

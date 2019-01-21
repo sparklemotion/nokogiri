@@ -532,6 +532,17 @@ eohtml
         assert_equal found.document, dup.document
       end
 
+      # issue 1060
+      def test_node_ownership_after_dup
+        html = "<html><head></head><body><div>replace me</div></body></html>"
+        doc = Nokogiri::HTML::Document.parse(html)
+        dup = doc.dup
+        assert_same dup, dup.at_css('div').document
+
+        # should not raise an exception
+        dup.at_css('div').parse('<div>replaced</div>')
+      end
+
       def test_inner_html
         html = Nokogiri::HTML <<-EOHTML
         <html>

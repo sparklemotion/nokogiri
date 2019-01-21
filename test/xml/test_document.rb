@@ -50,6 +50,17 @@ module Nokogiri
         assert_equal '', doc.content
       end
 
+      # issue 1060
+      def test_node_ownership_after_dup
+        html = "<html><head></head><body><div>replace me</div></body></html>"
+        doc = Nokogiri::XML::Document.parse(html)
+        dup = doc.dup
+        assert_same dup, dup.at_css('div').document
+
+        # should not raise an exception
+        dup.at_css('div').parse('<div>replaced</div>')
+      end
+
       # issue #835
       def test_manually_adding_reference_entities
         d = Nokogiri::XML::Document.new
