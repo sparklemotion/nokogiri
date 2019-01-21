@@ -407,7 +407,7 @@ public class XmlDocument extends XmlNode {
         //
         // Since `dup.children[0].document' will end up creating a new
         // XmlDocument.  See #1060.
-        doc.node.setUserData(NokogiriHelpers.CACHED_NODE, doc, null);
+        doc.resetCache();
         return doc;
     }
 
