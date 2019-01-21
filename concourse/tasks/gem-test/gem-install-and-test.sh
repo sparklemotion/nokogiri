@@ -14,6 +14,9 @@ popd
 pushd nokogiri
 
   bundle install
-  rake test # we're testing the installed gem, so we don't compile or use bundler
+  echo 'gem "nokogiri"' >> Gemfile # jruby has issues running `rake test` outside of bundler
+
+  bundle exec rake test # we're testing the installed gem, so we don't compile
 
 popd
+

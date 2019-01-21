@@ -12,14 +12,10 @@ pushd nokogiri
   mkdir -p .git
 
   bundle install
-
-  # TODO we're only compiling so that we retrieve libxml2/libxslt
-  # tarballs, we can do better a couple of different ways
-  bundle exec rake clean compile
-  bundle exec rake gem
+  bundle exec rake java gem
 
   mkdir -p ${OUTPUT_DIR}
-  cp -v pkg/nokogiri*.gem ${OUTPUT_DIR}
+  cp -v pkg/nokogiri*java.gem ${OUTPUT_DIR}
   sha256sum ${OUTPUT_DIR}/*
 
 popd
