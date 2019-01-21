@@ -19,7 +19,7 @@ groups:
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
       - build-success
-
+      - gem-test
 
   - name: PRs
     jobs:
@@ -383,6 +383,40 @@ jobs:
           # <% end %>
       - put: nokogiri-irc
         params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
+
+% ruby_version = RUBIES[:mri].last
+  - name: gem-test
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: [build-success]
+      - task: gem-build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          outputs:
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build.sh
+      - task: gem-install-and-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
 
   #
   #  PRs
