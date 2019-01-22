@@ -327,4 +327,6 @@ task "gem:jruby" do
   RakeCompilerDock.sh "bundle && rake java gem", rubyvm: 'jruby'
 end
 
+require_relative "tasks/docker"
+
 # vim: syntax=Ruby

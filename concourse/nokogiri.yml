@@ -118,7 +118,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -142,7 +142,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -164,7 +164,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -212,7 +212,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -235,7 +235,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -257,7 +257,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -397,7 +397,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -410,7 +410,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -446,7 +446,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -471,7 +471,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -494,7 +494,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ruby, tag: "<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri-pr
