@@ -58,11 +58,6 @@ groups:
       - "win-ruby-2.6-devkit"
       
       
-      - "rbx-latest-system"
-      - "rbx-latest-vendored"
-      
-      - rbx-latest-pr
-      
 
 resource_types:
 - name: pull-request
@@ -511,52 +506,6 @@ jobs:
   
 
   
-  - name: rbx-latest-system
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-      - task: rake-test
-        config:
-          image_resource:
-            type: docker-image
-            source: {repository: rubinius/docker, tag: "latest"}
-          platform: linux
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-            TMPDIR: /scratch
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-#        on_failure: *notify_failure_to_irc
-
-  - name: rbx-latest-vendored
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-        passed: ["rbx-latest-system"]
-      - task: rake-test
-        config:
-          image_resource:
-            type: docker-image
-            source: {repository: rubinius/docker, tag: "latest"}
-          platform: linux
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            TMPDIR: /scratch
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-#        on_failure: *notify_failure_to_irc
-  
-
-  
   - name: win-ruby-2.3-devkit
     public: true
     plan:
@@ -655,9 +604,6 @@ jobs:
           
           - "jruby-9.2"
           
-          # 
-          # - "rbx-latest-vendored"
-          # 
           # 
           # - "win-ruby-2.3-devkit"
           # 
@@ -910,32 +856,6 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
-  - name: rbx-latest-pr
-    public: true
-    max_in_flight: 1
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          image_resource:
-            type: docker-image
-            source: {repository: rubinius/docker, tag: "latest"}
-          platform: linux
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-          params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-            TMPDIR: /scratch
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-#        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
-
   - name: pr-success
     public: true
     disable_manual_trigger: true
@@ -952,7 +872,6 @@ jobs:
           - ruby-2.6-valgrind-pr
           - ruby-vanilla-system-pr
           - jruby-9.2-pr
-#          - rbx-latest-pr
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
       - put: nokogiri-irc

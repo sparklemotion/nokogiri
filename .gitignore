@@ -1,5 +1,4 @@
 *.gemspec
-*.rbc
 *.tmproj
 *~
 .*.swp

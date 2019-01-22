@@ -43,21 +43,9 @@ function commit-is-post-frozen-string-support {
   return 1
 }
 
-function rbx-engine {
-  if [[ $RUBY_ENGINE == "rubinius" ]] ; then
-    return 0
-  fi
-  return 1
-}
-
 pushd nokogiri
 
   test_task="test"
-
-  if rbx-engine ; then
-    ensure-apt-update
-    apt-get install -y ca-certificates gcc pkg-config libxml2-dev libxslt-dev patch
-  fi
 
   if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
     ensure-apt-update
