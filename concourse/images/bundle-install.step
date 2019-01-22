@@ -1,7 +1,5 @@
 # -*- dockerfile -*-
 
 COPY Gemfile      nokogiri/
-COPY Gemfile.lock nokogiri/
 
-RUN gem install bundler
 RUN cd nokogiri && bundle install

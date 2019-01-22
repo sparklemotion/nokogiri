@@ -6,4 +6,6 @@ FROM ruby:<%= version %>
 
 <%= File.read "debian-libxml-et-al.step" %>
 
+<%= File.read "update-bundler.step" %>
+
 <%= File.read "bundle-install.step" %>
