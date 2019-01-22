@@ -61,7 +61,7 @@ pushd nokogiri
 
   if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
     test_task="test:valgrind" # override
-    export TESTOPTS="-v" # see more verbose output to help narrow down warnings
+    # export TESTOPTS="-v" # see more verbose output to help narrow down warnings
 
     # always use the CI suppressions if they exist
     if [[ -d ../ci/suppressions ]] ; then
