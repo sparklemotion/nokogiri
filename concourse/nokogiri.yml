@@ -185,7 +185,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ubuntu, tag: xenial}
+            source: {repository: "flavorjones/nokogiri-test", tag: xenial}
           inputs:
             - name: ci
             - name: nokogiri
@@ -467,7 +467,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ubuntu, tag: xenial}
+            source: {repository: "flavorjones/nokogiri-test", tag: xenial}
           inputs:
             - name: ci
             - name: nokogiri-pr
