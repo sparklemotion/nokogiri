@@ -1,0 +1,9 @@
+FROM ruby:<%= ruby_version %>
+
+<%= File.read "debian-prelude.step" %>
+
+<%= File.read "debian-valgrind.step" %>
+
+<%= File.read "debian-libxml-et-al.step" %>
+
+<%= File.read "bundle-install.step" %>
