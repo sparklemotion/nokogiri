@@ -279,8 +279,6 @@ jobs:
           inputs:
             - name: ci
             - name: nokogiri
-          params:
-            JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
@@ -498,8 +496,6 @@ jobs:
             - name: ci
             - name: nokogiri-pr
               path: nokogiri
-          params:
-            JAVA_OPTS: "-Dfile.encoding=UTF8" # https://github.com/docker-library/openjdk/issues/32
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
