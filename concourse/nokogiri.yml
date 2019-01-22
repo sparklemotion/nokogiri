@@ -39,11 +39,6 @@ groups:
       <% RUBIES[:windows][1..-1].each do |ruby_version| %>
       - "win-ruby-<%= ruby_version %>-devkit"
       <% end %>
-      <% for rbx_version in RUBIES[:rbx] %>
-      - "rbx-<%= rbx_version %>-system"
-      - "rbx-<%= rbx_version %>-vendored"
-      <% end %>
-      - rbx-<%= RUBIES[:rbx].last %>-pr
       <% Concourse.rc_rubies.each do |ruby_version| %>
       - "ruby-<%= ruby_version %>-system"
       - "ruby-<%= ruby_version %>-vendored"
@@ -190,7 +185,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ubuntu, tag: xenial}
+            source: {repository: "flavorjones/nokogiri-test", tag: xenial}
           inputs:
             - name: ci
             - name: nokogiri
@@ -292,52 +287,6 @@ jobs:
         on_failure: *notify_failure_to_irc
   <% end %>
 
-  <% for rbx_version in RUBIES[:rbx] %>
-  - name: rbx-<%= rbx_version %>-system
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-      - task: rake-test
-        config:
-          image_resource:
-            type: docker-image
-            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
-          platform: linux
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-            TMPDIR: /scratch
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-#        on_failure: *notify_failure_to_irc
-
-  - name: rbx-<%= rbx_version %>-vendored
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-        passed: ["rbx-<%= rbx_version %>-system"]
-      - task: rake-test
-        config:
-          image_resource:
-            type: docker-image
-            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
-          platform: linux
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            TMPDIR: /scratch
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-#        on_failure: *notify_failure_to_irc
-  <% end %>
-
   <% for ruby_version in RUBIES[:windows] %>
   - name: win-ruby-<%= ruby_version %>-devkit
     public: true
@@ -375,9 +324,6 @@ jobs:
           <% for jruby_version in RUBIES[:jruby] %>
           - "jruby-<%= jruby_version %>"
           <% end %>
-          # <% for rbx_version in RUBIES[:rbx] %>
-          # - "rbx-<%= rbx_version %>-vendored"
-          # <% end %>
           # <% RUBIES[:windows].first(1).each do |ruby_version| %>
           # - "win-ruby-<%= ruby_version %>-devkit"
           # <% end %>
@@ -521,7 +467,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: ubuntu, tag: xenial}
+            source: {repository: "flavorjones/nokogiri-test", tag: xenial}
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -560,33 +506,6 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
-% rbx_version = RUBIES[:rbx].last
-  - name: rbx-<%= rbx_version %>-pr
-    public: true
-    max_in_flight: 1
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          image_resource:
-            type: docker-image
-            source: {repository: rubinius/docker, tag: "<%= rbx_version %>"}
-          platform: linux
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-          params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-            TMPDIR: /scratch
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-#        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
-
   - name: pr-success
     public: true
     disable_manual_trigger: true
@@ -603,7 +522,6 @@ jobs:
           - ruby-<%= Concourse.production_rubies.last %>-valgrind-pr
           - ruby-vanilla-system-pr
           - jruby-<%= RUBIES[:jruby].last %>-pr
-#          - rbx-<%= RUBIES[:rbx].last %>-pr
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
       - put: nokogiri-irc

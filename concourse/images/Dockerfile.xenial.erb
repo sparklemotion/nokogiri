@@ -1,11 +1,9 @@
-FROM ruby:<%= version %>
+FROM ubuntu:xenial
 
 <%= File.read "debian-prelude.step" %>
 
-<%= File.read "debian-valgrind.step" %>
-
 <%= File.read "debian-libxml-et-al.step" %>
 
-<%= File.read "update-bundler.step" %>
+<%= File.read "debian-ruby.step" %>
 
 <%= File.read "bundle-install.step" %>

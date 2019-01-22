@@ -2,30 +2,44 @@
 # docker docker docker
 #
 namespace "docker" do
-  image_dir = "concourse/images"
-  supported_engines = [:mri, :jruby] # keys in Concourse::RUBIES
+  IMAGE_DIR = "concourse/images"
 
-  def docker_tag_for(engine, version)
-    [engine, version].join("-")
+  def docker_tag_for(engine, version=nil)
+    [engine, version].compact.join("-")
   end
 
-  def docker_file_for(engine, version)
-    "Dockerfile.#{docker_tag_for(engine, version)}.generated"
+  def docker_file_for(engine, version=nil)
+    File.join(IMAGE_DIR, "Dockerfile.#{docker_tag_for(engine, version)}.generated")
   end
 
-  def docker_image_for(engine, version)
+  def docker_image_for(engine, version=nil)
     "flavorjones/nokogiri-test:#{docker_tag_for(engine, version)}"
+  end
+
+  def docker_files_each
+    Dir[File.join(IMAGE_DIR, "Dockerfile.*.erb")].each do |template_path|
+      tag_or_engine = File.basename(template_path).gsub(/Dockerfile\.(.*)\.erb/, '\1').to_sym
+      if Concourse::RUBIES.keys.include?(tag_or_engine)
+        # engine
+        Concourse::RUBIES[tag_or_engine].each do |version|
+          dockerfile_path = docker_file_for(tag_or_engine, version)
+          yield File.read(template_path), dockerfile_path, version, docker_image_for(tag_or_engine, version)
+        end
+      else
+        # tag
+        dockerfile_path = docker_file_for(tag_or_engine)
+        yield File.read(template_path), dockerfile_path, nil, docker_image_for(tag_or_engine)
+      end
+    end
   end
 
   desc "Generate Dockerfiles"
   task "generate" do
-    Dir.chdir image_dir do
-      supported_engines.each do |engine|
-        Concourse::RUBIES[engine].each do |version|
-          File.open(docker_file_for(engine, version), "w") do |dockerfile|
-            puts "writing #{dockerfile.path} ..."
-            dockerfile.write ERB.new(File.read("Dockerfile.#{engine}.erb"), nil, "%-").result(binding)
-          end
+    docker_files_each do |template, dockerfile_path, version, _|
+      puts "writing #{dockerfile_path} ..."
+      File.open(dockerfile_path, "w") do |dockerfile|
+        Dir.chdir(File.dirname(dockerfile_path)) do
+          dockerfile.write ERB.new(template, nil, "%-").result(binding)
         end
       end
     end
@@ -33,20 +47,22 @@ namespace "docker" do
 
   desc "Build docker images for testing"
   task "build" do
-    supported_engines.each do |engine|
-      Concourse::RUBIES[engine].each do |version|
-        sh "docker build -t #{docker_image_for(engine, version)} -f #{image_dir}/#{docker_file_for(engine, version)} ."
-      end
+    docker_files_each do |_, dockerfile_path, _, docker_image|
+      sh "docker build -t #{docker_image} -f #{dockerfile_path} ."
     end
   end
 
   desc "Push a docker image for testing"
   task "push" do
-    supported_engines.each do |engine|
-      Concourse::RUBIES[engine].each do |version|
-        sh "docker push #{docker_image_for(engine, version)}"
-      end
+    docker_files_each do |_, _, _, docker_image|
+      sh "docker push #{docker_image}"
     end
+  end
+
+  desc "Clean generated dockerfiles"
+  task "clean" do
+    generated_files = Dir[File.join(IMAGE_DIR, "Dockerfile.*.generated")]
+    FileUtils.rm_f generated_files, verbose: true unless generated_files.empty?
   end
 end
 
