@@ -3,6 +3,7 @@
 #
 namespace "docker" do
   image_dir = "concourse/images"
+  supported_engines = [:mri, :jruby] # keys in Concourse::RUBIES
 
   def docker_tag_for(engine, version)
     [engine, version].join("-")
@@ -19,10 +20,12 @@ namespace "docker" do
   desc "Generate Dockerfiles"
   task "generate" do
     Dir.chdir image_dir do
-      Concourse::RUBIES[:mri].each do |ruby_version|
-        File.open(docker_file_for("mri", ruby_version), "w") do |dockerfile|
-          puts "writing #{dockerfile.path} ..."
-          dockerfile.write ERB.new(File.read("Dockerfile.ruby.erb"), nil, "%-").result(binding)
+      supported_engines.each do |engine|
+        Concourse::RUBIES[engine].each do |version|
+          File.open(docker_file_for(engine, version), "w") do |dockerfile|
+            puts "writing #{dockerfile.path} ..."
+            dockerfile.write ERB.new(File.read("Dockerfile.#{engine}.erb"), nil, "%-").result(binding)
+          end
         end
       end
     end
@@ -30,15 +33,19 @@ namespace "docker" do
 
   desc "Build docker images for testing"
   task "build" do
-    Concourse::RUBIES[:mri].each do |ruby_version|
-      sh "docker build -t #{docker_image_for("mri", ruby_version)} -f #{image_dir}/#{docker_file_for(:mri, ruby_version)} ."
+    supported_engines.each do |engine|
+      Concourse::RUBIES[engine].each do |version|
+        sh "docker build -t #{docker_image_for(engine, version)} -f #{image_dir}/#{docker_file_for(engine, version)} ."
+      end
     end
   end
 
   desc "Push a docker image for testing"
   task "push" do
-    Concourse::RUBIES[:mri].each do |ruby_version|
-      sh "docker push #{docker_image_for("mri", ruby_version)}"
+    supported_engines.each do |engine|
+      Concourse::RUBIES[engine].each do |version|
+        sh "docker push #{docker_image_for(engine, version)}"
+      end
     end
   end
 end

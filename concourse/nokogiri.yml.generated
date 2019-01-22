@@ -477,7 +477,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: jruby, tag: "9.1-jdk"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.1"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -499,7 +499,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: jruby, tag: "9.2-jdk"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.2"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -899,7 +899,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: jruby, tag: "9.2-jdk"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.2"}
           inputs:
             - name: ci
             - name: nokogiri-pr
