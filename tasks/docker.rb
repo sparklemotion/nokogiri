@@ -58,6 +58,12 @@ namespace "docker" do
       sh "docker push #{docker_image}"
     end
   end
+
+  desc "Clean generated dockerfiles"
+  task "clean" do
+    generated_files = Dir[File.join(IMAGE_DIR, "Dockerfile.*.generated")]
+    FileUtils.rm_f generated_files, verbose: true unless generated_files.empty?
+  end
 end
 
 desc "Build and push a docker image for testing"
