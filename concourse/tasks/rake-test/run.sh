@@ -2,22 +2,6 @@
 
 set -e -x -u
 
-APT_UPDATED=false
-
-function ensure-apt-update {
-  if [[ $APT_UPDATED != "false" ]] ; then
-    return
-  fi
-
-  apt-get update
-  APT_UPDATED=true
-}
-
-if [[ ${TEST_WITH_APT_REPO_RUBY:-} != "" ]] ; then
-  ensure-apt-update
-  apt-get install -y ruby ruby-dev bundler libxslt-dev libxml2-dev pkg-config
-fi
-
 VERSION_INFO=$(ruby -v)
 RUBY_ENGINE=$(cut -d" " -f1 <<< "${VERSION_INFO}")
 RUBY_VERSION=$(cut -d" " -f2 <<< "${VERSION_INFO}")
@@ -46,11 +30,6 @@ function commit-is-post-frozen-string-support {
 pushd nokogiri
 
   test_task="test"
-
-  if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
-    ensure-apt-update
-    apt-get install -y valgrind
-  fi
 
   bundle install
   bundle exec rake generate # do this before setting frozen string option, because racc isn't compatible with frozen string literals yet
