@@ -20,6 +20,7 @@ groups:
       <% end %>
       - build-success
       - gem-test
+      - gem-test-java
 
   - name: PRs
     jobs:
@@ -354,6 +355,40 @@ jobs:
           image_resource:
             type: docker-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+
+% jruby_version = RUBIES[:jruby].last
+  - name: gem-test-java
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: [build-success]
+      - task: gem-build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          outputs:
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build-java.sh
+      - task: gem-install-and-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
           inputs:
             - name: ci
             - name: nokogiri
