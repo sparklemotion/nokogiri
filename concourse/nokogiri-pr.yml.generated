@@ -1,12 +1,13 @@
+
 resource_types:
-  - name: pull-request
-    type: docker-image
-    source:
-      repository: jtarchie/pr
   - name: irc-notification
     type: docker-image
     source:
       repository: flavorjones/irc-notification-resource
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: jtarchie/pr
 
 
 resources:
@@ -16,6 +17,14 @@ resources:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
       disable_ci_skip: true # always get the latest pipeline configuration
+  - name: nokogiri-irc
+    type: irc-notification
+    source:
+      server: chat.freenode.net
+      port: 7070
+      channel: "#nokogiri"
+      user: {{nokobot-irc-username}}
+      password: {{nokobot-irc-password}}
   - name: nokogiri-pr
     type: pull-request
     source:
@@ -25,14 +34,6 @@ resources:
         - CHANGELOG.md
         - concourse/**
         - suppressions/**
-  - name: nokogiri-irc
-    type: irc-notification
-    source:
-      server: chat.freenode.net
-      port: 7070
-      channel: "#nokogiri"
-      user: {{nokobot-irc-username}}
-      password: {{nokobot-irc-password}}
 
 
 anchors:
@@ -55,7 +56,6 @@ jobs:
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: pending}
 
-  
   - name: ruby-2.3-system-pr
     public: true
     max_in_flight: 1
@@ -128,7 +128,6 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
-  
   - name: ruby-2.6-system-pr
     public: true
     max_in_flight: 1
@@ -201,7 +200,6 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
-  
 
   - name: ruby-vanilla-system-pr
     public: true

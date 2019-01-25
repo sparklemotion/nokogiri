@@ -1,21 +1,15 @@
+% require "common_prelude.rb"
+
 resource_types:
+<%= erbify_file "common_resource_types.yml" -%>
   - name: pull-request
     type: docker-image
     source:
       repository: jtarchie/pr
-  - name: irc-notification
-    type: docker-image
-    source:
-      repository: flavorjones/irc-notification-resource
 
 
 resources:
-  - name: ci
-    type: git
-    source:
-      uri: https://github.com/sparklemotion/nokogiri/
-      branch: master
-      disable_ci_skip: true # always get the latest pipeline configuration
+<%= erbify_file "common_resources.yml" -%>
   - name: nokogiri-pr
     type: pull-request
     source:
@@ -25,20 +19,10 @@ resources:
         - CHANGELOG.md
         - concourse/**
         - suppressions/**
-  - name: nokogiri-irc
-    type: irc-notification
-    source:
-      server: chat.freenode.net
-      port: 7070
-      channel: "#nokogiri"
-      user: {{nokobot-irc-username}}
-      password: {{nokobot-irc-password}}
 
 
 anchors:
-  notify_failure_to_irc: &notify_failure_to_irc
-    put: nokogiri-irc
-    params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)"}
+<%= erbify_file "common_anchors.yml" -%>
   notify_failure_to_pr: &notify_failure_to_pr
     put: nokogiri-pr
     params: {path: nokogiri-pr, status: failure}
@@ -55,7 +39,7 @@ jobs:
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: pending}
 
-  <% [Concourse.production_rubies.first, Concourse.production_rubies.last].each do |ruby_version| %>
+% [Concourse.production_rubies.first, Concourse.production_rubies.last].each do |ruby_version|
   - name: ruby-<%= ruby_version %>-system-pr
     public: true
     max_in_flight: 1
@@ -128,7 +112,7 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
-  <% end %>
+% end
 
 % ruby_version = Concourse.production_rubies.last
   - name: ruby-vanilla-system-pr

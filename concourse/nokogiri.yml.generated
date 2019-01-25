@@ -1,8 +1,10 @@
+
 resource_types:
   - name: irc-notification
     type: docker-image
     source:
       repository: flavorjones/irc-notification-resource
+
 
 resources:
   - name: ci
@@ -11,15 +13,6 @@ resources:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
       disable_ci_skip: true # always get the latest pipeline configuration
-  - name: nokogiri
-    type: git
-    source:
-      uri: https://github.com/sparklemotion/nokogiri/
-      branch: master
-      ignore_paths:
-        - CHANGELOG.md
-        - concourse/**
-        - suppressions/**
   - name: nokogiri-irc
     type: irc-notification
     source:
@@ -28,14 +21,21 @@ resources:
       channel: "#nokogiri"
       user: {{nokobot-irc-username}}
       password: {{nokobot-irc-password}}
+  - name: nokogiri
+    type: git
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      ignore_paths: ["CHANGELOG.md","concourse/**","suppressions/**"]
+
 
 anchors:
   notify_failure_to_irc: &notify_failure_to_irc
     put: nokogiri-irc
     params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)"}
 
+
 jobs:
-  
   - name: ruby-2.3-system
     public: true
     plan:
@@ -98,7 +98,6 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  
   - name: ruby-2.4-system
     public: true
     plan:
@@ -161,7 +160,6 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  
   - name: ruby-2.5-system
     public: true
     plan:
@@ -224,7 +222,6 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  
   - name: ruby-2.6-system
     public: true
     plan:
@@ -287,7 +284,6 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  
 
   - name: ruby-vanilla-system
     public: true
@@ -379,7 +375,6 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
 
-  
   - name: jruby-9.1
     public: true
     plan:
@@ -398,7 +393,6 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  
   - name: jruby-9.2
     public: true
     plan:
@@ -417,7 +411,6 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  
 
   - name: build-success
     public: true
@@ -427,23 +420,13 @@ jobs:
         trigger: true
         version: every
         passed:
-          
           - "ruby-2.3-valgrind"
-          
           - "ruby-2.4-valgrind"
-          
           - "ruby-2.5-valgrind"
-          
           - "ruby-2.6-valgrind"
-          
-          
           - "ruby-libxmlruby-valgrind"
-          
-          
           - "jruby-9.1"
-          
           - "jruby-9.2"
-          
       - put: nokogiri-irc
         params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
 

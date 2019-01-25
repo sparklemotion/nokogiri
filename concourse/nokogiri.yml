@@ -1,41 +1,25 @@
+% require "common_prelude.rb"
+
 resource_types:
-  - name: irc-notification
-    type: docker-image
-    source:
-      repository: flavorjones/irc-notification-resource
+<%= erbify_file "common_resource_types.yml" -%>
+
 
 resources:
-  - name: ci
-    type: git
-    source:
-      uri: https://github.com/sparklemotion/nokogiri/
-      branch: master
-      disable_ci_skip: true # always get the latest pipeline configuration
+<%= erbify_file "common_resources.yml" -%>
   - name: nokogiri
     type: git
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
-      ignore_paths:
-        - CHANGELOG.md
-        - concourse/**
-        - suppressions/**
-  - name: nokogiri-irc
-    type: irc-notification
-    source:
-      server: chat.freenode.net
-      port: 7070
-      channel: "#nokogiri"
-      user: {{nokobot-irc-username}}
-      password: {{nokobot-irc-password}}
+      ignore_paths: <%= $common_ignore_paths %>
+
 
 anchors:
-  notify_failure_to_irc: &notify_failure_to_irc
-    put: nokogiri-irc
-    params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)"}
+<%= erbify_file "common_anchors.yml" -%>
+
 
 jobs:
-  <% RUBIES[:mri].each do |ruby_version| %>
+% RUBIES[:mri].each do |ruby_version|
   - name: ruby-<%= ruby_version %>-system
     public: true
     plan:
@@ -104,7 +88,7 @@ jobs:
 % if Concourse.production_rubies.include? ruby_version
         on_failure: *notify_failure_to_irc
 % end
-  <% end %>
+% end
 
 % ruby_version = Concourse.production_rubies.last
   - name: ruby-vanilla-system
@@ -197,7 +181,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
 
-  <% for jruby_version in RUBIES[:jruby] %>
+% for jruby_version in RUBIES[:jruby]
   - name: jruby-<%= jruby_version %>
     public: true
     plan:
@@ -216,7 +200,7 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  <% end %>
+% end
 
   - name: build-success
     public: true
@@ -226,15 +210,15 @@ jobs:
         trigger: true
         version: every
         passed:
-          <% Concourse.production_rubies.each do |ruby_version| %>
+% Concourse.production_rubies.each do |ruby_version|
           - "ruby-<%= ruby_version %>-valgrind"
-          <% end %>
-          <% Concourse.production_rubies.last(1).each do |ruby_version| %>
+% end
+% Concourse.production_rubies.last(1).each do |ruby_version|
           - "ruby-libxmlruby-valgrind"
-          <% end %>
-          <% for jruby_version in RUBIES[:jruby] %>
+% end
+% for jruby_version in RUBIES[:jruby]
           - "jruby-<%= jruby_version %>"
-          <% end %>
+% end
       - put: nokogiri-irc
         params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
 
