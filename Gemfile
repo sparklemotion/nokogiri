@@ -6,7 +6,7 @@ source "https://rubygems.org/"
 
 gem "mini_portile2", "~>2.4.0"
 
-gem "concourse", "~>0.15", :group => [:development, :test]
+gem "concourse", "~>0.24", :group => [:development, :test]
 gem "hoe-bundler", "~>1.2", :group => [:development, :test]
 gem "hoe-debugging", "~>2.0", :group => [:development, :test]
 gem "hoe-gemspec", "~>1.0", :group => [:development, :test]
