@@ -47,14 +47,14 @@ groups:
       <% end %>
 
 resource_types:
-- name: pull-request
-  type: docker-image
-  source:
-    repository: jtarchie/pr
-- name: irc-notification
-  type: docker-image
-  source:
-    repository: flavorjones/irc-notification-resource
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: jtarchie/pr
+  - name: irc-notification
+    type: docker-image
+    source:
+      repository: flavorjones/irc-notification-resource
 
 resources:
   - name: ci
