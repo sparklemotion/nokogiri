@@ -22,6 +22,7 @@ jobs:
 % RUBIES[:mri].each do |ruby_version|
   - name: ruby-<%= ruby_version %>-system
     public: true
+    serial_groups: ["ruby-<%= ruby_version %>"]
     plan:
       - get: ci
       - get: nokogiri
@@ -45,6 +46,7 @@ jobs:
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
+    serial_groups: ["ruby-<%= ruby_version %>"]
     plan:
       - get: ci
       - get: nokogiri
@@ -67,6 +69,7 @@ jobs:
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
+    serial_groups: ["ruby-<%= ruby_version %>"]
     plan:
       - get: ci
       - get: nokogiri
@@ -90,14 +93,53 @@ jobs:
 % end
 % end
 
-% ruby_version = Concourse.production_rubies.last
-  - name: ruby-vanilla-system
+
+% RUBIES[:jruby].each_with_index do |jruby_version, j|
+  - name: jruby-<%= jruby_version %>
     public: true
+    serial_groups: ["jruby"]
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-<%= ruby_version %>-system"]
+% if j > 0
+        passed: ["jruby-<%= RUBIES[:jruby][j-1] %>"]
+% end
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+% end
+
+
+  - name: gate
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+        passed:
+% Concourse.production_rubies.each do |ruby_version|
+          - "ruby-<%= ruby_version %>-valgrind"
+% end
+          - "jruby-<%= RUBIES[:jruby].last %>"
+
+
+  - name: ruby-vanilla-system
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["gate"]
       - task: rake-test
         config:
           platform: linux
@@ -114,18 +156,21 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
 
+
   - name: ruby-libxmlruby-system
     public: true
+    serial: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
+        passed: ["gate"]
       - task: rake-test
         config:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -136,41 +181,21 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
 
-  - name: ruby-libxmlruby-vendored
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-        passed: ["ruby-libxmlruby-system"]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
 
   - name: ruby-libxmlruby-valgrind
     public: true
+    serial: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-libxmlruby-vendored"]
+        passed: ["gate"]
       - task: rake-test
         config:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -181,26 +206,79 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
 
-% for jruby_version in RUBIES[:jruby]
-  - name: jruby-<%= jruby_version %>
+
+  - name: gem-test
     public: true
+    serial: true
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-      - task: rake-test
+        passed: ["gate"]
+      - task: gem-build
         config:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
           inputs:
             - name: ci
             - name: nokogiri
+          outputs:
+            - name: gems
           run:
-            path: ci/concourse/tasks/rake-test/run.sh
+            path: ci/concourse/tasks/gem-test/gem-build.sh
         on_failure: *notify_failure_to_irc
-% end
+      - task: gem-install-and-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: gem-test-java
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["gate"]
+      - task: gem-build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          outputs:
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build-java.sh
+        on_failure: *notify_failure_to_irc
+      - task: gem-install-and-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        on_failure: *notify_failure_to_irc
+
 
   - name: build-success
     public: true
@@ -210,82 +288,10 @@ jobs:
         trigger: true
         version: every
         passed:
-% Concourse.production_rubies.each do |ruby_version|
-          - "ruby-<%= ruby_version %>-valgrind"
-% end
-% Concourse.production_rubies.last(1).each do |ruby_version|
-          - "ruby-libxmlruby-valgrind"
-% end
-% for jruby_version in RUBIES[:jruby]
-          - "jruby-<%= jruby_version %>"
-% end
+          - ruby-vanilla-system
+          - ruby-libxmlruby-system
+          - ruby-libxmlruby-valgrind
+          - gem-test
+          - gem-test-java
       - put: nokogiri-irc
         params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
-
-% ruby_version = RUBIES[:mri].last
-  - name: gem-test
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-        passed: [build-success]
-      - task: gem-build
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          outputs:
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-build.sh
-      - task: gem-install-and-test
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-
-% jruby_version = RUBIES[:jruby].last
-  - name: gem-test-java
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-        passed: [build-success]
-      - task: gem-build
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          outputs:
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-build-java.sh
-      - task: gem-install-and-test
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
