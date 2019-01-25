@@ -1,0 +1,3 @@
+  notify_failure_to_irc: &notify_failure_to_irc
+    put: nokogiri-irc
+    params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)"}
