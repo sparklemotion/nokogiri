@@ -14,7 +14,7 @@ popd
 
 pushd nokogiri
 
-  bundle install
+  bundle install --local || bundle install
   bundle add nokogiri
   bundle show nokogiri
   bundle exec rake test

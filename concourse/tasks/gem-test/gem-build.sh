@@ -11,7 +11,7 @@ pushd nokogiri
   # cleanup, see extconf.rb do_clean
   mkdir -p .git
 
-  bundle install
+  bundle install --local || bundle install
 
   # TODO we're only compiling so that we retrieve libxml2/libxslt
   # tarballs, we can do better a couple of different ways

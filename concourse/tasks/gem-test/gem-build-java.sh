@@ -11,7 +11,8 @@ pushd nokogiri
   # cleanup, see extconf.rb do_clean
   mkdir -p .git
 
-  bundle install
+  bundle install --local || bundle install
+
   bundle exec rake java gem
 
   mkdir -p ${OUTPUT_DIR}

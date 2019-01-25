@@ -31,7 +31,7 @@ pushd nokogiri
 
   test_task="test"
 
-  bundle install
+  bundle install --local || bundle install
   bundle exec rake generate # do this before setting frozen string option, because racc isn't compatible with frozen string literals yet
 
   if mri-24-or-greater && commit-is-post-frozen-string-support ; then
