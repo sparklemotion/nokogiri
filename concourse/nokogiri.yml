@@ -1,38 +1,3 @@
-groups:
-  - name: master
-    jobs:
-      <% Concourse.production_rubies.each do |ruby_version| %>
-      - "ruby-<%= ruby_version %>-system"
-      - "ruby-<%= ruby_version %>-vendored"
-      - "ruby-<%= ruby_version %>-valgrind"
-      <% end %>
-      - "ruby-vanilla-system"
-      <% Concourse.production_rubies.last(1).each do |ruby_version| %>
-      - "ruby-libxmlruby-system"
-      - "ruby-libxmlruby-vendored"
-      - "ruby-libxmlruby-valgrind"
-      <% end %>
-      <% for jruby_version in RUBIES[:jruby] %>
-      - "jruby-<%= jruby_version %>"
-      <% end %>
-      <% RUBIES[:windows].first(1).each do |ruby_version| %>
-      - "win-ruby-<%= ruby_version %>-devkit"
-      <% end %>
-      - build-success
-      - gem-test
-      - gem-test-java
-
-  - name: allow-failure
-    jobs:
-      <% RUBIES[:windows][1..-1].each do |ruby_version| %>
-      - "win-ruby-<%= ruby_version %>-devkit"
-      <% end %>
-      <% Concourse.rc_rubies.each do |ruby_version| %>
-      - "ruby-<%= ruby_version %>-system"
-      - "ruby-<%= ruby_version %>-vendored"
-      - "ruby-<%= ruby_version %>-valgrind"
-      <% end %>
-
 resource_types:
   - name: irc-notification
     type: docker-image
@@ -253,26 +218,6 @@ jobs:
         on_failure: *notify_failure_to_irc
   <% end %>
 
-  <% for ruby_version in RUBIES[:windows] %>
-  - name: win-ruby-<%= ruby_version %>-devkit
-    public: true
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-      - task: rake-test
-        config:
-          platform: windows
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            WIN_RUBY_VERSION: "<%= ruby_version %>"
-          run:
-            path: powershell
-            args: ["-File", "ci/concourse/tasks/rake-test/run.ps1"]
-  <% end %>
-
   - name: build-success
     public: true
     disable_manual_trigger: true
@@ -290,9 +235,6 @@ jobs:
           <% for jruby_version in RUBIES[:jruby] %>
           - "jruby-<%= jruby_version %>"
           <% end %>
-          # <% RUBIES[:windows].first(1).each do |ruby_version| %>
-          # - "win-ruby-<%= ruby_version %>-devkit"
-          # <% end %>
       - put: nokogiri-irc
         params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
 
