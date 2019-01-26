@@ -40,5 +40,6 @@ function code-climate-shipit {
     return
   fi
 
-  ./${CC_CLI} after-build
+  # let's remove the `|| true` once all pull requests from pre-simplecov are cleared out
+  ./${CC_CLI} after-build || true
 }
