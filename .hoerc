@@ -14,7 +14,6 @@ exclude: !ruby/regexp '/
     |tmp
   )\/)
   |\.(autotest
-     |codeclimate\.yml
      |cross_rubies
      |editorconfig
      |gemtest
