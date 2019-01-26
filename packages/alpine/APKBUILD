@@ -1,0 +1,72 @@
+# Contributor: Jonathan Lozinski <jonathan.lozinski@gmail.com>
+# Maintainer: Jonathan Lozinski <jonathan.lozinski@gmail.com>
+pkgname=libxml2-nokogiri
+pkgver=2.9.9
+pkgrel=3
+pkgdesc="XML parsing library, version 2 (Nokogiri Dependent Version)"
+url="http://www.xmlsoft.org/"
+arch="all"
+license="MIT"
+depends=
+depends_dev="zlib-dev"
+makedepends="$depends_dev python-dev"
+subpackages="$pkgname-doc $pkgname-dev py-$pkgname:py $pkgname-utils"
+source="ftp://ftp.xmlsoft.org/libxml2/libxml2-${pkgver}.tar.gz
+  0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
+	"
+
+options="!strip"
+
+builddir="$srcdir/libxml2-$pkgver"
+prepare() {
+	cd "$builddir"
+	for i in $source; do
+		case $i in
+		*.patch) msg $i; patch -p1 -i "$srcdir"/$i || return 1;;
+		esac
+	done
+}
+
+build() {
+	cd "$builddir"
+	./configure \
+		--build=$CBUILD \
+		--host=$CHOST \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--infodir=/usr/share/info \
+		--disable-static \
+		|| return 1
+	make
+}
+
+package() {
+	cd "$builddir"
+	make -j1 DESTDIR="$pkgdir" install
+
+	install -Dm644 COPYING "$pkgdir"/usr/share/licenses/$pkgname/COPYING
+}
+
+dev() {
+	default_dev
+	mv "$pkgdir"/usr/lib/*.sh "$subpkgdir"/usr/lib/
+}
+
+py() {
+	cd "$builddir"
+	pkgdesc="$pkgname python bindings"
+	install -d "$subpkgdir"/usr/lib
+	mv "$pkgdir"/usr/lib/python* "$subpkgdir"/usr/lib/
+}
+
+utils() {
+	pkgdesc="XML utilities (Nokogiri)"
+	replaces="libxml2-nokogiri"
+	mkdir -p "$subpkgdir"/usr
+	mv "$pkgdir"/usr/bin "$subpkgdir"/usr/
+}
+
+
+sha512sums="cb7784ba4e72e942614e12e4f83f4ceb275f3d738b30e3b5c1f25edf8e9fa6789e854685974eed95b362049dbf6c8e7357e0327d64c681ed390534ac154e6810  libxml2-2.9.9.tar.gz
+01197be52a1920fe61be918977d36124c02a80aedd054520445b39d55cac1e13c52f9bdb88a5321c6aa27a8005b55a7a937f6b84fb3cef52f6bd219faa7e1715  0001-Revert-Do-not-URI-escape-in-server-side-includes.patch"
