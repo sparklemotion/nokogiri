@@ -62,7 +62,7 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: [pr-pending]
+        passed: ["ruby-2.6-system"]
       - task: rake-test
         config:
           platform: linux
@@ -136,7 +136,7 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: [pr-pending]
+        passed: ["ruby-2.6-system"]
       - task: rake-test
         config:
           platform: linux
@@ -210,7 +210,7 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: [pr-pending]
+        passed: ["ruby-2.6-system"]
       - task: rake-test
         config:
           platform: linux
@@ -361,7 +361,7 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: [pr-pending]
+        passed: ["ruby-2.6-system"]
       - task: rake-test
         config:
           platform: linux
