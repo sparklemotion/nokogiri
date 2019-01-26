@@ -249,6 +249,8 @@ jobs:
             - name: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            CC_TEST_REPORTER_ID: {{code_climate_reporter_id_nokogiri}}
+            GIT_BRANCH: master
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
