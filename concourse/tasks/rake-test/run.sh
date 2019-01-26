@@ -2,6 +2,8 @@
 
 set -e -x -u
 
+source "$(dirname "$0")/../../shared/code-climate.sh"
+
 VERSION_INFO=$(ruby -v)
 RUBY_ENGINE=$(cut -d" " -f1 <<< "${VERSION_INFO}")
 RUBY_VERSION=$(cut -d" " -f2 <<< "${VERSION_INFO}")
@@ -49,6 +51,10 @@ pushd nokogiri
     fi
   fi
 
+  code-climate-setup
+
   bundle exec rake compile ${test_task}
+
+  code-climate-shipit
 
 popd
