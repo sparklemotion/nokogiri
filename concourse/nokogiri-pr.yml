@@ -15,10 +15,7 @@ resources:
     source:
       repo: sparklemotion/nokogiri
       access_token: {{github-repo-status-access-token}}
-      ignore_paths:
-        - CHANGELOG.md
-        - concourse/**
-        - suppressions/**
+      ignore_paths: <%= $common_ignore_paths %>
 
 
 anchors:
