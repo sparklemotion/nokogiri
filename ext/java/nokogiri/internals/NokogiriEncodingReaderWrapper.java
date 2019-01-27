@@ -1,13 +1,11 @@
 package nokogiri.internals;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.jruby.Ruby;
 import org.jruby.RubyObject;
-import org.jruby.RubyProcess.Sys;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -41,7 +39,7 @@ public class NokogiriEncodingReaderWrapper extends InputStream {
     this.encodingReader = encodingReader;
     this.ruby = context.getRuntime();
 
-    if (!RuntimeHelpers.invoke(context, encodingReader, "respond_to?", ruby.newSymbol("read")).isTrue()
+    if (!Helpers.invoke(context, encodingReader, "respond_to?", ruby.newSymbol("read")).isTrue()
         || encodingReader.getInstanceVariable("@io") == null) {
       throw ruby.newArgumentError("Argument doesn't respond to read or doesn't have instance variable @io");
     }

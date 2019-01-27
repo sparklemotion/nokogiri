@@ -45,7 +45,7 @@ import org.jruby.RubyFloat;
 import org.jruby.RubyInteger;
 import org.jruby.RubyString;
 import org.jruby.javasupport.JavaUtil;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.NodeList;
@@ -83,7 +83,7 @@ public class NokogiriXPathFunction implements XPathFunction {
         final Ruby runtime = this.handler.getRuntime();
         ThreadContext context = runtime.getCurrentContext();
 
-        IRubyObject result = RuntimeHelpers.invoke(context, this.handler, this.name, fromObjectToRubyArgs(runtime, args));
+        IRubyObject result = Helpers.invoke(context, this.handler, this.name, fromObjectToRubyArgs(runtime, args));
 
         return fromRubyToObject(runtime, result);
     }

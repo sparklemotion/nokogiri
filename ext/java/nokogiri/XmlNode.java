@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -64,7 +64,7 @@ import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
@@ -227,7 +227,7 @@ public class XmlNode extends RubyObject {
                 doc = document(context.runtime);
 
                 if (doc != null && ! doc.isNil()) {
-                    RuntimeHelpers.invoke(context, doc, "decorate", this);
+                    Helpers.invoke(context, doc, "decorate", this);
                 }
             }
         }
@@ -570,7 +570,7 @@ public class XmlNode extends RubyObject {
     static void setDocumentAndDecorate(ThreadContext context, RubyObject self, IRubyObject doc) {
         self.setInstanceVariable("@document", doc);
         if (doc != null) {
-            RuntimeHelpers.invoke(context, doc, "decorate", self);
+            Helpers.invoke(context, doc, "decorate", self);
         }
     }
 
@@ -709,7 +709,7 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = "blank?")
     public IRubyObject blank_p(ThreadContext context) {
-        // according to libxml doc, 
+        // according to libxml doc,
         // a node is blank if if it is a Text or CDATA node consisting of whitespace only
         if (node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) {
             String data = node.getTextContent();
@@ -853,7 +853,7 @@ public class XmlNode extends RubyObject {
         	HtmlDomParserContext htmlCtx= (HtmlDomParserContext) ctx;
         	htmlCtx.setEncoding(document.getEncoding().asJavaString());
         }
-        
+
         XmlDocument doc = ctx.parse(context, klass, runtime.getNil());
 
         RubyArray documentErrors = getErrorArray(document);
@@ -1158,7 +1158,7 @@ public class XmlNode extends RubyObject {
     @JRubyMethod
     public IRubyObject namespace_definitions(ThreadContext context) {
         // don't use namespace_definitions cache anymore since
-        // namespaces might be deleted. Reflecting the result of 
+        // namespaces might be deleted. Reflecting the result of
         // namesapce removals is complicated, so the cache might not be
         // updated.
         Ruby ruby = context.getRuntime();
@@ -1279,7 +1279,7 @@ public class XmlNode extends RubyObject {
 
         String encString = encoding.isNil() ? null : rubyStringToString(encoding);
 
-        SaveContextVisitor visitor = 
+        SaveContextVisitor visitor =
             new SaveContextVisitor(RubyFixnum.fix2int(options), rubyStringToString(indentString), encString, isHtmlDoc(context), isFragment(), 0);
         accept(context, visitor);
 
@@ -1291,7 +1291,7 @@ public class XmlNode extends RubyObject {
             ByteList str = new ByteList(bytes.array(), bytes.arrayOffset(), bytes.remaining());
             rubyString = RubyString.newString(context.getRuntime(), str);
         }
-        RuntimeHelpers.invoke(context, io, "write", rubyString);
+        Helpers.invoke(context, io, "write", rubyString);
 
         return io;
     }
@@ -1764,7 +1764,7 @@ public class XmlNode extends RubyObject {
      *
      * Loads and substitutes all xinclude elements below the node. The
      * parser context will be initialized with +options+.
-     * 
+     *
      */
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject process_xincludes(ThreadContext context, IRubyObject options) {

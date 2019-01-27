@@ -32,13 +32,12 @@
 
 package nokogiri;
 
-import nokogiri.internals.HtmlDomParserContext;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
@@ -46,6 +45,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import nokogiri.internals.HtmlDomParserContext;
 
 /**
  * Class for Nokogiri::HTML::Document.
@@ -81,7 +82,7 @@ public class HtmlDocument extends XmlDocument {
             throw context.getRuntime().newRuntimeError("couldn't create document: " + ex);
         }
 
-        RuntimeHelpers.invoke(context, htmlDocument, "initialize", args);
+        Helpers.invoke(context, htmlDocument, "initialize", args);
 
         return htmlDocument;
     }

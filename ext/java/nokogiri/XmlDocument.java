@@ -45,14 +45,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.NokogiriNamespaceCache;
-import nokogiri.internals.SaveContextVisitor;
-import nokogiri.internals.XmlDomParserContext;
-import nokogiri.internals.c14n.CanonicalFilter;
-import nokogiri.internals.c14n.CanonicalizationException;
-import nokogiri.internals.c14n.Canonicalizer;
-
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -61,9 +53,9 @@ import org.jruby.RubyNil;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.JavaUtil;
-import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Attr;
@@ -72,6 +64,14 @@ import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import nokogiri.internals.NokogiriHelpers;
+import nokogiri.internals.NokogiriNamespaceCache;
+import nokogiri.internals.SaveContextVisitor;
+import nokogiri.internals.XmlDomParserContext;
+import nokogiri.internals.c14n.CanonicalFilter;
+import nokogiri.internals.c14n.CanonicalizationException;
+import nokogiri.internals.c14n.Canonicalizer;
 
 /**
  * Class for Nokogiri::XML::Document
@@ -264,7 +264,7 @@ public class XmlDocument extends XmlNode {
             throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
         }
 
-        RuntimeHelpers.invoke(context, xmlDocument, "initialize", args);
+        Helpers.invoke(context, xmlDocument, "initialize", args);
 
         return xmlDocument;
     }
@@ -565,7 +565,7 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod(meta=true)
     public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klazz, IRubyObject arg) {
         XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"));
-        RuntimeHelpers.invoke(context, xmlDocument, "initialize");
+        Helpers.invoke(context, xmlDocument, "initialize");
         Document document = (Document)arg.toJava(Document.class);
         xmlDocument.setDocumentNode(context, document);
         return xmlDocument;

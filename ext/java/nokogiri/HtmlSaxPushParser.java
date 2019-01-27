@@ -34,7 +34,7 @@ package nokogiri;
 
 import static nokogiri.XmlSaxPushParser.terminateExecution;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+import static org.jruby.runtime.Helpers.invoke;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
