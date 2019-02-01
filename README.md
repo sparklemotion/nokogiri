@@ -9,9 +9,9 @@ or CSS3 selectors.
 
 ## Links
 
-* http://nokogiri.org
-* [Installation Help](http://nokogiri.org/tutorials/installing_nokogiri.html)
-* [Tutorials](http://nokogiri.org)
+* https://nokogiri.org
+* [Installation Help](https://nokogiri.org/tutorials/installing_nokogiri.html)
+* [Tutorials](https://nokogiri.org)
 * [Cheat Sheet](https://github.com/sparklemotion/nokogiri/wiki/Cheat-sheet)
 * [GitHub](https://github.com/sparklemotion/nokogiri)
 * [Mailing List](https://groups.google.com/group/nokogiri-talk)
@@ -54,13 +54,13 @@ gem install nokogiri
 
 then please start troubleshooting here:
 
-> http://www.nokogiri.org/tutorials/installing_nokogiri.html
+> https://nokogiri.org/tutorials/installing_nokogiri.html
 
 There are currently 1,237 Stack Overflow questions about Nokogiri
 installation. The vast majority of them are out of date and therefore
 incorrect. __Please do not use Stack Overflow.__
 
-Instead, [tell us](http://nokogiri.org/tutorials/getting_help.html)
+Instead, [tell us](https://nokogiri.org/tutorials/getting_help.html)
 when the above instructions don't work for you. This allows us to both
 help you directly and improve the documentation.
 
@@ -76,12 +76,13 @@ Binary packages are available for some distributions.
 
 ## Support
 
-There are open-source tutorials (to which we invite contributions!) here: http://nokogiri.org/tutorials
+All official documentation is posted at https://nokogiri.org (the source for which is at https://github.com/sparklemotion/nokogiri.org/, and we welcome contributions).
 
 * The Nokogiri mailing list is active: https://groups.google.com/group/nokogiri-talk
 * The Nokogiri bug tracker is here: https://github.com/sparklemotion/nokogiri/issues
 * Before filing a bug report, please read our submission guidelines: http://nokogiri.org/tutorials/getting_help.html
-* The IRC channel is #nokogiri on freenode.
+* The IRC channel is `#nokogiri` on freenode.
+* The project's GitHub wiki has an excellent community-maintained [Cheat Sheet](https://github.com/sparklemotion/nokogiri/wiki/Cheat-sheet) which might be useful.
 
 Consider subscribing to [Tidelift][tidelift] which provides license assurances and timely security notifications for your open source dependencies, including Nokogiri. [Tidelift][tidelift] subscriptions also help the Nokogiri maintainers fund our [automated testing](https://ci.nokogiri.org) which in turn allows us to ship releases, bugfixes, and security updates more often.
 
@@ -106,7 +107,7 @@ require 'nokogiri'
 require 'open-uri'
 
 # Fetch and parse HTML document
-doc = Nokogiri::HTML(open('http://www.nokogiri.org/tutorials/installing_nokogiri.html'))
+doc = Nokogiri::HTML(open('https://nokogiri.org/tutorials/installing_nokogiri.html'))
 
 puts "### Search for nodes by css"
 doc.css('nav ul.menu li a', 'article h2').each do |link|
@@ -140,7 +141,7 @@ end
   * At install time, set the environment variable
     `NOKOGIRI_USE_SYSTEM_LIBRARIES` or else use the
     `--use-system-libraries` argument. (See
-    http://nokogiri.org/tutorials/installing_nokogiri.html#using_your_system_libraries
+    https://nokogiri.org/tutorials/installing_nokogiri.html#install-with-system-libraries
     for specifics.)
 
   * libxml2 >=2.6.21 with iconv support
