@@ -253,6 +253,7 @@ lib/xsd/xmlparser/nokogiri.rb
 patches/libxml2/0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
 patches/libxml2/0002-Fix-nullptr-deref-with-XPath-logic-ops.patch
 patches/libxml2/0003-Fix-infinite-loop-in-LZMA-decompression.patch
+patches/libxml2/0004-Remove-script-macro-support.patch
 patches/sort-patches-by-date
 suppressions/README.txt
 suppressions/nokogiri_ruby-2.supp
