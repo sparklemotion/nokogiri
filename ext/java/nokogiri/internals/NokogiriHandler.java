@@ -252,8 +252,9 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
             final String msg = ex.getMessage();
             call("error", runtime.newString(msg == null ? "" : msg));
             addError(new RaiseException(XmlSyntaxError.createError(runtime, ex), true));
-        } catch(RaiseException e) {
-            addError(e);
+        } catch( RaiseException rx ) {
+            addError(rx);
+            throw rx;
         }
     }
 
@@ -263,9 +264,9 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
             final String msg = ex.getMessage();
             call("error", runtime.newString(msg == null ? "" : msg));
             addError(new RaiseException(XmlSyntaxError.createFatalError(runtime, ex), true));
-
-        } catch(RaiseException e) {
-            addError(e);
+        } catch( RaiseException rx ) {
+            addError(rx);
+            throw rx;
         }
     }
 
@@ -275,7 +276,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         call("warning", runtime.newString(msg == null ? "" : msg));
     }
 
-    protected synchronized void addError(RaiseException e) {
+    public synchronized void addError(RaiseException e) {
         errors.add(e);
     }
 
