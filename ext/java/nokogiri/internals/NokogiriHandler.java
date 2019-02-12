@@ -246,14 +246,14 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         charactersBuilder.setLength(0);
     }
 
-    void handleError(SAXParseException spx) {
+    void handleError(SAXParseException ex) {
         try {
-            final String msg = spx.getMessage();
+            final String msg = ex.getMessage();
             call("error", runtime.newString(msg == null ? "" : msg));
-            addError(new RaiseException(XmlSyntaxError.createError(runtime, spx), true));
-        } catch( RaiseException rx ) {
-            addError(rx);
-            throw rx;
+            addError(new RaiseException(XmlSyntaxError.createError(runtime, ex), true));
+        } catch( RaiseException e) {
+            addError(e);
+            throw e;
         }
     }
 
