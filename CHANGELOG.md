@@ -5,6 +5,8 @@
 ### Bug fixes
 
 * [JRuby] Fix node ownership in duplicated documents. [#1060]
+* [JRuby] Rethrow exceptions caught by Java SAX handler. [#1847, #1872] (Thanks, @adjam!)
+
 
 ## 1.10.1 / 2019-01-13
 
