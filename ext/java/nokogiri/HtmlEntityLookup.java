@@ -32,7 +32,7 @@
 
 package nokogiri;
 
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+import static org.jruby.runtime.Helpers.invoke;
 
 import org.cyberneko.html.HTMLEntities;
 import org.jruby.Ruby;

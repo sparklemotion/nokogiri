@@ -33,7 +33,7 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static org.jruby.javasupport.util.RuntimeHelpers.invoke;
+import static org.jruby.runtime.Helpers.invoke;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -45,18 +45,20 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 
-import nokogiri.internals.*;
-
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyException;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
-import org.xml.sax.SAXException;
+
+import nokogiri.internals.ClosedStreamException;
+import nokogiri.internals.NokogiriBlockingQueueInputStream;
+import nokogiri.internals.NokogiriHandler;
+import nokogiri.internals.NokogiriHelpers;
+import nokogiri.internals.ParserContext;
 
 /**
  * Class for Nokogiri::XML::SAX::PushParser

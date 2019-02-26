@@ -40,7 +40,6 @@ import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +49,7 @@ import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -103,7 +102,7 @@ public class XmlDocumentFragment extends XmlNode {
         if (args.length == 3 && args[2] != null && args[2] instanceof XmlElement) {
             fragment.fragmentContext = (XmlElement)args[2];
         }
-        RuntimeHelpers.invoke(context, fragment, "initialize", args);
+        Helpers.invoke(context, fragment, "initialize", args);
         return fragment;
     }
 
