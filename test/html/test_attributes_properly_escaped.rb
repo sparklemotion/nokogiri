@@ -2,7 +2,7 @@ require "helper"
 
 module Nokogiri
   module HTML
-    class TestAttributesDoNotSupportMacros < Nokogiri::TestCase
+    class TestAttributesProperlyEscaped < Nokogiri::TestCase
       unless Nokogiri::VersionInfo.instance.libxml2? && Nokogiri::VersionInfo.instance.libxml2_using_system?
 
         def test_attribute_macros_are_escaped
