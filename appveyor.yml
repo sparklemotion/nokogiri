@@ -13,7 +13,7 @@ install:
 build: off
 
 test_script:
-  - bundle exec rake -rdevkit
+  - bundle exec rake -rdevkit compile test
 
 environment:
   matrix:
