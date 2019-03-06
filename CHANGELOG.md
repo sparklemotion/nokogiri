@@ -1,3 +1,9 @@
+# 1.8.5-p1 / 2019-03-06
+
+## Dependencies
+
+Updated libxml2 from 2.9.8 to 2.9.9. This removes the requirement of the libxml2 patches introduced in version 1.8.3 below.
+
 # 1.8.5 / 2018-10-04
 
 ## Security Notes
