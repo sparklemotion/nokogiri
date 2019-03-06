@@ -2,6 +2,12 @@
 
 ## unreleased
 
+### Security
+
+* [MRI] Remove support from vendored libxml2 for future script macros. [#1871]
+* [MRI] Remove support from vendored libxml2 for server-side includes within attributes. [#1877]
+
+
 ### Bug fixes
 
 * [JRuby] Fix node ownership in duplicated documents. [#1060]
