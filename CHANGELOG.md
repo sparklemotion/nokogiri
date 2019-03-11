@@ -1,6 +1,6 @@
 # Nokogiri Changelog
 
-## unreleased
+## 1.10.2 / 2019-03-12
 
 ### Security
 
