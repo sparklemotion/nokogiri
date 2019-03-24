@@ -14,10 +14,14 @@ popd
 
 pushd nokogiri
 
+  export BUNDLE_GEMFILE=$(pwd)/Gemfile
+  bundle -v
+  bundle config
+
+  bundle add nokogiri --skip-install
   bundle install --local || bundle install
-  bundle add nokogiri
   bundle show nokogiri
+
   bundle exec rake test
 
 popd
-
