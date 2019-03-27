@@ -9,6 +9,7 @@ rvm: # http://rubies.travis-ci.org/
   - 2.3
   - 2.4.4 # https://github.com/travis-ci/travis-ci/issues/7848
   - 2.5
+  - 2.6
 env:
   - USE_SYSTEM_LIBRARIES=true
   - USE_SYSTEM_LIBRARIES=false
@@ -30,7 +31,7 @@ matrix:
     - name: Test Gumbo and gem packaging
       os: osx
       language: ruby
-      rvm: 2.5
+      rvm: 2.6
       script: scripts/ci-package-test.sh
 
 before_install: |

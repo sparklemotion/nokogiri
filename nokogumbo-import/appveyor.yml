@@ -12,6 +12,8 @@ environment:
     - RUBY_VERSION: 24-x64
     - RUBY_VERSION: 25
     - RUBY_VERSION: 25-x64
+    - RUBY_VERSION: 26
+    - RUBY_VERSION: 26-x64
 
 install:
   - set PATH=C:\Ruby%RUBY_VERSION%\bin;C:\msys64\usr\bin;%PATH%
