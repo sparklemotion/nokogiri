@@ -707,8 +707,12 @@ module Nokogiri
 
       def test_parse_works_with_an_object_that_responds_to_read
         klass = Class.new do
-          def read *args
-            "<div>foo</div>"
+          def initialize
+            @contents = StringIO.new("<div>foo</div>")
+          end
+
+          def read(*args)
+            @contents.read(*args)
           end
         end
 
