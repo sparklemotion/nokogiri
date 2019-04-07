@@ -355,6 +355,21 @@ eohtml
         }
       end
 
+      def test_parse_works_with_an_object_that_responds_to_read
+        klass = Class.new do
+          def initialize
+            @contents = StringIO.new("<div>foo</div>")
+          end
+
+          def read(*args)
+            @contents.read(*args)
+          end
+        end
+
+        doc = Nokogiri::HTML.parse klass.new
+        doc.at_css("div").content.must_equal("foo")
+      end
+
       def test_parse_temp_file
         temp_html_file = Tempfile.new("TEMP_HTML_FILE")
         File.open(HTML_FILE, 'rb') { |f| temp_html_file.write f.read }
