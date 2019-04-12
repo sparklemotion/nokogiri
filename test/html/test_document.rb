@@ -496,6 +496,15 @@ eohtml
         }.new)
       end
 
+      def test_find_with_partial_id_collision_function
+        found_by_id = @html.css("#partial_collision_id", Class.new {
+          def collision nodes
+            [nodes.first]
+          end
+        }.new)
+        assert_equal 1, found_by_id.length
+      end
+
       def test_dup_shallow
         found = @html.search('//div/a').first
         dup = found.dup(0)
