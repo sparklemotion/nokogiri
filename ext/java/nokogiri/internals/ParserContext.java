@@ -47,14 +47,12 @@ import java.util.concurrent.Callable;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyIO;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.jruby.util.IOInputStream;
-import org.jruby.util.TypeConverter;
 import org.xml.sax.InputSource;
 
 /**
@@ -95,25 +93,11 @@ public abstract class ParserContext extends RubyObject {
         ParserContext.setUrl(context, source, url);
 
         RubyString stringData = null;
-        if (invoke(context, data, "respond_to?", ruby.newSymbol("to_io")).isTrue()) {
-            RubyIO io =
-                (RubyIO) TypeConverter.convertToType(data,
-                                                     ruby.getIO(),
-                                                     "to_io");
-            // use unclosedable input stream to fix #495
-            source.setByteStream(new UncloseableInputStream(io.getInStream()));
-            if (java_encoding != null) {
-                source.setEncoding(java_encoding);
-            }
-
-        } else if (invoke(context, data, "respond_to?", ruby.newSymbol("read")).isTrue()) {
+        if (invoke(context, data, "respond_to?", ruby.newSymbol("read")).isTrue()) {
             source.setByteStream(new UncloseableInputStream(new IOInputStream(data)));
             if (java_encoding != null) {
                 source.setEncoding(java_encoding);
             }
-
-        } else if (invoke(context, data, "respond_to?", ruby.newSymbol("string")).isTrue()) {
-            stringData = invoke(context, data, "string").convertToString();
 
         } else if (data instanceof RubyString) {
             stringData = (RubyString) data;
