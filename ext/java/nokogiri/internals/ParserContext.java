@@ -53,6 +53,7 @@ import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
+import org.jruby.util.IOInputStream;
 import org.jruby.util.TypeConverter;
 import org.xml.sax.InputSource;
 
@@ -107,7 +108,7 @@ public abstract class ParserContext extends RubyObject {
             source.setByteStream(new UncloseableInputStream(io.getInStream()));
 
         } else if (invoke(context, data, "respond_to?", ruby.newSymbol("read")).isTrue()) {
-            stringData = invoke(context, data, "read").convertToString();
+            source.setByteStream(new UncloseableInputStream(new IOInputStream(data)));
 
         } else if (invoke(context, data, "respond_to?", ruby.newSymbol("string")).isTrue()) {
             stringData = invoke(context, data, "string").convertToString();
