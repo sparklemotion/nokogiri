@@ -41,15 +41,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import nokogiri.internals.NokogiriEntityResolver;
-import nokogiri.internals.ParserContext;
-import nokogiri.internals.ParserContext.Options;
-import nokogiri.internals.ReaderNode;
-import nokogiri.internals.ReaderNode.ClosingNode;
-import nokogiri.internals.ReaderNode.ElementNode;
-import nokogiri.internals.ReaderNode.TextNode;
-import nokogiri.internals.UncloseableInputStream;
-
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.impl.xs.opti.DefaultXMLDocumentHandler;
 import org.apache.xerces.parsers.StandardParserConfiguration;
@@ -80,6 +71,14 @@ import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.IOInputStream;
 import org.xml.sax.InputSource;
+
+import nokogiri.internals.NokogiriEntityResolver;
+import nokogiri.internals.ParserContext;
+import nokogiri.internals.ParserContext.Options;
+import nokogiri.internals.ReaderNode;
+import nokogiri.internals.ReaderNode.ClosingNode;
+import nokogiri.internals.ReaderNode.ElementNode;
+import nokogiri.internals.ReaderNode.TextNode;
 
 /**
  * Class for Nokogiri:XML::Reader
@@ -217,7 +216,7 @@ public class XmlReader extends RubyObject {
           options = new ParserContext.Options(2048 | 1);
         }
 
-        InputStream in = new UncloseableInputStream(new IOInputStream(args[0]));
+        InputStream in = new IOInputStream(args[0]);
         reader.setInput(context, in, url, options);
         return reader;
     }
@@ -245,7 +244,7 @@ public class XmlReader extends RubyObject {
           options = new ParserContext.Options(2048 | 1);
         }
         IRubyObject stringIO = runtime.getClass("StringIO").newInstance(context, args[0], Block.NULL_BLOCK);
-        InputStream in = new UncloseableInputStream(new IOInputStream(stringIO));
+        InputStream in = new IOInputStream(stringIO);
         reader.setInput(context, in, url, options);
         return reader;
     }

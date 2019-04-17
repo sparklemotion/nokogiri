@@ -94,7 +94,7 @@ public abstract class ParserContext extends RubyObject {
 
         RubyString stringData = null;
         if (invoke(context, data, "respond_to?", ruby.newSymbol("read")).isTrue()) {
-            source.setByteStream(new UncloseableInputStream(new IOInputStream(data)));
+            source.setByteStream(new IOInputStream(data));
             if (java_encoding != null) {
                 source.setEncoding(java_encoding);
             }
