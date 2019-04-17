@@ -68,6 +68,7 @@ public abstract class ParserContext extends RubyObject {
     protected InputSource source = null;
     protected IRubyObject detected_encoding = null;
     protected int stringDataSize = -1;
+    protected String java_encoding;
 
     public ParserContext(Ruby runtime) {
         // default to class 'Object' because this class isn't exposed to Ruby
@@ -93,11 +94,6 @@ public abstract class ParserContext extends RubyObject {
 
         ParserContext.setUrl(context, source, url);
 
-        // if setEncoding returned true, then the stream is set
-        // to the EncodingReaderInputStream
-        if (setEncoding(context, data))
-          return;
-
         RubyString stringData = null;
         if (invoke(context, data, "respond_to?", ruby.newSymbol("to_io")).isTrue()) {
             RubyIO io =
@@ -106,9 +102,15 @@ public abstract class ParserContext extends RubyObject {
                                                      "to_io");
             // use unclosedable input stream to fix #495
             source.setByteStream(new UncloseableInputStream(io.getInStream()));
+            if (java_encoding != null) {
+                source.setEncoding(java_encoding);
+            }
 
         } else if (invoke(context, data, "respond_to?", ruby.newSymbol("read")).isTrue()) {
             source.setByteStream(new UncloseableInputStream(new IOInputStream(data)));
+            if (java_encoding != null) {
+                source.setEncoding(java_encoding);
+            }
 
         } else if (invoke(context, data, "respond_to?", ruby.newSymbol("string")).isTrue()) {
             stringData = invoke(context, data, "string").convertToString();
@@ -172,22 +174,6 @@ public abstract class ParserContext extends RubyObject {
         }
     }
 
-    private boolean setEncoding(ThreadContext context, IRubyObject data) {
-        if (data.getType().respondsTo("detect_encoding")) {
-            // in case of EncodingReader is used
-            // since EncodingReader won't respond to :to_io
-            NokogiriEncodingReaderWrapper reader = new NokogiriEncodingReaderWrapper(context, (RubyObject) data);
-            source.setByteStream(reader);
-            // data is EnocodingReader
-            if(reader.detectEncoding()) {
-              detected_encoding = reader.getEncoding();
-              source.setEncoding(detected_encoding.asJavaString());
-            }
-            return true;
-        }
-        return false;
-    }
-    
     protected void setEncoding(String encoding) {
     	source.setEncoding(encoding);
     }
