@@ -309,6 +309,7 @@ Gem::Specification.new do |spec|
     "lib/nokogiri/xml/xpath.rb",
     "lib/nokogiri/xml/xpath/syntax_error.rb",
     "lib/nokogiri/xml/xpath_context.rb",
+    "lib/nokogiri/xml/xpath_functions.rb",
     "lib/nokogiri/xslt.rb",
     "lib/nokogiri/xslt/stylesheet.rb",
     "lib/xsd/xmlparser/nokogiri.rb",
