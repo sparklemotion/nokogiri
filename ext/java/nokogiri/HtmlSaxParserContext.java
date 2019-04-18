@@ -32,27 +32,21 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.EnumSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import nokogiri.internals.NokogiriHandler;
 
 import org.apache.xerces.parsers.AbstractSAXParser;
 import org.cyberneko.html.parsers.SAXParser;
-import org.jruby.*;
+import org.jruby.Ruby;
+import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.SAXException;
+
+import nokogiri.internals.NokogiriHandler;
+import nokogiri.internals.NokogiriHelpers;
 
 /**
  * Class for Nokogiri::HTML::SAX::ParserContext.
@@ -78,6 +72,11 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                 "http://cyberneko.org/html/properties/names/elems", "lower");
             parser.setProperty(
                 "http://cyberneko.org/html/properties/names/attrs", "lower");
+
+            // NekoHTML should not try to guess the encoding based on the meta
+            // tags or other information in the document.  This is already
+            // handled by the EncodingReader.
+            parser.setFeature("http://cyberneko.org/html/features/scanner/ignore-specified-charset", true);
             return parser;
         } catch(SAXException ex) {
             throw new SAXException(
@@ -92,16 +91,11 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                                            IRubyObject encoding) {
         HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
         ctx.initialize(context.getRuntime());
-        String javaEncoding = findEncoding(context, encoding);
-        if (javaEncoding != null) {
-            String input = applyEncoding(rubyStringToString(data), javaEncoding);
-            ByteArrayInputStream istream = new ByteArrayInputStream(input.getBytes());
-            ctx.setInputSource(istream);
-            ctx.getInputSource().setEncoding(javaEncoding);
-        }
+        ctx.java_encoding = NokogiriHelpers.getValidEncodingOrNull(context.runtime, encoding);
+        ctx.setStringInputSource(context, data, context.nil);
         return ctx;
     }
-    
+
     public enum EncodingType {
         NONE(0, "NONE"),
         UTF_8(1, "UTF-8"),
@@ -152,44 +146,15 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
     }
     
     private static String findEncoding(ThreadContext context, IRubyObject encoding) {
-        String rubyEncoding = null;
-        if (encoding instanceof RubyString) {
-            rubyEncoding = rubyStringToString(encoding);
-        }
-        else if (encoding instanceof RubyFixnum) {
+        // HTML::Sax::Parser leaks a libxml implementation detail and passes an
+        // Encoding integer to parse_io.  We have to reverse map the integer
+        // into a name.
+        if (encoding instanceof RubyFixnum) {
             int value = RubyFixnum.fix2int((RubyFixnum) encoding);
-            rubyEncoding = findName(value);
+            return findName(value);
         }
-        if (rubyEncoding == null) return null;
-        try {
-            return Charset.forName(rubyEncoding).displayName();
-        }
-        catch (UnsupportedCharsetException e) {
-            throw context.getRuntime().newEncodingCompatibilityError(rubyEncoding + "is not supported");
-        }
-        catch (IllegalCharsetNameException e) {
-            throw context.getRuntime().newInvalidEncoding(e.getMessage());
-        }
-    }
 
-    private static final Pattern CHARSET_PATTERN = Pattern.compile("charset(()|\\s)=(()|\\s)([a-z]|-|_|\\d)+");
-
-    private static String applyEncoding(String input, String enc) {
-        String str = input.toLowerCase();
-        int start_pos = 0;
-        int end_pos = 0;
-        if (input.contains("meta") && input.contains("charset")) {
-            Matcher m = CHARSET_PATTERN.matcher(str);
-            while (m.find()) {
-                start_pos = m.start();
-                end_pos = m.end();
-            }
-        }
-        if (start_pos != end_pos) {
-            String substr = input.substring(start_pos, end_pos);
-            input = input.replace(substr, "charset=" + enc);
-        }
-        return input;
+        return NokogiriHelpers.getValidEncodingOrNull(context.runtime, encoding);
     }
 
     @JRubyMethod(name="file", meta=true)
@@ -199,11 +164,8 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                                          IRubyObject encoding) {
         HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
         ctx.initialize(context.getRuntime());
+        ctx.java_encoding = NokogiriHelpers.getValidEncodingOrNull(context.runtime, encoding);
         ctx.setInputSourceFile(context, data);
-        String javaEncoding = findEncoding(context, encoding);
-        if (javaEncoding != null) {
-            ctx.getInputSource().setEncoding(javaEncoding);
-        }
         return ctx;
     }
 
@@ -214,11 +176,8 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                                        IRubyObject encoding) {
         HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
         ctx.initialize(context.getRuntime());
-        ctx.setInputSource(context, data, context.getRuntime().getNil());
-        String javaEncoding = findEncoding(context, encoding);
-        if (javaEncoding != null) {
-            ctx.getInputSource().setEncoding(javaEncoding);
-        }
+        ctx.java_encoding = findEncoding(context, encoding);
+        ctx.setIOInputSource(context, data, context.getRuntime().getNil());
         return ctx;
     }
 
@@ -235,18 +194,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
 
     @Override
     protected void preParse(final Ruby runtime, IRubyObject handlerRuby, NokogiriHandler handler) {
-        // final String path = "Nokogiri::XML::FragmentHandler";
-        // final String docFrag =
-        //     "http://cyberneko.org/html/features/balance-tags/document-fragment";
-        // RubyObjectAdapter adapter = JavaEmbedUtils.newObjectAdapter();
-        // IRubyObject doc = adapter.getInstanceVariable(handlerRuby, "@document");
-        // RubyModule mod = runtime.getClassFromPath(path);
-        // try {
-        //     if (doc != null && !doc.isNil() && adapter.isKindOf(doc, mod))
-        //         parser.setFeature(docFrag, true);
-        // } catch (Exception e) {
-        //     // ignore
-        // }
+        // this function is meant to be empty.  It overrides the one in XmlSaxParserContext
     }
 
 }

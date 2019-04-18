@@ -33,16 +33,12 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import static org.jruby.runtime.Helpers.invoke;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.concurrent.Callable;
 
 import org.jruby.Ruby;
@@ -81,55 +77,42 @@ public abstract class ParserContext extends RubyObject {
         return source;
     }
 
-    /**
-     * Set the InputSource from <code>url</code> or <code>data</code>,
-     * which may be an IO object, a String, or a StringIO.
-     */
-    public void setInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
+    public void setIOInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
         source = new InputSource();
+        ParserContext.setUrl(context, source, url);
+
+        source.setByteStream(new IOInputStream(data));
+        if (java_encoding != null) {
+            source.setEncoding(java_encoding);
+        }
+    }
+
+    public void setStringInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
+        source = new InputSource();
+        ParserContext.setUrl(context, source, url);
 
         Ruby ruby = context.getRuntime();
 
-        ParserContext.setUrl(context, source, url);
-
-        RubyString stringData = null;
-        if (invoke(context, data, "respond_to?", ruby.newSymbol("read")).isTrue()) {
-            source.setByteStream(new IOInputStream(data));
-            if (java_encoding != null) {
-                source.setEncoding(java_encoding);
-            }
-
-        } else if (data instanceof RubyString) {
-            stringData = (RubyString) data;
-
-        } else {
-            throw ruby.newArgumentError("must be kind_of String or respond to :to_io, :read, or :string");
+        if (!(data instanceof RubyString)) {
+            throw ruby.newArgumentError("must be kind_of String");
         }
 
-        if (stringData != null) {
-            String encName = null;
-            if (stringData.encoding(context) != null) {
-                encName = stringData.encoding(context).toString();
-            }
-            Charset charset = null;
+        RubyString stringData = (RubyString) data;
+
+        if (stringData.encoding(context) != null) {
+            RubyString stringEncoding = stringData.encoding(context).asString();
+            String encName = NokogiriHelpers.getValidEncodingOrNull(context.runtime, stringEncoding);
             if (encName != null) {
-                try {
-                    charset = Charset.forName(encName);
-                } catch (UnsupportedCharsetException e) {
-                    // do nothing;
-                }
-            }
-            ByteList bytes = stringData.getByteList();
-            if (charset != null) {
-                StringReader reader = new StringReader(new String(bytes.unsafeBytes(), bytes.begin(), bytes.length(), charset));
-                source.setCharacterStream(reader);
-                source.setEncoding(charset.name());
-            } else {
-                stringDataSize = bytes.length() - bytes.begin();
-                ByteArrayInputStream stream = new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length());
-                source.setByteStream(stream);
+                java_encoding = encName;
             }
         }
+
+        ByteList bytes = stringData.getByteList();
+
+        stringDataSize = bytes.length() - bytes.begin();
+        ByteArrayInputStream stream = new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length());
+        source.setByteStream(stream);
+        source.setEncoding(java_encoding);
     }
 
     public static void setUrl(ThreadContext context, InputSource source, IRubyObject url) {

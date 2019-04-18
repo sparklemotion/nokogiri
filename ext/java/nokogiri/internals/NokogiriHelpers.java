@@ -657,6 +657,18 @@ public class NokogiriHelpers {
         return n;
     }
 
+    public static String getValidEncodingOrNull(Ruby runtime, IRubyObject encoding) {
+        if (encoding.isNil()) {
+            return null;
+        }
+
+        String givenEncoding = rubyStringToString(encoding);
+        if (charsetNames.contains(givenEncoding)) {
+            return givenEncoding;
+        }
+        return null;
+    }
+
     public static String getValidEncoding(Ruby runtime, IRubyObject encoding) {
         if (encoding.isNil()) {
             return guessEncoding();

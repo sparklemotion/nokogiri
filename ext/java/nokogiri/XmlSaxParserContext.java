@@ -37,11 +37,6 @@ import static org.jruby.runtime.Helpers.invoke;
 import java.io.IOException;
 import java.io.InputStream;
 
-import nokogiri.internals.NokogiriHandler;
-import nokogiri.internals.NokogiriHelpers;
-import nokogiri.internals.ParserContext;
-import nokogiri.internals.XmlSaxParser;
-
 import org.apache.xerces.parsers.AbstractSAXParser;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
@@ -60,6 +55,11 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.SAXParseException;
+
+import nokogiri.internals.NokogiriHandler;
+import nokogiri.internals.NokogiriHelpers;
+import nokogiri.internals.ParserContext;
+import nokogiri.internals.XmlSaxParser;
 
 /**
  * Base class for the SAX parsers.
@@ -126,7 +126,7 @@ public class XmlSaxParserContext extends ParserContext {
         final Ruby runtime = context.runtime;
         XmlSaxParserContext ctx = newInstance(runtime, (RubyClass) klazz);
         ctx.initialize(runtime);
-        ctx.setInputSource(context, data, runtime.getNil());
+        ctx.setStringInputSource(context, data, runtime.getNil());
         return ctx;
     }
 
@@ -160,7 +160,7 @@ public class XmlSaxParserContext extends ParserContext {
         final Ruby runtime = context.runtime;
         XmlSaxParserContext ctx = newInstance(runtime, (RubyClass) klazz);
         ctx.initialize(runtime);
-        ctx.setInputSource(context, data, runtime.getNil());
+        ctx.setIOInputSource(context, data, runtime.getNil());
         return ctx;
     }
 

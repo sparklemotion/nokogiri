@@ -310,37 +310,28 @@ public class XmlDocument extends XmlNode {
         return context.getRuntime().getNil();
     }
 
-    /**
-     * TODO: handle encoding?
-     *
-     * @param args[0] a Ruby IO or StringIO
-     * @param args[1] url or nil
-     * @param args[2] encoding
-     * @param args[3] bitset of parser options
-     */
-    public static IRubyObject newFromData(ThreadContext context,
-                                          IRubyObject klass,
-                                          IRubyObject[] args) {
-        Ruby ruby = context.getRuntime();
-        Arity.checkArgumentCount(ruby, args, 4, 4);
-        XmlDomParserContext ctx =
-            new XmlDomParserContext(ruby, args[2], args[3]);
-        ctx.setInputSource(context, args[0], args[1]);
-        return ctx.parse(context, klass, args[1]);
-    }
-
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject read_io(ThreadContext context,
                                       IRubyObject klass,
                                       IRubyObject[] args) {
-        return newFromData(context, klass, args);
+        Ruby ruby = context.getRuntime();
+        Arity.checkArgumentCount(ruby, args, 4, 4);
+        XmlDomParserContext ctx =
+            new XmlDomParserContext(ruby, args[2], args[3]);
+        ctx.setIOInputSource(context, args[0], args[1]);
+        return ctx.parse(context, klass, args[1]);
     }
 
     @JRubyMethod(meta = true, rest = true)
     public static IRubyObject read_memory(ThreadContext context,
                                           IRubyObject klass,
                                           IRubyObject[] args) {
-        return newFromData(context, klass, args);
+        Ruby ruby = context.getRuntime();
+        Arity.checkArgumentCount(ruby, args, 4, 4);
+        XmlDomParserContext ctx =
+            new XmlDomParserContext(ruby, args[2], args[3]);
+        ctx.setStringInputSource(context, args[0], args[1]);
+        return ctx.parse(context, klass, args[1]);
     }
 
     /** not a JRubyMethod */
