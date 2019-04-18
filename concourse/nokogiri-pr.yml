@@ -12,6 +12,7 @@ resources:
 <%= erbify_file "common_resources.yml" -%>
   - name: nokogiri-pr
     type: pull-request
+    icon: "github-circle"
     source:
       repo: sparklemotion/nokogiri
       access_token: {{github-repo-status-access-token}}
