@@ -13,12 +13,14 @@ resource_types:
 resources:
   - name: ci
     type: git
+    icon: "settings"
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
       disable_ci_skip: true # always get the latest pipeline configuration
   - name: nokogiri-irc
     type: irc-notification
+    icon: "bell"
     source:
       server: chat.freenode.net
       port: 7070
@@ -27,6 +29,7 @@ resources:
       password: {{nokobot-irc-password}}
   - name: nokogiri-pr
     type: pull-request
+    icon: "github-circle"
     source:
       repo: sparklemotion/nokogiri
       access_token: {{github-repo-status-access-token}}

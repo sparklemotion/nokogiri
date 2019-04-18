@@ -8,6 +8,7 @@ resources:
 <%= erbify_file "common_resources.yml" -%>
   - name: nokogiri
     type: git
+    icon: "github-circle"
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
