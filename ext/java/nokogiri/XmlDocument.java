@@ -53,7 +53,6 @@ import org.jruby.RubyNil;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.JavaUtil;
-import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
@@ -310,36 +309,26 @@ public class XmlDocument extends XmlNode {
         return context.getRuntime().getNil();
     }
 
-    @JRubyMethod(meta = true, rest = true)
+    @JRubyMethod(meta = true, required = 4)
     public static IRubyObject read_io(ThreadContext context,
                                       IRubyObject klass,
                                       IRubyObject[] args) {
         Ruby ruby = context.getRuntime();
-        Arity.checkArgumentCount(ruby, args, 4, 4);
         XmlDomParserContext ctx =
             new XmlDomParserContext(ruby, args[2], args[3]);
         ctx.setIOInputSource(context, args[0], args[1]);
         return ctx.parse(context, klass, args[1]);
     }
 
-    @JRubyMethod(meta = true, rest = true)
+    @JRubyMethod(meta = true, required = 4)
     public static IRubyObject read_memory(ThreadContext context,
                                           IRubyObject klass,
                                           IRubyObject[] args) {
         Ruby ruby = context.getRuntime();
-        Arity.checkArgumentCount(ruby, args, 4, 4);
         XmlDomParserContext ctx =
             new XmlDomParserContext(ruby, args[2], args[3]);
         ctx.setStringInputSource(context, args[0], args[1]);
         return ctx.parse(context, klass, args[1]);
-    }
-
-    /** not a JRubyMethod */
-    public static IRubyObject read_memory(ThreadContext context,
-                                          IRubyObject[] args) {
-        return read_memory(context,
-                           getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"),
-                           args);
     }
 
     @JRubyMethod(name="remove_namespaces!")
