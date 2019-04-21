@@ -670,26 +670,15 @@ public class NokogiriHelpers {
     }
 
     public static String getValidEncoding(Ruby runtime, IRubyObject encoding) {
-        if (encoding.isNil()) {
-            return guessEncoding();
-        } else {
-            return ignoreInvalidEncoding(runtime, encoding);
+        String validEncoding = getValidEncodingOrNull(runtime, encoding);
+        if (validEncoding != null) {
+            return validEncoding;
         }
-    }
 
-    private static String guessEncoding() {
-        String name = System.getProperty("file.encoding");
-        if (name == null) name = "UTF-8";
-        return name;
+        return Charset.defaultCharset().name();
     }
 
     private static Set<String> charsetNames = Charset.availableCharsets().keySet();
-
-    private static String ignoreInvalidEncoding(Ruby runtime, IRubyObject encoding) {
-        String givenEncoding = rubyStringToString(encoding);
-        if (charsetNames.contains(givenEncoding)) return givenEncoding;
-        else return guessEncoding();
-    }
 
     public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
         if (systemId == null) return systemId;
