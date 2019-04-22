@@ -2,7 +2,7 @@ require "helper"
 
 module Nokogiri
   module CSS
-    class TestNthiness < Nokogiri::TestCase
+    class TestCssIntegration < Nokogiri::TestCase
       def setup
         super
         doc = <<EOF
