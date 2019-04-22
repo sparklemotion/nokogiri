@@ -1,5 +1,12 @@
 # Nokogiri Changelog
 
+## 1.10.3 / 2019-04-22
+
+### Security Notes
+
+[MRI] Pulled in upstream patch from libxslt that addresses CVE-2019-11068. Full details are available in [#1892](https://github.com/sparklemotion/nokogiri/issues/1892). Note that this patch is not yet (as of 2019-04-22) in an upstream release of libxslt.
+
+
 ## 1.10.2 / 2019-03-24
 
 ### Security
