@@ -22,24 +22,22 @@ CC_CLI=$(basename ${CC_CLI_URI})
 function code-climate-setup {
   if [ -z "${CC_TEST_REPORTER_ID:-}" ] ; then
     echo "WARNING: code-climate-setup: CC_TEST_REPORTER_ID is not set, skipping."
-    return
+  else
+    wget --no-verbose ${CC_CLI_URI}
+    chmod +x ${CC_CLI}
+
+    export CI_NAME="concourse"
+
+    ./${CC_CLI} env
+    ./${CC_CLI} before-build
   fi
-
-  wget --no-verbose ${CC_CLI_URI}
-  chmod +x ${CC_CLI}
-
-  export CI_NAME="concourse"
-
-  ./${CC_CLI} env
-  ./${CC_CLI} before-build
 }
 
 function code-climate-shipit {
   if [ -z "${CC_TEST_REPORTER_ID:-}" ] ; then
     echo "WARNING: code-climate-shipit: CC_TEST_REPORTER_ID is not set, skipping."
-    return
+  else
+    # let's remove the `|| true` once all pull requests from pre-simplecov are cleared out
+    ./${CC_CLI} after-build || true
   fi
-
-  # let's remove the `|| true` once all pull requests from pre-simplecov are cleared out
-  ./${CC_CLI} after-build || true
 }
