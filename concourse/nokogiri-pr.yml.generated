@@ -300,7 +300,7 @@ jobs:
               path: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-            CC_TEST_REPORTER_ID: {{code_climate_reporter_id_nokogiri}}
+            CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
