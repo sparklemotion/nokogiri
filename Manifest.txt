@@ -236,3 +236,4 @@ lib/xsd/xmlparser/nokogiri.rb
 patches/libxml2/0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
 patches/libxml2/0002-Remove-script-macro-support.patch
 patches/libxml2/0003-Update-entities-to-remove-handling-of-ssi.patch
+patches/libxslt/0001-Fix-security-framework-bypass.patch
