@@ -20,6 +20,8 @@ CC_CLI_URI="https://codeclimate.com/downloads/test-reporter/test-reporter-latest
 CC_CLI=$(basename ${CC_CLI_URI})
 
 function code-climate-setup {
+  save-option-xtrace-off
+
   if [ -z "${CC_TEST_REPORTER_ID:-}" ] ; then
     echo "WARNING: code-climate-setup: CC_TEST_REPORTER_ID is not set, skipping."
   else
@@ -31,13 +33,41 @@ function code-climate-setup {
     ./${CC_CLI} env
     ./${CC_CLI} before-build
   fi
+
+  restore-option-xtrace
 }
 
 function code-climate-shipit {
+  save-option-xtrace-off
+
   if [ -z "${CC_TEST_REPORTER_ID:-}" ] ; then
     echo "WARNING: code-climate-shipit: CC_TEST_REPORTER_ID is not set, skipping."
   else
     # let's remove the `|| true` once all pull requests from pre-simplecov are cleared out
     ./${CC_CLI} after-build || true
   fi
+
+  restore-option-xtrace
+}
+
+
+#
+#  utilities to save and restore the `xtrace` setting so we don't leak credentials
+#  https://unix.stackexchange.com/questions/310957/how-to-restore-the-value-of-shell-options-like-set-x/310963
+#
+OLD_OPTION_XTRACE=""
+
+function save-option-xtrace {
+  OLD_OPTION_XTRACE="$(shopt -po xtrace)"
+  set +x
+}
+
+function save-option-xtrace-off {
+  save-option-xtrace
+  set +x
+}
+
+function restore-option-xtrace {
+  set +vx # suppress the following eval statement
+  eval "${OLD_OPTION_XTRACE}"
 }
