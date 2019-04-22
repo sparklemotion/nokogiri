@@ -1,5 +1,12 @@
 # Nokogiri Changelog
 
+## 1.11.0 / unreleased
+
+### Features
+
+* Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [#688] (Thanks, @jonathanhefner!)
+
+
 ## 1.10.3 / 2019-04-22
 
 ### Security Notes
