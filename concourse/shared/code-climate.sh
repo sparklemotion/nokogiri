@@ -30,8 +30,8 @@ function code-climate-setup {
 
     export CI_NAME="concourse"
 
-    ./${CC_CLI} env
-    ./${CC_CLI} before-build
+    ./${CC_CLI} env || true
+    ./${CC_CLI} before-build || true
   fi
 
   restore-option-xtrace
@@ -43,7 +43,6 @@ function code-climate-shipit {
   if [ -z "${CC_TEST_REPORTER_ID:-}" ] ; then
     echo "WARNING: code-climate-shipit: CC_TEST_REPORTER_ID is not set, skipping."
   else
-    # let's remove the `|| true` once all pull requests from pre-simplecov are cleared out
     ./${CC_CLI} after-build || true
   fi
 

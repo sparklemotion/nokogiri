@@ -40,7 +40,7 @@ jobs:
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
 % if ruby_version == Concourse.production_rubies.last
-            CC_TEST_REPORTER_ID: {{code_climate_reporter_id_nokogiri}}
+            CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
             GIT_BRANCH: master
 % end
           run:
