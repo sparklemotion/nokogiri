@@ -67,6 +67,43 @@ module Nokogiri
           </html>
         EOF
         @parser = Nokogiri.HTML doc
+
+        @nested = Nokogiri.HTML(<<~EOF)
+          <html><body>
+            <div class='unnested direct'>
+              <b>bold</b>
+              <p>para</p>
+            </div>
+
+            <div class='unnested indirect'>
+              <b>bold</b>
+              <i>...</i>
+              <i>...</i>
+              <p>para</p>
+            </div>
+
+            <div class='nested-parent'>
+              <div class='nested-child direct'>
+                <b>bold</b>
+                <p>para</p>
+              </div>
+
+              <div class='nested-child indirect'>
+                <b>bold</b>
+                <i>...</i>
+                <i>...</i>
+                <p>para</p>
+              </div>
+            </div>
+
+            <div class="has-bold">
+              <b>bold</b>
+            </div>
+
+            <div class="has-para">
+              <p>para</p>
+            </div>
+        EOF
       end
 
       def test_even
@@ -215,6 +252,83 @@ module Nokogiri
         assert_equal "p4 ", parser.search("#3 + p").inner_text
         assert_equal 0, parser.search("#5 + p").size
       end
+
+      def test_has_a
+        result = @nested.css("div:has(b)")
+        expected = [
+          @nested.at_css(".unnested.direct"),
+          @nested.at_css(".unnested.indirect"),
+          @nested.at_css(".nested-parent"),
+          @nested.at_css(".nested-child.direct"),
+          @nested.at_css(".nested-child.indirect"),
+          @nested.at_css(".has-bold"),
+        ]
+        assert_equal expected, result.to_a
+      end
+
+      def test_has_a_gt_b
+        result = @nested.css("body *:has(div > b)")
+        expected = [
+          @nested.at_css(".nested-parent"),
+        ]
+        assert_equal expected, result.to_a
+      end
+
+      def test_has_gt_b
+        result = @nested.css("body *:has(> b)")
+        expected = [
+          @nested.at_css(".unnested.direct"),
+          @nested.at_css(".unnested.indirect"),
+          @nested.at_css(".nested-child.direct"),
+          @nested.at_css(".nested-child.indirect"),
+          @nested.at_css(".has-bold"),
+        ]
+        assert_equal expected, result.to_a
+      end
+
+      def test_has_a_plus_b
+        result = @nested.css("div:has(b + p)")
+        expected = [
+          @nested.at_css(".unnested.direct"),
+          @nested.at_css(".nested-parent"),
+          @nested.at_css(".nested-child.direct"),
+        ]
+        assert_equal expected, result.to_a
+      end
+
+      def test_has_plus_b
+        result = @nested.css("b:has(+ p)")
+        expected = [
+          @nested.at_css(".unnested.direct b"),
+          @nested.at_css(".nested-child.direct b"),
+        ]
+        assert_equal expected, result.to_a
+      end
+
+      def test_has_a_tilde_b
+        result = @nested.css("div:has(b ~ p)")
+        expected = [
+          @nested.at_css(".unnested.direct"),
+          @nested.at_css(".unnested.indirect"),
+          @nested.at_css(".nested-parent"),
+          @nested.at_css(".nested-child.direct"),
+          @nested.at_css(".nested-child.indirect"),
+        ]
+        assert_equal expected, result.to_a
+      end
+
+      def test_has_tilde_b
+        result = @nested.css("b:has(~ p)")
+        expected = [
+          @nested.at_css(".unnested.direct b"),
+          @nested.at_css(".unnested.indirect b"),
+          @nested.at_css(".nested-child.direct b"),
+          @nested.at_css(".nested-child.indirect b"),
+        ].flatten
+        assert_equal expected, result.to_a
+      end
+
+      private
 
       def assert_result_rows(intarray, result, word = "row")
         assert_equal intarray.size, result.size,
