@@ -39,11 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import nokogiri.NokogiriService;
-import nokogiri.XmlDocument;
-import nokogiri.XmlDtd;
-import nokogiri.XmlSyntaxError;
-
 import org.apache.xerces.parsers.DOMParser;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -56,6 +51,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import nokogiri.NokogiriService;
+import nokogiri.XmlDocument;
+import nokogiri.XmlDtd;
+import nokogiri.XmlSyntaxError;
 
 /**
  * Parser class for XML DOM processing. This class actually parses XML document
@@ -84,7 +84,6 @@ public class XmlDomParserContext extends ParserContext {
     protected ParserContext.Options options;
     protected DOMParser parser;
     protected NokogiriErrorHandler errorHandler;
-    protected String java_encoding;
     protected IRubyObject ruby_encoding;
 
     public XmlDomParserContext(Ruby runtime, IRubyObject options) {

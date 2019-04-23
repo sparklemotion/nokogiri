@@ -36,7 +36,6 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.runtime.Arity;
 import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -108,17 +107,6 @@ public class HtmlDocument extends XmlDocument {
 
         return internalSubset;
     }
-
-    public static IRubyObject do_parse(ThreadContext context,
-                                       IRubyObject klass,
-                                       IRubyObject[] args) {
-        Ruby ruby = context.getRuntime();
-        Arity.checkArgumentCount(ruby, args, 4, 4);
-        HtmlDomParserContext ctx =
-            new HtmlDomParserContext(ruby, args[2], args[3]);
-        ctx.setInputSource(context, args[0], args[1]);
-        return ctx.parse(context, klass, args[1]);
-    }
     
     public void setDocumentNode(ThreadContext context, Node node) {
         super.setNode(context, node);
@@ -167,11 +155,15 @@ public class HtmlDocument extends XmlDocument {
      * Read the HTML document from +io+ with given +url+, +encoding+,
      * and +options+.  See Nokogiri::HTML.parse
      */
-    @JRubyMethod(meta = true, rest = true)
+    @JRubyMethod(meta = true, required = 4)
     public static IRubyObject read_io(ThreadContext context,
                                       IRubyObject cls,
                                       IRubyObject[] args) {
-        return do_parse(context, cls, args);
+        Ruby ruby = context.getRuntime();
+        HtmlDomParserContext ctx =
+            new HtmlDomParserContext(ruby, args[2], args[3]);
+        ctx.setIOInputSource(context, args[0], args[1]);
+        return ctx.parse(context, cls, args[1]);
     }
 
     /*
@@ -181,10 +173,14 @@ public class HtmlDocument extends XmlDocument {
      * Read the HTML document contained in +string+ with given +url+, +encoding+,
      * and +options+.  See Nokogiri::HTML.parse
      */
-    @JRubyMethod(meta = true, rest = true)
+    @JRubyMethod(meta = true, required = 4)
     public static IRubyObject read_memory(ThreadContext context,
                                           IRubyObject cls,
                                           IRubyObject[] args) {
-        return do_parse(context, cls, args);
+        Ruby ruby = context.getRuntime();
+        HtmlDomParserContext ctx =
+            new HtmlDomParserContext(ruby, args[2], args[3]);
+        ctx.setStringInputSource(context, args[0], args[1]);
+        return ctx.parse(context, cls, args[1]);
     }
 }

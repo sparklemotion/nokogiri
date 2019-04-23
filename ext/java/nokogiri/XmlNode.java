@@ -64,8 +64,8 @@ import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.runtime.Helpers;
 import org.jruby.runtime.Block;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -1314,14 +1314,6 @@ public class XmlNode extends RubyObject {
     @JRubyMethod(name = {"previous_sibling", "previous"})
     public IRubyObject previous_sibling(ThreadContext context) {
         return getCachedNodeOrCreate(context.getRuntime(), node.getPreviousSibling());
-    }
-
-    @JRubyMethod(meta = true, rest = true)
-    public static IRubyObject new_from_str(ThreadContext context,
-                                           IRubyObject cls,
-                                           IRubyObject[] args) {
-        XmlDocument doc = (XmlDocument) XmlDocument.read_memory(context, args);
-        return doc.root(context);
     }
 
     @JRubyMethod(name = {"node_name", "name"})
