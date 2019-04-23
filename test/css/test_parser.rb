@@ -65,6 +65,9 @@ module Nokogiri
       def test_has
         assert_xpath  "//a[.//b]", @parser.parse("a:has(b)")
         assert_xpath  "//a[.//b/c]", @parser.parse("a:has(b > c)")
+        assert_xpath  "//a[./b]", @parser.parse("a:has(> b)")
+        assert_xpath  "//a[./following-sibling::b]", @parser.parse("a:has(~ b)")
+        assert_xpath  "//a[./following-sibling::*[1]/self::b]", @parser.parse("a:has(+ b)")
       end
 
       def test_dashmatch
