@@ -7,6 +7,11 @@
 * Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [#688] (Thanks, @jonathanhefner!)
 
 
+### Bug fixes
+
+* [JRuby] Standardize reading from IO like objects, including StringIO. [#1888, #1897]
+
+
 ## 1.10.3 / 2019-04-22
 
 ### Security Notes
