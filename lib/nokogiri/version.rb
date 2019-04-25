@@ -71,6 +71,10 @@ module Nokogiri
         hash_info["libxml"]["loaded"] = loaded_parser_version
         hash_info["warnings"] = warnings
       elsif jruby?
+        # These constants are defined by the extension, so we need to laod it
+        require 'nokogiri/jruby/dependencies'
+        require 'nokogiri/nokogiri'
+
         hash_info["xerces"] = Nokogiri::XERCES_VERSION
         hash_info["nekohtml"] = Nokogiri::NEKO_VERSION
       end
