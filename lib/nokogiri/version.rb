@@ -45,37 +45,38 @@ module Nokogiri
     end
 
     def to_hash
-      hash_info = {}
-      hash_info["warnings"] = []
-      hash_info["nokogiri"] = Nokogiri::VERSION
-      hash_info["ruby"] = {}
-      hash_info["ruby"]["version"] = ::RUBY_VERSION
-      hash_info["ruby"]["platform"] = ::RUBY_PLATFORM
-      hash_info["ruby"]["description"] = ::RUBY_DESCRIPTION
-      hash_info["ruby"]["engine"] = engine
-      hash_info["ruby"]["jruby"] = jruby? if jruby?
-
-      if libxml2?
-        hash_info["libxml"] = {}
-        hash_info["libxml"]["binding"] = "extension"
-        if libxml2_using_packaged?
-          hash_info["libxml"]["source"] = "packaged"
-          hash_info["libxml"]["libxml2_path"] = NOKOGIRI_LIBXML2_PATH
-          hash_info["libxml"]["libxslt_path"] = NOKOGIRI_LIBXSLT_PATH
-          hash_info["libxml"]["libxml2_patches"] = NOKOGIRI_LIBXML2_PATCHES
-          hash_info["libxml"]["libxslt_patches"] = NOKOGIRI_LIBXSLT_PATCHES
-        else
-          hash_info["libxml"]["source"] = "system"
+      {}.tap do |vi|
+        vi["warnings"] = []
+        vi["nokogiri"] = Nokogiri::VERSION
+        vi["ruby"] = {}.tap do |ruby|
+          ruby["version"] = ::RUBY_VERSION
+          ruby["platform"] = ::RUBY_PLATFORM
+          ruby["description"] = ::RUBY_DESCRIPTION
+          ruby["engine"] = engine
+          ruby["jruby"] = jruby? if jruby?
         end
-        hash_info["libxml"]["compiled"] = compiled_parser_version
-        hash_info["libxml"]["loaded"] = loaded_parser_version
-        hash_info["warnings"] = warnings
-      elsif jruby?
-        hash_info["xerces"] = Nokogiri::XERCES_VERSION
-        hash_info["nekohtml"] = Nokogiri::NEKO_VERSION
-      end
 
-      hash_info
+        if libxml2?
+          vi["libxml"] = {}.tap do |libxml|
+            libxml["binding"] = "extension"
+            if libxml2_using_packaged?
+              libxml["source"] = "packaged"
+              libxml["libxml2_path"] = NOKOGIRI_LIBXML2_PATH
+              libxml["libxslt_path"] = NOKOGIRI_LIBXSLT_PATH
+              libxml["libxml2_patches"] = NOKOGIRI_LIBXML2_PATCHES
+              libxml["libxslt_patches"] = NOKOGIRI_LIBXSLT_PATCHES
+            else
+              libxml["source"] = "system"
+            end
+            libxml["compiled"] = compiled_parser_version
+            libxml["loaded"] = loaded_parser_version
+          end
+          vi["warnings"] = warnings
+        elsif jruby?
+          vi["xerces"] = Nokogiri::XERCES_VERSION
+          vi["nekohtml"] = Nokogiri::NEKO_VERSION
+        end
+      end
     end
 
     def to_markdown
