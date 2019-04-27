@@ -185,6 +185,7 @@ lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/html/sax/parser_context.rb
 lib/nokogiri/html/sax/push_parser.rb
+lib/nokogiri/jruby/dependencies.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
 lib/nokogiri/xml.rb
