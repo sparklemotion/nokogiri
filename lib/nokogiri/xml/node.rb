@@ -847,7 +847,7 @@ module Nokogiri
         node_or_tags
       end
 
-      IS_BROKEN_LIBXML_VERSION = LIBXML_VERSION.start_with?('2.6').freeze
+      IS_BROKEN_LIBXML_VERSION = defined?(LIBXML_VERSION) && LIBXML_VERSION.start_with?('2.6').freeze
       private_constant :IS_BROKEN_LIBXML_VERSION
 
       def to_format save_option, options
