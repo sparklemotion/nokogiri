@@ -268,10 +268,13 @@ module Nokogiri
           @doc = root.document
           @parent = root
         else
-          namespace = self.class.name.split("::")
-          namespace[-1] = "Document"
-          @doc = eval(namespace.join("::")).new
-          @parent = @doc
+          klassname = "::" + (self.class.name.split("::")[0..-2] + ["Document"]).join("::")
+          klass = begin
+                    Object.const_get(klassname)
+                  rescue NameError
+                    Nokogiri::XML::Document
+                  end
+          @parent = @doc = klass.new
         end
 
         @context = nil
