@@ -342,6 +342,17 @@ module Nokogiri
         assert_equal envelope.namespace.object_id, package.namespace.object_id
       end
 
+      def test_builder_uses_proper_document_class
+        xml_builder = Nokogiri::XML::Builder.new
+        assert_instance_of Nokogiri::XML::Document, xml_builder.doc
+
+        html_builder = Nokogiri::HTML::Builder.new
+        assert_instance_of Nokogiri::HTML::Document, html_builder.doc
+
+        foo_builder = ThisIsATestBuilder.new
+        assert_instance_of Nokogiri::XML::Document, foo_builder.doc
+      end
+
       private
 
       def namespaces_defined_on(node)
@@ -349,4 +360,8 @@ module Nokogiri
       end
     end
   end
+end
+
+class ThisIsATestBuilder < Nokogiri::XML::Builder
+  # this exists for the test_builder_uses_proper_document_class and should be empty
 end
