@@ -213,7 +213,7 @@ module Nokogiri
     #       xml.foo
     #     end
     #   end
-    #   
+    #
     #   puts builder.to_xml
     #
     # Will output this xml:
@@ -250,7 +250,7 @@ module Nokogiri
       #     xml.awesome # add the "awesome" tag below "some_tag"
       #   end
       #
-      def self.with root, &block
+      def self.with(root, &block)
         new({}, root, &block)
       end
 
@@ -263,23 +263,22 @@ module Nokogiri
       #   Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
       #     ...
       #   end
-      def initialize options = {}, root = nil, &block
-
+      def initialize(options = {}, root = nil, &block)
         if root
-          @doc    = root.document
+          @doc = root.document
           @parent = root
         else
-          namespace     = self.class.name.split('::')
-          namespace[-1] = 'Document'
-          @doc          = eval(namespace.join('::')).new
-          @parent       = @doc
+          namespace = self.class.name.split("::")
+          namespace[-1] = "Document"
+          @doc = eval(namespace.join("::")).new
+          @parent = @doc
         end
 
-        @context  = nil
-        @arity    = nil
-        @ns       = nil
+        @context = nil
+        @arity = nil
+        @ns = nil
 
-        options.each do |k,v|
+        options.each do |k, v|
           @doc.send(:"#{k}=", v)
         end
 
@@ -287,7 +286,7 @@ module Nokogiri
 
         @arity = block.arity
         if @arity <= 0
-          @context = eval('self', block.binding)
+          @context = eval("self", block.binding)
           instance_eval(&block)
         else
           yield self
@@ -298,26 +297,26 @@ module Nokogiri
 
       ###
       # Create a Text Node with content of +string+
-      def text string
+      def text(string)
         insert @doc.create_text_node(string)
       end
 
       ###
       # Create a CDATA Node with content of +string+
-      def cdata string
+      def cdata(string)
         insert doc.create_cdata(string)
       end
 
       ###
       # Create a Comment Node with content of +string+
-      def comment string
+      def comment(string)
         insert doc.create_comment(string)
       end
 
       ###
       # Build a tag that is associated with namespace +ns+.  Raises an
       # ArgumentError if +ns+ has not been defined higher in the tree.
-      def [] ns
+      def [](ns)
         if @parent != @doc
           @ns = @parent.namespace_definitions.find { |x| x.prefix == ns.to_s }
         end
@@ -348,15 +347,15 @@ module Nokogiri
 
       ###
       # Append the given raw XML +string+ to the document
-      def << string
+      def <<(string)
         @doc.fragment(string).children.each { |x| insert(x) }
       end
 
-      def method_missing method, *args, &block # :nodoc:
+      def method_missing(method, *args, &block) # :nodoc:
         if @context && @context.respond_to?(method)
           @context.send(method, *args, &block)
         else
-          node = @doc.create_element(method.to_s.sub(/[_!]$/, ''),*args) { |n|
+          node = @doc.create_element(method.to_s.sub(/[_!]$/, ""), *args) { |n|
             # Set up the namespace
             if @ns.is_a? Nokogiri::XML::Namespace
               n.namespace = @ns
@@ -377,13 +376,14 @@ module Nokogiri
       end
 
       private
+
       ###
       # Insert +node+ as a child of the current Node
       def insert(node, &block)
         node = @parent.add_child(node)
         if block_given?
           old_parent = @parent
-          @parent    = node
+          @parent = node
           @arity ||= block.arity
           if @arity <= 0
             instance_eval(&block)
@@ -396,16 +396,16 @@ module Nokogiri
       end
 
       class NodeBuilder # :nodoc:
-        def initialize node, doc_builder
+        def initialize(node, doc_builder)
           @node = node
           @doc_builder = doc_builder
         end
 
-        def []= k, v
+        def []=(k, v)
           @node[k] = v
         end
 
-        def [] k
+        def [](k)
           @node[k]
         end
 
@@ -413,19 +413,19 @@ module Nokogiri
           opts = args.last.is_a?(Hash) ? args.pop : {}
           case method.to_s
           when /^(.*)!$/
-            @node['id'] = $1
+            @node["id"] = $1
             @node.content = args.first if args.first
           when /^(.*)=/
             @node[$1] = args.first
           else
-            @node['class'] =
-              ((@node['class'] || '').split(/\s/) + [method.to_s]).join(' ')
+            @node["class"] =
+              ((@node["class"] || "").split(/\s/) + [method.to_s]).join(" ")
             @node.content = args.first if args.first
           end
 
           # Assign any extra options
-          opts.each do |k,v|
-            @node[k.to_s] = ((@node[k.to_s] || '').split(/\s/) + [v]).join(' ')
+          opts.each do |k, v|
+            @node[k.to_s] = ((@node[k.to_s] || "").split(/\s/) + [v]).join(" ")
           end
 
           if block_given?
