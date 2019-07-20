@@ -144,6 +144,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["rake-compiler",      "~> 1.0.3"],
     ["rake-compiler-dock", "~> 0.7.0"],
     ["rexical",            "~> 1.0.5"],
+    ["rubocop",            "~> 0.73"],
     ["simplecov",          "~> 0.16"],
   ]
 

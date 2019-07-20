@@ -18,6 +18,7 @@ gem "rake", "~>12.0", :group => [:development, :test]
 gem "rake-compiler", "~>1.0.3", :group => [:development, :test]
 gem "rake-compiler-dock", "~>0.7.0", :group => [:development, :test]
 gem "rexical", "~>1.0.5", :group => [:development, :test]
+gem "rubocop", "~>0.73", :group => [:development, :test]
 gem "simplecov", "~>0.16", :group => [:development, :test]
 gem "rdoc", ">=4.0", "<6", :group => [:development, :test]
 
