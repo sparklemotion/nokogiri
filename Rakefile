@@ -149,7 +149,7 @@ HOE = Hoe.spec 'nokogiri' do
 
   self.spec_extras = {
     :extensions => ["ext/nokogiri/extconf.rb"],
-    :required_ruby_version => '>= 2.3.0'
+    :required_ruby_version => '>= 2.4.0'
   }
 
   self.testlib = :minitest

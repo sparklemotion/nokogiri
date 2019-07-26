@@ -38,7 +38,7 @@ jobs:
         params: {path: nokogiri-pr, status: pending}
 
 
-% Concourse.production_rubies.each do |ruby_version|
+% Concourse.production_rubies.last(3).each do |ruby_version|
   - name: ruby-<%= ruby_version %>-system
     public: true
     serial_groups: ["ruby-<%= ruby_version %>"]

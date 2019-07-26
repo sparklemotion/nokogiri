@@ -20,7 +20,7 @@ anchors:
 
 
 jobs:
-% RUBIES[:mri].each do |ruby_version|
+% RUBIES[:mri].last(3).each do |ruby_version|
   - name: ruby-<%= ruby_version %>-system
     public: true
     serial_groups: ["ruby-<%= ruby_version %>"]
