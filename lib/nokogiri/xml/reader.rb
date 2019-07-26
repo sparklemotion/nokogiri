@@ -87,9 +87,11 @@ module Nokogiri
       ###
       # Get a list of attributes for the current node.
       def attributes
-        Hash[attribute_nodes.map { |node|
-          [node.name, node.to_s]
-        }].merge(namespaces || {})
+        attrs_hash = attribute_nodes.each_with_object({}) do |node, hsh|
+                       hsh[node.name] = node.to_s
+                     end
+        attrs_hash.merge!(namespaces) if namespaces.is_a?(Hash)
+        attrs_hash
       end
 
       ###
