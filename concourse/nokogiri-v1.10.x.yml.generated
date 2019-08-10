@@ -1,0 +1,520 @@
+
+resource_types:
+  - name: irc-notification
+    type: docker-image
+    source:
+      repository: flavorjones/irc-notification-resource
+
+
+resources:
+  - name: ci
+    type: git
+    icon: "settings"
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      disable_ci_skip: true # always get the latest pipeline configuration
+  - name: nokogiri-irc
+    type: irc-notification
+    icon: "bell"
+    source:
+      server: chat.freenode.net
+      port: 7070
+      channel: "#nokogiri"
+      user: {{nokobot-irc-username}}
+      password: {{nokobot-irc-password}}
+  - name: nokogiri
+    type: git
+    icon: "github-circle"
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: "v1.10.x"
+      ignore_paths: ["CHANGELOG.md","README.md","concourse/**","suppressions/**"]
+
+
+anchors:
+  notify_failure_to_irc: &notify_failure_to_irc
+    put: nokogiri-irc
+    params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)"}
+
+
+jobs:
+  - name: ruby-2.3-system
+    public: true
+    serial_groups: ["ruby-2.3"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.3"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.3-vendored
+    public: true
+    serial_groups: ["ruby-2.3"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.3-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.3"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.3-valgrind
+    public: true
+    serial_groups: ["ruby-2.3"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.3-vendored"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.3"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+  - name: ruby-2.4-system
+    public: true
+    serial_groups: ["ruby-2.4"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.4"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.4-vendored
+    public: true
+    serial_groups: ["ruby-2.4"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.4-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.4"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.4-valgrind
+    public: true
+    serial_groups: ["ruby-2.4"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.4-vendored"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.4"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+  - name: ruby-2.5-system
+    public: true
+    serial_groups: ["ruby-2.5"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.5"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.5-vendored
+    public: true
+    serial_groups: ["ruby-2.5"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.5-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.5"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.5-valgrind
+    public: true
+    serial_groups: ["ruby-2.5"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.5-vendored"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.5"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+  - name: ruby-2.6-system
+    public: true
+    serial_groups: ["ruby-2.6"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.6-vendored
+    public: true
+    serial_groups: ["ruby-2.6"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.6-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: ruby-2.6-valgrind
+    public: true
+    serial_groups: ["ruby-2.6"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-2.6-vendored"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: jruby-9.1
+    public: true
+    serial_groups: ["jruby"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.1"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+  - name: jruby-9.2
+    public: true
+    serial_groups: ["jruby"]
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["jruby-9.1"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.2"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: gate
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+        passed:
+          - "ruby-2.3-valgrind"
+          - "ruby-2.4-valgrind"
+          - "ruby-2.5-valgrind"
+          - "ruby-2.6-valgrind"
+          - "jruby-9.2"
+
+
+  - name: ruby-vanilla-system
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["gate"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: xenial}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TEST_WITH_APT_REPO_RUBY: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: ruby-libxmlruby-system
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["gate"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: ruby-libxmlruby-valgrind
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["gate"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: gem-test
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["gate"]
+      - task: gem-build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          outputs:
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build.sh
+        on_failure: *notify_failure_to_irc
+      - task: gem-install-and-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        on_failure: *notify_failure_to_irc
+
+  - name: gem-test-java
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["gate"]
+      - task: gem-build
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.2"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          outputs:
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build-java.sh
+        on_failure: *notify_failure_to_irc
+      - task: gem-install-and-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.2"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: build-success
+    public: true
+    disable_manual_trigger: true
+    plan:
+      - get: nokogiri
+        trigger: true
+        version: every
+        passed:
+          - ruby-vanilla-system
+          - ruby-libxmlruby-system
+          - ruby-libxmlruby-valgrind
+          - gem-test
+          - gem-test-java
+      - put: nokogiri-irc
+        params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
