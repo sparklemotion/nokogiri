@@ -1222,6 +1222,14 @@ EOXML
         assert_equal 2, node.line
       end
 
+      def test_set_line
+        skip "Only supported with libxml2" unless Nokogiri.uses_libxml?
+        document = Nokogiri::XML::Document.new
+        node = document.create_element('a')
+        node.line = 54321
+        assert_equal 54321, node.line
+      end
+
       def test_xpath_results_have_document_and_are_decorated
         x = Module.new do
           def awesome! ; end
