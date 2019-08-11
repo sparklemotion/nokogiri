@@ -329,13 +329,13 @@ end
 desc "build a windows gem without all the ceremony"
 task "gem:windows" do
   require "rake_compiler_dock"
-  RakeCompilerDock.sh "bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
+  RakeCompilerDock.sh "gem install bundler && bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
 end
 
 desc "build a jruby gem with docker"
 task "gem:jruby" do
   require "rake_compiler_dock"
-  RakeCompilerDock.sh "bundle && rake java gem", rubyvm: 'jruby'
+  RakeCompilerDock.sh "gem install bundler && bundle && rake java gem", rubyvm: 'jruby'
 end
 
 require_relative "tasks/docker"
