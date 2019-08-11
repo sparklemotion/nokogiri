@@ -1,6 +1,6 @@
 # Nokogiri Changelog
 
-## 1.10.4 / 2019-08-07
+## 1.10.4 / 2019-08-11
 
 ### Security
 
