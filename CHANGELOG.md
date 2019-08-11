@@ -12,7 +12,7 @@
 * [JRuby] Standardize reading from IO like objects, including StringIO. [#1888, #1897]
 
 
-## 1.10.4 / 2019-08-07
+## 1.10.4 / 2019-08-11
 
 ### Security
 
