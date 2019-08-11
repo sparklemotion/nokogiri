@@ -143,6 +143,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["rake-compiler",      "~> 1.0.3"],
     ["rake-compiler-dock", "~> 0.7.0"],
     ["rexical",            "~> 1.0.5"],
+    ["rubocop",            "~> 0.73"],
     ["simplecov",          "~> 0.16"],
   ]
 
@@ -274,6 +275,11 @@ task :java_debug do
   ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if ENV['JAVA_DEBUG']
 end
 Rake::Task[:test].prerequisites << :java_debug
+
+task :rubocop_security do
+  sh "rubocop lib --only Security"
+end
+Rake::Task[:test].prerequisites << :rubocop_security
 
 if Hoe.plugins.include?(:debugging)
   ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
