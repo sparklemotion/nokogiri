@@ -81,12 +81,9 @@ CrossRuby = Struct.new(:version, :host) {
       'kernel32.dll',
       'msvcrt.dll',
       'ws2_32.dll',
-      *(case
-        when ver >= '2.0.0'
-          'user32.dll'
-        end),
+      ('user32.dll' if ver >= '2.0.0'),
       libruby_dll
-    ]
+    ].compact
   end
 }
 
