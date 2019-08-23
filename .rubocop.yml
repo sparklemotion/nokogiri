@@ -4,3 +4,7 @@ AllCops:
   Exclude:
     - 'tmp/**/*'
     - 'vendor/bundle/**/*'
+
+# EnforcedStyle is not yet decided
+Naming/MethodName:
+  Enabled: false

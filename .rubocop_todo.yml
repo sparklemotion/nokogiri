@@ -769,12 +769,6 @@ Naming/HeredocDelimiterNaming:
     - 'test/xml/test_schema.rb'
     - 'test/xml/test_xpath.rb'
 
-# Offense count: 17
-# Configuration parameters: .
-# SupportedStyles: snake_case, camelCase
-Naming/MethodName:
-  EnforcedStyle: snake_case
-
 # Offense count: 3
 # Configuration parameters: NamePrefix, NamePrefixBlacklist, NameWhitelist, MethodDefinitionMacros.
 # NamePrefix: is_, has_, have_
