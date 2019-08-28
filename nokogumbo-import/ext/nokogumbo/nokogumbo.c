@@ -33,6 +33,7 @@ static ID parent;
 
 /* Backwards compatibility to Ruby 2.1.0 */
 #if RUBY_API_VERSION_CODE < 20200
+#define ONIG_ESCAPE_UCHAR_COLLISION 1
 #include <ruby/encoding.h>
 
 static VALUE rb_utf8_str_new(const char *str, long length) {
