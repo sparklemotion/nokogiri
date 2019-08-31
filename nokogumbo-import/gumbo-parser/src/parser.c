@@ -608,6 +608,14 @@ static bool node_qualified_tagname_is (
   return !gumbo_ascii_strcasecmp(element_name, name);
 }
 
+static bool node_html_tagname_is (
+  const GumboNode* node,
+  GumboTag tag,
+  const char *name
+) {
+  return node_qualified_tagname_is(node, GUMBO_NAMESPACE_HTML, tag, name);
+}
+
 static bool node_tagname_is (
   const GumboNode* node,
   GumboTag tag,
@@ -1675,14 +1683,18 @@ static bool has_an_element_in_select_scope(const GumboParser* parser, GumboTag t
 // https://html.spec.whatwg.org/multipage/parsing.html#generate-implied-end-tags
 // "exception" is the "element to exclude from the process" listed in the spec.
 // Pass GUMBO_TAG_LAST to not exclude any of them.
-static void generate_implied_end_tags(GumboParser* parser, GumboTag exception) {
+static void generate_implied_end_tags (
+  GumboParser* parser,
+  GumboTag exception,
+  const char* exception_name
+) {
   static const TagSet tags = {
     TAG(DD), TAG(DT), TAG(LI), TAG(OPTGROUP), TAG(OPTION),
     TAG(P), TAG(RB), TAG(RP), TAG(RT), TAG(RTC)
   };
   while (
     node_tag_in_set(get_current_node(parser), &tags)
-    && !node_html_tag_is(get_current_node(parser), exception)
+    && !node_html_tagname_is(get_current_node(parser), exception, exception_name)
   ) {
     pop_current_node(parser);
   }
@@ -1747,7 +1759,7 @@ static bool close_table_cell (
   GumboTag cell_tag
 ) {
   bool result = true;
-  generate_implied_end_tags(parser, GUMBO_TAG_LAST);
+  generate_implied_end_tags(parser, GUMBO_TAG_LAST, NULL);
   const GumboNode* node = get_current_node(parser);
   if (!node_html_tag_is(node, cell_tag)) {
     parser_add_parse_error(parser, token);
@@ -1837,7 +1849,8 @@ static bool implicitly_close_tags (
   GumboTag target
 ) {
   bool result = true;
-  generate_implied_end_tags(parser, target);
+  assert(target != GUMBO_TAG_UNKNOWN);
+  generate_implied_end_tags(parser, target, NULL);
   if (!node_qualified_tag_is(get_current_node(parser), target_ns, target)) {
     parser_add_parse_error(parser, token);
     while (
@@ -2955,7 +2968,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       success = false;
       // We don't want to use implicitly_close_tags here because it may add an
       // error and we've already added the only error the standard specifies.
-      generate_implied_end_tags(parser, GUMBO_TAG_LAST);
+      generate_implied_end_tags(parser, GUMBO_TAG_LAST, NULL);
       while (!node_html_tag_is(pop_current_node(parser), GUMBO_TAG_BUTTON))
         ;
     }
@@ -2994,7 +3007,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
         return false;
       }
       bool success = true;
-      generate_implied_end_tags(parser, GUMBO_TAG_LAST);
+      generate_implied_end_tags(parser, GUMBO_TAG_LAST, NULL);
       if (!node_html_tag_is(get_current_node(parser), GUMBO_TAG_FORM)) {
         parser_add_parse_error(parser, token);
         success = false;
@@ -3015,7 +3028,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       }
       // This differs from implicitly_close_tags because we remove *only* the
       // <form> element; other nodes are left in scope.
-      generate_implied_end_tags(parser, GUMBO_TAG_LAST);
+      generate_implied_end_tags(parser, GUMBO_TAG_LAST, NULL);
       if (get_current_node(parser) != node) {
         parser_add_parse_error(parser, token);
         result = false;
@@ -3088,7 +3101,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       ignore_token(parser);
       return false;
     }
-    generate_implied_end_tags(parser, GUMBO_TAG_LAST);
+    generate_implied_end_tags(parser, GUMBO_TAG_LAST, NULL);
     const GumboNode* current_node = get_current_node(parser);
     bool success = node_html_tag_is(current_node, token->v.end_tag.tag);
     if (!success) {
@@ -3309,7 +3322,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
   if (tag_in(token, kStartTag, &(const TagSet){TAG(RB), TAG(RTC)})) {
     bool success = true;
     if (has_an_element_in_scope(parser, GUMBO_TAG_RUBY)) {
-      generate_implied_end_tags(parser, GUMBO_TAG_LAST);
+      generate_implied_end_tags(parser, GUMBO_TAG_LAST, NULL);
       if (!node_html_tag_is(get_current_node(parser), GUMBO_TAG_RUBY)) {
         parser_add_parse_error(parser, token);
         success = false;
@@ -3321,7 +3334,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
   if (tag_in(token, kStartTag, &(const TagSet){TAG(RP), TAG(RT)})) {
     bool success = true;
     if (has_an_element_in_scope(parser, GUMBO_TAG_RUBY)) {
-      generate_implied_end_tags(parser, GUMBO_TAG_RTC);
+      generate_implied_end_tags(parser, GUMBO_TAG_RTC, NULL);
       GumboNode* current = get_current_node(parser);
       if (!node_html_tag_is(current, GUMBO_TAG_RUBY) &&
           !node_html_tag_is(current, GUMBO_TAG_RTC)) {
@@ -3384,7 +3397,7 @@ any_other_end_tag:
   for (int i = state->_open_elements.length; --i >= 0;) {
     const GumboNode* node = state->_open_elements.data[i];
     if (node_qualified_tagname_is(node, GUMBO_NAMESPACE_HTML, end_tag, end_tagname)) {
-      generate_implied_end_tags(parser, end_tag);
+      generate_implied_end_tags(parser, end_tag, end_tagname);
       // TODO(jdtang): Do I need to add a parse error here?  The condition in
       // the spec seems like it's the inverse of the loop condition above, and
       // so would never fire.
@@ -3627,7 +3640,7 @@ static bool handle_in_caption(GumboParser* parser, GumboToken* token) {
       ignore_token(parser);
       return false;
     }
-    generate_implied_end_tags(parser, GUMBO_TAG_LAST);
+    generate_implied_end_tags(parser, GUMBO_TAG_LAST, NULL);
     bool result = node_html_tag_is(get_current_node(parser), GUMBO_TAG_CAPTION);
     if (!result)
       parser_add_parse_error(parser, token);
@@ -3649,7 +3662,7 @@ static bool handle_in_caption(GumboParser* parser, GumboToken* token) {
       ignore_token(parser);
       return false;
     }
-    generate_implied_end_tags(parser, GUMBO_TAG_LAST);
+    generate_implied_end_tags(parser, GUMBO_TAG_LAST, NULL);
     bool result = node_html_tag_is(get_current_node(parser), GUMBO_TAG_CAPTION);
     if (!result)
       parser_add_parse_error(parser, token);
