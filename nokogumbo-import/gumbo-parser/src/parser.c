@@ -641,7 +641,6 @@ static bool node_qualified_tag_is (
 
 // Like node_tag_in, but for the single-tag case in the HTML namespace
 static bool node_html_tag_is(const GumboNode* node, GumboTag tag) {
-  assert(tag != GUMBO_TAG_UNKNOWN);
   return node_qualified_tag_is(node, GUMBO_NAMESPACE_HTML, tag);
 }
 
@@ -2072,22 +2071,97 @@ static void remove_from_parent(GumboNode* node) {
   }
 }
 
+// This is here to clean up memory when the spec says "Ignore current token."
+static void ignore_token(GumboParser* parser) {
+  GumboToken* token = parser->_parser_state->_current_token;
+  // Ownership of the token's internal buffers are normally transferred to the
+  // element, but if no element is emitted (as happens in non-verbatim-mode
+  // when a token is ignored), we need to free it here to prevent a memory
+  // leak.
+  gumbo_token_destroy(token);
+#ifndef NDEBUG
+  if (token->type == GUMBO_TOKEN_START_TAG) {
+    // Mark this sentinel so the assertion in the main loop knows it's been
+    // destroyed.
+    token->v.start_tag.attributes = kGumboEmptyVector;
+    token->v.start_tag.name = NULL;
+  }
+#endif
+}
+
+// The token is usually an end tag; however, the adoption agency algorithm may
+// invoke this for an 'a' or 'nobr' start tag.
+// Returns false if there was an error.
+static bool in_body_any_other_end_tag(GumboParser* parser, GumboToken* token)
+{
+  GumboParserState* state = parser->_parser_state;
+  bool success = true;
+  GumboTag tag;
+  const char* tagname;
+
+  if (token->type == GUMBO_TOKEN_END_TAG) {
+    tag = token->v.end_tag.tag;
+    tagname = token->v.end_tag.name;
+  } else {
+    assert(token->type == GUMBO_TOKEN_START_TAG);
+    tag = token->v.start_tag.tag;
+    tagname = token->v.start_tag.name;
+  }
+
+  assert(state->_open_elements.length > 0);
+  assert(node_html_tag_is(state->_open_elements.data[0], GUMBO_TAG_HTML));
+  // Walk up the stack of open elements until we find one that either:
+  // a) Matches the tag name we saw
+  // b) Is in the "special" category.
+  // If we see a), implicitly close everything up to and including it. If we
+  // see b), then record a parse error, don't close anything (except the
+  // implied end tags) and ignore the end tag token.
+  for (int i = state->_open_elements.length; --i >= 0;) {
+    const GumboNode* node = state->_open_elements.data[i];
+    if (node_qualified_tagname_is(node, GUMBO_NAMESPACE_HTML, tag, tagname)) {
+      generate_implied_end_tags(parser, tag, tagname);
+      // <!DOCTYPE><body><sarcasm><foo></sarcasm> is an example of an error.
+      // foo is the "current node" but sarcasm is node.
+      // XXX: Write a test for this.
+      if (node != get_current_node(parser)) {
+        parser_add_parse_error(parser, token);
+        success = false;
+      }
+      while (node != pop_current_node(parser))
+        ;  // Pop everything.
+      return success;
+    } else if (is_special_node(node)) {
+      parser_add_parse_error(parser, token);
+      ignore_token(parser);
+      return false;
+    }
+  }
+  // <html> is in the special category, so we should never get here.
+  assert(0 && "unreachable");
+  return false;
+}
+
 // https://html.spec.whatwg.org/multipage/parsing.html#an-introduction-to-error-handling-and-strange-cases-in-the-parser
 // Also described in the "in body" handling for end formatting tags.
-// Returns true if the algorithm handled the token and false to indicate that
-// it should be handled according to "any other end tag."
-static bool adoption_agency_algorithm (
-  GumboParser* parser,
-  GumboToken* token,
-  GumboTag subject
-) {
+// Returns false if there was an error.
+static bool adoption_agency_algorithm(GumboParser* parser, GumboToken* token)
+{
   GumboParserState* state = parser->_parser_state;
   gumbo_debug("Entering adoption agency algorithm.\n");
+  // Step 1.
+  GumboTag subject;
+  if (token->type == GUMBO_TOKEN_START_TAG) {
+    subject = token->v.start_tag.tag;
+  } else {
+    assert(token->type == GUMBO_TOKEN_END_TAG);
+    subject = token->v.end_tag.tag;
+  }
+  assert(subject != GUMBO_TAG_UNKNOWN);
+
   // Step 2.
   GumboNode* current_node = get_current_node(parser);
   if (
-    current_node->v.element.tag_namespace == GUMBO_NAMESPACE_HTML
-    && current_node->v.element.tag == subject
+    node_html_tag_is(current_node, subject)
     && -1 == gumbo_vector_index_of (
       &state->_active_formatting_elements,
       current_node
@@ -2096,6 +2170,8 @@ static bool adoption_agency_algorithm (
     pop_current_node(parser);
     return true;
   }
+
+  bool success = true;
   // Steps 3-5 & 21:
   for (unsigned int i = 0; i < 8; ++i) {
     // Step 6.
@@ -2106,8 +2182,8 @@ static bool adoption_agency_algorithm (
       if (current_node == &kActiveFormattingScopeMarker) {
         gumbo_debug("Broke on scope marker; aborting.\n");
         // Last scope marker; abort the algorithm and handle according to "any
-        // other end tag."
-        return false;
+        // other end tag" (below).
+        break;
       }
       if (node_html_tag_is(current_node, subject)) {
         // Found it.
@@ -2129,7 +2205,7 @@ static bool adoption_agency_algorithm (
       // "any other end tag" clause (which may potentially add a parse error,
       // but not always).
       gumbo_debug("No active formatting elements; aborting.\n");
-      return false;
+      return in_body_any_other_end_tag(parser, token);
     }
 
     // Step 7
@@ -2140,19 +2216,20 @@ static bool adoption_agency_algorithm (
         formatting_node,
         &state->_active_formatting_elements
       );
-      return true;
+      return false;
     }
 
     // Step 8
     if (!has_an_element_in_scope(parser, formatting_node->v.element.tag)) {
       parser_add_parse_error(parser, token);
       gumbo_debug("Element not in scope.\n");
-      return true;
+      return false;
     }
 
     // Step 9
     if (formatting_node != get_current_node(parser)) {
       parser_add_parse_error(parser, token);  // But continue onwards.
+      success = false;
     }
     assert(formatting_node);
     assert(!node_html_tag_is(formatting_node, GUMBO_TAG_HTML));
@@ -2180,7 +2257,7 @@ static bool adoption_agency_algorithm (
         formatting_node,
         &state->_active_formatting_elements
       );
-      return true;
+      return success;
     }
     assert(!node_html_tag_is(furthest_block, GUMBO_TAG_HTML));
 
@@ -2361,25 +2438,7 @@ static bool adoption_agency_algorithm (
       &state->_open_elements
     );
   }  // Step 21.
-  return true;
-}
-
-// This is here to clean up memory when the spec says "Ignore current token."
-static void ignore_token(GumboParser* parser) {
-  GumboToken* token = parser->_parser_state->_current_token;
-  // Ownership of the token's internal buffers are normally transferred to the
-  // element, but if no element is emitted (as happens in non-verbatim-mode
-  // when a token is ignored), we need to free it here to prevent a memory
-  // leak.
-  gumbo_token_destroy(token);
-#ifndef NDEBUG
-  if (token->type == GUMBO_TOKEN_START_TAG) {
-    // Mark this sentinel so the assertion in the main loop knows it's been
-    // destroyed.
-    token->v.start_tag.attributes = kGumboEmptyVector;
-    token->v.start_tag.name = NULL;
-  }
-#endif
+  return success;
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#the-end
@@ -3123,8 +3182,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     if (has_matching_a) {
       assert(has_matching_a == 1);
       parser_add_parse_error(parser, token);
-      bool handled = adoption_agency_algorithm(parser, token, GUMBO_TAG_A);
-      assert(handled);
+      (void)adoption_agency_algorithm(parser, token);
       // The adoption agency algorithm usually removes all instances of <a>
       // from the list of active formatting elements, but in case it doesn't,
       // we're supposed to do this. (The conditions where it might not are
@@ -3158,8 +3216,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     if (has_an_element_in_scope(parser, GUMBO_TAG_NOBR)) {
       result = false;
       parser_add_parse_error(parser, token);
-      bool handled = adoption_agency_algorithm(parser, token, GUMBO_TAG_NOBR);
-      assert(handled);
+      (void)adoption_agency_algorithm(parser, token);
       reconstruct_active_formatting_elements(parser);
     }
     insert_element_from_token(parser, token);
@@ -3173,9 +3230,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
       TAG(U)
     })
   ) {
-    if (!adoption_agency_algorithm(parser, token, token->v.end_tag.tag))
-      goto any_other_end_tag;
-    return true;
+    return adoption_agency_algorithm(parser, token);
   }
   if (
     tag_in(token, kStartTag, &(const TagSet){TAG(APPLET), TAG(MARQUEE), TAG(OBJECT)})
@@ -3382,43 +3437,7 @@ static bool handle_in_body(GumboParser* parser, GumboToken* token) {
     insert_element_from_token(parser, token);
     return true;
   }
-any_other_end_tag:
-  assert(token->type == GUMBO_TOKEN_END_TAG);
-  GumboTag end_tag = token->v.end_tag.tag;
-  const char *end_tagname = token->v.end_tag.name;
-  assert(state->_open_elements.length > 0);
-  assert(node_html_tag_is(state->_open_elements.data[0], GUMBO_TAG_HTML));
-  // Walk up the stack of open elements until we find one that either:
-  // a) Matches the tag name we saw
-  // b) Is in the "special" category.
-  // If we see a), implicitly close everything up to and including it. If we
-  // see b), then record a parse error, don't close anything (except the
-  // implied end tags) and ignore the end tag token.
-  for (int i = state->_open_elements.length; --i >= 0;) {
-    const GumboNode* node = state->_open_elements.data[i];
-    if (node_qualified_tagname_is(node, GUMBO_NAMESPACE_HTML, end_tag, end_tagname)) {
-      generate_implied_end_tags(parser, end_tag, end_tagname);
-      // TODO(jdtang): Do I need to add a parse error here?  The condition in
-      // the spec seems like it's the inverse of the loop condition above, and
-      // so would never fire.
-      // sfc: Yes, an error is needed here.
-      // <!DOCTYPE><body><sarcasm><foo></sarcasm> is an example.
-      // foo is the "current node" but sarcasm is node.
-      // XXX: Write a test for this.
-      if (node != get_current_node(parser))
-        parser_add_parse_error(parser, token);
-      while (node != pop_current_node(parser))
-        ;  // Pop everything.
-      return true;
-    } else if (is_special_node(node)) {
-      parser_add_parse_error(parser, token);
-      ignore_token(parser);
-      return false;
-    }
-  }
-  // <html> is in the special category, so we should never get here.
-  assert(0);
-  return false;
+  return in_body_any_other_end_tag(parser, token);
 }
 
 // https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-incdata
