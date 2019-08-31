@@ -722,7 +722,10 @@ static void copy_over_original_tag_text (
   original_text->data = tag_state->_original_text;
   original_text->length = utf8iterator_get_char_pointer(&tokenizer->_input) -
                           tag_state->_original_text;
-  if (original_text->data[original_text->length - 1] == '\r') {
+  if (
+    original_text->length
+    && original_text->data[original_text->length - 1] == '\r'
+  ) {
     // Since \r is skipped by the UTF-8 iterator, it can sometimes end up
     // appended to the end of original text even when it's really the first part
     // of the next character. If we detect this situation, shrink the length of
