@@ -365,11 +365,14 @@ static void handle_parser_error (
 // pointer to the beginning of the string if this is the first line.
 static const char* find_prev_newline (
   const char* source_text,
+  size_t source_length,
   const char* error_location
 ) {
+  const char* source_end = source_text + source_length;
   assert(error_location >= source_text);
+  assert(error_location <= source_end);
   const char* c = error_location;
-  if (*c == '\n' && c != source_text)
+  if (c != source_text && (error_location == source_end || *c == '\n'))
     --c;
   while (c != source_text && *c != '\n')
     --c;
@@ -377,15 +380,18 @@ static const char* find_prev_newline (
 }
 
 // Finds the next newline in the original source buffer from a given byte
-// location. Returns a character pointer to that newline, or a pointer to the
-// terminating null byte if this is the last line.
+// location. Returns a character pointer to that newline, or a pointer to
+// source_text + source_length if this is the last line.
 static const char* find_next_newline(
-  const char* source_text_end,
+  const char* source_text,
+  size_t source_length,
   const char* error_location
 ) {
-  assert(error_location <= source_text_end);
+  const char* source_end = source_text + source_length;
+  assert(error_location >= source_text);
+  assert(error_location <= source_end);
   const char* c = error_location;
-  while (c != source_text_end && *c != '\n')
+  while (c != source_end && *c != '\n')
     ++c;
   return c;
 }
@@ -549,8 +555,9 @@ void caret_diagnostic_to_string (
 ) {
   error_to_string(error, output);
 
-  const char* line_start = find_prev_newline(source_text, error->original_text.data);
-  const char* line_end = find_next_newline(source_text + source_length, error->original_text.data);
+  const char* error_text = error->original_text.data;
+  const char* line_start = find_prev_newline(source_text, source_length, error_text);
+  const char* line_end = find_next_newline(source_text, source_length, error_text);
   GumboStringPiece original_line;
   original_line.data = line_start;
   original_line.length = line_end - line_start;
