@@ -821,6 +821,14 @@ typedef struct GumboInternalOutput {
   GumboVector /* GumboError */ errors;
 
   /**
+   * True if the parser encounted an error.
+   *
+   * This can be true and `errors` an empty `GumboVector` if the `max_errors`
+   * option was set to 0.
+   */
+  bool document_error;
+
+  /**
    * A status code indicating whether parsing finished successfully or was
    * stopped mid-document due to exceptional circumstances.
    */

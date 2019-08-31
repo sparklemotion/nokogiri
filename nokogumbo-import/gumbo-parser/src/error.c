@@ -391,6 +391,8 @@ static const char* find_next_newline(
 }
 
 GumboError* gumbo_add_error(GumboParser* parser) {
+  parser->_output->document_error = true;
+
   int max_errors = parser->_options->max_errors;
   if (max_errors >= 0 && parser->_output->errors.length >= (unsigned int) max_errors) {
     return NULL;

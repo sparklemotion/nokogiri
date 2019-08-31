@@ -336,6 +336,7 @@ static void output_init(GumboParser* parser) {
   GumboOutput* output = gumbo_alloc(sizeof(GumboOutput));
   output->root = NULL;
   output->document = new_document_node();
+  output->document_error = false;
   output->status = GUMBO_STATUS_OK;
   parser->_output = output;
   gumbo_init_errors(parser);
@@ -4778,7 +4779,6 @@ GumboOutput* gumbo_parse_with_options (
 
   const unsigned int max_tree_depth = options->max_tree_depth;
   GumboToken token;
-  bool has_error = false;
 
   do {
     if (state->_reprocess_current_token) {
@@ -4790,7 +4790,7 @@ GumboOutput* gumbo_parse_with_options (
         adjusted_current_node &&
           adjusted_current_node->v.element.tag_namespace != GUMBO_NAMESPACE_HTML
       );
-      has_error = !gumbo_lex(&parser, &token) || has_error;
+      gumbo_lex(&parser, &token);
     }
 
     const char* token_type = "text";
@@ -4824,7 +4824,7 @@ GumboOutput* gumbo_parse_with_options (
     state->_current_token = &token;
     state->_self_closing_flag_acknowledged = false;
 
-    has_error = !handle_token(&parser, &token) || has_error;
+    handle_token(&parser, &token);
 
     // Check for memory leaks when ownership is transferred from start tag
     // tokens to nodes.
@@ -4841,7 +4841,6 @@ GumboOutput* gumbo_parse_with_options (
       if (token.type == GUMBO_TOKEN_START_TAG &&
           token.v.start_tag.is_self_closing &&
           !state->_self_closing_flag_acknowledged) {
-        has_error = true;
         GumboError* error = gumbo_add_error(&parser);
         if (error) {
           // This is essentially a tokenizer error that's only caught during
@@ -4869,7 +4868,7 @@ GumboOutput* gumbo_parse_with_options (
 
   } while (
     (token.type != GUMBO_TOKEN_EOF || state->_reprocess_current_token)
-    && !(options->stop_on_first_error && has_error)
+    && !(options->stop_on_first_error && parser._output->document_error)
   );
 
   finish_parsing(&parser);
