@@ -71,12 +71,11 @@ class GumboTokenizerTest : public GumboTest {
     if (!at_start_)
       gumbo_token_destroy(&token_);
     at_start_ = false;
-    if (errors_are_expected) {
-      errors_are_expected_ = true;
-      EXPECT_FALSE(gumbo_lex(&parser_, &token_));
-    } else {
-      EXPECT_TRUE(gumbo_lex(&parser_, &token_));
-    }
+    // Reset the document errors.
+    parser_._output->document_error = false;
+    gumbo_lex(&parser_, &token_);
+    EXPECT_EQ(errors_are_expected, parser_._output->document_error);
+    errors_are_expected_ = errors_are_expected;
   }
 
   void NextChar(int c, bool errors_are_expected = false) {

@@ -93,19 +93,8 @@ void gumbo_tokenizer_set_is_adjusted_current_node_foreign (
 );
 
 // Lexes a single token from the specified buffer, filling the output with the
-// parsed GumboToken data structure. Returns true for a successful
-// tokenization, false if a parse error occurs.
-//
-// Example:
-//   struct GumboInternalParser parser;
-//   GumboToken output;
-//   gumbo_tokenizer_state_init(&parser, text, strlen(text));
-//   while (gumbo_lex(&parser, &output)) {
-//     ...do stuff with output.
-//     gumbo_token_destroy(&token);
-//   }
-//   gumbo_tokenizer_state_destroy(&parser);
-bool gumbo_lex(struct GumboInternalParser* parser, GumboToken* output);
+// parsed GumboToken data structure.
+void gumbo_lex(struct GumboInternalParser* parser, GumboToken* output);
 
 // Frees the internally-allocated pointers within a GumboToken. Note that this
 // doesn't free the token itself, since oftentimes it will be allocated on the

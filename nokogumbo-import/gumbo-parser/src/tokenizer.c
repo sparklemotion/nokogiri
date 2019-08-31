@@ -20,10 +20,7 @@
  Coding conventions specific to this file:
 
  1. Functions that fill in a token should be named emit_*, and should be
-    followed immediately by a return from the tokenizer (true if no error
-    occurred, false if an error occurred). Sometimes the emit functions
-    themselves return a boolean so that they can be combined with the return
-    statement; in this case, they should match this convention.
+    followed immediately by a return from the tokenizer.
  2. Functions that shuffle data from temporaries to final API structures
     should be named finish_*, and be called just before the tokenizer exits the
     state that accumulates the temporary.
@@ -141,10 +138,6 @@ typedef struct GumboInternalTokenizerState {
   // text tokens emitted will be GUMBO_TOKEN_CDATA.
   bool _is_in_cdata;
 
-  // A flag indicating whether the tokenizer has seen a parse error since the
-  // last token was emitted.
-  bool _parse_error;
-
   // Certain states (notably character references) may emit two character tokens
   // at once, but the contract for lex() fills in only one token at a time. The
   // extra character is buffered here, and then this is checked on entry to
@@ -207,7 +200,6 @@ static void tokenizer_add_parse_error (
   GumboErrorType type
 ) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
-  tokenizer->_parse_error = true;
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
     return;
@@ -228,7 +220,6 @@ static void tokenizer_add_char_ref_error (
   int codepoint
 ) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
-  tokenizer->_parse_error = true;
   GumboError* error = gumbo_add_error(parser);
   if (!error)
     return;
@@ -248,7 +239,6 @@ static void tokenizer_add_token_parse_error (
   GumboErrorType type
 ) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
-  tokenizer->_parse_error = true;
   GumboError* error = gumbo_add_error(parser);
   if (!error)
     return;
@@ -770,7 +760,6 @@ static void finish_tag_name(GumboParser* parser) {
 // Adds an ERR_DUPLICATE_ATTR parse error to the parser's error struct.
 static void add_duplicate_attr_error(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
-  tokenizer->_parse_error = true;
   GumboError* error = gumbo_add_error(parser);
   if (!error) {
     return;
@@ -788,9 +777,8 @@ static void add_duplicate_attr_error(GumboParser* parser) {
 // the attribute's name. The attribute's value starts out as the empty string
 // (following the "Boolean attributes" section of the spec) and is only
 // overwritten on finish_attribute_value(). If the attribute has already been
-// specified, the new attribute is dropped, a parse error is added, and the
-// function returns false. Otherwise, this returns true.
-static bool finish_attribute_name(GumboParser* parser) {
+// specified, the new attribute is dropped and a parse error is added
+static void finish_attribute_name(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   GumboTagState* tag_state = &tokenizer->_tag_state;
   // May've been set by a previous attribute without a value; reset it here.
@@ -813,7 +801,7 @@ static bool finish_attribute_name(GumboParser* parser) {
       add_duplicate_attr_error(parser);
       reinitialize_tag_buffer(parser);
       tag_state->_drop_next_attr_value = true;
-      return false;
+      return;
     }
   }
 
@@ -835,7 +823,6 @@ static bool finish_attribute_name(GumboParser* parser) {
   );
   gumbo_vector_add(attr, attributes);
   reinitialize_tag_buffer(parser);
-  return true;
 }
 
 // Finishes an attribute value. This sets the value of the most recently added
@@ -881,7 +868,6 @@ void gumbo_tokenizer_state_init (
   tokenizer->_reconsume_current_input = false;
   tokenizer->_is_adjusted_current_node_foreign = false;
   tokenizer->_is_in_cdata = false;
-  tokenizer->_parse_error = false;
   tokenizer->_tag_state._last_start_tag = GUMBO_TAG_LAST;
   tokenizer->_tag_state._name = NULL;
 
@@ -3373,7 +3359,7 @@ static GumboLexerStateFunction dispatch_table[] = {
   [GUMBO_LEX_NUMERIC_CHARACTER_REFERENCE_END] = handle_numeric_character_reference_end_state,
 };
 
-bool gumbo_lex(GumboParser* parser, GumboToken* output) {
+void gumbo_lex(GumboParser* parser, GumboToken* output) {
   // Because of the spec requirements that...
   //
   // 1. Tokens be handled immediately by the parser upon emission.
@@ -3398,15 +3384,13 @@ bool gumbo_lex(GumboParser* parser, GumboToken* output) {
     // isn't consumed twice.
     tokenizer->_reconsume_current_input = false;
     tokenizer->_buffered_emit_char = kGumboNoChar;
-    return true;
+    return;
   }
 
   if (maybe_emit_from_mark(parser, output) == EMIT_TOKEN) {
-    // Return no error.
-    return true;
+    return;
   }
 
-  tokenizer->_parse_error = false;
   while (1) {
     assert(!tokenizer->_resume_pos);
     assert(tokenizer->_buffered_emit_char == kGumboNoChar);
@@ -3420,7 +3404,7 @@ bool gumbo_lex(GumboParser* parser, GumboToken* output) {
     tokenizer->_reconsume_current_input = false;
 
     if (result == EMIT_TOKEN)
-      return !tokenizer->_parse_error;
+      return;
 
     if (should_advance) {
       utf8iterator_next(&tokenizer->_input);
