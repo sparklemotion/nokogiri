@@ -20,7 +20,6 @@ jobs:
           echo '##[set-env name=MAKEFLAGS]'-j$((1 + $(sysctl -n hw.activecpu)))
       - name: Install dependencies
         run: |
-          sudo gem install bundler -v '1.17.3'
           bundle install -j8
       - run: rake compile
       - run: rake test
