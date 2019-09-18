@@ -1,0 +1,26 @@
+name: macos
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  latest:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6.4'
+      - name: Set ENV
+        run: |
+          echo '##[set-env name=MAKEFLAGS]'-j$((1 + $(sysctl -n hw.activecpu)))
+      - name: Install dependencies
+        run: |
+          sudo gem install bundler -v '1.17.3'
+          bundle install -j8
+      - run: rake compile
+      - run: rake test
