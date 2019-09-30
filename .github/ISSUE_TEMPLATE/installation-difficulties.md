@@ -7,16 +7,16 @@ assignees: ''
 
 ---
 
-**Have you read and followed the advice in the installation tutorial at http://www.nokogiri.org/tutorials/installing_nokogiri.html?**
+**Have you read and followed the installation tutorial at http://www.nokogiri.org/tutorials/installing_nokogiri.html?**
 
 **What is the complete output of `gem install`?**
 
-Please make sure the escape the file contents with triple-backticks.
+Please make sure to escape the file contents with triple-backticks.
 
 
 **What are the complete contents of the `mkmf.log` file generated during the failed installation?**
 
-Please make sure the escape the file contents with triple-backticks.
+Please make sure to escape the file contents with triple-backticks.
 
 
 **What operating system are you using?**
