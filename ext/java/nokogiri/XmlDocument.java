@@ -54,6 +54,7 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.Helpers;
@@ -104,15 +105,15 @@ public class XmlDocument extends XmlNode {
     private static boolean loadExternalSubset = false; // TODO: Verify this.
 
     /** cache variables */
-    protected IRubyObject encoding = null;
-    protected IRubyObject url = null;
+    protected IRubyObject encoding;
+    protected IRubyObject url;
 
-    public XmlDocument(Ruby ruby, RubyClass klazz) {
-        super(ruby, klazz, createNewDocument());
+    public XmlDocument(Ruby runtime, RubyClass klazz) {
+        super(runtime, klazz, createNewDocument(runtime));
     }
 
-    public XmlDocument(Ruby ruby, Document document) {
-        this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Document"), document);
+    public XmlDocument(Ruby runtime, Document document) {
+        this(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"), document);
     }
 
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
@@ -227,13 +228,29 @@ public class XmlDocument extends XmlNode {
         return getUrl();
     }
 
-    public static Document createNewDocument() {
+    public static Document createNewDocument(final Ruby runtime) {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance(DOCUMENTBUILDERFACTORY_IMPLE_NAME, NokogiriService.class.getClassLoader());
-            return factory.newDocumentBuilder().newDocument();
+            return DocumentBuilderFactoryHolder.INSTANCE.newDocumentBuilder().newDocument();
         } catch (ParserConfigurationException e) {
-            return null;        // this will end is disaster...
+            throw asRuntimeError(runtime, null, e);
         }
+    }
+
+    private static class DocumentBuilderFactoryHolder {
+        static final DocumentBuilderFactory INSTANCE;
+        static {
+            INSTANCE = DocumentBuilderFactory.newInstance(DOCUMENTBUILDERFACTORY_IMPLE_NAME, NokogiriService.class.getClassLoader());
+        }
+    }
+
+    private static RaiseException asRuntimeError(Ruby runtime, String message, Exception cause) {
+        if (cause instanceof RaiseException) return (RaiseException) cause;
+
+        if (message == null) message = cause.toString();
+        else message = message + '(' + cause.toString() + ')';
+        RaiseException ex = runtime.newRuntimeError(message);
+        ex.initCause(cause);
+        return ex;
     }
 
     /*
@@ -244,19 +261,20 @@ public class XmlDocument extends XmlNode {
      */
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
+        final Ruby runtime = context.runtime;
         XmlDocument xmlDocument;
         try {
-            Document docNode = createNewDocument();
+            Document docNode = createNewDocument(runtime);
             if ("Nokogiri::HTML::Document".equals(((RubyClass)klazz).getName())) {
-                xmlDocument = (XmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+                xmlDocument = (XmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
                 xmlDocument.setDocumentNode(context, docNode);
             } else {
                 // XML::Document and sublass
-                xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+                xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
                 xmlDocument.setDocumentNode(context, docNode);
             }
         } catch (Exception ex) {
-            throw context.getRuntime().newRuntimeError("couldn't create document: "+ex.toString());
+            throw asRuntimeError(runtime, "couldn't create document: ", ex);
         }
 
         Helpers.invoke(context, xmlDocument, "initialize", args);
