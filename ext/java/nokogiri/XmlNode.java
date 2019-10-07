@@ -101,7 +101,7 @@ public class XmlNode extends RubyObject {
     /* Cached objects */
     protected IRubyObject content = null;
     protected IRubyObject doc = null;
-    protected IRubyObject name = null;
+    protected transient RubyString name;
 
     /*
      * Taken from http://ejohn.org/blog/comparing-document-position/
@@ -554,8 +554,9 @@ public class XmlNode extends RubyObject {
         visitor.leave(node);
     }
 
-    public void setName(IRubyObject name) {
-        this.name = name;
+    RubyString doSetName(IRubyObject name) {
+        if (name.isNil()) return this.name = null;
+        return this.name = name.convertToString();
     }
 
     public void setDocument(ThreadContext context, IRubyObject doc) {
@@ -1304,9 +1305,9 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod(name = {"node_name=", "name="})
     public IRubyObject node_name_set(ThreadContext context, IRubyObject nodeName) {
-        String newName = rubyStringToString(nodeName);
+        nodeName = doSetName(nodeName);
+        String newName = nodeName == null ? null : rubyStringToString((RubyString) nodeName);
         this.node = NokogiriHelpers.renameNode(node, null, newName);
-        setName(nodeName);
         return this;
     }
 

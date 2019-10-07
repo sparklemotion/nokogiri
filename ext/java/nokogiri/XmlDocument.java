@@ -45,6 +45,7 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.jcodings.specific.USASCIIEncoding;
 import org.jcodings.specific.UTF8Encoding;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -95,6 +96,9 @@ public class XmlDocument extends XmlNode {
      * Setting an appropriate classloader resolves issue 380.
      */
     private static final String DOCUMENTBUILDERFACTORY_IMPLE_NAME = "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl";
+
+    private static final ByteList DOCUMENT = ByteList.create("document");
+    static { DOCUMENT.setEncoding(USASCIIEncoding.INSTANCE); }
 
     private static boolean substituteEntities = false;
     private static boolean loadExternalSubset = false; // TODO: Verify this.
@@ -206,7 +210,7 @@ public class XmlDocument extends XmlNode {
 
     @Override
     protected IRubyObject getNodeName(ThreadContext context) {
-        if (name == null) name = context.runtime.newString("document");
+        if (name == null) name = RubyString.newStringShared(context.runtime, DOCUMENT);
         return name;
     }
 
