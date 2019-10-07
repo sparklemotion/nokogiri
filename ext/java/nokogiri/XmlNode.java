@@ -1348,23 +1348,17 @@ public class XmlNode extends RubyObject {
     }
 
     private String findNamespaceHref(ThreadContext context, String prefix) {
-      XmlNode currentNode = this;
-      while(currentNode != document(context)) {
-        RubyArray namespaces = (RubyArray) currentNode.namespace_scopes(context);
-        Iterator iterator = namespaces.iterator();
-        while(iterator.hasNext()) {
-          XmlNamespace namespace = (XmlNamespace) iterator.next();
-          if (namespace.getPrefix().equals(prefix)) {
-            return namespace.getHref();
-          }
-        }
-        if (currentNode.parent(context).isNil()) {
-            break;
-        } else {
+        XmlNode currentNode = this;
+        while (currentNode != document(context)) {
+            RubyArray namespaces = currentNode.namespace_scopes(context);
+            for (int i = 0; i<namespaces.size(); i++) {
+                XmlNamespace namespace = (XmlNamespace) namespaces.eltInternal(i);
+                if (namespace.getPrefix().equals(prefix)) return namespace.getHref();
+            }
+            if (currentNode.parent(context) == context.nil) break;
             currentNode = (XmlNode) currentNode.parent(context);
         }
-      }
-      return null;
+        return null;
     }
 
     @JRubyMethod
