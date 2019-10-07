@@ -358,16 +358,12 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod
     public IRubyObject root(ThreadContext context) {
         Node rootNode = getDocument().getDocumentElement();
-        try {
-            Boolean isValid = (Boolean)rootNode.getUserData(NokogiriHelpers.VALID_ROOT_NODE);
-            if (!isValid) return context.getRuntime().getNil();
-        } catch (NullPointerException e) {
-            // does nothing since nil wasn't set to the root node before.
-        }
-        if (rootNode == null)
-            return context.getRuntime().getNil();
-        else
-            return getCachedNodeOrCreate(context.getRuntime(), rootNode);
+        if (rootNode == null) return context.nil;
+
+        Object invalid = rootNode.getUserData(NokogiriHelpers.ROOT_NODE_INVALID);
+        if (invalid != null && ((Boolean) invalid)) return context.nil;
+
+        return getCachedNodeOrCreate(context.runtime, rootNode);
     }
 
     protected IRubyObject dup_implementation(Ruby runtime, boolean deep) {
@@ -392,7 +388,7 @@ public class XmlDocument extends XmlNode {
         // the method sets user data so that other methods are able to know the root
         // should be nil.
         if (new_root == context.nil) {
-            getDocument().getDocumentElement().setUserData(NokogiriHelpers.VALID_ROOT_NODE, false, null);
+            getDocument().getDocumentElement().setUserData(NokogiriHelpers.ROOT_NODE_INVALID, Boolean.TRUE, null);
             return new_root;
         }
         XmlNode newRoot = asXmlNode(context, new_root);
@@ -410,7 +406,7 @@ public class XmlDocument extends XmlNode {
             add_child_node(context, getCachedNodeOrCreate(context.runtime, newRootNode));
         } else {
             Node rootNode = asXmlNode(context, root).node;
-            ((XmlNode)getCachedNodeOrCreate(context.runtime, rootNode)).replace_node(context, newRoot);
+            ((XmlNode) getCachedNodeOrCreate(context.runtime, rootNode)).replace_node(context, newRoot);
         }
 
         return newRoot;

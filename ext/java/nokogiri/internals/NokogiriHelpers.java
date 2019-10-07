@@ -81,7 +81,7 @@ import nokogiri.XmlXpathContext;
  */
 public class NokogiriHelpers {
     public static final String CACHED_NODE = "NOKOGIRI_CACHED_NODE";
-    public static final String VALID_ROOT_NODE = "NOKOGIRI_VALIDE_ROOT_NODE";
+    public static final String ROOT_NODE_INVALID = "NOKOGIRI_ROOT_NODE_INVALID";
     public static final String ENCODED_STRING = "NOKOGIRI_ENCODED_STRING";
 
     public static XmlNode getCachedNode(Node node) {
