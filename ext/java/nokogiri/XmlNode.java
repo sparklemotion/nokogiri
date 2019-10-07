@@ -616,15 +616,13 @@ public class XmlNode extends RubyObject {
      * <code>xmlns:prefix="uri"</code>.
      */
     @JRubyMethod(name = {"add_namespace_definition", "add_namespace"})
-    public IRubyObject add_namespace_definition(ThreadContext context,
-                                                IRubyObject prefix,
-                                                IRubyObject href) {
+    public IRubyObject add_namespace_definition(ThreadContext context, IRubyObject prefix, IRubyObject href) {
         String prefixString = rubyStringToString(prefix);
         String hrefString ;
 
         // try to search the namespace first
         if (href.isNil()) {
-            hrefString = this.findNamespaceHref(context, rubyStringToString(prefix));
+            hrefString = this.findNamespaceHref(context, prefixString);
             if (hrefString == null) return context.nil;
             href = context.runtime.newString(hrefString);
         } else {
@@ -673,16 +671,13 @@ public class XmlNode extends RubyObject {
     public IRubyObject attribute_nodes(ThreadContext context) {
         NamedNodeMap nodeMap = this.node.getAttributes();
 
-        Ruby ruby = context.getRuntime();
-        if(nodeMap == null){
-            return ruby.newEmptyArray();
-        }
+        if (nodeMap == null) return context.runtime.newEmptyArray();
 
-        RubyArray attr = ruby.newArray();
+        RubyArray attr = context.runtime.newArray();
 
-        for(int i = 0; i < nodeMap.getLength(); i++) {
+        for (int i = 0; i < nodeMap.getLength(); i++) {
             if ((doc instanceof HtmlDocument) || !NokogiriHelpers.isNamespace(nodeMap.item(i))) {
-                attr.append(getCachedNodeOrCreate(context.getRuntime(), nodeMap.item(i)));
+                attr.append(getCachedNodeOrCreate(context.runtime, nodeMap.item(i)));
             }
         }
 

@@ -119,7 +119,7 @@ public class XmlDocumentFragment extends XmlNode {
         for (int i=0; i < nodeMap.getLength(); i++) {
             Attr attr = (Attr)nodeMap.item(i);
             if (isNamespace(attr.getNodeName())) {
-                String localPart = getLocalNameForNamespace(attr.getNodeName());
+                String localPart = getLocalNameForNamespace(attr.getNodeName(), null);
                 if (getPrefix(qName).equals(localPart)) {
                     return true;
                 }

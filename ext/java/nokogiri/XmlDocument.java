@@ -84,7 +84,7 @@ import nokogiri.internals.c14n.Canonicalizer;
 
 @JRubyClass(name="Nokogiri::XML::Document", parent="Nokogiri::XML::Node")
 public class XmlDocument extends XmlNode {
-    private NokogiriNamespaceCache nsCache;
+    private transient NokogiriNamespaceCache nsCache;
 
     /* UserData keys for storing extra info in the document node. */
     public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
@@ -113,7 +113,6 @@ public class XmlDocument extends XmlNode {
 
     public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
         super(ruby, klass, document);
-        initializeNamespaceCacheIfNecessary();
         createAndCacheNamespaces(ruby, document.getDocumentElement());
         stabilizeTextContent(document);
         setInstanceVariable("@decorators", ruby.getNil());
@@ -121,8 +120,8 @@ public class XmlDocument extends XmlNode {
 
     public void setDocumentNode(ThreadContext context, Node node) {
         super.setNode(context, node);
-        initializeNamespaceCacheIfNecessary();
-        Ruby runtime = context.getRuntime();
+        getNamespaceCache(); // initialize
+        Ruby runtime = context.runtime;
         if (node != null) {
             Document document = (Document)node;
             stabilizeTextContent(document);
@@ -197,15 +196,8 @@ public class XmlDocument extends XmlNode {
     }
 
     public NokogiriNamespaceCache getNamespaceCache() {
-        return nsCache;
-    }
-
-    public void initializeNamespaceCacheIfNecessary() {
         if (nsCache == null) nsCache = new NokogiriNamespaceCache();
-    }
-
-    public void setNamespaceCache(NokogiriNamespaceCache nsCache) {
-        this.nsCache = nsCache;
+        return nsCache;
     }
 
     public Document getDocument() {

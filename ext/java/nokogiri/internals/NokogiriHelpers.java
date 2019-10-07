@@ -108,22 +108,21 @@ public class NokogiriHelpers {
      * or XmlNamespace wrapping <code>node</code> if there is no cached
      * value.
      */
-    public static IRubyObject getCachedNodeOrCreate(Ruby ruby, Node node) {
-        if(node == null) return ruby.getNil();
+    public static IRubyObject getCachedNodeOrCreate(Ruby runtime, Node node) {
+        if (node == null) return runtime.getNil();
         if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
             XmlDocument xmlDocument = (XmlDocument)node.getOwnerDocument().getUserData(CACHED_NODE);
             if (!(xmlDocument instanceof HtmlDocument)) {
-                String prefix = getLocalNameForNamespace(((Attr)node).getName());
-                prefix = prefix != null ? prefix : "";
-                String href = ((Attr)node).getValue();
+                String prefix = getLocalNameForNamespace(((Attr) node).getName(), "");
+                String href = ((Attr) node).getValue();
                 XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
                 if (xmlNamespace != null) return xmlNamespace;
-                else return XmlNamespace.createFromAttr(ruby, (Attr)node);
+                return XmlNamespace.createFromAttr(runtime, (Attr) node);
             }
         }
         XmlNode xmlNode = getCachedNode(node);
         if(xmlNode == null) {
-            xmlNode = (XmlNode)constructNode(ruby, node);
+            xmlNode = (XmlNode) constructNode(runtime, node);
             node.setUserData(CACHED_NODE, xmlNode, null);
         }
         return xmlNode;
@@ -242,9 +241,9 @@ public class NokogiriHelpers {
         return pos > 0 ? qName.substring(pos + 1) : qName;
     }
 
-    public static String getLocalNameForNamespace(String name) {
+    public static String getLocalNameForNamespace(String name, String defValue) {
         String localName = getLocalPart(name);
-        return ("xmlns".equals(localName)) ? null : localName;
+        return ("xmlns".equals(localName)) ? defValue : localName;
     }
 
     public static String rubyStringToString(IRubyObject str) {
