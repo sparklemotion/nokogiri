@@ -70,15 +70,15 @@ public class HtmlDocument extends XmlDocument {
     }
 
     @JRubyMethod(name="new", meta = true, rest = true, required=0)
-    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz,
-                                    IRubyObject[] args) {
+    public static IRubyObject rbNew(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
+        final Ruby runtime = context.runtime;
         HtmlDocument htmlDocument;
         try {
-            Document docNode = createNewDocument();
-            htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass) klazz);
+            Document docNode = createNewDocument(runtime);
+            htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
             htmlDocument.setDocumentNode(context, docNode);
         } catch (Exception ex) {
-            throw context.getRuntime().newRuntimeError("couldn't create document: " + ex);
+            throw runtime.newRuntimeError("couldn't create document: " + ex);
         }
 
         Helpers.invoke(context, htmlDocument, "initialize", args);
