@@ -85,7 +85,7 @@ import nokogiri.internals.c14n.Canonicalizer;
 
 @JRubyClass(name="Nokogiri::XML::Document", parent="Nokogiri::XML::Node")
 public class XmlDocument extends XmlNode {
-    private transient NokogiriNamespaceCache nsCache;
+    private NokogiriNamespaceCache nsCache;
 
     /* UserData keys for storing extra info in the document node. */
     public final static String DTD_RAW_DOCUMENT = "DTD_RAW_DOCUMENT";
@@ -188,7 +188,7 @@ public class XmlDocument extends XmlNode {
         if (nodePrefix == null) { // default namespace
             NokogiriHelpers.renameNode(node, default_href, node.getNodeName());
         } else {
-            String href = nsCache.get(node, nodePrefix).getHref();
+            String href = getNamespaceCache().get(node, nodePrefix).getHref();
             NokogiriHelpers.renameNode(node, href, node.getNodeName());
         }
         resolveNamespaceIfNecessary(node.getNextSibling(), default_href);
@@ -347,7 +347,7 @@ public class XmlDocument extends XmlNode {
     @JRubyMethod(name="remove_namespaces!")
     public IRubyObject remove_namespaces(ThreadContext context) {
         removeNamespceRecursively(context, this);
-        nsCache.clear();
+        if (nsCache != null) nsCache.clear();
         clearXpathContext(getNode());
         return this;
     }

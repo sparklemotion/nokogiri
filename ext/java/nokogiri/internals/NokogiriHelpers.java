@@ -111,9 +111,9 @@ public class NokogiriHelpers {
     public static IRubyObject getCachedNodeOrCreate(Ruby runtime, Node node) {
         if (node == null) return runtime.getNil();
         if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
-            XmlDocument xmlDocument = (XmlDocument)node.getOwnerDocument().getUserData(CACHED_NODE);
+            XmlDocument xmlDocument = (XmlDocument) node.getOwnerDocument().getUserData(CACHED_NODE);
             if (!(xmlDocument instanceof HtmlDocument)) {
-                String prefix = getLocalNameForNamespace(((Attr) node).getName(), "");
+                String prefix = getLocalNameForNamespace(((Attr) node).getName(), null);
                 String href = ((Attr) node).getValue();
                 XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
                 if (xmlNamespace != null) return xmlNamespace;
@@ -121,7 +121,7 @@ public class NokogiriHelpers {
             }
         }
         XmlNode xmlNode = getCachedNode(node);
-        if(xmlNode == null) {
+        if (xmlNode == null) {
             xmlNode = (XmlNode) constructNode(runtime, node);
             node.setUserData(CACHED_NODE, xmlNode, null);
         }

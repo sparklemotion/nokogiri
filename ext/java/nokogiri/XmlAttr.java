@@ -103,7 +103,7 @@ public class XmlAttr extends XmlNode {
     // the default namespace should be registered for this attribute
     void setNamespaceIfNecessary(Ruby runtime) {
         if ("xml".equals(node.getPrefix())) {
-           XmlNamespace.createDefaultNamespace(runtime, node); 
+            XmlNamespace.createDefaultNamespace(runtime, node);
         }
     }
 

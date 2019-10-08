@@ -35,13 +35,11 @@ package nokogiri;
 import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
 import static nokogiri.internals.NokogiriHelpers.getLocalNameForNamespace;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyObject;
-import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
@@ -59,26 +57,29 @@ import org.w3c.dom.Node;
 @JRubyClass(name="Nokogiri::XML::Namespace")
 public class XmlNamespace extends RubyObject {
     private Attr attr;
-    private transient IRubyObject prefix;
-    private transient IRubyObject href;
-    private String prefixString;
-    private String hrefString;
+    private transient IRubyObject prefixRuby;
+    private transient IRubyObject hrefRuby;
+    private String prefix;
+    private String href;
 
     public XmlNamespace(Ruby runtime, RubyClass klazz) {
         super(runtime, klazz);
     }
 
     XmlNamespace(Ruby runtime, Attr attr, String prefix, String href, IRubyObject document) {
-        super(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Namespace"));
-
-        init(attr, stringOrNil(runtime, prefix), stringOrNil(runtime, href), prefix, href, document);
+        this(runtime, attr, prefix, null, href, null, document);
     }
 
-    private XmlNamespace(Ruby runtime, Attr attr, IRubyObject prefix, String prefixString,
-                         IRubyObject href, String hrefString, IRubyObject document) {
+    private XmlNamespace(Ruby runtime, Attr attr, String prefix, IRubyObject prefixRuby,
+                         String href, IRubyObject hrefRuby, IRubyObject document) {
         super(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Namespace"));
 
-        init(attr, prefix, href, prefixString, hrefString, document);
+        this.attr = attr;
+        this.prefix = prefix;
+        this.href = href;
+        this.prefixRuby = prefixRuby;
+        this.hrefRuby = hrefRuby;
+        setInstanceVariable("@document", document);
     }
 
     public Node getNode() {
@@ -86,90 +87,67 @@ public class XmlNamespace extends RubyObject {
     }
     
     public String getPrefix() {
-        return prefixString;
+        return prefix;
     }
-    
+
+    boolean hasPrefix(String prefix) {
+        return prefix == null ? this.prefix == null : prefix.equals(this.prefix);
+    }
+
     public String getHref() {
-        return hrefString;
+        return href;
     }
     
     void deleteHref() {
-        hrefString = "http://www.w3.org/XML/1998/namespace";
-        href = null;
+        href = "http://www.w3.org/XML/1998/namespace";
+        hrefRuby = null;
         attr.getOwnerElement().removeAttributeNode(attr);
     }
     
-    private void init(Attr attr, IRubyObject prefix, IRubyObject href,
-                      String prefixString, String hrefString, IRubyObject document) {
-        this.attr = attr;
-        this.prefix = prefix;
-        this.href = href;
-        this.prefixString = prefixString;
-        this.hrefString = hrefString;
-        setInstanceVariable("@document", document);
-    }
-    
     public static XmlNamespace createFromAttr(Ruby runtime, Attr attr) {
-        String prefixValue = getLocalNameForNamespace(attr.getName(), null);
-        IRubyObject prefix = null; // lazy
-        if (prefixValue == null) {
-            prefix = runtime.getNil();
-            prefixValue = "";
-        }
-
-        String hrefValue = attr.getValue();
+        String prefixStr = getLocalNameForNamespace(attr.getName(), null);
+        IRubyObject prefix = prefixStr == null ? runtime.getNil() : null;
+        String hrefStr = attr.getValue();
         // check namespace cache
-        XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, attr.getOwnerDocument());
-        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
-        if (xmlNamespace != null) return xmlNamespace;
-        
-        // creating XmlNamespace instance
-        XmlNamespace namespace = new XmlNamespace(runtime, attr, prefix, prefixValue, null, hrefValue, xmlDocument);
-        
-        // updating namespace cache
+        XmlDocument xmlDocument = (XmlDocument) getCachedNodeOrCreate(runtime, attr.getOwnerDocument());
+        XmlNamespace namespace = xmlDocument.getNamespaceCache().get(prefixStr, hrefStr);
+        if (namespace != null) return namespace;
+
+        namespace = new XmlNamespace(runtime, attr, prefixStr, prefix, hrefStr, null, xmlDocument);
         xmlDocument.getNamespaceCache().put(namespace, attr.getOwnerElement());
         return namespace;
     }
     
-    public static XmlNamespace createFromPrefixAndHref(Node owner, IRubyObject prefix, IRubyObject href) {
-        String prefixValue = prefix.isNil() ? "" : prefix.toString();
-        String hrefValue = href.toString();
-        Ruby runtime = prefix.getRuntime();
+    static XmlNamespace createImpl(Node owner, IRubyObject prefix, String prefixStr, IRubyObject href, String hrefStr) {
+        final Ruby runtime = prefix.getRuntime();
+
         Document document = owner.getOwnerDocument();
-        // check namespace cache
         XmlDocument xmlDocument = (XmlDocument) getCachedNodeOrCreate(runtime, document);
-        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
-        if (xmlNamespace != null) return xmlNamespace;
+
+        assert xmlDocument.getNamespaceCache().get(prefixStr, hrefStr) == null;
 
         // creating XmlNamespace instance
         String attrName = "xmlns";
-        if (!prefixValue.isEmpty()) {
-            attrName = attrName + ':' + prefixValue;
-        }
-        Attr attrNode = document.createAttribute(attrName);
-        attrNode.setNodeValue(hrefValue);
+        if (prefixStr != null && !prefixStr.isEmpty()) attrName = attrName + ':' + prefixStr;
 
-        XmlNamespace namespace = new XmlNamespace(runtime, attrNode, prefix, prefixValue, href, hrefValue, xmlDocument);
-        
-        // updating namespace cache
+        Attr attrNode = document.createAttribute(attrName);
+        attrNode.setNodeValue(hrefStr);
+
+        XmlNamespace namespace = new XmlNamespace(runtime, attrNode, prefixStr, prefix, hrefStr, href, xmlDocument);
         xmlDocument.getNamespaceCache().put(namespace, owner);
         return namespace;
     }
     
     // owner should be an Attr node
     public static XmlNamespace createDefaultNamespace(Ruby runtime, Node owner) {
-        String prefixValue = owner.getPrefix();
-        String hrefValue = owner.getNamespaceURI();
-        Document document = owner.getOwnerDocument();
+        String prefixStr = owner.getPrefix();
+        String hrefStr = owner.getNamespaceURI();
         // check namespace cache
-        XmlDocument xmlDocument = (XmlDocument)getCachedNodeOrCreate(runtime, document);
-        XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefixValue, hrefValue);
-        if (xmlNamespace != null) return xmlNamespace;
+        XmlDocument xmlDocument = (XmlDocument) getCachedNodeOrCreate(runtime, owner.getOwnerDocument());
+        XmlNamespace namespace = xmlDocument.getNamespaceCache().get(prefixStr, hrefStr);
+        if (namespace != null) return namespace;
 
-        // creating XmlNamespace instance
-        XmlNamespace namespace = new XmlNamespace(runtime, (Attr) owner, prefixValue, hrefValue, xmlDocument);
-        
-        // updating namespace cache
+        namespace = new XmlNamespace(runtime, (Attr) owner, prefixStr, hrefStr, xmlDocument);
         xmlDocument.getNamespaceCache().put(namespace, owner);
         return namespace;
     }
@@ -185,31 +163,31 @@ public class XmlNamespace extends RubyObject {
     }
 
     public boolean isEmpty() {
-        return (prefix == null || prefix.isNil()) && (href == null || href.isNil());
+        return prefix == null && href == null;
     }
 
     @JRubyMethod
     public IRubyObject href(ThreadContext context) {
-        if (href == null) {
-            if (hrefString == null) return href = context.nil;
-            return href = context.runtime.newString(hrefString);
+        if (hrefRuby == null) {
+            if (href == null) return hrefRuby = context.nil;
+            return hrefRuby = context.runtime.newString(href);
         }
-        return href;
+        return hrefRuby;
     }
 
     @JRubyMethod
     public IRubyObject prefix(ThreadContext context) {
-        if (prefix == null) {
-            if (prefixString == null) return prefix = context.nil;
-            return prefix = context.runtime.newString(prefixString);
+        if (prefixRuby == null) {
+            if (prefix == null) return prefixRuby = context.nil;
+            return prefixRuby = context.runtime.newString(prefix);
         }
-        return prefix;
+        return prefixRuby;
     }
     
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
-        String prefix = prefixString;
+        String prefix = this.prefix;
         if (prefix == null) prefix = "";
-        String href = hrefString;
+        String href = this.href;
         if (href == null) href = "";
         String string = ' ' + prefix + '=' + '"' + href + '"';
         visitor.enter(string);
