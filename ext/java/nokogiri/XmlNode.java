@@ -1143,16 +1143,11 @@ public class XmlNode extends RubyObject {
         // namespaces might be deleted. Reflecting the result of
         // namespace removals is complicated, so the cache might not be
         // updated.
-        Ruby ruby = context.runtime;
-        RubyArray namespace_definitions = ruby.newArray();
-        if (doc == null) return namespace_definitions;
-        if (doc instanceof HtmlDocument) return namespace_definitions;
-        List<XmlNamespace> namespaces = ((XmlDocument) doc).getNamespaceCache().get(node);
-        for (XmlNamespace namespace : namespaces) {
-            namespace_definitions.append(namespace);
-        }
+        if (doc == null) return context.runtime.newEmptyArray();
+        if (doc instanceof HtmlDocument) return context.runtime.newEmptyArray();
 
-        return namespace_definitions;
+        List<XmlNamespace> namespaces = ((XmlDocument) doc).getNamespaceCache().get(node);
+        return context.runtime.newArray((List) namespaces);
     }
 
     /**
