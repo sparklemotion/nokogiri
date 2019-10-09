@@ -33,16 +33,7 @@
 package nokogiri;
 
 import static java.lang.Math.max;
-import static nokogiri.internals.NokogiriHelpers.clearXpathContext;
-import static nokogiri.internals.NokogiriHelpers.convertEncoding;
-import static nokogiri.internals.NokogiriHelpers.convertString;
-import static nokogiri.internals.NokogiriHelpers.getCachedNodeOrCreate;
-import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
-import static nokogiri.internals.NokogiriHelpers.isBlank;
-import static nokogiri.internals.NokogiriHelpers.nodeArrayToRubyArray;
-import static nokogiri.internals.NokogiriHelpers.nonEmptyStringOrNil;
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+import static nokogiri.internals.NokogiriHelpers.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -583,31 +574,15 @@ public class XmlNode extends RubyObject {
         }
     }
 
-    public void updateNodeNamespaceIfNecessary(ThreadContext context, XmlNamespace ns) {
-        String oldPrefix = this.node.getPrefix();
-        String uri = ns.getHref();
-
-        /*
-         * Update if both prefixes are null or equal
-         */
-        boolean update = (oldPrefix == null && ns.getPrefix() == null) ||
-            (oldPrefix != null && ns.getPrefix() != null && oldPrefix.equals(ns.getPrefix()));
-
-        if (update) {
-            this.node = NokogiriHelpers.renameNode(this.node, uri, this.node.getNodeName());
-        }
-    }
-
     protected IRubyObject getNodeName(ThreadContext context) {
         if (name != null) return name;
 
         String str = null;
         if (node != null) {
-            str = node.getNodeName();
-            str = NokogiriHelpers.getLocalPart(str);
+            str = NokogiriHelpers.getLocalPart(node.getNodeName());
         }
         if (str == null) str = "";
-        if (str.startsWith("#")) str = str.substring(1);  // eliminates '#'
+        if (str.startsWith("#")) str = str.substring(1); // eliminates '#'
         return name = context.runtime.newString(str);
     }
 
@@ -618,8 +593,7 @@ public class XmlNode extends RubyObject {
      */
     @JRubyMethod(name = {"add_namespace_definition", "add_namespace"})
     public IRubyObject add_namespace_definition(ThreadContext context, IRubyObject prefix, IRubyObject href) {
-        String prefixString = rubyStringToString(prefix);
-        String hrefString ;
+        String hrefString, prefixString = rubyStringToString(prefix);
 
         // try to search the namespace first
         if (href.isNil()) {
@@ -651,11 +625,26 @@ public class XmlNode extends RubyObject {
 
         XmlNamespace ns = XmlNamespace.createFromPrefixAndHref(namespaceOwner, prefix, href);
         if (node != namespaceOwner) {
-            this.node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + ':' + node.getLocalName());
+            node = NokogiriHelpers.renameNode(node, ns.getHref(), ns.getPrefix() + ':' + node.getLocalName());
         }
-        updateNodeNamespaceIfNecessary(context, ns);
+        updateNodeNamespaceIfNecessary(ns);
 
         return ns;
+    }
+
+    private void updateNodeNamespaceIfNecessary(XmlNamespace ns) {
+        String oldPrefix = this.node.getPrefix();
+
+        /*
+         * Update if both prefixes are null or equal
+         */
+        boolean update =
+            (oldPrefix == null && ns.getPrefix() == null) ||
+                (oldPrefix != null && oldPrefix.equals(ns.getPrefix()));
+
+        if (update) {
+            this.node = NokogiriHelpers.renameNode(this.node, ns.getHref(), this.node.getNodeName());
+        }
     }
 
     @JRubyMethod(name = {"attribute", "attr"})
@@ -1112,22 +1101,22 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject namespace(ThreadContext context) {
-        Ruby runtime = context.runtime;
         if (doc instanceof HtmlDocument) return context.nil;
 
         String namespaceURI = node.getNamespaceURI();
-        if (namespaceURI == null || namespaceURI == "") {
+        if (namespaceURI == null || namespaceURI.isEmpty()) {
             return context.nil;
         }
 
         String prefix = node.getPrefix();
         NokogiriNamespaceCache nsCache = NokogiriHelpers.getNamespaceCache(node);
         XmlNamespace namespace = nsCache.get(prefix == null ? "" : prefix, namespaceURI);
+
         if (namespace == null || namespace.isEmpty()) {
             // if it's not in the cache, create an unowned, uncached namespace and
             // return that. XmlReader can't insert namespaces into the cache, so
             // this is necessary for XmlReader to work correctly.
-            namespace = new XmlNamespace(runtime, null, prefix, namespaceURI, doc);
+            namespace = new XmlNamespace(context.runtime, null, prefix, namespaceURI, doc);
         }
 
         return namespace;
@@ -1342,14 +1331,16 @@ public class XmlNode extends RubyObject {
 
     private String findNamespaceHref(ThreadContext context, String prefix) {
         XmlNode currentNode = this;
-        while (currentNode != document(context)) {
+        final XmlNode doc = (XmlNode) document(context.runtime);
+        while (currentNode != doc) {
             RubyArray namespaces = currentNode.namespace_scopes(context);
             for (int i = 0; i<namespaces.size(); i++) {
                 XmlNamespace namespace = (XmlNamespace) namespaces.eltInternal(i);
                 if (namespace.getPrefix().equals(prefix)) return namespace.getHref();
             }
-            if (currentNode.parent(context) == context.nil) break;
-            currentNode = (XmlNode) currentNode.parent(context);
+            IRubyObject parent = currentNode.parent(context);
+            if (parent == context.nil) break;
+            currentNode = (XmlNode) parent;
         }
         return null;
     }
