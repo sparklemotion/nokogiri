@@ -39,7 +39,6 @@ import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -116,23 +115,22 @@ public class XmlDocument extends XmlNode {
         this(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"), document);
     }
 
-    public XmlDocument(Ruby ruby, RubyClass klass, Document document) {
-        super(ruby, klass, document);
-        createAndCacheNamespaces(ruby, document.getDocumentElement());
+    XmlDocument(Ruby runtime, RubyClass klass, Document document) {
+        super(runtime, klass, document);
+        init(runtime, document);
+    }
+
+    private void init(Ruby runtime, Document document) {
         stabilizeTextContent(document);
-        setInstanceVariable("@decorators", ruby.getNil());
+        createAndCacheNamespaces(runtime, document.getDocumentElement());
+        setInstanceVariable("@decorators", runtime.getNil());
     }
 
     public void setDocumentNode(ThreadContext context, Node node) {
-        super.setNode(context, node);
+        setNode(context, node);
         getNamespaceCache(); // initialize
-        Ruby runtime = context.runtime;
-        if (node != null) {
-            Document document = (Document)node;
-            stabilizeTextContent(document);
-            createAndCacheNamespaces(runtime, document.getDocumentElement());
-        }
-        setInstanceVariable("@decorators", runtime.getNil());
+        if (node != null) init(context.runtime, (Document) node);
+        else setInstanceVariable("@decorators", context.nil);
     }
 
     public void setEncoding(IRubyObject encoding) {
