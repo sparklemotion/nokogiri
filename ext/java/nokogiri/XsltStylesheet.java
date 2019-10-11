@@ -289,13 +289,9 @@ public class XsltStylesheet extends RubyObject {
     
     private IRubyObject createDocumentFromDomResult(ThreadContext context, Ruby runtime, DOMResult domResult) {
         if ("html".equals(domResult.getNode().getFirstChild().getNodeName())) {
-            HtmlDocument htmlDocument = (HtmlDocument) getNokogiriClass(runtime, "Nokogiri::HTML::Document").allocate();
-            htmlDocument.setDocumentNode(context, (Document) domResult.getNode());
-            return htmlDocument;
+            return new HtmlDocument(context.runtime, (Document) domResult.getNode());
         } else {
-            XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
-            xmlDocument.setDocumentNode(context, (Document) domResult.getNode());
-            return xmlDocument;
+            return new XmlDocument(context.runtime, (Document) domResult.getNode());
         }
     }
     

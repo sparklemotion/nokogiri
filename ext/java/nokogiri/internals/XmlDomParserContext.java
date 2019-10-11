@@ -200,30 +200,19 @@ public class XmlDomParserContext extends ParserContext {
         }
     }
     
-    private XmlDocument getInterruptedOrNewXmlDocument(ThreadContext context, RubyClass klazz) {
+    private XmlDocument getInterruptedOrNewXmlDocument(ThreadContext context, RubyClass klass) {
         Document document = parser.getDocument();
-        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
-        if (document != null) {
-            xmlDocument.setDocumentNode(context, document);
-        }
+        XmlDocument xmlDocument = new XmlDocument(context.runtime, klass, document);
         xmlDocument.setEncoding(ruby_encoding);
         return xmlDocument;
-    }
-
-    protected XmlDocument getNewEmptyDocument(ThreadContext context) {
-        IRubyObject[] args = new IRubyObject[0];
-        return (XmlDocument) XmlDocument.rbNew(context, getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"), args);
     }
 
     /**
      * This method is broken out so that HtmlDomParserContext can
      * override it.
      */
-    protected XmlDocument wrapDocument(ThreadContext context,
-                                       RubyClass klazz,
-                                       Document doc) {
-        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
-        xmlDocument.setDocumentNode(context, doc);
+    protected XmlDocument wrapDocument(ThreadContext context, RubyClass klass, Document doc) {
+        XmlDocument xmlDocument = new XmlDocument(context.runtime, klass, doc);
         xmlDocument.setEncoding(ruby_encoding);
 
         if (options.dtdLoad) {

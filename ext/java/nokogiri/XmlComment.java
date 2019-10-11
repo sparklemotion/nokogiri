@@ -82,7 +82,7 @@ public class XmlComment extends XmlNode {
         if (xmlDoc != null) {
             Document document = xmlDoc.getDocument();
             Node node = document.createComment(rubyStringToString(text));
-            setNode(context, node);
+            setNode(context.runtime, node);
         }
     }
 

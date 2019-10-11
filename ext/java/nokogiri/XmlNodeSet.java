@@ -120,7 +120,7 @@ public class XmlNodeSet extends RubyObject implements NodeList {
 
     final void initialize(Ruby runtime, IRubyObject refNode) {
         if (refNode instanceof XmlNode) {
-            IRubyObject doc = ((XmlNode) refNode).document(runtime);
+            XmlDocument doc = ((XmlNode) refNode).document(runtime);
             setDocumentAndDecorate(runtime.getCurrentContext(), this, doc);
         }
     }

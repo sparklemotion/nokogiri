@@ -47,6 +47,8 @@ import org.w3c.dom.NodeList;
 
 import nokogiri.internals.HtmlDomParserContext;
 
+import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
+
 /**
  * Class for Nokogiri::HTML::Document.
  *
@@ -64,7 +66,11 @@ public class HtmlDocument extends XmlDocument {
     public HtmlDocument(Ruby ruby, RubyClass klazz) {
         super(ruby, klazz);
     }
-    
+
+    public HtmlDocument(Ruby runtime, Document document) {
+        this(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"), document);
+    }
+
     public HtmlDocument(Ruby ruby, RubyClass klazz, Document doc) {
         super(ruby, klazz, doc);
     }
@@ -76,7 +82,7 @@ public class HtmlDocument extends XmlDocument {
         try {
             Document docNode = createNewDocument(runtime);
             htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
-            htmlDocument.setDocumentNode(context, docNode);
+            htmlDocument.setDocumentNode(context.runtime, docNode);
         } catch (Exception ex) {
             throw runtime.newRuntimeError("couldn't create document: " + ex);
         }
@@ -107,18 +113,15 @@ public class HtmlDocument extends XmlDocument {
 
         return internalSubset;
     }
-    
-    public void setDocumentNode(ThreadContext context, Node node) {
-        super.setNode(context, node);
-        Ruby runtime = context.getRuntime();
-        if (node != null) {
-            Document document = (Document)node;
-            document.normalize();
-            stabilzeAttrValue(document.getDocumentElement());
-        }
+
+    @Override
+    void init(Ruby runtime, Document document) {
+        stabilizeTextContent(document);
+        document.normalize();
+        stabilzeAttrValue(document.getDocumentElement());
         setInstanceVariable("@decorators", runtime.getNil());
     }
-    
+
     private void stabilzeAttrValue(Node node) {
         if (node == null) return;
         if (node.hasAttributes()) {

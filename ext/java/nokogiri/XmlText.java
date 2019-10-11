@@ -71,20 +71,17 @@ public class XmlText extends XmlNode {
     @Override
     protected void init(ThreadContext context, IRubyObject[] args) {
         if (args.length < 2) {
-            throw getRuntime().newArgumentError(args.length, 2);
+            throw context.runtime.newArgumentError(args.length, 2);
         }
 
         content = args[0];
         IRubyObject xNode = args[1];
 
-        XmlNode xmlNode = asXmlNode(context, xNode);
-        XmlDocument xmlDoc = (XmlDocument)xmlNode.document(context);
-        doc = xmlDoc;
-        Document document = xmlDoc.getDocument();
+        Document document = asXmlNode(context, xNode).getOwnerDocument();
         // text node content should not be encoded when it is created by Text node.
         // while content should be encoded when it is created by Element node.
         Node node = document.createTextNode(rubyStringToString(content));
-        setNode(context, node);
+        setNode(context.runtime, node);
     }
     
     @Override

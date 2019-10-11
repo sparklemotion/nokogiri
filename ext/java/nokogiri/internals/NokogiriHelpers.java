@@ -139,37 +139,37 @@ public class NokogiriHelpers {
         switch (node.getNodeType()) {
             case Node.ELEMENT_NODE:
                 XmlElement xmlElement = (XmlElement) NokogiriService.XML_ELEMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Element"));
-                xmlElement.setNode(runtime.getCurrentContext(), node);
+                xmlElement.setNode(runtime, node);
                 return xmlElement;
             case Node.ATTRIBUTE_NODE:
                 XmlAttr xmlAttr = (XmlAttr) NokogiriService.XML_ATTR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Attr"));
-                xmlAttr.setNode(runtime.getCurrentContext(), node);
+                xmlAttr.setNode(runtime, node);
                 return xmlAttr;
             case Node.TEXT_NODE:
                 XmlText xmlText = (XmlText) NokogiriService.XML_TEXT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Text"));
-                xmlText.setNode(runtime.getCurrentContext(), node);
+                xmlText.setNode(runtime, node);
                 return xmlText;
             case Node.COMMENT_NODE:
                 XmlComment xmlComment = (XmlComment) NokogiriService.XML_COMMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Comment"));
-                xmlComment.setNode(runtime.getCurrentContext(), node);
+                xmlComment.setNode(runtime, node);
                 return xmlComment;
             case Node.ENTITY_NODE:
                 return new XmlNode(runtime, getNokogiriClass(runtime, "Nokogiri::XML::EntityDecl"), node);
             case Node.ENTITY_REFERENCE_NODE:
                 XmlEntityReference xmlEntityRef = (XmlEntityReference) NokogiriService.XML_ENTITY_REFERENCE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::EntityReference"));
-                xmlEntityRef.setNode(runtime.getCurrentContext(), node);
+                xmlEntityRef.setNode(runtime, node);
                 return xmlEntityRef;
             case Node.PROCESSING_INSTRUCTION_NODE:
                 XmlProcessingInstruction xmlProcessingInstruction = (XmlProcessingInstruction) NokogiriService.XML_PROCESSING_INSTRUCTION_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::ProcessingInstruction"));
-                xmlProcessingInstruction.setNode(runtime.getCurrentContext(), node);
+                xmlProcessingInstruction.setNode(runtime, node);
                 return xmlProcessingInstruction;
             case Node.CDATA_SECTION_NODE:
                 XmlCdata xmlCdata = (XmlCdata) NokogiriService.XML_CDATA_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::CDATA"));
-                xmlCdata.setNode(runtime.getCurrentContext(), node);
+                xmlCdata.setNode(runtime, node);
                 return xmlCdata;
             case Node.DOCUMENT_NODE:
                 XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
-                xmlDocument.setDocumentNode(runtime.getCurrentContext(), node);
+                xmlDocument.setDocumentNode(runtime, (Document) node);
                 return xmlDocument;
             case Node.DOCUMENT_TYPE_NODE:
                 XmlDtd xmlDtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
@@ -177,7 +177,7 @@ public class NokogiriHelpers {
                 return xmlDtd;
             default:
                 XmlNode xmlNode = (XmlNode) NokogiriService.XML_NODE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Node"));
-                xmlNode.setNode(runtime.getCurrentContext(), node);
+                xmlNode.setNode(runtime, node);
                 return xmlNode;
         }
     }

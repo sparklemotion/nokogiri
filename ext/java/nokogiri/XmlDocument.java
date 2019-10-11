@@ -115,22 +115,21 @@ public class XmlDocument extends XmlNode {
         this(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"), document);
     }
 
-    XmlDocument(Ruby runtime, RubyClass klass, Document document) {
+    public XmlDocument(Ruby runtime, RubyClass klass, Document document) {
         super(runtime, klass, document);
         init(runtime, document);
     }
 
-    private void init(Ruby runtime, Document document) {
+    void init(Ruby runtime, Document document) {
         stabilizeTextContent(document);
         createAndCacheNamespaces(runtime, document.getDocumentElement());
         setInstanceVariable("@decorators", runtime.getNil());
     }
 
-    public void setDocumentNode(ThreadContext context, Node node) {
-        setNode(context, node);
-        getNamespaceCache(); // initialize
-        if (node != null) init(context.runtime, (Document) node);
-        else setInstanceVariable("@decorators", context.nil);
+    public final void setDocumentNode(Ruby runtime, Document node) {
+        super.setNode(runtime, node);
+        if (node != null) init(runtime, node);
+        else setInstanceVariable("@decorators", runtime.getNil());
     }
 
     public void setEncoding(IRubyObject encoding) {
@@ -264,12 +263,9 @@ public class XmlDocument extends XmlNode {
         try {
             Document docNode = createNewDocument(runtime);
             if ("Nokogiri::HTML::Document".equals(((RubyClass)klazz).getName())) {
-                xmlDocument = (XmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
-                xmlDocument.setDocumentNode(context, docNode);
+                xmlDocument = new HtmlDocument(context.runtime, (RubyClass) klazz, docNode);
             } else {
-                // XML::Document and sublass
-                xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, (RubyClass) klazz);
-                xmlDocument.setDocumentNode(context, docNode);
+                xmlDocument = new XmlDocument(context.runtime, (RubyClass) klazz, docNode);
             }
         } catch (Exception ex) {
             throw asRuntimeError(runtime, "couldn't create document: ", ex);
@@ -292,7 +288,7 @@ public class XmlDocument extends XmlNode {
     }
 
     @Override
-    IRubyObject document(Ruby runtime) {
+    XmlDocument document(Ruby runtime) {
         return this;
     }
 
@@ -544,11 +540,9 @@ public class XmlDocument extends XmlNode {
     }
 
     @JRubyMethod(meta=true)
-    public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klazz, IRubyObject arg) {
-        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"));
+    public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klass, IRubyObject arg) {
+        XmlDocument xmlDocument = new XmlDocument(context.runtime, (RubyClass) klass, (Document) arg.toJava(Document.class));
         Helpers.invoke(context, xmlDocument, "initialize");
-        Document document = (Document)arg.toJava(Document.class);
-        xmlDocument.setDocumentNode(context, document);
         return xmlDocument;
     }
 

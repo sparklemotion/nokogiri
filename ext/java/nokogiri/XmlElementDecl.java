@@ -70,10 +70,10 @@ public class XmlElementDecl extends XmlNode {
     }
 
     @Override // gets called from constructor ^^^
-    public void setNode(ThreadContext context, Node node) {
-        super.setNode(context, node);
-        attrDecls = RubyArray.newArray(context.runtime);
-        contentModel = context.nil;
+    public void setNode(Ruby runtime, Node node) {
+        super.setNode(runtime, node);
+        attrDecls = RubyArray.newArray(runtime);
+        contentModel = runtime.getNil();
     }
 
     static XmlElementDecl create(ThreadContext context, Node elemDeclNode) {

@@ -112,17 +112,14 @@ public abstract class ReaderNode {
     public IRubyObject getAttributesNodes() {
         RubyArray array = RubyArray.newArray(ruby);
         if (attributeList != null && attributeList.length > 0) {
-            final ThreadContext context = ruby.getCurrentContext();
             if (document == null) {
-                XmlDocument doc = (XmlDocument) XmlDocument.rbNew(context, getNokogiriClass(ruby, "Nokogiri::XML::Document"), new IRubyObject[0]);
-                document = doc.getDocument();
+                document = XmlDocument.createNewDocument(ruby);
             }
             for (int i=0; i<attributeList.length; i++) {
                 if (!isNamespace(attributeList.names.get(i))) {
                     Attr attr = document.createAttributeNS(attributeList.namespaces.get(i), attributeList.names.get(i));
                     attr.setValue(attributeList.values.get(i));
-                    XmlAttr xmlAttr = (XmlAttr) NokogiriService.XML_ATTR_ALLOCATOR.allocate(ruby, getNokogiriClass(ruby, "Nokogiri::XML::Attr"));
-                    xmlAttr.setNode(context, attr);
+                    XmlAttr xmlAttr = new XmlAttr(ruby, attr);
                     array.append(xmlAttr);
                 }
             }

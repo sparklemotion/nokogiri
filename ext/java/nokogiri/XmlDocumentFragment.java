@@ -76,13 +76,12 @@ public class XmlDocumentFragment extends XmlNode {
 
     @JRubyMethod(name="new", meta = true, required=1, optional=2)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
-        
-        if(args.length < 1) {
-            throw context.getRuntime().newArgumentError(args.length, 1);
+        if (args.length < 1) {
+            throw context.runtime.newArgumentError(args.length, 1);
         }
 
-        if(!(args[0] instanceof XmlDocument)){
-            throw context.getRuntime().newArgumentError("first parameter must be a Nokogiri::XML::Document instance");
+        if (!(args[0] instanceof XmlDocument)){
+            throw context.runtime.newArgumentError("first parameter must be a Nokogiri::XML::Document instance");
         }
 
         XmlDocument doc = (XmlDocument) args[0];
@@ -97,7 +96,7 @@ public class XmlDocumentFragment extends XmlNode {
 
         XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.runtime, (RubyClass)cls);
         fragment.setDocument(context, doc);
-        fragment.setNode(context, doc.getDocument().createDocumentFragment());
+        fragment.setNode(context.runtime, doc.getDocument().createDocumentFragment());
 
         //TODO: Get namespace definitions from doc.
         if (args.length == 3 && args[2] != null && args[2] instanceof XmlElement) {

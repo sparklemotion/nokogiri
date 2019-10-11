@@ -60,13 +60,6 @@ public class XmlElement extends XmlNode {
     }
     
     @Override
-    public void setNode(ThreadContext context, Node node) {
-      super.setNode(context, node);
-      if (doc != null)
-        setInstanceVariable("@document", doc);
-    }
-    
-    @Override
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
         visitor.enter((Element) node);
         XmlNodeSet xmlNodeSet = (XmlNodeSet) children(context);
