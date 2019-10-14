@@ -130,12 +130,11 @@ public class XsltStylesheet extends RubyObject {
         }
     }
     
-    private Pattern p = Pattern.compile("'.{1,}'");
+    private static final Pattern QUOTED = Pattern.compile("'.{1,}'");
 
     private String unparseValue(String orig) {
-        Matcher m = p.matcher(orig);
-        if ((orig.startsWith("\"") && orig.endsWith("\"")) || m.matches()) {
-            orig = orig.substring(1, orig.length()-1);
+        if ((orig.startsWith("\"") && orig.endsWith("\"")) || QUOTED.matcher(orig).matches()) {
+            orig = orig.substring(1, orig.length() - 1);
         }
 
         return orig;
