@@ -64,7 +64,8 @@ import org.w3c.dom.NamedNodeMap;
  */
 @JRubyClass(name="Nokogiri::XML::DocumentFragment", parent="Nokogiri::XML::Node")
 public class XmlDocumentFragment extends XmlNode {
-    private XmlElement fragmentContext = null;
+
+    private XmlElement fragmentContext;
 
     public XmlDocumentFragment(Ruby ruby) {
         this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::DocumentFragment"));
@@ -177,20 +178,15 @@ public class XmlDocumentFragment extends XmlNode {
         return fragmentContext;
     }
 
-    //@Override
     public void add_child(ThreadContext context, XmlNode child) {
         // Some magic for DocumentFragment
 
-        Ruby ruby = context.getRuntime();
         XmlNodeSet children = (XmlNodeSet) child.children(context);
 
-        long length = children.length();
-
-        RubyArray childrenArray = children.convertToArray();
-
-        if(length != 0) {
-            for(int i = 0; i < length; i++) {
-                XmlNode item = (XmlNode) ((XmlNode) childrenArray.aref(ruby.newFixnum(i))).dup_implementation(context, true);
+        int length = children.length();
+        if (length != 0) {
+            for (int i = 0; i < length; i++) {
+                XmlNode item = ((XmlNode) children.nodes[i]).cloneImpl(true);
                 add_child(context, item);
             }
         }
