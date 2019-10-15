@@ -123,7 +123,9 @@ public class XmlDocument extends XmlNode {
 
     void init(Ruby runtime, Document document) {
         stabilizeTextContent(document);
-        createAndCacheNamespaces(runtime, document.getDocumentElement());
+        if (document.getDocumentElement() != null) {
+            createAndCacheNamespaces(runtime, document.getDocumentElement());
+        }
         setInstanceVariable("@decorators", runtime.getNil());
     }
 
@@ -144,33 +146,34 @@ public class XmlDocument extends XmlNode {
     // not sure, but like attribute values, text value will be lost
     // unless it is referred once before this document is used.
     // this seems to happen only when the fragment is parsed from Node#in_context.
-    protected void stabilizeTextContent(Document document) {
+    protected static void stabilizeTextContent(Document document) {
         if (document.getDocumentElement() != null) document.getDocumentElement().getTextContent();
     }
 
-    private void createAndCacheNamespaces(Ruby ruby, Node node) {
-        if (node == null) return;
+    private static void createAndCacheNamespaces(Ruby runtime, Node node) {
         if (node.hasAttributes()) {
             NamedNodeMap nodeMap = node.getAttributes();
             for (int i=0; i<nodeMap.getLength(); i++) {
                 Node n = nodeMap.item(i);
                 if (n instanceof Attr) {
-                    Attr attr = (Attr)n;
-                    String attrName = attr.getName();
-                    // not sure, but need to get value always before document is referred.
-                    // or lose attribute value
-                    String attrValue = attr.getValue(); // don't delete this line
-                    if (isNamespace(attrName)) {
+                    Attr attr = (Attr) n;
+                    stabilizeAttr(attr);
+                    if (isNamespace(attr.getName())) {
                         // create and cache
-                        XmlNamespace.createFromAttr(ruby, attr);
+                        XmlNamespace.createFromAttr(runtime, attr);
                     }
                 }
             }
         }
         NodeList children = node.getChildNodes();
         for (int i=0; i<children.getLength(); i++) {
-            createAndCacheNamespaces(ruby, children.item(i));
+            createAndCacheNamespaces(runtime, children.item(i));
         }
+    }
+
+    static void stabilizeAttr(final Attr attr) {
+        // TODO not sure, but need to get value always before document is referred or lose attribute value
+        attr.getValue(); // don't delete this line
     }
 
     // When a document is created from fragment with a context (reference) document,
@@ -241,7 +244,7 @@ public class XmlDocument extends XmlNode {
         }
     }
 
-    private static RaiseException asRuntimeError(Ruby runtime, String message, Exception cause) {
+    static RaiseException asRuntimeError(Ruby runtime, String message, Exception cause) {
         if (cause instanceof RaiseException) return (RaiseException) cause;
 
         if (message == null) message = cause.toString();
@@ -294,7 +297,7 @@ public class XmlDocument extends XmlNode {
     }
 
     @JRubyMethod(name="encoding=")
-    public IRubyObject encoding_set(ThreadContext context, IRubyObject encoding) {
+    public IRubyObject encoding_set(IRubyObject encoding) {
         this.encoding = encoding;
         return this;
     }
@@ -320,25 +323,17 @@ public class XmlDocument extends XmlNode {
     }
 
     @JRubyMethod(meta = true, required = 4)
-    public static IRubyObject read_io(ThreadContext context,
-                                      IRubyObject klass,
-                                      IRubyObject[] args) {
-        Ruby ruby = context.getRuntime();
-        XmlDomParserContext ctx =
-            new XmlDomParserContext(ruby, args[2], args[3]);
+    public static IRubyObject read_io(ThreadContext context, IRubyObject klass, IRubyObject[] args) {
+        XmlDomParserContext ctx = new XmlDomParserContext(context.runtime, args[2], args[3]);
         ctx.setIOInputSource(context, args[0], args[1]);
-        return ctx.parse(context, klass, args[1]);
+        return ctx.parse(context, (RubyClass) klass, args[1]);
     }
 
     @JRubyMethod(meta = true, required = 4)
-    public static IRubyObject read_memory(ThreadContext context,
-                                          IRubyObject klass,
-                                          IRubyObject[] args) {
-        Ruby ruby = context.getRuntime();
-        XmlDomParserContext ctx =
-            new XmlDomParserContext(ruby, args[2], args[3]);
+    public static IRubyObject read_memory(ThreadContext context, IRubyObject klass, IRubyObject[] args) {
+        XmlDomParserContext ctx = new XmlDomParserContext(context.runtime, args[2], args[3]);
         ctx.setStringInputSource(context, args[0], args[1]);
-        return ctx.parse(context, klass, args[1]);
+        return ctx.parse(context, (RubyClass) klass, args[1]);
     }
 
     @JRubyMethod(name="remove_namespaces!")

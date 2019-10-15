@@ -195,8 +195,8 @@ public class XmlNode extends RubyObject {
      * This is the allocator for XmlNode class.  It should only be
      * called from Ruby code.
      */
-    public XmlNode(Ruby ruby, RubyClass cls) {
-        super(ruby, cls);
+    public XmlNode(Ruby runtime, RubyClass klass) {
+        super(runtime, klass);
     }
 
     /**
@@ -419,18 +419,15 @@ public class XmlNode extends RubyObject {
         // add xmlns attribute if this is a new root node or if the node's
         // namespace isn't a default namespace in the new document
         if (e.getParentNode().getNodeType() == Node.DOCUMENT_NODE) {
-          // this is the root node, so we must set the namespaces attributes
-          // anyway
-          e.setAttribute(prefix == null ? "xmlns":"xmlns:"+prefix, nsURI);
+            // this is the root node, so we must set the namespaces attributes anyway
+            e.setAttribute(prefix == null ? "xmlns" : "xmlns:" + prefix, nsURI);
         } else if (prefix == null) {
-           if (!isDefault)
-             // this is a default namespace but isn't the default where this
-             // node is being added
-             e.setAttribute("xmlns", nsURI);
-        } else if (currentPrefix != prefix || currentURI != nsURI) {
-          // this is a prefixed namespace but doens't have the same prefix or
-          // the prefix is set to a diffent URI
-          e.setAttribute("xmlns:"+prefix, nsURI);
+            // this is a default namespace but isn't the default where this node is being added
+            if (!isDefault) e.setAttribute("xmlns", nsURI);
+        } else if (!prefix.equals(currentPrefix) || nsURI.equals(currentURI)) {
+            // this is a prefixed namespace
+            // but doesn't have the same prefix or the prefix is set to a different URI
+            e.setAttribute("xmlns:" + prefix, nsURI);
         }
 
         if (e.hasAttributes()) {
@@ -457,8 +454,7 @@ public class XmlNode extends RubyObject {
                 }
 
                 if (!(nsUri == null || "".equals(nsUri) || "http://www.w3.org/XML/1998/namespace".equals(nsUri))) {
-                    // Create a new namespace object and add it to the document
-                    // namespace cache.
+                    // Create a new namespace object and add it to the document namespace cache.
                     // TODO: why do we need the namespace cache ?
                     XmlNamespace.createFromAttr(context.runtime, attr);
                 }
@@ -742,23 +738,19 @@ public class XmlNode extends RubyObject {
     public IRubyObject in_context(ThreadContext context,
                                   IRubyObject str,
                                   IRubyObject options) {
-        RubyModule klass;
+        RubyClass klass;
         XmlDomParserContext ctx;
         InputStream istream;
-        XmlDocument document;
 
-        IRubyObject d = document(context);
-        Ruby runtime = context.runtime;
-        if (d != null && d instanceof XmlDocument) {
-            document = (XmlDocument)d;
-        } else {
-            return runtime.getNil();
-        }
+        final Ruby runtime = context.runtime;
+
+        XmlDocument document = document(runtime);
+        if (document == null) return context.nil;
 
         if (document instanceof HtmlDocument) {
             klass = getNokogiriClass(runtime, "Nokogiri::HTML::Document");
             ctx = new HtmlDomParserContext(runtime, options);
-            ((HtmlDomParserContext)ctx).enableDocumentFragment();
+            ((HtmlDomParserContext) ctx).enableDocumentFragment();
             istream = new ByteArrayInputStream((rubyStringToString(str)).getBytes());
         } else {
             klass = getNokogiriClass(runtime, "Nokogiri::XML::Document");
@@ -775,17 +767,16 @@ public class XmlNode extends RubyObject {
         	htmlCtx.setEncoding(document.getEncoding().asJavaString());
         }
 
-        XmlDocument doc = ctx.parse(context, klass, runtime.getNil());
+        XmlDocument doc = ctx.parse(context, klass, context.nil);
 
-        RubyArray documentErrors = getErrorArray(document);
-        RubyArray docErrors = getErrorArray(doc);
-        if (isErrorIncreased(documentErrors, docErrors)) {
+        RubyArray documentErrors = getErrors(document);
+        RubyArray docErrors = getErrors(doc);
+        if (checkNewErrors(documentErrors, docErrors)) {
             for (int i = 0; i < docErrors.getLength(); i++) {
-                documentErrors.add(docErrors.entry(i));
+                documentErrors.append(docErrors.entry(i));
             }
             document.setInstanceVariable("@errors", documentErrors);
-            XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, new IRubyObject[0]);
-            return xmlNodeSet;
+            return XmlNodeSet.newXmlNodeSet(context, new IRubyObject[0]);
         }
 
         // The first child might be document type node (dtd declaration).
@@ -797,21 +788,19 @@ public class XmlNode extends RubyObject {
             first = doc.node.getFirstChild();
         }
 
-        IRubyObject[] nodes = new IRubyObject[]{NokogiriHelpers.getCachedNodeOrCreate(runtime, first)};
+        IRubyObject[] nodes = new IRubyObject[] { NokogiriHelpers.getCachedNodeOrCreate(runtime, first) };
         XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, nodes);
         return xmlNodeSet;
     }
 
-    private RubyArray getErrorArray(XmlDocument document) {
+    private static RubyArray getErrors(XmlDocument document) {
         IRubyObject obj = document.getInstanceVariable("@errors");
-        if (obj != null && obj instanceof RubyArray) {
-            return (RubyArray)obj;
-        }
-        return RubyArray.newArray(document.getRuntime());
+        if (obj instanceof RubyArray) return (RubyArray) obj;
+        return RubyArray.newEmptyArray(document.getRuntime());
     }
 
-    private boolean isErrorIncreased(RubyArray baseErrors, RubyArray createdErrors) {
-        int length = ((RubyArray) createdErrors.op_diff(baseErrors)).size();
+    private static boolean checkNewErrors(RubyArray baseErrors, RubyArray newErrors) {
+        int length = ((RubyArray) newErrors.op_diff(baseErrors)).size();
         return length > 0;
     }
 
@@ -827,7 +816,7 @@ public class XmlNode extends RubyObject {
         }
         CharSequence textContent;
         if (this instanceof XmlDocument) {
-            Node node = ((Document)this.node).getDocumentElement();
+            Node node = ((Document) this.node).getDocumentElement();
             if (node == null) {
                 textContent = "";
             } else {
@@ -841,7 +830,7 @@ public class XmlNode extends RubyObject {
         return textContent;
     }
 
-    private StringBuilder getTextContentRecursively(StringBuilder buffer, Node currentNode) {
+    private static StringBuilder getTextContentRecursively(StringBuilder buffer, Node currentNode) {
         CharSequence textContent = currentNode.getNodeValue();
         if (textContent != null && NokogiriHelpers.shouldDecode(currentNode)) {
             textContent = NokogiriHelpers.decodeJavaString(textContent);
@@ -855,7 +844,7 @@ public class XmlNode extends RubyObject {
         return buffer;
     }
 
-    private boolean hasTextContent(Node child) {
+    private static boolean hasTextContent(Node child) {
         return child.getNodeType() != Node.COMMENT_NODE && child.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
     }
 
@@ -1488,7 +1477,7 @@ public class XmlNode extends RubyObject {
 
             switch (scheme) {
             case CHILD:
-                Node[] children = adoptAsChild(context, thisNode, otherNode);
+                Node[] children = adoptAsChild(thisNode, otherNode);
                 if (children.length == 1 && otherNode == children[0]) {
                     break;
                 } else {
@@ -1536,33 +1525,29 @@ public class XmlNode extends RubyObject {
         }
     }
 
-    protected Node[] adoptAsChild(ThreadContext context, Node parent,
-                                Node otherNode) {
+    private Node[] adoptAsChild(final Node parent, Node otherNode) {
         /*
-         * This is a bit of a hack.  C-Nokogiri allows adding a bare
-         * text node as the root element.  Java (and XML spec?) does
-         * not.  So we wrap the text node in an element.
+         * This is a bit of a hack.  C-Nokogiri allows adding a bare text node as the root element.
+         * Java (and XML spec?) does not.  So we wrap the text node in an element.
          */
         if (parent.getNodeType() == Node.DOCUMENT_NODE && otherNode.getNodeType() == Node.TEXT_NODE) {
-          Element e = (Element) parent.getFirstChild();
-          if (e == null || !e.getNodeName().equals(TEXT_WRAPPER_NAME)) {
-            e = ((Document)parent).createElement(TEXT_WRAPPER_NAME);
-            adoptAsChild(context, parent, e);
-          }
-          e.appendChild(otherNode);
-          otherNode = e;
+            Element e = (Element) parent.getFirstChild();
+            if (e == null || !e.getNodeName().equals(TEXT_WRAPPER_NAME)) {
+                e = ((Document) parent).createElement(TEXT_WRAPPER_NAME);
+                adoptAsChild(parent, e);
+            }
+            e.appendChild(otherNode);
+            otherNode = e;
         } else {
-          addNamespaceURIIfNeeded(otherNode);
-          parent.appendChild(otherNode);
+            addNamespaceURIIfNeeded(otherNode);
+            parent.appendChild(otherNode);
         }
-        Node[] nodes = new Node[1];
-        nodes[0] = otherNode;
-        return nodes;
+        return new Node[] { otherNode };
     }
 
     private void addNamespaceURIIfNeeded(Node child) {
-        if (this instanceof XmlDocumentFragment && ((XmlDocumentFragment)this).getFragmentContext() != null) {
-            XmlElement fragmentContext = ((XmlDocumentFragment)this).getFragmentContext();
+        if (this instanceof XmlDocumentFragment && ((XmlDocumentFragment) this).getFragmentContext() != null) {
+            XmlElement fragmentContext = ((XmlDocumentFragment) this).getFragmentContext();
             String namespace_uri = fragmentContext.node.getNamespaceURI();
             if (namespace_uri != null && namespace_uri.length() > 0) {
                 NokogiriHelpers.renameNode(child, namespace_uri, child.getNodeName());

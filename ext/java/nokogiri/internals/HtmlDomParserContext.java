@@ -128,7 +128,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
             } else {
                 // no encoding given & no encoding detected, then try to get it
                 String charset = tryGetCharsetFromHtml5MetaTag(document);
-                ruby_encoding = stringOrNil(context.getRuntime(), charset);
+                ruby_encoding = stringOrNil(context.runtime, charset);
             }
         }
         htmlDocument.setEncoding(ruby_encoding);

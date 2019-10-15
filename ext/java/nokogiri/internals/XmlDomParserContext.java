@@ -216,10 +216,9 @@ public class XmlDomParserContext extends ParserContext {
         xmlDocument.setEncoding(ruby_encoding);
 
         if (options.dtdLoad) {
-            IRubyObject xmlDtdOrNil = XmlDtd.newFromExternalSubset(context.getRuntime(), doc);
-            if (!xmlDtdOrNil.isNil()) {
-                XmlDtd xmlDtd = (XmlDtd) xmlDtdOrNil;
-                doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, xmlDtd, null);
+            IRubyObject dtd = XmlDtd.newFromExternalSubset(context.runtime, doc);
+            if (!dtd.isNil()) {
+                doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, (XmlDtd) dtd, null);
             }
         }
         return xmlDocument;
@@ -228,20 +227,18 @@ public class XmlDomParserContext extends ParserContext {
     /**
      * Must call setInputSource() before this method.
      */
-    public XmlDocument parse(ThreadContext context,
-                             IRubyObject klazz,
-                             IRubyObject url) {
+    public XmlDocument parse(ThreadContext context, RubyClass klass, IRubyObject url) {
         XmlDocument xmlDoc;
         try {
             Document doc = do_parse();
-            xmlDoc = wrapDocument(context, (RubyClass)klazz, doc);
+            xmlDoc = wrapDocument(context, klass, doc);
             xmlDoc.setUrl(url);
             addErrorsIfNecessary(context, xmlDoc);
             return xmlDoc;
         } catch (SAXException e) {
-            return getDocumentWithErrorsOrRaiseException(context, (RubyClass)klazz, e);
+            return getDocumentWithErrorsOrRaiseException(context, klass, e);
         } catch (IOException e) {
-            return getDocumentWithErrorsOrRaiseException(context, (RubyClass)klazz, e);
+            return getDocumentWithErrorsOrRaiseException(context, klass, e);
         }
     }
 

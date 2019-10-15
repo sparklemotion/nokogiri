@@ -173,11 +173,8 @@ public class XsltStylesheet extends RubyObject {
     }
     
     private static void ensureFirstArgIsDocument(Ruby runtime, IRubyObject arg) {
-        if (arg instanceof XmlDocument) {
-            return;
-        } else {
-            throw runtime.newArgumentError("doc must be a Nokogiri::XML::Document instance");
-        }
+        if (arg instanceof XmlDocument) return;
+        throw runtime.newArgumentError("doc must be a Nokogiri::XML::Document instance");
     }
     
     private static void ensureDocumentHasNoError(ThreadContext context, XmlDocument xmlDoc) {

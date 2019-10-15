@@ -126,7 +126,7 @@ public class XmlNodeSet extends RubyObject implements NodeList {
     }
 
     public int length() {
-      return nodes == null ? 0 : nodes.length;
+        return nodes == null ? 0 : nodes.length;
     }
 
     public void relink_namespace(ThreadContext context) {
@@ -221,7 +221,7 @@ outer:
           }
         }
 
-        return context.runtime.getFalse();
+        return context.fals;
     }
 
     @JRubyMethod(name = {"length", "size"})
@@ -405,13 +405,6 @@ outer:
         return this;
     }
 
-    private static XmlNodeSet newXmlNodeSet(ThreadContext context, XmlNodeSet reference) {
-        XmlNodeSet xmlNodeSet = create(context.getRuntime());
-        xmlNodeSet.setReference(reference);
-        xmlNodeSet.nodes = new IRubyObject[0];
-        return xmlNodeSet;
-    }
-
     private static IRubyObject asXmlNodeOrNamespace(ThreadContext context, IRubyObject possibleNode) {
         if (possibleNode instanceof XmlNode || possibleNode instanceof XmlNamespace) {
             return possibleNode;
@@ -432,8 +425,8 @@ outer:
 
     public Node item(int index) {
         Object n = nodes[index];
-        if (n instanceof XmlNode) return ((XmlNode)n).node;
-        if (n instanceof XmlNamespace) return ((XmlNamespace)n).getNode();
+        if (n instanceof XmlNode) return ((XmlNode) n).node;
+        if (n instanceof XmlNamespace) return ((XmlNamespace) n).getNode();
         return null;
     }
 }

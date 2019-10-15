@@ -267,7 +267,6 @@ public class NokogiriHelpers {
 
         Node cur, tmp, next;
 
-        // TODO: Rename buffer to path.
         String buffer = "";
 
         cur = node;
@@ -509,20 +508,6 @@ public class NokogiriHelpers {
 
     public static CharSequence decodeJavaString(CharSequence str) {
         return convert(encoded_pattern, str, encoded, decoded);
-    }
-
-    public static String getNodeName(Node node) {
-        if(node == null) { System.out.println("node is null"); return ""; }
-        String name = node.getNodeName();
-        if(name == null) { System.out.println("name is null"); return ""; }
-        if(name.equals("#document")) {
-            return "document";
-        } else if(name.equals("#text")) {
-            return "text";
-        } else {
-            name = getLocalPart(name);
-            return (name == null) ? "" : name;
-        }
     }
 
     public static final String XMLNS_URI = "http://www.w3.org/2000/xmlns/";
