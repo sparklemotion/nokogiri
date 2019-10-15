@@ -39,6 +39,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,7 +54,6 @@ import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -544,6 +544,10 @@ public class NokogiriHelpers {
         return str.isEmpty() || isBlank((CharSequence) str);
     }
 
+    public static boolean isNullOrEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
     public static CharSequence canonicalizeWhitespace(CharSequence str) {
         final int len = str.length();
         StringBuilder sb = new StringBuilder(len);
@@ -567,18 +571,18 @@ public class NokogiriHelpers {
         return newPrefix + ':' + tagName;
     }
 
-    public static IRubyObject[] nodeListToRubyArray(Ruby ruby, NodeList nodes) {
+    public static IRubyObject[] nodeListToRubyArray(Ruby runtime, NodeList nodes) {
         IRubyObject[] array = new IRubyObject[nodes.getLength()];
         for (int i = 0; i < nodes.getLength(); i++) {
-            array[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i));
+            array[i] = NokogiriHelpers.getCachedNodeOrCreate(runtime, nodes.item(i));
         }
         return array;
     }
 
-    public static IRubyObject[] nodeArrayToArray(Ruby ruby, Node[] nodes) {
-        IRubyObject[] result = new IRubyObject[nodes.length];
-        for (int i = 0; i < nodes.length; i++) {
-            result[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]);
+    public static IRubyObject[] nodeListToArray(Ruby ruby, List<Node> nodes) {
+        IRubyObject[] result = new IRubyObject[nodes.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.get(i));
         }
         return result;
     }
@@ -591,36 +595,20 @@ public class NokogiriHelpers {
         return n;
     }
 
-    public static RubyArray namedNodeMapToRubyArray(Ruby ruby, NamedNodeMap map) {
-        RubyArray n = RubyArray.newArray(ruby, map.getLength());
-        for (int i = 0; i < map.getLength(); i++) {
-            n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, map.item(i)));
-        }
-        return n;
-    }
-
-    public static String getValidEncodingOrNull(Ruby runtime, IRubyObject encoding) {
-        if (encoding.isNil()) {
-            return null;
-        }
-
-        String givenEncoding = rubyStringToString(encoding);
-        if (charsetNames.contains(givenEncoding)) {
-            return givenEncoding;
-        }
+    public static String getValidEncodingOrNull(IRubyObject encoding) {
+        if (encoding.isNil()) return null; // charsetNames does not like contains(null)
+        String enc = rubyStringToString(encoding.convertToString());
+        if (CharsetNames.contains(enc)) return enc;
         return null;
     }
 
-    public static String getValidEncoding(Ruby runtime, IRubyObject encoding) {
-        String validEncoding = getValidEncodingOrNull(runtime, encoding);
-        if (validEncoding != null) {
-            return validEncoding;
-        }
-
+    public static String getValidEncoding(IRubyObject encoding) {
+        String validEncoding = getValidEncodingOrNull(encoding);
+        if (validEncoding != null) return validEncoding;
         return Charset.defaultCharset().name();
     }
 
-    private static Set<String> charsetNames = Charset.availableCharsets().keySet();
+    private static final Set<String> CharsetNames = Charset.availableCharsets().keySet();
 
     public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
         if (systemId == null) return systemId;
@@ -685,9 +673,9 @@ public class NokogiriHelpers {
     private static CharSequence nkf(ThreadContext context, Charset encoding, CharSequence str) {
         final Ruby runtime = context.getRuntime();
         final ByteList opt;
-        if (NokogiriHelpers.shift_jis.compareTo(encoding) == 0) opt = _Sw;
-        else if (NokogiriHelpers.jis.compareTo(encoding) == 0) opt = _Jw;
-        else if (NokogiriHelpers.euc_jp.compareTo(encoding) == 0) opt = _Ew;
+        if (NokogiriHelpers.Shift_JIS.compareTo(encoding) == 0) opt = _Sw;
+        else if (NokogiriHelpers.ISO_2022_JP.compareTo(encoding) == 0) opt = _Jw;
+        else if (NokogiriHelpers.EUC_JP.compareTo(encoding) == 0) opt = _Ew;
         else opt = _Ww; // should not come here. should be treated before this method.
 
         Class nkfClass;
@@ -716,9 +704,9 @@ public class NokogiriHelpers {
         }
     }
 
-    private static final Charset shift_jis = Charset.forName("Shift_JIS");
-    private static final Charset jis = Charset.forName("ISO-2022-JP");
-    private static final Charset euc_jp = Charset.forName("EUC-JP");
+    private static final Charset Shift_JIS = Charset.forName("Shift_JIS");
+    private static final Charset ISO_2022_JP = Charset.forName("ISO-2022-JP"); // JIS
+    private static final Charset EUC_JP = Charset.forName("EUC-JP");
 
     public static boolean shouldEncode(Node text) {
         final Boolean encoded = (Boolean) text.getUserData(NokogiriHelpers.ENCODED_STRING);

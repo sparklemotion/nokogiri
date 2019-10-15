@@ -666,39 +666,41 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject first_element_child(ThreadContext context) {
-        List<Node> elementNodes = new ArrayList<Node>();
-        addElements(node, elementNodes, true);
-        if (elementNodes.size() == 0) return context.getRuntime().getNil();
-        return getCachedNodeOrCreate(context.getRuntime(), elementNodes.get(0));
+        List<Node> elementNodes = getElements(node, true);
+        if (elementNodes.size() == 0) return context.nil;
+        return getCachedNodeOrCreate(context.runtime, elementNodes.get(0));
     }
 
     @JRubyMethod
     public IRubyObject last_element_child(ThreadContext context) {
-        List<Node> elementNodes = new ArrayList<Node>();
-        addElements(node, elementNodes, false);
-        if (elementNodes.size() == 0) return context.getRuntime().getNil();
-        return getCachedNodeOrCreate(context.getRuntime(), elementNodes.get(elementNodes.size()-1));
+        List<Node> elementNodes = getElements(node, false);
+        if (elementNodes.size() == 0) return context.nil;
+        return getCachedNodeOrCreate(context.runtime, elementNodes.get(elementNodes.size() - 1));
     }
 
     @JRubyMethod(name = {"element_children", "elements"})
     public IRubyObject element_children(ThreadContext context) {
-        List<Node> elementNodes = new ArrayList<Node>();
-        addElements(node, elementNodes, false);
-        IRubyObject[] array = NokogiriHelpers.nodeArrayToArray(context.runtime,
-                                                               elementNodes.toArray(new Node[0]));
+        List<Node> elementNodes = getElements(node, false);
+        IRubyObject[] array = NokogiriHelpers.nodeListToArray(context.runtime, elementNodes);
         return XmlNodeSet.newNodeSet(context.runtime, array, this);
     }
 
-    private void addElements(Node n, List<Node> nodes, boolean isFirstOnly) {
-        NodeList children = n.getChildNodes();
-        if (children.getLength() == 0) return;
+    private static List<Node> getElements(Node node, final boolean firstOnly) {
+        NodeList children = node.getChildNodes();
+        if (children.getLength() == 0) {
+            return Collections.emptyList();
+        }
+        ArrayList<Node> elements = firstOnly ? null : new ArrayList<Node>(children.getLength());
         for (int i=0; i< children.getLength(); i++) {
             Node child = children.item(i);
             if (child.getNodeType() == Node.ELEMENT_NODE) {
-                nodes.add(child);
-                if (isFirstOnly) return;
+                if (firstOnly) {
+                    return Collections.singletonList(child);
+                }
+                elements.add(child);
             }
         }
+        return elements;
     }
 
     /**

@@ -101,7 +101,7 @@ public abstract class ParserContext extends RubyObject {
 
         if (stringData.encoding(context) != null) {
             RubyString stringEncoding = stringData.encoding(context).asString();
-            String encName = NokogiriHelpers.getValidEncodingOrNull(context.runtime, stringEncoding);
+            String encName = NokogiriHelpers.getValidEncodingOrNull(stringEncoding);
             if (encName != null) {
                 java_encoding = encName;
             }
