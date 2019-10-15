@@ -105,16 +105,6 @@ public class XmlAttr extends XmlNode {
         }
     }
 
-    private boolean isHtmlBooleanAttr() {
-        String name = node.getNodeName().toLowerCase();
-
-        for(String s : HTML_BOOLEAN_ATTRS) {
-            if(s.equals(name)) return true;
-        }
-
-        return false;
-    }
-
     @Override
     @JRubyMethod(name = {"content", "value", "to_s"})
     public IRubyObject content(ThreadContext context) {

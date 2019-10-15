@@ -350,53 +350,6 @@ public class XmlNode extends RubyObject {
         return node;
     }
 
-    public static Node getNodeFromXmlNode(ThreadContext context, IRubyObject xmlNode) {
-        return asXmlNode(context, xmlNode).node;
-    }
-
-    protected String indentString(IRubyObject indentStringObject, String xml) {
-        String[] lines = xml.split("\n");
-
-        if(lines.length <= 1) return xml;
-
-        String[] resultLines  = new String[lines.length];
-
-        String curLine;
-        boolean closingTag = false;
-        String indentString = rubyStringToString(indentStringObject);
-        int lengthInd = indentString.length();
-        StringBuilder curInd = new StringBuilder();
-
-        resultLines[0] = lines[0];
-
-        for(int i = 1; i < lines.length; i++) {
-
-            curLine = lines[i].trim();
-
-            if(curLine.length() == 0) continue;
-
-            if(curLine.startsWith("</")) {
-                closingTag = true;
-                curInd.setLength(max(0,curInd.length() - lengthInd));
-            }
-
-            resultLines[i] = curInd.toString() + curLine;
-
-            if(!curLine.endsWith("/>") && !closingTag) {
-                curInd.append(indentString);
-            }
-
-            closingTag = false;
-        }
-
-        StringBuilder result = new StringBuilder();
-        for(int i = 0; i < resultLines.length; i++) {
-            result.append(resultLines[i]).append('\n');
-        }
-
-        return result.toString();
-    }
-
     public boolean isComment() { return false; }
 
     public boolean isElement() {
