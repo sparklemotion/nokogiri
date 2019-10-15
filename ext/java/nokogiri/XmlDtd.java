@@ -369,7 +369,7 @@ public class XmlDtd extends XmlNode {
      * the various collections.
      */
     protected void extractDecls(ThreadContext context) {
-        Ruby runtime = context.getRuntime();
+        Ruby runtime = context.runtime;
 
         // initialize data structures
         attributes = RubyHash.newHash(runtime);
@@ -383,7 +383,7 @@ public class XmlDtd extends XmlNode {
         if (node == null) return; // leave all the decl hash's empty
 
         // convert allDecls to a NodeSet
-        children = XmlNodeSet.newXmlNodeSet(context, extractDecls(context, node.getFirstChild()));
+        children = XmlNodeSet.newNodeSet(runtime, extractDecls(context, node.getFirstChild()));
 
         // add attribute decls as attributes to the matching element decl
         RubyArray keys = attributes.keys();

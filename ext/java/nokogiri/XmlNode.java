@@ -463,29 +463,36 @@ public class XmlNode extends RubyObject {
         }
 
         if (this.node.hasChildNodes()) {
-            XmlNodeSet nodeSet = (XmlNodeSet)(children(context));
-            nodeSet.relink_namespace(context);
+            relink_namespace(context, getChildren());
+        }
+    }
+
+    static void relink_namespace(ThreadContext context, IRubyObject[] nodes) {
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] instanceof XmlNode) {
+                ((XmlNode) nodes[i]).relink_namespace(context);
+            }
         }
     }
 
     // Users might extend XmlNode. This method works for such a case.
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
         visitor.enter(node);
-        XmlNodeSet xmlNodeSet = (XmlNodeSet) children(context);
-        if (xmlNodeSet.length() > 0) {
-            RubyArray array = (RubyArray) xmlNodeSet.to_a(context);
-            for(int i = 0; i < array.getLength(); i++) {
-                Object item = array.get(i);
+        acceptChildren(context, getChildren(), visitor);
+        visitor.leave(node);
+    }
+
+    void acceptChildren(ThreadContext context, IRubyObject[] nodes, SaveContextVisitor visitor) {
+        if (nodes.length > 0) {
+            for (int i = 0; i < nodes.length; i++) {
+                Object item = nodes[i];
                 if (item instanceof XmlNode) {
-                  XmlNode cur = (XmlNode) item;
-                  cur.accept(context, visitor);
+                    ((XmlNode) item).accept(context, visitor);
                 } else if (item instanceof XmlNamespace) {
-                    XmlNamespace cur = (XmlNamespace)item;
-                    cur.accept(context, visitor);
+                    ((XmlNamespace) item).accept(context, visitor);
                 }
             }
         }
-        visitor.leave(node);
     }
 
     RubyString doSetName(IRubyObject name) {
@@ -642,17 +649,19 @@ public class XmlNode extends RubyObject {
 
     @JRubyMethod
     public IRubyObject children(ThreadContext context) {
-        XmlNodeSet xmlNodeSet = XmlNodeSet.newEmptyNodeSet(context);
+        final IRubyObject[] nodes = getChildren();
+        if (nodes.length == 0) {
+            return XmlNodeSet.newEmptyNodeSet(context, this);
+        }
+        return XmlNodeSet.newNodeSet(context.runtime, nodes);
+    }
 
+    IRubyObject[] getChildren() {
         NodeList nodeList = node.getChildNodes();
         if (nodeList.getLength() > 0) {
-            xmlNodeSet.setNodeList(nodeList); // initializes @document from first node
+            return nodeListToRubyArray(getRuntime(), nodeList);
         }
-        else { // TODO this is very ripe for refactoring
-            setDocumentAndDecorate(context, xmlNodeSet, document(context.runtime));
-        }
-
-        return xmlNodeSet;
+        return IRubyObject.NULL_ARRAY;
     }
 
     @JRubyMethod
@@ -677,8 +686,7 @@ public class XmlNode extends RubyObject {
         addElements(node, elementNodes, false);
         IRubyObject[] array = NokogiriHelpers.nodeArrayToArray(context.runtime,
                                                                elementNodes.toArray(new Node[0]));
-        XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, array);
-        return xmlNodeSet;
+        return XmlNodeSet.newNodeSet(context.runtime, array, this);
     }
 
     private void addElements(Node n, List<Node> nodes, boolean isFirstOnly) {
@@ -735,9 +743,7 @@ public class XmlNode extends RubyObject {
      * <code>options</code> into account.
      */
     @JRubyMethod(required = 2, visibility = Visibility.PRIVATE)
-    public IRubyObject in_context(ThreadContext context,
-                                  IRubyObject str,
-                                  IRubyObject options) {
+    public IRubyObject in_context(ThreadContext context, IRubyObject str, IRubyObject options) {
         RubyClass klass;
         XmlDomParserContext ctx;
         InputStream istream;
@@ -776,7 +782,7 @@ public class XmlNode extends RubyObject {
                 documentErrors.append(docErrors.entry(i));
             }
             document.setInstanceVariable("@errors", documentErrors);
-            return XmlNodeSet.newXmlNodeSet(context, new IRubyObject[0]);
+            return XmlNodeSet.newNodeSet(context.runtime, IRubyObject.NULL_ARRAY, this);
         }
 
         // The first child might be document type node (dtd declaration).
@@ -789,8 +795,7 @@ public class XmlNode extends RubyObject {
         }
 
         IRubyObject[] nodes = new IRubyObject[] { NokogiriHelpers.getCachedNodeOrCreate(runtime, first) };
-        XmlNodeSet xmlNodeSet = XmlNodeSet.newXmlNodeSet(context, nodes);
-        return xmlNodeSet;
+        return XmlNodeSet.newNodeSet(context.runtime, nodes, this);
     }
 
     private static RubyArray getErrors(XmlDocument document) {

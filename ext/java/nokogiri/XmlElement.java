@@ -62,19 +62,7 @@ public class XmlElement extends XmlNode {
     @Override
     public void accept(ThreadContext context, SaveContextVisitor visitor) {
         visitor.enter((Element) node);
-        XmlNodeSet xmlNodeSet = (XmlNodeSet) children(context);
-        if (xmlNodeSet.length() > 0) {
-            IRubyObject[] nodes = XmlNodeSet.getNodes(context, xmlNodeSet);
-            for( int i = 0; i < nodes.length; i++ ) {
-                Object item = nodes[i];
-                if (item instanceof XmlNode) {
-                    ((XmlNode) item).accept(context, visitor);
-                }
-                else if (item instanceof XmlNamespace) {
-                    ((XmlNamespace) item).accept(context, visitor);
-                }
-            }
-        }
+        acceptChildren(context, getChildren(), visitor);
         visitor.leave((Element) node);
     }
 }

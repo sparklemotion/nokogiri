@@ -338,13 +338,13 @@ public class XmlDocument extends XmlNode {
 
     @JRubyMethod(name="remove_namespaces!")
     public IRubyObject remove_namespaces(ThreadContext context) {
-        removeNamespceRecursively(context, this);
+        removeNamespaceRecursively(this);
         if (nsCache != null) nsCache.clear();
         clearXpathContext(getNode());
         return this;
     }
 
-    private void removeNamespceRecursively(ThreadContext context, XmlNode xmlNode) {
+    private void removeNamespaceRecursively(XmlNode xmlNode) {
         Node node = xmlNode.node;
         if (node.getNodeType() == Node.ELEMENT_NODE) {
             node.setPrefix(null);
@@ -353,17 +353,17 @@ public class XmlDocument extends XmlNode {
             for (int i=0; i<attrs.getLength(); i++) {
                 Attr attr = (Attr) attrs.item(i);
                 if (isNamespace(attr.getNodeName())) {
-                    ((org.w3c.dom.Element)node).removeAttributeNode(attr);
+                    ((org.w3c.dom.Element) node).removeAttributeNode(attr);
                 } else {
                     attr.setPrefix(null);
                     NokogiriHelpers.renameNode(attr, null, attr.getLocalName());
                 }
             }
         }
-        XmlNodeSet nodeSet = (XmlNodeSet) xmlNode.children(context);
-        for (long i=0; i < nodeSet.length(); i++) {
-            XmlNode childNode = (XmlNode)nodeSet.slice(context, RubyFixnum.newFixnum(context.runtime, i));
-            removeNamespceRecursively(context, childNode);
+        IRubyObject[] nodes = xmlNode.getChildren();
+        for (int i=0; i < nodes.length; i++) {
+            XmlNode childNode = (XmlNode) nodes[i];
+            removeNamespaceRecursively(childNode);
         }
     }
 

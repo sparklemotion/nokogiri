@@ -180,6 +180,6 @@ public class XmlDocumentFragment extends XmlNode {
 
     @Override
     public void relink_namespace(ThreadContext context) {
-        ((XmlNodeSet) children(context)).relink_namespace(context);
+        relink_namespace(context, getChildren());
     }
 }
