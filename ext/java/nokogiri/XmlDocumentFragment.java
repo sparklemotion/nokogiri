@@ -178,20 +178,6 @@ public class XmlDocumentFragment extends XmlNode {
         return fragmentContext;
     }
 
-    public void add_child(ThreadContext context, XmlNode child) {
-        // Some magic for DocumentFragment
-
-        XmlNodeSet children = (XmlNodeSet) child.children(context);
-
-        int length = children.length();
-        if (length != 0) {
-            for (int i = 0; i < length; i++) {
-                XmlNode item = ((XmlNode) children.nodes[i]).cloneImpl(true);
-                add_child(context, item);
-            }
-        }
-    }
-
     @Override
     public void relink_namespace(ThreadContext context) {
         ((XmlNodeSet) children(context)).relink_namespace(context);
