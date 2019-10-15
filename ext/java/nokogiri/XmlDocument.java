@@ -58,6 +58,7 @@ import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
@@ -539,14 +540,21 @@ public class XmlDocument extends XmlNode {
         visitor.leave(document);
     }
 
-    @JRubyMethod(meta=true)
-    public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klass, IRubyObject arg) {
+    @JRubyMethod(meta = true)
+    public static IRubyObject wrap(ThreadContext context, IRubyObject klass, IRubyObject arg) {
         XmlDocument xmlDocument = new XmlDocument(context.runtime, (RubyClass) klass, (Document) arg.toJava(Document.class));
         Helpers.invoke(context, xmlDocument, "initialize");
         return xmlDocument;
     }
 
-    @JRubyMethod
+    @Deprecated
+    @JRubyMethod(meta = true, visibility = Visibility.PRIVATE)
+    public static IRubyObject wrapJavaDocument(ThreadContext context, IRubyObject klass, IRubyObject arg) {
+        return wrap(context, klass, arg);
+    }
+
+    @Deprecated // default to_java works (due inherited from XmlNode#toJava)
+    @JRubyMethod(visibility = Visibility.PRIVATE)
     public IRubyObject toJavaDocument(ThreadContext context) {
         return JavaUtil.convertJavaToUsableRubyObject(context.getRuntime(), node);
     }
@@ -617,9 +625,8 @@ public class XmlDocument extends XmlNode {
 
     private XmlNode getStartingNode(Block block) {
         if (block.isGiven()) {
-            if (block.getBinding().getSelf() instanceof XmlNode) {
-                return (XmlNode)block.getBinding().getSelf();
-            }
+            IRubyObject boundSelf = block.getBinding().getSelf();
+            if (boundSelf instanceof XmlNode) return (XmlNode) boundSelf;
         }
         return this;
     }

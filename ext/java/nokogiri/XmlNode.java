@@ -1681,4 +1681,14 @@ public class XmlNode extends RubyObject {
         clearXpathContext(getNode());
         return context.nil ;
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object toJava(final Class target) {
+        if (target == Object.class || Node.class.isAssignableFrom(target)) {
+            return getNode();
+        }
+        return super.toJava(target);
+    }
+
 }
