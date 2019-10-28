@@ -394,7 +394,7 @@ module Nokogiri
 </tu>
           eoxml
           @parser.parse(xml)
-          assert @parser.document.data.must_include "en:#:home_page:#:stories:#:[6]:#:name"
+          assert_includes @parser.document.data, "en:#:home_page:#:stories:#:[6]:#:name"
         end
       end
     end

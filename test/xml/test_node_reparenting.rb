@@ -85,21 +85,23 @@ module Nokogiri
 
                   it "unlinks the Node from its previous position" do
                     @doc.at_xpath(params[:target]).send(method, @other_node)
-                    @other_doc.at_xpath("/root/a2").must_be_nil
+                    result = @other_doc.at_xpath("/root/a2")
+                    _(result).must_be_nil
                   end
 
                   it "inserts the Node in the proper position" do
                     @doc.at_xpath(params[:target]).send(method, @other_node)
-                    @doc.at_xpath("/root/a1/a2").wont_be_nil
+                    result = @doc.at_xpath("/root/a1/a2")
+                    _(result).wont_be_nil
                   end
 
                   it "returns the expected value" do
                     sendee = @doc.at_xpath(params[:target])
                     result = sendee.send(method, @other_node)
                     if params[:returns_self]
-                      result.must_equal sendee
+                      _(result).must_equal sendee
                     else
-                      result.must_equal @other_node
+                      _(result).must_equal @other_node
                     end
                   end
                 end
@@ -108,40 +110,43 @@ module Nokogiri
             describe "passed a markup string" do
               it "inserts the fragment roots in the proper position" do
                 @doc.at_xpath(params[:target]).send(method, @fragment_string)
-                @doc.xpath("/root/a1/node()").collect { |n| n.name }.must_equal params[:children_tags]
+                result = @doc.xpath("/root/a1/node()").collect { |n| n.name }
+                _(result).must_equal params[:children_tags]
               end
 
               it "returns the expected value" do
                 sendee = @doc.at_xpath(params[:target])
                 result = sendee.send(method, @fragment_string)
                 if params[:returns_self]
-                  result.must_equal sendee
+                  _(result).must_equal sendee
                 else
-                  result.must_be_kind_of Nokogiri::XML::NodeSet
-                  result.to_html.must_equal @fragment_string
+                  _(result).must_be_kind_of Nokogiri::XML::NodeSet
+                  _(result.to_html).must_equal @fragment_string
                 end
               end
             end
             describe "passed a fragment" do
               it "inserts the fragment roots in the proper position" do
                 @doc.at_xpath(params[:target]).send(method, @fragment)
-                @doc.xpath("/root/a1/node()").collect { |n| n.name }.must_equal params[:children_tags]
+                result = @doc.xpath("/root/a1/node()").collect { |n| n.name }
+                _(result).must_equal params[:children_tags]
               end
             end
             describe "passed a document" do
               it "raises an exception" do
-                proc { @doc.at_xpath("/root/a1").send(method, @doc2) }.must_raise(ArgumentError)
+                assert_raise(ArgumentError) { @doc.at_xpath("/root/a1").send(method, @doc2) }
               end
             end
             describe "passed a non-Node" do
               it "raises an exception" do
-                proc { @doc.at_xpath("/root/a1").send(method, 42) }.must_raise(ArgumentError)
+                assert_raise(ArgumentError) { @doc.at_xpath("/root/a1").send(method, 42) }
               end
             end
             describe "passed a NodeSet" do
               it "inserts each member of the NodeSet in the proper order" do
                 @doc.at_xpath(params[:target]).send(method, @node_set)
-                @doc.xpath("/root/a1/node()").collect { |n| n.name }.must_equal params[:children_tags]
+                result = @doc.xpath("/root/a1/node()").collect { |n| n.name }
+                _(result).must_equal params[:children_tags]
               end
             end
           end
@@ -151,14 +156,16 @@ module Nokogiri
           describe "#add_child" do
             it "merges the Text node with adjacent Text nodes" do
               @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new("hello", @doc)
-              @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
+              result = @doc.at_xpath("/root/a1/text()").content
+              _(result).must_equal "First nodehello"
             end
           end
 
           describe "#replace" do
             it "merges the Text node with adjacent Text nodes" do
               @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new("hello", @doc)
-              @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
+              result = @doc.at_xpath("/root/a3/text()").content
+              _(result).must_equal "Third hellonode"
             end
           end
         end

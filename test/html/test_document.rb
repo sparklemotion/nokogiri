@@ -366,7 +366,7 @@ eohtml
         end
 
         doc = Nokogiri::HTML.parse klass.new
-        doc.at_css("div").content.must_equal("foo")
+        assert_equal "foo", doc.at_css("div").content
       end
 
       def test_parse_temp_file

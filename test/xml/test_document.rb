@@ -717,7 +717,7 @@ module Nokogiri
         end
 
         doc = Nokogiri::XML.parse klass.new
-        doc.at_css("div").content.must_equal("foo")
+        assert_equal "foo", doc.at_css("div").content
       end
 
       def test_search_on_empty_documents
