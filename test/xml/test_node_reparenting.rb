@@ -3,7 +3,6 @@ require "helper"
 module Nokogiri
   module XML
     class TestNodeReparenting < Nokogiri::TestCase
-
       describe "standard node reparenting behavior" do
         # describe "namespace handling during reparenting" do
         #   describe "given a Node" do
@@ -49,32 +48,31 @@ module Nokogiri
         #   end
         # end
 
-
         before do
-          @doc  = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third <bx />node</a3></root>"
+          @doc = Nokogiri::XML "<root><a1>First node</a1><a2>Second node</a2><a3>Third <bx />node</a3></root>"
           @doc2 = @doc.dup
           @fragment_string = "<b1>foo</b1><b2>bar</b2>"
-          @fragment        = Nokogiri::XML::DocumentFragment.parse @fragment_string
-          @node_set        = Nokogiri::XML("<root><b1>foo</b1><b2>bar</b2></root>").xpath("/root/node()")
+          @fragment = Nokogiri::XML::DocumentFragment.parse @fragment_string
+          @node_set = Nokogiri::XML("<root><b1>foo</b1><b2>bar</b2></root>").xpath("/root/node()")
         end
 
         {
-          :add_child            => {:target => "/root/a1",        :returns_self => false, :children_tags => %w[text b1 b2]},
-          :<<                   => {:target => "/root/a1",        :returns_self => true, :children_tags => %w[text b1 b2]},
+          :add_child => { :target => "/root/a1", :returns_self => false, :children_tags => %w[text b1 b2] },
+          :<< => { :target => "/root/a1", :returns_self => true, :children_tags => %w[text b1 b2] },
 
-          :replace              => {:target => "/root/a1/node()", :returns_self => false, :children_tags => %w[b1 b2]},
-          :swap                 => {:target => "/root/a1/node()", :returns_self => true,  :children_tags => %w[b1 b2]},
+          :replace => { :target => "/root/a1/node()", :returns_self => false, :children_tags => %w[b1 b2] },
+          :swap => { :target => "/root/a1/node()", :returns_self => true, :children_tags => %w[b1 b2] },
 
-          :children=            => {:target => "/root/a1",        :returns_self => false, :children_tags => %w[b1 b2]},
-          :inner_html=          => {:target => "/root/a1",        :returns_self => true,  :children_tags => %w[b1 b2]},
+          :children= => { :target => "/root/a1", :returns_self => false, :children_tags => %w[b1 b2] },
+          :inner_html= => { :target => "/root/a1", :returns_self => true, :children_tags => %w[b1 b2] },
 
-          :add_previous_sibling => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[b1 b2 text]},
-          :previous=            => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[b1 b2 text]},
-          :before               => {:target => "/root/a1/text()", :returns_self => true,  :children_tags => %w[b1 b2 text]},
+          :add_previous_sibling => { :target => "/root/a1/text()", :returns_self => false, :children_tags => %w[b1 b2 text] },
+          :previous= => { :target => "/root/a1/text()", :returns_self => false, :children_tags => %w[b1 b2 text] },
+          :before => { :target => "/root/a1/text()", :returns_self => true, :children_tags => %w[b1 b2 text] },
 
-          :add_next_sibling     => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[text b1 b2]},
-          :next=                => {:target => "/root/a1/text()", :returns_self => false, :children_tags => %w[text b1 b2]},
-          :after                => {:target => "/root/a1/text()", :returns_self => true,  :children_tags => %w[text b1 b2]}
+          :add_next_sibling => { :target => "/root/a1/text()", :returns_self => false, :children_tags => %w[text b1 b2] },
+          :next= => { :target => "/root/a1/text()", :returns_self => false, :children_tags => %w[text b1 b2] },
+          :after => { :target => "/root/a1/text()", :returns_self => true, :children_tags => %w[text b1 b2] },
         }.each do |method, params|
           describe "##{method}" do
             describe "passed a Node" do
@@ -110,7 +108,7 @@ module Nokogiri
             describe "passed a markup string" do
               it "inserts the fragment roots in the proper position" do
                 @doc.at_xpath(params[:target]).send(method, @fragment_string)
-                @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
+                @doc.xpath("/root/a1/node()").collect { |n| n.name }.must_equal params[:children_tags]
               end
 
               it "returns the expected value" do
@@ -127,7 +125,7 @@ module Nokogiri
             describe "passed a fragment" do
               it "inserts the fragment roots in the proper position" do
                 @doc.at_xpath(params[:target]).send(method, @fragment)
-                @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
+                @doc.xpath("/root/a1/node()").collect { |n| n.name }.must_equal params[:children_tags]
               end
             end
             describe "passed a document" do
@@ -143,7 +141,7 @@ module Nokogiri
             describe "passed a NodeSet" do
               it "inserts each member of the NodeSet in the proper order" do
                 @doc.at_xpath(params[:target]).send(method, @node_set)
-                @doc.xpath("/root/a1/node()").collect {|n| n.name}.must_equal params[:children_tags]
+                @doc.xpath("/root/a1/node()").collect { |n| n.name }.must_equal params[:children_tags]
               end
             end
           end
@@ -152,14 +150,14 @@ module Nokogiri
         describe "text node merging" do
           describe "#add_child" do
             it "merges the Text node with adjacent Text nodes" do
-              @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new('hello', @doc)
+              @doc.at_xpath("/root/a1").add_child Nokogiri::XML::Text.new("hello", @doc)
               @doc.at_xpath("/root/a1/text()").content.must_equal "First nodehello"
             end
           end
 
           describe "#replace" do
             it "merges the Text node with adjacent Text nodes" do
-              @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new('hello', @doc)
+              @doc.at_xpath("/root/a3/bx").replace Nokogiri::XML::Text.new("hello", @doc)
               @doc.at_xpath("/root/a3/text()").content.must_equal "Third hellonode"
             end
           end
@@ -169,12 +167,12 @@ module Nokogiri
       describe "ad hoc node reparenting behavior" do
         describe "#<<" do
           it "allows chaining" do
-            doc   = Nokogiri::XML::Document.new
-            root  = Nokogiri::XML::Element.new('root', doc)
+            doc = Nokogiri::XML::Document.new
+            root = Nokogiri::XML::Element.new("root", doc)
             doc.root = root
 
-            child1 = Nokogiri::XML::Element.new('child1', doc)
-            child2 = Nokogiri::XML::Element.new('child2', doc)
+            child1 = Nokogiri::XML::Element.new("child1", doc)
+            child2 = Nokogiri::XML::Element.new("child2", doc)
 
             doc.root << child1 << child2
 
@@ -185,15 +183,15 @@ module Nokogiri
         describe "#add_child" do
           describe "given a new node with a namespace" do
             it "keeps the namespace" do
-              doc   = Nokogiri::XML::Document.new
-              item  = Nokogiri::XML::Element.new('item', doc)
+              doc = Nokogiri::XML::Document.new
+              item = Nokogiri::XML::Element.new("item", doc)
               doc.root = item
 
-              entry = Nokogiri::XML::Element.new('entry', doc)
-              entry.add_namespace('tlm', 'http://tenderlovemaking.com')
-              assert_equal 'http://tenderlovemaking.com', entry.namespaces['xmlns:tlm']
+              entry = Nokogiri::XML::Element.new("entry", doc)
+              entry.add_namespace("tlm", "http://tenderlovemaking.com")
+              assert_equal "http://tenderlovemaking.com", entry.namespaces["xmlns:tlm"]
               item.add_child(entry)
-              assert_equal 'http://tenderlovemaking.com', entry.namespaces['xmlns:tlm']
+              assert_equal "http://tenderlovemaking.com", entry.namespaces["xmlns:tlm"]
             end
           end
 
@@ -219,10 +217,10 @@ module Nokogiri
             end
 
             it "inserts a node that inherits the default namespace" do
-              assert node = @doc.at('//xmlns:first')
-              child = Nokogiri::XML::Node.new('second', @doc)
+              assert node = @doc.at("//xmlns:first")
+              child = Nokogiri::XML::Node.new("second", @doc)
               node.add_child(child)
-              assert @doc.at('//xmlns:second')
+              assert @doc.at("//xmlns:second")
             end
 
             describe "and a child node was added to a new doc with the a different namespace using the same prefix" do
@@ -287,49 +285,51 @@ module Nokogiri
                   </first>
                 </root>
               eoxml
-              assert @node = @doc.at('//xmlns:first')
-              @child = Nokogiri::XML::Node.new('second', @doc)
+              assert @node = @doc.at("//xmlns:first")
+              @child = Nokogiri::XML::Node.new("second", @doc)
             end
 
             describe "and a child with a namespace matching the parent's default namespace" do
               describe "and as the default prefix" do
                 before do
-                  @ns = @child.add_namespace(nil, 'http://tenderlovemaking.com/')
+                  @ns = @child.add_namespace(nil, "http://tenderlovemaking.com/")
                   @child.namespace = @ns
                 end
 
                 it "inserts a node that inherits the parent's default namespace" do
                   @node.add_child(@child)
-                  assert reparented = @doc.at('//bar:second', "bar" => "http://tenderlovemaking.com/")
+                  assert reparented = @doc.at("//bar:second", "bar" => "http://tenderlovemaking.com/")
                   assert reparented.namespace_definitions.empty?
                   assert_equal @doc.root.namespace, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns" => "http://tenderlovemaking.com/",
                       "xmlns:foo" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces)
+                    reparented.namespaces
+                  )
                 end
               end
 
               describe "but with a different prefix" do
                 before do
-                  @ns = @child.add_namespace("baz", 'http://tenderlovemaking.com/')
+                  @ns = @child.add_namespace("baz", "http://tenderlovemaking.com/")
                   @child.namespace = @ns
                 end
 
                 it "inserts a node that uses its own namespace" do
                   @node.add_child(@child)
-                  assert reparented = @doc.at('//bar:second', "bar" => "http://tenderlovemaking.com/")
+                  assert reparented = @doc.at("//bar:second", "bar" => "http://tenderlovemaking.com/")
                   assert reparented.namespace_definitions.include?(@ns)
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns" => "http://tenderlovemaking.com/",
                       "xmlns:foo" => "http://flavorjon.es/",
                       "xmlns:baz" => "http://tenderlovemaking.com/",
                     },
-                    reparented.namespaces)
+                    reparented.namespaces
+                  )
                 end
               end
             end
@@ -346,100 +346,105 @@ module Nokogiri
 
                 it "inserts a node that inherits the matching parent namespace" do
                   @node.add_child(@child)
-                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.empty?
                   assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns" => "http://tenderlovemaking.com/",
                       "xmlns:foo" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces)
+                    reparented.namespaces
+                  )
                 end
               end
 
               describe "with the same prefix" do
                 before do
-                  @ns = @child.add_namespace("foo", 'http://flavorjon.es/')
+                  @ns = @child.add_namespace("foo", "http://flavorjon.es/")
                   @child.namespace = @ns
                 end
 
                 it "inserts a node that uses the parent's namespace" do
                   @node.add_child(@child)
-                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.empty?
                   assert_equal @root_ns, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     => "http://tenderlovemaking.com/",
+                      "xmlns" => "http://tenderlovemaking.com/",
                       "xmlns:foo" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces)
+                    reparented.namespaces
+                  )
                 end
               end
 
               describe "as the default prefix" do
                 before do
-                  @ns = @child.add_namespace(nil, 'http://flavorjon.es/')
+                  @ns = @child.add_namespace(nil, "http://flavorjon.es/")
                   @child.namespace = @ns
                 end
 
                 it "inserts a node that keeps its namespace" do
                   @node.add_child(@child)
-                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.include?(@ns)
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     => "http://flavorjon.es/",
+                      "xmlns" => "http://flavorjon.es/",
                       "xmlns:foo" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces)
+                    reparented.namespaces
+                  )
                 end
               end
 
               describe "but with a different prefix" do
                 before do
-                  @ns = @child.add_namespace('baz', 'http://flavorjon.es/')
+                  @ns = @child.add_namespace("baz", "http://flavorjon.es/")
                   @child.namespace = @ns
                 end
 
                 it "inserts a node that keeps its namespace" do
                   @node.add_child(@child)
-                  assert reparented = @doc.at('//bar:second', "bar" => "http://flavorjon.es/")
+                  assert reparented = @doc.at("//bar:second", "bar" => "http://flavorjon.es/")
                   assert reparented.namespace_definitions.include?(@ns)
                   assert_equal @ns, reparented.namespace
                   assert_equal(
                     {
-                      "xmlns"     =>"http://tenderlovemaking.com/",
-                      "xmlns:foo" =>"http://flavorjon.es/",
-                      "xmlns:baz" =>"http://flavorjon.es/",
+                      "xmlns" => "http://tenderlovemaking.com/",
+                      "xmlns:foo" => "http://flavorjon.es/",
+                      "xmlns:baz" => "http://flavorjon.es/",
                     },
-                    reparented.namespaces)
+                    reparented.namespaces
+                  )
                 end
               end
             end
 
             describe "and a child node with a default namespace not matching the parent's default namespace and a namespace matching a parent namespace but with a different prefix" do
               before do
-                @ns = @child.add_namespace(nil, 'http://example.org/')
+                @ns = @child.add_namespace(nil, "http://example.org/")
                 @child.namespace = @ns
-                @ns2 = @child.add_namespace('baz', 'http://tenderlovemaking.com/')
+                @ns2 = @child.add_namespace("baz", "http://tenderlovemaking.com/")
               end
 
               it "inserts a node that keeps its namespace" do
                 @node.add_child(@child)
-                assert reparented = @doc.at('//bar:second', "bar" => "http://example.org/")
+                assert reparented = @doc.at("//bar:second", "bar" => "http://example.org/")
                 assert reparented.namespace_definitions.include?(@ns)
                 assert reparented.namespace_definitions.include?(@ns2)
                 assert_equal @ns, reparented.namespace
                 assert_equal(
                   {
-                    "xmlns"     => "http://example.org/",
+                    "xmlns" => "http://example.org/",
                     "xmlns:foo" => "http://flavorjon.es/",
                     "xmlns:baz" => "http://tenderlovemaking.com/",
                   },
-                  reparented.namespaces)
+                  reparented.namespaces
+                )
               end
             end
           end
@@ -453,7 +458,7 @@ module Nokogiri
             assert_equal "foo <p></p> bartext node", xml.root.children.to_html
           end
 
-          it 'should remove the child node after the operation' do
+          it "should remove the child node after the operation" do
             fragment = Nokogiri::HTML::DocumentFragment.parse("a<a>b</a>")
             node = fragment.children.last
             node.add_previous_sibling node.children
@@ -463,9 +468,9 @@ module Nokogiri
           describe "with a text node before" do
             it "should not defensively dup the 'before' text node" do
               xml = Nokogiri::XML %Q(<root>before<p></p>after</root>)
-              pivot  = xml.at_css("p")
+              pivot = xml.at_css("p")
               before = xml.root.children.first
-              after  = xml.root.children.last
+              after = xml.root.children.last
               pivot.add_previous_sibling("x")
 
               assert_equal "after", after.content
@@ -485,26 +490,26 @@ module Nokogiri
             assert_equal "text nodefoo <p></p> bar", xml.root.children.to_html
           end
 
-          it 'should append a text node before an existing non text node' do
+          it "should append a text node before an existing non text node" do
             xml = Nokogiri::XML %Q(<root><p>foo</p><p>bar</p></root>)
-            p = xml.at_css 'p'
-            p.add_next_sibling 'a'
-            assert_equal '<root><p>foo</p>a<p>bar</p></root>', xml.root.to_s
+            p = xml.at_css "p"
+            p.add_next_sibling "a"
+            assert_equal "<root><p>foo</p>a<p>bar</p></root>", xml.root.to_s
           end
 
-          it 'should append a text node before an existing text node' do
+          it "should append a text node before an existing text node" do
             xml = Nokogiri::XML %Q(<root><p>foo</p>after</root>)
-            p = xml.at_css 'p'
-            p.add_next_sibling 'x'
-            assert_equal '<root><p>foo</p>xafter</root>', xml.root.to_s
+            p = xml.at_css "p"
+            p.add_next_sibling "x"
+            assert_equal "<root><p>foo</p>xafter</root>", xml.root.to_s
           end
 
           describe "with a text node after" do
             it "should not defensively dup the 'after' text node" do
               xml = Nokogiri::XML %Q(<root>before<p></p>after</root>)
-              pivot  = xml.at_css("p")
+              pivot = xml.at_css("p")
               before = xml.root.children.first
-              after  = xml.root.children.last
+              after = xml.root.children.last
               pivot.add_next_sibling("x")
 
               assert_equal "before", before.content
@@ -554,12 +559,12 @@ module Nokogiri
             end
 
             it "inserts a node with default namespaces" do
-              apple = @fruits.css('apple').first
+              apple = @fruits.css("apple").first
 
-              orange = Nokogiri::XML::Node.new('orange', @fruits)
+              orange = Nokogiri::XML::Node.new("orange", @fruits)
               apple.replace(orange)
 
-              assert_equal orange, @fruits.css('orange').first
+              assert_equal orange, @fruits.css("orange").first
             end
           end
         end
@@ -592,14 +597,14 @@ module Nokogiri
 
         describe "replace-merging text nodes" do
           [
-            ['<root>a<br/></root>',  'afoo'],
-            ['<root>a<br/>b</root>', 'afoob'],
-            ['<root><br/>b</root>',  'foob']
+            ["<root>a<br/></root>", "afoo"],
+            ["<root>a<br/>b</root>", "afoob"],
+            ["<root><br/>b</root>", "foob"],
           ].each do |xml, result|
             it "doesn't blow up on #{xml}" do
               doc = Nokogiri::XML.parse(xml)
               saved_nodes = doc.root.children
-              doc.at_xpath("/root/br").replace(Nokogiri::XML::Text.new('foo', doc))
+              doc.at_xpath("/root/br").replace(Nokogiri::XML::Text.new("foo", doc))
               saved_nodes.each { |child| child.inspect } # try to cause a crash
               assert_equal result, doc.at_xpath("/root/text()").inner_text
             end
@@ -612,7 +617,7 @@ module Nokogiri
             # drives out the reason why we can't call xmlFreeNs in
             # relink_namespace and instead have to root the nsdef.
             doc = Nokogiri::XML '<root xmlns="http://flavorjon.es/"><envelope /></root>'
-            elem = doc.create_element "package", {"xmlns" => "http://flavorjon.es/"}
+            elem = doc.create_element "package", { "xmlns" => "http://flavorjon.es/" }
             ns = elem.namespace_definitions
             doc.at_css("envelope").add_child elem
             ns.inspect
