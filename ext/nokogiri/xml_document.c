@@ -38,6 +38,15 @@ static void remove_private(xmlNodePtr node)
   node->_private = NULL;
 }
 
+static void mark(xmlDocPtr doc)
+{
+  nokogiriTuplePtr tuple = (nokogiriTuplePtr)doc->_private;
+  if(tuple) {
+      rb_gc_mark(tuple->doc);
+      rb_gc_mark(tuple->node_cache);
+  }
+}
+
 static void dealloc(xmlDocPtr doc)
 {
   st_table *node_hash;
@@ -588,7 +597,7 @@ VALUE Nokogiri_wrap_xml_document(VALUE klass, xmlDocPtr doc)
 
   VALUE rb_doc = Data_Wrap_Struct(
       klass ? klass : cNokogiriXmlDocument,
-      0,
+      mark,
       dealloc,
       doc
   );

@@ -7,6 +7,7 @@ class TestEncodingHandler < Nokogiri::TestCase
     Nokogiri::EncodingHandler.clear_aliases!
     #Replace default aliases removed by clear_aliases!
     Nokogiri.install_default_aliases
+    super
   end
 
   def test_get
