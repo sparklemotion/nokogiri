@@ -12,6 +12,14 @@
 * [JRuby] Standardize reading from IO like objects, including StringIO. [#1888, #1897]
 
 
+## 1.10.5 / 2019-10-31
+
+### Dependencies
+
+* [MRI] vendored libxml2 is updated from 2.9.9 to 2.9.10
+* [MRI] vendored libxslt is updated from 1.1.33 to 1.1.34
+
+
 ## 1.10.4 / 2019-08-11
 
 ### Security
