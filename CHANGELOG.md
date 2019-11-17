@@ -2,6 +2,17 @@
 
 ## 1.10.5 / 2019-10-31
 
+### Security
+
+[MRI] Vendored libxslt upgraded to v1.1.34 which addresses three CVEs for libxslt:
+
+* CVE-2019-13117
+* CVE-2019-13118
+* CVE-2019-18197
+
+More details are available at #1943.
+
+
 ### Dependencies
 
 * [MRI] vendored libxml2 is updated from 2.9.9 to 2.9.10
