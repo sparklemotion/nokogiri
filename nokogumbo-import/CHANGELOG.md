@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 ### Security
 
+## [2.0.2] - 2019-11-19
+### Added
+- Support Ruby 2.6
+### Fixed
+- Fix assertion failures with nonstandard HTML tags
+- Fix the handling of mis-nested formatting tags (the adoption agency
+  algorithm)
+- Fix crash with zero-length HTML tags
+### Security
+- Prevent 1-byte buffer over read when constructing an error message about an
+  unexpected EOF.
+
 ## [2.0.1] - 2018-11-11
 ### Fixed
 - Fix line numbers on elements from `#line`.
