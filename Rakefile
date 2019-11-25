@@ -115,6 +115,14 @@ HOE = Hoe.spec 'nokogiri' do
   self.readme_file  = "README.md"
   self.history_file = "CHANGELOG.md"
 
+  self.urls = {
+    "home" => "https://nokogiri.org",
+    "bugs" => "https://github.com/sparklemotion/nokogiri/issues",
+    "doco" => "https://nokogiri.org/rdoc/index.html",
+    "clog" => "https://nokogiri.org/CHANGELOG.html",
+    "code" => "https://github.com/sparklemotion/nokogiri}",
+  }
+
   self.extra_rdoc_files = FileList['ext/nokogiri/*.c']
 
   self.clean_globs += [
