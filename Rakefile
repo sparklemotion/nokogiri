@@ -277,10 +277,14 @@ task :java_debug do
 end
 Rake::Task[:test].prerequisites << :java_debug
 
+task :rubocop => [:rubocop_security, :rubocop_frozen_string_literals]
 task :rubocop_security do
   sh "rubocop lib --only Security"
 end
-Rake::Task[:test].prerequisites << :rubocop_security
+task :rubocop_frozen_string_literals do
+  sh "rubocop lib --auto-correct --only Style/FrozenStringLiteralComment"
+end
+Rake::Task[:test].prerequisites << :rubocop
 
 if Hoe.plugins.include?(:debugging)
   ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
