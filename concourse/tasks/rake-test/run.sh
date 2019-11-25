@@ -36,6 +36,7 @@ pushd nokogiri
   bundle install --local || bundle install
   bundle exec rake generate # do this before setting frozen string option, because racc isn't compatible with frozen string literals yet
 
+  # TODO: remove this stanza once 9c41334 (2019-11-25) is far enough in the past
   if mri-24-or-greater && commit-is-post-frozen-string-support ; then
     export RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
   fi
