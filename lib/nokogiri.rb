@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# frozen_string_literal: true
 # Modify the PATH on windows so that the external DLLs will get loaded.
 
 require 'rbconfig'
