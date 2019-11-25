@@ -5,6 +5,7 @@
 ### Features
 
 * Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [#688] (Thanks, @jonathanhefner!)
+* Add `frozen_string_literal: true` magic comment to all `lib` files. [#1745] (Thanks, @oniofchaos!)
 
 
 ### Bug fixes
