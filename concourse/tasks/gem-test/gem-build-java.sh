@@ -13,6 +13,7 @@ pushd nokogiri
 
   bundle install --local || bundle install
 
+  bundle exec rake set-version-to-timestamp
   bundle exec rake java gem
 
   mkdir -p ${OUTPUT_DIR}
