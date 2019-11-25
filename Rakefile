@@ -352,5 +352,6 @@ task "gem:jruby" do
 end
 
 require_relative "tasks/docker"
+require_relative "tasks/set-version-to-timestamp"
 
 # vim: syntax=Ruby
