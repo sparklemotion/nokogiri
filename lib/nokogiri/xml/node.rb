@@ -338,9 +338,9 @@ module Nokogiri
       # If you need to distinguish attributes with the same name, with different namespaces
       # use #attribute_nodes instead.
       def attributes
-        Hash[attribute_nodes.map { |node|
-          [node.node_name, node]
-        }]
+        attribute_nodes.each_with_object({}) do |node, hash|
+          hash[node.node_name] = node
+        end
       end
 
       ###
@@ -510,10 +510,11 @@ module Nokogiri
       # default namespaces set on ancestor will NOT be, even if self
       # has no explicit default namespace.
       def namespaces
-        Hash[namespace_scopes.map { |nd|
-          key = ['xmlns', nd.prefix].compact.join(':')
-          [key, nd.href]
-        }]
+        namespace_scopes.each_with_object({}) do |ns, hash|
+          prefix = ns.prefix
+          key = prefix ? "xmlns:#{prefix}" : "xmlns"
+          hash[key] = ns.href
+        end
       end
 
       # Returns true if this is a Comment
