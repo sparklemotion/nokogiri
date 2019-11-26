@@ -33,7 +33,7 @@ resources:
     source:
       repo: sparklemotion/nokogiri
       access_token: {{github-repo-status-access-token}}
-      ignore_paths: ["CHANGELOG.md","README.md","concourse/**","suppressions/**"]
+      ignore_paths: ["CHANGELOG.md","README.md","concourse/**","suppressions/**",".github/**"]
 
 
 anchors:
