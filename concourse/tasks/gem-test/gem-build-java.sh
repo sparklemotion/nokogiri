@@ -13,7 +13,10 @@ pushd nokogiri
 
   bundle install --local || bundle install
 
-  bundle exec rake set-version-to-timestamp
+  # generate a fake version number
+  cp -f ../ci/tasks/set-version-to-timestamp.rb tasks/set-version-to-timestamp.rb
+  bundle exec rake -f tasks/set-version-to-timestamp.rb set-version-to-timestamp
+
   bundle exec rake java gem
 
   mkdir -p ${OUTPUT_DIR}
