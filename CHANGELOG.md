@@ -7,6 +7,7 @@
 * Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [#688] (Thanks, @jonathanhefner!)
 * Add `frozen_string_literal: true` magic comment to all `lib` files. [#1745] (Thanks, @oniofchaos!)
 * Improve performance of some namespace operations. [#1916] (Thanks, @ashmaroli!)
+* Remove unnecessary array allocations from Node serialization methods [#1911] (Thanks, @ashmaroli!)
 * [MRI] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [#1918] (Thanks, @stevecheckoway!)
 * [JRuby] Lots of code cleanup and performance improvements. [#1934] (Thanks, @kares!)
 
