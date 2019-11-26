@@ -258,7 +258,7 @@ public class NokogiriService implements BasicLibraryService {
         }
     };
 
-    public static final ObjectAllocator HTML_SAXPARSER_CONTEXT_ALLOCATOR = new ObjectAllocator() {
+    private static final ObjectAllocator HTML_SAXPARSER_CONTEXT_ALLOCATOR = new ObjectAllocator() {
         private HtmlSaxParserContext htmlSaxParserContext = null;
         public IRubyObject allocate(Ruby runtime, RubyClass klazz) {
             if (htmlSaxParserContext == null) htmlSaxParserContext = new HtmlSaxParserContext(runtime, klazz);

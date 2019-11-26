@@ -369,7 +369,7 @@ public class XmlDtd extends XmlNode {
      * the various collections.
      */
     protected void extractDecls(ThreadContext context) {
-        Ruby runtime = context.getRuntime();
+        Ruby runtime = context.runtime;
 
         // initialize data structures
         attributes = RubyHash.newHash(runtime);
@@ -383,7 +383,7 @@ public class XmlDtd extends XmlNode {
         if (node == null) return; // leave all the decl hash's empty
 
         // convert allDecls to a NodeSet
-        children = XmlNodeSet.newXmlNodeSet(context, extractDecls(context, node.getFirstChild()));
+        children = XmlNodeSet.newNodeSet(runtime, extractDecls(context, node.getFirstChild()));
 
         // add attribute decls as attributes to the matching element decl
         RubyArray keys = attributes.keys();
@@ -432,18 +432,15 @@ public class XmlDtd extends XmlNode {
             if (isExternalSubset(node)) {
                 break;
             } else if (isAttributeDecl(node)) {
-                XmlAttributeDecl decl = (XmlAttributeDecl)
-                    XmlAttributeDecl.create(context, node);
+                XmlAttributeDecl decl = XmlAttributeDecl.create(context, node);
                 attributes.op_aset(context, decl.attribute_name(context), decl);
                 decls.add(decl);
             } else if (isElementDecl(node)) {
-                XmlElementDecl decl = (XmlElementDecl)
-                    XmlElementDecl.create(context, node);
+                XmlElementDecl decl = XmlElementDecl.create(context, node);
                 elements.op_aset(context, decl.element_name(context), decl);
                 decls.add(decl);
             } else if (isEntityDecl(node)) {
-                XmlEntityDecl decl = (XmlEntityDecl)
-                    XmlEntityDecl.create(context, node);
+                XmlEntityDecl decl = XmlEntityDecl.create(context, node);
                 entities.op_aset(context, decl.node_name(context), decl);
                 decls.add(decl);
             } else if (isNotationDecl(node)) {

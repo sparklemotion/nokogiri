@@ -255,18 +255,12 @@ module Nokogiri
       ##
       # +JRuby+
       # Wraps Java's org.w3c.dom.document and returns Nokogiri::XML::Document
-      def self.wrap document
-        raise "JRuby only method" unless Nokogiri.jruby?
-        return wrapJavaDocument(document)
-      end
+      def self.wrap(document) end if false # native-ext provides Document.wrap
 
       ##
       # +JRuby+
       # Returns Java's org.w3c.dom.document of this Document.
-      def to_java
-        raise "JRuby only method" unless Nokogiri.jruby?
-        return toJavaDocument()
-      end
+      def to_java; end if false # JRuby provides #to_java
 
       private
       def self.empty_doc? string_or_io

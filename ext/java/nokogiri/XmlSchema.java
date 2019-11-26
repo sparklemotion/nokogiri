@@ -168,11 +168,11 @@ public class XmlSchema extends RubyObject {
 
     @JRubyMethod(visibility=Visibility.PRIVATE)
     public IRubyObject validate_file(ThreadContext context, IRubyObject file) {
-        Ruby ruby = context.getRuntime();
+        Ruby runtime = context.runtime;
 
-        XmlDomParserContext ctx = new XmlDomParserContext(ruby, RubyFixnum.newFixnum(ruby, 1L));
+        XmlDomParserContext ctx = new XmlDomParserContext(runtime, RubyFixnum.newFixnum(runtime, 1L));
         ctx.setInputSourceFile(context, file);
-        XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(ruby, "Nokogiri::XML::Document"), ruby.getNil());
+        XmlDocument xmlDocument = ctx.parse(context, getNokogiriClass(runtime, "Nokogiri::XML::Document"), context.nil);
         return validate_document_or_file(context, xmlDocument);
     }
 

@@ -79,22 +79,20 @@ public class XmlAttr extends XmlNode {
     @Override
     protected void init(ThreadContext context, IRubyObject[] args) {
         if (args.length < 2) {
-            throw getRuntime().newArgumentError(args.length, 2);
+            throw context.runtime.newArgumentError(args.length, 2);
         }
 
         IRubyObject doc = args[0];
         IRubyObject content = args[1];
 
-        if(!(doc instanceof XmlDocument)) {
-            final String msg =
-                "document must be an instance of Nokogiri::XML::Document";
-            throw getRuntime().newArgumentError(msg);
+        if (!(doc instanceof XmlDocument)) {
+            throw context.runtime.newArgumentError("document must be an instance of Nokogiri::XML::Document");
         }
 
         XmlDocument xmlDoc = (XmlDocument)doc;
         String str = rubyStringToString(content);
         Node attr = xmlDoc.getDocument().createAttribute(str);
-        setNode(context, attr);
+        setNode(context.runtime, attr);
     }
     
     
@@ -103,18 +101,8 @@ public class XmlAttr extends XmlNode {
     // the default namespace should be registered for this attribute
     void setNamespaceIfNecessary(Ruby runtime) {
         if ("xml".equals(node.getPrefix())) {
-           XmlNamespace.createDefaultNamespace(runtime, node); 
+            XmlNamespace.createDefaultNamespace(runtime, node);
         }
-    }
-
-    private boolean isHtmlBooleanAttr() {
-        String name = node.getNodeName().toLowerCase();
-
-        for(String s : HTML_BOOLEAN_ATTRS) {
-            if(s.equals(name)) return true;
-        }
-
-        return false;
     }
 
     @Override
@@ -140,11 +128,16 @@ public class XmlAttr extends XmlNode {
     @Override
     protected IRubyObject getNodeName(ThreadContext context) {
         if (name != null) return name;
-        String attrName = ((Attr)node).getName();
-        if (!(doc instanceof HtmlDocument) && node.getNamespaceURI() != null) {
+
+        String attrName = ((Attr) node).getName();
+        if (attrName == null) return context.nil;
+
+        if (node.getNamespaceURI() != null && !(document(context.runtime) instanceof HtmlDocument)) {
             attrName = NokogiriHelpers.getLocalPart(attrName);
+            if (attrName == null) return context.nil;
         }
-        return attrName == null ? context.getRuntime().getNil() : RubyString.newString(context.getRuntime(), attrName);
+
+        return name = RubyString.newString(context.runtime, attrName);
     }
 
     @Override

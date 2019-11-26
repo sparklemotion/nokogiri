@@ -130,12 +130,11 @@ public class XsltStylesheet extends RubyObject {
         }
     }
     
-    private Pattern p = Pattern.compile("'.{1,}'");
+    private static final Pattern QUOTED = Pattern.compile("'.{1,}'");
 
     private String unparseValue(String orig) {
-        Matcher m = p.matcher(orig);
-        if ((orig.startsWith("\"") && orig.endsWith("\"")) || m.matches()) {
-            orig = orig.substring(1, orig.length()-1);
+        if ((orig.startsWith("\"") && orig.endsWith("\"")) || QUOTED.matcher(orig).matches()) {
+            orig = orig.substring(1, orig.length() - 1);
         }
 
         return orig;
@@ -174,11 +173,8 @@ public class XsltStylesheet extends RubyObject {
     }
     
     private static void ensureFirstArgIsDocument(Ruby runtime, IRubyObject arg) {
-        if (arg instanceof XmlDocument) {
-            return;
-        } else {
-            throw runtime.newArgumentError("doc must be a Nokogiri::XML::Document instance");
-        }
+        if (arg instanceof XmlDocument) return;
+        throw runtime.newArgumentError("doc must be a Nokogiri::XML::Document instance");
     }
     
     private static void ensureDocumentHasNoError(ThreadContext context, XmlDocument xmlDoc) {
@@ -289,13 +285,9 @@ public class XsltStylesheet extends RubyObject {
     
     private IRubyObject createDocumentFromDomResult(ThreadContext context, Ruby runtime, DOMResult domResult) {
         if ("html".equals(domResult.getNode().getFirstChild().getNodeName())) {
-            HtmlDocument htmlDocument = (HtmlDocument) getNokogiriClass(runtime, "Nokogiri::HTML::Document").allocate();
-            htmlDocument.setDocumentNode(context, (Document) domResult.getNode());
-            return htmlDocument;
+            return new HtmlDocument(context.runtime, (Document) domResult.getNode());
         } else {
-            XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
-            xmlDocument.setDocumentNode(context, (Document) domResult.getNode());
-            return xmlDocument;
+            return new XmlDocument(context.runtime, (Document) domResult.getNode());
         }
     }
     
