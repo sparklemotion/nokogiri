@@ -1334,6 +1334,25 @@ static VALUE line(VALUE self)
 
 /*
  * call-seq:
+ *  line=(num)
+ *
+ * Sets the line for this Node. num must be less than 65535.
+ */
+static VALUE set_line(VALUE self, VALUE num)
+{
+  xmlNodePtr node;
+  Data_Get_Struct(self, xmlNode, node);
+
+  int value = NUM2INT(num);
+  if (value < 65535) {
+    node->line = value;
+  }
+
+  return num;
+}
+
+/*
+ * call-seq:
  *  add_namespace_definition(prefix, href)
  *
  * Adds a namespace definition with +prefix+ using +href+ value. The result is
@@ -1728,6 +1747,7 @@ void init_xml_node()
   rb_define_method(klass, "create_external_subset", create_external_subset, 3);
   rb_define_method(klass, "pointer_id", pointer_id, 0);
   rb_define_method(klass, "line", line, 0);
+  rb_define_method(klass, "line=", set_line, 1);
   rb_define_method(klass, "content", get_native_content, 0);
   rb_define_method(klass, "native_content=", set_native_content, 1);
   rb_define_method(klass, "lang", get_lang, 0);
