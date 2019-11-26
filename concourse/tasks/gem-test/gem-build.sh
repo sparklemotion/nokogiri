@@ -16,6 +16,7 @@ pushd nokogiri
   # TODO we're only compiling so that we retrieve libxml2/libxslt
   # tarballs, we can do better a couple of different ways
   bundle exec rake clean compile
+  bundle exec rake set-version-to-timestamp
   bundle exec rake gem
 
   mkdir -p ${OUTPUT_DIR}
