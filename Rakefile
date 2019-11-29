@@ -120,7 +120,7 @@ HOE = Hoe.spec 'nokogiri' do
     "bugs" => "https://github.com/sparklemotion/nokogiri/issues",
     "doco" => "https://nokogiri.org/rdoc/index.html",
     "clog" => "https://nokogiri.org/CHANGELOG.html",
-    "code" => "https://github.com/sparklemotion/nokogiri}",
+    "code" => "https://github.com/sparklemotion/nokogiri",
   }
 
   self.extra_rdoc_files = FileList['ext/nokogiri/*.c']
