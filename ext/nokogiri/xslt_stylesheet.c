@@ -109,10 +109,6 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
     return rval ;
 }
 
-static void swallow_superfluous_xml_errors(void * userdata, xmlErrorPtr error, ...)
-{
-}
-
 /*
  *  call-seq:
  *    transform(document, params = [])
