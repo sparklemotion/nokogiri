@@ -1,0 +1,11 @@
+--- Makefile.in.orig	2019-12-04 06:31:23.930568000 +0900
++++ Makefile.in	2019-12-04 06:31:26.838389000 +0900
+@@ -1057,7 +1057,7 @@
+ 	  rm -f $${locs}; \
+ 	}
+ 
+-libxml2.la: $(libxml2_la_OBJECTS) $(libxml2_la_DEPENDENCIES) $(EXTRA_libxml2_la_DEPENDENCIES) 
++$(top_builddir)/libxml2.la: $(libxml2_la_OBJECTS) $(libxml2_la_DEPENDENCIES) $(EXTRA_libxml2_la_DEPENDENCIES) 
+ 	$(AM_V_CCLD)$(libxml2_la_LINK) -rpath $(libdir) $(libxml2_la_OBJECTS) $(libxml2_la_LIBADD) $(LIBS)
+ 
+ testdso.la: $(testdso_la_OBJECTS) $(testdso_la_DEPENDENCIES) $(EXTRA_testdso_la_DEPENDENCIES) 
