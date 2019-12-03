@@ -17,6 +17,13 @@
 * [JRuby] Standardize reading from IO like objects, including StringIO. [#1888, #1897]
 
 
+## 1.10.6 / 2019-12-03
+
+### Bug
+
+* [MRI] Fix FreeBSD installation of vendored libxml2. [#1941, 1953] (Thanks, @nurse!)
+
+
 ## 1.10.5 / 2019-10-31
 
 ### Security
