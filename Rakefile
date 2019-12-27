@@ -149,7 +149,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["racc",               "~> 1.4.14"],
     ["rake",               "~> 12.0"],
     ["rake-compiler",      "~> 1.1.0"],
-    ["rake-compiler-dock", "~> 0.7.0"],
+    ["rake-compiler-dock", "~> 1.0"],
     ["rexical",            "~> 1.0.5"],
     ["rubocop",            "~> 0.73"],
     ["simplecov",          "~> 0.16"],
@@ -325,8 +325,6 @@ task :cross do
 
   CROSS_RUBIES.each do |cross_ruby|
     task "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so" do |t|
-      # To reduce the gem file size strip mingw32 dlls before packaging
-      sh [cross_ruby.tool('strip'), '-S', t.name].shelljoin
       verify_dll t.name, cross_ruby
     end
   end
