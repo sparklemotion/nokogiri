@@ -118,15 +118,9 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     }
 
     @Override
-    protected XmlDocument getNewEmptyDocument(ThreadContext context) {
-        IRubyObject[] args = IRubyObject.NULL_ARRAY;
-        return (XmlDocument) XmlDocument.rbNew(context, getNokogiriClass(context.getRuntime(), "Nokogiri::HTML::Document"), args);
-    }
-
-    @Override
-    protected XmlDocument wrapDocument(ThreadContext context, RubyClass klazz, Document document) {
-        HtmlDocument htmlDocument = (HtmlDocument) NokogiriService.HTML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
-        htmlDocument.setDocumentNode(context, document);
+    protected XmlDocument wrapDocument(ThreadContext context, RubyClass klass, Document document) {
+        HtmlDocument htmlDocument = new HtmlDocument(context.runtime, klass, document);
+        htmlDocument.setDocumentNode(context.runtime, document);
         if (ruby_encoding.isNil()) {
             // ruby_encoding might have detected by HtmlDocument::EncodingReader
             if (detected_encoding != null && !detected_encoding.isNil()) {
@@ -134,7 +128,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
             } else {
                 // no encoding given & no encoding detected, then try to get it
                 String charset = tryGetCharsetFromHtml5MetaTag(document);
-                ruby_encoding = stringOrNil(context.getRuntime(), charset);
+                ruby_encoding = stringOrNil(context.runtime, charset);
             }
         }
         htmlDocument.setEncoding(ruby_encoding);

@@ -1,0 +1,16 @@
+  - name: ci
+    type: git
+    icon: "settings"
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      disable_ci_skip: true # always get the latest pipeline configuration
+  - name: nokogiri-irc
+    type: irc-notification
+    icon: "bell"
+    source:
+      server: chat.freenode.net
+      port: 7070
+      channel: "#nokogiri"
+      user: {{nokobot-irc-username}}
+      password: {{nokobot-irc-password}}

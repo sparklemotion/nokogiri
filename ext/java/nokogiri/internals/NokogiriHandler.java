@@ -42,14 +42,11 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-import nokogiri.XmlSyntaxError;
-
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
-import org.jruby.RubyObject;
 import org.jruby.exceptions.RaiseException;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.Attributes;
@@ -57,6 +54,8 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.ext.DefaultHandler2;
+
+import nokogiri.XmlSyntaxError;
 
 /**
  * A handler for SAX parsing.
@@ -178,7 +177,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
                     };
                 }
 
-                rubyAttr.append( RuntimeHelpers.invoke(context, attrClass, "new", args) );
+                rubyAttr.append( Helpers.invoke(context, attrClass, "new", args) );
             }
         }
 
@@ -246,27 +245,25 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         charactersBuilder.setLength(0);
     }
 
-    @Override
-    public void error(SAXParseException ex) {
+    void handleError(SAXParseException ex) {
         try {
             final String msg = ex.getMessage();
             call("error", runtime.newString(msg == null ? "" : msg));
             addError(new RaiseException(XmlSyntaxError.createError(runtime, ex), true));
-        } catch(RaiseException e) {
+        } catch( RaiseException e) {
             addError(e);
+            throw e;
         }
     }
 
     @Override
-    public void fatalError(SAXParseException ex) {
-        try {
-            final String msg = ex.getMessage();
-            call("error", runtime.newString(msg == null ? "" : msg));
-            addError(new RaiseException(XmlSyntaxError.createFatalError(runtime, ex), true));
+    public void error(SAXParseException ex) {
+        handleError(ex);
+    }
 
-        } catch(RaiseException e) {
-            addError(e);
-        }
+    @Override
+    public void fatalError(SAXParseException ex) {
+        handleError(ex);
     }
 
     @Override
@@ -289,22 +286,22 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
 
     private void call(String methodName) {
         ThreadContext context = runtime.getCurrentContext();
-        RuntimeHelpers.invoke(context, document(context), methodName);
+        Helpers.invoke(context, document(context), methodName);
     }
 
     private void call(String methodName, IRubyObject argument) {
         ThreadContext context = runtime.getCurrentContext();
-        RuntimeHelpers.invoke(context, document(context), methodName, argument);
+        Helpers.invoke(context, document(context), methodName, argument);
     }
 
     private void call(String methodName, IRubyObject arg1, IRubyObject arg2) {
         ThreadContext context = runtime.getCurrentContext();
-        RuntimeHelpers.invoke(context, document(context), methodName, arg1, arg2);
+        Helpers.invoke(context, document(context), methodName, arg1, arg2);
     }
 
     private void call(String methodName, IRubyObject arg1, IRubyObject arg2, IRubyObject arg3) {
         ThreadContext context = runtime.getCurrentContext();
-        RuntimeHelpers.invoke(context, document(context), methodName, arg1, arg2, arg3);
+        Helpers.invoke(context, document(context), methodName, arg1, arg2, arg3);
     }
 
     private void call(String methodName,
@@ -314,7 +311,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
                       IRubyObject arg3,
                       IRubyObject arg4) {
         ThreadContext context = runtime.getCurrentContext();
-        RuntimeHelpers.invoke(context, document(context), methodName, arg0, arg1, arg2, arg3, arg4);
+        Helpers.invoke(context, document(context), methodName, arg0, arg1, arg2, arg3, arg4);
     }
 
     private IRubyObject document(ThreadContext context) {

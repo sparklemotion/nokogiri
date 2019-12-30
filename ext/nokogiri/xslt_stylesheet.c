@@ -109,10 +109,6 @@ static VALUE serialize(VALUE self, VALUE xmlobj)
     return rval ;
 }
 
-static void swallow_superfluous_xml_errors(void * userdata, xmlErrorPtr error, ...)
-{
-}
-
 /*
  *  call-seq:
  *    transform(document, params = [])
@@ -165,7 +161,7 @@ static VALUE transform(int argc, VALUE* argv, VALUE self)
 
     errstr = rb_str_new(0, 0);
     xsltSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
-    xmlSetGenericErrorFunc(NULL, (xmlGenericErrorFunc)&swallow_superfluous_xml_errors);
+    xmlSetGenericErrorFunc((void *)errstr, xslt_generic_error_handler);
 
     result = xsltApplyStylesheet(wrapper->ss, xml, params);
     free(params);

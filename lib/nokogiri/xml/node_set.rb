@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Nokogiri
   module XML
     ####
@@ -44,7 +45,7 @@ module Nokogiri
 
       ###
       # Returns the index of the first node in self that is == to +node+ or meets the given block. Returns nil if no match is found.
-      def index(node = nil, &block)
+      def index(node = nil)
         if node
           warn "given block not used" if block_given?
           each_with_index { |member, j| return j if member == node }
@@ -231,7 +232,7 @@ module Nokogiri
 
       ###
       # Iterate over each node, yielding  to +block+
-      def each(&block)
+      def each
         return to_enum unless block_given?
 
         0.upto(length - 1) do |x|

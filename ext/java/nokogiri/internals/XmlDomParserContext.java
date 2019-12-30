@@ -39,11 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import nokogiri.NokogiriService;
-import nokogiri.XmlDocument;
-import nokogiri.XmlDtd;
-import nokogiri.XmlSyntaxError;
-
 import org.apache.xerces.parsers.DOMParser;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -56,6 +51,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import nokogiri.NokogiriService;
+import nokogiri.XmlDocument;
+import nokogiri.XmlDtd;
+import nokogiri.XmlSyntaxError;
 
 /**
  * Parser class for XML DOM processing. This class actually parses XML document
@@ -84,7 +84,6 @@ public class XmlDomParserContext extends ParserContext {
     protected ParserContext.Options options;
     protected DOMParser parser;
     protected NokogiriErrorHandler errorHandler;
-    protected String java_encoding;
     protected IRubyObject ruby_encoding;
 
     public XmlDomParserContext(Ruby runtime, IRubyObject options) {
@@ -94,7 +93,7 @@ public class XmlDomParserContext extends ParserContext {
     public XmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
         super(runtime);
         this.options = new ParserContext.Options(RubyFixnum.fix2long(options));
-        java_encoding = NokogiriHelpers.getValidEncoding(runtime, encoding);
+        java_encoding = NokogiriHelpers.getValidEncoding(encoding);
         ruby_encoding = encoding;
         initErrorHandler();
         initParser(runtime);
@@ -201,37 +200,25 @@ public class XmlDomParserContext extends ParserContext {
         }
     }
     
-    private XmlDocument getInterruptedOrNewXmlDocument(ThreadContext context, RubyClass klazz) {
+    private XmlDocument getInterruptedOrNewXmlDocument(ThreadContext context, RubyClass klass) {
         Document document = parser.getDocument();
-        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
-        if (document != null) {
-            xmlDocument.setDocumentNode(context, document);
-        }
+        XmlDocument xmlDocument = new XmlDocument(context.runtime, klass, document);
         xmlDocument.setEncoding(ruby_encoding);
         return xmlDocument;
-    }
-
-    protected XmlDocument getNewEmptyDocument(ThreadContext context) {
-        IRubyObject[] args = new IRubyObject[0];
-        return (XmlDocument) XmlDocument.rbNew(context, getNokogiriClass(context.getRuntime(), "Nokogiri::XML::Document"), args);
     }
 
     /**
      * This method is broken out so that HtmlDomParserContext can
      * override it.
      */
-    protected XmlDocument wrapDocument(ThreadContext context,
-                                       RubyClass klazz,
-                                       Document doc) {
-        XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(context.getRuntime(), klazz);
-        xmlDocument.setDocumentNode(context, doc);
+    protected XmlDocument wrapDocument(ThreadContext context, RubyClass klass, Document doc) {
+        XmlDocument xmlDocument = new XmlDocument(context.runtime, klass, doc);
         xmlDocument.setEncoding(ruby_encoding);
 
         if (options.dtdLoad) {
-            IRubyObject xmlDtdOrNil = XmlDtd.newFromExternalSubset(context.getRuntime(), doc);
-            if (!xmlDtdOrNil.isNil()) {
-                XmlDtd xmlDtd = (XmlDtd) xmlDtdOrNil;
-                doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, xmlDtd, null);
+            IRubyObject dtd = XmlDtd.newFromExternalSubset(context.runtime, doc);
+            if (!dtd.isNil()) {
+                doc.setUserData(XmlDocument.DTD_EXTERNAL_SUBSET, (XmlDtd) dtd, null);
             }
         }
         return xmlDocument;
@@ -240,20 +227,18 @@ public class XmlDomParserContext extends ParserContext {
     /**
      * Must call setInputSource() before this method.
      */
-    public XmlDocument parse(ThreadContext context,
-                             IRubyObject klazz,
-                             IRubyObject url) {
+    public XmlDocument parse(ThreadContext context, RubyClass klass, IRubyObject url) {
         XmlDocument xmlDoc;
         try {
             Document doc = do_parse();
-            xmlDoc = wrapDocument(context, (RubyClass)klazz, doc);
+            xmlDoc = wrapDocument(context, klass, doc);
             xmlDoc.setUrl(url);
             addErrorsIfNecessary(context, xmlDoc);
             return xmlDoc;
         } catch (SAXException e) {
-            return getDocumentWithErrorsOrRaiseException(context, (RubyClass)klazz, e);
+            return getDocumentWithErrorsOrRaiseException(context, klass, e);
         } catch (IOException e) {
-            return getDocumentWithErrorsOrRaiseException(context, (RubyClass)klazz, e);
+            return getDocumentWithErrorsOrRaiseException(context, klass, e);
         }
     }
 

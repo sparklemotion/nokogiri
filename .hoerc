@@ -14,7 +14,6 @@ exclude: !ruby/regexp '/
     |tmp
   )\/)
   |\.(autotest
-     |codeclimate\.yml
      |cross_rubies
      |editorconfig
      |gemtest
@@ -29,6 +28,7 @@ exclude: !ruby/regexp '/
   |appveyor\.yml
   |build_all
   |CHANGELOG.md
+  |CODE_OF_CONDUCT.md
   |CONTRIBUTING.md
   |ROADMAP.md
   |SECURITY.md

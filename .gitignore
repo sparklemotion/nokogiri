@@ -1,5 +1,4 @@
 *.gemspec
-*.rbc
 *.tmproj
 *~
 .*.swp
@@ -16,6 +15,8 @@ Gemfile*lock
 TAGS
 build
 concourse/private.yml
+concourse/images/*.generated
+coverage
 ext/java/Canna
 ext/java/nokogiri/**/*.class
 ext/nokogiri/*.dll

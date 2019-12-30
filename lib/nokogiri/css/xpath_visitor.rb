@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Nokogiri
   module CSS
     class XPathVisitor # :nodoc:
@@ -51,7 +52,8 @@ module Nokogiri
         when /^comment\(/
           "comment()"
         when /^has\(/
-          ".//#{node.value[1].accept(self)}"
+          is_direct = node.value[1].value[0].nil? # e.g. "has(> a)", "has(~ a)", "has(+ a)"
+          ".#{"//" if !is_direct}#{node.value[1].accept(self)}"
         else
           args = ['.'] + node.value[1..-1]
           "#{node.value.first}#{args.join(', ')})"

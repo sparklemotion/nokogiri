@@ -33,18 +33,19 @@
 package nokogiri;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import nokogiri.internals.SaveContextVisitor;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
+
+import nokogiri.internals.SaveContextVisitor;
 
 /**
  * Class for Nokogiri::XML::ProcessingInstruction
@@ -81,7 +82,7 @@ public class XmlProcessingInstruction extends XmlNode {
                                          (RubyClass) klazz,
                                          node);
 
-        RuntimeHelpers.invoke(context, self, "initialize", args);
+        Helpers.invoke(context, self, "initialize", args);
 
         // TODO: if_block_given.
 

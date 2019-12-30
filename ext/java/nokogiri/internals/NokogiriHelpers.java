@@ -39,6 +39,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,7 +54,6 @@ import org.jruby.util.ByteList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -81,7 +81,7 @@ import nokogiri.XmlXpathContext;
  */
 public class NokogiriHelpers {
     public static final String CACHED_NODE = "NOKOGIRI_CACHED_NODE";
-    public static final String VALID_ROOT_NODE = "NOKOGIRI_VALIDE_ROOT_NODE";
+    public static final String ROOT_NODE_INVALID = "NOKOGIRI_ROOT_NODE_INVALID";
     public static final String ENCODED_STRING = "NOKOGIRI_ENCODED_STRING";
 
     public static XmlNode getCachedNode(Node node) {
@@ -108,22 +108,21 @@ public class NokogiriHelpers {
      * or XmlNamespace wrapping <code>node</code> if there is no cached
      * value.
      */
-    public static IRubyObject getCachedNodeOrCreate(Ruby ruby, Node node) {
-        if(node == null) return ruby.getNil();
+    public static IRubyObject getCachedNodeOrCreate(Ruby runtime, Node node) {
+        if (node == null) return runtime.getNil();
         if (node.getNodeType() == Node.ATTRIBUTE_NODE && isNamespace(node.getNodeName())) {
-            XmlDocument xmlDocument = (XmlDocument)node.getOwnerDocument().getUserData(CACHED_NODE);
+            XmlDocument xmlDocument = (XmlDocument) node.getOwnerDocument().getUserData(CACHED_NODE);
             if (!(xmlDocument instanceof HtmlDocument)) {
-                String prefix = getLocalNameForNamespace(((Attr)node).getName());
-                prefix = prefix != null ? prefix : "";
-                String href = ((Attr)node).getValue();
+                String prefix = getLocalNameForNamespace(((Attr) node).getName(), null);
+                String href = ((Attr) node).getValue();
                 XmlNamespace xmlNamespace = xmlDocument.getNamespaceCache().get(prefix, href);
                 if (xmlNamespace != null) return xmlNamespace;
-                else return XmlNamespace.createFromAttr(ruby, (Attr)node);
+                return XmlNamespace.createFromAttr(runtime, (Attr) node);
             }
         }
         XmlNode xmlNode = getCachedNode(node);
-        if(xmlNode == null) {
-            xmlNode = (XmlNode)constructNode(ruby, node);
+        if (xmlNode == null) {
+            xmlNode = (XmlNode) constructNode(runtime, node);
             node.setUserData(CACHED_NODE, xmlNode, null);
         }
         return xmlNode;
@@ -140,37 +139,37 @@ public class NokogiriHelpers {
         switch (node.getNodeType()) {
             case Node.ELEMENT_NODE:
                 XmlElement xmlElement = (XmlElement) NokogiriService.XML_ELEMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Element"));
-                xmlElement.setNode(runtime.getCurrentContext(), node);
+                xmlElement.setNode(runtime, node);
                 return xmlElement;
             case Node.ATTRIBUTE_NODE:
                 XmlAttr xmlAttr = (XmlAttr) NokogiriService.XML_ATTR_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Attr"));
-                xmlAttr.setNode(runtime.getCurrentContext(), node);
+                xmlAttr.setNode(runtime, node);
                 return xmlAttr;
             case Node.TEXT_NODE:
                 XmlText xmlText = (XmlText) NokogiriService.XML_TEXT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Text"));
-                xmlText.setNode(runtime.getCurrentContext(), node);
+                xmlText.setNode(runtime, node);
                 return xmlText;
             case Node.COMMENT_NODE:
                 XmlComment xmlComment = (XmlComment) NokogiriService.XML_COMMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Comment"));
-                xmlComment.setNode(runtime.getCurrentContext(), node);
+                xmlComment.setNode(runtime, node);
                 return xmlComment;
             case Node.ENTITY_NODE:
                 return new XmlNode(runtime, getNokogiriClass(runtime, "Nokogiri::XML::EntityDecl"), node);
             case Node.ENTITY_REFERENCE_NODE:
                 XmlEntityReference xmlEntityRef = (XmlEntityReference) NokogiriService.XML_ENTITY_REFERENCE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::EntityReference"));
-                xmlEntityRef.setNode(runtime.getCurrentContext(), node);
+                xmlEntityRef.setNode(runtime, node);
                 return xmlEntityRef;
             case Node.PROCESSING_INSTRUCTION_NODE:
                 XmlProcessingInstruction xmlProcessingInstruction = (XmlProcessingInstruction) NokogiriService.XML_PROCESSING_INSTRUCTION_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::ProcessingInstruction"));
-                xmlProcessingInstruction.setNode(runtime.getCurrentContext(), node);
+                xmlProcessingInstruction.setNode(runtime, node);
                 return xmlProcessingInstruction;
             case Node.CDATA_SECTION_NODE:
                 XmlCdata xmlCdata = (XmlCdata) NokogiriService.XML_CDATA_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::CDATA"));
-                xmlCdata.setNode(runtime.getCurrentContext(), node);
+                xmlCdata.setNode(runtime, node);
                 return xmlCdata;
             case Node.DOCUMENT_NODE:
                 XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
-                xmlDocument.setDocumentNode(runtime.getCurrentContext(), node);
+                xmlDocument.setDocumentNode(runtime, (Document) node);
                 return xmlDocument;
             case Node.DOCUMENT_TYPE_NODE:
                 XmlDtd xmlDtd = (XmlDtd) NokogiriService.XML_DTD_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::DTD"));
@@ -178,7 +177,7 @@ public class NokogiriHelpers {
                 return xmlDtd;
             default:
                 XmlNode xmlNode = (XmlNode) NokogiriService.XML_NODE_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Node"));
-                xmlNode.setNode(runtime.getCurrentContext(), node);
+                xmlNode.setNode(runtime, node);
                 return xmlNode;
         }
     }
@@ -242,47 +241,18 @@ public class NokogiriHelpers {
         return pos > 0 ? qName.substring(pos + 1) : qName;
     }
 
-    public static String getLocalNameForNamespace(String name) {
+    public static String getLocalNameForNamespace(String name, String defValue) {
         String localName = getLocalPart(name);
-        return ("xmlns".equals(localName)) ? null : localName;
+        return ("xmlns".equals(localName)) ? defValue : localName;
     }
 
-    private static final Charset UTF8 = Charset.forName("UTF-8");
-
-    /**
-     * Converts a RubyString in to a Java String.  Assumes the
-     * RubyString is encoded as UTF-8.  This is generally the case for
-     * RubyStrings created with getRuntime().newString("java string").
-     * It also seems to be the case for strings created within Ruby
-     * where $KCODE has not been set.
-     *
-     * Note that RubyString#toString() decodes the string data as
-     * ISO-8859-1 (See org.jruby.util.ByteList.java).  This is not
-     * what you want if you have any multibyte characters in your
-     * UTF-8 string.
-     *
-     * FIXME: This really needs to be more robust in terms of
-     * detecting the encoding and properly converting to a Java
-     * String.  It's unfortunate that RubyString#toString() doesn't do
-     * this for us.
-     */
     public static String rubyStringToString(IRubyObject str) {
         if (str.isNil()) return null;
-        //return rubyStringToString(str.convertToString());
-        return toJavaString(str.convertToString());
-    }
-    
-    private static String toJavaString(RubyString str) {
-        return str.decodeString(); // toString()
+        return str.convertToString().decodeString();
     }
 
     public static String rubyStringToString(RubyString str) {
-        ByteList byteList = str.getByteList();
-        byte[] data = byteList.unsafeBytes();
-        int offset = byteList.begin();
-        int len = byteList.length();
-        ByteBuffer buf = ByteBuffer.wrap(data, offset, len);
-        return UTF8.decode(buf).toString();
+        return str.decodeString(); // if encoding UTF-8 will decode UTF-8
     }
 
     public static ByteArrayInputStream stringBytesToStream(final IRubyObject str) {
@@ -297,7 +267,6 @@ public class NokogiriHelpers {
 
         Node cur, tmp, next;
 
-        // TODO: Rename buffer to path.
         String buffer = "";
 
         cur = node;
@@ -494,31 +463,18 @@ public class NokogiriHelpers {
         return buffer;
     }
 
-    protected static boolean compareTwoNodes(Node m, Node n) {
+    static boolean compareTwoNodes(Node m, Node n) {
         return nodesAreEqual(m.getLocalName(), n.getLocalName()) &&
                nodesAreEqual(m.getPrefix(), n.getPrefix());
-    }
-
-    protected static boolean fullNamesMatch(Node a, Node b) {
-        return a.getNodeName().equals(b.getNodeName());
-    }
-
-    protected static String getFullName(Node n) {
-        String lname = n.getLocalName();
-        String prefix = n.getPrefix();
-        if (lname != null) {
-            if (prefix != null)
-                return prefix + ":" + lname;
-            else
-                return lname;
-        } else {
-            return n.getNodeName();
-        }
     }
 
     private static boolean nodesAreEqual(Object a, Object b) {
         return (((a == null) && (b == null)) ||
                 ((a != null) && (b != null) && (b.equals(a))));
+    }
+
+    private static boolean fullNamesMatch(Node a, Node b) {
+        return a.getNodeName().equals(b.getNodeName());
     }
 
     private static final Pattern encoded_pattern = Pattern.compile("&amp;|&gt;|&lt;|&#13;");
@@ -552,20 +508,6 @@ public class NokogiriHelpers {
 
     public static CharSequence decodeJavaString(CharSequence str) {
         return convert(encoded_pattern, str, encoded, decoded);
-    }
-
-    public static String getNodeName(Node node) {
-        if(node == null) { System.out.println("node is null"); return ""; }
-        String name = node.getNodeName();
-        if(name == null) { System.out.println("name is null"); return ""; }
-        if(name.equals("#document")) {
-            return "document";
-        } else if(name.equals("#text")) {
-            return "text";
-        } else {
-            name = getLocalPart(name);
-            return (name == null) ? "" : name;
-        }
     }
 
     public static final String XMLNS_URI = "http://www.w3.org/2000/xmlns/";
@@ -602,6 +544,10 @@ public class NokogiriHelpers {
         return str.isEmpty() || isBlank((CharSequence) str);
     }
 
+    public static boolean isNullOrEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
     public static CharSequence canonicalizeWhitespace(CharSequence str) {
         final int len = str.length();
         StringBuilder sb = new StringBuilder(len);
@@ -625,59 +571,44 @@ public class NokogiriHelpers {
         return newPrefix + ':' + tagName;
     }
 
-    public static IRubyObject[] nodeListToRubyArray(Ruby ruby, NodeList nodes) {
+    public static IRubyObject[] nodeListToRubyArray(Ruby runtime, NodeList nodes) {
         IRubyObject[] array = new IRubyObject[nodes.getLength()];
         for (int i = 0; i < nodes.getLength(); i++) {
-          array[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.item(i));
+            array[i] = NokogiriHelpers.getCachedNodeOrCreate(runtime, nodes.item(i));
         }
         return array;
     }
 
-    public static IRubyObject[] nodeArrayToArray(Ruby ruby, Node[] nodes) {
-        IRubyObject[] result = new IRubyObject[nodes.length];
-        for(int i = 0; i < nodes.length; i++) {
-            result[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]);
+    public static IRubyObject[] nodeListToArray(Ruby ruby, List<Node> nodes) {
+        IRubyObject[] result = new IRubyObject[nodes.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes.get(i));
         }
         return result;
     }
 
     public static RubyArray nodeArrayToRubyArray(Ruby ruby, Node[] nodes) {
         RubyArray n = RubyArray.newArray(ruby, nodes.length);
-        for(int i = 0; i < nodes.length; i++) {
+        for (int i = 0; i < nodes.length; i++) {
             n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, nodes[i]));
         }
         return n;
     }
 
-    public static RubyArray namedNodeMapToRubyArray(Ruby ruby, NamedNodeMap map) {
-        RubyArray n = RubyArray.newArray(ruby, map.getLength());
-        for(int i = 0; i < map.getLength(); i++) {
-            n.append(NokogiriHelpers.getCachedNodeOrCreate(ruby, map.item(i)));
-        }
-        return n;
+    public static String getValidEncodingOrNull(IRubyObject encoding) {
+        if (encoding.isNil()) return null; // charsetNames does not like contains(null)
+        String enc = rubyStringToString(encoding.convertToString());
+        if (CharsetNames.contains(enc)) return enc;
+        return null;
     }
 
-    public static String getValidEncoding(Ruby runtime, IRubyObject encoding) {
-        if (encoding.isNil()) {
-            return guessEncoding();
-        } else {
-            return ignoreInvalidEncoding(runtime, encoding);
-        }
+    public static String getValidEncoding(IRubyObject encoding) {
+        String validEncoding = getValidEncodingOrNull(encoding);
+        if (validEncoding != null) return validEncoding;
+        return Charset.defaultCharset().name();
     }
 
-    private static String guessEncoding() {
-        String name = System.getProperty("file.encoding");
-        if (name == null) name = "UTF-8";
-        return name;
-    }
-
-    private static Set<String> charsetNames = Charset.availableCharsets().keySet();
-
-    private static String ignoreInvalidEncoding(Ruby runtime, IRubyObject encoding) {
-        String givenEncoding = rubyStringToString(encoding);
-        if (charsetNames.contains(givenEncoding)) return givenEncoding;
-        else return guessEncoding();
-    }
+    private static final Set<String> CharsetNames = Charset.availableCharsets().keySet();
 
     public static String adjustSystemIdIfNecessary(String currentDir, String scriptFileName, String baseURI, String systemId) {
         if (systemId == null) return systemId;
@@ -704,9 +635,13 @@ public class NokogiriHelpers {
         return null;
     }
 
+    private static final Charset UTF8 = Charset.forName("UTF-8");
+
     public static boolean isUTF8(String encoding) {
         if (encoding == null) return true; // no need to convert encoding
-        return Charset.forName(encoding).compareTo(UTF8) == 0;
+
+        if ("UTF-8".equals(encoding)) return true;
+        return UTF8.aliases().contains(encoding);
     }
 
     public static ByteBuffer convertEncoding(Charset output_charset, CharSequence input_string) {
@@ -738,15 +673,16 @@ public class NokogiriHelpers {
     private static CharSequence nkf(ThreadContext context, Charset encoding, CharSequence str) {
         final Ruby runtime = context.getRuntime();
         final ByteList opt;
-        if (NokogiriHelpers.shift_jis.compareTo(encoding) == 0) opt = _Sw;
-        else if (NokogiriHelpers.jis.compareTo(encoding) == 0) opt = _Jw;
-        else if (NokogiriHelpers.euc_jp.compareTo(encoding) == 0) opt = _Ew;
+        if (NokogiriHelpers.Shift_JIS.compareTo(encoding) == 0) opt = _Sw;
+        else if (NokogiriHelpers.ISO_2022_JP.compareTo(encoding) == 0) opt = _Jw;
+        else if (NokogiriHelpers.EUC_JP.compareTo(encoding) == 0) opt = _Ew;
         else opt = _Ww; // should not come here. should be treated before this method.
 
         Class nkfClass;
         try {
-            nkfClass = runtime.getClassLoader().loadClass("org.jruby.RubyNKF");
-        } catch (ClassNotFoundException e2) {
+            // JRuby 1.7 and later
+            nkfClass = runtime.getClassLoader().loadClass("org.jruby.ext.nkf.RubyNKF");
+        } catch (ClassNotFoundException e1) {
             return str;
         }
         Method nkf_method;
@@ -768,9 +704,9 @@ public class NokogiriHelpers {
         }
     }
 
-    private static final Charset shift_jis = Charset.forName("Shift_JIS");
-    private static final Charset jis = Charset.forName("ISO-2022-JP");
-    private static final Charset euc_jp = Charset.forName("EUC-JP");
+    private static final Charset Shift_JIS = Charset.forName("Shift_JIS");
+    private static final Charset ISO_2022_JP = Charset.forName("ISO-2022-JP"); // JIS
+    private static final Charset EUC_JP = Charset.forName("EUC-JP");
 
     public static boolean shouldEncode(Node text) {
         final Boolean encoded = (Boolean) text.getUserData(NokogiriHelpers.ENCODED_STRING);
@@ -781,17 +717,17 @@ public class NokogiriHelpers {
       return !shouldEncode(text);
     }
 
-    public static NokogiriNamespaceCache getNamespaceCacheFormNode(Node n) {
-        XmlDocument xmlDoc = (XmlDocument)getCachedNode(n.getOwnerDocument());
+    public static NokogiriNamespaceCache getNamespaceCache(Node node) {
+        XmlDocument xmlDoc = (XmlDocument) getCachedNode(node.getOwnerDocument());
         return xmlDoc.getNamespaceCache();
     }
 
-    public static Node renameNode(Node n, String namespaceURI, String qualifiedName) throws DOMException {
-        Document doc = n.getOwnerDocument();
-        NokogiriNamespaceCache nsCache = getNamespaceCacheFormNode(n);
-        Node result = doc.renameNode(n, namespaceURI, qualifiedName);
-        if (result != n) {
-            nsCache.replaceNode(n, result);
+    public static Node renameNode(Node node, String namespaceURI, String qualifiedName) throws DOMException {
+        Document doc = node.getOwnerDocument();
+        NokogiriNamespaceCache nsCache = getNamespaceCache(node);
+        Node result = doc.renameNode(node, namespaceURI, qualifiedName);
+        if (result != node) {
+            nsCache.replaceNode(node, result);
         }
         return result;
     }

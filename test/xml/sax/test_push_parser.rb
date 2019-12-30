@@ -73,6 +73,7 @@ module Nokogiri
           rescue => e
             actual = e
           end
+          fail 'PushParser should throw error when fed ill-formed data' if actual.nil?
 
           assert_equal actual.message, "parse error"
         end

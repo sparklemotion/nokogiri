@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Nokogiri
   module XML
     ###
@@ -87,9 +88,12 @@ module Nokogiri
       ###
       # Get a list of attributes for the current node.
       def attributes
-        Hash[attribute_nodes.map { |node|
-          [node.name, node.to_s]
-        }].merge(namespaces || {})
+        attrs_hash = attribute_nodes.each_with_object({}) do |node, hash|
+                       hash[node.name] = node.to_s
+                     end
+        ns = namespaces
+        attrs_hash.merge!(ns) if ns
+        attrs_hash
       end
 
       ###

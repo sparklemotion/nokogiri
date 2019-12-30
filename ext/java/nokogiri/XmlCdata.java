@@ -69,10 +69,9 @@ public class XmlCdata extends XmlText {
         }
         IRubyObject doc = args[0];
         content = args[1];
-        XmlDocument xmlDoc =(XmlDocument) ((XmlNode) doc).document(context);
-        Document document = xmlDoc.getDocument();
-        Node node = document.createCDATASection((content.isNil()) ? null : rubyStringToString(content));
-        setNode(context, node);
+        Document document = ((XmlNode) doc).getOwnerDocument();
+        Node node = document.createCDATASection(rubyStringToString(content));
+        setNode(context.runtime, node);
     }
 
     @Override

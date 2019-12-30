@@ -57,6 +57,8 @@ import nokogiri.internals.NokogiriNamespaceContext;
 import nokogiri.internals.NokogiriXPathFunctionResolver;
 import nokogiri.internals.NokogiriXPathVariableResolver;
 
+import static nokogiri.internals.NokogiriHelpers.nodeListToRubyArray;
+
 /**
  * Class for Nokogiri::XML::XpathContext
  *
@@ -181,14 +183,12 @@ public class XmlXpathContext extends RubyObject {
             xobj = xpathInternal.execute(getXPathContext(fnResolver), contextNode, prefixResolver);
 
         switch (xobj.getType()) {
-            case XObject.CLASS_BOOLEAN : return context.getRuntime().newBoolean(xobj.bool());
-            case XObject.CLASS_NUMBER :  return context.getRuntime().newFloat(xobj.num());
+            case XObject.CLASS_BOOLEAN : return context.runtime.newBoolean(xobj.bool());
+            case XObject.CLASS_NUMBER :  return context.runtime.newFloat(xobj.num());
             case XObject.CLASS_NODESET :
-                XmlNodeSet xmlNodeSet = XmlNodeSet.newEmptyNodeSet(context);
-                xmlNodeSet.setNodeList(xobj.nodelist());
-                xmlNodeSet.initialize(context.getRuntime(), this.context);
-                return xmlNodeSet;
-            default : return context.getRuntime().newString(xobj.str());
+                IRubyObject[] nodes = nodeListToRubyArray(context.runtime, xobj.nodelist());
+                return XmlNodeSet.newNodeSet(context.runtime, nodes, this.context);
+            default : return context.runtime.newString(xobj.str());
         }
     }
 

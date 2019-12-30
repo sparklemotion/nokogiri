@@ -1,10 +1,9 @@
 {
-   <https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.6-valgrind/builds/1>
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.6-valgrind/builds/1,https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/ruby-2.6-valgrind/builds/11
    Memcheck:Addr8
    fun:mark_locations_array
    fun:gc_marks_wb_unprotected_objects
    fun:gc_marks_finish
-   fun:gc_marks_rest
    ...
    fun:ruby_finalize_?
    fun:ruby_cleanup
@@ -12,26 +11,27 @@
    fun:main
 }
 {
-   <https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.6-valgrind/builds/1>
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.6-valgrind/builds/1,https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-v1.10.x/jobs/ruby-2.6-valgrind/builds/3
    Memcheck:Addr8
    fun:mark_locations_array
    fun:gc_mark_stacked_objects
    fun:gc_mark_stacked_objects_incremental
-   fun:gc_marks_rest
    ...
    fun:ruby_finalize_?
    fun:ruby_cleanup
    fun:ruby_run_node
-   fun:main
+   ...
 }
 {
-   <https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-libxmlruby-valgrind/builds/116>
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-libxmlruby-valgrind/builds/116,https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/ruby-libxmlruby-valgrind/builds/13
    Memcheck:Addr8
    fun:mark_locations_array
    fun:gc_mark_stacked_objects
    fun:gc_mark_stacked_objects_all
    fun:gc_marks_rest
    ...
-   fun:garbage_collect_with_gvl
-   ...
+   fun:ruby_finalize_?
+   fun:ruby_cleanup
+   fun:ruby_run_node
+   fun:main
 }

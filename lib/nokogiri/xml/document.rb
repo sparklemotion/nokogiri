@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Nokogiri
   module XML
     ##
@@ -41,7 +42,7 @@ module Nokogiri
       #
       # Nokogiri.XML() is a convenience method which will call this method.
       #
-      def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML, &block
+      def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
         # Give the options to the user
         yield options if block_given?
@@ -254,18 +255,12 @@ module Nokogiri
       ##
       # +JRuby+
       # Wraps Java's org.w3c.dom.document and returns Nokogiri::XML::Document
-      def self.wrap document
-        raise "JRuby only method" unless Nokogiri.jruby?
-        return wrapJavaDocument(document)
-      end
+      def self.wrap(document) end if false # native-ext provides Document.wrap
 
       ##
       # +JRuby+
       # Returns Java's org.w3c.dom.document of this Document.
-      def to_java
-        raise "JRuby only method" unless Nokogiri.jruby?
-        return toJavaDocument()
-      end
+      def to_java; end if false # JRuby provides #to_java
 
       private
       def self.empty_doc? string_or_io

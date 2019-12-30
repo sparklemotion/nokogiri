@@ -1,0 +1,25 @@
+name: macos
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  latest:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6.3'
+      - name: Set ENV
+        run: |
+          echo '##[set-env name=MAKEFLAGS]'-j$((1 + $(sysctl -n hw.activecpu)))
+      - name: Install dependencies
+        run: |
+          bundle install -j8
+      - run: rake compile
+      - run: rake test

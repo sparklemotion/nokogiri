@@ -1,0 +1,7 @@
+FROM jruby:<%= version %>-jdk
+
+<%= File.read "java-opts.step" %>
+
+<%= File.read "update-bundler.step" %>
+
+<%= File.read "bundle-install.step" %>

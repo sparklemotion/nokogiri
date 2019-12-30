@@ -40,7 +40,6 @@ import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +49,7 @@ import org.jruby.RubyClass;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
@@ -65,7 +64,8 @@ import org.w3c.dom.NamedNodeMap;
  */
 @JRubyClass(name="Nokogiri::XML::DocumentFragment", parent="Nokogiri::XML::Node")
 public class XmlDocumentFragment extends XmlNode {
-    private XmlElement fragmentContext = null;
+
+    private XmlElement fragmentContext;
 
     public XmlDocumentFragment(Ruby ruby) {
         this(ruby, getNokogiriClass(ruby, "Nokogiri::XML::DocumentFragment"));
@@ -77,33 +77,33 @@ public class XmlDocumentFragment extends XmlNode {
 
     @JRubyMethod(name="new", meta = true, required=1, optional=2)
     public static IRubyObject rbNew(ThreadContext context, IRubyObject cls, IRubyObject[] args) {
-        
-        if(args.length < 1) {
-            throw context.getRuntime().newArgumentError(args.length, 1);
+        if (args.length < 1) {
+            throw context.runtime.newArgumentError(args.length, 1);
         }
 
-        if(!(args[0] instanceof XmlDocument)){
-            throw context.getRuntime().newArgumentError("first parameter must be a Nokogiri::XML::Document instance");
+        if (!(args[0] instanceof XmlDocument)){
+            throw context.runtime.newArgumentError("first parameter must be a Nokogiri::XML::Document instance");
         }
 
         XmlDocument doc = (XmlDocument) args[0];
         
         // make wellformed fragment, ignore invalid namespace, or add appropriate namespace to parse
         if (args.length > 1 && args[1] instanceof RubyString) {
-            if (XmlDocumentFragment.isTag((RubyString)args[1])) {
-                args[1] = RubyString.newString(context.getRuntime(), addNamespaceDeclIfNeeded(doc, rubyStringToString(args[1])));
+            final RubyString arg1 = (RubyString) args[1];
+            if (XmlDocumentFragment.isTag(arg1)) {
+                args[1] = RubyString.newString(context.runtime, addNamespaceDeclIfNeeded(doc, rubyStringToString(arg1)));
             }
         }
 
-        XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)cls);
+        XmlDocumentFragment fragment = (XmlDocumentFragment) NokogiriService.XML_DOCUMENT_FRAGMENT_ALLOCATOR.allocate(context.runtime, (RubyClass)cls);
         fragment.setDocument(context, doc);
-        fragment.setNode(context, doc.getDocument().createDocumentFragment());
+        fragment.setNode(context.runtime, doc.getDocument().createDocumentFragment());
 
         //TODO: Get namespace definitions from doc.
         if (args.length == 3 && args[2] != null && args[2] instanceof XmlElement) {
             fragment.fragmentContext = (XmlElement)args[2];
         }
-        RuntimeHelpers.invoke(context, fragment, "initialize", args);
+        Helpers.invoke(context, fragment, "initialize", args);
         return fragment;
     }
 
@@ -119,7 +119,7 @@ public class XmlDocumentFragment extends XmlNode {
         for (int i=0; i < nodeMap.getLength(); i++) {
             Attr attr = (Attr)nodeMap.item(i);
             if (isNamespace(attr.getNodeName())) {
-                String localPart = getLocalNameForNamespace(attr.getNodeName());
+                String localPart = getLocalNameForNamespace(attr.getNodeName(), null);
                 if (getPrefix(qName).equals(localPart)) {
                     return true;
                 }
@@ -178,27 +178,8 @@ public class XmlDocumentFragment extends XmlNode {
         return fragmentContext;
     }
 
-    //@Override
-    public void add_child(ThreadContext context, XmlNode child) {
-        // Some magic for DocumentFragment
-
-        Ruby ruby = context.getRuntime();
-        XmlNodeSet children = (XmlNodeSet) child.children(context);
-
-        long length = children.length();
-
-        RubyArray childrenArray = children.convertToArray();
-
-        if(length != 0) {
-            for(int i = 0; i < length; i++) {
-                XmlNode item = (XmlNode) ((XmlNode) childrenArray.aref(ruby.newFixnum(i))).dup_implementation(context, true);
-                add_child(context, item);
-            }
-        }
-    }
-
     @Override
     public void relink_namespace(ThreadContext context) {
-        ((XmlNodeSet) children(context)).relink_namespace(context);
+        relink_namespace(context, getChildren());
     }
 }

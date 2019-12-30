@@ -33,27 +33,22 @@
 package nokogiri.internals;
 
 import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-import static org.jruby.runtime.Helpers.invoke;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.URI;
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.concurrent.Callable;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
-import org.jruby.RubyIO;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.util.ByteList;
-import org.jruby.util.TypeConverter;
+import org.jruby.util.IOInputStream;
 import org.xml.sax.InputSource;
 
 /**
@@ -67,6 +62,7 @@ public abstract class ParserContext extends RubyObject {
     protected InputSource source = null;
     protected IRubyObject detected_encoding = null;
     protected int stringDataSize = -1;
+    protected String java_encoding;
 
     public ParserContext(Ruby runtime) {
         // default to class 'Object' because this class isn't exposed to Ruby
@@ -81,68 +77,42 @@ public abstract class ParserContext extends RubyObject {
         return source;
     }
 
-    /**
-     * Set the InputSource from <code>url</code> or <code>data</code>,
-     * which may be an IO object, a String, or a StringIO.
-     */
-    public void setInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
+    public void setIOInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
         source = new InputSource();
+        ParserContext.setUrl(context, source, url);
+
+        source.setByteStream(new IOInputStream(data));
+        if (java_encoding != null) {
+            source.setEncoding(java_encoding);
+        }
+    }
+
+    public void setStringInputSource(ThreadContext context, IRubyObject data, IRubyObject url) {
+        source = new InputSource();
+        ParserContext.setUrl(context, source, url);
 
         Ruby ruby = context.getRuntime();
 
-        ParserContext.setUrl(context, source, url);
-
-        // if setEncoding returned true, then the stream is set
-        // to the EncodingReaderInputStream
-        if (setEncoding(context, data))
-          return;
-
-        RubyString stringData = null;
-        if (invoke(context, data, "respond_to?", ruby.newSymbol("to_io")).isTrue()) {
-            RubyIO io =
-                (RubyIO) TypeConverter.convertToType(data,
-                                                     ruby.getIO(),
-                                                     "to_io");
-            // use unclosedable input stream to fix #495
-            source.setByteStream(new UncloseableInputStream(io.getInStream()));
-
-        } else if (invoke(context, data, "respond_to?", ruby.newSymbol("read")).isTrue()) {
-            stringData = invoke(context, data, "read").convertToString();
-
-        } else if (invoke(context, data, "respond_to?", ruby.newSymbol("string")).isTrue()) {
-            stringData = invoke(context, data, "string").convertToString();
-
-        } else if (data instanceof RubyString) {
-            stringData = (RubyString) data;
-
-        } else {
-            throw ruby.newArgumentError("must be kind_of String or respond to :to_io, :read, or :string");
+        if (!(data instanceof RubyString)) {
+            throw ruby.newArgumentError("must be kind_of String");
         }
 
-        if (stringData != null) {
-            String encName = null;
-            if (stringData.encoding(context) != null) {
-                encName = stringData.encoding(context).toString();
-            }
-            Charset charset = null;
+        RubyString stringData = (RubyString) data;
+
+        if (stringData.encoding(context) != null) {
+            RubyString stringEncoding = stringData.encoding(context).asString();
+            String encName = NokogiriHelpers.getValidEncodingOrNull(stringEncoding);
             if (encName != null) {
-                try {
-                    charset = Charset.forName(encName);
-                } catch (UnsupportedCharsetException e) {
-                    // do nothing;
-                }
-            }
-            ByteList bytes = stringData.getByteList();
-            if (charset != null) {
-                StringReader reader = new StringReader(new String(bytes.unsafeBytes(), bytes.begin(), bytes.length(), charset));
-                source.setCharacterStream(reader);
-                source.setEncoding(charset.name());
-            } else {
-                stringDataSize = bytes.length() - bytes.begin();
-                ByteArrayInputStream stream = new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length());
-                source.setByteStream(stream);
+                java_encoding = encName;
             }
         }
+
+        ByteList bytes = stringData.getByteList();
+
+        stringDataSize = bytes.length() - bytes.begin();
+        ByteArrayInputStream stream = new ByteArrayInputStream(bytes.unsafeBytes(), bytes.begin(), bytes.length());
+        source.setByteStream(stream);
+        source.setEncoding(java_encoding);
     }
 
     public static void setUrl(ThreadContext context, InputSource source, IRubyObject url) {
@@ -171,22 +141,6 @@ public abstract class ParserContext extends RubyObject {
         }
     }
 
-    private boolean setEncoding(ThreadContext context, IRubyObject data) {
-        if (data.getType().respondsTo("detect_encoding")) {
-            // in case of EncodingReader is used
-            // since EncodingReader won't respond to :to_io
-            NokogiriEncodingReaderWrapper reader = new NokogiriEncodingReaderWrapper(context, (RubyObject) data);
-            source.setByteStream(reader);
-            // data is EnocodingReader
-            if(reader.detectEncoding()) {
-              detected_encoding = reader.getEncoding();
-              source.setEncoding(detected_encoding.asJavaString());
-            }
-            return true;
-        }
-        return false;
-    }
-    
     protected void setEncoding(String encoding) {
     	source.setEncoding(encoding);
     }

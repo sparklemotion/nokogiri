@@ -1,11 +1,11 @@
 libxml2:
-  version: "2.9.9"
-  sha256: "94fb70890143e3c6549f265cee93ec064c80a84c42ad0f23e85ee1fd6540a871"
+  version: "2.9.10"
+  sha256: "aafee193ffb8fe0c82d4afef6ef91972cbaf5feea100edc2f262750611b4be1f"
   #  manually verified checksum:
   #
-  #    $ gpg --verify libxml2-2.9.9.tar.gz.asc ports/archives/libxml2-2.9.9.tar.gz
-  #    gpg: Signature made Thu 03 Jan 2019 01:14:47 PM EST
-  #    gpg:                using RSA key 15588B26596BEA5D
+  #    $ gpg --verify libxml2-2.9.10.tar.gz.asc ports/archives/libxml2-2.9.10.tar.gz 
+  #    gpg: Signature made Wed 30 Oct 2019 03:15:42 PM EDT
+  #    gpg:                using RSA key DB46681BB91ADCEA170FA2D415588B26596BEA5D
   #    gpg: Good signature from "Daniel Veillard (Red Hat work email) <veillard@redhat.com>" [unknown]
   #    gpg:                 aka "Daniel Veillard <Daniel.Veillard@w3.org>" [unknown]
   #    gpg: WARNING: This key is not certified with a trusted signature!
@@ -16,25 +16,26 @@ libxml2:
   #  using this pgp signature:
   #
   #    -----BEGIN PGP SIGNATURE-----
-  #
-  #    iQEbBAABAgAGBQJcLlEXAAoJEBVYiyZZa+pd1B8H93xeCYNBLx+eX0xe3qS3ReS/
-  #    YstjkXKUkmDQYwqQ/9Knmv1P6NX64hQL5E1pZX5sXp36giwXXJ5tCK72VRzektzU
-  #    Kpo+M1/QA9feZQs1GmyKaXYzNwTSJnsdKA9nWqTHZ3bzfdhFSZ0czo94vgY/cz5z
-  #    9P3FIgeldj1vi8p2rjXbArMFQyaxHnve9LdxI8hbudNSeUw/FEV6mjtXrlZ7MXqn
-  #    hmAkah2JwktOStF5tIlddCRqZeUPUX5flBxT95gfskXXlGEhaoGMXcC3izqqJyV2
-  #    sx5nY7fnXdkwfYsgRUXYWmDmbs8DnFjXH9lux9O4OWglLonaRoAqFPcOzE3aCw==
-  #    =4qWg
+  #    
+  #    iQEzBAABCAAdFiEE20ZoG7ka3OoXD6LUFViLJllr6l0FAl254V4ACgkQFViLJllr
+  #    6l0ldAf6Azt4/oKDfMKRd+xaykUrb+34dr2ZRsjRDS1cnelAtL9TCWhE5lOkLI3c
+  #    3FyNRaLhOEOOluZmKTJYyzS42JSSHDhxGj14gIeyafOjvRhHG3h1m5GvMmvgKWkd
+  #    qzxFrVFSG26iWJxMvxIA88t7M+QHb7ff7xR29ETJscewEmAd3LmZITglK02lWeGz
+  #    LfxfLuakM6RnCUu0dzacJKO0nMOKju+RL/N9bciI/UOhNYEkWqPnzC0GzbvFLqDu
+  #    rM+OvCSewSTziiejpdrUwYXkY5Ui2+cxUbacLauEr8iRLg7xXKqv27NORE4yeQcS
+  #    LgIhxG/qSNfihMS6E1ZO5bK2DbGCZQ==
+  #    =ZNuc
   #    -----END PGP SIGNATURE-----
   #
 
 libxslt:
-  version: "1.1.33"
-  sha256: "8e36605144409df979cab43d835002f63988f3dc94d5d3537c12796db90e38c8"
+  version: "1.1.34"
+  sha256: "98b1bd46d6792925ad2dfe9a87452ea2adebf69dcb9919ffd55bf926a7f93f7f"
   #  manually verified checksum:
   #
-  #    $ gpg --verify libxslt-1.1.33.tar.gz.asc ports/archives/libxslt-1.1.33.tar.gz
-  #    gpg: Signature made Thu 03 Jan 2019 01:30:49 PM EST
-  #    gpg:                using RSA key 15588B26596BEA5D
+  #    $ gpg --verify ~/Downloads/libxslt-1.1.34.tar.gz.asc ports/archives/libxslt-1.1.34.tar.gz
+  #    gpg: Signature made Wed 30 Oct 2019 04:02:48 PM EDT
+  #    gpg:                using RSA key DB46681BB91ADCEA170FA2D415588B26596BEA5D
   #    gpg: Good signature from "Daniel Veillard (Red Hat work email) <veillard@redhat.com>" [unknown]
   #    gpg:                 aka "Daniel Veillard <Daniel.Veillard@w3.org>" [unknown]
   #    gpg: WARNING: This key is not certified with a trusted signature!
@@ -45,14 +46,15 @@ libxslt:
   #  using this pgp signature:
   #
   #    -----BEGIN PGP SIGNATURE-----
-  #
-  #    iQEcBAABAgAGBQJcLlTZAAoJEBVYiyZZa+pd9NkIAIf6ei2iSpR/0QOyS71esDq8
-  #    407PcUXd/yUjDANm4Uvm7kKK+SbbfBxFIPva4g984Noe1zYMfjK3u3iNs6jykySf
-  #    mN5eo2wNCxsZnqjbnsLgQvn5VCQpPInTddTuGUxgqJyvnR7p785L1oA2EStSPMP4
-  #    BGZ9dZGlbreK35WzgrhUi0VN5egJW2fpMsw7rTPvfwK+90gXL0DEm8v3WlA7fCDL
-  #    QsvuPm7jPOXxdt5bYrVP8wpNMTJIGqV6jxh7Vvl6kiGLldUjCyoCh0AGXLror0Gs
-  #    sAMlRKJNodpcCYkIWxzjLt74sUciKNrPLHZlXJcclZMONen1GWnVDcv83Tt9n6w=
-  #    =iAm8
+  #    
+  #    iQEzBAABCAAdFiEE20ZoG7ka3OoXD6LUFViLJllr6l0FAl257GgACgkQFViLJllr
+  #    6l2vVggAjJEHmASiS56SxhPOsGqbfBihM66gQFoIymQfMu2430N1GSTkLsfbkJO8
+  #    8yBX11NjzK/m9uxwshMW3rVCU7EpL3PUimN3reXdPiQj9hAOAWF1V3BZNevbQC2E
+  #    FCIraioukaidf8sjUG4/sGpK/gOcP/3hYoN0HUoBigCNJjDqhijxM3M3GJJtCASp
+  #    jL4CQbs2OmxW8ixOZbuWEESvFFHUgYRsdZjRVN+GRfSOvJjxypurmYwQ3RjO7JxL
+  #    2FY8qKQ+xpeID8NV8F5OUEvWBjk1QS133VTqBZNlONdnEtV/og6jNu5k0O/Kvhup
+  #    caR+8TMErOcLr9OgDklO6DoYyAsf9Q==
+  #    =g4i4
   #    -----END PGP SIGNATURE-----
   #
 

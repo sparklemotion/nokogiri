@@ -143,12 +143,21 @@ HOE = Hoe.spec 'nokogiri' do
   self.readme_file  = "README.md"
   self.history_file = "CHANGELOG.md"
 
+  self.urls = {
+    "home" => "https://nokogiri.org",
+    "bugs" => "https://github.com/sparklemotion/nokogiri/issues",
+    "doco" => "https://nokogiri.org/rdoc/index.html",
+    "clog" => "https://nokogiri.org/CHANGELOG.html",
+    "code" => "https://github.com/sparklemotion/nokogiri",
+  }
+
   self.extra_rdoc_files = FileList['ext/nokogiri/*.c']
 
   self.clean_globs += [
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
-    'lib/nokogiri/[0-9].[0-9]'
+    'lib/nokogiri/[0-9].[0-9]',
+    'concourse/images/*.generated'
   ]
   self.clean_globs += Dir.glob("ports/*").reject { |d| d =~ %r{/archives$} }
 
@@ -159,17 +168,20 @@ HOE = Hoe.spec 'nokogiri' do
   end
 
   self.extra_dev_deps += [
+    ["concourse",          "~> 0.24"],
+    ["hoe",                "~> 3.18"],
     ["hoe-bundler",        "~> 1.2"],
     ["hoe-debugging",      "~> 2.0"],
     ["hoe-gemspec",        "~> 1.0"],
     ["hoe-git",            "~> 1.6"],
-    ["minitest",           "~> 5.8.4"],
-    ["rake",               "~> 12.0"],
-    ["rake-compiler",      "~> 1.0.3"],
-    ["rake-compiler-dock", "~> 0.7.0"],
+    ["minitest",           "~> 5.8"],
     ["racc",               "~> 1.4.14"],
+    ["rake",               "~> 12.0"],
+    ["rake-compiler",      "~> 1.1"],
+    ["rake-compiler-dock", "~> 1.0"],
     ["rexical",            "~> 1.0.5"],
-    ["concourse",          "~> 0.15"],
+    ["rubocop",            "~> 0.73"],
+    ["simplecov",          "~> 0.16"],
   ]
 
   self.spec_extras = {
@@ -178,17 +190,20 @@ HOE = Hoe.spec 'nokogiri' do
   }
 
   self.testlib = :minitest
+  self.test_prelude = 'require "helper"' # ensure simplecov gets loaded before anything else
 end
 
 # ----------------------------------------
 
-def add_file_to_gem relative_path
-  target_path = File.join gem_build_path, relative_path
-  target_dir = File.dirname(target_path)
-  mkdir_p target_dir unless File.directory?(target_dir)
-  rm_f target_path
-  safe_ln relative_path, target_path
-  HOE.spec.files += [relative_path]
+def add_file_to_gem relative_source_path
+  dest_path = File.join(gem_build_path, relative_source_path)
+  dest_dir = File.dirname(dest_path)
+
+  mkdir_p dest_dir unless Dir.exist?(dest_dir)
+  rm_f dest_path if File.exist?(dest_path)
+  safe_ln relative_source_path, dest_path
+
+  HOE.spec.files << relative_source_path
 end
 
 def gem_build_path
@@ -296,10 +311,16 @@ task :java_debug do
   ENV['JRUBY_OPTS'] = "#{ENV['JRUBY_OPTS']} --debug --dev"
   ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if ENV['JAVA_DEBUG']
 end
-
-Rake::Task[:test].prerequisites << :compile
 Rake::Task[:test].prerequisites << :java_debug
-Rake::Task[:test].prerequisites << :check_extra_deps unless java?
+
+task :rubocop => [:rubocop_security, :rubocop_frozen_string_literals]
+task :rubocop_security do
+  sh "rubocop lib --only Security"
+end
+task :rubocop_frozen_string_literals do
+  sh "rubocop lib --auto-correct --only Style/FrozenStringLiteralComment"
+end
+Rake::Task[:test].prerequisites << :rubocop
 
 if Hoe.plugins.include?(:debugging)
   ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
@@ -308,7 +329,11 @@ if Hoe.plugins.include?(:debugging)
 end
 
 require 'concourse'
-Concourse.new("nokogiri").create_tasks!
+Concourse.new("nokogiri", fly_target: "ci") do |c|
+  c.add_pipeline "nokogiri", "nokogiri.yml"
+  c.add_pipeline "nokogiri-pr", "nokogiri-pr.yml"
+  c.add_pipeline "nokogiri-v1.10.x", "nokogiri-v1.10.x.yml"
+end
 
 # ----------------------------------------
 
@@ -356,8 +381,6 @@ task :cross do
 
   CROSS_RUBIES.each do |cross_ruby|
     task "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so" do |t|
-      # To reduce the gem file size strip mingw32 dlls before packaging
-      sh [cross_ruby.tool('strip'), '-S', t.name].shelljoin
       verify_dll t.name, cross_ruby
     end
   end
@@ -366,13 +389,16 @@ end
 desc "build native fat binary gems for windows and linux"
 task "gem:native" do
   require "rake_compiler_dock"
-  RakeCompilerDock.sh "bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
+  RakeCompilerDock.sh "gem install bundler && bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
 end
 
 desc "build a jruby gem with docker"
 task "gem:jruby" do
   require "rake_compiler_dock"
-  RakeCompilerDock.sh "bundle && rake java gem", rubyvm: 'jruby'
+  RakeCompilerDock.sh "gem install bundler && bundle && rake java gem", rubyvm: 'jruby'
 end
+
+require_relative "tasks/docker"
+require_relative "tasks/set-version-to-timestamp"
 
 # vim: syntax=Ruby

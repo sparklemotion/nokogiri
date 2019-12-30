@@ -40,9 +40,6 @@ import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.io.StringReader;
-import java.nio.CharBuffer;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,8 +54,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import nokogiri.internals.NokogiriXsltErrorListener;
-
 import org.apache.xalan.transformer.TransformerImpl;
 import org.apache.xml.serializer.SerializationHandler;
 import org.jruby.Ruby;
@@ -69,10 +64,12 @@ import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.util.RuntimeHelpers;
+import org.jruby.runtime.Helpers;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
+
+import nokogiri.internals.NokogiriXsltErrorListener;
 
 /**
  * Class for Nokogiri::XSLT::Stylesheet
@@ -133,12 +130,11 @@ public class XsltStylesheet extends RubyObject {
         }
     }
     
-    private Pattern p = Pattern.compile("'.{1,}'");
+    private static final Pattern QUOTED = Pattern.compile("'.{1,}'");
 
     private String unparseValue(String orig) {
-        Matcher m = p.matcher(orig);
-        if ((orig.startsWith("\"") && orig.endsWith("\"")) || m.matches()) {
-            orig = orig.substring(1, orig.length()-1);
+        if ((orig.startsWith("\"") && orig.endsWith("\"")) || QUOTED.matcher(orig).matches()) {
+            orig = orig.substring(1, orig.length() - 1);
         }
 
         return orig;
@@ -177,11 +173,8 @@ public class XsltStylesheet extends RubyObject {
     }
     
     private static void ensureFirstArgIsDocument(Ruby runtime, IRubyObject arg) {
-        if (arg instanceof XmlDocument) {
-            return;
-        } else {
-            throw runtime.newArgumentError("doc must be a Nokogiri::XML::Document instance");
-        }
+        if (arg instanceof XmlDocument) return;
+        throw runtime.newArgumentError("doc must be a Nokogiri::XML::Document instance");
     }
     
     private static void ensureDocumentHasNoError(ThreadContext context, XmlDocument xmlDoc) {
@@ -292,13 +285,9 @@ public class XsltStylesheet extends RubyObject {
     
     private IRubyObject createDocumentFromDomResult(ThreadContext context, Ruby runtime, DOMResult domResult) {
         if ("html".equals(domResult.getNode().getFirstChild().getNodeName())) {
-            HtmlDocument htmlDocument = (HtmlDocument) getNokogiriClass(runtime, "Nokogiri::HTML::Document").allocate();
-            htmlDocument.setDocumentNode(context, (Document) domResult.getNode());
-            return htmlDocument;
+            return new HtmlDocument(context.runtime, (Document) domResult.getNode());
         } else {
-            XmlDocument xmlDocument = (XmlDocument) NokogiriService.XML_DOCUMENT_ALLOCATOR.allocate(runtime, getNokogiriClass(runtime, "Nokogiri::XML::Document"));
-            xmlDocument.setDocumentNode(context, (Document) domResult.getNode());
-            return xmlDocument;
+            return new XmlDocument(context.runtime, (Document) domResult.getNode());
         }
     }
     
@@ -327,14 +316,14 @@ public class XsltStylesheet extends RubyObject {
         if (htmlish) {
             args[3] = parse_options.getConstant("DEFAULT_HTML");
             RubyClass htmlDocumentClass = getNokogiriClass(runtime, "Nokogiri::HTML::Document");
-            return RuntimeHelpers.invoke(context, htmlDocumentClass, "parse", args);
+            return Helpers.invoke(context, htmlDocumentClass, "parse", args);
         } else {
             args[3] = parse_options.getConstant("DEFAULT_XML");
             RubyClass xmlDocumentClass = getNokogiriClass(runtime, "Nokogiri::XML::Document");            
-            XmlDocument xmlDocument = (XmlDocument) RuntimeHelpers.invoke(context, xmlDocumentClass, "parse", args);
+            XmlDocument xmlDocument = (XmlDocument) Helpers.invoke(context, xmlDocumentClass, "parse", args);
             if (((Document)xmlDocument.getNode()).getDocumentElement() == null) {
                 RubyArray errors = (RubyArray) xmlDocument.getInstanceVariable("@errors");
-                RuntimeHelpers.invoke(context, errors, "<<", args[0]);
+                Helpers.invoke(context, errors, "<<", args[0]);
             }
             return xmlDocument;
         }

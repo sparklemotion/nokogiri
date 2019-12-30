@@ -32,27 +32,28 @@
 
 package nokogiri;
 
-import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.EnumSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import nokogiri.internals.NokogiriHandler;
-
 import org.apache.xerces.parsers.AbstractSAXParser;
 import org.cyberneko.html.parsers.SAXParser;
-import org.jruby.*;
+import org.jruby.Ruby;
+import org.jruby.RubyClass;
+import org.jruby.RubyFixnum;
+import org.jruby.RubyString;
 import org.jruby.anno.JRubyClass;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.xml.sax.SAXException;
+
+import nokogiri.internals.NokogiriHandler;
+import static nokogiri.internals.NokogiriHelpers.rubyStringToString;
 
 /**
  * Class for Nokogiri::HTML::SAX::ParserContext.
@@ -65,10 +66,16 @@ import org.xml.sax.SAXException;
 @JRubyClass(name="Nokogiri::HTML::SAX::ParserContext", parent="Nokogiri::XML::SAX::ParserContext")
 public class HtmlSaxParserContext extends XmlSaxParserContext {
 
+    static HtmlSaxParserContext newInstance(final Ruby runtime, final RubyClass klazz) {
+        HtmlSaxParserContext instance = new HtmlSaxParserContext(runtime, klazz);
+        instance.initialize(runtime);
+        return instance;
+    }
+
     public HtmlSaxParserContext(Ruby ruby, RubyClass rubyClass) {
         super(ruby, rubyClass);
     }
-    
+
     @Override
     protected AbstractSAXParser createParser() throws SAXException {
         SAXParser parser = new SAXParser();
@@ -78,6 +85,11 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                 "http://cyberneko.org/html/properties/names/elems", "lower");
             parser.setProperty(
                 "http://cyberneko.org/html/properties/names/attrs", "lower");
+
+            // NekoHTML should not try to guess the encoding based on the meta
+            // tags or other information in the document.  This is already
+            // handled by the EncodingReader.
+            parser.setFeature("http://cyberneko.org/html/features/scanner/ignore-specified-charset", true);
             return parser;
         } catch(SAXException ex) {
             throw new SAXException(
@@ -90,18 +102,17 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
                                            IRubyObject klazz,
                                            IRubyObject data,
                                            IRubyObject encoding) {
-        HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
-        ctx.initialize(context.getRuntime());
-        String javaEncoding = findEncoding(context, encoding);
+        HtmlSaxParserContext ctx = HtmlSaxParserContext.newInstance(context.runtime, (RubyClass) klazz);
+        String javaEncoding = findEncodingName(context, encoding);
         if (javaEncoding != null) {
-            String input = applyEncoding(rubyStringToString(data), javaEncoding);
-            ByteArrayInputStream istream = new ByteArrayInputStream(input.getBytes());
+            CharSequence input = applyEncoding(rubyStringToString(data.convertToString()), javaEncoding);
+            ByteArrayInputStream istream = new ByteArrayInputStream(input.toString().getBytes());
             ctx.setInputSource(istream);
             ctx.getInputSource().setEncoding(javaEncoding);
         }
         return ctx;
     }
-    
+
     public enum EncodingType {
         NONE(0, "NONE"),
         UTF_8(1, "UTF-8"),
@@ -142,23 +153,38 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         public String toString() {
             return name;
         }
-    }
-    
-    private static String findName(final int value) {
-        for (EncodingType type : EncodingType.values()) {
-            if (type.getValue() == value) return type.toString();
+
+        private static transient EncodingType[] values;
+
+        // NOTE: assuming ordinal == value
+        static EncodingType get(final int ordinal) {
+            EncodingType[] values = EncodingType.values;
+            if (values == null) {
+                values = EncodingType.values();
+                EncodingType.values = values;
+            }
+            if (ordinal >= 0 && ordinal < values.length) {
+                return values[ordinal];
+            }
+            return null;
         }
-        return null;
+
     }
-    
-    private static String findEncoding(ThreadContext context, IRubyObject encoding) {
+
+    private static String findEncodingName(final int value) {
+        EncodingType type = EncodingType.get(value);
+        if (type == null) return null;
+        assert type.value == value;
+        return type.name;
+    }
+
+    private static String findEncodingName(ThreadContext context, IRubyObject encoding) {
         String rubyEncoding = null;
         if (encoding instanceof RubyString) {
-            rubyEncoding = rubyStringToString(encoding);
+            rubyEncoding = rubyStringToString((RubyString) encoding);
         }
         else if (encoding instanceof RubyFixnum) {
-            int value = RubyFixnum.fix2int((RubyFixnum) encoding);
-            rubyEncoding = findName(value);
+            rubyEncoding = findEncodingName(RubyFixnum.fix2int((RubyFixnum) encoding));
         }
         if (rubyEncoding == null) return null;
         try {
@@ -172,35 +198,52 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
         }
     }
 
-    private static final Pattern CHARSET_PATTERN = Pattern.compile("charset(()|\\s)=(()|\\s)([a-z]|-|_|\\d)+");
+    private static final Pattern CHARSET_PATTERN = Pattern.compile("charset(()|\\s)=(()|\\s)([a-z]|-|_|\\d)+", Pattern.CASE_INSENSITIVE);
 
-    private static String applyEncoding(String input, String enc) {
-        String str = input.toLowerCase();
-        int start_pos = 0;
-        int end_pos = 0;
-        if (input.contains("meta") && input.contains("charset")) {
-            Matcher m = CHARSET_PATTERN.matcher(str);
+    private static CharSequence applyEncoding(final String input, final String enc) {
+        int start_pos = 0; int end_pos = 0;
+        if (containsIgnoreCase(input, "charset")) {
+            Matcher m = CHARSET_PATTERN.matcher(input);
             while (m.find()) {
                 start_pos = m.start();
                 end_pos = m.end();
             }
         }
         if (start_pos != end_pos) {
-            String substr = input.substring(start_pos, end_pos);
-            input = input.replace(substr, "charset=" + enc);
+            return new StringBuilder(input).replace(start_pos, end_pos, "charset=" + enc);
         }
         return input;
     }
 
+    private static boolean containsIgnoreCase(final String str, final String sub) {
+        final int len = sub.length();
+        final int max = str.length() - len;
+
+        if (len == 0) return true;
+        final char c0Lower = Character.toLowerCase(sub.charAt(0));
+        final char c0Upper = Character.toUpperCase(sub.charAt(0));
+
+        for (int i = 0; i <= max; i++) {
+            final char ch = str.charAt(i);
+            if (ch != c0Lower && Character.toLowerCase(ch) != c0Lower && Character.toUpperCase(ch) != c0Upper) {
+                continue; // first char doesn't match
+            }
+
+            if (str.regionMatches(true, i + 1, sub, 0 + 1, len - 1)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @JRubyMethod(name="file", meta=true)
     public static IRubyObject parse_file(ThreadContext context,
-                                         IRubyObject klazz,
+                                         IRubyObject klass,
                                          IRubyObject data,
                                          IRubyObject encoding) {
-        HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
-        ctx.initialize(context.getRuntime());
+        HtmlSaxParserContext ctx = HtmlSaxParserContext.newInstance(context.runtime, (RubyClass) klass);
         ctx.setInputSourceFile(context, data);
-        String javaEncoding = findEncoding(context, encoding);
+        String javaEncoding = findEncodingName(context, encoding);
         if (javaEncoding != null) {
             ctx.getInputSource().setEncoding(javaEncoding);
         }
@@ -209,13 +252,12 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
 
     @JRubyMethod(name="io", meta=true)
     public static IRubyObject parse_io(ThreadContext context,
-                                       IRubyObject klazz,
+                                       IRubyObject klass,
                                        IRubyObject data,
                                        IRubyObject encoding) {
-        HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(context.getRuntime(), (RubyClass)klazz);
-        ctx.initialize(context.getRuntime());
-        ctx.setInputSource(context, data, context.getRuntime().getNil());
-        String javaEncoding = findEncoding(context, encoding);
+        HtmlSaxParserContext ctx = HtmlSaxParserContext.newInstance(context.runtime, (RubyClass) klass);
+        ctx.setIOInputSource(context, data, context.nil);
+        String javaEncoding = findEncodingName(context, encoding);
         if (javaEncoding != null) {
             ctx.getInputSource().setEncoding(javaEncoding);
         }
@@ -226,27 +268,15 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
      * Create a new parser context that will read from a raw input stream.
      * Meant to be run in a separate thread by HtmlSaxPushParser.
      */
-    static HtmlSaxParserContext parse_stream(final Ruby runtime, RubyClass klazz, InputStream stream) {
-        HtmlSaxParserContext ctx = (HtmlSaxParserContext) NokogiriService.HTML_SAXPARSER_CONTEXT_ALLOCATOR.allocate(runtime, klazz);
-        ctx.initialize(runtime);
+    static HtmlSaxParserContext parse_stream(final Ruby runtime, RubyClass klass, InputStream stream) {
+        HtmlSaxParserContext ctx = HtmlSaxParserContext.newInstance(runtime, klass);
         ctx.setInputSource(stream);
         return ctx;
     }
 
     @Override
     protected void preParse(final Ruby runtime, IRubyObject handlerRuby, NokogiriHandler handler) {
-        // final String path = "Nokogiri::XML::FragmentHandler";
-        // final String docFrag =
-        //     "http://cyberneko.org/html/features/balance-tags/document-fragment";
-        // RubyObjectAdapter adapter = JavaEmbedUtils.newObjectAdapter();
-        // IRubyObject doc = adapter.getInstanceVariable(handlerRuby, "@document");
-        // RubyModule mod = runtime.getClassFromPath(path);
-        // try {
-        //     if (doc != null && !doc.isNil() && adapter.isKindOf(doc, mod))
-        //         parser.setFeature(docFrag, true);
-        // } catch (Exception e) {
-        //     // ignore
-        // }
+        // this function is meant to be empty.  It overrides the one in XmlSaxParserContext
     }
 
 }

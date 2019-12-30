@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# frozen_string_literal: true
 require 'stringio'
 require 'nokogiri/xml/node/save_options'
 
@@ -337,9 +338,9 @@ module Nokogiri
       # If you need to distinguish attributes with the same name, with different namespaces
       # use #attribute_nodes instead.
       def attributes
-        Hash[attribute_nodes.map { |node|
-          [node.node_name, node]
-        }]
+        attribute_nodes.each_with_object({}) do |node, hash|
+          hash[node.node_name] = node
+        end
       end
 
       ###
@@ -495,7 +496,7 @@ module Nokogiri
       end
 
       ###
-      # Returns a Hash of {prefix => value} for all namespaces on this
+      # Returns a Hash of +{prefix => value}+ for all namespaces on this
       # node and its ancestors.
       #
       # This method returns the same namespaces as #namespace_scopes.
@@ -509,10 +510,11 @@ module Nokogiri
       # default namespaces set on ancestor will NOT be, even if self
       # has no explicit default namespace.
       def namespaces
-        Hash[namespace_scopes.map { |nd|
-          key = ['xmlns', nd.prefix].compact.join(':')
-          [key, nd.href]
-        }]
+        namespace_scopes.each_with_object({}) do |ns, hash|
+          prefix = ns.prefix
+          key = prefix ? "xmlns:#{prefix}" : "xmlns"
+          hash[key] = ns.href
+        end
       end
 
       # Returns true if this is a Comment
@@ -807,7 +809,7 @@ module Nokogiri
       # Do xinclude substitution on the subtree below node. If given a block, a
       # Nokogiri::XML::ParseOptions object initialized from +options+, will be
       # passed to it, allowing more convenient modification of the parser options.
-      def do_xinclude options = XML::ParseOptions::DEFAULT_XML, &block
+      def do_xinclude options = XML::ParseOptions::DEFAULT_XML
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
 
         # give options to user
@@ -847,17 +849,19 @@ module Nokogiri
         node_or_tags
       end
 
+      # FIXME: used for hacking around the output of broken libxml versions
+      IS_BROKEN_LIBXML_VERSION = (Nokogiri.uses_libxml? && LIBXML_VERSION.start_with?('2.6.')).freeze
+      private_constant :IS_BROKEN_LIBXML_VERSION
+
       def to_format save_option, options
-        # FIXME: this is a hack around broken libxml versions
-        return dump_html if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return dump_html if IS_BROKEN_LIBXML_VERSION
 
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
       end
 
       def write_format_to save_option, io, options
-        # FIXME: this is a hack around broken libxml versions
-        return (io << dump_html) if Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split('.')[0..1]
+        return (io << dump_html) if IS_BROKEN_LIBXML_VERSION
 
         options[:save_with] ||= save_option
         write_to io, options

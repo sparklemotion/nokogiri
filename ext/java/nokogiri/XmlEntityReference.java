@@ -65,7 +65,7 @@ public class XmlEntityReference extends XmlNode {
 
     protected void init(ThreadContext context, IRubyObject[] args) {
         if (args.length < 2) {
-            throw getRuntime().newArgumentError(args.length, 2);
+            throw context.runtime.newArgumentError(args.length, 2);
         }
 
         IRubyObject doc = args[0];
@@ -78,7 +78,7 @@ public class XmlEntityReference extends XmlNode {
         internalDocument.setErrorChecking(false);
         Node node = document.createEntityReference(rubyStringToString(name));
         internalDocument.setErrorChecking(oldErrorChecking);
-        setNode(context, node);
+        setNode(context.runtime, node);
     }
     
     @Override

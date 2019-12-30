@@ -40,7 +40,6 @@ ext/java/nokogiri/internals/HtmlDomParserContext.java
 ext/java/nokogiri/internals/IgnoreSchemaErrorsErrorHandler.java
 ext/java/nokogiri/internals/NokogiriBlockingQueueInputStream.java
 ext/java/nokogiri/internals/NokogiriDomParser.java
-ext/java/nokogiri/internals/NokogiriEncodingReaderWrapper.java
 ext/java/nokogiri/internals/NokogiriEntityResolver.java
 ext/java/nokogiri/internals/NokogiriErrorHandler.java
 ext/java/nokogiri/internals/NokogiriHandler.java
@@ -58,7 +57,6 @@ ext/java/nokogiri/internals/ParserContext.java
 ext/java/nokogiri/internals/ReaderNode.java
 ext/java/nokogiri/internals/SaveContextVisitor.java
 ext/java/nokogiri/internals/SchemaErrorHandler.java
-ext/java/nokogiri/internals/UncloseableInputStream.java
 ext/java/nokogiri/internals/XalanDTMManagerPatch.java
 ext/java/nokogiri/internals/XmlDeclHandler.java
 ext/java/nokogiri/internals/XmlDomParserContext.java
@@ -187,6 +185,7 @@ lib/nokogiri/html/entity_lookup.rb
 lib/nokogiri/html/sax/parser.rb
 lib/nokogiri/html/sax/parser_context.rb
 lib/nokogiri/html/sax/push_parser.rb
+lib/nokogiri/jruby/dependencies.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
 lib/nokogiri/xml.rb
@@ -234,3 +233,5 @@ lib/xercesImpl.jar
 lib/xml-apis.jar
 lib/xsd/xmlparser/nokogiri.rb
 patches/libxml2/0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
+patches/libxml2/0002-Remove-script-macro-support.patch
+patches/libxml2/0003-Update-entities-to-remove-handling-of-ssi.patch
