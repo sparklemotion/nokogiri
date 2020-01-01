@@ -228,14 +228,6 @@ if java?
     add_file_to_gem 'lib/nokogiri/nokogiri.jar'
   end
 else
-  begin
-    require 'rake/extensioncompiler'
-    # Ensure mingw compiler is installed
-    Rake::ExtensionCompiler.mingw_host
-    mingw_available = true
-  rescue
-    mingw_available = false
-  end
   require "rake/extensiontask"
 
   HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
@@ -264,18 +256,16 @@ else
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
-    if mingw_available
-      ext.cross_compile  = true
-      ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
-      ext.cross_config_options << "--enable-cross-build"
-      ext.cross_compiling do |spec|
-        libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
+    ext.cross_compile  = true
+    ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
+    ext.cross_config_options << "--enable-cross-build"
+    ext.cross_compiling do |spec|
+      libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
 
-        spec.post_install_message = <<-EOS
+      spec.post_install_message = <<-EOS
 Nokogiri is built with the packaged libraries: #{libs}.
-        EOS
-        spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
-      end
+      EOS
+      spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
     end
   end
 end
