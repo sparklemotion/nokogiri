@@ -1,6 +1,7 @@
 # -*- ruby -*-
 require 'rubygems'
 require 'shellwords'
+require "rake_compiler_dock"
 
 gem 'hoe'
 require 'hoe'
@@ -376,16 +377,19 @@ task :cross do
   end
 end
 
-desc "build native fat binary gems for windows and linux"
-task "gem:native" do
-  require "rake_compiler_dock"
-  RakeCompilerDock.sh "gem install bundler && bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
-end
+namespace "gem" do
+  CROSS_RUBIES.map(&:platform).uniq.each do |plat|
+    desc "build native fat binary gems for windows and linux"
+    multitask "native" => plat
+    task plat do
+      RakeCompilerDock.sh "gem install bundler && bundle && rake native:#{plat} gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}", platform: plat
+    end
+  end
 
-desc "build a jruby gem with docker"
-task "gem:jruby" do
-  require "rake_compiler_dock"
-  RakeCompilerDock.sh "gem install bundler && bundle && rake java gem", rubyvm: 'jruby'
+  desc "build a jruby gem with docker"
+  task "jruby" do
+    RakeCompilerDock.sh "gem install bundler && bundle && rake java gem", rubyvm: 'jruby'
+  end
 end
 
 require_relative "tasks/docker"
