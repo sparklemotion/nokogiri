@@ -393,6 +393,8 @@ namespace "gem" do
     end
   end
 
+  multitask "windows" => ["x86-mingw32", "x64-mingw32"]
+
   desc "build a jruby gem with docker"
   task "jruby" do
     RakeCompilerDock.sh "gem install bundler && bundle && rake java gem", rubyvm: 'jruby'
