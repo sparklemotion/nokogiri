@@ -385,7 +385,11 @@ namespace "gem" do
     desc "build native fat binary gems for windows and linux"
     multitask "native" => plat
     task plat do
-      RakeCompilerDock.sh "gem install bundler && bundle && rake native:#{plat} gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}", platform: plat
+      RakeCompilerDock.sh <<-EOT, platform: plat
+        gem install bundler &&
+        bundle &&
+        rake native:#{plat} pkg/#{HOE.spec.full_name}-#{plat}.gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}
+      EOT
     end
   end
 
