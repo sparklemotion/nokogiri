@@ -100,12 +100,15 @@ CrossRuby = Struct.new(:version, :host) {
           when ver >= '2.0.0'
             'user32.dll'
           end),
-        libruby_dll
+        libruby_dll,
       ]
       when /linux/
       [
         'libm.so.6',
-        'libpthread.so.0',
+        *(case
+          when ver < '2.6.0'
+            'libpthread.so.0'
+          end),
         'libc.so.6',
       ]
     end
@@ -346,7 +349,7 @@ def verify_dll(dll, cross_ruby)
     # and that no further dependencies exist.
     dll_imports_is = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
     if dll_imports_is.sort != dll_imports.sort
-      raise "unexpected so imports #{dll_imports_is.inspect} in #{dll}"
+      raise "unexpected so imports #{dll_imports_is.inspect} in #{dll} (expected #{dll_imports.inspect})"
     end
 
     # Verify that the expected so version requirements match the actual dependencies.
