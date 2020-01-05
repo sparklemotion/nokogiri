@@ -375,7 +375,7 @@ task :cross do
 end
 
 CROSS_RUBIES.each do |cross_ruby|
-  task "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so" do |t|
+  task "tmp/#{cross_ruby.platform}/stage/lib/nokogiri/#{cross_ruby.minor_ver}/nokogiri.so" do |t|
     verify_dll t.name, cross_ruby
   end
 end
