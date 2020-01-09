@@ -19,7 +19,7 @@ module Nokogiri
 
     # Parse an HTML 5 document. Convenience method for Nokogiri::HTML5::Document.parse
     def self.parse(string, url = nil, encoding = nil, **options, &block)
-      Document.parse(string, url, encoding, options, &block)
+      Document.parse(string, url, encoding, **options, &block)
     end
 
     # Parse a fragment from +string+. Convenience method for

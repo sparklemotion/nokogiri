@@ -10,6 +10,7 @@ rvm: # http://rubies.travis-ci.org/
   - 2.4.4 # https://github.com/travis-ci/travis-ci/issues/7848
   - 2.5
   - 2.6
+  - 2.7
 env:
   - USE_SYSTEM_LIBRARIES=true
   - USE_SYSTEM_LIBRARIES=false
