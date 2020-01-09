@@ -92,19 +92,20 @@ module Nokogiri
         if encoding.nil?
           string = string.read
         else
-        string = string.read(encoding: encoding)
+          string = string.read(encoding: encoding)
         end
       else
         # Otherwise the string has the given encoding.
-        if encoding && string.respond_to?(:force_encoding)
+        string = string.to_str
+        if encoding
           string = string.dup
           string.force_encoding(encoding)
         end
       end
 
-      # convert to UTF-8 (Ruby 1.9+)
-      if string.respond_to?(:encoding) && string.encoding != Encoding::UTF_8
-        string = reencode(string.dup)
+      # convert to UTF-8
+      if string.encoding != Encoding::UTF_8
+        string = reencode(string)
       end
       string
     end
@@ -123,18 +124,17 @@ module Nokogiri
     # http://www.w3.org/TR/html5/syntax.html#determining-the-character-encoding
     #
     def self.reencode(body, content_type=nil)
-      return body unless body.respond_to? :encoding
-
       if body.encoding == Encoding::ASCII_8BIT
         encoding = nil
 
         # look for a Byte Order Mark (BOM)
-        if body[0..1] == "\xFE\xFF"
-          encoding = 'utf-16be'
-        elsif body[0..1] == "\xFF\xFE"
-          encoding = 'utf-16le'
-        elsif body[0..2] == "\xEF\xBB\xBF"
-          encoding = 'utf-8'
+        initial_bytes = body[0..2].bytes
+        if initial_bytes[0..2] == [0xEF, 0xBB, 0xBF]
+          encoding = Encoding::UTF_8
+        elsif initial_bytes[0..1] == [0xFE, 0xFF]
+          encoding = Encoding::UTF_16BE
+        elsif initial_bytes[0..1] == [0xFF, 0xFE]
+          encoding = Encoding::UTF_16LE
         end
 
         # look for a charset in a content-encoding header
@@ -154,6 +154,7 @@ module Nokogiri
         encoding ||= Encoding::ISO_8859_1
 
         # change the encoding to match the detected or inferred encoding
+        body = body.dup
         begin
           body.force_encoding(encoding)
         rescue ArgumentError

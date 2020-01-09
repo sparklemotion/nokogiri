@@ -105,22 +105,45 @@ class TestAPI < Minitest::Test
     end
   end
 
-  def test_document_io_failure
-    html = '<!DOCTYPE html><span>test</span>'
-    assert_raises(ArgumentError) { Nokogiri::HTML5::Document.read_io(html) }
-  end
-
   def test_document_io
     html = StringIO.new('<!DOCTYPE html><span>test</span>', 'r')
     doc = Nokogiri::HTML5::Document.read_io(html)
     refute_nil doc.at_xpath('/html/body/span')
   end
 
-  def test_document_memor
+  def test_document_memory
     html = '<!DOCTYPE html><span>test</span>'
     doc = Nokogiri::HTML5::Document.read_memory(html)
     refute_nil doc
     refute_nil doc.at_xpath('/html/body/span')
+  end
+
+  def test_document_io_failure
+    html = '<!DOCTYPE html><span>test</span>'
+    assert_raises(ArgumentError) { Nokogiri::HTML5::Document.read_io(html) }
+  end
+
+  def test_document_memory_failure
+    html = StringIO.new('<!DOCTYPE html><span>test</span>', 'r')
+    assert_raises(ArgumentError) { Nokogiri::HTML5::Document.read_memory(html) }
+  end
+
+  def test_document_parse_failure
+    html = ['Neither a string, nor I/O']
+    assert_raises(ArgumentError) { Nokogiri::HTML5::Document.parse(html) }
+  end
+
+  def test_ownership
+    # Test that we don't change the passed in string, even if we need to
+    # re-encode it.
+    html = '<!DOCTYPE html><html></html>'.freeze
+    refute_nil Nokogiri::HTML5.parse(html)
+
+    iso8859_1 = html.encode(Encoding::ISO_8859_1).freeze
+    refute_nil Nokogiri::HTML5.parse(iso8859_1)
+
+    ascii_8bit = html.encode(Encoding::ASCII_8BIT).freeze
+    refute_nil Nokogiri::HTML5.parse(ascii_8bit)
   end
 
   def test_fragment_from_node

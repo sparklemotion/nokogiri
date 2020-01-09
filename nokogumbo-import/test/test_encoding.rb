@@ -46,6 +46,30 @@ class TestNokogumbo < Minitest::Test
       doc = Nokogiri::HTML5(utf16be, max_errors: 10)
       assert_equal [], doc.errors
     end
+
+    def test_utf8_bom_ascii
+      utf8 = "\uFEFF<!DOCTYPE html><html></html>".encode('UTF-8')
+      utf8.force_encoding(Encoding::ASCII_8BIT)
+      doc = Nokogiri::HTML5(utf8, max_errors: 10)
+      doc.errors.each { |err| puts(err) }
+      assert_equal [], doc.errors
+    end
+
+    def test_utf16le_bom_ascii
+      utf16le = "\uFEFF<!DOCTYPE html><html></html>".encode('UTF-16LE')
+      utf16le.force_encoding(Encoding::ASCII_8BIT)
+      doc = Nokogiri::HTML5(utf16le, max_errors: 10)
+      assert_equal [], doc.errors
+      doc.errors.each { |err| puts(err) }
+    end
+
+    def test_utf16be_bom_ascii
+      utf16be = "\uFEFF<!DOCTYPE html><html></html>".encode('UTF-16BE')
+      utf16be.force_encoding(Encoding::ASCII_8BIT)
+      doc = Nokogiri::HTML5(utf16be, max_errors: 10)
+      assert_equal [], doc.errors
+      doc.errors.each { |err| puts(err) }
+    end
   end
 
   # https://github.com/rubys/nokogumbo/issues/68

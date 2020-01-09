@@ -12,6 +12,9 @@ module Nokogiri
         if string_or_io.respond_to?(:read) && string_or_io.respond_to?(:path)
           url ||= string_or_io.path
         end
+        unless string_or_io.respond_to?(:read) || string_or_io.respond_to?(:to_str)
+          raise ArgumentError.new("not a string or IO object")
+        end
         do_parse(string_or_io, url, encoding, options)
       end
 
@@ -21,7 +24,8 @@ module Nokogiri
       end
 
       def self.read_memory(string, url = nil, encoding = nil, **options)
-        do_parse(string.to_s, url, encoding, options)
+        raise ArgumentError.new("string object doesn't respond to :to_str") unless string.respond_to?(:to_str)
+        do_parse(string, url, encoding, options)
       end
 
       def fragment(tags = nil)
@@ -39,7 +43,7 @@ module Nokogiri
         string = HTML5.read_and_encode(string_or_io, encoding)
         max_errors = options[:max_errors] || options[:max_parse_errors] || Nokogumbo::DEFAULT_MAX_ERRORS
         max_depth = options[:max_tree_depth] || Nokogumbo::DEFAULT_MAX_TREE_DEPTH
-        doc = Nokogumbo.parse(string.to_s, url, max_errors, max_depth)
+        doc = Nokogumbo.parse(string, url, max_errors, max_depth)
         doc.encoding = 'UTF-8'
         doc
       end
