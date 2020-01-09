@@ -193,6 +193,11 @@ void utf8iterator_init (
   iter->_pos.offset = 0;
   iter->_parser = parser;
   read_char(iter);
+  if (iter->_current == kUtf8BomChar) {
+    iter->_start += iter->_width;
+    iter->_pos.offset += iter->_width;
+    read_char(iter);
+  }
 }
 
 void utf8iterator_next(Utf8Iterator* iter) {

@@ -31,6 +31,7 @@ struct GumboInternalParser;
 
 // Unicode replacement char.
 #define kUtf8ReplacementChar 0xFFFD
+#define kUtf8BomChar 0xFEFF
 #define kUtf8MaxChar 0x10FFFF
 
 typedef struct GumboInternalUtf8Iterator {

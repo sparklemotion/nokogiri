@@ -28,6 +28,24 @@ class TestNokogumbo < Minitest::Test
       doc = Nokogiri::HTML5(bogus)
       assert_equal '<span>Señor</span>', doc.at('span').to_xml
     end
+
+    def test_utf8_bom
+      utf8 = "\uFEFF<!DOCTYPE html><html></html>".encode('UTF-8')
+      doc = Nokogiri::HTML5(utf8, max_errors: 10)
+      assert_equal [], doc.errors
+    end
+
+    def test_utf16le_bom
+      utf16le = "\uFEFF<!DOCTYPE html><html></html>".encode('UTF-16LE')
+      doc = Nokogiri::HTML5(utf16le, max_errors: 10)
+      assert_equal [], doc.errors
+    end
+
+    def test_utf16be_bom
+      utf16be = "\uFEFF<!DOCTYPE html><html></html>".encode('UTF-16BE')
+      doc = Nokogiri::HTML5(utf16be, max_errors: 10)
+      assert_equal [], doc.errors
+    end
   end
 
   # https://github.com/rubys/nokogumbo/issues/68

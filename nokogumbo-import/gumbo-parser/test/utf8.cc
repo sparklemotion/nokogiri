@@ -509,6 +509,19 @@ TEST_F(Utf8Test, CRLF) {
   EXPECT_EQ(8, pos.offset);
 }
 
+TEST_F(Utf8Test, SkipBom) {
+  ResetText("\xEF\xBB\xBFX");
+
+  EXPECT_EQ(0, GetNumErrors());
+  EXPECT_EQ('X', utf8iterator_current(&input_));
+
+  GumboSourcePosition pos;
+  utf8iterator_get_position(&input_, &pos);
+  EXPECT_EQ(1, pos.line);
+  EXPECT_EQ(1, pos.column);
+  EXPECT_EQ(3, pos.offset);
+}
+
 TEST_F(Utf8Test, CarriageReturn) {
   ResetText("Mac\rlinefeeds");
   Advance(sizeof("Mac") - 1);
