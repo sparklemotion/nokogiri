@@ -27,13 +27,20 @@ matrix:
     - name: Test Gumbo and gem packaging
       os: linux
       language: ruby
-      rvm: 2.5
+      rvm: 2.7
       script: scripts/ci-package-test.sh
     - name: Test Gumbo and gem packaging
       os: osx
       language: ruby
-      rvm: 2.6
+      rvm: 2.7
       script: scripts/ci-package-test.sh
+  exclude:
+    - rvm: 2.1
+      os: osx
+    - rvm: 2.2
+      os: osx
+    - rvm: 2.3
+      os: osx
 
 before_install: |
   if ruby -e 'exit(Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.3"))'; then
