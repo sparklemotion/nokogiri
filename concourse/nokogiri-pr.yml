@@ -258,7 +258,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: xenial}
+            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
           inputs:
             - name: ci
             - name: nokogiri-pr
