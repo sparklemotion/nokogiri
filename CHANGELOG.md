@@ -2,6 +2,14 @@
 
 ## 1.11.0 / unreleased
 
+### Backwards incompatibilities
+
+This release ends support for:
+
+* Ruby 2.3, for which [official support ended on 2019-03-31](https://www.ruby-lang.org/en/news/2019/03/31/support-of-ruby-2-3-has-ended/) [#1886] (Thanks @ashmaroli!)
+* JRuby 9.1, which is the Ruby 2.3-compatible release.
+
+
 ### Features
 
 * Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [#688] (Thanks, @jonathanhefner!)
