@@ -140,7 +140,7 @@ HOE = Hoe.spec 'nokogiri' do
   end
 
   self.extra_dev_deps += [
-    ["concourse",          "~> 0.24"],
+    ["concourse",          "~> 0.30"],
     ["hoe",                "~> 3.18"],
     ["hoe-bundler",        "~> 1.2"],
     ["hoe-debugging",      "~> 2.0"],
