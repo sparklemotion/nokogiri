@@ -69,7 +69,7 @@ jobs:
 % end
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: ruby-<%= ruby_version %>-vendored
@@ -93,7 +93,7 @@ jobs:
               path: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: ruby-<%= ruby_version %>-valgrind
@@ -119,7 +119,7 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 % end
 
 
@@ -149,7 +149,7 @@ jobs:
               path: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 % end
 
   - name: gate
@@ -188,7 +188,7 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-build.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
       - task: gem-install-and-test
         config:
           platform: linux
@@ -202,7 +202,7 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
   - name: gem-test-java
     public: true
@@ -227,7 +227,7 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-build-java.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
       - task: gem-install-and-test
         config:
           platform: linux
@@ -241,7 +241,7 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: ruby-vanilla-system
@@ -268,7 +268,7 @@ jobs:
             TEST_WITH_APT_REPO_RUBY: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: ruby-libxmlruby-system
@@ -295,7 +295,7 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: ruby-libxmlruby-valgrind
@@ -322,7 +322,7 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { aggregate: [*notify_failure_to_irc, *notify_failure_to_pr] }
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: pr-success
