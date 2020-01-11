@@ -6,7 +6,7 @@
    fun:gc_mark_stacked_objects_incremental
    fun:gc_marks_rest
    ...
-   fun:ruby_cleanup
+   fun:rb_ec_cleanup
    fun:ruby_run_node
    fun:main
 }
@@ -17,7 +17,7 @@
    fun:gc_marks_wb_unprotected_objects
    fun:gc_marks_finish
    ...
-   fun:ruby_cleanup
+   fun:rb_ec_cleanup
    fun:ruby_run_node
    fun:main
 }
@@ -29,12 +29,12 @@
    fun:gc_mark_stacked_objects_all
    fun:gc_marks_rest
    ...
-   fun:ruby_cleanup
+   fun:rb_ec_cleanup
    fun:ruby_run_node
    fun:main
 }
 {
-   <insert_a_suppression_name_here>
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/ruby-2.7-valgrind/builds/1
    Memcheck:Addr4
    fun:iseq_peephole_optimize
    fun:iseq_optimize
