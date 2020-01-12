@@ -1,4 +1,25 @@
 version: "2"
+checks:
+  file-lines:
+    enabled: true
+    config:
+      threshold: 600
+  method-complexity:
+    enabled: true
+    config:
+      threshold: 15
+  method-count:
+    enabled: true
+    config:
+      threshold: 60
+  method-lines:
+    enabled: true
+    config:
+      threshold: 70
+plugins:
+  duplication:
+    enabled: false
+
 exclude_patterns:
   - ".*"
   - "*.*"
