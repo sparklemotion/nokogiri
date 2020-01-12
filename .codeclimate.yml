@@ -1,0 +1,14 @@
+version: "2"
+exclude_patterns:
+  - ".*"
+  - "*.*"
+
+  - Gemfile*
+  - Rakefile
+  - build_all
+
+  - concourse/
+  - suppressions/
+  - tasks/
+  - test/
+  - vendor/
