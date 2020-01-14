@@ -39,6 +39,7 @@ import static nokogiri.internals.NokogiriHelpers.nodeListToRubyArray;
 import java.util.Arrays;
 
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyObject;
@@ -391,7 +392,7 @@ outer:
     }
 
     @JRubyMethod(name = {"to_a", "to_ary"})
-    public IRubyObject to_a(ThreadContext context) {
+    public RubyArray to_a(ThreadContext context) {
         return context.runtime.newArrayNoCopy(nodes);
     }
 
