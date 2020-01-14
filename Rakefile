@@ -133,7 +133,23 @@ HOE = Hoe.spec 'nokogiri' do
   ]
   self.clean_globs += Dir.glob("ports/*").reject { |d| d =~ %r{/archives$} }
 
-  unless java?
+  if java?
+    self.extra_deps += [
+      ['jar-dependencies', "~> 0.4.0"],
+    ]
+    def self.add_dependencies
+      super
+
+      # spec.requirements << 'jar com.sun.xml.bind.jaxb, isorelax, 20090621' # unknown where to find original 20041111
+      spec.requirements << 'jar com.thaiopensource, jing, 20091111'
+      # spec.requirements << 'jar nekohtml, nekodtd, 0.1.11' # FIXME,  not using jvshahid's fork!
+      # spec.requirements << 'jar nekohtml, nekohtml, 1.9.6.2' # FIXME,  not using jvshahid's fork!
+      spec.requirements << 'jar xalan, serializer, 2.7.2'
+      spec.requirements << 'jar xalan, xalan, 2.7.2'
+      spec.requirements << 'jar xerces, xercesImpl, 2.12.0'
+      spec.requirements << 'jar xml-apis, xml-apis, 1.4.01'
+    end
+  else
     self.extra_deps += [
       ["mini_portile2",    "~> 2.4.0"], # keep version in sync with extconf.rb
     ]
