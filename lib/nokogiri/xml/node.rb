@@ -763,10 +763,15 @@ module Nokogiri
         end
         indent_text   = options[:indent_text] || ' '
 
+        # Any string times 0 returns an empty string. Therefore, use the same
+        # string instead of generating a new empty string for every node with
+        # zero indentation.
+        indentation = indent_times.zero? ? '' : (indent_text * indent_times)
+
         config = SaveOptions.new(save_options.to_i)
         yield config if block_given?
 
-        native_write_to(io, encoding, indent_text * indent_times, config.options)
+        native_write_to(io, encoding, indentation, config.options)
       end
 
       ###
