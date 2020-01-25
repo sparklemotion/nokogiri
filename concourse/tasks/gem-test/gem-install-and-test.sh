@@ -23,6 +23,8 @@ pushd nokogiri
   bundle install --local || bundle install
   bundle info nokogiri
 
-  bundle exec rake test
+  bundle exec rake test:cmd > run-test
+  rm -rf lib ext # ensure we can't use the local files
+  bundle exec bash run-test
 
 popd
