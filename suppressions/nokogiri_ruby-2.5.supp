@@ -41,3 +41,16 @@
    fun:ruby_run_node
    fun:main
 }
+{
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri-pr/jobs/ruby-2.5-valgrind/builds/71
+   Memcheck:Addr8
+   fun:mark_locations_array
+   fun:gc_mark_locations
+   fun:gc_mark_locations
+   fun:rb_gc_mark_locations
+   fun:gc_marks_wb_unprotected_objects
+   ...
+   fun:ruby_cleanup
+   fun:ruby_run_node
+   fun:main
+}
