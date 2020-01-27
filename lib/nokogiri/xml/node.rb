@@ -350,6 +350,12 @@ module Nokogiri
       end
 
       ###
+      # Does this Node's attributes include <value>
+      def value?(value)
+        values.include? value
+      end
+
+      ###
       # Get the attribute names for this Node.
       def keys
         attribute_nodes.map(&:node_name)
