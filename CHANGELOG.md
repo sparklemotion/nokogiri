@@ -30,6 +30,7 @@ Improved things:
 ### Bug fixes
 
 * [JRuby] Standardize reading from IO like objects, including StringIO. [#1888, #1897]
+* [JRuby] Change `NodeSet#to_a` to return a RubyArray instead of Object, for compilation under JRuby 9.2.9 and later. [#1968, #1969] (Thanks, @headius!)
 
 
 ## 1.10.7 / 2019-12-03
