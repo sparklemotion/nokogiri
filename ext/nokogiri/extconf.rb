@@ -415,6 +415,9 @@ $LIBS << " #{ENV["LIBS"]}"
 # Read CFLAGS from ENV and make sure compiling works.
 add_cflags(ENV["CFLAGS"])
 
+# Ensure libxml2/libxslt symbols aren't exported. See #1959 for details.
+$LDFLAGS << " -Wl,--exclude-libs,ALL"
+
 if windows?
   $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
 end
