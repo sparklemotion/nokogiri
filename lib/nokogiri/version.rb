@@ -36,13 +36,15 @@ module Nokogiri
     end
 
     def warnings
-      return [] unless libxml2?
+      warnings = []
 
-      if compiled_parser_version != loaded_parser_version
-        ["Nokogiri was built against LibXML version #{compiled_parser_version}, but has dynamically loaded #{loaded_parser_version}"]
-      else
-        []
+      if libxml2?
+        if compiled_parser_version != loaded_parser_version
+          warnings << "Nokogiri was built against libxml version #{compiled_parser_version}, but has dynamically loaded #{loaded_parser_version}"
+        end
       end
+
+      warnings
     end
 
     def to_hash
