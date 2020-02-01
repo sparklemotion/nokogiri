@@ -62,8 +62,6 @@ module Nokogiri
             libxml["binding"] = "extension"
             if libxml2_using_packaged?
               libxml["source"] = "packaged"
-              libxml["libxml2_path"] = NOKOGIRI_LIBXML2_PATH
-              libxml["libxslt_path"] = NOKOGIRI_LIBXSLT_PATH
               libxml["libxml2_patches"] = NOKOGIRI_LIBXML2_PATCHES
               libxml["libxslt_patches"] = NOKOGIRI_LIBXSLT_PATCHES
             else
