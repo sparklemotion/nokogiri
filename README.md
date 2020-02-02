@@ -129,27 +129,23 @@ end
 
 ## Requirements
 
-* Ruby 2.4.0 or higher, including any development packages necessary
-  to compile native extensions.
+Ruby 2.4.0 or higher, including any development packages necessary to compile native extensions.
 
-* In Nokogiri 1.6.0 and later libxml2 and libxslt are bundled with the
-  gem, but if you want to use the system versions:
+In Nokogiri 1.6.0 and later libxml2 and libxslt are bundled with the gem, but if you want to use the system versions:
 
-  * First, check out [the long list](http://www.xmlsoft.org/news.html)
-    of fixes and changes between releases before deciding to use any
-    version older than is bundled with Nokogiri.
+* First, check out [the long list](http://www.xmlsoft.org/news.html)
+  of fixes and changes between releases before deciding to use any
+  version older than is bundled with Nokogiri.
 
-  * At install time, set the environment variable
-    `NOKOGIRI_USE_SYSTEM_LIBRARIES` or else use the
-    `--use-system-libraries` argument. (See
-    https://nokogiri.org/tutorials/installing_nokogiri.html#install-with-system-libraries
-    for specifics.)
+* At install time, set the environment variable
+  `NOKOGIRI_USE_SYSTEM_LIBRARIES` or else use the
+  `--use-system-libraries` argument. (See
+  https://nokogiri.org/tutorials/installing_nokogiri.html#install-with-system-libraries
+  for specifics.)
 
-  * libxml2 >=2.6.21 with iconv support
-    (libxml2-dev/-devel is also required)
+* libxml2 >=2.6.21 with iconv support (libxml2-dev/-devel is also required)
 
-  * libxslt, built with and supported by the given libxml2
-    (libxslt-dev/-devel is also required)
+* libxslt, built with and supported by the given libxml2 (libxslt-dev/-devel is also required)
 
 
 ## Encoding
