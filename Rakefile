@@ -4,6 +4,7 @@ require 'shellwords'
 
 gem 'hoe'
 require 'hoe'
+require_relative 'hoe-monkeypatches'
 Hoe.plugin :debugging
 Hoe.plugin :git
 Hoe.plugin :gemspec
