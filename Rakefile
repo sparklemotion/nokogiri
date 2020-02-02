@@ -368,13 +368,6 @@ def verify_dll(dll, cross_ruby)
   puts "#{dll}: Looks good!"
 end
 
-task :cross do
-  rake_compiler_config_path = File.expand_path("~/.rake-compiler/config.yml")
-  unless File.exists? rake_compiler_config_path
-    raise "rake-compiler has not installed any cross rubies. Use rake-compiler-dock or 'rake gem:windows' for building binary windows gems."
-  end
-end
-
 CROSS_RUBIES.each do |cross_ruby|
   task "tmp/#{cross_ruby.platform}/stage/lib/nokogiri/#{cross_ruby.minor_ver}/nokogiri.so" do |t|
     verify_dll t.name, cross_ruby
