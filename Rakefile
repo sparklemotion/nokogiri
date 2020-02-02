@@ -54,8 +54,12 @@ CrossRuby = Struct.new(:version, :host) {
       end
   end
 
+  WINDOWS_PLATFORM_REGEX = /mingw|mswin/
+  MINGW32_PLATFORM_REGEX = /mingw32/
+  LINUX_PLATFORM_REGEX = /linux/
+
   def windows?
-    !!(platform =~ /mingw|mswin/)
+    !!(platform =~ WINDOWS_PLATFORM_REGEX)
   end
 
   def tool(name)
@@ -92,7 +96,7 @@ CrossRuby = Struct.new(:version, :host) {
 
   def dlls
     case platform
-      when /mingw32/
+      when MINGW32_PLATFORM_REGEX
       [
         'kernel32.dll',
         'msvcrt.dll',
@@ -103,7 +107,7 @@ CrossRuby = Struct.new(:version, :host) {
           end),
         libruby_dll,
       ]
-      when /linux/
+      when LINUX_PLATFORM_REGEX
       [
         'libm.so.6',
         *(case
@@ -117,7 +121,7 @@ CrossRuby = Struct.new(:version, :host) {
 
   def dll_ref_versions
     case platform
-      when /linux/
+      when LINUX_PLATFORM_REGEX
         {"GLIBC"=>"2.17"}
     end
   end
