@@ -29,6 +29,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxml/relaxng.h>
 #include <libxml/xinclude.h>
 #include <libxslt/extensions.h>
+#include <libxslt/xsltconfig.h>
 #include <libxml/c14n.h>
 #include <ruby.h>
 #include <ruby/st.h>

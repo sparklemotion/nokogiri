@@ -76,12 +76,22 @@ void Init_nokogiri()
   mNokogiriHtmlSax  = rb_define_module_under(mNokogiriHtml, "SAX");
 
   rb_const_set( mNokogiri,
-                rb_intern("LIBXML_VERSION"),
+                rb_intern("LIBXML_COMPILED_VERSION"),
                 NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION)
               );
   rb_const_set( mNokogiri,
-                rb_intern("LIBXML_PARSER_VERSION"),
+                rb_intern("LIBXML_LOADED_VERSION"),
                 NOKOGIRI_STR_NEW2(xmlParserVersion)
+              );
+
+
+  rb_const_set( mNokogiri,
+                rb_intern("LIBXSLT_COMPILED_VERSION"),
+                NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION)
+              );
+  rb_const_set( mNokogiri,
+                rb_intern("LIBXSLT_LOADED_VERSION"),
+                NOKOGIRI_STR_NEW2(xsltEngineVersion)
               );
 
 #ifdef NOKOGIRI_USE_PACKAGED_LIBRARIES
