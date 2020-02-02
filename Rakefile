@@ -382,6 +382,8 @@ namespace "gem" do
   CROSS_RUBIES.map(&:platform).uniq.each do |plat|
     desc "build native fat binary gems for windows and linux"
     multitask "native" => plat
+
+    desc "build native gem for #{plat} platform"
     task plat do
       RakeCompilerDock.sh <<-EOT, platform: plat
         gem install bundler &&
@@ -391,7 +393,11 @@ namespace "gem" do
     end
   end
 
-  multitask "windows" => ["x86-mingw32", "x64-mingw32"]
+  desc "build native fat binary gems for windows"
+  multitask "windows" => CROSS_RUBIES.map(&:platform).uniq.grep(WINDOWS_PLATFORM_REGEX)
+
+  desc "build native fat binary gems for linux"
+  multitask "linux" => CROSS_RUBIES.map(&:platform).uniq.grep(LINUX_PLATFORM_REGEX)
 
   desc "build a jruby gem with docker"
   task "jruby" do
