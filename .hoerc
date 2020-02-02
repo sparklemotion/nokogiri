@@ -35,7 +35,7 @@ exclude: !ruby/regexp '/
   |STANDARD_RESPONSES.md
   |Y_U_NO_GEMSPEC.md
   |C_CODING_STYLE.*
-  |patches/sort-patches-by-date
+  |patches
 )
 |\.gitkeep
 /x'
