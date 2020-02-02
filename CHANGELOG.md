@@ -14,18 +14,109 @@ This release ends support for:
 
 #### Self-descriptive version info
 
-This release also changes the information provided in `Nokogiri::VersionInfo`
+This release also changes the information provided in
+`Nokogiri::VersionInfo`, see #1482 and #1974 for background. Note that
+the output of `nokogiri -v` will also reflect these changes.
 
-* Nokogiri::VersionInfo will no longer contain the following keys (previously these were set only when vendored libraries were being used) [#1482]:
+* `Nokogiri::VersionInfo` will no longer contain the following keys (previously these were set only when vendored libraries were being used)
   * `libxml/libxml2_path`
   * `libxml/libxslt_path`
-* `nokogiri -v` will no longer emit these VersionInfo values [#1482]
-* these C macros will no longer be defined [#1482]:
-  * NOKOGIRI_LIBXML2_PATH
-  * NOKOGIRI_LIBXSLT_PATH
-* these global variables will no longer be defined [#1482]:
-  * NOKOGIRI_LIBXML2_PATH
-  * NOKOGIRI_LIBXSLT_PATH
+* `Nokogiri::VersionInfo` now contains version metadata for libxslt:
+  * `libxslt/source` (either "packaged" or "system", similar to `libxml/source`)
+  * `libxslt/compiled` (the version of libxslt compiled at installation time, similar to `libxml/compiled`)
+  * `libxslt/loaded` (the version of libxslt loaded at runtime, similar to `libxml/loaded`)
+  * `libxslt/patches` moved from `libxml/libxslt_patches`
+* `Nokogiri::VersionInfo` key `libxml/libxml2_patches` has been renamed to `libxml/patches`
+* these C macros will no longer be defined:
+  * `NOKOGIRI_LIBXML2_PATH`
+  * `NOKOGIRI_LIBXSLT_PATH`
+* these global variables will no longer be defined:
+  * `NOKOGIRI_LIBXML2_PATH`
+  * `NOKOGIRI_LIBXSLT_PATH`
+* these constants have been renamed:
+  * `Nokogiri::LIBXML_VERSION` is now `Nokogiri::LIBXML_COMPILED_VERSION`
+  * `Nokogiri::LIBXML_PARSER_VERSION` is now `Nokogiri::LIBXML_LOADED_VERSION`
+* these methods have been renamed and the return type changed from `String` to `Gem::Version`:
+  * `VersionInfo#loaded_parser_version` is now `#loaded_libxml_version`
+  * `VersionInfo#compiled_parser_version` is now `#compiled_libxml_version`
+* `Nokogiri.uses_libxml?` now accepts an optional requirement string which is interpreted as a `Gem::Requirement` and tested against the loaded libxml2 version (the value in `VersionInfo` key `libxml/loaded`). This greatly simplifies much of the version-dependent branching logic in both the implementation and the tests.
+
+Maybe to sum this change up, the output from CRuby when using vendored libraries was something like:
+
+```
+# Nokogiri (1.10.7)
+    ---
+    warnings: []
+    nokogiri: 1.10.7
+    ruby:
+      version: 2.7.0
+      platform: x86_64-linux
+      description: ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-linux]
+      engine: ruby
+    libxml:
+      binding: extension
+      source: packaged
+      libxml2_path: "/home/flavorjones/.rvm/gems/ruby-2.7.0/gems/nokogiri-1.10.7/ports/x86_64-pc-linux-gnu/libxml2/2.9.10"
+      libxslt_path: "/home/flavorjones/.rvm/gems/ruby-2.7.0/gems/nokogiri-1.10.7/ports/x86_64-pc-linux-gnu/libxslt/1.1.34"
+      libxml2_patches:
+      - 0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
+      - 0002-Remove-script-macro-support.patch
+      - 0003-Update-entities-to-remove-handling-of-ssi.patch
+      - 0004-libxml2.la-is-in-top_builddir.patch
+      libxslt_patches: []
+      compiled: 2.9.10
+      loaded: 2.9.10
+```
+
+but now looks like:
+
+```
+# Nokogiri (1.11.0)
+    ---
+    warnings: []
+    nokogiri: 1.11.0
+    ruby:
+      version: 2.7.0
+      platform: x86_64-linux
+      description: ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-linux]
+      engine: ruby
+    libxml:
+      source: packaged
+      patches:
+      - 0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
+      - 0002-Remove-script-macro-support.patch
+      - 0003-Update-entities-to-remove-handling-of-ssi.patch
+      - 0004-libxml2.la-is-in-top_builddir.patch
+      compiled: 2.9.10
+      loaded: 2.9.10
+    libxslt:
+      source: packaged
+      patches: []
+      compiled: 1.1.34
+      loaded: 1.1.34
+```
+
+and the output from using system libraries now looks like:
+
+```
+# Nokogiri (1.11.0)
+    ---
+    warnings: []
+    nokogiri: 1.11.0
+    ruby:
+      version: 2.7.0
+      platform: x86_64-linux
+      description: ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-linux]
+      engine: ruby
+    libxml:
+      source: system
+      compiled: 2.9.4
+      loaded: 2.9.4
+    libxslt:
+      source: system
+      compiled: 1.1.29
+      loaded: 1.1.29
+```
 
 
 ### Features

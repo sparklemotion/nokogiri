@@ -619,8 +619,7 @@ module Nokogiri
         assert_indent 5, doc
       end
 
-      # wtf...  osx's libxml sucks.
-      unless !Nokogiri.uses_libxml? || Nokogiri::LIBXML_VERSION =~ /^2\.6\./
+      if ! Nokogiri.uses_libxml?("~> 2.6.0")
         def test_encoding
           xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE, "UTF-8")
           assert_equal "UTF-8", xml.encoding

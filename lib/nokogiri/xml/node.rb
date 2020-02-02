@@ -861,7 +861,7 @@ module Nokogiri
       end
 
       # FIXME: used for hacking around the output of broken libxml versions
-      IS_BROKEN_LIBXML_VERSION = (Nokogiri.uses_libxml? && LIBXML_VERSION.start_with?('2.6.')).freeze
+      IS_BROKEN_LIBXML_VERSION = Nokogiri.uses_libxml?("~> 2.6.0").freeze
       private_constant :IS_BROKEN_LIBXML_VERSION
 
       def to_format save_option, options

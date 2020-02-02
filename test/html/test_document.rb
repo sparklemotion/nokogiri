@@ -103,8 +103,7 @@ module Nokogiri
         assert_nil doc.root
       end
 
-      unless Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split(".")[0..1]
-        # FIXME: this is a hack around broken libxml versions
+      unless Nokogiri.uses_libxml?("~> 2.6.0")
         def test_to_xhtml_with_indent
           doc = Nokogiri::HTML("<html><body><a>foo</a></body></html>")
           doc = Nokogiri::HTML(doc.to_xhtml(:indent => 2))

@@ -147,8 +147,7 @@ module Nokogiri
       def test_html_fragment_has_outer_text
         doc = "a<div>b</div>c"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        if Nokogiri.uses_libxml? &&
-            Nokogiri::VERSION_INFO['libxml']['loaded'] <= "2.6.16"
+        if Nokogiri.uses_libxml?("<= 2.6.16")
           assert_equal "a<div>b</div><p>c</p>", fragment.to_s
         else
           assert_equal "a<div>b</div>c", fragment.to_s
@@ -210,7 +209,7 @@ module Nokogiri
       def test_to_xhtml
         doc = "<span>foo<br></span><span>bar</span><p></p>"
         fragment = Nokogiri::HTML::Document.new.fragment(doc)
-        if Nokogiri.jruby? || Nokogiri::VERSION_INFO['libxml']['loaded'] >= "2.7.0"
+        if Nokogiri.jruby? || Nokogiri.uses_libxml?(">= 2.7.0")
           assert_equal "<span>foo<br /></span><span>bar</span><p></p>", fragment.to_xhtml
         else
           # FIXME: why are we doing this ? this violates the spec,
@@ -240,7 +239,7 @@ module Nokogiri
       end
 
       def test_element_children_counts
-        if Nokogiri.uses_libxml? && Nokogiri::VERSION_INFO['libxml']['loaded'] <= "2.9.1"
+        if Nokogiri.uses_libxml?("<= 2.9.1")
           skip "#elements doesn't work in 2.9.1, see 1793a5a for history"
         end
         doc = Nokogiri::HTML::DocumentFragment.parse("   <div>  </div>\n   ")
