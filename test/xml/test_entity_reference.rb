@@ -247,7 +247,7 @@ EOF
         reader = Nokogiri::XML::Reader html, path do |cfg|
           cfg.default_xml
         end
-        if Nokogiri.uses_libxml? && Nokogiri::LIBXML_PARSER_VERSION.to_i >= 20900
+        if Nokogiri.uses_libxml?(">= 2.9.0")
           # Unknown entity is not fatal in libxml2 >= 2.9
           assert_equal 8, reader.count
         else

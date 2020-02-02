@@ -39,71 +39,6 @@ anchors:
 
 
 jobs:
-  - name: ruby-2.3-system
-    public: true
-    serial_groups: ["ruby-2.3"]
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.3"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
-
-  - name: ruby-2.3-vendored
-    public: true
-    serial_groups: ["ruby-2.3"]
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-        passed: ["ruby-2.3-system"]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.3"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
-
-  - name: ruby-2.3-valgrind
-    public: true
-    serial_groups: ["ruby-2.3"]
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-        passed: ["ruby-2.3-vendored"]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.3"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            TEST_WITH_VALGRIND: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
   - name: ruby-2.4-system
     public: true
     serial_groups: ["ruby-2.4"]
@@ -252,8 +187,6 @@ jobs:
             - name: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-            CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
-            GIT_BRANCH: master
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
@@ -301,9 +234,9 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  - name: ruby-2.7-rc-system
+  - name: ruby-2.7-system
     public: true
-    serial_groups: ["ruby-2.7-rc"]
+    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri
@@ -313,49 +246,53 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7-rc"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
+            GIT_BRANCH: master
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
-  - name: ruby-2.7-rc-vendored
+  - name: ruby-2.7-vendored
     public: true
-    serial_groups: ["ruby-2.7-rc"]
+    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-2.7-rc-system"]
+        passed: ["ruby-2.7-system"]
       - task: rake-test
         config:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7-rc"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
 
-  - name: ruby-2.7-rc-valgrind
+  - name: ruby-2.7-valgrind
     public: true
-    serial_groups: ["ruby-2.7-rc"]
+    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-2.7-rc-vendored"]
+        passed: ["ruby-2.7-vendored"]
       - task: rake-test
         config:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7-rc"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -363,27 +300,9 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-
-
-  - name: jruby-9.1
-    public: true
-    serial_groups: ["jruby"]
-    plan:
-      - get: ci
-      - get: nokogiri
-        trigger: true
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.1"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
+
+
   - name: jruby-9.2
     public: true
     serial_groups: ["jruby"]
@@ -391,7 +310,6 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["jruby-9.1"]
       - task: rake-test
         config:
           platform: linux
@@ -412,10 +330,10 @@ jobs:
       - get: nokogiri
         trigger: true
         passed:
-          - "ruby-2.3-valgrind"
           - "ruby-2.4-valgrind"
           - "ruby-2.5-valgrind"
           - "ruby-2.6-valgrind"
+          - "ruby-2.7-valgrind"
           - "jruby-9.2"
 
 
@@ -432,7 +350,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: xenial}
+            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
           inputs:
             - name: ci
             - name: nokogiri
@@ -457,7 +375,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -482,7 +400,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -507,7 +425,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -521,7 +439,7 @@ jobs:
           platform: linux
           image_resource:
             type: docker-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri

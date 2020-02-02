@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-ruby@v1
         with:
-          ruby-version: '2.6.3'
+          ruby-version: '2.7'
       - name: Set ENV
         run: |
           echo '##[set-env name=MAKEFLAGS]'-j$((1 + $(sysctl -n hw.activecpu)))

@@ -4,15 +4,15 @@
 namespace "docker" do
   IMAGE_DIR = "concourse/images"
 
-  def docker_tag_for(engine, version=nil)
+  def docker_tag_for(engine, version = nil)
     [engine, version].compact.join("-")
   end
 
-  def docker_file_for(engine, version=nil)
+  def docker_file_for(engine, version = nil)
     File.join(IMAGE_DIR, "Dockerfile.#{docker_tag_for(engine, version)}.generated")
   end
 
-  def docker_image_for(engine, version=nil)
+  def docker_image_for(engine, version = nil)
     "flavorjones/nokogiri-test:#{docker_tag_for(engine, version)}"
   end
 
@@ -59,6 +59,14 @@ namespace "docker" do
     end
   end
 
+  desc "Pull upstream docker images"
+  task "pull" do
+    docker_files_each do |_, dockerfile_path, _, _|
+      upstream = File.read(dockerfile_path).lines.grep(/FROM/).first.split("FROM ").last
+      sh "docker pull #{upstream}"
+    end
+  end
+
   desc "Clean generated dockerfiles"
   task "clean" do
     generated_files = Dir[File.join(IMAGE_DIR, "Dockerfile.*.generated")]
@@ -67,4 +75,4 @@ namespace "docker" do
 end
 
 desc "Build and push a docker image for testing"
-task "docker" => ["docker:generate", "docker:build", "docker:push"]
+task "docker" => ["docker:generate", "docker:pull", "docker:build", "docker:push"]

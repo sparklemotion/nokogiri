@@ -14,14 +14,17 @@ popd
 
 pushd nokogiri
 
-  export BUNDLE_GEMFILE=$(pwd)/Gemfile
+  export BUNDLE_GEMFILE="$(pwd)/Gemfile"
+  export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
   bundle -v
   bundle config
 
   bundle add nokogiri --skip-install
   bundle install --local || bundle install
-  bundle show nokogiri
+  bundle info nokogiri
 
-  bundle exec rake test
+  bundle exec rake test:cmd > run-test
+  rm -rf lib ext # ensure we can't use the local files
+  bundle exec bash run-test
 
 popd

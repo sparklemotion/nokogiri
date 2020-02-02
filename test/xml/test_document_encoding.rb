@@ -17,9 +17,9 @@ module Nokogiri
       end
 
       def test_dotted_version
-        if Nokogiri.uses_libxml?
-          assert_equal 'UTF-8', Nokogiri::LIBXML_VERSION.encoding.name
-        end
+        skip "libxml2 is only used for CRuby" unless Nokogiri.uses_libxml?
+        assert_equal "UTF-8", Nokogiri::LIBXML_COMPILED_VERSION.encoding.name
+        assert_equal "UTF-8", Nokogiri::LIBXSLT_COMPILED_VERSION.encoding.name
       end
 
       def test_empty_doc_encoding

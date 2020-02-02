@@ -91,13 +91,7 @@ module Nokogiri
       end
 
       def test_document_parse_method_with_url
-        require "open-uri"
-        begin
-          html = open("https://www.yahoo.com").read
-        rescue Exception => e
-          skip("This test needs the internet. Skips if no internet available. (#{e})")
-        end
-        doc = Nokogiri::HTML html, "http:/foobar.foobar/", "UTF-8"
+        doc = Nokogiri::HTML "<html></html>", "http:/foobar.foobar/", "UTF-8"
         refute_empty doc.to_s, "Document should not be empty"
       end
 
@@ -109,8 +103,7 @@ module Nokogiri
         assert_nil doc.root
       end
 
-      unless Nokogiri.uses_libxml? && %w[2 6] === LIBXML_VERSION.split(".")[0..1]
-        # FIXME: this is a hack around broken libxml versions
+      unless Nokogiri.uses_libxml?("~> 2.6.0")
         def test_to_xhtml_with_indent
           doc = Nokogiri::HTML("<html><body><a>foo</a></body></html>")
           doc = Nokogiri::HTML(doc.to_xhtml(:indent => 2))

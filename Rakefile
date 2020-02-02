@@ -5,6 +5,7 @@ require "rake_compiler_dock"
 
 gem 'hoe'
 require 'hoe'
+require_relative 'hoe-monkeypatches'
 Hoe.plugin :debugging
 Hoe.plugin :git
 Hoe.plugin :gemspec
@@ -172,7 +173,7 @@ HOE = Hoe.spec 'nokogiri' do
   end
 
   self.extra_dev_deps += [
-    ["concourse",          "~> 0.24"],
+    ["concourse",          "~> 0.30"],
     ["hoe",                "~> 3.18"],
     ["hoe-bundler",        "~> 1.2"],
     ["hoe-debugging",      "~> 2.0"],
@@ -190,7 +191,7 @@ HOE = Hoe.spec 'nokogiri' do
 
   self.spec_extras = {
     :extensions => ["ext/nokogiri/extconf.rb"],
-    :required_ruby_version => '>= 2.3.0'
+    :required_ruby_version => '>= 2.4.0'
   }
 
   self.testlib = :minitest
@@ -403,5 +404,6 @@ end
 
 require_relative "tasks/docker"
 require_relative "tasks/set-version-to-timestamp"
+require_relative "tasks/changelog"
 
 # vim: syntax=Ruby

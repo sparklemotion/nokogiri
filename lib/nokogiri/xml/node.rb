@@ -350,6 +350,12 @@ module Nokogiri
       end
 
       ###
+      # Does this Node's attributes include <value>
+      def value?(value)
+        values.include? value
+      end
+
+      ###
       # Get the attribute names for this Node.
       def keys
         attribute_nodes.map(&:node_name)
@@ -763,10 +769,15 @@ module Nokogiri
         end
         indent_text   = options[:indent_text] || ' '
 
+        # Any string times 0 returns an empty string. Therefore, use the same
+        # string instead of generating a new empty string for every node with
+        # zero indentation.
+        indentation = indent_times.zero? ? '' : (indent_text * indent_times)
+
         config = SaveOptions.new(save_options.to_i)
         yield config if block_given?
 
-        native_write_to(io, encoding, indent_text * indent_times, config.options)
+        native_write_to(io, encoding, indentation, config.options)
       end
 
       ###
@@ -849,19 +860,18 @@ module Nokogiri
         node_or_tags
       end
 
-      # FIXME: used for hacking around the output of broken libxml versions
-      IS_BROKEN_LIBXML_VERSION = (Nokogiri.uses_libxml? && LIBXML_VERSION.start_with?('2.6.')).freeze
-      private_constant :IS_BROKEN_LIBXML_VERSION
+      USING_LIBXML_WITH_BROKEN_SERIALIZATION = Nokogiri.uses_libxml?("~> 2.6.0").freeze
+      private_constant :USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
       def to_format save_option, options
-        return dump_html if IS_BROKEN_LIBXML_VERSION
+        return dump_html if USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
       end
 
       def write_format_to save_option, io, options
-        return (io << dump_html) if IS_BROKEN_LIBXML_VERSION
+        return (io << dump_html) if USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
         options[:save_with] ||= save_option
         write_to io, options
