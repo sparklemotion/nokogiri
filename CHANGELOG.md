@@ -24,11 +24,9 @@ We bump `Major.Minor.Patch` versions following this guidance:
 
 ---
 
-## 1.11.0 / unreleased
+## Unreleased
 
-### Backwards incompatibilities
-
-#### Ruby version support
+### Dependencies
 
 This release ends support for:
 
@@ -36,7 +34,9 @@ This release ends support for:
 * JRuby 9.1, which is the Ruby 2.3-compatible release.
 
 
-#### Self-descriptive version info
+### Changed
+
+#### `VersionInfo` and the output of `nokogiri -v`
 
 This release also changes the information provided in
 `Nokogiri::VersionInfo`, see #1482 and #1974 for background. Note that
@@ -143,15 +143,14 @@ and the output from using system libraries now looks like:
 ```
 
 
-### Features
-
-New things:
+### Added
 
 * Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [#688] (Thanks, @jonathanhefner!)
 * Add `Node#value?` to better match expected semantics of a Hash-like object. [#1838, #1840] (Thanks, @MatzFan!)
 * [MRI] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [#1918] (Thanks, @stevecheckoway!)
 
-Improved things:
+
+### Improved
 
 * Add `frozen_string_literal: true` magic comment to all `lib` files. [#1745] (Thanks, @oniofchaos!)
 * Improve performance of some namespace operations. [#1916] (Thanks, @ashmaroli!)
@@ -160,7 +159,7 @@ Improved things:
 * [JRuby] Lots of code cleanup and performance improvements. [#1934] (Thanks, @kares!)
 
 
-### Bug fixes
+### Fixed
 
 * [JRuby] Standardize reading from IO like objects, including StringIO. [#1888, #1897]
 * [JRuby] Change `NodeSet#to_a` to return a RubyArray instead of Object, for compilation under JRuby 9.2.9 and later. [#1968, #1969] (Thanks, @headius!)
