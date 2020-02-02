@@ -24,7 +24,10 @@ We bump `Major.Minor.Patch` versions following this guidance:
 
 ---
 
-## Unreleased
+## Unreleased (will be v1.11.0)
+
+To try out release candidates, use `gem install --prerelease`.
+
 
 ### Dependencies
 
