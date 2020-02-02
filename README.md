@@ -26,7 +26,7 @@ or CSS3 selectors.
 [![Test Coverage](https://api.codeclimate.com/v1/badges/59c67b0e8976027a45ad/test_coverage)](https://codeclimate.com/github/sparklemotion/nokogiri/test_coverage)
 
 [![Gem Version](https://badge.fury.io/rb/nokogiri.svg)](https://rubygems.org/gems/nokogiri)
-[![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score.html?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)
+[![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
 [![Tidelift dependencies](https://tidelift.com/badges/github/sparklemotion/nokogiri)](https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&utm_medium=referral&utm_campaign=readme)
 
 
@@ -190,6 +190,12 @@ explicitly setting the encoding to EUC-JP on the parser:
 
 We've adopted the Contributor Covenant code of conduct, which you can read in full in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
 
+
+## Semantic Versioning
+
+[![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
+
+Nokogiri follows [Semantic Versioning](https://semver.org/). See [`CHANGELOG.md`](CHANGELOG.md) for more details.
 
 ## License
 

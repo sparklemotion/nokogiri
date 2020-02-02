@@ -1,5 +1,29 @@
 # Nokogiri Changelog
 
+Nokogiri follows [Semantic Versioning](https://semver.org/) (since 2017 or so). Note that we occasionally drop support for EOLed Rubies in Minor releases, which [some folks find objectionable](https://github.com/sparklemotion/nokogiri/issues/1568), but SemVer says [this is OK if the public API hasn't changed](https://semver.org/#what-should-i-do-if-i-update-my-own-dependencies-without-changing-the-public-api).
+
+Here's what Dependabot thinks about Nokogiri's SemVer score: [![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
+
+We bump `Major.Minor.Patch` versions following this guidance:
+
+`Major`:
+
+- If we bumped this (which we never have), it would be for significant backwards-incompatible API changes that would require rewriting existing code.
+- Some examples of backwards-incompatible changes we might someday consider for a Major release are at [`ROADMAP.md`](ROADMAP.md).
+
+`Minor`:
+
+- Features and bugfixes.
+- Dropping support for EOLed Ruby versions, updating vendored libraries.
+- Updating vendored libraries for non-security-related reasons.
+
+`Patch`:
+
+- Security updates, including updating vendored libraries for security-related reasons.
+- Bugfixes.
+
+---
+
 ## 1.11.0 / unreleased
 
 ### Backwards incompatibilities
