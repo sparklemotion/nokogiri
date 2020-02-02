@@ -21,6 +21,15 @@ module TestVersionInfoTests
   def test_version_info_for_libxml
     skip "libxml2 is only used for CRuby" unless Nokogiri.uses_libxml?
     assert_equal @version_info["libxml"]["compiled"], Nokogiri::LIBXML_VERSION
+    assert @version_info["libxml"]["loaded"]
+    assert @version_info["libxml"]["source"]
+  end
+
+  def test_version_info_for_libxslt
+    skip "libxslt is only used for CRuby" unless Nokogiri.uses_libxml?
+    assert_equal @version_info["libxslt"]["compiled"], Nokogiri::LIBXSLT_COMPILED_VERSION
+    assert @version_info["libxslt"]["loaded"]
+    assert @version_info["libxslt"]["source"]
   end
 end
 

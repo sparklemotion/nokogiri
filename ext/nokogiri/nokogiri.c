@@ -84,6 +84,16 @@ void Init_nokogiri()
                 NOKOGIRI_STR_NEW2(xmlParserVersion)
               );
 
+
+  rb_const_set( mNokogiri,
+                rb_intern("LIBXSLT_COMPILED_VERSION"),
+                NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION)
+              );
+  rb_const_set( mNokogiri,
+                rb_intern("LIBXSLT_LOADED_VERSION"),
+                NOKOGIRI_STR_NEW2(xsltEngineVersion)
+              );
+
 #ifdef NOKOGIRI_USE_PACKAGED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PACKAGED_LIBRARIES"), Qtrue);
   rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXML2_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXML2_PATCHES), " "));
