@@ -1,6 +1,7 @@
 # -*- ruby -*-
 require 'rubygems'
 require 'shellwords'
+require "rake_compiler_dock"
 
 gem 'hoe'
 require 'hoe'
@@ -40,13 +41,21 @@ CrossRuby = Struct.new(:version, :host) {
   def platform
     @platform ||=
       case host
-      when /\Ax86_64-/
+      when /\Ax86_64.*mingw32/
         'x64-mingw32'
-      when /\Ai[3-6]86-/
+      when /\Ai[3-6]86.*mingw32/
         'x86-mingw32'
+      when /\Ax86_64.*linux/
+        'x86_64-linux'
+      when /\Ai[3-6]86.*linux/
+        'x86-linux'
       else
         raise "unsupported host: #{host}"
       end
+  end
+
+  def windows?
+    !!(platform =~ /mingw|mswin/)
   end
 
   def tool(name)
@@ -56,6 +65,10 @@ CrossRuby = Struct.new(:version, :host) {
         'x86_64-w64-mingw32-'
       when 'x86-mingw32'
         'i686-w64-mingw32-'
+      when 'x86_64-linux'
+        'x86_64-linux-gnu-'
+      when 'x86-linux'
+        'i686-linux-gnu-'
       end) + name
   end
 
@@ -78,16 +91,35 @@ CrossRuby = Struct.new(:version, :host) {
   end
 
   def dlls
-    [
-      'kernel32.dll',
-      'msvcrt.dll',
-      'ws2_32.dll',
-      *(case
-        when ver >= '2.0.0'
-          'user32.dll'
-        end),
-      libruby_dll
-    ]
+    case platform
+      when /mingw32/
+      [
+        'kernel32.dll',
+        'msvcrt.dll',
+        'ws2_32.dll',
+        *(case
+          when ver >= '2.0.0'
+            'user32.dll'
+          end),
+        libruby_dll,
+      ]
+      when /linux/
+      [
+        'libm.so.6',
+        *(case
+          when ver < '2.6.0'
+            'libpthread.so.0'
+          end),
+        'libc.so.6',
+      ]
+    end
+  end
+
+  def dll_ref_versions
+    case platform
+      when /linux/
+        {"GLIBC"=>"2.17"}
+    end
   end
 }
 
@@ -150,8 +182,8 @@ HOE = Hoe.spec 'nokogiri' do
     ["minitest",           "~> 5.8"],
     ["racc",               "~> 1.4.14"],
     ["rake",               "~> 13.0"],
-    ["rake-compiler",      "~> 1.1.0"],
-    ["rake-compiler-dock", "~> 0.7.0"],
+    ["rake-compiler",      "~> 1.1"],
+    ["rake-compiler-dock", "~> 1.0"],
     ["rexical",            "~> 1.0.5"],
     ["rubocop",            "~> 0.73"],
     ["simplecov",          "~> 0.16"],
@@ -201,14 +233,6 @@ if java?
     add_file_to_gem 'lib/nokogiri/nokogiri.jar'
   end
 else
-  begin
-    require 'rake/extensioncompiler'
-    # Ensure mingw compiler is installed
-    Rake::ExtensionCompiler.mingw_host
-    mingw_available = true
-  rescue
-    mingw_available = false
-  end
   require "rake/extensiontask"
 
   HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
@@ -237,18 +261,16 @@ else
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
-    if mingw_available
-      ext.cross_compile  = true
-      ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
-      ext.cross_config_options << "--enable-cross-build"
-      ext.cross_compiling do |spec|
-        libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
+    ext.cross_compile  = true
+    ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
+    ext.cross_config_options << "--enable-cross-build"
+    ext.cross_compiling do |spec|
+      libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
 
-        spec.post_install_message = <<-EOS
+      spec.post_install_message = <<-EOS
 Nokogiri is built with the packaged libraries: #{libs}.
-        EOS
-        spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
-      end
+      EOS
+      spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
     end
   end
 end
@@ -313,14 +335,35 @@ end
 def verify_dll(dll, cross_ruby)
   dll_imports = cross_ruby.dlls
   dump = `#{['env', 'LANG=C', cross_ruby.tool('objdump'), '-p', dll].shelljoin}`
-  raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target)}\s/ === dump
-  raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
+  if cross_ruby.windows?
+    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target)}\s/ === dump
+    raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
 
-  # Verify that the expected DLL dependencies match the actual dependencies
-  # and that no further dependencies exist.
-  dll_imports_is = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
-  if dll_imports_is.sort != dll_imports.sort
-    raise "unexpected dll imports #{dll_imports_is.inspect} in #{dll}"
+    # Verify that the expected DLL dependencies match the actual dependencies
+    # and that no further dependencies exist.
+    dll_imports_is = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
+    if dll_imports_is.sort != dll_imports.sort
+      raise "unexpected dll imports #{dll_imports_is.inspect} in #{dll}"
+    end
+  else
+    # Verify that the expected so dependencies match the actual dependencies
+    # and that no further dependencies exist.
+    dll_imports_is = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
+    if dll_imports_is.sort != dll_imports.sort
+      raise "unexpected so imports #{dll_imports_is.inspect} in #{dll} (expected #{dll_imports.inspect})"
+    end
+
+    # Verify that the expected so version requirements match the actual dependencies.
+    dll_ref_versions_list = dump.scan(/0x[\da-f]+ 0x[\da-f]+ \d+ (\w+)_([\d\.]+)$/i)
+    # Build a hash of library versions like {"LIBUDEV"=>"183", "GLIBC"=>"2.17"}
+    dll_ref_versions_is = dll_ref_versions_list.each.with_object({}) do |(lib, ver), h|
+      if !h[lib] || ver.split(".").map(&:to_i).pack("C*") > h[lib].split(".").map(&:to_i).pack("C*")
+        h[lib] = ver
+      end
+    end
+    if dll_ref_versions_is != cross_ruby.dll_ref_versions
+      raise "unexpected so version requirements #{dll_ref_versions_is.inspect} in #{dll}"
+    end
   end
   puts "#{dll}: Looks good!"
 end
@@ -330,26 +373,33 @@ task :cross do
   unless File.exists? rake_compiler_config_path
     raise "rake-compiler has not installed any cross rubies. Use rake-compiler-dock or 'rake gem:windows' for building binary windows gems."
   end
+end
 
-  CROSS_RUBIES.each do |cross_ruby|
-    task "tmp/#{cross_ruby.platform}/nokogiri/#{cross_ruby.ver}/nokogiri.so" do |t|
-      # To reduce the gem file size strip mingw32 dlls before packaging
-      sh [cross_ruby.tool('strip'), '-S', t.name].shelljoin
-      verify_dll t.name, cross_ruby
-    end
+CROSS_RUBIES.each do |cross_ruby|
+  task "tmp/#{cross_ruby.platform}/stage/lib/nokogiri/#{cross_ruby.minor_ver}/nokogiri.so" do |t|
+    verify_dll t.name, cross_ruby
   end
 end
 
-desc "build a windows gem without all the ceremony"
-task "gem:windows" do
-  require "rake_compiler_dock"
-  RakeCompilerDock.sh "gem install bundler && bundle && rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}"
-end
+namespace "gem" do
+  CROSS_RUBIES.map(&:platform).uniq.each do |plat|
+    desc "build native fat binary gems for windows and linux"
+    multitask "native" => plat
+    task plat do
+      RakeCompilerDock.sh <<-EOT, platform: plat
+        gem install bundler &&
+        bundle &&
+        rake native:#{plat} pkg/#{HOE.spec.full_name}-#{plat}.gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV['RUBY_CC_VERSION']}
+      EOT
+    end
+  end
 
-desc "build a jruby gem with docker"
-task "gem:jruby" do
-  require "rake_compiler_dock"
-  RakeCompilerDock.sh "gem install bundler && bundle && rake java gem", rubyvm: 'jruby'
+  multitask "windows" => ["x86-mingw32", "x64-mingw32"]
+
+  desc "build a jruby gem with docker"
+  task "jruby" do
+    RakeCompilerDock.sh "gem install bundler && bundle && rake java gem", rubyvm: 'jruby'
+  end
 end
 
 require_relative "tasks/docker"
