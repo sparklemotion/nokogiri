@@ -20,5 +20,6 @@ cp -v pkg/nokogiri*java.gem gems
 
 # windows and linux fat binary gems
 bundle exec rake clean
-bundle exec rake gem:native
+bundle exec rake gem:windows
+# bundle exec rake gem:linux
 cp -v pkg/nokogiri-*{x86,x64}*.gem gems
