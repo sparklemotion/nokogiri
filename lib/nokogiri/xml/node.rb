@@ -860,19 +860,18 @@ module Nokogiri
         node_or_tags
       end
 
-      # FIXME: used for hacking around the output of broken libxml versions
-      IS_BROKEN_LIBXML_VERSION = Nokogiri.uses_libxml?("~> 2.6.0").freeze
-      private_constant :IS_BROKEN_LIBXML_VERSION
+      USING_LIBXML_WITH_BROKEN_SERIALIZATION = Nokogiri.uses_libxml?("~> 2.6.0").freeze
+      private_constant :USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
       def to_format save_option, options
-        return dump_html if IS_BROKEN_LIBXML_VERSION
+        return dump_html if USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
       end
 
       def write_format_to save_option, io, options
-        return (io << dump_html) if IS_BROKEN_LIBXML_VERSION
+        return (io << dump_html) if USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
         options[:save_with] ||= save_option
         write_to io, options
