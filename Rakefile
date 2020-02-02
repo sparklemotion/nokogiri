@@ -354,5 +354,6 @@ end
 
 require_relative "tasks/docker"
 require_relative "tasks/set-version-to-timestamp"
+require_relative "tasks/changelog"
 
 # vim: syntax=Ruby
