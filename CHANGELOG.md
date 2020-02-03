@@ -29,6 +29,19 @@ We bump `Major.Minor.Patch` versions following this guidance:
 To try out release candidates, use `gem install --prerelease`.
 
 
+### Notes
+
+#### Experiment: Pre-Compiled Native Linux Gems
+
+With the v1.11.0 release candidates, we are experimenting with shipping **pre-compiled native Linux gems** for the `x86-linux` and `x86_64-linux` platforms.
+
+If this works properly for you, it will speed up installation time on Linux.
+
+If this doesn't work for you, please drop us a note at [#1983](https://github.com/sparklemotion/nokogiri/issues/1983), we may reach out to you for more information on your distro and configuration.
+
+Either way, we'd appreciate some feedback at [#1983](https://github.com/sparklemotion/nokogiri/issues/1983).
+
+
 ### Dependencies
 
 This release introduces support for:
@@ -39,6 +52,28 @@ This release ends support for:
 
 * Ruby 2.3, for which [official support ended on 2019-03-31](https://www.ruby-lang.org/en/news/2019/03/31/support-of-ruby-2-3-has-ended/) [[#1886](https://github.com/sparklemotion/nokogiri/issues/1886)] (Thanks [@ashmaroli](https://github.com/ashmaroli)!)
 * JRuby 9.1, which is the Ruby 2.3-compatible release.
+
+
+### Added
+
+* Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [[#688](https://github.com/sparklemotion/nokogiri/issues/688)] (Thanks, [@jonathanhefner](https://github.com/jonathanhefner)!)
+* Add `Node#value?` to better match expected semantics of a Hash-like object. [[#1838](https://github.com/sparklemotion/nokogiri/issues/1838), [#1840](https://github.com/sparklemotion/nokogiri/issues/1840)] (Thanks, [@MatzFan](https://github.com/MatzFan)!)
+* [MRI] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [[#1918](https://github.com/sparklemotion/nokogiri/issues/1918)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
+
+
+### Improved
+
+* Add `frozen_string_literal: true` magic comment to all `lib` files. [[#1745](https://github.com/sparklemotion/nokogiri/issues/1745)] (Thanks, [@oniofchaos](https://github.com/oniofchaos)!)
+* Improve performance of some namespace operations. [[#1916](https://github.com/sparklemotion/nokogiri/issues/1916)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
+* Remove unnecessary array allocations from Node serialization methods [[#1911](https://github.com/sparklemotion/nokogiri/issues/1911)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
+* Avoid creation of unnecessary zero-length String objects. [[#1970](https://github.com/sparklemotion/nokogiri/issues/1970)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
+* [JRuby] Lots of code cleanup and performance improvements. [[#1934](https://github.com/sparklemotion/nokogiri/issues/1934)] (Thanks, [@kares](https://github.com/kares)!)
+
+
+### Fixed
+
+* [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
+* [JRuby] Change `NodeSet#to_a` to return a RubyArray instead of Object, for compilation under JRuby 9.2.9 and later. [[#1968](https://github.com/sparklemotion/nokogiri/issues/1968), [#1969](https://github.com/sparklemotion/nokogiri/issues/1969)] (Thanks, [@headius](https://github.com/headius)!)
 
 
 ### Changed
@@ -155,28 +190,6 @@ and the output from using system libraries now looks like:
       compiled: 1.1.29
       loaded: 1.1.29
 ```
-
-
-### Added
-
-* Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [[#688](https://github.com/sparklemotion/nokogiri/issues/688)] (Thanks, [@jonathanhefner](https://github.com/jonathanhefner)!)
-* Add `Node#value?` to better match expected semantics of a Hash-like object. [[#1838](https://github.com/sparklemotion/nokogiri/issues/1838), [#1840](https://github.com/sparklemotion/nokogiri/issues/1840)] (Thanks, [@MatzFan](https://github.com/MatzFan)!)
-* [MRI] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [[#1918](https://github.com/sparklemotion/nokogiri/issues/1918)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
-
-
-### Improved
-
-* Add `frozen_string_literal: true` magic comment to all `lib` files. [[#1745](https://github.com/sparklemotion/nokogiri/issues/1745)] (Thanks, [@oniofchaos](https://github.com/oniofchaos)!)
-* Improve performance of some namespace operations. [[#1916](https://github.com/sparklemotion/nokogiri/issues/1916)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
-* Remove unnecessary array allocations from Node serialization methods [[#1911](https://github.com/sparklemotion/nokogiri/issues/1911)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
-* Avoid creation of unnecessary zero-length String objects. [[#1970](https://github.com/sparklemotion/nokogiri/issues/1970)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
-* [JRuby] Lots of code cleanup and performance improvements. [[#1934](https://github.com/sparklemotion/nokogiri/issues/1934)] (Thanks, [@kares](https://github.com/kares)!)
-
-
-### Fixed
-
-* [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
-* [JRuby] Change `NodeSet#to_a` to return a RubyArray instead of Object, for compilation under JRuby 9.2.9 and later. [[#1968](https://github.com/sparklemotion/nokogiri/issues/1968), [#1969](https://github.com/sparklemotion/nokogiri/issues/1969)] (Thanks, [@headius](https://github.com/headius)!)
 
 
 ## 1.10.7 / 2019-12-03
@@ -527,7 +540,7 @@ This release ends support for:
 
 ## 1.6.8.1 / 2016-10-03
 
-### Dependency License Notes
+### Dependencies
 
 Removes required dependency on the `pkg-config` gem. This dependency
 was introduced in v1.6.8 and, because it's distributed under LGPL, was
