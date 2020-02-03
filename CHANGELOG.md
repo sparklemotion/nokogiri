@@ -31,6 +31,10 @@ To try out release candidates, use `gem install --prerelease`.
 
 ### Dependencies
 
+This release introduces support for:
+
+* Ruby 2.7, including the precompiled native binary gems for Windows.
+
 This release ends support for:
 
 * Ruby 2.3, for which [official support ended on 2019-03-31](https://www.ruby-lang.org/en/news/2019/03/31/support-of-ruby-2-3-has-ended/) [[#1886](https://github.com/sparklemotion/nokogiri/issues/1886)] (Thanks [@ashmaroli](https://github.com/ashmaroli)!)
