@@ -28,35 +28,24 @@ static int has_attributes(xmlTextReaderPtr reader)
 static void Nokogiri_xml_node_namespaces(xmlNodePtr node, VALUE attr_hash)
 {
   xmlNsPtr ns;
-  static char buffer[XMLNS_BUFFER_LEN] ;
-  char *key ;
-  size_t keylen ;
+  VALUE key;
 
   if (node->type != XML_ELEMENT_NODE) return ;
 
   ns = node->nsDef;
   while (ns != NULL) {
 
-    keylen = XMLNS_PREFIX_LEN + (ns->prefix ? (strlen((const char*)ns->prefix) + 1) : 0) ;
-    if (keylen > XMLNS_BUFFER_LEN) {
-      key = (char*)malloc(keylen) ;
-    } else {
-      key = buffer ;
-    }
-
+    key = rb_enc_str_new_cstr(XMLNS_PREFIX, rb_utf8_encoding());
     if (ns->prefix) {
-      sprintf(key, "%s:%s", XMLNS_PREFIX, ns->prefix);
-    } else {
-      sprintf(key, "%s", XMLNS_PREFIX);
+      rb_str_cat_cstr(key, ":");
+      rb_str_cat_cstr(key, (const char*)ns->prefix);
     }
 
+    key = rb_str_conv_enc(key, rb_utf8_encoding(), rb_default_internal_encoding());
     rb_hash_aset(attr_hash,
-        NOKOGIRI_STR_NEW2(key),
+        key,
         (ns->href ? NOKOGIRI_STR_NEW2(ns->href) : Qnil)
     );
-    if (key != buffer) {
-      free(key);
-    }
     ns = ns->next ;
   }
 }
