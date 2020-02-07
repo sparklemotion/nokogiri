@@ -19,7 +19,7 @@ module Nokogiri
       end
 
       def test_encoding_without_charset
-        doc = Nokogiri::HTML File.open(SHIFT_JIS_NO_CHARSET, 'r:cp932:cp932').read
+        doc = Nokogiri::HTML File.open(SHIFT_JIS_NO_CHARSET, 'r:Shift_JIS:Shift_JIS').read
 
         hello = "こんにちは"
 
