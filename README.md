@@ -11,7 +11,7 @@ or CSS3 selectors.
 
 * https://nokogiri.org
 * [Installation Help](https://nokogiri.org/tutorials/installing_nokogiri.html)
-* [Tutorials](https://nokogiri.org)
+* [Tutorials](https://nokogiri.org/tutorials/toc.html)
 * [Cheat Sheet](https://github.com/sparklemotion/nokogiri/wiki/Cheat-sheet)
 * [GitHub](https://github.com/sparklemotion/nokogiri)
 * [Mailing List](https://groups.google.com/group/nokogiri-talk)
