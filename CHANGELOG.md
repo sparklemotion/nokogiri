@@ -191,6 +191,12 @@ and the output from using system libraries now looks like:
       loaded: 1.1.29
 ```
 
+## 1.10.8 / 2020-02-10
+
+### Security
+
+[MRI] Pulled in upstream patch from libxml that addresses CVE-2020-7595. Full details are available in [#1992](https://github.com/sparklemotion/nokogiri/issues/1992). Note that this patch is not yet (as of 2020-02-10) in an upstream release of libxml.
+
 
 ## 1.10.7 / 2019-12-03
 
@@ -215,6 +221,7 @@ and the output from using system libraries now looks like:
 * CVE-2019-13117
 * CVE-2019-13118
 * CVE-2019-18197
+* CVE-2019-19956
 
 More details are available at [#1943](https://github.com/sparklemotion/nokogiri/issues/1943).
 
