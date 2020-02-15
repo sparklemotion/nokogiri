@@ -50,17 +50,6 @@ module Nokogiri
           block.call
           set_cache original_cache_setting
         end
-
-        ###
-        # Parse this CSS selector in +selector+.  Returns an AST.
-        def parse(selector)
-          @warned ||= false
-          unless @warned
-            $stderr.puts("Nokogiri::CSS::Parser.parse is deprecated, call Nokogiri::CSS.parse(), this will be removed August 1st or version 1.4.0 (whichever is first)")
-            @warned = true
-          end
-          new.parse selector
-        end
       end
 
       # Create a new CSS parser with respect to +namespaces+

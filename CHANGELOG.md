@@ -81,6 +81,7 @@ This release ends support for:
 ### Removed
 
 * The internal method `Nokogiri::CSS::Parser.cache_on=` has been removed. Use `.set_cache` if you need to muck with the cache internals.
+* The method `Nokogiri::CSS::Parser.parse` has been removed. This was originally deprecated in 2009 in 13db61b.
 
 
 ### Changed
