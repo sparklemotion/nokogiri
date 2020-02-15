@@ -1,7 +1,6 @@
 require "helper"
 
-class TestCssCache < Nokogiri::TestCase
-
+class TestCssCacheAccess < Nokogiri::TestCase
   def setup
     super
     @css = "a1 > b2 > c3"
@@ -52,6 +51,77 @@ class TestCssCache < Nokogiri::TestCase
       end
     end
   end
+end
 
+class TestCssCache < Nokogiri::TestCase
+  def teardown
+    Nokogiri::CSS::Parser.set_cache true
+    super
+  end
 
+  def test_enabled_cache_is_used
+    Nokogiri::CSS::Parser.clear_cache
+    Nokogiri::CSS::Parser.set_cache true
+
+    css = ".foo .bar .baz"
+    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+
+    assert_nil cache[css]
+    Nokogiri::CSS.xpath_for(css)
+    assert cache[css]
+
+    cache[css] = "this is an injected value"
+    assert_equal "this is an injected value", Nokogiri::CSS.xpath_for(css)
+  end
+
+  def test_disabled_cache_is_not_used
+    Nokogiri::CSS::Parser.clear_cache
+    Nokogiri::CSS::Parser.set_cache false
+
+    css = ".foo .bar .baz"
+    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+
+    assert_nil cache[css]
+    Nokogiri::CSS.xpath_for(css)
+    assert_nil cache[css]
+  end
+
+  def test_without_cache
+    Nokogiri::CSS::Parser.clear_cache
+    Nokogiri::CSS::Parser.set_cache true
+
+    css = ".foo .bar .baz"
+    cache = Nokogiri::CSS::Parser.instance_variable_get("@cache")
+
+    assert_nil cache[css]
+    Nokogiri::CSS::Parser.without_cache do
+      Nokogiri::CSS.xpath_for(css)
+    end
+    assert_nil cache[css]
+  end
+
+  def test_race_condition
+    # https://github.com/sparklemotion/nokogiri/issues/1935
+    threads = []
+
+    Nokogiri::CSS::Parser.set_cache true
+
+    threads << Thread.new do
+      Nokogiri::CSS::Parser.without_cache do
+        sleep 0.02
+      end
+    end
+
+    threads << Thread.new do
+      sleep 0.01
+
+      Nokogiri::CSS::Parser.without_cache do
+        sleep 0.02
+      end
+    end
+
+    threads.each(&:join)
+
+    assert Nokogiri::CSS::Parser.cache_on?
+  end
 end

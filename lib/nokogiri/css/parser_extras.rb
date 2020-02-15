@@ -4,25 +4,31 @@ require "thread"
 module Nokogiri
   module CSS
     class Parser < Racc::Parser
-      @cache_on = true
+      CACHE_SWITCH_NAME = :nokogiri_css_parser_cache_is_off
+
       @cache = {}
       @mutex = Mutex.new
 
       class << self
-        # Turn on CSS parse caching
-        attr_accessor :cache_on
-        alias :cache_on? :cache_on
-        alias :set_cache :cache_on=
+        # Return a thread-local boolean indicating whether the CSS-to-XPath cache is active. (Default is `true`.)
+        def cache_on?
+          !Thread.current[CACHE_SWITCH_NAME]
+        end
+
+        # Set a thread-local boolean to turn cacheing on and off. Truthy values turn the cache on, falsey values turn the cache off.
+        def set_cache(value)
+          Thread.current[CACHE_SWITCH_NAME] = !value
+        end
 
         # Get the css selector in +string+ from the cache
         def [](string)
-          return unless @cache_on
+          return unless cache_on?
           @mutex.synchronize { @cache[string] }
         end
 
         # Set the css selector in +string+ in the cache to +value+
         def []=(string, value)
-          return value unless @cache_on
+          return value unless cache_on?
           @mutex.synchronize { @cache[string] = value }
         end
 
@@ -39,10 +45,10 @@ module Nokogiri
 
         # Execute +block+ without cache
         def without_cache(&block)
-          tmp = @cache_on
-          @cache_on = false
+          original_cache_setting = cache_on?
+          set_cache false
           block.call
-          @cache_on = tmp
+          set_cache original_cache_setting
         end
 
         ###

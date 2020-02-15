@@ -72,9 +72,15 @@ This release ends support for:
 
 ### Fixed
 
+* The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [#1935]
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
 * [JRuby] Change `NodeSet#to_a` to return a RubyArray instead of Object, for compilation under JRuby 9.2.9 and later. [[#1968](https://github.com/sparklemotion/nokogiri/issues/1968), [#1969](https://github.com/sparklemotion/nokogiri/issues/1969)] (Thanks, [@headius](https://github.com/headius)!)
+
+
+### Removed
+
+* The internal method `Nokogiri::CSS::Parser.cache_on=` has been removed. Use `.set_cache` if you need to muck with the cache internals.
 
 
 ### Changed
