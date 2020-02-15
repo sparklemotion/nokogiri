@@ -27,8 +27,14 @@ module Nokogiri
         end
 
         # Clear the cache
-        def clear_cache
-          @mutex.synchronize { @cache = {} }
+        def clear_cache(create_new_object = false)
+          @mutex.synchronize do
+            if create_new_object
+              @cache = {}
+            else
+              @cache.clear
+            end
+          end
         end
 
         # Execute +block+ without cache
