@@ -38,17 +38,17 @@ class TestNokogiri < Nokogiri::TestCase
 
   def test_nokogiri_method_with_block
     doc = Nokogiri { b "bold tag" }
-    assert_equal('<b>bold tag</b>', doc.to_html.chomp)
+    assert_equal("<b>bold tag</b>", doc.to_html.chomp)
   end
 
   def test_make_with_html
     doc = Nokogiri.make("<b>bold tag</b>")
-    assert_equal('<b>bold tag</b>', doc.to_html.chomp)
+    assert_equal("<b>bold tag</b>", doc.to_html.chomp)
   end
 
   def test_make_with_block
     doc = Nokogiri.make { b "bold tag" }
-    assert_equal('<b>bold tag</b>', doc.to_html.chomp)
+    assert_equal("<b>bold tag</b>", doc.to_html.chomp)
   end
 
   SLOP_HTML = <<-END
@@ -82,7 +82,7 @@ class TestNokogiri < Nokogiri::TestCase
       </body>
     </html>
     eohtml
-    assert_equal "div", doc.html.body.div.div('.foo').name
+    assert_equal "div", doc.html.body.div.div(".foo").name
   end
 
   def test_slop
@@ -96,7 +96,7 @@ class TestNokogiri < Nokogiri::TestCase
 
     assert_equal "two", doc.html.body.ul.li(:xpath => "position()=2").text
     assert_equal "one", doc.html.body.ul.li(:xpath => ["contains(text(),'o')"]).first.text
-    assert_equal "two", doc.html.body.ul.li(:xpath => ["contains(text(),'o')","contains(text(),'t')"]).text
+    assert_equal "two", doc.html.body.ul.li(:xpath => ["contains(text(),'o')", "contains(text(),'t')"]).text
 
     assert_raise(NoMethodError) { doc.nonexistent }
   end
@@ -111,5 +111,4 @@ class TestNokogiri < Nokogiri::TestCase
     doc.slop!
     assert_equal 1, doc.decorators(Nokogiri::XML::Node).select { |d| d == Nokogiri::Decorators::Slop }.size
   end
-
 end

@@ -27,7 +27,7 @@ class TestCssCache < Nokogiri::TestCase
     super
   end
 
-  [ false, true ].each do |cache_setting|
+  [false, true].each do |cache_setting|
     define_method "test_css_cache_#{cache_setting ? "true" : "false"}" do
       Nokogiri::CSS::Parser.set_cache cache_setting
 
