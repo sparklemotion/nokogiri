@@ -86,7 +86,7 @@ class TestCssCache < Nokogiri::TestCase
     assert_nil cache[css]
   end
 
-  def test_without_cache
+  def test_without_cache_avoids_cache
     Nokogiri::CSS::Parser.clear_cache
     Nokogiri::CSS::Parser.set_cache true
 
@@ -98,6 +98,26 @@ class TestCssCache < Nokogiri::TestCase
       Nokogiri::CSS.xpath_for(css)
     end
     assert_nil cache[css]
+  end
+
+  def test_without_cache_resets_cache_value
+    Nokogiri::CSS::Parser.set_cache true
+
+    Nokogiri::CSS::Parser.without_cache do
+      assert !Nokogiri::CSS::Parser.cache_on?
+    end
+    assert Nokogiri::CSS::Parser.cache_on?
+  end
+
+  def test_without_cache_resets_cache_value_even_after_exception
+    Nokogiri::CSS::Parser.set_cache true
+
+    assert_raises(RuntimeError) do
+      Nokogiri::CSS::Parser.without_cache do
+        raise RuntimeError
+      end
+    end
+    assert Nokogiri::CSS::Parser.cache_on?
   end
 
   def test_race_condition

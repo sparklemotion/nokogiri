@@ -48,6 +48,7 @@ module Nokogiri
           original_cache_setting = cache_on?
           set_cache false
           block.call
+        ensure
           set_cache original_cache_setting
         end
       end
