@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
-require 'stringio'
-require 'nokogiri/xml/node/save_options'
+require "stringio"
+require "nokogiri/xml/node/save_options"
 
 module Nokogiri
   module XML
@@ -57,49 +57,49 @@ module Nokogiri
       include Enumerable
 
       # Element node type, see Nokogiri::XML::Node#element?
-      ELEMENT_NODE =       1
+      ELEMENT_NODE = 1
       # Attribute node type
-      ATTRIBUTE_NODE =     2
+      ATTRIBUTE_NODE = 2
       # Text node type, see Nokogiri::XML::Node#text?
-      TEXT_NODE =          3
+      TEXT_NODE = 3
       # CDATA node type, see Nokogiri::XML::Node#cdata?
       CDATA_SECTION_NODE = 4
       # Entity reference node type
-      ENTITY_REF_NODE =    5
+      ENTITY_REF_NODE = 5
       # Entity node type
-      ENTITY_NODE =        6
+      ENTITY_NODE = 6
       # PI node type
-      PI_NODE =            7
+      PI_NODE = 7
       # Comment node type, see Nokogiri::XML::Node#comment?
-      COMMENT_NODE =       8
+      COMMENT_NODE = 8
       # Document node type, see Nokogiri::XML::Node#xml?
-      DOCUMENT_NODE =      9
+      DOCUMENT_NODE = 9
       # Document type node type
       DOCUMENT_TYPE_NODE = 10
       # Document fragment node type
       DOCUMENT_FRAG_NODE = 11
       # Notation node type
-      NOTATION_NODE =      12
+      NOTATION_NODE = 12
       # HTML document node type, see Nokogiri::XML::Node#html?
       HTML_DOCUMENT_NODE = 13
       # DTD node type
-      DTD_NODE =           14
+      DTD_NODE = 14
       # Element declaration type
-      ELEMENT_DECL =       15
+      ELEMENT_DECL = 15
       # Attribute declaration type
-      ATTRIBUTE_DECL =     16
+      ATTRIBUTE_DECL = 16
       # Entity declaration type
-      ENTITY_DECL =        17
+      ENTITY_DECL = 17
       # Namespace declaration type
-      NAMESPACE_DECL =     18
+      NAMESPACE_DECL = 18
       # XInclude start type
-      XINCLUDE_START =     19
+      XINCLUDE_START = 19
       # XInclude end type
-      XINCLUDE_END =       20
+      XINCLUDE_END = 20
       # DOCB document node type
       DOCB_DOCUMENT_NODE = 21
 
-      def initialize name, document # :nodoc:
+      def initialize(name, document) # :nodoc:
         # ... Ya.  This is empty on purpose.
       end
 
@@ -111,20 +111,20 @@ module Nokogiri
 
       ###
       # Search this node's immediate children using CSS selector +selector+
-      def > selector
+      def >(selector)
         ns = document.root.namespaces
         xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
       end
 
       ###
       # Get the attribute value for the attribute +name+
-      def [] name
+      def [](name)
         get(name.to_s)
       end
 
       ###
       # Set the attribute value for the attribute +name+ to +value+
-      def []= name, value
+      def []=(name, value)
         set name.to_s, value.to_s
       end
 
@@ -135,7 +135,7 @@ module Nokogiri
       # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +<<+.
-      def add_child node_or_tags
+      def add_child(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         if node_or_tags.is_a?(XML::NodeSet)
           node_or_tags.each { |n| add_child_node_and_reparent_attrs n }
@@ -152,7 +152,7 @@ module Nokogiri
       # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +add_child+.
-      def prepend_child node_or_tags
+      def prepend_child(node_or_tags)
         if first = children.first
           # Mimic the error add_child would raise.
           raise RuntimeError, "Document already has a root node" if document? && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
@@ -161,7 +161,6 @@ module Nokogiri
           add_child(node_or_tags)
         end
       end
-
 
       ###
       # Add html around this node
@@ -181,7 +180,7 @@ module Nokogiri
       # Returns self, to support chaining of calls (e.g., root << child1 << child2)
       #
       # Also see related method +add_child+.
-      def << node_or_tags
+      def <<(node_or_tags)
         add_child node_or_tags
         self
       end
@@ -193,7 +192,7 @@ module Nokogiri
       # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +before+.
-      def add_previous_sibling node_or_tags
+      def add_previous_sibling(node_or_tags)
         raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
 
         add_sibling :previous, node_or_tags
@@ -206,7 +205,7 @@ module Nokogiri
       # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +after+.
-      def add_next_sibling node_or_tags
+      def add_next_sibling(node_or_tags)
         raise ArgumentError.new("A document may not have multiple root nodes.") if (parent && parent.document?) && !(node_or_tags.comment? || node_or_tags.processing_instruction?)
 
         add_sibling :next, node_or_tags
@@ -219,7 +218,7 @@ module Nokogiri
       # Returns self, to support chaining of calls.
       #
       # Also see related method +add_previous_sibling+.
-      def before node_or_tags
+      def before(node_or_tags)
         add_previous_sibling node_or_tags
         self
       end
@@ -231,7 +230,7 @@ module Nokogiri
       # Returns self, to support chaining of calls.
       #
       # Also see related method +add_next_sibling+.
-      def after node_or_tags
+      def after(node_or_tags)
         add_next_sibling node_or_tags
         self
       end
@@ -243,7 +242,7 @@ module Nokogiri
       # Returns self.
       #
       # Also see related method +children=+
-      def inner_html= node_or_tags
+      def inner_html=(node_or_tags)
         self.children = node_or_tags
         self
       end
@@ -255,7 +254,7 @@ module Nokogiri
       # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +inner_html=+
-      def children= node_or_tags
+      def children=(node_or_tags)
         node_or_tags = coerce(node_or_tags)
         children.unlink
         if node_or_tags.is_a?(XML::NodeSet)
@@ -273,13 +272,13 @@ module Nokogiri
       # Returns the reparented node (if +node_or_tags+ is a Node), or NodeSet (if +node_or_tags+ is a DocumentFragment, NodeSet, or string).
       #
       # Also see related method +swap+.
-      def replace node_or_tags
+      def replace(node_or_tags)
         # We cannot replace a text node directly, otherwise libxml will return
         # an internal error at parser.c:13031, I don't know exactly why
         # libxml is trying to find a parent node that is an element or document
         # so I can't tell if this is bug in libxml or not. issue #775.
         if text?
-          replacee = Nokogiri::XML::Node.new 'dummy', document
+          replacee = Nokogiri::XML::Node.new "dummy", document
           add_previous_sibling_node replacee
           unlink
           return replacee.replace node_or_tags
@@ -303,33 +302,33 @@ module Nokogiri
       # Returns self, to support chaining of calls.
       #
       # Also see related method +replace+.
-      def swap node_or_tags
+      def swap(node_or_tags)
         replace node_or_tags
         self
       end
 
-      alias :next           :next_sibling
-      alias :previous       :previous_sibling
+      alias :next :next_sibling
+      alias :previous :previous_sibling
 
       # :stopdoc:
       # HACK: This is to work around an RDoc bug
-      alias :next=          :add_next_sibling
+      alias :next= :add_next_sibling
       # :startdoc:
 
-      alias :previous=      :add_previous_sibling
-      alias :remove         :unlink
-      alias :get_attribute  :[]
-      alias :attr           :[]
-      alias :set_attribute  :[]=
-      alias :text           :content
-      alias :inner_text     :content
+      alias :previous= :add_previous_sibling
+      alias :remove :unlink
+      alias :get_attribute :[]
+      alias :attr :[]
+      alias :set_attribute :[]=
+      alias :text :content
+      alias :inner_text :content
       alias :has_attribute? :key?
-      alias :name           :node_name
-      alias :name=          :node_name=
-      alias :type           :node_type
-      alias :to_str         :text
-      alias :clone          :dup
-      alias :elements       :element_children
+      alias :name :node_name
+      alias :name= :node_name=
+      alias :type :node_type
+      alias :to_str :text
+      alias :clone :dup
+      alias :elements :element_children
 
       ####
       # Returns a hash containing the node's attributes.  The key is
@@ -373,7 +372,7 @@ module Nokogiri
       # Get the list of class names of this Node, without
       # deduplication or sorting.
       def classes
-        self['class'].to_s.scan(/\S+/)
+        self["class"].to_s.scan(/\S+/)
       end
 
       ###
@@ -384,9 +383,9 @@ module Nokogiri
       #
       # More than one class may be added at a time, separated by a
       # space.
-      def add_class name
+      def add_class(name)
         names = classes
-        self['class'] = (names + (name.scan(/\S+/) - names)).join(' ')
+        self["class"] = (names + (name.scan(/\S+/) - names)).join(" ")
         self
       end
 
@@ -398,8 +397,8 @@ module Nokogiri
       #
       # More than one class may be appended at a time, separated by a
       # space.
-      def append_class name
-        self['class'] = (classes + name.scan(/\S+/)).join(' ')
+      def append_class(name)
+        self["class"] = (classes + name.scan(/\S+/)).join(" ")
         self
       end
 
@@ -413,13 +412,13 @@ module Nokogiri
       #
       # If no class name is left after removal, or when +name+ is nil,
       # the "class" attribute is removed from this Node.
-      def remove_class name = nil
+      def remove_class(name = nil)
         if name
           names = classes - name.scan(/\S+/)
           if names.empty?
-            delete 'class'
+            delete "class"
           else
-            self['class'] = names.join(' ')
+            self["class"] = names.join(" ")
           end
         else
           delete "class"
@@ -429,23 +428,24 @@ module Nokogiri
 
       ###
       # Remove the attribute named +name+
-      def remove_attribute name
+      def remove_attribute(name)
         attr = attributes[name].remove if key? name
         clear_xpath_context if Nokogiri.jruby?
         attr
       end
+
       alias :delete :remove_attribute
 
       ###
       # Returns true if this Node matches +selector+
-      def matches? selector
+      def matches?(selector)
         ancestors.last.search(selector).include?(self)
       end
 
       ###
       # Create a DocumentFragment containing +tags+ that is relative to _this_
       # context node.
-      def fragment tags
+      def fragment(tags)
         type = document.html? ? Nokogiri::HTML : Nokogiri::XML
         type::DocumentFragment.new(document, tags, self)
       end
@@ -454,7 +454,7 @@ module Nokogiri
       # Parse +string_or_io+ as a document fragment within the context of
       # *this* node.  Returns a XML::NodeSet containing the nodes parsed from
       # +string_or_io+.
-      def parse string_or_io, options = nil
+      def parse(string_or_io, options = nil)
         ##
         # When the current node is unparented and not an element node, use the
         # document as the parsing context instead. Otherwise, the in-context
@@ -490,13 +490,13 @@ module Nokogiri
 
       ####
       # Set the Node's content to a Text node containing +string+. The string gets XML escaped, not interpreted as markup.
-      def content= string
+      def content=(string)
         self.native_content = encode_special_chars(string.to_s)
       end
 
       ###
       # Set the parent Node for this Node
-      def parent= parent_node
+      def parent=(parent_node)
         parent_node.add_child(self)
         parent_node
       end
@@ -582,6 +582,7 @@ module Nokogiri
       def element?
         type == ELEMENT_NODE
       end
+
       alias :elem? :element?
 
       ###
@@ -592,7 +593,7 @@ module Nokogiri
       end
 
       # Get the inner_html for this node's Node#children
-      def inner_html *args
+      def inner_html(*args)
         children.map { |x| x.to_html(*args) }.join
       end
 
@@ -600,13 +601,13 @@ module Nokogiri
       def css_path
         path.split(/\//).map { |part|
           part.length == 0 ? nil : part.gsub(/\[(\d+)\]/, ':nth-of-type(\1)')
-        }.compact.join(' > ')
+        }.compact.join(" > ")
       end
 
       ###
       # Get a list of ancestor Node for this Node.  If +selector+ is given,
       # the ancestors must match +selector+
-      def ancestors selector = nil
+      def ancestors(selector = nil)
         return NodeSet.new(document) unless respond_to?(:parent)
         return NodeSet.new(document) unless parent
 
@@ -633,9 +634,10 @@ module Nokogiri
       # present in parsed XML.  A default namespace set with this method will
       # now show up in #attributes, but when this node is serialized to XML an
       # "xmlns" attribute will appear. See also #namespace and #namespace=
-      def default_namespace= url
+      def default_namespace=(url)
         add_namespace_definition(nil, url)
       end
+
       alias :add_namespace :add_namespace_definition
 
       ###
@@ -644,14 +646,14 @@ module Nokogiri
       # a Namespace added this way will NOT be serialized as an xmlns attribute
       # for this node. You probably want #default_namespace= instead, or perhaps
       # #add_namespace_definition with a nil prefix argument.
-      def namespace= ns
+      def namespace=(ns)
         return set_namespace(ns) unless ns
 
         unless Nokogiri::XML::Namespace === ns
           raise TypeError, "#{ns.class} can't be coerced into Nokogiri::XML::Namespace"
         end
         if ns.document != document
-          raise ArgumentError, 'namespace must be declared on the same document'
+          raise ArgumentError, "namespace must be declared on the same document"
         end
 
         set_namespace ns
@@ -659,20 +661,20 @@ module Nokogiri
 
       ####
       # Yields self and all children to +block+ recursively.
-      def traverse &block
-        children.each{|j| j.traverse(&block) }
+      def traverse(&block)
+        children.each { |j| j.traverse(&block) }
         block.call(self)
       end
 
       ###
       # Accept a visitor.  This method calls "visit" on +visitor+ with self.
-      def accept visitor
+      def accept(visitor)
         visitor.visit(self)
       end
 
       ###
       # Test to see if this Node is equal to +other+
-      def == other
+      def ==(other)
         return false unless other
         return false unless other.respond_to?(:pointer_id)
         pointer_id == other.pointer_id
@@ -692,17 +694,17 @@ module Nokogiri
       #     config.format.as_xml
       #   end
       #
-      def serialize *args, &block
+      def serialize(*args, &block)
         options = args.first.is_a?(Hash) ? args.shift : {
-          :encoding   => args[0],
-          :save_with  => args[1]
+          :encoding => args[0],
+          :save_with => args[1],
         }
 
         encoding = options[:encoding] || document.encoding
         options[:encoding] = encoding
 
         outstring = String.new
-        outstring.force_encoding(Encoding.find(encoding || 'utf-8'))
+        outstring.force_encoding(Encoding.find(encoding || "utf-8"))
         io = StringIO.new(outstring)
         write_to io, options, &block
         io.string
@@ -715,7 +717,7 @@ module Nokogiri
       #
       # See Node#write_to for a list of +options+.  For formatted output,
       # use Node#to_xhtml instead.
-      def to_html options = {}
+      def to_html(options = {})
         to_format SaveOptions::DEFAULT_HTML, options
       end
 
@@ -725,7 +727,7 @@ module Nokogiri
       #   doc.to_xml(:indent => 5, :encoding => 'UTF-8')
       #
       # See Node#write_to for a list of +options+
-      def to_xml options = {}
+      def to_xml(options = {})
         options[:save_with] ||= SaveOptions::DEFAULT_XML
         serialize(options)
       end
@@ -736,7 +738,7 @@ module Nokogiri
       #   doc.to_xhtml(:indent => 5, :encoding => 'UTF-8')
       #
       # See Node#write_to for a list of +options+
-      def to_xhtml options = {}
+      def to_xhtml(options = {})
         to_format SaveOptions::DEFAULT_XHTML, options
       end
 
@@ -757,22 +759,22 @@ module Nokogiri
       #
       #   node.write_to(io, :indent_text => '-', :indent => 2)
       #
-      def write_to io, *options
-        options       = options.first.is_a?(Hash) ? options.shift : {}
-        encoding      = options[:encoding] || options[0]
+      def write_to(io, *options)
+        options = options.first.is_a?(Hash) ? options.shift : {}
+        encoding = options[:encoding] || options[0]
         if Nokogiri.jruby?
-          save_options  = options[:save_with] || options[1]
-          indent_times  = options[:indent] || 0
+          save_options = options[:save_with] || options[1]
+          indent_times = options[:indent] || 0
         else
-          save_options  = options[:save_with] || options[1] || SaveOptions::FORMAT
-          indent_times  = options[:indent] || 2
+          save_options = options[:save_with] || options[1] || SaveOptions::FORMAT
+          indent_times = options[:indent] || 2
         end
-        indent_text   = options[:indent_text] || ' '
+        indent_text = options[:indent_text] || " "
 
         # Any string times 0 returns an empty string. Therefore, use the same
         # string instead of generating a new empty string for every node with
         # zero indentation.
-        indentation = indent_times.zero? ? '' : (indent_text * indent_times)
+        indentation = indent_times.zero? ? "" : (indent_text * indent_times)
 
         config = SaveOptions.new(save_options.to_i)
         yield config if block_given?
@@ -784,7 +786,7 @@ module Nokogiri
       # Write Node as HTML to +io+ with +options+
       #
       # See Node#write_to for a list of +options+
-      def write_html_to io, options = {}
+      def write_html_to(io, options = {})
         write_format_to SaveOptions::DEFAULT_HTML, io, options
       end
 
@@ -792,7 +794,7 @@ module Nokogiri
       # Write Node as XHTML to +io+ with +options+
       #
       # See Node#write_to for a list of +options+
-      def write_xhtml_to io, options = {}
+      def write_xhtml_to(io, options = {})
         write_format_to SaveOptions::DEFAULT_XHTML, io, options
       end
 
@@ -802,7 +804,7 @@ module Nokogiri
       #   doc.write_xml_to io, :encoding => 'UTF-8'
       #
       # See Node#write_to for a list of options
-      def write_xml_to io, options = {}
+      def write_xml_to(io, options = {})
         options[:save_with] ||= SaveOptions::DEFAULT_XML
         write_to io, options
       end
@@ -810,7 +812,7 @@ module Nokogiri
       ###
       # Compare two Node objects with respect to their Document.  Nodes from
       # different documents cannot be compared.
-      def <=> other
+      def <=>(other)
         return nil unless other.is_a?(Nokogiri::XML::Node)
         return nil unless document == other.document
         compare other
@@ -820,7 +822,7 @@ module Nokogiri
       # Do xinclude substitution on the subtree below node. If given a block, a
       # Nokogiri::XML::ParseOptions object initialized from +options+, will be
       # passed to it, allowing more convenient modification of the parser options.
-      def do_xinclude options = XML::ParseOptions::DEFAULT_XML
+      def do_xinclude(options = XML::ParseOptions::DEFAULT_XML)
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
 
         # give options to user
@@ -830,7 +832,7 @@ module Nokogiri
         process_xincludes(options.to_i)
       end
 
-      def canonicalize(mode=XML::XML_C14N_1_0,inclusive_namespaces=nil,with_comments=false)
+      def canonicalize(mode = XML::XML_C14N_1_0, inclusive_namespaces = nil, with_comments = false)
         c14n_root = self
         document.canonicalize(mode, inclusive_namespaces, with_comments) do |node, parent|
           tn = node.is_a?(XML::Node) ? node : parent
@@ -840,14 +842,14 @@ module Nokogiri
 
       private
 
-      def add_sibling next_or_previous, node_or_tags
+      def add_sibling(next_or_previous, node_or_tags)
         impl = (next_or_previous == :next) ? :add_next_sibling_node : :add_previous_sibling_node
-        iter = (next_or_previous == :next) ? :reverse_each          : :each
+        iter = (next_or_previous == :next) ? :reverse_each : :each
 
         node_or_tags = coerce node_or_tags
         if node_or_tags.is_a?(XML::NodeSet)
           if text?
-            pivot = Nokogiri::XML::Node.new 'dummy', document
+            pivot = Nokogiri::XML::Node.new "dummy", document
             send impl, pivot
           else
             pivot = self
@@ -863,14 +865,14 @@ module Nokogiri
       USING_LIBXML_WITH_BROKEN_SERIALIZATION = Nokogiri.uses_libxml?("~> 2.6.0").freeze
       private_constant :USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
-      def to_format save_option, options
+      def to_format(save_option, options)
         return dump_html if USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
         options[:save_with] = save_option unless options[:save_with]
         serialize(options)
       end
 
-      def write_format_to save_option, io, options
+      def write_format_to(save_option, io, options)
         return (io << dump_html) if USING_LIBXML_WITH_BROKEN_SERIALIZATION
 
         options[:save_with] ||= save_option
@@ -881,7 +883,7 @@ module Nokogiri
         [:name, :namespace, :attribute_nodes, :children]
       end
 
-      def coerce data # :nodoc:
+      def coerce(data)
         case data
         when XML::NodeSet
           return data
@@ -902,9 +904,9 @@ Requires a Node, NodeSet or String argument, and cannot accept a #{data.class}.
       end
 
       # @private
-      IMPLIED_XPATH_CONTEXTS = [ './/'.freeze ].freeze # :nodoc:
+      IMPLIED_XPATH_CONTEXTS = [".//".freeze].freeze
 
-      def add_child_node_and_reparent_attrs node # :nodoc:
+      def add_child_node_and_reparent_attrs(node)
         add_child_node node
         node.attribute_nodes.find_all { |a| a.name =~ /:/ }.each do |attr_node|
           attr_node.remove

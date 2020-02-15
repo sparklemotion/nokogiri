@@ -46,7 +46,7 @@ module Nokogiri
       #   )
       #
       # See Searchable#xpath and Searchable#css for further usage help.
-      def search *args
+      def search(*args)
         paths, handler, ns, binds = extract_params(args)
 
         xpaths = paths.map(&:to_s).map do |path|
@@ -55,6 +55,7 @@ module Nokogiri
 
         xpath(*(xpaths + [ns, handler, binds].compact))
       end
+
       alias :/ :search
 
       ###
@@ -64,9 +65,10 @@ module Nokogiri
       # result. +paths+ must be one or more XPath or CSS queries.
       #
       # See Searchable#search for more information.
-      def at *args
+      def at(*args)
         search(*args).first
       end
+
       alias :% :at
 
       ###
@@ -102,7 +104,7 @@ module Nokogiri
       # found in an XML document, where tags names are case-sensitive
       # (e.g., "H1" is distinct from "h1").
       #
-      def css *args
+      def css(*args)
         rules, handler, ns, _ = extract_params(args)
 
         css_internal self, rules, handler, ns
@@ -115,7 +117,7 @@ module Nokogiri
       # match. +rules+ must be one or more CSS selectors.
       #
       # See Searchable#css for more information.
-      def at_css *args
+      def at_css(*args)
         css(*args).first
       end
 
@@ -149,7 +151,7 @@ module Nokogiri
       #     end
       #   }.new)
       #
-      def xpath *args
+      def xpath(*args)
         paths, handler, ns, binds = extract_params(args)
 
         xpath_internal self, paths, handler, ns, binds
@@ -162,17 +164,17 @@ module Nokogiri
       # match. +paths+ must be one or more XPath queries.
       #
       # See Searchable#xpath for more information.
-      def at_xpath *args
+      def at_xpath(*args)
         xpath(*args).first
       end
 
       private
 
-      def css_internal node, rules, handler, ns
+      def css_internal(node, rules, handler, ns)
         xpath_internal node, css_rules_to_xpath(rules, ns), handler, ns, nil
       end
 
-      def xpath_internal node, paths, handler, ns, binds
+      def xpath_internal(node, paths, handler, ns, binds)
         document = node.document
         return NodeSet.new(document) unless document
 
@@ -187,12 +189,12 @@ module Nokogiri
         end
       end
 
-      def xpath_impl node, path, handler, ns, binds
+      def xpath_impl(node, path, handler, ns, binds)
         ctx = XPathContext.new(node)
         ctx.register_namespaces(ns)
-        path = path.gsub(/xmlns:/, ' :') unless Nokogiri.uses_libxml?
+        path = path.gsub(/xmlns:/, " :") unless Nokogiri.uses_libxml?
 
-        binds.each do |key,value|
+        binds.each do |key, value|
           ctx.register_variable key.to_s, value
         end if binds
 
@@ -203,13 +205,13 @@ module Nokogiri
         rules.map { |rule| xpath_query_from_css_rule(rule, ns) }
       end
 
-      def xpath_query_from_css_rule rule, ns
+      def xpath_query_from_css_rule(rule, ns)
         self.class::IMPLIED_XPATH_CONTEXTS.map do |implied_xpath_context|
           CSS.xpath_for(rule.to_s, :prefix => implied_xpath_context, :ns => ns)
-        end.join(' | ')
+        end.join(" | ")
       end
 
-      def extract_params params # :nodoc:
+      def extract_params(params) # :nodoc:
         handler = params.find do |param|
           ![Hash, String, Symbol].include?(param.class)
         end
