@@ -109,6 +109,8 @@ module Nokogiri
         document.decorate(self)
       end
 
+      # @!group Searching via XPath or CSS Queries
+
       ###
       # Search this node's immediate children using CSS selector +selector+
       def >(selector)
@@ -116,17 +118,9 @@ module Nokogiri
         xpath CSS.xpath_for(selector, :prefix => "./", :ns => ns).first
       end
 
-      ###
-      # Get the attribute value for the attribute +name+
-      def [](name)
-        get(name.to_s)
-      end
+      # @!endgroup
 
-      ###
-      # Set the attribute value for the attribute +name+ to +value+
-      def []=(name, value)
-        set name.to_s, value.to_s
-      end
+      # @!group Manipulating Document Structure
 
       ###
       # Add +node_or_tags+ as a child of this Node.
@@ -307,28 +301,93 @@ module Nokogiri
         self
       end
 
+      ####
+      # Set the Node's content to a Text node containing +string+. The string gets XML escaped, not interpreted as markup.
+      def content=(string)
+        self.native_content = encode_special_chars(string.to_s)
+      end
+
+      ###
+      # Set the parent Node for this Node
+      def parent=(parent_node)
+        parent_node.add_child(self)
+        parent_node
+      end
+
+      ###
+      # Adds a default namespace supplied as a string +url+ href, to self.
+      # The consequence is as an xmlns attribute with supplied argument were
+      # present in parsed XML.  A default namespace set with this method will
+      # now show up in #attributes, but when this node is serialized to XML an
+      # "xmlns" attribute will appear. See also #namespace and #namespace=
+      def default_namespace=(url)
+        add_namespace_definition(nil, url)
+      end
+
+      ###
+      # Set the default namespace on this node (as would be defined with an
+      # "xmlns=" attribute in XML source), as a Namespace object +ns+. Note that
+      # a Namespace added this way will NOT be serialized as an xmlns attribute
+      # for this node. You probably want #default_namespace= instead, or perhaps
+      # #add_namespace_definition with a nil prefix argument.
+      def namespace=(ns)
+        return set_namespace(ns) unless ns
+
+        unless Nokogiri::XML::Namespace === ns
+          raise TypeError, "#{ns.class} can't be coerced into Nokogiri::XML::Namespace"
+        end
+        if ns.document != document
+          raise ArgumentError, "namespace must be declared on the same document"
+        end
+
+        set_namespace ns
+      end
+
+      ###
+      # Do xinclude substitution on the subtree below node. If given a block, a
+      # Nokogiri::XML::ParseOptions object initialized from +options+, will be
+      # passed to it, allowing more convenient modification of the parser options.
+      def do_xinclude(options = XML::ParseOptions::DEFAULT_XML)
+        options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
+
+        # give options to user
+        yield options if block_given?
+
+        # call c extension
+        process_xincludes(options.to_i)
+      end
+
       alias :next :next_sibling
       alias :previous :previous_sibling
-
-      # :stopdoc:
-      # HACK: This is to work around an RDoc bug
       alias :next= :add_next_sibling
-      # :startdoc:
-
       alias :previous= :add_previous_sibling
       alias :remove :unlink
-      alias :get_attribute :[]
-      alias :attr :[]
-      alias :set_attribute :[]=
+      alias :name= :node_name=
+      alias :add_namespace :add_namespace_definition
+
+      # @!endgroup
+
       alias :text :content
       alias :inner_text :content
-      alias :has_attribute? :key?
       alias :name :node_name
-      alias :name= :node_name=
       alias :type :node_type
       alias :to_str :text
       alias :clone :dup
       alias :elements :element_children
+
+      # @!group Working With Node Attributes
+
+      ###
+      # Get the attribute value for the attribute +name+
+      def [](name)
+        get(name.to_s)
+      end
+
+      ###
+      # Set the attribute value for the attribute +name+ to +value+
+      def []=(name, value)
+        set name.to_s, value.to_s
+      end
 
       ####
       # Returns a hash containing the node's attributes.  The key is
@@ -366,6 +425,14 @@ module Nokogiri
         attribute_nodes.each { |node|
           yield [node.node_name, node.value]
         }
+      end
+
+      ###
+      # Remove the attribute named +name+
+      def remove_attribute(name)
+        attr = attributes[name].remove if key? name
+        clear_xpath_context if Nokogiri.jruby?
+        attr
       end
 
       ###
@@ -426,15 +493,13 @@ module Nokogiri
         self
       end
 
-      ###
-      # Remove the attribute named +name+
-      def remove_attribute(name)
-        attr = attributes[name].remove if key? name
-        clear_xpath_context if Nokogiri.jruby?
-        attr
-      end
-
       alias :delete :remove_attribute
+      alias :get_attribute :[]
+      alias :attr :[]
+      alias :set_attribute :[]=
+      alias :has_attribute? :key?
+
+      # @!endgroup
 
       ###
       # Returns true if this Node matches +selector+
@@ -486,19 +551,6 @@ module Nokogiri
           node_set = fragment.children
         end
         node_set
-      end
-
-      ####
-      # Set the Node's content to a Text node containing +string+. The string gets XML escaped, not interpreted as markup.
-      def content=(string)
-        self.native_content = encode_special_chars(string.to_s)
-      end
-
-      ###
-      # Set the parent Node for this Node
-      def parent=(parent_node)
-        parent_node.add_child(self)
-        parent_node
       end
 
       ###
@@ -628,37 +680,6 @@ module Nokogiri
         })
       end
 
-      ###
-      # Adds a default namespace supplied as a string +url+ href, to self.
-      # The consequence is as an xmlns attribute with supplied argument were
-      # present in parsed XML.  A default namespace set with this method will
-      # now show up in #attributes, but when this node is serialized to XML an
-      # "xmlns" attribute will appear. See also #namespace and #namespace=
-      def default_namespace=(url)
-        add_namespace_definition(nil, url)
-      end
-
-      alias :add_namespace :add_namespace_definition
-
-      ###
-      # Set the default namespace on this node (as would be defined with an
-      # "xmlns=" attribute in XML source), as a Namespace object +ns+. Note that
-      # a Namespace added this way will NOT be serialized as an xmlns attribute
-      # for this node. You probably want #default_namespace= instead, or perhaps
-      # #add_namespace_definition with a nil prefix argument.
-      def namespace=(ns)
-        return set_namespace(ns) unless ns
-
-        unless Nokogiri::XML::Namespace === ns
-          raise TypeError, "#{ns.class} can't be coerced into Nokogiri::XML::Namespace"
-        end
-        if ns.document != document
-          raise ArgumentError, "namespace must be declared on the same document"
-        end
-
-        set_namespace ns
-      end
-
       ####
       # Yields self and all children to +block+ recursively.
       def traverse(&block)
@@ -679,6 +700,17 @@ module Nokogiri
         return false unless other.respond_to?(:pointer_id)
         pointer_id == other.pointer_id
       end
+
+      ###
+      # Compare two Node objects with respect to their Document.  Nodes from
+      # different documents cannot be compared.
+      def <=>(other)
+        return nil unless other.is_a?(Nokogiri::XML::Node)
+        return nil unless document == other.document
+        compare other
+      end
+
+      # @!group Serialization and Generating Output
 
       ###
       # Serialize Node using +options+.  Save options can also be set using a
@@ -809,29 +841,6 @@ module Nokogiri
         write_to io, options
       end
 
-      ###
-      # Compare two Node objects with respect to their Document.  Nodes from
-      # different documents cannot be compared.
-      def <=>(other)
-        return nil unless other.is_a?(Nokogiri::XML::Node)
-        return nil unless document == other.document
-        compare other
-      end
-
-      ###
-      # Do xinclude substitution on the subtree below node. If given a block, a
-      # Nokogiri::XML::ParseOptions object initialized from +options+, will be
-      # passed to it, allowing more convenient modification of the parser options.
-      def do_xinclude(options = XML::ParseOptions::DEFAULT_XML)
-        options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
-
-        # give options to user
-        yield options if block_given?
-
-        # call c extension
-        process_xincludes(options.to_i)
-      end
-
       def canonicalize(mode = XML::XML_C14N_1_0, inclusive_namespaces = nil, with_comments = false)
         c14n_root = self
         document.canonicalize(mode, inclusive_namespaces, with_comments) do |node, parent|
@@ -839,6 +848,8 @@ module Nokogiri
           tn == c14n_root || tn.ancestors.include?(c14n_root)
         end
       end
+
+      # @!endgroup
 
       private
 

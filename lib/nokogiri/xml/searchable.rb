@@ -12,7 +12,9 @@ module Nokogiri
       # Regular expression used by Searchable#search to determine if a query
       # string is CSS or XPath
       LOOKS_LIKE_XPATH = /^(\.\/|\/|\.\.|\.$)/
-      
+
+      # @!group Searching via XPath or CSS Queries
+
       ###
       # call-seq: search *paths, [namespace-bindings, xpath-variable-bindings, custom-handler-class]
       #
@@ -167,6 +169,8 @@ module Nokogiri
       def at_xpath(*args)
         xpath(*args).first
       end
+
+      # @!endgroup
 
       private
 
