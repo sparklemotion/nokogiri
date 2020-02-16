@@ -1,0 +1,179 @@
+require "helper"
+
+class Nokogiri::XML::Node
+  class TestAttributeMethods < Nokogiri::TestCase
+    def setup
+      super
+      @xml = Nokogiri::XML(File.read(XML_FILE), XML_FILE)
+    end
+
+    def test_each
+      attributes = []
+      @xml.xpath("//address")[1].each do |key, value|
+        attributes << [key, value]
+      end
+      assert_equal [["domestic", "Yes"], ["street", "Yes"]], attributes
+    end
+
+    def test_remove_attribute
+      address = @xml.xpath("/staff/employee/address").first
+      assert_equal "Yes", address["domestic"]
+      attr = address.attributes["domestic"]
+
+      returned_attr = address.remove_attribute "domestic"
+      assert_nil address["domestic"]
+      assert_equal attr, returned_attr
+    end
+
+    def test_remove_attribute_when_not_found
+      address = @xml.xpath("/staff/employee/address").first
+      attr = address.remove_attribute "not-an-attribute"
+      assert_nil attr
+    end
+
+    def test_attribute_setter_accepts_non_string
+      address = @xml.xpath("/staff/employee/address").first
+      assert_equal "Yes", address[:domestic]
+      address[:domestic] = "Altered Yes"
+      assert_equal "Altered Yes", address[:domestic]
+    end
+
+    def test_attribute_accessor_accepts_non_string
+      address = @xml.xpath("/staff/employee/address").first
+      assert_equal "Yes", address["domestic"]
+      assert_equal "Yes", address[:domestic]
+    end
+
+    def test_empty_attribute_reading
+      node = Nokogiri::XML '<foo empty="" whitespace="  "/>'
+
+      assert_equal "", node.root["empty"]
+      assert_equal "  ", node.root["whitespace"]
+    end
+
+    def test_delete
+      address = @xml.xpath("/staff/employee/address").first
+      assert_equal "Yes", address["domestic"]
+      address.delete "domestic"
+      assert_nil address["domestic"]
+    end
+
+    def test_attributes
+      assert node = @xml.search("//address").first
+      assert_nil(node["asdfasdfasdf"])
+      assert_equal("Yes", node["domestic"])
+
+      assert node = @xml.search("//address")[2]
+      attr = node.attributes
+      assert_equal 2, attr.size
+      assert_equal "Yes", attr["domestic"].value
+      assert_equal "Yes", attr["domestic"].to_s
+      assert_equal "No", attr["street"].value
+    end
+
+    def test_values
+      assert_equal %w{ Yes Yes }, @xml.xpath("//address")[1].values
+    end
+
+    def test_value?
+      refute @xml.xpath("//address")[1].value?("no_such_value")
+      assert @xml.xpath("//address")[1].value?("Yes")
+    end
+
+    def test_keys
+      assert_equal %w{ domestic street }, @xml.xpath("//address")[1].keys
+    end
+
+    def test_attribute_with_symbol
+      assert_equal "Yes", @xml.css("address").first[:domestic]
+    end
+
+    def test_non_existent_attribute_should_return_nil
+      node = @xml.root.first_element_child
+      assert_nil node.attribute("type")
+    end
+
+    def test_classes
+      xml = Nokogiri::XML(<<-eoxml)
+        <div>
+          <p class=" foo  bar foo ">test</p>
+          <p class="">test</p>
+        </div>
+        eoxml
+      div = xml.at_xpath("//div")
+      p1, p2 = xml.xpath("//p")
+
+      assert_equal [], div.classes
+      assert_equal %w[foo bar foo], p1.classes
+      assert_equal [], p2.classes
+    end
+
+    def test_add_class
+      xml = Nokogiri::XML(<<-eoxml)
+        <div>
+          <p class=" foo  bar foo ">test</p>
+          <p class="">test</p>
+        </div>
+        eoxml
+      div = xml.at_xpath("//div")
+      p1, p2 = xml.xpath("//p")
+
+      assert_same div, div.add_class("main")
+      assert_equal "main", div["class"]
+
+      assert_same p1, p1.add_class("baz foo")
+      assert_equal "foo bar foo baz", p1["class"]
+
+      assert_same p2, p2.add_class("foo baz foo")
+      assert_equal "foo baz foo", p2["class"]
+    end
+
+    def test_append_class
+      xml = Nokogiri::XML(<<-eoxml)
+        <div>
+          <p class=" foo  bar foo ">test</p>
+          <p class="">test</p>
+        </div>
+        eoxml
+      div = xml.at_xpath("//div")
+      p1, p2 = xml.xpath("//p")
+
+      assert_same div, div.append_class("main")
+      assert_equal "main", div["class"]
+
+      assert_same p1, p1.append_class("baz foo")
+      assert_equal "foo bar foo baz foo", p1["class"]
+
+      assert_same p2, p2.append_class("foo baz foo")
+      assert_equal "foo baz foo", p2["class"]
+    end
+
+    def test_remove_class
+      xml = Nokogiri::XML(<<-eoxml)
+        <div>
+          <p class=" foo  bar baz foo ">test</p>
+          <p class=" foo  bar baz foo ">test</p>
+          <p class="foo foo">test</p>
+          <p class="">test</p>
+        </div>
+        eoxml
+      div = xml.at_xpath("//div")
+      p1, p2, p3, p4 = xml.xpath("//p")
+
+      assert_same div, div.remove_class("main")
+      assert_nil div["class"]
+
+      assert_same p1, p1.remove_class("bar baz")
+      assert_equal "foo foo", p1["class"]
+
+      assert_same p2, p2.remove_class()
+      assert_nil p2["class"]
+
+      assert_same p3, p3.remove_class("foo")
+      assert_nil p3["class"]
+
+      assert_same p4, p4.remove_class("foo")
+      assert_nil p4["class"]
+    end
+  end
+end
