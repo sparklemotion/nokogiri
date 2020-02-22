@@ -299,9 +299,9 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
-  - name: ruby-2.7-rc-system
+  - name: ruby-2.7-system
     public: true
-    serial_groups: ["ruby-2.7-rc"]
+    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri
@@ -311,7 +311,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7-rc"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -320,40 +320,40 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/run.sh
 
-  - name: ruby-2.7-rc-vendored
+  - name: ruby-2.7-vendored
     public: true
-    serial_groups: ["ruby-2.7-rc"]
+    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-2.7-rc-system"]
+        passed: ["ruby-2.7-system"]
       - task: rake-test
         config:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7-rc"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
 
-  - name: ruby-2.7-rc-valgrind
+  - name: ruby-2.7-valgrind
     public: true
-    serial_groups: ["ruby-2.7-rc"]
+    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["ruby-2.7-rc-vendored"]
+        passed: ["ruby-2.7-vendored"]
       - task: rake-test
         config:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7-rc"}
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
             - name: nokogiri
@@ -414,6 +414,7 @@ jobs:
           - "ruby-2.4-valgrind"
           - "ruby-2.5-valgrind"
           - "ruby-2.6-valgrind"
+          - "ruby-2.7-valgrind"
           - "jruby-9.2"
 
 
