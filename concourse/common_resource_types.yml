@@ -1,4 +1,4 @@
   - name: irc-notification
-    type: docker-image
+    type: registry-image
     source:
       repository: flavorjones/irc-notification-resource

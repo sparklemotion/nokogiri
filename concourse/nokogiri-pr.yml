@@ -3,7 +3,7 @@
 resource_types:
 <%= erbify_file "common_resource_types.yml" -%>
   - name: pull-request
-    type: docker-image
+    type: registry-image
     source:
       repository: jtarchie/pr
 
@@ -56,7 +56,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
@@ -85,7 +85,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
@@ -109,7 +109,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
           inputs:
             - name: ci
@@ -141,7 +141,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
           inputs:
             - name: ci
@@ -178,7 +178,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
           inputs:
             - name: ci
@@ -193,7 +193,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
           inputs:
             - name: ci
@@ -217,7 +217,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
           inputs:
             - name: ci
@@ -232,7 +232,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
           inputs:
             - name: ci
@@ -257,7 +257,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: bionic}
           inputs:
             - name: ci
@@ -284,7 +284,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
           inputs:
             - name: ci
@@ -311,7 +311,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
           inputs:
             - name: ci

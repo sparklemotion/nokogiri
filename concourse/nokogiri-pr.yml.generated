@@ -1,11 +1,11 @@
 
 resource_types:
   - name: irc-notification
-    type: docker-image
+    type: registry-image
     source:
       repository: flavorjones/irc-notification-resource
   - name: pull-request
-    type: docker-image
+    type: registry-image
     source:
       repository: jtarchie/pr
 
@@ -70,7 +70,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.4"}
           inputs:
             - name: ci
@@ -96,7 +96,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.4"}
           inputs:
             - name: ci
@@ -120,7 +120,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.4"}
           inputs:
             - name: ci
@@ -144,7 +144,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.5"}
           inputs:
             - name: ci
@@ -170,7 +170,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.5"}
           inputs:
             - name: ci
@@ -194,7 +194,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.5"}
           inputs:
             - name: ci
@@ -218,7 +218,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
           inputs:
             - name: ci
@@ -244,7 +244,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
           inputs:
             - name: ci
@@ -268,7 +268,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
           inputs:
             - name: ci
@@ -292,7 +292,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
@@ -319,7 +319,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
@@ -343,7 +343,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
@@ -369,7 +369,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.2"}
           inputs:
             - name: ci
@@ -406,7 +406,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
@@ -421,7 +421,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
@@ -445,7 +445,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.2"}
           inputs:
             - name: ci
@@ -460,7 +460,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "jruby-9.2"}
           inputs:
             - name: ci
@@ -485,7 +485,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: bionic}
           inputs:
             - name: ci
@@ -512,7 +512,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
@@ -539,7 +539,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
           inputs:
             - name: ci
