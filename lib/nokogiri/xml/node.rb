@@ -435,49 +435,145 @@ module Nokogiri
         attr
       end
 
-      ###
-      # Get the list of class names of this Node, without
-      # deduplication or sorting.
+      # Get the CSS class names of a Node.
+      #
+      # This is a convenience function and is equivalent to:
+      #   node.kwattr_values("class")
+      #
+      # @see #kwattr_values
+      # @see #add_class
+      # @see #append_class
+      # @see #remove_class
+      #
+      # @return [Array<String>]
+      #
+      #   The CSS classes present in the Node's +class+ attribute. If
+      #   the attribute is empty or non-existent, the return value is
+      #   an empty array.
+      #
+      # @example
+      #   node         # => <div class="section title header"></div>
+      #   node.classes # => ["section", "title", "header"]
+      #
       def classes
         kwattr_values("class")
       end
 
-      ###
-      # Add +name+ to the "class" attribute value of this Node and
-      # return self.  If the value is already in the current value, it
-      # is not added.  If no "class" attribute exists yet, one is
-      # created with the given value.
+      # Ensure HTML CSS classes are present on a +Node+. Any CSS
+      # classes in +names+ that already exist in the +Node+'s +class+
+      # attribute are _not_ added. Note that any existing duplicates
+      # in the +class+ attribute are not removed. Compare with
+      # {#append_class}.
       #
-      # More than one class may be added at a time, separated by a
-      # space.
-      def add_class(name)
-        kwattr_add("class", name)
+      # This is a convenience function and is equivalent to:
+      #   node.kwattr_add("class", names)
+      #
+      # @see #kwattr_add
+      # @see #classes
+      # @see #append_class
+      # @see #remove_class
+      #
+      # @param names [String, Array<String>]
+      #
+      #   CSS class names to be added to the Node's +class+
+      #   attribute. May be a string containing whitespace-delimited
+      #   names, or an Array of String names. Any class names already
+      #   present will not be added. Any class names not present will
+      #   be added. If no +class+ attribute exists, one is created.
+      #
+      # @return [Node] Returns +self+ for ease of chaining method calls.
+      #
+      # @example Ensure that a +Node+ has CSS class "section"
+      #   node                      # => <div></div>
+      #   node.add_class("section") # => <div class="section"></div>
+      #   node.add_class("section") # => <div class="section"></div> # duplicate not added
+      #
+      # @example Ensure that a +Node+ has CSS classes "section" and "header", via a String argument.
+      #   node                             # => <div class="section section"></div>
+      #   node.add_class("section header") # => <div class="section section header"></div>
+      #   # Note that the CSS class "section" is not added because it is already present.
+      #   # Note also that the pre-existing duplicate CSS class "section" is not removed.
+      #
+      # @example Ensure that a +Node+ has CSS classes "section" and "header", via an Array argument.
+      #   node                                  # => <div></div>
+      #   node.add_class(["section", "header"]) # => <div class="section header"></div>
+      #
+      def add_class(names)
+        kwattr_add("class", names)
       end
 
-      ###
-      # Append +name+ to the "class" attribute value of this Node and
-      # return self.  The value is simply appended without checking if
-      # it is already in the current value.  If no "class" attribute
-      # exists yet, one is created with the given value.
+      # Add HTML CSS classes to a +Node+, regardless of
+      # duplication. Compare with {#add_class}.
       #
-      # More than one class may be appended at a time, separated by a
-      # space.
-      def append_class(name)
-        kwattr_append("class", name)
+      # This is a convenience function and is equivalent to:
+      #   node.kwattr_append("class", names)
+      #
+      # @see #kwattr_append
+      # @see #classes
+      # @see #add_class
+      # @see #remove_class
+      #
+      # @param names [String, Array<String>]
+      #
+      #   CSS class names to be appended to the Node's +class+
+      #   attribute. May be a string containing whitespace-delimited
+      #   names, or an Array of String names. All class names passed
+      #   in will be appended to the +class+ attribute even if they
+      #   are already present in the attribute value. If no +class+
+      #   attribute exists, one is created.
+      #
+      # @return [Node] Returns +self+ for ease of chaining method calls.
+      #
+      # @example Append "section" to a +Node+'s CSS +class+ attriubute
+      #   node                         # => <div></div>
+      #   node.append_class("section") # => <div class="section"></div>
+      #   node.append_class("section") # => <div class="section section"></div> # duplicate added!
+      #
+      # @example Append "section" and "header" to a +Node+'s CSS +class+ attribute, via a String argument.
+      #   node                                # => <div class="section section"></div>
+      #   node.append_class("section header") # => <div class="section section section header"></div>
+      #   # Note that the CSS class "section" is appended even though it is already present.
+      #
+      # @example Append "section" and "header" to a +Node+'s CSS +class+ attribute, via an Array argument.
+      #   node                                     # => <div></div>
+      #   node.append_class(["section", "header"]) # => <div class="section header"></div>
+      #   node.append_class(["section", "header"]) # => <div class="section header section header"></div>
+      #
+      def append_class(names)
+        kwattr_append("class", names)
       end
 
-      ###
-      # Remove +name+ from the "class" attribute value of this Node
-      # and return self.  If there are many occurrences of the name,
-      # they are all removed.
+      # Remove HTML CSS classes from a +Node+. Any CSS classes in +names+ that
+      # exist in the +Node+'s +class+ attribute are removed, including any
+      # multiple entries.
       #
-      # More than one class may be removed at a time, separated by a
-      # space.
+      # If no CSS classes remain after this operation, or if +names+ is
+      # +nil+, the +class+ attribute is deleted from the node.
       #
-      # If no class name is left after removal, or when +name+ is nil,
-      # the "class" attribute is removed from this Node.
-      def remove_class(name = nil)
-        kwattr_remove("class", name)
+      # This is a convenience function and is equivalent to:
+      #   node.kwattr_remove("class", names)
+      #
+      # @see #kwattr_remove
+      # @see #classes
+      # @see #add_class
+      # @see #append_class
+      #
+      # @param names [String, Array<String>]
+      #
+      #   CSS class names to be removed from the Node's +class+ attribute. May
+      #   be a string containing whitespace-delimited names, or an Array of
+      #   String names. Any class names already present will be removed. If no
+      #   CSS classes remain, the +class+ attribute is deleted.
+      #
+      # @return [Node] Returns +self+ for ease of chaining method calls.
+      #
+      # @example
+      #   node                         # => <div class="section header"></div>
+      #   node.remove_class("section") # => <div class="header"></div>
+      #   node.remove_class("header")  # => <div></div> # attribute is deleted when empty
+      #
+      def remove_class(names = nil)
+        kwattr_remove("class", names)
       end
 
       def kwattr_values(attribute_name)
