@@ -93,6 +93,9 @@ class Nokogiri::XML::Node
       assert_nil node.attribute("type")
     end
 
+    #
+    #  CSS classes, specifically
+    #
     def test_classes
       xml = Nokogiri::XML(<<-eoxml)
         <div>
@@ -174,6 +177,149 @@ class Nokogiri::XML::Node
 
       assert_same p4, p4.remove_class("foo")
       assert_nil p4["class"]
+    end
+
+    #
+    #  keyword attributes, generally
+    #
+    describe "keyword attribute helpers" do
+      let(:node) do
+        Nokogiri::XML::DocumentFragment.parse(<<~EOM).at_css("div")
+          <div blargh=" foo  bar baz bar foo  quux foo manx ">hello</div>
+        EOM
+      end
+
+      describe "setup" do
+        it { _(node.get_attribute("noob")).must_be_nil }
+      end
+
+      describe "#kwattr_values" do
+        it "returns an array of space-delimited values" do
+          _(node.kwattr_values("blargh")).must_equal(%w[foo bar baz bar foo quux foo manx])
+        end
+
+        describe "when no attribute exists" do
+          it "returns an empty array" do
+            _(node.kwattr_values("noob")).must_equal([])
+          end
+        end
+
+        describe "when an empty attribute exists" do
+          it "returns an empty array" do
+            node.set_attribute("noob", "")
+            _(node.kwattr_values("noob")).must_equal([])
+
+            node.set_attribute("noob", "  ")
+            _(node.kwattr_values("noob")).must_equal([])
+          end
+        end
+      end
+
+      describe "kwattr_add" do
+        it "returns the node for chaining" do
+          _(node.kwattr_add("noob", "asdf")).must_be_same_as(node)
+        end
+
+        it "creates a new attribute when necessary" do
+          _(node.kwattr_add("noob", "asdf").get_attribute("noob")).wont_be_nil
+        end
+
+        it "adds a new bare keyword string" do
+          _(node.kwattr_add("blargh", "jimmy").kwattr_values("blargh")).
+            must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+        end
+
+        it "does not add a repeated bare keyword string" do
+          _(node.kwattr_add("blargh", "foo").kwattr_values("blargh")).
+            must_equal(%w[foo bar baz bar foo quux foo manx])
+        end
+
+        describe "given a string of keywords" do
+          it "adds new keywords and ignores existing keywords" do
+            _(node.kwattr_add("blargh", "foo jimmy\tjohnny").kwattr_values("blargh")).
+              must_equal(%w[foo bar baz bar foo quux foo manx jimmy johnny])
+          end
+        end
+
+        describe "given an array of keywords" do
+          it "adds new keywords and ignores existing keywords" do
+            _(node.kwattr_add("blargh", %w[foo jimmy]).kwattr_values("blargh")).
+              must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+          end
+        end
+      end
+
+      describe "kwattr_append" do
+        it "returns the node for chaining" do
+          _(node.kwattr_append("noob", "asdf")).must_be_same_as(node)
+        end
+
+        it "creates a new attribute when necessary" do
+          _(node.kwattr_append("noob", "asdf").get_attribute("noob")).wont_be_nil
+        end
+
+        it "adds a new bare keyword string" do
+          _(node.kwattr_append("blargh", "jimmy").kwattr_values("blargh")).
+            must_equal(%w[foo bar baz bar foo quux foo manx jimmy])
+        end
+
+        it "adds a repeated bare keyword string" do
+          _(node.kwattr_append("blargh", "foo").kwattr_values("blargh")).
+            must_equal(%w[foo bar baz bar foo quux foo manx foo])
+        end
+
+        describe "given a string of keywords" do
+          it "adds new keywords and existing keywords" do
+            _(node.kwattr_append("blargh", "foo jimmy\tjohnny").kwattr_values("blargh")).
+              must_equal(%w[foo bar baz bar foo quux foo manx foo jimmy johnny])
+          end
+        end
+
+        describe "given an array of keywords" do
+          it "adds new keywords and existing keywords" do
+            _(node.kwattr_append("blargh", %w[foo jimmy]).kwattr_values("blargh")).
+              must_equal(%w[foo bar baz bar foo quux foo manx foo jimmy])
+          end
+        end
+      end
+
+      describe "kwattr_remove" do
+        it "returns the node for chaining" do
+          _(node.kwattr_remove("noob", "asdf")).must_be_same_as(node)
+        end
+
+        it "gracefully handles a non-existent attribute" do
+          _(node.kwattr_remove("noob", "asdf").get_attribute("noob")).must_be_nil
+        end
+
+        it "removes an existing bare keyword string" do
+          _(node.kwattr_remove("blargh", "foo").kwattr_values("blargh")).
+            must_equal(%w[bar baz bar quux manx])
+        end
+
+        it "gracefully ignores a non-existent bare keyword string" do
+          _(node.kwattr_remove("blargh", "jimmy").kwattr_values("blargh")).
+            must_equal(%w[foo bar baz bar foo quux foo manx])
+        end
+
+        describe "given a string of keywords" do
+          it "removes existing keywords and ignores other keywords" do
+            _(node.kwattr_remove("blargh", "foo jimmy\tjohnny").kwattr_values("blargh")).
+              must_equal(%w[bar baz bar quux manx])
+          end
+        end
+
+        describe "given an array of keywords" do
+          it "adds new keywords and existing keywords" do
+            _(node.kwattr_remove("blargh", %w[foo jimmy]).kwattr_values("blargh")).
+              must_equal(%w[bar baz bar quux manx])
+          end
+        end
+
+        it "removes the attribute when no values are left" do
+          _(node.kwattr_remove("blargh", %w[foo bar baz bar foo quux foo manx]).get_attribute("blargh")).must_be_nil
+        end
+      end
     end
   end
 end

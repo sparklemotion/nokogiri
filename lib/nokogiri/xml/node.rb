@@ -439,7 +439,7 @@ module Nokogiri
       # Get the list of class names of this Node, without
       # deduplication or sorting.
       def classes
-        self["class"].to_s.scan(/\S+/)
+        kwattr_values("class")
       end
 
       ###
@@ -451,9 +451,7 @@ module Nokogiri
       # More than one class may be added at a time, separated by a
       # space.
       def add_class(name)
-        names = classes
-        self["class"] = (names + (name.scan(/\S+/) - names)).join(" ")
-        self
+        kwattr_add("class", name)
       end
 
       ###
@@ -465,8 +463,7 @@ module Nokogiri
       # More than one class may be appended at a time, separated by a
       # space.
       def append_class(name)
-        self["class"] = (classes + name.scan(/\S+/)).join(" ")
-        self
+        kwattr_append("class", name)
       end
 
       ###
@@ -480,15 +477,42 @@ module Nokogiri
       # If no class name is left after removal, or when +name+ is nil,
       # the "class" attribute is removed from this Node.
       def remove_class(name = nil)
-        if name
-          names = classes - name.scan(/\S+/)
-          if names.empty?
-            delete "class"
-          else
-            self["class"] = names.join(" ")
-          end
+        kwattr_remove("class", name)
+      end
+
+      def kwattr_values(attribute_name)
+        keywordify(get_attribute(attribute_name) || [])
+      end
+
+      def kwattr_add(attribute_name, keywords)
+        keywords = keywordify(keywords)
+        current_kws = kwattr_values(attribute_name)
+        new_kws = (current_kws + (keywords - current_kws)).join(" ")
+        set_attribute(attribute_name, new_kws)
+        self
+      end
+
+      def kwattr_append(attribute_name, keywords)
+        keywords = keywordify(keywords)
+        current_kws = kwattr_values(attribute_name)
+        new_kws = (current_kws + keywords).join(" ")
+        set_attribute(attribute_name, new_kws)
+        self
+      end
+
+      def kwattr_remove(attribute_name, keywords)
+        if keywords.nil?
+          remove_attribute(attribute_name)
+          return self
+        end
+
+        keywords = keywordify(keywords)
+        current_kws = kwattr_values(attribute_name)
+        new_kws = current_kws - keywords
+        if new_kws.empty?
+          remove_attribute(attribute_name)
         else
-          delete "class"
+          set_attribute(attribute_name, new_kws.join(" "))
         end
         self
       end
@@ -852,6 +876,17 @@ module Nokogiri
       # @!endgroup
 
       private
+
+      def keywordify(keywords)
+        case keywords
+        when Enumerable
+          return keywords
+        when String
+          return keywords.scan(/\S+/)
+        else
+          raise ArgumentError.new("Keyword attributes must be passed as either a String or an Enumerable, but received #{keywords.class}")
+        end
+      end
 
       def add_sibling(next_or_previous, node_or_tags)
         impl = (next_or_previous == :next) ? :add_next_sibling_node : :add_previous_sibling_node
