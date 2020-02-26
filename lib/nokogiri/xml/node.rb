@@ -576,10 +576,81 @@ module Nokogiri
         kwattr_remove("class", names)
       end
 
+      # Retrieve values from a keyword attribute of a Node.
+      #
+      # A "keyword attribute" is a node attribute that contains a set
+      # of space-delimited values. Perhaps the most familiar example
+      # of this is the HTML +class+ attribute used to contain CSS
+      # classes. But other keyword attributes exist, for instance
+      # [`rel`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel).
+      #
+      # @see #classes
+      # @see #kwattr_add
+      # @see #kwattr_append
+      # @see #kwattr_remove
+      #
+      # @param attribute_name [String] The name of the keyword attribute to be inspected.
+      #
+      # @return [Array<String>]
+      #
+      #   The values present in the Node's +attribute_name+
+      #   attribute. If the attribute is empty or non-existent, the
+      #   return value is an empty array.
+      #
+      # @example
+      #   node                      # => <a rel="nofollow noopener external">link</a>
+      #   node.kwattr_values("rel") # => ["nofollow", "noopener", "external"]
+      #
       def kwattr_values(attribute_name)
         keywordify(get_attribute(attribute_name) || [])
       end
 
+      # Ensure that values are present in a keyword attribute.
+      #
+      # Any values in +keywords+ that already exist in the +Node+'s
+      # attribute values are _not_ added. Note that any existing
+      # duplicates in the attribute values are not removed. Compare
+      # with {#kwattr_append}.
+      #
+      # A "keyword attribute" is a node attribute that contains a set
+      # of space-delimited values. Perhaps the most familiar example
+      # of this is the HTML +class+ attribute used to contain CSS
+      # classes. But other keyword attributes exist, for instance
+      # [`rel`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel).
+      #
+      # @see #add_class
+      # @see #kwattr_values
+      # @see #kwattr_append
+      # @see #kwattr_remove
+      #
+      # @param attribute_name [String] The name of the keyword attribute to be modified.
+      #
+      # @param keywords [String, Array<String>]
+      #
+      #   Keywords to be added to the attribute named
+      #   +attribute_name+. May be a string containing
+      #   whitespace-delimited values, or an Array of String
+      #   values. Any values already present will not be added. Any
+      #   values not present will be added. If the named attribute
+      #   does not exist, it is created.
+      #
+      # @return [Node] Returns +self+ for ease of chaining method calls.
+      #
+      # @example Ensure that a +Node+ has "nofollow" in its +rel+ attribute.
+      #   node                               # => <a></a>
+      #   node.kwattr_add("rel", "nofollow") # => <a rel="nofollow"></a>
+      #   node.kwattr_add("rel", "nofollow") # => <a rel="nofollow"></a> # duplicate not added
+      #
+      # @example Ensure that a +Node+ has "nofollow" and "noreferrer" in its +rel+ attribute, via a String argument.
+      #   node                                          # => <a rel="nofollow nofollow"></a>
+      #   node.kwattr_add("rel", "nofollow noreferrer") # => <a rel="nofollow nofollow noreferrer"></a>
+      #   # Note that "nofollow" is not added because it is already present.
+      #   # Note also that the pre-existing duplicate "nofollow" is not removed.
+      #
+      # @example Ensure that a +Node+ has "nofollow" and "noreferrer" in its +rel+ attribute, via an Array argument.
+      #   node                                               # => <a></a>
+      #   node.kwattr_add("rel", ["nofollow", "noreferrer"]) # => <a rel="nofollow noreferrer"></a>
+      #
       def kwattr_add(attribute_name, keywords)
         keywords = keywordify(keywords)
         current_kws = kwattr_values(attribute_name)
@@ -588,6 +659,48 @@ module Nokogiri
         self
       end
 
+      # Add keywords to a Node's keyword attribute, regardless of
+      # duplication. Compare with {#kwattr_add}.
+      #
+      # A "keyword attribute" is a node attribute that contains a set
+      # of space-delimited values. Perhaps the most familiar example
+      # of this is the HTML +class+ attribute used to contain CSS
+      # classes. But other keyword attributes exist, for instance
+      # [`rel`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel).
+      #
+      # @see #append_class
+      # @see #kwattr_values
+      # @see #kwattr_add
+      # @see #kwattr_remove
+      #
+      # @param attribute_name [String] The name of the keyword attribute to be modified.
+      #
+      # @param keywords [String, Array<String>]
+      #
+      #   Keywords to be added to the attribute named
+      #   +attribute_name+. May be a string containing
+      #   whitespace-delimited values, or an Array of String
+      #   values. All values passed in will be appended to the named
+      #   attribute even if they are already present in the
+      #   attribute. If the named attribute does not exist, it is
+      #   created.
+      #
+      # @return [Node] Returns +self+ for ease of chaining method calls.
+      #
+      # @example Append "nofollow" to the +rel+ attribute.
+      #   node                                  # => <a></a>
+      #   node.kwattr_append("rel", "nofollow") # => <a rel="nofollow"></a>
+      #   node.kwattr_append("rel", "nofollow") # => <a rel="nofollow nofollow"></a> # duplicate added!
+      #
+      # @example Append "nofollow" and "noreferrer" to the +rel+ attribute, via a String argument.
+      #   node                                             # => <a rel="nofollow"></a>
+      #   node.kwattr_append("rel", "nofollow noreferrer") # => <a rel="nofollow nofollow noreferrer"></a>
+      #   # Note that "nofollow" is appended even though it is already present.
+      #
+      # @example Append "nofollow" and "noreferrer" to the +rel+ attribute, via an Array argument.
+      #   node                                                  # => <a></a>
+      #   node.kwattr_append("rel", ["nofollow", "noreferrer"]) # => <a rel="nofollow noreferrer"></a>
+      #
       def kwattr_append(attribute_name, keywords)
         keywords = keywordify(keywords)
         current_kws = kwattr_values(attribute_name)
@@ -596,6 +709,42 @@ module Nokogiri
         self
       end
 
+      # Remove keywords from a keyword attribute. Any matching
+      # keywords that exist in the named attribute are removed,
+      # including any multiple entries.
+      #
+      # If no keywords remain after this operation, or if +keywords+
+      # is +nil+, the attribute is deleted from the node.
+      #
+      # A "keyword attribute" is a node attribute that contains a set
+      # of space-delimited values. Perhaps the most familiar example
+      # of this is the HTML +class+ attribute used to contain CSS
+      # classes. But other keyword attributes exist, for instance
+      # [`rel`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/rel).
+      #
+      # @see #remove_class
+      # @see #kwattr_values
+      # @see #kwattr_add
+      # @see #kwattr_append
+      #
+      # @param attribute_name [String] The name of the keyword attribute to be modified.
+      #
+      # @param keywords [String, Array<String>]
+      #
+      #   Keywords to be removed from the attribute named
+      #   +attribute_name+. May be a string containing
+      #   whitespace-delimited values, or an Array of String
+      #   values. Any keywords present in the named attribute will be
+      #   removed. If no keywords remain, or if +keywords+ is nil, the
+      #   attribute is deleted.
+      #
+      # @return [Node] Returns +self+ for ease of chaining method calls.
+      #
+      # @example
+      #   node                                    # => <a rel="nofollow noreferrer">link</a>
+      #   node.kwattr_remove("rel", "nofollow")   # => <a rel="noreferrer">link</a>
+      #   node.kwattr_remove("rel", "noreferrer") # => <a>link</a> # attribute is deleted when empty
+      #
       def kwattr_remove(attribute_name, keywords)
         if keywords.nil?
           remove_attribute(attribute_name)
