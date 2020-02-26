@@ -7,6 +7,34 @@ module Nokogiri
         assert @xsd = Nokogiri::XML::Schema(File.read(PO_SCHEMA_FILE))
       end
 
+      def test_segv
+        skip("Pure Java version shouldn't have this bug") unless Nokogiri.uses_libxml?
+
+        # This is a test for a workaround for a bug in LibXML2.  The upstream
+        # bug is here: https://gitlab.gnome.org/GNOME/libxml2/issues/148
+        # Schema creation can result in dangling pointers.  If no nodes have
+        # been exposed, then it should be fine to create a schema.  If nodes
+        # have been exposed to Ruby, then we need to make sure they won't be
+        # freed out from under us.
+        doc = <<~doc
+<?xml version="1.0" encoding="UTF-8" ?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:element name="foo" type="xs:string"/></xs:schema>
+        doc
+
+        # This is OK, no nodes have been exposed
+        xsd_doc = Nokogiri::XML(doc)
+        assert Nokogiri::XML::Schema.from_document(xsd_doc)
+
+        # This is not OK, nodes have been exposed to Ruby
+        xsd_doc = Nokogiri::XML(doc)
+        node = xsd_doc.root.children.find(&:blank?) # Finds a node
+
+        ex = assert_raise(ArgumentError) do
+          Nokogiri::XML::Schema.from_document(xsd_doc)
+        end
+        assert_match(/blank nodes/, ex.message)
+      end
+
       def test_schema_from_document
         doc = Nokogiri::XML(File.open(PO_SCHEMA_FILE))
         assert doc
