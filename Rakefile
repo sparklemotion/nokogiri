@@ -275,6 +275,7 @@ else
 Nokogiri is built with the packaged libraries: #{libs}.
       EOS
       spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
+      spec.dependencies.reject! { |dep| dep.name=='mini_portile2' }
     end
   end
 end
