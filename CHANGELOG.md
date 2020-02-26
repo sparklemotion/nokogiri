@@ -56,9 +56,10 @@ This release ends support for:
 
 ### Added
 
+* Add Node methods for manipulating keyword attributes (like `class` and `rel`): `#kwattr_values`, `#kwattr_add`, `#kwattr_append`, and `#kwattr_remove`. [[#2000](https://github.com/sparklemotion/nokogiri/issues/2000)]
 * Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [[#688](https://github.com/sparklemotion/nokogiri/issues/688)] (Thanks, [@jonathanhefner](https://github.com/jonathanhefner)!)
 * Add `Node#value?` to better match expected semantics of a Hash-like object. [[#1838](https://github.com/sparklemotion/nokogiri/issues/1838), [#1840](https://github.com/sparklemotion/nokogiri/issues/1840)] (Thanks, [@MatzFan](https://github.com/MatzFan)!)
-* [MRI] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [[#1918](https://github.com/sparklemotion/nokogiri/issues/1918)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
+* [CRuby] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [[#1918](https://github.com/sparklemotion/nokogiri/issues/1918)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 
 
 ### Improved
@@ -72,7 +73,7 @@ This release ends support for:
 
 ### Fixed
 
-* The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [#1935]
+* The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
 * [JRuby] Change `NodeSet#to_a` to return a RubyArray instead of Object, for compilation under JRuby 9.2.9 and later. [[#1968](https://github.com/sparklemotion/nokogiri/issues/1968), [#1969](https://github.com/sparklemotion/nokogiri/issues/1969)] (Thanks, [@headius](https://github.com/headius)!)
