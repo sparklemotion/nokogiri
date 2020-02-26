@@ -601,6 +601,8 @@ module Nokogiri
       #   node                      # => <a rel="nofollow noopener external">link</a>
       #   node.kwattr_values("rel") # => ["nofollow", "noopener", "external"]
       #
+      # @since v1.11.0
+      #
       def kwattr_values(attribute_name)
         keywordify(get_attribute(attribute_name) || [])
       end
@@ -650,6 +652,8 @@ module Nokogiri
       # @example Ensure that a +Node+ has "nofollow" and "noreferrer" in its +rel+ attribute, via an Array argument.
       #   node                                               # => <a></a>
       #   node.kwattr_add("rel", ["nofollow", "noreferrer"]) # => <a rel="nofollow noreferrer"></a>
+      #
+      # @since v1.11.0
       #
       def kwattr_add(attribute_name, keywords)
         keywords = keywordify(keywords)
@@ -701,6 +705,8 @@ module Nokogiri
       #   node                                                  # => <a></a>
       #   node.kwattr_append("rel", ["nofollow", "noreferrer"]) # => <a rel="nofollow noreferrer"></a>
       #
+      # @since v1.11.0
+      #
       def kwattr_append(attribute_name, keywords)
         keywords = keywordify(keywords)
         current_kws = kwattr_values(attribute_name)
@@ -744,6 +750,8 @@ module Nokogiri
       #   node                                    # => <a rel="nofollow noreferrer">link</a>
       #   node.kwattr_remove("rel", "nofollow")   # => <a rel="noreferrer">link</a>
       #   node.kwattr_remove("rel", "noreferrer") # => <a>link</a> # attribute is deleted when empty
+      #
+      # @since v1.11.0
       #
       def kwattr_remove(attribute_name, keywords)
         if keywords.nil?
