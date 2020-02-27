@@ -2,10 +2,10 @@
 
 ## overhaul serialize/pretty printing API
 
-* https://github.com/sparklemotion/nokogiri/issues/530
+* [#530](https://github.com/sparklemotion/nokogiri/issues/530)
   XHTML formatting can't be turned off
 
-* https://github.com/sparklemotion/nokogiri/issues/415
+* [#415](https://github.com/sparklemotion/nokogiri/issues/415)
   XML formatting should be no formatting
 
 
@@ -16,36 +16,36 @@
 
 ## Node should not be Enumerable; and should have a better attributes API
 
-* https://github.com/sparklemotion/nokogiri/issues/679
+* [#679](https://github.com/sparklemotion/nokogiri/issues/679)
   Mixing in Enumerable has some unintended consequences; plus we want to improve the attributes API
 
 * Some ideas for a better attributes API?
-  * (closed) https://github.com/sparklemotion/nokogiri/issues/666
-  * https://github.com/sparklemotion/nokogiri/issues/765
+  * (closed) [#666](https://github.com/sparklemotion/nokogiri/issues/666)
+  * [#765](https://github.com/sparklemotion/nokogiri/issues/765)
 
 
 ## improve CSS query parsing
 
-* https://github.com/sparklemotion/nokogiri/issues/528
+* [#528](https://github.com/sparklemotion/nokogiri/issues/528)
   support `:not()` with a nontrivial argument, like `:not(div p.c)`
 
-* https://github.com/sparklemotion/nokogiri/issues/451
+* [#451](https://github.com/sparklemotion/nokogiri/issues/451)
   chained :not pseudoselectors
 
 * better jQuery selector and CSS pseudo-selector support:
-  * https://github.com/sparklemotion/nokogiri/issues/621
-  * https://github.com/sparklemotion/nokogiri/issues/342
-  * https://github.com/sparklemotion/nokogiri/issues/628
-  * https://github.com/sparklemotion/nokogiri/issues/652
-  * https://github.com/sparklemotion/nokogiri/issues/688
+  * [#621](https://github.com/sparklemotion/nokogiri/issues/621)
+  * [#342](https://github.com/sparklemotion/nokogiri/issues/342)
+  * [#628](https://github.com/sparklemotion/nokogiri/issues/628)
+  * [#652](https://github.com/sparklemotion/nokogiri/issues/652)
+  * [#688](https://github.com/sparklemotion/nokogiri/issues/688)
 
-* https://github.com/sparklemotion/nokogiri/issues/394
+* [#394](https://github.com/sparklemotion/nokogiri/issues/394)
   nth-of-type is wrong, and possibly other selectors as well
 
-* https://github.com/sparklemotion/nokogiri/issues/309
+* [#309](https://github.com/sparklemotion/nokogiri/issues/309)
   incorrect query being executed
 
-* https://github.com/sparklemotion/nokogiri/issues/350
+* [#350](https://github.com/sparklemotion/nokogiri/issues/350)
   :has is wrong?
 
 
@@ -53,10 +53,10 @@
 
 * there are a few tickets about searches not working properly if you
   use or do not use the context node as part of the search.
-  - https://github.com/sparklemotion/nokogiri/issues/213
-  - https://github.com/sparklemotion/nokogiri/issues/370
-  - https://github.com/sparklemotion/nokogiri/issues/454
-  - https://github.com/sparklemotion/nokogiri/issues/572
+  - [#213](https://github.com/sparklemotion/nokogiri/issues/213)
+  - [#370](https://github.com/sparklemotion/nokogiri/issues/370)
+  - [#454](https://github.com/sparklemotion/nokogiri/issues/454)
+  - [#572](https://github.com/sparklemotion/nokogiri/issues/572)
   could we fix this by making DocumentFragment be a subclass of NodeSet?
 
 
@@ -70,7 +70,7 @@
 * look at those methods, and use of Node#extract_params in Node#{css,search}
   * we should standardize on a hash of options for these and other calls
 * what should NodeSet#xpath return?
-  * https://github.com/sparklemotion/nokogiri/issues/656
+  * [#656](https://github.com/sparklemotion/nokogiri/issues/656)
 
 ## Encoding
 
@@ -105,7 +105,7 @@ proper convention.
 `collect_namespaces` is returning a hash, which means it can't return
 namespaces with the same prefix. See this issue for background:
 
-> https://github.com/sparklemotion/nokogiri/issues/885
+> [#885](https://github.com/sparklemotion/nokogiri/issues/885)
 
 Do we care? This seems like a useless method, but then again I hate
 XML, so what do I know?
