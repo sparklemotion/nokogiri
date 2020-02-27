@@ -5,7 +5,6 @@ require "rake_compiler_dock"
 
 gem 'hoe'
 require 'hoe'
-require_relative 'hoe-monkeypatches'
 Hoe.plugin :debugging
 Hoe.plugin :git
 Hoe.plugin :gemspec
@@ -172,25 +171,25 @@ HOE = Hoe.spec 'nokogiri' do
 
   unless java?
     self.extra_deps += [
-      ["mini_portile2",    "~> 2.4.0"], # keep version in sync with extconf.rb
+      ["mini_portile2", "~> 2.4.0"], # keep version in sync with extconf.rb
     ]
   end
 
   self.extra_dev_deps += [
-    ["concourse",          "~> 0.30"],
-    ["hoe",                "~> 3.22"],
-    ["hoe-bundler",        "~> 1.2"],
-    ["hoe-debugging",      "~> 2.0"],
-    ["hoe-gemspec",        "~> 1.0"],
-    ["hoe-git",            "~> 1.6"],
-    ["minitest",           "~> 5.8"],
-    ["racc",               "~> 1.4.14"],
-    ["rake",               "~> 13.0"],
-    ["rake-compiler",      "~> 1.1"],
+    ["concourse", "~> 0.30"],
+    ["hoe", ["~> 3.22", ">= 3.22.1"]],
+    ["hoe-bundler", "~> 1.2"],
+    ["hoe-debugging", "~> 2.0"],
+    ["hoe-gemspec", "~> 1.0"],
+    ["hoe-git", "~> 1.6"],
+    ["minitest", "~> 5.8"],
+    ["racc", "~> 1.4.14"],
+    ["rake", "~> 13.0"],
+    ["rake-compiler", "~> 1.1"],
     ["rake-compiler-dock", "~> 1.0"],
-    ["rexical",            "~> 1.0.5"],
-    ["rubocop",            "~> 0.73"],
-    ["simplecov",          "~> 0.16"],
+    ["rexical", "~> 1.0.5"],
+    ["rubocop", "~> 0.73"],
+    ["simplecov", "~> 0.16"],
   ]
 
   self.spec_extras = {
