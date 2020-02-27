@@ -109,3 +109,19 @@ namespaces with the same prefix. See this issue for background:
 
 Do we care? This seems like a useless method, but then again I hate
 XML, so what do I know?
+
+
+## Overhaul `ParseOptions`
+
+Currently we mirror libxml2's parse options, and then retrofit those options on top of Xerces-J for JRuby.
+
+* I'd like to identify which options work across both parsers,
+* And overhaul the parse methods so that these options are easier to use.
+
+By "easier to use" I mean:
+
+* it's unwieldy to create a block to set/unset parse options
+* it's unwieldy to create a constant like `MY_PARSE_OPTIONS = Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::RECOVER ...`
+* some options are named dangerously poorly, like `NOENT` which [does the opposite of what it says](https://github.com/sparklemotion/nokogiri/issues/1582#issuecomment-562180275)
+* semantically some options should be set/unset together, specifically "this is a trusted document" or "this is an untrusted document" should flip the senses of `NONET` and `NOENT` and `DTDLOAD` together.
+* we need the ability to invent new parse options, like the one suggested in [#1582](https://github.com/sparklemotion/nokogiri/issues/1582) that would allow local entities but not external entities.
