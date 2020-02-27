@@ -390,6 +390,11 @@ If you're offended by what happened here, I'd kindly ask that you comment on the
 > https://bugzilla.gnome.org/show_bug.cgi?id=769760
 
 
+### More Security
+
+[MRI] Vendored libxml2 upgraded to v2.9.8 which addresses CVE-2016-9318 [[#1582](https://github.com/sparklemotion/nokogiri/issues/1582)].
+
+
 ### Dependencies
 
 * [MRI] libxml2 is updated from 2.9.7 to 2.9.8
