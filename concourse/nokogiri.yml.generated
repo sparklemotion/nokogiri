@@ -29,7 +29,7 @@ resources:
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
-      ignore_paths: ["CHANGELOG.md","README.md","concourse/**","suppressions/**",".github/**"]
+      ignore_paths: ["*.md","concourse/**","suppressions/**",".github/**"]
 
 
 anchors:

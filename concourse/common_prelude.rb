@@ -1,8 +1,7 @@
 require "json"
 
 $common_ignore_paths = [
-  "CHANGELOG.md",
-  "README.md",
+  "*.md",
   "concourse/**",
   "suppressions/**",
   ".github/**",
