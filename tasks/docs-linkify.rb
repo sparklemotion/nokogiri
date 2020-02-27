@@ -28,6 +28,13 @@ namespace "docs:linkify" do
       }x
       docs.gsub!(github_link_regex, "[#\\1](#{HOE.urls["bugs"]}/\\1)")
 
+      github_link_regex = %r{
+        (?<!\]\()          # not already in a markdown hyperlink
+        #{HOE.urls["bugs"].gsub("issues", "pull")}/([[:digit:]]+)
+        (?![[[:digit:]]]) # don't truncate the issue number to meet the previous negative lookahead
+      }x
+      docs.gsub!(github_link_regex, "[PR#\\1](#{HOE.urls["bugs"]}/\\1)")
+
       # see https://github.com/shinnn/github-username-regex
       github_user_regex = /
         @([[:alnum:]](?:[[:alnum:]]|-(?=[[:alnum:]])){0,38}) # username, like "@flavorjones"

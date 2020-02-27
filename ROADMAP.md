@@ -62,7 +62,7 @@
 
 ## Better Syntax for custom XPath function handler
 
-* https://github.com/sparklemotion/nokogiri/pull/464
+* [PR#464](https://github.com/sparklemotion/nokogiri/issues/464)
 
 
 ## Better Syntax around Node#xpath and NodeSet#xpath
