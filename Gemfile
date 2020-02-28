@@ -4,7 +4,7 @@
 
 source "https://rubygems.org/"
 
-gem "mini_portile2", "~>2.4.0"
+gem "mini_portile2", "~>2.5.0"
 
 gem "concourse", "~>0.30", :group => [:development, :test]
 gem "hoe", "~>3.22", ">=3.22.1", :group => [:development, :test]
