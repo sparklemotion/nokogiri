@@ -171,7 +171,7 @@ HOE = Hoe.spec 'nokogiri' do
 
   unless java?
     self.extra_deps += [
-      ["mini_portile2", "~> 2.4.0"], # keep version in sync with extconf.rb
+      ["mini_portile2", "~> 2.5.0"], # keep version in sync with extconf.rb
     ]
   end
 
