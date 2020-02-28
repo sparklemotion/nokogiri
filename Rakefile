@@ -10,9 +10,6 @@ Hoe.plugin :git
 Hoe.plugin :gemspec
 Hoe.plugin :bundler
 
-GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
-GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
-
 def java?
   /java/ === RUBY_PLATFORM
 end
@@ -280,22 +277,6 @@ end
 
 # ----------------------------------------
 
-desc "Generate css/parser.rb and css/tokenizer.rex"
-task 'generate' => [GENERATED_PARSER, GENERATED_TOKENIZER]
-task 'gem:spec' => 'generate' if Rake::Task.task_defined?("gem:spec")
-[:compile, :check_manifest].each do |task_name|
-  Rake::Task[task_name].prerequisites << GENERATED_PARSER
-  Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
-end
-
-file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
-  sh "racc -l -o #{t.name} #{t.prerequisites.first}"
-end
-
-file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
-  sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
-end
-
 # ----------------------------------------
 
 desc "set environment variables to build and/or test with debug options"
@@ -398,6 +379,7 @@ namespace "gem" do
 end
 
 require_relative "tasks/concourse"
+require_relative "tasks/css-generate"
 require_relative "tasks/docker"
 require_relative "tasks/docs-linkify"
 require_relative "tasks/set-version-to-timestamp"
