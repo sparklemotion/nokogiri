@@ -44,6 +44,8 @@ Either way, we'd appreciate some feedback at [#1983](https://github.com/sparklem
 
 ### Dependencies
 
+#### Ruby
+
 This release introduces support for:
 
 * Ruby 2.7, including the precompiled native binary gems for Windows.
@@ -52,6 +54,11 @@ This release ends support for:
 
 * Ruby 2.3, for which [official support ended on 2019-03-31](https://www.ruby-lang.org/en/news/2019/03/31/support-of-ruby-2-3-has-ended/) [[#1886](https://github.com/sparklemotion/nokogiri/issues/1886)] (Thanks [@ashmaroli](https://github.com/ashmaroli)!)
 * JRuby 9.1, which is the Ruby 2.3-compatible release.
+
+
+#### Gems
+
+* [MRI] Upgrade mini_portile2 dependency from `~> 2.4.0` to `~> 2.5.0` [[#2005](https://github.com/sparklemotion/nokogiri/issues/2005)] (Thanks, [@alejandroperea](https://github.com/alejandroperea)!)
 
 
 ### Added
