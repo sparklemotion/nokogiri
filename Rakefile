@@ -165,7 +165,6 @@ HOE = Hoe.spec 'nokogiri' do
     'nokogiri.gemspec',
     'lib/nokogiri/nokogiri.{bundle,jar,rb,so}',
     'lib/nokogiri/[0-9].[0-9]',
-    'concourse/images/*.generated'
   ]
   self.clean_globs += Dir.glob("ports/*").reject { |d| d =~ %r{/archives$} }
 
@@ -327,13 +326,6 @@ if Hoe.plugins.include?(:debugging)
   end
 end
 
-require 'concourse'
-Concourse.new("nokogiri", fly_target: "ci") do |c|
-  c.add_pipeline "nokogiri", "nokogiri.yml"
-  c.add_pipeline "nokogiri-pr", "nokogiri-pr.yml"
-  c.add_pipeline "nokogiri-v1.10.x", "nokogiri-v1.10.x.yml"
-end
-
 # ----------------------------------------
 
 def verify_dll(dll, cross_ruby)
@@ -405,8 +397,9 @@ namespace "gem" do
   end
 end
 
+require_relative "tasks/concourse"
 require_relative "tasks/docker"
-require_relative "tasks/set-version-to-timestamp"
 require_relative "tasks/docs-linkify"
+require_relative "tasks/set-version-to-timestamp"
 
 # vim: syntax=Ruby
