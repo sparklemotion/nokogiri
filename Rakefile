@@ -277,29 +277,6 @@ end
 
 # ----------------------------------------
 
-# ----------------------------------------
-
-desc "set environment variables to build and/or test with debug options"
-task :debug do
-  ENV['NOKOGIRI_DEBUG'] = "true"
-  ENV['CFLAGS'] ||= ""
-  ENV['CFLAGS'] += " -DDEBUG"
-end
-
-task :java_debug do
-  ENV['JRUBY_OPTS'] = "#{ENV['JRUBY_OPTS']} --debug --dev"
-  ENV['JAVA_OPTS'] = '-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y' if ENV['JAVA_DEBUG']
-end
-Rake::Task[:test].prerequisites << :java_debug
-
-if Hoe.plugins.include?(:debugging)
-  ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
-    Rake::Task["test:#{task_name}"].prerequisites << :compile
-  end
-end
-
-# ----------------------------------------
-
 def verify_dll(dll, cross_ruby)
   dll_imports = cross_ruby.dlls
   dump = `#{['env', 'LANG=C', cross_ruby.tool('objdump'), '-p', dll].shelljoin}`
@@ -371,6 +348,7 @@ end
 
 require_relative "tasks/concourse"
 require_relative "tasks/css-generate"
+require_relative "tasks/debug"
 require_relative "tasks/docker"
 require_relative "tasks/docs-linkify"
 require_relative "tasks/rubocop"
