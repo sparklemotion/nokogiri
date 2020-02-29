@@ -12,12 +12,9 @@ Hoe.plugin :git
 Hoe.plugin :gemspec
 Hoe.plugin :bundler
 
-def java?
-  /java/ === RUBY_PLATFORM
-end
-
 ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
 
+require_relative "tasks/util"
 require_relative "tasks/cross-ruby"
 
 HOE = Hoe.spec 'nokogiri' do
@@ -84,21 +81,6 @@ HOE = Hoe.spec 'nokogiri' do
 end
 
 # ----------------------------------------
-
-def add_file_to_gem relative_source_path
-  dest_path = File.join(gem_build_path, relative_source_path)
-  dest_dir = File.dirname(dest_path)
-
-  mkdir_p dest_dir unless Dir.exist?(dest_dir)
-  rm_f dest_path if File.exist?(dest_path)
-  safe_ln relative_source_path, dest_path
-
-  HOE.spec.files << relative_source_path
-end
-
-def gem_build_path
-  File.join 'pkg', HOE.spec.full_name
-end
 
 if java?
   # TODO: clean this section up.
