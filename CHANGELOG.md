@@ -207,6 +207,13 @@ and the output from using system libraries now looks like:
       loaded: 1.1.29
 ```
 
+## 1.10.x / unreleased
+
+### Fixed
+
+* [MRI] Raise an exception when Nokogiri detects a specific libxml2 edge case involving blank Schema nodes wrapped by Ruby objects that would cause a segfault. Currently no fix is available upstream, so we're preventing a dangerous operation and informing users to code around it if possible. [[#1985](https://github.com/sparklemotion/nokogiri/issues/1985), [#2001](https://github.com/sparklemotion/nokogiri/issues/2001)]
+
+
 ## 1.10.8 / 2020-02-10
 
 ### Security
