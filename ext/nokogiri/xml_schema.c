@@ -133,6 +133,31 @@ static VALUE read_memory(VALUE klass, VALUE content)
   return rb_schema;
 }
 
+/* Schema creation will remove and deallocate "blank" nodes.
+ * If those blank nodes have been exposed to Ruby, they could get freed
+ * out from under the VALUE pointer.  This function checks to see if any of
+ * those nodes have been exposed to Ruby, and if so we should raise an exception.
+ */
+static int has_blank_nodes_p(VALUE cache)
+{
+    long i;
+
+    if (NIL_P(cache)) {
+        return 0;
+    }
+
+    for (i = 0; i < RARRAY_LEN(cache); i++) {
+        xmlNodePtr node;
+        VALUE element = rb_ary_entry(cache, i);
+        Data_Get_Struct(element, xmlNode, node);
+        if (xmlIsBlankNode(node)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 /*
  * call-seq:
  *  from_document(doc)
@@ -151,6 +176,10 @@ static VALUE from_document(VALUE klass, VALUE document)
 
   /* In case someone passes us a node. ugh. */
   doc = doc->doc;
+
+  if (has_blank_nodes_p(DOC_NODE_CACHE(doc))) {
+    rb_raise(rb_eArgError, "Creating a schema from a document that has blank nodes exposed to Ruby is dangerous");
+  }
 
   ctx = xmlSchemaNewDocParserCtxt(doc);
 
