@@ -83,7 +83,6 @@ This release ends support for:
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
-* [JRuby] Change `NodeSet#to_a` to return a RubyArray instead of Object, for compilation under JRuby 9.2.9 and later. [[#1968](https://github.com/sparklemotion/nokogiri/issues/1968), [#1969](https://github.com/sparklemotion/nokogiri/issues/1969)] (Thanks, [@headius](https://github.com/headius)!)
 
 
 ### Removed
@@ -207,11 +206,12 @@ and the output from using system libraries now looks like:
       loaded: 1.1.29
 ```
 
-## 1.10.x / unreleased
+## 1.10.9 / 2020-03-01
 
 ### Fixed
 
 * [MRI] Raise an exception when Nokogiri detects a specific libxml2 edge case involving blank Schema nodes wrapped by Ruby objects that would cause a segfault. Currently no fix is available upstream, so we're preventing a dangerous operation and informing users to code around it if possible. [[#1985](https://github.com/sparklemotion/nokogiri/issues/1985), [#2001](https://github.com/sparklemotion/nokogiri/issues/2001)]
+* [JRuby] Change `NodeSet#to_a` to return a RubyArray instead of Object, for compilation under JRuby 9.2.9 and later. [[#1968](https://github.com/sparklemotion/nokogiri/issues/1968), [#1969](https://github.com/sparklemotion/nokogiri/issues/1969)] (Thanks, [@headius](https://github.com/headius)!)
 
 
 ## 1.10.8 / 2020-02-10
