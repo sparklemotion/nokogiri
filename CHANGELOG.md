@@ -1,6 +1,6 @@
 # Nokogiri Changelog
 
-## 1.10.x / unreleased
+## 1.10.9 / 2020-03-01
 
 ### Fixed
 
