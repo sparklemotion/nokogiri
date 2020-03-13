@@ -1,0 +1,129 @@
+name: CI
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  Ubuntu:
+    name: >-
+      ${{ matrix.os }}, sys: ${{ matrix.sys }}, ${{ matrix.ruby }}
+    env:
+      CI: true
+      MAKEFLAGS: -j3
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-20.04 ]
+        sys: [ no, yes ]
+        ruby: [ 2.5, 2.6, 2.7, '3.0', head ]
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: load Ruby and bundle install
+        uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          # libxml2-dev is installed
+          apt-get: libxslt1-dev
+          bundler-cache: true
+      - uses: actions/cache@v2
+        if: matrix.sys == 'no'
+        with:
+          path: ports/archives
+          key: ${{ matrix.os }}-${{ matrix.ruby }}-tarballs-${{ hashFiles('**/dependencies.yml') }}
+          restore-keys: ${{ matrix.os }}-${{ matrix.ruby }}-tarballs-
+      - name: bundle exec rake compile
+        run: |
+          # switch --use-system-libraries
+          if [ "${{ matrix.sys }}" = "yes" ]; then
+            bundle exec rake compile -- --use-system-libraries
+          else
+            bundle exec rake compile
+          fi
+      - name: bundle exec rake test
+        run:  bundle exec rake test
+
+  macOS:
+    name: >-
+      ${{ matrix.os }}, sys: ${{ matrix.sys }}, ${{ matrix.ruby }}
+    env:
+      CI: true
+      MAKEFLAGS: -j3
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-10.15 ]
+        sys: [ no, yes ]
+        ruby: [ 2.5, 2.6, 2.7, '3.0', head ]
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: load Ruby and bundle install
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - uses: actions/cache@v2
+        if: matrix.sys == 'no'
+        with:
+          path: ports/archives
+          key: ${{ matrix.os }}-${{ matrix.ruby }}-tarballs-${{ hashFiles('**/dependencies.yml') }}
+          restore-keys: ${{ matrix.os }}-${{ matrix.ruby }}-tarballs-
+      - name: bundle exec rake compile
+        run: |
+          # switch --use-system-libraries
+          if [ "${{ matrix.sys }}" = "yes" ]; then
+            bundle exec rake compile -- --use-system-libraries
+          else
+            bundle exec rake compile
+          fi
+      - name: bundle exec rake test
+        run:  bundle exec rake test
+
+  Windows:
+    name: >-
+      ${{ matrix.os }}, sys: ${{ matrix.sys }}, ${{ matrix.ruby }}
+    env:
+      CI: true
+      MAKEFLAGS: -j2
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-2019 ]
+        sys: [ no, yes ]
+        ruby: [ 2.5, 2.6, 2.7, '3.0', mingw ]
+
+    steps:
+      - name: git config
+        run: |
+          git config --system core.autocrlf false
+          git config --system core.eol lf
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: load Ruby and bundle install
+        uses: MSP-Greg/setup-ruby-pkgs@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          mingw: _upgrade_ libxml2 libxslt
+          bundler-cache: true
+      - uses: actions/cache@v2
+        if: matrix.sys == 'no'
+        with:
+          path: ports/archives
+          key: ${{ matrix.os }}-${{ matrix.ruby }}-tarballs-${{ hashFiles('**/dependencies.yml') }}
+          restore-keys: ${{ matrix.os }}-${{ matrix.ruby }}-tarballs-
+      - name: bundle exec rake compile
+        run: |
+          # switch --use-system-libraries
+          if ("${{ matrix.sys }}" -eq "yes") {
+            bundle exec rake compile -- --use-system-libraries
+          }  else {
+            bundle exec rake compile
+          }
+      - name: bundle exec rake test
+        run:  bundle exec rake test
