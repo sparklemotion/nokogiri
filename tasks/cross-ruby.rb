@@ -166,6 +166,7 @@ namespace "gem" do
       RakeCompilerDock.sh <<-EOT, platform: plat
         gem install bundler --no-document &&
         bundle &&
+        find /usr/local/rvm/gems -name extensiontask.rb | while read f ; do sudo sed -i 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' $f ; done &&
         rake native:#{plat} pkg/#{HOE.spec.full_name}-#{plat}.gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV["RUBY_CC_VERSION"]}
       EOT
     end
