@@ -268,7 +268,7 @@ jobs:
       - get: nokogiri
         trigger: true
         passed: ["gate-2"]
-      - task: gem-build
+      - task: build
         config:
           platform: linux
           image_resource:
@@ -282,19 +282,34 @@ jobs:
           run:
             path: ci/concourse/tasks/gem-test/gem-build.sh
         on_failure: *notify_failure_to_irc
-      - task: gem-install-and-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        on_failure: *notify_failure_to_irc
+      - in_parallel:
+        - task: install-and-test
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
+            inputs:
+              - name: ci
+              - name: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+          on_failure: *notify_failure_to_irc
+        - task: install-and-test-on-musl
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            inputs:
+              - name: ci
+              - name: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+          on_failure: *notify_failure_to_irc
+
 
   - name: gem-test-java
     public: true
