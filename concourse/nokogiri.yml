@@ -156,7 +156,6 @@ jobs:
             - name: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-            TEST_WITH_APT_REPO_RUBY: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: *notify_failure_to_irc
