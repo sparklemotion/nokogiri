@@ -23,6 +23,9 @@ jobs:
 % RUBIES[:mri].each do |ruby_version|
   - name: ruby-<%= ruby_version %>-system
     public: true
+% if Concourse.production_rubies.include? ruby_version
+    on_failure: *notify_failure_to_irc
+% end
     plan:
       - get: ci
       - get: nokogiri
@@ -44,12 +47,13 @@ jobs:
 % end
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-% if Concourse.production_rubies.include? ruby_version
-        on_failure: *notify_failure_to_irc
-% end
+
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
+% if Concourse.production_rubies.include? ruby_version
+    on_failure: *notify_failure_to_irc
+% end
     plan:
       - get: ci
       - get: nokogiri
@@ -66,12 +70,13 @@ jobs:
             - name: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-% if Concourse.production_rubies.include? ruby_version
-        on_failure: *notify_failure_to_irc
-% end
+
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
+% if Concourse.production_rubies.include? ruby_version
+    on_failure: *notify_failure_to_irc
+% end
     plan:
       - get: ci
       - get: nokogiri
@@ -90,15 +95,13 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-% if Concourse.production_rubies.include? ruby_version
-        on_failure: *notify_failure_to_irc
-% end
 % end
 
 
 % RUBIES[:jruby].each_with_index do |jruby_version, j|
   - name: jruby-<%= jruby_version %>
     public: true
+    on_failure: *notify_failure_to_irc
     plan:
       - get: ci
       - get: nokogiri
@@ -117,7 +120,6 @@ jobs:
             - name: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
 % end
 
 
@@ -135,6 +137,7 @@ jobs:
 
   - name: ruby-vanilla-system
     public: true
+    on_failure: *notify_failure_to_irc
     plan:
       - get: ci
       - get: nokogiri
@@ -153,11 +156,11 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
 
 
   - name: ruby-musl-system
     public: true
+    on_failure: *notify_failure_to_irc
     plan:
       - get: ci
       - get: nokogiri
@@ -176,11 +179,11 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
 
 
   - name: ruby-musl-valgrind
     public: true
+    on_failure: *notify_failure_to_irc
     plan:
       - get: ci
       - get: nokogiri
@@ -199,11 +202,11 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
 
 
   - name: ruby-libxmlruby-system
     public: true
+    on_failure: *notify_failure_to_irc
     plan:
       - get: ci
       - get: nokogiri
@@ -223,11 +226,11 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
 
 
   - name: ruby-libxmlruby-valgrind
     public: true
+    on_failure: *notify_failure_to_irc
     plan:
       - get: ci
       - get: nokogiri
@@ -247,7 +250,6 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: *notify_failure_to_irc
 
 
   - name: gate-2
@@ -263,6 +265,7 @@ jobs:
 
   - name: gem-test
     public: true
+    on_failure: *notify_failure_to_irc
     plan:
       - get: ci
       - get: nokogiri
@@ -281,7 +284,6 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-build.sh
-        on_failure: *notify_failure_to_irc
       - in_parallel:
         - task: install-and-test
           config:
@@ -295,7 +297,6 @@ jobs:
               - name: gems
             run:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-          on_failure: *notify_failure_to_irc
         - task: install-and-test-on-musl
           config:
             platform: linux
@@ -308,11 +309,11 @@ jobs:
               - name: gems
             run:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-          on_failure: *notify_failure_to_irc
 
 
   - name: gem-test-java
     public: true
+    on_failure: *notify_failure_to_irc
     plan:
       - get: ci
       - get: nokogiri
@@ -331,7 +332,6 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-build-java.sh
-        on_failure: *notify_failure_to_irc
       - task: gem-install-and-test
         config:
           platform: linux
@@ -344,7 +344,6 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        on_failure: *notify_failure_to_irc
 
 
   - name: build-success
