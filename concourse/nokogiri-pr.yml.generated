@@ -59,7 +59,6 @@ jobs:
 
   - name: ruby-2.4-system
     public: true
-    serial_groups: ["ruby-2.4"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -85,7 +84,6 @@ jobs:
 
   - name: ruby-2.4-vendored
     public: true
-    serial_groups: ["ruby-2.4"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -109,7 +107,6 @@ jobs:
 
   - name: ruby-2.4-valgrind
     public: true
-    serial_groups: ["ruby-2.4"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -133,7 +130,6 @@ jobs:
         on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
   - name: ruby-2.5-system
     public: true
-    serial_groups: ["ruby-2.5"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -159,7 +155,6 @@ jobs:
 
   - name: ruby-2.5-vendored
     public: true
-    serial_groups: ["ruby-2.5"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -183,7 +178,6 @@ jobs:
 
   - name: ruby-2.5-valgrind
     public: true
-    serial_groups: ["ruby-2.5"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -207,7 +201,6 @@ jobs:
         on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
   - name: ruby-2.6-system
     public: true
-    serial_groups: ["ruby-2.6"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -233,7 +226,6 @@ jobs:
 
   - name: ruby-2.6-vendored
     public: true
-    serial_groups: ["ruby-2.6"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -257,7 +249,6 @@ jobs:
 
   - name: ruby-2.6-valgrind
     public: true
-    serial_groups: ["ruby-2.6"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -281,7 +272,6 @@ jobs:
         on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
   - name: ruby-2.7-system
     public: true
-    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -308,7 +298,6 @@ jobs:
 
   - name: ruby-2.7-vendored
     public: true
-    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -332,7 +321,6 @@ jobs:
 
   - name: ruby-2.7-valgrind
     public: true
-    serial_groups: ["ruby-2.7"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -358,7 +346,6 @@ jobs:
 
   - name: jruby-9.2
     public: true
-    serial_groups: ["jruby"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -395,7 +382,6 @@ jobs:
 
   - name: ruby-vanilla-system
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -421,7 +407,6 @@ jobs:
 
   - name: ruby-musl-system
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -446,7 +431,6 @@ jobs:
 
   - name: ruby-musl-valgrind
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -471,7 +455,6 @@ jobs:
 
   - name: ruby-libxmlruby-system
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -498,7 +481,6 @@ jobs:
 
   - name: ruby-libxmlruby-valgrind
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -537,7 +519,6 @@ jobs:
 
   - name: gem-test
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -576,7 +557,6 @@ jobs:
 
   - name: gem-test-java
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr

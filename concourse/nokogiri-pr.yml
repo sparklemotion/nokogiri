@@ -41,7 +41,6 @@ jobs:
 % Concourse.production_rubies.each do |ruby_version|
   - name: ruby-<%= ruby_version %>-system
     public: true
-    serial_groups: ["ruby-<%= ruby_version %>"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -74,7 +73,6 @@ jobs:
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
-    serial_groups: ["ruby-<%= ruby_version %>"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -98,7 +96,6 @@ jobs:
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
-    serial_groups: ["ruby-<%= ruby_version %>"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -126,7 +123,6 @@ jobs:
 % RUBIES[:jruby].each_with_index do |jruby_version, j|
   - name: jruby-<%= jruby_version %>
     public: true
-    serial_groups: ["jruby"]
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -167,7 +163,6 @@ jobs:
 
   - name: ruby-vanilla-system
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -193,7 +188,6 @@ jobs:
 
   - name: ruby-musl-system
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -218,7 +212,6 @@ jobs:
 
   - name: ruby-musl-valgrind
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -243,7 +236,6 @@ jobs:
 
   - name: ruby-libxmlruby-system
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -270,7 +262,6 @@ jobs:
 
   - name: ruby-libxmlruby-valgrind
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -309,7 +300,6 @@ jobs:
 
   - name: gem-test
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -348,7 +338,6 @@ jobs:
 
   - name: gem-test-java
     public: true
-    serial: true
     plan:
       - get: ci
       - get: nokogiri-pr
