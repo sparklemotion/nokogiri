@@ -27,7 +27,7 @@ module Nokogiri
 
         # This is not OK, nodes have been exposed to Ruby
         xsd_doc = Nokogiri::XML(doc)
-        node = xsd_doc.root.children.find(&:blank?) # Finds a node
+        xsd_doc.root.children.find(&:blank?) # Finds a node
 
         ex = assert_raise(ArgumentError) do
           Nokogiri::XML::Schema.from_document(xsd_doc)
