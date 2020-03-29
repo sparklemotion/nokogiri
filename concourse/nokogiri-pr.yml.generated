@@ -531,7 +531,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
+            source: {repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "1.0.0"}
           inputs:
             - name: ci
             - name: nokogiri-pr
