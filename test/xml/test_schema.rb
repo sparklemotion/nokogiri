@@ -7,7 +7,7 @@ module Nokogiri
         assert @xsd = Nokogiri::XML::Schema(File.read(PO_SCHEMA_FILE))
       end
 
-      def test_segv
+      def test_issue_1985_segv_on_schema_parse
         skip("Pure Java version shouldn't have this bug") unless Nokogiri.uses_libxml?
 
         # This is a test for a workaround for a bug in LibXML2.  The upstream
@@ -16,10 +16,12 @@ module Nokogiri
         # been exposed, then it should be fine to create a schema.  If nodes
         # have been exposed to Ruby, then we need to make sure they won't be
         # freed out from under us.
-        doc = <<~doc
-<?xml version="1.0" encoding="UTF-8" ?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-<xs:element name="foo" type="xs:string"/></xs:schema>
-        doc
+        doc = <<~EOF
+          <?xml version="1.0" encoding="UTF-8" ?>
+          <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+            <xs:element name="foo" type="xs:string"/>
+          </xs:schema>
+        EOF
 
         # This is OK, no nodes have been exposed
         xsd_doc = Nokogiri::XML(doc)
@@ -43,28 +45,28 @@ module Nokogiri
       end
 
       def test_invalid_schema_do_not_raise_exceptions
-        xsd = Nokogiri::XML::Schema.new <<EOF
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-	<xs:group name="foo1">
-		<xs:sequence>
-			<xs:element name="bar" type="xs:boolean" />
-		</xs:sequence>
-  </xs:group>
-	<xs:group name="foo2">
-		<xs:sequence>
-			<xs:element name="bar" type="xs:string" />
-		</xs:sequence>
-  </xs:group>
-	<xs:element name="foo">
-		<xs:complexType>
-			<xs:choice>
-				<xs:group ref="foo1"/>
-				<xs:group ref="foo2"/>
-			</xs:choice>
-		</xs:complexType>
-	</xs:element>
-</xs:schema>
-EOF
+        xsd = Nokogiri::XML::Schema.new(<<~EOF)
+          <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+            <xs:group name="foo1">
+              <xs:sequence>
+                <xs:element name="bar" type="xs:boolean" />
+              </xs:sequence>
+            </xs:group>
+            <xs:group name="foo2">
+              <xs:sequence>
+                <xs:element name="bar" type="xs:string" />
+              </xs:sequence>
+            </xs:group>
+            <xs:element name="foo">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:group ref="foo1"/>
+                  <xs:group ref="foo2"/>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+          </xs:schema>
+        EOF
         assert_instance_of Nokogiri::XML::Schema, xsd
       end
 
@@ -76,8 +78,8 @@ EOF
       end
 
       def test_schema_validates_with_relative_paths
-        xsd = File.join(ASSETS_DIR, 'foo', 'foo.xsd')
-        xml = File.join(ASSETS_DIR, 'valid_bar.xml')
+        xsd = File.join(ASSETS_DIR, "foo", "foo.xsd")
+        xml = File.join(ASSETS_DIR, "valid_bar.xml")
         doc = Nokogiri::XML(File.open(xsd))
         xsd = Nokogiri::XML::Schema.from_document doc
 
@@ -97,14 +99,14 @@ EOF
 
       def test_parse_with_io
         xsd = nil
-        File.open(PO_SCHEMA_FILE, 'rb') { |f|
+        File.open(PO_SCHEMA_FILE, "rb") { |f|
           assert xsd = Nokogiri::XML::Schema(f)
         }
         assert_equal 0, xsd.errors.length
       end
 
       def test_parse_with_errors
-        xml = File.read(PO_SCHEMA_FILE).sub(/name="/, 'name=')
+        xml = File.read(PO_SCHEMA_FILE).sub(/name="/, "name=")
         assert_raises(Nokogiri::XML::SyntaxError) {
           Nokogiri::XML::Schema(xml)
         }
@@ -143,14 +145,14 @@ EOF
 
       def test_validate_non_document
         string = File.read(PO_XML_FILE)
-        assert_raise(ArgumentError) {@xsd.validate(string)}
+        assert_raise(ArgumentError) { @xsd.validate(string) }
       end
 
       def test_valid?
         valid_doc = Nokogiri::XML(File.read(PO_XML_FILE))
 
         invalid_doc = Nokogiri::XML(
-          File.read(PO_XML_FILE).gsub(/<city>[^<]*<\/city>/, '')
+          File.read(PO_XML_FILE).gsub(/<city>[^<]*<\/city>/, "")
         )
 
         assert(@xsd.valid?(valid_doc))
@@ -158,11 +160,11 @@ EOF
       end
 
       def test_xsd_with_dtd
-        Dir.chdir(File.join(ASSETS_DIR, 'saml')) do
-           # works
-           Nokogiri::XML::Schema(IO.read('xmldsig_schema.xsd'))
-           # was not working
-           Nokogiri::XML::Schema(IO.read('saml20protocol_schema.xsd'))
+        Dir.chdir(File.join(ASSETS_DIR, "saml")) do
+          # works
+          Nokogiri::XML::Schema(IO.read("xmldsig_schema.xsd"))
+          # was not working
+          Nokogiri::XML::Schema(IO.read("saml20protocol_schema.xsd"))
         end
       end
     end
