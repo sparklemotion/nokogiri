@@ -359,12 +359,12 @@ jobs:
         trigger: true
         version: every
         passed: ["gate-2"]
-      - task: gem-build
+      - task: build
         config:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
+            source: {repository: "larskanis/rake-compiler-dock-jruby", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -373,7 +373,7 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-build-java.sh
-      - task: gem-install-and-test
+      - task: install-and-test
         config:
           platform: linux
           image_resource:
