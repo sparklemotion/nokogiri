@@ -125,7 +125,7 @@ jobs:
 % end
 
 
-  - name: gate
+  - name: gate-1
     public: true
     plan:
       - get: nokogiri
@@ -144,7 +144,7 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["gate"]
+        passed: ["gate-1"]
       - task: rake-test
         config:
           platform: linux
@@ -161,6 +161,54 @@ jobs:
         on_failure: *notify_failure_to_irc
 
 
+  - name: ruby-musl-system
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["gate-1"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: ruby-musl-valgrind
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["ruby-musl-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
   - name: ruby-libxmlruby-system
     public: true
     serial: true
@@ -168,7 +216,7 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["gate"]
+        passed: ["gate-1"]
       - task: rake-test
         config:
           platform: linux
@@ -193,7 +241,7 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["gate"]
+        passed: ["ruby-libxmlruby-system"]
       - task: rake-test
         config:
           platform: linux
@@ -211,6 +259,17 @@ jobs:
         on_failure: *notify_failure_to_irc
 
 
+  - name: gate-2
+    public: true
+    plan:
+      - get: nokogiri
+        trigger: true
+        passed:
+          - ruby-vanilla-system
+          - ruby-libxmlruby-valgrind
+          - ruby-musl-valgrind
+
+
   - name: gem-test
     public: true
     serial: true
@@ -218,7 +277,7 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["gate"]
+        passed: ["gate-2"]
       - task: gem-build
         config:
           platform: linux
@@ -254,7 +313,7 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["gate"]
+        passed: ["gate-2"]
       - task: gem-build
         config:
           platform: linux
@@ -292,9 +351,6 @@ jobs:
         trigger: true
         version: every
         passed:
-          - ruby-vanilla-system
-          - ruby-libxmlruby-system
-          - ruby-libxmlruby-valgrind
           - gem-test
           - gem-test-java
       - put: nokogiri-irc

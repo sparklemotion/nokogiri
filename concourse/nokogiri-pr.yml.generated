@@ -379,7 +379,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
         on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
-  - name: gate
+  - name: gate-1
     public: true
     plan:
       - get: nokogiri-pr
@@ -393,6 +393,148 @@ jobs:
           - "jruby-9.2"
 
 
+  - name: ruby-vanilla-system
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["gate-1"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+
+
+  - name: ruby-musl-system
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        passed: ["gate-1"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: ruby-musl-valgrind
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        passed: ["ruby-musl-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: *notify_failure_to_irc
+
+
+  - name: ruby-libxmlruby-system
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["gate-1"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+
+
+  - name: ruby-libxmlruby-valgrind
+    public: true
+    serial: true
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["ruby-libxmlruby-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+
+
+  - name: gate-2
+    public: true
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed:
+          - ruby-vanilla-system
+          - ruby-libxmlruby-valgrind
+          - ruby-musl-valgrind
+
+
   - name: gem-test
     public: true
     serial: true
@@ -401,7 +543,7 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate"]
+        passed: ["gate-2"]
       - task: gem-build
         config:
           platform: linux
@@ -440,7 +582,7 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate"]
+        passed: ["gate-2"]
       - task: gem-build
         config:
           platform: linux
@@ -472,86 +614,6 @@ jobs:
         on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
-  - name: ruby-vanilla-system
-    public: true
-    serial: true
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["gate"]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-          params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-
-
-  - name: ruby-libxmlruby-system
-    public: true
-    serial: true
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["gate"]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-          params:
-            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-
-
-  - name: ruby-libxmlruby-valgrind
-    public: true
-    serial: true
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["gate"]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-          params:
-            BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
-            TEST_WITH_VALGRIND: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-
-
   - name: pr-success
     public: true
     disable_manual_trigger: true
@@ -560,9 +622,6 @@ jobs:
         trigger: true
         version: every
         passed:
-          - ruby-vanilla-system
-          - ruby-libxmlruby-system
-          - ruby-libxmlruby-valgrind
           - gem-test
           - gem-test-java
       - put: nokogiri-pr
