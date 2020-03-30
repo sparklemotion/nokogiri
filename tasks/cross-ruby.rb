@@ -169,8 +169,17 @@ namespace "gem" do
         gem install bundler --no-document &&
         bundle &&
         find /usr/local/rvm/gems -name extensiontask.rb | while read f ; do sudo sed -i 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' $f ; done &&
-        rake native:#{plat} pkg/#{HOE.spec.full_name}-#{plat}.gem MAKE='nice make -j`nproc`'
+        rake gem:#{plat}:guest MAKE='nice make -j`nproc`'
       EOT
+    end
+
+    namespace plat do
+      desc "(within docker guest) build native gem for #{plat} platform\nthis should only be called within a rake-compiler-dock image"
+      task "guest" do
+        # use Task#invoke because the pkg/*gem task is defined at runtime
+        Rake::Task["native:#{plat}"].invoke
+        Rake::Task["pkg/#{HOE.spec.full_name}-#{plat}.gem"].invoke
+      end
     end
   end
 
