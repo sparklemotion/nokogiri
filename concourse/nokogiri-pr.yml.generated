@@ -569,6 +569,99 @@ jobs:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
 
 
+  - name: native-gem-test
+    public: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["gate-2"]
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "1.0.0"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          outputs:
+            - name: gems
+          params:
+            BUILD_NATIVE_GEM: t
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build.sh
+      - in_parallel:
+        - task: install-and-test-2.4
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.4"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        - task: install-and-test-2.5
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.5"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        - task: install-and-test-2.6
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.6"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        - task: install-and-test-2.7
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "mri-2.7"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        - task: install-and-test-on-musl
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+
+
   - name: gem-test-java
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }

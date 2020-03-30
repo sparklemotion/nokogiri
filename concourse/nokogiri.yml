@@ -311,6 +311,59 @@ jobs:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
 
 
+  - name: native-gem-test
+    public: true
+    on_failure: *notify_failure_to_irc
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        version: every
+        passed: ["gate-2"]
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          outputs:
+            - name: gems
+          params:
+            BUILD_NATIVE_GEM: t
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build.sh
+      - in_parallel:
+% $native_ruby_versions.each do |ruby_version|
+        - task: install-and-test-<%= ruby_version %>
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+            inputs:
+              - name: ci
+              - name: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+% end
+        - task: install-and-test-on-musl
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            inputs:
+              - name: ci
+              - name: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+
+
   - name: gem-test-java
     public: true
     on_failure: *notify_failure_to_irc
