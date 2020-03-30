@@ -1,5 +1,11 @@
 #! /usr/bin/env bash
 
+if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
+  # normally part of rake-compiler-dock runas
+  . /etc/rubybashrc
+  ln -s /usr/local/rake-compiler "$HOME"/.rake-compiler
+fi
+
 cd nokogiri
 
 set -e -x -u
@@ -14,15 +20,19 @@ mkdir -p .git
 export BUNDLE_GEMFILE="$(pwd)/Gemfile"
 bundle install --local || bundle install
 
-# TODO we're only compiling so that we retrieve libxml2/libxslt
-# tarballs, we can do better a couple of different ways
-bundle exec rake clean compile
-
 # generate a fake version number
 cp -f ../ci/tasks/set-version-to-timestamp.rb tasks/set-version-to-timestamp.rb
 bundle exec rake -f tasks/set-version-to-timestamp.rb set-version-to-timestamp
 
-bundle exec rake gem
+if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
+  bundle exec rake gem:x86_64-linux:guest
+else
+  # TODO we're only compiling so that we retrieve libxml2/libxslt
+  # tarballs, we can do better a couple of different ways
+  bundle exec rake clean compile
+
+  bundle exec rake gem
+fi
 
 mkdir -p ${OUTPUT_DIR}
 cp -v pkg/nokogiri*.gem ${OUTPUT_DIR}
