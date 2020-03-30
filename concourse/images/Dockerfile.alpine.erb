@@ -1,0 +1,13 @@
+FROM ruby:alpine
+
+# prelude
+RUN apk update
+RUN apk add bash build-base
+
+# valgrind
+RUN apk add valgrind
+
+# libxml-et-al
+RUN apk add libxml2-dev libxslt-dev pkgconfig
+
+<%= File.read "bundle-install.step" %>

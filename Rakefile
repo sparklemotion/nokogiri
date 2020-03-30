@@ -1,18 +1,14 @@
 # -*- ruby -*-
-require 'rubygems'
+ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
 
-gem 'hoe'
 require 'hoe'
-
-require 'shellwords'
-require "rake_compiler_dock"
 
 Hoe.plugin :debugging
 Hoe.plugin :git
 Hoe.plugin :gemspec
 Hoe.plugin :bundler
 
-ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
+require 'shellwords'
 
 require_relative "tasks/util"
 require_relative "tasks/cross-ruby"
@@ -79,8 +75,6 @@ HOE = Hoe.spec 'nokogiri' do
   self.testlib = :minitest
   self.test_prelude = 'require "helper"' # ensure simplecov gets loaded before anything else
 end
-
-# ----------------------------------------
 
 if java?
   # TODO: clean this section up.

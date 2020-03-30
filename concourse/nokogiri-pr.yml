@@ -41,7 +41,7 @@ jobs:
 % Concourse.production_rubies.each do |ruby_version|
   - name: ruby-<%= ruby_version %>-system
     public: true
-    serial_groups: ["ruby-<%= ruby_version %>"]
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -69,12 +69,11 @@ jobs:
 % end
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: ruby-<%= ruby_version %>-vendored
     public: true
-    serial_groups: ["ruby-<%= ruby_version %>"]
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -93,12 +92,11 @@ jobs:
               path: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: ruby-<%= ruby_version %>-valgrind
     public: true
-    serial_groups: ["ruby-<%= ruby_version %>"]
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -119,14 +117,13 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 % end
 
 
 % RUBIES[:jruby].each_with_index do |jruby_version, j|
   - name: jruby-<%= jruby_version %>
     public: true
-    serial_groups: ["jruby"]
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -149,10 +146,9 @@ jobs:
               path: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 % end
 
-  - name: gate
+  - name: gate-1
     public: true
     plan:
       - get: nokogiri-pr
@@ -165,94 +161,15 @@ jobs:
           - "jruby-<%= RUBIES[:jruby].last %>"
 
 
-  - name: gem-test
-    public: true
-    serial: true
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["gate"]
-      - task: gem-build
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-          outputs:
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-build.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-      - task: gem-install-and-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-
-  - name: gem-test-java
-    public: true
-    serial: true
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["gate"]
-      - task: gem-build
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-          outputs:
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-build-java.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-      - task: gem-install-and-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-
-
   - name: ruby-vanilla-system
     public: true
-    serial: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate"]
+        passed: ["gate-1"]
       - task: rake-test
         config:
           platform: linux
@@ -265,21 +182,67 @@ jobs:
               path: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-            TEST_WITH_APT_REPO_RUBY: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+
+
+  - name: ruby-musl-system
+    public: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        passed: ["gate-1"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+
+
+  - name: ruby-musl-valgrind
+    public: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        passed: ["ruby-musl-system"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            TEST_WITH_VALGRIND: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
 
 
   - name: ruby-libxmlruby-system
     public: true
-    serial: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate"]
+        passed: ["gate-1"]
       - task: rake-test
         config:
           platform: linux
@@ -295,18 +258,17 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
 
 
   - name: ruby-libxmlruby-valgrind
     public: true
-    serial: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate"]
+        passed: ["ruby-libxmlruby-system"]
       - task: rake-test
         config:
           platform: linux
@@ -322,7 +284,164 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-        on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+
+
+  - name: gate-2
+    public: true
+    plan:
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed:
+          - ruby-vanilla-system
+          - ruby-libxmlruby-valgrind
+          - ruby-musl-valgrind
+
+
+  - name: gem-test
+    public: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["gate-2"]
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          outputs:
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build.sh
+      - in_parallel:
+        - task: install-and-test
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        - task: install-and-test-on-musl
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+
+
+  - name: native-gem-test
+    public: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["gate-2"]
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          outputs:
+            - name: gems
+          params:
+            BUILD_NATIVE_GEM: t
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build.sh
+      - in_parallel:
+% $native_ruby_versions.each do |ruby_version|
+        - task: install-and-test-<%= ruby_version %>
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+% end
+        - task: install-and-test-on-musl
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            inputs:
+              - name: ci
+              - name: nokogiri-pr
+                path: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+
+
+  - name: gem-test-java
+    public: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["gate-2"]
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "larskanis/rake-compiler-dock-jruby", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          outputs:
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build-java.sh
+      - task: install-and-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+            - name: gems
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
 
 
   - name: pr-success
@@ -333,9 +452,6 @@ jobs:
         trigger: true
         version: every
         passed:
-          - ruby-vanilla-system
-          - ruby-libxmlruby-system
-          - ruby-libxmlruby-valgrind
           - gem-test
           - gem-test-java
       - put: nokogiri-pr

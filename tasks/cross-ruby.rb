@@ -112,7 +112,9 @@ CROSS_RUBIES = File.read(".cross_rubies").lines.flat_map do |line|
   end
 end
 
-ENV["RUBY_CC_VERSION"] ||= CROSS_RUBIES.map(&:ver).uniq.join(":")
+ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
+
+require "rake_compiler_dock"
 
 def verify_dll(dll, cross_ruby)
   dll_imports = cross_ruby.dlls
@@ -147,7 +149,7 @@ def verify_dll(dll, cross_ruby)
       raise "unexpected so version requirements #{dll_ref_versions_is.inspect} in #{dll}"
     end
   end
-  puts "#{dll}: Looks good!"
+  puts "verify_dll: #{dll}: passed shared library sanity checks"
 end
 
 CROSS_RUBIES.each do |cross_ruby|
@@ -161,14 +163,23 @@ namespace "gem" do
     desc "build native fat binary gems for windows and linux"
     multitask "native" => plat
 
-    desc "build native gem for #{plat} platform"
+    desc "build native gem for #{plat} platform\nthis trampolines into the rake-compiler-dock guest"
     task plat do
       RakeCompilerDock.sh <<-EOT, platform: plat
         gem install bundler --no-document &&
         bundle &&
         find /usr/local/rvm/gems -name extensiontask.rb | while read f ; do sudo sed -i 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' $f ; done &&
-        rake native:#{plat} pkg/#{HOE.spec.full_name}-#{plat}.gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=#{ENV["RUBY_CC_VERSION"]}
+        rake gem:#{plat}:guest MAKE='nice make -j`nproc`'
       EOT
+    end
+
+    namespace plat do
+      desc "(within docker guest) build native gem for #{plat} platform\nthis should only be called within a rake-compiler-dock image"
+      task "guest" do
+        # use Task#invoke because the pkg/*gem task is defined at runtime
+        Rake::Task["native:#{plat}"].invoke
+        Rake::Task["pkg/#{HOE.spec.full_name}-#{plat}.gem"].invoke
+      end
     end
   end
 
