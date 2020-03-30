@@ -149,7 +149,7 @@ def verify_dll(dll, cross_ruby)
       raise "unexpected so version requirements #{dll_ref_versions_is.inspect} in #{dll}"
     end
   end
-  puts "#{dll}: Looks good!"
+  puts "verify_dll: #{dll}: passed shared library sanity checks"
 end
 
 CROSS_RUBIES.each do |cross_ruby|
@@ -163,7 +163,7 @@ namespace "gem" do
     desc "build native fat binary gems for windows and linux"
     multitask "native" => plat
 
-    desc "build native gem for #{plat} platform"
+    desc "build native gem for #{plat} platform\nthis trampolines into the rake-compiler-dock guest"
     task plat do
       RakeCompilerDock.sh <<-EOT, platform: plat
         gem install bundler --no-document &&
