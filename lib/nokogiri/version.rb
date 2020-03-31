@@ -133,7 +133,7 @@ module Nokogiri
     VersionInfo.instance.jruby?
   end
 
-  # Ensure constants used in this file are loaded
+  # Ensure constants used in this file are loaded - see #1896
   if Nokogiri.jruby?
     require "nokogiri/jruby/dependencies"
   end
