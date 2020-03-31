@@ -63,7 +63,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 
 
-% Concourse.production_rubies.each do |ruby_version|
+  <% Concourse.production_rubies.each do |ruby_version| %>
   - name: cruby-<%= ruby_version %>
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
@@ -85,9 +85,9 @@ jobs:
               path: nokogiri
           params:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-% if ruby_version == Concourse.production_rubies.last
+            <% if ruby_version == Concourse.production_rubies.last %>
             CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
-% end
+            <% end %>
           run:
             path: ci/concourse/tasks/rake-test/run.sh
       - task: rake-test-vendored-libraries
@@ -116,10 +116,10 @@ jobs:
             TEST_WITH_VALGRIND: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-% end
+  <% end %>
 
 
-% RUBIES[:jruby].each_with_index do |jruby_version, j|
+  <% RUBIES[:jruby].each_with_index do |jruby_version, j| %>
   - name: jruby-<%= jruby_version %>
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
@@ -128,11 +128,11 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-% if j > 0
+        <% if j > 0 %>
         passed: ["jruby-<%= RUBIES[:jruby][j-1] %>"]
-% else
+        <% else %>
         passed: ["cruby-on-vanilla-ubuntu"]
-% end
+        <% end %>
       - task: rake-test
         config:
           platform: linux
@@ -145,7 +145,7 @@ jobs:
               path: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-% end
+  <% end %>
 
   - name: cruby-on-musl
     public: true
@@ -310,7 +310,7 @@ jobs:
           run:
             path: ci/concourse/tasks/gem-test/gem-build.sh
       - in_parallel:
-% $native_ruby_versions.each do |ruby_version|
+        <% $native_ruby_versions.each do |ruby_version| %>
         - task: install-and-test-<%= ruby_version %>
           config:
             platform: linux
@@ -324,7 +324,7 @@ jobs:
               - name: gems
             run:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-% end
+        <% end %>
         - task: install-and-test-on-musl
           config:
             platform: linux
