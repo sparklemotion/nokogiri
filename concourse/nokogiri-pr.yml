@@ -38,8 +38,7 @@ jobs:
         params: {path: nokogiri-pr, status: pending}
 
 
-% Concourse.production_rubies.each do |ruby_version|
-  - name: ruby-<%= ruby_version %>-system
+  - name: cruby-on-vanilla-ubuntu
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
@@ -47,12 +46,34 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-% if ruby_version == Concourse.production_rubies.last
-        passed: [pr-pending]
-% else
-        passed: ["ruby-<%= Concourse.production_rubies.last %>-system"]
-% end
+        passed: ["pr-pending"]
       - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          params:
+            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+
+
+% Concourse.production_rubies.each do |ruby_version|
+  - name: cruby-<%= ruby_version %>
+    public: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["cruby-on-vanilla-ubuntu"]
+      - task: rake-test-system-libraries
         config:
           platform: linux
           image_resource:
@@ -69,18 +90,7 @@ jobs:
 % end
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-
-
-  - name: ruby-<%= ruby_version %>-vendored
-    public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["ruby-<%= ruby_version %>-system"]
-      - task: rake-test
+      - task: rake-test-vendored-libraries
         config:
           platform: linux
           image_resource:
@@ -92,18 +102,7 @@ jobs:
               path: nokogiri
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-
-
-  - name: ruby-<%= ruby_version %>-valgrind
-    public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["ruby-<%= ruby_version %>-vendored"]
-      - task: rake-test
+      - task: rake-test-valgrind
         config:
           platform: linux
           image_resource:
@@ -132,7 +131,7 @@ jobs:
 % if j > 0
         passed: ["jruby-<%= RUBIES[:jruby][j-1] %>"]
 % else
-        passed: ["ruby-<%= Concourse.production_rubies.last %>-system"]
+        passed: ["cruby-on-vanilla-ubuntu"]
 % end
       - task: rake-test
         config:
@@ -148,53 +147,15 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 % end
 
-  - name: gate-1
-    public: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed:
-% Concourse.production_rubies.each do |ruby_version|
-          - "ruby-<%= ruby_version %>-valgrind"
-% end
-          - "jruby-<%= RUBIES[:jruby].last %>"
-
-
-  - name: ruby-vanilla-system
+  - name: cruby-on-musl
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
-        version: every
-        passed: ["gate-1"]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
-          inputs:
-            - name: ci
-            - name: nokogiri-pr
-              path: nokogiri
-          params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-
-
-  - name: ruby-musl-system
-    public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        passed: ["gate-1"]
-      - task: rake-test
+        passed: ["cruby-<%= Concourse.production_rubies.last %>"]
+      - task: rake-test-system-libraries
         config:
           platform: linux
           image_resource:
@@ -208,17 +169,7 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-
-
-  - name: ruby-musl-valgrind
-    public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        passed: ["ruby-musl-system"]
-      - task: rake-test
+      - task: rake-test-valgrind
         config:
           platform: linux
           image_resource:
@@ -234,7 +185,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 
 
-  - name: ruby-libxmlruby-system
+  - name: cruby-with-libxmlruby
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
@@ -242,8 +193,8 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate-1"]
-      - task: rake-test
+        passed: ["cruby-<%= Concourse.production_rubies.last %>"]
+      - task: rake-test-system-libraries
         config:
           platform: linux
           image_resource:
@@ -258,18 +209,7 @@ jobs:
             NOKOGIRI_USE_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
-
-
-  - name: ruby-libxmlruby-valgrind
-    public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["ruby-libxmlruby-system"]
-      - task: rake-test
+      - task: rake-test-valgrind
         config:
           platform: linux
           image_resource:
@@ -286,19 +226,7 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 
 
-  - name: gate-2
-    public: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed:
-          - ruby-vanilla-system
-          - ruby-libxmlruby-valgrind
-          - ruby-musl-valgrind
-
-
-  - name: gem-test
+  - name: cruby-gem-test
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
@@ -306,7 +234,10 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate-2"]
+        passed:
+          <% Concourse.production_rubies.each do |ruby_version| %>
+          - cruby-<%= ruby_version %>
+          <% end %>
       - task: build
         config:
           platform: linux
@@ -350,7 +281,7 @@ jobs:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
 
 
-  - name: native-gem-test
+  - name: cruby-native-gem-test
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
@@ -358,7 +289,10 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate-2"]
+        passed:
+          <% Concourse.production_rubies.each do |ruby_version| %>
+          - cruby-<%= ruby_version %>
+          <% end %>
       - task: build
         config:
           platform: linux
@@ -406,7 +340,7 @@ jobs:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
 
 
-  - name: gem-test-java
+  - name: jruby-gem-test
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
     plan:
@@ -414,7 +348,10 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["gate-2"]
+        passed:
+          <% RUBIES[:jruby].each do |ruby_version| %>
+          - jruby-<%= ruby_version %>
+          <% end %>
       - task: build
         config:
           platform: linux
@@ -452,8 +389,11 @@ jobs:
         trigger: true
         version: every
         passed:
-          - gem-test
-          - gem-test-java
+          - cruby-on-musl
+          - cruby-with-libxmlruby
+          - cruby-gem-test
+          - cruby-native-gem-test
+          - jruby-gem-test
       - put: nokogiri-pr
         params: {path: nokogiri-pr, status: success}
       - put: nokogiri-irc
