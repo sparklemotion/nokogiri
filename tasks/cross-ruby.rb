@@ -165,6 +165,7 @@ namespace "gem" do
 
     desc "build native gem for #{plat} platform\nthis trampolines into the rake-compiler-dock guest"
     task plat do
+      # TODO remove `find` after https://github.com/rake-compiler/rake-compiler/pull/171 is shipped
       RakeCompilerDock.sh <<-EOT, platform: plat
         gem install bundler --no-document &&
         bundle &&

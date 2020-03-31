@@ -27,6 +27,12 @@ cp -f ../ci/tasks/set-version-to-timestamp.rb tasks/set-version-to-timestamp.rb
 bundle exec rake -f tasks/set-version-to-timestamp.rb set-version-to-timestamp
 
 if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
+  # TODO remove after https://github.com/rake-compiler/rake-compiler/pull/171 is shipped
+  find /usr/local/rvm/gems -name extensiontask.rb | while read f ; do
+    echo "rewriting $f"
+    sudo sed -i 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' $f
+  done
+
   bundle exec rake gem:x86_64-linux:guest
 else
   # TODO we're only compiling so that we retrieve libxml2/libxslt
