@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+test -e /etc/os-release && cat /etc/os-release
+
 set -e -x -u
 
 source "$(dirname "$0")/../../shared/code-climate.sh"

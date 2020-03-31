@@ -1,8 +1,10 @@
 #! /usr/bin/env bash
 
+test -e /etc/os-release && cat /etc/os-release
+
 cd nokogiri
 
-set -e -x -u
+set -e -x -u # after the `cd` because of rvm
 
 OUTPUT_DIR="../gems"
 

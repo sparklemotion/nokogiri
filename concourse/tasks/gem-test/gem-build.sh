@@ -1,14 +1,16 @@
 #! /usr/bin/env bash
 
+test -e /etc/os-release && cat /etc/os-release
+
 if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
-  # normally part of rake-compiler-dock runas
+  # normally part of rake-compiler-dock runas which we can't easily use in concourse
   . /etc/rubybashrc
   ln -s /usr/local/rake-compiler "$HOME"/.rake-compiler
 fi
 
 cd nokogiri
 
-set -e -x -u
+set -e -x -u # after the `cd` because of rvm
 
 OUTPUT_DIR="../gems"
 
