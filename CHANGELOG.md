@@ -26,14 +26,14 @@ We bump `Major.Minor.Patch` versions following this guidance:
 
 ## Unreleased (will be v1.11.0)
 
-To try out release candidates, use `gem install --prerelease`.
+To try out release candidates, use `gem install --prerelease`. Latest is `v1.11.0.rc2`.
 
 
 ### Notes
 
 #### Experiment: Pre-Compiled Native Linux Gems
 
-With the v1.11.0 release candidates, we are experimenting with shipping **pre-compiled native Linux gems** for the `x86-linux` and `x86_64-linux` platforms.
+With the v1.11.0 release candidates, we are experimenting with shipping **pre-compiled native Linux gems** for the `x86-linux` and `x86_64-linux` platforms. Note that v1.11.0.rc2 and later also support musl systems (e.g., alpine).
 
 If this works properly for you, it will speed up installation time on Linux.
 
