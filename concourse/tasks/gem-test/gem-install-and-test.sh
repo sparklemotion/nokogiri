@@ -16,7 +16,9 @@ popd
 
 pushd nokogiri
 
-  export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
+  if [ -n "${BUNDLE_APP_CONFIG:-}" ] ; then
+    export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
+  fi
   bundle -v
   bundle config
 
