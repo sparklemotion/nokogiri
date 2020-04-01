@@ -41,6 +41,21 @@ jobs:
       run:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: bionic32
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      params:
+        TEST_WITH_SYSTEM_LIBRARIES: t
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test-32bit
   public: true
 - name: cruby-2.4
   on_failure:
@@ -706,6 +721,70 @@ jobs:
           run:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-on-musl
+  public: true
+- name: cruby-native-gem-test-32bit
+  on_failure:
+    params:
+      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+    put: irc
+  plan:
+  - get: ci
+  - get: nokogiri
+    passed:
+    - cruby-2.4
+    - cruby-2.5
+    - cruby-2.6
+    - cruby-2.7
+    - cruby-3.0-rc
+    trigger: true
+    version: every
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/rake-compiler-dock-mri-x86-linux
+          tag: 1.0.0
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      outputs:
+      - name: gems
+      params:
+        BUILD_NATIVE_GEM: x86-linux
+      platform: linux
+      run:
+        path: ci/concourse/tasks/gem-test/gem-build.sh
+    task: build
+  - in_parallel:
+      steps:
+      - config:
+          image_resource:
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: bionic32
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri
+          - name: gems
+          platform: linux
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        task: install-and-test-on-vanilla-ubuntu-32bit
+      - config:
+          image_resource:
+            source:
+              repository: flavorjones/nokogiri-test
+              tag: alpine32
+            type: registry-image
+          inputs:
+          - name: ci
+          - name: nokogiri
+          - name: gems
+          platform: linux
+          run:
+            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        task: install-and-test-on-musl-32bit
   public: true
 - name: jruby-gem-test
   on_failure:
