@@ -615,7 +615,7 @@ jobs:
       outputs:
       - name: gems
       params:
-        BUILD_NATIVE_GEM: t
+        BUILD_NATIVE_GEM: x86_64-linux
       platform: linux
       run:
         path: ci/concourse/tasks/gem-test/gem-build.sh
