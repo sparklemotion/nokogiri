@@ -31,7 +31,7 @@ if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
     sudo sed -i 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' $f
   done
 
-  bundle exec rake gem:x86_64-linux:guest
+  bundle exec rake gem:${BUILD_NATIVE_GEM}:guest
 else
   # TODO we're only compiling so that we retrieve libxml2/libxslt
   # tarballs, we can do better a couple of different ways
