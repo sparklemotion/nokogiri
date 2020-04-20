@@ -542,6 +542,23 @@ module Nokogiri
         assert_equal 'employee', frag.at(".//wrapper").children.first.name
       end
 
+      # https://github.com/sparklemotion/nokogiri/issues/1952
+      def test_gc_stress
+        frag = "<winstrom><invoice><id>13250</id><code>123</code><type>type</type></invoice></winstrom>"
+        pages = 150
+
+        50.times do |i|
+          frag_dup = frag.dup
+
+          xml = Nokogiri::XML.parse(frag)
+          xml.root.content = ''
+          pages.times do
+            xml.root.children += Nokogiri::XML.parse(frag_dup).root.children
+          end
+          assert_equal pages, xml.root.children.count
+        end
+      end
+
       def test_wrap_preserves_document_structure
         assert_equal "employeeId",
                      @xml.at_xpath("//employee").children.detect{|j| ! j.text? }.name
