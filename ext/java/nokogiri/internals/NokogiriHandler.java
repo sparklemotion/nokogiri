@@ -249,7 +249,7 @@ public class NokogiriHandler extends DefaultHandler2 implements XmlDeclHandler {
         try {
             final String msg = ex.getMessage();
             call("error", runtime.newString(msg == null ? "" : msg));
-            addError(new RaiseException(XmlSyntaxError.createError(runtime, ex), true));
+            addError(XmlSyntaxError.createError(runtime, ex).toThrowable());
         } catch( RaiseException e) {
             addError(e);
             throw e;
