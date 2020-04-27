@@ -5,6 +5,9 @@ require 'nokogumbo/html5'
 require 'nokogumbo/nokogumbo'
 
 module Nokogumbo
+  # The default maximum number of attributes per element.
+  DEFAULT_MAX_ATTRIBUTES = 400
+
   # The default maximum number of errors for parsing a document or a fragment.
   DEFAULT_MAX_ERRORS = 0
 

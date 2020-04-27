@@ -48,6 +48,7 @@ typedef uint8_t TagSet[GUMBO_TAG_LAST + 1];
 const GumboOptions kGumboDefaultOptions = {
   .tab_stop = 8,
   .stop_on_first_error = false,
+  .max_attributes = 400,
   .max_tree_depth = 400,
   .max_errors = -1,
   .fragment_context = NULL,

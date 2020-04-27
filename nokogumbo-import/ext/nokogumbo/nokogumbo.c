@@ -490,8 +490,9 @@ static VALUE parse_cleanup(ParseArgs *args) {
 static VALUE parse_continue(ParseArgs *args);
 
 // Parse a string using gumbo_parse into a Nokogiri document
-static VALUE parse(VALUE self, VALUE input, VALUE url, VALUE max_errors, VALUE max_depth) {
+static VALUE parse(VALUE self, VALUE input, VALUE url, VALUE max_attributes, VALUE max_errors, VALUE max_depth) {
   GumboOptions options = kGumboDefaultOptions;
+  options.max_attributes = NUM2INT(max_attributes);
   options.max_errors = NUM2INT(max_errors);
   options.max_tree_depth = NUM2INT(max_depth);
 
@@ -570,6 +571,7 @@ static VALUE fragment (
   VALUE doc_fragment,
   VALUE tags,
   VALUE ctx,
+  VALUE max_attributes,
   VALUE max_errors,
   VALUE max_depth
 ) {
@@ -676,6 +678,7 @@ static VALUE fragment (
   // Perform a fragment parse.
   int depth = NUM2INT(max_depth);
   GumboOptions options = kGumboDefaultOptions;
+  options.max_attributes = NUM2INT(max_attributes);
   options.max_errors = NUM2INT(max_errors);
   // Add one to account for the HTML element.
   options.max_tree_depth = depth < 0 ? -1 : (depth + 1);
@@ -743,8 +746,8 @@ void Init_nokogumbo() {
 
   // Define Nokogumbo module with parse and fragment methods.
   VALUE Gumbo = rb_define_module("Nokogumbo");
-  rb_define_singleton_method(Gumbo, "parse", parse, 4);
-  rb_define_singleton_method(Gumbo, "fragment", fragment, 5);
+  rb_define_singleton_method(Gumbo, "parse", parse, 5);
+  rb_define_singleton_method(Gumbo, "fragment", fragment, 6);
 
   // Add private constant for testing.
   rb_define_const(Gumbo, "LINE_SUPPORTED", line_supported);

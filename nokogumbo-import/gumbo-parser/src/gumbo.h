@@ -707,6 +707,14 @@ typedef struct GumboInternalOptions {
   bool stop_on_first_error;
 
   /**
+   * Maximum allowed number of attributes per element. If this limit is
+   * reached, the parser will start ignoring attributes until the end of
+   * the current opening tag. Set to `-1` to disable the limit.
+   * Default: `400`.
+   */
+  int max_attributes;
+
+  /**
    * Maximum allowed depth for the parse tree. If this limit is exceeded,
    * the parser will return early with a partial document and the returned
    * `GumboOutput` will have its `status` field set to

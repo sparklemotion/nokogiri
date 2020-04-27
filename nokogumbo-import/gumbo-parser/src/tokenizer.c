@@ -784,12 +784,20 @@ static void add_duplicate_attr_error(GumboParser* parser) {
 static void finish_attribute_name(GumboParser* parser) {
   GumboTokenizerState* tokenizer = parser->_tokenizer_state;
   GumboTagState* tag_state = &tokenizer->_tag_state;
+  GumboVector* /* GumboAttribute* */ attributes = &tag_state->_attributes;
+
+  int max_attributes = parser->_options->max_attributes;
+  if (max_attributes >= 0 && attributes->length >= (unsigned int) max_attributes) {
+    reinitialize_tag_buffer(parser);
+    tag_state->_drop_next_attr_value = true;
+    return;
+  }
+
   // May've been set by a previous attribute without a value; reset it here.
   tag_state->_drop_next_attr_value = false;
   assert(tag_state->_attributes.data);
   assert(tag_state->_attributes.capacity);
 
-  GumboVector* /* GumboAttribute* */ attributes = &tag_state->_attributes;
   for (unsigned int i = 0; i < attributes->length; ++i) {
     GumboAttribute* attr = attributes->data[i];
     if (
