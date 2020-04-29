@@ -4859,6 +4859,8 @@ const char* gumbo_status_to_string(GumboOutputStatus status) {
       return "OK";
     case GUMBO_STATUS_OUT_OF_MEMORY:
       return "System allocator returned NULL during parsing";
+    case GUMBO_STATUS_TOO_MANY_ATTRIBUTES:
+      return "Attributes per element limit exceeded";
     case GUMBO_STATUS_TREE_TOO_DEEP:
       return "Document tree depth limit exceeded";
     default:

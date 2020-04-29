@@ -787,7 +787,9 @@ static void finish_attribute_name(GumboParser* parser) {
   GumboVector* /* GumboAttribute* */ attributes = &tag_state->_attributes;
 
   int max_attributes = parser->_options->max_attributes;
-  if (max_attributes >= 0 && attributes->length >= (unsigned int) max_attributes) {
+  if (unlikely(max_attributes >= 0 && attributes->length >= (unsigned int) max_attributes)) {
+    parser->_output->status = GUMBO_STATUS_TOO_MANY_ATTRIBUTES;
+    gumbo_debug("Attributes limit exceeded.\n");
     reinitialize_tag_buffer(parser);
     tag_state->_drop_next_attr_value = true;
     return;

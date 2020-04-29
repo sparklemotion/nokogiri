@@ -123,17 +123,9 @@ class TestNokogumbo < Minitest::Test
   def test_max_attributes
     html = '<div id="i" class="c" title="t"><img src="s" alt="a"></div>'
 
-    doc = Nokogiri::HTML5(html, max_attributes: 2)
-    assert_equal({ 'id' => 'i', 'class' => 'c' }, attributes(doc.at_css('div')))
-    assert_equal({ 'src' => 's', 'alt' => 'a' }, attributes(doc.at_css('img')))
-
-    doc = Nokogiri::HTML5(html, max_attributes: 1)
-    assert_equal({ 'id' => 'i' }, attributes(doc.at_css('div')))
-    assert_equal({ 'src' => 's' }, attributes(doc.at_css('img')))
-
-    doc = Nokogiri::HTML5(html, max_attributes: 0)
-    assert_equal({}, attributes(doc.at_css('div')))
-    assert_equal({}, attributes(doc.at_css('img')))
+    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 2) }
+    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 1) }
+    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 0) }
 
     # -1 disables limit
     doc = Nokogiri::HTML5(html, max_attributes: -1)
@@ -147,17 +139,10 @@ class TestNokogumbo < Minitest::Test
     doc = Nokogiri::HTML5(html, max_attributes: 4)
     assert_equal({ 'checked' => '', 'type' => 'checkbox', 'disabled' => '', 'name' => 'cheese' }, attributes(doc.at_css('input')))
 
-    doc = Nokogiri::HTML5(html, max_attributes: 3)
-    assert_equal({ 'checked' => '', 'type' => 'checkbox', 'disabled' => '' }, attributes(doc.at_css('input')))
-
-    doc = Nokogiri::HTML5(html, max_attributes: 2)
-    assert_equal({ 'checked' => '', 'type' => 'checkbox' }, attributes(doc.at_css('input')))
-
-    doc = Nokogiri::HTML5(html, max_attributes: 1)
-    assert_equal({ 'checked' => '' }, attributes(doc.at_css('input')))
-
-    doc = Nokogiri::HTML5(html, max_attributes: 0)
-    assert_equal({}, attributes(doc.at_css('input')))
+    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 3) }
+    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 2) }
+    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 1) }
+    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 0) }
   end
 
   def test_default_max_attributes
@@ -169,33 +154,15 @@ class TestNokogumbo < Minitest::Test
     # this doesn’t alter performance or end result.
     html = "<div #{attrs.map.with_index { |x, i| "data-#{x}=#{i} data-#{x}=#{i}" }.join(' ')}>hello</div>"
 
-    doc = Nokogiri::HTML5(html)
-    div = doc.at_css('div')
-    assert_equal 'hello', div.text
-    assert_equal   '0', div.attribute("data-#{attrs[0]}").value
-    assert_equal   '1', div.attribute("data-#{attrs[1]}").value
-    assert_equal   '2', div.attribute("data-#{attrs[2]}").value
-    assert_equal '398', div.attribute("data-#{attrs[398]}").value
-    assert_equal '399', div.attribute("data-#{attrs[399]}").value
-    assert_nil div.attribute("data-#{attrs[400]}")
-    assert_nil div.attribute("data-#{attrs[401]}")
-    assert_nil div.attribute("data-#{attrs[402]}")
+    assert_raises(ArgumentError) { Nokogiri::HTML5(html) }
   end
 
   def test_fragment_max_attributes
     html = '<div id="i" class="c" title="t"><img src="s" alt="a"></div>'
 
-    doc = Nokogiri::HTML5.fragment(html, max_attributes: 2)
-    assert_equal({ 'id' => 'i', 'class' => 'c' }, attributes(doc.at_css('div')))
-    assert_equal({ 'src' => 's', 'alt' => 'a' }, attributes(doc.at_css('img')))
-
-    doc = Nokogiri::HTML5.fragment(html, max_attributes: 1)
-    assert_equal({ 'id' => 'i' }, attributes(doc.at_css('div')))
-    assert_equal({ 'src' => 's' }, attributes(doc.at_css('img')))
-
-    doc = Nokogiri::HTML5.fragment(html, max_attributes: 0)
-    assert_equal({}, attributes(doc.at_css('div')))
-    assert_equal({}, attributes(doc.at_css('img')))
+    assert_raises(ArgumentError ) { Nokogiri::HTML5.fragment(html, max_attributes: 2) }
+    assert_raises(ArgumentError ) { Nokogiri::HTML5.fragment(html, max_attributes: 1) }
+    assert_raises(ArgumentError ) { Nokogiri::HTML5.fragment(html, max_attributes: 0) }
 
     # -1 disables limit
     doc = Nokogiri::HTML5.fragment(html, max_attributes: -1)
@@ -212,17 +179,7 @@ class TestNokogumbo < Minitest::Test
     # this doesn’t alter performance or end result.
     html = "<div #{attrs.map.with_index { |x, i| "data-#{x}=#{i} data-#{x}=#{i}" }.join(' ')}>hello</div>"
 
-    doc = Nokogiri::HTML5.fragment(html)
-    div = doc.at_css('div')
-    assert_equal 'hello', div.text
-    assert_equal   '0', div.attribute("data-#{attrs[0]}").value
-    assert_equal   '1', div.attribute("data-#{attrs[1]}").value
-    assert_equal   '2', div.attribute("data-#{attrs[2]}").value
-    assert_equal '398', div.attribute("data-#{attrs[398]}").value
-    assert_equal '399', div.attribute("data-#{attrs[399]}").value
-    assert_nil div.attribute("data-#{attrs[400]}")
-    assert_nil div.attribute("data-#{attrs[401]}")
-    assert_nil div.attribute("data-#{attrs[402]}")
+    assert_raises(ArgumentError) { Nokogiri::HTML5.fragment(html) }
   end
 
   def test_parse_errors

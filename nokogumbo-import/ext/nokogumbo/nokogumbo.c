@@ -281,6 +281,7 @@ static GumboOutput *perform_parse(const GumboOptions *options, VALUE input) {
   switch (output->status) {
   case GUMBO_STATUS_OK:
     break;
+  case GUMBO_STATUS_TOO_MANY_ATTRIBUTES:
   case GUMBO_STATUS_TREE_TOO_DEEP:
     gumbo_destroy_output(output);
     rb_raise(rb_eArgError, "%s", status_string);
