@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Limit enforced on number of attributes per element, defaulting to 400 and
+  configurable with the `:max_attributes` argument.
+
 ### Changed
 ### Deprecated
 ### Removed

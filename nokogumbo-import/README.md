@@ -128,6 +128,22 @@ doc = Nokogiri.HTML5(html)
 doc = Nokogiri.HTML5(html, max_tree_depth: -1)
 ```
 
+### Attribute limit per element
+The maximum number of attributes per DOM element is configurable by the
+`:max_attributes` option. If a given element would exceed this limit, then an
+[ArgumentError](https://ruby-doc.org/core-2.5.0/ArgumentError.html) is thrown.
+
+This limit (which defaults to `Nokogumbo::DEFAULT_MAX_ATTRIBUTES = 400`) can
+be removed by giving the option `max_attributes: -1`.
+
+``` ruby
+html = '<!DOCTYPE html><div ' + (1..1000).map { |x| "attr-#{x}" }.join(' ') + '>'
+# "<!DOCTYPE html><div attr-1 attr-2 attr-3 ... attr-1000>"
+doc = Nokogiri.HTML5(html)
+# raises ArgumentError: Attributes per element limit exceeded
+doc = Nokogiri.HTML5(html, max_attributes: -1)
+```
+
 ## HTML Serialization
 
 After parsing HTML, it may be serialized using any of the Nokogiri
