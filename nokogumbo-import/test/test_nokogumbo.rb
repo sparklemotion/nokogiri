@@ -123,9 +123,9 @@ class TestNokogumbo < Minitest::Test
   def test_max_attributes
     html = '<div id="i" class="c" title="t"><img src="s" alt="a"></div>'
 
-    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 2) }
-    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 1) }
-    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 0) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 2) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 1) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 0) }
 
     # -1 disables limit
     doc = Nokogiri::HTML5(html, max_attributes: -1)
@@ -139,10 +139,10 @@ class TestNokogumbo < Minitest::Test
     doc = Nokogiri::HTML5(html, max_attributes: 4)
     assert_equal({ 'checked' => '', 'type' => 'checkbox', 'disabled' => '', 'name' => 'cheese' }, attributes(doc.at_css('input')))
 
-    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 3) }
-    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 2) }
-    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 1) }
-    assert_raises(ArgumentError ) { Nokogiri::HTML5(html, max_attributes: 0) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 3) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 2) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 1) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5(html, max_attributes: 0) }
   end
 
   def test_default_max_attributes
@@ -160,9 +160,9 @@ class TestNokogumbo < Minitest::Test
   def test_fragment_max_attributes
     html = '<div id="i" class="c" title="t"><img src="s" alt="a"></div>'
 
-    assert_raises(ArgumentError ) { Nokogiri::HTML5.fragment(html, max_attributes: 2) }
-    assert_raises(ArgumentError ) { Nokogiri::HTML5.fragment(html, max_attributes: 1) }
-    assert_raises(ArgumentError ) { Nokogiri::HTML5.fragment(html, max_attributes: 0) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5.fragment(html, max_attributes: 2) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5.fragment(html, max_attributes: 1) }
+    assert_raises(ArgumentError) { Nokogiri::HTML5.fragment(html, max_attributes: 0) }
 
     # -1 disables limit
     doc = Nokogiri::HTML5.fragment(html, max_attributes: -1)
