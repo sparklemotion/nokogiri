@@ -37,7 +37,7 @@ require 'nokogiri/html/builder'
 #
 #   # Get a Nokogiri::HTML:Document for the page we’re interested in...
 #
-#   doc = Nokogiri::HTML(open('http://www.google.com/search?q=tenderlove'))
+#   doc = Nokogiri::HTML(URI.open('http://www.google.com/search?q=tenderlove'))
 #
 #   # Do funky things with it using Nokogiri::XML::Node methods...
 #
