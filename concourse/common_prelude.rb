@@ -5,6 +5,7 @@ $common_ignore_paths = [
   "concourse/**",
   "suppressions/**",
   ".github/**",
+  "Vagrantfile",
 ].to_json
 
 cross_rubies_path = File.join(File.dirname(__FILE__), "..", ".cross_rubies")
