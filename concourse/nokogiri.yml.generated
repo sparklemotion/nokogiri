@@ -639,5 +639,6 @@ resources:
     - concourse/**
     - suppressions/**
     - .github/**
+    - Vagrantfile
     uri: https://github.com/sparklemotion/nokogiri/
   type: git

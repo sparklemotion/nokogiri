@@ -763,5 +763,6 @@ resources:
     - concourse/**
     - suppressions/**
     - .github/**
+    - Vagrantfile
     repo: sparklemotion/nokogiri
   type: pull-request
