@@ -630,7 +630,7 @@ resources:
     server: chat.freenode.net
     user: {{nokobot-irc-username}}
   type: irc-notification
-- icon: github-circle
+- icon: github
   name: nokogiri
   source:
     branch: master

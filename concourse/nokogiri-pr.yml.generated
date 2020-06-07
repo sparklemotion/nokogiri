@@ -754,7 +754,7 @@ resources:
     server: chat.freenode.net
     user: {{nokobot-irc-username}}
   type: irc-notification
-- icon: github-circle
+- icon: github
   name: nokogiri-pr
   source:
     access_token: {{github-repo-status-access-token}}
