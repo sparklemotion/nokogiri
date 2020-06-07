@@ -1,6 +1,4 @@
 # -*- ruby -*-
-ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
-
 require 'hoe'
 
 Hoe.plugin :bundler
