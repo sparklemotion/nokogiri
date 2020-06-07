@@ -3,10 +3,11 @@ ENV['LANG'] = "en_US.UTF-8" # UBUNTU 10.04, Y U NO DEFAULT TO UTF-8?
 
 require 'hoe'
 
-Hoe.plugin :debugging
-Hoe.plugin :git
-Hoe.plugin :gemspec
 Hoe.plugin :bundler
+Hoe.plugin :debugging
+Hoe.plugin :gemspec
+Hoe.plugin :git
+Hoe.plugin :markdown
 
 require 'shellwords'
 
@@ -24,9 +25,6 @@ HOE = Hoe.spec 'nokogiri' do
 
   license "MIT"
 
-  self.readme_file  = "README.md"
-  self.history_file = "CHANGELOG.md"
-
   self.urls = {
     "home" => "https://nokogiri.org",
     "bugs" => "https://github.com/sparklemotion/nokogiri/issues",
@@ -35,6 +33,7 @@ HOE = Hoe.spec 'nokogiri' do
     "code" => "https://github.com/sparklemotion/nokogiri",
   }
 
+  self.markdown_linkify_files = FileList["*.md"]
   self.extra_rdoc_files = FileList['ext/nokogiri/*.c']
 
   self.clean_globs += [
@@ -57,6 +56,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["hoe-debugging", "~> 2.0"],
     ["hoe-gemspec", "~> 1.0"],
     ["hoe-git", "~> 1.6"],
+    ["hoe-markdown", "~> 1.1"],
     ["minitest", "~> 5.8"],
     ["racc", "~> 1.4.14"],
     ["rake", "~> 13.0"],
