@@ -71,7 +71,7 @@ help you directly and improve the documentation.
 Binary packages are available for some distributions.
 
 * Debian: https://packages.debian.org/sid/ruby-nokogiri
-* SuSE: https://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/
+* openSUSE/SLE: https://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/
 * Fedora: http://s390.koji.fedoraproject.org/koji/packageinfo?packageID=6756
 
 
