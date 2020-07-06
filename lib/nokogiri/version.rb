@@ -1,6 +1,6 @@
 module Nokogiri
   # The version of Nokogiri you are using
-  VERSION = "1.10.9"
+  VERSION = "1.10.10"
 
   class VersionInfo # :nodoc:
     def jruby?
