@@ -1,5 +1,12 @@
 # Nokogiri Changelog
 
+## 1.10.10 / 2020-07-06
+
+### Features
+
+* [MRI] Cross-built Windows gems now support Ruby 2.7 [#2029]. Note that prior to this release, the v1.11.x prereleases provided this support.
+
+
 ## 1.10.9 / 2020-03-01
 
 ### Fixed
