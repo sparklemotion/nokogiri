@@ -23,7 +23,7 @@
   * [ ] linux (system)
   * [ ] linux (vendored)
   * [ ] linux (vendored, --disable-static)
-  * [ ] OpenSuse with site_config (lib64, #1562)
+  * [ ] openSUSE with site_config (lib64, #1562)
   * [ ] windows (fat binary)
   * [ ] windows (devkit)
 * notifications on failure / success
