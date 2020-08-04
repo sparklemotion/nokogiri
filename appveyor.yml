@@ -33,7 +33,6 @@ environment:
     - ruby_version: 24
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"
-    - ruby_version: 23-x64
 
 matrix:
   allow_failures:
