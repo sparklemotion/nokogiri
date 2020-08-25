@@ -1,6 +1,6 @@
 #include <xml_document.h>
 
-static int dealloc_node_i(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
+static int dealloc_node_i2(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
 {
   switch(node->type) {
   case XML_ATTRIBUTE_NODE:
@@ -18,6 +18,11 @@ static int dealloc_node_i(xmlNodePtr key, xmlNodePtr node, xmlDocPtr doc)
     }
   }
   return ST_CONTINUE;
+}
+
+static int dealloc_node_i(st_data_t key, st_data_t node, st_data_t doc)
+{
+  return dealloc_node_i2((xmlNodePtr)key, (xmlNodePtr)node, (xmlDocPtr)doc);
 }
 
 static void remove_private(xmlNodePtr node)
