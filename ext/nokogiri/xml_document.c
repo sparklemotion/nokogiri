@@ -55,7 +55,7 @@ static void dealloc(xmlDocPtr doc)
 
   node_hash  = DOC_UNLINKED_NODE_HASH(doc);
 
-  st_foreach(node_hash, dealloc_node_i, (st_data_t)doc);
+  st_foreach(node_hash, (int(*)(st_data_t, st_data_t, st_data_t))dealloc_node_i, (st_data_t)doc);
   st_free_table(node_hash);
 
   free(doc->_private);
