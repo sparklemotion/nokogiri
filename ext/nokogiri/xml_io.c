@@ -17,7 +17,7 @@ int io_read_callback(void * ctx, char * buffer, int len) {
   args[0] = (VALUE)ctx;
   args[1] = INT2NUM(len);
 
-  string = rb_rescue(read_check, (VALUE)args, read_failed, 0);
+  string = rb_rescue((VALUE(*)(VALUE))read_check, (VALUE)args, (VALUE(*)(VALUE,VALUE))read_failed, 0);
 
   if (NIL_P(string)) return 0;
   if (string == Qundef) return -1;
@@ -44,7 +44,7 @@ int io_write_callback(void * ctx, char * buffer, int len) {
   args[0] = (VALUE)ctx;
   args[1] = rb_str_new(buffer, (long)len);
 
-  size = rb_rescue(write_check, (VALUE)args, write_failed, 0);
+  size = rb_rescue((VALUE(*)(VALUE))write_check, (VALUE)args, (VALUE(*)(VALUE,VALUE))write_failed, 0);
 
   if (size == Qundef) return -1;
 
