@@ -2,12 +2,13 @@
 
 static ID id_read, id_write;
 
-VALUE read_check(VALUE *args) {
+VALUE read_check(VALUE val) {
+  VALUE *args = (VALUE *)val;
   return rb_funcall(args[0], id_read, 1, args[1]);
 }
 
-VALUE read_failed(void) {
-	return Qundef;
+VALUE read_failed(VALUE arg, VALUE exc) {
+  return Qundef;
 }
 
 int io_read_callback(void * ctx, char * buffer, int len) {
@@ -30,12 +31,13 @@ int io_read_callback(void * ctx, char * buffer, int len) {
   return (int)safe_len;
 }
 
-VALUE write_check(VALUE *args) {
+VALUE write_check(VALUE val) {
+  VALUE *args = (VALUE *)val;
   return rb_funcall(args[0], id_write, 1, args[1]);
 }
 
-VALUE write_failed(void) {
-	return Qundef;
+VALUE write_failed(VALUE arg, VALUE exc) {
+  return Qundef;
 }
 
 int io_write_callback(void * ctx, char * buffer, int len) {
