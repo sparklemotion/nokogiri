@@ -585,7 +585,7 @@ resource_types:
     repository: flavorjones/irc-notification-resource
   type: registry-image
 resources:
-- icon: settings
+- icon: cog
   name: ci
   source:
     branch: master

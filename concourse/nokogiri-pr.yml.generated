@@ -709,7 +709,7 @@ resource_types:
     repository: jtarchie/pr
   type: registry-image
 resources:
-- icon: settings
+- icon: cog
   name: ci
   source:
     branch: master

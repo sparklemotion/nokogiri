@@ -1,6 +1,6 @@
   - name: ci
     type: git
-    icon: "settings"
+    icon: cog
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
