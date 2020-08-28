@@ -7,7 +7,7 @@ jobs:
     version: every
   - params:
       path: nokogiri-pr
-      status: pending
+      status: PENDING
     put: nokogiri-pr
   public: true
 - name: cruby-on-vanilla-ubuntu
@@ -19,7 +19,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -54,7 +54,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -119,7 +119,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -184,7 +184,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -249,7 +249,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -315,7 +315,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -348,7 +348,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -398,7 +398,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -451,7 +451,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -521,7 +521,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -638,7 +638,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -693,7 +693,7 @@ jobs:
     version: every
   - params:
       path: nokogiri-pr
-      status: success
+      status: SUCCESS
     put: nokogiri-pr
   - params:
       message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)
@@ -706,7 +706,7 @@ resource_types:
   type: registry-image
 - name: pull-request
   source:
-    repository: jtarchie/pr
+    repository: teliaoss/github-pr-resource
   type: registry-image
 resources:
 - icon: cog
@@ -725,15 +725,17 @@ resources:
     server: chat.freenode.net
     user: {{nokobot-irc-username}}
   type: irc-notification
-- icon: github
+- check_every: 15m
+  icon: github
   name: nokogiri-pr
   source:
-    access_token: {{github-repo-status-access-token}}
+    access_token: ((github-repo-status-access-token))
     ignore_paths:
     - '*.md'
     - concourse/**
     - suppressions/**
     - .github/**
     - Vagrantfile
-    repo: sparklemotion/nokogiri
+    repository: sparklemotion/nokogiri
   type: pull-request
+  webhook_token: ((nokogiri-pr-webhook-token))
