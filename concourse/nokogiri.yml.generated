@@ -9,7 +9,6 @@ jobs:
   - get: nokogiri
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -37,7 +36,6 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -53,7 +51,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -67,7 +64,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-vendored-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -95,7 +91,6 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -111,7 +106,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -125,7 +119,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-vendored-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -153,7 +146,6 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -169,7 +161,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -183,7 +174,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-vendored-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -211,7 +201,6 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -229,7 +218,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -243,7 +231,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-vendored-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -271,7 +258,6 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -297,7 +283,6 @@ jobs:
     - cruby-2.7
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -313,7 +298,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -341,7 +325,6 @@ jobs:
     - cruby-2.7
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -358,7 +341,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -390,7 +372,6 @@ jobs:
     - cruby-2.7
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: larskanis/rake-compiler-dock-mri-x86_64-linux
@@ -408,7 +389,6 @@ jobs:
   - in_parallel:
       steps:
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -423,7 +403,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -454,7 +433,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: larskanis/rake-compiler-dock-mri-x86_64-linux
@@ -474,7 +452,6 @@ jobs:
   - in_parallel:
       steps:
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -489,7 +466,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-2.4
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -504,7 +480,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-2.5
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -519,7 +494,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-2.6
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -534,7 +508,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-2.7
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -561,7 +534,6 @@ jobs:
     - jruby-9.2
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: larskanis/rake-compiler-dock-jruby
@@ -577,7 +549,6 @@ jobs:
         path: ci/concourse/tasks/gem-test/gem-build-java.sh
     task: build
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
