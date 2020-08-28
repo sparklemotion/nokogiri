@@ -7,7 +7,7 @@ jobs:
     version: every
   - params:
       path: nokogiri-pr
-      status: pending
+      status: PENDING
     put: nokogiri-pr
   public: true
 - name: cruby-on-vanilla-ubuntu
@@ -19,7 +19,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -29,7 +29,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -55,7 +54,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -65,7 +64,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -82,7 +80,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -97,7 +94,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-vendored-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -123,7 +119,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -133,7 +129,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -150,7 +145,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -165,7 +159,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-vendored-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -191,7 +184,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -201,7 +194,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -218,7 +210,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -233,7 +224,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-vendored-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -259,7 +249,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -269,7 +259,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -287,7 +276,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -302,7 +290,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-vendored-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -328,7 +315,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -338,7 +325,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -362,7 +348,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -371,7 +357,6 @@ jobs:
     - cruby-2.7
     trigger: true
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -388,7 +373,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -414,7 +398,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -424,7 +408,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -442,7 +425,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-system-libraries
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -469,7 +451,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -482,7 +464,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: larskanis/rake-compiler-dock-mri-x86_64-linux
@@ -501,7 +482,6 @@ jobs:
   - in_parallel:
       steps:
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -517,7 +497,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -542,7 +521,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -555,7 +534,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: larskanis/rake-compiler-dock-mri-x86_64-linux
@@ -576,7 +554,6 @@ jobs:
   - in_parallel:
       steps:
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -592,7 +569,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-2.4
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -608,7 +584,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-2.5
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -624,7 +599,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-2.6
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -640,7 +614,6 @@ jobs:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
         task: install-and-test-2.7
       - config:
-          container_limits: {}
           image_resource:
             source:
               repository: flavorjones/nokogiri-test
@@ -665,7 +638,7 @@ jobs:
         put: nokogiri-irc
       - params:
           path: nokogiri-pr
-          status: failure
+          status: FAILURE
         put: nokogiri-pr
   plan:
   - get: ci
@@ -675,7 +648,6 @@ jobs:
     trigger: true
     version: every
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: larskanis/rake-compiler-dock-jruby
@@ -692,7 +664,6 @@ jobs:
         path: ci/concourse/tasks/gem-test/gem-build-java.sh
     task: build
   - config:
-      container_limits: {}
       image_resource:
         source:
           repository: flavorjones/nokogiri-test
@@ -722,7 +693,7 @@ jobs:
     version: every
   - params:
       path: nokogiri-pr
-      status: success
+      status: SUCCESS
     put: nokogiri-pr
   - params:
       message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)
@@ -735,10 +706,10 @@ resource_types:
   type: registry-image
 - name: pull-request
   source:
-    repository: jtarchie/pr
+    repository: teliaoss/github-pr-resource
   type: registry-image
 resources:
-- icon: settings
+- icon: cog
   name: ci
   source:
     branch: master
@@ -754,15 +725,17 @@ resources:
     server: chat.freenode.net
     user: {{nokobot-irc-username}}
   type: irc-notification
-- icon: github
+- check_every: 15m
+  icon: github
   name: nokogiri-pr
   source:
-    access_token: {{github-repo-status-access-token}}
+    access_token: ((github-repo-status-access-token))
     ignore_paths:
     - '*.md'
     - concourse/**
     - suppressions/**
     - .github/**
     - Vagrantfile
-    repo: sparklemotion/nokogiri
+    repository: sparklemotion/nokogiri
   type: pull-request
+  webhook_token: ((nokogiri-pr-webhook-token))

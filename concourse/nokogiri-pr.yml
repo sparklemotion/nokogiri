@@ -5,17 +5,19 @@ resource_types:
   - name: pull-request
     type: registry-image
     source:
-      repository: jtarchie/pr
+      repository: teliaoss/github-pr-resource
 
 
 resources:
 <%= erbify_file "common_resources.yml" -%>
   - name: nokogiri-pr
     type: pull-request
-    icon: "github"
+    icon: github
+    check_every: 15m
+    webhook_token: ((nokogiri-pr-webhook-token))
     source:
-      repo: sparklemotion/nokogiri
-      access_token: {{github-repo-status-access-token}}
+      repository: sparklemotion/nokogiri
+      access_token: ((github-repo-status-access-token))
       ignore_paths: <%= $common_ignore_paths %>
 
 
@@ -23,7 +25,7 @@ anchors:
 <%= erbify_file "common_anchors.yml" -%>
   notify_failure_to_pr: &notify_failure_to_pr
     put: nokogiri-pr
-    params: {path: nokogiri-pr, status: failure}
+    params: { path: nokogiri-pr, status: FAILURE }
 
 
 jobs:
@@ -35,7 +37,7 @@ jobs:
         trigger: true
         version: every
       - put: nokogiri-pr
-        params: {path: nokogiri-pr, status: pending}
+        params: { path: nokogiri-pr, status: PENDING }
 
 
   - name: cruby-on-vanilla-ubuntu
@@ -52,7 +54,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
+            source: { repository: "flavorjones/nokogiri-test", tag: bionic }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -78,7 +80,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -95,7 +97,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -107,7 +109,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -138,7 +140,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -160,7 +162,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "alpine" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -174,7 +176,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "alpine" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -199,7 +201,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -214,7 +216,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -243,7 +245,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
+            source: { repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -258,7 +260,7 @@ jobs:
             platform: linux
             image_resource:
               type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
+              source: { repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>" }
             inputs:
               - name: ci
               - name: nokogiri-pr
@@ -271,7 +273,7 @@ jobs:
             platform: linux
             image_resource:
               type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+              source: { repository: "flavorjones/nokogiri-test", tag: "alpine" }
             inputs:
               - name: ci
               - name: nokogiri-pr
@@ -298,7 +300,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
+            source: { repository: "larskanis/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -316,7 +318,7 @@ jobs:
             platform: linux
             image_resource:
               type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+              source: { repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>" }
             inputs:
               - name: ci
               - name: nokogiri-pr
@@ -330,7 +332,7 @@ jobs:
             platform: linux
             image_resource:
               type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+              source: { repository: "flavorjones/nokogiri-test", tag: "alpine" }
             inputs:
               - name: ci
               - name: nokogiri-pr
@@ -357,7 +359,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "larskanis/rake-compiler-dock-jruby", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
+            source: { repository: "larskanis/rake-compiler-dock-jruby", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -371,7 +373,7 @@ jobs:
           platform: linux
           image_resource:
             type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
+            source: { repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>" }
           inputs:
             - name: ci
             - name: nokogiri-pr
@@ -395,6 +397,6 @@ jobs:
           - cruby-native-gem-test
           - jruby-gem-test
       - put: nokogiri-pr
-        params: {path: nokogiri-pr, status: success}
+        params: { path: nokogiri-pr, status: SUCCESS }
       - put: nokogiri-irc
-        params: {message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)"}
+        params: { message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)" }
