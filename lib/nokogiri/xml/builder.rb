@@ -245,8 +245,8 @@ module Nokogiri
       #
       # For example:
       #
-      #   doc = Nokogiri::XML(open('somedoc.xml'))
-      #   Nokogiri::XML::Builder.with(doc.at('some_tag')) do |xml|
+      #   doc = Nokogiri::XML(File.read('somedoc.xml'))
+      #   Nokogiri::XML::Builder.with(doc.at_css('some_tag')) do |xml|
       #     # ... Use normal builder methods here ...
       #     xml.awesome # add the "awesome" tag below "some_tag"
       #   end

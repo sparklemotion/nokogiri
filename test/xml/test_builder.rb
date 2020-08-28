@@ -74,7 +74,7 @@ module Nokogiri
 
       def test_with_root
         doc = Nokogiri::XML(File.read(XML_FILE))
-        Nokogiri::XML::Builder.with(doc.at("employee")) do |xml|
+        Nokogiri::XML::Builder.with(doc.at_css("employee")) do |xml|
           xml.foo
         end
         assert_equal 1, doc.xpath("//employee/foo").length
