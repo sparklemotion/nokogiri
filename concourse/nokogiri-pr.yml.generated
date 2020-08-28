@@ -16,11 +16,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -51,11 +54,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -116,11 +122,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -181,11 +190,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -246,11 +258,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -312,11 +327,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -345,11 +363,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -395,11 +416,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -448,11 +472,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -518,11 +545,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -635,11 +665,14 @@ jobs:
       steps:
       - params:
           message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: nokogiri-irc
+        put: irc
       - params:
           path: nokogiri-pr
           status: FAILURE
         put: nokogiri-pr
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -697,12 +730,20 @@ jobs:
     put: nokogiri-pr
   - params:
       message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)
-    put: nokogiri-irc
+    put: irc
+  - params:
+      status: succeeded
+    put: gitter
   public: true
 resource_types:
 - name: irc-notification
   source:
     repository: flavorjones/irc-notification-resource
+  type: registry-image
+- name: webhook-notification
+  source:
+    repository: flavorjones/webhook-notification-resource
+    tag: latest
   type: registry-image
 - name: pull-request
   source:
@@ -717,14 +758,20 @@ resources:
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
 - icon: bell
-  name: nokogiri-irc
+  name: irc
   source:
     channel: '#nokogiri'
-    password: {{nokobot-irc-password}}
+    password: ((nokobot-irc-password))
     port: 7070
     server: chat.freenode.net
-    user: {{nokobot-irc-username}}
+    user: ((nokobot-irc-username))
   type: irc-notification
+- icon: bell
+  name: gitter
+  source:
+    adapter: GitterActivityFeedAdapter
+    url: ((nokogiri-gitter-channel-webhook-url))
+  type: webhook-notification
 - check_every: 15m
   icon: github
   name: nokogiri-pr

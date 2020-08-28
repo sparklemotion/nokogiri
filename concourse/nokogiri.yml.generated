@@ -1,9 +1,14 @@
 jobs:
 - name: cruby-on-vanilla-ubuntu
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -26,9 +31,14 @@ jobs:
   public: true
 - name: cruby-2.4
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -81,9 +91,14 @@ jobs:
   public: true
 - name: cruby-2.5
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -136,9 +151,14 @@ jobs:
   public: true
 - name: cruby-2.6
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -191,9 +211,14 @@ jobs:
   public: true
 - name: cruby-2.7
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -248,9 +273,14 @@ jobs:
   public: true
 - name: jruby-9.2
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -273,9 +303,14 @@ jobs:
   public: true
 - name: cruby-on-musl
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -315,9 +350,14 @@ jobs:
   public: true
 - name: cruby-with-libxmlruby
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -359,9 +399,14 @@ jobs:
   public: true
 - name: cruby-gem-test
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -419,9 +464,14 @@ jobs:
   public: true
 - name: cruby-native-gem-test
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -524,9 +574,14 @@ jobs:
   public: true
 - name: jruby-gem-test
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: nokogiri-irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -577,12 +632,20 @@ jobs:
     version: every
   - params:
       message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)
-    put: nokogiri-irc
+    put: irc
+  - params:
+      status: succeeded
+    put: gitter
   public: true
 resource_types:
 - name: irc-notification
   source:
     repository: flavorjones/irc-notification-resource
+  type: registry-image
+- name: webhook-notification
+  source:
+    repository: flavorjones/webhook-notification-resource
+    tag: latest
   type: registry-image
 resources:
 - icon: cog
@@ -593,14 +656,20 @@ resources:
     uri: https://github.com/sparklemotion/nokogiri/
   type: git
 - icon: bell
-  name: nokogiri-irc
+  name: irc
   source:
     channel: '#nokogiri'
-    password: {{nokobot-irc-password}}
+    password: ((nokobot-irc-password))
     port: 7070
     server: chat.freenode.net
-    user: {{nokobot-irc-username}}
+    user: ((nokobot-irc-username))
   type: irc-notification
+- icon: bell
+  name: gitter
+  source:
+    adapter: GitterActivityFeedAdapter
+    url: ((nokogiri-gitter-channel-webhook-url))
+  type: webhook-notification
 - icon: github
   name: nokogiri
   source:

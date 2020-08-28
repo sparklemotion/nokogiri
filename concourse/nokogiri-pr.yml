@@ -42,7 +42,7 @@ jobs:
 
   - name: cruby-on-vanilla-ubuntu
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -68,7 +68,7 @@ jobs:
   <% Concourse.production_rubies.each do |ruby_version| %>
   - name: cruby-<%= ruby_version %>
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -124,7 +124,7 @@ jobs:
   <% RUBIES[:jruby].each_with_index do |jruby_version, j| %>
   - name: jruby-<%= jruby_version %>
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -151,7 +151,7 @@ jobs:
 
   - name: cruby-on-musl
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -189,7 +189,7 @@ jobs:
 
   - name: cruby-with-libxmlruby
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -230,7 +230,7 @@ jobs:
 
   - name: cruby-gem-test
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -285,7 +285,7 @@ jobs:
 
   - name: cruby-native-gem-test
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -344,7 +344,7 @@ jobs:
 
   - name: jruby-gem-test
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr] }
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -398,5 +398,7 @@ jobs:
           - jruby-gem-test
       - put: nokogiri-pr
         params: { path: nokogiri-pr, status: SUCCESS }
-      - put: nokogiri-irc
+      - put: irc
         params: { message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build passed ($BUILD_URL)" }
+      - put: gitter
+        params: { status: "succeeded" }

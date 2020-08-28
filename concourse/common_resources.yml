@@ -5,12 +5,18 @@
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
       disable_ci_skip: true # always get the latest pipeline configuration
-  - name: nokogiri-irc
+  - name: irc
     type: irc-notification
-    icon: "bell"
+    icon: bell
     source:
       server: chat.freenode.net
       port: 7070
       channel: "#nokogiri"
-      user: {{nokobot-irc-username}}
-      password: {{nokobot-irc-password}}
+      user: ((nokobot-irc-username))
+      password: ((nokobot-irc-password))
+  - name: gitter
+    type: webhook-notification
+    icon: bell
+    source:
+      adapter: GitterActivityFeedAdapter
+      url: ((nokogiri-gitter-channel-webhook-url))
