@@ -60,7 +60,7 @@ jobs:
             - name: nokogiri-pr
               path: nokogiri
           params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TEST_WITH_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
 
@@ -86,7 +86,7 @@ jobs:
             - name: nokogiri-pr
               path: nokogiri
           params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TEST_WITH_SYSTEM_LIBRARIES: t
             <% if ruby_version == Concourse.production_rubies.last %>
             CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
             <% end %>
@@ -168,7 +168,7 @@ jobs:
             - name: nokogiri-pr
               path: nokogiri
           params:
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TEST_WITH_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
       - task: rake-test-valgrind
@@ -208,7 +208,7 @@ jobs:
               path: nokogiri
           params:
             BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
-            NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+            TEST_WITH_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
       - task: rake-test-valgrind
