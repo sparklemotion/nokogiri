@@ -15,6 +15,7 @@
 Gemfile*lock
 TAGS
 build
+concourse/docker-compose.yml
 concourse/private.yml
 concourse/images/*.generated
 coverage

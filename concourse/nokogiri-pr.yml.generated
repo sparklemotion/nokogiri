@@ -42,7 +42,7 @@ jobs:
       - name: nokogiri-pr
         path: nokogiri
       params:
-        NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+        TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
@@ -80,7 +80,7 @@ jobs:
       - name: nokogiri-pr
         path: nokogiri
       params:
-        NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+        TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
@@ -148,7 +148,7 @@ jobs:
       - name: nokogiri-pr
         path: nokogiri
       params:
-        NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+        TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
@@ -216,7 +216,7 @@ jobs:
       - name: nokogiri-pr
         path: nokogiri
       params:
-        NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+        TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
@@ -285,7 +285,7 @@ jobs:
         path: nokogiri
       params:
         CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
-        NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+        TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
@@ -388,7 +388,7 @@ jobs:
       - name: nokogiri-pr
         path: nokogiri
       params:
-        NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+        TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh
@@ -443,7 +443,7 @@ jobs:
         path: nokogiri
       params:
         BUNDLE_GEMFILE: Gemfile-libxml-ruby
-        NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+        TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux
       run:
         path: ci/concourse/tasks/rake-test/run.sh

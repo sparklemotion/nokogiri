@@ -49,7 +49,11 @@ pushd nokogiri
     export RUBYOPT="--enable-frozen-string-literal --debug=frozen-string-literal"
   fi
 
-  if [[ ${TEST_WITH_VALGRIND:-} != "" ]] ; then
+  if [[ "${TEST_WITH_SYSTEM_LIBRARIES:-}" == "t" ]] ; then
+    export NOKOGIRI_USE_SYSTEM_LIBRARIES=t
+  fi
+
+  if [[ "${TEST_WITH_VALGRIND:-}" == "t" ]] ; then
     test_task="test:valgrind" # override
     # export TESTOPTS="-v" # see more verbose output to help narrow down warnings
 
