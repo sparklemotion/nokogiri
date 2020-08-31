@@ -35,12 +35,6 @@ pushd nokogiri
 
   test_task="test"
 
-  # omg, jruby docker maintainers.
-  # see https://github.com/rubygems/bundler/issues/6162
-  # see https://github.com/rubygems/bundler/issues/6154
-  # and see https://github.com/docker-library/ruby/pull/209 which was the fix for cruby docker images.
-  export BUNDLE_GEMFILE="$(pwd)/Gemfile"
-
   bundle install --local || bundle install
   bundle exec rake generate # do this before setting frozen string option, because racc isn't compatible with frozen string literals yet
 

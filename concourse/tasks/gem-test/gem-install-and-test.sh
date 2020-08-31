@@ -16,7 +16,6 @@ popd
 
 pushd nokogiri
 
-  export BUNDLE_GEMFILE="$(pwd)/Gemfile"
   export BUNDLE_CACHE_PATH="${BUNDLE_APP_CONFIG}/cache"
   bundle -v
   bundle config
