@@ -1,8 +1,8 @@
 ---
 name: Installation Difficulties
 about: If you're having trouble installing Nokogiri ...
-title: Installation difficulties
-labels: ''
+title: [install] 
+labels: 'topic/installation'
 assignees: ''
 
 ---

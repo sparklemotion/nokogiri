@@ -1,8 +1,8 @@
 ---
 name: Bug Report or Help Request
 about: Create a report to help us improve
-title: ''
-labels: ''
+title: '[bug]'
+labels: 'state/needs-triage'
 assignees: ''
 
 ---
