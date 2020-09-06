@@ -36,9 +36,18 @@ CrossRuby = Struct.new(:version, :host) do
   WINDOWS_PLATFORM_REGEX = /mingw|mswin/
   MINGW32_PLATFORM_REGEX = /mingw32/
   LINUX_PLATFORM_REGEX = /linux/
+  DARWIN_PLATFORM_REGEX = /darwin/
 
   def windows?
     !!(platform =~ WINDOWS_PLATFORM_REGEX)
+  end
+
+  def linux?
+    !!(platform =~ LINUX_PLATFORM_REGEX)
+  end
+
+  def darwin?
+    !!(platform =~ DARWIN_PLATFORM_REGEX)
   end
 
   def tool(name)
@@ -51,6 +60,8 @@ CrossRuby = Struct.new(:version, :host) do
         "x86_64-linux-gnu-"
       when "x86-linux"
         "i686-linux-gnu-"
+      else
+        ""
       end) + name
   end
 
@@ -119,6 +130,7 @@ require "rake_compiler_dock"
 def verify_dll(dll, cross_ruby)
   dll_imports = cross_ruby.dlls
   dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
+
   if cross_ruby.windows?
     raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target)}\s/ === dump
     raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
@@ -129,7 +141,8 @@ def verify_dll(dll, cross_ruby)
     if dll_imports_is.sort != dll_imports.sort
       raise "unexpected dll imports #{dll_imports_is.inspect} in #{dll}"
     end
-  else
+
+  elsif cross_ruby.linux?
     # Verify that the expected so dependencies match the actual dependencies
     # and that no further dependencies exist.
     dll_imports_is = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
@@ -148,12 +161,21 @@ def verify_dll(dll, cross_ruby)
     if dll_ref_versions_is != cross_ruby.dll_ref_versions
       raise "unexpected so version requirements #{dll_ref_versions_is.inspect} in #{dll}"
     end
+
+  elsif cross_ruby.darwin?
+    raise "need to implement .bundle checks"
+
   end
   puts "verify_dll: #{dll}: passed shared library sanity checks"
 end
 
 CROSS_RUBIES.each do |cross_ruby|
-  task "tmp/#{cross_ruby.platform}/stage/lib/nokogiri/#{cross_ruby.minor_ver}/nokogiri.so" do |t|
+  staging_path_dll = if cross_ruby.darwin?
+                       "tmp/#{cross_ruby.platform}/stage/lib/nokogiri/#{cross_ruby.minor_ver}/nokogiri.bundle"
+                     else
+                       "tmp/#{cross_ruby.platform}/stage/lib/nokogiri/#{cross_ruby.minor_ver}/nokogiri.so"
+                     end
+  task staging_path_dll do |t|
     verify_dll t.name, cross_ruby
   end
 end
