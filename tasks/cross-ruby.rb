@@ -26,6 +26,8 @@ CrossRuby = Struct.new(:version, :host) do
         "x86_64-linux"
       when /\Ai[3-6]86.*linux/
         "x86-linux"
+      when /\Ax86_64-darwin19/
+        "x86_64-darwin19"
       else
         raise "unsupported host: #{host}"
       end
@@ -103,14 +105,12 @@ CrossRuby = Struct.new(:version, :host) do
   end
 end
 
-CROSS_RUBIES = File.read(".cross_rubies").lines.flat_map do |line|
+CROSS_RUBIES = File.read(".cross_rubies").split("\n").map do |line|
   case line
   when /\A([^#]+):([^#]+)/
     CrossRuby.new($1, $2)
-  else
-    []
   end
-end
+end.compact
 
 ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 
@@ -159,11 +159,8 @@ CROSS_RUBIES.each do |cross_ruby|
 end
 
 namespace "gem" do
-  CROSS_RUBIES.map(&:platform).uniq.each do |plat|
-    desc "build native fat binary gems for windows and linux"
-    multitask "native" => plat
-
-    desc "build native gem for #{plat} platform\nthis trampolines into the rake-compiler-dock guest"
+  CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? }.map(&:platform).uniq.each do |plat|
+    desc "build native gem for #{plat} platform (host)"
     task plat do
       # TODO remove `find` after https://github.com/rake-compiler/rake-compiler/pull/171 is shipped
       RakeCompilerDock.sh <<-EOT, platform: plat
@@ -175,7 +172,7 @@ namespace "gem" do
     end
 
     namespace plat do
-      desc "(within docker guest) build native gem for #{plat} platform\nthis should only be called within a rake-compiler-dock image"
+      desc "build native gem for #{plat} platform (guest)"
       task "guest" do
         # use Task#invoke because the pkg/*gem task is defined at runtime
         Rake::Task["native:#{plat}"].invoke
@@ -190,7 +187,7 @@ namespace "gem" do
   desc "build native fat binary gems for linux"
   multitask "linux" => CROSS_RUBIES.map(&:platform).uniq.grep(LINUX_PLATFORM_REGEX)
 
-  desc "build a jruby gem with docker"
+  desc "build a jruby gem"
   task "jruby" do
     RakeCompilerDock.sh "gem install bundler --no-document && bundle && rake java gem", rubyvm: "jruby"
   end
