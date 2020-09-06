@@ -10,7 +10,6 @@ Hoe.plugin :markdown
 require 'shellwords'
 
 require_relative "tasks/util"
-require_relative "tasks/cross-ruby"
 
 HOE = Hoe.spec 'nokogiri' do
   developer 'Aaron Patterson', 'aaronp@rubyforge.org'
@@ -74,67 +73,7 @@ HOE = Hoe.spec 'nokogiri' do
   self.test_prelude = 'require "helper"' # ensure simplecov gets loaded before anything else
 end
 
-if java?
-  # TODO: clean this section up.
-  require "rake/javaextensiontask"
-  Rake::JavaExtensionTask.new("nokogiri", HOE.spec) do |ext|
-    jruby_home = RbConfig::CONFIG['prefix']
-    ext.ext_dir = 'ext/java'
-    ext.lib_dir = 'lib/nokogiri'
-    ext.source_version = '1.6'
-    ext.target_version = '1.6'
-    jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
-    ext.classpath = jars.map { |x| File.expand_path x }.join ':'
-    ext.debug = true if ENV['JAVA_DEBUG']
-  end
-
-  task gem_build_path => [:compile] do
-    add_file_to_gem 'lib/nokogiri/nokogiri.jar'
-  end
-else
-  require "rake/extensiontask"
-
-  HOE.spec.files.reject! { |f| f =~ %r{\.(java|jar)$} }
-
-  dependencies = YAML.load_file("dependencies.yml")
-
-  task gem_build_path do
-    %w[libxml2 libxslt].each do |lib|
-      version = dependencies[lib]["version"]
-      archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
-      add_file_to_gem archive
-      patchesdir = File.join("patches", lib)
-      patches = `#{['git', 'ls-files', patchesdir].shelljoin}`.split("\n").grep(/\.patch\z/)
-      patches.each { |patch|
-        add_file_to_gem patch
-      }
-      (untracked = Dir[File.join(patchesdir, '*.patch')] - patches).empty? or
-        at_exit {
-          untracked.each { |patch|
-            puts "** WARNING: untracked patch file not added to gem: #{patch}"
-          }
-        }
-    end
-  end
-
-  Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
-    ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
-    ext.config_options << ENV['EXTOPTS']
-    ext.cross_compile  = true
-    ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
-    ext.cross_config_options << "--enable-cross-build"
-    ext.cross_compiling do |spec|
-      libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
-
-      spec.post_install_message = <<-EOS
-Nokogiri is built with the packaged libraries: #{libs}.
-      EOS
-      spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
-      spec.dependencies.reject! { |dep| dep.name=='mini_portile2' }
-    end
-  end
-end
-
+require_relative "tasks/cross-ruby"
 require_relative "tasks/concourse"
 require_relative "tasks/css-generate"
 require_relative "tasks/debug"
