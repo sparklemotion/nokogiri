@@ -179,7 +179,7 @@ namespace "gem" do
       task "guest" do
         # use Task#invoke because the pkg/*gem task is defined at runtime
         Rake::Task["native:#{plat}"].invoke
-        Rake::Task["pkg/#{HOE.spec.full_name}-#{plat}.gem"].invoke
+        Rake::Task["pkg/#{HOE.spec.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
       end
     end
   end

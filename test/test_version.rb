@@ -14,6 +14,7 @@ module TestVersionInfoTests
 
     assert_equal Nokogiri::VERSION_INFO["ruby"]["version"], ::RUBY_VERSION
     assert_equal Nokogiri::VERSION_INFO["ruby"]["platform"], ::RUBY_PLATFORM
+    assert_equal Nokogiri::VERSION_INFO["ruby"]["gem_platform"], ::Gem::Platform.local.to_s
   end
 
   def test_version_info_for_xerces
