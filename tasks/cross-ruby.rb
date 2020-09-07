@@ -203,16 +203,28 @@ namespace "gem" do
     end
   end
 
-  desc "build native fat binary gems for windows"
-  multitask "windows" => CROSS_RUBIES.map(&:platform).uniq.grep(WINDOWS_PLATFORM_REGEX)
-
-  desc "build native fat binary gems for linux"
-  multitask "linux" => CROSS_RUBIES.map(&:platform).uniq.grep(LINUX_PLATFORM_REGEX)
-
   desc "build a jruby gem"
   task "jruby" do
     RakeCompilerDock.sh "gem install bundler --no-document && bundle && rake java gem", rubyvm: "jruby"
   end
+
+  CROSS_RUBIES.find_all { |cr| cr.darwin? }.map(&:platform).uniq.each do |plat|
+    desc "build native gem for #{plat} platform"
+    task plat do
+      sh "find ~/.gem -name extensiontask.rb | while read f ; do sed -i '' 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' \$f ; done"
+      Rake::Task["native:#{plat}"].invoke
+      Rake::Task["pkg/#{HOE.spec.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
+    end
+  end
+
+  desc "build native gems for windows"
+  multitask "windows" => CROSS_RUBIES.find_all(&:windows?).map(&:platform).uniq
+
+  desc "build native gems for linux"
+  multitask "linux" => CROSS_RUBIES.find_all(&:linux?).map(&:platform).uniq
+
+  desc "build native gems for darwin"
+  multitask "darwin" => CROSS_RUBIES.find_all(&:darwin?).map(&:platform).uniq
 end
 
 if java?
