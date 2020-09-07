@@ -74,6 +74,14 @@ CrossRuby = Struct.new(:version, :host) do
     end
   end
 
+  def dll_ext
+    darwin? ? "bundle" : "so"
+  end
+
+  def dll_staging_path
+    "tmp/#{platform}/stage/lib/#{HOE.spec.name}/#{minor_ver}/#{HOE.spec.name}.#{dll_ext}"
+  end
+
   def libruby_dll
     case platform
     when "x64-mingw32"
@@ -170,12 +178,7 @@ def verify_dll(dll, cross_ruby)
 end
 
 CROSS_RUBIES.each do |cross_ruby|
-  staging_path_dll = if cross_ruby.darwin?
-                       "tmp/#{cross_ruby.platform}/stage/lib/nokogiri/#{cross_ruby.minor_ver}/nokogiri.bundle"
-                     else
-                       "tmp/#{cross_ruby.platform}/stage/lib/nokogiri/#{cross_ruby.minor_ver}/nokogiri.so"
-                     end
-  task staging_path_dll do |t|
+  task cross_ruby.dll_staging_path do |t|
     verify_dll t.name, cross_ruby
   end
 end
