@@ -128,7 +128,7 @@ ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 require "rake_compiler_dock"
 
 def verify_dll(dll, cross_ruby)
-  dll_imports = cross_ruby.dlls
+  expected_imports = cross_ruby.dlls.sort
   dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
 
   if cross_ruby.windows?
@@ -137,29 +137,29 @@ def verify_dll(dll, cross_ruby)
 
     # Verify that the expected DLL dependencies match the actual dependencies
     # and that no further dependencies exist.
-    dll_imports_is = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
-    if dll_imports_is.sort != dll_imports.sort
-      raise "unexpected dll imports #{dll_imports_is.inspect} in #{dll}"
+    actual_imports = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq.sort
+    if actual_imports != expected_imports
+      raise "unexpected so imports #{actual_imports.inspect} in #{dll} (expected #{expected_imports.inspect})"
     end
 
   elsif cross_ruby.linux?
     # Verify that the expected so dependencies match the actual dependencies
     # and that no further dependencies exist.
-    dll_imports_is = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
-    if dll_imports_is.sort != dll_imports.sort
-      raise "unexpected so imports #{dll_imports_is.inspect} in #{dll} (expected #{dll_imports.inspect})"
+    actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq.sort
+    if actual_imports != expected_imports
+      raise "unexpected so imports #{actual_imports.inspect} in #{dll} (expected #{expected_imports.inspect})"
     end
 
     # Verify that the expected so version requirements match the actual dependencies.
-    dll_ref_versions_list = dump.scan(/0x[\da-f]+ 0x[\da-f]+ \d+ (\w+)_([\d\.]+)$/i)
+    ref_versions_data = dump.scan(/0x[\da-f]+ 0x[\da-f]+ \d+ (\w+)_([\d\.]+)$/i)
     # Build a hash of library versions like {"LIBUDEV"=>"183", "GLIBC"=>"2.17"}
-    dll_ref_versions_is = dll_ref_versions_list.each.with_object({}) do |(lib, ver), h|
+    actual_ref_versions = ref_versions_data.each.with_object({}) do |(lib, ver), h|
       if !h[lib] || ver.split(".").map(&:to_i).pack("C*") > h[lib].split(".").map(&:to_i).pack("C*")
         h[lib] = ver
       end
     end
-    if dll_ref_versions_is != cross_ruby.dll_ref_versions
-      raise "unexpected so version requirements #{dll_ref_versions_is.inspect} in #{dll}"
+    if actual_ref_versions != cross_ruby.dll_ref_versions
+      raise "unexpected so version requirements #{actual_ref_versions.inspect} in #{dll}"
     end
 
   elsif cross_ruby.darwin?
