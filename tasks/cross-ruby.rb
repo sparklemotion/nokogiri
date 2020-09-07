@@ -103,7 +103,7 @@ CrossRuby = Struct.new(:version, :host) do
     end
   end
 
-  def dlls
+  def allowed_dlls
     case platform
     when MINGW32_PLATFORM_REGEX
       [
@@ -129,9 +129,10 @@ CrossRuby = Struct.new(:version, :host) do
       [
         "/usr/lib/libSystem.B.dylib",
         "/usr/lib/liblzma.5.dylib",
+        "/usr/lib/libobjc.A.dylib",
       ]
     else
-      raise "CrossRuby.dlls: unmatched platform: #{platform}"
+      raise "CrossRuby.allowed_dlls: unmatched platform: #{platform}"
     end
   end
 
@@ -157,7 +158,7 @@ ENV["RUBY_CC_VERSION"] = CROSS_RUBIES.map(&:ver).uniq.join(":")
 require "rake_compiler_dock"
 
 def verify_dll(dll, cross_ruby)
-  expected_imports = cross_ruby.dlls.sort
+  allowed_imports = cross_ruby.allowed_dlls
 
   if cross_ruby.windows?
     dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
@@ -165,11 +166,10 @@ def verify_dll(dll, cross_ruby)
     raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
     raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
 
-    # Verify that the expected DLL dependencies match the actual dependencies
-    # and that no further dependencies exist.
-    actual_imports = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq.sort
-    if actual_imports != expected_imports
-      raise "unexpected so imports #{actual_imports.inspect} in #{dll} (expected #{expected_imports.inspect})"
+    # Verify that the DLL dependencies are all allowed.
+    actual_imports = dump.scan(/DLL Name: (.*)$/).map(&:first).map(&:downcase).uniq
+    if !(actual_imports - allowed_imports).empty?
+      raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
 
   elsif cross_ruby.linux?
@@ -179,11 +179,10 @@ def verify_dll(dll, cross_ruby)
     raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
     raise "export function Init_nokogiri not in dll #{dll}" unless / T Init_nokogiri/ === nm
 
-    # Verify that the expected so dependencies match the actual dependencies
-    # and that no further dependencies exist.
-    actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq.sort
-    if actual_imports != expected_imports
-      raise "unexpected so imports #{actual_imports.inspect} in #{dll} (expected #{expected_imports.inspect})"
+    # Verify that the DLL dependencies are all allowed.
+    actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq
+    if !(actual_imports - allowed_imports).empty?
+      raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
 
     # Verify that the expected so version requirements match the actual dependencies.
@@ -218,12 +217,11 @@ def verify_dll(dll, cross_ruby)
       ldd = `#{["env", "LANG=C", "otool", "-L", dll].shelljoin}`
     end
 
-    # Verify that the expected so dependencies match the actual dependencies
-    # and that no further dependencies exist.
+    # Verify that the DLL dependencies are all allowed.
     ldd = `#{["env", "LANG=C", "otool", "-L", dll].shelljoin}`
-    actual_imports = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq.sort
-    if actual_imports != expected_imports
-      raise "unexpected so imports #{actual_imports.inspect} in #{dll} (expected #{expected_imports.inspect})"
+    actual_imports = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq
+    if !(actual_imports - allowed_imports).empty?
+      raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
     end
   end
   puts "verify_dll: #{dll}: passed shared library sanity checks"
