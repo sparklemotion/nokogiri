@@ -26,15 +26,16 @@ exclude: !ruby/regexp '/
   |Manifest.txt
   |Rakefile
   |appveyor\.yml
-  |build_all
   |CHANGELOG.md
   |CODE_OF_CONDUCT.md
   |CONTRIBUTING.md
   |ROADMAP.md
   |SECURITY.md
   |STANDARD_RESPONSES.md
+  |Vagrantfile
   |Y_U_NO_GEMSPEC.md
   |C_CODING_STYLE.*
+  |scripts
   |patches
 )
 |\.gitkeep
