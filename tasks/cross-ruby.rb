@@ -1,4 +1,21 @@
 CrossRuby = Struct.new(:version, :host) do
+  WINDOWS_PLATFORM_REGEX = /mingw|mswin/
+  MINGW32_PLATFORM_REGEX = /mingw32/
+  LINUX_PLATFORM_REGEX = /linux/
+  DARWIN_PLATFORM_REGEX = /darwin/
+
+  def windows?
+    !!(platform =~ WINDOWS_PLATFORM_REGEX)
+  end
+
+  def linux?
+    !!(platform =~ LINUX_PLATFORM_REGEX)
+  end
+
+  def darwin?
+    !!(platform =~ DARWIN_PLATFORM_REGEX)
+  end
+
   def ver
     @ver ||= version[/\A[^-]+/]
   end
@@ -10,7 +27,7 @@ CrossRuby = Struct.new(:version, :host) do
   def api_ver_suffix
     case minor_ver
     when nil
-      raise "unsupported version: #{ver}"
+      raise "CrossRuby.api_ver_suffix: unsupported version: #{ver}"
     else
       minor_ver.delete(".") << "0"
     end
@@ -29,25 +46,8 @@ CrossRuby = Struct.new(:version, :host) do
       when /\Ax86_64-darwin19/
         "x86_64-darwin19"
       else
-        raise "unsupported host: #{host}"
+        raise "CrossRuby.platform: unsupported host: #{host}"
       end
-  end
-
-  WINDOWS_PLATFORM_REGEX = /mingw|mswin/
-  MINGW32_PLATFORM_REGEX = /mingw32/
-  LINUX_PLATFORM_REGEX = /linux/
-  DARWIN_PLATFORM_REGEX = /darwin/
-
-  def windows?
-    !!(platform =~ WINDOWS_PLATFORM_REGEX)
-  end
-
-  def linux?
-    !!(platform =~ LINUX_PLATFORM_REGEX)
-  end
-
-  def darwin?
-    !!(platform =~ DARWIN_PLATFORM_REGEX)
   end
 
   def tool(name)
@@ -60,17 +60,21 @@ CrossRuby = Struct.new(:version, :host) do
         "x86_64-linux-gnu-"
       when "x86-linux"
         "i686-linux-gnu-"
-      else
+      when /darwin/
         ""
+      else
+        raise "CrossRuby.tool: unmatched platform: #{platform}"
       end) + name
   end
 
-  def target
+  def target_file_format
     case platform
     when "x64-mingw32"
       "pei-x86-64"
     when "x86-mingw32"
       "pei-i386"
+    else
+      raise "CrossRuby.target_file_format: unmatched platform: #{platform}"
     end
   end
 
@@ -88,6 +92,8 @@ CrossRuby = Struct.new(:version, :host) do
       "x64-msvcrt-ruby#{api_ver_suffix}.dll"
     when "x86-mingw32"
       "msvcrt-ruby#{api_ver_suffix}.dll"
+    else
+      raise "CrossRuby.libruby_dll: unmatched platform: #{platform}"
     end
   end
 
@@ -99,9 +105,9 @@ CrossRuby = Struct.new(:version, :host) do
         "msvcrt.dll",
         "ws2_32.dll",
         *(case
-        when ver >= "2.0.0"
-          "user32.dll"
-        end),
+          when ver >= "2.0.0"
+            "user32.dll"
+          end),
         libruby_dll,
       ]
     when LINUX_PLATFORM_REGEX
@@ -113,6 +119,10 @@ CrossRuby = Struct.new(:version, :host) do
         end),
         "libc.so.6",
       ]
+    when DARWIN_PLATFORM_REGEX
+      []
+    else
+      raise "CrossRuby.dlls: unmatched platform: #{platform}"
     end
   end
 
@@ -120,6 +130,8 @@ CrossRuby = Struct.new(:version, :host) do
     case platform
     when LINUX_PLATFORM_REGEX
       { "GLIBC" => "2.17" }
+    else
+      raise "CrossRuby.dll_ref_versions: unmatched platform: #{platform}"
     end
   end
 end
@@ -140,7 +152,7 @@ def verify_dll(dll, cross_ruby)
   dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
 
   if cross_ruby.windows?
-    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target)}\s/ === dump
+    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
     raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
 
     # Verify that the expected DLL dependencies match the actual dependencies
