@@ -77,6 +77,8 @@ CrossRuby = Struct.new(:version, :host) do
       "elf64-x86-64"
     when "x86-linux"
       "elf32-i386"
+    when "x86_64-darwin19"
+      "Mach-O 64-bit x86-64"
     else
       raise "CrossRuby.target_file_format: unmatched platform: #{platform}"
     end
@@ -124,7 +126,10 @@ CrossRuby = Struct.new(:version, :host) do
         "libc.so.6",
       ]
     when DARWIN_PLATFORM_REGEX
-      []
+      [
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/liblzma.5.dylib",
+      ]
     else
       raise "CrossRuby.dlls: unmatched platform: #{platform}"
     end
@@ -194,8 +199,32 @@ def verify_dll(dll, cross_ruby)
     end
 
   elsif cross_ruby.darwin?
-    raise "need to implement .bundle checks"
+    dump = `#{["env", "LANG=C", "objdump", "-p", dll].shelljoin}`
+    nm = `#{["env", "LANG=C", "nm", "-g", dll].shelljoin}`
 
+    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
+    raise "export function Init_nokogiri not in dll #{dll}" unless / T _?Init_nokogiri/ === nm
+
+    # if liblzma is being referenced, let's make sure it's referring
+    # to the system-installed file and not the homebrew-installed file.
+    ldd = `#{["env", "LANG=C", "otool", "-L", dll].shelljoin}`
+    if liblzma_refs = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq.grep(/liblzma/)
+      liblzma_refs.each do |ref|
+        new_ref = File.join("/usr/lib", File.basename(ref))
+        sh ["env", "LANG=C", "install_name_tool", "-change", ref, new_ref, dll].shelljoin
+      end
+
+      # reload!
+      ldd = `#{["env", "LANG=C", "otool", "-L", dll].shelljoin}`
+    end
+
+    # Verify that the expected so dependencies match the actual dependencies
+    # and that no further dependencies exist.
+    ldd = `#{["env", "LANG=C", "otool", "-L", dll].shelljoin}`
+    actual_imports = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq.sort
+    if actual_imports != expected_imports
+      raise "unexpected so imports #{actual_imports.inspect} in #{dll} (expected #{expected_imports.inspect})"
+    end
   end
   puts "verify_dll: #{dll}: passed shared library sanity checks"
 end
