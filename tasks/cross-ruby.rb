@@ -73,6 +73,10 @@ CrossRuby = Struct.new(:version, :host) do
       "pei-x86-64"
     when "x86-mingw32"
       "pei-i386"
+    when "x86_64-linux"
+      "elf64-x86-64"
+    when "x86-linux"
+      "elf32-i386"
     else
       raise "CrossRuby.target_file_format: unmatched platform: #{platform}"
     end
@@ -149,9 +153,10 @@ require "rake_compiler_dock"
 
 def verify_dll(dll, cross_ruby)
   expected_imports = cross_ruby.dlls.sort
-  dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
 
   if cross_ruby.windows?
+    dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
+
     raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
     raise "export function Init_nokogiri not in dll #{dll}" unless /Table.*\sInit_nokogiri\s/mi === dump
 
@@ -163,6 +168,12 @@ def verify_dll(dll, cross_ruby)
     end
 
   elsif cross_ruby.linux?
+    dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
+    nm = `#{["env", "LANG=C", cross_ruby.tool("nm"), "-D", dll].shelljoin}`
+
+    raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
+    raise "export function Init_nokogiri not in dll #{dll}" unless / T Init_nokogiri/ === nm
+
     # Verify that the expected so dependencies match the actual dependencies
     # and that no further dependencies exist.
     actual_imports = dump.scan(/NEEDED\s+(.*)/).map(&:first).uniq.sort
