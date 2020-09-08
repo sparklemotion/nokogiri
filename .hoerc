@@ -35,7 +35,10 @@ exclude: !ruby/regexp '/
   |Vagrantfile
   |Y_U_NO_GEMSPEC.md
   |C_CODING_STYLE.*
+  |h1-.*
+  |[0-9][0-9][0-9][0-9]-.*
   |scripts
+  |sorbet
   |patches
 )
 |\.gitkeep
