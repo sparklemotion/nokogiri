@@ -50,9 +50,9 @@ With the v1.11.0 release candidates, we are experimenting with shipping **pre-co
 
 If this works properly for you, it will speed up installation time on Linux.
 
-If this doesn't work for you, please drop us a note at #2075, we may reach out to you for more information on your distro and configuration.
+If this doesn't work for you, please drop us a note at [#2075](https://github.com/sparklemotion/nokogiri/issues/2075), we may reach out to you for more information on your distro and configuration.
 
-Either way, we'd appreciate your thoughts and feedback at #2075.
+Either way, we'd appreciate your thoughts and feedback at [#2075](https://github.com/sparklemotion/nokogiri/issues/2075).
 
 
 ### Dependencies
@@ -96,7 +96,7 @@ This release ends support for:
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
-* [Windows Visual C++] Fixed compiler warnings and errors. [#2061, #2068]
+* [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
 
 
 ### Removed
