@@ -1,5 +1,7 @@
 # Nokogiri Changelog
 
+## Versioning Policy
+
 Nokogiri follows [Semantic Versioning](https://semver.org/) (since 2017 or so). Note that we occasionally drop support for EOLed Rubies in Minor releases, which [some folks find objectionable](https://github.com/sparklemotion/nokogiri/issues/1568), but SemVer says [this is OK if the public API hasn't changed](https://semver.org/#what-should-i-do-if-i-update-my-own-dependencies-without-changing-the-public-api).
 
 Here's what Dependabot thinks about Nokogiri's SemVer score: [![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
@@ -26,20 +28,31 @@ We bump `Major.Minor.Patch` versions following this guidance:
 
 ## Unreleased (will be v1.11.0)
 
-To try out release candidates, use `gem install --prerelease`. Latest is `v1.11.0.rc2`.
+Latest is `v1.11.0.rc3`.
+
+To try out release candidates, use `gem install --prerelease` or `gem install nokogiri -v1.11.0.rc3`
+
+If you're using bundler, try updating your Gemfile with:
+
+``` ruby
+gem "nokogiri", "~> 1.11.0.rc3"`
+```
 
 
 ### Notes
 
-#### Experiment: Pre-Compiled Native Linux Gems
+#### Experiment: Pre-Compiled Native Gems for Linux and OSX/Darwin
 
-With the v1.11.0 release candidates, we are experimenting with shipping **pre-compiled native Linux gems** for the `x86-linux` and `x86_64-linux` platforms. Note that v1.11.0.rc2 and later also support musl systems (e.g., alpine).
+With the v1.11.0 release candidates, we are experimenting with shipping **pre-compiled native gems** for these platforms:
+
+- Linux: `x86-linux` and `x86_64-linux` including musl platforms like alpine
+- OSX/Darwin: `x86_64-darwin19`
 
 If this works properly for you, it will speed up installation time on Linux.
 
-If this doesn't work for you, please drop us a note at [#1983](https://github.com/sparklemotion/nokogiri/issues/1983), we may reach out to you for more information on your distro and configuration.
+If this doesn't work for you, please drop us a note at #2075, we may reach out to you for more information on your distro and configuration.
 
-Either way, we'd appreciate some feedback at [#1983](https://github.com/sparklemotion/nokogiri/issues/1983).
+Either way, we'd appreciate your thoughts and feedback at #2075.
 
 
 ### Dependencies
@@ -83,6 +96,7 @@ This release ends support for:
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
+* [Windows Visual C++] Fixed compiler warnings and errors. [#2061, #2068]
 
 
 ### Removed
