@@ -24,9 +24,8 @@ ext/java/nokogiri/**/*.class
 ext/nokogiri/*.dll
 gems
 lib/nokogiri/**/nokogiri.so
-lib/nokogiri/nokogiri.bundle
+lib/nokogiri/**/nokogiri.bundle
 lib/nokogiri/nokogiri.jar
-lib/nokogiri/nokogiri.rb
 pkg
 ports
 stash

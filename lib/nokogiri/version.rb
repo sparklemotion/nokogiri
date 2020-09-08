@@ -69,6 +69,7 @@ module Nokogiri
         vi["ruby"] = {}.tap do |ruby|
           ruby["version"] = ::RUBY_VERSION
           ruby["platform"] = ::RUBY_PLATFORM
+          ruby["gem_platform"] = ::Gem::Platform.local.to_s
           ruby["description"] = ::RUBY_DESCRIPTION
           ruby["engine"] = engine
           ruby["jruby"] = jruby? if jruby?
