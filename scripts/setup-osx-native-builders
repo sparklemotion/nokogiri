@@ -4,6 +4,9 @@
 # - https://github.com/rake-compiler/rake-compiler/blob/master/tasks/bin/cross-ruby.rake
 # - https://github.com/apolcyn/grpc/blob/master/tools/distrib/build_ruby_environment_macos.sh
 
+# see test/test_gem_platform.rb for context
+gem_platform_name="x86_64-darwin"
+
 # chosen so chruby will see it, should you be a user of chruby
 RUBIES_DIR=${HOME}/.rubies
 
@@ -18,11 +21,12 @@ set -o pipefail
 
 CROSS_FILE=".cross_rubies"
 RUBIES=$(cat $CROSS_FILE | fgrep darwin | cut -d. -f1,2 | sort -u)
+
 RAKE_COMPILER_CONFIG_DIR=${HOME}/.rake-compiler
 RAKE_COMPILER_CONFIG=${RAKE_COMPILER_CONFIG_DIR}/config.yml
+TMP_CONFIG=$(mktemp /tmp/rake-compiler-config.XXXXXXXX)
 
-mkdir -p $RAKE_COMPILER_CONFIG_DIR
-echo "---" > $RAKE_COMPILER_CONFIG
+echo "---" > $TMP_CONFIG
 
 for ruby in $RUBIES ; do
   ruby_fullname="native-builder-${ruby}"
@@ -42,9 +46,9 @@ for ruby in $RUBIES ; do
     echo "ruby $ruby_fullname is installed"
   fi
 
-  platform=$(basename $(dirname $rbconfig))
-
-  echo "rbconfig-${platform}-${ruby_minor}: \"${rbconfig}\"" >> $RAKE_COMPILER_CONFIG
+  echo "rbconfig-${gem_platform_name}-${ruby_minor}: \"${rbconfig}\"" >> $TMP_CONFIG
 done
 
+mkdir -p $RAKE_COMPILER_CONFIG_DIR
+cp $TMP_CONFIG $RAKE_COMPILER_CONFIG
 cat $RAKE_COMPILER_CONFIG
