@@ -93,7 +93,7 @@ public class XmlDomParserContext extends ParserContext {
     public XmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
         super(runtime);
         this.options = new ParserContext.Options(RubyFixnum.fix2long(options));
-        java_encoding = NokogiriHelpers.getValidEncoding(encoding);
+        java_encoding = NokogiriHelpers.getValidEncodingOrNull(encoding);
         ruby_encoding = encoding;
         initErrorHandler();
         initParser(runtime);
