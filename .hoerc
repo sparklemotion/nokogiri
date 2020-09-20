@@ -6,6 +6,7 @@ exclude: !ruby/regexp '/
        \.github|
        \.vagrant|
        \.yardoc|
+       \.DS_Store|
        concourse|
        gems|
        patches|
