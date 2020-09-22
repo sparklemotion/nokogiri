@@ -120,13 +120,9 @@ public class XmlSyntaxError extends RubyException {
         setInstanceVariable("@file", stringOrNil(runtime, exception.getSystemId()));
     }
 
-    // NOTE: special care - due JRuby 1.7.x
-    
-    @Override
-    public IRubyObject to_s(ThreadContext context) { return to_s19(context); }
-
     @JRubyMethod(name = "to_s")
-    public RubyString to_s19(ThreadContext context) {
+    @Override
+    public IRubyObject to_s(ThreadContext context) {
         RubyString msg = msg(context.runtime);
         return msg != null ? msg : super.to_s(context).asString();
     }

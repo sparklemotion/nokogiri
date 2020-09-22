@@ -196,7 +196,7 @@ public class XmlDomParserContext extends ParserContext {
         } else {
             XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
             xmlSyntaxError.setException(ex);
-            throw new RaiseException(xmlSyntaxError);
+            throw xmlSyntaxError.toThrowable();
         }
     }
     

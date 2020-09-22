@@ -1662,7 +1662,7 @@ public class XmlNode extends RubyObject {
         while(errors.getLength() > 0) {
             XmlSyntaxError error = (XmlSyntaxError)errors.shift(context);
             if (error.toString().contains("Include operation failed")) {
-                throw new RaiseException(error);
+                throw error.toThrowable();
             }
         }
         return this;

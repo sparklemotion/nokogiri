@@ -131,7 +131,7 @@ public class XmlSchema extends RubyObject {
 
         RubyArray errors = (RubyArray) doc.getInstanceVariable("@errors");
         if (!errors.isEmpty()) {
-            throw new RaiseException((XmlSyntaxError) errors.first());
+            throw ((XmlSyntaxError) errors.first()).toThrowable();
         }
 
         DOMSource source = new DOMSource(doc.getDocument());

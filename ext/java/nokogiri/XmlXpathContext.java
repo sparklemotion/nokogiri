@@ -163,7 +163,7 @@ public class XmlXpathContext extends RubyObject {
             return tryGetNodeSet(context, expr, fnResolver);
         }
         catch (TransformerException ex) {
-            throw new RaiseException(XmlSyntaxError.createXMLXPathSyntaxError(context.runtime, expr, ex)); // Nokogiri::XML::XPath::SyntaxError
+            throw XmlSyntaxError.createXMLXPathSyntaxError(context.runtime, expr, ex).toThrowable(); // Nokogiri::XML::XPath::SyntaxError
         }
     }
 

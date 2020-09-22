@@ -94,7 +94,10 @@ public class XmlSaxParserContext extends ParserContext {
             parser = createParser();
         }
         catch (SAXException se) {
-            throw RaiseException.createNativeRaiseException(runtime, se);
+            // Unexpected failure in XML subsystem
+            RaiseException ex = runtime.newRuntimeError(se.toString());
+            ex.initCause(se);
+            throw ex;
         }
     }
 
@@ -208,7 +211,8 @@ public class XmlSaxParserContext extends ParserContext {
                 parser.setFeature(FEATURE_CONTINUE_AFTER_FATAL_ERROR, true);
             }
             catch (Exception e) {
-                throw RaiseException.createNativeRaiseException(runtime, e);
+                // Unexpected failure in XML subsystem
+                throw runtime.newRuntimeError(e.getMessage());
             }
         }
     }
@@ -261,7 +265,8 @@ public class XmlSaxParserContext extends ParserContext {
             }
         }
         catch (SAXException ex) {
-            throw RaiseException.createNativeRaiseException(runtime, ex);
+            // Unexpected failure in XML subsystem
+            throw runtime.newRuntimeError(ex.getMessage());
         }
         catch (IOException ex) {
             throw runtime.newIOErrorFromException(ex);

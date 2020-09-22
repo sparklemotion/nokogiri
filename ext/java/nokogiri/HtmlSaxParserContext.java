@@ -194,7 +194,7 @@ public class HtmlSaxParserContext extends XmlSaxParserContext {
             throw context.getRuntime().newEncodingCompatibilityError(rubyEncoding + "is not supported");
         }
         catch (IllegalCharsetNameException e) {
-            throw context.getRuntime().newInvalidEncoding(e.getMessage());
+            throw context.getRuntime().newEncodingError(e.getMessage());
         }
     }
 

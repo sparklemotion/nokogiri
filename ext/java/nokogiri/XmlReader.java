@@ -328,7 +328,7 @@ public class XmlReader extends RubyObject {
             continueParsing = config.parse(false);
         }
         catch (XNIException e) {
-            throw new RaiseException(XmlSyntaxError.createXMLSyntaxError(context.runtime, e)); // Nokogiri::XML::SyntaxError
+            throw XmlSyntaxError.createXMLSyntaxError(context.runtime, e).toThrowable(); // Nokogiri::XML::SyntaxError
         }
         catch (IOException e) {
             throw context.runtime.newRuntimeError(e.toString());
@@ -364,7 +364,7 @@ public class XmlReader extends RubyObject {
             errors.append(error);
             setInstanceVariable("@errors", errors);
 
-            throw ex != null ? ex : new RaiseException((XmlSyntaxError) error);
+            throw ex != null ? ex : ((XmlSyntaxError) error).toThrowable();
         }
         if ( ex != null ) throw ex;
         return this;
