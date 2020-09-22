@@ -95,7 +95,9 @@ public class XmlSaxParserContext extends ParserContext {
         }
         catch (SAXException se) {
             // Unexpected failure in XML subsystem
-            throw runtime.newRuntimeError(se.getMessage());
+            RaiseException ex = runtime.newRuntimeError(se.toString());
+            ex.initCause(se);
+            throw ex;
         }
     }
 
