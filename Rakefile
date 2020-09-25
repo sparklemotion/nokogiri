@@ -7,8 +7,8 @@ require 'hoe'
 windows = RUBY_PLATFORM =~ /(mswin|mingw)/i
 java    = RUBY_PLATFORM =~ /java/
 
-GENERATED_PARSER    = "lib/nokogiri/css/parser.rb"
-GENERATED_TOKENIZER = "lib/nokogiri/css/tokenizer.rb"
+GENERATED_PARSER    = 'lib/nokogiri/css/parser.rb'.freeze
+GENERATED_TOKENIZER = 'lib/nokogiri/css/tokenizer.rb'.freeze
 CROSS_DIR           = File.join(File.dirname(__FILE__), 'tmp', 'cross')
 
 # Make sure hoe-debugging is installed
@@ -20,9 +20,9 @@ HOE = Hoe.spec 'nokogiri' do
   developer('Mike Dalessio', 'mike.dalessio@gmail.com')
   self.readme_file   = ['README', ENV['HLANG'], 'rdoc'].compact.join('.')
   self.history_file  = ['CHANGELOG', ENV['HLANG'], 'rdoc'].compact.join('.')
-  self.extra_rdoc_files  = FileList['*.rdoc','ext/nokogiri/*.c']
+  self.extra_rdoc_files = FileList['*.rdoc', 'ext/nokogiri/*.c']
   self.clean_globs = [
-    "ext/nokogiri/*.dll",
+    'ext/nokogiri/*.dll',
     'lib/nokogiri/*.{o,so,bundle,a,log,dll}',
     'lib/nokogiri/nokogiri.rb',
     'lib/nokogiri/1.{8,9}',
@@ -31,12 +31,12 @@ HOE = Hoe.spec 'nokogiri' do
     CROSS_DIR
   ]
 
-  %w{ racc rexical rake-compiler }.each do |dep|
+  %w[racc rexical rake-compiler].each do |dep|
     extra_dev_deps << [dep, '>= 0']
   end
-  extra_dev_deps << ["minitest", ">= 1.6.0"]
+  extra_dev_deps << ['minitest', '>= 1.6.0']
 
-  self.spec_extras = { :extensions => ["ext/nokogiri/extconf.rb"] }
+  self.spec_extras = { extensions: ['ext/nokogiri/extconf.rb'] }
 
   self.testlib = :minitest
 end
@@ -60,14 +60,14 @@ end
 
 unless java
   gem 'rake-compiler', '>= 0.4.1'
-  require "rake/extensiontask"
+  require 'rake/extensiontask'
 
-  RET = Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
+  RET = Rake::ExtensionTask.new('nokogiri', HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
 
     ext.config_options << ENV['EXTOPTS']
-    ext.cross_compile   = true
-    ext.cross_platform = ["x86-mingw32", "x86-mswin32-60"]
+    ext.cross_compile = true
+    ext.cross_platform = %w[x86-mingw32 x86-mswin32-60]
     ext.cross_config_options <<
       "--with-xml2-include=#{File.join(CROSS_DIR, 'include', 'libxml2')}"
     ext.cross_config_options <<
@@ -80,29 +80,30 @@ end
 
 namespace :gem do
   namespace :dev do
-    task :spec => [ GENERATED_PARSER, GENERATED_TOKENIZER ] do
+    task spec: [GENERATED_PARSER, GENERATED_TOKENIZER] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
-        HOE.spec.version = "#{HOE.version}.#{Time.now.strftime("%Y%m%d%H%M%S")}"
+        HOE.spec.version = "#{HOE.version}.#{Time.now.strftime('%Y%m%d%H%M%S')}"
         f.write(HOE.spec.to_ruby)
       end
     end
   end
 
-  desc "Build a gem targetted for JRuby"
-  task :jruby => ['gem:jruby:spec'] do
-    raise "ERROR: please run this task under jruby" unless java
-    system "gem build nokogiri.gemspec"
-    FileUtils.mkdir_p "pkg"
-    FileUtils.mv Dir.glob("nokogiri*-java.gem"), "pkg"
+  desc 'Build a gem targetted for JRuby'
+  task jruby: ['gem:jruby:spec'] do
+    raise 'ERROR: please run this task under jruby' unless java
+
+    system 'gem build nokogiri.gemspec'
+    FileUtils.mkdir_p 'pkg'
+    FileUtils.mv Dir.glob('nokogiri*-java.gem'), 'pkg'
   end
 
   namespace :jruby do
-    task :spec => [GENERATED_PARSER, GENERATED_TOKENIZER, :"gem:jruby:dlls"] do
+    task spec: [GENERATED_PARSER, GENERATED_TOKENIZER, :"gem:jruby:dlls"] do
       File.open("#{HOE.name}.gemspec", 'w') do |f|
         HOE.spec.platform = 'java'
         HOE.spec.files << GENERATED_PARSER
         HOE.spec.files << GENERATED_TOKENIZER
-        HOE.spec.files += Dir["ext/nokogiri/*.dll"]
+        HOE.spec.files += Dir['ext/nokogiri/*.dll']
         HOE.spec.extensions = []
         HOE.spec.add_dependency 'weakling', '>= 0.0.3'
         f.write(HOE.spec.to_ruby)
@@ -110,42 +111,40 @@ namespace :gem do
     end
 
     task :dlls do
-      def run cmd
-        puts(cmd) || system(cmd) || raise("command failed")
+      def run(cmd)
+        puts(cmd) || system(cmd) || raise('command failed')
       end
 
-      dlldir = "tmp/dlls"
+      dlldir = 'tmp/dlls'
       FileUtils.mkdir_p dlldir
       Dir.chdir dlldir do
-        unless File.exists? "nokogiri-1.4.3.1-java.gem"
-          run "wget http://rubygems.org/downloads/nokogiri-1.4.3.1-java.gem"
+        unless File.exist? 'nokogiri-1.4.3.1-java.gem'
+          run 'wget http://rubygems.org/downloads/nokogiri-1.4.3.1-java.gem'
         end
-        unless File.exists? "data.tar.gz"
-          run "tar -xf nokogiri-1.4.3.1-java.gem"
-        end
-        FileUtils.rm_rf "unpack"
-        FileUtils.mkdir "unpack"
-        Dir.chdir "unpack" do
-          run "tar -zxf ../data.tar.gz"
+        run 'tar -xf nokogiri-1.4.3.1-java.gem' unless File.exist? 'data.tar.gz'
+        FileUtils.rm_rf 'unpack'
+        FileUtils.mkdir 'unpack'
+        Dir.chdir 'unpack' do
+          run 'tar -zxf ../data.tar.gz'
         end
       end
 
       Dir["#{dlldir}/unpack/ext/nokogiri/*.dll"].each do |file|
-        cp file, "ext/nokogiri"
+        cp file, 'ext/nokogiri'
       end
     end
   end
 
-  task :spec => ['gem:dev:spec']
+  task spec: ['gem:dev:spec']
 end
 
-file GENERATED_PARSER => "lib/nokogiri/css/parser.y" do |t|
-  racc = Config::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
-  racc = "#{::Config::CONFIG['bindir']}/racc" if racc.empty?
+file GENERATED_PARSER => 'lib/nokogiri/css/parser.y' do |t|
+  racc = RbConfig::CONFIG['target_os'] =~ /mswin32/ ? '' : `which racc`.strip
+  racc = "#{::RbConfig::CONFIG['bindir']}/racc" if racc.empty?
   sh "#{racc} -l -o #{t.name} #{t.prerequisites.first}"
 end
 
-file GENERATED_TOKENIZER => "lib/nokogiri/css/tokenizer.rex" do |t|
+file GENERATED_TOKENIZER => 'lib/nokogiri/css/tokenizer.rex' do |t|
   sh "rex --independent -o #{t.name} #{t.prerequisites.first}"
 end
 
@@ -156,18 +155,25 @@ rescue RuntimeError => e
   warn "WARNING: Could not perform some cross-compiling: #{e}"
 end
 
-desc "set environment variables to build and/or test with debug options"
+desc 'set environment variables to build and/or test with debug options'
 task :debug do
-  ENV['NOKOGIRI_DEBUG'] = "true"
-  ENV['CFLAGS'] ||= ""
-  ENV['CFLAGS'] += " -DDEBUG"
+  ENV['NOKOGIRI_DEBUG'] = 'true'
+  ENV['CFLAGS'] ||= ''
+  ENV['CFLAGS'] += ' -DDEBUG'
 end
 
 # required_ruby_version
 
 # Only do this on unix, since we can't build on windows
-unless windows || java || ENV['NOKOGIRI_FFI']
-  [:compile, :check_manifest].each do |task_name|
+if windows || java || ENV['NOKOGIRI_FFI']
+  %i[test check_manifest].each do |task_name|
+    if Rake::Task[task_name]
+      Rake::Task[task_name].prerequisites << GENERATED_PARSER
+      Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
+    end
+  end
+else
+  %i[compile check_manifest].each do |task_name|
     Rake::Task[task_name].prerequisites << GENERATED_PARSER
     Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
   end
@@ -177,13 +183,6 @@ unless windows || java || ENV['NOKOGIRI_FFI']
   if Hoe.plugins.include?(:debugging)
     ['valgrind', 'valgrind:mem', 'valgrind:mem0'].each do |task_name|
       Rake::Task["test:#{task_name}"].prerequisites << :compile
-    end
-  end
-else
-  [:test, :check_manifest].each do |task_name|
-    if Rake::Task[task_name]
-      Rake::Task[task_name].prerequisites << GENERATED_PARSER
-      Rake::Task[task_name].prerequisites << GENERATED_TOKENIZER
     end
   end
 end
