@@ -382,6 +382,7 @@ def lib_a(ldflag)
 end
 
 def using_system_libraries?
+  # NOTE: TruffleRuby uses this env var as it does not support using static libraries yet.
   arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
 end
 
