@@ -33,7 +33,7 @@ module Nokogiri
           self.errors = document.errors - preexisting_errors
         else
           # This is a horrible hack, but I don't care
-          if tags.strip =~ /^<body/i
+          if /^\s*?<body/i.match?(tags)
             path = "/html/body"
           else
             path = "/html/body/node()"
