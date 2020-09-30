@@ -54,6 +54,7 @@ HOE = Hoe.spec 'nokogiri' do
     ["hoe-gemspec", "~> 1.0"],
     ["hoe-git", "~> 1.6"],
     ["hoe-markdown", "~> 1.1"],
+    ["memory_profiler", "~> 0.9"],
     ["minitest", "~> 5.8"],
     ["racc", "~> 1.5.0"],
     ["rake", "~> 13.0"],
@@ -80,6 +81,7 @@ require_relative "tasks/debug"
 require_relative "tasks/docker"
 require_relative "tasks/docs-linkify"
 require_relative "tasks/rubocop"
+require_relative "tasks/memprof"
 require_relative "tasks/set-version-to-timestamp"
 
 # work around Hoe's inflexibility about the default tasks

@@ -1,0 +1,38 @@
+name: Memory Profile
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  memory_profile:
+    if: "!contains(github.event.commits[0].message, '[ci skip]')"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+      - name: Set up Dependencies Cache
+        uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ubuntu-latest-gems
+          restore-keys: |
+            ubuntu-latest-gems-
+      - name: Install dependencies
+        run: |
+          bundle config path vendor/bundle
+          bundle install -j8
+          bundle exec rake gem:spec
+          bundle exec ruby .github/workflows/actions/munge_gemfile.rb
+          bundle install -j8
+      - name: Compile Nokogiri
+        run: bundle exec rake compile
+      - name: Memory Profile of parsing and serializing HTML Document
+        run: bundle exec rake memprof:html_doc
+      - name: Memory Profile of parsing and serializing HTML Document Fragment
+        run: bundle exec rake memprof:html_doc_frag
