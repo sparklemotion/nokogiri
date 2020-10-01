@@ -1,0 +1,12 @@
+{
+   https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri/jobs/cruby-3.0-rc/builds/4#L5f68ae4e:1308:1400
+   Memcheck:Addr4
+   fun:iseq_peephole_optimize
+   fun:iseq_optimize
+   ...
+   fun:rb_iseq_compile_node
+   fun:rb_iseq_new_with_opt
+   ...
+   fun:ruby_run_node
+   fun:main
+}
