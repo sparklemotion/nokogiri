@@ -284,6 +284,66 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-valgrind
   public: true
+- name: cruby-3.0-rc
+  on_failure:
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
+  plan:
+  - get: ci
+  - get: nokogiri
+    passed:
+    - cruby-on-vanilla-ubuntu
+    trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: mri-3.0-rc
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      params:
+        TEST_WITH_SYSTEM_LIBRARIES: t
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test-system-libraries
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: mri-3.0-rc
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test-vendored-libraries
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: mri-3.0-rc
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      params:
+        TEST_WITH_VALGRIND: t
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test-valgrind
+  public: true
 - name: jruby-9.2
   on_failure:
     in_parallel:
@@ -388,6 +448,9 @@ jobs:
   - get: ci
   - get: nokogiri
     passed:
+    - cruby-2.4
+    - cruby-2.5
+    - cruby-2.6
     - cruby-2.7
     trigger: true
   - config:
@@ -435,6 +498,9 @@ jobs:
   - get: ci
   - get: nokogiri
     passed:
+    - cruby-2.4
+    - cruby-2.5
+    - cruby-2.6
     - cruby-2.7
     trigger: true
   - config:
