@@ -301,6 +301,66 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test
   public: true
+- name: truffle-stable
+  on_failure:
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
+  plan:
+  - get: ci
+  - get: nokogiri
+    passed:
+    - cruby-on-vanilla-ubuntu
+    trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-stable
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  public: true
+- name: truffle-nightly
+  on_failure:
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
+  plan:
+  - get: ci
+  - get: nokogiri
+    passed:
+    - cruby-on-vanilla-ubuntu
+    trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: truffle-nightly
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/run.sh
+    task: rake-test
+  public: true
 - name: cruby-on-musl
   on_failure:
     in_parallel:

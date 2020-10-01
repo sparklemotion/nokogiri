@@ -145,6 +145,30 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
   <% end %>
 
+  <% RUBIES[:truffle].each_with_index do |truffle_version, j| %>
+  - name: truffle-<%= truffle_version %>
+    public: true
+    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["cruby-on-vanilla-ubuntu"]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: { repository: "flavorjones/nokogiri-test", tag: "truffle-<%= truffle_version %>" }
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
+  <% end %>
+
   - name: cruby-on-musl
     public: true
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
