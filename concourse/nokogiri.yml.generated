@@ -22,6 +22,19 @@ jobs:
       inputs:
       - name: ci
       - name: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/rubocop.sh
+    task: rubocop
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: bionic
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri
       params:
         TEST_WITH_SYSTEM_LIBRARIES: t
       platform: linux

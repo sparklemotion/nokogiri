@@ -49,6 +49,18 @@ jobs:
         trigger: true
         version: every
         passed: ["pr-pending"]
+      - task: rubocop
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
+          inputs:
+            - name: ci
+            - name: nokogiri-pr
+              path: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/rubocop.sh
       - task: rake-test
         config:
           platform: linux

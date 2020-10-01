@@ -27,6 +27,17 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
+      - task: rubocop
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          run:
+            path: ci/concourse/tasks/rake-test/rubocop.sh
       - task: rake-test
         config:
           platform: linux
