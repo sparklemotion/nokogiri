@@ -440,19 +440,6 @@ jobs:
     task: rake-test
   public: true
 - name: truffle-stable
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
-          path: nokogiri-pr
-          status: FAILURE
-        put: nokogiri-pr
-      - params:
-          status: failed
-        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -476,19 +463,6 @@ jobs:
     task: rake-test
   public: true
 - name: truffle-nightly
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
-          path: nokogiri-pr
-          status: FAILURE
-        put: nokogiri-pr
-      - params:
-          status: failed
-        put: gitter
   plan:
   - get: ci
   - get: nokogiri-pr

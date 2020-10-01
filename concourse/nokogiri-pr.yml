@@ -160,7 +160,7 @@ jobs:
   <% RUBIES[:truffle].each_with_index do |truffle_version, j| %>
   - name: truffle-<%= truffle_version %>
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
+#    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
