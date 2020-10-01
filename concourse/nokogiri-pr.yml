@@ -130,11 +130,7 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        <% if j > 0 %>
-        passed: ["jruby-<%= RUBIES[:jruby][j-1] %>"]
-        <% else %>
         passed: ["cruby-on-vanilla-ubuntu"]
-        <% end %>
       - task: rake-test
         config:
           platform: linux
