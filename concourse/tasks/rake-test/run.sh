@@ -60,7 +60,7 @@ pushd nokogiri
 
   code-climate-setup
 
-  bundle exec rake compile ${test_task}
+  bundle exec rake rubocop compile ${test_task}
 
   code-climate-shipit
 

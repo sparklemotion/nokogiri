@@ -82,4 +82,8 @@ require_relative "tasks/docs-linkify"
 require_relative "tasks/rubocop"
 require_relative "tasks/set-version-to-timestamp"
 
+# work around Hoe's inflexibility about the default tasks
+Rake::Task[:default].prerequisites.unshift("compile")
+Rake::Task[:default].prerequisites.unshift("rubocop")
+
 # vim: syntax=Ruby

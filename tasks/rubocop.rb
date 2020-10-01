@@ -10,5 +10,3 @@ desc "Run rubocop string literals check"
 task :rubocop_frozen_string_literals do
   sh "rubocop lib --auto-correct-all --only Style/FrozenStringLiteralComment"
 end
-
-task :test => :rubocop
