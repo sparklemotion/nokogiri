@@ -47,7 +47,7 @@ HOE = Hoe.spec 'nokogiri' do
   end
 
   self.extra_dev_deps += [
-    ["concourse", "~> 0.34"],
+    ["concourse", "~> 0.37"],
     ["hoe", ["~> 3.22", ">= 3.22.1"]],
     ["hoe-bundler", "~> 1.2"],
     ["hoe-debugging", "~> 2.0"],
@@ -81,5 +81,9 @@ require_relative "tasks/docker"
 require_relative "tasks/docs-linkify"
 require_relative "tasks/rubocop"
 require_relative "tasks/set-version-to-timestamp"
+
+# work around Hoe's inflexibility about the default tasks
+Rake::Task[:default].prerequisites.unshift("compile")
+Rake::Task[:default].prerequisites.unshift("rubocop")
 
 # vim: syntax=Ruby
