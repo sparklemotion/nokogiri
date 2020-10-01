@@ -56,7 +56,9 @@ jobs:
   <% RUBIES[:mri].each do |ruby_version| %>
   - name: cruby-<%= ruby_version %>
     public: true
+    <% if Concourse.production_rubies.include?(ruby_version) %>
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    <% end %>
     plan:
       - get: ci
       - get: nokogiri

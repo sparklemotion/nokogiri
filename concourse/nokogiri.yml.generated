@@ -285,15 +285,6 @@ jobs:
     task: rake-test-valgrind
   public: true
 - name: cruby-3.0-rc
-  on_failure:
-    in_parallel:
-      steps:
-      - params:
-          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-        put: irc
-      - params:
-          status: failed
-        put: gitter
   plan:
   - get: ci
   - get: nokogiri
