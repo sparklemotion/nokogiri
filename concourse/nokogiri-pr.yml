@@ -77,10 +77,12 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 
 
-  <% Concourse.production_rubies.each do |ruby_version| %>
+  <% RUBIES[:mri].each do |ruby_version| %>
   - name: cruby-<%= ruby_version %>
     public: true
+    <% if Concourse.production_rubies.include?(ruby_version) %>
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
+    <% end %>
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -160,7 +162,7 @@ jobs:
   <% RUBIES[:truffle].each_with_index do |truffle_version, j| %>
   - name: truffle-<%= truffle_version %>
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
+#    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_pr, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri-pr
@@ -188,7 +190,10 @@ jobs:
       - get: ci
       - get: nokogiri-pr
         trigger: true
-        passed: ["cruby-<%= Concourse.production_rubies.last %>"]
+        passed:
+          <% Concourse.production_rubies.each do |ruby_version| %>
+          - cruby-<%= ruby_version %>
+          <% end %>
       - task: rake-test-system-libraries
         config:
           platform: linux
@@ -227,7 +232,10 @@ jobs:
       - get: nokogiri-pr
         trigger: true
         version: every
-        passed: ["cruby-<%= Concourse.production_rubies.last %>"]
+        passed:
+          <% Concourse.production_rubies.each do |ruby_version| %>
+          - cruby-<%= ruby_version %>
+          <% end %>
       - task: rake-test-system-libraries
         config:
           platform: linux

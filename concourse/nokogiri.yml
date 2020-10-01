@@ -56,7 +56,9 @@ jobs:
   <% RUBIES[:mri].each do |ruby_version| %>
   - name: cruby-<%= ruby_version %>
     public: true
+    <% if Concourse.production_rubies.include?(ruby_version) %>
     on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    <% end %>
     plan:
       - get: ci
       - get: nokogiri
@@ -132,7 +134,7 @@ jobs:
   <% RUBIES[:truffle].each_with_index do |truffle_version, j| %>
   - name: truffle-<%= truffle_version %>
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+#    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
     plan:
       - get: ci
       - get: nokogiri
@@ -159,7 +161,10 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["cruby-<%= Concourse.production_rubies.last %>"]
+        passed:
+          <% Concourse.production_rubies.each do |ruby_version| %>
+          - cruby-<%= ruby_version %>
+          <% end %>
       - task: rake-test-system-libraries
         config:
           platform: linux
@@ -195,7 +200,10 @@ jobs:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed: ["cruby-<%= Concourse.production_rubies.last %>"]
+        passed:
+          <% Concourse.production_rubies.each do |ruby_version| %>
+          - cruby-<%= ruby_version %>
+          <% end %>
       - task: rake-test-system-libraries
         config:
           platform: linux
@@ -234,7 +242,7 @@ jobs:
       - get: nokogiri
         trigger: true
         passed:
-          <% RUBIES[:mri].each do |ruby_version| %>
+          <% Concourse.production_rubies.each do |ruby_version| %>
           - cruby-<%= ruby_version %>
           <% end %>
       - task: build
@@ -286,7 +294,7 @@ jobs:
         trigger: true
         version: every
         passed:
-          <% RUBIES[:mri].each do |ruby_version| %>
+          <% Concourse.production_rubies.each do |ruby_version| %>
           - cruby-<%= ruby_version %>
           <% end %>
       - task: build
