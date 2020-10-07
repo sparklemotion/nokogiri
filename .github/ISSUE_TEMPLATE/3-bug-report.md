@@ -1,24 +1,27 @@
 ---
-name: Bug Report or Help Request
-about: Create a report to help us improve
+name: Bug Report
+about: Open an issue to help us improve
 title: '[bug]'
 labels: 'state/needs-triage'
 assignees: ''
 
 ---
 
+<!--
 **Do not report Security Vulnerabilities here**
 
 If you intend to report a security vulnerability, please do so at [HackerOne](https://hackerone.com/nokogiri) following the process detailed in [`SECURITY.md`](https://nokogiri.org/SECURITY.html). Do not report it through GitHub.
+-->
 
+**Please describe the bug**
 
-**Describe the bug**
+<!--
+A clear and concise description of what the bug is. Please include as much context as you can about what's going on.
+-->
 
-A clear and concise description of what the bug is. Please include as much context as you can about what you are trying to do.
+**Help us reproduce what you're seeing**
 
-
-**To Reproduce**
-
+<!--
 If possible, please include a complete, self-contained script that reproduces the behavior you're seeing. Please try to remove external dependencies like Rails or other libraries that may be wrapping Nokogiri.
 
 Here's an example of how you might structure such a script:
@@ -49,21 +52,29 @@ class Test < MiniTest::Spec
 end
 ```
 
-If you haven't included a test, please provide whatever code you can, the inputs if any, along with the output that you're seeing. We need to reproduce what you're seeing to be able to help.
+If you haven't included a test, please provide whatever code you can, the inputs (if any), along with the output that you're seeing. We need to reproduce what you're seeing to be able to help!
+-->
 
 
 **Expected behavior**
 
+<!--
 If you haven't included a test above, please tell us precisely what you expected to happen.
+-->
 
 
 **Environment**
 
+<!--
+```
 Please paste the output from `nokogiri -v` here, escaped by triple-backtick.
+```
 
-This output will tell us what version of Ruby you're using, how you installed nokogiri, what versions of the underlying libraries you're using, and what operating you're using.
-
+This output will tell us what version of Ruby you're using, how you installed nokogiri, what versions of the underlying libraries you're using, and what operating system you're using.
+-->
 
 **Additional context**
 
+<!--
 Add any other context about the problem here.
+-->
