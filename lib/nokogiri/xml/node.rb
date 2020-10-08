@@ -819,8 +819,21 @@ module Nokogiri
 
         return Nokogiri::XML::NodeSet.new(document) if contents.empty?
 
-        ##
-        # This is a horrible hack, but I don't care. See #313 for background.
+        # libxml2 does not obey the `recover` option after encountering errors during `in_context`
+        # parsing, and so this horrible hack is here to try to emulate recovery behavior.
+        #
+        # Unfortunately, this means we're no longer parsing "in context" and so namespaces that
+        # would have been inherited from the context node won't be handled correctly. This hack was
+        # writting in 2010, and I regret it, because it's silently degrading functionality in a way
+        # that's not easily prevented (or even detected).
+        #
+        # I think preferable behavior would be to either:
+        #
+        # a. add an error noting that we "fell back" and pointing the user to turning off the `recover` option
+        # b. don't recover, but raise a sensible exception
+        #
+        # For context and background: https://github.com/sparklemotion/nokogiri/issues/313
+        # FIXME bug report: https://github.com/sparklemotion/nokogiri/issues/2092
         error_count = document.errors.length
         node_set = in_context(contents, options.to_i)
         if node_set.empty? and document.errors.length > error_count and options.recover?
