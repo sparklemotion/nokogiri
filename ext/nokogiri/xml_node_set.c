@@ -319,7 +319,7 @@ static VALUE slice(int argc, VALUE *argv, VALUE self)
  *
  * Return this list as an Array
  */
-static VALUE to_array(VALUE self, VALUE rb_node)
+static VALUE to_array(VALUE self)
 {
   xmlNodeSetPtr node_set ;
   VALUE list;
