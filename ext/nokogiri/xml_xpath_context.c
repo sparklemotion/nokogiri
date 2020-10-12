@@ -166,19 +166,6 @@ static xmlXPathFunction lookup( void *ctx,
   return NULL;
 }
 
-NORETURN(static void xpath_generic_exception_handler(void * ctx, const char *msg, ...));
-static void xpath_generic_exception_handler(void * ctx, const char *msg, ...)
-{
-  char * message;
-
-  va_list args;
-  va_start(args, msg);
-  vasprintf(&message, msg, args);
-  va_end(args);
-
-  rb_raise(rb_eRuntimeError, "%s", message);
-}
-
 /*
  * call-seq:
  *  evaluate(search_path, handler = nil)
@@ -192,6 +179,7 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
   xmlXPathContextPtr ctx;
   xmlXPathObjectPtr xpath;
   xmlChar *query;
+  VALUE error_list = rb_ary_new();
 
   Data_Get_Struct(self, xmlXPathContext, ctx);
 
@@ -206,20 +194,15 @@ static VALUE evaluate(int argc, VALUE *argv, VALUE self)
     xmlXPathRegisterFuncLookup(ctx, lookup, (void *)xpath_handler);
   }
 
-  xmlResetLastError();
-  xmlSetStructuredErrorFunc(NULL, Nokogiri_error_raise);
-
-  /* For some reason, xmlXPathEvalExpression will blow up with a generic error */
-  /* when there is a non existent function. */
-  xmlSetGenericErrorFunc(NULL, xpath_generic_exception_handler);
+  xmlSetStructuredErrorFunc((void*)error_list, Nokogiri_error_array_pusher);
+  xmlSetGenericErrorFunc((void*)error_list, Nokogiri_generic_error_array_pusher);
 
   xpath = xmlXPathEvalExpression(query, ctx);
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSetGenericErrorFunc(NULL, NULL);
 
   if(xpath == NULL) {
-    xmlErrorPtr error = xmlGetLastError();
-    rb_exc_raise(Nokogiri_wrap_xml_syntax_error(error));
+    rb_exc_raise(rb_ary_entry(error_list, -1));
   }
 
   assert(ctx->doc);
