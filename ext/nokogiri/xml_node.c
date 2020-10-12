@@ -301,7 +301,7 @@ ok:
        *  issue #391, where new node's prefix may become the string "default"
        *  see libxml2 tree.c xmlNewReconciliedNs which implements this behavior.
        */
-      xmlFree(reparentee->ns->prefix);
+      xmlFree((xmlChar*)reparentee->ns->prefix);
       reparentee->ns->prefix = NULL;
     }
   }
