@@ -2,31 +2,24 @@
 #define NOKOGIRI_NATIVE
 
 #if _MSC_VER
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif /* WIN32_LEAN_AND_MEAN */
-#ifndef WIN32
-#define WIN32
-#endif /* WIN32 */
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#  endif /* WIN32_LEAN_AND_MEAN */
+
+#  ifndef WIN32
+#    define WIN32
+#  endif /* WIN32 */
+
+#  include <winsock2.h>
+#  include <ws2tcpip.h>
+#  include <windows.h>
 #endif
 
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
-
-#ifdef USE_INCLUDED_VASPRINTF
-int vasprintf (char **strp, const char *fmt, va_list ap);
-#else
-
-#define _GNU_SOURCE
-#  include <stdio.h>
-#undef _GNU_SOURCE
-
-#endif
+#include <stdio.h>
 
 #include <libxml/parser.h>
 #include <libxml/entities.h>
@@ -43,6 +36,7 @@ int vasprintf (char **strp, const char *fmt, va_list ap);
 #include <libxslt/extensions.h>
 #include <libxslt/xsltconfig.h>
 #include <libxml/c14n.h>
+
 #include <ruby.h>
 #include <ruby/st.h>
 #include <ruby/encoding.h>
@@ -106,25 +100,27 @@ extern VALUE mNokogiriHtml ;
 extern VALUE mNokogiriHtmlSax ;
 extern VALUE mNokogiriXslt ;
 
+int vasprintf(char **strp, const char *fmt, va_list ap);
+
 void nokogiri_root_node(xmlNodePtr);
 void nokogiri_root_nsdef(xmlNsPtr, xmlDocPtr);
 
 #ifdef DEBUG
 
-#define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);
-#define NOKOGIRI_DEBUG_END(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p end\n", __FILE__, __LINE__, p);
+#  define NOKOGIRI_DEBUG_START(p) if (getenv("NOKOGIRI_NO_FREE")) return ; if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p start\n", __FILE__, __LINE__, p);
+#  define NOKOGIRI_DEBUG_END(p) if (getenv("NOKOGIRI_DEBUG")) fprintf(stderr,"nokogiri: %s:%d %p end\n", __FILE__, __LINE__, p);
 
 #else
 
-#define NOKOGIRI_DEBUG_START(p)
-#define NOKOGIRI_DEBUG_END(p)
+#  define NOKOGIRI_DEBUG_START(p)
+#  define NOKOGIRI_DEBUG_END(p)
 
 #endif
 
 #ifndef __builtin_expect
-# if defined(__GNUC__)
-#  define __builtin_expect(expr, c) __builtin_expect((long)(expr), (long)(c))
-# endif
+#  if defined(__GNUC__)
+#    define __builtin_expect(expr, c) __builtin_expect((long)(expr), (long)(c))
+#  endif
 #endif
 
 #define XMLNS_PREFIX "xmlns"

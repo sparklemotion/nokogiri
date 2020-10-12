@@ -7,12 +7,11 @@ VALUE mNokogiriXslt ;
 VALUE mNokogiriXmlSax ;
 VALUE mNokogiriHtmlSax ;
 
-#ifdef USE_INCLUDED_VASPRINTF
+#ifndef HAVE_VASPRINTF
 /*
- * I srsly hate windows.  it doesn't have vasprintf.
  * Thank you Geoffroy Couprie for this implementation of vasprintf!
  */
-int vasprintf (char **strp, const char *fmt, va_list ap)
+int vasprintf(char **strp, const char *fmt, va_list ap)
 {
   /* Mingw32/64 have a broken vsnprintf implementation that fails when
    * using a zero-byte limit in order to retrieve the required size for malloc.
@@ -27,11 +26,6 @@ int vasprintf (char **strp, const char *fmt, va_list ap)
   return vsnprintf(res, (unsigned int)len, fmt, ap);
 }
 #endif
-
-void vasprintf_free (void *p)
-{
-  free(p);
-}
 
 #include "ruby/util.h"
 

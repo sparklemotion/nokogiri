@@ -1,8 +1,5 @@
 #include <xml_sax_parser.h>
 
-int vasprintf (char **strp, const char *fmt, va_list ap);
-void vasprintf_free (void *p);
-
 static ID id_start_document, id_end_document, id_start_element, id_end_element;
 static ID id_start_element_namespace, id_end_element_namespace;
 static ID id_comment, id_characters, id_xmldecl, id_error, id_warning;
@@ -206,7 +203,7 @@ static void warning_func(void * ctx, const char *msg, ...)
   va_end(args);
 
   ruby_message = NOKOGIRI_STR_NEW2(message);
-  vasprintf_free(message);
+  free(message);
   rb_funcall(doc, id_warning, 1, ruby_message);
 }
 
@@ -223,7 +220,7 @@ static void error_func(void * ctx, const char *msg, ...)
   va_end(args);
 
   ruby_message = NOKOGIRI_STR_NEW2(message);
-  vasprintf_free(message);
+  free(message);
   rb_funcall(doc, id_error, 1, ruby_message);
 }
 
