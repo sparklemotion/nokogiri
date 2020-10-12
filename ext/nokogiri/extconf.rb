@@ -675,13 +675,12 @@ end
     asplode("lib#{lib}")
 end
 
-have_func('xmlHasFeature') or abort "xmlHasFeature() is missing."
-have_func('xmlFirstElementChild')
-have_func('xmlRelaxNGSetParserStructuredErrors')
-have_func('xmlRelaxNGSetParserStructuredErrors')
-have_func('xmlRelaxNGSetValidStructuredErrors')
-have_func('xmlSchemaSetValidStructuredErrors')
-have_func('xmlSchemaSetParserStructuredErrors')
+have_func('xmlHasFeature') or abort "xmlHasFeature() is missing." # introduced in libxml 2.6.21
+have_func('xmlFirstElementChild') # introduced in libxml 2.7.3
+have_func('xmlRelaxNGSetParserStructuredErrors') # introduced in libxml 2.6.24
+have_func('xmlRelaxNGSetValidStructuredErrors') # introduced in libxml 2.6.21
+have_func('xmlSchemaSetValidStructuredErrors') # introduced in libxml 2.6.23
+have_func('xmlSchemaSetParserStructuredErrors') # introduced in libxml 2.6.23
 
 create_makefile('nokogiri/nokogiri')
 
