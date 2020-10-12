@@ -7,9 +7,6 @@
 
 VALUE xslt;
 
-int vasprintf (char **strp, const char *fmt, va_list ap);
-void vasprintf_free (void *p);
-
 static void mark(nokogiriXsltStylesheetTuple *wrapper)
 {
   rb_gc_mark(wrapper->func_instances);
@@ -37,7 +34,7 @@ static void xslt_generic_error_handler(void * ctx, const char *msg, ...)
 
   rb_str_cat2((VALUE)ctx, message);
 
-  vasprintf_free(message);
+  free(message);
 }
 
 VALUE Nokogiri_wrap_xslt_stylesheet(xsltStylesheetPtr ss)

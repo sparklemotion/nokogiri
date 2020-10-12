@@ -421,11 +421,7 @@ $LIBS << " #{ENV["LIBS"]}"
 add_cflags(ENV["CFLAGS"])
 
 if windows?
-  $CFLAGS << " -DXP_WIN -DXP_WIN32 -DUSE_INCLUDED_VASPRINTF"
-end
-
-if solaris? || aix?
-  $CFLAGS << " -DUSE_INCLUDED_VASPRINTF"
+  $CFLAGS << " -DXP_WIN -DXP_WIN32"
 end
 
 if darwin?
@@ -675,6 +671,7 @@ end
     asplode("lib#{lib}")
 end
 
+have_func('vasprintf')
 have_func('xmlHasFeature') or abort "xmlHasFeature() is missing." # introduced in libxml 2.6.21
 have_func('xmlFirstElementChild') # introduced in libxml 2.7.3
 have_func('xmlRelaxNGSetParserStructuredErrors') # introduced in libxml 2.6.24
