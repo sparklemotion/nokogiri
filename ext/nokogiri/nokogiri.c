@@ -33,11 +33,7 @@ void vasprintf_free (void *p)
   free(p);
 }
 
-#ifdef HAVE_RUBY_UTIL_H
 #include "ruby/util.h"
-#else
-#include "util.h"
-#endif
 
 void nokogiri_root_node(xmlNodePtr node)
 {
