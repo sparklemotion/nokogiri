@@ -98,6 +98,7 @@ This release ends support for:
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
 * [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
+* [JRuby] Fixed document encoding regression in v1.11.0 release candidates. [[#2080](https://github.com/sparklemotion/nokogiri/issues/2080), [#2083](https://github.com/sparklemotion/nokogiri/issues/2083)] (Thanks, [@thbar](https://github.com/thbar)!)
 
 
 ### Removed

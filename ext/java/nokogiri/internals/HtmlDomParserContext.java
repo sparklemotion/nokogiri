@@ -66,11 +66,12 @@ import org.w3c.dom.NodeList;
 public class HtmlDomParserContext extends XmlDomParserContext {
 
 	public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
-        super(runtime, options);
+        this(runtime, runtime.getNil(), options);
     }
-    
+
     public HtmlDomParserContext(Ruby runtime, IRubyObject encoding, IRubyObject options) {
         super(runtime, encoding, options);
+        java_encoding = NokogiriHelpers.getValidEncoding(encoding);
     }
 
     @Override
