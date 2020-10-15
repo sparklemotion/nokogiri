@@ -1,0 +1,1022 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The Official Tutorial Archive™ of Nokogiri®">
+      
+      
+        <link rel="canonical" href="https://nokogiri.org/index.html">
+      
+      
+        <meta name="author" content="Mike Dalessio">
+      
+      <link rel="shortcut icon" href="images/nokogiri-serif-black.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.5.9">
+    
+    
+      
+        <title>Readme - Nokogiri</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.36ee6aaa.min.css">
+      
+      
+    
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,400i,700%7CMenlo&display=fallback">
+        <style>body,input{font-family:"Ubuntu",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Menlo",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="stylesheets/tidelift.css">
+    
+    
+      
+        
+<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-1260604-8","nokogiri.org"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})}),document.addEventListener("DOMContentSwitch",function(){ga("send","pageview",document.location.pathname)})</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nokogiri" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://nokogiri.org" title="Nokogiri" class="md-header-nav__button md-logo" aria-label="Nokogiri">
+      
+  <img src="images/nokogiri-serif-white.svg" alt="logo">
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            Nokogiri
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              Readme
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/sparklemotion/nokogiri" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sparklemotion/nokogiri
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+        
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://nokogiri.org" title="Nokogiri" class="md-nav__button md-logo" aria-label="Nokogiri">
+      
+  <img src="images/nokogiri-serif-white.svg" alt="logo">
+
+    </a>
+    Nokogiri
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/sparklemotion/nokogiri" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sparklemotion/nokogiri
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Readme
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 9h14V7H3v2m0 4h14v-2H3v2m0 4h14v-2H3v2m16 0h2v-2h-2v2m0-10v2h2V7h-2m0 6h2v-2h-2v2z"/></svg>
+        </span>
+      </label>
+    
+    <a href="index.html" title="Readme" class="md-nav__link md-nav__link--active">
+      Readme
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    Description
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    Links
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    Status
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#binary-packages" class="md-nav__link">
+    Binary packages
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support" class="md-nav__link">
+    Support
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-and-vulnerability-reporting" class="md-nav__link">
+    Security and Vulnerability Reporting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    Synopsis
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encoding" class="md-nav__link">
+    Encoding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    Development
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-of-conduct" class="md-nav__link">
+    Code of Conduct
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#semantic-versioning" class="md-nav__link">
+    Semantic Versioning
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    License
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Support
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Support" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        </span>
+        Support
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/installing_nokogiri.html" title="Installing Nokogiri" class="md-nav__link">
+      Installing Nokogiri
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tidelift-landing.html" title="Nokogiri for Enterprise" class="md-nav__link">
+      Nokogiri for Enterprise
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/getting_help.html" title="Getting Help" class="md-nav__link">
+      Getting Help
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/security.html" title="Security" class="md-nav__link">
+      Security
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/more_resources.html" title="More Resources" class="md-nav__link">
+      More Resources
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Tutorials
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        </span>
+        Tutorials
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/toc.html" title="Table of Contents" class="md-nav__link">
+      Table of Contents
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/parsing_an_html_xml_document.html" title="Parsing an HTML/XML document" class="md-nav__link">
+      Parsing an HTML/XML document
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/searching_a_xml_html_document.html" title="Searching a XML/HTML document" class="md-nav__link">
+      Searching a XML/HTML document
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/modifying_an_html_xml_document.html" title="Modifying an HTML/XML document" class="md-nav__link">
+      Modifying an HTML/XML document
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="tutorials/ensuring_well_formed_markup.html" title="Ensuring well-formed markup" class="md-nav__link">
+      Ensuring well-formed markup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      About
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z"/></svg>
+      </span>
+    </label>
+    <nav class="md-nav" aria-label="About" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        </span>
+        About
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="CHANGELOG.html" title="Changelog" class="md-nav__link">
+      Changelog
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="CODE_OF_CONDUCT.html" title="Code of Conduct" class="md-nav__link">
+      Code of Conduct
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="SECURITY.html" title="Security" class="md-nav__link">
+      Security
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="LICENSE.html" title="License" class="md-nav__link">
+      License
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="LICENSE-DEPENDENCIES.html" title="Dependencies" class="md-nav__link">
+      Dependencies
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="ROADMAP.html" title="Roadmap" class="md-nav__link">
+      Roadmap
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="rdoc/index.html" title="RDoc" class="md-nav__link">
+      RDoc
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    Description
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    Links
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    Status
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#binary-packages" class="md-nav__link">
+    Binary packages
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#support" class="md-nav__link">
+    Support
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-and-vulnerability-reporting" class="md-nav__link">
+    Security and Vulnerability Reporting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    Synopsis
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encoding" class="md-nav__link">
+    Encoding
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    Development
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-of-conduct" class="md-nav__link">
+    Code of Conduct
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#semantic-versioning" class="md-nav__link">
+    Semantic Versioning
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    License
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  
+                
+                
+                <p><a class="tidelift tidelift-top" href="https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&utm_medium=referral&utm_campaign=website" target="_blank">
+  Get support for Nokogiri with a Tidelift subscription
+</a></p>
+<h1 id="nokogiri">Nokogiri<a class="headerlink" href="#nokogiri" title="Permanent link">&para;</a></h1>
+<h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
+<p>Nokogiri (鋸) is an HTML, XML, SAX, and Reader parser.  Among
+Nokogiri's many features is the ability to search documents via XPath
+or CSS3 selectors.</p>
+<h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://nokogiri.org">https://nokogiri.org</a></li>
+<li><a href="https://nokogiri.org/tutorials/installing_nokogiri.html">Installation Help</a></li>
+<li><a href="https://nokogiri.org/tutorials/toc.html">Tutorials</a></li>
+<li><a href="https://github.com/sparklemotion/nokogiri/wiki/Cheat-sheet">Cheat Sheet</a></li>
+<li><a href="https://github.com/sparklemotion/nokogiri">GitHub</a></li>
+<li><a href="https://groups.google.com/group/nokogiri-talk">Mailing List</a></li>
+<li><a href="https://gitter.im/sparklemotion/nokogiri">Chat/Gitter</a></li>
+</ul>
+<h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
+<p><a href="https://ci.nokogiri.org/teams/nokogiri-core/pipelines/nokogiri"><img alt="Concourse CI" src="https://ci.nokogiri.org/api/v1/teams/nokogiri-core/pipelines/nokogiri/jobs/cruby-2.7/badge" /></a>
+<a href="https://ci.appveyor.com/project/flavorjones/nokogiri/branch/master"><img alt="Appveyor CI" src="https://ci.appveyor.com/api/projects/status/xj2pqwvlxwuwgr06/branch/master?svg=true" /></a>
+<a href="https://codeclimate.com/github/sparklemotion/nokogiri"><img alt="Code Climate" src="https://codeclimate.com/github/sparklemotion/nokogiri.svg" /></a>
+<a href="https://codeclimate.com/github/sparklemotion/nokogiri/test_coverage"><img alt="Test Coverage" src="https://api.codeclimate.com/v1/badges/59c67b0e8976027a45ad/test_coverage" /></a></p>
+<p><a href="https://rubygems.org/gems/nokogiri"><img alt="Gem Version" src="https://badge.fury.io/rb/nokogiri.svg" /></a>
+<a href="https://dependabot.com/compatibility-score/?dependency-name=nokogiri&amp;package-manager=bundler"><img alt="SemVer compatibility" src="https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&amp;package-manager=bundler&amp;version-scheme=semver" /></a>
+<a href="https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&amp;utm_medium=referral&amp;utm_campaign=readme"><img alt="Tidelift dependencies" src="https://tidelift.com/badges/package/rubygems/nokogiri" /></a></p>
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
+<ul>
+<li>XML/HTML DOM parser which handles broken HTML</li>
+<li>XML/HTML SAX parser</li>
+<li>XML/HTML Push parser</li>
+<li>XPath 1.0 support for document searching</li>
+<li>CSS3 selector support for document searching</li>
+<li>XML/HTML builder</li>
+<li>XSLT transformer</li>
+</ul>
+<p>Nokogiri parses and searches XML/HTML using native libraries (either C
+or Java, depending on your Ruby), which means it's fast and
+standards-compliant.</p>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<p>If this doesn't work:</p>
+<div class="codehilite"><pre><span></span><code>gem install nokogiri
+</code></pre></div>
+
+
+<p>then please start troubleshooting here:</p>
+<blockquote>
+<p><a href="https://nokogiri.org/tutorials/installing_nokogiri.html">https://nokogiri.org/tutorials/installing_nokogiri.html</a></p>
+</blockquote>
+<p>There are currently 1,237 Stack Overflow questions about Nokogiri
+installation. The vast majority of them are out of date and therefore
+incorrect. <strong>Please do not use Stack Overflow.</strong></p>
+<p>Instead, <a href="https://nokogiri.org/tutorials/getting_help.html">tell us</a>
+when the above instructions don't work for you. This allows us to both
+help you directly and improve the documentation.</p>
+<h3 id="binary-packages">Binary packages<a class="headerlink" href="#binary-packages" title="Permanent link">&para;</a></h3>
+<p>Binary packages are available for some distributions.</p>
+<ul>
+<li>Debian: <a href="https://packages.debian.org/sid/ruby-nokogiri">https://packages.debian.org/sid/ruby-nokogiri</a></li>
+<li>openSUSE/SLE: <a href="https://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/">https://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/</a></li>
+<li>Fedora: <a href="http://s390.koji.fedoraproject.org/koji/packageinfo?packageID=6756">http://s390.koji.fedoraproject.org/koji/packageinfo?packageID=6756</a></li>
+</ul>
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>All official documentation is posted at <a href="https://nokogiri.org">https://nokogiri.org</a> (the source for which is at <a href="https://github.com/sparklemotion/nokogiri.org/">https://github.com/sparklemotion/nokogiri.org/</a>, and we welcome contributions).</p>
+<ul>
+<li>The Nokogiri mailing list is active: <a href="https://groups.google.com/group/nokogiri-talk">https://groups.google.com/group/nokogiri-talk</a></li>
+<li>The Nokogiri bug tracker is here: <a href="https://github.com/sparklemotion/nokogiri/issues">https://github.com/sparklemotion/nokogiri/issues</a></li>
+<li>Before filing a bug report, please read our submission guidelines: <a href="http://nokogiri.org/tutorials/getting_help.html">http://nokogiri.org/tutorials/getting_help.html</a></li>
+<li>The IRC channel is <code>#nokogiri</code> on freenode.</li>
+<li>The project's GitHub wiki has an excellent community-maintained <a href="https://github.com/sparklemotion/nokogiri/wiki/Cheat-sheet">Cheat Sheet</a> which might be useful.</li>
+</ul>
+<p>Consider subscribing to <a href="https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&amp;utm_medium=referral&amp;utm_campaign=readme">Tidelift</a> which provides license assurances and timely security notifications for your open source dependencies, including Nokogiri. <a href="https://tidelift.com/subscription/pkg/rubygems-nokogiri?utm_source=rubygems-nokogiri&amp;utm_medium=referral&amp;utm_campaign=readme">Tidelift</a> subscriptions also help the Nokogiri maintainers fund our <a href="https://ci.nokogiri.org">automated testing</a> which in turn allows us to ship releases, bugfixes, and security updates more often.</p>
+<h2 id="security-and-vulnerability-reporting">Security and Vulnerability Reporting<a class="headerlink" href="#security-and-vulnerability-reporting" title="Permanent link">&para;</a></h2>
+<p>Please report vulnerabilities at <a href="https://hackerone.com/nokogiri">https://hackerone.com/nokogiri</a></p>
+<p>Full information and description of our security policy is in <a href="SECURITY.html"><code>SECURITY.md</code></a></p>
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h2>
+<p>Nokogiri is a large library, but here is example usage for parsing and examining a document:</p>
+<div class="codehilite"><pre><span></span><code><span class="ch">#! /usr/bin/env ruby</span>
+
+<span class="nb">require</span> <span class="s1">&#39;nokogiri&#39;</span>
+<span class="nb">require</span> <span class="s1">&#39;open-uri&#39;</span>
+
+<span class="c1"># Fetch and parse HTML document</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="no">Nokogiri</span><span class="o">::</span><span class="no">HTML</span><span class="p">(</span><span class="no">URI</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;https://nokogiri.org/tutorials/installing_nokogiri.html&#39;</span><span class="p">))</span>
+
+<span class="nb">puts</span> <span class="s2">&quot;### Search for nodes by css&quot;</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">css</span><span class="p">(</span><span class="s1">&#39;nav ul.menu li a&#39;</span><span class="p">,</span> <span class="s1">&#39;article h2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">link</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="n">link</span><span class="o">.</span><span class="n">content</span>
+<span class="k">end</span>
+
+<span class="nb">puts</span> <span class="s2">&quot;### Search for nodes by xpath&quot;</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">xpath</span><span class="p">(</span><span class="s1">&#39;//nav//ul//li/a&#39;</span><span class="p">,</span> <span class="s1">&#39;//article//h2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">link</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="n">link</span><span class="o">.</span><span class="n">content</span>
+<span class="k">end</span>
+
+<span class="nb">puts</span> <span class="s2">&quot;### Or mix and match.&quot;</span>
+<span class="n">doc</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s1">&#39;nav ul.menu li a&#39;</span><span class="p">,</span> <span class="s1">&#39;//article//h2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">link</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="n">link</span><span class="o">.</span><span class="n">content</span>
+<span class="k">end</span>
+</code></pre></div>
+
+
+<h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<p>Ruby 2.4.0 or higher, including any development packages necessary to compile native extensions.</p>
+<p>In Nokogiri 1.6.0 and later libxml2 and libxslt are bundled with the gem, but if you want to use the system versions:</p>
+<ul>
+<li>
+<p>First, check out <a href="http://www.xmlsoft.org/news.html">the long list</a>
+  of fixes and changes between releases before deciding to use any
+  version older than is bundled with Nokogiri.</p>
+</li>
+<li>
+<p>At install time, set the environment variable
+  <code>NOKOGIRI_USE_SYSTEM_LIBRARIES</code> or else use the
+  <code>--use-system-libraries</code> argument. (See
+  <a href="https://nokogiri.org/tutorials/installing_nokogiri.html#install-with-system-libraries">https://nokogiri.org/tutorials/installing_nokogiri.html#install-with-system-libraries</a>
+  for specifics.)</p>
+</li>
+<li>
+<p>libxml2 &gt;=2.6.21 with iconv support (libxml2-dev/-devel is also required)</p>
+</li>
+<li>
+<p>libxslt, built with and supported by the given libxml2 (libxslt-dev/-devel is also required)</p>
+</li>
+</ul>
+<h2 id="encoding">Encoding<a class="headerlink" href="#encoding" title="Permanent link">&para;</a></h2>
+<p>Strings are always stored as UTF-8 internally.  Methods that return
+text values will always return UTF-8 encoded strings.  Methods that
+return a string containing markup (like <code>to_xml</code>, <code>to_html</code> and
+<code>inner_html</code>) will return a string encoded like the source document.</p>
+<p><strong>WARNING</strong></p>
+<p>Some documents declare one encoding, but actually use a different
+one. In these cases, which encoding should the parser choose?</p>
+<p>Data is just a stream of bytes. Humans add meaning to that stream. Any
+particular set of bytes could be valid characters in multiple
+encodings, so detecting encoding with 100% accuracy is not
+possible. <code>libxml2</code> does its best, but it can't be right all the time.</p>
+<p>If you want Nokogiri to handle the document encoding properly, your
+best bet is to explicitly set the encoding.  Here is an example of
+explicitly setting the encoding to EUC-JP on the parser:</p>
+<div class="codehilite"><pre><span></span><code>  <span class="n">doc</span> <span class="o">=</span> <span class="no">Nokogiri</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="s1">&#39;&lt;foo&gt;&lt;bar /&gt;&lt;/foo&gt;&#39;</span><span class="p">,</span> <span class="kp">nil</span><span class="p">,</span> <span class="s1">&#39;EUC-JP&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>  bundle install
+  bundle <span class="nb">exec</span> rake compile <span class="nb">test</span>
+</code></pre></div>
+
+
+<h2 id="code-of-conduct">Code of Conduct<a class="headerlink" href="#code-of-conduct" title="Permanent link">&para;</a></h2>
+<p>We've adopted the Contributor Covenant code of conduct, which you can read in full in <a href="CODE_OF_CONDUCT.html"><code>CODE_OF_CONDUCT.md</code></a>.</p>
+<h2 id="semantic-versioning">Semantic Versioning<a class="headerlink" href="#semantic-versioning" title="Permanent link">&para;</a></h2>
+<p><a href="https://dependabot.com/compatibility-score/?dependency-name=nokogiri&amp;package-manager=bundler"><img alt="SemVer compatibility" src="https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&amp;package-manager=bundler&amp;version-scheme=semver" /></a></p>
+<p>Nokogiri follows <a href="https://semver.org/">Semantic Versioning</a>. See <a href="CHANGELOG.html"><code>CHANGELOG.md</code></a> for more details.</p>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>This project is licensed under the terms of the MIT license.</p>
+<p>See this license at <a href="LICENSE.html"><code>LICENSE.md</code></a>.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+        
+          <a href="tutorials/installing_nokogiri.html" title="Installing Nokogiri" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Installing Nokogiri
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright Ⓒ 2009-2019 Mike Dalessio
+          </div>
+        
+        <a href="https://github.com/sparklemotion/nokogiri.org">sparklemotion/nokogiri.org</a>
+        rendered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="assets/javascripts/vendor.df0def68.min.js"></script>
+      <script src="assets/javascripts/bundle.ba57d267.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+      
+      <script>
+        app = initialize({
+          base: ".",
+          features: [],
+          search: Object.assign({
+            worker: "assets/javascripts/worker/search.5eca75d3.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>
