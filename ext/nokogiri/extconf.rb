@@ -294,7 +294,7 @@ def process_recipe(name, version, static_p, cross_p)
         "--disable-shared",
         "--enable-static",
       ]
-      env['CFLAGS'] = "-fPIC #{env['CFLAGS']}"
+      env['CFLAGS'] = "-fPIC -O2 -g #{env['CFLAGS']}"
     else
       recipe.configure_options += [
         "--enable-shared",
@@ -540,7 +540,6 @@ else
           }]
         recipe.configure_options += [
           "CPPFLAGS=-Wall",
-          "CFLAGS=-O2 -g",
           "CXXFLAGS=-O2 -g",
           "LDFLAGS="
         ]
