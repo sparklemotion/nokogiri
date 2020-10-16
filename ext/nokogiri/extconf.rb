@@ -294,7 +294,7 @@ def process_recipe(name, version, static_p, cross_p)
         "--disable-shared",
         "--enable-static",
       ]
-      env['CFLAGS'] = "-fPIC -O2 -g #{env['CFLAGS']}"
+      env['CFLAGS'] = "-fPIC -O2 -U_FORTIFY_SOURCE -g #{env['CFLAGS']}"
     else
       recipe.configure_options += [
         "--enable-shared",
