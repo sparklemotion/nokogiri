@@ -176,19 +176,6 @@ def have_libxml_headers?(version=nil)
   try_cpp source
 end
 
-def add_cflags(flags)
-  print "checking if the C compiler accepts #{flags}... "
-  with_cflags("#{$CFLAGS} #{flags}") do
-    if try_compile("int main() {return 0;}", "", {werror: true})
-      puts 'yes'
-      true
-    else
-      puts 'no'
-      false
-    end
-  end
-end
-
 def preserving_globals
   values = [$arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs].map(&:dup)
   yield
