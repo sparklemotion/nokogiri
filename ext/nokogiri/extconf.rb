@@ -138,10 +138,6 @@ def package_config pkg, options={}
   end
 end
 
-def nokogiri_try_compile
-  try_compile "int main() {return 0;}", "", {werror: true}
-end
-
 def check_libxml_version version=nil
   source = if version.nil?
              <<-SRC
@@ -163,7 +159,7 @@ end
 def add_cflags(flags)
   print "checking if the C compiler accepts #{flags}... "
   with_cflags("#{$CFLAGS} #{flags}") do
-    if nokogiri_try_compile
+    if try_compile("int main() {return 0;}", "", {werror: true})
       puts 'yes'
       true
     else
