@@ -259,10 +259,10 @@ def iconv_configure_flags
   asplode "libiconv"
 end
 
-# When using rake-compiler-dock on Windows, the underlying Virtualbox shared
-# folders don't support symlinks, but libiconv expects it for a build on
-# Linux. We work around this limitation by using the temp dir for cooking.
 def chdir_for_build
+  # When using rake-compiler-dock on Windows, the underlying Virtualbox shared
+  # folders don't support symlinks, but libiconv expects it for a build on
+  # Linux. We work around this limitation by using the temp dir for cooking.
   build_dir = ENV['RCD_HOST_RUBY_PLATFORM'].to_s =~ /mingw|mswin|cygwin/ ? '/tmp' : '.'
   Dir.chdir(build_dir) do
     yield
@@ -369,7 +369,7 @@ def process_recipe(name, version, static_p, cross_p)
   end
 end
 
-def lib_a(ldflag)
+def libflag_to_filename(ldflag)
   case ldflag
   when /\A-l(.+)/
     "lib#{$1}.#{$LIBEXT}"
@@ -444,11 +444,8 @@ end
 if using_system_libraries?
   message "Building nokogiri using system libraries.\n"
 
+  # Using system libraries means we rely on the system libxml2 for iconv support (or not)
   dir_config('zlib')
-
-  # Using system libraries means we rely on the system libxml2 with
-  # regard to the iconv support.
-
   dir_config('xml2').any?  or package_config('libxml-2.0')
   dir_config('xslt').any?  or package_config('libxslt')
   dir_config('exslt').any? or package_config('libexslt')
@@ -459,6 +456,7 @@ if using_system_libraries?
     abort "ERROR: libxml2 version #{REQUIRED_LIBXML_VERSION} or later is required!"
   have_libxml_headers?(RECOMMENDED_LIBXML_VERSION) or
     warn "WARNING: libxml2 version #{RECOMMENDED_LIBXML_VERSION} or later is highly recommended, but proceeding anyway."
+
 else
   message "Building nokogiri using packaged libraries.\n"
 
@@ -556,9 +554,8 @@ else
   end
 
   unless windows?
-    preserving_globals {
-      have_library('z', 'gzdopen', 'zlib.h')
-    } or abort 'zlib is missing; necessary for building libxml2'
+    preserving_globals { have_library('z', 'gzdopen', 'zlib.h') } or
+      abort 'zlib is missing; necessary for building libxml2'
   end
 
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]["version"], static_p, cross_build_p) do |recipe|
@@ -596,9 +593,7 @@ else
   $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
   $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
 
-  have_lzma = preserving_globals {
-    have_library('lzma')
-  }
+  have_lzma = preserving_globals { have_library('lzma') }
 
   $libs = $libs.shellsplit.tap do |libs|
     [libxml2_recipe, libxslt_recipe].each do |recipe|
@@ -646,9 +641,9 @@ else
     $libs = $libs.shellsplit.map do |arg|
       case arg
       when '-lxml2'
-        File.join(libxml2_recipe.path, 'lib', lib_a(arg))
+        File.join(libxml2_recipe.path, 'lib', libflag_to_filename(arg))
       when '-lxslt', '-lexslt'
-        File.join(libxslt_recipe.path, 'lib', lib_a(arg))
+        File.join(libxslt_recipe.path, 'lib', libflag_to_filename(arg))
       else
         arg
       end
