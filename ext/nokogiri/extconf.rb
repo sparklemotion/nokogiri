@@ -382,21 +382,16 @@ def using_system_libraries?
 end
 
 #
-# main
+#  main
 #
-
-case
-when arg_config('--help')
-  do_help
-when arg_config('--clean')
-  do_clean
-end
 
 # Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
 macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
 if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
    ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I #{macos_mojave_sdk_include_path}"
 end
+do_help if arg_config('--help')
+do_clean if arg_config('--clean')
 
 if openbsd? && !using_system_libraries?
   if `#{ENV['CC'] || '/usr/bin/cc'} -v 2>&1` !~ /clang/
@@ -409,6 +404,7 @@ end
 if ENV['CC']
   RbConfig::CONFIG['CC'] = RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC']
 end
+
 # use same c compiler for libxml and libxslt
 ENV['CC'] = RbConfig::CONFIG['CC']
 
