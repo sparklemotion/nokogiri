@@ -222,11 +222,10 @@ def have_iconv?(using = nil)
 end
 
 def iconv_configure_flags
-  # If --with-iconv-dir or --with-opt-dir is given, it should be
-  # the first priority
-  %w[iconv opt].each do |name|
-    if (config = preserving_globals { dir_config(name) }).any? &&
-        have_iconv?("--with-#{name}-* flags") { dir_config(name) }
+  # give --with-iconv-dir and --with-opt-dir first priority
+  ["iconv", "opt"].each do |target|
+    config = preserving_globals { dir_config(target) }
+    if config.any? && have_iconv?("--with-#{target}-* flags") { dir_config(target) }
       idirs, ldirs = config.map do |dirs|
         Array(dirs).flat_map do |dir|
           dir.split(File::PATH_SEPARATOR)
@@ -245,8 +244,8 @@ def iconv_configure_flags
     return ['--with-iconv=yes']
   end
 
-  if (config = preserving_globals { package_config('libiconv') }) &&
-     have_iconv?('pkg-config libiconv') { package_config('libiconv') }
+  config = preserving_globals { package_config('libiconv') }
+  if config && have_iconv?('pkg-config libiconv') { package_config('libiconv') }
     cflags, ldflags, libs = config
 
     return [
