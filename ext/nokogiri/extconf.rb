@@ -384,12 +384,6 @@ end
 #
 #  main
 #
-
-# Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
-macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
-if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
-   ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I #{macos_mojave_sdk_include_path}"
-end
 do_help if arg_config('--help')
 do_clean if arg_config('--clean')
 
@@ -398,7 +392,7 @@ if openbsd? && !using_system_libraries?
     ENV['CC'] ||= find_executable('egcc') or
       abort "Please install gcc 4.9+ from ports using `pkg_add -v gcc`"
   end
-  ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I /usr/local/include"
+  append_cppflags "-I /usr/local/include"
 end
 
 if ENV['CC']
@@ -408,34 +402,28 @@ end
 # use same c compiler for libxml and libxslt
 ENV['CC'] = RbConfig::CONFIG['CC']
 
+append_cflags(ENV["CFLAGS"].split(/\s+/)) if !ENV["CFLAGS"].nil?
+append_cppflags(ENV["CPPFLAGS"].split(/\s+/)) if !ENV["CPPFLAGS"].nil?
+append_ldflags(ENV["LDFLAGS"].split(/\s+/)) if !ENV["LDFLAGS"].nil?
 $LIBS << " #{ENV["LIBS"]}"
 
-# Read CFLAGS from ENV and make sure compiling works.
-add_cflags(ENV["CFLAGS"])
+append_cflags("-g") # always include debugging information
+append_cflags("-Winline") # we use at least one inline function in the C extension
+append_cflags("-Wmissing-noreturn") # good to have no matter what Ruby was compiled with
+# append_cflags(["-Wcast-qual", "-Wwrite-strings"]) # these tend to be noisy, but on occasion useful during development
+append_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future") if darwin?
+append_cppflags("-DXP_UNIX") if nix?
+append_cppflags(["-DXP_WIN", "-DXP_WIN32"]) if windows?
 
-if windows?
-  $CFLAGS << " -DXP_WIN -DXP_WIN32"
+# Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
+macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
+if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
+  append_cppflags "-I #{macos_mojave_sdk_include_path}"
 end
 
-if darwin?
-  # Let Apple LLVM/clang 5.1 ignore unknown compiler flags
-  add_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future")
-end
-
-if nix?
-  $CFLAGS << " -g -DXP_UNIX"
-end
-
-if RUBY_PLATFORM =~ /mingw/i
-  # Work around a character escaping bug in MSYS by passing an arbitrary
-  # double quoted parameter to gcc. See https://sourceforge.net/p/mingw/bugs/2142
-  $CPPFLAGS << ' "-Idummypath"'
-end
-
-if RbConfig::CONFIG['CC'] =~ /gcc/
-  $CFLAGS << " -O3" unless $CFLAGS[/-O\d/]
-  $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline"
-end
+# Work around a character escaping bug in MSYS by passing an arbitrary
+# double quoted parameter to gcc. See https://sourceforge.net/p/mingw/bugs/2142
+append_cppflags(' "-Idummypath"') if windows?
 
 if using_system_libraries?
   message "Building nokogiri using system libraries.\n"
