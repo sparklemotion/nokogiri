@@ -63,33 +63,33 @@ def sh_export_path path
 end
 
 def do_help
-  print <<HELP
-usage: ruby #{$0} [options]
+  print <<~HELP
+    usage: ruby #{$0} [options]
 
-    --disable-clean
-        Do not clean out intermediate files after successful build.
+        --disable-clean
+            Do not clean out intermediate files after successful build.
 
-    --disable-static
-        Do not statically link bundled libraries.
+        --disable-static
+            Do not statically link bundled libraries.
 
-    --with-iconv-dir=DIR
-        Use the iconv library placed under DIR.
+        --with-iconv-dir=DIR
+            Use the iconv library placed under DIR.
 
-    --with-zlib-dir=DIR
-        Use the zlib library placed under DIR.
+        --with-zlib-dir=DIR
+            Use the zlib library placed under DIR.
 
-    --use-system-libraries
-        Use system libraries instead of building and using the bundled
-        libraries.
+        --use-system-libraries
+            Use system libraries instead of building and using the bundled
+            libraries.
 
-    --with-xml2-dir=DIR / --with-xml2-config=CONFIG
-    --with-xslt-dir=DIR / --with-xslt-config=CONFIG
-    --with-exslt-dir=DIR / --with-exslt-config=CONFIG
-        Use libxml2/libxslt/libexslt as specified.
+        --with-xml2-dir=DIR / --with-xml2-config=CONFIG
+        --with-xslt-dir=DIR / --with-xslt-config=CONFIG
+        --with-exslt-dir=DIR / --with-exslt-config=CONFIG
+            Use libxml2/libxslt/libexslt as specified.
 
-    --enable-cross-build
-        Do cross-build.
-HELP
+        --enable-cross-build
+            Do cross-build.
+  HELP
   exit! 0
 end
 
@@ -202,16 +202,15 @@ def have_iconv?(using = nil)
       preserving_globals do
         yield if block_given?
 
-        try_link(<<-'SRC', opt)
-#include <stdlib.h>
-#include <iconv.h>
-
-int main(void)
-{
-    iconv_t cd = iconv_open("", "");
-    iconv(cd, NULL, NULL, NULL, NULL);
-    return EXIT_SUCCESS;
-}
+        try_link(<<~'SRC', opt)
+          #include <stdlib.h>
+          #include <iconv.h>
+          int main(void)
+          {
+              iconv_t cd = iconv_open("", "");
+              iconv(cd, NULL, NULL, NULL, NULL);
+              return EXIT_SUCCESS;
+          }
         SRC
       end
     end
@@ -326,47 +325,35 @@ def process_recipe(name, version, static_p, cross_p)
       "#{key}=#{value}"
     end
 
-    message <<-"EOS"
-************************************************************************
-IMPORTANT NOTICE:
-
-Building Nokogiri with a packaged version of #{name}-#{version}#{'.' if recipe.patch_files.empty?}
-    EOS
+    message <<~EOM
+      ---------- IMPORTANT NOTICE ----------
+      Building Nokogiri with a packaged version of #{name}-#{version}#{'.' if recipe.patch_files.empty?}
+    EOM
 
     unless recipe.patch_files.empty?
       message "with the following patches applied:\n"
 
       recipe.patch_files.each do |patch|
-        message "\t- %s\n" % File.basename(patch)
+        message "  - %s\n" % File.basename(patch)
       end
     end
 
-    message <<-"EOS"
+    message <<~EOM
 
-Team Nokogiri will keep on doing their best to provide security
-updates in a timely manner, but if this is a concern for you and want
-to use the system library instead; abort this installation process and
-reinstall nokogiri as follows:
+      The Nokogiri maintainers intend to provide timely security updates, but if
+      this is a concern for you and want to use your OS/distro system library
+      instead, then abort this installation process and install nokogiri as
+      instructed at:
 
-    gem install nokogiri -- --use-system-libraries
-        [--with-xml2-config=/path/to/xml2-config]
-        [--with-xslt-config=/path/to/xslt-config]
+          https://nokogiri.org/tutorials/installing_nokogiri.html#install-with-system-libraries
 
-If you are using Bundler, tell it to use the option:
+    EOM
 
-    bundle config build.nokogiri --use-system-libraries
-    bundle install
-    EOS
+    message <<~EOM if name == 'libxml2'
+      Note, however, that nokogiri cannot guarantee compatiblity with every
+      version of libxml2 that may be provided by OS/package vendors.
 
-    message <<-"EOS" if name == 'libxml2'
-
-Note, however, that nokogiri is not fully compatible with arbitrary
-versions of libxml2 provided by OS/package vendors.
-    EOS
-
-    message <<-"EOS"
-************************************************************************
-    EOS
+    EOM
 
     checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
     unless File.exist?(checkpoint)
@@ -451,8 +438,7 @@ if RbConfig::CONFIG['CC'] =~ /gcc/
   $CFLAGS << " -Wall -Wcast-qual -Wwrite-strings -Wmissing-noreturn -Winline"
 end
 
-case
-when using_system_libraries?
+if using_system_libraries?
   message "Building nokogiri using system libraries.\n"
 
   dir_config('zlib')
@@ -551,18 +537,18 @@ else
     end
   else
     if darwin? && !have_header('iconv.h')
-      abort <<'EOM'.chomp
------
-The file "iconv.h" is missing in your build environment,
-which means you haven't installed Xcode Command Line Tools properly.
+      abort <<~EOM.chomp
+        -----
+        The file "iconv.h" is missing in your build environment,
+        which means you haven't installed Xcode Command Line Tools properly.
 
-To install Command Line Tools, try running `xcode-select --install` on
-terminal and follow the instructions.  If it fails, open Xcode.app,
-select from the menu "Xcode" - "Open Developer Tool" - "More Developer
-Tools" to open the developer site, download the installer for your OS
-version and run it.
------
-EOM
+        To install Command Line Tools, try running `xcode-select --install` on
+        terminal and follow the instructions.  If it fails, open Xcode.app,
+        select from the menu "Xcode" - "Open Developer Tool" - "More Developer
+        Tools" to open the developer site, download the installer for your OS
+        version and run it.
+        -----
+      EOM
     end
   end
 
@@ -691,12 +677,12 @@ create_makefile('nokogiri/nokogiri')
 if enable_config('clean', true)
   # Do not clean if run in a development work tree.
   File.open('Makefile', 'at') do |mk|
-    mk.print <<EOF
-all: clean-ports
+    mk.print <<~EOF
+      all: clean-ports
 
-clean-ports: $(DLLIB)
-	-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? 'enable' : 'disable'}-static
-EOF
+      clean-ports: $(DLLIB)
+      \t-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? 'enable' : 'disable'}-static
+    EOF
   end
 end
 
