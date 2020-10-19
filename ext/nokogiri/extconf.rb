@@ -3,11 +3,9 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
 require 'mkmf'
 
-ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+PACKAGE_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 
-#
-# functions
-#
+# utility functions
 def windows?
   RbConfig::CONFIG['target_os'] =~ /mingw32|mswin/
 end
@@ -88,7 +86,7 @@ def do_clean
   require 'pathname'
   require 'fileutils'
 
-  root = Pathname(ROOT)
+  root = Pathname(PACKAGE_ROOT_DIR)
   pwd  = Pathname(Dir.pwd)
 
   # Skip if this is a development work tree
@@ -260,11 +258,11 @@ end
 
 def process_recipe(name, version, static_p, cross_p)
   MiniPortile.new(name, version).tap do |recipe|
-    recipe.target = File.join(ROOT, "ports")
+    recipe.target = File.join(PACKAGE_ROOT_DIR, "ports")
     # Prefer host_alias over host in order to use i586-mingw32msvc as
     # correct compiler prefix for cross build, but use host if not set.
     recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
-    recipe.patch_files = Dir[File.join(ROOT, "patches", name, "*.patch")].sort
+    recipe.patch_files = Dir[File.join(PACKAGE_ROOT_DIR, "patches", name, "*.patch")].sort
     recipe.configure_options << "--libdir=#{File.join(recipe.path, "lib")}"
 
     yield recipe
@@ -476,7 +474,7 @@ else
 
   dir_config('zlib')
 
-  dependencies = YAML.load_file(File.join(ROOT, "dependencies.yml"))
+  dependencies = YAML.load_file(File.join(PACKAGE_ROOT_DIR, "dependencies.yml"))
 
   cross_build_p = enable_config("cross-build")
   if cross_build_p || windows?
@@ -612,7 +610,7 @@ EOM
           case arg
           when /\A-L(.+)\z/
             # Prioritize ports' directories
-            if $1.start_with?(ROOT + '/')
+            if $1.start_with?(PACKAGE_ROOT_DIR + '/')
               $LIBPATH = [$1] | $LIBPATH
             else
               $LIBPATH = $LIBPATH | [$1]
