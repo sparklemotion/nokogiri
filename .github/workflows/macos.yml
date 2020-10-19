@@ -10,7 +10,6 @@ on:
 jobs:
   cruby-test-system-libraries:
     runs-on: macos-latest
-    continue-on-error: true # TODO only while this PR is WIP
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-ruby@v1
