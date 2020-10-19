@@ -4,6 +4,8 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 require 'mkmf'
 
 PACKAGE_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+REQUIRED_LIBXML_VERSION = "2.6.21"
+RECOMMENDED_LIBXML_VERSION = "2.9.3"
 
 # utility functions
 def windows?
@@ -136,18 +138,18 @@ def package_config pkg, options={}
   end
 end
 
-def check_libxml_version version=nil
+def have_libxml_headers?(version=nil)
   source = if version.nil?
-             <<-SRC
-#include <libxml/xmlversion.h>
+             <<~SRC
+               #include <libxml/xmlversion.h>
              SRC
            else
              version_int = sprintf "%d%2.2d%2.2d", *(version.split("."))
-             <<-SRC
-#include <libxml/xmlversion.h>
-#if LIBXML_VERSION < #{version_int}
-#error libxml2 is older than #{version}
-#endif
+             <<~SRC
+               #include <libxml/xmlversion.h>
+               #if LIBXML_VERSION < #{version_int}
+               #  error libxml2 is older than #{version}
+               #endif
              SRC
            end
 
@@ -453,10 +455,12 @@ when using_system_libraries?
   dir_config('xslt').any?  or package_config('libxslt')
   dir_config('exslt').any? or package_config('libexslt')
 
-  check_libxml_version or abort "ERROR: cannot discover where libxml2 is located on your system. please make sure `pkg-config` is installed."
-  check_libxml_version("2.6.21") or abort "ERROR: libxml2 version 2.6.21 or later is required!"
-  check_libxml_version("2.9.3") or warn "WARNING: libxml2 version 2.9.3 or later is highly recommended, but proceeding anyway."
-
+  have_libxml_headers? or
+    abort "ERROR: cannot discover where libxml2 is located on your system. please make sure `pkg-config` is installed."
+  have_libxml_headers?(REQUIRED_LIBXML_VERSION) or
+    abort "ERROR: libxml2 version #{REQUIRED_LIBXML_VERSION} or later is required!"
+  have_libxml_headers?(RECOMMENDED_LIBXML_VERSION) or
+    warn "WARNING: libxml2 version #{RECOMMENDED_LIBXML_VERSION} or later is highly recommended, but proceeding anyway."
 else
   message "Building nokogiri using packaged libraries.\n"
 
