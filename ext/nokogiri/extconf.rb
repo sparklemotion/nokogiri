@@ -196,7 +196,7 @@ ensure
   $arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs = values
 end
 
-def asplode(lib)
+def abort_could_not_find_library(lib)
   abort "-----\n#{lib} is missing.  Please locate mkmf.log to investigate how it is failing.\n-----"
 end
 
@@ -256,7 +256,7 @@ def iconv_configure_flags
     ]
   end
 
-  asplode "libiconv"
+  abort_could_not_find_library "libiconv"
 end
 
 def chdir_for_build
@@ -651,18 +651,21 @@ else
   end
 end
 
-{
-  "xml2"  => ['xmlParseDoc',            'libxml/parser.h'],
-  "xslt"  => ['xsltParseStylesheetDoc', 'libxslt/xslt.h'],
-  "exslt" => ['exsltFuncRegister',      'libexslt/exslt.h'],
-}.each do |lib, (func, header)|
-  have_func(func, header) ||
-  have_library(lib, func, header) ||
-  have_library("lib#{lib}", func, header) or
-    asplode("lib#{lib}")
+have_func('vasprintf')
+
+[
+  ["xml2", "xmlParseDoc", "libxml/parser.h"],
+  ["xslt", "xsltParseStylesheetDoc", "libxslt/xslt.h"],
+  ["exslt", "exsltFuncRegister", "libexslt/exslt.h"]
+].each do |lib, func, header|
+  checking_for "lib#{lib}" do
+    have_func(func, header) or
+      have_library(lib, func, header) or
+      have_library("lib#{lib}", func, header) or
+      abort_could_not_find_library("lib#{lib}")
+  end
 end
 
-have_func('vasprintf')
 have_func('xmlHasFeature') or abort "xmlHasFeature() is missing." # introduced in libxml 2.6.21
 have_func('xmlFirstElementChild') # introduced in libxml 2.7.3
 have_func('xmlRelaxNGSetParserStructuredErrors') # introduced in libxml 2.6.24
