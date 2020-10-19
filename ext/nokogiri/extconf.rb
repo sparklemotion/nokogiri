@@ -397,8 +397,10 @@ when arg_config('--clean')
   do_clean
 end
 
-if darwin?
-  ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
+# Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
+macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
+if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
+   ENV['CFLAGS'] = "#{ENV['CFLAGS']} -I #{macos_mojave_sdk_include_path}"
 end
 
 if openbsd? && !using_system_libraries?
