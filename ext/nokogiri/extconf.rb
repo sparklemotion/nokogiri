@@ -53,12 +53,13 @@ def sh_export_path path
   #
   # which is sh-compatible, in order to find things properly during
   # configuration
-  if windows?
-    match = Regexp.new("^([A-Z]):(/.*)").match(path)
-    if match && match.length == 3
-      return File.join("/", match[1], match[2])
-    end
+  return path if !windows?
+
+  match = Regexp.new("^([A-Z]):(/.*)").match(path)
+  if match && match.length == 3
+    return File.join("/", match[1], match[2])
   end
+
   path
 end
 
