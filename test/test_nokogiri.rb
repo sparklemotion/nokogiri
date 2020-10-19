@@ -2,7 +2,8 @@ require "helper"
 
 class TestNokogiri < Nokogiri::TestCase
   def test_libxml_iconv
-    assert Nokogiri.const_defined?(:LIBXML_ICONV_ENABLED) if Nokogiri.uses_libxml?
+    skip "this constant is only set in the C extension when libxml2 is used" if !Nokogiri.uses_libxml?
+    assert Nokogiri.const_defined?(:LIBXML_ICONV_ENABLED)
   end
 
   def test_parse_with_io

@@ -58,6 +58,12 @@ module TestVersionInfoTests
 
     assert @version_info["libxslt"]["source"]
   end
+
+  def test_version_info_for_iconv
+    skip "this value is only set in the C extension when libxml2 is used" if !Nokogiri.uses_libxml?
+
+    assert_operator @version_info["libxml"], :key?, "iconv_enabled"
+  end
 end
 
 class TestVersionInfo

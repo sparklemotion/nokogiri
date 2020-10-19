@@ -38,6 +38,10 @@ module Nokogiri
       defined?(LIBXML_COMPILED_VERSION)
     end
 
+    def libxml2_has_iconv?
+      defined?(LIBXML_ICONV_ENABLED) && LIBXML_ICONV_ENABLED
+    end
+
     def libxml2_using_system?
       !libxml2_using_packaged?
     end
@@ -85,6 +89,7 @@ module Nokogiri
             end
             libxml["compiled"] = compiled_libxml_version.to_s
             libxml["loaded"] = loaded_libxml_version.to_s
+            libxml["iconv_enabled"] = libxml2_has_iconv?
           end
 
           vi["libxslt"] = {}.tap do |libxslt|

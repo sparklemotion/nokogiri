@@ -12,7 +12,7 @@ resources:
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
-      ignore_paths: <%= $common_ignore_paths %>
+      ignore_paths: <%= $git_resource_ignore_paths %>
 
 
 anchors:

@@ -110,7 +110,7 @@ module Nokogiri
       end
 
       def test_document_xhtml_enc
-        [ENCODING_XHTML_FILE, ENCODING_HTML_FILE].each { |file|
+        [ENCODING_XHTML_FILE, ENCODING_HTML_FILE].each do |file|
           doc_from_string_enc = Nokogiri::HTML(binread(file), nil, 'Shift_JIS')
           ary_from_string_enc = doc_from_string_enc.xpath('//p/text()').map(&:text)
 
@@ -134,9 +134,13 @@ module Nokogiri
 
           assert_equal(evil, ary_from_string_enc)
           assert_equal(evil, ary_from_string)
-          assert_equal(evil, ary_from_file_enc)
-          assert_equal(evil, ary_from_file)
-        }
+
+          if !Nokogiri.uses_libxml? || Nokogiri::VersionInfo.instance.libxml2_has_iconv?
+            # libxml2 without iconv does not pass this test
+            assert_equal(evil, ary_from_file_enc)
+            assert_equal(evil, ary_from_file)
+          end
+        end
       end
     end
   end

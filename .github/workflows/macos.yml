@@ -8,7 +8,7 @@ on:
       - '*'
 
 jobs:
-  latest:
+  cruby-test-system-libraries:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@master
@@ -17,9 +17,28 @@ jobs:
           ruby-version: '2.7'
       - name: Set ENV
         run: |
-          echo '##[set-env name=MAKEFLAGS]'-j$((1 + $(sysctl -n hw.activecpu)))
+          echo "MAKEFLAGS=-j$((1 + $(sysctl -n hw.activecpu)))" >> $GITHUB_ENV
+          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+          echo "NOKOGIRI_USE_SYSTEM_LIBRARIES=t" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
-          bundle install -j8
+          bundle config jobs $((1 + $(sysctl -n hw.activecpu)))
+          bundle install
+      - run: rake compile
+      - run: rake test
+  cruby-test-vendored-libraries:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+      - name: Set ENV
+        run: |
+          echo "MAKEFLAGS=-j$((1 + $(sysctl -n hw.activecpu)))" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: |
+          bundle config jobs $((1 + $(sysctl -n hw.activecpu)))
+          bundle install
       - run: rake compile
       - run: rake test

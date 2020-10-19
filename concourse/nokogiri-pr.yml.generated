@@ -900,9 +900,9 @@ resources:
     access_token: ((github-repo-status-access-token))
     ignore_paths:
     - '*.md'
-    - concourse/**
-    - suppressions/**
-    - .github/**
+    - concourse/
+    - suppressions/
+    - .github/
     - Vagrantfile
     repository: sparklemotion/nokogiri
   type: pull-request
