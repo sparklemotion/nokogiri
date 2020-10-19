@@ -1,10 +1,18 @@
 require "json"
 
-$common_ignore_paths = [
+$git_resource_ignore_paths = [
   "*.md",
   "concourse/**",
   "suppressions/**",
   ".github/**",
+  "Vagrantfile",
+].to_json
+
+$git_pr_resource_ignore_paths = [
+  "*.md",
+  "concourse/",
+  "suppressions/",
+  ".github/",
   "Vagrantfile",
 ].to_json
 

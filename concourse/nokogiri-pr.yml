@@ -18,7 +18,7 @@ resources:
     source:
       repository: sparklemotion/nokogiri
       access_token: ((github-repo-status-access-token))
-      ignore_paths: <%= $common_ignore_paths %>
+      ignore_paths: <%= $git_pr_resource_ignore_paths %>
 
 
 anchors:
