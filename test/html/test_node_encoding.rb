@@ -19,6 +19,10 @@ module Nokogiri
       end
 
       def test_serialize_encoding_html
+        if Nokogiri.uses_libxml? && !Nokogiri::VersionInfo.instance.libxml2_has_iconv?
+          skip "libxml2 without iconv does not pass this test"
+        end
+
         assert_equal @html.encoding.downcase,
           @html.serialize.encoding.name.downcase
 
