@@ -3,11 +3,20 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
 require 'mkmf'
 
+#
+#  helpful constants
+#
 PACKAGE_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 REQUIRED_LIBXML_VERSION = "2.6.21"
 RECOMMENDED_LIBXML_VERSION = "2.9.3"
 
-# utility functions
+# The gem version constraint in the Rakefile is not respected at install time.
+# Keep this version in sync with the one in the Rakefile !
+REQUIRED_MINI_PORTILE_VERSION = "~> 2.5.0"
+
+#
+#  utility functions
+#
 def windows?
   RbConfig::CONFIG['target_os'] =~ /mingw32|mswin/
 end
@@ -464,10 +473,8 @@ when using_system_libraries?
 else
   message "Building nokogiri using packaged libraries.\n"
 
-  # The gem version constraint in the Rakefile is not respected at install time.
-  # Keep this version in sync with the one in the Rakefile !
   require 'rubygems'
-  gem 'mini_portile2', '~> 2.5.0'
+  gem 'mini_portile2', REQUIRED_MINI_PORTILE_VERSION
   require 'mini_portile2'
   message "Using mini_portile version #{MiniPortile::VERSION}\n"
 
