@@ -190,17 +190,10 @@ def add_cflags(flags)
 end
 
 def preserving_globals
-  values = [
-    $arg_config,
-    $CFLAGS, $CPPFLAGS,
-    $LDFLAGS, $LIBPATH, $libs
-  ].map(&:dup)
+  values = [$arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs].map(&:dup)
   yield
 ensure
-  $arg_config,
-  $CFLAGS, $CPPFLAGS,
-  $LDFLAGS, $LIBPATH, $libs =
-    values
+  $arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs = values
 end
 
 def asplode(lib)
