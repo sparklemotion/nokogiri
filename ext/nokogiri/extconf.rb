@@ -401,9 +401,6 @@ append_cflags("-Wmissing-noreturn") # good to have no matter what Ruby was compi
 append_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future") if darwin?
 # append_cflags(["-Wcast-qual", "-Wwrite-strings"]) # these tend to be noisy, but on occasion useful during development
 
-append_cppflags("-DXP_UNIX") if nix?
-append_cppflags(["-DXP_WIN", "-DXP_WIN32"]) if windows?
-
 # Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
 macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
 if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
