@@ -41,89 +41,6 @@ def nix?
   ! (windows? || solaris? || darwin?)
 end
 
-def sh_export_path path
-  # because libxslt 1.1.29 configure.in uses AC_PATH_TOOL which treats ":"
-  # as a $PATH separator, we need to convert windows paths from
-  #
-  #   C:/path/to/foo
-  #
-  # to
-  #
-  #   /C/path/to/foo
-  #
-  # which is sh-compatible, in order to find things properly during
-  # configuration
-  return path if !windows?
-
-  match = Regexp.new("^([A-Z]):(/.*)").match(path)
-  if match && match.length == 3
-    return File.join("/", match[1], match[2])
-  end
-
-  path
-end
-
-def do_help
-  print <<~HELP
-    usage: ruby #{$0} [options]
-
-        --disable-clean
-            Do not clean out intermediate files after successful build.
-
-        --disable-static
-            Do not statically link bundled libraries.
-
-        --with-iconv-dir=DIR
-            Use the iconv library placed under DIR.
-
-        --with-zlib-dir=DIR
-            Use the zlib library placed under DIR.
-
-        --use-system-libraries
-            Use system libraries instead of building and using the bundled
-            libraries.
-
-        --with-xml2-dir=DIR / --with-xml2-config=CONFIG
-        --with-xslt-dir=DIR / --with-xslt-config=CONFIG
-        --with-exslt-dir=DIR / --with-exslt-config=CONFIG
-            Use libxml2/libxslt/libexslt as specified.
-
-        --enable-cross-build
-            Do cross-build.
-  HELP
-  exit! 0
-end
-
-def do_clean
-  require 'pathname'
-  require 'fileutils'
-
-  root = Pathname(PACKAGE_ROOT_DIR)
-  pwd  = Pathname(Dir.pwd)
-
-  # Skip if this is a development work tree
-  unless (root + '.git').exist?
-    message "Cleaning files only used during build.\n"
-
-    # (root + 'tmp') cannot be removed at this stage because
-    # nokogiri.so is yet to be copied to lib.
-
-    # clean the ports build directory
-    Pathname.glob(pwd.join('tmp', '*', 'ports')) do |dir|
-      FileUtils.rm_rf(dir, verbose: true)
-    end
-
-    if enable_config('static')
-      # ports installation can be safely removed if statically linked.
-      FileUtils.rm_rf(root + 'ports', verbose: true)
-    else
-      FileUtils.rm_rf(root + 'ports' + 'archives', verbose: true)
-    end
-  end
-
-  exit! 0
-end
-
 def package_config pkg, options={}
   # use MakeMakefile#pkg_config, which uses the system utility `pkg-config`.
   package = pkg_config(pkg)
@@ -158,6 +75,61 @@ def package_config pkg, options={}
   [cflags, ldflags, libs]
 end
 
+def preserving_globals
+  values = [$arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs].map(&:dup)
+  yield
+ensure
+  $arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs = values
+end
+
+def abort_could_not_find_library(lib)
+  abort "-----\n#{lib} is missing.  Please locate mkmf.log to investigate how it is failing.\n-----"
+end
+
+def chdir_for_build
+  # When using rake-compiler-dock on Windows, the underlying Virtualbox shared
+  # folders don't support symlinks, but libiconv expects it for a build on
+  # Linux. We work around this limitation by using the temp dir for cooking.
+  build_dir = ENV['RCD_HOST_RUBY_PLATFORM'].to_s =~ /mingw|mswin|cygwin/ ? '/tmp' : '.'
+  Dir.chdir(build_dir) do
+    yield
+  end
+end
+
+def sh_export_path path
+  # because libxslt 1.1.29 configure.in uses AC_PATH_TOOL which treats ":"
+  # as a $PATH separator, we need to convert windows paths from
+  #
+  #   C:/path/to/foo
+  #
+  # to
+  #
+  #   /C/path/to/foo
+  #
+  # which is sh-compatible, in order to find things properly during
+  # configuration
+  return path if !windows?
+
+  match = Regexp.new("^([A-Z]):(/.*)").match(path)
+  if match && match.length == 3
+    return File.join("/", match[1], match[2])
+  end
+
+  path
+end
+
+def libflag_to_filename(ldflag)
+  case ldflag
+  when /\A-l(.+)/
+    "lib#{$1}.#{$LIBEXT}"
+  end
+end
+
+def using_system_libraries?
+  # NOTE: TruffleRuby uses this env var as it does not support using static libraries yet.
+  arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+end
+
 def have_libxml_headers?(version=nil)
   source = if version.nil?
              <<~SRC
@@ -176,18 +148,7 @@ def have_libxml_headers?(version=nil)
   try_cpp source
 end
 
-def preserving_globals
-  values = [$arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs].map(&:dup)
-  yield
-ensure
-  $arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs = values
-end
-
-def abort_could_not_find_library(lib)
-  abort "-----\n#{lib} is missing.  Please locate mkmf.log to investigate how it is failing.\n-----"
-end
-
-def have_iconv?(using = nil)
+def try_link_iconv(using = nil)
   checking_for(using ? "iconv using #{using}" : 'iconv') do
     ['', '-liconv'].any? do |opt|
       preserving_globals do
@@ -212,7 +173,7 @@ def iconv_configure_flags
   # give --with-iconv-dir and --with-opt-dir first priority
   ["iconv", "opt"].each do |target|
     config = preserving_globals { dir_config(target) }
-    if config.any? && have_iconv?("--with-#{target}-* flags") { dir_config(target) }
+    if config.any? && try_link_iconv("--with-#{target}-* flags") { dir_config(target) }
       idirs, ldirs = config.map do |dirs|
         Array(dirs).flat_map do |dir|
           dir.split(File::PATH_SEPARATOR)
@@ -227,12 +188,12 @@ def iconv_configure_flags
     end
   end
 
-  if have_iconv?
+  if try_link_iconv
     return ['--with-iconv=yes']
   end
 
   config = preserving_globals { package_config('libiconv') }
-  if config && have_iconv?('pkg-config libiconv') { package_config('libiconv') }
+  if config && try_link_iconv('pkg-config libiconv') { package_config('libiconv') }
     cflags, ldflags, libs = config
 
     return [
@@ -244,16 +205,6 @@ def iconv_configure_flags
   end
 
   abort_could_not_find_library "libiconv"
-end
-
-def chdir_for_build
-  # When using rake-compiler-dock on Windows, the underlying Virtualbox shared
-  # folders don't support symlinks, but libiconv expects it for a build on
-  # Linux. We work around this limitation by using the temp dir for cooking.
-  build_dir = ENV['RCD_HOST_RUBY_PLATFORM'].to_s =~ /mingw|mswin|cygwin/ ? '/tmp' : '.'
-  Dir.chdir(build_dir) do
-    yield
-  end
 end
 
 def process_recipe(name, version, static_p, cross_p)
@@ -356,16 +307,65 @@ def process_recipe(name, version, static_p, cross_p)
   end
 end
 
-def libflag_to_filename(ldflag)
-  case ldflag
-  when /\A-l(.+)/
-    "lib#{$1}.#{$LIBEXT}"
-  end
+def do_help
+  print <<~HELP
+    usage: ruby #{$0} [options]
+
+        --disable-clean
+            Do not clean out intermediate files after successful build.
+
+        --disable-static
+            Do not statically link bundled libraries.
+
+        --with-iconv-dir=DIR
+            Use the iconv library placed under DIR.
+
+        --with-zlib-dir=DIR
+            Use the zlib library placed under DIR.
+
+        --use-system-libraries
+            Use system libraries instead of building and using the bundled
+            libraries.
+
+        --with-xml2-dir=DIR / --with-xml2-config=CONFIG
+        --with-xslt-dir=DIR / --with-xslt-config=CONFIG
+        --with-exslt-dir=DIR / --with-exslt-config=CONFIG
+            Use libxml2/libxslt/libexslt as specified.
+
+        --enable-cross-build
+            Do cross-build.
+  HELP
+  exit! 0
 end
 
-def using_system_libraries?
-  # NOTE: TruffleRuby uses this env var as it does not support using static libraries yet.
-  arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+def do_clean
+  require 'pathname'
+  require 'fileutils'
+
+  root = Pathname(PACKAGE_ROOT_DIR)
+  pwd  = Pathname(Dir.pwd)
+
+  # Skip if this is a development work tree
+  unless (root + '.git').exist?
+    message "Cleaning files only used during build.\n"
+
+    # (root + 'tmp') cannot be removed at this stage because
+    # nokogiri.so is yet to be copied to lib.
+
+    # clean the ports build directory
+    Pathname.glob(pwd.join('tmp', '*', 'ports')) do |dir|
+      FileUtils.rm_rf(dir, verbose: true)
+    end
+
+    if enable_config('static')
+      # ports installation can be safely removed if statically linked.
+      FileUtils.rm_rf(root + 'ports', verbose: true)
+    else
+      FileUtils.rm_rf(root + 'ports' + 'archives', verbose: true)
+    end
+  end
+
+  exit! 0
 end
 
 #
@@ -389,6 +389,7 @@ end
 # use same c compiler for libxml and libxslt
 ENV['CC'] = RbConfig::CONFIG['CC']
 
+# adopt environment config
 append_cflags(ENV["CFLAGS"].split(/\s+/)) if !ENV["CFLAGS"].nil?
 append_cppflags(ENV["CPPFLAGS"].split(/\s+/)) if !ENV["CPPFLAGS"].nil?
 append_ldflags(ENV["LDFLAGS"].split(/\s+/)) if !ENV["LDFLAGS"].nil?
@@ -397,15 +398,16 @@ $LIBS << " #{ENV["LIBS"]}"
 append_cflags("-g") # always include debugging information
 append_cflags("-Winline") # we use at least one inline function in the C extension
 append_cflags("-Wmissing-noreturn") # good to have no matter what Ruby was compiled with
-# append_cflags(["-Wcast-qual", "-Wwrite-strings"]) # these tend to be noisy, but on occasion useful during development
 append_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future") if darwin?
+# append_cflags(["-Wcast-qual", "-Wwrite-strings"]) # these tend to be noisy, but on occasion useful during development
+
 append_cppflags("-DXP_UNIX") if nix?
 append_cppflags(["-DXP_WIN", "-DXP_WIN32"]) if windows?
 
 # Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
 macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
 if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
-  append_cppflags "-I #{macos_mojave_sdk_include_path}"
+  append_cppflags("-I #{macos_mojave_sdk_include_path}")
 end
 
 # Work around a character escaping bug in MSYS by passing an arbitrary
@@ -431,21 +433,19 @@ if using_system_libraries?
 else
   message "Building nokogiri using packaged libraries.\n"
 
+  static_p = enable_config('static', true) or message "Static linking is disabled.\n"
+  cross_build_p = enable_config("cross-build")
+
   require 'rubygems'
   gem 'mini_portile2', REQUIRED_MINI_PORTILE_VERSION
   require 'mini_portile2'
   message "Using mini_portile version #{MiniPortile::VERSION}\n"
 
   require 'yaml'
-
-  static_p = enable_config('static', true) or
-    message "Static linking is disabled.\n"
+  dependencies = YAML.load_file(File.join(PACKAGE_ROOT_DIR, "dependencies.yml"))
 
   dir_config('zlib')
 
-  dependencies = YAML.load_file(File.join(PACKAGE_ROOT_DIR, "dependencies.yml"))
-
-  cross_build_p = enable_config("cross-build")
   if cross_build_p || windows?
     zlib_recipe = process_recipe("zlib", dependencies["zlib"]["version"], static_p, cross_build_p) do |recipe|
       recipe.files = [{
