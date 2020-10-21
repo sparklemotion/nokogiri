@@ -208,6 +208,11 @@ def iconv_configure_flags
 end
 
 def process_recipe(name, version, static_p, cross_p)
+  require 'rubygems'
+  gem 'mini_portile2', REQUIRED_MINI_PORTILE_VERSION
+  require 'mini_portile2'
+  message "Using mini_portile version #{MiniPortile::VERSION}\n"
+
   MiniPortile.new(name, version).tap do |recipe|
     recipe.target = File.join(PACKAGE_ROOT_DIR, "ports")
     # Prefer host_alias over host in order to use i586-mingw32msvc as
@@ -432,11 +437,6 @@ else
 
   static_p = enable_config('static', true) or message "Static linking is disabled.\n"
   cross_build_p = enable_config("cross-build")
-
-  require 'rubygems'
-  gem 'mini_portile2', REQUIRED_MINI_PORTILE_VERSION
-  require 'mini_portile2'
-  message "Using mini_portile version #{MiniPortile::VERSION}\n"
 
   require 'yaml'
   dependencies = YAML.load_file(File.join(PACKAGE_ROOT_DIR, "dependencies.yml"))
