@@ -1,3 +1,6 @@
+require "rbconfig"
+require "shellwords"
+
 CrossRuby = Struct.new(:version, :host) do
   WINDOWS_PLATFORM_REGEX = /mingw|mswin/
   MINGW32_PLATFORM_REGEX = /mingw32/
@@ -238,7 +241,7 @@ namespace "gem" do
     desc "build native gem for #{plat} platform (host)"
     task plat do
       # TODO remove `find` after https://github.com/rake-compiler/rake-compiler/pull/171 is shipped
-      RakeCompilerDock.sh <<-EOT, platform: plat
+      RakeCompilerDock.sh <<~EOT, platform: plat
         gem install bundler --no-document &&
         bundle &&
         find /usr/local/rvm/gems -name extensiontask.rb | while read f ; do sudo sed -i 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' $f ; done &&
@@ -330,10 +333,10 @@ else
     ext.cross_config_options << "--enable-cross-build"
     ext.cross_compiling do |spec|
       libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
-
-      spec.post_install_message = <<-EOS
-Nokogiri is built with the packaged libraries: #{libs}.
+      spec.post_install_message = <<~EOS
+        Nokogiri is built with the packaged libraries: #{libs}.
       EOS
+
       spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
       spec.dependencies.reject! { |dep| dep.name=='mini_portile2' }
     end
