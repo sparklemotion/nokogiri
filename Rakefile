@@ -1,4 +1,3 @@
-# -*- ruby -*-
 require 'hoe'
 
 Hoe.plugin :bundler
@@ -6,8 +5,6 @@ Hoe.plugin :debugging
 Hoe.plugin :gemspec
 Hoe.plugin :git
 Hoe.plugin :markdown
-
-require 'shellwords'
 
 require_relative "tasks/util"
 
@@ -85,5 +82,3 @@ require_relative "tasks/set-version-to-timestamp"
 # work around Hoe's inflexibility about the default tasks
 Rake::Task[:default].prerequisites.unshift("compile")
 Rake::Task[:default].prerequisites.unshift("rubocop")
-
-# vim: syntax=Ruby

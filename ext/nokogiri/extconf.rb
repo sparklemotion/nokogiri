@@ -1,7 +1,11 @@
 # :stopdoc:
 ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
-require 'mkmf'
+require "mkmf"
+require "rbconfig"
+require "fileutils"
+require "shellwords"
+require "pathname"
 
 #
 #  helpful constants
@@ -344,9 +348,6 @@ def do_help
 end
 
 def do_clean
-  require 'pathname'
-  require 'fileutils'
-
   root = Pathname(PACKAGE_ROOT_DIR)
   pwd  = Pathname(Dir.pwd)
 

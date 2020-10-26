@@ -1,3 +1,6 @@
+require "rbconfig"
+require "shellwords"
+
 CrossRuby = Struct.new(:version, :host) do
   WINDOWS_PLATFORM_REGEX = /mingw|mswin/
   MINGW32_PLATFORM_REGEX = /mingw32/
