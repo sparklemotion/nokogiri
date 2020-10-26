@@ -4,6 +4,7 @@
 
 source "https://rubygems.org/"
 
+gem "racc", "~>1.4"
 gem "mini_portile2", "~>2.5.0"
 
 gem "concourse", "~>0.38", :group => [:development, :test]
@@ -14,7 +15,6 @@ gem "hoe-gemspec", "~>1.0", :group => [:development, :test]
 gem "hoe-git", "~>1.6", :group => [:development, :test]
 gem "hoe-markdown", "~>1.1", :group => [:development, :test]
 gem "minitest", "~>5.8", :group => [:development, :test]
-gem "racc", "~>1.5.0", :group => [:development, :test]
 gem "rake", "~>13.0", :group => [:development, :test]
 gem "rake-compiler", "~>1.1", :group => [:development, :test]
 gem "rake-compiler-dock", "~>1.0", :group => [:development, :test]
