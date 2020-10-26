@@ -248,7 +248,7 @@ def process_recipe(name, version, static_p, cross_p)
         "--disable-shared",
         "--enable-static",
       ]
-      env['CFLAGS'] = "-fPIC #{env['CFLAGS']}"
+      env["CFLAGS"] = [env["CFLAGS"], "-fPIC"].join(" ")
     else
       recipe.configure_options += [
         "--enable-shared",
@@ -485,7 +485,8 @@ else
       else
         class << recipe
           def configure
-            execute "configure", ["env", "CHOST=#{host}", "CFLAGS=-fPIC #{ENV['CFLAGS']}", "./configure", "--static", configure_prefix]
+            cflags = [ENV["CFLAGS"], "-fPIC", "-g"].join(" ")
+            execute "configure", ["env", "CHOST=#{host}", "CFLAGS=#{cflags}", "./configure", "--static", configure_prefix]
           end
         end
       end
@@ -497,10 +498,13 @@ else
             url: "http://ftp.gnu.org/pub/gnu/libiconv/#{recipe.name}-#{recipe.version}.tar.gz",
             sha256: dependencies["libiconv"]["sha256"]
           }]
+
+        cflags = [ENV["CFLAGS"], "-O2", "-g"].join(" ")
+
         recipe.configure_options += [
           "CPPFLAGS=-Wall",
-          "CFLAGS=-O2 -g",
-          "CXXFLAGS=-O2 -g",
+          "CFLAGS=#{cflags}",
+          "CXXFLAGS=#{cflags}",
           "LDFLAGS="
         ]
       end
@@ -532,15 +536,31 @@ else
         url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
         sha256: dependencies["libxml2"]["sha256"]
       }]
+
+    cflags = ENV["CFLAGS"]
+
+    if zlib_recipe
+      recipe.configure_options << "--with-zlib=#{zlib_recipe.path}"
+      cflags = [cflags, "-I#{zlib_recipe.path}/include"].join(" ")
+    end
+
+    if libiconv_recipe
+      recipe.configure_options << "--with-iconv=#{libiconv_recipe.path}"
+    else
+      recipe.configure_options << iconv_configure_flags
+    end
+
+    if darwin?
+      recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
+    end
+
     recipe.configure_options += [
       "--without-python",
       "--without-readline",
-      *(zlib_recipe ? ["--with-zlib=#{zlib_recipe.path}", "CFLAGS=-I#{zlib_recipe.path}/include"] : []),
-      *(libiconv_recipe ? "--with-iconv=#{libiconv_recipe.path}" : iconv_configure_flags),
       "--with-c14n",
       "--with-debug",
       "--with-threads",
-      *(darwin? ? ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"] : "")
+      "CFLAGS=#{cflags}"
     ]
   end
 
@@ -549,16 +569,20 @@ else
         url: "http://xmlsoft.org/sources/#{recipe.name}-#{recipe.version}.tar.gz",
         sha256: dependencies["libxslt"]["sha256"]
       }]
+
+    if darwin?
+      recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
+    end
+
     recipe.configure_options += [
       "--without-python",
       "--without-crypto",
       "--with-debug",
       "--with-libxml-prefix=#{sh_export_path(libxml2_recipe.path)}",
-      *(darwin? ? ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"] : "")
     ]
   end
 
-  $CFLAGS << ' ' << '-DNOKOGIRI_USE_PACKAGED_LIBRARIES'
+  $CFLAGS = [$CFLAGS, "-DNOKOGIRI_USE_PACKAGED_LIBRARIES"].join(" ")
   $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
   $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
 
