@@ -16,8 +16,7 @@ mkdir -p .git
 bundle install --local || bundle install
 
 # generate a fake version number
-cp -f ../ci/tasks/set-version-to-timestamp.rb tasks/set-version-to-timestamp.rb
-bundle exec rake -f tasks/set-version-to-timestamp.rb set-version-to-timestamp
+bundle exec rake set-version-to-timestamp
 
 bundle exec rake java gem
 

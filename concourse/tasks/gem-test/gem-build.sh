@@ -22,8 +22,7 @@ mkdir -p .git
 bundle install --local || bundle install
 
 # generate a fake version number
-cp -f ../ci/tasks/set-version-to-timestamp.rb tasks/set-version-to-timestamp.rb
-bundle exec rake -f tasks/set-version-to-timestamp.rb set-version-to-timestamp
+bundle exec rake set-version-to-timestamp
 
 if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
   # TODO remove after https://github.com/rake-compiler/rake-compiler/pull/171 is shipped
