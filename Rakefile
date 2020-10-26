@@ -79,7 +79,6 @@ require_relative "tasks/concourse"
 require_relative "tasks/css-generate"
 require_relative "tasks/debug"
 require_relative "tasks/docker"
-require_relative "tasks/docs-linkify"
 require_relative "tasks/rubocop"
 require_relative "tasks/set-version-to-timestamp"
 
