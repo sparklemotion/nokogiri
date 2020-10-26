@@ -4,12 +4,13 @@
 exclude: !ruby/regexp '/
 (^\.\/
   ((\.git
+    |.vagrant
     |.yardoc
     |concourse
     |gems
     |ports
     |suppressions
-    |tasks
+    |rakelib
     |test
     |tmp
   )\/)

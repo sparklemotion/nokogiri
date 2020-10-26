@@ -6,7 +6,7 @@ Hoe.plugin :gemspec
 Hoe.plugin :git
 Hoe.plugin :markdown
 
-require_relative "tasks/util"
+require_relative "rakelib/util"
 
 HOE = Hoe.spec "nokogiri" do |hoe|
   hoe.author = [
@@ -73,14 +73,6 @@ HOE = Hoe.spec "nokogiri" do |hoe|
   hoe.testlib = :minitest
   hoe.test_prelude = %q(require "helper") # ensure simplecov gets loaded before anything else
 end
-
-require_relative "tasks/cross-ruby"
-require_relative "tasks/concourse"
-require_relative "tasks/css-generate"
-require_relative "tasks/debug"
-require_relative "tasks/docker"
-require_relative "tasks/rubocop"
-require_relative "tasks/set-version-to-timestamp"
 
 # work around Hoe's inflexibility about the default tasks
 Rake::Task[:default].prerequisites.unshift("compile")
