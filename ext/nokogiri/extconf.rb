@@ -279,38 +279,41 @@ def process_recipe(name, version, static_p, cross_p)
       "#{key}=#{value.strip}"
     end
 
-    message <<~EOM
-      ---------- IMPORTANT NOTICE ----------
-      Building Nokogiri with a packaged version of #{name}-#{version}#{'.' if recipe.patch_files.empty?}
-    EOM
+    checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+    if File.exist?(checkpoint)
+      message "Building Nokogiri with a packaged version of #{name}-#{version}.\n"
+    else
+      message <<~EOM
+        ---------- IMPORTANT NOTICE ----------
+        Building Nokogiri with a packaged version of #{name}-#{version}.
+        Configuration options: #{recipe.configure_options.shelljoin}
+      EOM
 
-    unless recipe.patch_files.empty?
-      message "with the following patches applied:\n"
+      unless recipe.patch_files.empty?
+        message "The following patches are being applied:\n"
 
-      recipe.patch_files.each do |patch|
-        message "  - %s\n" % File.basename(patch)
+        recipe.patch_files.each do |patch|
+          message "  - %s\n" % File.basename(patch)
+        end
       end
-    end
 
-    message <<~EOM
+      message <<~EOM
 
-      The Nokogiri maintainers intend to provide timely security updates, but if
-      this is a concern for you and want to use your OS/distro system library
-      instead, then abort this installation process and install nokogiri as
-      instructed at:
+        The Nokogiri maintainers intend to provide timely security updates, but if
+        this is a concern for you and want to use your OS/distro system library
+        instead, then abort this installation process and install nokogiri as
+        instructed at:
 
           https://nokogiri.org/tutorials/installing_nokogiri.html#install-with-system-libraries
 
-    EOM
+      EOM
 
-    message <<~EOM if name == 'libxml2'
-      Note, however, that nokogiri cannot guarantee compatiblity with every
-      version of libxml2 that may be provided by OS/package vendors.
+      message <<~EOM if name == 'libxml2'
+        Note, however, that nokogiri cannot guarantee compatiblity with every
+        version of libxml2 that may be provided by OS/package vendors.
 
-    EOM
+      EOM
 
-    checkpoint = "#{recipe.target}/#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
-    unless File.exist?(checkpoint)
       chdir_for_build do
         recipe.cook
       end
