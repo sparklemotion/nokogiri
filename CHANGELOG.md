@@ -71,6 +71,7 @@ This release ends support for:
 
 #### Gems
 
+* Explicitly add racc as a runtime dependency. [[#1988](https://github.com/sparklemotion/nokogiri/issues/1988)] (Thanks, [@voxik](https://github.com/voxik)!)
 * [MRI] Upgrade mini_portile2 dependency from `~> 2.4.0` to `~> 2.5.0` [[#2005](https://github.com/sparklemotion/nokogiri/issues/2005)] (Thanks, [@alejandroperea](https://github.com/alejandroperea)!)
 
 
