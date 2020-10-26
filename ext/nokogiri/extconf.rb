@@ -45,6 +45,10 @@ def nix?
   ! (windows? || solaris? || darwin?)
 end
 
+def concat_flags *args
+  args.compact.join(" ")
+end
+
 def package_config pkg, options={}
   # use MakeMakefile#pkg_config, which uses the system utility `pkg-config`.
   package = pkg_config(pkg)
@@ -248,7 +252,7 @@ def process_recipe(name, version, static_p, cross_p)
         "--disable-shared",
         "--enable-static",
       ]
-      env["CFLAGS"] = [env["CFLAGS"], "-fPIC"].join(" ")
+      env["CFLAGS"] = concat_flags(env["CFLAGS"], "-fPIC")
     else
       recipe.configure_options += [
         "--enable-shared",
@@ -266,13 +270,13 @@ def process_recipe(name, version, static_p, cross_p)
     if RbConfig::CONFIG['target_cpu'] == 'universal'
       %w[CFLAGS LDFLAGS].each do |key|
         unless env[key].include?('-arch')
-          env[key] += ' ' + RbConfig::CONFIG['ARCH_FLAG']
+          env[key] = concat_flags(env[key], RbConfig::CONFIG['ARCH_FLAG'])
         end
       end
     end
 
     recipe.configure_options += env.map do |key, value|
-      "#{key}=#{value}"
+      "#{key}=#{value.strip}"
     end
 
     message <<~EOM
@@ -399,7 +403,7 @@ ENV['CC'] = RbConfig::CONFIG['CC']
 append_cflags(ENV["CFLAGS"].split(/\s+/)) if !ENV["CFLAGS"].nil?
 append_cppflags(ENV["CPPFLAGS"].split(/\s+/)) if !ENV["CPPFLAGS"].nil?
 append_ldflags(ENV["LDFLAGS"].split(/\s+/)) if !ENV["LDFLAGS"].nil?
-$LIBS << " #{ENV["LIBS"]}"
+$LIBS = concat_flags($LIBS, ENV["LIBS"])
 
 append_cflags("-g") # always include debugging information
 append_cflags("-Winline") # we use at least one inline function in the C extension
@@ -485,7 +489,7 @@ else
       else
         class << recipe
           def configure
-            cflags = [ENV["CFLAGS"], "-fPIC", "-g"].join(" ")
+            cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
             execute "configure", ["env", "CHOST=#{host}", "CFLAGS=#{cflags}", "./configure", "--static", configure_prefix]
           end
         end
@@ -541,13 +545,13 @@ else
 
     if zlib_recipe
       recipe.configure_options << "--with-zlib=#{zlib_recipe.path}"
-      cflags = [cflags, "-I#{zlib_recipe.path}/include"].join(" ")
+      cflags = concat_flags(cflags, "-I#{zlib_recipe.path}/include")
     end
 
     if libiconv_recipe
       recipe.configure_options << "--with-iconv=#{libiconv_recipe.path}"
     else
-      recipe.configure_options << iconv_configure_flags
+      recipe.configure_options += iconv_configure_flags
     end
 
     if darwin?
@@ -560,7 +564,7 @@ else
       "--with-c14n",
       "--with-debug",
       "--with-threads",
-      "CFLAGS=#{cflags}"
+      "CFLAGS=#{cflags}",
     ]
   end
 
@@ -582,7 +586,7 @@ else
     ]
   end
 
-  $CFLAGS = [$CFLAGS, "-DNOKOGIRI_USE_PACKAGED_LIBRARIES"].join(" ")
+  $CFLAGS = concat_flags($CFLAGS, "-DNOKOGIRI_USE_PACKAGED_LIBRARIES")
   $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
   $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
 
