@@ -510,7 +510,7 @@ else
             sha256: dependencies["libiconv"]["sha256"]
           }]
 
-        cflags = [ENV["CFLAGS"], "-O2", "-g"].join(" ")
+        cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
         recipe.configure_options += [
           "CPPFLAGS=-Wall",
@@ -548,7 +548,7 @@ else
         sha256: dependencies["libxml2"]["sha256"]
       }]
 
-    cflags = ENV["CFLAGS"]
+    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
     if zlib_recipe
       recipe.configure_options << "--with-zlib=#{zlib_recipe.path}"
@@ -581,6 +581,8 @@ else
         sha256: dependencies["libxslt"]["sha256"]
       }]
 
+    cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
+
     if darwin?
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
@@ -590,6 +592,7 @@ else
       "--without-crypto",
       "--with-debug",
       "--with-libxml-prefix=#{sh_export_path(libxml2_recipe.path)}",
+      "CFLAGS=#{cflags}",
     ]
   end
 
