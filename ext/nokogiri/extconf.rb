@@ -240,7 +240,11 @@ def process_recipe(name, version, static_p, cross_p)
     recipe.configure_options.delete_if do |option|
       case option
       when /\A(\w+)=(.*)\z/
-        env[$1] = $2
+        if env.key?($1)
+          env[$1] = concat_flags(env[$1], $2)
+        else
+          env[$1] = $2
+        end
         true
       else
         false
