@@ -506,7 +506,7 @@ static int block_caller(void * ctx, xmlNodePtr _node, xmlNodePtr _parent)
  * The block must return a non-nil, non-false value if the +obj+ passed in
  * should be included in the canonicalized document.
  */
-static VALUE canonicalize(int argc, VALUE* argv, VALUE self)
+static VALUE nokogiri_xml_document_canonicalize(int argc, VALUE* argv, VALUE self)
 {
   VALUE mode;
   VALUE incl_ns;
@@ -587,7 +587,7 @@ void init_xml_document()
   rb_define_method(klass, "encoding", encoding, 0);
   rb_define_method(klass, "encoding=", set_encoding, 1);
   rb_define_method(klass, "version", version, 0);
-  rb_define_method(klass, "canonicalize", canonicalize, -1);
+  rb_define_method(klass, "canonicalize", nokogiri_xml_document_canonicalize, -1);
   rb_define_method(klass, "dup", duplicate_document, -1);
   rb_define_method(klass, "url", url, 0);
   rb_define_method(klass, "create_entity", create_entity, -1);
