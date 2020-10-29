@@ -1,9 +1,9 @@
 ---
-name: Installation Difficulties
-about: If you're having trouble installing Nokogiri ...
-title: [install] 
-labels: 'topic/installation'
-assignees: ''
+name: "Installation Difficulties"
+about: "If you're having trouble installing Nokogiri ..."
+title: "[install]"
+labels: "topic/installation"
+assignees: ""
 
 ---
 

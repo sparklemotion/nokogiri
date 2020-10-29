@@ -1,9 +1,9 @@
 ---
-name: Help Request
-about: If something is confusing or you need a helping hand ...
-title: '[help]'
-labels: 'meta/user-help'
-assignees: ''
+name: "Help Request"
+about: "If something is confusing or you need a helping hand ..."
+title: "[help]"
+labels: "meta/user-help"
+assignees: ""
 
 ---
 
