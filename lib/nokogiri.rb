@@ -113,7 +113,7 @@ module Nokogiri
 end
 
 ###
-# Parser a document contained in +args+.  Nokogiri will try to guess what
+# Parse a document contained in +args+.  Nokogiri will try to guess what
 # type of document you are attempting to parse.  For more information, see
 # Nokogiri.parse
 #
