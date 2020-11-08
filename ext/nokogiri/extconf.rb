@@ -50,9 +50,9 @@ def concat_flags *args
   args.compact.join(" ")
 end
 
-def package_config pkg, options={}
-  # use MakeMakefile#pkg_config, which uses the system utility `pkg-config`.
-  package = pkg_config(pkg)
+def package_config pc_name, options={}
+  # try MakeMakefile#pkg_config, which uses the system utility `pkg-config`.
+  package = pkg_config(pc_name)
   return package if package
 
   # `pkg-config` probably isn't installed, which appears to be the case for lots of freebsd systems.
@@ -64,7 +64,7 @@ def package_config pkg, options={}
     require 'pkg-config' and message("Using pkg-config gem version #{PKGConfig::VERSION}\n")
   rescue LoadError
     message <<~EOM
-      pkg-config could not be used to find #{pkg}
+      pkg-config could not be used to find #{pc_name}
       Please install either `pkg-config` or the pkg-config gem per
 
           gem install pkg-config -v #{REQUIRED_PKG_CONFIG_VERSION}
@@ -73,13 +73,13 @@ def package_config pkg, options={}
     return nil
   end
 
-  return nil unless PKGConfig.have_package(pkg)
+  return nil unless PKGConfig.have_package(pc_name)
 
-  cflags  = PKGConfig.cflags(pkg)
-  ldflags = PKGConfig.libs_only_L(pkg)
-  libs    = PKGConfig.libs_only_l(pkg)
+  cflags  = PKGConfig.cflags(pc_name)
+  ldflags = PKGConfig.libs_only_L(pc_name)
+  libs    = PKGConfig.libs_only_l(pc_name)
 
-  Logging::message "PKGConfig package configuration for %s\n", pkg
+  Logging::message "pkg-config gem found package configuration for %s\n", pc_name
   Logging::message "cflags: %s\nldflags: %s\nlibs: %s\n\n", cflags, ldflags, libs
 
   [cflags, ldflags, libs]
