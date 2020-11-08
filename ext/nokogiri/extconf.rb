@@ -17,6 +17,7 @@ RECOMMENDED_LIBXML_VERSION = "2.9.3"
 # The gem version constraint in the Rakefile is not respected at install time.
 # Keep this version in sync with the one in the Rakefile !
 REQUIRED_MINI_PORTILE_VERSION = "~> 2.5.0"
+REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 
 #
 #  utility functions
@@ -54,18 +55,19 @@ def package_config pkg, options={}
   package = pkg_config(pkg)
   return package if package
 
-  # only if that utility isn't found do we fall back to the pkg-config gem, and
-  # wrap it with the same logic as MakeMakefile#pkg_config
+  # `pkg-config` probably isn't installed, which appears to be the case for lots of freebsd systems.
+  # let's fall back to the pkg-config gem, which knows how to parse .pc files, and wrap it with the
+  # same logic as MakeMakefile#pkg_config
   begin
     require 'rubygems'
-    gem 'pkg-config', (gem_ver='~> 1.1')
+    gem 'pkg-config', REQUIRED_PKG_CONFIG_VERSION
     require 'pkg-config' and message("Using pkg-config gem version #{PKGConfig::VERSION}\n")
   rescue LoadError
     message <<~EOM
       pkg-config could not be used to find #{pkg}
       Please install either `pkg-config` or the pkg-config gem per
 
-          gem install pkg-config -v #{gem_ver.inspect}
+          gem install pkg-config -v #{REQUIRED_PKG_CONFIG_VERSION}
 
     EOM
     return nil
@@ -84,10 +86,10 @@ def package_config pkg, options={}
 end
 
 def preserving_globals
-  values = [$arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs].map(&:dup)
+  values = [$arg_config, $INCFLAGS, $CFLAGS, $CPPFLAGS, $LDFLAGS, $DLDFLAGS, $LIBPATH, $libs].map(&:dup)
   yield
 ensure
-  $arg_config, $CFLAGS, $CPPFLAGS, $LDFLAGS, $LIBPATH, $libs = values
+  $arg_config, $INCFLAGS, $CFLAGS, $CPPFLAGS, $LDFLAGS, $DLDFLAGS, $LIBPATH, $libs = values
 end
 
 def abort_could_not_find_library(lib)
