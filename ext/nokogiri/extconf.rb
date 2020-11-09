@@ -333,29 +333,84 @@ def do_help
   print <<~HELP
     usage: ruby #{$0} [options]
 
-        --disable-clean
-            Do not clean out intermediate files after successful build.
+      Environment variables used:
 
-        --disable-static
-            Do not statically link bundled libraries.
+        NOKOGIRI_USE_SYSTEM_LIBRARIES
+            When set, even if nil or blank, use system libraries instead of building and using the
+            packaged libraries. Equivalent to `--use-system-libraries`.
 
-        --with-iconv-dir=DIR
-            Use the iconv library placed under DIR.
+        CC
+            Use this path to invoke the compiler instead of `RbConfig::CONFIG['CC']`
 
-        --with-zlib-dir=DIR
-            Use the zlib library placed under DIR.
+        CPPFLAGS
+            If this string is accepted by the C preprocessor, add it to the flags passed to the C preprocessor
+
+        CFLAGS
+            If this string is accepted by the compiler, add it to the flags passed to the compiler
+
+        LDFLAGS
+            If this string is accepted by the linker, add it to the flags passed to the linker
+
+        LIBS
+            Add this string to the flags passed to the linker
+
+
+      Flags that are always used:
 
         --use-system-libraries
-            Use system libraries instead of building and using the bundled
-            libraries.
+            Use system libraries instead of building and using the packaged libraries
 
-        --with-xml2-dir=DIR / --with-xml2-config=CONFIG
-        --with-xslt-dir=DIR / --with-xslt-config=CONFIG
-        --with-exslt-dir=DIR / --with-exslt-config=CONFIG
-            Use libxml2/libxslt/libexslt as specified.
+        --with-zlib-dir=DIR
+            Look for zlib header and library in DIRECTORY
+
+        --disable-clean
+            Do not clean out intermediate files after successful build
+
+
+      Flags only used when using system libraries:
+
+        --with-opt-dir=DIRECTORY
+            Look for headers and libraries in DIRECTORY
+
+        --with-iconv-dir=DIRECTORY
+            Look for iconv header and library in DIRECTORY
+
+        --with-xml2-dir=DIRECTORY
+            Look for xml2 headers and library in DIRECTORY
+
+        --with-xml2-lib=DIRECTORY
+            Look for xml2 library in DIRECTORY
+
+        --with-xslt-include=DIRECTORY
+            Look for xslt headers in DIRECTORY
+
+        --with-xslt-dir=DIRECTORY
+            Look for xslt headers and library in DIRECTORY
+
+        --with-xslt-lib=DIRECTORY
+            Look for xslt library in DIRECTORY
+
+        --with-xslt-include=DIRECTORY
+            Look for xslt headers in DIRECTORY
+
+        --with-exslt-dir=DIRECTORY
+            Look for exslt headers and library in DIRECTORY
+
+        --with-exslt-lib=DIRECTORY
+            Look for exslt library in DIRECTORY
+
+        --with-exslt-include=DIRECTORY
+            Look for exslt headers in DIRECTORY
+
+
+      Flags only used when building and using the packaged libraries:
+
+        --disable-static
+            Do not statically link packaged libraries, instead use shared libraries
 
         --enable-cross-build
-            Do cross-build.
+            Enable cross-build mode. (You probably do not want to set this manually.)
+
   HELP
   exit! 0
 end
@@ -426,8 +481,8 @@ if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_pat
   append_cppflags("-I#{macos_mojave_sdk_include_path}")
 end
 
-# Work around a character escaping bug in MSYS by passing an arbitrary
-# double quoted parameter to gcc. See https://sourceforge.net/p/mingw/bugs/2142
+# Work around a character escaping bug in MSYS by passing an arbitrary double-quoted parameter to gcc.
+# See https://sourceforge.net/p/mingw/bugs/2142
 append_cppflags(' "-Idummypath"') if windows?
 
 if using_system_libraries?
