@@ -164,7 +164,7 @@ end
 
 def using_system_libraries?
   # NOTE: TruffleRuby uses this env var as it does not support using static libraries yet.
-  arg_config('--use-system-libraries', !!ENV['NOKOGIRI_USE_SYSTEM_LIBRARIES'])
+  arg_config('--use-system-libraries', ENV.key?("NOKOGIRI_USE_SYSTEM_LIBRARIES"))
 end
 
 def have_libxml_headers?(version=nil)
