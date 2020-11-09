@@ -18,7 +18,6 @@ jobs:
       - name: Set ENV
         run: |
           echo "MAKEFLAGS=-j$((1 + $(sysctl -n hw.activecpu)))" >> $GITHUB_ENV
-          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
           echo "NOKOGIRI_USE_SYSTEM_LIBRARIES=t" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
