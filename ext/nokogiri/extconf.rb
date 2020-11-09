@@ -93,7 +93,7 @@ ensure
 end
 
 def abort_could_not_find_library(lib)
-  abort "-----\n#{lib} is missing.  Please locate mkmf.log to investigate how it is failing.\n-----"
+  abort "-----\n#{caller[0]}\n#{lib} is missing. Please locate mkmf.log to investigate how it is failing.\n-----"
 end
 
 def chdir_for_build
