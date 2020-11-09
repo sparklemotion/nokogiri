@@ -50,10 +50,19 @@ def concat_flags *args
   args.compact.join(" ")
 end
 
-def package_config pc_name, options={}
-  # try MakeMakefile#pkg_config, which uses the system utility `pkg-config`.
-  package = pkg_config(pc_name)
-  return package if package
+# wrapper around MakeMakefil#pkg_config and the PKGConfig gem
+def try_package_configuration(pc)
+  package_response = Object.new
+  def package_response.%(package)
+    package ? "yes: #{package}" : "no"
+  end
+
+  if !ENV.key?("NOKOGIRI_TEST_PKG_CONFIG_GEM")
+    # try MakeMakefile#pkg_config, which uses the system utility `pkg-config`.
+    return if checking_for("#{pc} using `pkg_config`", package_response) do
+      pkg_config(pc)
+    end
+  end
 
   # `pkg-config` probably isn't installed, which appears to be the case for lots of freebsd systems.
   # let's fall back to the pkg-config gem, which knows how to parse .pc files, and wrap it with the
@@ -61,28 +70,46 @@ def package_config pc_name, options={}
   begin
     require 'rubygems'
     gem 'pkg-config', REQUIRED_PKG_CONFIG_VERSION
-    require 'pkg-config' and message("Using pkg-config gem version #{PKGConfig::VERSION}\n")
+    require 'pkg-config'
   rescue LoadError
-    message <<~EOM
-      pkg-config could not be used to find #{pc_name}
-      Please install either `pkg-config` or the pkg-config gem per
-
-          gem install pkg-config -v #{REQUIRED_PKG_CONFIG_VERSION}
-
-    EOM
-    return nil
+    message "Please install either the `pkg-config` utility or the `pkg-config` rubygem.\n"
   end
 
-  return nil unless PKGConfig.have_package(pc_name)
+  checking_for("#{pc} using pkg-config gem version #{PKGConfig::VERSION}", package_response) do
+    if PKGConfig.have_package(pc)
+      cflags  = PKGConfig.cflags(pc)
+      ldflags = PKGConfig.libs_only_L(pc)
+      libs    = PKGConfig.libs_only_l(pc)
 
-  cflags  = PKGConfig.cflags(pc_name)
-  ldflags = PKGConfig.libs_only_L(pc_name)
-  libs    = PKGConfig.libs_only_l(pc_name)
+      Logging::message "pkg-config gem found package configuration for %s\n", pc
+      Logging::message "cflags: %s\nldflags: %s\nlibs: %s\n\n", cflags, ldflags, libs
 
-  Logging::message "pkg-config gem found package configuration for %s\n", pc_name
-  Logging::message "cflags: %s\nldflags: %s\nlibs: %s\n\n", cflags, ldflags, libs
+      [cflags, ldflags, libs]
+    end
+  end
+end
 
-  [cflags, ldflags, libs]
+# set up mkmf to link against the library if we can find it
+def have_package_configuration(opt: nil, pc: nil, lib:, func:, headers:)
+  if opt
+    dir_config(opt)
+    dir_config("opt")
+  end
+
+  # see if we have enough path info to do this without trying any harder
+  if !ENV.key?("NOKOGIRI_TEST_PKG_CONFIG")
+    return true if (have_library(lib, func, headers) or have_library("lib#{lib}", func, headers))
+  end
+
+  try_package_configuration(pc) if pc
+
+  # verify that we can compile and link against the library
+  have_library(lib, func, headers) or have_library("lib#{lib}", func, headers)
+end
+
+def ensure_package_configuration(opt: nil, pc: nil, lib:, func:, headers:)
+  have_package_configuration(opt: opt, pc: pc, lib: lib, func: func, headers: headers) or
+    abort_could_not_find_library(lib)
 end
 
 def preserving_globals
@@ -202,8 +229,8 @@ def iconv_configure_flags
     return ['--with-iconv=yes']
   end
 
-  config = preserving_globals { package_config('libiconv') }
-  if config && try_link_iconv('pkg-config libiconv') { package_config('libiconv') }
+  config = preserving_globals { have_package_configuration('libiconv') }
+  if config && try_link_iconv('pkg-config libiconv') { have_package_configuration('libiconv') }
     cflags, ldflags, libs = config
 
     return [
@@ -487,15 +514,11 @@ append_cppflags(' "-Idummypath"') if windows?
 
 if using_system_libraries?
   message "Building nokogiri using system libraries.\n"
+  ensure_package_configuration(opt: "zlib", pc: "zlib", lib: "z", headers: "zlib.h", func: "gzdopen")
+  ensure_package_configuration(opt: "xml2", pc: "libxml-2.0", lib: "xml2", headers: "libxml/parser.h", func: "xmlParseDoc")
+  ensure_package_configuration(opt: "xslt", pc: "libxslt", lib: "xslt", headers: "libxslt/xslt.h", func: "xsltParseStylesheetDoc")
+  ensure_package_configuration(opt: "exslt", pc: "libexslt", lib: "exslt", headers: "libexslt/exslt.h", func: "exsltFuncRegister")
 
-  # Using system libraries means we rely on the system libxml2 for iconv support (or not)
-  dir_config('zlib')
-  dir_config('xml2').any?  or package_config('libxml-2.0')
-  dir_config('xslt').any?  or package_config('libxslt')
-  dir_config('exslt').any? or package_config('libexslt')
-
-  have_libxml_headers? or
-    abort "ERROR: cannot discover where libxml2 is located on your system. please make sure `pkg-config` is installed."
   have_libxml_headers?(REQUIRED_LIBXML_VERSION) or
     abort "ERROR: libxml2 version #{REQUIRED_LIBXML_VERSION} or later is required!"
   have_libxml_headers?(RECOMMENDED_LIBXML_VERSION) or
@@ -714,21 +737,10 @@ else
       end
     end.shelljoin
   end
-end
 
-have_func('vasprintf')
-
-[
-  ["xml2", "xmlParseDoc", "libxml/parser.h"],
-  ["xslt", "xsltParseStylesheetDoc", "libxslt/xslt.h"],
-  ["exslt", "exsltFuncRegister", "libexslt/exslt.h"]
-].each do |lib, func, header|
-  checking_for "lib#{lib}" do
-    have_func(func, header) or
-      have_library(lib, func, header) or
-      have_library("lib#{lib}", func, header) or
-      abort_could_not_find_library("lib#{lib}")
-  end
+  ensure_package_configuration(lib: "xml2", headers: "libxml/parser.h", func: "xmlParseDoc")
+  ensure_package_configuration(lib: "xslt", headers: "libxslt/xslt.h", func: "xsltParseStylesheetDoc")
+  ensure_package_configuration(lib: "exslt", headers: "libexslt/exslt.h", func: "exsltFuncRegister")
 end
 
 have_func('xmlHasFeature') or abort "xmlHasFeature() is missing." # introduced in libxml 2.6.21
@@ -737,6 +749,8 @@ have_func('xmlRelaxNGSetParserStructuredErrors') # introduced in libxml 2.6.24
 have_func('xmlRelaxNGSetValidStructuredErrors') # introduced in libxml 2.6.21
 have_func('xmlSchemaSetValidStructuredErrors') # introduced in libxml 2.6.23
 have_func('xmlSchemaSetParserStructuredErrors') # introduced in libxml 2.6.23
+
+have_func('vasprintf')
 
 create_makefile('nokogiri/nokogiri')
 

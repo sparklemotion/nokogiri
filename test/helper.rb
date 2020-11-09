@@ -9,6 +9,7 @@ require 'minitest/pride'
 require 'fileutils'
 require 'tempfile'
 require 'pp'
+require 'yaml'
 
 require 'nokogiri'
 
@@ -26,7 +27,8 @@ if ENV['TEST_NOKOGIRI_WITH_LIBXML_RUBY']
   warn "#{__FILE__}:#{__LINE__}: loaded libxml-ruby '#{LibXML::XML::VERSION}'"
 end
 
-warn "#{__FILE__}:#{__LINE__}: version info: #{Nokogiri::VERSION_INFO.inspect}"
+warn "#{__FILE__}:#{__LINE__}: version info:"
+warn Nokogiri::VERSION_INFO.to_yaml
 
 module Nokogiri
   class TestCase < MiniTest::Spec
