@@ -15,16 +15,25 @@ jobs:
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.7'
+      - uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
       - name: Set ENV
         run: |
           echo "MAKEFLAGS=-j$((1 + $(sysctl -n hw.activecpu)))" >> $GITHUB_ENV
           echo "NOKOGIRI_USE_SYSTEM_LIBRARIES=t" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
+          bundle config --local path vendor/bundle
           bundle config jobs $((1 + $(sysctl -n hw.activecpu)))
           bundle install
-      - run: rake compile
-      - run: rake test
+      - run: bundle exec rake compile
+      - run: bundle exec rake test
+
   cruby-test-vendored-libraries:
     runs-on: macos-latest
     steps:
@@ -32,12 +41,26 @@ jobs:
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.7'
+      - uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - uses: actions/cache@v2
+        with:
+          path: ports/archives
+          key: tarballs-${{ hashFiles('**/dependencies.yml') }}
+          restore-keys: |
+            tarballs-
+
       - name: Set ENV
         run: |
           echo "MAKEFLAGS=-j$((1 + $(sysctl -n hw.activecpu)))" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
+          bundle config --local path vendor/bundle
           bundle config jobs $((1 + $(sysctl -n hw.activecpu)))
           bundle install
-      - run: rake compile
-      - run: rake test
+      - run: bundle exec rake compile
+      - run: bundle exec rake test
