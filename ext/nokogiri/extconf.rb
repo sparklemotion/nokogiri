@@ -398,7 +398,7 @@ if openbsd? && !using_system_libraries?
     ENV['CC'] ||= find_executable('egcc') or
       abort "Please install gcc 4.9+ from ports using `pkg_add -v gcc`"
   end
-  append_cppflags "-I /usr/local/include"
+  append_cppflags "-I/usr/local/include"
 end
 
 if ENV['CC']
@@ -423,7 +423,7 @@ append_cflags("-Wno-error=unused-command-line-argument-hard-error-in-future") if
 # Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
 macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
 if using_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
-  append_cppflags("-I #{macos_mojave_sdk_include_path}")
+  append_cppflags("-I#{macos_mojave_sdk_include_path}")
 end
 
 # Work around a character escaping bug in MSYS by passing an arbitrary
@@ -449,8 +449,11 @@ if using_system_libraries?
 else
   message "Building nokogiri using packaged libraries.\n"
 
-  static_p = enable_config('static', true) or message "Static linking is disabled.\n"
+  static_p = enable_config("static", true)
+  message "Static linking is #{static_p ? "enabled" : "disabled"}.\n"
+
   cross_build_p = enable_config("cross-build")
+  message "Cross build is #{cross_build_p ? "enabled" : "disabled"}.\n"
 
   require 'yaml'
   dependencies = YAML.load_file(File.join(PACKAGE_ROOT_DIR, "dependencies.yml"))
@@ -602,8 +605,6 @@ else
   $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
   $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
 
-  have_lzma = preserving_globals { have_library('lzma') }
-
   $libs = $libs.shellsplit.tap do |libs|
     [libxml2_recipe, libxslt_recipe].each do |recipe|
       libname = recipe.name[/\Alib(.+)\z/, 1]
@@ -634,7 +635,7 @@ else
       when 'xml2'
         # xslt-config --libs or pkg-config libxslt --libs does not include
         # -llzma, so we need to add it manually when linking statically.
-        if static_p && have_lzma
+        if static_p && preserving_globals { have_library('lzma') }
           # Add it at the end; GH #988
           libs << '-llzma'
         end
