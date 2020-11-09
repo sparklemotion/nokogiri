@@ -23,15 +23,33 @@ test_script:
 environment:
   matrix:
     - ruby_version: head-x64
+    - ruby_version: head-x64
       INSTALL_PACKAGES: "mingw-w64-x86_64-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"
+
+    - ruby_version: 27-x64
     - ruby_version: 27-x64
       INSTALL_PACKAGES: "mingw-w64-x86_64-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"
-    - ruby_version: 26
-    - ruby_version: 25-x64
-    - ruby_version: 24
+
+    - ruby_version: 27
+    - ruby_version: 27
       INSTALL_PACKAGES: "mingw-w64-i686-libxslt"
+      EXTCONF_PARAMS: "--use-system-libraries"
+
+    - ruby_version: 26-x64
+    - ruby_version: 26-x64
+      INSTALL_PACKAGES: "mingw-w64-x86_64-libxslt"
+      EXTCONF_PARAMS: "--use-system-libraries"
+
+    - ruby_version: 25-x64
+    - ruby_version: 25-x64
+      INSTALL_PACKAGES: "mingw-w64-x86_64-libxslt"
+      EXTCONF_PARAMS: "--use-system-libraries"
+
+    - ruby_version: 24-x64
+    - ruby_version: 24-x64
+      INSTALL_PACKAGES: "mingw-w64-x86_64-libxslt"
       EXTCONF_PARAMS: "--use-system-libraries"
 
 matrix:
