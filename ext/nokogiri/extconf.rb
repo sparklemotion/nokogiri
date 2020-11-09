@@ -19,6 +19,87 @@ RECOMMENDED_LIBXML_VERSION = "2.9.3"
 REQUIRED_MINI_PORTILE_VERSION = "~> 2.5.0"
 REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 
+NOKOGIRI_HELP_MESSAGE = <<~HELP
+  USAGE: ruby #{$0} [options]
+
+    Flags that are always valid:
+
+      --use-system-libraries
+          Use system libraries instead of building and using the packaged libraries
+
+      --disable-clean
+          Do not clean out intermediate files after successful build
+
+
+    Flags only used when using system libraries:
+
+      --with-opt-dir=DIRECTORY
+          Look for headers and libraries in DIRECTORY
+
+      --with-zlib-dir=DIR
+          Look for zlib header and library in DIRECTORY
+
+      --with-iconv-dir=DIRECTORY
+          Look for iconv header and library in DIRECTORY
+
+      --with-xml2-dir=DIRECTORY
+          Look for xml2 headers and library in DIRECTORY
+
+      --with-xml2-lib=DIRECTORY
+          Look for xml2 library in DIRECTORY
+
+      --with-xslt-include=DIRECTORY
+          Look for xslt headers in DIRECTORY
+
+      --with-xslt-dir=DIRECTORY
+          Look for xslt headers and library in DIRECTORY
+
+      --with-xslt-lib=DIRECTORY
+          Look for xslt library in DIRECTORY
+
+      --with-xslt-include=DIRECTORY
+          Look for xslt headers in DIRECTORY
+
+      --with-exslt-dir=DIRECTORY
+          Look for exslt headers and library in DIRECTORY
+
+      --with-exslt-lib=DIRECTORY
+          Look for exslt library in DIRECTORY
+
+      --with-exslt-include=DIRECTORY
+          Look for exslt headers in DIRECTORY
+
+
+    Flags only used when building and using the packaged libraries:
+
+      --disable-static
+          Do not statically link packaged libraries, instead use shared libraries
+
+      --enable-cross-build
+          Enable cross-build mode. (You probably do not want to set this manually.)
+
+    Environment variables used:
+
+      NOKOGIRI_USE_SYSTEM_LIBRARIES
+          When set, even if nil or blank, use system libraries instead of building and using the
+          packaged libraries. Equivalent to `--use-system-libraries`.
+
+      CC
+          Use this path to invoke the compiler instead of `RbConfig::CONFIG['CC']`
+
+      CPPFLAGS
+          If this string is accepted by the C preprocessor, add it to the flags passed to the C preprocessor
+
+      CFLAGS
+          If this string is accepted by the compiler, add it to the flags passed to the compiler
+
+      LDFLAGS
+          If this string is accepted by the linker, add it to the flags passed to the linker
+
+      LIBS
+          Add this string to the flags passed to the linker
+HELP
+
 #
 #  utility functions
 #
@@ -50,16 +131,20 @@ def concat_flags *args
   args.compact.join(" ")
 end
 
+def local_have_library(lib, func=nil, headers=nil)
+  have_library(lib, func, headers) or have_library("lib#{lib}", func, headers)
+end
+
+LOCAL_PACKAGE_RESPONSE = Object.new
+def LOCAL_PACKAGE_RESPONSE.%(package)
+  package ? "yes: #{package}" : "no"
+end
+
 # wrapper around MakeMakefil#pkg_config and the PKGConfig gem
 def try_package_configuration(pc)
-  package_response = Object.new
-  def package_response.%(package)
-    package ? "yes: #{package}" : "no"
-  end
-
   if !ENV.key?("NOKOGIRI_TEST_PKG_CONFIG_GEM")
     # try MakeMakefile#pkg_config, which uses the system utility `pkg-config`.
-    return if checking_for("#{pc} using `pkg_config`", package_response) do
+    return if checking_for("#{pc} using `pkg_config`", LOCAL_PACKAGE_RESPONSE) do
       pkg_config(pc)
     end
   end
@@ -71,21 +156,21 @@ def try_package_configuration(pc)
     require 'rubygems'
     gem 'pkg-config', REQUIRED_PKG_CONFIG_VERSION
     require 'pkg-config'
+
+    checking_for("#{pc} using pkg-config gem version #{PKGConfig::VERSION}", LOCAL_PACKAGE_RESPONSE) do
+      if PKGConfig.have_package(pc)
+        cflags  = PKGConfig.cflags(pc)
+        ldflags = PKGConfig.libs_only_L(pc)
+        libs    = PKGConfig.libs_only_l(pc)
+
+        Logging::message "pkg-config gem found package configuration for %s\n", pc
+        Logging::message "cflags: %s\nldflags: %s\nlibs: %s\n\n", cflags, ldflags, libs
+
+        [cflags, ldflags, libs]
+      end
+    end
   rescue LoadError
     message "Please install either the `pkg-config` utility or the `pkg-config` rubygem.\n"
-  end
-
-  checking_for("#{pc} using pkg-config gem version #{PKGConfig::VERSION}", package_response) do
-    if PKGConfig.have_package(pc)
-      cflags  = PKGConfig.cflags(pc)
-      ldflags = PKGConfig.libs_only_L(pc)
-      libs    = PKGConfig.libs_only_l(pc)
-
-      Logging::message "pkg-config gem found package configuration for %s\n", pc
-      Logging::message "cflags: %s\nldflags: %s\nlibs: %s\n\n", cflags, ldflags, libs
-
-      [cflags, ldflags, libs]
-    end
   end
 end
 
@@ -98,13 +183,13 @@ def have_package_configuration(opt: nil, pc: nil, lib:, func:, headers:)
 
   # see if we have enough path info to do this without trying any harder
   if !ENV.key?("NOKOGIRI_TEST_PKG_CONFIG")
-    return true if (have_library(lib, func, headers) or have_library("lib#{lib}", func, headers))
+    return true if local_have_library(lib, func, headers)
   end
 
   try_package_configuration(pc) if pc
 
   # verify that we can compile and link against the library
-  have_library(lib, func, headers) or have_library("lib#{lib}", func, headers)
+  local_have_library(lib, func, headers)
 end
 
 def ensure_package_configuration(opt: nil, pc: nil, lib:, func:, headers:)
@@ -357,88 +442,7 @@ def process_recipe(name, version, static_p, cross_p)
 end
 
 def do_help
-  print <<~HELP
-    usage: ruby #{$0} [options]
-
-      Environment variables used:
-
-        NOKOGIRI_USE_SYSTEM_LIBRARIES
-            When set, even if nil or blank, use system libraries instead of building and using the
-            packaged libraries. Equivalent to `--use-system-libraries`.
-
-        CC
-            Use this path to invoke the compiler instead of `RbConfig::CONFIG['CC']`
-
-        CPPFLAGS
-            If this string is accepted by the C preprocessor, add it to the flags passed to the C preprocessor
-
-        CFLAGS
-            If this string is accepted by the compiler, add it to the flags passed to the compiler
-
-        LDFLAGS
-            If this string is accepted by the linker, add it to the flags passed to the linker
-
-        LIBS
-            Add this string to the flags passed to the linker
-
-
-      Flags that are always used:
-
-        --use-system-libraries
-            Use system libraries instead of building and using the packaged libraries
-
-        --with-zlib-dir=DIR
-            Look for zlib header and library in DIRECTORY
-
-        --disable-clean
-            Do not clean out intermediate files after successful build
-
-
-      Flags only used when using system libraries:
-
-        --with-opt-dir=DIRECTORY
-            Look for headers and libraries in DIRECTORY
-
-        --with-iconv-dir=DIRECTORY
-            Look for iconv header and library in DIRECTORY
-
-        --with-xml2-dir=DIRECTORY
-            Look for xml2 headers and library in DIRECTORY
-
-        --with-xml2-lib=DIRECTORY
-            Look for xml2 library in DIRECTORY
-
-        --with-xslt-include=DIRECTORY
-            Look for xslt headers in DIRECTORY
-
-        --with-xslt-dir=DIRECTORY
-            Look for xslt headers and library in DIRECTORY
-
-        --with-xslt-lib=DIRECTORY
-            Look for xslt library in DIRECTORY
-
-        --with-xslt-include=DIRECTORY
-            Look for xslt headers in DIRECTORY
-
-        --with-exslt-dir=DIRECTORY
-            Look for exslt headers and library in DIRECTORY
-
-        --with-exslt-lib=DIRECTORY
-            Look for exslt library in DIRECTORY
-
-        --with-exslt-include=DIRECTORY
-            Look for exslt headers in DIRECTORY
-
-
-      Flags only used when building and using the packaged libraries:
-
-        --disable-static
-            Do not statically link packaged libraries, instead use shared libraries
-
-        --enable-cross-build
-            Enable cross-build mode. (You probably do not want to set this manually.)
-
-  HELP
+  print NOKOGIRI_HELP_MESSAGE
   exit! 0
 end
 
@@ -621,7 +625,7 @@ else
   end
 
   unless windows?
-    preserving_globals { have_library('z', 'gzdopen', 'zlib.h') } or
+    preserving_globals { local_have_library('z', 'gzdopen', 'zlib.h') } or
       abort 'zlib is missing; necessary for building libxml2'
   end
 
@@ -713,7 +717,7 @@ else
       when 'xml2'
         # xslt-config --libs or pkg-config libxslt --libs does not include
         # -llzma, so we need to add it manually when linking statically.
-        if static_p && preserving_globals { have_library('lzma') }
+        if static_p && preserving_globals { local_have_library('lzma') }
           # Add it at the end; GH #988
           libs << '-llzma'
         end
