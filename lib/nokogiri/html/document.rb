@@ -1,4 +1,8 @@
 # frozen_string_literal: true
+
+# for the constant; pathname is standard lib
+require 'pathname'
+
 module Nokogiri
   module HTML
     class Document < Nokogiri::XML::Document
@@ -165,6 +169,10 @@ module Nokogiri
           options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
           # Give the options to the user
           yield options if block_given?
+
+          # coerce to binary filehandle if this is a Pathname object
+          string_or_io = string_or_io.expand_path.open('rb') if
+            string_or_io.is_a? Pathname
 
           if string_or_io.respond_to?(:encoding)
             unless string_or_io.encoding.name == "ASCII-8BIT"

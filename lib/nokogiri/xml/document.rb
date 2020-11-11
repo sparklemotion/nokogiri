@@ -1,4 +1,8 @@
 # frozen_string_literal: true
+
+# for the constant; pathname is standard lib
+require 'pathname'
+
 module Nokogiri
   module XML
     ##
@@ -56,12 +60,20 @@ module Nokogiri
         end
 
         doc = if string_or_io.respond_to?(:read)
-          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          read_io(string_or_io, url, encoding, options.to_i)
-        else
-          # read_memory pukes on empty docs
-          read_memory(string_or_io, url, encoding, options.to_i)
-        end
+                # check url first cause this might get blown away
+                url ||= string_or_io.respond_to?(:path) ?
+                  string_or_io.path : nil
+
+                # coerce to binary filehandle if this is a Pathname object
+                string_or_io = string_or_io.expand_path.open('rb') if
+                  string_or_io.is_a? Pathname
+
+                # aaaand go
+                read_io(string_or_io, url, encoding, options.to_i)
+              else
+                # read_memory pukes on empty docs
+                read_memory(string_or_io, url, encoding, options.to_i)
+              end
 
         # do xinclude processing
         doc.do_xinclude(options) if options.xinclude?

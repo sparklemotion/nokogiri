@@ -3,6 +3,7 @@
 # Modify the PATH on windows so that the external DLLs will get loaded.
 
 require 'rbconfig'
+require 'pathname'
 
 if defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
   require 'nokogiri/jruby/dependencies'
@@ -54,6 +55,9 @@ module Nokogiri
     ###
     # Parse an HTML or XML document.  +string+ contains the document.
     def parse string, url = nil, encoding = nil, options = nil
+      # whackamole; see respective (XML|HTML)::Document
+      string = string.expand_path.open('rb') if string.is_a? Pathname
+
       if string.respond_to?(:read) ||
           /^\s*<(?:!DOCTYPE\s+)?html[\s>]/i === string[0, 512]
         # Expect an HTML indicator to appear within the first 512
