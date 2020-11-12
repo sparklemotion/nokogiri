@@ -65,7 +65,8 @@ HOE = Hoe.spec "nokogiri" do |hoe|
     ["rake-compiler-dock", "~> 1.0"],
     ["rexical", "~> 1.0.5"],
     ["rubocop", "~> 0.88"],
-    ["simplecov", "~> 0.17.0"], # locked due to https://github.com/codeclimate/test-reporter/issues/413
+    ["simplecov", "~> 0.17.0"], # locked on 2020-08-28 due to https://github.com/codeclimate/test-reporter/issues/413
+    ["parallel", "~> 1.19.2"], # locked on 2020-11-10 because v1.20.0 does not support Ruby 2.4
   ]
 
   hoe.spec_extras = {
