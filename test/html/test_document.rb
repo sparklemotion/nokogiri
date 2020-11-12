@@ -629,6 +629,16 @@ eohtml
         assert html.html?
       end
 
+      # issue #1821, #2110
+      def test_parse_can_take_pathnames
+        assert(File.size(HTML_FILE) > 4096) # file must be big enough to trip the read callback more than once
+
+        doc = Nokogiri::HTML.parse(Pathname.new(HTML_FILE))
+
+        # an arbitrary assertion on the structure of the document
+        assert_equal 166, doc.css("a").length
+      end
+
       def test_html?
         assert !@html.xml?
         assert @html.html?

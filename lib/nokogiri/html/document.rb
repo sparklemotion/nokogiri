@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# for the constant; pathname is standard lib
 require 'pathname'
 
 module Nokogiri
@@ -170,10 +169,6 @@ module Nokogiri
           # Give the options to the user
           yield options if block_given?
 
-          # coerce to binary filehandle if this is a Pathname object
-          string_or_io = string_or_io.expand_path.open('rb') if
-            string_or_io.is_a? Pathname
-
           if string_or_io.respond_to?(:encoding)
             unless string_or_io.encoding.name == "ASCII-8BIT"
               encoding ||= string_or_io.encoding.name
@@ -182,6 +177,12 @@ module Nokogiri
 
           if string_or_io.respond_to?(:read)
             url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
+
+            if string_or_io.is_a?(Pathname)
+              # resolve the Pathname to the file and open it as an IO object, see #2110
+              string_or_io = string_or_io.expand_path.open
+            end
+
             unless encoding
               # Libxml2's parser has poor support for encoding
               # detection.  First, it does not recognize the HTML5

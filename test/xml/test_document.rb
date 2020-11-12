@@ -719,6 +719,17 @@ module Nokogiri
         assert_equal "foo", doc.at_css("div").content
       end
 
+      # issue #1821, #2110
+      def test_parse_can_take_pathnames
+        assert(File.size(XML_ATOM_FILE) > 4096) # file must be big enough to trip the read callback more than once
+
+        doc = Nokogiri::XML.parse(Pathname.new(XML_ATOM_FILE))
+
+        # an arbitrary assertion on the structure of the document
+        assert_equal 20, doc.xpath("/xmlns:feed/xmlns:entry/xmlns:author",
+                                   "xmlns" => "http://www.w3.org/2005/Atom").length
+      end
+
       def test_search_on_empty_documents
         doc = Nokogiri::XML::Document.new
         ns = doc.search("//foo")
