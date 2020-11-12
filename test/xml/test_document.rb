@@ -674,7 +674,7 @@ module Nokogiri
 
       def test_url
         assert @xml.url
-        assert_equal XML_FILE, URI.unescape(@xml.url).sub("file:///", "")
+        assert_equal XML_FILE, @xml.url
       end
 
       def test_document_parent
@@ -695,6 +695,7 @@ module Nokogiri
           xml = Nokogiri::XML(f)
         }
         assert xml.xml?
+        assert_equal XML_FILE, xml.url
         set = xml.search("//employee")
         assert set.length > 0
       end
@@ -719,6 +720,17 @@ module Nokogiri
         assert_equal "foo", doc.at_css("div").content
       end
 
+      def test_parse_works_with_an_object_that_responds_to_path
+        xml = String.new("<root><sub>hello</sub></root>")
+        def xml.path
+          "/i/should/be/the/document/url"
+        end
+
+        doc = Nokogiri::XML.parse(xml)
+
+        assert_equal "/i/should/be/the/document/url", doc.url
+      end
+
       # issue #1821, #2110
       def test_parse_can_take_pathnames
         assert(File.size(XML_ATOM_FILE) > 4096) # file must be big enough to trip the read callback more than once
@@ -728,6 +740,7 @@ module Nokogiri
         # an arbitrary assertion on the structure of the document
         assert_equal 20, doc.xpath("/xmlns:feed/xmlns:entry/xmlns:author",
                                    "xmlns" => "http://www.w3.org/2005/Atom").length
+        assert_equal XML_ATOM_FILE, doc.url
       end
 
       def test_search_on_empty_documents
