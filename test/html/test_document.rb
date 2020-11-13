@@ -91,8 +91,9 @@ module Nokogiri
       end
 
       def test_document_parse_method_with_url
-        doc = Nokogiri::HTML "<html></html>", "http:/foobar.foobar/", "UTF-8"
+        doc = Nokogiri::HTML "<html></html>", "http://foobar.example.com/", "UTF-8"
         refute_empty doc.to_s, "Document should not be empty"
+        assert_equal "http://foobar.example.com/", doc.url
       end
 
       ###
@@ -627,6 +628,29 @@ eohtml
           html = Nokogiri::HTML(f)
         }
         assert html.html?
+        assert_equal HTML_FILE, html.url
+      end
+
+      def test_parse_works_with_an_object_that_responds_to_path
+        html = String.new("<html><body>hello</body></html>")
+        def html.path
+          "/i/should/be/the/document/url"
+        end
+
+        doc = Nokogiri::HTML.parse(html)
+
+        assert_equal "/i/should/be/the/document/url", doc.url
+      end
+
+      # issue #1821, #2110
+      def test_parse_can_take_pathnames
+        assert(File.size(HTML_FILE) > 4096) # file must be big enough to trip the read callback more than once
+
+        doc = Nokogiri::HTML.parse(Pathname.new(HTML_FILE))
+
+        # an arbitrary assertion on the structure of the document
+        assert_equal 166, doc.css("a").length
+        assert_equal HTML_FILE, doc.url
       end
 
       def test_html?

@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+
+require 'pathname'
+
 module Nokogiri
   module XML
     ##
@@ -44,8 +47,10 @@ module Nokogiri
       #
       def self.parse string_or_io, url = nil, encoding = nil, options = ParseOptions::DEFAULT_XML
         options = Nokogiri::XML::ParseOptions.new(options) if Integer === options
-        # Give the options to the user
+
         yield options if block_given?
+
+        url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
 
         if empty_doc?(string_or_io)
           if options.strict?
@@ -56,12 +61,17 @@ module Nokogiri
         end
 
         doc = if string_or_io.respond_to?(:read)
-          url ||= string_or_io.respond_to?(:path) ? string_or_io.path : nil
-          read_io(string_or_io, url, encoding, options.to_i)
-        else
-          # read_memory pukes on empty docs
-          read_memory(string_or_io, url, encoding, options.to_i)
-        end
+                if string_or_io.is_a?(Pathname)
+                  # resolve the Pathname to the file and open it as an IO object, see #2110
+                  string_or_io = string_or_io.expand_path.open
+                  url ||= string_or_io.path
+                end
+
+                read_io(string_or_io, url, encoding, options.to_i)
+              else
+                # read_memory pukes on empty docs
+                read_memory(string_or_io, url, encoding, options.to_i)
+              end
 
         # do xinclude processing
         doc.do_xinclude(options) if options.xinclude?
