@@ -33,50 +33,50 @@ image_resource:
 #@ end
 
 ---
-#@ def pend_pr(pr_resource_name, context=None):
+#@ def pend_pr(pr_resource_name, context):
 put: #@ pr_resource_name
 params:
   path: #@ pr_resource_name
-#!  base_context: ci.nokogiri.org
+  base_context: ci.nokogiri.org
   status: PENDING
-  #@ if/end context:
   context: #@ context
+  description: "Nokobot is working, beep boop ..."
 #@ end
 
 ---
-#@ def put_to_pr_on_everything(pr_resource_name, context=None):
+#@ def put_to_pr_on_everything(pr_resource_name, context):
 on_failure:
   put: #@ pr_resource_name
   params:
     path: #@ pr_resource_name
-#!    base_context: ci.nokogiri.org
+    base_context: ci.nokogiri.org
     status: FAILURE
-    #@ if/end context:
     context: #@ context
+    description: "This job had some failed tests."
 on_error:
   put: #@ pr_resource_name
   params:
     path: #@ pr_resource_name
-#!    base_context: ci.nokogiri.org
+    base_context: ci.nokogiri.org
     status: ERROR
-    #@ if/end context:
     context: #@ context
+    description: "This job had errors."
 on_abort:
   put: #@ pr_resource_name
   params:
     path: #@ pr_resource_name
-#!    base_context: ci.nokogiri.org
+    base_context: ci.nokogiri.org
     status: ERROR
-    #@ if/end context:
     context: #@ context
-#!on_success:
-#!  put: #@ pr_resource_name
-#!  params:
-#!    path: #@ pr_resource_name
-#!    base_context: ci.nokogiri.org
-#!    status: SUCCESS
-#!    #@ if/end context:
-#!    context: #@ context
+    description: "This job was terminated."
+on_success:
+  put: #@ pr_resource_name
+  params:
+    path: #@ pr_resource_name
+    base_context: ci.nokogiri.org
+    status: SUCCESS
+    context: #@ context
+    description: "Nokobot is happy with this job."
 #@ end
 
 ---
@@ -114,25 +114,16 @@ resources:
 
 
 jobs:
-  - name: pr-pending
+#@ job_name = "cruby-on-vanilla-ubuntu"
+  - name: #@ job_name
     public: true
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
-      - #@ pend_pr("nokogiri-pr")
-
-
-  - name: cruby-on-vanilla-ubuntu
-    public: true
-    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr"))
-    plan:
-      - get: ci
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed: ["pr-pending"]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: rubocop
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic"))
@@ -150,16 +141,17 @@ jobs:
 
 
 #@ for ruby_version in all_cruby_versions:
-  - name: #@ "cruby-{}".format(ruby_version)
+#@ job_name = "cruby-{}".format(ruby_version)
+  - name: #@ job_name
     public: true
-    #@ if/end ruby_version in cruby_versions["supported"]:
-    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr"))
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: ["cruby-on-vanilla-ubuntu"]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: rake-test-system-libraries
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
@@ -187,16 +179,18 @@ jobs:
 #@ end
 
 #@ for ruby_version in all_jruby_versions:
-  - name: #@ "jruby-{}".format(ruby_version)
+#@ job_name = "jruby-{}".format(ruby_version)
+  - name: #@ job_name 
     public: true
     #@ if/end ruby_version in jruby_versions["supported"]:
-    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr"))
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: ["cruby-on-vanilla-ubuntu"]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: rake-test
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "jruby-{}".format(ruby_version)))
@@ -206,7 +200,8 @@ jobs:
 #@ end
 
 #@ for ruby_version in all_truffleruby_versions:
-  - name: #@ "truffle-{}".format(ruby_version)
+#@ job_name = "truffle-{}".format(ruby_version)
+  - name: #@ job_name
     public: true
     plan:
       - get: ci
@@ -222,14 +217,16 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 #@ end
 
-  - name: cruby-on-musl
+#@ job_name = "cruby-on-musl"
+  - name: #@ job_name
     public: true
-    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr"))
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: rake-test-system-libraries
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
@@ -248,15 +245,17 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 
 
-  - name: cruby-with-libxmlruby
+#@ job_name = "cruby-with-libxmlruby"
+  - name: #@ job_name
     public: true
-    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr"))
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: rake-test-system-libraries
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(cruby_versions["supported"][-1])))
@@ -277,15 +276,17 @@ jobs:
             path: ci/concourse/tasks/rake-test/run.sh
 
 
-  - name: cruby-gem-test
+#@ job_name = "cruby-gem-test"
+  - name: #@ job_name
     public: true
-    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr"))
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: build
         config:
           "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
@@ -313,15 +314,17 @@ jobs:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
 
 
-  - name: cruby-native-gem-test
+#@ job_name = "cruby-native-gem-test"
+  - name: #@ job_name
     public: true
-    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr"))
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: build
         config:
           "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
@@ -353,15 +356,17 @@ jobs:
               path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
 
 
-  - name: jruby-gem-test
+#@ job_name = "jruby-gem-test"
+  - name: #@ job_name
     public: true
-    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr"))
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
     plan:
       - get: ci
       - get: nokogiri-pr
         trigger: true
         version: every
         passed: #@ ["jruby-{}".format(ruby_version) for ruby_version in jruby_versions["supported"]]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: build
         config:
           "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-jruby", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
@@ -378,20 +383,3 @@ jobs:
             - name: gems
           run:
             path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-
-
-  - name: pr-success
-    public: true
-    disable_manual_trigger: true
-    plan:
-      - get: nokogiri-pr
-        trigger: true
-        version: every
-        passed:
-          - cruby-on-musl
-          - cruby-with-libxmlruby
-          - cruby-gem-test
-          - cruby-native-gem-test
-          - jruby-gem-test
-      - put: nokogiri-pr
-        params: { path: nokogiri-pr, status: SUCCESS }

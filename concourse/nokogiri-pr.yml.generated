@@ -1,38 +1,49 @@
 jobs:
-- name: pr-pending
+- name: cruby-on-vanilla-ubuntu
+  on_abort:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-vanilla-ubuntu
+      description: This job was terminated.
+      path: nokogiri-pr
+      status: ERROR
+    put: nokogiri-pr
+  on_error:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-vanilla-ubuntu
+      description: This job had errors.
+      path: nokogiri-pr
+      status: ERROR
+    put: nokogiri-pr
+  on_failure:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-vanilla-ubuntu
+      description: This job had some failed tests.
+      path: nokogiri-pr
+      status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-vanilla-ubuntu
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
+    put: nokogiri-pr
   plan:
   - get: ci
   - get: nokogiri-pr
     trigger: true
     version: every
   - params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-vanilla-ubuntu
+      description: Nokobot is working, beep boop ...
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  public: true
-- name: cruby-on-vanilla-ubuntu
-  on_abort:
-    params:
-      path: nokogiri-pr
-      status: ERROR
-    put: nokogiri-pr
-  on_error:
-    params:
-      path: nokogiri-pr
-      status: ERROR
-    put: nokogiri-pr
-  on_failure:
-    params:
-      path: nokogiri-pr
-      status: FAILURE
-    put: nokogiri-pr
-  plan:
-  - get: ci
-  - get: nokogiri-pr
-    passed:
-    - pr-pending
-    trigger: true
-    version: every
   - config:
       image_resource:
         source:
@@ -67,18 +78,35 @@ jobs:
 - name: cruby-2.4
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.4
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.4
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.4
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.4
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -87,6 +115,13 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.4
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -137,18 +172,35 @@ jobs:
 - name: cruby-2.5
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.5
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.5
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.5
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.5
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -157,6 +209,13 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.5
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -207,18 +266,35 @@ jobs:
 - name: cruby-2.6
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.6
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.6
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.6
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.6
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -227,6 +303,13 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.6
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -277,18 +360,35 @@ jobs:
 - name: cruby-2.7
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.7
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.7
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.7
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.7
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -297,6 +397,13 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-2.7
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -346,6 +453,38 @@ jobs:
     task: rake-test-valgrind
   public: true
 - name: cruby-3.0-rc
+  on_abort:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-3.0-rc
+      description: This job was terminated.
+      path: nokogiri-pr
+      status: ERROR
+    put: nokogiri-pr
+  on_error:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-3.0-rc
+      description: This job had errors.
+      path: nokogiri-pr
+      status: ERROR
+    put: nokogiri-pr
+  on_failure:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-3.0-rc
+      description: This job had some failed tests.
+      path: nokogiri-pr
+      status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-3.0-rc
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
+    put: nokogiri-pr
   plan:
   - get: ci
   - get: nokogiri-pr
@@ -353,6 +492,13 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-3.0-rc
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -403,18 +549,35 @@ jobs:
 - name: jruby-9.2
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: jruby-9.2
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: jruby-9.2
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: jruby-9.2
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: jruby-9.2
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -423,6 +586,13 @@ jobs:
     - cruby-on-vanilla-ubuntu
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: jruby-9.2
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -487,18 +657,35 @@ jobs:
 - name: cruby-on-musl
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-musl
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-musl
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-musl
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-musl
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -509,6 +696,13 @@ jobs:
     - cruby-2.6
     - cruby-2.7
     trigger: true
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-on-musl
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -545,18 +739,35 @@ jobs:
 - name: cruby-with-libxmlruby
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-with-libxmlruby
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-with-libxmlruby
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-with-libxmlruby
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-with-libxmlruby
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -568,6 +779,13 @@ jobs:
     - cruby-2.7
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-with-libxmlruby
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -606,18 +824,35 @@ jobs:
 - name: cruby-gem-test
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-gem-test
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-gem-test
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-gem-test
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-gem-test
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -629,6 +864,13 @@ jobs:
     - cruby-2.7
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-gem-test
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -681,18 +923,35 @@ jobs:
 - name: cruby-native-gem-test
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-native-gem-test
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-native-gem-test
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: cruby-native-gem-test
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: cruby-native-gem-test
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -704,6 +963,13 @@ jobs:
     - cruby-2.7
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: cruby-native-gem-test
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -803,18 +1069,35 @@ jobs:
 - name: jruby-gem-test
   on_abort:
     params:
+      base_context: ci.nokogiri.org
+      context: jruby-gem-test
+      description: This job was terminated.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_error:
     params:
+      base_context: ci.nokogiri.org
+      context: jruby-gem-test
+      description: This job had errors.
       path: nokogiri-pr
       status: ERROR
     put: nokogiri-pr
   on_failure:
     params:
+      base_context: ci.nokogiri.org
+      context: jruby-gem-test
+      description: This job had some failed tests.
       path: nokogiri-pr
       status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: jruby-gem-test
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
     put: nokogiri-pr
   plan:
   - get: ci
@@ -823,6 +1106,13 @@ jobs:
     - jruby-9.2
     trigger: true
     version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: jruby-gem-test
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
   - config:
       image_resource:
         source:
@@ -854,23 +1144,6 @@ jobs:
       run:
         path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
     task: install-and-test
-  public: true
-- disable_manual_trigger: true
-  name: pr-success
-  plan:
-  - get: nokogiri-pr
-    passed:
-    - cruby-on-musl
-    - cruby-with-libxmlruby
-    - cruby-gem-test
-    - cruby-native-gem-test
-    - jruby-gem-test
-    trigger: true
-    version: every
-  - params:
-      path: nokogiri-pr
-      status: SUCCESS
-    put: nokogiri-pr
   public: true
 resource_types:
 - name: pull-request
