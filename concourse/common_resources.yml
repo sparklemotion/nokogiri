@@ -4,7 +4,7 @@
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
-      disable_ci_skip: true # always get the latest pipeline configuration
+      disable_ci_skip: true #! always get the latest pipeline configuration
   - name: irc
     type: irc-notification
     icon: bell
