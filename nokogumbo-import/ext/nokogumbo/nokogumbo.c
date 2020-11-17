@@ -724,10 +724,15 @@ void Init_nokogumbo() {
   VALUE mNokogiri = rb_const_get(rb_cObject, rb_intern_const("Nokogiri"));
   VALUE mNokogiriXml = rb_const_get(mNokogiri, rb_intern_const("XML"));
   cNokogiriXmlSyntaxError = rb_const_get(mNokogiriXml, rb_intern_const("SyntaxError"));
+  rb_gc_register_mark_object(cNokogiriXmlSyntaxError);
   cNokogiriXmlElement = rb_const_get(mNokogiriXml, rb_intern_const("Element"));
+  rb_gc_register_mark_object(cNokogiriXmlElement);
   cNokogiriXmlText = rb_const_get(mNokogiriXml, rb_intern_const("Text"));
+  rb_gc_register_mark_object(cNokogiriXmlText);
   cNokogiriXmlCData = rb_const_get(mNokogiriXml, rb_intern_const("CDATA"));
+  rb_gc_register_mark_object(cNokogiriXmlCData);
   cNokogiriXmlComment = rb_const_get(mNokogiriXml, rb_intern_const("Comment"));
+  rb_gc_register_mark_object(cNokogiriXmlComment);
 
   // Interned symbols.
   new = rb_intern_const("new");
@@ -740,6 +745,7 @@ void Init_nokogumbo() {
   // Class constants.
   VALUE HTML5 = rb_const_get(mNokogiri, rb_intern_const("HTML5"));
   Document = rb_const_get(HTML5, rb_intern_const("Document"));
+  rb_gc_register_mark_object(Document);
 
   // Interned symbols.
   internal_subset = rb_intern_const("internal_subset");
