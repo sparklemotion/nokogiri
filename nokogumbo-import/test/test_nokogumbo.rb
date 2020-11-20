@@ -1,5 +1,12 @@
 # encoding: utf-8
 require 'nokogumbo'
+
+# Make sure that Ruby objects constructed in C are treated as GC roots.
+# See: https://github.com/rubys/nokogumbo/pull/150
+if GC.respond_to?(:verify_compaction_references)
+  GC.verify_compaction_references(toward: :empty, double_heap: true)
+end
+
 require 'minitest/autorun'
 
 class TestNokogumbo < Minitest::Test

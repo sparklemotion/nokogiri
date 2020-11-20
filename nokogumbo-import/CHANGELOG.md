@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 ### Removed
 ### Fixed
+- Fixed crash where Ruby objects constructed in C can be garbage collected.
 ### Security
 
 ## [2.0.2] - 2019-11-19
