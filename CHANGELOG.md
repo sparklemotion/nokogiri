@@ -16,12 +16,12 @@ We bump `Major.Minor.Patch` versions following this guidance:
 `Minor`:
 
 - Features and bugfixes.
-- Dropping support for EOLed Ruby versions, updating vendored libraries.
-- Updating vendored libraries for non-security-related reasons.
+- Dropping support for EOLed Ruby versions, updating packaged libraries.
+- Updating packaged libraries for non-security-related reasons.
 
 `Patch`:
 
-- Security updates, including updating vendored libraries for security-related reasons.
+- Security updates, including updating packaged libraries for security-related reasons.
 - Bugfixes.
 
 ---
@@ -91,6 +91,7 @@ This release ends support for:
 * Avoid creation of unnecessary zero-length String objects. [[#1970](https://github.com/sparklemotion/nokogiri/issues/1970)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Always compile libxml2 and libxslt with '-O2' [[#2022](https://github.com/sparklemotion/nokogiri/issues/2022), [#2100](https://github.com/sparklemotion/nokogiri/issues/2100)] (Thanks, [@ilyazub](https://github.com/ilyazub)!)
 * {HTML,XML}::Document#parse now accept `Pathname` objects. Previously this worked only if the referenced file was less than 4096 bytes long; longer files resulted in undefined behavior because the `read` method would be repeatedly invoked. [[#1821](https://github.com/sparklemotion/nokogiri/issues/1821), [#2110](https://github.com/sparklemotion/nokogiri/issues/2110)] (Thanks, [@doriantaylor](https://github.com/doriantaylor) and [@phokz](https://github.com/phokz)!)
+* [CRuby] Packaged libxml2 follows WHATWG guidance for incorrectly-closed HTML comments. [[#2058](https://github.com/sparklemotion/nokogiri/issues/2058)] (Thanks to HackerOne user [mayflower](https://hackerone.com/mayflower?type=user) for reporting this!)
 * [JRuby] Lots of code cleanup and performance improvements. [[#1934](https://github.com/sparklemotion/nokogiri/issues/1934)] (Thanks, [@kares](https://github.com/kares)!)
 * [JRuby] Clean up deprecated calls into JRuby. [[#2027](https://github.com/sparklemotion/nokogiri/issues/2027)] (Thanks, [@headius](https://github.com/headius)!)
 
@@ -119,7 +120,7 @@ This release changes the information provided in
 `Nokogiri::VersionInfo`, see [#1482](https://github.com/sparklemotion/nokogiri/issues/1482) and [#1974](https://github.com/sparklemotion/nokogiri/issues/1974) for background. Note that
 the output of `nokogiri -v` will also reflect these changes.
 
-`Nokogiri::VersionInfo` will no longer contain the following keys (previously these were set only when vendored libraries were being used)
+`Nokogiri::VersionInfo` will no longer contain the following keys (previously these were set only when packaged libraries were being used)
 * `libxml/libxml2_path`
 * `libxml/libxslt_path`
 
@@ -149,7 +150,7 @@ These methods have been renamed and the return type changed from `String` to `Ge
 
 `Nokogiri.uses_libxml?` now accepts an optional requirement string which is interpreted as a `Gem::Requirement` and tested against the loaded libxml2 version (the value in `VersionInfo` key `libxml/loaded`). This greatly simplifies much of the version-dependent branching logic in both the implementation and the tests.
 
-To sum these changes up, the output from CRuby when using vendored libraries was something like:
+To sum these changes up, the output from CRuby when using packaged libraries was something like:
 
 ```
 # Nokogiri (1.10.7)
