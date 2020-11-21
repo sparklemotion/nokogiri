@@ -1,4 +1,64 @@
 jobs:
+- name: rubocop
+  on_abort:
+    params:
+      base_context: ci.nokogiri.org
+      context: rubocop
+      description: This job was terminated.
+      path: nokogiri-pr
+      status: ERROR
+    put: nokogiri-pr
+  on_error:
+    params:
+      base_context: ci.nokogiri.org
+      context: rubocop
+      description: This job had errors.
+      path: nokogiri-pr
+      status: ERROR
+    put: nokogiri-pr
+  on_failure:
+    params:
+      base_context: ci.nokogiri.org
+      context: rubocop
+      description: This job had some failed tests.
+      path: nokogiri-pr
+      status: FAILURE
+    put: nokogiri-pr
+  on_success:
+    params:
+      base_context: ci.nokogiri.org
+      context: rubocop
+      description: Nokobot is happy with this job.
+      path: nokogiri-pr
+      status: SUCCESS
+    put: nokogiri-pr
+  plan:
+  - get: ci
+  - get: nokogiri-pr
+    trigger: true
+    version: every
+  - params:
+      base_context: ci.nokogiri.org
+      context: rubocop
+      description: Nokobot is working, beep boop ...
+      path: nokogiri-pr
+      status: PENDING
+    put: nokogiri-pr
+  - config:
+      image_resource:
+        source:
+          repository: flavorjones/nokogiri-test
+          tag: bionic
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: nokogiri-pr
+        path: nokogiri
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/rubocop.sh
+    task: rubocop
+  public: true
 - name: cruby-on-vanilla-ubuntu
   on_abort:
     params:
@@ -35,6 +95,8 @@ jobs:
   plan:
   - get: ci
   - get: nokogiri-pr
+    passed:
+    - rubocop
     trigger: true
     version: every
   - params:
@@ -44,20 +106,6 @@ jobs:
       path: nokogiri-pr
       status: PENDING
     put: nokogiri-pr
-  - config:
-      image_resource:
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: bionic
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/rubocop.sh
-    task: rubocop
   - config:
       image_resource:
         source:

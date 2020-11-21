@@ -114,7 +114,7 @@ resources:
 
 
 jobs:
-#@ job_name = "cruby-on-vanilla-ubuntu"
+#@ job_name = "rubocop"
   - name: #@ job_name
     public: true
     _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
@@ -130,6 +130,19 @@ jobs:
           inputs: #@ task_inputs()
           run:
             path: ci/concourse/tasks/rake-test/rubocop.sh
+
+
+#@ job_name = "cruby-on-vanilla-ubuntu"
+  - name: #@ job_name
+    public: true
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: ["rubocop"]
+      - #@ pend_pr("nokogiri-pr", job_name)
       - task: rake-test
         config:
           "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic"))
