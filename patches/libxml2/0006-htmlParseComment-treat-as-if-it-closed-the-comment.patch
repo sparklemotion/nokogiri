@@ -1,0 +1,55 @@
+From 15b28d8a99224e16ae8a7e7774ee3b6b6769dca3 Mon Sep 17 00:00:00 2001
+From: Mike Dalessio <mike.dalessio@gmail.com>
+Date: Mon, 3 Aug 2020 17:36:05 -0400
+Subject: [PATCH] htmlParseComment: treat `--!>` as if it closed the comment
+
+See guidance provided on incorrectly-closed comments here:
+
+https://html.spec.whatwg.org/multipage/parsing.html#parse-error-incorrectly-closed-comment
+
+This is a minimal patch to try to avoid merge conflicts.
+---
+ HTMLparser.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/HTMLparser.c b/HTMLparser.c
+index 7b6d689..0046642 100644
+--- a/HTMLparser.c
++++ b/HTMLparser.c
+@@ -3301,6 +3301,7 @@ htmlParseComment(htmlParserCtxtPtr ctxt) {
+     int r, rl;
+     int cur, l;
+     xmlParserInputState state;
++    int possiblyIncorrectlyClosed = 0;
+ 
+     /*
+      * Check that there is a comment right here.
+@@ -3346,6 +3347,16 @@ htmlParseComment(htmlParserCtxtPtr ctxt) {
+ 	    buf = tmp;
+ 	}
+ 	COPY_BUF(ql,buf,len,q);
++
++	if (possiblyIncorrectlyClosed && cur == '>') {
++	  htmlParseErr(ctxt, XML_ERR_COMMENT_NOT_FINISHED,
++		       "Comment incorrectly closed by '--!>'", NULL, NULL);
++	  buf[len-2] = 0;
++	  goto recover ;
++	}
++
++	possiblyIncorrectlyClosed = (q == '-' && r == '-' && cur == '!') ? 1 : 0 ;
++
+ 	q = r;
+ 	ql = rl;
+ 	r = cur;
+@@ -3359,6 +3370,8 @@ htmlParseComment(htmlParserCtxtPtr ctxt) {
+ 	}
+     }
+     buf[len] = 0;
++
++recover:
+     if (IS_CHAR(cur)) {
+         NEXT;
+ 	if ((ctxt->sax != NULL) && (ctxt->sax->comment != NULL) &&
+-- 
+2.25.1
+
