@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [2.0.3] - 2020-11-21
+### Added
 - Limit enforced on number of attributes per element, defaulting to 400 and
   configurable with the `:max_attributes` argument.
 
@@ -14,6 +22,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 ### Removed
 ### Fixed
+- Ignore UTF-8 byte order mark at the beginning of the input.
+- Fix content sniffing for Unicode strings.
 - Fixed crash where Ruby objects constructed in C can be garbage collected.
 ### Security
 
@@ -21,10 +31,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Support Ruby 2.6
 ### Fixed
-- Fix assertion failures with nonstandard HTML tags
+- Fix assertion failures with nonstandard HTML tags.
 - Fix the handling of mis-nested formatting tags (the adoption agency
-  algorithm)
-- Fix crash with zero-length HTML tags
+  algorithm).
+- Fix crash with zero-length HTML tags.
 ### Security
 - Prevent 1-byte buffer over read when constructing an error message about an
   unexpected EOF.
@@ -39,7 +49,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   undocumented).
 - Added proper HTML5 serialization.
 - Added option `:max_errors` to control the maximum number of errors reported
-  by `#errors`
+  by `#errors`.
 - Added option `:max_tree_depth` to control the maximum parse tree depth.
 - Line number support via `Nokogiri::XML::Node#line` as long as Nokogumbo has
   been compiled with libxml2 support.
