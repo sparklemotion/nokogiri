@@ -93,11 +93,11 @@ public class XmlSchema extends RubyObject {
         return super.clone();
     }
 
-    private Schema getSchema(Source source, String currentDir, String scriptFileName) throws SAXException {
+    private Schema getSchema(Source source, String currentDir, String scriptFileName, ErrorHandler error_handler) throws SAXException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         SchemaResourceResolver resourceResolver = new SchemaResourceResolver(currentDir, scriptFileName, null);
         schemaFactory.setResourceResolver(resourceResolver);
-        schemaFactory.setErrorHandler(new IgnoreSchemaErrorsErrorHandler());
+        schemaFactory.setErrorHandler(error_handler);
         return schemaFactory.newSchema(source);
     }
 
@@ -111,7 +111,8 @@ public class XmlSchema extends RubyObject {
         xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
 
         try {
-            Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory(), context.getRuntime().getInstanceConfig().getScriptFileName());
+            ErrorHandler error_handler = new SchemaErrorHandler(context.getRuntime(), (RubyArray)xmlSchema.getInstanceVariable("@errors"));
+            Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory(), context.getRuntime().getInstanceConfig().getScriptFileName(), error_handler);
             xmlSchema.setValidator(schema.newValidator());
             return xmlSchema;
         } catch (SAXException ex) {

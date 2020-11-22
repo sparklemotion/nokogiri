@@ -72,7 +72,14 @@ module Nokogiri
             </xs:element>
           </xs:schema>
         EOF
+
         assert_instance_of Nokogiri::XML::Schema, xsd
+
+        if Nokogiri.jruby?
+          assert xsd.errors.length > 0
+          assert_equal 1, xsd.errors.map(&:to_s).grep(/cos-element-consistent/).length
+          assert_equal 1, xsd.errors.map(&:to_s).grep(/cos-nonambig/).length
+        end
       end
 
       def test_schema_from_document_node
