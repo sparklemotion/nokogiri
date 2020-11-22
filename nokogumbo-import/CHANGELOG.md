@@ -17,15 +17,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Limit enforced on number of attributes per element, defaulting to 400 and
   configurable with the `:max_attributes` argument.
-
-### Changed
-### Deprecated
-### Removed
 ### Fixed
 - Ignore UTF-8 byte order mark at the beginning of the input.
 - Fix content sniffing for Unicode strings.
 - Fixed crash where Ruby objects constructed in C can be garbage collected.
-### Security
 
 ## [2.0.2] - 2019-11-19
 ### Added
