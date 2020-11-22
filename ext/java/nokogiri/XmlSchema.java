@@ -68,6 +68,7 @@ import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * Class for Nokogiri::XML::Schema
@@ -93,9 +94,9 @@ public class XmlSchema extends RubyObject {
         return super.clone();
     }
 
-    private Schema getSchema(Source source, String currentDir, String scriptFileName, ErrorHandler error_handler) throws SAXException {
+    private Schema getSchema(Source source, String currentDir, String scriptFileName, SchemaErrorHandler error_handler) throws SAXException {
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        SchemaResourceResolver resourceResolver = new SchemaResourceResolver(currentDir, scriptFileName, null);
+        SchemaResourceResolver resourceResolver = new SchemaResourceResolver(currentDir, scriptFileName, null, error_handler);
         schemaFactory.setResourceResolver(resourceResolver);
         schemaFactory.setErrorHandler(error_handler);
         return schemaFactory.newSchema(source);
@@ -111,7 +112,7 @@ public class XmlSchema extends RubyObject {
         xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
 
         try {
-            ErrorHandler error_handler = new SchemaErrorHandler(context.getRuntime(), (RubyArray)xmlSchema.getInstanceVariable("@errors"));
+            SchemaErrorHandler error_handler = new SchemaErrorHandler(context.getRuntime(), (RubyArray)xmlSchema.getInstanceVariable("@errors"));
             Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory(), context.getRuntime().getInstanceConfig().getScriptFileName(), error_handler);
             xmlSchema.setValidator(schema.newValidator());
             return xmlSchema;
@@ -210,11 +211,13 @@ public class XmlSchema extends RubyObject {
         SchemaLSInput lsInput = new SchemaLSInput();
         String currentDir;
         String scriptFileName;
+        SchemaErrorHandler error_handler;
         //String defaultURI;
 
-        SchemaResourceResolver(String currentDir, String scriptFileName, Object input) {
+        SchemaResourceResolver(String currentDir, String scriptFileName, Object input, SchemaErrorHandler error_handler) {
             this.currentDir = currentDir;
             this.scriptFileName = scriptFileName;
+            this.error_handler = error_handler;
             if (input == null) return;
             if (input instanceof String) {
                 lsInput.setStringData((String)input);
