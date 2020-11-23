@@ -107,6 +107,10 @@ module Nokogiri
         @options & RECOVER == STRICT
       end
 
+      def ==(other)
+        other.to_i == to_i
+      end
+
       alias :to_i :options
 
       def inspect

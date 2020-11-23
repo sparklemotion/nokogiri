@@ -59,6 +59,12 @@ module Nokogiri
         assert_match(/recover/, ins)
         assert_match(/noent/, ins)
       end
+
+      def test_equality
+        options = Nokogiri::XML::ParseOptions.new.recover.noent
+        other = Nokogiri::XML::ParseOptions.new.recover.noent
+        assert(options == other)
+      end
     end
   end
 end
