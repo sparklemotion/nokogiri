@@ -5,8 +5,8 @@ module Nokogiri
       ###
       # Create a new Nokogiri::XML::Schema object using a +string_or_io+
       # object.
-      def Schema string_or_io
-        Schema.new(string_or_io)
+      def Schema(string_or_io, options = ParseOptions::DEFAULT_SCHEMA)
+        Schema.new(string_or_io, options)
       end
     end
 
@@ -30,12 +30,14 @@ module Nokogiri
     class Schema
       # Errors while parsing the schema file
       attr_accessor :errors
+      # The Nokogiri::XML::ParseOptions used to parse the schema
+      attr_accessor :parse_options
 
       ###
       # Create a new Nokogiri::XML::Schema object using a +string_or_io+
       # object.
-      def self.new string_or_io
-        from_document Nokogiri::XML(string_or_io)
+      def self.new string_or_io, options = ParseOptions::DEFAULT_SCHEMA
+        from_document(Nokogiri::XML(string_or_io), options)
       end
 
       ###

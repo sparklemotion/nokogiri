@@ -109,6 +109,39 @@ module Nokogiri
         assert_instance_of Nokogiri::XML::Schema, xsd
       end
 
+      def test_schema_method_with_parse_options
+        schema = Nokogiri::XML::Schema(File.read(PO_SCHEMA_FILE))
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
+
+        schema = Nokogiri::XML::Schema(File.read(PO_SCHEMA_FILE), Nokogiri::XML::ParseOptions.new.recover)
+        assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
+      end
+
+      def test_schema_new_with_parse_options
+        schema = Nokogiri::XML::Schema.new(File.read(PO_SCHEMA_FILE))
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
+
+        schema = Nokogiri::XML::Schema.new(File.read(PO_SCHEMA_FILE), Nokogiri::XML::ParseOptions.new.recover)
+        assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
+      end
+
+      def test_schema_from_document_with_parse_options
+        schema = Nokogiri::XML::Schema.from_document(Nokogiri::XML::Document.parse(File.read(PO_SCHEMA_FILE)))
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
+
+        schema = Nokogiri::XML::Schema.from_document(Nokogiri::XML::Document.parse(File.read(PO_SCHEMA_FILE)),
+                                                     Nokogiri::XML::ParseOptions.new.recover)
+        assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
+      end
+
+      def test_schema_read_memory_with_parse_options
+        schema = Nokogiri::XML::Schema.read_memory(File.read(PO_SCHEMA_FILE))
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
+
+        schema = Nokogiri::XML::Schema.read_memory(File.read(PO_SCHEMA_FILE), Nokogiri::XML::ParseOptions.new.recover)
+        assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
+      end
+
       def test_parse_with_io
         xsd = nil
         File.open(PO_SCHEMA_FILE, "rb") { |f|

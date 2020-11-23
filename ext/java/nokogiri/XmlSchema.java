@@ -106,10 +106,16 @@ public class XmlSchema extends RubyObject {
         this.validator = validator;
     }
 
-    static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source) {
+    static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source, IRubyObject parseOptions) {
         Ruby runtime = context.getRuntime();
         XmlSchema xmlSchema = (XmlSchema) NokogiriService.XML_SCHEMA_ALLOCATOR.allocate(runtime, klazz);
+
+        if (parseOptions == null) {
+            parseOptions = defaultParseOptions(context.getRuntime());
+        }
+
         xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
+        xmlSchema.setInstanceVariable("@parse_options", parseOptions);
 
         try {
             SchemaErrorHandler error_handler = new SchemaErrorHandler(context.getRuntime(), (RubyArray)xmlSchema.getInstanceVariable("@errors"));
@@ -121,14 +127,24 @@ public class XmlSchema extends RubyObject {
         }
     }
 
+    protected static IRubyObject defaultParseOptions(Ruby runtime) {
+        return ((RubyClass)runtime.getClassFromPath("Nokogiri::XML::ParseOptions")).getConstant("DEFAULT_SCHEMA");
+    }
+
     /*
      * call-seq:
      *  from_document(doc)
      *
      * Create a new Schema from the Nokogiri::XML::Document +doc+
      */
-    @JRubyMethod(meta=true)
-    public static IRubyObject from_document(ThreadContext context, IRubyObject klazz, IRubyObject document) {
+    @JRubyMethod(meta=true, required=1, optional=1)
+    public static IRubyObject from_document(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
+        IRubyObject document = args[0];
+        IRubyObject parseOptions = null;
+        if (args.length > 1) {
+            parseOptions = args[1];
+        }
+
         XmlDocument doc = ((XmlDocument) ((XmlNode) document).document(context));
 
         RubyArray errors = (RubyArray) doc.getInstanceVariable("@errors");
@@ -144,23 +160,28 @@ public class XmlSchema extends RubyObject {
             source.setSystemId(uri.convertToString().asJavaString());
         }
 
-        return getSchema(context, (RubyClass)klazz, source);
+        return getSchema(context, (RubyClass)klazz, source, parseOptions);
     }
 
-    private static IRubyObject getSchema(ThreadContext context, RubyClass klazz, Source source) {
+    @JRubyMethod(meta=true, required=1, optional=1)
+    public static IRubyObject read_memory(ThreadContext context, IRubyObject klazz, IRubyObject[] args) {
+        IRubyObject content = args[0];
+        IRubyObject parseOptions = null;
+        if (args.length > 1) {
+            parseOptions = args[1];
+        }
+        String data = content.convertToString().asJavaString();
+        return getSchema(context, (RubyClass) klazz, new StreamSource(new StringReader(data)), parseOptions);
+    }
+
+    private static IRubyObject getSchema(ThreadContext context, RubyClass klazz, Source source, IRubyObject parseOptions) {
         String moduleName = klazz.getName();
         if ("Nokogiri::XML::Schema".equals(moduleName)) {
-            return XmlSchema.createSchemaInstance(context, klazz, source);
+            return XmlSchema.createSchemaInstance(context, klazz, source, parseOptions);
         } else if ("Nokogiri::XML::RelaxNG".equals(moduleName)) {
-            return XmlRelaxng.createSchemaInstance(context, klazz, source);
+            return XmlRelaxng.createSchemaInstance(context, klazz, source, parseOptions);
         }
         return context.getRuntime().getNil();
-    }
-
-    @JRubyMethod(meta=true)
-    public static IRubyObject read_memory(ThreadContext context, IRubyObject klazz, IRubyObject content) {
-        String data = content.convertToString().asJavaString();
-        return getSchema(context, (RubyClass) klazz, new StreamSource(new StringReader(data)));
     }
 
     @JRubyMethod(visibility=Visibility.PRIVATE)
