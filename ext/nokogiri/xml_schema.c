@@ -103,6 +103,7 @@ static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
   VALUE errors;
   VALUE rb_schema;
   int scanned_args = 0;
+  xmlExternalEntityLoader old_loader = 0;
 
   scanned_args = rb_scan_args(argc, argv, "11", &content, &parse_options);
   if (scanned_args == 1) {
@@ -123,7 +124,16 @@ static VALUE read_memory(int argc, VALUE *argv, VALUE klass)
     );
 #endif
 
-   schema = xmlSchemaParse(ctx);
+  if (parse_options_int & XML_PARSE_NONET) {
+    old_loader = xmlGetExternalEntityLoader();
+    xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
+  }
+
+  schema = xmlSchemaParse(ctx);
+
+  if (old_loader) {
+    xmlSetExternalEntityLoader(old_loader);
+  }
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSchemaFreeParserCtxt(ctx);
@@ -187,6 +197,7 @@ static VALUE from_document(int argc, VALUE *argv, VALUE klass)
   VALUE errors;
   VALUE rb_schema;
   int scanned_args = 0;
+  xmlExternalEntityLoader old_loader = 0;
 
   scanned_args = rb_scan_args(argc, argv, "11", &document, &parse_options);
 
@@ -215,7 +226,16 @@ static VALUE from_document(int argc, VALUE *argv, VALUE klass)
   );
 #endif
 
+  if (parse_options_int & XML_PARSE_NONET) {
+    old_loader = xmlGetExternalEntityLoader();
+    xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
+  }
+
   schema = xmlSchemaParse(ctx);
+
+  if (old_loader) {
+    xmlSetExternalEntityLoader(old_loader);
+  }
 
   xmlSetStructuredErrorFunc(NULL, NULL);
   xmlSchemaFreeParserCtxt(ctx);

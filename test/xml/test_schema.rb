@@ -212,6 +212,87 @@ module Nokogiri
           Nokogiri::XML::Schema(IO.read("saml20protocol_schema.xsd"))
         end
       end
+
+      describe "CVE-2020-26247" do
+        # https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m
+        let(:schema) do
+          <<~EOSCHEMA
+            <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+              <xs:import namespace="test" schemaLocation="http://localhost:8000/making-a-request"/>
+            </xs:schema>
+          EOSCHEMA
+        end
+
+        if Nokogiri.uses_libxml?
+          describe "with default parse options" do
+            it "XML::Schema parsing does not attempt to access external DTDs" do
+              doc = Nokogiri::XML::Schema.new(schema)
+              errors = doc.errors.map(&:to_s)
+              assert_equal(1, errors.grep(/ERROR: Attempt to load network entity/).length,
+                           "Should see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT")
+              assert_empty(errors.grep(/WARNING: failed to load HTTP resource/),
+                           "Should not see xmlIO.c:xmlCheckHTTPInput() raising 'failed to load HTTP resource'")
+              assert_empty(errors.grep(/WARNING: failed to load external entity/),
+                           "Should not see xmlIO.c:xmlDefaultExternalEntityLoader() raising 'failed to load external entity'")
+            end
+
+            it "XML::Schema parsing of memory does not attempt to access external DTDs" do
+              doc = Nokogiri::XML::Schema.read_memory(schema)
+              errors = doc.errors.map(&:to_s)
+              assert_equal(1, errors.grep(/ERROR: Attempt to load network entity/).length,
+                           "Should see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT")
+              assert_empty(errors.grep(/WARNING: failed to load HTTP resource/),
+                           "Should not see xmlIO.c:xmlCheckHTTPInput() raising 'failed to load HTTP resource'")
+              assert_empty(errors.grep(/WARNING: failed to load external entity/),
+                           "Should not see xmlIO.c:xmlDefaultExternalEntityLoader() raising 'failed to load external entity'")
+            end
+          end
+
+          describe "with NONET turned off" do
+            it "XML::Schema parsing attempts to access external DTDs" do
+              doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
+              errors = doc.errors.map(&:to_s)
+              assert_equal(0, errors.grep(/ERROR: Attempt to load network entity/).length,
+                           "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT")
+              assert_equal(1, errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
+            end
+
+            it "XML::Schema parsing of memory attempts to access external DTDs" do
+              doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
+              errors = doc.errors.map(&:to_s)
+              assert_equal(0, errors.grep(/ERROR: Attempt to load network entity/).length,
+                           "Should not see xmlIO.c:xmlNoNetExternalEntityLoader() raising XML_IO_NETWORK_ATTEMPT")
+              assert_equal(1, errors.grep(/WARNING: failed to load HTTP resource|WARNING: failed to load external entity/).length)
+            end
+          end
+        end
+
+        if Nokogiri.jruby?
+          describe "with default parse options" do
+            it "XML::Schema parsing does not attempt to access external DTDs" do
+              doc = Nokogiri::XML::Schema.new(schema)
+              assert_equal 1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+            end
+
+            it "XML::Schema parsing of memory does not attempt to access external DTDs" do
+              doc = Nokogiri::XML::Schema.read_memory(schema)
+              assert_equal 1, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+            end
+          end
+
+          describe "with NONET turned off" do
+            it "XML::Schema parsing attempts to access external DTDs" do
+              doc = Nokogiri::XML::Schema.new(schema, Nokogiri::XML::ParseOptions.new.nononet)
+              assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+            end
+
+            it "XML::Schema parsing of memory attempts to access external DTDs" do
+              doc = Nokogiri::XML::Schema.read_memory(schema, Nokogiri::XML::ParseOptions.new.nononet)
+              assert_equal 0, doc.errors.map(&:to_s).grep(/WARNING: Attempt to load network entity/).length
+            end
+          end
+        end
+      end
     end
   end
 end

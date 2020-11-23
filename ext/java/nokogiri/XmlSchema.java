@@ -51,6 +51,8 @@ import javax.xml.validation.Validator;
 import nokogiri.internals.IgnoreSchemaErrorsErrorHandler;
 import nokogiri.internals.SchemaErrorHandler;
 import nokogiri.internals.XmlDomParserContext;
+import nokogiri.internals.ParserContext;
+import nokogiri.internals.ParserContext.Options;
 
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
@@ -63,6 +65,7 @@ import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.Visibility;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.jruby.runtime.Helpers;
 import org.w3c.dom.Document;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
@@ -94,11 +97,20 @@ public class XmlSchema extends RubyObject {
         return super.clone();
     }
 
-    private Schema getSchema(Source source, String currentDir, String scriptFileName, SchemaErrorHandler error_handler) throws SAXException {
+    private Schema getSchema(Source source,
+                             String currentDir,
+                             String scriptFileName,
+                             SchemaErrorHandler errorHandler,
+                             long parseOptions) throws SAXException {
+        boolean noNet = new ParserContext.Options(parseOptions).noNet;
+
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        SchemaResourceResolver resourceResolver = new SchemaResourceResolver(currentDir, scriptFileName, null, error_handler);
+        SchemaResourceResolver resourceResolver =
+            new SchemaResourceResolver(currentDir, scriptFileName, null, errorHandler, noNet);
+
         schemaFactory.setResourceResolver(resourceResolver);
-        schemaFactory.setErrorHandler(error_handler);
+        schemaFactory.setErrorHandler(errorHandler);
+
         return schemaFactory.newSchema(source);
     }
 
@@ -113,13 +125,20 @@ public class XmlSchema extends RubyObject {
         if (parseOptions == null) {
             parseOptions = defaultParseOptions(context.getRuntime());
         }
+        long intParseOptions = RubyFixnum.fix2long(Helpers.invoke(context, parseOptions, "to_i"));
 
         xmlSchema.setInstanceVariable("@errors", runtime.newEmptyArray());
         xmlSchema.setInstanceVariable("@parse_options", parseOptions);
 
         try {
-            SchemaErrorHandler error_handler = new SchemaErrorHandler(context.getRuntime(), (RubyArray)xmlSchema.getInstanceVariable("@errors"));
-            Schema schema = xmlSchema.getSchema(source, context.getRuntime().getCurrentDirectory(), context.getRuntime().getInstanceConfig().getScriptFileName(), error_handler);
+            SchemaErrorHandler errorHandler =
+                new SchemaErrorHandler(context.getRuntime(), (RubyArray)xmlSchema.getInstanceVariable("@errors"));
+            Schema schema =
+                xmlSchema.getSchema(source,
+                                    context.getRuntime().getCurrentDirectory(),
+                                    context.getRuntime().getInstanceConfig().getScriptFileName(),
+                                    errorHandler,
+                                    intParseOptions);
             xmlSchema.setValidator(schema.newValidator());
             return xmlSchema;
         } catch (SAXException ex) {
@@ -232,13 +251,15 @@ public class XmlSchema extends RubyObject {
         SchemaLSInput lsInput = new SchemaLSInput();
         String currentDir;
         String scriptFileName;
-        SchemaErrorHandler error_handler;
+        SchemaErrorHandler errorHandler;
+        boolean noNet;
         //String defaultURI;
 
-        SchemaResourceResolver(String currentDir, String scriptFileName, Object input, SchemaErrorHandler error_handler) {
+        SchemaResourceResolver(String currentDir, String scriptFileName, Object input, SchemaErrorHandler errorHandler, boolean noNet) {
             this.currentDir = currentDir;
             this.scriptFileName = scriptFileName;
-            this.error_handler = error_handler;
+            this.errorHandler = errorHandler;
+            this.noNet = noNet;
             if (input == null) return;
             if (input instanceof String) {
                 lsInput.setStringData((String)input);
@@ -250,11 +271,25 @@ public class XmlSchema extends RubyObject {
         }
 
         @Override
-        public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId, String baseURI) {
-            String adjusted = adjustSystemIdIfNecessary(currentDir, scriptFileName, baseURI, systemId);
-            lsInput.setPublicId(publicId);
-            lsInput.setSystemId(adjusted != null? adjusted : systemId);
-            lsInput.setBaseURI(baseURI);
+        public LSInput resolveResource(String type,
+                                       String namespaceURI,
+                                       String publicId,
+                                       String systemId,
+                                       String baseURI) {
+            if (noNet && (systemId.startsWith("http://") || systemId.startsWith("ftp://"))) {
+                if (systemId.startsWith(XMLConstants.W3C_XML_SCHEMA_NS_URI)) {
+                    return null; // use default resolver
+                }
+                try {
+                    this.errorHandler.warning(new SAXParseException(String.format("Attempt to load network entity '%s'", systemId), null));
+                } catch (SAXException ex) {
+                }
+            } else {
+                String adjusted = adjustSystemIdIfNecessary(currentDir, scriptFileName, baseURI, systemId);
+                lsInput.setPublicId(publicId);
+                lsInput.setSystemId(adjusted != null? adjusted : systemId);
+                lsInput.setBaseURI(baseURI);
+            }
             return lsInput;
         }
     }
