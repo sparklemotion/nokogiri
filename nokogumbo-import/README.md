@@ -39,8 +39,8 @@ The document and fragment parsing methods,
 - `Nokogiri::HTML5::DocumentFragment.parse(html, encoding = nil, options = {})`
 support options that are different from Nokogiri's.
 
-The two currently supported options are `:max_errors` and `:max_tree_depth`,
-described below.
+The three currently supported options are `:max_errors`, `:max_tree_depth` and
+`:max_attributes`, described below.
 
 ### Error reporting
 Nokogumbo contains an experimental parse error reporting facility. By default,
