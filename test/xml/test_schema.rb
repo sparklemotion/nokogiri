@@ -8,7 +8,7 @@ module Nokogiri
       end
 
       def test_issue_1985_segv_on_schema_parse
-        skip("Pure Java version shouldn't have this bug") unless Nokogiri.uses_libxml?
+        skip("Pure Java version doesn't have this bug") unless Nokogiri.uses_libxml?
 
         # This is a test for a workaround for a bug in LibXML2.  The upstream
         # bug is here: https://gitlab.gnome.org/GNOME/libxml2/issues/148
@@ -35,6 +35,11 @@ module Nokogiri
           Nokogiri::XML::Schema.from_document(xsd_doc)
         end
         assert_match(/blank nodes/, ex.message)
+      end
+
+      def test_schema_read_memory
+        xsd = Nokogiri::XML::Schema.read_memory(File.read(PO_SCHEMA_FILE))
+        assert_instance_of Nokogiri::XML::Schema, xsd
       end
 
       def test_schema_from_document
