@@ -96,7 +96,7 @@ module Nokogiri
         end
       else
         # Otherwise the string has the given encoding.
-        string = string.to_str
+        string = string.to_s
         if encoding
           string = string.dup
           string.force_encoding(encoding)

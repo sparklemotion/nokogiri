@@ -50,6 +50,9 @@ class TestNokogumbo < Minitest::Test
   def test_nil
     doc = Nokogiri::HTML5(nil)
     assert_equal 1, doc.search('body').count
+
+    fragment = Nokogiri::HTML5::fragment(nil)
+    assert_equal 0, fragment.errors.length
   end
 
   def test_html5_doctype
