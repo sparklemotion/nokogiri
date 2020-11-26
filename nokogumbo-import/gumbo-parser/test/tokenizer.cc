@@ -4778,5 +4778,13 @@ TEST_F(GumboTokenizerTest, Data_AnythingElse) {
   NextChar(0x05D2);
 }
 
+TEST_F(GumboTokenizerTest, UTF8_BOM) {
+  SetInput("\xEF\xBB\xBF<b>");
+  Next();
+  ASSERT_EQ(GUMBO_TOKEN_START_TAG, token_.type);
+  EXPECT_EQ(GUMBO_TAG_B, token_.v.start_tag.tag);
+  AtEnd();
+}
+
 }  // namespace
 // vim: set sw=2 sts=2 ts=8 et:

@@ -70,6 +70,12 @@ class TestNokogumbo < Minitest::Test
       assert_equal [], doc.errors
       doc.errors.each { |err| puts(err) }
     end
+
+    def test_tag_after_utf8_bom
+      utf8 = "\uFEFF<b></b>".encode('UTF-8')
+      doc = Nokogiri::HTML5.fragment(utf8, max_errors: 10)
+      assert_equal [], doc.errors
+    end
   end
 
   # https://github.com/rubys/nokogumbo/issues/68

@@ -890,9 +890,9 @@ void gumbo_tokenizer_state_init (
 
   mark_tag_state_as_empty(&tokenizer->_tag_state);
 
-  tokenizer->_token_start = text;
   utf8iterator_init(parser, text, text_length, &tokenizer->_input);
   utf8iterator_get_position(&tokenizer->_input, &tokenizer->_token_start_pos);
+  tokenizer->_token_start = utf8iterator_get_char_pointer(&tokenizer->_input);
   doc_type_state_init(parser);
 }
 
