@@ -24,7 +24,7 @@ jobs:
         bundler-cache: true
         
     - name: install html5lib tests
-       run: git clone --depth 1 --branch all-error-fixes --single-branch https://github.com/stevecheckoway/html5lib-tests.git test/html5lib-tests
+      run: git clone --depth 1 --branch all-error-fixes --single-branch https://github.com/stevecheckoway/html5lib-tests.git test/html5lib-tests
 
     - name: Run tests
       run: ./scripts/ci-test.sh
