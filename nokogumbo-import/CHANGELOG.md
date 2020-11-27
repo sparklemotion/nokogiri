@@ -11,8 +11,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Deprecated
 ### Removed
 ### Fixed
-- Fixed assertion failure when a tag immediately followed the UTF-8 BOM.
 ### Security
+
+## [2.0.4] - 2020-11-27
+### Fixed
+- Fixed a bug where `Nokogiri::HTML5.fragment(nil)` would raise an error. Now
+  it returns an empty `DocumentFragment` like it did in v2.0.2.
+- Fixed assertion failure when a tag immediately followed the UTF-8 BOM.
+
 
 ## [2.0.3] - 2020-11-21
 ### Added
