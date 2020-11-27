@@ -27,6 +27,10 @@ module Nokogiri
     #   end
     #
     # The list of errors are Nokogiri::XML::SyntaxError objects.
+    #
+    # NOTE: RelaxNG input is always treated as TRUSTED documents, meaning that they will cause the
+    # underlying parsing libraries to access network resources. This is counter to Nokogiri's
+    # "untrusted by default" security policy, but is a limitation of the underlying libraries.
     class RelaxNG < Nokogiri::XML::Schema
     end
   end

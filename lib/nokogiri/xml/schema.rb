@@ -27,6 +27,12 @@ module Nokogiri
     #   end
     #
     # The list of errors are Nokogiri::XML::SyntaxError objects.
+    #
+    # NOTE: As of v1.11.0, Schema treats inputs as UNTRUSTED by default, and so external entities
+    # are not resolved from the network (`http://` or `ftp://`). Previously, parsing treated
+    # documents as "trusted" by default which was counter to Nokogiri's "untrusted by default"
+    # security policy. If a document is trusted, then the caller may turn off the NONET option via
+    # the ParseOptions to re-enable external entity resolution over a network connection.
     class Schema
       # Errors while parsing the schema file
       attr_accessor :errors
