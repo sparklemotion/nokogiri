@@ -135,7 +135,7 @@ public class XmlRelaxng extends XmlSchema {
             throw context.getRuntime()
                 .newRuntimeError("Could not parse document: "+ex.getMessage());
         } catch (IOException ex) {
-            throw context.getRuntime().newIOError(ex.getMessage());
+            throw context.getRuntime().newIOError(ex.getClass() + ": " + ex.getMessage());
         }
     }
     

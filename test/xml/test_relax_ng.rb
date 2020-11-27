@@ -52,6 +52,8 @@ module Nokogiri
       end
 
       def test_read_memory_with_parse_options
+        skip("https://github.com/sparklemotion/nokogiri/issues/2115") if Nokogiri.jruby?
+
         schema = Nokogiri::XML::RelaxNG.read_memory(File.read(ADDRESS_SCHEMA_FILE))
         assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
 
