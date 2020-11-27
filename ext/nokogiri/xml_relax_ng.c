@@ -129,6 +129,7 @@ static VALUE from_document(VALUE klass, VALUE document)
   schema = xmlRelaxNGParse(ctx);
 
   xmlSetStructuredErrorFunc(NULL, NULL);
+  xmlRelaxNGFreeParserCtxt(ctx);
 
   if(NULL == schema) {
     xmlErrorPtr error = xmlGetLastError();

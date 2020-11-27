@@ -102,8 +102,9 @@ This release ends support for:
 * The Node methods add_previous_sibling, previous=, before, add_next_sibling, next=, after, replace, and swap now correctly use their parent as the context node for parsing markup. These methods now also raise a RuntimeError if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [CRuby] On some platforms, avoid symbol name collision with glibc's `canonicalize`. [[#2105](https://github.com/sparklemotion/nokogiri/issues/2105)]
-* [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
+* [CRuby] `RelaxNG.from_document` no longer leaks memory. [[#2114](https://github.com/sparklemotion/nokogiri/issues/2114)]
 * [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
+* [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
 * [JRuby] Fixed document encoding regression in v1.11.0 release candidates. [[#2080](https://github.com/sparklemotion/nokogiri/issues/2080), [#2083](https://github.com/sparklemotion/nokogiri/issues/2083)] (Thanks, [@thbar](https://github.com/thbar)!)
 
 
