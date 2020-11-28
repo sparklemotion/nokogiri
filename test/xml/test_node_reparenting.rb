@@ -170,6 +170,87 @@ module Nokogiri
             end
           end
         end
+
+        describe "in-context parsing" do
+          specs = {
+            :add_child => :self,
+            :<< => :self,
+
+            :replace => :parent,
+            :swap => :parent,
+
+            :children= => :self,
+            :inner_html= => :self,
+
+            :add_previous_sibling => :parent,
+            :previous= => :parent,
+            :before => :parent,
+
+            :add_next_sibling => :parent,
+            :next= => :parent,
+            :after => :parent,
+          }
+
+          specs.each do |method, which|
+            describe "##{method} parsing input" do
+              let(:xml) do
+                <<~EOF
+                <root>
+                  <parent><context></context></parent>
+                </root>
+              EOF
+              end
+
+              let(:doc) { Nokogiri::XML::Document.parse(xml) }
+              let(:context_node) { doc.at_css("context") }
+
+              after do
+                GC.start
+              end
+
+              describe "with a parent" do
+                let(:expected_callee) do
+                  if which == :self
+                    context_node
+                  elsif which == :parent
+                    context_node.parent
+                  else
+                    raise("unable to discern what the test means by #{which}")
+                  end
+                end
+
+                before do
+                  class << expected_callee
+                    attr_reader :coerce_was_called
+                    def coerce(data)
+                      @coerce_was_called = true
+                      super
+                    end
+                  end
+                end
+
+                it "in context of #{which}" do
+                  context_node.__send__(method, "<child>content</child>")
+
+                  assert expected_callee.coerce_was_called, "expected coerce to be called on #{which}"
+                end
+              end
+
+              if which == :parent
+                describe "without a parent" do
+                  before { context_node.unlink }
+
+                  it "raises an exception" do
+                    ex = assert_raise(RuntimeError) do
+                      context_node.__send__(method, "<child>content</child>")
+                    end
+                    assert_match(/no parent/, ex.message)
+                  end
+                end
+              end
+            end
+          end
+        end
       end
 
       describe "ad hoc node reparenting behavior" do

@@ -453,11 +453,7 @@ module Nokogiri
 
       def test_replace_on_unparented_node
         foo = Node.new('foo', @node.document)
-        if Nokogiri.jruby? # JRuby Nokogiri doesn't raise an exception
-          @node.replace(foo)
-        else
-          assert_raises(RuntimeError){ @node.replace(foo) }
-        end
+        assert_raises(RuntimeError) { @node.replace(foo) }
       end
 
       def test_illegal_replace_of_node_with_doc

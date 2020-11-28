@@ -105,11 +105,7 @@ module Nokogiri
         node = @html.at('a')
         node.unlink
 
-        another_node = @html.at('div')
-        assert another_node, 'should have a node'
-
-        # This used to segv
-        assert node.add_previous_sibling another_node
+        assert_raises(RuntimeError) { node.add_previous_sibling @html.at('div') }
       end
 
       def test_swap
