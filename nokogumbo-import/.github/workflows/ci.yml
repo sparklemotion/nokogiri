@@ -68,3 +68,16 @@ jobs:
     - name: Test Gumbo and gem packaging
       shell: bash
       run: ./scripts/ci-package-test.sh
+
+  gentoo:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Docker pull
+      run: docker pull stevecheckoway/gentoo-ruby
+
+    - name: Test Gentoo Linux
+      shell: bash
+      run: ./scripts/gentoo-test.sh
