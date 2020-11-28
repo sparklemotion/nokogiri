@@ -30,4 +30,5 @@ jobs:
     - name: Run tests
       env:
         USE_SYSTEM_LIBRARIES: ${{ matrix.system_libraries }}
+      shell: bash
       run: ./scripts/ci-test.sh
