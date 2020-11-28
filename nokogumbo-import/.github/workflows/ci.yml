@@ -11,8 +11,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos]
+        os: [ubuntu, macos, windows]
         ruby: [2.5, 2.6, 2.7]
+        system_libraries: [true, false]
     runs-on: ${{ matrix.os }}-latest
 
     steps:
@@ -27,4 +28,6 @@ jobs:
       run: git clone --depth 1 --branch all-error-fixes --single-branch https://github.com/stevecheckoway/html5lib-tests.git test/html5lib-tests
 
     - name: Run tests
+      env:
+        USE_SYSTEM_LIBRARIES: ${{ matrix.system_libraries }}
       run: ./scripts/ci-test.sh
