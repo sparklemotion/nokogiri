@@ -45,3 +45,22 @@ jobs:
         USE_SYSTEM_LIBRARIES: ${{ matrix.system_libraries }}
       shell: bash
       run: ./scripts/ci-test.sh
+
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos]
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+        bundler-cache: true
+
+    - name: Test Gumbo and gem packaging
+      shell: bash
+      run: ./scripts/ci-package-test.sh
