@@ -141,6 +141,10 @@ module Nokogiri
         document.errors = things
       end
 
+      def fragment(data)
+        document.fragment(data)
+      end
+
       private
 
       # fix for issue 770
@@ -149,12 +153,6 @@ module Nokogiri
           prefix = namespace.prefix.nil? ? "" : ":#{namespace.prefix}"
           %Q{xmlns#{prefix}="#{namespace.href}"}
         end.join ' '
-      end
-
-      def coerce data
-        return super unless String === data
-
-        document.fragment(data).children
       end
     end
   end

@@ -1202,9 +1202,9 @@ eoxml
       def test_text_node_robustness_gh1426
         # notably, the original bug report was about libxml-ruby interactions
         # this test should blow up under valgrind if we regress on libxml-ruby workarounds
-        message = "<h2>BOOM!</h2>"
+        message = "<section><h2>BOOM!</h2></section>"
         10_000.times do
-          node = Nokogiri::HTML::DocumentFragment.parse(message)
+          node = Nokogiri::HTML::DocumentFragment.parse(message).at_css("h2")
           node.add_previous_sibling(Nokogiri::XML::Text.new('before', node.document))
           node.add_next_sibling(Nokogiri::XML::Text.new('after', node.document))
         end

@@ -4,13 +4,13 @@ VALUE cNokogiriHtmlSaxParserContext ;
 
 static void deallocate(xmlParserCtxtPtr ctxt)
 {
-  NOKOGIRI_DEBUG_START(handler);
+  NOKOGIRI_DEBUG_START(ctxt);
 
   ctxt->sax = NULL;
 
   htmlFreeParserCtxt(ctxt);
 
-  NOKOGIRI_DEBUG_END(handler);
+  NOKOGIRI_DEBUG_END(ctxt);
 }
 
 static VALUE
