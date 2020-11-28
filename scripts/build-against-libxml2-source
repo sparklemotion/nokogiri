@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+
+set -eu
+
+PREFIX="${HOME}/tmp/libxml2"
+rm -rf "${PREFIX}"
+mkdir -p "$PREFIX"
+
+pushd ../libxml2
+
+clean_p=0
+if [[ ${1:-} == "--clean" ]] ; then
+  clean_p=1
+  shift
+fi
+
+if [[ $clean_p -gt 0 ]] ; then
+  make clean || true
+
+  ./configure --prefix="${PREFIX}" --without-python --without-readline --with-c14n --with-debug --with-threads --with-iconv=yes --host=x86_64-pc-linux-gnu CFLAGS="-O2 -g"
+fi
+
+make install
+
+popd
+
+export LD_LIBRARY_PATH=${PREFIX}/lib
+export CFLAGS="-I${PREFIX}/include/libxml2"
+export LDFLAGS="-lxml2 -L${PREFIX}/lib"
+
+if [[ $clean_p -gt 0 ]] ; then
+  bundle exec rake clean
+fi
+
+NOKOGIRI_USE_SYSTEM_LIBRARIES=t bundle exec rake compile
+
+$*
