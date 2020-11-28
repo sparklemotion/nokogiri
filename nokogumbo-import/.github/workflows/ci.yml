@@ -61,6 +61,10 @@ jobs:
         ruby-version: 2.7
         bundler-cache: true
 
+    - name: Install ragel
+      if: matrix.os == 'ubuntu'
+      run: sudo apt-get install -y ragel
+
     - name: Test Gumbo and gem packaging
       shell: bash
       run: ./scripts/ci-package-test.sh
