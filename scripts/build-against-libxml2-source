@@ -28,10 +28,17 @@ export LD_LIBRARY_PATH=${PREFIX}/lib
 export CFLAGS="-I${PREFIX}/include/libxml2"
 export LDFLAGS="-lxml2 -L${PREFIX}/lib"
 
+echo export LD_LIBRARY_PATH=${PREFIX}/lib
+echo export CFLAGS="-I${PREFIX}/include/libxml2"
+echo export LDFLAGS="-lxml2 -L${PREFIX}/lib"
+
 if [[ $clean_p -gt 0 ]] ; then
   bundle exec rake clean
 fi
 
 NOKOGIRI_USE_SYSTEM_LIBRARIES=t bundle exec rake compile
 
-$*
+if [[ ${1:-} != "" ]] ; then
+  $*
+fi
+
