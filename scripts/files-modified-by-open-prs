@@ -1,0 +1,64 @@
+#! /usr/bin/env ruby
+#
+#  script to see what PRs, if any, are operating on a file that I care about.
+#  yes, this is a smell. we shouldn't have long-lived PRs, but alas here we are.
+#
+require "bundler/inline"
+
+gemfile do
+  source "https://rubygems.org/"
+  gem "git_diff"
+end
+
+require "git_diff"
+require "set"
+
+gh = `which gh 2> /dev/null`.strip
+if gh.empty?
+  puts "Please install the github CLI at https://cli.github.com/"
+  exit 1
+end
+
+def get command
+  puts "> #{command}"
+  output = `#{command}`
+  output
+end
+
+def get_paths_from_a_diff(diff)
+  re = /^(?:---|\+\+\+) [ab]\/(.*)$/
+  diff.split("\n").grep(re).map {|line| line.sub(re, '\1') }.uniq
+end
+
+prs = get("gh pr list").split("\n")
+
+paths_to_prs = Hash.new { |h,k| h[k] = Set.new }
+
+prs.each do |pr|
+  pr_number = pr.split(/\s+/).first
+
+  diff = get("gh pr diff #{pr_number}")
+  diff_data = GitDiff::from_string(diff)
+
+  relevant_files = diff_data.files.map(&:b_path)
+
+  if relevant_files.length > 0
+    puts "PR #{pr_number}:"
+    relevant_files.sort.each do |file|
+      puts "- #{file}"
+    end
+  end
+
+  relevant_files.each do |file|
+    paths_to_prs[file].add(pr_number)
+  end
+end
+
+puts "\n---"
+
+paths_to_prs.keys.sort.each do |key|
+  puts "#{key}:"
+  paths_to_prs[key].entries.sort.each do |value|
+    puts "- #{value}"
+  end
+end
