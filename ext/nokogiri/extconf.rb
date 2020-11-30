@@ -197,6 +197,10 @@ def ensure_package_configuration(opt: nil, pc: nil, lib:, func:, headers:)
     abort_could_not_find_library(lib)
 end
 
+def ensure_func(func, headers=nil)
+  have_func(func, headers) or abort_could_not_find_library(lib)
+end
+
 def preserving_globals
   values = [$arg_config, $INCFLAGS, $CFLAGS, $CPPFLAGS, $LDFLAGS, $DLDFLAGS, $LIBPATH, $libs].map(&:dup)
   yield
@@ -742,12 +746,12 @@ else
     end.shelljoin
   end
 
-  ensure_package_configuration(lib: "xml2", headers: "libxml/parser.h", func: "xmlParseDoc")
-  ensure_package_configuration(lib: "xslt", headers: "libxslt/xslt.h", func: "xsltParseStylesheetDoc")
-  ensure_package_configuration(lib: "exslt", headers: "libexslt/exslt.h", func: "exsltFuncRegister")
+  ensure_func("xmlParseDoc", "libxml/parser.h")
+  ensure_func("xsltParseStylesheetDoc", "libxslt/xslt.h")
+  ensure_func("exsltFuncRegister", "libexslt/exslt.h")
 end
 
-have_func('xmlHasFeature') or abort "xmlHasFeature() is missing." # introduced in libxml 2.6.21
+have_func('xmlHasFeature') or abort("xmlHasFeature() is missing.") # introduced in libxml 2.6.21
 have_func('xmlFirstElementChild') # introduced in libxml 2.7.3
 have_func('xmlRelaxNGSetParserStructuredErrors') # introduced in libxml 2.6.24
 have_func('xmlRelaxNGSetValidStructuredErrors') # introduced in libxml 2.6.21
