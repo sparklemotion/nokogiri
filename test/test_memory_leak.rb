@@ -199,6 +199,23 @@ EOF
         puts MemInfo.rss if (i % 1000 == 0)
       end
     end
+
+    describe "#2114 RelaxNG schema parsing has a small memory leak" do
+      it "no longer leaks" do
+        prev_rss = MemInfo.rss
+        100_001.times do |j|
+          Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)))
+          if (j % 10_000 == 0)
+            curr_rss = MemInfo.rss
+            diff_rss = curr_rss - prev_rss
+            printf("\n(iter %d) %d", j, curr_rss)
+            printf(" (%s%d)", diff_rss >= 0 ? "+" : "-", diff_rss) if j > 0
+            prev_rss = curr_rss
+          end
+        end
+        puts
+      end
+    end
   end # if NOKOGIRI_GC
 
   module MemInfo
