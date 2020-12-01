@@ -766,8 +766,8 @@ if enable_config('clean', true)
   # Do not clean if run in a development work tree.
   File.open('Makefile', 'at') do |mk|
     mk.print <<~EOF
-      all: clean-ports
 
+      all: clean-ports
       clean-ports: $(DLLIB)
       \t-$(Q)$(RUBY) $(srcdir)/extconf.rb --clean --#{static_p ? 'enable' : 'disable'}-static
     EOF
