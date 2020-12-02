@@ -240,12 +240,10 @@ namespace "gem" do
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform (host)"
     task plat do
-      # TODO remove `find` after https://github.com/rake-compiler/rake-compiler/pull/171 is shipped
       RakeCompilerDock.sh <<~EOT, platform: plat
         gem install bundler --no-document &&
         bundle &&
-        find /usr/local/rvm/gems -name extensiontask.rb | while read f ; do sudo sed -i 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' $f ; done &&
-        rake gem:#{plat}:guest MAKE='nice make -j`nproc`'
+        rake gem:#{plat}:guest MAKE='nice make -j`nproc`' FORCE_CROSS_COMPILING=true
       EOT
     end
 
@@ -267,7 +265,6 @@ namespace "gem" do
   CROSS_RUBIES.find_all { |cr| cr.darwin? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform"
     task plat do
-      sh "find ~/.gem -name extensiontask.rb | while read f ; do sed -i '' 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' \$f ; done"
       Rake::Task["native:#{plat}"].invoke
       Rake::Task["pkg/#{HOE.spec.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
     end
@@ -328,6 +325,7 @@ else
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
+    ext.no_native = (ENV["FORCE_CROSS_COMPILING"] == "true")
     ext.cross_compile  = true
     ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
     ext.cross_config_options << "--enable-cross-build"
