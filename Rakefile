@@ -7,8 +7,11 @@ Hoe.plugin :git
 Hoe.plugin :markdown
 
 require_relative "rakelib/util"
+require_relative "lib/nokogiri/version/constant"
 
 HOE = Hoe.spec "nokogiri" do |hoe|
+  hoe.version = Nokogiri::VERSION
+
   hoe.author = [
     "Mike Dalessio",
     "Aaron Patterson",

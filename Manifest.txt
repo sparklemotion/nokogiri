@@ -188,6 +188,8 @@ lib/nokogiri/html/sax/push_parser.rb
 lib/nokogiri/jruby/dependencies.rb
 lib/nokogiri/syntax_error.rb
 lib/nokogiri/version.rb
+lib/nokogiri/version/constant.rb
+lib/nokogiri/version/info.rb
 lib/nokogiri/xml.rb
 lib/nokogiri/xml/attr.rb
 lib/nokogiri/xml/attribute_decl.rb
