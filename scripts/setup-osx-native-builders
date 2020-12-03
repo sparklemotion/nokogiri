@@ -32,6 +32,10 @@ for ruby in $RUBIES ; do
   ruby_fullname="native-builder-${ruby}"
   ruby_minor="${ruby}.0"
 
+  if [[ $ruby == "3.0" ]] ; then
+    ruby="3.0.0-preview1"
+  fi
+
   rbconfig=$(echo ${RUBIES_DIR}/${ruby_fullname}/lib/ruby/${ruby_minor}/*/rbconfig.rb)
   if [[ ! -e $rbconfig ]] ; then
     echo "installing $ruby_fullname ..."
