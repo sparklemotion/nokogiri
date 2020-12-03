@@ -41,18 +41,16 @@ gem "nokogiri", "~> 1.11.0.rc3"`
 
 ### Notes
 
-#### Experiment: Pre-Compiled Native Gems for Linux and OSX/Darwin
+#### Faster installation: Native Gems for Linux and OSX/Darwin
 
-With the v1.11.0 release candidates, we are experimenting with shipping **pre-compiled native gems** for these platforms:
+Nokogiri has shipped pre-compiled native gems for Windows since 2009. Starting in the v1.11.0 release candidates, we are also shipping native gems for these platforms:
 
 - Linux: `x86-linux` and `x86_64-linux` including musl platforms like alpine
-- OSX/Darwin: `x86_64-darwin19`
+- OSX/Darwin: `x86_64-darwin`
 
-If this works properly for you, it will speed up installation time on Linux.
+On supported platform, this greatly speeds up installation time.
 
-If this doesn't work for you, please drop us a note at [#2075](https://github.com/sparklemotion/nokogiri/issues/2075), we may reach out to you for more information on your distro and configuration.
-
-Either way, we'd appreciate your thoughts and feedback at [#2075](https://github.com/sparklemotion/nokogiri/issues/2075).
+We'd appreciate your thoughts and feedback on this work at [#2075](https://github.com/sparklemotion/nokogiri/issues/2075).
 
 
 ### Dependencies
