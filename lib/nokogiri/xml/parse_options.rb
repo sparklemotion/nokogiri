@@ -73,6 +73,8 @@ module Nokogiri
       DEFAULT_XML  = RECOVER | NONET
       # the default options used for parsing HTML documents
       DEFAULT_HTML = RECOVER | NOERROR | NOWARNING | NONET
+      # the default options used for parsing XML schemas
+      DEFAULT_SCHEMA = NONET
 
       attr_accessor :options
       def initialize options = STRICT
@@ -105,6 +107,10 @@ module Nokogiri
 
       def strict?
         @options & RECOVER == STRICT
+      end
+
+      def ==(other)
+        other.to_i == to_i
       end
 
       alias :to_i :options

@@ -5,8 +5,8 @@ module Nokogiri
       ###
       # Create a new Nokogiri::XML::Schema object using a +string_or_io+
       # object.
-      def Schema string_or_io
-        Schema.new(string_or_io)
+      def Schema(string_or_io, options = ParseOptions::DEFAULT_SCHEMA)
+        Schema.new(string_or_io, options)
       end
     end
 
@@ -27,15 +27,23 @@ module Nokogiri
     #   end
     #
     # The list of errors are Nokogiri::XML::SyntaxError objects.
+    #
+    # NOTE: As of v1.11.0, Schema treats inputs as UNTRUSTED by default, and so external entities
+    # are not resolved from the network (`http://` or `ftp://`). Previously, parsing treated
+    # documents as "trusted" by default which was counter to Nokogiri's "untrusted by default"
+    # security policy. If a document is trusted, then the caller may turn off the NONET option via
+    # the ParseOptions to re-enable external entity resolution over a network connection.
     class Schema
       # Errors while parsing the schema file
       attr_accessor :errors
+      # The Nokogiri::XML::ParseOptions used to parse the schema
+      attr_accessor :parse_options
 
       ###
       # Create a new Nokogiri::XML::Schema object using a +string_or_io+
       # object.
-      def self.new string_or_io
-        from_document Nokogiri::XML(string_or_io)
+      def self.new string_or_io, options = ParseOptions::DEFAULT_SCHEMA
+        from_document(Nokogiri::XML(string_or_io), options)
       end
 
       ###

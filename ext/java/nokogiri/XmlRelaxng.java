@@ -56,6 +56,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.anno.JRubyClass;
 import org.jruby.runtime.ThreadContext;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -78,11 +79,17 @@ public class XmlRelaxng extends XmlSchema {
         this.verifier = verifier;
     }
     
-    static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source) {
+    static XmlSchema createSchemaInstance(ThreadContext context, RubyClass klazz, Source source, IRubyObject parseOptions) {
         Ruby runtime = context.getRuntime();
         XmlRelaxng xmlRelaxng = (XmlRelaxng) NokogiriService.XML_RELAXNG_ALLOCATOR.allocate(runtime, klazz);
+
+        if (parseOptions == null) {
+            parseOptions = defaultParseOptions(context.getRuntime());
+        }
+
         xmlRelaxng.setInstanceVariable("@errors", runtime.newEmptyArray());
-        
+        xmlRelaxng.setInstanceVariable("@parse_options", parseOptions);
+
         try {
             Schema schema = xmlRelaxng.getSchema(source, context);
             xmlRelaxng.setVerifier(schema.newVerifier());
@@ -128,7 +135,7 @@ public class XmlRelaxng extends XmlSchema {
             throw context.getRuntime()
                 .newRuntimeError("Could not parse document: "+ex.getMessage());
         } catch (IOException ex) {
-            throw context.getRuntime().newIOError(ex.getMessage());
+            throw context.getRuntime().newIOError(ex.getClass() + ": " + ex.getMessage());
         }
     }
     

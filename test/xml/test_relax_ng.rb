@@ -26,6 +26,42 @@ module Nokogiri
         assert_equal 0, xsd.errors.length
       end
 
+      def test_constructor_method_with_parse_options
+        schema = Nokogiri::XML::RelaxNG(File.read(ADDRESS_SCHEMA_FILE))
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
+
+        schema = Nokogiri::XML::RelaxNG(File.read(ADDRESS_SCHEMA_FILE), Nokogiri::XML::ParseOptions.new.recover)
+        assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
+      end
+
+      def test_new_with_parse_options
+        schema = Nokogiri::XML::RelaxNG.new(File.read(ADDRESS_SCHEMA_FILE))
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
+
+        schema = Nokogiri::XML::RelaxNG.new(File.read(ADDRESS_SCHEMA_FILE), Nokogiri::XML::ParseOptions.new.recover)
+        assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
+      end
+
+      def test_from_document_with_parse_options
+        schema = Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)))
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
+
+        schema = Nokogiri::XML::RelaxNG.from_document(Nokogiri::XML::Document.parse(File.read(ADDRESS_SCHEMA_FILE)),
+                                                      Nokogiri::XML::ParseOptions.new.recover)
+        assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
+      end
+
+      def test_read_memory_with_parse_options
+        skip("https://github.com/sparklemotion/nokogiri/issues/2115") if Nokogiri.jruby?
+
+        schema = Nokogiri::XML::RelaxNG.read_memory(File.read(ADDRESS_SCHEMA_FILE))
+        assert_equal Nokogiri::XML::ParseOptions::DEFAULT_SCHEMA, schema.parse_options
+
+        schema = Nokogiri::XML::RelaxNG.read_memory(File.read(ADDRESS_SCHEMA_FILE),
+                                                    Nokogiri::XML::ParseOptions.new.recover)
+        assert_equal Nokogiri::XML::ParseOptions.new.recover, schema.parse_options
+      end
+
       def test_parse_with_errors
         xml = File.read(ADDRESS_SCHEMA_FILE).sub(/name="/, 'name=')
         assert_raises(Nokogiri::XML::SyntaxError) {

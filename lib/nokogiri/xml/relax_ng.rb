@@ -5,8 +5,8 @@ module Nokogiri
       ###
       # Create a new Nokogiri::XML::RelaxNG document from +string_or_io+.
       # See Nokogiri::XML::RelaxNG for an example.
-      def RelaxNG string_or_io
-        RelaxNG.new(string_or_io)
+      def RelaxNG(string_or_io, options = ParseOptions::DEFAULT_SCHEMA)
+        RelaxNG.new(string_or_io, options)
       end
     end
 
@@ -27,6 +27,10 @@ module Nokogiri
     #   end
     #
     # The list of errors are Nokogiri::XML::SyntaxError objects.
+    #
+    # NOTE: RelaxNG input is always treated as TRUSTED documents, meaning that they will cause the
+    # underlying parsing libraries to access network resources. This is counter to Nokogiri's
+    # "untrusted by default" security policy, but is a limitation of the underlying libraries.
     class RelaxNG < Nokogiri::XML::Schema
     end
   end

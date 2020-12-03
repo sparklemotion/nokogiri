@@ -94,6 +94,7 @@ This release ends support for:
 * [CRuby] Packaged libxml2 follows WHATWG guidance for incorrectly-closed HTML comments. [[#2058](https://github.com/sparklemotion/nokogiri/issues/2058)] (Thanks to HackerOne user [mayflower](https://hackerone.com/mayflower?type=user) for reporting this!)
 * [JRuby] Lots of code cleanup and performance improvements. [[#1934](https://github.com/sparklemotion/nokogiri/issues/1934)] (Thanks, [@kares](https://github.com/kares)!)
 * [JRuby] Clean up deprecated calls into JRuby. [[#2027](https://github.com/sparklemotion/nokogiri/issues/2027)] (Thanks, [@headius](https://github.com/headius)!)
+* [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
 
 
 ### Fixed
@@ -115,6 +116,31 @@ This release ends support for:
 
 
 ### Changed
+
+#### `XML::Schema` parsing treats input as "untrusted" by default
+
+Address [CVE-2020-26247](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m).
+
+Previously, `Nokogiri::XML::Schema` construction would _by default_ resolve resources that required network access. This did not follow the security policy of Nokogiri as described at [nokogiri.org](https://nokogiri.org/tutorials/parsing_an_html_xml_document.html):
+
+> Notably, Nokogiri will treat input as untrusted documents by default, thereby avoiding a class of
+> vulnerabilities known as XXE or "XML eXternal Entity" processing. What this means is that Nokogiri
+> won't attempt to load external DTDs or access the network for any external resources.
+
+(This is the default behavior of both libxml2 and xerces, which Nokogiri was not overriding.)
+
+Now, by default, `XML::Schema` parsing behaves as if the `NONET` parse option is set by default, and will register a warning in `XML::Schema#errors` telling you if it's skipping resource resolution.
+
+If you trust the document, you can tell Nokogiri to access network resource by passing an optional `Nokogiri::XML::ParseOptions` argument turning `NONET` off explicitly:
+
+``` ruby
+schema = Nokogiri::XML::Schema.new(contents, Nokogiri::XML::ParseOptions.new.nononet)
+# or
+schema = Nokogiri::XML::Schema.new(contents) { |config| config.nononet }
+```
+
+__NOTE__: `XML::RelaxNG` parsing always considers the schema to be a "trusted" document, because the underlying parsing libraries need to access external references as core RNG functionality, and do not provide NONET functionality. Please do not parse RelaxNG schema documents that you do not trust.
+
 
 #### `VersionInfo` and the output of `nokogiri -v`
 
