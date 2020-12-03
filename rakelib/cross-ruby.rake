@@ -237,37 +237,49 @@ CROSS_RUBIES.each do |cross_ruby|
 end
 
 namespace "gem" do
+  def gem_builder(plat)
+    # use Task#invoke because the pkg/*gem task is defined at runtime
+    Rake::Task["native:#{plat}"].invoke
+    Rake::Task["pkg/#{HOE.spec.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
+  end
+
   CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? }.map(&:platform).uniq.each do |plat|
-    desc "build native gem for #{plat} platform (host)"
+    desc "build native gem for #{plat} platform"
     task plat do
       RakeCompilerDock.sh <<~EOT, platform: plat
         gem install bundler --no-document &&
         bundle &&
-        rake gem:#{plat}:guest MAKE='nice make -j`nproc`' FORCE_CROSS_COMPILING=true
+        rake gem:#{plat}:builder MAKE='nice make -j`nproc`' FORCE_CROSS_COMPILING=true
       EOT
     end
 
     namespace plat do
-      desc "build native gem for #{plat} platform (guest)"
-      task "guest" do
-        # use Task#invoke because the pkg/*gem task is defined at runtime
-        Rake::Task["native:#{plat}"].invoke
-        Rake::Task["pkg/#{HOE.spec.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
+      desc "build native gem for #{plat} platform (guest container)"
+      task "builder" do
+        gem_builder(plat)
       end
+      task "guest" => "builder" # TODO: remove me after this code is on master, temporary backwards compat for CI
+    end
+  end
+
+  CROSS_RUBIES.find_all { |cr| cr.darwin? }.map(&:platform).uniq.each do |plat|
+    desc "build native gem for #{plat} platform"
+    task plat do
+      sh "rake gem:#{plat}:builder MAKE='nice make -j`nproc`' FORCE_CROSS_COMPILING=true"
+    end
+
+    namespace plat do
+      desc "build native gem for #{plat} platform (child process)"
+      task "builder" do
+        gem_builder(plat)
+      end
+      task "guest" => "builder" # TODO: remove me after this code is on master, temporary backwards compat for CI
     end
   end
 
   desc "build a jruby gem"
   task "jruby" do
     RakeCompilerDock.sh "gem install bundler --no-document && bundle && rake java gem", rubyvm: "jruby"
-  end
-
-  CROSS_RUBIES.find_all { |cr| cr.darwin? }.map(&:platform).uniq.each do |plat|
-    desc "build native gem for #{plat} platform"
-    task plat do
-      Rake::Task["native:#{plat}"].invoke
-      Rake::Task["pkg/#{HOE.spec.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
-    end
   end
 
   desc "build native gems for windows"

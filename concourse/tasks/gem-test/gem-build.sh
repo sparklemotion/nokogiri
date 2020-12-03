@@ -25,7 +25,7 @@ bundle install --local || bundle install
 bundle exec rake set-version-to-timestamp
 
 if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
-  bundle exec rake gem:x86_64-linux:guest FORCE_CROSS_COMPILING=true
+  bundle exec rake gem:x86_64-linux:builder FORCE_CROSS_COMPILING=true
 else
   # TODO we're only compiling so that we retrieve libxml2/libxslt
   # tarballs, we can do better a couple of different ways
