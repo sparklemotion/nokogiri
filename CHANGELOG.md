@@ -75,6 +75,11 @@ This release ends support for:
 * [MRI] Upgrade mini_portile2 dependency from `~> 2.4.0` to `~> 2.5.0` [[#2005](https://github.com/sparklemotion/nokogiri/issues/2005)] (Thanks, [@alejandroperea](https://github.com/alejandroperea)!)
 
 
+### Security
+
+See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::Schema parsing treats input as untrusted by default".
+
+
 ### Added
 
 * Add Node methods for manipulating keyword attributes (like `class` and `rel`): `#kwattr_values`, `#kwattr_add`, `#kwattr_append`, and `#kwattr_remove`. [[#2000](https://github.com/sparklemotion/nokogiri/issues/2000)]
@@ -121,25 +126,13 @@ This release ends support for:
 
 Address [CVE-2020-26247](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m).
 
-Previously, `Nokogiri::XML::Schema` construction would _by default_ resolve resources that required network access. This did not follow the security policy of Nokogiri as described at [nokogiri.org](https://nokogiri.org/tutorials/parsing_an_html_xml_document.html):
+In Nokogiri versions <= 1.11.0.rc3, XML Schemas parsed by `Nokogiri::XML::Schema` are **trusted** by default, allowing external resources to be accessed over the network, potentially enabling XXE or SSRF attacks.
 
-> Notably, Nokogiri will treat input as untrusted documents by default, thereby avoiding a class of
-> vulnerabilities known as XXE or "XML eXternal Entity" processing. What this means is that Nokogiri
-> won't attempt to load external DTDs or access the network for any external resources.
+This behavior is counter to the security policy followed by Nokogiri maintainers, which is to treat all input as **untrusted** by default whenever possible.
 
-(This is the default behavior of both libxml2 and xerces, which Nokogiri was not overriding.)
+Please note that this security fix was pushed into a new minor version, 1.11.x, rather than a patch release to the 1.10.x branch, because it is a breaking change for some schemas and the risk was assessed to be "Low Severity".
 
-Now, by default, `XML::Schema` parsing behaves as if the `NONET` parse option is set by default, and will register a warning in `XML::Schema#errors` telling you if it's skipping resource resolution.
-
-If you trust the document, you can tell Nokogiri to access network resource by passing an optional `Nokogiri::XML::ParseOptions` argument turning `NONET` off explicitly:
-
-``` ruby
-schema = Nokogiri::XML::Schema.new(contents, Nokogiri::XML::ParseOptions.new.nononet)
-# or
-schema = Nokogiri::XML::Schema.new(contents) { |config| config.nononet }
-```
-
-__NOTE__: `XML::RelaxNG` parsing always considers the schema to be a "trusted" document, because the underlying parsing libraries need to access external references as core RNG functionality, and do not provide NONET functionality. Please do not parse RelaxNG schema documents that you do not trust.
+More information and instructions for enabling "trusted input" behavior in v1.11.0.rc4 and later is available at the [public advisory](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m).
 
 
 #### `VersionInfo` and the output of `nokogiri -v`
