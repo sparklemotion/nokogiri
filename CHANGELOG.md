@@ -59,7 +59,8 @@ We'd appreciate your thoughts and feedback on this work at [#2075](https://githu
 
 This release introduces support for:
 
-* Ruby 2.7, including the precompiled native binary gems for Windows.
+* Ruby 2.7, including the precompiled native gems
+* Ruby 3.0, including the precompiled native gems
 
 This release ends support for:
 
