@@ -25,13 +25,7 @@ bundle install --local || bundle install
 bundle exec rake set-version-to-timestamp
 
 if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
-  # TODO remove after https://github.com/rake-compiler/rake-compiler/pull/171 is shipped
-  find /usr/local/rvm/gems -name extensiontask.rb | while read f ; do
-    echo "rewriting $f"
-    sudo sed -i 's/callback.call(spec) if callback/@cross_compiling.call(spec) if @cross_compiling/' $f
-  done
-
-  bundle exec rake gem:x86_64-linux:guest
+  bundle exec rake gem:x86_64-linux:builder FORCE_CROSS_COMPILING=true
 else
   # TODO we're only compiling so that we retrieve libxml2/libxslt
   # tarballs, we can do better a couple of different ways
