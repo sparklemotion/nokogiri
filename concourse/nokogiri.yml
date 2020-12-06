@@ -51,6 +51,19 @@ jobs:
             TEST_WITH_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+      - task: rake-test-32bit
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/nokogiri-test", tag: bionic32}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          params:
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
 
 
   <% RUBIES[:mri].each do |ruby_version| %>
@@ -307,7 +320,7 @@ jobs:
           outputs:
             - name: gems
           params:
-            BUILD_NATIVE_GEM: t
+            BUILD_NATIVE_GEM: "x86_64-linux"
           run:
             path: ci/concourse/tasks/gem-test/gem-build.sh
       - in_parallel:
@@ -332,6 +345,60 @@ jobs:
             image_resource:
               type: registry-image
               source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            inputs:
+              - name: ci
+              - name: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+
+
+  - name: cruby-native-gem-test-32bit
+    public: true
+    on_failure: *notify_failure_to_irc
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        version: every
+        passed:
+          <% RUBIES[:mri].each do |ruby_version| %>
+          - cruby-<%= ruby_version %>
+          <% end %>
+      - task: build
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "flavorjones/rake-compiler-dock-mri-x86-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
+          inputs:
+            - name: ci
+            - name: nokogiri
+          outputs:
+            - name: gems
+          params:
+            BUILD_NATIVE_GEM: "x86-linux"
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build.sh
+      - in_parallel:
+        - task: install-and-test-on-vanilla-ubuntu-32bit
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "bionic32"}
+            inputs:
+              - name: ci
+              - name: nokogiri
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        - task: install-and-test-on-musl-32bit
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source: {repository: "flavorjones/nokogiri-test", tag: "alpine32"}
             inputs:
               - name: ci
               - name: nokogiri

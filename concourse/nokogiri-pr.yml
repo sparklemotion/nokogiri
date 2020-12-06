@@ -151,6 +151,14 @@ jobs:
             TEST_WITH_SYSTEM_LIBRARIES: t
           run:
             path: ci/concourse/tasks/rake-test/run.sh
+      - task: rake-test-32bit
+        config:
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic32"))
+          inputs: #@ task_inputs()
+          params:
+            TEST_WITH_SYSTEM_LIBRARIES: t
+          run:
+            path: ci/concourse/tasks/rake-test/run.sh
 
 
 #@ for ruby_version in all_cruby_versions:
@@ -345,7 +353,7 @@ jobs:
           outputs:
             - name: gems
           params:
-            BUILD_NATIVE_GEM: t
+            BUILD_NATIVE_GEM: "x86_64-linux"
           run:
             path: ci/concourse/tasks/gem-test/gem-build.sh
       - in_parallel:
@@ -363,6 +371,46 @@ jobs:
         - task: install-and-test-on-musl
           config:
             "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
+            inputs:
+              - #@ template.replace(task_inputs())
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+
+
+#@ job_name = "cruby-native-gem-test-32bit"
+  - name: #@ job_name
+    public: true
+    _: #@ template.replace(put_to_pr_on_everything("nokogiri-pr", job_name))
+    plan:
+      - get: ci
+      - get: nokogiri-pr
+        trigger: true
+        version: every
+        passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
+      - #@ pend_pr("nokogiri-pr", job_name)
+      - task: build
+        config:
+          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          inputs: #@ task_inputs()
+          outputs:
+            - name: gems
+          params:
+            BUILD_NATIVE_GEM: "x86-linux"
+          run:
+            path: ci/concourse/tasks/gem-test/gem-build.sh
+      - in_parallel:
+        - task: install-and-test-on-vanilla-ubuntu-32bit
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic32"))
+            inputs:
+              - #@ template.replace(task_inputs())
+              - name: gems
+            run:
+              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+        - task: install-and-test-on-musl-32bit
+          config:
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine32"))
             inputs:
               - #@ template.replace(task_inputs())
               - name: gems
