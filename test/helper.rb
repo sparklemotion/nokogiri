@@ -118,7 +118,7 @@ module Nokogiri
     end
 
     def i_am_in_a_systemd_container
-      File.exist?("/proc/self/cgroup") && File.read("/proc/self/cgroup") =~ %r(/docker/)
+      File.exist?("/proc/self/cgroup") && File.read("/proc/self/cgroup") =~ %r(/docker/|/garden/)
     end
   end
 
