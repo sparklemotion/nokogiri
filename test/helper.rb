@@ -112,6 +112,14 @@ module Nokogiri
         "Expected #{mu_pp(recv)}.#{msg}(*#{mu_pp(args)}) to return false" }
       assert !recv.__send__(msg, *args), m
     end unless method_defined?(:assert_not_send)
+
+    def i_am_ruby_matching(gem_version_requirement_string)
+      Gem::Requirement.new(gem_version_requirement_string).satisfied_by?(Gem::Version.new(RUBY_VERSION))
+    end
+
+    def i_am_in_a_systemd_container
+      File.exist?("/proc/self/cgroup") && File.read("/proc/self/cgroup") =~ %r(/docker/)
+    end
   end
 
   module SAX
