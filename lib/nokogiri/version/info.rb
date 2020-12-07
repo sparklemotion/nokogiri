@@ -6,49 +6,49 @@ module Nokogiri
     include Singleton
 
     def jruby?
-      ::JRUBY_VERSION if RUBY_PLATFORM == "java"
+      ::JRUBY_VERSION if ::RUBY_PLATFORM == "java"
     end
 
     def engine
-      defined?(RUBY_ENGINE) ? RUBY_ENGINE : "mri"
+      defined?(::RUBY_ENGINE) ? ::RUBY_ENGINE : "mri"
     end
 
     def loaded_libxml_version
-      Gem::Version.new(LIBXML_LOADED_VERSION
+      Gem::Version.new(Nokogiri::LIBXML_LOADED_VERSION
         .scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first
         .collect(&:to_i)
         .join("."))
     end
 
     def compiled_libxml_version
-      Gem::Version.new(LIBXML_COMPILED_VERSION)
+      Gem::Version.new(Nokogiri::LIBXML_COMPILED_VERSION)
     end
 
     def loaded_libxslt_version
-      Gem::Version.new(LIBXSLT_LOADED_VERSION
+      Gem::Version.new(Nokogiri::LIBXSLT_LOADED_VERSION
         .scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first
         .collect(&:to_i)
         .join("."))
     end
 
     def compiled_libxslt_version
-      Gem::Version.new(LIBXSLT_COMPILED_VERSION)
+      Gem::Version.new(Nokogiri::LIBXSLT_COMPILED_VERSION)
     end
 
     def libxml2?
-      defined?(LIBXML_COMPILED_VERSION)
+      defined?(Nokogiri::LIBXML_COMPILED_VERSION)
     end
 
     def libxml2_has_iconv?
-      defined?(LIBXML_ICONV_ENABLED) && LIBXML_ICONV_ENABLED
-    end
-
-    def libxml2_using_system?
-      !libxml2_using_packaged?
+      defined?(Nokogiri::LIBXML_ICONV_ENABLED) && Nokogiri::LIBXML_ICONV_ENABLED
     end
 
     def libxml2_using_packaged?
-      NOKOGIRI_USE_PACKAGED_LIBRARIES
+      libxml2? && Nokogiri::PACKAGED_LIBRARIES
+    end
+
+    def libxml2_using_system?
+      libxml2? && !libxml2_using_packaged?
     end
 
     def warnings
@@ -142,7 +142,7 @@ module Nokogiri
     require "nokogiri/jruby/dependencies"
   end
   begin
-    RUBY_VERSION =~ /(\d+\.\d+)/
+    ::RUBY_VERSION =~ /(\d+\.\d+)/
     require "nokogiri/#{Regexp.last_match(1)}/nokogiri"
   rescue LoadError
     require "nokogiri/nokogiri"
