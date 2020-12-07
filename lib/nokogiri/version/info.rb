@@ -51,6 +51,10 @@ module Nokogiri
       libxml2? && !libxml2_using_packaged?
     end
 
+    def libxml2_precompiled?
+      libxml2_using_packaged? && Nokogiri::PRECOMPILED_LIBRARIES
+    end
+
     def warnings
       warnings = []
 
@@ -84,19 +88,21 @@ module Nokogiri
           vi["libxml"] = {}.tap do |libxml|
             if libxml2_using_packaged?
               libxml["source"] = "packaged"
-              libxml["patches"] = NOKOGIRI_LIBXML2_PATCHES
+              libxml["precompiled"] = libxml2_precompiled?
+              libxml["patches"] = Nokogiri::LIBXML2_PATCHES
             else
               libxml["source"] = "system"
             end
+            libxml["iconv_enabled"] = libxml2_has_iconv?
             libxml["compiled"] = compiled_libxml_version.to_s
             libxml["loaded"] = loaded_libxml_version.to_s
-            libxml["iconv_enabled"] = libxml2_has_iconv?
           end
 
           vi["libxslt"] = {}.tap do |libxslt|
             if libxml2_using_packaged?
               libxslt["source"] = "packaged"
-              libxslt["patches"] = NOKOGIRI_LIBXSLT_PATCHES
+              libxslt["precompiled"] = libxml2_precompiled?
+              libxslt["patches"] = Nokogiri::LIBXSLT_PATCHES
             else
               libxslt["source"] = "system"
             end

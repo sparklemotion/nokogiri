@@ -34,9 +34,12 @@ module TestVersionInfoTests
     if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
       assert_equal("packaged", version_info["libxml"]["source"])
       assert(version_info["libxml"]["patches"])
+      assert_equal(Nokogiri::VersionInfo.instance.libxml2_precompiled?, version_info["libxml"]["precompiled"])
     end
     if Nokogiri::VersionInfo.instance.libxml2_using_system?
       assert_equal("system", version_info["libxml"]["source"])
+      refute(version_info["libxml"].key?("precompiled"))
+      refute(version_info["libxml"].key?("patches"))
     end
 
     assert_equal(Nokogiri::LIBXML_COMPILED_VERSION, version_info["libxml"]["compiled"])
@@ -58,9 +61,12 @@ module TestVersionInfoTests
     if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
       assert_equal("packaged", version_info["libxslt"]["source"])
       assert(version_info["libxslt"]["patches"])
+      assert_equal(Nokogiri::VersionInfo.instance.libxml2_precompiled?, version_info["libxslt"]["precompiled"])
     end
     if Nokogiri::VersionInfo.instance.libxml2_using_system?
       assert_equal("system", version_info["libxslt"]["source"])
+      refute(version_info["libxslt"].key?("precompiled"))
+      refute(version_info["libxslt"].key?("patches"))
     end
 
     assert_equal(Nokogiri::LIBXSLT_COMPILED_VERSION, version_info["libxslt"]["compiled"])

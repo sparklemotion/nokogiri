@@ -72,15 +72,20 @@ void Init_nokogiri()
   rb_const_set(mNokogiri, rb_intern("LIBXSLT_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION));
   rb_const_set(mNokogiri, rb_intern("LIBXSLT_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xsltEngineVersion));
 
-
-#ifdef NOKOGIRI_USE_PACKAGED_LIBRARIES
-  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PACKAGED_LIBRARIES"), Qtrue);
-  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXML2_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXML2_PATCHES), " "));
-  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXSLT_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXSLT_PATCHES), " "));
+#ifdef NOKOGIRI_PACKAGED_LIBRARIES
+  rb_const_set(mNokogiri, rb_intern("PACKAGED_LIBRARIES"), Qtrue);
+#ifdef NOKOGIRI_PRECOMPILED_LIBRARIES
+  rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qtrue);
 #else
-  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PACKAGED_LIBRARIES"), Qfalse);
-  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXML2_PATCHES"), Qnil);
-  rb_const_set(mNokogiri, rb_intern("NOKOGIRI_LIBXSLT_PATCHES"), Qnil);
+  rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qfalse);
+#endif
+  rb_const_set(mNokogiri, rb_intern("LIBXML2_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXML2_PATCHES), " "));
+  rb_const_set(mNokogiri, rb_intern("LIBXSLT_PATCHES"), rb_str_split(NOKOGIRI_STR_NEW2(NOKOGIRI_LIBXSLT_PATCHES), " "));
+#else
+  rb_const_set(mNokogiri, rb_intern("PACKAGED_LIBRARIES"), Qfalse);
+  rb_const_set(mNokogiri, rb_intern("PRECOMPILED_LIBRARIES"), Qfalse);
+  rb_const_set(mNokogiri, rb_intern("LIBXML2_PATCHES"), Qnil);
+  rb_const_set(mNokogiri, rb_intern("LIBXSLT_PATCHES"), Qnil);
 #endif
 
 #ifdef LIBXML_ICONV_ENABLED
