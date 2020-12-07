@@ -20,8 +20,9 @@ int vasprintf(char **strp, const char *fmt, va_list ap)
   char tmp[1];
   int len = vsnprintf (tmp, 1, fmt, ap) + 1;
   char *res = (char *)malloc((unsigned int)len);
-  if (res == NULL)
-      return -1;
+  if (res == NULL) {
+    return -1;
+  }
   *strp = res;
   return vsnprintf(res, (unsigned int)len, fmt, ap);
 }
@@ -35,7 +36,7 @@ void nokogiri_root_node(xmlNodePtr node)
   nokogiriTuplePtr tuple;
 
   doc = node->doc;
-  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
+  if (doc->type == XML_DOCUMENT_FRAG_NODE) { doc = doc->doc; }
   tuple = (nokogiriTuplePtr)doc->_private;
   st_insert(tuple->unlinkedNodes, (st_data_t)node, (st_data_t)node);
 }
@@ -44,7 +45,7 @@ void nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
 {
   nokogiriTuplePtr tuple;
 
-  if (doc->type == XML_DOCUMENT_FRAG_NODE) doc = doc->doc;
+  if (doc->type == XML_DOCUMENT_FRAG_NODE) { doc = doc->doc; }
   tuple = (nokogiriTuplePtr)doc->_private;
   st_insert(tuple->unlinkedNodes, (st_data_t)ns, (st_data_t)ns);
 }
@@ -52,10 +53,10 @@ void nokogiri_root_nsdef(xmlNsPtr ns, xmlDocPtr doc)
 void Init_nokogiri()
 {
   xmlMemSetup(
-      (xmlFreeFunc)ruby_xfree,
-      (xmlMallocFunc)ruby_xmalloc,
-      (xmlReallocFunc)ruby_xrealloc,
-      ruby_strdup
+    (xmlFreeFunc)ruby_xfree,
+    (xmlMallocFunc)ruby_xmalloc,
+    (xmlReallocFunc)ruby_xrealloc,
+    ruby_strdup
   );
 
   mNokogiri         = rb_define_module("Nokogiri");
@@ -65,24 +66,12 @@ void Init_nokogiri()
   mNokogiriXmlSax   = rb_define_module_under(mNokogiriXml, "SAX");
   mNokogiriHtmlSax  = rb_define_module_under(mNokogiriHtml, "SAX");
 
-  rb_const_set( mNokogiri,
-                rb_intern("LIBXML_COMPILED_VERSION"),
-                NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION)
-              );
-  rb_const_set( mNokogiri,
-                rb_intern("LIBXML_LOADED_VERSION"),
-                NOKOGIRI_STR_NEW2(xmlParserVersion)
-              );
+  rb_const_set(mNokogiri, rb_intern("LIBXML_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXML_DOTTED_VERSION));
+  rb_const_set(mNokogiri, rb_intern("LIBXML_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xmlParserVersion));
 
+  rb_const_set(mNokogiri, rb_intern("LIBXSLT_COMPILED_VERSION"), NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION));
+  rb_const_set(mNokogiri, rb_intern("LIBXSLT_LOADED_VERSION"), NOKOGIRI_STR_NEW2(xsltEngineVersion));
 
-  rb_const_set( mNokogiri,
-                rb_intern("LIBXSLT_COMPILED_VERSION"),
-                NOKOGIRI_STR_NEW2(LIBXSLT_DOTTED_VERSION)
-              );
-  rb_const_set( mNokogiri,
-                rb_intern("LIBXSLT_LOADED_VERSION"),
-                NOKOGIRI_STR_NEW2(xsltEngineVersion)
-              );
 
 #ifdef NOKOGIRI_USE_PACKAGED_LIBRARIES
   rb_const_set(mNokogiri, rb_intern("NOKOGIRI_USE_PACKAGED_LIBRARIES"), Qtrue);
