@@ -31,6 +31,14 @@ module TestVersionInfoTests
   def test_version_info_for_libxml
     skip("libxml2 is only used for CRuby") unless Nokogiri.uses_libxml?
 
+    if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
+      assert_equal("packaged", version_info["libxml"]["source"])
+      assert(version_info["libxml"]["patches"])
+    end
+    if Nokogiri::VersionInfo.instance.libxml2_using_system?
+      assert_equal("system", version_info["libxml"]["source"])
+    end
+
     assert_equal(Nokogiri::LIBXML_COMPILED_VERSION, version_info["libxml"]["compiled"])
     assert_match(VERSION_MATCH, version_info["libxml"]["compiled"])
 
@@ -41,11 +49,19 @@ module TestVersionInfoTests
     bug = Regexp.last_match(3).to_i
     assert_equal("#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO["libxml"]["loaded"])
 
-    assert(version_info["libxml"]["source"])
+    assert(version_info["libxml"].key?("iconv_enabled"))
   end
 
   def test_version_info_for_libxslt
     skip("libxslt is only used for CRuby") unless Nokogiri.uses_libxml?
+
+    if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
+      assert_equal("packaged", version_info["libxslt"]["source"])
+      assert(version_info["libxslt"]["patches"])
+    end
+    if Nokogiri::VersionInfo.instance.libxml2_using_system?
+      assert_equal("system", version_info["libxslt"]["source"])
+    end
 
     assert_equal(Nokogiri::LIBXSLT_COMPILED_VERSION, version_info["libxslt"]["compiled"])
     assert_match(VERSION_MATCH, version_info["libxslt"]["compiled"])
@@ -56,14 +72,6 @@ module TestVersionInfoTests
     minor = Regexp.last_match(2).to_i
     bug = Regexp.last_match(3).to_i
     assert_equal("#{major}.#{minor}.#{bug}", Nokogiri::VERSION_INFO["libxslt"]["loaded"])
-
-    assert(version_info["libxslt"]["source"])
-  end
-
-  def test_version_info_for_iconv
-    skip("this value is only set in the C extension when libxml2 is used") unless Nokogiri.uses_libxml?
-
-    assert_operator(version_info["libxml"], :key?, "iconv_enabled")
   end
 end
 
