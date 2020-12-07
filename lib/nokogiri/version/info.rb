@@ -10,25 +10,25 @@ module Nokogiri
     end
 
     def loaded_libxml_version
-      Gem::Version.new(LIBXML_LOADED_VERSION.
-        scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first.
-        collect(&:to_i).
-        join("."))
+      Gem::Version.new(LIBXML_LOADED_VERSION
+        .scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first
+        .collect(&:to_i)
+        .join("."))
     end
 
     def compiled_libxml_version
-      Gem::Version.new LIBXML_COMPILED_VERSION
+      Gem::Version.new(LIBXML_COMPILED_VERSION)
     end
 
     def loaded_libxslt_version
-      Gem::Version.new(LIBXSLT_LOADED_VERSION.
-        scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first.
-        collect(&:to_i).
-        join("."))
+      Gem::Version.new(LIBXSLT_LOADED_VERSION
+        .scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first
+        .collect(&:to_i)
+        .join("."))
     end
 
     def compiled_libxslt_version
-      Gem::Version.new LIBXSLT_COMPILED_VERSION
+      Gem::Version.new(LIBXSLT_COMPILED_VERSION)
     end
 
     def libxml2?
@@ -129,7 +129,7 @@ module Nokogiri
   def self.uses_libxml?(requirement = nil) # :nodoc:
     return false unless VersionInfo.instance.libxml2?
     return true unless requirement
-    return Gem::Requirement.new(requirement).satisfied_by?(VersionInfo.instance.loaded_libxml_version)
+    Gem::Requirement.new(requirement).satisfied_by?(VersionInfo.instance.loaded_libxml_version)
   end
 
   def self.jruby? # :nodoc:
@@ -142,7 +142,7 @@ module Nokogiri
   end
   begin
     RUBY_VERSION =~ /(\d+\.\d+)/
-    require "nokogiri/#{$1}/nokogiri"
+    require "nokogiri/#{Regexp.last_match(1)}/nokogiri"
   rescue LoadError
     require "nokogiri/nokogiri"
   end
