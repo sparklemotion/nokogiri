@@ -1,6 +1,10 @@
 # frozen_string_literal: true
+require "singleton"
+
 module Nokogiri
   class VersionInfo # :nodoc:
+    include Singleton
+
     def jruby?
       ::JRUBY_VERSION if RUBY_PLATFORM == "java"
     end
@@ -118,12 +122,9 @@ module Nokogiri
       YAML.dump(to_hash).each_line.map { |line| "    #{line}" }.join
     end
 
-    # FIXME: maybe switch to singleton?
-    @@instance = new
-    @@instance.warnings.each do |warning|
+    instance.warnings.each do |warning|
       warn "WARNING: #{warning}"
     end
-    def self.instance; @@instance; end
   end
 
   def self.uses_libxml?(requirement = nil) # :nodoc:
