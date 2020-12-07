@@ -1,50 +1,58 @@
 # frozen_string_literal: true
+require "singleton"
+
 module Nokogiri
   class VersionInfo # :nodoc:
+    include Singleton
+
     def jruby?
-      ::JRUBY_VERSION if RUBY_PLATFORM == "java"
+      ::JRUBY_VERSION if ::RUBY_PLATFORM == "java"
     end
 
     def engine
-      defined?(RUBY_ENGINE) ? RUBY_ENGINE : "mri"
+      defined?(::RUBY_ENGINE) ? ::RUBY_ENGINE : "mri"
     end
 
     def loaded_libxml_version
-      Gem::Version.new(LIBXML_LOADED_VERSION.
-        scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first.
-        collect(&:to_i).
-        join("."))
+      Gem::Version.new(Nokogiri::LIBXML_LOADED_VERSION
+        .scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first
+        .collect(&:to_i)
+        .join("."))
     end
 
     def compiled_libxml_version
-      Gem::Version.new LIBXML_COMPILED_VERSION
+      Gem::Version.new(Nokogiri::LIBXML_COMPILED_VERSION)
     end
 
     def loaded_libxslt_version
-      Gem::Version.new(LIBXSLT_LOADED_VERSION.
-        scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first.
-        collect(&:to_i).
-        join("."))
+      Gem::Version.new(Nokogiri::LIBXSLT_LOADED_VERSION
+        .scan(/^(\d+)(\d\d)(\d\d)(?!\d)/).first
+        .collect(&:to_i)
+        .join("."))
     end
 
     def compiled_libxslt_version
-      Gem::Version.new LIBXSLT_COMPILED_VERSION
+      Gem::Version.new(Nokogiri::LIBXSLT_COMPILED_VERSION)
     end
 
     def libxml2?
-      defined?(LIBXML_COMPILED_VERSION)
+      defined?(Nokogiri::LIBXML_COMPILED_VERSION)
     end
 
     def libxml2_has_iconv?
-      defined?(LIBXML_ICONV_ENABLED) && LIBXML_ICONV_ENABLED
-    end
-
-    def libxml2_using_system?
-      !libxml2_using_packaged?
+      defined?(Nokogiri::LIBXML_ICONV_ENABLED) && Nokogiri::LIBXML_ICONV_ENABLED
     end
 
     def libxml2_using_packaged?
-      NOKOGIRI_USE_PACKAGED_LIBRARIES
+      libxml2? && Nokogiri::PACKAGED_LIBRARIES
+    end
+
+    def libxml2_using_system?
+      libxml2? && !libxml2_using_packaged?
+    end
+
+    def libxml2_precompiled?
+      libxml2_using_packaged? && Nokogiri::PRECOMPILED_LIBRARIES
     end
 
     def warnings
@@ -80,19 +88,21 @@ module Nokogiri
           vi["libxml"] = {}.tap do |libxml|
             if libxml2_using_packaged?
               libxml["source"] = "packaged"
-              libxml["patches"] = NOKOGIRI_LIBXML2_PATCHES
+              libxml["precompiled"] = libxml2_precompiled?
+              libxml["patches"] = Nokogiri::LIBXML2_PATCHES
             else
               libxml["source"] = "system"
             end
+            libxml["iconv_enabled"] = libxml2_has_iconv?
             libxml["compiled"] = compiled_libxml_version.to_s
             libxml["loaded"] = loaded_libxml_version.to_s
-            libxml["iconv_enabled"] = libxml2_has_iconv?
           end
 
           vi["libxslt"] = {}.tap do |libxslt|
             if libxml2_using_packaged?
               libxslt["source"] = "packaged"
-              libxslt["patches"] = NOKOGIRI_LIBXSLT_PATCHES
+              libxslt["precompiled"] = libxml2_precompiled?
+              libxslt["patches"] = Nokogiri::LIBXSLT_PATCHES
             else
               libxslt["source"] = "system"
             end
@@ -118,18 +128,15 @@ module Nokogiri
       YAML.dump(to_hash).each_line.map { |line| "    #{line}" }.join
     end
 
-    # FIXME: maybe switch to singleton?
-    @@instance = new
-    @@instance.warnings.each do |warning|
+    instance.warnings.each do |warning|
       warn "WARNING: #{warning}"
     end
-    def self.instance; @@instance; end
   end
 
   def self.uses_libxml?(requirement = nil) # :nodoc:
     return false unless VersionInfo.instance.libxml2?
     return true unless requirement
-    return Gem::Requirement.new(requirement).satisfied_by?(VersionInfo.instance.loaded_libxml_version)
+    Gem::Requirement.new(requirement).satisfied_by?(VersionInfo.instance.loaded_libxml_version)
   end
 
   def self.jruby? # :nodoc:
@@ -141,8 +148,8 @@ module Nokogiri
     require "nokogiri/jruby/dependencies"
   end
   begin
-    RUBY_VERSION =~ /(\d+\.\d+)/
-    require "nokogiri/#{$1}/nokogiri"
+    ::RUBY_VERSION =~ /(\d+\.\d+)/
+    require "nokogiri/#{Regexp.last_match(1)}/nokogiri"
   rescue LoadError
     require "nokogiri/nokogiri"
   end

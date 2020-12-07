@@ -687,7 +687,9 @@ else
     ]
   end
 
-  $CFLAGS = concat_flags($CFLAGS, "-DNOKOGIRI_USE_PACKAGED_LIBRARIES")
+  append_cflags("-DNOKOGIRI_PACKAGED_LIBRARIES")
+  append_cflags("-DNOKOGIRI_PRECOMPILED_LIBRARIES") if cross_build_p
+
   $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
   $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
 

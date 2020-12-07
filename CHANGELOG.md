@@ -144,25 +144,29 @@ the output of `nokogiri -v` will also reflect these changes.
 * `libxml/libxml2_path`
 * `libxml/libxslt_path`
 
+`Nokogiri::VersionInfo` now contains native gem metadata for libxml:
+* `libxml/precompiled` (`true` if the gem installed was a native gem, otherwise `false`)
+* `libxml/iconv_enabled` (`true` if libxml2 was built with iconv support, otherwise `false`)
+
 `Nokogiri::VersionInfo` now contains version metadata for libxslt:
 * `libxslt/source` (either "packaged" or "system", similar to `libxml/source`)
-* `libxslt/compiled` (the version of libxslt compiled at installation time, similar to `libxml/compiled`)
+* `libxslt/precompiled` (`true` if the gem installed was a native gem, otherwise `false`)
+* `libxslt/compiled` (the version of libxslt the gem was compiled against, similar to `libxml/compiled`)
 * `libxslt/loaded` (the version of libxslt loaded at runtime, similar to `libxml/loaded`)
 * `libxslt/patches` moved from `libxml/libxslt_patches`
 
 `Nokogiri::VersionInfo` key `libxml/libxml2_patches` has been renamed to `libxml/patches`
 
-These C macros will no longer be defined:
-* `NOKOGIRI_LIBXML2_PATH`
-* `NOKOGIRI_LIBXSLT_PATH`
-
-These global variables will no longer be defined:
+These global variables are no longer be defined:
 * `NOKOGIRI_LIBXML2_PATH`
 * `NOKOGIRI_LIBXSLT_PATH`
 
 These constants have been renamed:
 * `Nokogiri::LIBXML_VERSION` is now `Nokogiri::LIBXML_COMPILED_VERSION`
 * `Nokogiri::LIBXML_PARSER_VERSION` is now `Nokogiri::LIBXML_LOADED_VERSION`
+* `Nokogiri::NOKOGIRI_LIBXML2_PATCHES` is now `Nokogiri::LIBXML2_PATCHES`
+* `Nokogiri::NOKOGIRI_LIBXSLT_PATCHES` is now `Nokogiri::LIBXSLT_PATCHES`
+* `Nokogiri::NOKOGIRI_USE_PACKAGED_LIBRARIES` is now `Nokogiri::PACKAGED_LIBRARIES`
 
 These methods have been renamed and the return type changed from `String` to `Gem::Version`:
 * `VersionInfo#loaded_parser_version` is now `#loaded_libxml_version`
@@ -205,21 +209,29 @@ but now looks like:
     warnings: []
     nokogiri: 1.11.0
     ruby:
-      version: 2.7.0
+      version: 2.7.2
       platform: x86_64-linux
-      description: ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-linux]
+      gem_platform: x86_64-linux
+      description: ruby 2.7.2p137 (2020-10-01 revision 5445e04352) [x86_64-linux]
       engine: ruby
     libxml:
       source: packaged
+      precompiled: false
       patches:
       - 0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
       - 0002-Remove-script-macro-support.patch
       - 0003-Update-entities-to-remove-handling-of-ssi.patch
       - 0004-libxml2.la-is-in-top_builddir.patch
+      - 0005-Fix-infinite-loop-in-xmlStringLenDecodeEntities.patch
+      - 0006-htmlParseComment-treat-as-if-it-closed-the-comment.patch
+      - 0007-rewrite-htmlParseLookupSequence-to-accept-an-arbitra.patch
+      - '0008-use-new-htmlParseLookupCommentEnd-to-find-comment-en.patch'
+      iconv_enabled: true
       compiled: 2.9.10
       loaded: 2.9.10
     libxslt:
       source: packaged
+      precompiled: false
       patches: []
       compiled: 1.1.34
       loaded: 1.1.34
