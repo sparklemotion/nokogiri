@@ -1,20 +1,23 @@
-From 91dfae053744c33280f0d3567034c17c2f4cf0db Mon Sep 17 00:00:00 2001
+From b20d746fa7cbb74716171bc49d836af99927e41e Mon Sep 17 00:00:00 2001
 From: Mike Dalessio <mike.dalessio@gmail.com>
 Date: Sun, 11 Oct 2020 14:15:37 -0400
 Subject: [PATCH 2/2] use new htmlParseLookupCommentEnd to find comment ends
+
+Note that the caret in error messages generated during comment parsing
+may have moved by one byte.
 
 See guidance provided on incorrectly-closed comments here:
 
 https://html.spec.whatwg.org/multipage/parsing.html#parse-error-incorrectly-closed-comment
 ---
- HTMLparser.c | 43 +++++++++++++++++++++++++++++++++++--------
- 1 file changed, 35 insertions(+), 8 deletions(-)
+ HTMLparser.c | 46 +++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 37 insertions(+), 9 deletions(-)
 
 diff --git a/HTMLparser.c b/HTMLparser.c
-index 123dff5..269f015 100644
+index 4d43479..000dc3d 100644
 --- a/HTMLparser.c
 +++ b/HTMLparser.c
-@@ -5305,6 +5305,37 @@ htmlParseLookupChars(htmlParserCtxtPtr ctxt, const xmlChar * stop,
+@@ -5331,6 +5331,39 @@ htmlParseLookupChars(htmlParserCtxtPtr ctxt, const xmlChar * stop,
      return (-1);
  }
  
@@ -35,59 +38,62 @@ index 123dff5..269f015 100644
 +static int
 +htmlParseLookupCommentEnd(htmlParserCtxtPtr ctxt)
 +{
-+    int save_checkindex = ctxt->checkIndex;
-+    int loc;
++    int mark = 0;
++    int cur = CUR_PTR - BASE_PTR;
 +
-+    loc = htmlParseLookupSequence(ctxt, "-->", 1, 1);
-+    if (loc >= 0) {
-+        return loc;
++    while (mark >= 0) {
++	mark = htmlParseLookupSequence(ctxt, '-', '-', 0, 1, 1);
++	if ((mark < 0) ||
++	    (NXT(mark+2) == '>') ||
++	    ((NXT(mark+2) == '!') && (NXT(mark+3) == '>'))) {
++	    return mark;
++	}
++	ctxt->checkIndex = cur + mark + 1;
 +    }
-+
-+    ctxt->checkIndex = save_checkindex;
-+    loc = htmlParseLookupSequence(ctxt, "--!>", 1, 1);
-+    return loc;
++    return mark;
 +}
 +
 +
  /**
   * htmlParseTryOrFinish:
   * @ctxt:  an HTML parser context
-@@ -5481,8 +5512,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
+@@ -5507,8 +5540,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
  		cur = in->cur[0];
  	        if ((cur == '<') && (next == '!') &&
  		    (in->cur[2] == '-') && (in->cur[3] == '-')) {
 -		    if ((!terminate) &&
--		        (htmlParseLookupSequence(ctxt, "-->", 1, 1) < 0))
+-		        (htmlParseLookupSequence(ctxt, '-', '-', '>', 1, 1) < 0))
 +		    if ((!terminate) && (htmlParseLookupCommentEnd(ctxt) < 0))
  			goto done;
  #ifdef DEBUG_PUSH
  		    xmlGenericError(xmlGenericErrorContext,
-@@ -5541,8 +5571,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
+@@ -5567,8 +5599,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
  		next = in->cur[1];
  		if ((cur == '<') && (next == '!') &&
  		    (in->cur[2] == '-') && (in->cur[3] == '-')) {
 -		    if ((!terminate) &&
--		        (htmlParseLookupSequence(ctxt, "-->", 1, 1) < 0))
+-		        (htmlParseLookupSequence(ctxt, '-', '-', '>', 1, 1) < 0))
 +		    if ((!terminate) && (htmlParseLookupCommentEnd(ctxt) < 0))
  			goto done;
  #ifdef DEBUG_PUSH
  		    xmlGenericError(xmlGenericErrorContext,
-@@ -5588,8 +5617,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
+@@ -5614,8 +5645,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
  		next = in->cur[1];
  	        if ((cur == '<') && (next == '!') &&
  		    (in->cur[2] == '-') && (in->cur[3] == '-')) {
 -		    if ((!terminate) &&
--		        (htmlParseLookupSequence(ctxt, "-->", 1, 1) < 0))
+-		        (htmlParseLookupSequence(ctxt, '-', '-', '>', 1, 1) < 0))
 +		    if ((!terminate) && (htmlParseLookupCommentEnd(ctxt) < 0))
  			goto done;
  #ifdef DEBUG_PUSH
  		    xmlGenericError(xmlGenericErrorContext,
-@@ -5845,8 +5873,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
+@@ -5871,9 +5901,7 @@ htmlParseTryOrFinish(htmlParserCtxtPtr ctxt, int terminate) {
  			htmlParseDocTypeDecl(ctxt);
  		    } else if ((cur == '<') && (next == '!') &&
  			(in->cur[2] == '-') && (in->cur[3] == '-')) {
 -			if ((!terminate) &&
--			    (htmlParseLookupSequence(ctxt, "-->", 1, 1) < 0))
+-			    (htmlParseLookupSequence(
+-				ctxt, '-', '-', '>', 1, 1) < 0))
 +			if ((!terminate) && (htmlParseLookupCommentEnd(ctxt) < 0))
  			    goto done;
  #ifdef DEBUG_PUSH
