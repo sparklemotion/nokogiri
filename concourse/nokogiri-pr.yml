@@ -105,6 +105,7 @@ resources:
     source:
       repository: sparklemotion/nokogiri
       access_token: ((github-repo-status-access-token))
+      ignore_drafts: true
       ignore_paths:
         - "*.md"
         - "concourse/"

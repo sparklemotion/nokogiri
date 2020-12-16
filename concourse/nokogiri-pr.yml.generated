@@ -1343,6 +1343,7 @@ resources:
   name: nokogiri-pr
   source:
     access_token: ((github-repo-status-access-token))
+    ignore_drafts: true
     ignore_paths:
     - '*.md'
     - concourse/
