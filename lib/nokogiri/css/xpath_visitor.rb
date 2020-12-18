@@ -111,7 +111,7 @@ module Nokogiri
           "#{attribute}=#{value} or starts-with(#{attribute},concat(#{value},'-'))"
         when :includes
           value = value[1..-2] # strip quotes
-          "contains(concat(' ',normalize-space(#{attribute}),' '),' #{value} ')"
+          css_class(attribute, value)
         when :suffix_match
           "substring(#{attribute},string-length(#{attribute})-string-length(#{value})+1,string-length(#{value}))=#{value}"
         else
@@ -145,7 +145,7 @@ module Nokogiri
       end
 
       def visit_class_condition node
-        "contains(concat(' ',normalize-space(@class),' '),' #{node.value.first} ')"
+        css_class("@class", node.value.first)
       end
 
       def visit_combinator node
@@ -182,7 +182,12 @@ module Nokogiri
         node.accept(self)
       end
 
-    private
+      private
+
+      def css_class(hay, needle)
+        "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
+      end
+
       def nth node, options={}
         raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
 

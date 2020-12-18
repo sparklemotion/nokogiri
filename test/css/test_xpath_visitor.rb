@@ -124,6 +124,8 @@ class TestNokogiri < Nokogiri::TestCase
                        parser.parse("a[@class~=bar]"))
           assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
                        parser.parse("a[@class~=\"bar\"]"))
+          assert_xpath("//a[contains(concat(' ',normalize-space(@data-words),' '),' bar ')]",
+                       parser.parse("a[data-words~=\"bar\"]"))
         end
 
         it "^=" do
