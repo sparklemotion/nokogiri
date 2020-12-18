@@ -12,42 +12,42 @@ module Nokogiri
         when /^self\(/
           "self::#{node.value[1]}"
         when /^eq\(/
-          "position() = #{node.value[1]}"
+          "position()=#{node.value[1]}"
         when /^(nth|nth-of-type)\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
             nth(node.value[1])
           else
-            "position() = #{node.value[1]}"
+            "position()=#{node.value[1]}"
           end
         when /^nth-child\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
             nth(node.value[1], :child => true)
           else
-            "count(preceding-sibling::*) = #{node.value[1].to_i-1}"
+            "count(preceding-sibling::*)=#{node.value[1].to_i-1}"
           end
         when /^nth-last-of-type\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
             nth(node.value[1], :last => true)
           else
             index = node.value[1].to_i - 1
-            index == 0 ? "position() = last()" : "position() = last() - #{index}"
+            index == 0 ? "position()=last()" : "position()=last()-#{index}"
           end
         when /^nth-last-child\(/
           if node.value[1].is_a?(Nokogiri::CSS::Node) and node.value[1].type == :NTH
             nth(node.value[1], :last => true, :child => true)
           else
-            "count(following-sibling::*) = #{node.value[1].to_i-1}"
+            "count(following-sibling::*)=#{node.value[1].to_i-1}"
           end
         when /^(first|first-of-type)\(/
-          "position() = 1"
+          "position()=1"
         when /^(last|last-of-type)\(/
-          "position() = last()"
+          "position()=last()"
         when /^contains\(/
-          "contains(., #{node.value[1]})"
+          "contains(.,#{node.value[1]})"
         when /^gt\(/
-          "position() > #{node.value[1]}"
+          "position()>#{node.value[1]}"
         when /^only-child\(/
-          "last() = 1"
+          "last()=1"
         when /^comment\(/
           "comment()"
         when /^has\(/
@@ -55,7 +55,7 @@ module Nokogiri
           ".#{"//" if !is_direct}#{node.value[1].accept(self)}"
         else
           args = ['.'] + node.value[1..-1]
-          "#{node.value.first}#{args.join(', ')})"
+          "#{node.value.first}#{args.join(',')})"
         end
       end
 
@@ -70,7 +70,7 @@ module Nokogiri
 
       def visit_id node
         node.value.first =~ /^#(.*)$/
-        "@id = '#{$1}'"
+        "@id='#{$1}'"
       end
 
       def visit_attribute_condition node
@@ -89,29 +89,29 @@ module Nokogiri
         value = node.value.last
         value = "'#{value}'" if value !~ /^['"]/
 
+        # quoted values - see test_attribute_value_with_quotes in test/css/test_parser.rb
         if (value[0]==value[-1]) && %q{"'}.include?(value[0])
           str_value = value[1..-2]
           if str_value.include?(value[0])
-            value = 'concat("' + str_value.split('"', -1).join(%q{", '"', "}) + '", "")'
+            value = 'concat("' + str_value.split('"', -1).join(%q{",'"',"}) + '","")'
           end
         end
 
         case node.value[1]
         when :equal
-          attribute + " = " + "#{value}"
+          attribute + "=" + "#{value}"
         when :not_equal
-          attribute + " != " + "#{value}"
+          attribute + "!=" + "#{value}"
         when :substring_match
-          "contains(#{attribute}, #{value})"
+          "contains(#{attribute},#{value})"
         when :prefix_match
-          "starts-with(#{attribute}, #{value})"
+          "starts-with(#{attribute},#{value})"
         when :dash_match
-          "#{attribute} = #{value} or starts-with(#{attribute}, concat(#{value}, '-'))"
+          "#{attribute}=#{value} or starts-with(#{attribute},concat(#{value},'-'))"
         when :includes
           "contains(concat(' ',normalize-space(#{attribute}),' '),concat(' ',#{value},' '))"
         when :suffix_match
-          "substring(#{attribute}, string-length(#{attribute}) - " +
-            "string-length(#{value}) + 1, string-length(#{value})) = #{value}"
+          "substring(#{attribute},string-length(#{attribute})-string-length(#{value})+1,string-length(#{value}))=#{value}"
         else
           attribute + " #{node.value[1]} " + "#{value}"
         end
@@ -125,14 +125,14 @@ module Nokogiri
           return self.send(msg, node) if self.respond_to?(msg)
 
           case node.value.first
-          when "first" then "position() = 1"
-          when "first-child" then "count(preceding-sibling::*) = 0"
-          when "last" then "position() = last()"
-          when "last-child" then "count(following-sibling::*) = 0"
-          when "first-of-type" then "position() = 1"
-          when "last-of-type" then "position() = last()"
-          when "only-child" then "count(preceding-sibling::*) = 0 and count(following-sibling::*) = 0"
-          when "only-of-type" then "last() = 1"
+          when "first" then "position()=1"
+          when "first-child" then "count(preceding-sibling::*)=0"
+          when "last" then "position()=last()"
+          when "last-child" then "count(following-sibling::*)=0"
+          when "first-of-type" then "position()=1"
+          when "last-of-type" then "position()=last()"
+          when "only-child" then "count(preceding-sibling::*)=0 and count(following-sibling::*)=0"
+          when "only-of-type" then "last()=1"
           when "empty" then "not(node())"
           when "parent" then "node()"
           when "root" then "not(parent::*)"
@@ -143,7 +143,7 @@ module Nokogiri
       end
 
       def visit_class_condition node
-        "contains(concat(' ', normalize-space(@class), ' '), ' #{node.value.first} ')"
+        "contains(concat(' ',normalize-space(@class),' '),' #{node.value.first} ')"
       end
 
       def visit_combinator node
@@ -186,19 +186,19 @@ module Nokogiri
 
         a, b = read_a_and_positive_b node.value
         position = if options[:child]
-          options[:last] ? "(count(following-sibling::*) + 1)" : "(count(preceding-sibling::*) + 1)"
+          options[:last] ? "(count(following-sibling::*)+1)" : "(count(preceding-sibling::*)+1)"
         else
           options[:last] ? "(last()-position()+1)" : "position()"
         end
 
         if b.zero?
-          "(#{position} mod #{a}) = 0"
+          "(#{position} mod #{a})=0"
         else
           compare = a < 0 ? "<=" : ">="
           if a.abs == 1
-            "#{position} #{compare} #{b}"
+            "#{position}#{compare}#{b}"
           else
-            "(#{position} #{compare} #{b}) and (((#{position}-#{b}) mod #{a.abs}) = 0)"
+            "(#{position}#{compare}#{b}) and (((#{position}-#{b}) mod #{a.abs})=0)"
           end
         end
       end

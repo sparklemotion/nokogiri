@@ -13,19 +13,19 @@ module Nokogiri
       end
 
       def test_not_last_child
-        assert_xpath('//ol/*[not(count(following-sibling::*) = 0)]',
+        assert_xpath('//ol/*[not(count(following-sibling::*)=0)]',
           @parser.parse('ol > *:not(:last-child)'))
       end
 
       def test_not_only_child
-        assert_xpath('//ol/*[not(count(preceding-sibling::*) = 0 and count(following-sibling::*) = 0)]',
+        assert_xpath('//ol/*[not(count(preceding-sibling::*)=0 and count(following-sibling::*)=0)]',
           @parser.parse('ol > *:not(:only-child)'))
       end
 
       def test_function_calls_allow_at_params
-        assert_xpath("//a[foo(., @href)]", @parser.parse('a:foo(@href)'))
-        assert_xpath("//a[foo(., @a, b)]", @parser.parse('a:foo(@a, b)'))
-        assert_xpath("//a[foo(., a, 10)]", @parser.parse('a:foo(a, 10)'))
+        assert_xpath("//a[foo(.,@href)]", @parser.parse('a:foo(@href)'))
+        assert_xpath("//a[foo(.,@a,b)]", @parser.parse('a:foo(@a, b)'))
+        assert_xpath("//a[foo(.,a,10)]", @parser.parse('a:foo(a, 10)'))
       end
 
       def test_namespace_conversion
@@ -45,18 +45,18 @@ module Nokogiri
 
       def test_unknown_functions_get_dot_plus_args
         assert_xpath("//a[aaron(.)]", @parser.parse('a:aaron()'))
-        assert_xpath("//a[aaron(., 12)]", @parser.parse('a:aaron(12)'))
-        assert_xpath("//a[aaron(., 12, 1)]", @parser.parse('a:aaron(12, 1)'))
+        assert_xpath("//a[aaron(.,12)]", @parser.parse('a:aaron(12)'))
+        assert_xpath("//a[aaron(.,12,1)]", @parser.parse('a:aaron(12, 1)'))
       end
 
       def test_class_selectors
-        assert_xpath  "//*[contains(concat(' ', normalize-space(@class), ' '), ' red ')]",
-                      @parser.parse(".red")
+        assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' red ')]",
+                     @parser.parse(".red"))
       end
 
       def test_pipe
-        assert_xpath  "//a[@id = 'Boing' or starts-with(@id, concat('Boing', '-'))]",
-                      @parser.parse("a[id|='Boing']")
+        assert_xpath("//a[@id='Boing' or starts-with(@id,concat('Boing','-'))]",
+                     @parser.parse("a[id|='Boing']"))
       end
 
       def test_custom_functions
