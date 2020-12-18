@@ -374,13 +374,13 @@ module Nokogiri
       end
 
       def test_node_set_should_be_decorated
-        # "called decorate on nill" exception in JRuby issue#514
-        process_output= <<END
-<test>
- <track type="Image">
- <Format>LZ77</Format>
-</test>
-END
+        # "called decorate on nil" exception in JRuby issue#514
+        process_output= <<~END
+          <test>
+            <track type="Image">
+            <Format>LZ77</Format>
+          </test>
+        END
         doc = Nokogiri::XML.parse(process_output)
         node = doc.xpath(%{//track[@type='Video']})
         assert_equal "[]", node.xpath("Format").inspect
@@ -443,12 +443,12 @@ END
       end
 
       def test_xpath_after_reset_doc_via_innerhtml
-        xml = <<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<document xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
-  <text:section name="Section1">[TEXT_INSIDE_SECTION]</text:section>
-</document>
-XML
+        xml = <<~XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <document xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">
+            <text:section name="Section1">[TEXT_INSIDE_SECTION]</text:section>
+          </document>
+        XML
 
         doc = Nokogiri::XML(xml)
         doc.inner_html = doc.inner_html
