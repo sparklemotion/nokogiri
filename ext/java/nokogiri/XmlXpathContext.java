@@ -157,8 +157,7 @@ public class XmlXpathContext extends RubyObject {
     }
 
     private IRubyObject node_set(ThreadContext context, String expr, IRubyObject handler) {
-        final NokogiriXPathFunctionResolver fnResolver =
-            handler.isNil() ? null : NokogiriXPathFunctionResolver.create(handler);
+        final NokogiriXPathFunctionResolver fnResolver = NokogiriXPathFunctionResolver.create(handler);
         try {
             return tryGetNodeSet(context, expr, fnResolver);
         }

@@ -460,6 +460,74 @@ module Nokogiri
           assert_equal false, e.message.include?('0:0')
         end
       end
+
+      describe "nokogiri-builtin:css-class xpath function" do
+        before do
+          @doc = Nokogiri::HTML::Document.parse("<html></html>")
+        end
+
+        it "accepts exactly two arguments" do
+          assert_raise(Nokogiri::XML::XPath::SyntaxError) do
+            @doc.xpath("nokogiri-builtin:css-class()")
+          end
+          assert_raise(Nokogiri::XML::XPath::SyntaxError) do
+            @doc.xpath("nokogiri-builtin:css-class('one')")
+          end
+          assert_raise(Nokogiri::XML::XPath::SyntaxError) do
+            @doc.xpath("nokogiri-builtin:css-class('one', 'two', 'three')")
+          end
+
+          @doc.xpath("nokogiri-builtin:css-class('one', 'two')")
+        end
+
+        it "returns true if second arg is zero-length" do
+          assert(@doc.xpath("nokogiri-builtin:css-class('anything', '')"))
+        end
+
+        it "matches equal string" do
+          refute(@doc.xpath("nokogiri-builtin:css-class('asdf', 'asd')"))
+          refute(@doc.xpath("nokogiri-builtin:css-class('asdf', 'sdf')"))
+          assert(@doc.xpath("nokogiri-builtin:css-class('asdf', 'asdf')"))
+          refute(@doc.xpath("nokogiri-builtin:css-class('asdf', 'xasdf')"))
+          refute(@doc.xpath("nokogiri-builtin:css-class('asdf', 'asdfx')"))
+        end
+
+        it "matches start of string" do
+          refute(@doc.xpath("nokogiri-builtin:css-class('asdf qwer', 'asd')"))
+          assert(@doc.xpath("nokogiri-builtin:css-class('asdf qwer', 'asdf')"))
+          refute(@doc.xpath("nokogiri-builtin:css-class('asdf qwer', 'asdfg')"))
+        end
+
+        it "matches end of string" do
+          refute(@doc.xpath("nokogiri-builtin:css-class('qwer asdf', 'sdf')"))
+          assert(@doc.xpath("nokogiri-builtin:css-class('qwer asdf', 'asdf')"))
+          refute(@doc.xpath("nokogiri-builtin:css-class('qwer asdf', 'xasdf')"))
+        end
+
+        it "matches middle of string" do
+          refute(@doc.xpath("nokogiri-builtin:css-class('qwer asdf zxcv', 'xasdf')"))
+          refute(@doc.xpath("nokogiri-builtin:css-class('qwer asdf zxcv', 'asd')"))
+          assert(@doc.xpath("nokogiri-builtin:css-class('qwer asdf zxcv', 'asdf')"))
+          refute(@doc.xpath("nokogiri-builtin:css-class('qwer asdf zxcv', 'sdf')"))
+          refute(@doc.xpath("nokogiri-builtin:css-class('qwer asdf zxcv', 'asdfx')"))
+        end
+
+        # see xmlIsBlank_ch()
+        [" ", "\t", "\n", "\r"].each do |ws|
+          it "only matches complete whitespace-delimited words (#{sprintf("0x%02X", ws.bytes.first)})" do
+            assert(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'qwer')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'q')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'qw')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'qwe')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'w')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'we')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'wer')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'e')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'er')"))
+            refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'r')"))
+          end
+        end
+      end
     end
   end
 end
