@@ -1,10 +1,84 @@
 #include <xml_xpath_context.h>
 
+/*
+ * these constants have matching declarations in
+ * ext/java/nokogiri/internals/NokogiriNamespaceContext.java
+ */
+static const xmlChar *NOKOGIRI_BUILTIN_PREFIX = (const xmlChar *)"nokogiri-builtin";
+static const xmlChar *NOKOGIRI_BUILTIN_URI = (const xmlChar *)"https://www.nokogiri.org/default_ns/ruby/builtins";
+
 static void deallocate(xmlXPathContextPtr ctx)
 {
   NOKOGIRI_DEBUG_START(ctx);
   xmlXPathFreeContext(ctx);
   NOKOGIRI_DEBUG_END(ctx);
+}
+
+/* find a CSS class in an HTML element's `class` attribute */
+const xmlChar* builtin_css_class(const xmlChar* str, const xmlChar *val)
+{
+  int val_len;
+
+  if (str == NULL) { return(NULL); }
+  if (val == NULL) { return(NULL); }
+
+  val_len = xmlStrlen(val);
+  if (val_len == 0) { return(str); }
+
+  while (*str != 0) {
+    if ((*str == *val) && !xmlStrncmp(str, val, val_len)) {
+      const xmlChar* next_byte = str + val_len;
+
+      /* only match if the next byte is whitespace or end of string */
+      if ((*next_byte == 0) || (IS_BLANK_CH(*next_byte))) {
+        return((const xmlChar*)str);
+      }
+    }
+
+    /* advance str to whitespace */
+    while ((*str != 0) && !IS_BLANK_CH(*str)) {
+      str++;
+    }
+
+    /* advance str to start of next word or end of string */
+    while ((*str != 0) && IS_BLANK_CH(*str)) {
+      str++;
+    }
+  }
+
+  return(NULL);
+}
+
+/* xmlXPathFunction to wrap builtin_css_class() */
+static void xpath_builtin_css_class(xmlXPathParserContextPtr ctxt, int nargs)
+{
+  xmlXPathObjectPtr hay, needle;
+
+  CHECK_ARITY(2);
+
+  CAST_TO_STRING;
+  needle = valuePop(ctxt);
+  if ((needle == NULL) || (needle->type != XPATH_STRING)) {
+    xmlXPathFreeObject(needle);
+    XP_ERROR(XPATH_INVALID_TYPE);
+  }
+
+  CAST_TO_STRING;
+  hay = valuePop(ctxt);
+  if ((hay == NULL) || (hay->type != XPATH_STRING)) {
+    xmlXPathFreeObject(hay);
+    xmlXPathFreeObject(needle);
+    XP_ERROR(XPATH_INVALID_TYPE);
+  }
+
+  if (builtin_css_class(hay->stringval, needle->stringval)) {
+    valuePush(ctxt, xmlXPathNewBoolean(1));
+  } else {
+    valuePush(ctxt, xmlXPathNewBoolean(0));
+  }
+
+  xmlXPathFreeObject(hay);
+  xmlXPathFreeObject(needle);
 }
 
 /*
@@ -261,14 +335,18 @@ static VALUE new(VALUE klass, VALUE nodeobj)
   xmlXPathContextPtr ctx;
   VALUE self;
 
-  xmlXPathInit();
-
   Data_Get_Struct(nodeobj, xmlNode, node);
+
+  xmlXPathInit();
 
   ctx = xmlXPathNewContext(node->doc);
   ctx->node = node;
+
+  xmlXPathRegisterNs(ctx, NOKOGIRI_BUILTIN_PREFIX, NOKOGIRI_BUILTIN_URI);
+  xmlXPathRegisterFuncNS(ctx, (const xmlChar *)"css-class", NOKOGIRI_BUILTIN_URI,
+                         xpath_builtin_css_class);
+
   self = Data_Wrap_Struct(klass, 0, deallocate, ctx);
-  /*rb_iv_set(self, "@xpath_handler", Qnil); */
   return self;
 }
 

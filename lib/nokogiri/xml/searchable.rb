@@ -210,8 +210,10 @@ module Nokogiri
       end
 
       def xpath_query_from_css_rule(rule, ns)
+        visitor = Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins.new
         self.class::IMPLIED_XPATH_CONTEXTS.map do |implied_xpath_context|
-          CSS.xpath_for(rule.to_s, :prefix => implied_xpath_context, :ns => ns)
+          CSS.xpath_for(rule.to_s, {:prefix => implied_xpath_context, :ns => ns,
+                                    :visitor => visitor})
         end.join(" | ")
       end
 

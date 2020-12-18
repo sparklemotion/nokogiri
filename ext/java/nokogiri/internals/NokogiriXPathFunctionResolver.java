@@ -50,7 +50,9 @@ public final class NokogiriXPathFunctionResolver implements XPathFunctionResolve
     
     public static NokogiriXPathFunctionResolver create(IRubyObject handler) {
         NokogiriXPathFunctionResolver freshResolver = new NokogiriXPathFunctionResolver();
-        freshResolver.setHandler(handler);
+        if (!handler.isNil()) {
+            freshResolver.setHandler(handler);
+        }
         return freshResolver;
     }
     
@@ -65,6 +67,6 @@ public final class NokogiriXPathFunctionResolver implements XPathFunctionResolve
     }
 
     public XPathFunction resolveFunction(QName name, int arity) {
-        return NokogiriXPathFunction.create(handler, name.getLocalPart(), arity);
+        return NokogiriXPathFunction.create(handler, name, arity);
     }
 }

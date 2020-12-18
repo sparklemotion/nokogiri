@@ -88,7 +88,7 @@ rule
         )
       }
     | LSQUARE NUMBER RSQUARE {
-        # Non standard, but hpricot supports it.
+        # non-standard, from hpricot
         result = Node.new(:PSEUDO_CLASS,
           [Node.new(:FUNCTION, ['nth-child(', val[1]])]
         )
@@ -139,7 +139,7 @@ rule
         when 'n'
           result = Node.new(:NTH, ['1','n','+','0'])
         else
-          # This is not CSS standard.  It allows us to support this:
+          # non-standard to support custom functions:
           # assert_xpath("//a[foo(., @href)]", @parser.parse('a:foo(@href)'))
           # assert_xpath("//a[foo(., @a, b)]", @parser.parse('a:foo(@a, b)'))
           # assert_xpath("//a[foo(., a, 10)]", @parser.parse('a:foo(a, 10)'))

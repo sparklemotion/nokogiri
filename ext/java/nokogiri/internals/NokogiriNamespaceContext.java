@@ -50,9 +50,15 @@ import javax.xml.namespace.NamespaceContext;
  */
 public final class NokogiriNamespaceContext implements NamespaceContext {
 
-	public static final String NOKOGIRI_PREFIX = "nokogiri";
+    /*
+     * these constants have matching declarations in
+     * ext/nokogiri/xml_xpath_context.c
+     */
+    public static final String NOKOGIRI_PREFIX = "nokogiri";
     public static final String NOKOGIRI_URI = "http://www.nokogiri.org/default_ns/ruby/extensions_functions";
-    public static final String NOKOGIRI_TEMPORARY_ROOT_TAG = "nokogiri-temporary-root-tag";
+
+    public static final String NOKOGIRI_BUILTIN_PREFIX = "nokogiri-builtin";
+    public static final String NOKOGIRI_BUILTIN_URI = "https://www.nokogiri.org/default_ns/ruby/builtins";
     
     private final Map<String,String> register;
 
@@ -63,6 +69,7 @@ public final class NokogiriNamespaceContext implements NamespaceContext {
     private NokogiriNamespaceContext() {
         register = new HashMap<String, String>(6, 1);
         register.put(NOKOGIRI_PREFIX, NOKOGIRI_URI);
+        register.put(NOKOGIRI_BUILTIN_PREFIX, NOKOGIRI_BUILTIN_URI);
         register.put("xml", "http://www.w3.org/XML/1998/namespace");
         register.put("xhtml", "http://www.w3.org/1999/xhtml");
     }
