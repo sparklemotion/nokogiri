@@ -328,6 +328,23 @@ module Nokogiri
         assert_equal expected, result.to_a
       end
 
+      def test_class_attr_selector
+        doc = Nokogiri::HTML::Document.parse(<<~EOF)
+          <html><body>
+            <div class="qwer asdf zxcv">space-delimited</div>
+            <div class="qwer\tasdf\tzxcv">tab-delimited</div>
+            <div class="qwer\nasdf\nzxcv">newline-delimited</div>
+            <div class="qwer\rasdf\rzxcv">carriage-return-delimited</div>
+          </body></html>
+        EOF
+
+        result = doc.css("div[class~='asdf']")
+        assert_equal 4, result.length
+
+        expected = doc.css("div")
+        assert_equal expected, result
+      end
+
       private
 
       def assert_result_rows(intarray, result, word = "row")

@@ -103,6 +103,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 
 ### Fixed
 
+* The CSS `~=` operator now correctly handles non-space whitespace in the `class` attribute.
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * The Node methods add_previous_sibling, previous=, before, add_next_sibling, next=, after, replace, and swap now correctly use their parent as the context node for parsing markup. These methods now also raise a RuntimeError if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
