@@ -23,11 +23,6 @@ module Nokogiri
 
         @xml = Nokogiri::XML.parse(File.read(XML_FILE), XML_FILE)
 
-        @ns = @xml.root.namespaces
-
-        # TODO: Maybe I should move this to the original code.
-        @ns["nokogiri"] = "http://www.nokogiri.org/default_ns/ruby/extensions_functions"
-
         @handler = Class.new {
           attr_reader :things
 
@@ -143,7 +138,7 @@ module Nokogiri
         set = if Nokogiri.uses_libxml?
                 @xml.search('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
               else
-                @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @ns, @handler)
+                @xml.search('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
               end
         assert set.length > 0
         set.each do |node|
@@ -155,7 +150,7 @@ module Nokogiri
         set = if Nokogiri.uses_libxml?
                 @xml.xpath('//employee/address[my_filter(., "domestic", "Yes")]', @handler)
               else
-                @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @ns, @handler)
+                @xml.xpath('//employee/address[nokogiri:my_filter(., "domestic", "Yes")]', @handler)
               end
         assert set.length > 0
         set.each do |node|
@@ -168,7 +163,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           @xml.xpath('//employee[thing("asdf")]', @handler)
         else
-          @xml.xpath('//employee[nokogiri:thing("asdf")]', @ns, @handler)
+          @xml.xpath('//employee[nokogiri:thing("asdf")]', @handler)
         end
         assert_equal(set.length, @handler.things.length)
         assert_equal(['asdf'] * set.length, @handler.things)
@@ -236,7 +231,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           result = @xml.xpath('thing("asdf")', @handler)
         else
-          result = @xml.xpath('nokogiri:thing("asdf")', @ns, @handler)
+          result = @xml.xpath('nokogiri:thing("asdf")', @handler)
         end
         assert_equal 'asdf', result
       end
@@ -246,7 +241,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           @xml.xpath('//employee[thing(true())]', @handler)
         else
-          @xml.xpath("//employee[nokogiri:thing(true())]", @ns, @handler)
+          @xml.xpath("//employee[nokogiri:thing(true())]", @handler)
         end
         assert_equal(set.length, @handler.things.length)
         assert_equal([true] * set.length, @handler.things)
@@ -257,7 +252,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           @xml.xpath('//employee[thing(false())]', @handler)
         else
-          @xml.xpath("//employee[nokogiri:thing(false())]", @ns, @handler)
+          @xml.xpath("//employee[nokogiri:thing(false())]", @handler)
         end
         assert_equal(set.length, @handler.things.length)
         assert_equal([false] * set.length, @handler.things)
@@ -268,7 +263,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           @xml.xpath('//employee[thing(10)]', @handler)
         else
-          @xml.xpath('//employee[nokogiri:thing(10)]', @ns, @handler)
+          @xml.xpath('//employee[nokogiri:thing(10)]', @handler)
         end
         assert_equal(set.length, @handler.things.length)
         assert_equal([10] * set.length, @handler.things)
@@ -279,7 +274,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           @xml.xpath('//employee[thing(name)]', @handler)
         else
-          @xml.xpath('//employee[nokogiri:thing(name)]', @ns, @handler)
+          @xml.xpath('//employee[nokogiri:thing(name)]', @handler)
         end
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
@@ -290,7 +285,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           @xml.xpath('//employee[returns_array(name)]', @handler)
         else
-          @xml.xpath('//employee[nokogiri:returns_array(name)]', @ns, @handler)
+          @xml.xpath('//employee[nokogiri:returns_array(name)]', @handler)
         end
         assert_equal(set.length, @handler.things.length)
         assert_equal(set.to_a, @handler.things.flatten)
@@ -348,7 +343,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           value = @xml.xpath('value()', @handler)
         else
-          value = @xml.xpath('nokogiri:value()', @ns, @handler)
+          value = @xml.xpath('nokogiri:value()', @handler)
         end
         assert_equal 123.456, value
       end
@@ -357,7 +352,7 @@ module Nokogiri
         if Nokogiri.uses_libxml?
           value = @xml.xpath('anint()', @handler)
         else
-          value = @xml.xpath('nokogiri:anint()', @ns, @handler)
+          value = @xml.xpath('nokogiri:anint()', @handler)
         end
         assert_equal 1230456, value
       end
