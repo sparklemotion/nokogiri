@@ -78,9 +78,9 @@ module Nokogiri
       end
 
       def test_includes
-        assert_xpath  "//a[contains(concat(\" \", @class, \" \"),concat(\" \", 'bar', \" \"))]",
+        assert_xpath  "//a[contains(concat(' ',normalize-space(@class),' '),concat(' ','bar',' '))]",
                       @parser.parse("a[@class~='bar']")
-        assert_xpath  "//a[contains(concat(\" \", @class, \" \"),concat(\" \", 'bar', \" \"))]",
+        assert_xpath  "//a[contains(concat(' ',normalize-space(@class),' '),concat(' ','bar',' '))]",
                       @parser.parse("a[@class ~= 'bar']")
       end
 

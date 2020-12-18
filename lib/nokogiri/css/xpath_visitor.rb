@@ -3,7 +3,6 @@ module Nokogiri
   module CSS
     class XPathVisitor # :nodoc:
       def visit_function node
-
         msg = :"visit_function_#{node.value.first.gsub(/[(]/, '')}"
         return self.send(msg, node) if self.respond_to?(msg)
 
@@ -75,11 +74,11 @@ module Nokogiri
       end
 
       def visit_attribute_condition node
-         attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /::/)
-                       ''
-                     else
-                       '@'
-                     end
+        attribute = if (node.value.first.type == :FUNCTION) or (node.value.first.value.first =~ /::/)
+                      ''
+                    else
+                      '@'
+                    end
         attribute += node.value.first.accept(self)
 
         # Support non-standard css
@@ -109,7 +108,7 @@ module Nokogiri
         when :dash_match
           "#{attribute} = #{value} or starts-with(#{attribute}, concat(#{value}, '-'))"
         when :includes
-          "contains(concat(\" \", #{attribute}, \" \"),concat(\" \", #{value}, \" \"))"
+          "contains(concat(' ',normalize-space(#{attribute}),' '),concat(' ',#{value},' '))"
         when :suffix_match
           "substring(#{attribute}, string-length(#{attribute}) - " +
             "string-length(#{value}) + 1, string-length(#{value})) = #{value}"
