@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 require "helper"
 
@@ -52,6 +53,8 @@ class TestNokogiri < Nokogiri::TestCase
                      parser.parse('foo .awe\.some'))
         assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' a ') and contains(concat(' ',normalize-space(@class),' '),' b ')]",
                      parser.parse('.a.b'))
+        assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' pastoral ')]",
+                     parser.parse('*.pastoral'))
       end
 
       it "# id" do
@@ -60,11 +63,6 @@ class TestNokogiri < Nokogiri::TestCase
         assert_xpath("//*[@id='escape:needed,']", parser.parse('#escape\3Aneeded\,'))
         assert_xpath("//*[@id='escape:needed,']", parser.parse('#escape\3A needed\2C'))
         assert_xpath("//*[@id='escape:needed']", parser.parse('#escape\00003Aneeded'))
-      end
-
-      it "ad-hoc combinations" do
-        assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' pastoral ')]",
-                     parser.parse('*.pastoral'))
       end
 
       describe "attribute" do
@@ -405,6 +403,118 @@ class TestNokogiri < Nokogiri::TestCase
       ###
       # TODO: should we make this work?
       # assert_xpath ['//x/y', '//y/z'], parser.parse('x > y | y > z')
+    end
+  end
+
+  describe Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins do
+    let(:parser) { Nokogiri::CSS::Parser.new }
+
+    def assert_xpath(expecteds, asts)
+      expecteds = [expecteds].flatten
+      expecteds.zip(asts).each do |expected, actual|
+        assert_equal(expected, actual.to_xpath("//", Nokogiri::CSS::XPathVisitorAlwaysUseBuiltins.new))
+      end
+    end
+
+    it ". class" do
+      assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
+                   parser.parse('.awesome'))
+      assert_xpath("//foo[nokogiri-builtin:css-class(@class,'awesome')]",
+                     parser.parse('foo.awesome'))
+      assert_xpath("//foo//*[nokogiri-builtin:css-class(@class,'awesome')]",
+                     parser.parse('foo .awesome'))
+      assert_xpath("//foo//*[nokogiri-builtin:css-class(@class,'awe.some')]",
+                     parser.parse('foo .awe\.some'))
+      assert_xpath("//*[nokogiri-builtin:css-class(@class,'a') and nokogiri-builtin:css-class(@class,'b')]",
+                   parser.parse('.a.b'))
+    end
+
+    it "~=" do
+      assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+                   parser.parse("a[@class~='bar']"))
+      assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+                   parser.parse("a[@class ~= 'bar']"))
+      assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+                   parser.parse("a[@class~=bar]"))
+      assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+                   parser.parse("a[@class~=\"bar\"]"))
+      assert_xpath("//a[nokogiri-builtin:css-class(@data-words,'bar')]",
+                   parser.parse("a[data-words~=\"bar\"]"))
+      assert_xpath("//a[nokogiri-builtin:css-class(@data-words,'bar')]",
+                   parser.parse("a[@data-words~=\"bar\"]"))
+    end
+  end
+
+  describe Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins do
+    let(:parser) { Nokogiri::CSS::Parser.new }
+
+    def assert_xpath(expecteds, asts)
+      expecteds = [expecteds].flatten
+      expecteds.zip(asts).each do |expected, actual|
+        assert_equal(expected, actual.to_xpath("//", Nokogiri::CSS::XPathVisitorOptimallyUseBuiltins.new))
+      end
+    end
+
+    describe "css class lookup" do
+      #
+      #  only use the builtin css-class method if we're in libxml2, because incredibly the native
+      #  impl is slower in JRuby:
+      #
+      #    ruby 2.7.2p137 (2020-10-01 revision 5445e04352) [x86_64-linux]
+      #    Warming up --------------------------------------
+      #    xpath("//*[contains(concat(' ', normalize-space(@class), ' '), ' xxxx ')]")
+      #                            71.000  i/100ms
+      #    xpath("//*[nokogiri-builtin:css-class(@class, 'xxxx')]")
+      #                           135.000  i/100ms
+      #    Calculating -------------------------------------
+      #    xpath("//*[contains(concat(' ', normalize-space(@class), ' '), ' xxxx ')]")
+      #                            681.312  (± 5.9%) i/s -      6.816k in  10.041631s
+      #    xpath("//*[nokogiri-builtin:css-class(@class, 'xxxx')]")
+      #                              1.343k (± 5.9%) i/s -     13.500k in  10.090504s
+      #
+      #    Comparison:
+      #    xpath("//*[nokogiri-builtin:css-class(@class, 'xxxx')]"):     1343.0 i/s
+      #    xpath("//*[contains(concat(' ', normalize-space(@class), ' '), ' xxxx ')]"):      681.3 i/s - 1.97x  (± 0.00) slower
+      #
+      #  but:
+      #
+      #    jruby 9.2.9.0 (2.5.7) 2019-10-30 458ad3e OpenJDK 64-Bit Server VM 11.0.9.1+1-Ubuntu-0ubuntu1.20.04 on 11.0.9.1+1-Ubuntu-0ubuntu1.20.04 [linux-x86_64]
+      #    Warming up --------------------------------------
+      #    xpath("//*[contains(concat(' ', normalize-space(@class), ' '), ' xxxx ')]")
+      #                            74.000  i/100ms
+      #    xpath("//*[nokogiri-builtin:css-class(@class, 'xxxx')]")
+      #                            41.000  i/100ms
+      #    Calculating -------------------------------------
+      #    xpath("//*[contains(concat(' ', normalize-space(@class), ' '), ' xxxx ')]")
+      #                            814.536  (± 9.6%) i/s -      8.066k in  10.022432s
+      #    xpath("//*[nokogiri-builtin:css-class(@class, 'xxxx')]")
+      #                            443.781  (± 6.8%) i/s -      4.428k in  10.029857s
+      #
+      #    Comparison:
+      #    xpath("//*[contains(concat(' ', normalize-space(@class), ' '), ' xxxx ')]"):      814.5 i/s
+      #    xpath("//*[nokogiri-builtin:css-class(@class, 'xxxx')]"):      443.8 i/s - 1.84x  (± 0.00) slower
+      #
+      #  If someone can explain to me why this is, and fix it, I will love you forever.
+      #
+      it ". class" do
+        if Nokogiri.uses_libxml?
+          assert_xpath("//*[nokogiri-builtin:css-class(@class,'awesome')]",
+                       parser.parse('.awesome'))
+        else
+          assert_xpath("//*[contains(concat(' ',normalize-space(@class),' '),' awesome ')]",
+                       parser.parse('.awesome'))
+        end
+      end
+
+      it "~=" do
+        if Nokogiri.uses_libxml?
+          assert_xpath("//a[nokogiri-builtin:css-class(@class,'bar')]",
+                       parser.parse("a[@class~='bar']"))
+        else
+          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+                       parser.parse("a[@class~='bar']"))
+        end
+      end
     end
   end
 end

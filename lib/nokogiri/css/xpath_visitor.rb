@@ -184,10 +184,6 @@ module Nokogiri
 
       private
 
-      def css_class(hay, needle)
-        "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
-      end
-
       def nth node, options={}
         raise ArgumentError, "expected an+b node to contain 4 tokens, but is #{node.value.inspect}" unless node.value.size == 4
 
@@ -232,6 +228,32 @@ module Nokogiri
             node.value[0]
           end =~ /(nth|first|last|only)-of-type(\()?/
         end
+      end
+
+      # use only ordinary xpath functions
+      def css_class_standard(hay, needle)
+        "contains(concat(' ',normalize-space(#{hay}),' '),' #{needle} ')"
+      end
+
+      # use the builtin implementation
+      def css_class_builtin(hay, needle)
+        "nokogiri-builtin:css-class(#{hay},'#{needle}')"
+      end
+
+      alias_method :css_class, :css_class_standard
+    end
+
+    class XPathVisitorAlwaysUseBuiltins < XPathVisitor # :nodoc:
+      private
+      alias_method :css_class, :css_class_builtin
+    end
+
+    class XPathVisitorOptimallyUseBuiltins < XPathVisitor # :nodoc:
+      private
+      if Nokogiri.uses_libxml?
+        alias_method :css_class, :css_class_builtin
+      else
+        alias_method :css_class, :css_class_standard
       end
     end
   end
