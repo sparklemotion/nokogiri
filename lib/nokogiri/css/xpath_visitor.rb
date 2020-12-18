@@ -54,6 +54,7 @@ module Nokogiri
           is_direct = node.value[1].value[0].nil? # e.g. "has(> a)", "has(~ a)", "has(+ a)"
           ".#{"//" if !is_direct}#{node.value[1].accept(self)}"
         else
+          # non-standard. this looks like a function call.
           args = ['.'] + node.value[1..-1]
           "#{node.value.first}#{args.join(',')})"
         end
@@ -81,7 +82,7 @@ module Nokogiri
                     end
         attribute += node.value.first.accept(self)
 
-        # Support non-standard css
+        # non-standard. attributes starting with '@'
         attribute.gsub!(/^@@/, '@')
 
         return attribute unless node.value.length == 3
