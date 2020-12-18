@@ -116,10 +116,14 @@ class TestNokogiri < Nokogiri::TestCase
         end
 
         it "~=" do
-          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),concat(' ','bar',' '))]",
+          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
                        parser.parse("a[@class~='bar']"))
-          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),concat(' ','bar',' '))]",
+          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
                        parser.parse("a[@class ~= 'bar']"))
+          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+                       parser.parse("a[@class~=bar]"))
+          assert_xpath("//a[contains(concat(' ',normalize-space(@class),' '),' bar ')]",
+                       parser.parse("a[@class~=\"bar\"]"))
         end
 
         it "^=" do

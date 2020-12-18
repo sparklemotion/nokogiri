@@ -110,7 +110,8 @@ module Nokogiri
         when :dash_match
           "#{attribute}=#{value} or starts-with(#{attribute},concat(#{value},'-'))"
         when :includes
-          "contains(concat(' ',normalize-space(#{attribute}),' '),concat(' ',#{value},' '))"
+          value = value[1..-2] # strip quotes
+          "contains(concat(' ',normalize-space(#{attribute}),' '),' #{value} ')"
         when :suffix_match
           "substring(#{attribute},string-length(#{attribute})-string-length(#{value})+1,string-length(#{value}))=#{value}"
         else
