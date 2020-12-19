@@ -29,9 +29,7 @@ We bump `Major.Minor.Patch` versions following this guidance:
 
 ## Unreleased (will be v1.11.0)
 
-Latest is `v1.11.0.rc3`.
-
-To try out release candidates, use `gem install --prerelease` or `gem install nokogiri -v1.11.0.rc3`
+Latest is `v1.11.0.rc3`. To try out release candidates, use `gem install --prerelease` or `gem install nokogiri -v1.11.0.rc3`
 
 If you're using bundler, try updating your Gemfile with:
 
@@ -82,22 +80,22 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 
 ### Added
 
-* Add Node methods for manipulating keyword attributes (like `class` and `rel`): `#kwattr_values`, `#kwattr_add`, `#kwattr_append`, and `#kwattr_remove`. [[#2000](https://github.com/sparklemotion/nokogiri/issues/2000)]
-* Add support for CSS queries "a:has(> b)", "a:has(~ b)", and "a:has(+ b)". [[#688](https://github.com/sparklemotion/nokogiri/issues/688)] (Thanks, [@jonathanhefner](https://github.com/jonathanhefner)!)
+* Add Node methods for manipulating "keyword attributes" (for example, `class` and `rel`): `#kwattr_values`, `#kwattr_add`, `#kwattr_append`, and `#kwattr_remove`. [[#2000](https://github.com/sparklemotion/nokogiri/issues/2000)]
+* Add support for CSS queries `a:has(> b)`, `a:has(~ b)`, and `a:has(+ b)`. [[#688](https://github.com/sparklemotion/nokogiri/issues/688)] (Thanks, [@jonathanhefner](https://github.com/jonathanhefner)!)
 * Add `Node#value?` to better match expected semantics of a Hash-like object. [[#1838](https://github.com/sparklemotion/nokogiri/issues/1838), [#1840](https://github.com/sparklemotion/nokogiri/issues/1840)] (Thanks, [@MatzFan](https://github.com/MatzFan)!)
 * [CRuby] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [[#1918](https://github.com/sparklemotion/nokogiri/issues/1918)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 
 
 ### Improved
 
-* Add `frozen_string_literal: true` magic comment to all `lib` files. [[#1745](https://github.com/sparklemotion/nokogiri/issues/1745)] (Thanks, [@oniofchaos](https://github.com/oniofchaos)!)
+* [CRuby] The CSS `~=` operator and class selector `.` are about 2x faster. [[#2137](https://github.com/sparklemotion/nokogiri/issues/2137), [#2135](https://github.com/sparklemotion/nokogiri/issues/2135)]
+* [CRuby] Recognize incorrectly-closed HTML comments. [[#2058](https://github.com/sparklemotion/nokogiri/issues/2058)] (Thanks to HackerOne user [mayflower](https://hackerone.com/mayflower?type=user) for reporting this!)
 * Improve performance of some namespace operations. [[#1916](https://github.com/sparklemotion/nokogiri/issues/1916)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Remove unnecessary array allocations from Node serialization methods [[#1911](https://github.com/sparklemotion/nokogiri/issues/1911)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Avoid creation of unnecessary zero-length String objects. [[#1970](https://github.com/sparklemotion/nokogiri/issues/1970)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Always compile libxml2 and libxslt with '-O2' [[#2022](https://github.com/sparklemotion/nokogiri/issues/2022), [#2100](https://github.com/sparklemotion/nokogiri/issues/2100)] (Thanks, [@ilyazub](https://github.com/ilyazub)!)
+* Add `frozen_string_literal: true` magic comment to all `lib` files. [[#1745](https://github.com/sparklemotion/nokogiri/issues/1745)] (Thanks, [@oniofchaos](https://github.com/oniofchaos)!)
 * {HTML,XML}::Document#parse now accept `Pathname` objects. Previously this worked only if the referenced file was less than 4096 bytes long; longer files resulted in undefined behavior because the `read` method would be repeatedly invoked. [[#1821](https://github.com/sparklemotion/nokogiri/issues/1821), [#2110](https://github.com/sparklemotion/nokogiri/issues/2110)] (Thanks, [@doriantaylor](https://github.com/doriantaylor) and [@phokz](https://github.com/phokz)!)
-* [CRuby] The CSS `~=` operator and class selector `.` are about 2x faster. [[#2137](https://github.com/sparklemotion/nokogiri/issues/2137), [#2135](https://github.com/sparklemotion/nokogiri/issues/2135)]
-* [CRuby] Packaged libxml2 follows WHATWG guidance for incorrectly-closed HTML comments. [[#2058](https://github.com/sparklemotion/nokogiri/issues/2058)] (Thanks to HackerOne user [mayflower](https://hackerone.com/mayflower?type=user) for reporting this!)
 * [JRuby] Lots of code cleanup and performance improvements. [[#1934](https://github.com/sparklemotion/nokogiri/issues/1934)] (Thanks, [@kares](https://github.com/kares)!)
 * [JRuby] Clean up deprecated calls into JRuby. [[#2027](https://github.com/sparklemotion/nokogiri/issues/2027)] (Thanks, [@headius](https://github.com/headius)!)
 * [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
@@ -105,9 +103,9 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 
 ### Fixed
 
-* The CSS `~=` operator now correctly handles non-space whitespace in the `class` attribute.
+* The CSS `~=` operator now correctly handles non-space whitespace in the `class` attribute. commit e45dedd
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
-* The Node methods add_previous_sibling, previous=, before, add_next_sibling, next=, after, replace, and swap now correctly use their parent as the context node for parsing markup. These methods now also raise a RuntimeError if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)
+* The Node methods `add_previous_sibling`, `previous=`, `before`, `add_next_sibling`, `next=`, `after`, `replace`, and `swap` now correctly use their parent as the context node for parsing markup. These methods now also raise a `RuntimeError` if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)]
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [CRuby] On some platforms, avoid symbol name collision with glibc's `canonicalize`. [[#2105](https://github.com/sparklemotion/nokogiri/issues/2105)]
 * [CRuby] `RelaxNG.from_document` no longer leaks memory. [[#2114](https://github.com/sparklemotion/nokogiri/issues/2114)]
@@ -124,143 +122,22 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 
 ### Changed
 
-#### `XML::Schema` parsing treats input as "untrusted" by default
+#### `XML::Schema` input is now "untrusted" by default
 
 Address [CVE-2020-26247](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m).
 
-In Nokogiri versions <= 1.11.0.rc3, XML Schemas parsed by `Nokogiri::XML::Schema` are **trusted** by default, allowing external resources to be accessed over the network, potentially enabling XXE or SSRF attacks.
+In Nokogiri versions <= 1.11.0.rc3, XML Schemas parsed by `Nokogiri::XML::Schema` were **trusted** by default, allowing external resources to be accessed over the network, potentially enabling XXE or SSRF attacks.
 
-This behavior is counter to the security policy followed by Nokogiri maintainers, which is to treat all input as **untrusted** by default whenever possible.
+This behavior is counter to the security policy intended by Nokogiri maintainers, which is to treat all input as **untrusted** by default whenever possible.
 
 Please note that this security fix was pushed into a new minor version, 1.11.x, rather than a patch release to the 1.10.x branch, because it is a breaking change for some schemas and the risk was assessed to be "Low Severity".
 
 More information and instructions for enabling "trusted input" behavior in v1.11.0.rc4 and later is available at the [public advisory](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m).
 
 
-#### `VersionInfo` and the output of `nokogiri -v`
+#### `VersionInfo`, the output of `nokogiri -v`, and related constants
 
-This release changes the information provided in
-`Nokogiri::VersionInfo`, see [#1482](https://github.com/sparklemotion/nokogiri/issues/1482) and [#1974](https://github.com/sparklemotion/nokogiri/issues/1974) for background. Note that
-the output of `nokogiri -v` will also reflect these changes.
-
-`Nokogiri::VersionInfo` will no longer contain the following keys (previously these were set only when packaged libraries were being used)
-* `libxml/libxml2_path`
-* `libxml/libxslt_path`
-
-`Nokogiri::VersionInfo` now contains native gem metadata for libxml:
-* `libxml/precompiled` (`true` if the gem installed was a native gem, otherwise `false`)
-* `libxml/iconv_enabled` (`true` if libxml2 was built with iconv support, otherwise `false`)
-
-`Nokogiri::VersionInfo` now contains version metadata for libxslt:
-* `libxslt/source` (either "packaged" or "system", similar to `libxml/source`)
-* `libxslt/precompiled` (`true` if the gem installed was a native gem, otherwise `false`)
-* `libxslt/compiled` (the version of libxslt the gem was compiled against, similar to `libxml/compiled`)
-* `libxslt/loaded` (the version of libxslt loaded at runtime, similar to `libxml/loaded`)
-* `libxslt/patches` moved from `libxml/libxslt_patches`
-
-`Nokogiri::VersionInfo` key `libxml/libxml2_patches` has been renamed to `libxml/patches`
-
-These global variables are no longer be defined:
-* `NOKOGIRI_LIBXML2_PATH`
-* `NOKOGIRI_LIBXSLT_PATH`
-
-These constants have been renamed:
-* `Nokogiri::LIBXML_VERSION` is now `Nokogiri::LIBXML_COMPILED_VERSION`
-* `Nokogiri::LIBXML_PARSER_VERSION` is now `Nokogiri::LIBXML_LOADED_VERSION`
-* `Nokogiri::NOKOGIRI_LIBXML2_PATCHES` is now `Nokogiri::LIBXML2_PATCHES`
-* `Nokogiri::NOKOGIRI_LIBXSLT_PATCHES` is now `Nokogiri::LIBXSLT_PATCHES`
-* `Nokogiri::NOKOGIRI_USE_PACKAGED_LIBRARIES` is now `Nokogiri::PACKAGED_LIBRARIES`
-
-These methods have been renamed and the return type changed from `String` to `Gem::Version`:
-* `VersionInfo#loaded_parser_version` is now `#loaded_libxml_version`
-* `VersionInfo#compiled_parser_version` is now `#compiled_libxml_version`
-
-`Nokogiri.uses_libxml?` now accepts an optional requirement string which is interpreted as a `Gem::Requirement` and tested against the loaded libxml2 version (the value in `VersionInfo` key `libxml/loaded`). This greatly simplifies much of the version-dependent branching logic in both the implementation and the tests.
-
-To sum these changes up, the output from CRuby when using packaged libraries was something like:
-
-```
-# Nokogiri (1.10.7)
-    ---
-    warnings: []
-    nokogiri: 1.10.7
-    ruby:
-      version: 2.7.0
-      platform: x86_64-linux
-      description: ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-linux]
-      engine: ruby
-    libxml:
-      binding: extension
-      source: packaged
-      libxml2_path: "/home/flavorjones/.rvm/gems/ruby-2.7.0/gems/nokogiri-1.10.7/ports/x86_64-pc-linux-gnu/libxml2/2.9.10"
-      libxslt_path: "/home/flavorjones/.rvm/gems/ruby-2.7.0/gems/nokogiri-1.10.7/ports/x86_64-pc-linux-gnu/libxslt/1.1.34"
-      libxml2_patches:
-      - 0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
-      - 0002-Remove-script-macro-support.patch
-      - 0003-Update-entities-to-remove-handling-of-ssi.patch
-      - 0004-libxml2.la-is-in-top_builddir.patch
-      libxslt_patches: []
-      compiled: 2.9.10
-      loaded: 2.9.10
-```
-
-but now looks like:
-
-```
-# Nokogiri (1.11.0)
-    ---
-    warnings: []
-    nokogiri: 1.11.0
-    ruby:
-      version: 2.7.2
-      platform: x86_64-linux
-      gem_platform: x86_64-linux
-      description: ruby 2.7.2p137 (2020-10-01 revision 5445e04352) [x86_64-linux]
-      engine: ruby
-    libxml:
-      source: packaged
-      precompiled: false
-      patches:
-      - 0001-Revert-Do-not-URI-escape-in-server-side-includes.patch
-      - 0002-Remove-script-macro-support.patch
-      - 0003-Update-entities-to-remove-handling-of-ssi.patch
-      - 0004-libxml2.la-is-in-top_builddir.patch
-      - 0005-Fix-infinite-loop-in-xmlStringLenDecodeEntities.patch
-      - 0006-htmlParseComment-treat-as-if-it-closed-the-comment.patch
-      - 0007-rewrite-htmlParseLookupSequence-to-accept-an-arbitra.patch
-      - '0008-use-new-htmlParseLookupCommentEnd-to-find-comment-en.patch'
-      iconv_enabled: true
-      compiled: 2.9.10
-      loaded: 2.9.10
-    libxslt:
-      source: packaged
-      precompiled: false
-      patches: []
-      compiled: 1.1.34
-      loaded: 1.1.34
-```
-
-and the output from using system libraries now looks like:
-
-```
-# Nokogiri (1.11.0)
-    ---
-    warnings: []
-    nokogiri: 1.11.0
-    ruby:
-      version: 2.7.0
-      platform: x86_64-linux
-      description: ruby 2.7.0p0 (2019-12-25 revision 647ee6f091) [x86_64-linux]
-      engine: ruby
-    libxml:
-      source: system
-      compiled: 2.9.4
-      loaded: 2.9.4
-    libxslt:
-      source: system
-      compiled: 1.1.29
-      loaded: 1.1.29
-```
+This release changes the metadata provided in `Nokogiri::VersionInfo` which also affects the output of `nokogiri -v`. Some related constants have also been changed. If you're using `VersionInfo` programmatically, or relying on constants related to underlying library versions, please read the detailed changes for `Nokogiri::VersionInfo` at #2139 and accept our apologies for the inconvenience.
 
 
 ## 1.10.10 / 2020-07-06
