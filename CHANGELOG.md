@@ -10,7 +10,7 @@ We bump `Major.Minor.Patch` versions following this guidance:
 
 `Major`:
 
-- If we bumped this (which we never have), it would be for significant backwards-incompatible API changes that would require rewriting existing code.
+- If we bumped this (which we never have), it would be for significant backwards-incompatible changes to the public API that would require rewriting existing code.
 - Some examples of backwards-incompatible changes we might someday consider for a Major release are at [`ROADMAP.md`](ROADMAP.md).
 
 `Minor`:
@@ -18,6 +18,7 @@ We bump `Major.Minor.Patch` versions following this guidance:
 - Features and bugfixes.
 - Dropping support for EOLed Ruby versions, updating packaged libraries.
 - Updating packaged libraries for non-security-related reasons.
+- Backwards-incompatible changes to internal methods and constants. These are detailed in the "Changes" section of the changelog entry.
 
 `Patch`:
 
