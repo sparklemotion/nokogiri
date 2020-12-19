@@ -139,100 +139,6 @@ jobs:
         path: ci/concourse/tasks/rake-test/run.sh
     task: rake-test-32bit
   public: true
-- name: cruby-2.4
-  on_abort:
-    params:
-      base_context: ci.nokogiri.org
-      context: cruby-2.4
-      description: This job was terminated.
-      path: nokogiri-pr
-      status: ERROR
-    put: nokogiri-pr
-  on_error:
-    params:
-      base_context: ci.nokogiri.org
-      context: cruby-2.4
-      description: This job had errors.
-      path: nokogiri-pr
-      status: ERROR
-    put: nokogiri-pr
-  on_failure:
-    params:
-      base_context: ci.nokogiri.org
-      context: cruby-2.4
-      description: This job had some failed tests.
-      path: nokogiri-pr
-      status: FAILURE
-    put: nokogiri-pr
-  on_success:
-    params:
-      base_context: ci.nokogiri.org
-      context: cruby-2.4
-      description: Nokobot is happy with this job.
-      path: nokogiri-pr
-      status: SUCCESS
-    put: nokogiri-pr
-  plan:
-  - get: ci
-  - get: nokogiri-pr
-    passed:
-    - cruby-on-vanilla-ubuntu
-    trigger: true
-    version: every
-  - params:
-      base_context: ci.nokogiri.org
-      context: cruby-2.4
-      description: Nokobot is working, beep boop ...
-      path: nokogiri-pr
-      status: PENDING
-    put: nokogiri-pr
-  - config:
-      image_resource:
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.4
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_SYSTEM_LIBRARIES: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-system-libraries
-  - config:
-      image_resource:
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.4
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-vendored-libraries
-  - config:
-      image_resource:
-        source:
-          repository: flavorjones/nokogiri-test
-          tag: mri-2.4
-        type: registry-image
-      inputs:
-      - name: ci
-      - name: nokogiri-pr
-        path: nokogiri
-      params:
-        TEST_WITH_VALGRIND: t
-      platform: linux
-      run:
-        path: ci/concourse/tasks/rake-test/run.sh
-    task: rake-test-valgrind
-  public: true
 - name: cruby-2.5
   on_abort:
     params:
@@ -755,7 +661,6 @@ jobs:
   - get: ci
   - get: nokogiri-pr
     passed:
-    - cruby-2.4
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
@@ -837,7 +742,6 @@ jobs:
   - get: ci
   - get: nokogiri-pr
     passed:
-    - cruby-2.4
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
@@ -922,7 +826,6 @@ jobs:
   - get: ci
   - get: nokogiri-pr
     passed:
-    - cruby-2.4
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
@@ -1021,7 +924,6 @@ jobs:
   - get: ci
   - get: nokogiri-pr
     passed:
-    - cruby-2.4
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
@@ -1054,21 +956,6 @@ jobs:
     task: build
   - in_parallel:
       steps:
-      - config:
-          image_resource:
-            source:
-              repository: flavorjones/nokogiri-test
-              tag: mri-2.4
-            type: registry-image
-          inputs:
-          - name: ci
-          - name: nokogiri-pr
-            path: nokogiri
-          - name: gems
-          platform: linux
-          run:
-            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
-        task: install-and-test-2.4
       - config:
           image_resource:
             source:
@@ -1182,7 +1069,6 @@ jobs:
   - get: ci
   - get: nokogiri-pr
     passed:
-    - cruby-2.4
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
