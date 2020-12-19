@@ -1,5 +1,5 @@
 jobs:
-- name: cruby-on-vanilla-ubuntu
+- name: rubocop
   on_failure:
     in_parallel:
       steps:
@@ -26,6 +26,23 @@ jobs:
       run:
         path: ci/concourse/tasks/rake-test/rubocop.sh
     task: rubocop
+  public: true
+- name: cruby-on-vanilla-ubuntu
+  on_failure:
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
+  plan:
+  - get: ci
+  - get: nokogiri
+    passed:
+    - rubocop
+    trigger: true
   - config:
       image_resource:
         source:
@@ -724,9 +741,14 @@ jobs:
   public: true
 - name: cruby-native-gem-test-32bit
   on_failure:
-    params:
-      message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
-    put: irc
+    in_parallel:
+      steps:
+      - params:
+          message: ($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)
+        put: irc
+      - params:
+          status: failed
+        put: gitter
   plan:
   - get: ci
   - get: nokogiri
@@ -735,7 +757,6 @@ jobs:
     - cruby-2.5
     - cruby-2.6
     - cruby-2.7
-    - cruby-3.0-rc
     trigger: true
     version: every
   - config:

@@ -1,75 +1,141 @@
+#@ load("@ytt:template", "template")
+
+#@ load("ruby.star", "cruby_versions")
+#@ all_cruby_versions = []
+#@ all_cruby_versions.extend(cruby_versions["supported"])
+#@ all_cruby_versions.extend(cruby_versions["beta"])
+
+#@ load("ruby.star", "jruby_versions")
+#@ all_jruby_versions = []
+#@ all_jruby_versions.extend(jruby_versions["supported"])
+#@ all_jruby_versions.extend(jruby_versions["beta"])
+
+#@ load("ruby.star", "truffleruby_versions")
+#@ all_truffleruby_versions = []
+#@ all_truffleruby_versions.extend(truffleruby_versions["supported"])
+#@ all_truffleruby_versions.extend(truffleruby_versions["beta"])
+
+---
+#@ def registry_image(image_repo, image_tag):
+platform: linux
+image_resource:
+  type: registry-image
+  source:
+    repository: #@ image_repo
+    tag: #@ image_tag
+#@ end
+
+---
+#@ def notify_on_failure(job_name):
+on_failure:
+  in_parallel:
+    - put: irc
+      params: { message: "($BUILD_PIPELINE_NAME/$BUILD_JOB_NAME) The build failed ($BUILD_URL)" }
+    - put: gitter
+      params: { status: "failed" }
+#@ end
+
+---
+#@ def task_inputs():
+- name: ci
+- name: nokogiri
+#@ end
+
+---
 % require "common_prelude.rb"
 
 resource_types:
-<%= erbify_file "common_resource_types.yml" -%>
-
+  - name: irc-notification
+    type: registry-image
+    source:
+      repository: flavorjones/irc-notification-resource
+  - name: webhook-notification
+    type: registry-image
+    source:
+      repository: flavorjones/webhook-notification-resource
+      tag: latest
 
 resources:
-<%= erbify_file "common_resources.yml" -%>
+  - name: ci
+    type: git
+    icon: cog
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      disable_ci_skip: true #! always get the latest pipeline configuration
+  - name: irc
+    type: irc-notification
+    icon: bell
+    source:
+      server: chat.freenode.net
+      port: 7070
+      channel: "#nokogiri"
+      user: ((nokobot-irc-username))
+      password: ((nokobot-irc-password))
+  - name: gitter
+    type: webhook-notification
+    icon: bell
+    source:
+      adapter: GitterActivityFeedAdapter
+      url: ((nokogiri-gitter-channel-webhook-url))
   - name: nokogiri
     type: git
     icon: "github"
     source:
       uri: https://github.com/sparklemotion/nokogiri/
       branch: master
-      ignore_paths: <%= $git_resource_ignore_paths %>
-
-
-anchors:
-<%= erbify_file "common_anchors.yml" -%>
+      ignore_paths:
+        - "*.md"
+        - "concourse/**"
+        - "suppressions/**"
+        - ".github/**"
+        - "Vagrantfile"
 
 
 jobs:
-  - name: cruby-on-vanilla-ubuntu
+#@ job_name = "rubocop"
+  - name: #@ job_name
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
       - task: rubocop
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          run:
-            path: ci/concourse/tasks/rake-test/rubocop.sh
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          run: {path: ci/concourse/tasks/rake-test/rubocop.sh}
+
+
+#@ job_name = "cruby-on-vanilla-ubuntu"
+  - name: #@ job_name
+    public: true
+    _: #@ template.replace(notify_on_failure(job_name))
+    plan:
+      - get: ci
+      - get: nokogiri
+        trigger: true
+        passed: ["rubocop"]
       - task: rake-test
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: bionic}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            TEST_WITH_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          params: {TEST_WITH_SYSTEM_LIBRARIES: t}
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
       - task: rake-test-32bit
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: bionic32}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            TEST_WITH_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic32"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          params: {TEST_WITH_SYSTEM_LIBRARIES: t}
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
 
 
-  <% RUBIES[:mri].each do |ruby_version| %>
-  - name: cruby-<%= ruby_version %>
+#@ for ruby_version in all_cruby_versions:
+#@ job_name = "cruby-{}".format(ruby_version)
+  - name: #@ job_name
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -77,52 +143,34 @@ jobs:
         passed: ["cruby-on-vanilla-ubuntu"]
       - task: rake-test-system-libraries
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
+          inputs: [{name: ci}, {name: nokogiri}]
           params:
             TEST_WITH_SYSTEM_LIBRARIES: t
-            <% if ruby_version == Concourse.production_rubies.last %>
+            #@ if ruby_version == cruby_versions["supported"][-1]:
             CC_TEST_REPORTER_ID: ((code_climate_reporter_id_nokogiri))
             GIT_BRANCH: master
-            <% end %>
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+            #@ end
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
       - task: rake-test-vendored-libraries
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
+          inputs: [{name: ci}, {name: nokogiri}]
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
       - task: rake-test-valgrind
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            TEST_WITH_VALGRIND: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-  <% end %>
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(ruby_version)))
+          inputs: [{name: ci}, {name: nokogiri}]
+          params: {TEST_WITH_VALGRIND: t}
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
+#@ end
 
 
-  <% RUBIES[:jruby].each_with_index do |jruby_version, j| %>
-  - name: jruby-<%= jruby_version %>
+#@ for ruby_version in all_jruby_versions:
+#@ job_name = "jruby-{}".format(ruby_version)
+  - name: #@ job_name
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -130,22 +178,17 @@ jobs:
         passed: ["cruby-on-vanilla-ubuntu"]
       - task: rake-test
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= jruby_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-  <% end %>
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "jruby-{}".format(ruby_version)))
+          inputs: [{name: ci}, {name: nokogiri}]
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
+#@ end
 
 
-  <% RUBIES[:truffle].each_with_index do |truffle_version, j| %>
-  - name: truffle-<%= truffle_version %>
+#@ for ruby_version in all_truffleruby_versions:
+#@ job_name = "truffle-{}".format(ruby_version)
+  - name: #@ job_name
     public: true
-#    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+#!    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
@@ -153,296 +196,194 @@ jobs:
         passed: ["cruby-on-vanilla-ubuntu"]
       - task: rake-test
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "truffle-<%= truffle_version %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
-  <% end %>
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "truffle-{}".format(ruby_version)))
+          inputs: #@ task_inputs()
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
+#@ end
 
 
-  - name: cruby-on-musl
+#@ job_name = "cruby-on-musl"
+  - name: #@ job_name
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed:
-          <% Concourse.production_rubies.each do |ruby_version| %>
-          - cruby-<%= ruby_version %>
-          <% end %>
+        passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - task: rake-test-system-libraries
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            TEST_WITH_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
+          params: {TEST_WITH_SYSTEM_LIBRARIES: t}
       - task: rake-test-valgrind
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          params:
-            TEST_WITH_VALGRIND: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
+          params: {TEST_WITH_VALGRIND: t}
 
 
-  - name: cruby-with-libxmlruby
+#@ job_name = "cruby-with-libxmlruby"
+  - name: #@ job_name
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed:
-          <% Concourse.production_rubies.each do |ruby_version| %>
-          - cruby-<%= ruby_version %>
-          <% end %>
+        passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - task: rake-test-system-libraries
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(cruby_versions["supported"][-1])))
+          inputs: [{name: ci}, {name: nokogiri}]
           params:
             BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
             TEST_WITH_SYSTEM_LIBRARIES: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
       - task: rake-test-valgrind
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(cruby_versions["supported"][-1])))
+          inputs: [{name: ci}, {name: nokogiri}]
           params:
             BUNDLE_GEMFILE: "Gemfile-libxml-ruby"
             TEST_WITH_VALGRIND: t
-          run:
-            path: ci/concourse/tasks/rake-test/run.sh
+          run: {path: ci/concourse/tasks/rake-test/run.sh}
 
 
-  - name: cruby-gem-test
+#@ job_name = "cruby-gem-test"
+  - name: #@ job_name
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed:
-          <% Concourse.production_rubies.each do |ruby_version| %>
-          - cruby-<%= ruby_version %>
-          <% end %>
+        passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - task: build
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          outputs:
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-build.sh
+          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          outputs: [{name: gems}]
+          run: {path: ci/concourse/tasks/gem-test/gem-build.sh}
       - in_parallel:
         - task: install-and-test
           config:
-            platform: linux
-            image_resource:
-              type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= Concourse.production_rubies.last %>"}
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-{}".format(cruby_versions["supported"][-1])))
             inputs:
               - name: ci
               - name: nokogiri
               - name: gems
-            run:
-              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+            run: {path: ci/concourse/tasks/gem-test/gem-install-and-test.sh}
         - task: install-and-test-on-musl
           config:
-            platform: linux
-            image_resource:
-              type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
             inputs:
               - name: ci
               - name: nokogiri
               - name: gems
-            run:
-              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+            run: {path: ci/concourse/tasks/gem-test/gem-install-and-test.sh}
 
 
-  - name: cruby-native-gem-test
+#@ job_name = "cruby-native-gem-test"
+  - name: #@ job_name
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
         version: every
-        passed:
-          <% Concourse.production_rubies.each do |ruby_version| %>
-          - cruby-<%= ruby_version %>
-          <% end %>
+        passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - task: build
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/rake-compiler-dock-mri-x86_64-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          outputs:
-            - name: gems
-          params:
-            BUILD_NATIVE_GEM: "x86_64-linux"
-          run:
-            path: ci/concourse/tasks/gem-test/gem-build.sh
+          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86_64-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          outputs: [{name: gems}]
+          params: {BUILD_NATIVE_GEM: "x86_64-linux"}
+          run: {path: ci/concourse/tasks/gem-test/gem-build.sh}
       - in_parallel:
         <% $native_ruby_versions.each do |ruby_version| %>
           <% ruby_version = "3.0-rc" if ruby_version == "3.0" %>
         - task: install-and-test-<%= ruby_version %>
           config:
-            platform: linux
-            image_resource:
-              type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "mri-<%= ruby_version %>"}
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "mri-<%= ruby_version %>"))
             inputs:
               - name: ci
               - name: nokogiri
               - name: gems
-            run:
-              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+            run: {path: ci/concourse/tasks/gem-test/gem-install-and-test.sh}
         <% end %>
         - task: install-and-test-on-musl
           config:
-            platform: linux
-            image_resource:
-              type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "alpine"}
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine"))
             inputs:
               - name: ci
               - name: nokogiri
               - name: gems
-            run:
-              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+            run: {path: ci/concourse/tasks/gem-test/gem-install-and-test.sh}
 
 
-  - name: cruby-native-gem-test-32bit
+#@ job_name = "cruby-native-gem-test-32bit"
+  - name: #@ job_name
     public: true
-    on_failure: *notify_failure_to_irc
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
         version: every
-        passed:
-          <% RUBIES[:mri].each do |ruby_version| %>
-          - cruby-<%= ruby_version %>
-          <% end %>
+        passed: #@ ["cruby-{}".format(ruby_version) for ruby_version in cruby_versions["supported"]]
       - task: build
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/rake-compiler-dock-mri-x86-linux", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          outputs:
-            - name: gems
-          params:
-            BUILD_NATIVE_GEM: "x86-linux"
-          run:
-            path: ci/concourse/tasks/gem-test/gem-build.sh
+          "_": #@ template.replace(registry_image("flavorjones/rake-compiler-dock-mri-x86-linux", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          outputs: [{name: gems}]
+          params: {BUILD_NATIVE_GEM: "x86-linux"}
+          run: {path: ci/concourse/tasks/gem-test/gem-build.sh}
       - in_parallel:
         - task: install-and-test-on-vanilla-ubuntu-32bit
           config:
-            platform: linux
-            image_resource:
-              type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "bionic32"}
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "bionic32"))
             inputs:
               - name: ci
               - name: nokogiri
               - name: gems
-            run:
-              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+            run: {path: ci/concourse/tasks/gem-test/gem-install-and-test.sh}
         - task: install-and-test-on-musl-32bit
           config:
-            platform: linux
-            image_resource:
-              type: registry-image
-              source: {repository: "flavorjones/nokogiri-test", tag: "alpine32"}
+            "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "alpine32"))
             inputs:
               - name: ci
               - name: nokogiri
               - name: gems
-            run:
-              path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+            run: {path: ci/concourse/tasks/gem-test/gem-install-and-test.sh}
 
 
-  - name: jruby-gem-test
+#@ job_name = "jruby-gem-test"
+  - name: #@ job_name
     public: true
-    on_failure: { in_parallel: [*notify_failure_to_irc, *notify_failure_to_gitter] }
+    _: #@ template.replace(notify_on_failure(job_name))
     plan:
       - get: ci
       - get: nokogiri
         trigger: true
-        passed:
-          <% RUBIES[:jruby].each do |ruby_version| %>
-          - jruby-<%= ruby_version %>
-          <% end %>
+        passed: #@ ["jruby-{}".format(ruby_version) for ruby_version in jruby_versions["supported"]]
       - task: build
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "larskanis/rake-compiler-dock-jruby", tag: "<%= RakeCompilerDock::IMAGE_VERSION %>"}
-          inputs:
-            - name: ci
-            - name: nokogiri
-          outputs:
-            - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-build-java.sh
+          "_": #@ template.replace(registry_image("larskanis/rake-compiler-dock-jruby", "<%= RakeCompilerDock::IMAGE_VERSION %>"))
+          inputs: [{name: ci}, {name: nokogiri}]
+          outputs: [{name: gems}]
+          run: {path: ci/concourse/tasks/gem-test/gem-build-java.sh}
       - task: install-and-test
         config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: "flavorjones/nokogiri-test", tag: "jruby-<%= RUBIES[:jruby].last %>"}
+          "_": #@ template.replace(registry_image("flavorjones/nokogiri-test", "jruby-{}".format(jruby_versions["supported"][-1])))
           inputs:
             - name: ci
             - name: nokogiri
             - name: gems
-          run:
-            path: ci/concourse/tasks/gem-test/gem-install-and-test.sh
+          run: {path: ci/concourse/tasks/gem-test/gem-install-and-test.sh}
 
 
   - name: build-success
