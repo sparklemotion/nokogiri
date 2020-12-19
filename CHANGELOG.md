@@ -2,34 +2,33 @@
 
 ## Versioning Policy
 
-Nokogiri follows [Semantic Versioning](https://semver.org/) (since 2017 or so). Note that we occasionally drop support for EOLed Rubies in Minor releases, which [some folks find objectionable](https://github.com/sparklemotion/nokogiri/issues/1568), but SemVer says [this is OK if the public API hasn't changed](https://semver.org/#what-should-i-do-if-i-update-my-own-dependencies-without-changing-the-public-api).
-
-Here's what Dependabot thinks about Nokogiri's SemVer score: [![SemVer compatibility](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
+Nokogiri follows [Semantic Versioning](https://semver.org/) (since 2017 or so). [![Dependabot's SemVer compatibility score for Nokogiri](https://api.dependabot.com/badges/compatibility_score?dependency-name=nokogiri&package-manager=bundler&version-scheme=semver)](https://dependabot.com/compatibility-score/?dependency-name=nokogiri&package-manager=bundler)
 
 We bump `Major.Minor.Patch` versions following this guidance:
 
-`Major`:
+`Major`: (we've never done this)
 
-- If we bumped this (which we never have), it would be for significant backwards-incompatible changes to the public API that would require rewriting existing code.
+- Significant backwards-incompatible changes to the public API that would require rewriting existing application code.
 - Some examples of backwards-incompatible changes we might someday consider for a Major release are at [`ROADMAP.md`](ROADMAP.md).
 
 `Minor`:
 
 - Features and bugfixes.
-- Dropping support for EOLed Ruby versions, updating packaged libraries.
 - Updating packaged libraries for non-security-related reasons.
-- Backwards-incompatible changes to internal methods and constants. These are detailed in the "Changes" section of the changelog entry.
+- Dropping support for EOLed Ruby versions. [Some folks find this objectionable](https://github.com/sparklemotion/nokogiri/issues/1568), but [SemVer says this is OK if the public API hasn't changed](https://semver.org/#what-should-i-do-if-i-update-my-own-dependencies-without-changing-the-public-api).
+- Backwards-incompatible changes to internal or private methods and constants. These are detailed in the "Changes" section of each changelog entry.
 
 `Patch`:
 
-- Security updates, including updating packaged libraries for security-related reasons.
 - Bugfixes.
+- Security updates.
+- Updating packaged libraries for security-related reasons.
 
 ---
 
 ## Unreleased (will be v1.11.0)
 
-Latest is `v1.11.0.rc3`. To try out release candidates, use `gem install --prerelease` or `gem install nokogiri -v1.11.0.rc3`
+Latest is `v1.11.0.rc3` (2020-09-08). To try out release candidates, use `gem install --prerelease` or `gem install nokogiri -v1.11.0.rc3`
 
 If you're using bundler, try updating your Gemfile with:
 
@@ -40,14 +39,14 @@ gem "nokogiri", "~> 1.11.0.rc3"`
 
 ### Notes
 
-#### Faster installation: Native Gems for Linux and OSX/Darwin
+#### Faster, more reliable installation: Native Gems for Linux and OSX/Darwin
 
-Nokogiri has shipped pre-compiled native gems for Windows since 2009. Starting in the v1.11.0 release candidates, we are also shipping native gems for these platforms:
+"Native gems" contain pre-compiled libraries for a specific machine architecture. On supported platforms, this removes the need for compiling the C extension and the packaged libraries. This results in **much faster installation** and **more reliable installation**, which as you probably know are the biggest headaches for Nokogiri users. 
 
-- Linux: `x86-linux` and `x86_64-linux` including musl platforms like alpine
+We've been shipping native Windows gems since 2009, but starting in v1.11.0 we are also shipping native gems for these platforms:
+
+- Linux: `x86-linux` and `x86_64-linux` -- including musl platforms like alpine
 - OSX/Darwin: `x86_64-darwin`
-
-On supported platform, this greatly speeds up installation time.
 
 We'd appreciate your thoughts and feedback on this work at [#2075](https://github.com/sparklemotion/nokogiri/issues/2075).
 
@@ -56,10 +55,7 @@ We'd appreciate your thoughts and feedback on this work at [#2075](https://githu
 
 #### Ruby
 
-This release introduces support for:
-
-* Ruby 2.7, including the precompiled native gems
-* Ruby 3.0, including the precompiled native gems
+This release introduces support for Ruby 2.7 and 3.0 in the precompiled native gems.
 
 This release ends support for:
 
@@ -86,19 +82,23 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * [CRuby] Add `Nokogiri::XML::Node#line=` for use by downstream libs like nokogumbo. [[#1918](https://github.com/sparklemotion/nokogiri/issues/1918)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 
 
-### Improved
+### Performance
 
 * [CRuby] The CSS `~=` operator and class selector `.` are about 2x faster. [[#2137](https://github.com/sparklemotion/nokogiri/issues/2137), [#2135](https://github.com/sparklemotion/nokogiri/issues/2135)]
-* [CRuby] Recognize incorrectly-closed HTML comments. [[#2058](https://github.com/sparklemotion/nokogiri/issues/2058)] (Thanks to HackerOne user [mayflower](https://hackerone.com/mayflower?type=user) for reporting this!)
 * Improve performance of some namespace operations. [[#1916](https://github.com/sparklemotion/nokogiri/issues/1916)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Remove unnecessary array allocations from Node serialization methods [[#1911](https://github.com/sparklemotion/nokogiri/issues/1911)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Avoid creation of unnecessary zero-length String objects. [[#1970](https://github.com/sparklemotion/nokogiri/issues/1970)] (Thanks, [@ashmaroli](https://github.com/ashmaroli)!)
 * Always compile libxml2 and libxslt with '-O2' [[#2022](https://github.com/sparklemotion/nokogiri/issues/2022), [#2100](https://github.com/sparklemotion/nokogiri/issues/2100)] (Thanks, [@ilyazub](https://github.com/ilyazub)!)
-* Add `frozen_string_literal: true` magic comment to all `lib` files. [[#1745](https://github.com/sparklemotion/nokogiri/issues/1745)] (Thanks, [@oniofchaos](https://github.com/oniofchaos)!)
-* {HTML,XML}::Document#parse now accept `Pathname` objects. Previously this worked only if the referenced file was less than 4096 bytes long; longer files resulted in undefined behavior because the `read` method would be repeatedly invoked. [[#1821](https://github.com/sparklemotion/nokogiri/issues/1821), [#2110](https://github.com/sparklemotion/nokogiri/issues/2110)] (Thanks, [@doriantaylor](https://github.com/doriantaylor) and [@phokz](https://github.com/phokz)!)
 * [JRuby] Lots of code cleanup and performance improvements. [[#1934](https://github.com/sparklemotion/nokogiri/issues/1934)] (Thanks, [@kares](https://github.com/kares)!)
+* [CRuby] `RelaxNG.from_document` no longer leaks memory. [[#2114](https://github.com/sparklemotion/nokogiri/issues/2114)]
+
+
+### Improved
+
+* [CRuby] Handle incorrectly-closed HTML comments as WHATWG recommends for browsers. [[#2058](https://github.com/sparklemotion/nokogiri/issues/2058)] (Thanks to HackerOne user [mayflower](https://hackerone.com/mayflower?type=user) for reporting this!)
+* {HTML,XML}::Document#parse now accept `Pathname` objects. Previously this worked only if the referenced file was less than 4096 bytes long; longer files resulted in undefined behavior because the `read` method would be repeatedly invoked. [[#1821](https://github.com/sparklemotion/nokogiri/issues/1821), [#2110](https://github.com/sparklemotion/nokogiri/issues/2110)] (Thanks, [@doriantaylor](https://github.com/doriantaylor) and [@phokz](https://github.com/phokz)!)
+* Add `frozen_string_literal: true` magic comment to all `lib` files. [[#1745](https://github.com/sparklemotion/nokogiri/issues/1745)] (Thanks, [@oniofchaos](https://github.com/oniofchaos)!)
 * [JRuby] Clean up deprecated calls into JRuby. [[#2027](https://github.com/sparklemotion/nokogiri/issues/2027)] (Thanks, [@headius](https://github.com/headius)!)
-* [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
 
 
 ### Fixed
@@ -108,16 +108,16 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * The Node methods `add_previous_sibling`, `previous=`, `before`, `add_next_sibling`, `next=`, `after`, `replace`, and `swap` now correctly use their parent as the context node for parsing markup. These methods now also raise a `RuntimeError` if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)]
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [CRuby] On some platforms, avoid symbol name collision with glibc's `canonicalize`. [[#2105](https://github.com/sparklemotion/nokogiri/issues/2105)]
-* [CRuby] `RelaxNG.from_document` no longer leaks memory. [[#2114](https://github.com/sparklemotion/nokogiri/issues/2114)]
 * [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
+* [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
 * [JRuby] Fixed document encoding regression in v1.11.0 release candidates. [[#2080](https://github.com/sparklemotion/nokogiri/issues/2080), [#2083](https://github.com/sparklemotion/nokogiri/issues/2083)] (Thanks, [@thbar](https://github.com/thbar)!)
 
 
 ### Removed
 
 * The internal method `Nokogiri::CSS::Parser.cache_on=` has been removed. Use `.set_cache` if you need to muck with the cache internals.
-* The method `Nokogiri::CSS::Parser.parse` has been removed. This was originally deprecated in 2009 in 13db61b.
+* The class method `Nokogiri::CSS::Parser.parse` has been removed. This was originally deprecated in 2009 in 13db61b. Use `Nokogiri::CSS.parse` instead.
 
 
 ### Changed
