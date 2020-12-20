@@ -60,6 +60,7 @@ This release introduces support for Ruby 2.7 and 3.0 in the precompiled native g
 This release ends support for:
 
 * Ruby 2.3, for which [official support ended on 2019-03-31](https://www.ruby-lang.org/en/news/2019/03/31/support-of-ruby-2-3-has-ended/) [[#1886](https://github.com/sparklemotion/nokogiri/issues/1886)] (Thanks [@ashmaroli](https://github.com/ashmaroli)!)
+* Ruby 2.4, for which [official support ended on 2020-04-05](https://www.ruby-lang.org/en/news/2020/04/05/support-of-ruby-2-4-has-ended/)
 * JRuby 9.1, which is the Ruby 2.3-compatible release.
 
 

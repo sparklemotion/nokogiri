@@ -1,9 +1,0 @@
-  - name: irc-notification
-    type: registry-image
-    source:
-      repository: flavorjones/irc-notification-resource
-  - name: webhook-notification
-    type: registry-image
-    source:
-      repository: flavorjones/webhook-notification-resource
-      tag: latest

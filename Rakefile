@@ -41,6 +41,8 @@ HOE = Hoe.spec "nokogiri" do |hoe|
     "nokogiri.gemspec",
     "lib/nokogiri/nokogiri.{bundle,jar,rb,so}",
     "lib/nokogiri/[0-9].[0-9]",
+    "coverage",
+    "concourse/images/*.generated",
   ]
   hoe.clean_globs += Dir.glob("ports/*").reject { |d| d =~ %r{/archives$} }
 
@@ -55,7 +57,7 @@ HOE = Hoe.spec "nokogiri" do |hoe|
   end
 
   hoe.extra_dev_deps += [
-    ["concourse", "~> 0.39"],
+    ["concourse", "~> 0.40"],
     ["hoe", ["~> 3.22", ">= 3.22.1"]],
     ["hoe-bundler", "~> 1.2"],
     ["hoe-debugging", "~> 2.0"],
@@ -69,12 +71,11 @@ HOE = Hoe.spec "nokogiri" do |hoe|
     ["rexical", "~> 1.0.5"],
     ["rubocop", "~> 0.88"],
     ["simplecov", "~> 0.17.0"], # locked on 2020-08-28 due to https://github.com/codeclimate/test-reporter/issues/413
-    ["parallel", "~> 1.19.2"], # locked on 2020-11-10 because v1.20.0 does not support Ruby 2.4
   ]
 
   hoe.spec_extras = {
     :extensions => ["ext/nokogiri/extconf.rb"],
-    :required_ruby_version => ">= 2.4.0"
+    :required_ruby_version => ">= 2.5.0"
   }
 
   hoe.testlib = :minitest
