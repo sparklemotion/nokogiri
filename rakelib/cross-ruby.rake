@@ -316,21 +316,19 @@ else
   dependencies = YAML.load_file("dependencies.yml")
 
   task gem_build_path do
-    %w[libxml2 libxslt].each do |lib|
+    ["libxml2", "libxslt"].each do |lib|
       version = dependencies[lib]["version"]
       archive = File.join("ports", "archives", "#{lib}-#{version}.tar.gz")
       add_file_to_gem archive
+
       patchesdir = File.join("patches", lib)
       patches = `#{['git', 'ls-files', patchesdir].shelljoin}`.split("\n").grep(/\.patch\z/)
-      patches.each { |patch|
-        add_file_to_gem patch
-      }
-      (untracked = Dir[File.join(patchesdir, '*.patch')] - patches).empty? or
-        at_exit {
-          untracked.each { |patch|
-            puts "** WARNING: untracked patch file not added to gem: #{patch}"
-          }
-        }
+      patches.each { |patch| add_file_to_gem patch }
+
+      untracked = Dir[File.join(patchesdir, '*.patch')] - patches
+      at_exit do
+        untracked.each { |patch| puts "** WARNING: untracked patch file not added to gem: #{patch}" }
+      end
     end
   end
 
