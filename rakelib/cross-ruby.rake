@@ -48,6 +48,8 @@ CrossRuby = Struct.new(:version, :host) do
         "x86-linux"
       when /\Ax86_64-darwin/
         "x86_64-darwin"
+      when /\Aarm64-darwin/
+        "arm64-darwin"
       else
         raise "CrossRuby.platform: unsupported host: #{host}"
       end
@@ -63,8 +65,10 @@ CrossRuby = Struct.new(:version, :host) do
         "x86_64-linux-gnu-"
       when "x86-linux"
         "i686-linux-gnu-"
-      when /darwin/
+      when /x86_64.*darwin/
         "x86_64-apple-darwin20-"
+      when /a.*64.*darwin/
+        "aarch64-apple-darwin20-"
       else
         raise "CrossRuby.tool: unmatched platform: #{platform}"
       end) + name
@@ -82,6 +86,8 @@ CrossRuby = Struct.new(:version, :host) do
       "elf32-i386"
     when "x86_64-darwin"
       "Mach-O 64-bit x86-64" # hmm
+    when "arm64-darwin"
+      "Mach-O arm64"
     else
       raise "CrossRuby.target_file_format: unmatched platform: #{platform}"
     end
