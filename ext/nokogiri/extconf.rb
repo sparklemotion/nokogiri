@@ -605,6 +605,14 @@ else
             cflags = concat_flags(ENV["CFLAGS"], "-fPIC", "-g")
             execute "configure", ["env", "CHOST=#{host}", "CFLAGS=#{cflags}", "./configure", "--static", configure_prefix]
           end
+
+          def compile
+            if host=~/darwin/
+              execute "compile", "make AR=#{host}-libtool"
+            else
+              super
+            end
+          end
         end
       end
     end
@@ -667,7 +675,7 @@ else
       recipe.configure_options += iconv_configure_flags
     end
 
-    if darwin?
+    if darwin? && !cross_build_p
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
 
@@ -689,7 +697,7 @@ else
 
     cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
-    if darwin?
+    if darwin? && !cross_build_p
       recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
     end
 

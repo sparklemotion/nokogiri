@@ -63,8 +63,8 @@ CrossRuby = Struct.new(:version, :host) do
         "x86_64-linux-gnu-"
       when "x86-linux"
         "i686-linux-gnu-"
-      # when /darwin/
-      #   ""
+      when /darwin/
+        "x86_64-apple-darwin20-"
       else
         raise "CrossRuby.tool: unmatched platform: #{platform}"
       end) + name
@@ -201,27 +201,27 @@ def verify_dll(dll, cross_ruby)
     end
 
   elsif cross_ruby.darwin?
-    dump = `#{["env", "LANG=C", "objdump", "-p", dll].shelljoin}`
-    nm = `#{["env", "LANG=C", "nm", "-g", dll].shelljoin}`
+    dump = `#{["env", "LANG=C", cross_ruby.tool("objdump"), "-p", dll].shelljoin}`
+    nm = `#{["env", "LANG=C", cross_ruby.tool("nm"), "-g", dll].shelljoin}`
 
     raise "unexpected file format for generated dll #{dll}" unless /file format #{Regexp.quote(cross_ruby.target_file_format)}\s/ === dump
     raise "export function Init_nokogiri not in dll #{dll}" unless / T _?Init_nokogiri/ === nm
 
     # if liblzma is being referenced, let's make sure it's referring
     # to the system-installed file and not the homebrew-installed file.
-    ldd = `#{["env", "LANG=C", "otool", "-L", dll].shelljoin}`
+    ldd = `#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin}`
     if liblzma_refs = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq.grep(/liblzma/)
       liblzma_refs.each do |ref|
         new_ref = File.join("/usr/lib", File.basename(ref))
-        sh ["env", "LANG=C", "install_name_tool", "-change", ref, new_ref, dll].shelljoin
+        sh ["env", "LANG=C", cross_ruby.tool("install_name_tool"), "-change", ref, new_ref, dll].shelljoin
       end
 
       # reload!
-      ldd = `#{["env", "LANG=C", "otool", "-L", dll].shelljoin}`
+      ldd = `#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin}`
     end
 
     # Verify that the DLL dependencies are all allowed.
-    ldd = `#{["env", "LANG=C", "otool", "-L", dll].shelljoin}`
+    ldd = `#{["env", "LANG=C", cross_ruby.tool("otool"), "-L", dll].shelljoin}`
     actual_imports = ldd.scan(/^\t([^ ]+) /).map(&:first).uniq
     if !(actual_imports - allowed_imports).empty?
       raise "unallowed so imports #{actual_imports.inspect} in #{dll} (allowed #{allowed_imports.inspect})"
@@ -243,33 +243,18 @@ namespace "gem" do
     Rake::Task["pkg/#{HOE.spec.full_name}-#{Gem::Platform.new(plat).to_s}.gem"].invoke
   end
 
-  CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? }.map(&:platform).uniq.each do |plat|
+  CROSS_RUBIES.find_all { |cr| cr.windows? || cr.linux? || cr.darwin? }.map(&:platform).uniq.each do |plat|
     desc "build native gem for #{plat} platform"
     task plat do
       RakeCompilerDock.sh <<~EOT, platform: plat
         gem install bundler --no-document &&
         bundle &&
-        bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`' FORCE_CROSS_COMPILING=true
+        bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`'
       EOT
     end
 
     namespace plat do
       desc "build native gem for #{plat} platform (guest container)"
-      task "builder" do
-        gem_builder(plat)
-      end
-      task "guest" => "builder" # TODO: remove me after this code is on master, temporary backwards compat for CI
-    end
-  end
-
-  CROSS_RUBIES.find_all { |cr| cr.darwin? }.map(&:platform).uniq.each do |plat|
-    desc "build native gem for #{plat} platform"
-    task plat do
-      sh "rake gem:#{plat}:builder MAKE='nice make -j`nproc`' FORCE_CROSS_COMPILING=true"
-    end
-
-    namespace plat do
-      desc "build native gem for #{plat} platform (child process)"
       task "builder" do
         gem_builder(plat)
       end
@@ -339,7 +324,6 @@ else
   Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
     ext.lib_dir = File.join(*['lib', 'nokogiri', ENV['FAT_DIR']].compact)
     ext.config_options << ENV['EXTOPTS']
-    ext.no_native = (ENV["FORCE_CROSS_COMPILING"] == "true")
     ext.cross_compile  = true
     ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
     ext.cross_config_options << "--enable-cross-build"
