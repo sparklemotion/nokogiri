@@ -90,6 +90,9 @@ module Nokogiri
               libxml["source"] = "packaged"
               libxml["precompiled"] = libxml2_precompiled?
               libxml["patches"] = Nokogiri::LIBXML2_PATCHES
+
+              # this is for nokogumbo and shouldn't be forever
+              libxml["libxml2_path"] = File.expand_path(File.join(File.dirname(__FILE__), "../../../ext/nokogiri"))
             else
               libxml["source"] = "system"
             end

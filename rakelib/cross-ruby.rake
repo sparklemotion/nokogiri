@@ -297,11 +297,14 @@ if java?
   require "rake/javaextensiontask"
   Rake::JavaExtensionTask.new("nokogiri", HOE.spec) do |ext|
     jruby_home = RbConfig::CONFIG['prefix']
+    jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
+
+    ext.gem_spec.files.reject! { |path| File.fnmatch?("ext/nokogiri/*.h", path) }
+
     ext.ext_dir = 'ext/java'
     ext.lib_dir = 'lib/nokogiri'
     ext.source_version = '1.6'
     ext.target_version = '1.6'
-    jars = ["#{jruby_home}/lib/jruby.jar"] + FileList['lib/*.jar']
     ext.classpath = jars.map { |x| File.expand_path x }.join ':'
     ext.debug = true if ENV['JAVA_DEBUG']
   end
@@ -348,6 +351,21 @@ else
 
       spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
       spec.dependencies.reject! { |dep| dep.name=='mini_portile2' }
+
+      # when pre-compiling a native gem, package all the C headers sitting in ext/nokogiri/include
+      # which were copied there in the $INSTALLFILES section of extconf.rb.
+      # (see scripts/test-gem-file-contents and scripts/test-gem-installation for tests)
+      headers_dir = "ext/nokogiri/include"
+
+      ["libxml2", "libxslt"].each do |lib|
+        unless File.directory?(File.join(headers_dir, lib))
+          raise "#{lib} headers are not present in #{headers_dir}"
+        end
+      end
+
+      Dir.glob(File.join(headers_dir, "**", "*.h")).each do |header|
+        spec.files << header
+      end
     end
   end
 end
