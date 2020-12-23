@@ -293,8 +293,8 @@ if java?
 
     ext.ext_dir = 'ext/java'
     ext.lib_dir = 'lib/nokogiri'
-    ext.source_version = '1.6'
-    ext.target_version = '1.6'
+    ext.source_version = '1.7'
+    ext.target_version = '1.7'
     ext.classpath = jars.map { |x| File.expand_path x }.join ':'
     ext.debug = true if ENV['JAVA_DEBUG']
   end
