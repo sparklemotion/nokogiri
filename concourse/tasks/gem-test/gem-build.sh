@@ -8,6 +8,14 @@ if [ -n "${BUILD_NATIVE_GEM:-}" ] ; then
   ln -s /usr/local/rake-compiler "$HOME"/.rake-compiler
 fi
 
+GEM_PACKAGING_REF=813d119
+function commit-is-post-gem-packaging-cleanup {
+  if git merge-base --is-ancestor ${GEM_PACKAGING_REF} HEAD ; then
+    return 0
+  fi
+  return 1
+}
+
 cd nokogiri
 
 set -e -x -u # after the `cd` because of rvm
@@ -34,8 +42,10 @@ else
   bundle exec rake gem
 fi
 
-if [ -e ./scripts/test-gem-file-contents ] ; then
-  ./scripts/test-gem-file-contents pkg/nokogiri*.gem
+if commit-is-post-gem-packaging-cleanup ; then
+  if [[ -e ./scripts/test-gem-file-contents ]] ; then
+    ./scripts/test-gem-file-contents pkg/nokogiri*.gem
+  fi
 fi
 
 mkdir -p ${OUTPUT_DIR}

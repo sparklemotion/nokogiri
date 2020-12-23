@@ -4,6 +4,14 @@ test -e /etc/os-release && cat /etc/os-release
 
 set -e -x -u
 
+GEM_PACKAGING_REF=813d119
+function commit-is-post-gem-packaging-cleanup {
+  if git merge-base --is-ancestor ${GEM_PACKAGING_REF} HEAD ; then
+    return 0
+  fi
+  return 1
+}
+
 pushd gems
 
   gemfile=$(ls *.gem | head -n1)
@@ -30,8 +38,10 @@ pushd nokogiri
   rm -rf lib ext # ensure we can't use the local files
   bundle exec bash run-test
 
-  if [ -e ./scripts/test-gem-installation ] ; then
-    gem install minitest-reporters # TODO: remove once PRs based on pre-1e57386 have passed
-    ./scripts/test-gem-installation
+  if commit-is-post-gem-packaging-cleanup ; then
+    if [[ -e ./scripts/test-gem-installation ]] ; then
+      gem install minitest-reporters # TODO: remove once PRs based on pre-1e57386 have passed
+      ./scripts/test-gem-installation
+    fi
   fi
 popd
