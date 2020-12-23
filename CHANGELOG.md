@@ -98,6 +98,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 
 * [CRuby] Handle incorrectly-closed HTML comments as WHATWG recommends for browsers. [[#2058](https://github.com/sparklemotion/nokogiri/issues/2058)] (Thanks to HackerOne user [mayflower](https://hackerone.com/mayflower?type=user) for reporting this!)
 * {HTML,XML}::Document#parse now accept `Pathname` objects. Previously this worked only if the referenced file was less than 4096 bytes long; longer files resulted in undefined behavior because the `read` method would be repeatedly invoked. [[#1821](https://github.com/sparklemotion/nokogiri/issues/1821), [#2110](https://github.com/sparklemotion/nokogiri/issues/2110)] (Thanks, [@doriantaylor](https://github.com/doriantaylor) and [@phokz](https://github.com/phokz)!)
+* [CRuby] Nokogumbo builds faster because it can now use header files provided by Nokogiri. [[#1788](https://github.com/sparklemotion/nokogiri/issues/1788)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * Add `frozen_string_literal: true` magic comment to all `lib` files. [[#1745](https://github.com/sparklemotion/nokogiri/issues/1745)] (Thanks, [@oniofchaos](https://github.com/oniofchaos)!)
 * [JRuby] Clean up deprecated calls into JRuby. [[#2027](https://github.com/sparklemotion/nokogiri/issues/2027)] (Thanks, [@headius](https://github.com/headius)!)
 
@@ -109,6 +110,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * The Node methods `add_previous_sibling`, `previous=`, `before`, `add_next_sibling`, `next=`, `after`, `replace`, and `swap` now correctly use their parent as the context node for parsing markup. These methods now also raise a `RuntimeError` if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)]
 * [CRuby] Fixed installation on AIX with respect to `vasprintf`. [[#1908](https://github.com/sparklemotion/nokogiri/issues/1908)]
 * [CRuby] On some platforms, avoid symbol name collision with glibc's `canonicalize`. [[#2105](https://github.com/sparklemotion/nokogiri/issues/2105)]
+* [CRuby] Fixed Nokogumbo integration which broke in the v1.11.0 release candidates. [[#1788](https://github.com/sparklemotion/nokogiri/issues/1788)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
 * [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
@@ -138,7 +140,7 @@ More information and instructions for enabling "trusted input" behavior in v1.11
 
 #### `VersionInfo`, the output of `nokogiri -v`, and related constants
 
-This release changes the metadata provided in `Nokogiri::VersionInfo` which also affects the output of `nokogiri -v`. Some related constants have also been changed. If you're using `VersionInfo` programmatically, or relying on constants related to underlying library versions, please read the detailed changes for `Nokogiri::VersionInfo` at #2139 and accept our apologies for the inconvenience.
+This release changes the metadata provided in `Nokogiri::VersionInfo` which also affects the output of `nokogiri -v`. Some related constants have also been changed. If you're using `VersionInfo` programmatically, or relying on constants related to underlying library versions, please read the detailed changes for `Nokogiri::VersionInfo` at [#2139](https://github.com/sparklemotion/nokogiri/issues/2139) and accept our apologies for the inconvenience.
 
 
 ## 1.10.10 / 2020-07-06
