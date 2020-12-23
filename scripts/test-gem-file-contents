@@ -162,12 +162,23 @@ describe File.basename(gemfile) do
       assert_operator(gemspec.extra_rdoc_files.grep(%r{ext/nokogiri/.*\.c$}).length, :>, 10)
     end
 
-    it "contains expected .so files " do
+    it "contains expected shared library files " do
       native_ruby_versions.each do |version|
-        assert_includes(gemfile_contents, "lib/nokogiri/#{version}/nokogiri.so")
+        actual = gemfile_contents.find do |p|
+          File.fnmatch?("lib/nokogiri/#{version}/nokogiri.{so,bundle}", p, File::FNM_EXTGLOB)
+        end
+        assert(actual, "expected to find shared library file for ruby #{version}")
       end
-      refute_includes(gemfile_contents, "lib/nokogiri/nokogiri.so")
-      assert_equal(native_ruby_versions.length, Dir.glob("lib/nokogiri/**/*.so").length)
+
+      actual = gemfile_contents.find do |p|
+        File.fnmatch?("lib/nokogiri/nokogiri.{so,bundle}", p, File::FNM_EXTGLOB)
+      end
+      refute(actual, "did not expect to find shared library file in lib/nokogiri")
+
+      actual = gemfile_contents.find_all do |p|
+        File.fnmatch?("lib/nokogiri/**/*.{so,bundle}", p, File::FNM_EXTGLOB)
+      end
+      assert_equal(native_ruby_versions.length, actual.length, "did not expect extra shared library files")
     end
   end if gemspec.platform.is_a?(Gem::Platform) && gemspec.platform.cpu
 
