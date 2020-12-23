@@ -32,10 +32,10 @@ else
   bundle exec rake clean compile
 
   bundle exec rake gem
+fi
 
-  if [ -e ./scripts/test-gem-file-contents ] ; then
-    ./scripts/test-gem-file-contents pkg/nokogiri*.gem
-  fi
+if [ -e ./scripts/test-gem-file-contents ] ; then
+  ./scripts/test-gem-file-contents pkg/nokogiri*.gem
 fi
 
 mkdir -p ${OUTPUT_DIR}
