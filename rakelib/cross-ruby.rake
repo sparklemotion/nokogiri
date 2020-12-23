@@ -249,7 +249,7 @@ namespace "gem" do
       RakeCompilerDock.sh <<~EOT, platform: plat
         gem install bundler --no-document &&
         bundle &&
-        rake gem:#{plat}:builder MAKE='nice make -j`nproc`' FORCE_CROSS_COMPILING=true
+        bundle exec rake gem:#{plat}:builder MAKE='nice make -j`nproc`' FORCE_CROSS_COMPILING=true
       EOT
     end
 
@@ -279,7 +279,7 @@ namespace "gem" do
 
   desc "build a jruby gem"
   task "jruby" do
-    RakeCompilerDock.sh("gem install bundler --no-document && bundle && rake java gem",
+    RakeCompilerDock.sh("gem install bundler --no-document && bundle && bundle exec rake java gem",
                         rubyvm: "jruby", platform: "jruby")
   end
 
