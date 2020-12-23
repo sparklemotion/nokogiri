@@ -20,6 +20,10 @@ bundle exec rake set-version-to-timestamp
 
 bundle exec rake java gem
 
+if [ -e ./scripts/test-gem-file-contents ] ; then
+  ./scripts/test-gem-file-contents pkg/nokogiri*java.gem
+fi
+
 mkdir -p ${OUTPUT_DIR}
 cp -v pkg/nokogiri*java.gem ${OUTPUT_DIR}
 sha256sum ${OUTPUT_DIR}/*

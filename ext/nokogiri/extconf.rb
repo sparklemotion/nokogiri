@@ -445,6 +445,14 @@ def process_recipe(name, version, static_p, cross_p)
   end
 end
 
+def copy_packaged_libraries_headers(to_path:, from_recipes:)
+  FileUtils.rm_rf(to_path, secure: true)
+  FileUtils.mkdir(to_path)
+  from_recipes.each do |recipe|
+    FileUtils.cp_r(Dir[File.join(recipe.path, 'include/*')], to_path)
+  end
+end
+
 def do_help
   print NOKOGIRI_HELP_MESSAGE
   exit! 0
@@ -761,6 +769,20 @@ have_func('xmlSchemaSetValidStructuredErrors') # introduced in libxml 2.6.23
 have_func('xmlSchemaSetParserStructuredErrors') # introduced in libxml 2.6.23
 
 have_func('vasprintf')
+
+unless using_system_libraries?
+  if cross_build_p
+    # When precompiling native gems, copy packaged libraries' headers to ext/nokogiri/include
+    # These are packaged up by the cross-compiling callback in the ExtensionTask
+    copy_packaged_libraries_headers(to_path: File.join(PACKAGE_ROOT_DIR, "ext/nokogiri/include"),
+                                    from_recipes: [libxml2_recipe, libxslt_recipe])
+  else
+    # When compiling during installation, install packaged libraries' header files into ext/nokogiri/include
+    copy_packaged_libraries_headers(to_path: "include",
+                                    from_recipes: [libxml2_recipe, libxslt_recipe])
+    $INSTALLFILES << ["include/**/*.h", "$(rubylibdir)"]
+  end
+end
 
 create_makefile('nokogiri/nokogiri')
 

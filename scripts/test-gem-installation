@@ -1,0 +1,107 @@
+#! /usr/bin/env ruby
+# frozen_string_literal: true
+#
+#  this script is intended to run as part of the CI test suite.
+#
+#  it inspects the filesystem of a nokogiri gem installation to ensure it's complete and sane, and
+#  doesn't install anything we don't expect.
+#
+#  this file isn't in the `test/` subdirectory because it's intended to be run standalone against an
+#  installed gem (and not against the source code or behavior of the gem itself).
+#
+
+# this line needs to come before the bundler bit, to assert that we're running against an
+# already-installed version (and not some other version that bundler/inline might install if it came
+# first)
+gemspec = Gem::Specification.find_by_name('nokogiri')
+raise "could not find installed gem" unless gemspec
+
+require "bundler/inline"
+
+gemfile do
+  source "https://rubygems.org"
+  gem "minitest"
+  gem "minitest-reporters"
+  gem "nokogiri"
+end
+
+require 'nokogiri'
+require 'yaml'
+
+if ARGV.include?("-v")
+  puts "---------- Nokogiri version info ----------"
+  puts Nokogiri::VERSION_INFO.to_yaml
+  puts
+  puts "---------- Nokogiri installed gemspec ----------"
+  puts gemspec.to_ruby
+  puts
+end
+
+require "minitest/autorun"
+require "minitest/reporters"
+Minitest::Reporters.use!([Minitest::Reporters::SpecReporter.new])
+
+puts "Testing #{gemspec.full_name} installed in #{gemspec.base_dir}"
+describe gemspec.full_name do
+  let(:nokogiri_ext_dir) { File.join(gemspec.gem_dir, "ext/nokogiri") }
+  let(:nokogiri_include_dir) { File.join(nokogiri_ext_dir, "include") }
+
+  # representative sample of the files
+  let(:nokogiri_header_files) { ["nokogiri.h", "xml_document.h", "xml_node.h"] }
+  let(:packaged_library_header_files) { ["libxml2/libxml/tree.h", "libxslt/xslt.h", "libexslt/exslt.h"] }
+
+  it "loads the same version as the spec we've loaded" do
+    assert_equal(Nokogiri::VERSION, gemspec.version.to_s)
+  end
+
+  describe "cruby" do
+    it "installs nokogiri headers" do
+      nokogiri_header_files.each do |header|
+        assert(File.file?(File.join(nokogiri_ext_dir, header)),
+               "expected #{header} to be installed in #{nokogiri_ext_dir}")
+      end
+    end
+
+    describe "native platform" do
+      it "declares packaged, precompiled libraries" do
+        assert(Nokogiri::VersionInfo.instance.libxml2_using_packaged?)
+        assert(Nokogiri::VERSION_INFO["libxml"].key?("source"))
+        assert_equal("packaged", Nokogiri::VERSION_INFO["libxml"]["source"])
+
+        assert(Nokogiri::VersionInfo.instance.libxml2_precompiled?)
+        assert(Nokogiri::VERSION_INFO["libxml"].key?("precompiled"))
+        assert(Nokogiri::VERSION_INFO["libxml"]["precompiled"])
+      end
+    end if gemspec.platform.is_a?(Gem::Platform) && gemspec.platform.cpu
+
+    describe "library" do
+      describe "packaged" do
+        it "declares where headers are installed" do
+          # this is for nokogumbo and shouldn't be forever
+          assert_equal(nokogiri_ext_dir, Nokogiri::VERSION_INFO["libxml"]["libxml2_path"],
+                       "expected Nokogiri::VERSION_INFO to point to #{nokogiri_ext_dir}")
+        end
+
+        it "installs packaged libraries' headers" do
+          packaged_library_header_files.each do |header|
+            assert(File.file?(File.join(nokogiri_include_dir, header)),
+                   "expected #{header} to be installed in #{nokogiri_include_dir}")
+          end
+        end
+      end if Nokogiri::VersionInfo.instance.libxml2_using_packaged?
+
+      describe "using system libraries" do
+        it "doesn't declare where headers are installed" do
+          refute(Nokogiri::VERSION_INFO["libxml"].key?("libxml2_path"))
+        end
+
+        it "does not install packaged libraries' headers" do
+          packaged_library_header_files.each do |header|
+            dir = File.join(nokogiri_include_dir, File.dirname(header))
+            refute(File.directory?(dir), "expected directory #{dir} to not exist")
+          end
+        end
+      end unless Nokogiri::VersionInfo.instance.libxml2_using_packaged?
+    end
+  end unless gemspec.platform == Gem::Platform.new("java")
+end
