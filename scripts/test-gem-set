@@ -1,0 +1,48 @@
+#! /usr/bin/env bash
+#
+#  script to test a set of gem files
+#  - test-gem-file-contents
+#  - conditionally, if the local system can do it, test-gem-installation
+#
+source "$HOME/.rvm/scripts/rvm"
+
+set -o errexit
+set -o pipefail
+
+gem_platform_local=`ruby -e "puts Gem::Platform.local.to_s"`
+
+function remove_all_nokogiris {
+  yes | gem uninstall --force nokogiri || true
+}
+
+function install_and_test {
+  gem=$1
+  if [[ $gem =~ "java" ]] ; then
+    rvm use jruby
+  else
+    rvm use default
+  fi
+  remove_all_nokogiris
+  gem install --local $gem
+  ./scripts/test-gem-installation
+
+  if [[ $gem =~ nokogiri-[^-]*\.gem ]] ; then
+    remove_all_nokogiris
+    NOKOGIRI_USE_SYSTEM_LIBRARIES=t gem install --local $gem
+    ./scripts/test-gem-installation
+  fi
+}
+
+gems=$*
+
+rvm use default
+
+for gem in $gems ; do
+  ./scripts/test-gem-file-contents $gem
+done
+
+for gem in $gems ; do
+  if [[ $gem =~ nokogiri-[^-]+(-(${gem_platform_local}|java))?\.gem$ ]] ; then
+    install_and_test $gem
+  fi
+done
