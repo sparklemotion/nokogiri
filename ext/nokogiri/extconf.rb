@@ -19,6 +19,9 @@ RECOMMENDED_LIBXML_VERSION = "2.9.3"
 REQUIRED_MINI_PORTILE_VERSION = "~> 2.5.0"
 REQUIRED_PKG_CONFIG_VERSION = "~> 1.1"
 
+# Keep track of what versions of what libraries we build against
+OTHER_LIBRARY_VERSIONS = {}
+
 NOKOGIRI_HELP_MESSAGE = <<~HELP
   USAGE: ruby #{$0} [options]
 
@@ -338,6 +341,10 @@ def process_recipe(name, version, static_p, cross_p)
   gem 'mini_portile2', REQUIRED_MINI_PORTILE_VERSION
   require 'mini_portile2'
   message "Using mini_portile version #{MiniPortile::VERSION}\n"
+
+  if name != "libxml2" && name != "libxslt"
+    OTHER_LIBRARY_VERSIONS[name] = version
+  end
 
   MiniPortile.new(name, version).tap do |recipe|
     recipe.target = File.join(PACKAGE_ROOT_DIR, "ports")
@@ -695,8 +702,8 @@ else
     ]
   end
 
-  append_cflags("-DNOKOGIRI_PACKAGED_LIBRARIES")
-  append_cflags("-DNOKOGIRI_PRECOMPILED_LIBRARIES") if cross_build_p
+  append_cppflags("-DNOKOGIRI_PACKAGED_LIBRARIES")
+  append_cppflags("-DNOKOGIRI_PRECOMPILED_LIBRARIES") if cross_build_p
 
   $LIBPATH = ["#{zlib_recipe.path}/lib"] | $LIBPATH if zlib_recipe
   $LIBPATH = ["#{libiconv_recipe.path}/lib"] | $LIBPATH if libiconv_recipe
@@ -724,8 +731,8 @@ else
         end
       end
 
-      # Defining a macro that expands to a C string; double quotes are significant.
-      $CPPFLAGS << ' ' << "-DNOKOGIRI_#{recipe.name.upcase}_PATCHES=\"#{recipe.patch_files.map { |path| File.basename(path) }.join(' ')}\"".inspect
+      patches_string = recipe.patch_files.map { |path| File.basename(path) }.join(' ')
+      append_cppflags(%Q[-DNOKOGIRI_#{recipe.name.upcase}_PATCHES="\\\"#{patches_string}\\\""])
 
       case libname
       when 'xml2'
@@ -769,6 +776,9 @@ have_func('xmlSchemaSetValidStructuredErrors') # introduced in libxml 2.6.23
 have_func('xmlSchemaSetParserStructuredErrors') # introduced in libxml 2.6.23
 
 have_func('vasprintf')
+
+other_library_versions_string = OTHER_LIBRARY_VERSIONS.map { |k,v| [k,v].join(":") }.join(",")
+append_cppflags(%Q[-DNOKOGIRI_OTHER_LIBRARY_VERSIONS="\\\"#{other_library_versions_string}\\\""])
 
 unless using_system_libraries?
   if cross_build_p

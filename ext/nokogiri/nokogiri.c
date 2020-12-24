@@ -94,6 +94,10 @@ void Init_nokogiri()
   rb_const_set(mNokogiri, rb_intern("LIBXML_ICONV_ENABLED"), Qfalse);
 #endif
 
+#ifdef NOKOGIRI_OTHER_LIBRARY_VERSIONS
+  rb_const_set(mNokogiri, rb_intern("OTHER_LIBRARY_VERSIONS"), NOKOGIRI_STR_NEW2(NOKOGIRI_OTHER_LIBRARY_VERSIONS));
+#endif
+
   xmlInitParser();
 
   init_xml_document();
