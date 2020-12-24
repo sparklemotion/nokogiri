@@ -13,6 +13,15 @@ module TestVersionInfoTests
   def test_version_info_basics
     assert_match(VERSION_MATCH, Nokogiri::VERSION)
 
+    assert_equal(Nokogiri::VERSION, Nokogiri::VERSION_INFO["nokogiri"]["version"])
+
+    if jruby?
+      refute(Nokogiri::VERSION_INFO["nokogiri"].has_key?("cppflags"), "did not expect cppflags")
+    else
+      # cppflags are more fully tested in scripts/test-gem-installation
+      assert_kind_of(Array, Nokogiri::VERSION_INFO["nokogiri"]["cppflags"], "expected cppflags to be an array")
+    end
+
     assert_equal(::RUBY_VERSION, Nokogiri::VERSION_INFO["ruby"]["version"])
     assert_equal(::RUBY_PLATFORM, Nokogiri::VERSION_INFO["ruby"]["platform"])
     assert_equal(::Gem::Platform.local.to_s, Nokogiri::VERSION_INFO["ruby"]["gem_platform"])

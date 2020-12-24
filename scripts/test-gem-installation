@@ -50,6 +50,8 @@ describe gemspec.full_name do
   let(:nokogiri_header_files) { ["nokogiri.h", "xml_document.h", "xml_node.h"] }
   let(:packaged_library_header_files) { ["libxml2/libxml/tree.h", "libxslt/xslt.h", "libexslt/exslt.h"] }
 
+  let(:headers_dirs) { Nokogiri::VERSION_INFO["nokogiri"]["cppflags"].map { |f| f.gsub(/^-I/, "") } }
+
   it "loads the same version as the spec we've loaded" do
     assert_equal(Nokogiri::VERSION, gemspec.version.to_s)
   end
@@ -59,6 +61,12 @@ describe gemspec.full_name do
       nokogiri_header_files.each do |header|
         assert(File.file?(File.join(nokogiri_ext_dir, header)),
                "expected #{header} to be installed in #{nokogiri_ext_dir}")
+
+        found = false
+        headers_dirs.each do |header_dir|
+          found = true if File.file?(File.join(header_dir, "nokogiri.h"))
+        end
+        assert(found, "expected to find nokogiri.h in one of: #{headers_dirs.inspect}")
       end
     end
 
@@ -76,16 +84,28 @@ describe gemspec.full_name do
 
     describe "library" do
       describe "packaged" do
-        it "declares where headers are installed" do
+        describe "for nokogumbo" do
           # this is for nokogumbo and shouldn't be forever
-          assert_equal(nokogiri_ext_dir, Nokogiri::VERSION_INFO["libxml"]["libxml2_path"],
-                       "expected Nokogiri::VERSION_INFO to point to #{nokogiri_ext_dir}")
+          it "declares where headers are installed" do
+            assert_equal(nokogiri_ext_dir, Nokogiri::VERSION_INFO["libxml"]["libxml2_path"],
+                         "expected Nokogiri::VERSION_INFO to point to #{nokogiri_ext_dir}")
+          end
+
+          it "installs packaged libraries' headers" do
+            packaged_library_header_files.each do |header|
+              assert(File.file?(File.join(nokogiri_include_dir, header)),
+                     "expected #{header} to be installed in #{nokogiri_include_dir}")
+            end
+          end
         end
 
-        it "installs packaged libraries' headers" do
+        it "points to packaged libraries' headers" do
           packaged_library_header_files.each do |header|
-            assert(File.file?(File.join(nokogiri_include_dir, header)),
-                   "expected #{header} to be installed in #{nokogiri_include_dir}")
+            found = false
+            headers_dirs.each do |header_dir|
+              found = true if File.file?(File.join(header_dir, header))
+            end
+            assert(found, "expected to find #{header} in one of: #{headers_dirs.inspect}")
           end
         end
       end if Nokogiri::VersionInfo.instance.libxml2_using_packaged?

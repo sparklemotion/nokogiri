@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require "singleton"
+require "shellwords"
 
 module Nokogiri
   class VersionInfo # :nodoc:
@@ -72,9 +73,21 @@ module Nokogiri
     end
 
     def to_hash
+      header_directory = File.expand_path(File.join(File.dirname(__FILE__), "../../../ext/nokogiri"))
       {}.tap do |vi|
         vi["warnings"] = []
-        vi["nokogiri"] = Nokogiri::VERSION
+        vi["nokogiri"] = {}.tap do |nokogiri|
+          nokogiri["version"] = Nokogiri::VERSION
+
+          unless jruby?
+            cppflags = ["-I#{header_directory.shellescape}"]
+            if libxml2_using_packaged?
+              cppflags << "-I#{File.join(header_directory, "include").shellescape}"
+              cppflags << "-I#{File.join(header_directory, "include/libxml2").shellescape}"
+            end
+            nokogiri["cppflags"] = cppflags
+          end
+        end
         vi["ruby"] = {}.tap do |ruby|
           ruby["version"] = ::RUBY_VERSION
           ruby["platform"] = ::RUBY_PLATFORM
@@ -92,7 +105,7 @@ module Nokogiri
               libxml["patches"] = Nokogiri::LIBXML2_PATCHES
 
               # this is for nokogumbo and shouldn't be forever
-              libxml["libxml2_path"] = File.expand_path(File.join(File.dirname(__FILE__), "../../../ext/nokogiri"))
+              libxml["libxml2_path"] = header_directory
             else
               libxml["source"] = "system"
             end
