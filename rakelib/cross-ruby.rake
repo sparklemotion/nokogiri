@@ -344,11 +344,6 @@ else
     ext.cross_platform = CROSS_RUBIES.map(&:platform).uniq
     ext.cross_config_options << "--enable-cross-build"
     ext.cross_compiling do |spec|
-      libs = dependencies.map { |name, dep| "#{name}-#{dep["version"]}" }.join(', ')
-      spec.post_install_message = <<~EOS
-        Nokogiri is built with the packaged libraries: #{libs}.
-      EOS
-
       spec.files.reject! { |path| File.fnmatch?('ports/*', path) }
       spec.dependencies.reject! { |dep| dep.name=='mini_portile2' }
 
