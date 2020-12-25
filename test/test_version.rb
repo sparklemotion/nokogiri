@@ -29,12 +29,12 @@ module TestVersionInfoTests
 
   def test_version_info_for_xerces
     skip("xerces is only used for JRuby") unless Nokogiri.jruby?
-    assert_equal(Nokogiri::XERCES_VERSION, version_info["xerces"])
+    assert_equal(Nokogiri::XERCES_VERSION, version_info["other_libraries"]["xerces"])
   end
 
   def test_version_info_for_nekohtml
     skip("nekohtml is only used for JRuby") unless Nokogiri.jruby?
-    assert_equal(Nokogiri::NEKO_VERSION, version_info["nekohtml"])
+    assert_equal(Nokogiri::NEKO_VERSION, version_info["other_libraries"]["nekohtml"])
   end
 
   def test_version_info_for_libxml
