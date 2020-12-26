@@ -33,6 +33,8 @@
 package nokogiri;
 
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.TransformerException;
 
@@ -68,7 +70,6 @@ import static nokogiri.internals.NokogiriHelpers.nodeListToRubyArray;
  */
 @JRubyClass(name="Nokogiri::XML::XPathContext")
 public class XmlXpathContext extends RubyObject {
-
     static {
         final String DTMManager = "org.apache.xml.dtm.DTMManager";
         if (SafePropertyAccessor.getProperty(DTMManager) == null) {
@@ -109,25 +110,53 @@ public class XmlXpathContext extends RubyObject {
         }
     }
 
-    @JRubyMethod
-    public IRubyObject evaluate(ThreadContext context, IRubyObject expr, IRubyObject handler) {
 
-        String src = expr.convertToString().asJavaString();
-        if (!handler.isNil()) {
-            if (!isContainsPrefix(src)) {
-                StringBuilder replacement = new StringBuilder();
-                Set<String> methodNames = handler.getMetaClass().getMethods().keySet();
-                final String PREFIX = NokogiriNamespaceContext.NOKOGIRI_PREFIX;
-                for (String name : methodNames) {
-                    replacement.setLength(0);
-                    replacement.ensureCapacity(PREFIX.length() + 1 + name.length());
-                    replacement.append(PREFIX).append(':').append(name);
-                    src = src.replace(name, replacement); // replace(name, NOKOGIRI_PREFIX + ':' + name)
+    // see https://en.wikipedia.org/wiki/QName
+    private static final String NameStartCharStr = "[_A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]" ;
+    private static final String NameCharStr = "[-\\.0-9\u00B7\u0300-\u036F\u203F-\u2040]|" + NameStartCharStr ;
+    private static final String NCNameStr = "(?:" + NameStartCharStr + ")(?:" + NameCharStr + ")*";
+    private static final String XPathFunctionCaptureStr = "(" + NCNameStr + "(?=\\())";
+    private static final Pattern XPathFunctionCaptureRE = Pattern.compile(XPathFunctionCaptureStr);
+
+    @JRubyMethod
+    public IRubyObject evaluate(ThreadContext context, IRubyObject rbQuery, IRubyObject handler) {
+        String query = rbQuery.convertToString().asJavaString();
+
+        if (!handler.isNil() && !isContainsPrefix(query)) {
+            //
+            //  The user has passed in a handler, but isn't using the `nokogiri:` prefix as
+            //  instructed in JRuby land, so let's try to be clever and rewrite the query, inserting
+            //  the nokogiri namespace where appropriate.
+            //
+            StringBuilder namespacedQuery = new StringBuilder();
+            int jchar = 0;
+
+            // Find the methods on the handler object
+            Set<String> methodNames = handler.getMetaClass().getMethods().keySet();
+
+            // Find the function calls in the xpath query
+            Matcher xpathFunctionCalls = XPathFunctionCaptureRE.matcher(query);
+
+            while (xpathFunctionCalls.find()) {
+                namespacedQuery.append(query.subSequence(jchar, xpathFunctionCalls.start()));
+                jchar = xpathFunctionCalls.start();
+
+                if (methodNames.contains(xpathFunctionCalls.group())) {
+                    namespacedQuery.append(NokogiriNamespaceContext.NOKOGIRI_PREFIX);
+                    namespacedQuery.append(":");
                 }
+
+                namespacedQuery.append(query.subSequence(xpathFunctionCalls.start(), xpathFunctionCalls.end()));
+                jchar = xpathFunctionCalls.end();
             }
+
+            if (jchar < query.length()-1) {
+                namespacedQuery.append(query.subSequence(jchar, query.length()));
+            }
+            query = namespacedQuery.toString();
         }
 
-        return node_set(context, src, handler);
+        return node_set(context, query, handler);
     }
 
     @JRubyMethod

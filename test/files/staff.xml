@@ -35,7 +35,7 @@
   <employeeId>EMP0003</employeeId>
   <name>Roger
  Jones</name>
-  <position>Department Manager</position>
+  <position id='partial_collision_id'>Department Manager</position>
   <salary>100,000</salary>
   <gender>&ent4;</gender>
   <address domestic="Yes" street="No">PO Box 27 Irving, texas 98553</address>

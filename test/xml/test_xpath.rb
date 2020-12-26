@@ -35,6 +35,11 @@ module Nokogiri
             thing
           end
 
+          def another_thing thing
+            @things << thing
+            thing
+          end
+
           def returns_array node_set
             @things << node_set.to_a
             node_set.to_a
@@ -526,6 +531,41 @@ module Nokogiri
             refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'er')"))
             refute(@doc.xpath("nokogiri-builtin:css-class('a#{ws}qwer#{ws}b', 'r')"))
           end
+        end
+      end
+
+      describe "jruby inferring XPath functions from the handler methods" do
+        it "should not get confused simply by a string similarity" do
+          # https://github.com/sparklemotion/nokogiri/pull/1890
+          # this describes a bug where XmlXpathContext naively replaced query substrings using method names
+          handler = Class.new do
+            def collision(nodes)
+              nil
+            end
+          end.new
+          found_by_id = @xml.xpath("//*[@id='partial_collision_id']", handler)
+          assert_equal 1, found_by_id.length
+        end
+
+        it "handles multiple handler function calls" do
+          # test that jruby handles this case identically to C
+          result = @xml.xpath('//employee[thing(.)]/employeeId[another_thing(.)]', @handler)
+          assert_equal(5, result.length)
+          assert_equal(10, @handler.things.length)
+        end
+
+        it "doesn't get confused by an XPath function, flavor 1" do
+          # test that it doesn't get confused by an XPath function
+          result = @xml.xpath('//employee[thing(.)]/employeeId[last()]', @handler)
+          assert_equal(5, result.length)
+          assert_equal(5, @handler.things.length)
+        end
+
+        it "doesn't get confused by an XPath function, flavor 2" do
+          # test that it doesn't get confused by an XPath function
+          result = @xml.xpath('//employee[last()]/employeeId[thing(.)]', @handler)
+          assert_equal(1, result.length)
+          assert_equal(1, @handler.things.length)
         end
       end
     end
