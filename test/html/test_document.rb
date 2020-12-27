@@ -774,9 +774,10 @@ module Nokogiri
             let(:parse_options) { html_strict }
 
             it "raises exception on parse error" do
-              assert_raises Nokogiri::SyntaxError do
+              exception = assert_raises Nokogiri::SyntaxError do
                 Nokogiri::HTML.parse(input, nil, nil, parse_options)
               end
+              assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
             end
           end
 
@@ -795,9 +796,10 @@ module Nokogiri
             let(:parse_options) { html_strict }
 
             it "raises exception on parse error" do
-              assert_raises Nokogiri::SyntaxError do
+              exception = assert_raises Nokogiri::SyntaxError do
                 Nokogiri::HTML.parse(input, nil, nil, parse_options)
               end
+              assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
             end
           end
 

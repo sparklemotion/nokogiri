@@ -35,9 +35,11 @@ package nokogiri.internals;
 import static nokogiri.internals.NokogiriHelpers.getNokogiriClass;
 import static nokogiri.internals.NokogiriHelpers.isNamespace;
 import static nokogiri.internals.NokogiriHelpers.stringOrNil;
+
 import nokogiri.HtmlDocument;
 import nokogiri.NokogiriService;
 import nokogiri.XmlDocument;
+import nokogiri.XmlSyntaxError;
 
 import org.apache.xerces.xni.Augmentations;
 import org.apache.xerces.xni.QName;
@@ -75,15 +77,6 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     }
 
     @Override
-    protected void initErrorHandler() {
-        if (options.strict) {
-            errorHandler = new NokogiriStrictErrorHandler(options.noError, options.noWarning);
-        } else {
-            errorHandler = new NokogiriNonStrictErrorHandler4NekoHtml(options.noError, options.noWarning);
-        }
-    }
-
-    @Override
     protected void initParser(Ruby runtime) {
         XMLParserConfiguration config = new HTMLConfiguration();
         //XMLDocumentFilter removeNSAttrsFilter = new RemoveNSAttrsFilter();
@@ -116,6 +109,24 @@ public class HtmlDomParserContext extends XmlDomParserContext {
      */
     public void enableDocumentFragment() {
         setFeature("http://cyberneko.org/html/features/balance-tags/document-fragment", true);
+    }
+
+    @Override
+    public XmlDocument parse(ThreadContext context, RubyClass klass, IRubyObject url) {
+        XmlDocument xmlDoc = super.parse(context, klass, url);
+
+        // let's be consistent in how we handle RECOVER and NORECOVER (a.k.a. STRICT)
+        // https://github.com/sparklemotion/nokogiri/issues/2130
+        if (!options.recover && errorHandler.getErrors().size() > 0) {
+            XmlSyntaxError xmlSyntaxError = XmlSyntaxError.createXMLSyntaxError(context.runtime);
+            String exceptionMsg = String.format("%s: '%s'",
+                                                "Parser without recover option encountered error or warning",
+                                                errorHandler.getErrors().get(0));
+            xmlSyntaxError.setException(new Exception(exceptionMsg));
+            throw xmlSyntaxError.toThrowable();
+        }
+
+        return xmlDoc;
     }
 
     @Override
