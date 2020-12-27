@@ -368,9 +368,12 @@ module Nokogiri
       end
 
       def test_document_compare
-        skip "underlying libxml2 behavior changed in libxml2@a005199"
         nodes = @xml.xpath('//employee')
-        assert_equal(-1, (nodes.first <=> @xml)) # post-libxml2@a005199, returns 1
+        if Nokogiri.uses_libxml?("< 2.9.5")
+          assert_equal(-1, (nodes.first <=> @xml))
+        else
+          assert_equal(1, (nodes.first <=> @xml))
+        end
       end
 
       def test_different_document_compare

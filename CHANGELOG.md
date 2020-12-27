@@ -114,6 +114,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 * [Windows Visual C++] Fixed compiler warnings and errors. [[#2061](https://github.com/sparklemotion/nokogiri/issues/2061), [#2068](https://github.com/sparklemotion/nokogiri/issues/2068)]
 * [JRuby] Standardize reading from IO like objects, including StringIO. [[#1888](https://github.com/sparklemotion/nokogiri/issues/1888), [#1897](https://github.com/sparklemotion/nokogiri/issues/1897)]
 * [JRuby] XML::Schema XSD validation errors are captured in `XML::Schema#errors`. These errors were previously ignored.
+* [JRuby] Comparison of Node to Document with `Node#<=>` now matches CRuby/libxml2 behavior.
 * [JRuby] Fixed document encoding regression in v1.11.0 release candidates. [[#2080](https://github.com/sparklemotion/nokogiri/issues/2080), [#2083](https://github.com/sparklemotion/nokogiri/issues/2083)] (Thanks, [@thbar](https://github.com/thbar)!)
 
 
