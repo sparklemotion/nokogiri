@@ -4,15 +4,12 @@ require "helper"
 module Nokogiri
   module HTML
     class TestDocument < Nokogiri::TestCase
-      def setup
-        super
-        @html = Nokogiri::HTML.parse(File.read(HTML_FILE))
-      end
+      let(:html) { Nokogiri::HTML.parse(File.read(HTML_FILE)) }
 
       def test_nil_css
         # Behavior is undefined but shouldn't break
-        assert(@html.css(nil))
-        assert(@html.xpath(nil))
+        assert(html.css(nil))
+        assert(html.xpath(nil))
       end
 
       def test_does_not_fail_with_illformatted_html
@@ -21,7 +18,7 @@ module Nokogiri
       end
 
       def test_exceptions_remove_newlines
-        errors = @html.errors
+        errors = html.errors
         assert(errors.length > 0, "has errors")
         errors.each do |error|
           assert_equal(error.to_s.chomp, error.to_s)
@@ -29,7 +26,7 @@ module Nokogiri
       end
 
       def test_fragment
-        fragment = @html.fragment
+        fragment = html.fragment
         assert_equal(0, fragment.children.length)
       end
 
@@ -82,13 +79,13 @@ module Nokogiri
       def test_subclass_parse
         klass = Class.new(Nokogiri::HTML::Document)
         doc = klass.parse(File.read(HTML_FILE))
-        assert_equal(@html.to_s, doc.to_s)
+        assert_equal(html.to_s, doc.to_s)
         assert_instance_of(klass, doc)
       end
 
       def test_document_parse_method
         html = Nokogiri::HTML::Document.parse(File.read(HTML_FILE))
-        assert_equal(@html.to_s, html.to_s)
+        assert_equal(html.to_s, html.to_s)
       end
 
       def test_document_parse_method_with_url
@@ -124,18 +121,18 @@ module Nokogiri
 
       def test_swap_should_not_exist
         assert_raises(NoMethodError) do
-          @html.swap
+          html.swap
         end
       end
 
       def test_namespace_should_not_exist
         assert_raises(NoMethodError) do
-          @html.namespace
+          html.namespace
         end
       end
 
       def test_meta_encoding
-        assert_equal("UTF-8", @html.meta_encoding)
+        assert_equal("UTF-8", html.meta_encoding)
       end
 
       def test_meta_encoding_is_strict_about_http_equiv
@@ -181,12 +178,12 @@ module Nokogiri
       end
 
       def test_meta_encoding=
-        @html.meta_encoding = "EUC-JP"
-        assert_equal("EUC-JP", @html.meta_encoding)
+        html.meta_encoding = "EUC-JP"
+        assert_equal("EUC-JP", html.meta_encoding)
       end
 
       def test_title
-        assert_equal("Tender Lovemaking  ", @html.title)
+        assert_equal("Tender Lovemaking  ", html.title)
         doc = Nokogiri::HTML("<html><body>foo</body></html>")
         assert_nil(doc.title)
       end
@@ -320,8 +317,8 @@ module Nokogiri
       end
 
       def test_root_node_parent_is_document
-        parent = @html.root.parent
-        assert_equal(@html, parent)
+        parent = html.root.parent
+        assert_equal(html, parent)
         assert_instance_of(Nokogiri::HTML::Document, parent)
       end
 
@@ -374,9 +371,9 @@ module Nokogiri
       end
 
       def test_to_xhtml
-        assert_match("XHTML", @html.to_xhtml)
-        assert_match("XHTML", @html.to_xhtml(encoding: "UTF-8"))
-        assert_match("UTF-8", @html.to_xhtml(encoding: "UTF-8"))
+        assert_match("XHTML", html.to_xhtml)
+        assert_match("XHTML", html.to_xhtml(encoding: "UTF-8"))
+        assert_match("UTF-8", html.to_xhtml(encoding: "UTF-8"))
       end
 
       def test_no_xml_header
@@ -473,32 +470,32 @@ module Nokogiri
       end
 
       def test_find_by_xpath
-        found = @html.xpath("//div/a")
+        found = html.xpath("//div/a")
         assert_equal(3, found.length)
       end
 
       def test_find_by_css
-        found = @html.css("div > a")
+        found = html.css("div > a")
         assert_equal(3, found.length)
       end
 
       def test_find_by_css_with_square_brackets
-        found = @html.css("div[@id='header'] > h1")
-        found = @html.css("div[@id='header'] h1") # this blows up on commit 6fa0f6d329d9dbf1cc21c0ac72f7e627bb4c05fc
+        found = html.css("div[@id='header'] > h1")
+        found = html.css("div[@id='header'] h1") # this blows up on commit 6fa0f6d329d9dbf1cc21c0ac72f7e627bb4c05fc
         assert_equal(1, found.length)
       end
 
       def test_find_by_css_with_escaped_characters
-        found_without_escape = @html.css("div[@id='abc.123']")
-        found_by_id = @html.css('#abc\.123')
-        found_by_class = @html.css('.special\.character')
+        found_without_escape = html.css("div[@id='abc.123']")
+        found_by_id = html.css('#abc\.123')
+        found_by_class = html.css('.special\.character')
         assert_equal(1, found_without_escape.length)
         assert_equal(found_by_id, found_without_escape)
         assert_equal(found_by_class, found_without_escape)
       end
 
       def test_find_with_function
-        assert(@html.css("div:awesome() h1", Class.new do
+        assert(html.css("div:awesome() h1", Class.new do
           def awesome(divs)
             [divs.first]
           end
@@ -506,35 +503,35 @@ module Nokogiri
       end
 
       def test_dup_shallow
-        found = @html.search("//div/a").first
+        found = html.search("//div/a").first
         dup = found.dup(0)
         assert(dup)
         assert_equal("", dup.content)
       end
 
       def test_search_can_handle_xpath_and_css
-        found = @html.search("//div/a", "div > p")
-        length = @html.xpath("//div/a").length +
-                 @html.css("div > p").length
+        found = html.search("//div/a", "div > p")
+        length = html.xpath("//div/a").length +
+                 html.css("div > p").length
         assert_equal(length, found.length)
       end
 
       def test_dup_document
-        assert(dup = @html.dup)
-        assert_not_equal(dup, @html)
-        assert(@html.html?)
+        assert(dup = html.dup)
+        assert_not_equal(dup, html)
+        assert(html.html?)
         assert_instance_of(Nokogiri::HTML::Document, dup)
         assert(dup.html?, "duplicate should be html")
-        assert_equal(@html.to_s, dup.to_s)
+        assert_equal(html.to_s, dup.to_s)
       end
 
       def test_dup_document_shallow
-        assert(dup = @html.dup(0))
-        assert_not_equal(dup, @html)
+        assert(dup = html.dup(0))
+        assert_not_equal(dup, html)
       end
 
       def test_dup
-        found = @html.search("//div/a").first
+        found = html.search("//div/a").first
         dup = found.dup
         assert(dup)
         assert_equal(found.content, dup.content)
@@ -569,8 +566,8 @@ module Nokogiri
       end
 
       def test_round_trip
-        doc = Nokogiri::HTML(@html.inner_html)
-        assert_equal(@html.root.to_html, doc.root.to_html)
+        doc = Nokogiri::HTML(html.inner_html)
+        assert_equal(html.root.to_html, doc.root.to_html)
       end
 
       def test_fragment_contains_text_node
@@ -655,13 +652,13 @@ module Nokogiri
       end
 
       def test_html?
-        assert(!@html.xml?)
-        assert(@html.html?)
+        assert(!html.xml?)
+        assert(html.html?)
       end
 
       def test_serialize
-        assert(@html.serialize)
-        assert(@html.to_html)
+        assert(html.serialize)
+        assert(html.to_html)
       end
 
       def test_empty_document
