@@ -105,6 +105,7 @@ See note below about CVE-2020-26247 in the "Changed" subsection entitled "XML::S
 
 ### Fixed
 
+* HTML Parsing in "strict" mode (i.e., the `RECOVER` parse option not set) now correctly raises a `XML::SyntaxError` exception. Previously the value of the `RECOVER` bit was being ignored by CRuby and was misinterpreted by JRuby. [[#2130](https://github.com/sparklemotion/nokogiri/issues/2130)]
 * The CSS `~=` operator now correctly handles non-space whitespace in the `class` attribute. commit e45dedd
 * The switch to turn off the CSS-to-XPath cache is now thread-local, rather than being shared mutable state. [[#1935](https://github.com/sparklemotion/nokogiri/issues/1935)]
 * The Node methods `add_previous_sibling`, `previous=`, `before`, `add_next_sibling`, `next=`, `after`, `replace`, and `swap` now correctly use their parent as the context node for parsing markup. These methods now also raise a `RuntimeError` if they are called on a node with no parent. [[nokogumbo#160](https://github.com/rubys/nokogumbo/issues/160)]
@@ -137,6 +138,15 @@ This behavior is counter to the security policy intended by Nokogiri maintainers
 Please note that this security fix was pushed into a new minor version, 1.11.x, rather than a patch release to the 1.10.x branch, because it is a breaking change for some schemas and the risk was assessed to be "Low Severity".
 
 More information and instructions for enabling "trusted input" behavior in v1.11.0.rc4 and later is available at the [public advisory](https://github.com/sparklemotion/nokogiri/security/advisories/GHSA-vr8q-g5c7-m54m).
+
+
+#### HTML parser now obeys the `strict` or `norecover` parsing option
+
+(Also noted above in the "Fixed" section) HTML Parsing in "strict" mode (i.e., the `RECOVER` parse option not set) now correctly raises a `XML::SyntaxError` exception. Previously the value of the `RECOVER` bit was being ignored by CRuby and was misinterpreted by JRuby.
+
+If you're using the default parser options, you will be unaffected by this fix. If you're passing `strict` or `norecover` to your HTML parser call, you may be surprised to see that the parser now fails to recover and raises a `XML::SyntaxError` exception. Given the number of HTML documents on the internet that libxml2 would consider to be ill-formed, this is probably not what you want, and you can omit setting that parse option to restore the behavior that you have been relying upon.
+
+Apologies to anyone inconvenienced by this breaking bugfix being present in a minor release, but I felt it was appropriate to introduce this fix because it's straightforward to fix any code that has been relying on this buggy behavior.
 
 
 #### `VersionInfo`, the output of `nokogiri -v`, and related constants

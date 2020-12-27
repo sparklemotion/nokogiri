@@ -339,13 +339,6 @@ module Nokogiri
         assert(html.html?)
       end
 
-      def test_parse_io
-        assert(File.open(HTML_FILE, "rb") do |f|
-          Document.read_io(f, nil, "UTF-8",
-                           XML::ParseOptions::NOERROR | XML::ParseOptions::NOWARNING)
-        end)
-      end
-
       def test_parse_works_with_an_object_that_responds_to_read
         klass = Class.new do
           def initialize
@@ -797,7 +790,7 @@ module Nokogiri
 
             it "raises exception on parse error" do
               exception = assert_raises Nokogiri::SyntaxError do
-                Nokogiri::HTML.parse(input, nil, nil, parse_options)
+                Nokogiri::HTML.parse(input, nil, "UTF-8", parse_options)
               end
               assert_match(/Parser without recover option encountered error or warning/, exception.to_s)
             end
@@ -805,7 +798,7 @@ module Nokogiri
 
           describe "default options" do
             it "does not raise exception on parse error" do
-              doc = Nokogiri::HTML.parse(input)
+              doc = Nokogiri::HTML.parse(input, nil, "UTF-8")
               assert_operator(doc.errors.length, :>, 0)
             end
           end
