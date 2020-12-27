@@ -65,7 +65,7 @@ import org.w3c.dom.NodeList;
  */
 public class HtmlDomParserContext extends XmlDomParserContext {
 
-	public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
+    public HtmlDomParserContext(Ruby runtime, IRubyObject options) {
         this(runtime, runtime.getNil(), options);
     }
 
@@ -106,7 +106,7 @@ public class HtmlDomParserContext extends XmlDomParserContext {
     
     @Override
     public void setEncoding(String encoding) {
-		super.setEncoding(encoding);
+        super.setEncoding(encoding);
     }
 
     /**
@@ -190,32 +190,32 @@ public class HtmlDomParserContext extends XmlDomParserContext {
         
         // element names from xhtml1-strict.dtd
         private static String[][] element_names = {
-                {"a", "abbr", "acronym", "address", "area"},
-                {"b", "base", "basefont", "bdo", "big", "blockquote", "body", "br", "button"},
-                {"caption", "cite", "code", "col", "colgroup"},
-                {"dd", "del", "dfn", "div", "dl", "dt"},
-                {"em"},
-                {"fieldset", "font", "form", "frame", "frameset"},
-                {}, // g
-                {"h1", "h2", "h3", "h4", "h5", "h6", "head", "hr", "html"},
-                {"i", "iframe", "img", "input", "ins"},
-                {}, // j
-                {"kbd"},
-                {"label", "legend", "li", "link"},
-                {"map", "meta"},
-                {"noframes", "noscript"},
-                {"object", "ol", "optgroup", "option"},
-                {"p", "param", "pre"},
-                {"q"},
-                {}, // r
-                {"s", "samp", "script", "select", "small", "span", "strike", "strong", "style", "sub", "sup"},
-                {"table", "tbody", "td", "textarea", "tfoot", "th", "thead", "title", "tr", "tt"},
-                {"u", "ul"},
-                {"var"},
-                {}, // w
-                {}, // x
-                {}, // y
-                {}  // z
+            {"a", "abbr", "acronym", "address", "area"},
+            {"b", "base", "basefont", "bdo", "big", "blockquote", "body", "br", "button"},
+            {"caption", "cite", "code", "col", "colgroup"},
+            {"dd", "del", "dfn", "div", "dl", "dt"},
+            {"em"},
+            {"fieldset", "font", "form", "frame", "frameset"},
+            {}, // g
+            {"h1", "h2", "h3", "h4", "h5", "h6", "head", "hr", "html"},
+            {"i", "iframe", "img", "input", "ins"},
+            {}, // j
+            {"kbd"},
+            {"label", "legend", "li", "link"},
+            {"map", "meta"},
+            {"noframes", "noscript"},
+            {"object", "ol", "optgroup", "option"},
+            {"p", "param", "pre"},
+            {"q"},
+            {}, // r
+            {"s", "samp", "script", "select", "small", "span", "strike", "strong", "style", "sub", "sup"},
+            {"table", "tbody", "td", "textarea", "tfoot", "th", "thead", "title", "tr", "tt"},
+            {"u", "ul"},
+            {"var"},
+            {}, // w
+            {}, // x
+            {}, // y
+            {}  // z
         };
         
         private static boolean isValid(final String name) {
