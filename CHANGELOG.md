@@ -299,6 +299,8 @@ This CVE's public notice is [#1915](https://github.com/sparklemotion/nokogiri/is
 * [MRI] Address a memory leak when unparenting a DTD. [[#1784](https://github.com/sparklemotion/nokogiri/issues/1784)] (Thanks, [@stevecheckoway](https://github.com/stevecheckoway)!)
 * [MRI] Use RbConfig::CONFIG instead of ::MAKEFILE_CONFIG to fix installations that use Makefile macros. [[#1820](https://github.com/sparklemotion/nokogiri/issues/1820)] (Thanks, [@nobu](https://github.com/nobu)!)
 * [JRuby] Decrease large memory usage when making nested XPath queries. [[#1749](https://github.com/sparklemotion/nokogiri/issues/1749)]
+* [JRuby] Fix how custom XPath function namespaces are inferred to be less naive. [#1890, #2148]
+* [JRuby] Clarify exception message when custom XPath functions can't be resolved.
 * [JRuby] Fix failing tests on JRuby 9.2.x
 * [JRuby] Fix default namespaces in nodes reparented into a different document [[#1774](https://github.com/sparklemotion/nokogiri/issues/1774)]
 * [JRuby] Fix support for Java 9. [[#1759](https://github.com/sparklemotion/nokogiri/issues/1759)] (Thanks, [@Taywee](https://github.com/Taywee)!)
