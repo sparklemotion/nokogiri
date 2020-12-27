@@ -4,8 +4,11 @@ SimpleCov.start do
 end
 
 $VERBOSE = true
+
 require 'minitest/autorun'
-require 'minitest/pride'
+require 'minitest/reporters'
+Minitest::Reporters.use!(Minitest::Reporters::DefaultReporter.new({color: true, slow_count: 5, detailed_skip: false}))
+
 require 'fileutils'
 require 'tempfile'
 require 'pp'
