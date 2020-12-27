@@ -990,7 +990,7 @@ module Nokogiri
       end
 
       def test_java_integration
-        skip("Ruby doesn't have the wrap method") unless Nokogiri.jruby?
+        skip("CRuby doesn't have the Document#wrap method") unless Nokogiri.jruby?
         noko_doc = wrap_java_document
         assert_equal "foo", noko_doc.root.name
 
@@ -1005,7 +1005,7 @@ eoxml
       end
 
       def test_add_child
-        skip("Ruby doesn't have the wrap method") unless Nokogiri.jruby?
+        skip("CRuby doesn't have the Document#wrap method") unless Nokogiri.jruby?
         doc = wrap_java_document
         doc.root.add_child "<bar />"
       end
