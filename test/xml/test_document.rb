@@ -1015,6 +1015,61 @@ eoxml
         Nokogiri::XML f
         f.close
       end
+
+      describe "XML::Document.parse" do
+        # establish baseline behavior for HTML document behavior in
+        # https://github.com/sparklemotion/nokogiri/issues/2130
+        # (see similar tests in test/html/test_document.rb)
+        let(:xml_strict) do
+          Nokogiri::XML::ParseOptions.new(Nokogiri::XML::ParseOptions::DEFAULT_XML).norecover
+        end
+
+        it "sets the test up correctly" do
+          assert(xml_strict.strict?)
+        end
+
+        describe "read memory" do
+          let(:input) { "<html><body><div" }
+
+          describe "strict parsing" do
+            let(:parse_options) { xml_strict }
+
+            it "raises exception on parse error" do
+              assert_raises Nokogiri::SyntaxError do
+                Nokogiri::XML.parse(input, nil, nil, parse_options)
+              end
+            end
+          end
+
+          describe "default options" do
+            it "does not raise exception on parse error" do
+              doc = Nokogiri::XML.parse(input)
+              assert_operator(doc.errors.length, :>, 0)
+            end
+          end
+        end
+
+        describe "read io" do
+          let(:input) { StringIO.new("<html><body><div") }
+
+          describe "strict parsing" do
+            let(:parse_options) { xml_strict }
+
+            it "raises exception on parse error" do
+              assert_raises Nokogiri::SyntaxError do
+                Nokogiri::XML.parse(input, nil, nil, parse_options)
+              end
+            end
+          end
+
+          describe "default options" do
+            it "does not raise exception on parse error" do
+              doc = Nokogiri::XML.parse(input)
+              assert_operator(doc.errors.length, :>, 0)
+            end
+          end
+        end
+      end
     end
   end
 end

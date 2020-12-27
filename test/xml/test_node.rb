@@ -116,12 +116,11 @@ module Nokogiri
       def test_node_context_parsing_of_malformed_html_fragment_without_recover_is_not_corrected
         doc = HTML.parse "<html><body><div></div></body></html>"
         context_node = doc.at_css "div"
-        nodeset = context_node.parse("<div </div>") do |options|
-          options.strict
+        assert_raises(Nokogiri::XML::SyntaxError) do
+          context_node.parse("<div </div>") do |options|
+            options.strict
+          end
         end
-
-        assert_equal 1, doc.errors.length
-        assert_equal 0, nodeset.length
       end
 
       def test_parse_error_list
